@@ -9,6 +9,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/progressmanager/taskprogress.h>
 
+#include <utils/ansiescapecodehandler.h>
 #include <utils/qtcassert.h>
 
 using namespace Core;
@@ -80,6 +81,11 @@ DiffEditorController *DiffEditorController::controller(IDocument *document)
 void DiffEditorController::setDiffFiles(const QList<FileData> &diffFileList)
 {
     m_document->setDiffFiles(diffFileList);
+}
+
+void DiffEditorController::setAnsiEnabled(bool enabled)
+{
+    m_document->setDescriptionAnsiEnabled(enabled);
 }
 
 void DiffEditorController::setDescription(const QString &description)

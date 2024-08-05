@@ -26,6 +26,7 @@
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
+#include <utils/ansiescapecodehandler.h>
 #include <utils/fileutils.h>
 #include <utils/guard.h>
 #include <utils/qtcassert.h>
@@ -442,7 +443,11 @@ void DiffEditor::updateDescription()
     QTC_ASSERT(m_toolBar, return);
 
     const QString description = m_document->description();
-    m_descriptionWidget->setPlainText(description);
+
+    if (m_document->isDescriptionAnsiEnabled())
+        AnsiEscapeCodeHandler::setTextInEditor(m_descriptionWidget, description);
+    else
+        m_descriptionWidget->setPlainText(description);
     m_descriptionWidget->setVisible(m_showDescription && !description.isEmpty());
 
     const QString actionText = m_showDescription ? Tr::tr("Hide Change Description")

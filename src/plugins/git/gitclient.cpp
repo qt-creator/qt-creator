@@ -22,9 +22,9 @@
 #include <diffeditor/diffeditorconstants.h>
 
 #include <texteditor/fontsettings.h>
-#include <texteditor/syntaxhighlighter.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/ansiescapecodehandler.h>
 #include <utils/async.h>
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
@@ -68,109 +68,14 @@ const char colorOption[] = "--color=always";
 const char patchOption[] = "--patch";
 const char graphOption[] = "--graph";
 const char decorateOption[] = "--decorate";
-const char showFormatC[] =
-        "--pretty=format:commit %H%d%n"
-        "Author: %aN <%aE>, %ad (%ar)%n"
-        "Committer: %cN <%cE>, %cd (%cr)%n"
-        "%n"
-        "%B";
 
 using namespace Core;
 using namespace DiffEditor;
 using namespace Tasking;
-using namespace TextEditor;
 using namespace Utils;
 using namespace VcsBase;
 
 namespace Git::Internal {
-
-static const QRegularExpression s_commitPattern("commit ([a-f0-9]{7,40})(.*)");
-static const QRegularExpression s_authorPattern("(?:Author|Committer): (.*>), (.*)");
-static const QRegularExpression s_branchesPattern("(?:Branches|Precedes|Follows): (.*)");
-static const QRegularExpression s_keywordPattern("^[\\w-]+:");
-static const QRegularExpression s_changeNumberPattern("\\b[a-f0-9]{7,40}\\b");
-
-static QColor colorForStyle(TextStyle style)
-{
-    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
-    const QColor color = scheme.formatFor(style).foreground();
-    if (color.isValid())
-        return color;
-    return scheme.formatFor(C_TEXT).foreground();
-}
-
-class GitDescriptionHighlighter : public SyntaxHighlighter
-{
-public:
-    void highlightBlock(const QString &text) final
-    {
-        const QRegularExpressionMatch commitMatch = s_commitPattern.match(text);
-        if (commitMatch.hasMatch()) {
-            m_state = Commit;
-            setStyle(commitMatch.capturedStart(1), commitMatch.capturedLength(1), C_LOG_COMMIT_HASH);
-            setStyle(commitMatch.capturedStart(2), commitMatch.capturedLength(2), C_LOG_DECORATION);
-            return;
-        }
-
-        const QRegularExpressionMatch authorMatch = s_authorPattern.match(text);
-        if (authorMatch.hasMatch()) {
-            m_state = Author;
-            setStyle(authorMatch.capturedStart(1), authorMatch.capturedLength(1), C_LOG_AUTHOR_NAME);
-            setStyle(authorMatch.capturedStart(2), authorMatch.capturedLength(2), C_LOG_COMMIT_DATE);
-            return;
-        }
-
-        const QRegularExpressionMatch branchesMatch = s_branchesPattern.match(text);
-        if (branchesMatch.hasMatch()) {
-            m_state = Branches;
-            setStyle(branchesMatch.capturedStart(1), branchesMatch.capturedLength(1), C_LOG_DECORATION);
-            return;
-        }
-
-        if (m_state == Branches) {
-            if (text.isEmpty())
-                m_state = Subject;
-            else
-                setStyle(0, text.length(), C_LOG_DECORATION);
-            return;
-        }
-
-        if ((m_state == Subject) && !text.isEmpty()) {
-            setStyle(0, text.length(), C_LOG_COMMIT_SUBJECT);
-            m_state = Body;
-            return;
-        }
-
-        setStyle(0, text.length(), C_TEXT);
-
-        const QRegularExpressionMatch keywordMatch = s_keywordPattern.match(text);
-        if (keywordMatch.hasMatch() && keywordMatch.capturedStart() == 0) {
-            QTextCharFormat charFormat = format(0);
-            charFormat.setFontItalic(true);
-            setFormat(0, keywordMatch.capturedLength(), charFormat);
-        }
-
-        QRegularExpressionMatchIterator it = s_changeNumberPattern.globalMatch(text);
-        while (it.hasNext()) {
-            const QRegularExpressionMatch match = it.next();
-            setStyle(match.capturedStart(), match.capturedLength(), C_LOG_COMMIT_HASH);
-        }
-    }
-
-private:
-    void setStyle(int start, int size, TextStyle style)
-    {
-        setFormat(start, size, colorForStyle(style));
-    }
-
-    enum State {
-        Commit,
-        Author,
-        Branches,
-        Subject,
-        Body
-    } m_state = Commit;
-};
 
 static QString branchesDisplay(const QString &prefix, QStringList *branches, bool *first)
 {
@@ -197,6 +102,17 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
         output += ' ' + Tr::tr("and %n more", nullptr, more);
     return output;
 }
+
+static QString logColorName(TextEditor::TextStyle style)
+{
+    using namespace TextEditor;
+
+    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
+    QColor color = scheme.formatFor(style).foreground();
+    if (!color.isValid())
+        color = scheme.formatFor(C_TEXT).foreground();
+    return color.name();
+};
 
 ///////////////////////////////
 
@@ -348,7 +264,6 @@ GitDiffEditorController::GitDiffEditorController(IDocument *document,
 GitBaseDiffEditorController::GitBaseDiffEditorController(IDocument *document)
     : VcsBaseDiffEditorController(document)
 {
-    setDescriptionSyntaxHighlighterCreator([] { return new GitDescriptionHighlighter; });
     setDisplayName("Git Diff");
 }
 
@@ -440,7 +355,6 @@ FileListDiffController::FileListDiffController(IDocument *document, const QStrin
 
 class ShowController : public GitBaseDiffEditorController
 {
-    Q_OBJECT
 public:
     ShowController(IDocument *document, const QString &id);
 };
@@ -449,7 +363,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
     : GitBaseDiffEditorController(document)
 {
     setDisplayName("Git Show");
+    setAnsiEnabled(true);
     static const QString busyMessage = Tr::tr("<resolving>");
+    const QColor color = QColor::fromString(logColorName(TextEditor::C_LOG_DECORATION));
+    const QString decorateColor = AnsiEscapeCodeHandler::ansiFromColor(color);
+    const QString noColor = AnsiEscapeCodeHandler::noColor();
 
     struct ReloadStorage {
         bool m_postProcessDescription = false;
@@ -464,26 +382,39 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const Storage<ReloadStorage> storage;
 
-    const auto updateDescription = [this](const ReloadStorage &storage) {
+    const auto updateDescription = [this, decorateColor, noColor](const ReloadStorage &storage) {
         QString desc = storage.m_header;
         if (!storage.m_branches.isEmpty())
             desc.append(BRANCHES_PREFIX + storage.m_branches + '\n');
         if (!storage.m_precedes.isEmpty())
-            desc.append("Precedes: " + storage.m_precedes + '\n');
+            desc.append("Precedes: " + decorateColor + storage.m_precedes + noColor + '\n');
         QStringList follows;
         for (const QString &str : storage.m_follows) {
             if (!str.isEmpty())
                 follows.append(str);
         }
         if (!follows.isEmpty())
-            desc.append("Follows: " + follows.join(", ") + '\n');
+            desc.append("Follows: " + decorateColor + follows.join(", ") + noColor + '\n');
         desc.append('\n' + storage.m_body);
         setDescription(desc);
     };
 
     const auto onDescriptionSetup = [this, id](Process &process) {
         process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
-        setupCommand(process, {"show", "-s", noColorOption, showFormatC, id});
+        const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
+        const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
+        const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
+        const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+        const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
+
+        const QString showFormat = QStringLiteral(
+                                    "--pretty=format:"
+                                    "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                                    "Author: %C(%3)%aN <%aE>%Creset, %C(%4)%ad (%ar)%Creset%n"
+                                    "Committer: %C(%3)%cN <%cE>%Creset, %C(%4)%cd (%cr)%Creset%n"
+                                    "%n%C(%5)%B%Creset"
+                                    ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
+        setupCommand(process, {"show", "-s", colorOption, showFormat, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
     };
@@ -496,7 +427,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
             return;
         }
         const int lastHeaderLine = output.indexOf("\n\n") + 1;
-        data->m_commit = output.mid(7, 12);
+        const int commitPos = output.indexOf('m', 8) + 1;
+        data->m_commit = output.mid(commitPos, 12);
         data->m_header = output.left(lastHeaderLine);
         data->m_body = output.mid(lastHeaderLine + 1);
         updateDescription(*data);
@@ -510,10 +442,20 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto onBranchesSetup = [this, storage](Process &process) {
         storage->m_branches = busyMessage;
-        setupCommand(process, {"branch", noColorOption, "-a", "--contains", storage->m_commit});
+        const QString branchesFormat = QStringLiteral(
+                                           "--format="
+                                           "%(if:equals=refs/remotes)%(refname:rstrip=-2)%(then)"
+                                             "%(refname:lstrip=1)"
+                                           "%(else)"
+                                             "%(refname:lstrip=2)"
+                                           "%(end)"
+            );
+        setupCommand(process, {"branch", noColorOption, "-a", branchesFormat,
+                               "--contains", storage->m_commit});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
     };
-    const auto onBranchesDone = [storage, updateDescription](const Process &process, DoneWith result) {
+    const auto onBranchesDone = [storage, updateDescription, decorateColor, noColor](
+                                    const Process &process, DoneWith result) {
         ReloadStorage *data = storage.activeStorage();
         data->m_branches.clear();
         if (result == DoneWith::Success) {
@@ -525,30 +467,30 @@ ShowController::ShowController(IDocument *document, const QString &id)
             bool first = true;
             const QStringList branchList = process.cleanedStdOut().split('\n');
             for (const QString &branch : branchList) {
-                const QString b = branch.mid(2).trimmed();
-                if (b.isEmpty())
+                if (branch.isEmpty())
                     continue;
-                if (b.startsWith(remotePrefix)) {
-                    const int nextSlash = b.indexOf('/', prefixLength);
+                if (branch.startsWith(remotePrefix)) {
+                    const int nextSlash = branch.indexOf('/', prefixLength);
                     if (nextSlash < 0)
                         continue;
-                    const QString remote = b.mid(prefixLength, nextSlash - prefixLength);
+                    const QString remote = branch.mid(prefixLength, nextSlash - prefixLength);
                     if (remote != previousRemote) {
-                        data->m_branches += branchesDisplay(previousRemote, &branches, &first)
-                                            + '\n';
+                        data->m_branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
+                                            + noColor + '\n';
                         branches.clear();
                         previousRemote = remote;
                     }
-                    branches << b.mid(nextSlash + 1);
+                    branches << branch.mid(nextSlash + 1);
                 } else {
-                    branches << b;
+                    branches << branch;
                 }
             }
             if (branches.isEmpty()) {
                 if (previousRemote == localPrefix)
-                    data->m_branches += Tr::tr("<None>");
+                    data->m_branches += decorateColor + Tr::tr("<None>") + noColor;
             } else {
-                data->m_branches += branchesDisplay(previousRemote, &branches, &first);
+                data->m_branches += decorateColor + branchesDisplay(previousRemote, &branches, &first)
+                                    + noColor;
             }
             data->m_branches = data->m_branches.trimmed();
         }
@@ -722,11 +664,6 @@ public:
 static bool gitHasRgbColors()
 {
     return gitClient().gitVersion().result() >= QVersionNumber{2, 3};
-}
-
-static QString logColorName(TextEditor::TextStyle style)
-{
-    return colorForStyle(style).name();
 }
 
 class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
