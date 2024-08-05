@@ -254,6 +254,8 @@ add_qtc_plugin(Core
     progressmanager/taskprogress.h
     rightpane.cpp
     rightpane.h
+    secretaspect.cpp
+    secretaspect.h
     session.cpp
     session.h
     sessiondialog.cpp
