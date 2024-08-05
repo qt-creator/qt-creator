@@ -701,13 +701,18 @@ IssueListSearch IssuesWidget::searchFromUi() const
         search.state = "added";
     else if (m_removedFilter->isChecked())
         search.state = "removed";
-    if (int column = m_headerView->currentSortColumn() != -1) {
-        QTC_ASSERT(m_currentTableInfo, return search);
-        QTC_ASSERT((ulong)column < m_currentTableInfo->columns.size(), return search);
-        search.sort = m_currentTableInfo->columns.at(m_headerView->currentSortColumn()).key
-                + (m_headerView->currentSortOrder() == Qt::AscendingOrder ? " asc" : " desc");
-    }
 
+    QTC_ASSERT(m_currentTableInfo, return search);
+    QString sort;
+    const QList<QPair<int, Qt::SortOrder>> currentSortColumns = m_headerView->currentSortColumns();
+    for (const auto &pair : currentSortColumns) {
+        QTC_ASSERT((ulong)pair.first < m_currentTableInfo->columns.size(), return search);
+        if (!sort.isEmpty())
+            sort.append(',');
+        sort.append(m_currentTableInfo->columns.at(pair.first).key
+                    + (pair.second == Qt::AscendingOrder ? " asc" : " desc"));
+    }
+    search.sort = sort;
     return search;
 }
 

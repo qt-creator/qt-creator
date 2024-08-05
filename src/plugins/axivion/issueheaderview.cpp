@@ -38,16 +38,20 @@ static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 void IssueHeaderView::setColumnInfoList(const QList<ColumnInfo> &infos)
 {
     m_columnInfoList = infos;
-    int oldIndex = m_currentSortIndex;
-    m_currentSortIndex = -1;
-    m_currentSortOrder.reset();
-    if (oldIndex != -1)
+    const QList<int> oldIndexes = m_currentSortIndexes;
+    m_currentSortIndexes.clear();
+    for (int i = 0; i < infos.size(); ++i)
+        m_columnInfoList[i].sortOrder.reset();
+    for (int oldIndex : oldIndexes)
         headerDataChanged(Qt::Horizontal, oldIndex, oldIndex);
 }
 
-int IssueHeaderView::currentSortColumn() const
+QList<QPair<int, Qt::SortOrder>> IssueHeaderView::currentSortColumns() const
 {
-    return m_currentSortOrder ? m_currentSortIndex : -1;
+    QList<QPair<int, Qt::SortOrder>> result;
+    for (int i : m_currentSortIndexes)
+        result.append({i, m_columnInfoList.at(i).sortOrder.value()});
+    return result;
 }
 
 void IssueHeaderView::mousePressEvent(QMouseEvent *event)
@@ -63,6 +67,7 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
             const int end = sectionViewportPosition(logical) + sectionSize(logical) - margin;
             const int start = end - ICON_SIZE;
             m_maybeToggleSort = start < pos && end > pos;
+            m_withShift = event->modifiers() == Qt::ShiftModifier;
         }
     }
     QHeaderView::mousePressEvent(event);
@@ -71,8 +76,10 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
 void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
 {
     bool dontSkip = !m_dragging && m_maybeToggleSort;
+    bool withShift = m_withShift && event->modifiers() == Qt::ShiftModifier;
     m_dragging = false;
     m_maybeToggleSort = false;
+    m_withShift = false;
 
     if (dontSkip) {
         const QPoint position = event->position().toPoint();
@@ -82,9 +89,9 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
                 && logical > -1 && logical < m_columnInfoList.size()) {
             if (m_columnInfoList.at(logical).sortable) { // ignore non-sortable
                 if (y < height() / 2) // TODO improve
-                    onToggleSort(logical, Qt::AscendingOrder);
+                    onToggleSort(logical, Qt::AscendingOrder, withShift);
                 else
-                    onToggleSort(logical, Qt::DescendingOrder);
+                    onToggleSort(logical, Qt::DescendingOrder, withShift);
             }
         }
     }
@@ -99,20 +106,34 @@ void IssueHeaderView::mouseMoveEvent(QMouseEvent *event)
     QHeaderView::mouseMoveEvent(event);
 }
 
-void IssueHeaderView::onToggleSort(int index, Qt::SortOrder order)
+void IssueHeaderView::onToggleSort(int index, Qt::SortOrder order, bool multi)
 {
-    if (m_currentSortIndex == index) {
-        if (!m_currentSortOrder || m_currentSortOrder.value() != order)
-            m_currentSortOrder = order;
-        else
-            m_currentSortOrder.reset();
+    QTC_ASSERT(index > -1 && index < m_columnInfoList.size(), return);
+    const QList<int> oldSortIndexes = m_currentSortIndexes;
+    std::optional<Qt::SortOrder> oldSortOrder = m_columnInfoList.at(index).sortOrder;
+    int pos = m_currentSortIndexes.indexOf(index);
+
+    if (oldSortOrder == order)
+        m_columnInfoList[index].sortOrder.reset();
+    else
+        m_columnInfoList[index].sortOrder = order;
+    if (multi) {
+        if (pos == -1)
+            m_currentSortIndexes.append(index);
+        else if (oldSortOrder == order)
+            m_currentSortIndexes.remove(pos);
     } else {
-        m_currentSortOrder = order;
+        m_currentSortIndexes.clear();
+        if (pos == -1 || oldSortOrder != order)
+            m_currentSortIndexes.append(index);
+        for (int oldIndex : oldSortIndexes) {
+            if (oldIndex == index)
+                continue;
+            m_columnInfoList[oldIndex].sortOrder.reset();
+        }
     }
 
-    int oldIndex = m_currentSortIndex;
-    m_currentSortIndex = index;
-    if (oldIndex != -1)
+    for (int oldIndex : oldSortIndexes)
         headerDataChanged(Qt::Horizontal, oldIndex, oldIndex);
     headerDataChanged(Qt::Horizontal, index, index);
     emit sortTriggered();
@@ -137,11 +158,13 @@ void IssueHeaderView::paintSection(QPainter *painter, const QRect &rect, int log
     painter->restore();
     if (logicalIndex < 0 || logicalIndex >= m_columnInfoList.size())
         return;
-    if (!m_columnInfoList.at(logicalIndex).sortable)
+    const ColumnInfo info = m_columnInfoList.at(logicalIndex);
+    if (!info.sortable)
         return;
 
     const int margin = style()->pixelMetric(QStyle::PM_HeaderGripMargin, nullptr, this);
-    const QIcon icon = iconForSorted(logicalIndex == m_currentSortIndex ? m_currentSortOrder : std::nullopt);
+    const QIcon icon = iconForSorted(m_currentSortIndexes.contains(logicalIndex) ? info.sortOrder
+                                                                                 : std::nullopt);
     const int offset = qMax((rect.height() - ICON_SIZE), 0) / 2;
     const int left = rect.left() + rect.width() - ICON_SIZE - margin;
     const QRect iconRect(left, offset, ICON_SIZE, ICON_SIZE);

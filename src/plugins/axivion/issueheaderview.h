@@ -24,8 +24,7 @@ public:
     explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
     void setColumnInfoList(const QList<ColumnInfo> &infos);
 
-    std::optional<Qt::SortOrder> currentSortOrder() const { return m_currentSortOrder; }
-    int currentSortColumn() const;
+    QList<QPair<int, Qt::SortOrder>> currentSortColumns() const;
 
 signals:
     void sortTriggered();
@@ -38,13 +37,13 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-    void onToggleSort(int index, Qt::SortOrder order);
+    void onToggleSort(int index, Qt::SortOrder order, bool multi);
     bool m_dragging = false;
     bool m_maybeToggleSort = false;
+    bool m_withShift = false;
     int m_lastToggleLogicalPos = -1;
-    int m_currentSortIndex = -1;
-    std::optional<Qt::SortOrder> m_currentSortOrder = std::nullopt;
     QList<ColumnInfo> m_columnInfoList;
+    QList<int> m_currentSortIndexes;
 };
 
 } // namespace Axivion::Internal
