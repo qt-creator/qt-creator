@@ -139,7 +139,6 @@ public:
 
     PortList freePorts;
     FilePath debugServerPath;
-    FilePath debugDumperPath = Core::ICore::resourcePath("debugger/");
     FilePath qmlRunCommand;
     bool emptyCommandAllowed = false;
 
