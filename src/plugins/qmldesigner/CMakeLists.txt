@@ -127,7 +127,7 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION Qt6_VERSION VERSION_GREATER_EQUAL 6.7.0 AND Qt6_VERSION VERSION_LESS 6.8.0
+  CONDITION IS_SUPPORTED_PROJECTSTORAGE_QT
   PUBLIC_DEFINES QDS_BUILD_QMLPARSER
 )
 extend_qtc_library(QmlDesignerCore
