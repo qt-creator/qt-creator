@@ -439,24 +439,22 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
 {
     struct Directory
     {
-        Directory(Utils::SmallStringView path, SourceContextId sourceContextId, SourceId sourceId)
+        Directory(Utils::SmallStringView path, SourceId sourceId)
             : path{path}
-            , sourceContextId{sourceContextId}
             , sourceId{sourceId}
         {}
 
         bool operator<(const Directory &other) const
         {
-            return sourceContextId < other.sourceContextId;
+            return sourceId.contextId() < other.sourceId.contextId();
         }
 
         bool operator==(const Directory &other) const
         {
-            return sourceContextId == other.sourceContextId;
+            return sourceId.contextId() == other.sourceId.contextId();
         }
 
         Utils::PathString path;
-        SourceContextId sourceContextId;
         SourceId sourceId;
     };
 
@@ -464,17 +462,17 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
     {
         bool operator()(const Directory &first, const Directory &second) const
         {
-            return first.sourceContextId < second.sourceContextId;
+            return first.sourceId.contextId() < second.sourceId.contextId();
         }
 
         bool operator()(const Directory &first, SourceContextId second) const
         {
-            return first.sourceContextId < second;
+            return first.sourceId.contextId() < second;
         }
 
         bool operator()(SourceContextId first, const Directory &second) const
         {
-            return first < second.sourceContextId;
+            return first < second.sourceId.contextId();
         }
     };
 
@@ -485,7 +483,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
         subdirectorySourceIds, [&](SourceId sourceId) -> Directory {
             auto sourceContextId = sourceId.contextId();
             auto subdirectoryPath = m_pathCache.sourceContextPath(sourceContextId);
-            return {subdirectoryPath, sourceContextId, sourceId};
+            return {subdirectoryPath, sourceId};
         });
 
     auto exisitingSubdirectoryPaths = m_fileSystem.subdirectories(directoryPath.toQString());
@@ -496,8 +494,8 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
             continue;
         Utils::PathString subdirectoryPath = subdirectory;
         SourceId sourceId = m_pathCache.sourceId(SourcePath{subdirectoryPath + "/."});
-        subdirectories.emplace_back(subdirectoryPath, sourceId.contextId(), sourceId);
-        existingSubdirecories.emplace_back(subdirectoryPath, sourceId.contextId(), sourceId);
+        subdirectories.emplace_back(subdirectoryPath, sourceId);
+        existingSubdirecories.emplace_back(subdirectoryPath, sourceId);
     }
 
     std::sort(subdirectories.begin(), subdirectories.end());
@@ -518,8 +516,7 @@ void ProjectStorageUpdater::updateSubdirectories(const Utils::PathString &direct
                         Compare{});
 
     if (directoryState == FileState::Changed) {
-        for (const auto &[subdirectoryPath, sourceContextId, subdirectorySourceId] :
-             existingSubdirecories) {
+        for (const auto &[subdirectoryPath, subdirectorySourceId] : existingSubdirecories) {
             package.directoryInfos.emplace_back(directorySourceId,
                                                 subdirectorySourceId,
                                                 ModuleId{},
