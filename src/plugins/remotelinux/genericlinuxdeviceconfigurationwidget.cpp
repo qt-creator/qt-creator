@@ -217,12 +217,12 @@ void GenericLinuxDeviceConfigurationWidget::keyFileEditingFinished()
 
 void GenericLinuxDeviceConfigurationWidget::gdbServerEditingFinished()
 {
-    device()->debugServerPath.setValue(m_gdbServerLineEdit->filePath());
+    device()->setDebugServerPath(m_gdbServerLineEdit->filePath());
 }
 
 void GenericLinuxDeviceConfigurationWidget::qmlRuntimeEditingFinished()
 {
-    device()->qmlRunCommand.setValue(m_qmlRuntimeLineEdit->filePath());
+    device()->setQmlRunCommand(m_qmlRuntimeLineEdit->filePath());
 }
 
 void GenericLinuxDeviceConfigurationWidget::handleFreePortsChanged()

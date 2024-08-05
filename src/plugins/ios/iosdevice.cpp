@@ -107,7 +107,7 @@ IosDevice::IosDevice(CtorHelper)
     : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setType(Constants::IOS_DEVICE_TYPE);
-    displayName.setDefaultValue(IosDevice::name());
+    setDefaultDisplayName(IosDevice::name());
     setDisplayType(Tr::tr("iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
@@ -248,7 +248,7 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     if (!dev) {
         auto newDev = new IosDevice(uid);
         if (!name.isNull())
-            newDev->displayName.setValue(name);
+            newDev->setDisplayName(name);
         qCDebug(detectLog) << "adding ios device " << uid;
         devManager->addDevice(IDevice::ConstPtr(newDev));
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
@@ -364,7 +364,7 @@ void IosDeviceManager::deviceInfo(const QString &uid,
     }
     if (!skipUpdate) {
         if (info.contains(kDeviceName))
-            newDev->displayName.setValue(info.value(kDeviceName));
+            newDev->setDisplayName(info.value(kDeviceName));
         newDev->m_extraInfo = info;
         newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;

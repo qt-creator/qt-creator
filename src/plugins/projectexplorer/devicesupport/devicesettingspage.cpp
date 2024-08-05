@@ -340,7 +340,7 @@ void DeviceSettingsWidget::currentDeviceChanged(int index)
     }
 
     Layouting::Column item{Layouting::noMargin};
-    device->displayName.addToLayout(item);
+    device->addDisplayNameToLayout(item);
     QWidget *newEdit = item.emerge();
     QLayoutItem *oldItem = m_generalFormLayout->replaceWidget(m_deviceNameEditWidget, newEdit);
     QTC_CHECK(oldItem);

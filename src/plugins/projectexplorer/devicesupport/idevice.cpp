@@ -144,6 +144,10 @@ public:
     QList<IDevice::DeviceAction> deviceActions;
     Store extraData;
     IDevice::OpenTerminal openTerminal;
+
+    Utils::StringAspect displayName;
+    Utils::FilePathAspect debugServerPath;
+    Utils::FilePathAspect qmlRunCommand;
 };
 
 } // namespace Internal
@@ -155,12 +159,9 @@ IDevice::IDevice()
 {
     setAutoApply(false);
 
-    displayName.setSettingsKey(DisplayNameKey);
-    displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
-
-    debugServerPath.setSettingsKey(DebugServerKey);
-
-    qmlRunCommand.setSettingsKey(QmlRuntimeKey);
+    registerAspect(&d->displayName);
+    d->displayName.setSettingsKey(DisplayNameKey);
+    d->displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
 
     auto validateDisplayName = [](const QString &old,
                                   const QString &newValue) -> expected_str<void> {
@@ -176,9 +177,9 @@ IDevice::IDevice()
         return {};
     };
 
-    displayName.setValidationFunction(
+    d->displayName.setValidationFunction(
         [this, validateDisplayName](FancyLineEdit *edit, QString *errorMsg) -> bool {
-            auto result = validateDisplayName(displayName.value(), edit->text());
+            auto result = validateDisplayName(d->displayName.value(), edit->text());
             if (result)
                 return true;
 
@@ -188,7 +189,7 @@ IDevice::IDevice()
             return false;
         });
 
-    displayName.setValueAcceptor(
+    d->displayName.setValueAcceptor(
         [validateDisplayName](const QString &old,
                               const QString &newValue) -> std::optional<QString> {
             if (!validateDisplayName(old, newValue))
@@ -196,6 +197,12 @@ IDevice::IDevice()
 
             return newValue;
         });
+
+    registerAspect(&d->debugServerPath);
+    d->debugServerPath.setSettingsKey(DebugServerKey);
+
+    registerAspect(&d->qmlRunCommand);
+    d->qmlRunCommand.setSettingsKey(QmlRuntimeKey);
 }
 
 IDevice::~IDevice() = default;
@@ -251,6 +258,26 @@ FilePath IDevice::filePath(const QString &pathOnDevice) const
 {
     // match DeviceManager::deviceForPath
     return FilePath::fromParts(u"device", id().toString(), pathOnDevice);
+}
+
+FilePath IDevice::debugServerPath() const
+{
+    return d->debugServerPath();
+}
+
+void IDevice::setDebugServerPath(const FilePath &path)
+{
+    d->debugServerPath.setValue(path);
+}
+
+FilePath IDevice::qmlRunCommand() const
+{
+    return d->qmlRunCommand();
+}
+
+void IDevice::setQmlRunCommand(const FilePath &path)
+{
+    d->qmlRunCommand.setValue(path);
 }
 
 bool IDevice::handlesFile(const FilePath &filePath) const
@@ -564,6 +591,31 @@ IDevice::Ptr IDevice::clone() const
     device->d->osType = d->osType;
     device->fromMap(store);
     return device;
+}
+
+QString IDevice::displayName() const
+{
+    return d->displayName();
+}
+
+void IDevice::setDisplayName(const QString &name)
+{
+    d->displayName.setValue(name);
+}
+
+QString IDevice::defaultDisplayName() const
+{
+    return d->displayName.defaultValue();
+}
+
+void IDevice::setDefaultDisplayName(const QString &name)
+{
+    d->displayName.setDefaultValue(name);
+}
+
+void IDevice::addDisplayNameToLayout(Layouting::Layout &layout) const
+{
+    d->displayName.addToLayout(layout);
 }
 
 QString IDevice::deviceStateToString() const

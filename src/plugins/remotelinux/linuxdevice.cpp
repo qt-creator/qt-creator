@@ -1014,7 +1014,7 @@ LinuxDevice::LinuxDevice()
     setFileAccess(&d->m_fileAccess);
     setDisplayType(Tr::tr("Remote Linux"));
     setOsType(OsTypeLinux);
-    displayName.setDefaultValue(Tr::tr("Remote Linux Device"));
+    setDefaultDisplayName(Tr::tr("Remote Linux Device"));
 
     setupId(IDevice::ManuallyAdded, Utils::Id());
     setType(Constants::GenericLinuxOsType);

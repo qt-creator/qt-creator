@@ -35,7 +35,7 @@ public:
         setupId(IDevice::AutoDetected, Constants::WEBASSEMBLY_DEVICE_DEVICE_ID);
         setType(Constants::WEBASSEMBLY_DEVICE_TYPE);
         const QString displayNameAndType = Tr::tr("Web Browser");
-        displayName.setDefaultValue(displayNameAndType);
+        setDefaultDisplayName(displayNameAndType);
         setDisplayType(displayNameAndType);
         setDeviceState(IDevice::DeviceStateUnknown);
         setMachineType(IDevice::Hardware);

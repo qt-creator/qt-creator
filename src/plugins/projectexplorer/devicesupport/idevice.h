@@ -100,7 +100,13 @@ public:
 
     virtual Ptr clone() const;
 
-    Utils::StringAspect displayName{this};
+    QString displayName() const;
+    void setDisplayName(const QString &name);
+
+    QString defaultDisplayName() const;
+    void setDefaultDisplayName(const QString &name);
+
+    void addDisplayNameToLayout(Layouting::Layout &layout) const;
 
     // Provide some information on the device suitable for formated
     // output, e.g. in tool tips. Get a list of name value pairs.
@@ -173,8 +179,11 @@ public:
     virtual Utils::FilePath rootPath() const;
     virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
-    Utils::FilePathAspect debugServerPath{this};
-    Utils::FilePathAspect qmlRunCommand{this};
+    Utils::FilePath debugServerPath() const;
+    void setDebugServerPath(const Utils::FilePath &path);
+
+    Utils::FilePath qmlRunCommand() const;
+    void setQmlRunCommand(const Utils::FilePath &path);
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;

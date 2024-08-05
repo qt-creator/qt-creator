@@ -1001,8 +1001,8 @@ void DockerDevice::fromMap(const Store &map)
     // This is the only place where we can correctly set the default name.
     // Only here do we know the image id and the repo reliably, no matter
     // where or how we were created.
-    if (displayName.value() == displayName.defaultValue()) {
-        displayName.setDefaultValue(
+    if (displayName() == defaultDisplayName()) {
+        setDefaultDisplayName(
             Tr::tr("Docker Image \"%1\" (%2)").arg(repoAndTag()).arg(imageId.value()));
     }
 }

@@ -261,7 +261,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     }
 
     // TODO: make it thread safe?
-    device->displayName.setValue(Utils::makeUniquelyNumbered(device->displayName(), names));
+    device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
 
     const int pos = d->indexForId(device->id());
 
@@ -567,7 +567,7 @@ void ProjectExplorerTest::testDeviceManager()
     TestDeviceFactory factory;
 
     TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
-    dev->displayName.setValue(QLatin1String("blubbdiblubbfurz!"));
+    dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
     QVERIFY(dev->isAutoDetected());
     QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
     QCOMPARE(dev->type(), TestDevice::testTypeId());
@@ -628,7 +628,7 @@ void ProjectExplorerTest::testDeviceManager()
     TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
     QVERIFY(dev->id() != dev3->id());
 
-    dev3->displayName.setValue(dev->displayName());
+    dev3->setDisplayName(dev->displayName());
     mgr->addDevice(dev3);
     QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
              QString(dev3->displayName() + QLatin1Char('2')));

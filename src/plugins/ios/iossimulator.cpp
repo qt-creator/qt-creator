@@ -28,7 +28,7 @@ IosSimulator::IosSimulator(Id id)
     setType(Constants::IOS_SIMULATOR_TYPE);
     setMachineType(IDevice::Emulator);
     setOsType(Utils::OsTypeMac);
-    displayName.setDefaultValue(Tr::tr("iOS Simulator"));
+    setDefaultDisplayName(Tr::tr("iOS Simulator"));
     setDisplayType(Tr::tr("iOS Simulator"));
     setDeviceState(DeviceStateUnknown);
 }
