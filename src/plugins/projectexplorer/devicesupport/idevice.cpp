@@ -138,8 +138,6 @@ public:
     Utils::SynchronizedValue<SshParameters> sshParameters;
 
     PortList freePorts;
-    FilePath debugServerPath;
-    FilePath qmlRunCommand;
     bool emptyCommandAllowed = false;
 
     QList<Icon> deviceIcons;
@@ -159,6 +157,10 @@ IDevice::IDevice()
 
     displayName.setSettingsKey(DisplayNameKey);
     displayName.setDisplayStyle(StringAspect::DisplayStyle::LineEditDisplay);
+
+    debugServerPath.setSettingsKey(DebugServerKey);
+
+    qmlRunCommand.setSettingsKey(QmlRuntimeKey);
 
     auto validateDisplayName = [](const QString &old,
                                   const QString &newValue) -> expected_str<void> {
@@ -512,9 +514,6 @@ void IDevice::fromMap(const Store &map)
     d->machineType = static_cast<MachineType>(map.value(MachineTypeKey, DefaultMachineType).toInt());
     d->version = map.value(VersionKey, 0).toInt();
 
-    d->debugServerPath = FilePath::fromSettings(map.value(DebugServerKey));
-    const FilePath qmlRunCmd = FilePath::fromSettings(map.value(QmlRuntimeKey));
-    d->qmlRunCommand = qmlRunCmd;
     d->extraData = storeFromVariant(map.value(ExtraDataKey));
 }
 
@@ -547,9 +546,6 @@ void IDevice::toMap(Store &map) const
 
     map.insert(PortsSpecKey, d->freePorts.toString());
     map.insert(VersionKey, d->version);
-
-    map.insert(DebugServerKey, d->debugServerPath.toSettings());
-    map.insert(QmlRuntimeKey, d->qmlRunCommand.toSettings());
 
     map.insert(ExtraDataKey, variantFromStore(d->extraData));
 }
@@ -633,26 +629,6 @@ void IDevice::setMachineType(MachineType machineType)
 FilePath IDevice::rootPath() const
 {
     return FilePath::fromParts(u"device", id().toString(), u"/");
-}
-
-FilePath IDevice::debugServerPath() const
-{
-    return d->debugServerPath;
-}
-
-void IDevice::setDebugServerPath(const FilePath &path)
-{
-    d->debugServerPath = path;
-}
-
-FilePath IDevice::qmlRunCommand() const
-{
-    return d->qmlRunCommand;
-}
-
-void IDevice::setQmlRunCommand(const FilePath &path)
-{
-    d->qmlRunCommand = path;
 }
 
 void IDevice::setExtraData(Id kind, const QVariant &data)

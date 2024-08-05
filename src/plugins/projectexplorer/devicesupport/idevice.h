@@ -173,11 +173,8 @@ public:
     virtual Utils::FilePath rootPath() const;
     virtual Utils::FilePath filePath(const QString &pathOnDevice) const;
 
-    Utils::FilePath debugServerPath() const;
-    void setDebugServerPath(const Utils::FilePath &path);
-
-    Utils::FilePath qmlRunCommand() const;
-    void setQmlRunCommand(const Utils::FilePath &path);
+    Utils::FilePathAspect debugServerPath{this};
+    Utils::FilePathAspect qmlRunCommand{this};
 
     void setExtraData(Utils::Id kind, const QVariant &data);
     QVariant extraData(Utils::Id kind) const;
