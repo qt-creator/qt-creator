@@ -70,7 +70,9 @@ Item {
 
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
-        enabled: infoText.text === ""
+        enabled: ContentLibraryBackend.rootView.isQt6Project
+              && ContentLibraryBackend.rootView.hasQuick3DImport
+              && ContentLibraryBackend.rootView.hasMaterialLibrary
 
         onClicked: (mouse) => {
             ctxMenuItem.popupMenu()
