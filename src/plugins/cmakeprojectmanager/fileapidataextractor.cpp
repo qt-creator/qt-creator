@@ -949,7 +949,7 @@ static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
         for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
             const QStringList pathList = result.cache.stringValueOf(var).split(";");
             for (const QString &path : pathList)
-                paths.insert(FilePath::fromString(path));
+                paths.insert(FilePath::fromUserInput(path));
         }
         return paths;
     }();
