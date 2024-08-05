@@ -1016,11 +1016,19 @@ void ContentLibraryView::exportLibItem(const ModelNode &node, const QPixmap &ico
         m_zipWriter->addFile(assetPath.relativePath, assetPath.absFilPath().fileContents().value_or(""));
 
     // add icon
+    QPixmap iconPixmapToSave;
+    if (node.metaInfo().isQtQuick3DCamera())
+        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("camera.png", nullptr, {});
+    else if (node.metaInfo().isQtQuick3DLight())
+        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
+    else
+        iconPixmapToSave = iconPixmap;
+
     m_iconSavePath = targetPath.pathAppended(iconPath);
-    if (iconPixmap.isNull())
+    if (iconPixmapToSave.isNull())
         model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, EXPORT_ITEM_REQ_ID);
     else
-        addIconAndCloseZip(iconPixmap);
+        addIconAndCloseZip(iconPixmapToSave);
 }
 
 void ContentLibraryView::addIconAndCloseZip(const auto &image) { // auto: QImage or QPixmap
