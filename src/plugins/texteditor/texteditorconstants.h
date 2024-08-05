@@ -50,6 +50,7 @@ enum TextStyle : quint8 {
     C_PREPROCESSOR,
     C_MACRO,
     C_LABEL,
+    C_ATTRIBUTE,
     C_COMMENT,
     C_DOXYGEN_COMMENT,
     C_DOXYGEN_TAG,

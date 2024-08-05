@@ -251,6 +251,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              Tr::tr("Macros."), functionFormat);
     formatDescr.emplace_back(C_LABEL, Tr::tr("Label"), Tr::tr("Labels for goto statements."),
                              Qt::darkRed);
+    formatDescr.emplace_back(C_ATTRIBUTE, Tr::tr("Attribute"), Tr::tr("Attributes."),
+                             Qt::darkYellow);
     formatDescr.emplace_back(C_COMMENT, Tr::tr("Comment"),
                              Tr::tr("All style of comments except Doxygen comments."),
                              Qt::darkGreen);

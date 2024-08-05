@@ -33,6 +33,15 @@ using namespace CPlusPlus;
 namespace CppEditor {
 using namespace Internal;
 
+union AttributeState {
+    struct {
+        quint8 lbrackets: 1;
+        quint8 rbrackets: 1;
+        quint8 opened: 6;
+    };
+    quint8 state;
+};
+
 CppHighlighter::CppHighlighter(QTextDocument *document) :
     SyntaxHighlighter(document)
 {
@@ -79,6 +88,8 @@ void CppHighlighter::highlightBlock(const QString &text)
         userData->setFoldingStartIncluded(false);
         userData->setFoldingEndIncluded(false);
     }
+    AttributeState attrState;
+    attrState.state = TextDocumentLayout::attributeState(prevBlock);
 
     if (tokens.isEmpty()) {
         setCurrentBlockState((braceDepth << 8) | lexerState);
@@ -93,6 +104,7 @@ void CppHighlighter::highlightBlock(const QString &text)
         }
         TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
         TextDocumentLayout::setExpectedRawStringSuffix(currentBlock(), inheritedRawStringSuffix);
+        TextDocumentLayout::setAttributeState(currentBlock(), attrState.state);
         qCDebug(highlighterLog) << "no tokens, storing brace depth" << braceDepth << "and foldingIndent"
                      << foldingIndent;
         return;
@@ -184,6 +196,25 @@ void CppHighlighter::highlightBlock(const QString &text)
 
         if (onlyHighlightComments && !tk.isComment())
             continue;
+
+        // Handle attributes, i.e. identifiers in pairs of "[[" and "]]".
+        if (tk.is(T_LBRACKET) && !tk.isOperator()) {
+            attrState.lbrackets = !attrState.lbrackets;
+            if (attrState.lbrackets == 0)
+                ++attrState.opened;
+            continue;
+        }
+        if (tk.is(T_RBRACKET) && !tk.isOperator()) {
+            attrState.rbrackets = !attrState.rbrackets;
+            if (attrState.rbrackets == 0 && attrState.opened > 0)
+                --attrState.opened;
+            continue;
+        }
+        attrState.lbrackets = attrState.rbrackets = 0;
+        if (attrState.opened && (tk.is(T_IDENTIFIER) || (tk.isKeyword() && !tk.is(T_USING)))) {
+            setFormat(tk.utf16charsBegin(), tk.utf16chars(), formatForCategory(C_ATTRIBUTE));
+            continue;
+        }
 
         if (i == 0 && tk.is(T_POUND)) {
             setFormatWithSpaces(text, tk.utf16charsBegin(), tk.utf16chars(),
@@ -297,6 +328,7 @@ void CppHighlighter::highlightBlock(const QString &text)
     }
 
     TextDocumentLayout::setParentheses(currentBlock(), parentheses);
+    TextDocumentLayout::setAttributeState(currentBlock(), attrState.state);
 
     TextDocumentLayout::setFoldingIndent(currentBlock(), foldingIndent);
     setCurrentBlockState(rehighlightNextBlock | (braceDepth << 8) | tokenize.state());
@@ -655,6 +687,46 @@ private slots:
             << 73 << 17 << 73 << 18 << C_STRING;
         QTest::newRow("wide char literal with user-defined suffix (suffix)")
             << 73 << 20 << 73 << 22 << C_OVERLOADED_OPERATOR;
+        QTest::newRow("separate attributes specs, 1/4, namespace")
+            << 75 << 3 << 72 << 5 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 1/4, attr")
+            << 75 << 8 << 72 << 20 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 2/4, namespace")
+            << 75 << 26 << 72 << 28 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 2/4, attr")
+            << 75 << 31 << 72 << 33 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 3/4, namespace")
+            << 75 << 39 << 72 << 41 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 3/4, attr")
+            << 75 << 44 << 72 << 48 << C_ATTRIBUTE;
+        QTest::newRow("separate attributes specs, 4/4, attr")
+            << 75 << 54 << 72 << 62 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 1/4, namespace")
+            << 76 << 3 << 73 << 5 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 1/4, attr")
+            << 76 << 8 << 73 << 20 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 2/4, namespace")
+            << 76 << 23 << 73 << 25 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 2/4, attr")
+            << 76 << 28 << 73 << 32 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 3/4, namespace")
+            << 76 << 35 << 73 << 37 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 3/4, attr")
+            << 76 << 40 << 73 << 42 << C_ATTRIBUTE;
+        QTest::newRow("single attributes spec, 4/4, attr")
+            << 76 << 45 << 73 << 53 << C_ATTRIBUTE;
+        QTest::newRow("attributes with using, namespace")
+            << 77 << 9 << 74 << 11 << C_ATTRIBUTE;
+        QTest::newRow("attributes with using, attr 1/3")
+            << 77 << 15 << 74 << 19 << C_ATTRIBUTE;
+        QTest::newRow("attributes with using, attr 2/3")
+            << 77 << 22 << 74 << 34 << C_ATTRIBUTE;
+        QTest::newRow("attributes with using, attr 3/3")
+            << 77 << 37 << 74 << 39 << C_ATTRIBUTE;
+        QTest::newRow("attribute with line split, namespace")
+            << 79 << 9 << 76 << 11 << C_ATTRIBUTE;
+        QTest::newRow("attribute with line split, attr")
+            << 79 << 14 << 76 << 26 << C_ATTRIBUTE;
     }
 
     void test()

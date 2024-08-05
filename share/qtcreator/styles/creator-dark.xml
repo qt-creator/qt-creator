@@ -29,6 +29,7 @@
   <style name="Function"/>
   <style name="Macro"/>
   <style name="Keyword" foreground="#45c6d6" italic="true"/>
+  <style name="Attribute" foreground="#45c6d6" italic="true"/>
   <style name="PrimitiveType" foreground="#d69aa7"/>
   <style name="Punctuation"/>
   <style name="Operator" foreground="#d6bb9a"/>

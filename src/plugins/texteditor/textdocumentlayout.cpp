@@ -543,6 +543,21 @@ TextSuggestion *TextDocumentLayout::suggestion(const QTextBlock &block)
     return nullptr;
 }
 
+void TextDocumentLayout::setAttributeState(const QTextBlock &block, quint8 attrState)
+{
+    if (TextBlockUserData * const data = textUserData(block))
+        data->setAttrState(attrState);
+    else if (attrState)
+        userData(block)->setAttrState(attrState);
+}
+
+quint8 TextDocumentLayout::attributeState(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block))
+        return userData->attrState();
+    return 0;
+}
+
 void TextDocumentLayout::updateSuggestionFormats(const QTextBlock &block,
                                                  const FontSettings &fontSettings)
 {

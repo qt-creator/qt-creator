@@ -153,6 +153,9 @@ public:
     TextSuggestion *suggestion() const;
     void clearSuggestion();
 
+    void setAttrState(quint8 state) { m_attrState = state; }
+    quint8 attrState() const { return m_attrState; }
+
 private:
     TextMarks m_marks;
     int m_foldingIndent : 16;
@@ -168,6 +171,7 @@ private:
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
     std::unique_ptr<TextSuggestion> m_suggestion;
+    quint8 m_attrState = 0;
 };
 
 class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
@@ -201,6 +205,8 @@ public:
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
     static TextSuggestion *suggestion(const QTextBlock &block);
+    static void setAttributeState(const QTextBlock &block, quint8 attrState);
+    static quint8 attributeState(const QTextBlock &block);
     static void updateSuggestionFormats(const QTextBlock &block,
                                         const FontSettings &fontSettings);
     static bool updateSuggestion(const QTextBlock &block,

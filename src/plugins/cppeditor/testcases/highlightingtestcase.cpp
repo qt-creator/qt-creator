@@ -71,3 +71,10 @@ static void parenTest2()
 
 wchar_t operator ""_wc(const wchar_t c) { return c; }
 const auto c = L'c'_wc;
+
+[[gnu::always_inline]] [[gnu::hot]] [[gnu::const]] [[nodiscard]] int attr1();
+[[gnu::always_inline, gnu::const, gnu::hot, nodiscard]] int attr2();
+[[using gnu : const, always_inline, hot]] int attr3[
+    [
+        gnu::always_inline]
+]();
