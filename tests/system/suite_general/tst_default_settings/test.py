@@ -113,7 +113,7 @@ def __iterateTree__(treeObjStr, additionalFunc, *additionalParameters):
 
 def __compFunc__(it, foundComp, foundCompNames):
     # skip sub section items (will continue on its children)
-    if str(it) == "C" or str(it) == "C++":
+    if str(it) == "C/C++":
         return
     try:
         waitFor("object.exists(':Path.Utils_BaseValidatingLineEdit')", 1000)
@@ -174,17 +174,12 @@ def __kitFunc__(it, foundQt, foundCompNames):
     test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
     if foundQt:
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
-    cCompilerCombo = findObject(":CCompiler:_QComboBox")
-    test.compare(cCompilerCombo.enabled, cCompilerCombo.count > 1,
-                 "Verifying whether C compiler combo is enabled/disabled correctly.")
-    cppCompilerCombo = findObject(":CppCompiler:_QComboBox")
-    test.compare(cppCompilerCombo.enabled, cppCompilerCombo.count > 1,
-                 "Verifying whether C++ compiler combo is enabled/disabled correctly.")
+    compilerCombo = findObject(":Compiler:_QComboBox")
+    test.compare(compilerCombo.enabled, compilerCombo.count > 1,
+                 "Verifying whether compiler combo is enabled/disabled correctly.")
 
-    test.verify(str(cCompilerCombo.currentText) in foundCompNames,
-                "Verifying if one of the found C compilers had been set.")
-    test.verify(str(cppCompilerCombo.currentText) in foundCompNames,
-                "Verifying if one of the found C++ compilers had been set.")
+    test.verify(str(compilerCombo.currentText) in foundCompNames,
+                "Verifying if one of the found compilers had been set.")
     if currentSelectedTreeItem:
         foundWarningOrError = warningOrError.search(str(currentSelectedTreeItem.toolTip))
         if foundWarningOrError:
