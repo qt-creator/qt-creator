@@ -314,6 +314,14 @@ local function requestSuggestions()
 end
 
 local function requestSuggestionsSafe()
+  local suggestion = TextEditor.currentSuggestion()
+  if suggestion ~= nil  then
+    if suggestion:isLocked() then
+      print("Ignoring suggestion due to locked suggestion")
+      return
+    end
+  end
+
   local ok, err = pcall(requestSuggestions)
   if not ok then
     print("echo Error fetching: " .. err)
