@@ -5,6 +5,8 @@
 
 #include "qtcassert.h"
 
+#include <QPlainTextEdit>
+
 namespace Utils {
 
 /*!
@@ -266,6 +268,20 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
 void AnsiEscapeCodeHandler::endFormatScope()
 {
     m_previousFormatClosed = true;
+}
+
+void AnsiEscapeCodeHandler::setTextInEditor(QPlainTextEdit *editor, const QString &text)
+{
+    AnsiEscapeCodeHandler handler;
+    const QList<FormattedText> formattedTextList = handler.parseText(FormattedText(text));
+    editor->clear();
+    QTextCursor cursor = editor->textCursor();
+    cursor.beginEditBlock();
+    for (const auto &formattedChunk : formattedTextList)
+        cursor.insertText(formattedChunk.text, formattedChunk.format);
+    cursor.endEditBlock();
+    cursor.movePosition(QTextCursor::Start);
+    editor->document()->setModified(false);
 }
 
 void AnsiEscapeCodeHandler::setFormatScope(const QTextCharFormat &charFormat)

@@ -186,17 +186,7 @@ void GitEditorWidget::setPlainText(const QString &text)
     switch (contentType())
     {
     case LogOutput: {
-        AnsiEscapeCodeHandler handler;
-        const QList<FormattedText> formattedTextList = handler.parseText(FormattedText(text));
-
-        clear();
-        QTextCursor cursor = textCursor();
-        cursor.beginEditBlock();
-        for (const auto &formattedChunk : formattedTextList)
-            cursor.insertText(formattedChunk.text, formattedChunk.format);
-        cursor.endEditBlock();
-        document()->setModified(false);
-
+        AnsiEscapeCodeHandler::setTextInEditor(this, text);
         return;
     }
     case AnnotateOutput:
