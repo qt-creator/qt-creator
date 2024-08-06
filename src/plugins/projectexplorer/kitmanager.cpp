@@ -35,6 +35,8 @@
 #include <QPushButton>
 #include <QStyle>
 
+#include <optional>
+
 using namespace Core;
 using namespace Utils;
 using namespace ProjectExplorer::Internal;
@@ -298,46 +300,49 @@ void KitManager::restoreKits()
 
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
-        QHash<Abi, QHash<Utils::Id, Toolchain *>> uniqueToolchains;
+        QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
 
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
         // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
-        // the shortest path. This should also take care of ensuring matching C/C++ pairs.
-        // TODO: This should not need to be done here. Instead, it should be a convenience
-        // operation on some lower level, e.g. in the toolchain class(es).
-        // Also, we shouldn't detect so many doublets in the first place.
-        for (Toolchain * const tc : ToolchainManager::toolchains()) {
-            Toolchain *&bestTc = uniqueToolchains[tc->targetAbi()][tc->language()];
-            if (!bestTc) {
-                bestTc = tc;
+        // the shortest path.
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
+        for (const ToolchainBundle &bundle : bundles) {
+            ToolchainManager::registerToolchains(bundle.createdToolchains());
+
+            auto &bestBundle
+                = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
+            if (!bestBundle) {
+                bestBundle = bundle;
                 continue;
             }
 
-            if (bestTc->priority() > tc->priority())
+            const int bestPriority = bestBundle->get(&Toolchain::priority);
+            const int currentPriority = bundle.get(&Toolchain::priority);
+            if (bestPriority > currentPriority)
                 continue;
-            if (bestTc->priority() < tc->priority()) {
-                bestTc = tc;
+            if (bestPriority < currentPriority) {
+                bestBundle = bundle;
                 continue;
             }
 
-            const QString bestFilePath = bestTc->compilerCommand().toString();
-            const QString currentFilePath = tc->compilerCommand().toString();
+            const QString bestFilePath = bestBundle->get(&Toolchain::compilerCommand).toString();
+            const QString currentFilePath = bundle.get(&Toolchain::compilerCommand).toString();
             if (bestFilePath.contains("icecc"))
                 continue;
             if (currentFilePath.contains("icecc")) {
-                bestTc = tc;
+                bestBundle = bundle;
                 continue;
             }
 
             if (bestFilePath.contains("ccache"))
                 continue;
             if (currentFilePath.contains("ccache")) {
-                bestTc = tc;
+                bestBundle = bundle;
                 continue;
             }
 
             if (bestFilePath.length() > currentFilePath.length())
-                bestTc = tc;
+                bestBundle = bundle;
         }
 
         // Create temporary kits for all toolchains found.
@@ -346,8 +351,8 @@ void KitManager::restoreKits()
             auto kit = std::make_unique<Kit>();
             kit->setSdkProvided(false);
             kit->setAutoDetected(false); // TODO: Why false? What does autodetected mean here?
-            for (Toolchain * const tc : it.value())
-                ToolchainKitAspect::setToolchain(kit.get(), tc);
+            for (const auto &bundle : it.value())
+                ToolchainKitAspect::setBundle(kit.get(), *bundle);
             if (contains(resultList, [&kit](const std::unique_ptr<Kit> &existingKit) {
                 return ToolchainKitAspect::toolChains(kit.get())
                          == ToolchainKitAspect::toolChains(existingKit.get());
