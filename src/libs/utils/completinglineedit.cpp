@@ -34,7 +34,7 @@ bool CompletingLineEdit::event(QEvent *e)
 
 void CompletingLineEdit::keyPressEvent(QKeyEvent *e)
 {
-    if (e->key() == Qt::Key_Down && !e->modifiers()) {
+    if (e->key() == Qt::Key_Down && !(e->modifiers() & ~Qt::KeypadModifier)) {
         if (QCompleter *comp = completer()) {
             if (!comp->popup()->isVisible()) {
                 comp->complete();
