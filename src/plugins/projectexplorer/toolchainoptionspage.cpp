@@ -419,12 +419,13 @@ void ToolChainOptionsWidget::handleToolchainsDeregistered(const Toolchains &tool
         return;
     }
 
-    QList<ToolChainTreeItem *> affectedItems;
+    QSet<ToolChainTreeItem *> affectedItems;
     for (Toolchain * const tc : toolchains) {
         StaticTreeItem *parent = parentForToolchain(*tc);
         auto item = static_cast<ToolChainTreeItem *>(
             parent->findChildAtLevel(1, [tc](TreeItem *item) {
-                return static_cast<ToolChainTreeItem *>(item)->bundle.bundleId() == tc->bundleId();
+                const auto tcItem = static_cast<ToolChainTreeItem *>(item);
+                return tcItem->bundle.size() > 0 && tcItem->bundle.bundleId() == tc->bundleId();
             }));
         const bool removed = item->bundle.removeToolchain(tc);
         QTC_CHECK(removed);
