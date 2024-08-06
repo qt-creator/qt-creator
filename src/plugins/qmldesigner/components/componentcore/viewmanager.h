@@ -62,7 +62,6 @@ public:
     }
 
     QList<WidgetInfo> widgetInfos() const;
-    QWidget *widget(const QString & uniqueId) const;
 
     void disableWidgets();
     void enableWidgets();

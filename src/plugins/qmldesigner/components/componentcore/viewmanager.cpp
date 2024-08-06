@@ -432,16 +432,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     return widgetInfoList;
 }
 
-QWidget *ViewManager::widget(const QString &uniqueId) const
-{
-    const QList<WidgetInfo> widgetInfoList = widgetInfos();
-    for (const WidgetInfo &widgetInfo : widgetInfoList) {
-        if (widgetInfo.uniqueId == uniqueId)
-            return widgetInfo.widget;
-    }
-    return nullptr;
-}
-
 void ViewManager::disableWidgets()
 {
     for (const auto &view : views())
