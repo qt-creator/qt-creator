@@ -12,14 +12,7 @@ CPlusPlusAutotest {
         name: "Data Files"
         prefix: "data/"
         fileTags: ["data"]
-        files: [
-            "inlineNamespace.1.cpp",
-            "inlineNamespace.1.errors.txt",
-            "staticAssert.1.cpp",
-            "staticAssert.1.errors.txt",
-            "noExcept.1.cpp",
-            "noExcept.1.errors.txt"
-        ]
+        files: "*"
     }
 
     cpp.defines: base.concat(['SRCDIR="' + path + '"'])
