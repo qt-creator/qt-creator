@@ -97,6 +97,8 @@ void removeLayout(const SelectionContext &selectionContext);
 void removePositioner(const SelectionContext &selectionContext);
 void moveToComponent(const SelectionContext &selectionContext);
 void add3DAssetToContentLibrary(const SelectionContext &selectionContext);
+void importComponent(const SelectionContext &selectionContext);
+void exportComponent(const SelectionContext &selectionContext);
 PropertyName getIndexPropertyName(const ModelNode &modelNode);
 void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);

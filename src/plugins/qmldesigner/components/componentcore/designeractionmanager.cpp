@@ -1979,6 +1979,26 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+        importComponentCommandId,
+        importComponentDisplayName,
+        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+        rootCategory,
+        QKeySequence(),
+        Priorities::ImportComponent,
+        &importComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+        exportComponentCommandId,
+        exportComponentDisplayName,
+        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+        rootCategory,
+        QKeySequence(),
+        Priorities::ExportComponent,
+        &exportComponent,
+        &is3DNode,
+        &is3DNode));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
                           editMaterialCommandId,
                           editMaterialDisplayName,
                           contextIcon(DesignerIcons::EditIcon),

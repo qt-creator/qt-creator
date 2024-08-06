@@ -80,6 +80,13 @@ inline bool enableAddToContentLib(const SelectionContext &selectionState)
     return isNode3D && !isInBundle;
 }
 
+inline bool is3DNode(const SelectionContext &selectionState)
+{
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+
+    return modelNode.metaInfo().isQtQuick3DNode();
+}
+
 inline bool hasEditableMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();

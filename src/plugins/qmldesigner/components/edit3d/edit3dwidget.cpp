@@ -368,13 +368,13 @@ void Edit3DWidget::createContextMenu()
 
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Import Components"), [&] {
+        tr("Import Component"), [&] {
             view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
-        tr("Export Components"), [&] {
+        tr("Export Component"), [&] {
             view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
         });
 
