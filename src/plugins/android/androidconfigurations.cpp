@@ -1214,11 +1214,10 @@ void AndroidConfigurations::registerNewToolchains()
 
 void AndroidConfigurations::removeOldToolchains()
 {
-    const auto tcs = Utils::filtered(
-        ToolchainManager::toolchains(
-            Utils::equal(&Toolchain::typeId, Id(Constants::ANDROID_TOOLCHAIN_TYPEID))),
-        &Toolchain::isValid);
-    ToolchainManager::deregisterToolchains(tcs);
+    const auto invalidAndroidTcs = ToolchainManager::toolchains([](const Toolchain *tc) {
+        return tc->id() == Constants::ANDROID_TOOLCHAIN_TYPEID && !tc->isValid();
+    });
+    ToolchainManager::deregisterToolchains(invalidAndroidTcs);
 }
 
 void AndroidConfigurations::removeUnusedDebuggers()
