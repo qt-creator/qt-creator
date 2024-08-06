@@ -240,12 +240,20 @@ public:
             inputEdit->setReadOnly(true);
             inputEdit->setHistoryCompleter(Utils::Key("LuaREPL.InputHistory"), false, 200);
 
-            connect(inputEdit, &QLineEdit::returnPressed, this, [this, inputEdit] {
-                inputEdit->setReadOnly(true);
-                m_terminal->handleRequestResult(inputEdit->text());
-                inputEdit->onEditingFinished();
-                inputEdit->clear();
-            });
+            // We need to use a QueuedConnection here so that we don't interfere with the history
+            // completer. Otherwise it will get out of sync between selecting an item and copying
+            // it into the text input field.
+            connect(
+                inputEdit,
+                &QLineEdit::returnPressed,
+                this,
+                [this, inputEdit] {
+                    inputEdit->setReadOnly(true);
+                    m_terminal->handleRequestResult(inputEdit->text());
+                    inputEdit->clear();
+                },
+                Qt::QueuedConnection);
+
             connect(
                 m_terminal,
                 &LuaReplView::inputRequested,
