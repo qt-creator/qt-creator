@@ -149,6 +149,7 @@ QtcLibrary {
         "globalfilechangeblocker.h",
         "guard.cpp",
         "guard.h",
+        "guardedcallback.h",
         "guiutils.cpp",
         "guiutils.h",
         "highlightingitemdelegate.cpp",

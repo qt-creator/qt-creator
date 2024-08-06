@@ -7,6 +7,7 @@
 #include "copilotsettings.h"
 #include "copilottr.h"
 
+#include <utils/guardedcallback.h>
 #include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 
@@ -81,15 +82,6 @@ void AuthWidget::setState(const QString &buttonText, const QString &errorText, b
     m_button->setEnabled(!working);
 }
 
-template<class O, class F>
-auto guardCallback(O *guardObject, const F &method)
-{
-    return [gp = QPointer<O>(guardObject), method](auto &&...args) {
-        if (gp)
-            method(std::forward<decltype(args)>(args)...);
-    };
-}
-
 void AuthWidget::checkStatus()
 {
     if (!isEnabled())
@@ -100,7 +92,7 @@ void AuthWidget::checkStatus()
     setState("Checking status ...", {}, true);
 
     m_client->requestCheckStatus(
-        false, guardCallback(this, [this](const CheckStatusRequest::Response &response) {
+        false, guardedCallback(this, [this](const CheckStatusRequest::Response &response) {
             if (response.error()) {
                 setState("Failed to authenticate", response.error()->message(), false);
                 return;
@@ -147,7 +139,7 @@ void AuthWidget::signIn()
     setState("Signing in ...", {}, true);
 
     m_client->requestSignInInitiate(
-        guardCallback(this, [this](const SignInInitiateRequest::Response &response) {
+        guardedCallback(this, [this](const SignInInitiateRequest::Response &response) {
             QTC_ASSERT(!response.error(), return);
 
             Utils::setClipboardAndSelection(response.result()->userCode());
@@ -161,7 +153,7 @@ void AuthWidget::signIn()
 
             m_client->requestSignInConfirm(
                 response.result()->userCode(),
-                guardCallback(this, [this](const SignInConfirmRequest::Response &response) {
+                guardedCallback(this, [this](const SignInConfirmRequest::Response &response) {
                     if (response.error()) {
                         QMessageBox::critical(
                             this,
@@ -182,7 +174,7 @@ void AuthWidget::signOut()
 
     setState("Signing out ...", {}, true);
 
-    m_client->requestSignOut(guardCallback(this, [this](const SignOutRequest::Response &response) {
+    m_client->requestSignOut(guardedCallback(this, [this](const SignOutRequest::Response &response) {
         QTC_ASSERT(!response.error(), return);
         QTC_ASSERT(response.result()->status() == "NotSignedIn", return);
 
