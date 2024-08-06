@@ -1136,7 +1136,7 @@ void MaterialEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNo
     m_textureAboutToBeRemoved = false;
 }
 
-void QmlDesigner::MaterialEditorView::highlightSupportedProperties(bool highlight)
+void MaterialEditorView::highlightSupportedProperties(bool highlight)
 {
     if (!m_selectedMaterial.isValid())
         return;
