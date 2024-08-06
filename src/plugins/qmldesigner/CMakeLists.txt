@@ -458,6 +458,7 @@ extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX designercore/projectstorage
   PUBLIC_INCLUDES designercore/projectstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  DEFINES QML_DOM_MSVC2019_COMPAT # can be removed for Qt 6.8
   SOURCES
     commontypecache.h
     directorypathcompressor.h
