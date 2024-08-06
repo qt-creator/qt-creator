@@ -89,7 +89,6 @@ WidgetInfo Edit3DView::widgetInfo()
     return createWidgetInfo(m_edit3DWidget.data(),
                             "Editor3D",
                             WidgetInfo::CentralPane,
-                            0,
                             tr("3D"),
                             tr("3D view"),
                             DesignerWidgetFlags::IgnoreErrors);

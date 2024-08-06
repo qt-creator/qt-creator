@@ -425,10 +425,6 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
             widgetInfoList.append(view->widgetInfo());
     }
 
-    Utils::sort(widgetInfoList, [](const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo) {
-        return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
-    });
-
     return widgetInfoList;
 }
 

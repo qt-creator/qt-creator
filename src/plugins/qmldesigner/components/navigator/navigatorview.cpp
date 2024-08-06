@@ -117,7 +117,6 @@ WidgetInfo NavigatorView::widgetInfo()
     return createWidgetInfo(m_widget.data(),
                             QStringLiteral("Navigator"),
                             WidgetInfo::LeftPane,
-                            0,
                             tr("Navigator"),
                             tr("Navigator view"));
 }

@@ -333,7 +333,6 @@ WidgetInfo TransitionEditorView::widgetInfo()
     return createWidgetInfo(createWidget(),
                             "TransitionEditor",
                             WidgetInfo::BottomPane,
-                            0,
                             tr("Transitions"),
                             tr("Transitions view"));
 }

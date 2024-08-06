@@ -45,7 +45,6 @@ WidgetInfo InsightView::widgetInfo()
     return createWidgetInfo(m_insightWidget.data(),
                             "QtInsight",
                             WidgetInfo::RightPane,
-                            0,
                             tr("Qt Insight"));
 }
 

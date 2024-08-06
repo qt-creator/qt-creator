@@ -986,7 +986,6 @@ WidgetInfo PropertyEditorView::widgetInfo()
     return createWidgetInfo(m_stackedWidget,
                             QStringLiteral("Properties"),
                             WidgetInfo::RightPane,
-                            0,
                             tr("Properties"),
                             tr("Property Editor view"));
 }

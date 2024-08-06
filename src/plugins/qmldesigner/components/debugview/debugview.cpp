@@ -439,7 +439,6 @@ WidgetInfo DebugView::widgetInfo()
     return createWidgetInfo(m_debugViewWidget.data(),
                             QStringLiteral("DebugView"),
                             WidgetInfo::LeftPane,
-                            0,
                             tr("Debug View"));
 }
 

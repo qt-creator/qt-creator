@@ -693,7 +693,6 @@ WidgetInfo TextureEditorView::widgetInfo()
     return createWidgetInfo(m_stackedWidget,
                             "TextureEditor",
                             WidgetInfo::RightPane,
-                            0,
                             tr("Texture Editor"),
                             tr("Texture Editor view"));
 }

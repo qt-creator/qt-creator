@@ -67,7 +67,7 @@ WidgetInfo AssetsLibraryView::widgetInfo()
         Core::ICore::addContextObject(context);
     }
 
-    return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, 0, tr("Assets"));
+    return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, tr("Assets"));
 }
 
 void AssetsLibraryView::customNotification(const AbstractView * /*view*/,

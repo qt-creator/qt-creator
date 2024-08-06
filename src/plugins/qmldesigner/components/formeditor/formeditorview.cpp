@@ -368,7 +368,6 @@ WidgetInfo FormEditorView::widgetInfo()
     return createWidgetInfo(m_formEditorWidget.data(),
                             "FormEditor",
                             WidgetInfo::CentralPane,
-                            0,
                             tr("2D"),
                             tr("2D view"),
                             DesignerWidgetFlags::IgnoreErrors);

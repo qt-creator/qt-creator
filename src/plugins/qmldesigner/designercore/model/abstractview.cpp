@@ -132,7 +132,6 @@ void AbstractView::removeModel()
 WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           const QString &uniqueId,
                                           WidgetInfo::PlacementHint placementHint,
-                                          int placementPriority,
                                           const QString &tabName,
                                           const QString &feedbackDisplayName,
                                           DesignerWidgetFlags widgetFlags)
@@ -142,7 +141,6 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     widgetInfo.widget = widget;
     widgetInfo.uniqueId = uniqueId;
     widgetInfo.placementHint = placementHint;
-    widgetInfo.placementPriority = placementPriority;
     widgetInfo.tabName = tabName;
     widgetInfo.feedbackDisplayName = feedbackDisplayName;
     widgetInfo.widgetFlags = widgetFlags;

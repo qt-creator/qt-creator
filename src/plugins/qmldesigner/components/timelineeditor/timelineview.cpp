@@ -659,7 +659,6 @@ WidgetInfo TimelineView::widgetInfo()
     return createWidgetInfo(createWidget(),
                             QStringLiteral("Timelines"),
                             WidgetInfo::BottomPane,
-                            0,
                             tr("Timeline"),
                             tr("Timeline view"));
 }

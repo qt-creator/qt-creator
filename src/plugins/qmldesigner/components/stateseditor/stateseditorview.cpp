@@ -70,7 +70,6 @@ WidgetInfo StatesEditorView::widgetInfo()
     return createWidgetInfo(m_statesEditorWidget.data(),
                             "StatesEditor",
                             WidgetInfo::BottomPane,
-                            0,
                             tr("States"));
 }
 

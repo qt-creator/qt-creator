@@ -216,7 +216,6 @@ WidgetInfo MaterialBrowserView::widgetInfo()
     return createWidgetInfo(m_widget.data(),
                             "MaterialBrowser",
                             WidgetInfo::LeftPane,
-                            0,
                             tr("Material Browser"),
                             tr("Material Browser view"));
 }

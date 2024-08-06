@@ -879,7 +879,6 @@ WidgetInfo MaterialEditorView::widgetInfo()
     return createWidgetInfo(m_stackedWidget,
                             "MaterialEditor",
                             WidgetInfo::RightPane,
-                            0,
                             tr("Material Editor"),
                             tr("Material Editor view"));
 }

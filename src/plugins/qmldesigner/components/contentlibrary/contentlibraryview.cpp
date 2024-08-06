@@ -145,7 +145,6 @@ WidgetInfo ContentLibraryView::widgetInfo()
     return createWidgetInfo(m_widget.data(),
                             "ContentLibrary",
                             WidgetInfo::LeftPane,
-                            0,
                             tr("Content Library"));
 }
 

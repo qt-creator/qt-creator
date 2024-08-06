@@ -125,8 +125,10 @@ QmlDesigner::WidgetInfo EffectComposerView::widgetInfo()
         Core::ICore::addContextObject(context);
     }
 
-    return createWidgetInfo(m_widget.data(), "EffectComposer",
-                            QmlDesigner::WidgetInfo::LeftPane, 0, tr("Effect Composer [beta]"));
+    return createWidgetInfo(m_widget.data(),
+                            "EffectComposer",
+                            QmlDesigner::WidgetInfo::LeftPane,
+                            tr("Effect Composer [beta]"));
 }
 
 void EffectComposerView::customNotification([[maybe_unused]] const AbstractView *view,

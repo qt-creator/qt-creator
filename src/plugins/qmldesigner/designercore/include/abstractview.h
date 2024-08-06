@@ -39,7 +39,6 @@ enum DesignerWidgetFlags {
 };
 
 class WidgetInfo {
-
 public:
     enum PlacementHint {
         NoPane,
@@ -54,7 +53,6 @@ public:
     QString tabName;
     QString feedbackDisplayName;
     QWidget *widget = nullptr;
-    int placementPriority;
     PlacementHint placementHint;
     DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
 };
@@ -296,7 +294,6 @@ protected:
         QWidget *widget = nullptr,
         const QString &uniqueId = QString(),
         WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
-        int placementPriority = 0,
         const QString &tabName = QString(),
         const QString &feedbackDisplayName = QString(),
         DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
