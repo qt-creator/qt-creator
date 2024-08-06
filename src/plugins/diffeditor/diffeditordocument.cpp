@@ -179,13 +179,6 @@ void DiffEditorDocument::setDescription(const QString &description)
     emit descriptionChanged();
 }
 
-void DiffEditorDocument::setDescriptionSyntaxHighlighterCreator(
-    const std::function<TextEditor::SyntaxHighlighter *()> &creator)
-{
-    m_descriptionHighlighter = creator;
-    emit descriptionHighlighterChanged();
-}
-
 QString DiffEditorDocument::description() const
 {
     return m_description;

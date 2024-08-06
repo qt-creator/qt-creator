@@ -16,7 +16,6 @@ class QMenu;
 QT_END_NAMESPACE
 
 namespace Core { class IDocument; }
-namespace TextEditor { class SyntaxHighlighter; }
 namespace Utils { class FilePath; }
 
 namespace DiffEditor {
@@ -65,8 +64,6 @@ protected:
     void setDisplayName(const QString &name) { m_displayName = name; }
     void setAnsiEnabled(bool enabled);
     void setDescription(const QString &description);
-    void setDescriptionSyntaxHighlighterCreator(
-        const std::function<TextEditor::SyntaxHighlighter *()> &creator);
     void setStartupFile(const QString &startupFile);
     void forceContextLineCount(int lines);
 

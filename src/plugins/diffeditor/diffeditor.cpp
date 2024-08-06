@@ -147,7 +147,6 @@ private:
     void documentHasChanged();
     void toggleDescription();
     void updateDescription();
-    void updateDescriptionHighlighter();
     void contextLineCountHasChanged(int lines);
     void ignoreWhitespaceHasChanged();
     void prepareForReload();
@@ -300,8 +299,6 @@ void DiffEditor::setDocument(std::shared_ptr<DiffEditorDocument> doc)
             this, &DiffEditor::documentHasChanged);
     connect(m_document.get(), &DiffEditorDocument::descriptionChanged,
             this, &DiffEditor::updateDescription);
-    connect(m_document.get(), &DiffEditorDocument::descriptionHighlighterChanged,
-            this, &DiffEditor::updateDescriptionHighlighter);
     connect(m_document.get(), &DiffEditorDocument::aboutToReload,
             this, &DiffEditor::prepareForReload);
     connect(m_document.get(), &DiffEditorDocument::reloadFinished,
@@ -457,13 +454,6 @@ void DiffEditor::updateDescription()
     m_toggleDescriptionAction->setToolTip(actionText);
     m_toggleDescriptionAction->setText(actionText);
     m_toggleDescriptionAction->setVisible(!description.isEmpty());
-}
-
-void DiffEditor::updateDescriptionHighlighter()
-{
-    const auto creator = m_document->descriptionSyntaxHighlighterCreator();
-    if (creator)
-        m_descriptionWidget->textDocument()->resetSyntaxHighlighter(creator);
 }
 
 void DiffEditor::contextLineCountHasChanged(int lines)

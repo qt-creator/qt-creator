@@ -93,12 +93,6 @@ void DiffEditorController::setDescription(const QString &description)
     m_document->setDescription(description);
 }
 
-void DiffEditorController::setDescriptionSyntaxHighlighterCreator(
-    const std::function<TextEditor::SyntaxHighlighter *()> &creator)
-{
-    m_document->setDescriptionSyntaxHighlighterCreator(creator);
-}
-
 /**
  * @brief Force the lines of context to the given number.
  *
