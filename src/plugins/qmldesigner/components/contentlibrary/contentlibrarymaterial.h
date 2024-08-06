@@ -18,10 +18,8 @@ class ContentLibraryMaterial : public QObject
     Q_PROPERTY(QUrl bundleMaterialIcon MEMBER m_icon CONSTANT)
     Q_PROPERTY(bool bundleMaterialVisible MEMBER m_visible NOTIFY materialVisibleChanged)
     Q_PROPERTY(bool bundleItemImported READ imported WRITE setImported NOTIFY materialImportedChanged)
-    Q_PROPERTY(QString bundleMaterialBaseWebUrl MEMBER m_baseWebUrl CONSTANT)
-    Q_PROPERTY(QString bundleMaterialDirPath READ dirPath CONSTANT)
     Q_PROPERTY(QStringList bundleMaterialFiles READ allFiles CONSTANT)
-    Q_PROPERTY(QString itemType MEMBER m_itemType CONSTANT)
+    Q_PROPERTY(QString bundleId READ bundleId CONSTANT)
 
 public:
     ContentLibraryMaterial(QObject *parent,
@@ -30,12 +28,9 @@ public:
                            const TypeName &type,
                            const QUrl &icon,
                            const QStringList &files,
-                           const QString &downloadPath,
-                           const QString &baseWebUrl = {});
+                           const QString &bundleId);
 
     bool filter(const QString &searchText);
-
-    Q_INVOKABLE bool isDownloaded() const;
 
     QString name() const;
     QUrl icon() const;
@@ -43,12 +38,12 @@ public:
     TypeName type() const;
     QStringList files() const;
     bool visible() const;
-    QString qmlFilePath() const;
 
     bool setImported(bool imported);
     bool imported() const;
-    QString dirPath() const;
     QStringList allFiles() const;
+
+    QString bundleId() const;
 
 signals:
     void materialVisibleChanged();
@@ -64,10 +59,8 @@ private:
     bool m_visible = true;
     bool m_imported = false;
 
-    QString m_downloadPath;
-    QString m_baseWebUrl;
     QStringList m_allFiles;
-    const QString m_itemType = "material";
+    const QString m_bundleId;
 };
 
 } // namespace QmlDesigner

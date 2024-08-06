@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cmakegenerator.h"
+#include "filetypes.h"
 
 #include "qmlprojectmanager/qmlproject.h"
 #include "qmlprojectmanager/qmlprojectconstants.h"
@@ -197,21 +198,6 @@ void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &rem
     createSourceFiles();
 }
 
-bool CMakeGenerator::isQml(const Utils::FilePath &path) const
-{
-    const QString suffix = path.suffix();
-    return suffix == "qml" || suffix == "ui.qml";
-}
-
-bool CMakeGenerator::isResource(const Utils::FilePath &path) const
-{
-    static const QStringList suffixes = {
-        "json", "mesh", "dae", "qad", "hints", "png", "hdr", "ttf", "jpg",
-        "jpeg", "js", "qsb", "frag", "frag.qsb", "vert", "vert.qsb", "svg",
-        "ktx", "bmp", "gif", "webp", "tiff"};
-    return suffixes.contains(path.suffix(), Qt::CaseInsensitive);
-}
-
 bool CMakeGenerator::ignore(const Utils::FilePath &path) const
 {
     if (path.isFile()) {
@@ -232,6 +218,32 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
             }
             dir = dir.parentDir();
         }
+    }
+    return false;
+}
+
+bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) const
+{
+    QTC_ASSERT(buildSystem(), return false);
+
+    Utils::FilePath relative = path.relativeChildPath(m_root->dir);
+    QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
+
+    for (const auto& import : buildSystem()->importPaths()) {
+        Utils::FilePath importPath = Utils::FilePath::fromUserInput(import);
+        for (const auto& component : importPath.pathView().split('/', Qt::SkipEmptyParts)) {
+            if (component == pathComponents.first())
+                pathComponents.pop_front();
+        }
+    }
+
+    const QStringList uriComponents = uri.split('.', Qt::SkipEmptyParts);
+    if (pathComponents.size() == uriComponents.size()) {
+        for (qsizetype i=0; i<pathComponents.size(); ++i) {
+            if (pathComponents[i] != uriComponents[i])
+                return false;
+        }
+        return true;
     }
     return false;
 }
@@ -288,6 +300,11 @@ void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) 
         }
     }
     f.close();
+
+    if (!checkUri(node->uri, node->dir)) {
+        QString text("Unexpected uri %1");
+        logIssue(ProjectExplorer::Task::Warning, text.arg(node->uri), node->dir);
+    }
 }
 
 NodePtr CMakeGenerator::findModuleFor(const NodePtr &node) const
@@ -365,9 +382,9 @@ bool findFileWithGetter(const Utils::FilePath &file, const NodePtr &node, const 
 
 bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) const
 {
-    if (isResource(file)) {
-        return findFileWithGetter(file, node, [](const NodePtr &n) { return n->resources; });
-    } else if (isQml(file)) {
+    if (isAssetFile(file)) {
+        return findFileWithGetter(file, node, [](const NodePtr &n) { return n->assets; });
+    } else if (isQmlFile(file)) {
         if (findFileWithGetter(file, node, [](const NodePtr &n) { return n->files; }))
             return true;
         else if (findFileWithGetter(file, node, [](const NodePtr &n) { return n->singletons; }))
@@ -386,10 +403,10 @@ void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) cons
         readQmlDir(path, node);
     } else if (path.suffix() == "cpp") {
         node->sources.push_back(path);
-    } else if (isQml(path)) {
+    } else if (isQmlFile(path)) {
         node->files.push_back(path);
-    } else if (isResource(path)) {
-        node->resources.push_back(path);
+    } else if (isAssetFile(path)) {
+        node->assets.push_back(path);
     }
 }
 
@@ -400,15 +417,14 @@ void CMakeGenerator::removeFile(NodePtr &node, const Utils::FilePath &path) cons
         node->singletons.clear();
         node->uri = "";
         node->name = path.parentDir().fileName();
-
-    } else if (isQml(path)) {
+    } else if (isQmlFile(path)) {
         auto iter = std::find(node->files.begin(), node->files.end(), path);
         if (iter != node->files.end())
             node->files.erase(iter);
-    } else if (isResource(path)) {
-        auto iter = std::find(node->resources.begin(), node->resources.end(), path);
-        if (iter != node->resources.end())
-            node->resources.erase(iter);
+    } else if (isAssetFile(path)) {
+        auto iter = std::find(node->assets.begin(), node->assets.end(), path);
+        if (iter != node->assets.end())
+            node->assets.erase(iter);
     }
 }
 
@@ -454,7 +470,7 @@ void CMakeGenerator::printNodeTree(const NodePtr &generatorNode, size_t indent) 
     qDebug() << addIndent(indent) << "directory: " << generatorNode->dir;
     qDebug() << addIndent(indent) << "files: " << generatorNode->files;
     qDebug() << addIndent(indent) << "singletons: " << generatorNode->singletons;
-    qDebug() << addIndent(indent) << "resources: " << generatorNode->resources;
+    qDebug() << addIndent(indent) << "assets: " << generatorNode->assets;
     qDebug() << addIndent(indent) << "sources: " << generatorNode->sources;
 
     for (const auto &child : generatorNode->subdirs)
@@ -526,7 +542,7 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
         if (ignore(next.parentDir()))
             continue;
 
-        if (isResource(next) && !findFile(next) && !ignore(next))
+        if (isAssetFile(next) && !findFile(next) && !ignore(next))
             files.push_back(next);
     }
 

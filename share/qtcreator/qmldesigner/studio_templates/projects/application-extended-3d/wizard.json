@@ -10,6 +10,7 @@
     "fontIconName": "wizardsGeneric",
     "enabled": "%{JS: [ %{Plugins} ].indexOf('QmlProjectManager') >= 0}",
     "platformIndependent": true,
+    "featuresRequired": [ "QmlDesigner.Wizards.FullQDS" ],
 
     "options":
         [
@@ -263,6 +264,14 @@
                                 "({
                                     'TargetQuickVersion': '6.7',
                                     'TargetQuick3DVersion': '6.7'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.8",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.8',
+                                    'TargetQuick3DVersion': '6.8'
                                 })"
                             }
                         ]

@@ -39,7 +39,6 @@ enum DesignerWidgetFlags {
 };
 
 class WidgetInfo {
-
 public:
     enum PlacementHint {
         NoPane,
@@ -54,7 +53,6 @@ public:
     QString tabName;
     QString feedbackDisplayName;
     QWidget *widget = nullptr;
-    int placementPriority;
     PlacementHint placementHint;
     DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
 };
@@ -132,9 +130,8 @@ public:
 
     void emitDocumentMessage(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings = {});
     void emitDocumentMessage(const QString &error);
-    void emitCustomNotification(const QString &identifier);
-    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList);
-    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data);
+    void emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList = {},
+                                const QList<QVariant> &data = {});
 
     void emitInstancePropertyChange(const QList<QPair<ModelNode, PropertyName> > &propertyList);
     void emitInstanceErrorChange(const QVector<qint32> &instanceIds);
@@ -148,7 +145,9 @@ public:
     void emitInstanceToken(const QString &token, int number, const QVector<ModelNode> &nodeVector);
     void emitRenderImage3DChanged(const QImage &image);
     void emitUpdateActiveScene3D(const QVariantMap &sceneState);
-    void emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
+    void emitModelNodelPreviewPixmapChanged(const ModelNode &node,
+                                            const QPixmap &pixmap,
+                                            const QByteArray &requestId);
     void emitImport3DSupportChanged(const QVariantMap &supportMap);
     void emitNodeAtPosResult(const ModelNode &modelNode, const QVector3D &pos3d);
     void emitView3DAction(View3DActionType type, const QVariant &value);
@@ -227,7 +226,9 @@ public:
     virtual void updateActiveScene3D(const QVariantMap &sceneState);
     virtual void updateImport3DSupport(const QVariantMap &supportMap);
     virtual void nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos3d);
-    virtual void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap);
+    virtual void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                               const QPixmap &pixmap,
+                                               const QByteArray &requestId);
 
     virtual void view3DAction(View3DActionType type, const QVariant &value);
 
@@ -293,7 +294,6 @@ protected:
         QWidget *widget = nullptr,
         const QString &uniqueId = QString(),
         WidgetInfo::PlacementHint placementHint = WidgetInfo::NoPane,
-        int placementPriority = 0,
         const QString &tabName = QString(),
         const QString &feedbackDisplayName = QString(),
         DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);

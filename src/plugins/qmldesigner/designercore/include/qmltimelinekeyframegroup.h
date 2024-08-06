@@ -28,7 +28,7 @@ public:
     void setTarget(const ModelNode &target);
 
     PropertyName propertyName() const;
-    void setPropertyName(const PropertyName &propertyName);
+    void setPropertyName(PropertyNameView propertyName);
 
     void setValue(const QVariant &value, qreal frame);
     QVariant value(qreal frame) const;

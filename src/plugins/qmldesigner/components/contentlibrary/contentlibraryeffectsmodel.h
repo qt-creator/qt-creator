@@ -28,7 +28,7 @@ public:
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     QHash<int, QByteArray> roleNames() const override;
 
-    void loadBundle();
+    void loadBundle(bool force = false);
     void setSearchText(const QString &searchText);
     void updateImportedState(const QStringList &importedItems);
 

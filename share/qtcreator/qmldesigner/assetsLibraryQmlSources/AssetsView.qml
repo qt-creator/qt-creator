@@ -479,6 +479,6 @@ TreeView {
     delegate: AssetDelegate {
         assetsView: root
         assetsRoot: root.assetsRoot
-        indentation: 5
+        indentation: 10
     }
 } // TreeView

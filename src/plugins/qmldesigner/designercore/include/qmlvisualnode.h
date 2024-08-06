@@ -100,7 +100,7 @@ public:
     bool isFlowWildcard() const;
 
 private:
-    void setDoubleProperty(const PropertyName &name, double value);
+    void setDoubleProperty(PropertyNameView name, double value);
 };
 
 class QMLDESIGNERCORE_EXPORT QmlModelStateGroup

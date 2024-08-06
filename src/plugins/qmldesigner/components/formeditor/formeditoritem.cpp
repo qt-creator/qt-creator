@@ -200,7 +200,7 @@ qreal FormEditorItem::selectionWeigth(const QPointF &point, int iteration)
     return weight;
 }
 
-void FormEditorItem::synchronizeOtherProperty(const QByteArray &propertyName)
+void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
 {
     if (propertyName == "opacity")
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
@@ -557,7 +557,7 @@ QmlItemNode FormEditorItem::qmlItemNode() const
     return m_qmlItemNode;
 }
 
-void FormEditorFlowItem::synchronizeOtherProperty(const QByteArray &)
+void FormEditorFlowItem::synchronizeOtherProperty(PropertyNameView)
 {
     setContentVisible(true);
 }
@@ -783,7 +783,7 @@ QTransform FormEditorFlowActionItem::instanceSceneContentItemTransform() const
     return sceneTransform();
 }
 
-void FormEditorTransitionItem::synchronizeOtherProperty(const QByteArray &)
+void FormEditorTransitionItem::synchronizeOtherProperty(PropertyNameView)
 {
     setContentVisible(true);
 }

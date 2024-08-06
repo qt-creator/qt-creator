@@ -51,6 +51,7 @@ SortFilterModel 1.0 SortFilterModel.qml
 SpinBox 1.0 SpinBox.qml
 SpinBoxIndicator 1.0 SpinBoxIndicator.qml
 SpinBoxInput 1.0 SpinBoxInput.qml
+SplitView 1.0 SplitView.qml
 Switch 1.0 Switch.qml
 TabBar 1.0 TabBar.qml
 TabButton 1.0 TabButton.qml

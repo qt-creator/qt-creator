@@ -10,7 +10,9 @@ endif()
 configure_file(app_logo.qrc.cmakein app_logo_cmake.qrc)
 
 add_qtc_executable(qtcreator
-  DEFINES IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
+  DEFINES
+    IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
+    IDE_APP_ID=\"${IDE_APP_ID}\"
   DEPENDS Aggregation ExtensionSystem Qt::Core Qt::Widgets Utils shared_qtsingleapplication app_version
   SOURCES
     main.cpp
@@ -156,7 +158,7 @@ if ((NOT WIN32) AND (NOT APPLE))
   # install logo
   foreach(size 16 24 32 48 64 128 256 512)
     install(
-      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-qtcreator.png
+      FILES ${IDE_LOGO_PATH}/images/logo/${size}/QtProject-${IDE_ID}.png
       DESTINATION share/icons/hicolor/${size}x${size}/apps
     )
   endforeach()

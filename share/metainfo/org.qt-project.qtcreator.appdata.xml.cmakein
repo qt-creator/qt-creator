@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright (C) 2016 The Qt Company Ltd. Contact: https://www.qt.io/licensing/ -->
 <component type="desktop">
- <id>org.qt-project.qtcreator.desktop</id>
+ <id>org.qt-project.qtcreator</id>
  <name>Qt Creator</name>
  <developer id="org.qt-project">
    <name>Qt Project</name>
@@ -28,7 +28,13 @@
  </description>
  <launchable type="desktop-id">org.qt-project.qtcreator.desktop</launchable>
 
- <url type="homepage">https://www.qt.io/ide/</url>
+ <url type="homepage">https://www.qt.io/product/development-tools</url>
+ <url type="bugtracker">https://bugreports.qt.io/projects/QTCREATORBUG/summary</url>
+ <url type="help">https://doc.qt.io/qtcreator</url>
+ <url type="contact">https://lists.qt-project.org/listinfo/qt-creator</url>
+ <url type="vcs-browser">https://codereview.qt-project.org/q/project:qt-creator/qt-creator</url>
+ <url type="contribute">https://www.qt.io/community/contribute-to-qt</url>
+
  <project_group>Qt</project_group>
  <content_rating type="oars-1.1" />
  <screenshots>

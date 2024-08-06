@@ -45,6 +45,7 @@
         \li \b {\l{Prototyping}}
             \list
                 \li \l{Creating UI Logic}
+                \li \l{Effects}
                 \li \l{Simulating Complex Experiences}
                 \li \l{Dynamic Behaviors}
                 \li \l{Validating with Target Hardware}

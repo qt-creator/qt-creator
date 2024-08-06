@@ -43,18 +43,17 @@ public:
     bool isInLayoutable{false};
     bool directUpdates{false};
 
-
-    QHash<PropertyName, QVariant> propertyValues;
-    QHash<PropertyName, bool> hasBindingForProperty;
-    QHash<PropertyName, bool> hasAnchors;
-    QHash<PropertyName, TypeName> instanceTypes;
+    std::map<Utils::SmallString, QVariant, std::less<>> propertyValues;
+    std::map<Utils::SmallString, bool, std::less<>> hasBindingForProperty;
+    std::map<Utils::SmallString, bool, std::less<>> hasAnchors;
+    std::map<Utils::SmallString, TypeName, std::less<>> instanceTypes;
 
     QPixmap renderPixmap;
     QPixmap blurredRenderPixmap;
 
     QString errorMessage;
 
-    QHash<PropertyName, QPair<PropertyName, qint32> > anchors;
+    std::map<Utils::SmallString, std::pair<PropertyName, qint32>, std::less<>> anchors;
     QStringList allStates;
 };
 
@@ -285,17 +284,32 @@ int NodeInstance::penWidth() const
         return 1;
 }
 
-QVariant NodeInstance::property(const PropertyName &name) const
+namespace {
+
+template<typename... Arguments>
+auto value(const std::map<Arguments...> &dict,
+           PropertyNameView key,
+           typename std::map<Arguments...>::mapped_type defaultValue = {})
+{
+    if (auto found = dict.find(key); found != dict.end())
+        return found->second;
+
+    return defaultValue;
+}
+
+} // namespace
+
+QVariant NodeInstance::property(PropertyNameView name) const
 {
     if (isValid()) {
-        if (d->propertyValues.contains(name)) {
-            return d->propertyValues.value(name);
+        if (auto found = d->propertyValues.find(name); found != d->propertyValues.end()) {
+            return found->second;
         } else {
             // Query may be for a subproperty, e.g. scale.x
-            const int index = name.indexOf('.');
+            const auto index = name.indexOf('.');
             if (index != -1) {
-                PropertyName parentPropName = name.left(index);
-                QVariant varValue = d->propertyValues.value(parentPropName);
+                PropertyNameView parentPropName = name.left(index);
+                QVariant varValue = value(d->propertyValues, parentPropName);
                 if (varValue.typeId() == QVariant::Vector2D) {
                     auto value = varValue.value<QVector2D>();
                     char subProp = name.right(1)[0];
@@ -361,7 +375,7 @@ QVariant NodeInstance::property(const PropertyName &name) const
     return QVariant();
 }
 
-bool NodeInstance::hasProperty(const PropertyName &name) const
+bool NodeInstance::hasProperty(PropertyNameView name) const
 {
     if (isValid())
         return d->propertyValues.contains(name);
@@ -369,18 +383,18 @@ bool NodeInstance::hasProperty(const PropertyName &name) const
     return false;
 }
 
-bool NodeInstance::hasBindingForProperty(const PropertyName &name) const
+bool NodeInstance::hasBindingForProperty(PropertyNameView name) const
 {
     if (isValid())
-        return d->hasBindingForProperty.value(name, false);
+        return value(d->hasBindingForProperty, name, false);
 
     return false;
 }
 
-TypeName NodeInstance::instanceType(const PropertyName &name) const
+TypeName NodeInstance::instanceType(PropertyNameView name) const
 {
     if (isValid())
-        return d->instanceTypes.value(name);
+        return value(d->instanceTypes, name);
 
     return TypeName();
 }
@@ -393,28 +407,28 @@ qint32 NodeInstance::parentId() const
         return false;
 }
 
-bool NodeInstance::hasAnchor(const PropertyName &name) const
+bool NodeInstance::hasAnchor(PropertyNameView name) const
 {
     if (isValid())
-        return d->hasAnchors.value(name, false);
+        return value(d->hasAnchors, name, false);
 
     return false;
 }
 
-QPair<PropertyName, qint32> NodeInstance::anchor(const PropertyName &name) const
+QPair<PropertyName, qint32> NodeInstance::anchor(PropertyNameView name) const
 {
     if (isValid())
-        return d->anchors.value(name, QPair<PropertyName, qint32>(PropertyName(), qint32(-1)));
+        return value(d->anchors, name, QPair<PropertyName, qint32>(PropertyName(), qint32(-1)));
 
     return QPair<PropertyName, qint32>(PropertyName(), -1);
 }
 
-void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
+void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
 {
-    const int index = name.indexOf('.');
+    const auto index = name.indexOf('.');
     if (index != -1) {
-        PropertyName parentPropName = name.left(index);
-        QVariant oldValue = d->propertyValues.value(parentPropName);
+        PropertyNameView parentPropName = name.left(index);
+        QVariant oldValue = QmlDesigner::value(d->propertyValues, parentPropName);
         QVariant newValueVar;
         bool update = false;
         if (oldValue.typeId() == QVariant::Vector2D) {
@@ -464,12 +478,12 @@ void NodeInstance::setProperty(const PropertyName &name, const QVariant &value)
             newValueVar = newValue;
         }
         if (update) {
-            d->propertyValues.insert(parentPropName, newValueVar);
+            d->propertyValues.emplace(parentPropName, newValueVar);
             return;
         }
     }
 
-    d->propertyValues.insert(name, value);
+    d->propertyValues.emplace(name, value);
 }
 
 QPixmap NodeInstance::renderPixmap() const
@@ -671,41 +685,50 @@ InformationName NodeInstance::setInformationHasContent(bool hasContent)
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationHasAnchor(const PropertyName &sourceAnchorLine, bool hasAnchor)
+InformationName NodeInstance::setInformationHasAnchor(PropertyNameView sourceAnchorLine, bool hasAnchor)
 {
-    if (d->hasAnchors.value(sourceAnchorLine) != hasAnchor) {
-        d->hasAnchors.insert(sourceAnchorLine, hasAnchor);
+    if (auto found = d->hasAnchors.find(sourceAnchorLine);
+        found == d->hasAnchors.end() || found->second != hasAnchor) {
+        d->hasAnchors.emplace_hint(found, sourceAnchorLine, hasAnchor);
         return HasAnchor;
     }
 
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationAnchor(const PropertyName &sourceAnchorLine, const PropertyName &targetAnchorLine, qint32 targetInstanceId)
+InformationName NodeInstance::setInformationAnchor(PropertyNameView sourceAnchorLine,
+                                                   const PropertyName &targetAnchorLine,
+                                                   qint32 targetInstanceId)
 {
-    QPair<PropertyName, qint32>  anchorPair = QPair<PropertyName, qint32>(targetAnchorLine, targetInstanceId);
-    if (d->anchors.value(sourceAnchorLine) != anchorPair) {
-        d->anchors.insert(sourceAnchorLine, anchorPair);
+    std::pair<PropertyName, qint32> anchorPair = std::pair<PropertyName, qint32>(targetAnchorLine,
+                                                                                 targetInstanceId);
+    if (auto found = d->anchors.find(sourceAnchorLine);
+        found == d->anchors.end() || found->second != anchorPair) {
+        d->anchors.emplace_hint(found, sourceAnchorLine, anchorPair);
         return Anchor;
     }
 
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationInstanceTypeForProperty(const PropertyName &property, const TypeName &type)
+InformationName NodeInstance::setInformationInstanceTypeForProperty(PropertyNameView property,
+                                                                    const TypeName &type)
 {
-    if (d->instanceTypes.value(property) != type) {
-        d->instanceTypes.insert(property, type);
+    if (auto found = d->instanceTypes.find(property);
+        found == d->instanceTypes.end() || found->second != type) {
+        d->instanceTypes.emplace_hint(found, property, type);
         return InstanceTypeForProperty;
     }
 
     return NoInformationChange;
 }
 
-InformationName NodeInstance::setInformationHasBindingForProperty(const PropertyName &property, bool hasProperty)
+InformationName NodeInstance::setInformationHasBindingForProperty(PropertyNameView property,
+                                                                  bool hasProperty)
 {
-    if (d->hasBindingForProperty.value(property) != hasProperty) {
-        d->hasBindingForProperty.insert(property, hasProperty);
+    if (auto found = d->hasBindingForProperty.find(property);
+        found == d->hasBindingForProperty.end() || found->second != hasProperty) {
+        d->hasBindingForProperty.emplace_hint(found, property, hasProperty);
         return HasBindingForProperty;
     }
 

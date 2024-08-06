@@ -7,6 +7,8 @@
 #include <designermcumanager.h>
 #include <utils/algorithm.h>
 
+#include <qmldesignerbase/qmldesignerbaseplugin.h>
+
 #include <QDebug>
 #include <QVariant>
 #include <QMetaProperty>
@@ -73,6 +75,9 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
     const DesignerMcuManager &mcuManager = DesignerMcuManager::instance();
     const bool isQtForMCUs = mcuManager.isMCUProject();
     Imports filteredImports;
+
+    const bool isLiteDesigner = QmlDesigner::QmlDesignerBasePlugin::isLiteModeEnabled();
+
     if (isQtForMCUs) {
         const QStringList mcuAllowedList = mcuManager.allowedImports();
         const QStringList mcuBannedList = mcuManager.bannedImports();
@@ -82,6 +87,11 @@ void ItemLibraryAddImportModel::update(const Imports &possibleImports)
                                                       || !import.url().startsWith("Qt"))
                                                      && !mcuBannedList.contains(import.url());
                                           });
+    } else if (isLiteDesigner) {
+        const QStringList liteAllowedList = {"QtQuick", "QtQuick.Layouts", "QtQuick.Controls"};
+        filteredImports = Utils::filtered(possibleImports, [&](const Import &import) {
+            return (liteAllowedList.contains(import.url()) || !import.url().startsWith("Qt"));
+        });
     } else {
         filteredImports = possibleImports;
     }

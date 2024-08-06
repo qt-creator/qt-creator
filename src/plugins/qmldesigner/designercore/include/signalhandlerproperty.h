@@ -21,10 +21,15 @@ public:
     SignalHandlerProperty();
     SignalHandlerProperty(const SignalHandlerProperty &property, AbstractView *view);
 
-    static PropertyName prefixAdded(const PropertyName &propertyName);
-    static PropertyName prefixRemoved(const PropertyName &propertyName);
+    static PropertyName prefixAdded(PropertyNameView propertyName);
+    static PropertyName prefixRemoved(PropertyNameView propertyName);
 
-    SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+    SignalHandlerProperty(PropertyNameView propertyName,
+                          const Internal::InternalNodePointer &internalNode,
+                          Model *model,
+                          AbstractView *view)
+        : AbstractProperty(propertyName, internalNode, model, view)
+    {}
 };
 
 class QMLDESIGNERCORE_EXPORT SignalDeclarationProperty final : public AbstractProperty
@@ -39,7 +44,13 @@ public:
 
     SignalDeclarationProperty();
     SignalDeclarationProperty(const SignalDeclarationProperty &property, AbstractView *view);
-    SignalDeclarationProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view);
+
+    SignalDeclarationProperty(PropertyNameView propertyName,
+                              const Internal::InternalNodePointer &internalNode,
+                              Model *model,
+                              AbstractView *view)
+        : AbstractProperty(propertyName, internalNode, model, view)
+    {}
 };
 
 } // namespace QmlDesigner

@@ -103,6 +103,7 @@ Rectangle {
         anchors.rightMargin: 20
         anchors.leftMargin: 20
         spacing: 15
+        visible: !Constants.projectModel.liteDesignerEnabled
 
         CheckButton {
             id: recentProjects

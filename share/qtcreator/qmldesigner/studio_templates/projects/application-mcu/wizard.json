@@ -153,7 +153,7 @@
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}"
                 },
                 {
-                    "source": "qmldir",
+                    "source": "qmldir.tpl",
                     "target": "%{ProjectDirectory}/imports/Constants/qmldir"
                 },
                 {
@@ -174,8 +174,16 @@
                     "target": "%{ProjectDirectory}/CMakeLists.txt"
                 },
                 {
-                    "source": "../fonts.txt",
+                    "source": "../common/fonts.txt",
                     "target": "%{ProjectDirectory}/fonts/fonts.txt"
+                },
+                {
+                    "source": "images.txt",
+                    "target": "%{ProjectDirectory}/images/images.txt"
+                },
+                {
+                    "source": "assets.txt",
+                    "target": "%{ProjectDirectory}/assets/assets.txt"
                 },
                 {
                     "source": "mcuqtquickcontrols2.conf",

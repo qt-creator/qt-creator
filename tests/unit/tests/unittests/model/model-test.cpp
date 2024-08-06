@@ -117,7 +117,7 @@ protected:
 
 protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
@@ -764,6 +764,7 @@ TEST_F(Model, change_imports_is_synchronizing_imports_with_project_storage)
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
     auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
     auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto localPathModuleId = projectStorageMock.moduleId("/path", ModuleKind::PathLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -771,7 +772,8 @@ TEST_F(Model, change_imports_is_synchronizing_imports_with_project_storage)
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
                     UnorderedElementsAre(IsImport(qtQuickModuleId, filePathId, 2, 1),
-                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1)),
+                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1),
+                                         IsImport(localPathModuleId, filePathId, -1, -1)),
                     filePathId));
 
     model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
@@ -798,6 +800,7 @@ TEST_F(Model, change_imports_is_adding_import_in_project_storage)
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
     auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
     auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto localPathModuleId = projectStorageMock.moduleId("/path", ModuleKind::PathLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -806,7 +809,8 @@ TEST_F(Model, change_imports_is_adding_import_in_project_storage)
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
                     UnorderedElementsAre(IsImport(qtQuickModuleId, filePathId, 2, 1),
-                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1)),
+                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1),
+                                         IsImport(localPathModuleId, filePathId, -1, -1)),
                     filePathId));
 
     model.changeImports({qtQuickImport}, {});
@@ -817,15 +821,17 @@ TEST_F(Model, change_imports_is_removing_import_in_project_storage)
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
     auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto localPathModuleId = projectStorageMock.moduleId("/path", ModuleKind::PathLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
     model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
 
     EXPECT_CALL(projectStorageMock,
-                synchronizeDocumentImports(UnorderedElementsAre(
-                                               IsImport(qtQmlModelsModuleId, filePathId, -1, -1)),
-                                           filePathId));
+                synchronizeDocumentImports(
+                    UnorderedElementsAre(IsImport(qtQmlModelsModuleId, filePathId, -1, -1),
+                                         IsImport(localPathModuleId, filePathId, -1, -1)),
+                    filePathId));
 
     model.changeImports({}, {qtQuickImport});
 }
@@ -851,6 +857,7 @@ TEST_F(Model, change_imports_is_changing_import_version_with_project_storage)
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
     auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
     auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto localPathModuleId = projectStorageMock.moduleId("/path", ModuleKind::PathLibrary);
     auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
     auto directoryImport = QmlDesigner::Import::createFileImport("foo");
@@ -860,7 +867,8 @@ TEST_F(Model, change_imports_is_changing_import_version_with_project_storage)
     EXPECT_CALL(projectStorageMock,
                 synchronizeDocumentImports(
                     UnorderedElementsAre(IsImport(qtQuickModuleId, filePathId, 3, 1),
-                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1)),
+                                         IsImport(qtQmlModelsModuleId, filePathId, -1, -1),
+                                         IsImport(localPathModuleId, filePathId, -1, -1)),
                     filePathId));
 
     model.changeImports({qtQuickImport}, {});

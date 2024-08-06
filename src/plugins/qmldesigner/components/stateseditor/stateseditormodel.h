@@ -4,6 +4,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QColor>
 #include <QPointer>
 
 namespace QmlDesigner {
@@ -16,6 +17,8 @@ class StatesEditorModel : public QAbstractListModel
 
     Q_PROPERTY(bool canAddNewStates READ canAddNewStates WRITE setCanAddNewStates NOTIFY
                    canAddNewStatesChanged)
+    Q_PROPERTY(QColor backgroundColor READ backgroundColor WRITE setBackgroundColor NOTIFY
+                   backgroundColorChanged FINAL)
 
     enum {
         StateNameRole = Qt::DisplayRole,
@@ -93,6 +96,9 @@ public:
     bool canAddNewStates() const;
     void setCanAddNewStates(bool b);
 
+    QColor backgroundColor() const;
+    void setBackgroundColor(const QColor &c);
+
     bool isMCUs() const;
 
 signals:
@@ -104,6 +110,7 @@ signals:
     void activeStateGroupIndexChanged();
     void stateGroupsChanged();
     void canAddNewStatesChanged();
+    void backgroundColorChanged();
     void isMCUsChanged();
 
 private:
@@ -111,6 +118,7 @@ private:
     bool m_hasExtend;
     QStringList m_extendedStates;
     bool m_canAddNewStates = false;
+    QColor m_backgrounColor = Qt::transparent;
 };
 
 } // namespace QmlDesigner

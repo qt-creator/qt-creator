@@ -15,7 +15,7 @@ public:
 public:
     AddPropertyVisitor(TextModifier &modifier,
                        quint32 parentLocation,
-                       const PropertyName &name,
+                       PropertyNameView name,
                        const QString &value,
                        QmlRefactoring::PropertyType propertyType,
                        const PropertyNameList &propertyOrder,
@@ -30,7 +30,7 @@ private:
 
 private:
     quint32 m_parentLocation;
-    PropertyName m_name;
+    PropertyNameView m_name;
     QString m_value;
     QmlRefactoring::PropertyType m_propertyType;
     PropertyNameList m_propertyOrder;

@@ -119,6 +119,7 @@
         \li \l{Prototyping}
             \list
                 \li \l{Creating UI Logic}
+                \li \l{Effects}
                 \li \l{Simulating Complex Experiences}
                     \list
                         \li \l{Loading Placeholder Data}
@@ -271,5 +272,6 @@
             \endlist
         \li \l{Technical Support}
         \li \l{Acknowledgements}
+        \li \l{What's New}
     \endlist
 */

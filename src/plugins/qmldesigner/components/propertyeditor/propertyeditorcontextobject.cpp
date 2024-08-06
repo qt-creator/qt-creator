@@ -6,8 +6,9 @@
 #include "abstractview.h"
 #include "easingcurvedialog.h"
 #include "nodemetainfo.h"
-#include "qmldesignerconstants.h"
+#include "propertyeditorutils.h"
 #include "qml3dnode.h"
+#include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
 #include "qmlmodelnodeproxy.h"
 #include "qmlobjectnode.h"
@@ -204,10 +205,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         }
 
         // Create a list of properties available for the new type
-        auto propertiesAndSignals = Utils::transform<PropertyNameList>(metaInfo.properties(),
-                                                                       [](const auto &property) {
-                                                                           return property.name();
-                                                                       });
+        auto propertiesAndSignals = Utils::transform<PropertyNameList>(
+            PropertyEditorUtils::filteredPropertes(metaInfo),
+            [](const auto &property) { return property.name(); });
         // Add signals to the list
         for (const auto &signal : metaInfo.signalNames()) {
             if (signal.isEmpty())
@@ -226,9 +226,9 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
                 continue;
 
             // Add dynamic property
-            propertiesAndSignals.append(property.name());
+            propertiesAndSignals.append(property.name().toByteArray());
             // Add its change signal
-            PropertyName name = property.name();
+            PropertyName name = property.name().toByteArray();
             QChar firstChar = QChar(property.name().at(0)).toUpper().toLatin1();
             name[0] = firstChar.toLatin1();
             name.prepend("on");
@@ -240,7 +240,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
         QList<PropertyName> incompatibleProperties;
         for (const auto &property : selectedNode.properties()) {
             if (!propertiesAndSignals.contains(property.name()))
-                incompatibleProperties.append(property.name());
+                incompatibleProperties.append(property.name().toByteArray());
         }
 
         Utils::sort(incompatibleProperties);

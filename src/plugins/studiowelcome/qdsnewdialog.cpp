@@ -414,7 +414,6 @@ void QdsNewDialog::reject()
     m_wizard.destroyWizard();
 
     m_dialog->close();
-    m_dialog.reset();
 }
 
 QString QdsNewDialog::chooseProjectLocation()

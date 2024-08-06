@@ -126,6 +126,7 @@ QtObject {
 
     property real controlGap: 5 // TODO different name
     property real splitterMargin: 5
+    property real splitterThickness: 6
     property real twoControlColumnGap: values.controlLabelGap
                                        + values.controlLabelWidth
                                        + values.controlGap
@@ -172,7 +173,7 @@ QtObject {
 
     property real controlColumnWithoutControlsWidth: 2 * (values.actionIndicatorWidth
                                                           + values.twoControlColumnGap)
-                                                    + values.linkControlWidth // there could be an issue here with the new style
+                                                     + values.iconAreaWidth // there could be an issue here with the new style
 
     property real controlColumnWidth: values.controlColumnWithoutControlsWidth
                                       + 2 * values.twoControlColumnWidth
@@ -193,18 +194,21 @@ QtObject {
     property real dialogScreenMargin: Math.round(160 * values.scaleFactor)
 
     function responsiveResize(width) {
+        // Subtract all layout gaps/spaces
         var tmpWidth = width - values.sectionColumnSpacing
                        - values.sectionLeftPadding - values.sectionLayoutRightPadding
         var labelColumnWidth = Math.round(tmpWidth * values.columnFactor)
         labelColumnWidth = Math.max(Math.min(values.propertyLabelWidthMax, labelColumnWidth),
                                     values.propertyLabelWidthMin)
-
+        // Rest width when label width is substracted
         var controlColumnWidth = tmpWidth - labelColumnWidth
-        var controlWidth = Math.round((controlColumnWidth - values.controlColumnWithoutControlsWidth) * 0.5)
+        var controlWidth = Math.floor((controlColumnWidth - values.controlColumnWithoutControlsWidth) * 0.5)
         controlWidth = Math.max(Math.min(values.twoControlColumnWidthMax, controlWidth),
                                 values.twoControlColumnWidthMin)
-
-        values.propertyLabelWidth = labelColumnWidth
+        // When both label and controls are at max width, calculate the remaining space
+        var rest = tmpWidth - (controlWidth * 2 + values.controlColumnWithoutControlsWidth + labelColumnWidth)
+        // Add the remaining space to the label width in order to improve readability of long labels
+        values.propertyLabelWidth = labelColumnWidth + rest
         values.twoControlColumnWidth = controlWidth
     }
 

@@ -99,6 +99,8 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool isSharingEnabled READ isSharingEnabled NOTIFY isSharingEnabledChanged)
     Q_PROPERTY(bool isDocumentDirty READ isDocumentDirty NOTIFY isDocumentDirtyChanged)
 
+    Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
+
 public:
     ToolBarBackend(QObject *parent  = nullptr);
     static void registerDeclarativeType();
@@ -149,6 +151,8 @@ public:
     bool isSharingEnabled();
 
     bool isDocumentDirty() const;
+
+    bool isLiteModeEnabled() const;
 
     static void launchGlobalAnnotations();
 

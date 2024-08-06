@@ -297,6 +297,15 @@ void addEnumeraton(Storage::Synchronization::Type &type, const QmlDom::Component
     }
 }
 
+Storage::TypeTraits createTypeTraits()
+{
+    Storage::TypeTraits traits = Storage::TypeTraitsKind::Reference;
+
+    traits.isFileComponent = true;
+
+    return traits;
+}
+
 } // namespace
 
 Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceContent,
@@ -363,6 +372,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                          directoryPath,
                                                          m_storage);
 
+    type.traits = createTypeTraits();
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);

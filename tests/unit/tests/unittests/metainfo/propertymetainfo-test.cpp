@@ -42,7 +42,7 @@ protected:
 
 protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCache{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCache.sourceId};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCache.sourceId, "/path"};
     QmlDesigner::Model model{{projectStorageMock, pathCache},
                              "Item",
                              {QmlDesigner::Import::createLibraryImport("QML"),

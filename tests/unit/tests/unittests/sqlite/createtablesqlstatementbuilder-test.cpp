@@ -24,7 +24,7 @@ using Sqlite::Unique;
 class CreateTableSqlStatementBuilder : public ::testing::Test
 {
 protected:
-    using Columns = ::Sqlite::Columns;
+    using Columns = ::Sqlite::StableReferenceColumns;
     using Builder = Sqlite::CreateTableSqlStatementBuilder<ColumnType>;
     void bindValues()
     {
@@ -554,7 +554,7 @@ TEST_F(CreateTableSqlStatementBuilder, blob_column_type_string_conversion)
 class CreateStrictTableSqlStatementBuilder : public ::testing::Test
 {
 protected:
-    using Columns = ::Sqlite::StrictColumns;
+    using Columns = ::Sqlite::StableReferenceStrictColumns;
 
     void bindValues()
     {

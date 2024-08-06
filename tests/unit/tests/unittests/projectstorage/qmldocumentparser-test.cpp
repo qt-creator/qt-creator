@@ -13,12 +13,15 @@
 
 namespace {
 
+#undef signals
+
 namespace Storage = QmlDesigner::Storage;
 namespace Synchronization = Storage::Synchronization;
 using QmlDesigner::ModuleId;
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::Storage::ModuleKind;
+using Storage::TypeTraits;
 
 MATCHER_P(HasPrototype, prototype, std::string(negation ? "isn't " : "is ") + PrintToString(prototype))
 {
@@ -153,14 +156,16 @@ protected:
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
-    SourceContextId qmlFileSourceContextId{sourcePathCache.sourceContextId(qmlFileSourceId)};
+    SourceContextId qmlFileSourceContextId{qmlFileSourceId.contextId()};
     Utils::PathString directoryPath{sourcePathCache.sourceContextPath(qmlFileSourceContextId)};
     ModuleId directoryModuleId{storage.moduleId(directoryPath, ModuleKind::PathLibrary)};
 };
 
 TEST_F(QmlDocumentParser, prototype)
 {
-    auto type = parser.parse("Example{}", imports, qmlFileSourceId, directoryPath);
+    QString component = "Example{}";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type, HasPrototype(Synchronization::ImportedType("Example")));
 }
@@ -168,10 +173,10 @@ TEST_F(QmlDocumentParser, prototype)
 TEST_F(QmlDocumentParser, qualified_prototype)
 {
     auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
-    QString text = R"(import Example 2.1 as Example
+    QString component = R"(import Example 2.1 as Example
                       Example.Item{})";
 
-    auto type = parser.parse(text, imports, qmlFileSourceId, directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type,
                 HasPrototype(Synchronization::QualifiedImportedType(
@@ -181,7 +186,9 @@ TEST_F(QmlDocumentParser, qualified_prototype)
 
 TEST_F(QmlDocumentParser, properties)
 {
-    auto type = parser.parse(R"(Example{ property int foo })", imports, qmlFileSourceId, directoryPath);
+    QString component = R"(Example{ property int foo })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("foo",
@@ -192,12 +199,10 @@ TEST_F(QmlDocumentParser, properties)
 TEST_F(QmlDocumentParser, qualified_properties)
 {
     auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
+    QString component = R"(import Example 2.1 as Example
+                       Item{ property Example.Foo foo})";
 
-    auto type = parser.parse(R"(import Example 2.1 as Example
-                                Item{ property Example.Foo foo})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -211,11 +216,10 @@ TEST_F(QmlDocumentParser, qualified_properties)
 
 TEST_F(QmlDocumentParser, enumeration_in_properties)
 {
-    auto type = parser.parse(R"(import Example 2.1 as Example
-                                Item{ property Enumeration.Foo foo})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(import Example 2.1 as Example
+                           Item{ property Enumeration.Foo foo})";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -227,12 +231,10 @@ TEST_F(QmlDocumentParser, enumeration_in_properties)
 TEST_F(QmlDocumentParser, qualified_enumeration_in_properties)
 {
     auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
+    QString component = R"(import Example 2.1 as Example
+                           Item{ property Example.Enumeration.Foo foo})";
 
-    auto type = parser.parse(R"(import Example 2.1 as Example
-                                Item{ property Example.Enumeration.Foo foo})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -249,13 +251,11 @@ TEST_F(QmlDocumentParser, imports)
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo", ModuleKind::PathLibrary);
     ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    QString component = R"(import QtQuick
+                           import "../foo"
+                           Example{})";
 
-    auto type = parser.parse(R"(import QtQuick
-                                import "../foo"
-                                Example{})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -270,13 +270,11 @@ TEST_F(QmlDocumentParser, imports_with_version)
     ModuleId fooDirectoryModuleId = storage.moduleId("/path/foo", ModuleKind::PathLibrary);
     ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    QString component = R"(import QtQuick 2.1
+                           import "../foo"
+                           Example{})";
 
-    auto type = parser.parse(R"(import QtQuick 2.1
-                                import "../foo"
-                                Example{})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -290,14 +288,12 @@ TEST_F(QmlDocumentParser, imports_with_explict_directory)
 {
     ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    QString component = R"(import QtQuick
+                           import "../to"
+                           import "."
+                           Example{})";
 
-    auto type = parser.parse(R"(import QtQuick
-                                import "../to"
-                                import "."
-                                Example{})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(
         imports,
@@ -308,11 +304,9 @@ TEST_F(QmlDocumentParser, imports_with_explict_directory)
 
 TEST_F(QmlDocumentParser, functions)
 {
-    auto type = parser.parse(
-        "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}",
-        imports,
-        qmlFileSourceId,
-        directoryPath);
+    QString component = "Example{\n function someScript(x, y) {}\n function otherFunction() {}\n}";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.functionDeclarations,
                 UnorderedElementsAre(
@@ -325,6 +319,8 @@ TEST_F(QmlDocumentParser, functions)
 
 TEST_F(QmlDocumentParser, signals)
 {
+    QString component = "Example{\n signal someSignal(int x, real y)\n signal signal2()\n}";
+
     auto type = parser.parse("Example{\n signal someSignal(int x, real y)\n signal signal2()\n}",
                              imports,
                              qmlFileSourceId,
@@ -341,11 +337,11 @@ TEST_F(QmlDocumentParser, signals)
 
 TEST_F(QmlDocumentParser, enumeration)
 {
-    auto type = parser.parse("Example{\n enum Color{red, green, blue=10, white}\n enum "
-                             "State{On,Off}\n}",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Example{
+                           enum Color{red, green, blue=10, white}
+                           enum State{On,Off}})";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.enumerationDeclarations,
                 UnorderedElementsAre(
@@ -366,18 +362,16 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
     ModuleId qmlModuleId = storage.moduleId("QML", ModuleKind::QmlLibrary);
     ModuleId qtQmlModuleId = storage.moduleId("QtQml", ModuleKind::QmlLibrary);
     ModuleId qtQuickModuleId = storage.moduleId("QtQuick", ModuleKind::QmlLibrary);
-
-    auto type = parser.parse(R"(import QtQuick
-                                import "../foo"
-                                import QtQuick
-                                import "../foo"
-                                import "/path/foo"
-                                import "."
+    QString component = R"(import QtQuick
+                           import "../foo"
+                           import QtQuick
+                           import "../foo"
+                           import "/path/foo"
+                           import "."
  
-                                Example{})",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+                           Example{})";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(imports,
                 UnorderedElementsAre(
@@ -390,15 +384,14 @@ TEST_F(QmlDocumentParser, DISABLED_duplicate_imports_are_removed)
 
 TEST_F(QmlDocumentParser, alias_item_properties)
 {
-    auto type = parser.parse(R"(Example{
-                                    property alias delegate: foo
-                                    Item {
-                                        id: foo
-                                    }
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Example{
+                             property alias delegate: foo
+                               Item {
+                                 id: foo
+                               }
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration("delegate",
@@ -408,15 +401,14 @@ TEST_F(QmlDocumentParser, alias_item_properties)
 
 TEST_F(QmlDocumentParser, alias_properties)
 {
-    auto type = parser.parse(R"(Example{
-                                    property alias text: foo.text2
-                                    Item {
-                                        id: foo
-                                    }
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Example{
+                             property alias text: foo.text2
+                             Item {
+                               id: foo
+                             }
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -428,15 +420,14 @@ TEST_F(QmlDocumentParser, alias_properties)
 
 TEST_F(QmlDocumentParser, indirect_alias_properties)
 {
-    auto type = parser.parse(R"(Example{
-                                    property alias textSize: foo.text.size
-                                    Item {
-                                        id: foo
-                                    }
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Example{
+                             property alias textSize: foo.text.size
+                             Item {
+                               id: foo
+                             }
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -449,27 +440,25 @@ TEST_F(QmlDocumentParser, indirect_alias_properties)
 
 TEST_F(QmlDocumentParser, invalid_alias_properties_are_skipped)
 {
-    auto type = parser.parse(R"(Example{
-                                    property alias textSize: foo2.text.size
-                                    Item {
-                                        id: foo
-                                    }
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Example{
+                             property alias textSize: foo2.text.size
+                             Item {
+                               id: foo
+                             }
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations, IsEmpty());
 }
 
 TEST_F(QmlDocumentParser, list_property)
 {
-    auto type = parser.parse(R"(Item{
-                                    property list<Foo> foos
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(Item{
+                             property list<Foo> foos
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -480,17 +469,16 @@ TEST_F(QmlDocumentParser, list_property)
 
 TEST_F(QmlDocumentParser, alias_on_list_property)
 {
-    auto type = parser.parse(R"(Item{
-                                    property alias foos: foo.foos
+    QString component = R"(Item{
+                             property alias foos: foo.foos
 
-                                    Item {
-                                        id: foo
-                                        property list<Foo> foos
-                                    }
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+                             Item {
+                               id: foo
+                               property list<Foo> foos
+                             }
+                            })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(
@@ -502,13 +490,12 @@ TEST_F(QmlDocumentParser, alias_on_list_property)
 TEST_F(QmlDocumentParser, qualified_list_property)
 {
     auto exampleModuleId = storage.moduleId("Example", ModuleKind::QmlLibrary);
-    auto type = parser.parse(R"(import Example 2.1 as Example
-                                Item{
-                                    property list<Example.Foo> foos
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(import Example 2.1 as Example
+                           Item{
+                             property list<Example.Foo> foos
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.propertyDeclarations,
                 UnorderedElementsAre(IsPropertyDeclaration(
@@ -522,14 +509,36 @@ TEST_F(QmlDocumentParser, qualified_list_property)
 
 TEST_F(QmlDocumentParser, default_property)
 {
-    auto type = parser.parse(R"(import Example 2.1 as Example
-                                Item{
-                                    default property list<Example.Foo> foos
-                                })",
-                             imports,
-                             qmlFileSourceId,
-                             directoryPath);
+    QString component = R"(import Example 2.1 as Example
+                           Item{
+                             default property list<Example.Foo> foos
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.defaultPropertyName, Eq("foos"));
 }
+
+TEST_F(QmlDocumentParser, has_file_component_trait)
+{
+    QString component = R"(import Example
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_TRUE(type.traits.isFileComponent);
+}
+
+TEST_F(QmlDocumentParser, has_is_reference_trait)
+{
+    QString component = R"(import Example
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_THAT(type.traits.kind, QmlDesigner::Storage::TypeTraitsKind::Reference);
+}
+
 } // namespace

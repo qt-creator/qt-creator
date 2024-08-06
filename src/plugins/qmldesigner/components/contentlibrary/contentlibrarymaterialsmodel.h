@@ -3,10 +3,11 @@
 
 #pragma once
 
+#include <utils/filepath.h>
+#include <utils/version.h>
+
 #include <QAbstractListModel>
 #include <QJsonObject>
-
-QT_FORWARD_DECLARE_CLASS(QDir)
 
 namespace QmlDesigner {
 
@@ -21,6 +22,8 @@ class ContentLibraryMaterialsModel : public QAbstractListModel
     Q_PROPERTY(bool matBundleExists READ matBundleExists NOTIFY matBundleExistsChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasRequiredQuick3DImport READ hasRequiredQuick3DImport NOTIFY hasRequiredQuick3DImportChanged)
+    Q_PROPERTY(QString baseWebUrl MEMBER m_baseUrl CONSTANT)
+    Q_PROPERTY(QString bundlePath READ bundlePath CONSTANT)
 
 public:
     ContentLibraryMaterialsModel(ContentLibraryWidget *parent = nullptr);
@@ -37,6 +40,8 @@ public:
     bool hasRequiredQuick3DImport() const;
     bool matBundleExists() const;
 
+    QString bundlePath() const;
+
     void resetModel();
     void updateIsEmpty();
     void loadBundle();
@@ -44,6 +49,7 @@ public:
     Q_INVOKABLE void applyToSelected(QmlDesigner::ContentLibraryMaterial *mat, bool add = false);
     Q_INVOKABLE void addToProject(QmlDesigner::ContentLibraryMaterial *mat);
     Q_INVOKABLE void removeFromProject(QmlDesigner::ContentLibraryMaterial *mat);
+    Q_INVOKABLE bool isMaterialDownloaded(QmlDesigner::ContentLibraryMaterial *mat) const;
 
     QString bundleId() const;
 
@@ -55,11 +61,11 @@ signals:
     void matBundleExistsChanged();
 
 private:
-    void loadMaterialBundle(const QDir &matBundleDir);
-    bool fetchBundleIcons(const QDir &bundleDir);
-    bool fetchBundleMetadata(const QDir &bundleDir);
+    void loadMaterialBundle(bool forceReload = false);
+    bool fetchBundleIcons();
+    bool fetchBundleJsonFile();
     bool isValidIndex(int idx) const;
-    void downloadSharedFiles(const QDir &targetDir, const QStringList &files);
+    void downloadSharedFiles();
 
     ContentLibraryWidget *m_widget = nullptr;
     QString m_searchText;
@@ -71,10 +77,8 @@ private:
     bool m_isEmpty = true;
     bool m_bundleExists = false;
 
-    int m_quick3dMajorVersion = -1;
-    int m_quick3dMinorVersion = -1;
-
-    QString m_downloadPath;
+    Version m_quick3dVersion;
+    Utils::FilePath m_bundlePath;
     QString m_baseUrl;
 };
 

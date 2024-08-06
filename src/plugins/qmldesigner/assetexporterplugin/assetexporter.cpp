@@ -6,7 +6,7 @@
 #include "exportnotification.h"
 
 #include <designdocument.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>

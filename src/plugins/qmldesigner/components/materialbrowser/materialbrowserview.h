@@ -34,9 +34,13 @@ public:
     void modelAboutToBeDetached(Model *model) override;
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
-    void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
     void nodeIdChanged(const ModelNode &node, const QString &newId, const QString &oldId) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList, PropertyChangeFlags propertyChange) override;
+    void bindingPropertiesChanged(const QList<BindingProperty> &propertyList,
+                                  PropertyChangeFlags propertyChange) override;
     void propertiesRemoved(const QList<AbstractProperty> &propertyList) override;
     void nodeReparented(const ModelNode &node, const NodeAbstractProperty &newPropertyParent,
                         const NodeAbstractProperty &oldPropertyParent,
@@ -70,6 +74,10 @@ private:
     void active3DSceneChanged(qint32 sceneId);
     void refreshModel(bool updateImages);
     void updateMaterialsPreview();
+
+    template<typename T, typename = typename std::enable_if<std::is_base_of<AbstractProperty, T>::value>::type>
+    void updatePropertyList(const QList<T> &propertyList);
+
     bool isMaterial(const ModelNode &node) const;
     bool isTexture(const ModelNode &node) const;
     void loadPropertyGroups();

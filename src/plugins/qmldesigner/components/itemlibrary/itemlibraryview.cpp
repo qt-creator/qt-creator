@@ -49,7 +49,6 @@ WidgetInfo ItemLibraryView::widgetInfo()
     return createWidgetInfo(m_widget.data(),
                             "Components",
                             WidgetInfo::LeftPane,
-                            0,
                             tr("Components"),
                             tr("Components view"));
 }

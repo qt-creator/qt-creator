@@ -15,11 +15,6 @@ SignalHandlerProperty::SignalHandlerProperty(const SignalHandlerProperty &proper
 {
 }
 
-SignalHandlerProperty::SignalHandlerProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
-    : AbstractProperty(propertyName, internalNode, model, view)
-{
-}
-
 void SignalHandlerProperty::setSource(const QString &source)
 {
     Internal::WriteLocker locker(model());
@@ -56,11 +51,11 @@ QString SignalHandlerProperty::source() const
     return QString();
 }
 
-PropertyName SignalHandlerProperty::prefixAdded(const PropertyName &propertyName)
+PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
 {
     QString nameAsString = QString::fromUtf8(propertyName);
-    if (nameAsString.startsWith("on"))
-        return propertyName;
+    if (propertyName.startsWith("on"))
+        return propertyName.toByteArray();
 
     QChar firstChar = nameAsString.at(0).toUpper();
     nameAsString[0] = firstChar;
@@ -69,11 +64,11 @@ PropertyName SignalHandlerProperty::prefixAdded(const PropertyName &propertyName
     return nameAsString.toLatin1();
 }
 
-PropertyName SignalHandlerProperty::prefixRemoved(const PropertyName &propertyName)
+PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
 {
     QString nameAsString = QString::fromUtf8(propertyName);
     if (!nameAsString.startsWith("on"))
-        return propertyName;
+        return propertyName.toByteArray();
 
     nameAsString.remove(0, 2);
     QChar firstChar = nameAsString.at(0).toLower();
@@ -88,15 +83,6 @@ SignalDeclarationProperty::SignalDeclarationProperty(const SignalDeclarationProp
                                                      AbstractView *view)
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {}
-
-SignalDeclarationProperty::SignalDeclarationProperty(
-    const PropertyName &propertyName,
-    const Internal::InternalNodePointer &internalNode,
-    Model *model,
-    AbstractView *view)
-    : AbstractProperty(propertyName, internalNode, model, view)
-{
-}
 
 void SignalDeclarationProperty::setSignature(const QString &signature)
 {

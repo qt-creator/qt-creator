@@ -15,6 +15,8 @@ class QTCREATOR_UTILS_EXPORT AppMainWindow : public QMainWindow
 public:
     AppMainWindow();
 
+    QMenu *createPopupMenu() override { return nullptr; }
+
 public slots:
     void raiseWindow();
 

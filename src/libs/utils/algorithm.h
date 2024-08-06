@@ -457,6 +457,30 @@ bool contains(const C &container, R S::*member)
     return anyOf(container, std::mem_fn(member));
 }
 
+template<typename T, std::size_t Size, typename V>
+[[nodiscard]] bool contains(const T (&array)[Size], const V &value)
+{
+    auto begin = std::begin(array);
+    auto end = std::end(array);
+
+    auto found = std::find(begin, end, value);
+
+    return found != end;
+}
+
+//////////////////
+// containsInSorted
+/////////////////
+
+template<typename C, typename V>
+[[nodiscard]] bool containsInSorted(const C &container, const V &value)
+{
+    auto begin = std::begin(container);
+    auto end = std::end(container);
+
+    return std::binary_search(begin, end, value);
+}
+
 //////////////////
 // findOr
 /////////////////

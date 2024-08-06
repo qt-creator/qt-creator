@@ -3,12 +3,19 @@
 
 #pragma once
 
+#include "smallstringmemory.h"
+
 #include <QtGlobal>
 
 #include <algorithm>
+#include <charconv>
+#include <climits>
+#include <cmath>
 #include <cstdint>
+#include <cstdlib>
 #include <cstring>
 #include <memory>
+#include <string>
 #include <type_traits>
 
 QT_WARNING_PUSH
@@ -110,7 +117,27 @@ struct alignas(16) StringDataLayout
         }
     }
 
-    constexpr static size_type shortStringCapacity() noexcept
+    StringDataLayout(const char *string, size_type size, size_type capacity) noexcept
+    {
+        if (Q_LIKELY(capacity <= shortStringCapacity())) {
+            control = Internal::ControlBlock<MaximumShortStringDataAreaSize>(size, false, false);
+            std::char_traits<char>::copy(shortString, string, size);
+        } else {
+            auto pointer = Memory::allocate(capacity);
+            std::char_traits<char>::copy(pointer, string, size);
+            initializeLongString(pointer, size, capacity);
+        }
+    }
+
+    constexpr void initializeLongString(char *pointer, size_type size, size_type capacity) noexcept
+    {
+        control = Internal::ControlBlock<MaximumShortStringDataAreaSize>(0, false, true);
+        reference.pointer = pointer;
+        reference.size = size;
+        reference.capacity = capacity;
+    }
+
+    static constexpr size_type shortStringCapacity() noexcept
     {
         return MaximumShortStringDataAreaSize;
     }
@@ -125,6 +152,45 @@ struct alignas(16) StringDataLayout
         }
 #endif
     }
+
+    void setSize(size_type size) noexcept
+    {
+        if (isShortString())
+            control.setShortStringSize(size);
+        else
+            reference.size = size;
+    }
+
+    size_type size() const noexcept
+    {
+        if (!control.isShortString())
+            return reference.size;
+
+        return control.shortStringSize();
+    }
+
+    bool isShortString() const noexcept { return control.isShortString(); }
+
+    size_type capacity() const noexcept
+    {
+        if (!isShortString())
+            return reference.capacity;
+
+        return shortStringCapacity();
+    }
+
+    constexpr bool isReadOnlyReference() const noexcept { return control.isReadOnlyReference(); }
+
+    char *data() noexcept { return Q_LIKELY(isShortString()) ? shortString : reference.pointer; }
+
+    const char *data() const noexcept
+    {
+        return Q_LIKELY(isShortString()) ? shortString : reference.pointer;
+    }
+
+    void setPointer(char *p) noexcept { reference.pointer = p; }
+
+    void setAllocatedCapacity(size_type capacity) noexcept { reference.capacity = capacity; }
 
     union {
         struct
@@ -145,45 +211,46 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
                                     std::enable_if_t<MaximumShortStringDataAreaSize >= 32>>
 {
     static_assert(MaximumShortStringDataAreaSize > 31, "Size must be greater than 31 bytes!");
-    static_assert(MaximumShortStringDataAreaSize < 64
-                      ? ((MaximumShortStringDataAreaSize + 1) % 16) == 0
-                      : ((MaximumShortStringDataAreaSize + 2) % 16) == 0,
-                  "Size + 1 must be dividable by 16 if under 64 and Size + 2 must be dividable by "
-                  "16 if over 64!");
+    static_assert(((MaximumShortStringDataAreaSize + 16) % 16) == 0,
+                  "Size + 16 must be dividable by 16!");
 
     constexpr StringDataLayout() noexcept { reset(); }
 
     constexpr StringDataLayout(const char *string, size_type size) noexcept
-        : controlReference{0, true, true}
-        , reference{{string}, size, 0}
+        : constPointer{string}
+        , size_{static_cast<int>(size)}
+        , capacity_{0}
     {}
 
     template<size_type Size>
     constexpr StringDataLayout(const char (&string)[Size]) noexcept
     {
-        constexpr auto size = Size - 1;
+        constexpr size_type size = Size - 1;
+        size_ = size;
         if constexpr (size <= MaximumShortStringDataAreaSize) {
-            control = {size, false, false};
+            pointer = buffer;
+            capacity_ = MaximumShortStringDataAreaSize;
             for (size_type i = 0; i < size; ++i)
-                shortString[i] = string[i];
+                buffer[i] = string[i];
 #if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
             if (std::is_constant_evaluated()) {
                 for (size_type i = size; i < MaximumShortStringDataAreaSize; ++i)
-                    shortString[i] = 0;
+                    buffer[i] = 0;
             }
 #endif
         } else {
-            control = {0, true, true};
-            reference = {{string}, size, 0};
+            constPointer = string;
+            capacity_ = 0;
         }
     }
 
     void copyHere(const StringDataLayout &other) noexcept
     {
-        constexpr auto controlBlockSize = sizeof(ControlBlock<MaximumShortStringDataAreaSize>);
-        auto shortStringLayoutSize = other.control.stringSize() + controlBlockSize;
-        constexpr auto referenceLayoutSize = sizeof(ReferenceLayout);
-        std::memcpy(this, &other, std::max(shortStringLayoutSize, referenceLayoutSize));
+        auto isShortString = other.isShortString();
+        auto shortStringSize = isShortString ? other.size() : 0;
+        auto areaSize = 8 + shortStringSize;
+        pointer = isShortString ? buffer : other.pointer;
+        std::memcpy(&size_, &other.size_, areaSize);
     }
 
     StringDataLayout(const StringDataLayout &other) noexcept { copyHere(other); }
@@ -195,6 +262,18 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
         return *this;
     }
 
+    StringDataLayout(const char *string, size_type size, size_type capacity) noexcept
+        : size_{static_cast<int>(size)}
+        , capacity_{static_cast<int>(std::max<size_type>(capacity, MaximumShortStringDataAreaSize))}
+    {
+        if (Q_LIKELY(capacity <= shortStringCapacity())) {
+            std::char_traits<char>::copy(buffer, string, size);
+            pointer = buffer;
+        } else {
+            pointer = Memory::allocate(capacity);
+            std::char_traits<char>::copy(pointer, string, size);
+        }
+    }
     constexpr static size_type shortStringCapacity() noexcept
     {
         return MaximumShortStringDataAreaSize;
@@ -202,27 +281,42 @@ struct alignas(16) StringDataLayout<MaximumShortStringDataAreaSize,
 
     constexpr void reset() noexcept
     {
-        control = ControlBlock<MaximumShortStringDataAreaSize>();
-#if defined(__cpp_lib_is_constant_evaluated) && __cpp_lib_is_constant_evaluated >= 201811L
-        if (std::is_constant_evaluated()) {
-            for (size_type i = 0; i < MaximumShortStringDataAreaSize; ++i)
-                shortString[i] = 0;
-        }
-#endif
+        pointer = buffer;
+        size_ = 0;
+        capacity_ = MaximumShortStringDataAreaSize;
     }
 
+    void setSize(size_type size) noexcept { size_ = static_cast<int>(size); }
+
+    size_type size() const noexcept { return size_; }
+
+    bool isShortString() const noexcept { return pointer == buffer; }
+
+    size_type capacity() const noexcept { return capacity_; }
+
+    constexpr bool isReadOnlyReference() const noexcept { return capacity_ == 0; }
+
+    char *data() noexcept { return pointer; }
+
+    const char *data() const noexcept { return constPointer; }
+
+    void setPointer(char *p) noexcept { pointer = p; }
+
+    void setAllocatedCapacity(size_type capacity) noexcept
+    {
+        capacity_ = static_cast<int>(capacity);
+    }
+
+    constexpr size_type shortStringSize() const noexcept { return size_; }
+
     union {
-        struct
-        {
-            ControlBlock<MaximumShortStringDataAreaSize> control;
-            char shortString[MaximumShortStringDataAreaSize];
-        };
-        struct
-        {
-            ControlBlock<MaximumShortStringDataAreaSize> controlReference;
-            ReferenceLayout reference;
-        };
+        char *pointer;
+        const char *constPointer;
     };
+
+    int size_;
+    int capacity_;
+    char buffer[MaximumShortStringDataAreaSize];
 };
 
 } // namespace Internal

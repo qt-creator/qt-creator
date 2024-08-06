@@ -98,9 +98,9 @@ std::vector<Utils::FilePath> CMakeWriter::singletons(const NodePtr &node) const
     return files(node, [](const NodePtr &n) { return n->singletons; });
 }
 
-std::vector<Utils::FilePath> CMakeWriter::resources(const NodePtr &node) const
+std::vector<Utils::FilePath> CMakeWriter::assets(const NodePtr &node) const
 {
-    return files(node, [](const NodePtr &n) { return n->resources; });
+    return files(node, [](const NodePtr &n) { return n->assets; });
 }
 
 std::vector<Utils::FilePath> CMakeWriter::sources(const NodePtr &node) const
@@ -131,6 +131,31 @@ QString CMakeWriter::getEnvironmentVariable(const QString &key) const
             value = confEnv->value;
     }
     return value;
+}
+
+QString CMakeWriter::makeFindPackageBlock(const QmlBuildSystem* buildSystem) const
+{
+    QString head = "find_package(Qt" + buildSystem->versionQt();
+    const QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick)\n";
+
+    const QStringList versions = buildSystem->versionQtQuick().split('.', Qt::SkipEmptyParts);
+    if (versions.size() < 2)
+        return head + tail;
+
+    bool majorOk = false;
+    bool minorOk = false;
+    int major = versions[0].toInt(&majorOk);
+    int minor = versions[1].toInt(&minorOk);
+    if (!majorOk || !minorOk)
+        return head + tail;
+
+    const QString from = versions[0] + "." + versions[1];
+    QString out = head + " " + from + tail;
+
+    if (major >= 6 && minor >= 3)
+        out += "qt_standard_project_setup()\n";
+
+    return out;
 }
 
 QString CMakeWriter::makeRelative(const NodePtr &node, const Utils::FilePath &path) const
@@ -204,7 +229,7 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocks(const NodePtr &nod
 
     QString resourceFiles;
     std::vector<QString> bigResources;
-    for (const Utils::FilePath &path : resources(node)) {
+    for (const Utils::FilePath &path : assets(node)) {
         if (path.fileSize() > 5000000) {
             bigResources.push_back(makeRelative(node, path));
             continue;

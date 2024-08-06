@@ -14,7 +14,7 @@ public:
     using Pointer = std::shared_ptr<InternalSignalHandlerProperty>;
     static constexpr PropertyType type = PropertyType::SignalHandler;
 
-    InternalSignalHandlerProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalSignalHandlerProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 
@@ -31,8 +31,7 @@ public:
     using Pointer = std::shared_ptr<InternalSignalDeclarationProperty>;
     static constexpr PropertyType type = PropertyType::SignalDeclaration;
 
-    InternalSignalDeclarationProperty(const PropertyName &name,
-                                      const InternalNodePointer &propertyOwner);
+    InternalSignalDeclarationProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 

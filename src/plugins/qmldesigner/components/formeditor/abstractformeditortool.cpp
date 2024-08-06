@@ -9,7 +9,7 @@
 #include "modelnodecontextmenu.h"
 #include "qmldesignerconstants.h"
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <QDebug>
 #include <QGraphicsSceneDragDropEvent>

@@ -5,6 +5,7 @@
 
 #include "edit3dactions.h"
 #include "edit3dcanvas.h"
+#include "edit3dmaterialsaction.h"
 #include "edit3dtoolbarmenu.h"
 #include "edit3dview.h"
 
@@ -35,7 +36,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 
 #include <utils/asset.h>
 #include <utils/fileutils.h>
@@ -205,13 +206,8 @@ void Edit3DWidget::createContextMenu()
         DocumentManager::goIntoComponent(m_view->singleSelectedModelNode());
     });
 
-    m_editMaterialAction = m_contextMenu->addAction(
-                contextIcon(DesignerIcons::MaterialIcon),
-                tr("Edit Material"), [&] {
-        SelectionContext selCtx(m_view);
-        selCtx.setTargetNode(m_contextMenuTarget);
-        ModelNodeOperations::editMaterial(selCtx);
-    });
+    m_materialsAction = new Edit3DMaterialsAction(contextIcon(DesignerIcons::MaterialIcon), this);
+    m_contextMenu->addAction(m_materialsAction);
 
     m_contextMenu->addSeparator();
 
@@ -374,7 +370,19 @@ void Edit3DWidget::createContextMenu()
     m_addToContentLibAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Add to Content Library"), [&] {
-            view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget});
+            view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget}); // To ContentLibrary
+        });
+
+    m_importBundleAction = m_contextMenu->addAction(
+        contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
+        tr("Import Component"), [&] {
+            view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
+        });
+
+    m_exportBundleAction = m_contextMenu->addAction(
+        contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
+        tr("Export Component"), [&] {
+            view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
         });
 
     m_contextMenu->addSeparator();
@@ -644,7 +652,7 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
         m_createSubMenu->setEnabled(!isSceneLocked());
 
     m_editComponentAction->setEnabled(isSingleComponent);
-    m_editMaterialAction->setEnabled(isModel);
+    m_materialsAction->setEnabled(isModel);
     m_duplicateAction->setEnabled(selectionExcludingRoot);
     m_copyAction->setEnabled(selectionExcludingRoot);
     m_pasteAction->setEnabled(isPasteAvailable());
@@ -657,6 +665,8 @@ void Edit3DWidget::showContextMenu(const QPoint &pos, const ModelNode &modelNode
     m_bakeLightsAction->setVisible(view()->bakeLightsAction()->action()->isVisible());
     m_bakeLightsAction->setEnabled(view()->bakeLightsAction()->action()->isEnabled());
     m_addToContentLibAction->setEnabled(isNode && !isInBundle);
+    m_exportBundleAction->setEnabled(isNode);
+    m_materialsAction->updateMenu(view()->selectedModelNodes());
 
     if (m_view) {
         int idx = m_view->activeSplit();

@@ -24,7 +24,7 @@ public:
     bool isValid() const override;
 
 protected:
-    InternalNodeAbstractProperty(const PropertyName &name,
+    InternalNodeAbstractProperty(PropertyNameView name,
                                  const InternalNodePointer &propertyOwner,
                                  PropertyType propertyType);
     virtual void remove(const InternalNodePointer &node) = 0;

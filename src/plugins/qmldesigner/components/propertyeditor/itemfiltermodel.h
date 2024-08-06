@@ -30,7 +30,9 @@ class ItemFilterModel : public QAbstractListModel
     Q_PROPERTY(QStringList validationItems READ validationItems NOTIFY validationItemsChanged)
 
 public:
-    enum { IdRole = Qt::DisplayRole, NameRole = Qt::UserRole, IdAndNameRole, EnabledRole };
+    enum Role { IdRole = Qt::DisplayRole, NameRole = Qt::UserRole, IdAndNameRole, EnabledRole };
+
+    Q_ENUM(Role)
 
     explicit ItemFilterModel(QObject *parent = nullptr);
 
@@ -45,6 +47,8 @@ public:
     QStringList itemModel() const;
     QStringList validationRoles() const;
     QStringList validationItems() const;
+    Q_INVOKABLE QVariant modelItemData(int row) const;
+    Q_INVOKABLE int indexFromId(const QString &id) const;
 
     static void registerDeclarativeType();
 
@@ -71,6 +75,7 @@ private:
     QString m_typeFilter;
     QList<qint32> m_modelInternalIds;
     QmlDesigner::ModelNode m_modelNode;
+    QMetaObject::Connection m_updateConnection;
     bool m_selectionOnly;
     QStringList m_selectedItems;
 

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright (C) 2016 The Qt Company Ltd. Contact: https://www.qt.io/licensing/ -->
+<component type="desktop">
+ <id>io.qt.qtdesignstudio</id>
+ <name>Qt Design Studio</name>
+ <developer id="Qt Design Studio team">
+   <name>Qt Project</name>
+ </developer>
+ <summary>UI Designer for Qml applications</summary>
+ <metadata_license>CC0-1.0</metadata_license>
+ <project_license>GPL-3.0</project_license>
+ <description>
+  <p>
+   Define the look and feel of the UI from wireframe to final implementation
+   with preset UI components. Import UI design files from 2D and 3D tools
+   to Qt Design Studio, which can turn them into code for developers.
+  </p>
+  <p>
+   Qt Design Studio prototyping features bring your designs to life and
+   simulate and validate interactions and dynamic behavior.
+  </p>
+  <p>
+   You can test, preview, and fine-tune your designs to pixel-perfection live
+   on the desktop or target device.
+  </p>
+ </description>
+ <launchable type="desktop-id">io.qt.qtdesignstudio.desktop</launchable>
+
+ <url type="homepage">https://www.qt.io/product/ui-design-tools</url>
+ <url type="bugtracker">https://bugreports.qt.io/projects/QDS/summary</url>
+ <url type="help">https://doc.qt.io/qtdesignstudio/</url>
+ <url type="vcs-browser">https://codereview.qt-project.org/q/project:qt-creator/qt-creator</url>
+ <url type="contribute">https://www.qt.io/community/contribute-to-qt</url>
+
+ <project_group>Qt</project_group>
+ <content_rating type="oars-1.1" />
+ <screenshots>
+  <screenshot type="default">
+   <caption>Overview 2D</caption>
+   <image>https://www.qt.io/hs-fs/hubfs/image-png-Dec-13-2021-02-04-37-16-PM.png</image>
+  </screenshot>
+  <screenshot>
+   <caption>Welcome</caption>
+   <image>https://www.qt.io/hs-fs/hubfs/welcomescreen.png</image>
+  </screenshot>
+  <screenshot>
+   <caption>Overview 3D</caption>
+   <image>https://www.qt.io/hs-fs/hubfs/image-png-Feb-28-2022-03-08-54-80-PM.png</image>
+  </screenshot>
+  <screenshot>
+   <caption>Examples</caption>
+   <image>https://www.qt.io/hs-fs/hubfs/image-png-May-23-2022-12-38-02-61-PM.png</image>
+  </screenshot>
+ </screenshots>
+ <releases>
+  <release version="${IDE_VERSION_DISPLAY}"${DATE_ATTRIBUTE}>
+   <description>
+    <p>Qt Design Studio ${IDE_VERSION_DISPLAY}</p>
+   </description>
+   <url>https://www.qt.io/blog/qt-design-studio-${IDE_VERSION_DISPLAY}-released</url>
+  </release>
+ </releases>
+</component>

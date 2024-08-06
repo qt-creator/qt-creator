@@ -1,6 +1,6 @@
 set(IDE_VERSION "4.6.0")                              # The IDE version.
 set(IDE_VERSION_COMPAT "4.6.0")                       # The IDE Compatibility version.
-set(IDE_VERSION_DISPLAY "4.6.0")                      # The IDE display version.
+set(IDE_VERSION_DISPLAY "4.6")                        # The IDE display version.
 set(IDE_COPYRIGHT_YEAR "2024")                        # The IDE current copyright year.
 
 set(IDE_SETTINGSVARIANT "QtProject")                  # The IDE settings variation.
@@ -9,6 +9,7 @@ set(IDE_DISPLAY_NAME "Qt Design Studio")              # The IDE display name.
 set(IDE_ID "qtdesignstudio")                          # The IDE id (no spaces, lowercase!)
 set(IDE_CASED_ID "QtDesignStudio")                    # The cased IDE id (no spaces!)
 set(IDE_BUNDLE_IDENTIFIER "org.qt-project.${IDE_ID}") # The macOS application bundle identifier.
+set(IDE_APP_ID "io.qt.${IDE_ID}")                     # The free desktop application identifier.
 
 set(PROJECT_USER_FILE_EXTENSION .qtds)
 set(IDE_DOC_FILE "qtdesignstudio/qtdesignstudio.qdocconf")

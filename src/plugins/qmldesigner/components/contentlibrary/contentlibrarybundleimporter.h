@@ -7,6 +7,7 @@
 
 #include <utils/filepath.h>
 
+#include <QFuture>
 #include <QTimer>
 #include <QVariantHash>
 
@@ -46,10 +47,27 @@ private:
 
     QTimer m_importTimer;
     int m_importTimerCount = 0;
-    QString m_pendingImport;
     QString m_bundleId;
-    bool m_fullReset = false;
-    QHash<TypeName, bool> m_pendingTypes; // <type, isImport>
+    struct ImportData
+    {
+        enum State {
+            Starting,
+            WaitingForImportScan,
+            RefreshImports,
+            FullReset,
+            Finalize
+        };
+        bool isImport = true; // false = unimport
+        TypeName type;
+        Utils::FilePath pathToScan; // If set, do importScan
+        QFuture<void> future;
+        QString importToAdd; // If set, add import to model
+        bool fullReset = false; // If true, reset the entire code model.
+        State state = Starting;
+    };
+
+    QHash<TypeName, ImportData> m_pendingImports;
+    QMetaObject::Connection m_libInfoConnection;
 };
 
 } // namespace QmlDesigner

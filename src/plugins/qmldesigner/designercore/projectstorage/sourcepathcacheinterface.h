@@ -36,7 +36,6 @@ public:
     virtual SourcePath sourcePath(SourceId sourceId) const = 0;
 
     virtual Utils::PathString sourceContextPath(SourceContextId sourceContextId) const = 0;
-    virtual SourceContextId sourceContextId(SourceId sourceId) const = 0;
 
 protected:
     ~SourcePathCacheInterface() = default;

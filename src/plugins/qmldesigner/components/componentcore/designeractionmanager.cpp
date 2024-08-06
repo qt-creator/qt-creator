@@ -27,7 +27,7 @@
 
 #include <actioneditor.h>
 #include <documentmanager.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <viewmanager.h>
 #include <qmldesignerplugin.h>
 
@@ -733,7 +733,7 @@ public:
                             signalHandler.view()
                                 ->emitCustomNotification(EditConnectionNotification,
                                                          {signalHandler.parentModelNode()},
-                                                         {signalHandler.name()});
+                                                         {signalHandler.name().toByteArray()});
                             //ActionEditor::invokeEditor(signalHandler, removeSignal);
                         });
 
@@ -1979,6 +1979,26 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+        importComponentCommandId,
+        importComponentDisplayName,
+        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+        rootCategory,
+        QKeySequence(),
+        Priorities::ImportComponent,
+        &importComponent));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+        exportComponentCommandId,
+        exportComponentDisplayName,
+        contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+        rootCategory,
+        QKeySequence(),
+        Priorities::ExportComponent,
+        &exportComponent,
+        &is3DNode,
+        &is3DNode));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
                           editMaterialCommandId,
                           editMaterialDisplayName,
                           contextIcon(DesignerIcons::EditIcon),
@@ -1998,6 +2018,17 @@ void DesignerActionManager::createDefaultDesignerActions()
                           Priorities::MergeWithTemplate,
                           [&] (const SelectionContext& context) { mergeWithTemplate(context, m_externalDependencies); },
                           &SelectionContextFunctors::always));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
+                          addToContentLibraryCommandId,
+                          addToContentLibraryDisplayName,
+                          contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+                          rootCategory,
+                          QKeySequence(),
+                          Priorities::Add3DToContentLib,
+                          &add3DAssetToContentLibrary,
+                          &enableAddToContentLib,
+                          &enableAddToContentLib));
 
     addDesignerAction(new ActionGroup(
                           "",

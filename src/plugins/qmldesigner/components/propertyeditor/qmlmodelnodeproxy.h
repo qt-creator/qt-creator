@@ -28,6 +28,7 @@ public:
 
     void emitSelectionToBeChanged();
     void emitSelectionChanged();
+    void refresh();
 
     QmlObjectNode qmlObjectNode() const;
 
@@ -60,7 +61,7 @@ public:
 
     Q_INVOKABLE void changeType(int internalId, const QString &typeName);
 
-    void handleInstancePropertyChanged(const ModelNode &modelNode, const PropertyName &propertyName);
+    void handleInstancePropertyChanged(const ModelNode &modelNode, PropertyNameView propertyName);
 
     void handleBindingPropertyChanged(const BindingProperty &property);
     void handleVariantPropertyChanged(const VariantProperty &property);
@@ -70,6 +71,7 @@ signals:
     void modelNodeChanged();
     void selectionToBeChanged();
     void selectionChanged();
+    void refreshRequired();
 
 private:
     QList<int> allChildren(const ModelNode &modelNode) const;

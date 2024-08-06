@@ -462,6 +462,21 @@ void StatesEditorModel::setCanAddNewStates(bool b)
     emit canAddNewStatesChanged();
 }
 
+QColor StatesEditorModel::backgroundColor() const
+{
+    return m_backgrounColor;
+}
+
+void StatesEditorModel::setBackgroundColor(const QColor &c)
+{
+    if (c == m_backgrounColor)
+        return;
+
+    m_backgrounColor = c;
+
+    emit backgroundColorChanged();
+}
+
 bool StatesEditorModel::isMCUs() const
 {
     return DesignerMcuManager::instance().isMCUProject();

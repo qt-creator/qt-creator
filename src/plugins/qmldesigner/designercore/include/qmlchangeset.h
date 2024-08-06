@@ -34,7 +34,7 @@ public:
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
     static bool isValidQmlPropertyChanges(const ModelNode &modelNode);
-    void removeProperty(const PropertyName &name);
+    void removeProperty(PropertyNameView name);
 };
 
 } //QmlDesigner

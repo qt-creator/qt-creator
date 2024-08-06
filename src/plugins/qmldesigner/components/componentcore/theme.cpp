@@ -34,7 +34,8 @@ Theme::Theme(Utils::Theme *originTheme, QObject *parent)
                   "qmldesigner/propertyEditorQmlSources/imports/StudioTheme/InternalConstants.qml")
               .toString();
 
-    QQmlEngine* engine = new QQmlEngine(this);
+    QQmlEngine *engine = new QQmlEngine(this);
+    setupTheme(engine);
     QQmlComponent component(engine, QUrl::fromLocalFile(constantsPath));
 
     if (component.status() == QQmlComponent::Ready) {
@@ -153,8 +154,7 @@ QPixmap Theme::getPixmap(const QString &id)
 
 QString Theme::getIconUnicode(Theme::Icon i)
 {
-    if (!instance()->m_constants)
-        return QString();
+    QTC_ASSERT(instance()->m_constants, return {});
 
     const QMetaObject *m = instance()->metaObject();
     const char *enumName = "Icon";
@@ -172,6 +172,7 @@ QString Theme::getIconUnicode(Theme::Icon i)
 
 QString Theme::getIconUnicode(const QString &name)
 {
+    QTC_ASSERT(instance()->m_constants, return {});
     return instance()->m_constants->property(name.toStdString().data()).toString();
 }
 

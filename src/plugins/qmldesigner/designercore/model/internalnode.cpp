@@ -51,6 +51,14 @@ auto find(Type &&auxiliaryDatas, AuxiliaryDataKeyView key)
     });
 }
 
+template<typename Type>
+auto find(Type &&auxiliaryDatas, AuxiliaryDataType type)
+{
+    return std::find_if(auxiliaryDatas.begin(), auxiliaryDatas.end(), [&](const auto &element) {
+        return element.first.type == type;
+    });
+}
+
 } // namespace
 
 std::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) const
@@ -99,6 +107,13 @@ bool InternalNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
     return found != m_auxiliaryDatas.end();
 }
 
+bool InternalNode::hasAuxiliaryData(AuxiliaryDataType type) const
+{
+    auto found = find(m_auxiliaryDatas, type);
+
+    return found != m_auxiliaryDatas.end();
+}
+
 AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 {
     AuxiliaryDatasForType data;
@@ -114,8 +129,17 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 
 PropertyNameList InternalNode::propertyNameList() const
 {
-    return Utils::transform<PropertyNameList>(m_nameProperties,
-                                              [](const auto &entry) { return entry.first; });
+    return Utils::transform<PropertyNameList>(m_nameProperties, [](const auto &entry) {
+        return entry.first.toQByteArray();
+    });
+}
+
+PropertyNameViews InternalNode::propertyNameViews() const
+{
+    return Utils::transform<PropertyNameViews>(m_nameProperties,
+                                               [](const auto &entry) -> PropertyNameView {
+                                                   return entry.first;
+                                               });
 }
 
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const

@@ -249,6 +249,7 @@ public:
                              const QList<DocumentMessage> &warnings);
 
     QList<ModelNode> selectedNodes(AbstractView *view) const;
+    void setSelectedModelNodes(const QList<ModelNode> &selectedNodeList);
 
     void clearMetaInfoCache();
 

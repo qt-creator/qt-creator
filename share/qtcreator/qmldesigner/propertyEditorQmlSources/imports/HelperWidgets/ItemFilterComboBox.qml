@@ -11,27 +11,32 @@ HelperWidgets.ComboBox {
 
     manualMapping: true
     editable: true
-    model: comboBox.addDefaultItem(itemFilterModel.itemModel)
+    model: optionsList.model
+    valueRole: "id"
+    textRole: (comboBox.typeFilter === "QtQuick3D.Texture") ? "idAndName" : "id"
 
     validator: RegularExpressionValidator { regularExpression: /(^$|^[a-z_]\w*)/ }
 
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
         modelNodeBackendProperty: modelNodeBackend
+        onModelReset: optionsList.updateModel()
+        onRowsInserted: optionsList.updateModel()
+        onRowsRemoved: optionsList.updateModel()
     }
 
     property string defaultItem: qsTr("[None]")
-    property string textValue: comboBox.backendValue?.expression ?? ""
+    property string expressionValue: comboBox.backendValue?.expression ?? ""
     property bool block: false
     property bool dirty: true
 
-    onTextValueChanged: {
+    onExpressionValueChanged: {
         if (comboBox.block)
             return
 
-        comboBox.setCurrentText(comboBox.textValue)
+        comboBox.updateText()
     }
-    onModelChanged: comboBox.setCurrentText(comboBox.textValue)
+    onModelChanged: comboBox.updateText()
     onEditTextChanged: comboBox.dirty = true
     onFocusChanged: {
         if (comboBox.dirty)
@@ -41,7 +46,18 @@ HelperWidgets.ComboBox {
     onCompressedActivated: function(index, reason) { comboBox.handleActivate(index) }
     onAccepted: comboBox.setCurrentText(comboBox.editText)
 
-    Component.onCompleted: comboBox.setCurrentText(comboBox.textValue)
+    Component.onCompleted: comboBox.updateText()
+
+    function updateText() {
+        let idx = itemFilterModel.indexFromId(comboBox.expressionValue)
+        if (idx < 0) {
+            comboBox.setCurrentText(comboBox.defaultItem)
+            return
+        }
+
+        let textValue = itemFilterModel.modelItemData(idx)[comboBox.textRole]
+        comboBox.setCurrentText(textValue)
+    }
 
     function handleActivate(index) {
         if (!comboBox.__isCompleted || comboBox.backendValue === undefined)
@@ -69,18 +85,41 @@ HelperWidgets.ComboBox {
                 comboBox.editText = comboBox.defaultItem
         }
 
-        if (comboBox.currentIndex === 0) {
+        if (comboBox.currentIndex < 1) {
             comboBox.backendValue.resetValue()
         } else {
-            if (comboBox.backendValue.expression !== comboBox.editText)
-                comboBox.backendValue.expression = comboBox.editText
+            let valueData = (comboBox.valueRole === "")
+                                ? comboBox.editText
+                                : itemFilterModel.modelItemData(comboBox.currentIndex - 1)[comboBox.valueRole]
+
+            if (comboBox.backendValue.expression !== valueData)
+                comboBox.backendValue.expression = valueData
         }
         comboBox.dirty = false
     }
 
-    function addDefaultItem(arr) {
-        var copy = arr.slice()
-        copy.unshift(comboBox.defaultItem)
-        return copy
+    Repeater {
+        id: optionsList
+
+        property var localModel: []
+
+        function updateModel() {
+            optionsList.localModel = []
+
+            if (comboBox.textRole !== "" && comboBox.valueRole !== "") {
+                let defaultItem = {}
+                defaultItem[comboBox.textRole] = comboBox.defaultItem
+                defaultItem[comboBox.valueRole] = ""
+                optionsList.localModel.push(defaultItem)
+            } else {
+                optionsList.localModel.push(comboBox.defaultItem)
+            }
+
+            let rows = itemFilterModel.rowCount()
+            for (let i = 0; i < rows; ++i)
+                optionsList.localModel.push(itemFilterModel.modelItemData(i))
+
+            optionsList.model = optionsList.localModel // trigger on change handler
+        }
     }
 }

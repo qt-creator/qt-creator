@@ -198,12 +198,11 @@ void PuppetEnvironmentBuilder::addForceQApplication() const
 
 void PuppetEnvironmentBuilder::addMultiLanguageDatatbase() const
 {
-    if (m_target) {
-        if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_target)) {
-            if (!multiLanguageAspect->databaseFilePath().isEmpty())
-                m_environment.set("QT_MULTILANGUAGE_DATABASE",
-                                  multiLanguageAspect->databaseFilePath().toString());
-        }
+    if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current()) {
+        const auto databaseFilePath = multiLanguageAspect->databaseFilePath();
+        if (!databaseFilePath.isEmpty() && databaseFilePath.exists())
+            m_environment.set("QT_MULTILANGUAGE_DATABASE",
+                              multiLanguageAspect->databaseFilePath().toString());
     }
 }
 

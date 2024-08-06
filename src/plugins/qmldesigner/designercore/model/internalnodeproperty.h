@@ -14,7 +14,7 @@ public:
     using Pointer = std::shared_ptr<InternalNodeProperty>;
     static constexpr PropertyType type = PropertyType::Node;
 
-    InternalNodeProperty(const PropertyName &name, const InternalNodePointer &node);
+    InternalNodeProperty(PropertyNameView name, const InternalNodePointer &node);
 
     bool isValid() const override;
     bool isEmpty() const override;

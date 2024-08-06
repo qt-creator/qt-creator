@@ -38,6 +38,9 @@ that QDS and QUL are aligned on the qmlproject format and that new features in Q
 qmlproject files for MCU projects. The test set will be tested in the Qt for MCUs repositories
 to make sure both the original and the converted qmlprojects build correctly.
 
+The test set also includes some dummy qmlproject files to test that the converter correctly picks up
+qmlproject modules in the same way Qt for MCUs does.
+
 The qmlproject files in the test set aim to cover all the possible contents of a Qt for MCUs qmlproject,
 but since new features are added with every release, it is not guaranteed to be exhaustive.
 

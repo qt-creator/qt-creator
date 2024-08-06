@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="Lite QML Designer">
+  <container floating="false">
+    <splitter orientation="Horizontal" count="3">
+      <splitter orientation="Vertical" count="3">
+        <area tabs="1" current="Navigator">
+          <widget name="Navigator" closed="false"/>
+        </area>
+        <area tabs="4" current="Components">
+          <widget name="Components" closed="false"/>
+          <widget name="Projects" closed="false"/>
+          <widget name="Assets" closed="false"/>
+          <widget name="DebugView" closed="true"/>
+        </area>
+        <area tabs="2" current="">
+          <widget name="FileSystem" closed="true"/>
+          <widget name="OpenDocuments" closed="true"/>
+        </area>
+        <sizes>336 657 0</sizes>
+      </splitter>
+      <splitter orientation="Vertical" count="3">
+        <area tabs="2" current="FormEditor">
+          <widget name="FormEditor" closed="false"/>
+          <widget name="TextEditor" closed="true"/>
+        </area>
+        <area tabs="2" current="Timelines">
+          <widget name="StatesEditor" closed="true"/>
+          <widget name="Timelines" closed="true"/>
+        </area>
+        <area tabs="1" current="OutputPane">
+          <widget name="OutputPane" closed="true"/>
+        </area>
+        <sizes>994 0 0</sizes>
+      </splitter>
+      <splitter orientation="Vertical" count="2">
+        <area tabs="1" current="Properties">
+          <widget name="Properties" closed="false"/>
+        </area>
+        <area tabs="1" current="ConnectionView">
+          <widget name="ConnectionView" closed="true"/>
+        </area>
+        <sizes>994 0</sizes>
+      </splitter>
+      <sizes>384 1150 384</sizes>
+    </splitter>
+  </container>
+</QtAdvancedDockingSystem>

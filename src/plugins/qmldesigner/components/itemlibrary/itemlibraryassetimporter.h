@@ -33,7 +33,7 @@ public:
                        const QHash<QString, int> &extToImportOptionsMap,
                        const QSet<QString> &preselectedFilesForOverwrite);
 
-    void reImportQuick3D(const QString &assetName, const QVector<QJsonObject> &options);
+    void reImportQuick3D(const QHash<QString, QJsonObject> &importOptions);
 
     bool isImporting() const;
     void cancelImport();
@@ -47,13 +47,26 @@ public:
     QString tempDirNameBase() const { return "/qds3dimport"; }
 
     void finalizeQuick3DImport();
+    void removeAssetFromImport(const QString &assetName);
+
+    struct PreviewData
+    {
+        int optionsIndex = 0;
+        QJsonObject renderedOptions;
+        QJsonObject currentOptions;
+        QString name;
+        QString folderName;
+        QString qmlName;
+        QString type;
+        qint64 size;
+    };
 
 signals:
     void errorReported(const QString &, const QString &);
     void warningReported(const QString &, const QString &);
     void infoReported(const QString &, const QString &);
     void progressChanged(int value, const QString &text);
-    void importReadyForPreview(const QString &path, const QString &compName);
+    void importReadyForPreview(const QString &path, const QList<PreviewData> &previewData);
     void importNearlyFinished();
     void importFinished();
 
@@ -69,8 +82,11 @@ private:
         QFileInfo sourceInfo;
         QString assetName;
         QString originalAssetName;
+        QString importedQmlName;
+        qint64 assetSize;
         int importId = -1;
         int optionsIndex = -1;
+        QHash<QString, QStringList> overwrittenImports;
     };
 
     void notifyFinished();
@@ -87,6 +103,7 @@ private:
     void notifyProgress(int value);
     void keepUiAlive() const;
     QString generateAssetFolderName(const QString &assetName) const;
+    QString generateRequiredImportForAsset(const QString &assetName) const;
 
     enum class OverwriteResult {
         Skip,
@@ -100,7 +117,6 @@ private:
     QString sourceSceneTargetFilePath(const ParseData &pd);
 
     QHash<QString, QHash<QString, QString>> m_importFiles; // Key: asset name
-    QHash<QString, QStringList> m_overwrittenImports;
     bool m_isImporting = false;
     bool m_cancelled = false;
     QString m_importPath;

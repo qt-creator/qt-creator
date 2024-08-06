@@ -18,7 +18,7 @@
 #include <invalididexception.h>
 #include <itemlibraryentry.h>
 #include <materialutils.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodehints.h>
 #include <nodelistproperty.h>

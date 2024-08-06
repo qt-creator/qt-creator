@@ -64,15 +64,15 @@ public:
                                   PropertyChangeFlags propertyChange) override;
     void variantPropertiesChanged(const QList<VariantProperty> &propertyList,
                                   PropertyChangeFlags propertyChange) override;
-
+    void auxiliaryDataChanged(const ModelNode &node,
+                              AuxiliaryDataKeyView key,
+                              const QVariant &data) override;
     void customNotification(const AbstractView *view,
                             const QString &identifier,
                             const QList<ModelNode> &nodeList,
                             const QList<QVariant> &data) override;
     void rewriterBeginTransaction() override;
     void rewriterEndTransaction() override;
-
-    // AbstractView
     void currentStateChanged(const ModelNode &node) override;
 
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) override;

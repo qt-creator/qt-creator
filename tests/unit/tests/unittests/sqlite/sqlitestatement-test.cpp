@@ -33,10 +33,13 @@ using Sqlite::ReadWriteStatement;
 using Sqlite::Value;
 using Sqlite::WriteStatement;
 
-enum class BasicIdEnumeration { TestId };
+enum class BasicIdEnumeration { TestId, TestId2 };
 
 using TestLongLongId = Sqlite::BasicId<BasicIdEnumeration::TestId, long long>;
 using TestIntId = Sqlite::BasicId<BasicIdEnumeration::TestId, int>;
+using TestIntId2 = Sqlite::BasicId<BasicIdEnumeration::TestId2, int>;
+
+using CompoundId = Sqlite::CompoundBasicId<BasicIdEnumeration::TestId, BasicIdEnumeration::TestId2>;
 
 template<typename Type>
 bool compareValue(SqliteTestStatement<2, 1> &statement, Type value, int column)
@@ -255,9 +258,36 @@ TEST_F(SqliteStatement, bind_invalid_int_id_to_null)
     ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
 }
 
+TEST_F(SqliteStatement, bind_invalid_compound_id_to_null)
+{
+    CompoundId id;
+    SqliteTestStatement<0, 1> statement("INSERT INTO  test VALUES ('id', 323, ?)", database);
+
+    statement.bind(1, id);
+    statement.next();
+
+    SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
+    readStatement.next();
+    ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Null);
+}
+
 TEST_F(SqliteStatement, bind_int_id)
 {
     TestIntId id{TestIntId::create(42)};
+    SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
+
+    statement.bind(1, id);
+    statement.next();
+
+    SqliteTestStatement<1, 1> readStatement("SELECT value FROM test WHERE name='id'", database);
+    readStatement.next();
+    ASSERT_THAT(readStatement.fetchType(0), Sqlite::Type::Integer);
+    ASSERT_THAT(readStatement.fetchIntValue(0), 42);
+}
+
+TEST_F(SqliteStatement, bind_compound_id)
+{
+    CompoundId id = CompoundId::create(42);
     SqliteTestStatement<0, 1> statement("INSERT INTO test VALUES ('id', 323, ?)", database);
 
     statement.bind(1, id);
@@ -1269,6 +1299,30 @@ TEST_F(SqliteStatement, get_single_int_id)
     auto value = statement.value<TestIntId>();
 
     ASSERT_THAT(value.internalId(), Eq(42));
+}
+
+TEST_F(SqliteStatement, get_single_invalid_compound_id)
+{
+    CompoundId id;
+    WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
+    ReadStatement<1, 0> statement("SELECT value FROM test WHERE name='id'", database);
+
+    auto value = statement.value<CompoundId>();
+
+    ASSERT_FALSE(value.isValid());
+}
+
+TEST_F(SqliteStatement, get_single_compound_id)
+{
+    TestIntId testId = TestIntId::create(42);
+    TestIntId2 testId2 = TestIntId2::create(23);
+    CompoundId id = CompoundId::create(testId, testId2);
+    WriteStatement<1>("INSERT INTO  test VALUES ('id', 323, ?)", database).write(id);
+    ReadStatement<1, 0> statement("SELECT value FROM test WHERE name='id'", database);
+
+    auto value = statement.value<CompoundId>();
+
+    ASSERT_THAT(value, Eq(id));
 }
 
 TEST_F(SqliteStatement, get_value_calls_reset)

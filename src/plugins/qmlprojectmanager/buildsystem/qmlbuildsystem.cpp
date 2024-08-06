@@ -236,38 +236,28 @@ void QmlBuildSystem::initMcuProjectItems()
     m_mcuProjectItems.clear();
     m_mcuProjectFilesWatcher.clear();
 
-    Utils::FilePath projectDir = projectFilePath().parentDir();
-    // traverse the project dir and find all other mcu projects (.qmlproject files) in the project tree
-    // and add them to the m_mcuProjectItems vector
-    QDirIterator it(projectDir.toFSPathString(), QDir::Files, QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        if (it.fileInfo().suffix() == "qmlproject" && it.filePath() != projectFilePath().toString()) {
-            auto qmlProjectItem = QSharedPointer<QmlProjectItem>(
-                new QmlProjectItem{Utils::FilePath::fromString(it.filePath())});
+    const QStringList mcuProjectFiles = m_projectItem->qmlProjectModules();
+    for (const QString &mcuProjectFile : mcuProjectFiles) {
+        auto qmlProjectItem = QSharedPointer<QmlProjectItem>(
+            new QmlProjectItem{Utils::FilePath::fromString(mcuProjectFile)});
 
-            m_mcuProjectItems.append(qmlProjectItem);
-            connect(qmlProjectItem.data(),
-                    &QmlProjectItem::filesChanged,
-                    this,
-                    &QmlBuildSystem::refreshFiles);
-            connect(qmlProjectItem.data(),
-                    &QmlProjectItem::filesChanged,
-                    m_cmakeGen,
-                    &GenerateCmake::CMakeGenerator::update);
+        m_mcuProjectItems.append(qmlProjectItem);
+        connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
+        connect(qmlProjectItem.data(),
+                &QmlProjectItem::filesChanged,
+                m_cmakeGen,
+                &GenerateCmake::CMakeGenerator::update);
 
-            m_mcuProjectFilesWatcher.addFile(it.filePath(),
-                                             Utils::FileSystemWatcher::WatchModifiedDate);
+        m_mcuProjectFilesWatcher.addFile(mcuProjectFile, Utils::FileSystemWatcher::WatchModifiedDate);
 
-            connect(&m_mcuProjectFilesWatcher,
-                    &Utils::FileSystemWatcher::fileChanged,
-                    this,
-                    [this](const QString &file) {
-                        Q_UNUSED(file)
-                        initMcuProjectItems();
-                        refresh(RefreshOptions::Files);
-                    });
-        }
+        connect(&m_mcuProjectFilesWatcher,
+                &Utils::FileSystemWatcher::fileChanged,
+                this,
+                [this](const QString &file) {
+                    Q_UNUSED(file)
+                    initMcuProjectItems();
+                    refresh(RefreshOptions::Files);
+                });
     }
 }
 

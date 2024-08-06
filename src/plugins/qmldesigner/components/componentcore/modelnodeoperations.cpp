@@ -797,6 +797,23 @@ void moveToComponent(const SelectionContext &selectionContext)
         selectionContext.view()->model()->rewriterView()->moveToComponent(modelNode);
 }
 
+void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
+{
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
+}
+
+void importComponent(const SelectionContext &selectionContext)
+{
+    selectionContext.view()->emitCustomNotification("import_bundle_to_project");
+}
+
+void exportComponent(const SelectionContext &selectionContext)
+{
+    ModelNode node = selectionContext.currentSingleSelectedNode();
+    selectionContext.view()->emitCustomNotification("export_item_as_bundle", {node});
+}
+
 void goImplementation(const SelectionContext &selectionState)
 {
     addSignalHandlerOrGotoImplementation(selectionState, false);
@@ -1622,7 +1639,7 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
                 QmlDesigner::ModelNode mouseAreaNode = selectionContext.view()->createModelNode(
                     "QtQuick.MouseArea", itemMetaInfo.majorVersion(), itemMetaInfo.minorVersion());
 #endif
-                mouseAreaNode.validId();
+                mouseAreaNode.ensureIdExists();
 
                 modelNode.defaultNodeListProperty().reparentHere(mouseAreaNode);
                 QmlItemNode mouseAreaItemNode(mouseAreaNode);

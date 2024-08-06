@@ -1,0 +1,124 @@
+diff --git a/src/ChangeLog b/src/ChangeLog
+index b801a1031ec..686283a2aec 100644
+--- a/src/ChangeLog
++++ b/src/ChangeLog
+@@ -1,6 +1,10 @@
+ 
+                 ChangeLog file for zlib
+ 
++Changes in 1.3.1 (Qt) (23 Jan 2024)
++- This is a stripped down copy of zlib that contains patches to
++  make it compile as part of Qt. See also "qtpatches.diff".
++
+ Changes in 1.3.1 (22 Jan 2024)
+ - Reject overflows of zip header fields in minizip
+ - Fix bug in inflateSync() for data held in bit buffer
+diff --git a/src/README b/src/README
+index c5f917540b6..af6b4f32bf5 100644
+--- a/src/README
++++ b/src/README
+@@ -6,6 +6,9 @@ thread safe.  The data format used by the zlib library is described by RFCs
+ http://tools.ietf.org/html/rfc1950 (zlib format), rfc1951 (deflate format) and
+ rfc1952 (gzip format).
+ 
++This is a stripped down copy of zlib that contains patches to make it compile
++as part of Qt. See also "qtpatches.diff".
++
+ All functions of the compression library are documented in the file zlib.h
+ (volunteer to write man pages welcome, contact zlib@gzip.org).  A usage example
+ of the library is given in the file test/example.c which also tests that
+diff --git a/src/gzguts.h b/src/gzguts.h
+index eba72085bb7..5bf6b7d4813 100644
+--- a/src/gzguts.h
++++ b/src/gzguts.h
+@@ -3,6 +3,12 @@
+  * For conditions of distribution and use, see copyright notice in zlib.h
+  */
+ 
++#include <qconfig.h>
++
++#ifdef QT_VISIBILITY_AVAILABLE
++#define HAVE_HIDDEN
++#endif
++
+ #ifdef _LARGEFILE64_SOURCE
+ #  ifndef _LARGEFILE_SOURCE
+ #    define _LARGEFILE_SOURCE 1
+diff --git a/src/zconf.h b/src/zconf.h
+index 62adc8d8431..4e14507a22d 100644
+--- a/src/zconf.h
++++ b/src/zconf.h
+@@ -8,6 +8,9 @@
+ #ifndef ZCONF_H
+ #define ZCONF_H
+ 
++/* Since Qt Core must export these symbols, define Z_PREFIX to avoid clashes system zlib */
++#define Z_PREFIX
++
+ /*
+  * If you *really* need a unique prefix for all types and library functions,
+  * compile with -DZ_PREFIX. The "standard" zlib should be compiled without it.
+@@ -139,6 +142,7 @@
+ #  endif
+ #  define zlibCompileFlags      z_zlibCompileFlags
+ #  define zlibVersion           z_zlibVersion
++#  define z_errmsg              z_z_errmsg
+ 
+ /* all zlib typedefs in zlib.h and zconf.h */
+ #  define Byte                  z_Byte
+@@ -433,7 +437,7 @@ typedef uLong FAR uLongf;
+    typedef unsigned long z_crc_t;
+ #endif
+ 
+-#ifdef HAVE_UNISTD_H    /* may be set to #if 1 by ./configure */
++#if defined(HAVE_UNISTD_H) || !defined(WIN32)
+ #  define Z_HAVE_UNISTD_H
+ #endif
+ 
+diff --git a/src/zlib.h b/src/zlib.h
+index 8d4b932eaf6..2cff72ee865 100644
+--- a/src/zlib.h
++++ b/src/zlib.h
+@@ -33,11 +33,15 @@
+ 
+ #include "zconf.h"
+ 
++#include <qglobal.h>
++#undef ZEXTERN
++#define ZEXTERN Q_CORE_EXPORT
++
+ #ifdef __cplusplus
+ extern "C" {
+ #endif
+ 
+-#define ZLIB_VERSION "1.3.1"
++#define ZLIB_VERSION "1.3.1 (Qt)"
+ #define ZLIB_VERNUM 0x1310
+ #define ZLIB_VER_MAJOR 1
+ #define ZLIB_VER_MINOR 3
+diff --git a/src/zutil.h b/src/zutil.h
+index 48dd7febae6..71dd616ab8d 100644
+--- a/src/zutil.h
++++ b/src/zutil.h
+@@ -13,6 +13,12 @@
+ #ifndef ZUTIL_H
+ #define ZUTIL_H
+ 
++#include <qconfig.h>
++
++#ifdef QT_VISIBILITY_AVAILABLE
++#define HAVE_HIDDEN
++#endif
++
+ #ifdef HAVE_HIDDEN
+ #  define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+ #else
+@@ -157,7 +163,7 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+ #  define OS_CODE 18
+ #endif
+ 
+-#ifdef __APPLE__
++#if defined(__APPLE__) && !defined(OS_CODE)
+ #  define OS_CODE 19
+ #endif
+ 

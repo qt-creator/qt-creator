@@ -1377,6 +1377,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode3DImageView(
         // Key number is selected so that it is unlikely to conflict other ImageContainer use.
         ImageContainer imgContainer(cmd.instanceId(), {}, 2100000001 + cmd.instanceId());
         imgContainer.setImage(renderImage);
+        imgContainer.setRequestId(cmd.requestId());
 
         // send the rendered image to creator process
         nodeInstanceClient()->handlePuppetToCreatorCommand(
@@ -1472,6 +1473,7 @@ void Qt5InformationNodeInstanceServer::doRenderModelNode2DImageView(const Reques
 
         if (!renderImage.isNull()) {
             imgContainer.setImage(renderImage);
+            imgContainer.setRequestId(cmd.requestId());
 
             // send the rendered image to creator process
             nodeInstanceClient()->handlePuppetToCreatorCommand({PuppetToCreatorCommand::RenderModelNodePreviewImage,

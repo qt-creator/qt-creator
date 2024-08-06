@@ -5,12 +5,12 @@
 
 #include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectsmodel.h"
+#include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialsmodel.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarytexturesmodel.h"
-#include "contentlibraryiconprovider.h"
 #include "contentlibraryusermodel.h"
 
 #include <coreplugin/icore.h>
@@ -84,7 +84,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
-                && m_materialToDrag->isDownloaded()) {
+                && m_materialsModel->isMaterialDownloaded(m_materialToDrag)) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
@@ -123,7 +123,8 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 }
 
 ContentLibraryWidget::ContentLibraryWidget()
-    : m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
+    : m_iconProvider(Utils::makeUniqueObjectPtr<ContentLibraryIconProvider>())
+    , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_materialsModel(new ContentLibraryMaterialsModel(this))
     , m_texturesModel(new ContentLibraryTexturesModel("Textures", this))
     , m_environmentsModel(new ContentLibraryTexturesModel("Environments", this))
@@ -138,8 +139,7 @@ ContentLibraryWidget::ContentLibraryWidget()
 
     m_quickWidget->quickWidget()->setObjectName(Constants::OBJECT_NAME_CONTENT_LIBRARY);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    m_quickWidget->engine()->addImageProvider(QStringLiteral("contentlibrary"),
-                                              new Internal::ContentLibraryIconProvider);
+    m_quickWidget->engine()->addImageProvider("contentlibrary", m_iconProvider.get());
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->setClearColor(Theme::getColor(Theme::Color::DSpanelBackground));
 
@@ -181,6 +181,10 @@ ContentLibraryWidget::ContentLibraryWidget()
     createImporter();
 }
 
+ContentLibraryWidget::~ContentLibraryWidget()
+{
+}
+
 void ContentLibraryWidget::createImporter()
 {
     m_importer = new ContentLibraryBundleImporter();
@@ -212,6 +216,11 @@ void ContentLibraryWidget::createImporter()
     });
 }
 
+ContentLibraryIconProvider *ContentLibraryWidget::iconProvider() const
+{
+    return m_iconProvider.get();
+}
+
 void ContentLibraryWidget::updateImportedState(const QString &bundleId)
 {
     if (!m_importer)
@@ -230,10 +239,8 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
         m_materialsModel->updateImportedState(importedItems);
     else if (bundleId == compUtils.effectsBundleId())
         m_effectsModel->updateImportedState(importedItems);
-    else if (bundleId == compUtils.userMaterialsBundleId())
-        m_userModel->updateMaterialsImportedState(importedItems);
-    else if (bundleId == compUtils.user3DBundleId())
-        m_userModel->update3DImportedState(importedItems);
+    else
+        m_userModel->updateImportedState(importedItems, bundleId);
 }
 
 ContentLibraryBundleImporter *ContentLibraryWidget::importer() const

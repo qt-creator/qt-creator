@@ -6,7 +6,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalSignalHandlerProperty::InternalSignalHandlerProperty(const PropertyName &name,
+InternalSignalHandlerProperty::InternalSignalHandlerProperty(PropertyNameView name,
                                                              const InternalNodePointer &propertyOwner)
     : InternalProperty(name, propertyOwner, PropertyType::SignalHandler)
 {
@@ -46,7 +46,7 @@ void InternalSignalDeclarationProperty::setSignature(const QString &signature)
 }
 
 InternalSignalDeclarationProperty::InternalSignalDeclarationProperty(
-    const PropertyName &name, const InternalNodePointer &propertyOwner)
+    PropertyNameView name, const InternalNodePointer &propertyOwner)
     : InternalProperty(name, propertyOwner, PropertyType::SignalDeclaration)
 {
     setDynamicTypeName("signal");

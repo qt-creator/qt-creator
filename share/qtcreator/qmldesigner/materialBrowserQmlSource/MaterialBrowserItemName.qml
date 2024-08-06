@@ -23,7 +23,7 @@ TextInput {
     selectedTextColor: StudioTheme.Values.themeTextSelectedTextColor
 
     // allow only alphanumeric characters, underscores, no space at start, and 1 space between words
-    validator: RegExpValidator { regExp: /^(\w+\s)*\w+$/ }
+    validator: RegularExpressionValidator { regularExpression: /^(\w+\s)*\w+$/ }
 
     signal renamed(string newName)
     signal clicked()

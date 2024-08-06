@@ -7,6 +7,7 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Section {
+    id: root
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Grid Layout")
@@ -131,6 +132,8 @@ Section {
             text: qsTr("Uniform cell sizes")
             tooltip: qsTr("Toggles all cells to have a uniform height or width.")
             visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+            blockedByTemplate: !(backendValues.uniformCellHeights.isAvailable
+                                 && backendValues.uniformCellWidths.isAvailable)
         }
 
         SecondColumnLayout {
@@ -140,6 +143,7 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.uniformCellHeights
                 visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+                enabled: backendValues.uniformCellHeights.isAvailable
             }
 
             Spacer { implicitWidth: StudioTheme.Values.twoControlColumnGap }
@@ -150,6 +154,7 @@ Section {
                                + StudioTheme.Values.actionIndicatorWidth
                 backendValue: backendValues.uniformCellWidths
                 visible: majorQtQuickVersion === 6 && minorQtQuickVersion >= 6
+                enabled: backendValues.uniformCellWidths.isAvailable
             }
 
             ExpandingSpacer {}

@@ -42,7 +42,6 @@ private:
     const void *origin() const { return this; }
 
     ProjectExplorer::Target *m_target = nullptr;
-    mutable Utils::FilePath m_databaseFilePath;
     QString m_currentLocale;
 };
 

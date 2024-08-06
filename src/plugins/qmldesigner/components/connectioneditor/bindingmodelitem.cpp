@@ -42,7 +42,7 @@ void BindingModelItem::updateProperty(const BindingProperty &property)
 {
     setData(property.parentModelNode().internalId(), InternalIdRole);
     setData(idOrTypeName(property.parentModelNode()), TargetNameRole);
-    setData(property.name(), TargetPropertyNameRole);
+    setData(property.name().toByteArray(), TargetPropertyNameRole);
 
     // TODO: Make this safe when the new codemodel allows it.
     if (auto expression = property.expression(); !expression.isEmpty()) {

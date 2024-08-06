@@ -1,0 +1,9 @@
+import QmlProject 1.3
+
+// This qmlproject file will not be picked up from the import path "mcu-modules"
+// since the URI doesn't match a relative path to the importPath
+Project {
+    MCU.Module {
+        uri: "SomeModule"
+    }
+}

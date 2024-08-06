@@ -19,6 +19,14 @@ Project {
         directory: "."
     }
 
+    ImageFiles {
+        directory: "images"
+    }
+
+    ImageFiles {
+        directory: "assets"
+    }
+
     Files {
        filter: "*.conf"
        files: ["qtquickcontrols2.conf"]
@@ -33,6 +41,10 @@ Project {
         filter: "*.ttf;*.otf"
     }
 
+    FontFiles {
+        directory: "fonts"
+    }
+
     ModuleFiles {
         files: [
             "imports/Constants/constants_module.qmlproject"
@@ -44,7 +56,8 @@ Project {
             "Timeline",
             "Shapes",
             "Profiling",
-            "StudioComponents"
+            "StudioComponents",
+            "Layouts"
         ]
     }
 

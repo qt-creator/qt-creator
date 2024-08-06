@@ -3,9 +3,10 @@
 
 #include "materialeditorqmlbackend.h"
 
-#include "propertyeditorvalue.h"
-#include "materialeditortransaction.h"
 #include "materialeditorcontextobject.h"
+#include "materialeditorimageprovider.h"
+#include "materialeditortransaction.h"
+#include "propertyeditorvalue.h"
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
 
@@ -22,7 +23,6 @@
 
 #include <QDir>
 #include <QFileInfo>
-#include <QQuickImageProvider>
 #include <QQuickItem>
 #include <QQuickWidget>
 #include <QVector2D>
@@ -39,50 +39,11 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
-class MaterialEditorImageProvider : public QQuickImageProvider
-{
-    QPixmap m_previewPixmap;
-
-public:
-    MaterialEditorImageProvider()
-        : QQuickImageProvider(Pixmap) {}
-
-    void setPixmap(const QPixmap &pixmap)
-    {
-        m_previewPixmap = pixmap;
-    }
-
-    QPixmap requestPixmap(const QString &id,
-                          QSize *size,
-                          [[maybe_unused]] const QSize &requestedSize) override
-    {
-        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/materialeditor/images/defaultmaterialpreview.png"));
-
-        QPixmap pixmap{150, 150};
-
-        if (id == "preview") {
-            if (!m_previewPixmap.isNull())
-                pixmap = m_previewPixmap;
-            else
-                pixmap = defaultPreview;
-        } else {
-            qWarning() << __FUNCTION__ << "Unsupported image id:" << id;
-            pixmap.fill(Qt::red);
-        }
-
-
-        if (size)
-            *size = pixmap.size();
-
-        return pixmap;
-    }
-};
-
 MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialEditor)
     : m_quickWidget(Utils::makeUniqueObjectPtr<QQuickWidget>())
     , m_materialEditorTransaction(std::make_unique<MaterialEditorTransaction>(materialEditor))
     , m_contextObject(std::make_unique<MaterialEditorContextObject>(m_quickWidget.get()))
-    , m_materialEditorImageProvider(new MaterialEditorImageProvider())
+    , m_materialEditorImageProvider(new MaterialEditorImageProvider(materialEditor))
 {
     m_quickWidget->setObjectName(Constants::OBJECT_NAME_MATERIAL_EDITOR);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
@@ -100,17 +61,17 @@ MaterialEditorQmlBackend::~MaterialEditorQmlBackend()
 {
 }
 
-PropertyName MaterialEditorQmlBackend::auxNamePostFix(const PropertyName &propertyName)
+PropertyName MaterialEditorQmlBackend::auxNamePostFix(PropertyNameView propertyName)
 {
     return propertyName + "__AUX";
 }
 
 void MaterialEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                                         const PropertyName &name,
+                                                         PropertyNameView name,
                                                          const QVariant &value,
                                                          MaterialEditorView *materialEditor)
 {
-    PropertyName propertyName(name);
+    PropertyName propertyName(name.toByteArray());
     propertyName.replace('.', '_');
     auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(backendValuesPropertyMap().value(QString::fromUtf8(propertyName))));
     if (!valueObject) {
@@ -140,7 +101,9 @@ void MaterialEditorQmlBackend::createPropertyEditorValue(const QmlObjectNode &qm
     }
 }
 
-void MaterialEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyName &name, const QVariant &value)
+void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
+                                        PropertyNameView name,
+                                        const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
     if (value.typeId() == QMetaType::QVector2D) {
@@ -178,7 +141,7 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &, const PropertyNam
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
     } else {
-        PropertyName propertyName = name;
+        PropertyName propertyName = name.toByteArray();
         propertyName.replace('.', '_');
         auto propertyValue = qobject_cast<PropertyEditorValue *>(variantToQObject(m_backendValuesPropertyMap.value(QString::fromUtf8(propertyName))));
         if (propertyValue)
@@ -215,6 +178,11 @@ void MaterialEditorQmlBackend::updateMaterialPreview(const QPixmap &pixmap)
 {
     m_materialEditorImageProvider->setPixmap(pixmap);
     QMetaObject::invokeMethod(m_quickWidget->rootObject(), "refreshPreview");
+}
+
+void MaterialEditorQmlBackend::refreshBackendModel()
+{
+    m_backendModelNode.refresh();
 }
 
 DesignerPropertyMap &MaterialEditorQmlBackend::backendValuesPropertyMap()

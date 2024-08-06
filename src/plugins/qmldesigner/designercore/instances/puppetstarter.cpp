@@ -35,7 +35,7 @@ QProcessUniquePointer puppetProcess(const QString &puppetPath,
                      processFinishCallback);
 
     if (forwardOutput == puppetMode || forwardOutput == "all") {
-        puppetProcess->setProcessChannelMode(QProcess::ForwardedChannels);
+        puppetProcess->setProcessChannelMode(QProcess::MergedChannels);
         QObject::connect(puppetProcess.get(), &QProcess::readyRead, processOutputCallback);
     }
     puppetProcess->setWorkingDirectory(workingDirectory);

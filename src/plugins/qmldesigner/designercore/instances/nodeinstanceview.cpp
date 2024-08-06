@@ -58,7 +58,7 @@
 #include <designersettings.h>
 #include <externaldependenciesinterface.h>
 #include <model.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <modelnode.h>
 #include <nodehints.h>
 #include <qmlitemnode.h>
@@ -470,7 +470,7 @@ void NodeInstanceView::propertiesAboutToBeRemoved(const QList<AbstractProperty>&
     m_nodeInstanceServer->removeProperties(createRemovePropertiesCommand(nonNodePropertyList));
 
     for (const AbstractProperty &property : propertyList) {
-        const PropertyName &name = property.name();
+        const PropertyNameView name = property.name();
         if (name == "anchors.fill") {
             resetHorizontalAnchors(property.parentModelNode());
             resetVerticalAnchors(property.parentModelNode());
@@ -602,7 +602,7 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
 {
     QTC_ASSERT(m_nodeInstanceServer, return);
     QVector<ReparentContainer> containerList;
-    PropertyName propertyName = listProperty.name();
+    PropertyNameView propertyName = listProperty.name();
     qint32 containerInstanceId = -1;
     ModelNode containerNode = listProperty.parentModelNode();
     if (hasInstanceForModelNode(containerNode))
@@ -613,7 +613,11 @@ void NodeInstanceView::nodeOrderChanged(const NodeListProperty &listProperty)
         qint32 instanceId = -1;
         if (hasInstanceForModelNode(node)) {
             instanceId = instanceForModelNode(node).instanceId();
-            ReparentContainer container(instanceId, containerInstanceId, propertyName, containerInstanceId, propertyName);
+            ReparentContainer container(instanceId,
+                                        containerInstanceId,
+                                        propertyName.toByteArray(),
+                                        containerInstanceId,
+                                        propertyName.toByteArray());
             containerList.append(container);
         }
     }
@@ -1135,7 +1139,11 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
     for (const NodeInstance &instance : std::as_const(instanceList)) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
-            ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
+            ReparentContainer container(instance.instanceId(),
+                                        -1,
+                                        PropertyName(),
+                                        instanceForModelNode(parentProperty.parentModelNode()).instanceId(),
+                                        parentProperty.name().toByteArray());
             reparentContainerList.append(container);
         }
     }
@@ -1164,7 +1172,12 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
+            const QString expression = fullyQualifyPropertyIfApplies(property);
+
+            PropertyBindingContainer container(instance.instanceId(),
+                                               property.name().toByteArray(),
+                                               expression,
+                                               property.dynamicTypeName());
             bindingContainerList.append(container);
         }
     }
@@ -1307,7 +1320,11 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
     for (const NodeInstance &instance : instanceList) {
         if (instance.modelNode().hasParentProperty()) {
             NodeAbstractProperty parentProperty = instance.modelNode().parentProperty();
-            ReparentContainer container(instance.instanceId(), -1, PropertyName(), instanceForModelNode(parentProperty.parentModelNode()).instanceId(), parentProperty.name());
+            ReparentContainer container(instance.instanceId(),
+                                        -1,
+                                        PropertyName(),
+                                        instanceForModelNode(parentProperty.parentModelNode()).instanceId(),
+                                        parentProperty.name().toByteArray());
             containerList.append(container);
         }
     }
@@ -1329,8 +1346,11 @@ ReparentInstancesCommand NodeInstanceView::createReparentInstancesCommand(const 
     if (oldPropertyParent.isValid() && hasInstanceForModelNode(oldPropertyParent.parentModelNode()))
         oldParentInstanceId = instanceForModelNode(oldPropertyParent.parentModelNode()).instanceId();
 
-
-    ReparentContainer container(instanceForModelNode(node).instanceId(), oldParentInstanceId, oldPropertyParent.name(), newParentInstanceId, newPropertyParent.name());
+    ReparentContainer container(instanceForModelNode(node).instanceId(),
+                                oldParentInstanceId,
+                                oldPropertyParent.name().toByteArray(),
+                                newParentInstanceId,
+                                newPropertyParent.name().toByteArray());
 
     containerList.append(container);
 
@@ -1373,7 +1393,11 @@ ChangeBindingsCommand NodeInstanceView::createChangeBindingCommand(const QList<B
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyBindingContainer container(instance.instanceId(), property.name(), property.expression(), property.dynamicTypeName());
+            const QString expression = fullyQualifyPropertyIfApplies(property);
+            PropertyBindingContainer container(instance.instanceId(),
+                                               property.name().toByteArray(),
+                                               expression,
+                                               property.dynamicTypeName());
             containerList.append(container);
         }
 
@@ -1446,7 +1470,9 @@ RemovePropertiesCommand NodeInstanceView::createRemovePropertiesCommand(const QL
         ModelNode node = property.parentModelNode();
         if (node.isValid() && hasInstanceForModelNode(node)) {
             NodeInstance instance = instanceForModelNode(node);
-            PropertyAbstractContainer container(instance.instanceId(), property.name(), property.dynamicTypeName());
+            PropertyAbstractContainer container(instance.instanceId(),
+                                                property.name().toByteArray(),
+                                                property.dynamicTypeName());
             containerList.append(container);
         }
 
@@ -1781,11 +1807,8 @@ void NodeInstanceView::handlePuppetToCreatorCommand(const PuppetToCreatorCommand
             auto node = modelNodeForInternalId(container.instanceId());
             if (node.isValid()) {
                 const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
-                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-                if (image.height() != dim || image.width() != dim)
-                    image = image.scaled(dim, dim, Qt::KeepAspectRatio);
                 image.setDevicePixelRatio(ratio);
-                updatePreviewImageForNode(node, image);
+                updatePreviewImageForNode(node, image, container.requestId());
             }
         }
     } else if (command.type() == PuppetToCreatorCommand::Import3DSupport) {
@@ -1829,13 +1852,16 @@ void NodeInstanceView::view3DAction(View3DActionType type, const QVariant &value
 }
 
 void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
-                                                    const ModelNode &renderNode) const
+                                                    const ModelNode &renderNode,
+                                                    const QSize &size,
+                                                    const QByteArray &requestId) const
 {
     if (m_nodeInstanceServer && node.isValid() && hasInstanceForModelNode(node)) {
         auto instance = instanceForModelNode(node);
         if (instance.isValid()) {
             qint32 renderItemId = -1;
             QString componentPath;
+            QSize imageSize;
             if (renderNode.isValid()) {
                 auto renderInstance = instanceForModelNode(renderNode);
                 if (renderInstance.isValid())
@@ -1845,11 +1871,18 @@ void NodeInstanceView::requestModelNodePreviewImage(const ModelNode &node,
             } else if (node.isComponent()) {
                 componentPath = ModelUtils::componentFilePath(node);
             }
+
             const double ratio = m_externalDependencies.formEditorDevicePixelRatio();
-            const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
-            m_nodeInstanceServer->requestModelNodePreviewImage(
-                        RequestModelNodePreviewImageCommand(instance.instanceId(), QSize(dim, dim),
-                                                            componentPath, renderItemId));
+
+            if (size.isValid()) {
+                imageSize = size * ratio;
+            } else {
+                const int dim = Constants::MODELNODE_PREVIEW_IMAGE_DIMENSIONS * ratio;
+                imageSize = {dim, dim};
+            }
+
+            m_nodeInstanceServer->requestModelNodePreviewImage(RequestModelNodePreviewImageCommand(
+                instance.instanceId(), imageSize, componentPath, renderItemId, requestId));
         }
     }
 }
@@ -1994,7 +2027,9 @@ void NodeInstanceView::endNanotrace()
 }
 
 QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &modelNode,
-                                                          const ModelNode &renderNode) const
+                                                          const ModelNode &renderNode,
+                                                          const QSize &size,
+                                                          const QByteArray &requestId) const
 {
     if (!modelNode.isValid())
         return {};
@@ -2009,19 +2044,25 @@ QVariant NodeInstanceView::previewImageDataForGenericNode(const ModelNode &model
     } else {
         imageData.type = QString::fromLatin1(createQualifiedTypeName(modelNode));
         imageData.id = id;
-        m_imageDataMap.insert(id, imageData);
+
+        // There might be multiple requests for different preview pixmap sizes.
+        // Here only the one with no request id is stored.
+        if (requestId.isEmpty())
+            m_imageDataMap.insert(id, imageData);
     }
-    requestModelNodePreviewImage(modelNode, renderNode);
+    requestModelNodePreviewImage(modelNode, renderNode, size, requestId);
 
     return modelNodePreviewImageDataToVariant(imageData);
 }
 
-void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image)
+void NodeInstanceView::updatePreviewImageForNode(const ModelNode &modelNode,
+                                                 const QImage &image,
+                                                 const QByteArray &requestId)
 {
     QPixmap pixmap = QPixmap::fromImage(image);
     if (m_imageDataMap.contains(modelNode.id()))
         m_imageDataMap[modelNode.id()].pixmap = pixmap;
-    emitModelNodelPreviewPixmapChanged(modelNode, pixmap);
+    emitModelNodelPreviewPixmapChanged(modelNode, pixmap, requestId);
 }
 
 void NodeInstanceView::updateWatcher(const QString &path)
@@ -2031,7 +2072,6 @@ void NodeInstanceView::updateWatcher(const QString &path)
     QStringList oldDirs;
     QStringList newFiles;
     QStringList newDirs;
-    QStringList qsbFiles;
 
     const QString projPath = m_externalDependencies.currentProjectDirPath();
 
@@ -2284,7 +2324,8 @@ void NodeInstanceView::updateRotationBlocks()
     }
 }
 
-void NodeInstanceView::maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+void NodeInstanceView::maybeResetOnPropertyChange(PropertyNameView name,
+                                                  const ModelNode &node,
                                                   PropertyChangeFlags flags)
 {
     bool reset = false;
@@ -2329,4 +2370,62 @@ QList<NodeInstance> NodeInstanceView::loadInstancesFromCache(const QList<ModelNo
 
     return instanceList;
 }
+
+static bool isCapitalized(const QString &string)
+{
+    if (string.length() == 0)
+        return false;
+
+    return string.at(0).isUpper();
+}
+
+QString NodeInstanceView::fullyQualifyPropertyIfApplies(const BindingProperty &property) const
+{
+    auto parentModelNode = property.parentModelNode();
+
+    const QString originalExpression = property.expression();
+
+    if (!parentModelNode || parentModelNode.isRootNode())
+        return originalExpression;
+
+    const ModelNode rootNode = rootModelNode();
+
+    if (!rootNode.hasId())
+        return originalExpression;
+
+    if (originalExpression.contains('.'))
+        return originalExpression;
+
+    if (isCapitalized(originalExpression))
+        return originalExpression;
+
+    const NodeMetaInfo metaInfo = parentModelNode.metaInfo();
+
+    if (!metaInfo.isValid())
+        return originalExpression;
+
+    const auto propertyName = originalExpression.toUtf8();
+
+    if (metaInfo.hasProperty(propertyName))
+        return originalExpression;
+
+    if (hasId(originalExpression))
+        return originalExpression;
+
+    QString qualifiedExpression = rootNode.id() + "." + originalExpression;
+
+    if (rootNode.hasProperty(propertyName))
+        return qualifiedExpression;
+
+    const NodeMetaInfo rootMetaInfo = rootNode.metaInfo();
+
+    if (!rootMetaInfo.isValid())
+        return originalExpression;
+
+    if (rootMetaInfo.hasProperty(propertyName))
+        return qualifiedExpression;
+
+    return originalExpression;
+}
+
 } // namespace QmlDesigner

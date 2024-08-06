@@ -132,7 +132,6 @@ void AbstractView::removeModel()
 WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
                                           const QString &uniqueId,
                                           WidgetInfo::PlacementHint placementHint,
-                                          int placementPriority,
                                           const QString &tabName,
                                           const QString &feedbackDisplayName,
                                           DesignerWidgetFlags widgetFlags)
@@ -142,7 +141,6 @@ WidgetInfo AbstractView::createWidgetInfo(QWidget *widget,
     widgetInfo.widget = widget;
     widgetInfo.uniqueId = uniqueId;
     widgetInfo.placementHint = placementHint;
-    widgetInfo.placementPriority = placementPriority;
     widgetInfo.tabName = tabName;
     widgetInfo.feedbackDisplayName = feedbackDisplayName;
     widgetInfo.widgetFlags = widgetFlags;
@@ -385,7 +383,9 @@ void AbstractView::updateImport3DSupport(const QVariantMap &/*supportMap*/)
 // position of the requested view position.
 void AbstractView::nodeAtPosReady(const ModelNode &/*modelNode*/, const QVector3D &/*pos3d*/) {}
 
-void AbstractView::modelNodePreviewPixmapChanged(const ModelNode &/*node*/, const QPixmap &/*pixmap*/)
+void AbstractView::modelNodePreviewPixmapChanged(const ModelNode & /*node*/,
+                                                 const QPixmap & /*pixmap*/,
+                                                 const QByteArray & /*requestId*/)
 {
 }
 
@@ -425,14 +425,7 @@ QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode>
 */
 void AbstractView::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
 {
-    QList<ModelNode> unlockedNodes;
-
-    for (const auto &modelNode : selectedNodeList) {
-        if (!ModelUtils::isThisOrAncestorLocked(modelNode))
-            unlockedNodes.push_back(modelNode);
-    }
-
-    model()->d->setSelectedNodes(toInternalNodeList(unlockedNodes));
+    model()->setSelectedModelNodes(selectedNodeList);
 }
 
 void AbstractView::setSelectedModelNode(const ModelNode &modelNode)
@@ -667,17 +660,8 @@ void AbstractView::emitDocumentMessage(const QList<DocumentMessage> &errors, con
         model()->d->setDocumentMessages(errors, warnings);
 }
 
-void AbstractView::emitCustomNotification(const QString &identifier)
-{
-    emitCustomNotification(identifier, QList<ModelNode>());
-}
-
-void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList)
-{
-    emitCustomNotification(identifier, nodeList, QList<QVariant>());
-}
-
-void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void AbstractView::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
+                                          const QList<QVariant> &data)
 {
     if (model())
         model()->d->notifyCustomNotification(this, identifier, nodeList, data);
@@ -749,10 +733,12 @@ void AbstractView::emitUpdateActiveScene3D(const QVariantMap &sceneState)
         model()->d->notifyUpdateActiveScene3D(sceneState);
 }
 
-void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap)
+void AbstractView::emitModelNodelPreviewPixmapChanged(const ModelNode &node,
+                                                      const QPixmap &pixmap,
+                                                      const QByteArray &requestId)
 {
     if (model())
-        model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap);
+        model()->d->notifyModelNodePreviewPixmapChanged(node, pixmap, requestId);
 }
 
 void AbstractView::emitImport3DSupportChanged(const QVariantMap &supportMap)

@@ -364,7 +364,6 @@ WidgetInfo FormEditorView::widgetInfo()
     return createWidgetInfo(m_formEditorWidget.data(),
                             "FormEditor",
                             WidgetInfo::CentralPane,
-                            0,
                             tr("2D"),
                             tr("2D view"),
                             DesignerWidgetFlags::IgnoreErrors);
@@ -996,10 +995,8 @@ void FormEditorView::setupRootItemSize()
         formEditorWidget()->setRootItemRect(rootRect);
         formEditorWidget()->centerScene();
 
-        auto contextImage = rootModelNode().auxiliaryData(contextImageProperty);
-
-        if (contextImage)
-            m_formEditorWidget->setBackgoundImage(contextImage.value().value<QImage>());
+        if (auto contextImage = rootModelNode().auxiliaryData(contextImageProperty))
+            formEditorWidget()->setBackgoundImage(contextImage.value().value<QImage>());
     }
 }
 

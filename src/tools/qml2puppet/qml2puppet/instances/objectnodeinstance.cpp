@@ -173,6 +173,11 @@ bool ObjectNodeInstance::isPropertyChange() const
     return false;
 }
 
+bool ObjectNodeInstance::isComposedEffect() const
+{
+    return false;
+}
+
 bool ObjectNodeInstance::equalGraphicsItem(QGraphicsItem * /*item*/) const
 {
     return false;

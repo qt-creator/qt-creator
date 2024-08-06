@@ -80,50 +80,23 @@ QString ModelNode::id() const
     return m_internalNode->id;
 }
 
-QString ModelNode::validId()
+void ModelNode::ensureIdExists() const
 {
-    if (id().isEmpty())
-        setIdWithRefactoring(model()->generateNewId(simplifiedTypeName()));
+    if (!hasId())
+        setIdWithoutRefactoring(model()->generateNewId(simplifiedTypeName()));
+}
+
+QString ModelNode::validId() const
+{
+    ensureIdExists();
 
     return id();
 }
 
-namespace {
-bool isQmlKeyWord(QStringView id)
-{
-    static constexpr auto keywords = Utils::to_array<std::u16string_view>(
-        {u"as",       u"break",  u"case",   u"catch", u"continue",   u"debugger",
-         u"default",  u"delete", u"do",     u"else",  u"finally",    u"for",
-         u"function", u"if",     u"import", u"in",    u"instanceof", u"new",
-         u"print",    u"return", u"switch", u"this",  u"throw",      u"try",
-         u"typeof",   u"var",    u"void",   u"while", u"with"});
-
-    return std::binary_search(keywords.begin(), keywords.end(), ModelUtils::toStdStringView(id));
-}
-
-bool isIdToAvoid(QStringView id)
-{
-    static constexpr auto token = Utils::to_array<std::u16string_view>(
-        {u"anchors", u"baseState",      u"border", u"bottom", u"clip",       u"color",
-         u"data",    u"enabled",        u"flow",   u"focus",  u"font",       u"height",
-         u"item",    u"layer",          u"left",   u"margin", u"opacity",    u"padding",
-         u"parent",  u"rect",           u"right",  u"scale",  u"shaderInfo", u"source",
-         u"sprite",  u"spriteSequence", u"state",  u"text",   u"texture",    u"top",
-         u"visible", u"width",          u"x",      u"y"});
-
-    return std::binary_search(token.begin(), token.end(), ModelUtils::toStdStringView(id));
-}
-
-bool idContainsWrongLetter(const QString &id)
-{
-    static QRegularExpression idExpr(QStringLiteral("^[a-z_][a-zA-Z0-9_]*$"));
-    return !id.contains(idExpr);
-}
-
-} // namespace
 bool ModelNode::isValidId(const QString &id)
 {
-    return id.isEmpty() || (!idContainsWrongLetter(id) && !isQmlKeyWord(id) && !isIdToAvoid(id));
+    using namespace ModelUtils;
+    return isValidQmlIdentifier(id) && !isBannedQmlId(id);
 }
 
 QString ModelNode::getIdValidityErrorMessage(const QString &id)
@@ -140,10 +113,13 @@ QString ModelNode::getIdValidityErrorMessage(const QString &id)
     if (id.contains(' '))
         return QObject::tr("ID cannot include whitespace (%1).").arg(id);
 
-    if (isQmlKeyWord(id))
+    if (ModelUtils::isQmlKeyword(id))
         return QObject::tr("%1 is a reserved QML keyword.").arg(id);
 
-    if (isIdToAvoid(id))
+    if (ModelUtils::isQmlBuiltinType(id))
+        return QObject::tr("%1 is a reserved Qml type.").arg(id);
+
+    if (ModelUtils::isDiscouragedQmlId(id))
         return QObject::tr("%1 is a reserved property keyword.").arg(id);
 
     return QObject::tr("ID includes invalid characters (%1).").arg(id);
@@ -157,7 +133,7 @@ bool ModelNode::hasId() const
     return !m_internalNode->id.isEmpty();
 }
 
-void ModelNode::setIdWithRefactoring(const QString &id)
+void ModelNode::setIdWithRefactoring(const QString &id) const
 {
     if (isValid()) {
         if (model()->rewriterView() && !id.isEmpty()
@@ -169,7 +145,7 @@ void ModelNode::setIdWithRefactoring(const QString &id)
     }
 }
 
-void ModelNode::setIdWithoutRefactoring(const QString &id)
+void ModelNode::setIdWithoutRefactoring(const QString &id) const
 {
     Internal::WriteLocker locker(m_model.data());
     if (!isValid())
@@ -362,7 +338,7 @@ bool ModelNode::hasParentProperty() const
   \return BindingProperty named name
   */
 
-BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
+BindingProperty ModelNode::bindingProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -370,7 +346,7 @@ BindingProperty ModelNode::bindingProperty(const PropertyName &name) const
     return BindingProperty(name, m_internalNode, model(), view());
 }
 
-SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name) const
+SignalHandlerProperty ModelNode::signalHandlerProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -378,7 +354,7 @@ SignalHandlerProperty ModelNode::signalHandlerProperty(const PropertyName &name)
     return SignalHandlerProperty(name, m_internalNode, model(), view());
 }
 
-SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyName &name) const
+SignalDeclarationProperty ModelNode::signalDeclarationProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -396,7 +372,7 @@ SignalDeclarationProperty ModelNode::signalDeclarationProperty(const PropertyNam
   \return NodeProperty named name
   */
 
-NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
+NodeProperty ModelNode::nodeProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -414,7 +390,7 @@ NodeProperty ModelNode::nodeProperty(const PropertyName &name) const
   \return NodeListProperty named name
   */
 
-NodeListProperty ModelNode::nodeListProperty(const PropertyName &name) const
+NodeListProperty ModelNode::nodeListProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -422,7 +398,7 @@ NodeListProperty ModelNode::nodeListProperty(const PropertyName &name) const
     return NodeListProperty(name, m_internalNode, model(), view());
 }
 
-NodeAbstractProperty ModelNode::nodeAbstractProperty(const PropertyName &name) const
+NodeAbstractProperty ModelNode::nodeAbstractProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -455,7 +431,7 @@ NodeProperty ModelNode::defaultNodeProperty() const
   \return VariantProperty named name
   */
 
-VariantProperty ModelNode::variantProperty(const PropertyName &name) const
+VariantProperty ModelNode::variantProperty(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -463,7 +439,7 @@ VariantProperty ModelNode::variantProperty(const PropertyName &name) const
     return VariantProperty(name, m_internalNode, model(), view());
 }
 
-AbstractProperty ModelNode::property(const PropertyName &name) const
+AbstractProperty ModelNode::property(PropertyNameView name) const
 {
     if (!isValid())
         return {};
@@ -596,7 +572,8 @@ static QList<ModelNode> descendantNodes(const ModelNode &node)
 static void removeModelNodeFromSelection(const ModelNode &node)
 {
     // remove nodes from the active selection
-    QList<ModelNode> selectedList = node.view()->selectedModelNodes();
+    auto model = node.model();
+    QList<ModelNode> selectedList = model->selectedNodes(node.view());
 
     const QList<ModelNode> descendants = descendantNodes(node);
     for (const ModelNode &descendantNode : descendants)
@@ -604,7 +581,7 @@ static void removeModelNodeFromSelection(const ModelNode &node)
 
     selectedList.removeAll(node);
 
-    node.view()->setSelectedModelNodes(selectedList);
+    model->setSelectedModelNodes(selectedList);
 }
 
 /*! \brief complete removes this ModelNode from the Model
@@ -990,6 +967,8 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataType type,
 void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data) const
 {
     if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
         Internal::WriteLocker locker(m_model.data());
         m_model->d->setAuxiliaryData(internalNode(), key, data);
     }
@@ -997,21 +976,32 @@ void ModelNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data)
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataKeyView key, const QVariant &data) const
 {
-    if (isValid())
+    if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         m_model->d->setAuxiliaryData(internalNode(), key, data);
+    }
 }
 
 void ModelNode::setAuxiliaryDataWithoutLock(AuxiliaryDataType type,
                                             Utils::SmallStringView name,
                                             const QVariant &data) const
 {
-    if (isValid())
+    if (isValid()) {
+        if (type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         m_model->d->setAuxiliaryData(internalNode(), {type, name}, data);
+    }
 }
 
 void ModelNode::removeAuxiliaryData(AuxiliaryDataKeyView key) const
 {
     if (isValid()) {
+        if (key.type == AuxiliaryDataType::Persistent)
+            ensureIdExists();
+
         Internal::WriteLocker locker(m_model.data());
         m_model->d->removeAuxiliaryData(internalNode(), key);
     }
@@ -1033,6 +1023,14 @@ bool ModelNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
 bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const
 {
     return hasAuxiliaryData({type, name});
+}
+
+bool ModelNode::hasAuxiliaryData(AuxiliaryDataType type) const
+{
+    if (!isValid())
+        return false;
+
+    return m_internalNode->hasAuxiliaryData(type);
 }
 
 AuxiliaryDatasForType ModelNode::auxiliaryData(AuxiliaryDataType type) const

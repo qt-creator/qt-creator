@@ -110,14 +110,14 @@ public:
 
     //###
 
-    AbstractProperty property(const PropertyName &name) const;
-    VariantProperty variantProperty(const PropertyName &name) const;
-    BindingProperty bindingProperty(const PropertyName &name) const;
-    SignalHandlerProperty signalHandlerProperty(const PropertyName &name) const;
-    SignalDeclarationProperty signalDeclarationProperty(const PropertyName &name) const;
-    NodeListProperty nodeListProperty(const PropertyName &name) const;
-    NodeProperty nodeProperty(const PropertyName &name) const;
-    NodeAbstractProperty nodeAbstractProperty(const PropertyName &name) const;
+    AbstractProperty property(PropertyNameView name) const;
+    VariantProperty variantProperty(PropertyNameView name) const;
+    BindingProperty bindingProperty(PropertyNameView name) const;
+    SignalHandlerProperty signalHandlerProperty(PropertyNameView name) const;
+    SignalDeclarationProperty signalDeclarationProperty(PropertyNameView name) const;
+    NodeListProperty nodeListProperty(PropertyNameView name) const;
+    NodeProperty nodeProperty(PropertyNameView name) const;
+    NodeAbstractProperty nodeAbstractProperty(PropertyNameView name) const;
     NodeAbstractProperty defaultNodeAbstractProperty() const;
     NodeListProperty defaultNodeListProperty() const;
     NodeProperty defaultNodeProperty() const;
@@ -152,9 +152,10 @@ public:
     void destroy();
 
     QString id() const;
-    QString validId();
-    void setIdWithRefactoring(const QString &id);
-    void setIdWithoutRefactoring(const QString &id);
+    void ensureIdExists() const;
+    [[nodiscard]] QString validId() const;
+    void setIdWithRefactoring(const QString &id) const;
+    void setIdWithoutRefactoring(const QString &id) const;
     static bool isValidId(const QString &id);
     static QString getIdValidityErrorMessage(const QString &id);
 
@@ -191,6 +192,7 @@ public:
     void removeAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
     bool hasAuxiliaryData(AuxiliaryDataKeyView key) const;
     bool hasAuxiliaryData(AuxiliaryDataType type, Utils::SmallStringView name) const;
+    bool hasAuxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasForType auxiliaryData(AuxiliaryDataType type) const;
     AuxiliaryDatasView auxiliaryData() const;
 

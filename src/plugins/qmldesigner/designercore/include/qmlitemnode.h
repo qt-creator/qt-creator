@@ -214,7 +214,7 @@ public:
     static const PropertyNameList &mouseSignals() { return s_mouseSignals; }
 
 protected:
-    QList<ModelNode> transitionsForProperty(const PropertyName &propertyName, const ModelNode &modelNode);
+    QList<ModelNode> transitionsForProperty(PropertyNameView propertyName, const ModelNode &modelNode);
 
 private:
     static PropertyNameList s_mouseSignals;

@@ -142,6 +142,7 @@ public:
     static Utils::FilePath pathRelativeToActiveProject(const Utils::FilePath &path);
     static QStringList additionalAboutInformation();
     static void clearAboutInformation();
+    static void setPrependAboutInformation(const QString &line);
     static void appendAboutInformation(const QString &line);
     static QString aboutInformationCompact();
     static QString aboutInformationHtml();

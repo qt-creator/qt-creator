@@ -15,5 +15,11 @@
     "Category" : "Qt Quick",
     "Description" : "Provides support code for the qml designer and co..",
     "Url" : "https://www.qt.io",
+    "Arguments" : [
+        {
+            "Name" : "-qml-lite-designer",
+            "Description" : "Enable QML Lite Designer"
+        }
+    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }

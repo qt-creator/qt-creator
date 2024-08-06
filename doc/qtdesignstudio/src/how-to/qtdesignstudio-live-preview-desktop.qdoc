@@ -43,4 +43,8 @@
         \li In \uicontrol {Override device QML viewer}, select the folder where
             the preview tool executable is located.
     \endlist
+
+    To preview the design on a device, see \l {Previewing on Devices}.
+
+    \endif
 */

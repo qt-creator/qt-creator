@@ -70,6 +70,23 @@ inline bool isModelOrMaterial(const SelectionContext &selectionState)
     return node.metaInfo().isQtQuick3DModel() || node.metaInfo().isQtQuick3DMaterial();
 }
 
+inline bool enableAddToContentLib(const SelectionContext &selectionState)
+{
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
+    bool isInBundle = modelNode.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
+    bool isNode3D = modelNode.metaInfo().isQtQuick3DNode();
+
+    return isNode3D && !isInBundle;
+}
+
+inline bool is3DNode(const SelectionContext &selectionState)
+{
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+
+    return modelNode.metaInfo().isQtQuick3DNode();
+}
+
 inline bool hasEditableMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();

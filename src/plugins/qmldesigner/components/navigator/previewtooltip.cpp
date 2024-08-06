@@ -58,7 +58,9 @@ void PreviewToolTip::setInfo(const QString &info)
 
 void PreviewToolTip::setPixmap(const QPixmap &pixmap)
 {
-    m_ui->imageLabel->setPixmap(pixmap);
+    QPixmap scaled = pixmap.scaled(m_ui->labelBackground->size(), Qt::KeepAspectRatio);
+    scaled.setDevicePixelRatio(1.);
+    m_ui->imageLabel->setPixmap(scaled);
 }
 
 QString PreviewToolTip::id() const

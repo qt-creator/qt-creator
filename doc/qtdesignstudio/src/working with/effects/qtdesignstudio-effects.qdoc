@@ -1,0 +1,55 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-terms.html
+    \page working-with-effects.html
+    \nextpage best-practices.html
+
+    \title Effects
+
+    \QDS includes various ready-made effects that you can use in your applications. These effects
+    are customizable to meet your specific requirements. Alternatively, you can use your own shader
+    files to create a custom effect.
+
+    The following table summarizes the available effects and their corresponding use cases.
+
+    \table
+    \header
+        \li Effect
+        \li Description
+    \row
+        \li \l {Effect Composer}
+        \li A set of ready-made 2D, 3D, and particle effects that you can combine and customize.
+            Includes effects like \uicontrol {Color Overlay}, \uicontrol Rain, and \uicontrol
+            Swirl.
+    \row
+        \li \l {Adding an Effect to Your Project}{Content Library Effects}
+        \li A set of ready-made particle effects. Includes customizable effects like \uicontrol
+            Bubbles, \uicontrol Explosion, and \uicontrol Shockwave.
+    \row
+        \li \l {Design Effects}
+        \li A feature for adding 2D shadow and blur effects from the \uicontrol Properties
+            view.
+    \row
+        \li \l {Particles}{Particle Effects}
+        \li A set of ready-made particle effect components like \uicontrol Clouds, \uicontrol Dust,
+            and \uicontrol Steam. Includes also components for more advanced customization like
+            \uicontrol Attractor, \uicontrol {Scale Affector}, and \uicontrol Gravity.
+    \row
+        \li \l {3D Effects}
+        \li A set of ready-made 3D effect components. Includes customizable effects like \uicontrol
+            {Brush Strokes}, \uicontrol {Distortion Sphere}, and \uicontrol {Motion Blur}.
+    \row
+        \li \l {2D Effects}
+        \li A set of ready-made 2D effect components. Includes customizable effects like \uicontrol
+            {Brightness Control}, \uicontrol {Gamma Adjust}, and \uicontrol {Opacity Mask}.
+    \row
+        \li \l {Using Qt Quick Effect Maker Effects}{Qt Quick Effect Maker}
+        \li Import effects made with \QQEM to \QDS.
+    \row
+        \li \l {Custom Effects and Materials}{Custom Effects}
+        \li Use your own shader files to create a custom effect.
+    \endtable
+
+*/

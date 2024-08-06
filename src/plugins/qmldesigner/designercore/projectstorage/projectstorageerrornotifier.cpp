@@ -8,9 +8,25 @@
 namespace QmlDesigner {
 
 void ProjectStorageErrorNotifier::typeNameCannotBeResolved(Utils::SmallStringView typeName,
-                                                        SourceId sourceId)
+                                                           SourceId sourceId)
 {
     qDebug() << "Missing type name: " << typeName
+             << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();
+}
+
+void ProjectStorageErrorNotifier::missingDefaultProperty(Utils::SmallStringView typeName,
+                                                         Utils::SmallStringView propertyName,
+                                                         SourceId sourceId)
+
+{
+    qDebug() << "Missing default property: " << propertyName << " in type: " << typeName
+             << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();
+}
+
+void ProjectStorageErrorNotifier::propertyNameDoesNotExists(Utils::SmallStringView propertyName,
+                                                            SourceId sourceId)
+{
+    qDebug() << "Missing property: " << propertyName
              << " in file: " << m_pathCache.sourcePath(sourceId).toStringView();
 }
 

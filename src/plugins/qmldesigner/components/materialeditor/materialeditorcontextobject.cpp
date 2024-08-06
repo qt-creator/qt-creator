@@ -110,9 +110,9 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
                 continue;
 
             // Add dynamic property
-            propertiesAndSignals.append(property.name());
+            propertiesAndSignals.append(property.name().toByteArray());
             // Add its change signal
-            PropertyName name = property.name();
+            PropertyName name = property.name().toByteArray();
             QChar firstChar = QChar(property.name().at(0)).toUpper().toLatin1();
             name[0] = firstChar.toLatin1();
             name.prepend("on");
@@ -124,7 +124,7 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
         QList<PropertyName> incompatibleProperties;
         for (const auto &property : matProps) {
             if (!propertiesAndSignals.contains(property.name()))
-                incompatibleProperties.append(property.name());
+                incompatibleProperties.append(property.name().toByteArray());
         }
 
         // When switching between material types, copy base (diffuse) color and map properties of
@@ -135,7 +135,7 @@ void MaterialEditorContextObject::changeTypeName(const QString &typeName)
         int targetIndex = -1;
         NodeMetaInfo oldMetaInfo = m_selectedMaterial.metaInfo();
         struct CopyData {
-            CopyData() {};
+            CopyData() {}
             CopyData(PropertyName n) : name(n) {}
             PropertyName name;
             QVariant value;

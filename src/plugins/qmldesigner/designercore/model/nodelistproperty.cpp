@@ -23,14 +23,6 @@ Internal::NodeListPropertyIterator::value_type Internal::NodeListPropertyIterato
 
 NodeListProperty::NodeListProperty() = default;
 
-NodeListProperty::NodeListProperty(const PropertyName &propertyName,
-                                   const Internal::InternalNodePointer &internalNode,
-                                   Model *model,
-                                   AbstractView *view)
-    : NodeAbstractProperty(propertyName, internalNode, model, view)
-{
-}
-
 NodeListProperty::NodeListProperty(const Internal::InternalNodeListProperty::Pointer &internalNodeListProperty, Model* model, AbstractView *view)
     : NodeAbstractProperty(internalNodeListProperty, model, view)
 {

@@ -83,6 +83,7 @@ public:
     virtual bool isLayoutable() const;
     virtual bool isRenderable() const;
     virtual bool isPropertyChange() const;
+    virtual bool isComposedEffect() const;
 
     virtual bool equalGraphicsItem(QGraphicsItem *item) const;
 

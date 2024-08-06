@@ -3,8 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
-import QtQuick.Layouts
-import HelperWidgets
+import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 import ContentLibraryBackend
 import WebFetcher
@@ -12,9 +11,9 @@ import WebFetcher
 Item {
     id: root
 
-    // Download states: "" (ie default, not downloaded), "unavailable", "downloading", "downloaded",
-    //                  "failed"
-    property string downloadState: modelData.isDownloaded() ? "downloaded" : ""
+    // Download states: "" (exists not downloaded), "unavailable", "downloading", "downloaded", "failed"
+    property string downloadState: ContentLibraryBackend.materialsModel.isMaterialDownloaded(modelData)
+                                   ? "downloaded" : ""
 
     signal showContextMenu()
     signal addToProject()
@@ -24,18 +23,16 @@ Item {
     MouseArea {
         id: mouseArea
 
-        enabled: root.downloadState !== "downloading"
+        enabled: !ContentLibraryBackend.rootView.importerRunning && root.downloadState == "downloaded"
         hoverEnabled: true
         anchors.fill: parent
         acceptedButtons: Qt.LeftButton | Qt.RightButton
 
         onPressed: (mouse) => {
-            if (mouse.button === Qt.LeftButton && !ContentLibraryBackend.rootView.importerRunning) {
-                if (root.downloadState === "downloaded")
-                    ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
-            } else if (mouse.button === Qt.RightButton && root.downloadState === "downloaded") {
+            if (mouse.button === Qt.LeftButton)
+                ContentLibraryBackend.rootView.startDragMaterial(modelData, mapToGlobal(mouse.x, mouse.y))
+            else if (mouse.button === Qt.RightButton)
                 root.showContextMenu()
-            }
         }
     }
 
@@ -87,7 +84,7 @@ Item {
                 }
             }
 
-            IconButton {
+            HelperWidgets.IconButton {
                 icon: StudioTheme.Constants.plus
                 tooltip: qsTr("Add an instance to project")
                 buttonSize: 22
@@ -106,7 +103,7 @@ Item {
                 }
             }
 
-            IconButton {
+            HelperWidgets.IconButton {
                 id: downloadIcon
                 icon: root.downloadState === "unavailable"
                       ? StudioTheme.Constants.downloadUnavailable
@@ -181,10 +178,10 @@ Item {
     MultiFileDownloader {
         id: downloader
 
-        baseUrl: modelData.bundleMaterialBaseWebUrl
+        baseUrl: ContentLibraryBackend.materialsModel.baseWebUrl
         files: modelData.bundleMaterialFiles
 
-        targetDirPath: modelData.bundleMaterialDirPath
+        targetDirPath: ContentLibraryBackend.materialsModel.bundlePath
 
         onDownloadStarting: {
             root.downloadState = "downloading"
