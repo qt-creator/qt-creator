@@ -82,8 +82,17 @@ bool MaterialBrowserTexturesModel::isVisible(int idx) const
     if (!isValidIndex(idx))
         return false;
 
-    return m_searchText.isEmpty() || m_textureList.at(idx).variantProperty("source")
-            .value().toString().contains(m_searchText, Qt::CaseInsensitive);
+    if (m_searchText.isEmpty())
+        return true;
+
+    const ModelNode &texture = m_textureList.at(idx);
+
+    auto propertyHasMatch = [&](const PropertyName &property) -> bool {
+        return texture.variantProperty(property).value().toString().contains(m_searchText,
+                                                                             Qt::CaseInsensitive);
+    };
+
+    return propertyHasMatch("objectName") || propertyHasMatch("source");
 }
 
 bool MaterialBrowserTexturesModel::isValidIndex(int idx) const
