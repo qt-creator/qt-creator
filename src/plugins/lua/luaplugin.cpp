@@ -195,7 +195,7 @@ public:
             // clang-format on
 
             inputEdit->setReadOnly(true);
-            inputEdit->setHistoryCompleter(Utils::Key("LuaREPL.InputHistory"));
+            inputEdit->setHistoryCompleter(Utils::Key("LuaREPL.InputHistory"), false, 200);
 
             connect(inputEdit, &QLineEdit::returnPressed, this, [this, inputEdit] {
                 inputEdit->setReadOnly(true);

@@ -87,7 +87,8 @@ public:
     // Completion
 
     // Enable a history completer with a history of entries.
-    void setHistoryCompleter(const Utils::Key &historyKey, bool restoreLastItemFromHistory = false);
+    void setHistoryCompleter(
+        const Utils::Key &historyKey, bool restoreLastItemFromHistory = false, int maxLines = 6);
     // Sets a completer that is not a history completer.
     void setSpecialCompleter(QCompleter *completer);
 

@@ -354,10 +354,11 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
     return d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
+void FancyLineEdit::setHistoryCompleter(
+    const Key &historyKey, bool restoreLastItemFromHistory, int maxLines)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
-    d->m_historyCompleter = new HistoryCompleter(historyKey, this);
+    d->m_historyCompleter = new HistoryCompleter(historyKey, maxLines, this);
     if (restoreLastItemFromHistory && d->m_historyCompleter->hasHistory())
         setText(d->m_historyCompleter->historyItem());
     QLineEdit::setCompleter(d->m_historyCompleter);
