@@ -898,11 +898,15 @@ void ModelPrivate::attachView(AbstractView *view)
 
     m_viewList.append(view);
 
-    view->modelAttached(m_model);
+    if (!view->isAttached())
+        view->modelAttached(m_model);
 }
 
 void ModelPrivate::detachView(AbstractView *view, bool notifyView)
 {
+    if (!view->isAttached())
+        return;
+
     if (notifyView)
         view->modelAboutToBeDetached(m_model);
     m_viewList.removeOne(view);
