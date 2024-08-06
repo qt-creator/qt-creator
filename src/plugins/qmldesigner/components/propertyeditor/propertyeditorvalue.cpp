@@ -516,8 +516,7 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 
 void PropertyEditorValue::commitDrop(const QString &dropData)
 {
-    if (m_modelNode.metaInfo().isQtQuick3DMaterial()
-        && m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
+    if (m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {

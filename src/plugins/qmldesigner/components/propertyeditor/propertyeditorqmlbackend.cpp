@@ -919,6 +919,11 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
     return node.metaInfo();
 }
 
+void PropertyEditorQmlBackend::refreshBackendModel()
+{
+    m_backendModelNode.refresh();
+}
+
 #ifndef QDS_USE_PROJECTSTORAGE
 TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
 {

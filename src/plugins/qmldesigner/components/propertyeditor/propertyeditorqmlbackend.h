@@ -87,6 +87,8 @@ public:
 
     static NodeMetaInfo findCommonAncestor(const ModelNode &node);
 
+    void refreshBackendModel();
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    PropertyNameView name,

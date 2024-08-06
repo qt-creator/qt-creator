@@ -8,6 +8,7 @@
 #include "propertyeditorvalue.h"
 #include "propertyeditorwidget.h"
 
+#include <asset.h>
 #include <auxiliarydataproperties.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
@@ -55,6 +56,19 @@ static bool propertyIsAttachedLayoutProperty(PropertyNameView propertyName)
 static bool propertyIsAttachedInsightProperty(PropertyNameView propertyName)
 {
     return propertyName.contains("InsightCategory.");
+}
+
+static bool containsTexture(const ModelNode &node)
+{
+    if (node.metaInfo().isQtQuick3DTexture())
+        return true;
+
+    const ModelNodes children = node.allSubModelNodes();
+    for (const ModelNode &child : children) {
+        if (child.metaInfo().isQtQuick3DTexture())
+            return true;
+    }
+    return false;
 }
 
 PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
@@ -739,6 +753,18 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
     if (m_selectedNode.isValid() && removedNode.isValid() && m_selectedNode == removedNode)
         select();
+    if (containsTexture(removedNode))
+        m_textureAboutToBeRemoved = true;
+}
+
+void PropertyEditorView::nodeRemoved(const ModelNode &removedNode,
+                                     const NodeAbstractProperty &parentProperty,
+                                     PropertyChangeFlags propertyChange)
+{
+    if (m_qmlBackEndForCurrentType && m_textureAboutToBeRemoved)
+        m_qmlBackEndForCurrentType->refreshBackendModel();
+
+    m_textureAboutToBeRemoved = false;
 }
 
 void PropertyEditorView::modelAttached(Model *model)
@@ -940,10 +966,11 @@ void PropertyEditorView::nodeIdChanged(const ModelNode& node, const QString& new
     if (!QmlObjectNode(m_selectedNode).isValid())
         return;
 
-    if (node == m_selectedNode) {
-
-        if (m_qmlBackEndForCurrentType)
+    if (m_qmlBackEndForCurrentType) {
+        if (node == m_selectedNode)
             setValue(node, "id", newId);
+        if (node.metaInfo().isQtQuick3DTexture())
+            m_qmlBackEndForCurrentType->refreshBackendModel();
     }
 }
 
@@ -1051,23 +1078,50 @@ void PropertyEditorView::nodeReparented(const ModelNode &node,
 {
     if (node == m_selectedNode)
         m_qmlBackEndForCurrentType->backendAnchorBinding().setup(QmlItemNode(m_selectedNode));
+    if (containsTexture(node))
+        m_qmlBackEndForCurrentType->refreshBackendModel();
+}
+
+void PropertyEditorView::highlightTextureProperties(bool highlight)
+{
+    NodeMetaInfo metaInfo = m_selectedNode.metaInfo();
+    QTC_ASSERT(metaInfo.isValid(), return);
+
+    DesignerPropertyMap &propMap = m_qmlBackEndForCurrentType->backendValuesPropertyMap();
+    const QStringList propNames = propMap.keys();
+    for (const QString &propName : propNames) {
+        if (metaInfo.property(propName.toUtf8()).propertyType().isQtQuick3DTexture()) {
+            QObject *propEditorValObj = propMap.value(propName).value<QObject *>();
+            PropertyEditorValue *propEditorVal = qobject_cast<PropertyEditorValue *>(propEditorValObj);
+            propEditorVal->setHasActiveDrag(highlight);
+        }
+    }
 }
 
 void PropertyEditorView::dragStarted(QMimeData *mimeData)
 {
-    if (!mimeData->hasFormat(Constants::MIME_TYPE_ASSETS))
-        return;
+    if (mimeData->hasFormat(Constants::MIME_TYPE_ASSETS)) {
+        const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS))
+                                      .split(',')[0];
+        const QString suffix = "*." + assetPath.split('.').last().toLower();
 
-    const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS))
-                                  .split(',')[0];
-    const QString suffix = "*." + assetPath.split('.').last().toLower();
+        m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix(suffix);
 
-    m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix(suffix);
+        Asset asset(assetPath);
+        if (!asset.isValidTextureSource())
+            return;
+
+        highlightTextureProperties();
+    } else if (mimeData->hasFormat(Constants::MIME_TYPE_TEXTURE)
+               || mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
+        highlightTextureProperties();
+    }
 }
 
 void PropertyEditorView::dragEnded()
 {
     m_qmlBackEndForCurrentType->contextObject()->setActiveDragSuffix("");
+    highlightTextureProperties(false);
 }
 
 void PropertyEditorView::setValue(const QmlObjectNode &qmlObjectNode,

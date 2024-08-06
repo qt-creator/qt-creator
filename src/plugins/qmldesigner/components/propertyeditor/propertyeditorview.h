@@ -41,7 +41,9 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
-
+    void nodeRemoved(const ModelNode &removedNode,
+                     const NodeAbstractProperty &parentProperty,
+                     PropertyChangeFlags propertyChange) override;
     void propertiesRemoved(const QList<AbstractProperty>& propertyList) override;
 
     void modelAttached(Model *model) override;
@@ -116,6 +118,7 @@ private: //functions
     void removePropertyFromModel(PropertyNameView propertyName);
 
     bool noValidSelection() const;
+    void highlightTextureProperties(bool highlight = true);
 
 private: //variables
     AsynchronousImageCache &m_imageCache;
@@ -131,6 +134,7 @@ private: //variables
     bool m_locked;
     bool m_setupCompleted;
     QTimer *m_singleShotTimer;
+    bool m_textureAboutToBeRemoved = false;
 };
 
 } //QmlDesigner
