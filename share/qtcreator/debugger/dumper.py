@@ -494,7 +494,7 @@ class DumperBase():
             native_type = self.lookupNativeType(typename)
             if native_type is None:
                 #sCANNOT DETERMINE SIZE FOR TYelf.dump_location()
-                self.dump_location()
+                #self.dump_location()
                 self.warn("TYPEIDS: %s" % self.typeid_cache)
                 self.warn("COULD NOT FIND TYPE '%s'" % typename)
                 return None
@@ -1068,7 +1068,7 @@ class DumperBase():
     def check(self, exp):
         if not exp:
             self.warn('Check failed: %s' % exp)
-            self.dump_location()
+            #self.dump_location()
             raise RuntimeError('Check failed: %s' % exp)
 
     def check_typeid(self, typeid):
