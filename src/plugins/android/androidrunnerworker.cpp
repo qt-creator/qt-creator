@@ -54,6 +54,9 @@ static const QRegularExpression userIdPattern("u(\\d+)_a");
 
 static const std::chrono::milliseconds s_jdbTimeout = 5s;
 
+static const Port s_localJdbServerPort(5038);
+static const Port s_localDebugServerPort(5039); // Local end of forwarded debug socket.
+
 static qint64 extractPID(const QString &output, const QString &packageName)
 {
     qint64 pid = -1;
@@ -123,7 +126,6 @@ static FilePath debugServer(bool useLldb, const Target *target)
         if (path.exists())
             return path;
     }
-
     return {};
 }
 
@@ -144,8 +146,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
         m_qmlDebugServices = QmlDebug::QmlPreviewServices;
     else
         m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
-    m_localDebugServerPort = Utils::Port(5039);
-    QTC_CHECK(m_localDebugServerPort.isValid());
     if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
@@ -157,8 +157,6 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
         m_qmlServer.setPort(server.serverPort());
         qCDebug(androidRunWorkerLog) << "QML server:" << m_qmlServer.toDisplayString();
     }
-    m_localJdbServerPort = Utils::Port(5038);
-    QTC_CHECK(m_localJdbServerPort.isValid());
 
     auto target = runControl->target();
     m_packageName = AndroidManager::packageName(target);
@@ -516,7 +514,7 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         lldbServerArgs << debugServerFile
                        << "platform"
                        // << "--server"  // Can lead to zombie servers
-                       << "--listen" << QString("*:%1").arg(m_localDebugServerPort.toString());
+                       << "--listen" << QString("*:%1").arg(s_localDebugServerPort.toString());
         m_debugServerProcess.reset(AndroidManager::startAdbProcess(lldbServerArgs, &lldbServerErr));
 
         if (!m_debugServerProcess) {
@@ -546,7 +544,7 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
         qCDebug(androidRunWorkerLog) << "Debugger process started";
         m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
 
-        removeForwardPort("tcp:" + m_localDebugServerPort.toString(),
+        removeForwardPort("tcp:" + s_localDebugServerPort.toString(),
                           "localfilesystem:" + gdbServerSocket, "C++");
     }
 }
@@ -748,7 +746,7 @@ void AndroidRunnerWorker::asyncStop()
 
 void AndroidRunnerWorker::handleJdbWaiting()
 {
-    if (!removeForwardPort("tcp:" + m_localJdbServerPort.toString(),
+    if (!removeForwardPort("tcp:" + s_localJdbServerPort.toString(),
                            "jdwp:" + QString::number(m_processPID), "JDB"))
         return;
 
@@ -757,7 +755,7 @@ void AndroidRunnerWorker::handleJdbWaiting()
 
     QStringList jdbArgs("-connect");
     jdbArgs << QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
-               .arg(m_localJdbServerPort.toString());
+               .arg(s_localJdbServerPort.toString());
     qCDebug(androidRunWorkerLog).noquote()
             << "Starting JDB:" << CommandLine(jdbPath, jdbArgs).toUserOutput();
     m_jdbProcess.reset(new Process);
@@ -848,7 +846,7 @@ void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
             startNativeDebugging();
         // In debugging cases this will be funneled to the engine to actually start
         // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-        emit remoteProcessStarted(m_localDebugServerPort, m_qmlServer, m_processPID);
+        emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
         logcatReadStandardOutput();
         QTC_ASSERT(!m_psIsAlive, /**/);
         QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);

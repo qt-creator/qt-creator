@@ -86,10 +86,8 @@ private:
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
-    Utils::Port m_localDebugServerPort; // Local end of forwarded debug socket.
     QUrl m_qmlServer;
     JDBState m_jdbState = JDBState::Idle;
-    Utils::Port m_localJdbServerPort;
     std::unique_ptr<Utils::Process> m_debugServerProcess; // gdbserver or lldb-server
     std::unique_ptr<Utils::Process> m_jdbProcess;
     QString m_deviceSerialNumber;
