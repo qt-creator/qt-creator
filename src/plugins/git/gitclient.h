@@ -10,6 +10,8 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
 
+#include <texteditor/texteditorconstants.h>
+
 #include <vcsbase/vcsbaseclient.h>
 
 #include <QStringList>
@@ -339,6 +341,8 @@ public:
 
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                          const VcsBase::CommandHandler &handler) const;
+
+    static QString styleColorName(TextEditor::TextStyle style);
 
 private:
     static GitSettings &settings();

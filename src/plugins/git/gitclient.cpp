@@ -103,17 +103,6 @@ static QString branchesDisplay(const QString &prefix, QStringList *branches, boo
     return output;
 }
 
-static QString logColorName(TextEditor::TextStyle style)
-{
-    using namespace TextEditor;
-
-    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
-    QColor color = scheme.formatFor(style).foreground();
-    if (!color.isValid())
-        color = scheme.formatFor(C_TEXT).foreground();
-    return color.name();
-};
-
 ///////////////////////////////
 
 static void stage(DiffEditorController *diffController, const QString &patch, bool revert)
@@ -365,7 +354,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
     setDisplayName("Git Show");
     setAnsiEnabled(true);
     static const QString busyMessage = Tr::tr("<resolving>");
-    const QColor color = QColor::fromString(logColorName(TextEditor::C_LOG_DECORATION));
+    const QColor color = QColor::fromString(GitClient::styleColorName(TextEditor::C_LOG_DECORATION));
     const QString decorateColor = AnsiEscapeCodeHandler::ansiFromColor(color);
     const QString noColor = AnsiEscapeCodeHandler::noColor();
 
@@ -401,11 +390,11 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto onDescriptionSetup = [this, id](Process &process) {
         process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
-        const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
-        const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
-        const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
-        const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-        const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
+        const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
+        const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
+        const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
+        const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+        const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
 
         const QString showFormat = QStringLiteral(
                                     "--pretty=format:"
@@ -699,11 +688,11 @@ public:
 
     QStringList graphArguments() const
     {
-        const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
-        const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
-        const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
-        const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-        const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
+        const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
+        const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
+        const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
+        const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+        const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
 
         const QString formatArg = QStringLiteral(
                     "--pretty=format:"
@@ -1035,11 +1024,11 @@ static QStringList normalLogArguments()
     if (!gitHasRgbColors())
         return {};
 
-    const QString authorName = logColorName(TextEditor::C_LOG_AUTHOR_NAME);
-    const QString commitDate = logColorName(TextEditor::C_LOG_COMMIT_DATE);
-    const QString commitHash = logColorName(TextEditor::C_LOG_COMMIT_HASH);
-    const QString commitSubject = logColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-    const QString decoration = logColorName(TextEditor::C_LOG_DECORATION);
+    const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
+    const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
+    const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
+    const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+    const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
 
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
@@ -3470,6 +3459,17 @@ void GitClient::readConfigAsync(const FilePath &workingDirectory, const QStringL
 {
     vcsExecWithHandler(workingDirectory, arguments, this, handler, RunFlags::NoOutput,
                        configFileCodec());
+}
+
+QString GitClient::styleColorName(TextEditor::TextStyle style)
+{
+    using namespace TextEditor;
+
+    const ColorScheme &scheme = TextEditorSettings::fontSettings().colorScheme();
+    QColor color = scheme.formatFor(style).foreground();
+    if (!color.isValid())
+        color = scheme.formatFor(C_TEXT).foreground();
+    return color.name();
 }
 
 static QVersionNumber parseGitVersion(const QString &output)
