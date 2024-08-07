@@ -913,13 +913,13 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
                 QVector<FolderNode::LocationInfo> result;
-                for (const FolderNode::LocationInfo &i : bt) {
+                Utils::reverseForeach(bt, [&](const FolderNode::LocationInfo &i) {
                     int count = locations.count();
                     locations.insert({i.path, i.line});
                     if (count != locations.count()) {
                         result.append(i);
                     }
-                }
+                });
                 return result;
             };
 
