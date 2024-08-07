@@ -22,11 +22,7 @@ namespace {
 class Suggestion
 {
 public:
-    Suggestion(
-        Text::Position start,
-        Text::Position end,
-        Text::Position position,
-        const QString &text)
+    Suggestion(Text::Position start, Text::Position end, Text::Position position, const QString &text)
         : m_start(start)
         , m_end(end)
         , m_position(position)
@@ -52,8 +48,7 @@ QTextCursor toTextCursor(QTextDocument *doc, const Text::Position &position)
     return cursor;
 }
 
-QTextCursor toSelection(
-    QTextDocument *doc, const Text::Position &start, const Text::Position &end)
+QTextCursor toSelection(QTextDocument *doc, const Text::Position &start, const Text::Position &end)
 {
     QTC_ASSERT(doc, return {});
     QTextCursor cursor = toTextCursor(doc, start);
@@ -62,20 +57,27 @@ QTextCursor toSelection(
     return cursor;
 }
 
-class CyclicSuggestion : public TextEditor::TextSuggestion
+class CyclicSuggestion : public QObject, public TextEditor::TextSuggestion
 {
+    Q_OBJECT
+
 public:
     CyclicSuggestion(
-        const QList<Suggestion> &suggestions, QTextDocument *origin, int current_suggestion = 0)
-        : m_current_suggestion(current_suggestion)
+        const QList<Suggestion> &suggestions,
+        TextEditor::TextDocument *origin_document,
+        int current_suggestion = 0,
+        bool is_locked = false)
+        : m_currentSuggestion(current_suggestion)
         , m_suggestions(suggestions)
+        , m_originDocument(origin_document)
+        , m_locked(is_locked)
     {
-        QTC_ASSERT(current_suggestion < suggestions.size(), return);
-        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        QTC_ASSERT(current_suggestion < m_suggestions.size(), return);
+        const auto &suggestion = m_suggestions.at(m_currentSuggestion);
         const auto start = suggestion.start();
         const auto end = suggestion.end();
 
-        QString text = toTextCursor(origin, start).block().text();
+        QString text = toTextCursor(origin_document->document(), start).block().text();
         int length = text.length() - start.column;
         if (start.line == end.line)
             length = end.column - start.column;
@@ -83,16 +85,16 @@ public:
         text.replace(start.column, length, suggestion.text());
         document()->setPlainText(text);
 
-        m_start = toTextCursor(origin, suggestion.position());
+        m_start = toTextCursor(origin_document->document(), suggestion.position());
         m_start.setKeepPositionOnInsert(true);
         setCurrentPosition(m_start.position());
     }
 
     virtual bool apply() override
     {
-        QTC_ASSERT(m_current_suggestion < m_suggestions.size(), return false);
+        QTC_ASSERT(m_currentSuggestion < m_suggestions.size(), return false);
         reset();
-        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        const auto &suggestion = m_suggestions.at(m_currentSuggestion);
         QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
         cursor.insertText(suggestion.text());
         return true;
@@ -101,8 +103,10 @@ public:
     // Returns true if the suggestion was applied completely, false if it was only partially applied.
     virtual bool applyWord(TextEditor::TextEditorWidget *widget) override
     {
-        QTC_ASSERT(m_current_suggestion < m_suggestions.size(), return false);
-        const auto &suggestion = m_suggestions.at(m_current_suggestion);
+        QTC_ASSERT(m_currentSuggestion < m_suggestions.size(), return true);
+
+        lockCurrentSuggestion();
+        const auto &suggestion = m_suggestions.at(m_currentSuggestion);
         QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
         QTextCursor currentCursor = widget->textCursor();
         const QString text = suggestion.text();
@@ -127,42 +131,99 @@ public:
 
     virtual int position() override { return m_start.selectionEnd(); }
 
-    const QList<Suggestion> &suggestions() const { return m_suggestions; }
+    qsizetype size() const { return m_suggestions.size(); }
 
-    int currentSuggestion() const { return m_current_suggestion; }
+    bool isEmpty() const { return m_suggestions.isEmpty(); }
+
+    bool isLocked() const { return m_locked; }
+
+    int currentSuggestion() const { return m_currentSuggestion; }
+
+    void selectPrevious()
+    {
+        if (m_suggestions.size() <= 1)
+            return;
+
+        m_currentSuggestion = (m_currentSuggestion - 1 + m_suggestions.size())
+                              % m_suggestions.size();
+        emit update();
+        refreshTextEditorSuggestion();
+    }
+
+    void selectNext()
+    {
+        if (m_suggestions.size() <= 1)
+            return;
+
+        m_currentSuggestion = (m_currentSuggestion + 1) % m_suggestions.size();
+        emit update();
+        refreshTextEditorSuggestion();
+    }
+
+signals:
+    void update();
 
 private:
-    int m_current_suggestion;
+    // Be causious with this function, it should be the last called in the chain
+    // since it replaces this object.
+    // Potential alternative solution: implement update on TextDocument site if possible.
+    void refreshTextEditorSuggestion()
+    {
+        // Reinserting itself for update purpose.
+        m_originDocument->insertSuggestion(std::make_unique<CyclicSuggestion>(
+            m_suggestions, m_originDocument, m_currentSuggestion, m_locked));
+    }
+
+    void lockCurrentSuggestion()
+    {
+        m_locked = true;
+        if (m_suggestions.size() <= 1)
+            return;
+
+        m_suggestions = QList<Suggestion>{m_suggestions.at(m_currentSuggestion)};
+        m_currentSuggestion = 0;
+        emit update();
+    }
+
+private:
+    int m_currentSuggestion;
     QTextCursor m_start;
     QList<Suggestion> m_suggestions;
-};
+    TextEditor::TextDocument *m_originDocument;
+    bool m_locked = false;
+}; // class CyclicSuggestion
 
 class SuggestionToolTip : public QToolBar
 {
 public:
-    SuggestionToolTip(
-        const QList<Suggestion> &suggestions,
-        int currentSuggestion,
-        TextEditor::TextEditorWidget *editor)
+    SuggestionToolTip(QTextBlock block, TextEditor::TextEditorWidget *editor)
         : m_numberLabel(new QLabel)
-        , m_suggestions(suggestions)
-        , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
         , m_editor(editor)
+        , m_block(block)
     {
-        QAction *prev
+        auto suggestion = currentSuggestion();
+        QTC_ASSERT(suggestion, return);
+        const auto suggestions_count = suggestion->size();
+
+        m_prev
             = addAction(Utils::Icons::PREV_TOOLBAR.icon(), Lua::Tr::tr("Select Previous Suggestion"));
-        prev->setEnabled(m_suggestions.size() > 1);
+        m_prev->setEnabled(suggestions_count > 1);
         addWidget(m_numberLabel);
-        QAction *next
-            = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Lua::Tr::tr("Select Next Suggestion"));
-        next->setEnabled(m_suggestions.size() > 1);
+        m_next = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Lua::Tr::tr("Select Next Suggestion"));
+        m_next->setEnabled(suggestions_count > 1);
 
         auto apply = addAction(Lua::Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
         auto applyWord = addAction(Lua::Tr::tr("Apply Word (%1)")
                                        .arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
 
-        connect(prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
-        connect(next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
+        connect(m_prev, &QAction::triggered, [this]() {
+            if (auto cs = currentSuggestion())
+                cs->selectPrevious();
+        });
+        connect(m_next, &QAction::triggered, [this]() {
+            if (auto cs = currentSuggestion())
+                cs->selectNext();
+        });
         connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
         connect(applyWord, &QAction::triggered, this, &SuggestionToolTip::applyWord);
 
@@ -170,58 +231,69 @@ public:
     }
 
 private:
+    CyclicSuggestion *currentSuggestion()
+    {
+        CyclicSuggestion *cyclic_suggestion = dynamic_cast<CyclicSuggestion *>(
+            TextEditor::TextDocumentLayout::suggestion(m_block));
+
+        if (!cyclic_suggestion)
+            return nullptr;
+
+        if (cyclic_suggestion != m_connectedSuggestion) {
+            connect(
+                cyclic_suggestion,
+                &CyclicSuggestion::update,
+                this,
+                &SuggestionToolTip::updateLabels);
+            m_connectedSuggestion = cyclic_suggestion;
+        }
+
+        return cyclic_suggestion;
+    }
+
     void updateLabels()
     {
-        m_numberLabel->setText(
-            Lua::Tr::tr("%1 of %2").arg(m_currentSuggestion + 1).arg(m_suggestions.count()));
-    }
-
-    void selectPrevious()
-    {
-        m_currentSuggestion = (m_currentSuggestion - 1 + m_suggestions.size())
-                              % m_suggestions.size();
-        setCurrentSuggestion();
-    }
-
-    void selectNext()
-    {
-        m_currentSuggestion = (m_currentSuggestion + 1) % m_suggestions.size();
-        setCurrentSuggestion();
-    }
-
-    void setCurrentSuggestion()
-    {
-        updateLabels();
-        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion())
-            suggestion->reset();
-
-        m_editor->insertSuggestion(std::make_unique<CyclicSuggestion>(
-            m_suggestions, m_editor->document(), m_currentSuggestion));
+        if (auto cs = currentSuggestion())
+            m_numberLabel->setText(
+                Lua::Tr::tr("%1 of %2").arg(cs->currentSuggestion() + 1).arg(cs->size()));
     }
 
     void apply()
     {
-        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion()) {
-            if (!suggestion->apply())
+        if (auto cs = currentSuggestion()) {
+            if (!cs->apply())
                 return;
         }
+
         Utils::ToolTip::hide();
+    }
+
+    void lockOnSingleSuggestion()
+    {
+        m_prev->setEnabled(false);
+        m_next->setEnabled(false);
     }
 
     void applyWord()
     {
-        if (TextEditor::TextSuggestion *suggestion = m_editor->currentSuggestion()) {
-            if (!suggestion->applyWord(m_editor))
+        if (auto cs = currentSuggestion()) {
+            if (cs->size() > 1)
+                lockOnSingleSuggestion();
+
+            if (!cs->applyWord(m_editor))
                 return;
         }
+
         Utils::ToolTip::hide();
     }
 
     QLabel *m_numberLabel;
-    QList<Suggestion> m_suggestions;
-    int m_currentSuggestion;
     TextEditor::TextEditorWidget *m_editor;
-};
+    QAction *m_prev = nullptr;
+    QAction *m_next = nullptr;
+    QTextBlock m_block;
+    CyclicSuggestion *m_connectedSuggestion = nullptr;
+}; // class SuggestionToolTip
 
 class SuggestionHoverHandler final : public TextEditor::BaseHoverHandler
 {
@@ -242,7 +314,7 @@ protected:
 
         auto *cyclic_suggestion = dynamic_cast<CyclicSuggestion *>(
             TextEditor::TextDocumentLayout::suggestion(m_block));
-        if (!cyclic_suggestion || cyclic_suggestion->suggestions().isEmpty())
+        if (!cyclic_suggestion || cyclic_suggestion->isEmpty())
             return;
 
         cleanup.dismiss();
@@ -258,9 +330,7 @@ protected:
         if (!cyclic_suggestion)
             return;
 
-        auto tooltipWidget = new SuggestionToolTip(
-            cyclic_suggestion->suggestions(), cyclic_suggestion->currentSuggestion(), editorWidget);
-
+        auto tooltipWidget = new SuggestionToolTip(m_block, editorWidget);
         const QRect cursorRect = editorWidget->cursorRect(editorWidget->textCursor());
         QPoint pos = editorWidget->viewport()->mapToGlobal(cursorRect.topLeft())
                      - Utils::ToolTip::offsetFromPosition();
@@ -452,10 +522,12 @@ void setupTextEditorModule()
                 if (!widget)
                     return;
 
-                widget->insertSuggestion(
-                    std::make_unique<CyclicSuggestion>(suggestions, document->document()));
-
                 static SuggestionHoverHandler hover_handler;
+
+                widget->removeHoverHandler(&hover_handler);
+                widget->clearSuggestion();
+
+                widget->insertSuggestion(std::make_unique<CyclicSuggestion>(suggestions, document));
                 widget->addHoverHandler(&hover_handler);
             });
 
