@@ -477,6 +477,7 @@ void IssuesWidget::updateTable()
             hiddenColumns << column.key;
         IssueHeaderView::ColumnInfo info;
         info.sortable = column.canSort;
+        info.filterable = column.canFilter;
         info.width = column.width;
         columnInfos.append(info);
         alignments << alignmentFromString(column.alignment);

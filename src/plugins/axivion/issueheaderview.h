@@ -19,6 +19,8 @@ public:
         int width = 0;
         std::optional<Qt::SortOrder> sortOrder = std::nullopt;
         bool sortable = false;
+        bool filterable = false;
+        std::optional<QString> filter = std::nullopt;
     };
 
     explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
@@ -39,7 +41,8 @@ protected:
 private:
     void onToggleSort(int index, Qt::SortOrder order, bool multi);
     bool m_dragging = false;
-    bool m_maybeToggleSort = false;
+    enum ToggleMode {Sort, Filter};
+    std::optional<ToggleMode> m_maybeToggle = std::nullopt;
     bool m_withShift = false;
     int m_lastToggleLogicalPos = -1;
     QList<ColumnInfo> m_columnInfoList;
