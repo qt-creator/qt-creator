@@ -280,6 +280,7 @@ public:
 
     enum class Valid { All, Some, None };
     Valid validity() const;
+    bool isCompletelyValid() const { return validity() == Valid::All; }
 
     void setDetection(Toolchain::Detection d) { set(&Toolchain::setDetection, d); }
     void setCompilerCommand(Utils::Id language, const Utils::FilePath &cmd);

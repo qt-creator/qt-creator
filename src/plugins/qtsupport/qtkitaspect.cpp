@@ -229,62 +229,75 @@ void QtKitAspectFactory::fix(Kit *k)
     if (ToolchainKitAspect::cxxToolchain(k))
         return;
 
-    const QString spec = version->mkspec();
-    Toolchains possibleTcs = ToolchainManager::toolchains([version](const Toolchain *t) {
-        if (!t->isValid() || t->language() != ProjectExplorer::Constants::CXX_LANGUAGE_ID)
+    QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
+    for (const ToolchainBundle &b : std::as_const(bundles))
+        ToolchainManager::registerToolchains(b.createdToolchains());
+    using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
+    bundles = Utils::filtered(bundles, [version](const ToolchainBundle &b) {
+        if (!b.isCompletelyValid() || !b.factory()->languageCategory().contains(CXX_LANGUAGE_ID))
             return false;
-        return Utils::anyOf(version->qtAbis(), [t](const Abi &qtAbi) {
-            return t->supportedAbis().contains(qtAbi)
-                   && t->targetAbi().wordWidth() == qtAbi.wordWidth()
-                   && t->targetAbi().architecture() == qtAbi.architecture();
+        return Utils::anyOf(version->qtAbis(), [&b](const Abi &qtAbi) {
+            return b.supportedAbis().contains(qtAbi)
+                   && b.targetAbi().wordWidth() == qtAbi.wordWidth()
+                   && b.targetAbi().architecture() == qtAbi.architecture();
+
         });
     });
-    if (!possibleTcs.isEmpty()) {
-        // Prefer exact matches.
-        // TODO: We should probably prefer the compiler with the highest version number instead,
-        //       but this information is currently not exposed by the Toolchain class.
-        const FilePaths envPathVar = Environment::systemEnvironment().path();
-        sort(possibleTcs, [version, &envPathVar](const Toolchain *tc1, const Toolchain *tc2) {
-            const QVector<Abi> &qtAbis = version->qtAbis();
-            const bool tc1ExactMatch = qtAbis.contains(tc1->targetAbi());
-            const bool tc2ExactMatch = qtAbis.contains(tc2->targetAbi());
-            if (tc1ExactMatch && !tc2ExactMatch)
+
+    if (bundles.isEmpty())
+        return;
+
+    // Prefer exact matches.
+    // TODO: We should probably prefer the compiler with the highest version number instead,
+    //       but this information is currently not exposed by the Toolchain class.
+    const FilePaths envPathVar = Environment::systemEnvironment().path();
+    sort(bundles, [version, &envPathVar](const ToolchainBundle &b1, const ToolchainBundle &b2) {
+        const QVector<Abi> &qtAbis = version->qtAbis();
+        const bool tc1ExactMatch = qtAbis.contains(b1.targetAbi());
+        const bool tc2ExactMatch = qtAbis.contains(b2.targetAbi());
+        if (tc1ExactMatch && !tc2ExactMatch)
+            return true;
+        if (!tc1ExactMatch && tc2ExactMatch)
+            return false;
+
+        // For a multi-arch Qt that support the host ABI, prefer toolchains that match
+        // the host ABI.
+        if (qtAbis.size() > 1 && qtAbis.contains(Abi::hostAbi())) {
+            const bool tc1HasHostAbi = b1.targetAbi() == Abi::hostAbi();
+            const bool tc2HasHostAbi = b2.targetAbi() == Abi::hostAbi();
+            if (tc1HasHostAbi && !tc2HasHostAbi)
                 return true;
-            if (!tc1ExactMatch && tc2ExactMatch)
+            if (!tc1HasHostAbi && tc2HasHostAbi)
                 return false;
+        }
 
-            // For a multi-arch Qt that support the host ABI, prefer toolchains that match
-            // the host ABI.
-            if (qtAbis.size() > 1 && qtAbis.contains(Abi::hostAbi())) {
-                const bool tc1HasHostAbi = tc1->targetAbi() == Abi::hostAbi();
-                const bool tc2HasHostAbi = tc2->targetAbi() == Abi::hostAbi();
-                if (tc1HasHostAbi && !tc2HasHostAbi)
-                    return true;
-                if (!tc1HasHostAbi && tc2HasHostAbi)
-                    return false;
-            }
+        const int prio1 = b1.get(&Toolchain::priority);
+        const int prio2 = b2.get(&Toolchain::priority);
+        if (prio1 > prio2)
+            return true;
+        if (prio1 < prio2)
+            return false;
 
-            if (tc1->priority() > tc2->priority())
-                return true;
-            if (tc1->priority() < tc2->priority())
-                return false;
+        // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
+        // This improves the situation a bit if a cross-compilation tool chain has the
+        // same ABI as the host.
+        const bool tc1IsInPath = envPathVar.contains(
+            b1.compilerCommand(CXX_LANGUAGE_ID).parentDir());
+        const bool tc2IsInPath = envPathVar.contains(
+            b2.compilerCommand(CXX_LANGUAGE_ID).parentDir());
+        return tc1IsInPath && !tc2IsInPath;
+    });
 
-            // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
-            // This improves the situation a bit if a cross-compilation tool chain has the
-            // same ABI as the host.
-            const bool tc1IsInPath = envPathVar.contains(tc1->compilerCommand().parentDir());
-            const bool tc2IsInPath = envPathVar.contains(tc2->compilerCommand().parentDir());
-            return tc1IsInPath && !tc2IsInPath;
-        });
+    // TODO: Why is this not done during sorting?
+    const QString spec = version->mkspec();
+    const QList<ToolchainBundle> goodBundles
+        = Utils::filtered(bundles, [&spec](const ToolchainBundle &b) {
+              return b.get(&Toolchain::suggestedMkspecList).contains(spec);
+          });
 
-        // TODO: Why is this not done during sorting?
-        const Toolchains goodTcs = Utils::filtered(possibleTcs, [&spec](const Toolchain *t) {
-            return t->suggestedMkspecList().contains(spec);
-        });
-
-        if (Toolchain * const bestTc = goodTcs.isEmpty() ? possibleTcs.first() : goodTcs.first())
-            ToolchainKitAspect::setAllToolchainsToMatch(k, bestTc);
-    }
+    const ToolchainBundle &bestBundle = goodBundles.isEmpty() ? bundles.first()
+                                                              : goodBundles.first();
+    ToolchainKitAspect::setBundle(k, bestBundle);
 }
 
 KitAspect *QtKitAspectFactory::createKitAspect(Kit *k) const

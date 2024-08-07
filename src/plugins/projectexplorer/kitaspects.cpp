@@ -627,55 +627,6 @@ void ToolchainKitAspect::setBundle(Kit *k, const ToolchainBundle &bundle)
     });
 }
 
-/**
- * @brief ToolchainKitAspect::setAllToolchainsToMatch
- *
- * Set up all toolchains to be similar to the one toolchain provided. Similar ideally means
- * that all toolchains use the "same" compiler from the same installation, but we will
- * settle for a toolchain with a matching API instead.
- *
- * @param k The kit to set up
- * @param tc The toolchain to match other languages for.
- */
-void ToolchainKitAspect::setAllToolchainsToMatch(Kit *k, Toolchain *tc)
-{
-    QTC_ASSERT(tc, return);
-    QTC_ASSERT(k, return);
-
-    const Toolchains allTcList = ToolchainManager::toolchains();
-    QTC_ASSERT(allTcList.contains(tc), return);
-
-    Store result = storeFromVariant(k->value(ToolchainKitAspect::id()));
-    result.insert(tc->language().toKey(), tc->id());
-
-    for (const Id l : ToolchainManager::allLanguages()) {
-        if (l == tc->language())
-            continue;
-
-        Toolchain *match = nullptr;
-        Toolchain *bestMatch = nullptr;
-        for (Toolchain *other : allTcList) {
-            if (!other->isValid() || other->language() != l)
-                continue;
-            if (other->targetAbi() == tc->targetAbi())
-                match = other;
-            if (match == other
-                    && other->compilerCommand().parentDir() == tc->compilerCommand().parentDir()) {
-                bestMatch = other;
-                break;
-            }
-        }
-        if (bestMatch)
-            result.insert(l.toKey(), bestMatch->id());
-        else if (match)
-            result.insert(l.toKey(), match->id());
-        else
-            result.insert(l.toKey(), QByteArray());
-    }
-
-    k->setValue(id(), variantFromStore(result));
-}
-
 void ToolchainKitAspect::clearToolchain(Kit *k, Id language)
 {
     QTC_ASSERT(language.isValid(), return);

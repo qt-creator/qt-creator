@@ -37,7 +37,6 @@ public:
     static QList<Toolchain *> toolChains(const Kit *k);
     static void setToolchain(Kit *k, Toolchain *tc);
     static void setBundle(Kit *k, const ToolchainBundle &bundle);
-    static void setAllToolchainsToMatch(Kit *k, Toolchain *tc);
     static void clearToolchain(Kit *k, Utils::Id language);
     static Abi targetAbi(const Kit *k);
 
