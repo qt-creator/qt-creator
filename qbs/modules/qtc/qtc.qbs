@@ -78,6 +78,7 @@ Module {
 
     property stringList generalDefines: [
         "QT_CREATOR",
+        'IDE_APP_ID="org.qt-project.qtcreator"',
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
         'RELATIVE_PLUGIN_PATH="' + FileInfo.relativePath('/' + ide_bin_path,
                                                          '/' + ide_plugin_path) + '"',
