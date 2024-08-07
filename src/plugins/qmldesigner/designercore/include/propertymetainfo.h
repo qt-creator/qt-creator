@@ -9,6 +9,8 @@
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorageids.h>
 
+#include <utils/smallstring.h>
+
 #include <QString>
 
 #include <memory>
@@ -25,7 +27,8 @@ class QMLDESIGNERCORE_EXPORT PropertyMetaInfo
 public:
     PropertyMetaInfo();
     PropertyMetaInfo(std::shared_ptr<NodeMetaInfoPrivate> nodeMetaInfoPrivateData,
-                     const PropertyName &propertyName);
+                     PropertyNameView propertyName);
+
     PropertyMetaInfo([[maybe_unused]] PropertyDeclarationId id,
                      [[maybe_unused]] NotNullPointer<const ProjectStorageType> projectStorage)
 #ifdef QDS_USE_PROJECTSTORAGE

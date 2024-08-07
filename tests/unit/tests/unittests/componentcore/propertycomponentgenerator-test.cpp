@@ -172,7 +172,7 @@ protected:
     inline static QSharedPointer<const QmlJS::SimpleReaderNode> simpleReaderNode;
     NiceMock<AbstractViewMock> viewMock;
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",

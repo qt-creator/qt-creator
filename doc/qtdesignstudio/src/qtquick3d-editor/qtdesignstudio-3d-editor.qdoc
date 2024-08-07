@@ -365,6 +365,10 @@
             \li Toggles the visibility of the helper grid.
             \li \key G
         \row
+            \li Show Look-at
+            \li Toggles the visibility of the edit camera look-at indicator.
+            \li \key L
+        \row
             \li Show Selection Boxes
             \li Toggles the visibility of selection boxes for selected 3D objects.
             \li \key B
@@ -403,9 +407,12 @@
             \li Select Grid Color
             \li Select a color for the grid.
       \row
-            \li Use Scene Environment Color
-            \li Sets the 3D view to use the scene environment color as background
+            \li Use Scene Environment
+            \li Sets the 3D view to use the scene environment or skybox as background
             color.
+            \note When \uicontrol {Use Scene Environment} is selected, a 3D scene that doesn't
+            have a \uicontrol View3D component, uses the scene environment of the previous
+            \uicontrol View3D for rendering the scene.
       \row
             \li Reset Colors
             \li Resets the background and grid colors to the default colors.

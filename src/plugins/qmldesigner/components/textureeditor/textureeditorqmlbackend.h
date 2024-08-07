@@ -37,7 +37,7 @@ public:
 
     void setup(const QmlObjectNode &selectedTextureNode, const QString &stateName, const QUrl &qmlSpecificsFile,
                TextureEditorView *textureEditor);
-    void setValue(const QmlObjectNode &fxObjectNode, const PropertyName &name, const QVariant &value);
+    void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
 
     QQmlContext *context() const;
     TextureEditorContextObject *contextObject() const;
@@ -58,9 +58,10 @@ public:
 
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
-                                   const PropertyName &name, const QVariant &value,
+                                   PropertyNameView name,
+                                   const QVariant &value,
                                    TextureEditorView *textureEditor);
-    PropertyName auxNamePostFix(const PropertyName &propertyName);
+    PropertyName auxNamePostFix(PropertyNameView propertyName);
 
     // to avoid a crash while destructing DesignerPropertyMap in the QQmlData
     // this needs be destructed after m_quickWidget->engine() is destructed

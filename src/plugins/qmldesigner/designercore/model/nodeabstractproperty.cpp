@@ -13,17 +13,14 @@
 
 #include <nodemetainfo.h>
 
+#include <utils/smallstringio.h>
+
 namespace QmlDesigner {
 
 NodeAbstractProperty::NodeAbstractProperty() = default;
 
 NodeAbstractProperty::NodeAbstractProperty(const NodeAbstractProperty &property, AbstractView *view)
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
-{
-}
-
-NodeAbstractProperty::NodeAbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model *model, AbstractView *view)
-    : AbstractProperty(propertyName, internalNode, model, view)
 {
 }
 
@@ -218,12 +215,14 @@ bool operator !=(const NodeAbstractProperty &property1, const NodeAbstractProper
 
 QDebug operator<<(QDebug debug, const NodeAbstractProperty &property)
 {
-    return debug.nospace() << "NodeAbstractProperty(" << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
+    return debug.nospace() << "NodeAbstractProperty("
+                           << (property.isValid() ? property.name() : PropertyNameView("invalid"))
+                           << ')';
 }
 
 QTextStream& operator<<(QTextStream &stream, const NodeAbstractProperty &property)
 {
-    stream << "NodeAbstractProperty(" << property.name() << ')';
+    stream << "NodeAbstractProperty(" << property.name().toByteArray() << ')';
 
     return stream;
 }

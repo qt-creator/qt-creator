@@ -39,6 +39,7 @@ std::ostream &operator<<(std::ostream &out, const QVariant &QVariant);
 std::ostream &operator<<(std::ostream &out, const QString &text);
 std::ostream &operator<<(std::ostream &out, QStringView text);
 std::ostream &operator<<(std::ostream &out, const QByteArray &byteArray);
+std::ostream &operator<<(std::ostream &out, QByteArrayView byteArray);
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format);
 std::ostream &operator<<(std::ostream &out, const QImage &image);
 std::ostream &operator<<(std::ostream &out, const QIcon &icon);

@@ -25,15 +25,7 @@ BindingProperty::BindingProperty() = default;
 
 BindingProperty::BindingProperty(const BindingProperty &property, AbstractView *view)
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
-{
-}
-
-
-BindingProperty::BindingProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model, AbstractView *view)
-    : AbstractProperty(propertyName, internalNode, model, view)
-{
-}
-
+{}
 
 void BindingProperty::setExpression(const QString &expression)
 {
@@ -361,7 +353,7 @@ void BindingProperty::setDynamicTypeNameAndExpression(const TypeName &typeName, 
 QDebug operator<<(QDebug debug, const BindingProperty &property)
 {
     if (!property.isValid())
-        return debug.nospace() << "BindingProperty(" << PropertyName("invalid") << ')';
+        return debug.nospace() << "BindingProperty(" << "invalid" << ')';
     else
         return debug.nospace() << "BindingProperty(" <<  property.name() << " " << property.expression() << ')';
 }
@@ -369,9 +361,10 @@ QDebug operator<<(QDebug debug, const BindingProperty &property)
 QTextStream& operator<<(QTextStream &stream, const BindingProperty &property)
 {
     if (!property.isValid())
-        stream << "BindingProperty(" << PropertyName("invalid") << ')';
+        stream << "BindingProperty(" << "invalid" << ')';
     else
-        stream << "BindingProperty(" <<  property.name() << " " << property.expression() << ')';
+        stream << "BindingProperty(" << property.name().toByteArray() << " "
+               << property.expression() << ')';
 
     return stream;
 }

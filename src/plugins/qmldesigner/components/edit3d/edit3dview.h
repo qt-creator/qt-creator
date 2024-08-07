@@ -18,6 +18,10 @@
 #include <QVector>
 #include <QVector3D>
 
+#ifdef Q_OS_MACOS
+extern "C" bool AXIsProcessTrusted();
+#endif
+
 QT_BEGIN_NAMESPACE
 class QAction;
 class QInputEvent;
@@ -40,6 +44,15 @@ public:
         int matOverride = 0;
         bool showWireframe = false;
     };
+
+    static bool isQDSTrusted()
+    {
+#ifdef Q_OS_MACOS
+        return AXIsProcessTrusted();
+#else
+        return true;
+#endif
+    }
 
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 
@@ -180,7 +193,7 @@ private:
     std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;
     std::unique_ptr<Edit3DAction> m_snapConfigAction;
-    std::unique_ptr<Edit3DAction> m_cameraSpeedConfigAction;
+    std::unique_ptr<Edit3DIndicatorButtonAction> m_cameraSpeedConfigAction;
     std::unique_ptr<Edit3DBakeLightsAction> m_bakeLightsAction;
 
     int particlemode;

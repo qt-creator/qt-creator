@@ -498,7 +498,6 @@ View3D {
             targetNode: viewRoot.selectedNode
             globalOrientation: viewRoot.globalOrientation
             visible: viewRoot.selectedNode && viewRoot.transformMode === EditView3D.TransformMode.Move
-                     && overlayView.isActive
             view3D: overlayView
             dragHelper: gizmoDragHelper
             property var propertyNames: ["position"]
@@ -523,7 +522,6 @@ View3D {
             highlightOnHover: true
             targetNode: viewRoot.selectedNode
             visible: viewRoot.selectedNode && viewRoot.transformMode === EditView3D.TransformMode.Scale
-                     && overlayView.isActive
             view3D: overlayView
             dragHelper: gizmoDragHelper
             property var propertyNames: ["scale"]
@@ -550,7 +548,6 @@ View3D {
             targetNode: viewRoot.selectedNode
             globalOrientation: viewRoot.globalOrientation
             visible: viewRoot.selectedNode && viewRoot.transformMode === EditView3D.TransformMode.Rotate
-                     && overlayView.isActive
             view3D: overlayView
             dragHelper: gizmoDragHelper
             property var propertyNames: ["eulerRotation"]
@@ -588,7 +585,6 @@ View3D {
         Line3D {
             id: pivotLine
             visible: viewRoot.selectedNode && viewRoot.selectedNode !== viewRoot.multiSelectionNode
-                     && overlayView.isActive
             name: "3D Edit View Pivot Line"
             color: "#ddd600"
 

@@ -69,11 +69,10 @@ public:
                 (std::size_t),
                 ());
 
-    MOCK_METHOD(std::vector<QmlDesigner::Cache::Source>, valuesReturnCacheSources, (std::size_t), ());
-
-    MOCK_METHOD(QmlDesigner::Cache::SourceNameAndSourceContextId,
-                valueReturnCacheSourceNameAndSourceContextId,
-                (int) );
+    MOCK_METHOD(std::vector<QmlDesigner::Cache::SourceName>,
+                valuesReturnCacheSourceNames,
+                (std::size_t),
+                ());
 
     MOCK_METHOD(Sqlite::TimeStamp, valueWithTransactionReturnsTimeStamp, (Utils::SmallStringView), ());
     MOCK_METHOD(int, valueWithTransactionReturnsInt, (Utils::SmallStringView), ());
@@ -162,8 +161,6 @@ public:
         else if constexpr (std::is_same_v<ResultType,
                                           std::tuple<QmlDesigner::PropertyDeclarationId, QmlDesigner::TypeId>>)
             return valueReturnsPropertyDeclaration(queryValues...);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceNameAndSourceContextId>)
-            return valueReturnCacheSourceNameAndSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceContextId>)
             return valueReturnsSourceContextId(queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::SourceId>)
@@ -212,8 +209,8 @@ public:
             return valuesReturnRowIds(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceContext>)
             return valuesReturnCacheSourceContexts(reserveSize);
-        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::Source>)
-            return valuesReturnCacheSources(reserveSize);
+        else if constexpr (std::is_same_v<ResultType, QmlDesigner::Cache::SourceName>)
+            return valuesReturnCacheSourceNames(reserveSize);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::Type>)
             return valuesReturnsStorageTypes(reserveSize, queryValues...);
         else if constexpr (std::is_same_v<ResultType, QmlDesigner::Storage::Synchronization::ExportedType>)

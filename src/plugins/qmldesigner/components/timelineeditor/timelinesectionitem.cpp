@@ -15,7 +15,7 @@
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>
 
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <rewritingexception.h>
 
 #include <theme.h>

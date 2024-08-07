@@ -5,7 +5,7 @@
 
 #include <QQuickImageProvider>
 
-namespace QmlDesigner::Internal {
+namespace QmlDesigner {
 
 class ContentLibraryIconProvider : public QQuickImageProvider
 {
@@ -14,4 +14,4 @@ public:
     QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 };
 
-} // namespace QmlDesigner::Internal
+} // namespace QmlDesigner

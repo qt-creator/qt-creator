@@ -10,7 +10,8 @@ StudioControls.Menu {
     id: root
 
     property var targetItem: null
-    property bool enableRemove: false // true: adds an option to remove targetItem
+    property bool showRemoveAction: false // true: adds an option to remove targetItem
+    property bool showImportAction: false // true: adds an option to import a bundle from file
 
     readonly property bool targetAvailable: targetItem && !ContentLibraryBackend.rootView.importerRunning
 
@@ -18,12 +19,15 @@ StudioControls.Menu {
     signal addToProject()
     signal applyToSelected(bool add)
     signal removeFromContentLib()
+    signal importBundle()
 
     function popupMenu(item = null)
     {
         root.targetItem = item
 
-        let isMaterial = root.targetItem.itemType === "material"
+        let isMaterial = item && (root.targetItem.bundleId === "UserMaterials"
+                                  || root.targetItem.bundleId === "MaterialBundle"
+                                  || root.targetItem.bundleId === "Materials")
         applyToSelectedReplace.visible = isMaterial
         applyToSelectedAdd.visible = isMaterial
 
@@ -64,8 +68,15 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Remove from Content Library")
-        visible: root.enableRemove && root.targetAvailable
+        visible: root.showRemoveAction && root.targetAvailable
         height: visible ? implicitHeight : 0
         onTriggered: root.removeFromContentLib()
+    }
+
+    StudioControls.MenuItem {
+        text: qsTr("Import bundle")
+        visible: root.showImportAction
+        height: visible ? implicitHeight : 0
+        onTriggered: root.importBundle()
     }
 }

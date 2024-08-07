@@ -461,6 +461,9 @@ void DockWidgetTab::mouseMoveEvent(QMouseEvent *event)
 
 void DockWidgetTab::contextMenuEvent(QContextMenuEvent *event)
 {
+    if (DockManager::testConfigFlag(DockManager::HideContextMenuDockWidgetTab))
+        return;
+
     event->accept();
     if (d->isDraggingState(DraggingFloatingWidget))
         return;

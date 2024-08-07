@@ -35,10 +35,12 @@ public:
 
     friend auto qHash(const NodeAbstractProperty &property) { qHash(AbstractProperty(property)); }
 
-    NodeAbstractProperty(const PropertyName &propertyName,
+    NodeAbstractProperty(PropertyNameView propertyName,
                          const Internal::InternalNodePointer &internalNode,
                          Model *model,
-                         AbstractView *view);
+                         AbstractView *view)
+        : AbstractProperty(propertyName, internalNode, model, view)
+    {}
 
 protected:
     NodeAbstractProperty(const Internal::InternalNodeAbstractPropertyPointer &property, Model *model, AbstractView *view);

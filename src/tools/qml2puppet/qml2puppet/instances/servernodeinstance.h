@@ -54,6 +54,7 @@ public:
     friend class Qt5BakeLightsNodeInstanceServer;
     friend class Qt5PreviewNodeInstanceServer;
     friend class Qt5CapturePreviewNodeInstanceServer;
+    friend class Qt5RenderNodeInstanceServer;
     friend class Qt5TestNodeInstanceServer;
     friend class QHash<qint32, ServerNodeInstance>;
     friend QHashValueType qHash(const ServerNodeInstance &instance);
@@ -160,6 +161,7 @@ public:
     bool holdsGraphical() const;
 
     bool isComponentWrap() const;
+    bool isComposedEffect() const;
 
     QQuickItem *contentItem() const;
 

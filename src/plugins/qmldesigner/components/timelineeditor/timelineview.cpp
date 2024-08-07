@@ -344,7 +344,7 @@ const QmlTimeline TimelineView::addNewTimeline()
                                        metaInfo.majorVersion(),
                                        metaInfo.minorVersion());
 #endif
-        timelineNode.validId();
+        timelineNode.ensureIdExists();
 
         timelineNode.variantProperty("startFrame").setValue(0);
         timelineNode.variantProperty("endFrame").setValue(1000);
@@ -385,7 +385,7 @@ ModelNode TimelineView::addAnimation(QmlTimeline timeline)
                                         metaInfo.minorVersion());
         animationNode.variantProperty("duration").setValue(timeline.duration());
 #endif
-        animationNode.validId();
+        animationNode.ensureIdExists();
 
         animationNode.variantProperty("from").setValue(timeline.startKeyframe());
         animationNode.variantProperty("to").setValue(timeline.endKeyframe());
@@ -650,7 +650,6 @@ WidgetInfo TimelineView::widgetInfo()
     return createWidgetInfo(createWidget(),
                             QStringLiteral("Timelines"),
                             WidgetInfo::BottomPane,
-                            0,
                             tr("Timeline"),
                             tr("Timeline view"));
 }

@@ -14,10 +14,11 @@
 #include <nodemetainfo.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
+#include <utils/version.h>
 
 #include <QIODevice>
 #include <QLoggingCategory>

@@ -11,7 +11,6 @@ namespace QmlDesigner::ResourceGenerator {
 
 QMLDESIGNERCOMPONENTS_EXPORT void generateMenuEntry(QObject *parent);
 QMLDESIGNERCOMPONENTS_EXPORT QStringList getProjectFileList();
-QMLDESIGNERCOMPONENTS_EXPORT bool skipSuffix(const QString &fileName);
 QMLDESIGNERCOMPONENTS_EXPORT bool createQrcFile(const Utils::FilePath &qrcFilePath);
 QMLDESIGNERCOMPONENTS_EXPORT bool createQmlrcFile(const Utils::FilePath &qmlrcFilePath);
 

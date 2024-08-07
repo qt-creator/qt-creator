@@ -158,6 +158,11 @@ bool ServerNodeInstance::isComponentWrap() const
     return m_nodeInstance->isComponentWrap();
 }
 
+bool ServerNodeInstance::isComposedEffect() const
+{
+    return m_nodeInstance->isComposedEffect();
+}
+
 QQuickItem *ServerNodeInstance::contentItem() const
 {
     return m_nodeInstance->contentItem();

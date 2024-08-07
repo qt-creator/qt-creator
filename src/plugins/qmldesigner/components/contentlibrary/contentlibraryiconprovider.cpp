@@ -7,21 +7,18 @@
 
 namespace QmlDesigner {
 
-namespace Internal {
-
 ContentLibraryIconProvider::ContentLibraryIconProvider()
     : QQuickImageProvider(Pixmap)
 {
-
 }
 
 QPixmap ContentLibraryIconProvider::requestPixmap(const QString &id,
                                                   QSize *size,
                                                   [[maybe_unused]] const QSize &requestedSize)
 {
-    QString realPath = Core::ICore::resourcePath("qmldesigner/contentLibraryImages/" + id).toString();
+    QString imagePath = Core::ICore::resourcePath("qmldesigner/contentLibraryImages/" + id).toFSPathString();
 
-    QPixmap pixmap{realPath};
+    QPixmap pixmap{imagePath};
 
     if (size) {
         size->setWidth(pixmap.width());
@@ -36,7 +33,5 @@ QPixmap ContentLibraryIconProvider::requestPixmap(const QString &id,
 
     return pixmap;
 }
-
-} // namespace Internal
 
 } // namespace QmlDesigner

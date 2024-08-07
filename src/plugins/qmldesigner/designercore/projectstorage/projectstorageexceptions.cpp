@@ -47,12 +47,12 @@ const char *SourceContextIdDoesNotExists::what() const noexcept
     return "The source context id does not exist in the database!";
 }
 
-SourceIdDoesNotExists::SourceIdDoesNotExists()
+SourceNameIdDoesNotExists::SourceNameIdDoesNotExists()
 {
-    category().threadEvent("SourceIdDoesNotExists"_t);
+    category().threadEvent("SourceNameIdDoesNotExists"_t);
 }
 
-const char *SourceIdDoesNotExists::what() const noexcept
+const char *SourceNameIdDoesNotExists::what() const noexcept
 {
     return "The source id does not exist in the database!";
 }
@@ -96,16 +96,6 @@ TypeNameDoesNotExists::TypeNameDoesNotExists(std::string_view typeName, SourceId
     category().threadEvent("TypeNameDoesNotExists"_t,
                            keyValue("type name", typeName),
                            keyValue("source id", sourceId));
-}
-
-PropertyNameDoesNotExists::PropertyNameDoesNotExists()
-{
-    category().threadEvent("PropertyNameDoesNotExists"_t);
-}
-
-const char *PropertyNameDoesNotExists::what() const noexcept
-{
-    return "The property name does not exist!";
 }
 
 PrototypeChainCycle::PrototypeChainCycle()

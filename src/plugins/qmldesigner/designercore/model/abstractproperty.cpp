@@ -15,6 +15,8 @@
 #include <QTextStream>
 #include <qmlobjectnode.h>
 
+#include <QByteArrayView>
+
 namespace QmlDesigner {
 
  /*!
@@ -23,20 +25,25 @@ namespace QmlDesigner {
 \brief The AbstractProperty class is a value holder for a property.
 */
 
-AbstractProperty::AbstractProperty(const PropertyName &propertyName, const Internal::InternalNodePointer  &internalNode, Model* model,  AbstractView *view)
-    : m_propertyName(propertyName),
-    m_internalNode(internalNode),
-    m_model(model),
-    m_view(view)
+AbstractProperty::AbstractProperty(PropertyNameView propertyName,
+                                   const Internal::InternalNodePointer &internalNode,
+                                   Model *model,
+                                   AbstractView *view)
+    : m_propertyName(propertyName)
+    , m_internalNode(internalNode)
+    , m_model(model)
+    , m_view(view)
 {
     Q_ASSERT_X(!m_propertyName.contains(' '), Q_FUNC_INFO, "a property name cannot contain a space");
 }
 
-AbstractProperty::AbstractProperty(const Internal::InternalPropertyPointer &property, Model* model,  AbstractView *view)
-        : m_propertyName(property->name()),
-        m_internalNode(property->propertyOwner()),
-        m_model(model),
-        m_view(view)
+AbstractProperty::AbstractProperty(const Internal::InternalPropertyPointer &property,
+                                   Model *model,
+                                   AbstractView *view)
+    : m_propertyName(property->name())
+    , m_internalNode(property->propertyOwner())
+    , m_model(model)
+    , m_view(view)
 {
 }
 
@@ -66,17 +73,7 @@ AbstractView *AbstractProperty::view() const
     return m_view.data();
 }
 
- /*!
- Holds a value for a property. Returns the value of the property.
-
- The QVariant is null if the property does not exist.
-*/
-const PropertyName &AbstractProperty::name() const
-{
-    return m_propertyName;
-}
-
- /*!
+/*!
  Checks if the property is valid.
 
  A property is valid if the belonging model node
@@ -319,12 +316,13 @@ TypeName AbstractProperty::dynamicTypeName() const
 QDebug operator<<(QDebug debug, const AbstractProperty &property)
 {
     return debug.nospace() << "AbstractProperty("
-                           << (property.isValid() ? property.name() : PropertyName("invalid")) << ')';
+                           << (property.isValid() ? property.name() : PropertyNameView("invalid"))
+                           << ')';
 }
 
 QTextStream &operator<<(QTextStream &stream, const AbstractProperty &property)
 {
-    stream << "AbstractProperty(" << property.name() << ')';
+    stream << "AbstractProperty(" << property.name().toByteArray() << ')';
 
     return stream;
 }

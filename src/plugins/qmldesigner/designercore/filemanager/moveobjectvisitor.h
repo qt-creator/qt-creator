@@ -13,7 +13,7 @@ class MoveObjectVisitor: public QMLRewriter
 public:
     MoveObjectVisitor(QmlDesigner::TextModifier &modifier,
                       quint32 objectLocation,
-                      const QmlDesigner::PropertyName &targetPropertyName,
+                      PropertyNameView targetPropertyName,
                       bool targetIsArrayBinding,
                       quint32 targetParentObjectLocation,
                       const PropertyNameList &propertyOrder);
@@ -31,7 +31,7 @@ private:
 private:
     QList<QmlJS::AST::Node *> parents;
     quint32 objectLocation;
-    PropertyName targetPropertyName;
+    PropertyNameView targetPropertyName;
     bool targetIsArrayBinding;
     quint32 targetParentObjectLocation;
     PropertyNameList propertyOrder;

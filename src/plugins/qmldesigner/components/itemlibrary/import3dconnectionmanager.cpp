@@ -16,6 +16,11 @@ Import3dConnectionManager::Import3dConnectionManager()
     connections().emplace_back("Import 3D", "import3dmode");
 }
 
+void Import3dConnectionManager::setPreviewIconCallback(IconCallback callback)
+{
+    m_previewIconCallback = std::move(callback);
+}
+
 void Import3dConnectionManager::setPreviewImageCallback(ImageCallback callback)
 {
     m_previewImageCallback = std::move(callback);
@@ -29,6 +34,15 @@ void Import3dConnectionManager::dispatchCommand(const QVariant &command,
     if (command.typeId() == commandType) {
         auto cmd = command.value<PuppetToCreatorCommand>();
         switch (cmd.type()) {
+        case PuppetToCreatorCommand::Import3DPreviewIcon: {
+            const QVariantList data = cmd.data().toList();
+            const QString assetName = data[0].toString();
+            ImageContainer container = qvariant_cast<ImageContainer>(data[1]);
+            QImage image = container.image();
+            if (!image.isNull())
+                m_previewIconCallback(assetName, image);
+            break;
+        }
         case PuppetToCreatorCommand::Import3DPreviewImage: {
             ImageContainer container = qvariant_cast<ImageContainer>(cmd.data());
             QImage image = container.image();

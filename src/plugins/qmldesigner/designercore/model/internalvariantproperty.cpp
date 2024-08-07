@@ -6,8 +6,7 @@
 namespace QmlDesigner {
 namespace Internal {
 
-InternalVariantProperty::InternalVariantProperty(const PropertyName &name,
-                                                 const InternalNodePointer &node)
+InternalVariantProperty::InternalVariantProperty(PropertyNameView name, const InternalNodePointer &node)
     : InternalProperty(name, node, PropertyType::Variant)
 {
 }

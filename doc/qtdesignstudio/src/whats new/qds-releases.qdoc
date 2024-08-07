@@ -1,0 +1,68 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \previouspage studio-terms.html
+    \page whats-new.html
+
+    \title What's New
+
+    Read the \QDS release blog posts to see what's new in every version.
+
+    \section1 \QDS Release Blog Posts
+
+    \section2 \QDS 4
+
+    \list
+    \li \l{Qt Design Studio 4.5.1 released}
+    \li \l{Qt Design Studio 4.5 released}
+    \li \l{Qt Design Studio 4.4 released}
+    \li \l{Qt Design Studio 4.3.2 released}
+    \li \l{Qt Design Studio 4.3.1 released}
+    \li \l{Qt Design Studio 4.3 released}
+    \li \l{Qt Design Studio 4.2 released}
+    \li \l{Qt Design Studio 4.1 released}
+    \li \l{Qt Design Studio 4.0.1 released}
+    \li \l{Qt Design Studio 4.0 released}
+    \endlist
+
+    \section2 \QDS 3
+
+    \list
+        \li \l{Qt Design Studio 3.9 released}
+        \li \l{Qt Design Studio 3.8 released}
+        \li \l{Qt Design Studio 3.7 released}
+        \li \l{Qt Design Studio 3.6 released}
+        \li \l{Qt Design Studio 3.5 released}
+        \li \l{Qt Design Studio 3.4 released}
+        \li \l{Qt Design Studio 3.3 released}
+        \li \l{Qt Design Studio 3.2 released}
+        \li \l{Qt Design Studio 3.1 released}
+        \li \l{Qt Design Studio 3.0 released}
+    \endlist
+
+    \section2 \QDS 2
+
+    \list
+        \li \l{Qt Design Studio 2.3 released}
+        \li \l{Qt Design Studio 2.2 released}
+        \li \l{Qt Design Studio 2.1 released}
+        \li \l{Qt Design Studio 2.0 released}
+    \endlist
+
+    \section2 \QDS 1
+
+    \list
+        \li \l{Qt Design Studio 1.6.1 released}
+        \li \l{Qt Design Studio 1.6 released}
+        \li \l{Qt Design Studio 1.5 released}
+        \li \l{Qt Design Studio 1.4 released}
+        \li \l{Qt Design Studio 1.3.1 released}
+        \li \l{Qt Design Studio 1.3 released}
+        \li \l{Qt Design Studio 1.2 released}
+        \li \l{Qt Design Studio 1.1.1 released}
+        \li \l{Qt Design Studio 1.1 released}
+        \li \l{Qt Design Studio 1.0 released}
+    \endlist
+
+*/

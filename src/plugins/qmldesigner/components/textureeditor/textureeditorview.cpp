@@ -12,17 +12,18 @@
 
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
+#include <createtexture.h>
 #include <dynamicpropertiesmodel.h>
 #include <externaldependenciesinterface.h>
 #include <nodeinstanceview.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <rewritingexception.h>
-#include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmltimeline.h>
+#include <rewritingexception.h>
+#include <variantproperty.h>
 
 #include <theme.h>
 
@@ -48,6 +49,8 @@
 #include <QTimer>
 #include <QColorDialog>
 
+using namespace Qt::StringLiterals;
+
 namespace QmlDesigner {
 
 TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
@@ -55,6 +58,7 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     : AbstractView{externalDependencies}
     , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
+    , m_createTexture(new CreateTexture(this))
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), m_stackedWidget);
@@ -289,7 +293,8 @@ bool TextureEditorView::locked() const
 
 void TextureEditorView::currentTimelineChanged(const ModelNode &)
 {
-    m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
+    if (m_qmlBackEnd)
+        m_qmlBackEnd->contextObject()->setHasActiveTimeline(QmlTimeline::hasActiveTimeline(this));
 }
 
 DynamicPropertiesModel *TextureEditorView::dynamicPropertiesModel() const
@@ -375,21 +380,7 @@ void TextureEditorView::handleToolBarAction(int action)
     case TextureEditorContextObject::AddNewTexture: {
         if (!model())
             break;
-        executeInTransaction("TextureEditorView:handleToolBarAction", [&] {
-            ModelNode matLib = Utils3D::materialLibraryNode(this);
-            if (!matLib.isValid())
-                return;
-#ifdef QDS_USE_PROJECTSTORAGE
-            ModelNode newTextureNode = createModelNode("Texture");
-#else
-            NodeMetaInfo metaInfo = model()->metaInfo("QtQuick3D.Texture");
-            ModelNode newTextureNode = createModelNode("QtQuick3D.Texture",
-                                                       metaInfo.majorVersion(),
-                                                       metaInfo.minorVersion());
-#endif
-            newTextureNode.validId();
-            matLib.defaultNodeListProperty().reparentHere(newTextureNode);
-        });
+        m_createTexture->execute();
         break;
     }
 
@@ -484,7 +475,7 @@ void TextureEditorView::setupQmlBackend()
 #endif
 }
 
-void TextureEditorView::commitVariantValueToModel(const PropertyName &propertyName, const QVariant &value)
+void TextureEditorView::commitVariantValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
     executeInTransaction("TextureEditorView:commitVariantValueToModel", [&] {
@@ -493,11 +484,11 @@ void TextureEditorView::commitVariantValueToModel(const PropertyName &propertyNa
     m_locked = false;
 }
 
-void TextureEditorView::commitAuxValueToModel(const PropertyName &propertyName, const QVariant &value)
+void TextureEditorView::commitAuxValueToModel(PropertyNameView propertyName, const QVariant &value)
 {
     m_locked = true;
 
-    PropertyName name = propertyName;
+    PropertyNameView name = propertyName;
     name.chop(5);
 
     try {
@@ -512,7 +503,7 @@ void TextureEditorView::commitAuxValueToModel(const PropertyName &propertyName, 
     m_locked = false;
 }
 
-void TextureEditorView::removePropertyFromModel(const PropertyName &propertyName)
+void TextureEditorView::removePropertyFromModel(PropertyNameView propertyName)
 {
     m_locked = true;
     executeInTransaction("MaterialEditorView:removePropertyFromModel", [&] {
@@ -557,8 +548,10 @@ void TextureEditorView::modelAboutToBeDetached(Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
     m_dynamicPropertiesModel->reset();
-    m_qmlBackEnd->textureEditorTransaction()->end();
-    m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    if (m_qmlBackEnd) {
+        m_qmlBackEnd->textureEditorTransaction()->end();
+        m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+    }
 }
 
 void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propertyList)
@@ -572,18 +565,21 @@ void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propert
         if (node.isRootNode())
             m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedTexture).isAliasExported());
 
+        auto propertyName = property.name().toByteArray();
         if (node == m_selectedTexture || QmlObjectNode(m_selectedTexture).propertyChangeForCurrentState() == node) {
             // TODO: workaround for bug QDS-8539. To be removed once it is fixed.
             if (node.metaInfo().property(property.name()).propertyType().isUrl()) {
                 resetPuppet();
             } else {
-                setValue(m_selectedTexture, property.name(),
-                         QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
+                setValue(m_selectedTexture,
+                         propertyName,
+                         QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
             }
         }
 
-        if (property.name() == "materials" && (node == m_selectedModel
-                    || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
+        if (propertyName == "materials"
+            && (node == m_selectedModel
+                || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
             m_qmlBackEnd->contextObject()->setHasSingleModelSelection(false);
         }
 
@@ -601,10 +597,16 @@ void TextureEditorView::variantPropertiesChanged(const QList<VariantProperty> &p
         if (node == m_selectedTexture || QmlObjectNode(m_selectedTexture).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
-            if (m_selectedTexture.property(property.name()).isBindingProperty())
-                setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
-            else
-                setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).modelValue(property.name()));
+            auto propertyName = property.name().toByteArray();
+            if (m_selectedTexture.property(propertyName).isBindingProperty()) {
+                setValue(m_selectedTexture,
+                         propertyName,
+                         QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
+            } else {
+                setValue(m_selectedTexture,
+                         propertyName,
+                         QmlObjectNode(m_selectedTexture).modelValue(propertyName));
+            }
         }
 
         dynamicPropertiesModel()->dispatchPropertyChanges(property);
@@ -622,17 +624,25 @@ void TextureEditorView::bindingPropertiesChanged(const QList<BindingProperty> &p
         if (property.isAliasExport())
             m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedTexture).isAliasExported());
 
+        auto propertyName = property.name().toByteArray();
+
         if (node == m_selectedTexture || QmlObjectNode(m_selectedTexture).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
-            if (QmlObjectNode(m_selectedTexture).modelNode().property(property.name()).isBindingProperty())
-                setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).instanceValue(property.name()));
-            else
-                setValue(m_selectedTexture, property.name(), QmlObjectNode(m_selectedTexture).modelValue(property.name()));
+            if (QmlObjectNode(m_selectedTexture).modelNode().property(propertyName).isBindingProperty()) {
+                setValue(m_selectedTexture,
+                         propertyName,
+                         QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
+            } else {
+                setValue(m_selectedTexture,
+                         propertyName,
+                         QmlObjectNode(m_selectedTexture).modelValue(propertyName));
+            }
         }
 
-        if (property.name() == "materials" && (node == m_selectedModel
-                    || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
+        if (propertyName == "materials"
+            && (node == m_selectedModel
+                || QmlObjectNode(m_selectedModel).propertyChangeForCurrentState() == node)) {
             bool hasMaterials = QmlObjectNode(m_selectedModel).hasBindingProperty("materials");
             m_qmlBackEnd->contextObject()->setHasSingleModelSelection(hasMaterials);
         }
@@ -683,7 +693,6 @@ WidgetInfo TextureEditorView::widgetInfo()
     return createWidgetInfo(m_stackedWidget,
                             "TextureEditor",
                             WidgetInfo::RightPane,
-                            0,
                             tr("Texture Editor"),
                             tr("Texture Editor view"));
 }
@@ -769,7 +778,7 @@ void TextureEditorView::duplicateTexture(const ModelNode &texture)
         QmlObjectNode duplicateTex = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
 #endif
         duplicateTextureNode = duplicateTex .modelNode();
-        duplicateTextureNode.validId();
+        duplicateTextureNode.ensureIdExists();
 
         // sync properties. Only the base state is duplicated.
         const QList<AbstractProperty> props = texture.properties();
@@ -885,7 +894,9 @@ void TextureEditorView::dragEnded()
 }
 
 // from model to texture editor
-void TextureEditorView::setValue(const QmlObjectNode &qmlObjectNode, const PropertyName &name, const QVariant &value)
+void TextureEditorView::setValue(const QmlObjectNode &qmlObjectNode,
+                                 PropertyNameView name,
+                                 const QVariant &value)
 {
     m_locked = true;
     m_qmlBackEnd->setValue(qmlObjectNode, name, value);

@@ -14,7 +14,7 @@ public:
     using Pointer = std::shared_ptr<InternalBindingProperty>;
     static constexpr PropertyType type = PropertyType::Binding;
 
-    InternalBindingProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalBindingProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 

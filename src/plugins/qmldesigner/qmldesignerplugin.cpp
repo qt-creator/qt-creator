@@ -96,6 +96,19 @@ namespace QmlDesigner {
 
 namespace Internal {
 
+class FullQDSFeatureProvider : public Core::IFeatureProvider
+{
+public:
+    QSet<Utils::Id> availableFeatures(Utils::Id) const override
+    {
+        return {"QmlDesigner.Wizards.FullQDS"};
+    }
+
+    QSet<Utils::Id> availablePlatforms() const override { return {}; }
+
+    QString displayNameForPlatform(Utils::Id) const override { return {}; }
+};
+
 class EnterpriseFeatureProvider : public Core::IFeatureProvider
 {
 public:
@@ -300,8 +313,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     StudioQuickWidget::registerDeclarativeType();
     QmlDesignerBase::WindowManager::registerDeclarativeType();
 
-    if (checkEnterpriseLicense())
-        Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
     Exception::setWarnAboutException(!QmlDesignerPlugin::instance()
                                           ->settings()
                                           .value(DesignerSettingsKey::ENABLE_MODEL_EXCEPTION_OUTPUT)
@@ -343,6 +354,12 @@ void QmlDesignerPlugin::extensionsInitialized()
     registerCombinedTracedPoints(Constants::EVENT_STATE_ADDED,
                                  Constants::EVENT_STATE_CLONED,
                                  Constants::EVENT_STATE_ADDED_AND_CLONED);
+
+    if (checkEnterpriseLicense())
+        Core::IWizardFactory::registerFeatureProvider(new EnterpriseFeatureProvider);
+
+    if (!QmlDesignerBasePlugin::isLiteModeEnabled())
+        Core::IWizardFactory::registerFeatureProvider(new FullQDSFeatureProvider);
 }
 
 ExtensionSystem::IPlugin::ShutdownFlag QmlDesignerPlugin::aboutToShutdown()
@@ -662,12 +679,11 @@ void QmlDesignerPlugin::enforceDelayedInitialize()
 
         FoundLicense license = checkLicense();
         if (license == FoundLicense::enterprise)
-            Core::ICore::appendAboutInformation(tr("License: Enterprise"));
+            Core::ICore::setPrependAboutInformation("License: Enterprise");
         else if (license == FoundLicense::professional)
-            Core::ICore::appendAboutInformation(tr("License: Professional"));
-
-        if (!licensee().isEmpty())
-            Core::ICore::appendAboutInformation(tr("Licensee: %1").arg(licensee()));
+            Core::ICore::setPrependAboutInformation("License: Professional");
+        else if (license == FoundLicense::community)
+            Core::ICore::setPrependAboutInformation("License: Community");
     }
 
     m_delayedInitialized = true;

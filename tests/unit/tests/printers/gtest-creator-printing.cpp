@@ -24,6 +24,8 @@
 #include <utils/fileutils.h>
 #include <variantproperty.h>
 
+#include <utils/smallstringio.h>
+
 namespace std {
 template <typename T> ostream &operator<<(ostream &out, const QVector<T> &vector)
 {
@@ -157,7 +159,7 @@ void PrintTo(const Utils::SmallString &text, ::std::ostream *os)
     *os << "\"" << text << "\"";
 }
 
-void PrintTo(const Utils::BasicSmallString<94> &text, ::std::ostream *os)
+void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os)
 {
     *os << "\"" << text << "\"";
 }
@@ -534,6 +536,42 @@ std::ostream &operator<<(std::ostream &out, FlagIs flagIs)
     return out;
 }
 
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallStringView> &key)
+{
+    return out << "(" << key.name << ", " << key.type << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key)
+{
+    return out << "(" << key.name << ", " << key.type << ")";
+}
+
+std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type)
+{
+    switch (type) {
+    case AuxiliaryDataType::None:
+        out << "None";
+        break;
+    case AuxiliaryDataType::Temporary:
+        out << "Temporary";
+        break;
+    case AuxiliaryDataType::Document:
+        out << "Document";
+        break;
+    case AuxiliaryDataType::NodeInstancePropertyOverwrite:
+        out << "NodeInstancePropertyOverwrite";
+        break;
+    case AuxiliaryDataType::NodeInstanceAuxiliary:
+        out << "NodeInstanceAuxiliary";
+        break;
+    case AuxiliaryDataType::Persistent:
+        out << "Persistent";
+        break;
+    }
+
+    return out;
+}
+
 namespace Cache {
 
 std::ostream &operator<<(std::ostream &out, const SourceContext &sourceContext)
@@ -575,12 +613,6 @@ std::ostream &operator<<(std::ostream &out, TypeTraits traits)
 
     if (traits.isFileComponent)
         out << " | isFileComponent";
-
-    if (traits.isProjectComponent)
-        out << " | isProjectComponent";
-
-    if (traits.isInProjectModule)
-        out << " | isInProjectModule";
 
     if (traits.usesCustomParser)
         out << " | usesCustomParser";
@@ -669,8 +701,7 @@ std::ostream &operator<<(std::ostream &out, const PropertyDeclaration &propertyD
 {
     using Utils::operator<<;
     return out << "(\"" << propertyDeclaration.typeId << "\", " << propertyDeclaration.name << ", "
-               << propertyDeclaration.typeId << ", " << propertyDeclaration.traits << ", "
-               << propertyDeclaration.propertyTypeId << ")";
+               << propertyDeclaration.traits << ", " << propertyDeclaration.propertyTypeId << ")";
 }
 
 std::ostream &operator<<(std::ostream &out, const Type &type)
@@ -835,8 +866,9 @@ std::ostream &operator<<(std::ostream &out, const Type &type)
     using Utils::operator<<;
     return out << "( typename: \"" << type.typeName << "\", prototype: {\"" << type.prototype
                << "\", " << type.prototypeId << "}, " << "\", extension: {\"" << type.extension
-               << "\", " << type.extensionId << "}, " << type.traits << ", source: " << type.sourceId
-               << ", exports: " << type.exportedTypes << ", properties: " << type.propertyDeclarations
+               << "\", " << type.extensionId << "}, traits" << type.traits
+               << ", source: " << type.sourceId << ", exports: " << type.exportedTypes
+               << ", properties: " << type.propertyDeclarations
                << ", functions: " << type.functionDeclarations
                << ", signals: " << type.signalDeclarations << ", changeLevel: " << type.changeLevel
                << ", default: " << type.defaultPropertyName << ")";

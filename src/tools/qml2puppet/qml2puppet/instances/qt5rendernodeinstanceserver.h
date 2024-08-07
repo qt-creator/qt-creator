@@ -19,6 +19,8 @@ public:
     void removeSharedMemory(const RemoveSharedMemoryCommand &command) override;
     void changePropertyValues(const ChangeValuesCommand &command) override;
     void changePropertyBindings(const ChangeBindingsCommand &command) override;
+    void reparentInstances(const ReparentInstancesCommand &command) override;
+    void removeInstances(const RemoveInstancesCommand &command) override;
 
 protected:
     void collectItemChangesAndSendChangeCommands() override;

@@ -128,6 +128,6 @@ private:
 
 
 using SmallStringVector = BasicSmallStringVector<BasicSmallString<31>>;
-using PathStringVector = BasicSmallStringVector<BasicSmallString<190>>;
+using PathStringVector = BasicSmallStringVector<BasicSmallString<176>>;
 using StringViewVector = BasicSmallStringVector<SmallStringView>;
 } // namespace Utils;

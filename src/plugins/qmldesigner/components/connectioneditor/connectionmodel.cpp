@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "connectionmodel.h"
+#include "connectioneditorutils.h"
 #include "connectionview.h"
 #include "utils/algorithm.h"
 
 #include <bindingproperty.h>
 #include <connectioneditorevaluator.h>
 #include <exception.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <modelnodeoperations.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
@@ -201,7 +202,7 @@ void ConnectionModel::updateSignalName(int rowNumber)
         SignalHandlerProperty newSignalHandlerProperty = connectionNode.signalHandlerProperty(newName);
         updateCustomData(idItem, newSignalHandlerProperty);
     } else {
-        qWarning() << "BindingModel::updatePropertyName invalid property name";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid property name";
     }
 }
 
@@ -251,14 +252,14 @@ void ConnectionModel::updateTargetNode(int rowNumber)
         });
 
     } else {
-        qWarning() << "BindingModel::updatePropertyName invalid target id";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid target id";
     }
 }
 
 void ConnectionModel::updateCustomData(QStandardItem *item, const SignalHandlerProperty &signalHandlerProperty)
 {
     item->setData(signalHandlerProperty.parentModelNode().internalId(), UserRoles::InternalIdRole);
-    item->setData(signalHandlerProperty.name(), UserRoles::TargetPropertyNameRole);
+    item->setData(signalHandlerProperty.name().toByteArray(), UserRoles::TargetPropertyNameRole);
     item->setData(signalHandlerProperty.parentModelNode()
                       .bindingProperty("target")
                       .resolveToModelNode()
@@ -532,7 +533,7 @@ ConnectionModelBackendDelegate *ConnectionModel::delegate()
 void ConnectionModel::handleDataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     if (topLeft != bottomRight) {
-        qWarning() << "ConnectionModel::handleDataChanged multi edit?";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "multi edit?";
         return;
     }
 
@@ -551,8 +552,8 @@ void ConnectionModel::handleDataChanged(const QModelIndex &topLeft, const QModel
     case SourceRow: {
         updateSource(currentRow);
     } break;
-
-    default: qWarning() << "ConnectionModel::handleDataChanged column" << currentColumn;
+    default:
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "column" << currentColumn;
     }
 
     m_lock = false;
@@ -1694,9 +1695,9 @@ QVariant ConditionListModel::data(const QModelIndex &index, int role) const
             return m_tokens.at(index.row()).value;
         }
 
-        qWarning() << Q_FUNC_INFO << "invalid role";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid role";
     } else {
-        qWarning() << Q_FUNC_INFO << "invalid index";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid index";
     }
 
     return QVariant();

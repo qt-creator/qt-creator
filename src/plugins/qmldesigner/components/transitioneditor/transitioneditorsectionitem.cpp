@@ -13,7 +13,7 @@
 
 #include <abstractview.h>
 #include <bindingproperty.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <variantproperty.h>
 #include <qmltimeline.h>
 #include <qmltimelinekeyframegroup.h>

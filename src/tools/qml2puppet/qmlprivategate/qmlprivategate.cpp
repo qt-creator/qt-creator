@@ -90,19 +90,7 @@ static QQuickDesignerSupport::PropertyNameList propertyNameListForWritableProper
             QMetaType jsType = QMetaType::fromType<QJSValue>();
             int userType = value.userType();
 
-            //qDebug() << jsType << jsType.id();
-            //qDebug() << "tp" << value.typeName();
-            //qDebug() << "ut" << userType;
-
-            if (userType == jsType.id()) {
-                qDebug() << "js value found";
-                //QJSValue jsValue = value.value<QJSValue>(); //crashes
-                //qDebug() << jsValue.isObject();
-                //qDebug() << jsValue.isQObject();
-            } else {
-
-
-
+            if (userType != jsType.id()) {
                 valueType->setValue(value);
                 propertyNameList.append(propertyNameListForWritablePropertiesInternal(valueType,
                                                                                       baseName +  QQuickDesignerSupport::PropertyName(metaProperty.name())
@@ -175,36 +163,12 @@ static QQuickDesignerSupport::PropertyNameList allPropertyNamesFork(QObject *obj
             propertyNameList.append(baseName + QQuickDesignerSupport::PropertyName(metaProperty.name()));
             const QJsonValue jsonValue = value.toJsonValue();
 
-            if (!jsonValue.isNull()) {
-                qDebug() << "llokhere";
-                qDebug() << "name" << metaProperty.name();
-                qDebug() << "value" << value;
-                qDebug() << jsonValue;
-            }
-
             if (value.isValid() && jsonValue.isNull()) {
-                //qDebug() << "llokhere crash";
-                //qDebug() << "name" << metaProperty.name();
-                //qDebug() << "value" << value;
-                //qDebug() << jsonValue;
-
-
                 QMetaType jsType = QMetaType::fromType<QJSValue>();
 
                 int userType = value.userType();
 
-                //qDebug() << jsType << jsType.id();
-                //qDebug() << "tp" << value.typeName();
-                //qDebug() << "ut" << userType;
-
-                if (userType == jsType.id()) {
-                    qDebug() << "js value found";
-                    //QJSValue jsValue = value.value<QJSValue>(); //crashes
-                    //qDebug() << jsValue.isObject();
-                    //qDebug() << jsValue.isQObject();
-                } else {
-
-
+                if (userType != jsType.id()) {
                     valueType->setValue(value);
                     propertyNameList.append(allPropertyNamesFork(valueType,
                                                                  baseName

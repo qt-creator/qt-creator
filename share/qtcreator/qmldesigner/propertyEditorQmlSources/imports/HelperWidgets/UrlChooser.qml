@@ -143,7 +143,7 @@ Row {
 
         property ListModel listModel: ListModel {}
 
-        hasActiveDrag: activeDragSuffix !== "" && root.filter.includes(activeDragSuffix)
+        hasActiveDrag: typeof(activeDragSuffix) !== "undefined" && activeDragSuffix !== "" && root.filter.includes(activeDragSuffix)
         implicitWidth: StudioTheme.Values.singleControlColumnWidth
                         + StudioTheme.Values.actionIndicatorWidth
         width: implicitWidth

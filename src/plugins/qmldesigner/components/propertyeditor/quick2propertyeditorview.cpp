@@ -22,6 +22,7 @@
 #include "propertyeditorqmlbackend.h"
 #include "propertyeditorvalue.h"
 #include "propertymodel.h"
+#include "propertynamevalidator.h"
 #include "qmlanchorbindingproxy.h"
 #include "richtexteditor/richtexteditorproxy.h"
 #include "selectiondynamicpropertiesproxymodel.h"
@@ -65,6 +66,7 @@ void Quick2PropertyEditorView::registerQmlTypes()
         DynamicPropertyRow::registerDeclarativeType();
         PropertyChangesModel::registerDeclarativeType();
         PropertyModel::registerDeclarativeType();
+        PropertyNameValidator::registerDeclarativeType();
 
         const QString resourcePath = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 

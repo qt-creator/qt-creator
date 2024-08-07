@@ -42,7 +42,7 @@ QVariant PropertyModel::data(const QModelIndex &index, int role) const
 
     switch (role) {
     case Name: {
-        return m_properties.at(index.row()).name();
+        return m_properties.at(index.row()).name().toByteArray();
     }
 
     case Value: {

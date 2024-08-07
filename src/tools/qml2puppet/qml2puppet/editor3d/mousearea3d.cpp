@@ -989,6 +989,12 @@ bool MouseArea3D::eventFilter(QObject *, QEvent *event)
 
         break;
     }
+    case QEvent::HoverLeave: {
+        setHovering(false);
+        if (s_mouseGrab == this && !dragging())
+            s_mouseGrab = nullptr;
+        break;
+    }
     default:
         break;
     }

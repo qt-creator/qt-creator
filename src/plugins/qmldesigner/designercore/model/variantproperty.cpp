@@ -7,7 +7,7 @@
 #include "model.h"
 #include "model_p.h"
 
-
+#include <utils/smallstringio.h>
 
 namespace QmlDesigner {
 
@@ -17,11 +17,6 @@ VariantProperty::VariantProperty(const VariantProperty &property, AbstractView *
     : AbstractProperty(property.name(), property.internalNodeSharedPointer(), property.model(), view)
 {
 
-}
-
-VariantProperty::VariantProperty(const PropertyName &propertyName, const Internal::InternalNodePointer &internalNode, Model* model,  AbstractView *view) :
-        AbstractProperty(propertyName, internalNode, model, view)
-{
 }
 
 void VariantProperty::setValue(const QVariant &value)
@@ -114,7 +109,9 @@ QDebug operator<<(QDebug debug, const VariantProperty &property)
 
 QTextStream& operator<<(QTextStream &stream, const VariantProperty &property)
 {
-    stream << "VariantProperty(" << property.name() << ',' << ' ' << property.value().toString() << ' ' << property.value().typeName() << property.parentModelNode() << ')';
+    stream << "VariantProperty(" << property.name().toByteArray() << ',' << ' '
+           << property.value().toString() << ' ' << property.value().typeName()
+           << property.parentModelNode() << ')';
 
     return stream;
 }

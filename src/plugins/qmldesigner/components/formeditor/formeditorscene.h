@@ -59,7 +59,7 @@ public:
 
     void synchronizeTransformation(FormEditorItem *item);
     void synchronizeParent(const QmlItemNode &qmlItemNode);
-    void synchronizeOtherProperty(FormEditorItem *item, const QByteArray &propertyName);
+    void synchronizeOtherProperty(FormEditorItem *item, PropertyNameView propertyName);
 
     FormEditorItem* calulateNewParent(FormEditorItem *widget);
     LayerItem* manipulatorLayerItem() const;

@@ -18,6 +18,7 @@ add_qtc_library(TestDesignerCore OBJECT
     ${QmlDesignerDir}/designercore
     ${QmlDesignerDir}/designercore/include
     ${QmlDesignerDir}/designercore/imagecache
+    ${QmlDesignerDir}/designercore/designercoreutils
   PUBLIC_DEFINES
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
@@ -80,6 +81,7 @@ add_qtc_library(TestDesignerCore OBJECT
     metainfo/nodemetainfo.cpp
     model/abstractproperty.cpp
     model/abstractview.cpp
+    model/auxiliarypropertystorageview.cpp model/auxiliarypropertystorageview.h
     model/annotation.cpp
     model/bindingproperty.cpp
     model/import.cpp
@@ -104,9 +106,9 @@ add_qtc_library(TestDesignerCore OBJECT
     model/modelnode.cpp
     model/modelresourcemanagementinterface.h
     model/modelresourcemanagement.cpp model/modelresourcemanagement.h
-    model/modelutils.cpp model/modelutils.h
-    model/propertycontainer.cpp
-    model/propertyparser.cpp
+    designercoreutils/modelutils.cpp designercoreutils/modelutils.h
+    rewriter/propertycontainer.cpp
+    rewriter/propertyparser.cpp
     model/nodeabstractproperty.cpp
     model/nodelistproperty.cpp
     model/nodeproperty.cpp
@@ -147,10 +149,10 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/qmldocumentparserinterface.h
     projectstorage/qmltypesparserinterface.h
     tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
-    rewritertransaction.cpp
-    rewritertransaction.h
-    uniquename.cpp
-    uniquename.h
+    rewriter/rewritertransaction.cpp
+    include/rewritertransaction.h
+    designercoreutils/uniquename.cpp
+    designercoreutils/uniquename.h
 )
 
 extend_qtc_library(TestDesignerCore

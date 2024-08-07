@@ -15,6 +15,11 @@
     These projects then run on your Android device. You can also
     adjust settings, view logs, and run example projects.
 
+    \note This feature is included in the
+          \l{https://www.qt.io/pricing}{Qt Design Studio Enterprise license}.
+          \uicontrol {Share Application Online} and \uicontrol {Deploy Project to Android}
+          are unavailable in \QDS without the Enterprise license.
+
     \section1 Installing Qt UI Viewer
 
     \image qtuiviewer-appstore.webp
@@ -39,6 +44,7 @@
 
           \inlineimage menu-share-application-online.webp
           \inlineimage studio-share-application-online.webp
+
       \li Open \QUV on your Android device.
       \li Select \uicontrol {Scan QR Code}.
           \image qtuiviewer-scan-qr-code.webp

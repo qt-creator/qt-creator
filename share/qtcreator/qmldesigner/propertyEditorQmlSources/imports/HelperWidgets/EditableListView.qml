@@ -118,7 +118,10 @@ Item {
                 onHoverChanged: root.delegateHover = delegateComboBox.hover
             }
 
-            Spacer { implicitWidth: extraButton.visible ? 5 : StudioTheme.Values.twoControlColumnGap }
+            Spacer {
+                implicitWidth: extraButton.visible ? StudioTheme.Values.controlLabelGap
+                                                   : StudioTheme.Values.twoControlColumnGap
+            }
 
             IconIndicator {
                 id: extraButton

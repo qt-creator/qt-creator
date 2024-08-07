@@ -47,7 +47,7 @@ public:
     }
 
     explicit SourcePath(const Utils::PathString &sourcePath)
-        : SourcePath(sourcePath.clone())
+        : SourcePath(Utils::PathString{sourcePath})
     {
     }
 

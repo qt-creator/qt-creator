@@ -20,6 +20,7 @@ public:
     explicit BackgroundAction(QObject *parent);
     void setColor(const QColor &color);
 
+    void setColorEnabled(const QColor &color, bool enable);
 signals:
     void backgroundChanged(const QColor &color);
 

@@ -46,6 +46,11 @@ void QmlModelNodeProxy::emitSelectionChanged()
     emit selectionChanged();
 }
 
+void QmlModelNodeProxy::refresh()
+{
+    emit refreshRequired();
+}
+
 QmlObjectNode QmlModelNodeProxy::qmlObjectNode() const
 {
     return m_qmlObjectNode;
@@ -245,7 +250,7 @@ void QmlModelNodeProxy::changeType(int internalId, const QString &typeName)
 }
 
 void QmlModelNodeProxy::handleInstancePropertyChanged(const ModelNode &modelNode,
-                                                      const PropertyName &propertyName)
+                                                      PropertyNameView propertyName)
 {
     const QmlObjectNode qmlObjectNode(modelNode);
 

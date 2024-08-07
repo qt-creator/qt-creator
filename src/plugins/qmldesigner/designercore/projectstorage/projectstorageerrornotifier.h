@@ -16,7 +16,11 @@ public:
         : m_pathCache{pathCache}
     {}
 
-    void typeNameCannotBeResolved(Utils::SmallStringView typeName, SourceId souceId) override;
+    void typeNameCannotBeResolved(Utils::SmallStringView typeName, SourceId sourceId) override;
+    void missingDefaultProperty(Utils::SmallStringView typeName,
+                                Utils::SmallStringView propertyName,
+                                SourceId sourceId) override;
+    void propertyNameDoesNotExists(Utils::SmallStringView propertyName, SourceId sourceId) override;
 
 private:
     PathCacheType &m_pathCache;

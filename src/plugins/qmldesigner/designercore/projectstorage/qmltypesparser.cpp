@@ -288,7 +288,7 @@ createFunctionAndSignals(const QMultiHash<QString, QQmlJSMetaMethod> &qmlMethods
         if (qmlMethod.isJavaScriptFunction())
             continue;
 
-        if (qmlMethod.methodType() != QQmlJSMetaMethod::Type::Signal) {
+        if (qmlMethod.methodType() != QQmlJSMetaMethodType::Signal) {
             functionsDeclarations.emplace_back(Utils::SmallString{qmlMethod.methodName()},
                                                fullyQualifiedTypeName(qmlMethod.returnTypeName(),
                                                                       componentNameWithoutNamespace),

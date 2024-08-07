@@ -2,13 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "cameraspeedconfiguration.h"
-
-#include "designersettings.h"
 #include "edit3dview.h"
-#include "edit3dviewconfig.h"
 
 #include <coreplugin/icore.h>
-
 #include <utils/environment.h>
 
 #include <QCursor>
@@ -191,6 +187,11 @@ bool CameraSpeedConfiguration::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QObject::eventFilter(obj, event);
+}
+
+bool CameraSpeedConfiguration::isQDSTrusted() const
+{
+    return Edit3DView::isQDSTrusted();
 }
 
 } // namespace QmlDesigner

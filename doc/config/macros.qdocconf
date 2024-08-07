@@ -40,6 +40,7 @@ macro.QSDK              = "Qt"
 macro.QUL               = "Qt Quick Ultralite"
 macro.QUV               = "Qt UI Viewer"
 macro.QOI               = "Qt Online Installer"
+macro.QM                = "Qt Multimedia"
 macro.QMT               = "Qt Maintenance Tool"
 macro.qtcversion        = $QTC_VERSION
 macro.param             = "\\e"

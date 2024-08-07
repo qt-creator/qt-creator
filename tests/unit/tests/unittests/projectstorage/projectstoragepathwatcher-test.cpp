@@ -104,9 +104,9 @@ protected:
                            pathCache.sourceId(path3),
                            pathCache.sourceId(path4),
                            pathCache.sourceId(path5)};
-    SourceContextIds sourceContextIds = {pathCache.sourceContextId(sourceIds[0]),
-                                         pathCache.sourceContextId(sourceIds[2]),
-                                         pathCache.sourceContextId(sourceIds[4])};
+    SourceContextIds sourceContextIds = {sourceIds[0].contextId(),
+                                         sourceIds[2].contextId(),
+                                         sourceIds[4].contextId()};
     ProjectChunkIds ids{projectChunkId1, projectChunkId2, projectChunkId3};
     WatcherEntry watcherEntry1{projectChunkId1, sourceContextIds[0], sourceIds[0]};
     WatcherEntry watcherEntry2{projectChunkId2, sourceContextIds[0], sourceIds[0]};
@@ -366,10 +366,9 @@ TEST_F(ProjectStoragePathWatcher, two_notify_file_changes)
         .WillByDefault(Return(FileStatus{sourceIds[3], 1, 2}));
 
     EXPECT_CALL(notifier,
-                pathsWithIdsChanged(ElementsAre(
-                    IdPaths{projectChunkId1, {SourceId::create(1), SourceId::create(2)}},
-                    IdPaths{projectChunkId2,
-                            {SourceId::create(1), SourceId::create(2), SourceId::create(4)}})));
+                pathsWithIdsChanged(
+                    ElementsAre(IdPaths{projectChunkId1, {sourceIds[0], sourceIds[1]}},
+                                IdPaths{projectChunkId2, {sourceIds[0], sourceIds[1], sourceIds[3]}})));
 
     mockQFileSytemWatcher.directoryChanged(sourceContextPath);
     mockQFileSytemWatcher.directoryChanged(sourceContextPath2);

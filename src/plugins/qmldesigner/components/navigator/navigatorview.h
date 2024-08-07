@@ -83,7 +83,9 @@ public:
     void disableWidget() override;
     void enableWidget() override;
 
-    void modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
 
 private:
     ModelNode modelNodeForIndex(const QModelIndex &modelIndex) const;

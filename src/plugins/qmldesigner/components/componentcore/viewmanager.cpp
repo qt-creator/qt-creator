@@ -20,17 +20,19 @@
 #include <itemlibraryview.h>
 #include <materialbrowserview.h>
 #include <materialeditorview.h>
+#include <model/auxiliarypropertystorageview.h>
 #include <navigatorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
+#include <qmldesignerplugin.h>
 #include <rewriterview.h>
 #include <stateseditorview.h>
 #include <texteditorview.h>
 #include <textureeditorview.h>
-#include <qmldesignerplugin.h>
 
 #include <coreplugin/icore.h>
 
+#include <sqlitedatabase.h>
 #include <utils/algorithm.h>
 
 #include <advanceddockingsystem/dockwidget.h>
@@ -49,6 +51,7 @@ public:
     ViewManagerData(AsynchronousImageCache &imageCache,
                     ExternalDependenciesInterface &externalDependencies)
         : debugView{externalDependencies}
+        , auxiliaryDataKeyView{auxiliaryDataDatabase, externalDependencies}
         , designerActionManagerView{externalDependencies}
         , nodeInstanceView(QCoreApplication::arguments().contains("-capture-puppet-stream")
                                ? capturingConnectionManager
@@ -78,6 +81,11 @@ public:
     CapturingConnectionManager capturingConnectionManager;
     QmlModelState savedState;
     Internal::DebugView debugView;
+    Sqlite::Database auxiliaryDataDatabase{
+        Utils::PathString{Core::ICore::userResourcePath("auxiliary_data.db").toString()},
+        Sqlite::JournalMode::Wal,
+        Sqlite::LockingMode::Normal};
+    AuxiliaryPropertyStorageView auxiliaryDataKeyView;
     DesignerActionManagerView designerActionManagerView;
     NodeInstanceView nodeInstanceView;
     ContentLibraryView contentLibraryView;
@@ -161,7 +169,7 @@ void ViewManager::attachRewriterView()
         });
 
         currentModel()->setRewriterView(view);
-        view->reactivateTextMofifierChangeSignals();
+        view->reactivateTextModifierChangeSignals();
         view->restoreAuxiliaryData();
     }
 
@@ -171,7 +179,7 @@ void ViewManager::attachRewriterView()
 void ViewManager::detachRewriterView()
 {
     if (RewriterView *view = currentDesignDocument()->rewriterView()) {
-        view->deactivateTextMofifierChangeSignals();
+        view->deactivateTextModifierChangeSignals();
         currentModel()->setRewriterView(nullptr);
     }
 }
@@ -201,7 +209,8 @@ QList<AbstractView *> ViewManager::views() const
 QList<AbstractView *> ViewManager::standardViews() const
 {
 #ifndef QTC_USE_QML_DESIGNER_LITE
-    QList<AbstractView *> list = {&d->edit3DView,
+    QList<AbstractView *> list = {&d->auxiliaryDataKeyView,
+                                  &d->edit3DView,
                                   &d->formEditorView,
                                   &d->textEditorView,
                                   &d->assetsLibraryView,
@@ -416,21 +425,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
             widgetInfoList.append(view->widgetInfo());
     }
 
-    Utils::sort(widgetInfoList, [](const WidgetInfo &firstWidgetInfo, const WidgetInfo &secondWidgetInfo) {
-        return firstWidgetInfo.placementPriority < secondWidgetInfo.placementPriority;
-    });
-
     return widgetInfoList;
-}
-
-QWidget *ViewManager::widget(const QString &uniqueId) const
-{
-    const QList<WidgetInfo> widgetInfoList = widgetInfos();
-    for (const WidgetInfo &widgetInfo : widgetInfoList) {
-        if (widgetInfo.uniqueId == uniqueId)
-            return widgetInfo.widget;
-    }
-    return nullptr;
 }
 
 void ViewManager::disableWidgets()

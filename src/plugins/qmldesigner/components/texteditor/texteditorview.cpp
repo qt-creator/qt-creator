@@ -115,7 +115,6 @@ WidgetInfo TextEditorView::widgetInfo()
     return createWidgetInfo(m_widget,
                             "TextEditor",
                             WidgetInfo::CentralPane,
-                            0,
                             tr("Code"),
                             tr("Code view"),
                             DesignerWidgetFlags::IgnoreErrors);

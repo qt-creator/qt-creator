@@ -8,6 +8,8 @@
 
 #include <utils/smallstringvector.h>
 
+#include <QVarLengthArray>
+
 #include <variant>
 
 namespace Sqlite {
@@ -23,6 +25,6 @@ public:
 };
 
 using TableConstraint = std::variant<TablePrimaryKey>;
-using TableConstraints = std::vector<TableConstraint>;
+using TableConstraints = QVarLengthArray<TableConstraint, 8>;
 
 } // namespace Sqlite

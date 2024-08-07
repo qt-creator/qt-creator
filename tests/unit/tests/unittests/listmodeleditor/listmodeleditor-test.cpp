@@ -71,7 +71,7 @@ MATCHER_P2(IsAbstractProperty, node, name, std::string(negation ? "isn't " : "is
 
 class ListModelEditor : public testing::Test
 {
-    using SourcePathCache = QmlDesigner::SourcePathCache<NiceMock<ProjectStorageMockWithQtQtuick>,
+    using SourcePathCache = QmlDesigner::SourcePathCache<NiceMock<ProjectStorageMockWithQtQuick>,
                                                          QmlDesigner::NonLockingMutex>;
 
 public:
@@ -184,7 +184,7 @@ public:
 
 protected:
     NiceMock<SourcePathCacheMockWithPaths> pathCacheMock{"/path/foo.qml"};
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{pathCacheMock.sourceId};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<MockFunction<ModelNode(const ModelNode &)>> goIntoComponentMock;
     QmlDesigner::ModelPointer designerModel{
         QmlDesigner::Model::create(QmlDesigner::ProjectStorageDependencies{projectStorageMock,

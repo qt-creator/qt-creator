@@ -113,8 +113,8 @@
                 \li In \uicontrol {Target Qt Version}, select the Qt
                 version to use for developing the application. While you can
                 change the Qt version later in the \uicontrol {Run Settings}
-                of the project, keep in mind that the two versions are not fully
-                compatible.
+                of the project, as described in \l {Overriding the Preview Tool},
+                keep in mind that the two versions are not fully compatible.
             \endlist
         \li In the \uicontrol {Style} tab, select one of
             the predefined \l{Styling Qt Quick Controls}{UI styles} to use.
@@ -123,35 +123,94 @@
 
     \QDS creates the following files and folders:
 
-    \list
-        \li .qmlproject project file defines that all component, JavaScript, and
-            image files in the project folder belong to the project. Therefore,
-            you do not need to individually list all the files in the project.
-        \li .qml file defines the functionality and appearance of a component.
-        \li \e Screen01.ui.qml defines a custom component that you can edit in
-            the \l {2D} view. For more information, see \l {UI Files}.
+    \image studio-project-files.webp "Qt Design Studio project files"
 
-            By default, this is the main file in the project, but you can
-            change that in the .qmlproject file. While the custom component
-            is a good starting point for new users, you don't have to use it.
-            Specifically, if you export and import designs using \QB, your main
-            file is most likely called something else. For more information,
-            see \l {Exporting from Design Tools}.
-        \li \e CMakeLists.txt project configuration file allowing you to
-            share your project as a fully working C++ application with
-            developers.
-        \li qtquickcontrols2.conf file specifies the preferred style and some
-            style-specific arguments.
-        \li \e fonts folder contains font files that you have added in
-            \uicontrol Assets.
-        \li \e imports folder contains a \e {Constants.qml} file that specifies
-            a font loader for the Arial font and the screen resolution. The size
-            of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
-            be set as \c {width: Constants.width & height: Constants.height} so
-            that it inherits the global resolution saved here.
-        \li \e qmldir module definition file declares the Constant component.
-            For more information, see \l {Module Definition qmldir Files}.
-    \endlist
+    \table
+        \header
+            \li File/Folder
+            \li Description
+        \row
+            \li ProjectName.qmlproject
+            \li This file defines that all components, JavaScript, and image files in the project
+                folder belong to the project. Therefore, you do not need to individually list all
+                the files in the project. Since \QDS 4.5, the default
+                \l {https://doc.qt.io/qt-6/qtqml-syntax-directoryimports.html} {QML import path}
+                defined within the \c {.qmlproject} file is \c {"."}. However, you can add more
+                import paths by editing the \c {.qmlproject} file.
+        \row
+            \li \c {ProjectName} (folder)
+            \li This folder contains the essential QML files for the project.
+        \row
+            \li Constants.qml
+            \li This file defines a font loader for the Arial font and the screen resolution.
+                The size of the default Screen.ui.qml \l{basic-rectangle}{Rectangle} should
+                be set as \c {width: Constants.width & height: Constants.height} so
+                that it inherits the global resolution saved here. This is the default
+                QML singleton created by the wizard. You can add more singletons here. Afterward,
+                edit the qmldir file accordingly.
+        \row
+            \li EventListModel.qml
+            \li This file defines and triggers "Global Events" in a \QDS/QML application.
+        \row
+            \li EventListSimulator.qml
+            \li This file defines and triggers "Global Events" in a \QDS/QML application.
+        \row
+            \li qmldir
+            \li This is a module definition file that declares the Constant component.
+                For more information, see \l {Module Definition qmldir Files}.
+        \row
+            \li \c {ProjectNameContent} (folder)
+            \li This folder contains the default content, such as QML files, images, and other
+                necessary files. It is not considered a module in \QDS context. Do not import it
+                if you want to make singletons and objects. Use the ProjectName module instead.
+        \row
+            \li App.qml
+            \li This file defines the default dimension of the application window.
+                This is the entry point to QML application.
+        \row
+            \li Screen01.ui.qml
+            \li This file defines a custom component that you can edit in the \uicontrol {2D} view.
+                For more information, see \l {UI Files}.
+                The project wizard generates this as the first scene.
+        \row
+            \li qtquickcontrols2.conf
+            \li This file specifies the preferred style and style-specific arguments.
+    \endtable
+
+    Depending on the assets, components, effects, and animations you use, the project might include
+    additional files and folders.
+
+    \image studio-project-additional-files.webp "Qt Design Studio project files"
+
+    \table
+        \header
+            \li File/Folder
+            \li Description
+        \row
+            \li \c {Generated} (folder)
+            \li This folder contains all the files related to
+                \l {https://doc.qt.io/qt-6/qtquick3d-index.html} {QtQuick3D} and the modules
+                for imported 3D components and elements from the content library,
+                such as Materials and Effects.
+        \row
+            \li \c {Bundles} (folder)
+            \li This folder contains imported 3D components and elements from the content library,
+                such as Materials.
+        \row
+            \li \c {QtQuick3D} (folder)
+            \li This folder contains all the files from an imported Qt Quick 3D object, such as
+                meshes, images, animations, and QML files.
+
+        \row
+            \li \c {Effects} (folder)
+            \li This folder contains all the files related to the effects created with
+                \l {Effect Composer}.
+        \row
+            \li \c {Materials} (folder)
+            \li This folder contains the files related to the materials, such as images, shaders,
+                and QML files.
+
+    \endtable
 
     To use JavaScript and image files in the UI, select
     \uicontrol Assets > \inlineimage icons/plus.png

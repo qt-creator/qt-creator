@@ -134,13 +134,18 @@ public:
 
     void sendInputEvent(QEvent *e) const;
     void view3DAction(View3DActionType type, const QVariant &value) override;
-    void requestModelNodePreviewImage(const ModelNode &node, const ModelNode &renderNode) const;
+    void requestModelNodePreviewImage(const ModelNode &node,
+                                      const ModelNode &renderNode,
+                                      const QSize &size = {},
+                                      const QByteArray &requestId = {}) const;
     void edit3DViewResized(const QSize &size) const;
 
     void handlePuppetToCreatorCommand(const PuppetToCreatorCommand &command) override;
 
     QVariant previewImageDataForGenericNode(const ModelNode &modelNode,
-                                            const ModelNode &renderNode) const;
+                                            const ModelNode &renderNode,
+                                            const QSize &size = {},
+                                            const QByteArray &requestId = {}) const;
     QVariant previewImageDataForImageNode(const ModelNode &modelNode) const;
 
     void setCrashCallback(std::function<void()> crashCallback)
@@ -226,14 +231,17 @@ private: // functions
         QString info;
     };
     QVariant modelNodePreviewImageDataToVariant(const ModelNodePreviewImageData &imageData) const;
-    void updatePreviewImageForNode(const ModelNode &modelNode, const QImage &image);
+    void updatePreviewImageForNode(const ModelNode &modelNode,
+                                   const QImage &image,
+                                   const QByteArray &requestId);
 
     void updateWatcher(const QString &path);
     void handleShaderChanges();
     void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader);
     void updateQsbPathToFilterMap();
     void updateRotationBlocks();
-    void maybeResetOnPropertyChange(const PropertyName &name, const ModelNode &node,
+    void maybeResetOnPropertyChange(PropertyNameView name,
+                                    const ModelNode &node,
                                     PropertyChangeFlags flags);
 
 private:
@@ -253,6 +261,8 @@ private:
 
     QList<NodeInstance> loadInstancesFromCache(const QList<ModelNode> &nodeList,
                                                const NodeInstanceCacheData &cache);
+
+    QString fullyQualifyPropertyIfApplies(const BindingProperty &property) const;
 
     mutable QHash<QString, ModelNodePreviewImageData> m_imageDataMap;
 

@@ -11,7 +11,9 @@
 #include <qmldesignerplugin.h>
 #include <rewritingexception.h>
 
+#include <modelutils.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
+#include <utils/async.h>
 
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -21,10 +23,11 @@ using namespace Utils;
 
 namespace QmlDesigner {
 
+static constexpr int normalImportDelay = 200;
+
 ContentLibraryBundleImporter::ContentLibraryBundleImporter(QObject *parent)
     : QObject(parent)
 {
-    m_importTimer.setInterval(200);
     connect(&m_importTimer, &QTimer::timeout, this, &ContentLibraryBundleImporter::handleImportTimer);
 }
 
@@ -49,19 +52,21 @@ QString ContentLibraryBundleImporter::importComponent(const QString &bundleDir,
     if (!bundleImportPath.exists() && !bundleImportPath.createDir())
         return QStringLiteral("Failed to create bundle import folder: '%1'").arg(bundleImportPath.toString());
 
+    bool doScan = false;
+    bool doReset = false;
     FilePath qmldirPath = bundleImportPath.pathAppended("qmldir");
     QString qmldirContent = QString::fromUtf8(qmldirPath.fileContents().value_or(QByteArray()));
     if (qmldirContent.isEmpty()) {
         qmldirContent.append("module ");
         qmldirContent.append(module);
         qmldirContent.append('\n');
+        doScan = true;
     }
 
     FilePath qmlSourceFile = bundleImportPath.pathAppended(qmlFile);
-    const bool qmlFileExists = qmlSourceFile.exists();
     const QString qmlType = qmlSourceFile.baseName();
 
-    if (m_pendingTypes.contains(type) && !m_pendingTypes.value(type))
+    if (m_pendingImports.contains(type) && !m_pendingImports[type].isImport)
         return QStringLiteral("Unable to import while unimporting the same type: '%1'").arg(QLatin1String(type));
 
     if (!qmldirContent.contains(qmlFile)) {
@@ -70,6 +75,7 @@ QString ContentLibraryBundleImporter::importComponent(const QString &bundleDir,
         qmldirContent.append(qmlFile);
         qmldirContent.append('\n');
         qmldirPath.writeFileContents(qmldirContent.toUtf8());
+        doReset = true;
     }
 
     QStringList allFiles;
@@ -104,16 +110,22 @@ QString ContentLibraryBundleImporter::importComponent(const QString &bundleDir,
     if (writeAssetRefs)
         writeAssetRefMap(bundleImportPath, assetRefMap);
 
-    m_fullReset = !qmlFileExists;
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
     Model *model = doc ? doc->currentModel() : nullptr;
     if (!model)
         return "Model not available, cannot add import statement or update code model";
 
+    ImportData data;
+    data.isImport = true;
+    data.type = type;
+    if (doScan)
+        data.pathToScan = bundleImportPath;
+    else
+        data.fullReset = doReset;
+
     Import import = Import::createLibraryImport(module, "1.0");
     if (!model->hasImport(import)) {
         if (model->possibleImports().contains(import)) {
-            m_pendingImport.clear();
             try {
                 model->changeImports({import}, {});
             } catch (const RewritingException &) {
@@ -123,12 +135,12 @@ QString ContentLibraryBundleImporter::importComponent(const QString &bundleDir,
         } else {
             // If import is not yet possible, import statement needs to be added asynchronously to
             // avoid errors, as code model update takes a while.
-            m_pendingImport = module;
+            data.importToAdd = module;
         }
     }
-    m_pendingTypes.insert(type, true);
+    m_pendingImports.insert(type, data);
     m_importTimerCount = 0;
-    m_importTimer.start();
+    m_importTimer.start(normalImportDelay);
 
     return {};
 }
@@ -137,21 +149,20 @@ void ContentLibraryBundleImporter::handleImportTimer()
 {
     auto handleFailure = [this] {
         m_importTimer.stop();
-        m_fullReset = false;
-        m_pendingImport.clear();
         m_importTimerCount = 0;
 
+        disconnect(m_libInfoConnection);
+
         // Emit dummy finished signals for all pending types
-        const QList<TypeName> pendingTypes = m_pendingTypes.keys();
+        const QList<TypeName> pendingTypes = m_pendingImports.keys();
         for (const TypeName &pendingType : pendingTypes) {
-            m_pendingTypes.remove(pendingType);
-            if (m_pendingTypes.value(pendingType))
+            ImportData data = m_pendingImports.take(pendingType);
+            if (data.isImport)
                 emit importFinished({}, m_bundleId);
             else
                 emit unimportFinished({}, m_bundleId);
-
-            m_bundleId.clear();
         }
+        m_bundleId.clear();
     };
 
     auto doc = QmlDesignerPlugin::instance()->currentDesignDocument();
@@ -161,55 +172,125 @@ void ContentLibraryBundleImporter::handleImportTimer()
         return;
     }
 
-    if (m_fullReset) {
-        // Force code model reset to notice changes to existing module
-        auto modelManager = QmlJS::ModelManagerInterface::instance();
-        if (modelManager)
-            modelManager->resetCodeModel();
-        m_fullReset = false;
-        return;
-    }
-
-    QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
-
-    if (!m_pendingImport.isEmpty()) {
-        try {
-            Import import = Import::createLibraryImport(m_pendingImport, "1.0");
-            if (model->possibleImports().contains(import)) {
-                model->changeImports({import}, {});
-                m_pendingImport.clear();
+    auto modelManager = QmlJS::ModelManagerInterface::instance();
+    if (modelManager) {
+        const QList<TypeName> keys = m_pendingImports.keys();
+        int scanDone = 0;
+        bool refreshImports = false;
+        for (const TypeName &type : keys) {
+            ImportData &data = m_pendingImports[type];
+            if (data.state == ImportData::Starting) {
+                if (data.pathToScan.isEmpty()) {
+                    data.state = ImportData::FullReset;
+                } else {
+                    // A new bundle module was added, so we can scan it without doing full code
+                    // model reset, which is faster
+                    QmlJS::PathsAndLanguages pathToScan;
+                    pathToScan.maybeInsert(data.pathToScan);
+                    data.future = Utils::asyncRun(&QmlJS::ModelManagerInterface::importScan,
+                                                  modelManager->workingCopy(),
+                                                  pathToScan, modelManager,
+                                                  true, true, true);
+                    data.state = ImportData::WaitingForImportScan;
+                }
+            } else if (data.state == ImportData::WaitingForImportScan) {
+                // Import scan is asynchronous, so we need to wait for it to be finished
+                if ((data.future.isCanceled() || data.future.isFinished()))
+                    data.state = ImportData::RefreshImports;
+            } else if (data.state >= ImportData::RefreshImports) {
+                // Do not mode to next stage until all pending scans are done
+                ++scanDone;
+                if (data.state == ImportData::RefreshImports)
+                    refreshImports = true;
             }
-        } catch (const RewritingException &) {
-            // Import adding is unlikely to succeed later, either, so just bail out
-            handleFailure();
         }
-        return;
-    }
+        if (scanDone != m_pendingImports.size()) {
+            return;
+        } else {
+            if (refreshImports) {
+                // The new import is now available in code model, so reset the possible imports
+                QmlDesignerPlugin::instance()->documentManager().resetPossibleImports();
+                model->rewriterView()->forceAmend();
 
-    // Detect when the code model has the new material(s) fully available
-    const QList<TypeName> pendingTypes = m_pendingTypes.keys();
-    for (const TypeName &pendingType : pendingTypes) {
-        NodeMetaInfo metaInfo = model->metaInfo(pendingType);
-        const bool isImport = m_pendingTypes.value(pendingType);
-        const bool typeComplete = metaInfo.isValid() && !metaInfo.prototypes().empty();
-        if (isImport == typeComplete) {
-            m_pendingTypes.remove(pendingType);
-            if (isImport)
+                for (const TypeName &type : keys) {
+                    ImportData &data = m_pendingImports[type];
+                    if (data.state == ImportData::RefreshImports) {
+                        if (!data.importToAdd.isEmpty()) {
+                            try {
+                                RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
+                                    QByteArrayLiteral(__FUNCTION__));
+                                bool success = ModelUtils::addImportWithCheck(data.importToAdd, model);
+                                if (!success)
+                                    handleFailure();
+                                transaction.commit();
+                            } catch (const RewritingException &) {
+                                handleFailure();
+                            }
+                        }
+                    }
+                    data.state = ImportData::FullReset;
+                }
+                return;
+            }
+
+            bool fullReset = false;
+            for (const TypeName &type : keys) {
+                ImportData &data = m_pendingImports[type];
+                if (data.state == ImportData::FullReset) {
+                    if (data.fullReset)
+                        fullReset = true;
+                    data.state = ImportData::Finalize;
+                }
+            }
+            if (fullReset) {
+                // Force code model reset to notice changes to existing module
+                auto modelManager = QmlJS::ModelManagerInterface::instance();
+                if (modelManager) {
+                    modelManager->resetCodeModel();
+                    disconnect(m_libInfoConnection);
+                    m_libInfoConnection = connect(modelManager, &QmlJS::ModelManagerInterface::libraryInfoUpdated,
+                        this, [this]() {
+                            // This signal comes for each library in code model, so we need to compress
+                            // it until no more notifications come
+                            m_importTimer.start(1000);
+                        }, Qt::QueuedConnection);
+                    // Stop the import timer for a bit to allow full reset to complete
+                    m_importTimer.stop();
+                }
+                return;
+            }
+
+            for (const TypeName &type : keys) {
+                ImportData &data = m_pendingImports[type];
+                if (data.state == ImportData::Finalize) {
+                     // Reset delay just in case full reset was done earlier
+                    m_importTimer.start(normalImportDelay);
+                    disconnect(m_libInfoConnection);
+                    model->rewriterView()->forceAmend();
+                    // Verify that code model has the new material fully available (or removed for unimport)
+                    NodeMetaInfo metaInfo = model->metaInfo(type);
+                    const bool typeComplete = metaInfo.isValid() && !metaInfo.prototypes().empty();
+                    if (data.isImport == typeComplete) {
+                        m_pendingImports.remove(type);
+                        if (data.isImport)
 #ifdef QDS_USE_PROJECTSTORAGE
-                emit importFinished(pendingType, m_bundleId);
+                            emit importFinished(type, m_bundleId);
 #else
-                emit importFinished(metaInfo, m_bundleId);
+                            emit importFinished(metaInfo, m_bundleId);
 #endif
-            else
-                emit unimportFinished(metaInfo, m_bundleId);
-
-            m_bundleId.clear();
+                        else
+                            emit unimportFinished(metaInfo, m_bundleId);
+                    }
+                }
+            }
         }
     }
 
-    if (m_pendingTypes.isEmpty()) {
+    if (m_pendingImports.isEmpty()) {
+        m_bundleId.clear();
         m_importTimer.stop();
         m_importTimerCount = 0;
+        disconnect(m_libInfoConnection);
     }
 }
 
@@ -267,7 +348,7 @@ QString ContentLibraryBundleImporter::unimportComponent(const TypeName &type, co
     QByteArray newContent;
 
     QString qmlType = qmlFilePath.baseName();
-    if (m_pendingTypes.contains(type) && m_pendingTypes.value(type)) {
+    if (m_pendingImports.contains(type) && m_pendingImports[type].isImport) {
         return QStringLiteral("Unable to unimport while importing the same type: '%1'")
             .arg(QString::fromLatin1(type));
     }
@@ -285,8 +366,6 @@ QString ContentLibraryBundleImporter::unimportComponent(const TypeName &type, co
                 return QStringLiteral("Failed to write qmldir file: '%1'").arg(qmldirPath.toString());
         }
     }
-
-    m_pendingTypes.insert(type, false);
 
     QVariantHash assetRefMap = loadAssetRefMap(bundleImportPath);
     bool writeAssetRefs = false;
@@ -326,9 +405,14 @@ QString ContentLibraryBundleImporter::unimportComponent(const TypeName &type, co
         }
     }
 
-    m_fullReset = true;
+    ImportData data;
+    data.isImport = false;
+    data.type = type;
+    data.fullReset = true;
+    m_pendingImports.insert(type, data);
+
     m_importTimerCount = 0;
-    m_importTimer.start();
+    m_importTimer.start(normalImportDelay);
 
     return {};
 }

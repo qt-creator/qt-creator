@@ -5,7 +5,7 @@
 
 #include "qmldesigner_global.h"
 
-#include <generatedcomponentutils.h>
+#include <designercoreutils/generatedcomponentutils.h>
 
 #include <QObject>
 #include <QList>

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "connectioneditorevaluator.h"
+#include "connectioneditorutils.h"
 #include "qmljs/parser/qmljsast_p.h"
 #include "qmljs/qmljsdocument.h"
 
@@ -254,7 +255,7 @@ protected:
     void throwRecursionDepthError() override
     {
         checkValidityAndReturn(false, "Recursion depth problem");
-        qDebug() << Q_FUNC_INFO << this;
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
     void checkAndResetVariable()
@@ -477,7 +478,7 @@ protected:
     void throwRecursionDepthError() override
     {
         setFailed();
-        qDebug() << Q_FUNC_INFO << this;
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
     void checkAndResetCal()
@@ -617,7 +618,7 @@ protected:
     void throwRecursionDepthError() override
     {
         m_failed = true;
-        qDebug() << Q_FUNC_INFO << this;
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
     }
 
 private:
@@ -1082,7 +1083,7 @@ void ConnectionEditorEvaluator::endVisit(QmlJS::AST::StatementList * /*statement
 void ConnectionEditorEvaluator::throwRecursionDepthError()
 {
     d->checkValidityAndReturn(false, "Recursion depth problem");
-    qDebug() << Q_FUNC_INFO << this;
+    qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Recursion depth error";
 }
 
 bool ConnectionEditorEvaluatorPrivate::checkValidityAndReturn(bool valid, const QString &parseError)
@@ -1091,7 +1092,7 @@ bool ConnectionEditorEvaluatorPrivate::checkValidityAndReturn(bool valid, const 
         if (m_checkStatus != Status::Failed) {
             setStatus(Status::Failed);
             m_errorString = parseError;
-            qDebug() << Q_FUNC_INFO << "Error: " << parseError;
+            qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Parse error" << parseError;
         }
     }
 

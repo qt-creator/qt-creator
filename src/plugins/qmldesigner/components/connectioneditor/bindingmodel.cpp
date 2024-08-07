@@ -89,7 +89,7 @@ void BindingModel::add()
             }
         }
     } else {
-        qWarning() << __FUNCTION__ << " Requires exactly one selected node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "Requires exactly one selected node";
     }
 }
 
@@ -211,7 +211,7 @@ QHash<int, QByteArray> BindingModel::roleNames() const
 
 std::optional<int> BindingModel::rowForProperty(const AbstractProperty &property) const
 {
-    PropertyName name = property.name();
+    PropertyNameView name = property.name();
     int internalId = property.parentModelNode().internalId();
 
     for (int i = 0; i < rowCount(); ++i) {

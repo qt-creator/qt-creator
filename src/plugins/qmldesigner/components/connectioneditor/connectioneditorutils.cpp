@@ -24,6 +24,8 @@
 
 namespace QmlDesigner {
 
+Q_LOGGING_CATEGORY(ConnectionEditorLog, "qtc.qtquickdesigner.connectioneditor", QtWarningMsg)
+
 void callLater(const std::function<void()> &fun)
 {
     QTimer::singleShot(0, fun);
@@ -78,7 +80,7 @@ NodeMetaInfo dynamicTypeNameToNodeMetaInfo(const TypeName &typeName, Model *mode
     else if (typeName == "var" || typeName == "variant")
         return model->metaInfo("QML.variant");
     else
-        qWarning() << __FUNCTION__ << " type " << typeName << "not found";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "type" << typeName << "not found";
     return {};
 }
 
@@ -173,7 +175,7 @@ void convertPropertyType(const T &property, const QVariant &value)
     if (!node.isValid())
         return;
 
-    PropertyName name = property.name();
+    PropertyNameView name = property.name();
     TypeName type = property.dynamicTypeName();
     node.removeProperty(name);
 
@@ -203,7 +205,8 @@ bool isBindingExpression(const QVariant &value)
     if (value.metaType().id() != QMetaType::QString)
         return false;
 
-    QRegularExpression regexp("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    QRegularExpression regexp("^[a-zA-Z_]\\w*\\.{1}([a-z_]\\w*\\.?)+");
+    //    QRegularExpression regexp("^[a-z_]\\w*|^[A-Z]\\w*\\.{1}([a-z_]\\w*\\.?)+");
     QRegularExpressionMatch match = regexp.match(value.toString());
     return match.hasMatch();
 }
@@ -301,13 +304,16 @@ std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, Abstr
 
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
 {
-    auto isDynamic = [](const AbstractProperty &p) { return p.isDynamic(); };
+    auto isDynamic = [](const AbstractProperty &p) {
+        return p.isDynamic() || p.isSignalDeclarationProperty();
+    };
     auto byName = [](const AbstractProperty &a, const AbstractProperty &b) {
         return a.name() < b.name();
     };
 
     QList<AbstractProperty> dynamicProperties = Utils::filtered(node.properties(), isDynamic);
     Utils::sort(dynamicProperties, byName);
+
     return dynamicProperties;
 }
 
@@ -326,7 +332,7 @@ QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 {
     const ModelNode modelNode = bindingProperty.parentModelNode();
     if (!modelNode.isValid()) {
-        qWarning() << __FUNCTION__ << " invalid model node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node";
         return {};
     }
 
@@ -368,7 +374,7 @@ QStringList availableSourceProperties(const QString &id,
     } else if (auto metaInfo = targetProperty.parentModelNode().metaInfo(); metaInfo.isValid()) {
         targetType = metaInfo.property(targetProperty.name()).propertyType();
     } else
-        qWarning() << __FUNCTION__ << " no meta info for target node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for target node";
 
     QStringList possibleProperties;
     if (!modelNode.isValid()) {
@@ -380,7 +386,7 @@ QStringList availableSourceProperties(const QString &id,
             }
             return possibleProperties;
         }
-        qWarning() << __FUNCTION__ << " invalid model node: " << id;
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node:" << id;
         return {};
     }
 
@@ -406,7 +412,7 @@ QStringList availableSourceProperties(const QString &id,
                 possibleProperties.push_back(QString::fromUtf8(property.name()));
         }
     } else {
-        qWarning() << __FUNCTION__ << " no meta info for source node";
+        qCWarning(ConnectionEditorLog) << __FUNCTION__ << "no meta info for source node";
     }
 
     return possibleProperties;

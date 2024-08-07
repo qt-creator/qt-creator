@@ -9,7 +9,7 @@
 #include "navigatortreeview.h"
 #include "navigatorwidget.h"
 #include "choosefrompropertylistdialog.h"
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <dialogutils.h>
 #include <modelnodecontextmenu.h>
 #include <theme.h>

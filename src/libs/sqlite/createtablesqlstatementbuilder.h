@@ -14,16 +14,18 @@ namespace Sqlite {
 template<typename ColumnType>
 class CreateTableSqlStatementBuilder
 {
+    using Columns = StableReferenceBasicColumns<ColumnType>;
+
 public:
     CreateTableSqlStatementBuilder()
         : m_sqlStatementBuilder(templateText())
     {}
 
-    void setTableName(Utils::SmallString &&tableName)
+    void setTableName(Utils::SmallStringView tableName)
     {
         m_sqlStatementBuilder.clear();
 
-        this->m_tableName = std::move(tableName);
+        this->m_tableName = tableName;
     }
 
     void addColumn(Utils::SmallStringView columnName,
@@ -42,7 +44,8 @@ public:
     {
         m_tableConstraints = std::move(constraints);
     }
-    void setColumns(BasicColumns<ColumnType> columns)
+
+    void setColumns(Columns columns)
     {
         m_sqlStatementBuilder.clear();
 
@@ -291,7 +294,7 @@ private:
 
     void bindAll() const
     {
-        m_sqlStatementBuilder.bind("$table", m_tableName.clone());
+        m_sqlStatementBuilder.bind("$table", m_tableName);
 
         bindTemporary();
         bindIfNotExists();
@@ -330,7 +333,7 @@ private:
 private:
     mutable SqlStatementBuilder m_sqlStatementBuilder;
     Utils::SmallString m_tableName;
-    BasicColumns<ColumnType> m_columns;
+    Columns m_columns;
     TableConstraints m_tableConstraints;
     bool m_useWithoutRowId = false;
     bool m_useIfNotExits = false;

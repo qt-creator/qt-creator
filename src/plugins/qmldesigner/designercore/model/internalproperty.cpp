@@ -41,7 +41,7 @@ namespace Internal {
 
 InternalProperty::~InternalProperty() = default;
 
-InternalProperty::InternalProperty(const PropertyName &name,
+InternalProperty::InternalProperty(PropertyNameView name,
                                    const InternalNode::Pointer &propertyOwner,
                                    PropertyType propertyType)
     : m_name(name)
@@ -57,7 +57,7 @@ bool InternalProperty::isValid() const
     return !m_propertyOwner.expired() && !m_name.isEmpty();
 }
 
-PropertyName InternalProperty::name() const
+PropertyNameView InternalProperty::name() const
 {
     return m_name;
 }

@@ -23,7 +23,7 @@ void SqlStatementBuilder::bindEmptyText(Utils::SmallString &&name)
     changeBinding(std::move(name), {});
 }
 
-void SqlStatementBuilder::bind(Utils::SmallString &&name, Utils::SmallString &&text)
+void SqlStatementBuilder::bind(Utils::SmallStringView name, Utils::SmallStringView text)
 {
     clearSqlStatement();
     checkBindingTextIsNotEmpty(text);
@@ -31,7 +31,7 @@ void SqlStatementBuilder::bind(Utils::SmallString &&name, Utils::SmallString &&t
     changeBinding(std::move(name), std::move(text));
 }
 
-void SqlStatementBuilder::bind(Utils::SmallString &&name, const Utils::SmallStringVector &textVector)
+void SqlStatementBuilder::bind(Utils::SmallStringView name, const Utils::SmallStringVector &textVector)
 {
     clearSqlStatement();
     checkBindingTextVectorIsNotEmpty(textVector);
@@ -39,7 +39,7 @@ void SqlStatementBuilder::bind(Utils::SmallString &&name, const Utils::SmallStri
     changeBinding(std::move(name), textVector.join(", "));
 }
 
-void SqlStatementBuilder::bind(Utils::SmallString &&name, int value)
+void SqlStatementBuilder::bind(Utils::SmallStringView name, int value)
 {
     clearSqlStatement();
     checkIfPlaceHolderExists(name);
@@ -60,7 +60,8 @@ Utils::SmallStringVector integerVectorToStringVector(const std::vector<int> &int
     return stringVector;
 }
 }
-void SqlStatementBuilder::bind(Utils::SmallString &&name, const std::vector<int> &integerVector)
+
+void SqlStatementBuilder::bind(Utils::SmallStringView name, const std::vector<int> &integerVector)
 {
     clearSqlStatement();
     checkBindingIntegerVectorIsNotEmpty(integerVector);

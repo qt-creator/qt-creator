@@ -21,6 +21,7 @@ namespace QmlDesigner {
 class Edit3DView;
 class Edit3DCanvas;
 class ToolBox;
+class Edit3DMaterialsAction;
 
 struct ItemLibraryDetails {
     QString name;
@@ -89,7 +90,6 @@ private:
     QPointer<QMenu> m_contextMenu;
     QPointer<QAction> m_bakeLightsAction;
     QPointer<QAction> m_editComponentAction;
-    QPointer<QAction> m_editMaterialAction;
     QPointer<QAction> m_duplicateAction;
     QPointer<QAction> m_copyAction;
     QPointer<QAction> m_pasteAction;
@@ -100,7 +100,10 @@ private:
     QPointer<QAction> m_selectParentAction;
     QPointer<QAction> m_toggleGroupAction;
     QPointer<QAction> m_wireFrameAction;
+    QPointer<QAction> m_importBundleAction;
+    QPointer<QAction> m_exportBundleAction;
     QPointer<QAction> m_addToContentLibAction;
+    QPointer<Edit3DMaterialsAction> m_materialsAction;
     QHash<int, QPointer<QAction>> m_matOverrideActions;
     QPointer<QMenu> m_createSubMenu;
     ModelNode m_contextMenuTarget;

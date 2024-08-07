@@ -43,17 +43,26 @@
             "files": [
             ],
             "filters": [
+                "*.bmp",
+                "*.dae",
+                "*.gif",
+                "*.hdr",
+                "*.ico",
                 "*.jpeg",
                 "*.jpg",
-                "*.png",
-                "*.svg",
-                "*.hdr",
                 "*.ktx",
-                "*.bmp",
-                "*.ttf",
+                "*.pbm",
+                "*.pgm",
+                "*.png",
+                "*.ppm",
+                "*.svg",
+                "*.svgz",
+                "*.tif",
                 "*.tiff",
+                "*.ttf",
                 "*.webp",
-                "*.gif"
+                "*.xbm",
+                "*.xpm"
             ],
             "mcuProperties": {
             },
@@ -103,6 +112,18 @@
                     "Controls",
                     "Timeline"
                 ]
+            },
+            "otherProperties": {
+            },
+            "type": "Module"
+        },
+        {
+            "directory": "../test-set-mcu-2",
+            "files": [
+            ],
+            "filters": [
+            ],
+            "mcuProperties": {
             },
             "otherProperties": {
             },
@@ -180,7 +201,8 @@
     "fileVersion": 1,
     "importPaths": [
         "imports",
-        "asset_imports"
+        "asset_imports",
+        "mcu-modules"
     ],
     "language": {
         "multiLanguageSupport": true,
@@ -213,6 +235,12 @@
         "idBasedTranslations": true,
         "projectRootPath": ".."
     },
+    "qmlprojectDependencies": [
+        "../test-set-mcu-2/testfile.qmlproject",
+        "mcu-modules/from_importpath/imported_module.qmlproject",
+        "mcu-modules/module.qmlproject",
+        "qmlproject/module/module.qmlproject"
+    ],
     "runConfig": {
         "fileSelectors": [
         ],

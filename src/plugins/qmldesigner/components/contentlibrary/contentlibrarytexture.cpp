@@ -78,17 +78,17 @@ QString ContentLibraryTexture::resolveToolTipText()
     if (m_suffix.isEmpty())
         return m_baseName; // empty suffix means we have just the icon and no other data
 
-    QString fileName = m_baseName + m_suffix;
+    QString texFileName = fileName();
     QString imageInfo;
 
     if (!m_isDownloaded && m_sizeInBytes > 0 && !m_dimensions.isNull()) {
         imageInfo = ImageUtils::imageInfoString(m_dimensions, m_sizeInBytes);
     } else {
-        QString fullDownloadPath = m_dirPath + '/' + fileName;
+        QString fullDownloadPath = m_dirPath + '/' + texFileName;
         imageInfo = ImageUtils::imageInfoString(fullDownloadPath);
     }
 
-    return QString("%1\n%2").arg(fileName, imageInfo);
+    return QString("%1\n%2").arg(texFileName, imageInfo);
 }
 
 bool ContentLibraryTexture::isDownloaded() const
@@ -98,7 +98,7 @@ bool ContentLibraryTexture::isDownloaded() const
 
 QString ContentLibraryTexture::texturePath() const
 {
-    return m_dirPath + '/' + m_baseName + m_suffix;
+    return m_dirPath + '/' + fileName();
 }
 
 void ContentLibraryTexture::setDownloaded()
@@ -133,6 +133,11 @@ QString ContentLibraryTexture::parentDirPath() const
 QString ContentLibraryTexture::textureKey() const
 {
     return m_textureKey;
+}
+
+QString ContentLibraryTexture::fileName() const
+{
+    return m_baseName + m_suffix;
 }
 
 void ContentLibraryTexture::setHasUpdate(bool value)

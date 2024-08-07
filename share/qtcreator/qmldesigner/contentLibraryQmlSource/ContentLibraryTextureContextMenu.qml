@@ -12,7 +12,7 @@ StudioControls.Menu {
 
     property var targetTexture: null
     property bool hasSceneEnv: false
-    property bool enableRemove: false // true: adds an option to remove targetTexture
+    property bool showRemoveAction: false // true: adds an option to remove targetTexture
 
     property bool canUse3D: targetTexture && ContentLibraryBackend.rootView.hasQuick3DImport && ContentLibraryBackend.rootView.hasMaterialLibrary
 
@@ -45,7 +45,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Remove from Content Library")
-        visible: root.targetTexture && root.enableRemove
+        visible: root.targetTexture && root.showRemoveAction
         height: visible ? implicitHeight : 0
         onTriggered: ContentLibraryBackend.userModel.removeTexture(root.targetTexture)
     }

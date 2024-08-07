@@ -77,7 +77,7 @@ public:
     void bind(int index, ValueView value);
     void bind(int index, BlobView blobView);
 
-    template<typename Type, typename = std::enable_if_t<Type::IsBasicId::value>>
+    template<typename Type, typename std::enable_if_t<Type::IsBasicId::value, bool> = true>
     void bind(int index, Type id)
     {
         if (!id.isNull())
@@ -527,8 +527,7 @@ private:
         operator BlobView() { return statement.fetchBlobValue(column); }
         operator ValueView() { return statement.fetchValueView(column); }
 
-        template<typename ConversionType,
-                 typename = std::enable_if_t<ConversionType::IsBasicId::value>>
+        template<typename ConversionType, typename = std::enable_if_t<ConversionType::IsBasicId::value>>
         constexpr operator ConversionType()
         {
             if (statement.fetchType(column) == Type::Integer) {

@@ -56,6 +56,11 @@ QRectF ImageContainer::rect() const
     return m_rect;
 }
 
+QByteArray ImageContainer::requestId() const
+{
+    return m_requestId;
+}
+
 void ImageContainer::setImage(const QImage &image)
 {
     QTC_ASSERT(m_image.isNull(), /**/);
@@ -66,6 +71,11 @@ void ImageContainer::setImage(const QImage &image)
 void ImageContainer::setRect(const QRectF &rectangle)
 {
     m_rect = rectangle;
+}
+
+void ImageContainer::setRequestId(const QByteArray &newRequestId)
+{
+    m_requestId = newRequestId;
 }
 
 void ImageContainer::removeSharedMemorys(const QVector<qint32> &keyNumberVector)
@@ -151,6 +161,7 @@ QDataStream &operator<<(QDataStream &out, const ImageContainer &container)
     out << container.instanceId();
     out << container.keyNumber();
     out << container.rect();
+    out << container.requestId();
 
     const QImage image = container.image();
 
@@ -236,6 +247,7 @@ QDataStream &operator>>(QDataStream &in, ImageContainer &container)
     in >> container.m_instanceId;
     in >> container.m_keyNumber;
     in >> container.m_rect;
+    in >> container.m_requestId;
     in >> sharedMemoryIsUsed;
 
     if (sharedMemoryIsUsed) {
@@ -259,10 +271,11 @@ bool operator <(const ImageContainer &first, const ImageContainer &second)
 
 QDebug operator <<(QDebug debug, const ImageContainer &container)
 {
-    return debug.nospace() << "ImageContainer("
-                           << "instanceId: " << container.instanceId() << ", "
-                           << "size: " << container.image().size() << ")";
+    debug.nospace() << "ImageContainer("
+                    << "instanceId: " << container.instanceId() << ", ";
+    if (!container.requestId().isEmpty())
+        debug << "requestId: " << container.requestId() << ", ";
+    return debug << "size: " << container.image().size() << ")";
 }
-
 
 } // namespace QmlDesigner

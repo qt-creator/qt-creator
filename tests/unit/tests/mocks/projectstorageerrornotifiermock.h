@@ -12,6 +12,16 @@ class ProjectStorageErrorNotifierMock : public QmlDesigner::ProjectStorageErrorN
 public:
     MOCK_METHOD(void,
                 typeNameCannotBeResolved,
-                (Utils::SmallStringView typeName, QmlDesigner::SourceId souceId),
+                (Utils::SmallStringView typeName, QmlDesigner::SourceId sourceId),
+                (override));
+    MOCK_METHOD(void,
+                missingDefaultProperty,
+                (Utils::SmallStringView typeName,
+                 Utils::SmallStringView propertyName,
+                 QmlDesigner::SourceId sourceId),
+                (override));
+    MOCK_METHOD(void,
+                propertyNameDoesNotExists,
+                (Utils::SmallStringView propertyName, QmlDesigner::SourceId sourceId),
                 (override));
 };

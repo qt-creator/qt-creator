@@ -45,9 +45,8 @@ public:
     void updateMenuAction();
 
 private:
-    bool isQml(const Utils::FilePath &path) const;
-    bool isResource(const Utils::FilePath &path) const;
     bool ignore(const Utils::FilePath &path) const;
+    bool checkUri(const QString& uri, const Utils::FilePath &path) const;
 
     void createCMakeFiles(const NodePtr &node) const;
     void createSourceFiles() const;

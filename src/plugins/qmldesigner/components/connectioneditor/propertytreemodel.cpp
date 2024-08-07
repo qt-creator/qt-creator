@@ -7,7 +7,7 @@
 #include <bindingproperty.h>
 #include <designeralgorithm.h>
 #include <exception.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
@@ -519,47 +519,51 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
 const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
     const ModelNode &modelNode) const
 {
-    QList<PropertyName> list = Utils::transform(modelNode.dynamicProperties(),
-                                                [](const AbstractProperty &property) {
-                                                    return property.name();
-                                                });
+    auto dynamicProperties = modelNode.dynamicProperties();
+    auto dynamicPropertyNames = Utils::transform<PropertyNameViews>(
+        dynamicProperties, [](const AbstractProperty &property) { return property.name(); });
 
-    QList<PropertyName> filtered
-        = Utils::filtered(list, [this, modelNode](const PropertyName &propertyName) {
-              PropertyName propertyType = modelNode.property(propertyName).dynamicTypeName();
-              switch (m_type) {
-              case AllTypes:
-                  return true;
-              case NumberType:
-                  return propertyType == "float" || propertyType == "double"
-                         || propertyType == "int";
-              case StringType:
-                  return propertyType == "string";
-              case UrlType:
-                  return propertyType == "url";
-              case ColorType:
-                  return propertyType == "color";
-              case BoolType:
-                  return propertyType == "bool";
-              default:
-                  break;
-              }
-              return true;
-          });
+    auto filtered = Utils::filtered(dynamicPropertyNames, [this, modelNode](PropertyNameView propertyName) {
+        TypeName propertyType = modelNode.property(propertyName).dynamicTypeName();
+        switch (m_type) {
+        case AllTypes:
+            return true;
+        case NumberType:
+            return propertyType == "float" || propertyType == "double" || propertyType == "int";
+        case StringType:
+            return propertyType == "string";
+        case UrlType:
+            return propertyType == "url";
+        case ColorType:
+            return propertyType == "color";
+        case BoolType:
+            return propertyType == "bool";
+        default:
+            break;
+        }
+        return true;
+    });
 
-    return Utils::sorted(std::vector<PropertyName>(filtered.begin(), filtered.end()));
+    auto sorted = Utils::sorted(filtered);
+
+    return Utils::transform<std::vector<PropertyName>>(sorted, [](PropertyNameView propertyName) {
+        return propertyName.toByteArray();
+    });
 }
 
 const std::vector<PropertyName> PropertyTreeModel::getDynamicSignals(const ModelNode &modelNode) const
 {
-    QList<PropertyName> list = Utils::transform(modelNode.dynamicProperties(),
-                                                [](const AbstractProperty &property) {
-                                                    if (property.isSignalDeclarationProperty())
-                                                        return property.name();
+    auto list = Utils::transform<std::vector<PropertyName>>(
+        modelNode.dynamicProperties(), [](const AbstractProperty &property) -> PropertyName {
+            if (property.isSignalDeclarationProperty())
+                return property.name().toByteArray();
 
-                                                    return PropertyName(property.name() + "Changed");
-                                                });
-    return Utils::sorted(std::vector<PropertyName>(list.begin(), list.end()));
+            return property.name().toByteArray() + "Changed";
+        });
+
+    std::sort(list.begin(), list.end());
+
+    return list;
 }
 
 const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyNames(

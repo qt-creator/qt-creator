@@ -13,6 +13,7 @@
 
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
+#include <qmlprojectmanager/cmakegen/filetypes.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -143,41 +144,17 @@ void generateMenuEntry(QObject *parent)
     exportMenu->addAction(cmd2, QmlProjectManager::Constants::G_EXPORT_GENERATE);
 }
 
-bool skipSuffix(const QString &fileName)
-{
-    const QStringList suffixes = {".pri",
-                                  ".pro",
-                                  ".user",
-                                  ".qrc",
-                                  ".qds",
-                                  "CMakeLists.txt",
-                                  ".db",
-                                  ".tmp",
-                                  ".TMP",
-                                  ".metainfo",
-                                  ".qtds",
-                                  ".db-shm",
-                                  ".db-wal"};
-
-    for (const auto &suffix : suffixes)
-        if (fileName.endsWith(suffix))
-            return true;
-
-    return false;
-}
-
 QStringList getProjectFileList()
 {
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const FilePaths paths = project->files(ProjectExplorer::Project::AllFiles);
 
-    const QDir dir(project->projectFilePath().parentDir().toString());
     QStringList selectedFileList;
-
+    const Utils::FilePath dir(project->projectFilePath().parentDir());
     for (const FilePath &path : paths) {
-        QString relativePath = dir.relativeFilePath(path.toString());
-        if (!skipSuffix(relativePath))
-            selectedFileList.append(relativePath);
+        const Utils::FilePath relativePath = path.relativePathFrom(dir);
+        if (QmlProjectManager::isResource(relativePath))
+            selectedFileList.append(relativePath.path());
     }
 
     return selectedFileList;

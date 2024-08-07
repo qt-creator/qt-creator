@@ -3,6 +3,8 @@
 
 #include "import.h"
 
+#include <qmldesigner/utils/version.h>
+
 #include <QHash>
 
 #include <QStringView>

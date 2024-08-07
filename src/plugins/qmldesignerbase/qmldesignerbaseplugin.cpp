@@ -83,8 +83,11 @@ bool QmlDesignerBasePlugin::isLiteModeEnabled()
     return global->m_enableLiteMode;
 }
 
-bool QmlDesignerBasePlugin::initialize(const QStringList &, QString *)
+bool QmlDesignerBasePlugin::initialize(const QStringList &arguments, QString *)
 {
+    if (arguments.contains("-qml-lite-designer"))
+        enbableLiteMode();
+
     d = std::make_unique<Data>();
     if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
         d->studioConfigSettingsPage = std::make_unique<StudioConfigSettingsPage>();

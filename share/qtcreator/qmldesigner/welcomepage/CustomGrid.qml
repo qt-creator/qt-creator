@@ -36,6 +36,7 @@ Item {
 
             model: ExamplesModel {}
             delegate: ThumbnailDelegate {}
+            cacheBuffer: 65536
         }
     }
 }

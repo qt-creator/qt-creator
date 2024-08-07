@@ -31,6 +31,7 @@ namespace ADS {
 
 namespace Constants {
 const char DEFAULT_WORKSPACE[] = "Basic.wrk"; // Needs to align with a shipped preset
+const char LITE_WORKSPACE[] = "Lite-QML-Designer.wrk";
 const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
 const char LOCK_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/LockWorkspace";
@@ -126,7 +127,7 @@ public:
         = 0x2000, ///< If this option is enabled, the tab of a dock widget is always displayed - even if it is the only visible dock widget in a floating widget.
         DockAreaHasUndockButton = 0x4000, //!< If the flag is set each dock area has an undock button
         DockAreaHasTabsMenuButton
-        = 0x8000,  //!< If the flag is set each dock area has a tabs menu button
+        = 0x8000, //!< If the flag is set each dock area has a tabs menu button
         DockAreaHideDisabledButtons
         = 0x10000, //!< If the flag is set disabled dock area buttons will not appear on the toolbar at all (enabling them will bring them back)
         DockAreaDynamicTabsMenuButtonVisibility
@@ -143,6 +144,8 @@ public:
         = 0x200000, //!< enables styling of focused dock widget tabs or floating widget titlebar
         EqualSplitOnInsertion
         = 0x400000, ///!< if enabled, the space is equally distributed to all widgets in a  splitter
+
+        HideContextMenuDockWidgetTab = 0x800000,
 
         MiddleMouseButtonClosesTab
         = 0x2000000, //! If the flag is set, the user can use the mouse middle button to close the tab under the mouse
@@ -182,15 +185,15 @@ public:
         AutoHideButtonCheckable
         = 0x08, //!< If the flag is set, the auto hide button will be checked and unchecked depending on the auto hide state. Mainly for styling purposes.
         AutoHideSideBarsIconOnly
-        = 0x10, ///< show only icons in auto hide side tab - if a tab has no icon, then the text will be shown
+        = 0x10, //!< show only icons in auto hide side tab - if a tab has no icon, then the text will be shown
         AutoHideShowOnMouseOver
-        = 0x20, ///< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
+        = 0x20, //!< show the auto hide window on mouse over tab and hide it if mouse leaves auto hide container
         AutoHideCloseButtonCollapsesDock
-        = 0x40, ///< Close button of an auto hide container collapses the dock instead of hiding it completely
+        = 0x40, //!< Close button of an auto hide container collapses the dock instead of hiding it completely
         AutoHideHasCloseButton
-        = 0x80, //< If the flag is set an auto hide title bar has a close button
+        = 0x80, //!< If the flag is set an auto hide title bar has a close button
         AutoHideHasMinimizeButton
-        = 0x100, ///< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
+        = 0x100, //!< if this flag is set, the auto hide title bar has a minimize button to collapse the dock widget
 
         DefaultAutoHideConfig = AutoHideFeatureEnabled | DockAreaHasAutoHideButton
                                 | AutoHideCloseButtonCollapsesDock | AutoHideHasCloseButton
@@ -774,6 +777,9 @@ public:
     void setMcusProject(bool value);
     bool mcusProject() const;
 
+    void setLiteMode(bool value);
+    bool isLiteModeEnabled() const;
+
 signals:
     void aboutToUnloadWorkspace(QString fileName);
     void aboutToLoadWorkspace(QString fileName);
@@ -798,8 +804,6 @@ private:
 
     void saveStartupWorkspace();
     void saveLockWorkspace();
-
-    bool m_mcusProject = false;
 }; // class DockManager
 
 } // namespace ADS

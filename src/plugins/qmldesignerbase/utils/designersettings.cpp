@@ -94,7 +94,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL, 5.);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE_INTERVAL, 10.);
-    restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, false);
+    restoreValue(settings, DesignerSettingsKey::SMOOTH_RENDERING, true);
     restoreValue(settings, DesignerSettingsKey::SHOW_DEBUG_SETTINGS, false);
     restoreValue(settings, DesignerSettingsKey::EDITOR_ZOOM_FACTOR, 1.0);
     restoreValue(settings, DesignerSettingsKey::ACTIONS_MERGE_TEMPLATE_ENABLED, false);

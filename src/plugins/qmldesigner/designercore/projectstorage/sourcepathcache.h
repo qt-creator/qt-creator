@@ -32,7 +32,7 @@ class SourcePathCache final : public SourcePathCacheInterface
 public:
     SourcePathCache(ProjectStorage &projectStorage)
         : m_sourceContextStorageAdapter{projectStorage}
-        , m_sourceStorageAdapter{projectStorage}
+        , m_sourceNameStorageAdapter{projectStorage}
 
     {
         populateIfEmpty();
@@ -58,9 +58,9 @@ public:
 
         Utils::SmallStringView sourceName = sourcePath.name();
 
-        auto sourceId = m_sourcePathCache.id({sourceName, sourceContextId});
+        auto sourceId = m_sourcePathCache.id(sourceName);
 
-        return {sourceContextId, sourceId};
+        return {sourceContextId, SourceId::create(sourceId, sourceContextId)};
     }
 
     SourceId sourceId(SourcePathView sourcePath) const override
@@ -71,7 +71,9 @@ public:
     SourceId sourceId(SourceContextId sourceContextId,
                       Utils::SmallStringView sourceName) const override
     {
-        return m_sourcePathCache.id({sourceName, sourceContextId});
+        SourceNameId sourceNameId = m_sourcePathCache.id(sourceName);
+
+        return SourceId::create(sourceNameId, sourceContextId);
     }
 
     SourceContextId sourceContextId(Utils::SmallStringView sourceContextPath) const override
@@ -88,11 +90,11 @@ public:
         if (Q_UNLIKELY(!sourceId.isValid()))
             throw NoSourcePathForInvalidSourceId();
 
-        auto entry = m_sourcePathCache.value(sourceId);
+        auto sourceName = m_sourcePathCache.value(sourceId.mainId());
 
-        Utils::PathString sourceContextPath = m_sourceContextPathCache.value(entry.sourceContextId);
+        Utils::PathString sourceContextPath = m_sourceContextPathCache.value(sourceId.contextId());
 
-        return SourcePath{sourceContextPath, entry.sourceName};
+        return SourcePath{sourceContextPath, sourceName};
     }
 
     Utils::PathString sourceContextPath(SourceContextId sourceContextId) const override
@@ -103,19 +105,11 @@ public:
         return m_sourceContextPathCache.value(sourceContextId);
     }
 
-    SourceContextId sourceContextId(SourceId sourceId) const override
-    {
-        if (Q_UNLIKELY(!sourceId.isValid()))
-            throw NoSourcePathForInvalidSourceId();
-
-        return m_sourcePathCache.value(sourceId).sourceContextId;
-    }
-
 private:
     class SourceContextStorageAdapter
     {
     public:
-        auto fetchId(const Utils::SmallStringView sourceContextPath)
+        auto fetchId(Utils::SmallStringView sourceContextPath)
         {
             return storage.fetchSourceContextId(sourceContextPath);
         }
@@ -127,27 +121,22 @@ private:
         ProjectStorage &storage;
     };
 
-    class SourceStorageAdapter
+    class SourceNameStorageAdapter
     {
     public:
-        auto fetchId(Cache::SourceNameView sourceNameView)
+        auto fetchId(Utils::SmallStringView sourceNameView)
         {
-            return storage.fetchSourceId(sourceNameView.sourceContextId, sourceNameView.sourceName);
+            return storage.fetchSourceNameId(sourceNameView);
         }
 
-        auto fetchValue(SourceId id)
-        {
-            auto entry = storage.fetchSourceNameAndSourceContextId(id);
+        auto fetchValue(SourceNameId id) { return storage.fetchSourceName(id); }
 
-            return Cache::SourceNameEntry{std::move(entry.sourceName), entry.sourceContextId};
-        }
-
-        auto fetchAll() { return storage.fetchAllSources(); }
+        auto fetchAll() { return storage.fetchAllSourceNames(); }
 
         ProjectStorage &storage;
     };
 
-    static bool sourceContextLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
+    static bool sourceLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept
     {
         return std::lexicographical_compare(first.rbegin(),
                                             first.rend(),
@@ -155,31 +144,26 @@ private:
                                             second.rend());
     }
 
-    static bool sourceLess(Cache::SourceNameView first, Cache::SourceNameView second) noexcept
-    {
-        return first < second;
-    }
-
     using SourceContextPathCache = StorageCache<Utils::PathString,
                                                 Utils::SmallStringView,
                                                 SourceContextId,
                                                 SourceContextStorageAdapter,
                                                 Mutex,
-                                                sourceContextLess,
+                                                sourceLess,
                                                 Cache::SourceContext>;
-    using SourceNameCache = StorageCache<Cache::SourceNameEntry,
-                                         Cache::SourceNameView,
-                                         SourceId,
-                                         SourceStorageAdapter,
+    using SourceNameCache = StorageCache<Utils::PathString,
+                                         Utils::SmallStringView,
+                                         SourceNameId,
+                                         SourceNameStorageAdapter,
                                          Mutex,
                                          sourceLess,
-                                         Cache::Source>;
+                                         Cache::SourceName>;
 
 private:
     SourceContextStorageAdapter m_sourceContextStorageAdapter;
-    SourceStorageAdapter m_sourceStorageAdapter;
+    SourceNameStorageAdapter m_sourceNameStorageAdapter;
     mutable SourceContextPathCache m_sourceContextPathCache{m_sourceContextStorageAdapter};
-    mutable SourceNameCache m_sourcePathCache{m_sourceStorageAdapter};
+    mutable SourceNameCache m_sourcePathCache{m_sourceNameStorageAdapter};
 };
 
 } // namespace QmlDesigner

@@ -11,7 +11,7 @@ Project {
     mainFile: "Main.qml"
     supportedLanguages: ["no"]
     primaryLanguage: "en"
-    importPaths: [ "imports", "asset_imports" ]
+    importPaths: [ "imports", "asset_imports", "mcu-modules"]
     idBasedTranslations: true
     projectRootPath: ".."
 // END of common properties
@@ -82,6 +82,10 @@ Project {
             "Controls",
             "Timeline"
         ]
+    }
+
+    ModuleFiles {
+        directory: "../test-set-mcu-2"
     }
 
     FontFiles {

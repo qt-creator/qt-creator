@@ -330,6 +330,7 @@ TitleBarButton::TitleBarButton(bool showInTitleBar, QWidget *parent)
           DockAreaTitleBarPrivate::testConfigFlag(DockManager::DockAreaHideDisabledButtons))
 {
     setFocusPolicy(Qt::NoFocus);
+    setVisible(m_showInTitleBar);
 }
 
 void TitleBarButton::setVisible(bool visible)

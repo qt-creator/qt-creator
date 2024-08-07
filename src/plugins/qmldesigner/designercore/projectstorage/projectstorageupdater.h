@@ -59,10 +59,15 @@ public:
         , m_projectPartId{projectPartId}
     {}
 
-    void update(QStringList directories,
-                QStringList qmlTypesPaths,
-                const QString &propertyEditorResourcesPath,
-                const QStringList &typeAnnotationPaths);
+    struct Update
+    {
+        QStringList directories = {};
+        QStringList qmlTypesPaths = {};
+        const QString propertyEditorResourcesPath = {};
+        const QStringList typeAnnotationPaths = {};
+    };
+
+    void update(Update update);
     void pathsWithIdsChanged(const std::vector<IdPaths> &idPaths) override;
     void pathsChanged(const SourceIds &filePathIds) override;
 

@@ -8,10 +8,6 @@
 
     \title Loader3D
 
-    \note The \uicontrol Loader3D component is released as a tech preview
-    feature in \QDS 2.2, and its functionality will be improved in future
-    releases.
-
     \uicontrol Loader3D is a loader component used to dynamically load 3D
     components. It can load a QML file using the \uicontrol Source property or a
     component using the \uicontrol {Source component} property. \uicontrol Loader3D

@@ -16,14 +16,74 @@
 
 #include <coreplugin/messagebox.h>
 
+#include <QRegularExpression>
+#include <QStack>
 #include <QTimer>
 #include <QUrl>
 
 namespace QmlDesigner {
 
+using namespace Qt::StringLiterals;
+
+static QString nameFromId(const QString &id, const QString &defaultName)
+{
+    if (id.isEmpty())
+        return defaultName;
+
+    QString newName = id;
+    static const QRegularExpression sideUnderscores{R"((?:^_+)|(?:_+$))"};
+    static const QRegularExpression underscores{R"((?:_+))"};
+    static const QRegularExpression camelCases{R"((?:[A-Z](?=[a-z]))|(?:(?<=[a-z])[A-Z]))"};
+
+    newName.remove(sideUnderscores);
+
+    // Insert underscore to camel case edges
+    QRegularExpressionMatchIterator caseMatch = camelCases.globalMatch(newName);
+    QStack<int> camelCaseIndexes;
+    while (caseMatch.hasNext())
+        camelCaseIndexes.push(caseMatch.next().capturedStart());
+    while (!camelCaseIndexes.isEmpty())
+        newName.insert(camelCaseIndexes.pop(), '_');
+
+    // Replace underscored joints with space
+    newName.replace(underscores, " ");
+    newName = newName.trimmed();
+
+    if (newName.isEmpty())
+        return defaultName;
+
+    newName[0] = newName[0].toUpper();
+    return newName;
+}
+
 CreateTexture::CreateTexture(AbstractView *view)
     : m_view{view}
 {}
+
+ModelNode CreateTexture::execute()
+{
+    ModelNode matLib = Utils3D::materialLibraryNode(m_view);
+    if (!matLib.isValid())
+        return {};
+
+    ModelNode newTextureNode;
+    m_view->executeInTransaction(__FUNCTION__, [&]() {
+#ifdef QDS_USE_PROJECTSTORAGE
+        newTextureNode = m_view->createModelNode("Texture");
+#else
+        NodeMetaInfo metaInfo = m_view->model()->qtQuick3DTextureMetaInfo();
+        newTextureNode = m_view->createModelNode("QtQuick3D.Texture",
+                                                 metaInfo.majorVersion(),
+                                                 metaInfo.minorVersion());
+#endif
+        newTextureNode.ensureIdExists();
+        VariantProperty textureName = newTextureNode.variantProperty("objectName");
+        textureName.setValue(nameFromId(newTextureNode.id(), "Texture"_L1));
+        matLib.defaultNodeListProperty().reparentHere(newTextureNode);
+    });
+
+    return newTextureNode;
+}
 
 ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, int sceneId)
 {
@@ -94,8 +154,12 @@ ModelNode CreateTexture::createTextureFromImage(const  Utils::FilePath &assetPat
 #endif
         newTexNode.setIdWithoutRefactoring(m_view->model()->generateNewId(assetPath.baseName()));
 
+        VariantProperty textureName = newTexNode.variantProperty("objectName");
+        textureName.setValue(nameFromId(newTexNode.id(), "Texture"_L1));
+
         VariantProperty sourceProp = newTexNode.variantProperty("source");
         sourceProp.setValue(QUrl(textureSource));
+
         matLib.defaultNodeListProperty().reparentHere(newTexNode);
     }
 

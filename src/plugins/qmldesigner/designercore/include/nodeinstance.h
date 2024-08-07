@@ -51,12 +51,12 @@ public:
     QPixmap renderPixmap() const;
     QPixmap blurredRenderPixmap() const;
 
-    QVariant property(const PropertyName &name) const;
-    bool hasProperty(const PropertyName &name) const;
-    bool hasBindingForProperty(const PropertyName &name) const;
-    QPair<PropertyName, qint32> anchor(const PropertyName &name) const;
-    bool hasAnchor(const PropertyName &name) const;
-    TypeName instanceType(const PropertyName &name) const;
+    QVariant property(PropertyNameView name) const;
+    bool hasProperty(PropertyNameView name) const;
+    bool hasBindingForProperty(PropertyNameView name) const;
+    QPair<PropertyName, qint32> anchor(PropertyNameView name) const;
+    bool hasAnchor(PropertyNameView name) const;
+    TypeName instanceType(PropertyNameView name) const;
 
     qint32 parentId() const;
     qint32 instanceId() const;
@@ -72,7 +72,7 @@ public:
     QStringList allStateNames() const;
 
 protected:
-    void setProperty(const PropertyName &name, const QVariant &value);
+    void setProperty(PropertyNameView name, const QVariant &value);
     InformationName setInformation(InformationName name,
                         const QVariant &information,
                         const QVariant &secondInformation,
@@ -94,10 +94,13 @@ protected:
     InformationName setInformationIsAnchoredByChildren(bool isAnchoredByChildren);
     InformationName setInformationIsAnchoredBySibling(bool isAnchoredBySibling);
     InformationName setInformationHasContent(bool hasContent);
-    InformationName setInformationHasAnchor(const PropertyName &sourceAnchorLine, bool hasAnchor);
-    InformationName setInformationAnchor(const PropertyName &sourceAnchorLine, const PropertyName &targetAnchorLine, qint32 targetInstanceId);
-    InformationName setInformationInstanceTypeForProperty(const PropertyName &property, const TypeName &type);
-    InformationName setInformationHasBindingForProperty(const PropertyName &property, bool hasProperty);
+    InformationName setInformationHasAnchor(PropertyNameView sourceAnchorLine, bool hasAnchor);
+    InformationName setInformationAnchor(PropertyNameView sourceAnchorLine,
+                                         const PropertyName &targetAnchorLine,
+                                         qint32 targetInstanceId);
+    InformationName setInformationInstanceTypeForProperty(PropertyNameView property,
+                                                          const TypeName &type);
+    InformationName setInformationHasBindingForProperty(PropertyNameView, bool hasProperty);
     InformationName setAllStates(const QStringList &states);
 
     void setParentId(qint32 instanceId);

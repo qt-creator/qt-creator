@@ -102,7 +102,10 @@ public:
     void walCheckpointFull() override
     {
         std::lock_guard<std::mutex> lock{m_databaseMutex};
-        m_databaseBackend.walCheckpointFull();
+        try {
+            m_databaseBackend.walCheckpointFull();
+        } catch (const StatementIsBusy &) {
+        }
     }
 
     void setUpdateHook(void *object,

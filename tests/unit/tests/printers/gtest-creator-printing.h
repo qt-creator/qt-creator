@@ -4,6 +4,7 @@
 #pragma once
 
 #include <designercore/model/modelresourcemanagementfwd.h>
+#include <qmlpuppetcommunication/interfaces/nodeinstanceglobal.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>
 
@@ -22,6 +23,8 @@ enum class LockingMode : char;
 class TimeStamp;
 template<auto Type, typename InternalIntegerType>
 class BasicId;
+template<auto Type, auto ContextType>
+class CompoundBasicId;
 
 std::ostream &operator<<(std::ostream &out, const Value &value);
 std::ostream &operator<<(std::ostream &out, const ValueView &value);
@@ -34,6 +37,12 @@ template<auto Type, typename InternalIntegerType>
 std::ostream &operator<<(std::ostream &out, const BasicId<Type, InternalIntegerType> &id)
 {
     return out << "id=" << id.internalId();
+}
+
+template<auto Type, auto ContextType>
+std::ostream &operator<<(std::ostream &out, const CompoundBasicId<Type, ContextType> &id)
+{
+    return out << "id=(" << id.mainId().internalId() << ", " << id.contextId().internalId() << ")";
 }
 
 namespace SessionChangeSetInternal {
@@ -93,7 +102,7 @@ void PrintTo(const std::optional<Type> &optional, ::std::ostream *os)
 
 void PrintTo(Utils::SmallStringView text, ::std::ostream *os);
 void PrintTo(const Utils::SmallString &text, ::std::ostream *os);
-void PrintTo(const Utils::BasicSmallString<94> &text, ::std::ostream *os);
+void PrintTo(const Utils::BasicSmallString<96> &text, ::std::ostream *os);
 void PrintTo(const Utils::PathString &text, ::std::ostream *os);
 
 } // namespace Utils
@@ -126,6 +135,8 @@ class NodeMetaInfo;
 class PropertyMetaInfo;
 struct CompoundPropertyMetaInfo;
 enum class FlagIs : unsigned int;
+template<typename NameType>
+class BasicAuxiliaryDataKey;
 
 std::ostream &operator<<(std::ostream &out, const ModelNode &node);
 std::ostream &operator<<(std::ostream &out, const VariantProperty &property);
@@ -142,6 +153,9 @@ std::ostream &operator<<(std::ostream &out, const NodeMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const PropertyMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, const CompoundPropertyMetaInfo &metaInfo);
 std::ostream &operator<<(std::ostream &out, FlagIs flagIs);
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallStringView> &key);
+std::ostream &operator<<(std::ostream &out, const BasicAuxiliaryDataKey<Utils::SmallString> &key);
+std::ostream &operator<<(std::ostream &out, AuxiliaryDataType type);
 
 namespace Cache {
 class SourceContext;

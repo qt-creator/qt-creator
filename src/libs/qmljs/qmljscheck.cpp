@@ -546,19 +546,33 @@ private:
     uint _block = 0;
 };
 
-class IdsThatShouldNotBeUsedInDesigner  : public QStringList
+class IdsThatShouldNotBeUsedInDesigner : public QStringList
 {
 public:
     IdsThatShouldNotBeUsedInDesigner()
-        : QStringList({"top",   "bottom", "left",    "right",   "width",  "height",
-                       "x",     "y",      "opacity", "parent",  "item",   "flow",
-                       "color", "margin", "padding", "print",   "border", "font",
-                       "text",  "source", "state",   "visible", "focus",  "data",
-                      "clip",  "layer",  "scale",   "enabled", "anchors",
-                      "texture", "shaderInfo", "sprite", "spriteSequence", "baseState"
-                      "vector", "string", "url", "var", "point", "date", "size", "list",
-                      "enumeration"})
+        : QStringList({
+            "action",    "alias",      "anchors", "as",       "baseState", "bool",
+            "border",    "bottom",     "break",   "case",     "catch",     "clip",
+            "color",     "continue",   "data",    "date",     "debugger",  "default",
+            "delete",    "do",         "double",  "else",     "enabled",   "enumeration",
+            "finally",   "flow",       "focus",   "font",     "for",       "function",
+            "height",    "id",         "if",      "import",   "in",        "instanceof",
+            "int",       "item",       "layer",   "left",     "list",      "margin",
+            "matrix4x4", "new",        "opacity", "padding",  "parent",    "point",
+            "print",     "quaternion", "real",    "rect",     "return",    "right",
+            "scale",     "shaderInfo", "size",    "source",   "sprite",    "spriteSequence",
+            "state",     "string",     "switch",  "text",     "texture",   "this",
+            "throw",     "time",       "top",     "try",      "typeof",    "url",
+            "var",       "variant",    "vector",  "vector2d", "vector3d",  "vector4d",
+            "visible",   "void",       "while",   "width",    "with",      "x",
+            "y",         "z",
+        })
     {}
+
+    bool containsId(const QString &id) const
+    {
+        return std::binary_search(constBegin(), constEnd(), id);
+    }
 };
 
 class VisualAspectsPropertyBlackList : public QStringList
@@ -682,7 +696,7 @@ QList<StaticAnalysis::Type> Check::defaultDisabledMessagesForNonQuickUi()
 
 bool Check::incompatibleDesignerQmlId(const QString &id)
 {
-    return idsThatShouldNotBeUsedInDesigner->contains(id);
+    return idsThatShouldNotBeUsedInDesigner->containsId(id);
 }
 
 Check::Check(Document::Ptr doc, const ContextPtr &context, Utils::QtcSettings *qtcSettings)
@@ -936,7 +950,7 @@ bool Check::visit(UiObjectBinding *ast)
     if (!ast->hasOnToken) {
         checkProperty(ast->qualifiedId);
     } else {
-        addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+        //addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);

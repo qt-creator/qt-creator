@@ -23,13 +23,13 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.15
-import QtQuick.Controls 2.15
-import QtQuick.Layouts 1.15
-import HelperWidgets 2.0
-import QtQuick.Templates 2.15 as T
-import StudioControls 1.0 as StudioControls
-import StudioTheme 1.0 as StudioTheme
+import QtQuick
+import QtQuick.Controls
+import QtQuick.Layouts
+import HelperWidgets
+import QtQuick.Templates as T
+import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
 Section {
     id: root
@@ -682,7 +682,7 @@ Section {
                     IconIndicator {
                         id: closeIndicator
                         icon: StudioTheme.Constants.colorPopupClose
-                        pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                        pixelSize: StudioTheme.Values.myIconFontSize
                         onClicked: cePopup.close()
                         Layout.alignment: Qt.AlignRight
                     }
@@ -699,7 +699,12 @@ Section {
                         translationIndicatorVisible: false
                         width: cePopup.itemWidth
                         rightPadding: 8
-                        validator: RegExpValidator { regExp: /[a-z]+[0-9A-Za-z]*/ }
+                        validator: PropertyNameValidator {}
+
+                        Binding {
+                            when: !textField.acceptableInput && textField.text !== ""
+                            textField.color: StudioTheme.Values.themeRedLight
+                        }
                     }
                 }
                 RowLayout {
@@ -729,6 +734,7 @@ Section {
                         buttonIcon: qsTr("Add Property")
                         iconFont: StudioTheme.Constants.font
                         width: cePopup.width / 3
+                        enabled: textField.acceptableInput
 
                         onClicked: {
                             root.propertiesModel.createProperty(textField.text, comboBox.currentText)

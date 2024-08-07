@@ -1544,10 +1544,8 @@ QList<const CppComponentValue *> CppQmlTypes::createObjectsForImport(const QStri
 
         // if it already exists, skip
         const QString key = qualifiedName(package, fmo->className(), version);
-        if (m_objectsByQualifiedName.contains(key)) {
-            exportedObjects.insert(key, m_objectsByQualifiedName.value(key));
+        if (m_objectsByQualifiedName.contains(key))
             continue;
-        }
 
         ComponentVersion cppVersion;
         for (const FakeMetaObject::Export &bestExport : std::as_const(bestExports)) {

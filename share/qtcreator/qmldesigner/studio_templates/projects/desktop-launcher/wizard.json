@@ -280,6 +280,20 @@
                                 "({
                                     'TargetQuickVersion': '6.6'
                                 })"
+                            },
+                            {
+                                "trKey": "Qt 6.7",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.7'
+                                })"
+                            },
+                            {
+                                "trKey": "Qt 6.8",
+                                "value":
+                                "({
+                                    'TargetQuickVersion': '6.8'
+                                })"
                             }
                         ]
                     }

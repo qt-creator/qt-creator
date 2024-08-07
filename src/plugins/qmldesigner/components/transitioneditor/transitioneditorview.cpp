@@ -250,7 +250,7 @@ ModelNode TransitionEditorView::addNewTransition()
                                           }});
 #endif
                 transition.setAuxiliaryData(transitionDurationProperty, 2000);
-                transition.validId();
+                transition.ensureIdExists();
                 root.nodeListProperty("transitions").reparentHere(transition);
 
                 for (auto it = idPropertyList.cbegin(); it != idPropertyList.cend(); ++it) {
@@ -327,7 +327,6 @@ WidgetInfo TransitionEditorView::widgetInfo()
     return createWidgetInfo(createWidget(),
                             "TransitionEditor",
                             WidgetInfo::BottomPane,
-                            0,
                             tr("Transitions"),
                             tr("Transitions view"));
 }

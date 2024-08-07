@@ -8,10 +8,16 @@
 #include <createtexture.h>
 #include <nodemetainfo.h>
 
+#include <utils/filepath.h>
+
 #include <QObject>
 #include <QPointer>
 
+class ZipWriter;
+
+QT_FORWARD_DECLARE_CLASS(QImage)
 QT_FORWARD_DECLARE_CLASS(QPixmap)
+QT_FORWARD_DECLARE_CLASS(QTemporaryDir)
 
 namespace QmlDesigner {
 
@@ -20,6 +26,27 @@ class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
 class Model;
+
+struct AssetPath
+{
+    QString basePath;
+    QString relativePath;
+
+    Utils::FilePath absFilPath() const
+    {
+        return Utils::FilePath::fromString(basePath).pathAppended(relativePath);
+    }
+
+    bool operator==(const AssetPath &other) const
+    {
+        return basePath == other.basePath && relativePath == other.relativePath;
+    }
+
+    friend size_t qHash(const AssetPath &asset)
+    {
+        return ::qHash(asset.relativePath);
+    }
+};
 
 class ContentLibraryView : public AbstractView
 {
@@ -48,6 +75,9 @@ public:
     void auxiliaryDataChanged(const ModelNode &node,
                               AuxiliaryDataKeyView type,
                               const QVariant &data) override;
+    void modelNodePreviewPixmapChanged(const ModelNode &node,
+                                       const QPixmap &pixmap,
+                                       const QByteArray &requestId) override;
 
 private:
     void connectImporter();
@@ -55,14 +85,22 @@ private:
     bool isItemBundle(const QString &bundleId) const;
     void active3DSceneChanged(qint32 sceneId);
     void updateBundlesQuick3DVersion();
-    void addLibMaterial(const ModelNode &node, const QPixmap &iconPixmap);
     void addLibAssets(const QStringList &paths);
     void addLib3DComponent(const ModelNode &node);
-    void addLib3DItem(const ModelNode &node);
-    void genAndSaveIcon(const QString &qmlPath, const QString &iconPath);
-    QStringList writeLibItemQml(const ModelNode &node, const QString &qml);
-    QPair<QString, QSet<QString>> modelNodeToQmlString(const ModelNode &node, QStringList &depListIds,
-                                                       int depth = 0);
+    void exportLib3DComponent(const ModelNode &node);
+    void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
+    void exportLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
+    void importBundleToContentLib();
+    void importBundleToProject();
+    void getImageFromCache(const QString &qmlPath,
+                           std::function<void(const QImage &image)> successCallback);
+    QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
+    QString getExportPath(const ModelNode &node) const;
+    QString getImportPath() const;
+    QString nodeNameToComponentFileName(const QString &name) const;
+    QPair<QString, QSet<AssetPath>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
+    void addIconAndCloseZip(const auto &image);
+    void saveIconToBundle(const auto &image);
 
 #ifdef QDS_USE_PROJECTSTORAGE
     void applyBundleMaterialToDropTarget(const ModelNode &bundleMat, const TypeName &typeName = {});
@@ -89,6 +127,15 @@ private:
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;
     CreateTexture m_createTexture;
+    Utils::FilePath m_iconSavePath;
+    QString m_generatedFolderName;
+    QString m_bundleId;
+    std::unique_ptr<ZipWriter> m_zipWriter;
+    std::unique_ptr<QTemporaryDir> m_tempDir;
+
+    static constexpr char BUNDLE_VERSION[] = "1.0";
+    static constexpr char ADD_ITEM_REQ_ID[] = "AddItemReqId";
+    static constexpr char EXPORT_ITEM_REQ_ID[] = "ExportItemReqId";
 };
 
 } // namespace QmlDesigner

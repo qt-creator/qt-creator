@@ -16,17 +16,13 @@ set(QML_IMPORT_PATH ${QT_QML_OUTPUT_DIRECTORY}
     FORCE
 )
 
-find_package(Qt6 6.2 REQUIRED COMPONENTS Core Gui Qml Quick)
-
-if (Qt6_VERSION VERSION_GREATER_EQUAL 6.3)
-    qt_standard_project_setup()
-endif()
+%2
 
 qt_add_executable(${CMAKE_PROJECT_NAME})
 qt_add_resources(${CMAKE_PROJECT_NAME} "configuration"
     PREFIX "/"
     FILES
-%2)
+%3)
 
 include(qds)
 

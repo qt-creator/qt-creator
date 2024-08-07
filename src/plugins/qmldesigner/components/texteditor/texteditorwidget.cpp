@@ -115,7 +115,7 @@ void TextEditorWidget::jumpToModelNode(const ModelNode &modelNode)
     if (nodeOffset > 0) {
         int line, column;
         m_textEditor->editorWidget()->convertPosition(nodeOffset, &line, &column);
-        m_textEditor->editorWidget()->gotoLine(line + 1, column);
+        m_textEditor->editorWidget()->gotoLine(line, column);
 
         highlightToModelNode(modelNode);
     }

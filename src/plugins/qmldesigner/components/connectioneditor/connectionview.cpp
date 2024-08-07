@@ -303,7 +303,7 @@ WidgetInfo ConnectionView::widgetInfo()
     return createWidgetInfo(d->connectionViewQuickWidget.get(),
                             QLatin1String("ConnectionView"),
                             WidgetInfo::LeftPane,
-                            0,
+
                             tr("Connections"));
 }
 

@@ -40,17 +40,26 @@
             "files": [
             ],
             "filters": [
+                "*.bmp",
+                "*.dae",
+                "*.gif",
+                "*.hdr",
+                "*.ico",
                 "*.jpeg",
                 "*.jpg",
-                "*.png",
-                "*.svg",
-                "*.hdr",
                 "*.ktx",
-                "*.bmp",
-                "*.ttf",
+                "*.pbm",
+                "*.pgm",
+                "*.png",
+                "*.ppm",
+                "*.svg",
+                "*.svgz",
+                "*.tif",
                 "*.tiff",
+                "*.ttf",
                 "*.webp",
-                "*.gif"
+                "*.xbm",
+                "*.xpm"
             ],
             "mcuProperties": {
             },
@@ -113,6 +122,8 @@
     },
     "otherProperties": {
     },
+    "qmlprojectDependencies": [
+    ],
     "runConfig": {
         "fileSelectors": [
             "WXGA",

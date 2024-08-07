@@ -282,7 +282,7 @@ Rectangle {
         ToolbarButton {
             id: enterComponent
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: lockWorkspace.left
+            anchors.right: backend.isLiteModeEnabled ? shareButton.left : lockWorkspace.left
             anchors.rightMargin: 10
             enabled: goIntoComponentBackend.available
             tooltip: goIntoComponentBackend.tooltip
@@ -305,7 +305,7 @@ Rectangle {
             tooltip: qsTr("Sets the visible <b>Views</b> to immovable across the Workspaces.")
             buttonIcon: backend.lockWorkspace ? StudioTheme.Constants.lockOn
                                               : StudioTheme.Constants.lockOff
-            visible: !root.flyoutEnabled
+            visible: !root.flyoutEnabled && !backend.isLiteModeEnabled
             checkable: true
             checked: backend.lockWorkspace
             checkedInverted: true
@@ -318,9 +318,9 @@ Rectangle {
             style: StudioTheme.Values.toolbarStyle
             width: 210
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: annotations.left
+            anchors.right: shareButton.left
             anchors.rightMargin: 10
-            visible: !root.flyoutEnabled
+            visible: !root.flyoutEnabled && !backend.isLiteModeEnabled
             model: WorkspaceModel { id: workspaceModel }
             textRole: "displayName"
             valueRole: "fileName"
@@ -331,20 +331,6 @@ Rectangle {
             onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
             onActivated: backend.setCurrentWorkspace(workspaces.currentValue)
             onCountChanged: workspaces.currentIndex = workspaces.indexOfValue(backend.currentWorkspace)
-        }
-
-        ToolbarButton {
-            id: annotations
-            visible: false
-            enabled: backend.isInDesignMode
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: shareButton.left
-            anchors.rightMargin: 10
-            width: 0
-            tooltip: qsTr("Edit Annotations")
-            buttonIcon: StudioTheme.Constants.annotations_large
-
-            onClicked: backend.editGlobalAnnoation()
         }
 
         ToolbarButton {
@@ -394,7 +380,8 @@ Rectangle {
             readonly property int padding: 6
 
             width: row.width + window.padding * 2
-            height: row.height + workspacesFlyout.height + 3 * window.padding
+            height: row.height + (backend.isLiteModeEnabled ? 0 : workspacesFlyout.height)
+                    + (backend.isLiteModeEnabled ? 2 : 3) * window.padding
                     + (workspacesFlyout.popup.opened ? workspacesFlyout.popup.height : 0)
             visible: false
             flags: Qt.FramelessWindowHint | Qt.Dialog | Qt.NoDropShadowWindowHint
@@ -470,6 +457,7 @@ Rectangle {
                                                               : StudioTheme.Constants.lockOff
                             checkable: true
                             checked: backend.lockWorkspace
+                            visible: !backend.isLiteModeEnabled
 
                             onClicked: backend.setLockWorkspace(lockWorkspaceFlyout.checked)
                         }
@@ -498,6 +486,7 @@ Rectangle {
                         textRole: "displayName"
                         valueRole: "fileName"
                         currentIndex: workspacesFlyout.indexOfValue(backend.currentWorkspace)
+                        visible: !backend.isLiteModeEnabled
 
                         onCompressedActivated: backend.setCurrentWorkspace(workspacesFlyout.currentValue)
                         onCountChanged: workspacesFlyout.currentIndex = workspacesFlyout.indexOfValue(backend.currentWorkspace)

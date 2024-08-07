@@ -84,7 +84,7 @@ protected:
 
 protected:
     QmlDesigner::SourceId sourceId = QmlDesigner::SourceId::create(10);
-    NiceMock<ProjectStorageMockWithQtQtuick> projectStorageMock{sourceId};
+    NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{sourceId, "/path"};
     NiceMock<PropertyComponentGeneratorMock> propertyGeneratorMock;
     QmlDesigner::PropertyEditorComponentGenerator generator{propertyGeneratorMock};
     QmlDesigner::ModuleId qtQuickModuleId = projectStorageMock.createModule("QtQuick",

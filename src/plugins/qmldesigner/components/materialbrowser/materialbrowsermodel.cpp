@@ -401,8 +401,8 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
         // Dynamic properties must always be set in base state
         const QList<AbstractProperty> dynProps = m_copiedMaterial.dynamicProperties();
         for (const auto &prop : dynProps) {
-            dynamicProps.insert(prop.name(), prop.dynamicTypeName());
-            validProps.insert(prop.name());
+            dynamicProps.insert(prop.name().toByteArray(), prop.dynamicTypeName());
+            validProps.insert(prop.name().toByteArray());
         }
     }
 
@@ -417,7 +417,7 @@ void MaterialBrowserModel::copyMaterialProperties(int idx, const QString &sectio
             if (changes.isValid()) {
                 const QList<AbstractProperty> changedProps = changes.targetProperties();
                 for (const auto &changedProp : changedProps)
-                    validProps.insert(changedProp.name());
+                    validProps.insert(changedProp.name().toByteArray());
             }
         }
 

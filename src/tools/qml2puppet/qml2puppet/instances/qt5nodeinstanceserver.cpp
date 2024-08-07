@@ -89,6 +89,7 @@ void Qt5NodeInstanceServer::initializeView()
 
     m_viewData.renderControl = new QQuickRenderControl;
     m_viewData.window = new QQuickWindow(m_viewData.renderControl);
+    m_viewData.window->setColor(Qt::transparent);
     setPipelineCacheConfig(m_viewData.window);
     m_viewData.renderControl->initialize();
     m_qmlEngine = new QQmlEngine;
@@ -379,9 +380,11 @@ QImage Qt5NodeInstanceServer::grabRenderControl([[maybe_unused]] RenderViewData 
     QRhiReadbackResult readResult;
     readResult.completed = [&] {
         readCompleted = true;
-        QImage wrapperImage(reinterpret_cast<const uchar *>(readResult.data.constData()),
-                            readResult.pixelSize.width(), readResult.pixelSize.height(),
-                            QImage::Format_RGBA8888_Premultiplied);
+        QImage wrapperImage(
+            reinterpret_cast<const uchar *>(readResult.data.constData()),
+            readResult.pixelSize.width(),
+            readResult.pixelSize.height(),
+            QImage::Format_RGBA8888_Premultiplied);
         if (viewData.rhi->isYUpInFramebuffer())
             renderImage = wrapperImage.mirrored();
         else

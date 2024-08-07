@@ -130,8 +130,8 @@ ColumnLayout {
         orientation: root.width > root.height ? Qt.Horizontal : Qt.Vertical
 
         handle: Rectangle {
-            implicitWidth: splitView.orientation === Qt.Horizontal ? 6 : splitView.width
-            implicitHeight: splitView.orientation === Qt.Horizontal ? splitView.height : 6
+            implicitWidth: splitView.orientation === Qt.Horizontal ? StudioTheme.Values.splitterThickness : splitView.width
+            implicitHeight: splitView.orientation === Qt.Horizontal ? splitView.height : StudioTheme.Values.splitterThickness
             color: T.SplitHandle.pressed ? StudioTheme.Values.themeSliderHandleInteraction
                 : (T.SplitHandle.hovered ? StudioTheme.Values.themeSliderHandleHover
                                          : "transparent")

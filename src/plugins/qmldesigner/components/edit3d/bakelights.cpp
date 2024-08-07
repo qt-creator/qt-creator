@@ -9,7 +9,7 @@
 #include <bakelightsdatamodel.h>
 #include <bindingproperty.h>
 #include <documentmanager.h>
-#include <model/modelutils.h>
+#include <modelutils.h>
 #include <modelnode.h>
 #include <nodeabstractproperty.h>
 #include <nodeinstanceview.h>

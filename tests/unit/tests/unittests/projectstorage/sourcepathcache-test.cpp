@@ -13,48 +13,44 @@ namespace {
 using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
+using QmlDesigner::SourceNameId;
 using Cache = QmlDesigner::SourcePathCache<NiceMock<ProjectStorageMock>>;
 using NFP = QmlDesigner::SourcePath;
+using QmlDesigner::Cache::SourceName;
 using QmlDesigner::SourcePathView;
 using QmlDesigner::SourcePathViews;
-using QmlDesigner::Cache::SourceNameAndSourceContextId;
 
 class SourcePathCache : public testing::Test
 {
 protected:
     SourcePathCache()
     {
-        ON_CALL(storageMock, fetchSourceContextId(Eq("/path/to")))
-            .WillByDefault(Return(SourceContextId::create(5)));
-        ON_CALL(storageMock, fetchSourceContextId(Eq("/path2/to")))
-            .WillByDefault(Return(SourceContextId::create(6)));
-        ON_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")))
-            .WillByDefault(Return(SourceId::create(42)));
-        ON_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file2.cpp")))
-            .WillByDefault(Return(SourceId::create(63)));
-        ON_CALL(storageMock, fetchSourceId(SourceContextId::create(6), Eq("file.cpp")))
-            .WillByDefault(Return(SourceId::create(72)));
-        ON_CALL(storageMock, fetchSourceContextPath(SourceContextId::create(5)))
+        ON_CALL(storageMock, fetchSourceContextId(Eq("/path/to"))).WillByDefault(Return(sourceContextId5));
+        ON_CALL(storageMock, fetchSourceContextId(Eq("/path2/to"))).WillByDefault(Return(sourceContextId6));
+        ON_CALL(storageMock, fetchSourceNameId(Eq("file.cpp"))).WillByDefault(Return(sourceNameId42));
+        ON_CALL(storageMock, fetchSourceNameId(Eq("file2.cpp"))).WillByDefault(Return(sourceNameId63));
+        ON_CALL(storageMock, fetchSourceContextPath(sourceContextId5))
             .WillByDefault(Return(Utils::PathString("/path/to")));
-        ON_CALL(storageMock, fetchSourceNameAndSourceContextId(SourceId::create(42)))
-            .WillByDefault(
-                Return(SourceNameAndSourceContextId("file.cpp", SourceContextId::create(5))));
-        ON_CALL(storageMockFilled, fetchAllSources())
-            .WillByDefault(Return(std::vector<QmlDesigner::Cache::Source>({
-                {"file.cpp", SourceContextId::create(6), SourceId::create(72)},
-                {"file2.cpp", SourceContextId::create(5), SourceId::create(63)},
-                {"file.cpp", SourceContextId::create(5), SourceId::create(42)},
-            })));
+        ON_CALL(storageMock, fetchSourceName(sourceNameId42)).WillByDefault(Return("file.cpp"));
+        ON_CALL(storageMockFilled, fetchAllSourceNames())
+            .WillByDefault(Return(std::vector<QmlDesigner::Cache::SourceName>(
+                {{"file.cpp", sourceNameId42}, {"file2.cpp", sourceNameId63}})));
         ON_CALL(storageMockFilled, fetchAllSourceContexts())
             .WillByDefault(Return(std::vector<QmlDesigner::Cache::SourceContext>(
-                {{"/path2/to", SourceContextId::create(6)}, {"/path/to", SourceContextId::create(5)}})));
+                {{"/path2/to", sourceContextId6}, {"/path/to", sourceContextId5}})));
         ON_CALL(storageMockFilled, fetchSourceContextId(Eq("/path/to")))
-            .WillByDefault(Return(SourceContextId::create(5)));
-        ON_CALL(storageMockFilled, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")))
-            .WillByDefault(Return(SourceId::create(42)));
+            .WillByDefault(Return(sourceContextId5));
+        ON_CALL(storageMockFilled, fetchSourceNameId(Eq("file.cpp"))).WillByDefault(Return(sourceNameId42));
     }
 
 protected:
+    SourceNameId sourceNameId42 = SourceNameId::create(42);
+    SourceNameId sourceNameId63 = SourceNameId::create(63);
+    SourceContextId sourceContextId5 = SourceContextId::create(5);
+    SourceContextId sourceContextId6 = SourceContextId::create(6);
+    SourceId sourceId542 = SourceId::create(sourceNameId42, sourceContextId5);
+    SourceId sourceId563 = SourceId::create(sourceNameId63, sourceContextId5);
+    SourceId sourceId642 = SourceId::create(sourceNameId42, sourceContextId6);
     NiceMock<ProjectStorageMock> storageMock;
     Cache cache{storageMock};
     NiceMock<ProjectStorageMock> storageMockFilled;
@@ -70,7 +66,7 @@ TEST_F(SourcePathCache, source_id_with_out_any_entry_call_source_context_id)
 
 TEST_F(SourcePathCache, source_id_with_out_any_entry_calls)
 {
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")));
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp")));
 
     cache.sourceId(SourcePathView("/path/to/file.cpp"));
 }
@@ -79,7 +75,7 @@ TEST_F(SourcePathCache, source_id_of_source_id_with_out_any_entry)
 {
     auto sourceId = cache.sourceId(SourcePathView("/path/to/file.cpp"));
 
-    ASSERT_THAT(sourceId, SourceId::create(42));
+    ASSERT_THAT(sourceId, sourceId542);
 }
 
 TEST_F(SourcePathCache, source_id_with_source_context_id_and_source_name)
@@ -88,7 +84,7 @@ TEST_F(SourcePathCache, source_id_with_source_context_id_and_source_name)
 
     auto sourceId = cache.sourceId(sourceContextId, "file.cpp"_sv);
 
-    ASSERT_THAT(sourceId, SourceId::create(42));
+    ASSERT_THAT(sourceId, sourceId542);
 }
 
 TEST_F(SourcePathCache, if_entry_exists_dont_call_in_strorage)
@@ -96,7 +92,7 @@ TEST_F(SourcePathCache, if_entry_exists_dont_call_in_strorage)
     cache.sourceId(SourcePathView("/path/to/file.cpp"));
 
     EXPECT_CALL(storageMock, fetchSourceContextId(Eq("/path/to"))).Times(0);
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp"))).Times(0);
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp"))).Times(0);
 
     cache.sourceId(SourcePathView("/path/to/file.cpp"));
 }
@@ -106,7 +102,7 @@ TEST_F(SourcePathCache, if_directory_entry_exists_dont_call_fetch_source_context
     cache.sourceId(SourcePathView("/path/to/file2.cpp"));
 
     EXPECT_CALL(storageMock, fetchSourceContextId(Eq("/path/to"))).Times(0);
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")));
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp")));
 
     cache.sourceId(SourcePathView("/path/to/file.cpp"));
 }
@@ -117,7 +113,7 @@ TEST_F(SourcePathCache, get_source_id_with_cached_value)
 
     auto sourceId = cache.sourceId(SourcePathView("/path/to/file.cpp"));
 
-    ASSERT_THAT(sourceId, SourceId::create(42));
+    ASSERT_THAT(sourceId, sourceId542);
 }
 
 TEST_F(SourcePathCache, get_source_id_with_source_context_id_cached)
@@ -126,7 +122,7 @@ TEST_F(SourcePathCache, get_source_id_with_source_context_id_cached)
 
     auto sourceId = cache.sourceId(SourcePathView("/path/to/file2.cpp"));
 
-    ASSERT_THAT(sourceId, SourceId::create(63));
+    ASSERT_THAT(sourceId, sourceId563);
 }
 
 TEST_F(SourcePathCache, throw_for_getting_a_file_path_with_an_invalid_id)
@@ -147,9 +143,7 @@ TEST_F(SourcePathCache, get_a_file_path)
 
 TEST_F(SourcePathCache, get_a_file_path_with_cached_source_id)
 {
-    SourceId sourceId{SourceId::create(42)};
-
-    auto sourcePath = cache.sourcePath(sourceId);
+    auto sourcePath = cache.sourcePath(sourceId542);
 
     ASSERT_THAT(sourcePath, Eq(SourcePathView{"/path/to/file.cpp"}));
 }
@@ -199,7 +193,7 @@ TEST_F(SourcePathCache, source_context_id)
 {
     auto id = cache.sourceContextId(Utils::SmallString("/path/to"));
 
-    ASSERT_THAT(id, Eq(SourceContextId::create(5)));
+    ASSERT_THAT(id, Eq(sourceContextId5));
 }
 
 TEST_F(SourcePathCache, source_context_id_is_already_in_cache)
@@ -248,7 +242,7 @@ TEST_F(SourcePathCache, throw_for_getting_a_directory_path_with_an_invalid_id)
 
 TEST_F(SourcePathCache, get_a_directory_path)
 {
-    SourceContextId sourceContextId{SourceContextId::create(5)};
+    SourceContextId sourceContextId{sourceContextId5};
 
     auto sourceContextPath = cache.sourceContextPath(sourceContextId);
 
@@ -257,7 +251,7 @@ TEST_F(SourcePathCache, get_a_directory_path)
 
 TEST_F(SourcePathCache, get_a_directory_path_with_cached_source_context_id)
 {
-    SourceContextId sourceContextId{SourceContextId::create(5)};
+    SourceContextId sourceContextId{sourceContextId5};
     cache.sourceContextPath(sourceContextId);
 
     auto sourceContextPath = cache.sourceContextPath(sourceContextId);
@@ -267,65 +261,40 @@ TEST_F(SourcePathCache, get_a_directory_path_with_cached_source_context_id)
 
 TEST_F(SourcePathCache, directory_path_calls_fetch_directory_path)
 {
-    EXPECT_CALL(storageMock, fetchSourceContextPath(Eq(SourceContextId::create(5))));
+    EXPECT_CALL(storageMock, fetchSourceContextPath(Eq(sourceContextId5)));
 
-    cache.sourceContextPath(SourceContextId::create(5));
+    cache.sourceContextPath(sourceContextId5);
 }
 
 TEST_F(SourcePathCache, second_directory_path_calls_not_fetch_directory_path)
 {
-    cache.sourceContextPath(SourceContextId::create(5));
+    cache.sourceContextPath(sourceContextId5);
 
     EXPECT_CALL(storageMock, fetchSourceContextPath(_)).Times(0);
 
-    cache.sourceContextPath(SourceContextId::create(5));
+    cache.sourceContextPath(sourceContextId5);
 }
 
-TEST_F(SourcePathCache, throw_for_getting_a_source_context_id_with_an_invalid_source_id)
+TEST_F(SourcePathCache, fetch_source_context_from_source_id)
 {
-    SourceId sourceId;
+    auto sourceContextId = sourceId542.contextId();
 
-    ASSERT_THROW(cache.sourceContextId(sourceId), QmlDesigner::NoSourcePathForInvalidSourceId);
-}
-
-TEST_F(SourcePathCache, fetch_source_context_id_by_source_id)
-{
-    auto sourceContextId = cache.sourceContextId(SourceId::create(42));
-
-    ASSERT_THAT(sourceContextId, Eq(SourceContextId::create(5)));
-}
-
-TEST_F(SourcePathCache, fetch_source_context_id_by_source_id_cached)
-{
-    cache.sourceContextId(SourceId::create(42));
-
-    auto sourceContextId = cache.sourceContextId(SourceId::create(42));
-
-    ASSERT_THAT(sourceContextId, Eq(SourceContextId::create(5)));
-}
-
-TEST_F(SourcePathCache, fetch_file_path_after_fetching_source_context_id_by_source_id)
-{
-    cache.sourceContextId(SourceId::create(42));
-
-    auto sourcePath = cache.sourcePath(SourceId::create(42));
-
-    ASSERT_THAT(sourcePath, Eq("/path/to/file.cpp"));
+    ASSERT_THAT(sourceContextId, Eq(sourceContextId5));
 }
 
 TEST_F(SourcePathCache, fetch_source_context_id_after_fetching_file_path_by_source_id)
 {
-    cache.sourcePath(SourceId::create(42));
+    cache.sourcePath(sourceId542);
 
-    auto sourceContextId = cache.sourceContextId(SourceId::create(42));
+    auto sourceContextId = sourceId542.contextId();
 
-    ASSERT_THAT(sourceContextId, Eq(SourceContextId::create(5)));
+    ASSERT_THAT(sourceContextId, Eq(sourceContextId5));
 }
 
 TEST_F(SourcePathCache, fetch_all_source_contexts_and_sources_at_creation)
 {
     EXPECT_CALL(storageMock, fetchAllSourceContexts());
-    EXPECT_CALL(storageMock, fetchAllSources());
+    EXPECT_CALL(storageMock, fetchAllSourceNames());
 
     Cache cache{storageMock};
 }
@@ -336,23 +305,23 @@ TEST_F(SourcePathCache, get_file_id_in_filled_cache)
 
     auto id = cacheFilled.sourceId("/path2/to/file.cpp");
 
-    ASSERT_THAT(id, Eq(SourceId::create(72)));
+    ASSERT_THAT(id, Eq(sourceId642));
 }
 
 TEST_F(SourcePathCache, get_source_context_id_in_filled_cache)
 {
     Cache cacheFilled{storageMockFilled};
 
-    auto id = cacheFilled.sourceContextId(SourceId::create(42));
+    auto id = sourceId542.contextId();
 
-    ASSERT_THAT(id, Eq(SourceContextId::create(5)));
+    ASSERT_THAT(id, Eq(sourceContextId5));
 }
 
 TEST_F(SourcePathCache, get_directory_path_in_filled_cache)
 {
     Cache cacheFilled{storageMockFilled};
 
-    auto path = cacheFilled.sourceContextPath(SourceContextId::create(5));
+    auto path = cacheFilled.sourceContextPath(sourceContextId5);
 
     ASSERT_THAT(path, Eq("/path/to"));
 }
@@ -361,7 +330,7 @@ TEST_F(SourcePathCache, get_file_path_in_filled_cache)
 {
     Cache cacheFilled{storageMockFilled};
 
-    auto path = cacheFilled.sourcePath(SourceId::create(42));
+    auto path = cacheFilled.sourcePath(sourceId542);
 
     ASSERT_THAT(path, Eq("/path/to/file.cpp"));
 }
@@ -372,7 +341,7 @@ TEST_F(SourcePathCache, get_file_id_in_after_populate_if_empty)
 
     auto id = cacheNotFilled.sourceId("/path2/to/file.cpp");
 
-    ASSERT_THAT(id, Eq(SourceId::create(72)));
+    ASSERT_THAT(id, Eq(sourceId642));
 }
 
 TEST_F(SourcePathCache, dont_populate_if_not_empty)
@@ -380,25 +349,16 @@ TEST_F(SourcePathCache, dont_populate_if_not_empty)
     cacheNotFilled.sourceId("/path/to/file.cpp");
 
     EXPECT_CALL(storageMockFilled, fetchAllSourceContexts()).Times(0);
-    EXPECT_CALL(storageMockFilled, fetchAllSources()).Times(0);
+    EXPECT_CALL(storageMockFilled, fetchAllSourceNames()).Times(0);
 
     cacheNotFilled.populateIfEmpty();
-}
-
-TEST_F(SourcePathCache, get_source_context_id_after_populate_if_empty)
-{
-    cacheNotFilled.populateIfEmpty();
-
-    auto id = cacheNotFilled.sourceContextId(SourceId::create(42));
-
-    ASSERT_THAT(id, Eq(SourceContextId::create(5)));
 }
 
 TEST_F(SourcePathCache, get_directory_path_after_populate_if_empty)
 {
     cacheNotFilled.populateIfEmpty();
 
-    auto path = cacheNotFilled.sourceContextPath(SourceContextId::create(5));
+    auto path = cacheNotFilled.sourceContextPath(sourceContextId5);
 
     ASSERT_THAT(path, Eq("/path/to"));
 }
@@ -407,7 +367,7 @@ TEST_F(SourcePathCache, get_file_path_after_populate_if_empty)
 {
     cacheNotFilled.populateIfEmpty();
 
-    auto path = cacheNotFilled.sourcePath(SourceId::create(42));
+    auto path = cacheNotFilled.sourcePath(sourceId542);
 
     ASSERT_THAT(path, Eq("/path/to/file.cpp"));
 }
@@ -421,17 +381,18 @@ TEST_F(SourcePathCache, source_context_and_source_id_with_out_any_entry_call_sou
 
 TEST_F(SourcePathCache, source_context_and_source_id_with_out_any_entry_calls)
 {
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")));
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp")));
 
     cache.sourceContextAndSourceId(SourcePathView("/path/to/file.cpp"));
 }
 
 TEST_F(SourcePathCache, source_context_and_source_id_of_source_id_with_out_any_entry)
 {
-    auto sourceContextAndSourceId = cache.sourceContextAndSourceId(
-        SourcePathView("/path/to/file.cpp"));
+    SourcePathView path("/path/to/file.cpp");
 
-    ASSERT_THAT(sourceContextAndSourceId, Pair(SourceContextId::create(5), SourceId::create(42)));
+    auto sourceId = cache.sourceId(path);
+
+    ASSERT_THAT(sourceId.contextId(), sourceContextId5);
 }
 
 TEST_F(SourcePathCache, source_context_and_source_id_if_entry_exists_dont_call_in_strorage)
@@ -439,7 +400,7 @@ TEST_F(SourcePathCache, source_context_and_source_id_if_entry_exists_dont_call_i
     cache.sourceContextAndSourceId(SourcePathView("/path/to/file.cpp"));
 
     EXPECT_CALL(storageMock, fetchSourceContextId(Eq("/path/to"))).Times(0);
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp"))).Times(0);
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp"))).Times(0);
 
     cache.sourceContextAndSourceId(SourcePathView("/path/to/file.cpp"));
 }
@@ -450,7 +411,7 @@ TEST_F(SourcePathCache,
     cache.sourceContextAndSourceId(SourcePathView("/path/to/file2.cpp"));
 
     EXPECT_CALL(storageMock, fetchSourceContextId(Eq("/path/to"))).Times(0);
-    EXPECT_CALL(storageMock, fetchSourceId(SourceContextId::create(5), Eq("file.cpp")));
+    EXPECT_CALL(storageMock, fetchSourceNameId(Eq("file.cpp")));
 
     cache.sourceContextAndSourceId(SourcePathView("/path/to/file.cpp"));
 }
@@ -461,7 +422,7 @@ TEST_F(SourcePathCache, source_context_and_source_id_get_source_id_with_cached_v
 
     auto sourceId = cache.sourceContextAndSourceId(SourcePathView("/path/to/file.cpp"));
 
-    ASSERT_THAT(sourceId, Pair(SourceContextId::create(5), SourceId::create(42)));
+    ASSERT_THAT(sourceId, Pair(sourceContextId5, sourceId542));
 }
 
 TEST_F(SourcePathCache, get_source_context_and_source_id_with_source_context_id_cached)
@@ -471,7 +432,7 @@ TEST_F(SourcePathCache, get_source_context_and_source_id_with_source_context_id_
     auto sourceContextAndSourceId = cache.sourceContextAndSourceId(
         SourcePathView("/path/to/file2.cpp"));
 
-    ASSERT_THAT(sourceContextAndSourceId, Pair(SourceContextId::create(5), SourceId::create(63)));
+    ASSERT_THAT(sourceContextAndSourceId, Pair(sourceContextId5, sourceId563));
 }
 
 TEST_F(SourcePathCache, get_source_context_and_source_id_file_names_are_unique_for_every_directory)

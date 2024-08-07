@@ -17,7 +17,7 @@ public:
     using Pointer = std::shared_ptr<InternalNodeListProperty>;
     static constexpr PropertyType type = PropertyType::NodeList;
 
-    InternalNodeListProperty(const PropertyName &name, const InternalNodePointer &propertyOwner);
+    InternalNodeListProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
 
     bool isValid() const override;
 

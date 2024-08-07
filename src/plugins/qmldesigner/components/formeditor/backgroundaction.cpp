@@ -10,6 +10,8 @@
 #include <QComboBox>
 #include <QPainter>
 
+#include <QStandardItemModel>
+
 namespace QmlDesigner {
 
 BackgroundAction::BackgroundAction(QObject *parent) :
@@ -21,7 +23,17 @@ void BackgroundAction::setColor(const QColor &color)
 {
     if (m_comboBox)
         m_comboBox->setCurrentIndex(colors().indexOf(color));
+}
 
+void BackgroundAction::setColorEnabled(const QColor &color, bool enable)
+{
+    if (!m_comboBox)
+        return;
+
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(m_comboBox->model());
+    if (QStandardItem *item = model->item(colors().indexOf(color)))
+        item->setFlags(enable ? item->flags() | Qt::ItemIsEnabled
+                              : item->flags() & ~Qt::ItemIsEnabled);
 }
 
 QIcon iconForColor(const QColor &color) {

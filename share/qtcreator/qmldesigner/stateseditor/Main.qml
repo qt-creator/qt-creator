@@ -562,6 +562,7 @@ Rectangle {
                 isChecked: root.currentStateInternalId === 0
                 thumbnailImageSource: StatesEditorBackend.statesEditorModel.baseState.stateImageSource ?? "" // TODO Get rid of the QVariantMap
                 isTiny: root.tinyMode
+                backgroundColor: StatesEditorBackend.statesEditorModel.backgroundColor
 
                 onFocusSignal: root.currentStateInternalId = 0
                 onDefaultClicked: StatesEditorBackend.statesEditorModel.resetDefaultState()
@@ -830,6 +831,7 @@ Rectangle {
                                     visualIndex: delegateRoot.visualIndex
                                     internalNodeId: delegateRoot.internalNodeId
                                     isTiny: root.tinyMode
+                                    backgroundColor: StatesEditorBackend.statesEditorModel.backgroundColor
 
                                     hasExtend: delegateRoot.hasExtend
                                     extendString: delegateRoot.extendString

@@ -214,10 +214,10 @@ TYPED_TEST(StorageCache, populate_with_empty_vector)
 
 TYPED_TEST(StorageCache, is_not_empty_after_populate_with_some_entries)
 {
-    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
-                                             {this->filePath2.clone(), this->id4},
-                                             {this->filePath3.clone(), this->id3},
-                                             {this->filePath4.clone(), SourceContextId::create(5)}};
+    typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
+                                             {this->filePath2, this->id4},
+                                             {this->filePath3, this->id3},
+                                             {this->filePath4, SourceContextId::create(5)}};
     ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
     this->cache.uncheckedPopulate();
@@ -227,10 +227,10 @@ TYPED_TEST(StorageCache, is_not_empty_after_populate_with_some_entries)
 
 TYPED_TEST(StorageCache, get_entry_after_populate_with_some_entries)
 {
-    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
-                                             {this->filePath2.clone(), this->id2},
-                                             {this->filePath3.clone(), SourceContextId::create(7)},
-                                             {this->filePath4.clone(), this->id4}};
+    typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
+                                             {this->filePath2, this->id2},
+                                             {this->filePath3, SourceContextId::create(7)},
+                                             {this->filePath4, this->id4}};
     ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
     this->cache.uncheckedPopulate();
 
@@ -241,10 +241,10 @@ TYPED_TEST(StorageCache, get_entry_after_populate_with_some_entries)
 
 TYPED_TEST(StorageCache, entries_have_unique_ids)
 {
-    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
-                                             {this->filePath2.clone(), this->id2},
-                                             {this->filePath3.clone(), this->id3},
-                                             {this->filePath4.clone(), this->id3}};
+    typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
+                                             {this->filePath2, this->id2},
+                                             {this->filePath3, this->id3},
+                                             {this->filePath4, this->id3}};
     ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
@@ -252,10 +252,10 @@ TYPED_TEST(StorageCache, entries_have_unique_ids)
 
 TYPED_TEST(StorageCache, multiple_entries)
 {
-    typename TypeParam::CacheEntries entries{{this->filePath1.clone(), this->id1},
-                                             {this->filePath1.clone(), this->id2},
-                                             {this->filePath3.clone(), this->id3},
-                                             {this->filePath4.clone(), this->id4}};
+    typename TypeParam::CacheEntries entries{{this->filePath1, this->id1},
+                                             {this->filePath1, this->id2},
+                                             {this->filePath3, this->id3},
+                                             {this->filePath4, this->id4}};
     ON_CALL(this->mockStorage, fetchAllSourceContexts()).WillByDefault(Return(entries));
 
     ASSERT_THROW(this->cache.populate(), StorageCacheException);
