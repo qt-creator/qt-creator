@@ -77,6 +77,7 @@ public:
 
     void instancesPreviewImageChanged(const QVector<ModelNode> &nodeList) override;
 
+    bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
     void rootNodeTypeChanged(const QString &type, int majorVersion, int minorVersion) override;

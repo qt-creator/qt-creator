@@ -622,16 +622,6 @@ bool AbstractView::executeInTransaction(const QByteArray &identifier, const Oper
     return true;
 }
 
-bool AbstractView::isEnabled() const
-{
-    return m_enabled;
-}
-
-void AbstractView::setEnabled(bool b)
-{
-    m_enabled = b;
-}
-
 QList<ModelNode> AbstractView::allModelNodes() const
 {
     QTC_ASSERT(model(), return {});
@@ -881,6 +871,14 @@ int AbstractView::minorQtQuickVersion() const
 #else
     return getMinorVersionFromNode(rootModelNode());
 #endif
+}
+
+AbstractViewAction::AbstractViewAction(AbstractView &view)
+    : m_view{view}
+{
+    connect(this, &QAction::toggled, [&](bool isChecked) {
+        emit viewCheckedChanged(isChecked, view);
+    });
 }
 
 } // namespace QmlDesigner

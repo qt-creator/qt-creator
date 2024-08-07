@@ -891,7 +891,11 @@ void ModelPrivate::resetModelByRewriter(const QString &description)
 
 void ModelPrivate::attachView(AbstractView *view)
 {
-    Q_ASSERT(view);
+    if (!view)
+        return;
+
+    if (!view->isEnabled())
+        return;
 
     if (m_viewList.contains(view))
         return;

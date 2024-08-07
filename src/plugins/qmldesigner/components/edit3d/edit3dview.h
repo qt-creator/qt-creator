@@ -56,6 +56,7 @@ public:
 
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 
+    bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
     Edit3DWidget *edit3DWidget() const;

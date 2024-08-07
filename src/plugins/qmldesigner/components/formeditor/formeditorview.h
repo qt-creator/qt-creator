@@ -79,6 +79,7 @@ public:
     void currentStateChanged(const ModelNode &node) override;
 
     // FormEditorView
+    bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
     FormEditorWidget *formEditorWidget();

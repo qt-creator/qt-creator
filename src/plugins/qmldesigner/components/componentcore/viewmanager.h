@@ -113,6 +113,11 @@ private: // functions
 
     void registerNanotraceActions();
 
+    void registerViewActions();
+    void registerViewAction(AbstractView &view);
+    void enableView(AbstractView &view);
+    void disableView(AbstractView &view);
+
 private: // variables
     std::unique_ptr<ViewManagerData> d;
 };

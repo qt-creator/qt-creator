@@ -329,7 +329,12 @@ void DesignModeWidget::setup()
     }
 
     // Afterwards get all the other widgets
-    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+    for (const auto &view : viewManager().views()) {
+        if (!view->hasWidget())
+            continue;
+
+        auto widgetInfo = view->widgetInfo();
+
         ensureMinimumSize(widgetInfo.widget);
 
         auto dockWidget = createDockWidget(widgetInfo.widget,
@@ -342,7 +347,10 @@ void DesignModeWidget::setup()
         m_viewWidgets.append(widgetInfo.widget);
 
         // Create menu action
-        auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+        auto viewAction = view->action();
+        viewAction->setText(widgetInfo.uniqueId);
+        dockWidget->setToggleViewAction(viewAction);
+        auto command = Core::ActionManager::registerAction(viewAction,
                                                            actionToggle.withSuffix(
                                                                widgetInfo.uniqueId + "Widget"),
                                                            designContext);

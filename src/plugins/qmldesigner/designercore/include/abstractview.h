@@ -8,6 +8,9 @@
 #include "qmldesignercorelib_global.h"
 #include <commondefines.h>
 
+#include <utils/uniqueobjectptr.h>
+
+#include <QAction>
 #include <QObject>
 #include <QPointer>
 
@@ -57,6 +60,20 @@ public:
     DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError;
 };
 
+class QMLDESIGNERCORE_EXPORT AbstractViewAction : public QAction
+{
+    Q_OBJECT
+
+public:
+    AbstractViewAction(class AbstractView &view);
+
+signals:
+    void viewCheckedChanged(bool checkable, AbstractView &view);
+
+private:
+    AbstractView &m_view;
+};
+
 class QMLDESIGNERCORE_EXPORT AbstractView : public QObject
 {
     Q_OBJECT
@@ -73,6 +90,7 @@ public:
 
     AbstractView(ExternalDependenciesInterface &externalDependencies)
         : m_externalDependencies{externalDependencies}
+        , m_action{Utils::makeUniqueObjectPtr<AbstractViewAction>(*this)}
     {}
 
     ~AbstractView() override;
@@ -265,8 +283,11 @@ public:
     using OperationBlock = std::function<void()>;
     bool executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda);
 
-    bool isEnabled() const;
-    void setEnabled(bool b);
+    bool isEnabled() const { return m_enabled && (hasWidget() ? m_action->isChecked() : true); }
+
+    void setEnabled(bool enabled) { m_enabled = enabled; }
+
+    AbstractViewAction *action() const { return m_action.get(); }
 
     ExternalDependenciesInterface &externalDependencies() const { return m_externalDependencies; }
 
@@ -303,6 +324,7 @@ private:
 
     QPointer<Model> m_model;
     ExternalDependenciesInterface &m_externalDependencies;
+    Utils::UniqueObjectPtr<AbstractViewAction> m_action;
     bool m_enabled = true;
     bool m_isBlockingNotifications = false;
 };

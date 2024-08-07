@@ -125,6 +125,8 @@ ViewManager::ViewManager(AsynchronousImageCache &imageCache,
             designModeWidget->showDockWidget("TextEditor");
     });
 
+    registerViewActions();
+
     registerNanotraceActions();
 }
 
@@ -280,6 +282,40 @@ void ViewManager::registerNanotraceActions()
 
         d->designerActionManagerView.designerActionManager().addDesignerAction(shutDownNanotraceAction);
     }
+}
+
+void ViewManager::registerViewActions()
+{
+    for (auto view : views()) {
+        if (view->hasWidget())
+            registerViewAction(*view);
+    }
+}
+
+void ViewManager::registerViewAction(AbstractView &view)
+{
+    auto viewAction = view.action();
+    viewAction->setCheckable(true);
+    QObject::connect(view.action(),
+                     &AbstractViewAction::viewCheckedChanged,
+                     [&](bool checkable, AbstractView &view) {
+                         if (checkable)
+                             enableView(view);
+                         else
+                             disableView(view);
+                     });
+}
+
+void ViewManager::enableView(AbstractView &view)
+{
+    if (auto model = currentModel())
+        model->attachView(&view);
+}
+
+void ViewManager::disableView(AbstractView &view)
+{
+    if (auto model = currentModel())
+        model->detachView(&view);
 }
 
 void ViewManager::resetPropertyEditorView()
@@ -488,7 +524,10 @@ void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &cal
 
 Model *ViewManager::currentModel() const
 {
-    return currentDesignDocument()->currentModel();
+    if (auto document = currentDesignDocument())
+        return document->currentModel();
+
+    return nullptr;
 }
 
 Model *ViewManager::documentModel() const
@@ -530,6 +569,7 @@ void ViewManager::enableStandardViews()
 
 void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
 {
+    d->textEditorView.action()->setChecked(true);
     ADS::DockWidget *dockWidget = qobject_cast<ADS::DockWidget *>(
         d->textEditorView.widgetInfo().widget->parentWidget());
     if (dockWidget)
@@ -540,6 +580,7 @@ void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)
 {
     d->additionalViews.push_back(std::move(view));
+    registerViewAction(*d->additionalViews.back());
 }
 
 } // namespace QmlDesigner

@@ -556,6 +556,9 @@ void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 
 void QmlDesignerPlugin::activateAutoSynchronization()
 {
+    viewManager().detachViewsExceptRewriterAndComponetView();
+    viewManager().detachComponentView();
+
     // text editor -> visual editor
     if (!currentDesignDocument()->isDocumentLoaded())
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());
