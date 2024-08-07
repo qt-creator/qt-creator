@@ -117,7 +117,7 @@ public:
     bool parseNamespaceAliasDefinition(DeclarationAST *&node);
     bool parseNewArrayDeclarator(NewArrayDeclaratorListAST *&node);
     bool parseNewExpression(ExpressionAST *&node);
-    bool parseExpressionListParen(ExpressionAST *&node);
+    bool parseExpressionListParen(ExpressionAST *&node, bool allowEmpty);
     bool parseNewInitializer(ExpressionAST *&node);
     bool parseNewTypeId(NewTypeIdAST *&node);
     bool parseOperator(OperatorAST *&node);
