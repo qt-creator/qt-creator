@@ -406,6 +406,12 @@ void TextMark::setColor(const Theme::Color &color)
     updateMarker();
 }
 
+void TextMark::unsetColor()
+{
+    m_color.reset();
+    updateMarker();
+}
+
 void TextMark::setLineAnnotation(const QString &lineAnnotation)
 {
     m_lineAnnotation = lineAnnotation;

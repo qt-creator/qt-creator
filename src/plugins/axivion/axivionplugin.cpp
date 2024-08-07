@@ -219,6 +219,7 @@ public:
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
     void clearAllMarks();
+    void updateExistingMarks();
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void fetchIssueInfo(const QString &id);
     void setIssueDetails(const QString &issueDetailsHtml);
@@ -313,6 +314,8 @@ AxivionPluginPrivate::AxivionPluginPrivate()
     connect(&m_networkAccessManager, &QNetworkAccessManager::sslErrors,
             this, &AxivionPluginPrivate::handleSslErrors);
 #endif // ssl
+    connect(&settings().highlightMarks, &BoolAspect::changed,
+            this, &AxivionPluginPrivate::updateExistingMarks);
 }
 
 void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
@@ -928,6 +931,27 @@ void AxivionPluginPrivate::clearAllMarks()
     const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
     for (IDocument *doc : openDocuments)
         onDocumentClosed(doc);
+}
+
+void AxivionPluginPrivate::updateExistingMarks() // update whether highlight marks or not
+{
+    static Theme::Color color = Theme::Color(Theme::Bookmarks_TextMarkColor); // FIXME!
+    const bool colored = settings().highlightMarks();
+
+    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
+    for (IDocument *doc : openDocuments) {
+        if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
+            const TextMarks textMarks = textDoc->marks();
+            for (TextEditor::TextMark *mark : textMarks) {
+                if (mark->category().id != s_axivionTextMarkId)
+                    continue;
+                if (colored)
+                    mark->setColor(color);
+                else
+                    mark->unsetColor();
+            }
+        }
+    }
 }
 
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
