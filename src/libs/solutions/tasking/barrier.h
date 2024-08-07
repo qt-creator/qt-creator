@@ -71,7 +71,7 @@ using MultiBarrier = Storage<SharedBarrier<Limit>>;
 using SingleBarrier = MultiBarrier<1>;
 
 template <int Limit>
-GroupItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
+ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
 {
     return BarrierTask([sharedBarrier](Barrier &barrier) {
         SharedBarrier<Limit> *activeBarrier = sharedBarrier.activeStorage();
