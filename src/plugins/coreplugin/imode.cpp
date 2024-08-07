@@ -74,7 +74,7 @@ public:
 */
 
 /*!
-    \property IMode::enabled
+    \property Core::IMode::enabled
 
     This property holds whether the mode is enabled.
 
@@ -82,7 +82,7 @@ public:
 */
 
 /*!
-    \property IMode::displayName
+    \property Core::IMode::displayName
 
     This property holds the display name of the mode.
 
@@ -90,7 +90,7 @@ public:
 */
 
 /*!
-    \property IMode::icon
+    \property Core::IMode::icon
 
     This property holds the icon of the mode.
 
@@ -99,7 +99,7 @@ public:
 */
 
 /*!
-    \property IMode::priority
+    \property Core::IMode::priority
 
     This property holds the priority of the mode.
 
@@ -110,7 +110,7 @@ public:
 */
 
 /*!
-    \property IMode::id
+    \property Core::IMode::id
 
     This property holds the ID of the mode.
 */

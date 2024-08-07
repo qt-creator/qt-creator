@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formwindowfile.h"
+#include "qtcreatorintegration.h"
 #include "designerconstants.h"
 #include "resourcehandler.h"
 
@@ -230,6 +231,10 @@ bool FormWindowFile::writeFile(const Utils::FilePath &filePath, QString *errorSt
 {
     if (Designer::Constants::Internal::debug)
         qDebug() << Q_FUNC_INFO << this->filePath() << filePath;
+    auto *integration = qobject_cast<QtCreatorIntegration *>(m_formWindow->core()->integration());
+    Q_ASSERT(integration);
+    if (!integration->setQtVersionFromFile(filePath))
+        integration->resetQtVersion();
     return write(filePath, format(), m_formWindow->contents(), errorString);
 }
 

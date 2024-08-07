@@ -10,7 +10,7 @@ instructions:
         variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_18.1.7-based
       - type: EnvironmentVariable
         variableName: QTC_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.7/6.7.1-released/Qt"
+        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.7/6.7.2-released/Qt"
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"

@@ -72,7 +72,7 @@
 */
 
 /*!
-    \enum IDocument::OpenResult
+    \enum Core::IDocument::OpenResult
 
     The OpenResult enum describes whether a file was successfully opened.
 
@@ -87,13 +87,13 @@
 */
 
 /*!
-    \enum IDocument::ReloadSetting
+    \enum Core::IDocument::ReloadSetting
 
     \internal
 */
 
 /*!
-    \enum IDocument::ChangeTrigger
+    \enum Core::IDocument::ChangeTrigger
 
     The ChangeTrigger enum describes whether a file was changed from \QC
     internally or from the outside.
@@ -107,7 +107,7 @@
 */
 
 /*!
-    \enum IDocument::ChangeType
+    \enum Core::IDocument::ChangeType
 
     The ChangeType enum describes the way in which the file changed.
 
@@ -121,7 +121,7 @@
 */
 
 /*!
-    \enum IDocument::ReloadFlag
+    \enum Core::IDocument::ReloadFlag
 
     The ReloadFlag enum describes if a file should be reloaded from disk.
 

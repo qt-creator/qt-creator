@@ -51,7 +51,7 @@
                 <value type="int" key="EditorConfiguration.TabSize">14</value>
                 <value type="int" key="EditorConfiguration.IndentSize">4</value>
             </valuemap>
-            </data>
+        </data>
         <data>
             <variable>ProjectExplorer.Project.Updater.FileVersion</variable>
             <value type="int">10</value>
@@ -82,7 +82,7 @@
     <?xml version="1.0" encoding="UTF-8"?>
     <!DOCTYPE QtCreatorProject>
     <qtcreator>
-      <data>
+     <data>
       <variable>ProjectExplorer.Project.PluginSettings</variable>
        <valuemap type="QVariantMap">
         <valuemap type="QVariantMap" key="CMakeSpecificSettings">

@@ -93,12 +93,12 @@ private:
  */
 
 /*!
-    \typedef QrcParser::Ptr
+    \typedef Utils::QrcParser::Ptr
     Represents pointers.
  */
 
 /*!
-    \typedef QrcParser::ConstPtr
+    \typedef Utils::QrcParser::ConstPtr
     Represents constant pointers.
 */
 

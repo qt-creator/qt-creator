@@ -263,6 +263,7 @@ void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)
     QTC_ASSERT(cmakeBuildSystem, return);
 
     cmakeBuildSystem->clearCMakeCache();
+    cmakeBuildSystem->disableCMakeBuildMenuActions();
 }
 
 void CMakeManager::runCMake(BuildSystem *buildSystem)

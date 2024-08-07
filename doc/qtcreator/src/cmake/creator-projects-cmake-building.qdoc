@@ -170,7 +170,7 @@
 
     \image qtcreator-build-cmake-output.png {CMake output in Projects mode}
 
-    To clear the search results, select the \inlineimage icons/clean_pane_small.png
+    To clear the output from CMake, select the \inlineimage icons/clean_pane_small.png
     (\uicontrol Clear) button.
 
     You can enter a string in the \uicontrol Filter field to filter output.
