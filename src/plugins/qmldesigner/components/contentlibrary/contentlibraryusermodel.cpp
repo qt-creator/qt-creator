@@ -95,6 +95,8 @@ void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &na
 
 void ContentLibraryUserModel::refreshSection(const QString &bundleId)
 {
+    QTC_ASSERT(!bundleId.isEmpty(), return);
+
     SectionIndex sectionIdx = bundleIdToSectionIndex(bundleId);
     emit dataChanged(index(sectionIdx), index(sectionIdx), {ItemsRole, EmptyRole});
     updateIsEmpty();

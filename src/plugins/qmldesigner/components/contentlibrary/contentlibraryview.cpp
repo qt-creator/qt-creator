@@ -1048,7 +1048,6 @@ void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage o
         qWarning() << __FUNCTION__ << ": icon save failed";
 
     m_iconSavePath.clear();
-    m_bundleId.clear();
 };
 
 void ContentLibraryView::importBundleToContentLib()
