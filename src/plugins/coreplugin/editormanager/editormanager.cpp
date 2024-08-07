@@ -208,7 +208,7 @@ void EditorManagerPlaceHolder::showEvent(QShowEvent *)
 */
 
 /*!
-    \enum EditorManager::OpenEditorFlag
+    \enum Core::EditorManager::OpenEditorFlag
 
     This enum specifies settings for opening a file in an editor.
 

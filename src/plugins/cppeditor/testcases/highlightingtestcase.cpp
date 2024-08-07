@@ -68,3 +68,6 @@ static void parenTest2()
 
     }
 }
+
+wchar_t operator ""_wc(const wchar_t c) { return c; }
+const auto c = L'c'_wc;

@@ -38,7 +38,14 @@ enum MemcheckError
     Leak_PossiblyLost,
     Leak_StillReachable,
     Leak_IndirectlyLost,
-    ReallocSizeZero
+    ReallocSizeZero,
+    InvalidSize,
+    InvalidSizeAndAlignment,
+    InvalidAlignment,
+    MismatchedAllocateDeallocateSize,
+    MismatchedAllocateDeallocateAlignment,
+    FishyValue,
+    // CoreMemError    // questionable, seems to be unlikely to happen
 };
 Q_ENUM_NS(MemcheckError);
 

@@ -17,7 +17,7 @@ namespace Core {
 */
 
 /*!
-    \enum IOutputPane::Flag
+    \enum Core::IOutputPane::Flag
 
     This enum type controls the behavior of the output pane when it is requested to show itself.
 

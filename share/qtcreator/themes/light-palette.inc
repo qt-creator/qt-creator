@@ -5,7 +5,7 @@ PaletteWindowText=ff000000
 PaletteWindowTextDisabled=PaletteTextDisabled
 PaletteBase=PaletteWindow
 PaletteBaseDisabled=PaletteWindowDisabled
-PaletteAlternateBase=ff515151
+PaletteAlternateBase=fff7f7f7
 ;PaletteAlternateBaseDisabled
 PaletteToolTipBase=PaletteDark
 ;PaletteToolTipBaseDisabled

@@ -129,7 +129,7 @@ using namespace Internal;
  * name.
  */
 
-/*! \enum ReadOnlyFilesDialog::ReadOnlyResult
+/*! \enum Core::ReadOnlyFilesDialog::ReadOnlyResult
     This enum holds the operations that are allowed to make the file writable.
 
      \value RO_Cancel

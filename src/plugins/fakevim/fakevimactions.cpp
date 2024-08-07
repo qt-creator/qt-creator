@@ -114,6 +114,7 @@ FakeVimSettings::FakeVimSettings()
     tabStop.setToolTip(Tr::tr("Vim tabstop option."));
 
 #ifndef FAKEVIM_STANDALONE
+    tabStop.setRange(1, 99);
     backspace.setDisplayStyle(FvStringAspect::LineEditDisplay);
     isKeyword.setDisplayStyle(FvStringAspect::LineEditDisplay);
 

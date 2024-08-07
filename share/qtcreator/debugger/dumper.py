@@ -288,8 +288,6 @@ class DumperBase():
         # A hack to cover most of the changes from Qt 5 to 6
         if version == 0x60000 and self.qtversionAtLeast6 is not None:
             return self.qtversionAtLeast6
-        if version == 0x50000: # FIXME: This drops unknown 4.x for now
-            return True
         return self.qtVersion() >= version
 
     def qtVersionPing(self, typeid, size_for_qt5=-1):
@@ -496,7 +494,7 @@ class DumperBase():
             native_type = self.lookupNativeType(typename)
             if native_type is None:
                 #sCANNOT DETERMINE SIZE FOR TYelf.dump_location()
-                self.dump_location()
+                #self.dump_location()
                 self.warn("TYPEIDS: %s" % self.typeid_cache)
                 self.warn("COULD NOT FIND TYPE '%s'" % typename)
                 return None
@@ -1070,7 +1068,7 @@ class DumperBase():
     def check(self, exp):
         if not exp:
             self.warn('Check failed: %s' % exp)
-            self.dump_location()
+            #self.dump_location()
             raise RuntimeError('Check failed: %s' % exp)
 
     def check_typeid(self, typeid):
@@ -3716,7 +3714,7 @@ typename))
                 return size, typeid
 
         typeobj = self.lookupType(typename)
-        self.warn("LOOKUP FIELD TYPE: %s TYPEOBJ: %s" % (typename, typeobj))
+        #self.warn("LOOKUP FIELD TYPE: %s TYPEOBJ: %s" % (typename, typeobj))
         if typeobj is not None:
             typeid = typeobj.typeid
             size = self.type_size(typeid)
