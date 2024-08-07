@@ -570,7 +570,7 @@ ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
     };
 
     const auto onForwardPortSetup = [this, port, adbArg](Process &process) {
-        process.setCommand({AndroidConfig::adbToolPath(), {selector(), port, adbArg}});
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "forward", port, adbArg}});
     };
     const auto onForwardPortDone = [this, port, portType](DoneWith result) {
         if (result == DoneWith::Success)
