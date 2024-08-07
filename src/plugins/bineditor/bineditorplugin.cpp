@@ -2319,8 +2319,9 @@ public:
         auto document = std::make_shared<BinEditorDocument>();
         auto service = new BinEditorImpl(document);
         service->widget()->setWindowTitle(title);
+        service->document()->setPreferredDisplayName(title);
         if (wantsEditor)
-            EditorManager::activateEditor(service);
+            EditorManager::addEditor(service);
         return service;
     }
 };

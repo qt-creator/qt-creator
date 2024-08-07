@@ -1420,6 +1420,8 @@ IEditor *EditorManagerPrivate::placeEditor(EditorView *view, IEditor *editor)
     if (IEditor *e = view->editorForDocument(editor->document()))
         return e;
 
+    QTC_CHECK(DocumentModel::editorsForDocument(editor->document()).contains(editor));
+
     const QByteArray state = editor->saveState();
     if (EditorView *sourceView = viewForEditor(editor)) {
         // try duplication or pull editor over to new view
@@ -3149,6 +3151,17 @@ IEditor *EditorManager::activateEditorForDocument(IDocument *document, OpenEdito
     return EditorManagerPrivate::activateEditorForDocument(EditorManagerPrivate::currentEditorView(),
                                                            document,
                                                            flags);
+}
+
+/*!
+    Makes an IEditor instance \a editor known to the EditorManager that it did
+    not know before, and activates it using \a flags.
+*/
+void EditorManager::addEditor(IEditor *editor, OpenEditorFlags flags)
+{
+    QTC_ASSERT(!DocumentModel::editorsForDocument(editor->document()).contains(editor), return);
+    d->addEditor(editor);
+    activateEditor(editor, flags);
 }
 
 /*!
