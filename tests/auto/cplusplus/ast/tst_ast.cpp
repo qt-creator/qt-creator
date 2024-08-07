@@ -113,6 +113,7 @@ private slots:
     void templated_dtor_4();
     void templated_dtor_5();
     void emptyMemberInitialization();
+    void placementNewWithEmptyConstructorArgs();
 
     // possible declaration-or-expression statements
     void call_call_1();
@@ -2066,6 +2067,15 @@ void tst_AST::emptyMemberInitialization()
 {
     const std::shared_ptr<TranslationUnit> unit(parse(
         "struct S\n{\n    S(): i() {}\n    int i;};", TranslationUnit::ParseTranlationUnit));
+    QVERIFY(unit->ast());
+    QCOMPARE(diag.errorCount, 0);
+}
+
+void tst_AST::placementNewWithEmptyConstructorArgs()
+{
+    const std::shared_ptr<TranslationUnit> unit(parse(
+        "int main()\n{    int* i = new int;\n    i = new(i) int();}",
+        TranslationUnit::ParseTranlationUnit));
     QVERIFY(unit->ast());
     QCOMPARE(diag.errorCount, 0);
 }

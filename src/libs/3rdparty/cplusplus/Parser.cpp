@@ -5838,7 +5838,7 @@ bool Parser::parseNewInitializer(ExpressionAST *&node)
 {
     DEBUG_THIS_RULE();
     if (LA() == T_LPAREN)
-        return parseExpressionListParen(node, false);
+        return parseExpressionListParen(node, true);
     else if (_languageFeatures.cxx11Enabled && LA() == T_LBRACE)
         return parseBracedInitList0x(node);
     return false;
