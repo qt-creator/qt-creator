@@ -18,6 +18,8 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
+#include <texteditor/textdocument.h>
+
 #include <utils/algorithm.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
@@ -852,14 +854,14 @@ public:
 
         m_toggleIssues = new QToolButton(m_outputWidget);
         m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-        m_toggleIssues->setToolTip(Tr::tr("Show issue markers inline"));
+        m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
         m_toggleIssues->setCheckable(true);
-        m_toggleIssues->setChecked(settings().highlightMarks());
+        m_toggleIssues->setChecked(true);
         connect(m_toggleIssues, &QToolButton::toggled, this, [](bool checked) {
-            settings().highlightMarks.setValue(checked);
-        });
-        connect(&settings().highlightMarks, &BaseAspect::changed, this, [this] {
-            m_toggleIssues->setChecked(settings().highlightMarks());
+            if (checked)
+                TextEditor::TextDocument::showMarksAnnotation("AxivionTextMark");
+            else
+                TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
         });
     }
 
