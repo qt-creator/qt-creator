@@ -82,6 +82,7 @@ protected:
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
 {
 public:
+    DesktopDeviceFileAccess();
     ~DesktopDeviceFileAccess() override;
 
     static DesktopDeviceFileAccess *instance();
