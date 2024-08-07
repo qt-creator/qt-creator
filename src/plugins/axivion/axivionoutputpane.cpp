@@ -19,6 +19,7 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
 #include <utils/qtcassert.h>
@@ -303,6 +304,7 @@ private:
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
+    Guard m_signalBlocker;
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
@@ -329,13 +331,20 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     m_versionStart = new QComboBox(this);
     m_versionStart->setMinimumContentsLength(25);
-    connect(m_versionStart, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_versionStart, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (m_signalBlocker.isLocked())
+            return;
+        QTC_ASSERT(index > -1 && index < m_versionDates.size(), return);
+        onSearchParameterChanged();
+    });
 
     m_versionEnd = new QComboBox(this);
     m_versionEnd->setMinimumContentsLength(25);
-    connect(m_versionEnd, &QComboBox::activated, this, [this](int index) {
-        onSearchParameterChanged();
+    connect(m_versionEnd, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (m_signalBlocker.isLocked())
+            return;
         QTC_ASSERT(index > -1 && index < m_versionDates.size(), return);
+        onSearchParameterChanged();
         setAnalysisVersion(m_versionDates.at(index));
     });
 
@@ -362,7 +371,12 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_ownerFilter = new QComboBox(this);
     m_ownerFilter->setToolTip(Tr::tr("Owner"));
     m_ownerFilter->setMinimumContentsLength(25);
-    connect(m_ownerFilter, &QComboBox::activated, this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_ownerFilter, &QComboBox::currentIndexChanged, this, [this](int index) {
+        if (m_signalBlocker.isLocked())
+            return;
+        QTC_ASSERT(index > -1 && index < m_userNames.size(), return);
+        onSearchParameterChanged();
+    });
 
     m_pathGlobFilter = new QLineEdit(this);
     m_pathGlobFilter->setPlaceholderText(Tr::tr("Path globbing"));
@@ -641,7 +655,9 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         userDisplayNames.append(user.displayName);
         m_userNames.append(user.name);
     }
+    m_signalBlocker.lock();
     m_ownerFilter->addItems(userDisplayNames);
+    m_signalBlocker.unlock();
 
     m_versionDates.clear();
     m_versionStart->clear();
@@ -653,9 +669,11 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         versionLabels.append(version.label.value_or(version.name));
         m_versionDates.append(version.date);
     }
+    m_signalBlocker.lock();
     m_versionStart->addItems(versionLabels);
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
+    m_signalBlocker.unlock();
 }
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
