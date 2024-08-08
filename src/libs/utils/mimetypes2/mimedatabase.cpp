@@ -15,12 +15,12 @@
 
 #include <nanotrace/nanotrace.h>
 
-#include <QFile>
-#include <QFileInfo>
-#include <QStandardPaths>
-#include <QBuffer>
-#include <QUrl>
-#include <QDebug>
+#include <QtCore/QFile>
+#include <QtCore/QFileInfo>
+#include <QtCore/QStandardPaths>
+#include <QtCore/QBuffer>
+#include <QtCore/QUrl>
+#include <QtCore/QDebug>
 
 #include <algorithm>
 #include <functional>

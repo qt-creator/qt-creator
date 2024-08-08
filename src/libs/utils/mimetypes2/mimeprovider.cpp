@@ -9,6 +9,7 @@
 #include "mimemagicrulematcher_p.h"
 
 #include <qstandardpaths.h>
+#include <QMap>
 #include <QXmlStreamReader>
 #include <QBuffer>
 #include <QDir>

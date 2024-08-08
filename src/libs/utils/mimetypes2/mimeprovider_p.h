@@ -20,6 +20,7 @@
 #include "mimeglobpattern_p.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qset.h>
+#include <QtCore/qmap.h>
 
 namespace Utils {
 

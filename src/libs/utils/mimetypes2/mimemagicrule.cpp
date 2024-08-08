@@ -4,9 +4,9 @@
 #include "mimemagicrule_p.h"
 
 #include "mimetypeparser_p.h"
-
 #include <QtCore/QDebug>
 #include <QtCore/QList>
+#include <QtCore/QMap>
 #include <qendian.h>
 
 namespace Utils {
