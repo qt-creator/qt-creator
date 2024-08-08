@@ -5,8 +5,8 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 
-import QtQuick %{QtQuickVersion}
-import %{ImportModuleName} %{ImportModuleVersion}
+import QtQuick
+import %{ImportModuleName}
 
 Rectangle {
     width: Constants.width
