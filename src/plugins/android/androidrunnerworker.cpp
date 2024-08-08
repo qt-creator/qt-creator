@@ -751,6 +751,7 @@ ExecutableItem AndroidRunnerWorker::postDoneRecipe()
 
 ExecutableItem AndroidRunnerWorker::pidRecipe()
 {
+    using PidUserPair = std::pair<qint64, qint64>;
     const Storage<PidUserPair> pidStorage;
 
     const FilePath adbPath = AndroidConfig::adbToolPath();
@@ -793,6 +794,24 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
         return DoneResult::Error;
     };
 
+    const auto onPidSync = [this, pidStorage] {
+        qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
+                                     << "to:" << pidStorage->first;
+        m_processPID = pidStorage->first;
+        m_processUser = pidStorage->second;
+
+        if (m_useCppDebugger)
+            startNativeDebugging();
+
+        emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
+    };
+
+    const auto onIsAliveSetup = [this, pidStorage](Process &process) {
+        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setCommand({AndroidConfig::adbToolPath(),
+                            {selector(), "shell", pidPollingScript.arg(pidStorage->first)}});
+    };
+
     return Group {
         pidStorage,
         onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
@@ -803,7 +822,9 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
                         DoneResult::Error)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
-        onGroupDone([pidStorage, this] { onProcessIdChanged(*pidStorage); })
+        Sync(onPidSync),
+        ProcessTask(onIsAliveSetup),
+        postDoneRecipe()
     };
 }
 
@@ -825,11 +846,10 @@ void AndroidRunnerWorker::asyncStart()
 
 void AndroidRunnerWorker::asyncStop()
 {
-    m_taskTreeRunner.reset();
     if (m_processPID != -1)
-        forceStop();
-
-    m_debugServerProcess.reset();
+        m_taskTreeRunner.start(Group { forceStopRecipe(), postDoneRecipe() });
+    else
+        m_taskTreeRunner.reset();
 }
 
 bool AndroidRunnerWorker::removeForwardPort(const QString &port, const QString &adbArg,
@@ -844,43 +864,6 @@ bool AndroidRunnerWorker::removeForwardPort(const QString &port, const QString &
     }
     emit remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
     return false;
-}
-
-void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
-{
-    qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
-                                 << "to:" << pidUser.first;
-    m_processPID = pidUser.first;
-    m_processUser = pidUser.second;
-    if (m_processPID == -1) {
-        emit remoteProcessFinished(QLatin1String("\n\n") + Tr::tr("\"%1\" died.")
-                                   .arg(m_packageName));
-        // App died/killed. Reset log, monitor, jdb & gdbserver/lldb-server processes.
-        m_psIsAlive.reset();
-        m_debugServerProcess.reset();
-
-        // Run adb commands after application quit.
-        for (const QString &entry: std::as_const(m_afterFinishAdbCommands))
-            runAdb(entry.split(' ', Qt::SkipEmptyParts));
-    } else {
-        if (m_useCppDebugger)
-            startNativeDebugging();
-        // In debugging cases this will be funneled to the engine to actually start
-        // and attach gdb. Afterwards this ends up in handleRemoteDebuggerRunning() below.
-        emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
-        // TODO: Add a pidBarrier and activate it -> it should start parsing the logcat output.
-        // logcatReadStandardOutput();
-        QTC_ASSERT(!m_psIsAlive, /**/);
-        QStringList isAliveArgs = selector() << "shell" << pidPollingScript.arg(m_processPID);
-        m_psIsAlive.reset(AndroidManager::startAdbProcess(isAliveArgs));
-        QTC_ASSERT(m_psIsAlive, return);
-        m_psIsAlive->setObjectName("IsAliveProcess");
-        m_psIsAlive->setProcessChannelMode(QProcess::MergedChannels);
-        connect(m_psIsAlive.get(), &Process::done, this, [this] {
-            m_psIsAlive.release()->deleteLater();
-            onProcessIdChanged({-1, -1});
-        });
-    }
 }
 
 } // namespace Android::Internal

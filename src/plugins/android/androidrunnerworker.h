@@ -18,8 +18,6 @@ namespace Utils { class Process; }
 
 namespace Android::Internal {
 
-using PidUserPair = std::pair<qint64, qint64>;
-
 class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
@@ -51,7 +49,6 @@ private:
     bool packageFileExists(const QString &filePath);
     bool uploadDebugServer(const QString &debugServerFileName);
 
-    void onProcessIdChanged(const PidUserPair &pidUser);
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
     Tasking::ExecutableItem forceStopRecipe();
     Tasking::ExecutableItem removeForwardPortRecipe(const QString &port, const QString &adbArg,
@@ -71,7 +68,6 @@ private:
     QStringList m_amStartExtraArgs;
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
-    std::unique_ptr<Utils::Process> m_psIsAlive;
     Tasking::TaskTreeRunner m_taskTreeRunner;
     bool m_useCppDebugger = false;
     bool m_useLldb = false; // FIXME: Un-implemented currently.
