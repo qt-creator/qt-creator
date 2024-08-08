@@ -11,10 +11,11 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/algorithm.h>
+#include <utils/environment.h>
 #include <utils/fileutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
-#include <utils/algorithm.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -361,6 +362,26 @@ bool ToolchainManager::isBetterToolchain(
         return !b2IsCcache;
     if (b2IsCcache)
         return false;
+
+    // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
+    // This improves the situation a bit if a cross-compilation tool chain has the
+    // same ABI as the host.
+    if (!bundle1.get(&Toolchain::compilerCommand).needsDevice()) {
+        const FilePaths envPathVar = Environment::systemEnvironment().path();
+        const auto toolchainIsInPath = [&envPathVar](const ToolchainBundle &b) {
+            return Utils::contains(b.toolchains(), [&envPathVar](const Toolchain *tc) {
+                return envPathVar.contains(tc->compilerCommand().parentDir());
+            });
+        };
+        const bool tc1IsInPath = toolchainIsInPath(bundle1);
+        const bool tc2IsInPath = toolchainIsInPath(bundle2);
+        if (tc1IsInPath) {
+            if (!tc2IsInPath)
+                return true;
+        } else if (tc2IsInPath) {
+            return false;
+        }
+    }
 
     return path1.size() < path2.size();
 }

@@ -247,10 +247,7 @@ void QtKitAspectFactory::fix(Kit *k)
         return;
 
     // Prefer exact matches.
-    // TODO: We should probably prefer the compiler with the highest version number instead,
-    //       but this information is currently not exposed by the Toolchain class.
-    const FilePaths envPathVar = Environment::systemEnvironment().path();
-    sort(bundles, [version, &envPathVar](const ToolchainBundle &b1, const ToolchainBundle &b2) {
+    sort(bundles, [version](const ToolchainBundle &b1, const ToolchainBundle &b2) {
         const QVector<Abi> &qtAbis = version->qtAbis();
         const bool tc1ExactMatch = qtAbis.contains(b1.targetAbi());
         const bool tc2ExactMatch = qtAbis.contains(b2.targetAbi());
@@ -270,21 +267,7 @@ void QtKitAspectFactory::fix(Kit *k)
                 return false;
         }
 
-        const int prio1 = b1.get(&Toolchain::priority);
-        const int prio2 = b2.get(&Toolchain::priority);
-        if (prio1 > prio2)
-            return true;
-        if (prio1 < prio2)
-            return false;
-
-        // Hack to prefer a tool chain from PATH (e.g. autodetected) over other matches.
-        // This improves the situation a bit if a cross-compilation tool chain has the
-        // same ABI as the host.
-        const bool tc1IsInPath = envPathVar.contains(
-            b1.compilerCommand(CXX_LANGUAGE_ID).parentDir());
-        const bool tc2IsInPath = envPathVar.contains(
-            b2.compilerCommand(CXX_LANGUAGE_ID).parentDir());
-        return tc1IsInPath && !tc2IsInPath;
+        return ToolchainManager::isBetterToolchain(b1, b2);
     });
 
     // TODO: Why is this not done during sorting?
