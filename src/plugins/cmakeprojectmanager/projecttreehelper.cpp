@@ -23,7 +23,8 @@ bool defaultCMakeSourceGroupFolder(const QString &displayName)
     return displayName == "Source Files" || displayName == "Header Files"
            || displayName == "Resources" || displayName == ""
            || displayName == "Precompile Header File" || displayName == "CMake Rules"
-           || displayName == "Object Files";
+           || displayName == "Object Files" || displayName == "Forms"
+           || displayName == "State charts";
 }
 
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
