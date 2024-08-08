@@ -27,6 +27,7 @@
 #include <rewritertransaction.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 
 #include <componentcore_constants.h>
@@ -1912,16 +1913,18 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
     AbstractView *view = targetNode.view();
     QTC_ASSERT(view, return {});
 
-    auto bindToProperty = [&](const PropertyName &propName, bool sibling) {
+    auto bindToProperty = [&](const PropertyName &propName) {
         view->executeInTransaction("NavigatorTreeModel::dropAsImage3dTexture", [&] {
             newNode = createTextureNode(targetProp, imagePath);
             if (newNode.isValid()) {
-                targetNode.bindingProperty(propName).setExpression(newNode.validId());
-
-                // If dropping an image on e.g. TextureInput, create a texture on the same level as
-                // target, as the target doesn't support Texture children (QTBUG-86219)
-                if (sibling)
-                    outMoveNodesAfter = !moveNodeToParent(targetProp, newNode);
+                BindingProperty bindProp = targetNode.bindingProperty(propName);
+                bindProp.setExpression(newNode.validId());
+                ModelNode matLib = Utils3D::materialLibraryNode(view);
+                if (matLib.isValid()) {
+                    NodeAbstractProperty matLibProp = matLib.defaultNodeAbstractProperty();
+                    matLibProp.reparentHere(newNode);
+                    outMoveNodesAfter = false;
+                }
             }
         });
     };
@@ -1952,13 +1955,13 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         delete dialog;
         return true;
     } else if (targetNode.metaInfo().isQtQuick3DTextureInput()) {
-        bindToProperty("texture", true);
+        bindToProperty("texture");
         return newNode.isValid();
     } else if (targetNode.metaInfo().isQtQuick3DParticles3DSpriteParticle3D()) {
-        bindToProperty("sprite", false);
+        bindToProperty("sprite");
         return newNode.isValid();
     } else if (targetNode.metaInfo().isQtQuick3DSceneEnvironment()) {
-        bindToProperty("lightProbe", false);
+        bindToProperty("lightProbe");
         return newNode.isValid();
     } else if (targetNode.metaInfo().isQtQuick3DTexture()) {
         // if dropping an image on an existing texture, set the source

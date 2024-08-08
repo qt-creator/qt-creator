@@ -216,14 +216,22 @@ void NameItemDelegate::paint(QPainter *painter,
             QByteArray dragType = widget->dragType();
             const NodeMetaInfo metaInfo = node.metaInfo();
 
+            auto isValid3dTextureTarget = [&metaInfo]() -> bool {
+                return metaInfo.isQtQuick3DModel()
+                       || metaInfo.isQtQuick3DTexture()
+                       || metaInfo.isQtQuick3DSceneEnvironment()
+                       || metaInfo.isQtQuick3DTextureInput()
+                       || metaInfo.isQtQuick3DParticles3DSpriteParticle3D();
+            };
+
             bool validDrop = false;
             if (dragType == Constants::MIME_TYPE_BUNDLE_TEXTURE) {
                 validDrop = metaInfo.isQtQuick3DModel();
             } else if (dragType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
-                validDrop = metaInfo.isQtQuick3DModel() || metaInfo.isQtQuick3DTexture();
+                validDrop = isValid3dTextureTarget();
             } else if (dragType == Constants::MIME_TYPE_ASSET_IMAGE) {
-                validDrop = metaInfo.isQtQuick3DModel() || metaInfo.isQtQuick3DTexture()
-                        || metaInfo.isQtQuickImage() || metaInfo.isQtQuickBorderImage();
+                validDrop = isValid3dTextureTarget()
+                            || metaInfo.isQtQuickImage() || metaInfo.isQtQuickBorderImage();
             } else {
                 const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
                 ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);
