@@ -757,9 +757,7 @@ void PropertyEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
         m_textureAboutToBeRemoved = true;
 }
 
-void PropertyEditorView::nodeRemoved(const ModelNode &removedNode,
-                                     const NodeAbstractProperty &parentProperty,
-                                     PropertyChangeFlags propertyChange)
+void PropertyEditorView::nodeRemoved(const ModelNode &, const NodeAbstractProperty &, PropertyChangeFlags)
 {
     if (m_qmlBackEndForCurrentType && m_textureAboutToBeRemoved)
         m_qmlBackEndForCurrentType->refreshBackendModel();
