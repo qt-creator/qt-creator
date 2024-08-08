@@ -331,4 +331,38 @@ void ToolchainManager::addBadToolchain(const Utils::FilePath &toolchain)
     d->m_badToolchains.toolchains << toolchain;
 }
 
+// Use as a tie-breaker for toolchains that match the strong requirements like toolchain type
+// and ABI.
+// For toolchains with the same priority, gives precedence to icecc and ccache
+// and otherwise simply chooses the one with the shortest path.
+bool ToolchainManager::isBetterToolchain(
+    const ToolchainBundle &bundle1, const ToolchainBundle &bundle2)
+{
+    const int priority1 = bundle1.get(&Toolchain::priority);
+    const int priority2 = bundle2.get(&Toolchain::priority);
+    if (priority1 > priority2)
+        return true;
+    if (priority1 < priority2)
+        return false;
+
+    const QString path1 = bundle1.get(&Toolchain::compilerCommand).path();
+    const QString path2 = bundle2.get(&Toolchain::compilerCommand).path();
+
+    const bool b1IsIcecc = path1.contains("icecc");
+    const bool b2IsIcecc = path2.contains("icecc");
+    if (b1IsIcecc)
+        return !b2IsIcecc;
+    if (b2IsIcecc)
+        return false;
+
+    const bool b1IsCCache = path1.contains("ccache");
+    const bool b2IsCcache = path2.contains("ccache");
+    if (b1IsCCache)
+        return !b2IsCcache;
+    if (b2IsCcache)
+        return false;
+
+    return path1.size() < path2.size();
+}
+
 } // namespace ProjectExplorer

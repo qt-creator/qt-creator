@@ -460,22 +460,20 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
 
     // Set a matching bundle for each LanguageCategory/Abi pair, if possible.
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {
-        QList<ToolchainBundle> matchingBundles
+        const QList<ToolchainBundle> matchingBundles
             = Utils::filtered(bundles, [&it](const ToolchainBundle &b) {
                   return b.factory()->languageCategory() == it.key() && b.targetAbi() == it.value();
               });
 
-        // FIXME: Re-use the algorithm from KitManager
-        Utils::sort(matchingBundles, [](const ToolchainBundle &b1, const ToolchainBundle &b2) {
-            return b1.get(&Toolchain::priority) > b2.get(&Toolchain::priority);
-        });
-
-        if (!matchingBundles.isEmpty())  {
-            ToolchainKitAspect::setBundle(k, matchingBundles.first());
-        } else {
+        if (matchingBundles.isEmpty()) {
             for (const Id language : it.key())
                 ToolchainKitAspect::clearToolchain(k, language);
+            continue;
         }
+
+        const auto bestBundle
+            = std::min_element(bundles.begin(), bundles.end(), &ToolchainManager::isBetterToolchain);
+        ToolchainKitAspect::setBundle(k, *bestBundle);
     }
 }
 

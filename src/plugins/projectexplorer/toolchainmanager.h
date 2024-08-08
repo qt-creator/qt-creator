@@ -67,6 +67,8 @@ public:
     static bool isBadToolchain(const Utils::FilePath &toolchain);
     static void addBadToolchain(const Utils::FilePath &toolchain);
 
+    static bool isBetterToolchain(const ToolchainBundle &bundle1, const ToolchainBundle &bundle2);
+
     void saveToolchains();
 
 signals:
