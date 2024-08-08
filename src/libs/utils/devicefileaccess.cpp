@@ -427,22 +427,40 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         public:
             void init(GlobalWatcher *parent)
             {
-                const auto forward = [parent](const QString &path) {
-                    parent->d.readLocked()->notify(path);
-                };
+                connect(
+                    &m_watcher,
+                    &QFileSystemWatcher::fileChanged,
+                    parent,
+                    [parent](const QString &path) {
+                        bool shouldReAddFile = parent->d.readLocked()->notify(path, true);
+                        if (shouldReAddFile)
+                            parent->d.writeLocked()->m_watcher.addPath(path);
+                    });
 
-                connect(&m_watcher, &QFileSystemWatcher::fileChanged, parent, forward);
-                connect(&m_watcher, &QFileSystemWatcher::directoryChanged, parent, forward);
+                connect(
+                    &m_watcher,
+                    &QFileSystemWatcher::directoryChanged,
+                    parent,
+                    [parent](const QString &path) { parent->d.readLocked()->notify(path, false); });
             }
-            void notify(const QString &path) const
+            bool notify(const QString &path, bool isFile) const
             {
                 const FilePath filePath = FilePath::fromString(path);
                 auto it = m_watchClients.find(filePath);
                 if (it == m_watchClients.end())
-                    return;
+                    return false;
 
                 for (DesktopFilePathWatcher *watcher : it.value())
                     watcher->emitChanged();
+
+                if (isFile && !m_watcher.files().contains(path)) {
+                    // The file might have been deleted, lets see if there is a new file to watch
+                    // in its place:
+                    if (QFile::exists(path))
+                        return true;
+                }
+
+                return false;
             }
             void watch(DesktopFilePathWatcher *watcher)
             {
