@@ -23,6 +23,13 @@ local Suggestion = {}
 ---@return Suggestion suggestion The created suggestion.
 function Suggestion:create(startLine, startCharacter, endLine, endCharacter, text) end
 
+---@class CyclicSuggestion
+local CyclicSuggestion = {}
+
+---@return boolean True if the suggestion is locked, false otherwise.
+---Suggestion is locked when the user selects it and already started aplying it partially.
+function CyclicSuggestion:isLocked() end
+
 ---@class TextDocument
 local TextDocument = {}
 
@@ -58,5 +65,8 @@ function TextEditor:cursor() end
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end
+
+---@return CyclicSuggestion|nil The current suggestion if available. Otherwise nil.
+function textEditor.currentSuggestion() end
 
 return textEditor

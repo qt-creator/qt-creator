@@ -451,6 +451,25 @@ void setupTextEditorModule()
             return TextEditor::BaseTextEditor::currentTextEditor();
         };
 
+        result["currentSuggestion"] = []() -> CyclicSuggestion * {
+            const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
+            if (!textEditor)
+                return nullptr;
+
+            auto *widget = textEditor->editorWidget();
+            if (!widget)
+                return nullptr;
+
+            auto res = dynamic_cast<CyclicSuggestion *>(widget->currentSuggestion());
+            if (!res)
+                return nullptr;
+
+            return res;
+        };
+
+        result.new_usertype<CyclicSuggestion>(
+            "CyclicSuggestion", sol::no_constructor, "isLocked", &CyclicSuggestion::isLocked);
+
         result.new_usertype<MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
