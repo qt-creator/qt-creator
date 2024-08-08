@@ -27,12 +27,6 @@ namespace Internal {
 // ToolchainManagerPrivate
 // --------------------------------------------------------------------------
 
-struct LanguageDisplayPair
-{
-    Utils::Id id;
-    QString displayName;
-};
-
 class ToolchainManagerPrivate
 {
 public:
@@ -42,8 +36,13 @@ public:
 
     Toolchains m_toolChains; // prioritized List
     BadToolchains m_badToolchains;   // to be skipped when auto-detecting
-    QVector<LanguageDisplayPair> m_languages;
-    QList<std::pair<LanguageCategory, QString>> m_languageCategories;
+
+    QList<Id> m_languages;
+    QHash<Id, QString> m_displayNameForLanguage;
+
+    QList<LanguageCategory> m_languageCategories;
+    QHash<LanguageCategory, QString> m_displayNameForCategory;
+
     ToolchainDetectionSettings m_detectionSettings;
     bool m_loaded = false;
 };
@@ -244,7 +243,7 @@ void ToolchainManager::deregisterToolchains(const Toolchains &toolchains)
 
 QList<Id> ToolchainManager::allLanguages()
 {
-    return Utils::transform<QList>(d->m_languages, &LanguageDisplayPair::id);
+    return d->m_languages;
 }
 
 bool ToolchainManager::registerLanguage(const Utils::Id &language, const QString &displayName)
@@ -252,40 +251,37 @@ bool ToolchainManager::registerLanguage(const Utils::Id &language, const QString
     QTC_ASSERT(language.isValid(), return false);
     QTC_ASSERT(!isLanguageSupported(language), return false);
     QTC_ASSERT(!displayName.isEmpty(), return false);
-    d->m_languages.push_back({language, displayName});
+    d->m_languages.push_back(language);
+    d->m_displayNameForLanguage.insert(language, displayName);
     return true;
 }
 
 void ToolchainManager::registerLanguageCategory(const LanguageCategory &languages, const QString &displayName)
 {
-    d->m_languageCategories.push_back(std::make_pair(languages, displayName));
+    d->m_languageCategories.push_back(languages);
+    d->m_displayNameForCategory.insert(languages, displayName);
 }
 
 QString ToolchainManager::displayNameOfLanguageId(const Utils::Id &id)
 {
     QTC_ASSERT(id.isValid(), return Tr::tr("None"));
-    auto entry = Utils::findOrDefault(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
-    QTC_ASSERT(entry.id.isValid(), return Tr::tr("None"));
-    return entry.displayName;
+    QString display = d->m_displayNameForLanguage.value(id);
+    QTC_ASSERT(!display.isEmpty(), return Tr::tr("None"));
+    return display;
 }
 
 QString ToolchainManager::displayNameOfLanguageCategory(const LanguageCategory &category)
 {
     if (int(category.size()) == 1)
         return displayNameOfLanguageId(*category.begin());
-    QString name = Utils::findOrDefault(d->m_languageCategories, [&category](const auto &e) {
-                       return e.first == category;
-                   }).second;
+    QString name = d->m_displayNameForCategory.value(category);
     QTC_ASSERT(!name.isEmpty(), return Tr::tr("None"));
     return name;
 }
 
 const QList<LanguageCategory> ToolchainManager::languageCategories()
 {
-    QList<LanguageCategory> categories
-        = Utils::transform<QList<LanguageCategory>>(d->m_languageCategories, [](const auto &e) {
-              return e.first;
-          });
+    QList<LanguageCategory> categories = d->m_languageCategories;
     const QList<Utils::Id> languages = allLanguages();
     for (const Utils::Id &l : languages) {
         if (Utils::contains(categories, [l](const LanguageCategory &lc) {
@@ -301,7 +297,7 @@ const QList<LanguageCategory> ToolchainManager::languageCategories()
 
 bool ToolchainManager::isLanguageSupported(const Utils::Id &id)
 {
-    return Utils::contains(d->m_languages, Utils::equal(&LanguageDisplayPair::id, id));
+    return d->m_languages.contains(id);
 }
 
 void ToolchainManager::aboutToShutdown()
