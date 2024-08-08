@@ -878,8 +878,11 @@ void TextureEditorView::dragStarted(QMimeData *mimeData)
     const QString assetPath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_ASSETS)).split(',')[0];
     QString assetType = AssetsLibraryWidget::getAssetTypeAndData(assetPath).first;
 
-    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE) // currently only image assets have dnd-supported properties
+    // Currently only image assets have dnd-supported properties
+    if (assetType != Constants::MIME_TYPE_ASSET_IMAGE
+        && assetType != Constants::MIME_TYPE_ASSET_TEXTURE3D) {
         return;
+    }
 
     highlightSupportedProperties();
 
