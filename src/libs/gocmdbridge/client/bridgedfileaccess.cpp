@@ -641,9 +641,11 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
     t.start();
 
     while (!result->isFinished()) {
-        result->resultAt(idx);
-        // Wait for the next result to become available
-        processResults();
+        if (result->isValid()) {
+            result->resultAt(idx);
+            // Wait for the next result to become available
+            processResults();
+        }
     }
     processResults();
 
