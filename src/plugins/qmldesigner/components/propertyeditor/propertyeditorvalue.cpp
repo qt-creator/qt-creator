@@ -765,14 +765,18 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
 {
     Utils::SmallString propertyName = name.toByteArray();
     propertyName.replace('.', '_');
-    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(propertyName))));
+
+    const QString propertyNameQString = QString::fromUtf8(propertyName);
+
+    auto valueObject = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(m_valuesPropertyMap.value(propertyNameQString)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, this, &PropertyEditorSubSelectionWrapper::changeValue);
         QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, this, &PropertyEditorSubSelectionWrapper::changeExpression);
         QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, this, &PropertyEditorSubSelectionWrapper::exportPropertyAsAlias);
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, this, &PropertyEditorSubSelectionWrapper::removeAliasExport);
-        m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
+        m_valuesPropertyMap.insert(propertyNameQString, QVariant::fromValue(valueObject));
     }
     valueObject->setName(name);
     valueObject->setModelNode(qmlObjectNode);
@@ -834,8 +838,6 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
     : m_modelNode(modelNode)
 {
     QmlObjectNode qmlObjectNode(modelNode);
-
-    return;
 
     QTC_ASSERT(qmlObjectNode.isValid(), return );
 
