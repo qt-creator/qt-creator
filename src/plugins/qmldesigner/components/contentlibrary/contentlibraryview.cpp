@@ -505,7 +505,7 @@ Utils::FilePath componentPath([[maybe_unused]] const NodeMetaInfo &metaInfo)
     // TODO
     return {};
 #else
-    return Utils::FilePath::fromString(metaInfo.importDirectoryPath());
+    return Utils::FilePath::fromString(metaInfo.componentFileName());
 #endif
 }
 
