@@ -313,6 +313,16 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
     return equals(*this, other, Qt::CaseSensitive);
 }
 
+/*!
+    Returns a FilePathWatcher for this path.
+
+    The returned FilePathWatcher emits its signal when the file at this path
+    is modified, renamed, or deleted. The signal is emitted in the calling thread.
+    If called from a non-main thread, it might take a while until the signal
+    starts to be emitted.
+
+    \sa FilePathWatcher
+*/
 Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 {
     return fileAccess()->watch(*this);
