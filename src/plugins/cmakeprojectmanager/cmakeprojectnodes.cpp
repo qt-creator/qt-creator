@@ -44,6 +44,8 @@ CMakeListsNode::CMakeListsNode(const FilePath &cmakeListPath) :
 {
     setIcon(DirectoryIcon(Constants::Icons::FILE_OVERLAY));
     setListInProject(false);
+    setLocationInfo(
+        {{Constants::CMAKE_LISTS_TXT, cmakeListPath.pathAppended(Constants::CMAKE_LISTS_TXT)}});
 }
 
 bool CMakeListsNode::showInSimpleTree() const
