@@ -15,6 +15,7 @@
 #include <utils/qtcassert.h>
 
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
@@ -27,6 +28,21 @@ bool defaultCMakeSourceGroupFolder(const QString &displayName)
            || displayName == "State charts";
 }
 
+static QIcon iconForSourceGroup(const QString &sourceGroup)
+{
+    static const QHash<QString, QString> sourceGroupToOverlay = {
+        {"Forms", ProjectExplorer::Constants::FILEOVERLAY_UI},
+        {"Header Files", ProjectExplorer::Constants::FILEOVERLAY_H},
+        {"Resources", ProjectExplorer::Constants::FILEOVERLAY_QRC},
+        {"State charts", ProjectExplorer::Constants::FILEOVERLAY_SCXML},
+        {"Source Files", ProjectExplorer::Constants::FILEOVERLAY_CPP},
+    };
+
+    return sourceGroupToOverlay.contains(sourceGroup)
+               ? FileIconProvider::directoryIcon(sourceGroupToOverlay.value(sourceGroup))
+               : FileIconProvider::icon(QFileIconProvider::Folder);
+}
+
 std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
                                                int priority,
                                                const QString &displayName)
@@ -34,6 +50,7 @@ std::unique_ptr<FolderNode> createCMakeVFolder(const Utils::FilePath &basePath,
     auto newFolder = std::make_unique<VirtualFolderNode>(basePath);
     newFolder->setPriority(priority);
     newFolder->setDisplayName(displayName);
+    newFolder->setIcon([displayName] { return iconForSourceGroup(displayName); });
     newFolder->setIsSourcesOrHeaders(defaultCMakeSourceGroupFolder(displayName));
     return newFolder;
 }

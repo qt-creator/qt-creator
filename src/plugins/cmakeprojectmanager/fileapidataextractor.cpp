@@ -17,7 +17,6 @@
 #include <utils/algorithm.h>
 #include <utils/icon.h>
 #include <utils/fileutils.h>
-#include <utils/fsengine/fileiconprovider.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
@@ -635,7 +634,6 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
-                node->setIcon([] { return FileIconProvider::icon(QFileIconProvider::Folder); });
 
                 existingNode = node.get();
 
