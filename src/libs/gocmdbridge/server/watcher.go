@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
@@ -49,6 +50,17 @@ func (watchHandler WatcherHandler) start(out chan<- []byte) {
 						Path:      event.Name,
 						EventType: int(event.Op),
 					})
+					if event.Op == fsnotify.Remove && event.Name == path {
+						// Check if file exists
+						_, err := os.Stat(event.Name)
+						if err == nil {
+							// File exists, so lets add it again
+							err := watchHandler.watcher.Add(event.Name)
+							if err != nil {
+								sendError(out, command{Type: "watchEvent", Id: id}, err)
+							}
+						}
+					}
 					out <- data
 				}
 			}
