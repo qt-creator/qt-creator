@@ -22,19 +22,25 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     setAutoApply(false);
     setSettingsGroup("ExtensionManager");
 
-    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
-    externalRepoUrl.setReadOnly(true);
-
     useExternalRepo.setSettingsKey("UseExternalRepo");
-    useExternalRepo.setLabelText(Tr::tr("Use external repository"));
-    useExternalRepo.setToolTip(Tr::tr("Repository: %1").arg(externalRepoUrl()));
     useExternalRepo.setDefaultValue(false);
+    useExternalRepo.setLabelText(Tr::tr("Use external repository"));
+
+    externalRepoUrl.setSettingsKey("ExternalRepoUrl");
+    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
+    externalRepoUrl.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
+    externalRepoUrl.setLabelText(Tr::tr("Server URL:"));
 
     setLayouter([this] {
         using namespace Layouting;
-
         return Column {
-            useExternalRepo,
+            Group {
+                title(Tr::tr("Use External Repository")),
+                groupChecker(useExternalRepo.groupChecker()),
+                Form {
+                    externalRepoUrl
+                }
+            },
             st
         };
     });
