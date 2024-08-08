@@ -30,9 +30,12 @@
 #include <QComboBox>
 #include <QFontMetrics>
 #include <QGridLayout>
+#include <QHash>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include <utility>
 
 using namespace Utils;
 
@@ -383,30 +386,6 @@ ToolchainKitAspectFactory::ToolchainKitAspectFactory()
     setPriority(30000);
 }
 
-// language id -> tool chain id
-static QMap<Id, QByteArray> defaultToolChainIds()
-{
-    QMap<Id, QByteArray> toolChains;
-    const Abi abi = Abi::hostAbi();
-    const Toolchains tcList = ToolchainManager::toolchains(equal(&Toolchain::targetAbi, abi));
-    const QList<Id> languages = ToolchainManager::allLanguages();
-    for (Id l : languages) {
-        Toolchain *tc = findOrDefault(tcList, equal(&Toolchain::language, l));
-        toolChains.insert(l, tc ? tc->id() : QByteArray());
-    }
-    return toolChains;
-}
-
-static Store defaultToolchainValue()
-{
-    const QMap<Id, QByteArray> toolChains = defaultToolChainIds();
-    Store result;
-    auto end = toolChains.end();
-    for (auto it = toolChains.begin(); it != end; ++it)
-        result.insert(it.key().toKey(), it.value());
-    return result;
-}
-
 Tasks ToolchainKitAspectFactory::validate(const Kit *k) const
 {
     Tasks result;
@@ -451,47 +430,116 @@ static Id findLanguage(const QString &ls)
                          [lsUpper](Id l) { return lsUpper == l.toString().toUpper(); });
 }
 
-void ToolchainKitAspectFactory::setup(Kit *k)
+using LanguageAndAbi = std::pair<Id, Abi>;
+using LanguagesAndAbis = QList<LanguageAndAbi>;
+
+static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage)
 {
-    QTC_ASSERT(ToolchainManager::isLoaded(), return);
-    QTC_ASSERT(k, return);
+    if (abisByLanguage.isEmpty())
+        return;
 
-    Store value = storeFromVariant(k->value(id()));
-    bool lockToolchains = k->isSdkProvided() && !value.isEmpty();
-    if (value.empty())
-        value = defaultToolchainValue();
+    // First transform languages into categories, so we can work on the bundle level.
+    // Obviously, we assume that the caller does not specify different ABIs for
+    // languages from the same category.
+    const QList<LanguageCategory> allCategories = ToolchainManager::languageCategories();
+    QHash<LanguageCategory, Abi> abisByCategory;
+    for (const LanguageAndAbi &langAndAbi : abisByLanguage) {
+        const auto category
+            = Utils::findOrDefault(allCategories, [&langAndAbi](const LanguageCategory &cat) {
+                  return cat.contains(langAndAbi.first);
+              });
+        QTC_ASSERT(!category.isEmpty(), continue);
+        abisByCategory.insert(category, langAndAbi.second);
+    }
 
+    // Get bundles.
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
+    for (const ToolchainBundle &b : bundles)
+        ToolchainManager::registerToolchains(b.createdToolchains());
+
+    // Set a matching bundle for each LanguageCategory/Abi pair, if possible.
+    for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {
+        QList<ToolchainBundle> matchingBundles
+            = Utils::filtered(bundles, [&it](const ToolchainBundle &b) {
+                  return b.factory()->languageCategory() == it.key() && b.targetAbi() == it.value();
+              });
+
+        // FIXME: Re-use the algorithm from KitManager
+        Utils::sort(matchingBundles, [](const ToolchainBundle &b1, const ToolchainBundle &b2) {
+            return b1.get(&Toolchain::priority) > b2.get(&Toolchain::priority);
+        });
+
+        if (!matchingBundles.isEmpty())  {
+            ToolchainKitAspect::setBundle(k, matchingBundles.first());
+        } else {
+            for (const Id language : it.key())
+                ToolchainKitAspect::clearToolchain(k, language);
+        }
+    }
+}
+
+static void setMissingToolchainsToHostAbi(Kit *k, const QList<Id> &languageBlacklist)
+{
+    LanguagesAndAbis abisByLanguage;
+    for (const Id lang : ToolchainManager::allLanguages()) {
+        if (languageBlacklist.contains(lang) || ToolchainKitAspect::toolchain(k, lang))
+            continue;
+        abisByLanguage.emplaceBack(lang, Abi::hostAbi());
+    }
+    setToolchainsFromAbis(k, abisByLanguage);
+}
+
+static void setupForSdkKit(Kit *k)
+{
+    const Store value = storeFromVariant(k->value(ToolchainKitAspect::id()));
+    bool lockToolchains = !value.isEmpty();
+
+    // The installer provides two kinds of entries for toolchains:
+    //   a) An actual toolchain id, for e.g. Boot2Qt where the installer ships the toolchains.
+    //   b) An ABI string, for Desktop Qt. In this case, it is our responsibility to find
+    //      a matching toolchain on the host system.
+    LanguagesAndAbis abisByLanguage;
     for (auto i = value.constBegin(); i != value.constEnd(); ++i) {
-        Id l = findLanguage(stringFromKey(i.key()));
+        const Id lang = findLanguage(stringFromKey(i.key()));
 
-        if (!l.isValid()) {
+        if (!lang.isValid()) {
             lockToolchains = false;
             continue;
         }
 
         const QByteArray id = i.value().toByteArray();
-        Toolchain *tc = ToolchainManager::findToolchain(id);
-        if (tc)
+        if (ToolchainManager::findToolchain(id))
             continue;
 
-        // ID is not found: Might be an ABI string...
+        // No toolchain with this id exists. Check whether it's an ABI string.
         lockToolchains = false;
-        const QString abi = QString::fromUtf8(id);
-        const Toolchains possibleTcs = ToolchainManager::toolchains([abi, l](const Toolchain *t) {
-            return t->targetAbi().toString() == abi && t->language() == l;
-        });
-        Toolchain *bestTc = nullptr;
-        for (Toolchain *tc : possibleTcs) {
-            if (!bestTc || tc->priority() > bestTc->priority())
-                bestTc = tc;
-        }
-        if (bestTc)
-            ToolchainKitAspect::setToolchain(k, bestTc);
-        else
-            ToolchainKitAspect::clearToolchain(k, l);
-    }
+        const Abi abi = Abi::fromString(QString::fromUtf8(id));
+        if (!abi.isValid())
+            continue;
 
-    k->setSticky(id(), lockToolchains);
+        abisByLanguage.emplaceBack(lang, abi);
+    }
+    setToolchainsFromAbis(k, abisByLanguage);
+    setMissingToolchainsToHostAbi(k, Utils::transform(abisByLanguage, &LanguageAndAbi::first));
+
+    k->setSticky(ToolchainKitAspect::id(), lockToolchains);
+}
+
+static void setupForNonSdkKit(Kit *k)
+{
+    setMissingToolchainsToHostAbi(k, {});
+    k->setSticky(ToolchainKitAspect::id(), false);
+}
+
+void ToolchainKitAspectFactory::setup(Kit *k)
+{
+    QTC_ASSERT(ToolchainManager::isLoaded(), return);
+    QTC_ASSERT(k, return);
+
+    if (k->isSdkProvided())
+        setupForSdkKit(k);
+    else
+        setupForNonSdkKit(k);
 }
 
 KitAspect *ToolchainKitAspectFactory::createKitAspect(Kit *k) const
