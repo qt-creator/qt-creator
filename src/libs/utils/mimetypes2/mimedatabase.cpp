@@ -471,13 +471,10 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 MimeType MimeDatabasePrivate::mimeTypeForFileExtension(const QString &fileName)
 {
     const QStringList matches = mimeTypeForFileName(fileName);
-    const int matchCount = matches.count();
-    if (matchCount == 0) {
+    if (matches.isEmpty()) {
         return mimeTypeForName(defaultMimeType());
-    } else if (matchCount == 1) {
-        return mimeTypeForName(matches.first());
     } else {
-        // We have to pick one.
+        // We have to pick one in case of multiple matches.
         return mimeTypeForName(matches.first());
     }
 }
