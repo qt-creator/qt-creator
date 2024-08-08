@@ -408,6 +408,44 @@ void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
                       "localfilesystem:" + gdbServerSocket, "C++");
 }
 
+ExecutableItem AndroidRunnerWorker::forceStopRecipe()
+{
+    const auto onForceStopSetup = [this](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(),
+                            {selector(), "shell", "am", "force-stop", m_packageName}});
+    };
+
+    const auto pidCheckSync = Sync([this] { return m_processPID != -1; });
+
+    const auto onPidOfSetup = [this](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(),
+                            {selector(), "shell", "pidof", m_packageName}});
+    };
+    const auto onPidOfDone = [this](const Process &process) {
+        const QString pid = process.cleanedStdOut().trimmed();
+        return pid == QString::number(m_processPID);
+    };
+    const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDoneIf::Success);
+
+    const auto onRunAsSetup = [this](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "run-as",
+                            m_packageName, "kill", "-9", QString::number(m_processPID)}});
+    };
+    const auto runAsTask = ProcessTask(onRunAsSetup);
+
+    const auto onKillSetup = [this](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(),
+                            {selector(), "shell", "kill", "-9", QString::number(m_processPID)}});
+    };
+
+    return Group {
+        ProcessTask(onForceStopSetup) || successItem,
+        If (pidCheckSync && pidOfTask && !runAsTask) >> Then {
+            ProcessTask(onKillSetup) || successItem
+        }
+    };
+}
+
 ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
     const QString &port, const QString &adbArg, const QString &portType)
 {
@@ -743,17 +781,17 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
 
 void AndroidRunnerWorker::asyncStart()
 {
-    forceStop();
-
     const Group recipe {
-        parallel,
-        logcatRecipe(),
+        forceStopRecipe(),
         Group {
-            preStartRecipe(),
-            pidRecipe()
+            parallel,
+            logcatRecipe(),
+            Group {
+                preStartRecipe(),
+                pidRecipe()
+            }
         }
     };
-
     m_taskTreeRunner.start(recipe);
 }
 
