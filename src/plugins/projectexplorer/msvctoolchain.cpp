@@ -1640,7 +1640,8 @@ void ClangClToolchainConfigWidget::applyImpl()
 
     const QString displayedVarsBat = m_varsBatDisplayCombo->currentText();
     Toolchains results = detectClangClToolChainInPath(clangClPath, {}, displayedVarsBat);
-    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(results);
+    const QList<ToolchainBundle> bundles
+        = ToolchainBundle::collectBundles(results, ToolchainBundle::AutoRegister::NotApplicable);
 
     if (bundles.isEmpty()) {
         bundle().set(&ClangClToolchain::resetVarsBat);

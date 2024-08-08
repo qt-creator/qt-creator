@@ -303,10 +303,9 @@ void KitManager::restoreKits()
         // On Linux systems, we usually detect a plethora of same-ish toolchains. The following
         // algorithm gives precedence to icecc and ccache and otherwise simply chooses the one with
         // the shortest path.
-        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            ToolchainBundle::AutoRegister::On);
         for (const ToolchainBundle &bundle : bundles) {
-            ToolchainManager::registerToolchains(bundle.createdToolchains());
-
             auto &bestBundle
                 = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];
             if (!bestBundle) {

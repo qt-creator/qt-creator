@@ -218,10 +218,16 @@ using Toolchains = QList<Toolchain *>;
 class PROJECTEXPLORER_EXPORT ToolchainBundle
 {
 public:
-    ToolchainBundle(const Toolchains &toolchains);
+    // Setting up a bundle may necessitate creating additional toolchains.
+    // Depending on the context, these should or should not be registered
+    // immediately with the ToolchainManager.
+    enum class AutoRegister { On, Off, NotApplicable };
 
-    static QList<ToolchainBundle> collectBundles();
-    static QList<ToolchainBundle> collectBundles(const Toolchains &toolchains);
+    ToolchainBundle(const Toolchains &toolchains, AutoRegister autoRegister);
+
+    static QList<ToolchainBundle> collectBundles(AutoRegister autoRegister);
+    static QList<ToolchainBundle> collectBundles(
+        const Toolchains &toolchains, AutoRegister autoRegister);
 
     template<typename R, class T = Toolchain, typename... A>
     R get(R (T:: *getter)(A...) const, A&&... args) const
@@ -261,7 +267,6 @@ public:
     int size() const { return m_toolchains.size(); }
 
     const QList<Toolchain *> toolchains() const { return m_toolchains; }
-    const QList<Toolchain *> createdToolchains() const { return m_createdToolchains; }
     ToolchainFactory *factory() const;
     Utils::Id bundleId() const { return get(&Toolchain::bundleId); }
     QString displayName() const;
@@ -301,11 +306,11 @@ public:
     }
 
 private:
-    void addMissingToolchains();
-    static QList<ToolchainBundle> bundleUnbundledToolchains(const Toolchains &unbundled);
+    void addMissingToolchains(AutoRegister autoRegister);
+    static QList<ToolchainBundle> bundleUnbundledToolchains(
+        const Toolchains &unbundled, AutoRegister autoRegister);
 
     Toolchains m_toolchains;
-    Toolchains m_createdToolchains;
 };
 
 class PROJECTEXPLORER_EXPORT BadToolchain

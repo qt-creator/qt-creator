@@ -2090,10 +2090,9 @@ void GccToolchainConfigWidget::updateParentToolchainComboBox()
     Id parentBundleId = Id::fromSetting(m_parentToolchainCombo->currentData());
     if (bundle().isAutoDetected() || m_parentToolchainCombo->count() == 0)
         parentBundleId = bundleIdFromId(bundle().get(&GccToolchain::parentToolchainId));
-    const QList<ToolchainBundle> mingwBundles
-        = Utils::filtered(ToolchainBundle::collectBundles(), [](const ToolchainBundle &b) {
-              return b.type() == Constants::MINGW_TOOLCHAIN_TYPEID;
-          });
+    const QList<ToolchainBundle> mingwBundles = Utils::filtered(
+        ToolchainBundle::collectBundles(ToolchainBundle::AutoRegister::NotApplicable),
+        [](const ToolchainBundle &b) { return b.type() == Constants::MINGW_TOOLCHAIN_TYPEID; });
     const auto parentBundle
         = Utils::findOr(mingwBundles, std::nullopt, [parentBundleId](const ToolchainBundle &b) {
               return b.bundleId() == parentBundleId;

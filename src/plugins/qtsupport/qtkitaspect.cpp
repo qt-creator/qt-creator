@@ -229,9 +229,8 @@ void QtKitAspectFactory::fix(Kit *k)
     if (ToolchainKitAspect::cxxToolchain(k))
         return;
 
-    QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
-    for (const ToolchainBundle &b : std::as_const(bundles))
-        ToolchainManager::registerToolchains(b.createdToolchains());
+    QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        ToolchainBundle::AutoRegister::On);
     using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     bundles = Utils::filtered(bundles, [version](const ToolchainBundle &b) {
         if (!b.isCompletelyValid() || !b.factory()->languageCategory().contains(CXX_LANGUAGE_ID))

@@ -271,8 +271,10 @@ private:
                 return !tc->compilerCommand().isSameDevice(device->rootPath());
             });
 
-            const QList<ToolchainBundle> sameBundles = ToolchainBundle::collectBundles(same);
-            const QList<ToolchainBundle> otherBundles = ToolchainBundle::collectBundles(other);
+            const QList<ToolchainBundle> sameBundles
+                = ToolchainBundle::collectBundles(same, ToolchainBundle::AutoRegister::On);
+            const QList<ToolchainBundle> otherBundles
+                = ToolchainBundle::collectBundles(other, ToolchainBundle::AutoRegister::On);
             for (const ToolchainBundle &b : sameBundles)
                 cb->addItem(b.displayName(), b.bundleId().toSetting());
 
@@ -453,9 +455,8 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
     }
 
     // Get bundles.
-    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
-    for (const ToolchainBundle &b : bundles)
-        ToolchainManager::registerToolchains(b.createdToolchains());
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        ToolchainBundle::AutoRegister::On);
 
     // Set a matching bundle for each LanguageCategory/Abi pair, if possible.
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {

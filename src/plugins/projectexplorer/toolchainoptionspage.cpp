@@ -257,11 +257,10 @@ public:
         m_widgetStack = new QStackedWidget;
         m_container->setWidget(m_widgetStack);
 
-        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles();
-        for (const ToolchainBundle &b : bundles) {
-            ToolchainManager::registerToolchains(b.createdToolchains());
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            ToolchainBundle::AutoRegister::On);
+        for (const ToolchainBundle &b : bundles)
             insertBundle(b);
-        }
 
         auto buttonLayout = new QVBoxLayout;
         buttonLayout->setSpacing(6);
@@ -392,11 +391,10 @@ void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolch
         return;
     }
 
-    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(toolchains);
-    for (const ToolchainBundle &bundle : bundles) {
-        ToolchainManager::registerToolchains(bundle.createdToolchains());
+    const QList<ToolchainBundle> bundles
+        = ToolchainBundle::collectBundles(toolchains, ToolchainBundle::AutoRegister::On);
+    for (const ToolchainBundle &bundle : bundles)
         insertBundle(bundle);
-    }
     updateState();
 }
 
@@ -516,7 +514,8 @@ void ToolChainOptionsWidget::redetectToolchains()
     }
 
     // Step 4: Create new bundles and add items for them.
-    const QList<ToolchainBundle> newBundles = ToolchainBundle::collectBundles(toAdd);
+    const QList<ToolchainBundle> newBundles
+        = ToolchainBundle::collectBundles(toAdd, ToolchainBundle::AutoRegister::Off);
     for (const ToolchainBundle &bundle : newBundles)
         m_toAddList << insertBundle(bundle, true);
 }
@@ -603,7 +602,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
         toolchains << tc;
     }
 
-    const ToolchainBundle bundle(toolchains);
+    const ToolchainBundle bundle(toolchains, ToolchainBundle::AutoRegister::Off);
     ToolChainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));

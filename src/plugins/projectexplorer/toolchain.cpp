@@ -879,7 +879,8 @@ void AsyncToolchainDetector::run()
  *   - There is exactly one toolchain in the list for every language supported by the factory.
  *   - If there is a C compiler, it comes first in the list.
  */
-ToolchainBundle::ToolchainBundle(const Toolchains &toolchains) : m_toolchains(toolchains)
+ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, AutoRegister autoRegister)
+    : m_toolchains(toolchains)
 {
     // Check pre-conditions.
     QTC_ASSERT(!m_toolchains.isEmpty(), return);
@@ -892,7 +893,7 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains) : m_toolchains(to
         QTC_ASSERT(tc->bundleId() == toolchains.first()->bundleId(), return);
     }
 
-    addMissingToolchains();
+    addMissingToolchains(autoRegister);
 
     // Check post-conditions.
     QTC_ASSERT(m_toolchains.size() == m_toolchains.first()->factory()->supportedLanguages().size(),
@@ -905,12 +906,13 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains) : m_toolchains(to
     });
 }
 
-QList<ToolchainBundle> ToolchainBundle::collectBundles()
+QList<ToolchainBundle> ToolchainBundle::collectBundles(AutoRegister autoRegister)
 {
-    return collectBundles(ToolchainManager::toolchains());
+    return collectBundles(ToolchainManager::toolchains(), autoRegister);
 }
 
-QList<ToolchainBundle> ToolchainBundle::collectBundles(const Toolchains &toolchains)
+QList<ToolchainBundle> ToolchainBundle::collectBundles(
+    const Toolchains &toolchains, AutoRegister autoRegister)
 {
     QHash<Id, Toolchains> toolchainsPerBundleId;
     for (Toolchain * const tc : toolchains)
@@ -919,12 +921,12 @@ QList<ToolchainBundle> ToolchainBundle::collectBundles(const Toolchains &toolcha
     QList<ToolchainBundle> bundles;
     if (const auto unbundled = toolchainsPerBundleId.constFind(Id());
         unbundled != toolchainsPerBundleId.constEnd()) {
-        bundles = bundleUnbundledToolchains(*unbundled);
+        bundles = bundleUnbundledToolchains(*unbundled, autoRegister);
         toolchainsPerBundleId.erase(unbundled);
     }
 
     for (const Toolchains &tcs : toolchainsPerBundleId)
-        bundles << tcs;
+        bundles.emplaceBack(tcs, autoRegister);
     return bundles;
 }
 
@@ -971,7 +973,8 @@ ToolchainBundle::Valid ToolchainBundle::validity() const
     return Valid::None;
 }
 
-QList<ToolchainBundle> ToolchainBundle::bundleUnbundledToolchains(const Toolchains &unbundled)
+QList<ToolchainBundle> ToolchainBundle::bundleUnbundledToolchains(
+    const Toolchains &unbundled, AutoRegister autoRegister)
 {
     QList<ToolchainBundle> bundles;
     QHash<Id, QHash<Id, Toolchains>> unbundledByTypeAndLanguage;
@@ -997,7 +1000,7 @@ QList<ToolchainBundle> ToolchainBundle::bundleUnbundledToolchains(const Toolchai
             const Id newBundleId = Id::generate();
             for (Toolchain * const tc : nextBundle)
                 tc->setBundleId(newBundleId);
-            bundles << nextBundle;
+            bundles.emplaceBack(nextBundle, autoRegister);
         }
     }
 
@@ -1035,10 +1038,10 @@ ToolchainBundle ToolchainBundle::clone() const
     const Id newBundleId = Id::generate();
     for (Toolchain * const tc : clones)
         tc->setBundleId(newBundleId);
-    return clones;
+    return ToolchainBundle(clones, ToolchainBundle::AutoRegister::NotApplicable);
 }
 
-void ToolchainBundle::addMissingToolchains()
+void ToolchainBundle::addMissingToolchains(AutoRegister autoRegister)
 {
     const QList<Id> missingLanguages
         = Utils::filtered(m_toolchains.first()->factory()->supportedLanguages(), [this](Id lang) {
@@ -1046,12 +1049,23 @@ void ToolchainBundle::addMissingToolchains()
                   return tc->language() == lang;
               });
           });
+    Toolchains createdToolchains;
     for (const Id lang : missingLanguages) {
         Toolchain * const tc = m_toolchains.first()->clone();
         tc->setLanguage(lang);
         tc->setCompilerCommand(m_toolchains.first()->correspondingCompilerCommand(lang));
         m_toolchains << tc;
-        m_createdToolchains << tc;
+        createdToolchains << tc;
+    }
+
+    switch (autoRegister) {
+    case AutoRegister::On:
+        ToolchainManager::registerToolchains(createdToolchains);
+    case AutoRegister::Off:
+        break;
+    case AutoRegister::NotApplicable:
+        QTC_CHECK(createdToolchains.isEmpty());
+        break;
     }
 }
 
