@@ -468,6 +468,82 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
     return matchOnContent(&fallbackFile);
 }
 
+MimeType MimeDatabasePrivate::mimeTypeForFileExtension(const QString &fileName)
+{
+    const QStringList matches = mimeTypeForFileName(fileName);
+    const int matchCount = matches.count();
+    if (matchCount == 0) {
+        return mimeTypeForName(defaultMimeType());
+    } else if (matchCount == 1) {
+        return mimeTypeForName(matches.first());
+    } else {
+        // We have to pick one.
+        return mimeTypeForName(matches.first());
+    }
+}
+
+MimeType MimeDatabasePrivate::mimeTypeForData(QIODevice *device)
+{
+    int accuracy = 0;
+    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
+    if (device->isOpen()) {
+        // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
+        // This is much faster than seeking back and forth into QIODevice.
+        const QByteArray data = device->peek(16384);
+        const MimeType result = findByData(data, &accuracy);
+        if (openedByUs)
+            device->close();
+        return result;
+    }
+    return mimeTypeForName(defaultMimeType());
+}
+
+MimeType MimeDatabasePrivate::mimeTypeForFile(const QString &fileName,
+                                                [[maybe_unused]] const QFileInfo *fileInfo,
+                                                MimeDatabase::MatchMode mode)
+{
+#ifdef Q_OS_UNIX
+    // Cannot access statBuf.st_mode from the filesystem engine, so we have to stat again.
+    // In addition we want to follow symlinks.
+    const QByteArray nativeFilePath = QFile::encodeName(fileName);
+    QT_STATBUF statBuffer;
+    if (QT_STAT(nativeFilePath.constData(), &statBuffer) == 0) {
+        if (S_ISDIR(statBuffer.st_mode))
+            return mimeTypeForName(QLatin1String("inode/directory"));
+        if (S_ISCHR(statBuffer.st_mode))
+            return mimeTypeForName(QLatin1String("inode/chardevice"));
+        if (S_ISBLK(statBuffer.st_mode))
+            return mimeTypeForName(QLatin1String("inode/blockdevice"));
+        if (S_ISFIFO(statBuffer.st_mode))
+            return mimeTypeForName(QLatin1String("inode/fifo"));
+        if (S_ISSOCK(statBuffer.st_mode))
+            return mimeTypeForName(QLatin1String("inode/socket"));
+    }
+#else
+    const bool isDirectory = fileInfo ? fileInfo->isDir() : QFileInfo(fileName).isDir();
+    if (isDirectory)
+        return mimeTypeForName(QLatin1String("inode/directory"));
+#endif
+    int priority = 0;
+    switch (mode) {
+    case MimeDatabase::MatchDefault:
+        return mimeTypeForFileNameAndData(fileName, nullptr, &priority);
+    case MimeDatabase::MatchExtension:
+        return mimeTypeForFileExtension(fileName);
+    case MimeDatabase::MatchContent: {
+        QFile file(fileName);
+        if (file.open(QIODevice::ReadOnly)) {
+            return mimeTypeForData(&file);
+        } else {
+            return mimeTypeForName(defaultMimeType());
+        }
+    }
+    default:
+        Q_ASSERT(false);
+    }
+    return mimeTypeForName(defaultMimeType());
+}
+
 QList<MimeType> MimeDatabasePrivate::allMimeTypes()
 {
     QList<MimeType> result;
@@ -601,48 +677,7 @@ MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode
     d->checkInitPhase(fileInfo.filePath());
     QMutexLocker locker(&d->mutex);
 
-    if (fileInfo.isDir())
-        return d->mimeTypeForName(QLatin1String("inode/directory"));
-
-    const QString filePath = fileInfo.filePath();
-
-#ifdef Q_OS_UNIX
-    // Cannot access statBuf.st_mode from the filesystem engine, so we have to stat again.
-    // In addition we want to follow symlinks.
-    const QByteArray nativeFilePath = QFile::encodeName(filePath);
-    QT_STATBUF statBuffer;
-    if (QT_STAT(nativeFilePath.constData(), &statBuffer) == 0) {
-        if (S_ISCHR(statBuffer.st_mode))
-            return d->mimeTypeForName(QLatin1String("inode/chardevice"));
-        if (S_ISBLK(statBuffer.st_mode))
-            return d->mimeTypeForName(QLatin1String("inode/blockdevice"));
-        if (S_ISFIFO(statBuffer.st_mode))
-            return d->mimeTypeForName(QLatin1String("inode/fifo"));
-        if (S_ISSOCK(statBuffer.st_mode))
-            return d->mimeTypeForName(QLatin1String("inode/socket"));
-    }
-#endif
-
-    int priority = 0;
-    switch (mode) {
-    case MatchDefault:
-        return d->mimeTypeForFileNameAndData(filePath, nullptr, &priority);
-    case MatchExtension:
-        locker.unlock();
-        return mimeTypeForFile(filePath, mode);
-    case MatchContent: {
-        QFile file(filePath);
-        if (file.open(QIODevice::ReadOnly)) {
-            locker.unlock();
-            return mimeTypeForData(&file);
-        } else {
-            return d->mimeTypeForName(d->defaultMimeType());
-        }
-    }
-    default:
-        Q_ASSERT(false);
-    }
-    return d->mimeTypeForName(d->defaultMimeType());
+    return d->mimeTypeForFile(fileInfo.filePath(), &fileInfo, mode);
 }
 
 /*!
@@ -652,24 +687,13 @@ MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode
 */
 MimeType MimeDatabase::mimeTypeForFile(const QString &fileName, MatchMode mode) const
 {
-    if (mode == MatchExtension) {
-        d->checkInitPhase(fileName);
-        QMutexLocker locker(&d->mutex);
+    d->checkInitPhase(fileName);
+    QMutexLocker locker(&d->mutex);
 
-        const QStringList matches = d->mimeTypeForFileName(fileName);
-        const int matchCount = matches.count();
-        if (matchCount == 0) {
-            return d->mimeTypeForName(d->defaultMimeType());
-        } else if (matchCount == 1) {
-            return d->mimeTypeForName(matches.first());
-        } else {
-            // We have to pick one.
-            return d->mimeTypeForName(matches.first());
-        }
+    if (mode == MatchExtension) {
+        return d->mimeTypeForFileExtension(fileName);
     } else {
-        // Implemented as a wrapper around mimeTypeForFile(QFileInfo), so no mutex.
-        QFileInfo fileInfo(fileName);
-        return mimeTypeForFile(fileInfo, mode);
+        return d->mimeTypeForFile(fileName, nullptr, mode);
     }
 }
 
@@ -737,18 +761,7 @@ MimeType MimeDatabase::mimeTypeForData(QIODevice *device) const
 {
     QMutexLocker locker(&d->mutex);
 
-    int accuracy = 0;
-    const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
-    if (device->isOpen()) {
-        // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
-        // This is much faster than seeking back and forth into QIODevice.
-        const QByteArray data = device->peek(16384);
-        const MimeType result = d->findByData(data, &accuracy);
-        if (openedByUs)
-            device->close();
-        return result;
-    }
-    return d->mimeTypeForName(d->defaultMimeType());
+    return  d->mimeTypeForData(device);
 }
 
 /*!
