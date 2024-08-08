@@ -39,6 +39,11 @@ Qt5BakeLightsNodeInstanceServer::~Qt5BakeLightsNodeInstanceServer()
 
 void Qt5BakeLightsNodeInstanceServer::createScene(const CreateSceneCommand &command)
 {
+    nodeInstanceClient()->handlePuppetToCreatorCommand(
+        {PuppetToCreatorCommand::BakeLightsProgress,
+         tr("Initializing bake...")});
+    nodeInstanceClient()->flush();
+
     initializeView();
     registerFonts(command.resourceUrl);
     setTranslationLanguage(command.language);
