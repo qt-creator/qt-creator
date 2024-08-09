@@ -1244,7 +1244,7 @@ QSet<AssetPath> ContentLibraryView::getBundleComponentDependencies(const ModelNo
 {
     const QString compFileName = node.simplifiedTypeName() + ".qml";
 
-    Utils::FilePath compPath = componentPath(node.metaInfo());
+    Utils::FilePath compPath = componentPath(node.metaInfo()).parentDir();
 
     QTC_ASSERT(compPath.exists(), return {});
 
