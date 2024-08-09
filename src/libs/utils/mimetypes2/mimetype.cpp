@@ -235,9 +235,9 @@ QString MimeType::comment() const
     QStringList languageList;
     languageList << QLocale().name();
     languageList << QLocale().uiLanguages();
-    languageList << u"default"_qs; // use the default locale if possible.
+    languageList << u"default"_s; // use the default locale if possible.
     for (const QString &language : std::as_const(languageList)) {
-        const QString lang = language == "C"_L1 ? u"en_US"_qs : language;
+        const QString lang = language == "C"_L1 ? u"en_US"_s : language;
         const QString comm = d->localeComments.value(lang);
         if (!comm.isEmpty())
             return comm;
