@@ -8,6 +8,7 @@
 #include "optionsparser.h"
 #include "pluginmanager_p.h"
 #include "pluginspec.h"
+#include "shutdownguard.h"
 
 #include <nanotrace/nanotrace.h>
 
@@ -235,6 +236,26 @@ using namespace Internal;
 
 static Internal::PluginManagerPrivate *d = nullptr;
 static PluginManager *m_instance = nullptr;
+static QObject *m_shutdownGuard = nullptr;
+
+/*!
+    Returns an object that can be used as the parent for objects that should be
+    destroyed just at the end of the applications lifetime.
+    The object is destroyed after all plugins' aboutToShutdown methods
+    have finished, just before the plugins are deleted.
+
+    Only use this from the application's main thread.
+
+    \sa ExtensionSystem::IPlugin::aboutToShutdown()
+*/
+QObject *shutdownGuard()
+{
+    if (!m_shutdownGuard) {
+        QTC_CHECK(Utils::isMainThread());
+        m_shutdownGuard = new QObject;
+    }
+    return m_shutdownGuard;
+}
 
 /*!
     Gets the unique plugin manager instance.
@@ -1056,6 +1077,8 @@ void PluginManagerPrivate::deleteAll()
         Utils::futureSynchronizer()->isCancelOnWait(),
         Utils::futureSynchronizer()->cancelAllFutures());
     Utils::futureSynchronizer()->waitForFinished(); // Synchronize all futures from all plugins
+    delete m_shutdownGuard;
+    m_shutdownGuard = nullptr;
     Utils::reverseForeach(loadQueue(), [this](PluginSpec *spec) {
         loadPlugin(spec, PluginSpec::Deleted);
     });
