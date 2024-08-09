@@ -16,14 +16,16 @@
 
 #include <memory>
 
+using namespace Qt::StringLiterals;
+
 namespace Utils {
 
 static QString suffixFromPattern(const QString &pattern)
 {
     // Not a simple suffix if it looks like: README or *. or *.* or *.JP*G or *.JP?
-    if (pattern.startsWith(QLatin1String("*.")) &&
+    if (pattern.startsWith("*."_L1) &&
         pattern.length() > 2 &&
-        pattern.indexOf(QLatin1Char('*'), 2) < 0 && pattern.indexOf(QLatin1Char('?'), 2) < 0) {
+        pattern.indexOf(u'*', 2) < 0 && pattern.indexOf(u'?', 2) < 0) {
         return pattern.mid(2);
     }
     return {};
@@ -233,13 +235,13 @@ QString MimeType::comment() const
     QStringList languageList;
     languageList << QLocale().name();
     languageList << QLocale().uiLanguages();
-    languageList << QLatin1String("default"); // use the default locale if possible.
+    languageList << u"default"_qs; // use the default locale if possible.
     for (const QString &language : std::as_const(languageList)) {
-        const QString lang = language == QLatin1String("C") ? QLatin1String("en_US") : language;
+        const QString lang = language == "C"_L1 ? u"en_US"_qs : language;
         const QString comm = d->localeComments.value(lang);
         if (!comm.isEmpty())
             return comm;
-        const int pos = lang.indexOf(QLatin1Char('_'));
+        const int pos = lang.indexOf(u'_');
         if (pos != -1) {
             // "pt_BR" not found? try just "pt"
             const QString shortLang = lang.left(pos);
@@ -278,19 +280,19 @@ QString MimeType::genericIconName() const
         // (i.e. "video-x-generic" in the previous example).
         const QString group = name();
         QStringView groupRef(group);
-        const int slashindex = groupRef.indexOf(QLatin1Char('/'));
+        const int slashindex = groupRef.indexOf(u'/');
         if (slashindex != -1)
             groupRef = groupRef.left(slashindex);
-        return groupRef + QLatin1String("-x-generic");
+        return groupRef + "-x-generic"_L1;
     }
     return d->genericIconName;
 }
 
 static QString make_default_icon_name_from_mimetype_name(QString iconName)
 {
-    const int slashindex = iconName.indexOf(QLatin1Char('/'));
+    const int slashindex = iconName.indexOf(u'/');
     if (slashindex != -1)
-        iconName[slashindex] = QLatin1Char('-');
+        iconName[slashindex] = u'-';
     return iconName;
 }
 
@@ -459,13 +461,13 @@ QString MimeType::filterString() const
     QString filter;
 
     if (!d->globPatterns.empty()) {
-        filter += comment() + QLatin1String(" (");
+        filter += comment() + " ("_L1;
         for (int i = 0; i < d->globPatterns.size(); ++i) {
             if (i != 0)
-                filter += QLatin1Char(' ');
+                filter += u' ';
             filter += d->globPatterns.at(i);
         }
-        filter +=  QLatin1Char(')');
+        filter +=  u')';
     }
 
     return filter;

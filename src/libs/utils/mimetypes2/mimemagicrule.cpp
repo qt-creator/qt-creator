@@ -9,6 +9,8 @@
 #include <QtCore/QMap>
 #include <qendian.h>
 
+using namespace Qt::StringLiterals;
+
 namespace Utils {
 
 // in the same order as Type!
@@ -221,10 +223,10 @@ MimeMagicRule::MimeMagicRule(const QString &type,
       m_matchFunction(nullptr)
 {
     if (Q_UNLIKELY(m_type == Invalid))
-        *errorString = QLatin1String("Type ") + type + QLatin1String(" is not supported");
+        *errorString = "Type "_L1 + type + " is not supported"_L1;
 
     // Parse for offset as "1" or "1:10"
-    const int colonIndex = offsets.indexOf(QLatin1Char(':'));
+    const int colonIndex = offsets.indexOf(u':');
     const QStringView startPosStr
         = QStringView(offsets).mid(0, colonIndex); // \ These decay to returning 'offsets'
     const QStringView endPosStr = QStringView(offsets)
@@ -253,7 +255,7 @@ void MimeMagicRule::init(QString *errorString)
         if (Q_UNLIKELY(!ok)) {
             m_type = Invalid;
             if (errorString)
-                *errorString = QLatin1String("Invalid magic rule value \"") + QLatin1String(m_value) + QLatin1Char('"');
+                *errorString = "Invalid magic rule value \""_L1 + QLatin1String(m_value) + u'"';
             return;
         }
         m_numberMask = !m_mask.isEmpty() ? m_mask.toUInt(&ok, 0) : 0; // autodetect base
@@ -267,7 +269,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(m_mask.size() < 4 || !m_mask.startsWith("0x"))) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = QLatin1String("Invalid magic rule mask \"") + QLatin1String(m_mask) + QLatin1Char('"');
+                    *errorString = "Invalid magic rule mask \""_L1 + QLatin1String(m_mask) + u'"';
                 return;
             }
             const QByteArray &tempMask = QByteArray::fromHex(QByteArray::fromRawData(
@@ -275,7 +277,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(tempMask.size() != m_pattern.size())) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = QLatin1String("Invalid magic rule mask size \"") + QLatin1String(m_mask) + QLatin1Char('"');
+                    *errorString = "Invalid magic rule mask size \""_L1 + QLatin1String(m_mask) + u'"';
                 return;
             }
             m_mask = tempMask;
