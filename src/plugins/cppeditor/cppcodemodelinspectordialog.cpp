@@ -199,7 +199,6 @@ void FilterableView::clearFilter()
 
 class ProjectFilesModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
     ProjectFilesModel(QObject *parent) : QAbstractListModel(parent) {}
 
@@ -278,9 +277,9 @@ QVariant ProjectFilesModel::headerData(int section, Qt::Orientation orientation,
 
 class ProjectHeaderPathsModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    ProjectHeaderPathsModel(QObject *parent);
+    ProjectHeaderPathsModel(QObject *parent) : QAbstractListModel(parent) {}
+
     void configure(const ProjectExplorer::HeaderPaths &paths);
     void clear();
 
@@ -294,10 +293,6 @@ public:
 private:
     ProjectExplorer::HeaderPaths m_paths;
 };
-
-ProjectHeaderPathsModel::ProjectHeaderPathsModel(QObject *parent) : QAbstractListModel(parent)
-{
-}
 
 void ProjectHeaderPathsModel::configure(const ProjectExplorer::HeaderPaths &paths)
 {
@@ -356,7 +351,6 @@ QVariant ProjectHeaderPathsModel::headerData(int section, Qt::Orientation orient
 
 class KeyValueModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
     using Table = QList<QPair<QString, QString>>;
 
@@ -436,7 +430,6 @@ QVariant KeyValueModel::headerData(int section, Qt::Orientation orientation, int
 
 class SnapshotModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
     SnapshotModel(QObject *parent);
     void configure(const Snapshot &snapshot);
@@ -538,7 +531,6 @@ static bool includesSorter(const Document::Include &i1,
 
 class IncludesModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
     IncludesModel(QObject *parent);
     void configure(const QList<Document::Include> &includes);
@@ -640,9 +632,9 @@ static bool diagnosticMessagesModelSorter(const Document::DiagnosticMessage &m1,
 
 class DiagnosticMessagesModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    DiagnosticMessagesModel(QObject *parent);
+    DiagnosticMessagesModel(QObject *parent) : QAbstractListModel(parent) {}
+
     void configure(const QList<Document::DiagnosticMessage> &messages);
     void clear();
 
@@ -657,12 +649,7 @@ private:
     QList<Document::DiagnosticMessage> m_messages;
 };
 
-DiagnosticMessagesModel::DiagnosticMessagesModel(QObject *parent) : QAbstractListModel(parent)
-{
-}
-
-void DiagnosticMessagesModel::configure(
-        const QList<Document::DiagnosticMessage> &messages)
+void DiagnosticMessagesModel::configure(const QList<Document::DiagnosticMessage> &messages)
 {
     emit layoutAboutToBeChanged();
     m_messages = messages;
@@ -747,9 +734,9 @@ QVariant DiagnosticMessagesModel::headerData(int section, Qt::Orientation orient
 
 class MacrosModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    MacrosModel(QObject *parent);
+    MacrosModel(QObject *parent) : QAbstractListModel(parent) {}
+
     void configure(const QList<CPlusPlus::Macro> &macros);
     void clear();
 
@@ -763,10 +750,6 @@ public:
 private:
     QList<CPlusPlus::Macro> m_macros;
 };
-
-MacrosModel::MacrosModel(QObject *parent) : QAbstractListModel(parent)
-{
-}
 
 void MacrosModel::configure(const QList<CPlusPlus::Macro> &macros)
 {
@@ -826,9 +809,9 @@ QVariant MacrosModel::headerData(int section, Qt::Orientation orientation, int r
 
 class SymbolsModel : public QAbstractItemModel
 {
-    Q_OBJECT
 public:
-    SymbolsModel(QObject *parent);
+    SymbolsModel(QObject *parent) : QAbstractItemModel(parent) {}
+
     void configure(const Document::Ptr &document);
     void clear();
 
@@ -844,10 +827,6 @@ public:
 private:
     Document::Ptr m_document;
 };
-
-SymbolsModel::SymbolsModel(QObject *parent) : QAbstractItemModel(parent)
-{
-}
 
 void SymbolsModel::configure(const Document::Ptr &document)
 {
@@ -962,9 +941,9 @@ QVariant SymbolsModel::headerData(int section, Qt::Orientation orientation, int 
 
 class TokensModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    TokensModel(QObject *parent);
+    TokensModel(QObject *parent) : QAbstractListModel(parent) {}
+
     void configure(TranslationUnit *translationUnit);
     void clear();
 
@@ -985,10 +964,6 @@ private:
     };
     QList<TokenInfo> m_tokenInfos;
 };
-
-TokensModel::TokensModel(QObject *parent) : QAbstractListModel(parent)
-{
-}
 
 void TokensModel::configure(TranslationUnit *translationUnit)
 {
@@ -1092,9 +1067,10 @@ QVariant TokensModel::headerData(int section, Qt::Orientation orientation, int r
 
 class ProjectPartsModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    ProjectPartsModel(QObject *parent);
+    ProjectPartsModel(QObject *parent)
+        : QAbstractListModel(parent), m_currentEditorsProjectPartIndex(-1)
+    {}
 
     void configure(const QList<ProjectInfo::ConstPtr> &projectInfos,
                    const ProjectPart::ConstPtr &currentEditorsProjectPart);
@@ -1113,11 +1089,6 @@ private:
     QList<ProjectPart::ConstPtr> m_projectPartsList;
     int m_currentEditorsProjectPartIndex;
 };
-
-ProjectPartsModel::ProjectPartsModel(QObject *parent)
-    : QAbstractListModel(parent), m_currentEditorsProjectPartIndex(-1)
-{
-}
 
 void ProjectPartsModel::configure(const QList<ProjectInfo::ConstPtr> &projectInfos,
                                   const ProjectPart::ConstPtr &currentEditorsProjectPart)
@@ -1202,9 +1173,8 @@ QVariant ProjectPartsModel::headerData(int section, Qt::Orientation orientation,
 
 class WorkingCopyModel : public QAbstractListModel
 {
-    Q_OBJECT
 public:
-    WorkingCopyModel(QObject *parent);
+    WorkingCopyModel(QObject *parent) : QAbstractListModel(parent) {}
 
     void configure(const WorkingCopy &workingCopy);
     QModelIndex indexForFile(const Utils::FilePath &filePath);
@@ -1229,10 +1199,6 @@ private:
 
     QList<WorkingCopyEntry> m_workingCopyList;
 };
-
-WorkingCopyModel::WorkingCopyModel(QObject *parent) : QAbstractListModel(parent)
-{
-}
 
 void WorkingCopyModel::configure(const WorkingCopy &workingCopy)
 {
@@ -1316,15 +1282,10 @@ public:
 
 class CppCodeModelInspectorDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
-    explicit CppCodeModelInspectorDialog(QWidget *parent = nullptr);
-    ~CppCodeModelInspectorDialog() override;
+    CppCodeModelInspectorDialog();
 
 private:
-    void onRefreshRequested();
-
     void onSnapshotFilterChanged(const QString &pattern);
     void onSnapshotSelected(int row);
     void onDocumentSelected(const QModelIndex &current, const QModelIndex &);
@@ -1366,7 +1327,7 @@ private:
     QTreeView *m_docTokensView;
 
     // Snapshots and Documents
-    QList<SnapshotInfo> *m_snapshotInfos;
+    QList<SnapshotInfo> m_snapshotInfos;
     FilterableView *m_snapshotView;
     SnapshotModel *m_snapshotModel;
     QSortFilterProxyModel *m_proxySnapshotModel;
@@ -1391,9 +1352,8 @@ private:
     QSortFilterProxyModel *m_proxyWorkingCopyModel;
 };
 
-CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
-    : QDialog(parent)
-    , m_snapshotInfos(new QList<SnapshotInfo>())
+CppCodeModelInspectorDialog::CppCodeModelInspectorDialog()
+    : QDialog(ICore::dialogParent())
     , m_snapshotView(new FilterableView(this))
     , m_snapshotModel(new SnapshotModel(this))
     , m_proxySnapshotModel(new QSortFilterProxyModel(this))
@@ -1612,19 +1572,9 @@ CppCodeModelInspectorDialog::CppCodeModelInspectorDialog(QWidget *parent)
     connect(m_workingCopyView, &FilterableView::filterChanged,
             this, &CppCodeModelInspectorDialog::onWorkingCopyFilterChanged);
 
-    connect(refreshButton, &QAbstractButton::clicked, this, &CppCodeModelInspectorDialog::onRefreshRequested);
+    connect(refreshButton, &QAbstractButton::clicked, this, &CppCodeModelInspectorDialog::refresh);
     connect(closeButton, &QAbstractButton::clicked, this, &QWidget::close);
 
-    refresh();
-}
-
-CppCodeModelInspectorDialog::~CppCodeModelInspectorDialog()
-{
-    delete m_snapshotInfos;
-}
-
-void CppCodeModelInspectorDialog::onRefreshRequested()
-{
     refresh();
 }
 
@@ -1635,11 +1585,11 @@ void CppCodeModelInspectorDialog::onSnapshotFilterChanged(const QString &pattern
 
 void CppCodeModelInspectorDialog::onSnapshotSelected(int row)
 {
-    if (row < 0 || row >= m_snapshotInfos->size())
+    if (row < 0 || row >= m_snapshotInfos.size())
         return;
 
     m_snapshotView->clearFilter();
-    const SnapshotInfo info = m_snapshotInfos->at(row);
+    const SnapshotInfo info = m_snapshotInfos.at(row);
     m_snapshotModel->configure(info.snapshot);
     m_snapshotView->resizeColumns(SnapshotModel::ColumnCount);
 
@@ -1665,7 +1615,7 @@ void CppCodeModelInspectorDialog::onDocumentSelected(const QModelIndex &current,
                                                               SnapshotModel::FilePathColumn);
         const FilePath filePath = FilePath::fromUserInput(
             m_proxySnapshotModel->data(index, Qt::DisplayRole).toString());
-        const SnapshotInfo info = m_snapshotInfos->at(m_snapshotSelector->currentIndex());
+        const SnapshotInfo info = m_snapshotInfos.at(m_snapshotSelector->currentIndex());
         updateDocumentData(info.snapshot.document(filePath));
     } else {
         clearDocumentData();
@@ -1724,14 +1674,14 @@ void CppCodeModelInspectorDialog::refresh()
         = m_selectEditorRelevantEntriesAfterRefreshCheckBox->isChecked();
 
     // Snapshots and Documents
-    m_snapshotInfos->clear();
+    m_snapshotInfos.clear();
     m_snapshotSelector->clear();
 
     const Snapshot globalSnapshot = CppModelManager::snapshot();
     CppCodeModelInspector::Dumper dumper(globalSnapshot);
     m_snapshotModel->setGlobalSnapshot(globalSnapshot);
 
-    m_snapshotInfos->append(SnapshotInfo(globalSnapshot, SnapshotInfo::GlobalSnapshot));
+    m_snapshotInfos.append(SnapshotInfo(globalSnapshot, SnapshotInfo::GlobalSnapshot));
     const QString globalSnapshotTitle
         = QString::fromLatin1("Global/Indexing Snapshot (%1 Documents)").arg(globalSnapshot.size());
     m_snapshotSelector->addItem(globalSnapshotTitle);
@@ -1743,7 +1693,7 @@ void CppCodeModelInspectorDialog::refresh()
         cppEditorDocument = CppModelManager::cppEditorDocument(editorFilePath);
         if (auto documentProcessor = CppModelManager::cppEditorDocumentProcessor(editorFilePath)) {
             const Snapshot editorSnapshot = documentProcessor->snapshot();
-            m_snapshotInfos->append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
+            m_snapshotInfos.append(SnapshotInfo(editorSnapshot, SnapshotInfo::EditorSnapshot));
             const QString editorSnapshotTitle
                 = QString::fromLatin1("Current Editor's Snapshot (%1 Documents)")
                     .arg(editorSnapshot.size());
@@ -1757,7 +1707,7 @@ void CppCodeModelInspectorDialog::refresh()
 
             // Add semantic info snapshot
             snapshot = semanticInfo.snapshot;
-            m_snapshotInfos->append(SnapshotInfo(snapshot, SnapshotInfo::EditorSnapshot));
+            m_snapshotInfos.append(SnapshotInfo(snapshot, SnapshotInfo::EditorSnapshot));
             m_snapshotSelector->addItem(
                 QString::fromLatin1("Current Editor's Semantic Info Snapshot (%1 Documents)")
                     .arg(snapshot.size()));
@@ -1766,7 +1716,7 @@ void CppCodeModelInspectorDialog::refresh()
             // is not part of the semantic snapshot.
             snapshot = Snapshot();
             snapshot.insert(cppEditorWidget->semanticInfo().doc);
-            m_snapshotInfos->append(SnapshotInfo(snapshot, SnapshotInfo::EditorSnapshot));
+            m_snapshotInfos.append(SnapshotInfo(snapshot, SnapshotInfo::EditorSnapshot));
             const QString snapshotTitle
                 = QString::fromLatin1("Current Editor's Pseudo Snapshot with Semantic Info Document (%1 Documents)")
                     .arg(snapshot.size());
@@ -1777,14 +1727,14 @@ void CppCodeModelInspectorDialog::refresh()
 
     int snapshotIndex = 0;
     if (selectEditorRelevant) {
-        for (int i = 0, total = m_snapshotInfos->size(); i < total; ++i) {
-            const SnapshotInfo info = m_snapshotInfos->at(i);
+        for (int i = 0, total = m_snapshotInfos.size(); i < total; ++i) {
+            const SnapshotInfo info = m_snapshotInfos.at(i);
             if (info.type == SnapshotInfo::EditorSnapshot) {
                 snapshotIndex = i;
                 break;
             }
         }
-    } else if (oldSnapshotIndex < m_snapshotInfos->size()) {
+    } else if (oldSnapshotIndex < m_snapshotInfos.size()) {
         snapshotIndex = oldSnapshotIndex;
     }
     m_snapshotSelector->setCurrentIndex(snapshotIndex);
@@ -2072,7 +2022,7 @@ void inspectCppCodeModel()
     if (theCppCodeModelInspectorDialog) {
         ICore::raiseWindow(theCppCodeModelInspectorDialog);
     } else {
-        theCppCodeModelInspectorDialog = new CppCodeModelInspectorDialog(ICore::dialogParent());
+        theCppCodeModelInspectorDialog = new CppCodeModelInspectorDialog;
         ICore::registerWindow(theCppCodeModelInspectorDialog, Context("CppEditor.Inspector"));
         theCppCodeModelInspectorDialog->show();
     }
