@@ -88,6 +88,12 @@ public:
         m_start = toTextCursor(origin_document->document(), suggestion.position());
         m_start.setKeepPositionOnInsert(true);
         setCurrentPosition(m_start.position());
+
+        connect(
+            origin_document,
+            &::TextEditor::TextDocument::contentsChangedWithPosition,
+            this,
+            &CyclicSuggestion::documentChanged);
     }
 
     virtual bool apply() override
@@ -163,6 +169,14 @@ public:
 signals:
     void update();
 
+private slots:
+    void documentChanged(int /* position */, int /* charsRemoved */, int /* charsAdded */)
+    {
+        // When the document is changed, the suggestion will be either destroyed or must be locked.
+        if (!m_locked)
+            lockCurrentSuggestion();
+    }
+
 private:
     // Be causious with this function, it should be the last called in the chain
     // since it replaces this object.
@@ -177,8 +191,10 @@ private:
     void lockCurrentSuggestion()
     {
         m_locked = true;
-        if (m_suggestions.size() <= 1)
+        if (m_suggestions.size() <= 1) {
+            emit update();
             return;
+        }
 
         m_suggestions = QList<Suggestion>{m_suggestions.at(m_currentSuggestion)};
         m_currentSuggestion = 0;
@@ -253,9 +269,13 @@ private:
 
     void updateLabels()
     {
-        if (auto cs = currentSuggestion())
-            m_numberLabel->setText(
-                Lua::Tr::tr("%1 of %2").arg(cs->currentSuggestion() + 1).arg(cs->size()));
+        if (auto cs = currentSuggestion()) {
+            if (cs->isLocked())
+                m_numberLabel->setText("         ");
+            else
+                m_numberLabel->setText(
+                    Lua::Tr::tr("%1 of %2").arg(cs->currentSuggestion() + 1).arg(cs->size()));
+        }
     }
 
     void apply()
