@@ -56,6 +56,7 @@ MimeDatabasePrivate::~MimeDatabasePrivate()
 }
 
 #if 0
+Q_CONSTINIT
 #if 0 //def QT_BUILD_INTERNAL
 Q_CORE_EXPORT
 #else
