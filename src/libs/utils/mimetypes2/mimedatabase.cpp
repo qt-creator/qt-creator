@@ -396,19 +396,17 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
     return mimeTypeForName(defaultMimeType());
 }
 
-MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *accuracyPtr)
+MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device)
 {
     // First, glob patterns are evaluated. If there is a match with max weight,
     // this one is selected and we are done. Otherwise, the file contents are
     // evaluated and the match with the highest value (either a magic priority or
     // a glob pattern weight) is selected. Matching starts from max level (most
     // specific) in both cases, even when there is already a suffix matching candidate.
-    *accuracyPtr = 0;
 
     // Pass 1) Try to match on the file name
     MimeGlobMatchResult candidatesByName = findByFileName(fileName);
     if (candidatesByName.m_allMatchingMimeTypes.count() == 1) {
-        *accuracyPtr = 100;
         const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
         if (mime.isValid())
             return mime;
@@ -417,7 +415,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
     // Extension is unknown, or matches multiple mimetypes.
     // Pass 2) Match on content, if we can read the data
-    const auto matchOnContent = [this, accuracyPtr, &candidatesByName](QIODevice *device) {
+    const auto matchOnContent = [this, &candidatesByName](QIODevice *device) {
         if (device->isOpen()) {
             // Read 16K in one go (QIODEVICE_BUFFERSIZE in qiodevice_p.h).
             // This is much faster than seeking back and forth into QIODevice.
@@ -431,19 +429,16 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
                 const QString sniffedMime = candidateByData.name();
                 // If the sniffedMime matches a highest-weight glob match, use it
                 if (candidatesByName.m_matchingMimeTypes.contains(sniffedMime)) {
-                    *accuracyPtr = 100;
                     return candidateByData;
                 }
                 for (const QString &m : std::as_const(candidatesByName.m_allMatchingMimeTypes)) {
                     if (inherits(m, sniffedMime)) {
                         // We have magic + pattern pointing to this, so it's a pretty good match
-                        *accuracyPtr = 100;
                         return mimeTypeForName(m);
                     }
                 }
                 if (candidatesByName.m_allMatchingMimeTypes.isEmpty()) {
                     // No glob, use magic
-                    *accuracyPtr = magicAccuracy;
                     return candidateByData;
                 }
             }
@@ -451,7 +446,6 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
         if (candidatesByName.m_allMatchingMimeTypes.count() > 1) {
             candidatesByName.m_matchingMimeTypes.sort(); // make it deterministic
-            *accuracyPtr = 20;
             const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
             if (mime.isValid())
                 return mime;
@@ -521,10 +515,10 @@ MimeType MimeDatabasePrivate::mimeTypeForFile(const QString &fileName,
     if (isDirectory)
         return mimeTypeForName(QLatin1String("inode/directory"));
 #endif
-    int priority = 0;
+
     switch (mode) {
     case MimeDatabase::MatchDefault:
-        return mimeTypeForFileNameAndData(fileName, nullptr, &priority);
+        return mimeTypeForFileNameAndData(fileName, nullptr);
     case MimeDatabase::MatchExtension:
         return mimeTypeForFileExtension(fileName);
     case MimeDatabase::MatchContent: {
@@ -809,9 +803,8 @@ MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODe
     if (fileName.endsWith(QLatin1Char('/')))
         return d->mimeTypeForName(QLatin1String("inode/directory"));
 
-    int accuracy = 0;
     const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
-    const MimeType result = d->mimeTypeForFileNameAndData(fileName, device, &accuracy);
+    const MimeType result = d->mimeTypeForFileNameAndData(fileName, device);
     if (openedByUs)
         device->close();
     return result;
@@ -842,8 +835,7 @@ MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, const
 
     QBuffer buffer(const_cast<QByteArray *>(&data));
     buffer.open(QIODevice::ReadOnly);
-    int accuracy = 0;
-    return d->mimeTypeForFileNameAndData(fileName, &buffer, &accuracy);
+    return d->mimeTypeForFileNameAndData(fileName, &buffer);
 }
 
 /*!
