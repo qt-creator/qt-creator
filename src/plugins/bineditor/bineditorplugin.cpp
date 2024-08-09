@@ -28,6 +28,7 @@
 #include <utils/fadingindicator.h>
 #include <utils/filepath.h>
 #include <utils/fileutils.h>
+#include <utils/layoutbuilder.h>
 #include <utils/mimeconstants.h>
 #include <utils/qtcassert.h>
 #include <utils/reloadpromptutils.h>
@@ -2179,26 +2180,26 @@ public:
     {
         setWidget(m_widget);
         setDuplicateSupported(true);
+
         auto codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
         codecChooser->prependNone();
-
-        auto l = new QHBoxLayout;
-        auto w = new QWidget;
-        l->setContentsMargins(0, 0, 5, 0);
-        l->addStretch(1);
-        l->addWidget(codecChooser);
-        l->addWidget(m_widget->addressEdit());
-        w->setLayout(l);
-
-        m_toolBar = new QToolBar;
-        m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-        m_toolBar->addWidget(w);
-
         connect(codecChooser, &CodecChooser::codecChanged,
                 m_widget, &BinEditorWidget::setCodec);
         const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
         if (!setting.isNull())
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
+
+        using namespace Layouting;
+        auto w = Row {
+            customMargins(0, 0, 5, 0),
+            st,
+            codecChooser,
+            m_widget->addressEdit()
+        }.emerge();
+
+        m_toolBar = new QToolBar;
+        m_toolBar->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+        m_toolBar->addWidget(w);
 
         m_undoAction = new QAction(Tr::tr("&Undo"), this);
         m_redoAction = new QAction(Tr::tr("&Redo"), this);
