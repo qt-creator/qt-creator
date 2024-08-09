@@ -39,6 +39,24 @@ set(resource_files
   debugger/stdtypes.py
   debugger/utils.py
   debugger/loadorder.txt
+
+  debugger-with-python2/qttypes.py
+  debugger-with-python2/personaltypes.py
+  debugger-with-python2/android_stdtypes.py
+  debugger-with-python2/README.txt
+  debugger-with-python2/gdbbridge.py
+  debugger-with-python2/cdbbridge.py
+  debugger-with-python2/lldbbridge.py
+  debugger-with-python2/misctypes.py
+  debugger-with-python2/opencvtypes.py
+  debugger-with-python2/libcpp_stdtypes.py
+  debugger-with-python2/creatortypes.py
+  debugger-with-python2/stdtypes.py
+  debugger-with-python2/gdbtracepoint.py
+  debugger-with-python2/utils.py
+  debugger-with-python2/boosttypes.py
+  debugger-with-python2/dumper.py
+  debugger-with-python2/pdbbridge.py
 )
 
 # copy resource directories during build

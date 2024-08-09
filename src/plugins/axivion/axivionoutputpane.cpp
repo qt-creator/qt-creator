@@ -494,7 +494,7 @@ static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &i
             const QString &line) {
         QList<int> columns;
         auto it = issueRow.find(path);
-        if (it != end) {
+        if (it != end && !it->second.isNull()) {
             Link link{ FilePath::fromUserInput(it->second.getString()) };
             columns.append(findColumn(it->first));
             it = issueRow.find(line);

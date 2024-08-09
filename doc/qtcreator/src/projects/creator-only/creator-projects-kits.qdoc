@@ -102,9 +102,14 @@
         \li \uicontrol Name
         \li Name of the kit. You can use variables to generate the kit name
             based on the values you set in the other fields.
-    \row
-        \li \inlineimage icons/qtcreator-desktopdevice-button.png
-        \li Image to use as an icon for the kit.
+
+            Click the \inlineimage icons/qtcreator-desktopdevice-button.png icon next to the field,
+            and select the image that is displayed in the kit selector for this kit.
+            Select \uicontrol Browse to select an
+            image in a supported file format (for example, PNG). The image is
+            scaled to the size 64x64 pixels. For example, using the compiler
+            logo as an icon allows you to easily see, which compiler is used to
+            build the project for the selected kit.
     \row
         \li \uicontrol {File system name}
         \li Name for the kit to use as a part of directory names. This value is
@@ -113,13 +118,6 @@
     \row
         \li \uicontrol{Run device type}
         \li Type of the run device.
-
-            Double-click the icon next to the field to select the image that is
-            displayed in the kit selector for this kit. You can use any
-            image in a supported file format (for example, PNG). The image is
-            scaled to the size 64x64 pixels. For example, using the compiler
-            logo as an icon allows you to easily see, which compiler is used to
-            build the project for the selected kit.
     \row
         \li \uicontrol {Run device}
         \li The device to run applications on.

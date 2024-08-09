@@ -629,19 +629,19 @@ private:
 */
 
 /*!
-    \typealias CustomTask::Task
+    \typealias Tasking::CustomTask::Task
 
     Type alias for the task type associated with the custom task's \c Adapter.
 */
 
 /*!
-    \typealias CustomTask::Deleter
+    \typealias Tasking::CustomTask::Deleter
 
     Type alias for the task's type deleter associated with the custom task's \c Adapter.
 */
 
 /*!
-    \typealias CustomTask::TaskSetupHandler
+    \typealias Tasking::CustomTask::TaskSetupHandler
 
     Type alias for \c std::function<SetupResult(Task &)>.
 
@@ -676,7 +676,7 @@ private:
 */
 
 /*!
-    \typealias CustomTask::TaskDoneHandler
+    \typealias Tasking::CustomTask::TaskDoneHandler
 
     Type alias for \c std::function<DoneResult(const Task &, DoneWith)> or DoneResult.
 
@@ -865,7 +865,7 @@ private:
 */
 
 /*!
-    \variable sequential
+    \variable Tasking::sequential
     A convenient global group's element describing the sequential execution mode.
 
     This is the default execution mode of the Group element.
@@ -880,7 +880,7 @@ private:
 */
 
 /*!
-    \variable parallel
+    \variable Tasking::parallel
     A convenient global group's element describing the parallel execution mode.
 
     All the direct child tasks of a group are started after the group is started,
@@ -891,7 +891,7 @@ private:
 */
 
 /*!
-    \variable parallelIdealThreadCountLimit
+    \variable Tasking::parallelIdealThreadCountLimit
     A convenient global group's element describing the parallel execution mode with a limited
     number of tasks running simultanously. The limit is equal to the ideal number of threads
     excluding the calling thread.
@@ -905,39 +905,39 @@ private:
 */
 
 /*!
-    \variable stopOnError
+    \variable Tasking::stopOnError
     A convenient global group's element describing the StopOnError workflow policy.
 
     This is the default workflow policy of the Group element.
 */
 
 /*!
-    \variable continueOnError
+    \variable Tasking::continueOnError
     A convenient global group's element describing the ContinueOnError workflow policy.
 */
 
 /*!
-    \variable stopOnSuccess
+    \variable Tasking::stopOnSuccess
     A convenient global group's element describing the StopOnSuccess workflow policy.
 */
 
 /*!
-    \variable continueOnSuccess
+    \variable Tasking::continueOnSuccess
     A convenient global group's element describing the ContinueOnSuccess workflow policy.
 */
 
 /*!
-    \variable stopOnSuccessOrError
+    \variable Tasking::stopOnSuccessOrError
     A convenient global group's element describing the StopOnSuccessOrError workflow policy.
 */
 
 /*!
-    \variable finishAllAndSuccess
+    \variable Tasking::finishAllAndSuccess
     A convenient global group's element describing the FinishAllAndSuccess workflow policy.
 */
 
 /*!
-    \variable finishAllAndError
+    \variable Tasking::finishAllAndError
     A convenient global group's element describing the FinishAllAndError workflow policy.
 */
 
@@ -1028,7 +1028,7 @@ private:
 */
 
 /*!
-    \typealias GroupItem::GroupSetupHandler
+    \typealias Tasking::GroupItem::GroupSetupHandler
 
     Type alias for \c std::function<SetupResult()>.
 
@@ -1058,7 +1058,7 @@ private:
 */
 
 /*!
-    \typealias GroupItem::GroupDoneHandler
+    \typealias Tasking::GroupItem::GroupDoneHandler
 
     Type alias for \c std::function<DoneResult(DoneWith)> or DoneResult.
 
@@ -3407,13 +3407,13 @@ void TimeoutTaskAdapter::start()
 }
 
 /*!
-    \typealias TaskTreeTask
+    \typealias Tasking::TaskTreeTask
 
     Type alias for the CustomTask, to be used inside recipes, associated with the TaskTree task.
 */
 
 /*!
-    \typealias TimeoutTask
+    \typealias Tasking::TimeoutTask
 
     Type alias for the CustomTask, to be used inside recipes, associated with the
     \c std::chrono::milliseconds type. \c std::chrono::milliseconds is used to set up the

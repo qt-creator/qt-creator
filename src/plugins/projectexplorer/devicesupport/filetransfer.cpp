@@ -18,7 +18,7 @@ namespace ProjectExplorer {
 
 QString FileTransferSetupData::defaultRsyncFlags()
 {
-    return "-av";
+    return "-rltv";
 }
 
 static IDeviceConstPtr matchedDevice(const FilesToTransfer &files)

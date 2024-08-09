@@ -185,6 +185,7 @@ void TypeHierarchyBuilder::buildDerived(const std::optional<QFuture<void>> &futu
             return;
         Document::Ptr doc = snapshot.document(fileName);
         if ((_candidates.contains(fileName) && !_candidates.value(fileName).contains(symbolName))
+                || !symbol->identifier()
                 || !doc->control()->findIdentifier(symbol->identifier()->chars(),
                                                    symbol->identifier()->size())) {
             continue;

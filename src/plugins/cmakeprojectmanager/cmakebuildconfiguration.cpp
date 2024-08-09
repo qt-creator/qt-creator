@@ -621,9 +621,9 @@ void CMakeBuildSettingsWidget::reconfigureWithInitialParameters()
     if (reply != QMessageBox::Yes)
         return;
 
-    m_buildConfig->cmakeBuildSystem()->clearCMakeCache();
-
     updateInitialCMakeArguments();
+
+    m_buildConfig->cmakeBuildSystem()->clearCMakeCache();
 
     if (ProjectExplorerPlugin::saveModifiedFiles())
         m_buildConfig->cmakeBuildSystem()->runCMake();

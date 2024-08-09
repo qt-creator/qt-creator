@@ -90,28 +90,28 @@
             \li Operation
             \li Description
        \row
-            \li addAbiFlavor
+            \li \l {addAbiFlavor}
             \li Add a system architecture (ABI).
        \row
-            \li \c {addCMake}
+            \li \l {addCMake}
             \li Add the path to a CMake tool.
         \row
-            \li \c {addDebugger}
+            \li \l {addDebugger}
             \li Add a debugger.
        \row
-            \li \c {addDev}
+            \li \l {addDev}
             \li Add a device.
         \row
             \li \c {addKeys}
             \li Add settings as \c {<KEY> <TYPE>:<VALUE>} key-value pairs.
         \row
-            \li \c {addKit}
+            \li \l {addKit}
             \li Add a build and run kit.
        \row
-            \li \c {addQt}
+            \li \l {addQt}
             \li Add a Qt version.
        \row
-            \li \c {addTC}
+            \li \l {addTC}
             \li Add a compiler.
         \row
             \li \c {find}

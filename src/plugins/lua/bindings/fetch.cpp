@@ -74,6 +74,7 @@ void addFetchModule()
         Module()
         {
             setSettingsGroup("Lua.Fetch");
+            setAutoApply(false);
 
             pluginsAllowedToFetch.setSettingsKey("pluginsAllowedToFetch");
             pluginsAllowedToFetch.setLabelText("Plugins allowed to fetch data from the internet");

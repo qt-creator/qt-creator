@@ -1886,7 +1886,7 @@ void GetterSetterRefactoringHelper::performGeneration(ExistingGetterSetterData d
 
     FullySpecifiedType memberVariableType = data.declarationSymbol->type();
     memberVariableType.setConst(false);
-    const bool isMemberVariableStatic = memberVariableType.isStatic();
+    const bool isMemberVariableStatic =  data.declarationSymbol->isStatic();
     memberVariableType.setStatic(false);
     Overview overview = CppCodeStyleSettings::currentProjectCodeStyleOverview();
     overview.showTemplateParameters = false;

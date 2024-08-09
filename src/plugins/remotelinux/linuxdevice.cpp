@@ -1170,6 +1170,7 @@ LinuxDevicePrivate::LinuxDevicePrivate(LinuxDevice *parent)
 
 LinuxDevicePrivate::~LinuxDevicePrivate()
 {
+    QMutexLocker locker(&m_shellMutex);
     auto closeShell = [this] {
         m_shellThread.quit();
         m_shellThread.wait();
