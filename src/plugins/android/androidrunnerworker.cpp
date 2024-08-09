@@ -721,6 +721,34 @@ ExecutableItem AndroidRunnerWorker::preStartRecipe()
     };
 }
 
+ExecutableItem AndroidRunnerWorker::postDoneRecipe()
+{
+    const LoopUntil iterator([this](int iteration) {
+        return iteration < m_afterFinishAdbCommands.size();
+    });
+
+    const auto onProcessSetup = [this, iterator](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(),
+            m_afterFinishAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}});
+    };
+
+    const auto onDone = [this] {
+        m_processPID = -1;
+        m_processUser = -1;
+        emit remoteProcessFinished("\n\n" + Tr::tr("\"%1\" died.").arg(m_packageName));
+        m_debugServerProcess.reset();
+    };
+
+    return Group {
+        finishAllAndSuccess,
+        For {
+            iterator,
+            ProcessTask(onProcessSetup)
+        },
+        onGroupDone(onDone)
+    };
+}
+
 ExecutableItem AndroidRunnerWorker::pidRecipe()
 {
     const Storage<PidUserPair> pidStorage;

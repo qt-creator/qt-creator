@@ -60,6 +60,7 @@ private:
                                       const Tasking::SingleBarrier &settledBarrier);
     Tasking::ExecutableItem logcatRecipe();
     Tasking::ExecutableItem preStartRecipe();
+    Tasking::ExecutableItem postDoneRecipe();
     Tasking::ExecutableItem pidRecipe();
 
     // Create the processes and timer in the worker thread, for correct thread affinity
