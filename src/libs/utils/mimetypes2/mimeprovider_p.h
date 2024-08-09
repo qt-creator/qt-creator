@@ -108,7 +108,7 @@ private:
                          int charPos,
                          bool caseSensitiveCheck);
     bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data);
-    QLatin1String iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
+    QLatin1StringView iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
     void loadMimeTypeList();
     bool checkCacheChanged();
 

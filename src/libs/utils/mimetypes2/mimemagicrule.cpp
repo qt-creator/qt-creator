@@ -255,7 +255,7 @@ void MimeMagicRule::init(QString *errorString)
         if (Q_UNLIKELY(!ok)) {
             m_type = Invalid;
             if (errorString)
-                *errorString = "Invalid magic rule value \""_L1 + QLatin1String(m_value) + u'"';
+                *errorString = "Invalid magic rule value \""_L1 + QLatin1StringView(m_value) + u'"';
             return;
         }
         m_numberMask = !m_mask.isEmpty() ? m_mask.toUInt(&ok, 0) : 0; // autodetect base
@@ -269,7 +269,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(m_mask.size() < 4 || !m_mask.startsWith("0x"))) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = "Invalid magic rule mask \""_L1 + QLatin1String(m_mask) + u'"';
+                    *errorString = "Invalid magic rule mask \""_L1 + QLatin1StringView(m_mask) + u'"';
                 return;
             }
             const QByteArray &tempMask = QByteArray::fromHex(QByteArray::fromRawData(
@@ -277,7 +277,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(tempMask.size() != m_pattern.size())) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = "Invalid magic rule mask size \""_L1 + QLatin1String(m_mask) + u'"';
+                    *errorString = "Invalid magic rule mask size \""_L1 + QLatin1StringView(m_mask) + u'"';
                 return;
             }
             m_mask = tempMask;

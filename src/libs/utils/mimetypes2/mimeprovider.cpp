@@ -255,7 +255,7 @@ void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result,
         const int weight = flagsAndWeight & 0xff;
         const bool caseSensitive = flagsAndWeight & 0x100;
         const Qt::CaseSensitivity qtCaseSensitive = caseSensitive ? Qt::CaseSensitive : Qt::CaseInsensitive;
-        const QString pattern = QLatin1String(cacheFile->getCharStar(globOffset));
+        const QString pattern = QLatin1StringView(cacheFile->getCharStar(globOffset));
 
         const char *mimeType = cacheFile->getCharStar(mimeTypeOffset);
         if (m_overriddenMimeTypes.contains(QLatin1String(mimeType)))
@@ -264,7 +264,7 @@ void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result,
         MimeGlobPattern glob(pattern, QString() /*unused*/, weight, qtCaseSensitive);
 
         if (glob.matchFileName(fileName))
-            result.addMatch(QLatin1String(mimeType), weight, pattern);
+            result.addMatch(QLatin1StringView(mimeType), weight, pattern);
     }
 }
 
@@ -314,7 +314,7 @@ bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result,
                     const int weight = flagsAndWeight & 0xff;
                     const bool caseSensitive = flagsAndWeight & 0x100;
                     if (caseSensitiveCheck || !caseSensitive) {
-                        result.addMatch(QLatin1String(mimeType), weight,
+                        result.addMatch(QLatin1StringView(mimeType), weight,
                                         u'*' + QStringView{fileName}.mid(charPos + 1),
                                         fileName.size() - charPos - 2);
                         success = true;
@@ -374,7 +374,7 @@ void MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr, M
             *accuracyPtr = m_cacheFile->getUint32(off);
             // Return the first match. We have no rules for conflicting magic data...
             // (mime.cache itself is sorted, but what about local overrides with a lower prio?)
-            candidate = mimeTypeForNameUnchecked(QLatin1String(mimeType));
+            candidate = mimeTypeForNameUnchecked(QLatin1StringView(mimeType));
             return;
         }
     }
@@ -433,7 +433,7 @@ QString MimeBinaryProvider::resolveAlias(const QString &name)
         } else {
             const int mimeOffset = m_cacheFile->getUint32(off + 4);
             const char *mimeType = m_cacheFile->getCharStar(mimeOffset);
-            return QLatin1String(mimeType);
+            return QLatin1StringView(mimeType);
         }
     }
     return QString();
@@ -575,7 +575,8 @@ bool MimeBinaryProvider::loadMimeTypePrivate(MimeTypePrivate &data)
 }
 
 // Binary search in the icons or generic-icons list
-QLatin1String MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime)
+QLatin1StringView MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posListOffset,
+                                                  const QByteArray &inputMime)
 {
     const int iconsListOffset = cacheFile->getUint32(posListOffset);
     const int numIcons = cacheFile->getUint32(iconsListOffset);
@@ -593,16 +594,16 @@ QLatin1String MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posListO
             end = medium - 1;
         else {
             const int iconOffset = cacheFile->getUint32(off + 4);
-            return QLatin1String(cacheFile->getCharStar(iconOffset));
+            return QLatin1StringView(cacheFile->getCharStar(iconOffset));
         }
     }
-    return QLatin1String();
+    return QLatin1StringView();
 }
 
 void MimeBinaryProvider::loadIcon(MimeTypePrivate &data)
 {
     const QByteArray inputMime = data.name.toLatin1();
-    const QLatin1String icon = iconForMime(m_cacheFile, PosIconsListOffset, inputMime);
+    const QLatin1StringView icon = iconForMime(m_cacheFile, PosIconsListOffset, inputMime);
     if (!icon.isEmpty()) {
         data.iconName = icon;
     }
@@ -611,7 +612,7 @@ void MimeBinaryProvider::loadIcon(MimeTypePrivate &data)
 void MimeBinaryProvider::loadGenericIcon(MimeTypePrivate &data)
 {
     const QByteArray inputMime = data.name.toLatin1();
-    const QLatin1String icon = iconForMime(m_cacheFile, PosGenericIconsListOffset, inputMime);
+    const QLatin1StringView icon = iconForMime(m_cacheFile, PosGenericIconsListOffset, inputMime);
     if (!icon.isEmpty()) {
         data.genericIconName = icon;
     }
