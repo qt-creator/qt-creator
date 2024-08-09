@@ -162,6 +162,8 @@ private:
 #ifdef NDEBUG
         return static_cast<T *>(item);
 #else
+        if (!item)
+            return nullptr;
         const auto cItem = dynamic_cast<T *>(item);
         QTC_CHECK(cItem);
         return cItem;
