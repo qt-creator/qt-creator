@@ -15,15 +15,15 @@ constexpr int InnerMargin = 4;
 
 static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 {
-    const Utils::Icon UNSORTED(
+    static const Utils::Icon UNSORTED(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
                  {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}},
                 Utils::Icon::MenuTintedStyle);
-    const Utils::Icon SORT_ASC(
+    static const Utils::Icon SORT_ASC(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::PaletteText},
                  {":/axivion/images/sortDesc.png", Utils::Theme::IconsDisabledColor}},
                 Utils::Icon::MenuTintedStyle);
-    const Utils::Icon SORT_DESC(
+    static const Utils::Icon SORT_DESC(
                 {{":/axivion/images/sortAsc.png", Utils::Theme::IconsDisabledColor},
                  {":/axivion/images/sortDesc.png", Utils::Theme::PaletteText}},
                 Utils::Icon::MenuTintedStyle);
@@ -38,10 +38,10 @@ static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 
 static QIcon iconForFilter(bool isActive)
 {
-    const Utils::Icon INACTIVE(
+    static const Utils::Icon INACTIVE(
                 {{":/utils/images/filtericon.png", Utils::Theme::IconsDisabledColor}},
                 Utils::Icon::MenuTintedStyle);
-    const Utils::Icon ACTIVE(
+    static const Utils::Icon ACTIVE(
                 {{":/utils/images/filtericon.png", Utils::Theme::PaletteText}},
                 Utils::Icon::MenuTintedStyle);
     static const QIcon inactive = INACTIVE.icon();
