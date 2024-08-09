@@ -1,0 +1,287 @@
+{
+    "version": 1,
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
+    "id": "IF.QtInterfaceFrameworkProject",
+    "category": "H.Project",
+    "trDescription": "Creates a Qt Interface Framework project with a configured frontend and optional backends.",
+    "trDisplayName": "Qt Interface Framework Project",
+    "trDisplayCategory": "Other Project",
+    "icon": "../../global/lib.png",
+    "iconKind": "Themed",
+    "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
+
+    "options":
+    [
+        { "key": "TargetPath", "value": "%{Path}" },
+        { "key": "ProjectNameCap", "value": "%{JS: value('Project')}" },
+        { "key": "ProjectNameLowerCase", "value": "%{JS: value('Project').toLowerCase()}" },
+        { "key": "ProjectNameUpperCase", "value": "%{JS: value('Project').toUpperCase()}" },
+        { "key": "FeatureLowerCase", "value": "%{JS: value('Feature').toLowerCase()}" },
+        { "key": "FeatureUpperCase", "value": "%{JS: value('Feature').toUpperCase()}" }
+    ],
+
+    "pages":
+    [
+        {
+            "trDisplayName": "Project Location",
+            "trShortTitle": "Location",
+            "typeId": "Project",
+            "data": { "trDescription": "This wizard creates a Qt Interface Framework project." }
+        },
+        {
+            "trDisplayName": "Configure Interface",
+            "trShortTitle": "Configure",
+            "typeId": "Fields",
+            "data" :
+            [
+                {
+                    "name": "Description",
+                    "type": "Label",
+                    "span": true,
+                    "data": {
+                        "wordWrap": true,
+                        "trText": "Configure the interface that describes data exchanged between frontend and backend."
+                    }
+                },
+                {
+                    "name": "Project",
+                    "trDisplayName": "Project name:",
+                    "trToolTip": "Name of the created project, starting with an upper case letter.",
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "text": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1)}"
+                    }
+                },
+                {
+                    "name": "Feature",
+                    "trDisplayName": "Interface name:",
+                    "trToolTip": "Name of the interface that becomes a part of the created module, starting with an upper case letter.",
+                    "type": "LineEdit",
+                    "data":
+                    {
+                        "validator": "(?:[A-Z_][a-zA-Z_0-9]*|)",
+                        "text": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1) + 'Feature'}"
+                    }
+                },
+                {
+                    "name": "SampleCode",
+                    "trDisplayName": "Add sample code to the project",
+                    "trToolTip": "Includes basic constructs, otherwise an empty project is created.",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": true
+                    }
+                },
+                {
+                    "name": "Zoned",
+                    "trDisplayName": "Generate a zoned interface",
+                    "trToolTip": "A zoned interface has corresponding elements for all data in multiple zones.",
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "BackendDesc",
+                    "type": "Label",
+                    "span": true,
+                    "data": {
+                        "wordWrap": true,
+                        "trText": "Backend setup:"
+                    }
+                },
+                {
+                    "name": "Simulator",
+                    "trDisplayName": "Generate a simulation backend",
+                    "trToolTip": "Creates a simulation backend which is scriptable from QML.",
+                    "span": true,
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": true
+                    }
+                },
+                {
+                    "name": "Backend",
+                    "trDisplayName": "Generate a production backend implementation",
+                    "trToolTip": "Creates a full, native implementation backend.",
+                    "span": true,
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "QtRo",
+                    "trDisplayName": "Generate a Qt Remote Objects backend",
+                    "trToolTip": "Generates a backend that can connect to the server side by using Qt Remote Objects technology.",
+                    "span": true,
+                    "type": "CheckBox",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "QtRoSimulation",
+                    "trDisplayName": "Generate a Qt Remote Objects simulation server",
+                    "trToolTip": "Generates a simulation server that can be connected by the Qt Remote Objects backend.",
+                    "span": true,
+                    "type": "CheckBox",
+                    "enabled": "%{QtRo}",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "QtRoProduction",
+                    "trDisplayName": "Generate a Qt Remote Objects production server",
+                    "trToolTip": "Generates a natively implemented server that can be connected by the Qt Remote Objects backend.",
+                    "span": true,
+                    "type": "CheckBox",
+                    "enabled": "%{QtRo}",
+                    "data": {
+                        "checked": false
+                    }
+                },
+                {
+                    "name": "Warning",
+                    "type": "Label",
+                    "span": true,
+                    "data": {
+                        "wordWrap": true,
+                        "trText": "If no functioning backend is selected, the sample code of the frontend UI will not work and may even throw errors."
+                    }
+                }
+            ]
+        },
+        {
+            "trDisplayName": "Kit Selection",
+            "trShortTitle": "Kits",
+            "typeId": "Kits",
+            "data": { "projectFilePath": "%{ProjectDirectory}/CMakeLists.txt" }
+        },
+        {
+            "trDisplayName": "Project Management",
+            "trShortTitle": "Summary",
+            "typeId": "Summary"
+        }
+    ],
+
+    "generators":
+    [
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "CMakeLists.txt.tpl",
+                    "target": "CMakeLists.txt",
+                    "openAsProject": true
+                },
+                {
+                    "source": "interfaces.qface.tpl",
+                    "target": "%{ProjectNameLowerCase}.qface"
+                },
+                {
+                    "source": "interfaces.yaml.tpl",
+                    "target": "%{ProjectNameLowerCase}.yaml"
+                },
+                {
+                    "source": "main.cpp.tpl",
+                    "target": "main.cpp"
+                },
+                {
+                    "source": "Main.qml.tpl",
+                    "target": "Main.qml"
+                },
+                {
+                    "source": "simulation_backend.cmake.tpl",
+                    "target": "simulation_backend/CMakeLists.txt",
+                    "condition": "%{Simulator}"
+                },
+                {
+                    "source": "simulation_server.cmake.tpl",
+                    "target": "simulation_server/CMakeLists.txt",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoSimulation') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "simulation.qml.tpl",
+                    "target": "simulation_backend/simulation.qml",
+                    "condition": "%{Simulator}"
+                },
+                {
+                    "source": "simulation.qml.tpl",
+                    "target": "simulation_server/simulation.qml",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoSimulation') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "production_backend.cmake.tpl",
+                    "target": "production_backend/CMakeLists.txt",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "moduleplugin.json.tpl",
+                    "target": "production_backend/%{ProjectNameLowerCase}plugin.json",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "moduleplugin.h.tpl",
+                    "target": "production_backend/%{ProjectNameLowerCase}plugin.h",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "moduleplugin.cpp.tpl",
+                    "target": "production_backend/%{ProjectNameLowerCase}plugin.cpp",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "production_server.cmake.tpl",
+                    "target": "production_server/CMakeLists.txt",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "featurebackend.h.tpl",
+                    "target": "production_backend/%{FeatureLowerCase}backend.h",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "featurebackend.h.tpl",
+                    "target": "production_server/%{FeatureLowerCase}backend.h",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "featurebackend.cpp.tpl",
+                    "target": "production_backend/%{FeatureLowerCase}backend.cpp",
+                    "condition": "%{Backend}"
+                },
+                {
+                    "source": "featurebackend.cpp.tpl",
+                    "target": "production_server/%{FeatureLowerCase}backend.cpp",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "featureadapter.h.tpl",
+                    "target": "production_server/%{FeatureLowerCase}adapter.h",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "featureadapter.cpp.tpl",
+                    "target": "production_server/%{FeatureLowerCase}adapter.cpp",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "servermain.h.tpl",
+                    "target": "production_server/servermain.h",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                },
+                {
+                    "source": "servermain.cpp.tpl",
+                    "target": "production_server/servermain.cpp",
+                    "condition": "%{JS: value('QtRo') == 'true' && value('QtRoProduction') == 'true' ? 'true' : 'false'}"
+                }
+            ]
+        }
+    ]
+}
