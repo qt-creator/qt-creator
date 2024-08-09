@@ -324,6 +324,14 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (Core::ICore::isQtDesignStudio()) {
         d->toolBar = ToolBar::create();
         d->statusBar = ToolBar::createStatusBar();
+
+        // uses simplified Telemetry settings page in case of Qt Design Studio
+        ExtensionSystem::PluginSpec *usageStatistic = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(), [](ExtensionSystem::PluginSpec *p) {
+            return p->name() == "UsageStatistic";
+        });
+
+        if (usageStatistic && usageStatistic->plugin())
+            QMetaObject::invokeMethod(usageStatistic->plugin(), "useSimpleUi", true);
     }
 
     return true;
