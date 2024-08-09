@@ -13,7 +13,6 @@ QtcPlugin {
     files: [
         "bineditor_global.h",
         "bineditortr.h",
-        "bineditorconstants.h",
         "bineditorplugin.cpp",
         "bineditorservice.h",
         "markup.cpp",

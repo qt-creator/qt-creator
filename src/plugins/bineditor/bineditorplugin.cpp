@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "bineditorconstants.h"
 #include "bineditorservice.h"
 #include "bineditortr.h"
 #include "markup.h"
@@ -73,6 +72,7 @@ using namespace Utils;
 namespace BinEditor::Internal {
 
 const int SearchStride = 1024 * 1024;
+const char C_ENCODING_SETTING[] = "BinEditor/TextEncoding";
 
 class BinEditorDocument : public IDocument
 {
@@ -389,7 +389,7 @@ BinEditorWidget::BinEditorWidget(const std::shared_ptr<BinEditorDocument> &doc)
     connect(TextEditorSettings::instance(), &TextEditorSettings::fontSettingsChanged,
             this, &BinEditorWidget::setFontSettings);
 
-    const QByteArray setting = ICore::settings()->value(Constants::C_ENCODING_SETTING).toByteArray();
+    const QByteArray setting = ICore::settings()->value(C_ENCODING_SETTING).toByteArray();
     if (!setting.isEmpty())
         setCodec(QTextCodec::codecForName(setting));
 
@@ -1877,7 +1877,7 @@ void BinEditorWidget::setCodec(QTextCodec *codec)
     if (codec == m_codec)
         return;
     m_codec = codec;
-    ICore::settings()->setValue(Constants::C_ENCODING_SETTING, codec ? codec->name() : QByteArray());
+    ICore::settings()->setValue(C_ENCODING_SETTING, codec ? codec->name() : QByteArray());
     viewport()->update();
 }
 
@@ -2196,7 +2196,7 @@ public:
 
         connect(codecChooser, &CodecChooser::codecChanged,
                 m_widget, &BinEditorWidget::setCodec);
-        const QVariant setting = ICore::settings()->value(Constants::C_ENCODING_SETTING);
+        const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
         if (!setting.isNull())
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
 
