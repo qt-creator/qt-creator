@@ -74,6 +74,11 @@ bool MimeDatabasePrivate::shouldCheck()
     return m_forceLoad;
 }
 
+static QStringList locateMimeDirectories()
+{
+    return QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
+}
+
 #if defined(Q_OS_UNIX) && !defined(Q_OS_NACL) && !defined(Q_OS_INTEGRITY)
 #  define QT_USE_MMAP
 #endif
@@ -104,7 +109,7 @@ void MimeDatabasePrivate::loadProviders()
     NANOTRACE_SCOPE("Utils", "MimeDatabasePrivate::loadProviders");
 #if 0
     // We use QStandardPaths every time to check if new files appeared
-    const QStringList mimeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
+    const QStringList mimeDirs = locateMimeDirectories();
 #else
     // Qt Creator never uses the standard paths, they can conflict with our setup
     const QStringList mimeDirs;
@@ -270,7 +275,7 @@ void MimeDatabasePrivate::loadMimeTypePrivate(MimeTypePrivate &mimePrivate)
             const QString file = mimePrivate.name + QLatin1String(".xml");
             qWarning() << "No file found for" << file << ", even though update-mime-info said it would exist.\n"
                           "Either it was just removed, or the directory doesn't have executable permission..."
-                       << QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
+                       << locateMimeDirectories();
         }
         mimePrivate.loaded = true;
     }
