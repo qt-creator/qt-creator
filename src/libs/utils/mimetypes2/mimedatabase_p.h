@@ -52,7 +52,7 @@ public:
 
     static MimeDatabasePrivate *instance();
 
-    inline QString defaultMimeType() const { return m_defaultMimeType; }
+    const QString &defaultMimeType() const { return m_defaultMimeType; }
 
     bool inherits(const QString &mime, const QString &parent);
 
@@ -91,7 +91,9 @@ private:
     const Providers &providers();
     bool shouldCheck();
     void loadProviders();
+    QString fallbackParent(const QString &mimeTypeName) const;
 
+    const QString m_defaultMimeType;
     mutable Providers m_providers;
     QElapsedTimer m_lastCheck;
 
@@ -101,7 +103,6 @@ private:
     bool m_forceLoad = true;
 
 public:
-    const QString m_defaultMimeType;
     QMutex mutex;
 
     // added for Qt Creator
