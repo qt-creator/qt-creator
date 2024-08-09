@@ -101,7 +101,7 @@ void MimeDatabasePrivate::loadProviders()
     const QStringList mimeDirs;
 #endif
     const auto fdoIterator = std::find_if(mimeDirs.constBegin(), mimeDirs.constEnd(), [](const QString &mimeDir) -> bool {
-        return QFileInfo::exists(mimeDir + QStringLiteral("/packages/freedesktop.org.xml")); }
+        return QFileInfo::exists(mimeDir + QLatin1String("/packages/freedesktop.org.xml")); }
     );
     const bool needInternalDB = MimeXMLProvider::InternalDatabaseAvailable && fdoIterator == mimeDirs.constEnd();
     //qDebug() << "mime dirs:" << mimeDirs;
@@ -128,7 +128,7 @@ void MimeDatabasePrivate::loadProviders()
 
 
     for (const QString &mimeDir : mimeDirs) {
-        const QString cacheFile = mimeDir + QStringLiteral("/mime.cache");
+        const QString cacheFile = mimeDir + QLatin1String("/mime.cache");
         // Check if we already have a provider for this dir
         const auto predicate = [mimeDir](const std::unique_ptr<MimeProviderBase> &prov)
         {
