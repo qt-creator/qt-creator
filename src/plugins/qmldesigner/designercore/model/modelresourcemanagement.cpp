@@ -15,7 +15,10 @@
 #include <QHash>
 #include <QRegularExpression>
 
+#include <concepts>
 #include <functional>
+
+QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
 
 namespace QmlDesigner {
 
@@ -23,16 +26,40 @@ namespace {
 
 enum class CheckRecursive { No, Yes };
 
-class NodeActions;
+struct Base;
 
-template<typename ActionCall>
-void forEachAction(NodeActions &nodeActions, ActionCall actionCall);
+template<typename T, typename... Actions>
+concept NodeAction = std::derived_from<T, Base>
+                     && requires(T t,
+                                 ModelNodes nodes,
+                                 AbstractProperties properties,
+                                 ModelResourceSet &resources,
+                                 CheckRecursive checkRecursive,
+                                 std::tuple<Actions...> &actions) {
+                            t.removeNodes(nodes, checkRecursive, actions);
+                            t.checkModelNodes(nodes, actions);
+                            t.removeProperties(properties, checkRecursive, actions);
+                            t.finally();
+                            t.handleNodes(nodes, actions);
+                            t.handleProperties(properties, actions);
+                            t.setModelResourceSet(resources);
+                        };
+
+template<typename T>
+concept NodeActions = requires(T nodeActions) {
+    std::apply([](NodeAction auto &...) {}, nodeActions);
+};
+
+void forEachAction(NodeActions auto &nodeActions, auto &&actionCall)
+{
+    std::apply([&](NodeAction auto &...action) { (actionCall(action), ...); }, nodeActions);
+}
 
 struct Base
 {
-    Base() = default;
-
-    void removeNodes(ModelNodes newModelNodes, CheckRecursive checkRecursive)
+    void removeNodes(ModelNodes newModelNodes,
+                     CheckRecursive checkRecursive,
+                     NodeActions auto &nodeActions)
     {
         if (newModelNodes.empty())
             return;
@@ -40,20 +67,22 @@ struct Base
         auto oldModelNodes = removeNodes(newModelNodes);
 
         if (checkRecursive == CheckRecursive::Yes)
-            checkNewModelNodes(newModelNodes, oldModelNodes);
+            checkNewModelNodes(newModelNodes, oldModelNodes, nodeActions);
     }
 
-    void checkModelNodes(ModelNodes newModelNodes)
+    void checkModelNodes(ModelNodes newModelNodes, NodeActions auto &nodeActions)
     {
         if (newModelNodes.empty())
             return;
 
         std::sort(newModelNodes.begin(), newModelNodes.end());
 
-        checkNewModelNodes(newModelNodes, resourceSet->removeModelNodes);
+        checkNewModelNodes(newModelNodes, resourceSet->removeModelNodes, nodeActions);
     }
 
-    void removeProperties(AbstractProperties newProperties, CheckRecursive checkRecursive)
+    void removeProperties(AbstractProperties newProperties,
+                          CheckRecursive checkRecursive,
+                          NodeActions auto &nodeActions)
     {
         if (newProperties.empty())
             return;
@@ -61,26 +90,18 @@ struct Base
         auto oldProperties = removeProperties(newProperties);
 
         if (checkRecursive == CheckRecursive::Yes)
-            checkNewProperties(newProperties, oldProperties);
+            checkNewProperties(newProperties, oldProperties, nodeActions);
     }
 
-    void addSetExpressions(ModelResourceSet::SetExpressions newSetExpressions)
-    {
-        auto &setExpressions = resourceSet->setExpressions;
-        setExpressions.append(std::move(newSetExpressions));
-    }
+    auto &setExpressions() { return resourceSet->setExpressions; }
 
-    void handleNodes(const ModelNodes &) {}
+    void handleNodes(const ModelNodes &, [[maybe_unused]] NodeActions auto &actions) {}
 
-    void handleProperties(const AbstractProperties &) {}
+    void handleProperties(const AbstractProperties &, [[maybe_unused]] NodeActions auto &actions) {}
 
     void finally() {}
 
-    void setNodeActionsAndModelResourceSet(NodeActions &actions, ModelResourceSet &resources)
-    {
-        nodeActions = &actions;
-        resourceSet = &resources;
-    }
+    void setModelResourceSet(ModelResourceSet &resources) { resourceSet = &resources; }
 
 private:
     ModelNodes removeNodes(ModelNodes &newModelNodes)
@@ -123,7 +144,9 @@ private:
         return oldProperties;
     }
 
-    void checkNewModelNodes(const ModelNodes &newModelNodes, const ModelNodes &oldModelNodes)
+    void checkNewModelNodes(const ModelNodes &newModelNodes,
+                            const ModelNodes &oldModelNodes,
+                            NodeActions auto &nodeActions)
     {
         ModelNodes addedModelNodes;
         addedModelNodes.reserve(newModelNodes.size());
@@ -135,11 +158,14 @@ private:
                             std::back_inserter(addedModelNodes));
 
         if (addedModelNodes.size())
-            forEachAction(*nodeActions, [&](auto &action) { action.handleNodes(addedModelNodes); });
+            forEachAction(nodeActions, [&](NodeAction auto &action) {
+                action.handleNodes(addedModelNodes, nodeActions);
+            });
     }
 
     void checkNewProperties(const AbstractProperties &newProperties,
-                            const AbstractProperties &oldProperties)
+                            const AbstractProperties &oldProperties,
+                            NodeActions auto &nodeActions)
     {
         AbstractProperties addedProperties;
         addedProperties.reserve(newProperties.size());
@@ -151,26 +177,26 @@ private:
                             std::back_inserter(addedProperties));
 
         if (addedProperties.size())
-            forEachAction(*nodeActions,
-                          [&](auto &action) { action.handleProperties(addedProperties); });
+            forEachAction(nodeActions, [&](NodeAction auto &action) {
+                action.handleProperties(addedProperties, nodeActions);
+            });
     }
 
 private:
     ModelResourceSet *resourceSet = nullptr;
-    NodeActions *nodeActions = nullptr;
 };
 
 struct CheckChildNodes : public Base
 {
     using Base::Base;
 
-    void handleNodes(const ModelNodes &nodes)
+    void handleNodes(const ModelNodes &nodes, NodeActions auto &actions)
     {
         ModelNodes childNodes;
         for (const ModelNode &node : nodes)
             childNodes.append(node.directSubModelNodes());
 
-        checkModelNodes(childNodes);
+        checkModelNodes(std::move(childNodes), actions);
     }
 };
 
@@ -190,9 +216,9 @@ struct CheckNodesInNodeAbstractProperties : public Base
         return modelNodes;
     }
 
-    void handleProperties(const AbstractProperties &properties)
+    void handleProperties(const AbstractProperties &properties, auto &actions)
     {
-        checkModelNodes(collectNodes(properties));
+        checkModelNodes(collectNodes(properties), actions);
     }
 };
 
@@ -216,9 +242,9 @@ struct RemoveLayerEnabled : public Base
         return properties;
     }
 
-    void handleNodes(const ModelNodes &nodes)
+    void handleNodes(const ModelNodes &nodes, auto &actions)
     {
-        removeProperties(collectProperties(nodes), CheckRecursive::No);
+        removeProperties(collectProperties(nodes), CheckRecursive::No, actions);
     }
 };
 
@@ -298,10 +324,6 @@ using NodesProperties = std::vector<NodesProperty>;
 
 struct RemoveDependentBindings : public Base
 {
-    RemoveDependentBindings(BindingDependencies dependencies)
-        : dependencies{std::move(dependencies)}
-    {}
-
     AbstractProperties collectProperties(const ModelNodes &nodes)
     {
         AbstractProperties properties;
@@ -316,9 +338,9 @@ struct RemoveDependentBindings : public Base
         return properties;
     }
 
-    void handleNodes(const ModelNodes &nodes)
+    void handleNodes(const ModelNodes &nodes, auto &actions)
     {
-        removeProperties(collectProperties(nodes), CheckRecursive::No);
+        removeProperties(collectProperties(nodes), CheckRecursive::No, actions);
     }
 
     BindingDependencies dependencies;
@@ -326,9 +348,6 @@ struct RemoveDependentBindings : public Base
 
 struct RemoveDependencies : public Base
 {
-    RemoveDependencies(NodeDependencies dependencies)
-        : dependencies{std::move(dependencies)}
-    {}
 
     ModelNodes collectNodes(const ModelNodes &nodes) const
     {
@@ -344,9 +363,9 @@ struct RemoveDependencies : public Base
         return targetNodes;
     }
 
-    void handleNodes(const ModelNodes &nodes)
+    void handleNodes(const ModelNodes &nodes, auto &actions)
     {
-        removeNodes(collectNodes(nodes), CheckRecursive::No);
+        removeNodes(collectNodes(nodes), CheckRecursive::No, actions);
     }
 
     NodeDependencies dependencies;
@@ -354,11 +373,6 @@ struct RemoveDependencies : public Base
 
 struct RemoveTargetsSources : public Base
 {
-    RemoveTargetsSources(NodeDependencies dependencies, NodesProperties nodesProperties)
-        : dependencies{std::move(dependencies)}
-        , nodesProperties{std::move(nodesProperties)}
-    {}
-
     static void removeDependency(NodesProperties &removedTargetNodesInProperties,
                                  const NodeDependency &dependency)
     {
@@ -426,9 +440,9 @@ struct RemoveTargetsSources : public Base
         return nodesToBeRemoved;
     }
 
-    void handleNodes(const ModelNodes &nodes)
+    void handleNodes(const ModelNodes &nodes, auto &actions)
     {
-        removeNodes(collectNodesToBeRemoved(nodes), CheckRecursive::No);
+        removeNodes(collectNodesToBeRemoved(nodes), CheckRecursive::No, actions);
     }
 
     QString createExpression(const NodesProperty &nodesProperty)
@@ -447,16 +461,13 @@ struct RemoveTargetsSources : public Base
 
     void finally()
     {
-        ModelResourceSet::SetExpressions setExpressions;
 
         for (const NodesProperty &nodesProperty : nodesProperties) {
             if (nodesProperty.isChanged && nodesProperty.targets.size()) {
-                setExpressions.push_back({nodesProperty.source.bindingProperty(nodesProperty.name),
-                                          createExpression(nodesProperty)});
+                setExpressions().push_back({nodesProperty.source.bindingProperty(nodesProperty.name),
+                                            createExpression(nodesProperty)});
             }
         }
-
-        addSetExpressions(std::move(setExpressions));
     }
 
     NodeDependencies dependencies;
@@ -473,12 +484,6 @@ struct DependenciesSet
 
 struct BindingFilter
 {
-    BindingFilter(BindingDependencies &dependencies, Model *model)
-        : dependencies{dependencies}
-        , idModelNodeDict{model->idModelNodeDict()}
-        , wordsRegex{"[[:<:]](\\w+)[[:>:]]"}
-    {}
-
     void filterBindingProperty(const BindingProperty &property)
     {
         const QString &expression = property.expression();
@@ -502,19 +507,11 @@ struct BindingFilter
 
     BindingDependencies &dependencies;
     QHash<QStringView, ModelNode> idModelNodeDict;
-    QRegularExpression wordsRegex;
+    QRegularExpression wordsRegex{"[[:<:]](\\w+)[[:>:]]"};
 };
 
 struct TargetFilter
 {
-    TargetFilter(NodeDependencies &dependencies, Model *model)
-        : flowViewFlowTransitionMetaInfo{model->flowViewFlowTransitionMetaInfo()}
-        , qtQuickPropertyChangesMetaInfo{model->qtQuickPropertyChangesMetaInfo()}
-        , qtQuickTimelineKeyframeGroupMetaInfo{model->qtQuickTimelineKeyframeGroupMetaInfo()}
-        , qtQuickPropertyAnimationMetaInfo{model->qtQuickPropertyAnimationMetaInfo()}
-        , dependencies{dependencies}
-    {}
-
     static std::optional<ModelNode> resolveBinding(const ModelNode &node,
                                                    const PropertyName &propertyName)
     {
@@ -531,7 +528,6 @@ struct TargetFilter
     {
         return metaInfo.isBasedOn(qtQuickPropertyChangesMetaInfo,
                                   qtQuickTimelineKeyframeGroupMetaInfo,
-                                  flowViewFlowActionAreaMetaInfo,
                                   qtQuickPropertyAnimationMetaInfo);
     }
 
@@ -555,7 +551,6 @@ struct TargetFilter
 
     void finally() { std::sort(dependencies.begin(), dependencies.end()); }
 
-    NodeMetaInfo flowViewFlowActionAreaMetaInfo;
     NodeMetaInfo flowViewFlowTransitionMetaInfo;
     NodeMetaInfo qtQuickPropertyChangesMetaInfo;
     NodeMetaInfo qtQuickTimelineKeyframeGroupMetaInfo;
@@ -563,7 +558,7 @@ struct TargetFilter
     NodeDependencies &dependencies;
 };
 
-template<typename Predicate>
+template<std::invocable<const NodeMetaInfo &> Predicate>
 struct TargetsFilter
 {
     TargetsFilter(Predicate predicate,
@@ -617,10 +612,6 @@ void addDependency(NameNodes &dependencies, const ModelNode &node, const Propert
 
 struct StateFilter
 {
-    StateFilter(NameNodes &dependencies)
-        : dependencies{dependencies}
-    {}
-
     void operator()(const NodeMetaInfo &metaInfo, const ModelNode &node)
     {
         if (metaInfo.isQtQuickState())
@@ -634,11 +625,6 @@ struct StateFilter
 
 struct TransitionFilter
 {
-    TransitionFilter(NodeDependencies &dependencies, NameNodes &stateNodes)
-        : stateNodes{stateNodes}
-        , dependencies{dependencies}
-    {}
-
     void operator()(const NodeMetaInfo &metaInfo, const ModelNode &node)
     {
         if (metaInfo.isQtQuickTransition()) {
@@ -664,10 +650,20 @@ struct TransitionFilter
         std::sort(dependencies.begin(), dependencies.end());
     }
 
-    NameNodes transitionNodes;
+    NameNodes transitionNodes = {};
     NameNodes &stateNodes;
     NodeDependencies &dependencies;
 };
+
+template<typename T>
+concept Filter = std::invocable<T, const NodeMetaInfo &, const ModelNode &>
+                 && requires(T t) { t.finally(); };
+
+template<Filter... FilterTypes>
+void forEachFilter(std::tuple<FilterTypes...> &filters, auto &&call)
+{
+    std::apply([&](Filter auto &...filter) { (call(filter), ...); }, filters);
+}
 
 DependenciesSet createDependenciesSet(Model *model)
 {
@@ -676,91 +672,101 @@ DependenciesSet createDependenciesSet(Model *model)
     DependenciesSet set;
     NameNodes stateNames;
 
-    auto flowViewFlowActionAreaMetaInfo = model->flowViewFlowActionAreaMetaInfo();
     auto flowViewFlowDecisionMetaInfo = model->flowViewFlowDecisionMetaInfo();
     auto flowViewFlowWildcardMetaInfo = model->flowViewFlowWildcardMetaInfo();
+    auto flowViewFlowTransitionMetaInfo = model->flowViewFlowTransitionMetaInfo();
     auto qtQuickPropertyChangesMetaInfo = model->qtQuickPropertyChangesMetaInfo();
     auto qtQuickTimelineKeyframeGroupMetaInfo = model->qtQuickTimelineKeyframeGroupMetaInfo();
     auto qtQuickPropertyAnimationMetaInfo = model->qtQuickPropertyAnimationMetaInfo();
 
-    auto filters = std::make_tuple(
-        TargetFilter{set.nodeDependencies, model},
-        TargetsFilter{[&](auto &&metaInfo) {
+    std::tuple filters = {
+        TargetFilter{.flowViewFlowTransitionMetaInfo = flowViewFlowTransitionMetaInfo,
+                     .qtQuickPropertyChangesMetaInfo = qtQuickPropertyChangesMetaInfo,
+                     .qtQuickTimelineKeyframeGroupMetaInfo = qtQuickTimelineKeyframeGroupMetaInfo,
+                     .qtQuickPropertyAnimationMetaInfo = qtQuickPropertyAnimationMetaInfo,
+                     .dependencies = set.nodeDependencies},
+        TargetsFilter{[&](const auto &metaInfo) {
                           return metaInfo.isBasedOn(flowViewFlowDecisionMetaInfo,
                                                     flowViewFlowWildcardMetaInfo,
                                                     qtQuickPropertyAnimationMetaInfo);
                       },
                       set.targetsDependencies,
                       set.targetsNodesProperties},
-        StateFilter{stateNames},
-        TransitionFilter{set.nodeDependencies, stateNames},
-        BindingFilter{set.bindingDependencies, model});
+        StateFilter{.dependencies = stateNames},
+        TransitionFilter{.stateNodes = stateNames, .dependencies = set.nodeDependencies},
+        BindingFilter{.dependencies = set.bindingDependencies,
+                      .idModelNodeDict = model->idModelNodeDict()}};
 
     for (const ModelNode &node : nodes) {
         auto metaInfo = node.metaInfo();
-        std::apply([&](auto &&...filter) { (filter(metaInfo, node), ...); }, filters);
+        forEachFilter(filters, [&](Filter auto &&filter) { filter(metaInfo, node); });
     }
 
-    std::apply([&](auto &&...filter) { (filter.finally(), ...); }, filters);
+    forEachFilter(filters, [](Filter auto &&filter) { filter.finally(); });
 
     return set;
 }
 
-using NodeActionsTuple = std::tuple<CheckChildNodes,
-                                    CheckNodesInNodeAbstractProperties,
-                                    RemoveLayerEnabled,
-                                    RemoveDependentBindings,
-                                    RemoveDependencies,
-                                    RemoveTargetsSources>;
-
-class NodeActions : public NodeActionsTuple
+template<NodeAction... Actions>
+class Dispatcher
 {
 public:
-    template<typename... Actions>
-    NodeActions(ModelResourceSet &modelResourceSet, Actions &&...actions)
-        : NodeActionsTuple(std::forward<Actions>(actions)...)
-        , modelResourceSet{modelResourceSet}
+    template<NodeAction... ActionTypes>
+    Dispatcher(ActionTypes &&...actions)
+        : actions{std::forward<ActionTypes>(actions)...}
     {
-        forEachAction(*this, [&](auto &action) {
-            action.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+        forEachAction(this->actions, [&](NodeAction auto &action) {
+            action.setModelResourceSet(modelResourceSet);
         });
     }
 
-    NodeActions(const NodeActions &) = delete;
-    NodeActions &opertor(const NodeActions &) = delete;
-    NodeActions(NodeActions &&) = delete;
-    NodeActions &opertor(NodeActions &&) = delete;
+    Dispatcher(const Dispatcher &) = delete;
+    Dispatcher &opertor(const Dispatcher &) = delete;
+    Dispatcher(Dispatcher &&) = delete;
+    Dispatcher &opertor(Dispatcher &&) = delete;
 
     void removeProperties(const AbstractProperties &properties, CheckRecursive checkRecursive)
     {
         Base base;
-        base.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+        base.setModelResourceSet(modelResourceSet);
 
-        base.removeProperties(properties, checkRecursive);
+        base.removeProperties(properties, checkRecursive, actions);
     }
 
     void removeNodes(const ModelNodes &nodes, CheckRecursive checkRecursive)
     {
         Base base;
-        base.setNodeActionsAndModelResourceSet(*this, modelResourceSet);
+        base.setModelResourceSet(modelResourceSet);
 
-        base.removeNodes(nodes, checkRecursive);
+        base.removeNodes(nodes, checkRecursive, actions);
     }
 
-    ~NodeActions()
+    ModelResourceSet &takeModelResourceSet()
     {
-        forEachAction(*this, [&](auto &action) { action.finally(); });
+        forEachAction(actions, [&](NodeAction auto &action) { action.finally(); });
+
+        return modelResourceSet;
     }
 
 private:
-    ModelResourceSet &modelResourceSet;
+    std::tuple<Actions...> actions;
+    ModelResourceSet modelResourceSet;
 };
 
-template<typename ActionCall>
-void forEachAction(NodeActions &nodeActions, ActionCall actionCall)
+template<NodeAction... Actions>
+Dispatcher(Actions &&...actions) -> Dispatcher<Actions...>;
+
+auto createDispatcher(Model *model)
 {
-    std::apply([&](auto &...action) { (actionCall(action), ...); },
-               static_cast<NodeActionsTuple &>(nodeActions));
+    DependenciesSet set = createDependenciesSet(model);
+
+    return Dispatcher{CheckChildNodes{},
+                      CheckNodesInNodeAbstractProperties{},
+                      RemoveLayerEnabled{},
+                      RemoveDependentBindings{.dependencies = std::move(set.bindingDependencies)},
+                      RemoveDependencies{.dependencies = std::move(set.nodeDependencies)},
+                      RemoveTargetsSources{.dependencies = std::move(set.targetsDependencies),
+                                           .nodesProperties = std::move(set.targetsNodesProperties)}};
 }
 
 } // namespace
@@ -769,22 +775,11 @@ ModelResourceSet ModelResourceManagement::removeNodes(ModelNodes nodes, Model *m
 {
     std::sort(nodes.begin(), nodes.end());
 
-    ModelResourceSet resourceSet;
+    Dispatcher dispatcher = createDispatcher(model);
 
-    DependenciesSet set = createDependenciesSet(model);
+    dispatcher.removeNodes(nodes, CheckRecursive::Yes);
 
-    NodeActions nodeActions = {resourceSet,
-                               CheckChildNodes{},
-                               CheckNodesInNodeAbstractProperties{},
-                               RemoveLayerEnabled{},
-                               RemoveDependentBindings{std::move(set.bindingDependencies)},
-                               RemoveDependencies{std::move(set.nodeDependencies)},
-                               RemoveTargetsSources{std::move(set.targetsDependencies),
-                                                    std::move(set.targetsNodesProperties)}};
-
-    nodeActions.removeNodes(nodes, CheckRecursive::Yes);
-
-    return resourceSet;
+    return dispatcher.takeModelResourceSet();
 }
 
 ModelResourceSet ModelResourceManagement::removeProperties(AbstractProperties properties,
@@ -792,22 +787,11 @@ ModelResourceSet ModelResourceManagement::removeProperties(AbstractProperties pr
 {
     std::sort(properties.begin(), properties.end());
 
-    ModelResourceSet resourceSet;
+    Dispatcher dispatcher = createDispatcher(model);
 
-    DependenciesSet set = createDependenciesSet(model);
+    dispatcher.removeProperties(properties, CheckRecursive::Yes);
 
-    NodeActions nodeActions = {resourceSet,
-                               CheckChildNodes{},
-                               CheckNodesInNodeAbstractProperties{},
-                               RemoveLayerEnabled{},
-                               RemoveDependentBindings{std::move(set.bindingDependencies)},
-                               RemoveDependencies{std::move(set.nodeDependencies)},
-                               RemoveTargetsSources{std::move(set.targetsDependencies),
-                                                    std::move(set.targetsNodesProperties)}};
-
-    nodeActions.removeProperties(properties, CheckRecursive::Yes);
-
-    return resourceSet;
+    return dispatcher.takeModelResourceSet();
 }
 
 } // namespace QmlDesigner
