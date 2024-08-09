@@ -36,7 +36,7 @@ MimeDatabasePrivate *MimeDatabasePrivate::instance()
 }
 
 MimeDatabasePrivate::MimeDatabasePrivate()
-    : m_defaultMimeType(QLatin1String("application/octet-stream"))
+    : m_defaultMimeType(QStringLiteral("application/octet-stream"))
 {
 }
 
@@ -95,7 +95,7 @@ void MimeDatabasePrivate::loadProviders()
     NANOTRACE_SCOPE("Utils", "MimeDatabasePrivate::loadProviders");
 #if 0
     // We use QStandardPaths every time to check if new files appeared
-    const QStringList mimeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime"), QStandardPaths::LocateDirectory);
+    const QStringList mimeDirs = QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
 #else
     // Qt Creator never uses the standard paths, they can conflict with our setup
     const QStringList mimeDirs;
@@ -261,7 +261,7 @@ void MimeDatabasePrivate::loadMimeTypePrivate(MimeTypePrivate &mimePrivate)
             const QString file = mimePrivate.name + QLatin1String(".xml");
             qWarning() << "No file found for" << file << ", even though update-mime-info said it would exist.\n"
                           "Either it was just removed, or the directory doesn't have executable permission..."
-                       << QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QLatin1String("mime"), QStandardPaths::LocateDirectory);
+                       << QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
         }
         mimePrivate.loaded = true;
     }
@@ -298,13 +298,13 @@ static QString fallbackParent(const QString &mimeTypeName)
     const QStringView myGroup = QStringView{mimeTypeName}.left(mimeTypeName.indexOf(QLatin1Char('/')));
     // All text/* types are subclasses of text/plain.
     if (myGroup == QLatin1String("text") && mimeTypeName != QLatin1String("text/plain"))
-        return QLatin1String("text/plain");
+        return QStringLiteral("text/plain");
     // All real-file mimetypes implicitly derive from application/octet-stream
     if (myGroup != QLatin1String("inode") &&
         // ignore non-file extensions
         myGroup != QLatin1String("all") && myGroup != QLatin1String("fonts") && myGroup != QLatin1String("print") && myGroup != QLatin1String("uri")
         && mimeTypeName != QLatin1String("application/octet-stream")) {
-        return QLatin1String("application/octet-stream");
+        return QStringLiteral("application/octet-stream");
     }
     return QString();
 }
@@ -376,7 +376,7 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
 #if 0
     if (data.isEmpty()) {
         *accuracyPtr = 100;
-        return mimeTypeForName(QLatin1String("application/x-zerosize"));
+        return mimeTypeForName(QStringLiteral("application/x-zerosize"));
     }
 #endif
 
@@ -390,7 +390,7 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
 
     if (isTextFile(data)) {
         *accuracyPtr = 5;
-        return mimeTypeForName(QLatin1String("text/plain"));
+        return mimeTypeForName(QStringLiteral("text/plain"));
     }
 
     return mimeTypeForName(defaultMimeType());
@@ -500,20 +500,20 @@ MimeType MimeDatabasePrivate::mimeTypeForFile(const QString &fileName,
     QT_STATBUF statBuffer;
     if (QT_STAT(nativeFilePath.constData(), &statBuffer) == 0) {
         if (S_ISDIR(statBuffer.st_mode))
-            return mimeTypeForName(QLatin1String("inode/directory"));
+            return mimeTypeForName(QStringLiteral("inode/directory"));
         if (S_ISCHR(statBuffer.st_mode))
-            return mimeTypeForName(QLatin1String("inode/chardevice"));
+            return mimeTypeForName(QStringLiteral("inode/chardevice"));
         if (S_ISBLK(statBuffer.st_mode))
-            return mimeTypeForName(QLatin1String("inode/blockdevice"));
+            return mimeTypeForName(QStringLiteral("inode/blockdevice"));
         if (S_ISFIFO(statBuffer.st_mode))
-            return mimeTypeForName(QLatin1String("inode/fifo"));
+            return mimeTypeForName(QStringLiteral("inode/fifo"));
         if (S_ISSOCK(statBuffer.st_mode))
-            return mimeTypeForName(QLatin1String("inode/socket"));
+            return mimeTypeForName(QStringLiteral("inode/socket"));
     }
 #else
     const bool isDirectory = fileInfo ? fileInfo->isDir() : QFileInfo(fileName).isDir();
     if (isDirectory)
-        return mimeTypeForName(QLatin1String("inode/directory"));
+        return mimeTypeForName(QStringLiteral("inode/directory"));
 #endif
 
     switch (mode) {
@@ -800,7 +800,7 @@ MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, QIODe
     QMutexLocker locker(&d->mutex);
 
     if (fileName.endsWith(QLatin1Char('/')))
-        return d->mimeTypeForName(QLatin1String("inode/directory"));
+        return d->mimeTypeForName(QStringLiteral("inode/directory"));
 
     const bool openedByUs = !device->isOpen() && device->open(QIODevice::ReadOnly);
     const MimeType result = d->mimeTypeForFileNameAndData(fileName, device);
@@ -830,7 +830,7 @@ MimeType MimeDatabase::mimeTypeForFileNameAndData(const QString &fileName, const
     QMutexLocker locker(&d->mutex);
 
     if (fileName.endsWith(QLatin1Char('/')))
-        return d->mimeTypeForName(QLatin1String("inode/directory"));
+        return d->mimeTypeForName(QStringLiteral("inode/directory"));
 
     QBuffer buffer(const_cast<QByteArray *>(&data));
     buffer.open(QIODevice::ReadOnly);
