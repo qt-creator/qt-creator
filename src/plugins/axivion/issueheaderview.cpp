@@ -3,15 +3,124 @@
 
 #include "issueheaderview.h"
 
-#include <utils/icon.h>
+#include "axiviontr.h"
 
+#include <utils/fancylineedit.h>
+#include <utils/icon.h>
+#include <utils/layoutbuilder.h>
+#include <utils/utilsicons.h>
+
+#include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
+#include <QPushButton>
+#include <QToolButton>
 
 namespace Axivion::Internal {
 
 constexpr int IconSize = 16;
 constexpr int InnerMargin = 4;
+
+static QString infoText()
+{
+    return Tr::tr("Allows for filters combined with & as logical AND, | as logical OR and "
+                  "! as logical NOT. The filters may contain * to match sequences of "
+                  "arbitrary characters. If a single filter is quoted with double quotes "
+                  "it will be matched on the complete string. Some filter characters "
+                  "require quoting of the filter expression with double quotes. If inside "
+                  "double quotes you need to escape \" and \\ with a backslash.\n"
+                  "Some examples:\n\n"
+                  "a matches issues where the value contains the letter 'a'\n"
+                  "\"abc\" matches issues where the value is exactly 'abc'\n"
+                  "!abc matches issues whose value does not contain 'abc'\n"
+                  "(ab | cd) & !ef matches issues with values containing 'ab' or 'cd' but not 'ef'\n"
+                  "\"\" matches issues having an empty value in this column\n"
+                  "!\"\" matches issues having any non-empty value in this column");
+}
+class FilterPopupWidget : public QFrame
+{
+public:
+    FilterPopupWidget(QWidget *parent, const QString &filter)
+        : QFrame(parent)
+    {
+        setWindowFlags(Qt::Popup);
+        setAttribute(Qt::WA_DeleteOnClose);
+        Qt::FocusPolicy origPolicy = parent->focusPolicy();
+        setFocusPolicy(Qt::NoFocus);
+        parent->setFocusPolicy(origPolicy);
+        setFocusProxy(parent);
+
+        auto infoButton = new QToolButton(this);
+        infoButton->setIcon(Utils::Icons::INFO.icon());
+        infoButton->setCheckable(true);
+        infoButton->setChecked(true);
+        m_lineEdit = new Utils::FancyLineEdit(this);
+        m_lineEdit->setClearButtonEnabled(true);
+        m_lineEdit->setText(filter);
+        // TODO add some pre-check for validity of the expression
+        // or handle invalid filter exception correctly
+        auto apply = new QPushButton(Tr::tr("Apply"), this);
+        auto infoLabel = new QLabel(infoText());
+        infoLabel->setWordWrap(true);
+
+        using namespace Layouting;
+        Column layout {
+            Row { infoButton, m_lineEdit, apply},
+            infoLabel
+        };
+        layout.attachTo(this);
+
+        adjustSize();
+        setFixedWidth(size().width());
+
+        const auto onApply = [this] {
+            QTC_ASSERT(m_lineEdit, return);
+            if (m_applyHook)
+               m_applyHook(m_lineEdit->text());
+            close();
+        };
+        connect(infoButton, &QToolButton::toggled, this, [this, infoLabel](bool checked){
+            QTC_ASSERT(infoLabel, return);
+            infoLabel->setVisible(checked);
+            adjustSize();
+        });
+        connect(m_lineEdit, &Utils::FancyLineEdit::editingFinished,
+                this, [this, apply, onApply] {
+            if (m_lineEdit->hasFocus() || apply->hasFocus()) // avoid triggering for focus lost
+                onApply();
+            else
+                close();
+        });
+        connect(apply, &QPushButton::clicked, this, onApply);
+    }
+
+    void setOnApply(const std::function<void(const QString &)> &hook) { m_applyHook = hook; }
+
+protected:
+    void showEvent(QShowEvent *event) override
+    {
+        QWidget::showEvent(event);
+        if (!event->spontaneous())
+            m_lineEdit->setFocus(Qt::PopupFocusReason);
+    }
+
+    void resizeEvent(QResizeEvent *event) override
+    {
+        QWidget::resizeEvent(event);
+        if (m_handleResizeEvent) { // ignore the first resize event (first layout)
+            const int oldHeight = event->oldSize().height();
+            const int newHeight = event->size().height();
+            const QPoint position = pos();
+            move(position.x(), position.y() + oldHeight - newHeight);
+        }
+        m_handleResizeEvent = true;
+    }
+
+private:
+    bool m_handleResizeEvent = false;
+    Utils::FancyLineEdit *m_lineEdit = nullptr;
+    std::function<void(const QString &)> m_applyHook;
+};
 
 static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 {
@@ -65,6 +174,17 @@ QList<QPair<int, Qt::SortOrder>> IssueHeaderView::currentSortColumns() const
     QList<QPair<int, Qt::SortOrder>> result;
     for (int i : m_currentSortIndexes)
         result.append({i, m_columnInfoList.at(i).sortOrder.value()});
+    return result;
+}
+
+QList<QPair<int, QString>> IssueHeaderView::currentFilterColumns() const
+{
+    QList<QPair<int, QString>> result;
+    for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
+        const ColumnInfo ci = m_columnInfoList.at(i);
+        if (ci.filter.has_value())
+            result.append({i, ci.filter.value()});
+    }
     return result;
 }
 
@@ -125,6 +245,21 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
             } else if (toggleMode == Filter && m_columnInfoList.at(logical).filterable) {
                 // TODO we need some popup for text input (entering filter expression)
                 // apply them to the columninfo, and use them for the search..
+                const auto onApply = [this, logical](const QString &txt) {
+                    if (txt.isEmpty())
+                        m_columnInfoList[logical].filter.reset();
+                    else
+                        m_columnInfoList[logical].filter.emplace(txt);
+                    headerDataChanged(Qt::Horizontal, logical, logical);
+                    emit filterChanged();
+                };
+                auto popup = new FilterPopupWidget(this, m_columnInfoList.at(logical).filter.value_or(""));
+                popup->setOnApply(onApply);
+                const int right = sectionViewportPosition(logical) + sectionSize(logical);
+                const QSize size = popup->sizeHint();
+                popup->move(mapToGlobal(QPoint{x() + right - size.width(),
+                                               this->y() - size.height()}));
+                popup->show();
             }
         }
     }

@@ -9,6 +9,7 @@
 #include <utils/id.h>
 
 #include <QHash>
+#include <QMap>
 #include <QUrl>
 #include <QVersionNumber>
 
@@ -41,6 +42,7 @@ struct IssueListSearch
     QString owner;
     QString filter_path;
     QString sort;
+    QMap<QString, QString> filter;
     int offset = 0;
     int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;

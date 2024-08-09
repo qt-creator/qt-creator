@@ -27,8 +27,10 @@ public:
     void setColumnInfoList(const QList<ColumnInfo> &infos);
 
     QList<QPair<int, Qt::SortOrder>> currentSortColumns() const;
+    QList<QPair<int, QString>> currentFilterColumns() const;
 
 signals:
+    void filterChanged();
     void sortTriggered();
 
 protected:

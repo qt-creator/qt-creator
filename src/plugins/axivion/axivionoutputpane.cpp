@@ -389,6 +389,8 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     m_headerView->setSectionsMovable(true);
     connect(m_headerView, &IssueHeaderView::sortTriggered,
             this, &IssuesWidget::onSearchParameterChanged);
+    connect(m_headerView, &IssueHeaderView::filterChanged,
+            this, &IssuesWidget::onSearchParameterChanged);
     m_issuesView->setHeader(m_headerView);
     m_issuesView->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_issuesView->enableColumnHiding();
@@ -716,6 +718,13 @@ IssueListSearch IssuesWidget::searchFromUi() const
                     + (pair.second == Qt::AscendingOrder ? " asc" : " desc"));
     }
     search.sort = sort;
+    QMap<QString, QString> filter;
+    const QList<QPair<int, QString>> currentFilterColumns = m_headerView->currentFilterColumns();
+    for (const auto &pair : currentFilterColumns) {
+        QTC_ASSERT((ulong)pair.first < m_currentTableInfo->columns.size(), return search);
+        filter.insert("filter_" + m_currentTableInfo->columns.at(pair.first).key, pair.second);
+    }
+    search.filter = filter;
     return search;
 }
 

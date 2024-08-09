@@ -198,6 +198,10 @@ QUrlQuery IssueListSearch::toUrlQuery(QueryMode mode) const
         query.addQueryItem("computeTotalRowCount", "true");
     if (!sort.isEmpty())
         query.addQueryItem("sort", sort);
+    if (!filter.isEmpty()) {
+        for (auto f = filter.cbegin(), end = filter.cend(); f != end; ++f)
+            query.addQueryItem(f.key(), f.value());
+    }
     return query;
 }
 
