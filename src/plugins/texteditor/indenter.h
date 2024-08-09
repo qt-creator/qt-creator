@@ -46,6 +46,9 @@ public:
 
     virtual void invalidateCache() {}
 
+    // needed for preview in project mode
+    virtual void setOverriddenPreferences(ICodeStylePreferences */*preferences*/) {}
+
     virtual int indentFor(const QTextBlock & /*block*/,
                           const TabSettings & /*tabSettings*/,
                           int /*cursorPositionInEditor*/ = -1)

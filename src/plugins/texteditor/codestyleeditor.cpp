@@ -14,6 +14,10 @@
 #include "snippets/snippeteditor.h"
 #include "snippets/snippetprovider.h"
 
+#include <coreplugin/icore.h>
+
+#include <projectexplorer/project.h>
+
 #include <QVBoxLayout>
 #include <QTextBlock>
 #include <QLabel>
@@ -72,8 +76,18 @@ CodeStyleEditor::CodeStyleEditor(ICodeStylePreferencesFactory *factory,
             this, &CodeStyleEditor::updatePreview);
     connect(codeStyle, &ICodeStylePreferences::currentPreferencesChanged,
             this, &CodeStyleEditor::updatePreview);
-    m_preview->setCodeStyle(m_codeStyle);
     m_preview->setPlainText(factory->previewText());
+
+    Indenter *indenter = factory->createIndenter(m_preview->document());
+    if (indenter) {
+        indenter->setOverriddenPreferences(codeStyle);
+        Utils::FilePath fileName = project ? project->projectFilePath().pathAppended("snippet.cpp")
+                                           : Core::ICore::userResourcePath("snippet.cpp");
+        indenter->setFileName(fileName);
+        m_preview->textDocument()->setIndenter(indenter);
+    } else {
+        m_preview->setCodeStyle(codeStyle);
+    }
 
     updatePreview();
 }

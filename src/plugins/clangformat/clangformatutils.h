@@ -32,8 +32,9 @@ ClangFormatSettings::Mode getProjectIndentationOrFormattingSettings(
     const ProjectExplorer::Project *project);
 ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils::FilePath &filePath);
 
-Utils::FilePath configForFile(const Utils::FilePath &fileName);
-Utils::FilePath findConfig(const Utils::FilePath &fileName);
+TextEditor::ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath);
+Utils::FilePath configForFile(const Utils::FilePath &filePath);
+Utils::FilePath findConfig(const Utils::FilePath &filePath);
 
 void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSettings &settings);
 void fromCppCodeStyleSettings(clang::format::FormatStyle &style,

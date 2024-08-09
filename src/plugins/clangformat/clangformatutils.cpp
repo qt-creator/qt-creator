@@ -313,9 +313,9 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
                : getProjectIndentationOrFormattingSettings(project);
 }
 
-Utils::FilePath findConfig(const Utils::FilePath &fileName)
+Utils::FilePath findConfig(const Utils::FilePath &filePath)
 {
-    Utils::FilePath parentDirectory = fileName.parentDir();
+    Utils::FilePath parentDirectory = filePath.parentDir();
     while (parentDirectory.exists()) {
         Utils::FilePath settingsFilePath = parentDirectory / Constants::SETTINGS_FILE_NAME;
         if (settingsFilePath.exists())
@@ -330,19 +330,22 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
     return {};
 }
 
-Utils::FilePath configForFile(const Utils::FilePath &fileName)
+ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
 {
-    if (!getCurrentCustomSettings(fileName))
-        return findConfig(fileName);
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
+        filePath);
 
-    const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::ProjectManager::projectForFile(fileName);
+    return !getProjectUseGlobalSettings(project) && project
+               ? project->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
+               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+}
 
-    const TextEditor::ICodeStylePreferences *preferences
-        = projectForFile
-              ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
-              : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+Utils::FilePath configForFile(const Utils::FilePath &filePath)
+{
+    if (!getCurrentCustomSettings(filePath))
+        return findConfig(filePath);
 
+    const TextEditor::ICodeStylePreferences *preferences = preferencesForFile(filePath);
     return filePathToCurrentSettings(preferences);
 }
 

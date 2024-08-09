@@ -913,7 +913,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
         = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     const ICodeStylePreferences *preferences
-        = projectForFile
+        =  !getProjectUseGlobalSettings(projectForFile) && projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 

@@ -6,6 +6,7 @@
 #include "clangformatconfigwidget.h"
 #include "clangformatconstants.h"
 #include "clangformatfile.h"
+#include "clangformatglobalconfigwidget.h"
 #include "clangformatindenter.h"
 #include "clangformatsettings.h"
 #include "clangformattr.h"
@@ -13,11 +14,13 @@
 
 #include <cppeditor/cppcodestylepreferencesfactory.h>
 #include <cppeditor/cppcodestylesettingspage.h>
+#include <cppeditor/cppcodestylesnippets.h>
 #include <cppeditor/cppeditorconstants.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projecttree.h>
 
+#include <texteditor/codestyleeditor.h>
 #include <texteditor/codestylepool.h>
 #include <texteditor/codestyleselectorwidget.h>
 #include <texteditor/icodestylepreferences.h>
@@ -202,9 +205,12 @@ void ClangFormatGlobalConfigWidget::initUseGlobalSettingsCheckBox()
             isDisabled
             || (m_indentingOrFormatting->currentIndex()
                 == static_cast<int>(ClangFormatSettings::Mode::Disable)));
+        m_useCustomSettingsCheckBox->setChecked(getProjectCustomSettings(m_project));
         m_useCustomSettingsCheckBox->setDisabled(isDisabled
                                        || (m_indentingOrFormatting->currentIndex()
                                            == static_cast<int>(ClangFormatSettings::Mode::Disable)));
+
+        emit m_codeStyle->currentPreferencesChanged(m_codeStyle->currentPreferences());
     };
 
     m_useGlobalSettings->setChecked(getProjectUseGlobalSettings(m_project));
@@ -298,10 +304,7 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
         setTemporarilyReadOnly();
     };
 
-    setEnableCustomSettingsCheckBox(m_indentingOrFormatting->currentIndex());
-    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged,
-            this, setEnableCustomSettingsCheckBox);
-
+    m_useCustomSettingsCheckBox->setChecked(getProjectCustomSettings(m_project));
     m_useCustomSettingsCheckBox->setToolTip("<html>"
                                   + Tr::tr("When this option is enabled, ClangFormat will use a "
                                            "user-specified configuration from the widget below, "
@@ -312,8 +315,11 @@ void ClangFormatGlobalConfigWidget::initCustomSettingsCheckBox()
                                            "configuration, and will not modify the project "
                                            ".clang-format file."));
 
-    m_useCustomSettingsCheckBox->setChecked(getProjectCustomSettings(m_project));
     setTemporarilyReadOnly();
+
+    setEnableCustomSettingsCheckBox(m_indentingOrFormatting->currentIndex());
+    connect(m_indentingOrFormatting, &QComboBox::currentIndexChanged,
+            this, setEnableCustomSettingsCheckBox);
 
     connect(m_useCustomSettingsCheckBox,
             &QCheckBox::toggled,
@@ -433,6 +439,11 @@ public:
         ProjectExplorer::Project *project, QWidget *parent) final
     {
         return new ClangFormatSelectorWidget(this, project, parent);
+    }
+
+    QString previewText() const override
+    {
+        return QLatin1String(CppEditor::Constants::DEFAULT_CODE_STYLE_SNIPPETS[0]);
     }
 };
 
