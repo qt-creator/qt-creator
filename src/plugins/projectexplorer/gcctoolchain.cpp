@@ -1824,9 +1824,9 @@ GccToolchainConfigWidget::GccToolchainConfigWidget(const ToolchainBundle &bundle
                         for (QMetaObject::Connection &connection : m_parentToolchainConnections)
                             QObject::disconnect(connection);
                         return;
-                        if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
-                            updateParentComboBox = true;
                     }
+                    if (tc->typeId() == Constants::MINGW_TOOLCHAIN_TYPEID)
+                        updateParentComboBox = true;
                 }
                 if (updateParentComboBox)
                     updateParentToolchainComboBox();
