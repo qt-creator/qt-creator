@@ -518,17 +518,16 @@ MimeType MimeDatabasePrivate::mimeTypeForFile(const QString &fileName,
 
     switch (mode) {
     case MimeDatabase::MatchDefault:
-        return mimeTypeForFileNameAndData(fileName, nullptr);
+        break;
     case MimeDatabase::MatchExtension:
         return mimeTypeForFileExtension(fileName);
     case MimeDatabase::MatchContent: {
         QFile file(fileName);
         return mimeTypeForData(&file);
     }
-    default:
-        Q_ASSERT(false);
     }
-    return mimeTypeForName(defaultMimeType());
+    // MatchDefault:
+    return mimeTypeForFileNameAndData(fileName, nullptr);
 }
 
 QList<MimeType> MimeDatabasePrivate::allMimeTypes()
