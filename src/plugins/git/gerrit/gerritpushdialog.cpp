@@ -307,7 +307,7 @@ QString GerritPushDialog::pushTarget() const
     target += '/' + selectedRemoteBranchName();
     const QString topic = selectedTopic();
     if (!topic.isEmpty())
-        target += '/' + topic;
+        options << "topic=" + topic;
 
     const QStringList reviewersInput = reviewers().split(',', Qt::SkipEmptyParts);
     for (const QString &reviewer : reviewersInput)
