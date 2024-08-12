@@ -828,6 +828,79 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
     };
 }
 
+static QString tempDebugServerPath(int count)
+{
+    static const QString tempDebugServerPathTemplate = "/data/local/tmp/%1";
+    return tempDebugServerPathTemplate.arg(count);
+}
+
+ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debugServerFileName)
+{
+    const Storage<QString> tempDebugServerPathStorage;
+    const LoopUntil iterator([tempDebugServerPathStorage](int iteration) {
+        return tempDebugServerPathStorage->isEmpty() && iteration <= GdbTempFileMaxCounter;
+    });
+    const auto onDeviceFileExistsSetup = [this, iterator](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "ls",
+            tempDebugServerPath(iterator.iteration()), "2>/dev/null"}});
+    };
+    const auto onDeviceFileExistsDone = [iterator, tempDebugServerPathStorage](const Process &process) {
+        if (!process.stdOut().trimmed().isEmpty())
+            *tempDebugServerPathStorage = tempDebugServerPath(iterator.iteration());
+    };
+    const auto onTempDebugServerPath = [tempDebugServerPathStorage] {
+        const bool tempDirOK = !tempDebugServerPathStorage->isEmpty();
+        if (!tempDirOK)
+            qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
+        return tempDirOK;
+    };
+
+    const auto onCleanupSetup = [this, tempDebugServerPathStorage](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "rm", "-f",
+                                                           *tempDebugServerPathStorage}});
+    };
+    const auto onCleanupDone = [] {
+        qCDebug(androidRunWorkerLog) << "Debug server cleanup failed.";
+    };
+
+    const auto onServerUploadSetup = [this, tempDebugServerPathStorage](Process &process) {
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "push",
+            m_debugServerPath.toString(), *tempDebugServerPathStorage}});
+    };
+
+    const auto onServerCopySetup = [this, tempDebugServerPathStorage, debugServerFileName](Process &process) {
+        const QStringList extraArgs = m_processUser > 0
+            ? QStringList{"--user", QString::number(m_processUser)} : QStringList();
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "run-as",
+            m_packageName, extraArgs, "cp" , *tempDebugServerPathStorage, debugServerFileName}});
+    };
+
+    const auto onServerChmodSetup = [this, debugServerFileName](Process &process) {
+        const QStringList extraArgs = m_processUser > 0
+            ? QStringList{"--user", QString::number(m_processUser)} : QStringList();
+        process.setCommand({AndroidConfig::adbToolPath(), {selector(), "shell", "run-as",
+            m_packageName, extraArgs, "chmod", "777", debugServerFileName}});
+    };
+
+    return Group {
+        tempDebugServerPathStorage,
+        For {
+            iterator,
+            ProcessTask(onDeviceFileExistsSetup, onDeviceFileExistsDone)
+        },
+        Sync(onTempDebugServerPath),
+        If (!ProcessTask(onServerUploadSetup)) >> Then {
+            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed"; }),
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+        },
+        If (!ProcessTask(onServerCopySetup)) >> Then {
+            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+        },
+        ProcessTask(onServerChmodSetup)
+    };
+}
+
 void AndroidRunnerWorker::asyncStart()
 {
     const Group recipe {
