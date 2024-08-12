@@ -238,13 +238,17 @@ Core::GeneratedFiles JsonWizardFileGenerator::fileList(MacroExpander *expander,
     }
 
     const Core::GeneratedFiles result
-            = Utils::transform(fileList,
-                               [this, &expander, &errorMessage](const File &f) {
-                                   return generateFile(f, expander, errorMessage);
-                               });
+        = Utils::transform(fileList, [this, &expander, &errorMessage](const File &f) {
+              QString generateError;
+              const Core::GeneratedFile file = generateFile(f, expander, &generateError);
+              if (!generateError.isEmpty())
+                  *errorMessage = generateError;
+              return file;
+          });
 
-    if (Utils::contains(result,
-                        [](const Core::GeneratedFile &gf) { return gf.filePath().isEmpty(); }))
+    if (Utils::contains(result, [](const Core::GeneratedFile &gf) {
+            return gf.filePath().isEmpty();
+        }))
         return Core::GeneratedFiles();
 
     return result;

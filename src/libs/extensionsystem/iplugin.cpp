@@ -30,7 +30,7 @@
 */
 
 /*!
-    \enum IPlugin::ShutdownFlag
+    \enum ExtensionSystem::IPlugin::ShutdownFlag
 
     This enum type holds whether the plugin is shut down synchronously or
     asynchronously.

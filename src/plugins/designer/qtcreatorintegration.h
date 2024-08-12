@@ -8,7 +8,10 @@
 
 QT_BEGIN_NAMESPACE
 class QUrl;
+class QVersionNumber;
 QT_END_NAMESPACE
+
+namespace Utils { class FilePath; }
 
 namespace Designer {
 namespace Internal {
@@ -27,10 +30,14 @@ public:
 
     void updateSelection() override;
 
+    bool setQtVersionFromFile(const Utils::FilePath &filePath);
+    void resetQtVersion();
+
 signals:
     void creatorHelpRequested(const QUrl &url);
 
 private:
+    void slotActiveFormWindowChanged(QDesignerFormWindowInterface *formWindow);
     void slotNavigateToSlot(const QString &objectName, const QString &signalSignature, const QStringList &parameterNames);
     void slotDesignerHelpRequested(const QString &manual, const QString &document);
     void slotSyncSettingsToDesigner();
@@ -43,6 +50,10 @@ private:
                             const QString &newName, const QString &oldName);
     void handleSymbolRenameStage2(QDesignerFormWindowInterface *formWindow,
                             const QString &newName, const QString &oldName);
+
+#if QT_VERSION < QT_VERSION_CHECK(6, 9, 0)
+    void setQtVersion(const QVersionNumber &version);
+#endif
 
     class Private;
     Private * const d;

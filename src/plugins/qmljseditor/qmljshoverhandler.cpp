@@ -123,12 +123,15 @@ static inline QString getModuleName(const ScopeChain &scopeChain, const Document
 bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Document::Ptr &qmlDocument,
                                        const ObjectValue *value, const QStringList &qName)
 {
-    QString moduleName = getModuleName(scopeChain, qmlDocument, value);
+    const QString moduleName = getModuleName(scopeChain, qmlDocument, value);
+    static const QRegularExpression anyVersion("((-1|\\d+)\\.-1)|(\\d+\\.\\d+)$");
 
     QStringList helpIdCandidates;
 
     QStringList helpIdPieces(qName);
-    helpIdPieces.prepend(moduleName);
+    QString strippedModuleName = moduleName;
+    strippedModuleName.remove(anyVersion);
+    helpIdPieces.prepend(strippedModuleName);
     helpIdPieces.prepend("QML");
     helpIdCandidates += helpIdPieces.join('.');
 
@@ -151,8 +154,8 @@ bool QmlJSHoverHandler::setQmlTypeHelp(const ScopeChain &scopeChain, const Docum
     const HelpItem::Links links = helpItem.links();
 
     // Check if the module name contains a major version.
-    QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
-    QRegularExpressionMatch m = version.match(moduleName);
+    static QRegularExpression version("^([^\\d]*)(\\d+)\\.*\\d*$");
+    const QRegularExpressionMatch m = version.match(moduleName);
     if (m.hasMatch()) {
         QMap<QString, QUrl> filteredUrlMap;
         const QString maj = m.captured(2);

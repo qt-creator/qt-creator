@@ -3456,7 +3456,7 @@ The foreground component should be transparent, and the background component sho
     <name>FontSection</name>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Sets the font of the text.</source>
@@ -9554,7 +9554,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>Font Files</source>
-        <translation>Schriftart-Dateien</translation>
+        <translation>Schriftdateien</translation>
     </message>
     <message>
         <source>Sound Files</source>
@@ -13902,11 +13902,11 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Remove Server Configuration</source>
-        <translation>Server-Konfiguration löschen</translation>
+        <translation>Server-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove the server configuration &quot;%1&quot;?</source>
-        <translation>Server-Konfiguration &quot;%1&quot; löschen?</translation>
+        <translation>Server-Konfiguration &quot;%1&quot; entfernen?</translation>
     </message>
     <message>
         <source>Add Dashboard Configuration</source>
@@ -19943,7 +19943,7 @@ konnte nicht unter Versionsverwaltung (%2) gestellt werden
     </message>
     <message>
         <source>Remove tool.</source>
-        <translation>Werkzeug löschen.</translation>
+        <translation>Werkzeug entfernen.</translation>
     </message>
     <message>
         <source>Revert tool to default.</source>
@@ -27279,7 +27279,7 @@ Soll es erneut versucht werden?</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation>Löschen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Source Paths Mapping</source>
@@ -28667,11 +28667,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Remove All Breakpoints</source>
-        <translation>Alle Haltepunkte löschen</translation>
+        <translation>Alle Haltepunkte entfernen</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all breakpoints from all files in the current session?</source>
-        <translation>Möchten Sie wirklich alle Haltepunkte aus allen Dateien der aktuellen Sitzung löschen?</translation>
+        <translation>Möchten Sie wirklich alle Haltepunkte aus allen Dateien der aktuellen Sitzung entfernen?</translation>
     </message>
     <message>
         <source>Perspective</source>
@@ -34044,11 +34044,11 @@ Hinweis: Dies macht Sie anfällig für Man-in-the-middle-Angriffe.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Style:</source>
@@ -36093,7 +36093,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Remove</source>
-        <translation>Löschen</translation>
+        <translation>Entfernen</translation>
     </message>
     <message>
         <source>Macros</source>
@@ -38919,11 +38919,11 @@ Außer: %2
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Build Configuration</source>
-        <translation>Build abbrechen und Build-Konfiguration löschen</translation>
+        <translation>Build abbrechen und Build-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove Build Configuration %1?</source>
-        <translation>Build-Konfiguration %1 löschen?</translation>
+        <translation>Build-Konfiguration %1 entfernen?</translation>
     </message>
     <message>
         <source>The build configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
@@ -38931,11 +38931,11 @@ Außer: %2
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Build Configuration anyway?</source>
-        <translation>Möchten Sie die Erstellung abbrechen und die Build-Konfiguration trotzdem löschen?</translation>
+        <translation>Möchten Sie die Build-Konfiguration trotzdem entfernen und die Erstellung abbrechen?</translation>
     </message>
     <message>
         <source>Remove Build Configuration?</source>
-        <translation>Build-Konfiguration löschen?</translation>
+        <translation>Build-Konfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete build configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39189,7 +39189,7 @@ konnte dem Projekt &quot;%2&quot; nicht hinzugefügt werden.</translation>
     </message>
     <message>
         <source>Remove Run Configuration?</source>
-        <translation>Aktive Ausführungskonfiguration löschen?</translation>
+        <translation>Aktive Ausführungskonfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete the run configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39220,7 +39220,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Remove Run Configurations?</source>
-        <translation>Ausführungskonfiguration löschen?</translation>
+        <translation>Ausführungskonfigurationen entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete all run configurations?</source>
@@ -39232,11 +39232,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Cancel Build &amp;&amp; Remove Deploy Configuration</source>
-        <translation>Build abbrechen und Deployment-Konfiguration löschen</translation>
+        <translation>Build abbrechen und Deployment-Konfiguration entfernen</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration %1?</source>
-        <translation>Deployment-Konfiguration %1 löschen?</translation>
+        <translation>Deployment-Konfiguration %1 entfernen?</translation>
     </message>
     <message>
         <source>The deploy configuration &lt;b&gt;%1&lt;/b&gt; is currently being built.</source>
@@ -39244,11 +39244,11 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>Do you want to cancel the build process and remove the Deploy Configuration anyway?</source>
-        <translation>Möchten Sie die Erstellung abbrechen und die Deployment-Konfiguration trotzdem löschen?</translation>
+        <translation>Möchten Sie die Deployment-Konfiguration trotzdem entfernen und die Erstellung abbrechen?</translation>
     </message>
     <message>
         <source>Remove Deploy Configuration?</source>
-        <translation>Deployment-Konfiguration löschen?</translation>
+        <translation>Deployment-Konfiguration entfernen?</translation>
     </message>
     <message>
         <source>Do you really want to delete deploy configuration &lt;b&gt;%1&lt;/b&gt;?</source>
@@ -39906,7 +39906,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Run Configuration Removed</source>
-        <translation>Ausführungskonfiguration gelöscht</translation>
+        <translation>Ausführungskonfiguration entfernt</translation>
     </message>
     <message>
         <source>The configuration that was supposed to run is no longer available.</source>
@@ -40356,7 +40356,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Remove Item</source>
-        <translation>Element löschen</translation>
+        <translation>Element entfernen</translation>
     </message>
     <message>
         <source>Removing Step failed</source>
@@ -49009,7 +49009,7 @@ Möchten Sie fortfahren?</translation>
  %1?</source>
         <translation>Möchten Sie
  %1
-wirklich löschen?</translation>
+wirklich entfernen?</translation>
     </message>
     <message>
         <source>QNX</source>
@@ -50542,7 +50542,7 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remove Prefix...</source>
-        <translation>Präfix löschen...</translation>
+        <translation>Präfix entfernen...</translation>
     </message>
     <message>
         <source>Remove Missing Files</source>
@@ -50586,11 +50586,11 @@ Wenn Sie noch keinen privaten Schlüssel besitzen, können Sie hier auch einen e
     </message>
     <message>
         <source>Remove Prefix</source>
-        <translation>Präfix löschen</translation>
+        <translation>Präfix entfernen</translation>
     </message>
     <message>
         <source>Remove prefix %1 and all its files?</source>
-        <translation>Präfix %1 und alle zugehörigen Dateien löschen?</translation>
+        <translation>Präfix %1 und alle zugehörigen Dateien entfernen?</translation>
     </message>
     <message>
         <source>File Removal Failed</source>
@@ -51958,7 +51958,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Remove Shared Folder</source>
-        <translation>Gemeinsames Verzeichnis löschen</translation>
+        <translation>Gemeinsames Verzeichnis entfernen</translation>
     </message>
     <message>
         <source>Open Squish Suites...</source>
@@ -51994,7 +51994,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Remove Shared File</source>
-        <translation>Gemeinsame Datei löschen</translation>
+        <translation>Gemeinsame Datei entfernen</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -52002,7 +52002,7 @@ Testfall &quot;%2&quot; wird nicht aufgezeichnet.</translation>
     </message>
     <message>
         <source>Failed to remove &quot;%1&quot;.</source>
-        <translation>&quot;%1&quot; konnte nicht gelöscht werden.</translation>
+        <translation>&quot;%1&quot; konnte nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Remove &quot;%1&quot; from the list of shared folders?</source>
@@ -52820,11 +52820,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>The font family used in the terminal.</source>
-        <translation>Der Name der Zeichensatz-Familie, die im Terminal verwendet wird.</translation>
+        <translation>Die Schriftfamilie, die im Terminal verwendet wird.</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -52832,7 +52832,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>The font size used in the terminal (in points).</source>
-        <translation>Die Größe des Zeichensatzes, der im Terminal verwendet wird (in Punkten).</translation>
+        <translation>Die Größe der Schrift, die im Terminal verwendet wird (in Punkten).</translation>
     </message>
     <message>
         <source>Allow blinking cursor</source>
@@ -52912,7 +52912,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Colors</source>
@@ -53027,11 +53027,11 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Remove All Bookmarks</source>
-        <translation>Alle Lesezeichen löschen</translation>
+        <translation>Alle Lesezeichen entfernen</translation>
     </message>
     <message>
         <source>Are you sure you want to remove all bookmarks from all files in the current session?</source>
-        <translation>Möchten Sie wirklich alle Lesezeichen aus allen Dateien der aktuellen Sitzung löschen?</translation>
+        <translation>Möchten Sie wirklich alle Lesezeichen aus allen Dateien der aktuellen Sitzung entfernen?</translation>
     </message>
     <message>
         <source>&amp;Bookmarks</source>
@@ -53221,7 +53221,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Font</source>
-        <translation>Zeichensatz</translation>
+        <translation>Schrift</translation>
     </message>
     <message>
         <source>Underline</source>
@@ -53255,7 +53255,7 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Family:</source>
-        <translation>Name:</translation>
+        <translation>Familie:</translation>
     </message>
     <message>
         <source>Size:</source>
@@ -53353,7 +53353,7 @@ Werte kleiner als 100% können überlappende und falsch ausgerichtete Darstellun
     </message>
     <message>
         <source>Font &amp;&amp; Colors</source>
-        <translation>Zeichensatz &amp;&amp; Farben</translation>
+        <translation>Schrift &amp;&amp; Farben</translation>
     </message>
     <message>
         <source>Jumps to the given line in the current document.</source>
@@ -53972,7 +53972,7 @@ Gibt an, wie sich die Rücktaste bezüglich Einrückung verhält.
     </message>
     <message>
         <source>&lt;i&gt;Set &lt;a href=&quot;font zoom&quot;&gt;font line spacing&lt;/a&gt; to 100% to enable text wrapping option.&lt;/i&gt;</source>
-        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; des Zeichensatzes auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
+        <translation>&lt;i&gt;Setzen Sie den &lt;a href=&quot;font zoom&quot;&gt;Zeilenabstand&lt;/a&gt; der Schrift auf 100%, um die Einstellung für Textumbruch zu aktivieren.&lt;/i&gt;</translation>
     </message>
     <message>
         <source>Tint whole margin area</source>
@@ -55564,7 +55564,7 @@ Außer Leerzeichen innerhalb von Kommentaren und Zeichenketten.</translation>
     </message>
     <message>
         <source>Applied to removed characters in differences (in side-by-side diff editor).</source>
-        <translation>Wird auf gelöschte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
+        <translation>Wird auf entfernte Zeichen in den Unterschieden angewendet (bei Anzeige mit Gegenüberstellung der Unterschiede).</translation>
     </message>
     <message>
         <source>Diff Destination Line</source>
@@ -56748,15 +56748,15 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Refusing to remove the standard directory &quot;%1&quot;.</source>
-        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht entfernt werden.</translation>
+        <translation>Das Standardverzeichnis &quot;%1&quot; kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Refusing to remove root directory.</source>
-        <translation>Das Wurzelverzeichnis kann nicht entfernt werden.</translation>
+        <translation>Das Wurzelverzeichnis kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Refusing to remove your home directory.</source>
-        <translation>Das Benutzerverzeichnis (Home) kann nicht entfernt werden.</translation>
+        <translation>Das Benutzerverzeichnis (Home) kann nicht gelöscht werden.</translation>
     </message>
     <message>
         <source>Failed to remove directory &quot;%1&quot;.</source>
@@ -57100,7 +57100,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>Remove File</source>
-        <translation>Datei entfernen</translation>
+        <translation>Datei löschen</translation>
     </message>
     <message>
         <source>Remove Folder</source>
@@ -57108,7 +57108,7 @@ Die Trace-Daten sind verloren.</translation>
     </message>
     <message>
         <source>File to remove:</source>
-        <translation>Zu entfernende Datei:</translation>
+        <translation>Zu löschende Datei:</translation>
     </message>
     <message>
         <source>Folder to remove:</source>

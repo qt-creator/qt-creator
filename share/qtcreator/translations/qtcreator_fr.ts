@@ -11549,6 +11549,14 @@ Cela ne peut être annulé.</translation>
         <translation>Impossible d&apos;analyser «&#xa0;%1&#xa0;».</translation>
     </message>
     <message>
+        <source>Android package installation finished with success.</source>
+        <translation>Installation du paquet Android terminée avec succès.</translation>
+    </message>
+    <message>
+        <source>Android package installation failed.</source>
+        <translation>Échec lors de l&apos;installation du paquet Android.</translation>
+    </message>
+    <message>
         <source>Android package installation failed.
 %1</source>
         <translation>Échec lors de l&apos;installation du paquet Android.
@@ -12873,7 +12881,7 @@ Exécutable&#xa0;: %2</translation>
     </message>
     <message>
         <source>Skip throwing assertions</source>
-        <translation>Ignore les assertions</translation>
+        <translation>Ignorer les assertions</translation>
     </message>
     <message>
         <source>Skips all assertions that test for thrown exceptions.</source>
@@ -13024,7 +13032,7 @@ Exécutable&#xa0;: %2</translation>
     </message>
     <message>
         <source>Run disabled tests</source>
-        <translation>Exécute les tests désactivés</translation>
+        <translation>Exécuter les tests désactivés</translation>
     </message>
     <message>
         <source>Executes disabled tests when performing a test run.</source>
@@ -13045,7 +13053,7 @@ Exécutable&#xa0;: %2</translation>
     <message>
         <source>Throw on failure</source>
         <translatorcomment>GTest option gtest_throw_on_failure</translatorcomment>
-        <translation>Envoi d&apos;une exception en cas d&apos;échec</translation>
+        <translation>Envoyer une exception en cas d&apos;échec</translation>
     </message>
     <message>
         <source>Turns assertion failures into C++ exceptions.</source>
@@ -13220,7 +13228,7 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
     </message>
     <message>
         <source>Disable crash handler while debugging</source>
-        <translation>Désactive le gestionnaire de plantage lors du débogage</translation>
+        <translation>Désactiver le gestionnaire de plantage lors du débogage</translation>
     </message>
     <message>
         <source>Enables interrupting tests on assertions.</source>
@@ -13228,7 +13236,7 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
     </message>
     <message>
         <source>Use XML output</source>
-        <translation>Utilise la sortie XML</translation>
+        <translation>Utiliser la sortie XML</translation>
     </message>
     <message>
         <source>XML output is recommended, because it avoids parsing issues, while plain text is more human readable.&lt;p&gt;Warning: Plain text misses some information, such as duration.</source>
@@ -13703,7 +13711,7 @@ Cela peut provoquer des problèmes lors de l&apos;exécution.
     </message>
     <message>
         <source>Automatically scroll results</source>
-        <translation>Défile automatiquement les résultats</translation>
+        <translation>Faire défiler automatiquement les résultats</translation>
     </message>
     <message>
         <source>Number of worker threads used when scanning for tests.</source>
@@ -13723,7 +13731,7 @@ Cela peut provoquer des problèmes lors de l&apos;exécution.
     </message>
     <message>
         <source>Group results by application</source>
-        <translation>Regrouppe les résultats par application</translation>
+        <translation>Regrouper les résultats par application</translation>
     </message>
     <message>
         <source>Process arguments</source>
@@ -13781,7 +13789,7 @@ Avertissement&#xa0;: fonctionnalité expérimentale pouvant entraîner un échec
     </message>
     <message>
         <source>Automatically run</source>
-        <translation>Exécute automatiquement</translation>
+        <translation>Exécuter automatiquement</translation>
     </message>
     <message>
         <source>Active Test Frameworks</source>

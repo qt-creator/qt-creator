@@ -90,7 +90,14 @@ void JsonSummaryPage::initializePage()
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::triggerCommit);
     connect(m_wizard, &JsonWizard::filesReady, this, &JsonSummaryPage::addToProject);
 
+    // set result to accepted, so we can check if updateFileList -> m_wizard->generateFileList
+    // called reject()
+    m_wizard->setResult(QDialog::Accepted);
     updateFileList();
+    // if there were errors while updating the file list, the dialog is rejected
+    // so don't continue the setup (which also avoids showing the error message again)
+    if (m_wizard->result() == QDialog::Rejected)
+        return;
 
     IWizardFactory::WizardKind kind = wizardKind(m_wizard);
     bool isProject = (kind == IWizardFactory::ProjectWizard);
