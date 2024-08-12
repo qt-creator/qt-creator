@@ -53,7 +53,11 @@ using ArgumentsString = StaticString<3700>;
 namespace Literals {
 struct TracerLiteral
 {
-    friend constexpr TracerLiteral operator""_t(const char *text, size_t size);
+    consteval TracerLiteral(std::string_view text)
+        : text{text}
+    {}
+
+    friend consteval TracerLiteral operator""_t(const char *text, size_t size);
 
     constexpr operator std::string_view() const { return text; }
 
@@ -62,14 +66,10 @@ struct TracerLiteral
     operator Utils::SmallString() const { return text; }
 
 private:
-    constexpr TracerLiteral(std::string_view text)
-        : text{text}
-    {}
-
     std::string_view text;
 };
 
-constexpr TracerLiteral operator""_t(const char *text, size_t size)
+consteval TracerLiteral operator""_t(const char *text, size_t size)
 {
     return {std::string_view{text, size}};
 }
