@@ -135,6 +135,15 @@ inline bool singleSelectionView3D(const SelectionContext &selectionState)
     return false;
 }
 
+inline bool singleSelectionEffectComposer(const SelectionContext &selectionState)
+{
+    if (selectionState.hasSingleSelectedModelNode()) {
+        QmlItemNode targetNode = selectionState.currentSingleSelectedNode();
+        return targetNode.isEffectItem();
+    }
+    return false;
+}
+
 inline bool selectionHasProperty(const SelectionContext &selectionState, const char *property)
 {
     for (const ModelNode &modelNode : selectionState.selectedModelNodes())

@@ -1718,6 +1718,51 @@ void editIn3dView(const SelectionContext &selectionContext)
     }
 }
 
+Utils::FilePath findEffectFile(const ModelNode &effectNode)
+{
+    const QString effectFile = effectNode.simplifiedTypeName() + ".qep";
+    Utils::FilePath effectPath = Utils::FilePath::fromString(getEffectsDefaultDirectory()
+                                                             + '/' + effectFile);
+    if (!effectPath.exists()) {
+        // Scan the project's content folder for a matching effect
+        Utils::FilePath contentPath = QmlDesignerPlugin::instance()->documentManager().currentResourcePath();
+        const Utils::FilePaths matches = contentPath.dirEntries({{effectFile}, QDir::Files,
+                                                                 QDirIterator::Subdirectories});
+        if (matches.isEmpty()) {
+            QMessageBox msgBox;
+            msgBox.setText(QObject::tr("Effect file %1 not found in the project.").arg(effectFile));
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.setDefaultButton(QMessageBox::Ok);
+            msgBox.setIcon(QMessageBox::Warning);
+            msgBox.exec();
+            return {};
+        }
+        effectPath = matches[0];
+    }
+
+    return effectPath;
+}
+
+void editInEffectComposer(const SelectionContext &selectionContext)
+{
+    if (!selectionContext.view())
+        return;
+
+    QmlItemNode targetNode;
+
+    if (selectionContext.hasSingleSelectedModelNode()) {
+        targetNode = selectionContext.currentSingleSelectedNode();
+        if (!targetNode.isEffectItem())
+            return;
+    }
+
+    if (targetNode.isValid()) {
+        Utils::FilePath effectPath = findEffectFile(targetNode);
+        if (!effectPath.isEmpty())
+            openEffectComposer(effectPath.toFSPathString());
+    }
+}
+
 bool isEffectComposerActivated()
 {
     const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
@@ -1731,9 +1776,9 @@ bool isEffectComposerActivated()
 void openEffectComposer(const QString &filePath)
 {
     if (ModelNodeOperations::isEffectComposerActivated()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("EffectComposer", true);
         QmlDesignerPlugin::instance()->viewManager()
             .emitCustomNotification("open_effectcomposer_composition", {}, {filePath});
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("EffectComposer", true);
     } else {
         ModelNodeOperations::openOldEffectMaker(filePath);
     }

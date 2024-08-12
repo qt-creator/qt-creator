@@ -188,6 +188,13 @@ bool AssetsLibraryModel::allFilePathsAreTextures(const QStringList &filePaths) c
     });
 }
 
+bool AssetsLibraryModel::allFilePathsAreComposedEffects(const QStringList &filePaths) const
+{
+    return Utils::allOf(filePaths, [](const QString &path) {
+        return Asset(path).isEffect();
+    });
+}
+
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QString path = m_sourceFsModel->filePath(sourceParent);

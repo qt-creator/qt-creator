@@ -10,6 +10,8 @@
 #include "effectutils.h"
 #include "propertyhandler.h"
 
+#include <modelnodeoperations.h>
+#include <qmlitemnode.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -19,6 +21,7 @@
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 #include <qmldesigner/components/componentcore/theme.h>
+#include <qmldesigner/utils/asset.h>
 #include <studioquickwidget.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -45,6 +48,23 @@ static QString propertyEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
+static QList<QmlDesigner::ModelNode> modelNodesFromMimeData(const QByteArray &mimeData,
+                                                            QmlDesigner::AbstractView *view)
+{
+    QByteArray encodedModelNodeData = mimeData;
+    QDataStream modelNodeStream(&encodedModelNodeData, QIODevice::ReadOnly);
+
+    QList<QmlDesigner::ModelNode> modelNodeList;
+    while (!modelNodeStream.atEnd()) {
+        qint32 internalId;
+        modelNodeStream >> internalId;
+        if (view->hasModelNodeForInternalId(internalId))
+            modelNodeList.append(view->modelNodeForInternalId(internalId));
+    }
+
+    return modelNodeList;
+}
+
 EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     : m_effectComposerModel{new EffectComposerModel(this)}
     , m_effectComposerNodesModel{new EffectComposerNodesModel(this)}
@@ -53,8 +73,6 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
 {
     setWindowTitle(tr("Effect Composer", "Title of effect composer widget"));
     setMinimumWidth(250);
-
-    m_quickWidget->quickWidget()->installEventFilter(this);
 
     // create the inner widget
     m_quickWidget->quickWidget()->setObjectName(QmlDesigner::Constants::OBJECT_NAME_EFFECT_COMPOSER);
@@ -130,17 +148,6 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
     });
 }
 
-
-bool EffectComposerWidget::eventFilter(QObject *obj, QEvent *event)
-{
-    Q_UNUSED(obj)
-    Q_UNUSED(event)
-
-    // TODO
-
-    return false;
-}
-
 void EffectComposerWidget::contextHelp(const Core::IContext::HelpCallback &callback) const
 {
     Q_UNUSED(callback)
@@ -199,6 +206,34 @@ QString EffectComposerWidget::uniformDefaultImage(const QString &nodeName, const
 QString EffectComposerWidget::imagesPath() const
 {
     return Core::ICore::resourcePath("qmldesigner/effectComposerNodes/images").toString();
+}
+
+bool EffectComposerWidget::isEffectAsset(const QUrl &url) const
+{
+    return QmlDesigner::Asset(url.toLocalFile()).isEffect();
+}
+
+void EffectComposerWidget::dropAsset(const QUrl &url)
+{
+    if (isEffectAsset(url))
+        openComposition(url.toLocalFile());
+}
+
+bool EffectComposerWidget::isEffectNode(const QByteArray &mimeData) const
+{
+    QList<QmlDesigner::ModelNode> nodes = modelNodesFromMimeData(mimeData, m_effectComposerView);
+    if (!nodes.isEmpty())
+        return QmlDesigner::QmlItemNode(nodes.last()).isEffectItem();
+    return false;
+}
+
+void EffectComposerWidget::dropNode(const QByteArray &mimeData)
+{
+    QList<QmlDesigner::ModelNode> nodes = modelNodesFromMimeData(mimeData, m_effectComposerView);
+    if (!nodes.isEmpty() && QmlDesigner::QmlItemNode(nodes.last()).isEffectItem()) {
+        Utils::FilePath path = QmlDesigner::ModelNodeOperations::findEffectFile(nodes.last());
+        openComposition(path.toFSPathString());
+    }
 }
 
 QSize EffectComposerWidget::sizeHint() const

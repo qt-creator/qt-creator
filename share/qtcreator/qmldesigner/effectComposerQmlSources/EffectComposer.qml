@@ -383,4 +383,31 @@ ColumnLayout {
             root.handleDragMove()
         }
     } // Timer
+
+    DropArea {
+        id: dropArea
+
+        anchors.fill: parent
+
+        onEntered: (drag) => {
+            let accepted = false
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets" && drag.hasUrls) {
+                accepted = EffectComposerBackend.rootView.isEffectAsset(drag.urls[0])
+            } else if (drag.formats[0] === "application/vnd.qtdesignstudio.modelnode.list") {
+                accepted = EffectComposerBackend.rootView.isEffectNode(
+                           drag.getDataAsArrayBuffer("application/vnd.qtdesignstudio.modelnode.list"))
+            }
+            drag.accepted = accepted
+        }
+
+        onDropped: (drop) => {
+            if (drop.formats[0] === "application/vnd.qtdesignstudio.assets" && drop.hasUrls) {
+                EffectComposerBackend.rootView.dropAsset(drop.urls[0])
+            } else if (drop.formats[0] === "application/vnd.qtdesignstudio.modelnode.list") {
+                EffectComposerBackend.rootView.dropNode(
+                           drop.getDataAsArrayBuffer("application/vnd.qtdesignstudio.modelnode.list"))
+            }
+            drop.accept()
+        }
+    }
 }

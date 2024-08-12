@@ -127,6 +127,8 @@ void addMouseAreaFill(const SelectionContext &selectionContext);
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 void editIn3dView(const SelectionContext &selectionContext);
+QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath findEffectFile(const ModelNode &effectNode);
+void editInEffectComposer(const SelectionContext &selectionContext);
 
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
 QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});

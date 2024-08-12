@@ -121,6 +121,15 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
+        id: editInEffectComposerItem
+        text: qsTr("Edit in Effect Composer")
+        visible: root.__fileIndex && root.__selectedAssetPathsList.length === 1
+                 && root.assetsModel.allFilePathsAreComposedEffects(root.__selectedAssetPathsList)
+        height: editInEffectComposerItem.visible ? editInEffectComposerItem.implicitHeight : 0
+        onTriggered: AssetsLibraryBackend.rootView.openEffectComposer(root.__selectedAssetPathsList[0])
+    }
+
+    StudioControls.MenuItem {
         id: addTexturesItem
         text: qsTr("Add Texture")
         enabled: rootView.hasMaterialLibrary

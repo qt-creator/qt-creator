@@ -10,6 +10,7 @@
 
 #include <QFrame>
 #include <QFuture>
+#include <QUrl>
 
 class StudioQuickWidget;
 
@@ -53,11 +54,12 @@ public:
     Q_INVOKABLE QString uniformDefaultImage(const QString &nodeName,
                                             const QString &uniformName) const;
     Q_INVOKABLE QString imagesPath() const;
+    Q_INVOKABLE bool isEffectAsset(const QUrl &url) const;
+    Q_INVOKABLE void dropAsset(const QUrl &url);
+    Q_INVOKABLE bool isEffectNode(const QByteArray &mimeData) const;
+    Q_INVOKABLE void dropNode(const QByteArray &mimeData);
 
     QSize sizeHint() const override;
-
-protected:
-    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private:
     void reloadQmlSource();

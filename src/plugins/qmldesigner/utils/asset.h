@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "qmldesignerutils_global.h"
+
 #include <QSize>
 #include <QString>
 
@@ -10,7 +12,7 @@ QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
-class Asset
+class QMLDESIGNERUTILS_EXPORT Asset
 {
 public:
     enum Type { Unknown,

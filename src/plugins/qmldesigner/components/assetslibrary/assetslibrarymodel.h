@@ -49,6 +49,7 @@ public:
     Q_INVOKABLE QString addNewFolder(const QString &folderPath);
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
+    Q_INVOKABLE bool allFilePathsAreComposedEffects(const QStringList &filePaths) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
