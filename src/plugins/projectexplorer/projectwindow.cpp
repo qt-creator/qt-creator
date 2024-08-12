@@ -736,8 +736,11 @@ public:
         innerLayout->setSpacing(10);
         innerLayout->setContentsMargins(PanelsWidget::PanelVMargin, innerLayout->spacing(),
                                         PanelsWidget::PanelVMargin, 0);
-
-        QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
+#ifdef QT_NO_DEBUG
+        const QStringList list = Core::ICore::settings()->value("HideOptionCategories").toStringList();
+#else
+        const QStringList list;
+#endif
         if (!list.contains("Kits")) {
             auto manageKits = new QPushButton(Tr::tr("Manage Kits..."));
             connect(manageKits, &QPushButton::clicked,
@@ -746,7 +749,6 @@ public:
             innerLayout->addWidget(manageKits);
             innerLayout->addSpacerItem(new QSpacerItem(10, 30, QSizePolicy::Maximum, QSizePolicy::Maximum));
         }
-
         innerLayout->addWidget(activeLabel);
         innerLayout->addWidget(m_projectSelection);
         innerLayout->addWidget(m_importBuild);
