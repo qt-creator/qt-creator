@@ -427,7 +427,7 @@ void EffectComposerModel::setEffectError(const QString &errorMessage, int type, 
     QString additionalErrorInfo = detectErrorMessage(errorMessage);
     error.m_message = additionalErrorInfo + errorMessage;
     m_effectErrors.insert(type, error);
-    qWarning() << QString("Effect error (line: %2): %1").arg(error.m_message, error.m_line);
+    qWarning() << QString("Effect error (line: %2): %1").arg(error.m_message).arg(error.m_line);
     Q_EMIT effectErrorChanged();
 }
 
