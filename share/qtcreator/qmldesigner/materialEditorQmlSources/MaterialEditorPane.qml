@@ -134,11 +134,15 @@ Item {
         onPreviewEnvChanged: root.previewEnvChanged(previewEnv)
         onPreviewModelChanged: root.previewModelChanged(previewModel)
 
-        previewEnv: root.__previewEnv
-        previewModel: root.__previewModel
         pinned: settings.dockMode
         showPinButton: !leftSideView.visible
         onPinnedChanged: settings.dockMode = previewItem.pinned
+
+        Binding {
+            previewItem.previewEnv: root.__previewEnv
+            previewItem.previewModel: root.__previewModel
+            delayed: true
+        }
 
         Connections {
             target: root

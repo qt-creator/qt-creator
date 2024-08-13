@@ -469,40 +469,15 @@ void MaterialEditorView::handlePreviewEnvChanged(const QString &envAndValue)
     };
 
     if (env == "Color") {
-        m_colorDialog.clear();
-
-        // Store color to separate property to persist selection over non-color env changes
         auto oldColorPropVal = rootModelNode().auxiliaryData(materialPreviewColorDocProperty);
-        auto oldEnvPropVal = rootModelNode().auxiliaryData(materialPreviewEnvDocProperty);
-        auto oldValuePropVal = rootModelNode().auxiliaryData(materialPreviewEnvValueDocProperty);
         QString oldColor = oldColorPropVal ? oldColorPropVal->toString() : "";
-        QString oldEnv = oldEnvPropVal ? oldEnvPropVal->toString() : "";
-        QString oldValue = oldValuePropVal ? oldValuePropVal->toString() : "";
 
-        m_colorDialog = new QColorDialog(Core::ICore::dialogParent());
-        m_colorDialog->setModal(true);
-        m_colorDialog->setAttribute(Qt::WA_DeleteOnClose);
-        m_colorDialog->setCurrentColor(QColor(oldColor));
-        m_colorDialog->show();
-
-        QObject::connect(m_colorDialog, &QColorDialog::currentColorChanged,
-                         m_colorDialog, [=](const QColor &color) {
-            renderPreviews(env, color.name());
-        });
-
-        QObject::connect(m_colorDialog, &QColorDialog::colorSelected,
-                         m_colorDialog, [this, renderPreviews, env](const QColor &color) {
-            renderPreviews(env, color.name());
-            rootModelNode().setAuxiliaryData(materialPreviewColorDocProperty, color.name());
-        });
-
-        QObject::connect(m_colorDialog, &QColorDialog::rejected, m_colorDialog,
-                         [this, renderPreviews, oldEnv, oldValue] {
-            renderPreviews(oldEnv, oldValue);
-            initPreviewData();
-        });
-        return;
+        if (value.isEmpty())
+            value = oldColor;
+        else
+            rootModelNode().setAuxiliaryData(materialPreviewColorDocProperty, value);
     }
+
     renderPreviews(env, value);
 }
 
@@ -677,7 +652,7 @@ void MaterialEditorView::initPreviewData()
             }
         });
 
-        if (!envValue.isEmpty() && env != "Color" && env != "Basic") {
+        if (!envValue.isEmpty() && env != "Basic") {
             env += '=';
             env += envValue;
         }

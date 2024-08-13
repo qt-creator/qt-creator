@@ -139,7 +139,6 @@ private:
     QSize m_previewSize;
     QByteArray m_previewRequestId;
 
-    QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
     DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
