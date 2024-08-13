@@ -396,7 +396,7 @@ void TransitionEditorWidget::setupScrollbar(int min, int max, int current)
 
 void TransitionEditorWidget::showEvent([[maybe_unused]] QShowEvent *event)
 {
-    m_transitionEditorView->setEnabled(true);
+    QmlDesignerPlugin::viewManager().showView(*m_transitionEditorView);
 
     if (m_transitionEditorView->model())
         init(m_toolbar->scaleFactor());
@@ -411,7 +411,7 @@ void TransitionEditorWidget::showEvent([[maybe_unused]] QShowEvent *event)
 
 void TransitionEditorWidget::hideEvent(QHideEvent *event)
 {
-    m_transitionEditorView->setEnabled(false);
+    QmlDesignerPlugin::viewManager().hideView(*m_transitionEditorView);
     QWidget::hideEvent(event);
 }
 

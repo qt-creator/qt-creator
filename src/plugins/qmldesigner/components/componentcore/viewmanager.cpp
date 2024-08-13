@@ -208,6 +208,18 @@ QList<AbstractView *> ViewManager::views() const
     return list;
 }
 
+void ViewManager::hideView(AbstractView &view)
+{
+    disableView(view);
+    view.setVisibility(false);
+}
+
+void ViewManager::showView(AbstractView &view)
+{
+    view.setVisibility(true);
+    enableView(view);
+}
+
 QList<AbstractView *> ViewManager::standardViews() const
 {
 #ifndef QTC_USE_QML_DESIGNER_LITE
@@ -298,8 +310,8 @@ void ViewManager::registerViewAction(AbstractView &view)
     viewAction->setCheckable(true);
     QObject::connect(view.action(),
                      &AbstractViewAction::viewCheckedChanged,
-                     [&](bool checkable, AbstractView &view) {
-                         if (checkable)
+                     [&](bool checked, AbstractView &view) {
+                         if (checked)
                              enableView(view);
                          else
                              disableView(view);

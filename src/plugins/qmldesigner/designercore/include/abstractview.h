@@ -283,9 +283,9 @@ public:
     using OperationBlock = std::function<void()>;
     bool executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda);
 
-    bool isEnabled() const { return m_enabled && (hasWidget() ? m_action->isChecked() : true); }
+    bool isEnabled() const { return m_visible && (hasWidget() ? m_action->isChecked() : true); }
 
-    void setEnabled(bool enabled) { m_enabled = enabled; }
+    void setVisibility(bool visible) { m_visible = visible; }
 
     AbstractViewAction *action() const { return m_action.get(); }
 
@@ -325,7 +325,7 @@ private:
     QPointer<Model> m_model;
     ExternalDependenciesInterface &m_externalDependencies;
     Utils::UniqueObjectPtr<AbstractViewAction> m_action;
-    bool m_enabled = true;
+    bool m_visible = true;
     bool m_isBlockingNotifications = false;
 };
 

@@ -232,7 +232,7 @@ void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Impor
     if (nodeInstanceView())
         nodeInstanceView()->importsChanged(addedImports, removedImports);
 
-    for (const QPointer<AbstractView> &view : enabledViews())
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList))
         view->importsChanged(addedImports, removedImports);
 
     if (resetModel)
@@ -241,7 +241,7 @@ void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Impor
 
 void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 {
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->possibleImportsChanged(possibleImports);
     }
@@ -249,7 +249,7 @@ void ModelPrivate::notifyPossibleImportsChanged(const Imports &possibleImports)
 
 void ModelPrivate::notifyUsedImportsChanged(const Imports &usedImports)
 {
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->usedImportsChanged(usedImports);
     }
@@ -369,11 +369,6 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
     node->traceToken.end();
     m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
-}
-
-EnabledViewRange ModelPrivate::enabledViews() const
-{
-    return EnabledViewRange{m_viewList};
 }
 
 namespace {
@@ -550,13 +545,13 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
         resetModel = true;
     }
 
-    for (const QPointer<AbstractView> &view : enabledViews()) {
-         try {
-             if (!view->isBlockingNotifications())
-                 call(view.data());
-         } catch (const Exception &e) {
-             e.showException(tr("Exception thrown by view %1.").arg(view->widgetInfo().tabName));
-         }
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
+        try {
+            if (!view->isBlockingNotifications())
+                call(view.data());
+        } catch (const Exception &e) {
+            e.showException(tr("Exception thrown by view %1.").arg(view->widgetInfo().tabName));
+        }
     }
 
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
@@ -583,7 +578,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
     if (nodeInstanceView() && !nodeInstanceView()->isBlockingNotifications())
         call(nodeInstanceView());
 
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -595,7 +590,7 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
 template<typename Callable>
 void ModelPrivate::notifyInstanceChanges(Callable call)
 {
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         if (!view->isBlockingNotifications())
             call(view.data());
     }
@@ -831,7 +826,7 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
         resetModel = true;
     }
 
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         QList<AbstractProperty> propertyList;
         Q_ASSERT(view != nullptr);
         for (auto property : internalPropertyList) {
@@ -1258,7 +1253,7 @@ QList<std::tuple<InternalBindingProperty *, QString>> ModelPrivate::toInternalBi
 void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSelectedNodeList,
                                        const QList<InternalNodePointer> &oldSelectedNodeList)
 {
-    for (const QPointer<AbstractView> &view : enabledViews()) {
+    for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
         view->selectedNodesChanged(toModelNodeList(newSelectedNodeList, view.data()),
                                    toModelNodeList(oldSelectedNodeList, view.data()));

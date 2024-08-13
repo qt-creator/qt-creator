@@ -53,9 +53,6 @@ void TransitionEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    if (!isEnabled())
-        return;
-
     if (m_transitionEditorWidget)
         m_transitionEditorWidget->init();
 }

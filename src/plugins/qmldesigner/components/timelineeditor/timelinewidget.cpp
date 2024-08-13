@@ -606,7 +606,7 @@ void TimelineWidget::showEvent([[maybe_unused]] QShowEvent *event)
 {
     int zoom = m_toolbar->scaleFactor();
 
-    m_timelineView->setEnabled(true);
+    QmlDesignerPlugin::viewManager().showView(*m_timelineView);
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateScene();
@@ -629,7 +629,7 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::hideEvent(QHideEvent *event)
 {
-    m_timelineView->setEnabled(false);
+    QmlDesignerPlugin::viewManager().hideView(*m_timelineView);
     QWidget::hideEvent(event);
 }
 

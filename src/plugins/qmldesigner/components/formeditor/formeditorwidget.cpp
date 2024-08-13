@@ -634,7 +634,7 @@ void FormEditorWidget::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
 
-    m_formEditorView->setEnabled(false);
+    QmlDesignerPlugin::viewManager().hideView(*m_formEditorView);
 }
 
 void FormEditorWidget::showEvent(QShowEvent *event)
@@ -642,7 +642,7 @@ void FormEditorWidget::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 
     const bool wasEnabled = m_formEditorView->isEnabled();
-    m_formEditorView->setEnabled(true);
+    QmlDesignerPlugin::viewManager().showView(*m_formEditorView);
 
     if (!wasEnabled && m_formEditorView->model()) {
         m_formEditorView->cleanupToolsAndScene();

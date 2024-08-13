@@ -93,6 +93,9 @@ public:
     void jumpToCodeInTextEditor(const ModelNode &modelNode);
     QList<AbstractView *> views() const;
 
+    void hideView(AbstractView &view);
+    void showView(AbstractView &view);
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 

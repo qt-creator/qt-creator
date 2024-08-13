@@ -71,26 +71,6 @@ private:
     QPointer<ModelPrivate> m_model;
 };
 
-struct Increment
-{
-    using iterator = QList<QPointer<AbstractView>>::const_iterator;
-    auto operator()(iterator current) {
-        return std::find_if(std::next(current),
-                            end,
-                            [] (iterator::reference &view) { return view && view->isEnabled(); });
-    }
-
-   iterator end;
-};
-
-class EnabledViewRange : public SkipRange<QList<QPointer<AbstractView>>, Increment>
-{
-public:
-    EnabledViewRange(const container &views)
-        : base{views, Increment{views.end()}}
-    {}
-};
-
 class ModelPrivate : public QObject,
                      protected ProjectStorageObserver
 {
@@ -351,7 +331,6 @@ private:
     static QList<InternalProperty *> toInternalProperties(const AbstractProperties &properties);
     static QList<std::tuple<QmlDesigner::Internal::InternalBindingProperty *, QString>>
     toInternalBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
-    EnabledViewRange enabledViews() const;
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
 
