@@ -374,30 +374,25 @@ void FormEditorWidget::initialize()
 void FormEditorWidget::updateActions()
 {
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(widthProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(widthProperty))
             m_rootWidthAction->setLineEditText(data->toString());
-        } else {
+        else
             m_rootWidthAction->clearLineEditText();
-        }
 
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(heightProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(heightProperty))
             m_rootHeightAction->setLineEditText(data->toString());
-        } else {
+        else
             m_rootHeightAction->clearLineEditText();
-        }
 
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(formeditorColorProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(formeditorColorProperty))
             m_backgroundAction->setColor(data->value<QColor>());
-        } else {
+        else
             m_backgroundAction->setColor(Qt::transparent);
-        }
 
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty)) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty))
             m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, true);
-            m_backgroundAction->setColor(BackgroundAction::ContextImage);
-        } else {
+        else
             m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, false);
-        }
 
     } else {
         m_rootWidthAction->clearLineEditText();
