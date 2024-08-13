@@ -47,6 +47,16 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
+
+    enum class TabIndex {
+        MaterialsTab,
+        TexturesTab,
+        EnvironmentsTab,
+        EffectsTab,
+        UserAssetsTab
+    };
+    Q_ENUM(TabIndex)
+
     ContentLibraryWidget();
     ~ContentLibraryWidget();
 
@@ -97,6 +107,8 @@ public:
     ContentLibraryBundleImporter *importer() const;
     ContentLibraryIconProvider *iconProvider() const;
 
+    void showTab(TabIndex tabIndex);
+
 signals:
     void bundleItemDragStarted(QmlDesigner::ContentLibraryItem *item);
     void bundleMaterialDragStarted(QmlDesigner::ContentLibraryMaterial *bundleMat);
@@ -111,6 +123,7 @@ signals:
     void importerRunningChanged();
     void hasModelSelectionChanged();
     void importBundle();
+    void requestTab(int tabIndex);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;

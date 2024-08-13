@@ -119,10 +119,9 @@ ViewManager::ViewManager(AsynchronousImageCache &imageCache,
     : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
+        if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
+            w->showDockWidget("TextEditor");
         d->textEditorView.gotoCursorPosition(line, column);
-        if (Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()
-                                                               ->mainWidget())
-            designModeWidget->showDockWidget("TextEditor");
     });
 
     registerViewActions();

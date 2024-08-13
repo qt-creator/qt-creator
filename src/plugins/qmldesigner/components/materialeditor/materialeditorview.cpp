@@ -715,6 +715,8 @@ void MaterialEditorView::modelAttached(Model *model)
     }
     resetView();
 
+    selectedNodesChanged(selectedModelNodes(), {});
+
     m_locked = false;
 }
 
@@ -1056,17 +1058,22 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
                                             const QList<ModelNode> &nodeList,
                                             const QList<QVariant> &data)
 {
-    if (identifier == "selected_material_changed") {
-        if (!m_hasMaterialRoot) {
+    auto changeSelected = [&]() {
+        if (!m_hasMaterialRoot && m_selectedMaterial != nodeList.first()) {
             m_selectedMaterial = nodeList.first();
             m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
             QTimer::singleShot(0, this, &MaterialEditorView::resetView);
         }
+    };
+
+    if (identifier == "selected_material_changed") {
+        changeSelected();
     } else if (identifier == "apply_to_selected_triggered") {
+        changeSelected();
         applyMaterialToSelectedModels(nodeList.first(), data.first().toBool());
     } else if (identifier == "rename_material") {
-        if (m_selectedMaterial == nodeList.first())
-            renameMaterial(m_selectedMaterial, data.first().toString());
+        changeSelected();
+        renameMaterial(m_selectedMaterial, data.first().toString());
     } else if (identifier == "add_new_material") {
         handleToolBarAction(MaterialEditorContextObject::AddNewMaterial);
     } else if (identifier == "duplicate_material") {

@@ -8,6 +8,7 @@
 #include "designeractionmanagerview.h"
 #include "designericons.h"
 #include "designermcumanager.h"
+#include "designmodewidget.h"
 #include "formatoperation.h"
 #include "groupitemaction.h"
 #include "modelnodecontextmenu_helper.h"
@@ -730,6 +731,7 @@ public:
                         (propertyName + "OpenEditorId").toLatin1(),
                         QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit the Connection")),
                         [=](const SelectionContext &) {
+                            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ConnectionView");
                             signalHandler.view()
                                 ->emitCustomNotification(EditConnectionNotification,
                                                          {signalHandler.parentModelNode()},
@@ -811,6 +813,7 @@ public:
                 (signalStr + "OpenEditorId").toLatin1(),
                 QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add new Connection")),
                 [=](const SelectionContext &) {
+                    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ConnectionView");
                     currentNode.view()->emitCustomNotification(AddConnectionNotification,
                                                                {currentNode},
                                                                {signalStr});

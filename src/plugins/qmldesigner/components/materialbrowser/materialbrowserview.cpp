@@ -3,19 +3,22 @@
 
 #include "materialbrowserview.h"
 
-#include "bindingproperty.h"
-#include "createtexture.h"
-#include "designmodecontext.h"
-#include "externaldependenciesinterface.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
-#include "nodeabstractproperty.h"
-#include "nodeinstanceview.h"
-#include "nodemetainfo.h"
-#include "qmldesignerconstants.h"
-#include "qmlobjectnode.h"
-#include "variantproperty.h"
+
+#include <bindingproperty.h>
+#include <createtexture.h>
+#include <designmodecontext.h>
+#include <designmodewidget.h>
+#include <externaldependenciesinterface.h>
+#include <nodeabstractproperty.h>
+#include <nodeinstanceview.h>
+#include <nodemetainfo.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <variantproperty.h>
 #include <utils3d.h>
 
 #include <coreplugin/icore.h>
@@ -75,20 +78,24 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(matBrowserModel, &MaterialBrowserModel::applyToSelectedTriggered, this,
                 [&] (const ModelNode &material, bool add) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
             emitCustomNotification("apply_to_selected_triggered", {material}, {add});
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::renameMaterialTriggered, this,
                 [&] (const ModelNode &material, const QString &newName) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
             emitCustomNotification("rename_material", {material}, {newName});
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::addNewMaterialTriggered, this, [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
             emitCustomNotification("add_new_material");
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::duplicateMaterialTriggered, this,
                 [&] (const ModelNode &material) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
             emitCustomNotification("duplicate_material", {material});
         });
 
@@ -170,6 +177,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
         connect(texturesModel, &MaterialBrowserTexturesModel::duplicateTextureTriggered, this,
                 [&] (const ModelNode &texture) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor");
             emitCustomNotification("duplicate_texture", {texture});
         });
 
@@ -189,6 +197,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("TextureEditor");
             emitCustomNotification("add_new_texture");
         });
 
@@ -235,6 +244,7 @@ void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
+    m_pendingTextureSelection = {};
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
@@ -245,6 +255,10 @@ void MaterialBrowserView::modelAttached(Model *model)
     QTimer::singleShot(1000, model, [this] {
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
+
+        if (m_pendingTextureSelection.isValid())
+            emitCustomNotification("select_texture", {m_pendingTextureSelection}, {true});
+        m_pendingTextureSelection = {};
     });
 
     m_sceneId = Utils3D::active3DSceneId(model);
@@ -559,6 +573,8 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
             m_widget->materialBrowserTexturesModel()->refreshSearch();
             if (!data.isEmpty() && data[0].toBool())
                 m_widget->focusMaterialSection(false);
+        } else {
+            m_pendingTextureSelection = nodeList.first();
         }
     } else if (identifier == "refresh_material_browser") {
         QTimer::singleShot(0, model(), [this] {
@@ -571,8 +587,6 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
         applyTextureToModel3D(nodeList.at(0));
     } else if (identifier == "apply_texture_to_model3D") {
         applyTextureToModel3D(nodeList.at(0), nodeList.at(1));
-    } else if (identifier == "apply_texture_to_material") {
-        applyTextureToMaterial({nodeList.at(0)}, nodeList.at(1));
     } else if (identifier == "focus_material_section") {
         m_widget->focusMaterialSection(true);
     }

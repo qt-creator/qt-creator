@@ -3,15 +3,17 @@
 
 #include "createtexture.h"
 
-#include "abstractview.h"
-#include "asset.h"
-#include "documentmanager.h"
-#include "modelnode.h"
-#include "modelnodeoperations.h"
-#include "nodelistproperty.h"
-#include "nodemetainfo.h"
-#include "qmlobjectnode.h"
-#include "variantproperty.h"
+#include <abstractview.h>
+#include <asset.h>
+#include <designmodewidget.h>
+#include <documentmanager.h>
+#include <modelnode.h>
+#include <modelnodeoperations.h>
+#include <nodelistproperty.h>
+#include <nodemetainfo.h>
+#include <qmldesignerplugin.h>
+#include <qmlobjectnode.h>
+#include <variantproperty.h>
 #include <utils3d.h>
 
 #include <coreplugin/messagebox.h>
@@ -109,8 +111,10 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
         assignTextureAsLightProbe(texture, sceneId);
 
     QTimer::singleShot(0, m_view, [this, texture]() {
-        if (m_view->model())
+        if (m_view->model()) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
             m_view->emitCustomNotification("select_texture", {texture}, {true});
+        }
     });
 
     return texture;

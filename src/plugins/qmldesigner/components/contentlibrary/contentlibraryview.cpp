@@ -386,13 +386,16 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 
         addLibItem(nodeList.first(), data.first().value<QPixmap>());
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "add_3d_to_content_lib") {
         if (nodeList.first().isComponent())
             addLib3DComponent(nodeList.first());
         else
             addLibItem(nodeList.first());
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "export_item_as_bundle") {
         // TODO: support exporting 2D items
         if (nodeList.first().isComponent())

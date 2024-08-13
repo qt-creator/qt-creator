@@ -535,6 +535,7 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
 
 void PropertyEditorValue::openMaterialEditor(int idx)
 {
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
     m_modelNode.view()->emitCustomNotification("select_material", {}, {idx});
 }

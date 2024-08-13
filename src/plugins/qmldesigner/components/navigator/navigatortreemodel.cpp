@@ -14,6 +14,7 @@
 #include <coreplugin/icore.h>
 #include <designeractionmanager.h>
 #include <designersettings.h>
+#include <designmodewidget.h>
 #include <import.h>
 #include <invalididexception.h>
 #include <itemlibraryentry.h>
@@ -565,8 +566,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             ModelNodeOperations::handleMaterialDrop(mimeData, targetNode);
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
             QByteArray filePath = mimeData->data(Constants::MIME_TYPE_BUNDLE_TEXTURE);
-            if (targetNode.metaInfo().isQtQuick3DModel())
+            if (targetNode.metaInfo().isQtQuick3DModel()) {
+                QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
                 m_view->emitCustomNotification("apply_asset_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
+            }
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             if (targetNode.isValid())
                 m_view->emitCustomNotification("drop_bundle_material", {targetNode}); // To ContentLibraryView

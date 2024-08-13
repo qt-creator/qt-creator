@@ -14,6 +14,7 @@
 #include <designdocument.h>
 #include <designericons.h>
 #include <designermcumanager.h>
+#include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
 #include <import.h>
@@ -363,18 +364,21 @@ void Edit3DWidget::createContextMenu()
     m_addToContentLibAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Add to Content Library"), [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
             view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget}); // To ContentLibrary
         });
 
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Import Component"), [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
             view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Export Component"), [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
             view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
         });
 

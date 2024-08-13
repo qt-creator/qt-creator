@@ -747,6 +747,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                     } else if (counter >= 50) {
                         for (const ParseData &pd : std::as_const(m_parseData)) {
                             if (!pd.overwrittenImports.isEmpty()) {
+                                model->rewriterView()->resetPuppet();
                                 model->rewriterView()->emitCustomNotification("asset_import_update");
                                 break;
                             }

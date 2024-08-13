@@ -180,6 +180,7 @@ QAction *Edit3DMaterialsAction::createMaterialAction(const ModelNode &material,
 
     QAction *editMaterialAction = new QAction(tr("Edit"), menu);
     connect(editMaterialAction, &QAction::triggered, menu, [material] {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
         if (auto materialView = material.view())
             materialView->emitCustomNotification("select_material", {material});

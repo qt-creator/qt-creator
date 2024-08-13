@@ -101,6 +101,7 @@ private:
     QString m_appliedTextureId;
     QString m_appliedTexturePath; // defers texture creation until dialog apply
     int m_sceneId = -1;
+    ModelNode m_pendingTextureSelection;
 };
 
 } // namespace QmlDesigner

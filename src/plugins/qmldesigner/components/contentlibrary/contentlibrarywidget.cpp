@@ -221,6 +221,11 @@ ContentLibraryIconProvider *ContentLibraryWidget::iconProvider() const
     return m_iconProvider.get();
 }
 
+void ContentLibraryWidget::showTab(TabIndex tabIndex)
+{
+    emit requestTab(int(tabIndex));
+}
+
 void ContentLibraryWidget::updateImportedState(const QString &bundleId)
 {
     if (!m_importer)

@@ -3,22 +3,23 @@
 
 #include "materialbrowserwidget.h"
 
-#include "asset.h"
-#include "assetimageprovider.h"
-#include "createtexture.h"
-#include "documentmanager.h"
-#include "hdrimage.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserview.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "theme.h"
-#include "variantproperty.h"
+
+#include <asset.h>
+#include <assetimageprovider.h>
+#include <createtexture.h>
+#include <designmodewidget.h>
+#include <documentmanager.h>
+#include <hdrimage.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <studioquickwidget.h>
+#include <theme.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
-
-#include <studioquickwidget.h>
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>
@@ -371,6 +372,7 @@ void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
 void MaterialBrowserWidget::addMaterialToContentLibrary()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
@@ -378,11 +380,13 @@ void MaterialBrowserWidget::addMaterialToContentLibrary()
 void MaterialBrowserWidget::importMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_materialBrowserView->emitCustomNotification("import_bundle_to_project"); // to ContentLibrary
 }
 void MaterialBrowserWidget::exportMaterial()
 {
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_materialBrowserView->emitCustomNotification("export_material_as_bundle", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }

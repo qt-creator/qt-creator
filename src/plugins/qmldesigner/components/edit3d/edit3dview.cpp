@@ -6,29 +6,30 @@
 #include "backgroundcolorselection.h"
 #include "bakelights.h"
 #include "cameraspeedconfiguration.h"
-#include "designeractionmanager.h"
-#include "designericons.h"
-#include "designersettings.h"
-#include "designmodecontext.h"
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
-#include "materialutils.h"
-#include "metainfo.h"
-#include "nodeabstractproperty.h"
-#include "nodehints.h"
-#include "nodeinstanceview.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "qmlitemnode.h"
-#include "qmlvisualnode.h"
-#include "seekerslider.h"
 #include "snapconfiguration.h"
-#include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
+#include <designeractionmanager.h>
+#include <designericons.h>
+#include <designersettings.h>
+#include <designmodecontext.h>
+#include <designmodewidget.h>
+#include <materialutils.h>
+#include <metainfo.h>
 #include <modelutils.h>
+#include <nodeabstractproperty.h>
+#include <nodehints.h>
+#include <nodeinstanceview.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
+#include <qmlvisualnode.h>
+#include <seekerslider.h>
 #include <utils3d.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -435,9 +436,7 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
                                     [[maybe_unused]] const QList<ModelNode> &nodeList,
                                     [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "asset_import_update") {
-        resetPuppet();
-    } else if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
+    if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
         // Pick via 2D view, data has pick coordinates in main scene coordinates
         QTimer::singleShot(0, this, [=, self = QPointer{this}]() {
             if (!self)
@@ -491,11 +490,14 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleEffectDrop) {
         emitCustomNotification("drop_bundle_item", {modelNode}, {pos3d}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (!m_droppedFile.isEmpty() && isModel)
+        if (!m_droppedFile.isEmpty() && isModel) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
             emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
+        }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
         if (modelNode.isValid())
             setSelectedModelNode(modelNode);

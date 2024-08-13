@@ -385,15 +385,6 @@ void RewriterView::nodeTypeChanged(const ModelNode &node,
         applyChanges();
 }
 
-void RewriterView::customNotification(const AbstractView * /*view*/,
-                                      const QString &identifier,
-                                      const QList<ModelNode> & /* nodeList */,
-                                      const QList<QVariant> & /*data */)
-{
-    if (identifier == StartRewriterAmend || identifier == EndRewriterAmend)
-        return; // we emitted this ourselves, so just ignore these notifications.
-}
-
 void RewriterView::rewriterBeginTransaction()
 {
     transactionLevel++;

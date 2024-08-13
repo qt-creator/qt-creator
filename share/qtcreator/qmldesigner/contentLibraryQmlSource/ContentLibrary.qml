@@ -75,6 +75,13 @@ Item {
         root.numColumns = numColumns
     }
 
+    Connections {
+        target: ContentLibraryBackend.rootView
+        function onRequestTab(tabIndex) {
+            tabBar.currIndex = tabIndex
+        }
+    }
+
     Column {
         id: col
         anchors.fill: parent

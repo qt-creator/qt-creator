@@ -801,17 +801,20 @@ void moveToComponent(const SelectionContext &selectionContext)
 void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
 {
     ModelNode node = selectionContext.currentSingleSelectedNode();
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
 }
 
 void importComponent(const SelectionContext &selectionContext)
 {
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     selectionContext.view()->emitCustomNotification("import_bundle_to_project");
 }
 
 void exportComponent(const SelectionContext &selectionContext)
 {
     ModelNode node = selectionContext.currentSingleSelectedNode();
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     selectionContext.view()->emitCustomNotification("export_item_as_bundle", {node});
 }
 
@@ -857,7 +860,8 @@ void editMaterial(const SelectionContext &selectionContext)
     }
 
     if (material.isValid()) {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
 
         // to MaterialBrowser...
         view->emitCustomNotification("select_material", {material});
@@ -1676,6 +1680,7 @@ void openSignalDialog(const SelectionContext &selectionContext)
 void updateImported3DAsset(const SelectionContext &selectionContext)
 {
     if (selectionContext.view()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Components");
         selectionContext.view()->emitCustomNotification(
                     "UpdateImported3DAsset", {selectionContext.currentSingleSelectedNode()});
     }
@@ -2016,6 +2021,7 @@ bool dropAsImage3dTexture(const ModelNode &targetNode,
         QTimer::singleShot(0, view, [targetNode, imagePath, view]() {
             if (view && targetNode.isValid()) {
                 // To MaterialBrowserView. Done async to avoid custom notification in transaction
+                QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
                 view->emitCustomNotification("apply_asset_to_model3D",
                                              {targetNode},
                                              {DocumentManager::currentFilePath()
@@ -2069,6 +2075,7 @@ void handleTextureDrop(const QMimeData *mimeData, const ModelNode &targetModelNo
     QTC_ASSERT(texNode.isValid(), return );
 
     if (targetNode.modelNode().metaInfo().isQtQuick3DModel()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
         view->emitCustomNotification("apply_texture_to_model3D", {targetNode, texNode});
     } else {
         auto *dialog = ChooseFromPropertyListDialog::createIfNeeded(targetNode,

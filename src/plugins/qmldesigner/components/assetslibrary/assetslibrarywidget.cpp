@@ -9,6 +9,7 @@
 
 #include <designeractionmanager.h>
 #include <designerpaths.h>
+#include <designmodewidget.h>
 #include <hdrimage.h>
 #include <import.h>
 #include <modelnodeoperations.h>
@@ -662,6 +663,7 @@ void AssetsLibraryWidget::addResources(const QStringList &files, bool showDialog
 
 void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPaths)
 {
+    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
 }
 
