@@ -32,12 +32,10 @@ public:
     ActionManagerPrivate();
     ~ActionManagerPrivate() override;
 
-    void setContext(const Context &context);
-    bool hasContext(int context) const;
-
     void saveSettings();
     static void saveSettings(Command *cmd);
 
+    void setContext(const Context &context);
     bool hasContext(const Context &context) const;
     Command *overridableAction(Utils::Id id);
 
