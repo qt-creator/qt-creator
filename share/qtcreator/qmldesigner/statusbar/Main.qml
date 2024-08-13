@@ -1,8 +1,9 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
+
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 import "../toolbar"
@@ -95,5 +96,56 @@ Item {
                 onCurrentStyleIndexChanged: styles.currentIndex = backend.currentStyle
             }
         }
+
+        RowLayout {
+            id: buttonRow
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: 10
+            spacing: 10
+
+            NotificationButton {
+                id: issuesNotification
+                warningCount: popupPanel.warningCount
+                errorCount: popupPanel.errorCount
+
+                Layout.alignment: Qt.AlignVCenter
+
+
+
+                Connections {
+                    target: issuesNotification
+                    function onClicked() {
+                        popupPanel.toggleShowIssuesPanel()
+                    }
+                }
+            }
+
+            IconButtonCheckable {
+                id: outputButton
+                imageSource: "images/outputIcon.png"
+                checkable: true
+
+                Connections {
+                    target: outputButton
+                    function onClicked() {
+                        popupPanel.toggleShowOutputPanel()
+                    }
+                }
+            }
+        }
     }
+
+    Item {
+        id: popupTarget
+        y: -282 //magic number
+        anchors.right: parent.right
+    }
+
+    IssuesOutputPanel {
+        targetItem: popupTarget
+        id: popupPanel
+        keepOpen: true
+    }
+
 }

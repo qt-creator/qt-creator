@@ -3,6 +3,9 @@
 
 #include "toolbarbackend.h"
 
+#include "messagemodel.h"
+#include "appoutputmodel.h"
+
 #include <changestyleaction.h>
 #include <crumblebar.h>
 #include <designeractionmanager.h>
@@ -407,6 +410,10 @@ void ToolBarBackend::registerDeclarativeType()
     qmlRegisterType<ActionSubscriber>("ToolBar", 1, 0, "ActionSubscriber");
     qmlRegisterType<CrumbleBarModel>("ToolBar", 1, 0, "CrumbleBarModel");
     qmlRegisterType<WorkspaceModel>("ToolBar", 1, 0, "WorkspaceModel");
+
+    qmlRegisterType<MessageModel>("OutputPane", 1, 0, "MessageModel");
+    qmlRegisterType<AppOutputParentModel>("OutputPane", 1, 0, "AppOutputParentModel");
+    qmlRegisterType<AppOutputChildModel>("OutputPane", 1, 0, "AppOutputChildModel");
 }
 
 void ToolBarBackend::triggerModeChange()

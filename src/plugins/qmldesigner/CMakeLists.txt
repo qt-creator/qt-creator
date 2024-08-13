@@ -1159,6 +1159,10 @@ extend_qtc_plugin(QmlDesigner
     toolbar.h
     toolbarbackend.cpp
     toolbarbackend.h
+    appoutputmodel.cpp
+    appoutputmodel.h
+    messagemodel.cpp
+    messagemodel.h
 )
 
 extend_qtc_plugin(QmlDesigner
