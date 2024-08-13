@@ -288,7 +288,7 @@ TreeViewDelegate {
 
     function __toggleExpandCurrentRow() {
         if (!root.__isDirectory)
-           return
+            return
 
         let index = root.assetsView.__modelIndex(root.__currentRow)
         // if the user manually clicked on a directory, then this is definitely not a
@@ -334,6 +334,51 @@ TreeViewDelegate {
         onStatusChanged: {
             if (thumbnailImage.status === Image.Ready)
                 assetTooltip.refresh()
+        }
+    }
+
+    DropArea {
+        anchors.fill: parent
+        anchors.bottomMargin: -assetsView.rowSpacing
+
+        function updateParentHighlight(highlight) {
+            let index = root.assetsView.__modelIndex(root.__currentRow)
+            let parentItem = assetsView.__getDelegateParentForIndex(index)
+            if (parentItem)
+                parentItem.isHighlighted = highlight
+
+            // highlights the root folder canvas area when dragging over child
+            if (root.depth === 1 && !root.__isDirectory)
+                assetsRoot.highlightCanvas = highlight
+        }
+
+        onEntered: (drag) => {
+            root.assetsRoot.updateDropExtFiles(drag)
+
+            drag.accepted |= (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+
+            if (root.__isDirectory)
+                isHighlighted = drag.accepted
+            else
+                updateParentHighlight(drag.accepted)
+        }
+
+        onDropped: (drag) => {
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
+                rootView.invokeAssetsDrop(drag.urls, root.getDirPath())
+            } else {
+                rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
+                                          root.assetsRoot.dropComplexExtFiles,
+                                          root.getDirPath())
+            }
+
+            isHighlighted = true
+            updateParentHighlight(true)
+        }
+
+        onExited: {
+            isHighlighted = false
+            updateParentHighlight(false)
         }
     }
 }

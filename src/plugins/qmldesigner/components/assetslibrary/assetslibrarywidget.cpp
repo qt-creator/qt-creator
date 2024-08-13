@@ -65,6 +65,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     } else if (event->type() == QMouseEvent::MouseMove) {
         if (!m_assetsToDrag.isEmpty() && m_assetsView->model()) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
+
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
                 auto mimeData = std::make_unique<QMimeData>();
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
@@ -73,15 +74,16 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                     return QUrl::fromLocalFile(path);
                 });
 
+                QString draggedAsset = m_assetsToDrag[0];
+
+                m_assetsToDrag.clear();
                 mimeData->setUrls(urlsToDrag);
 
                 m_assetsView->model()->startDrag(std::move(mimeData),
-                                                 m_assetsIconProvider->requestPixmap(m_assetsToDrag[0],
+                                                 m_assetsIconProvider->requestPixmap(draggedAsset,
                                                                                      nullptr,
                                                                                      {128, 128}),
                                                  this);
-
-                m_assetsToDrag.clear();
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
@@ -370,6 +372,62 @@ bool AssetsLibraryWidget::assetIsImageOrTexture(const QString &id)
     return Asset(id).isValidTextureSource();
 }
 
+// needed to deal with "Object 0xXXXX destroyed while one of its QML signal handlers is in progress..." error which would lead to a crash
+void AssetsLibraryWidget::invokeAssetsDrop(const QList<QUrl> &urls, const QString &targetDir)
+{
+    QMetaObject::invokeMethod(this, "handleAssetsDrop", Qt::QueuedConnection, Q_ARG(QList<QUrl>, urls), Q_ARG(QString, targetDir));
+}
+
+void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QString &targetDir)
+{
+    if (urls.isEmpty() || targetDir.isEmpty())
+        return;
+
+    Utils::FilePath destDir = Utils::FilePath::fromUserInput(targetDir);
+
+    QString resourceFolder = DocumentManager::currentResourcePath().toString();
+
+    if (destDir.isFile())
+        destDir = destDir.parentDir();
+
+    QMessageBox mb;
+    mb.setInformativeText("What would you like to do with the existing asset?");
+    mb.addButton("Keep Both", QMessageBox::AcceptRole);
+    mb.addButton("Replace", QMessageBox::ResetRole);
+    mb.addButton("Cancel", QMessageBox::RejectRole);
+
+    for (const QUrl &url : urls) {
+        Utils::FilePath src = Utils::FilePath::fromUrl(url);
+        Utils::FilePath dest = destDir.pathAppended(src.fileName());
+
+        if (destDir == src.parentDir() || !src.startsWith(resourceFolder))
+            continue;
+
+        if (dest.exists()) {
+            mb.setText("An asset named " + dest.fileName() + " already exists.");
+            mb.exec();
+            int userAction = mb.buttonRole(mb.clickedButton());
+
+            if (userAction == QMessageBox::AcceptRole) { // "Keep Both"
+                dest = Utils::FilePath::fromString(UniqueName::generatePath(dest.toString()));
+            } else if (userAction == QMessageBox::ResetRole && dest.exists()) { // "Replace"
+                if (!dest.removeFile()) {
+                    qWarning() << __FUNCTION__ << "Failed to remove existing file" << dest;
+                    continue;
+                }
+            } else if (userAction == QMessageBox::RejectRole) { // "Cancel"
+                continue;
+            }
+        }
+
+        if (!src.renameFile(dest))
+            qWarning() << __FUNCTION__ << "Failed to move asset from" << src << "to" << dest;
+    }
+
+    if (m_assetsView->model())
+        m_assetsView->model()->endDrag();
+}
+
 QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 {
     return {};
@@ -411,12 +469,11 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
 
     if (!simpleFilePathStrings.isEmpty()) {
         if (targetDirPath.isEmpty()) {
-            addResources(simpleFilePathStrings);
+            addResources(simpleFilePathStrings, false);
         } else {
-            bool isDropOnRoot = m_assetsModel->rootPath() == targetDirPath;
             AddFilesResult result = ModelNodeOperations::addFilesToProject(simpleFilePathStrings,
                                                                            targetDirPath,
-                                                                           isDropOnRoot);
+                                                                           false);
             if (result.status() == AddFilesResult::Failed) {
                 QWidget *w = Core::AsynchronousMessageBox::warning(tr("Failed to Add Files"),
                                                                    tr("Could not add %1 to project.")
@@ -430,7 +487,7 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
     }
 
     if (!complexFilePathStrings.empty())
-        addResources(complexFilePathStrings);
+        addResources(complexFilePathStrings, false);
 
     m_assetsView->model()->endDrag();
 }

@@ -21,6 +21,7 @@ Item {
 
     readonly property int qtVersion: rootView.qtVersion()
     property bool __searchBoxEmpty: true
+    property bool highlightCanvas: false
 
     AssetsContextMenu {
         id: contextMenu
@@ -58,14 +59,21 @@ Item {
         height: parent.height - y
 
         onEntered: (drag) => {
-            root.updateDropExtFiles(drag)
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+               drag.accepted = drag.urls.length > 0
+            else
+               root.updateDropExtFiles(drag)
         }
 
         onDropped: (drag) => {
             drag.accept()
-            rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
-                                        root.dropComplexExtFiles,
-                                        assetsModel.rootPath())
+            if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
+               rootView.handleAssetsDrop(drag.urls, assetsModel.rootPath())
+            } else {
+               rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
+                                           root.dropComplexExtFiles,
+                                           assetsModel.rootPath())
+            }
         }
 
         Canvas { // marker for the drop area
@@ -73,8 +81,7 @@ Item {
             y: 5
             width: parent.width
             height: parent.height - y
-            visible: dropArea.containsDrag && root.dropSimpleExtFiles.length > 0
-
+            visible: dropArea.containsDrag || root.highlightCanvas
             onWidthChanged: dropCanvas.requestPaint()
             onHeightChanged: dropCanvas.requestPaint()
 

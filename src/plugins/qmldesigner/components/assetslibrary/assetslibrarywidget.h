@@ -72,7 +72,8 @@ public:
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
-
+    Q_INVOKABLE void invokeAssetsDrop(const QList<QUrl> &urls, const QString &targetDir);
+    Q_INVOKABLE void handleAssetsDrop(const QList<QUrl> &urls, const QString &targetDir);
     Q_INVOKABLE void handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                         const QList<QUrl> &complexFilePaths,
                                         const QString &targetDirPath);
@@ -80,7 +81,6 @@ public:
     Q_INVOKABLE void emitExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                       const QList<QUrl> &complexFilePaths,
                                       const QString &targetDirPath = {});
-
     Q_INVOKABLE QSet<QString> supportedAssetSuffixes(bool complex);
     Q_INVOKABLE void openEffectComposer(const QString &filePath);
     Q_INVOKABLE int qtVersion() const;
@@ -88,7 +88,6 @@ public:
     Q_INVOKABLE QSize imageSize(const QString &id);
     Q_INVOKABLE QString assetFileSize(const QString &id);
     Q_INVOKABLE bool assetIsImageOrTexture(const QString &id);
-
     Q_INVOKABLE void addTextures(const QStringList &filePaths);
     Q_INVOKABLE void addLightProbe(const QString &filePaths);
     Q_INVOKABLE void updateContextMenuActionsEnableState();
