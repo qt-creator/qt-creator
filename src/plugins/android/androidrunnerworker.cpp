@@ -415,6 +415,11 @@ CommandLine AndroidRunnerWorker::adbCommand(std::initializer_list<CommandLine::A
     return cmd;
 }
 
+QStringList AndroidRunnerWorker::userArgs() const
+{
+    return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
+}
+
 ExecutableItem AndroidRunnerWorker::forceStopRecipe()
 {
     const auto onForceStopSetup = [this](Process &process) {
@@ -868,17 +873,13 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
     };
 
     const auto onServerCopySetup = [this, tempDebugServerPathStorage, debugServerFileName](Process &process) {
-        const QStringList extraArgs = m_processUser > 0
-            ? QStringList{"--user", QString::number(m_processUser)} : QStringList();
-        process.setCommand(adbCommand({"shell", "run-as", m_packageName, extraArgs, "cp",
+        process.setCommand(adbCommand({"shell", "run-as", m_packageName, userArgs(), "cp",
                                        *tempDebugServerPathStorage, debugServerFileName}));
     };
 
     const auto onServerChmodSetup = [this, debugServerFileName](Process &process) {
-        const QStringList extraArgs = m_processUser > 0
-            ? QStringList{"--user", QString::number(m_processUser)} : QStringList();
-        process.setCommand(adbCommand({"shell", "run-as",
-            m_packageName, extraArgs, "chmod", "777", debugServerFileName}));
+        process.setCommand(adbCommand({"shell", "run-as", m_packageName, userArgs(), "chmod", "777",
+                                       debugServerFileName}));
     };
 
     return Group {

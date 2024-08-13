@@ -53,6 +53,7 @@ private:
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
 
     Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const;
+    QStringList userArgs() const;
 
     Tasking::ExecutableItem forceStopRecipe();
     Tasking::ExecutableItem removeForwardPortRecipe(const QString &port, const QString &adbArg,
