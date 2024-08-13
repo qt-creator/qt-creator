@@ -348,7 +348,7 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto viewAction = view->action();
-        viewAction->setText(widgetInfo.uniqueId);
+        viewAction->setText(widgetInfo.tabName);
         dockWidget->setToggleViewAction(viewAction);
         auto command = Core::ActionManager::registerAction(viewAction,
                                                            actionToggle.withSuffix(
