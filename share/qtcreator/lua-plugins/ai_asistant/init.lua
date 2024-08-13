@@ -7,10 +7,13 @@ local Gui = require('Gui')
 local a = require('async')
 local TextEditor = require('TextEditor')
 local mm = require('MessageManager')
+local fetch = require('Fetch').fetch
 local Install = require('Install')
 
 Hooks = {}
 AutoSuggestionDelay = 2000
+ServerName = "qtaiassistantserver"
+ServerReleasesURL = "https://qtaiassistant.gitlab-pages.qt.io/qtails/releases/" .. ServerName .. ".json"
 
 local function collectSuggestions(responseTable)
   local suggestions = {}
@@ -59,35 +62,89 @@ local function createInitOptions()
   }
 end
 
+local function filter(tbl, callback)
+  for i = #tbl, 1, -1 do
+    if not callback(tbl[i]) then
+      table.remove(tbl, i)
+    end
+  end
+end
+
 
 local function installOrUpdateServer()
-  local lspPkgInfo = Install.packageInfo("qtaiassistantserver")
+  -- TODO: Support Windows and Mac OS
 
-  -- TODO: Support multiple platforms
+  local data = a.wait(fetch({
+    url = ServerReleasesURL,
+    convertToTable = true
+  }))
 
-  local url = "https://qtaiassistant.gitlab-pages.qt.io/qtails/downloads/qtaiassistantserver-x86_64-unknown-linux-gnu.gz"
-  local res, err = a.wait(Install.install(
-    "Do you want to install the qtaiassistantserver?", {
-      name = "qtaiassistantserver",
-      url = url,
-      version = "0.0.1"
-    }))
-
-  if not res then
-    mm.writeFlashing("Failed to install qtaiassistantserver: " .. err)
+  if data == nil or data["assets"] == nil then
+    print("Failed to fetch release data.")
     return
   end
 
-  lspPkgInfo = Install.packageInfo("qtaiassistantserver")
-  print("Installed:", lspPkgInfo.name, "version:", lspPkgInfo.version, "at", lspPkgInfo.path)
+  local links = data["assets"]["links"]
+  if type(links) == "table" and #links > 0 then
+    local tag_name = data["tag_name"]
+    print("Found tag name:", tag_name)
 
-  local binary = "qtaiassistantserver"
-  if Utils.HostOsInfo.isWindowsHost() then
-    binary = "qtaiassistantserver.exe"
+    local lspPkgInfo = Install.packageInfo(ServerName)
+    if not lspPkgInfo or lspPkgInfo.version ~= tag_name then
+      local osTr = { mac = "darwin", windows = "win32", linux = "linux" }
+      local archTr = { unknown = "", x86 = "ia32", x86_64 = "x64", itanium = "", arm = "", arm64 = "arm64" }
+      local extTr = { mac = "gz", windows = "zip", linux = "tar.gz" }
+      local os = osTr[Utils.HostOsInfo.os]
+
+      if os ~= "linux" then
+        print("Currently unsupported OS:", Utils.HostOsInfo.os)
+        return
+      end
+
+      local arch = archTr[Utils.HostOsInfo.architecture]
+      local ext = extTr[Utils.HostOsInfo.os]
+      local expectedFileName = ServerName .. "-" .. tag_name .. "-" .. os .. "-" .. arch .. "." .. ext
+
+      filter(links, function(asset)
+        return string.find(asset.name, expectedFileName, 1, true) == 1
+      end)
+
+      if #links == 0 then
+        print("No assets found for this platform. Expected file base name:", expectedFileName)
+        return
+      end
+
+      print("Using link:", links[1].url)
+
+      local res, err = a.wait(Install.install(
+        "Do you want to install the qtaiassistantserver?", {
+          name = "qtaiassistantserver",
+          url = links[1].url,
+          version = tag_name
+        }))
+
+      if not res then
+        mm.writeFlashing("Failed to install qtaiassistantserver: " .. err)
+        return
+      end
+
+      lspPkgInfo = Install.packageInfo("qtaiassistantserver")
+      print("Installed:", lspPkgInfo.name, " version:", lspPkgInfo.version, " at:", lspPkgInfo.path)
+    end
+
+    local base_name = "qtaiassistantserver-" .. tag_name
+    local binary = base_name .. "-linux-x64"
+    if Utils.HostOsInfo.isWindowsHost() then
+      binary = base_name .. "-windows-x64.exe"
+    end
+
+    Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
+    Settings:apply()
+
+  else
+    print("No links found in the release data.")
   end
 
-  Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
-  Settings:apply()
 end
 
 IsTryingToInstall = false
