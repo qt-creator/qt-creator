@@ -696,13 +696,9 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
         m_widget->userModel()->removeItemByName(compFileName, m_bundleId);
     }
 
-    // generate and save icon
     QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
     m_iconSavePath = bundlePath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
-    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
-        saveIconToBundle(image);
-    });
 
     const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
     const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
@@ -742,6 +738,11 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
     m_widget->userModel()->addItem(m_bundleId, compBaseName, compFileName, m_iconSavePath.toUrl(),
                                    filesList);
+
+    // generate and save icon
+    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
+        saveIconToBundle(image);
+    });
 }
 
 void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
