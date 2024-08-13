@@ -855,9 +855,11 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
         process.setCommand(
             adbCommand({"shell", "ls", tempDebugServerPath(iterator.iteration()), "2>/dev/null"}));
     };
-    const auto onDeviceFileExistsDone = [iterator, tempDebugServerPathStorage](const Process &process) {
-        if (!process.stdOut().trimmed().isEmpty())
+    const auto onDeviceFileExistsDone = [iterator, tempDebugServerPathStorage](
+                                            const Process &process, DoneWith result) {
+        if (result == DoneWith::Error || process.stdOut().trimmed().isEmpty())
             *tempDebugServerPathStorage = tempDebugServerPath(iterator.iteration());
+        return true;
     };
     const auto onTempDebugServerPath = [tempDebugServerPathStorage] {
         const bool tempDirOK = !tempDebugServerPathStorage->isEmpty();
@@ -902,7 +904,128 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
             ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
         },
-        ProcessTask(onServerChmodSetup)
+        ProcessTask(onServerChmodSetup),
+        ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) || successItem
+    };
+}
+
+ExecutableItem AndroidRunnerWorker::startNativeDebuggingRecipe()
+{
+    const auto onSetup = [this] {
+        return m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
+    };
+
+    const Storage<QString> packageDirStorage;
+    const Storage<QString> debugServerFileStorage;
+
+    const auto onAppDirSetup = [this](Process &process) {
+        process.setCommand(adbCommand({packageArgs(), "/system/bin/sh", "-c", "pwd"}));
+    };
+    const auto onAppDirDone = [this, packageDirStorage](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success)
+            *packageDirStorage = process.stdOut();
+        else
+            emit remoteProcessFinished(Tr::tr("Failed to find application directory."));
+    };
+
+    // Add executable flag to package dir. Gdb can't connect to running server on device on
+    // e.g. on Android 8 with NDK 10e
+    const auto onChmodSetup = [this, packageDirStorage](Process &process) {
+        process.setCommand(adbCommand({packageArgs(), "chmod", "a+x", packageDirStorage->trimmed()}));
+    };
+    const auto onServerPathCheck = [this] {
+        if (m_debugServerPath.exists())
+            return true;
+        QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
+        if (m_useLldb)
+            msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
+        emit remoteProcessFinished(msg);
+        return false;
+    };
+
+    const auto useLldb = Sync([this] { return m_useLldb; });
+    const auto killAll = [this](const QString &name) {
+        return ProcessTask([this, name](Process &process) {
+            process.setCommand(adbCommand({packageArgs(), "killall", name}));
+        }) || successItem;
+    };
+    const auto setDebugServer = [debugServerFileStorage](const QString &fileName) {
+        return Sync([debugServerFileStorage, fileName] { *debugServerFileStorage = fileName; });
+    };
+
+    const auto uploadDebugServer = [this, setDebugServer](const QString &debugServerFileName) {
+        return If (uploadDebugServerRecipe(debugServerFileName)) >> Then {
+            setDebugServer(debugServerFileName)
+        } >> Else {
+            Sync([this] {
+                emit remoteProcessFinished(Tr::tr("Cannot copy C++ debug server."));
+                return false;
+            })
+        };
+    };
+
+    const auto packageFileExists = [this](const QString &filePath) {
+        const auto onProcessSetup = [this, filePath](Process &process) {
+            process.setCommand(adbCommand({packageArgs(), "ls", filePath, "2>/dev/null"}));
+        };
+        const auto onProcessDone = [this](const Process &process) {
+            return !process.stdOut().trimmed().isEmpty();
+        };
+        return ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Success);
+    };
+
+    const auto onRemoveGdbServerSetup = [this, packageDirStorage](Process &process) {
+        const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
+        process.setCommand(adbCommand({packageArgs(), "rm", gdbServerSocket}));
+    };
+
+    const auto onDebugServerSetup = [this, packageDirStorage, debugServerFileStorage](Process &process) {
+        if (m_useLldb) {
+            process.setCommand(adbCommand({packageArgs(), *debugServerFileStorage, "platform",
+                               "--listen", QString("*:%1").arg(s_localDebugServerPort.toString())}));
+        } else {
+            const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
+            process.setCommand(adbCommand({packageArgs(), *debugServerFileStorage, "--multi",
+                                           QString("+%1").arg(gdbServerSocket)}));
+        }
+    };
+
+    const auto onTaskTreeSetup = [this, packageDirStorage](TaskTree &taskTree) {
+        const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
+        taskTree.setRecipe({removeForwardPortRecipe("tcp:" + s_localDebugServerPort.toString(),
+                                                    "localfilesystem:" + gdbServerSocket, "C++")});
+    };
+
+    return Group {
+        packageDirStorage,
+        debugServerFileStorage,
+        onGroupSetup(onSetup),
+        ProcessTask(onAppDirSetup, onAppDirDone),
+        ProcessTask(onChmodSetup) || successItem,
+        Sync(onServerPathCheck),
+        If (useLldb) >> Then {
+            killAll("lldb-server"),
+            uploadDebugServer("./lldb-server")
+        } >> ElseIf (packageFileExists("./lib/gdbserver")) >> Then {
+            killAll("gdbserver"),
+            setDebugServer("./lib/gdbserver")
+        } >> ElseIf (packageFileExists("./lib/libgdbserver.so")) >> Then {
+            killAll("libgdbserver.so"),
+            setDebugServer("./lib/libgdbserver.so")
+        } >> Else {
+            killAll("gdbserver"),
+            uploadDebugServer("./gdbserver")
+        },
+        If (!useLldb) >> Then {
+            ProcessTask(onRemoveGdbServerSetup) || successItem
+        },
+        Group {
+            parallel,
+            ProcessTask(onDebugServerSetup),
+            If (!useLldb) >> Then {
+                TaskTreeTask(onTaskTreeSetup)
+            }
+        }
     };
 }
 

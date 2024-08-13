@@ -66,6 +66,7 @@ private:
     Tasking::ExecutableItem postDoneRecipe();
     Tasking::ExecutableItem pidRecipe();
     Tasking::ExecutableItem uploadDebugServerRecipe(const QString &debugServerFileName);
+    Tasking::ExecutableItem startNativeDebuggingRecipe();
 
     // Create the processes and timer in the worker thread, for correct thread affinity
     QString m_packageName;
