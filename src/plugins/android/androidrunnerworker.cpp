@@ -420,6 +420,12 @@ QStringList AndroidRunnerWorker::userArgs() const
     return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
 }
 
+QStringList AndroidRunnerWorker::packageArgs() const
+{
+    // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
+    return QStringList{"shell", "run-as", m_packageName} + userArgs();
+}
+
 ExecutableItem AndroidRunnerWorker::forceStopRecipe()
 {
     const auto onForceStopSetup = [this](Process &process) {
@@ -873,13 +879,12 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
     };
 
     const auto onServerCopySetup = [this, tempDebugServerPathStorage, debugServerFileName](Process &process) {
-        process.setCommand(adbCommand({"shell", "run-as", m_packageName, userArgs(), "cp",
-                                       *tempDebugServerPathStorage, debugServerFileName}));
+        process.setCommand(adbCommand({packageArgs(), "cp", *tempDebugServerPathStorage,
+                                       debugServerFileName}));
     };
 
     const auto onServerChmodSetup = [this, debugServerFileName](Process &process) {
-        process.setCommand(adbCommand({"shell", "run-as", m_packageName, userArgs(), "chmod", "777",
-                                       debugServerFileName}));
+        process.setCommand(adbCommand({packageArgs(), "chmod", "777", debugServerFileName}));
     };
 
     return Group {

@@ -54,6 +54,7 @@ private:
 
     Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const;
     QStringList userArgs() const;
+    QStringList packageArgs() const;
 
     Tasking::ExecutableItem forceStopRecipe();
     Tasking::ExecutableItem removeForwardPortRecipe(const QString &port, const QString &adbArg,
