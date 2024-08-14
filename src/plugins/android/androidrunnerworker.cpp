@@ -811,10 +811,6 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
                                      << "to:" << pidStorage->first;
         m_processPID = pidStorage->first;
         m_processUser = pidStorage->second;
-
-        if (m_useCppDebugger)
-            startNativeDebugging();
-
         emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
     };
 
@@ -834,7 +830,11 @@ ExecutableItem AndroidRunnerWorker::pidRecipe()
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
         Sync(onPidSync),
-        ProcessTask(onIsAliveSetup),
+        Group {
+            parallel,
+            startNativeDebuggingRecipe(),
+            ProcessTask(onIsAliveSetup)
+        },
         postDoneRecipe()
     };
 }
