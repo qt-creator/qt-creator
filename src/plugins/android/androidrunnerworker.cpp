@@ -216,38 +216,12 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
 AndroidRunnerWorker::~AndroidRunnerWorker()
 {
     if (m_processPID != -1)
-        forceStop();
-}
-
-bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut, QString *stdErr)
-{
-    const SdkToolResult result = AndroidManager::runAdbCommand(selector() + args);
-    if (!result.success())
-        emit remoteErrorOutput(result.stdErr());
-    if (stdOut)
-        *stdOut = result.stdOut();
-    if (stdErr)
-        *stdErr = result.stdErr();
-    return result.success();
+        TaskTree::runBlocking(Group { forceStopRecipe(), postDoneRecipe() });
 }
 
 QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
-}
-
-void AndroidRunnerWorker::forceStop()
-{
-    runAdb({"shell", "am", "force-stop", m_packageName});
-
-    // try killing it via kill -9
-    QString output;
-    runAdb({"shell", "pidof", m_packageName}, &output);
-    const QString pidString = QString::number(m_processPID);
-    if (m_processPID != -1 && output == pidString
-        && !runAdb({"shell", "run-as", m_packageName, "kill", "-9", pidString})) {
-        runAdb({"shell", "kill", "-9", pidString});
-    }
 }
 
 void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)

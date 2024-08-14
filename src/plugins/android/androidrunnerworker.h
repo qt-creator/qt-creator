@@ -36,9 +36,7 @@ signals:
     void remoteErrorOutput(const QString &output);
 
 private:
-    bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr);
     QStringList selector() const;
-    void forceStop();
 
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
 
