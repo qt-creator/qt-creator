@@ -1298,6 +1298,8 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
     NanotraceHR::Tracer tracer{"synchronize"_t, projectStorageCategory()};
 
     TypeIds deletedTypeIds;
+    ExportedTypesChanged exportedTypesChanged = ExportedTypesChanged::No;
+
     Sqlite::withImmediateTransaction(database, [&] {
         AliasPropertyDeclarations aliasPropertyDeclarationsToLink;
 
@@ -1329,6 +1331,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
                          relinkablePropertyDeclarations,
                          relinkablePrototypes,
                          relinkableExtensions,
+                         exportedTypesChanged,
                          package.updatedSourceIds);
         synchronizeTypeAnnotations(package.typeAnnotations, package.updatedTypeAnnotationSourceIds);
         synchronizePropertyEditorQmlPaths(package.propertyEditorQmlPaths,
@@ -1358,7 +1361,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
         commonTypeCache_.resetTypeIds();
     });
 
-    callRefreshMetaInfoCallback(deletedTypeIds);
+    callRefreshMetaInfoCallback(deletedTypeIds, exportedTypesChanged);
 }
 
 void ProjectStorage::synchronizeDocumentImports(Storage::Imports imports, SourceId sourceId)
@@ -2383,6 +2386,7 @@ void ProjectStorage::resetForTestsOnly()
     database.clearAllTablesForTestsOnly();
     commonTypeCache_.clearForTestsOnly();
     moduleCache.clearForTestOnly();
+    observers.clear();
 }
 
 ModuleId ProjectStorage::fetchModuleId(Utils::SmallStringView moduleName,
@@ -2425,7 +2429,8 @@ ProjectStorage::ModuleCacheEntries ProjectStorage::fetchAllModules() const
     return s->selectAllModulesStatement.valuesWithTransaction<ModuleCacheEntry, 128>();
 }
 
-void ProjectStorage::callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
+void ProjectStorage::callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
+                                                 ExportedTypesChanged &exportedTypesChanged)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"call refresh meta info callback"_t,
@@ -2433,8 +2438,15 @@ void ProjectStorage::callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds)
                                keyValue("type ids", deletedTypeIds)};
 
     if (deletedTypeIds.size()) {
+        std::ranges::sort(deletedTypeIds);
+
         for (ProjectStorageObserver *observer : observers)
             observer->removedTypeIds(deletedTypeIds);
+    }
+
+    if (exportedTypesChanged == ExportedTypesChanged::Yes) {
+        for (ProjectStorageObserver *observer : observers)
+            observer->exportedTypesChanged();
     }
 }
 
@@ -2598,6 +2610,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                                       PropertyDeclarations &relinkablePropertyDeclarations,
                                       Prototypes &relinkablePrototypes,
                                       Prototypes &relinkableExtensions,
+                                      ExportedTypesChanged &exportedTypesChanged,
                                       const SourceIds &updatedSourceIds)
 {
     NanotraceHR::Tracer tracer{"synchronize types"_t, projectStorageCategory()};
@@ -2641,7 +2654,8 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
                              relinkableAliasPropertyDeclarations,
                              relinkablePropertyDeclarations,
                              relinkablePrototypes,
-                             relinkableExtensions);
+                             relinkableExtensions,
+                             exportedTypesChanged);
 
     syncPrototypesAndExtensions(types, relinkablePrototypes, relinkableExtensions);
     resetDefaultPropertiesIfChanged(types);
@@ -3393,7 +3407,8 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                               AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                               PropertyDeclarations &relinkablePropertyDeclarations,
                                               Prototypes &relinkablePrototypes,
-                                              Prototypes &relinkableExtensions)
+                                              Prototypes &relinkableExtensions,
+                                              ExportedTypesChanged &exportedTypesChanged)
 {
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"synchronize exported types"_t, projectStorageCategory()};
@@ -3474,6 +3489,8 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                                                                      relinkableAliasPropertyDeclarations);
         handlePrototypesWithExportedTypeNameAndTypeId(type.name, unresolvedTypeId, relinkablePrototypes);
         handleExtensionsWithExportedTypeNameAndTypeId(type.name, unresolvedTypeId, relinkableExtensions);
+
+        exportedTypesChanged = ExportedTypesChanged::Yes;
     };
 
     auto update = [&](const Storage::Synchronization::ExportedTypeView &view,
@@ -3492,6 +3509,8 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
             handlePrototypes(view.typeId, relinkablePrototypes);
             handleExtensions(view.typeId, relinkableExtensions);
             s->updateExportedTypeNameTypeIdStatement.write(view.exportedTypeNameId, type.typeId);
+            exportedTypesChanged = ExportedTypesChanged::Yes;
+
             return Sqlite::UpdateChange::Update;
         }
         return Sqlite::UpdateChange::No;
@@ -3511,6 +3530,8 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
         handleExtensions(view.typeId, relinkableExtensions);
 
         s->deleteExportedTypeNameStatement.write(view.exportedTypeNameId);
+
+        exportedTypesChanged = ExportedTypesChanged::Yes;
     };
 
     Sqlite::insertUpdateDelete(range, exportedTypes, compareKey, insert, update, remove);

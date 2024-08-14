@@ -8256,7 +8256,7 @@ TEST_F(ProjectStorage, synchronize_property_editor_with_non_existing_type_name)
 TEST_F(ProjectStorage, call_remove_type_ids_in_observer_after_synchronization)
 {
     auto package{createSimpleSynchronizationPackage()};
-    ProjectStorageObserverMock observerMock;
+    NiceMock<ProjectStorageObserverMock> observerMock;
     storage.addObserver(&observerMock);
     storage.synchronize(package);
     package.types.clear();
@@ -8967,4 +8967,42 @@ TEST_F(ProjectStorage, added_document_import_fixes_unresolved_extension)
     ASSERT_THAT(fetchType(sourceId1, "QQuickItem"), HasExtensionId(fetchTypeId(sourceId2, "QObject")));
 }
 
+TEST_F(ProjectStorage, added_export_is_notifing_changed_exported_types)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.emplace_back(qmlNativeModuleId, "Objec");
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock, exportedTypesChanged());
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, removed_export_is_notifing_changed_exported_types)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes.pop_back();
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock, exportedTypesChanged());
+
+    storage.synchronize(std::move(package));
+}
+
+TEST_F(ProjectStorage, changed_export_is_notifing_changed_exported_types)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    storage.synchronize(package);
+    package.types[1].exportedTypes[1].name = "Obj2";
+    NiceMock<ProjectStorageObserverMock> observerMock;
+    storage.addObserver(&observerMock);
+
+    EXPECT_CALL(observerMock, exportedTypesChanged());
+
+    storage.synchronize(std::move(package));
+}
 } // namespace

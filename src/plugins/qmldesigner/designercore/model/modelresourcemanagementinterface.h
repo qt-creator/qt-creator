@@ -16,7 +16,7 @@ class QMLDESIGNERCORE_EXPORT ModelResourceManagementInterface
 {
 public:
     ModelResourceManagementInterface() = default;
-    virtual ~ModelResourceManagementInterface() = default;
+    virtual ~ModelResourceManagementInterface();
 
     ModelResourceManagementInterface(const ModelResourceManagementInterface &) = delete;
     ModelResourceManagementInterface &operator=(const ModelResourceManagementInterface &) = delete;

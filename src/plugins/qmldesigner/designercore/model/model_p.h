@@ -293,7 +293,7 @@ public:
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
 
-    QList<InternalNodePointer> allNodesUnordered() const;
+    std::vector<InternalNodePointer> allNodesUnordered() const;
     QList<InternalNodePointer> allNodesOrdered() const;
 
     bool isWriteLocked() const;
@@ -316,8 +316,11 @@ public:
         return m_nodeMetaInfoCache;
     }
 
+    void updateModelNodeTypeIds(const TypeIds &removedTypeIds);
+
 protected:
     void removedTypeIds(const TypeIds &removedTypeIds) override;
+    void exportedTypesChanged() override;
     void removeNode(const InternalNodePointer &node);
 
 private:
@@ -333,6 +336,7 @@ private:
     toInternalBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
     ImportedTypeNameId importedTypeNameId(Utils::SmallStringView typeName);
     void setTypeId(InternalNode *node, Utils::SmallStringView typeName);
+    void refreshTypeId(InternalNode *node);
 
 public:
     NotNullPointer<ProjectStorageType> projectStorage = nullptr;
@@ -351,7 +355,7 @@ private:
     QList<InternalNodePointer> m_selectedInternalNodeList;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
-    QList<InternalNodePointer> m_nodes;
+    std::vector<InternalNodePointer> m_nodes;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;

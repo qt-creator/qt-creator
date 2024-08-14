@@ -260,9 +260,9 @@ public:
         return !(firstNode == secondNode);
     }
 
-    friend bool operator<(const ModelNode &firstNode, const ModelNode &secondNode)
+    friend std::weak_ordering operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
     {
-        return firstNode.m_internalNode < secondNode.m_internalNode;
+        return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
 
 private: // functions

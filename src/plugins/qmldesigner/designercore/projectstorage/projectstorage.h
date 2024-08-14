@@ -339,7 +339,10 @@ private:
 
     ModuleCacheEntries fetchAllModules() const;
 
-    void callRefreshMetaInfoCallback(const TypeIds &deletedTypeIds);
+    enum class ExportedTypesChanged { No, Yes };
+
+    void callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
+                                     ExportedTypesChanged &exportedTypesChanged);
 
     class AliasPropertyDeclaration
     {
@@ -610,6 +613,7 @@ private:
                           PropertyDeclarations &relinkablePropertyDeclarations,
                           Prototypes &relinkablePrototypes,
                           Prototypes &relinkableExtensions,
+                          ExportedTypesChanged &exportedTypesChanged,
                           const SourceIds &updatedSourceIds);
 
     void synchronizeDirectoryInfos(Storage::Synchronization::DirectoryInfos &directoryInfos,
@@ -710,7 +714,8 @@ private:
                                   AliasPropertyDeclarations &relinkableAliasPropertyDeclarations,
                                   PropertyDeclarations &relinkablePropertyDeclarations,
                                   Prototypes &relinkablePrototypes,
-                                  Prototypes &relinkableExtensions);
+                                  Prototypes &relinkableExtensions,
+                                  ExportedTypesChanged &exportedTypesChanged);
 
     void synchronizePropertyDeclarationsInsertAlias(
         AliasPropertyDeclarations &insertedAliasPropertyDeclarations,

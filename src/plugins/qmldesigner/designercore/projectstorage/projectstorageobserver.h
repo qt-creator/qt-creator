@@ -11,5 +11,6 @@ class ProjectStorageObserver
 {
 public:
     virtual void removedTypeIds(const TypeIds &removedTypeIds) = 0;
+    virtual void exportedTypesChanged() = 0;
 };
 } // namespace QmlDesigner

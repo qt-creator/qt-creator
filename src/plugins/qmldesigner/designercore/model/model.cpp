@@ -367,7 +367,7 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
         m_idNodeHash.remove(node->id);
     node->isValid = false;
     node->traceToken.end();
-    m_nodes.removeOne(node);
+    std::erase(m_nodes, node);
     m_internalIdNodeHash.remove(node->internalId);
 }
 
@@ -424,6 +424,12 @@ void ModelPrivate::setTypeId(InternalNode *node, Utils::SmallStringView typeName
     }
 }
 
+void ModelPrivate::refreshTypeId(InternalNode *node)
+{
+    if constexpr (useProjectStorage())
+        node->typeId = projectStorage->typeId(node->importedTypeNameId);
+}
+
 void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
 {
     for (const ModelNode &node : resourceSet.removeModelNodes) {
@@ -436,9 +442,30 @@ void ModelPrivate::handleResourceSet(const ModelResourceSet &resourceSet)
     setBindingProperties(resourceSet.setExpressions);
 }
 
+void ModelPrivate::updateModelNodeTypeIds(const TypeIds &removedTypeIds)
+{
+    auto nodes = m_nodes;
+
+    std::ranges::sort(nodes, {}, &InternalNode::typeId);
+
+    auto refeshNodeTypeId = [&](auto &node) { refreshTypeId(node.get()); };
+
+    Utils::set_greedy_intersection(nodes, removedTypeIds, refeshNodeTypeId, {}, &InternalNode::typeId);
+}
+
 void ModelPrivate::removedTypeIds(const TypeIds &removedTypeIds)
 {
+    updateModelNodeTypeIds(removedTypeIds);
+
     notifyNodeInstanceViewLast([&](AbstractView *view) { view->refreshMetaInfos(removedTypeIds); });
+}
+
+void ModelPrivate::exportedTypesChanged()
+{
+    for (auto &node : m_nodes) {
+        if (!node->typeId)
+            refreshTypeId(node.get());
+    }
 }
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
@@ -1267,7 +1294,7 @@ void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSele
 
 QList<InternalNodePointer> ModelPrivate::selectedNodes() const
 {
-    for (const InternalNodePointer &node : std::as_const(m_selectedInternalNodeList)) {
+    for (const InternalNodePointer &node : m_selectedInternalNodeList) {
         if (!node->isValid)
             return {};
     }
@@ -1661,11 +1688,15 @@ QList<InternalNodePointer> ModelPrivate::allNodesOrdered() const
     nodeList.append(m_rootInternalNode);
     nodeList.append(m_rootInternalNode->allSubNodes());
     // FIXME: This is horribly expensive compared to a loop.
-    nodeList.append(Utils::toList(Utils::toSet(m_nodes) - Utils::toSet(nodeList)));
+
+    auto nodesSorted = nodeList;
+    std::ranges::sort(nodesSorted);
+    std::ranges::set_difference(m_nodes, nodesSorted, std::back_inserter(nodeList));
 
     return nodeList;
 }
-QList<InternalNodePointer> ModelPrivate::allNodesUnordered() const
+
+std::vector<InternalNodePointer> ModelPrivate::allNodesUnordered() const
 {
     return m_nodes;
 }
@@ -2659,17 +2690,6 @@ void Model::detachView(AbstractView *view, ViewNotification emitDetachNotify)
 
     d->detachView(view, emitNotify);
 }
-
-namespace {
-QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList, Model *model)
-{
-    QList<ModelNode> newNodeList;
-    for (const Internal::InternalNode::Pointer &node : nodeList)
-        newNodeList.append(ModelNode(node, model, nullptr));
-
-    return newNodeList;
-}
-} // namespace
 
 QList<ModelNode> Model::allModelNodesUnordered()
 {

@@ -18,8 +18,9 @@
 #include "rewritertransaction.h"
 #include "variantproperty.h"
 
-#include <utils/qtcassert.h>
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/span.h>
 
 #include <QWidget>
 
@@ -394,18 +395,19 @@ void AbstractView::view3DAction(View3DActionType, const QVariant &) {}
 void AbstractView::dragStarted(QMimeData * /*mimeData*/) {}
 void AbstractView::dragEnded() {}
 
-QList<ModelNode> AbstractView::toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList) const
+QList<ModelNode> AbstractView::toModelNodeList(Utils::span<const Internal::InternalNode::Pointer> nodes) const
 {
-    return QmlDesigner::toModelNodeList(nodeList, m_model, const_cast<AbstractView *>(this));
+    return QmlDesigner::toModelNodeList(nodes, m_model, const_cast<AbstractView *>(this));
 }
 
-QList<ModelNode> toModelNodeList(const QList<Internal::InternalNode::Pointer> &nodeList,
+QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNode::Pointer> nodes,
                                  Model *model,
                                  AbstractView *view)
 {
     QList<ModelNode> newNodeList;
-    for (const Internal::InternalNode::Pointer &node : nodeList)
-        newNodeList.append(ModelNode(node, model, view));
+    newNodeList.reserve(std::ssize(nodes));
+    for (const Internal::InternalNode::Pointer &node : nodes)
+        newNodeList.emplace_back(node, model, view);
 
     return newNodeList;
 }

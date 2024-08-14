@@ -8,6 +8,7 @@
 #include "qmldesignercorelib_global.h"
 #include <commondefines.h>
 
+#include <utils/span.h>
 #include <utils/uniqueobjectptr.h>
 
 #include <QAction>
@@ -320,7 +321,7 @@ protected:
         DesignerWidgetFlags widgetFlags = DesignerWidgetFlags::DisableOnError);
 
 private:
-    QList<ModelNode> toModelNodeList(const QList<Internal::InternalNodePointer> &nodeList) const;
+    QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNodePointer> nodeList) const;
 
     QPointer<Model> m_model;
     ExternalDependenciesInterface &m_externalDependencies;
@@ -331,5 +332,7 @@ private:
 
 QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(
-    const QList<Internal::InternalNodePointer> &nodeList, Model *model, AbstractView *view);
+    Utils::span<const Internal::InternalNodePointer> nodeList,
+    Model *model,
+    AbstractView *view = nullptr);
 } // namespace QmlDesigner

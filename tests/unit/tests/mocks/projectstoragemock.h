@@ -29,7 +29,6 @@ public:
     QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::SourceId sourceId,
                                                              Utils::SmallStringView typeName,
                                                              QmlDesigner::TypeId typeId);
-
     QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::SourceId sourceId,
                                                              Utils::SmallStringView typeName,
                                                              QmlDesigner::ModuleId moduleId);
@@ -37,6 +36,7 @@ public:
     QmlDesigner::ImportedTypeNameId createImportedTypeNameId(QmlDesigner::ImportId importId,
                                                              Utils::SmallStringView typeName,
                                                              QmlDesigner::TypeId typeId);
+    void refreshImportedTypeNameId(QmlDesigner::ImportedTypeNameId, QmlDesigner::TypeId typeId);
 
     QmlDesigner::ImportId createImportId(
         QmlDesigner::ModuleId moduleId,
@@ -357,6 +357,7 @@ public:
     std::map<QmlDesigner::TypeId, QmlDesigner::Storage::Info::ExportedTypeNames> exportedTypeName;
     std::map<std::pair<QmlDesigner::TypeId, QmlDesigner::SourceId>, QmlDesigner::Storage::Info::ExportedTypeNames>
         exportedTypeNameBySourceId;
+    std::vector<QmlDesigner::ProjectStorageObserver *> observers;
 };
 
 class ProjectStorageMockWithQtQuick : public ProjectStorageMock

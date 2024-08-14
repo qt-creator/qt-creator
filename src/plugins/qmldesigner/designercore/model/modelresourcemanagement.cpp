@@ -22,6 +22,8 @@ QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
 
 namespace QmlDesigner {
 
+ModelResourceManagementInterface::~ModelResourceManagementInterface() = default;
+
 namespace {
 
 enum class CheckRecursive { No, Yes };
@@ -257,16 +259,6 @@ struct NodeDependency
     {
         return std::tie(first.target, first.source) < std::tie(second.target, second.source);
     }
-
-    friend bool operator<(const NodeDependency &first, const ModelNode &second)
-    {
-        return first.target < second;
-    }
-
-    friend bool operator<(const ModelNode &first, const NodeDependency &second)
-    {
-        return first < second.target;
-    }
 };
 
 using NodeDependencies = std::vector<NodeDependency>;
@@ -279,16 +271,6 @@ struct BindingDependency
     friend bool operator<(const BindingDependency &first, const BindingDependency &second)
     {
         return std::tie(first.target, first.property) < std::tie(second.target, second.property);
-    }
-
-    friend bool operator<(const BindingDependency &first, const ModelNode &second)
-    {
-        return first.target < second;
-    }
-
-    friend bool operator<(const ModelNode &first, const BindingDependency &second)
-    {
-        return first < second.target;
     }
 };
 
@@ -322,18 +304,18 @@ struct NodesProperty
 
 using NodesProperties = std::vector<NodesProperty>;
 
+#include <concepts>
 struct RemoveDependentBindings : public Base
 {
     AbstractProperties collectProperties(const ModelNodes &nodes)
     {
         AbstractProperties properties;
-        ::Utils::set_greedy_intersection(dependencies.begin(),
-                                         dependencies.end(),
-                                         nodes.begin(),
-                                         nodes.end(),
-                                         ::Utils::make_iterator([&](const BindingDependency &dependency) {
-                                             properties.push_back(dependency.property);
-                                         }));
+        Utils::set_greedy_intersection(
+            dependencies,
+            nodes,
+            [&](const BindingDependency &dependency) { properties.push_back(dependency.property); },
+            {},
+            &BindingDependency::target);
 
         return properties;
     }
@@ -352,13 +334,12 @@ struct RemoveDependencies : public Base
     ModelNodes collectNodes(const ModelNodes &nodes) const
     {
         ModelNodes targetNodes;
-        ::Utils::set_greedy_intersection(dependencies.begin(),
-                                         dependencies.end(),
-                                         nodes.begin(),
-                                         nodes.end(),
-                                         ::Utils::make_iterator([&](const NodeDependency &dependency) {
-                                             targetNodes.push_back(dependency.source);
-                                         }));
+        ::Utils::set_greedy_intersection(
+            dependencies,
+            nodes,
+            [&](const NodeDependency &dependency) { targetNodes.push_back(dependency.source); },
+            {},
+            &NodeDependency::target);
 
         return targetNodes;
     }
@@ -392,15 +373,14 @@ struct RemoveTargetsSources : public Base
     {
         NodesProperties removedTargetNodesInProperties;
 
-        ModelNodes targetNodes;
-        ::Utils::set_greedy_intersection(dependencies.begin(),
-                                         dependencies.end(),
-                                         nodes.begin(),
-                                         nodes.end(),
-                                         ::Utils::make_iterator([&](const NodeDependency &dependency) {
-                                             removeDependency(removedTargetNodesInProperties,
-                                                              dependency);
-                                         }));
+        Utils::set_greedy_intersection(
+            dependencies,
+            nodes,
+            [&](const NodeDependency &dependency) {
+                removeDependency(removedTargetNodesInProperties, dependency);
+            },
+            {},
+            &NodeDependency::target);
 
         std::sort(removedTargetNodesInProperties.begin(), removedTargetNodesInProperties.end());
 

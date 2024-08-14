@@ -177,11 +177,9 @@ QList<ModelNode> NodeAbstractProperty::directSubNodes() const
 
     switch (property->type()) {
     case PropertyType::Node:
-        return QmlDesigner::toModelNodeList({property->to<PropertyType::Node>()->node()},
-                                            model(),
-                                            view());
+        return ModelNodes{ModelNode(property->to<PropertyType::Node>()->node(), model(), view())};
     case PropertyType::NodeList:
-        return QmlDesigner::toModelNodeList({property->to<PropertyType::NodeList>()->nodes()},
+        return QmlDesigner::toModelNodeList(property->to<PropertyType::NodeList>()->nodes(),
                                             model(),
                                             view());
     case PropertyType::Binding:
