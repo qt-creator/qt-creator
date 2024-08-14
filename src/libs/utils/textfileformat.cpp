@@ -193,7 +193,10 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
             return TextFileFormat::ReadIOError;
         data = reader.data();
     } catch (const std::bad_alloc &) {
-        *errorString = Tr::tr("Out of memory.");
+        if (errorString)
+            *errorString = Tr::tr("Out of memory.");
+        else
+            qWarning() << Q_FUNC_INFO << "Out of memory in" << filePath;
         return TextFileFormat::ReadMemoryAllocationError;
     }
 
@@ -204,7 +207,10 @@ TextFileFormat::ReadResult readTextFile(const FilePath &filePath, const QTextCod
         format->codec = defaultCodec ? defaultCodec : QTextCodec::codecForLocale();
 
     if (!format->decode(data, target)) {
-        *errorString = Tr::tr("An encoding error was encountered.");
+        if (errorString)
+            *errorString = Tr::tr("An encoding error was encountered.");
+        else
+            qWarning() << Q_FUNC_INFO << "An encoding error was encountered in" << filePath;
         if (decodingErrorSampleIn)
             *decodingErrorSampleIn = TextFileFormat::decodingErrorSample(data);
         return TextFileFormat::ReadEncodingError;
