@@ -544,6 +544,9 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 
 QImage FormEditorWidget::takeFormEditorScreenshot()
 {
+    if (!m_formEditorView->isAttached())
+        return {};
+
     if (!m_formEditorView->scene()->rootFormEditorItem())
         return {};
 
