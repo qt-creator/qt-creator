@@ -41,29 +41,9 @@ void InternalNode::resetParentProperty()
     m_parentProperty.reset();
 }
 
-namespace {
-
-template<typename Type>
-auto find(Type &&auxiliaryDatas, AuxiliaryDataKeyView key)
-{
-    return std::find_if(auxiliaryDatas.begin(), auxiliaryDatas.end(), [&](const auto &element) {
-        return element.first == key;
-    });
-}
-
-template<typename Type>
-auto find(Type &&auxiliaryDatas, AuxiliaryDataType type)
-{
-    return std::find_if(auxiliaryDatas.begin(), auxiliaryDatas.end(), [&](const auto &element) {
-        return element.first.type == type;
-    });
-}
-
-} // namespace
-
 std::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) const
 {
-    auto found = find(m_auxiliaryDatas, key);
+    auto found = std::ranges::find(m_auxiliaryDatas, key, &AuxiliaryData::first);
 
     if (found != m_auxiliaryDatas.end())
         return found->second;
@@ -73,7 +53,7 @@ std::optional<QVariant> InternalNode::auxiliaryData(AuxiliaryDataKeyView key) co
 
 bool InternalNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &data)
 {
-    auto found = find(m_auxiliaryDatas, key);
+    auto found = std::ranges::find(m_auxiliaryDatas, key, &AuxiliaryData::first);
 
     if (found != m_auxiliaryDatas.end()) {
         if (found->second == data)
@@ -88,7 +68,7 @@ bool InternalNode::setAuxiliaryData(AuxiliaryDataKeyView key, const QVariant &da
 
 bool InternalNode::removeAuxiliaryData(AuxiliaryDataKeyView key)
 {
-    auto found = find(m_auxiliaryDatas, key);
+    auto found = std::ranges::find(m_auxiliaryDatas, key, &AuxiliaryData::first);
 
     if (found == m_auxiliaryDatas.end())
         return false;
@@ -102,14 +82,14 @@ bool InternalNode::removeAuxiliaryData(AuxiliaryDataKeyView key)
 
 bool InternalNode::hasAuxiliaryData(AuxiliaryDataKeyView key) const
 {
-    auto found = find(m_auxiliaryDatas, key);
+    auto found = std::ranges::find(m_auxiliaryDatas, key, &AuxiliaryData::first);
 
     return found != m_auxiliaryDatas.end();
 }
 
 bool InternalNode::hasAuxiliaryData(AuxiliaryDataType type) const
 {
-    auto found = find(m_auxiliaryDatas, type);
+    auto found = std::ranges::find(m_auxiliaryDatas, type, [](const auto &e) { return e.first.type; });
 
     return found != m_auxiliaryDatas.end();
 }

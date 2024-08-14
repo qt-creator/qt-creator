@@ -4569,11 +4569,9 @@ NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
         if (isValid() && metaInfo) {
             const auto firstTypeIds = m_projectStorage->prototypeAndSelfIds(m_typeId);
             const auto secondTypeIds = m_projectStorage->prototypeAndSelfIds(metaInfo.m_typeId);
-            auto found
-                = std::find_if(firstTypeIds.begin(), firstTypeIds.end(), [&](TypeId firstTypeId) {
-                      return std::find(secondTypeIds.begin(), secondTypeIds.end(), firstTypeId)
-                             != secondTypeIds.end();
-                  });
+            auto found = std::ranges::find_if(firstTypeIds, [&](TypeId firstTypeId) {
+                return std::ranges::find(secondTypeIds, firstTypeId) != secondTypeIds.end();
+            });
 
             if (found != firstTypeIds.end()) {
                 return NodeMetaInfo{*found, m_projectStorage};

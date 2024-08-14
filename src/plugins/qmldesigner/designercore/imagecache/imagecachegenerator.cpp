@@ -51,7 +51,7 @@ void ImageCacheGenerator::generateImage(Utils::SmallStringView name,
 
         ensureThreadIsRunning();
 
-        auto found = std::find_if(m_tasks.begin(), m_tasks.end(), [&](const Task &task) {
+        auto found = std::ranges::find_if(m_tasks, [&](const Task &task) {
             return task.filePath == name && task.extraId == extraId;
         });
 

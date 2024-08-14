@@ -1770,10 +1770,11 @@ void editInEffectComposer(const SelectionContext &selectionContext)
 bool isEffectComposerActivated()
 {
     const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
-    return std::find_if(specs.begin(), specs.end(),
-                        [](ExtensionSystem::PluginSpec *spec) {
-                            return spec->name() == "EffectComposer" && spec->isEffectivelyEnabled();
-                        })
+    return std::ranges::find_if(specs,
+                                [](ExtensionSystem::PluginSpec *spec) {
+                                    return spec->name() == "EffectComposer"
+                                           && spec->isEffectivelyEnabled();
+                                })
            != specs.end();
 }
 

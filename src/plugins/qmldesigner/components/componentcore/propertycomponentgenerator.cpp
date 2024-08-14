@@ -311,9 +311,7 @@ void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 
 const PropertyComponentGenerator::Entry *PropertyComponentGenerator::findEntry(const NodeMetaInfo &type) const
 {
-    auto found = std::find_if(m_entries.begin(), m_entries.end(), [&](const auto &entry) {
-        return entry.type == type;
-    });
+    auto found = std::ranges::find(m_entries, type, &Entry::type);
 
     if (found != m_entries.end())
         return std::addressof(*found);

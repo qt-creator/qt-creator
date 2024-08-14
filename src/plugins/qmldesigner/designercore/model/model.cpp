@@ -395,9 +395,7 @@ ImportedTypeNameId ModelPrivate::importedTypeNameId(Utils::SmallStringView typeN
 
         if (moduleName.size()) {
             QString aliasName = QString{moduleName};
-            auto found = std::find_if(m_imports.begin(), m_imports.end(), [&](const Import &import) {
-                return import.alias() == aliasName;
-            });
+            auto found = std::ranges::find(m_imports, aliasName, &Import::alias);
             if (found != m_imports.end()) {
                 using Storage::ModuleKind;
                 auto moduleKind = found->isLibraryImport() ? ModuleKind::QmlLibrary

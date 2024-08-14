@@ -357,11 +357,9 @@ struct RemoveTargetsSources : public Base
     static void removeDependency(NodesProperties &removedTargetNodesInProperties,
                                  const NodeDependency &dependency)
     {
-        auto found = std::find_if(removedTargetNodesInProperties.begin(),
-                                  removedTargetNodesInProperties.end(),
-                                  [&](const auto &nodeProperty) {
-                                      return nodeProperty.source == dependency.source;
-                                  });
+        auto found = std::ranges::find(removedTargetNodesInProperties,
+                                       dependency.source,
+                                       &NodesProperty::source);
 
         if (found == removedTargetNodesInProperties.end())
             removedTargetNodesInProperties.push_back({dependency.source, "", {dependency.target}});

@@ -216,9 +216,7 @@ template<typename GradientArrayType>
 const ShapeGradientPropertyData *findGradientInArray(const GradientArrayType &array,
                                                      const QmlDesigner::PropertyNameView propName)
 {
-    const auto found = std::find_if(std::begin(array), std::end(array), [&](const auto &entry) {
-        return entry.name == propName;
-    });
+    const auto found = std::ranges::find(array, propName, &std::iter_value_t<GradientArrayType>::name);
     if (found != std::end(array))
         return std::addressof(*found);
 

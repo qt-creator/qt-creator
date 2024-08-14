@@ -14,6 +14,7 @@
 #include <QToolBar>
 
 #include <cmath>
+#include <ranges>
 
 namespace QmlDesigner {
 
@@ -46,7 +47,7 @@ std::array<double, 27> ZoomAction::zoomLevels()
 int ZoomAction::indexOf(double zoom)
 {
     auto finder = [zoom](double val) { return qFuzzyCompare(val, zoom); };
-    if (auto iter = std::find_if(m_zooms.begin(), m_zooms.end(), finder); iter != m_zooms.end())
+    if (auto iter = std::ranges::find_if(m_zooms, finder); iter != m_zooms.end())
         return static_cast<int>(std::distance(m_zooms.begin(), iter));
 
     return -1;
@@ -77,7 +78,7 @@ double ZoomAction::setNextZoomFactor(double zoom)
         return zoom;
 
     auto greater = [zoom](double val) { return val > zoom; };
-    if (auto iter = std::find_if(m_zooms.begin(), m_zooms.end(), greater); iter != m_zooms.end()) {
+    if (auto iter = std::ranges::find_if(m_zooms, greater); iter != m_zooms.end()) {
         auto index = std::distance(m_zooms.begin(), iter);
         m_combo->setCurrentIndex(static_cast<int>(index));
         m_combo->setToolTip(m_combo->currentText());
@@ -92,7 +93,8 @@ double ZoomAction::setPreviousZoomFactor(double zoom)
         return zoom;
 
     auto smaller = [zoom](double val) { return val < zoom; };
-    if (auto iter = std::find_if(m_zooms.rbegin(), m_zooms.rend(), smaller); iter != m_zooms.rend()) {
+    if (auto iter = std::ranges::find_if(m_zooms | std::views::reverse, smaller);
+        iter != m_zooms.rend()) {
         auto index = std::distance(iter, m_zooms.rend() - 1);
         m_combo->setCurrentIndex(static_cast<int>(index));
         m_combo->setToolTip(m_combo->currentText());

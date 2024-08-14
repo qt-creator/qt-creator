@@ -28,6 +28,7 @@ namespace QmlDesigner {
 
 using namespace NanotraceHR::Literals;
 using NanotraceHR::keyValue;
+using namespace Qt::StringLiterals;
 
 /*!
 \class QmlDesigner::AbstractView
@@ -798,9 +799,7 @@ static int getMinorVersionFromImport(const Model *model)
 {
     const Imports &imports = model->imports();
 
-    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
-        return import.url() == "QtQuick";
-    });
+    auto found = std::ranges::find(imports, "QtQuick"_L1, &Import::url);
 
     if (found != imports.end())
         return found->minorVersion();
@@ -812,9 +811,7 @@ static int getMajorVersionFromImport(const Model *model)
 {
     const Imports &imports = model->imports();
 
-    auto found = std::find_if(imports.begin(), imports.end(), [](const auto &import) {
-        return import.url() == "QtQuick";
-    });
+    auto found = std::ranges::find(imports, "QtQuick"_L1, &Import::url);
 
     if (found != imports.end())
         return found->majorVersion();

@@ -203,7 +203,7 @@ constexpr auto createBannedQmlIds()
     if (hasImport)
         return ::Utils::make_unexpected(ImportError::HasAlreadyImport);
 
-    auto foundModule = std::find_if(modules.begin(), modules.end(), [&](const Import &import) {
+    auto foundModule = std::ranges::find_if(modules, [&](const Import &import) {
         return hasName(import) && predicate(import);
     });
 

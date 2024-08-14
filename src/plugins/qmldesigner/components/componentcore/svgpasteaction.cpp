@@ -600,9 +600,7 @@ bool contains(const Container &c, const QStringView &stringView) {
 
 template <typename Container>
 auto findKey(const Container &c, const QStringView &key) {
-    return std::find_if(std::begin(c), std::end(c), [&](const auto &pair){
-        return pair.first == key;
-    });
+    return std::ranges::find(c, key, &std::iter_value_t<Container>::first);
 }
 
 template<typename Callable>

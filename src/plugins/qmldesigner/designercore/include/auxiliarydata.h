@@ -32,6 +32,8 @@ public:
         , name{NameType{other.name}}
     {}
 
+    operator BasicAuxiliaryDataKey<Utils::SmallStringView>() const { return {type, name}; }
+
 public:
     AuxiliaryDataType type = AuxiliaryDataType::None;
     NameType name;
@@ -57,8 +59,9 @@ bool operator!=(const BasicAuxiliaryDataKey<First> &first, const BasicAuxiliaryD
 
 using AuxiliaryDataKey = BasicAuxiliaryDataKey<Utils::SmallString>;
 using AuxiliaryDataKeyView = BasicAuxiliaryDataKey<Utils::SmallStringView>;
-using AuxiliaryDatas = std::vector<std::pair<AuxiliaryDataKey, QVariant>>;
-using AuxiliaryDatasView = Utils::span<const std::pair<AuxiliaryDataKey, QVariant>>;
+using AuxiliaryData = std::pair<AuxiliaryDataKey, QVariant>;
+using AuxiliaryDatas = std::vector<AuxiliaryData>;
+using AuxiliaryDatasView = Utils::span<const AuxiliaryData>;
 using AuxiliaryDatasForType = std::vector<std::pair<Utils::SmallString, QVariant>>;
 
 using PropertyValue = std::variant<int, long long, double, bool, QColor, QStringView, Qt::Corner>;
@@ -93,3 +96,12 @@ QVariant getDefaultValueAsQVariant(const Type &key)
 }
 
 } // namespace QmlDesigner
+
+namespace std {
+
+template<class T, class U, template<class> class TQual, template<class> class UQual>
+struct basic_common_reference<QmlDesigner::BasicAuxiliaryDataKey<T>, QmlDesigner::BasicAuxiliaryDataKey<U>, TQual, UQual>
+{
+    using type = QmlDesigner::AuxiliaryDataKeyView;
+};
+} // namespace std

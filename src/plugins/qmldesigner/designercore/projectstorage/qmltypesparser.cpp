@@ -66,9 +66,7 @@ const Storage::Import &appendImports(Storage::Imports &imports,
                                      SourceId sourceId,
                                      QmlTypesParser::ProjectStorage &storage)
 {
-    auto spaceFound = std::find_if(dependency.begin(), dependency.end(), [](QChar c) {
-        return c.isSpace();
-    });
+    auto spaceFound = std::ranges::find_if(dependency, [](QChar c) { return c.isSpace(); });
 
     Utils::PathString moduleName{QStringView(dependency.begin(), spaceFound)};
     ModuleId cppModuleId = storage.moduleId(moduleName, ModuleKind::CppLibrary);
@@ -242,9 +240,7 @@ Storage::Synchronization::PropertyDeclarations createProperties(
         TypeNameString propertyTypeName{
             fullyQualifiedTypeName(qmlProperty.typeName(), componentNameWithoutNamespace)};
 
-        auto found = find_if(enumerationTypes.begin(), enumerationTypes.end(), [&](auto &entry) {
-            return entry.name == propertyTypeName;
-        });
+        auto found = std::ranges::find(enumerationTypes, propertyTypeName, &EnumerationType::name);
 
         if (found != enumerationTypes.end())
             propertyTypeName = found->full;
