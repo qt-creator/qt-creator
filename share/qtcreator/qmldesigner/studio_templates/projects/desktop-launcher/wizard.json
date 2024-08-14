@@ -30,7 +30,7 @@
         { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },
         { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
         { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" },
-        { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" },
+        { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" }
     ],
 
     "pages":
