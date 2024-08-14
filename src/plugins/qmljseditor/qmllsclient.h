@@ -19,6 +19,7 @@ public:
     explicit QmllsClient(LanguageClient::StdIOClientInterface *interface);
     ~QmllsClient();
 
+    void startImpl() override;
     static QmllsClient *clientForQmlls(const Utils::FilePath &qmlls);
 };
 

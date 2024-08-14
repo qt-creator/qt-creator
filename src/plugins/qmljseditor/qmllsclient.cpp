@@ -66,15 +66,21 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
-    LanguageServerProtocol::Unregistration unregister;
-    unregister.setMethod("textDocument/semanticTokens");
-    unregister.setId({});
-    dynamicCapabilities().unregisterCapability({unregister});
 }
 
 QmllsClient::~QmllsClient()
 {
     qmllsClients().remove(qmllsClients().key(this));
+}
+
+void QmllsClient::startImpl()
+{
+    LanguageServerProtocol::Unregistration unregister;
+    unregister.setMethod("textDocument/semanticTokens");
+    unregister.setId({});
+    dynamicCapabilities().unregisterCapability({unregister});
+
+    Client::startImpl();
 }
 
 } // namespace QmlJSEditor
