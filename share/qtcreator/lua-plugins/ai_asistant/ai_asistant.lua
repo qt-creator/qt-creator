@@ -6,12 +6,15 @@ return {
     CompatVersion = "1.0.0",
     Vendor = "The Qt Company",
     Category = "Language Client",
-    Description = "The AI Assistant Server",
+    Description = "Qt AI Assistant",
     Experimental = true,
     DisabledByDefault = true,
     LongDescription = [[
-This plugin provides the AI Assistant Server.
-It will try to install it if it is not found.
+The Qt AI Assistant extension is your personal coding assistant. The Qt AI Assistant can provide code suggestions triggered by a keyboard shortcut (CTRL-SHIFT-A), on request in an inline chat window, or automatically while you are typing. You can configure the Qt AI Assistant to collect suggestions from different commercial or open-source Large Language Models (LLM).
+
+You also need one of the following valid Qt licenses: Qt for Application Development Enterprise, Qt for Device Creation Professional, Qt for Device Creation Enterprise, Qt for Small Business, Qt Evaluation License, Qt Education License.
+
+You will need access to a LLM for the suggestions. You can use a subscription to a commercial, cloud-hosted LLM, a privately hosted or on-premise LLM, or a Small Language Model running locally on your computer.
     ]],
     Dependencies = {
         { Name = "Lua",               Version = "14.0.0" },
