@@ -20,10 +20,10 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
-#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 
 #include <utils/hostosinfo.h>
+#include <utils/port.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
@@ -231,66 +231,6 @@ bool AndroidRunnerWorker::runAdb(const QStringList &args, QString *stdOut, QStri
     return result.success();
 }
 
-bool AndroidRunnerWorker::uploadDebugServer(const QString &debugServerFileName)
-{
-    // Push the gdbserver or lldb-server to  temp location and then to package dir.
-    // the files can't be pushed directly to package because of permissions.
-    qCDebug(androidRunWorkerLog) << "Uploading GdbServer";
-
-    // Get a unique temp file name for gdb/lldbserver copy
-    const QString tempDebugServerPathTemplate = "/data/local/tmp/%1";
-    int count = 0;
-    while (deviceFileExists(tempDebugServerPathTemplate.arg(++count))) {
-        if (count > GdbTempFileMaxCounter) {
-            qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
-            return false;
-        }
-    }
-
-    const QString tempDebugServerPath = tempDebugServerPathTemplate.arg(count);
-    const QScopeGuard cleanup([this, tempDebugServerPath] {
-        if (!runAdb({"shell", "rm", "-f", tempDebugServerPath}))
-            qCDebug(androidRunWorkerLog) << "Debug server cleanup failed.";
-    });
-
-    // Copy gdbserver to temp location
-    if (!runAdb({"push", m_debugServerPath.toString(), tempDebugServerPath})) {
-        qCDebug(androidRunWorkerLog) << "Debug server upload to temp directory failed";
-        return false;
-    }
-
-    QStringList adbArgs = {"shell", "run-as", m_packageName};
-    if (m_processUser > 0)
-        adbArgs << "--user" << QString::number(m_processUser);
-    // Copy gdbserver from temp location to app directory
-    if (!runAdb(adbArgs + QStringList({"cp" , tempDebugServerPath, debugServerFileName}))) {
-        qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed";
-        return false;
-    }
-
-    const bool ok = runAdb(adbArgs + QStringList({"chmod", "777", debugServerFileName}));
-    QTC_ASSERT(ok, qCDebug(androidRunWorkerLog) << "Debug server chmod 777 failed.");
-    return true;
-}
-
-bool AndroidRunnerWorker::deviceFileExists(const QString &filePath)
-{
-    QString output;
-    const bool success = runAdb({"shell", "ls", filePath, "2>/dev/null"}, &output);
-    return success && !output.trimmed().isEmpty();
-}
-
-bool AndroidRunnerWorker::packageFileExists(const QString &filePath)
-{
-    QString output;
-    QStringList adbArgs = {"shell", "run-as", m_packageName};
-    if (m_processUser > 0)
-        adbArgs << "--user" << QString::number(m_processUser);
-    const bool success = runAdb(adbArgs + QStringList({"ls", filePath, "2>/dev/null"}),
-                                &output);
-    return success && !output.trimmed().isEmpty();
-}
-
 QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
@@ -316,96 +256,6 @@ void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
     m_apiLevel = info.sdk;
     qCDebug(androidRunWorkerLog) << "Android Device Info changed"
                                  << m_deviceSerialNumber << m_apiLevel;
-}
-
-void AndroidRunnerWorker::startNativeDebugging()
-{
-    // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
-    QString packageDir;
-    QStringList adbArgs = {"shell", "run-as", m_packageName};
-    if (m_processUser > 0)
-        adbArgs << "--user" << QString::number(m_processUser);
-    if (!runAdb(adbArgs + QStringList({"/system/bin/sh", "-c", "pwd"}),
-                &packageDir)) {
-        emit remoteProcessFinished(Tr::tr("Failed to find application directory."));
-        return;
-    }
-    // Add executable flag to package dir. Gdb can't connect to running server on device on
-    // e.g. on Android 8 with NDK 10e
-    runAdb(adbArgs + QStringList({"chmod", "a+x", packageDir.trimmed()}));
-    if (!m_debugServerPath.exists()) {
-        QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
-        if (m_useLldb)
-            msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
-        emit remoteProcessFinished(msg);
-        return;
-    }
-
-    QString debugServerFile;
-    if (m_useLldb) {
-        debugServerFile = "./lldb-server";
-        runAdb(adbArgs + QStringList({"killall", "lldb-server"}));
-        if (!uploadDebugServer(debugServerFile)) {
-            emit remoteProcessFinished(Tr::tr("Cannot copy C++ debug server."));
-            return;
-        }
-    } else {
-        if (packageFileExists("./lib/gdbserver")) {
-            debugServerFile = "./lib/gdbserver";
-            qCDebug(androidRunWorkerLog) << "Found GDB server " + debugServerFile;
-            runAdb(adbArgs + QStringList({"killall", "gdbserver"}));
-        } else if (packageFileExists("./lib/libgdbserver.so")) {
-            debugServerFile = "./lib/libgdbserver.so";
-            qCDebug(androidRunWorkerLog) << "Found GDB server " + debugServerFile;
-            runAdb(adbArgs + QStringList({"killall", "libgdbserver.so"}));
-        } else {
-            // Armv8. symlink lib is not available.
-            debugServerFile = "./gdbserver";
-            // Kill the previous instances of gdbserver. Do this before copying the gdbserver.
-            runAdb(adbArgs + QStringList({"killall", "gdbserver"}));
-            if (!uploadDebugServer("./gdbserver")) {
-                emit remoteProcessFinished(Tr::tr("Cannot copy C++ debug server."));
-                return;
-            }
-        }
-    }
-    startDebuggerServer(packageDir, debugServerFile);
-}
-
-void AndroidRunnerWorker::startDebuggerServer(const QString &packageDir,
-                                              const QString &debugServerFile)
-{
-    const QString gdbServerSocket = packageDir + "/debug-socket";
-
-    QStringList adbArgs = {"shell", "run-as", m_packageName};
-    if (m_processUser > 0)
-        adbArgs << "--user" << QString::number(m_processUser);
-
-    if (!m_useLldb)
-        runAdb(adbArgs + QStringList({"rm", gdbServerSocket}));
-
-    QStringList serverArgs = selector() + adbArgs + QStringList{debugServerFile};
-
-    if (m_useLldb)
-        serverArgs += QStringList{"platform", "--listen", "*:" + s_localDebugServerPort.toString()};
-    else
-        serverArgs += QStringList{"--multi", "+" + gdbServerSocket};
-
-    QString serverError;
-    m_debugServerProcess.reset(AndroidManager::startAdbProcess(serverArgs, &serverError));
-    if (!m_debugServerProcess) {
-        qCDebug(androidRunWorkerLog) << "Debugger process failed to start" << serverError;
-        emit remoteProcessFinished(Tr::tr("Failed to start debugger server."));
-        return;
-    }
-    qCDebug(androidRunWorkerLog) << "Debugger process started";
-    m_debugServerProcess->setObjectName("AndroidDebugServerProcess");
-
-    if (m_useLldb)
-        return;
-
-    removeForwardPort("tcp:" + s_localDebugServerPort.toString(),
-                      "localfilesystem:" + gdbServerSocket, "C++");
 }
 
 CommandLine AndroidRunnerWorker::adbCommand(std::initializer_list<CommandLine::ArgRef> args) const
@@ -750,7 +600,6 @@ ExecutableItem AndroidRunnerWorker::postDoneRecipe()
         m_processPID = -1;
         m_processUser = -1;
         emit remoteProcessFinished("\n\n" + Tr::tr("\"%1\" died.").arg(m_packageName));
-        m_debugServerProcess.reset();
     };
 
     return Group {
@@ -1051,20 +900,6 @@ void AndroidRunnerWorker::asyncStop()
         m_taskTreeRunner.start(Group { forceStopRecipe(), postDoneRecipe() });
     else
         m_taskTreeRunner.reset();
-}
-
-bool AndroidRunnerWorker::removeForwardPort(const QString &port, const QString &adbArg,
-                                            const QString &portType)
-{
-    const SdkToolResult result = AndroidManager::runAdbCommand({"forward", "--list"});
-    if (result.stdOut().contains(port))
-        runAdb({"forward", "--remove", port});
-    if (runAdb({"forward", port, adbArg})) {
-        m_afterFinishAdbCommands.push_back("forward --remove " + port);
-        return true;
-    }
-    emit remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
-    return false;
 }
 
 } // namespace Android::Internal

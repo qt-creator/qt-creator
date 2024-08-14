@@ -1,7 +1,6 @@
 // Copyright (C) 2018 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-
 #pragma once
 
 #include <qmldebug/qmldebugcommandlinearguments.h>
@@ -11,11 +10,10 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/port.h>
 
 namespace Android { class AndroidDeviceInfo; }
 namespace ProjectExplorer { class RunWorker; }
-namespace Utils { class Process; }
+namespace Utils { class Port; }
 
 namespace Android::Internal {
 
@@ -41,14 +39,6 @@ private:
     bool runAdb(const QStringList &args, QString *stdOut = nullptr, QString *stdErr = nullptr);
     QStringList selector() const;
     void forceStop();
-
-    bool removeForwardPort(const QString &port, const QString &adbArg, const QString &portType);
-
-    void startNativeDebugging();
-    void startDebuggerServer(const QString &packageDir, const QString &debugServerFile);
-    bool deviceFileExists(const QString &filePath);
-    bool packageFileExists(const QString &filePath);
-    bool uploadDebugServer(const QString &debugServerFileName);
 
     bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
 
@@ -81,7 +71,6 @@ private:
     bool m_useLldb = false; // FIXME: Un-implemented currently.
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
-    std::unique_ptr<Utils::Process> m_debugServerProcess; // gdbserver or lldb-server
     QString m_deviceSerialNumber;
     int m_apiLevel = -1;
     QString m_extraAppParams;
