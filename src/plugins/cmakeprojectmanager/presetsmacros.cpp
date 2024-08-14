@@ -130,6 +130,7 @@ template<class PresetType>
 void expand(const PresetType &preset, Environment &env, const FilePath &sourceDirectory)
 {
     const Environment presetEnv = getEnvCombined(preset.environment, env);
+    const Environment parentEnv = env;
     presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool enabled) {
         if (!enabled)
             return;
@@ -139,34 +140,14 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
             return presetEnv.value(macroName);
         });
 
-        enum Operation { set, appendOrSet, prependOrSet };
-        Operation op = set;
-        if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
-            op = appendOrSet;
-            const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
-            if (index != 0)
-                op = prependOrSet;
-            value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
-        }
-
-        value = expandMacroEnv("penv", value, [env](const QString &macroName) {
-            return env.value(macroName);
+        value = expandMacroEnv("penv", value, [parentEnv](const QString &macroName) {
+            return parentEnv.value(macroName);
         });
 
         // Make sure to expand the CMake macros also for environment variables
         expandAllButEnv(preset, sourceDirectory, value);
 
-        switch (op) {
-        case set:
-            env.set(key, value);
-            break;
-        case appendOrSet:
-            env.appendOrSet(key, value);
-            break;
-        case prependOrSet:
-            env.prependOrSet(key, value);
-            break;
-        }
+        env.set(key, value);
     });
 }
 
@@ -185,15 +166,6 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
             return QString("${%1}").arg(macroName);
         });
 
-        auto operation = EnvironmentItem::Operation::SetEnabled;
-        if (key.compare("PATH", Qt::CaseInsensitive) == 0) {
-            operation = EnvironmentItem::Operation::Append;
-            const int index = value.indexOf("$penv{PATH}", 0, Qt::CaseInsensitive);
-            if (index != 0)
-                operation = EnvironmentItem::Operation::Prepend;
-            value.replace("$penv{PATH}", "", Qt::CaseInsensitive);
-        }
-
         value = expandMacroEnv("penv", value, [](const QString &macroName) {
             return QString("${%1}").arg(macroName);
         });
@@ -201,7 +173,7 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
         // Make sure to expand the CMake macros also for environment variables
         expandAllButEnv(preset, sourceDirectory, value);
 
-        envItems.emplace_back(Utils::EnvironmentItem(key, value, operation));
+        envItems.emplace_back(Utils::EnvironmentItem(key, value));
     });
 }
 
