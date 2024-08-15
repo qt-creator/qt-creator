@@ -131,18 +131,20 @@ static Environment getEnvCombined(const std::optional<Environment> &optPresetEnv
 template<class PresetType>
 void expand(const PresetType &preset, Environment &env, const FilePath &sourceDirectory)
 {
-    const Environment presetEnv = getEnvCombined(preset.environment, env);
+    if (!preset.environment)
+        return;
+
+    const Environment combinedEnv = getEnvCombined(preset.environment, env);
     const Environment parentEnv = env;
-    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool enabled) {
+    preset.environment->forEachEntry([&](const QString &key, QString value, bool enabled) {
         if (!enabled)
             return;
-        QString value = value_;
         expandAllButEnv(preset, sourceDirectory, value);
-        value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
-            return presetEnv.value(macroName);
+        value = expandMacroEnv("env", value, [&combinedEnv](const QString &macroName) {
+            return combinedEnv.value(macroName);
         });
 
-        value = expandMacroEnv("penv", value, [parentEnv](const QString &macroName) {
+        value = expandMacroEnv("penv", value, [&parentEnv](const QString &macroName) {
             return parentEnv.value(macroName);
         });
 
@@ -156,27 +158,31 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
 template<class PresetType>
 void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath &sourceDirectory)
 {
-    const Environment presetEnv = preset.environment ? *preset.environment : Environment();
-    presetEnv.forEachEntry([&](const QString &key, const QString &value_, bool enabled) {
-        if (!enabled)
-            return;
-        QString value = value_;
-        expandAllButEnv(preset, sourceDirectory, value);
-        value = expandMacroEnv("env", value, [presetEnv](const QString &macroName) {
-            if (presetEnv.hasKey(macroName))
-                return presetEnv.value(macroName);
-            return QString("${%1}").arg(macroName);
+    if (!preset.environment)
+        return;
+
+    preset.environment->forEachEntry(
+        [&preset,
+         &sourceDirectory,
+         &envItems](const QString &key, QString value, bool enabled) {
+            if (!enabled)
+                return;
+            expandAllButEnv(preset, sourceDirectory, value);
+            value = expandMacroEnv("env", value, [&preset](const QString &macroName) {
+                if (preset.environment->hasKey(macroName))
+                    return preset.environment->value(macroName);
+                return QString("${%1}").arg(macroName);
+            });
+
+            value = expandMacroEnv("penv", value, [](const QString &macroName) {
+                return QString("${%1}").arg(macroName);
+            });
+
+            // Make sure to expand the CMake macros also for environment variables
+            expandAllButEnv(preset, sourceDirectory, value);
+
+            envItems.emplace_back(Utils::EnvironmentItem(key, value));
         });
-
-        value = expandMacroEnv("penv", value, [](const QString &macroName) {
-            return QString("${%1}").arg(macroName);
-        });
-
-        // Make sure to expand the CMake macros also for environment variables
-        expandAllButEnv(preset, sourceDirectory, value);
-
-        envItems.emplace_back(Utils::EnvironmentItem(key, value));
-    });
 }
 
 template<class PresetType>
