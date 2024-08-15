@@ -478,12 +478,12 @@ void NodeInstance::setProperty(PropertyNameView name, const QVariant &value)
             newValueVar = newValue;
         }
         if (update) {
-            d->propertyValues.emplace(parentPropName, newValueVar);
+            d->propertyValues.insert_or_assign(parentPropName, newValueVar);
             return;
         }
     }
 
-    d->propertyValues.emplace(name, value);
+    d->propertyValues.insert_or_assign(name, value);
 }
 
 QPixmap NodeInstance::renderPixmap() const
@@ -689,7 +689,7 @@ InformationName NodeInstance::setInformationHasAnchor(PropertyNameView sourceAnc
 {
     if (auto found = d->hasAnchors.find(sourceAnchorLine);
         found == d->hasAnchors.end() || found->second != hasAnchor) {
-        d->hasAnchors.emplace_hint(found, sourceAnchorLine, hasAnchor);
+        d->hasAnchors.insert_or_assign(found, sourceAnchorLine, hasAnchor);
         return HasAnchor;
     }
 
@@ -704,7 +704,7 @@ InformationName NodeInstance::setInformationAnchor(PropertyNameView sourceAnchor
                                                                                  targetInstanceId);
     if (auto found = d->anchors.find(sourceAnchorLine);
         found == d->anchors.end() || found->second != anchorPair) {
-        d->anchors.emplace_hint(found, sourceAnchorLine, anchorPair);
+        d->anchors.insert_or_assign(found, sourceAnchorLine, anchorPair);
         return Anchor;
     }
 
@@ -716,7 +716,7 @@ InformationName NodeInstance::setInformationInstanceTypeForProperty(PropertyName
 {
     if (auto found = d->instanceTypes.find(property);
         found == d->instanceTypes.end() || found->second != type) {
-        d->instanceTypes.emplace_hint(found, property, type);
+        d->instanceTypes.insert_or_assign(found, property, type);
         return InstanceTypeForProperty;
     }
 
@@ -728,7 +728,7 @@ InformationName NodeInstance::setInformationHasBindingForProperty(PropertyNameVi
 {
     if (auto found = d->hasBindingForProperty.find(property);
         found == d->hasBindingForProperty.end() || found->second != hasProperty) {
-        d->hasBindingForProperty.emplace_hint(found, property, hasProperty);
+        d->hasBindingForProperty.insert_or_assign(found, property, hasProperty);
         return HasBindingForProperty;
     }
 
