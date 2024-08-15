@@ -5,21 +5,18 @@
 
 #include "filestatuscache.h"
 #include "filesysteminterface.h"
-#include "nonlockingmutex.h"
-#include "projectstoragefwd.h"
-
-namespace Sqlite {
-class Database;
-}
+#include "sourcepathstorage/nonlockingmutex.h"
 
 namespace QmlDesigner {
 
-template<typename ProjectStorage, typename Mutex>
+class SourcePathStorage;
+
+template<typename Storage, typename Mutex>
 class SourcePathCache;
 
 class FileSystem : public FileSystemInterface
 {
-    using PathCache = SourcePathCache<ProjectStorage, NonLockingMutex>;
+    using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
 public:
     FileSystem(PathCache &sourcePathCache)

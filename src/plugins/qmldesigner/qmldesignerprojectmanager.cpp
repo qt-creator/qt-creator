@@ -5,22 +5,23 @@
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <externaldependenciesinterface.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/filesystem.h>
-#include <projectstorage/nonlockingmutex.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/projectstorageerrornotifier.h>
 #include <projectstorage/projectstoragepathwatcher.h>
 #include <projectstorage/projectstorageupdater.h>
 #include <projectstorage/qmldocumentparser.h>
 #include <projectstorage/qmltypesparser.h>
-#include <projectstorage/sourcepathcache.h>
 #include <qmlprojectmanager/qmlproject.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
+#include <sourcepathstorage/nonlockingmutex.h>
+#include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
 #include <asynchronousexplicitimagecache.h>
@@ -176,36 +177,40 @@ namespace {
 class ProjectStorageData
 {
 public:
-    ProjectStorageData(::ProjectExplorer::Project *project)
+    ProjectStorageData(::ProjectExplorer::Project *project, PathCacheType &pathCache)
         : database{project->projectDirectory().pathAppended("projectstorage.db").toString()}
+        , errorNotifier{pathCache}
+        , fileSystem{pathCache}
+        , qmlDocumentParser{storage, pathCache}
+        , pathWatcher{pathCache, fileSystem, &updater}
         , projectPartId{ProjectPartId::create(
               pathCache.sourceId(SourcePath{project->projectDirectory().toString() + "/."}).internalId())}
+        , updater{fileSystem,
+                  storage,
+                  fileStatusCache,
+                  pathCache,
+                  qmlDocumentParser,
+                  qmlTypesParser,
+                  pathWatcher,
+                  projectPartId}
     {}
     Sqlite::Database database;
-    ProjectStorageErrorNotifier errorNotifier{pathCache};
+    ProjectStorageErrorNotifier errorNotifier;
     ProjectStorage storage{database, errorNotifier, database.isInitialized()};
-    PathCacheType pathCache{storage};
-    FileSystem fileSystem{pathCache};
+    FileSystem fileSystem;
     FileStatusCache fileStatusCache{fileSystem};
-    QmlDocumentParser qmlDocumentParser{storage, pathCache};
+    QmlDocumentParser qmlDocumentParser;
     QmlTypesParser qmlTypesParser{storage};
-    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache>
-        pathWatcher{pathCache, fileSystem, &updater};
+    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache> pathWatcher;
     ProjectPartId projectPartId;
-    ProjectStorageUpdater updater{fileSystem,
-                                  storage,
-                                  fileStatusCache,
-                                  pathCache,
-                                  qmlDocumentParser,
-                                  qmlTypesParser,
-                                  pathWatcher,
-                                  projectPartId};
+    ProjectStorageUpdater updater;
 };
 
-std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project)
+std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::Project *project,
+                                                             PathCacheType &pathCache)
 {
     if constexpr (useProjectStorage()) {
-        return std::make_unique<ProjectStorageData>(project);
+        return std::make_unique<ProjectStorageData>(project, pathCache);
     } else {
         return {};
     }
@@ -217,6 +222,7 @@ class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
 public:
     QmlDesignerProjectManagerProjectData(ImageCacheStorage<Sqlite::Database> &storage,
                                          ::ProjectExplorer::Project *project,
+                                         PathCacheType &pathCache,
                                          ExternalDependenciesInterface &externalDependencies)
         : collector{connectionManager,
                     QSize{300, 300},
@@ -224,7 +230,7 @@ public:
                     externalDependencies,
                     ImageCacheCollectorNullImageHandling::CaptureNullImage}
         , factory{storage, timeStampProvider, collector}
-        , projectStorageData{createProjectStorageData(project)}
+        , projectStorageData{createProjectStorageData(project, pathCache)}
     {}
 
     ImageCacheConnectionManager connectionManager;
@@ -235,8 +241,23 @@ public:
     QPointer<::ProjectExplorer::Target> activeTarget;
 };
 
+class QmlDesignerProjectManager::Data
+{
+public:
+    Data(ExternalDependenciesInterface &externalDependencies)
+        : sourcePathDatabase{externalDependencies.userResourcePath(u"source_path.db")}
+    {}
+
+public:
+    Sqlite::Database sourcePathDatabase;
+    QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                     sourcePathDatabase.isInitialized()};
+    PathCacheType pathCache{sourcePathStorage};
+};
+
 QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
-    : m_previewImageCacheData{std::make_unique<PreviewImageCacheData>(externalDependencies)}
+    : m_data{std::make_unique<Data>(externalDependencies)}
+    , m_previewImageCacheData{std::make_unique<PreviewImageCacheData>(externalDependencies)}
     , m_externalDependencies{externalDependencies}
 {
     auto editorManager = ::Core::EditorManager::instance();
@@ -303,8 +324,7 @@ namespace {
 ProjectStorageDependencies QmlDesignerProjectManager::projectStorageDependencies()
 {
     if constexpr (useProjectStorage()) {
-        return {m_projectData->projectStorageData->storage,
-                m_projectData->projectStorageData->pathCache};
+        return {m_projectData->projectStorageData->storage, m_data->pathCache};
     } else {
         return {*dummyProjectStorage(), *dummyPathCache()};
     }
@@ -456,9 +476,8 @@ QString qtCreatorItemLibraryPath()
 
 void QmlDesignerProjectManager::projectAdded(::ProjectExplorer::Project *project)
 {
-    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(m_previewImageCacheData->storage,
-                                                                           project,
-                                                                           m_externalDependencies);
+    m_projectData = std::make_unique<QmlDesignerProjectManagerProjectData>(
+        m_previewImageCacheData->storage, project, m_data->pathCache, m_externalDependencies);
     m_projectData->activeTarget = project->activeTarget();
 
     QObject::connect(project, &::ProjectExplorer::Project::fileListChanged, [&]() {

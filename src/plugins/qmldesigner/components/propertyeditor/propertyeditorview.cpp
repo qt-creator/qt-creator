@@ -21,7 +21,7 @@
 #include <bindingproperty.h>
 
 #include <nodeabstractproperty.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 #include <theme.h>
 

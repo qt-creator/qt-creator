@@ -3,20 +3,21 @@
 
 #pragma once
 
-#include "nonlockingmutex.h"
 #include "projectstoragefwd.h"
 #include "qmldocumentparserinterface.h"
+#include "sourcepathstorage/nonlockingmutex.h"
 
 namespace QmlDesigner {
 
-template<typename ProjectStorage, typename Mutex>
+template<typename Storage, typename Mutex>
 class SourcePathCache;
+class SourcePathStorage;
 
 class QmlDocumentParser final : public QmlDocumentParserInterface
 {
 public:
     using ProjectStorage = QmlDesigner::ProjectStorage;
-    using PathCache = QmlDesigner::SourcePathCache<ProjectStorage, NonLockingMutex>;
+    using PathCache = QmlDesigner::SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
 #ifdef QDS_BUILD_QMLPARSER
     QmlDocumentParser(ProjectStorage &storage, PathCache &pathCache)

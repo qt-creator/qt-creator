@@ -88,6 +88,17 @@ Category &projectStorageUpdaterCategory()
 
 } // namespace ProjectStorageTracing
 
+namespace SourcePathStorageTracing {
+Category &category()
+{
+    thread_local Category category_{"project storage updater"_t,
+                                    Tracing::eventQueueWithStringArguments(),
+                                    category};
+
+    return category_;
+}
+} // namespace SourcePathStorageTracing
+
 namespace MetaInfoTracing {
 Category &category()
 {

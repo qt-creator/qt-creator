@@ -63,6 +63,22 @@ using Category = NanotraceHR::StringViewWithStringArgumentsCategory<projectStora
 
 } // namespace ProjectStorageTracing
 
+namespace SourcePathStorageTracing {
+constexpr NanotraceHR::Tracing tracingStatus()
+{
+#ifdef ENABLE_SOURCE_PATH_STORAGE_TRACING
+    return NanotraceHR::Tracing::IsEnabled;
+#else
+    return NanotraceHR::Tracing::IsDisabled;
+#endif
+}
+
+using Category = NanotraceHR::StringViewWithStringArgumentsCategory<tracingStatus()>;
+
+[[gnu::pure]] Category &category();
+
+} // namespace SourcePathStorageTracing
+
 namespace MetaInfoTracing {
 constexpr NanotraceHR::Tracing tracingStatus()
 {

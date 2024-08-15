@@ -9,8 +9,8 @@
 #include "projectstoragepathwatcherinterface.h"
 #include "qmldocumentparserinterface.h"
 #include "qmltypesparserinterface.h"
-#include "sourcepath.h"
-#include "sourcepathcache.h"
+#include "sourcepathstorage/sourcepath.h"
+#include "sourcepathstorage/sourcepathcache.h"
 #include "typeannotationreader.h"
 
 #include <sqlitedatabase.h>

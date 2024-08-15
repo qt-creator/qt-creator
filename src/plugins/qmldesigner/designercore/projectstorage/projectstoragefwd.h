@@ -9,7 +9,6 @@ class Database;
 
 namespace QmlDesigner {
 class ProjectStorageInterface;
-class SourcePathCacheInterface;
 
 class ProjectStorage;
 

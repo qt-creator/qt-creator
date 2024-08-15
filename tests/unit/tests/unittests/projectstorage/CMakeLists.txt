@@ -7,10 +7,6 @@ extend_qtc_test(unittest
     projectstorage-test.cpp
     projectstoragepathwatcher-test.cpp
     projectstorageupdater-test.cpp
-    sourcepath-test.cpp
-    sourcepathcache-test.cpp
-    sourcepathview-test.cpp
-    storagecache-test.cpp
     typeannotationreader-test.cpp
 )
 

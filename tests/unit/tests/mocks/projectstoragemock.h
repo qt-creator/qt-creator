@@ -11,7 +11,7 @@
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstorageinfotypes.h>
 #include <projectstorage/projectstorageinterface.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 class ProjectStorageMock : public QmlDesigner::ProjectStorageInterface
 {

@@ -8,8 +8,8 @@
 #include <strippedstring-matcher.h>
 
 #include <projectstorage/projectstorage.h>
-#include <projectstorage/sourcepathcache.h>
 #include <projectstorage/typeannotationreader.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 namespace {
 

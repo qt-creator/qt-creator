@@ -6,8 +6,7 @@
 #include <abstractview.h>
 #include <nodeabstractproperty.h>
 #include <nodemetainfo.h>
-#include <projectstorage/projectstorage.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 #include <coreplugin/messagebox.h>
 

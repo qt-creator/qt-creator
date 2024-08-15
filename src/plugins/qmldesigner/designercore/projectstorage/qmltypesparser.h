@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include "nonlockingmutex.h"
 #include "projectstoragefwd.h"
 #include "qmltypesparserinterface.h"
+#include "sourcepathstorage/nonlockingmutex.h"
 
 namespace Sqlite {
 class Database;

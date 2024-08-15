@@ -3,7 +3,7 @@
 
 #include "projectstorageerrornotifier.h"
 
-#include "sourcepathcache.h"
+#include "sourcepathstorage/sourcepathcache.h"
 
 namespace QmlDesigner {
 

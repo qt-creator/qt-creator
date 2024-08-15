@@ -16,8 +16,12 @@ option(USE_PROJECTSTORAGE "Use ProjectStorage" ${QTC_USE_QML_DESIGNER_LITE})
 
 
 env_with_default("QTC_ENABLE_PROJECT_STORAGE_TRACING" ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING OFF)
-option(ENABLE_PROJECT_STORAGE_TRACING "Enable sqlite tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
-add_feature_info("Sqlite tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+option(ENABLE_PROJECT_STORAGE_TRACING "Enable project storage tracing" ${ENV_QTC_ENABLE_PROJECT_STORAGE_TRACING})
+add_feature_info("Project storage tracing" ${ENABLE_PROJECT_STORAGE_TRACING} "")
+
+env_with_default("QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING" ENV_QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING OFF)
+option(ENABLE_SOURCE_PATH_STORAGE_TRACING "Enable source path storage tracing" ${ENV_QTC_ENABLE_SOURCE_PATH_STORAGE_TRACING})
+add_feature_info("Source path storage tracing" ${ENABLE_SOURCE_PATH_STORAGE_TRACING} "")
 
 env_with_default("QTC_ENABLE_IMAGE_CACHE_TRACING" ENV_QTC_ENABLE_IMAGE_CACHE_TRACING OFF)
 option(ENABLE_IMAGE_CACHE_TRACING "Enable image cache tracing" ${ENV_QTC_ENABLE_IMAGE_CACHE_TRACING})
@@ -109,12 +113,13 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
-  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_METAINFO_TRACING
+  CONDITION ENABLE_PROJECT_STORAGE_TRACING OR ENABLE_SOURCE_PATH_STORAGE_TRACING OR ENABLE_IMAGE_CACHE_TRACING OR ENABLE_MODEL_TRACING OR ENABLE_METAINFO_TRACING
   PUBLIC_DEPENDS Nanotrace
   PUBLIC_DEFINES
     ENABLE_QMLDESIGNER_TRACING
   DEFINES
-    $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
+  $<$<BOOL:${ENABLE_PROJECT_STORAGE_TRACING}>:ENABLE_PROJECT_STORAGE_TRACING>
+  $<$<BOOL:${ENABLE_SOURCE_PATH_STORAGE_TRACING}>:ENABLE_SOURCE_PATH_STORAGE_TRACING>
     $<$<BOOL:${ENABLE_IMAGE_CACHE_TRACING}>:ENABLE_IMAGE_CACHE_TRACING>
     $<$<BOOL:${ENABLE_MODEL_TRACING}>:ENABLE_MODEL_TRACING>
     $<$<BOOL:${ENABLE_METAINFO_TRACING}>:ENABLE_METAINFO_TRACING>
@@ -455,6 +460,26 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+  SOURCES_PREFIX designercore/sourcepathstorage
+  PUBLIC_INCLUDES designercore/sourcepathstorage
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  SOURCES
+    nonlockingmutex.h
+    sourcepath.h
+    sourcepathcache.h
+    sourcepathcacheinterface.h
+    sourcepathcachetypes.h
+    sourcepathexceptions.cpp
+    sourcepathexceptions.h
+    sourcepathstorage.cpp
+    sourcepathstorage.h
+    sourcepathview.h
+    storagecache.h
+    storagecacheentry.h
+    storagecachefwd.h
+)
+
+extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX designercore/projectstorage
   PUBLIC_INCLUDES designercore/projectstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
@@ -467,7 +492,6 @@ extend_qtc_library(QmlDesignerCore
     filestatus.h
     filestatuscache.cpp filestatuscache.h
     modulescanner.cpp modulescanner.h
-    nonlockingmutex.h
     projectstorageexceptions.cpp projectstorageexceptions.h
     projectstorageinterface.h
     projectstoragefwd.h
@@ -484,14 +508,6 @@ extend_qtc_library(QmlDesignerCore
     projectstorage.cpp projectstorage.h
     projectstorageerrornotifierinterface.h
     projectstorageerrornotifier.cpp projectstorageerrornotifier.h
-    sourcepath.h
-    sourcepathcache.h
-    sourcepathcacheinterface.h
-    sourcepathcachetypes.h
-    sourcepathview.h
-    storagecache.h
-    storagecacheentry.h
-    storagecachefwd.h
     typeannotationreader.cpp typeannotationreader.h
     qmldocumentparserinterface.h
     qmltypesparserinterface.h
@@ -947,6 +963,7 @@ extend_qtc_plugin(QmlDesigner
     include/objectpropertybinding.h
     include/projectstorageids.h
     include/propertybinding.h
+    include/sourcepathids.h
     include/qml3dnode.h
     include/qmlvisualnode.h
 )

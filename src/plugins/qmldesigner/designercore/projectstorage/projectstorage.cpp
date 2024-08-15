@@ -73,22 +73,6 @@ struct ProjectStorage::Statements
         "WHERE propertyDeclarationId=?1 "
         "LIMIT 1",
         database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceContextIdFromSourceContextsBySourceContextPathStatement{
-        "SELECT sourceContextId FROM sourceContexts WHERE sourceContextPath = ?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceContextPathFromSourceContextsBySourceContextIdStatement{
-        "SELECT sourceContextPath FROM sourceContexts WHERE sourceContextId = ?", database};
-    mutable Sqlite::ReadStatement<2> selectAllSourceContextsStatement{
-        "SELECT sourceContextPath, sourceContextId FROM sourceContexts", database};
-    Sqlite::WriteStatement<1> insertIntoSourceContextsStatement{
-        "INSERT INTO sourceContexts(sourceContextPath) VALUES (?)", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceNameIdFromSourceNamesBySourceNameStatement{
-        "SELECT sourceNameId FROM sourceNames WHERE sourceName = ?", database};
-    mutable Sqlite::ReadStatement<1, 1> selectSourceNameFromSourceNamesBySourceNameIdStatement{
-        "SELECT sourceName FROM sourceNames WHERE sourceNameId = ?", database};
-    Sqlite::WriteStatement<1> insertIntoSourcesStatement{
-        "INSERT INTO sourceNames(sourceName) VALUES (?)", database};
-    mutable Sqlite::ReadStatement<2> selectAllSourcesStatement{
-        "SELECT sourceName, sourceNameId  FROM sourceNames", database};
     mutable Sqlite::ReadStatement<8, 1> selectTypeByTypeIdStatement{
         "SELECT sourceId, t.name, t.typeId, prototypeId, extensionId, traits, annotationTraits, "
         "pd.name "
@@ -619,8 +603,6 @@ struct ProjectStorage::Statements
         "ORDER BY itn.kind, etn.majorVersion DESC NULLS FIRST, etn.minorVersion DESC NULLS FIRST "
         "LIMIT 1",
         database};
-    Sqlite::WriteStatement<0> deleteAllSourceNamesStatement{"DELETE FROM sourceNames", database};
-    Sqlite::WriteStatement<0> deleteAllSourceContextsStatement{"DELETE FROM sourceContexts", database};
     mutable Sqlite::ReadStatement<6, 1> selectExportedTypesForSourceIdsStatement{
         "SELECT moduleId, name, ifnull(majorVersion, -1), ifnull(minorVersion, -1), typeId, "
         "exportedTypeNameId FROM exportedTypeNames WHERE typeId in carray(?1) ORDER BY moduleId, "
@@ -894,8 +876,7 @@ public:
     {
         if (!isInitialized) {
             auto moduleIdColumn = createModulesTable(database);
-            createSourceContextsTable(database);
-            createSourceNamesTable(database);
+
             createTypesAndePropertyDeclarationsTables(database, moduleIdColumn);
             createExportedTypeNamesTable(database, moduleIdColumn);
             createImportedTypeNamesTable(database);
@@ -910,31 +891,6 @@ public:
             createTypeAnnotionsTable(database);
         }
         database.setIsInitialized(true);
-    }
-
-    void createSourceContextsTable(Database &database)
-    {
-        Sqlite::Table table;
-        table.setUseIfNotExists(true);
-        table.setName("sourceContexts");
-        table.addColumn("sourceContextId", Sqlite::ColumnType::Integer, {Sqlite::PrimaryKey{}});
-        const Sqlite::Column &sourceContextPathColumn = table.addColumn("sourceContextPath");
-
-        table.addUniqueIndex({sourceContextPathColumn});
-
-        table.initialize(database);
-    }
-
-    void createSourceNamesTable(Database &database)
-    {
-        Sqlite::StrictTable table;
-        table.setUseIfNotExists(true);
-        table.setName("sourceNames");
-        table.addColumn("sourceNameId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
-        const auto &sourceNameColumn = table.addColumn("sourceName", Sqlite::StrictColumnType::Text);
-        table.addUniqueIndex({sourceNameColumn});
-
-        table.initialize(database);
     }
 
     void createTypesAndePropertyDeclarationsTables(
@@ -2118,132 +2074,6 @@ Storage::Synchronization::Types ProjectStorage::fetchTypes()
     tracer.end(keyValue("type", types));
 
     return types;
-}
-
-SourceContextId ProjectStorage::fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source context id unguarded"_t, projectStorageCategory()};
-
-    auto sourceContextId = readSourceContextId(sourceContextPath);
-
-    return sourceContextId ? sourceContextId : writeSourceContextId(sourceContextPath);
-}
-
-SourceContextId ProjectStorage::fetchSourceContextId(Utils::SmallStringView sourceContextPath)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source context id"_t,
-                               projectStorageCategory(),
-                               keyValue("source context path", sourceContextPath)};
-
-    SourceContextId sourceContextId;
-    try {
-        sourceContextId = Sqlite::withDeferredTransaction(database, [&] {
-            return fetchSourceContextIdUnguarded(sourceContextPath);
-        });
-    } catch (const Sqlite::ConstraintPreventsModification &) {
-        sourceContextId = fetchSourceContextId(sourceContextPath);
-    }
-
-    tracer.end(keyValue("source context id", sourceContextId));
-
-    return sourceContextId;
-}
-
-Utils::PathString ProjectStorage::fetchSourceContextPath(SourceContextId sourceContextId) const
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source context path"_t,
-                               projectStorageCategory(),
-                               keyValue("source context id", sourceContextId)};
-
-    auto path = Sqlite::withDeferredTransaction(database, [&] {
-        auto optionalSourceContextPath = s->selectSourceContextPathFromSourceContextsBySourceContextIdStatement
-                                             .optionalValue<Utils::PathString>(sourceContextId);
-
-        if (!optionalSourceContextPath)
-            throw SourceContextIdDoesNotExists();
-
-        return std::move(*optionalSourceContextPath);
-    });
-
-    tracer.end(keyValue("source context path", path));
-
-    return path;
-}
-
-Cache::SourceContexts ProjectStorage::fetchAllSourceContexts() const
-{
-    NanotraceHR::Tracer tracer{"fetch all source contexts"_t, projectStorageCategory()};
-
-    return s->selectAllSourceContextsStatement.valuesWithTransaction<Cache::SourceContext, 128>();
-}
-
-SourceNameId ProjectStorage::fetchSourceNameId(Utils::SmallStringView sourceName)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source id"_t,
-                               projectStorageCategory(),
-                               keyValue("source name", sourceName)};
-
-    auto sourceNameId = Sqlite::withDeferredTransaction(database, [&] {
-        return fetchSourceNameIdUnguarded(sourceName);
-    });
-
-    tracer.end(keyValue("source name id", sourceNameId));
-
-    return sourceNameId;
-}
-
-Utils::SmallString ProjectStorage::fetchSourceName(SourceNameId sourceNameId) const
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source name and source context id"_t,
-                               projectStorageCategory(),
-                               keyValue("source name id", sourceNameId)};
-
-    auto sourceName = s->selectSourceNameFromSourceNamesBySourceNameIdStatement
-                          .valueWithTransaction<Utils::SmallString>(sourceNameId);
-
-    if (sourceName.empty())
-        throw SourceNameIdDoesNotExists();
-
-    tracer.end(keyValue("source name", sourceName));
-
-    return sourceName;
-}
-
-void ProjectStorage::clearSources()
-{
-    Sqlite::withImmediateTransaction(database, [&] {
-        s->deleteAllSourceContextsStatement.execute();
-        s->deleteAllSourceNamesStatement.execute();
-    });
-}
-
-Cache::SourceNames ProjectStorage::fetchAllSourceNames() const
-{
-    NanotraceHR::Tracer tracer{"fetch all sources"_t, projectStorageCategory()};
-
-    return s->selectAllSourcesStatement.valuesWithTransaction<Cache::SourceName, 1024>();
-}
-
-SourceNameId ProjectStorage::fetchSourceNameIdUnguarded(Utils::SmallStringView sourceName)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"fetch source id unguarded"_t,
-                               projectStorageCategory(),
-                               keyValue("source name", sourceName)};
-
-    auto sourceId = readSourceNameId(sourceName);
-
-    if (!sourceId)
-        sourceId = writeSourceNameId(sourceName);
-
-    tracer.end(keyValue("source id", sourceId));
-
-    return sourceId;
 }
 
 FileStatuses ProjectStorage::fetchAllFileStatuses() const
@@ -4857,68 +4687,6 @@ PropertyDeclarationId ProjectStorage::fetchPropertyDeclarationIdByTypeIdAndNameU
     tracer.end(keyValue("property declaration id", propertyDeclarationId));
 
     return propertyDeclarationId;
-}
-
-SourceContextId ProjectStorage::readSourceContextId(Utils::SmallStringView sourceContextPath)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"read source context id"_t,
-                               projectStorageCategory(),
-                               keyValue("source context path", sourceContextPath)};
-
-    auto sourceContextId = s->selectSourceContextIdFromSourceContextsBySourceContextPathStatement
-                               .value<SourceContextId>(sourceContextPath);
-
-    tracer.end(keyValue("source context id", sourceContextId));
-
-    return sourceContextId;
-}
-
-SourceContextId ProjectStorage::writeSourceContextId(Utils::SmallStringView sourceContextPath)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"write source context id"_t,
-                               projectStorageCategory(),
-                               keyValue("source context path", sourceContextPath)};
-
-    s->insertIntoSourceContextsStatement.write(sourceContextPath);
-
-    auto sourceContextId = SourceContextId::create(static_cast<int>(database.lastInsertedRowId()));
-
-    tracer.end(keyValue("source context id", sourceContextId));
-
-    return sourceContextId;
-}
-
-SourceNameId ProjectStorage::writeSourceNameId(Utils::SmallStringView sourceName)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"write source id"_t,
-                               projectStorageCategory(),
-                               keyValue("source name", sourceName)};
-
-    s->insertIntoSourcesStatement.write(sourceName);
-
-    auto sourceNameId = SourceNameId::create(static_cast<int>(database.lastInsertedRowId()));
-
-    tracer.end(keyValue("source name id", sourceNameId));
-
-    return sourceNameId;
-}
-
-SourceNameId ProjectStorage::readSourceNameId(Utils::SmallStringView sourceName)
-{
-    using NanotraceHR::keyValue;
-    NanotraceHR::Tracer tracer{"read source id"_t,
-                               projectStorageCategory(),
-                               keyValue("source name", sourceName)};
-
-    auto sourceNameId = s->selectSourceNameIdFromSourceNamesBySourceNameStatement.value<SourceNameId>(
-        sourceName);
-
-    tracer.end(keyValue("source id", sourceNameId));
-
-    return sourceNameId;
 }
 
 Storage::Synchronization::ExportedTypes ProjectStorage::fetchExportedTypes(TypeId typeId)

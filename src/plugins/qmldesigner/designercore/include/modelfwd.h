@@ -42,10 +42,12 @@ constexpr bool useProjectStorage()
 
 #ifdef QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 using ProjectStorageType = ProjectStorageInterface;
+class SourcePathCacheInterface;
 using PathCacheType = SourcePathCacheInterface;
 #else
 using ProjectStorageType = ProjectStorage;
-using PathCacheType = SourcePathCache<ProjectStorageType, NonLockingMutex>;
+class SourcePathStorage;
+using PathCacheType = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 #endif
 
 struct ProjectStorageDependencies

@@ -34,34 +34,6 @@ public:
     std::string errorMessage;
 };
 
-class QMLDESIGNERCORE_EXPORT NoSourcePathForInvalidSourceId : public ProjectStorageError
-{
-public:
-    NoSourcePathForInvalidSourceId();
-    const char *what() const noexcept override;
-};
-
-class QMLDESIGNERCORE_EXPORT NoSourceContextPathForInvalidSourceContextId : public ProjectStorageError
-{
-public:
-    NoSourceContextPathForInvalidSourceContextId();
-    const char *what() const noexcept override;
-};
-
-class QMLDESIGNERCORE_EXPORT SourceContextIdDoesNotExists : public ProjectStorageError
-{
-public:
-    SourceContextIdDoesNotExists();
-    const char *what() const noexcept override;
-};
-
-class QMLDESIGNERCORE_EXPORT SourceNameIdDoesNotExists : public ProjectStorageError
-{
-public:
-    SourceNameIdDoesNotExists();
-    const char *what() const noexcept override;
-};
-
 class QMLDESIGNERCORE_EXPORT TypeHasInvalidSourceId : public ProjectStorageError
 {
 public:

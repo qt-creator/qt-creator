@@ -17,46 +17,6 @@ auto &category()
 }
 } // namespace
 
-NoSourcePathForInvalidSourceId::NoSourcePathForInvalidSourceId()
-{
-    category().threadEvent("NoSourcePathForInvalidSourceId"_t);
-}
-
-const char *NoSourcePathForInvalidSourceId::what() const noexcept
-{
-    return "You cannot get a file path for an invalid file path id!";
-}
-
-NoSourceContextPathForInvalidSourceContextId::NoSourceContextPathForInvalidSourceContextId()
-{
-    category().threadEvent("NoSourceContextPathForInvalidSourceContextId"_t);
-}
-
-const char *NoSourceContextPathForInvalidSourceContextId::what() const noexcept
-{
-    return "You cannot get a directory path for an invalid directory path id!";
-}
-
-SourceContextIdDoesNotExists::SourceContextIdDoesNotExists()
-{
-    category().threadEvent("SourceContextIdDoesNotExists"_t);
-}
-
-const char *SourceContextIdDoesNotExists::what() const noexcept
-{
-    return "The source context id does not exist in the database!";
-}
-
-SourceNameIdDoesNotExists::SourceNameIdDoesNotExists()
-{
-    category().threadEvent("SourceNameIdDoesNotExists"_t);
-}
-
-const char *SourceNameIdDoesNotExists::what() const noexcept
-{
-    return "The source id does not exist in the database!";
-}
-
 TypeHasInvalidSourceId::TypeHasInvalidSourceId()
 {
     category().threadEvent("TypeHasInvalidSourceId"_t);

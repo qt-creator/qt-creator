@@ -6,7 +6,7 @@
 #include "../mocks/projectstoragemock.h"
 #include "../mocks/sqlitedatabasemock.h"
 
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 namespace {
 

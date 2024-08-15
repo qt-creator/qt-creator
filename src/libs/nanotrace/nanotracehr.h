@@ -57,6 +57,11 @@ struct TracerLiteral
         : text{text}
     {}
 
+    template<std::size_t size>
+    consteval TracerLiteral(const char (&text)[size])
+        : text{text}
+    {}
+
     friend consteval TracerLiteral operator""_t(const char *text, size_t size);
 
     constexpr operator std::string_view() const { return text; }

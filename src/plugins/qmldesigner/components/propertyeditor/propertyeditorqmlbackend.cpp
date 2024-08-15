@@ -11,11 +11,11 @@
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
-#include <projectstorage/sourcepathcache.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
+#include <sourcepathcache.h>
 #include <variantproperty.h>
 
 #include <theme.h>

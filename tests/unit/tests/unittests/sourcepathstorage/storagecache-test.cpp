@@ -7,8 +7,8 @@
 #include "../mocks/projectstoragemock.h"
 #include "../mocks/sqlitedatabasemock.h"
 
-#include <projectstorage/storagecache.h>
-#include <projectstorageids.h>
+#include <sourcepathids.h>
+#include <sourcepathstorage/storagecache.h>
 
 #include <utils/smallstringio.h>
 

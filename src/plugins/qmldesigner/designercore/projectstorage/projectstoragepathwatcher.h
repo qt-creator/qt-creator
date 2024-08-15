@@ -8,7 +8,8 @@
 #include "projectstoragepathwatcherinterface.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
-#include "storagecache.h"
+
+#include <sourcepathstorage/storagecache.h>
 
 #include <utils/algorithm.h>
 

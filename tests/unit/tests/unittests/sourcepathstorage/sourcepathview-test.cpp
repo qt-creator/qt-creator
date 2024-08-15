@@ -3,7 +3,7 @@
 
 #include "../utils/googletest.h"
 
-#include <projectstorage/sourcepathview.h>
+#include <sourcepathstorage/sourcepathview.h>
 
 namespace {
 

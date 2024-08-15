@@ -41,4 +41,5 @@ public:
     MOCK_METHOD(bool, isQtForMcusProject, (), (const, override));
     MOCK_METHOD(QString, qtQuickVersion, (), (const, override));
     MOCK_METHOD(Utils::FilePath, resourcePath, (const QString &relativePath), (const, override));
+    MOCK_METHOD(QString, userResourcePath, (QStringView relativePath), (const, override));
 };

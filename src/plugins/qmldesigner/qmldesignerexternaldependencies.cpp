@@ -275,4 +275,9 @@ Utils::FilePath ExternalDependencies::resourcePath(const QString &relativePath) 
     return Core::ICore::resourcePath(relativePath);
 }
 
+QString ExternalDependencies::userResourcePath(QStringView relativePath) const
+{
+    return Core::ICore::userResourcePath(relativePath.toString()).path();
+}
+
 } // namespace QmlDesigner

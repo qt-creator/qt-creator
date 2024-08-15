@@ -48,6 +48,10 @@ public:
     virtual bool isQtForMcusProject() const = 0;
     virtual QString qtQuickVersion() const = 0;
     virtual Utils::FilePath resourcePath(const QString &relativePath) const = 0;
+    virtual QString userResourcePath(QStringView relativePath) const = 0;
+
+protected:
+    ~ExternalDependenciesInterface() = default;
 };
 
 } // namespace QmlDesigner

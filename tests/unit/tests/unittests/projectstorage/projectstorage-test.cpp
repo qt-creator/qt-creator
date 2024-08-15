@@ -10,7 +10,7 @@
 
 #include <modelnode.h>
 #include <projectstorage/projectstorage.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 #include <sqlitereadstatement.h>
 #include <sqlitewritestatement.h>
@@ -19,14 +19,11 @@
 
 namespace {
 
-using QmlDesigner::Cache::SourceContext;
-using QmlDesigner::Cache::SourceName;
 using QmlDesigner::FileStatus;
 using QmlDesigner::FileStatuses;
 using QmlDesigner::FlagIs;
 using QmlDesigner::ModuleId;
 using QmlDesigner::PropertyDeclarationId;
-using QmlDesigner::SourceContextId;
 using QmlDesigner::SourceId;
 using QmlDesigner::SourceIds;
 using QmlDesigner::SourceNameId;
@@ -55,16 +52,6 @@ auto IsModule(Utils::SmallStringView name, ModuleKind kind)
 {
     return AllOf(Field(&QmlDesigner::Storage::Module::name, name),
                  Field(&QmlDesigner::Storage::Module::kind, kind));
-}
-
-MATCHER_P2(IsSourceContext,
-           id,
-           value,
-           std::string(negation ? "isn't " : "is ") + PrintToString(SourceContext{value, id}))
-{
-    const SourceContext &sourceContext = arg;
-
-    return sourceContext.id == id && sourceContext.value == value;
 }
 
 MATCHER_P4(IsStorageType,
@@ -319,8 +306,11 @@ protected:
     struct StaticData
     {
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
         NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
         QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                         sourcePathDatabase.isInitialized()};
     };
 
     static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
@@ -330,26 +320,6 @@ protected:
     ProjectStorage() { storage.setErrorNotifier(errorNotifierMock); }
 
     ~ProjectStorage() { storage.resetForTestsOnly(); }
-
-    template<typename Range>
-    static auto toValues(Range &&range)
-    {
-        using Type = typename std::decay_t<Range>;
-
-        return std::vector<typename Type::value_type>{range.begin(), range.end()};
-    }
-
-    void addSomeDummyData()
-    {
-        storage.fetchSourceContextId("/path/dummy");
-        storage.fetchSourceContextId("/path/dummy2");
-        storage.fetchSourceContextId("/path/");
-
-        storage.fetchSourceNameId("foo");
-        storage.fetchSourceNameId("dummy");
-        storage.fetchSourceNameId("bar");
-        storage.fetchSourceNameId("bar");
-    }
 
     auto createVerySimpleSynchronizationPackage()
     {
@@ -1229,7 +1199,8 @@ protected:
     Sqlite::Database &database = staticData->database;
     QmlDesigner::ProjectStorage &storage = staticData->storage;
     NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{storage};
+    QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{
+        staticData->sourcePathStorage};
     QmlDesigner::SourcePathView path1{"/path1/to"};
     QmlDesigner::SourcePathView path2{"/path2/to"};
     QmlDesigner::SourcePathView path3{"/path3/to"};
@@ -1268,147 +1239,6 @@ protected:
     Storage::Imports moduleDependenciesSourceId4;
     Storage::Imports moduleDependenciesSourceId5;
 };
-
-TEST_F(ProjectStorage, fetch_source_context_id_returns_always_the_same_id_for_the_same_path)
-{
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-
-    auto newSourceContextId = storage.fetchSourceContextId("/path/to");
-
-    ASSERT_THAT(newSourceContextId, Eq(sourceContextId));
-}
-
-TEST_F(ProjectStorage, fetch_source_context_id_returns_not_the_same_id_for_different_path)
-{
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-
-    auto newSourceContextId = storage.fetchSourceContextId("/path/to2");
-
-    ASSERT_THAT(newSourceContextId, Ne(sourceContextId));
-}
-
-TEST_F(ProjectStorage, fetch_source_context_path)
-{
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-
-    auto path = storage.fetchSourceContextPath(sourceContextId);
-
-    ASSERT_THAT(path, Eq("/path/to"));
-}
-
-TEST_F(ProjectStorage, fetch_unknown_source_context_path_throws)
-{
-    ASSERT_THROW(storage.fetchSourceContextPath(SourceContextId::create(323)),
-                 QmlDesigner::SourceContextIdDoesNotExists);
-}
-
-TEST_F(ProjectStorage, fetch_all_source_contexts_are_empty_if_no_source_contexts_exists)
-{
-    storage.clearSources();
-
-    auto sourceContexts = storage.fetchAllSourceContexts();
-
-    ASSERT_THAT(toValues(sourceContexts), IsEmpty());
-}
-
-TEST_F(ProjectStorage, fetch_all_source_contexts)
-{
-    storage.clearSources();
-    auto sourceContextId = storage.fetchSourceContextId("/path/to");
-    auto sourceContextId2 = storage.fetchSourceContextId("/path/to2");
-
-    auto sourceContexts = storage.fetchAllSourceContexts();
-
-    ASSERT_THAT(toValues(sourceContexts),
-                UnorderedElementsAre(IsSourceContext(sourceContextId, "/path/to"),
-                                     IsSourceContext(sourceContextId2, "/path/to2")));
-}
-
-TEST_F(ProjectStorage, fetch_source_id_first_time)
-{
-    addSomeDummyData();
-
-    auto sourceNameId = storage.fetchSourceNameId("foo");
-
-    ASSERT_TRUE(sourceNameId.isValid());
-}
-
-TEST_F(ProjectStorage, fetch_existing_source_id)
-{
-    addSomeDummyData();
-    auto createdSourceNameId = storage.fetchSourceNameId("foo");
-
-    auto sourceNameId = storage.fetchSourceNameId("foo");
-
-    ASSERT_THAT(sourceNameId, createdSourceNameId);
-}
-
-TEST_F(ProjectStorage, fetch_source_id_with_different_name_are_not_equal)
-{
-    addSomeDummyData();
-    auto sourceNameId2 = storage.fetchSourceNameId("foo");
-
-    auto sourceNameId = storage.fetchSourceNameId("foo2");
-
-    ASSERT_THAT(sourceNameId, Ne(sourceNameId2));
-}
-
-TEST_F(ProjectStorage, fetch_source_name_and_source_context_id_for_non_existing_source_id)
-{
-    ASSERT_THROW(storage.fetchSourceName(SourceNameId::create(212)),
-                 QmlDesigner::SourceNameIdDoesNotExists);
-}
-
-TEST_F(ProjectStorage, fetch_source_name_for_non_existing_entry)
-{
-    addSomeDummyData();
-    auto sourceNameId = storage.fetchSourceNameId("foo");
-
-    auto sourceName = storage.fetchSourceName(sourceNameId);
-
-    ASSERT_THAT(sourceName, Eq("foo"));
-}
-
-TEST_F(ProjectStorage, fetch_all_sources)
-{
-    storage.clearSources();
-
-    auto sources = storage.fetchAllSourceNames();
-
-    ASSERT_THAT(toValues(sources), IsEmpty());
-}
-
-TEST_F(ProjectStorage, fetch_source_id_unguarded_first_time)
-{
-    addSomeDummyData();
-    std::lock_guard lock{database};
-
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
-
-    ASSERT_TRUE(sourceId.isValid());
-}
-
-TEST_F(ProjectStorage, fetch_existing_source_id_unguarded)
-{
-    addSomeDummyData();
-    std::lock_guard lock{database};
-    auto createdSourceId = storage.fetchSourceNameIdUnguarded("foo");
-
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo");
-
-    ASSERT_THAT(sourceId, createdSourceId);
-}
-
-TEST_F(ProjectStorage, fetch_source_id_unguarded_with_different_name_are_not_equal)
-{
-    addSomeDummyData();
-    std::lock_guard lock{database};
-    auto sourceId2 = storage.fetchSourceNameIdUnguarded("foo");
-
-    auto sourceId = storage.fetchSourceNameIdUnguarded("foo2");
-
-    ASSERT_THAT(sourceId, Ne(sourceId2));
-}
 
 TEST_F(ProjectStorage, synchronize_types_adds_new_types)
 {

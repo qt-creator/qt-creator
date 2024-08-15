@@ -122,7 +122,7 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/filestatus.h
     projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
     projectstorage/modulescanner.cpp projectstorage/modulescanner.h
-    projectstorage/nonlockingmutex.h
+    sourcepathstorage/nonlockingmutex.h
     projectstorage/projectstorageexceptions.cpp projectstorage/projectstorageexceptions.h
     projectstorage/projectstorageinterface.h
     projectstorage/projectstorageobserver.h
@@ -136,14 +136,18 @@ add_qtc_library(TestDesignerCore OBJECT
     projectstorage/projectstoragepathwatchertypes.h
     projectstorage/projectstoragetypes.h
     projectstorage/projectstorageupdater.cpp projectstorage/projectstorageupdater.h
-    projectstorage/sourcepath.h
-    projectstorage/sourcepathcache.h
-    projectstorage/sourcepathcache.h
-    projectstorage/sourcepathcachetypes.h
-    projectstorage/sourcepathview.h
-    projectstorage/storagecache.h
-    projectstorage/storagecacheentry.h
-    projectstorage/storagecachefwd.h
+    sourcepathstorage/sourcepath.h
+    sourcepathstorage/sourcepathcache.h
+    sourcepathstorage/sourcepathcache.h
+    sourcepathstorage/sourcepathcachetypes.h
+    sourcepathstorage/sourcepathview.h
+    sourcepathstorage/storagecache.h
+    sourcepathstorage/storagecacheentry.h
+    sourcepathstorage/storagecachefwd.h
+    sourcepathstorage/sourcepathexceptions.cpp
+    sourcepathstorage/sourcepathexceptions.h
+    sourcepathstorage/sourcepathstorage.cpp
+    sourcepathstorage/sourcepathstorage.h
     projectstorage/typeannotationreader.cpp
     projectstorage/typeannotationreader.h
     projectstorage/qmldocumentparserinterface.h

@@ -4,9 +4,10 @@
 #pragma once
 
 #include "nonlockingmutex.h"
-#include "projectstorageids.h"
 #include "storagecacheentry.h"
 #include "storagecachefwd.h"
+
+#include <sourcepathids.h>
 
 #include <utils/algorithm.h>
 #include <utils/set_algorithm.h>

@@ -9,7 +9,7 @@
 
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/qmldocumentparser.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 namespace {
 
@@ -151,8 +151,10 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ProjectStorageErrorNotifierMock errorNotifierMock;
     QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
-        storage};
+    Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
+    QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                     sourcePathDatabase.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{sourcePathStorage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};

@@ -8,8 +8,7 @@
 #include "projectstorageexceptions.h"
 #include "projectstorageinterface.h"
 #include "projectstoragetypes.h"
-#include "sourcepathcachetypes.h"
-#include "storagecache.h"
+#include "sourcepathstorage/storagecache.h"
 
 #include <tracing/qmldesignertracing.h>
 
@@ -214,24 +213,6 @@ public:
     Storage::Synchronization::Type fetchTypeByTypeId(TypeId typeId);
 
     Storage::Synchronization::Types fetchTypes();
-
-    SourceContextId fetchSourceContextIdUnguarded(Utils::SmallStringView sourceContextPath);
-
-    SourceContextId fetchSourceContextId(Utils::SmallStringView sourceContextPath);
-
-    Utils::PathString fetchSourceContextPath(SourceContextId sourceContextId) const;
-
-    Cache::SourceContexts fetchAllSourceContexts() const;
-
-    SourceNameId fetchSourceNameId(Utils::SmallStringView sourceName);
-
-    Utils::SmallString fetchSourceName(SourceNameId sourceId) const;
-
-    void clearSources();
-
-    Cache::SourceNames fetchAllSourceNames() const;
-
-    SourceNameId fetchSourceNameIdUnguarded(Utils::SmallStringView sourceName);
 
     FileStatuses fetchAllFileStatuses() const;
 
@@ -1006,14 +987,6 @@ private:
 
     PropertyDeclarationId fetchPropertyDeclarationIdByTypeIdAndNameUngarded(TypeId typeId,
                                                                             Utils::SmallStringView name);
-
-    SourceContextId readSourceContextId(Utils::SmallStringView sourceContextPath);
-
-    SourceContextId writeSourceContextId(Utils::SmallStringView sourceContextPath);
-
-    SourceNameId writeSourceNameId(Utils::SmallStringView sourceName);
-
-    SourceNameId readSourceNameId(Utils::SmallStringView sourceName);
 
     Storage::Synchronization::ExportedTypes fetchExportedTypes(TypeId typeId);
 

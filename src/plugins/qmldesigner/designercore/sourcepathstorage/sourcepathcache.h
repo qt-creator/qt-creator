@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include "projectstorage.h"
-#include "projectstorageexceptions.h"
-#include "projectstorageids.h"
 #include "sourcepath.h"
 #include "sourcepathcacheinterface.h"
 #include "sourcepathcachetypes.h"
+#include "sourcepathexceptions.h"
+#include "sourcepathstorage.h"
 #include "sourcepathview.h"
 #include "storagecache.h"
 
 #include <modelfwd.h>
+#include <sourcepathids.h>
 #include <sqlitetransaction.h>
 
 #include <algorithm>
@@ -20,19 +20,19 @@
 
 namespace QmlDesigner {
 
-template<typename ProjectStorage, typename Mutex>
+template<typename Storage, typename Mutex>
 class SourcePathCache final : public SourcePathCacheInterface
 {
     SourcePathCache(const SourcePathCache &) = default;
     SourcePathCache &operator=(const SourcePathCache &) = default;
 
-    template<typename Storage, typename M>
+    template<typename S, typename M>
     friend class SourcePathCache;
 
 public:
-    SourcePathCache(ProjectStorage &projectStorage)
-        : m_sourceContextStorageAdapter{projectStorage}
-        , m_sourceNameStorageAdapter{projectStorage}
+    SourcePathCache(Storage &storage)
+        : m_sourceContextStorageAdapter{storage}
+        , m_sourceNameStorageAdapter{storage}
 
     {
         populateIfEmpty();
@@ -118,7 +118,7 @@ private:
 
         auto fetchAll() { return storage.fetchAllSourceContexts(); }
 
-        ProjectStorage &storage;
+        Storage &storage;
     };
 
     class SourceNameStorageAdapter
@@ -133,7 +133,7 @@ private:
 
         auto fetchAll() { return storage.fetchAllSourceNames(); }
 
-        ProjectStorage &storage;
+        Storage &storage;
     };
 
     static bool sourceLess(Utils::SmallStringView first, Utils::SmallStringView second) noexcept

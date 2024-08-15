@@ -4,7 +4,7 @@
 #include "filesystem.h"
 #include "projectstorage.h"
 #include "projectstorageids.h"
-#include "sourcepathcache.h"
+#include "sourcepathstorage/sourcepathcache.h"
 #include "sqlitedatabase.h"
 
 #include <utils/algorithm.h>

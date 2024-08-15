@@ -7,8 +7,6 @@
 #include "modelutils.h"
 #include <modelnode.h>
 
-#include "../projectstorage/sourcepath.h"
-#include "../projectstorage/sourcepathcache.h"
 #include "abstractview.h"
 #include "internalbindingproperty.h"
 #include "internalnodeabstractproperty.h"
@@ -18,6 +16,8 @@
 #include "internalsignalhandlerproperty.h"
 #include "internalvariantproperty.h"
 #include "itemlibraryentry.h"
+#include "sourcepathstorage/sourcepath.h"
+#include "sourcepathstorage/sourcepathcache.h"
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include "metainfo.h"
 #endif

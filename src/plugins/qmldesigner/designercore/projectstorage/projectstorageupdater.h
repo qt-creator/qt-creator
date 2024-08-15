@@ -4,12 +4,12 @@
 #pragma once
 
 #include "filestatus.h"
-#include "nonlockingmutex.h"
 #include "projectstorageids.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
 #include "projectstoragetypes.h"
-#include "sourcepath.h"
+#include "sourcepathstorage/nonlockingmutex.h"
+#include "sourcepathstorage/sourcepath.h"
 
 #include <modelfwd.h>
 
@@ -35,11 +35,12 @@ class FileStatusCache;
 class ProjectStorage;
 class QmlDocumentParserInterface;
 class QmlTypesParserInterface;
+class SourcePathStorage;
 
 class ProjectStorageUpdater final : public ProjectStoragePathWatcherNotifierInterface
 {
 public:
-    using PathCache = SourcePathCache<ProjectStorage, NonLockingMutex>;
+    using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
     ProjectStorageUpdater(FileSystemInterface &fileSystem,
                           ProjectStorageType &projectStorage,

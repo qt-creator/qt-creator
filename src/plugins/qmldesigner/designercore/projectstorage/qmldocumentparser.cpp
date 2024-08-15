@@ -6,8 +6,8 @@
 
 #include "projectstorage.h"
 #include "projectstorageexceptions.h"
-#include "sourcepathcache.h"
 
+#include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
 #include <tracing/qmldesignertracing.h>
