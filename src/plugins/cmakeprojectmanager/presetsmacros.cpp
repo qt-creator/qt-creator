@@ -101,7 +101,9 @@ static QString expandMacroEnv(const QString &macroPrefix,
     do {
         done = true;
         for (qsizetype pos = 0; int len = findMacro(result, &pos, &macroName);) {
-            result.replace(pos, len, op(macroName));
+            const QString replacement = op(macroName);
+            // Prevent recursion by not allowing the same value to be reused
+            result.replace(pos, len, replacement != value ? replacement : "");
             pos += macroName.length();
             done = false;
         }
