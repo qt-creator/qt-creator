@@ -146,11 +146,13 @@ public:
     template<typename Type>
     Type *addProperty(PropertyNameView name)
     {
-        auto newProperty = std::make_shared<Type>(name, shared_from_this());
-        auto pointer = newProperty.get();
-        m_nameProperties.try_emplace(name, std::move(newProperty));
+        auto [iter, inserted] = m_nameProperties.try_emplace(
+            name, std::make_shared<Type>(name, shared_from_this()));
 
-        return pointer;
+        if (inserted)
+            return static_cast<Type *>(iter->second.get());
+
+        return nullptr;
     }
 
     auto addBindingProperty(PropertyNameView name)
