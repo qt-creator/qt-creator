@@ -589,41 +589,6 @@ extend_qtc_plugin(QmlDesigner
     PUBLIC_COMPILE_OPTIONS $<$<COMPILE_LANG_AND_ID:CXX,Clang,GNU>:-Wno-error=maybe-uninitialized>
 )
 
-function(get_and_add_as_subdirectory name repository git_tag build_dir source_dir source_subdir)
-    # make the configuration in the build dir
-    file(MAKE_DIRECTORY ${build_dir}/${name})
-    file(WRITE ${build_dir}/${name}/CMakeLists.txt
-    "    cmake_minimum_required(VERSION 3.16)\n"
-    "    project(${name}-download NONE)\n"
-    "    \n"
-    "    include(ExternalProject)\n"
-    "    ExternalProject_Add(${name}\n"
-    "                        UPDATE_DISCONNECTED FALSE\n"
-    "                        GIT_REPOSITORY \"${repository}\"\n"
-    "                        GIT_SUBMODULES \"\"\n"
-    "                        GIT_TAG \"${git_tag}\"\n"
-    "                        SOURCE_SUBDIR \"\"\n"
-    "                        GIT_SHALLOW TRUE\n"
-    "                        GIT_PROGRESS TRUE\n"
-    "                        SOURCE_DIR \"${source_dir}/${name}\"\n"
-    "                        CONFIGURE_COMMAND \"\"\n"
-    "                        BUILD_COMMAND \"\"\n"
-    "                        INSTALL_COMMAND \"\"\n"
-    "                        TEST_COMMAND \"\"\n"
-    "                        USES_TERMINAL_DOWNLOAD YES\n"
-    "                        USES_TERMINAL_UPDATE YES\n"
-    "    )\n"
-    )
-    execute_process(COMMAND "${CMAKE_COMMAND}" -G "${CMAKE_GENERATOR}" "${build_dir}/${name}"
-        WORKING_DIRECTORY "${build_dir}/${name}"
-        ${QTC_COMMAND_ERROR_IS_FATAL}
-    )
-    execute_process(COMMAND "${CMAKE_COMMAND}" --build "${build_dir}/${name}"
-        ${QTC_COMMAND_ERROR_IS_FATAL}
-    )
-    add_subdirectory(${source_dir}/${name}/${source_subdir} ${name})
-endfunction()
-
 if (QTC_STATIC_BUILD AND TARGET QmlDesigner)
   get_target_property(_designerType Qt::Designer TYPE)
   if (${_designerType} STREQUAL "STATIC_LIBRARY")
