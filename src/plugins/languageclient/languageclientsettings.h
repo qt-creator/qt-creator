@@ -71,6 +71,7 @@ public:
     LanguageFilter m_languageFilter;
     QString m_initializationOptions;
     QString m_configuration;
+    bool m_showInSettings = true;
 
     QJsonObject initializationOptions() const;
     QJsonValue configuration() const;

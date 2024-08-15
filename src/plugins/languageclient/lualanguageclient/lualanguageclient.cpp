@@ -215,6 +215,7 @@ public:
     CommandLine m_cmdLine;
     QString m_serverName;
     LanguageFilter m_languageFilter;
+    bool m_showInSettings;
     BaseSettings::StartBehavior m_startBehavior = BaseSettings::RequiresFile;
 
     std::optional<sol::protected_function> m_onInstanceStart;
@@ -293,6 +294,8 @@ public:
                 for (auto [_, v] : *mimeTypes)
                     m_languageFilter.mimeTypes.push_back(v.as<QString>());
         }
+
+        m_showInSettings = options.get<std::optional<bool>>("showInSettings").value_or(true);
 
         // get<sol::optional<>> because on MSVC, get_or(..., nullptr) fails to compile
         m_aspects = options.get<sol::optional<AspectContainer *>>("settings").value_or(nullptr);
@@ -569,6 +572,7 @@ LuaClientSettings::LuaClientSettings(const std::weak_ptr<LuaClientWrapper> &wrap
         m_languageFilter = w->m_languageFilter;
         m_initializationOptions = w->m_initializationOptions;
         m_startBehavior = w->m_startBehavior;
+        m_showInSettings = w->m_showInSettings;
         QObject::connect(w.get(), &LuaClientWrapper::optionsChanged, &guard, [this] {
             if (auto w = m_wrapper.lock())
                 m_initializationOptions = w->m_initializationOptions;

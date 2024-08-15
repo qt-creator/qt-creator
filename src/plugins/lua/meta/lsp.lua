@@ -11,8 +11,9 @@ local lsp = {}
 ---@field languageFilter LanguageFilter The language filter deciding which files to open with the language server.
 ---@field startBehavior? "AlwaysOn"|"RequiresFile"|"RequiresProject"
 ---@field initializationOptions? function|table|string The initialization options to pass to the language server, either a JSON string, a table, or a function that returns either.
----@field settings? AspectContainer
+---@field settings? AspectContainer The settings object to associate with the language server.
 ---@field onStartFailed? function This callback is called when client failed to start.
+---@field showInSettings? boolean Whether the client should show up in the general Language Server list.
 local ClientOptions = {}
 
 ---@class LanguageFilter

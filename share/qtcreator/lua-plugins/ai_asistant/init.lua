@@ -160,6 +160,7 @@ local function setupClient()
     },
     settings = Settings,
     startBehavior = "AlwaysOn",
+    showInSettings = false,
     onStartFailed = function()
       a.sync(function()
         if IsTryingToInstall == true then
