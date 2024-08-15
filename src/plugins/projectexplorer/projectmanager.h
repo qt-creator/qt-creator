@@ -80,6 +80,7 @@ public:
     static QList<Project *> projectOrder(const Project *project = nullptr);
 
     static Project *projectForFile(const Utils::FilePath &fileName);
+    static QList<Project *> projectsForFile(const Utils::FilePath &fileName);
     static bool isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project);
     static Project *projectWithProjectFilePath(const Utils::FilePath &filePath);
 

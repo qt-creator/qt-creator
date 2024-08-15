@@ -521,6 +521,13 @@ Project *ProjectManager::projectForFile(const FilePath &fileName)
     });
 }
 
+QList<Project *> ProjectManager::projectsForFile(const Utils::FilePath &fileName)
+{
+    return Utils::filtered(ProjectManager::projects(), [&fileName](Project *p) {
+        return p->isKnownFile(fileName) || isInProjectSourceDir(fileName, *p);
+    });
+}
+
 bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
 {
     for (const Target * const target : project.targets()) {
