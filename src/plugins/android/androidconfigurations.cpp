@@ -1209,7 +1209,7 @@ void AndroidConfigurations::removeOldToolchains()
 
 void AndroidConfigurations::removeUnusedDebuggers()
 {
-    const QList<QtVersion*> qtVersions = QtVersionManager::versions([](const QtVersion *v) {
+    const QtVersions qtVersions = QtVersionManager::versions([](const QtVersion *v) {
         return v->type() == Constants::ANDROID_QT_TYPE;
     });
 
@@ -1385,7 +1385,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     removeUnusedDebuggers();
 
     QHash<Abi, QList<const QtVersion *> > qtVersionsForArch;
-    const QList<QtVersion*> qtVersions = QtVersionManager::versions([](const QtVersion *v) {
+    const QtVersions qtVersions = QtVersionManager::versions([](const QtVersion *v) {
         return v->type() == Constants::ANDROID_QT_TYPE;
     });
     for (const QtVersion *qtVersion : qtVersions) {

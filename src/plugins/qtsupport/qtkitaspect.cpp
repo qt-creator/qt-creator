@@ -77,7 +77,7 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const FilePath deviceRoot = device->rootPath();
 
-        const QList<QtVersion *> versionsForBuildDevice
+        const QtVersions versionsForBuildDevice
             = Utils::filtered(QtVersionManager::versions(), [device](QtVersion *qt) {
                   return qt->qmakeFilePath().isSameDevice(device->rootPath());
               });
