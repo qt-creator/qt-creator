@@ -46,11 +46,13 @@ function lsp.Client:sendMessageForDocument(document, msg) end
 function lsp.Client:sendMessageWithIdForDocument(document, msg) end
 
 ---@param filePath FilePath to get the version of.
----@return integer Returns -1 on error, otherwise current document version.
+---@return boolean ok Returns false on error, otherwise true.
+---@return integer|string error_or_version Current document version, or an error message.
 function lsp.Client:documentVersion(filePath) end
 ---
 ---@param filePath table file path to get the uri of.
----@return string Returns empty string on error, otherwise the server URI string.
+---@return boolean ok Returns false on error, otherwise true.
+---@return string error_or_uri The server URI string, or an error message.
 function lsp.Client:hostPathToServerUri(filePath) end
 
 ---Creates a new Language Client.

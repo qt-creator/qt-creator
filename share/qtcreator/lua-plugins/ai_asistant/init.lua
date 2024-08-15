@@ -277,15 +277,15 @@ local function buildRequest()
 
   local document = editor:document()
   local filePath = document:file()
-  local doc_version = Client.documentVersion(filePath)
-  if doc_version == -1 then
-    print("No document version found")
+  local ok, doc_version = Client:documentVersion(filePath)
+  if not ok then
+    print("No document version found:", doc_version)
     return
   end
 
-  local doc_uri = Client.hostPathToServerUri(filePath)
-  if doc_uri == nil or doc_uri == "" then
-    print("No document uri found")
+  local ok, doc_uri = Client:hostPathToServerUri(filePath)
+  if not ok then
+    print("No document uri found", doc_uri)
     return
   end
 

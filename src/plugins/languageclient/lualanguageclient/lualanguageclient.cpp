@@ -695,25 +695,24 @@ static void registerLuaApi()
                 return luaClientWrapper;
             },
             "documentVersion",
-            [](const Utils::FilePath &path) -> int {
-                auto client = LanguageClientManager::clientForFilePath(path);
-                if (!client) {
-                    qWarning() << "documentVersion(). No client for file path:" << path;
-                    return -1;
-                }
+            [](LuaClientWrapper *wrapper,
+               const Utils::FilePath &path) -> std::tuple<bool, std::variant<int, QString>> {
+                auto clients = wrapper->clientsForDocument(
+                    TextEditor::TextDocument::textDocumentForFilePath(path));
+                if (clients.empty())
+                    return {false, "No client found."};
 
-                return client->documentVersion(path);
+                return {true, clients.first()->documentVersion(path)};
             },
 
             "hostPathToServerUri",
-            [](const Utils::FilePath &path) -> QString {
-                auto client = LanguageClientManager::clientForFilePath(path);
-                if (!client) {
-                    qWarning() << "hostPathToServerUri(). No client for file path:" << path;
-                    return {};
-                }
+            [](LuaClientWrapper *wrapper, const Utils::FilePath &path) -> std::tuple<bool, QString> {
+                auto clients = wrapper->clientsForDocument(
+                    TextEditor::TextDocument::textDocumentForFilePath(path));
+                if (clients.empty())
+                    return {false, "No client found."};
 
-                return client->hostPathToServerUri(path).toString();
+                return {true, clients.first()->hostPathToServerUri(path).toString()};
             });
 
         wrapperClass["sendMessageWithIdForDocument"]
