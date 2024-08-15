@@ -79,6 +79,10 @@ IOutputPane::IOutputPane(QObject *parent)
     m_zoomOutButton = Command::createToolButtonWithShortcutToolTip(Constants::ZOOM_OUT);
     m_zoomOutButton->setIcon(Utils::Icons::MINUS_TOOLBAR.icon());
     connect(m_zoomOutButton, &QToolButton::clicked, this, [this] { emit zoomOutRequested(1); });
+
+    // reinitialize the output pane buttons if a lazy loaded plugin adds a pane
+    if (OutputPaneManager::initialized())
+        QMetaObject::invokeMethod(this, &OutputPaneManager::setupButtons, Qt::QueuedConnection);
 }
 
 IOutputPane::~IOutputPane()
@@ -512,6 +516,34 @@ OutputPaneManager::OutputPaneManager(QWidget *parent) :
 
 void OutputPaneManager::initialize()
 {
+    setupButtons();
+
+    const int currentIdx = m_instance->currentIndex();
+    if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
+        m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
+    m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
+    connect(m_instance->m_manageButton,
+            &OutputPaneManageButton::menuRequested,
+            m_instance,
+            &OutputPaneManager::popupMenu);
+
+    updateMaximizeButton(false); // give it an initial name
+
+    m_instance->readSettings();
+
+    connect(ModeManager::instance(), &ModeManager::currentModeChanged, m_instance, [] {
+        const int index = m_instance->currentIndex();
+        m_instance->updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
+    });
+
+    m_instance->m_initialized = true;
+}
+
+void OutputPaneManager::setupButtons()
+{
+    for (auto pane : g_outputPanes)
+        delete pane.button;
+
     ActionContainer *mpanes = ActionManager::actionContainer(Constants::M_VIEW_PANES);
     QFontMetrics titleFm = m_instance->m_titleLabel->fontMetrics();
     int minTitleWidth = 0;
@@ -526,45 +558,56 @@ void OutputPaneManager::initialize()
     for (int i = 0; i != n; ++i) {
         OutputPaneData &data = g_outputPanes[i];
         IOutputPane *outPane = data.pane;
-        const int idx = m_instance->m_outputWidgetPane->addWidget(outPane->outputWidget(m_instance));
-        QTC_CHECK(idx == i);
+        QWidget *widget = outPane->outputWidget(m_instance);
+        int idx = m_instance->m_outputWidgetPane->indexOf(widget);
+        if (idx < 0) {
+            idx = m_instance->m_outputWidgetPane->insertWidget(i, widget);
 
-        connect(outPane, &IOutputPane::showPage, m_instance, [idx](int flags) {
-            m_instance->showPage(idx, flags);
-        });
-        connect(outPane, &IOutputPane::hidePage, m_instance, &OutputPaneManager::slotHide);
-
-        connect(outPane, &IOutputPane::togglePage, m_instance, [idx](int flags) {
-            if (OutputPanePlaceHolder::isCurrentVisible() && m_instance->currentIndex() == idx)
-                m_instance->slotHide();
-            else
+            connect(outPane, &IOutputPane::showPage, m_instance, [idx](int flags) {
                 m_instance->showPage(idx, flags);
-        });
+            });
+            connect(outPane, &IOutputPane::hidePage, m_instance, &OutputPaneManager::slotHide);
 
-        connect(outPane, &IOutputPane::navigateStateUpdate, m_instance, [idx, outPane] {
-            if (m_instance->currentIndex() == idx)
-                m_instance->updateActions(outPane);
-        });
+            connect(outPane, &IOutputPane::togglePage, m_instance, [idx](int flags) {
+                if (OutputPanePlaceHolder::isCurrentVisible() && m_instance->currentIndex() == idx)
+                    m_instance->slotHide();
+                else
+                    m_instance->showPage(idx, flags);
+            });
 
-        QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
-        using namespace Layouting;
-        Row toolButtonsRow { spacing(0), noMargin };
-        const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
-        for (QWidget *toolButton : toolBarWidgets)
-            toolButtonsRow.addItem(toolButton);
-        toolButtonsRow.addItem(st);
-        toolButtonsRow.attachTo(toolButtonsContainer);
+            connect(outPane, &IOutputPane::navigateStateUpdate, m_instance, [idx, outPane] {
+                if (m_instance->currentIndex() == idx)
+                    m_instance->updateActions(outPane);
+            });
 
-        m_instance->m_opToolBarWidgets->addWidget(toolButtonsContainer);
+            QWidget *toolButtonsContainer = new QWidget(m_instance->m_opToolBarWidgets);
+            using namespace Layouting;
+            Row toolButtonsRow { spacing(0), noMargin };
+            const QList<QWidget *> toolBarWidgets = outPane->toolBarWidgets();
+            for (QWidget *toolButton : toolBarWidgets)
+                toolButtonsRow.addItem(toolButton);
+            toolButtonsRow.addItem(st);
+            toolButtonsRow.attachTo(toolButtonsContainer);
+
+            m_instance->m_opToolBarWidgets->insertWidget(i, toolButtonsContainer);
+        }
+        QTC_CHECK(idx == i);
 
         minTitleWidth = qMax(minTitleWidth, titleFm.horizontalAdvance(outPane->displayName()));
 
         data.id = baseId.withSuffix(outPane->id().toString());
+        if (data.action) {
+            ActionManager::unregisterAction(data.action, data.id);
+            delete data.action;
+        }
+
         data.action = new QAction(outPane->displayName(), m_instance);
-        Command *cmd = ActionManager::registerAction(data.action, data.id);
+        connect(data.action, &QAction::triggered, m_instance, [i] {
+            m_instance->shortcutTriggered(i);
+        });
 
+        auto cmd = ActionManager::registerAction(data.action, data.id);
         mpanes->addAction(cmd, "Coreplugin.OutputPane.PanesGroup");
-
         cmd->setDefaultKeySequence(paneShortCut(shortcutNumber));
         auto button = new OutputPaneToggleButton(shortcutNumber,
                                                  outPane->displayName(),
@@ -588,32 +631,11 @@ void OutputPaneManager::initialize()
 
         const bool visible = outPane->priorityInStatusBar() >= 0;
         data.button->setVisible(visible);
-
-        connect(data.action, &QAction::triggered, m_instance, [i] {
-            m_instance->shortcutTriggered(i);
-        });
     }
 
     m_instance->m_titleLabel->setMinimumWidth(
         minTitleWidth + m_instance->m_titleLabel->contentsMargins().left()
         + m_instance->m_titleLabel->contentsMargins().right());
-    const int currentIdx = m_instance->currentIndex();
-    if (QTC_GUARD(currentIdx >= 0 && currentIdx < g_outputPanes.size()))
-        m_instance->m_titleLabel->setText(g_outputPanes[currentIdx].pane->displayName());
-    m_instance->m_buttonsWidget->layout()->addWidget(m_instance->m_manageButton);
-    connect(m_instance->m_manageButton,
-            &OutputPaneManageButton::menuRequested,
-            m_instance,
-            &OutputPaneManager::popupMenu);
-
-    updateMaximizeButton(false); // give it an initial name
-
-    m_instance->readSettings();
-
-    connect(ModeManager::instance(), &ModeManager::currentModeChanged, m_instance, [] {
-        const int index = m_instance->currentIndex();
-        m_instance->updateActions(index >= 0 ? g_outputPanes.at(index).pane : nullptr);
-    });
 }
 
 OutputPaneManager::~OutputPaneManager() = default;
@@ -647,6 +669,11 @@ int OutputPaneManager::outputPaneHeightSetting()
 void OutputPaneManager::setOutputPaneHeightSetting(int value)
 {
     m_instance->m_outputPaneHeightSetting = value;
+}
+
+bool OutputPaneManager::initialized()
+{
+    return m_instance && m_instance->m_initialized;
 }
 
 void OutputPaneManager::toggleMaximized()

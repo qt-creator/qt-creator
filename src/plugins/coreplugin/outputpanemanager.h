@@ -37,6 +37,7 @@ public:
 
     static int outputPaneHeightSetting();
     static void setOutputPaneHeightSetting(int value);
+    static bool initialized();
 
 public slots:
     void slotHide();
@@ -54,12 +55,14 @@ private:
     friend class ICorePrivate;
     friend class MainWindow;
     friend class OutputPaneManageButton;
+    friend class Core::IOutputPane;
 
     explicit OutputPaneManager(QWidget *parent = nullptr);
     ~OutputPaneManager() override;
 
     static void create();
     static void initialize();
+    static void setupButtons();
     static void destroy();
 
     void shortcutTriggered(int idx);
@@ -86,6 +89,7 @@ private:
     QStackedWidget *m_opToolBarWidgets = nullptr;
     QWidget *m_buttonsWidget = nullptr;
     int m_outputPaneHeightSetting = 0;
+    bool m_initialized = false;
 };
 
 class BadgeLabel
