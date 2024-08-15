@@ -619,12 +619,10 @@ struct TransitionFilter
             dependencies.push_back({second.node, first.node});
         };
 
-        ::Utils::set_greedy_intersection_compare(transitionNodes.begin(),
-                                                 transitionNodes.end(),
-                                                 stateNodes.begin(),
-                                                 stateNodes.end(),
-                                                 removeTransition,
-                                                 std::less<NameNode>{});
+        Utils::set_greedy_intersection(transitionNodes,
+                                       stateNodes,
+                                       removeTransition,
+                                       std::less<NameNode>{});
         std::sort(dependencies.begin(), dependencies.end());
     }
 
