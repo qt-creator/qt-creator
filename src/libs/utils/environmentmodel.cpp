@@ -38,38 +38,29 @@ public:
 
     int findInChanges(const QString &name) const
     {
-        for (int i = 0; i < m_items.size(); ++i)
-            if (m_items.at(i).name.compare(name,
-                                           m_baseNameValueDictionary.nameCaseSensitivity()) == 0) {
+        for (int i = 0; i < m_items.size(); ++i) {
+            if (m_items.at(i).name.compare(name, m_baseNameValueDictionary.nameCaseSensitivity())
+                == 0) {
                 return i;
             }
+        }
         return -1;
     }
 
     int findInResultInsertPosition(const QString &name) const
     {
-        NameValueDictionary::const_iterator it;
-        int i = 0;
-        for (it = m_resultNameValueDictionary.constBegin();
-             it != m_resultNameValueDictionary.constEnd();
-             ++it, ++i)
-            if (it.key() > DictKey(name, m_resultNameValueDictionary.nameCaseSensitivity()))
-                return i;
-        return m_resultNameValueDictionary.size();
+        const auto it = m_resultNameValueDictionary.find(name);
+        if (it == m_resultNameValueDictionary.end())
+            return m_resultNameValueDictionary.size();
+        return std::distance(m_resultNameValueDictionary.begin(), it);
     }
 
     int findInResult(const QString &name) const
     {
-        NameValueDictionary::const_iterator it;
-        int i = 0;
-        for (it = m_resultNameValueDictionary.constBegin();
-             it != m_resultNameValueDictionary.constEnd();
-             ++it, ++i)
-            if (m_resultNameValueDictionary.key(it)
-                    .compare(name, m_resultNameValueDictionary.nameCaseSensitivity()) == 0) {
-                return i;
-            }
-        return -1;
+        const auto it = m_resultNameValueDictionary.find(name);
+        if (it == m_resultNameValueDictionary.end())
+            return -1;
+        return std::distance(m_resultNameValueDictionary.begin(), it);
     }
 
     NameValueDictionary m_baseNameValueDictionary;
@@ -88,8 +79,8 @@ EnvironmentModel::~EnvironmentModel() = default;
 
 QString EnvironmentModel::indexToVariable(const QModelIndex &index) const
 {
-    const auto it = std::next(d->m_resultNameValueDictionary.constBegin(), index.row());
-    return d->m_resultNameValueDictionary.key(it);
+    const auto it = std::next(d->m_resultNameValueDictionary.begin(), index.row());
+    return it.key();
 }
 
 void EnvironmentModel::setBaseEnvironment(const Environment &env)
@@ -133,14 +124,14 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
     if (!index.isValid())
         return QVariant();
 
-    const auto resultIterator = std::next(d->m_resultNameValueDictionary.constBegin(), index.row());
+    const auto it = std::next(d->m_resultNameValueDictionary.begin(), index.row());
 
     switch (role) {
     case Qt::DisplayRole:
     case Qt::EditRole:
     case Qt::ToolTipRole:
         if (index.column() == 0)
-            return d->m_resultNameValueDictionary.key(resultIterator);
+            return it.key();
         if (index.column() == 1) {
             // Do not return "<UNSET>" when editing a previously unset variable:
             if (role == Qt::EditRole) {
@@ -148,7 +139,7 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
                 if (pos != -1 && d->m_items.at(pos).operation == EnvironmentItem::Unset)
                     return QString();
             }
-            QString value = d->m_resultNameValueDictionary.value(resultIterator);
+            QString value = it.value();
             if (role == Qt::ToolTipRole && value.length() > 80) {
                 if (currentEntryIsPathList(index)) {
                     // For path lists, display one entry per line without separator
@@ -166,13 +157,12 @@ QVariant EnvironmentModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::FontRole: {
         QFont f;
-        f.setStrikeOut(!d->m_resultNameValueDictionary.isEnabled(resultIterator));
+        f.setStrikeOut(!it.enabled());
         return f;
     }
     case Qt::ForegroundRole: {
         const QPalette p = QGuiApplication::palette();
-        return p.color(changes(d->m_resultNameValueDictionary.key(resultIterator))
-                    ? QPalette::Link : QPalette::Text);
+        return p.color(changes(it.key()) ? QPalette::Link : QPalette::Text);
     }
     }
     return QVariant();
@@ -237,13 +227,11 @@ bool EnvironmentModel::setData(const QModelIndex &index, const QVariant &value, 
         // We are changing an existing value:
         const QString stringValue = value.toString();
         if (changesPos != -1) {
-            const auto oldIt = d->m_baseNameValueDictionary.constFind(oldName);
-            const auto newIt = d->m_resultNameValueDictionary.constFind(oldName);
+            const auto oldIt = d->m_baseNameValueDictionary.find(oldName);
+            const auto newIt = d->m_resultNameValueDictionary.find(oldName);
             // We have already changed this value
-            if (oldIt != d->m_baseNameValueDictionary.constEnd()
-                    && stringValue == d->m_baseNameValueDictionary.value(oldIt)
-                    && d->m_baseNameValueDictionary.isEnabled(oldIt)
-                            == d->m_resultNameValueDictionary.isEnabled(newIt)) {
+            if (oldIt != d->m_baseNameValueDictionary.end() && stringValue == oldIt.value()
+                && oldIt.enabled() == newIt.enabled()) {
                 // ... and now went back to the base value
                 d->m_items.removeAt(changesPos);
             } else {
@@ -352,21 +340,19 @@ void EnvironmentModel::unsetVariable(const QString &name)
 void EnvironmentModel::toggleVariable(const QModelIndex &idx)
 {
     const QString name = indexToVariable(idx);
-    const auto newIt = d->m_resultNameValueDictionary.constFind(name);
-    QTC_ASSERT(newIt != d->m_resultNameValueDictionary.constEnd(), return);
-    const auto op = d->m_resultNameValueDictionary.isEnabled(newIt)
-            ? EnvironmentItem::SetDisabled : EnvironmentItem::SetEnabled;
+    const auto newIt = d->m_resultNameValueDictionary.find(name);
+    QTC_ASSERT(newIt != d->m_resultNameValueDictionary.begin(), return);
+    const auto op = newIt.enabled() ? EnvironmentItem::SetDisabled : EnvironmentItem::SetEnabled;
     const int changesPos = d->findInChanges(name);
     if (changesPos != -1) {
-        const auto oldIt = d->m_baseNameValueDictionary.constFind(name);
-        if (oldIt == d->m_baseNameValueDictionary.constEnd()
-                || oldIt.value().first != newIt.value().first) {
+        const auto oldIt = d->m_baseNameValueDictionary.find(name);
+        if (oldIt == d->m_baseNameValueDictionary.end() || oldIt.value() != newIt.value()) {
             d->m_items[changesPos].operation = op;
         } else {
             d->m_items.removeAt(changesPos);
         }
     } else {
-        d->m_items.append({name, d->m_resultNameValueDictionary.value(newIt), op});
+        d->m_items.append({name, newIt.value(), op});
     }
     d->updateResultNameValueDictionary();
     emit dataChanged(index(idx.row(), 0), index(idx.row(), 1));
@@ -381,7 +367,7 @@ bool EnvironmentModel::isUnset(const QString &name)
 
 bool EnvironmentModel::isEnabled(const QString &name) const
 {
-    return d->m_resultNameValueDictionary.isEnabled(d->m_resultNameValueDictionary.constFind(name));
+    return d->m_resultNameValueDictionary.find(name).enabled();
 }
 
 bool EnvironmentModel::canReset(const QString &name)
@@ -413,9 +399,9 @@ void EnvironmentModel::setUserChanges(const EnvironmentItems &items)
         if (d->m_baseNameValueDictionary.osType() == OsTypeWindows) {
             // NameValueDictionary variable names are case-insensitive under windows, but we still
             // want to preserve the case of pre-existing variables.
-            auto it = d->m_baseNameValueDictionary.constFind(name);
-            if (it != d->m_baseNameValueDictionary.constEnd())
-                name = d->m_baseNameValueDictionary.key(it);
+            auto it = d->m_baseNameValueDictionary.find(name);
+            if (it != d->m_baseNameValueDictionary.end())
+                name = it.key();
         }
     }
 

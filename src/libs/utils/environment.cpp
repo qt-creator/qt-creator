@@ -60,10 +60,10 @@ EnvironmentItems Environment::diff(const Environment &other, bool checkAppendPre
 Environment::FindResult Environment::find(const QString &name) const
 {
     const NameValueDictionary &dict = resolved();
-    const auto it = dict.constFind(name);
-    if (it == dict.constEnd())
+    const auto it = dict.find(name);
+    if (it == dict.end())
         return {};
-     return Entry{it.key().name, it.value().first, it.value().second};
+    return Entry{it.key(), it.value(), it.enabled()};
 }
 
 void Environment::forEachEntry(const std::function<void(const QString &, const QString &, bool)> &callBack) const
@@ -124,11 +124,10 @@ QStringList Environment::toStringList() const
 
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
-    const NameValueDictionary &dict = resolved();
     QProcessEnvironment result;
-    for (auto it = dict.m_values.constBegin(); it != dict.m_values.constEnd(); ++it) {
-        if (it.value().second)
-            result.insert(it.key().name, expandedValueForKey(dict.key(it)));
+    for (const auto &[key, _, enabled] : resolved()) {
+        if (enabled)
+            result.insert(key, expandedValueForKey(key));
     }
     return result;
 }

@@ -136,7 +136,7 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
 
     const Environment combinedEnv = getEnvCombined(preset.environment, env);
     const Environment parentEnv = env;
-    preset.environment->forEachEntry([&](const QString &key, QString value, bool enabled) {
+    for (auto [key, value, enabled] : preset.environment->resolved()) {
         if (!enabled)
             return;
         expandAllButEnv(preset, sourceDirectory, value);
@@ -152,7 +152,7 @@ void expand(const PresetType &preset, Environment &env, const FilePath &sourceDi
         expandAllButEnv(preset, sourceDirectory, value);
 
         env.set(key, value);
-    });
+    }
 }
 
 template<class PresetType>
@@ -161,28 +161,25 @@ void expand(const PresetType &preset, EnvironmentItems &envItems, const FilePath
     if (!preset.environment)
         return;
 
-    preset.environment->forEachEntry(
-        [&preset,
-         &sourceDirectory,
-         &envItems](const QString &key, QString value, bool enabled) {
-            if (!enabled)
-                return;
-            expandAllButEnv(preset, sourceDirectory, value);
-            value = expandMacroEnv("env", value, [&preset](const QString &macroName) {
-                if (preset.environment->hasKey(macroName))
-                    return preset.environment->value(macroName);
-                return QString("${%1}").arg(macroName);
-            });
-
-            value = expandMacroEnv("penv", value, [](const QString &macroName) {
-                return QString("${%1}").arg(macroName);
-            });
-
-            // Make sure to expand the CMake macros also for environment variables
-            expandAllButEnv(preset, sourceDirectory, value);
-
-            envItems.emplace_back(Utils::EnvironmentItem(key, value));
+    for (auto [key, value, enabled] : preset.environment->resolved()) {
+        if (!enabled)
+            return;
+        expandAllButEnv(preset, sourceDirectory, value);
+        value = expandMacroEnv("env", value, [&preset](const QString &macroName) {
+            if (preset.environment->hasKey(macroName))
+                return preset.environment->value(macroName);
+            return QString("${%1}").arg(macroName);
         });
+
+        value = expandMacroEnv("penv", value, [](const QString &macroName) {
+            return QString("${%1}").arg(macroName);
+        });
+
+        // Make sure to expand the CMake macros also for environment variables
+        expandAllButEnv(preset, sourceDirectory, value);
+
+        envItems.emplace_back(Utils::EnvironmentItem(key, value));
+    }
 }
 
 template<class PresetType>
