@@ -11,7 +11,7 @@ namespace QmlProjectManager {
 class QmlProject;
 class QmlBuildSystem;
 
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
 struct Node
 {
@@ -60,6 +60,7 @@ public:
 
     static Ptr create(CMakeGenerator *parent);
     static QString readTemplate(const QString &templatePath);
+    static void writeFile(const Utils::FilePath &path, const QString &content);
 
     CMakeWriter(CMakeGenerator *parent);
     const CMakeGenerator *parent() const;
@@ -90,13 +91,12 @@ protected:
     QString makeSetEnvironmentFn() const;
     std::tuple<QString, QString> makeResourcesBlocks(const NodePtr &node) const;
 
-    void writeFile(const Utils::FilePath &path, const QString &content) const;
 
 private:
     void collectPlugins(const NodePtr &node, std::vector<QString> &out) const;
     const CMakeGenerator *m_parent = nullptr;
 };
 
-} // End namespace GenerateCmake.
+} // End namespace QmlProjectExporter.
 
 } // End namespace QmlProjectManager.

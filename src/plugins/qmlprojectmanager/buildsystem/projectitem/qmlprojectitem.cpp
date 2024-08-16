@@ -436,4 +436,16 @@ void QmlProjectItem::setEnableCMakeGeneration(bool enable)
     insertAndUpdateProjectFile("deployment", obj);
 }
 
+bool QmlProjectItem::enablePythonGeneration() const
+{
+    return m_project["deployment"].toObject()["enablePythonGeneration"].toBool();
+}
+
+void QmlProjectItem::setEnablePythonGeneration(bool enable)
+{
+    QJsonObject obj = m_project["deployment"].toObject();
+    obj["enablePythonGeneration"] = enable;
+    insertAndUpdateProjectFile("deployment", obj);
+}
+
 } // namespace QmlProjectManager

@@ -78,7 +78,7 @@ void updateMcuBuildStep(Target *target, bool mcuEnabled)
 
 QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cmakeGen(new GenerateCmake::CMakeGenerator(this, this))
+    , m_fileGen(new QmlProjectExporter::Exporter(this))
 {
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(RefreshOptions::Project);
@@ -88,13 +88,13 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 
     connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
-        m_cmakeGen->initialize(qmlProject());
+        m_fileGen->updateProject(qmlProject());
         updateMcuBuildStep(target, qtForMCUs());
     });
     connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
-        m_cmakeGen->initialize(qmlProject());
-        m_cmakeGen->updateMenuAction();
+        m_fileGen->updateProject(qmlProject());
+        m_fileGen->updateMenuAction();
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
 
@@ -221,13 +221,7 @@ void QmlBuildSystem::initProjectItem()
     m_projectItem.reset(new QmlProjectItem{projectFilePath()});
 
     connect(m_projectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
-    connect(m_projectItem.data(),
-            &QmlProjectItem::filesChanged,
-            m_cmakeGen,
-            &GenerateCmake::CMakeGenerator::update);
-
-    m_cmakeGen->setEnabled(m_projectItem->enableCMakeGeneration());
-
+    m_fileGen->updateProjectItem(m_projectItem.data(), true);
     initMcuProjectItems();
 }
 
@@ -243,10 +237,7 @@ void QmlBuildSystem::initMcuProjectItems()
 
         m_mcuProjectItems.append(qmlProjectItem);
         connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
-        connect(qmlProjectItem.data(),
-                &QmlProjectItem::filesChanged,
-                m_cmakeGen,
-                &GenerateCmake::CMakeGenerator::update);
+        m_fileGen->updateProjectItem(m_projectItem.data(), false);
 
         m_mcuProjectFilesWatcher.addFile(mcuProjectFile, Utils::FileSystemWatcher::WatchModifiedDate);
 
@@ -548,6 +539,17 @@ void QmlBuildSystem::setEnableCMakeGeneration(bool enable)
 {
     if (enable != enableCMakeGeneration())
         m_projectItem->setEnableCMakeGeneration(enable);
+}
+
+bool QmlBuildSystem::enablePythonGeneration() const
+{
+    return m_projectItem->enablePythonGeneration();
+}
+
+void QmlBuildSystem::setEnablePythonGeneration(bool enable)
+{
+    if (enable != enablePythonGeneration())
+        m_projectItem->setEnablePythonGeneration(enable);
 }
 
 void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QString> &removed)

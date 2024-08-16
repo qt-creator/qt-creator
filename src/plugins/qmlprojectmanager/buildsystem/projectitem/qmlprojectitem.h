@@ -93,6 +93,9 @@ public:
     bool enableCMakeGeneration() const;
     void setEnableCMakeGeneration(bool enable);
 
+    bool enablePythonGeneration() const;
+    void setEnablePythonGeneration(bool enable);
+
 signals:
     void filesChanged(const QSet<QString> &, const QSet<QString> &);
 

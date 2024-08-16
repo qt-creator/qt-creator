@@ -15,7 +15,7 @@
 
 namespace QmlProjectManager {
 
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
 const char TEMPLATE_BIG_RESOURCES[] = R"(
 qt6_add_resources(%1 %2
@@ -49,6 +49,19 @@ QString CMakeWriter::readTemplate(const QString &templatePath)
     QString content = stream.readAll();
     templatefile.close();
     return content;
+}
+
+void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content)
+{
+    QFile fileHandle(path.toString());
+    if (fileHandle.open(QIODevice::WriteOnly)) {
+        QTextStream stream(&fileHandle);
+        stream << content;
+    } else {
+        QString text("Failed to write");
+        CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
+    }
+    fileHandle.close();
 }
 
 CMakeWriter::CMakeWriter(CMakeGenerator *parent)
@@ -257,19 +270,6 @@ std::tuple<QString, QString> CMakeWriter::makeResourcesBlocks(const NodePtr &nod
     return {resourcesOut, bigResourcesOut};
 }
 
-void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content) const
-{
-    QFile fileHandle(path.toString());
-    if (fileHandle.open(QIODevice::WriteOnly)) {
-        QTextStream stream(&fileHandle);
-        stream << content;
-    } else {
-        QString text("Failed to write");
-        CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
-    }
-    fileHandle.close();
-}
-
 void CMakeWriter::collectPlugins(const NodePtr &node, std::vector<QString> &out) const
 {
     if (isPlugin(node))
@@ -278,6 +278,6 @@ void CMakeWriter::collectPlugins(const NodePtr &node, std::vector<QString> &out)
         collectPlugins(child, out);
 }
 
-} // End namespace GenerateCmake.
+} // End namespace QmlProjectExporter.
 
 } // End namespace QmlProjectManager.

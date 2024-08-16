@@ -6,14 +6,14 @@
 
 namespace QmlProjectManager {
 
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
-class CMakeWriterV0 final : public CMakeWriter
+class CMakeWriterV1 final : public CMakeWriter
 {
 public:
-    CMakeWriterV0(CMakeGenerator *parent);
+    CMakeWriterV1(CMakeGenerator *parent);
 
-    bool isPlugin(const NodePtr &node) const override;
+    QString sourceDirName() const override;
     void transformNode(NodePtr &node) const override;
 
     void writeRootCMakeFile(const NodePtr &node) const override;
@@ -21,5 +21,5 @@ public:
     void writeSourceFiles(const NodePtr &node, const NodePtr &root) const override;
 };
 
-} // namespace GenerateCmake
+} // namespace QmlProjectExporter
 } // namespace QmlProjectManager

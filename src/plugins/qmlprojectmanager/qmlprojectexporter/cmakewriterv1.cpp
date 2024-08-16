@@ -7,7 +7,7 @@
 
 namespace QmlProjectManager {
 
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
 const char TEMPLATE_SRC_CMAKELISTS[] = R"(
 target_sources(${CMAKE_PROJECT_NAME} PUBLIC
@@ -183,5 +183,5 @@ void CMakeWriterV1::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
     writeFile(headerPath, headerTemplate.arg(environmentPrefix, environmentPostfix));
 }
 
-} // namespace GenerateCmake
+} // namespace QmlProjectExporter
 } // namespace QmlProjectManager

@@ -5,7 +5,7 @@
 
 namespace QmlProjectManager {
 
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
 const char TEMPLATE_ADD_QML_MODULE[] = R"(
 qt6_add_qml_module(%1
@@ -176,5 +176,5 @@ void CMakeWriterV0::writeSourceFiles(const NodePtr &node, const NodePtr &root) c
     writeFile(headerFilePath, importPluginsHeader);
 }
 
-} // namespace GenerateCmake
+} // namespace QmlProjectExporter
 } // namespace QmlProjectManager

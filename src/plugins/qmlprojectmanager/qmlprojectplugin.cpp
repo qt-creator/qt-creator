@@ -9,7 +9,8 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
-#include "cmakegen/cmakegenerator.h"
+#include "qmlprojectexporter/cmakegenerator.h"
+#include "qmlprojectexporter/pythongenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -402,7 +403,8 @@ void QmlProjectPlugin::initialize()
                                                      != fileNode->filePath());
                 });
 
-        GenerateCmake::CMakeGenerator::createMenuAction(this);
+        QmlProjectExporter::CMakeGenerator::createMenuAction(this);
+        QmlProjectExporter::PythonGenerator::createMenuAction(this);
     }
 }
 

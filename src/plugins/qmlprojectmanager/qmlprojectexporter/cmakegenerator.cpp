@@ -5,46 +5,26 @@
 #include "filetypes.h"
 
 #include "qmlprojectmanager/qmlproject.h"
-#include "qmlprojectmanager/qmlprojectconstants.h"
 #include "qmlprojectmanager/qmlprojectmanagertr.h"
 
 #include "projectexplorer/projectmanager.h"
 #include "projectexplorer/projectnodes.h"
-#include "projectexplorer/taskhub.h"
 
 #include "utils/filenamevalidatinglineedit.h"
 
-#include "coreplugin/actionmanager/actionmanager.h"
-#include "coreplugin/actionmanager/actioncontainer.h"
-
 #include <QDirIterator>
 #include <QFileInfo>
-#include <QMenu>
 #include <QRegularExpression>
 
 #include <set>
 
 namespace QmlProjectManager {
-
-namespace GenerateCmake {
+namespace QmlProjectExporter {
 
 void CMakeGenerator::createMenuAction(QObject *parent)
 {
-    Core::ActionContainer *fileMenu = Core::ActionManager::actionContainer(
-        Core::Constants::M_FILE);
-    Core::ActionContainer *exportMenu = Core::ActionManager::createMenu(
-        QmlProjectManager::Constants::EXPORT_MENU);
-
-    exportMenu->menu()->setTitle(Tr::tr("Export Project"));
-    exportMenu->appendGroup(QmlProjectManager::Constants::G_EXPORT_GENERATE);
-    fileMenu->addMenu(exportMenu, Core::Constants::G_FILE_EXPORT);
-
-    auto action = new QAction(Tr::tr("Enable Automatic CMake Generation"), parent);
-    action->setEnabled(false);
-    action->setCheckable(true);
-
-    Core::Command *cmd = Core::ActionManager::registerAction(action, "QmlProject.EnableCMakeGeneration");
-    exportMenu->addAction(cmd, QmlProjectManager::Constants::G_EXPORT_GENERATE);
+    QAction *action = FileGenerator::createMenuAction(
+        parent, Tr::tr("Enable CMake Generator"), "QmlProject.EnableCMakeGeneration");
 
     QObject::connect(
         ProjectExplorer::ProjectManager::instance(),
@@ -63,82 +43,21 @@ void CMakeGenerator::createMenuAction(QObject *parent)
     });
 }
 
-void CMakeGenerator::logIssue(ProjectExplorer::Task::TaskType type, const QString &text, const Utils::FilePath &file)
-{
-    ProjectExplorer::BuildSystemTask task(type, text, file);
-    ProjectExplorer::TaskHub::addTask(task);
-    ProjectExplorer::TaskHub::requestPopup();
-}
-
-void CMakeGenerator::updateMenuAction()
-{
-    QTC_ASSERT(buildSystem(), return);
-
-    Core::Command *cmd = Core::ActionManager::command("QmlProject.EnableCMakeGeneration");
-    if (!cmd)
-        return;
-
-    QAction *action = cmd->action();
-    if (!action)
-        return;
-
-    bool enabled = buildSystem()->enableCMakeGeneration();
-    if (enabled != action->isChecked())
-        action->setChecked(enabled);
-}
-
-CMakeGenerator::CMakeGenerator(QmlBuildSystem *bs, QObject *parent)
-    : QObject(parent)
-    , m_buildSystem(bs)
+CMakeGenerator::CMakeGenerator(QmlBuildSystem *bs)
+    : FileGenerator(bs)
     , m_root(std::make_shared<Node>())
 {}
 
-const QmlProject *CMakeGenerator::qmlProject() const
+void CMakeGenerator::updateMenuAction()
 {
-    if (m_buildSystem)
-        return m_buildSystem->qmlProject();
-    return nullptr;
+    FileGenerator::updateMenuAction(
+        "QmlProject.EnableCMakeGeneration",
+        [this](){ return buildSystem()->enableCMakeGeneration(); });
 }
 
-const QmlBuildSystem *CMakeGenerator::buildSystem() const
+void CMakeGenerator::updateProject(QmlProject *project)
 {
-    return m_buildSystem;
-}
-
-bool CMakeGenerator::findFile(const Utils::FilePath& file) const
-{
-    return findFile(m_root, file);
-}
-
-bool CMakeGenerator::isRootNode(const NodePtr &node) const
-{
-    return node->name == "Main";
-}
-
-bool CMakeGenerator::hasChildModule(const NodePtr &node) const
-{
-    for (const NodePtr &child : node->subdirs) {
-        if (child->type == Node::Type::Module)
-            return true;
-        if (hasChildModule(child))
-            return true;
-    }
-    return false;
-}
-
-QString CMakeGenerator::projectName() const
-{
-    return m_projectName;
-}
-
-void CMakeGenerator::setEnabled(bool enabled)
-{
-    m_enabled = enabled;
-}
-
-void CMakeGenerator::initialize(QmlProject *project)
-{
-    if (!m_enabled)
+    if (!isEnabled())
         return;
 
     m_moduleNames.clear();
@@ -162,12 +81,36 @@ void CMakeGenerator::initialize(QmlProject *project)
     compareWithFileSystem(m_root);
 }
 
+QString CMakeGenerator::projectName() const
+{
+    return m_projectName;
+}
+
+bool CMakeGenerator::findFile(const Utils::FilePath& file) const
+{
+    return findFile(m_root, file);
+}
+
+bool CMakeGenerator::isRootNode(const NodePtr &node) const
+{
+    return node->name == "Main";
+}
+
+bool CMakeGenerator::hasChildModule(const NodePtr &node) const
+{
+    for (const NodePtr &child : node->subdirs) {
+        if (child->type == Node::Type::Module)
+            return true;
+        if (hasChildModule(child))
+            return true;
+    }
+    return false;
+}
+
 void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &removed)
 {
-    if (!m_enabled)
+    if (!isEnabled() || !m_writer)
         return;
-
-    QTC_ASSERT(m_writer, return);
 
     std::set<NodePtr> dirtyModules;
     for (const QString &add : added) {
@@ -551,5 +494,5 @@ void CMakeGenerator::compareWithFileSystem(const NodePtr &node) const
         logIssue(ProjectExplorer::Task::Warning, text, file);
 }
 
-} // namespace GenerateCmake
+} // namespace QmlProjectExporter
 } // namespace QmlProjectManager

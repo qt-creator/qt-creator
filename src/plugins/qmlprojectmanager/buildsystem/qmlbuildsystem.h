@@ -10,7 +10,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <utils/filesystemwatcher.h>
 
-#include "qmlprojectmanager/cmakegen/cmakegenerator.h"
+#include "qmlprojectmanager/qmlprojectexporter/exporter.h"
 
 namespace QmlProjectManager {
 
@@ -87,6 +87,9 @@ public:
     bool enableCMakeGeneration() const;
     void setEnableCMakeGeneration(bool enable);
 
+    bool enablePythonGeneration() const;
+    void setEnablePythonGeneration(bool enable);
+
     bool forceFreeType() const;
     bool widgetApp() const;
 
@@ -133,7 +136,7 @@ private:
     void updateDeploymentData();
     friend class FilesUpdateBlocker;
 
-    GenerateCmake::CMakeGenerator* m_cmakeGen;
+    QmlProjectExporter::Exporter* m_fileGen;
 };
 
 } // namespace QmlProjectManager

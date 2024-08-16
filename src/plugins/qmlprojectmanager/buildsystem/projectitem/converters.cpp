@@ -3,7 +3,7 @@
 
 #include "converters.h"
 #include "utils/algorithm.h"
-#include "cmakegen/filetypes.h"
+#include "qmlprojectexporter/filetypes.h"
 
 #include <QJsonDocument>
 
@@ -144,6 +144,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("mainUiFile", runConfig["mainUiFile"].toString());
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
         appendBool("enableCMakeGeneration", deploymentConfig["enableCMakeGeneration"].toBool());
+        appendBool("enablePythonGeneration", deploymentConfig["enablePythonGeneration"].toBool());
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
         appendBreak();
@@ -384,7 +385,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                    || propName.contains("forcefreetype", Qt::CaseInsensitive)) {
             currentObj = &runConfigObject;
         } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)
-                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)) {
+                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
+                || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)) {
             currentObj = &deploymentObject;
         } else if (propName.contains("qtformcus", Qt::CaseInsensitive)) {
             qtForMCUs = value.toBool();
