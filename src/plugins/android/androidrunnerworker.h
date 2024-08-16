@@ -21,10 +21,10 @@ class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner);
+    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &deviceSerialNumber,
+                        int apiLevel);
     ~AndroidRunnerWorker() override;
 
-    void setAndroidDeviceInfo(const AndroidDeviceInfo &info);
     void asyncStart();
     void asyncStop();
 

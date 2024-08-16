@@ -130,7 +130,8 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
+AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &deviceSerialNumber,
+                                         int apiLevel)
 {
     auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
@@ -162,8 +163,8 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner)
     auto target = runControl->target();
     m_packageName = AndroidManager::packageName(target);
     m_intentName = m_packageName + '/' + AndroidManager::activityName(target);
-    m_deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
-    m_apiLevel = AndroidManager::deviceApiLevel(target);
+    m_deviceSerialNumber = deviceSerialNumber;
+    m_apiLevel = apiLevel;
     qCDebug(androidRunWorkerLog) << "Intent name:" << m_intentName
                                  << "Package name:" << m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << m_apiLevel;
@@ -222,14 +223,6 @@ AndroidRunnerWorker::~AndroidRunnerWorker()
 QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
-}
-
-void AndroidRunnerWorker::setAndroidDeviceInfo(const AndroidDeviceInfo &info)
-{
-    m_deviceSerialNumber = info.serialNumber;
-    m_apiLevel = info.sdk;
-    qCDebug(androidRunWorkerLog) << "Android Device Info changed"
-                                 << m_deviceSerialNumber << m_apiLevel;
 }
 
 CommandLine AndroidRunnerWorker::adbCommand(std::initializer_list<CommandLine::ArgRef> args) const

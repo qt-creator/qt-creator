@@ -34,13 +34,12 @@ public:
     void stop() override;
 
 signals:
-    void asyncStart();
     void asyncStop();
     void qmlServerReady(const QUrl &serverUrl);
-    void androidDeviceInfoChanged(const Android::AndroidDeviceInfo &deviceInfo);
     void avdDetected();
 
 private:
+    void startImpl(const QString &deviceSerialNumber, int apiLevel);
     void qmlServerPortReady(Utils::Port port);
     void remoteOutput(const QString &output);
     void remoteErrorOutput(const QString &output);

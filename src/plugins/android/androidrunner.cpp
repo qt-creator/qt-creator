@@ -40,27 +40,8 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
     };
     Q_UNUSED(metaTypes)
 
-    m_worker = new AndroidRunnerWorker(this);
-    m_worker->moveToThread(&m_thread);
-    QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
-
-    connect(this, &AndroidRunner::asyncStart, m_worker, &AndroidRunnerWorker::asyncStart);
-    connect(this, &AndroidRunner::asyncStop, m_worker, &AndroidRunnerWorker::asyncStop);
-    connect(this, &AndroidRunner::androidDeviceInfoChanged,
-            m_worker, &AndroidRunnerWorker::setAndroidDeviceInfo);
-
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessStarted,
-            this, &AndroidRunner::handleRemoteProcessStarted);
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessFinished,
-            this, &AndroidRunner::handleRemoteProcessFinished);
-    connect(m_worker, &AndroidRunnerWorker::remoteOutput, this, &AndroidRunner::remoteOutput);
-    connect(m_worker, &AndroidRunnerWorker::remoteErrorOutput,
-            this, &AndroidRunner::remoteErrorOutput);
-
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &AndroidRunner::qmlServerPortReady);
-
-    m_thread.start();
 }
 
 AndroidRunner::~AndroidRunner()
@@ -71,13 +52,19 @@ AndroidRunner::~AndroidRunner()
 
 void AndroidRunner::start()
 {
+    QString deviceSerialNumber;
+    int apiLevel = -1;
+
     if (!projectExplorerSettings().deployBeforeRun && m_target && m_target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
         const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
         AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
-        emit androidDeviceInfoChanged(info);
+        deviceSerialNumber = info.serialNumber;
+        apiLevel = info.sdk;
+        qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
+                                  << apiLevel;
 
         if (!info.avdName.isEmpty()) {
             const Storage<QString> serialNumberStorage;
@@ -87,14 +74,17 @@ void AndroidRunner::start()
                 AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
             };
 
-            m_startAvdRunner.start(recipe, {}, [this](DoneWith result) {
+            m_startAvdRunner.start(recipe, {}, [this, deviceSerialNumber, apiLevel](DoneWith result) {
                 if (result == DoneWith::Success)
-                    emit asyncStart();
+                    startImpl(deviceSerialNumber, apiLevel);
             });
             return;
         }
+    } else {
+        deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
+        apiLevel = AndroidManager::deviceApiLevel(m_target);
     }
-    emit asyncStart();
+    startImpl(deviceSerialNumber, apiLevel);
 }
 
 void AndroidRunner::stop()
@@ -106,6 +96,29 @@ void AndroidRunner::stop()
         return;
     }
     emit asyncStop();
+}
+
+void AndroidRunner::startImpl(const QString &deviceSerialNumber, int apiLevel)
+{
+    if (m_worker)
+        m_worker->deleteLater();
+
+    m_worker = new AndroidRunnerWorker(this, deviceSerialNumber, apiLevel);
+    m_worker->moveToThread(&m_thread);
+    QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
+
+    connect(this, &AndroidRunner::asyncStop, m_worker, &AndroidRunnerWorker::asyncStop);
+
+    connect(m_worker, &AndroidRunnerWorker::remoteProcessStarted,
+            this, &AndroidRunner::handleRemoteProcessStarted);
+    connect(m_worker, &AndroidRunnerWorker::remoteProcessFinished,
+            this, &AndroidRunner::handleRemoteProcessFinished);
+    connect(m_worker, &AndroidRunnerWorker::remoteOutput, this, &AndroidRunner::remoteOutput);
+    connect(m_worker, &AndroidRunnerWorker::remoteErrorOutput,
+            this, &AndroidRunner::remoteErrorOutput);
+
+    m_thread.start();
+    QMetaObject::invokeMethod(m_worker, &AndroidRunnerWorker::asyncStart);
 }
 
 void AndroidRunner::qmlServerPortReady(Port port)
