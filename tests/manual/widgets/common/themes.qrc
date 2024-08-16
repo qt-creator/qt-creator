@@ -8,5 +8,6 @@
     <file alias="design.creatortheme">../../../../share/qtcreator/themes/design.creatortheme</file>
     <file alias="dark.figmatokens">../../../../share/qtcreator/themes/dark.figmatokens</file>
     <file alias="light.figmatokens">../../../../share/qtcreator/themes/light.figmatokens</file>
+    <file alias="light-palette.inc">../../../../share/qtcreator/themes/light-palette.inc</file>
 </qresource>
 </RCC>
