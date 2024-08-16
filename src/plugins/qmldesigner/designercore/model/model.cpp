@@ -663,8 +663,9 @@ void ModelPrivate::notifyInstanceErrorChange(const QVector<qint32> &instanceIds)
 {
     notifyInstanceChanges([&](AbstractView *view) {
         QVector<ModelNode> errorNodeList;
+        errorNodeList.reserve(instanceIds.size());
         for (qint32 instanceId : instanceIds)
-            errorNodeList.append(ModelNode(m_model->d->nodeForInternalId(instanceId), m_model, view));
+            errorNodeList.emplace_back(m_model->d->nodeForInternalId(instanceId), m_model, view);
         view->instanceErrorChanged(errorNodeList);
     });
 }
@@ -819,10 +820,8 @@ void ModelPrivate::notifyPropertiesRemoved(const QList<PropertyPair> &propertyPa
     notifyNormalViewsLast([&](AbstractView *view) {
         QList<AbstractProperty> propertyList;
         propertyList.reserve(propertyPairList.size());
-        for (const PropertyPair &propertyPair : propertyPairList) {
-            AbstractProperty newProperty(propertyPair.second, propertyPair.first, m_model, view);
-            propertyList.append(newProperty);
-        }
+        for (const PropertyPair &propertyPair : propertyPairList)
+            propertyList.emplace_back(propertyPair.second, propertyPair.first, m_model, view);
 
         view->propertiesRemoved(propertyList);
     });
@@ -989,11 +988,12 @@ void ModelPrivate::notifyBindingPropertiesAboutToBeChanged(
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
+        propertyList.reserve(internalPropertyList.size());
         for (auto bindingProperty : internalPropertyList) {
-            propertyList.append(BindingProperty(bindingProperty->name(),
-                                                bindingProperty->propertyOwner(),
-                                                m_model,
-                                                view));
+            propertyList.emplace_back(bindingProperty->name(),
+                                      bindingProperty->propertyOwner(),
+                                      m_model,
+                                      view);
         }
         view->bindingPropertiesAboutToBeChanged(propertyList);
     });
@@ -1004,11 +1004,12 @@ void ModelPrivate::notifyBindingPropertiesChanged(const QList<InternalBindingPro
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<BindingProperty> propertyList;
+        propertyList.reserve(internalPropertyList.size());
         for (auto bindingProperty : internalPropertyList) {
-            propertyList.append(BindingProperty(bindingProperty->name(),
-                                                bindingProperty->propertyOwner(),
-                                                m_model,
-                                                view));
+            propertyList.emplace_back(bindingProperty->name(),
+                                      bindingProperty->propertyOwner(),
+                                      m_model,
+                                      view);
         }
         view->bindingPropertiesChanged(propertyList, propertyChange);
     });
@@ -1020,11 +1021,12 @@ void ModelPrivate::notifySignalHandlerPropertiesChanged(
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalHandlerProperty> propertyList;
+        propertyList.reserve(internalPropertyList.size());
         for (auto signalHandlerProperty : internalPropertyList) {
-            propertyList.append(SignalHandlerProperty(signalHandlerProperty->name(),
-                                                      signalHandlerProperty->propertyOwner(),
-                                                      m_model,
-                                                      view));
+            propertyList.emplace_back(signalHandlerProperty->name(),
+                                      signalHandlerProperty->propertyOwner(),
+                                      m_model,
+                                      view);
         }
         view->signalHandlerPropertiesChanged(propertyList, propertyChange);
     });
@@ -1036,11 +1038,12 @@ void ModelPrivate::notifySignalDeclarationPropertiesChanged(
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QVector<SignalDeclarationProperty> propertyList;
+        propertyList.reserve(internalPropertyList.size());
         for (auto signalHandlerProperty : internalPropertyList) {
-            propertyList.append(SignalDeclarationProperty(signalHandlerProperty->name(),
-                                                      signalHandlerProperty->propertyOwner(),
-                                                      m_model,
-                                                      view));
+            propertyList.emplace_back(signalHandlerProperty->name(),
+                                      signalHandlerProperty->propertyOwner(),
+                                      m_model,
+                                      view);
         }
         view->signalDeclarationPropertiesChanged(propertyList, propertyChange);
     });
@@ -1060,10 +1063,9 @@ void ModelPrivate::notifyVariantPropertiesChanged(const InternalNodePointer &nod
 {
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         QList<VariantProperty> propertyList;
-        for (PropertyNameView propertyName : propertyNameViews) {
-            VariantProperty property(propertyName, node, m_model, view);
-            propertyList.append(property);
-        }
+        propertyList.reserve(propertyNameViews.size());
+        for (PropertyNameView propertyName : propertyNameViews)
+            propertyList.emplace_back(propertyName, node, m_model, view);
 
         view->variantPropertiesChanged(propertyList, propertyChange);
     });
@@ -1216,8 +1218,9 @@ QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNodePointer> 
 QVector<ModelNode> ModelPrivate::toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const
 {
     QVector<ModelNode> modelNodeVector;
+    modelNodeVector.reserve(nodeVector.size());
     for (const InternalNodePointer &node : nodeVector)
-        modelNodeVector.append(ModelNode(node, m_model, view));
+        modelNodeVector.emplace_back(node, m_model, view);
 
     return modelNodeVector;
 }
