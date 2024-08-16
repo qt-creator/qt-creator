@@ -1680,7 +1680,6 @@ void openSignalDialog(const SelectionContext &selectionContext)
 void updateImported3DAsset(const SelectionContext &selectionContext)
 {
     if (selectionContext.view()) {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Components");
         selectionContext.view()->emitCustomNotification(
                     "UpdateImported3DAsset", {selectionContext.currentSingleSelectedNode()});
     }

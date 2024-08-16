@@ -41,6 +41,10 @@ public:
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId) override;
     void nodeSourceChanged(const ModelNode &node, const QString &newNodeSource) override;
+    void customNotification(const AbstractView *view, const QString &identifier, const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
+    void updateImport3DSupport(const QVariantMap &supportMap) override;
+    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
+    void possibleImportsChanged(const Imports &possibleImports) override;
 
     QStandardItemModel *standardItemModel() const;
 
@@ -71,6 +75,9 @@ private: //functions
 private:
     QStandardItemModel *m_standardItemModel;
     ComponentAction *m_componentAction;
+
+    QVariantMap m_importableExtensions3DMap;
+    QVariantMap m_importOptions3DMap;
 };
 
 } // namespace QmlDesigner

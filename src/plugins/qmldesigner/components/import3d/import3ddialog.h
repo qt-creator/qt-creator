@@ -1,8 +1,8 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include "itemlibraryassetimporter.h"
+#include "import3dimporter.h"
 
 #include <modelnode.h>
 
@@ -32,23 +32,23 @@ class NodeInstanceView;
 class RewriterView;
 
 namespace Ui {
-class ItemLibraryAssetImportDialog;
+class Import3dDialog;
 }
 
-class ItemLibraryAssetImportDialog : public QDialog
+class Import3dDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ItemLibraryAssetImportDialog(const QStringList &importFiles,
-                                          const QString &defaulTargetDirectory,
-                                          const QVariantMap &supportedExts,
-                                          const QVariantMap &supportedOpts,
-                                          const QJsonObject &defaultOpts,
-                                          const QSet<QString> &preselectedFilesForOverwrite,
-                                          AbstractView *view,
-                                          QWidget *parent = nullptr);
-    ~ItemLibraryAssetImportDialog();
+    explicit Import3dDialog(const QStringList &importFiles,
+                            const QString &defaulTargetDirectory,
+                            const QVariantMap &supportedExts,
+                            const QVariantMap &supportedOpts,
+                            const QJsonObject &defaultOpts,
+                            const QSet<QString> &preselectedFilesForOverwrite,
+                            AbstractView *view,
+                            QWidget *parent = nullptr);
+    ~Import3dDialog();
 
     static void updateImport(AbstractView *view,
                              const ModelNode &updateNode,
@@ -72,7 +72,7 @@ private:
         QLabel *iconLabel = {};
         QLabel *infoLabel = {};
         QPushButton *removeButton = {};
-        ItemLibraryAssetImporter::PreviewData previewData;
+        Import3dImporter::PreviewData previewData;
     };
 
     struct OptionsData
@@ -88,7 +88,7 @@ private:
     void onImport();
     void setImportProgress(int value, const QString &text);
     void onImportReadyForPreview(const QString &path,
-                                 const QList<ItemLibraryAssetImporter::PreviewData> &previewData);
+                                 const QList<Import3dImporter::PreviewData> &previewData);
     void onRequestImageUpdate();
     void onRequestRotation(const QPointF &delta);
     void onImportNearlyFinished();
@@ -115,7 +115,7 @@ private:
     Import3dCanvas *canvas();
     void resetOptionControls();
 
-    Ui::ItemLibraryAssetImportDialog *ui = nullptr;
+    Ui::Import3dDialog *ui = nullptr;
     Utils::OutputFormatter *m_outputFormatter = nullptr;
     QPointer<Import3dConnectionManager> m_connectionManager;
     QPointer<NodeInstanceView> m_nodeInstanceView;
@@ -128,7 +128,7 @@ private:
 
     QStringList m_quick3DFiles;
     QString m_quick3DImportPath;
-    ItemLibraryAssetImporter m_importer;
+    Import3dImporter m_importer;
     QVector<QJsonObject> m_importOptions;
     QHash<QString, int> m_extToImportOptionsMap;
     QSet<QString> m_preselectedFilesForOverwrite;

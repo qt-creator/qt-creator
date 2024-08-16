@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>QmlDesigner::ItemLibraryAssetImportDialog</class>
- <widget class="QDialog" name="QmlDesigner::ItemLibraryAssetImportDialog">
+ <class>QmlDesigner::Import3dDialog</class>
+ <widget class="QDialog" name="QmlDesigner::Import3dDialog">
   <property name="geometry">
    <rect>
     <x>0</x>

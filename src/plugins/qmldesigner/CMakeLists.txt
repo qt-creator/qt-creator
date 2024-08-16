@@ -518,6 +518,7 @@ add_qtc_plugin(QmlDesigner
     $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/components
+    ${CMAKE_CURRENT_LIST_DIR}/components/import3d
     ${CMAKE_CURRENT_LIST_DIR}/components/assetslibrary
     ${CMAKE_CURRENT_LIST_DIR}/components/debugview
     ${CMAKE_CURRENT_LIST_DIR}/components/edit3d
@@ -758,14 +759,6 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/itemlibrary
   SOURCES
-    assetimportupdatedialog.cpp assetimportupdatedialog.h
-    assetimportupdatedialog.ui
-    assetimportupdatetreeitem.cpp assetimportupdatetreeitem.h
-    assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
-    assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
-    assetimportupdatetreeview.cpp assetimportupdatetreeview.h
-    import3dcanvas.cpp import3dcanvas.h
-    import3dconnectionmanager.cpp import3dconnectionmanager.h
     itemlibrary.qrc
     itemlibraryconstants.h
     itemlibraryimageprovider.cpp itemlibraryimageprovider.h
@@ -775,13 +768,26 @@ extend_qtc_plugin(QmlDesigner
     itemlibraryitemsmodel.cpp itemlibraryitemsmodel.h
     itemlibraryview.cpp itemlibraryview.h
     itemlibrarywidget.cpp itemlibrarywidget.h
-    itemlibraryassetimportdialog.cpp itemlibraryassetimportdialog.h
-    itemlibraryassetimportdialog.ui
-    itemlibraryassetimporter.cpp itemlibraryassetimporter.h
     itemlibraryiconimageprovider.cpp itemlibraryiconimageprovider.h
     itemlibraryimport.cpp itemlibraryimport.h
     itemlibrarycategoriesmodel.cpp itemlibrarycategoriesmodel.h
     itemlibraryaddimportmodel.cpp itemlibraryaddimportmodel.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/import3d
+  SOURCES
+    assetimportupdatedialog.cpp assetimportupdatedialog.h
+    assetimportupdatedialog.ui
+    assetimportupdatetreeitem.cpp assetimportupdatetreeitem.h
+    assetimportupdatetreeitemdelegate.cpp assetimportupdatetreeitemdelegate.h
+    assetimportupdatetreemodel.cpp assetimportupdatetreemodel.h
+    assetimportupdatetreeview.cpp assetimportupdatetreeview.h
+    import3dcanvas.cpp import3dcanvas.h
+    import3dconnectionmanager.cpp import3dconnectionmanager.h
+    import3ddialog.cpp import3ddialog.h
+    import3ddialog.ui
+    import3dimporter.cpp import3dimporter.h
 )
 
 extend_qtc_plugin(QmlDesigner

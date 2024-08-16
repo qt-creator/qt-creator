@@ -1,4 +1,4 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
@@ -14,19 +14,18 @@
 #include <QFileInfo>
 
 QT_BEGIN_NAMESPACE
-class QSSGAssetImportManager;
 class QTemporaryDir;
 QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class ItemLibraryAssetImporter : public QObject
+class Import3dImporter : public QObject
 {
     Q_OBJECT
 
 public:
-    ItemLibraryAssetImporter(QObject *parent = nullptr);
-    ~ItemLibraryAssetImporter();
+    Import3dImporter(QObject *parent = nullptr);
+    ~Import3dImporter();
 
     void importQuick3D(const QStringList &inputFiles, const QString &importPath,
                        const QVector<QJsonObject> &options,

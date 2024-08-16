@@ -1,8 +1,8 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "itemlibraryassetimportdialog.h"
-#include "ui_itemlibraryassetimportdialog.h"
+#include "import3ddialog.h"
+#include "ui_import3ddialog.h"
 
 #include "import3dcanvas.h"
 #include "import3dconnectionmanager.h"
@@ -90,13 +90,13 @@ constexpr QStringView expandValuesKey{u"expandValueComponents"};
 
 } // namespace
 
-ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
+Import3dDialog::Import3dDialog(
         const QStringList &importFiles, const QString &defaulTargetDirectory,
         const QVariantMap &supportedExts, const QVariantMap &supportedOpts,
         const QJsonObject &defaultOpts, const QSet<QString> &preselectedFilesForOverwrite,
         AbstractView *view, QWidget *parent)
     : QDialog(parent)
-    , ui(new Ui::ItemLibraryAssetImportDialog)
+    , ui(new Ui::Import3dDialog)
     , m_view(view)
     , m_importer(this)
     , m_preselectedFilesForOverwrite(preselectedFilesForOverwrite)
@@ -133,7 +133,7 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     if (m_quick3DFiles.size() != importFiles.size())
         addWarning("Cannot import 3D and other assets simultaneously. Skipping non-3D assets.");
 
-    connect(ui->importButton, &QPushButton::clicked, this, &ItemLibraryAssetImportDialog::onImport);
+    connect(ui->importButton, &QPushButton::clicked, this, &Import3dDialog::onImport);
 
     ui->importButton->setDefault(true);
 
@@ -235,38 +235,38 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     }
 
     connect(ui->closeButton, &QPushButton::clicked,
-            this, &ItemLibraryAssetImportDialog::onClose);
+            this, &Import3dDialog::onClose);
     connect(ui->tabWidget, &QTabWidget::currentChanged,
-            this, &ItemLibraryAssetImportDialog::updateUi);
+            this, &Import3dDialog::updateUi);
     connect(canvas(), &Import3dCanvas::requestImageUpdate,
-            this, &ItemLibraryAssetImportDialog::onRequestImageUpdate);
+            this, &Import3dDialog::onRequestImageUpdate);
     connect(canvas(), &Import3dCanvas::requestRotation,
-            this, &ItemLibraryAssetImportDialog::onRequestRotation);
+            this, &Import3dDialog::onRequestRotation);
 
-    connect(&m_importer, &ItemLibraryAssetImporter::errorReported,
-            this, &ItemLibraryAssetImportDialog::addError);
-    connect(&m_importer, &ItemLibraryAssetImporter::warningReported,
-            this, &ItemLibraryAssetImportDialog::addWarning);
-    connect(&m_importer, &ItemLibraryAssetImporter::infoReported,
-            this, &ItemLibraryAssetImportDialog::addInfo);
-    connect(&m_importer, &ItemLibraryAssetImporter::importNearlyFinished,
-            this, &ItemLibraryAssetImportDialog::onImportNearlyFinished);
-    connect(&m_importer, &ItemLibraryAssetImporter::importFinished,
-            this, &ItemLibraryAssetImportDialog::onImportFinished);
-    connect(&m_importer, &ItemLibraryAssetImporter::progressChanged,
-            this, &ItemLibraryAssetImportDialog::setImportProgress);
-    connect(&m_importer, &ItemLibraryAssetImporter::importReadyForPreview,
-            this, &ItemLibraryAssetImportDialog::onImportReadyForPreview);
+    connect(&m_importer, &Import3dImporter::errorReported,
+            this, &Import3dDialog::addError);
+    connect(&m_importer, &Import3dImporter::warningReported,
+            this, &Import3dDialog::addWarning);
+    connect(&m_importer, &Import3dImporter::infoReported,
+            this, &Import3dDialog::addInfo);
+    connect(&m_importer, &Import3dImporter::importNearlyFinished,
+            this, &Import3dDialog::onImportNearlyFinished);
+    connect(&m_importer, &Import3dImporter::importFinished,
+            this, &Import3dDialog::onImportFinished);
+    connect(&m_importer, &Import3dImporter::progressChanged,
+            this, &Import3dDialog::setImportProgress);
+    connect(&m_importer, &Import3dImporter::importReadyForPreview,
+            this, &Import3dDialog::onImportReadyForPreview);
 
     connect(ui->advancedSettingsButton, &QPushButton::clicked,
-            this, &ItemLibraryAssetImportDialog::toggleAdvanced);
+            this, &Import3dDialog::toggleAdvanced);
     connect(ui->importList, &QListWidget::currentItemChanged,
-            this, &ItemLibraryAssetImportDialog::onCurrentItemChanged);
+            this, &Import3dDialog::onCurrentItemChanged);
 
-    QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::updateUi);
+    QTimer::singleShot(0, this, &Import3dDialog::updateUi);
 
     addInfo(tr("Importing:"));
-    QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::onImport);
+    QTimer::singleShot(0, this, &Import3dDialog::onImport);
 
     for (const auto &file : std::as_const(m_quick3DFiles))
         addInfo(file);
@@ -274,16 +274,16 @@ ItemLibraryAssetImportDialog::ItemLibraryAssetImportDialog(
     m_updatingControlStates = false;
 }
 
-ItemLibraryAssetImportDialog::~ItemLibraryAssetImportDialog()
+Import3dDialog::~Import3dDialog()
 {
     cleanupPreviewPuppet();
     delete ui;
 }
 
-void ItemLibraryAssetImportDialog::updateImport(AbstractView *view,
-                                                const ModelNode &updateNode,
-                                                const QVariantMap &supportedExts,
-                                                const QVariantMap &supportedOpts)
+void Import3dDialog::updateImport(AbstractView *view,
+                                  const ModelNode &updateNode,
+                                  const QVariantMap &supportedExts,
+                                  const QVariantMap &supportedOpts)
 {
     QString errorMsg;
     const ModelNode &node = updateNode;
@@ -366,7 +366,7 @@ void ItemLibraryAssetImportDialog::updateImport(AbstractView *view,
                                     source = QDir{compFileInfo.absolutePath()}.absoluteFilePath(source);
                                 preselectedFiles.insert(source);
                             }
-                            auto importDlg = new ItemLibraryAssetImportDialog(
+                            auto importDlg = new Import3dDialog(
                                         {sourceInfo.absoluteFilePath()},
                                         node.model()->fileUrl().toLocalFile(),
                                         supportedExts, supportedOpts, options,
@@ -404,7 +404,7 @@ void ItemLibraryAssetImportDialog::updateImport(AbstractView *view,
     }
 }
 
-void ItemLibraryAssetImportDialog::keyPressEvent(QKeyEvent *event)
+void Import3dDialog::keyPressEvent(QKeyEvent *event)
 {
     if ((event->key() == Qt::Key_Backspace || event->key() == Qt::Key_Delete)
         && ui->importList->currentItem()) {
@@ -413,8 +413,8 @@ void ItemLibraryAssetImportDialog::keyPressEvent(QKeyEvent *event)
     return QDialog::keyPressEvent(event);
 }
 
-void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int optionsIndex,
-                                             const QJsonObject &groups)
+void Import3dDialog::createTab(const QString &tabLabel, int optionsIndex,
+                               const QJsonObject &groups)
 {
     auto optionsArea = new QScrollArea(ui->tabWidget);
     optionsArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -451,7 +451,7 @@ void ItemLibraryAssetImportDialog::createTab(const QString &tabLabel, int option
     ui->tabWidget->addTab(optionsArea, tr("%1 options").arg(tabLabel));
 }
 
-QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
+QGridLayout *Import3dDialog::createOptionsGrid(
         QWidget *contentWidget, bool advanced, int optionsIndex, const QJsonObject &groups)
 {
     auto layout = new QGridLayout();
@@ -839,7 +839,7 @@ QGridLayout *ItemLibraryAssetImportDialog::createOptionsGrid(
     return layout;
 }
 
-void ItemLibraryAssetImportDialog::updateUi()
+void Import3dDialog::updateUi()
 {
     auto optionsArea = qobject_cast<QScrollArea *>(ui->tabWidget->currentWidget());
     if (optionsArea) {
@@ -858,7 +858,7 @@ void ItemLibraryAssetImportDialog::updateUi()
     }
 }
 
-QString ItemLibraryAssetImportDialog::assetNameForListItem(QListWidgetItem *item)
+QString Import3dDialog::assetNameForListItem(QListWidgetItem *item)
 {
     for (const ImportData &data : std::as_const(m_importData)) {
         if (data.listItem == item)
@@ -867,7 +867,7 @@ QString ItemLibraryAssetImportDialog::assetNameForListItem(QListWidgetItem *item
     return {};
 }
 
-bool ItemLibraryAssetImportDialog::isSimpleGroup(const QString &id)
+bool Import3dDialog::isSimpleGroup(const QString &id)
 {
     static QStringList simpleGroups {
         "globalScale"
@@ -876,7 +876,7 @@ bool ItemLibraryAssetImportDialog::isSimpleGroup(const QString &id)
     return simpleGroups.contains(id);
 }
 
-bool ItemLibraryAssetImportDialog::isSimpleOption(const QString &id)
+bool Import3dDialog::isSimpleOption(const QString &id)
 {
     static QStringList simpleOptions {
         "globalScale",
@@ -886,7 +886,7 @@ bool ItemLibraryAssetImportDialog::isSimpleOption(const QString &id)
     return simpleOptions.contains(id);
 }
 
-bool ItemLibraryAssetImportDialog::isHiddenOption(const QString &id)
+bool Import3dDialog::isHiddenOption(const QString &id)
 {
     static QList<QStringView> hiddenOptions {
         qdsWorkaroundsKey,
@@ -896,7 +896,7 @@ bool ItemLibraryAssetImportDialog::isHiddenOption(const QString &id)
     return hiddenOptions.contains(id);
 }
 
-bool ItemLibraryAssetImportDialog::optionsChanged()
+bool Import3dDialog::optionsChanged()
 {
     for (const ImportData &data : std::as_const(m_importData)) {
         if (data.previewData.renderedOptions != data.previewData.currentOptions)
@@ -905,7 +905,7 @@ bool ItemLibraryAssetImportDialog::optionsChanged()
     return false;
 }
 
-void ItemLibraryAssetImportDialog::startPreview()
+void Import3dDialog::startPreview()
 {
     cleanupPreviewPuppet();
 
@@ -1039,7 +1039,7 @@ Rectangle {
         const QString errorMsg(tr("Preview generation process crashed."));
         addWarning(errorMsg);
         canvas()->displayError(errorMsg);
-        QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::cleanupPreviewPuppet);
+        QTimer::singleShot(0, this, &Import3dDialog::cleanupPreviewPuppet);
     };
 
     m_connectionManager->setPreviewIconCallback(std::move(previewIconCallback));
@@ -1049,7 +1049,7 @@ Rectangle {
     m_model->setNodeInstanceView(m_nodeInstanceView);
 }
 
-void ItemLibraryAssetImportDialog::cleanupPreviewPuppet()
+void Import3dDialog::cleanupPreviewPuppet()
 {
     if (m_model) {
         m_model->setNodeInstanceView({});
@@ -1070,12 +1070,12 @@ void ItemLibraryAssetImportDialog::cleanupPreviewPuppet()
     delete m_connectionManager;
 }
 
-Import3dCanvas *ItemLibraryAssetImportDialog::canvas()
+Import3dCanvas *Import3dDialog::canvas()
 {
     return ui->import3dcanvas;
 }
 
-void ItemLibraryAssetImportDialog::resetOptionControls()
+void Import3dDialog::resetOptionControls()
 {
     const QString currentName = assetNameForListItem(ui->importList->currentItem());
     if (!m_importData.contains(currentName))
@@ -1100,19 +1100,19 @@ void ItemLibraryAssetImportDialog::resetOptionControls()
     updatePreviewOptions();
 }
 
-void ItemLibraryAssetImportDialog::resizeEvent(QResizeEvent *event)
+void Import3dDialog::resizeEvent(QResizeEvent *event)
 {
     m_dialogHeight = event->size().height();
     updateUi();
 }
 
-void ItemLibraryAssetImportDialog::setCloseButtonState(bool importing)
+void Import3dDialog::setCloseButtonState(bool importing)
 {
     ui->closeButton->setEnabled(true);
     ui->closeButton->setText(importing ? tr("Cancel") : tr("Close"));
 }
 
-void ItemLibraryAssetImportDialog::updatePreviewOptions()
+void Import3dDialog::updatePreviewOptions()
 {
     if (m_updatingControlStates)
         return;
@@ -1128,24 +1128,24 @@ void ItemLibraryAssetImportDialog::updatePreviewOptions()
     ui->importButton->setText(optionsChanged() ? tr("Import") : tr("Accept"));
 }
 
-void ItemLibraryAssetImportDialog::addError(const QString &error, const QString &srcPath)
+void Import3dDialog::addError(const QString &error, const QString &srcPath)
 {
     m_closeOnFinish = false;
     addFormattedMessage(m_outputFormatter, error, srcPath, Utils::StdErrFormat);
 }
 
-void ItemLibraryAssetImportDialog::addWarning(const QString &warning, const QString &srcPath)
+void Import3dDialog::addWarning(const QString &warning, const QString &srcPath)
 {
     m_closeOnFinish = false;
     addFormattedMessage(m_outputFormatter, warning, srcPath, Utils::StdOutFormat);
 }
 
-void ItemLibraryAssetImportDialog::addInfo(const QString &info, const QString &srcPath)
+void Import3dDialog::addInfo(const QString &info, const QString &srcPath)
 {
     addFormattedMessage(m_outputFormatter, info, srcPath, Utils::NormalMessageFormat);
 }
 
-void ItemLibraryAssetImportDialog::onImport()
+void Import3dDialog::onImport()
 {
     ui->importButton->setEnabled(false);
     ui->tabWidget->setEnabled(false);
@@ -1179,7 +1179,7 @@ void ItemLibraryAssetImportDialog::onImport()
     }
 }
 
-void ItemLibraryAssetImportDialog::setImportProgress(int value, const QString &text)
+void Import3dDialog::setImportProgress(int value, const QString &text)
 {
     ui->progressLabel->setText(text);
     if (value < 0)
@@ -1189,8 +1189,8 @@ void ItemLibraryAssetImportDialog::setImportProgress(int value, const QString &t
     ui->progressBar->setValue(value);
 }
 
-void ItemLibraryAssetImportDialog::onImportReadyForPreview(
-    const QString &path, const QList<ItemLibraryAssetImporter::PreviewData> &previewData)
+void Import3dDialog::onImportReadyForPreview(
+    const QString &path, const QList<Import3dImporter::PreviewData> &previewData)
 {
     if (previewData.isEmpty()) {
         m_importer.cancelImport();
@@ -1204,7 +1204,7 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
     const QString tallStr = "Wj\nWj\nWj";
 
     QStringList assetNames;
-    for (const ItemLibraryAssetImporter::PreviewData &data : previewData) {
+    for (const Import3dImporter::PreviewData &data : previewData) {
         const QString assetName = data.name;
         assetNames.append(assetName);
         if (!m_importData.contains(assetName)) {
@@ -1277,7 +1277,7 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
 
     if (m_previewFile.isEmpty()) {
         m_previewFile = Utils::FilePath::fromString(path).pathAppended(m_importer.previewFileName());
-        QTimer::singleShot(0, this, &ItemLibraryAssetImportDialog::startPreview);
+        QTimer::singleShot(0, this, &Import3dDialog::startPreview);
     }
 
     QTimer::singleShot(0, this, [this, assetNames]() {
@@ -1303,25 +1303,25 @@ void ItemLibraryAssetImportDialog::onImportReadyForPreview(
         ui->importList->setCurrentRow(0);
 }
 
-void ItemLibraryAssetImportDialog::onRequestImageUpdate()
+void Import3dDialog::onRequestImageUpdate()
 {
     if (m_nodeInstanceView)
         m_nodeInstanceView->view3DAction(View3DActionType::Import3dUpdatePreviewImage, canvas()->size());
 }
 
-void ItemLibraryAssetImportDialog::onRequestRotation(const QPointF &delta)
+void Import3dDialog::onRequestRotation(const QPointF &delta)
 {
     if (m_nodeInstanceView)
         m_nodeInstanceView->view3DAction(View3DActionType::Import3dRotatePreviewModel, delta);
 }
 
-void ItemLibraryAssetImportDialog::onImportNearlyFinished()
+void Import3dDialog::onImportNearlyFinished()
 {
     // Canceling import is no longer doable
     ui->closeButton->setEnabled(false);
 }
 
-void ItemLibraryAssetImportDialog::onImportFinished()
+void Import3dDialog::onImportFinished()
 {
     setCloseButtonState(false);
     if (m_importer.isCancelled()) {
@@ -1329,19 +1329,19 @@ void ItemLibraryAssetImportDialog::onImportFinished()
         addError(interruptStr);
         setImportProgress(0, interruptStr);
         if (m_explicitClose)
-            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::doClose);
+            QTimer::singleShot(1000, this, &Import3dDialog::doClose);
     } else {
         QString doneStr = tr("Import done.");
         addInfo(doneStr);
         setImportProgress(100, doneStr);
         if (m_closeOnFinish) {
             // Add small delay to allow user to visually confirm import finishing
-            QTimer::singleShot(1000, this, &ItemLibraryAssetImportDialog::doClose);
+            QTimer::singleShot(1000, this, &Import3dDialog::doClose);
         }
     }
 }
 
-void ItemLibraryAssetImportDialog::onCurrentItemChanged(QListWidgetItem *current, QListWidgetItem *)
+void Import3dDialog::onCurrentItemChanged(QListWidgetItem *current, QListWidgetItem *)
 {
     if (!current)
         return;
@@ -1372,14 +1372,14 @@ void ItemLibraryAssetImportDialog::onCurrentItemChanged(QListWidgetItem *current
     });
 }
 
-void ItemLibraryAssetImportDialog::onClose()
+void Import3dDialog::onClose()
 {
     ui->importButton->setEnabled(false);
     m_explicitClose = true;
     doClose();
 }
 
-void ItemLibraryAssetImportDialog::doClose()
+void Import3dDialog::doClose()
 {
     if (m_importer.isImporting()) {
         addInfo(tr("Canceling import."));
@@ -1394,7 +1394,7 @@ void ItemLibraryAssetImportDialog::doClose()
     }
 }
 
-void ItemLibraryAssetImportDialog::toggleAdvanced()
+void Import3dDialog::toggleAdvanced()
 {
     m_advancedMode = !m_advancedMode;
     for (const auto &widget : std::as_const(m_simpleData.contentWidgets)) {
@@ -1417,7 +1417,7 @@ void ItemLibraryAssetImportDialog::toggleAdvanced()
     updateUi();
 }
 
-void ItemLibraryAssetImportDialog::onRemoveAsset(const QString &assetName)
+void Import3dDialog::onRemoveAsset(const QString &assetName)
 {
     m_importer.removeAssetFromImport(assetName);
     if (m_importData.contains(assetName)) {

@@ -1,6 +1,6 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-#include "itemlibraryassetimporter.h"
+#include "import3dimporter.h"
 
 #include "assetimportupdatedialog.h"
 #include "qmldesignerplugin.h"
@@ -38,26 +38,27 @@
 
 namespace
 {
-static Q_LOGGING_CATEGORY(importerLog, "qtc.itemlibrary.assetImporter", QtWarningMsg)
+static Q_LOGGING_CATEGORY(importerLog, "qtc.itemlibrary.Import3dImporter", QtWarningMsg)
 }
 
 namespace QmlDesigner {
 
-ItemLibraryAssetImporter::ItemLibraryAssetImporter(QObject *parent) :
-    QObject (parent)
+Import3dImporter::Import3dImporter(QObject *parent)
+    : QObject (parent)
 {
 }
 
-ItemLibraryAssetImporter::~ItemLibraryAssetImporter() {
+Import3dImporter::~Import3dImporter()
+{
     cancelImport();
     delete m_tempDir;
 };
 
-void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
-                                             const QString &importPath,
-                                             const QVector<QJsonObject> &options,
-                                             const QHash<QString, int> &extToImportOptionsMap,
-                                             const QSet<QString> &preselectedFilesForOverwrite)
+void Import3dImporter::importQuick3D(const QStringList &inputFiles,
+                                     const QString &importPath,
+                                     const QVector<QJsonObject> &options,
+                                     const QHash<QString, int> &extToImportOptionsMap,
+                                     const QSet<QString> &preselectedFilesForOverwrite)
 {
     reset();
     m_isImporting = true;
@@ -91,7 +92,7 @@ void ItemLibraryAssetImporter::importQuick3D(const QStringList &inputFiles,
     }
 }
 
-void ItemLibraryAssetImporter::reImportQuick3D(const QHash<QString, QJsonObject> &importOptions)
+void Import3dImporter::reImportQuick3D(const QHash<QString, QJsonObject> &importOptions)
 {
     m_isImporting = false;
     m_cancelled = false;
@@ -148,38 +149,38 @@ void ItemLibraryAssetImporter::reImportQuick3D(const QHash<QString, QJsonObject>
     startNextImportProcess();
 }
 
-bool ItemLibraryAssetImporter::isImporting() const
+bool Import3dImporter::isImporting() const
 {
     return m_isImporting;
 }
 
-void ItemLibraryAssetImporter::cancelImport()
+void Import3dImporter::cancelImport()
 {
     m_cancelled = true;
     if (m_isImporting)
         notifyFinished();
 }
 
-void ItemLibraryAssetImporter::addError(const QString &errMsg, const QString &srcPath)
+void Import3dImporter::addError(const QString &errMsg, const QString &srcPath)
 {
     qCDebug(importerLog) << "Error: "<< errMsg << srcPath;
     emit errorReported(errMsg, srcPath);
 }
 
-void ItemLibraryAssetImporter::addWarning(const QString &warningMsg, const QString &srcPath)
+void Import3dImporter::addWarning(const QString &warningMsg, const QString &srcPath)
 {
     qCDebug(importerLog) << "Warning: " << warningMsg << srcPath;
     emit warningReported(warningMsg, srcPath);
 }
 
-void ItemLibraryAssetImporter::addInfo(const QString &infoMsg, const QString &srcPath)
+void Import3dImporter::addInfo(const QString &infoMsg, const QString &srcPath)
 {
     qCDebug(importerLog) << "Info: " << infoMsg << srcPath;
     emit infoReported(infoMsg, srcPath);
 }
 
-void ItemLibraryAssetImporter::importProcessFinished([[maybe_unused]] int exitCode,
-                                                     QProcess::ExitStatus exitStatus)
+void Import3dImporter::importProcessFinished([[maybe_unused]] int exitCode,
+                                             QProcess::ExitStatus exitStatus)
 {
     m_puppetProcess.reset();
 
@@ -218,19 +219,19 @@ void ItemLibraryAssetImporter::importProcessFinished([[maybe_unused]] int exitCo
 
     if (m_puppetQueue.isEmpty() && !m_puppetProcess) {
         notifyProgress(100);
-        QTimer::singleShot(0, this, &ItemLibraryAssetImporter::postImport);
+        QTimer::singleShot(0, this, &Import3dImporter::postImport);
     } else {
         notifyProgress(int(100. * (double(finishedCount) / double(m_importIdToAssetNameMap.size()))));
     }
 }
 
-void ItemLibraryAssetImporter::notifyFinished()
+void Import3dImporter::notifyFinished()
 {
     m_isImporting = false;
     emit importFinished();
 }
 
-void ItemLibraryAssetImporter::reset()
+void Import3dImporter::reset()
 {
     m_isImporting = false;
     m_cancelled = false;
@@ -246,10 +247,10 @@ void ItemLibraryAssetImporter::reset()
     m_importIdToAssetNameMap.clear();
 }
 
-void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
-                                          const QVector<QJsonObject> &options,
-                                          const QHash<QString, int> &extToImportOptionsMap,
-                                          const QSet<QString> &preselectedFilesForOverwrite)
+void Import3dImporter::parseFiles(const QStringList &filePaths,
+                                  const QVector<QJsonObject> &options,
+                                  const QHash<QString, int> &extToImportOptionsMap,
+                                  const QSet<QString> &preselectedFilesForOverwrite)
 {
     if (isCancelled())
         return;
@@ -275,8 +276,8 @@ void ItemLibraryAssetImporter::parseFiles(const QStringList &filePaths,
     }
 }
 
-bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseData &pd,
-                                                    const QSet<QString> &preselectedFilesForOverwrite)
+bool Import3dImporter::preParseQuick3DAsset(const QString &file, ParseData &pd,
+                                            const QSet<QString> &preselectedFilesForOverwrite)
 {
     pd.targetDir = QDir(m_importPath);
     pd.outDir = QDir(m_tempDir->path());
@@ -360,7 +361,7 @@ bool ItemLibraryAssetImporter::preParseQuick3DAsset(const QString &file, ParseDa
     return true;
 }
 
-void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
+void Import3dImporter::postParseQuick3DAsset(ParseData &pd)
 {
     QDir outDir = pd.outDir;
     if (pd.originalAssetName != pd.assetName) {
@@ -495,7 +496,7 @@ void ItemLibraryAssetImporter::postParseQuick3DAsset(ParseData &pd)
     m_importFiles.insert(pd.assetName, assetFiles);
 }
 
-void ItemLibraryAssetImporter::copyImportedFiles()
+void Import3dImporter::copyImportedFiles()
 {
     QHash<QString, QStringList> allOverwrites;
     for (const ParseData &pd: std::as_const(m_parseData))
@@ -553,37 +554,37 @@ void ItemLibraryAssetImporter::copyImportedFiles()
     }
 }
 
-void ItemLibraryAssetImporter::notifyProgress(int value, const QString &text)
+void Import3dImporter::notifyProgress(int value, const QString &text)
 {
     m_progressTitle = text;
     emit progressChanged(value, m_progressTitle);
     keepUiAlive();
 }
 
-void ItemLibraryAssetImporter::notifyProgress(int value)
+void Import3dImporter::notifyProgress(int value)
 {
     notifyProgress(value, m_progressTitle);
 }
 
-void ItemLibraryAssetImporter::keepUiAlive() const
+void Import3dImporter::keepUiAlive() const
 {
     QApplication::processEvents();
 }
 
-QString ItemLibraryAssetImporter::generateAssetFolderName(const QString &assetName) const
+QString Import3dImporter::generateAssetFolderName(const QString &assetName) const
 {
     static int counter = 0;
     return assetName + "_QDS_" + QString::number(counter++);
 }
 
-QString ItemLibraryAssetImporter::generateRequiredImportForAsset(const QString &assetName) const
+QString Import3dImporter::generateRequiredImportForAsset(const QString &assetName) const
 {
     return QStringLiteral("%1.%2").arg(
         QmlDesignerPlugin::instance()->documentManager()
             .generatedComponentUtils().import3dTypePrefix(), assetName);
 }
 
-ItemLibraryAssetImporter::OverwriteResult ItemLibraryAssetImporter::confirmAssetOverwrite(const QString &assetName)
+Import3dImporter::OverwriteResult Import3dImporter::confirmAssetOverwrite(const QString &assetName)
 {
     const QString title = tr("Overwrite Existing Asset?");
     const QString question = tr("Asset already exists. Overwrite existing or skip?\n\"%1\"").arg(assetName);
@@ -605,7 +606,7 @@ ItemLibraryAssetImporter::OverwriteResult ItemLibraryAssetImporter::confirmAsset
     return OverwriteResult::Skip;
 }
 
-void ItemLibraryAssetImporter::startNextImportProcess()
+void Import3dImporter::startNextImportProcess()
 {
     if (m_puppetQueue.isEmpty())
         return;
@@ -649,7 +650,7 @@ void ItemLibraryAssetImporter::startNextImportProcess()
     }
 }
 
-void ItemLibraryAssetImporter::postImport()
+void Import3dImporter::postImport()
 {
     QTC_ASSERT(m_puppetQueue.isEmpty() && !m_puppetProcess, return);
 
@@ -688,7 +689,7 @@ void ItemLibraryAssetImporter::postImport()
     }
 }
 
-void ItemLibraryAssetImporter::finalizeQuick3DImport()
+void Import3dImporter::finalizeQuick3DImport()
 {
     if (!isCancelled()) {
         // Don't allow cancel anymore as existing asset overwrites are not trivially recoverable.
@@ -736,7 +737,7 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
                         model->rewriterView()->forceAmend();
                         try {
                             RewriterTransaction transaction = model->rewriterView()->beginRewriterTransaction(
-                                QByteArrayLiteral("ItemLibraryAssetImporter::finalizeQuick3DImport"));
+                                QByteArrayLiteral("Import3dImporter::finalizeQuick3DImport"));
                             bool success = ModelUtils::addImportsWithCheck(m_requiredImports, model);
                             if (!success)
                                 addError(tr("Failed to insert import statement into qml document."));
@@ -766,19 +767,19 @@ void ItemLibraryAssetImporter::finalizeQuick3DImport()
     }
 }
 
-void ItemLibraryAssetImporter::removeAssetFromImport(const QString &assetName)
+void Import3dImporter::removeAssetFromImport(const QString &assetName)
 {
     m_parseData.remove(assetName);
     m_importFiles.remove(assetName);
     m_requiredImports.removeOne(generateRequiredImportForAsset(assetName));
 }
 
-QString ItemLibraryAssetImporter::sourceSceneTargetFilePath(const ParseData &pd)
+QString Import3dImporter::sourceSceneTargetFilePath(const ParseData &pd)
 {
     return pd.targetDirPath + QStringLiteral("/source scene/") + pd.sourceInfo.fileName();
 }
 
-bool ItemLibraryAssetImporter::isCancelled() const
+bool Import3dImporter::isCancelled() const
 {
     keepUiAlive();
     return m_cancelled;
