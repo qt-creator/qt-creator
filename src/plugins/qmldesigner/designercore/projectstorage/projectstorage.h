@@ -359,11 +359,11 @@ private:
             , sourceId{sourceId}
         {}
 
-        friend bool operator<(const AliasPropertyDeclaration &first,
-                              const AliasPropertyDeclaration &second)
+        friend auto operator<=>(const AliasPropertyDeclaration &first,
+                                const AliasPropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
-                   < std::tie(second.typeId, second.propertyDeclarationId);
+                   <=> std::tie(second.typeId, second.propertyDeclarationId);
         }
 
         friend bool operator==(const AliasPropertyDeclaration &first,
@@ -429,10 +429,10 @@ private:
                    == std::tie(second.typeId, second.propertyDeclarationId);
         }
 
-        friend bool operator<(const PropertyDeclaration &first, const PropertyDeclaration &second)
+        friend auto operator<=>(const PropertyDeclaration &first, const PropertyDeclaration &second)
         {
             return std::tie(first.typeId, first.propertyDeclarationId)
-                   < std::tie(second.typeId, second.propertyDeclarationId);
+                   <=> std::tie(second.typeId, second.propertyDeclarationId);
         }
 
         template<typename String>
@@ -465,9 +465,9 @@ private:
             , prototypeNameId{std::move(prototypeNameId)}
         {}
 
-        friend bool operator<(Prototype first, Prototype second)
+        friend auto operator<=>(Prototype first, Prototype second)
         {
-            return first.typeId < second.typeId;
+            return first.typeId <=> second.typeId;
         }
 
         friend bool operator==(Prototype first, Prototype second)

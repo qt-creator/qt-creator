@@ -44,23 +44,7 @@ public:
         return first.id == second.id;
     }
 
-    constexpr friend bool operator==(BasicId first, BasicId second)
-    {
-        return first.id == second.id && first.isValid() && second.isValid();
-    }
-
-    constexpr friend bool operator!=(BasicId first, BasicId second) { return !(first == second); }
-
-    constexpr friend bool operator<(BasicId first, BasicId second) { return first.id < second.id; }
-    constexpr friend bool operator>(BasicId first, BasicId second) { return first.id > second.id; }
-    constexpr friend bool operator<=(BasicId first, BasicId second)
-    {
-        return first.id <= second.id;
-    }
-    constexpr friend bool operator>=(BasicId first, BasicId second)
-    {
-        return first.id >= second.id;
-    }
+    friend constexpr auto operator<=>(BasicId first, BasicId second) = default;
 
     constexpr friend InternalIntegerType operator-(BasicId first, BasicId second)
     {
@@ -137,35 +121,7 @@ public:
         return first.id, second.id;
     }
 
-    friend constexpr bool operator==(CompoundBasicId first, CompoundBasicId second)
-    {
-        return first.id == second.id;
-    }
-
-    friend constexpr bool operator!=(CompoundBasicId first, CompoundBasicId second)
-    {
-        return !(first == second);
-    }
-
-    friend constexpr bool operator<(CompoundBasicId first, CompoundBasicId second)
-    {
-        return first.id < second.id;
-    }
-
-    friend constexpr bool operator>(CompoundBasicId first, CompoundBasicId second)
-    {
-        return first.id > second.id;
-    }
-
-    friend constexpr bool operator<=(CompoundBasicId first, CompoundBasicId second)
-    {
-        return first.id <= second.id;
-    }
-
-    friend constexpr bool operator>=(CompoundBasicId first, CompoundBasicId second)
-    {
-        return first.id >= second.id;
-    }
+    friend constexpr auto operator<=>(CompoundBasicId first, CompoundBasicId second) = default;
 
     friend constexpr long long operator-(CompoundBasicId first, CompoundBasicId second)
     {

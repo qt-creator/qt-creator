@@ -49,6 +49,9 @@
 #include <QRegularExpression>
 #include <qcompilerdetection.h>
 
+#include <algorithm>
+#include <functional>
+
 /*!
 \defgroup CoreModel
 */
@@ -63,6 +66,14 @@ Components that want to be informed about changes in the model can register a su
 
 \see QmlDesigner::ModelNode, QmlDesigner::AbstractProperty, QmlDesigner::AbstractView
 */
+
+namespace {
+
+auto is_equal_to(auto &&value)
+{
+    return std::bind_front(std::ranges::equal_to{}, value);
+}
+} // namespace
 
 namespace QmlDesigner {
 
@@ -1919,9 +1930,7 @@ bool Model::hasId(const QString &id) const
 
 bool Model::hasImport(const QString &importUrl) const
 {
-    return Utils::anyOf(imports(), [&](const Import &import) {
-        return import.url() == importUrl;
-    });
+    return std::ranges::any_of(imports(), is_equal_to(importUrl), &Import::url);
 }
 
 QString Model::generateNewId(const QString &prefixName, const QString &fallbackPrefix) const
@@ -2749,8 +2758,7 @@ void Model::changeRootNodeType(const TypeName &type)
 
 void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement bypass)
 {
-    nodes.erase(std::remove_if(nodes.begin(), nodes.end(), [](auto &&node) { return !node; }),
-                nodes.end());
+    nodes.removeIf(std::logical_not{});
 
     if (nodes.empty())
         return;
@@ -2769,10 +2777,7 @@ void Model::removeModelNodes(ModelNodes nodes, BypassModelResourceManagement byp
 
 void Model::removeProperties(AbstractProperties properties, BypassModelResourceManagement bypass)
 {
-    properties.erase(std::remove_if(properties.begin(),
-                                    properties.end(),
-                                    [](auto &&property) { return !property; }),
-                     properties.end());
+    properties.removeIf(std::logical_not{});
 
     if (properties.empty())
         return;

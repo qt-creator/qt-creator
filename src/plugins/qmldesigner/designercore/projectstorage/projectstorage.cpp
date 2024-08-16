@@ -7,6 +7,10 @@
 
 namespace QmlDesigner {
 
+using Storage::Synchronization::EnumerationDeclaration;
+using Storage::Synchronization::Type;
+using Storage::Synchronization::TypeAnnotation;
+
 enum class SpecialIdState { Unresolved = -1 };
 
 constexpr TypeId unresolvedTypeId = TypeId::createSpecialState(SpecialIdState::Unresolved);
@@ -1269,7 +1273,7 @@ void ProjectStorage::synchronize(Storage::Synchronization::SynchronizationPackag
 
         TypeIds typeIdsToBeDeleted;
 
-        std::sort(package.updatedSourceIds.begin(), package.updatedSourceIds.end());
+        std::ranges::sort(package.updatedSourceIds);
 
         synchronizeFileStatuses(package.fileStatuses, package.updatedFileStatusSourceIds);
         synchronizeImports(package.imports,
@@ -1553,7 +1557,7 @@ QVarLengthArray<PropertyDeclarationId, 128> ProjectStorage::propertyDeclarationI
         return fetchPropertyDeclarationIds(typeId);
     });
 
-    std::sort(propertyDeclarationIds.begin(), propertyDeclarationIds.end());
+    std::ranges::sort(propertyDeclarationIds);
 
     tracer.end(keyValue("property declaration ids", propertyDeclarationIds));
 
@@ -2283,7 +2287,7 @@ void ProjectStorage::callRefreshMetaInfoCallback(TypeIds &deletedTypeIds,
 SourceIds ProjectStorage::filterSourceIdsWithoutType(const SourceIds &updatedSourceIds,
                                                      SourceIds &sourceIdsOfTypes)
 {
-    std::sort(sourceIdsOfTypes.begin(), sourceIdsOfTypes.end());
+    std::ranges::sort(sourceIdsOfTypes);
 
     SourceIds sourceIdsWithoutTypeSourceIds;
     sourceIdsWithoutTypeSourceIds.reserve(updatedSourceIds.size());
@@ -2308,7 +2312,7 @@ TypeIds ProjectStorage::fetchTypeIds(const SourceIds &sourceIds)
 
 void ProjectStorage::unique(SourceIds &sourceIds)
 {
-    std::sort(sourceIds.begin(), sourceIds.end());
+    std::ranges::sort(sourceIds);
     auto newEnd = std::unique(sourceIds.begin(), sourceIds.end());
     sourceIds.erase(newEnd, sourceIds.end());
 }
@@ -2333,10 +2337,10 @@ void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::Typ
                                                                  annotation.typeName);
     }
 
-    typeAnnotations.erase(std::remove_if(typeAnnotations.begin(),
-                                         typeAnnotations.end(),
-                                         [](const auto &annotation) { return !annotation.typeId; }),
-                          typeAnnotations.end());
+    auto [begin, end] = std::ranges::remove_if(typeAnnotations,
+                                               std::logical_not{},
+                                               &TypeAnnotation::typeId);
+    typeAnnotations.erase(begin, end);
 }
 
 void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
@@ -2344,15 +2348,12 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 {
     NanotraceHR::Tracer tracer{"synchronize type annotations"_t, projectStorageCategory()};
 
-    using Storage::Synchronization::TypeAnnotation;
 
     updateTypeIdInTypeAnnotations(typeAnnotations);
 
     auto compareKey = [](auto &&first, auto &&second) { return first.typeId - second.typeId; };
 
-    std::sort(typeAnnotations.begin(), typeAnnotations.end(), [&](auto &&first, auto &&second) {
-        return first.typeId < second.typeId;
-    });
+    std::ranges::sort(typeAnnotations, std::ranges::less{}, &TypeAnnotation::typeId);
 
     auto range = s->selectTypeAnnotationsForSourceIdsStatement.range<TypeAnnotationView>(
         toIntegers(updatedTypeAnnotationSourceIds));
@@ -2468,9 +2469,7 @@ void ProjectStorage::synchronizeTypes(Storage::Synchronization::Types &types,
         }
     }
 
-    std::sort(types.begin(), types.end(), [](const auto &first, const auto &second) {
-        return first.typeId < second.typeId;
-    });
+    std::ranges::sort(types, std::ranges::less{}, &Type::typeId);
 
     unique(exportedSourceIds);
 
@@ -2507,7 +2506,7 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
         return first.sourceId - second.sourceId;
     };
 
-    std::sort(directoryInfos.begin(), directoryInfos.end(), [&](auto &&first, auto &&second) {
+    std::ranges::sort(directoryInfos, [&](auto &&first, auto &&second) {
         return std::tie(first.directorySourceId, first.sourceId)
                < std::tie(second.directorySourceId, second.sourceId);
     });
@@ -2572,9 +2571,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
 
     auto compareKey = [](auto &&first, auto &&second) { return first.sourceId - second.sourceId; };
 
-    std::sort(fileStatuses.begin(), fileStatuses.end(), [&](auto &&first, auto &&second) {
-        return first.sourceId < second.sourceId;
-    });
+    std::ranges::sort(fileStatuses, std::ranges::less{}, &FileStatus::sourceId);
 
     auto range = s->selectFileStatusesForSourceIdsStatement.range<FileStatus>(
         toIntegers(updatedSourceIds));
@@ -2658,12 +2655,10 @@ void ProjectStorage::synchromizeModuleExportedImports(
     const ModuleIds &updatedModuleIds)
 {
     NanotraceHR::Tracer tracer{"synchronize module exported imports"_t, projectStorageCategory()};
-    std::sort(moduleExportedImports.begin(),
-              moduleExportedImports.end(),
-              [](auto &&first, auto &&second) {
-                  return std::tie(first.moduleId, first.exportedModuleId)
-                         < std::tie(second.moduleId, second.exportedModuleId);
-              });
+    std::ranges::sort(moduleExportedImports, [](auto &&first, auto &&second) {
+        return std::tie(first.moduleId, first.exportedModuleId)
+               < std::tie(second.moduleId, second.exportedModuleId);
+    });
 
     auto range = s->selectModuleExportedImportsForSourceIdStatement
                      .range<Storage::Synchronization::ModuleExportedImportView>(
@@ -2961,7 +2956,7 @@ void ProjectStorage::relinkAliasPropertyDeclarations(AliasPropertyDeclarations &
                                keyValue("alias property declarations", aliasPropertyDeclarations),
                                keyValue("deleted type ids", deletedTypeIds)};
 
-    std::sort(aliasPropertyDeclarations.begin(), aliasPropertyDeclarations.end());
+    std::ranges::sort(aliasPropertyDeclarations);
     // todo remove duplicates
 
     Utils::set_greedy_difference(
@@ -3006,7 +3001,7 @@ void ProjectStorage::relinkPropertyDeclarations(PropertyDeclarations &relinkable
                                         relinkablePropertyDeclaration),
                                keyValue("deleted type ids", deletedTypeIds)};
 
-    std::sort(relinkablePropertyDeclaration.begin(), relinkablePropertyDeclaration.end());
+    std::ranges::sort(relinkablePropertyDeclaration);
     relinkablePropertyDeclaration.erase(std::unique(relinkablePropertyDeclaration.begin(),
                                                     relinkablePropertyDeclaration.end()),
                                         relinkablePropertyDeclaration.end());
@@ -3043,9 +3038,9 @@ void ProjectStorage::relinkPrototypes(Prototypes &relinkablePrototypes,
                                keyValue("relinkable prototypes", relinkablePrototypes),
                                keyValue("deleted type ids", deletedTypeIds)};
 
-    std::sort(relinkablePrototypes.begin(), relinkablePrototypes.end());
-    relinkablePrototypes.erase(std::unique(relinkablePrototypes.begin(), relinkablePrototypes.end()),
-                               relinkablePrototypes.end());
+    std::ranges::sort(relinkablePrototypes);
+    auto [begin, end] = std::ranges::unique(relinkablePrototypes);
+    relinkablePrototypes.erase(begin, end);
 
     Utils::set_greedy_difference(
         relinkablePrototypes.cbegin(),
@@ -3105,7 +3100,7 @@ void ProjectStorage::relink(AliasPropertyDeclarations &relinkableAliasPropertyDe
 {
     NanotraceHR::Tracer tracer{"relink"_t, projectStorageCategory()};
 
-    std::sort(deletedTypeIds.begin(), deletedTypeIds.end());
+    std::ranges::sort(deletedTypeIds);
 
     relinkPrototypes(relinkablePrototypes, deletedTypeIds, [&](TypeId typeId, TypeId prototypeId) {
         s->updateTypePrototypeStatement.write(typeId, prototypeId);
@@ -3243,7 +3238,7 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
     using NanotraceHR::keyValue;
     NanotraceHR::Tracer tracer{"synchronize exported types"_t, projectStorageCategory()};
 
-    std::sort(exportedTypes.begin(), exportedTypes.end(), [](auto &&first, auto &&second) {
+    std::ranges::sort(exportedTypes, [](auto &&first, auto &&second) {
         if (first.moduleId < second.moduleId)
             return true;
         else if (first.moduleId > second.moduleId)
@@ -3570,7 +3565,7 @@ void ProjectStorage::synchronizePropertyDeclarations(
 {
     NanotraceHR::Tracer tracer{"synchronize property declaration"_t, projectStorageCategory()};
 
-    std::sort(propertyDeclarations.begin(), propertyDeclarations.end(), [](auto &&first, auto &&second) {
+    std::ranges::sort(propertyDeclarations, [](auto &&first, auto &&second) {
         return Sqlite::compare(first.name, second.name) < 0;
     });
 
@@ -3643,9 +3638,7 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
 
     Storage::Synchronization::PropertyDeclarations &aliasDeclarations = type.propertyDeclarations;
 
-    std::sort(aliasDeclarations.begin(), aliasDeclarations.end(), [](auto &&first, auto &&second) {
-        return Sqlite::compare(first.name, second.name) < 0;
-    });
+    std::ranges::sort(aliasDeclarations, {}, &Storage::Synchronization::PropertyDeclaration::name);
 
     auto range = s->selectPropertyDeclarationsWithAliasForTypeIdStatement
                      .range<AliasPropertyDeclarationView>(type.typeId);
@@ -3807,7 +3800,7 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
                                                 Prototypes &relinkablePrototypes,
                                                 Prototypes &relinkableExtensions)
 {
-    std::sort(imports.begin(), imports.end(), [](auto &&first, auto &&second) {
+    std::ranges::sort(imports, [](auto &&first, auto &&second) {
         return std::tie(first.sourceId, first.moduleId, first.version)
                < std::tie(second.sourceId, second.moduleId, second.version);
     });
@@ -3965,9 +3958,7 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
                                                     SourceIds updatedPropertyEditorQmlPathsSourceIds)
 {
     using Storage::Synchronization::PropertyEditorQmlPath;
-    std::sort(paths.begin(), paths.end(), [](auto &&first, auto &&second) {
-        return first.typeId < second.typeId;
-    });
+    std::ranges::sort(paths, std::ranges::less{}, &PropertyEditorQmlPath::typeId);
 
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
         toIntegers(updatedPropertyEditorQmlPathsSourceIds));
@@ -4031,20 +4022,18 @@ void ProjectStorage::synchronizeFunctionDeclarations(
 {
     NanotraceHR::Tracer tracer{"synchronize function declaration"_t, projectStorageCategory()};
 
-    std::sort(functionsDeclarations.begin(),
-              functionsDeclarations.end(),
-              [](auto &&first, auto &&second) {
-                  auto compare = Sqlite::compare(first.name, second.name);
+    std::ranges::sort(functionsDeclarations, [](auto &&first, auto &&second) {
+        auto compare = Sqlite::compare(first.name, second.name);
 
-                  if (compare == 0) {
-                      Utils::PathString firstSignature{createJson(first.parameters)};
-                      Utils::PathString secondSignature{createJson(second.parameters)};
+        if (compare == 0) {
+            Utils::PathString firstSignature{createJson(first.parameters)};
+            Utils::PathString secondSignature{createJson(second.parameters)};
 
-                      return Sqlite::compare(firstSignature, secondSignature) < 0;
-                  }
+            return Sqlite::compare(firstSignature, secondSignature) < 0;
+        }
 
-                  return compare < 0;
-              });
+        return compare < 0;
+    });
 
     auto range = s->selectFunctionDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::FunctionDeclarationView>(typeId);
@@ -4108,7 +4097,7 @@ void ProjectStorage::synchronizeSignalDeclarations(
 {
     NanotraceHR::Tracer tracer{"synchronize signal declaration"_t, projectStorageCategory()};
 
-    std::sort(signalDeclarations.begin(), signalDeclarations.end(), [](auto &&first, auto &&second) {
+    std::ranges::sort(signalDeclarations, [](auto &&first, auto &&second) {
         auto compare = Sqlite::compare(first.name, second.name);
 
         if (compare == 0) {
@@ -4197,11 +4186,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
 {
     NanotraceHR::Tracer tracer{"synchronize enumeration declaration"_t, projectStorageCategory()};
 
-    std::sort(enumerationDeclarations.begin(),
-              enumerationDeclarations.end(),
-              [](auto &&first, auto &&second) {
-                  return Sqlite::compare(first.name, second.name) < 0;
-              });
+    std::ranges::sort(enumerationDeclarations, {}, &EnumerationDeclaration::name);
 
     auto range = s->selectEnumerationDeclarationsForTypeIdStatement
                      .range<Storage::Synchronization::EnumerationDeclarationView>(typeId);
