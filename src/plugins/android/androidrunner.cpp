@@ -103,7 +103,7 @@ void AndroidRunner::startImpl(const QString &deviceSerialNumber, int apiLevel)
     if (m_worker)
         m_worker->deleteLater();
 
-    m_worker = new AndroidRunnerWorker(this, deviceSerialNumber, apiLevel);
+    m_worker = new AndroidRunnerWorker(runControl(), deviceSerialNumber, apiLevel);
     m_worker->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
 

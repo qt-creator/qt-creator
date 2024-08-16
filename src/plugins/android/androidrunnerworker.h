@@ -12,7 +12,7 @@
 #include <utils/environment.h>
 
 namespace Android { class AndroidDeviceInfo; }
-namespace ProjectExplorer { class RunWorker; }
+namespace ProjectExplorer { class RunControl; }
 namespace Utils { class Port; }
 
 namespace Android::Internal {
@@ -21,7 +21,7 @@ class AndroidRunnerWorker : public QObject
 {
     Q_OBJECT
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunWorker *runner, const QString &deviceSerialNumber,
+    AndroidRunnerWorker(ProjectExplorer::RunControl *runControl, const QString &deviceSerialNumber,
                         int apiLevel);
     ~AndroidRunnerWorker() override;
 

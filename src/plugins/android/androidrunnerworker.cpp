@@ -130,14 +130,13 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunWorker *runner, const QString &deviceSerialNumber,
+AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const QString &deviceSerialNumber,
                                          int apiLevel)
 {
-    auto runControl = runner->runControl();
     m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
                     == Debugger::LldbEngineType;
     auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
-    Utils::Id runMode = runControl->runMode();
+    const Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
     if (debuggingMode && aspect->useQmlDebugger)
