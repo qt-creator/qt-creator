@@ -219,12 +219,12 @@ local function createSelectionAspect(settingsKey, displayName)
 end
 
 local function addLLMSetting(keySuffix, displayText)
-  Settings[keySuffix] = createSelectionAspect("AiAssistant." .. keySuffix, displayText)
+  Settings[keySuffix] = createSelectionAspect("AIAssistant." .. keySuffix, displayText)
 end
 
 local function addAuthTokenSetting(llm_name, displayText)
   Settings["authToken" .. llm_name] = S.StringAspect.create({
-    settingsKey = "AiAssistant.AuthToken." .. llm_name,
+    settingsKey = "AIAssistant.AuthToken." .. llm_name,
     labelText = displayText .. ":",
     displayStyle = S.StringDisplayStyle.LineEdit,
     defaultValue = "AUTH_TOKEN",
@@ -238,7 +238,7 @@ local function setupAspect()
   })
 
   Settings.binary = S.FilePathAspect.create({
-    settingsKey = "AiAssistant.Binary",
+    settingsKey = "AIAssistant.Binary",
     displayName = "Binary",
     labelText = "Binary:",
     toolTip = "The path to the AI Assistant Server",
@@ -258,9 +258,9 @@ local function setupAspect()
 
   Options = S.OptionsPage.create({
     aspectContainer = Settings,
-    categoryId = "AiAssistant.OptionsPage",
+    categoryId = "AIAssistant.OptionsPage",
     displayName = tr("AI Assistant"),
-    id = "AiAssistant.Settings",
+    id = "AIAssistant.Settings",
     displayCategory = "AI Assistant",
     categoryIconPath = PluginSpec.pluginDirectory:resolvePath("images/settingscategory_ai_assistant.png")
   })
