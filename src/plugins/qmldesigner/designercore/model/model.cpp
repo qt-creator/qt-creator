@@ -33,6 +33,7 @@
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 
+#include <predicate.h>
 #include <uniquename.h>
 
 #include <projectstorage/projectstorage.h>
@@ -66,14 +67,6 @@ Components that want to be informed about changes in the model can register a su
 
 \see QmlDesigner::ModelNode, QmlDesigner::AbstractProperty, QmlDesigner::AbstractView
 */
-
-namespace {
-
-auto is_equal_to(auto &&value)
-{
-    return std::bind_front(std::ranges::equal_to{}, value);
-}
-} // namespace
 
 namespace QmlDesigner {
 

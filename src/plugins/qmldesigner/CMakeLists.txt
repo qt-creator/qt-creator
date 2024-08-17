@@ -110,6 +110,7 @@ extend_qtc_library(QmlDesignerCore
     skipiterator.h
     stylesheetmerger.cpp stylesheetmerger.h
     uniquename.cpp uniquename.h
+    predicate.h
 )
 
 extend_qtc_library(QmlDesignerCore

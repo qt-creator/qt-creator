@@ -3,6 +3,7 @@
 
 #include "projectstorage.h"
 
+#include <predicate.h>
 #include <sqlitedatabase.h>
 
 namespace QmlDesigner {
@@ -2337,10 +2338,7 @@ void ProjectStorage::updateTypeIdInTypeAnnotations(Storage::Synchronization::Typ
                                                                  annotation.typeName);
     }
 
-    auto [begin, end] = std::ranges::remove_if(typeAnnotations,
-                                               std::logical_not{},
-                                               &TypeAnnotation::typeId);
-    typeAnnotations.erase(begin, end);
+    std::erase_if(typeAnnotations, is_null(&TypeAnnotation::typeId));
 }
 
 void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAnnotations &typeAnnotations,
