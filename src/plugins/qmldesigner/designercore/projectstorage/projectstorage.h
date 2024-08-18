@@ -493,38 +493,6 @@ private:
 
     using Prototypes = std::vector<Prototype>;
 
-    template<typename Type>
-    struct TypeCompare
-    {
-        bool operator()(const Type &type, TypeId typeId) { return type.typeId < typeId; }
-
-        bool operator()(TypeId typeId, const Type &type) { return typeId < type.typeId; }
-
-        bool operator()(const Type &first, const Type &second)
-        {
-            return first.typeId < second.typeId;
-        }
-    };
-
-    template<typename Property>
-    struct PropertyCompare
-    {
-        bool operator()(const Property &property, PropertyDeclarationId id)
-        {
-            return property.propertyDeclarationId < id;
-        }
-
-        bool operator()(PropertyDeclarationId id, const Property &property)
-        {
-            return id < property.propertyDeclarationId;
-        }
-
-        bool operator()(const Property &first, const Property &second)
-        {
-            return first.propertyDeclarationId < second.propertyDeclarationId;
-        }
-    };
-
     SourceIds filterSourceIdsWithoutType(const SourceIds &updatedSourceIds,
                                          SourceIds &sourceIdsOfTypes);
 
@@ -864,24 +832,23 @@ private:
                           AliasPropertyDeclarations &aliasPropertyDeclarationsToLink,
                           PropertyDeclarationIds &propertyDeclarationIds);
 
-    template<typename Relinkable, typename Ids, typename Compare>
-    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, Ids &ids, Compare compare)
+    template<typename Relinkable>
+    void removeRelinkableEntries(std::vector<Relinkable> &relinkables, auto &ids, auto projection)
     {
         NanotraceHR::Tracer tracer{"remove relinkable entries"_t, projectStorageCategory()};
 
         std::vector<Relinkable> newRelinkables;
         newRelinkables.reserve(relinkables.size());
 
-        std::sort(ids.begin(), ids.end());
-        std::sort(relinkables.begin(), relinkables.end(), compare);
+        std::ranges::sort(ids);
+        std::ranges::sort(relinkables, {}, projection);
 
         Utils::set_greedy_difference(
-            relinkables.begin(),
-            relinkables.end(),
-            ids.cbegin(),
-            ids.cend(),
+            relinkables,
+            ids,
             [&](Relinkable &entry) { newRelinkables.push_back(std::move(entry)); },
-            compare);
+            {},
+            projection);
 
         relinkables = std::move(newRelinkables);
     }

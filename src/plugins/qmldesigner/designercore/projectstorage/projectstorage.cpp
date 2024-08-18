@@ -2959,36 +2959,35 @@ void ProjectStorage::relinkAliasPropertyDeclarations(AliasPropertyDeclarations &
     std::ranges::sort(aliasPropertyDeclarations);
     // todo remove duplicates
 
-    Utils::set_greedy_difference(
-        aliasPropertyDeclarations.cbegin(),
-        aliasPropertyDeclarations.cend(),
-        deletedTypeIds.begin(),
-        deletedTypeIds.end(),
-        [&](const AliasPropertyDeclaration &alias) {
-            auto typeId = fetchTypeId(alias.aliasImportedTypeNameId);
+    auto relink = [&](const AliasPropertyDeclaration &alias) {
+        auto typeId = fetchTypeId(alias.aliasImportedTypeNameId);
 
-            if (typeId) {
-                auto propertyDeclaration = fetchPropertyDeclarationByTypeIdAndNameUngarded(
-                    typeId, alias.aliasPropertyName);
-                if (propertyDeclaration) {
-                    auto [propertyImportedTypeNameId, propertyTypeId, aliasId, propertyTraits] = *propertyDeclaration;
+        if (typeId) {
+            auto propertyDeclaration = fetchPropertyDeclarationByTypeIdAndNameUngarded(
+                typeId, alias.aliasPropertyName);
+            if (propertyDeclaration) {
+                auto [propertyImportedTypeNameId, propertyTypeId, aliasId, propertyTraits] = *propertyDeclaration;
 
-                    s->updatePropertyDeclarationWithAliasAndTypeStatement
-                        .write(alias.propertyDeclarationId,
-                               propertyTypeId,
-                               propertyTraits,
-                               propertyImportedTypeNameId,
-                               aliasId);
-                    return;
-                }
+                s->updatePropertyDeclarationWithAliasAndTypeStatement.write(alias.propertyDeclarationId,
+                                                                            propertyTypeId,
+                                                                            propertyTraits,
+                                                                            propertyImportedTypeNameId,
+                                                                            aliasId);
+                return;
             }
+        }
 
-            errorNotifier->typeNameCannotBeResolved(fetchImportedTypeName(alias.aliasImportedTypeNameId),
-                                                    fetchTypeSourceId(alias.typeId));
-            s->resetAliasPropertyDeclarationStatement.write(alias.propertyDeclarationId,
-                                                            Storage::PropertyDeclarationTraits{});
-        },
-        TypeCompare<AliasPropertyDeclaration>{});
+        errorNotifier->typeNameCannotBeResolved(fetchImportedTypeName(alias.aliasImportedTypeNameId),
+                                                fetchTypeSourceId(alias.typeId));
+        s->resetAliasPropertyDeclarationStatement.write(alias.propertyDeclarationId,
+                                                        Storage::PropertyDeclarationTraits{});
+    };
+
+    Utils::set_greedy_difference(aliasPropertyDeclarations,
+                                 deletedTypeIds,
+                                 relink,
+                                 {},
+                                 &AliasPropertyDeclaration::typeId);
 }
 
 void ProjectStorage::relinkPropertyDeclarations(PropertyDeclarations &relinkablePropertyDeclaration,
@@ -3007,10 +3006,8 @@ void ProjectStorage::relinkPropertyDeclarations(PropertyDeclarations &relinkable
                                         relinkablePropertyDeclaration.end());
 
     Utils::set_greedy_difference(
-        relinkablePropertyDeclaration.cbegin(),
-        relinkablePropertyDeclaration.cend(),
-        deletedTypeIds.begin(),
-        deletedTypeIds.end(),
+        relinkablePropertyDeclaration,
+        deletedTypeIds,
         [&](const PropertyDeclaration &property) {
             TypeId propertyTypeId = fetchTypeId(property.importedTypeNameId);
 
@@ -3024,7 +3021,8 @@ void ProjectStorage::relinkPropertyDeclarations(PropertyDeclarations &relinkable
             s->updatePropertyDeclarationTypeStatement.write(property.propertyDeclarationId,
                                                             propertyTypeId);
         },
-        TypeCompare<PropertyDeclaration>{});
+        {},
+        &PropertyDeclaration::typeId);
 }
 
 template<typename Callable>
@@ -3043,10 +3041,8 @@ void ProjectStorage::relinkPrototypes(Prototypes &relinkablePrototypes,
     relinkablePrototypes.erase(begin, end);
 
     Utils::set_greedy_difference(
-        relinkablePrototypes.cbegin(),
-        relinkablePrototypes.cend(),
-        deletedTypeIds.begin(),
-        deletedTypeIds.end(),
+        relinkablePrototypes,
+        deletedTypeIds,
         [&](const Prototype &prototype) {
             TypeId prototypeId = fetchTypeId(prototype.prototypeNameId);
 
@@ -3057,7 +3053,8 @@ void ProjectStorage::relinkPrototypes(Prototypes &relinkablePrototypes,
             updateStatement(prototype.typeId, prototypeId);
             checkForPrototypeChainCycle(prototype.typeId);
         },
-        TypeCompare<Prototype>{});
+        {},
+        &Prototype::typeId);
 }
 
 void ProjectStorage::deleteNotUpdatedTypes(const TypeIds &updatedTypeIds,
@@ -3682,7 +3679,7 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
 
     removeRelinkableEntries(relinkableAliasPropertyDeclarations,
                             propertyDeclarationIds,
-                            PropertyCompare<AliasPropertyDeclaration>{});
+                            &AliasPropertyDeclaration::propertyDeclarationId);
 }
 
 void ProjectStorage::handlePrototypesWithSourceIdAndPrototypeId(SourceId sourceId,
@@ -4307,7 +4304,7 @@ void ProjectStorage::syncDeclarations(Storage::Synchronization::Types &types,
 
     removeRelinkableEntries(relinkablePropertyDeclarations,
                             propertyDeclarationIds,
-                            PropertyCompare<PropertyDeclaration>{});
+                            &PropertyDeclaration::propertyDeclarationId);
 }
 
 void ProjectStorage::syncDefaultProperties(Storage::Synchronization::Types &types)
@@ -4515,8 +4512,8 @@ void ProjectStorage::syncPrototypesAndExtensions(Storage::Synchronization::Types
     for (auto &type : types)
         syncPrototypeAndExtension(type, typeIds);
 
-    removeRelinkableEntries(relinkablePrototypes, typeIds, TypeCompare<Prototype>{});
-    removeRelinkableEntries(relinkableExtensions, typeIds, TypeCompare<Prototype>{});
+    removeRelinkableEntries(relinkablePrototypes, typeIds, &Prototype::typeId);
+    removeRelinkableEntries(relinkableExtensions, typeIds, &Prototype::typeId);
 }
 
 ImportId ProjectStorage::fetchImportId(SourceId sourceId, const Storage::Import &import) const

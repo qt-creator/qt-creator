@@ -19,6 +19,7 @@
 #include <functional>
 
 QT_WARNING_DISABLE_GCC("-Wmissing-field-initializers")
+QT_WARNING_DISABLE_CLANG("-Wunneeded-internal-declaration") // can be removed with newer clang versions
 
 namespace QmlDesigner {
 
@@ -255,10 +256,7 @@ struct NodeDependency
     ModelNode target;
     ModelNode source;
 
-    friend bool operator<(const NodeDependency &first, const NodeDependency &second)
-    {
-        return std::tie(first.target, first.source) < std::tie(second.target, second.source);
-    }
+    friend std::weak_ordering operator<=>(const NodeDependency &first, const NodeDependency &second) = default;
 };
 
 using NodeDependencies = std::vector<NodeDependency>;
@@ -296,9 +294,11 @@ struct NodesProperty
     ModelNodes targets;
     bool isChanged = false;
 
-    friend bool operator<(const NodesProperty &first, const NodesProperty &second)
+    friend bool operator==(const NodesProperty &first, const NodesProperty &second) = default;
+
+    friend std::weak_ordering operator<=>(const NodesProperty &first, const NodesProperty &second)
     {
-        return first.source < second.source;
+        return first.source <=> second.source;
     }
 };
 
@@ -380,7 +380,7 @@ struct RemoveTargetsSources : public Base
             {},
             &NodeDependency::target);
 
-        std::sort(removedTargetNodesInProperties.begin(), removedTargetNodesInProperties.end());
+        std::ranges::sort(removedTargetNodesInProperties);
 
         return removedTargetNodesInProperties;
     }
@@ -408,12 +408,12 @@ struct RemoveTargetsSources : public Base
         };
 
         NodesProperties removedTargetNodesInProperties = collectRemovedDependencies(nodes);
-        ::Utils::set_intersection_compare(nodesProperties.begin(),
-                                          nodesProperties.end(),
-                                          removedTargetNodesInProperties.begin(),
-                                          removedTargetNodesInProperties.end(),
-                                          removeTargets,
-                                          std::less<NodesProperty>{});
+        Utils::set_greedy_intersection(nodesProperties,
+                                       removedTargetNodesInProperties,
+                                       removeTargets,
+                                       {},
+                                       &NodesProperty::source,
+                                       &NodesProperty::source);
 
         return nodesToBeRemoved;
     }
@@ -570,8 +570,8 @@ struct TargetsFilter
 
     void finally()
     {
-        std::sort(dependencies.begin(), dependencies.end());
-        std::sort(targetsNodesProperties.begin(), targetsNodesProperties.end());
+        std::ranges::sort(dependencies);
+        std::ranges::sort(targetsNodesProperties);
     }
 
     Predicate predicate;
