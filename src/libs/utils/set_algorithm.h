@@ -242,4 +242,56 @@ struct set_greedy_difference_functor
 
 inline constexpr set_greedy_difference_functor set_greedy_difference{};
 
+struct set_has_common_element_functor
+{
+    template<std::input_iterator Iterator1,
+             std::sentinel_for<Iterator1> Sentinel1,
+             std::input_iterator Iterator2,
+             std::sentinel_for<Iterator2> Sentinel2,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<Iterator1, Iterator2, Comp, Projection1, Projection2>
+    constexpr bool operator()(Iterator1 first1,
+                              Sentinel1 last1,
+                              Iterator2 first2,
+                              Sentinel2 last2,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        while (first1 != last1 && first2 != last2)
+            if (std::invoke(comp, std::invoke(proj1, *first1), std::invoke(proj2, *first2)))
+                ++first1;
+            else if (std::invoke(comp, std::invoke(proj2, *first2), std::invoke(proj1, *first1)))
+                ++first2;
+            else
+                return true;
+
+        return false;
+    }
+
+    template<std::ranges::input_range Range1,
+             std::ranges::input_range Range2,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<std::ranges::iterator_t<Range1>, std::ranges::iterator_t<Range2>, Comp, Projection1, Projection2>
+    constexpr bool operator()(Range1 &&range1,
+                              Range2 &&range2,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        return (*this)(std::ranges::begin(range1),
+                       std::ranges::end(range1),
+                       std::ranges::begin(range2),
+                       std::ranges::end(range2),
+                       std::move(comp),
+                       std::move(proj1),
+                       std::move(proj2));
+    }
+};
+
+inline constexpr set_has_common_element_functor set_has_common_element{};
 } // namespace Utils

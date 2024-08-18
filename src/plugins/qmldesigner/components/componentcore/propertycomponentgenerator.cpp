@@ -270,23 +270,6 @@ void PropertyComponentGenerator::setModel(Model *model)
     m_model = model;
 }
 
-namespace {
-
-bool insect(const TypeIds &first, const TypeIds &second)
-{
-    bool intersecting = false;
-
-    std::set_intersection(first.begin(),
-                          first.end(),
-                          second.begin(),
-                          second.end(),
-                          Utils::make_iterator([&](const auto &) { intersecting = true; }));
-
-    return intersecting;
-}
-
-} // namespace
-
 void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
                                             Model *model,
                                             const QString &propertyTemplatesPath)
@@ -303,7 +286,7 @@ void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templat
 
 void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 {
-    if (!insect(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
+    if (!Utils::set_has_common_element(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
         return;
 
     setEntries(m_templateConfiguration, m_model, m_propertyTemplatesPath);
