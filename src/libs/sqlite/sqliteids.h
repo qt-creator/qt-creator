@@ -44,6 +44,11 @@ public:
         return first.id == second.id;
     }
 
+    friend constexpr bool operator==(BasicId first, BasicId second)
+    {
+        return first.id == second.id && first.isValid();
+    }
+
     friend constexpr auto operator<=>(BasicId first, BasicId second) = default;
 
     constexpr friend InternalIntegerType operator-(BasicId first, BasicId second)
@@ -121,12 +126,12 @@ public:
         return first.id, second.id;
     }
 
-    friend constexpr auto operator<=>(CompoundBasicId first, CompoundBasicId second) = default;
-
-    friend constexpr long long operator-(CompoundBasicId first, CompoundBasicId second)
+    friend constexpr bool operator==(CompoundBasicId first, CompoundBasicId second)
     {
-        return first.id - second.id;
+        return first.id == second.id && first.isValid();
     }
+
+    friend constexpr auto operator<=>(CompoundBasicId first, CompoundBasicId second) = default;
 
     constexpr bool isValid() const { return id != 0; }
 
