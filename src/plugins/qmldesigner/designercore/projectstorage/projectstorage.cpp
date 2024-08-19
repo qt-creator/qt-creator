@@ -6,6 +6,8 @@
 #include <predicate.h>
 #include <sqlitedatabase.h>
 
+#include <concepts>
+
 namespace QmlDesigner {
 
 using Storage::Synchronization::EnumerationDeclaration;
@@ -2349,7 +2351,7 @@ void ProjectStorage::synchronizeTypeAnnotations(Storage::Synchronization::TypeAn
 
     updateTypeIdInTypeAnnotations(typeAnnotations);
 
-    auto compareKey = [](auto &&first, auto &&second) { return first.typeId - second.typeId; };
+    auto compareKey = [](auto &&first, auto &&second) { return first.typeId <=> second.typeId; };
 
     std::ranges::sort(typeAnnotations, std::ranges::less{}, &TypeAnnotation::typeId);
 
@@ -2497,11 +2499,8 @@ void ProjectStorage::synchronizeDirectoryInfos(Storage::Synchronization::Directo
     NanotraceHR::Tracer tracer{"synchronize directory infos"_t, projectStorageCategory()};
 
     auto compareKey = [](auto &&first, auto &&second) {
-        auto directorySourceIdDifference = first.directorySourceId - second.directorySourceId;
-        if (directorySourceIdDifference != 0)
-            return directorySourceIdDifference;
-
-        return first.sourceId - second.sourceId;
+        return std::tie(first.directorySourceId, first.sourceId)
+               <=> std::tie(second.directorySourceId, second.sourceId);
     };
 
     std::ranges::sort(directoryInfos, [&](auto &&first, auto &&second) {
@@ -2567,7 +2566,7 @@ void ProjectStorage::synchronizeFileStatuses(FileStatuses &fileStatuses,
 {
     NanotraceHR::Tracer tracer{"synchronize file statuses"_t, projectStorageCategory()};
 
-    auto compareKey = [](auto &&first, auto &&second) { return first.sourceId - second.sourceId; };
+    auto compareKey = [](auto &&first, auto &&second) { return first.sourceId <=> second.sourceId; };
 
     std::ranges::sort(fileStatuses, std::ranges::less{}, &FileStatus::sourceId);
 
@@ -2663,12 +2662,9 @@ void ProjectStorage::synchromizeModuleExportedImports(
                          toIntegers(updatedModuleIds));
 
     auto compareKey = [](const Storage::Synchronization::ModuleExportedImportView &view,
-                         const Storage::Synchronization::ModuleExportedImport &import) -> long long {
-        auto moduleIdDifference = view.moduleId - import.moduleId;
-        if (moduleIdDifference != 0)
-            return moduleIdDifference;
-
-        return view.exportedModuleId - import.exportedModuleId;
+                         const Storage::Synchronization::ModuleExportedImport &import) {
+        return std::tie(view.moduleId, view.exportedModuleId)
+               <=> std::tie(import.moduleId, import.exportedModuleId);
     };
 
     auto insert = [&](const Storage::Synchronization::ModuleExportedImport &import) {
@@ -3253,20 +3249,9 @@ void ProjectStorage::synchronizeExportedTypes(const TypeIds &updatedTypeIds,
                      .range<Storage::Synchronization::ExportedTypeView>(toIntegers(updatedTypeIds));
 
     auto compareKey = [](const Storage::Synchronization::ExportedTypeView &view,
-                         const Storage::Synchronization::ExportedType &type) -> long long {
-        auto moduleIdDifference = view.moduleId - type.moduleId;
-        if (moduleIdDifference != 0)
-            return moduleIdDifference;
-
-        auto nameDifference = Sqlite::compare(view.name, type.name);
-        if (nameDifference != 0)
-            return nameDifference;
-
-        auto versionDifference = view.version.major.value - type.version.major.value;
-        if (versionDifference != 0)
-            return versionDifference;
-
-        return view.version.minor.value - type.version.minor.value;
+                         const Storage::Synchronization::ExportedType &type) {
+        return std::tie(view.moduleId, view.name, view.version.major.value, view.version.minor.value)
+               <=> std::tie(type.moduleId, type.name, type.version.major.value, type.version.minor.value);
     };
 
     auto insert = [&](const Storage::Synchronization::ExportedType &type) {
@@ -3569,7 +3554,7 @@ void ProjectStorage::synchronizePropertyDeclarations(
 
     auto compareKey = [](const Storage::Synchronization::PropertyDeclarationView &view,
                          const Storage::Synchronization::PropertyDeclaration &value) {
-        return Sqlite::compare(view.name, value.name);
+        return view.name <=> value.name;
     };
 
     auto insert = [&](const Storage::Synchronization::PropertyDeclaration &value) {
@@ -3640,7 +3625,7 @@ void ProjectStorage::resetRemovedAliasPropertyDeclarationsToNull(
 
     auto compareKey = [](const AliasPropertyDeclarationView &view,
                          const Storage::Synchronization::PropertyDeclaration &value) {
-        return Sqlite::compare(view.name, value.name);
+        return view.name <=> value.name;
     };
 
     auto insert = [&](const Storage::Synchronization::PropertyDeclaration &) {};
@@ -3805,20 +3790,12 @@ void ProjectStorage::synchronizeDocumentImports(Storage::Imports &imports,
                                                                   importKind);
 
     auto compareKey = [](const Storage::Synchronization::ImportView &view,
-                         const Storage::Import &import) -> long long {
-        auto sourceIdDifference = view.sourceId - import.sourceId;
-        if (sourceIdDifference != 0)
-            return sourceIdDifference;
-
-        auto moduleIdDifference = view.moduleId - import.moduleId;
-        if (moduleIdDifference != 0)
-            return moduleIdDifference;
-
-        auto versionDifference = view.version.major.value - import.version.major.value;
-        if (versionDifference != 0)
-            return versionDifference;
-
-        return view.version.minor.value - import.version.minor.value;
+                         const Storage::Import &import) {
+        return std::tie(view.sourceId, view.moduleId, view.version.major.value, view.version.minor.value)
+               <=> std::tie(import.sourceId,
+                            import.moduleId,
+                            import.version.major.value,
+                            import.version.minor.value);
     };
 
     auto insert = [&](const Storage::Import &import) {
@@ -3958,9 +3935,8 @@ void ProjectStorage::synchronizePropertyEditorPaths(Storage::Synchronization::Pr
     auto range = s->selectPropertyEditorPathsForForSourceIdsStatement.range<PropertyEditorQmlPathView>(
         toIntegers(updatedPropertyEditorQmlPathsSourceIds));
 
-    auto compareKey = [](const PropertyEditorQmlPathView &view,
-                         const PropertyEditorQmlPath &value) -> long long {
-        return view.typeId - value.typeId;
+    auto compareKey = [](const PropertyEditorQmlPathView &view, const PropertyEditorQmlPath &value) {
+        return view.typeId <=> value.typeId;
     };
 
     auto insert = [&](const PropertyEditorQmlPath &path) {
@@ -4035,13 +4011,13 @@ void ProjectStorage::synchronizeFunctionDeclarations(
 
     auto compareKey = [](const Storage::Synchronization::FunctionDeclarationView &view,
                          const Storage::Synchronization::FunctionDeclaration &value) {
-        auto nameKey = Sqlite::compare(view.name, value.name);
-        if (nameKey != 0)
+        auto nameKey = view.name <=> value.name;
+        if (nameKey != std::strong_ordering::equal)
             return nameKey;
 
         Utils::PathString valueSignature{createJson(value.parameters)};
 
-        return Sqlite::compare(view.signature, valueSignature);
+        return view.signature <=> valueSignature;
     };
 
     auto insert = [&](const Storage::Synchronization::FunctionDeclaration &value) {
@@ -4110,13 +4086,13 @@ void ProjectStorage::synchronizeSignalDeclarations(
 
     auto compareKey = [](const Storage::Synchronization::SignalDeclarationView &view,
                          const Storage::Synchronization::SignalDeclaration &value) {
-        auto nameKey = Sqlite::compare(view.name, value.name);
-        if (nameKey != 0)
+        auto nameKey = view.name <=> value.name;
+        if (nameKey != std::strong_ordering::equal)
             return nameKey;
 
         Utils::PathString valueSignature{createJson(value.parameters)};
 
-        return Sqlite::compare(view.signature, valueSignature);
+        return view.signature <=> valueSignature;
     };
 
     auto insert = [&](const Storage::Synchronization::SignalDeclaration &value) {
@@ -4188,7 +4164,7 @@ void ProjectStorage::synchronizeEnumerationDeclarations(
 
     auto compareKey = [](const Storage::Synchronization::EnumerationDeclarationView &view,
                          const Storage::Synchronization::EnumerationDeclaration &value) {
-        return Sqlite::compare(view.name, value.name);
+        return view.name <=> value.name;
     };
 
     auto insert = [&](const Storage::Synchronization::EnumerationDeclaration &value) {
@@ -4313,7 +4289,7 @@ void ProjectStorage::syncDefaultProperties(Storage::Synchronization::Types &type
 
     auto compareKey = [](const TypeWithDefaultPropertyView &view,
                          const Storage::Synchronization::Type &value) {
-        return view.typeId - value.typeId;
+        return view.typeId <=> value.typeId;
     };
 
     auto insert = [&](const Storage::Synchronization::Type &) {
@@ -4367,7 +4343,7 @@ void ProjectStorage::resetDefaultPropertiesIfChanged(Storage::Synchronization::T
 
     auto compareKey = [](const TypeWithDefaultPropertyView &view,
                          const Storage::Synchronization::Type &value) {
-        return view.typeId - value.typeId;
+        return view.typeId <=> value.typeId;
     };
 
     auto insert = [&](const Storage::Synchronization::Type &) {
