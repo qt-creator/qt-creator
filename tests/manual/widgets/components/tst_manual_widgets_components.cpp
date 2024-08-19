@@ -17,6 +17,11 @@ QWidget *widgets()
     const QStringList content = QColor::colorNames();
     comboBox->addItems(content.first(8));
 
+    auto switchOn = new Core::Switch("Qt::RightToLeft");
+    switchOn->setChecked(true);
+    auto switchOff = new Core::Switch("Qt::LeftToRight");
+    switchOff->setLayoutDirection(Qt::LeftToRight);
+
     using namespace Layouting;
     Column {
         Group {
@@ -48,6 +53,13 @@ QWidget *widgets()
             title("Core::ComboBox"),
             Column {
                 comboBox,
+            },
+        },
+        Group {
+            title("Core::Switch"),
+            Column {
+                switchOn,
+                switchOff,
             },
         },
     }.attachTo(widget);

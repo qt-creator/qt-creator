@@ -141,6 +141,18 @@ protected:
     void leaveEvent(QEvent *event) override;
 };
 
+class CORE_EXPORT Switch : public QAbstractButton
+{
+public:
+    explicit Switch(const QString &text, QWidget *parent = nullptr);
+
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+
+protected:
+    void paintEvent(QPaintEvent *event) override;
+};
+
 class CORE_EXPORT GridView : public QListView
 {
 public:
