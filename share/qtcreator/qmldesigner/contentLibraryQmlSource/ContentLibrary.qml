@@ -265,14 +265,16 @@ Item {
 
                 onUnimport: (bundleItem) => {
                     confirmUnimportDialog.targetBundleItem = bundleItem
-                    confirmUnimportDialog.targetBundleLabel = "material"
+                    confirmUnimportDialog.targetBundleLabel = bundleItem.bundleId === "MaterialBundle"
+                                                                ? qsTr("material") : qsTr("item")
                     confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.userModel
                     confirmUnimportDialog.open()
                 }
 
                 onRemoveFromContentLib: (bundleItem) => {
                     confirmDeleteDialog.targetBundleItem = bundleItem
-                    confirmDeleteDialog.targetBundleLabel = "material"
+                    confirmDeleteDialog.targetBundleLabel = bundleItem.bundleId === "MaterialBundle"
+                                                                ? qsTr("material") : qsTr("item")
                     confirmDeleteDialog.open()
                 }
 
