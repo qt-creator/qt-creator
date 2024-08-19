@@ -408,7 +408,9 @@ class DesktopFilePathWatcher final : public FilePathWatcher
     public:
         GlobalWatcher()
         {
-            QTC_CHECK(QThread::currentThread() == qApp->thread());
+            // Normally we want to make sure that this object is created on the main thread.
+            // Certain tests might not have a qApp though, so we allow for that.
+            QTC_CHECK(!qApp || QThread::currentThread() == qApp->thread());
             d.writeLocked()->init(this);
         }
 
