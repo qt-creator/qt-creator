@@ -29,8 +29,11 @@ def __createMinimumIni__(emptyParent):
     iniFile.write("OverrideLanguage=C\n")
     iniFile.close()
 
+
+glblDefaultKits = 0
+
+
 def __checkKits__():
-    global genericDebuggers
     mouseClick(waitForObjectItem(":Options_QListView", "Kits"))
     # check compilers
     expectedCompilers = __getExpectedCompilers__()
@@ -75,6 +78,7 @@ def __checkKits__():
     # check kits
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Kits")
     __iterateTree__(":BuildAndRun_QTreeView", __kitFunc__, foundQt, foundCompilerNames)
+    test.compare(glblDefaultKits, 1, "Was exactly one default kit found?")
     return qmakePath != None
 
 def __processSubItems__(treeObjStr, section, parModelIndexStr, doneItems,
@@ -161,19 +165,31 @@ def __qtFunc__(it, foundQt, qmakePath):
     except:
         pass
 
+
+glblUsedKitNames = set()
+
+
 def __kitFunc__(it, foundQt, foundCompNames):
     global currentSelectedTreeItem, warningOrError
     if 'Python' in it: # skip Python kits
         return
 
-    qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
-    # The following may fail if Creator doesn't find a Qt version in PATH. It will then create one
-    # Qt-less kit for each available toolchain instead of just one default Desktop kit.
-    # Since Qt usually is in PATH on the test machines anyway, we consider this too much of a
-    # corner case to add error handling code or make Qt in PATH a hard requirement for the tests.
-    test.compare(it, "Desktop (default)", "Verifying whether default Desktop kit has been created.")
+    defaultKitSuffix = " (default)"
+    if it.endswith(defaultKitSuffix):
+        global glblDefaultKits
+        glblDefaultKits += 1
     if foundQt:
+        test.compare(it, "Desktop" + defaultKitSuffix,
+                     "Verifying whether default Desktop kit has been created.")
+        qtVersionStr = str(waitForObjectExists(":Kits_QtVersion_QComboBox").currentText)
         test.compare(qtVersionStr, foundQt, "Verifying if Qt versions match.")
+    else:
+        # Creator creates one kit for each compiler's ABI
+        global glblUsedKitNames
+        kitName = it.removesuffix(defaultKitSuffix)
+        test.verify(kitName not in glblUsedKitNames,
+                    "The kit name '%s' was not used before?" % kitName)
+        glblUsedKitNames.add(kitName)
     compilerCombo = findObject(":Compiler:_QComboBox")
     test.compare(compilerCombo.enabled, compilerCombo.count > 1,
                  "Verifying whether compiler combo is enabled/disabled correctly.")
