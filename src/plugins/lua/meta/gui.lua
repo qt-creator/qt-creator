@@ -16,7 +16,12 @@ gui.Widget = {}
 
 ---@param children Layout
 ---@return Widget
-function gui.Widget(children) end
+
+---Show the widget. (see [QWidget::show](https://doc.qt.io/qt-5/qwidget.html#show))
+function gui.widget:show() end
+
+---Sets the top-level widget containing this widget to be the active window. (see [QWidget::activateWindow](https://doc.qt.io/qt-5/qwidget.html#activateWindow))
+function gui.widget:activateWindow() end
 
 ---Column layout
 ---@class Column : Layout
@@ -64,7 +69,6 @@ local form = {}
 ---@param children Layout|string|BaseAspect|function
 ---@return Form
 function gui.Form(children) end
-
 
 ---A stack of multiple widgets.
 ---@class Stack : Widget
@@ -136,6 +140,7 @@ function gui.TabWidget(children) end
 ---@param child Layout|string|BaseAspect|function
 ---@return TabWidget
 function gui.TabWidget(name, child) end
+
 ---A "Line break" in the gui.
 function gui.br() end
 
@@ -171,5 +176,48 @@ function gui.onClicked(f) end
 
 ---Sets the onTextChanged handler of the parent object if possible.
 function gui.onTextChanged(f) end
+
+--- Enum representing various window types.
+---@enum WindowType
+gui.WindowType = {
+    Widget = 0,
+    Window = 0,
+    Dialog = 0,
+    Sheet = 0,
+    Drawer = 0,
+    Popup = 0,
+    Tool = 0,
+    ToolTip = 0,
+    SplashScreen = 0,
+    Desktop = 0,
+    SubWindow = 0,
+    ForeignWindow = 0,
+    CoverWindow = 0,
+    WindowType_Mask = 0,
+    MSWindowsFixedSizeDialogHint = 0,
+    MSWindowsOwnDC = 0,
+    BypassWindowManagerHint = 0,
+    X11BypassWindowManagerHint = 0,
+    FramelessWindowHint = 0,
+    WindowTitleHint = 0,
+    WindowSystemMenuHint = 0,
+    WindowMinimizeButtonHint = 0,
+    WindowMaximizeButtonHint = 0,
+    WindowMinMaxButtonsHint = 0,
+    WindowContextHelpButtonHint = 0,
+    WindowShadeButtonHint = 0,
+    WindowStaysOnTopHint = 0,
+    WindowTransparentForInput = 0,
+    WindowOverridesSystemGestures = 0,
+    WindowDoesNotAcceptFocus = 0,
+    MaximizeUsingFullscreenGeometryHint = 0,
+    CustomizeWindowHint = 0,
+    WindowStaysOnBottomHint = 0,
+    WindowCloseButtonHint = 0,
+    MacWindowToolBarButtonHint = 0,
+    BypassGraphicsProxyWidget = 0,
+    NoDropShadowWindowHint = 0,
+    WindowFullscreenButtonHint = 0,
+}
 
 return gui

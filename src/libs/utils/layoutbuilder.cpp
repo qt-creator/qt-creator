@@ -711,6 +711,11 @@ void Widget::setWindowTitle(const QString &title)
     access(this)->setWindowTitle(title);
 }
 
+void Widget::setWindowFlags(Qt::WindowFlags flags)
+{
+    access(this)->setWindowFlags(flags);
+}
+
 void Widget::setToolTip(const QString &title)
 {
     access(this)->setToolTip(title);
@@ -734,6 +739,11 @@ void Widget::setNormalMargins(int)
 void Widget::setContentsMargins(int left, int top, int right, int bottom)
 {
     access(this)->setContentsMargins(left, top, right, bottom);
+}
+
+void Widget::activateWindow()
+{
+    access(this)->activateWindow();
 }
 
 QWidget *Widget::emerge() const

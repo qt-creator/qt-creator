@@ -94,10 +94,22 @@ HAS_MEM_FUNC(setText, hasSetText);
 HAS_MEM_FUNC(setTitle, hasSetTitle);
 HAS_MEM_FUNC(setValue, hasSetValue);
 HAS_MEM_FUNC(setSize, hasSetSize);
+HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
+    if constexpr (hasSetWindowFlags<T, void (T::*)(Qt::WindowFlags)>::value) {
+        sol::optional<sol::table> windowFlags = children.get<sol::optional<sol::table>>(
+            "windowFlags");
+        if (windowFlags) {
+            Qt::WindowFlags flags;
+            for (const auto &kv : *windowFlags)
+                flags.setFlag(static_cast<Qt::WindowType>(kv.second.as<int>()));
+            item->setWindowFlags(flags);
+        }
+    }
+
     if constexpr (hasSetSize<T, void (T::*)(int, int)>::value) {
         sol::optional<sol::table> size = children.get<sol::optional<sol::table>>("size");
         if (size) {
@@ -316,8 +328,90 @@ void setupGuiModule()
             }),
             "show",
             &Widget::show,
+            "activateWindow",
+            &Widget::activateWindow,
             sol::base_classes,
             sol::bases<Object, Thing>());
+
+        gui["WindowType"] = l.create_table_with(
+            "Widget",
+            Qt::Widget,
+            "Window",
+            Qt::Window,
+            "Dialog",
+            Qt::Dialog,
+            "Sheet",
+            Qt::Sheet,
+            "Drawer",
+            Qt::Drawer,
+            "Popup",
+            Qt::Popup,
+            "Tool",
+            Qt::Tool,
+            "ToolTip",
+            Qt::ToolTip,
+            "SplashScreen",
+            Qt::SplashScreen,
+            "Desktop",
+            Qt::Desktop,
+            "SubWindow",
+            Qt::SubWindow,
+            "ForeignWindow",
+            Qt::ForeignWindow,
+            "CoverWindow",
+            Qt::CoverWindow,
+
+            "WindowType_Mask",
+            Qt::WindowType_Mask,
+            "MSWindowsFixedSizeDialogHint",
+            Qt::MSWindowsFixedSizeDialogHint,
+            "MSWindowsOwnDC",
+            Qt::MSWindowsOwnDC,
+            "BypassWindowManagerHint",
+            Qt::BypassWindowManagerHint,
+            "X11BypassWindowManagerHint",
+            Qt::X11BypassWindowManagerHint,
+            "FramelessWindowHint",
+            Qt::FramelessWindowHint,
+            "WindowTitleHint",
+            Qt::WindowTitleHint,
+            "WindowSystemMenuHint",
+            Qt::WindowSystemMenuHint,
+            "WindowMinimizeButtonHint",
+            Qt::WindowMinimizeButtonHint,
+            "WindowMaximizeButtonHint",
+            Qt::WindowMaximizeButtonHint,
+            "WindowMinMaxButtonsHint",
+            Qt::WindowMinMaxButtonsHint,
+            "WindowContextHelpButtonHint",
+            Qt::WindowContextHelpButtonHint,
+            "WindowShadeButtonHint",
+            Qt::WindowShadeButtonHint,
+            "WindowStaysOnTopHint",
+            Qt::WindowStaysOnTopHint,
+            "WindowTransparentForInput",
+            Qt::WindowTransparentForInput,
+            "WindowOverridesSystemGestures",
+            Qt::WindowOverridesSystemGestures,
+            "WindowDoesNotAcceptFocus",
+            Qt::WindowDoesNotAcceptFocus,
+            "MaximizeUsingFullscreenGeometryHint",
+            Qt::MaximizeUsingFullscreenGeometryHint,
+
+            "CustomizeWindowHint",
+            Qt::CustomizeWindowHint,
+            "WindowStaysOnBottomHint",
+            Qt::WindowStaysOnBottomHint,
+            "WindowCloseButtonHint",
+            Qt::WindowCloseButtonHint,
+            "MacWindowToolBarButtonHint",
+            Qt::MacWindowToolBarButtonHint,
+            "BypassGraphicsProxyWidget",
+            Qt::BypassGraphicsProxyWidget,
+            "NoDropShadowWindowHint",
+            Qt::NoDropShadowWindowHint,
+            "WindowFullscreenButtonHint",
+            Qt::WindowFullscreenButtonHint);
 
         gui.new_usertype<Stack>(
             "Stack",

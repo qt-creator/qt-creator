@@ -224,10 +224,12 @@ public:
     void setLayout(const Layout &layout);
     void setSize(int, int);
     void setWindowTitle(const QString &);
+    void setWindowFlags(Qt::WindowFlags);
     void setToolTip(const QString &);
     void setNoMargins(int = 0);
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
+    void activateWindow();
 };
 
 class QTCREATOR_UTILS_EXPORT Label : public Widget
@@ -421,6 +423,7 @@ QTC_DEFINE_BUILDER_SETTER(title, setTitle)
 QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
 QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
+QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
 
 // Nesting dispatchers
 
