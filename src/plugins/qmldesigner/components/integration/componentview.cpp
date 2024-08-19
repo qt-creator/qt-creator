@@ -238,8 +238,10 @@ void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*ne
     }
 }
 
-void ComponentView::customNotification(const AbstractView *view, const QString &identifier,
-                                       const QList<ModelNode> &nodeList, const QList<QVariant> &)
+void ComponentView::customNotification(const AbstractView *,
+                                       const QString &identifier,
+                                       const QList<ModelNode> &nodeList,
+                                       const QList<QVariant> &)
 {
     if (identifier == "UpdateImported3DAsset" && nodeList.size() > 0) {
         Import3dDialog::updateImport(this, nodeList[0],
