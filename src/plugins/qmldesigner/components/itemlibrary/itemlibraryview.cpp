@@ -72,7 +72,7 @@ void ItemLibraryView::modelAboutToBeDetached(Model *model)
     m_widget->setModel(nullptr);
 }
 
-void ItemLibraryView::importsChanged(const Imports &addedImports, const Imports &removedImports)
+void ItemLibraryView::importsChanged(const Imports &, const Imports &)
 {
     updateImports();
     m_widget->updatePossibleImports(model()->possibleImports());

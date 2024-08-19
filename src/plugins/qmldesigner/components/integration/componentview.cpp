@@ -337,7 +337,7 @@ void ComponentView::importsChanged(const Imports &addedImports, const Imports &r
     }
 }
 
-void ComponentView::possibleImportsChanged(const Imports &possibleImports)
+void ComponentView::possibleImportsChanged([[maybe_unused]] const Imports &possibleImports)
 {
 #ifndef QDS_USE_PROJECTSTORAGE
     DesignDocument *document = QmlDesignerPlugin::instance()->currentDesignDocument();
