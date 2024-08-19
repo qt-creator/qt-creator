@@ -158,8 +158,6 @@ public:
 
     ModelNode getNodeForCanonicalIndex(int index);
 
-    void sanitizeModel();
-
     void setAllowComponentRoot(bool allow);
     bool allowComponentRoot() const;
 

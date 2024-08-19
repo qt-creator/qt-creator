@@ -692,8 +692,6 @@ void DesignDocument::setEditor(Core::IEditor *editor)
             this, [this](Core::IDocument *document) {
         if (m_textEditor && m_textEditor->document() == document) {
             if (m_documentModel && m_documentModel->rewriterView()) {
-                if (fileName().completeSuffix() == "ui.qml")
-                    m_documentModel->rewriterView()->sanitizeModel();
                 m_documentModel->rewriterView()->writeAuxiliaryData();
             }
         }
