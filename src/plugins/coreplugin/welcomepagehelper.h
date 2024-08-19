@@ -122,8 +122,6 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
-
-protected:
     void enterEvent(QEnterEvent *event) override;
     void leaveEvent(QEvent *event) override;
 };
