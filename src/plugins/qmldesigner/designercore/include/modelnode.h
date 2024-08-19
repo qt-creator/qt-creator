@@ -255,12 +255,7 @@ public:
         return firstNode.m_internalNode == secondNode.m_internalNode;
     }
 
-    friend bool operator!=(const ModelNode &firstNode, const ModelNode &secondNode)
-    {
-        return !(firstNode == secondNode);
-    }
-
-    friend std::weak_ordering operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
+    friend auto operator<=>(const ModelNode &firstNode, const ModelNode &secondNode)
     {
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
