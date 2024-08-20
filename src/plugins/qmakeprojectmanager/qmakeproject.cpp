@@ -745,8 +745,10 @@ void QmakeBuildSystem::asyncUpdate()
 
 void QmakeBuildSystem::buildFinished(bool success)
 {
-    if (success)
+    if (success) {
         m_invalidateQmakeVfsContents = true;
+        updateQmlJSCodeModel();
+    }
 }
 
 Tasks QmakeProject::projectIssues(const Kit *k) const
