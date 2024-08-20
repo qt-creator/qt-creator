@@ -220,4 +220,30 @@ gui.WindowType = {
     WindowFullscreenButtonHint = 0,
 }
 
+---@class Span : Layout
+gui.span = {}
+
+---@class SpanOptions
+---@field [1] integer The number of columns to span.
+---@field [2] Layout The inner layout to span.
+
+---@class SpanOptionsWithRow
+---@field [1] integer The number of columns to span.
+---@field [2] integer The number of rows to span.
+---@field [3] Layout The inner layout.
+
+---@param options SpanOptions|SpanOptionsWithRow
+---@return Span
+function gui.Span(options) end
+
+---@param col integer The number of columns to span.
+---@param layout Layout The inner layout.
+---@return Span
+function gui.Span(col, layout) end
+
+---@param col integer The number of columns to span.
+---@param row integer The number of rows to span.
+---@param layout Layout The inner layout.
+---@return Span
+function gui.Span(col, row, layout) end
 return gui

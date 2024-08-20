@@ -191,24 +191,40 @@ std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
 
 std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
 {
-    if (children.size() != 2)
-        throw sol::error("Span must have exactly two children");
+    if (children.size() != 2 && children.size() != 3)
+        throw sol::error("Span must have two or three children");
 
     auto spanSize = children[1];
     if (spanSize.get_type() != sol::type::number)
-        throw sol::error("Span size (first argument) must be a number");
+        throw sol::error("Span columns (first argument) must be a number");
 
-    const auto &layout = children[2];
-    if (!layout.is<Layout *>())
-        throw sol::error("Span child (second argument) must be a Layout");
+    const auto &layout_or_row = children[2];
+    if (!layout_or_row.is<Layout *>() && layout_or_row.get_type() != sol::type::number)
+        throw sol::error("Span child (second argument) must be a Layout or number");
 
-    std::unique_ptr<Span> item = std::make_unique<Span>(spanSize, *layout.get<Layout *>());
+    if (layout_or_row.get_type() == sol::type::number) {
+        const auto &layout = children[3];
+        if (!layout.is<Layout *>())
+            throw sol::error("Span child (third argument) must be a Layout");
+
+        std::unique_ptr<Span> item = std::make_unique<Span>(
+            spanSize.get<int>(), layout_or_row.get<int>(), *layout.get<Layout *>());
+        return item;
+    }
+
+    std::unique_ptr<Span> item = std::make_unique<Span>(spanSize, *layout_or_row.get<Layout *>());
     return item;
 }
 
-std::unique_ptr<Span> constructSpan(int n, const Layout &layout)
+std::unique_ptr<Span> constructSpan(int c, const Layout &layout)
 {
-    std::unique_ptr<Span> item = std::make_unique<Span>(n, layout);
+    std::unique_ptr<Span> item = std::make_unique<Span>(c, layout);
+    return item;
+}
+
+std::unique_ptr<Span> constructSpanWithRow(int c, int r, const Layout &layout)
+{
+    std::unique_ptr<Span> item = std::make_unique<Span>(c, r, layout);
     return item;
 }
 
@@ -252,7 +268,9 @@ void setupGuiModule()
         sol::table gui = l.create_table();
 
         gui.new_usertype<Span>(
-            "Span", sol::call_constructor, sol::factories(&constructSpan, &constructSpanFromTable));
+            "Span",
+            sol::call_constructor,
+            sol::factories(&constructSpan, &constructSpanWithRow, &constructSpanFromTable));
 
         gui.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
 
