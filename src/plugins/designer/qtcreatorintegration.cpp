@@ -62,7 +62,9 @@
 #include <memory>
 #include <optional>
 
+namespace Designer::Internal {
 Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
+} // namespace Designer::Internal
 
 using namespace Designer::Internal;
 using namespace CPlusPlus;

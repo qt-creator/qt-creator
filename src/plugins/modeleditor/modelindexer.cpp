@@ -25,12 +25,12 @@
 #include <QLoggingCategory>
 #include <QPointer>
 
-Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace ModelEditor::Internal {
+
+Q_LOGGING_CATEGORY(log, "qtc.modeleditor.modelindexer", QtWarningMsg)
 
 class QueuedFile
 {
