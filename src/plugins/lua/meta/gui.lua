@@ -17,14 +17,17 @@ gui.widget = {}
 ---@alias LayoutChild string|BaseAspect|Layout|Widget|function
 ---@alias LayoutChildren LayoutChild[]
 
----@class (exact) WidgetOptions
+---@class (exact) BaseWidgetOptions
+---@field size? integer[] Two integers, representing the width and height of the widget.
+---@field windowFlags? WindowType[] The window flags of the widget.
+gui.baseWidgetOptions = {}
+
+---@class (exact) WidgetOptions : BaseWidgetOptions
+---@field title? string The title of the widget, if applicable.
 ---@field onTextChanged? function The function to be called when the text of the widget changes, if applicable.
 ---@field onClicked? function The function to be called when the widget is clicked, if applicable.
 ---@field text? string The text of the widget, if applicable.
----@field title? string The title of the widget, if applicable.
 ---@field value? integer The value of the widget, if applicable.
----@field size? integer[] Two integers, representing the width and height of the widget.
----@field windowFlags? WindowType[] The window flags of the widget.
 ---@field [1]? Layout The layout of the widget, if applicable.
 gui.widgetOptions = {}
 
@@ -144,7 +147,17 @@ function gui.SpinBox(options) end
 ---@class Splitter : Widget
 local splitter = {}
 
----@param options WidgetOptions
+---@alias Orientation "horizontal"|"vertical"
+
+---@class (exact) SplitterOptions : BaseWidgetOptions
+---@field orientation? Orientation The orientation of the splitter. (default: "vertical")
+---@field childrenCollapsible? boolean A boolean, representing whether the children are collapsible. (default: true)
+---@field stretchFactors? integer[] A list of integers, representing the stretch factors of the children. (default: {1, ...})
+---@field size? integer[] Two integers, representing the width and height of the widget.
+---@field [integer] Layout | Widget The splits.
+gui.splitterOptions = {}
+
+---@param options SplitterOptions
 ---@return Splitter
 function gui.Splitter(options) end
 

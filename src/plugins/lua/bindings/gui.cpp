@@ -245,6 +245,18 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);
 
+    if (const auto &orientation = children.get<sol::optional<QString>>("orientation")) {
+        if (*orientation == "horizontal")
+            item->setOrientation(Qt::Horizontal);
+        else if (*orientation == "vertical")
+            item->setOrientation(Qt::Vertical);
+        else
+            throw sol::error(QString("Invalid orientation: %1").arg(*orientation).toStdString());
+    }
+
+    if (const auto collapsible = children.get<sol::optional<bool>>("collapsible"))
+        item->setChildrenCollapsible(*collapsible);
+
     for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Layout *>()) {
@@ -254,6 +266,14 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
         } else {
             qWarning() << "Incompatible object added to Splitter: " << (int) child.get_type()
                        << " (expected Layout or Widget)";
+        }
+    }
+
+    if (const auto &stretchFactors = children.get<sol::optional<sol::table>>("stretchFactors")) {
+        for (const auto &kv : *stretchFactors) {
+            if (kv.second.get_type() != sol::type::number)
+                throw sol::error("Stretch factors must be numbers");
+            item->setStretchFactor(kv.first.as<int>() - 1, kv.second.as<int>());
         }
     }
     return item;
