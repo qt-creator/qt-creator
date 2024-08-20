@@ -4,9 +4,16 @@ else()
   set(KSYNTAXHIGHLIGHTING_TARGET KF5::SyntaxHighlighting)
 endif()
 
+add_qtc_library(TextEditorSupport STATIC
+  DEPENDS Utils
+  DEFINES TEXTEDITOR_LIBRARY
+  SOURCES
+    tabsettings.cpp tabsettings.h
+)
+
 add_qtc_plugin(TextEditor
   DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
-  PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
+  PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET} TextEditorSupport
   PLUGIN_DEPENDS Core
   SOURCES
     autocompleter.cpp autocompleter.h
@@ -95,7 +102,6 @@ add_qtc_plugin(TextEditor
     snippets/snippetssettingspage.cpp snippets/snippetssettingspage.h
     storagesettings.cpp storagesettings.h
     syntaxhighlighter.cpp syntaxhighlighter.h
-    tabsettings.cpp tabsettings.h
     tabsettingswidget.cpp tabsettingswidget.h
     textdocument.cpp textdocument.h
     textdocumentlayout.cpp textdocumentlayout.h

@@ -3,9 +3,6 @@
 
 #include "tabsettings.h"
 
-#include "icodestylepreferences.h"
-#include "texteditorsettings.h"
-
 #include <QDebug>
 #include <QTextCursor>
 #include <QTextDocument>
@@ -350,9 +347,7 @@ bool TabSettings::equals(const TabSettings &ts) const
         && m_continuationAlignBehavior == ts.m_continuationAlignBehavior;
 }
 
-static TabSettings::Retriever g_retriever = [](const FilePath &) {
-    return TextEditorSettings::codeStyle()->tabSettings();
-};
+static TabSettings::Retriever g_retriever = [](const FilePath &) { return TabSettings{}; };
 
 void TabSettings::setRetriever(const Retriever &retriever) { g_retriever = retriever; }
 

@@ -105,6 +105,9 @@ void TextEditorPlugin::initialize()
     // FIXME: This kind of dependency should not exist.
     setupTextEditorSettings();
 
+    TabSettings::setRetriever(
+        [](const FilePath &) { return TextEditorSettings::codeStyle()->tabSettings(); });
+
     setupTextMarkRegistry(this);
     setupOutlineFactory();
     setupTypeHierarchyFactory();
