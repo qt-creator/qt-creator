@@ -19,6 +19,7 @@
 #include "rewritingexception.h"
 
 #include <enumeration.h>
+#include <utils3d.h>
 
 #include <utils/qtcassert.h>
 
@@ -535,9 +536,10 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
 
 void PropertyEditorValue::openMaterialEditor(int idx)
 {
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-    m_modelNode.view()->emitCustomNotification("select_material", {}, {idx});
+    if (ModelNode material = Utils3D::getMaterialOfModel(m_modelNode, idx)) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
+        Utils3D::selectMaterial(material);
+    }
 }
 
 void PropertyEditorValue::setForceBound(bool b)

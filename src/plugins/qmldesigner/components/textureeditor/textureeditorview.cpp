@@ -70,10 +70,21 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
             DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (doc && !doc->inFileComponentModelActive())
                 Utils3D::ensureMaterialLibraryNode(this);
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
-                    Utils3D::materialLibraryNode(this).isValid());
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(matLib.isValid());
             m_ensureMatLibTimer.stop();
+
+            ModelNode tex = Utils3D::selectedTexture(this);
+            if (!tex.isValid()) {
+                const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
+                for (const ModelNode &node : matLibNodes) {
+                    if (node.metaInfo().isQtQuick3DTexture()) {
+                        Utils3D::selectTexture(node);
+                        break;
+                    }
+                }
+            }
         }
     });
 
@@ -534,6 +545,7 @@ void TextureEditorView::modelAttached(Model *model)
         // Creating the material library node on model attach causes errors as long as the type
         // information is not complete yet, so we keep checking until type info is complete.
         m_ensureMatLibTimer.start(500);
+        m_selectedTexture = Utils3D::selectedTexture(this);
     }
 
     if (!m_setupCompleted) {
@@ -656,11 +668,18 @@ void TextureEditorView::auxiliaryDataChanged(const ModelNode &node,
                                               AuxiliaryDataKeyView key,
                                               const QVariant &)
 {
+    if (!noValidSelection() && node.isSelected())
+        m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedTexture, key);
 
-    if (noValidSelection() || !node.isSelected())
-        return;
-
-    m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedTexture, key);
+    if (!m_hasTextureRoot) {
+        if (key == Utils3D::matLibSelectedTextureProperty) {
+            if (ModelNode selNode = Utils3D::selectedTexture(this)) {
+                m_selectedTexture = selNode;
+                m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
+                QTimer::singleShot(0, this, &TextureEditorView::resetView);
+            }
+        }
+    }
 }
 
 void TextureEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
@@ -832,17 +851,10 @@ void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *
                                            const QList<ModelNode> &nodeList,
                                            [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "selected_texture_changed") {
-        if (!m_hasTextureRoot) {
-            m_selectedTexture = nodeList.first();
-            m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
-            QTimer::singleShot(0, this, &TextureEditorView::resetView);
-        }
-    } else if (identifier == "add_new_texture") {
+    if (identifier == "add_new_texture")
         handleToolBarAction(TextureEditorContextObject::AddNewTexture);
-    } else if (identifier == "duplicate_texture") {
+    else if (identifier == "duplicate_texture")
         duplicateTexture(nodeList.first());
-    }
 }
 
 void QmlDesigner::TextureEditorView::highlightSupportedProperties(bool highlight)

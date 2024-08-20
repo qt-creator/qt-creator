@@ -10,6 +10,7 @@
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
+#include <utils3d.h>
 
 #include <coreplugin/icore.h>
 
@@ -220,9 +221,36 @@ void ComponentView::nodeReparented(const ModelNode &node, const NodeAbstractProp
     updateDescription(node);
 }
 
-void ComponentView::nodeIdChanged(const ModelNode& node, const QString& /*newId*/, const QString& /*oldId*/)
+void ComponentView::nodeIdChanged(const ModelNode& node, const QString& newId, const QString& oldId)
 {
     updateDescription(node);
+
+    if (oldId.isEmpty())
+        return;
+
+    // Material/texture id handling is done here as ComponentView is guaranteed to always be
+    // attached, unlike the views actually related to material/texture handling.
+    auto metaInfo = node.metaInfo();
+    auto rootNode = rootModelNode();
+    auto model = AbstractView::model();
+
+    if (metaInfo == model->qtQuick3DMaterialMetaInfo()) {
+        if (auto property = rootNode.auxiliaryData(Utils3D::matLibSelectedMaterialProperty)) {
+            if (oldId == property->toString()) {
+                QTimer::singleShot(0, this, [rootNode, newId]() {
+                    rootNode.setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty, newId);
+                });
+            }
+        }
+    } else if (metaInfo == model->qtQuick3DTextureMetaInfo()) {
+        if (auto property = rootNode.auxiliaryData(Utils3D::matLibSelectedTextureProperty)) {
+            if (oldId == property->toString()) {
+                QTimer::singleShot(0, this, [rootNode, newId]() {
+                    rootNode.setAuxiliaryData(Utils3D::matLibSelectedTextureProperty, newId);
+                });
+            }
+        }
+    }
 }
 
 void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*newNodeSource*/)

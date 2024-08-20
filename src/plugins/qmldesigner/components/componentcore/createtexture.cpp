@@ -111,9 +111,9 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
         assignTextureAsLightProbe(texture, sceneId);
 
     QTimer::singleShot(0, m_view, [this, texture]() {
-        if (m_view->model()) {
+        if (m_view->model() && texture.isValid()) {
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
-            m_view->emitCustomNotification("select_texture", {texture}, {true});
+            Utils3D::selectTexture(texture);
         }
     });
 

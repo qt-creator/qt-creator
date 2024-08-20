@@ -72,10 +72,21 @@ MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDe
             DesignDocument *doc = QmlDesignerPlugin::instance()->currentDesignDocument();
             if (doc && !doc->inFileComponentModelActive())
                 Utils3D::ensureMaterialLibraryNode(this);
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (m_qmlBackEnd && m_qmlBackEnd->contextObject())
-                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(
-                    Utils3D::materialLibraryNode(this).isValid());
+                m_qmlBackEnd->contextObject()->setHasMaterialLibrary(matLib.isValid());
             m_ensureMatLibTimer.stop();
+
+            ModelNode mat = Utils3D::selectedMaterial(this);
+            if (!mat.isValid()) {
+                const QList <ModelNode> matLibNodes = matLib.directSubModelNodes();
+                for (const ModelNode &node : matLibNodes) {
+                    if (node.metaInfo().isQtQuick3DMaterial()) {
+                        Utils3D::selectMaterial(node);
+                        break;
+                    }
+                }
+            }
         }
     });
 
@@ -707,6 +718,7 @@ void MaterialEditorView::modelAttached(Model *model)
         // Creating the material library node on model attach causes errors as long as the type
         // information is not complete yet, so we keep checking until type info is complete.
         m_ensureMatLibTimer.start(500);
+        m_selectedMaterial = Utils3D::selectedMaterial(this);
     }
 
     if (!m_setupCompleted) {
@@ -819,11 +831,18 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node,
                                               AuxiliaryDataKeyView key,
                                               const QVariant &)
 {
+    if (!noValidSelection() && node.isSelected())
+        m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedMaterial, key);
 
-    if (noValidSelection() || !node.isSelected())
-        return;
-
-    m_qmlBackEnd->setValueforAuxiliaryProperties(m_selectedMaterial, key);
+    if (!m_hasMaterialRoot) {
+        if (key == Utils3D::matLibSelectedMaterialProperty) {
+            if (ModelNode selNode = Utils3D::selectedMaterial(this)) {
+                m_selectedMaterial = selNode;
+                m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
+                QTimer::singleShot(0, this, &MaterialEditorView::resetView);
+            }
+        }
+    }
 }
 
 void MaterialEditorView::propertiesAboutToBeRemoved(const QList<AbstractProperty> &propertyList)
@@ -1058,21 +1077,9 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
                                             const QList<ModelNode> &nodeList,
                                             const QList<QVariant> &data)
 {
-    auto changeSelected = [&]() {
-        if (!m_hasMaterialRoot && m_selectedMaterial != nodeList.first()) {
-            m_selectedMaterial = nodeList.first();
-            m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
-            QTimer::singleShot(0, this, &MaterialEditorView::resetView);
-        }
-    };
-
-    if (identifier == "selected_material_changed") {
-        changeSelected();
-    } else if (identifier == "apply_to_selected_triggered") {
-        changeSelected();
+    if (identifier == "apply_to_selected_triggered") {
         applyMaterialToSelectedModels(nodeList.first(), data.first().toBool());
     } else if (identifier == "rename_material") {
-        changeSelected();
         renameMaterial(m_selectedMaterial, data.first().toString());
     } else if (identifier == "add_new_material") {
         handleToolBarAction(MaterialEditorContextObject::AddNewMaterial);

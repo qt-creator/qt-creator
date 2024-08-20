@@ -10,6 +10,8 @@
 #include "qmlobjectnode.h"
 #include "variantproperty.h"
 
+#include <utils3d.h>
+
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -238,15 +240,17 @@ void MaterialBrowserTexturesModel::updateAllTexturesSources()
 
 void MaterialBrowserTexturesModel::updateSelectedTexture()
 {
+    if (!m_textureList.isEmpty() && m_selectedIndex < 0) {
+        ModelNode tex = Utils3D::selectedTexture(m_view);
+        m_selectedIndex = textureIndex(tex);
+    }
+
     selectTexture(m_selectedIndex, true);
 }
 
 int MaterialBrowserTexturesModel::textureIndex(const ModelNode &texture) const
 {
-    if (m_textureIndexHash.contains(texture.internalId()))
-        return m_textureIndexHash.value(texture.internalId());
-
-    return -1;
+    return m_textureIndexHash.value(texture.internalId(), -1);
 }
 
 ModelNode MaterialBrowserTexturesModel::textureAt(int idx) const

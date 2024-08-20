@@ -7,7 +7,10 @@
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
+#include <qmlobjectnode.h>
 #include <variantproperty.h>
+
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 namespace Utils3D {
@@ -150,6 +153,65 @@ QString activeView3dId(AbstractView *view)
     if (activeView3D.isValid())
         return activeView3D.id();
 
+    return {};
+}
+
+ModelNode getMaterialOfModel(const ModelNode &model, int idx)
+{
+    QTC_ASSERT(model.isValid(), return {});
+
+    QmlObjectNode qmlObjNode(model);
+    QString matExp = qmlObjNode.expression("materials");
+    if (matExp.isEmpty())
+        return {};
+
+    const QStringList mats = matExp.remove('[').remove(']').split(',', Qt::SkipEmptyParts);
+    if (mats.isEmpty())
+        return {};
+
+    ModelNode mat = model.model()->modelNodeForId(mats.at(idx));
+
+    QTC_CHECK(mat);
+
+    return mat;
+}
+
+void selectMaterial(const ModelNode &material)
+{
+    if (material.metaInfo().isQtQuick3DMaterial()) {
+        material.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty,
+                                                           material.id());
+    }
+}
+
+void selectTexture(const ModelNode &texture)
+{
+    if (texture.metaInfo().isQtQuick3DTexture()) {
+        texture.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedTextureProperty,
+                                                          texture.id());
+    }
+}
+
+ModelNode selectedMaterial(AbstractView *view)
+{
+    if (!view)
+        return {};
+
+    ModelNode root = view->rootModelNode();
+
+    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedMaterialProperty))
+        return view->modelNodeForId(selectedProperty->toString());
+    return {};
+}
+
+ModelNode selectedTexture(AbstractView *view)
+{
+    if (!view)
+        return {};
+
+    ModelNode root = view->rootModelNode();
+    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedTextureProperty))
+        return view->modelNodeForId(selectedProperty->toString());
     return {};
 }
 

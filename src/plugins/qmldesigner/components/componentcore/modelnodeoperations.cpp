@@ -864,11 +864,8 @@ void editMaterial(const SelectionContext &selectionContext)
     }
 
     if (material.isValid()) {
-        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-
-        // to MaterialBrowser...
-        view->emitCustomNotification("select_material", {material});
+        Utils3D::selectMaterial(material);
     }
 }
 

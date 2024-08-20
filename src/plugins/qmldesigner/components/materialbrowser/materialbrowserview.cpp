@@ -50,6 +50,9 @@ MaterialBrowserView::MaterialBrowserView(AsynchronousImageCache &imageCache,
 {
     m_previewTimer.setSingleShot(true);
     connect(&m_previewTimer, &QTimer::timeout, this, &MaterialBrowserView::requestPreviews);
+
+    m_selectionTimer.setSingleShot(true);
+    connect(&m_selectionTimer, &QTimer::timeout, this, &MaterialBrowserView::handleModelSelectionChange);
 }
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -72,8 +75,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
         connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [&] (int idx) {
-            ModelNode matNode = m_widget->materialBrowserModel()->materialAt(idx);
-            emitCustomNotification("selected_material_changed", {matNode}, {});
+            if (!model())
+                return;
+            m_pendingMaterialIndex = idx;
+            m_selectionTimer.start(0);
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::applyToSelectedTriggered, this,
@@ -172,8 +177,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         // custom notifications below are sent to the TextureEditor
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
         connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
-            ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(idx);
-            emitCustomNotification("selected_texture_changed", {texNode});
+            if (!model())
+                return;
+            m_pendingTextureIndex = idx;
+            m_selectionTimer.start(0);
         });
         connect(texturesModel, &MaterialBrowserTexturesModel::duplicateTextureTriggered, this,
                 [&] (const ModelNode &texture) {
@@ -210,7 +217,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [&]() {
             bool hasModel = false;
             if (m_selectedModels.size() == 1)
-                hasModel = getMaterialOfModel(m_selectedModels.at(0)).isValid();
+                hasModel = Utils3D::getMaterialOfModel(m_selectedModels.at(0)).isValid();
             m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(hasModel);
         });
 
@@ -244,7 +251,6 @@ void MaterialBrowserView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    m_pendingTextureSelection = {};
     m_widget->clearSearchFilter();
     m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_hasQuick3DImport = model->hasImport("QtQuick3D");
@@ -255,10 +261,6 @@ void MaterialBrowserView::modelAttached(Model *model)
     QTimer::singleShot(1000, model, [this] {
         refreshModel(true);
         loadPropertyGroups(); // Needs the delay because it uses metaInfo
-
-        if (m_pendingTextureSelection.isValid())
-            emitCustomNotification("select_texture", {m_pendingTextureSelection}, {true});
-        m_pendingTextureSelection = {};
     });
 
     m_sceneId = Utils3D::active3DSceneId(model);
@@ -289,6 +291,9 @@ void MaterialBrowserView::refreshModel(bool updateImages)
 
     if (updateImages)
         updateMaterialsPreview();
+
+    updateMaterialSelection();
+    updateTextureSelection();
 }
 
 void MaterialBrowserView::updateMaterialsPreview()
@@ -345,6 +350,8 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
     m_widget->materialBrowserModel()->setMaterials({}, m_hasQuick3DImport);
     m_widget->materialBrowserModel()->setHasMaterialLibrary(false);
     m_widget->clearPreviewCache();
+    m_pendingMaterialIndex = -1;
+    m_pendingTextureIndex = -1;
 
     if (m_propertyGroupsLoaded) {
         m_propertyGroupsLoaded = false;
@@ -370,7 +377,7 @@ void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedN
     if (selectedNodeList.size() > 1 || m_selectedModels.isEmpty())
         return;
 
-    ModelNode mat = getMaterialOfModel(m_selectedModels.at(0));
+    ModelNode mat = Utils3D::getMaterialOfModel(m_selectedModels.at(0));
 
     if (!mat.isValid())
         return;
@@ -511,21 +518,57 @@ void MaterialBrowserView::requestPreviews()
     m_previewRequests.clear();
 }
 
-ModelNode MaterialBrowserView::getMaterialOfModel(const ModelNode &model, int idx)
+void MaterialBrowserView::updateMaterialSelection()
 {
-    QmlObjectNode qmlObjNode(model);
-    QString matExp = qmlObjNode.expression("materials");
-    if (matExp.isEmpty())
-        return {};
+    QTC_ASSERT(model(), return);
 
-    const QStringList mats = matExp.remove('[').remove(']').split(',', Qt::SkipEmptyParts);
-    if (mats.isEmpty())
-        return {};
+    ModelNode node = Utils3D::selectedMaterial(this);
+    int idx = m_widget->materialBrowserModel()->materialIndex(node);
+    if (idx == -1 && !m_widget->materialBrowserModel()->isEmpty())
+        idx = 0;
+    if (idx != -1) {
+        m_widget->materialBrowserModel()->selectMaterial(idx);
+        m_widget->focusMaterialSection(true);
+    }
+}
 
-    ModelNode mat = modelNodeForId(mats.at(idx));
-    QTC_ASSERT(mat.isValid(), return {});
+void MaterialBrowserView::updateTextureSelection()
+{
+    QTC_ASSERT(model(), return);
 
-    return mat;
+    ModelNode node = Utils3D::selectedTexture(this);
+    int idx = m_widget->materialBrowserTexturesModel()->textureIndex(node);
+    if (idx == -1 && !m_widget->materialBrowserTexturesModel()->isEmpty())
+        idx = 0;
+    if (idx != -1) {
+        m_widget->materialBrowserTexturesModel()->selectTexture(idx);
+        m_widget->materialBrowserTexturesModel()->refreshSearch();
+        m_widget->focusMaterialSection(false);
+    }
+}
+
+// This method is asynchronously called in response to a selection change in the material and
+// texture models to update the selection state to the main scene model.
+void MaterialBrowserView::handleModelSelectionChange()
+{
+    if (!model())
+        return;
+
+    if (m_pendingMaterialIndex >= 0) {
+        ModelNode matNode = m_widget->materialBrowserModel()->materialAt(m_pendingMaterialIndex);
+        ModelNode current = Utils3D::selectedMaterial(this);
+        if (current != matNode)
+            Utils3D::selectMaterial(matNode);
+        m_pendingMaterialIndex = -1;
+    }
+
+    if (m_pendingTextureIndex >= 0) {
+        ModelNode texNode = m_widget->materialBrowserTexturesModel()->textureAt(m_pendingTextureIndex);
+        ModelNode current = Utils3D::selectedTexture(this);
+        if (current != texNode)
+            Utils3D::selectTexture(texNode);
+        m_pendingTextureIndex = -1;
+    }
 }
 
 void MaterialBrowserView::importsChanged([[maybe_unused]] const Imports &addedImports,
@@ -549,34 +592,10 @@ void MaterialBrowserView::customNotification(const AbstractView *view,
                                              const QList<ModelNode> &nodeList,
                                              const QList<QVariant> &data)
 {
-    if (view == this && identifier != "select_texture")
+    if (view == this)
         return;
 
-    if (identifier == "select_material") {
-        ModelNode matNode;
-        if (!data.isEmpty() && !m_selectedModels.isEmpty()) {
-            ModelNode model3D = m_selectedModels.at(0);
-            QTC_ASSERT(model3D.isValid(), return);
-            matNode = getMaterialOfModel(model3D, data[0].toInt());
-        } else {
-            matNode = nodeList.first();
-        }
-        QTC_ASSERT(matNode.isValid(), return);
-
-        int idx = m_widget->materialBrowserModel()->materialIndex(matNode);
-        if (idx != -1)
-            m_widget->materialBrowserModel()->selectMaterial(idx);
-    } else if (identifier == "select_texture") {
-        int idx = m_widget->materialBrowserTexturesModel()->textureIndex(nodeList.first());
-        if (idx != -1) {
-            m_widget->materialBrowserTexturesModel()->selectTexture(idx);
-            m_widget->materialBrowserTexturesModel()->refreshSearch();
-            if (!data.isEmpty() && data[0].toBool())
-                m_widget->focusMaterialSection(false);
-        } else {
-            m_pendingTextureSelection = nodeList.first();
-        }
-    } else if (identifier == "refresh_material_browser") {
+    if (identifier == "refresh_material_browser") {
         QTimer::singleShot(0, model(), [this] {
             refreshModel(true);
         });
@@ -643,6 +662,10 @@ void MaterialBrowserView::auxiliaryDataChanged(const ModelNode &,
 {
     if (type == Utils3D::active3dSceneProperty)
         active3DSceneChanged(data.toInt());
+    else if (type == Utils3D::matLibSelectedMaterialProperty)
+        updateMaterialSelection();
+    else if ( type == Utils3D::matLibSelectedTextureProperty)
+        updateTextureSelection();
 }
 
 void MaterialBrowserView::applyTextureToModel3D(const QmlObjectNode &model3D, const ModelNode &texture)

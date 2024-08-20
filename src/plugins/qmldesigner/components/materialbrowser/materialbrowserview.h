@@ -83,7 +83,9 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
     ModelNode resolveSceneEnv();
-    ModelNode getMaterialOfModel(const ModelNode &model, int idx = 0);
+    void updateMaterialSelection();
+    void updateTextureSelection();
+    void handleModelSelectionChange();
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
@@ -95,13 +97,15 @@ private:
     bool m_propertyGroupsLoaded = false;
 
     QTimer m_previewTimer;
+    QTimer m_selectionTimer; // Compress selection and avoid illegal callbacks to model
     QSet<ModelNode> m_previewRequests;
     QPointer<QQuickView> m_chooseMatPropsView;
     QHash<QString, QList<PropertyName>> m_textureModels;
     QString m_appliedTextureId;
     QString m_appliedTexturePath; // defers texture creation until dialog apply
     int m_sceneId = -1;
-    ModelNode m_pendingTextureSelection;
+    int m_pendingMaterialIndex = -1;
+    int m_pendingTextureIndex = -1;
 };
 
 } // namespace QmlDesigner
