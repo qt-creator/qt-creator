@@ -13,13 +13,15 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+
+#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <solutions/tasking/barrier.h>
 #include <solutions/tasking/conditional.h>
 
 #include <utils/hostosinfo.h>
@@ -27,10 +29,9 @@
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
 
-#include <QDate>
+#include <QDateTime>
 #include <QLoggingCategory>
 #include <QRegularExpression>
-#include <QScopeGuard>
 #include <QTcpServer>
 
 #include <chrono>
@@ -130,56 +131,108 @@ static FilePath debugServer(bool useLldb, const Target *target)
     return {};
 }
 
-AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const QString &deviceSerialNumber,
-                                         int apiLevel)
+class RunnerStorage : public QObject
 {
-    m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
-                    == Debugger::LldbEngineType;
+    Q_OBJECT
+
+public:
+    QStringList selector() const { return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber); }
+    bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
+    Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const
+    {
+        CommandLine cmd{AndroidConfig::adbToolPath(), args};
+        cmd.prependArgs(selector());
+        return cmd;
+    }
+    QStringList userArgs() const
+    {
+        return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
+    }
+    QStringList packageArgs() const
+    {
+        // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
+        return QStringList{"shell", "run-as", m_packageName} + userArgs();
+    }
+
+    QString m_packageName;
+    QString m_intentName;
+    QStringList m_beforeStartAdbCommands;
+    QStringList m_afterFinishAdbCommands;
+    QStringList m_amStartExtraArgs;
+    qint64 m_processPID = -1;
+    qint64 m_processUser = -1;
+    bool m_useCppDebugger = false;
+    bool m_useLldb = false;
+    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
+    QUrl m_qmlServer;
+    QString m_deviceSerialNumber;
+    int m_apiLevel = -1;
+    QString m_extraAppParams;
+    Utils::Environment m_extraEnvVars;
+    Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk
+    bool m_useAppParamsForQmlDebugger = false;
+
+signals:
+    void remoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void remoteProcessFinished(const QString &errString = QString());
+
+    void remoteOutput(const QString &output);
+    void remoteErrorOutput(const QString &output);
+
+    void cancel();
+};
+
+static void setupStorage(RunnerStorage *storage, RunControl *runControl,
+                         const QString &deviceSerialNumber, int apiLevel)
+{
+    storage->m_useLldb = Debugger::DebuggerKitAspect::engineType(runControl->kit())
+                         == Debugger::LldbEngineType;
     auto aspect = runControl->aspectData<Debugger::DebuggerRunConfigurationAspect>();
     const Id runMode = runControl->runMode();
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
-    m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
+    storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
     if (debuggingMode && aspect->useQmlDebugger)
-        m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
+        storage->m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        m_qmlDebugServices = QmlDebug::QmlProfilerServices;
+        storage->m_qmlDebugServices = QmlDebug::QmlProfilerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
-        m_qmlDebugServices = QmlDebug::QmlPreviewServices;
+        storage->m_qmlDebugServices = QmlDebug::QmlPreviewServices;
     else
-        m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
-    if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
+        storage->m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
+
+    if (storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
         const bool isListening = server.listen(QHostAddress::LocalHost);
         QTC_ASSERT(isListening,
                    qDebug() << Tr::tr("No free ports available on host for QML debugging."));
-        m_qmlServer.setScheme(Utils::urlTcpScheme());
-        m_qmlServer.setHost(server.serverAddress().toString());
-        m_qmlServer.setPort(server.serverPort());
-        qCDebug(androidRunWorkerLog) << "QML server:" << m_qmlServer.toDisplayString();
+        storage->m_qmlServer.setScheme(Utils::urlTcpScheme());
+        storage->m_qmlServer.setHost(server.serverAddress().toString());
+        storage->m_qmlServer.setPort(server.serverPort());
+        qCDebug(androidRunWorkerLog) << "QML server:" << storage->m_qmlServer.toDisplayString();
     }
 
     auto target = runControl->target();
-    m_packageName = AndroidManager::packageName(target);
-    m_intentName = m_packageName + '/' + AndroidManager::activityName(target);
-    m_deviceSerialNumber = deviceSerialNumber;
-    m_apiLevel = apiLevel;
-    qCDebug(androidRunWorkerLog) << "Intent name:" << m_intentName
-                                 << "Package name:" << m_packageName;
-    qCDebug(androidRunWorkerLog) << "Device API:" << m_apiLevel;
+    storage->m_packageName = AndroidManager::packageName(target);
+    storage->m_intentName = storage->m_packageName + '/' + AndroidManager::activityName(target);
+    storage->m_deviceSerialNumber = deviceSerialNumber;
+    storage->m_apiLevel = apiLevel;
+    qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
+                                 << "Package name:" << storage->m_packageName;
+    qCDebug(androidRunWorkerLog) << "Device API:" << storage->m_apiLevel;
 
-    m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
+    storage->m_extraEnvVars = runControl->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
-                                           << m_extraEnvVars.toStringList();
+                                           << storage->m_extraEnvVars.toStringList();
 
     if (target->buildConfigurations().first()->buildType() != BuildConfiguration::BuildType::Release)
-        m_extraAppParams = runControl->commandLine().arguments();
+        storage->m_extraAppParams = runControl->commandLine().arguments();
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.isEmpty()) {
         QTC_CHECK(sd.first().typeId() == QMetaType::QString);
         const QString startArgs = sd.first().toString();
-        m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
+        storage->m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
     }
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
@@ -188,7 +241,7 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const QString &
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
         const QStringList commands = first.toStringList();
         for (const QString &shellCmd : commands)
-            m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
+            storage->m_beforeStartAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
     if (const Store sd = runControl->settingsData(Constants::ANDROID_POSTFINISHSHELLCMDLIST);
@@ -197,76 +250,67 @@ AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const QString &
         QTC_CHECK(first.typeId() == QMetaType::QStringList);
         const QStringList commands = first.toStringList();
         for (const QString &shellCmd : commands)
-            m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
+            storage->m_afterFinishAdbCommands.append(QString("shell %1").arg(shellCmd));
     }
 
-    m_debugServerPath = debugServer(m_useLldb, target);
-    qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << m_deviceSerialNumber
-                                           << ", API level:" << m_apiLevel
-                                           << ", Extra Start Args:" << m_amStartExtraArgs
-                                           << ", Before Start ADB cmds:" << m_beforeStartAdbCommands
-                                           << ", After finish ADB cmds:" << m_afterFinishAdbCommands
-                                           << ", Debug server path:" << m_debugServerPath;
+    storage->m_debugServerPath = debugServer(storage->m_useLldb, target);
+    qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << storage->m_deviceSerialNumber
+                                           << ", API level:" << storage->m_apiLevel
+                                           << ", Extra Start Args:" << storage->m_amStartExtraArgs
+                                           << ", Before Start ADB cmds:" << storage->m_beforeStartAdbCommands
+                                           << ", After finish ADB cmds:" << storage->m_afterFinishAdbCommands
+                                           << ", Debug server path:" << storage->m_debugServerPath;
 
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
-    m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
+    storage->m_useAppParamsForQmlDebugger = version->qtVersion() >= QVersionNumber(5, 12);
+}
+
+AndroidRunnerWorker::AndroidRunnerWorker(RunControl *runControl, const QString &deviceSerialNumber,
+                                         int apiLevel)
+    : m_storage(new RunnerStorage)
+{
+    m_storage->setParent(this); // Move m_storage object together with *this into a separate thread.
+    setupStorage(m_storage.get(), runControl, deviceSerialNumber, apiLevel);
     m_taskTreeRunner.setParent(this); // Move m_taskTreeRunner object together with *this into a separate thread.
+
+    connect(m_storage.get(), &RunnerStorage::remoteProcessStarted,
+            this, &AndroidRunnerWorker::remoteProcessStarted);
+    connect(m_storage.get(), &RunnerStorage::remoteProcessFinished,
+            this, &AndroidRunnerWorker::remoteProcessFinished);
+    connect(m_storage.get(), &RunnerStorage::remoteOutput,
+            this, &AndroidRunnerWorker::remoteOutput);
+    connect(m_storage.get(), &RunnerStorage::remoteErrorOutput,
+            this, &AndroidRunnerWorker::remoteErrorOutput);
+
+    connect(this, &AndroidRunnerWorker::cancel, m_storage.get(), &RunnerStorage::cancel);
 }
 
-AndroidRunnerWorker::~AndroidRunnerWorker()
+static ExecutableItem forceStopRecipe(RunnerStorage *storage)
 {
-    if (m_processPID != -1)
-        TaskTree::runBlocking(Group { forceStopRecipe(), postDoneRecipe() });
-}
-
-QStringList AndroidRunnerWorker::selector() const
-{
-    return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
-}
-
-CommandLine AndroidRunnerWorker::adbCommand(std::initializer_list<CommandLine::ArgRef> args) const
-{
-    CommandLine cmd{AndroidConfig::adbToolPath(), args};
-    cmd.prependArgs(selector());
-    return cmd;
-}
-
-QStringList AndroidRunnerWorker::userArgs() const
-{
-    return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
-}
-
-QStringList AndroidRunnerWorker::packageArgs() const
-{
-    // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
-    return QStringList{"shell", "run-as", m_packageName} + userArgs();
-}
-
-ExecutableItem AndroidRunnerWorker::forceStopRecipe()
-{
-    const auto onForceStopSetup = [this](Process &process) {
-        process.setCommand(adbCommand({"shell", "am", "force-stop", m_packageName}));
+    const auto onForceStopSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "am", "force-stop", storage->m_packageName}));
     };
 
-    const auto pidCheckSync = Sync([this] { return m_processPID != -1; });
+    const auto pidCheckSync = Sync([storage] { return storage->m_processPID != -1; });
 
-    const auto onPidOfSetup = [this](Process &process) {
-        process.setCommand(adbCommand({"shell", "pidof", m_packageName}));
+    const auto onPidOfSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "pidof", storage->m_packageName}));
     };
-    const auto onPidOfDone = [this](const Process &process) {
+    const auto onPidOfDone = [storage](const Process &process) {
         const QString pid = process.cleanedStdOut().trimmed();
-        return pid == QString::number(m_processPID);
+        return pid == QString::number(storage->m_processPID);
     };
     const auto pidOfTask = ProcessTask(onPidOfSetup, onPidOfDone, CallDoneIf::Success);
 
-    const auto onRunAsSetup = [this](Process &process) {
-        process.setCommand(adbCommand({"shell", "run-as", m_packageName, "kill", "-9",
-                                       QString::number(m_processPID)}));
+    const auto onRunAsSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "run-as", storage->m_packageName, "kill", "-9",
+                                       QString::number(storage->m_processPID)}));
     };
     const auto runAsTask = ProcessTask(onRunAsSetup);
 
-    const auto onKillSetup = [this](Process &process) {
-        process.setCommand(adbCommand({"shell", "kill", "-9", QString::number(m_processPID)}));
+    const auto onKillSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "kill", "-9",
+                                                QString::number(storage->m_processPID)}));
     };
 
     return Group {
@@ -277,8 +321,8 @@ ExecutableItem AndroidRunnerWorker::forceStopRecipe()
     };
 }
 
-ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
-    const QString &port, const QString &adbArg, const QString &portType)
+static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QString &port,
+                                              const QString &adbArg, const QString &portType)
 {
     const auto onForwardListSetup = [](Process &process) {
         process.setCommand({AndroidConfig::adbToolPath(), {"forward", "--list"}});
@@ -287,22 +331,22 @@ ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
         return process.cleanedStdOut().trimmed().contains(port);
     };
 
-    const auto onForwardRemoveSetup = [this, port](Process &process) {
-        process.setCommand(adbCommand({"--remove", port}));
+    const auto onForwardRemoveSetup = [storage, port](Process &process) {
+        process.setCommand(storage->adbCommand({"--remove", port}));
     };
-    const auto onForwardRemoveDone = [this](const Process &process) {
-        emit remoteErrorOutput(process.cleanedStdErr().trimmed());
+    const auto onForwardRemoveDone = [storage](const Process &process) {
+        emit storage->remoteErrorOutput(process.cleanedStdErr().trimmed());
         return true;
     };
 
-    const auto onForwardPortSetup = [this, port, adbArg](Process &process) {
-        process.setCommand(adbCommand({"forward", port, adbArg}));
+    const auto onForwardPortSetup = [storage, port, adbArg](Process &process) {
+        process.setCommand(storage->adbCommand({"forward", port, adbArg}));
     };
-    const auto onForwardPortDone = [this, port, portType](DoneWith result) {
+    const auto onForwardPortDone = [storage, port, portType](DoneWith result) {
         if (result == DoneWith::Success)
-            m_afterFinishAdbCommands.push_back("forward --remove " + port);
+            storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
         else
-            emit remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+            emit storage->remoteProcessFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
     };
 
     return Group {
@@ -315,17 +359,17 @@ ExecutableItem AndroidRunnerWorker::removeForwardPortRecipe(
 
 // The startBarrier is passed when logcat process received "Sending WAIT chunk" message.
 // The settledBarrier is passed when logcat process received "debugger has settled" message.
-ExecutableItem AndroidRunnerWorker::jdbRecipe(const SingleBarrier &startBarrier,
-                                              const SingleBarrier &settledBarrier)
+static ExecutableItem jdbRecipe(RunnerStorage *storage, const SingleBarrier &startBarrier,
+                                const SingleBarrier &settledBarrier)
 {
-    const auto onSetup = [this] {
-        return m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
+    const auto onSetup = [storage] {
+        return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
-    const auto onTaskTreeSetup = [this](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
         taskTree.setRecipe({
-            removeForwardPortRecipe("tcp:" + s_localJdbServerPort.toString(),
-                                    "jdwp:" + QString::number(m_processPID), "JDB")
+            removeForwardPortRecipe(storage, "tcp:" + s_localJdbServerPort.toString(),
+                                    "jdwp:" + QString::number(storage->m_processPID), "JDB")
         });
     };
 
@@ -338,7 +382,7 @@ ExecutableItem AndroidRunnerWorker::jdbRecipe(const SingleBarrier &startBarrier,
         process.setProcessMode(ProcessMode::Writer);
         process.setProcessChannelMode(QProcess::MergedChannels);
         process.setReaperTimeout(s_jdbTimeout);
-        connect(settledBarrier->barrier(), &Barrier::done, &process, [processPtr = &process] {
+        QObject::connect(settledBarrier->barrier(), &Barrier::done, &process, [processPtr = &process] {
             processPtr->write("ignore uncaught java.lang.Throwable\n"
                               "threads\n"
                               "cont\n"
@@ -359,7 +403,7 @@ ExecutableItem AndroidRunnerWorker::jdbRecipe(const SingleBarrier &startBarrier,
     };
 }
 
-ExecutableItem AndroidRunnerWorker::logcatRecipe()
+static ExecutableItem logcatRecipe(RunnerStorage *storage)
 {
     struct Buffer {
         QStringList timeArgs;
@@ -367,24 +411,24 @@ ExecutableItem AndroidRunnerWorker::logcatRecipe()
         QByteArray stdErrBuffer;
     };
 
-    const Storage<Buffer> storage;
+    const Storage<Buffer> bufferStorage;
     const SingleBarrier startJdbBarrier;   // When logcat received "Sending WAIT chunk".
     const SingleBarrier settledJdbBarrier; // When logcat received "debugger has settled".
 
-    const auto onTimeSetup = [this](Process &process) {
-        process.setCommand(adbCommand({"shell", "date", "+%s"}));
+    const auto onTimeSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "date", "+%s"}));
     };
-    const auto onTimeDone = [storage](const Process &process) {
-        storage->timeArgs = {"-T", QDateTime::fromSecsSinceEpoch(
+    const auto onTimeDone = [bufferStorage](const Process &process) {
+        bufferStorage->timeArgs = {"-T", QDateTime::fromSecsSinceEpoch(
             process.cleanedStdOut().trimmed().toInt()).toString("MM-dd hh:mm:ss.mmm")};
     };
 
-    const auto onLogcatSetup = [this, storage, startJdbBarrier, settledJdbBarrier](Process &process) {
-        Buffer *bufferPtr = storage.activeStorage();
-        const auto parseLogcat = [this, bufferPtr, start = startJdbBarrier->barrier(),
+    const auto onLogcatSetup = [storage, bufferStorage, startJdbBarrier, settledJdbBarrier](Process &process) {
+        Buffer *bufferPtr = bufferStorage.activeStorage();
+        const auto parseLogcat = [storage, bufferPtr, start = startJdbBarrier->barrier(),
                                   settled = settledJdbBarrier->barrier(), processPtr = &process](
                                      QProcess::ProcessChannel channel) {
-            if (m_processPID == -1)
+            if (storage->m_processPID == -1)
                 return;
 
             QByteArray &buffer = channel == QProcess::StandardOutput ? bufferPtr->stdOutBuffer
@@ -400,13 +444,13 @@ ExecutableItem AndroidRunnerWorker::logcatRecipe()
             else
                 buffer = lines.takeLast(); // incomplete line
 
-            const QString pidString = QString::number(m_processPID);
+            const QString pidString = QString::number(storage->m_processPID);
             for (const QByteArray &msg : std::as_const(lines)) {
                 const QString line = QString::fromUtf8(msg).trimmed() + QLatin1Char('\n');
                 if (!line.contains(pidString))
                     continue;
 
-                if (m_useCppDebugger) {
+                if (storage->m_useCppDebugger) {
                     if (start->current() == 0 && msg.trimmed().endsWith("Sending WAIT chunk"))
                         start->advance();
                     else if (settled->current() == 0 && msg.indexOf("debugger has settled") > 0)
@@ -437,27 +481,27 @@ ExecutableItem AndroidRunnerWorker::logcatRecipe()
                         const QString msgType = match.captured(2);
                         const QString output = line.mid(match.capturedStart(2));
                         if (onlyError || msgType == "F" || msgType == "E" || msgType == "W")
-                            emit remoteErrorOutput(output);
+                            emit storage->remoteErrorOutput(output);
                         else
-                            emit remoteOutput(output);
+                            emit storage->remoteOutput(output);
                     }
                 } else {
                     if (onlyError || line.startsWith("F/") || line.startsWith("E/")
                         || line.startsWith("W/")) {
-                        emit remoteErrorOutput(line);
+                        emit storage->remoteErrorOutput(line);
                     } else {
-                        emit remoteOutput(line);
+                        emit storage->remoteOutput(line);
                     }
                 }
             }
         };
-        connect(&process, &Process::readyReadStandardOutput, this, [parseLogcat] {
+        QObject::connect(&process, &Process::readyReadStandardOutput, &process, [parseLogcat] {
             parseLogcat(QProcess::StandardOutput);
         });
-        connect(&process, &Process::readyReadStandardError, this, [parseLogcat] {
+        QObject::connect(&process, &Process::readyReadStandardError, &process, [parseLogcat] {
             parseLogcat(QProcess::StandardError);
         });
-        process.setCommand(adbCommand({"logcat", storage->timeArgs}));
+        process.setCommand(storage->adbCommand({"logcat", bufferStorage->timeArgs}));
     };
 
     return Group {
@@ -465,73 +509,73 @@ ExecutableItem AndroidRunnerWorker::logcatRecipe()
         startJdbBarrier,
         settledJdbBarrier,
         Group {
-            storage,
+            bufferStorage,
             ProcessTask(onTimeSetup, onTimeDone, CallDoneIf::Success) || successItem,
             ProcessTask(onLogcatSetup)
         },
-        jdbRecipe(startJdbBarrier, settledJdbBarrier)
+        jdbRecipe(storage, startJdbBarrier, settledJdbBarrier)
     };
 }
 
-ExecutableItem AndroidRunnerWorker::preStartRecipe()
+static ExecutableItem preStartRecipe(RunnerStorage *storage)
 {
-    const QString port = "tcp:" + QString::number(m_qmlServer.port());
+    const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
 
     const Storage<QStringList> argsStorage;
-    const LoopList iterator(m_beforeStartAdbCommands);
+    const LoopList iterator(storage->m_beforeStartAdbCommands);
 
-    const auto onArgsSetup = [this, argsStorage] {
-        *argsStorage = {"shell", "am", "start", "-n", m_intentName};
-        if (m_useCppDebugger)
+    const auto onArgsSetup = [storage, argsStorage] {
+        *argsStorage = {"shell", "am", "start", "-n", storage->m_intentName};
+        if (storage->m_useCppDebugger)
             *argsStorage << "-D";
     };
 
-    const auto onPreCommandSetup = [this, iterator](Process &process) {
-        process.setCommand(adbCommand({iterator->split(' ', Qt::SkipEmptyParts)}));
+    const auto onPreCommandSetup = [storage, iterator](Process &process) {
+        process.setCommand(storage->adbCommand({iterator->split(' ', Qt::SkipEmptyParts)}));
     };
-    const auto onPreCommandDone = [this](const Process &process) {
-        emit remoteErrorOutput(process.cleanedStdErr().trimmed());
+    const auto onPreCommandDone = [storage](const Process &process) {
+        emit storage->remoteErrorOutput(process.cleanedStdErr().trimmed());
     };
 
-    const auto onQmlDebugSetup = [this] {
-        return m_qmlDebugServices == QmlDebug::NoQmlDebugServices ? SetupResult::StopWithSuccess
+    const auto onQmlDebugSetup = [storage] {
+        return storage->m_qmlDebugServices == QmlDebug::NoQmlDebugServices ? SetupResult::StopWithSuccess
                                                                   : SetupResult::Continue;
     };
-    const auto onQmlDebugDone = [this, argsStorage] {
+    const auto onQmlDebugDone = [storage, argsStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
-            .arg(m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(m_qmlDebugServices));
+            .arg(storage->m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(storage->m_qmlDebugServices));
 
-        if (m_useAppParamsForQmlDebugger) {
-            if (!m_extraAppParams.isEmpty())
-                m_extraAppParams.prepend(' ');
-            m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
+        if (storage->m_useAppParamsForQmlDebugger) {
+            if (!storage->m_extraAppParams.isEmpty())
+                storage->m_extraAppParams.prepend(' ');
+            storage->m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
         } else {
             *argsStorage << "-e" << "qml_debug" << "true"
                          << "-e" << "qmljsdebugger" << qmljsdebugger;
         }
     };
 
-    const auto onActivitySetup = [this, argsStorage](Process &process) {
+    const auto onActivitySetup = [storage, argsStorage](Process &process) {
         QStringList args = *argsStorage;
-        args << m_amStartExtraArgs;
+        args << storage->m_amStartExtraArgs;
 
-        if (!m_extraAppParams.isEmpty()) {
+        if (!storage->m_extraAppParams.isEmpty()) {
             const QStringList appArgs =
-                ProcessArgs::splitArgs(m_extraAppParams, Utils::OsType::OsTypeLinux);
+                ProcessArgs::splitArgs(storage->m_extraAppParams, Utils::OsType::OsTypeLinux);
             qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
             args << "-e" << "extraappparams"
                  << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
         }
 
-        if (m_extraEnvVars.hasChanges()) {
+        if (storage->m_extraEnvVars.hasChanges()) {
             args << "-e" << "extraenvvars"
-                 << QString::fromLatin1(m_extraEnvVars.toStringList().join('\t')
+                 << QString::fromLatin1(storage->m_extraEnvVars.toStringList().join('\t')
                                             .toUtf8().toBase64());
         }
-        process.setCommand(adbCommand({args}));
+        process.setCommand(storage->adbCommand({args}));
     };
-    const auto onActivityDone = [this](const Process &process) {
-        emit remoteProcessFinished(Tr::tr("Activity Manager error: %1")
+    const auto onActivityDone = [storage](const Process &process) {
+        emit storage->remoteProcessFinished(Tr::tr("Activity Manager error: %1")
                                        .arg(process.cleanedStdErr().trimmed()));
     };
 
@@ -544,28 +588,28 @@ ExecutableItem AndroidRunnerWorker::preStartRecipe()
         },
         Group {
             onGroupSetup(onQmlDebugSetup),
-            removeForwardPortRecipe(port, port, "QML"),
+            removeForwardPortRecipe(storage, port, port, "QML"),
             onGroupDone(onQmlDebugDone, CallDoneIf::Success)
         },
         ProcessTask(onActivitySetup, onActivityDone, CallDoneIf::Error)
     };
 }
 
-ExecutableItem AndroidRunnerWorker::postDoneRecipe()
+static ExecutableItem postDoneRecipe(RunnerStorage *storage)
 {
-    const LoopUntil iterator([this](int iteration) {
-        return iteration < m_afterFinishAdbCommands.size();
+    const LoopUntil iterator([storage](int iteration) {
+        return iteration < storage->m_afterFinishAdbCommands.size();
     });
 
-    const auto onProcessSetup = [this, iterator](Process &process) {
-        process.setCommand(adbCommand(
-            {m_afterFinishAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
+    const auto onProcessSetup = [storage, iterator](Process &process) {
+        process.setCommand(storage->adbCommand(
+            {storage->m_afterFinishAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
     };
 
-    const auto onDone = [this] {
-        m_processPID = -1;
-        m_processUser = -1;
-        emit remoteProcessFinished("\n\n" + Tr::tr("\"%1\" died.").arg(m_packageName));
+    const auto onDone = [storage] {
+        storage->m_processPID = -1;
+        storage->m_processUser = -1;
+        emit storage->remoteProcessFinished("\n\n" + Tr::tr("\"%1\" died.").arg(storage->m_packageName));
     };
 
     return Group {
@@ -578,97 +622,21 @@ ExecutableItem AndroidRunnerWorker::postDoneRecipe()
     };
 }
 
-ExecutableItem AndroidRunnerWorker::pidRecipe()
-{
-    using PidUserPair = std::pair<qint64, qint64>;
-    const Storage<PidUserPair> pidStorage;
-
-    const QString pidScript = isPreNougat()
-        ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
-        : QString("pidof -s '%1'").arg(m_packageName);
-
-    const auto onPidSetup = [this, pidScript](Process &process) {
-        process.setCommand(adbCommand({"shell", pidScript}));
-    };
-    const auto onPidDone = [pidStorage, packageName = m_packageName,
-                            isPreNougat = isPreNougat()](const Process &process) {
-        const QString out = process.allOutput();
-        if (isPreNougat)
-            pidStorage->first = extractPID(out, packageName);
-        else if (!out.isEmpty())
-            pidStorage->first = out.trimmed().toLongLong();
-    };
-
-    const auto onUserSetup = [this, pidStorage](Process &process) {
-        process.setCommand(
-            adbCommand({"shell", "ps", "-o", "user", "-p", QString::number(pidStorage->first)}));
-    };
-    const auto onUserDone = [pidStorage](const Process &process) {
-        const QString out = process.allOutput();
-        if (out.isEmpty())
-            return DoneResult::Error;
-
-        QRegularExpressionMatch match;
-        qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
-        if (matchPos >= 0 && match.capturedLength(1) > 0) {
-            bool ok = false;
-            const qint64 processUser = match.captured(1).toInt(&ok);
-            if (ok) {
-                pidStorage->second = processUser;
-                return DoneResult::Success;
-            }
-        }
-        return DoneResult::Error;
-    };
-
-    const auto onPidSync = [this, pidStorage] {
-        qCDebug(androidRunWorkerLog) << "Process ID changed from:" << m_processPID
-                                     << "to:" << pidStorage->first;
-        m_processPID = pidStorage->first;
-        m_processUser = pidStorage->second;
-        emit remoteProcessStarted(s_localDebugServerPort, m_qmlServer, m_processPID);
-    };
-
-    const auto onIsAliveSetup = [this, pidStorage](Process &process) {
-        process.setProcessChannelMode(QProcess::MergedChannels);
-        process.setCommand(adbCommand({"shell", pidPollingScript.arg(pidStorage->first)}));
-    };
-
-    return Group {
-        pidStorage,
-        onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
-        Forever {
-            stopOnSuccess,
-            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
-            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
-                        DoneResult::Error)
-        }.withTimeout(45s),
-        ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
-        Sync(onPidSync),
-        Group {
-            parallel,
-            startNativeDebuggingRecipe(),
-            ProcessTask(onIsAliveSetup)
-        },
-        postDoneRecipe()
-    };
-}
-
 static QString tempDebugServerPath(int count)
 {
     static const QString tempDebugServerPathTemplate = "/data/local/tmp/%1";
     return tempDebugServerPathTemplate.arg(count);
 }
 
-ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debugServerFileName)
+static ExecutableItem uploadDebugServerRecipe(RunnerStorage *storage, const QString &debugServerFileName)
 {
     const Storage<QString> tempDebugServerPathStorage;
     const LoopUntil iterator([tempDebugServerPathStorage](int iteration) {
         return tempDebugServerPathStorage->isEmpty() && iteration <= GdbTempFileMaxCounter;
     });
-    const auto onDeviceFileExistsSetup = [this, iterator](Process &process) {
+    const auto onDeviceFileExistsSetup = [storage, iterator](Process &process) {
         process.setCommand(
-            adbCommand({"shell", "ls", tempDebugServerPath(iterator.iteration()), "2>/dev/null"}));
+            storage->adbCommand({"shell", "ls", tempDebugServerPath(iterator.iteration()), "2>/dev/null"}));
     };
     const auto onDeviceFileExistsDone = [iterator, tempDebugServerPathStorage](
                                             const Process &process, DoneWith result) {
@@ -683,25 +651,25 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
         return tempDirOK;
     };
 
-    const auto onCleanupSetup = [this, tempDebugServerPathStorage](Process &process) {
-        process.setCommand(adbCommand({"shell", "rm", "-f", *tempDebugServerPathStorage}));
+    const auto onCleanupSetup = [storage, tempDebugServerPathStorage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "rm", "-f", *tempDebugServerPathStorage}));
     };
     const auto onCleanupDone = [] {
         qCDebug(androidRunWorkerLog) << "Debug server cleanup failed.";
     };
 
-    const auto onServerUploadSetup = [this, tempDebugServerPathStorage](Process &process) {
+    const auto onServerUploadSetup = [storage, tempDebugServerPathStorage](Process &process) {
         process.setCommand(
-            adbCommand({"push", m_debugServerPath.toString(), *tempDebugServerPathStorage}));
+            storage->adbCommand({"push", storage->m_debugServerPath.toString(), *tempDebugServerPathStorage}));
     };
 
-    const auto onServerCopySetup = [this, tempDebugServerPathStorage, debugServerFileName](Process &process) {
-        process.setCommand(adbCommand({packageArgs(), "cp", *tempDebugServerPathStorage,
-                                       debugServerFileName}));
+    const auto onServerCopySetup = [storage, tempDebugServerPathStorage, debugServerFileName](Process &process) {
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "cp",
+                                                *tempDebugServerPathStorage, debugServerFileName}));
     };
 
-    const auto onServerChmodSetup = [this, debugServerFileName](Process &process) {
-        process.setCommand(adbCommand({packageArgs(), "chmod", "777", debugServerFileName}));
+    const auto onServerChmodSetup = [storage, debugServerFileName](Process &process) {
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "chmod", "777", debugServerFileName}));
     };
 
     return Group {
@@ -724,64 +692,64 @@ ExecutableItem AndroidRunnerWorker::uploadDebugServerRecipe(const QString &debug
     };
 }
 
-ExecutableItem AndroidRunnerWorker::startNativeDebuggingRecipe()
+static ExecutableItem startNativeDebuggingRecipe(RunnerStorage *storage)
 {
-    const auto onSetup = [this] {
-        return m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
+    const auto onSetup = [storage] {
+        return storage->m_useCppDebugger ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
     const Storage<QString> packageDirStorage;
     const Storage<QString> debugServerFileStorage;
 
-    const auto onAppDirSetup = [this](Process &process) {
-        process.setCommand(adbCommand({packageArgs(), "/system/bin/sh", "-c", "pwd"}));
+    const auto onAppDirSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "/system/bin/sh", "-c", "pwd"}));
     };
-    const auto onAppDirDone = [this, packageDirStorage](const Process &process, DoneWith result) {
+    const auto onAppDirDone = [storage, packageDirStorage](const Process &process, DoneWith result) {
         if (result == DoneWith::Success)
             *packageDirStorage = process.stdOut();
         else
-            emit remoteProcessFinished(Tr::tr("Failed to find application directory."));
+            emit storage->remoteProcessFinished(Tr::tr("Failed to find application directory."));
     };
 
     // Add executable flag to package dir. Gdb can't connect to running server on device on
     // e.g. on Android 8 with NDK 10e
-    const auto onChmodSetup = [this, packageDirStorage](Process &process) {
-        process.setCommand(adbCommand({packageArgs(), "chmod", "a+x", packageDirStorage->trimmed()}));
+    const auto onChmodSetup = [storage, packageDirStorage](Process &process) {
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "chmod", "a+x", packageDirStorage->trimmed()}));
     };
-    const auto onServerPathCheck = [this] {
-        if (m_debugServerPath.exists())
+    const auto onServerPathCheck = [storage] {
+        if (storage->m_debugServerPath.exists())
             return true;
         QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
-        if (m_useLldb)
+        if (storage->m_useLldb)
             msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
-        emit remoteProcessFinished(msg);
+        emit storage->remoteProcessFinished(msg);
         return false;
     };
 
-    const auto useLldb = Sync([this] { return m_useLldb; });
-    const auto killAll = [this](const QString &name) {
-        return ProcessTask([this, name](Process &process) {
-            process.setCommand(adbCommand({packageArgs(), "killall", name}));
-        }) || successItem;
+    const auto useLldb = Sync([storage] { return storage->m_useLldb; });
+    const auto killAll = [storage](const QString &name) {
+        return ProcessTask([storage, name](Process &process) {
+                   process.setCommand(storage->adbCommand({storage->packageArgs(), "killall", name}));
+               }) || successItem;
     };
     const auto setDebugServer = [debugServerFileStorage](const QString &fileName) {
         return Sync([debugServerFileStorage, fileName] { *debugServerFileStorage = fileName; });
     };
 
-    const auto uploadDebugServer = [this, setDebugServer](const QString &debugServerFileName) {
-        return If (uploadDebugServerRecipe(debugServerFileName)) >> Then {
+    const auto uploadDebugServer = [storage, setDebugServer](const QString &debugServerFileName) {
+        return If (uploadDebugServerRecipe(storage, debugServerFileName)) >> Then {
             setDebugServer(debugServerFileName)
         } >> Else {
-            Sync([this] {
-                emit remoteProcessFinished(Tr::tr("Cannot copy C++ debug server."));
+            Sync([storage] {
+                emit storage->remoteProcessFinished(Tr::tr("Cannot copy C++ debug server."));
                 return false;
             })
         };
     };
 
-    const auto packageFileExists = [this](const QString &filePath) {
-        const auto onProcessSetup = [this, filePath](Process &process) {
-            process.setCommand(adbCommand({packageArgs(), "ls", filePath, "2>/dev/null"}));
+    const auto packageFileExists = [storage](const QString &filePath) {
+        const auto onProcessSetup = [storage, filePath](Process &process) {
+            process.setCommand(storage->adbCommand({storage->packageArgs(), "ls", filePath, "2>/dev/null"}));
         };
         const auto onProcessDone = [](const Process &process) {
             return !process.stdOut().trimmed().isEmpty();
@@ -789,25 +757,25 @@ ExecutableItem AndroidRunnerWorker::startNativeDebuggingRecipe()
         return ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Success);
     };
 
-    const auto onRemoveGdbServerSetup = [this, packageDirStorage](Process &process) {
+    const auto onRemoveGdbServerSetup = [storage, packageDirStorage](Process &process) {
         const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
-        process.setCommand(adbCommand({packageArgs(), "rm", gdbServerSocket}));
+        process.setCommand(storage->adbCommand({storage->packageArgs(), "rm", gdbServerSocket}));
     };
 
-    const auto onDebugServerSetup = [this, packageDirStorage, debugServerFileStorage](Process &process) {
-        if (m_useLldb) {
-            process.setCommand(adbCommand({packageArgs(), *debugServerFileStorage, "platform",
-                               "--listen", QString("*:%1").arg(s_localDebugServerPort.toString())}));
+    const auto onDebugServerSetup = [storage, packageDirStorage, debugServerFileStorage](Process &process) {
+        if (storage->m_useLldb) {
+            process.setCommand(storage->adbCommand({storage->packageArgs(), *debugServerFileStorage, "platform",
+                                                    "--listen", QString("*:%1").arg(s_localDebugServerPort.toString())}));
         } else {
             const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
-            process.setCommand(adbCommand({packageArgs(), *debugServerFileStorage, "--multi",
-                                           QString("+%1").arg(gdbServerSocket)}));
+            process.setCommand(storage->adbCommand({storage->packageArgs(), *debugServerFileStorage, "--multi",
+                                                    QString("+%1").arg(gdbServerSocket)}));
         }
     };
 
-    const auto onTaskTreeSetup = [this, packageDirStorage](TaskTree &taskTree) {
+    const auto onTaskTreeSetup = [storage, packageDirStorage](TaskTree &taskTree) {
         const QString gdbServerSocket = *packageDirStorage + "/debug-socket";
-        taskTree.setRecipe({removeForwardPortRecipe("tcp:" + s_localDebugServerPort.toString(),
+        taskTree.setRecipe({removeForwardPortRecipe(storage, "tcp:" + s_localDebugServerPort.toString(),
                                                     "localfilesystem:" + gdbServerSocket, "C++")});
     };
 
@@ -844,28 +812,117 @@ ExecutableItem AndroidRunnerWorker::startNativeDebuggingRecipe()
     };
 }
 
-void AndroidRunnerWorker::asyncStart()
+static ExecutableItem pidRecipe(RunnerStorage *storage)
 {
-    const Group recipe {
-        forceStopRecipe(),
-        Group {
-            parallel,
-            logcatRecipe(),
-            Group {
-                preStartRecipe(),
-                pidRecipe()
+    using PidUserPair = std::pair<qint64, qint64>;
+    const Storage<PidUserPair> pidStorage;
+
+    const QString pidScript = storage->isPreNougat()
+        ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
+        : QString("pidof -s '%1'").arg(storage->m_packageName);
+
+    const auto onPidSetup = [storage, pidScript](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", pidScript}));
+    };
+    const auto onPidDone = [pidStorage, packageName = storage->m_packageName,
+                            isPreNougat = storage->isPreNougat()](const Process &process) {
+        const QString out = process.allOutput();
+        if (isPreNougat)
+            pidStorage->first = extractPID(out, packageName);
+        else if (!out.isEmpty())
+            pidStorage->first = out.trimmed().toLongLong();
+    };
+
+    const auto onUserSetup = [storage, pidStorage](Process &process) {
+        process.setCommand(
+            storage->adbCommand({"shell", "ps", "-o", "user", "-p", QString::number(pidStorage->first)}));
+    };
+    const auto onUserDone = [pidStorage](const Process &process) {
+        const QString out = process.allOutput();
+        if (out.isEmpty())
+            return DoneResult::Error;
+
+        QRegularExpressionMatch match;
+        qsizetype matchPos = out.indexOf(userIdPattern, 0, &match);
+        if (matchPos >= 0 && match.capturedLength(1) > 0) {
+            bool ok = false;
+            const qint64 processUser = match.captured(1).toInt(&ok);
+            if (ok) {
+                pidStorage->second = processUser;
+                return DoneResult::Success;
             }
         }
+        return DoneResult::Error;
+    };
+
+    const auto onPidSync = [storage, pidStorage] {
+        qCDebug(androidRunWorkerLog) << "Process ID changed from:" << storage->m_processPID
+                                     << "to:" << pidStorage->first;
+        storage->m_processPID = pidStorage->first;
+        storage->m_processUser = pidStorage->second;
+        emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer, storage->m_processPID);
+    };
+
+    const auto onIsAliveSetup = [storage, pidStorage](Process &process) {
+        process.setProcessChannelMode(QProcess::MergedChannels);
+        process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(pidStorage->first)}));
+    };
+
+    return Group {
+        pidStorage,
+        onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
+        Forever {
+            stopOnSuccess,
+            ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
+            TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 200ms; },
+                        DoneResult::Error)
+        }.withTimeout(45s),
+        ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
+        Sync(onPidSync),
+        Group {
+            parallel,
+            startNativeDebuggingRecipe(storage),
+            ProcessTask(onIsAliveSetup)
+        }
+    };
+}
+
+AndroidRunnerWorker::~AndroidRunnerWorker()
+{
+    if (m_storage->m_processPID != -1)
+        TaskTree::runBlocking(Group { forceStopRecipe(m_storage.get()), postDoneRecipe(m_storage.get()) });
+}
+
+void AndroidRunnerWorker::asyncStart()
+{
+    // TODO: Instead of asyncStop recipe, add a barrier storage.
+    const Group recipe {
+        finishAllAndSuccess,
+        Group {
+            forceStopRecipe(m_storage.get()),
+            Group {
+                parallel,
+                stopOnSuccessOrError,
+                logcatRecipe(m_storage.get()),
+                Group {
+                    preStartRecipe(m_storage.get()),
+                    pidRecipe(m_storage.get())
+                }
+            }
+        }.withCancel([storage = m_storage.get()] {
+            return std::make_pair(storage, &RunnerStorage::cancel);
+        }),
+        forceStopRecipe(m_storage.get()),
+        postDoneRecipe(m_storage.get())
     };
     m_taskTreeRunner.start(recipe);
 }
 
 void AndroidRunnerWorker::asyncStop()
 {
-    if (m_processPID != -1)
-        m_taskTreeRunner.start(Group { forceStopRecipe(), postDoneRecipe() });
-    else
-        m_taskTreeRunner.reset();
+    emit cancel();
 }
 
 } // namespace Android::Internal
+
+#include "androidrunnerworker.moc"
