@@ -8,6 +8,7 @@
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
+#include <utils/layoutbuilder.h>
 #include <utils/stringutils.h>
 #include <utils/tooltip/tooltip.h>
 #include <utils/utilsicons.h>
@@ -375,6 +376,22 @@ TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDoc
     return widget;
 }
 
+void addFloatingWidget(TextEditor::BaseTextEditor *editor, QWidget *widget, int position)
+{
+    widget->setParent(editor->editorWidget()->viewport());
+    const auto editorWidget = editor->editorWidget();
+
+    QTextCursor cursor = QTextCursor(editor->textDocument()->document());
+    cursor.setPosition(position);
+    const QRect cursorRect = editorWidget->cursorRect(cursor);
+
+    QPoint widgetPos = cursorRect.bottomLeft();
+    widgetPos.ry() += (cursorRect.top() - cursorRect.bottom()) / 2;
+
+    widget->move(widgetPos);
+    widget->show();
+}
+
 } // namespace
 
 namespace Lua::Internal {
@@ -515,6 +532,17 @@ void setupTextEditorModule()
             sol::no_constructor,
             "document",
             &TextEditor::BaseTextEditor::textDocument,
+            "addFloatingWidget",
+            sol::overload(
+                [](TextEditor::BaseTextEditor *textEditor, QWidget *widget, int position) {
+                    addFloatingWidget(textEditor, widget, position);
+                },
+                [](TextEditor::BaseTextEditor *textEditor, Layouting::Widget *widget, int position) {
+                    addFloatingWidget(textEditor, widget->emerge(), position);
+                },
+                [](TextEditor::BaseTextEditor *textEditor, Layouting::Layout *layout, int position) {
+                    addFloatingWidget(textEditor, layout->emerge(), position);
+                }),
             "cursor",
             [](TextEditor::BaseTextEditor *textEditor) {
                 return textEditor->editorWidget()->multiTextCursor();

@@ -27,7 +27,7 @@ function Suggestion:create(startLine, startCharacter, endLine, endCharacter, tex
 local CyclicSuggestion = {}
 
 ---@return boolean True if the suggestion is locked, false otherwise.
----Suggestion is locked when the user selects it and already started aplying it partially.
+---Suggestion is locked when the user selects it and already started applying it partially.
 function CyclicSuggestion:isLocked() end
 
 ---@class TextDocument
@@ -47,8 +47,8 @@ function TextDocument:blockAndColumn(position) end
 ---@return integer blockCount The number of blocks in the document.
 function TextDocument:blockCount() end
 
---- Sets the suggestions for the document and enables tooltip on the mouse cursor hover.
----@param suggestions Suggestion[] A list of possible suggestions to display
+---Sets the suggestions for the document and enables tooltip on the mouse cursor hover.
+---@param suggestions Suggestion[] A list of possible suggestions to display.
 function TextDocument:setSuggestions(suggestions) end
 
 ---@class TextEditor
@@ -61,6 +61,13 @@ function TextEditor:document() end
 ---Returns the cursor of the editor.
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
+
+---Adds a floating widget at the specified position in the text editor.
+---The widget will be positioned at the location corresponding to the given position in the
+---text document and will be automatically managed to stay pined to that position.
+---@param widget Widget The widget to be added as a floating widget.
+---@param position integer The position in the document where the widget should appear.
+function TextEditor:addFloatingWidget(widget, position) end
 
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
