@@ -14,6 +14,7 @@
 
 #include <aggregation/aggregate.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -62,6 +63,9 @@ public:
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
     QTimer queueTimer;
+    QList<int> queuedSizeHistory;
+    int formatterCalls = 0;
+    bool discardExcessiveOutput = false;
 
     bool flushRequested = false;
     bool scrollToBottom = true;
@@ -493,6 +497,11 @@ void OutputWindow::filterNewContent()
 void OutputWindow::handleNextOutputChunk()
 {
     QTC_ASSERT(!d->queuedOutput.isEmpty(), return);
+
+    discardExcessiveOutput();
+    if (d->queuedOutput.isEmpty())
+        return;
+
     auto &chunk = d->queuedOutput.first();
 
     // We want to break off the chunks along line breaks, if possible.
@@ -552,6 +561,7 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
     QElapsedTimer formatterTimer;
     formatterTimer.start();
     d->formatter.appendMessage(out, format);
+    ++d->formatterCalls;
     if (formatterTimer.elapsed() > d->queueTimer.interval()) {
         d->queueTimer.setInterval(std::min(maxInterval, d->queueTimer.intervalAsDuration() * 2));
         d->chunkSize = std::max(minChunkSize, d->chunkSize / 2);
@@ -570,9 +580,58 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
     enableUndoRedo();
 }
 
+void OutputWindow::discardExcessiveOutput()
+{
+    // Unless the user instructs us to, we do not mess with the output.
+    if (!d->discardExcessiveOutput)
+        return;
+
+    // Criterion 1: Are we being flooded?
+    // If the pending output has been growing for the last ten times the output formatter
+    // was invoked and it is considerably larger than the chunk size, we discard it.
+    const int queuedSize = totalQueuedSize();
+    if (!d->queuedSizeHistory.isEmpty() && d->queuedSizeHistory.last() > queuedSize)
+        d->queuedSizeHistory.clear();
+    d->queuedSizeHistory << queuedSize;
+    bool discard = d->queuedSizeHistory.size() > int(10) && queuedSize > 5 * d->chunkSize;
+
+    // Criterion 2: Are we too slow?
+    // If it would take longer than a minute to print the pending output and we have
+    // already presented a reasonable amount of output to the user, we discard it.
+    if (!discard) {
+        discard = d->formatterCalls >= 10
+                  && (queuedSize / d->chunkSize) * d->queueTimer.intervalAsDuration() > 60s;
+    }
+
+    if (discard) {
+        discardPendingToolOutput();
+        d->queuedSizeHistory.clear();
+        return;
+    }
+}
+
+void OutputWindow::discardPendingToolOutput()
+{
+    Utils::erase(d->queuedOutput, [](const std::pair<QString, OutputFormat> &chunk) {
+        return chunk.second != NormalMessageFormat && chunk.second != ErrorMessageFormat;
+    });
+    d->formatter.appendMessage(Tr::tr("[Discarding excessive amount of pending output.]\n"),
+                               ErrorMessageFormat);
+    emit outputDiscarded();
+}
+
 void OutputWindow::updateAutoScroll()
 {
     d->scrollToBottom = verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum() - 1;
+}
+
+int OutputWindow::totalQueuedSize() const
+{
+    return std::accumulate(
+        d->queuedOutput.cbegin(),
+        d->queuedOutput.cend(),
+        0,
+        [](int val, const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
 }
 
 void OutputWindow::setMaxCharCount(int count)
@@ -668,9 +727,7 @@ void OutputWindow::clear()
 
 void OutputWindow::flush()
 {
-    const int totalQueuedSize = std::accumulate(d->queuedOutput.cbegin(), d->queuedOutput.cend(), 0,
-            [](int val,  const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
-    if (totalQueuedSize > 5 * d->chunkSize) {
+    if (totalQueuedSize() > 5 * d->chunkSize) {
         d->flushRequested = true;
         return;
     }
@@ -684,14 +741,19 @@ void OutputWindow::flush()
 void OutputWindow::reset()
 {
     flush();
-    d->queueTimer.stop();
-    d->formatter.reset();
-    d->scrollToBottom = true;
     if (!d->queuedOutput.isEmpty()) {
+        discardPendingToolOutput();
+        flush();
+
+        // For the unlikely case that we ourselves have sent excessive amount of output
+        // via NormalMessageFormat or ErrorMessageFormat.
         d->queuedOutput.clear();
-        d->formatter.appendMessage(Tr::tr("[Discarding excessive amount of pending output.]\n"),
-                                   ErrorMessageFormat);
     }
+    d->queueTimer.stop();
+    d->queuedSizeHistory.clear();
+    d->formatter.reset();
+    d->formatterCalls = 0;
+    d->scrollToBottom = true;
     d->flushRequested = false;
 }
 
@@ -739,6 +801,11 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
         setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     else
         setWordWrapMode(QTextOption::NoWrap);
+}
+
+void OutputWindow::setDiscardExcessiveOutput(bool discard)
+{
+    d->discardExcessiveOutput = discard;
 }
 
 #ifdef WITH_TESTS

@@ -6,9 +6,9 @@
 #include "buildmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorericons.h"
-#include "projectexplorersettings.h"
 #include "projectexplorertr.h"
 #include "showoutputtaskhandler.h"
+#include "taskhub.h"
 
 #include <coreplugin/outputwindow.h>
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -109,13 +109,23 @@ CompileOutputWindow::CompileOutputWindow(QAction *cancelBuildAction) :
 
     CompileOutputSettings &s = compileOutputSettings();
     m_outputWindow->setWordWrapEnabled(s.wrapOutput());
+    m_outputWindow->setDiscardExcessiveOutput(s.discardOutput());
     m_outputWindow->setMaxCharCount(s.maxCharCount());
 
     connect(&s.wrapOutput, &Utils::BaseAspect::changed, m_outputWindow, [this] {
         m_outputWindow->setWordWrapEnabled(compileOutputSettings().wrapOutput());
     });
+    connect(&s.discardOutput, &Utils::BaseAspect::changed, m_outputWindow, [this] {
+        m_outputWindow->setDiscardExcessiveOutput(compileOutputSettings().discardOutput());
+    });
     connect(&s.maxCharCount, &Utils::BaseAspect::changed, m_outputWindow, [this] {
         m_outputWindow->setMaxCharCount(compileOutputSettings().maxCharCount());
+    });
+    connect(m_outputWindow, &Core::OutputWindow::outputDiscarded, this, [] {
+        TaskHub::addTask(
+            Task::Warning,
+            Tr::tr("Discarded excessive compile output."),
+            Constants::TASK_CATEGORY_COMPILE);
     });
 }
 
@@ -255,6 +265,13 @@ CompileOutputSettings::CompileOutputSettings()
     popUp.setSettingsKey("ProjectExplorer/Settings/ShowCompilerOutput");
     popUp.setLabelText(Tr::tr("Open Compile Output when building"));
 
+    discardOutput.setSettingsKey("ProjectExplorer/Settings/DiscardCompilerOutput");
+    discardOutput.setLabelText(Tr::tr("Discard Excessive Output"));
+    discardOutput.setToolTip(
+        Tr::tr(
+            "If this option is enabled, compile output will be discarded if it continuously comes "
+            "in faster than it can be handled."));
+
     maxCharCount.setSettingsKey("ProjectExplorer/Settings/MaxBuildOutputLines");
     maxCharCount.setRange(1, Core::Constants::DEFAULT_MAX_CHAR_COUNT);
     maxCharCount.setDefaultValue(Core::Constants::DEFAULT_MAX_CHAR_COUNT);
@@ -268,6 +285,7 @@ CompileOutputSettings::CompileOutputSettings()
         return Column {
             wrapOutput,
             popUp,
+            discardOutput,
             Row { parts.at(0), maxCharCount, parts.at(1), st },
             st
         };

@@ -73,9 +73,11 @@ public:
 
 signals:
     void wheelZoom();
+    void outputDiscarded();
 
 public slots:
     void setWordWrapEnabled(bool wrap);
+    void setDiscardExcessiveOutput(bool discard);
 
 protected:
     virtual void handleLink(const QPoint &pos);
@@ -97,7 +99,10 @@ private:
     void filterNewContent();
     void handleNextOutputChunk();
     void handleOutputChunk(const QString &output, Utils::OutputFormat format);
+    void discardExcessiveOutput();
+    void discardPendingToolOutput();
     void updateAutoScroll();
+    int totalQueuedSize() const;
 
     using TextMatchingFunction = std::function<bool(const QString &text)>;
     TextMatchingFunction makeMatchingFunction() const;

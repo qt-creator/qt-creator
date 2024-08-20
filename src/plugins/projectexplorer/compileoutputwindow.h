@@ -33,6 +33,7 @@ public:
 
     Utils::BoolAspect popUp{this};
     Utils::BoolAspect wrapOutput{this};
+    Utils::BoolAspect discardOutput{this};
     Utils::IntegerAspect maxCharCount{this};
 };
 
