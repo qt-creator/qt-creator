@@ -109,11 +109,11 @@ void DesignerActionManager::polishActions() const
     QList<ActionInterface* > actions =  Utils::filtered(designerActions(),
                                                         [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
 
-    Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
-    Core::Context qmlDesignerEditor3DContext(Constants::C_QMLEDITOR3D);
-    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
-    Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
-    Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
+    Core::Context qmlDesignerFormEditorContext(Constants::qmlFormEditorContextId);
+    Core::Context qmlDesignerEditor3DContext(Constants::qml3DEditorContextId);
+    Core::Context qmlDesignerNavigatorContext(Constants::qmlNavigatorContextId);
+    Core::Context qmlDesignerMaterialBrowserContext(Constants::qmlMaterialBrowserContextId);
+    Core::Context qmlDesignerAssetsLibraryContext(Constants::qmlAssetsLibraryContextId);
 
     Core::Context qmlDesignerUIContext;
     qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
@@ -2128,8 +2128,8 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
                 ModelNodePreviewImageHandler("QtQuick3D.Texture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Material",
-                                             ModelNodeOperations::previewImageDataForGenericNode));
+        ModelNodePreviewImageHandler("QtQuick3D.Material",
+                                     ModelNodeOperations::previewImageDataForGenericNode));
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Model",
                                              ModelNodeOperations::previewImageDataForGenericNode));

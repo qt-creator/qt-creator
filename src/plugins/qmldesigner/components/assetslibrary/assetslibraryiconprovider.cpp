@@ -4,9 +4,9 @@
 #include "assetslibraryiconprovider.h"
 
 #include <modelnodeoperations.h>
+#include <qmldesignerutils/hdrimage.h>
+#include <qmldesignerutils/ktximage.h>
 #include <theme.h>
-#include <utils/hdrimage.h>
-#include <utils/ktximage.h>
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {

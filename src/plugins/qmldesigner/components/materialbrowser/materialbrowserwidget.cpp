@@ -165,7 +165,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     setWindowTitle(tr("Material Browser", "Title of material browser widget"));
     setMinimumWidth(120);
 
-    Core::Context context(Constants::C_QMLMATERIALBROWSER);
+    Core::Context context(Constants::qmlMaterialBrowserContextId);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
     m_context->setWidget(this);

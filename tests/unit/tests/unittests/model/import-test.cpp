@@ -4,7 +4,7 @@
 #include "../utils/googletest.h"
 
 #include <import.h>
-#include <qmldesigner/utils/version.h>
+#include <qmldesignerutils/version.h>
 
 namespace {
 

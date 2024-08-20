@@ -101,9 +101,10 @@ void ItemLibraryView::updateImports()
     m_widget->delayedUpdateModel();
 }
 
-
-void ItemLibraryView::customNotification(const AbstractView *view, const QString &identifier,
-                                         const QList<ModelNode> &nodeList, const QList<QVariant> &data)
+void ItemLibraryView::customNotification(const AbstractView *view,
+                                         const QString &identifier,
+                                         const QList<ModelNode> &nodeList,
+                                         const QList<QVariant> &data)
 {
     if (identifier == UpdateItemlibrary)
         updateImports();

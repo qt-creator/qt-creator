@@ -559,7 +559,7 @@ void PropertyEditorValue::insertKeyframe()
     /*If we add more code here we have to forward the property editor view */
     AbstractView *view = m_modelNode.view();
 
-    QmlTimeline timeline = view->currentTimeline();
+    QmlTimeline timeline = view->currentTimelineNode();
 
     QTC_ASSERT(timeline.isValid(), return );
     QTC_ASSERT(m_modelNode.isValid(), return );

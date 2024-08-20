@@ -53,7 +53,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 {
     setAcceptDrops(true);
 
-    Core::Context context(Constants::C_QMLFORMEDITOR);
+    Core::Context context(Constants::qmlFormEditorContextId);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
     m_context->setWidget(this);
@@ -75,8 +75,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
 
+    static constexpr char formEditorNoSnappingActionId[] = "QmlDesigner.FormEditor.NoSnapping";
     registerActionAsCommand(m_noSnappingAction,
-                            Constants::FORMEDITOR_NO_SNAPPING,
+                            formEditorNoSnappingActionId,
                             QKeySequence(Qt::Key_T),
                             ComponentCoreConstants::snappingCategory,
                             1);
@@ -85,8 +86,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
 
+    static constexpr char formEditorNoSnappingAndAnchoringActionId[]
+        = "QmlDesigner.FormEditor.NoSnappingAndAnchoring";
     registerActionAsCommand(m_snappingAndAnchoringAction,
-                            Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING,
+                            formEditorNoSnappingAndAnchoringActionId,
                             QKeySequence(Qt::Key_W),
                             ComponentCoreConstants::snappingCategory,
                             2);
@@ -95,8 +98,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
 
+    static constexpr char formEditorSnappingActionId[] = "QmlDesigner.FormEditor.Snapping";
     registerActionAsCommand(m_snappingAction,
-                            Constants::FORMEDITOR_SNAPPING,
+                            formEditorSnappingActionId,
                             QKeySequence(Qt::Key_E),
                             ComponentCoreConstants::snappingCategory,
                             3);
@@ -108,8 +112,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setChecked(false);
     m_showBoundingRectAction->setIcon(
         DesignerActionManager::instance().contextIcon(DesignerIcons::ShowBoundsIcon));
+
+    static constexpr char formEditorShowBoundingRctangeActionId[]
+        = "QmlDesigner.FormEditor.ShowBoundingRectangle";
     registerActionAsCommand(m_showBoundingRectAction,
-                            Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
+                            formEditorShowBoundingRctangeActionId,
                             QKeySequence(Qt::Key_A),
                             ComponentCoreConstants::rootCategory,
                             ComponentCoreConstants::Priorities::ShowBoundingRect);
@@ -269,8 +276,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
     m_resetAction = new QAction(reloadIcon, tr("Reload View"), this);
+    static constexpr char formEditorRefreshActionId[] = "QmlDesigner.FormEditor.Refresh";
     registerActionAsCommand(m_resetAction,
-                            Constants::FORMEDITOR_REFRESH,
+                            formEditorRefreshActionId,
                             QKeySequence(Qt::Key_R),
                             ComponentCoreConstants::rootCategory,
                             ComponentCoreConstants::Priorities::ResetView);
@@ -337,7 +345,7 @@ void FormEditorWidget::changeBackgound(const QColor &color)
 void FormEditorWidget::registerActionAsCommand(
     QAction *action, Utils::Id id, const QKeySequence &, const QByteArray &category, int priority)
 {
-    Core::Context context(Constants::C_QMLFORMEDITOR);
+    Core::Context context(Constants::qmlFormEditorContextId);
 
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
 

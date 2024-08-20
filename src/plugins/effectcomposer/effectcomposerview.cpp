@@ -21,12 +21,14 @@
 
 namespace EffectComposer {
 
+constexpr char qmlEffectComposerContextId[] = "QmlDesigner::EffectComposer";
+
 EffectComposerContext::EffectComposerContext(QWidget *widget)
     : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(QmlDesigner::Constants::C_QMLEFFECTCOMPOSER,
-                             QmlDesigner::Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(
+        Core::Context(qmlEffectComposerContextId, QmlDesigner::Constants::qtQuickToolsMenuContextId));
 }
 
 void EffectComposerContext::contextHelp(const HelpCallback &callback) const

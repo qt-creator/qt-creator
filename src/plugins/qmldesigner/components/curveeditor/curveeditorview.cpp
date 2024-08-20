@@ -174,7 +174,7 @@ QmlTimeline CurveEditorView::activeTimeline() const
     if (!isAttached())
         return {};
 
-    QmlModelState state = currentState();
+    QmlModelState state = currentStateNode();
     if (state.isBaseState()) {
         for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
             if (QmlTimeline::isValidQmlTimeline(node)) {

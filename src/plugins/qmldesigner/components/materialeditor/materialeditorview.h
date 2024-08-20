@@ -22,6 +22,7 @@ namespace QmlDesigner {
 class DynamicPropertiesModel;
 class ItemLibraryInfo;
 class MaterialEditorQmlBackend;
+class QmlObjectNode;
 
 class MaterialEditorView : public AbstractView
 {

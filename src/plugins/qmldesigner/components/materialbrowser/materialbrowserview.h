@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class MaterialBrowserWidget;
+class QmlObjectNode;
 
 class MaterialBrowserView : public AbstractView
 {

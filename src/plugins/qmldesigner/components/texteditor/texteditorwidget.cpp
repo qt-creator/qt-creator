@@ -153,7 +153,7 @@ void TextEditorWidget::jumpTextCursorToSelectedModelNode()
         selectedNode = m_textEditorView->selectedModelNodes().constFirst();
 
     if (selectedNode.isValid()) {
-        auto currentState = m_textEditorView->currentState();
+        QmlModelState currentState = m_textEditorView->currentStateNode();
         if (currentState.isBaseState()) {
             jumpToModelNode(selectedNode);
         } else {

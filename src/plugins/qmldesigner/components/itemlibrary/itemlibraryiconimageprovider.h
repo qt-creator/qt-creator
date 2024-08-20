@@ -6,13 +6,13 @@
 #include <nodeinstanceview.h>
 #include <rewriterview.h>
 
-#include <coreplugin/icore.h>
 #include <asynchronousimagecache.h>
-#include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecacheconnectionmanager.h>
+#include <coreplugin/icore.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
+#include <imagecachecollectors/imagecachecollector.h>
+#include <imagecachecollectors/imagecacheconnectionmanager.h>
 
 #include <sqlitedatabase.h>
 

@@ -60,7 +60,11 @@ public:
     void addNewTimelineDialog();
     void openSettingsDialog();
 
+    void activateTimelineRecording(const ModelNode &timeline);
+    void deactivateTimelineRecording();
+
     void setTimelineRecording(bool b);
+    void setCurrentTimeline(const ModelNode &timeline);
 
     void customNotification(const AbstractView *view,
                             const QString &identifier,

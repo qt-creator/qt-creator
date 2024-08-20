@@ -456,7 +456,8 @@ void TextureEditorView::setupQmlBackend()
 
     TextureEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlPaneUrl.toString());
 
-    QString currentStateName = currentState().isBaseState() ? currentState().name() : "invalid state";
+    QmlModelState currentState = currentStateNode();
+    QString currentStateName = currentState.isBaseState() ? currentState.name() : "invalid state";
 
     if (!currentQmlBackend) {
         currentQmlBackend = new TextureEditorQmlBackend(this, m_imageCache);

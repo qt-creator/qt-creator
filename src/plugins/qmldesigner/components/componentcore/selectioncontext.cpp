@@ -36,7 +36,7 @@ bool SelectionContext::singleNodeIsSelected() const
 
 bool SelectionContext::isInBaseState() const
 {
-    return view()->currentState().isBaseState();
+    return QmlModelState::isBaseState(view()->currentStateNode());
 }
 
 ModelNode SelectionContext::currentSingleSelectedNode() const
@@ -63,6 +63,14 @@ bool SelectionContext::hasSingleSelectedModelNode() const
 AbstractView *SelectionContext::view() const
 {
     return m_view.data();
+}
+
+Model *SelectionContext::model() const
+{
+    if (m_view && m_view->isAttached())
+        return m_view->model();
+
+    return nullptr;
 }
 
 void SelectionContext::setShowSelectionTools(bool show)

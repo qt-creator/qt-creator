@@ -42,4 +42,5 @@ public:
     MOCK_METHOD(QString, qtQuickVersion, (), (const, override));
     MOCK_METHOD(Utils::FilePath, resourcePath, (const QString &relativePath), (const, override));
     MOCK_METHOD(QString, userResourcePath, (QStringView relativePath), (const, override));
+    MOCK_METHOD(QWidget *, mainWindow, (), (const, override));
 };

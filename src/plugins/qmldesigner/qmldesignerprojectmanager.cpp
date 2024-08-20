@@ -28,16 +28,16 @@
 #include <asynchronousimagecache.h>
 #include <imagecache/asynchronousimagefactory.h>
 #include <imagecache/explicitimagecacheimageprovider.h>
-#include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecacheconnectionmanager.h>
 #include <imagecache/imagecachedispatchcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
-#include <imagecache/meshimagecachecollector.h>
-#include <imagecache/textureimagecachecollector.h>
 #include <imagecache/timestampprovider.h>
+#include <imagecachecollectors/imagecachecollector.h>
+#include <imagecachecollectors/imagecacheconnectionmanager.h>
+#include <imagecachecollectors/meshimagecachecollector.h>
+#include <imagecachecollectors/textureimagecachecollector.h>
 
-#include <utils/asset.h>
+#include <qmldesignerutils/asset.h>
 
 #include <coreplugin/icore.h>
 

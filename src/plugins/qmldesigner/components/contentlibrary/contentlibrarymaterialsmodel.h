@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <qmldesignerutils/version.h>
 #include <utils/filepath.h>
-#include <utils/version.h>
 
 #include <QAbstractListModel>
 #include <QJsonObject>

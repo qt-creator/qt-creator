@@ -11,7 +11,7 @@
 
 namespace QmlDesigner {
 
-class QMLDESIGNERCORE_EXPORT QmlModelNodeProxy : public QObject
+class QMLDESIGNER_EXPORT QmlModelNodeProxy : public QObject
 {
     Q_OBJECT
 

@@ -1,9 +1,8 @@
 # QtCreator Utils Tests
 extend_qtc_test(unittest
-    SOURCES
-        matchingtext-test.cpp
-        sizedarray-test.cpp
-        smallstring-test.cpp
+  SOURCES
+    sizedarray-test.cpp
+    smallstring-test.cpp
 )
 
 extend_qtc_test(unittest

@@ -115,6 +115,7 @@ public:
     int activeSplit() const;
     bool isSplitView() const;
     void setFlyMode(bool enabled);
+    void emitView3DAction(View3DActionType type, const QVariant &value);
 
 private slots:
     void onEntriesChanged();

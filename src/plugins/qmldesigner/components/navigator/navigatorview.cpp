@@ -46,7 +46,7 @@
 inline static void setScenePos(const QmlDesigner::ModelNode &modelNode, const QPointF &pos)
 {
     if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
-        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
+        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentModelNode();
 
         if (!parentNode.modelNode().metaInfo().isLayoutable()) {
             QPointF localPos = parentNode.instanceSceneTransform().inverted().map(pos);
@@ -693,9 +693,7 @@ void NavigatorView::updateItemSelection()
                 itemSelection.select(beginIndex, endIndex);
         } else {
             // if the node index is invalid expand ancestors manually if they are valid.
-            ModelNode parentNode = node;
-            while (parentNode.hasParentProperty()) {
-                parentNode = parentNode.parentProperty().parentQmlObjectNode();
+            while (ModelNode parentNode = node.parentProperty().parentModelNode()) {
                 QModelIndex parentIndex = indexForModelNode(parentNode);
                 if (parentIndex.isValid())
                     treeWidget()->expand(parentIndex);

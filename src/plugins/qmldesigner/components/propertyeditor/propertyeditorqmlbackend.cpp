@@ -1030,9 +1030,11 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 {
     static const QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
 
+    constexpr QLatin1String qmlDesignerSubfolder{"/designer/"};
     const QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
-    const QDir importDir(info.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
-    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + Constants::QML_DESIGNER_SUBFOLDER);
+    const QDir importDir(info.importDirectoryPath() + qmlDesignerSubfolder);
+    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".")
+                                + QString::number(info.majorVersion()) + qmlDesignerSubfolder);
 
     const QString relativePathWithoutEnding = relativePath.left(relativePath.size() - 4);
     const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding

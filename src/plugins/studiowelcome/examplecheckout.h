@@ -3,8 +3,8 @@
 
 #pragma once
 
+#include <qmldesignerutils/filedownloader.h>
 #include <utils/fileutils.h>
-#include <qmldesigner/utils/filedownloader.h>
 
 #include <QObject>
 #include <QTimer>

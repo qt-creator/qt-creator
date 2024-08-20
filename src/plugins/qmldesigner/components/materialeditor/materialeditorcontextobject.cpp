@@ -260,7 +260,7 @@ void MaterialEditorContextObject::insertKeyframe(const QString &propertyName)
     //  If we add more code here we have to forward the material editor view
     RewriterView *rewriterView = m_model->rewriterView();
 
-    QmlTimeline timeline = rewriterView->currentTimeline();
+    QmlTimeline timeline = rewriterView->currentTimelineNode();
 
     QTC_ASSERT(timeline.isValid(), return);
 

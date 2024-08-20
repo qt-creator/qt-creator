@@ -16,9 +16,9 @@
 #include <projectexplorer/projectmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerutils/version.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/version.h>
 
 #include <QIODevice>
 #include <QLoggingCategory>

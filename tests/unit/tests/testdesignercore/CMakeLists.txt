@@ -1,24 +1,36 @@
 add_qtc_library(TestDesignerCore OBJECT
+  CONDITION TARGET TextEditorSupport
   EXCLUDE_FROM_INSTALL
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
-    Qt::Core Qt::Network Qt::Widgets
-    Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
-    Qt::Core5Compat Utils QmlJS Sqlite
+    Utils
+    Qt::Widgets
+    Qt::Qml
+    Qt::QmlPrivate
+    Qt6::QmlDomPrivate
+    Qt6::QmlCompilerPrivate
+    QmlJS
   PUBLIC_DEPENDS
+    Threads::Threads
+    Qt::Quick
     QmlPuppetCommunication
-  SOURCES_PREFIX ${QmlDesignerDir}/designercore
+    QmlDesignerUtils
+    Sqlite
+    QmlDesignerSettings
+    TextEditorSupport
+  SOURCES_PREFIX ${QML_DESIGNER_DIRECTORY}/libs/designercore
   PUBLIC_INCLUDES
-    ${UnittestStubsDir}
-    ${UnittestStubsDir}/qmldesigner/designercore/include
-    ${QtCreatorLibsDir}
-    ${QtCreatorPluginsDir}
-    ${QmlDesignerDir}
-    ${QmlDesignerDir}/designercore
-    ${QmlDesignerDir}/designercore/include
-    ${QmlDesignerDir}/designercore/imagecache
-    ${QmlDesignerDir}/designercore/designercoreutils
+    ${UNITTEST_STUB_DIRECTORY}
+    ${UNITTEST_STUB_DIRECTORY}/qmldesigner/libs/designercore/include
+    ${QT_CREATOR_LIBS_DIRECTORY}
+    ${QT_CREATOR_PLUGINS_DIRECTORY}
+    ${QML_DESIGNER_DIRECTORY}
+    ${QML_DESIGNER_DIRECTORY}/libs
+    ${QML_DESIGNER_CORE_DIRECTORY}
+    ${QML_DESIGNER_CORE_DIRECTORY}/include
+    ${QML_DESIGNER_CORE_DIRECTORY}/imagecache
+    ${QML_DESIGNER_CORE_DIRECTORY}/designercoreutils
   PUBLIC_DEFINES
     UNIT_TESTS
     DONT_CHECK_MESSAGE_COUNTER
@@ -27,150 +39,338 @@ add_qtc_library(TestDesignerCore OBJECT
     QDS_USE_PROJECTSTORAGE
     QMLDESIGNERCORE_STATIC_LIBRARY
     QMLDESIGNER_STATIC_LIBRARY
-  SOURCES
-    exceptions/exception.cpp
-    exceptions/invalidargumentexception.cpp
-    exceptions/invalididexception.cpp
-    exceptions/invalidmetainfoexception.cpp
-    exceptions/invalidmodelnodeexception.cpp
-    exceptions/invalidmodelstateexception.cpp
-    exceptions/invalidpropertyexception.cpp
-    exceptions/invalidqmlsourceexception.cpp
-    exceptions/invalidreparentingexception.cpp
-    exceptions/invalidslideindexexception.cpp
-    exceptions/notimplementedexception.cpp
-    exceptions/removebasestateexception.cpp
-    exceptions/rewritingexception.cpp
-    imagecache/asynchronousexplicitimagecache.cpp
-    imagecache/asynchronousimagecache.cpp
-    imagecache/asynchronousimagefactory.cpp
-    imagecache/asynchronousimagefactory.h
-    imagecache/imagecachecollectorinterface.h
-    imagecache/imagecachegenerator.cpp
-    imagecache/imagecachegenerator.h
-    imagecache/imagecachegeneratorinterface.h
-    imagecache/imagecachestorage.h
-    imagecache/imagecachedispatchcollector.h
-    imagecache/imagecachestorageinterface.h
-    imagecache/synchronousimagecache.cpp
-    imagecache/taskqueue.h
-    imagecache/timestampproviderinterface.h
-    include/abstractproperty.h
-    include/asynchronousexplicitimagecache.h
-    include/asynchronousimagecache.h
-    include/asynchronousimagecacheinterface.h
-    include/bindingproperty.h
-    include/imagecacheauxiliarydata.h
-    include/import.h
-    include/itemlibraryentry.h
-    include/modelnode.h
-    include/module.h
-    include/nodeabstractproperty.h
-    include/nodelistproperty.h
-    include/nodemetainfo.h
-    include/nodeproperty.h
-    include/projectstorageids.h
-    include/propertymetainfo.h
-    include/propertycontainer.h
-    include/propertyparser.h
-    include/qmldesignercorelib_global.h
-    include/signalhandlerproperty.h
-    include/synchronousimagecache.h
-    include/variantproperty.h
-    metainfo/itemlibraryentry.cpp
-    metainfo/nodemetainfo.cpp
-    model/abstractproperty.cpp
-    model/abstractview.cpp
-    model/auxiliarypropertystorageview.cpp model/auxiliarypropertystorageview.h
-    model/annotation.cpp
-    model/bindingproperty.cpp
-    model/import.cpp
-    model/internalbindingproperty.cpp
-    model/internalbindingproperty.h
-    model/internalnode.cpp
-    model/internalnode_p.h
-    model/internalnodeabstractproperty.cpp
-    model/internalnodeabstractproperty.h
-    model/internalnodelistproperty.cpp
-    model/internalnodelistproperty.h
-    model/internalnodeproperty.cpp
-    model/internalnodeproperty.h
-    model/internalproperty.cpp
-    model/internalproperty.h
-    model/internalsignalhandlerproperty.cpp
-    model/internalsignalhandlerproperty.h
-    model/internalvariantproperty.cpp
-    model/internalvariantproperty.h
-    model/model.cpp
-    model/model_p.h
-    model/modelnode.cpp
-    model/modelresourcemanagementinterface.h
-    model/modelresourcemanagement.cpp model/modelresourcemanagement.h
-    designercoreutils/modelutils.cpp designercoreutils/modelutils.h
-    rewriter/propertycontainer.cpp
-    rewriter/propertyparser.cpp
-    model/nodeabstractproperty.cpp
-    model/nodelistproperty.cpp
-    model/nodeproperty.cpp
-    model/signalhandlerproperty.cpp
-    model/variantproperty.cpp
-    pluginmanager/widgetpluginmanager.h pluginmanager/widgetpluginmanager.cpp
-    pluginmanager/widgetpluginpath.h pluginmanager/widgetpluginpath.cpp
-    projectstorage/directorypathcompressor.h
-    projectstorage/filesysteminterface.h
-    projectstorage/filesystem.cpp projectstorage/filesystem.h
-    projectstorage/filestatus.h
-    projectstorage/filestatuscache.cpp projectstorage/filestatuscache.h
-    projectstorage/modulescanner.cpp projectstorage/modulescanner.h
-    sourcepathstorage/nonlockingmutex.h
-    projectstorage/projectstorageexceptions.cpp projectstorage/projectstorageexceptions.h
-    projectstorage/projectstorageinterface.h
-    projectstorage/projectstorageobserver.h
-    projectstorage/projectstorage.cpp projectstorage/projectstorage.h
-    projectstorage/projectstorageerrornotifierinterface.h
-    projectstorage/projectstorageerrornotifier.cpp projectstorage/projectstorageerrornotifier.h
-    projectstorage/projectstoragepathwatcher.h
-    projectstorage/projectstoragepathwatcherinterface.h
-    projectstorage/projectstoragepathwatchernotifierinterface.h
-    projectstorage/projectstoragepathwatcher.h
-    projectstorage/projectstoragepathwatchertypes.h
-    projectstorage/projectstoragetypes.h
-    projectstorage/projectstorageupdater.cpp projectstorage/projectstorageupdater.h
-    sourcepathstorage/sourcepath.h
-    sourcepathstorage/sourcepathcache.h
-    sourcepathstorage/sourcepathcache.h
-    sourcepathstorage/sourcepathcachetypes.h
-    sourcepathstorage/sourcepathview.h
-    sourcepathstorage/storagecache.h
-    sourcepathstorage/storagecacheentry.h
-    sourcepathstorage/storagecachefwd.h
-    sourcepathstorage/sourcepathexceptions.cpp
-    sourcepathstorage/sourcepathexceptions.h
-    sourcepathstorage/sourcepathstorage.cpp
-    sourcepathstorage/sourcepathstorage.h
-    projectstorage/typeannotationreader.cpp
-    projectstorage/typeannotationreader.h
-    projectstorage/qmldocumentparserinterface.h
-    projectstorage/qmltypesparserinterface.h
-    tracing/qmldesignertracing.cpp tracing/qmldesignertracing.h
-    rewriter/rewritertransaction.cpp
-    include/rewritertransaction.h
-    designercoreutils/uniquename.cpp
-    designercoreutils/uniquename.h
 )
 
 extend_qtc_library(TestDesignerCore
-  SOURCES_PREFIX ${QmlDesignerDir}/designercore/include
-  SOURCES_PROPERTIES AUTOMOC ON
+  CONDITION IS_SUPPORTED_PROJECTSTORAGE_QT
+  PUBLIC_DEFINES QDS_BUILD_QMLPARSER
+)
+
+extend_qtc_library(TestDesignerCore
+  PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/designercoreutils
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/designercoreutils
   SOURCES
-    model.h
+    generatedcomponentutils.cpp
+    generatedcomponentutils.h
+    modelmerger.cpp
+    modelmerger.h
+    modelutils.cpp
+    modelutils.h
+    predicate.h
+    stylesheetmerger.cpp
+    stylesheetmerger.h
+    uniquename.cpp
+    uniquename.h
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/exceptions
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/exceptions
+  SOURCES
+    exception.cpp
+    invalidargumentexception.cpp
+    invalididexception.cpp
+    invalidmetainfoexception.cpp
+    invalidmodelnodeexception.cpp
+    invalidmodelstateexception.cpp
+    invalidpropertyexception.cpp
+    invalidqmlsourceexception.cpp
+    invalidreparentingexception.cpp
+    invalidslideindexexception.cpp
+    notimplementedexception.cpp
+    removebasestateexception.cpp
+    rewritingexception.cpp
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/filemanager
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/filemanager
+  SOURCES
+    addarraymembervisitor.cpp
+    addarraymembervisitor.h
+    addobjectvisitor.cpp
+    addobjectvisitor.h
+    addpropertyvisitor.cpp
+    addpropertyvisitor.h
+    astobjecttextextractor.cpp
+    astobjecttextextractor.h
+    changeimportsvisitor.cpp
+    changeimportsvisitor.h
+    changeobjecttypevisitor.cpp
+    changeobjecttypevisitor.h
+    changepropertyvisitor.cpp
+    changepropertyvisitor.h
+    firstdefinitionfinder.cpp
+    firstdefinitionfinder.h
+    moveobjectbeforeobjectvisitor.cpp
+    moveobjectbeforeobjectvisitor.h
+    moveobjectvisitor.cpp
+    moveobjectvisitor.h
+    objectlengthcalculator.cpp
+    objectlengthcalculator.h
+    qmlrefactoring.cpp
+    qmlrefactoring.h
+    qmlrewriter.cpp
+    qmlrewriter.h
+    removepropertyvisitor.cpp
+    removepropertyvisitor.h
+    removeuiobjectmembervisitor.cpp
+    removeuiobjectmembervisitor.h
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/imagecache
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/imagecache
+  SOURCES
+    asynchronousexplicitimagecache.cpp
+    asynchronousimagecache.cpp
+    asynchronousimagefactory.cpp
+    asynchronousimagefactory.h
+    explicitimagecacheimageprovider.cpp
+    explicitimagecacheimageprovider.h
+    imagecachecollectorinterface.h
+    imagecachedispatchcollector.h
+    imagecachegenerator.cpp
+    imagecachegenerator.h
+    imagecachegeneratorinterface.h
+    imagecacheimageresponse.cpp
+    imagecacheimageresponse.h
+    imagecachestorage.h
+    imagecachestorageinterface.h
+    midsizeimagecacheprovider.cpp
+    midsizeimagecacheprovider.h
+    smallimagecacheprovider.cpp
+    smallimagecacheprovider.h
+    synchronousimagecache.cpp
+    taskqueue.h
+    timestampprovider.cpp
+    timestampprovider.h
+    timestampproviderinterface.h
+)
+
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/tracing
+  SOURCES
+    qmldesignertracing.cpp qmldesignertracing.h
+)
+
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/include
+  SOURCES
     abstractview.h
+    bytearraymodifier.h
+    componenttextmodifier.h
+    forwardview.h
+    itemlibraryentry.h
+    model.h
+    nodehints.h
+    plaintexteditmodifier.h
+    propertyparser.h
+    rewriterview.h
+    textmodifier.h
 )
 
 extend_qtc_library(TestDesignerCore
-  SOURCES_PROPERTIES AUTOMOC ON
-  SOURCES_PREFIX ../stubs/qmldesigner/designercore/include
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/include
   SOURCES
-    nodeinstanceview.h
-    rewriterview.h
+    abstractproperty.h
+    annotation.h
+    asynchronousexplicitimagecache.h
+    asynchronousimagecache.h
+    asynchronousimagecacheinterface.h
+    auxiliarydata.h
+    auxiliarydataproperties.h
+    bindingproperty.h
+    bytearraymodifier.h
+    customnotificationpackage.h
+    customnotifications.h
+    documentmessage.h
+    enumerationmetainfo.h
+    exception.h
+    externaldependenciesinterface.h
+    imagecacheauxiliarydata.h
+    import.h
+    invalidargumentexception.h
+    invalididexception.h
+    invalidmetainfoexception.h
+    invalidmodelnodeexception.h
+    invalidmodelstateexception.h
+    invalidpropertyexception.h
+    invalidqmlsourceexception.h
+    invalidreparentingexception.h
+    invalidslideindexexception.h
+    iwidgetplugin.h
+    mathutils.h
+    modelfwd.h
+    modelnode.h
+    modificationgroupexception.h
+    modificationgrouptoken.h
+    module.h
+    nodeabstractproperty.h
+    nodelistproperty.h
+    nodemetainfo.h
+    nodeproperty.h
+    notimplementedexception.h
+    objectpropertybinding.h
+    projectstorageids.h
+    propertybinding.h
+    propertycontainer.h
+    propertymetainfo.h
+    propertynode.h
+    puppetstartdata.h
+    qmldesignercorelib_exports.h
+    qmldesignercorelib_global.h
+    qmldesignercoreconstants.h
+    removebasestateexception.h
+    rewritertransaction.h
+    rewritingexception.h
+    signalhandlerproperty.h
+    sourcepathids.h
+    stringutils.h
+    synchronousimagecache.h
+    variantproperty.h
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES
+    metainfo
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/metainfo
+  DEFINES SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../../../share/qtcreator/qmldesigner"
+  SOURCES
+    itemlibraryentry.cpp
+    nodehints.cpp
+    nodemetainfo.cpp
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/model
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/model
+  SOURCES
+    abstractproperty.cpp
+    abstractview.cpp
+    annotation.cpp
+    auxiliarypropertystorageview.cpp auxiliarypropertystorageview.h
+    bindingproperty.cpp
+    documentmessage.cpp
+    import.cpp
+    internalbindingproperty.cpp
+    internalbindingproperty.h
+    internalnode.cpp
+    internalnode_p.h
+    internalnodeabstractproperty.cpp
+    internalnodeabstractproperty.h
+    internalnodelistproperty.cpp
+    internalnodelistproperty.h
+    internalnodeproperty.cpp
+    internalnodeproperty.h
+    internalproperty.cpp
+    internalproperty.h
+    internalsignalhandlerproperty.cpp
+    internalsignalhandlerproperty.h
+    internalvariantproperty.cpp
+    internalvariantproperty.h
+    model.cpp
+    model_p.h
+    modelnode.cpp
+    modelresourcemanagementinterface.h
+    modelresourcemanagementfwd.h
+    modelresourcemanagement.cpp modelresourcemanagement.h
+    nodeabstractproperty.cpp
+    nodelistproperty.cpp
+    nodeproperty.cpp
+    signalhandlerproperty.cpp
+    variantproperty.cpp
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/rewriter
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/rewriter
+  SOURCES
+    componenttextmodifier.cpp
+    modelnodepositionrecalculator.cpp
+    modelnodepositionrecalculator.h
+    modelnodepositionstorage.cpp
+    modelnodepositionstorage.h
+    modeltotextmerger.cpp
+    modeltotextmerger.h
+    plaintexteditmodifier.cpp
+    propertycontainer.cpp
+    propertynode.cpp
+    propertyparser.cpp
+    qmltextgenerator.cpp
+    qmltextgenerator.h
+    rewriteaction.cpp
+    rewriteaction.h
+    rewriteactioncompressor.cpp
+    rewriteactioncompressor.h
+    rewritertransaction.cpp
+    rewriterview.cpp
+    textmodifier.cpp
+    texttomodelmerger.cpp
+    texttomodelmerger.h
+)
+
+extend_qtc_library(TestDesignerCore
+  INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/pluginmanager
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/pluginmanager
+  SOURCES
+    widgetpluginmanager.cpp
+    widgetpluginmanager.h
+    widgetpluginpath.cpp
+    widgetpluginpath.h
+)
+
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/sourcepathstorage
+  PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/sourcepathstorage
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  SOURCES
+    nonlockingmutex.h
+    sourcepath.h
+    sourcepathcache.h
+    sourcepathcacheinterface.h
+    sourcepathcachetypes.h
+    sourcepathexceptions.cpp
+    sourcepathexceptions.h
+    sourcepathstorage.cpp
+    sourcepathstorage.h
+    sourcepathview.h
+    storagecache.h
+    storagecacheentry.h
+    storagecachefwd.h
+)
+
+extend_qtc_library(TestDesignerCore
+  SOURCES_PREFIX ${QML_DESIGNER_CORE_DIRECTORY}/projectstorage
+  PUBLIC_INCLUDES ${QML_DESIGNER_CORE_DIRECTORY}/projectstorage
+  SOURCES_PROPERTIES SKIP_AUTOGEN ON
+  DEFINES QML_DOM_MSVC2019_COMPAT # can be removed for Qt 6.8
+  SOURCES
+    commontypecache.h
+    directorypathcompressor.h
+    filesysteminterface.h
+    filesystem.cpp filesystem.h
+    filestatus.h
+    filestatuscache.cpp filestatuscache.h
+    modulescanner.cpp modulescanner.h
+    projectstorageexceptions.cpp projectstorageexceptions.h
+    projectstorageinterface.h
+    projectstoragefwd.h
+    projectstorageinfotypes.h
+    projectstorageobserver.h
+    projectstoragepathwatcher.h
+    projectstoragepathwatcherinterface.h
+    projectstoragepathwatchernotifierinterface.h
+    projectstoragepathwatcher.h
+    projectstoragepathwatchertypes.h
+    projectstorageprinting.h
+    projectstoragetypes.h
+    projectstorageupdater.cpp projectstorageupdater.h
+    projectstorage.cpp projectstorage.h
+    projectstorageerrornotifierinterface.h
+    projectstorageerrornotifier.cpp projectstorageerrornotifier.h
+    typeannotationreader.cpp typeannotationreader.h
+    qmldocumentparserinterface.h
+    qmltypesparserinterface.h
 )

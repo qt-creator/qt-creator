@@ -21,6 +21,7 @@ namespace QmlDesigner {
 class CreateTexture;
 class DynamicPropertiesModel;
 class ModelNode;
+class QmlObjectNode;
 class TextureEditorQmlBackend;
 
 class TextureEditorView : public AbstractView

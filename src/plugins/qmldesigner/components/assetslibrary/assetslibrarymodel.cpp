@@ -9,8 +9,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <qmldesignerutils/asset.h>
 #include <utils/algorithm.h>
-#include <utils/asset.h>
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
 

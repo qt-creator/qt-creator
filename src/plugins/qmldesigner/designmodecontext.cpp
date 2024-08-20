@@ -17,7 +17,7 @@ DesignModeContext::DesignModeContext(QWidget *widget)
     : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(Core::Context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void DesignModeContext::contextHelp(const HelpCallback &callback) const
@@ -29,7 +29,7 @@ FormEditorContext::FormEditorContext(QWidget *widget)
   : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLFORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(Core::Context(Constants::qmlFormEditorContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void FormEditorContext::contextHelp(const HelpCallback &callback) const
@@ -41,7 +41,7 @@ Editor3DContext::Editor3DContext(QWidget *widget)
   : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLEDITOR3D, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(Core::Context(Constants::qml3DEditorContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void Editor3DContext::contextHelp(const HelpCallback &callback) const
@@ -53,7 +53,8 @@ MaterialBrowserContext::MaterialBrowserContext(QWidget *widget)
   : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLMATERIALBROWSER, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(Core::Context(Constants::qmlMaterialBrowserContextId,
+                             Constants::qtQuickToolsMenuContextId));
 }
 
 void MaterialBrowserContext::contextHelp(const HelpCallback &callback) const
@@ -65,7 +66,8 @@ AssetsLibraryContext::AssetsLibraryContext(QWidget *widget)
     : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLASSETSLIBRARY, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(
+        Core::Context(Constants::qmlAssetsLibraryContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void AssetsLibraryContext::contextHelp(const HelpCallback &callback) const
@@ -77,7 +79,7 @@ NavigatorContext::NavigatorContext(QWidget *widget)
   : IContext(widget)
 {
     setWidget(widget);
-    setContext(Core::Context(Constants::C_QMLNAVIGATOR, Constants::C_QT_QUICK_TOOLS_MENU));
+    setContext(Core::Context(Constants::qmlNavigatorContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void NavigatorContext::contextHelp(const HelpCallback &callback) const
@@ -89,7 +91,9 @@ TextEditorContext::TextEditorContext(TextEditorWidget *parent)
     : IContext(parent)
     , m_parent(parent)
 {
-    setContext(Core::Context(Constants::C_QMLTEXTEDITOR, Constants::C_QT_QUICK_TOOLS_MENU));
+    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
+
+    setContext(Core::Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId));
 }
 
 void TextEditorContext::contextHelp(const HelpCallback &callback) const

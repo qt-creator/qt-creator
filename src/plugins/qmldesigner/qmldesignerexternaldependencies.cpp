@@ -280,4 +280,9 @@ QString ExternalDependencies::userResourcePath(QStringView relativePath) const
     return Core::ICore::userResourcePath(relativePath.toString()).path();
 }
 
+QWidget *ExternalDependencies::mainWindow() const
+{
+    return Core::ICore::mainWindow();
+}
+
 } // namespace QmlDesigner

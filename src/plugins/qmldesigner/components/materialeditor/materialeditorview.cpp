@@ -568,7 +568,8 @@ void MaterialEditorView::setupQmlBackend()
 
     MaterialEditorQmlBackend *currentQmlBackend = m_qmlBackendHash.value(qmlPaneUrl.toString());
 
-    QString currentStateName = currentState().isBaseState() ? currentState().name() : "invalid state";
+    QmlModelState currentState = currentStateNode();
+    QString currentStateName = currentState.isBaseState() ? currentState.name() : "invalid state";
 
     if (!currentQmlBackend) {
         currentQmlBackend = new MaterialEditorQmlBackend(this);
@@ -887,10 +888,8 @@ void MaterialEditorView::requestPreviewRender()
         static int requestId = 0;
         m_previewRequestId = QByteArray(MATERIAL_EDITOR_IMAGE_REQUEST_ID)
                              + QByteArray::number(++requestId);
-        model()->nodeInstanceView()->previewImageDataForGenericNode(m_selectedMaterial,
-                                                                    {},
-                                                                    m_previewSize,
-                                                                    m_previewRequestId);
+        static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
+            ->previewImageDataForGenericNode(m_selectedMaterial, {}, m_previewSize, m_previewRequestId);
     }
 }
 

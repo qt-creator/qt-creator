@@ -923,10 +923,12 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     else
         iconPixmapToSave = iconPixmap;
 
-    if (iconPixmapToSave.isNull())
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
-    else
+    if (iconPixmapToSave.isNull()) {
+        static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
+            ->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
+    } else {
         saveIconToBundle(iconPixmapToSave);
+    }
 }
 
 QString ContentLibraryView::getExportPath(const ModelNode &node) const
@@ -1028,10 +1030,12 @@ void ContentLibraryView::exportLibItem(const ModelNode &node, const QPixmap &ico
         iconPixmapToSave = iconPixmap;
 
     m_iconSavePath = targetPath.pathAppended(iconPath);
-    if (iconPixmapToSave.isNull())
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, EXPORT_ITEM_REQ_ID);
-    else
+    if (iconPixmapToSave.isNull()) {
+        static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
+            ->previewImageDataForGenericNode(node, {}, {}, EXPORT_ITEM_REQ_ID);
+    } else {
         addIconAndCloseZip(iconPixmapToSave);
+    }
 }
 
 void ContentLibraryView::addIconAndCloseZip(const auto &image) { // auto: QImage or QPixmap

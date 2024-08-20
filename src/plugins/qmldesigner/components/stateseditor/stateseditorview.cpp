@@ -971,4 +971,9 @@ void StatesEditorView::moveStates(int from, int to)
     });
 }
 
+QmlModelState StatesEditorView::currentState() const
+{
+    return QmlModelState(currentStateNode());
+}
+
 } // namespace QmlDesigner

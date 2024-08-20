@@ -9,12 +9,12 @@
 #include <bindingproperty.h>
 #include <connectioneditorevaluator.h>
 #include <exception.h>
-#include <modelutils.h>
+#include <indentingtexteditormodifier.h>
 #include <modelnodeoperations.h>
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <plaintexteditmodifier.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <rewritertransaction.h>

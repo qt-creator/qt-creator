@@ -13,9 +13,9 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 
-#include "utils/filedownloader.h"
-#include "utils/fileextractor.h"
-#include "utils/multifiledownloader.h"
+#include <qmldesignerutils/filedownloader.h>
+#include <qmldesignerutils/fileextractor.h>
+#include <qmldesignerutils/multifiledownloader.h>
 
 #include <coreplugin/icore.h>
 #include <designerpaths.h>

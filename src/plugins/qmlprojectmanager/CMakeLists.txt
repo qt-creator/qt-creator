@@ -58,7 +58,7 @@ add_qtc_library(QmlProjectManagerLib OBJECT
     EXCLUDE_FROM_INSTALL
     DEFINES QMLPROJECTMANAGER_STATIC_LIBRARY
     DEPENDS
-        QmlJS Utils ProjectExplorer
+        QmlJS Utils
     INCLUDES
         ${CMAKE_CURRENT_LIST_DIR}
     SOURCES

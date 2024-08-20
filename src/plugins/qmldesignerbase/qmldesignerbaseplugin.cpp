@@ -6,7 +6,8 @@
 #include "studio/studiosettingspage.h"
 
 #include "studio/studiostyle.h"
-#include "utils/designersettings.h"
+
+#include <designersettings.h>
 
 #include <coreplugin/icore.h>
 #include <utils/appinfo.h>

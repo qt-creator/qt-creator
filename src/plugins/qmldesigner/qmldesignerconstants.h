@@ -3,42 +3,23 @@
 
 #pragma once
 
+#include <qmldesignercoreconstants.h>
+
 namespace QmlDesigner {
 namespace Constants {
 
-inline constexpr char C_BACKSPACE[] = "QmlDesigner.Backspace";
-inline constexpr char C_DELETE[] = "QmlDesigner.Delete";
-inline constexpr char C_DUPLICATE[] = "QmlDesigner.Duplicate";
-
 // Context
-inline constexpr char C_QMLDESIGNER[] = "QmlDesigner::QmlDesignerMain";
-inline constexpr char C_QMLFORMEDITOR[] = "QmlDesigner::FormEditor";
-inline constexpr char C_QMLEDITOR3D[] = "QmlDesigner::Editor3D";
-inline constexpr char C_QMLEFFECTCOMPOSER[] = "QmlDesigner::EffectComposer";
-inline constexpr char C_QMLNAVIGATOR[] = "QmlDesigner::Navigator";
-inline constexpr char C_QMLTEXTEDITOR[] = "QmlDesigner::TextEditor";
-inline constexpr char C_QMLMATERIALBROWSER[] = "QmlDesigner::MaterialBrowser";
-inline constexpr char C_QMLASSETSLIBRARY[] = "QmlDesigner::AssetsLibrary";
+inline constexpr char qmlDesignerContextId[] = "QmlDesigner::QmlDesignerMain";
+inline constexpr char qmlFormEditorContextId[] = "QmlDesigner::FormEditor";
+inline constexpr char qml3DEditorContextId[] = "QmlDesigner::Editor3D";
+inline constexpr char qmlNavigatorContextId[] = "QmlDesigner::Navigator";
+inline constexpr char qmlMaterialBrowserContextId[] = "QmlDesigner::MaterialBrowser";
+inline constexpr char qmlAssetsLibraryContextId[] = "QmlDesigner::AssetsLibrary";
 
 // Special context for preview menu, shared b/w designer and text editor
-inline constexpr char C_QT_QUICK_TOOLS_MENU[] = "QmlDesigner::ToolsMenu";
+inline constexpr char qtQuickToolsMenuContextId[] = "QmlDesigner::ToolsMenu";
 
 // Actions
-inline constexpr char SWITCH_TEXT_DESIGN[] = "QmlDesigner.SwitchTextDesign";
-inline constexpr char RESTORE_DEFAULT_VIEW[] = "QmlDesigner.RestoreDefaultView";
-inline constexpr char TOGGLE_LEFT_SIDEBAR[] = "QmlDesigner.ToggleLeftSideBar";
-inline constexpr char TOGGLE_RIGHT_SIDEBAR[] = "QmlDesigner.ToggleRightSideBar";
-inline constexpr char TOGGLE_STATES_EDITOR[] = "QmlDesigner.ToggleStatesEditor";
-inline constexpr char GO_INTO_COMPONENT[] = "QmlDesigner.GoIntoComponent";
-inline constexpr char EXPORT_AS_IMAGE[] = "QmlDesigner.ExportAsImage";
-inline constexpr char TAKE_SCREENSHOT[] = "QmlDesigner.TakeScreenshot";
-inline constexpr char FORMEDITOR_REFRESH[] = "QmlDesigner.FormEditor.Refresh";
-inline constexpr char FORMEDITOR_SNAPPING[] = "QmlDesigner.FormEditor.Snapping";
-inline constexpr char FORMEDITOR_NO_SNAPPING[] = "QmlDesigner.FormEditor.NoSnapping";
-inline constexpr char FORMEDITOR_NO_SNAPPING_AND_ANCHORING[]
-    = "QmlDesigner.FormEditor.NoSnappingAndAnchoring";
-inline constexpr char FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE[]
-    = "QmlDesigner.FormEditor.ShowBoundingRectangle";
 inline constexpr char EDIT3D_SELECTION_MODE[] = "QmlDesigner.Editor3D.SelectionModeToggle";
 inline constexpr char EDIT3D_MOVE_TOOL[] = "QmlDesigner.Editor3D.MoveTool";
 inline constexpr char EDIT3D_ROTATE_TOOL[] = "QmlDesigner.Editor3D.RotateTool";
@@ -77,30 +58,18 @@ inline constexpr char EDIT3D_SNAP_TOGGLE[] = "QmlDesigner.Editor3D.SnapToggle";
 inline constexpr char EDIT3D_SNAP_CONFIG[] = "QmlDesigner.Editor3D.SnapConfig";
 inline constexpr char EDIT3D_CAMERA_SPEED_CONFIG[] = "QmlDesigner.Editor3D.CameraSpeedConfig";
 
-inline constexpr char QML_DESIGNER_SUBFOLDER[] = "/designer/";
 inline constexpr char BUNDLE_JSON_FILENAME[] = "bundle.json";
 inline constexpr char BUNDLE_SUFFIX[] = "qdsbundle";
-inline constexpr char COMPONENT_BUNDLES_TYPE[] = "Bundles";
-inline constexpr char COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "Materials";
 inline constexpr char COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "Effects";
-inline constexpr char COMPONENT_BUNDLES_USER_MATERIAL_BUNDLE_TYPE[] = "UserMaterials";
 inline constexpr char COMPONENT_BUNDLES_USER_EFFECT_BUNDLE_TYPE[] = "UserEffects";
 inline constexpr char COMPONENT_BUNDLES_USER_3D_BUNDLE_TYPE[] = "User3D";
-inline constexpr char GENERATED_COMPONENTS_FOLDER[] = "Generated";
 inline constexpr char COMPONENT_BUNDLES_ASSET_REF_FILE[] = "_asset_ref.json";
-inline constexpr char OLD_QUICK_3D_ASSETS_FOLDER[] = "Quick3DAssets";
-inline constexpr char QUICK_3D_COMPONENTS_FOLDER[] = "QtQuick3D";
 inline constexpr char QUICK_3D_ASSET_LIBRARY_ICON_SUFFIX[] = "_libicon";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_NAME[] = "_importdata.json";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_OPTIONS_KEY[] = "import_options";
 inline constexpr char QUICK_3D_ASSET_IMPORT_DATA_SOURCE_KEY[] = "source_scene";
-inline constexpr char OLD_ASSET_IMPORT_FOLDER[] = "asset_imports";
 inline constexpr char OLD_EFFECTS_IMPORT_FOLDER[] = "/asset_imports/Effects";
-inline constexpr char OLD_EFFECTS_FOLDER[] = "Effects";
-inline constexpr char OLD_COMPONENT_BUNDLES_TYPE[] = "ComponentBundles";
-inline constexpr char OLD_COMPONENT_BUNDLES_MATERIAL_BUNDLE_TYPE[] = "MaterialBundle";
 inline constexpr char OLD_COMPONENT_BUNDLES_EFFECT_BUNDLE_TYPE[] = "EffectBundle";
-inline constexpr char COMPOSED_EFFECTS_TYPE[] = "Effects";
 inline constexpr char MATERIAL_LIB_ID[] = "__materialLibrary__";
 
 inline constexpr char MIME_TYPE_ITEM_LIBRARY_INFO[]
@@ -124,7 +93,6 @@ inline constexpr char MIME_TYPE_ASSET_EFFECT[] = "application/vnd.qtdesignstudio
 // Menus
 inline constexpr char M_VIEW_WORKSPACES[] = "QmlDesigner.Menu.View.Workspaces";
 
-const int MODELNODE_PREVIEW_IMAGE_DIMENSIONS = 150;
 
 inline constexpr char EVENT_TIMELINE_ADDED[] = "timelineAdded";
 inline constexpr char EVENT_TRANSITION_ADDED[] = "transitionAdded";

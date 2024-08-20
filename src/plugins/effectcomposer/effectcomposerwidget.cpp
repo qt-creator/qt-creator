@@ -17,11 +17,11 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/editormanager/editormanager.h>
 
+#include <qmldesigner/components/componentcore/theme.h>
 #include <qmldesigner/documentmanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
-#include <qmldesigner/components/componentcore/theme.h>
-#include <qmldesigner/utils/asset.h>
+#include <qmldesignerutils/asset.h>
 #include <studioquickwidget.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>

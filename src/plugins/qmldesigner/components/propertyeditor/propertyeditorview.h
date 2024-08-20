@@ -25,6 +25,7 @@ class ModelNode;
 class PropertyEditorQmlBackend;
 class PropertyEditorView;
 class PropertyEditorWidget;
+class QmlObjectNode;
 
 class PropertyEditorView : public AbstractView
 {

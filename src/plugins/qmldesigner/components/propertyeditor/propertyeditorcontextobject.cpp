@@ -305,7 +305,7 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
 
     ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
-    QmlTimeline timeline = rewriterView->currentTimeline();
+    QmlTimeline timeline = rewriterView->currentTimelineNode();
 
     QTC_ASSERT(timeline.isValid(), return );
     QTC_ASSERT(selectedNode.isValid(), return );

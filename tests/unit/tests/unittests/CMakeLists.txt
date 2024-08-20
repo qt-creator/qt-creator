@@ -6,8 +6,8 @@ add_qtc_test(unittest GTEST
   PROPERTIES SKIP_AUTOGEN ON
   DEPENDS
     Qt::Core Qt::Network Qt::Widgets
-    Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui
-    Qt::Core5Compat Utils QmlJS Sqlite
+    Qt::Xml Qt::Concurrent Qt::QmlPrivate Qt::Gui Qt::Quick
+    Qt::Core5Compat Utils QmlJS Sqlite QmlDesignerSettings TextEditorSupport
     Googletest TestDesignerCore TestUtils TestMatchers TestPrinters TestMocks
   DEFINES
     GTEST_INTERNAL_HAS_STRING_VIEW

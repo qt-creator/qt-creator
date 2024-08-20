@@ -42,6 +42,7 @@ public:
     QString qtQuickVersion() const override;
     Utils::FilePath resourcePath(const QString &relativePath) const override;
     QString userResourcePath(QStringView relativePath) const override;
+    QWidget *mainWindow() const override;
 
 private:
     const DesignerSettings &m_designerSettings;

@@ -458,7 +458,7 @@ void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) c
 
 void TimelineWidget::init(int zoom)
 {
-    QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentState());
+    QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentStateNode());
     if (currentTimeline.isValid()) {
         setTimelineId(currentTimeline.modelNode().id());
         m_statusBar->setText(
@@ -498,7 +498,7 @@ TimelineToolBar *TimelineWidget::toolBar() const
 void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = timelineView()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimelineNode();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             m_toolbar->setStartFrame(timeline.startKeyframe());
             m_toolbar->setEndFrame(timeline.endKeyframe());
@@ -522,7 +522,7 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 void TimelineWidget::invalidateTimelinePosition(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = timelineView()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimelineNode();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             qreal frame = getcurrentFrame(timeline);
             m_toolbar->setCurrentFrame(frame);
@@ -548,7 +548,7 @@ void TimelineWidget::setupScrollbar(int min, int max, int current)
 
 void TimelineWidget::setTimelineId(const QString &id)
 {
-    auto currentState = m_timelineView->currentState();
+    QmlModelState currentState = m_timelineView->currentStateNode();
     auto timelineOfState = m_timelineView->timelineForState(currentState.modelNode());
 
     bool active = false;

@@ -93,7 +93,7 @@ static void removePosition(const ModelNode &node)
 static void setScenePosition(const QmlDesigner::ModelNode &modelNode,const QPointF &positionInSceneSpace)
 {
     if (modelNode.hasParentProperty() && QmlDesigner::QmlItemNode::isValidQmlItemNode(modelNode.parentProperty().parentModelNode())) {
-        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentQmlObjectNode().toQmlItemNode();
+        QmlDesigner::QmlItemNode parentNode = modelNode.parentProperty().parentModelNode();
         QPointF positionInLocalSpace = parentNode.instanceSceneContentItemTransform().inverted().map(positionInSceneSpace);
         modelNode.variantProperty("x").setValue(positionInLocalSpace.toPoint().x());
         modelNode.variantProperty("y").setValue(positionInLocalSpace.toPoint().y());

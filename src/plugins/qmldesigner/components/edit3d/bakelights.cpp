@@ -9,17 +9,18 @@
 #include <bakelightsdatamodel.h>
 #include <bindingproperty.h>
 #include <documentmanager.h>
-#include <modelutils.h>
+#include <indentingtexteditormodifier.h>
 #include <modelnode.h>
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodeinstanceview.h>
 #include <nodemetainfo.h>
-#include <plaintexteditmodifier.h>
 #include <rewriterview.h>
 #include <utils3d.h>
 #include <variantproperty.h>
 
 #include <coreplugin/icore.h>
+#include <projectexplorer/projectmanager.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
@@ -140,7 +141,7 @@ void BakeLights::bakeLights()
         return;
     }
 
-    m_nodeInstanceView->setTarget(m_view->nodeInstanceView()->target());
+    m_nodeInstanceView->setTarget(ProjectExplorer::ProjectManager::startupTarget());
 
     auto progressCallback = [this](const QString &msg) {
         emit progress(msg);

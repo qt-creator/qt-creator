@@ -26,7 +26,7 @@
 #include <coreplugin/messagebox.h>
 
 #include <utils/algorithm.h>
-#include <utils/asset.h>
+#include <qmldesignerutils/asset.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>

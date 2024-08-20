@@ -39,7 +39,7 @@
 
 #include <modelutils.h>
 
-#include <utils/asset.h>
+#include <qmldesignerutils/asset.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -86,7 +86,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
-    Core::Context context(Constants::C_QMLEDITOR3D);
+    Core::Context context(Constants::qml3DEditorContextId);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
     m_context->setWidget(this);

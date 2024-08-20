@@ -640,7 +640,7 @@ void PropertyEditorView::setupQmlBackend()
     setupCurrentQmlBackend(currentQmlBackend,
                            m_selectedNode,
                            QUrl::fromLocalFile(QString{specificsPath}),
-                           currentState(),
+                           currentStateNode(),
                            this,
                            specificQmlData);
 
@@ -665,8 +665,12 @@ void PropertyEditorView::setupQmlBackend()
                                                                 m_stackedWidget,
                                                                 this);
 
-    setupCurrentQmlBackend(
-        currentQmlBackend, m_selectedNode, qmlSpecificsFile, currentState(), this, specificQmlData);
+    setupCurrentQmlBackend(currentQmlBackend,
+                           m_selectedNode,
+                           qmlSpecificsFile,
+                           currentStateNode(),
+                           this,
+                           specificQmlData);
 
     setupWidget(currentQmlBackend, this, m_stackedWidget);
 

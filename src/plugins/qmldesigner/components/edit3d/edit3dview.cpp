@@ -12,6 +12,7 @@
 #include "snapconfiguration.h"
 
 #include <auxiliarydataproperties.h>
+#include <customnotificationpackage.h>
 #include <designeractionmanager.h>
 #include <designericons.h>
 #include <designersettings.h>
@@ -417,6 +418,12 @@ void Edit3DView::setActive3DSceneId(qint32 sceneId)
     rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
 }
 
+void Edit3DView::emitView3DAction(View3DActionType type, const QVariant &value)
+{
+    if (isAttached())
+        model()->emitView3DAction(type, value);
+}
+
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
     m_isBakingLightsSupported = false;
@@ -554,14 +561,14 @@ void Edit3DView::variantPropertiesChanged(const QList<VariantProperty> &property
 
 void Edit3DView::sendInputEvent(QEvent *e) const
 {
-    if (nodeInstanceView())
-        nodeInstanceView()->sendInputEvent(e);
+    if (isAttached())
+        model()->sendCustomNotificationToNodeInstanceView(InputEvent{e});
 }
 
 void Edit3DView::edit3DViewResized(const QSize &size) const
 {
-    if (nodeInstanceView())
-        nodeInstanceView()->edit3DViewResized(size);
+    if (isAttached())
+        model()->sendCustomNotificationToNodeInstanceView(Resize3DCanvas{size});
 }
 
 QSize Edit3DView::canvasSize() const

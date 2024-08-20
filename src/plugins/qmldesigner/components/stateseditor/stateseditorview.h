@@ -42,6 +42,7 @@ public:
     QmlModelStateGroup activeStateGroup() const;
 
     void moveStates(int from, int to);
+    QmlModelState currentState() const;
 
     // AbstractView
     void modelAttached(Model *model) override;

@@ -13,7 +13,7 @@ namespace QmlDesigner {
 
 class NodeInstanceView;
 
-class QMLDESIGNERCORE_EXPORT QmlAnchorBindingProxy : public QObject
+class QMLDESIGNER_EXPORT QmlAnchorBindingProxy : public QObject
 {
     Q_OBJECT
 

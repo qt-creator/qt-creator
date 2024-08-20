@@ -954,13 +954,14 @@ static void setIndexProperty(const AbstractProperty &property, const QVariant &v
 {
     if (!property.exists() || property.isVariantProperty()) {
         /* Using QmlObjectNode ensures we take states into account. */
-        property.parentQmlObjectNode().setVariantProperty(property.name(), value);
+        QmlObjectNode{property.parentModelNode()}.setVariantProperty(property.name(), value);
         return;
     } else if (property.isBindingProperty()) {
         /* Track one binding to the original source, incase a TabBar is attached */
         const AbstractProperty orignalProperty = property.toBindingProperty().resolveToProperty();
         if (orignalProperty.isValid() && (orignalProperty.isVariantProperty() || !orignalProperty.exists())) {
-            orignalProperty.parentQmlObjectNode().setVariantProperty(orignalProperty.name(), value);
+            QmlObjectNode{orignalProperty.parentModelNode()}.setVariantProperty(orignalProperty.name(),
+                                                                                value);
             return;
         }
     }
@@ -1658,15 +1659,20 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
-    if (modelNode.isValid())
-        return modelNode.model()->nodeInstanceView()->previewImageDataForGenericNode(modelNode, {});
+    if (auto model = modelNode.model()) {
+        if (auto view = model->nodeInstanceView())
+            return static_cast<const NodeInstanceView *>(view)->previewImageDataForGenericNode(modelNode,
+                                                                                               {});
+    }
     return {};
 }
 
 QVariant previewImageDataForImageNode(const ModelNode &modelNode)
 {
-    if (modelNode.isValid())
-        return modelNode.model()->nodeInstanceView()->previewImageDataForImageNode(modelNode);
+    if (auto model = modelNode.model()) {
+        if (auto view = model->nodeInstanceView())
+            return static_cast<const NodeInstanceView *>(view)->previewImageDataForImageNode(modelNode);
+    }
     return {};
 }
 
@@ -1715,7 +1721,7 @@ void editIn3dView(const SelectionContext &selectionContext)
     if (targetNode.isValid()) {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
         if (scenePos.isNull()) {
-            selectionContext.view()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+            selectionContext.model()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
         } else {
             selectionContext.view()->emitCustomNotification("pick_3d_node_from_2d_scene",
                                                             {targetNode}, {scenePos});

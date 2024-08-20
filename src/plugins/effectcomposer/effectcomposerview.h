@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "abstractview.h"
-#include "modelnode.h"
+#include <abstractview.h>
+#include <modelnode.h>
 
 #include <generatedcomponentutils.h>
 #include <coreplugin/icontext.h>

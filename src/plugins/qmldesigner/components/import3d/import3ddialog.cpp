@@ -298,8 +298,8 @@ void Import3dDialog::updateImport(AbstractView *view,
         QFileInfo compFileInfo{compFileName};
 
         // Find to top asset folder
-        const QString oldAssetFolder = QLatin1String(Constants::OLD_QUICK_3D_ASSETS_FOLDER);
-        QString assetFolder = QLatin1String(Constants::QUICK_3D_COMPONENTS_FOLDER);
+        const QString oldAssetFolder = Constants::oldQuick3dAssetsFolder;
+        QString assetFolder = Constants::quick3DComponentsFolder;
         const QStringList parts = compFileName.split('/');
         int i = parts.size() - 1;
         int previousSize = 0;

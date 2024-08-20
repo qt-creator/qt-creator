@@ -152,7 +152,7 @@ void TimelineView::nodeReparented(const ModelNode &node,
 
 void TimelineView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName>> &propertyList)
 {
-    QmlTimeline timeline = currentTimeline();
+    QmlTimeline timeline = currentTimelineNode();
     bool updated = false;
     bool keyframeChangeFlag = false;
     for (const auto &pair : propertyList) {
@@ -287,7 +287,7 @@ QList<QmlModelState> getAllStates(TimelineView* view)
 QString getStateName(TimelineView* view, bool& enableInBaseState)
 {
     QString currentStateName;
-    if (QmlModelState state = view->currentState(); state.isValid()) {
+    if (QmlModelState state = view->currentStateNode(); state.isValid()) {
         if (!state.isBaseState()) {
             enableInBaseState = false;
             return state.name();
@@ -435,15 +435,43 @@ void TimelineView::openSettingsDialog()
     dialog->show();
 }
 
+void TimelineView::activateTimelineRecording(const ModelNode &timeline)
+{
+    if (QmlTimeline currentTimeline = currentTimelineNode())
+        currentTimeline.toogleRecording(true);
+
+    if (isAttached())
+        model()->setCurrentTimelineNode(timeline);
+}
+
+void TimelineView::deactivateTimelineRecording()
+{
+    if (QmlTimeline currentTimeline = currentTimelineNode()) {
+        currentTimeline.toogleRecording(false);
+        currentTimeline.resetGroupRecording();
+    }
+    if (isAttached())
+        model()->setCurrentTimelineNode({});
+}
+
 void TimelineView::setTimelineRecording(bool value)
 {
-    const ModelNode node = timelineForState(currentState()).modelNode();
+    const ModelNode node = timelineForState(currentStateNode()).modelNode();
 
     if (value && node.isValid()) {
         activateTimelineRecording(node);
     } else {
         deactivateTimelineRecording();
         setCurrentTimeline(node);
+    }
+}
+
+void TimelineView::setCurrentTimeline(const ModelNode &timeline)
+{
+    if (QmlTimeline currentTimeline = currentTimelineNode()) {
+        currentTimeline.toogleRecording(false);
+
+        model()->setCurrentTimelineNode(timeline);
     }
 }
 
@@ -461,9 +489,9 @@ void TimelineView::customNotification(const AbstractView * /*view*/,
 
 void TimelineView::insertKeyframe(const ModelNode &target, const PropertyName &propertyName)
 {
-    QmlTimeline timeline = currentTimeline();
+    QmlTimeline timeline = currentTimelineNode();
 
-    if (timeline.isValid() && target.isValid() && QmlObjectNode::isValidQmlObjectNode(target)) {
+    if (timeline && target && QmlObjectNode::isValidQmlObjectNode(target)) {
         executeInTransaction("TimelineView::insertKeyframe", [=, &timeline, &target]() {
             timeline.insertKeyframe(target, propertyName);
         });
@@ -682,7 +710,7 @@ void TimelineView::updateAnimationCurveEditor()
     if (!m_timelineWidget)
         return;
 
-    QmlTimeline currentTimeline = timelineForState(currentState());
+    QmlTimeline currentTimeline = timelineForState(currentStateNode());
     if (currentTimeline.isValid())
         m_timelineWidget->toolBar()->setCurrentTimeline(currentTimeline);
     else

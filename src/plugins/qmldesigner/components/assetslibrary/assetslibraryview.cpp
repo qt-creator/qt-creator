@@ -10,22 +10,22 @@
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
-#include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecacheconnectionmanager.h>
-#include <imagecache/imagecachefontcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
+#include <imagecachecollectors/imagecachecollector.h>
+#include <imagecachecollectors/imagecacheconnectionmanager.h>
+#include <imagecachecollectors/imagecachefontcollector.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+#include <qmlitemnode.h>
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
 #include <synchronousimagecache.h>
 #include <utils/algorithm.h>
-#include <qmlitemnode.h>
 
 namespace QmlDesigner {
 

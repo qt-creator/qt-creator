@@ -145,7 +145,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
                 for (const QmlDesigner::MaterialBrowserModel::PropertyCopyData &propData : propDatas) {
                     if (propData.isValid) {
                         const bool isDynamic = !propData.dynamicTypeName.isEmpty();
-                        const bool isBaseState = currentState().isBaseState();
+                        const bool isBaseState = QmlModelState::isBaseState(currentStateNode());
                         const bool hasProperty = mat.hasProperty(propData.name);
                         if (propData.isBinding) {
                             if (isDynamic && (!hasProperty || isBaseState)) {
@@ -513,7 +513,8 @@ void MaterialBrowserView::requestPreviews()
 {
     if (model() && model()->nodeInstanceView()) {
         for (const auto &node : std::as_const(m_previewRequests))
-            model()->nodeInstanceView()->previewImageDataForGenericNode(node, {});
+            static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
+                ->previewImageDataForGenericNode(node, {});
     }
     m_previewRequests.clear();
 }
