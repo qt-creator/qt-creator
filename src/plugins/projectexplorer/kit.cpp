@@ -255,16 +255,20 @@ Tasks Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
-        factory->fix(this);
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (isAspectRelevant(factory->id()))
+            factory->fix(this);
+    }
 }
 
 void Kit::setup()
 {
     KitGuard g(this);
     const QList<KitAspectFactory *> aspects = KitManager::kitAspectFactories();
-    for (KitAspectFactory * const factory : aspects)
-        factory->setup(this);
+    for (KitAspectFactory * const factory : aspects) {
+        if (isAspectRelevant(factory->id()))
+            factory->setup(this);
+    }
 }
 
 void Kit::upgrade()
