@@ -282,18 +282,19 @@ Item {
         hoverEnabled: false
         anchors.fill: parent
         onPositionChanged: (mouse) => {
-            if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier && cameraCtrl._dragging) {
+            if (cameraCtrl.camera && cameraCtrl._dragging) {
                 var currentPoint = Qt.vector3d(mouse.x, mouse.y, 0);
-                if (cameraCtrl._button == Qt.LeftButton) {
+                if (cameraCtrl._button == Qt.LeftButton && mouse.modifiers === Qt.AltModifier) {
                     _generalHelper.orbitCamera(cameraCtrl.camera, cameraCtrl._startRotation,
                                                cameraCtrl._lookAtPoint, cameraCtrl._pressPoint,
                                                currentPoint);
-                } else if (cameraCtrl._button == Qt.MiddleButton) {
+                } else if ((cameraCtrl._button == Qt.MiddleButton && mouse.modifiers === Qt.AltModifier)
+                        || (cameraCtrl._button == Qt.LeftButton && mouse.modifiers === Qt.ShiftModifier)) {
                     cameraCtrl._lookAtPoint = _generalHelper.panCamera(
                                 cameraCtrl.camera, cameraCtrl._startTransform,
                                 cameraCtrl._startPosition, cameraCtrl._startLookAtPoint,
                                 cameraCtrl._pressPoint, currentPoint, _zoomFactor);
-                } else if (cameraCtrl._button == Qt.RightButton) {
+                } else if (cameraCtrl._button == Qt.RightButton && mouse.modifiers === Qt.AltModifier) {
                     cameraCtrl.zoomRelative(currentPoint.y - cameraCtrl._prevPoint.y)
                     cameraCtrl._prevPoint = currentPoint;
                 }
@@ -303,7 +304,7 @@ Item {
             if (cameraCtrl.flyMode)
                 return;
             viewRoot.activeSplit = cameraCtrl.splitId
-            if (cameraCtrl.camera && mouse.modifiers === Qt.AltModifier) {
+            if (cameraCtrl.camera && (mouse.modifiers & (Qt.AltModifier | Qt.ShiftModifier))) {
                 cameraCtrl._dragging = true;
                 cameraCtrl._startRotation = cameraCtrl.camera.eulerRotation;
                 cameraCtrl._startPosition = cameraCtrl.camera.position;
