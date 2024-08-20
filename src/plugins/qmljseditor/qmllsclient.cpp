@@ -3,6 +3,7 @@
 
 #include "qmllsclient.h"
 
+#include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
 
 #include <languageclient/languageclientinterface.h>
@@ -66,6 +67,7 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
+    setSnippetsGroup(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
 }
 
 QmllsClient::~QmllsClient()
