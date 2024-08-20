@@ -44,13 +44,16 @@ class FlowLayout : public QLayout
 {
 public:
     explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1)
-        : QLayout(parent), m_hSpace(hSpacing), m_vSpace(vSpacing)
+        : QLayout(parent)
+        , m_hSpace(hSpacing)
+        , m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
 
     FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1)
-        : m_hSpace(hSpacing), m_vSpace(vSpacing)
+        : m_hSpace(hSpacing)
+        , m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
@@ -80,10 +83,7 @@ public:
             return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
     }
 
-    Qt::Orientations expandingDirections() const override
-    {
-        return {};
-    }
+    Qt::Orientations expandingDirections() const override { return {}; }
 
     bool hasHeightForWidth() const override { return true; }
 
@@ -95,10 +95,7 @@ public:
 
     int count() const override { return itemList.size(); }
 
-    QLayoutItem *itemAt(int index) const override
-    {
-        return itemList.value(index);
-    }
+    QLayoutItem *itemAt(int index) const override { return itemList.value(index); }
 
     QSize minimumSize() const override
     {
@@ -118,10 +115,7 @@ public:
         doLayout(rect, false);
     }
 
-    QSize sizeHint() const override
-    {
-        return minimumSize();
-    }
+    QSize sizeHint() const override { return minimumSize(); }
 
     QLayoutItem *takeAt(int index) override
     {
@@ -144,13 +138,15 @@ private:
         for (QLayoutItem *item : itemList) {
             QWidget *wid = item->widget();
             int spaceX = horizontalSpacing();
-            if (spaceX == -1)
+            if (spaceX == -1) {
                 spaceX = wid->style()->layoutSpacing(
-                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
+                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
+            }
             int spaceY = verticalSpacing();
-            if (spaceY == -1)
+            if (spaceY == -1) {
                 spaceY = wid->style()->layoutSpacing(
-                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+            }
             int nextX = x + item->sizeHint().width() + spaceX;
             if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
                 x = effectiveRect.x();
@@ -199,7 +195,6 @@ private:
     \sa Layouting::Widget, Layouting::Layout
 */
 
-
 /*!
     \class Layouting::Layout
     \inmodule QtCreator
@@ -230,15 +225,18 @@ LayoutItem::LayoutItem() = default;
 LayoutItem::~LayoutItem() = default;
 
 LayoutItem::LayoutItem(QLayout *l)
-    : layout(l), empty(!l)
+    : layout(l)
+    , empty(!l)
 {}
 
 LayoutItem::LayoutItem(QWidget *w)
-    : widget(w), empty(!w)
+    : widget(w)
+    , empty(!w)
 {}
 
 LayoutItem::LayoutItem(const QString &t)
-    : text(t), empty(t.isEmpty())
+    : text(t)
+    , empty(t.isEmpty())
 {}
 
 /*!
@@ -332,7 +330,6 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
 
     \brief The Stretch class represents some stretch in a layout.
  */
-
 
 // Layout
 
@@ -527,12 +524,21 @@ void Layout::flush()
                 // if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
                 //     a = widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment);
             }
-            if (item.widget)
-                lt->addWidget(item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
-            else if (item.layout)
-                lt->addLayout(item.layout, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
-            else if (!item.text.isEmpty())
-                lt->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            if (item.widget) {
+                lt->addWidget(
+                    item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            } else if (item.layout) {
+                lt->addLayout(
+                    item.layout, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            } else if (!item.text.isEmpty()) {
+                lt->addWidget(
+                    createLabel(item.text),
+                    currentGridRow,
+                    currentGridColumn,
+                    item.spanRows,
+                    item.spanCols,
+                    a);
+            }
             currentGridColumn += item.spanCols;
             // Intentionally not used, use 'br'/'empty' for vertical progress.
             // currentGridRow += item.spanRows;
@@ -976,7 +982,8 @@ TabWidget::TabWidget(std::initializer_list<I> ps)
 }
 
 Tab::Tab(const QString &tabName, const Layout &inner)
-    : tabName(tabName), inner(inner)
+    : tabName(tabName)
+    , inner(inner)
 {}
 
 void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
@@ -986,9 +993,10 @@ void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 
 // Special If
 
-If::If(bool condition,
-   const std::initializer_list<Layout::I> ifcase,
-   const std::initializer_list<Layout::I> thencase)
+If::If(
+    bool condition,
+    const std::initializer_list<Layout::I> ifcase,
+    const std::initializer_list<Layout::I> thencase)
     : used(condition ? ifcase : thencase)
 {}
 
@@ -1009,11 +1017,14 @@ QWidget *createHr(QWidget *parent)
 }
 
 Span::Span(int cols, const Layout::I &item)
-    : item(item), spanCols(cols)
+    : item(item)
+    , spanCols(cols)
 {}
 
 Span::Span(int cols, int rows, const Layout::I &item)
-    : item(item), spanCols(cols), spanRows(rows)
+    : item(item)
+    , spanCols(cols)
+    , spanRows(rows)
 {}
 
 void addToLayout(Layout *layout, const Span &inner)
@@ -1052,5 +1063,4 @@ void addToLayout(Layout *layout, const Stretch &inner)
 //     item->onAdd = [t](LayoutBuilder &builder) { doAddWidget(builder, t); };
 // }
 
-
-} // Layouting
+} // namespace Layouting

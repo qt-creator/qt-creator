@@ -185,7 +185,9 @@ public:
 class QTCREATOR_UTILS_EXPORT Stretch
 {
 public:
-    explicit Stretch(int stretch) : stretch(stretch) {}
+    explicit Stretch(int stretch)
+        : stretch(stretch)
+    {}
 
     int stretch;
 };
@@ -193,7 +195,9 @@ public:
 class QTCREATOR_UTILS_EXPORT Space
 {
 public:
-    explicit Space(int space) : space(space) {}
+    explicit Space(int space)
+        : space(space)
+    {}
 
     int space;
 };
@@ -325,7 +329,9 @@ public:
     using Implementation = QStackedWidget;
     using I = Building::BuilderItem<Stack>;
 
-    Stack() : Stack({}) {}
+    Stack()
+        : Stack({})
+    {}
     Stack(std::initializer_list<I> items);
 };
 
@@ -389,8 +395,8 @@ public:
 
 // Special dispatchers
 
-
-class BindToId {};
+class BindToId
+{};
 
 template <typename T>
 auto bindTo(T **p)
@@ -404,8 +410,13 @@ void doit(Interface *x, BindToId, auto p)
     *p = static_cast<typename Interface::Implementation *>(x->ptr);
 }
 
-class IdId {};
-auto id(auto p) { return Building::IdAndArg{IdId{}, p}; }
+class IdId
+{};
+
+auto id(auto p)
+{
+    return Building::IdAndArg{IdId{}, p};
+}
 
 template <typename Interface>
 void doit(Interface *x, IdId, auto p)
@@ -511,4 +522,4 @@ QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
 
 QTCREATOR_UTILS_EXPORT QWidget *createHr(QWidget *parent = nullptr);
 
-} // Layouting
+} // namespace Layouting
