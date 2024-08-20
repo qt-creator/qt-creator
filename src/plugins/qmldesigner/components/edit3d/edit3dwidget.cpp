@@ -371,14 +371,18 @@ void Edit3DWidget::createContextMenu()
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Import Component"), [&] {
+#ifdef DETACH_DISABLED_VIEWS
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+#endif
             view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Export Component"), [&] {
+#ifdef DETACH_DISABLED_VIEWS
             QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+#endif
             view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
         });
 

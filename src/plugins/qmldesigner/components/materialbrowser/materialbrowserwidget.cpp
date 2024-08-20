@@ -371,22 +371,26 @@ void MaterialBrowserWidget::focusMaterialSection(bool focusMatSec)
 
 void MaterialBrowserWidget::addMaterialToContentLibrary()
 {
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
     m_materialBrowserView->emitCustomNotification("add_material_to_content_lib", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
 
 void MaterialBrowserWidget::importMaterial()
 {
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+#ifdef DETACH_DISABLED_VIEWS
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+#endif
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
     m_materialBrowserView->emitCustomNotification("import_bundle_to_project"); // to ContentLibrary
 }
 void MaterialBrowserWidget::exportMaterial()
 {
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
+#ifdef DETACH_DISABLED_VIEWS
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
+#endif
+    ModelNode mat = m_materialBrowserModel->selectedMaterial();
     m_materialBrowserView->emitCustomNotification("export_material_as_bundle", {mat},
                                                   {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
 }
