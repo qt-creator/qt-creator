@@ -8,14 +8,29 @@ gui.Object = {}
 
 ---The base class of all gui layout classes.
 ---@class Layout : Object
-gui.Layout = {}
+gui.layout = {}
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object
-gui.Widget = {}
+gui.widget = {}
 
----@param children Layout
+---@alias LayoutChild string|BaseAspect|Layout|Widget|function
+---@alias LayoutChildren LayoutChild[]
+
+---@class (exact) WidgetOptions
+---@field onTextChanged? function The function to be called when the text of the widget changes, if applicable.
+---@field onClicked? function The function to be called when the widget is clicked, if applicable.
+---@field text? string The text of the widget, if applicable.
+---@field title? string The title of the widget, if applicable.
+---@field value? integer The value of the widget, if applicable.
+---@field size? integer[] Two integers, representing the width and height of the widget.
+---@field windowFlags? WindowType[] The window flags of the widget.
+---@field [1]? Layout The layout of the widget, if applicable.
+gui.widgetOptions = {}
+
+---@param options WidgetOptions
 ---@return Widget
+function gui.Widget(options) end
 
 ---Show the widget. (see [QWidget::show](https://doc.qt.io/qt-5/qwidget.html#show))
 function gui.widget:show() end
@@ -27,7 +42,7 @@ function gui.widget:activateWindow() end
 ---@class Column : Layout
 local column = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Column
 function gui.Column(children) end
 
@@ -35,14 +50,15 @@ function gui.Column(children) end
 ---@class Group : Widget
 local group = {}
 
+---@param options WidgetOptions
 ---@return Group
-function gui.Group(children) end
+function gui.Group(options) end
 
 ---Row layout.
 ---@class Row : Layout
 local row = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Row
 function gui.Row(children) end
 
@@ -50,7 +66,7 @@ function gui.Row(children) end
 ---@class Flow : Layout
 local flow = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Flow
 function gui.Flow(children) end
 
@@ -58,7 +74,7 @@ function gui.Flow(children) end
 ---@class Grid : Layout
 local grid = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Grid
 function gui.Grid(children) end
 
@@ -66,7 +82,7 @@ function gui.Grid(children) end
 ---@class Form : Layout
 local form = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Form
 function gui.Form(children) end
 
@@ -74,70 +90,80 @@ function gui.Form(children) end
 ---@class Stack : Widget
 local stack = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return Stack
-function gui.Stack(children) end
+function gui.Stack(options) end
 
 ---A Tab widget.
 ---@class Tab : Widget
 local tab = {}
 
----@param children Layout|string|BaseAspect|function
+---@param name string
+---@param layout Layout
 ---@return Tab
-function gui.Tab(children) end
+function gui.Tab(name, layout) end
+
+---@class (exact) TabOptions
+---@field [1] string The name of the tab.
+---@field [2] Layout The layout of the tab.
+gui.tabOptions = {}
+
+---@param options TabOptions
+---@return Tab tab The new tab.
+function gui.Tab(options) end
 
 ---A Multiline text edit.
 ---@class TextEdit : Widget
 local textEdit = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return TextEdit
-function gui.TextEdit(children) end
+function gui.TextEdit(options) end
 
 ---@class PushButton : Widget
 local pushButton = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return PushButton
-function gui.PushButton(children) end
+function gui.PushButton(options) end
 
----@class Label : LayoutItem
+---@class Label : Widget
 local label = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return Label
-function gui.Label(children) end
+function gui.Label(options) end
 
 ---@class SpinBox : Widget
 local spinBox = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return SpinBox
-function gui.SpinBox(children) end
+function gui.SpinBox(options) end
 
 ---@class Splitter : Widget
 local splitter = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return Splitter
-function gui.Splitter(children) end
+function gui.Splitter(options) end
 
 ---@class ToolBar : Widget
 local toolBar = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return ToolBar
-function gui.ToolBar(children) end
+function gui.ToolBar(options) end
 
 ---@class TabWidget : Widget
 local tabWidget = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options Tab[]
 ---@return TabWidget
-function gui.TabWidget(children) end
+function gui.TabWidget(options) end
 
 ---@param name string
----@param child Layout|string|BaseAspect|function
+---@param child WidgetOptions
 ---@return TabWidget
 function gui.TabWidget(name, child) end
 
@@ -161,21 +187,6 @@ function gui.normalMargin() end
 
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
-
----Sets the size of the parent object if possible.
-function gui.resize(width, height) end
-
----Sets the spacing of the gui.
-function gui.spacing(spacing) end
-
----Sets the field growth policy of the gui.
-function gui.fieldGrowthPolicy(policy) end
-
----Sets the onClicked handler of the parent object if possible.
-function gui.onClicked(f) end
-
----Sets the onTextChanged handler of the parent object if possible.
-function gui.onTextChanged(f) end
 
 --- Enum representing various window types.
 ---@enum WindowType
@@ -220,6 +231,14 @@ gui.WindowType = {
     WindowFullscreenButtonHint = 0,
 }
 
+---@class Space : Layout
+gui.space = {}
+
+---Adds a non-strecthable space with size size to the layout.
+---@param size integer size in pixels of the space.
+---@return Space
+function gui.Space(size) end
+
 ---@class Span : Layout
 gui.span = {}
 
@@ -246,4 +265,11 @@ function gui.Span(col, layout) end
 ---@param layout Layout The inner layout.
 ---@return Span
 function gui.Span(col, row, layout) end
+
+---@class Stretch : Layout
+gui.stretch = {}
+
+---Adds a stretchable space to the layout.
+---@param factor integer The factor by which the space should stretch.
+function gui.Stretch(factor) end
 return gui

@@ -47,7 +47,7 @@ static void processChildren(T *item, const sol::table &children)
             item->addItem(stretch);
         } else {
             qWarning() << "Incompatible object added to layout item: " << (int) child.get_type()
-                       << " (expected LayoutItem, Aspect or function returning LayoutItem)";
+                       << " (expected Layout, Aspect or function returning Layout)";
         }
     }
 }
