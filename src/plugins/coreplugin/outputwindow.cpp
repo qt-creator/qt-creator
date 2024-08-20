@@ -37,10 +37,14 @@
 
 #include <numeric>
 
-const int chunkSize = 10000;
-
 using namespace Utils;
 using namespace std::chrono_literals;
+
+const int defaultChunkSize = 10000;
+const int minChunkSize = 1000;
+
+const auto defaultInterval = 10ms;
+const auto maxInterval = 1000ms;
 
 namespace Core {
 
@@ -70,6 +74,7 @@ public:
     QTextCursor cursor;
     QString filterText;
     int lastFilteredBlockNumber = -1;
+    int chunkSize = defaultChunkSize;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
     int beforeContext = 0;
@@ -97,7 +102,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     d->formatter.setPlainTextEdit(this);
 
     d->queueTimer.setSingleShot(true);
-    d->queueTimer.setInterval(10ms);
+    d->queueTimer.setInterval(defaultInterval);
     connect(&d->queueTimer, &QTimer::timeout, this, &OutputWindow::handleNextOutputChunk);
 
     d->settingsKey = settingsKey;
@@ -492,7 +497,7 @@ void OutputWindow::handleNextOutputChunk()
 
     // We want to break off the chunks along line breaks, if possible.
     // Otherwise we can get ugly temporary artifacts e.g. for ANSI escape codes.
-    int actualChunkSize = std::min(chunkSize, int(chunk.first.size()));
+    int actualChunkSize = std::min(d->chunkSize, int(chunk.first.size()));
     const int minEndPos = std::max(0, actualChunkSize - 1000);
     for (int i = actualChunkSize - 1; i >= minEndPos; --i) {
         if (chunk.first.at(i) == '\n') {
@@ -544,7 +549,13 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         }
     }
 
+    QElapsedTimer formatterTimer;
+    formatterTimer.start();
     d->formatter.appendMessage(out, format);
+    if (formatterTimer.elapsed() > d->queueTimer.interval()) {
+        d->queueTimer.setInterval(std::min(maxInterval, d->queueTimer.intervalAsDuration() * 2));
+        d->chunkSize = std::max(minChunkSize, d->chunkSize / 2);
+    }
 
     if (d->scrollToBottom) {
         if (d->lastMessage.elapsed() < 5) {
@@ -659,7 +670,7 @@ void OutputWindow::flush()
 {
     const int totalQueuedSize = std::accumulate(d->queuedOutput.cbegin(), d->queuedOutput.cend(), 0,
             [](int val,  const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
-    if (totalQueuedSize > 5 * chunkSize) {
+    if (totalQueuedSize > 5 * d->chunkSize) {
         d->flushRequested = true;
         return;
     }
