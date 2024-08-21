@@ -203,12 +203,15 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
     BuildInfo info = info_;
     if (info.displayName.isEmpty()) {
         bool ok = false;
-        info.displayName = QInputDialog::getText(Core::ICore::dialogParent(),
-                                                 Tr::tr("New Configuration"),
-                                                 Tr::tr("New configuration name:"),
-                                                 QLineEdit::Normal,
-                                                 QString(),
-                                                 &ok)
+        info.displayName = uniqueName(
+                               QInputDialog::getText(
+                                   Core::ICore::dialogParent(),
+                                   Tr::tr("New Configuration"),
+                                   Tr::tr("New configuration name:"),
+                                   QLineEdit::Normal,
+                                   QString(),
+                                   &ok),
+                               false)
                                .trimmed();
         if (!ok || info.displayName.isEmpty())
             return;
@@ -222,13 +225,13 @@ void BuildSettingsWidget::createConfiguration(const BuildInfo &info_)
     m_target->setActiveBuildConfiguration(bc, SetActive::Cascade);
 }
 
-QString BuildSettingsWidget::uniqueName(const QString & name)
+QString BuildSettingsWidget::uniqueName(const QString &name, bool allowCurrentName)
 {
     QString result = name.trimmed();
     if (!result.isEmpty()) {
         QStringList bcNames;
         for (BuildConfiguration *bc : m_target->buildConfigurations()) {
-            if (bc == m_buildConfiguration)
+            if (allowCurrentName && bc == m_buildConfiguration)
                 continue;
             bcNames.append(bc->displayName());
         }
@@ -249,12 +252,11 @@ void BuildSettingsWidget::renameConfiguration()
     if (!ok)
         return;
 
-    name = uniqueName(name);
+    name = uniqueName(name, true);
     if (name.isEmpty())
         return;
 
     m_buildConfiguration->setDisplayName(name);
-
 }
 
 void BuildSettingsWidget::cloneConfiguration()
@@ -265,11 +267,14 @@ void BuildSettingsWidget::cloneConfiguration()
         return;
 
     //: Title of a the cloned BuildConfiguration window, text of the window
-    QString name = uniqueName(QInputDialog::getText(this,
-                                                    Tr::tr("Clone Configuration"),
-                                                    Tr::tr("New configuration name:"),
-                                                    QLineEdit::Normal,
-                                                    m_buildConfiguration->displayName()));
+    QString name = uniqueName(
+        QInputDialog::getText(
+            this,
+            Tr::tr("Clone Configuration"),
+            Tr::tr("New configuration name:"),
+            QLineEdit::Normal,
+            m_buildConfiguration->displayName()),
+        false);
     if (name.isEmpty())
         return;
 
