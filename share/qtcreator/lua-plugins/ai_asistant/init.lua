@@ -9,11 +9,13 @@ local TextEditor = require('TextEditor')
 local mm = require('MessageManager')
 local fetch = require('Fetch').fetch
 local Install = require('Install')
+local Action = require("Action")
 
 Hooks = {}
 AutoSuggestionDelay = 2000
 ServerName = "qtaiassistantserver"
 ServerReleasesURL = "https://qtaiassistant.gitlab-pages.qt.io/qtails/releases/" .. ServerName .. ".json"
+InlineChatActive = false
 
 local function collectSuggestions(responseTable)
   local suggestions = {}
@@ -371,6 +373,50 @@ local function requestSuggestions()
   sendRequest(request_msg)
 end
 
+local function activateInlineChat()
+  print("activateInlineChat() called")
+
+  if InlineChatActive == true then
+    print("Inline chat is already active")
+    return
+  end
+
+  InlineChatActive = true
+
+  local _ENV = using(Gui)
+
+  local closeButton = PushButton {
+    text = "x",
+    onClicked = function()
+      ChatWidget:close()
+      InlineChatActive = false
+    end
+  }
+
+  local chatInput = S.StringAspect.create({
+    displayStyle = S.StringDisplayStyle.TextEdit,
+    placeHolderText = "Search",
+    macroExpander = Null
+  })
+
+  ChatWidget = Widget {
+    size = {538, 68},
+    Column {
+      Row {
+        chatInput, closeButton,
+      },
+      Label {
+        text = "Write something and you'll see results here.",
+      },
+    }
+  }
+
+  local editor = TextEditor.currentEditor()
+  local main_cursor = editor:cursor():mainCursor()
+  local pos = main_cursor:position()
+  editor:addFloatingWidget(ChatWidget, pos)
+end
+
 local function requestSuggestionsSafe()
   local suggestion = TextEditor.currentSuggestion()
   if suggestion ~= nil  then
@@ -403,11 +449,16 @@ local function setup(parameters)
   setupAspect()
   setupClient()
 
-  Action = require("Action")
   Action.create("Trigger.suggestions", {
     text = "Trigger AI suggestions",
     onTrigger = function() a.sync(requestSuggestionsSafe)() end,
-    defaultKeySequences = { "Meta+Shift+A", "Ctrl+Shift+Alt+A" },
+    defaultKeySequences = { "Meta+Shift+Alt+A", "Ctrl+Shift+Alt+A" },
+  })
+
+  Action.create("Trigger.inlineChat", {
+    text = "Trigger AI Inline Chat",
+    onTrigger = activateInlineChat,
+    defaultKeySequences = { "Meta+Shift+A", "Ctrl+Shift+A" },
   })
 end
 
