@@ -746,6 +746,11 @@ void Widget::activateWindow()
     access(this)->activateWindow();
 }
 
+void Widget::close()
+{
+    access(this)->close();
+}
+
 QWidget *Widget::emerge() const
 {
     return access(this);

@@ -368,6 +368,8 @@ void setupGuiModule()
             &Widget::show,
             "activateWindow",
             &Widget::activateWindow,
+            "close",
+            &Widget::close,
             sol::base_classes,
             sol::bases<Object, Thing>());
 

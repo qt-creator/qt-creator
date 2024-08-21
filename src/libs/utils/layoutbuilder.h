@@ -230,6 +230,7 @@ public:
     void setNormalMargins(int = 0);
     void setContentsMargins(int left, int top, int right, int bottom);
     void activateWindow();
+    void close();
 };
 
 class QTCREATOR_UTILS_EXPORT Label : public Widget

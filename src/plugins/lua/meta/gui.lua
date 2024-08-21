@@ -41,6 +41,9 @@ function gui.widget:show() end
 ---Sets the top-level widget containing this widget to be the active window. (see [QWidget::activateWindow](https://doc.qt.io/qt-5/qwidget.html#activateWindow))
 function gui.widget:activateWindow() end
 
+---Closes the widget. (see [QWidget::close](https://doc.qt.io/qt-5/qwidget.html#close))
+function gui.widget:close() end
+
 ---Column layout
 ---@class Column : Layout
 local column = {}
