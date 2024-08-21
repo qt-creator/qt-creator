@@ -28,12 +28,20 @@ public:
 
     bool showInSimpleTree() const final;
     std::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
+
+    bool canAddSubProject(const Utils::FilePath &subProjectFilePath) const override;
+    bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
+    QStringList subProjectFileNamePatterns() const override;
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     CMakeProjectNode(const Utils::FilePath &directory);
+
+    bool canAddSubProject(const Utils::FilePath &subProjectFilePath) const override;
+    bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
+    QStringList subProjectFileNamePatterns() const override;
 
     QString tooltip() const final;
 };

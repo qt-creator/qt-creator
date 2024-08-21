@@ -234,6 +234,12 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
                    || action == ProjectAction::Rename || action == ProjectAction::RemoveFile;
     }
 
+    const auto cmakeProject = dynamic_cast<CMakeProjectNode *>(context);
+    const auto cmakeListsNode = dynamic_cast<CMakeListsNode *>(context);
+    if (cmakeProject || cmakeListsNode)
+        return action == ProjectAction::AddSubProject
+               || action == ProjectAction::AddExistingProject;
+
     return BuildSystem::supportsAction(context, action, node);
 }
 

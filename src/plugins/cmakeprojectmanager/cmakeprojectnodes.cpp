@@ -9,6 +9,8 @@
 
 #include <android/androidconstants.h>
 
+#include <coreplugin/documentmanager.h>
+
 #include <ios/iosconstants.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
@@ -16,10 +18,43 @@
 
 #include <utils/qtcassert.h>
 
+#include <texteditor/texteditor.h>
+
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
+
+static QString quoteString(const QString &str)
+{
+    return str.contains(QChar::Space) ? ("\"" + str + "\"") : str;
+}
+
+static bool addSubdirectory(const Utils::FilePath &projectPathDir, const Utils::FilePath & subProjectFilePath)
+{
+    TextEditor::BaseTextEditor *editor = qobject_cast<TextEditor::BaseTextEditor *>(
+        Core::EditorManager::openEditorAt(
+            {projectPathDir.pathAppended(Constants::CMAKE_LISTS_TXT)},
+            Constants::CMAKE_EDITOR_ID,
+            Core::EditorManager::DoNotMakeVisible | Core::EditorManager::DoNotChangeCurrentEditor));
+    if (!editor)
+        return false;
+
+    const QString subDirectory = subProjectFilePath.relativeChildPath(projectPathDir).parentDir().path();
+    if (subDirectory.isEmpty())
+        return false;
+
+    QTextCursor cursor = editor->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    if (!cursor.block().text().isEmpty())
+        cursor.insertText("\n");
+    cursor.insertText(QString("add_subdirectory(%1)").arg(quoteString(subDirectory)));
+
+    if (!Core::DocumentManager::saveDocument(editor->document()))
+        return false;
+
+    return true;
+}
 
 CMakeInputsNode::CMakeInputsNode(const FilePath &cmakeLists) :
     ProjectExplorer::ProjectNode(cmakeLists)
@@ -58,12 +93,44 @@ std::optional<FilePath> CMakeListsNode::visibleAfterAddFileAction() const
     return filePath().pathAppended(Constants::CMAKE_LISTS_TXT);
 }
 
+bool CMakeListsNode::canAddSubProject(const Utils::FilePath &subProjectFilePath) const
+{
+    return subProjectFilePath != filePath().pathAppended(Constants::CMAKE_LISTS_TXT)
+           && subProjectFilePath.isChildOf(filePath());
+}
+
+bool CMakeListsNode::addSubProject(const Utils::FilePath &subProjectFilePath)
+{
+    return addSubdirectory(filePath(), subProjectFilePath);
+}
+
+QStringList CMakeListsNode::subProjectFileNamePatterns() const
+{
+    return {Constants::CMAKE_LISTS_TXT};
+}
+
 CMakeProjectNode::CMakeProjectNode(const FilePath &directory) :
     ProjectExplorer::ProjectNode(directory)
 {
     setPriority(Node::DefaultProjectPriority + 1000);
     setIcon(DirectoryIcon(ProjectExplorer::Constants::FILEOVERLAY_PRODUCT));
     setListInProject(false);
+}
+
+bool CMakeProjectNode::canAddSubProject(const Utils::FilePath &subProjectFilePath) const
+{
+    return subProjectFilePath != filePath().pathAppended(Constants::CMAKE_LISTS_TXT)
+           && subProjectFilePath.isChildOf(filePath());
+}
+
+bool CMakeProjectNode::addSubProject(const Utils::FilePath &subProjectFilePath)
+{
+    return addSubdirectory(filePath(), subProjectFilePath);
+}
+
+QStringList CMakeProjectNode::subProjectFileNamePatterns() const
+{
+    return {Constants::CMAKE_LISTS_TXT};
 }
 
 QString CMakeProjectNode::tooltip() const
