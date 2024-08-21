@@ -15,7 +15,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   qtc_handle_compiler_cache_support()
 
   # Compile for x86, x64 and arm64
-  if (NOT ${PROJECT_NAME}-MultiBuild)
+  if (NOT ${PROJECT_NAME}-MultiBuild AND NOT MINGW)
     include(ExternalProject)
 
     set(generator "Visual Studio 16 2019")
