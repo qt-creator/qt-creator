@@ -814,9 +814,6 @@ static ExecutableItem startNativeDebuggingRecipe(RunnerStorage *storage)
 
 static ExecutableItem pidRecipe(RunnerStorage *storage)
 {
-    using PidUserPair = std::pair<qint64, qint64>;
-    const Storage<PidUserPair> pidStorage;
-
     const QString pidScript = storage->isPreNougat()
         ? QString("for p in /proc/[0-9]*; do cat <$p/cmdline && echo :${p##*/}; done")
         : QString("pidof -s '%1'").arg(storage->m_packageName);
@@ -824,20 +821,19 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
     const auto onPidSetup = [storage, pidScript](Process &process) {
         process.setCommand(storage->adbCommand({"shell", pidScript}));
     };
-    const auto onPidDone = [pidStorage, packageName = storage->m_packageName,
-                            isPreNougat = storage->isPreNougat()](const Process &process) {
+    const auto onPidDone = [storage](const Process &process) {
         const QString out = process.allOutput();
-        if (isPreNougat)
-            pidStorage->first = extractPID(out, packageName);
+        if (storage->isPreNougat())
+            storage->m_processPID = extractPID(out, storage->m_packageName);
         else if (!out.isEmpty())
-            pidStorage->first = out.trimmed().toLongLong();
+            storage->m_processPID = out.trimmed().toLongLong();
     };
 
-    const auto onUserSetup = [storage, pidStorage](Process &process) {
-        process.setCommand(
-            storage->adbCommand({"shell", "ps", "-o", "user", "-p", QString::number(pidStorage->first)}));
+    const auto onUserSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand(
+            {"shell", "ps", "-o", "user", "-p", QString::number(storage->m_processPID)}));
     };
-    const auto onUserDone = [pidStorage](const Process &process) {
+    const auto onUserDone = [storage](const Process &process) {
         const QString out = process.allOutput();
         if (out.isEmpty())
             return DoneResult::Error;
@@ -848,29 +844,22 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
             bool ok = false;
             const qint64 processUser = match.captured(1).toInt(&ok);
             if (ok) {
-                pidStorage->second = processUser;
+                storage->m_processUser = processUser;
+                qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
+                emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer,
+                                                   storage->m_processPID);
                 return DoneResult::Success;
             }
         }
         return DoneResult::Error;
     };
 
-    const auto onPidSync = [storage, pidStorage] {
-        qCDebug(androidRunWorkerLog) << "Process ID changed from:" << storage->m_processPID
-                                     << "to:" << pidStorage->first;
-        storage->m_processPID = pidStorage->first;
-        storage->m_processUser = pidStorage->second;
-        emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer, storage->m_processPID);
-    };
-
-    const auto onIsAliveSetup = [storage, pidStorage](Process &process) {
+    const auto onIsAliveSetup = [storage](Process &process) {
         process.setProcessChannelMode(QProcess::MergedChannels);
-        process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(pidStorage->first)}));
+        process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
     };
 
     return Group {
-        pidStorage,
-        onGroupSetup([pidStorage] { *pidStorage = {-1, 0}; }),
         Forever {
             stopOnSuccess,
             ProcessTask(onPidSetup, onPidDone, CallDoneIf::Success),
@@ -878,7 +867,6 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
                         DoneResult::Error)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
-        Sync(onPidSync),
         Group {
             parallel,
             startNativeDebuggingRecipe(storage),
