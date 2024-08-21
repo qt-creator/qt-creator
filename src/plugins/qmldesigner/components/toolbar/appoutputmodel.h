@@ -8,6 +8,8 @@
 
 #include <utils/outputformat.h>
 
+#include <QColor>
+
 class AppOutputParentModel;
 
 class AppOutputChildModel : public QAbstractListModel
@@ -112,35 +114,5 @@ private:
     QColor m_errorColor = Qt::red;
     QColor m_debugColor = Qt::magenta;
 
-#if 1
     std::vector<Run> m_runs = {};
-#else
-    std::vector<Run> m_runs = {
-        {"04.04.2024 10:30am", {{"line 1", "grey"}, {"line 2", "grey"}, {"line 3", "grey"}}},
-        {"04.04.2024 11:30am", {{"line 4", "grey"}, {"line 5", "grey"}, {"line 6", "grey"}}},
-        {"04.04.2024 12:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 13:40am",
-         {{"line 7", "grey"},
-          {"line 8", "grey"},
-          {"line 9", "grey"},
-          {"line 7", "grey"},
-          {"line 8", "grey"},
-          {"line 9", "grey"},
-          {"line 7", "grey"},
-          {"line 8", "grey"},
-          {"line 9", "grey"},
-          {"line 7", "grey"},
-          {"line 8", "grey"},
-          {"line 9", "grey"}}},
-        {"04.04.2024 14:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 15:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 16:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 17:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 18:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 19:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 20:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 21:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-        {"04.04.2024 22:30am", {{"line 7", "grey"}, {"line 8", "grey"}, {"line 9", "grey"}}},
-    };
-#endif
 };

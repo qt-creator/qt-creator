@@ -5,6 +5,8 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runcontrol.h>
 
+#include <vector>
+
 AppOutputChildModel::AppOutputChildModel(QObject *parent)
     : QAbstractListModel(parent)
 {}
