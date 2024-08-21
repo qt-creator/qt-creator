@@ -516,10 +516,12 @@ static QList<LinkWithColumns> linksForIssue(const std::map<QString, Dto::Any> &i
         QList<int> columns;
         auto it = issueRow.find(path);
         if (it != end && !it->second.isNull()) {
+            QTC_ASSERT(it->second.isString(), return);
             Link link{ FilePath::fromUserInput(it->second.getString()) };
             columns.append(findColumn(it->first));
             it = issueRow.find(line);
-            if (it != end) {
+            if (it != end && !it->second.isNull()) {
+                QTC_ASSERT(it->second.isDouble(), return);
                 link.targetLine = it->second.getDouble();
                 columns.append(findColumn(it->first));
             }
