@@ -65,7 +65,7 @@ function TextEditor:cursor() end
 ---Adds a floating widget at the specified position in the text editor.
 ---The widget will be positioned at the location corresponding to the given position in the
 ---text document and will be automatically managed to stay pined to that position.
----@param widget Widget The widget to be added as a floating widget.
+---@param widget Widget|Layout The widget to be added as a floating widget.
 ---@param position integer The position in the document where the widget should appear.
 function TextEditor:addFloatingWidget(widget, position) end
 
