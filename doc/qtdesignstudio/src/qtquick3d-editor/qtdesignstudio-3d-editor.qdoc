@@ -89,11 +89,14 @@
     camera:
 
     \list
-        \li To pan, press \key Alt (or \key Option on \macos) and use the
-            wheel button to drag anywhere in the \uicontrol 3D view to
-            slide the view around. Alternatively, press and hold \key
-            {right mouse button} and \key {left mouse button} and drag
-            anywhere in the view to pan.
+        \li To pan, do one of the following and drag anywhere in the view to pan:
+            \list
+              \li Press and hold \key Alt (or \key Option on \macos) and
+              \key {middle mouse button}.
+              \li Press and hold \key {right mouse button}, and then press and hold
+              \key {left mouse button}.
+              \li Press and hold \key Shift and \key {left mouse button}.
+            \endlist
         \li To orbit, press \key Alt and and drag anywhere in the
             \uicontrol 3D view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
