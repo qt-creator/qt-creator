@@ -1853,9 +1853,16 @@ bool Check::visit(CallExpression *ast)
     const QString namespaceName = functionNamespace(ast->base);
 
     // We have to allow the translation functions
-
-    static const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
-                                                     "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
+    static const QStringList translationFunctions
+        = {"qsTr",
+           "qsTrId",
+           "qsTranslate",
+           "qsTrNoOp",
+           "qsTrIdNoOp",
+           "qsTranslateNoOp",
+           "QT_TR_NOOP",
+           " QT_TRANSLATE_NOOP",
+           "QT_TRID_NOOP"};
 
     static const QStringList whiteListedFunctions = {
         "toString",    "toFixed",           "toExponential", "toPrecision",    "isFinite",
