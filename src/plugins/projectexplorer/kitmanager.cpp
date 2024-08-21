@@ -296,6 +296,7 @@ void KitManager::restoreKits()
     });
     Kit *kitForBinary = nullptr;
 
+    QList<Kit *> hostKits;
     if (resultList.empty() || !haveKitForBinary) {
         // No kits exist yet, so let's try to autoconfigure some from the toolchains we know.
         QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
@@ -357,7 +358,6 @@ void KitManager::restoreKits()
                 }
             }
         }
-        QList<Kit *> hostKits;
         if (!kitForBinary && !tempList.empty()) {
             const int maxWeight = tempList.front()->weight();
             for (auto it = tempList.begin(); it != tempList.end(); it = tempList.erase(it)) {
@@ -387,6 +387,8 @@ void KitManager::restoreKits()
     Kit *k = kitForBinary;
     if (!k)
         k = Utils::findOrDefault(resultList, Utils::equal(&Kit::id, defaultUserKit));
+    if (!k)
+        k = Utils::findOrDefault(hostKits, &Kit::isValid);
     if (!k)
         k = Utils::findOrDefault(resultList, &Kit::isValid);
     std::swap(resultList, d->m_kitList);
