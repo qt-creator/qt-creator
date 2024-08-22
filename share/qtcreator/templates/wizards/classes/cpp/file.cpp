@@ -1,5 +1,10 @@
 %{JS: Cpp.licenseTemplate()}\
 #include "%{JS: Util.relativeFilePath('%{Path}/%{HdrFileName}', '%{Path}' + '/' + Util.path('%{SrcFileName}'))}"
+
+@if '%{IncludeQSharedData}'
+#include <utility>
+
+@endif
 %{JS: Cpp.openNamespaces('%{Class}')}
 @if '%{IncludeQSharedData}'
 class %{CN}Data : public QSharedData
@@ -32,10 +37,23 @@ public:
 
 }
 
+%{CN}::%{CN}(%{CN} &&rhs)
+    : data{std::move(rhs.data)}
+{
+
+}
+
 %{CN} &%{CN}::operator=(const %{CN} &rhs)
 {
     if (this != &rhs)
-        data.operator=(rhs.data);
+        data = rhs.data;
+    return *this;
+}
+
+%{CN} &%{CN}::operator=(%{CN} &&rhs)
+{
+    if (this != &rhs)
+        data = std::move(rhs.data);
     return *this;
 }
 

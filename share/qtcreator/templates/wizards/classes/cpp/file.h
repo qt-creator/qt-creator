@@ -44,7 +44,9 @@ public:
 @endif
 @if '%{IncludeQSharedData}'
     %{CN}(const %{CN} &);
+    %{CN}(%{CN} &&);
     %{CN} &operator=(const %{CN} &);
+    %{CN} &operator=(%{CN} &&);
     ~%{CN}();
 @endif
 @if %{isQObject}
