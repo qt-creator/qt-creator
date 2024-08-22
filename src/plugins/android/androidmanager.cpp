@@ -645,29 +645,4 @@ Process *startAdbProcess(const QStringList &args, QString *err)
     return nullptr;
 }
 
-static SdkToolResult runCommand(const CommandLine &command, const QByteArray &writeData,
-                                int timeoutS)
-{
-    Android::SdkToolResult cmdResult;
-    Process cmdProc;
-    cmdProc.setWriteData(writeData);
-    qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
-    cmdProc.setCommand(command);
-    cmdProc.runBlocking(std::chrono::seconds(timeoutS), EventLoopMode::On);
-    cmdResult.m_stdOut = cmdProc.cleanedStdOut().trimmed();
-    cmdResult.m_stdErr = cmdProc.cleanedStdErr().trimmed();
-    cmdResult.m_success = cmdProc.result() == ProcessResult::FinishedWithSuccess;
-    qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
-                               << "Success:" << cmdResult.m_success
-                               << "Output:" << cmdProc.allRawOutput();
-    if (!cmdResult.success())
-        cmdResult.m_exitMessage = cmdProc.exitMessage();
-    return cmdResult;
-}
-
-SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData, int timeoutS)
-{
-    return runCommand({AndroidConfig::adbToolPath(), args}, writeData, timeoutS);
-}
-
 } // namespace Android::AndroidManager

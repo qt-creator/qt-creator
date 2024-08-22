@@ -43,6 +43,8 @@ using namespace ProjectExplorer;
 using namespace Tasking;
 using namespace Utils;
 
+using namespace std::chrono_literals;
+
 namespace {
 static Q_LOGGING_CATEGORY(androidDeviceLog, "qtc.android.androiddevice", QtWarningMsg)
 }
@@ -55,6 +57,32 @@ static constexpr char wifiDevicePort[] = "5555";
 
 enum TagModification { CommentOut, Uncomment };
 static class AndroidDeviceManagerInstance *s_instance = nullptr;
+
+struct SdkToolResult
+{
+    bool success = false;
+    QString stdOut;
+    QString stdErr;
+    QString exitMessage;
+};
+
+static SdkToolResult runAdbCommand(const QStringList &args)
+{
+    Process process;
+    const CommandLine command{AndroidConfig::adbToolPath(), args};
+    qCDebug(androidDeviceLog) << "Running command (sync):" << command.toUserOutput();
+    process.setCommand(command);
+    process.runBlocking(30s, EventLoopMode::On);
+    const bool success = process.result() == ProcessResult::FinishedWithSuccess;
+    const SdkToolResult result = {success,
+                                  process.cleanedStdOut().trimmed(),
+                                  process.cleanedStdErr().trimmed(),
+                                  success ? QString() : process.exitMessage()};
+    qCDebug(androidDeviceLog) << "Command finshed (sync):" << command.toUserOutput()
+                              << "Success:" << success
+                              << "Output:" << process.allRawOutput();
+    return result;
+}
 
 class AndroidDeviceManagerInstance : public QObject
 {
@@ -86,10 +114,10 @@ static QString displayNameFromInfo(const AndroidDeviceInfo &info)
 static IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type)
 {
     const QStringList args = AndroidDeviceInfo::adbSelector(serial) << "shell" << "echo 1";
-    const SdkToolResult result = AndroidManager::runAdbCommand(args);
-    if (result.success())
+    const SdkToolResult result = runAdbCommand(args);
+    if (result.success)
         return IDevice::DeviceReadyToUse;
-    else if (type == IDevice::Emulator || result.stdErr().contains("unauthorized"))
+    else if (type == IDevice::Emulator || result.stdErr.contains("unauthorized"))
         return IDevice::DeviceConnected;
     return IDevice::DeviceDisconnected;
 }
@@ -130,7 +158,7 @@ static void setEmulatorArguments(QWidget *parent)
 static QString emulatorName(const QString &serialNumber)
 {
     const QStringList args = AndroidDeviceInfo::adbSelector(serialNumber) << "emu" << "avd" << "name";
-    return AndroidManager::runAdbCommand(args).stdOut();
+    return runAdbCommand(args).stdOut;
 }
 
 static QString getRunningAvdsSerialNumber(const QString &name)
@@ -213,11 +241,9 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
     // prepare port
     QStringList args = adbSelector;
     args.append({"tcpip", wifiDevicePort});
-    const SdkToolResult result = AndroidManager::runAdbCommand(args);
-    if (!result.success()) {
+    if (!runAdbCommand(args).success) {
         AndroidDeviceWidget::criticalDialog(
-            Tr::tr("Opening connection port %1 failed.").arg(wifiDevicePort),
-            parent);
+            Tr::tr("Opening connection port %1 failed.").arg(wifiDevicePort), parent);
         return;
     }
 
@@ -225,8 +251,8 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
         // Get device IP address
         QStringList args = adbSelector;
         args.append({"shell", "ip", "route"});
-        const SdkToolResult ipRes = AndroidManager::runAdbCommand(args);
-        if (!ipRes.success()) {
+        const SdkToolResult ipRes = runAdbCommand(args);
+        if (!ipRes.success) {
             AndroidDeviceWidget::criticalDialog(
                 Tr::tr("Retrieving the device IP address failed."), parent);
             return;
@@ -235,7 +261,7 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
         // Expected output from "ip route" is:
         // 192.168.1.0/24 dev wlan0 proto kernel scope link src 192.168.1.190
         // where the ip of interest is at the end of the line
-        const QStringList ipParts = ipRes.stdOut().split(" ");
+        const QStringList ipParts = ipRes.stdOut.split(" ");
         QString ip;
         if (!ipParts.isEmpty()) {
             ip = ipParts.last();
@@ -249,8 +275,7 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
         // Connect to device
         args = adbSelector;
         args.append({"connect", QString("%1:%2").arg(ip).arg(wifiDevicePort)});
-        const SdkToolResult connectRes = AndroidManager::runAdbCommand(args);
-        if (!connectRes.success()) {
+        if (!runAdbCommand(args).success) {
             AndroidDeviceWidget::criticalDialog(
                 Tr::tr("Connecting to the device IP \"%1\" failed.").arg(ip),
                 parent);
