@@ -2516,7 +2516,7 @@ void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &comma
     }
 }
 
-void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &command)
+void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3DActionCommand &command)
 {
     if (!m_editView3DSetupDone)
         return;
