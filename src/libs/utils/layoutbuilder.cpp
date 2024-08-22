@@ -3,6 +3,9 @@
 
 #include "layoutbuilder.h"
 
+#include <utils/icon.h>
+#include <utils/filepath.h>
+
 #include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
@@ -871,6 +874,17 @@ PushButton::PushButton(std::initializer_list<I> ps)
 void PushButton::setText(const QString &text)
 {
     access(this)->setText(text);
+}
+
+void PushButton::setIconPath(const Utils::FilePath &iconPath)
+{
+    if (!iconPath.exists()) {
+        access(this)->setIcon({});
+        return;
+    }
+
+    Utils::Icon icon{iconPath};
+    access(this)->setIcon(icon.icon());
 }
 
 void PushButton::onClicked(const std::function<void ()> &func, QObject *guard)

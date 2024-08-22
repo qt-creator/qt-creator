@@ -38,6 +38,11 @@ class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace Utils
+{
+class FilePath;
+} // Utils
+
 namespace Layouting {
 
 //////////////////////////////////////////////
@@ -285,6 +290,7 @@ public:
     PushButton(std::initializer_list<I> ps);
 
     void setText(const QString &);
+    void setIconPath(const Utils::FilePath &);
     void onClicked(const std::function<void()> &, QObject *guard);
 };
 

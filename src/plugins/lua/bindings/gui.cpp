@@ -6,6 +6,7 @@
 #include "inheritance.h"
 
 #include <utils/aspects.h>
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
 
 #include <QMetaEnum>
@@ -99,10 +100,16 @@ HAS_MEM_FUNC(setSize, hasSetSize);
 HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
 HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
 HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
+HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 
 template<class T>
-void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
-{
+void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
+        const auto iconPath = children.get<sol::optional<Utils::FilePath>>("iconPath");
+        if (iconPath)
+            item->setIconPath(*iconPath);
+    }
+
     if constexpr (hasSetWindowFlags<T, void (T::*)(Qt::WindowFlags)>::value) {
         sol::optional<sol::table> windowFlags = children.get<sol::optional<sol::table>>(
             "windowFlags");
