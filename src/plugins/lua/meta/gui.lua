@@ -23,6 +23,7 @@ gui.widget = {}
 ---@field size? integer[] Two integers, representing the width and height of the widget.
 ---@field windowFlags? WindowType[] The window flags of the widget.
 ---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
+---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
 gui.baseWidgetOptions = {}
 
 ---@class (exact) WidgetOptions : BaseWidgetOptions

@@ -98,6 +98,7 @@ HAS_MEM_FUNC(setValue, hasSetValue);
 HAS_MEM_FUNC(setSize, hasSetSize);
 HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
 HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
+HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -127,6 +128,13 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 item->setWidgetAttribute(
                     static_cast<Qt::WidgetAttribute>(kv.first.as<int>()), kv.second.as<bool>());
         }
+    }
+
+    if constexpr (hasSetAutoFillBackground<T, void (T::*)(bool)>::value) {
+        sol::optional<bool> autoFillBackground = children.get<sol::optional<bool>>(
+            "autoFillBackground");
+        if (autoFillBackground)
+            item->setAutoFillBackground(*autoFillBackground);
     }
 
     if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {

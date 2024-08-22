@@ -221,6 +221,7 @@ public:
     QWidget *emerge() const;
     void show();
 
+    void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
     void setWindowTitle(const QString &);
@@ -427,6 +428,7 @@ QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
 QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
 QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
+QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 
 // Nesting dispatchers
 
