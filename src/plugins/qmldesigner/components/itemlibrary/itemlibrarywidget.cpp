@@ -85,6 +85,8 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
                 ItemLibraryEntry entry = m_itemToDrag.value<ItemLibraryEntry>();
+                m_itemToDrag = {};
+
                 // For drag to be handled correctly, we must have the component properly imported
                 // beforehand, so we import the module immediately when the drag starts
                 if (!entry.requiredImport().isEmpty()
@@ -99,8 +101,6 @@ bool ItemLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                                          entry.libraryEntryIconPath()),
                                      this);
                 }
-
-                m_itemToDrag = {};
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
