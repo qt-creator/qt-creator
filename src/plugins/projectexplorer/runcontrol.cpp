@@ -1252,6 +1252,7 @@ public:
     bool m_runAsRoot = false;
 
     Process m_process;
+    QTimer m_waitForDoneTimer;
 
     QTextCodec *m_outputCodec = nullptr;
     QTextCodec::ConverterState m_outputCodecState;
@@ -1296,6 +1297,15 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
     connect(&m_process, &Process::readyReadStandardOutput,
                 this, &SimpleTargetRunnerPrivate::handleStandardOutput);
 
+    m_waitForDoneTimer.setSingleShot(true);
+    connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
+        q->appendMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+        if (m_command.executable().needsDevice())
+            q->appendMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+        m_process.close();
+        forwardDone();
+    });
+
     if (WinDebugInterface::instance()) {
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
             this, [this] {
@@ -1324,36 +1334,14 @@ SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
 
 void SimpleTargetRunnerPrivate::stop()
 {
-    m_resultData.m_exitStatus = QProcess::CrashExit;
+    if (m_stopRequested || m_state != Run)
+        return;
 
-    const bool isLocal = !m_command.executable().needsDevice();
-    const auto totalTimeout = 2 * m_process.reaperTimeout();
-    if (isLocal) {
-        if (!isRunning())
-            return;
-        m_process.stop();
-        m_process.waitForFinished(totalTimeout);
-        QTimer::singleShot(100, this, [this] { forwardDone(); });
-    } else {
-        if (m_stopRequested)
-            return;
-        m_stopRequested = true;
-        q->appendMessage(Tr::tr("User requested stop. Shutting down..."), NormalMessageFormat);
-        switch (m_state) {
-        case Run:
-            m_process.stop();
-            if (!m_process.waitForFinished(totalTimeout)) {
-                q->appendMessage(Tr::tr("Remote process did not finish in time. "
-                                        "Connectivity lost?"), ErrorMessageFormat);
-                m_process.close();
-                m_state = Inactive;
-                forwardDone();
-            }
-            break;
-        case Inactive:
-            break;
-        }
-    }
+    m_stopRequested = true;
+    m_resultData.m_exitStatus = QProcess::CrashExit;
+    m_waitForDoneTimer.setInterval(2 * m_process.reaperTimeout());
+    m_waitForDoneTimer.start();
+    m_process.stop();
 }
 
 bool SimpleTargetRunnerPrivate::isRunning() const
@@ -1374,7 +1362,6 @@ void SimpleTargetRunnerPrivate::handleDone()
     m_resultData = m_process.resultData();
     QTC_ASSERT(m_state == Run, forwardDone(); return);
 
-    m_state = Inactive;
     forwardDone();
 }
 
@@ -1480,6 +1467,8 @@ void SimpleTargetRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
+    m_state = Inactive;
+    m_waitForDoneTimer.stop();
     const QString executable = m_command.executable().displayName();
     QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
     if (m_resultData.m_exitStatus == QProcess::CrashExit)
