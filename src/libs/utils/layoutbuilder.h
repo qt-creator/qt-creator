@@ -225,6 +225,7 @@ public:
     void setSize(int, int);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
+    void setWidgetAttribute(Qt::WidgetAttribute, bool on);
     void setToolTip(const QString &);
     void setNoMargins(int = 0);
     void setNormalMargins(int = 0);
@@ -425,6 +426,7 @@ QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
 QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
 QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
 QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
+QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
 
 // Nesting dispatchers
 

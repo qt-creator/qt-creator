@@ -716,6 +716,11 @@ void Widget::setWindowFlags(Qt::WindowFlags flags)
     access(this)->setWindowFlags(flags);
 }
 
+void Widget::setWidgetAttribute(Qt::WidgetAttribute attr, bool on)
+{
+    access(this)->setAttribute(attr, on);
+}
+
 void Widget::setToolTip(const QString &title)
 {
     access(this)->setToolTip(title);

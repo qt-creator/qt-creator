@@ -8,6 +8,8 @@
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 
+#include <QMetaEnum>
+
 using namespace Layouting;
 using namespace Utils;
 
@@ -95,6 +97,7 @@ HAS_MEM_FUNC(setTitle, hasSetTitle);
 HAS_MEM_FUNC(setValue, hasSetValue);
 HAS_MEM_FUNC(setSize, hasSetSize);
 HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
+HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -114,6 +117,16 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<QSize> size = children.get<sol::optional<QSize>>("size");
         if (size)
             item->setSize(size->width(), size->height());
+    }
+
+    if constexpr (hasSetWidgetAttribute<T, void (T::*)(Qt::WidgetAttribute, bool on)>::value) {
+        sol::optional<sol::table> widgetAttributes = children.get<sol::optional<sol::table>>(
+            "widgetAttributes");
+        if (widgetAttributes) {
+            for (const auto &kv : *widgetAttributes)
+                item->setWidgetAttribute(
+                    static_cast<Qt::WidgetAttribute>(kv.first.as<int>()), kv.second.as<bool>());
+        }
     }
 
     if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {
@@ -369,85 +382,14 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Object, Thing>());
 
-        gui["WindowType"] = l.create_table_with(
-            "Widget",
-            Qt::Widget,
-            "Window",
-            Qt::Window,
-            "Dialog",
-            Qt::Dialog,
-            "Sheet",
-            Qt::Sheet,
-            "Drawer",
-            Qt::Drawer,
-            "Popup",
-            Qt::Popup,
-            "Tool",
-            Qt::Tool,
-            "ToolTip",
-            Qt::ToolTip,
-            "SplashScreen",
-            Qt::SplashScreen,
-            "Desktop",
-            Qt::Desktop,
-            "SubWindow",
-            Qt::SubWindow,
-            "ForeignWindow",
-            Qt::ForeignWindow,
-            "CoverWindow",
-            Qt::CoverWindow,
+        auto mirrorEnum = [&gui](QMetaEnum metaEnum) {
+            sol::table widgetAttributes = gui.create(metaEnum.name());
+            for (int i = 0; i < metaEnum.keyCount(); ++i)
+                widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
+        };
 
-            "WindowType_Mask",
-            Qt::WindowType_Mask,
-            "MSWindowsFixedSizeDialogHint",
-            Qt::MSWindowsFixedSizeDialogHint,
-            "MSWindowsOwnDC",
-            Qt::MSWindowsOwnDC,
-            "BypassWindowManagerHint",
-            Qt::BypassWindowManagerHint,
-            "X11BypassWindowManagerHint",
-            Qt::X11BypassWindowManagerHint,
-            "FramelessWindowHint",
-            Qt::FramelessWindowHint,
-            "WindowTitleHint",
-            Qt::WindowTitleHint,
-            "WindowSystemMenuHint",
-            Qt::WindowSystemMenuHint,
-            "WindowMinimizeButtonHint",
-            Qt::WindowMinimizeButtonHint,
-            "WindowMaximizeButtonHint",
-            Qt::WindowMaximizeButtonHint,
-            "WindowMinMaxButtonsHint",
-            Qt::WindowMinMaxButtonsHint,
-            "WindowContextHelpButtonHint",
-            Qt::WindowContextHelpButtonHint,
-            "WindowShadeButtonHint",
-            Qt::WindowShadeButtonHint,
-            "WindowStaysOnTopHint",
-            Qt::WindowStaysOnTopHint,
-            "WindowTransparentForInput",
-            Qt::WindowTransparentForInput,
-            "WindowOverridesSystemGestures",
-            Qt::WindowOverridesSystemGestures,
-            "WindowDoesNotAcceptFocus",
-            Qt::WindowDoesNotAcceptFocus,
-            "MaximizeUsingFullscreenGeometryHint",
-            Qt::MaximizeUsingFullscreenGeometryHint,
-
-            "CustomizeWindowHint",
-            Qt::CustomizeWindowHint,
-            "WindowStaysOnBottomHint",
-            Qt::WindowStaysOnBottomHint,
-            "WindowCloseButtonHint",
-            Qt::WindowCloseButtonHint,
-            "MacWindowToolBarButtonHint",
-            Qt::MacWindowToolBarButtonHint,
-            "BypassGraphicsProxyWidget",
-            Qt::BypassGraphicsProxyWidget,
-            "NoDropShadowWindowHint",
-            Qt::NoDropShadowWindowHint,
-            "WindowFullscreenButtonHint",
-            Qt::WindowFullscreenButtonHint);
+        mirrorEnum(QMetaEnum::fromType<Qt::WidgetAttribute>());
+        mirrorEnum(QMetaEnum::fromType<Qt::WindowType>());
 
         gui.new_usertype<Stack>(
             "Stack",
