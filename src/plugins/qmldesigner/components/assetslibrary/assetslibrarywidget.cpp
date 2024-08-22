@@ -203,6 +203,9 @@ bool AssetsLibraryWidget::createNewEffect(const QString &effectPath, bool openIn
 
 bool AssetsLibraryWidget::canCreateEffects() const
 {
+    if (!Core::ICore::isQtDesignStudio())
+        return false;
+
 #ifdef LICENSECHECKER
     return checkLicense() == FoundLicense::enterprise;
 #else

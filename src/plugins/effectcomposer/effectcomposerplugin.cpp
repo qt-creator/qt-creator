@@ -4,6 +4,7 @@
 #include <effectcomposerview.h>
 
 #include <qmldesignerplugin.h>
+#include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -12,7 +13,7 @@ namespace EffectComposer {
 
 static bool enableEffectComposer()
 {
-    return true;
+    return Core::ICore::isQtDesignStudio();
 }
 
 class EffectComposerPlugin : public ExtensionSystem::IPlugin
