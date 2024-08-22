@@ -386,10 +386,19 @@ local function activateInlineChat()
   local _ENV = using(Gui)
 
   local closeButton = PushButton {
-    text = "x",
+    iconPath = PluginSpec.pluginDirectory:resolvePath("images/inlinechat_close_lua.png"),
+    flat = true,
     onClicked = function()
       ChatWidget:close()
       InlineChatActive = false
+    end
+  }
+
+  local settingsButton = PushButton {
+    iconPath = PluginSpec.pluginDirectory:resolvePath("images/inlinechat_settings_lua.png"),
+    flat = true,
+    onClicked = function()
+      Options:show()
     end
   }
 
@@ -401,9 +410,10 @@ local function activateInlineChat()
 
   ChatWidget = Widget {
     size = {538, 68},
+    autoFillBackground = true,
     Column {
       Row {
-        chatInput, closeButton,
+        chatInput, settingsButton, closeButton,
       },
       Label {
         text = "Write something and you'll see results here.",
