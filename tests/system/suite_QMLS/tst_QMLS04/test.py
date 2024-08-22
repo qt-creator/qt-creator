@@ -43,7 +43,7 @@ def main():
         # openDocument() doesn't wait for expected elements, so it might be faster than the updates
         # to the tree. Explicitly wait here to avoid timing issues. Using wFPTI() instead of
         # snooze() allows to proceed earlier, just in case it can find the item.
-        waitForProjectTreeItem(myCompTE, 2000)
+        waitForProjectTreeItem(myCompTE, 5000)
     except:
         pass
     # open MyComponent.qml file for verification
