@@ -111,13 +111,9 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (hasSetSize<T, void (T::*)(int, int)>::value) {
-        sol::optional<sol::table> size = children.get<sol::optional<sol::table>>("size");
-        if (size) {
-            if (size->size() == 2)
-                item->setSize(size->get<int>(1), size->get<int>(2));
-            else
-                throw sol::error("size must have exactly two elements");
-        }
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("size");
+        if (size)
+            item->setSize(size->width(), size->height());
     }
 
     if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {

@@ -49,11 +49,22 @@ QRect sol_lua_get(sol::types<QRect>, lua_State *L, int index, sol::stack::record
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QRect(table.get_or<int, const char *, int>("x", 0),
-                 table.get_or<int, const char *, int>("y", 0),
-                 table.get_or<int, const char *, int>("width", 0),
-                 table.get_or<int, const char *, int>("height", 0));
+    if (table.size() != 0 && table.size() != 2 && table.size() != 4)
+        throw sol::error("Expected table to have 'x', 'y', 'width' and 'height' or 2 (pos and "
+                         "size) or 4 elements");
+    if (table.size() == 0)
+        return QRect(
+            table.get<int>("x"),
+            table.get<int>("y"),
+            table.get<int>("width"),
+            table.get<int>("height"));
+    if (table.size() == 2)
+        return QRect(table.get<QPoint>(1), table.get<QSize>(2));
+
+    if (table.size() == 4)
+        return QRect(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
 }
+
 int sol_lua_push(sol::types<QRect>, lua_State *L, const QRect &value)
 {
     sol::state_view lua(L);
@@ -69,14 +80,19 @@ bool sol_lua_check(sol::types<QSize>,
                    std::function<sol::check_handler_type> handler,
                    sol::stack::record &tracking)
 {
-    return sol::stack::check<sol::table>(L, index, handler, tracking);
+    return sol::stack::check<sol::lua_table>(L, index, handler, tracking);
 }
+
 QSize sol_lua_get(sol::types<QSize>, lua_State *L, int index, sol::stack::record &tracking)
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QSize(table.get_or<int, const char *, int>("width", 0),
-                 table.get_or<int, const char *, int>("height", 0));
+    if (table.size() != 0 && table.size() != 2)
+        throw sol::error("Expected table to have 'width' and 'height' or 2 elements");
+    if (table.size() == 0)
+        return QSize(table.get<int>("width"), table.get<int>("height"));
+
+    return QSize(table.get<int>(1), table.get<int>(2));
 }
 int sol_lua_push(sol::types<QSize>, lua_State *L, const QSize &value)
 {
@@ -99,8 +115,11 @@ QPoint sol_lua_get(sol::types<QPoint>, lua_State *L, int index, sol::stack::reco
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QPoint(table.get_or<int, const char *, int>("x", 0),
-                  table.get_or<int, const char *, int>("y", 0));
+    if (table.size() != 0 && table.size() != 2)
+        throw sol::error("Expected table to have 'x' and 'y' or 2 elements");
+    if (table.size() == 0)
+        return QPoint(table.get<int>("x"), table.get<int>("y"));
+    return QPoint(table.get<int>(1), table.get<int>(2));
 }
 int sol_lua_push(sol::types<QPoint>, lua_State *L, const QPoint &value)
 {
@@ -123,10 +142,20 @@ QRectF sol_lua_get(sol::types<QRectF>, lua_State *L, int index, sol::stack::reco
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QRectF(table.get_or<qreal, const char *, qreal>("x", 0.0),
-                  table.get_or<qreal, const char *, qreal>("y", 0.0),
-                  table.get_or<qreal, const char *, qreal>("width", 0.0),
-                  table.get_or<qreal, const char *, qreal>("height", 0.0));
+    if (table.size() != 0 && table.size() != 2 && table.size() != 4)
+        throw sol::error("Expected table to have 'x', 'y', 'width' and 'height' or 2 (pos and "
+                         "size) or 4 elements");
+    if (table.size() == 0) {
+        return QRectF(
+            table.get<qreal>("x"),
+            table.get<qreal>("y"),
+            table.get<qreal>("width"),
+            table.get<qreal>("height"));
+    }
+    if (table.size() == 2)
+        return QRectF(table.get<QPointF>(1), table.get<QSizeF>(2));
+
+    return QRectF(table.get<qreal>(1), table.get<qreal>(2), table.get<qreal>(3), table.get<qreal>(4));
 }
 int sol_lua_push(sol::types<QRectF>, lua_State *L, const QRectF &value)
 {
@@ -149,8 +178,11 @@ QSizeF sol_lua_get(sol::types<QSizeF>, lua_State *L, int index, sol::stack::reco
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QSizeF(table.get_or<qreal, const char *, qreal>("width", 0.0),
-                  table.get_or<qreal, const char *, qreal>("height", 0.0));
+    if (table.size() != 0 && table.size() != 2)
+        throw sol::error("Expected table to have 'width' and 'height' or 2 elements");
+    if (table.size() == 0)
+        return QSizeF(table.get<qreal>("width"), table.get<qreal>("height"));
+    return QSizeF(table.get<qreal>(1), table.get<qreal>(2));
 }
 int sol_lua_push(sol::types<QSizeF>, lua_State *L, const QSizeF &value)
 {
@@ -173,8 +205,11 @@ QPointF sol_lua_get(sol::types<QPointF>, lua_State *L, int index, sol::stack::re
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QPointF(table.get_or<qreal, const char *, qreal>("x", 0.0),
-                   table.get_or<qreal, const char *, qreal>("y", 0.0));
+    if (table.size() != 0 && table.size() != 2)
+        throw sol::error("Expected table to have 'x' and 'y' or 2 elements");
+    if (table.size() == 0)
+        return QPointF(table.get<qreal>("x"), table.get<qreal>("y"));
+    return QPointF(table.get<qreal>(1), table.get<qreal>(2));
 }
 int sol_lua_push(sol::types<QPointF>, lua_State *L, const QPointF &value)
 {
@@ -197,10 +232,16 @@ QColor sol_lua_get(sol::types<QColor>, lua_State *L, int index, sol::stack::reco
 {
     sol::state_view lua(L);
     sol::table table = sol::stack::get<sol::table>(L, index, tracking);
-    return QColor(table.get_or<int, const char *, int>("red", 0),
-                  table.get_or<int, const char *, int>("green", 0),
-                  table.get_or<int, const char *, int>("blue", 0),
-                  table.get_or<int, const char *, int>("alpha", 255));
+    if (table.size() != 0 && table.size() != 4)
+        throw sol::error("Expected table to have 0 or 4 elements");
+    if (table.size() == 0) {
+        return QColor(
+            table.get<int>("red"),
+            table.get<int>("green"),
+            table.get<int>("blue"),
+            table.get<int>("alpha"));
+    }
+    return QColor(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
 }
 int sol_lua_push(sol::types<QColor>, lua_State *L, const QColor &value)
 {
