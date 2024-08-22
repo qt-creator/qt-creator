@@ -213,4 +213,7 @@ OptionsPageCreate = {}
 ---@return OptionsPage
 function settings.OptionsPage.create(options) end
 
+---Shows options page.
+function settings.OptionsPage:show() end
+
 return settings

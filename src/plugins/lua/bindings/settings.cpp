@@ -8,6 +8,7 @@
 #include <utils/layoutbuilder.h>
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
 
 using namespace Utils;
 
@@ -565,9 +566,12 @@ void setupSettingsModule()
             }
         };
 
-        settings.new_usertype<OptionsPage>("OptionsPage", "create", [](const sol::table &options) {
-            return std::make_unique<OptionsPage>(options);
-        });
+        settings.new_usertype<OptionsPage>(
+            "OptionsPage",
+            "create",
+            [](const sol::table &options) { return std::make_unique<OptionsPage>(options); },
+            "show",
+            [](OptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
 
         // clang-format off
         settings["StringDisplayStyle"] = l.create_table_with(
