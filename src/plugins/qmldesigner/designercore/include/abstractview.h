@@ -284,7 +284,14 @@ public:
     using OperationBlock = std::function<void()>;
     bool executeInTransaction(const QByteArray &identifier, const OperationBlock &lambda);
 
-    bool isEnabled() const { return m_visible && (hasWidget() ? m_action->isChecked() : true); }
+    bool isEnabled() const
+    {
+#ifdef DETACH_DISABLED_VIEWS
+        return m_visible && (hasWidget() ? m_action->isChecked() : true);
+#else
+        return m_visible;
+#endif
+    }
 
     void setVisibility(bool visible) { m_visible = visible; }
 
