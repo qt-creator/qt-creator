@@ -651,6 +651,10 @@ void KitManager::deregisterKits(const QList<Kit *> kitList)
     for (auto it = removed.cbegin(); it != removed.cend(); ++it)
         emit instance()->kitRemoved(it->get());
     emit instance()->kitsChanged();
+
+    // FIXME: TargetSetupPage potentially deregisters kits on destruction, after the final
+    //        ICore::saveSettingsRequested() was emitted.
+    saveKits();
 }
 
 void KitManager::setDefaultKit(Kit *k)
