@@ -49,7 +49,7 @@ void AppOutputChildModel::addMessage(int row, const QString &message, const QCol
         return;
 
     if (AppOutputParentModel::Run *run = m_parentModel->run(m_row)) {
-        int at = run->messages.size();
+        int at = static_cast<int>(run->messages.size());
         beginInsertRows(QModelIndex(), at, at);
         run->messages.push_back({message, color});
         endInsertRows();
@@ -82,7 +82,7 @@ QVariant AppOutputChildModel::data(const QModelIndex &index, int role) const
 
 AppOutputParentModel::Run *AppOutputParentModel::run(int row)
 {
-    if (row < static_cast<int>(m_runs.size()) && row >= 0)
+    if (std::cmp_less(row, m_runs.size()) && row >= 0)
         return &m_runs.at(row);
 
     return nullptr;
@@ -156,15 +156,15 @@ void AppOutputParentModel::resetModel()
 
 int AppOutputParentModel::messageCount(int row) const
 {
-    if (row < static_cast<int>(m_runs.size()) && row >= 0)
-        return m_runs.at(row).messages.size();
+    if (std::cmp_less(row, m_runs.size()) && row >= 0)
+        return static_cast<int>(m_runs.at(row).messages.size());
 
     return 0;
 }
 
 int AppOutputParentModel::rowCount(const QModelIndex &) const
 {
-    return m_runs.size();
+    return static_cast<int>(m_runs.size());
 }
 
 QHash<int, QByteArray> AppOutputParentModel::roleNames() const
@@ -177,8 +177,8 @@ QHash<int, QByteArray> AppOutputParentModel::roleNames() const
 
 QVariant AppOutputParentModel::runData(int runIdx, int msgIdx, int role) const
 {
-    if (runIdx < static_cast<int>(m_runs.size()) && runIdx >= 0) {
-        if (msgIdx < static_cast<int>(m_runs.at(runIdx).messages.size()) && msgIdx >= 0) {
+    if (std::cmp_less(runIdx, m_runs.size()) && runIdx >= 0) {
+        if (std::cmp_less(msgIdx, m_runs.at(runIdx).messages.size()) && msgIdx >= 0) {
             if (role == AppOutputChildModel::MessageRole)
                 return m_runs.at(runIdx).messages.at(msgIdx).message;
             else if (role == AppOutputChildModel::ColorRole) {

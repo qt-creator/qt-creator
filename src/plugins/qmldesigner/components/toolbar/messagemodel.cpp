@@ -46,7 +46,7 @@ void MessageModel::jumpToCode(const QVariant &index)
 {
     bool ok = false;
     if (int idx = index.toInt(&ok); ok) {
-        if (idx >= 0 && idx < static_cast<int>(m_tasks.size())) {
+        if (idx >= 0 && std::cmp_less(idx, m_tasks.size())) {
             // TODO:
             // - Check why this does not jump to line/column
             // - Only call this when sure that the task, file row etc are valid.
@@ -63,7 +63,7 @@ void MessageModel::jumpToCode(const QVariant &index)
 
 int MessageModel::rowCount(const QModelIndex &) const
 {
-    return m_tasks.size();
+    return static_cast<int>(m_tasks.size());
 }
 
 QHash<int, QByteArray> MessageModel::roleNames() const
@@ -116,7 +116,7 @@ void MessageModel::addCategory(const ProjectExplorer::TaskCategory &category)
 
 void MessageModel::addTask(const ProjectExplorer::Task &task)
 {
-    int at = m_tasks.size();
+    int at = static_cast<int>(m_tasks.size());
     beginInsertRows(QModelIndex(), at, at);
     m_tasks.push_back(task);
     endInsertRows();
@@ -125,7 +125,7 @@ void MessageModel::addTask(const ProjectExplorer::Task &task)
 
 void MessageModel::removeTask(const ProjectExplorer::Task &task)
 {
-    for (int i = 0; i < static_cast<int>(m_tasks.size()); i++) {
+    for (int i = 0; std::cmp_less(i, m_tasks.size()); i++) {
         if (m_tasks.at(i) == task) {
             beginRemoveRows(QModelIndex(), i, i);
             m_tasks.erase(m_tasks.begin() + i);
