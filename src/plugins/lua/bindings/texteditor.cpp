@@ -396,6 +396,9 @@ void addFloatingWidget(TextEditor::BaseTextEditor *editor, QWidget *widget, int 
 
 namespace Lua::Internal {
 
+using TextEditorPtr = QPointer<TextEditor::BaseTextEditor>;
+using TextDocumentPtr = QPointer<TextEditor::TextDocument>;
+
 class TextEditorRegistry : public QObject
 {
     Q_OBJECT
@@ -474,7 +477,7 @@ signals:
     void currentCursorChanged(TextEditor::BaseTextEditor *editor, MultiTextCursor cursor);
 
 protected:
-    QPointer<TextEditor::BaseTextEditor> m_currentTextEditor = nullptr;
+    TextEditorPtr m_currentTextEditor = nullptr;
 };
 
 void setupTextEditorModule()
@@ -484,7 +487,7 @@ void setupTextEditorModule()
     registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();
 
-        result["currentEditor"] = []() -> TextEditor::BaseTextEditor * {
+        result["currentEditor"] = []() -> TextEditorPtr {
             return TextEditor::BaseTextEditor::currentTextEditor();
         };
 
@@ -531,20 +534,27 @@ void setupTextEditorModule()
             "TextEditor",
             sol::no_constructor,
             "document",
-            &TextEditor::BaseTextEditor::textDocument,
+            [](const TextEditorPtr &textEditor) -> TextDocumentPtr {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                return textEditor->textDocument();
+            },
             "addFloatingWidget",
             sol::overload(
-                [](TextEditor::BaseTextEditor *textEditor, QWidget *widget, int position) {
+                [](const TextEditorPtr &textEditor, QWidget *widget, int position) {
+                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                     addFloatingWidget(textEditor, widget, position);
                 },
-                [](TextEditor::BaseTextEditor *textEditor, Layouting::Widget *widget, int position) {
+                [](const TextEditorPtr &textEditor, Layouting::Widget *widget, int position) {
+                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                     addFloatingWidget(textEditor, widget->emerge(), position);
                 },
-                [](TextEditor::BaseTextEditor *textEditor, Layouting::Layout *layout, int position) {
+                [](const TextEditorPtr &textEditor, Layouting::Layout *layout, int position) {
+                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                     addFloatingWidget(textEditor, layout->emerge(), position);
                 }),
             "cursor",
-            [](TextEditor::BaseTextEditor *textEditor) {
+            [](const TextEditorPtr &textEditor) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->multiTextCursor();
             });
 
@@ -566,10 +576,14 @@ void setupTextEditorModule()
             "TextDocument",
             sol::no_constructor,
             "file",
-            &TextEditor::TextDocument::filePath,
+            [](const TextDocumentPtr &document) {
+                QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
+                return document->filePath();
+            },
             "blockAndColumn",
-            [](TextEditor::TextDocument *document,
+            [](const TextDocumentPtr &document,
                int position) -> std::optional<std::pair<int, int>> {
+                QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
                 QTextBlock block = document->document()->findBlock(position);
                 if (!block.isValid())
                     return std::nullopt;
@@ -579,9 +593,14 @@ void setupTextEditorModule()
                 return std::make_pair(block.blockNumber() + 1, column + 1);
             },
             "blockCount",
-            [](TextEditor::TextDocument *document) { return document->document()->blockCount(); },
+            [](const TextDocumentPtr &document) {
+                QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
+                return document->document()->blockCount();
+            },
             "setSuggestions",
-            [](TextEditor::TextDocument *document, QList<Suggestion> suggestions) {
+            [](const TextDocumentPtr &document, QList<Suggestion> suggestions) {
+                QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
+
                 if (suggestions.isEmpty())
                     return;
 

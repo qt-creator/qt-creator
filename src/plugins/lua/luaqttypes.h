@@ -9,6 +9,7 @@
 
 #include <QColor>
 #include <QList>
+#include <QPointer>
 #include <QRect>
 #include <QString>
 
@@ -37,3 +38,17 @@ SOL_CONVERSION_FUNCTIONS(QColor)
 SOL_CONVERSION_FUNCTIONS(QStringList)
 
 #undef SOL_CONVERSION_FUNCTIONS
+
+namespace sol {
+template<typename T>
+struct unique_usertype_traits<QPointer<T>>
+{
+    typedef T type;
+    typedef QPointer<T> actual_type;
+    static const bool value = true;
+
+    static bool is_null(const actual_type &ptr) { return ptr == nullptr; }
+
+    static type *get(const actual_type &ptr) { return ptr.get(); }
+};
+} // namespace sol
