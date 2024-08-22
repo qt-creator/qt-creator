@@ -784,6 +784,7 @@ public:
         m_killTimer.setSingleShot(true);
         connect(&m_killTimer, &QTimer::timeout, this, [this] {
             m_killTimer.stop();
+            emit q->stoppingForcefully();
             sendControlSignal(ControlSignal::Kill);
         });
         setupDebugLog();
@@ -1658,6 +1659,7 @@ void Process::stop()
     if (state() == QProcess::NotRunning)
         return;
 
+    emit requestingStop();
     d->sendControlSignal(ControlSignal::Terminate);
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }

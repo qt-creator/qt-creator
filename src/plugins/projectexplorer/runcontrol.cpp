@@ -1296,6 +1296,12 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
                 this, &SimpleTargetRunnerPrivate::handleStandardError);
     connect(&m_process, &Process::readyReadStandardOutput,
                 this, &SimpleTargetRunnerPrivate::handleStandardOutput);
+    connect(&m_process, &Process::requestingStop, this, [this] {
+        q->appendMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+    });
+    connect(&m_process, &Process::stoppingForcefully, this, [this] {
+        q->appendMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
+    });
 
     m_waitForDoneTimer.setSingleShot(true);
     connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
