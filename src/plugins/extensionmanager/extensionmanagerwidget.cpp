@@ -256,19 +256,20 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
-        m_checkBox = new QCheckBox(Tr::tr("Load on start"));
+        m_switch = new Switch(Tr::tr("Load on start"));
         m_restartButton = new Button(Tr::tr("Restart Now"), Button::MediumPrimary);
         m_restartButton->setVisible(false);
         m_pluginView.hide();
+        setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
         using namespace Layouting;
         Column {
             m_label,
-            m_checkBox,
+            m_switch,
             m_restartButton,
         }.attachTo(this);
 
-        connect(m_checkBox, &QCheckBox::clicked, this, [this](bool checked) {
+        connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
             ExtensionSystem::PluginSpec *spec = pluginSpecForName(m_pluginName);
             if (spec == nullptr)
                 return;
@@ -277,7 +278,7 @@ public:
                 m_restartButton->show();
                 ExtensionSystem::PluginManager::writeSettings();
             } else {
-                m_checkBox->setChecked(!checked);
+                m_switch->setChecked(!checked);
             }
         });
 
@@ -314,12 +315,12 @@ private:
             m_label->setText(Tr::tr("Not loaded"));
         }
 
-        m_checkBox->setChecked(spec->isRequired() || spec->isEnabledBySettings());
-        m_checkBox->setEnabled(!spec->isRequired());
+        m_switch->setChecked(spec->isRequired() || spec->isEnabledBySettings());
+        m_switch->setEnabled(!spec->isRequired());
     }
 
     InfoLabel *m_label;
-    QCheckBox *m_checkBox;
+    Switch *m_switch;
     QAbstractButton *m_restartButton;
     QString m_pluginName;
     ExtensionSystem::PluginView m_pluginView{this};
