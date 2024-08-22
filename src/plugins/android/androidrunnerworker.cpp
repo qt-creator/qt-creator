@@ -288,6 +288,12 @@ bool AndroidRunnerWorker::packageFileExists(const QString &filePath)
     return success && !output.trimmed().isEmpty();
 }
 
+void AndroidRunnerWorker::compileAppProfiles()
+{
+    runAdb({"shell", "pm", "art", "clear-app-profiles", m_packageName});
+    runAdb({"shell", "pm", "compile", "-m", "verify", "-f", m_packageName});
+}
+
 QStringList AndroidRunnerWorker::selector() const
 {
     return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber);
@@ -808,6 +814,7 @@ void AndroidRunnerWorker::onProcessIdChanged(const PidUserPair &pidUser)
         for (const QString &entry: std::as_const(m_afterFinishAdbCommands))
             runAdb(entry.split(' ', Qt::SkipEmptyParts));
     } else {
+        compileAppProfiles();
         if (m_useCppDebugger)
             startNativeDebugging();
         // In debugging cases this will be funneled to the engine to actually start

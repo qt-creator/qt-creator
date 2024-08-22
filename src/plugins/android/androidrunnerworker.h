@@ -66,6 +66,7 @@ private:
     bool startDebuggerServer(const QString &packageDir, const QString &debugServerFile, QString *errorStr = nullptr);
     bool deviceFileExists(const QString &filePath);
     bool packageFileExists(const QString& filePath);
+    void compileAppProfiles();
     bool uploadDebugServer(const QString &debugServerFileName);
     void asyncStartLogcat();
 
