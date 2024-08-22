@@ -129,6 +129,9 @@ function(add_qtc_library name)
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS" ${ARGN}
   )
 
+  check_library_dependencies(${_arg_DEPENDS})
+  check_library_dependencies(${_arg_PUBLIC_DEPENDS})
+
   get_default_defines(default_defines_copy ${_arg_ALLOW_ASCII_CASTS})
 
   if (${_arg_UNPARSED_ARGUMENTS})
@@ -335,6 +338,9 @@ function(add_qtc_plugin target_name)
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PLUGIN_MANUAL_DEPENDS;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS"
     ${ARGN}
   )
+
+  check_library_dependencies(${_arg_DEPENDS})
+  check_library_dependencies(${_arg_PUBLIC_DEPENDS})
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
@@ -560,6 +566,8 @@ function(add_qtc_plugin target_name)
     ${_arg_PROPERTIES}
   )
 
+  set_property(TARGET ${target_name} APPEND PROPERTY EXPORT_PROPERTIES "QTC_PLUGIN_CLASS_NAME")
+
   if (NOT _arg_SKIP_PCH)
     enable_pch(${target_name})
   endif()
@@ -615,6 +623,9 @@ function(extend_qtc_plugin target_name)
     return()
   endif()
 
+  check_library_dependencies(${_arg_DEPENDS})
+  check_library_dependencies(${_arg_PUBLIC_DEPENDS})
+
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
 
@@ -623,6 +634,9 @@ function(extend_qtc_library target_name)
   if (NOT _library_enabled)
     return()
   endif()
+
+  check_library_dependencies(${_arg_DEPENDS})
+  check_library_dependencies(${_arg_PUBLIC_DEPENDS})
 
   extend_qtc_target(${target_name} ${ARGN})
 endfunction()
