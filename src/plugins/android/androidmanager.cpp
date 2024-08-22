@@ -626,23 +626,4 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
     return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
-Process *startAdbProcess(const QStringList &args, QString *err)
-{
-    std::unique_ptr<Process> process(new Process);
-    const FilePath adb = AndroidConfig::adbToolPath();
-    const CommandLine command{adb, args};
-    qCDebug(androidManagerLog).noquote() << "Running command (async):" << command.toUserOutput();
-    process->setCommand(command);
-    process->start();
-    if (process->waitForStarted(500ms) && process->state() == QProcess::Running)
-        return process.release();
-
-    const QString errorStr = process->readAllStandardError();
-    qCDebug(androidManagerLog).noquote() << "Running command (async) failed:"
-                                         << command.toUserOutput() << "Output:" << errorStr;
-    if (err)
-        *err = errorStr;
-    return nullptr;
-}
-
 } // namespace Android::AndroidManager

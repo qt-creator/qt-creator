@@ -66,8 +66,6 @@ bool checkCertificatePassword(const Utils::FilePath &keystorePath,
 bool checkCertificateExists(const Utils::FilePath &keystorePath,
                             const QString &keystorePasswd, const QString &alias);
 
-Utils::Process *startAdbProcess(const QStringList &args, QString *err = nullptr);
-
 QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
