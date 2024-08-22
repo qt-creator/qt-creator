@@ -1,4 +1,4 @@
----@meta
+---@meta SimpleTypes
 
 ---@class QRect
 ---@field x integer The x position of the rectangle.
@@ -28,9 +28,19 @@ QPointF = {}
 ---@field height number The height of the floating point size.
 QSizeF = {}
 
----@class QRectF
+---@class QRectF A rectangle with floating point coordinates.
 ---@field x number The x position of the floating point rectangle.
 ---@field y number The y position of the floating point rectangle.
 ---@field width number The width of the floating point rectangle.
 ---@field height number The height of the floating point rectangle.
 QRectF = {}
+
+---@class NullType
+NullType = {}
+
+---Just a workaround to let "Null" show the correct type in the documentation.
+---@return NullType null
+local function null() end
+
+---A special object to represent a nullptr value.
+Null = null()

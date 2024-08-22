@@ -1,6 +1,7 @@
 ---@meta Settings
 
 ---@module 'Qt'
+---@module 'SimpleTypes'
 
 local settings = {}
 
@@ -19,6 +20,7 @@ function settings.BaseAspect:apply() end
 ---@field enabler? BoolAspect Enable / Disable this aspect based on the state of the `enabler`.
 ---@field onValueChanged? function () Called when the value of the aspect changes.
 ---@field onVolatileValueChanged? function () Called when the volatile value of the aspect changes.
+---@field macroExpander? MacroExpander|NullType The macro expander to use, or nil to disable macro expansion.
 local AspectCreate = {}
 
 ---The base class of most typed aspects.

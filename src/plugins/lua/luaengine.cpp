@@ -421,6 +421,11 @@ void setupLuaEngine(QObject *guard)
 {
     QTC_ASSERT(!d, return);
     d = new LuaInterfaceImpl(guard);
+
+    autoRegister([](sol::state_view lua) {
+        lua.new_usertype<Null>("NullType", sol::no_constructor);
+        lua.set("Null", Null{});
+    });
 }
 
 } // namespace Lua

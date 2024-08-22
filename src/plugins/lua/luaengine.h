@@ -109,4 +109,7 @@ sol::protected_function_result runFunction(
 
 void setupLuaEngine(QObject *guard);
 
+class Null
+{};
+
 } // namespace Lua

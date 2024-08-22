@@ -112,7 +112,12 @@ void baseAspectCreate(BaseAspect *aspect, const std::string &key, const sol::obj
                          [func = value.as<sol::function>()] { void_safe_call(func); });
     } else if (key == "enabler")
         aspect->setEnabler(value.as<BoolAspect *>());
-    else
+    else if (key == "macroExpander") {
+        if (value.is<Null>())
+            aspect->setMacroExpander(nullptr);
+        else
+            aspect->setMacroExpander(value.as<MacroExpander *>());
+    } else
         qWarning() << "Unknown key:" << key.c_str();
 }
 
