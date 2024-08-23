@@ -57,6 +57,23 @@ static bool containsTexture(const ModelNode &node)
     return false;
 };
 
+static bool isPreviewAuxiliaryKey(AuxiliaryDataKeyView key)
+{
+    static const QVector<AuxiliaryDataKeyView> previewKeys = [] {
+        QVector<AuxiliaryDataKeyView> previewKeys{
+            materialPreviewEnvDocProperty,
+            materialPreviewEnvValueDocProperty,
+            materialPreviewModelDocProperty,
+            materialPreviewEnvProperty,
+            materialPreviewEnvValueProperty,
+            materialPreviewModelProperty,
+        };
+        std::sort(previewKeys.begin(), previewKeys.end());
+        return previewKeys;
+    }();
+    return Utils::containsInSorted(previewKeys, key);
+}
+
 MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_stackedWidget(new QStackedWidget)
@@ -833,6 +850,8 @@ void MaterialEditorView::auxiliaryDataChanged(const ModelNode &node,
                 m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
                 QTimer::singleShot(0, this, &MaterialEditorView::resetView);
             }
+        } else if (isPreviewAuxiliaryKey(key)) {
+            QTimer::singleShot(0, this, &MaterialEditorView::initPreviewData);
         }
     }
 }
