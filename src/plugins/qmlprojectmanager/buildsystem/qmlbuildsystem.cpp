@@ -218,7 +218,9 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 
 void QmlBuildSystem::initProjectItem()
 {
-    m_projectItem.reset(new QmlProjectItem{projectFilePath()});
+    auto projectPath = projectFilePath();
+
+    m_projectItem.reset(new QmlProjectItem{projectPath});
 
     connect(m_projectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
     m_fileGen->updateProjectItem(m_projectItem.data(), true);
@@ -281,6 +283,7 @@ void QmlBuildSystem::generateProjectTree()
         const FileType fileType = (file == projectFilePath())
                 ? FileType::Project
                 : FileNode::fileTypeForFileName(file);
+
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
     }
 
@@ -293,7 +296,8 @@ void QmlBuildSystem::generateProjectTree()
             newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
         }
     }
-    newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
+    if (!projectFilePath().endsWith(Constants::fakeProjectName))
+        newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
     setRootProjectNode(std::move(newRoot));
     updateDeploymentData();

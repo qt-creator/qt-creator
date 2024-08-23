@@ -321,7 +321,20 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 
-    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
+    QmlJS::SimpleReaderNode::Ptr rootNode;
+
+    if (!projectFile.isEmpty()) {
+        rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
+    } else {
+        rootNode = simpleQmlJSReader.readFromSource("import QmlProject 1.1\n"
+
+                                                    "Project {\n"
+                                                    "QmlFiles {\n"
+                                                    "directory: \".\"\n"
+                                                    "}\n"
+                                                    "qt6Project: true\n"
+                                                    "}\n");
+    }
 
     if (!simpleQmlJSReader.errors().isEmpty() || !rootNode->isValid()) {
         qCritical() << "Unable to parse:" << projectFile;

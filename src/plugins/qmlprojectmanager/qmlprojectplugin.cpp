@@ -25,12 +25,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprofiler/qmlprofilerruncontrol.h>
@@ -401,6 +401,19 @@ void QmlProjectPlugin::initialize()
                     if (buildSystem)
                         mainUifileAction->setEnabled(buildSystem->mainUiFilePath()
                                                      != fileNode->filePath());
+                });
+
+        connect(EditorManager::instance(),
+                &EditorManager::documentOpened,
+                this,
+                [](Core::IDocument *document) {
+                    if (!ProjectManager::startupProject()
+                        && document->filePath().completeSuffix() == "ui.qml") {
+                        const Utils::FilePath fileName = Utils::FilePath::fromString(
+                            document->filePath().toString() + Constants::fakeProjectName);
+                        auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects({fileName});
+                        QTC_ASSERT(result.project(), return);
+                    }
                 });
 
         QmlProjectExporter::CMakeGenerator::createMenuAction(this);
