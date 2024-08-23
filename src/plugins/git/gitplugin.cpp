@@ -212,10 +212,10 @@ public:
     void discardCommit() override { cleanCommitMessageFile(); }
 
     void diffCurrentFile();
-    void diffCurrentProject();
+    void diffProjectDirectory();
     void logFile();
     void blameFile();
-    void logProject();
+    void logProjectDirectory();
     void logRepository();
     void reflogRepository();
     void undoFileChanges(bool revertStaging);
@@ -229,7 +229,7 @@ public:
     void gitkForCurrentFolder();
     void gitGui();
     void gitBash();
-    void cleanProject();
+    void cleanProjectDirectory();
     void cleanRepository();
     void updateSubmodules();
     void applyCurrentFilePatch();
@@ -614,22 +614,28 @@ GitPluginPrivate::GitPluginPrivate()
                      QKeySequence(useMacShortcuts ? Tr::tr("Meta+G,Meta+U") : Tr::tr("Alt+G,Alt+U")));
 
 
-    /*  "Current Project" menu */
-    ActionContainer *currentProjectMenu = ActionManager::createMenu("Git.CurrentProjectMenu");
-    currentProjectMenu->menu()->setTitle(Tr::tr("Current &Project"));
-    gitContainer->addMenu(currentProjectMenu);
+    /*  "Current Project Directory" menu */
+    ActionContainer *currentProjectDirectoryMenu = ActionManager::createMenu("Git.CurrentProjectDirectoryMenu");
+    currentProjectDirectoryMenu->menu()->setTitle(Tr::tr("Current &Project Directory"));
+    gitContainer->addMenu(currentProjectDirectoryMenu);
 
-    createProjectAction(currentProjectMenu, Tr::tr("Diff Current Project", "Avoid translating \"Diff\""),
-                        Tr::tr("Diff Project \"%1\"", "Avoid translating \"Diff\""),
-                        "Git.DiffProject", context, true, &GitPluginPrivate::diffCurrentProject);
+    createProjectAction(currentProjectDirectoryMenu,
+                        Tr::tr("Diff Project Directory", "Avoid translating \"Diff\""),
+                        Tr::tr("Diff Directory of Project \"%1\"", "Avoid translating \"Diff\""),
+                        "Git.DiffProjectDirectory", context, true,
+                        &GitPluginPrivate::diffProjectDirectory);
 
-    createProjectAction(currentProjectMenu, Tr::tr("Log Project", "Avoid translating \"Log\""),
-                        Tr::tr("Log Project \"%1\"", "Avoid translating \"Log\""),
-                        "Git.LogProject", context, true, &GitPluginPrivate::logProject);
+    createProjectAction(currentProjectDirectoryMenu,
+                        Tr::tr("Log Project Directory", "Avoid translating \"Log\""),
+                        Tr::tr("Log Directory of Project \"%1\"", "Avoid translating \"Log\""),
+                        "Git.LogProjectDirectory", context, true,
+                        &GitPluginPrivate::logProjectDirectory);
 
-    createProjectAction(currentProjectMenu, Tr::tr("Clean Project...", "Avoid translating \"Clean\""),
-                        Tr::tr("Clean Project \"%1\"...", "Avoid translating \"Clean\""),
-                        "Git.CleanProject", context, true, &GitPluginPrivate::cleanProject);
+    createProjectAction(currentProjectDirectoryMenu,
+                        Tr::tr("Clean Project  Directory...", "Avoid translating \"Clean\""),
+                        Tr::tr("Clean Directory of Project \"%1\"...", "Avoid translating \"Clean\""),
+                        "Git.CleanProjectDirectory", context, true,
+                        &GitPluginPrivate::cleanProjectDirectory);
 
 
     /*  "Local Repository" menu */
@@ -934,7 +940,7 @@ void GitPluginPrivate::diffCurrentFile()
     gitClient().diffFile(state.currentFileTopLevel(), state.relativeCurrentFile());
 }
 
-void GitPluginPrivate::diffCurrentProject()
+void GitPluginPrivate::diffProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -995,7 +1001,7 @@ void GitPluginPrivate::blameFile()
                          firstLine);
 }
 
-void GitPluginPrivate::logProject()
+void GitPluginPrivate::logProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -1407,7 +1413,7 @@ void GitPluginPrivate::startMergeTool()
     gitClient().merge(state.topLevel());
 }
 
-void GitPluginPrivate::cleanProject()
+void GitPluginPrivate::cleanProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
