@@ -140,7 +140,14 @@ if (_library_enabled)
   endif()
 
   # Support for cross-compilation for arm64 on a x64 system
-  if (NOT MSVC_CXX_ARCHITECTURE_ID STREQUAL CMAKE_HOST_SYSTEM_PROCESSOR)
+  if (MSVC_CXX_ARCHITECTURE_ID STREQUAL "ARM64" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ARM64")
+    set(arm64_on_arm64 ON)
+  endif()
+  if (MSVC_CXX_ARCHITECTURE_ID STREQUAL "x64" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+    set(x64_on_x64 ON)
+  endif()
+
+  if (NOT arm64_on_arm64 AND NOT x64_on_x64)
     find_program(dumpbin_executable dumpbin)
     find_program(lib_executable lib)
 
