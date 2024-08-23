@@ -186,11 +186,8 @@ void InstantBlame::setup()
         force();
     };
 
-    connect(&settings().instantBlame, &BaseAspect::changed, this, [this, setupBlameForEditor] {
-        if (settings().instantBlame())
-            setupBlameForEditor(EditorManager::currentEditor());
-        else
-            stop();
+    connect(&settings().instantBlame, &BaseAspect::changed, this, [setupBlameForEditor] {
+        setupBlameForEditor(EditorManager::currentEditor());
     });
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
