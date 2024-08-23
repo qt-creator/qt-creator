@@ -144,7 +144,8 @@ void InstantBlame::setup()
 {
     qCDebug(log) << "Setup";
 
-    auto setupBlameForEditor = [this](Core::IEditor *editor) {
+    auto setupBlameForEditor = [this] {
+        Core::IEditor *editor = EditorManager::currentEditor();
         if (!editor) {
             stop();
             return;
@@ -188,21 +189,10 @@ void InstantBlame::setup()
         force();
     };
 
-    connect(&settings().instantBlame, &BaseAspect::changed, this, [setupBlameForEditor] {
-        setupBlameForEditor(EditorManager::currentEditor());
-    });
-
-    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this, [setupBlameForEditor] {
-        setupBlameForEditor(EditorManager::currentEditor());
-    });
-
-    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, [setupBlameForEditor] {
-        setupBlameForEditor(EditorManager::currentEditor());
-    });
-
-    connect(&settings().instantBlameShowSubject, &BaseAspect::changed, this, [setupBlameForEditor] {
-        setupBlameForEditor(EditorManager::currentEditor());
-    });
+    connect(&settings().instantBlame, &BaseAspect::changed, this, setupBlameForEditor);
+    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this, setupBlameForEditor);
+    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, setupBlameForEditor);
+    connect(&settings().instantBlameShowSubject, &BaseAspect::changed, this, setupBlameForEditor);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, setupBlameForEditor);
