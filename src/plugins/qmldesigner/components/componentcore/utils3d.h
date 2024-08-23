@@ -37,5 +37,9 @@ void selectTexture(const ModelNode &texture);
 ModelNode selectedMaterial(AbstractView *view);
 ModelNode selectedTexture(AbstractView *view);
 
+QList<ModelNode> getSelectedModels(AbstractView *view);
+void applyMaterialToModels(AbstractView *view, const ModelNode &material,
+                           const QList<ModelNode> &models, bool add = false);
+
 } // namespace Utils3D
 } // namespace QmlDesigner

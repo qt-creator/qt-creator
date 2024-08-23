@@ -3,6 +3,7 @@
 
 #include "utils3d.h"
 
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
@@ -213,6 +214,40 @@ ModelNode selectedTexture(AbstractView *view)
     if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedTextureProperty))
         return view->modelNodeForId(selectedProperty->toString());
     return {};
+}
+
+QList<ModelNode> getSelectedModels(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DModel();
+    });
+}
+
+void applyMaterialToModels(AbstractView *view, const ModelNode &material,
+                           const QList<ModelNode> &models, bool add)
+{
+    if (models.isEmpty() || !view)
+        return;
+
+    QTC_CHECK(material);
+
+    view->executeInTransaction(__FUNCTION__, [&] {
+        for (const ModelNode &node : std::as_const(models)) {
+            QmlObjectNode qmlObjNode(node);
+            if (add) {
+                QStringList matList = ModelUtils::expressionToList(
+                    qmlObjNode.expression("materials"));
+                matList.append(material.id());
+                QString updatedExp = ModelUtils::listToExpression(matList);
+                qmlObjNode.setBindingProperty("materials", updatedExp);
+            } else {
+                qmlObjNode.setBindingProperty("materials", material.id());
+            }
+        }
+    });
 }
 
 } // namespace Utils3D

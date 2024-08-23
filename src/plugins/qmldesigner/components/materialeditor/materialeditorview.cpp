@@ -24,7 +24,6 @@
 #include "qmldesignerplugin.h"
 #include "qmltimeline.h"
 #include "variantproperty.h"
-#include <modelutils.h>
 #include <uniquename.h>
 #include <utils3d.h>
 
@@ -380,41 +379,18 @@ QString MaterialEditorView::materialEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/materialEditorQmlSources").toString();
 }
 
-void MaterialEditorView::applyMaterialToSelectedModels(const ModelNode &material, bool add)
-{
-    if (m_selectedModels.isEmpty())
-        return;
-
-    QTC_ASSERT(material.isValid(), return);
-
-    executeInTransaction(__FUNCTION__, [&] {
-        for (const ModelNode &node : std::as_const(m_selectedModels)) {
-            QmlObjectNode qmlObjNode(node);
-            if (add) {
-                QStringList matList = ModelUtils::expressionToList(
-                    qmlObjNode.expression("materials"));
-                matList.append(material.id());
-                QString updatedExp = ModelUtils::listToExpression(matList);
-                qmlObjNode.setBindingProperty("materials", updatedExp);
-            } else {
-                qmlObjNode.setBindingProperty("materials", material.id());
-            }
-        }
-    });
-}
-
 void MaterialEditorView::handleToolBarAction(int action)
 {
     QTC_ASSERT(m_hasQuick3DImport, return);
 
     switch (action) {
     case MaterialEditorContextObject::ApplyToSelected: {
-        applyMaterialToSelectedModels(m_selectedMaterial);
+        Utils3D::applyMaterialToModels(this, m_selectedMaterial, Utils3D::getSelectedModels(this));
         break;
     }
 
     case MaterialEditorContextObject::ApplyToSelectedAdd: {
-        applyMaterialToSelectedModels(m_selectedMaterial, true);
+        Utils3D::applyMaterialToModels(this, m_selectedMaterial, Utils3D::getSelectedModels(this), true);
         break;
     }
 
@@ -895,18 +871,11 @@ WidgetInfo MaterialEditorView::widgetInfo()
                             tr("Material Editor view"));
 }
 
-void MaterialEditorView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+void MaterialEditorView::selectedNodesChanged([[maybe_unused]] const QList<ModelNode> &selectedNodeList,
                                               [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    m_selectedModels.clear();
-
-    for (const ModelNode &node : selectedNodeList) {
-        if (node.metaInfo().isQtQuick3DModel())
-            m_selectedModels.append(node);
-    }
-
     if (m_qmlBackEnd)
-        m_qmlBackEnd->contextObject()->setHasModelSelection(!m_selectedModels.isEmpty());
+        m_qmlBackEnd->contextObject()->setHasModelSelection(!Utils3D::getSelectedModels(this).isEmpty());
 }
 
 void MaterialEditorView::currentStateChanged(const ModelNode &node)
@@ -1093,15 +1062,12 @@ void MaterialEditorView::customNotification([[maybe_unused]] const AbstractView 
                                             const QList<ModelNode> &nodeList,
                                             const QList<QVariant> &data)
 {
-    if (identifier == "apply_to_selected_triggered") {
-        applyMaterialToSelectedModels(nodeList.first(), data.first().toBool());
-    } else if (identifier == "rename_material") {
+    if (identifier == "rename_material")
         renameMaterial(m_selectedMaterial, data.first().toString());
-    } else if (identifier == "add_new_material") {
+    else if (identifier == "add_new_material")
         handleToolBarAction(MaterialEditorContextObject::AddNewMaterial);
-    } else if (identifier == "duplicate_material") {
+    else if (identifier == "duplicate_material")
         duplicateMaterial(nodeList.first());
-    }
 }
 
 void MaterialEditorView::nodeReparented(const ModelNode &node,

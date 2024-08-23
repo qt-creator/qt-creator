@@ -83,8 +83,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(matBrowserModel, &MaterialBrowserModel::applyToSelectedTriggered, this,
                 [&] (const ModelNode &material, bool add) {
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
-            emitCustomNotification("apply_to_selected_triggered", {material}, {add});
+            Utils3D::applyMaterialToModels(this, material, Utils3D::getSelectedModels(this), add);
         });
 
         connect(matBrowserModel, &MaterialBrowserModel::renameMaterialTriggered, this,
@@ -198,9 +197,11 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(texturesModel, &MaterialBrowserTexturesModel::applyToSelectedModelTriggered, this,
                 [&] (const ModelNode &texture) {
-            if (m_selectedModels.size() != 1)
+            const QList<ModelNode> selectedModels = Utils3D::getSelectedModels(this);
+
+            if (selectedModels.size() != 1)
                 return;
-            applyTextureToModel3D(m_selectedModels[0], texture);
+            applyTextureToModel3D(selectedModels[0], texture);
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::addNewTextureTriggered, this, [&] {
@@ -216,8 +217,9 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [&]() {
             bool hasModel = false;
-            if (m_selectedModels.size() == 1)
-                hasModel = Utils3D::getMaterialOfModel(m_selectedModels.at(0)).isValid();
+            const QList<ModelNode> selectedModels = Utils3D::getSelectedModels(this);
+            if (selectedModels.size() == 1)
+                hasModel = Utils3D::getMaterialOfModel(selectedModels.at(0)).isValid();
             m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(hasModel);
         });
 
@@ -361,23 +363,21 @@ void MaterialBrowserView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
-void MaterialBrowserView::selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
+void MaterialBrowserView::selectedNodesChanged([[maybe_unused]] const QList<ModelNode> &selectedNodeList,
                                                [[maybe_unused]] const QList<ModelNode> &lastSelectedNodeList)
 {
-    m_selectedModels = Utils::filtered(selectedNodeList, [](const ModelNode &node) {
-        return node.metaInfo().isQtQuick3DModel();
-    });
+    const QList<ModelNode> selectedModels = Utils3D::getSelectedModels(this);
 
-    m_widget->materialBrowserModel()->setHasModelSelection(!m_selectedModels.isEmpty());
+    m_widget->materialBrowserModel()->setHasModelSelection(!selectedModels.isEmpty());
 
     // the logic below selects the material of the first selected model if auto selection is on
     if (!m_autoSelectModelMaterial)
         return;
 
-    if (selectedNodeList.size() > 1 || m_selectedModels.isEmpty())
+    if (selectedNodeList.size() > 1 || selectedModels.isEmpty())
         return;
 
-    ModelNode mat = Utils3D::getMaterialOfModel(m_selectedModels.at(0));
+    ModelNode mat = Utils3D::getMaterialOfModel(selectedModels.at(0));
 
     if (!mat.isValid())
         return;

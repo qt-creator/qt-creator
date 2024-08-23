@@ -107,7 +107,6 @@ private:
     void highlightSupportedProperties(bool highlight = true);
 
     void requestPreviewRender();
-    void applyMaterialToSelectedModels(const ModelNode &material, bool add = false);
 
     void setupQmlBackend();
 
@@ -127,7 +126,6 @@ private:
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;
-    QList<ModelNode> m_selectedModels;
     QHash<QString, MaterialEditorQmlBackend *> m_qmlBackendHash;
     MaterialEditorQmlBackend *m_qmlBackEnd = nullptr;
     bool m_locked = false;

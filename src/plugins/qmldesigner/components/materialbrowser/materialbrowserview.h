@@ -89,7 +89,6 @@ private:
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
-    QList<ModelNode> m_selectedModels; // selected 3D model nodes
 
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
