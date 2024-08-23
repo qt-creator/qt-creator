@@ -40,32 +40,18 @@ void setupLocalSocketModule()
             if (socket->state() != QLocalSocket::UnconnectedState)
                 throw sol::error("socket is not in UnconnectedState");
 
-            auto connection = new QMetaObject::Connection;
-            auto connectionError = new QMetaObject::Connection;
-
-            *connection = QObject::connect(
-                socket, &QLocalSocket::connected, socket, [connectionError, connection, cb]() {
-                    qDebug() << "CONNECTED";
-                    auto res = void_safe_call(cb, true);
-                    QTC_CHECK_EXPECTED(res);
-                    QObject::disconnect(*connection);
-                    delete connection;
-                    QObject::disconnect(*connectionError);
-                    delete connectionError;
-                });
-            *connectionError = QObject::connect(
-                socket,
-                &QLocalSocket::errorOccurred,
-                socket,
-                [socket, connection, connectionError, cb]() {
-                    qDebug() << "CONNECT ERROR";
-                    auto res = void_safe_call(cb, false, socket->errorString());
-                    QTC_CHECK_EXPECTED(res);
-                    QObject::disconnect(*connection);
-                    delete connection;
-                    QObject::disconnect(*connectionError);
-                    delete connectionError;
-                });
+            QObject::connect(socket, &QLocalSocket::connected, socket, [socket, cb] {
+                qDebug() << "CONNECTED";
+                auto res = void_safe_call(cb, true);
+                QTC_CHECK_EXPECTED(res);
+                QObject::disconnect(socket, &QLocalSocket::errorOccurred, socket, nullptr);
+            }, Qt::SingleShotConnection);
+            QObject::connect(socket, &QLocalSocket::errorOccurred, socket, [socket, cb] {
+                qDebug() << "CONNECT ERROR";
+                auto res = void_safe_call(cb, false, socket->errorString());
+                QTC_CHECK_EXPECTED(res);
+                QObject::disconnect(socket, &QLocalSocket::connected, socket, nullptr);
+            }, Qt::SingleShotConnection);
 
             socket->connectToServer();
         };
@@ -91,14 +77,10 @@ void setupLocalSocketModule()
                 return;
             }
 
-            auto connection = new QMetaObject::Connection;
-            *connection = QObject::connect(
-                socket, &QLocalSocket::readyRead, socket, [connection, cb, socket]() {
-                    auto res = void_safe_call(cb, socket->readAll().toStdString());
-                    QTC_CHECK_EXPECTED(res);
-                    QObject::disconnect(*connection);
-                    delete connection;
-                });
+            QObject::connect(socket, &QLocalSocket::readyRead, socket, [socket, cb] {
+                auto res = void_safe_call(cb, socket->readAll().toStdString());
+                QTC_CHECK_EXPECTED(res);
+            }, Qt::SingleShotConnection);
         };
 
         socketType["read"] = wrap(socketType["read_cb"].get<sol::function>()).get<sol::function>();
