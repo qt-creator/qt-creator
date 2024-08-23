@@ -291,6 +291,7 @@ public:
 
     void setText(const QString &);
     void setIconPath(const Utils::FilePath &);
+    void setFlat(bool);
     void onClicked(const std::function<void()> &, QObject *guard);
 };
 

@@ -33,6 +33,7 @@ gui.baseWidgetOptions = {}
 ---@field iconPath? FilePath The path to the icon of the widget, if applicable. Empty or not existent paths set null icon. (see [QIcon](https://doc.qt.io/qt-5/qicon.html#QIcon))
 ---@field text? string The text of the widget, if applicable.
 ---@field value? integer The value of the widget, if applicable.
+---@field flat? boolean A boolean, representing whether the widget should be flat, if applicable.
 ---@field [1]? Layout The layout of the widget, if applicable.
 gui.widgetOptions = {}
 

@@ -887,6 +887,11 @@ void PushButton::setIconPath(const Utils::FilePath &iconPath)
     access(this)->setIcon(icon.icon());
 }
 
+void PushButton::setFlat(bool flat)
+{
+    access(this)->setFlat(flat);
+}
+
 void PushButton::onClicked(const std::function<void ()> &func, QObject *guard)
 {
     QObject::connect(access(this), &QAbstractButton::clicked, guard, func);

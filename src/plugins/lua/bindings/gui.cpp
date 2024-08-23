@@ -101,9 +101,16 @@ HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
 HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
 HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
 HAS_MEM_FUNC(setIconPath, hasSetIconPath);
+HAS_MEM_FUNC(setFlat, hasSetFlat);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
+        const auto flat = children.get<sol::optional<bool>>("flat");
+        if (flat)
+            item->setFlat(*flat);
+    }
+
     if constexpr (hasSetIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
         const auto iconPath = children.get<sol::optional<Utils::FilePath>>("iconPath");
         if (iconPath)
