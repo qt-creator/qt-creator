@@ -150,8 +150,6 @@ void QuickItemNodeInstance::initialize(const ObjectNodeInstance::Pointer &object
 
     if (instanceId() == 0)
         nodeInstanceServer()->setRootItem(quickItem());
-    else
-        quickItem()->setParentItem(nodeInstanceServer()->rootItem());
 
     ObjectNodeInstance::initialize(objectNodeInstance, flags);
 }
