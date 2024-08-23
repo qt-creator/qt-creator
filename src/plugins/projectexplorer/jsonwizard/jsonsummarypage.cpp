@@ -140,7 +140,7 @@ void JsonSummaryPage::initializePage()
     const ProjectAction currentAction = isProject ? AddSubProject : AddNewFile;
     const bool isSubproject = m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool();
 
-    auto updateProjectTree = [this, files, kind, currentAction, preferredNodePath]() {
+    const auto updateProjectTree = [this, files, kind, currentAction, preferredNodePath] {
         Node *node = currentNode();
         if (!node) {
             if (auto p = ProjectManager::projectWithProjectFilePath(preferredNodePath))
@@ -148,8 +148,6 @@ void JsonSummaryPage::initializePage()
         }
         initializeProjectTree(findWizardContextNode(node), files, kind, currentAction,
                               m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool());
-        if (m_bsConnection && sender() != ProjectTree::instance())
-            disconnect(m_bsConnection);
     };
 
     if (contextNode) {
@@ -157,8 +155,8 @@ void JsonSummaryPage::initializePage()
             if (auto targets = p->targets(); !targets.isEmpty()) {
                 if (auto bs = targets.first()->buildSystem()) {
                     if (bs->isParsing()) {
-                        m_bsConnection = connect(bs, &BuildSystem::parsingFinished,
-                                                 this, updateProjectTree);
+                        connect(bs, &BuildSystem::parsingFinished, this, updateProjectTree,
+                                Qt::SingleShotConnection);
                     }
                 }
             }
@@ -167,8 +165,7 @@ void JsonSummaryPage::initializePage()
     initializeProjectTree(contextNode, files, kind, currentAction, isSubproject);
 
     // Refresh combobox on project tree changes:
-    connect(ProjectTree::instance(), &ProjectTree::treeChanged,
-            this, updateProjectTree);
+    connect(ProjectTree::instance(), &ProjectTree::treeChanged, this, updateProjectTree);
 
     bool hideProjectUi = JsonWizard::boolFromVariant(m_hideProjectUiValue, m_wizard->expander());
     setProjectUiVisible(!hideProjectUi);
