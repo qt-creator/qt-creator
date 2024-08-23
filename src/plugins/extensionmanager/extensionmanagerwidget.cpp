@@ -45,7 +45,6 @@
 #include <QPainter>
 #include <QProgressDialog>
 #include <QScrollArea>
-#include <QSignalMapper>
 #include <QTextDocument>
 #include <QTextBlock>
 
@@ -337,8 +336,6 @@ public:
         QHBoxLayout *layout = new QHBoxLayout(this);
         setLayout(layout);
         layout->setContentsMargins({});
-        m_signalMapper = new QSignalMapper(this);
-        connect(m_signalMapper, &QSignalMapper::mappedString, this, &TagList::tagSelected);
     }
 
     void setTags(const QStringList &tags)
@@ -360,8 +357,7 @@ public:
             for (const QString &tag : tags) {
                 QAbstractButton *tagButton = new Button(tag, Button::Tag);
                 connect(tagButton, &QAbstractButton::clicked,
-                        m_signalMapper, qOverload<>(&QSignalMapper::map));
-                m_signalMapper->setMapping(tagButton, tag);
+                        this, [this, tag] { emit tagSelected(tag); });
                 flow.addItem(tagButton);
             }
 
@@ -376,7 +372,6 @@ signals:
 
 private:
     QWidget *m_container = nullptr;
-    QSignalMapper *m_signalMapper;
 };
 
 class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
