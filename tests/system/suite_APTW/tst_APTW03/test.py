@@ -11,7 +11,7 @@ def handleInsertVirtualFunctions(expected, toAdd):
         mouseClick(waitForObjectItem(treeView, item.replace("_", "\\_")), 5, 5, 0, Qt.LeftButton)
         test.verify(waitFor("isCheckedF(child)", 1000), "Function must be checked after clicking")
 
-    treeView = waitForObject("{container={title='Functions to insert:' type='QGroupBox' unnamed='1'"
+    treeView = waitForObject("{container={name='&Functions to insert:' type='QGroupBox'"
                              " visible='1'} type='QTreeView' unnamed='1' visible='1'}")
 
     model = treeView.model()
@@ -35,8 +35,8 @@ def handleInsertVirtualFunctions(expected, toAdd):
     test.verify(len(set(expected).difference(found)) == 0,
                 "Verifying whether all expected functions have been found.")
 
-    selectFromCombo("{container={title='Insertion options:' type='QGroupBox' unnamed='1' "
-                    " visible='1'} occurrence='2' type='QComboBox' unnamed='1' visible='1'}",
+    selectFromCombo("{container={name='&Insertion options:' type='QGroupBox' visible='1'} "
+                    "type='QComboBox' unnamed='1' visible='1'}",
                     "Insert definitions in implementation file")
     clickButton("{text='OK' type='QPushButton' unnamed='1' visible='1'}")
 
