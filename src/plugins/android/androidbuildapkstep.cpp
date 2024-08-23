@@ -603,7 +603,16 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_packagePath);
+    FilePath packagePath = m_packagePath;
+    if (!packagePath.exists()) { // File name might be incorrect. See: QTCREATORBUG-22627
+        packagePath = packagePath.parentDir();
+        if (!packagePath.exists()) {
+            qCDebug(buildapkstepLog).noquote()
+                    << "Could not open package location: " << packagePath;
+            return;
+        }
+    }
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), packagePath);
 }
 
 QWidget *AndroidBuildApkStep::createConfigWidget()
