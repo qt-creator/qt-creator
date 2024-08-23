@@ -155,6 +155,13 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
     }
 }
 
+void TextureEditorQmlBackend::setExpression(PropertyNameView propName, const QString &exp)
+{
+    PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
+    if (propertyValue)
+        propertyValue->setExpression(exp);
+}
+
 QQmlContext *TextureEditorQmlBackend::context() const
 {
     return m_quickWidget->rootContext();

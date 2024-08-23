@@ -757,7 +757,24 @@ void MaterialEditorView::propertiesRemoved(const QList<AbstractProperty> &proper
             m_qmlBackEnd->contextObject()->setHasAliasExport(QmlObjectNode(m_selectedMaterial).isAliasExported());
 
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
-            setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
+            m_locked = true;
+
+            const PropertyName propertyName = property.name().toByteArray();
+            PropertyName convertedpropertyName = propertyName;
+
+            convertedpropertyName.replace('.', '_');
+
+            PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
+                QString::fromUtf8(convertedpropertyName));
+
+            if (value) {
+                value->resetValue();
+                m_qmlBackEnd
+                    ->setValue(m_selectedMaterial,
+                               propertyName,
+                               QmlObjectNode(m_selectedMaterial).instanceValue(propertyName));
+            }
+            m_locked = false;
             changed = true;
         }
 
@@ -813,11 +830,10 @@ void MaterialEditorView::bindingPropertiesChanged(const QList<BindingProperty> &
         if (node == m_selectedMaterial || QmlObjectNode(m_selectedMaterial).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
-            if (QmlObjectNode(m_selectedMaterial).modelNode().property(property.name()).isBindingProperty())
-                setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).instanceValue(property.name()));
-            else
-                setValue(m_selectedMaterial, property.name(), QmlObjectNode(m_selectedMaterial).modelValue(property.name()));
-
+            m_locked = true;
+            QString exp = QmlObjectNode(m_selectedMaterial).bindingProperty(property.name()).expression();
+            m_qmlBackEnd->setExpression(property.name(), exp);
+            m_locked = false;
             changed = true;
         }
 

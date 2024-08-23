@@ -584,9 +584,24 @@ void TextureEditorView::propertiesRemoved(const QList<AbstractProperty> &propert
             if (node.metaInfo().property(property.name()).propertyType().isUrl()) {
                 resetPuppet();
             } else {
-                setValue(m_selectedTexture,
-                         propertyName,
-                         QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
+                m_locked = true;
+
+                const PropertyName propertyName = property.name().toByteArray();
+                PropertyName convertedpropertyName = propertyName;
+
+                convertedpropertyName.replace('.', '_');
+
+                PropertyEditorValue *value = m_qmlBackEnd->propertyValueForName(
+                    QString::fromUtf8(convertedpropertyName));
+
+                if (value) {
+                    value->resetValue();
+                    m_qmlBackEnd
+                        ->setValue(m_selectedTexture,
+                                   propertyName,
+                                   QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
+                }
+                m_locked = false;
             }
         }
 
@@ -642,15 +657,10 @@ void TextureEditorView::bindingPropertiesChanged(const QList<BindingProperty> &p
         if (node == m_selectedTexture || QmlObjectNode(m_selectedTexture).propertyChangeForCurrentState() == node) {
             if (property.isDynamic())
                 m_dynamicPropertiesModel->updateItem(property);
-            if (QmlObjectNode(m_selectedTexture).modelNode().property(propertyName).isBindingProperty()) {
-                setValue(m_selectedTexture,
-                         propertyName,
-                         QmlObjectNode(m_selectedTexture).instanceValue(propertyName));
-            } else {
-                setValue(m_selectedTexture,
-                         propertyName,
-                         QmlObjectNode(m_selectedTexture).modelValue(propertyName));
-            }
+            m_locked = true;
+            QString exp = QmlObjectNode(m_selectedTexture).bindingProperty(property.name()).expression();
+            m_qmlBackEnd->setExpression(property.name(), exp);
+            m_locked = false;
         }
 
         if (propertyName == "materials"

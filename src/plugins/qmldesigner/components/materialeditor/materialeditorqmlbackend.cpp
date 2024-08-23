@@ -149,6 +149,13 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
     }
 }
 
+void MaterialEditorQmlBackend::setExpression(PropertyNameView propName, const QString &exp)
+{
+    PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
+    if (propertyValue)
+        propertyValue->setExpression(exp);
+}
+
 QQmlContext *MaterialEditorQmlBackend::context() const
 {
     return m_quickWidget->rootContext();
