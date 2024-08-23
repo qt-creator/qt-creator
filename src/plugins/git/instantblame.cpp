@@ -190,6 +190,14 @@ void InstantBlame::setup()
         setupBlameForEditor(EditorManager::currentEditor());
     });
 
+    connect(&settings().instantBlameIgnoreSpaceChanges, &BaseAspect::changed, this, [setupBlameForEditor] {
+        setupBlameForEditor(EditorManager::currentEditor());
+    });
+
+    connect(&settings().instantBlameIgnoreLineMoves, &BaseAspect::changed, this, [setupBlameForEditor] {
+        setupBlameForEditor(EditorManager::currentEditor());
+    });
+
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, setupBlameForEditor);
     connect(EditorManager::instance(), &EditorManager::documentClosed,
