@@ -61,8 +61,7 @@ QRect sol_lua_get(sol::types<QRect>, lua_State *L, int index, sol::stack::record
     if (table.size() == 2)
         return QRect(table.get<QPoint>(1), table.get<QSize>(2));
 
-    if (table.size() == 4)
-        return QRect(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
+    return QRect(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
 }
 
 int sol_lua_push(sol::types<QRect>, lua_State *L, const QRect &value)
