@@ -17,6 +17,7 @@
     "Category" : "Qt Quick",
     "Description" : "Tools for analyzing Qml/JS code.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-autoformat-qml-js.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

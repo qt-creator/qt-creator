@@ -17,5 +17,6 @@
     ],
     "Description" : "Qt Design Studio Welcome Page.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtdesignstudio/creator-quick-tour.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

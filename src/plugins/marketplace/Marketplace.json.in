@@ -17,5 +17,6 @@
     "Description" : "Install applications from Qt Marketplace.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://marketplace.qt.io",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

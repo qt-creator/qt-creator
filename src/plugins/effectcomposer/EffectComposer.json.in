@@ -12,6 +12,7 @@
     ],
     "Description" : "Plugin for Effect Composer.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtdesignstudio/qtquick-effect-composer-view.html",
     "DisabledByDefault" : true,
     ${IDE_PLUGIN_DEPENDENCIES}
 }

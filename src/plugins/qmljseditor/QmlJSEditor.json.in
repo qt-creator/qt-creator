@@ -18,5 +18,6 @@
     "Description" : "Edit QML and JavaScript files.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-preferences-qtquick-code-style.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }
