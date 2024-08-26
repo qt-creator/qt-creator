@@ -78,8 +78,9 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
 
                 emit bundleItemDragStarted(m_itemToDrag);
-                model->startDrag(std::move(mimeData), m_itemToDrag->icon().toLocalFile(), this);
+                const QString iconPath = m_itemToDrag->icon().toLocalFile();
                 m_itemToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
@@ -93,8 +94,9 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->removeFormat("text/plain");
 
                 emit bundleMaterialDragStarted(m_materialToDrag);
-                model->startDrag(std::move(mimeData), m_materialToDrag->icon().toLocalFile(), this);
+                const QString iconPath = m_materialToDrag->icon().toLocalFile();
                 m_materialToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
@@ -108,8 +110,9 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->texturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
-                model->startDrag(std::move(mimeData), m_textureToDrag->icon().toLocalFile(), this);
+                const QString iconPath = m_textureToDrag->icon().toLocalFile();
                 m_textureToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
