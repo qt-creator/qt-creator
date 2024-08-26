@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cppeditor/compilationdb.h"
 #include <cplusplus/Icons.h>
 
 #include <cppeditor/projectinfo.h>
@@ -35,15 +36,6 @@ CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ClangDiagnosticConfig &warningsConfig,
         const Utils::FilePath &clangIncludeDir,
         const ProjectExplorer::Macros &extraMacros);
-QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder);
-QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
-                                  const QStringList &projectOptions);
-QJsonArray fullProjectPartOptions(const QJsonArray &projectPartOptions,
-                                  const QJsonArray &projectOptions);
-QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
-                               const CppEditor::ProjectPart &projectPart,
-                               const QJsonArray &generalOptions,
-                               CppEditor::UsePrecompiledHeaders usePch, bool clStyle);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 
@@ -51,13 +43,11 @@ Utils::FilePath currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
-using GenerateCompilationDbResult = Utils::expected_str<Utils::FilePath>;
-enum class CompilationDbPurpose { Project, CodeModel };
 void generateCompilationDB(
-    QPromise<GenerateCompilationDbResult> &promise,
+    QPromise<CppEditor::GenerateCompilationDbResult> &promise,
     const QList<CppEditor::ProjectInfo::ConstPtr> &projectInfoList,
     const Utils::FilePath &baseDir,
-    CompilationDbPurpose purpose,
+    CppEditor::CompilationDbPurpose purpose,
     const CppEditor::ClangDiagnosticConfig &warningsConfig,
     const QStringList &projectOptions,
     const Utils::FilePath &clangIncludeDir);

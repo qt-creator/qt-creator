@@ -11,6 +11,7 @@
 #include <cppeditor/baseeditordocumentparser.h>
 #include <cppeditor/clangdiagnosticconfigsmodel.h>
 #include <cppeditor/clangdsettings.h>
+#include <cppeditor/compilationdb.h>
 #include <cppeditor/compileroptionsbuilder.h>
 #include <cppeditor/cppmodelmanager.h>
 #include <cppeditor/cpptoolsreuse.h>
@@ -74,79 +75,6 @@ QString diagnosticCategoryPrefixRemoved(const QString &text)
     return text;
 }
 
-static QStringList projectPartArguments(const ProjectPart &projectPart)
-{
-    QStringList args;
-    args << projectPart.compilerFilePath.toString();
-    args << "-c";
-    if (projectPart.toolchainType != ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID) {
-        args << "--target=" + projectPart.toolchainTargetTriple;
-        if (projectPart.toolchainAbi.architecture() == Abi::X86Architecture)
-            args << QLatin1String(projectPart.toolchainAbi.wordWidth() == 64 ? "-m64" : "-m32");
-    }
-    args << projectPart.compilerFlags;
-    for (const ProjectExplorer::HeaderPath &headerPath : projectPart.headerPaths) {
-        if (headerPath.type == ProjectExplorer::HeaderPathType::User) {
-            args << "-I" + headerPath.path;
-        } else if (headerPath.type == ProjectExplorer::HeaderPathType::System) {
-            args << (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-                         ? "-I"
-                         : "-isystem")
-                        + headerPath.path;
-        }
-    }
-    for (const ProjectExplorer::Macro &macro : projectPart.projectMacros) {
-        args.append(QString::fromUtf8(
-            macro.toKeyValue(macro.type == ProjectExplorer::MacroType::Define ? "-D" : "-U")));
-    }
-
-    return args;
-}
-
-static QJsonObject createFileObject(const FilePath &buildDir,
-                                    const QStringList &arguments,
-                                    const ProjectPart &projectPart,
-                                    const ProjectFile &projFile,
-                                    CompilationDbPurpose purpose,
-                                    const QJsonArray &projectPartOptions,
-                                    UsePrecompiledHeaders usePch,
-                                    bool clStyle)
-{
-    QJsonObject fileObject;
-    fileObject["file"] = projFile.path.toString();
-    QJsonArray args;
-
-    if (purpose == CompilationDbPurpose::Project) {
-        args = QJsonArray::fromStringList(arguments);
-
-        const ProjectFile::Kind kind = ProjectFile::classify(projFile.path.path());
-        if (projectPart.toolchainType == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
-                || projectPart.toolchainType == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
-            if (!ProjectFile::isObjC(kind)) {
-                if (ProjectFile::isC(kind))
-                    args.append("/TC");
-                else if (ProjectFile::isCxx(kind))
-                    args.append("/TP");
-            }
-        } else {
-            QStringList langOption
-                    = createLanguageOptionGcc(projectPart.language, kind,
-                                              projectPart.languageExtensions
-                                              & LanguageExtension::ObjectiveC);
-            for (const QString &langOptionPart : langOption)
-                args.append(langOptionPart);
-        }
-    } else {
-        args = clangOptionsForFile(projFile, projectPart, projectPartOptions, usePch, clStyle);
-        args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
-    }
-
-    args.append(projFile.path.toUserOutput());
-    fileObject["arguments"] = args;
-    fileObject["directory"] = buildDir.toString();
-    return fileObject;
-}
-
 void generateCompilationDB(
     QPromise<expected_str<FilePath>> &promise,
     const QList<ProjectInfo::ConstPtr> &projectInfoList,
@@ -156,55 +84,10 @@ void generateCompilationDB(
     const QStringList &projectOptions,
     const FilePath &clangIncludeDir)
 {
-    QTC_ASSERT(!baseDir.isEmpty(),
-        promise.addResult(make_unexpected(Tr::tr("Could not retrieve build directory."))); return);
-    QTC_CHECK(baseDir.ensureWritableDir());
-    QFile compileCommandsFile(baseDir.pathAppended("compile_commands.json").toFSPathString());
-    const bool fileOpened = compileCommandsFile.open(QIODevice::WriteOnly | QIODevice::Truncate);
-    if (!fileOpened) {
-        promise.addResult(make_unexpected(Tr::tr("Could not create \"%1\": %2")
-            .arg(compileCommandsFile.fileName(), compileCommandsFile.errorString())));
-        return;
-    }
-    compileCommandsFile.write("[");
-
-    const QJsonArray jsonProjectOptions = QJsonArray::fromStringList(projectOptions);
-    for (const ProjectInfo::ConstPtr &projectInfo : std::as_const(projectInfoList)) {
-        QTC_ASSERT(projectInfo, continue);
-        for (ProjectPart::ConstPtr projectPart : projectInfo->projectParts()) {
-            QTC_ASSERT(projectPart, continue);
-            QStringList args;
-            const CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
-                        *projectPart, warningsConfig, clangIncludeDir, {});
-            QJsonArray ppOptions;
-            if (purpose == CompilationDbPurpose::Project) {
-                args = projectPartArguments(*projectPart);
-            } else {
-                ppOptions = fullProjectPartOptions(projectPartOptions(optionsBuilder),
-                                                   jsonProjectOptions);
-            }
-            for (const ProjectFile &projFile : projectPart->files) {
-                if (promise.isCanceled())
-                    return;
-                const QJsonObject json
-                    = createFileObject(baseDir,
-                                       args,
-                                       *projectPart,
-                                       projFile,
-                                       purpose,
-                                       ppOptions,
-                                       projectInfo->settings().usePrecompiledHeaders(),
-                                       optionsBuilder.isClStyle());
-                if (compileCommandsFile.size() > 1)
-                    compileCommandsFile.write(",");
-                compileCommandsFile.write(QJsonDocument(json).toJson(QJsonDocument::Compact));
-            }
-        }
-    }
-
-    compileCommandsFile.write("]");
-    compileCommandsFile.close();
-    promise.addResult(FilePath::fromUserInput(compileCommandsFile.fileName()));
+    return CppEditor::generateCompilationDB(
+        promise, projectInfoList, baseDir, purpose, projectOptions, [&](const ProjectPart &pp) {
+            return clangOptionsBuilder(pp, warningsConfig, clangIncludeDir, {});
+        });
 }
 
 FilePath currentCppEditorDocumentFilePath()
@@ -266,30 +149,6 @@ QString DiagnosticTextInfo::clazyCheckName(const QString &option)
     return option;
 }
 
-QJsonArray clangOptionsForFile(const ProjectFile &file, const ProjectPart &projectPart,
-                               const QJsonArray &generalOptions, UsePrecompiledHeaders usePch,
-                               bool clStyle)
-{
-    CompilerOptionsBuilder optionsBuilder(projectPart);
-    optionsBuilder.setClStyle(clStyle);
-    ProjectFile::Kind fileKind = file.kind;
-    if (fileKind == ProjectFile::AmbiguousHeader) {
-        fileKind = projectPart.languageVersion <= LanguageVersion::LatestC
-                ? ProjectFile::CHeader : ProjectFile::CXXHeader;
-    }
-    if (usePch == UsePrecompiledHeaders::Yes
-            && projectPart.precompiledHeaders.contains(file.path.path())) {
-        usePch = UsePrecompiledHeaders::No;
-    }
-    optionsBuilder.updateFileLanguage(fileKind);
-    optionsBuilder.addPrecompiledHeaderOptions(usePch);
-    const QJsonArray specificOptions = QJsonArray::fromStringList(optionsBuilder.options());
-    QJsonArray fullOptions = generalOptions;
-    for (const QJsonValue &opt : specificOptions)
-        fullOptions << opt;
-    return fullOptions;
-}
-
 ClangDiagnosticConfig warningsConfigForProject(Project *project)
 {
     return ClangdSettings(ClangdProjectSettings(project).settings()).diagnosticConfig();
@@ -327,35 +186,6 @@ CompilerOptionsBuilder clangOptionsBuilder(const ProjectPart &projectPart,
     }
 
     return optionsBuilder;
-}
-
-QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder)
-{
-    const QStringList optionsList = optionsBuilder.options();
-    QJsonArray optionsArray;
-    for (const QString &opt : optionsList) {
-        // These will be added later by the file-specific code, and they trigger warnings
-        // if they appear twice; see QTCREATORBUG-26664.
-        if (opt != "-TP" && opt != "-TC")
-            optionsArray << opt;
-    }
-    return optionsArray;
-}
-
-QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
-                                  const QStringList &projectOptions)
-{
-    return fullProjectPartOptions(projectPartOptions(optionsBuilder),
-                                  QJsonArray::fromStringList(projectOptions));
-}
-
-QJsonArray fullProjectPartOptions(const QJsonArray &projectPartOptions,
-                                  const QJsonArray &projectOptions)
-{
-    QJsonArray fullProjectPartOptions = projectPartOptions;
-    for (const QJsonValue &opt : projectOptions)
-        fullProjectPartOptions.prepend(opt);
-    return fullProjectPartOptions;
 }
 
 } // namespace Internal

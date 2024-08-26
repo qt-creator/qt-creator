@@ -47,6 +47,8 @@ QtcPlugin {
         "clangdiagnosticconfigswidget.h",
         "clangdsettings.cpp",
         "clangdsettings.h",
+        "compilationdb.cpp",
+        "compilationdb.h",
         "compileroptionsbuilder.cpp",
         "compileroptionsbuilder.h",
         "cppautocompleter.cpp",

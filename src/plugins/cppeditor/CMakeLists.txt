@@ -14,6 +14,7 @@ add_qtc_plugin(CppEditor
     clangdiagnosticconfigsmodel.cpp clangdiagnosticconfigsmodel.h
     clangdiagnosticconfigsselectionwidget.cpp clangdiagnosticconfigsselectionwidget.h
     clangdiagnosticconfigswidget.cpp clangdiagnosticconfigswidget.h
+    compilationdb.cpp compilationdb.h
     compileroptionsbuilder.cpp compileroptionsbuilder.h
     cppautocompleter.cpp cppautocompleter.h
     cppbuiltinmodelmanagersupport.cpp cppbuiltinmodelmanagersupport.h

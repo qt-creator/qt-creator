@@ -22,6 +22,7 @@
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/Icons.h>
+#include <cppeditor/compilationdb.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
