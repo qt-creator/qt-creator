@@ -63,6 +63,7 @@ const char POP_UP_FOR_DEBUG_OUTPUT_KEY[] = "ProjectExplorer/Settings/ShowDebugOu
 const char CLEAN_OLD_OUTPUT_KEY[] = "ProjectExplorer/Settings/CleanOldAppOutput";
 const char MERGE_CHANNELS_KEY[] = "ProjectExplorer/Settings/MergeStdErrAndStdOut";
 const char WRAP_OUTPUT_KEY[] = "ProjectExplorer/Settings/WrapAppOutput";
+const char DISCARD_OUTPUT_KEY[] = "ProjectExplorer/Settings/DiscardAppOutput";
 const char MAX_LINES_KEY[] = "ProjectExplorer/Settings/MaxAppOutputLines";
 
 static QObject *debuggerPlugin()
@@ -430,6 +431,7 @@ void AppOutputPane::createNewOutputWindow(RunControl *rc)
     ow->setWindowIcon(Icons::WINDOW.icon());
     ow->setWordWrapEnabled(m_settings.wrapOutput);
     ow->setMaxCharCount(m_settings.maxCharCount);
+    ow->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
 
     auto updateFontSettings = [ow] {
         ow->setBaseFont(TextEditor::TextEditorSettings::fontSettings().font());
@@ -474,6 +476,7 @@ void AppOutputPane::updateFromSettings()
     for (const RunControlTab &tab : std::as_const(m_runControlTabs)) {
         tab.window->setWordWrapEnabled(m_settings.wrapOutput);
         tab.window->setMaxCharCount(m_settings.maxCharCount);
+        tab.window->setDiscardExcessiveOutput(m_settings.discardExcessiveOutput);
     }
 }
 
@@ -543,6 +546,7 @@ const AppOutputPaneMode kDebugOutputModeDefault = AppOutputPaneMode::FlashOnOutp
 const bool kCleanOldOutputDefault = false;
 const bool kMergeChannelsDefault = false;
 const bool kWrapOutputDefault = true;
+const bool kDiscardOutputDefault = false;
 
 void AppOutputPane::storeSettings() const
 {
@@ -556,6 +560,8 @@ void AppOutputPane::storeSettings() const
     s->setValueWithDefault(CLEAN_OLD_OUTPUT_KEY, m_settings.cleanOldOutput, kCleanOldOutputDefault);
     s->setValueWithDefault(MERGE_CHANNELS_KEY, m_settings.mergeChannels, kMergeChannelsDefault);
     s->setValueWithDefault(WRAP_OUTPUT_KEY, m_settings.wrapOutput, kWrapOutputDefault);
+    s->setValueWithDefault(
+        DISCARD_OUTPUT_KEY, m_settings.discardExcessiveOutput, kDiscardOutputDefault);
     s->setValueWithDefault(MAX_LINES_KEY,
                            m_settings.maxCharCount / 100,
                            Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100);
@@ -573,6 +579,7 @@ void AppOutputPane::loadSettings()
     m_settings.cleanOldOutput = s->value(CLEAN_OLD_OUTPUT_KEY, kCleanOldOutputDefault).toBool();
     m_settings.mergeChannels = s->value(MERGE_CHANNELS_KEY, kMergeChannelsDefault).toBool();
     m_settings.wrapOutput = s->value(WRAP_OUTPUT_KEY, kWrapOutputDefault).toBool();
+    m_settings.discardExcessiveOutput = s->value(DISCARD_OUTPUT_KEY, kDiscardOutputDefault).toBool();
     m_settings.maxCharCount = s->value(MAX_LINES_KEY,
                                        Core::Constants::DEFAULT_MAX_CHAR_COUNT / 100).toInt() * 100;
 }
@@ -850,6 +857,12 @@ public:
         const AppOutputSettings &settings = appOutputPane().settings();
         m_wrapOutputCheckBox.setText(Tr::tr("Word-wrap output"));
         m_wrapOutputCheckBox.setChecked(settings.wrapOutput);
+        m_discardOutputCheckBox.setText(Tr::tr("Discard excessive output"));
+        m_discardOutputCheckBox.setToolTip(
+            Tr::tr(
+                "If this option is enabled, application output will be discarded if it "
+                "continuously comes in faster than it can be handled."));
+        m_discardOutputCheckBox.setChecked(settings.discardExcessiveOutput);
         m_cleanOldOutputCheckBox.setText(Tr::tr("Clear old output on a new run"));
         m_cleanOldOutputCheckBox.setChecked(settings.cleanOldOutput);
         m_mergeChannelsCheckBox.setText(Tr::tr("Merge stderr and stdout"));
@@ -870,6 +883,7 @@ public:
         const auto layout = new QVBoxLayout(this);
         layout->addWidget(&m_wrapOutputCheckBox);
         layout->addWidget(&m_cleanOldOutputCheckBox);
+        layout->addWidget(&m_discardOutputCheckBox);
         layout->addWidget(&m_mergeChannelsCheckBox);
         const auto maxCharsLayout = new QHBoxLayout;
         const QString msg = Tr::tr("Limit output to %1 characters");
@@ -891,6 +905,7 @@ public:
     {
         AppOutputSettings s;
         s.wrapOutput = m_wrapOutputCheckBox.isChecked();
+        s.discardExcessiveOutput = m_discardOutputCheckBox.isChecked();
         s.cleanOldOutput = m_cleanOldOutputCheckBox.isChecked();
         s.mergeChannels = m_mergeChannelsCheckBox.isChecked();
         s.runOutputMode = static_cast<AppOutputPaneMode>(
@@ -904,6 +919,7 @@ public:
 
 private:
     QCheckBox m_wrapOutputCheckBox;
+    QCheckBox m_discardOutputCheckBox;
     QCheckBox m_cleanOldOutputCheckBox;
     QCheckBox m_mergeChannelsCheckBox;
     QComboBox m_runOutputModeComboBox;

@@ -39,6 +39,7 @@ public:
     bool cleanOldOutput = false;
     bool mergeChannels = false;
     bool wrapOutput = false;
+    bool discardExcessiveOutput = false;
     int maxCharCount = Core::Constants::DEFAULT_MAX_CHAR_COUNT;
 };
 
