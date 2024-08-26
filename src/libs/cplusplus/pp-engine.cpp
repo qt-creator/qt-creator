@@ -42,6 +42,7 @@
 #include <QScopeGuard>
 
 #include <cctype>
+#include <cstdio>
 #include <deque>
 #include <list>
 #include <algorithm>
@@ -1287,8 +1288,8 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
 
                 // Offset and length of the macro invocation
                 char chunk[40];
-                qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->byteOffset,
-                          tk->bytes());
+                std::snprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->byteOffset,
+                              tk->bytes());
                 buffer.append(chunk);
 
                 // Expanded tokens
@@ -1297,18 +1298,18 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
                     const QPair<unsigned, unsigned> &p = m_state.m_expandedTokensInfo.at(i);
                     if (p.first) {
                         if (generatedCount) {
-                            qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                            std::snprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
                             buffer.append(chunk);
                             generatedCount = 0;
                         }
-                        qsnprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
+                        std::snprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
                         buffer.append(chunk);
                     } else {
                         ++generatedCount;
                     }
                 }
                 if (generatedCount) {
-                    qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                    std::snprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
                     buffer.append(chunk);
                 }
                 buffer.append('\n');

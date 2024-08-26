@@ -39,6 +39,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdio>
 
 namespace Utils {
 
@@ -943,12 +944,11 @@ static inline QByteArray fileIdWin7(HANDLE handle)
     BY_HANDLE_FILE_INFORMATION info;
     if (GetFileInformationByHandle(handle, &info)) {
         char buffer[sizeof "01234567:0123456701234567\0"];
-        qsnprintf(buffer,
-                  sizeof(buffer),
-                  "%lx:%08lx%08lx",
-                  info.dwVolumeSerialNumber,
-                  info.nFileIndexHigh,
-                  info.nFileIndexLow);
+        std::snprintf(buffer, sizeof(buffer),
+                      "%lx:%08lx%08lx",
+                      info.dwVolumeSerialNumber,
+                      info.nFileIndexHigh,
+                      info.nFileIndexLow);
         return QByteArray(buffer);
     }
     return QByteArray();

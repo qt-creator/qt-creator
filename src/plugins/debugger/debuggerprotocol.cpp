@@ -15,6 +15,8 @@
 #include <utils/processhandle.h>
 #include <utils/qtcassert.h>
 
+#include <cstdio>
+
 namespace Debugger::Internal {
 
 static uchar fromhex(uchar c)
@@ -535,7 +537,7 @@ static QString quoteUnprintableLatin1(const QString &ba)
         if (isprint(c)) {
             res += ba.at(i);
         } else {
-            qsnprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
+            std::snprintf(buf, sizeof(buf) - 1, "\\%x", int(c));
             res += QLatin1String(buf);
         }
     }
