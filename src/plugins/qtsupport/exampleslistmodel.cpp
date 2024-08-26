@@ -440,7 +440,8 @@ void ExamplesViewController::updateExamples()
         }
     }
 
-    const bool sortIntoCategories = !m_isExamples || qtVersion >= *minQtVersionForCategories;
+    const bool sortIntoCategories = !m_isExamples || qtVersion.isNull()
+                                    || qtVersion >= *minQtVersionForCategories;
     const QStringList order = categoryOrder.isEmpty() && m_isExamples ? *defaultOrder
                                                                       : categoryOrder;
     const QList<std::pair<Section, QList<ExampleItem *>>> sections
