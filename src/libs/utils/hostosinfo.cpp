@@ -31,7 +31,23 @@ bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
 
 OsArch HostOsInfo::hostArchitecture()
 {
-    static const OsArch arch = osArchFromString(QSysInfo::currentCpuArchitecture());
+#ifdef Q_OS_WIN
+    // Workaround for Creator running in x86 emulation mode on ARM machines
+    static const OsArch arch = []() {
+        const HANDLE procHandle = GetCurrentProcess();
+        ushort processMachine;
+        ushort nativeMachine;
+        if (IsWow64Process2(procHandle, &processMachine, &nativeMachine)
+            && nativeMachine == IMAGE_FILE_MACHINE_ARM64) {
+            return OsArchArm64;
+        }
+
+        return osArchFromString(QSysInfo::currentCpuArchitecture());
+    }();
+#else
+        static const OsArch arch = osArchFromString(QSysInfo::currentCpuArchitecture());
+#endif
+
     return arch;
 }
 
