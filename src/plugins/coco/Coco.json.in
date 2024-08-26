@@ -18,5 +18,6 @@
         "View the results from the Coco CoverageBrowser to make tests more efficient and complete."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-coco.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }
