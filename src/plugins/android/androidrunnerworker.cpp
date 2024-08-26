@@ -854,6 +854,16 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
         return DoneResult::Error;
     };
 
+    const auto onArtSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "pm", "art", "clear-app-profiles",
+                                                storage->m_packageName}));
+    };
+
+    const auto onCompileSetup = [storage](Process &process) {
+        process.setCommand(storage->adbCommand({"shell", "pm", "compile", "-m", "verify", "-f",
+                                                storage->m_packageName}));
+    };
+
     const auto onIsAliveSetup = [storage](Process &process) {
         process.setProcessChannelMode(QProcess::MergedChannels);
         process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
@@ -867,6 +877,8 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
                         DoneResult::Error)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
+        ProcessTask(onArtSetup, DoneResult::Success),
+        ProcessTask(onCompileSetup, DoneResult::Success),
         Group {
             parallel,
             startNativeDebuggingRecipe(storage),
