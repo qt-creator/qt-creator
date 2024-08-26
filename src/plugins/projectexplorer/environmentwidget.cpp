@@ -269,6 +269,7 @@ EnvironmentWidget::EnvironmentWidget(QWidget *parent, Type type, QWidget *additi
 
     vbox->addWidget(d->m_detailsContainer);
 
+    updateButtons();
     connect(d->m_model, &QAbstractItemModel::dataChanged,
             this, &EnvironmentWidget::updateButtons);
 
