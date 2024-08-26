@@ -84,6 +84,10 @@ ModelNode CreateTexture::execute()
         matLib.defaultNodeListProperty().reparentHere(newTextureNode);
     });
 
+    QTimer::singleShot(0, m_view, [newTextureNode]() {
+        Utils3D::selectTexture(newTextureNode);
+    });
+
     return newTextureNode;
 }
 

@@ -414,6 +414,7 @@ void MaterialEditorView::handleToolBarAction(int action)
     case MaterialEditorContextObject::AddNewMaterial: {
         if (!model())
             break;
+        ModelNode newMatNode;
         executeInTransaction(__FUNCTION__, [&] {
             ModelNode matLib = Utils3D::materialLibraryNode(this);
             if (!matLib.isValid())
@@ -422,12 +423,15 @@ void MaterialEditorView::handleToolBarAction(int action)
             ModelNode newMatNode = createModelNode("PrincipledMaterial");
 #else
             NodeMetaInfo metaInfo = model()->qtQuick3DPrincipledMaterialMetaInfo();
-            ModelNode newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
+            newMatNode = createModelNode("QtQuick3D.PrincipledMaterial",
                                                    metaInfo.majorVersion(),
                                                    metaInfo.minorVersion());
 #endif
             renameMaterial(newMatNode, "New Material");
             matLib.defaultNodeListProperty().reparentHere(newMatNode);
+        });
+        QTimer::singleShot(0, this, [newMatNode]() {
+            Utils3D::selectMaterial(newMatNode);
         });
         break;
     }

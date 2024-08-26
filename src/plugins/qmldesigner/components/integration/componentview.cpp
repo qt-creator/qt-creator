@@ -230,27 +230,23 @@ void ComponentView::nodeIdChanged(const ModelNode& node, const QString& newId, c
 
     // Material/texture id handling is done here as ComponentView is guaranteed to always be
     // attached, unlike the views actually related to material/texture handling.
-    auto metaInfo = node.metaInfo();
-    auto rootNode = rootModelNode();
-    auto model = AbstractView::model();
 
-    if (metaInfo == model->qtQuick3DMaterialMetaInfo()) {
-        if (auto property = rootNode.auxiliaryData(Utils3D::matLibSelectedMaterialProperty)) {
+    auto maybeSetAuxData = [this, &oldId, &newId](AuxiliaryDataKeyView key) {
+        auto rootNode = rootModelNode();
+        if (auto property = rootNode.auxiliaryData(key)) {
             if (oldId == property->toString()) {
-                QTimer::singleShot(0, this, [rootNode, newId]() {
-                    rootNode.setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty, newId);
+                QTimer::singleShot(0, this, [rootNode, newId, key]() {
+                    rootNode.setAuxiliaryData(key, newId);
                 });
             }
         }
-    } else if (metaInfo == model->qtQuick3DTextureMetaInfo()) {
-        if (auto property = rootNode.auxiliaryData(Utils3D::matLibSelectedTextureProperty)) {
-            if (oldId == property->toString()) {
-                QTimer::singleShot(0, this, [rootNode, newId]() {
-                    rootNode.setAuxiliaryData(Utils3D::matLibSelectedTextureProperty, newId);
-                });
-            }
-        }
-    }
+    };
+
+    auto metaInfo = node.metaInfo();
+    if (metaInfo.isQtQuick3DMaterial())
+        maybeSetAuxData(Utils3D::matLibSelectedMaterialProperty);
+    else if (metaInfo.isQtQuick3DTexture())
+        maybeSetAuxData(Utils3D::matLibSelectedTextureProperty);
 }
 
 void ComponentView::nodeSourceChanged(const ModelNode &node, const QString &/*newNodeSource*/)
