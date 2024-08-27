@@ -44,6 +44,8 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+
+#include <QMenu>
 #include <QToolButton>
 
 static const QByteArray operator""_actionId(const char *text, size_t size)

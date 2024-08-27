@@ -9,6 +9,8 @@ namespace QmlDesigner {
 
 constexpr QLatin1String componentBundlesMaterialBundleType{"Materials"};
 constexpr QLatin1String componentBundlesType{"Bundles"};
+constexpr QLatin1String componentBundlesUser3DBundleType{"User3D"};
+constexpr QLatin1String componentBundlesUserEffectsBundleType{"UserEffects"};
 constexpr QLatin1String componentBundlesUserMaterialBundleType{"UserMaterials"};
 constexpr QLatin1String composedEffectType{"Effects"};
 constexpr QLatin1String generatedComponentsFolder{"Generated"};
@@ -154,10 +156,10 @@ Utils::FilePath GeneratedComponentUtils::userBundlePath(const QString &bundleId)
         return basePath.pathAppended(componentBundlesUserMaterialBundleType);
 
     if (bundleId == userEffectsBundleId())
-        return basePath.pathAppended(componentBundlesUserMaterialBundleType);
+        return basePath.pathAppended(componentBundlesUserEffectsBundleType);
 
     if (bundleId == user3DBundleId())
-        return basePath.pathAppended(componentBundlesUserMaterialBundleType);
+        return basePath.pathAppended(componentBundlesUser3DBundleType);
 
     qWarning() << __FUNCTION__ << "no bundleType for bundleId:" << bundleId;
     return {};
@@ -286,12 +288,12 @@ QString GeneratedComponentUtils::userMaterialsBundleId() const
 
 QString GeneratedComponentUtils::userEffectsBundleId() const
 {
-    return componentBundlesUserMaterialBundleType;
+    return componentBundlesUserEffectsBundleType;
 }
 
 QString GeneratedComponentUtils::user3DBundleId() const
 {
-    return componentBundlesMaterialBundleType;
+    return componentBundlesUser3DBundleType;
 }
 
 QString GeneratedComponentUtils::materialsBundleType() const

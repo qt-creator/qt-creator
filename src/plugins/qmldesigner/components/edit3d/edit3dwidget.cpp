@@ -46,6 +46,8 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
+#include <QLabel>
+#include <QMenu>
 #include <QMimeData>
 #include <QVBoxLayout>
 
@@ -80,6 +82,7 @@ static QIcon getEntryIcon(const ItemLibraryEntry &entry)
 
 Edit3DWidget::Edit3DWidget(Edit3DView *view)
     : m_view(view)
+    , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     setAcceptDrops(true);
 
@@ -371,10 +374,7 @@ void Edit3DWidget::createContextMenu()
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Import Component"), [&] {
-#ifdef DETACH_DISABLED_VIEWS
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
-            view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
+            m_bundleHelper->importBundleToProject();
         });
 
     m_exportBundleAction = m_contextMenu->addAction(

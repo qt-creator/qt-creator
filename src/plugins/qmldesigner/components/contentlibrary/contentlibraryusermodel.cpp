@@ -5,11 +5,11 @@
 #include "useritemcategory.h"
 #include "usertexturecategory.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryitem.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarywidget.h"
 
+#include <bundleimporter.h>
 #include <designerpaths.h>
 #include <imageutils.h>
 #include <qmldesignerconstants.h>

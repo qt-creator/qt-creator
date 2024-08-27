@@ -22,6 +22,7 @@ class StudioQuickWidget;
 namespace QmlDesigner {
 
 class AssetImageProvider;
+class BundleHelper;
 class MaterialBrowserView;
 class MaterialBrowserModel;
 class MaterialBrowserTexturesModel;
@@ -94,6 +95,7 @@ private:
     PreviewImageProvider *m_previewImageProvider = nullptr;
     AssetImageProvider *m_textureImageProvider = nullptr;
     Core::IContext *m_context = nullptr;
+    std::unique_ptr<BundleHelper> m_bundleHelper;
 
     QString m_filterText;
 

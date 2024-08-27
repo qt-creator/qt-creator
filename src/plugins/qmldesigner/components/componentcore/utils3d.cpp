@@ -13,6 +13,8 @@
 
 #include <utils/qtcassert.h>
 
+#include <QRegularExpression>
+
 namespace QmlDesigner {
 namespace Utils3D {
 
@@ -249,6 +251,59 @@ void applyMaterialToModels(AbstractView *view, const ModelNode &material,
         }
     });
 }
+
+// This method should be executed within a transaction as it performs multiple modifications to the model
+#ifdef QDS_USE_PROJECTSTORAGE
+ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
+{
+    ModelNode matLib = Utils3D::materialLibraryNode(this);
+    if (!matLib.isValid() || !typeName.size())
+        return {};
+
+    ModelNode newMatNode = view->createModelNode(typeName, -1, -1);
+    matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+    static QRegularExpression rgx("([A-Z])([a-z]*)");
+    QString newName = QString::fromUtf8(typeName).replace(rgx, " \\1\\2").trimmed();
+    if (newName.endsWith(" Material"))
+        newName.chop(9); // remove trailing " Material"
+    QString newId = view->model()->generateNewId(newName, "material");
+    newMatNode.setIdWithRefactoring(newId);
+
+    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+    objNameProp.setValue(newName);
+
+    view->emitCustomNotification("focus_material_section", {});
+
+    return newMatNode;
+}
+#else
+ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
+{
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
+    if (!matLib.isValid() || !metaInfo.isValid())
+        return {};
+
+    ModelNode newMatNode = view->createModelNode(metaInfo.typeName(),
+                                                 metaInfo.majorVersion(),
+                                                 metaInfo.minorVersion());
+    matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+    static QRegularExpression rgx("([A-Z])([a-z]*)");
+    QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
+    if (newName.endsWith(" Material"))
+        newName.chop(9); // remove trailing " Material"
+    QString newId = view->model()->generateNewId(newName, "material");
+    newMatNode.setIdWithRefactoring(newId);
+
+    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+    objNameProp.setValue(newName);
+
+    view->emitCustomNotification("focus_material_section", {});
+
+    return newMatNode;
+}
+#endif
 
 } // namespace Utils3D
 } // namespace QmlDesigner

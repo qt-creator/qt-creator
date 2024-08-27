@@ -3,7 +3,6 @@
 
 #include "contentlibrarywidget.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectsmodel.h"
 #include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
@@ -13,18 +12,19 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 
-#include <qmldesignerutils/filedownloader.h>
-#include <qmldesignerutils/fileextractor.h>
-#include <qmldesignerutils/multifiledownloader.h>
-
-#include <coreplugin/icore.h>
+#include <bundleimporter.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-
 #include <studioquickwidget.h>
 #include <theme.h>
+
+#include <coreplugin/icore.h>
+
+#include <qmldesignerutils/filedownloader.h>
+#include <qmldesignerutils/fileextractor.h>
+#include <qmldesignerutils/multifiledownloader.h>
 
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
@@ -190,10 +190,10 @@ ContentLibraryWidget::~ContentLibraryWidget()
 
 void ContentLibraryWidget::createImporter()
 {
-    m_importer = new ContentLibraryBundleImporter();
+    m_importer = new BundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
                 setImporterRunning(false);
@@ -202,7 +202,7 @@ void ContentLibraryWidget::createImporter()
             });
 #else
     connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
                 setImporterRunning(false);
@@ -211,7 +211,7 @@ void ContentLibraryWidget::createImporter()
             });
 #endif
 
-    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
+    connect(m_importer, &BundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
                 Q_UNUSED(metaInfo)
                 setImporterRunning(false);
@@ -251,7 +251,7 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
         m_userModel->updateImportedState(importedItems, bundleId);
 }
 
-ContentLibraryBundleImporter *ContentLibraryWidget::importer() const
+BundleImporter *ContentLibraryWidget::importer() const
 {
     return m_importer;
 }

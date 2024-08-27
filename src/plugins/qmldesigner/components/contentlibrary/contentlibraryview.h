@@ -91,7 +91,6 @@ private:
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void exportLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();
-    void importBundleToProject();
     void getImageFromCache(const QString &qmlPath,
                            std::function<void(const QImage &image)> successCallback);
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
@@ -109,11 +108,7 @@ private:
                                          const NodeMetaInfo &metaInfo = {});
 #endif
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
-#ifdef QDS_USE_PROJECTSTORAGE
-    ModelNode createMaterial(const TypeName &typeName);
-#else
-    ModelNode createMaterial(const NodeMetaInfo &metaInfo);
-#endif
+
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
     ModelNode m_bundleItemTarget; // target of the dropped bundle item

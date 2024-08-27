@@ -4,6 +4,7 @@
 #include "designeractionmanager.h"
 
 #include "anchoraction.h"
+#include "bundlehelper.h"
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
 #include "designericons.h"
@@ -1999,7 +2000,7 @@ void DesignerActionManager::createDefaultDesignerActions()
         rootCategory,
         QKeySequence(),
         Priorities::ImportComponent,
-        &importComponent));
+        [&](const SelectionContext &) { m_bundleHelper->importBundleToProject(); }));
 
     addDesignerAction(new ModelNodeContextMenuAction(
         exportComponentCommandId,
@@ -2188,9 +2189,12 @@ ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
     return nullptr;
 }
 
-DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView, ExternalDependenciesInterface &externalDependencies)
+DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView,
+                                             ExternalDependenciesInterface &externalDependencies)
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
+    , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
+                                                    QmlDesignerPlugin::instance()->mainWidget()))
 {
     setupIcons();
 }

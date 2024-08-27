@@ -9,6 +9,7 @@
 
 #include <asset.h>
 #include <assetimageprovider.h>
+#include <bundlehelper.h>
 #include <createtexture.h>
 #include <designmodewidget.h>
 #include <documentmanager.h>
@@ -157,6 +158,7 @@ MaterialBrowserWidget::MaterialBrowserWidget(AsynchronousImageCache &imageCache,
     , m_materialBrowserTexturesModel(new MaterialBrowserTexturesModel(view, this))
     , m_quickWidget(Utils::makeUniqueObjectPtr<StudioQuickWidget>(this))
     , m_previewImageProvider(new PreviewImageProvider())
+    , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     QImage defaultImage;
     defaultImage.load(Utils::StyleHelper::dpiSpecificImageFile(":/textureeditor/images/texture_default.png"));
@@ -379,11 +381,7 @@ void MaterialBrowserWidget::addMaterialToContentLibrary()
 
 void MaterialBrowserWidget::importMaterial()
 {
-#ifdef DETACH_DISABLED_VIEWS
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
-    ModelNode mat = m_materialBrowserModel->selectedMaterial();
-    m_materialBrowserView->emitCustomNotification("import_bundle_to_project"); // to ContentLibrary
+    m_bundleHelper->importBundleToProject();
 }
 void MaterialBrowserWidget::exportMaterial()
 {

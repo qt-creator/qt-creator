@@ -2,17 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modelnodeoperations.h"
-#include "coreplugin/coreplugintr.h"
-#include "designmodewidget.h"
-#include "modelnodecontextmenu_helper.h"
-#include "addimagesdialog.h"
-#include "layoutingridlayout.h"
-#include "findimplementation.h"
 
+#include "addimagesdialog.h"
 #include "addsignalhandlerdialog.h"
+#include "componentcore_constants.h"
+#include "findimplementation.h"
+#include "layoutingridlayout.h"
+#include "modelnodecontextmenu_helper.h"
+#include "utils3d.h"
 
 #include <bindingproperty.h>
 #include <choosefrompropertylistdialog.h>
+#include <designmodewidget.h>
+#include <designermcumanager.h>
 #include <documentmanager.h>
 #include <itemlibraryentry.h>
 #include <materialutils.h>
@@ -27,40 +29,34 @@
 #include <rewritertransaction.h>
 #include <rewritingexception.h>
 #include <signalhandlerproperty.h>
-#include <utils3d.h>
+#include <stylesheetmerger.h>
 #include <variantproperty.h>
 
-#include <componentcore_constants.h>
-#include <stylesheetmerger.h>
-
-#include <designermcumanager.h>
 #include <qmldesignerplugin.h>
 #include <qmldesignerconstants.h>
 
-#include <coreplugin/messagebox.h>
-#include <coreplugin/editormanager/editormanager.h>
+#include <annotationeditor/annotationeditor.h>
 
 #include <coreplugin/coreconstants.h>
-#include <coreplugin/modemanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
+#include <coreplugin/messagebox.h>
+#include <coreplugin/modemanager.h>
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
-
-#include <qmljseditor/qmljsfindreferences.h>
-
-#include <annotationeditor/annotationeditor.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include "projectexplorer/target.h"
 
+#include <qmljseditor/qmljsfindreferences.h>
+
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/smallstring.h>
@@ -68,17 +64,14 @@
 #include <QComboBox>
 #include <QCoreApplication>
 #include <QDialogButtonBox>
-#include <QByteArray>
 #include <QFileDialog>
-#include <QPushButton>
 #include <QGridLayout>
-#include <QPointer>
 #include <QMessageBox>
 #include <QPair>
+#include <QPushButton>
 
 #include <algorithm>
 #include <functional>
-#include <cmath>
 #include <limits>
 
 #include <bindingeditor/signallist.h>
@@ -803,14 +796,6 @@ void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
     QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
     ModelNode node = selectionContext.currentSingleSelectedNode();
     selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
-}
-
-void importComponent(const SelectionContext &selectionContext)
-{
-#ifdef DETACH_DISABLED_VIEWS
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
-    selectionContext.view()->emitCustomNotification("import_bundle_to_project");
 }
 
 void exportComponent(const SelectionContext &selectionContext)

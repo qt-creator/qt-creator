@@ -8,6 +8,9 @@
 #include <abstractview.h>
 
 namespace QmlDesigner {
+
+class NodeMetaInfo;
+
 namespace Utils3D {
 
 inline constexpr AuxiliaryDataKeyView active3dSceneProperty{AuxiliaryDataType::Temporary,
@@ -40,6 +43,12 @@ ModelNode selectedTexture(AbstractView *view);
 QList<ModelNode> getSelectedModels(AbstractView *view);
 void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add = false);
+
+#ifdef QDS_USE_PROJECTSTORAGE
+ModelNode createMaterial(AbstractView *view, const TypeName &typeName);
+#else
+ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo);
+#endif
 
 } // namespace Utils3D
 } // namespace QmlDesigner

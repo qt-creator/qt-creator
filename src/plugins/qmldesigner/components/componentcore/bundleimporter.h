@@ -15,13 +15,13 @@ namespace QmlDesigner {
 
 class NodeMetaInfo;
 
-class ContentLibraryBundleImporter : public QObject
+class BundleImporter : public QObject
 {
     Q_OBJECT
 
 public:
-    ContentLibraryBundleImporter(QObject *parent = nullptr);
-    ~ContentLibraryBundleImporter() = default;
+    BundleImporter(QObject *parent = nullptr);
+    ~BundleImporter() = default;
 
     QString importComponent(const QString &bundleDir, const TypeName &type, const QString &qmlFile,
                             const QStringList &files);

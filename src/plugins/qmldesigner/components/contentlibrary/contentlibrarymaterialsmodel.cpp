@@ -3,7 +3,6 @@
 
 #include "contentlibrarymaterialsmodel.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibrarymaterial.h"
 #include "contentlibrarymaterialscategory.h"
 #include "contentlibrarywidget.h"
@@ -13,6 +12,7 @@
 #include "fileextractor.h"
 #include "multifiledownloader.h"
 
+#include <bundleimporter.h>
 #include <qmldesignerplugin.h>
 
 #include <utils/algorithm.h>

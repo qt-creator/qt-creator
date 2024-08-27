@@ -3,11 +3,11 @@
 
 #include "contentlibraryeffectsmodel.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectscategory.h"
 #include "contentlibraryitem.h"
 #include "contentlibrarywidget.h"
 
+#include <bundleimporter.h>
 #include <qmldesignerplugin.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

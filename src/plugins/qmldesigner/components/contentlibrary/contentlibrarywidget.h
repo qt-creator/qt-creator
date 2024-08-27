@@ -22,7 +22,7 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
-class ContentLibraryBundleImporter;
+class BundleImporter;
 class ContentLibraryEffectsModel;
 class ContentLibraryIconProvider;
 class ContentLibraryItem;
@@ -104,7 +104,7 @@ public:
 
     QSize sizeHint() const override;
 
-    ContentLibraryBundleImporter *importer() const;
+    BundleImporter *importer() const;
     ContentLibraryIconProvider *iconProvider() const;
 
     void showTab(TabIndex tabIndex);
@@ -152,7 +152,7 @@ private:
     QPointer<ContentLibraryEffectsModel> m_effectsModel;
     QPointer<ContentLibraryUserModel> m_userModel;
 
-    ContentLibraryBundleImporter *m_importer = nullptr;
+    BundleImporter *m_importer = nullptr;
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
     QString m_filterText;
