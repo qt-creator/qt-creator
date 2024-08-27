@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "texteditor_global.h"
+#include "texteditorsupport_global.h"
 
 #include <utils/filepath.h>
 #include <utils/qtcsettings.h>
@@ -17,7 +17,7 @@ namespace TextEditor {
 
 // Tab settings: Data type the GeneralSettingsPage acts on
 // with some convenience functions for formatting.
-class TEXTEDITOR_EXPORT TabSettings
+class TEXTEDITORSUPPORT_EXPORT TabSettings
 {
 public:
 

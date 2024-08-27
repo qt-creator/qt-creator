@@ -6,14 +6,14 @@ endif()
 
 add_qtc_library(TextEditorSupport STATIC
   DEPENDS Utils
-  DEFINES TEXTEDITOR_LIBRARY
   SOURCES
+    texteditorsupport_global.h
     tabsettings.cpp tabsettings.h
 )
 
 add_qtc_plugin(TextEditor
   DEPENDS Qt::Concurrent Qt::Network Qt::PrintSupport Qt::Xml
-  PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET} TextEditorSupport
+  PUBLIC_DEPENDS ${KSYNTAXHIGHLIGHTING_TARGET}
   PLUGIN_DEPENDS Core
   SOURCES
     autocompleter.cpp autocompleter.h
@@ -130,3 +130,13 @@ extend_qtc_plugin(TextEditor
     texteditor_test.cpp
     texteditor_test.h
 )
+
+# from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,TextEditorSupport> is supported which can be added to DEPENDS
+if (MSVC)
+  qtc_output_binary_dir(_output_binary_dir)
+  set_target_properties(TextEditor PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/TextEditorSupport.lib")
+elseif (APPLE)
+  target_link_libraries(TextEditor PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:TextEditorSupport>)
+else ()
+  target_link_libraries(TextEditor PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:TextEditorSupport> -Wl,--no-whole-archive)
+endif ()
