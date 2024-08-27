@@ -32,6 +32,7 @@ public:
     Utils::BoolAspect &showQmlObjectTree;
     Utils::BoolAspect &stationaryEditorWhileStepping;
     Utils::BoolAspect &forceLoggingToConsole;
+    Utils::BoolAspect &showUnsupportedBreakpointWarning;
 
     Utils::TypedAspect<QMap<QString, QString>> &sourcePathMap;
 

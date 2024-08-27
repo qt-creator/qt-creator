@@ -617,12 +617,20 @@ void DebuggerRunTool::start()
 
             showMessage(warningMessage, LogWarning);
 
-            static bool doNotShowAgain = false;
-            CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                             Tr::tr("Debugger"),
-                                             warningMessage,
-                                             &doNotShowAgain,
-                                             QMessageBox::Ok);
+            if (settings().showUnsupportedBreakpointWarning()) {
+                bool doNotAskAgain = false;
+                CheckableDecider decider(&doNotAskAgain);
+                CheckableMessageBox::information(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Debugger"),
+                    warningMessage,
+                    decider,
+                    QMessageBox::Ok);
+                if (doNotAskAgain) {
+                    settings().showUnsupportedBreakpointWarning.setValue(false);
+                    settings().showUnsupportedBreakpointWarning.writeSettings();
+                }
+            }
         }
     }
 

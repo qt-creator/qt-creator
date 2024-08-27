@@ -60,6 +60,7 @@ public:
     Utils::BoolAspect showQmlObjectTree{this};
     Utils::BoolAspect stationaryEditorWhileStepping{this};
     Utils::BoolAspect forceLoggingToConsole{this};
+    Utils::BoolAspect showUnsupportedBreakpointWarning{this};
 
     SourcePathMapAspect sourcePathMap{this};
 

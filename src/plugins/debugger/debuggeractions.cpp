@@ -46,6 +46,7 @@ DebuggerSettings::DebuggerSettings() :
     showQmlObjectTree{commonSettings().showQmlObjectTree},
     stationaryEditorWhileStepping{commonSettings().stationaryEditorWhileStepping},
     forceLoggingToConsole{commonSettings().forceLoggingToConsole},
+    showUnsupportedBreakpointWarning{commonSettings().showUnsupportedBreakpointWarning},
 
     sourcePathMap{commonSettings().sourcePathMap},
     registerForPostMortem{*commonSettings().registerForPostMortem},

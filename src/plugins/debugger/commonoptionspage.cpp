@@ -45,6 +45,14 @@ CommonSettings::CommonSettings()
         Tr::tr("Scrolls the editor only when it is necessary to keep the current line in view, "
                "instead of keeping the next statement centered at all times."));
 
+    showUnsupportedBreakpointWarning.setSettingsKey(debugModeGroup, "ShowUnsupportedBreakpointWarning");
+    showUnsupportedBreakpointWarning.setDefaultValue(true);
+    showUnsupportedBreakpointWarning.setLabelText(
+        Tr::tr("Show warnings for unsupported breakpoints"));
+    showUnsupportedBreakpointWarning.setToolTip(
+        Tr::tr("Shows a warning on debugger start-up when breakpoints are requested "
+               "which are not supported by the selected debugger engine."));
+
     forceLoggingToConsole.setSettingsKey(debugModeGroup, "ForceLoggingToConsole");
     forceLoggingToConsole.setLabelText(Tr::tr("Force logging to console"));
     forceLoggingToConsole.setToolTip(
@@ -151,6 +159,7 @@ CommonSettings::CommonSettings()
             switchModeOnExit,
             showQmlObjectTree,
             stationaryEditorWhileStepping,
+            showUnsupportedBreakpointWarning,
             forceLoggingToConsole,
             registerForPostMortem,
             st
