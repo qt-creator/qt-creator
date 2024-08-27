@@ -507,31 +507,32 @@ MimeType MimeDatabasePrivate::mimeTypeForData(QIODevice *device)
 }
 
 MimeType MimeDatabasePrivate::mimeTypeForFile(const QString &fileName,
-                                                [[maybe_unused]] const QFileInfo *fileInfo,
+                                                const QFileInfo &fileInfo,
                                                 MimeDatabase::MatchMode mode)
 {
+    if (false) {
 #ifdef Q_OS_UNIX
-    // Cannot access statBuf.st_mode from the filesystem engine, so we have to stat again.
-    // In addition we want to follow symlinks.
-    const QByteArray nativeFilePath = QFile::encodeName(fileName);
-    QT_STATBUF statBuffer;
-    if (QT_STAT(nativeFilePath.constData(), &statBuffer) == 0) {
-        if (S_ISDIR(statBuffer.st_mode))
-            return mimeTypeForName(directoryMimeType());
-        if (S_ISCHR(statBuffer.st_mode))
-            return mimeTypeForName(QStringLiteral("inode/chardevice"));
-        if (S_ISBLK(statBuffer.st_mode))
-            return mimeTypeForName(QStringLiteral("inode/blockdevice"));
-        if (S_ISFIFO(statBuffer.st_mode))
-            return mimeTypeForName(QStringLiteral("inode/fifo"));
-        if (S_ISSOCK(statBuffer.st_mode))
-            return mimeTypeForName(QStringLiteral("inode/socket"));
-    }
-#else
-    const bool isDirectory = fileInfo ? fileInfo->isDir() : QFileInfo(fileName).isDir();
-    if (isDirectory)
-        return mimeTypeForName(directoryMimeType());
+    } else if (fileInfo.isNativePath()) {
+        // Cannot access statBuf.st_mode from the filesystem engine, so we have to stat again.
+        // In addition we want to follow symlinks.
+        const QByteArray nativeFilePath = QFile::encodeName(fileName);
+        QT_STATBUF statBuffer;
+        if (QT_STAT(nativeFilePath.constData(), &statBuffer) == 0) {
+            if (S_ISDIR(statBuffer.st_mode))
+                return mimeTypeForName(directoryMimeType());
+            if (S_ISCHR(statBuffer.st_mode))
+                return mimeTypeForName(QStringLiteral("inode/chardevice"));
+            if (S_ISBLK(statBuffer.st_mode))
+                return mimeTypeForName(QStringLiteral("inode/blockdevice"));
+            if (S_ISFIFO(statBuffer.st_mode))
+                return mimeTypeForName(QStringLiteral("inode/fifo"));
+            if (S_ISSOCK(statBuffer.st_mode))
+                return mimeTypeForName(QStringLiteral("inode/socket"));
+        }
 #endif
+    } else if (fileInfo.isDir()) {
+        return mimeTypeForName(directoryMimeType());
+    }
 
     switch (mode) {
     case MimeDatabase::MatchDefault:
@@ -680,7 +681,7 @@ MimeType MimeDatabase::mimeTypeForFile(const QFileInfo &fileInfo, MatchMode mode
     d->checkInitPhase(fileInfo.filePath());
     QMutexLocker locker(&d->mutex);
 
-    return d->mimeTypeForFile(fileInfo.filePath(), &fileInfo, mode);
+    return d->mimeTypeForFile(fileInfo.filePath(), fileInfo, mode);
 }
 
 /*!
@@ -696,7 +697,8 @@ MimeType MimeDatabase::mimeTypeForFile(const QString &fileName, MatchMode mode) 
     if (mode == MatchExtension) {
         return d->mimeTypeForFileExtension(fileName);
     } else {
-        return d->mimeTypeForFile(fileName, nullptr, mode);
+        QFileInfo fileInfo(fileName);
+        return d->mimeTypeForFile(fileName, fileInfo, mode);
     }
 }
 

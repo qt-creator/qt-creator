@@ -64,7 +64,7 @@ public:
     MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device);
     MimeType mimeTypeForFileExtension(const QString &fileName);
     MimeType mimeTypeForData(QIODevice *device);
-    MimeType mimeTypeForFile(const QString &fileName, const QFileInfo *fileInfo, MimeDatabase::MatchMode mode);
+    MimeType mimeTypeForFile(const QString &fileName, const QFileInfo &fileInfo, MimeDatabase::MatchMode mode);
     MimeType findByData(const QByteArray &data, int *priorityPtr);
     QStringList mimeTypeForFileName(const QString &fileName);
     MimeGlobMatchResult findByFileName(const QString &fileName);
