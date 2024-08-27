@@ -13,6 +13,12 @@ using namespace Qt::StringLiterals;
 
 namespace Utils {
 
+// originally from qtools_p.h
+static bool isOctalDigit(char32_t c) noexcept
+{
+    return c >= '0' && c <= '7';
+}
+
 // in the same order as Type!
 static const char magicRuleTypes_string[] =
     "invalid\0"
@@ -157,11 +163,11 @@ static inline QByteArray makePattern(const QByteArray &value)
                         continue;
                 }
                 *data++ = c;
-            } else if (*p >= '0' && *p <= '7') { // oct (\\7, or \\77, or \\377)
+            } else if (isOctalDigit(*p)) { // oct (\\7, or \\77, or \\377)
                 char c = *p - '0';
-                if (p + 1 < e && p[1] >= '0' && p[1] <= '7') {
+                if (p + 1 < e && isOctalDigit(p[1])) {
                     c = (c << 3) + *(++p) - '0';
-                    if (p + 1 < e && p[1] >= '0' && p[1] <= '7' && p[-1] <= '3')
+                    if (p + 1 < e && isOctalDigit(p[1]) && p[-1] <= '3')
                         c = (c << 3) + *(++p) - '0';
                 }
                 *data++ = c;
