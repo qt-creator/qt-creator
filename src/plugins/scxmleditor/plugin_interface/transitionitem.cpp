@@ -32,7 +32,6 @@ static QString wrapText(const QString &text)
 {
     QString wrappedText = "[" + text.trimmed() + "]";
     return wrappedText;
-
 }
 
 static QString unwrapText(const QString &text)
@@ -921,14 +920,15 @@ void TransitionItem::updateComponents()
     } else {
         const qreal widthEventItem = m_eventTagItem->boundingRect().width() / 2;
         m_eventTagItem->setPos(
-            nameLine.pointAt(0.5)
+            nameLine.pointAt(0.5) + m_eventTagItem->movePoint()
             + QPointF(-widthEventItem, -m_eventTagItem->boundingRect().height() / 1.5));
 
-        const qreal width = qMax(nameLine.length(), m_eventTagItem->boundingRect().width());
+        qreal width = qMax(nameLine.length(), m_eventTagItem->boundingRect().width());
         m_condTagItem->setTextMaxWidth(width);
-        const qreal widthCondItem = m_condTagItem->boundingRect().width() / 2;
-        m_condTagItem->setPos(nameLine.pointAt(0.5) + QPointF(-widthCondItem, 2));
 
+        const qreal widthCondItem = m_condTagItem->boundingRect().width() / 2;
+        m_condTagItem->setPos(
+            nameLine.pointAt(0.5) + m_condTagItem->movePoint() + QPointF(-widthCondItem, 2));
     }
 
     if (m_warningItem)
