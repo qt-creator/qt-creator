@@ -338,6 +338,8 @@ TreeViewDelegate {
     }
 
     DropArea {
+        id: dropArea
+
         anchors.fill: parent
         anchors.bottomMargin: -assetsView.rowSpacing
 
@@ -349,7 +351,7 @@ TreeViewDelegate {
 
             // highlights the root folder canvas area when dragging over child
             if (root.depth === 1 && !root.__isDirectory)
-                assetsRoot.highlightCanvas = highlight
+                root.assetsRoot.highlightCanvas = highlight
         }
 
         onEntered: (drag) => {
@@ -358,27 +360,27 @@ TreeViewDelegate {
             drag.accepted |= (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
 
             if (root.__isDirectory)
-                isHighlighted = drag.accepted
+                root.isHighlighted = drag.accepted
             else
-                updateParentHighlight(drag.accepted)
+                dropArea.updateParentHighlight(drag.accepted)
         }
 
         onDropped: (drag) => {
             if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
-                rootView.invokeAssetsDrop(drag.urls, root.getDirPath())
+                root.rootView.invokeAssetsDrop(drag.urls, root.getDirPath())
             } else {
-                rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
-                                          root.assetsRoot.dropComplexExtFiles,
-                                          root.getDirPath())
+                root.rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
+                                               root.assetsRoot.dropComplexExtFiles,
+                                               root.getDirPath())
             }
 
-            isHighlighted = true
-            updateParentHighlight(true)
+            root.isHighlighted = false
+            dropArea.updateParentHighlight(false)
         }
 
         onExited: {
-            isHighlighted = false
-            updateParentHighlight(false)
+            root.isHighlighted = false
+            dropArea.updateParentHighlight(false)
         }
     }
 }

@@ -68,9 +68,9 @@ Item {
         onDropped: (drag) => {
             drag.accept()
             if (drag.formats[0] === "application/vnd.qtdesignstudio.assets") {
-               rootView.handleAssetsDrop(drag.urls, assetsModel.rootPath())
+               root.rootView.handleAssetsDrop(drag.urls, assetsModel.rootPath())
             } else {
-               rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
+               root.rootView.handleExtFilesDrop(root.dropSimpleExtFiles,
                                            root.dropComplexExtFiles,
                                            assetsModel.rootPath())
             }
