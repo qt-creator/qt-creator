@@ -333,8 +333,15 @@ TextureEditorView *TextureEditorView::instance()
 
 void TextureEditorView::timerEvent(QTimerEvent *timerEvent)
 {
-    if (m_timerId == timerEvent->timerId())
-        resetView();
+    if (m_timerId == timerEvent->timerId()) {
+        if (m_selectedTextureChanged) {
+            m_selectedTextureChanged = false;
+            Utils3D::selectTexture(m_newSelectedTexture);
+            m_newSelectedTexture = {};
+        } else {
+            resetView();
+        }
+    }
 }
 
 void TextureEditorView::resetView()
@@ -530,6 +537,13 @@ bool TextureEditorView::noValidSelection() const
     return !QmlObjectNode::isValidQmlObjectNode(m_selectedTexture);
 }
 
+void TextureEditorView::asyncResetView()
+{
+    if (m_timerId)
+        killTimer(m_timerId);
+    m_timerId = startTimer(0);
+}
+
 void TextureEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
@@ -686,7 +700,7 @@ void TextureEditorView::auxiliaryDataChanged(const ModelNode &node,
             if (ModelNode selNode = Utils3D::selectedTexture(this)) {
                 m_selectedTexture = selNode;
                 m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
-                QTimer::singleShot(0, this, &TextureEditorView::resetView);
+                asyncResetView();
             }
         }
     }
@@ -703,14 +717,58 @@ void TextureEditorView::nodeReparented(const ModelNode &node,
                                        [[maybe_unused]] const NodeAbstractProperty &oldPropertyParent,
                                        [[maybe_unused]] PropertyChangeFlags propertyChange)
 {
-    if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+    if (node.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject()) {
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(true);
+        asyncResetView();
+    } else {
+        if (!m_selectedTexture && node.metaInfo().isQtQuick3DTexture()
+            && node.parentProperty().parentModelNode() == Utils3D::materialLibraryNode(this)) {
+            ModelNode currentSelection = Utils3D::selectedTexture(this);
+            if (currentSelection) {
+                m_selectedTexture = currentSelection;
+                asyncResetView();
+            } else {
+                QTimer::singleShot(0, this, [node]() {
+                    Utils3D::selectTexture(node);
+                });
+            }
+        }
+    }
 }
 
 void TextureEditorView::nodeAboutToBeRemoved(const ModelNode &removedNode)
 {
-    if (removedNode.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject())
+    if (removedNode.id() == Constants::MATERIAL_LIB_ID && m_qmlBackEnd && m_qmlBackEnd->contextObject()) {
         m_qmlBackEnd->contextObject()->setHasMaterialLibrary(false);
+        asyncResetView();
+    } else if (removedNode == m_selectedTexture) {
+        ModelNode matLib = Utils3D::materialLibraryNode(this);
+        QTC_ASSERT(matLib.isValid(), return);
+
+        const QList<ModelNode> textures = matLib.directSubModelNodesOfType(
+            model()->qtQuick3DTextureMetaInfo());
+        bool selectedNodeFound = false;
+        m_newSelectedTexture = {};
+        for (const ModelNode &tex : textures) {
+            if (selectedNodeFound) {
+                m_newSelectedTexture = tex;
+                break;
+            }
+            if (m_selectedTexture == tex)
+                selectedNodeFound = true;
+            else
+                m_newSelectedTexture = tex;
+        }
+        m_selectedTextureChanged = true;
+    }
+}
+
+void TextureEditorView::nodeRemoved([[maybe_unused]] const ModelNode &removedNode,
+                                    [[maybe_unused]] const NodeAbstractProperty &parentProperty,
+                                    [[maybe_unused]] PropertyChangeFlags propertyChange)
+{
+    if (m_selectedTextureChanged)
+        asyncResetView();
 }
 
 bool TextureEditorView::hasWidget() const

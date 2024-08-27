@@ -120,6 +120,7 @@ private:
 
     void initPreviewData();
     void updatePossibleTypes();
+    void asyncResetView();
 
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
@@ -134,6 +135,8 @@ private:
     bool m_hasMaterialRoot = false;
     bool m_initializingPreviewData = false;
     bool m_textureAboutToBeRemoved = false;
+    ModelNode m_newSelectedMaterial;
+    bool m_selectedMaterialChanged = false;
     QSize m_previewSize;
     QByteArray m_previewRequestId;
 
