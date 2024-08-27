@@ -21,13 +21,14 @@ namespace Utils {
 
 struct MimeGlobMatchResult
 {
-    void addMatch(const QString &mimeType, int weight, const QString &pattern, int knownSuffixLength = 0);
+    void addMatch(const QString &mimeType, int weight, const QString &pattern,
+                  qsizetype knownSuffixLength = 0);
 
     QStringList m_matchingMimeTypes; // only those with highest weight
     QStringList m_allMatchingMimeTypes;
     int m_weight = 0;
-    int m_matchingPatternLength = 0;
-    int m_knownSuffixLength = 0;
+    qsizetype m_matchingPatternLength = 0;
+    qsizetype m_knownSuffixLength = 0;
 };
 
 class MimeGlobPattern

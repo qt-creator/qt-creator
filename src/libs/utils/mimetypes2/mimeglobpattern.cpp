@@ -22,7 +22,8 @@ namespace Utils {
     Handles glob weights, and preferring longer matches over shorter matches.
 */
 
-void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QString &pattern, int knownSuffixLength)
+void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QString &pattern,
+                                   qsizetype knownSuffixLength)
 {
     if (m_allMatchingMimeTypes.contains(mimeType))
         return;
@@ -59,11 +60,11 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
 
 MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(const QString &pattern) const
 {
-    const int patternLength = pattern.size();
+    const qsizetype patternLength = pattern.size();
     if (!patternLength)
         return OtherPattern;
 
-    const int starCount = pattern.count(u'*');
+    const qsizetype starCount = pattern.count(u'*');
     const bool hasSquareBracket = pattern.indexOf(u'[') != -1;
     const bool hasQuestionMark = pattern.indexOf(u'?') != -1;
 
@@ -108,10 +109,10 @@ bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
     const QString fileName = m_caseSensitivity == Qt::CaseInsensitive
             ? inputFileName.toLower() : inputFileName;
 
-    const int patternLength = m_pattern.size();
+    const qsizetype patternLength = m_pattern.size();
     if (!patternLength)
         return false;
-    const int fileNameLength = fileName.size();
+    const qsizetype fileNameLength = fileName.size();
 
     switch (m_patternType) {
     case SuffixPattern: {
@@ -224,16 +225,12 @@ void MimeGlobPatternList::match(MimeGlobMatchResult &result,
                                 const QString &fileName,
                                 const QSet<QString> &ignoreMimeTypes) const
 {
-
-    MimeGlobPatternList::const_iterator it = this->constBegin();
-    const MimeGlobPatternList::const_iterator endIt = this->constEnd();
-    for (; it != endIt; ++it) {
-        const MimeGlobPattern &glob = *it;
+    for (const MimeGlobPattern &glob : *this) {
         if (ignoreMimeTypes.contains(glob.mimeType()))
             continue;
         if (glob.matchFileName(fileName)) {
             const QString pattern = glob.pattern();
-            const int suffixLen = isSimplePattern(pattern) ? pattern.size() - 2 : 0;
+            const qsizetype suffixLen = isSimplePattern(pattern) ? pattern.size() - strlen("*.") : 0;
             result.addMatch(glob.mimeType(), glob.weight(), pattern, suffixLen);
         }
     }
@@ -248,9 +245,9 @@ void MimeAllGlobPatterns::matchingGlobs(const QString &fileName,
 
     // Now use the "fast patterns" dict, for simple *.foo patterns with weight 50
     // (which is most of them, so this optimization is definitely worth it)
-    const int lastDot = fileName.lastIndexOf(u'.');
+    const qsizetype lastDot = fileName.lastIndexOf(u'.');
     if (lastDot != -1) { // if no '.', skip the extension lookup
-        const int ext_len = fileName.length() - lastDot - 1;
+        const qsizetype ext_len = fileName.length() - lastDot - 1;
         const QString simpleExtension = fileName.right(ext_len).toLower();
         // (toLower because fast patterns are always case-insensitive and saved as lowercase)
 

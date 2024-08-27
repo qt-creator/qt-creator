@@ -273,7 +273,7 @@ bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result,
                                          int numEntries,
                                          int firstOffset,
                                          const QString &fileName,
-                                         int charPos,
+                                         qsizetype charPos,
                                          bool caseSensitiveCheck)
 {
     QChar fileChar = fileName[charPos];
@@ -330,7 +330,7 @@ bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result,
 bool MimeBinaryProvider::matchMagicRule(MimeBinaryProvider::CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data)
 {
     const char *dataPtr = data.constData();
-    const int dataSize = data.size();
+    const qsizetype dataSize = data.size();
     for (int matchlet = 0; matchlet < numMatchlets; ++matchlet) {
         const int off = firstOffset + matchlet * 32;
         const int rangeStart = cacheFile->getUint32(off);

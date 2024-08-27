@@ -735,7 +735,7 @@ QList<MimeType> MimeDatabase::mimeTypesForFileName(const QString &fileName) cons
 QString MimeDatabase::suffixForFileName(const QString &fileName) const
 {
     QMutexLocker locker(&d->mutex);
-    const int suffixLength = d->findByFileName(fileName).m_knownSuffixLength;
+    const qsizetype suffixLength = d->findByFileName(fileName).m_knownSuffixLength;
     return fileName.right(suffixLength);
 }
 
