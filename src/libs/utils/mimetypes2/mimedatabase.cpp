@@ -423,7 +423,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
 
     // Pass 1) Try to match on the file name
     MimeGlobMatchResult candidatesByName = findByFileName(fileName);
-    if (candidatesByName.m_allMatchingMimeTypes.count() == 1) {
+    if (candidatesByName.m_allMatchingMimeTypes.size() == 1) {
         const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
         if (mime.isValid())
             return mime;
@@ -461,7 +461,7 @@ MimeType MimeDatabasePrivate::mimeTypeForFileNameAndData(const QString &fileName
             }
         }
 
-        if (candidatesByName.m_allMatchingMimeTypes.count() > 1) {
+        if (candidatesByName.m_allMatchingMimeTypes.size() > 1) {
             candidatesByName.m_matchingMimeTypes.sort(); // make it deterministic
             const MimeType mime = mimeTypeForName(candidatesByName.m_matchingMimeTypes.at(0));
             if (mime.isValid())
@@ -719,7 +719,7 @@ QList<MimeType> MimeDatabase::mimeTypesForFileName(const QString &fileName) cons
 
     const QStringList matches = d->mimeTypeForFileName(fileName);
     QList<MimeType> mimes;
-    mimes.reserve(matches.count());
+    mimes.reserve(matches.size());
     for (const QString &mime : matches)
         mimes.append(d->mimeTypeForName(mime));
     return mimes;
