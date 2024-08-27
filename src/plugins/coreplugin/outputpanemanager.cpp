@@ -541,7 +541,7 @@ void OutputPaneManager::initialize()
 
 void OutputPaneManager::setupButtons()
 {
-    for (auto pane : g_outputPanes)
+    for (auto &pane : g_outputPanes)
         delete pane.button;
 
     ActionContainer *mpanes = ActionManager::actionContainer(Constants::M_VIEW_PANES);
