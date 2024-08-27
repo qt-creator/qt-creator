@@ -51,7 +51,10 @@ set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY 
 
 if (MSVC)
     # Prevent fatal error C1128
-    set_property(SOURCE bindings/settings.cpp PROPERTY COMPILE_FLAGS /bigobj)
+    target_compile_options(Lua PRIVATE /bigobj)
+endif()
+if (MINGW)
+    target_compile_options(Lua PRIVATE "-Wa,-mbig-obj")
 endif()
 
 qtc_copy_to_builddir(copy_lua_meta_files
