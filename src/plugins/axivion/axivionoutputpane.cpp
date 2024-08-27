@@ -669,7 +669,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     const std::vector<Dto::AnalysisVersionDto> &versions = info->versions;
     for (auto it = versions.crbegin(); it != versions.crend(); ++it) {
         const Dto::AnalysisVersionDto &version = *it;
-        versionLabels.append(version.label.value_or(version.name));
+        versionLabels.append(version.name);
         m_versionDates.append(version.date);
     }
     m_signalBlocker.lock();

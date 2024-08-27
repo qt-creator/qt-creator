@@ -70,7 +70,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
 #endif
     style.BinPackArguments = false;
+#if LLVM_VERSION_MAJOR >= 20
+    style.BinPackParameters = FormatStyle::BPPS_OnePerLine;
+#else
     style.BinPackParameters = false;
+#endif
     style.BraceWrapping.AfterClass = true;
     style.BraceWrapping.AfterControlStatement = FormatStyle::BWACS_Never;
     style.BraceWrapping.AfterEnum = false;

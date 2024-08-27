@@ -282,7 +282,8 @@ ProjectWizardPage::ProjectWizardPage(QWidget *parent)
     m_addToVersionControlComboBox = new QComboBox;
     m_addToVersionControlComboBox->setObjectName("addToVersionControlComboBox");
     m_vcsManageButton = new QPushButton(ICore::msgShowOptionsDialog());
-    m_vcsManageButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+    m_vcsManageButton
+        ->setSizePolicy(QSizePolicy::Maximum, m_vcsManageButton->sizePolicy().verticalPolicy());
     m_filesLabel = new QLabel;
     m_filesLabel->setObjectName("filesLabel");
     m_filesLabel->setAlignment(Qt::AlignBottom);

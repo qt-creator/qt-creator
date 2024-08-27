@@ -62,8 +62,9 @@ static FormatOutput format(const FormatInput &input)
     switch (input.command.processing()) {
     case Command::FileProcessing: {
         // Save text to temporary file
-        Utils::TempFileSaver sourceFile(Utils::TemporaryDirectory::masterDirectoryPath()
-                                        + "/qtc_beautifier_XXXXXXXX." + input.filePath.suffix());
+        Utils::TempFileSaver sourceFile(
+            input.filePath.parentDir()
+            / (input.filePath.fileName() + "_format_XXXXXXXX." + input.filePath.suffix()));
         sourceFile.setAutoRemove(true);
         sourceFile.write(input.sourceData.toUtf8());
         if (!sourceFile.finalize()) {

@@ -3,10 +3,13 @@
 
 #include "qmllsclient.h"
 
+#include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
+
+#include <projectexplorer/buildmanager.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -66,15 +69,28 @@ QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
-    LanguageServerProtocol::Unregistration unregister;
-    unregister.setMethod("textDocument/semanticTokens");
-    unregister.setId({});
-    dynamicCapabilities().unregisterCapability({unregister});
+    setSnippetsGroup(QmlJSEditor::Constants::QML_SNIPPETS_GROUP_ID);
+
+    connect(
+        ProjectExplorer::BuildManager::instance(),
+        &ProjectExplorer::BuildManager::buildQueueFinished,
+        this,
+        [this]() { LanguageClientManager::restartClient(this); });
 }
 
 QmllsClient::~QmllsClient()
 {
     qmllsClients().remove(qmllsClients().key(this));
+}
+
+void QmllsClient::startImpl()
+{
+    LanguageServerProtocol::Unregistration unregister;
+    unregister.setMethod("textDocument/semanticTokens");
+    unregister.setId({});
+    dynamicCapabilities().unregisterCapability({unregister});
+
+    Client::startImpl();
 }
 
 } // namespace QmlJSEditor

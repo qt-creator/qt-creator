@@ -1684,6 +1684,11 @@ void Client::setLogTarget(LogTarget target)
 
 void Client::start()
 {
+    startImpl();
+}
+
+void Client::startImpl()
+{
     d->m_shutdownTimer.stop();
     LanguageClientManager::addClient(this);
     d->m_clientInterface->start();

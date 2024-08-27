@@ -391,10 +391,21 @@ public:
     void fix(Kit *k) override
     {
         const QVariant id = k->value(DebuggerKitAspect::id());
-        if (Utils::anyOf(DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id)))
-            return;
-        k->removeKeySilently(DebuggerKitAspect::id());
-        setup(k);
+        const DebuggerItem debugger = Utils::findOrDefault(
+            DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id));
+        if (debugger.isValid() && debugger.engineType() == CdbEngineType) {
+            const int tcWordWidth = ToolchainKitAspect::targetAbi(k).wordWidth();
+            if (Utils::anyOf(debugger.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth)))
+                return;
+
+            for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+                if (item.engineType() == CdbEngineType
+                    && Utils::anyOf(item.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth))) {
+                    k->setValue(DebuggerKitAspect::id(), item.id());
+                    return;
+                }
+            }
+        }
     }
 
     KitAspect *createKitAspect(Kit *k) const override
