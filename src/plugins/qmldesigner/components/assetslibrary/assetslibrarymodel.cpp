@@ -24,8 +24,7 @@ AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
     createBackendModel();
-
-    setRecursiveFilteringEnabled(true);
+    sort(0);
 }
 
 void AssetsLibraryModel::createBackendModel()
@@ -334,6 +333,23 @@ QString AssetsLibraryModel::parentDirPath(const QString &path) const
     QModelIndex idx = indexForPath(path);
     QModelIndex parentIdx = idx.parent();
     return filePath(parentIdx);
+}
+
+bool AssetsLibraryModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    bool leftIsDir = m_sourceFsModel->isDir(left);
+    bool rightIsDir = m_sourceFsModel->isDir(right);
+
+    if (leftIsDir && !rightIsDir)
+        return true;
+
+    if (!leftIsDir && rightIsDir)
+        return false;
+
+    const QString leftName = m_sourceFsModel->fileName(left);
+    const QString rightName = m_sourceFsModel->fileName(right);
+
+    return QString::localeAwareCompare(leftName, rightName) < 0;
 }
 
 } // namespace QmlDesigner
