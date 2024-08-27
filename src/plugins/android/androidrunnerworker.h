@@ -10,10 +10,10 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
-#include <utils/port.h>
 
 namespace Android { class AndroidDeviceInfo; }
 namespace ProjectExplorer { class RunControl; }
+namespace Utils { class Port; }
 
 namespace Android::Internal {
 
@@ -29,7 +29,7 @@ public:
     void asyncStop();
 
 signals:
-    void remoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void remoteProcessStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
     void remoteProcessFinished(const QString &errString = QString());
 
     void remoteOutput(const QString &output);
