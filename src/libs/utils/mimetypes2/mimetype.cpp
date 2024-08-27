@@ -241,7 +241,7 @@ QString MimeType::comment() const
         const QString comm = d->localeComments.value(lang);
         if (!comm.isEmpty())
             return comm;
-        const int pos = lang.indexOf(u'_');
+        const qsizetype pos = lang.indexOf(u'_');
         if (pos != -1) {
             // "pt_BR" not found? try just "pt"
             const QString shortLang = lang.left(pos);
@@ -280,7 +280,7 @@ QString MimeType::genericIconName() const
         // (i.e. "video-x-generic" in the previous example).
         const QString group = name();
         QStringView groupRef(group);
-        const int slashindex = groupRef.indexOf(u'/');
+        const qsizetype slashindex = groupRef.indexOf(u'/');
         if (slashindex != -1)
             groupRef = groupRef.left(slashindex);
         return groupRef + "-x-generic"_L1;
@@ -290,7 +290,7 @@ QString MimeType::genericIconName() const
 
 static QString make_default_icon_name_from_mimetype_name(QString iconName)
 {
-    const int slashindex = iconName.indexOf(u'/');
+    const qsizetype slashindex = iconName.indexOf(u'/');
     if (slashindex != -1)
         iconName[slashindex] = u'-';
     return iconName;
