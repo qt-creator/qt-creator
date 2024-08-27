@@ -173,10 +173,12 @@ bool IntroductionWidget::event(QEvent *e)
 
 bool IntroductionWidget::eventFilter(QObject *obj, QEvent *ev)
 {
-    if (obj == parent() && ev->type() == QEvent::Resize)
+    if (obj == parent() && ev->type() == QEvent::Resize) {
         resizeToParent();
-    else if (obj == m_stepText && ev->type() == QEvent::MouseButtonRelease)
+    } else if (obj == m_stepText && ev->type() == QEvent::MouseButtonRelease) {
         step();
+        return true;
+    }
     return QWidget::eventFilter(obj, ev);
 }
 

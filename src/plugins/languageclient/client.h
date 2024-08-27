@@ -224,6 +224,7 @@ protected:
     void handleMessage(const LanguageServerProtocol::JsonRpcMessage &message);
     virtual void handleDiagnostics(const LanguageServerProtocol::PublishDiagnosticsParams &params);
     virtual DiagnosticManager *createDiagnosticManager();
+    virtual void startImpl();
 
 private:
     friend class ClientPrivate;

@@ -227,7 +227,7 @@ std::optional<Task> DiagnosticManager::createTask(
     return Task(taskType,
                 taskText(diagnostic),
                 doc->filePath(),
-                diagnostic.range().start().line(),
+                diagnostic.range().start().line() + 1,
                 d->m_taskCategory,
                 icon,
                 Task::NoOptions);

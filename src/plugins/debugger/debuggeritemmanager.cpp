@@ -549,7 +549,7 @@ void DebuggerItemModel::autoDetectCdbDebuggers()
 
     for (const QFileInfo &kitFolderFi : kitFolders) {
         const QString path = kitFolderFi.absoluteFilePath();
-        QStringList abis = {"x64"};
+        QStringList abis = {"x86", "x64"};
         if (HostOsInfo::hostArchitecture() == Utils::OsArchArm64)
             abis << "arm64";
         for (const QString &abi: abis) {
@@ -780,12 +780,6 @@ void DebuggerItemModel::readDebuggers(const FilePath &fileName, bool isSystem)
             if (item.isAutoDetected()) {
                 if (!item.isValid() || item.engineType() == NoEngineType) {
                     qWarning() << QString("DebuggerItem \"%1\" (%2) read from \"%3\" dropped since it is not valid.")
-                                  .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
-                    continue;
-                }
-                if (item.engineType() == CdbEngineType
-                    && Abi::abisOfBinary(item.command()).value(0).wordWidth() == 32) {
-                    qWarning() << QString("32 bit CDB \"%1\" (%2) read from \"%3\" dropped since it is not supported anymore.")
                                   .arg(item.command().toUserOutput(), item.id().toString(), fileName.toUserOutput());
                     continue;
                 }
