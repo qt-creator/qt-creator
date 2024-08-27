@@ -24,7 +24,7 @@ static QString suffixFromPattern(const QString &pattern)
 {
     // Not a simple suffix if it looks like: README or *. or *.* or *.JP*G or *.JP?
     if (pattern.startsWith("*."_L1) &&
-        pattern.length() > 2 &&
+        pattern.size() > 2 &&
         pattern.indexOf(u'*', 2) < 0 && pattern.indexOf(u'?', 2) < 0) {
         return pattern.mid(2);
     }

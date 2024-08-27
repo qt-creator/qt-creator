@@ -34,9 +34,9 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
     bool replace = weight > m_weight;
     if (!replace) {
         // Compare the length of the match
-        if (pattern.length() < m_matchingPatternLength)
+        if (pattern.size() < m_matchingPatternLength)
             return; // too short, ignore
-        else if (pattern.length() > m_matchingPatternLength) {
+        else if (pattern.size() > m_matchingPatternLength) {
             // longer: clear any previous match (like *.bz2, when pattern is *.tar.bz2)
             replace = true;
         }
@@ -44,7 +44,7 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
     if (replace) {
         m_matchingMimeTypes.clear();
         // remember the new "longer" length
-        m_matchingPatternLength = pattern.length();
+        m_matchingPatternLength = pattern.size();
         m_weight = weight;
     }
     if (!m_matchingMimeTypes.contains(mimeType)) {
@@ -59,7 +59,7 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
 
 MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(const QString &pattern) const
 {
-    const int patternLength = pattern.length();
+    const int patternLength = pattern.size();
     if (!patternLength)
         return OtherPattern;
 
@@ -108,10 +108,10 @@ bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
     const QString fileName = m_caseSensitivity == Qt::CaseInsensitive
             ? inputFileName.toLower() : inputFileName;
 
-    const int patternLength = m_pattern.length();
+    const int patternLength = m_pattern.size();
     if (!patternLength)
         return false;
-    const int fileNameLength = fileName.length();
+    const int fileNameLength = fileName.size();
 
     switch (m_patternType) {
     case SuffixPattern: {
@@ -167,7 +167,7 @@ static bool isSimplePattern(const QString &pattern)
 {
    // starts with "*.", has no other '*'
    return pattern.lastIndexOf(u'*') == 0
-      && pattern.length() > 1
+      && pattern.size() > 1
       && pattern.at(1) == u'.' // (other dots are OK, like *.tar.bz2)
       // and contains no other special character
       && !pattern.contains(u'?')
@@ -233,7 +233,7 @@ void MimeGlobPatternList::match(MimeGlobMatchResult &result,
             continue;
         if (glob.matchFileName(fileName)) {
             const QString pattern = glob.pattern();
-            const int suffixLen = isSimplePattern(pattern) ? pattern.length() - 2 : 0;
+            const int suffixLen = isSimplePattern(pattern) ? pattern.size() - 2 : 0;
             result.addMatch(glob.mimeType(), glob.weight(), pattern, suffixLen);
         }
     }

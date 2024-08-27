@@ -225,7 +225,7 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
                         numRoots,
                         firstRootOffset,
                         lowerFileName,
-                        lowerFileName.length() - 1,
+                        lowerFileName.size() - 1,
                         false);
         if (result.m_matchingMimeTypes.isEmpty())
             matchSuffixTree(result,
@@ -233,7 +233,7 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
                             numRoots,
                             firstRootOffset,
                             fileName,
-                            fileName.length() - 1,
+                            fileName.size() - 1,
                             true);
     }
     // Check complex globs (e.g. "callgrind.out[0-9]*" or "README*")
@@ -482,7 +482,7 @@ void MimeBinaryProvider::addAllMimeTypes(QList<MimeType> &result)
 {
     loadMimeTypeList();
     if (result.isEmpty()) {
-        result.reserve(m_mimetypeNames.count());
+        result.reserve(m_mimetypeNames.size());
         for (const QString &name : std::as_const(m_mimetypeNames))
             result.append(mimeTypeForNameUnchecked(name));
     } else {
