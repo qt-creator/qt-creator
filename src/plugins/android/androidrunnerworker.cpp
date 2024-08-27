@@ -329,7 +329,7 @@ ExecutableItem AndroidRunnerWorker::jdbRecipe(const SingleBarrier &startBarrier,
         });
     };
 
-    const auto onJdbSetup = [this, settledBarrier](Process &process) {
+    const auto onJdbSetup = [settledBarrier](Process &process) {
         const FilePath jdbPath = AndroidConfig::openJDKLocation().pathAppended("bin/jdb")
                                      .withExecutableSuffix();
         const QString portArg = QString("com.sun.jdi.SocketAttach:hostname=localhost,port=%1")
@@ -783,7 +783,7 @@ ExecutableItem AndroidRunnerWorker::startNativeDebuggingRecipe()
         const auto onProcessSetup = [this, filePath](Process &process) {
             process.setCommand(adbCommand({packageArgs(), "ls", filePath, "2>/dev/null"}));
         };
-        const auto onProcessDone = [this](const Process &process) {
+        const auto onProcessDone = [](const Process &process) {
             return !process.stdOut().trimmed().isEmpty();
         };
         return ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Success);
