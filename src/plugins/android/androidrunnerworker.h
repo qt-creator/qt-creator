@@ -10,10 +10,10 @@
 
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/port.h>
 
 namespace Android { class AndroidDeviceInfo; }
 namespace ProjectExplorer { class RunControl; }
-namespace Utils { class Port; }
 
 namespace Android::Internal {
 
