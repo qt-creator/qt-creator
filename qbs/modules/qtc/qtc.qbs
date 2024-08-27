@@ -92,6 +92,7 @@ Module {
         "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
         "QT_USE_QSTRINGBUILDER",
+        "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 }
