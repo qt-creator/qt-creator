@@ -16,6 +16,8 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
+#include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
+
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/filepath.h>
@@ -98,12 +100,25 @@ void setNodeEnabled(const ModelNode &node, bool value)
     if (node.hasSignalHandlerProperty(signalHandler.toUtf8())) {
         SignalHandlerProperty property = node.signalHandlerProperty(signalHandler.toUtf8());
 
-        QString src = property.source();
+        QString src = property.source().trimmed();
+
         const QRegularExpression re(regExp.toString());
         QRegularExpressionMatch match = re.match(src);
 
-        if (match.hasMatch() && !match.capturedView(1).isEmpty())
+        if (match.hasMatch() && !match.capturedView(1).isEmpty()) {
+            // InsightTracker.enabled was found, replace the rhs with value.
             src.replace(match.capturedStart(1), match.capturedLength(1), valueAsStr);
+        } else {
+            // InsightTracker.enabled was NOT found, append it to the source.
+            if (!src.isEmpty()) {
+                if (src.endsWith("}")) {
+                    src.insert(src.length() - 1, "\nInsightTracker.enabled = " + valueAsStr + "\n}");
+                } else {
+                    src.prepend("{\n");
+                    src.append("\nInsightTracker.enabled = " + valueAsStr + "\n}");
+                }
+            }
+        }
 
         property.setSource(src);
     } else {
@@ -275,9 +290,28 @@ void InsightModel::setup()
     if (m_initialized)
         return;
 
-    const QString projectUrl = m_externalDependencies.projectUrl().toLocalFile();
+    auto project = ProjectExplorer::ProjectManager::startupProject();
+    if (!project) {
+        qWarning() << "Could not find a startup project.";
+        return;
+    }
 
-    m_mainQmlInfo = QFileInfo(projectUrl + "/main.qml");
+    if (!project->activeTarget()) {
+        qWarning() << "Could not find an active target.";
+        return;
+    }
+
+    auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
+        project->activeTarget()->buildSystem());
+
+    if (!qmlBuildSystem) {
+        qWarning() << "Could not find a build system.";
+        return;
+    }
+
+    const QString projectUrl = qmlBuildSystem->canonicalProjectDir().path();
+
+    m_mainQmlInfo = qmlBuildSystem->mainFilePath().toFileInfo();
     m_configInfo = QFileInfo(projectUrl + "/" + insightConfFile);
     m_qtdsConfigInfo = QFileInfo(projectUrl + "/" + qtdsConfFile);
 
@@ -303,12 +337,11 @@ void InsightModel::setup()
         writeJSON(m_qtdsConfigInfo.absoluteFilePath(), m_qtdsConfig);
     }
 
-    m_fileSystemWatcher->addFile(m_mainQmlInfo.absoluteFilePath(),
-                                 Utils::FileSystemWatcher::WatchModifiedDate);
-    m_fileSystemWatcher->addFile(m_configInfo.absoluteFilePath(),
-                                 Utils::FileSystemWatcher::WatchModifiedDate);
-    m_fileSystemWatcher->addFile(m_qtdsConfigInfo.absoluteFilePath(),
-                                 Utils::FileSystemWatcher::WatchModifiedDate);
+    m_fileSystemWatcher->addFiles(
+        {m_mainQmlInfo.absoluteFilePath(),
+         m_configInfo.absoluteFilePath(),
+         m_qtdsConfigInfo.absoluteFilePath()},
+        Utils::FileSystemWatcher::WatchModifiedDate);
 
     m_initialized = true;
 }
