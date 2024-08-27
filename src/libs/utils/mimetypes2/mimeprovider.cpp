@@ -130,10 +130,7 @@ bool MimeBinaryProvider::CacheFile::reload()
     return load();
 }
 
-MimeBinaryProvider::~MimeBinaryProvider()
-{
-    delete m_cacheFile;
-}
+MimeBinaryProvider::~MimeBinaryProvider() = default;
 
 bool MimeBinaryProvider::isValid()
 {
@@ -174,7 +171,7 @@ void MimeBinaryProvider::ensureLoaded()
 {
     if (!m_cacheFile) {
         const QString cacheFileName = m_directory + "/mime.cache"_L1;
-        m_cacheFile = new CacheFile(cacheFileName);
+        m_cacheFile = std::make_unique<CacheFile>(cacheFileName);
         m_mimetypeListLoaded = false;
         m_mimetypeExtra.clear();
     } else {
@@ -185,10 +182,8 @@ void MimeBinaryProvider::ensureLoaded()
             return; // nothing to do
         }
     }
-    if (!m_cacheFile->isValid()) { // verify existence and version
-        delete m_cacheFile;
-        m_cacheFile = nullptr;
-    }
+    if (!m_cacheFile->isValid()) // verify existence and version
+        m_cacheFile.reset();
 }
 
 static MimeType mimeTypeForNameUnchecked(const QString &name)
@@ -220,14 +215,15 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
     Q_ASSERT(m_cacheFile);
     const QString lowerFileName = fileName.toLower();
     // Check literals (e.g. "Makefile")
-    matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosLiteralListOffset), fileName);
+    matchGlobList(result, m_cacheFile.get(), m_cacheFile->getUint32(PosLiteralListOffset),
+                  fileName);
     // Check the very common *.txt cases with the suffix tree
     if (result.m_matchingMimeTypes.isEmpty()) {
         const int reverseSuffixTreeOffset = m_cacheFile->getUint32(PosReverseSuffixTreeOffset);
         const int numRoots = m_cacheFile->getUint32(reverseSuffixTreeOffset);
         const int firstRootOffset = m_cacheFile->getUint32(reverseSuffixTreeOffset + 4);
         matchSuffixTree(result,
-                        m_cacheFile,
+                        m_cacheFile.get(),
                         numRoots,
                         firstRootOffset,
                         lowerFileName,
@@ -235,7 +231,7 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
                         false);
         if (result.m_matchingMimeTypes.isEmpty())
             matchSuffixTree(result,
-                            m_cacheFile,
+                            m_cacheFile.get(),
                             numRoots,
                             firstRootOffset,
                             fileName,
@@ -244,7 +240,8 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
     }
     // Check complex globs (e.g. "callgrind.out[0-9]*" or "README*")
     if (result.m_matchingMimeTypes.isEmpty())
-        matchGlobList(result, m_cacheFile, m_cacheFile->getUint32(PosGlobListOffset), fileName);
+        matchGlobList(result, m_cacheFile.get(), m_cacheFile->getUint32(PosGlobListOffset),
+                      fileName);
 }
 
 bool MimeBinaryProvider::isMimeTypeGlobsExcluded(const char *mimeTypeName)
@@ -387,7 +384,7 @@ void MimeBinaryProvider::findByMagic(const QByteArray &data, int *accuracyPtr, M
         const int off = firstMatchOffset + i * 16;
         const int numMatchlets = m_cacheFile->getUint32(off + 8);
         const int firstMatchletOffset = m_cacheFile->getUint32(off + 12);
-        if (matchMagicRule(m_cacheFile, numMatchlets, firstMatchletOffset, data)) {
+        if (matchMagicRule(m_cacheFile.get(), numMatchlets, firstMatchletOffset, data)) {
             const int mimeTypeOffset = m_cacheFile->getUint32(off + 4);
             const char *mimeType = m_cacheFile->getCharStar(mimeTypeOffset);
             if (m_overriddenMimeTypes.contains(QLatin1String(mimeType)))
@@ -621,7 +618,7 @@ QLatin1StringView MimeBinaryProvider::iconForMime(CacheFile *cacheFile, int posL
 void MimeBinaryProvider::loadIcon(MimeTypePrivate &data)
 {
     const QByteArray inputMime = data.name.toLatin1();
-    const QLatin1StringView icon = iconForMime(m_cacheFile, PosIconsListOffset, inputMime);
+    const QLatin1StringView icon = iconForMime(m_cacheFile.get(), PosIconsListOffset, inputMime);
     if (!icon.isEmpty()) {
         data.iconName = icon;
     }
@@ -630,7 +627,7 @@ void MimeBinaryProvider::loadIcon(MimeTypePrivate &data)
 void MimeBinaryProvider::loadGenericIcon(MimeTypePrivate &data)
 {
     const QByteArray inputMime = data.name.toLatin1();
-    const QLatin1StringView icon = iconForMime(m_cacheFile, PosGenericIconsListOffset, inputMime);
+    const QLatin1StringView icon = iconForMime(m_cacheFile.get(), PosGenericIconsListOffset, inputMime);
     if (!icon.isEmpty()) {
         data.genericIconName = icon;
     }

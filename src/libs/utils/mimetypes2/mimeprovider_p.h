@@ -145,7 +145,7 @@ private:
     void loadMimeTypeList();
     bool checkCacheChanged();
 
-    CacheFile *m_cacheFile = nullptr;
+    std::unique_ptr<CacheFile> m_cacheFile;
     QStringList m_cacheFileNames;
     QSet<QString> m_mimetypeNames;
     bool m_mimetypeListLoaded;
