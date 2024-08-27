@@ -246,7 +246,7 @@ MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 {
     const QString mimeName = resolveAlias(nameOrAlias);
     for (const auto &provider : providers()) {
-        const MimeType mime = provider->mimeTypeForName(mimeName);
+        MimeType mime = provider->mimeTypeForName(mimeName);
         if (mime.isValid())
             return mime;
     }
