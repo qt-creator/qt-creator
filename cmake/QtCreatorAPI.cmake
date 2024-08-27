@@ -482,6 +482,12 @@ function(add_qtc_plugin target_name)
 
   if (WITH_TESTS)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  else()
+    # Many source files have Q_OBJECT inside #ifdef WITH_TESTS. Automoc uses
+    # a very basic parser that detects this file as mocable, but moc shows a
+    # warning: "No relevant classes found."
+    # Just suppress the warning on this case.
+    set_target_properties(${target_name} PROPERTIES AUTOMOC_MOC_OPTIONS "-nw")
   endif()
 
   if (WITH_SANITIZE)
