@@ -60,7 +60,7 @@ Module {
                 var depdeps = deps[d].dependencies;
                 for (var dd in depdeps) {
                     if (depdeps[dd].name == 'pluginjson') {
-                        cmd.plugin_depends.push(deps[d].name);
+                        cmd.plugin_depends.push(deps[d].id);
                         break;
                     }
                 }
@@ -87,13 +87,13 @@ Module {
                     vars['QTC_PLUGIN_REVISION'] = product.vcs ? (product.vcs.repoState || "") : "";
                 var deplist = [];
                 for (i in plugin_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
                 }
                 for (i in plugin_recommends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"optional\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"optional\" }");
                 }
                 for (i in plugin_test_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"test\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"test\" }");
                 }
                 deplist = deplist.join(",\n")
                 vars['IDE_PLUGIN_DEPENDENCIES'] = "\"Dependencies\" : [\n" + deplist + "\n    ]";
@@ -109,4 +109,3 @@ Module {
         }
     }
 }
-

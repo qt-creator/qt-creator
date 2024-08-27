@@ -1,8 +1,10 @@
 {
+    "Id" : "ctfvisualizer",
     "Name" : "CtfVisualizer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Vendor" : "KDAB Group, www.kdab.com",
+    "VendorId" : "kdab",
     "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com",
     "License" : [ "Commercial Usage",
                   "",

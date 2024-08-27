@@ -41,14 +41,16 @@ local function setup()
 end
 
 return {
+    Id = "tellajoke",
     Name = "Tell A Joke",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
+    VendorId = "theqtcompany",
     Vendor = "The Qt Company",
     Category = "Fun",
     Description = "This plugin adds an action that tells a joke.",
     Dependencies = {
-        { Name = "Lua", Version = "14.0.0" },
+        { Id = "lua", Version = "14.0.0" },
     },
     setup = setup,
 } --[[@as QtcPlugin]]

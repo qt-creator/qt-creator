@@ -95,14 +95,14 @@ ExtensionSystem::IPlugin *LuaPluginSpec::plugin() const
 
 bool LuaPluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) const
 {
-    if (QString::compare(dependency.name, spec->name(), Qt::CaseInsensitive) != 0)
+    if (QString::compare(dependency.id, spec->id(), Qt::CaseInsensitive) != 0)
         return false;
 
     const QString luaCompatibleVersion = spec->metaData().value("LuaCompatibleVersion").toString();
 
     if (luaCompatibleVersion.isEmpty()) {
         qCWarning(luaPluginSpecLog)
-            << "The plugin" << spec->name()
+            << "The plugin" << spec->id()
             << "does not specify a \"LuaCompatibleVersion\", but the lua plugin" << name()
             << "requires it.";
         return false;

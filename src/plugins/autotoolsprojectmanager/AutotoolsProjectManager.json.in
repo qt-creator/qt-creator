@@ -1,8 +1,10 @@
 {
+    "Id" : "autotoolsprojectmanager",
     "Name" : "AutotoolsProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
+    "VendorId" : "openismusgmbh",
     "Vendor" : "Openismus GmbH",
     "Copyright" : "(C) 2016 Openismus GmbH, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

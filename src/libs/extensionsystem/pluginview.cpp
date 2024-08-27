@@ -96,24 +96,29 @@ public:
     QVariant data(int column, int role) const override
     {
         switch (column) {
-        case NameColumn:
+        case NameColumn: {
+            const QString displayName = m_spec->displayName();
             if (role == Qt::DisplayRole) {
-                if (m_spec->isDeprecated()) {
-                    //: %1 is a plugin name
-                    return Tr::tr("%1 (deprecated)").arg(m_spec->name());
-                }
-                //: %1 is a plugin name
-                return m_spec->isExperimental() ? Tr::tr("%1 (experimental)").arg(m_spec->name())
-                                                : m_spec->name();
+                QStringList decoration;
+                if (m_spec->isDeprecated())
+                    decoration.append(Tr::tr("deprecated"));
+                if (m_spec->isExperimental())
+                    decoration.append(Tr::tr("experimental"));
+
+                if (decoration.isEmpty())
+                    return displayName;
+                return QString::fromLatin1("%1 (%2)")
+                    .arg(displayName, decoration.join(QLatin1Char(',')));
             }
             if (role == SortRole)
-                return m_spec->name();
+                return displayName;
             if (role == Qt::ToolTipRole) {
                 QString toolTip;
                 if (!m_spec->isAvailableForHostPlatform())
                     toolTip = Tr::tr("Path: %1\nPlugin is not available on this platform.");
                 else if (m_spec->isEnabledIndirectly())
-                    toolTip = Tr::tr("Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
+                    toolTip = Tr::tr(
+                        "Path: %1\nPlugin is enabled as dependency of an enabled plugin.");
                 else if (m_spec->isForceEnabled())
                     toolTip = Tr::tr("Path: %1\nPlugin is enabled by command line argument.");
                 else if (m_spec->isForceDisabled())
@@ -130,6 +135,7 @@ public:
                 return i;
             }
             break;
+        }
 
         case LoadedColumn:
             if (!m_spec->isAvailableForHostPlatform()) {

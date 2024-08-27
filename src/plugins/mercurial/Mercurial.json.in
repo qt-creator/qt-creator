@@ -1,7 +1,9 @@
 {
+    "Id" : "mercurial",
     "Name" : "Mercurial",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "brianmcgillion",
     "Vendor" : "Brian McGillion",
     "Copyright" : "(C) 2016 Brian McGillion, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

@@ -1,8 +1,10 @@
 {
+    "Id" : "silversearcher",
     "Name" : "SilverSearcher",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "VendorId" : "przemyslawgorszkowski",
     "Vendor" : "Przemyslaw Gorszkowski",
     "Copyright" : "(C) 2017 Przemyslaw Gorszkowski, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

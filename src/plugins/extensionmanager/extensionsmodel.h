@@ -50,6 +50,7 @@ enum Role {
     RoleSize,
     RoleTags,
     RoleVendor,
+    RoleVendorId,
     RoleVersion,
 };
 
@@ -68,7 +69,7 @@ private:
     class ExtensionsModelPrivate *d = nullptr;
 };
 
-ExtensionSystem::PluginSpec *pluginSpecForName(const QString &pluginName);
+ExtensionSystem::PluginSpec *pluginSpecForId(const QString &pluginId);
 
 #ifdef WITH_TESTS
 QObject *createExtensionsModelTest();

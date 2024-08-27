@@ -1,9 +1,11 @@
 {
+    "Id" : "appstatisticsmonitor",
     "Name" : "AppStatisticsMonitor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
     "DisabledByDefault" : ${APPSTATISTICSMONITOR_DISABLEDBYDEFAULT},
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

@@ -1,8 +1,10 @@
 {
+    "Id" : "todo",
     "Name" : "Todo",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "VendorId" : "dmitrysavchenko",
     "Vendor" : "Dmitry Savchenko",
     "Copyright" : "(C) 2016 Dmitry Savchenko, Vasiliy Sorokin, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

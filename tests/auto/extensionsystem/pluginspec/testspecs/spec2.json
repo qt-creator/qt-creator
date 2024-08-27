@@ -1,7 +1,9 @@
 {
     "IID" : "plugin",
     "MetaData" : {
+        "Id": "test",
         "Name" : "test",
+        "VendorId" : "theqtcompany",
         "Version" : "3.1.4_10",
         "Required" : true
     }

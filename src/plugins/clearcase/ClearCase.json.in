@@ -1,9 +1,11 @@
 {
+    "Id" : "clearcase",
     "Name" : "ClearCase",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
     "Platform" : "^(Linux|Windows)",
+    "VendorId" : "audiocodes",
     "Vendor" : "AudioCodes",
     "Copyright" : "(C) 2016 AudioCodes Ltd., (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

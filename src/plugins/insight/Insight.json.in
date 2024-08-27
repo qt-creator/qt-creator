@@ -1,8 +1,10 @@
 {
+    "Id" : "insight",
     "Name" : "Insight",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Revision" : "${QTC_PLUGIN_REVISION}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

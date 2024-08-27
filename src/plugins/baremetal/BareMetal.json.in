@@ -1,8 +1,10 @@
 {
+    "Id" : "baremetal",
     "Name" : "BareMetal",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "VendorId" : "timsander",
     "Vendor" : "Tim Sander",
     "Copyright" : "(C) 2016 Tim Sander, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

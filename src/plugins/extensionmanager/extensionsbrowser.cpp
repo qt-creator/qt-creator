@@ -220,7 +220,7 @@ public:
         x += iconBgSizeSmall.width() + ExPaddingGapL;
         y += ExPaddingGapL;
         const QRect itemNameR(x, y, middleColumnW, itemNameTF.lineHeight());
-        const QString itemName = index.data().toString();
+        const QString itemName = index.data(RoleName).toString();
 
         const QSize checkmarkS(12, 12);
         const QRect checkmarkR(x + middleColumnW - checkmarkS.width(), y,
@@ -714,7 +714,7 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     pixmap.setDevicePixelRatio(dpr);
     const QRect iconBgR(QPoint(), pixmap.deviceIndependentSize().toSize());
 
-    const PluginSpec *ps = pluginSpecForName(index.data(RoleName).toString());
+    const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
     const bool isEnabled = ps == nullptr || ps->isEffectivelyEnabled();
     const QGradientStops gradientStops = {
         {0, creatorColor(isEnabled ? Theme::Token_Gradient01_Start

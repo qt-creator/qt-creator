@@ -1,7 +1,9 @@
 {
+    "Id" : "conan",
     "Name" : "Conan",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "jochenseemann",
     "Vendor" : "Jochen Seemann",
     "Copyright" : "(C) 2018 Jochen Seemann, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

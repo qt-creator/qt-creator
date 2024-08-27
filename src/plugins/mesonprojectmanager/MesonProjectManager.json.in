@@ -1,7 +1,9 @@
 {
+    "Id" : "mesonprojectmanager",
     "Name" : "MesonProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "laboratory of plasma physics",
     "Vendor" : "Laboratory of Plasma Physics",
     "Experimental" : true,
     "DisabledByDefault" : true,

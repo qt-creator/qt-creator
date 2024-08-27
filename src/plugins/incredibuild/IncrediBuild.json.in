@@ -1,8 +1,10 @@
 {
+    "Id" : "incredibuild",
     "Name" : "IncrediBuild",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Platform" : "^(Linux|Windows)",
+    "VendorId" : "incredibuild",
     "Vendor" : "IncrediBuild",
     "Copyright" : "(C) IncrediBuild",
     "Category" : "Build Systems",

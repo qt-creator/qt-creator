@@ -117,7 +117,7 @@ public:
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
-    PluginSpec *pluginByName(const QString &name) const;
+    PluginSpec *pluginById(const QString &id) const;
 
     static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
 

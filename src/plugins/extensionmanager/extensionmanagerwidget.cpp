@@ -226,7 +226,7 @@ public:
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
-        const bool isRemotePlugin = !(isPack || pluginSpecForName(name));
+        const bool isRemotePlugin = !(isPack || pluginSpecForId(current.data(RoleId).toString()));
         installButton->setVisible(isRemotePlugin && !pluginData.empty());
         if (installButton->isVisible())
             installButton->setToolTip(pluginData.constFirst().second);
@@ -270,7 +270,7 @@ public:
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
-            ExtensionSystem::PluginSpec *spec = pluginSpecForName(m_pluginName);
+            ExtensionSystem::PluginSpec *spec = pluginSpecForId(m_pluginId);
             if (spec == nullptr)
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
@@ -290,16 +290,16 @@ public:
         update();
     }
 
-    void setPluginName(const QString &name)
+    void setPluginId(const QString &id)
     {
-        m_pluginName = name;
+        m_pluginId = id;
         update();
     }
 
 private:
     void update()
     {
-        const ExtensionSystem::PluginSpec *spec = pluginSpecForName(m_pluginName);
+        const ExtensionSystem::PluginSpec *spec = pluginSpecForId(m_pluginId);
         setVisible(spec != nullptr);
         if (spec == nullptr)
             return;
@@ -322,7 +322,7 @@ private:
     InfoLabel *m_label;
     Switch *m_switch;
     QAbstractButton *m_restartButton;
-    QString m_pluginName;
+    QString m_pluginId;
     ExtensionSystem::PluginView m_pluginView{this};
 };
 
@@ -583,9 +583,9 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     if (!showContent)
         return;
 
-    m_currentItemName = current.data().toString();
+    m_currentItemName = current.data(RoleName).toString();
     const bool isPack = current.data(RoleItemType) == ItemTypePack;
-    m_pluginStatus->setPluginName(isPack ? QString() : m_currentItemName);
+    m_pluginStatus->setPluginId(isPack ? QString() : current.data(RoleId).toString());
     m_currentItemPlugins = current.data(RolePlugins).value<PluginsData>();
 
     auto toContentParagraph = [](const QString &text) {

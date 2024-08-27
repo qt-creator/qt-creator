@@ -1,4 +1,6 @@
 {
+    "Id": "myplugin",
     "Name" : "MyPlugin",
+    "VendorId" : "theqtcompany",
     "Version" : "1.0.0"
 }

@@ -39,13 +39,13 @@ struct EXTENSIONSYSTEM_EXPORT PluginDependency
     enum Type { Required, Optional, Test };
 
     PluginDependency() : type(Required) {}
-    PluginDependency(const QString &name, const QString &version, Type type = Required)
-        : name(name)
+    PluginDependency(const QString &id, const QString &version, Type type = Required)
+        : id(id)
         , version(version)
         , type(type)
     {}
 
-    QString name;
+    QString id;
     QString version;
     Type type;
     bool operator==(const PluginDependency &other) const;
@@ -96,9 +96,11 @@ public:
 
     // information read from the plugin, valid after 'Read' state is reached
     virtual QString name() const;
+    virtual QString id() const;
     virtual QString version() const;
     virtual QString compatVersion() const;
     virtual QString vendor() const;
+    virtual QString vendorId() const;
     virtual QString copyright() const;
     virtual QString license() const;
     virtual QString description() const;
@@ -108,6 +110,8 @@ public:
     virtual QString category() const;
     virtual QString revision() const;
     virtual QRegularExpression platformSpecification() const;
+
+    virtual QString displayName() const;
 
     virtual bool isAvailableForHostPlatform() const;
     virtual bool isRequired() const;

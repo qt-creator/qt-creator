@@ -772,9 +772,15 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
     for (PluginSpec *ps : std::as_const(d->pluginSpecs)) {
         const PluginSpec::PluginArgumentDescriptions pargs = ps->argumentDescriptions();
         if (!pargs.empty()) {
-            str << "\nPlugin: " <<  ps->name() << '\n';
+            str << "\nPlugin: " << ps->id() << '\n';
             for (const PluginArgumentDescription &pad : pargs)
-                formatOption(str, pad.name, pad.parameter, pad.description, optionIndentation, descriptionIndentation);
+                formatOption(
+                    str,
+                    pad.name,
+                    pad.parameter,
+                    pad.description,
+                    optionIndentation,
+                    descriptionIndentation);
         }
     }
 }
@@ -1006,18 +1012,24 @@ void PluginManagerPrivate::writeSettings()
     settings->setValueWithDefault(C_FORCEENABLED_PLUGINS, tempForceEnabledPlugins);
 }
 
+static inline QStringList toLower(const QStringList &list)
+{
+    return Utils::transform(list, [](const QString &s) { return s.toLower(); });
+}
+
 /*!
     \internal
 */
 void PluginManagerPrivate::readSettings()
 {
     if (globalSettings) {
-        defaultDisabledPlugins = globalSettings->value(C_IGNORED_PLUGINS).toStringList();
-        defaultEnabledPlugins = globalSettings->value(C_FORCEENABLED_PLUGINS).toStringList();
+        defaultDisabledPlugins = toLower(globalSettings->value(C_IGNORED_PLUGINS).toStringList());
+        defaultEnabledPlugins = toLower(
+            globalSettings->value(C_FORCEENABLED_PLUGINS).toStringList());
     }
     if (settings) {
-        disabledPlugins = settings->value(C_IGNORED_PLUGINS).toStringList();
-        forceEnabledPlugins = settings->value(C_FORCEENABLED_PLUGINS).toStringList();
+        disabledPlugins = toLower(settings->value(C_IGNORED_PLUGINS).toStringList());
+        forceEnabledPlugins = toLower(settings->value(C_FORCEENABLED_PLUGINS).toStringList());
     }
 }
 
@@ -1053,7 +1065,7 @@ void PluginManagerPrivate::checkForDuplicatePlugins()
 {
     QHash<QString, PluginSpec *> seen;
     for (PluginSpec *spec : pluginSpecs) {
-        if (PluginSpec *other = seen.value(spec->name())) {
+        if (PluginSpec *other = seen.value(spec->id())) {
             // Plugin with same name already there. We do not know, which version is the right one,
             // keep it simple and fail both (if enabled).
             if (spec->isEffectivelyEnabled() && other->isEffectivelyEnabled()) {
@@ -1063,7 +1075,8 @@ void PluginManagerPrivate::checkForDuplicatePlugins()
                 other->setError(error);
             }
         } else {
-            seen.insert(spec->name(), spec);
+            if (!spec->id().isEmpty())
+                seen.insert(spec->id(), spec);
         }
     }
 }
@@ -1551,15 +1564,15 @@ public:
                + ".lock";
     }
 
-    static std::optional<QString> lockedPluginName(PluginManagerPrivate *pm)
+    static std::optional<QString> lockedPluginId(PluginManagerPrivate *pm)
     {
         const QString lockFilePath = LockFile::filePath(pm);
         if (QFileInfo::exists(lockFilePath)) {
             QFile f(lockFilePath);
             if (f.open(QIODevice::ReadOnly)) {
-                const auto pluginName = QString::fromUtf8(f.readLine()).trimmed();
+                const auto pluginId = QString::fromUtf8(f.readLine()).trimmed();
                 f.close();
-                return pluginName;
+                return pluginId;
             } else {
                 qCDebug(pluginLog) << "Lock file" << lockFilePath << "exists but is not readable";
             }
@@ -1591,9 +1604,9 @@ void PluginManagerPrivate::checkForProblematicPlugins()
 {
     if (!enableCrashCheck)
         return;
-    const std::optional<QString> pluginName = LockFile::lockedPluginName(this);
-    if (pluginName) {
-        PluginSpec *spec = pluginByName(*pluginName);
+    const std::optional<QString> pluginId = LockFile::lockedPluginId(this);
+    if (pluginId) {
+        PluginSpec *spec = pluginById(*pluginId);
         if (spec && !spec->isRequired()) {
             const QSet<PluginSpec *> dependents = PluginManager::pluginsRequiringPlugin(spec);
             auto dependentsNames = Utils::transform<QStringList>(dependents, &PluginSpec::name);
@@ -1763,16 +1776,16 @@ void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
     for (PluginSpec *spec : specs) {
         // defaultDisabledPlugins and defaultEnabledPlugins from install settings
         // is used to override the defaults read from the plugin spec
-        if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->name())) {
+        if (spec->isEnabledByDefault() && defaultDisabledPlugins.contains(spec->id())) {
             spec->setEnabledByDefault(false);
             spec->setEnabledBySettings(false);
-        } else if (!spec->isEnabledByDefault() && defaultEnabledPlugins.contains(spec->name())) {
+        } else if (!spec->isEnabledByDefault() && defaultEnabledPlugins.contains(spec->id())) {
             spec->setEnabledByDefault(true);
             spec->setEnabledBySettings(true);
         }
-        if (!spec->isEnabledByDefault() && forceEnabledPlugins.contains(spec->name()))
+        if (!spec->isEnabledByDefault() && forceEnabledPlugins.contains(spec->id()))
             spec->setEnabledBySettings(true);
-        if (spec->isEnabledByDefault() && disabledPlugins.contains(spec->name()))
+        if (spec->isEnabledByDefault() && disabledPlugins.contains(spec->id()))
             spec->setEnabledBySettings(false);
 
         pluginCategories[spec->category()].append(spec);
@@ -1838,10 +1851,9 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
     // Look in the plugins for an option
     *requiresArgument = false;
     for (PluginSpec *spec : std::as_const(pluginSpecs)) {
-        PluginArgumentDescription match = Utils::findOrDefault(spec->argumentDescriptions(),
-                                                               [option](PluginArgumentDescription pad) {
-                                                                   return pad.name == option;
-                                                               });
+        PluginArgumentDescription match = Utils::findOrDefault(
+            spec->argumentDescriptions(),
+            [option](PluginArgumentDescription pad) { return pad.name == option; });
         if (!match.name.isEmpty()) {
             *requiresArgument = !match.parameter.isEmpty();
             return spec;
@@ -1850,9 +1862,10 @@ PluginSpec *PluginManagerPrivate::pluginForOption(const QString &option, bool *r
     return nullptr;
 }
 
-PluginSpec *PluginManagerPrivate::pluginByName(const QString &name) const
+PluginSpec *PluginManagerPrivate::pluginById(const QString &id) const
 {
-    return Utils::findOrDefault(pluginSpecs, [name](PluginSpec *spec) { return spec->name() == name; });
+    QTC_CHECK(id.isLower()); // Plugin ids are always lower case. So the id argument should be too.
+    return Utils::findOrDefault(pluginSpecs, [id](PluginSpec *spec) { return spec->id() == id; });
 }
 
 void PluginManagerPrivate::increaseProfilingVerbosity()

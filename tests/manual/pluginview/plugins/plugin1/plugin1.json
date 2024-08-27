@@ -2,6 +2,7 @@
     "Name" : "plugin1",
     "Version" : "2.1.0",
     "CompatVersion" : "1.0.0",
+    "VendorId": "blablubbcorp",
     "Vendor" : "Blablubb Corp",
     "Copyright" : "(C) 2023 Blubb",
     "License" : [ "This is a default license bla",

@@ -3,6 +3,7 @@
     "MetaData" : {
         "Version" : "1.0.1",
         "CompatVersion" : "1.0.0",
+        "VendorId": "theqtcompanyltd",
         "Vendor" : "The Qt Company Ltd",
         "Copyright" : "(C) 2015 The Qt Company Ltd",
         "License" : [

@@ -59,7 +59,7 @@
             \li Disable the startup check for a previously crashed \QC instance.
 
        \row
-            \li -load <plugin>
+            \li -load <plugin-id>
             \li Enable the specified plugin and all plugins that it depends on.
                 You can combine \c -load and \c -noload options and specify both
                 options multiple times to enable and disable several plugins.
@@ -70,7 +70,7 @@
             \li Enable all plugins.
 
         \row
-            \li -noload <plugin>
+            \li -noload <plugin-id>
             \li Disable the specified plugin and all plugins that depend on it.
 
         \row

@@ -400,7 +400,7 @@ function(add_qtc_plugin target_name)
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\" }"
     )
   endforeach(i)
   foreach(i IN LISTS _arg_PLUGIN_RECOMMENDS)
@@ -411,7 +411,7 @@ function(add_qtc_plugin target_name)
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
     )
   endforeach(i)
   foreach(i IN LISTS _arg_PLUGIN_TEST_DEPENDS)
@@ -420,7 +420,7 @@ function(add_qtc_plugin target_name)
     endif()
     set(_v ${IDE_VERSION})
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
     )
   endforeach(i)
   list(LENGTH _arg_PLUGIN_MANUAL_DEPENDS manualdep_len)
@@ -430,11 +430,11 @@ function(add_qtc_plugin target_name)
     foreach (i RANGE 0 ${manualdep_maxindex} 3)
       math(EXPR dep_version_i "${i} + 1")
       math(EXPR dep_type_i "${i} + 2")
-      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_name)
+      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_id)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_version_i} dep_version)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_type_i} dep_type)
       string(APPEND _arg_DEPENDENCY_STRING
-        "        { \"Name\" : \"${dep_name}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
+        "        { \"Id\" : \"${dep_id}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
       )
     endforeach()
   endif()

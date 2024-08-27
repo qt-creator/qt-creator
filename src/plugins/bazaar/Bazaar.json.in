@@ -1,7 +1,9 @@
 {
+    "Id" : "bazaar",
     "Name" : "Bazaar",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "huguesdelorme",
     "Vendor" : "Hugues Delorme",
     "Copyright" : "(C) 2016 Hugues Delorme, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

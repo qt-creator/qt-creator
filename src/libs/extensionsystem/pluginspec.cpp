@@ -139,7 +139,7 @@ namespace ExtensionSystem {
 */
 size_t qHash(const PluginDependency &value)
 {
-    return qHash(value.name);
+    return qHash(value.id);
 }
 
 /*!
@@ -147,7 +147,7 @@ size_t qHash(const PluginDependency &value)
 */
 bool PluginDependency::operator==(const PluginDependency &other) const
 {
-    return name == other.name && version == other.version && type == other.type;
+    return id == other.id && version == other.version && type == other.type;
 }
 
 static QString typeString(PluginDependency::Type type)
@@ -168,7 +168,7 @@ static QString typeString(PluginDependency::Type type)
 */
 QString PluginDependency::toString() const
 {
-    return name + " (" + version + typeString(type) + ")";
+    return id + " (" + version + typeString(type) + ")";
 }
 
 namespace Internal {
@@ -186,9 +186,11 @@ class PluginSpecPrivate
 public:
     ExtensionSystem::PerformanceData performanceData;
 
+    QString id;
     QString name;
     QString version;
     QString compatVersion;
+    QString vendorId;
     QString vendor;
     QString category;
     QString description;
@@ -255,6 +257,26 @@ QString PluginSpec::name() const
 }
 
 /*!
+    Returns the plugin display name. This is valid after the PluginSpec::Read
+    state is reached.
+*/
+QString PluginSpec::id() const
+{
+    return d->id;
+}
+
+/*!
+    Returns either name(), or id() if name() is empty. If both are empty, returns "<unknown>".
+*/
+QString PluginSpec::displayName() const
+{
+    return Utils::findOr(
+        QStringList{name(), id(), filePath().fileName()},
+        "<Unknown>",
+        std::not_fn(&QString::isEmpty));
+}
+
+/*!
     Returns the plugin version. This is valid after the PluginSpec::Read state
     is reached.
 */
@@ -279,6 +301,15 @@ QString PluginSpec::compatVersion() const
 QString PluginSpec::vendor() const
 {
     return d->vendor;
+}
+
+/*!
+    Returns the display name of the plugins vendor. This is valid after the PluginSpec::Read
+    state is reached.
+*/
+QString PluginSpec::vendorId() const
+{
+    return d->vendorId;
 }
 
 /*!
@@ -576,7 +607,7 @@ QString PluginSpec::errorString() const
 */
 bool PluginSpec::provides(PluginSpec *spec, const PluginDependency &dependency) const
 {
-    if (QString::compare(dependency.name, spec->name(), Qt::CaseInsensitive) != 0)
+    if (QString::compare(dependency.id, spec->id(), Qt::CaseInsensitive) != 0)
         return false;
 
     return (versionCompare(spec->version(), dependency.version) >= 0)
@@ -674,6 +705,7 @@ PluginSpecs PluginSpec::enableDependenciesIndirectly(bool enableTestDependencies
 namespace {
     const char PLUGIN_METADATA[] = "MetaData";
     const char PLUGIN_NAME[] = "Name";
+    const char PLUGIN_ID[] = "Id";
     const char PLUGIN_VERSION[] = "Version";
     const char PLUGIN_COMPATVERSION[] = "CompatVersion";
     const char PLUGIN_REQUIRED[] = "Required";
@@ -682,6 +714,7 @@ namespace {
     const char PLUGIN_DEPRECATED[] = "Deprecated";
     const char PLUGIN_SOFTLOADABLE[] = "SoftLoadable";
     const char VENDOR[] = "Vendor";
+    const char VENDOR_ID[] = "VendorId";
     const char COPYRIGHT[] = "Copyright";
     const char LICENSE[] = "License";
     const char DESCRIPTION[] = "Description";
@@ -691,7 +724,7 @@ namespace {
     const char CATEGORY[] = "Category";
     const char PLATFORM[] = "Platform";
     const char DEPENDENCIES[] = "Dependencies";
-    const char DEPENDENCY_NAME[] = "Name";
+    const char DEPENDENCY_ID[] = "Id";
     const char DEPENDENCY_VERSION[] = "Version";
     const char DEPENDENCY_TYPE[] = "Type";
     const char DEPENDENCY_TYPE_SOFT[] = "optional";
@@ -807,108 +840,145 @@ expected_str<void> CppPluginSpec::readMetaData(const QJsonObject &pluginMetaData
     return PluginSpec::readMetaData(value.toObject());
 }
 
+template<typename T>
+struct Invert
+{
+    T &value;
+    Invert(T &value)
+        : value(value)
+    {}
+    Invert &operator=(const T &other)
+    {
+        value = !other;
+        return *this;
+    }
+};
+
+template<class T>
+using copy_assign_t = decltype(std::declval<T &>() = std::declval<const T &>());
+
 Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &data)
 {
     metaData = data;
 
-    QJsonValue value = metaData.value(QLatin1String(PLUGIN_NAME));
-    if (value.isUndefined())
-        return reportError(msgValueMissing(PLUGIN_NAME));
-    if (!value.isString())
-        return reportError(msgValueIsNotAString(PLUGIN_NAME));
-    name = value.toString();
+    auto assign = [&data](QString &member, const char *fieldName) -> expected_str<void> {
+        QJsonValue value = data.value(QLatin1String(fieldName));
+        if (value.isUndefined())
+            return make_unexpected(msgValueMissing(fieldName));
+        if (!value.isString())
+            return make_unexpected(msgValueIsNotAString(fieldName));
+        member = value.toString();
+        return {};
+    };
 
-    value = metaData.value(QLatin1String(PLUGIN_VERSION));
-    if (value.isUndefined())
-        return reportError(msgValueMissing(PLUGIN_VERSION));
-    if (!value.isString())
-        return reportError(msgValueIsNotAString(PLUGIN_VERSION));
-    version = value.toString();
+    auto assignOr =
+        [&data](auto &&member, const char *fieldName, auto &&defaultValue) -> expected_str<void> {
+        QJsonValue value = data.value(QLatin1String(fieldName));
+        if (value.isUndefined())
+            member = defaultValue;
+        else {
+            constexpr bool isBool = std::is_assignable<decltype(member), bool>::value;
+            constexpr bool isString = std::is_assignable<decltype(member), QString>::value;
+
+            static_assert(isString || isBool, "Unsupported type");
+
+            if constexpr (isString) {
+                if (!value.isString())
+                    return make_unexpected(msgValueIsNotAString(fieldName));
+                member = value.toString();
+            } else if constexpr (isBool) {
+                if (!value.isBool())
+                    return make_unexpected(msgValueIsNotABool(fieldName));
+                member = value.toBool();
+            }
+        }
+        return {};
+    };
+
+    auto assignMultiLine = [&data](QString &member, const char *fieldName) -> expected_str<void> {
+        QJsonValue value = data.value(QLatin1String(fieldName));
+        if (value.isUndefined())
+            return {};
+        if (!readMultiLineString(value, &member))
+            return make_unexpected(msgValueIsNotAMultilineString(fieldName));
+        return {};
+    };
+
+    if (auto r = assign(id, PLUGIN_ID); !r.has_value())
+        return reportError(r.error());
+
+    if (!id.isLower())
+        return reportError(::ExtensionSystem::Tr::tr("Plugin id \"%1\" must be lowercase").arg(id));
+
+    if (auto r = assignOr(name, PLUGIN_NAME, id); !r.has_value())
+        return reportError(r.error());
+
+    if (auto r = assign(version, PLUGIN_VERSION); !r.has_value())
+        return reportError(r.error());
+
     if (!PluginSpec::isValidVersion(version))
         return reportError(msgInvalidFormat(PLUGIN_VERSION, version));
 
-    value = metaData.value(QLatin1String(PLUGIN_COMPATVERSION));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(PLUGIN_COMPATVERSION));
-    compatVersion = value.toString(version);
-    if (!value.isUndefined() && !PluginSpec::isValidVersion(compatVersion))
+    if (auto r = assignOr(compatVersion, PLUGIN_COMPATVERSION, version); !r.has_value())
+        return reportError(r.error());
+    if (!PluginSpec::isValidVersion(compatVersion))
         return reportError(msgInvalidFormat(PLUGIN_COMPATVERSION, compatVersion));
 
-    value = metaData.value(QLatin1String(PLUGIN_REQUIRED));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_REQUIRED));
-    required = value.toBool(false);
+    if (auto r = assignOr(required, PLUGIN_REQUIRED, false); !r.has_value())
+        return reportError(r.error());
     qCDebug(pluginLog) << "required =" << required;
 
-    value = metaData.value(QLatin1String(PLUGIN_EXPERIMENTAL));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_EXPERIMENTAL));
-    experimental = value.toBool(false);
+    if (auto r = assignOr(experimental, PLUGIN_EXPERIMENTAL, false); !r.has_value())
+        return reportError(r.error());
     qCDebug(pluginLog) << "experimental =" << experimental;
 
-    value = metaData.value(QLatin1String(PLUGIN_DEPRECATED));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_DEPRECATED));
-    deprecated = value.toBool(false);
+    if (auto r = assignOr(deprecated, PLUGIN_DEPRECATED, false); !r.has_value())
+        return reportError(r.error());
     qCDebug(pluginLog) << "deprecated =" << deprecated;
 
-    value = metaData.value(QLatin1String(PLUGIN_DISABLED_BY_DEFAULT));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_DISABLED_BY_DEFAULT));
-    enabledByDefault = !value.toBool(experimental || deprecated);
-    qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
+    if (auto r
+        = assignOr(Invert(enabledByDefault), PLUGIN_DISABLED_BY_DEFAULT, experimental || deprecated);
+        !r.has_value())
+        return reportError(r.error());
 
+    qCDebug(pluginLog) << "enabledByDefault =" << enabledByDefault;
     enabledBySettings = enabledByDefault;
 
-    value = metaData.value(QLatin1String(PLUGIN_SOFTLOADABLE));
-    if (!value.isUndefined() && !value.isBool())
-        return reportError(msgValueIsNotABool(PLUGIN_SOFTLOADABLE));
-    softLoadable = value.toBool(false);
+    if (auto r = assignOr(softLoadable, PLUGIN_SOFTLOADABLE, false); !r.has_value())
+        return reportError(r.error());
     qCDebug(pluginLog) << "softLoadable =" << softLoadable;
 
-    value = metaData.value(QLatin1String(VENDOR));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(VENDOR));
-    vendor = value.toString();
+    if (auto r = assign(vendorId, VENDOR_ID); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(COPYRIGHT));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(COPYRIGHT));
-    copyright = value.toString();
+    if (auto r = assignOr(vendor, VENDOR, vendorId); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(DESCRIPTION));
-    if (!value.isUndefined() && !readMultiLineString(value, &description))
-        return reportError(msgValueIsNotAString(DESCRIPTION));
+    if (auto r = assignOr(copyright, COPYRIGHT, QString{}); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(LONGDESCRIPTION));
-    if (!value.isUndefined() && !readMultiLineString(value, &longDescription))
-        return reportError(msgValueIsNotAString(LONGDESCRIPTION));
+    if (auto r = assignMultiLine(description, DESCRIPTION); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(URL));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(URL));
-    url = value.toString();
+    if (auto r = assignMultiLine(longDescription, LONGDESCRIPTION); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(DOCUMENTATIONURL));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(DOCUMENTATIONURL));
-    documentationUrl = value.toString();
+    if (auto r = assignOr(url, URL, QString{}); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(CATEGORY));
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString(CATEGORY));
-    category = value.toString();
+    if (auto r = assignOr(documentationUrl, DOCUMENTATIONURL, QString{}); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(LICENSE));
-    if (!value.isUndefined() && !readMultiLineString(value, &license))
-        return reportError(msgValueIsNotAMultilineString(LICENSE));
+    if (auto r = assignOr(category, CATEGORY, QString{}); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value("Revision");
-    if (!value.isUndefined() && !value.isString())
-        return reportError(msgValueIsNotAString("Revision"));
-    revision = value.toString();
+    if (auto r = assignMultiLine(license, LICENSE); !r.has_value())
+        return reportError(r.error());
 
-    value = metaData.value(QLatin1String(PLATFORM));
+    if (auto r = assignOr(revision, "Revision", QString{}); !r.has_value())
+        return reportError(r.error());
+
+    QJsonValue value = metaData.value(QLatin1String(PLATFORM));
     if (!value.isUndefined() && !value.isString())
         return reportError(msgValueIsNotAString(PLATFORM));
     const QString platformSpec = value.toString().trimmed();
@@ -930,18 +1000,16 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
                 return reportError(msgValueIsNotAObjectArray(DEPENDENCIES));
             QJsonObject dependencyObject = v.toObject();
             PluginDependency dep;
-            value = dependencyObject.value(QLatin1String(DEPENDENCY_NAME));
+            value = dependencyObject.value(QLatin1String(DEPENDENCY_ID));
             if (value.isUndefined()) {
                 return reportError(
-                    ::ExtensionSystem::Tr::tr("Dependency: %1")
-                        .arg(msgValueMissing(DEPENDENCY_NAME)));
+                    ::ExtensionSystem::Tr::tr("Dependency: %1").arg(msgValueMissing(DEPENDENCY_ID)));
             }
             if (!value.isString()) {
-                return reportError(
-                    ::ExtensionSystem::Tr::tr("Dependency: %1")
-                        .arg(msgValueIsNotAString(DEPENDENCY_NAME)));
+                return reportError(::ExtensionSystem::Tr::tr("Dependency: %1")
+                                       .arg(msgValueIsNotAString(DEPENDENCY_ID)));
             }
-            dep.name = value.toString();
+            dep.id = value.toString();
             value = dependencyObject.value(QLatin1String(DEPENDENCY_VERSION));
             if (!value.isUndefined() && !value.isString()) {
                 return reportError(
@@ -1098,7 +1166,7 @@ bool PluginSpec::resolveDependencies(const PluginSpecs &specs)
             if (dependency.type == PluginDependency::Required) {
                 const QString error = ::ExtensionSystem::Tr::tr(
                                           "Could not resolve dependency '%1(%2)'")
-                                          .arg(dependency.name, dependency.version);
+                                          .arg(dependency.id, dependency.version);
                 if (hasError())
                     setError(errorString() + '\n' + error);
                 else

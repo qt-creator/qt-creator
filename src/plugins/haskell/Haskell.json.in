@@ -1,8 +1,10 @@
 {
+    "Id" : "haskell",
     "Name" : "Haskell",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
+    "VendorId" : "eikeziller",
     "Vendor" : "Eike Ziller",
     "Copyright" : "(C) Eike Ziller",
     "License" : "MIT",

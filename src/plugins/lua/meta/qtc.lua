@@ -9,10 +9,12 @@ PluginSpec = {}
 Qtc = {}
 
 ---@class (exact) QtcPlugin
----@field Name string The name of the plugin.
+---@field Id string The id of the plugin.
+---@field Name string? The name of the plugin. ( Default: `Id` )
 ---@field Version string The version of the plugin. (`major.minor.patch`)
 ---@field CompatVersion string The lowest previous version of the plugin that this one is compatible to. (`major.minor.patch`)
----@field Vendor string The vendor of the plugin.
+---@field VendorId string
+---@field Vendor string? The display name of the vendor of the plugin. ( Default: `VendorId` )
 ---@field Category string The category of the plugin.
 ---@field Dependencies? QtcPluginDependency[] The dependencies of the plugin.
 ---@field Description? string A short one line description of the plugin.
@@ -33,7 +35,7 @@ Qtc = {}
 QtcPlugin = {}
 
 ---@class QtcPluginDependency
----@field Name string The name of the dependency.
+---@field Id string The name of the dependency.
 ---@field Version string The version of the dependency. (`major.minor.patch`)
 ---@field Required? "required"|"optional"|"test" Whether the dependency is required or not. (Default: "required")
 QtcPluginDependency = {}

@@ -1,7 +1,9 @@
 {
+    "Id" : "nim",
     "Name" : "Nim",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "filippocucchetto",
     "Vendor" : "Filippo Cucchetto",
     "Copyright" : "(C) 2017 Filippo Cucchetto, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

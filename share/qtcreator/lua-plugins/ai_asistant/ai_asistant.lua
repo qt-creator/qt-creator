@@ -1,9 +1,11 @@
 -- Copyright (C) 2024 The Qt Company Ltd.
 -- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 return {
-    Name = "AIAssistant",
+    Id = "aiassistant",
+    Name = "Qt AI Assistant",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
+    VendorId = "theqtcompany",
     Vendor = "The Qt Company",
     Category = "Language Client",
     Description = "Qt AI Assistant",
@@ -17,8 +19,8 @@ You also need one of the following valid Qt licenses: Qt for Application Develop
 You will need access to a LLM for the suggestions. You can use a subscription to a commercial, cloud-hosted LLM, a privately hosted or on-premise LLM, or a Small Language Model running locally on your computer.
     ]],
     Dependencies = {
-        { Name = "Lua",               Version = "14.0.0" },
-        { Name = "LuaLanguageClient", Version = "14.0.0" }
+        { Id = "lua",               Version = "14.0.0" },
+        { Id = "lualanguageclient", Version = "14.0.0" }
     },
     hooks = {
         editors = {

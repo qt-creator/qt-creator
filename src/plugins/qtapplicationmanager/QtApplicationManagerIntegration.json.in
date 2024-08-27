@@ -1,9 +1,11 @@
 {
+    "Id" : "qtapplicationmanagerintegration",
     "Name" : "QtApplicationManagerIntegration",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
     "Revision" : "${QTC_PLUGIN_REVISION}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "(C) 2020 Luxoft Sweden AB, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",

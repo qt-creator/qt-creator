@@ -1,7 +1,9 @@
 {
+    "Id" : "qnx",
     "Name" : "Qnx",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "blackberry",
     "Vendor" : "BlackBerry",
     "Copyright" : "(C) 2017 BlackBerry, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
     "License" : [ "Commercial Usage",
