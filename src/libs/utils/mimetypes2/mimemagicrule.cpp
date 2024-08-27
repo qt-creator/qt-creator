@@ -18,6 +18,13 @@ static bool isOctalDigit(char32_t c) noexcept
 {
     return c >= '0' && c <= '7';
 }
+static int fromHex(char32_t c) noexcept
+{
+    return ((c >= '0') && (c <= '9')) ? int(c - '0') :
+           ((c >= 'A') && (c <= 'F')) ? int(c - 'A' + 10) :
+           ((c >= 'a') && (c <= 'f')) ? int(c - 'a' + 10) :
+           /* otherwise */              -1;
+}
 
 // in the same order as Type!
 static const char magicRuleTypes_string[] =
@@ -153,12 +160,8 @@ static inline QByteArray makePattern(const QByteArray &value)
                 char c = 0;
                 for (int i = 0; i < 2 && p + 1 < e; ++i) {
                     ++p;
-                    if (*p >= '0' && *p <= '9')
-                        c = (c << 4) + *p - '0';
-                    else if (*p >= 'a' && *p <= 'f')
-                        c = (c << 4) + *p - 'a' + 10;
-                    else if (*p >= 'A' && *p <= 'F')
-                        c = (c << 4) + *p - 'A' + 10;
+                    if (const int h = fromHex(*p); h != -1)
+                        c = (c << 4) + h;
                     else
                         continue;
                 }
