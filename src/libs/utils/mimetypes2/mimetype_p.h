@@ -35,6 +35,7 @@ public:
 
     bool loaded; // QSharedData leaves a 4 byte gap, so don't put 8 byte members first
     bool fromCache; // true if this comes from the binary provider
+    bool hasGlobDeleteAll = false; // true if the mimetype has a glob-deleteall tag
     QString name;
     LocaleHash localeComments;
     QString genericIconName;
