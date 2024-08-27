@@ -20,7 +20,7 @@
 #include <QtEndian>
 
 #if 0 // QT_CONFIG(mimetype_database)
-#  if defined(Q_CC_MSVC)
+#  if defined(Q_CC_MSVC_ONLY)
 #    pragma section(".qtmimedatabase", read, shared)
 __declspec(allocate(".qtmimedatabase")) __declspec(align(4096))
 #  elif defined(Q_OS_DARWIN)
