@@ -1823,6 +1823,7 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
         return;
 
     auto cursor = q->textCursor();
+    suggestion->setCurrentPosition(cursor.position());
     cursor.setPosition(suggestion->position());
     QTextOption option = suggestion->document()->defaultTextOption();
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);

@@ -30,7 +30,6 @@ CopilotSuggestion::CopilotSuggestion(const QList<Completion> &completions,
     document()->setPlainText(text);
     m_start = completion.position().toTextCursor(origin);
     m_start.setKeepPositionOnInsert(true);
-    setCurrentPosition(m_start.position());
 }
 
 bool CopilotSuggestion::apply()
@@ -44,8 +43,9 @@ bool CopilotSuggestion::apply()
 
 bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
 {
-    const Completion completion = m_completions.value(m_currentCompletion);
-    const QTextCursor cursor = completion.range().toSelection(m_start.document());
+    Completion completion = m_completions.value(m_currentCompletion);
+    const Range range = completion.range();
+    const QTextCursor cursor = range.toSelection(m_start.document());
     QTextCursor currentCursor = widget->textCursor();
     const QString text = completion.text();
     const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
@@ -55,13 +55,26 @@ bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
     if (next == -1)
         return apply();
 
-    // TODO: Allow adding more than one line
     QString subText = text.mid(startPos, next - startPos);
-    subText = subText.left(subText.indexOf('\n'));
     if (subText.isEmpty())
         return false;
 
     currentCursor.insertText(subText);
+    if (const int seperatorPos = subText.lastIndexOf('\n'); seperatorPos >= 0) {
+        const QString newCompletionText = text.mid(startPos + seperatorPos + 1);
+        if (!newCompletionText.isEmpty()) {
+            completion.setText(newCompletionText);
+            const Position newStart(range.start().line() + subText.count('\n'), 0);
+            int nextSeperatorPos = newCompletionText.indexOf('\n');
+            if (nextSeperatorPos == -1)
+                nextSeperatorPos = newCompletionText.size();
+            const Position newEnd(newStart.line(), nextSeperatorPos);
+            completion.setRange(Range(newStart, newEnd));
+            completion.setPosition(newStart);
+            widget->insertSuggestion(std::make_unique<CopilotSuggestion>(
+                QList<Completion>{completion}, widget->document(), 0));
+        }
+    }
     return false;
 }
 
