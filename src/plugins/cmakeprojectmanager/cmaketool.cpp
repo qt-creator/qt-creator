@@ -120,7 +120,7 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
 
-    setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
+    setFilePath(FilePath::fromUserInput(map.value(CMAKE_INFORMATION_COMMAND).toString()));
 
     m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
