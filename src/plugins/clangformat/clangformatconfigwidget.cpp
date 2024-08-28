@@ -90,7 +90,7 @@ private:
     void createStyleFileIfNeeded(bool isGlobal);
 
     void initPreview(TextEditor::ICodeStylePreferences *codeStyle);
-    void initEditor(TextEditor::ICodeStylePreferences *codeStyle);
+    void initEditor();
 
     void reopenClangFormatDocument(bool readOnly);
 
@@ -135,7 +135,7 @@ ClangFormatConfigWidget::ClangFormatConfigWidget(
     createStyleFileIfNeeded(!m_project);
 
     initPreview(codeStyle);
-    initEditor(codeStyle);
+    initEditor();
 
     using namespace Layouting;
 
@@ -171,7 +171,7 @@ void ClangFormatConfigWidget::slotCodeStyleChanged(TextEditor::ICodeStylePrefere
     updatePreview();
 }
 
-void ClangFormatConfigWidget::initEditor(TextEditor::ICodeStylePreferences *codeStyle)
+void ClangFormatConfigWidget::initEditor()
 {
     m_editorScrollArea = new QScrollArea();
     Core::EditorFactories factories = Core::IEditorFactory::preferredEditorTypes(
