@@ -281,8 +281,10 @@ struct TerminalSurfacePrivate
 
     int sb_pushline(int cols, const VTermScreenCell *cells)
     {
+        auto oldSize = m_scrollback->size();
         m_scrollback->emplace(cols, cells);
-        emit q->fullSizeChanged(q->fullSize());
+        if (m_scrollback->size() != oldSize)
+            emit q->fullSizeChanged(q->fullSize());
         return 1;
     }
 
