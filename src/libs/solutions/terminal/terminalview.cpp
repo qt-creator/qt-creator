@@ -11,7 +11,7 @@
 #include <QCache>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <QElapsedTimer>
+#include <QDeadlineTimer>
 #include <QGlyphRun>
 #include <QLoggingCategory>
 #include <QMenu>
@@ -78,7 +78,7 @@ public:
 
     QTimer m_updateTimer;
     std::optional<QRegion> m_updateRegion;
-    QElapsedTimer m_sinceLastPaint;
+    QDeadlineTimer m_sinceLastPaint;
 
     QTimer m_scrollTimer;
     int m_scrollDirection{0};
@@ -929,7 +929,7 @@ void TerminalView::paintEvent(QPaintEvent *event)
                            QString("Paint: %1ms").arg(t.elapsed()));
     }
 
-    d->m_sinceLastPaint.start();
+    d->m_sinceLastPaint = QDeadlineTimer(minRefreshInterval);
 }
 
 void TerminalView::keyPressEvent(QKeyEvent *event)
@@ -1055,7 +1055,7 @@ void TerminalView::updateViewportRect(const QRect &rect)
     if (d->m_updateTimer.isActive())
         return;
 
-    if (d->m_sinceLastPaint.durationElapsed() < minRefreshInterval) {
+    if (!d->m_sinceLastPaint.hasExpired()) {
         d->m_updateTimer.start();
         return;
     }
