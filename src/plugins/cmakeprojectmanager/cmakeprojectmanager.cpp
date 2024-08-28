@@ -75,6 +75,7 @@ private:
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
     QAction *m_runCMakeActionContextMenu;
+    QAction *m_clearCMakeCacheActionContextMenu;
     QAction *m_rescanProjectAction;
     QAction *m_buildFileContextMenu;
     QAction *m_reloadCMakePresetsAction;
@@ -141,7 +142,7 @@ CMakeManager::CMakeManager()
     ActionBuilder(this, Constants::CLEAR_CMAKE_CACHE_CONTEXT_MENU)
         .setText(Tr::tr("Clear CMake Configuration"))
         .setContext(projectContext)
-        .bindContextAction(&m_clearCMakeCacheAction)
+        .bindContextAction(&m_clearCMakeCacheActionContextMenu)
         .setCommandAttribute(Command::CA_Hide)
         .addToContainer(PEC::M_PROJECTCONTEXT, PEC::G_PROJECT_REBUILD)
         .addOnTriggered(this, [this] { clearCMakeCache(ProjectManager::startupBuildSystem()); });
@@ -237,6 +238,7 @@ void CMakeManager::updateCmakeActions(Node *node)
     const bool visible = project && !BuildManager::isBuilding(project);
     m_runCMakeAction->setVisible(visible);
     m_runCMakeActionContextMenu->setEnabled(visible);
+    m_clearCMakeCacheActionContextMenu->setVisible(visible);
     m_clearCMakeCacheAction->setVisible(visible);
     m_rescanProjectAction->setVisible(visible);
     m_cmakeProfilerAction->setEnabled(visible);
