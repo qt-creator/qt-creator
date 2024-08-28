@@ -71,8 +71,6 @@ if(MSVC)
   add_compile_options(/wd4573)
 endif()
 
-add_definitions(-DQT_NO_QSNPRINTF)
-
 find_package(Qt6
   ${IDE_QT_VERSION_MIN}
   COMPONENTS Concurrent Core Gui Network PrintSupport Qml Sql Widgets Xml Core5Compat ${QT_TEST_COMPONENT}
