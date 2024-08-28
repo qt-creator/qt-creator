@@ -472,7 +472,7 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
         }
 
         const auto bestBundle
-            = std::min_element(bundles.begin(), bundles.end(), &ToolchainManager::isBetterToolchain);
+            = std::min_element(matchingBundles.begin(), matchingBundles.end(), &ToolchainManager::isBetterToolchain);
         ToolchainKitAspect::setBundle(k, *bestBundle);
     }
 }
