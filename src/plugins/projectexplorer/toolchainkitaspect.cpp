@@ -10,10 +10,12 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "toolchainmanager.h"
+#include "toolchainoptionspage.h"
 
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
+#include <utils/stringutils.h>
 
 #include <QComboBox>
 #include <QGridLayout>
@@ -21,8 +23,88 @@
 using namespace Utils;
 
 namespace ProjectExplorer {
-
 namespace Internal {
+
+class ToolchainListModel : public TreeModel<ToolchainTreeItem>
+{
+public:
+    ToolchainListModel(const Kit &kit, const LanguageCategory &category, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+        , m_category(category)
+    {
+        reset();
+    }
+
+    QModelIndex indexForBundleId(Id bundleId) const
+    {
+        if (!bundleId.isValid())
+            return index(rowCount() - 1, 0); // The "no compiler" item always comes last
+        const TreeItem *const item = findItemAtLevel<1>(
+            [bundleId](TreeItem *item) {
+                const auto tcItem = static_cast<ToolchainTreeItem *>(item);
+                return tcItem->bundle && tcItem->bundle->bundleId() == bundleId;
+            });
+        return item ? indexForItem(item) : QModelIndex();
+    }
+
+    void reset()
+    {
+        clear();
+
+        const Toolchains ltcList = ToolchainManager::toolchains(
+            [this](const Toolchain *tc) { return m_category.contains(tc->language()); });
+        IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+
+        const QList<Toolchain *> toolchainsForBuildDevice
+            = Utils::filtered(ltcList, [device](Toolchain *tc) {
+                  return tc->compilerCommand().isSameDevice(device->rootPath());
+              });
+        const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
+            toolchainsForBuildDevice, ToolchainBundle::AutoRegister::On);
+        for (const ToolchainBundle &b : bundlesForBuildDevice)
+            rootItem()->appendChild(new ToolchainTreeItem(b));
+        rootItem()->appendChild(new ToolchainTreeItem);
+    }
+
+private:
+    const Kit &m_kit;
+    const LanguageCategory m_category;
+};
+
+class ToolchainSortModel : public SortModel
+{
+public:
+    ToolchainSortModel(QObject *parent) : SortModel(parent) {}
+
+    QModelIndex indexForBundleId(Id bundleId) const
+    {
+        return mapFromSource(
+            static_cast<ToolchainListModel *>(sourceModel())->indexForBundleId(bundleId));
+    }
+
+    void reset() { static_cast<ToolchainListModel *>(sourceModel())->reset(); }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto source = static_cast<ToolchainListModel *>(sourceModel());
+        const ToolchainTreeItem *item1 = source->itemForIndex(source_left);
+        const ToolchainTreeItem *item2 = source->itemForIndex(source_right);
+        QTC_ASSERT(item1 && item2, return false);
+        if (!item1->bundle)
+            return false;
+        if (!item2->bundle)
+            return true;
+        if (item1->bundle->type() != item2->bundle->type()) {
+            return caseFriendlyCompare(
+                       item1->bundle->typeDisplayName(), item2->bundle->typeDisplayName())
+                   < 0;
+        }
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
+
 class ToolchainKitAspectImpl final : public KitAspect
 {
 public:
@@ -50,6 +132,11 @@ public:
             cb->setSizePolicy(QSizePolicy::Ignored, cb->sizePolicy().verticalPolicy());
             cb->setToolTip(factory->description());
             setWheelScrollingWithoutFocusBlocked(cb);
+
+            const auto model = new ToolchainListModel(*kit(), lc, this);
+            const auto sortModel = new ToolchainSortModel(this);
+            sortModel->setSourceModel(model);
+            cb->setModel(sortModel);
 
             m_languageComboboxMap.insert(lc, cb);
             layout->addWidget(cb, row, 1);
@@ -88,34 +175,18 @@ private:
                 [lc](const Toolchain *tc) { return lc.contains(tc->language()); });
 
             QComboBox *cb = *it;
-            cb->clear();
-            cb->addItem(Tr::tr("<No compiler>"), QByteArray());
-
-            const QList<Toolchain *> toolchainsForBuildDevice
-                = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                      return tc->compilerCommand().isSameDevice(device->rootPath());
-                  });
-            const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
-                toolchainsForBuildDevice, ToolchainBundle::AutoRegister::On);
-            for (const ToolchainBundle &b : bundlesForBuildDevice)
-                cb->addItem(b.displayName(), b.bundleId().toSetting());
-
+            static_cast<ToolchainSortModel *>(cb->model())->reset();
+            cb->model()->sort(0);
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
+
             Id currentBundleId;
             for (const Id lang : lc) {
-                Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang);
-                if (!currentTc)
-                    continue;
-                for (const ToolchainBundle &b : bundlesForBuildDevice) {
-                    if (b.bundleId() == currentTc->bundleId()) {
-                        currentBundleId = b.bundleId();
-                        break;
-                    }
-                }
-                if (currentBundleId.isValid())
+                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang)) {
+                    currentBundleId = currentTc->bundleId();
                     break;
+                }
             }
-            cb->setCurrentIndex(currentBundleId.isValid() ? indexOf(cb, currentBundleId) : -1);
+            cb->setCurrentIndex(indexOf(cb, currentBundleId));
         }
     }
 
@@ -131,8 +202,11 @@ private:
         if (m_ignoreChanges.isLocked() || idx < 0)
             return;
 
+        const QAbstractItemModel *const model
+            = m_languageComboboxMap.value(languageCategory)->model();
         const Id bundleId = Id::fromSetting(
-            m_languageComboboxMap.value(languageCategory)->itemData(idx));
+            model->data(model->index(idx, 0), ToolchainTreeItem::BundleIdRole));
+
         const Toolchains bundleTcs = ToolchainManager::toolchains(
             [bundleId](const Toolchain *tc) { return tc->bundleId() == bundleId; });
         for (const Id lang : languageCategory) {
@@ -148,11 +222,7 @@ private:
 
     int indexOf(QComboBox *cb, Id bundleId)
     {
-        for (int i = 0; i < cb->count(); ++i) {
-            if (bundleId.toSetting() == cb->itemData(i))
-                return i;
-        }
-        return -1;
+        return static_cast<ToolchainSortModel *>(cb->model())->indexForBundleId(bundleId).row();
     }
 
     QWidget *m_mainWidget = nullptr;
