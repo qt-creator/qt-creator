@@ -29,14 +29,9 @@
 
     \image qtcreator-axivion-view-rule.webp {Axivion sidebar view}
 
-    \section1 View issue counts
+    \section1 View issues
 
-    To view the issue counts, select \inlineimage icons/home.png
-    (\uicontrol {Show Dashboard}) in the \uicontrol Axivion dashboard.
-
-    \image qtcreator-axivion-view.webp {Axivion dashboard}
-
-    The \uicontrol Axivion dashboard lists the numbers of the following types of
+    The \uicontrol Axivion dashboard displays the following types of
     issues that Axivion found in the linked project:
 
     \table
@@ -72,12 +67,6 @@
         \li Style violations, such as deviations from the naming
             or coding conventions.
     \endtable
-
-    To clear the view, select \inlineimage icons/clean_pane_small.png
-    (\uicontrol Clear).
-
-    To view issues, select \inlineimage icons/zoom.png
-    (\uicontrol {Search for Issues}).
 
     \section1 Filter issues
 

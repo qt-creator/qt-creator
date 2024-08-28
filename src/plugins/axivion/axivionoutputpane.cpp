@@ -33,9 +33,8 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QDesktopServices>
-#include <QFormLayout>
-#include <QGridLayout>
 #include <QGuiApplication>
+#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QMenu>
@@ -55,48 +54,6 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
-void showIssuesFromDashboard(const QString &kind); // impl at bottom
-
-class DashboardWidget : public QScrollArea
-{
-public:
-    explicit DashboardWidget(QWidget *parent = nullptr);
-    void updateUi();
-    bool hasProject() const { return !m_project->text().isEmpty(); }
-private:
-    QLabel *m_project = nullptr;
-    QLabel *m_loc = nullptr;
-    QLabel *m_timestamp = nullptr;
-    QGridLayout *m_gridLayout = nullptr;
-};
-
-DashboardWidget::DashboardWidget(QWidget *parent)
-    : QScrollArea(parent)
-{
-    QWidget *widget = new QWidget(this);
-    m_project = new QLabel(this);
-    m_loc = new QLabel(this);
-    m_timestamp = new QLabel(this);
-
-    m_gridLayout = new QGridLayout;
-
-    using namespace Layouting;
-    Column {
-        Form {
-            Tr::tr("Project:"), m_project, br,
-            Tr::tr("Lines of code:"), m_loc, br,
-            Tr::tr("Analysis timestamp:"), m_timestamp
-        },
-        Space(10),
-        Row { m_gridLayout, st },
-        st
-    }.attachTo(widget);
-
-    setWidget(widget);
-    setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setWidgetResizable(true);
-}
-
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
     static const QPixmap unchanged = Icons::NEXT.pixmap();
@@ -107,112 +64,6 @@ static QPixmap trendIcon(qint64 added, qint64 removed)
     if (added == removed)
         return unchanged;
     return added < removed ? decreased : increased;
-}
-
-static qint64 extract_value(const std::map<QString, Dto::Any> &map, const QString &key)
-{
-    const auto search = map.find(key);
-    if (search == map.end())
-        return 0;
-    const Dto::Any &value = search->second;
-    if (!value.isDouble())
-        return 0;
-    return static_cast<qint64>(value.getDouble());
-}
-
-void DashboardWidget::updateUi()
-{
-    m_project->setText({});
-    m_loc->setText({});
-    m_timestamp->setText({});
-    QLayoutItem *child;
-    while ((child = m_gridLayout->takeAt(0)) != nullptr) {
-        delete child->widget();
-        delete child;
-    }
-    std::optional<Dto::ProjectInfoDto> projectInfo = Internal::projectInfo();
-    if (!projectInfo)
-        return;
-    const Dto::ProjectInfoDto &info = *projectInfo;
-    m_project->setText(info.name);
-    if (info.versions.empty())
-        return;
-
-    const Dto::AnalysisVersionDto &last = info.versions.back();
-    setAnalysisVersion(last.date);
-    if (last.linesOfCode.has_value())
-        m_loc->setText(QString::number(last.linesOfCode.value()));
-    const QDateTime timeStamp = QDateTime::fromString(last.date, Qt::ISODate);
-    m_timestamp->setText(timeStamp.isValid() ? timeStamp.toString("yyyy-MM-dd HH:mm:ss t")
-                                             : Tr::tr("unknown"));
-
-    const std::vector<Dto::IssueKindInfoDto> &issueKinds = info.issueKinds;
-    auto toolTip = [issueKinds](const QString &prefix){
-        for (const Dto::IssueKindInfoDto &kind : issueKinds) {
-            if (kind.prefix == prefix)
-                return kind.nicePluralName;
-        }
-        return prefix;
-    };
-    auto linked = [](const QString &text, const QString &href, bool link) {
-        return link ? QString("<a href='%1'>%2</a>").arg(href).arg(text)
-                    : text;
-    };
-    auto addValuesWidgets = [this, &toolTip, &linked](const QString &issueKind, qint64 total,
-            qint64 added, qint64 removed, int row, bool link) {
-        const QString currentToolTip = toolTip(issueKind);
-        QLabel *label = new QLabel(issueKind, this);
-        label->setToolTip(currentToolTip);
-        m_gridLayout->addWidget(label, row, 0);
-        label = new QLabel(linked(QString::number(total), issueKind, link), this);
-        label->setToolTip(currentToolTip);
-        label->setAlignment(Qt::AlignRight);
-        if (link) {
-            connect(label, &QLabel::linkActivated, this, [](const QString &issueKind) {
-                showIssuesFromDashboard(issueKind);
-            });
-        }
-        m_gridLayout->addWidget(label, row, 1);
-        label = new QLabel(this);
-        label->setPixmap(trendIcon(added, removed));
-        label->setToolTip(currentToolTip);
-        m_gridLayout->addWidget(label, row, 2);
-        label = new QLabel('+' + QString::number(added));
-        label->setAlignment(Qt::AlignRight);
-        label->setToolTip(currentToolTip);
-        m_gridLayout->addWidget(label, row, 3);
-        label = new QLabel("/");
-        label->setToolTip(currentToolTip);
-        m_gridLayout->addWidget(label, row, 4);
-        label = new QLabel('-' + QString::number(removed));
-        label->setAlignment(Qt::AlignRight);
-        label->setToolTip(currentToolTip);
-        m_gridLayout->addWidget(label, row, 5);
-    };
-    qint64 allTotal = 0;
-    qint64 allAdded = 0;
-    qint64 allRemoved = 0;
-    qint64 row = 0;
-    // This code is overly complex because of a heedlessness in the
-    // Axivion Dashboard API definition. Other Axivion IDE plugins do
-    // not use the issue counts, thus the QtCreator Axivion Plugin
-    // is going to stop using them, too.
-    if (last.issueCounts.isMap()) {
-        for (const Dto::Any::MapEntry &issueCount : last.issueCounts.getMap()) {
-            if (issueCount.second.isMap()) {
-                const Dto::Any::Map &counts = issueCount.second.getMap();
-                qint64 total = extract_value(counts, QStringLiteral("Total"));
-                allTotal += total;
-                qint64 added = extract_value(counts, QStringLiteral("Added"));
-                allAdded += added;
-                qint64 removed = extract_value(counts, QStringLiteral("Removed"));
-                allRemoved += removed;
-                addValuesWidgets(issueCount.first, total, added, removed, row, true);
-                ++row;
-            }
-        }
-    }
-    addValuesWidgets(Tr::tr("Total:"), allTotal, allAdded, allRemoved, row, false);
 }
 
 struct LinkWithColumns
@@ -616,6 +467,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
 
     if (!info) {
         cleanOld();
+        GuardLocker lock(m_signalBlocker);
         m_userNames.clear();
         m_versionDates.clear();
         m_ownerFilter->clear();
@@ -818,39 +670,12 @@ public:
         setPriorityInStatusBar(-50);
 
         m_outputWidget = new QStackedWidget;
-        DashboardWidget *dashboardWidget = new DashboardWidget(m_outputWidget);
-        m_outputWidget->addWidget(dashboardWidget);
         IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
         m_outputWidget->addWidget(issuesWidget);
 
         QPalette pal = m_outputWidget->palette();
         pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
         m_outputWidget->setPalette(pal);
-
-        m_showDashboard = new QToolButton(m_outputWidget);
-        m_showDashboard->setIcon(Icons::HOME_TOOLBAR.icon());
-        m_showDashboard->setToolTip(Tr::tr("Show dashboard"));
-        m_showDashboard->setCheckable(true);
-        m_showDashboard->setChecked(true);
-        connect(m_showDashboard, &QToolButton::clicked, this, [this] {
-            QTC_ASSERT(m_outputWidget, return);
-            m_outputWidget->setCurrentIndex(0);
-        });
-
-        m_showIssues = new QToolButton(m_outputWidget);
-        m_showIssues->setIcon(Icons::ZOOM_TOOLBAR.icon());
-        m_showIssues->setToolTip(Tr::tr("Search for issues"));
-        m_showIssues->setCheckable(true);
-        connect(m_showIssues, &QToolButton::clicked, this, [this] { handleShowIssues({}); });
-        auto *butonGroup = new QButtonGroup(this);
-        butonGroup->addButton(m_showDashboard);
-        butonGroup->addButton(m_showIssues);
-        butonGroup->setExclusive(true);
-
-        connect(m_outputWidget, &QStackedWidget::currentChanged, this, [this](int idx) {
-            m_showDashboard->setChecked(idx == 0);
-            m_showIssues->setChecked(idx == 1);
-        });
 
         m_toggleIssues = new QToolButton(m_outputWidget);
         m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
@@ -882,7 +707,7 @@ public:
 
     QList<QWidget *> toolBarWidgets() const final
     {
-        return {m_showDashboard, m_showIssues, m_toggleIssues};
+        return {m_toggleIssues};
     }
 
     void clearContents() final {}
@@ -898,24 +723,14 @@ public:
     void handleShowIssues(const QString &kind)
     {
         QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(1);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1)))
+        m_outputWidget->setCurrentIndex(0);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
             issues->updateUi(kind);
-    }
-
-    void updateDashboard()
-    {
-        if (auto dashboard = static_cast<DashboardWidget *>(m_outputWidget->widget(0))) {
-            dashboard->updateUi();
-            m_outputWidget->setCurrentIndex(0);
-            if (dashboard->hasProject())
-                flash();
-        }
     }
 
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
     {
-        auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(1));
+        auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0));
         std::optional<Dto::TableInfoDto> tableInfoOpt = issues ? issues->currentTableInfo()
                                                                : std::nullopt;
         if (!tableInfoOpt)
@@ -957,8 +772,6 @@ public:
 
 private:
     QStackedWidget *m_outputWidget = nullptr;
-    QToolButton *m_showDashboard = nullptr;
-    QToolButton *m_showIssues = nullptr;
     QToolButton *m_toggleIssues = nullptr;
 };
 
@@ -973,7 +786,8 @@ void setupAxivionOutputPane(QObject *guard)
 void updateDashboard()
 {
     QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->updateDashboard();
+    theAxivionOutputPane->handleShowIssues({});
+    theAxivionOutputPane->flash();
 }
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev)
@@ -985,12 +799,6 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev)
         return false;
     const QString issue = first.data().toString();
     return theAxivionOutputPane->handleContextMenu(issue, ev);
-}
-
-void showIssuesFromDashboard(const QString &kind)
-{
-    QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->handleShowIssues(kind);
 }
 
 } // Axivion::Internal

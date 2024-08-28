@@ -873,8 +873,9 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 
         const auto handler = [this](const Dto::ProjectInfoDto &data) {
             m_currentProjectInfo = data;
+            if (!m_currentProjectInfo->versions.empty())
+                setAnalysisVersion(m_currentProjectInfo->versions.back().date);
             updateDashboard();
-            handleOpenedDocs();
         };
 
         taskTree.setRecipe(
