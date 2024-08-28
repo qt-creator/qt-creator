@@ -452,10 +452,10 @@ void FlatModel::handleProjectAdded(Project *project)
 
     const FilePath &rootPath = project->rootProjectDirectory();
     IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath);
-    if (!vc)
-        return;
-    vc->monitorDirectory(rootPath);
-    connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
+    if (vc) {
+        vc->monitorDirectory(rootPath);
+        connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
+    }
 
     addOrRebuildProjectModel(project);
 }
