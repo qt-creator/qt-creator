@@ -30,6 +30,8 @@ if (NOT QT_CREATOR_API_DEFINED)
         CMAKE_GENERATOR_PLATFORM "${arch}"
         CMAKE_ARGS
           -D${PROJECT_NAME}-MultiBuild=ON
+          -DPythonTargetArchDll=${PythonTarget${arch}Dll}
+          -DPython3_ROOT_DIR=${Python3_ROOT_DIR}
         BUILD_COMMAND
           ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND
