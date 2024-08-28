@@ -222,10 +222,11 @@ void TestResultsPane::createToolButtons()
     connect(m_showDurationButton, &QToolButton::toggled, this, [this](bool checked) {
         if (auto trd = qobject_cast<TestResultDelegate *>(m_treeView->itemDelegate())) {
             trd->setShowDuration(checked);
-            if (auto rowCount = m_model->rowCount()) {
-                QModelIndex tl = m_model->index(0, 0);
-                QModelIndex br = m_model->index(rowCount - 1, 0);
-                emit m_model->dataChanged(tl, br, {Qt::DisplayRole});
+            if (m_model->rowCount()) {
+                m_model->rootItem()->forAllChildren([this](TestResultItem *it) {
+                    const QModelIndex idx = m_model->indexForItem(it);
+                    emit m_model->dataChanged(idx, idx, {Qt::DisplayRole});
+                });
             }
         }
     });
