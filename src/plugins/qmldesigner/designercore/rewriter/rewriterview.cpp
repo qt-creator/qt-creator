@@ -843,7 +843,7 @@ ModelNode RewriterView::nodeAtTextCursorPositionHelper(const ModelNode &root, in
         ModelNode node = pair.first;
 
         const int textLength = m_textModifier->text().length();
-        const int nodeTextOffset = std::max(nodeOffset(node), textLength);
+        const int nodeTextOffset = std::min(nodeOffset(node), textLength);
 
         const int nodeTextLength = findEvenClosingBrace(m_textModifier->text().sliced(nodeTextOffset))
                                    - 1;
