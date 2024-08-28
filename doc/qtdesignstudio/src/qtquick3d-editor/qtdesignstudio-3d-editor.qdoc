@@ -182,6 +182,30 @@
         \li Set a value multiplier for the speed slider.
     \endlist
 
+    \section1 Toggling Camera View
+
+    In the 3D view, you can show a small window displaying the camera view.
+
+    \image 3d-view-camera-view.webp
+
+    To toggle this view,
+    select \inlineimage icons/visibilityon.png
+    and then one of the options:
+
+    \table
+      \row
+        \li \uicontrol {Hide Camera View}
+        \li Never shows the camera view.
+      \row
+        \li \uicontrol {Show Selected Camera View}
+        \li Shows the camera view of the selected camera. If no camera is selected, the camera
+        view is hidden.
+      \row
+        \li \uicontrol {Always Show Camera View}
+        \li Always shows the camera view of the camera that was selected last, even if no camera
+        is currently selected.
+    \endtable
+
     \section1 Using Global and Local Orientation
 
     In \uicontrol 3D view, you view the scene in global or local orientation
