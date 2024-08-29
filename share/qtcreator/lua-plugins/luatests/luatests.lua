@@ -15,7 +15,7 @@ return {
         It has tests for (almost) all functionality exposed by the API.
     ]],
     Dependencies = {
-        { Id = "lua", Version = "14.0.0" }
+        { Id = "lua", Version = "15.0.0" }
     },
     setup = function() require 'tests'.setup() end,
     printToOutputPane = true,

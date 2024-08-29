@@ -108,9 +108,19 @@ bool LuaPluginSpec::provides(PluginSpec *spec, const PluginDependency &dependenc
         return false;
     }
 
+    // If luaCompatibleVersion is greater than the dependency version, we cannot provide it.
     if (versionCompare(luaCompatibleVersion, dependency.version) > 0)
         return false;
 
+    // If the luaCompatibleVersion is greater than the spec version, we can provide it.
+    // Normally, a plugin that has a higher compatibility version than version is in an invalid state.
+    // This check is used when raising the compatibility version of the Lua plugin during development,
+    // where temporarily Lua's version is `(X-1).0.8y`, and the compatibility version has already
+    // been raised to the final release `X.0.0`.
+    if (versionCompare(luaCompatibleVersion, spec->version()) > 0)
+        return true;
+
+    // If the spec version is greater than the dependency version, we can provide it.
     return (versionCompare(spec->version(), dependency.version) >= 0);
 }
 

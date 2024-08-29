@@ -16,8 +16,8 @@ This plugin provides the Lua Language Server.
 It will try to install it if it is not found.
     ]],
     Dependencies = {
-        { Id = "lua",               Version = "14.0.0" },
-        { Id = "lualanguageclient", Version = "14.0.0" }
+        { Id = "lua",               Version = "15.0.0" },
+        { Id = "lualanguageclient", Version = "15.0.0" }
     },
     setup = function()
         require 'init'.setup()

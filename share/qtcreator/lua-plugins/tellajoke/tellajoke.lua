@@ -50,7 +50,7 @@ return {
     Category = "Fun",
     Description = "This plugin adds an action that tells a joke.",
     Dependencies = {
-        { Id = "lua", Version = "14.0.0" },
+        { Id = "lua", Version = "15.0.0" },
     },
     setup = setup,
 } --[[@as QtcPlugin]]
