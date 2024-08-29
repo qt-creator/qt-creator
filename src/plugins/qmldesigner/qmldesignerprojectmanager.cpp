@@ -45,6 +45,7 @@
 #include <QFileSystemWatcher>
 #include <QLibraryInfo>
 #include <QQmlEngine>
+#include <QStandardPaths>
 
 using namespace std::chrono;
 using namespace std::chrono_literals;
@@ -215,6 +216,21 @@ std::unique_ptr<ProjectStorageData> createProjectStorageData(::ProjectExplorer::
         return {};
     }
 }
+
+Utils::PathString createDatabasePath(std::string_view name)
+{
+    auto directory = QStandardPaths::writableLocation(QStandardPaths::AppLocalDataLocation);
+
+    QDir{}.mkpath(directory);
+
+    Utils::PathString path = directory;
+
+    path.append('/');
+    path.append(name);
+
+    return path;
+}
+
 } // namespace
 
 class QmlDesignerProjectManager::QmlDesignerProjectManagerProjectData
@@ -244,21 +260,16 @@ public:
 class QmlDesignerProjectManager::Data
 {
 public:
-    Data(ExternalDependenciesInterface &externalDependencies)
-        : sourcePathDatabase{externalDependencies.userResourcePath(u"source_path.db"),
-                             Sqlite::JournalMode::Wal,
-                             Sqlite::LockingMode::Normal}
-    {}
-
-public:
-    Sqlite::Database sourcePathDatabase;
+    Sqlite::Database sourcePathDatabase{createDatabasePath("source_path.db"),
+                                        Sqlite::JournalMode::Wal,
+                                        Sqlite::LockingMode::Normal};
     QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
                                                      sourcePathDatabase.isInitialized()};
     PathCacheType pathCache{sourcePathStorage};
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
-    : m_data{std::make_unique<Data>(externalDependencies)}
+    : m_data{std::make_unique<Data>()}
     , m_previewImageCacheData{std::make_unique<PreviewImageCacheData>(externalDependencies)}
     , m_externalDependencies{externalDependencies}
 {
