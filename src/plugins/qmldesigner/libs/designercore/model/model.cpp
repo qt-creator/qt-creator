@@ -225,8 +225,8 @@ void ModelPrivate::notifyImportsChanged(const Imports &addedImports, const Impor
     QString description;
 
     try {
-        if (rewriterView())
-            rewriterView()->importsChanged(addedImports, removedImports);
+        if (m_rewriterView)
+            m_rewriterView->importsChanged(addedImports, removedImports);
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -568,8 +568,8 @@ void ModelPrivate::notifyNodeInstanceViewLast(Callable call)
     QString description;
 
     try {
-        if (rewriterView() && !rewriterView()->isBlockingNotifications())
-            call(rewriterView());
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+            call(m_rewriterView);
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -598,8 +598,8 @@ void ModelPrivate::notifyNormalViewsLast(Callable call)
     QString description;
 
     try {
-        if (rewriterView() && !rewriterView()->isBlockingNotifications())
-            call(rewriterView());
+        if (m_rewriterView && !m_rewriterView->isBlockingNotifications())
+            call(m_rewriterView);
     } catch (const RewritingException &e) {
         description = e.description();
         resetModel = true;
@@ -845,17 +845,17 @@ void ModelPrivate::notifyPropertiesAboutToBeRemoved(const QList<InternalProperty
     QString description;
 
     try {
-        if (rewriterView()) {
+        if (m_rewriterView) {
             QList<AbstractProperty> propertyList;
             for (InternalProperty *property : internalPropertyList) {
-                 AbstractProperty newProperty(property->name(),
-                                              property->propertyOwner(),
-                                              m_model,
-                                              rewriterView());
-                 propertyList.append(newProperty);
+                AbstractProperty newProperty(property->name(),
+                                             property->propertyOwner(),
+                                             m_model,
+                                             m_rewriterView);
+                propertyList.append(newProperty);
             }
 
-            rewriterView()->propertiesAboutToBeRemoved(propertyList);
+            m_rewriterView->propertiesAboutToBeRemoved(propertyList);
         }
     } catch (const RewritingException &e) {
         description = e.description();
@@ -909,8 +909,8 @@ void ModelPrivate::setAuxiliaryData(const InternalNodePointer &node,
 
 void ModelPrivate::resetModelByRewriter(const QString &description)
 {
-    if (rewriterView()) {
-        rewriterView()->resetToLastCorrectQml();
+    if (m_rewriterView) {
+        m_rewriterView->resetToLastCorrectQml();
 
         throw RewritingException(__LINE__,
                                  __FUNCTION__,
