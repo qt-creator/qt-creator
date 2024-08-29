@@ -24,6 +24,7 @@ AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
     createBackendModel();
+    setRecursiveFilteringEnabled(true);
     sort(0);
 }
 
