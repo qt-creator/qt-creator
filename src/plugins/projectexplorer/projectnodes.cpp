@@ -261,17 +261,17 @@ void FileNode::setHasError(bool error) const
     m_hasError = error;
 }
 
-bool FileNode::hasModification() const
+Core::IVersionControl::FileState FileNode::modificationState() const
 {
     if (isGenerated())
-        return false;
+        return Core::IVersionControl::FileState::NoModification;
 
     const FilePath file = filePath();
     const FilePath dir = file.absolutePath();
     if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
-        return vc->hasModification(file);
+        return vc->modificationState(file);
 
-    return false;
+    return Core::IVersionControl::FileState::NoModification;
 }
 
 bool FileNode::useUnavailableMarker() const

@@ -122,7 +122,7 @@ public:
     struct ModificationInfo
     {
         Utils::FilePath rootPath;
-        QSet<QString> modifiedFiles;
+        QHash<QString, Core::IVersionControl::FileState> modifiedFiles;
     };
 
     GitClient();
@@ -140,7 +140,7 @@ public:
     Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
-    bool hasModification(const Utils::FilePath &workingDirectory,
+    Core::IVersionControl::FileState modificationState(const Utils::FilePath &workingDirectory,
                          const Utils::FilePath &fileName) const;
     void monitorDirectory(const Utils::FilePath &path);
     void stopMonitoring(const Utils::FilePath &path);

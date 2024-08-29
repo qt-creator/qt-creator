@@ -42,6 +42,16 @@ public:
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
 
+    enum class FileState : quint8 {
+        NoModification = 0x00,
+        ModifiedState,
+        AddedState,
+        DeletedState,
+        RenamedState,
+        UnmanagedState
+    };
+    Q_ENUM(FileState)
+
     IVersionControl();
     ~IVersionControl() override;
 
@@ -96,7 +106,7 @@ public:
     /*!
      * Returns true if the file has modification compared to version control
      */
-    virtual bool hasModification(const Utils::FilePath &path) const;
+    virtual Core::IVersionControl::FileState modificationState(const Utils::FilePath &path) const;
 
     /*!
      * Starts monitoring modified files inside path
@@ -225,6 +235,9 @@ public:
     using TopicRefresher = std::function<QString(const Utils::FilePath &)>;
     QString refreshTopic(const Utils::FilePath &repository);
     void setTopicRefresher(const TopicRefresher &topicRefresher);
+
+    static QColor vcStateToColor(const IVersionControl::FileState &state);
+    static QString modificationToText(const IVersionControl::FileState &state);
 
 signals:
     void repositoryChanged(const Utils::FilePath &repository);

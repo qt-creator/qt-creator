@@ -215,8 +215,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                 tooltip += "<p>" + Tr::tr("No kits are enabled for this project. "
                                       "Enable kits in the \"Projects\" mode.");
             }
-        } else if (fileNode && fileNode->hasModification()) {
-            tooltip += "<p>" + Tr::tr("Version control state: modified");
+        } else if (fileNode) {
+            const QString &stateText =
+                IVersionControl::modificationToText(fileNode->modificationState());
+            if (!stateText.isEmpty())
+                tooltip += "<p>" + stateText;
         }
         return tooltip;
     }
@@ -243,8 +246,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return font;
     }
     case Qt::ForegroundRole:
-        if (fileNode && fileNode->hasModification())
-            return Utils::creatorColor(Utils::Theme::VcsBase_FileModified_TextColor);
+        if (fileNode) {
+            Core::IVersionControl::FileState state = fileNode->modificationState();
+            if (state != Core::IVersionControl::FileState::NoModification)
+                return Core::IVersionControl::vcStateToColor(state);
+        }
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::FilePathRole:

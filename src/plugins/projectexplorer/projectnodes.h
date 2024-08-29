@@ -8,6 +8,7 @@
 #include <QIcon>
 #include <QStringList>
 
+#include <coreplugin/iversioncontrol.h>
 #include <utils/filepath.h>
 #include <utils/id.h>
 
@@ -202,7 +203,7 @@ public:
     void setHasError(const bool error);
     void setHasError(const bool error) const;
 
-    bool hasModification() const;
+    Core::IVersionControl::FileState modificationState() const;
 
     QIcon icon() const;
     void setIcon(const QIcon icon);

@@ -882,13 +882,13 @@ FilePaths GitClient::unmanagedFiles(const FilePaths &filePaths) const
     return res;
 }
 
-bool GitClient::hasModification(const Utils::FilePath &workingDirectory,
+IVersionControl::FileState GitClient::modificationState(const Utils::FilePath &workingDirectory,
                                 const Utils::FilePath &fileName) const
 {
     const ModificationInfo &info = m_modifInfos[workingDirectory];
     int length = workingDirectory.toString().size();
     const QString fileNameFromRoot = fileName.absoluteFilePath().path().mid(length + 1);
-    return info.modifiedFiles.contains(fileNameFromRoot);
+    return info.modifiedFiles.value(fileNameFromRoot, IVersionControl::FileState::NoModification);
 }
 
 void GitClient::stopMonitoring(const Utils::FilePath &path)
@@ -920,6 +920,7 @@ void GitClient::monitorDirectory(const Utils::FilePath &path)
 
 void GitClient::updateModificationInfos()
 {
+    using IVCF = IVersionControl::FileState;
     for (const ModificationInfo &infoTemp : std::as_const(m_modifInfos)) {
         const FilePath path = infoTemp.rootPath;
 
@@ -930,22 +931,31 @@ void GitClient::updateModificationInfos()
             ModificationInfo &info = m_modifInfos[path];
 
             const QStringList res = result.cleanedStdOut().split("\n", Qt::SkipEmptyParts);
-            QSet<QString> modifiedFiles;
+            QHash<QString, IVCF> modifiedFiles;
             for (const QString &line : res) {
                 if (line.size() <= 3)
                     continue;
 
-                static const QSet<QChar> gitStates{'M', 'A'};
+                static const QHash<QChar, IVCF> gitStates {
+                    {'M', IVCF::ModifiedState},
+                    {'A', IVCF::AddedState},
+                    {'R', IVCF::RenamedState},
+                    {'D', IVCF::DeletedState},
+                    {'?', IVCF::UnmanagedState},
+                };
 
-                if (gitStates.contains(line.at(0)) || gitStates.contains(line.at(1)))
-                    modifiedFiles.insert(line.mid(3).trimmed());
+                const IVCF &modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
+                         gitStates.value(line.at(1), IVCF::NoModification));
+
+                if (modification != IVCF::NoModification)
+                    modifiedFiles.insert(line.mid(3).trimmed(), modification);
             }
 
-            const QSet<QString> oldfiles = info.modifiedFiles;
+            const QHash<QString, IVCF> oldfiles = info.modifiedFiles;
             info.modifiedFiles = modifiedFiles;
 
-            QStringList newList = modifiedFiles.values();
-            QStringList list = oldfiles.values();
+            QStringList newList = modifiedFiles.keys();
+            QStringList list = oldfiles.keys();
             newList.sort();
             list.sort();
             QStringList statusChangedFiles;
