@@ -1958,9 +1958,16 @@ public:
         m_incrementalWrappedState = false;
     }
 
+    void rehighlightAll()
+    {
+        findIncremental(m_lastText, m_lastFindFlags);
+    }
+
     void highlightAll(const QString &txt, FindFlags findFlags) final
     {
-        m_widget->highlightSearchResults(txt.toLatin1(),
+        m_lastText = txt;
+        m_lastFindFlags = findFlags;
+        m_widget->highlightSearchResults(m_codec->fromUnicode(txt),
                                          Utils::textDocumentFlagsForFindFlags(findFlags));
     }
 
@@ -1990,12 +1997,21 @@ public:
         return res;
     }
 
+    void setCodec(QTextCodec *codec)
+    {
+        if (codec == m_codec)
+            return;
+        m_codec = codec;
+        rehighlightAll();
+    }
+
     Result findIncremental(const QString &txt, FindFlags findFlags) final
     {
-        QByteArray pattern = txt.toLatin1();
-        if (pattern != m_lastPattern)
+        QByteArray pattern = m_codec->fromUnicode(txt);
+        if (txt != m_lastText)
             resetIncrementalSearch(); // Because we don't search for nibbles.
-        m_lastPattern = pattern;
+        m_lastText = txt;
+        m_lastFindFlags = findFlags;
         if (m_incrementalStartPos < 0)
             m_incrementalStartPos = m_widget->selectionStart();
         if (m_contPos == -1)
@@ -2027,7 +2043,7 @@ public:
 
     Result findStep(const QString &txt, FindFlags findFlags) final
     {
-        QByteArray pattern = txt.toLatin1();
+        QByteArray pattern = m_codec->fromUnicode(txt);
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
             m_contPos = m_widget->cursorPosition() + 1;
@@ -2063,7 +2079,9 @@ private:
     qint64 m_incrementalStartPos = -1;
     qint64 m_contPos = -1; // Only valid if last result was NotYetFound.
     bool m_incrementalWrappedState = false;
-    QByteArray m_lastPattern;
+    QString m_lastText;
+    FindFlags m_lastFindFlags;
+    QTextCodec *m_codec;
 };
 
 
@@ -2181,10 +2199,12 @@ public:
         setWidget(m_widget);
         setDuplicateSupported(true);
 
-        auto codecChooser = new CodecChooser(CodecChooser::Filter::SingleByte);
+        auto codecChooser = new CodecChooser(CodecChooser::Filter::All);
         codecChooser->prependNone();
         connect(codecChooser, &CodecChooser::codecChanged,
                 m_widget, &BinEditorWidget::setCodec);
+        m_widget->setCodec(codecChooser->currentCodec());
+
         const QVariant setting = ICore::settings()->value(C_ENCODING_SETTING);
         if (!setting.isNull())
             codecChooser->setAssignedCodec(QTextCodec::codecForName(setting.toByteArray()));
@@ -2230,6 +2250,10 @@ public:
 
         auto aggregate = new Aggregation::Aggregate;
         auto binEditorFind = new BinEditorFind(m_widget);
+        connect(codecChooser, &CodecChooser::codecChanged,
+                binEditorFind, &BinEditorFind::setCodec);
+        binEditorFind->setCodec(codecChooser->currentCodec());
+
         aggregate->add(binEditorFind);
         aggregate->add(m_widget);
     }
