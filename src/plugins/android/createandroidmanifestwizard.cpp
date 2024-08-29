@@ -154,9 +154,10 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
         m_wizard->setDirectory(m_androidPackageSourceDir->unexpandedFilePath());
     });
 
-    if (wizard->copyGradle()) {
+    if (wizard->allowGradleTemplates()) {
         auto checkBox = new QCheckBox(this);
-        connect(checkBox, &QCheckBox::toggled, wizard, &CreateAndroidManifestWizard::setCopyGradle);
+        connect(checkBox, &QCheckBox::toggled,
+                wizard, &CreateAndroidManifestWizard::setCopyGradleTemplates);
         checkBox->setChecked(false);
         checkBox->setText(Tr::tr("Copy the Gradle files to Android directory"));
         checkBox->setToolTip(Tr::tr("It is highly recommended if you are planning to extend the Java part of your Qt application."));
@@ -230,7 +231,8 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
 
     const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(buildSystem->kit());
-    m_copyGradle = version && version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
+    m_allowGradleTemplates = version &&
+                             version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
 
     if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
@@ -259,14 +261,19 @@ void CreateAndroidManifestWizard::setDirectory(const FilePath &directory)
     m_directory = directory;
 }
 
-bool CreateAndroidManifestWizard::copyGradle()
+bool CreateAndroidManifestWizard::copyGradleTemplates() const
 {
-    return m_copyGradle;
+    return m_copyGradleTemplates;
 }
 
-void CreateAndroidManifestWizard::setCopyGradle(bool copy)
+bool CreateAndroidManifestWizard::allowGradleTemplates() const
 {
-    m_copyGradle = copy;
+    return m_allowGradleTemplates;
+}
+
+void CreateAndroidManifestWizard::setCopyGradleTemplates(bool copy)
+{
+    m_copyGradleTemplates = copy;
 }
 
 void CreateAndroidManifestWizard::createAndroidTemplateFiles()
@@ -290,7 +297,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                    nullptr,
                                    copy());
 
-        if (m_copyGradle) {
+        if (copyGradleTemplates()) {
             FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
             QTC_ASSERT(gradlePath.exists(), return);
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
