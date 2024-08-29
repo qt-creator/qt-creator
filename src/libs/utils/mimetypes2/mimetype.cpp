@@ -232,22 +232,38 @@ QString MimeType::comment() const
 {
     MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
 
-    QStringList languageList;
-    languageList << QLocale().name();
-    languageList << QLocale().uiLanguages();
-    languageList << u"default"_s; // use the default locale if possible.
+    QStringList languageList = QLocale().uiLanguages();
+    qsizetype defaultIndex = languageList.indexOf(u"en-US"_s);
+
+    // Include the default locale as fall-back.
+    if (defaultIndex >= 0) {
+        // en_US is generally the default, and may be omitted from the
+        // overtly-named locales in the MIME type's data (QTBUG-105007).
+        ++defaultIndex; // Skip over en-US.
+        // That's typically followed by en-Latn-US and en (in that order):
+        if (defaultIndex < languageList.size() && languageList.at(defaultIndex) == u"en-Latn-US")
+            ++defaultIndex;
+        if (defaultIndex < languageList.size() && languageList.at(defaultIndex) == u"en")
+            ++defaultIndex;
+    } else {
+        // Absent en-US, just append it:
+        defaultIndex = languageList.size();
+    }
+    languageList.insert(defaultIndex, u"default"_s);
+
     for (const QString &language : std::as_const(languageList)) {
-        const QString lang = language == "C"_L1 ? u"en_US"_s : language;
-        const QString comm = d->localeComments.value(lang);
+            // uiLanguages() uses '-' as separator, MIME database uses '_'
+        const QString lang
+            = language == "C"_L1 ? u"en_US"_s : QString(language).replace(u'-', u'_');
+        QString comm = d->localeComments.value(lang);
         if (!comm.isEmpty())
             return comm;
-        const qsizetype pos = lang.indexOf(u'_');
-        if (pos != -1) {
-            // "pt_BR" not found? try just "pt"
-            const QString shortLang = lang.left(pos);
-            const QString commShort = d->localeComments.value(shortLang);
-            if (!commShort.isEmpty())
-                return commShort;
+        const qsizetype cut = lang.indexOf(u'_');
+        // If "de_CH" is missing, check for "de" (and similar):
+        if (cut != -1) {
+            comm = d->localeComments.value(lang.left(cut));
+            if (!comm.isEmpty())
+                return comm;
         }
     }
 
