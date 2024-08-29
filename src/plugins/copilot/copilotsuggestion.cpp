@@ -43,6 +43,26 @@ bool CopilotSuggestion::apply()
 
 bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
 {
+    return applyPart(Word, widget);
+}
+
+bool CopilotSuggestion::applyLine(TextEditor::TextEditorWidget *widget)
+{
+    return applyPart(Line, widget);
+}
+
+void CopilotSuggestion::reset()
+{
+    m_start.removeSelectedText();
+}
+
+int CopilotSuggestion::position()
+{
+    return m_start.selectionEnd();
+}
+
+bool CopilotSuggestion::applyPart(Part part, TextEditor::TextEditorWidget *widget)
+{
     Completion completion = m_completions.value(m_currentCompletion);
     const Range range = completion.range();
     const QTextCursor cursor = range.toSelection(m_start.document());
@@ -50,11 +70,13 @@ bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
     const QString text = completion.text();
     const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
                          + (cursor.selectionEnd() - cursor.selectionStart());
-    const int next = endOfNextWord(text, startPos);
+    int next = part == Word ? endOfNextWord(text, startPos) : text.indexOf('\n', startPos);
 
     if (next == -1)
         return apply();
 
+    if (part == Line)
+        ++next;
     QString subText = text.mid(startPos, next - startPos);
     if (subText.isEmpty())
         return false;
@@ -76,16 +98,6 @@ bool CopilotSuggestion::applyWord(TextEditorWidget *widget)
         }
     }
     return false;
-}
-
-void CopilotSuggestion::reset()
-{
-    m_start.removeSelectedText();
-}
-
-int CopilotSuggestion::position()
-{
-    return m_start.selectionEnd();
 }
 
 } // namespace Copilot::Internal

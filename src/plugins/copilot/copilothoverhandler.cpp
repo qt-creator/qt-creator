@@ -47,11 +47,13 @@ public:
         auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
         auto applyWord = addAction(
             Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
+        auto applyLine = addAction(Tr::tr("Apply Line"));
 
         connect(prev, &QAction::triggered, this, &CopilotCompletionToolTip::selectPrevious);
         connect(next, &QAction::triggered, this, &CopilotCompletionToolTip::selectNext);
         connect(apply, &QAction::triggered, this, &CopilotCompletionToolTip::apply);
         connect(applyWord, &QAction::triggered, this, &CopilotCompletionToolTip::applyWord);
+        connect(applyLine, &QAction::triggered, this, &CopilotCompletionToolTip::applyLine);
 
         updateLabels();
     }
@@ -103,6 +105,15 @@ private:
     {
         if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
             if (!suggestion->applyWord(m_editor))
+                return;
+        }
+        ToolTip::hide();
+    }
+
+    void applyLine()
+    {
+        if (TextSuggestion *suggestion = m_editor->currentSuggestion()) {
+            if (!suggestion->applyLine(m_editor))
                 return;
         }
         ToolTip::hide();

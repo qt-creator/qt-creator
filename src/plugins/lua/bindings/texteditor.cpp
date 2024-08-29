@@ -134,6 +134,8 @@ public:
         return false;
     }
 
+    virtual bool applyLine(TextEditor::TextEditorWidget *widget) override { return false; }
+
     virtual void reset() override { m_start.removeSelectedText(); }
 
     virtual int position() override { return m_start.selectionEnd(); }

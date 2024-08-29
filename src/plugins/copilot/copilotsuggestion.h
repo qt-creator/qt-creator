@@ -18,6 +18,7 @@ public:
 
     bool apply() final;
     bool applyWord(TextEditor::TextEditorWidget *widget) final;
+    bool applyLine(TextEditor::TextEditorWidget *widget) final;
     void reset() final;
     int position() final;
 
@@ -25,6 +26,9 @@ public:
     int currentCompletion() const { return m_currentCompletion; }
 
 private:
+    enum Part {Word, Line};
+    bool applyPart(Part part, TextEditor::TextEditorWidget *widget);
+
     QList<Completion> m_completions;
     int m_currentCompletion = 0;
     QTextCursor m_start;
