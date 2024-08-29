@@ -213,13 +213,13 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
     if (fileName.isEmpty())
         return;
     Q_ASSERT(m_cacheFile);
-    const QString lowerFileName = fileName.toLower();
     int numMatches = 0;
     // Check literals (e.g. "Makefile")
     numMatches = matchGlobList(result, m_cacheFile.get(),
                                m_cacheFile->getUint32(PosLiteralListOffset), fileName);
     // Check the very common *.txt cases with the suffix tree
     if (numMatches == 0) {
+        const QString lowerFileName = fileName.toLower();
         const int reverseSuffixTreeOffset = m_cacheFile->getUint32(PosReverseSuffixTreeOffset);
         const int numRoots = m_cacheFile->getUint32(reverseSuffixTreeOffset);
         const int firstRootOffset = m_cacheFile->getUint32(reverseSuffixTreeOffset + 4);
