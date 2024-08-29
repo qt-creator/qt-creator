@@ -128,10 +128,8 @@ public:
 private:
     struct CacheFile;
 
-    void matchGlobList(MimeGlobMatchResult &result,
-                       CacheFile *cacheFile,
-                       int offset,
-                       const QString &fileName);
+    int matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int offset,
+                      const QString &fileName);
     bool matchSuffixTree(MimeGlobMatchResult &result,
                          CacheFile *cacheFile,
                          int numEntries,

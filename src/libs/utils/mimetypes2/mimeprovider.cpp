@@ -214,32 +214,25 @@ void MimeBinaryProvider::addFileNameMatches(const QString &fileName, MimeGlobMat
         return;
     Q_ASSERT(m_cacheFile);
     const QString lowerFileName = fileName.toLower();
+    int numMatches = 0;
     // Check literals (e.g. "Makefile")
-    matchGlobList(result, m_cacheFile.get(), m_cacheFile->getUint32(PosLiteralListOffset),
-                  fileName);
+    numMatches = matchGlobList(result, m_cacheFile.get(),
+                               m_cacheFile->getUint32(PosLiteralListOffset), fileName);
     // Check the very common *.txt cases with the suffix tree
-    if (result.m_matchingMimeTypes.isEmpty()) {
+    if (numMatches == 0) {
         const int reverseSuffixTreeOffset = m_cacheFile->getUint32(PosReverseSuffixTreeOffset);
         const int numRoots = m_cacheFile->getUint32(reverseSuffixTreeOffset);
         const int firstRootOffset = m_cacheFile->getUint32(reverseSuffixTreeOffset + 4);
-        matchSuffixTree(result,
-                        m_cacheFile.get(),
-                        numRoots,
-                        firstRootOffset,
-                        lowerFileName,
-                        lowerFileName.size() - 1,
-                        false);
-        if (result.m_matchingMimeTypes.isEmpty())
-            matchSuffixTree(result,
-                            m_cacheFile.get(),
-                            numRoots,
-                            firstRootOffset,
-                            fileName,
-                            fileName.size() - 1,
-                            true);
+        if (matchSuffixTree(result, m_cacheFile.get(), numRoots, firstRootOffset, lowerFileName,
+                            lowerFileName.size() - 1, false)) {
+            ++numMatches;
+        } else if (matchSuffixTree(result, m_cacheFile.get(), numRoots, firstRootOffset, fileName,
+                                   fileName.size() - 1, true)) {
+            ++numMatches;
+        }
     }
     // Check complex globs (e.g. "callgrind.out[0-9]*" or "README*")
-    if (result.m_matchingMimeTypes.isEmpty())
+    if (numMatches == 0)
         matchGlobList(result, m_cacheFile.get(), m_cacheFile->getUint32(PosGlobListOffset),
                       fileName);
 }
@@ -255,11 +248,10 @@ void MimeBinaryProvider::excludeMimeTypeGlobs(const QStringList &toExclude)
         appendIfNew(m_mimeTypesWithExcludedGlobs, mt);
 }
 
-void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result,
-                                       CacheFile *cacheFile,
-                                       int off,
-                                       const QString &fileName)
+int MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int off,
+                                      const QString &fileName)
 {
+    int numMatches = 0;
     const int numGlobs = cacheFile->getUint32(off);
     //qDebug() << "Loading" << numGlobs << "globs from" << cacheFile->file.fileName() << "at offset" << cacheFile->globListOffset;
     for (int i = 0; i < numGlobs; ++i) {
@@ -279,9 +271,12 @@ void MimeBinaryProvider::matchGlobList(MimeGlobMatchResult &result,
             continue;
 
         MimeGlobPattern glob(pattern, QString() /*unused*/, weight, qtCaseSensitive);
-        if (glob.matchFileName(fileName))
+        if (glob.matchFileName(fileName)) {
             result.addMatch(QLatin1StringView(mimeType), weight, pattern);
+            ++numMatches;
+        }
     }
+    return numMatches;
 }
 
 bool MimeBinaryProvider::matchSuffixTree(MimeGlobMatchResult &result,
