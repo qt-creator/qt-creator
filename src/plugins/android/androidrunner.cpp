@@ -44,14 +44,12 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
             this, &AndroidRunner::qmlServerPortReady);
 }
 
-AndroidRunner::~AndroidRunner()
-{
-    m_thread.quit();
-    m_thread.wait();
-}
-
 void AndroidRunner::start()
 {
+    const Storage<RunnerInterface> glueStorage;
+
+    std::optional<ExecutableItem> avdRecipe;
+
     QString deviceSerialNumber;
     int apiLevel = -1;
 
@@ -69,56 +67,49 @@ void AndroidRunner::start()
         if (!info.avdName.isEmpty()) {
             const Storage<QString> serialNumberStorage;
 
-            const Group recipe {
+            avdRecipe = Group {
                 serialNumberStorage,
                 AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
-            };
-
-            m_startAvdRunner.start(recipe, {}, [this, deviceSerialNumber, apiLevel](DoneWith result) {
-                if (result == DoneWith::Success)
-                    startImpl(deviceSerialNumber, apiLevel);
+            }.withCancel([glueStorage] {
+                return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
             });
-            return;
         }
     } else {
         deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
         apiLevel = AndroidManager::deviceApiLevel(m_target);
     }
-    startImpl(deviceSerialNumber, apiLevel);
+
+    const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {
+        RunnerInterface *glue = glueStorage.activeStorage();
+        glue->setRunControl(runControl());
+        glue->setDeviceSerialNumber(deviceSerialNumber);
+        glue->setApiLevel(apiLevel);
+
+        connect(this, &AndroidRunner::canceled, glue, &RunnerInterface::cancel);
+
+        connect(glue, &RunnerInterface::started, this, &AndroidRunner::remoteStarted);
+        connect(glue, &RunnerInterface::finished, this, &AndroidRunner::remoteFinished);
+        connect(glue, &RunnerInterface::stdOut, this, &AndroidRunner::remoteStdOut);
+        connect(glue, &RunnerInterface::stdErr, this, &AndroidRunner::remoteStdErr);
+    };
+
+    const Group recipe {
+        glueStorage,
+        onGroupSetup(onSetup),
+        avdRecipe ? *avdRecipe : nullItem,
+        runnerRecipe(glueStorage)
+    };
+    m_taskTreeRunner.start(recipe);
 }
 
 void AndroidRunner::stop()
 {
-    if (m_startAvdRunner.isRunning()) {
-        m_startAvdRunner.reset();
-        appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(AndroidManager::packageName(m_target)),
-                      Utils::NormalMessageFormat);
+    if (!m_taskTreeRunner.isRunning())
         return;
-    }
-    emit asyncStop();
-}
 
-void AndroidRunner::startImpl(const QString &deviceSerialNumber, int apiLevel)
-{
-    if (m_worker)
-        m_worker->deleteLater();
-
-    m_worker = new AndroidRunnerWorker(runControl(), deviceSerialNumber, apiLevel);
-    m_worker->moveToThread(&m_thread);
-    QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
-
-    connect(this, &AndroidRunner::asyncStop, m_worker, &AndroidRunnerWorker::asyncStop);
-
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessStarted,
-            this, &AndroidRunner::handleRemoteProcessStarted);
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessFinished,
-            this, &AndroidRunner::handleRemoteProcessFinished);
-    connect(m_worker, &AndroidRunnerWorker::remoteOutput, this, &AndroidRunner::remoteOutput);
-    connect(m_worker, &AndroidRunnerWorker::remoteErrorOutput,
-            this, &AndroidRunner::remoteErrorOutput);
-
-    m_thread.start();
-    QMetaObject::invokeMethod(m_worker, &AndroidRunnerWorker::asyncStart);
+    emit canceled();
+    appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(AndroidManager::packageName(m_target)),
+                  Utils::NormalMessageFormat);
 }
 
 void AndroidRunner::qmlServerPortReady(Port port)
@@ -134,20 +125,7 @@ void AndroidRunner::qmlServerPortReady(Port port)
     emit qmlServerReady(serverUrl);
 }
 
-void AndroidRunner::remoteOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdOutFormat);
-    m_outputParser.processOutput(output);
-}
-
-void AndroidRunner::remoteErrorOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdErrFormat);
-    m_outputParser.processOutput(output);
-}
-
-void AndroidRunner::handleRemoteProcessStarted(Utils::Port debugServerPort,
-                                               const QUrl &qmlServer, qint64 pid)
+void AndroidRunner::remoteStarted(const Port &debugServerPort, const QUrl &qmlServer, qint64 pid)
 {
     m_pid = ProcessHandle(pid);
     m_debugServerPort = debugServerPort;
@@ -155,12 +133,24 @@ void AndroidRunner::handleRemoteProcessStarted(Utils::Port debugServerPort,
     reportStarted();
 }
 
-void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
+void AndroidRunner::remoteFinished(const QString &errString)
 {
     appendMessage(errString, Utils::NormalMessageFormat);
     if (runControl()->isRunning())
         runControl()->initiateStop();
     reportStopped();
+}
+
+void AndroidRunner::remoteStdOut(const QString &output)
+{
+    appendMessage(output, Utils::StdOutFormat);
+    m_outputParser.processOutput(output);
+}
+
+void AndroidRunner::remoteStdErr(const QString &output)
+{
+    appendMessage(output, Utils::StdErrFormat);
+    m_outputParser.processOutput(output);
 }
 
 } // namespace Android::Internal

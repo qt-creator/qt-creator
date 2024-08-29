@@ -8,34 +8,52 @@
 namespace ProjectExplorer { class RunControl; }
 namespace Utils { class Port; }
 
+QT_BEGIN_NAMESPACE
+class QUrl;
+QT_END_NAMESPACE
+
 namespace Android::Internal {
 
-class RunnerStorage;
-
-class AndroidRunnerWorker : public QObject
+class RunnerInterface : public QObject
 {
     Q_OBJECT
 
 public:
-    AndroidRunnerWorker(ProjectExplorer::RunControl *runControl, const QString &deviceSerialNumber,
-                        int apiLevel);
-    ~AndroidRunnerWorker() override;
+    // Gui init setters
+    void setRunControl(ProjectExplorer::RunControl *runControl) { m_runControl = runControl; }
+    void setDeviceSerialNumber(const QString &deviceSerialNumber) { m_deviceSerialNumber = deviceSerialNumber; }
+    void setApiLevel(int apiLevel) { m_apiLevel = apiLevel; }
 
-    void asyncStart();
-    void asyncStop();
+    // business logic init getters
+    ProjectExplorer::RunControl *runControl() const { return m_runControl; }
+    QString deviceSerialNumber() const { return m_deviceSerialNumber; }
+    int apiLevel() const { return m_apiLevel; }
+
+    // GUI -> business logic
+    void cancel() { emit canceled(); }
+
+    // business logic -> GUI
+    void setStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void setFinished(const QString &errorMessage) { emit finished(errorMessage); }
+    void addStdOut(const QString &data) { emit stdOut(data); }
+    void addStdErr(const QString &data) { emit stdErr(data); }
 
 signals:
-    void remoteProcessStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
-    void remoteProcessFinished(const QString &errString = QString());
+    // GUI -> business logic
+    void canceled();
 
-    void remoteOutput(const QString &output);
-    void remoteErrorOutput(const QString &output);
-
-    void cancel();
+    // business logic -> GUI
+    void started(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void finished(const QString &errorMessage);
+    void stdOut(const QString &data);
+    void stdErr(const QString &data);
 
 private:
-    std::unique_ptr<RunnerStorage> m_storage;
-    Tasking::TaskTreeRunner m_taskTreeRunner;
+    ProjectExplorer::RunControl *m_runControl = nullptr;
+    QString m_deviceSerialNumber;
+    int m_apiLevel = -1;
 };
+
+Tasking::ExecutableItem runnerRecipe(const Tasking::Storage<RunnerInterface> &storage);
 
 } // namespace Android::Internal

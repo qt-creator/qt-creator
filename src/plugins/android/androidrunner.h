@@ -12,11 +12,7 @@
 
 #include <solutions/tasking/tasktreerunner.h>
 
-#include <QThread>
-
 namespace Android::Internal {
-
-class AndroidRunnerWorker;
 
 class AndroidRunner : public ProjectExplorer::RunWorker
 {
@@ -24,7 +20,6 @@ class AndroidRunner : public ProjectExplorer::RunWorker
 
 public:
     explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
-    ~AndroidRunner() override;
 
     Utils::Port debugServerPort() const { return m_debugServerPort; } // GDB or LLDB
     QUrl qmlServer() const { return m_qmlServer; }
@@ -34,27 +29,24 @@ public:
     void stop() override;
 
 signals:
-    void asyncStop();
+    void canceled();
     void qmlServerReady(const QUrl &serverUrl);
     void avdDetected();
 
 private:
-    void startImpl(const QString &deviceSerialNumber, int apiLevel);
     void qmlServerPortReady(Utils::Port port);
-    void remoteOutput(const QString &output);
-    void remoteErrorOutput(const QString &output);
-    void gotRemoteOutput(const QString &output);
-    void handleRemoteProcessStarted(Utils::Port debugServerPort, const QUrl &qmlServer, qint64 pid);
-    void handleRemoteProcessFinished(const QString &errString = QString());
 
-    QThread m_thread;
-    AndroidRunnerWorker *m_worker = nullptr;
+    void remoteStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void remoteFinished(const QString &errString);
+    void remoteStdOut(const QString &output);
+    void remoteStdErr(const QString &output);
+
     QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_debugServerPort;
     QUrl m_qmlServer;
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
-    Tasking::TaskTreeRunner m_startAvdRunner;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // namespace Android::Internal
