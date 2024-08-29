@@ -245,7 +245,9 @@ class QmlDesignerProjectManager::Data
 {
 public:
     Data(ExternalDependenciesInterface &externalDependencies)
-        : sourcePathDatabase{externalDependencies.userResourcePath(u"source_path.db")}
+        : sourcePathDatabase{externalDependencies.userResourcePath(u"source_path.db"),
+                             Sqlite::JournalMode::Wal,
+                             Sqlite::LockingMode::Normal}
     {}
 
 public:
