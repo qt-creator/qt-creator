@@ -1599,16 +1599,17 @@ FilePath GccToolchainFactory::correspondingCompilerCommand(
 
 Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &known)
 {
-    const FilePath compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
-    if (compilerPath.isEmpty())
+    const expected_str<FilePath> compilerPath = Core::ICore::clangExecutable(CLANG_BINDIR);
+    QTC_CHECK_EXPECTED(compilerPath);
+    if (!compilerPath)
         return {};
 
     for (Toolchain * const existingTc : known) {
-        if (existingTc->compilerCommand() == compilerPath)
+        if (existingTc->compilerCommand() == *compilerPath)
             return {existingTc};
     }
 
-    return {autoDetectToolchain({compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
+    return {autoDetectToolchain({*compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
 }
 
 Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPaths,

@@ -607,8 +607,8 @@ static Utils::FilePaths searchGdbPathsFromRegistry()
 }
 
 void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPaths,
-                                                              const QString &detectionSource,
-                                                              QString *logMessage)
+                                                     const QString &detectionSource,
+                                                     QString *logMessage)
 {
     const QStringList filters = {"gdb-i686-pc-mingw32", "gdb-i686-pc-mingw32.exe", "gdb",
                                  "gdb.exe", "lldb", "lldb.exe", "lldb-[1-9]*",
@@ -639,9 +639,9 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
     if (!searchPaths.front().needsDevice()) {
         paths.append(searchGdbPathsFromRegistry());
 
-        const FilePath lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
-        if (lldb.exists())
-            suspects.append(lldb);
+        const expected_str<FilePath> lldb = Core::ICore::lldbExecutable(CLANG_BINDIR);
+        if (lldb)
+            suspects.append(*lldb);
     }
 
     paths = Utils::filteredUnique(paths);

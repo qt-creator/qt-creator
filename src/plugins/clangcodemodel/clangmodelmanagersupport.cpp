@@ -287,7 +287,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             onClangdSettingsChanged();
     });
 
-    ClangdSettings::setDefaultClangdPath(ICore::clangdExecutable(CLANG_BINDIR));
+    ClangdSettings::setDefaultClangdPath(ICore::clangdExecutable(CLANG_BINDIR).value_or(FilePath{}));
     connect(&ClangdSettings::instance(), &ClangdSettings::changed,
             this, &ClangModelManagerSupport::onClangdSettingsChanged);
 

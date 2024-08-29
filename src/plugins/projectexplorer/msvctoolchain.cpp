@@ -2207,10 +2207,10 @@ Toolchains ClangClToolchainFactory::autoDetect(const ToolchainDetector &detector
     Toolchains results;
     Toolchains known = detector.alreadyKnown;
 
-    FilePath qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
-    if (!qtCreatorsClang.isEmpty()) {
-        qtCreatorsClang = qtCreatorsClang.parentDir().pathAppended("clang-cl.exe");
-        results.append(detectClangClToolChainInPath(qtCreatorsClang,
+    expected_str<FilePath> qtCreatorsClang = Core::ICore::clangExecutable(CLANG_BINDIR);
+    if (qtCreatorsClang) {
+        qtCreatorsClang = qtCreatorsClang->parentDir().pathAppended("clang-cl.exe");
+        results.append(detectClangClToolChainInPath(*qtCreatorsClang,
                                                     detector.alreadyKnown, "", true));
         known.append(results);
     }

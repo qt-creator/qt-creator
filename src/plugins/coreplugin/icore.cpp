@@ -684,19 +684,33 @@ FilePath ICore::clangIncludeDirectory(const QString &clangVersion,
 /*!
     \internal
 */
-static FilePath clangBinary(const QString &binaryBaseName, const FilePath &clangBinDirectory)
+static expected_str<FilePath> clangBinary(
+    const QString &binaryBaseName, const FilePath &clangBinDirectory)
 {
     FilePath executable =
         ICore::libexecPath("clang/bin").pathAppended(binaryBaseName).withExecutableSuffix();
-    if (!executable.exists())
+    if (executable.isExecutableFile())
+        return executable.canonicalPath();
+
+    if (clangBinDirectory.exists()) {
         executable = clangBinDirectory.pathAppended(binaryBaseName).withExecutableSuffix();
-    return executable.canonicalPath();
+        if (executable.isExecutableFile())
+            return executable.canonicalPath();
+    }
+
+    FilePath fromPath = FilePath::fromString(binaryBaseName).searchInPath();
+    if (!fromPath.isEmpty())
+        return fromPath;
+
+    return make_unexpected(Tr::tr("Could not find %1 executable in %2")
+                               .arg(binaryBaseName)
+                               .arg(clangBinDirectory.toUserOutput()));
 }
 
 /*!
     \internal
 */
-FilePath ICore::clangExecutable(const FilePath &clangBinDirectory)
+expected_str<FilePath> ICore::clangExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang", clangBinDirectory);
 }
@@ -704,7 +718,7 @@ FilePath ICore::clangExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
 */
-FilePath ICore::clangdExecutable(const FilePath &clangBinDirectory)
+expected_str<FilePath> ICore::clangdExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clangd", clangBinDirectory);
 }
@@ -712,7 +726,7 @@ FilePath ICore::clangdExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
 */
-FilePath ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
+expected_str<FilePath> ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clang-tidy", clangBinDirectory);
 }
@@ -720,7 +734,7 @@ FilePath ICore::clangTidyExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
 */
-FilePath ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
+expected_str<FilePath> ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
 {
     return clangBinary("clazy-standalone", clangBinDirectory);
 }
@@ -728,7 +742,7 @@ FilePath ICore::clazyStandaloneExecutable(const FilePath &clangBinDirectory)
 /*!
     \internal
  */
-FilePath ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
+expected_str<FilePath> ICore::lldbExecutable(const Utils::FilePath &lldbBinDirectory)
 {
     return clangBinary("lldb", lldbBinDirectory);
 }

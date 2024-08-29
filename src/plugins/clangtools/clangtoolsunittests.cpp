@@ -54,7 +54,7 @@ void ClangToolsUnitTests::initTestCase()
     if (!toolchain)
         QSKIP("This test requires that there is a kit with a toolchain.");
 
-    if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty())
+    if (!Core::ICore::clangExecutable(CLANG_BINDIR))
         QSKIP("No clang suitable for analyzing found");
 
     m_tmpDir = new Tests::TemporaryCopiedDir(":/clangtools/unit-tests");
