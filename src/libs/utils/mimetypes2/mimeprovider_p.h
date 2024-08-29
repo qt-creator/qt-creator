@@ -28,6 +28,8 @@ class MimeMagicRuleMatcher;
 
 class MimeProviderBase
 {
+    Q_DISABLE_COPY(MimeProviderBase)
+
 public:
     MimeProviderBase(MimeDatabasePrivate *db, const QString &directory);
     virtual ~MimeProviderBase() {}
