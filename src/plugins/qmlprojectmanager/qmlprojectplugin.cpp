@@ -409,10 +409,16 @@ void QmlProjectPlugin::initialize()
                 [](Core::IDocument *document) {
                     if (!ProjectManager::startupProject()
                         && document->filePath().completeSuffix() == "ui.qml") {
-                        const Utils::FilePath fileName = Utils::FilePath::fromString(
-                            document->filePath().toString() + Constants::fakeProjectName);
-                        auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects({fileName});
-                        QTC_ASSERT(result.project(), return);
+                        QTimer::singleShot(1000, [document]() {
+                            if (ProjectManager::startupProject())
+                                return;
+
+                            const Utils::FilePath fileName = Utils::FilePath::fromString(
+                                document->filePath().toString() + Constants::fakeProjectName);
+                            auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects(
+                                {fileName});
+                            QTC_ASSERT(result.project(), return);
+                        });
                     }
                 });
 
