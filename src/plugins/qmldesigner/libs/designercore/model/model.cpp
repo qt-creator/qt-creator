@@ -2796,7 +2796,7 @@ void Model::attachView(AbstractView *view)
                                                    std::string_view{view->metaObject()->className()}));
 
     //    Internal::WriteLocker locker(d);
-    if (view->kind() == AbstractView::Kind::NodeInstance) {
+    if (view->kind() == AbstractView::Kind::Rewriter) {
         auto castedRewriterView = qobject_cast<RewriterView *>(view);
         if (rewriterView() == castedRewriterView)
             return;
