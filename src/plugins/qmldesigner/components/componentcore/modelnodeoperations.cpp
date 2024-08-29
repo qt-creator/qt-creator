@@ -798,15 +798,6 @@ void add3DAssetToContentLibrary(const SelectionContext &selectionContext)
     selectionContext.view()->emitCustomNotification("add_3d_to_content_lib", {node});
 }
 
-void exportComponent(const SelectionContext &selectionContext)
-{
-#ifdef DETACH_DISABLED_VIEWS
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
-    ModelNode node = selectionContext.currentSingleSelectedNode();
-    selectionContext.view()->emitCustomNotification("export_item_as_bundle", {node});
-}
-
 void goImplementation(const SelectionContext &selectionState)
 {
     addSignalHandlerOrGotoImplementation(selectionState, false);

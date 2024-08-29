@@ -380,10 +380,7 @@ void Edit3DWidget::createContextMenu()
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Export Component"), [&] {
-#ifdef DETACH_DISABLED_VIEWS
-            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
-            view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
+            m_bundleHelper->exportBundle(m_contextMenuTarget);
         });
 
     m_contextMenu->addSeparator();

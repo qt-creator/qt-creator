@@ -2009,7 +2009,9 @@ void DesignerActionManager::createDefaultDesignerActions()
         rootCategory,
         QKeySequence(),
         Priorities::ExportComponent,
-        &exportComponent,
+        [&](const SelectionContext &context) {
+            m_bundleHelper->exportBundle(context.currentSingleSelectedNode());
+        },
         &is3DNode,
         &is3DNode));
 

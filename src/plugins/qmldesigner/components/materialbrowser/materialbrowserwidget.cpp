@@ -385,12 +385,8 @@ void MaterialBrowserWidget::importMaterial()
 }
 void MaterialBrowserWidget::exportMaterial()
 {
-#ifdef DETACH_DISABLED_VIEWS
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
-#endif
     ModelNode mat = m_materialBrowserModel->selectedMaterial();
-    m_materialBrowserView->emitCustomNotification("export_material_as_bundle", {mat},
-                                                  {m_previewImageProvider->getPixmap(mat)}); // to ContentLibrary
+    m_bundleHelper->exportBundle(mat, m_previewImageProvider->getPixmap(mat));
 }
 
 QString MaterialBrowserWidget::qmlSourcesPath()
