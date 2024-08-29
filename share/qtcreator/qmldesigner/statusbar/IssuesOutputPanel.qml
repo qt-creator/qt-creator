@@ -1,45 +1,62 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 import StudioControls as StudioControls
+import StudioTheme as StudioTheme
 
 import ToolBar
 
 StudioControls.PopupDialog {
-
     id: root
-    width: 1024
+    width: 800
 
     property Item targetItem
 
     property alias warningCount: issuesPanel.warningCount
     property alias errorCount: issuesPanel.errorCount
 
-    function toggleShowIssuesPanel() {
+    property alias unreadOutput: outputPanel.unreadMessages
 
+    readonly property bool issuesVisible: issuesPanel.visible && root.visible
+    readonly property bool outputVisible: outputPanel.visible && root.visible
+
+    function toggleShowIssuesPanel() {
         if (!root.visible) {
-            issuesButton.checked = true
             outputPanel.visible = false
             issuesPanel.visible = true
             root.show(root.targetItem)
         } else {
-            root.visible = false
-            root.close()
+            if (issuesPanel.visible) {
+                root.close()
+            } else {
+                outputPanel.visible = false
+                issuesPanel.visible = true
+            }
         }
     }
 
     function toggleShowOutputPanel() {
         if (!root.visible) {
-            outputButton.checked = true
             issuesPanel.visible = false
             outputPanel.visible = true
-            root.visible = true
+            root.show(root.targetItem)
         } else {
-            root.visible = false
+            if (outputPanel.visible) {
+                root.close()
+            } else {
+                issuesPanel.visible = false
+                outputPanel.visible = true
+            }
         }
+    }
+
+    onClosing: {
+        issuesPanel.visible = false
+        outputPanel.visible = false
     }
 
     titleBar: RowLayout {
@@ -48,7 +65,7 @@ StudioControls.PopupDialog {
         anchors.verticalCenter: parent.verticalCenter
         anchors.left: parent.left
         anchors.right: parent.right
-        anchors.leftMargin: 15
+        anchors.leftMargin: 0
         anchors.rightMargin: 10
 
         RowLayout {
@@ -57,78 +74,49 @@ StudioControls.PopupDialog {
 
             TabBarButton {
                 id: issuesButton
-                autoExclusive: true
-                checked: true
+                style: StudioTheme.Values.statusbarButtonStyle
+                text: qsTr("Issues")
+                checked: issuesPanel.visible
+                checkedInverted: true
 
-                Connections {
-                    target: issuesButton
-                    function onClicked() {
-                        if (issuesButton.checked) {
-                            issuesPanel.visible = true
-                            outputPanel.visible = false
-                        } else { return }
+                onClicked: {
+                    if (!issuesPanel.visible) {
+                        outputPanel.visible = false
+                        issuesPanel.visible = true
                     }
                 }
             }
 
             TabBarButton {
                 id: outputButton
-                labelText: "Output"
-                autoExclusive: true
+                style: StudioTheme.Values.statusbarButtonStyle
+                text: qsTr("Output")
+                checked: outputPanel.visible
+                checkedInverted: true
 
-                Connections {
-                    target: outputButton
-                    function onClicked() {
-                        if (outputButton.checked) {
-                            issuesPanel.visible = false
-                            outputPanel.visible = true
-                        } else { return }
+                onClicked: {
+                    if (!outputPanel.visible) {
+                        issuesPanel.visible = false
+                        outputPanel.visible = true
                     }
                 }
             }
         }
+
         RowLayout {
             id: rightAlignedButtons
             Layout.alignment: Qt.AlignRight
 
-            // IconButton {
-            //     id: showOutputView
-            //     imageSource: "images/outputIcon.png"
-            //     idleBack: "#282828"
-            //     hoverBack: "#3a3a3a"
-            //     Connections {
-            //         target: showOutputView
-            //         function onClicked() {
-            //             root.showOutputViewSignal()
-            //         }
-            //     }
-            // }
-
-            IconButtonCheckable {
-                id: clearIssuesButton
-                visible: issuesButton.checked
-                hoverBack: "#3a3a3a"
-                idleBack: "#282828"
-                imageSource: "images/thinBin.png"
-                Connections {
-                    target: clearIssuesButton
-                    function onClicked() {
+            StudioControls.IconIndicator {
+                id: clearButton
+                icon: StudioTheme.Constants.trash_medium
+                pixelSize: StudioTheme.Values.myIconFontSize * 1.4
+                toolTip: qsTr("Clear")
+                onClicked: {
+                    if (issuesPanel.visible)
                         issuesPanel.clearIssues()
-                    }
-                }
-            }
-
-            IconButtonCheckable {
-                id: clearOutputButton
-                visible: outputButton.checked
-                hoverBack: "#3a3a3a"
-                idleBack: "#282828"
-                imageSource: "images/thinBin.png"
-                Connections {
-                    target: clearOutputButton
-                    function onClicked() {
+                    else
                         outputPanel.clearOutput()
-                    }
                 }
             }
         }

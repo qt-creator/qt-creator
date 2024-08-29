@@ -1,20 +1,33 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import OutputPane
+
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
+import OutputPane
+
 ScrollView {
     id: root
+
+    property int unreadMessages: 0
 
     ScrollBar.horizontal.policy: ScrollBar.AlwaysOff
 
     function clearOutput() {
         parentListModel.resetModel()
+        root.markMessagesRead()
     }
+
+    onVisibleChanged: {
+        if (root.visible === true)
+            root.markMessagesRead()
+    }
+
+    function markMessagesRead() { root.unreadMessages = 0 }
 
     clip: true
 
@@ -26,21 +39,25 @@ ScrollView {
         y: 0
         height: root.availableHeight
         orientation: Qt.Vertical
-
-        show: (root.hovered || root.focus)
-              && verticalScrollBar.isNeeded
+        show: (root.hovered || root.focus) && verticalScrollBar.isNeeded
     }
 
-    ColumnLayout {
+    Column {
         id: clayout
 
         Repeater {
             id: parentList
+
             model: AppOutputParentModel {
                 id: parentListModel
                 historyColor: "grey"
                 messageColor: "#007b7b"
                 errorColor: "#ff6666"
+
+                onMessageAdded: {
+                    if (!root.visible)
+                        root.unreadMessages++
+                }
             }
 
             delegate: ColumnLayout {
@@ -53,8 +70,8 @@ ScrollView {
 
                 Text {
                     id: timeStampText
-                    text: run
-                    color: blockColor
+                    text: parentDelegate.run
+                    color: parentDelegate.blockColor
                 }
 
                 Repeater {
@@ -66,16 +83,19 @@ ScrollView {
                         row: parentDelegate.index
                     }
 
+                    onItemAdded: verticalScrollBar.position = 1.0 // Scroll to bottom
+
                     delegate: Column {
                         id: childDelegate
 
                         required property string message
                         required property color messageColor
+
                         Text {
                             wrapMode: Text.WordWrap
-                            text: message
-                            color: messageColor
-                            width: root.width - verticalScrollBar.width
+                            text: childDelegate.message
+                            color: childDelegate.messageColor
+                            width: root.width
                         }
                     }
                 }

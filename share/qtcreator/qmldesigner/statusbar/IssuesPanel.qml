@@ -1,15 +1,16 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import ToolBar
-import OutputPane
+
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
-ScrollView {
+import OutputPane
 
+ScrollView {
     id: issuesPanel
 
     signal showCodeViewSignal
@@ -27,50 +28,54 @@ ScrollView {
         y: 0
         height: issuesPanel.availableHeight
         orientation: Qt.Vertical
-
-        show: (issuesPanel.hovered || issuesPanel.focus)
-              && verticalScrollBar.isNeeded
+        show: (issuesPanel.hovered || issuesPanel.focus) && verticalScrollBar.isNeeded
     }
 
     ColumnLayout {
         Repeater {
             id: listView
 
-            model: MessageModel {
-                id: messageModel
-            }
+            model: MessageModel { id: messageModel }
 
             delegate: RowLayout {
                 spacing: 10
-                Image {
-                    id: typeImage
-                    source: {
-                        if (type == "Warning")  { "images/warningsActive.png" }
-                        else                    { "images/errorActive.png" }
-                    }
-                    fillMode: Image.PreserveAspectFit
+
+                required property int index
+                required property string message
+                required property string location
+                required property string type
+
+                Text {
+                    font.family: StudioTheme.Constants.iconFont.family
+                    font.pixelSize: StudioTheme.Values.baseIconFontSize
+                    color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
+                                               : StudioTheme.Values.themeRedLight
+                    text: (type == "Warning") ? StudioTheme.Constants.warning2_medium
+                                              : StudioTheme.Constants.error_medium
                 }
 
-                MyLinkTextButton {
-                    id: linkTextWarning
-                    linkText: location
+                Text {
+                    text: location
+                    color: "#57b9fc"
+                    font.pixelSize: 12
+                    verticalAlignment: Text.AlignVCenter
                     Layout.preferredHeight: 18
+                    font.underline: mouseArea.containsMouse ? true : false
 
-                    Connections {
-                        target: linkTextWarning
-                        function onClicked() { messageModel.jumpToCode(index) }
+                    MouseArea {
+                        id: mouseArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
                     }
                 }
 
                 Text {
-                    id: historyTime6
-                    color: {
-                        if (type == "Warning")  { "#ffbb0c" }
-                        else                    { "#ff4848" }
-                    }
-                    text: qsTr(message)
-                    font.pixelSize: 12
-                    verticalAlignment: Text.AlignTop
+                    color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
+                                               : StudioTheme.Values.themeRedLight
+                    text: message
+                    font.pixelSize: StudioTheme.Values.baseFontSize
+                    verticalAlignment: Text.AlignVCenter
                     Layout.preferredHeight: 18
                 }
             }

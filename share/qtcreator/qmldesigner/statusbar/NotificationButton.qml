@@ -1,9 +1,11 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
 import QtQuick.Templates as T
+
 import StudioTheme as StudioTheme
+import HelperWidgets
 
 T.AbstractButton {
     id: control
@@ -14,18 +16,27 @@ T.AbstractButton {
     property bool hover: control.hovered
     property bool press: control.pressed
 
-    property alias buttonIcon: buttonIcon.text
-    property alias iconColor: buttonIcon.color
-    property alias iconFont: buttonIcon.font.family
-    property alias iconSize: buttonIcon.font.pixelSize
-    property alias iconItalic: buttonIcon.font.italic
-    property alias iconBold: buttonIcon.font.bold
-    property alias iconRotation: buttonIcon.rotation
     property alias backgroundVisible: buttonBackground.visible
     property alias backgroundRadius: buttonBackground.radius
 
     // Inverts the checked style
     property bool checkedInverted: false
+
+    property int warningCount: 0
+    property int errorCount: 0
+
+    property bool hasWarnings: control.warningCount > 0
+    property bool hasErrors: control.errorCount > 0
+
+    property alias tooltip: toolTipArea.tooltip
+
+    ToolTipArea {
+        id: toolTipArea
+        anchors.fill: parent
+        // Without setting the acceptedButtons property the clicked event won't
+        // reach the AbstractButton, it will be consumed by the ToolTipArea
+        acceptedButtons: Qt.NoButton
+    }
 
     implicitWidth: Math.max(implicitBackgroundWidth + leftInset + rightInset,
                             implicitContentWidth + leftPadding + rightPadding)
@@ -36,11 +47,6 @@ T.AbstractButton {
     z: control.checked ? 10 : 3
     activeFocusOnTab: false
 
-    onHoverChanged: {
-        if (parent !== undefined && parent.hoverCallback !== undefined && control.enabled)
-            parent.hoverCallback()
-    }
-
     background: Rectangle {
         id: buttonBackground
         color: control.style.background.idle
@@ -49,95 +55,105 @@ T.AbstractButton {
         radius: control.style.radius
     }
 
+    component CustomLabel : T.Label {
+        id: customLabel
+        color: control.style.icon.idle
+        font.pixelSize: control.style.baseIconFontSize
+        verticalAlignment: Text.AlignVCenter
+        horizontalAlignment: Text.AlignHCenter
+
+        property bool active: false
+        property color activeColor: "red"
+
+        states: [
+            State {
+                name: "default"
+                when: control.enabled && !control.press && !control.checked && !control.hover
+                PropertyChanges {
+                    target: customLabel
+                    color: customLabel.active ? customLabel.activeColor : control.style.icon.idle
+                }
+            },
+            State {
+                name: "hover"
+                when: control.enabled && !control.press && !control.checked && control.hover
+                PropertyChanges {
+                    target: customLabel
+                    color: customLabel.active ? customLabel.activeColor : control.style.icon.hover
+                }
+            },
+            State {
+                name: "press"
+                when: control.enabled && control.press
+                PropertyChanges {
+                    target: customLabel
+                    color: control.style.icon.interaction
+                }
+            },
+            State {
+                name: "check"
+                when: control.enabled && !control.press && control.checked
+                PropertyChanges {
+                    target: customLabel
+                    color: control.checkedInverted ? control.style.text.selectedText // TODO rather something in icon
+                                                   : control.style.icon.selected
+                }
+            },
+            State {
+                name: "disable"
+                when: !control.enabled
+                PropertyChanges {
+                    target: customLabel
+                    color: control.style.icon.disabled
+                }
+            }
+        ]
+    }
+
     indicator: Item {
         x: 0
         y: 0
         width: control.width
         height: control.height
 
-        T.Label {
-            id: buttonIcon
-            color: control.style.icon.idle
-            font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: control.style.baseIconFontSize
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-            anchors.fill: parent
-            renderType: Text.QtRendering
+        Row {
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            spacing: 8
 
-            states: [
-                State {
-                    name: "default"
-                    when: control.enabled && !control.press && !control.checked && !control.hover
-                    PropertyChanges {
-                        target: buttonIcon
-                        color: control.style.icon.idle
-                    }
-                },
-                State {
-                    name: "hover"
-                    when: control.enabled && !control.press && !control.checked && control.hover
-                    PropertyChanges {
-                        target: buttonIcon
-                        color: control.style.icon.hover
-                    }
-                },
-                State {
-                    name: "press"
-                    when: control.enabled && control.press
-                    PropertyChanges {
-                        target: buttonIcon
-                        color: control.style.icon.interaction
-                    }
-                },
-                State {
-                    name: "check"
-                    when: control.enabled && !control.press && control.checked
-                    PropertyChanges {
-                        target: buttonIcon
-                        color: control.checkedInverted ? control.style.text.selectedText // TODO rather something in icon
-                                                       : control.style.icon.selected
-                    }
-                },
-                State {
-                    name: "disable"
-                    when: !control.enabled
-                    PropertyChanges {
-                        target: buttonIcon
-                        color: control.style.icon.disabled
-                    }
-                }
-            ]
+            CustomLabel {
+                height: control.height
+                font.pixelSize: StudioTheme.Values.baseFontSize
+                text: control.warningCount
+                active: control.hasWarnings
+                activeColor: StudioTheme.Values.themeAmberLight
+            }
+
+            CustomLabel {
+                height: control.height
+                text: StudioTheme.Constants.warning2_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                active: control.hasWarnings
+                activeColor: StudioTheme.Values.themeAmberLight
+            }
+
+            CustomLabel {
+                height: control.height
+                text: StudioTheme.Constants.error_medium
+                font.family: StudioTheme.Constants.iconFont.family
+                active: control.hasErrors
+                activeColor: StudioTheme.Values.themeRedLight
+            }
+
+            CustomLabel {
+                height: control.height
+                font.pixelSize: StudioTheme.Values.baseFontSize
+                text: control.errorCount
+                active: control.hasErrors
+                activeColor: StudioTheme.Values.themeRedLight
+            }
         }
     }
-
-    function highlight() {
-        // Only run the highlight animation if not running already and if default state is active
-        if (highlightAnimation.running || control.state !== "default")
-            return
-
-        highlightAnimation.start()
-    }
-
-    component MyColorAnimation: ColorAnimation {
-        target: buttonBackground
-        property: "color"
-        duration: 750
-    }
-
-    SequentialAnimation {
-        id: highlightAnimation
-        running: false
-
-        MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
-        MyColorAnimation { to: control.style.background.idle }
-        MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
-        MyColorAnimation { to: control.style.background.idle }
-        MyColorAnimation { to: StudioTheme.Values.themeConnectionEditorButtonBorder_hover }
-        MyColorAnimation { to: control.style.background.idle }
-    }
-
-    onStateChanged: highlightAnimation.stop()
 
     states: [
         State {
