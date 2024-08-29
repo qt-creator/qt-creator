@@ -1410,15 +1410,7 @@ void PluginManagerPrivate::loadPlugins()
 
 void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
 {
-    const bool allSoftloadable = allOf(plugins, &PluginSpec::isSoftLoadable);
-    if (!allSoftloadable) {
-        const QStringList notSoftLoadablePlugins = Utils::transform<QStringList>(
-            Utils::filtered(plugins, std::not_fn(&PluginSpec::isSoftLoadable)),
-            &PluginSpec::displayName);
-        qWarning().noquote()
-            << "PluginManagerPrivate::loadPluginsAtRuntime(): trying to load non-softloadable"
-            << "plugin(s):" << notSoftLoadablePlugins.join(", ");
-    }
+    QTC_CHECK(allOf(plugins, [](PluginSpec *spec) { return spec->isSoftLoadable(); }));
 
     // load the plugins and their dependencies (if possible) ordered by dependency
     const QList<PluginSpec *> queue = filtered(loadQueue(), [&plugins](PluginSpec *spec) {
