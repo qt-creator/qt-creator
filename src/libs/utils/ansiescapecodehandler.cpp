@@ -281,7 +281,7 @@ void AnsiEscapeCodeHandler::setTextInEditor(QPlainTextEdit *editor, const QStrin
     for (const auto &formattedChunk : formattedTextList)
         cursor.insertText(formattedChunk.text, formattedChunk.format);
     cursor.endEditBlock();
-    cursor.movePosition(QTextCursor::Start);
+    editor->moveCursor(QTextCursor::Start);
     editor->document()->setModified(false);
 }
 
