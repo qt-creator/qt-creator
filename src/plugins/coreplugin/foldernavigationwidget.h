@@ -29,7 +29,10 @@ QT_END_NAMESPACE
 
 namespace Core {
 
-namespace Internal { class DelayedFileCrumbLabel; }
+namespace Internal {
+class DelayedFileCrumbLabel;
+class FolderNavigationModel;
+}
 
 class CORE_EXPORT FolderNavigationWidgetFactory : public Core::INavigationWidgetFactory
 {
@@ -122,7 +125,7 @@ private:
     void createNewFolder(const QModelIndex &parent);
 
     Utils::NavigationTreeView *m_listView = nullptr;
-    QFileSystemModel *m_fileSystemModel = nullptr;
+    Internal::FolderNavigationModel *m_fileSystemModel = nullptr;
     QSortFilterProxyModel *m_sortProxyModel = nullptr;
     QAction *m_filterHiddenFilesAction = nullptr;
     QAction *m_showBreadCrumbsAction = nullptr;
