@@ -20,12 +20,5 @@
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator-extending/lua-extensions.html",
     "JsonWizardPaths" : [":/lua/wizards"],
-    "Arguments" : [
-        {
-            "Name" : "-loadluaplugin",
-            "Parameter" : "path",
-            "Description" : "Load an additional lua plugin from the specified path"
-        }
-    ],
     ${IDE_PLUGIN_DEPENDENCIES}
 }
