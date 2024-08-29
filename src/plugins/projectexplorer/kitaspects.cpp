@@ -264,24 +264,13 @@ private:
             cb->clear();
             cb->addItem(Tr::tr("<No compiler>"), QByteArray());
 
-            const QList<Toolchain *> same = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                return tc->compilerCommand().isSameDevice(device->rootPath());
-            });
-            const QList<Toolchain *> other = Utils::filtered(ltcList, [device](Toolchain *tc) {
-                return !tc->compilerCommand().isSameDevice(device->rootPath());
-            });
-
-            const QList<ToolchainBundle> sameBundles
-                = ToolchainBundle::collectBundles(same, ToolchainBundle::AutoRegister::On);
-            const QList<ToolchainBundle> otherBundles
-                = ToolchainBundle::collectBundles(other, ToolchainBundle::AutoRegister::On);
-            for (const ToolchainBundle &b : sameBundles)
-                cb->addItem(b.displayName(), b.bundleId().toSetting());
-
-            if (!sameBundles.isEmpty() && !otherBundles.isEmpty())
-                cb->insertSeparator(cb->count());
-
-            for (const ToolchainBundle &b : otherBundles)
+            const QList<Toolchain *> toolchainsForBuildDevice
+                = Utils::filtered(ltcList, [device](Toolchain *tc) {
+                      return tc->compilerCommand().isSameDevice(device->rootPath());
+                  });
+            const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
+                toolchainsForBuildDevice, ToolchainBundle::AutoRegister::On);
+            for (const ToolchainBundle &b : bundlesForBuildDevice)
                 cb->addItem(b.displayName(), b.bundleId().toSetting());
 
             cb->setEnabled(cb->count() > 1 && !m_isReadOnly);
@@ -290,15 +279,12 @@ private:
                 Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang);
                 if (!currentTc)
                     continue;
-                for (const QList<ToolchainBundle> &bundles : {sameBundles, otherBundles})
-                    for (const ToolchainBundle &b : bundles) {
-                        if (b.bundleId() == currentTc->bundleId()) {
-                            currentBundleId = b.bundleId();
-                            break;
-                        }
-                        if (currentBundleId.isValid())
-                            break;
+                for (const ToolchainBundle &b : bundlesForBuildDevice) {
+                    if (b.bundleId() == currentTc->bundleId()) {
+                        currentBundleId = b.bundleId();
+                        break;
                     }
+                }
                 if (currentBundleId.isValid())
                     break;
             }

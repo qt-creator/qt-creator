@@ -77,24 +77,13 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const FilePath deviceRoot = device->rootPath();
 
-        const QtVersions versions = QtVersionManager::versions();
+        const QList<QtVersion *> versionsForBuildDevice
+            = Utils::filtered(QtVersionManager::versions(), [device](QtVersion *qt) {
+                  return qt->qmakeFilePath().isSameDevice(device->rootPath());
+              });
 
-        const QList<QtVersion *> same = Utils::filtered(versions, [device](QtVersion *qt) {
-            return qt->qmakeFilePath().isSameDevice(device->rootPath());
-        });
-        const QList<QtVersion *> other = Utils::filtered(versions, [device](QtVersion *qt) {
-            return !qt->qmakeFilePath().isSameDevice(device->rootPath());
-        });
-
-        for (QtVersion *item : same)
+        for (QtVersion *item : versionsForBuildDevice)
             m_combo->addItem(item->displayName(), item->uniqueId());
-
-        if (!same.isEmpty() && !other.isEmpty())
-            m_combo->insertSeparator(m_combo->count());
-
-        for (QtVersion *item : other)
-            m_combo->addItem(item->displayName(), item->uniqueId());
-
         m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
     }
 

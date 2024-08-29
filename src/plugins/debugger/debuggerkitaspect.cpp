@@ -86,22 +86,12 @@ private:
 
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const Utils::FilePath path = device->rootPath();
-        const QList<DebuggerItem> list = DebuggerItemManager::debuggers();
 
-        const QList<DebuggerItem> same = Utils::filtered(list, [path](const DebuggerItem &item) {
-            return item.command().isSameDevice(path);
-        });
-        const QList<DebuggerItem> other = Utils::filtered(list, [path](const DebuggerItem &item) {
-            return !item.command().isSameDevice(path);
-        });
-
-        for (const DebuggerItem &item : same)
-            m_comboBox->addItem(item.displayName(), item.id());
-
-        if (!same.isEmpty() && !other.isEmpty())
-            m_comboBox->insertSeparator(m_comboBox->count());
-
-        for (const DebuggerItem &item : other)
+        const QList<DebuggerItem> debuggersForBuildDevice
+            = Utils::filtered(DebuggerItemManager::debuggers(), [path](const DebuggerItem &item) {
+                  return item.command().isSameDevice(path);
+              });
+        for (const DebuggerItem &item : debuggersForBuildDevice)
             m_comboBox->addItem(item.displayName(), item.id());
 
         const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);

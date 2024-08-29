@@ -163,29 +163,18 @@ private:
         IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
         const FilePath rootPath = device->rootPath();
 
-        const auto list = CMakeToolManager::cmakeTools();
+        const QList<CMakeTool *> toolsForBuildDevice
+            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
+                  return item->cmakeExecutable().isSameDevice(rootPath);
+              });
 
-        m_comboBox->setEnabled(!list.isEmpty());
-
-        if (list.isEmpty()) {
+        m_comboBox->setEnabled(!toolsForBuildDevice.isEmpty());
+        if (toolsForBuildDevice.isEmpty()) {
             m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
             return;
         }
 
-        const QList<CMakeTool *> same = Utils::filtered(list, [rootPath](CMakeTool *item) {
-            return item->cmakeExecutable().isSameDevice(rootPath);
-        });
-        const QList<CMakeTool *> other = Utils::filtered(list, [rootPath](CMakeTool *item) {
-            return !item->cmakeExecutable().isSameDevice(rootPath);
-        });
-
-        for (CMakeTool *item : same)
-            m_comboBox->addItem(item->displayName(), item->id().toSetting());
-
-        if (!same.isEmpty() && !other.isEmpty())
-            m_comboBox->insertSeparator(m_comboBox->count());
-
-        for (CMakeTool *item : other)
+        for (CMakeTool *item : toolsForBuildDevice)
             m_comboBox->addItem(item->displayName(), item->id().toSetting());
 
         CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
