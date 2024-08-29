@@ -171,6 +171,7 @@ add_qtc_plugin(ProjectExplorer
     toolchain.cpp toolchain.h
     toolchaincache.h
     toolchainconfigwidget.cpp toolchainconfigwidget.h
+    toolchainkitaspect.cpp toolchainkitaspect.h
     toolchainmanager.cpp toolchainmanager.h
     toolchainoptionspage.cpp toolchainoptionspage.h
     toolchainsettingsaccessor.cpp toolchainsettingsaccessor.h
