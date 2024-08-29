@@ -32,6 +32,8 @@ public:
 
     static bool isItemOrWindow(const ModelNode &modelNode);
 
+    static QmlItemNode create(const ModelNode &modelNode) { return QmlItemNode{modelNode}; }
+
     static QmlItemNode createQmlItemNode(AbstractView *view,
                                              const ItemLibraryEntry &itemLibraryEntry,
                                              const QPointF &position,

@@ -29,14 +29,12 @@ static bool checkIfUnkownTypeProperty(const std::vector<PropertyName> &propertyN
 
 #endif //QDS_USE_PROJECTSTORAGE
 
-PropertyMetaInfos filteredPropertes(const NodeMetaInfo &metaInfo)
+PropertyMetaInfos filteredProperties(const NodeMetaInfo &metaInfo)
 {
     auto properties = metaInfo.properties();
 
 #ifndef QDS_USE_PROJECTSTORAGE
-    std::vector<TypeName> names = Utils::transform(properties, [](const PropertyMetaInfo &info) {
-        return info.name();
-    });
+    std::vector<TypeName> names = Utils::transform(properties, &PropertyMetaInfo::name);
 
     std::vector<PropertyName> itemProperties;
 

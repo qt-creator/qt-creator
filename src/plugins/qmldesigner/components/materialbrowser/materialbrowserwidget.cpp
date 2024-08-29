@@ -318,7 +318,7 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
 
 void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
 {
-    QStringList assetPaths = Utils::transform(urls, [](const QUrl &url) { return url.toLocalFile(); });
+    QStringList assetPaths = Utils::transform(urls, &QUrl::toLocalFile);
     m_materialBrowserView->createTextures(assetPaths);
     if (m_materialBrowserView->model())
         m_materialBrowserView->model()->endDrag();

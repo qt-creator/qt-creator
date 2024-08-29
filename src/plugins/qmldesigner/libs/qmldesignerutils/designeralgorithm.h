@@ -5,6 +5,8 @@
 
 #include <QtGlobal>
 
+#include <ranges>
+
 namespace QmlDesigner::CoreUtils {
 
 template<typename Element, typename... Elements>
@@ -17,6 +19,19 @@ __forceinline
     contains(Element element, Elements... elements)
 {
     return ((element == elements) || ...);
+}
+
+template<template<typename...> typename Container, std::ranges::view View>
+constexpr auto to(View &&view)
+{
+    return Container<std::iter_value_t<std::ranges::iterator_t<View>>>(std::ranges::begin(view),
+                                                                       std::ranges::end(view));
+}
+
+template<typename Container, std::ranges::view View>
+constexpr auto to(View &&view)
+{
+    return Container(std::ranges::begin(view), std::ranges::end(view));
 }
 
 } // namespace QmlDesigner::CoreUtils

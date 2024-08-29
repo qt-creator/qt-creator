@@ -10,11 +10,13 @@
 #include "internalsignalhandlerproperty.h"
 #include "internalvariantproperty.h"
 
+#include <designeralgorithm.h>
 #include <utils/algorithm.h>
 
 #include <QDebug>
 
 #include <algorithm>
+#include <ranges>
 #include <utility>
 
 namespace QmlDesigner {
@@ -109,17 +111,13 @@ AuxiliaryDatasForType InternalNode::auxiliaryData(AuxiliaryDataType type) const
 
 PropertyNameList InternalNode::propertyNameList() const
 {
-    return Utils::transform<PropertyNameList>(m_nameProperties, [](const auto &entry) {
-        return entry.first.toQByteArray();
-    });
+    return CoreUtils::to<PropertyNameList>(m_nameProperties | std::views::keys
+                                           | std::views::transform(&Utils::SmallString::toQByteArray));
 }
 
 PropertyNameViews InternalNode::propertyNameViews() const
 {
-    return Utils::transform<PropertyNameViews>(m_nameProperties,
-                                               [](const auto &entry) -> PropertyNameView {
-                                                   return entry.first;
-                                               });
+    return CoreUtils::to<PropertyNameViews>(m_nameProperties | std::views::keys);
 }
 
 QList<InternalNode::Pointer> InternalNode::allSubNodes() const

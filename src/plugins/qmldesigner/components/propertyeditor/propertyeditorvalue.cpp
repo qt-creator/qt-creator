@@ -716,7 +716,7 @@ void PropertyEditorNodeWrapper::setup()
         qDeleteAll(m_valuesPropertyMap.children());
 
         if (QmlObjectNode qmlObjectNode = m_modelNode) {
-            const PropertyMetaInfos props = PropertyEditorUtils::filteredPropertes(
+            const PropertyMetaInfos props = PropertyEditorUtils::filteredProperties(
                 m_modelNode.metaInfo());
             for (const auto &property : props) {
                 const auto &propertyName = property.name();
@@ -845,7 +845,7 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
     QTC_ASSERT(qmlObjectNode.isValid(), return );
 
     for (const auto &property :
-         PropertyEditorUtils::filteredPropertes(qmlObjectNode.modelNode().metaInfo())) {
+         PropertyEditorUtils::filteredProperties(qmlObjectNode.modelNode().metaInfo())) {
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,

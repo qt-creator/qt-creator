@@ -826,8 +826,7 @@ void ProjectStorageUpdater::updatePropertyEditorFilePath(
 namespace {
 SourceContextIds filterUniqueSourceContextIds(const SourceIds &sourceIds)
 {
-    auto sourceContextIds = Utils::transform(sourceIds,
-                                             [](SourceId sourceId) { return sourceId.contextId(); });
+    auto sourceContextIds = Utils::transform(sourceIds, &SourceId::contextId);
 
     std::sort(sourceContextIds.begin(), sourceContextIds.end());
     auto newEnd = std::unique(sourceContextIds.begin(), sourceContextIds.end());

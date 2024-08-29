@@ -227,8 +227,7 @@ std::tuple<PropertyComponentGenerator::Entries, bool> createEntries(
 QStringList createImports(QmlJS::SimpleReaderNode *templateConfiguration)
 {
     auto property = templateConfiguration->property("imports");
-    return Utils::transform<QStringList>(property.value.toList(),
-                                         [](const auto &entry) { return entry.toString(); });
+    return Utils::transform<QStringList>(property.value.toList(), &QVariant::toString);
 }
 
 } // namespace

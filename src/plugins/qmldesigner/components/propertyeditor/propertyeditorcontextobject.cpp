@@ -208,8 +208,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         // Create a list of properties available for the new type
         auto propertiesAndSignals = Utils::transform<PropertyNameList>(
-            PropertyEditorUtils::filteredPropertes(metaInfo),
-            [](const auto &property) { return property.name(); });
+            PropertyEditorUtils::filteredProperties(metaInfo), &PropertyMetaInfo::name);
         // Add signals to the list
         for (const auto &signal : metaInfo.signalNames()) {
             if (signal.isEmpty())

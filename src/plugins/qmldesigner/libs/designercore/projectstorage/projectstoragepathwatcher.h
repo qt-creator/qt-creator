@@ -183,7 +183,7 @@ public:
     QStringList convertWatcherEntriesToDirectoryPathList(const WatcherEntries &watcherEntries) const
     {
         SourceContextIds sourceContextIds = Utils::transform<SourceContextIds>(
-            watcherEntries, [&](WatcherEntry entry) { return entry.sourceContextId; });
+            watcherEntries, &WatcherEntry::sourceContextId);
 
         std::sort(sourceContextIds.begin(), sourceContextIds.end());
         sourceContextIds.erase(std::unique(sourceContextIds.begin(), sourceContextIds.end()),

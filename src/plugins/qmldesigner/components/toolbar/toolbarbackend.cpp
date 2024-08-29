@@ -713,7 +713,7 @@ QStringList ToolBarBackend::kits() const
             /*&& kit->isAutoDetected() */;
     });
 
-    return Utils::transform(kits, [](ProjectExplorer::Kit *kit) { return kit->displayName(); });
+    return Utils::transform(kits, &ProjectExplorer::Kit::displayName);
 }
 
 int ToolBarBackend::currentKit() const

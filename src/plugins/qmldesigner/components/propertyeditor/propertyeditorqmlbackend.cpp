@@ -464,7 +464,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        for (const auto &property : PropertyEditorUtils::filteredPropertes(qmlObjectNode.metaInfo())) {
+        for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
             auto propertyName = property.name();
             createPropertyEditorValue(qmlObjectNode,
                                       propertyName,
@@ -574,7 +574,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 {
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
-    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaInfo)) {
+    for (const auto &property : PropertyEditorUtils::filteredProperties(metaInfo)) {
         setupPropertyEditorValue(property.name(), propertyEditor, property.propertyType());
     }
 
@@ -695,7 +695,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     PropertyMetaInfos separateSectionProperties;
 
     // Iterate over all properties and isolate the properties which have their own template
-    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaType)) {
+    for (const auto &property : PropertyEditorUtils::filteredProperties(metaType)) {
         const auto &propertyName = property.name();
         if (propertyName.startsWith("__"))
             continue; // private API

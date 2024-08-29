@@ -14,6 +14,7 @@
 #include <QString>
 #include <QIcon>
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <vector>
@@ -67,6 +68,16 @@ public:
     NodeMetaInfo(NodeMetaInfo &&);
     NodeMetaInfo &operator=(NodeMetaInfo &&);
     ~NodeMetaInfo();
+
+    static NodeMetaInfo create(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
+    {
+        return {typeId, projectStorage};
+    }
+
+    static auto bind(NotNullPointer<const ProjectStorageType> projectStorage)
+    {
+        return std::bind_front(&NodeMetaInfo::create, projectStorage);
+    }
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }

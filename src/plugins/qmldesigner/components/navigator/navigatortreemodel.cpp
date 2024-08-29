@@ -974,9 +974,8 @@ static QList<ModelNode> collectParents(const QList<ModelNode> &modelNodes)
 
 QList<QPersistentModelIndex> NavigatorTreeModel::nodesToPersistentIndex(const QList<ModelNode> &modelNodes)
 {
-    return ::Utils::transform(modelNodes, [this](const ModelNode &modelNode) {
-        return QPersistentModelIndex(indexForModelNode(modelNode));
-    });
+    return ::Utils::transform<QList<QPersistentModelIndex>>(
+        modelNodes, std::bind_front(&NavigatorTreeModel::indexForModelNode, this));
 }
 
 void NavigatorTreeModel::notifyModelNodesRemoved(const QList<ModelNode> &modelNodes)

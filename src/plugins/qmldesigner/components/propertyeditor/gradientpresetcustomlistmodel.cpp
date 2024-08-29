@@ -54,10 +54,8 @@ QString GradientPresetCustomListModel::getFilename()
 void GradientPresetCustomListModel::storePresets(const QString &filename,
                                                  const QList<GradientPresetItem> &items)
 {
-    const QList<QVariant> presets
-        = Utils::transform<QList<QVariant>>(items, [](const GradientPresetItem &item) {
-              return QVariant::fromValue(item);
-          });
+    const QList<QVariant> presets = Utils::transform<QList<QVariant>>(
+        items, [](const GradientPresetItem &item) { return QVariant::fromValue(item); });
 
     QSettings settings(filename, QSettings::IniFormat);
     settings.clear();

@@ -46,8 +46,9 @@ public:
     ItemLibraryEntry &operator=(const ItemLibraryEntry &) = default;
     ItemLibraryEntry(ItemLibraryEntry &&) = default;
     ItemLibraryEntry &operator=(ItemLibraryEntry &&) = default;
-    explicit ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry);
     ~ItemLibraryEntry();
+
+    static ItemLibraryEntry create(const Storage::Info::ItemLibraryEntry &entry);
 
     QString name() const;
     TypeName typeName() const;

@@ -2178,9 +2178,7 @@ QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetV
 
 QList<ActionInterface* > DesignerActionManager::designerActions() const
 {
-    return Utils::transform(m_designerActions, [](const QSharedPointer<ActionInterface> &pointer) {
-        return pointer.data();
-    });
+    return Utils::transform(m_designerActions, &QSharedPointer<ActionInterface>::get);
 }
 
 ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)

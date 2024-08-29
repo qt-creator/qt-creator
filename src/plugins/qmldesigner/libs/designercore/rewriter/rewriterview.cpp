@@ -993,10 +993,8 @@ QString RewriterView::convertTypeToImportAlias(const QString &type) const
 
 QStringList RewriterView::importDirectories() const
 {
-    const QList<Utils::FilePath> list(m_textToModelMerger->vContext().paths.begin(),
-                                      m_textToModelMerger->vContext().paths.end());
-
-    return Utils::transform(list, [](const Utils::FilePath &p) { return p.toString(); });
+    return Utils::transform<QStringList>(m_textToModelMerger->vContext().paths,
+                                         &Utils::FilePath::path);
 }
 
 QSet<QPair<QString, QString>> RewriterView::qrcMapping() const

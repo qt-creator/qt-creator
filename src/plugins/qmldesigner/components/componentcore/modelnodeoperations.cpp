@@ -553,9 +553,7 @@ void layoutGridLayout(const SelectionContext &selectionContext)
 
 static PropertyNameList sortedPropertyNameList(const PropertyMetaInfos &properties)
 {
-    auto propertyNames = Utils::transform<PropertyNameList>(properties, [](const auto &property) {
-        return property.name();
-    });
+    auto propertyNames = Utils::transform<PropertyNameList>(properties, &PropertyMetaInfo::name);
 
     std::sort(propertyNames.begin(), propertyNames.end());
 

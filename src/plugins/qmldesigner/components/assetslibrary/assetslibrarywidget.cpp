@@ -70,9 +70,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 auto mimeData = std::make_unique<QMimeData>();
                 mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
 
-                QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, [](const QString &path) {
-                    return QUrl::fromLocalFile(path);
-                });
+                QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, &QUrl::fromLocalFile);
 
                 QString draggedAsset = m_assetsToDrag[0];
 
@@ -462,10 +460,10 @@ void AssetsLibraryWidget::handleExtFilesDrop(const QList<QUrl> &simpleFilePaths,
                                              const QList<QUrl> &complexFilePaths,
                                              const QString &targetDirPath)
 {
-    auto toLocalFile = [](const QUrl &url) { return url.toLocalFile(); };
-
-    QStringList simpleFilePathStrings = Utils::transform<QStringList>(simpleFilePaths, toLocalFile);
-    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths, toLocalFile);
+    QStringList simpleFilePathStrings = Utils::transform<QStringList>(simpleFilePaths,
+                                                                      &QUrl::toLocalFile);
+    QStringList complexFilePathStrings = Utils::transform<QStringList>(complexFilePaths,
+                                                                       &QUrl::toLocalFile);
 
     if (!simpleFilePathStrings.isEmpty()) {
         if (targetDirPath.isEmpty()) {

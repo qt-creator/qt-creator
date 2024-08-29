@@ -42,6 +42,17 @@ public:
     PropertyMetaInfo &operator=(PropertyMetaInfo &&);
     ~PropertyMetaInfo();
 
+    static PropertyMetaInfo create(NotNullPointer<const ProjectStorageType> projectStorage,
+                                   PropertyDeclarationId id)
+    {
+        return {id, projectStorage};
+    }
+
+    static auto bind(NotNullPointer<const ProjectStorageType> projectStorage)
+    {
+        return std::bind_front(&PropertyMetaInfo::create, projectStorage);
+    }
+
     explicit operator bool() const { return isValid(); }
 
     bool isValid() const

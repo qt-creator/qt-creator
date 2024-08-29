@@ -1867,10 +1867,8 @@ PropertyMetaInfos NodeMetaInfo::properties() const
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get properties"_t, category(), keyValue("type id", m_typeId)};
 
-        return Utils::transform<PropertyMetaInfos>(
-            m_projectStorage->propertyDeclarationIds(m_typeId), [&](auto id) {
-                return PropertyMetaInfo{id, m_projectStorage};
-            });
+        return Utils::transform<PropertyMetaInfos>(m_projectStorage->propertyDeclarationIds(m_typeId),
+                                                   PropertyMetaInfo::bind(m_projectStorage));
 
     } else {
         const auto &properties = m_privateData->properties();
@@ -1894,10 +1892,9 @@ PropertyMetaInfos NodeMetaInfo::localProperties() const
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get local properties"_t, category(), keyValue("type id", m_typeId)};
 
-        return Utils::transform<PropertyMetaInfos>(
-            m_projectStorage->localPropertyDeclarationIds(m_typeId), [&](auto id) {
-                return PropertyMetaInfo{id, m_projectStorage};
-            });
+        return Utils::transform<PropertyMetaInfos>(m_projectStorage->localPropertyDeclarationIds(
+                                                       m_typeId),
+                                                   PropertyMetaInfo::bind(m_projectStorage));
 
     } else {
         const auto &properties = m_privateData->localProperties();
@@ -1943,9 +1940,7 @@ PropertyNameList NodeMetaInfo::signalNames() const
         NanotraceHR::Tracer tracer{"get signal names"_t, category(), keyValue("type id", m_typeId)};
 
         return Utils::transform<PropertyNameList>(m_projectStorage->signalDeclarationNames(m_typeId),
-                                                  [&](const auto &name) {
-                                                      return name.toQByteArray();
-                                                  });
+                                                  &Utils::SmallString::toQByteArray);
 
     } else {
         return m_privateData->signalNames();
@@ -1961,9 +1956,7 @@ PropertyNameList NodeMetaInfo::slotNames() const
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get slot names"_t, category(), keyValue("type id", m_typeId)};
         return Utils::transform<PropertyNameList>(m_projectStorage->functionDeclarationNames(m_typeId),
-                                                  [&](const auto &name) {
-                                                      return name.toQByteArray();
-                                                  });
+                                                  &Utils::SmallString::toQByteArray);
     } else {
         return m_privateData->slotNames();
     }
@@ -2038,9 +2031,7 @@ std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes() const
                                    keyValue("type id", m_typeId)};
 
         return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeAndSelfIds(m_typeId),
-                                               [&](TypeId typeId) {
-                                                   return NodeMetaInfo{typeId, m_projectStorage};
-                                               });
+                                               NodeMetaInfo::bind(m_projectStorage));
     } else {
         NodeMetaInfos hierarchy = {*this};
         Model *model = m_privateData->model();
@@ -2066,9 +2057,7 @@ NodeMetaInfos NodeMetaInfo::prototypes() const
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{"get prototypes"_t, category(), keyValue("type id", m_typeId)};
         return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeIds(m_typeId),
-                                               [&](TypeId typeId) {
-                                                   return NodeMetaInfo{typeId, m_projectStorage};
-                                               });
+                                               NodeMetaInfo::bind(m_projectStorage));
 
     } else {
         NodeMetaInfos hierarchy;
@@ -4592,9 +4581,8 @@ NodeMetaInfo::NodeMetaInfos NodeMetaInfo::heirs() const
 {
     if constexpr (useProjectStorage()) {
         if (isValid()) {
-            return Utils::transform<NodeMetaInfos>(m_projectStorage->heirIds(m_typeId), [&](TypeId typeId) {
-                return NodeMetaInfo{typeId, m_projectStorage};
-            });
+            return Utils::transform<NodeMetaInfos>(m_projectStorage->heirIds(m_typeId),
+                                                   NodeMetaInfo::bind(m_projectStorage));
         }
     }
 

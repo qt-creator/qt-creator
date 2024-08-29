@@ -10,19 +10,21 @@
 #include "qmlanchors.h"
 
 #include <abstractview.h>
+#include <designeralgorithm.h>
 #include <generatedcomponentutils.h>
 #include <model.h>
 
 #include <coreplugin/icore.h>
+
+#include <utils/algorithm.h>
+#include <utils/qtcassert.h>
+#include <utils/span.h>
 
 #include <QUrl>
 #include <QPlainTextEdit>
 #include <QFileInfo>
 #include <QDir>
 #include <QImageReader>
-
-#include <utils/algorithm.h>
-#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -1037,9 +1039,7 @@ QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode 
 
     AbstractView *view = node.view();
 
-    return Utils::transform<QList<QmlConnections>>(Utils::filtered(view->allModelNodes(),
-                                                                   [&node](const ModelNode &n) {
-        const QmlConnections connection(n);
+    auto filter = [&](const QmlConnections &connection) {
         if (!connection.isValid())
             return false;
 
@@ -1060,9 +1060,14 @@ QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode 
         }
 
         return false;
-    }), [](const ModelNode &n) {
-        return QmlConnections(n);
-    });
+    };
+
+    auto convert = [](const ModelNode &n) { return QmlConnections(n); };
+
+    auto nodes = view->allModelNodes();
+
+    return CoreUtils::to<QList<QmlConnections>>(Utils::span{nodes} | std::views::transform(convert)
+                                                | std::views::filter(filter));
 }
 
 } //QmlDesigner

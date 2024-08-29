@@ -33,6 +33,7 @@
 #include "signalhandlerproperty.h"
 #include "variantproperty.h"
 
+#include <designeralgorithm.h>
 #include <predicate.h>
 #include <uniquename.h>
 
@@ -1416,8 +1417,9 @@ void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &
     AbstractView::PropertyChangeFlags propertyChange = AbstractView::NoAdditionalChanges;
 
     auto bindingPropertiesWithExpressions = toInternalBindingProperties(setExpressions);
-    auto bindingProperties = Utils::transform(bindingPropertiesWithExpressions,
-                                              [](const auto &entry) { return std::get<0>(entry); });
+
+    auto bindingProperties = CoreUtils::to<QList>(bindingPropertiesWithExpressions | std::views::keys);
+
     notifyBindingPropertiesAboutToBeChanged(bindingProperties);
     for (const auto &[bindingProperty, expression] : bindingPropertiesWithExpressions)
         bindingProperty->setExpression(expression);
@@ -2728,10 +2730,9 @@ QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module) cons
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
+
         return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(
-            d->projectStorage->typeIds(module.id()), [&](TypeId id) {
-                return NodeMetaInfo{id, d->projectStorage};
-            });
+            d->projectStorage->typeIds(module.id()), NodeMetaInfo::bind(d->projectStorage));
     } else {
         return {};
     }

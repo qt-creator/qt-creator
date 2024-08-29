@@ -35,9 +35,7 @@ public:
 
         auto colorNameList = var.value<QStringList>();
 
-        return Utils::transform(colorNameList, [](const QString &colorName) {
-            return QColor{colorName};
-        });
+        return Utils::transform(colorNameList, &QColor::fromString);
     }
 
     static QVariant load(const QByteArray &key, const QVariant &defaultValue = {})

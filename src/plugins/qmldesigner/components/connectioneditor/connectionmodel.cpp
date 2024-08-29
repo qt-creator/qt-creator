@@ -1568,14 +1568,14 @@ void ConnectionModelStatementDelegate::setupChangeState()
                                                   && !item.allStateNames().isEmpty();
                                        });
 
-    QStringList itemIds = Utils::transform(items, [](const ModelNode &node) { return node.id(); });
+    QStringList itemIds = Utils::transform(items, &ModelNode::id);
     const auto groups = m_model->connectionView()->allModelNodesOfType(
         model->qtQuickStateGroupMetaInfo());
 
     const auto rootId = m_model->connectionView()->rootModelNode().id();
     itemIds.removeAll(rootId);
 
-    QStringList groupIds = Utils::transform(groups, [](const ModelNode &node) { return node.id(); });
+    QStringList groupIds = Utils::transform(groups, &ModelNode::id);
 
     Utils::sort(itemIds);
     Utils::sort(groupIds);

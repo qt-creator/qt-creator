@@ -500,9 +500,7 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     QStringList fileNamesToRemove;
 
     const QStringList existingAssetsFileNames = Utils::transform(bundlePath.dirEntries(QDir::Files),
-                                                    [](const Utils::FilePath &path) {
-        return path.fileName();
-    });
+                                                                 &Utils::FilePath::fileName);
 
     for (const QString &path : paths) {
         auto assetFilePath = Utils::FilePath::fromString(path);

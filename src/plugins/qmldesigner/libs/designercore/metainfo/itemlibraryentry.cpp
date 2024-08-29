@@ -64,9 +64,10 @@ ItemLibraryEntry::ItemLibraryEntry()
     : m_data(std::make_shared<Internal::ItemLibraryEntryData>())
 {}
 
-ItemLibraryEntry::ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry)
-    : ItemLibraryEntry{}
+ItemLibraryEntry ItemLibraryEntry::create(const Storage::Info::ItemLibraryEntry &entry)
 {
+    ItemLibraryEntry itemLibraryEntry;
+    auto &m_data = itemLibraryEntry.m_data;
     m_data->name = entry.name.toQString();
     m_data->typeId = entry.typeId;
     m_data->typeName = entry.typeName.toQByteArray();
@@ -85,6 +86,8 @@ ItemLibraryEntry::ItemLibraryEntry(const Storage::Info::ItemLibraryEntry &entry)
     m_data->extraFilePaths.reserve(Utils::ssize(entry.extraFilePaths));
     for (const auto &extraFilePath : entry.extraFilePaths)
         m_data->extraFilePaths.emplace_back(extraFilePath.toQString());
+
+    return itemLibraryEntry;
 }
 
 ItemLibraryEntry::~ItemLibraryEntry() = default;
@@ -303,9 +306,7 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
 
 QList<ItemLibraryEntry> toItemLibraryEntries(const Storage::Info::ItemLibraryEntries &entries)
 {
-    return Utils::transform<QList<ItemLibraryEntry>>(entries, [&](const auto &entry) {
-        return ItemLibraryEntry{entry};
-    });
+    return Utils::transform<QList<ItemLibraryEntry>>(entries, &ItemLibraryEntry::create);
 }
 
 } // namespace QmlDesigner
