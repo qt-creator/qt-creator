@@ -12,12 +12,10 @@ local function fetchJoke()
     local r = a.wait(fetch({ url = "https://official-joke-api.appspot.com/random_joke", convertToTable = true }))
     if (type(r) == "table") then
         mm.writeDisrupting(r.setup)
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
+        for i = 1, 3 do
+            a.wait(utils.waitms(1000))
+            mm.writeSilently(".")
+        end
         a.wait(utils.waitms(1000))
         mm.writeDisrupting(r.punchline)
     else
