@@ -83,9 +83,7 @@ TreeView {
         interval: 200
         repeat: false
 
-        onTriggered: {
-            root.updateRows()
-        }
+        onTriggered: root.updateRows()
     }
 
     Connections {

@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
     Q_INVOKABLE bool allFilePathsAreComposedEffects(const QStringList &filePaths) const;
+    Q_INVOKABLE bool isSameOrDescendantPath(const QUrl &source, const QString &target) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {

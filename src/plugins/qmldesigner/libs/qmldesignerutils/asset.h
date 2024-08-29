@@ -24,7 +24,8 @@ public:
                 Audio,
                 Video,
                 Texture3D,
-                Effect };
+                Effect,
+                Folder };
 
     Asset(const QString &filePath);
 
@@ -60,6 +61,7 @@ public:
     bool isEffect() const;
     bool isSupported() const;
     bool isValidTextureSource();
+    bool isFolder() const;
 
 private:
     void resolveType();

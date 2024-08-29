@@ -101,20 +101,8 @@ TreeViewDelegate {
                     : "transparent"
         }
         border.width: StudioTheme.Values.border
-        border.color: {
-            if (root.__isDirectory && (root.isHighlighted || root.hasChildWithDropHover))
-                return StudioTheme.Values.themeInteraction
-
-            if (!root.__isDirectory && root.assetsView.selectedAssets[root.__itemPath])
-                return StudioTheme.Values.themeInteraction
-
-            if (mouseArea.containsMouse)
-                return StudioTheme.Values.themeSectionHeadBackground
-
-            return root.__isDirectory
-                    ? StudioTheme.Values.themeSectionHeadBackground
-                    : "transparent"
-        }
+        border.color: root.assetsView.selectedAssets[root.__itemPath] ? StudioTheme.Values.themeInteraction
+                                                                      : "transparent"
     }
 
     contentItem: Text {
@@ -158,26 +146,31 @@ TreeViewDelegate {
             mouseArea.allowTooltip = false
             AssetsLibraryBackend.tooltipBackend.hideTooltip()
 
-            if (root.__isDirectory)
-                return
-
             var ctrlDown = mouse.modifiers & Qt.ControlModifier
-            if (mouse.button === Qt.LeftButton) {
-               if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
-                   root.assetsView.clearSelectedAssets()
-               root.currFileSelected = ctrlDown ? !root.assetsView.isAssetSelected(root.__itemPath) : true
-               root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
 
-               if (root.currFileSelected) {
-                   let selectedPaths = root.assetsView.selectedPathsAsList()
-                   AssetsLibraryBackend.rootView.startDragAsset(selectedPaths, mapToGlobal(mouse.x, mouse.y))
-               }
-            } else {
-               if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
-                   root.assetsView.clearSelectedAssets()
-               root.currFileSelected = root.assetsView.isAssetSelected(root.__itemPath) || !ctrlDown
-               root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
-            }
+            if (mouse.button === Qt.LeftButton) {
+                if (root.__isDirectory) {
+                    // ensure only one directory can be selected
+                    root.assetsView.clearSelectedAssets()
+                    root.currFileSelected = true
+                } else {
+                    if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
+                        root.assetsView.clearSelectedAssets()
+                    root.currFileSelected = ctrlDown ? !root.assetsView.isAssetSelected(root.__itemPath) : true
+                }
+
+                root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
+
+                if (root.currFileSelected) {
+                    let selectedPaths = root.assetsView.selectedPathsAsList()
+                    AssetsLibraryBackend.rootView.startDragAsset(selectedPaths, mapToGlobal(mouse.x, mouse.y))
+                }
+           } else {
+                if (!root.assetsView.isAssetSelected(root.__itemPath) && !ctrlDown)
+                    root.assetsView.clearSelectedAssets()
+                root.currFileSelected = root.assetsView.isAssetSelected(root.__itemPath) || !ctrlDown
+                root.assetsView.setAssetSelected(root.__itemPath, root.currFileSelected)
+           }
         }
 
         onReleased: (mouse) => {
@@ -356,8 +349,8 @@ TreeViewDelegate {
 
         onEntered: (drag) => {
             root.assetsRoot.updateDropExtFiles(drag)
-
-            drag.accepted |= (drag.formats[0] === "application/vnd.qtdesignstudio.assets")
+            drag.accepted |= drag.formats[0] === "application/vnd.qtdesignstudio.assets"
+                          && !root.assetsModel.isSameOrDescendantPath(drag.urls[0], root.__itemPath)
 
             if (root.__isDirectory)
                 root.isHighlighted = drag.accepted

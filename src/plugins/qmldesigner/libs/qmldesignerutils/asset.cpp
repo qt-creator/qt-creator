@@ -207,10 +207,18 @@ bool Asset::isValidTextureSource()
     return isImage() || isTexture3D();
 }
 
+bool Asset::isFolder() const
+{
+    return m_type == Asset::Type::Folder;
+}
+
 void Asset::resolveType()
 {
-    if (m_suffix.isEmpty())
+    if (m_suffix.isEmpty()) {
+        m_type = Asset::Type::Folder;
+
         return;
+    }
 
     if (supportedImageSuffixes().contains(m_suffix))
         m_type = Asset::Type::Image;

@@ -197,6 +197,14 @@ bool AssetsLibraryModel::allFilePathsAreComposedEffects(const QStringList &fileP
     });
 }
 
+bool AssetsLibraryModel::isSameOrDescendantPath(const QUrl &source, const QString &target) const
+{
+    Utils::FilePath srcPath = Utils::FilePath::fromUrl(source);
+    Utils::FilePath targetPath = Utils::FilePath::fromString(target);
+
+    return targetPath.isChildOf(srcPath);
+}
+
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QString path = m_sourceFsModel->filePath(sourceParent);
