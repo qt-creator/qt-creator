@@ -18,6 +18,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 
 using namespace Utils;
 
@@ -52,10 +53,14 @@ class LuaStateImpl : public Utils::LuaState
 {
 public:
     sol::state lua;
+    QTemporaryDir appDataDir;
 };
 
 void prepareLuaState(
-    sol::state &lua, const QString &name, const std::function<void(sol::state &)> &customizeState)
+    sol::state &lua,
+    const QString &name,
+    const std::function<void(sol::state &)> &customizeState,
+    const FilePath &appDataPath)
 {
     lua.open_libraries(
         sol::lib::base,
@@ -86,7 +91,7 @@ void prepareLuaState(
             return self.name;
         }));
 
-    lua["PluginSpec"] = ScriptPluginSpec{name, {}, std::make_unique<QObject>()};
+    lua["PluginSpec"] = ScriptPluginSpec{name, appDataPath, std::make_unique<QObject>()};
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
         lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
@@ -107,7 +112,8 @@ std::unique_ptr<Utils::LuaState> runScript(
 {
     std::unique_ptr<LuaStateImpl> opaque = std::make_unique<LuaStateImpl>();
 
-    prepareLuaState(opaque->lua, name, customizeState);
+    prepareLuaState(
+        opaque->lua, name, customizeState, FilePath::fromUserInput(opaque->appDataDir.path()));
 
     auto result
         = opaque->lua
@@ -129,7 +135,7 @@ sol::protected_function_result runFunction(
     const QString &name,
     std::function<void(sol::state &)> customizeState)
 {
-    prepareLuaState(lua, name, customizeState);
+    prepareLuaState(lua, name, customizeState, {});
     return lua.safe_script(script.toStdString(), sol::script_pass_on_error, name.toStdString());
 }
 
