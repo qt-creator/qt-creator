@@ -81,6 +81,8 @@ private:
     PatternType m_patternType;
 };
 
+using AddMatchFilterFunc = std::function<bool(const QString &)>;
+
 class MimeGlobPatternList : public QList<MimeGlobPattern>
 {
 public:
@@ -105,9 +107,8 @@ public:
         erase(std::remove_if(begin(), end(), isMimeTypeEqual), end());
     }
 
-    void match(MimeGlobMatchResult &result,
-               const QString &fileName,
-               const QSet<QString> &ignoreMimeTypes) const;
+    void match(MimeGlobMatchResult &result, const QString &fileName,
+               const AddMatchFilterFunc &filterFunc) const;
 };
 
 /*!
@@ -124,9 +125,8 @@ public:
 
     void addGlob(const MimeGlobPattern &glob);
     void removeMimeType(const QString &mimeType);
-    void matchingGlobs(const QString &fileName,
-                       MimeGlobMatchResult &result,
-                       const QSet<QString> &ignoreMimeTypes) const;
+    void matchingGlobs(const QString &fileName, MimeGlobMatchResult &result,
+                       const AddMatchFilterFunc &filterFunc) const;
     void clear();
 
     PatternsMap m_fastPatterns; // example: "doc" -> "application/msword", "text/plain"
