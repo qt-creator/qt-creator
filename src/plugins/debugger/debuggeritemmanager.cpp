@@ -624,14 +624,10 @@ void DebuggerItemModel::autoDetectGdbOrLldbDebuggers(const FilePaths &searchPath
         proc.setCommand({"xcrun", {"--find", "lldb"}});
         using namespace std::chrono_literals;
         proc.runBlocking(2s);
-        // FIXME:
         if (proc.result() == ProcessResult::FinishedWithSuccess) {
-            QString lPath = proc.allOutput().trimmed();
-            if (!lPath.isEmpty()) {
-                const QFileInfo fi(lPath);
-                if (fi.exists() && fi.isExecutable() && !fi.isDir())
-                    suspects.append(FilePath::fromString(fi.absoluteFilePath()));
-            }
+            const FilePath lPath = FilePath::fromUserInput(proc.allOutput().trimmed());
+            if (lPath.isExecutableFile())
+                suspects.append(lPath);
         }
     }
 
