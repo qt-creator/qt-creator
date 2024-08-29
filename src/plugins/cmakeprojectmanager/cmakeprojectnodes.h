@@ -23,6 +23,8 @@ public:
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
 {
+    bool m_hasSubprojectBuildSupport{false};
+
 public:
     CMakeListsNode(const Utils::FilePath &cmakeListPath);
 
@@ -32,6 +34,9 @@ public:
     bool canAddSubProject(const Utils::FilePath &subProjectFilePath) const override;
     bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
     QStringList subProjectFileNamePatterns() const override;
+
+    bool hasSubprojectBuildSupport() const;
+    void setHasSubprojectBuildSupport(bool hasSubprojectBuildSupport);
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode

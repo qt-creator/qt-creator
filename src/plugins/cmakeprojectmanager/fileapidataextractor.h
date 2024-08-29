@@ -48,6 +48,7 @@ public:
     ProjectExplorer::RawProjectParts projectParts;
     std::unique_ptr<CMakeProjectNode> rootProjectNode;
     QString ctestPath;
+    QString cmakeGenerator;
     bool isMultiConfig = false;
     bool usesAllCapsTargets = false;
 };

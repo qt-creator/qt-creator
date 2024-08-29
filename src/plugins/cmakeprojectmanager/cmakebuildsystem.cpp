@@ -839,6 +839,16 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
     return std::nullopt;
 }
 
+QString CMakeBuildSystem::cmakeGenerator() const
+{
+    return m_reader.cmakeGenerator();
+}
+
+bool CMakeBuildSystem::hasSubprojectBuildSupport() const
+{
+    return cmakeGenerator().contains("Ninja") || cmakeGenerator().contains("Makefiles");
+}
+
 RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                                                       const FilePaths &filePaths,
                                                       FilePaths *notRemoved)
@@ -1191,6 +1201,13 @@ void CMakeBuildSystem::buildCMakeTarget(const QString &buildTarget)
     QTC_ASSERT(!buildTarget.isEmpty(), return);
     if (ProjectExplorerPlugin::saveModifiedFiles())
         cmakeBuildConfiguration()->buildTarget(buildTarget);
+}
+
+void CMakeBuildSystem::reBuildCMakeTarget(const QString &cleanTarget, const QString &buildTarget)
+{
+    QTC_ASSERT(!cleanTarget.isEmpty() && !buildTarget.isEmpty(), return);
+    if (ProjectExplorerPlugin::saveModifiedFiles())
+        cmakeBuildConfiguration()->reBuildTarget(cleanTarget, buildTarget);
 }
 
 bool CMakeBuildSystem::persistCMakeState()

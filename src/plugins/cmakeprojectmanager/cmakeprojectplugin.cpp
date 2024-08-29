@@ -24,6 +24,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -111,13 +112,16 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
     void updateContextActions(ProjectExplorer::Node *node)
     {
+        const Project *project = ProjectTree::projectForNode(node);
+
         auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
         const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
+        const bool isVisible = targetNode && !BuildManager::isBuilding(project);
 
         // Build Target:
         m_buildTargetContextAction->setParameter(targetDisplayName);
-        m_buildTargetContextAction->setEnabled(targetNode);
-        m_buildTargetContextAction->setVisible(targetNode);
+        m_buildTargetContextAction->setEnabled(isVisible);
+        m_buildTargetContextAction->setVisible(isVisible);
     }
 
     Action *m_buildTargetContextAction = nullptr;

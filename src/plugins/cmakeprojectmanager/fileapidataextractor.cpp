@@ -975,6 +975,20 @@ static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
     });
 }
 
+static void setSubprojectBuildSupport(FileApiQtcData &result)
+{
+    if (!result.rootProjectNode)
+        return;
+
+    result.rootProjectNode->forEachGenericNode([&](Node *node) {
+        if (auto cmakeListsNode = dynamic_cast<CMakeListsNode *>(node)) {
+            cmakeListsNode->setHasSubprojectBuildSupport(
+                result.cmakeGenerator.contains("Ninja")
+                || result.cmakeGenerator.contains("Makefiles"));
+        }
+    });
+}
+
 // --------------------------------------------------------------------
 // extractData:
 // --------------------------------------------------------------------
@@ -1018,11 +1032,13 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
         return {};
 
     result.ctestPath = input.replyFile.ctestExecutable;
+    result.cmakeGenerator = input.replyFile.generator;
     result.isMultiConfig = input.replyFile.isMultiConfig;
     if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
         result.usesAllCapsTargets = true;
 
     markCMakeModulesFromPrefixPathAsGenerated(result);
+    setSubprojectBuildSupport(result);
 
     return result;
 }

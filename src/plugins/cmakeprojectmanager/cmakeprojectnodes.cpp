@@ -74,6 +74,16 @@ CMakePresetsNode::CMakePresetsNode(const FilePath &projectPath) :
     setListInProject(false);
 }
 
+bool CMakeListsNode::hasSubprojectBuildSupport() const
+{
+    return m_hasSubprojectBuildSupport;
+}
+
+void CMakeListsNode::setHasSubprojectBuildSupport(bool hasSubprojectBuildSupport)
+{
+    m_hasSubprojectBuildSupport = hasSubprojectBuildSupport;
+}
+
 CMakeListsNode::CMakeListsNode(const FilePath &cmakeListPath) :
     ProjectExplorer::ProjectNode(cmakeListPath)
 {

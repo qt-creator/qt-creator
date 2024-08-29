@@ -19,6 +19,12 @@ const char BUILD_FILE[] = "CMakeProject.BuildFile";
 const char CMAKE_HOME_DIR[] = "CMakeProject.HomeDirectory";
 const char QML_DEBUG_SETTING[] = "CMakeProject.EnableQmlDebugging";
 const char RELOAD_CMAKE_PRESETS[] = "CMakeProject.ReloadCMakePresets";
+const char BUILD_SUBPROJECT[] = "CMakeProject.BuildSubProject";
+const char CLEAN_SUBPROJECT[] = "CMakeProject.CleanSubProject";
+const char REBUILD_SUBPROJECT[] = "CMakeProject.RebuildSubProject";
+const char BUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.BuildSubProjectContextMenu";
+const char CLEAN_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.CleanSubProjectContextMenu";
+const char REBUILD_SUBPROJECT_CONTEXT_MENU[] = "CMakeProject.RebuildSubProjectContextMenu";
 
 const char CMAKEFORMATTER_SETTINGS_GROUP[] = "CMakeFormatter";
 const char CMAKEFORMATTER_GENERAL_GROUP[] = "General";

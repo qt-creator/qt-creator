@@ -443,22 +443,50 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         project = buildConfiguration()->project();
     }
 
-    cmd.addArgs(
-        {"--build",
-         CMakeToolManager::mappedFilePath(project, buildDirectory).path()});
+    auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
+    const bool hasSubprojectBuild = bs && bs->hasSubprojectBuildSupport();
+    bool ninjaSubprojectClean = false;
 
-    cmd.addArg("--target");
-    cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {
-        if (s.isEmpty()) {
-            if (RunConfiguration *rc = target()->activeRunConfiguration())
-                return rc->buildKey();
+    // Subprojects have subdir/<command> structure
+    if (m_buildTargets.size() == 1 && m_buildTargets.front().contains("/") && hasSubprojectBuild) {
+        QString target = m_buildTargets.front();
+        const auto separator = target.lastIndexOf("/");
+        const QString path = target.left(separator);
+        const QString operation = target.mid(separator + 1);
+
+        if (bs->cmakeGenerator().contains("Makefiles")) {
+            cmd.addArgs(
+                {"--build",
+                 CMakeToolManager::mappedFilePath(project, buildDirectory.pathAppended(path))
+                     .path()});
+            cmd.addArg("--target");
+            cmd.addArg(operation);
+        } else {
+            cmd.addArgs(
+                {"--build", CMakeToolManager::mappedFilePath(project, buildDirectory).path()});
+
+            cmd.addArg("--target");
+            if (operation == "clean") {
+                target = path + "/" + "all";
+                ninjaSubprojectClean = true;
+            }
+            cmd.addArg(target);
         }
-        return s;
-    }));
+    } else {
+        cmd.addArgs({"--build", CMakeToolManager::mappedFilePath(project, buildDirectory).path()});
+
+        cmd.addArg("--target");
+        cmd.addArgs(Utils::transform(m_buildTargets, [this](const QString &s) {
+            if (s.isEmpty()) {
+                if (RunConfiguration *rc = target()->activeRunConfiguration())
+                    return rc->buildKey();
+            }
+            return s;
+        }));
+    }
     if (useStaging())
         cmd.addArg("install");
 
-    auto bs = qobject_cast<CMakeBuildSystem *>(buildSystem());
     if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
         if (m_configuration)
@@ -481,6 +509,12 @@ CommandLine CMakeBuildStep::cmakeCommand() const
         if (!toolArgumentsSpecified)
             cmd.addArg("--");
         cmd.addArgs("-allowProvisioningUpdates", CommandLine::Raw);
+    }
+
+    if (ninjaSubprojectClean) {
+        if (!toolArgumentsSpecified)
+            cmd.addArg("--");
+        cmd.addArgs({"-t", "clean"});
     }
 
     return cmd;

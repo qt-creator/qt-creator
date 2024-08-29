@@ -1663,6 +1663,36 @@ void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
         cmBs->setBuildTargets(originalBuildTargets);
 }
 
+void CMakeBuildConfiguration::reBuildTarget(const QString &cleanTarget, const QString &buildTarget)
+{
+    auto cmBs = qobject_cast<CMakeBuildStep *>(
+        findOrDefault(buildSteps()->steps(), [](const BuildStep *bs) {
+            return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+        }));
+    auto cmCs = qobject_cast<CMakeBuildStep *>(
+        findOrDefault(cleanSteps()->steps(), [](const BuildStep *bs) {
+            return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+        }));
+
+    QStringList originalBuildTargets;
+    if (cmBs) {
+        originalBuildTargets = cmBs->buildTargets();
+        cmBs->setBuildTargets({buildTarget});
+    }
+    QString originalCleanTarget;
+    if (cmCs) {
+        originalCleanTarget = cmCs->cleanTarget();
+        cmCs->setBuildTargets({cleanTarget});
+    }
+
+    BuildManager::buildLists({cleanSteps(), buildSteps()});
+
+    if (cmBs)
+        cmBs->setBuildTargets(originalBuildTargets);
+    if (cmCs)
+        cmCs->setBuildTargets({originalCleanTarget});
+}
+
 CMakeConfig CMakeBuildSystem::configurationFromCMake() const
 {
     return m_configurationFromCMake;

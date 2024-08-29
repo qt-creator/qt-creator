@@ -72,6 +72,10 @@ private:
     void updateBuildFileAction();
     void enableBuildFileMenus(Node *node);
     void reloadCMakePresets();
+    void enableBuildSubprojectContextMenu(Node *node);
+    void enableBuildSubprojectMenu();
+    void runSubprojectOperation(const QString &clean, const QString &build);
+    CMakeListsNode* currentListsNodeForEditor();
 
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
@@ -85,6 +89,12 @@ private:
     QAction *m_cmakeDebuggerAction;
     QAction *m_cmakeDebuggerSeparator;
     bool m_canDebugCMake = false;
+    Action *m_buildSubprojectContextAction = nullptr;
+    QAction *m_cleanSubprojectContextAction = nullptr;
+    QAction *m_rebuildSubprojectContextAction = nullptr;
+    Action *m_buildSubprojectAction = nullptr;
+    QAction *m_cleanSubprojectAction = nullptr;
+    QAction *m_rebuildSubprojectAction = nullptr;
 };
 
 bool CMakeManager::isCMakeUrl(const QUrl &url)
@@ -182,6 +192,66 @@ CMakeManager::CMakeManager()
         .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_BUILD)
         .addOnTriggered(this, [this] { buildFile(); });
 
+    // Subproject
+    ActionBuilder(this, Constants::BUILD_SUBPROJECT)
+        .setParameterText(
+            Tr::tr("Build &Subproject \"%1\""),
+            Tr::tr("Build &Subproject"),
+            ActionBuilder::AlwaysEnabled)
+        .setContext(projectContext)
+        .bindContextAction(&m_buildSubprojectAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .setCommandDescription(m_buildSubprojectAction->text())
+        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
+        .addOnTriggered(this, [&] { runSubprojectOperation(QString(), "all"); });
+
+    ActionBuilder(this, Constants::REBUILD_SUBPROJECT)
+        .setText(Tr::tr("Rebuild"))
+        .setContext(projectContext)
+        .bindContextAction(&m_rebuildSubprojectAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
+        .addOnTriggered(this, [&] { runSubprojectOperation("clean", "all"); });
+
+    ActionBuilder(this, Constants::CLEAN_SUBPROJECT)
+        .setText(Tr::tr("Clean"))
+        .setContext(projectContext)
+        .bindContextAction(&m_cleanSubprojectAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addToContainer(PEC::M_BUILDPROJECT, PEC::G_BUILD_SUBPROJECT)
+        .addOnTriggered(this, [&] { runSubprojectOperation("clean", QString()); });
+
+    // Subproject context menus
+    ActionBuilder(this, Constants::BUILD_SUBPROJECT_CONTEXT_MENU)
+        .setParameterText(
+            Tr::tr("Build &Subproject \"%1\""),
+            Tr::tr("Build &Subproject"),
+            ActionBuilder::AlwaysEnabled)
+        .setContext(projectContext)
+        .bindContextAction(&m_buildSubprojectContextAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .setCommandAttribute(Command::CA_UpdateText)
+        .setCommandDescription(m_buildSubprojectContextAction->text())
+        .addToContainer(PEC::M_SUBPROJECTCONTEXT, PEC::G_PROJECT_BUILD)
+        .addOnTriggered(this, [&] { runSubprojectOperation(QString(), "all"); });
+
+    ActionBuilder(this, Constants::REBUILD_SUBPROJECT_CONTEXT_MENU)
+        .setText(Tr::tr("Rebuild"))
+        .setContext(projectContext)
+        .bindContextAction(&m_rebuildSubprojectContextAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addToContainer(PEC::M_SUBPROJECTCONTEXT, PEC::G_PROJECT_BUILD)
+        .addOnTriggered(this, [&] { runSubprojectOperation("clean", "all"); });
+
+    ActionBuilder(this, Constants::CLEAN_SUBPROJECT_CONTEXT_MENU)
+        .setText(Tr::tr("Clean"))
+        .setContext(projectContext)
+        .bindContextAction(&m_cleanSubprojectContextAction)
+        .setCommandAttribute(Command::CA_Hide)
+        .addToContainer(PEC::M_SUBPROJECTCONTEXT, PEC::G_PROJECT_BUILD)
+        .addOnTriggered(this, [&] { runSubprojectOperation("clean", QString()); });
+
     // CMake Profiler
     ActionBuilder(this, Constants::RUN_CMAKE_PROFILER)
         .setIcon(ProjectExplorer::Icons::CMAKE_LOGO.icon())
@@ -225,8 +295,10 @@ CMakeManager::CMakeManager()
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
         updateCmakeActions(ProjectTree::currentNode());
     });
-    connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &CMakeManager::updateBuildFileAction);
+    connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this]() {
+        updateBuildFileAction();
+        enableBuildSubprojectMenu();
+    });
     connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
             this, &CMakeManager::updateCmakeActions);
 
@@ -257,6 +329,7 @@ void CMakeManager::updateCmakeActions(Node *node)
     m_reloadCMakePresetsAction->setVisible(reloadPresetsVisible);
 
     enableBuildFileMenus(node);
+    enableBuildSubprojectContextMenu(node);
 }
 
 void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)
@@ -407,6 +480,93 @@ void CMakeManager::reloadCMakePresets()
 
     Core::ModeManager::activateMode(ProjectExplorer::Constants::MODE_SESSION);
     Core::ModeManager::setFocusToCurrentMode();
+}
+
+void CMakeManager::enableBuildSubprojectContextMenu(Node *node)
+{
+    const Project *project = ProjectTree::projectForNode(node);
+    auto subProjectNode = dynamic_cast<const CMakeListsNode *>(node);
+
+    const QString subProjectDisplayName = subProjectNode ? subProjectNode->displayName()
+                                                         : QString();
+    const bool subProjectVisible = subProjectNode && subProjectNode->hasSubprojectBuildSupport()
+                                   && !BuildManager::isBuilding(project);
+
+    m_buildSubprojectContextAction->setParameter(subProjectDisplayName);
+    m_buildSubprojectContextAction->setEnabled(subProjectVisible);
+    m_buildSubprojectContextAction->setVisible(subProjectVisible);
+
+    m_cleanSubprojectContextAction->setEnabled(subProjectVisible);
+    m_cleanSubprojectContextAction->setVisible(subProjectVisible);
+
+    m_rebuildSubprojectContextAction->setEnabled(subProjectVisible);
+    m_rebuildSubprojectContextAction->setVisible(subProjectVisible);
+}
+
+void CMakeManager::enableBuildSubprojectMenu()
+{
+    auto subProjectNode = currentListsNodeForEditor();
+    const Project *project = ProjectTree::projectForNode(subProjectNode);
+
+    const QString subProjectDisplayName = subProjectNode ? subProjectNode->displayName()
+                                                         : QString();
+    const bool subProjectVisible = subProjectNode && subProjectNode->hasSubprojectBuildSupport()
+                                   && !BuildManager::isBuilding(project);
+
+    m_buildSubprojectAction->setParameter(subProjectDisplayName);
+    m_buildSubprojectAction->setEnabled(subProjectVisible);
+    m_buildSubprojectAction->setVisible(subProjectVisible);
+
+    m_cleanSubprojectAction->setEnabled(subProjectVisible);
+    m_cleanSubprojectAction->setVisible(subProjectVisible);
+
+    m_rebuildSubprojectAction->setEnabled(subProjectVisible);
+    m_rebuildSubprojectAction->setVisible(subProjectVisible);
+}
+
+void CMakeManager::runSubprojectOperation(const QString &clean, const QString &build)
+{
+    if (auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem())) {
+        auto subProject = dynamic_cast<const CMakeListsNode *>(ProjectTree::currentNode());
+
+        // We want to allow the build action from a source file when triggered from a keyboard seqnuence
+        if (!subProject)
+            subProject = currentListsNodeForEditor();
+
+        if (!subProject)
+            return;
+
+        auto subProjectDir = subProject->filePath();
+        auto projectFileDir = bs->project()->projectFilePath().parentDir();
+
+        auto relativePath = subProjectDir.relativeChildPath(projectFileDir);
+        if (clean.isEmpty()) {
+            bs->buildCMakeTarget(relativePath.path() + "/" + build);
+        } else if (build.isEmpty()) {
+            bs->buildCMakeTarget(relativePath.path() + "/" + clean);
+        } else {
+            bs->reBuildCMakeTarget(
+                relativePath.path() + "/" + clean, relativePath.path() + "/" + build);
+        }
+    }
+}
+
+CMakeListsNode *CMakeManager::currentListsNodeForEditor()
+{
+    Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
+    if (!currentDocument)
+        return nullptr;
+
+    const FilePath file = currentDocument->filePath();
+    Node *n = ProjectTree::nodeForFile(file);
+    FileNode *node = n ? n->asFileNode() : nullptr;
+    if (!node)
+        return nullptr;
+    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node->parentProjectNode());
+    if (!targetNode)
+        return nullptr;
+
+    return dynamic_cast<CMakeListsNode*>(targetNode->parentProjectNode());
 }
 
 void CMakeManager::buildFile(Node *node)

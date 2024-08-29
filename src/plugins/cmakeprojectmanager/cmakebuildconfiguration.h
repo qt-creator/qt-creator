@@ -66,6 +66,7 @@ public:
 
     // Context menu action:
     void buildTarget(const QString &buildTarget);
+    void reBuildTarget(const QString &cleanTarget, const QString &buildTarget);
     ProjectExplorer::BuildSystem *buildSystem() const final;
 
     void addToEnvironment(Utils::Environment &env) const override;

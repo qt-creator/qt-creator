@@ -290,6 +290,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                       m_ctestPath = std::move(value->ctestPath);
                       m_isMultiConfig = value->isMultiConfig;
                       m_usesAllCapsTargets = value->usesAllCapsTargets;
+                      m_cmakeGenerator = value->cmakeGenerator;
 
                       if (value->errorMessage.isEmpty()) {
                           emit this->dataAvailable(restoredFromBackup);
@@ -345,6 +346,11 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
 
     const FilePath settingsFile = buildDir / "qtcsettings.cmake";
     QTC_ASSERT_EXPECTED(settingsFile.writeFileContents(contents), return);
+}
+
+QString FileApiReader::cmakeGenerator() const
+{
+    return m_cmakeGenerator;
 }
 
 std::unique_ptr<CMakeProjectNode> FileApiReader::rootProjectNode()

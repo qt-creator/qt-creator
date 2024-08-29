@@ -81,6 +81,7 @@ public:
 
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);
+    void reBuildCMakeTarget(const QString &cleanTarget, const QString &buildTarget);
 
     // Queries:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
@@ -127,6 +128,9 @@ public:
     QStringList projectFindPackageVariables() const { return m_projectFindPackageVariables; }
     const QHash<QString, Utils::Link> &dotCMakeFilesHash() const { return m_dotCMakeFilesHash; }
     const QHash<QString, Utils::Link> &findPackagesFilesHash() const { return m_findPackagesFilesHash; }
+
+    QString cmakeGenerator() const;
+    bool hasSubprojectBuildSupport() const;
 
 signals:
     void configurationCleared();
