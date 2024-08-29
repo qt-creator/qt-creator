@@ -68,7 +68,7 @@ void RewriterTransaction::beginTransaction()
 void RewriterTransaction::endTransaction()
 {
     if (m_view && m_view->isAttached())
-        m_view->model()->emitRewriterBeginTransaction();
+        m_view->model()->emitRewriterEndTransaction();
 }
 
 void RewriterTransaction::commit()
