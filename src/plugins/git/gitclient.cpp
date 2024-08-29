@@ -401,7 +401,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                     "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
                                     "Author: %C(%3)%aN <%aE>%Creset, %C(%4)%ad (%ar)%Creset%n"
                                     "Committer: %C(%3)%cN <%cE>%Creset, %C(%4)%cd (%cr)%Creset%n"
-                                    "%n%C(%5)%B%Creset"
+                                    "%n%C(%5)%s%Creset%n%n%b"
                                     ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
         setupCommand(process, {"show", "-s", colorOption, showFormat, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
