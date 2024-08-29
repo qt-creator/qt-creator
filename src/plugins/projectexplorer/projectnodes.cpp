@@ -261,22 +261,6 @@ void FileNode::setHasError(bool error) const
     m_hasError = error;
 }
 
-bool FileNode::hasModification() const
-{
-    static const QSet<FileType> forbidden{FileType::Unknown, FileType::App, FileType::Lib,
-                                          FileType::FileTypeSize};
-
-    if (forbidden.contains(fileType()))
-        return false;
-
-    const FilePath file = filePath();
-    const FilePath dir = file.absolutePath();
-    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
-        return vc->hasModification(file);
-
-    return false;
-}
-
 bool FileNode::useUnavailableMarker() const
 {
     return m_useUnavailableMarker;

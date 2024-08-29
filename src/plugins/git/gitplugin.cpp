@@ -155,9 +155,6 @@ public:
     FilePaths unmanagedFiles(const FilePaths &filePaths) const final;
 
     bool isConfigured() const final;
-    bool hasModification(const Utils::FilePath &path) const final;
-    void monitorDirectory(const Utils::FilePath &path) final;
-    void stopMonitoringDirectory(const Utils::FilePath &path) final;
     bool supportsOperation(Operation operation) const final;
     bool vcsOpen(const FilePath &filePath) final;
     bool vcsAdd(const FilePath &filePath) final;
@@ -1717,22 +1714,6 @@ bool GitPluginPrivate::isConfigured() const
     return !gitClient().vcsBinary({}).isEmpty();
 }
 
-bool GitPluginPrivate::hasModification(const Utils::FilePath &path) const
-{
-    const Utils::FilePath projectDir = gitClient().findRepositoryForDirectory(path.absolutePath());
-    return gitClient().hasModification(projectDir, path);
-}
-
-void GitPluginPrivate::monitorDirectory(const Utils::FilePath &path)
-{
-    gitClient().monitorDirectory(gitClient().findRepositoryForDirectory(path));
-}
-
-void GitPluginPrivate::stopMonitoringDirectory(const Utils::FilePath &path)
-{
-    gitClient().stopMonitoring(gitClient().findRepositoryForDirectory(path));
-}
-
 bool GitPluginPrivate::supportsOperation(Operation operation) const
 {
     if (!isConfigured())
@@ -1847,11 +1828,6 @@ void emitFilesChanged(const QStringList &l)
 void emitRepositoryChanged(const FilePath &r)
 {
     emit dd->repositoryChanged(r);
-}
-
-void emitFileStatusChanged(const FilePath &r, const QStringList &l)
-{
-    emit dd->updateFileStatus(r, l);
 }
 
 void startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)

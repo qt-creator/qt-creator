@@ -22,7 +22,6 @@ bool isCommitEditorOpen();
 
 void emitFilesChanged(const QStringList &);
 void emitRepositoryChanged(const Utils::FilePath &);
-void emitFileStatusChanged(const Utils::FilePath &repository, const QStringList &files);
 void startRebaseFromCommit(const Utils::FilePath &workingDirectory, const QString &commit);
 void manageRemotes();
 void initRepository();

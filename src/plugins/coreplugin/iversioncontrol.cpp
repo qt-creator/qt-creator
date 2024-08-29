@@ -63,22 +63,6 @@ FilePaths IVersionControl::additionalToolsPath() const
     return {};
 }
 
-bool IVersionControl::hasModification(const FilePath &path) const
-{
-    Q_UNUSED(path)
-    return false;
-}
-
-void IVersionControl::monitorDirectory(const Utils::FilePath &path)
-{
-    Q_UNUSED(path)
-}
-
-void IVersionControl::stopMonitoringDirectory(const Utils::FilePath &path)
-{
-    Q_UNUSED(path)
-}
-
 IVersionControl::RepoUrl::RepoUrl(const QString &location)
 {
     if (location.isEmpty())
