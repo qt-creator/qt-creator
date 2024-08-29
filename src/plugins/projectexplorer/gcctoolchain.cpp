@@ -158,10 +158,11 @@ const char parentToolchainIdKeyC[] = "ProjectExplorer.ClangToolChain.ParentToolC
 const char priorityKeyC[] = "ProjectExplorer.ClangToolChain.Priority";
 const char binaryRegexp[] = "(?:^|-|\\b)(?:gcc|g\\+\\+|clang(?:\\+\\+)?)(?:-([\\d.]+))?$";
 
-static QString runGcc(const FilePath &gcc, const QStringList &arguments, const Environment &env)
+static expected_str<QString> runGcc(
+    const FilePath &gcc, const QStringList &arguments, const Environment &env)
 {
     if (!gcc.isExecutableFile())
-        return {};
+        return make_unexpected(QString("Compiler '%1' not found.").arg(gcc.toUserOutput()));
 
     Process cpp;
     Environment environment(env);
@@ -171,23 +172,25 @@ static QString runGcc(const FilePath &gcc, const QStringList &arguments, const E
     cpp.setCommand({gcc, arguments});
     cpp.runBlocking();
     if (cpp.result() != ProcessResult::FinishedWithSuccess || cpp.exitCode() != 0) {
-        Core::MessageManager::writeFlashing({"Compiler feature detection failure!",
-                                             cpp.exitMessage(),
-                                             cpp.allOutput()});
-        return {};
+        return make_unexpected(QString("Compiler feature detection failure.\n%1\n%2")
+                                   .arg(cpp.exitMessage())
+                                   .arg(cpp.allOutput()));
     }
 
-    return cpp.allOutput();
+    return cpp.allOutput().trimmed();
 }
 
-static ProjectExplorer::Macros gccPredefinedMacros(const FilePath &gcc,
-                                                   const QStringList &args,
-                                                   const Environment &env)
+static expected_str<ProjectExplorer::Macros> gccPredefinedMacros(
+    const FilePath &gcc, const QStringList &args, const Environment &env)
 {
     QStringList arguments = args;
     arguments << "-";
 
-    ProjectExplorer::Macros  predefinedMacros = Macro::toMacros(runGcc(gcc, arguments, env).toUtf8());
+    expected_str<QString> result = runGcc(gcc, arguments, env);
+    if (!result)
+        return make_unexpected(result.error());
+
+    ProjectExplorer::Macros predefinedMacros = Macro::toMacros(result->toUtf8());
     // Sanity check in case we get an error message instead of real output:
     QTC_CHECK(predefinedMacros.isEmpty()
               || predefinedMacros.front().type == ProjectExplorer::MacroType::Define);
@@ -210,9 +213,12 @@ static HeaderPaths gccHeaderPaths(const FilePath &gcc,
                                   const QStringList &arguments,
                                   const Environment &env)
 {
+    expected_str<QString> result = runGcc(gcc, arguments, env);
+    QTC_ASSERT_EXPECTED(result, return {});
+
     HeaderPaths builtInHeaderPaths;
     QByteArray line;
-    QByteArray data = runGcc(gcc, arguments, env).toUtf8();
+    QByteArray data = result->toUtf8();
     QBuffer cpp(&data);
     cpp.open(QIODevice::ReadOnly);
     while (cpp.canReadLine()) {
@@ -303,7 +309,11 @@ static GccToolchain::DetectedAbisResult guessGccAbi(const FilePath &path,
 
     QStringList arguments = extraArgs;
     arguments << "-dumpmachine";
-    QString machine = runGcc(path, arguments, env).trimmed().section('\n', 0, 0, QString::SectionSkipEmpty);
+
+    expected_str<QString> result = runGcc(path, arguments, env);
+    QTC_ASSERT_EXPECTED(result, return {});
+
+    QString machine = result->section('\n', 0, 0, QString::SectionSkipEmpty);
     if (machine.isEmpty()) {
         // ICC does not implement the -dumpmachine option on macOS.
         if (HostOsInfo::isMacHost() && (path.fileName() == "icc" || path.fileName() == "icpc"))
@@ -319,7 +329,9 @@ static QString gccVersion(const FilePath &path,
 {
     QStringList arguments = extraArgs;
     arguments << "-dumpversion";
-    return runGcc(path, arguments, env).trimmed();
+    expected_str<QString> result = runGcc(path, arguments, env);
+    QTC_ASSERT_EXPECTED(result, return {});
+    return *result;
 }
 
 static FilePath gccInstallDir(const FilePath &compiler,
@@ -328,7 +340,9 @@ static FilePath gccInstallDir(const FilePath &compiler,
 {
     QStringList arguments = extraArgs;
     arguments << "-print-search-dirs";
-    QString output = runGcc(compiler, arguments, env).trimmed();
+    expected_str<QString> result = runGcc(compiler, arguments, env);
+    QTC_ASSERT_EXPECTED(result, return {});
+
     // Expected output looks like this:
     //   install: /usr/lib/gcc/x86_64-linux-gnu/7/
     //   ...
@@ -336,7 +350,7 @@ static FilePath gccInstallDir(const FilePath &compiler,
     // install dir is not part of the output (tested with clang-8/clang-9).
 
     const QString prefix = "install: ";
-    const QString line = QTextStream(&output).readLine();
+    const QString line = QTextStream(&(*result)).readLine();
     if (!line.startsWith(prefix))
         return {};
     return compiler.withNewPath(QDir::cleanPath(line.mid(prefix.size())));
@@ -600,9 +614,11 @@ Toolchain::MacroInspectionRunner GccToolchain::createMacroInspectionRunner() con
         if (cachedMacros)
             return cachedMacros.value();
 
-        const Macros macros = gccPredefinedMacros(findLocalCompiler(compilerCommand, env),
-                                                  arguments,
-                                                  env);
+        const expected_str<Macros> macroResult
+            = gccPredefinedMacros(findLocalCompiler(compilerCommand, env), arguments, env);
+        QTC_CHECK_EXPECTED(macroResult);
+
+        const auto macros = macroResult.value_or(Macros{});
 
         const auto report = MacroInspectionReport{macros, languageVersion(lang, macros)};
         macroCache->insert(arguments, report);
@@ -1673,16 +1689,17 @@ Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &
     const FilePath localCompilerPath = findLocalCompiler(tcd.compilerPath, systemEnvironment);
     if (ToolchainManager::isBadToolchain(localCompilerPath))
         return result;
-    Macros macros
-            = gccPredefinedMacros(localCompilerPath, gccPredefinedMacrosOptions(tcd.language),
-                                  systemEnvironment);
-    if (macros.isEmpty()) {
+    expected_str<Macros> macros = gccPredefinedMacros(
+        localCompilerPath, gccPredefinedMacrosOptions(tcd.language), systemEnvironment);
+    if (!macros) {
+        Core::MessageManager::writeFlashing(
+            {QString("Compiler %1 is not a valid compiler:").arg(localCompilerPath.toUserOutput()),
+             macros.error()});
         ToolchainManager::addBadToolchain(localCompilerPath);
         return result;
     }
-    const GccToolchain::DetectedAbisResult detectedAbis = guessGccAbi(localCompilerPath,
-                                                                      systemEnvironment,
-                                                                      macros);
+    const GccToolchain::DetectedAbisResult detectedAbis
+        = guessGccAbi(localCompilerPath, systemEnvironment, *macros);
     for (const Abi &abi : detectedAbis.supportedAbis) {
         GccToolchain::SubType detectedSubType = subType;
         if (detectedSubType == GccToolchain::RealGcc && abi.osFlavor() == Abi::WindowsMSysFlavor)
@@ -1694,8 +1711,8 @@ Toolchains GccToolchainFactory::autoDetectToolchain(const ToolchainDescription &
         tc->setDetection(Toolchain::AutoDetection);
         tc->predefinedMacrosCache()
             ->insert(QStringList(),
-                     Toolchain::MacroInspectionReport{macros,
-                                                      Toolchain::languageVersion(tcd.language, macros)});
+                     Toolchain::MacroInspectionReport{*macros,
+                                                      Toolchain::languageVersion(tcd.language, *macros)});
         tc->setCompilerCommand(tcd.compilerPath);
         tc->setSupportedAbis(detectedAbis.supportedAbis);
         tc->setTargetAbi(abi);
@@ -1953,7 +1970,10 @@ void GccToolchainConfigWidget::handleCompilerCommandChange(Id language)
         QStringList args = gccPredefinedMacrosOptions(Constants::CXX_LANGUAGE_ID)
                 + splitString(m_platformCodeGenFlagsLineEdit->text());
         const FilePath localCompilerPath = findLocalCompiler(path, env);
-        m_macros = gccPredefinedMacros(localCompilerPath, args, env);
+        expected_str<ProjectExplorer::Macros> macros
+            = gccPredefinedMacros(localCompilerPath, args, env);
+        QTC_CHECK_EXPECTED(macros);
+        m_macros = macros.value_or(ProjectExplorer::Macros{});
         abiList = guessGccAbi(localCompilerPath, env, m_macros,
                               splitString(m_platformCodeGenFlagsLineEdit->text())).supportedAbis;
     }
