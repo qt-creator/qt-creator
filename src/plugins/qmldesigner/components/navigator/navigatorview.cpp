@@ -693,12 +693,14 @@ void NavigatorView::updateItemSelection()
                 itemSelection.select(beginIndex, endIndex);
         } else {
             // if the node index is invalid expand ancestors manually if they are valid.
-            while (ModelNode parentNode = node.parentProperty().parentModelNode()) {
+            ModelNode parentNode = node.parentProperty().parentModelNode();
+            while (parentNode) {
                 QModelIndex parentIndex = indexForModelNode(parentNode);
                 if (parentIndex.isValid())
                     treeWidget()->expand(parentIndex);
                 else
                     break;
+                parentNode = parentNode.parentProperty().parentModelNode();
             }
          }
     }
