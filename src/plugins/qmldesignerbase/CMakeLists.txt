@@ -54,11 +54,15 @@ extend_qtc_plugin(QmlDesignerBase
 
 
 # from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings> is supported which can be added to DEPENDS
-if (MSVC)
-  qtc_output_binary_dir(_output_binary_dir)
-  set_target_properties(QmlDesignerBase PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/QmlDesignerSettings.lib")
-elseif (APPLE)
-  target_link_libraries(QmlDesignerBase PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:QmlDesignerSettings>)
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+  target_link_libraries(TextEditor PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings>)
 else ()
-  target_link_libraries(QmlDesignerBase PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:QmlDesignerSettings> -Wl,--no-whole-archive)
+  if (MSVC)
+    qtc_output_binary_dir(_output_binary_dir)
+    set_target_properties(QmlDesignerBase PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/QmlDesignerSettings.lib")
+  elseif (APPLE)
+    target_link_libraries(QmlDesignerBase PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:QmlDesignerSettings>)
+  else ()
+    target_link_libraries(QmlDesignerBase PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:QmlDesignerSettings> -Wl,--no-whole-archive)
+  endif ()
 endif ()
