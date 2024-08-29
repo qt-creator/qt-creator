@@ -90,6 +90,16 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                 const auto fileName = Utils::FilePath::fromString(originalFileName);
                 gitClient().openShowEditor(path, sha1, fileName);
             }
+        } else if (link == "logLine") {
+            const VcsBasePluginState state = currentState();
+            QTC_ASSERT(state.hasFile(), return);
+
+            qCInfo(log).nospace().noquote() << "Showing log for: \"" << m_info.filePath
+                                            << "\" line:" << m_info.line;
+
+            const QString lineArg = QString("-L %1,%1:%2")
+                                        .arg(m_info.line).arg(state.relativeCurrentFile());
+            gitClient().log(state.currentFileTopLevel(), {}, true, {lineArg, "--no-patch"});
         } else {
             qCInfo(log).nospace().noquote() << "Showing commit: " << sha1 << " for " << m_info.filePath;
             gitClient().show(m_info.filePath, sha1);
@@ -106,16 +116,18 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                          "  <td><a href=\"blame\">Blame %1</a></td>"
                          "  <td><a href=\"blameParent\">Blame Parent</a></td>"
                          "  <td><a href=\"showFile\">File at %1</a></td>"
+                         "  <td><a href=\"logLine\">Log for line %2</a></td>"
                          "</tr></table>"
                          "<p></p>"
                          "<table>"
                          "  <tr><td>commit</td><td><a href=\"show\">%1</a></td></tr>"
-                         "  <tr><td>Author:</td><td>%2 &lt;%3&gt;</td></tr>"
-                         "  <tr><td>Date:</td><td>%4</td></tr>"
+                         "  <tr><td>Author:</td><td>%3 &lt;%4&gt;</td></tr>"
+                         "  <tr><td>Date:</td><td>%5</td></tr>"
                          "  <tr></tr>"
-                         "  <tr><td colspan='2' align='left'>%5</td></tr>"
+                         "  <tr><td colspan='2' align='left'>%6</td></tr>"
                          "</table>")
-                         .arg(info.sha1.left(8), info.author, info.authorMail,
+                         .arg(info.sha1.left(8), QString::number(info.line),
+                              info.author, info.authorMail,
                               info.authorTime.toString("yyyy-MM-dd hh:mm:ss"), info.summary);
 
     if (settings().instantBlameIgnoreSpaceChanges()
