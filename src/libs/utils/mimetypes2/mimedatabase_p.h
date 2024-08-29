@@ -70,9 +70,10 @@ public:
     MimeGlobMatchResult findByFileName(const QString &fileName);
 
     // API for MimeType. Takes care of locking the mutex.
-    void loadMimeTypePrivate(MimeTypePrivate &mimePrivate);
-    void loadGenericIcon(MimeTypePrivate &mimePrivate);
-    void loadIcon(MimeTypePrivate &mimePrivate);
+    MimeTypePrivate::LocaleHash localeComments(const QString &name);
+    QStringList globPatterns(const QString &name);
+    QString genericIcon(const QString &name);
+    QString icon(const QString &name);
     QStringList mimeParents(const QString &mimeName);
     QStringList listAliases(const QString &mimeName);
     bool mimeInherits(const QString &mime, const QString &parent);
@@ -83,6 +84,7 @@ public:
     void setMagicRulesForMimeType(const MimeType &mimeType,
                                   const QMap<int, QList<MimeMagicRule>> &rules);
     void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
+    void setPreferredSuffix(const QString &mimeName, const QString &suffix);
     void checkInitPhase(const QString &info);
     void addInitializer(const std::function<void()> &init);
 
@@ -94,7 +96,7 @@ private:
     QString fallbackParent(const QString &mimeTypeName) const;
 
     const QString m_defaultMimeType;
-    mutable Providers m_providers;
+    mutable Providers m_providers; // most local first, most global last
     QElapsedTimer m_lastCheck;
 
     // added for Qt Creator
@@ -109,6 +111,7 @@ public:
     QReadWriteLock m_initMutex;
     std::atomic_bool m_initialized = false;
     int m_startupPhase = 0;
+    QHash<QString, QString> m_preferredSuffix; // MIME name -> suffix
 };
 
 } // namespace Utils

@@ -14,54 +14,24 @@
 // We mean it.
 //
 
-#include "mimetype.h"
+#include <QtCore/qshareddata.h>
 
 #include <QtCore/qhash.h>
 #include <QtCore/qstringlist.h>
 
 namespace Utils {
 
+class MimeBinaryProvider;
+
 class MimeTypePrivate : public QSharedData
 {
 public:
     typedef QHash<QString, QString> LocaleHash;
 
-    MimeTypePrivate();
-    explicit MimeTypePrivate(const MimeType &other);
+    MimeTypePrivate() { }
+    explicit MimeTypePrivate(const QString &name) : name(name) { }
 
-    void clear();
-
-    void addGlobPattern(const QString &pattern);
-
-    bool loaded; // QSharedData leaves a 4 byte gap, so don't put 8 byte members first
-    bool fromCache; // true if this comes from the binary provider
-    bool hasGlobDeleteAll = false; // true if the mimetype has a glob-deleteall tag
     QString name;
-    LocaleHash localeComments;
-    QString genericIconName;
-    QString iconName;
-    QStringList globPatterns;
 };
 
 } // namespace Utils
-
-#if 0
-#define QMIMETYPE_BUILDER_FROM_RVALUE_REFS \
-    QT_BEGIN_NAMESPACE \
-    static QMimeType buildQMimeType ( \
-                         QString &&name, \
-                         QString &&genericIconName, \
-                         QString &&iconName, \
-                         QStringList &&globPatterns \
-                     ) \
-    { \
-        QMimeTypePrivate qMimeTypeData; \
-        qMimeTypeData.loaded = true; \
-        qMimeTypeData.name = std::move(name); \
-        qMimeTypeData.genericIconName = std::move(genericIconName); \
-        qMimeTypeData.iconName = std::move(iconName); \
-        qMimeTypeData.globPatterns = std::move(globPatterns); \
-        return QMimeType(qMimeTypeData); \
-    } \
-    QT_END_NAMESPACE
-#endif

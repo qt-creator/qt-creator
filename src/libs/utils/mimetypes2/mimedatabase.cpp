@@ -77,10 +77,12 @@ bool MimeDatabasePrivate::shouldCheck()
     return m_forceLoad;
 }
 
+#if 0
 static QStringList locateMimeDirectories()
 {
     return QStandardPaths::locateAll(QStandardPaths::GenericDataLocation, QStringLiteral("mime"), QStandardPaths::LocateDirectory);
 }
+#endif
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_NACL) && !defined(Q_OS_INTEGRITY)
 #  define QT_USE_MMAP
@@ -246,9 +248,8 @@ MimeType MimeDatabasePrivate::mimeTypeForName(const QString &nameOrAlias)
 {
     const QString mimeName = resolveAlias(nameOrAlias);
     for (const auto &provider : providers()) {
-        MimeType mime = provider->mimeTypeForName(mimeName);
-        if (mime.isValid())
-            return mime;
+        if (provider->knowsMimeType(mimeName))
+            return MimeType(MimeTypePrivate(mimeName));
     }
     return {};
 }
@@ -273,54 +274,70 @@ MimeGlobMatchResult MimeDatabasePrivate::findByFileName(const QString &fileName)
     return result;
 }
 
-void MimeDatabasePrivate::loadMimeTypePrivate(MimeTypePrivate &mimePrivate)
+MimeTypePrivate::LocaleHash MimeDatabasePrivate::localeComments(const QString &name)
 {
     QMutexLocker locker(&mutex);
-    if (mimePrivate.name.isEmpty())
-        return; // invalid mimetype
-    if (!mimePrivate.loaded) { // XML provider sets loaded=true, binary provider does this on demand
-        Q_ASSERT(mimePrivate.fromCache);
-        bool found = false;
-        for (const auto &provider : providers()) {
-            if (provider->loadMimeTypePrivate(mimePrivate)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            const QString file = mimePrivate.name + ".xml"_L1;
-            qWarning() << "No file found for" << file << ", even though update-mime-info said it would exist.\n"
-                          "Either it was just removed, or the directory doesn't have executable permission..."
-                       << locateMimeDirectories();
-        }
-        mimePrivate.loaded = true;
+    for (const auto &provider : providers()) {
+        auto comments = provider->localeComments(name);
+        if (!comments.isEmpty())
+            return comments; // maybe we want to merge in comments from more global providers, in
+                             // case of more translations?
     }
+    return {};
 }
 
-void MimeDatabasePrivate::loadGenericIcon(MimeTypePrivate &mimePrivate)
+QStringList MimeDatabasePrivate::globPatterns(const QString &name)
 {
     QMutexLocker locker(&mutex);
-    if (mimePrivate.fromCache) {
-        mimePrivate.genericIconName.clear();
-        for (const auto &provider : providers()) {
-            provider->loadGenericIcon(mimePrivate);
-            if (!mimePrivate.genericIconName.isEmpty())
-                break;
-        }
+    QStringList patterns;
+    const auto &providerList = providers();
+    // reverse iteration because we start from most global, add up, clear if delete-all, and add up
+    // again.
+    for (auto rit = providerList.rbegin(); rit != providerList.rend(); ++rit) {
+        auto *provider = rit->get();
+        if (provider->hasGlobDeleteAll(name))
+            patterns.clear();
+        // handle MIME type overriding from Qt Creator
+        if (!provider->m_overriddenMimeTypes.contains(name))
+            patterns += provider->globPatterns(name);
     }
+
+    // added for Qt Creator, overriding preferred suffix (first pattern in the list)
+    const QString preferredSuffix = m_preferredSuffix.value(name);
+    if (!preferredSuffix.isEmpty()) {
+        auto it = std::find_if(patterns.begin(),
+                               patterns.end(),
+                               [preferredSuffix](const QString &pattern) {
+                                   return MimeType::suffixFromPattern(pattern) == preferredSuffix;
+                               });
+        if (it != patterns.end())
+            patterns.erase(it);
+        patterns.prepend(QLatin1String("*.") + preferredSuffix);
+    }
+
+    return patterns;
 }
 
-void MimeDatabasePrivate::loadIcon(MimeTypePrivate &mimePrivate)
+QString MimeDatabasePrivate::genericIcon(const QString &name)
 {
     QMutexLocker locker(&mutex);
-    if (mimePrivate.fromCache) {
-        mimePrivate.iconName.clear();
-        for (const auto &provider : providers()) {
-            provider->loadIcon(mimePrivate);
-            if (!mimePrivate.iconName.isEmpty())
-                break;
-        }
+    for (const auto &provider : providers()) {
+        QString genericIconName = provider->genericIcon(name);
+        if (!genericIconName.isEmpty())
+            return genericIconName;
     }
+    return {};
+}
+
+QString MimeDatabasePrivate::icon(const QString &name)
+{
+    QMutexLocker locker(&mutex);
+    for (const auto &provider : providers()) {
+        QString iconName = provider->icon(name);
+        if (!iconName.isEmpty())
+            return iconName;
+    }
+    return {};
 }
 
 QString MimeDatabasePrivate::fallbackParent(const QString &mimeTypeName) const
@@ -411,12 +428,12 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
 #endif
 
     *accuracyPtr = 0;
-    MimeType candidate;
+    QString candidate;
     for (const auto &provider : providers())
-        provider->findByMagic(data, accuracyPtr, candidate);
+        provider->findByMagic(data, accuracyPtr, &candidate);
 
-    if (candidate.isValid())
-        return candidate;
+    if (!candidate.isEmpty())
+        return MimeType(MimeTypePrivate(candidate));
 
     if (isTextFile(data)) {
         *accuracyPtr = 5;
@@ -935,6 +952,12 @@ void MimeDatabasePrivate::setGlobPatternsForMimeType(const MimeType &mimeType,
             return;
         }
     }
+}
+
+void MimeDatabasePrivate::setPreferredSuffix(const QString &mimeName, const QString &suffix)
+{
+    QMutexLocker locker(&mutex);
+    m_preferredSuffix.insert(mimeName, suffix);
 }
 
 void MimeDatabasePrivate::checkInitPhase(const QString &info)
