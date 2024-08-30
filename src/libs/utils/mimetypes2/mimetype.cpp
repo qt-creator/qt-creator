@@ -51,7 +51,7 @@ QString MimeType::suffixFromPattern(const QString &pattern)
     MIME types can inherit from each other: for instance a C source file is
     a specific type of plain text file, so text/x-csrc inherits text/plain.
 
-    \sa MimeDatabase, {MIME Type Browser Example}
+    \sa MimeDatabase, {MIME Type Browser}
  */
 
 /*!

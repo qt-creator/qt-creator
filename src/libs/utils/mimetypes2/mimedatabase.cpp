@@ -635,7 +635,7 @@ bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
 
     \snippet code/src_corelib_mimetype_mimedatabase.cpp 0
 
-    \sa MimeType, {MIME Type Browser Example}
+    \sa MimeType, {MIME Type Browser}
  */
 
 /*!
