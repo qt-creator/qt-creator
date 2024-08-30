@@ -175,10 +175,9 @@ def main():
                     "Verify that no unrelated commits are displayed in file log")
     invokeMenuItem("File", "Close All")
 
-    invokeMenuItem('Tools', 'Git', 'Current Project', 'Log Project "%s"' % projectName)
-    projectLog = verifyItemsInGit(commitsInProject)
-    test.xverify(not commitOutsideProject in projectLog,    # QTCREATORBUG-10170
-                 "Verify that no unrelated commits are displayed in project log")
+    invokeMenuItem('Tools', 'Git', 'Current Project Directory',
+                   'Log Directory of Project "%s"' % projectName)
+    verifyItemsInGit(commitMessages)
     invokeMenuItem("File", "Close All")
 
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")
