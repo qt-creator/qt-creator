@@ -21,6 +21,7 @@
 #include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesignerbase/settings/designersettings.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>

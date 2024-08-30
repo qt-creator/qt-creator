@@ -20,6 +20,8 @@
 
 #include <theme.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 #include <qmljs/qmljssimplereader.h>

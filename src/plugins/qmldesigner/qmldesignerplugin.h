@@ -12,7 +12,6 @@
 #include <extensionsystem/iplugin.h>
 
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
-#include <qmldesignerbase/settings/designersettings.h>
 
 #include <QElapsedTimer>
 

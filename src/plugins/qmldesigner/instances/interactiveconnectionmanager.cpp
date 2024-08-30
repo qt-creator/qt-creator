@@ -7,6 +7,8 @@
 
 #include <qmldesignerplugin.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/messagebox.h>
 
 #include <QLocalSocket>

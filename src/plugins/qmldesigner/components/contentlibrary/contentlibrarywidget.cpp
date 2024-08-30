@@ -20,6 +20,8 @@
 #include <studioquickwidget.h>
 #include <theme.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 
 #include <qmldesignerutils/filedownloader.h>

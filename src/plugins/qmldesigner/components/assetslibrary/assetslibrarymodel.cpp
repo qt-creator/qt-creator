@@ -7,6 +7,8 @@
 #include <qmldesignerplugin.h>
 #include <uniquename.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 
 #include <qmldesignerutils/asset.h>

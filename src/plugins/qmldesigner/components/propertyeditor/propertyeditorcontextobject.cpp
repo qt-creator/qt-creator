@@ -14,6 +14,8 @@
 #include "qmlobjectnode.h"
 #include "qmltimeline.h"
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>

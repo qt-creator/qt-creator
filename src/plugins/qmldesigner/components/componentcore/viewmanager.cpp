@@ -30,6 +30,8 @@
 #include <texteditorview.h>
 #include <textureeditorview.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 
 #include <sqlitedatabase.h>
