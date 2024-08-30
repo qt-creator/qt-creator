@@ -692,6 +692,20 @@ bool GeneralHelper::isOrthographicCamera(QQuick3DNode *node) const
     return node && qobject_cast<QQuick3DOrthographicCamera *>(node);
 }
 
+QQuick3DNode *GeneralHelper::view3dRootNode(QQuick3DNode *node) const
+{
+    if (!node)
+        return nullptr;
+
+    QQuick3DNode *parentNode = node->parentNode();
+    while (parentNode) {
+        if (parentNode->inherits("QQuick3DSceneRootNode"))
+            return parentNode;
+        parentNode = parentNode->parentNode();
+    }
+    return nullptr;
+}
+
 // Emitter gizmo model creation is done in C++ as creating dynamic properties and
 // assigning materials to dynamically created models is lot simpler in C++
 QQuick3DNode *GeneralHelper::createParticleEmitterGizmoModel(QQuick3DNode *emitter,

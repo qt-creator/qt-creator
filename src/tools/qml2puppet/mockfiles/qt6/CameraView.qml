@@ -3,7 +3,7 @@
 import QtQuick
 import QtQuick3D
 
-Item {
+Rectangle {
     id: cameraView
 
     required property bool showCameraView
@@ -16,44 +16,57 @@ Item {
     property var activeSceneEnvironment
     property var preferredCamera
 
-    width: loader.width
-    height: loader.height
+    width: priv.loaderSize.width + 2
+    height: priv.loaderSize.height + 2
+
     anchors.bottom: parent.bottom
     anchors.margins: 10
-    visible: loader.active
 
-    onTargetNodeChanged: loader.updateCamera()
-    onAlwaysOnChanged: loader.updateCamera()
-    onPreferredCameraChanged: loader.updateCamera()
+    visible: priv.cameraViewIsOn
+
+    onTargetNodeChanged: priv.updateCamera()
+    onAlwaysOnChanged: priv.updateCamera()
+    onPreferredCameraChanged: priv.updateCamera()
     onActiveSceneChanged: forceReload()
-    Component.onCompleted: loader.updateCamera()
+    Component.onCompleted: priv.updateCamera()
+
+    border.width: 1
+    border.color: "lightslategray"
+    color: "black"
 
     function forceReload() {
-        loader.forceDeactive = true
-        loader.oldCamera = null
-        loader.updateCamera()
-        loader.forceDeactive = false
+        priv.forceDeactive = true
+        priv.oldCamera = null
+        priv.updateCamera()
+        priv.forceDeactive = false
     }
 
-    Loader {
-        id: loader
+    QtObject {
+        id: priv
 
         property Camera camera
         property Camera oldCamera
+        property bool view3dRootNodeExists
         property bool forceDeactive: false
-
-        active: !forceDeactive && (cameraView.alwaysOn || cameraView.showCameraView) && loader.camera
+        readonly property bool cameraViewIsOn: !forceDeactive && (cameraView.alwaysOn || cameraView.showCameraView) && priv.camera
+        readonly property bool cameraHasValidScene: priv.cameraViewIsOn && priv.view3dRootNodeExists
+        property Loader activeLoader
+        readonly property size loaderSize: activeLoader && activeLoader.active
+                                           ? Qt.size(activeLoader.width, activeLoader.height)
+                                           : Qt.size(-2, -2)
 
         function updateCamera() {
-            loader.camera = activeCamera()
+            let activeCam = activeCamera()
+            priv.camera = activeCam
+            priv.view3dRootNodeExists = _generalHelper.view3dRootNode(activeCam)
         }
 
         function activeCamera() {
             if (cameraView.alwaysOn) {
                 if (_generalHelper.isCamera(cameraView.targetNode))
                     return cameraView.targetNode
-                else if (loader.oldCamera)
-                    return loader.oldCamera
+                else if (priv.oldCamera)
+                    return priv.oldCamera
                 else
                     return cameraView.preferredCamera
             } else if (_generalHelper.isCamera(cameraView.targetNode)) {
@@ -63,82 +76,36 @@ Item {
         }
 
         onCameraChanged: {
-            if (loader.camera)
-                loader.oldCamera = loader.camera
-        }
-
-        sourceComponent: Rectangle {
-            id: cameraRect
-
-            implicitWidth: view3D.dispSize.width + 2
-            implicitHeight: view3D.dispSize.height + 2
-            border.width: 1
-            border.color: "lightslategray"
-            color: "black"
-
-            View3D {
-                id: view3D
-
-                readonly property bool isOrthographicCamera: _generalHelper.isOrthographicCamera(view3D.camera)
-                property size dispSize: calculateSize(cameraView.viewPortSize, cameraView.preferredSize)
-                readonly property real magnificationFactor: cameraView.viewPortSize.width === 0
-                                                            ? 1.0
-                                                            : (view3D.dispSize.width / cameraView.viewPortSize.width)
-
-                transformOrigin: Item.Center
-                anchors.centerIn: parent
-
-                camera: loader.camera
-                importScene: cameraView.activeScene
-                environment: cameraView.activeSceneEnvironment ?? defaultSceneEnvironment
-
-                function calculateSize(viewPortSize: size, preferredSize : size){
-                    if (_generalHelper.fuzzyCompare(viewPortSize.width, 0)
-                            || _generalHelper.fuzzyCompare(viewPortSize.height, 0))
-                        return Qt.size(0, 0)
-
-                    let aspectRatio = viewPortSize.height / viewPortSize.width
-                    var calculatedHeight = preferredSize.width * aspectRatio
-                    if (calculatedHeight <= preferredSize.height)
-                        return Qt.size(preferredSize.width, calculatedHeight)
-
-                    var calculatedWidth = preferredSize.height / aspectRatio;
-                    return Qt.size(calculatedWidth, preferredSize.height);
-                }
-
-                states: [
-                    State {
-                        name: "orthoCamera"
-                        when: view3D.isOrthographicCamera
-                        PropertyChanges {
-                            target: view3D
-
-                            width: cameraView.viewPortSize.width
-                            height: cameraView.viewPortSize.height
-                            scale: view3D.magnificationFactor
-                        }
-                    },
-                    State {
-                        name: "nonOrthoCamera"
-                        when: !view3D.isOrthographicCamera
-                        PropertyChanges {
-                            target: view3D
-
-                            width: view3D.dispSize.width
-                            height: view3D.dispSize.height
-                            scale: 1.0
-                        }
-                    }
-                ]
-            }
+            if (priv.camera)
+                priv.oldCamera = priv.camera
         }
     }
 
-    SceneEnvironment {
-        id: defaultSceneEnvironment
+    Loader {
+        id: cameraLoader
 
-        antialiasingMode: SceneEnvironment.MSAA
-        antialiasingQuality: SceneEnvironment.High
+        active: priv.cameraViewIsOn && priv.cameraHasValidScene
+        onLoaded: priv.activeLoader = this
+        sourceComponent: CameraDisplay {
+            camera: priv.camera
+            preferredSize: cameraView.preferredSize
+            viewPortSize: cameraView.viewPortSize
+            activeScene: cameraView.activeScene
+            activeSceneEnvironment: cameraView.activeSceneEnvironment
+        }
+    }
+
+    Loader {
+        id: errorLoader
+
+        active: priv.cameraViewIsOn && !priv.cameraHasValidScene
+        onLoaded: priv.activeLoader = this
+        sourceComponent: Text {
+            font.pixelSize: 14
+            color: "yellow"
+            text: qsTr("Camera does not have a valid view")
+            padding: 10
+        }
     }
 
     states: [

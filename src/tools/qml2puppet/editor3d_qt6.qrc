@@ -24,6 +24,7 @@
         <file>mockfiles/qt6/AdjustableArrow.qml</file>
         <file>mockfiles/qt6/Arrow.qml</file>
         <file>mockfiles/qt6/AutoScaleHelper.qml</file>
+        <file>mockfiles/qt6/CameraDisplay.qml</file>
         <file>mockfiles/qt6/CameraFrustum.qml</file>
         <file>mockfiles/qt6/CameraGizmo.qml</file>
         <file>mockfiles/qt6/CameraView.qml</file>
