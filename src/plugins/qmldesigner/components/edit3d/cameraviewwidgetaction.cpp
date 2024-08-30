@@ -27,6 +27,7 @@ const QList<CameraActionsModel::DataItem> CameraActionsModel::m_data{
 CameraViewWidgetAction::CameraViewWidgetAction(QObject *parent)
     : QWidgetAction(parent)
 {
+    setToolTip(CameraActionsModel::tr("Camera view settings"));
     ComboBoxAction *defaultComboBox = new ComboBoxAction();
     CameraActionsModel *comboBoxModel = new CameraActionsModel(defaultComboBox);
 
