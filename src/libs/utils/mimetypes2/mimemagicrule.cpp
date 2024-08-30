@@ -6,7 +6,6 @@
 #include "mimetypeparser_p.h"
 #include <QtCore/QDebug>
 #include <QtCore/QList>
-#include <QtCore/QMap>
 #include <qendian.h>
 
 using namespace Qt::StringLiterals;
