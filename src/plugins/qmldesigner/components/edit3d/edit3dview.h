@@ -140,6 +140,7 @@ private:
     void handleEntriesChanged();
     void showMaterialPropertiesView();
     void updateAlignActionStates();
+    void updateEmbedded2dItems();
     void setActive3DSceneId(qint32 sceneId);
 
     void createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction);

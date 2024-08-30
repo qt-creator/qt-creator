@@ -12,6 +12,8 @@ Item {
     required property var activeScene
     required property var activeSceneEnvironment
 
+    property alias view3d: view3D
+
     implicitWidth: view3D.dispSize.width
     implicitHeight: view3D.dispSize.height
     clip: true

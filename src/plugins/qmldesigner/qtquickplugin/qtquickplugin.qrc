@@ -130,5 +130,6 @@
         <file>images/frame-animation-16px.png</file>
         <file>images/frame-animation-24px.png</file>
         <file>images/frame-animation-24px@2x.png</file>
+        <file>source/embedded2dtextlabel.qml</file>
     </qresource>
 </RCC>

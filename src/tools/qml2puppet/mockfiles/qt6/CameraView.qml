@@ -15,6 +15,7 @@ Rectangle {
     property var activeScene
     property var activeSceneEnvironment
     property var preferredCamera
+    property View3D view3d
 
     width: priv.loaderSize.width + 2
     height: priv.loaderSize.height + 2
@@ -87,11 +88,18 @@ Rectangle {
         active: priv.cameraViewIsOn && priv.cameraHasValidScene
         onLoaded: priv.activeLoader = this
         sourceComponent: CameraDisplay {
+            id: cameraDisplay
             camera: priv.camera
             preferredSize: cameraView.preferredSize
             viewPortSize: cameraView.viewPortSize
             activeScene: cameraView.activeScene
             activeSceneEnvironment: cameraView.activeSceneEnvironment
+
+            Binding {
+                target: cameraView
+                property: "view3d"
+                value: cameraDisplay.view3d
+            }
         }
     }
 

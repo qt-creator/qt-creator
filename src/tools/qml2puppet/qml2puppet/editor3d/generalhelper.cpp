@@ -9,6 +9,7 @@
 #include <enumeration.h>
 
 #include <QGuiApplication>
+#include <private/qquickitem_p.h>
 #include <QtQuick3D/qquick3dobject.h>
 #include <QtQuick3D/private/qquick3dorthographiccamera_p.h>
 #include <QtQuick3D/private/qquick3dperspectivecamera_p.h>
@@ -624,60 +625,86 @@ QQuick3DPickResult GeneralHelper::pickViewAt(QQuick3DViewport *view, float posX,
     // With Qt 6.2+, select first suitable result from all picked objects
     auto pickResults = view->pickAll(posX, posY);
     for (auto pickResult : pickResults) {
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+        QObject *pickObj = {};
+        if (pickResult.itemHit())
+            pickObj = pickResult.itemHit();
+        else
+            pickObj = pickResult.objectHit();
+        if (isPickable(pickObj))
+#else
         if (isPickable(pickResult.objectHit()))
+#endif
             return pickResult;
     }
     return QQuick3DPickResult();
 }
 
-QObject *GeneralHelper::resolvePick(QQuick3DNode *pickNode)
+QObject *GeneralHelper::resolvePick(const QQuick3DPickResult &pickResult)
 {
-    if (pickNode) {
+    QObject *pickObj = {};
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+    if (pickResult.objectHit() || pickResult.itemHit()) {
+        if (pickResult.itemHit())
+            pickObj = pickResult.itemHit();
+        else
+            pickObj = pickResult.objectHit();
+#else
+    if (pickResult.objectHit()) {
+        pickObj = pickResult.objectHit();
+#endif
         // Check if the picked node actually specifies another object as the pick target
-        QVariant componentVar = pickNode->property("_pickTarget");
+        QVariant componentVar = pickObj->property("_pickTarget");
         if (componentVar.isValid()) {
             auto componentObj = componentVar.value<QObject *>();
             if (componentObj)
                 return componentObj;
         }
     }
-    return pickNode;
+
+    // If the hit 2d item doesn't have _pickTarget we can't use it, so filter those out with cast
+    return qobject_cast<QQuick3DNode *>(pickObj);
 }
 
-bool GeneralHelper::isLocked(QQuick3DNode *node) const
+bool GeneralHelper::isLocked(QObject *obj) const
 {
-    if (node) {
-        QVariant lockValue = node->property("_edit3dLocked");
+    if (obj) {
+        QVariant lockValue = obj->property("_edit3dLocked");
         return lockValue.isValid() && lockValue.toBool();
     }
     return false;
 }
 
-bool GeneralHelper::isHidden(QQuick3DNode *node) const
+bool GeneralHelper::isHidden(QObject *obj) const
 {
-    if (node) {
-        QVariant hideValue = node->property("_edit3dHidden");
+    if (obj) {
+        QVariant hideValue = obj->property("_edit3dHidden");
         return hideValue.isValid() && hideValue.toBool();
     }
     return false;
 }
 
-bool GeneralHelper::isPickable(QQuick3DNode *node) const
+bool GeneralHelper::isPickable(QObject *obj) const
 {
-    if (!node)
+    if (!obj)
         return false;
 
     // Instancing doesn't hide child nodes, so only check for instancing on the requested node
-    if (auto model = qobject_cast<QQuick3DModel *>(node)) {
+    if (auto model = qobject_cast<QQuick3DModel *>(obj)) {
         if (model->instancing())
             return false;
     }
 
-    QQuick3DNode *n = node;
-    while (n) {
-        if (!n->visible() || isLocked(n) || isHidden(n))
+    QQuick3DNode *n = qobject_cast<QQuick3DNode *>(obj);
+    QQuickItem *i = qobject_cast<QQuickItem *>(obj);
+    while (n || i) {
+        // TODO: Hidden/locked handling for item matches is missing
+        if (!((n && n->visible()) || (i && i->isVisible())) || isLocked(n) || isHidden(n))
             return false;
-        n = n->parentNode();
+        if (n)
+            n = n->parentNode();
+        if (i)
+            i = i->parentItem();
     }
     return true;
 }
@@ -1593,6 +1620,45 @@ void GeneralHelper::setActiveScenePreferredCamera(QQuick3DCamera *camera)
         emit activeScenePreferredCameraChanged();
     }
 }
+
+void GeneralHelper::resetEditorView3Ds()
+{
+    m_editorView3Ds.clear();
+}
+
+void GeneralHelper::addEditorView3D(QObject *mainView, QObject *overlayView, const QRect &rect)
+{
+    if (!mainView)
+        return;
+
+    // OverlayView is optional
+    QQuickItemPrivate *itemP1 = {};
+    QQuickItemPrivate *itemP2 = {};
+
+    if (QQuickItem *item = qobject_cast<QQuickItem *>(mainView))
+        itemP1 = QQuickItemPrivate::get(item);
+    if (QQuickItem *item = qobject_cast<QQuickItem *>(overlayView))
+        itemP2 = QQuickItemPrivate::get(item);
+    if (itemP1)
+        m_editorView3Ds.append(EditorViewData{rect, itemP1, itemP2});
+}
+
+void GeneralHelper::showSingleEditorView3D(QQuickItemPrivate *visibleViewP, bool ref)
+{
+    for (const EditorViewData &data : std::as_const(m_editorView3Ds)) {
+        const bool hide = data.mainView != visibleViewP;
+        if (ref) {
+            data.mainView->refFromEffectItem(hide);
+            if (data.overlayView)
+                data.overlayView->refFromEffectItem(hide);
+        } else {
+            data.mainView->derefFromEffectItem(hide);
+            if (data.overlayView)
+                data.overlayView->derefFromEffectItem(hide);
+        }
+    }
+}
+
 }
 }
 

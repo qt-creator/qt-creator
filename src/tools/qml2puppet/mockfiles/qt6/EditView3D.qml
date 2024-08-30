@@ -195,6 +195,7 @@ Item {
         } else if (viewsDeleted) {
             editViewsChanged();
         }
+        updateViewsToHelper()
     }
 
     function setActiveScene(newScene, newSceneId)
@@ -659,6 +660,28 @@ Item {
         cameraControls[activeSplit].moveCamera(amounts);
     }
 
+    function updateViewsToHelper()
+    {
+        _generalHelper.resetEditorView3Ds();
+        if (splitView) {
+            for (var i = 0; i < 4; ++i) {
+                _generalHelper.addEditorView3D(editViews[i], overlayViews[i],
+                                               Qt.rect(viewRects[i].x, viewRects[i].y,
+                                                       viewRects[i].width, viewRects[i].height));
+            }
+        } else {
+            _generalHelper.addEditorView3D(editViews[activeSplit], overlayViews[activeSplit],
+                                           Qt.rect(viewRects[activeSplit].x, viewRects[activeSplit].y,
+                                                   viewRects[activeSplit].width, viewRects[activeSplit].height));
+        }
+
+        if (cameraView.view3d) {
+            _generalHelper.addEditorView3D(cameraView.view3d, null,
+                                           Qt.rect(cameraView.x, cameraView.y,
+                                                   cameraView.width, cameraView.height));
+        }
+    }
+
     Component.onCompleted: {
         createEditViews();
         selectObjects([]);
@@ -667,8 +690,14 @@ Item {
         _generalHelper.requestOverlayUpdate();
     }
 
-    onWidthChanged: _generalHelper.requestOverlayUpdate()
-    onHeightChanged: _generalHelper.requestOverlayUpdate()
+    onWidthChanged: {
+        updateViewsToHelper()
+        _generalHelper.requestOverlayUpdate()
+    }
+    onHeightChanged: {
+        updateViewsToHelper()
+        _generalHelper.requestOverlayUpdate()
+    }
 
     Connections {
         target: _generalHelper
@@ -905,13 +934,13 @@ Item {
                         // First pick overlay to check for hits there
                         var pickResult = _generalHelper.pickViewAt(activeOverlayView,
                                                                    splitPoint.x, splitPoint.y);
-                        var resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+                        var resolvedResult = _generalHelper.resolvePick(pickResult);
 
                         if (!resolvedResult) {
                             // No hits from overlay view, pick the main scene
                             pickResult = _generalHelper.pickViewAt(viewRoot.activeEditView,
                                                                    splitPoint.x, splitPoint.y);
-                            resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+                            resolvedResult = _generalHelper.resolvePick(pickResult);
                         }
 
                         handleObjectClicked(resolvedResult, mouse.button,
@@ -1111,6 +1140,7 @@ Item {
                         cameraView.snapLeft = false
                     else if (viewRoot.activeSplit === 3)
                         cameraView.snapLeft = true
+                    updateViewsToHelper()
                 }
 
                 Connections {
@@ -1119,6 +1149,9 @@ Item {
                     onSplitViewChanged: cameraView.updateSnapping()
                     onActiveSplitChanged: cameraView.updateSnapping()
                 }
+
+                onView3dChanged: updateViewsToHelper()
+                onVisibleChanged: updateViewsToHelper()
             }
         }
 

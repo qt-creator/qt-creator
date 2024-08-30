@@ -55,6 +55,9 @@ static const QByteArray operator""_actionId(const char *text, size_t size)
 
 namespace QmlDesigner {
 
+inline constexpr AuxiliaryDataKeyView embedded2DItemsProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                              "embedded2d"};
+
 inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
 {
     return DesignerActionManager::instance().contextIcon(iconId);
@@ -159,6 +162,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         edit3DWidget()->canvas()->updateActiveScene(newActiveScene);
         setActive3DSceneId(newActiveScene);
         updateAlignActionStates();
+        updateEmbedded2dItems();
     }
 
     if (sceneState.contains(selectKey))
@@ -415,6 +419,41 @@ void Edit3DView::updateAlignActionStates()
     m_alignViewAction->action()->setEnabled(enabled);
 }
 
+void Edit3DView::updateEmbedded2dItems()
+{
+    // NOTE: To actually resolve parent 3D node for embedded 2D items on puppet side (including ones
+    // inside components that do not have ModelNode), quick3d api change is needed (QQuick3DItem2D
+    // needs to be exported and it needs to expose its wrapped child items).
+    // This is because quick3d replaces the embedded items with QQuick3DItem2D node, breaking the
+    // parent/child chain.
+    // For the PoC purposes, we can just pass the information in aux property. This works only if
+    // embedded 2D nodes are part of the main scene, though.
+
+    QVariantList list;
+    ModelNode activeScene = Utils3D::active3DSceneNode(this);
+    if (activeScene.isValid()) {
+        const QList<ModelNode> nodes = activeScene.allSubModelNodes();
+        for (const ModelNode &node : nodes) {
+            if (node.metaInfo().isQtQuickItem()) {
+                ModelNode parentNode = node.parentProperty().parentModelNode();
+                while (parentNode.isValid() && parentNode != activeScene && parentNode != rootModelNode()) {
+                    if (parentNode.metaInfo().isQtQuick3DNode()) {
+                        list.append(node.internalId());
+                        list.append(parentNode.internalId());
+                        break;
+                    }
+
+                    parentNode = parentNode.parentProperty().parentModelNode();
+                }
+            }
+        }
+    }
+
+    QTimer::singleShot(0, this, [this, list]() {
+        rootModelNode().setAuxiliaryData(embedded2DItemsProperty, list);
+    });
+}
+
 void Edit3DView::setActive3DSceneId(qint32 sceneId)
 {
     rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
@@ -537,6 +576,7 @@ void Edit3DView::nodeReparented(const ModelNode &,
                                 PropertyChangeFlags)
 {
     updateAlignActionStates();
+    updateEmbedded2dItems();
 }
 
 void Edit3DView::nodeRemoved(const ModelNode &,
@@ -544,6 +584,7 @@ void Edit3DView::nodeRemoved(const ModelNode &,
                              PropertyChangeFlags)
 {
     updateAlignActionStates();
+    updateEmbedded2dItems();
 }
 
 void Edit3DView::propertiesRemoved(const QList<AbstractProperty> &propertyList)

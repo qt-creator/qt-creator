@@ -883,4 +883,26 @@ MetaInfo {
             toolTip: qsTr("A 2D surface where a 3D scene can be rendered. Includes ExtendedSceneEnvironment.")
         }
     }
+
+
+    Type {
+        name: "QtQuick3D.Node"
+        icon: ":/ItemLibrary/images/text-icon16.png"
+
+        Hints {
+            canBeDroppedInNavigator: true
+            canBeDroppedInFormEditor: false
+            canBeDroppedInView3D: true
+        }
+
+        ItemLibraryEntry {
+            name: "Text Label"
+            category: "Embedded 2D"
+            libraryIcon: ":/ItemLibrary/images/text-icon.png"
+            version: "6.5"
+            requiredImport: "QtQuick3D"
+            toolTip: qsTr("Embedded 2D text label for 3D scenes")
+            QmlSource { source: ":/qtquickplugin/source/embedded2dtextlabel.qml" }
+        }
+    }
 }

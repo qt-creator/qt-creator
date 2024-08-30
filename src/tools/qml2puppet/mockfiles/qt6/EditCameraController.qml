@@ -109,7 +109,7 @@ Item {
             return;
 
         var pickResult = _generalHelper.pickViewAt(view3d, width / 2, height / 2);
-        var resolvedResult = _generalHelper.resolvePick(pickResult.objectHit);
+        var resolvedResult = _generalHelper.resolvePick(pickResult);
 
         if (resolvedResult) {
             var newLookAtAndZoom = _generalHelper.approachNode(camera, _defaultCameraLookAtDistance,

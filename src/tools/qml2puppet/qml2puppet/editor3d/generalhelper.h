@@ -90,11 +90,11 @@ public:
     Q_INVOKABLE void delayedPropertySet(QObject *obj, int delay, const QString &property,
                                         const QVariant& value);
     Q_INVOKABLE QQuick3DPickResult pickViewAt(QQuick3DViewport *view, float posX, float posY);
-    Q_INVOKABLE QObject *resolvePick(QQuick3DNode *pickNode);
+    Q_INVOKABLE QObject *resolvePick(const QQuick3DPickResult &pickResult);
 
-    Q_INVOKABLE bool isLocked(QQuick3DNode *node) const;
-    Q_INVOKABLE bool isHidden(QQuick3DNode *node) const;
-    Q_INVOKABLE bool isPickable(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isLocked(QObject *obj) const;
+    Q_INVOKABLE bool isHidden(QObject *obj) const;
+    Q_INVOKABLE bool isPickable(QObject *obj) const;
     Q_INVOKABLE bool isCamera(QQuick3DNode *node) const;
     Q_INVOKABLE bool isOrthographicCamera(QQuick3DNode *node) const;
     Q_INVOKABLE bool isSceneObject(QQuick3DNode *node) const;
@@ -179,6 +179,17 @@ public:
     QQuick3DCamera *activeScenePreferredCamera() const;
     void setActiveScenePreferredCamera(QQuick3DCamera *camera);
 
+    struct EditorViewData {
+        QRect rect;
+        QQuickItemPrivate *mainView = {};
+        QQuickItemPrivate *overlayView = {};
+    };
+
+    Q_INVOKABLE void resetEditorView3Ds();
+    Q_INVOKABLE void addEditorView3D(QObject *mainView, QObject *overlayView, const QRect &rect);
+    void showSingleEditorView3D(QQuickItemPrivate *visibleViewP, bool ref);
+    const QList<EditorViewData> &editorView3Ds() const { return m_editorView3Ds; }
+
 signals:
     void overlayUpdateNeeded();
     void toolStateChanged(const QString &sceneId, const QString &tool, const QVariant &toolState);
@@ -256,6 +267,8 @@ private:
 
     QVariant m_bgColor;
     QHash<QString, QTimer *> m_eventTimers;
+
+    QList<EditorViewData> m_editorView3Ds;
 };
 
 }
