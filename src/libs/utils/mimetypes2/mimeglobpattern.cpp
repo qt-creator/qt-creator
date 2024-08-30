@@ -58,7 +58,7 @@ void MimeGlobMatchResult::addMatch(const QString &mimeType, int weight, const QS
     }
 }
 
-MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(const QString &pattern) const
+MimeGlobPattern::PatternType MimeGlobPattern::detectPatternType(QStringView pattern) const
 {
     const qsizetype patternLength = pattern.size();
     if (!patternLength)
@@ -164,7 +164,7 @@ bool MimeGlobPattern::matchFileName(const QString &inputFileName) const
     return false;
 }
 
-static bool isSimplePattern(const QString &pattern)
+static bool isSimplePattern(QStringView pattern)
 {
    // starts with "*.", has no other '*'
    return pattern.lastIndexOf(u'*') == 0
@@ -176,7 +176,7 @@ static bool isSimplePattern(const QString &pattern)
       ;
 }
 
-static bool isFastPattern(const QString &pattern)
+static bool isFastPattern(QStringView pattern)
 {
    // starts with "*.", has no other '*' and no other '.'
    return pattern.lastIndexOf(u'*') == 0

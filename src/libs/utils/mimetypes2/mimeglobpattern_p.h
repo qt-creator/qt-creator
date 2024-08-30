@@ -17,6 +17,8 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qhash.h>
 
+#include <algorithm.h>
+
 namespace Utils {
 
 struct MimeGlobMatchResult
@@ -72,7 +74,7 @@ private:
         AnimPattern,       // special handling for "*.anim[1-9j]" pattern
         OtherPattern
     };
-    PatternType detectPatternType(const QString &pattern) const;
+    PatternType detectPatternType(QStringView pattern) const;
 
     QString m_pattern;
     QString m_mimeType;
@@ -86,22 +88,20 @@ using AddMatchFilterFunc = std::function<bool(const QString &)>;
 class MimeGlobPatternList : public QList<MimeGlobPattern>
 {
 public:
-    bool hasPattern(const QString &mimeType, const QString &pattern) const
+    bool hasPattern(QStringView mimeType, QStringView pattern) const
     {
-        const_iterator it = begin();
-        const const_iterator myend = end();
-        for (; it != myend; ++it)
-            if ((*it).pattern() == pattern && (*it).mimeType() == mimeType)
-                return true;
-        return false;
+        auto matchesMimeAndPattern = [mimeType, pattern](const MimeGlobPattern &e) {
+            return e.pattern() == pattern && e.mimeType() == mimeType;
+        };
+        return std::any_of(begin(), end(), matchesMimeAndPattern);
     }
 
     /*!
         "noglobs" is very rare occurrence, so it's ok if it's slow
      */
-    void removeMimeType(const QString &mimeType)
+    void removeMimeType(QStringView mimeType)
     {
-        auto isMimeTypeEqual = [&mimeType](const MimeGlobPattern &pattern) {
+        auto isMimeTypeEqual = [mimeType](const MimeGlobPattern &pattern) {
             return pattern.mimeType() == mimeType;
         };
         erase(std::remove_if(begin(), end(), isMimeTypeEqual), end());
