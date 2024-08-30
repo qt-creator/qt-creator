@@ -31,6 +31,7 @@ public:
     bool isValid() const { return line > 0 && column >= 0; }
 
     int positionInDocument(QTextDocument *doc) const;
+    QTextCursor toTextCursor(QTextDocument *doc) const;
 
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);

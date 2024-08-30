@@ -39,13 +39,6 @@ private:
     QString m_text;
 };
 
-QTextCursor toTextCursor(QTextDocument *doc, const Text::Position &position)
-{
-    QTextCursor cursor(doc);
-    cursor.setPosition(position.toPositionInDocument(doc));
-    return cursor;
-}
-
 class CyclicSuggestion : public QObject, public TextEditor::TextSuggestion
 {
     Q_OBJECT
@@ -66,7 +59,7 @@ public:
         const auto start = suggestion.range().begin;
         const auto end = suggestion.range().end;
 
-        QString text = toTextCursor(origin_document->document(), start).block().text();
+        QString text = start.toTextCursor(origin_document->document()).block().text();
         int length = text.length() - start.column;
         if (start.line == end.line)
             length = end.column - start.column;
@@ -74,7 +67,7 @@ public:
         text.replace(start.column, length, suggestion.text());
         document()->setPlainText(text);
 
-        m_start = toTextCursor(origin_document->document(), suggestion.position());
+        m_start = suggestion.position().toTextCursor(origin_document->document());
         m_start.setKeepPositionOnInsert(true);
         setCurrentPosition(m_start.position());
 

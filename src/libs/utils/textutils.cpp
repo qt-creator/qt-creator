@@ -26,6 +26,13 @@ int Position::positionInDocument(QTextDocument *doc) const
     return block.position() + column;
 }
 
+QTextCursor Position::toTextCursor(QTextDocument *doc) const
+{
+    QTextCursor result(doc);
+    result.setPosition(positionInDocument(doc));
+    return result;
+}
+
 /*!
     Returns the text position of a \a fileName and sets the \a postfixPos if
     it can find a positional postfix.
