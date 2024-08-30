@@ -51,6 +51,33 @@ using namespace Qt::StringLiterals;
 
 namespace Utils {
 
+struct MimeBinaryProvider::CacheFile
+{
+    CacheFile(const QString &fileName);
+    ~CacheFile();
+
+    bool isValid() const { return m_valid; }
+    inline quint16 getUint16(int offset) const
+    {
+        return qFromBigEndian(*reinterpret_cast<quint16 *>(data + offset));
+    }
+    inline quint32 getUint32(int offset) const
+    {
+        return qFromBigEndian(*reinterpret_cast<quint32 *>(data + offset));
+    }
+    inline const char *getCharStar(int offset) const
+    {
+        return reinterpret_cast<const char *>(data + offset);
+    }
+    bool load();
+    bool reload();
+
+    QFile file;
+    uchar *data;
+    QDateTime m_mtime;
+    bool m_valid;
+};
+
 static inline void appendIfNew(QStringList &list, const QString &str)
 {
     if (!list.contains(str))
@@ -87,33 +114,6 @@ MimeBinaryProvider::MimeBinaryProvider(MimeDatabasePrivate *db, const QString &d
 {
     ensureLoaded();
 }
-
-struct MimeBinaryProvider::CacheFile
-{
-    CacheFile(const QString &fileName);
-    ~CacheFile();
-
-    bool isValid() const { return m_valid; }
-    inline quint16 getUint16(int offset) const
-    {
-        return qFromBigEndian(*reinterpret_cast<quint16 *>(data + offset));
-    }
-    inline quint32 getUint32(int offset) const
-    {
-        return qFromBigEndian(*reinterpret_cast<quint32 *>(data + offset));
-    }
-    inline const char *getCharStar(int offset) const
-    {
-        return reinterpret_cast<const char *>(data + offset);
-    }
-    bool load();
-    bool reload();
-
-    QFile file;
-    uchar *data;
-    QDateTime m_mtime;
-    bool m_valid;
-};
 
 MimeBinaryProvider::CacheFile::CacheFile(const QString &fileName)
     : file(fileName), m_valid(false)
