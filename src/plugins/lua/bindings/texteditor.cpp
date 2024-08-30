@@ -23,21 +23,18 @@ namespace {
 class Suggestion
 {
 public:
-    Suggestion(Text::Position start, Text::Position end, Text::Position position, const QString &text)
-        : m_start(start)
-        , m_end(end)
+    Suggestion(Text::Range range, Text::Position position, const QString &text)
+        : m_range(range)
         , m_position(position)
         , m_text(text)
     {}
 
-    Text::Position start() const { return m_start; }
-    Text::Position end() const { return m_end; }
+    Text::Range range() const { return m_range; }
     Text::Position position() const { return m_position; }
     QString text() const { return m_text; }
 
 private:
-    Text::Position m_start;
-    Text::Position m_end;
+    Text::Range m_range;
     Text::Position m_position;
     QString m_text;
 };
@@ -46,15 +43,6 @@ QTextCursor toTextCursor(QTextDocument *doc, const Text::Position &position)
 {
     QTextCursor cursor(doc);
     cursor.setPosition(position.toPositionInDocument(doc));
-    return cursor;
-}
-
-QTextCursor toSelection(QTextDocument *doc, const Text::Position &start, const Text::Position &end)
-{
-    QTC_ASSERT(doc, return {});
-    QTextCursor cursor = toTextCursor(doc, start);
-    cursor.setPosition(end.toPositionInDocument(doc), QTextCursor::KeepAnchor);
-
     return cursor;
 }
 
@@ -75,8 +63,8 @@ public:
     {
         QTC_ASSERT(current_suggestion < m_suggestions.size(), return);
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        const auto start = suggestion.start();
-        const auto end = suggestion.end();
+        const auto start = suggestion.range().begin;
+        const auto end = suggestion.range().end;
 
         QString text = toTextCursor(origin_document->document(), start).block().text();
         int length = text.length() - start.column;
@@ -102,7 +90,7 @@ public:
         QTC_ASSERT(m_currentSuggestion < m_suggestions.size(), return false);
         reset();
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
+        QTextCursor cursor = suggestion.range().toTextCursor(m_start.document());
         cursor.insertText(suggestion.text());
         return true;
     }
@@ -114,7 +102,7 @@ public:
 
         lockCurrentSuggestion();
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        QTextCursor cursor = toSelection(m_start.document(), suggestion.start(), suggestion.end());
+        QTextCursor cursor = suggestion.range().toTextCursor(m_start.document());
         QTextCursor currentCursor = widget->textCursor();
         const QString text = suggestion.text();
         const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
@@ -571,7 +559,7 @@ void setupTextEditorModule()
                 auto one_based = [](int zero_based) { return zero_based + 1; };
                 Text::Position start_pos = {one_based(start_line), start_character};
                 Text::Position end_pos = {one_based(end_line), end_character};
-                return {start_pos, end_pos, start_pos, text};
+                return {Text::Range(start_pos, end_pos), start_pos, text};
             });
 
         result.new_usertype<TextEditor::TextDocument>(
