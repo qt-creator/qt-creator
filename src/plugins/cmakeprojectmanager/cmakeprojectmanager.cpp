@@ -75,7 +75,7 @@ private:
     void enableBuildSubprojectContextMenu(Node *node);
     void enableBuildSubprojectMenu();
     void runSubprojectOperation(const QString &clean, const QString &build);
-    CMakeListsNode* currentListsNodeForEditor();
+    const CMakeListsNode* currentListsNodeForEditor();
 
     QAction *m_runCMakeAction;
     QAction *m_clearCMakeCacheAction;
@@ -551,7 +551,7 @@ void CMakeManager::runSubprojectOperation(const QString &clean, const QString &b
     }
 }
 
-CMakeListsNode *CMakeManager::currentListsNodeForEditor()
+const CMakeListsNode *CMakeManager::currentListsNodeForEditor()
 {
     Core::IDocument *currentDocument = Core::EditorManager::currentDocument();
     if (!currentDocument)
@@ -566,7 +566,26 @@ CMakeListsNode *CMakeManager::currentListsNodeForEditor()
     if (!targetNode)
         return nullptr;
 
-    return dynamic_cast<CMakeListsNode*>(targetNode->parentProjectNode());
+    auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem());
+    if (!bs)
+        return nullptr;
+
+    auto cmakeBuildTarget
+        = Utils::findOrDefault(bs->buildTargets(), [&targetNode](const CMakeBuildTarget &cbt) {
+              return targetNode->buildKey() == cbt.title;
+          });
+
+    if (cmakeBuildTarget.backtrace.isEmpty())
+        return nullptr;
+    const FilePath targetDefinitionDir = cmakeBuildTarget.backtrace.last().path.parentDir();
+
+    auto projectNode = bs->project()->rootProjectNode()->findProjectNode(
+        [&targetDefinitionDir](const ProjectNode *node) {
+            if (auto cmakeListsNode = dynamic_cast<const CMakeListsNode *>(node))
+                return cmakeListsNode->path() == targetDefinitionDir;
+            return false;
+        });
+    return dynamic_cast<CMakeListsNode *>(projectNode);
 }
 
 void CMakeManager::buildFile(Node *node)
