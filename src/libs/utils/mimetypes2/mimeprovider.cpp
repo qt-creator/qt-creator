@@ -9,7 +9,6 @@
 #include "mimemagicrulematcher_p.h"
 
 #include <qstandardpaths.h>
-#include <QMap>
 #include <QXmlStreamReader>
 #include <QBuffer>
 #include <QDir>
@@ -504,30 +503,24 @@ void MimeBinaryProvider::addAllMimeTypes(QList<MimeType> &result)
 MimeTypePrivate::LocaleHash MimeBinaryProvider::localeComments(const QString &name)
 {
     MimeTypeExtraMap::const_iterator it = loadMimeTypeExtra(name);
-    if (it != m_mimetypeExtra.constEnd()) {
-        const MimeTypeExtra &e = it.value();
-        return e.localeComments;
-    }
+    if (it != m_mimetypeExtra.cend())
+        return it->second.localeComments;
     return {};
 }
 
 bool MimeBinaryProvider::hasGlobDeleteAll(const QString &name)
 {
     MimeTypeExtraMap::const_iterator it = loadMimeTypeExtra(name);
-    if (it != m_mimetypeExtra.constEnd()) {
-        const MimeTypeExtra &e = it.value();
-        return e.hasGlobDeleteAll;
-    }
+    if (it != m_mimetypeExtra.cend())
+        return it->second.hasGlobDeleteAll;
     return {};
 }
 
 QStringList MimeBinaryProvider::globPatterns(const QString &name)
 {
     MimeTypeExtraMap::const_iterator it = loadMimeTypeExtra(name);
-    if (it != m_mimetypeExtra.constEnd()) {
-        const MimeTypeExtra &e = it.value();
-        return e.globPatterns;
-    }
+    if (it != m_mimetypeExtra.cend())
+        return it->second.globPatterns;
     return {};
 }
 
@@ -535,8 +528,8 @@ MimeBinaryProvider::MimeTypeExtraMap::const_iterator
 MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
 {
 #if QT_CONFIG(xmlstreamreader)
-    auto it = m_mimetypeExtra.constFind(mimeName);
-    if (it == m_mimetypeExtra.constEnd()) {
+    auto it = m_mimetypeExtra.find(mimeName);
+    if (it == m_mimetypeExtra.cend()) {
         // load comment and globPatterns
 
         // shared-mime-info since 1.3 lowercases the xml files
@@ -546,21 +539,20 @@ MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
 
         QFile qfile(mimeFile);
         if (!qfile.open(QFile::ReadOnly))
-            return m_mimetypeExtra.constEnd();
+            return m_mimetypeExtra.cend();
 
-        auto insertIt = m_mimetypeExtra.insert(mimeName, MimeTypeExtra{});
-        it = insertIt;
-        MimeTypeExtra &extra = insertIt.value();
+        it = m_mimetypeExtra.try_emplace(mimeName).first;
+        MimeTypeExtra &extra = it->second;
         QString mainPattern;
 
         QXmlStreamReader xml(&qfile);
         if (xml.readNextStartElement()) {
             if (xml.name() != "mime-type"_L1) {
-                return m_mimetypeExtra.constEnd();
+                return m_mimetypeExtra.cend();
             }
             const auto name = xml.attributes().value("type"_L1);
             if (name.isEmpty())
-                return m_mimetypeExtra.constEnd();
+                return m_mimetypeExtra.cend();
             if (name.compare(mimeName, Qt::CaseInsensitive))
                 qWarning() << "Got name" << name << "in file" << mimeFile << "expected" << mimeName;
 
@@ -601,7 +593,7 @@ MimeBinaryProvider::loadMimeTypeExtra(const QString &mimeName)
 #else
     Q_UNUSED(mimeName);
     qWarning("Cannot load mime type since QXmlStreamReader is not available.");
-    return m_mimetypeExtra.constEnd();
+    return m_mimetypeExtra.cend();
 #endif // feature xmlstreamreader
 }
 

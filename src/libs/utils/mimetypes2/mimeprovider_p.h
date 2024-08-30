@@ -145,7 +145,7 @@ private:
         QStringList globPatterns;
         bool hasGlobDeleteAll = false;
     };
-    using MimeTypeExtraMap = QMap<QString, MimeTypeExtra>;
+    using MimeTypeExtraMap = std::map<QString, MimeTypeExtra>;
     MimeTypeExtraMap m_mimetypeExtra;
 
     MimeTypeExtraMap::const_iterator loadMimeTypeExtra(const QString &mimeName);
