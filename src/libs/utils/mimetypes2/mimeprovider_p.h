@@ -28,6 +28,14 @@ class MimeMagicRuleMatcher;
 class MimeTypeXMLData;
 class MimeProviderBase;
 
+struct MimeMagicResult
+{
+    bool isValid() const { return !candidate.isEmpty(); }
+
+    QString candidate;
+    int accuracy = 0;
+};
+
 class MimeProviderBase
 {
     Q_DISABLE_COPY(MimeProviderBase)
@@ -43,7 +51,7 @@ public:
     virtual void addParents(const QString &mime, QStringList &result) = 0;
     virtual QString resolveAlias(const QString &name) = 0;
     virtual void addAliases(const QString &name, QStringList &result) = 0;
-    virtual void findByMagic(const QByteArray &data, int *accuracyPtr, QString *candidate) = 0;
+    virtual void findByMagic(const QByteArray &data, MimeMagicResult &result) = 0;
     virtual void addAllMimeTypes(QList<MimeType> &result) = 0;
     virtual MimeTypePrivate::LocaleHash localeComments(const QString &name) = 0;
     virtual bool hasGlobDeleteAll(const QString &name) = 0;
@@ -92,7 +100,7 @@ public:
     void addParents(const QString &mime, QStringList &result) override;
     QString resolveAlias(const QString &name) override;
     void addAliases(const QString &name, QStringList &result) override;
-    void findByMagic(const QByteArray &data, int *accuracyPtr, QString *candidate) override;
+    void findByMagic(const QByteArray &data, MimeMagicResult &result) override;
     void addAllMimeTypes(QList<MimeType> &result) override;
     MimeTypePrivate::LocaleHash localeComments(const QString &name) override;
     bool hasGlobDeleteAll(const QString &name) override;
@@ -168,7 +176,7 @@ public:
     void addParents(const QString &mime, QStringList &result) override;
     QString resolveAlias(const QString &name) override;
     void addAliases(const QString &name, QStringList &result) override;
-    void findByMagic(const QByteArray &data, int *accuracyPtr, QString *candidate) override;
+    void findByMagic(const QByteArray &data, MimeMagicResult &result) override;
     void addAllMimeTypes(QList<MimeType> &result) override;
     void ensureLoaded() override;
     MimeTypePrivate::LocaleHash localeComments(const QString &name) override;

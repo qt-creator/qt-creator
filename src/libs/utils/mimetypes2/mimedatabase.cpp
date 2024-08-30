@@ -421,13 +421,14 @@ MimeType MimeDatabasePrivate::findByData(const QByteArray &data, int *accuracyPt
     }
 #endif
 
-    *accuracyPtr = 0;
-    QString candidate;
+    MimeMagicResult result;
     for (const auto &provider : providers())
-        provider->findByMagic(data, accuracyPtr, &candidate);
+        provider->findByMagic(data, result);
 
-    if (!candidate.isEmpty())
-        return MimeType(MimeTypePrivate(candidate));
+    if (result.isValid()) {
+        *accuracyPtr = result.accuracy;
+        return MimeType(MimeTypePrivate(result.candidate));
+    }
 
     if (isTextFile(data)) {
         *accuracyPtr = 5;
