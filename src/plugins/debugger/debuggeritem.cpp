@@ -415,6 +415,12 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             targetAbi.osFlavor() <= Abi::WindowsLastMsvcFlavor;
     if (!isMsvcTarget && (engineType == GdbEngineType || engineType == LldbEngineType))
         matchOnMultiarch = DebuggerItem::MatchesSomewhat;
+    // arm64 cdb can debug x64 targets
+    if (isMsvcTarget && engineType == CdbEngineType
+            && debuggerAbi.architecture() == Abi::ArmArchitecture
+            && targetAbi.architecture() == Abi::X86Architecture
+            && debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 64)
+        return DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.architecture() != Abi::UnknownArchitecture
             && debuggerAbi.architecture() != targetAbi.architecture())
         return matchOnMultiarch;

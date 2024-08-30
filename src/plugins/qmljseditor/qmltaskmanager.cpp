@@ -3,11 +3,16 @@
 
 #include "qmltaskmanager.h"
 #include "qmljseditorconstants.h"
+#include "qmljseditorsettings.h"
 
+#include <cmakeprojectmanager/targethelper.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsconstants.h>
@@ -113,8 +118,27 @@ void QmlTaskManager::updateSemanticMessagesNow()
     updateMessagesNow(true);
 }
 
+static void triggerQmllintCMakeTarget()
+{
+    CMakeProjectManager::buildTarget(
+        ProjectManager::startupProject()->projectFilePath(), Constants::QMLLINT_BUILD_TARGET);
+}
+
+
 void QmlTaskManager::updateMessagesNow(bool updateSemantic)
 {
+    // heuristic: qmllint will output meaningful warnings if qmlls is enabled
+    if (QmllsSettingsManager::instance()->useQmlls()) {
+        // abort any update that's going on already, and remove old codemodel warnings
+        m_messageCollector.cancel();
+        removeAllTasks(true);
+        triggerQmllintCMakeTarget();
+        return;
+    }
+
+    // clear out the qmllint warnings when qmlls was disabled after being enabled
+    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
+
     // don't restart a small update if a big one is running
     if (!updateSemantic && m_updatingSemantic)
         return;

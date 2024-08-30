@@ -43,6 +43,7 @@ add_qtc_plugin(CMakeProjectManager
     presetsparser.cpp presetsparser.h
     presetsmacros.cpp presetsmacros.h
     projecttreehelper.cpp projecttreehelper.h
+    targethelper.cpp targethelper.h
     3rdparty/cmake/cmListFileCache.cxx
     3rdparty/cmake/cmListFileLexer.cxx
     3rdparty/cmake/cmListFileCache.h

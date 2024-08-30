@@ -10,7 +10,7 @@ find_package(yaml-cpp 0.5 QUIET NO_MODULE)
 if (yaml-cpp_FOUND)
   # target doesn't set include directory for some reason
   get_filename_component(yaml_cpp_include_dir "${YAML_CPP_INCLUDE_DIR}" ABSOLUTE)
-  if (NOT EXISTS yaml_cpp_include_dir)
+  if (NOT EXISTS ${yaml_cpp_include_dir})
     unset(yaml_cpp_include_dir)
     unset(yaml_cpp_include_dir CACHE)
     find_path(yaml_cpp_include_dir yaml-cpp/yaml.h)

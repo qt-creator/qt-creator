@@ -3,10 +3,10 @@
 
 #include "cmakelocatorfilter.h"
 
-#include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeproject.h"
 #include "cmakeprojectmanagertr.h"
+#include "targethelper.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -108,36 +108,6 @@ static void setupFilter(ILocatorFilter *filter)
                      filter, projectListUpdated);
 }
 
-static void buildAcceptor(const FilePath &projectPath, const QString &displayName)
-{
-    // Get the project containing the target selected
-    const auto cmakeProject = qobject_cast<CMakeProject *>(
-        Utils::findOrDefault(ProjectManager::projects(), [projectPath](Project *p) {
-            return p->projectFilePath() == projectPath;
-        }));
-    if (!cmakeProject || !cmakeProject->activeTarget()
-        || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
-
-    if (BuildManager::isBuilding(cmakeProject))
-        BuildManager::cancel();
-
-    // Find the make step
-    const BuildStepList *buildStepList =
-        cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();
-    const auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
-    if (!buildStep)
-        return;
-
-    // Change the make step to build only the given target
-    const QStringList oldTargets = buildStep->buildTargets();
-    buildStep->setBuildTargets({displayName});
-
-    // Build
-    BuildManager::buildProjectWithDependencies(cmakeProject);
-    buildStep->setBuildTargets(oldTargets);
-}
-
 class CMakeBuildTargetFilter final : ILocatorFilter
 {
 public:
@@ -152,7 +122,7 @@ public:
     }
 
 private:
-    LocatorMatcherTasks matchers() final { return cmakeMatchers(&buildAcceptor); }
+    LocatorMatcherTasks matchers() final { return cmakeMatchers(&buildTarget); }
 };
 
 // OpenCMakeTargetLocatorFilter

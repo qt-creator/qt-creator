@@ -86,7 +86,9 @@ QtcPlugin {
         "presetsmacros.cpp",
         "presetsmacros.h",
         "projecttreehelper.cpp",
-        "projecttreehelper.h"
+        "projecttreehelper.h",
+        "targethelper.cpp",
+        "targethelper.h",
     ]
 
     Group {
