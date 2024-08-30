@@ -877,14 +877,6 @@ void insertSorted(Parentheses &list, const Parenthesis &elem)
     list.insert(it, elem);
 }
 
-TextSuggestion::TextSuggestion()
-{
-    m_replacementDocument.setDocumentLayout(new TextDocumentLayout(&m_replacementDocument));
-    m_replacementDocument.setDocumentMargin(0);
-}
-
-TextSuggestion::~TextSuggestion() = default;
-
 } // TextEditor
 
 

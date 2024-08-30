@@ -100,14 +100,15 @@ add_qtc_plugin(TextEditor
     texteditor.cpp texteditor.h
     texteditor.qrc
     texteditor_global.h
-    texteditortr.h
     texteditorconstants.cpp texteditorconstants.h
     texteditoroverlay.cpp texteditoroverlay.h
     texteditorplugin.cpp
     texteditorsettings.cpp texteditorsettings.h
+    texteditortr.h
     textindenter.cpp textindenter.h
     textmark.cpp textmark.h
     textstyles.h
+    textsuggestion.h textsuggestion.cpp
     typehierarchy.cpp typehierarchy.h
     typingsettings.cpp typingsettings.h
 )
