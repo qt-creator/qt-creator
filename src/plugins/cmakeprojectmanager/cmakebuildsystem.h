@@ -64,6 +64,7 @@ public:
     bool renameFile(ProjectExplorer::Node *context,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath) final;
+    void buildNamedTarget(const QString &target) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QString name() const final { return QLatin1String("cmake"); }

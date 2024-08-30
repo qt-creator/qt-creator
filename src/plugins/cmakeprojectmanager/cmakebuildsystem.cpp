@@ -15,6 +15,7 @@
 #include "cmakespecificsettings.h"
 #include "cmaketoolmanager.h"
 #include "projecttreehelper.h"
+#include "targethelper.h"
 
 #include <android/androidconstants.h>
 
@@ -1012,6 +1013,11 @@ bool CMakeBuildSystem::renameFile(Node *context,
     }
 
     return false;
+}
+
+void CMakeBuildSystem::buildNamedTarget(const QString &target)
+{
+    CMakeProjectManager::Internal::buildTarget(this, target);
 }
 
 FilePaths CMakeBuildSystem::filesGeneratedFrom(const FilePath &sourceFile) const

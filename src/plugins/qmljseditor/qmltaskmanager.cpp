@@ -5,7 +5,6 @@
 #include "qmljseditorconstants.h"
 #include "qmllssettings.h"
 
-#include <cmakeprojectmanager/targethelper.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <projectexplorer/project.h>
@@ -120,10 +119,9 @@ void QmlTaskManager::updateSemanticMessagesNow()
 
 static void triggerQmllintCMakeTarget()
 {
-    CMakeProjectManager::buildTarget(
-        ProjectManager::startupProject()->projectFilePath(), Constants::QMLLINT_BUILD_TARGET);
+    if (ProjectManager::startupProject())
+        ProjectManager::startupProject()->buildTarget(Constants::QMLLINT_BUILD_TARGET);
 }
-
 
 void QmlTaskManager::updateMessagesNow(bool updateSemantic)
 {
