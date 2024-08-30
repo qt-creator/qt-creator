@@ -39,6 +39,15 @@ static QString plainTextMimeType()
 
 namespace Utils {
 
+// simplified from qduplicatetracker_p.h
+template <typename T>
+class DuplicateTracker {
+public:
+    bool hasSeen(const T &v) { return Utils::insert(seen, v); }
+private:
+    QSet<T> seen;
+};
+
 Q_GLOBAL_STATIC(MimeDatabasePrivate, staticMimeDatabase)
 
 MimeDatabasePrivate *MimeDatabasePrivate::instance()
@@ -584,6 +593,7 @@ QList<MimeType> MimeDatabasePrivate::allMimeTypes()
 bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
 {
     const QString resolvedParent = resolveAlias(parent);
+    DuplicateTracker<QString> seen;
     std::stack<QString, QStringList> toCheck;
     toCheck.push(mime);
     while (!toCheck.empty()) {
@@ -592,8 +602,11 @@ bool MimeDatabasePrivate::inherits(const QString &mime, const QString &parent)
         const QString mimeName = toCheck.top();
         toCheck.pop();
         const auto parentList = parents(mimeName);
-        for (const QString &par : parentList)
-            toCheck.push(resolveAlias(par));
+        for (const QString &par : parentList) {
+            const QString resolvedPar = resolveAlias(par);
+            if (!seen.hasSeen(resolvedPar))
+                toCheck.push(resolvedPar);
+        }
     }
     return false;
 }
