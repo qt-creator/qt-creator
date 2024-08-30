@@ -446,14 +446,8 @@ QString MimeType::filterString() const
     const QStringList patterns = globPatterns();
     QString filter;
 
-    if (!patterns.empty()) {
-        filter += comment() + " ("_L1;
-        for (int i = 0; i < patterns.size(); ++i) {
-            if (i != 0)
-                filter += u' ';
-            filter += patterns.at(i);
-        }
-        filter +=  u')';
+    if (!patterns.isEmpty()) {
+        filter = comment() + " ("_L1 + patterns.join(u' ') + u')';
     }
 
     return filter;
