@@ -143,6 +143,10 @@ public:
     bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
     bool vcsCreateRepository(const Utils::FilePath &directory) final;
     void vcsAnnotate(const Utils::FilePath &file, int line) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        const QStringList options = {"--limit=" + QString::number(settings().logCount())};
+        m_client.log(topLevel, {relativeDirectory.path()}, options);
+    }
     void vcsDescribe(const Utils::FilePath &source, const QString &id) final { m_client.view(source, id); }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,

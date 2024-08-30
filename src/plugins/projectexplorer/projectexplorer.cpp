@@ -237,6 +237,7 @@ const char ADDNEWSUBPROJECT[]     = "ProjectExplorer.AddNewSubproject";
 const char REMOVEPROJECT[]        = "ProjectExplorer.RemoveProject";
 const char OPENFILE[]             = "ProjectExplorer.OpenFile";
 const char SEARCHONFILESYSTEM[]   = "ProjectExplorer.SearchOnFileSystem";
+const char VCS_LOG_DIRECTORY[]    = "ProjectExplorer.VcsLog";
 const char OPENTERMINALHERE[]     = "ProjectExplorer.OpenTerminalHere";
 const char SHOWINFILESYSTEMVIEW[] = "ProjectExplorer.OpenFileSystemView";
 const char DUPLICATEFILE[]        = "ProjectExplorer.DuplicateFile";
@@ -497,6 +498,7 @@ public:
     void removeProject();
     void openFile();
     void searchOnFileSystem();
+    void vcsLogDirectory();
     void showInGraphicalShell();
     void showInFileSystemPane();
     void removeFile();
@@ -602,6 +604,7 @@ public:
     Action *m_closeProjectFilesActionFileMenu;
     Action *m_closeProjectFilesActionContextMenu;
     QAction *m_searchOnFileSystem;
+    QAction *m_vcsLogAction = nullptr;
     QAction *m_showInGraphicalShell;
     QAction *m_showFileSystemPane;
     QAction *m_openTerminalHere;
@@ -1126,6 +1129,14 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     cmd = ActionManager::registerAction(dd->m_searchOnFileSystem, Constants::SEARCHONFILESYSTEM, projectTreeContext);
 
     mfileContextMenu->addAction(cmd, Constants::G_FILE_OTHER);
+    mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
+    msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
+
+    // VCS log directory action
+    dd->m_vcsLogAction = new QAction(Tr::tr("VCS Log Directory"), this);
+    cmd = ActionManager::registerAction(dd->m_vcsLogAction, Constants::VCS_LOG_DIRECTORY, projectTreeContext);
+    cmd->setAttribute(Command::CA_UpdateText);
     mfolderContextMenu->addAction(cmd, Constants::G_FOLDER_CONFIG);
     msubProjectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
     mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_LAST);
@@ -1817,6 +1828,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
             dd, &ProjectExplorerPluginPrivate::openFile);
     connect(dd->m_searchOnFileSystem, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::searchOnFileSystem);
+    connect(dd->m_vcsLogAction, &QAction::triggered, dd,
+            &ProjectExplorerPluginPrivate::vcsLogDirectory);
     connect(dd->m_showInGraphicalShell, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::showInGraphicalShell);
     // the following can delete the projects view that triggered the action, so make sure we
@@ -3256,6 +3269,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
     m_showInGraphicalShell->setVisible(true);
     m_showFileSystemPane->setVisible(true);
     m_searchOnFileSystem->setVisible(true);
+    m_vcsLogAction->setVisible(true);
 
     ActionContainer *runMenu = ActionManager::actionContainer(Constants::RUNMENUCONTEXTMENU);
     runMenu->menu()->clear();
@@ -3376,6 +3390,7 @@ void ProjectExplorerPluginPrivate::updateContextMenuActions(Node *currentNode)
             m_showInGraphicalShell->setVisible(false);
             m_showFileSystemPane->setVisible(false);
             m_searchOnFileSystem->setVisible(false);
+            m_vcsLogAction->setVisible(false);
         }
 
         if (supports(HideFileActions)) {
@@ -3660,6 +3675,18 @@ void ProjectExplorerPluginPrivate::searchOnFileSystem()
     const Node *currentNode = ProjectTree::currentNode();
     QTC_ASSERT(currentNode, return);
     TextEditor::FindInFiles::findOnFileSystem(currentNode->path().toString());
+}
+
+void ProjectExplorerPluginPrivate::vcsLogDirectory()
+{
+    const Node *currentNode = ProjectTree::currentNode();
+    QTC_ASSERT(currentNode, return);
+    const FilePath directory = currentNode->directory();
+    FilePath topLevel;
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(directory, &topLevel)) {
+        const FilePath relativeDirectory = directory.relativeChildPath(topLevel);
+        vc->vcsLog(topLevel, relativeDirectory);
+    }
 }
 
 void ProjectExplorerPluginPrivate::showInGraphicalShell()
@@ -4085,6 +4112,11 @@ void ProjectExplorerPlugin::removeFromRecentProjects(const FilePath &filePath)
 void ProjectExplorerPlugin::updateRunActions()
 {
     dd->doUpdateRunActions();
+}
+
+void ProjectExplorerPlugin::updateVcsActions(const QString &vcsDisplayName)
+{
+    dd->m_vcsLogAction->setText(Tr::tr("%1 Log Directory").arg(vcsDisplayName));
 }
 
 OutputWindow *ProjectExplorerPlugin::buildSystemOutput()

@@ -149,6 +149,9 @@ public:
     bool vcsCreateRepository(const FilePath &directory) final;
 
     void vcsAnnotate(const FilePath &file, int line) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        filelog(topLevel, relativeDirectory.path());
+    }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,

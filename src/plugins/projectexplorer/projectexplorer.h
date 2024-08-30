@@ -164,6 +164,7 @@ public:
     static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
     static void updateRunActions();
+    static void updateVcsActions(const QString &vcsDisplayName);
 
     static Core::OutputWindow *buildSystemOutput();
 

@@ -91,6 +91,15 @@ public:
 
     void vcsAnnotate(const FilePath &file, int line) final;
     void vcsDescribe(const FilePath &source, const QString &id) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        FossilClient::SupportedFeatures features = fossilClient().supportedFeatures();
+        QStringList options = {"-n", QString::number(fossilClient().settings().logCount())};
+
+        if (features.testFlag(FossilClient::TimelineWidthFeature))
+            options << "-W" << QString::number(fossilClient().settings().timelineWidth());
+
+        fossilClient().log(topLevel, {relativeDirectory.path()}, options);
+    }
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
                                              const FilePath &baseDirectory,

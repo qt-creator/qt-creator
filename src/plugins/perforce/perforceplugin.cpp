@@ -168,6 +168,9 @@ public:
     bool vcsMove(const Utils::FilePath &from, const Utils::FilePath &to) final;
     bool vcsCreateRepository(const Utils::FilePath &directory) final;
     void vcsAnnotate(const Utils::FilePath &filePath, int line) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        changelists(topLevel, relativeDirectory.path());
+    }
     void vcsDescribe(const Utils::FilePath &source, const QString &n) final;
     QString vcsOpenText() const final;
     QString vcsMakeWritableText() const final;

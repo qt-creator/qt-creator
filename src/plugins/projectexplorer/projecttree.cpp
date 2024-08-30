@@ -4,6 +4,7 @@
 #include "projecttree.h"
 
 #include "project.h"
+#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
@@ -18,6 +19,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
@@ -337,6 +339,13 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
 {
     QMenu *contextMenu = nullptr;
     emit s_instance->aboutToShowContextMenu(node);
+
+    const Node *currentNode = ProjectTree::currentNode();
+    if (currentNode) {
+        const FilePath directory = currentNode->directory();
+        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
+            ProjectExplorerPlugin::updateVcsActions(vc->displayName());
+    }
 
     if (!node) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();

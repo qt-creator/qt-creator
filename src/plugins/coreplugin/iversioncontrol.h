@@ -156,6 +156,12 @@ public:
     virtual void vcsAnnotate(const Utils::FilePath &file, int line) = 0;
 
     /*!
+     * Shows the log for the \a relativeDirectory within \a toplevel.
+     */
+    virtual void vcsLog(const Utils::FilePath &topLevel,
+                        const Utils::FilePath &relativeDirectory) = 0;
+
+    /*!
      * Display text for Open operation
      */
     virtual QString vcsOpenText() const;
