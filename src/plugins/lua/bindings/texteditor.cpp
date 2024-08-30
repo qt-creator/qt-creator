@@ -552,7 +552,7 @@ void setupTextEditorModule()
                 auto one_based = [](int zero_based) { return zero_based + 1; };
                 Text::Position start_pos = {one_based(start_line), start_character};
                 Text::Position end_pos = {one_based(end_line), end_character};
-                return {Text::Range(start_pos, end_pos), start_pos, text};
+                return {Text::Range{start_pos, end_pos}, start_pos, text};
             });
 
         result.new_usertype<TextEditor::TextDocument>(
