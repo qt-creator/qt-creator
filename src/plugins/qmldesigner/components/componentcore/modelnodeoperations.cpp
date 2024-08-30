@@ -1695,12 +1695,15 @@ void editIn3dView(const SelectionContext &selectionContext)
     }
 
     if (targetNode.isValid()) {
+        qint32 id = targetNode.internalId();
+        Model *model = selectionContext.model();
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
         if (scenePos.isNull()) {
-            selectionContext.model()->emitView3DAction(View3DActionType::AlignViewToCamera, true);
+            model->emitView3DAction(View3DActionType::AlignViewToCamera, true);
         } else {
-            selectionContext.view()->emitCustomNotification("pick_3d_node_from_2d_scene",
-                                                            {targetNode}, {scenePos});
+            model->emitCustomNotification(selectionContext.view(),
+                                          "pick_3d_node_from_2d_scene",
+                                          {}, {scenePos, id});
         }
     }
 }

@@ -456,16 +456,16 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
                                     [[maybe_unused]] const QList<ModelNode> &nodeList,
                                     [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
+    if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 2) {
         // Pick via 2D view, data has pick coordinates in main scene coordinates
         QTimer::singleShot(0, this, [=, self = QPointer{this}]() {
             if (!self)
                 return;
 
             self->emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
-                                   QVariantList{data[0], nodeList[0].internalId()});
+                                   QVariantList{data[0], data[1]});
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
-            self->m_pickView3dNode = nodeList[0];
+            self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
     }
 }
