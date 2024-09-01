@@ -111,24 +111,26 @@ bool BlameMark::addToolTipContent(QLayout *target) const
 
 QString BlameMark::toolTipText(const CommitInfo &info) const
 {
+    const ColorNames colors = GitClient::colorNames();
+
     QString result = QString(
                          "<table cellspacing=\"10\"><tr>"
-                         "  <td><a href=\"blame\">Blame %1</a></td>"
+                         "  <td><a href=\"blame\">Blame %2</a></td>"
                          "  <td><a href=\"blameParent\">Blame Parent</a></td>"
-                         "  <td><a href=\"showFile\">File at %1</a></td>"
-                         "  <td><a href=\"logLine\">Log for line %2</a></td>"
+                         "  <td><a href=\"showFile\">File at %2</a></td>"
+                         "  <td><a href=\"logLine\">Log for line %4</a></td>"
                          "</tr></table>"
                          "<p></p>"
                          "<table>"
-                         "  <tr><td>commit</td><td><a href=\"show\">%1</a></td></tr>"
-                         "  <tr><td>Author:</td><td>%3 &lt;%4&gt;</td></tr>"
-                         "  <tr><td>Date:</td><td>%5</td></tr>"
-                         "  <tr></tr>"
-                         "  <tr><td colspan='2' align='left'>%6</td></tr>"
-                         "</table>")
-                         .arg(info.sha1.left(8), QString::number(info.line),
-                              info.author, info.authorMail,
-                              info.authorTime.toString("yyyy-MM-dd hh:mm:ss"), info.summary);
+                         "  <tr><td>commit</td><td><a style=\"color: %1;\" href=\"show\">%3</a></td></tr>"
+                         "  <tr><td>Author:</td><td style=\"color: %5;\">%6 &lt;%7&gt;</td></tr>"
+                         "  <tr><td>Date:</td><td style=\"color: %8;\">%9</td></tr>"
+                         "</table>"
+                         "<p style=\"color: %10;\">%11</p>")
+                         .arg(colors.hash, info.sha1.left(8), info.sha1, QString::number(info.line),
+                              colors.author, info.author, info.authorMail,
+                              colors.date, info.authorTime.toString("yyyy-MM-dd hh:mm:ss"),
+                              colors.subject, info.summary);
 
     if (settings().instantBlameIgnoreSpaceChanges()
         || settings().instantBlameIgnoreLineMoves()) {
