@@ -247,6 +247,7 @@ public:
     TaskTreeRunner m_issueInfoRunner;
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
     QMetaObject::Connection m_fileFinderConnection;
+    QHash<FilePath, QSet<TextMark *>> m_allMarks;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -929,9 +930,9 @@ void AxivionPluginPrivate::handleOpenedDocs()
 
 void AxivionPluginPrivate::clearAllMarks()
 {
-    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
-    for (IDocument *doc : openDocuments)
-        onDocumentClosed(doc);
+    for (const QSet<TextMark *> &marks : std::as_const(m_allMarks))
+       qDeleteAll(marks);
+    m_allMarks.clear();
 }
 
 void AxivionPluginPrivate::updateExistingMarks() // update whether highlight marks or not
@@ -939,19 +940,12 @@ void AxivionPluginPrivate::updateExistingMarks() // update whether highlight mar
     static Theme::Color color = Theme::Color(Theme::Bookmarks_TextMarkColor); // FIXME!
     const bool colored = settings().highlightMarks();
 
-    const QList<IDocument *> openDocuments = DocumentModel::openedDocuments();
-    for (IDocument *doc : openDocuments) {
-        if (auto textDoc = qobject_cast<TextEditor::TextDocument *>(doc)) {
-            const TextMarks textMarks = textDoc->marks();
-            for (TextEditor::TextMark *mark : textMarks) {
-                if (mark->category().id != s_axivionTextMarkId)
-                    continue;
-                if (colored)
-                    mark->setColor(color);
-                else
-                    mark->unsetColor();
-            }
-        }
+    auto changeColor = colored ? [](TextMark *mark) { mark->setColor(color); }
+                               : [](TextMark *mark) { mark->unsetColor(); };
+
+    for (const QSet<TextMark *> &marksForFile : std::as_const(m_allMarks)) {
+        for (auto mark : marksForFile)
+            changeColor(mark);
     }
 }
 
@@ -963,6 +957,8 @@ void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
     const FilePath filePath = doc->filePath().relativeChildPath(m_project->projectDirectory());
     if (filePath.isEmpty())
         return; // Empty is fine
+    if (m_allMarks.contains(filePath))
+        return;
 
     const auto handler = [this](const Dto::FileViewDto &data) {
         if (data.lineMarkers.empty())
@@ -991,11 +987,7 @@ void AxivionPluginPrivate::onDocumentClosed(IDocument *doc)
     if (it != m_docMarksTrees.end())
         m_docMarksTrees.erase(it);
 
-    const TextMarks &marks = document->marks();
-    for (TextMark *mark : marks) {
-        if (mark->category().id == s_axivionTextMarkId)
-            delete mark;
-    }
+    qDeleteAll(m_allMarks.take(document->filePath()));
 }
 
 void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
@@ -1015,7 +1007,7 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
         // FIXME the line location can be wrong (even the whole issue could be wrong)
         // depending on whether this line has been changed since the last axivion run and the
         // current state of the file - some magic has to happen here
-        new AxivionTextMark(filePath, marker, color);
+        m_allMarks[filePath] << new AxivionTextMark(filePath, marker, color);
     }
 }
 
