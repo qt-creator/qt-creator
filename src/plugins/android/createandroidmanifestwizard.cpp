@@ -162,6 +162,8 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
         checkBox->setToolTip(Tr::tr("It is highly recommended if you are planning to extend the Java part of your Qt application."));
         m_layout->addRow(checkBox);
     }
+
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 }
 
 void ChooseDirectoryPage::checkPackageSourceDir()
