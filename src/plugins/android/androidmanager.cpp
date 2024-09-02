@@ -53,13 +53,16 @@ static Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager", QtWar
 
 static std::optional<QDomElement> documentElement(const FilePath &fileName)
 {
-    QFile file(fileName.toString());
-    if (!file.open(QIODevice::ReadOnly)) {
-        MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
+    const expected_str<QByteArray> result = fileName.fileContents();
+    if (!result) {
+        MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".")
+                                            .arg(fileName.toUserOutput())
+                                            .append(' ')
+                                            .append(result.error()));
         return {};
     }
     QDomDocument doc;
-    if (!doc.setContent(file.readAll())) {
+    if (!doc.setContent(*result)) {
         MessageManager::writeDisrupting(Tr::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return {};
     }
@@ -183,8 +186,8 @@ int minimumSDK(const Kit *kit)
     int minSdkVersion = -1;
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
-        const FilePath stockManifestFilePath = FilePath::fromUserInput(
-            version->prefix().toString() + "/src/android/templates/AndroidManifest.xml");
+        const FilePath stockManifestFilePath = version->prefix().pathAppended(
+            "src/android/templates/AndroidManifest.xml");
 
         const auto element = documentElement(stockManifestFilePath);
         if (element)
@@ -236,19 +239,18 @@ QJsonObject deploymentSettings(const Target *target)
         return {};
     QJsonObject settings;
     settings["_description"] = qtcSignature;
-    settings["qt"] = qt->prefix().toString();
-    settings["ndk"] = AndroidConfig::ndkLocation(qt).toString();
-    settings["sdk"] = AndroidConfig::sdkLocation().toString();
+    settings["qt"] = qt->prefix().toFSPathString();
+    settings["ndk"] = AndroidConfig::ndkLocation(qt).toFSPathString();
+    settings["sdk"] = AndroidConfig::sdkLocation().toFSPathString();
     if (!qt->supportsMultipleQtAbis()) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
-        settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt)
-                                      / "sysroot/usr/lib"
-                                      / archTriplet(abis.first())
-                                      / "libc++_shared.so").toString();
+        settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt) / "sysroot/usr/lib"
+                                   / archTriplet(abis.first()) / "libc++_shared.so")
+                                      .toFSPathString();
     } else {
         settings["stdcpp-path"]
-            = AndroidConfig::toolchainPath(qt).pathAppended("sysroot/usr/lib").toString();
+            = AndroidConfig::toolchainPath(qt).pathAppended("sysroot/usr/lib").toFSPathString();
     }
     settings["toolchain-prefix"] =  "llvm";
     settings["tool-prefix"] = "llvm";
@@ -259,10 +261,10 @@ QJsonObject deploymentSettings(const Target *target)
 
 bool isQtCreatorGenerated(const FilePath &deploymentFile)
 {
-    QFile f{deploymentFile.toString()};
-    if (!f.open(QIODevice::ReadOnly))
+    const expected_str<QByteArray> result = deploymentFile.fileContents();
+    if (!result)
         return false;
-    return QJsonDocument::fromJson(f.readAll()).object()["_description"].toString() == qtcSignature;
+    return QJsonDocument::fromJson(*result).object()["_description"].toString() == qtcSignature;
 }
 
 FilePath androidBuildDirectory(const Target *target)

@@ -41,8 +41,9 @@ public:
         m_argumentDetailsEdit->setReadOnly(true);
 
         m_process.setEnvironment(AndroidConfig::toolsEnvironment());
-        m_process.setCommand({AndroidConfig::sdkManagerToolPath(),
-                              {"--help", "--sdk_root=" + AndroidConfig::sdkLocation().toString()}});
+        m_process.setCommand(
+            {AndroidConfig::sdkManagerToolPath(),
+             {"--help", "--sdk_root=" + AndroidConfig::sdkLocation().path()}});
         connect(&m_process, &Process::done, this, [this] {
             const QString output = m_process.allOutput();
             QString argumentDetails;

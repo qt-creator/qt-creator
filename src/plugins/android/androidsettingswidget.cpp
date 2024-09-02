@@ -711,16 +711,14 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
         return;
     }
 
-    QDir openSslDir(openSslPath.toString());
-    const bool isEmptyDir = openSslDir.isEmpty(QDir::AllEntries | QDir::NoDotAndDotDot
-                                               | QDir::Hidden | QDir::System);
-    if (openSslDir.exists() && !isEmptyDir) {
+    if (openSslPath.exists() && !openSslPath.isEmpty()) {
         QMessageBox::information(
             this,
             openSslCloneTitle,
-            Tr::tr("The selected download path (%1) for OpenSSL already exists and the directory is "
-                   "not empty. Select a different path or make sure it is an empty directory.")
-            .arg(QDir::toNativeSeparators(openSslPath.toString())));
+            Tr::tr(
+                "The selected download path (%1) for OpenSSL already exists and the directory is "
+                "not empty. Select a different path or make sure it is an empty directory.")
+                .arg(openSslPath.toUserOutput()));
         return;
     }
 
@@ -733,8 +731,8 @@ void AndroidSettingsWidget::downloadOpenSslRepo(const bool silent)
 
     const QString openSslRepo("https://github.com/KDAB/android_openssl.git");
     Process *gitCloner = new Process(this);
-    const CommandLine gitCloneCommand("git", {"clone", "--depth=1", openSslRepo,
-                                              openSslPath.toString()});
+    const CommandLine
+        gitCloneCommand("git", {"clone", "--depth=1", openSslRepo, openSslPath.path()});
     gitCloner->setCommand(gitCloneCommand);
 
     qCDebug(androidsettingswidget) << "Cloning OpenSSL repo: " << gitCloneCommand.toUserOutput();

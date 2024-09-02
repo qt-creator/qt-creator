@@ -306,9 +306,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         if (androidPackageDir.isEmpty()) {
             // and now time for some magic
             const BuildTargetInfo bti = target->buildTarget(m_buildKey);
-            const QString value = "$$PWD/"
-                                  + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(
-                                      m_directory.toString());
+            const QString value
+                = "$$PWD/"
+                  + bti.projectFilePath.absoluteFilePath().relativePathFrom(m_directory).path();
             bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
             if (!result) {

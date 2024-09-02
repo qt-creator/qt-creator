@@ -308,7 +308,7 @@ bool AndroidDeployQtStep::init()
             AndroidManager::setManifestPath(target(),
                 FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
         } else {
-            QString jsonFile = AndroidQtVersion::androidDeploymentSettings(target()).toString();
+            FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(target());
             if (jsonFile.isEmpty()) {
                 reportWarningOrError(Tr::tr("Cannot find the androiddeployqt input JSON file."),
                                      Task::Error);
@@ -323,10 +323,12 @@ bool AndroidDeployQtStep::init()
 
             m_workingDirectory = AndroidManager::androidBuildDirectory(target());
 
+            // clang-format off
             m_androiddeployqtArgs.addArgs({"--verbose",
-                                           "--output", m_workingDirectory.toString(),
+                                           "--output", m_workingDirectory.path(),
                                            "--no-build",
-                                           "--input", jsonFile});
+                                           "--input", jsonFile.path()});
+            // clang-format on
 
             m_androiddeployqtArgs.addArg("--gradle");
 
@@ -476,7 +478,7 @@ Group AndroidDeployQtStep::deployRecipe()
         } else {
             QTC_ASSERT(target()->activeRunConfiguration(), return SetupResult::StopWithError);
             cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
-            cmd.addArgs({"install", "-r", m_apkPath.toString()});
+            cmd.addArgs({"install", "-r", m_apkPath.nativePath()});
         }
 
         process.setCommand(cmd);

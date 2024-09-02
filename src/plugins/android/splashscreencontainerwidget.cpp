@@ -225,7 +225,7 @@ void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize
         qCDebug(androidManifestEditorLog) << "Image target path is empty, cannot set image.";
         return;
     }
-    QImage image = QImage(imagePath.toString());
+    QImage image = QImage(imagePath.toFSPathString());
     if (image.isNull()) {
         qCDebug(androidManifestEditorLog) << "Image '" << imagePath << "' not found or invalid format.";
         return;
@@ -239,7 +239,7 @@ void SplashScreenWidget::setImageFromPath(const FilePath &imagePath, bool resize
                                  (float(image.height()) / float(m_maxScalingRatio)) * float(m_scalingRatio));
         image = image.scaled(size);
     }
-    QFile file(targetPath.toString());
+    QFile file(targetPath.toFSPathString());
     if (file.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
         image.save(&file, "PNG");
         file.close();
@@ -296,7 +296,7 @@ void SplashScreenWidget::loadImage()
         qCDebug(androidManifestEditorLog) << "Image target path empty, cannot load image.";
         return;
     }
-    QImage image = QImage(targetPath.toString());
+    QImage image = QImage(targetPath.toFSPathString());
     if (image.isNull()) {
         qCDebug(androidManifestEditorLog).noquote()
                 << "Cannot load image." << targetPath.toUserOutput();
@@ -655,7 +655,7 @@ void SplashScreenContainerWidget::loadImages()
 void SplashScreenContainerWidget::loadSplashscreenDrawParams(const QString &name)
 {
     const FilePath filePath = manifestDir(m_textEditorWidget).pathAppended("res/drawable/" + name + ".xml");
-    QFile file(filePath.toString());
+    QFile file(filePath.toFSPathString());
     if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
         QXmlStreamReader reader(&file);
         reader.setNamespaceProcessing(false);
@@ -773,13 +773,13 @@ void SplashScreenContainerWidget::setImageShowMode(const QString &mode)
 
 void SplashScreenContainerWidget::createSplashscreenThemes()
 {
-    const QString baseDir = manifestDir(m_textEditorWidget).toString();
-    const QStringList splashscreenThemeFiles = {"/res/values/splashscreentheme.xml",
-                                                "/res/values-port/splashscreentheme.xml",
-                                                "/res/values-land/splashscreentheme.xml"};
-    const QStringList splashscreenDrawableFiles = {QString("/res/drawable/%1.xml").arg(splashscreenName),
-                                                   QString("/res/drawable/%1.xml").arg(splashscreenPortraitName),
-                                                   QString("/res/drawable/%1.xml").arg(splashscreenLandscapeName)};
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const QStringList splashscreenThemeFiles = {"res/values/splashscreentheme.xml",
+                                                "res/values-port/splashscreentheme.xml",
+                                                "res/values-land/splashscreentheme.xml"};
+    const QStringList splashscreenDrawableFiles = {QString("res/drawable/%1.xml").arg(splashscreenName),
+                                                   QString("res/drawable/%1.xml").arg(splashscreenPortraitName),
+                                                   QString("res/drawable/%1.xml").arg(splashscreenLandscapeName)};
     QStringList splashscreens[3];
 
     if (hasImages())
@@ -790,9 +790,11 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
         splashscreens[2] << splashscreenLandscapeName << splashscreenLandscapeFileName;
 
     for (int i = 0; i < 3; i++) {
+        const FilePath splashscreenThemeFile = baseDir.pathAppended(splashscreenThemeFiles[i]);
+        const FilePath splashscreenDrawableFile = baseDir.pathAppended(splashscreenDrawableFiles[i]);
         if (!splashscreens[i].isEmpty()) {
             QDir dir;
-            QFile themeFile(baseDir + splashscreenThemeFiles[i]);
+            QFile themeFile(splashscreenThemeFile.toFSPathString());
             dir.mkpath(QFileInfo(themeFile).absolutePath());
             if (themeFile.open(QFile::WriteOnly | QFile::Truncate)) {
                 QXmlStreamWriter stream(&themeFile);
@@ -810,7 +812,7 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
                 stream.writeEndDocument();
                 themeFile.close();
             }
-            QFile drawableFile(baseDir + splashscreenDrawableFiles[i]);
+            QFile drawableFile(splashscreenDrawableFile.toFSPathString());
             dir.mkpath(QFileInfo(drawableFile).absolutePath());
             if (drawableFile.open(QFile::WriteOnly | QFile::Truncate)) {
                 QXmlStreamWriter stream(&drawableFile);
@@ -836,8 +838,8 @@ void SplashScreenContainerWidget::createSplashscreenThemes()
             }
         }
         else {
-            QFile::remove(baseDir + splashscreenThemeFiles[i]);
-            QFile::remove(baseDir + splashscreenDrawableFiles[i]);
+            QFile::remove(splashscreenThemeFile.toFSPathString());
+            QFile::remove(splashscreenDrawableFile.toFSPathString());
         }
     }
 }

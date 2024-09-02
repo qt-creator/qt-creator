@@ -120,7 +120,7 @@ bool JLSSettings::applyFromSettingsWidget(QWidget *widget)
             configDir.cd("config_mac");
     }
     if (configDir.exists()) {
-        arguments = arguments.arg(m_languageServer.toString(), configDir.absolutePath());
+        arguments = arguments.arg(m_languageServer.path(), configDir.absolutePath());
         changed |= m_arguments != arguments;
         m_arguments = arguments;
     }
@@ -219,7 +219,7 @@ static void generateProjectFile(const FilePath &projectDir,
                                 const QString &projectName)
 {
     const FilePath projectFilePath = projectDir.pathAppended(".project");
-    QFile projectFile(projectFilePath.toString());
+    QFile projectFile(projectFilePath.toFSPathString());
     if (projectFile.open(QFile::Truncate | QFile::WriteOnly)) {
         QXmlStreamWriter writer(&projectFile);
         writer.setAutoFormatting(true);
@@ -249,7 +249,7 @@ static void generateClassPathFile(const FilePath &projectDir,
                                   const FilePaths &libs)
 {
     const FilePath classPathFilePath = projectDir.pathAppended(".classpath");
-    QFile classPathFile(classPathFilePath.toString());
+    QFile classPathFile(classPathFilePath.toFSPathString());
     if (classPathFile.open(QFile::Truncate | QFile::WriteOnly)) {
         QXmlStreamWriter writer(&classPathFile);
         writer.setAutoFormatting(true);
@@ -259,14 +259,14 @@ static void generateClassPathFile(const FilePath &projectDir,
         writer.writeStartElement("classpath");
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
-        writer.writeAttribute("path", sourceDir.toString());
+        writer.writeAttribute("path", sourceDir.toUserOutput());
         writer.writeEmptyElement("classpathentry");
         writer.writeAttribute("kind", "src");
         writer.writeAttribute("path", "qtSrc");
         for (const FilePath &lib : libs) {
             writer.writeEmptyElement("classpathentry");
             writer.writeAttribute("kind", "lib");
-            writer.writeAttribute("path", lib.toString());
+            writer.writeAttribute("path", lib.toUserOutput());
         }
         writer.writeEndElement(); // classpath
         writer.writeEndDocument();
@@ -286,7 +286,7 @@ void JLSClient::updateProjectFiles()
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
             if (!version)
                 return;
-            const QString qtSrc = version->prefix().toString() + "/src/android/java/src";
+            const FilePath qtSrc = version->prefix().pathAppended("src/android/java/src");
             const FilePath &projectDir = project()->rootProjectDirectory();
             if (!projectDir.exists())
                 return;
@@ -315,7 +315,7 @@ void JLSClient::updateProjectFiles()
             for (const QString &path : classPaths)
                 libs << FilePath::fromString(path);
 
-            generateProjectFile(projectDir, qtSrc, project()->displayName());
+            generateProjectFile(projectDir, qtSrc.path(), project()->displayName());
             generateClassPathFile(projectDir, sourceDir, libs);
         }
     }

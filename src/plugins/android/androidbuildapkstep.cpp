@@ -413,10 +413,10 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 
 QString AndroidBuildApkWidget::openSslIncludeFileContent(const FilePath &projectPath)
 {
-    QString openSslPath = AndroidConfig::openSslLocation().toString();
-    if (projectPath.endsWith(".pro"))
+    QString openSslPath = AndroidConfig::openSslLocation().path();
+    if (projectPath.suffixView() == u"pro")
         return "android: include(" + openSslPath + "/openssl.pri)";
-    if (projectPath.endsWith("CMakeLists.txt"))
+    if (projectPath.fileNameView() == u"CMakeLists.txt")
         return "if (ANDROID)\n    include(" + openSslPath + "/CMakeLists.txt)\nendif()";
     return {};
 }
@@ -747,7 +747,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         QString applicationBinary;
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
-            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
+            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.path();
             FilePath androidLibsDir = androidBuildDir / "libs" / androidAbis.first();
             for (const FilePath &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
@@ -804,16 +804,20 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 
         QString qmlRootPath = bs->extraData(buildKey, "QML_ROOT_PATH").toString();
         if (qmlRootPath.isEmpty())
-            qmlRootPath = target()->project()->rootProjectDirectory().toString();
+            qmlRootPath = target()->project()->rootProjectDirectory().path();
         deploySettings["qml-root-path"] = qmlRootPath;
 
-        QFile f{m_inputFile.toString()};
-        if (!f.open(QIODevice::WriteOnly)) {
-            reportWarningOrError(Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
-                                     .arg(m_inputFile.toUserOutput()), Task::Error);
+        const expected_str<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
+        if (!result) {
+            reportWarningOrError(
+                Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
+                    .arg(m_inputFile.toUserOutput())
+                    .append(' ')
+                    .append(result.error()),
+                Task::Error);
             return false;
         }
-        f.write(QJsonDocument{deploySettings}.toJson());
+
         return true;
     };
 

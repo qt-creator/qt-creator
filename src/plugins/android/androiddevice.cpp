@@ -761,7 +761,7 @@ static void handleAvdListChange(const AndroidDeviceInfoList &avdList)
             // of the device has changed, remove it and register it again with the new name.
             // Also account for the case of an AVD registered through old QC which might have
             // invalid data by checking if the avdPath is not empty.
-            if (dev->displayName() != displayName || androidDev->avdPath().toString().isEmpty()) {
+            if (dev->displayName() != displayName || androidDev->avdPath().isEmpty()) {
                 devMgr->removeDevice(dev->id());
             } else {
                 // Find the state of the AVD retrieved from the AVD watcher
@@ -907,7 +907,7 @@ void AndroidDeviceManagerInstance::setupDevicesWatcher()
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
-    m_avdFileSystemWatcher.addPath(avdFilePath().toString());
+    m_avdFileSystemWatcher.addPath(avdFilePath().toFSPathString());
     connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
         if (!m_avdPathGuard.isLocked())
             AndroidDeviceManager::updateAvdList();

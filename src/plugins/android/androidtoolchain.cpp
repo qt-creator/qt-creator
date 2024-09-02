@@ -68,7 +68,7 @@ AndroidToolchain::~AndroidToolchain() = default;
 bool AndroidToolchain::isValid() const
 {
     if (m_ndkLocation.isEmpty()) {
-        QStringList ndkParts(compilerCommand().toString().split("toolchains/llvm/prebuilt/"));
+        QStringList ndkParts(compilerCommand().toFSPathString().split("toolchains/llvm/prebuilt/"));
         if (ndkParts.size() > 1) {
             QString ndkLocation(ndkParts.first());
             if (ndkLocation.endsWith('/'))

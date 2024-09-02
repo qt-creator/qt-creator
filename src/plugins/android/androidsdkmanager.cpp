@@ -115,7 +115,7 @@ private:
 
 static QString sdkRootArg()
 {
-    return "--sdk_root=" + AndroidConfig::sdkLocation().toString();
+    return "--sdk_root=" + AndroidConfig::sdkLocation().path();
 }
 
 const QRegularExpression &assertionRegExp()

@@ -263,15 +263,17 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!m_stateNameLineEdit->text().isEmpty())
         distinguishedNames += QLatin1String(", S=") + m_stateNameLineEdit->text().replace(',', QLatin1String("\\,"));
 
+    // clang-format off
     const CommandLine command(AndroidConfig::keytoolPath(),
                              {"-genkey", "-keyalg", "RSA",
-                              "-keystore",  m_keystoreFilePath.toString(),
+                              "-keystore",  m_keystoreFilePath.path(),
                               "-storepass", keystorePassword(),
                               "-alias", certificateAlias(),
                               "-keysize", m_keySizeSpinBox->text(),
                               "-validity", m_validitySpinBox->text(),
                               "-keypass", certificatePassword(),
                               "-dname", distinguishedNames});
+    // clang-format off
 
     Process genKeyCertProc;
     genKeyCertProc.setCommand(command);

@@ -121,7 +121,7 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
         return;
     m_iconPath = iconPath;
     FilePath baseDir = manifestDir(m_textEditorWidget);
-    QImage original(iconPath.toString());
+    QImage original(iconPath.toFSPathString());
     if (!original.isNull() && m_scaledToOriginalAspectRatio) {
         if ((original.width() > original.height() && m_buttonSize.height() > m_buttonSize.width())
                 || (original.height() > original.width() && m_buttonSize.width() > m_buttonSize.height())) {
@@ -138,7 +138,7 @@ void AndroidManifestEditorIconWidget::setIconFromPath(const FilePath &iconPath)
     }
     copyIcon();
     FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
-    m_button->setIcon(QIcon(iconFile.toString()));
+    m_button->setIcon(QIcon(iconFile.toFSPathString()));
 }
 
 void AndroidManifestEditorIconWidget::selectIcon()
@@ -254,7 +254,7 @@ void AndroidManifestEditorIconWidget::copyIcon()
         qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot copy icon.";
         return;
     }
-    QImage original(m_iconPath.toString());
+    QImage original(m_iconPath.toFSPathString());
     if (m_iconPath != targetPath)
         removeIcon();
     if (original.isNull()) {
@@ -277,7 +277,7 @@ void AndroidManifestEditorIconWidget::copyIcon()
         else
             scaled = scaleWithoutStretching(original, m_iconSize);
         setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
-        scaled.save(targetPath.toString());
+        scaled.save(targetPath.toFSPathString());
         m_iconPath = targetPath;
     } else {
         m_iconPath.clear();
