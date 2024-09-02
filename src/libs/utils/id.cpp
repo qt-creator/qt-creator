@@ -343,7 +343,7 @@ QString Id::suffixAfter(Id baseId) const
 {
     const QByteArrayView b = baseId.name();
     const QByteArrayView n = name();
-    return n.startsWith(b) ? QString::fromUtf8(n.mid(b.size())) : QString();
+    return n.startsWith(b) ? QString::fromUtf8(n).mid(b.size()) : QString();
 }
 
 QDataStream &operator<<(QDataStream &ds, Id id)
