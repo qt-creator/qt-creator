@@ -8,6 +8,7 @@
 namespace QmlDesigner {
 
 constexpr QLatin1String componentBundlesMaterialBundleType{"Materials"};
+constexpr QLatin1String componentBundlesEffectBundleType{"Effects"};
 constexpr QLatin1String componentBundlesType{"Bundles"};
 constexpr QLatin1String componentBundlesUser3DBundleType{"User3D"};
 constexpr QLatin1String componentBundlesUserEffectsBundleType{"UserEffects"};
@@ -16,7 +17,8 @@ constexpr QLatin1String composedEffectType{"Effects"};
 constexpr QLatin1String generatedComponentsFolder{"Generated"};
 constexpr QLatin1String oldAssetImportFolder{"asset_imports"};
 constexpr QLatin1String oldComponentBundleType{"ComponentBundles"};
-constexpr QLatin1String oldComponentsBundlesMaterialBundleType{"MaterialBundle"};
+constexpr QLatin1String oldComponentBundlesMaterialBundleType{"MaterialBundle"};
+constexpr QLatin1String oldComponentBundlesEffectBundleType{"EffectBundle"};
 constexpr QLatin1String oldEffectFolder{"Effects"};
 
 namespace Constants {} // namespace Constants
@@ -128,9 +130,9 @@ Utils::FilePath GeneratedComponentUtils::materialBundlePath() const
         return {};
 
     if (basePath.endsWith(Constants::quick3DComponentsFolder))
-        return basePath.resolvePath(oldComponentsBundlesMaterialBundleType);
+        return basePath.resolvePath(oldComponentBundlesMaterialBundleType);
 
-    return basePath.resolvePath(QLatin1String(componentBundlesMaterialBundleType));
+    return basePath.resolvePath(componentBundlesMaterialBundleType);
 }
 
 Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
@@ -141,9 +143,9 @@ Utils::FilePath GeneratedComponentUtils::effectBundlePath() const
         return {};
 
     if (basePath.endsWith(Constants::quick3DComponentsFolder))
-        return basePath.resolvePath(componentBundlesMaterialBundleType);
+        return basePath.resolvePath(oldComponentBundlesEffectBundleType);
 
-    return basePath.resolvePath(componentBundlesMaterialBundleType);
+    return basePath.resolvePath(componentBundlesEffectBundleType);
 }
 
 Utils::FilePath GeneratedComponentUtils::userBundlePath(const QString &bundleId) const
@@ -218,7 +220,6 @@ bool GeneratedComponentUtils::isGeneratedPath(const QString &path) const
     return path.startsWith(generatedComponentsPath().toFSPathString());
 }
 
-
 QString GeneratedComponentUtils::generatedComponentTypePrefix() const
 {
     Utils::FilePath basePath = generatedComponentsPath();
@@ -270,20 +271,20 @@ QString GeneratedComponentUtils::materialsBundleId() const
     bool isNewImportDir = generatedComponentTypePrefix().endsWith(generatedComponentsFolder);
 
     return isNewImportDir ? componentBundlesMaterialBundleType
-                          : oldComponentsBundlesMaterialBundleType;
+                          : oldComponentBundlesMaterialBundleType;
 }
 
 QString GeneratedComponentUtils::effectsBundleId() const
 {
     bool isNewImportDir = generatedComponentTypePrefix().endsWith(generatedComponentsFolder);
 
-    return QLatin1String(isNewImportDir ? componentBundlesMaterialBundleType
-                                        : componentBundlesMaterialBundleType);
+    return isNewImportDir ? componentBundlesEffectBundleType
+                          : oldComponentBundlesEffectBundleType;
 }
 
 QString GeneratedComponentUtils::userMaterialsBundleId() const
 {
-    return componentBundlesMaterialBundleType;
+    return componentBundlesUserMaterialBundleType;
 }
 
 QString GeneratedComponentUtils::userEffectsBundleId() const

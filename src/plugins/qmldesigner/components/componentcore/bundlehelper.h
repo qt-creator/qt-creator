@@ -22,21 +22,20 @@ class BundleImporter;
 class ModelNode;
 class NodeMetaInfo;
 
-struct AssetPath
+class AssetPath
 {
-    QString basePath;
+public:
+    Utils::FilePath basePath;
     QString relativePath;
 
-    Utils::FilePath absFilPath() const
-    {
-        return Utils::FilePath::fromString(basePath).pathAppended(relativePath);
-    }
+    Utils::FilePath absFilPath() const;
 
     bool operator==(const AssetPath &other) const
     {
         return basePath == other.basePath && relativePath == other.relativePath;
     }
 
+private:
     friend size_t qHash(const AssetPath &asset)
     {
         return ::qHash(asset.relativePath);
@@ -65,8 +64,10 @@ private:
     void addIconAndCloseZip(const auto &image);
     Utils::FilePath componentPath(const NodeMetaInfo &metaInfo) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
-    void export3DComponent(const ModelNode &node);
-    void exportItem(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
+    QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
+                                             const Utils::FilePath &mainCompDir);
+    void exportComponent(const ModelNode &node);
+    void exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
 
     QPointer<AbstractView> m_view;
     QPointer<QWidget> m_widget;

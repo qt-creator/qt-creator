@@ -33,6 +33,11 @@
 
 namespace QmlDesigner {
 
+Utils::FilePath AssetPath::absFilPath() const
+{
+    return basePath.pathAppended(relativePath);
+}
+
 BundleHelper::BundleHelper(AbstractView *view, QWidget *widget)
     : m_view(view)
     , m_widget(widget)
@@ -51,7 +56,7 @@ void BundleHelper::createImporter()
     QObject::connect(
         m_importer.get(),
         &BundleImporter::importFinished,
-        m_widget,
+        m_view,
         [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
             QTC_ASSERT(typeName.size(), return);
             if (isMaterialBundle(bundleId)) {
@@ -75,7 +80,7 @@ void BundleHelper::createImporter()
             }
         });
 #else
-    QObject::connect(m_importer.get(), &BundleImporter::importFinished, m_widget,
+    QObject::connect(m_importer.get(), &BundleImporter::importFinished, m_view,
         [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
             QTC_ASSERT(metaInfo.isValid(), return);
             if (isMaterialBundle(bundleId)) {
@@ -185,12 +190,12 @@ void BundleHelper::importBundleToProject()
 void BundleHelper::exportBundle(const ModelNode &node, const QPixmap &iconPixmap)
 {
     if (node.isComponent())
-        export3DComponent(node);
+        exportComponent(node);
     else
-        exportItem(node, iconPixmap);
+        exportNode(node, iconPixmap);
 }
 
-void BundleHelper::export3DComponent(const ModelNode &node)
+void BundleHelper::exportComponent(const ModelNode &node)
 {
     QString exportPath = getExportPath(node);
     if (exportPath.isEmpty())
@@ -204,26 +209,22 @@ void BundleHelper::export3DComponent(const ModelNode &node)
 
     m_zipWriter = std::make_unique<ZipWriter>(exportPath);
 
-    QString compBaseName = node.simplifiedTypeName();
-    QString compFileName = compBaseName + ".qml";
-
-    auto compDir = Utils::FilePath::fromString(ModelUtils::componentFilePath(node)).parentDir();
+    Utils::FilePath compFilePath = Utils::FilePath::fromString(ModelUtils::componentFilePath(node));
+    Utils::FilePath compDir = compFilePath.parentDir();
+    QString compBaseName = compFilePath.completeBaseName();
+    QString compFileName = compFilePath.fileName();
 
     QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
 
-    const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
-    const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
-    QStringList filesList; // 3D component's assets (dependencies)
+    const QSet<AssetPath> compDependencies = getComponentDependencies(compFilePath, compDir);
 
-    for (const Utils::FilePath &sourcePath : sourceFiles) {
-        Utils::FilePath relativePath = sourcePath.relativePathFrom(compDir);
-        if (ignoreList.contains(sourcePath.fileName()) || relativePath.startsWith("source scene"))
-            continue;
+    QStringList filesList;
+    for (const AssetPath &asset : compDependencies) {
+        Utils::FilePath assetAbsPath = asset.absFilPath();
+        m_zipWriter->addFile(asset.relativePath, assetAbsPath.fileContents().value_or(""));
 
-        m_zipWriter->addFile(relativePath.toFSPathString(), sourcePath.fileContents().value_or(""));
-
-        if (sourcePath.fileName() != compFileName) // skip component file (only collect dependencies)
-            filesList.append(relativePath.path());
+        if (assetAbsPath.fileName() != compFileName) // skip component file (only collect dependencies)
+            filesList.append(asset.relativePath);
     }
 
     // add the item to the bundle json
@@ -248,12 +249,12 @@ void BundleHelper::export3DComponent(const ModelNode &node)
     // add icon
     m_iconSavePath = targetPath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
-    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
+    getImageFromCache(compFilePath.path(), [&](const QImage &image) {
         addIconAndCloseZip(image);
     });
 }
 
-void BundleHelper::exportItem(const ModelNode &node, const QPixmap &iconPixmap)
+void BundleHelper::exportNode(const ModelNode &node, const QPixmap &iconPixmap)
 {
     QString exportPath = getExportPath(node);
     if (exportPath.isEmpty())
@@ -309,9 +310,15 @@ void BundleHelper::exportItem(const ModelNode &node, const QPixmap &iconPixmap)
     Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
     m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
 
-    // add item's dependency assets to the bundle zip
-    for (const AssetPath &assetPath : depAssetsList)
-        m_zipWriter->addFile(assetPath.relativePath, assetPath.absFilPath().fileContents().value_or(""));
+    // add item's dependency assets to the bundle zip and target path (for icon generation)
+    for (const AssetPath &assetPath : depAssetsList) {
+        auto assetContent = assetPath.absFilPath().fileContents().value_or("");
+        m_zipWriter->addFile(assetPath.relativePath, assetContent);
+
+        Utils::FilePath assetTargetPath = targetPath.pathAppended(assetPath.relativePath);
+        assetTargetPath.parentDir().ensureWritableDir();
+        assetTargetPath.writeFileContents(assetContent);
+    }
 
     // add icon
     QPixmap iconPixmapToSave;
@@ -359,8 +366,8 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
     const QList<PropertyName> excludedProps = {"x", "y", "z", "eulerRotation.x", "eulerRotation.y",
                                                "eulerRotation.z", "scale.x", "scale.y", "scale.z",
                                                "pivot.x", "pivot.y", "pivot.z"};
-    const QList<AbstractProperty> matProps = node.properties();
-    for (const AbstractProperty &p : matProps) {
+    const QList<AbstractProperty> nodeProps = node.properties();
+    for (const AbstractProperty &p : nodeProps) {
         if (excludedProps.contains(p.name()))
             continue;
 
@@ -372,13 +379,11 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
                 // dynamic property with no value assigned
             } else if (strcmp(pValue.typeName(), "QString") == 0 || strcmp(pValue.typeName(), "QColor") == 0) {
                 val = QLatin1String("\"%1\"").arg(pValue.toString());
-            } else if (strcmp(pValue.typeName(), "QUrl") == 0) {
+            } else if (std::string_view{pValue.typeName()} == "QUrl") {
                 QString pValueStr = pValue.toString();
                 val = QLatin1String("\"%1\"").arg(pValueStr);
-                if (!pValueStr.startsWith("#")) {
-                    assets.insert({DocumentManager::currentResourcePath().toFSPathString(),
-                                   pValue.toString()});
-                }
+                if (!pValueStr.startsWith("#"))
+                    assets.insert({DocumentManager::currentFilePath().parentDir(), pValue.toString()});
             } else if (strcmp(pValue.typeName(), "QmlDesigner::Enumeration") == 0) {
                 val = pValue.value<QmlDesigner::Enumeration>().toString();
             } else {
@@ -391,19 +396,25 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
                 qml += indent + p.name() + ": " + val + "\n";
             }
         } else if (p.isBindingProperty()) {
-            ModelNode depNode = m_view->modelNodeForId(p.toBindingProperty().expression());
-            QTC_ASSERT(depNode.isValid(), continue);
+            const QString pExp = p.toBindingProperty().expression();
+            const QStringList depNodesIds = ModelUtils::expressionToList(pExp);
+            QTC_ASSERT(!depNodesIds.isEmpty(), continue);
 
             if (p.isDynamic())
-                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + ": " + depNode.id() + "\n";
+                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + ": " + pExp + "\n";
             else
-                qml += indent + p.name() + ": " + depNode.id() + "\n";
+                qml += indent + p.name() + ": " + pExp + "\n";
 
-            if (depNode && !depListIds.contains(depNode.id())) {
-                depListIds.append(depNode.id());
-                auto [depQml, depAssets] = modelNodeToQmlString(depNode, depth + 1);
-                qml += "\n" + depQml + "\n";
-                assets.unite(depAssets);
+            for (const QString &id : depNodesIds) {
+                ModelNode depNode = m_view->modelNodeForId(id);
+                QTC_ASSERT(depNode.isValid(), continue);
+
+                if (depNode && !depListIds.contains(depNode.id())) {
+                    depListIds.append(depNode.id());
+                    auto [depQml, depAssets] = modelNodeToQmlString(depNode, depth + 1);
+                    qml += "\n" + depQml + "\n";
+                    assets.unite(depAssets);
+                }
             }
         }
     }
@@ -430,9 +441,10 @@ QPair<QString, QSet<AssetPath>> BundleHelper::modelNodeToQmlString(const ModelNo
         if (depth > 0) {
             // add component file to the dependency assets
             Utils::FilePath compFilePath = componentPath(node.metaInfo());
-            assets.insert({compFilePath.parentDir().path(), compFilePath.fileName()});
+            assets.insert({compFilePath.parentDir(), compFilePath.fileName()});
         }
 
+        // TODO: use getComponentDependencies() and remove getBundleComponentDependencies()
         if (isBundle)
             assets.unite(getBundleComponentDependencies(node));
     }
@@ -469,7 +481,7 @@ QSet<AssetPath> BundleHelper::getBundleComponentDependencies(const ModelNode &no
 
     for (const QString &asset : bundleAssets) {
         if (rootObj.value(asset).toArray().contains(compFileName))
-            depList.insert({compPath.toFSPathString(), asset});
+            depList.insert({compPath, asset});
     }
 
     return depList;
@@ -573,6 +585,93 @@ bool BundleHelper::isItemBundle(const QString &bundleId) const
     auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
     return bundleId == compUtils.effectsBundleId() || bundleId == compUtils.userEffectsBundleId()
            || bundleId == compUtils.user3DBundleId();
+}
+
+namespace {
+
+// library imported Components won't be detected. TODO: find a feasible solution for detecting them
+// and either add them as dependencies or warn the user
+Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FilePath &compDir)
+{
+    Utils::FilePath compFilePath = compDir.pathAppended(QLatin1String("%1.qml").arg(nodeType));
+    if (compFilePath.exists())
+        return compFilePath;
+
+    compFilePath = compDir.pathAppended(QLatin1String("%1.ui.qml").arg(nodeType));
+    if (compFilePath.exists())
+        return compFilePath;
+
+    const Utils::FilePaths subDirs = compDir.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+    for (const Utils::FilePath &dir : subDirs) {
+        compFilePath = getComponentFilePath(nodeType, dir);
+        if (compFilePath.exists())
+            return compFilePath;
+    }
+
+    return {};
+}
+
+} // namespace
+
+QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &filePath,
+                                                       const Utils::FilePath &mainCompDir)
+{
+    QSet<AssetPath> depList;
+
+    depList.insert({mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()});
+
+    ModelPointer model = Model::create("Item");
+    Utils::FileReader reader;
+    QTC_ASSERT(reader.fetch(filePath), return {});
+
+    QPlainTextEdit textEdit;
+    textEdit.setPlainText(QString::fromUtf8(reader.data()));
+    NotIndentingTextEditModifier modifier(&textEdit);
+    modifier.setParent(model.get());
+    RewriterView rewriterView(m_view->externalDependencies(), RewriterView::Validate);
+    rewriterView.setCheckSemanticErrors(false);
+    rewriterView.setTextModifier(&modifier);
+    model->attachView(&rewriterView);
+    rewriterView.restoreAuxiliaryData();
+    ModelNode rootNode = rewriterView.rootModelNode();
+    QTC_ASSERT(rootNode.isValid(), return {});
+
+    std::function<void(const ModelNode &node)> parseNode;
+    parseNode = [&](const ModelNode &node) {
+        // workaround node.isComponent() as it is not working here
+        QString nodeType = QString::fromLatin1(node.type());
+        if (!nodeType.startsWith("QtQuick")) {
+            Utils::FilePath compFilPath = getComponentFilePath(nodeType, mainCompDir);
+            if (!compFilPath.isEmpty()) {
+                depList.unite(getComponentDependencies(compFilPath, mainCompDir));
+                return;
+            }
+        }
+
+        const QList<AbstractProperty> nodeProps = node.properties();
+        for (const AbstractProperty &p : nodeProps) {
+            if (p.isVariantProperty()) {
+                QVariant pValue = p.toVariantProperty().value();
+                if (std::string_view{pValue.typeName()} == "QUrl") {
+                    QString pValueStr = pValue.toString();
+                    if (!pValueStr.isEmpty() && !pValueStr.startsWith("#")) {
+                        Utils::FilePath assetPath = filePath.parentDir().resolvePath(pValueStr);
+                        Utils::FilePath assetPathRelative = assetPath.relativePathFrom(mainCompDir);
+                        depList.insert({mainCompDir, assetPathRelative.toFSPathString()});
+                    }
+                }
+            }
+        }
+
+        // parse child nodes
+        const QList<ModelNode> childNodes = node.directSubModelNodes();
+        for (const ModelNode &childNode : childNodes)
+            parseNode(childNode);
+    };
+
+    parseNode(rootNode);
+
+    return depList;
 }
 
 } // namespace QmlDesigner
