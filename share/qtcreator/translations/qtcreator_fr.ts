@@ -5373,7 +5373,8 @@ Erreur&#xa0;:
     </message>
     <message>
         <source>Axis</source>
-        <translation></translation>
+        <translatorcomment>Peut être au pluriel ?</translatorcomment>
+        <translation>Axe</translation>
     </message>
     <message>
         <source>Threshold</source>
@@ -6185,10 +6186,6 @@ est en cours.</translation>
 <context>
     <name>QKeychain::JobPrivate</name>
     <message>
-        <source>Unknown error</source>
-        <translation>Erreur inconnue</translation>
-    </message>
-    <message>
         <source>Access to keychain denied</source>
         <translatorcomment>keychain ?</translatorcomment>
         <translation>Accès refusé au porte-clés</translation>
@@ -6344,46 +6341,6 @@ est en cours.</translation>
 Do you want to edit this effect?</source>
         <translation>Assurez-vous de l&apos;avoir sauvegardé dans le compositeur d&apos;effet.
 Souhaitez-vous éditer cet effet&#xa0;?</translation>
-    </message>
-    <message>
-        <source>Access to keychain denied</source>
-        <translation>Accès au porte-clés refusé</translation>
-    </message>
-    <message>
-        <source>No keyring daemon</source>
-        <translation>Aucun démon de trousseau disponible</translation>
-    </message>
-    <message>
-        <source>Already unlocked</source>
-        <translation>Déjà déverrouillé</translation>
-    </message>
-    <message>
-        <source>No such keyring</source>
-        <translation>Aucun trousseau de ce type</translation>
-    </message>
-    <message>
-        <source>Bad arguments</source>
-        <translation>Arguments incorrects</translation>
-    </message>
-    <message>
-        <source>I/O error</source>
-        <translation>Erreur d&apos;E/S</translation>
-    </message>
-    <message>
-        <source>Cancelled</source>
-        <translation>Annulé</translation>
-    </message>
-    <message>
-        <source>Keyring already exists</source>
-        <translation>Le trousseau existe déjà</translation>
-    </message>
-    <message>
-        <source>No match</source>
-        <translation>Aucun résultat</translation>
-    </message>
-    <message>
-        <source>Unknown error</source>
-        <translation>Erreur inconnue</translation>
     </message>
     <message>
         <source>Entry not found</source>
@@ -12958,7 +12915,7 @@ Exécutable&#xa0;: %2</translation>
     </message>
     <message>
         <source>Stop on failure</source>
-        <translation>Arrêt sur échec</translation>
+        <translation>Arrêter sur échec</translation>
     </message>
     <message>
         <source>Run tests in parallel mode using given number of jobs.</source>
@@ -13204,7 +13161,7 @@ Voir la documentation de Google Test pour plus d&apos;informations sur les filtr
     </message>
     <message>
         <source>Event counter</source>
-        <translation>Compteurd&apos;événements</translation>
+        <translation>Compteur d&apos;événements</translation>
     </message>
     <message>
         <source>Uses event counter when executing benchmarks.</source>
@@ -15659,11 +15616,11 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
     </message>
     <message>
         <source>CMake arguments:</source>
-        <translation>Arguments de Cmake :</translation>
+        <translation>Arguments de CMake&#xa0;:</translation>
     </message>
     <message>
         <source>Tool arguments:</source>
-        <translation>Arguments de l’outil :</translation>
+        <translation>Arguments de l&apos;outil&#xa0;:</translation>
     </message>
     <message>
         <source>Stage for installation</source>
@@ -16048,7 +16005,7 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
     </message>
     <message>
         <source>CMake generator defines how a project is built when using CMake.&lt;br&gt;This setting is ignored when using other build systems.</source>
-        <translation></translation>
+        <translation>Le générateur CMake définit comment le projet est compilé par CMake.&lt;br&gt;Ce paramètre est ignoré lors de l&apos;utilisation d&apos;un autre système de compilation.</translation>
     </message>
     <message>
         <source>CMake Tool is unconfigured, CMake generator will be ignored.</source>
@@ -17818,8 +17775,8 @@ Définissez d’abord un exécutable valide.</translation>
     </message>
     <message>
         <source>Class View</source>
-        <translatorcomment>Ou est-ce un rapport avec la Vue ? (graphics/view)</translatorcomment>
-        <translation>Affichage de la classe</translation>
+        <translatorcomment>Ce texte est affiché dans le combobox du panneau de gauche (où l&apos;on affiche la hiérarchie du projets ou le système de fichiers). Peut être que &quot;symboles&quot; aurait plus sa place, sachant que ce mode affiche une liste des classes et les symboles définis par ces classes.</translatorcomment>
+        <translation>Classes</translation>
     </message>
 </context>
 <context>
@@ -20315,7 +20272,8 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Whole words o&amp;nly</source>
-        <translation>&amp;Mots complets uniquement</translation>
+        <translatorcomment>On trouve, plus couramment, l&apos;expression &quot;Mots entiers&quot;</translatorcomment>
+        <translation>&amp;Mots entiers uniquement</translation>
     </message>
     <message>
         <source>Use re&amp;gular expressions</source>
@@ -20403,7 +20361,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Whole Words Only</source>
-        <translation>Mots complets uniquement</translation>
+        <translation>Mots entiers uniquement</translation>
     </message>
     <message>
         <source>Use Regular Expressions</source>
@@ -20696,7 +20654,7 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
     </message>
     <message>
         <source>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Open a document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Open File or Project (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; File &gt; Recent Files&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Tools &gt; Locate (%2) and&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- type to open file from any open project&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%3&amp;lt;space&amp;gt;&amp;lt;filename&amp;gt;&lt;/code&gt; to open file from file system&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- select one of the other filters for jumping to a location&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Drag and drop files here&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Ouvrir un document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Fichier&gt; Ouvrir un fichier ou un projet (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Fichier &gt; Fichiers récents&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Outils &gt; Localiser (%2) et&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- taper pour ouvrir un fichier à partir de n’importe quel projet ouvert&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- saisir &lt;code&gt;%3&amp;lt;espace&amp;gt;&amp;lt;nom du fichier&amp;gt;&lt;/code&gt; pour ouvrir le fichier à partir du système de fichiers&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- sélectionner l’un des autres filtres pour accéder à un emplacement donné&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Glisser-déposer des fichiers ici&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;body style=&quot;color:#909090; font-size:14px&quot;&gt;&lt;div align=&apos;center&apos;&gt;&lt;div style=&quot;font-size:20px&quot;&gt;Ouvrir un document&lt;/div&gt;&lt;table&gt;&lt;tr&gt;&lt;td&gt;&lt;hr/&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Fichier &gt; Ouvrir un fichier ou un projet (%1)&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Fichier &gt; Fichiers récents&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Outils &gt; Localiser (%2) et&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- taper pour ouvrir un fichier à partir de n’importe quel projet ouvert&lt;/div&gt;%4%5&lt;div style=&quot;margin-left: 1em&quot;&gt;- saisir &lt;code&gt;%3&amp;lt;espace&amp;gt;&amp;lt;nom du fichier&amp;gt;&lt;/code&gt; pour ouvrir le fichier à partir du système de fichiers&lt;/div&gt;&lt;div style=&quot;margin-left: 1em&quot;&gt;- sélectionner l’un des autres filtres pour accéder à un emplacement donné&lt;/div&gt;&lt;div style=&quot;margin-top: 5px&quot;&gt;&amp;bull; Glisser-déposer des fichiers ici&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>&lt;div style=&quot;margin-left: 1em&quot;&gt;- type &lt;code&gt;%1&amp;lt;space&amp;gt;&amp;lt;pattern&amp;gt;&lt;/code&gt; to jump to a class definition&lt;/div&gt;</source>
@@ -21214,8 +21172,8 @@ To do this, you type this shortcut and a space in the Locator entry field, and t
         <translation>Type</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les données magiques MIME sont interprétées conformément à la spécification de la base de données partagée d’informations MIME de &lt;a href=&quot;http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Les données magiques MIME sont interprétées conformément à la spécification de la base de données partagée d’informations MIME fournie par &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>String</source>
@@ -23862,7 +23820,7 @@ Ces préfixes sont utilisés en complément au répertoire actuel pour basculer 
     </message>
     <message>
         <source>Switch Between Function Declaration/Definition</source>
-        <translation>Changer entre la définition et déclaration de la fonction</translation>
+        <translation>Changer entre la définition et la déclaration de la fonction</translation>
     </message>
     <message>
         <source>Open Function Declaration/Definition in Next Split</source>
@@ -26804,7 +26762,8 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     </message>
     <message>
         <source>Global Debugger &amp;Log</source>
-        <translation>&amp;Journal du débogueur général</translation>
+        <translatorcomment>Je pense que &quot;Global&quot; se réfère au log et non au débogueur.</translatorcomment>
+        <translation>&amp;Journal général du débogueur</translation>
     </message>
     <message>
         <source>Reload Debugging Helpers</source>
@@ -27195,7 +27154,7 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     </message>
     <message>
         <source>Start and Break on Main</source>
-        <translation>Démarrer et s’arrêter sur le Main</translation>
+        <translation>Démarrer et s&apos;arrêter sur la fonction Main</translation>
     </message>
     <message>
         <source>DAP</source>
@@ -27344,7 +27303,8 @@ Il peut vous être demandé de partager le contenu de ce journal lorsque vous si
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You are trying to run the tool &quot;%1&quot; on an application in %2 mode. The tool is designed to be used %3.&lt;/p&gt;&lt;p&gt;Run-time characteristics differ significantly between optimized and non-optimized binaries. Analytical findings for one mode may or may not be relevant for the other.&lt;/p&gt;&lt;p&gt;Running tools that need debug symbols on binaries that don&apos;t provide any may lead to missing function names or otherwise insufficient output.&lt;/p&gt;&lt;p&gt;Do you want to continue and run the tool in %2 mode?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vous essayez d’exécuter l’outil «&#xa0;%1&#xa0;» sur une application en mode %2. L’outil est conçu pour être utilisé en mode %3.&lt;/p&gt;&lt;p&gt;Les caractéristiques d’exécution diffèrent considérablement entre les binaires optimisés et non optimisés. L’exécution d’outils nécessitant des symboles de débogage sur des binaires qui n’en fournissent pas peut conduire à des noms de fonctions manquants ou à des résultats insuffisants.&lt;/p&gt;&lt;p&gt;Voulez-vous continuer et exécuter l’outil en mode %2&#xa0;?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translatorcomment>%3 est remplacé par la chaîne précédente (on optimized code...)</translatorcomment>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Vous essayez d&apos;exécuter l&apos;outil «&#xa0;%1&#xa0;» sur une application en mode %2. L&apos;outil est conçu pour être utilisé %3.&lt;/p&gt;&lt;p&gt;Les caractéristiques d&apos;exécution diffèrent considérablement entre les binaires optimisés et non optimisés. L&apos;exécution d&apos;outils nécessitant des symboles de débogage sur des binaires qui n&apos;en fournissent pas peut conduire à des noms de fonctions manquants ou à des résultats insuffisants.&lt;/p&gt;&lt;p&gt;Voulez-vous continuer et exécuter l&apos;outil en mode %2&#xa0;?&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Start</source>
@@ -30909,7 +30869,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Plugin Emulation</source>
-        <translation>Émulation de plug-in</translation>
+        <translation>Émulation de greffon</translation>
     </message>
     <message>
         <source>Use smartcase</source>
@@ -30917,7 +30877,7 @@ Raison : %3</translation>
     </message>
     <message>
         <source>Use wrapscan</source>
-        <translation>Utiliser recherche circulaire</translation>
+        <translation>Utiliser la recherche circulaire</translation>
     </message>
     <message>
         <source>Use ignorecase</source>
@@ -32712,7 +32672,7 @@ Valider maintenant&#xa0;?</translation>
     </message>
     <message>
         <source>Manage Remotes...</source>
-        <translation></translation>
+        <translation>Gérer les dépôts distants…</translation>
     </message>
     <message>
         <source>Git &amp;Tools</source>
@@ -41850,7 +41810,7 @@ Sélectionne un Qt optimisé pour bureaux pour compiler l&apos;application, si d
     </message>
     <message>
         <source>Nim Script File</source>
-        <translation></translation>
+        <translation>Fichier de script Nim</translation>
     </message>
     <message>
         <source>Creates an empty Nim file using UTF-8 charset.</source>
@@ -43467,7 +43427,8 @@ Activez cette option si vous envisagez de créer des binaires x86 32 bits sans u
     </message>
     <message>
         <source>Standard error</source>
-        <translation>Sortie erreur (stderr)</translation>
+        <translatorcomment>A revoir -&gt; Sortie d&apos;erreur</translatorcomment>
+        <translation>Sortie d&apos;erreur (stderr)</translation>
     </message>
     <message>
         <source>E&amp;rror message:</source>
@@ -43926,7 +43887,7 @@ Activez cette option si vous envisagez de créer des binaires x86 32 bits sans u
     </message>
     <message>
         <source>Files in All Project Directories:</source>
-        <translation>Fichiers dans tous les répertoires du projet :</translation>
+        <translation>Fichiers dans tous les répertoires du projet&#xa0;:</translation>
     </message>
     <message>
         <source>Setting</source>
@@ -55011,7 +54972,8 @@ Ne s’applique pas aux espaces blancs dans les commentaires et dans les chaîne
     </message>
     <message>
         <source>Underline</source>
-        <translation></translation>
+        <translatorcomment>Vu dans LibreOffice</translatorcomment>
+        <translation>Soulignage</translation>
     </message>
     <message>
         <source>Color:</source>
@@ -57242,7 +57204,7 @@ dans «&#xa0;%2&#xa0;».
     </message>
     <message>
         <source>Show %1 Column</source>
-        <translation></translation>
+        <translation>Afficher la colonne «&#xa0;%1&#xa0;»</translation>
     </message>
     <message>
         <source>No clangd executable specified.</source>
@@ -57272,7 +57234,7 @@ dans «&#xa0;%2&#xa0;».
     </message>
     <message>
         <source>Error while trying to copy file: %1</source>
-        <translation></translation>
+        <translation>Erreur lors de la copie du fichier&#xa0;: %1</translation>
     </message>
     <message>
         <source>Could not copy file: %1</source>
@@ -57441,7 +57403,7 @@ Pour définir ou changer une variable, utilisez VARIABLE=VALEUR.
 Pour désactiver une variable, préfixez la ligne avec le caractère «&#xa0;#&#xa0;».
 Pour suffixer une variable, utilisez VARIABLE+=VALEUR.
 Pour préfixer une variable, utilisez VARIABLE=+VALEUR.
-Les variables existantes peuvent être référencées dans une VALEUR avec ${OTHER}.
+Les variables existantes peuvent être référencées dans une VALEUR avec ${AUTRE}.
 Pour effacer une variable, placez son nom sur une ligne avec rien d&apos;autre sur celle-ci.
 Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaires.</translation>
     </message>
@@ -57754,7 +57716,7 @@ Les lignes débutant avec «&#xa0;###&#xa0;» seront traitées comme commentaire
     </message>
     <message>
         <source>Backtrace frame count:</source>
-        <translation>Backtracer le nombre de trames :</translation>
+        <translation>Nombre de trames à remonter&#xa0;:</translation>
     </message>
     <message>
         <source>Suppression files:</source>
@@ -57906,7 +57868,7 @@ Avec la simulation du cache, d’autres compteurs d’évènements sont activés
     </message>
     <message>
         <source>Check for leaks on finish:</source>
-        <translation>Vérification des fuites lorsque c’est fini :</translation>
+        <translation>Vérification des fuites à la fin&#xa0;:</translation>
     </message>
     <message>
         <source>Summary Only</source>
@@ -59205,7 +59167,7 @@ Vérifiez les paramètres pour vous assurer que Valgrind est installé et dispon
     </message>
     <message>
         <source>Wrap submit message at:</source>
-        <translation>Limiter la largeur du message à :</translation>
+        <translation>Limiter la taille du message à&#xa0;:</translation>
     </message>
     <message>
         <source> characters</source>
@@ -59550,7 +59512,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>Mode Selector</source>
-        <translation></translation>
+        <translation>Sélecteur de mode</translation>
     </message>
     <message>
         <source>Select different modes depending on the task at hand.</source>
@@ -59558,7 +59520,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Welcome:&lt;/td&gt;&lt;td&gt;Open examples, tutorials, and recent sessions and projects.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Edit:&lt;/td&gt;&lt;td&gt;Work with code and navigate your project.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Visually edit Widget-based user interfaces, state charts and UML models.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Debug:&lt;/td&gt;&lt;td&gt;Analyze your application with a debugger or other analyzers.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projects:&lt;/td&gt;&lt;td&gt;Manage project settings.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Help:&lt;/td&gt;&lt;td&gt;Browse the help database.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Accueil :&lt;/td&gt;&lt;td&gt;Ouvrez des exemples, des tutoriels et des sessions et projets récents.&lt;/td&gt;&lt;/tr&gt;&lt;td&gt;Modifier :&lt;/td&gt;&lt;td&gt;Travaillez avec le code et naviguez dans votre projet.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design:&lt;/td&gt;&lt;td&gt;Modifiez visuellement des interfaces utilisateur basées sur des widgets, des diagrammes d’état et des modèles UML. &lt;/td&gt;&lt;/tr&gt;&lt;ttr&gt;&lt;td&gt;Débogage :&lt;/td&gt;&lt;td&gt;Analysez votre application avec un débogueur ou d’autres analyseurs.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projets :&lt;/td&gt;&lt;td&gt;Gérez les paramètres du projet.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Aide :&lt;/td&gt;&lt;td&gt;Parcourez la base de données d’aide.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p style=&quot;margin-top: 30px&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td style=&quot;padding-right: 20px&quot;&gt;Accueil :&lt;/td&gt;&lt;td&gt;Ouvrez des exemples, des tutoriels et des sessions et projets récents.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Modifier&#xa0;:&lt;/td&gt;&lt;td&gt;Travaillez avec le code et naviguez dans votre projet.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Design&#xa0;:&lt;/td&gt;&lt;td&gt;Modifiez visuellement des interfaces utilisateur basées sur des widgets, des diagrammes d&apos;état et des modèles UML. &lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Débogage&#xa0;:&lt;/td&gt;&lt;td&gt;Analysez votre application avec un débogueur ou d&apos;autres analyseurs.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Projets&#xa0;:&lt;/td&gt;&lt;td&gt;Gérez les paramètres du projet.&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;Aide&#xa0;:&lt;/td&gt;&lt;td&gt;Parcourez la base de données d&apos;aide.&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Kit Selector</source>
@@ -59590,7 +59552,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>Build the active project.</source>
-        <translation>Compiler le projet actif.</translation>
+        <translation>Compile le projet actif.</translation>
     </message>
     <message>
         <source>Locator</source>
@@ -59610,7 +59572,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>Find compile and application output here, as well as a list of configuration and build issues, and the panel for global searches.</source>
-        <translation>Vous y trouverez les résultats de la compilation et de l’application, ainsi qu’une liste des problèmes de configuration et de compilation, et le panneau des recherches générales.</translation>
+        <translation>Vous y trouverez les résultats de la compilation et de l&apos;application, ainsi qu’une liste des problèmes de configuration et de compilation, ainsi que le panneau des recherches globales.</translation>
     </message>
     <message>
         <source>Progress Indicator</source>
@@ -59634,8 +59596,7 @@ si un dépôt requiert une authentification SSH (voir la documentation sur SSH e
     </message>
     <message>
         <source>You have now completed the UI tour. To learn more about the highlighted controls, see &lt;a style=&quot;color: #41CD52&quot; href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html&quot;&gt;User Interface&lt;/a&gt;.</source>
-        <translation>Vous avez maintenant terminé la visite guidée de l’interface utilisateur
-Pour en savoir plus sur les contrôles mis en évidence, voir l’&lt;a style=&quot;color: #41CD52&quot; href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html&quot;&gt;interface utilisateur&lt;/a&gt;.</translation>
+        <translation>Vous avez maintenant terminé la visite guidée de l&apos;interface utilisateur. Pour en savoir plus sur les contrôles mis en évidence, consultez la page d&apos;aide concernant l&apos;&lt;a style=&quot;color: #41CD52&quot; href=&quot;qthelp://org.qt-project.qtcreator/doc/creator-quick-tour.html&quot;&gt;interface utilisateur&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>UI Introduction %1/%2 &gt;</source>
@@ -60869,7 +60830,7 @@ Elle est utilisée pour calculer la taille totale implicite.</translation>
     </message>
     <message>
         <source>Current value of the Slider. The default value is 0.0.</source>
-        <translation></translation>
+        <translation>Valeur actuelle du slider. La valeur par défaut est 0.0.</translation>
     </message>
     <message>
         <source>Maximum value</source>

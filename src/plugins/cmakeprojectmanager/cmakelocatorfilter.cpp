@@ -23,7 +23,7 @@ using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-using BuildAcceptor = std::function<void(const FilePath &, const QString &)>;
+using BuildAcceptor = std::function<void(const BuildSystem *, const QString &)>;
 
 // CMakeBuildTargetFilter
 
@@ -62,8 +62,8 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                     LocatorFilterEntry entry;
                     entry.displayName = displayName;
                     if (acceptor) {
-                        entry.acceptor = [projectPath, displayName, acceptor] {
-                            acceptor(projectPath, displayName);
+                        entry.acceptor = [bs, displayName, acceptor] {
+                            acceptor(bs, displayName);
                             return AcceptResult();
                         };
                     }

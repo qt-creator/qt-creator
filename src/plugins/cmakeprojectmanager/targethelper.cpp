@@ -4,34 +4,21 @@
 #include "targethelper.h"
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
-#include <utils/algorithm.h>
 
 #include "cmakebuildstep.h"
-#include "cmakebuildsystem.h"
-#include "cmakeproject.h"
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
-void buildTarget(const Utils::FilePath &projectPath, const QString &targetName)
+void buildTarget(const ProjectExplorer::BuildSystem *buildSystem, const QString &targetName)
 {
-    // Get the project containing the target selected
-    const auto cmakeProject = qobject_cast<CMakeProject *>(Utils::findOrDefault(
-        ProjectExplorer::ProjectManager::projects(), [projectPath](ProjectExplorer::Project *p) {
-            return p->projectFilePath() == projectPath;
-        }));
-    if (!cmakeProject || !cmakeProject->activeTarget()
-        || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
-
-    if (ProjectExplorer::BuildManager::isBuilding(cmakeProject))
+    if (ProjectExplorer::BuildManager::isBuilding(buildSystem->project()))
         ProjectExplorer::BuildManager::cancel();
 
     // Find the make step
     const ProjectExplorer::BuildStepList *buildStepList
-        = cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();
+        = buildSystem->buildConfiguration()->buildSteps();
     const auto buildStep = buildStepList->firstOfType<Internal::CMakeBuildStep>();
     if (!buildStep)
         return;
@@ -41,8 +28,8 @@ void buildTarget(const Utils::FilePath &projectPath, const QString &targetName)
     buildStep->setBuildTargets({targetName});
 
     // Build
-    ProjectExplorer::BuildManager::buildProjectWithDependencies(cmakeProject);
+    ProjectExplorer::BuildManager::buildProjectWithDependencies(buildSystem->project());
     buildStep->setBuildTargets(oldTargets);
 }
 
-} // namespace CMakeProjectManager
+} // namespace CMakeProjectManager::Internal

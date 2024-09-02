@@ -131,6 +131,8 @@ public:
     bool needsBuildConfigurations() const;
     virtual void configureAsExampleProject(ProjectExplorer::Kit *kit);
 
+    void buildTarget(const QString &target);
+
     virtual ProjectImporter *projectImporter() const;
 
     virtual DeploymentKnowledge deploymentKnowledge() const { return DeploymentKnowledge::Bad; }

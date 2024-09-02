@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include "cmake_global.h"
+#include <QString>
 
-#include <utils/filepath.h>
+namespace ProjectExplorer { class BuildSystem; }
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
-CMAKE_EXPORT void buildTarget(const Utils::FilePath &projectPath, const QString &targetName);
+void buildTarget(const ProjectExplorer::BuildSystem *buildSystem, const QString &targetName);
 
-} // namespace CMakeProjectManager
+} // namespace CMakeProjectManager::Internal
