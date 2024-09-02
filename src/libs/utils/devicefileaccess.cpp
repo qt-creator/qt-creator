@@ -11,7 +11,6 @@
 #include "hostosinfo.h"
 #include "osspecificaspects.h"
 #include "qtcassert.h"
-#include "synchronizedvalue.h"
 #include "utilstr.h"
 
 #ifndef UTILS_STATIC_LIBRARY
@@ -406,19 +405,24 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
 
 class DesktopFilePathWatcher final : public FilePathWatcher
 {
-    class GlobalWatcher final : public QObject
+    class GlobalWatcher final
     {
     public:
         GlobalWatcher()
         {
-            // Normally we want to make sure that this object is created on the main thread.
-            // Certain tests might not have a qApp though, so we allow for that.
-            QTC_CHECK(!qApp || QThread::currentThread() == qApp->thread());
-            d.writeLocked()->init(this);
+            m_thread.setObjectName(QStringLiteral("DesktopFilePathWatcher"));
+            m_thread.start();
+            d.moveToThread(&m_thread);
+            d.init();
+        }
+        ~GlobalWatcher()
+        {
+            m_thread.quit();
+            m_thread.wait();
         }
 
-        void watch(DesktopFilePathWatcher *watcher) { d.writeLocked()->watch(watcher); }
-        void removeWatch(DesktopFilePathWatcher *watcher) { d.writeLocked()->removeWatch(watcher); }
+        bool watch(DesktopFilePathWatcher *watcher) { return d.watch(watcher); }
+        bool removeWatch(DesktopFilePathWatcher *watcher) { return d.removeWatch(watcher); }
 
         static GlobalWatcher &instance()
         {
@@ -427,106 +431,124 @@ class DesktopFilePathWatcher final : public FilePathWatcher
         }
 
     private:
-        class Private
+        class Private : public QObject
         {
         public:
-            void init(GlobalWatcher *parent)
+            void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
+            bool watch(DesktopFilePathWatcher *watcher)
             {
-                connect(
-                    &m_watcher,
-                    &QFileSystemWatcher::fileChanged,
-                    parent,
-                    [parent](const QString &path) {
-                        bool shouldReAddFile = parent->d.readLocked()->notify(path, true);
-                        if (shouldReAddFile)
-                            parent->d.writeLocked()->m_watcher.addPath(path);
-                    });
+                return QMetaObject::invokeMethod(
+                    this, [this, watcher] { return _watch(watcher); }, Qt::BlockingQueuedConnection);
+            }
+            bool removeWatch(DesktopFilePathWatcher *watcher)
+            {
+                return QMetaObject::invokeMethod(
+                    this,
+                    [this, watcher] { return _removeWatch(watcher); },
+                    Qt::BlockingQueuedConnection);
+            }
+
+        protected:
+            void _init()
+            {
+                m_watcher = new QFileSystemWatcher(this);
+
+                connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
+                    notify(path, true);
+                });
 
                 connect(
-                    &m_watcher,
+                    m_watcher,
                     &QFileSystemWatcher::directoryChanged,
-                    parent,
-                    [parent](const QString &path) { parent->d.readLocked()->notify(path, false); });
+                    this,
+                    [this](const QString &path) { notify(path, false); });
             }
-            bool notify(const QString &path, bool isFile) const
+            void notify(const QString &path, bool isFile) const
             {
                 const FilePath filePath = FilePath::fromString(path);
                 auto it = m_watchClients.find(filePath);
                 if (it == m_watchClients.end())
-                    return false;
+                    return;
 
                 for (DesktopFilePathWatcher *watcher : it.value())
                     watcher->emitChanged();
 
-                if (isFile && !m_watcher.files().contains(path)) {
+                if (isFile && !m_watcher->files().contains(path)) {
                     // The file might have been deleted, lets see if there is a new file to watch
                     // in its place:
                     if (QFile::exists(path))
-                        return true;
+                        m_watcher->addPath(path);
                 }
-
-                return false;
             }
-            void watch(DesktopFilePathWatcher *watcher)
+            bool _watch(DesktopFilePathWatcher *watcher)
             {
                 const FilePath path = watcher->path();
                 auto it = m_watchClients.find(path);
 
                 if (it == m_watchClients.end()) {
-                    QMetaObject::invokeMethod(&m_watcher, [this, path] {
-                        bool res = m_watcher.addPath(path.path());
-                        QTC_CHECK(res || !path.exists());
-                    });
+                    if (!m_watcher->addPath(path.path()))
+                        return false;
                     it = m_watchClients.emplace(path);
                 }
                 it->append(watcher);
+                return true;
             }
-            void removeWatch(DesktopFilePathWatcher *watcher)
+
+            bool _removeWatch(DesktopFilePathWatcher *watcher)
             {
                 const FilePath path = watcher->path();
                 auto it = m_watchClients.find(path);
-                QTC_ASSERT(it != m_watchClients.end(), return);
+                QTC_ASSERT(it != m_watchClients.end(), return false);
 
                 it->removeOne(watcher);
                 if (it->size() == 0) {
-                    QMetaObject::invokeMethod(&m_watcher, [this, path] {
-                        bool res = m_watcher.removePath(path.path());
-                        QTC_CHECK(res || !path.exists());
-                    });
-
                     m_watchClients.erase(it);
+                    return m_watcher->removePath(path.path());
                 }
+                return true;
             }
 
         private:
-            QFileSystemWatcher m_watcher;
+            QFileSystemWatcher *m_watcher = nullptr;
             QHash<FilePath, QList<DesktopFilePathWatcher *>> m_watchClients;
         };
-        Utils::SynchronizedValue<Private> d;
+        Private d;
+        QThread m_thread;
     };
 
 public:
     DesktopFilePathWatcher(const FilePath &path)
         : m_path(path)
     {
-        GlobalWatcher::instance().watch(this);
+        if (!GlobalWatcher::instance().watch(this)) {
+            if (path.exists())
+                m_error = Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput());
+            else
+                m_error
+                    = Tr::tr("Failed to watch \"%1\", it does not exist.").arg(path.toUserOutput());
+        }
     }
 
-    ~DesktopFilePathWatcher() { GlobalWatcher::instance().removeWatch(this); }
-
-    static void initialize() { GlobalWatcher::instance(); }
+    ~DesktopFilePathWatcher()
+    {
+        if (m_error.isEmpty()) {
+            QTC_CHECK(GlobalWatcher::instance().removeWatch(this));
+        }
+    }
 
     FilePath path() const { return m_path; }
 
     void emitChanged() { emit pathChanged(m_path); }
 
+    QString error() const { return m_error; }
+
 private:
     const FilePath m_path;
+    QString m_error;
 };
 
 DesktopDeviceFileAccess::DesktopDeviceFileAccess()
 {
-    DesktopFilePathWatcher::initialize();
 }
 
 DesktopDeviceFileAccess::~DesktopDeviceFileAccess() = default;
@@ -918,7 +940,10 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
 Utils::expected_str<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
     const FilePath &path) const
 {
-    return std::make_unique<DesktopFilePathWatcher>(path);
+    auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
+    if (watcher->error().isEmpty())
+        return watcher;
+    return make_unexpected(watcher->error());
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const

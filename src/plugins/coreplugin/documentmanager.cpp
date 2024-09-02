@@ -147,7 +147,11 @@ public:
             return false;
 
         expected_str<std::unique_ptr<FilePathWatcher>> res = path.watch();
-        QTC_ASSERT_EXPECTED(res, return false;);
+        if (!res) {
+            if (!path.exists())
+                return false; // Too much noise if we complain about non-existing files here.
+            QTC_ASSERT_EXPECTED(res, return false);
+        }
 
         connect(res->get(), &FilePathWatcher::pathChanged, this, [this, path] {
             emit fileChanged(path);
