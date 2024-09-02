@@ -205,7 +205,7 @@ void DocumentClangToolRunner::run()
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
-        const AnalyzeUnits units{{m_fileInfo, includeDir, clangVersion}};
+        const AnalyzeUnits units{{m_fileInfo, tool}};
         const auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
                                     const FilePath &path) { return path == mappedPath; };
         const AnalyzeInputData input{tool,
@@ -219,7 +219,8 @@ void DocumentClangToolRunner::run()
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{finishAllAndSuccess, clangToolTask(units, input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndSuccess,
+                           clangToolTask(tool, units, input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);

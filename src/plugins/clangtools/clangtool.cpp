@@ -5,6 +5,7 @@
 
 #include "clangselectablefilesdialog.h"
 #include "clangtoolrunner.h"
+#include "clangtoolscompilationdb.h"
 #include "clangtoolsconstants.h"
 #include "clangtoolsdiagnosticview.h"
 #include "clangtoolsprojectsettings.h"
@@ -753,7 +754,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         for (const FileInfo &fileInfo : fileInfos) {
             if (diagnosticConfig.isEnabled(tool)
                 || runSettings.hasConfigFileForSourceFile(fileInfo.file)) {
-                unitsToProcess.append({fileInfo, includeDir, clangVersion});
+                unitsToProcess.append({fileInfo, tool});
             }
         }
         qCDebug(LOG) << Q_FUNC_INFO << executable << includeDir << clangVersion;
@@ -798,7 +799,8 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         const AnalyzeInputData input{tool, runSettings, diagnosticConfig, tempDir->path(),
                                      environment};
 
-        taskTree.setRecipe({clangToolTask(unitsToProcess, input, setupHandler, outputHandler)});
+        taskTree.setRecipe(
+            {clangToolTask(tool, unitsToProcess, input, setupHandler, outputHandler)});
         return SetupResult::Continue;
     };
 
@@ -830,6 +832,9 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
 void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSettings,
                           const ClangDiagnosticConfig &diagnosticConfig)
 {
+    ClangToolsCompilationDb &db = ClangToolsCompilationDb::getDb(m_type);
+    db.disconnect(this);
+
     Project *project = ProjectManager::startupProject();
     QTC_ASSERT(project, return);
     QTC_ASSERT(project->activeTarget(), return);
@@ -839,6 +844,14 @@ void ClangTool::startTool(FileSelection fileSelection, const RunSettings &runSet
         if (bc->buildType() == BuildConfiguration::Release)
             if (!continueDespiteReleaseBuild(m_name))
                 return;
+    }
+
+    if (db.generateIfNecessary()) {
+        connect(&db, &ClangToolsCompilationDb::generated, this, [=, this](bool success) {
+            if (success)
+                startTool(fileSelection, runSettings, diagnosticConfig);
+        }, Qt::SingleShotConnection);
+        return;
     }
 
     TaskHub::clearTasks(taskCategory());

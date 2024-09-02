@@ -3,6 +3,7 @@
 
 #include "clangtoolrunner.h"
 
+#include "clangtoolscompilationdb.h"
 #include "clangtoolslogfilereader.h"
 #include "clangtoolstr.h"
 #include "clangtoolsutils.h"
@@ -34,31 +35,6 @@ using namespace Tasking;
 namespace ClangTools {
 namespace Internal {
 
-AnalyzeUnit::AnalyzeUnit(const FileInfo &fileInfo,
-                         const FilePath &clangIncludeDir,
-                         const QString &clangVersion)
-{
-    const FilePath actualClangIncludeDir = Core::ICore::clangIncludeDirectory(
-        clangVersion, clangIncludeDir);
-    CompilerOptionsBuilder optionsBuilder(*fileInfo.projectPart,
-                                          UseSystemHeader::No,
-                                          UseTweakedHeaderPaths::Tools,
-                                          UseLanguageDefines::No,
-                                          UseBuildSystemWarnings::No,
-                                          actualClangIncludeDir);
-    file = fileInfo.file;
-    arguments = extraClangToolsPrependOptions();
-    arguments.append(
-        optionsBuilder.build(fileInfo.kind,
-                             CppCodeModelSettings(fileInfo.settings).usePrecompiledHeaders()));
-    arguments.append(extraClangToolsAppendOptions());
-}
-
-static bool isClMode(const QStringList &options)
-{
-    return options.contains("--driver-mode=cl");
-}
-
 static QStringList checksArguments(const AnalyzeUnit &unit, const AnalyzeInputData &input)
 {
     if (input.tool == ClangToolType::Tidy) {
@@ -78,24 +54,6 @@ static QStringList checksArguments(const AnalyzeUnit &unit, const AnalyzeInputDa
     return {};
 }
 
-static QStringList clangArguments(const AnalyzeUnit &unit, const AnalyzeInputData &input)
-{
-    QStringList arguments;
-    const ClangDiagnosticConfig &diagnosticConfig = input.config;
-    const QStringList &baseOptions = unit.arguments;
-    arguments << ClangDiagnosticConfigsModel::globalDiagnosticOptions()
-              << (isClMode(baseOptions) ? clangArgsForCl(diagnosticConfig.clangOptions())
-                                        : diagnosticConfig.clangOptions())
-              << baseOptions;
-    if (ProjectFile::isHeader(unit.file))
-        arguments << "-Wno-pragma-once-outside-header";
-
-    if (LOG().isDebugEnabled())
-        arguments << QLatin1String("-v");
-
-    return arguments;
-}
-
 static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fileToAnalyze)
 {
     const QString fileName = fileToAnalyze.fileName();
@@ -111,7 +69,8 @@ static FilePath createOutputFilePath(const FilePath &dirPath, const FilePath &fi
     return {};
 }
 
-GroupItem clangToolTask(const AnalyzeUnits &units,
+GroupItem clangToolTask(CppEditor::ClangToolType toolType,
+                        const AnalyzeUnits &units,
                         const AnalyzeInputData &input,
                         const AnalyzeSetupHandler &setupHandler,
                         const AnalyzeOutputHandler &outputHandler)
@@ -124,8 +83,9 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
     const Storage<ClangToolStorage> storage;
     const LoopList iterator(units);
 
-    const auto mainToolArguments = [input, iterator](const ClangToolStorage &data) {
+    const auto mainToolArguments = [input, iterator, toolType](const ClangToolStorage &data) {
         QStringList result;
+        result << "-p" << ClangToolsCompilationDb::getDb(toolType).parentDir().nativePath();
         result << "-export-fixes=" + data.outputFilePath.nativePath();
         if (!input.overlayFilePath.isEmpty() && isVFSOverlaySupported(data.executable))
             result << "--vfsoverlay=" + input.overlayFilePath;
@@ -146,8 +106,6 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
             return SetupResult::StopWithError;
         }
 
-        QTC_CHECK(!unit.arguments.contains(QLatin1String("-o")));
-        QTC_CHECK(!unit.arguments.contains(unit.file.nativePath()));
         QTC_ASSERT(unit.file.exists(), return SetupResult::StopWithError);
         data->outputFilePath = createOutputFilePath(input.outputDirPath, unit.file);
         QTC_ASSERT(!data->outputFilePath.isEmpty(), return SetupResult::StopWithError);
@@ -163,8 +121,7 @@ GroupItem clangToolTask(const AnalyzeUnits &units,
 
         const ClangToolStorage &data = *storage;
         const CommandLine commandLine{data.executable, {checksArguments(unit, input),
-                                                        mainToolArguments(data), "--",
-                                                        clangArguments(unit, input)}};
+                                                        mainToolArguments(data)}};
         qCDebug(LOG).noquote() << "Starting" << commandLine.toUserOutput();
         process.setCommand(commandLine);
     };

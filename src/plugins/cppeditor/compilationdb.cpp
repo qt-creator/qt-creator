@@ -135,6 +135,8 @@ static QJsonObject createFileObject(const FilePath &buildDir,
         }
     } else {
         args = clangOptionsForFile(projFile, projectPart, projectPartOptions, usePch, clStyle);
+        if (purpose == CompilationDbPurpose::Analysis && projFile.isHeader())
+            args << "-Wno-pragma-once-outside-header";
         args.prepend("clang"); // TODO: clang-cl for MSVC targets? Does it matter at all what we put here?
     }
 
