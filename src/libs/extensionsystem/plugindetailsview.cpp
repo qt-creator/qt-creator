@@ -64,12 +64,12 @@ public:
 
         // clang-format off
         Form {
-            Tr::tr("ID:"), id, br,
+            Tr::tr("Id:"), id, br,
             Tr::tr("Name:"), name, br,
             Tr::tr("Version:"), version, br,
             Tr::tr("Compatibility version:"), compatVersion, br,
+            Tr::tr("Vendor Id:"), vendorId, br,
             Tr::tr("Vendor:"), vendor, br,
-            Tr::tr("VendorId:"), vendorId, br,
             Tr::tr("Group:"), component, br,
             Tr::tr("URL:"), url, br,
             Tr::tr("Documentation:"), documentationUrl, br,
