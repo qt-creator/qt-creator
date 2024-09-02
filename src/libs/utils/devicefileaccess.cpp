@@ -473,7 +473,7 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 if (it == m_watchClients.end()) {
                     QMetaObject::invokeMethod(&m_watcher, [this, path] {
                         bool res = m_watcher.addPath(path.path());
-                        QTC_CHECK(res);
+                        QTC_CHECK(res || !path.exists());
                     });
                     it = m_watchClients.emplace(path);
                 }
@@ -489,7 +489,7 @@ class DesktopFilePathWatcher final : public FilePathWatcher
                 if (it->size() == 0) {
                     QMetaObject::invokeMethod(&m_watcher, [this, path] {
                         bool res = m_watcher.removePath(path.path());
-                        QTC_CHECK(res);
+                        QTC_CHECK(res || !path.exists());
                     });
 
                     m_watchClients.erase(it);
