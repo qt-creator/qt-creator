@@ -1477,12 +1477,14 @@ void SimpleTargetRunnerPrivate::forwardDone()
     m_waitForDoneTimer.stop();
     const QString executable = m_command.executable().displayName();
     QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
-    if (m_resultData.m_exitStatus == QProcess::CrashExit)
-        msg = Tr::tr("%1 crashed.").arg(executable);
-    else if (m_stopForced)
-        msg = Tr::tr("The process was ended forcefully.");
-    else if (m_resultData.m_error != QProcess::UnknownError)
+    if (m_resultData.m_exitStatus == QProcess::CrashExit) {
+        if (m_stopForced)
+            msg = Tr::tr("The process was ended forcefully.");
+        else
+            msg = Tr::tr("The process crashed.");
+    } else if (m_resultData.m_error != QProcess::UnknownError) {
         msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
+    }
     q->appendMessage(msg, NormalMessageFormat);
     m_stopReported = true;
     q->reportStopped();
