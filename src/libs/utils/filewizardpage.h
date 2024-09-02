@@ -22,7 +22,7 @@ public:
     ~FileWizardPage() override;
 
     QString fileName() const;
-    QString path() const; // Deprecated: Use filePath()
+    [[deprecated("Use filePath()")]] QString path() const;
 
     Utils::FilePath filePath() const;
 
