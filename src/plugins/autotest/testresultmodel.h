@@ -14,8 +14,7 @@
 
 #include <optional>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestResultItem : public Utils::TypedTreeItem<TestResultItem, TestResultItem>
 {
@@ -101,6 +100,9 @@ public:
     bool hasResults();
     TestResult testResult(const QModelIndex &index) const;
     TestResultItem *itemForIndex(const QModelIndex &index) const;
+    const QSet<ResultType> enabledFilters() const { return m_enabled; }
+    const QVariantList enabledFiltersAsSetting() const;
+    void setEnabledFiltersFromSetting(const QVariantList &enabled);
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -110,5 +112,4 @@ private:
     QSet<ResultType> m_enabled;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

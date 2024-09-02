@@ -100,6 +100,9 @@ private:
     void createMarks(const QModelIndex &parent = QModelIndex());
     void clearMarks();
 
+    void onSessionLoaded();
+    void onAboutToSaveSession();
+
     QStackedWidget *m_outputWidget;
     QFrame *m_summaryWidget;
     QLabel *m_summaryLabel;

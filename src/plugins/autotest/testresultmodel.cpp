@@ -464,6 +464,8 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 {
     setSourceModel(sourceModel);
     enableAllResultTypes(true);
+    if (!testSettings().omitInternalMsg())
+        toggleTestResultType(ResultType::MessageInternal);
 }
 
 void TestResultFilterModel::enableAllResultTypes(bool enabled)
@@ -525,6 +527,24 @@ TestResult TestResultFilterModel::testResult(const QModelIndex &index) const
 TestResultItem *TestResultFilterModel::itemForIndex(const QModelIndex &index) const
 {
     return index.isValid() ? m_sourceModel->itemForIndex(mapToSource(index)) : nullptr;
+}
+
+const QVariantList TestResultFilterModel::enabledFiltersAsSetting() const
+{
+    return Utils::transform(Utils::toList(m_enabled),
+                            [](ResultType rt) { return QVariant::fromValue(int(rt)); });
+}
+
+void TestResultFilterModel::setEnabledFiltersFromSetting(const QVariantList &enabled)
+{
+    m_enabled.clear();
+    if (!enabled.isEmpty()) {
+        for (const QVariant &variant : enabled)
+            m_enabled << ResultType(variant.value<int>());
+    }
+    // when misused: ensure non-discardable filters are enabled
+    m_enabled << ResultType::MessageFatal << ResultType::MessageSystem << ResultType::MessageError;
+    invalidateFilter();
 }
 
 bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
