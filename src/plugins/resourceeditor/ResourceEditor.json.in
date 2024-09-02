@@ -27,7 +27,7 @@
         "<?xml version='1.0'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
         "    <mime-type type='application/vnd.qt.xml.resource'>",
-        "        <sub-class-of type='text/xml'/>",
+        "        <sub-class-of type='application/xml'/>",
         "        <comment>Qt Resource file</comment>",
         "        <glob pattern='*.qrc'/>",
         "    </mime-type>",

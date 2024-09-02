@@ -693,7 +693,7 @@ MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db, InternalDatabaseEnum)
 #endif // QT_CONFIG(mimetype_database)
 #endif
 
-static const char internalMimeFileName[] = ":/utils/mimetypes/freedesktop.org.xml";
+static const char internalMimeFileName[] = ":/utils/mimetypes/tika-mimetypes.xml";
 
 // for Qt Creator: internal database from resources
 MimeXMLProvider::MimeXMLProvider(MimeDatabasePrivate *db, InternalDatabaseEnum)

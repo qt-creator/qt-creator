@@ -22,5 +22,20 @@
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qt-6/qtdesigner-manual.html",
     ${DESIGNER_PLUGIN_ARGUMENTS}
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/x-designer'>",
+        "        <sub-class-of type='application/xml'/>",
+        "        <comment>Qt Designer file</comment>",
+        "        <magic>",
+        "            <match value='&lt;ui ' type='string' offset='0:256'/>",
+        "            <match value='&lt;UI ' type='string' offset='0:256'/>",
+        "        </magic>",
+        "        <glob pattern='*.ui'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

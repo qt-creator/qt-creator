@@ -42,6 +42,14 @@
         "        <glob pattern='*.lex'/>",
         "        <glob pattern='*.flex'/>",
         "    </mime-type>",
+        "    <mime-type type='text/markdown'>",
+        "      <comment>Markdown file</comment>",
+        "      <sub-class-of type='text/plain'/>",
+        "      <alias type='text/x-markdown'/>",
+        "      <glob pattern='*.md'/>",
+        "      <glob pattern='*.mkd'/>",
+        "      <glob pattern='*.markdown'/>",
+        "    </mime-type>",
         "</mime-info>"
     ]
 }

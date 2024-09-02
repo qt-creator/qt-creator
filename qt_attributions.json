@@ -644,6 +644,21 @@
         "License": "BSD 3-Clause \"New\" or \"Revised\" License",
         "LicenseFile": "src/libs/3rdparty/zlib/LICENSE",
         "Copyright": "Copyright (C) 1995-2024 Jean-loup Gailly and Mark Adler"
+    },
+    {
+        "Id": "tika-mimetypes",
+        "Name": "Apache Tika MimeType Definitions",
+        "QDocModule": "qtcreator",
+        "QtParts": ["tools"],
+        "QtUsage": "Used for resolving file types by MIME type information.",
+        "Path": "src/libs/3rdparty/tika",
+        "Description": "The Apache Tika MimeTypes list many known MIME types and how to match files (using globs and/or 'magic' rules for the file contents). See qtbase/src/corelib/mimetypes/3rdparty/ for more information, also on how to update the file.",
+        "Homepage": "https://github.com/apache/tika/tree/main/tika-core/src/main/resources/org/apache/tika/mime",
+        "Version": "019041117149667bc4d18fabf222a0670d407959",
+        "DownloadLocation": "https://github.com/apache/tika/blob/019041117149667bc4d18fabf222a0670d407959/tika-core/src/main/resources/org/apache/tika/mime/tika-mimetypes.xml",
+        "License": "Apache License 2.0",
+        "LicenseFile": "doc/qtcreator/src/overview/license-Apache-2.0.txt",
+        "Copyright": "Copyright 2011 The Apache Software Foundation"
     }
 ]
 

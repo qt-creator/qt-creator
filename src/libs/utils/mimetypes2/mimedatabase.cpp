@@ -121,6 +121,34 @@ static void updateOverriddenMimeTypes(std::vector<std::unique_ptr<MimeProviderBa
 void MimeDatabasePrivate::loadProviders()
 {
     NANOTRACE_SCOPE("Utils", "MimeDatabasePrivate::loadProviders");
+    // Qt Creator: Add some MIME types that are used by Utils, but vanished in the
+    // transition to Tika
+    if (!m_additionalData.contains("utilslib.mimetypes")) {
+        m_additionalData.insert("utilslib.mimetypes", QByteArray(R"--(<?xml version="1.0"?>
+<mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="application/x-compressed-tar">
+      <comment>Tar archive (gzip-compressed)</comment>
+      <sub-class-of type="application/gzip"/>
+      <glob pattern="*.tar.gz"/>
+      <glob pattern="*.tgz"/>
+    </mime-type>
+    <mime-type type="application/x-xz-compressed-tar">
+      <comment>Tar archive (XZ-compressed)</comment>
+      <sub-class-of type="application/x-xz"/>
+      <glob pattern="*.tar.xz"/>
+      <glob pattern="*.txz"/>
+    </mime-type>
+    <mime-type type="application/x-bzip-compressed-tar">
+      <comment>Tar archive (bzip-compressed)</comment>
+      <sub-class-of type="application/x-bzip"/>
+      <glob pattern="*.tar.bz2"/>
+      <glob pattern="*.tar.bz"/>
+      <glob pattern="*.tbz2"/>
+      <glob pattern="*.tbz"/>
+      <glob pattern="*.tb2"/>
+    </mime-type>
+</mime-info>)--"));
+    }
 #if 0
     // We use QStandardPaths every time to check if new files appeared
     const QStringList mimeDirs = locateMimeDirectories();
