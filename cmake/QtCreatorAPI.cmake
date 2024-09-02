@@ -328,10 +328,22 @@ function(add_qtc_library name)
   endif()
 endfunction(add_qtc_library)
 
+
+function(markdown_to_json resultVarName filepath)
+  file(STRINGS ${filepath} markdown)
+  list(TRANSFORM markdown REPLACE "\\\\" "\\\\\\\\") # Replace \ with \\
+  list(TRANSFORM markdown REPLACE "\\\"" "\\\\\"") # Replace " with \"
+  list(TRANSFORM markdown PREPEND "        \"" )
+  list(TRANSFORM markdown APPEND "\"")
+  list(JOIN markdown ",\n" result)
+  set(result "[\n${result}\n    ]")
+  set("${resultVarName}" ${result} PARENT_SCOPE)
+endfunction()
+
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
-    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
+    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS;LONG_DESCRIPTION_MD;LICENSE_MD"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PLUGIN_MANUAL_DEPENDS;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS"
     ${ARGN}
   )
@@ -445,6 +457,19 @@ function(add_qtc_plugin target_name)
   string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
 
   set(IDE_PLUGIN_DEPENDENCIES ${_arg_DEPENDENCY_STRING})
+
+  set(LONG_DESCRIPTION "[]")
+  if (_arg_LONG_DESCRIPTION_MD)
+    markdown_to_json(LONG_DESCRIPTION ${_arg_LONG_DESCRIPTION_MD})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_arg_LONG_DESCRIPTION_MD})
+  endif()
+
+  set(LICENSE "[]")
+  if (_arg_LICENSE_MD)
+    markdown_to_json(LICENSE ${_arg_LICENSE_MD})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_arg_LICENSE_MD})
+  endif()
+
 
   ### Configure plugin.json file:
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
