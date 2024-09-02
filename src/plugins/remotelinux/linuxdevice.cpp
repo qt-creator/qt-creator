@@ -555,6 +555,11 @@ void SshProcessInterfacePrivate::handleDone()
         finalData.m_errorString = Utils::joinStrings({finalData.m_errorString,
                                                       QString::fromLocal8Bit(m_error)}, '\n');
     }
+    if (finalData.m_exitCode == 255) {
+        finalData.m_exitStatus = QProcess::CrashExit;
+        finalData.m_error = QProcess::Crashed;
+        finalData.m_errorString = Tr::tr("The process crashed.");
+    }
     emit q->done(finalData);
 }
 
