@@ -60,7 +60,7 @@ Module {
                 var depdeps = deps[d].dependencies;
                 for (var dd in depdeps) {
                     if (depdeps[dd].name == 'pluginjson') {
-                        cmd.plugin_depends.push(deps[d].id);
+                        cmd.plugin_depends.push(deps[d].name.toLowerCase());
                         break;
                     }
                 }
