@@ -399,6 +399,7 @@ function(add_qtc_plugin target_name)
     else()
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
+    string(TOLOWER ${i} i)
     string(APPEND _arg_DEPENDENCY_STRING
       "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\" }"
     )
@@ -410,6 +411,7 @@ function(add_qtc_plugin target_name)
     else()
       get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
+    string(TOLOWER ${i} i)
     string(APPEND _arg_DEPENDENCY_STRING
       "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
     )
@@ -418,6 +420,7 @@ function(add_qtc_plugin target_name)
     if (i MATCHES "^QtCreator::")
       string(REPLACE "QtCreator::" "" i ${i})
     endif()
+    string(TOLOWER ${i} i)
     set(_v ${IDE_VERSION})
     string(APPEND _arg_DEPENDENCY_STRING
       "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
@@ -433,6 +436,7 @@ function(add_qtc_plugin target_name)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_id)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_version_i} dep_version)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_type_i} dep_type)
+      string(TOLOWER ${dep_id} dep_id)
       string(APPEND _arg_DEPENDENCY_STRING
         "        { \"Id\" : \"${dep_id}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
       )
