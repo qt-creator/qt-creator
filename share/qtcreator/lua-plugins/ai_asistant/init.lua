@@ -42,28 +42,14 @@ local function createCommand()
   return cmd
 end
 
-local available_llms = {
-  displayName = {"Llama 3 70B Fine-Tuned", "Claude 3.5 Sonnet"},
-  keyName = {"Llama3", "Claude35"}
-}
-
-local function mapLLMsDisplayToKey(displayValue)
-  for index, value in ipairs(available_llms.displayName) do
-    if value == displayValue then
-      return available_llms.keyName[index]
-    end
-  end
-  return ""
-end
-
 local function createInitOptions()
   local llm_config = {
-    cppLLM = mapLLMsDisplayToKey(Settings.cppLLM.stringValue),
-    qmlLLM = mapLLMsDisplayToKey(Settings.qmlLLM.stringValue),
-    otherLLM = mapLLMsDisplayToKey(Settings.otherLLM.stringValue),
-    debugLLM = mapLLMsDisplayToKey(Settings.debugLLM.stringValue),
-    reviewLLM = mapLLMsDisplayToKey(Settings.reviewLLM.stringValue),
-    explainLLM = mapLLMsDisplayToKey(Settings.explainLLM.stringValue)
+    cppLLM = Settings.cppLLM.dataValue,
+    qmlLLM = Settings.qmlLLM.dataValue,
+    otherLLM = Settings.otherLLM.dataValue,
+    debugLLM = Settings.debugLLM.dataValue,
+    reviewLLM = Settings.reviewLLM.dataValue,
+    explainLLM = Settings.explainLLM.dataValue
   }
 
   local auth_token_config = {
@@ -201,10 +187,15 @@ local function layoutSettings()
   return layout
 end
 
+local available_llms = {
+  { name = "Llama 3 70B Fine-Tuned", data = "Llama3" },
+  { name = "Claude 3.5 Sonnet", data = "Claude35" }
+}
+
 local function createSelectionAspect(settingsKey, displayName)
   return S.SelectionAspect.create({
     settingsKey = settingsKey,
-    options = available_llms.displayName,
+    options = available_llms,
     displayStyle = S.SelectionDisplayStyle.ComboBox,
     displayName = displayName
   })
