@@ -21,8 +21,6 @@ namespace Tasking {
 // is independent on Qt::Network.
 // Possibly, it could be placed inside Qt::Network library, as a wrapper around QTcpSocket.
 
-enum class NetworkOperation { Get, Put, Post, Delete };
-
 class TASKING_EXPORT TcpSocket final : public QObject
 {
     Q_OBJECT
