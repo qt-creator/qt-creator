@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <QString>
+
 namespace ProjectExplorer { class BuildSystem; }
 
 namespace CMakeProjectManager::Internal {
