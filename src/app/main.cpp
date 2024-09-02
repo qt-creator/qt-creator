@@ -58,7 +58,7 @@ using namespace Utils;
 
 enum { OptionIndent = 4, DescriptionIndent = 34 };
 
-const char corePluginNameC[] = "Core";
+const char corePluginIdC[] = "core";
 const char fixedOptionsC[]
     = " [OPTION]... [FILE]...\n"
       "Options:\n"
@@ -841,7 +841,7 @@ int main(int argc, char **argv)
     const PluginSpecs plugins = PluginManager::plugins();
     PluginSpec *coreplugin = nullptr;
     for (PluginSpec *spec : plugins) {
-        if (spec->name() == QLatin1String(corePluginNameC)) {
+        if (spec->id() == QLatin1String(corePluginIdC)) {
             coreplugin = spec;
             break;
         }
