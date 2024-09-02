@@ -873,7 +873,7 @@ void tst_filepath::fromUserInput_data()
     QTest::newRow("qrc-no-slash") << D(":test.txt", "", "", ":test.txt");
     QTest::newRow("tilde") << D("~/", "", "", QDir::homePath());
     QTest::newRow("tilde-with-path") << D("~/foo", "", "", QDir::homePath() + "/foo");
-    QTest::newRow("tilde-only") << D("~", "", "", "~");
+    QTest::newRow("tilde-only") << D("~", "", "", QDir::homePath());
 
     QTest::newRow("unc-incomplete") << D("//", "", "", "//");
     QTest::newRow("unc-incomplete-only-server") << D("//server", "", "", "//server");

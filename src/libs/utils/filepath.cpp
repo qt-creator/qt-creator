@@ -1430,7 +1430,8 @@ FilePath FilePath::fromStringWithExtension(const QString &filepath, const QStrin
 */
 FilePath FilePath::fromUserInput(const QString &filePath)
 {
-    const QString expandedPath = filePath.startsWith("~/")
+    const QString expandedPath = filePath == "~" ? QDir::homePath()
+                                 : filePath.startsWith("~/")
                                      ? (QDir::homePath() + "/" + filePath.mid(2))
                                      : filePath;
     return FilePath::fromString(doCleanPath(expandedPath));
