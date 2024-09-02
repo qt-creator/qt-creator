@@ -52,14 +52,14 @@ public:
     }
     explicit MimeType(const MimeTypePrivate &dd);
     ~MimeType();
-
+#if QT_CORE_REMOVED_SINCE(6, 8)
     bool operator==(const MimeType &other) const;
 
     inline bool operator!=(const MimeType &other) const
     {
         return !operator==(other);
     }
-
+#endif
     bool isValid() const;
 
     bool isDefault() const;
@@ -95,6 +95,10 @@ protected:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const MimeType &mime);
 
     QExplicitlySharedDataPointer<MimeTypePrivate> d;
+
+private:
+    friend Q_CORE_EXPORT bool comparesEqual(const MimeType &lhs, const MimeType &rhs) noexcept;
+    Q_DECLARE_EQUALITY_COMPARABLE(MimeType)
 };
 
 } // namespace Utils
