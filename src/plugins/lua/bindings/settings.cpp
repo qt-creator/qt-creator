@@ -326,12 +326,12 @@ void setupSettingsModule()
                                     = options[i].get<sol::optional<sol::table>>();
                                 if (optiontable) {
                                     sol::table option = *optiontable;
-                                    sol::optional<QString> data = option["data"];
+                                    sol::optional<sol::object> data = option["data"];
                                     if (data) {
                                         aspect->addOption(
                                             {option["name"],
                                              option["tooltip"].get_or(QString()),
-                                             *data});
+                                             QVariant::fromValue(*data)});
                                     } else {
                                         aspect->addOption(
                                             option["name"], option["tooltip"].get_or(QString()));
@@ -352,11 +352,21 @@ void setupSettingsModule()
             },
             "stringValue",
             sol::property(&SelectionAspect::stringValue, &SelectionAspect::setStringValue),
+            "dataValue",
+            sol::property([](SelectionAspect *aspect) {
+                return qvariant_cast<sol::object>(aspect->itemValue());
+            }),
             "addOption",
             sol::overload(
                 [](SelectionAspect &self, const QString &name) { self.addOption(name); },
                 [](SelectionAspect &self, const QString &name, const QString &tooltip) {
                     self.addOption(name, tooltip);
+                },
+                [](SelectionAspect &self,
+                   const QString &name,
+                   const QString &tooltip,
+                   const sol::object &data) {
+                    self.addOption({name, tooltip, QVariant::fromValue(data)});
                 }),
             sol::base_classes,
             sol::bases<TypedAspect<int>, BaseAspect>());

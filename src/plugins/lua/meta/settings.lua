@@ -77,7 +77,9 @@ function settings.ColorAspect.create(options) end
 
 ---@class SelectionAspect : TypedAspect<int>
 ---@field stringValue string The string value of the aspect.
+---@field dataValue any The data value of the aspect.
 settings.SelectionAspect = {}
+
 ---@enum SelectionDisplayStyle
 settings.SelectionDisplayStyle = {
     RadioButtons = 0,
