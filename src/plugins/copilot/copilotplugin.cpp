@@ -6,7 +6,6 @@
 #include "copiloticons.h"
 #include "copilotprojectpanel.h"
 #include "copilotsettings.h"
-#include "copilotsuggestion.h"
 #include "copilottr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -35,21 +34,20 @@ enum Direction { Previous, Next };
 static void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction direction)
 {
     QTextBlock block = editor->textCursor().block();
-    if (auto suggestion = dynamic_cast<CopilotSuggestion *>(
+    if (auto suggestion = dynamic_cast<TextEditor::CyclicSuggestion *>(
             TextEditor::TextDocumentLayout::suggestion(block))) {
-        int index = suggestion->currentCompletion();
+        int index = suggestion->currentSuggestion();
         if (direction == Previous)
             --index;
         else
             ++index;
         if (index < 0)
-            index = suggestion->completions().count() - 1;
-        else if (index >= suggestion->completions().count())
+            index = suggestion->suggestions().count() - 1;
+        else if (index >= suggestion->suggestions().count())
             index = 0;
         suggestion->reset();
-        editor->insertSuggestion(std::make_unique<CopilotSuggestion>(suggestion->completions(),
-                                                                     editor->document(),
-                                                                     index));
+        editor->insertSuggestion(std::make_unique<TextEditor::CyclicSuggestion>(
+            suggestion->suggestions(), editor->document(), index));
     }
 }
 

@@ -23,8 +23,6 @@ QtcPlugin {
         "copilotprojectpanel.h",
         "copilotsettings.cpp",
         "copilotsettings.h",
-        "copilotsuggestion.cpp",
-        "copilotsuggestion.h",
         "requests/checkstatus.h",
         "requests/getcompletions.h",
         "requests/signinconfirm.h",

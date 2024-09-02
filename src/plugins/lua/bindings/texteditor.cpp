@@ -119,8 +119,6 @@ public:
 
     virtual void reset() override { m_start.removeSelectedText(); }
 
-    virtual int position() override { return m_start.selectionEnd(); }
-
     qsizetype size() const { return m_suggestions.size(); }
 
     bool isEmpty() const { return m_suggestions.isEmpty(); }

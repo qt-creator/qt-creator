@@ -4,7 +4,6 @@
 #include "copilothoverhandler.h"
 
 #include "copilotclient.h"
-#include "copilotsuggestion.h"
 #include "copilottr.h"
 
 #include <texteditor/textdocument.h>
@@ -28,21 +27,21 @@ namespace Copilot::Internal {
 class CopilotCompletionToolTip : public QToolBar
 {
 public:
-    CopilotCompletionToolTip(QList<Completion> completions,
-                             int currentCompletion,
+    CopilotCompletionToolTip(QList<CyclicSuggestion::Data> suggestions,
+                             int currentSuggestion,
                              TextEditorWidget *editor)
         : m_numberLabel(new QLabel)
-        , m_completions(completions)
-        , m_currentCompletion(std::max(0, std::min<int>(currentCompletion, completions.size() - 1)))
+        , m_suggestions(suggestions)
+        , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
         , m_editor(editor)
     {
         auto prev = addAction(Utils::Icons::PREV_TOOLBAR.icon(),
                               Tr::tr("Select Previous Copilot Suggestion"));
-        prev->setEnabled(m_completions.size() > 1);
+        prev->setEnabled(m_suggestions.size() > 1);
         addWidget(m_numberLabel);
         auto next = addAction(Utils::Icons::NEXT_TOOLBAR.icon(),
                               Tr::tr("Select Next Copilot Suggestion"));
-        next->setEnabled(m_completions.size() > 1);
+        next->setEnabled(m_suggestions.size() > 1);
 
         auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
         auto applyWord = addAction(
@@ -62,34 +61,33 @@ private:
     void updateLabels()
     {
         m_numberLabel->setText(Tr::tr("%1 of %2")
-                                   .arg(m_currentCompletion + 1)
-                                   .arg(m_completions.count()));
+                                   .arg(m_currentSuggestion + 1)
+                                   .arg(m_suggestions.count()));
     }
 
     void selectPrevious()
     {
-        --m_currentCompletion;
-        if (m_currentCompletion < 0)
-            m_currentCompletion = m_completions.size() - 1;
-        setCurrentCompletion();
+        --m_currentSuggestion;
+        if (m_currentSuggestion < 0)
+            m_currentSuggestion = m_suggestions.size() - 1;
+        setCurrentSuggestion();
     }
 
     void selectNext()
     {
-        ++m_currentCompletion;
-        if (m_currentCompletion >= m_completions.size())
-            m_currentCompletion = 0;
-        setCurrentCompletion();
+        ++m_currentSuggestion;
+        if (m_currentSuggestion >= m_suggestions.size())
+            m_currentSuggestion = 0;
+        setCurrentSuggestion();
     }
 
-    void setCurrentCompletion()
+    void setCurrentSuggestion()
     {
         updateLabels();
         if (TextSuggestion *suggestion = m_editor->currentSuggestion())
             suggestion->reset();
-        m_editor->insertSuggestion(std::make_unique<CopilotSuggestion>(m_completions,
-                                                                       m_editor->document(),
-                                                                       m_currentCompletion));
+        m_editor->insertSuggestion(std::make_unique<CyclicSuggestion>(
+            m_suggestions, m_editor->document(), m_currentSuggestion));
     }
 
     void apply()
@@ -120,8 +118,8 @@ private:
     }
 
     QLabel *m_numberLabel;
-    QList<Completion> m_completions;
-    int m_currentCompletion = 0;
+    QList<CyclicSuggestion::Data> m_suggestions;
+    int m_currentSuggestion = 0;
     TextEditorWidget *m_editor;
 };
 
@@ -136,13 +134,13 @@ void CopilotHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
     QTextCursor cursor(editorWidget->document());
     cursor.setPosition(pos);
     m_block = cursor.block();
-    auto *suggestion = dynamic_cast<CopilotSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
 
     if (!suggestion)
         return;
 
-    const QList<Completion> completions = suggestion->completions();
-    if (completions.isEmpty())
+    const QList<CyclicSuggestion::Data> suggestions = suggestion->suggestions();
+    if (suggestions.isEmpty())
         return;
 
     cleanup.dismiss();
@@ -152,13 +150,13 @@ void CopilotHoverHandler::identifyMatch(TextEditorWidget *editorWidget,
 void CopilotHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     Q_UNUSED(point)
-    auto *suggestion = dynamic_cast<CopilotSuggestion *>(TextDocumentLayout::suggestion(m_block));
+    auto *suggestion = dynamic_cast<CyclicSuggestion *>(TextDocumentLayout::suggestion(m_block));
 
     if (!suggestion)
         return;
 
-    auto tooltipWidget = new CopilotCompletionToolTip(suggestion->completions(),
-                                                      suggestion->currentCompletion(),
+    auto tooltipWidget = new CopilotCompletionToolTip(suggestion->suggestions(),
+                                                      suggestion->currentSuggestion(),
                                                       editorWidget);
 
     const QRect cursorRect = editorWidget->cursorRect(editorWidget->textCursor());

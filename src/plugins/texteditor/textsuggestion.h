@@ -5,6 +5,9 @@
 
 #include "texteditor_global.h"
 
+#include <utils/textutils.h>
+
+#include <QTextCursor>
 #include <QTextDocument>
 
 namespace TextEditor {
@@ -22,7 +25,6 @@ public:
     virtual bool applyWord(TextEditorWidget *widget) = 0;
     virtual bool applyLine(TextEditorWidget *widget) = 0;
     virtual void reset() = 0;
-    virtual int position() = 0;
 
     int currentPosition() const { return m_currentPosition; }
     void setCurrentPosition(int position) { m_currentPosition = position; }
@@ -32,6 +34,37 @@ public:
 private:
     QTextDocument m_replacementDocument;
     int m_currentPosition = -1;
+};
+
+class TEXTEDITOR_EXPORT CyclicSuggestion : public TextSuggestion
+{
+public:
+    class TEXTEDITOR_EXPORT Data
+    {
+    public:
+        Utils::Text::Range range;
+        Utils::Text::Position position;
+        QString text;
+    };
+
+    CyclicSuggestion(
+        const QList<Data> &suggestions, QTextDocument *sourceDocument, int currentCompletion = 0);
+
+    bool apply() override;
+    bool applyWord(TextEditorWidget *widget) override;
+    bool applyLine(TextEditorWidget *widget) override;
+    void reset() override;
+
+    QList<Data> suggestions() const { return m_suggestions; }
+    int currentSuggestion() const { return m_currentSuggestion; }
+
+private:
+    enum Part {Word, Line};
+    bool applyPart(Part part, TextEditor::TextEditorWidget *widget);
+
+    QList<Data> m_suggestions;
+    int m_currentSuggestion = 0;
+    QTextDocument *m_sourceDocument = nullptr;
 };
 
 } // namespace TextEditor
