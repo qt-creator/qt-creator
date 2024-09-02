@@ -22,10 +22,12 @@
     Qt versions and compilers by adding the paths to them and by creating
     \l{Kits}{kits} that use them.
 
-    To make \QC behave more like your favorite code editor or IDE,
-    change the preferences for keyboard shortcuts, color schemes, generic
-    highlighting, code snippets, and version control systems. Manage plugins
-    to turn on and off \QC features.
+    To make \QC behave more like your favorite code editor or IDE, change the
+    preferences for generic highlighting, code snippets, and version control
+    systems. Manage plugins to turn on and off \QC features.
+
+    To make \QC more accessible, use keyboard navigation or adjust colors and
+    zoom levels.
 
     The following sections summarize the options that you have and point you to
     detailed information to help you specify any required settings and to make
@@ -69,41 +71,6 @@
     For more information, see \l{Manage Kits}{How To: Manage Kits} and
     \l{Develop for Devices}{How To: Develop for Devices}.
 
-    \section1 Changing Keyboard Shortcuts
-
-    You can use \QC with your favorite keyboard shortcuts.
-
-    To view and edit all keyboard shortcuts defined in \QC, go to \preferences >
-    \uicontrol Environment > \uicontrol Keyboard. For more information, see
-    \l{Keyboard Shortcuts}.
-
-    \section1 Changing Color Schemes
-
-    Themes set the appearance of the \QC UI: widgets, colors, and icons.
-
-    To switch themes, go to \preferences > \uicontrol Environment >
-    \uicontrol Interface and select a theme in \uicontrol Theme.
-
-    Use the \QC text and code editors with your favorite color scheme that sets
-    highlighting of code elements and the background color. Select one of the
-    predefined color schemes or create custom ones. The color schemes apply to
-    highlighting C++ files, QML files, and generic files.
-
-    To change the color scheme, go to \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
-
-    For more information, see \l{Change editor colors}.
-
-    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
-    {KSyntaxHighlighting} offers generic highlighting. It is the syntax
-    highlighting engine for Kate syntax definitions. \QC comes with most of
-    the commonly used syntax files, and you can download additional files.
-
-    To download and use highlight definition files, go to \preferences >
-    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
-
-    For more information, see \l{Download highlight definitions}.
-
     \section1 Adding Your Own Code Snippets
 
     As you write code, \QC suggests properties, IDs, and code snippets to
@@ -143,6 +110,73 @@
 
     To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
     select \uicontrol {Install Plugins}.
+
+    \section1 Accessibility
+
+    You can use keyboard shortcuts to navigate the UI without a mouse, or set
+    zoom levels and change colors to improve the visibility of the text. Also,
+    \QC supports screen readers.
+
+    \section2 Changing Keyboard Shortcuts
+
+    You can use \QC with your favorite keyboard shortcuts.
+
+    To view and edit all keyboard shortcuts defined in \QC, go to \preferences >
+    \uicontrol Environment > \uicontrol Keyboard. For more information, see
+    \l{Keyboard Shortcuts}.
+
+    \section2 Navigating with the Keyboard
+
+    To move between UI controls, press the the \key Tab key or the \key Left,
+    \key Right, \key Up, and \key Down arrow keys.
+
+    \section2 Setting Zoom Levels
+
+    To set editor font and colors, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
+
+    Select the font family and size, and set the zoom level in percentage for
+    viewing the text or use keyboard shortcuts or the mouse wheel to zoom in or
+    out.
+
+    To improve the readability of text in the editor, adjust the line spacing.
+
+    For more information, see \l{Font & Colors}.
+
+    The system configuration determines the font sizes in other parts of \QC.
+
+    When viewing output, use the \inlineimage icons/plus.png {Plus button} and
+    \inlineimage icons/minus.png {Minus button} buttons or keyboard shortcuts to
+    set the zoom level.
+
+    For more information, see \l{View output}.
+
+    \section2 Changing Color Schemes
+
+    Themes set the appearance of the \QC UI: widgets, colors, and icons.
+
+    To switch themes, go to \preferences > \uicontrol Environment >
+    \uicontrol Interface and select a theme in \uicontrol Theme.
+
+    Use the \QC text and code editors with your favorite color scheme that sets
+    highlighting of code elements and the background color. Select one of the
+    predefined color schemes or create custom ones. The color schemes apply to
+    highlighting C++ files, QML files, and generic files.
+
+    To change the color scheme, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
+
+    For more information, see \l{Change editor colors}.
+
+    \l{https://api.kde.org/frameworks/syntax-highlighting/html/index.html}
+    {KSyntaxHighlighting} offers generic highlighting. It is the syntax
+    highlighting engine for Kate syntax definitions. \QC comes with most of
+    the commonly used syntax files, and you can download additional files.
+
+    To download and use highlight definition files, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Generic Highlighter}.
+
+    For more information, see \l{Download highlight definitions}.
 
     \sa {Installation}, {Reset \QC settings}, {Preferences}
 */
