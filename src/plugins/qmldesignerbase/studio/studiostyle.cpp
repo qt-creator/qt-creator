@@ -11,6 +11,8 @@
 #include <QMenu>
 #include <QPainter>
 #include <QStyleOption>
+#include <QtGui/private/qguiapplication_p.h>
+#include <QtGui/qpa/qplatformtheme.h>
 
 #define ANIMATE_SCROLLBARS QT_CONFIG(animation)
 using namespace Utils;
@@ -109,6 +111,17 @@ bool isQmlEditorMenu(const QWidget *widget)
     return false;
 }
 
+bool hasHoverFrame(const QStyleOption *option)
+{
+    return option->styleObject && option->styleObject->property("_qdss_hoverFrame").toBool();
+}
+
+bool isHovered(const QStyleOption *option)
+{
+    return option->state
+           && option->state.testFlags({QStyle::State_Enabled, QStyle::State_MouseOver});
+}
+
 inline QPixmap getPixmapFromIcon(
     const QIcon &icon, const QSize &size, bool enabled, bool active, bool checked)
 {
@@ -134,6 +147,37 @@ inline QRect expandScrollRect(const QRect &ref,
         return ref.adjusted(newDiff, 0, 0, 0);
     }
 }
+
+namespace FusionStyleHelper {
+bool isMacSystemPalette(const QPalette &pal)
+{
+    if (!Utils::HostOsInfo::isMacHost())
+        return false;
+
+    const QPalette *themePalette = QGuiApplicationPrivate::platformTheme()->palette();
+    return themePalette
+           && themePalette->color(QPalette::Normal, QPalette::Highlight)
+                  == pal.color(QPalette::Normal, QPalette::Highlight)
+           && themePalette->color(QPalette::Normal, QPalette::HighlightedText)
+                  == pal.color(QPalette::Normal, QPalette::HighlightedText);
+}
+
+QColor highlight(const QPalette &pal)
+{
+    if (isMacSystemPalette(pal))
+        return QColor(60, 140, 230);
+    return pal.color(QPalette::Highlight);
+}
+
+QColor highlightedOutline(const QPalette &pal)
+{
+    QColor highlightedOutline = highlight(pal).darker(125);
+    if (highlightedOutline.value() > 160)
+        highlightedOutline.setHsl(highlightedOutline.hue(), highlightedOutline.saturation(), 160);
+    return highlightedOutline;
+}
+
+} // namespace FusionStyleHelper
 
 } // namespace
 
@@ -192,10 +236,20 @@ void StudioStyle::drawPrimitive(
             Super::drawPrimitive(element, option, painter, widget);
         break;
 
-    case PE_PanelButtonCommand:
-        if (!isQmlEditorMenu(widget))
-            Super::drawPrimitive(element, option, painter, widget);
-        break;
+    case PE_PanelButtonCommand: {
+        if (isQmlEditorMenu(widget))
+            break;
+
+        if (hasHoverFrame(option) && isHovered(option)) {
+            painter->save();
+            painter->setPen(FusionStyleHelper::highlightedOutline(option->palette));
+            painter->setBrush(Qt::NoBrush);
+            painter->drawRect(QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5));
+            painter->restore();
+            break;
+        }
+        Super::drawPrimitive(element, option, painter, widget);
+    } break;
     case PE_FrameDefaultButton: {
         if (const auto button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             bool enabled = button->state & QStyle::State_Enabled;
@@ -594,7 +648,15 @@ void StudioStyle::drawComplexControl(
         }
     } break;
     case CC_ComboBox: {
-        painter->fillRect(option->rect, standardPalette().brush(QPalette::ColorRole::Base));
+        if (hasHoverFrame(option)) {
+            if (isHovered(option)) {
+                painter->fillRect(
+                    QRectF(option->rect).adjusted(0.5, 0.5, -0.5, -0.5),
+                    FusionStyleHelper::highlight(option->palette));
+            }
+        } else {
+            painter->fillRect(option->rect, standardPalette().brush(QPalette::ColorRole::Base));
+        }
         Super::drawComplexControl(control, option, painter, widget);
     } break;
 

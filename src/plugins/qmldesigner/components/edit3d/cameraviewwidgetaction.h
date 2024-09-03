@@ -3,6 +3,7 @@
 #pragma once
 
 #include <QAbstractListModel>
+#include <QComboBox>
 #include <QCoreApplication>
 #include <QWidgetAction>
 
@@ -19,6 +20,9 @@ public:
 
 protected:
     QWidget *createWidget(QWidget *parent) override;
+
+private slots:
+    void onWidgetHovered();
 
 signals:
     void currentModeChanged(QString);
@@ -41,6 +45,21 @@ public:
 private:
     struct DataItem;
     static const QList<DataItem> m_data;
+};
+
+class ComboBoxAction : public QComboBox
+{
+    Q_OBJECT
+
+public:
+    explicit ComboBoxAction(QWidget *parent = nullptr);
+
+protected:
+    void enterEvent(QEnterEvent *event) override;
+    void moveEvent(QMoveEvent *event) override;
+
+signals:
+    void hovered();
 };
 
 } // namespace QmlDesigner
