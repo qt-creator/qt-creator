@@ -19,12 +19,12 @@ namespace Git::Internal {
 
 class CommitInfo {
 public:
-    QString sha1;
+    QString hash;
     QString shortAuthor;
     QString author;
     QString authorMail;
-    QDateTime authorTime;
-    QString summary;
+    QDateTime authorDate;
+    QString subject;
     Utils::FilePath filePath; ///< absolute file path for current file
     QString originalFileName; ///< relative file path from project root for the original file
     int line = -1;            ///< current line number in current file

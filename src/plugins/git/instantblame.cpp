@@ -45,9 +45,9 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
                            {Tr::tr("Git Blame"), Constants::TEXT_MARK_CATEGORY_BLAME})
     , m_info(info)
 {
-    QString text = info.shortAuthor + " " + info.authorTime.toString("yyyy-MM-dd");
+    QString text = info.shortAuthor + " " + info.authorDate.toString("yyyy-MM-dd");
     if (settings().instantBlameShowSubject())
-        text += " • " + info.summary;
+        text += " • " + info.subject;
 
     setPriority(TextEditor::TextMark::LowPriority);
     setToolTip(toolTipText(info));
@@ -58,7 +58,7 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
         copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
         copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy SHA1 to Clipboard"));
         QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
-            Utils::setClipboardAndSelection(info.sha1);
+            Utils::setClipboardAndSelection(info.hash);
         });
         return QList<QAction *>{copyToClipboardAction};
     });
@@ -71,7 +71,7 @@ bool BlameMark::addToolTipContent(QLayout *target) const
     target->addWidget(textLabel);
     QObject::connect(textLabel, &QLabel::linkActivated, textLabel, [this](const QString &link) {
         qCInfo(log) << "Link activated with target:" << link;
-        const QString sha1 = (link == "blameParent") ? m_info.sha1 + "^" : m_info.sha1;
+        const QString hash = (link == "blameParent") ? m_info.hash + "^" : m_info.hash;
 
         if (link.startsWith("blame") || link == "showFile") {
             const VcsBasePluginState state = currentState();
@@ -81,14 +81,14 @@ bool BlameMark::addToolTipContent(QLayout *target) const
             const QString originalFileName = m_info.originalFileName;
             if (link.startsWith("blame")) {
                 qCInfo(log).nospace().noquote() << "Blaming: \"" << path << "/" << originalFileName
-                                                << "\":" << m_info.originalLine << " @ " << sha1;
-                gitClient().annotate(path, originalFileName, m_info.originalLine, sha1);
+                                                << "\":" << m_info.originalLine << " @ " << hash;
+                gitClient().annotate(path, originalFileName, m_info.originalLine, hash);
             } else {
                 qCInfo(log).nospace().noquote() << "Showing file: \"" << path << "/"
-                                                << originalFileName << "\" @ " << sha1;
+                                                << originalFileName << "\" @ " << hash;
 
                 const auto fileName = Utils::FilePath::fromString(originalFileName);
-                gitClient().openShowEditor(path, sha1, fileName);
+                gitClient().openShowEditor(path, hash, fileName);
             }
         } else if (link == "logLine") {
             const VcsBasePluginState state = currentState();
@@ -101,8 +101,8 @@ bool BlameMark::addToolTipContent(QLayout *target) const
                                         .arg(m_info.line).arg(state.relativeCurrentFile());
             gitClient().log(state.currentFileTopLevel(), {}, true, {lineArg, "--no-patch"});
         } else {
-            qCInfo(log).nospace().noquote() << "Showing commit: " << sha1 << " for " << m_info.filePath;
-            gitClient().show(m_info.filePath, sha1);
+            qCInfo(log).nospace().noquote() << "Showing commit: " << hash << " for " << m_info.filePath;
+            gitClient().show(m_info.filePath, hash);
         }
     });
 
@@ -127,10 +127,10 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
                          "  <tr><td>Date:</td><td style=\"color: %8;\">%9</td></tr>"
                          "</table>"
                          "<p style=\"color: %10;\">%11</p>")
-                         .arg(colors.hash, info.sha1.left(8), info.sha1, QString::number(info.line),
+                         .arg(colors.hash, info.hash.left(8), info.hash, QString::number(info.line),
                               colors.author, info.author, info.authorMail,
-                              colors.date, info.authorTime.toString("yyyy-MM-dd hh:mm:ss"),
-                              colors.subject, info.summary);
+                              colors.date, info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
+                              colors.subject, info.subject);
 
     if (settings().instantBlameIgnoreSpaceChanges()
         || settings().instantBlameIgnoreLineMoves()) {
@@ -248,7 +248,7 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
         return result;
 
     const QStringList firstLineParts = blame.at(0).split(" ");
-    result.sha1 = firstLineParts.first();
+    result.hash = firstLineParts.first();
     result.author = blame.at(1).mid(7);
     result.authorMail = blame.at(2).mid(13).chopped(1);
     if (result.author == author.name || result.authorMail == author.email)
@@ -256,8 +256,8 @@ static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePa
     else
         result.shortAuthor = result.author;
     const uint timeStamp = blame.at(3).mid(12).toUInt();
-    result.authorTime = QDateTime::fromSecsSinceEpoch(timeStamp);
-    result.summary = blame.at(9).mid(8);
+    result.authorDate = QDateTime::fromSecsSinceEpoch(timeStamp);
+    result.subject = blame.at(9).mid(8);
     result.filePath = filePath;
     // blame.at(10) can be "boundary", "previous" or "filename"
     if (blame.at(10).startsWith("filename"))
