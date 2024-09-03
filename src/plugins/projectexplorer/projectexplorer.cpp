@@ -1530,7 +1530,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
                                         "ProjectExplorer.CloseAllFilesInProjectContextMenu");
     cmd->setAttribute(Command::CA_UpdateText);
     cmd->setDescription(dd->m_closeProjectFilesActionContextMenu->text());
-    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_CLOSE);
+    mprojectContextMenu->addAction(cmd, Constants::G_PROJECT_FILES);
 
     // unload project again, in right position
     dd->m_unloadActionContextMenu = new Action(Tr::tr("Close Project"), Tr::tr("Close Project \"%1\""),
