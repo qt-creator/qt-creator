@@ -1,8 +1,10 @@
 return {
-    Name = "%{ProjectName}",
+    Id = "%{JS: value('ProjectName').toLowerCase().replace(/ /g, '')}",
+    Name = "%{PluginName}",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
     Vendor = "%{VendorName}",
+    VendorId = "%{JS: value('VendorName').toLowerCase().replace(/ /g, '')}",
     Copyright = "%{Copyright}",
     License = "%{License}",
     Category = "My Plugins",
@@ -16,7 +18,7 @@ This plugin provides some functionality.
 You can describe it more here.
     ]],
     Dependencies = {
-        { Name = "Lua",  Version = "%{JS: Util.qtCreatorIdeVersion()}" },
+        { Id = "lua",  Version = "%{JS: Util.qtCreatorIdeVersion()}" },
     },
     setup = function()
         require 'init'.setup()

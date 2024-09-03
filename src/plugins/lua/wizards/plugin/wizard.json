@@ -18,7 +18,7 @@
         },
         {
             "key": "PluginSpecFile",
-            "value": "%{JS: Util.fileName(value('PluginName').toLowerCase(), Util.preferredSuffix('text/x-lua'))}"
+            "value": "%{JS: Util.fileName(value('ProjectName'), Util.preferredSuffix('text/x-lua'))}"
         },
         {
             "key": "SrcFileName",
@@ -53,7 +53,7 @@
                     "mandatory": true,
                     "type": "LineEdit",
                     "data": {
-                        "validator": "[a-zA-Z_][a-zA-Z_0-9]*",
+                        "validator": "[a-zA-Z_][ a-zA-Z_0-9]*",
                         "text": "%{JS: value('ProjectName').charAt(0).toUpperCase() + value('ProjectName').slice(1)}"
                     }
                 },
@@ -131,14 +131,14 @@
                 },
                 {
                     "source": "init.lua.tpl",
-                    "target": "%{PluginName}/%{SrcFileName}"
+                    "target": "%{ProjectName}/%{SrcFileName}"
                 },
                 {
                     "source": ".luarc.json"
                 },
                 {
                     "source": "plugin.lua.tpl",
-                    "target": "%{PluginName}/%{PluginSpecFile}",
+                    "target": "%{ProjectName}/%{PluginSpecFile}",
                     "openInEditor": true
                 }
             ]
