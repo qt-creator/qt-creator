@@ -10,16 +10,13 @@
 #include "completionsettingspage.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
-#include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "fontsettingspage.h"
 #include "highlightersettingspage.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
-#include "storagesettings.h"
 #include "texteditortr.h"
-#include "typingsettings.h"
 #include "snippets/snippetssettingspage.h"
 
 #include <coreplugin/find/searchresultwindow.h>
