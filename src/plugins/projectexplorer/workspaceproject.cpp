@@ -176,8 +176,8 @@ public:
     WorkspaceRunConfiguration(Target *target, Id id)
         : RunConfiguration(target, id)
     {
-        hint.setText(
-            Tr::tr("You can edit this configuration inside the .qtcreator/project.json file."));
+        hint.setText(Tr::tr("Clone the configuration to change it. Or, make the changes in "
+                            "the .qtcreator/project.json file."));
 
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
