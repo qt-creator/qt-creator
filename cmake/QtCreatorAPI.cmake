@@ -556,8 +556,8 @@ function(add_qtc_plugin target_name)
     CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
-    _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
-    _arg_VERSION "${_arg_VERSION}"
+    QTC_PLUGIN_DEPENDS "${_arg_PLUGIN_DEPENDS}"
+    QTC_PLUGIN_VERSION "${_arg_VERSION}"
     BUILD_RPATH "${_PLUGIN_RPATH};${CMAKE_BUILD_RPATH}"
     INSTALL_RPATH "${_PLUGIN_RPATH};${CMAKE_INSTALL_RPATH}"
     LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
@@ -569,6 +569,9 @@ function(add_qtc_plugin target_name)
     QTC_PLUGIN_CLASS_NAME ${_arg_PLUGIN_CLASS}
     ${_arg_PROPERTIES}
   )
+
+  set_property(TARGET ${target_name} APPEND PROPERTY EXPORT_PROPERTIES
+      "QTC_PLUGIN_CLASS_NAME;QTC_PLUGIN_DEPENDS;QTC_PLUGIN_VERSION")
 
   if (NOT _arg_SKIP_PCH)
     enable_pch(${target_name})
