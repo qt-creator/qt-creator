@@ -105,7 +105,7 @@ To write test cases with Qt AI Assistant:
 
 Qt AI Assistant generates a test case in [Qt Test](https://doc.qt.io/qt-6/qttest-index.html)
 format that you can copy and paste to your
-[Qt test project](https://doc.qt.io/qtcreator/creator-how-to-create-qt-tests.html.
+[Qt test project](https://doc.qt.io/qtcreator/creator-how-to-create-qt-tests.html).
     ]],
     Dependencies = {
         { Id = "lua",               Version = "14.0.0" },
