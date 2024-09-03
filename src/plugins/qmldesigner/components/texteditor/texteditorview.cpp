@@ -142,10 +142,30 @@ WidgetInfo TextEditorView::widgetInfo()
 
 void TextEditorView::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const
 {
+#ifndef QDS_USE_PROJECTSTORAGE
+    ModelNode selectedNode = firstSelectedModelNode();
+    if (!selectedNode)
+        selectedNode = rootModelNode();
+
+    // TODO: Needs to be fixed for projectstorage.
+    Core::HelpItem helpItem({QString::fromUtf8("QML." + selectedNode.type()),
+                             "QML." + selectedNode.simplifiedTypeName()},
+                            {},
+                            {},
+                            Core::HelpItem::QmlComponent);
+
+    if (!helpItem.isValid()) {
+        helpItem = Core::HelpItem(
+            QUrl("qthelp://org.qt-project.qtdesignstudio/doc/quick-preset-components.html"));
+    }
+
+    callback(helpItem);
+#else
     if (m_widget->textEditor())
         m_widget->textEditor()->contextHelp(callback);
     else
         callback({});
+#endif
 }
 
 void TextEditorView::nodeIdChanged(const ModelNode& /*node*/, const QString &/*newId*/, const QString &/*oldId*/)
