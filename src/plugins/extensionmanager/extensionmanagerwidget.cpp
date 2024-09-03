@@ -424,6 +424,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description = new QLabel;
     m_description->setWordWrap(true);
     m_description->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_description->setOpenExternalLinks(true);
     m_linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
     m_links = tfLabel(contentTF, false);
     m_links->setOpenExternalLinks(true);
