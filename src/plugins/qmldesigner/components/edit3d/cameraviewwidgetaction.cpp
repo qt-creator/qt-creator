@@ -5,8 +5,6 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-
 namespace QmlDesigner {
 
 struct CameraActionsModel::DataItem
@@ -29,19 +27,22 @@ const QList<CameraActionsModel::DataItem> CameraActionsModel::m_data{
 CameraViewWidgetAction::CameraViewWidgetAction(QObject *parent)
     : QWidgetAction(parent)
 {
-    QComboBox *defaultComboBox = new QComboBox();
+    ComboBoxAction *defaultComboBox = new ComboBoxAction();
     CameraActionsModel *comboBoxModel = new CameraActionsModel(defaultComboBox);
 
     defaultComboBox->setModel(comboBoxModel);
     setDefaultWidget(defaultComboBox);
+
     connect(defaultComboBox, &QComboBox::currentIndexChanged, this, [this] {
         emit currentModeChanged(currentMode());
     });
+
+    connect(defaultComboBox, &ComboBoxAction::hovered, this, &CameraViewWidgetAction::onWidgetHovered);
 }
 
 QString CameraViewWidgetAction::currentMode() const
 {
-    QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
+    ComboBoxAction *defaultComboBox = qobject_cast<ComboBoxAction *>(defaultWidget());
     QTC_ASSERT(defaultComboBox, return "CameraOff");
 
     return defaultComboBox->currentData(CameraActionsModel::ModeRole).toString();
@@ -49,22 +50,31 @@ QString CameraViewWidgetAction::currentMode() const
 
 void CameraViewWidgetAction::setMode(const QString &mode)
 {
-    QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
+    ComboBoxAction *defaultComboBox = qobject_cast<ComboBoxAction *>(defaultWidget());
     QTC_ASSERT(defaultComboBox, return);
     defaultComboBox->setCurrentIndex(CameraActionsModel::modeIndex(mode));
 }
 
 QWidget *CameraViewWidgetAction::createWidget(QWidget *parent)
 {
-    QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
+    ComboBoxAction *defaultComboBox = qobject_cast<ComboBoxAction *>(defaultWidget());
     QTC_ASSERT(defaultComboBox, return nullptr);
 
-    QComboBox *newComboBox = new QComboBox(parent);
+    ComboBoxAction *newComboBox = new ComboBoxAction(parent);
     newComboBox->setModel(defaultComboBox->model());
     connect(defaultComboBox, &QComboBox::currentIndexChanged, newComboBox, &QComboBox::setCurrentIndex);
     connect(newComboBox, &QComboBox::currentIndexChanged, defaultComboBox, &QComboBox::setCurrentIndex);
     newComboBox->setCurrentIndex(defaultComboBox->currentIndex());
+
+    connect(newComboBox, &ComboBoxAction::hovered, this, &CameraViewWidgetAction::onWidgetHovered);
+    newComboBox->setProperty("_qdss_hoverFrame", true);
+
     return newComboBox;
+}
+
+void CameraViewWidgetAction::onWidgetHovered()
+{
+    activate(Hover);
 }
 
 CameraActionsModel::CameraActionsModel(QObject *parent)
@@ -100,6 +110,24 @@ int CameraActionsModel::modeIndex(const QString &mode)
 {
     int idx = Utils::indexOf(m_data, Utils::equal(&DataItem::mode, mode));
     return std::max(0, idx);
+}
+
+ComboBoxAction::ComboBoxAction(QWidget *parent)
+    : QComboBox(parent)
+{
+    setMouseTracking(true);
+}
+
+void ComboBoxAction::enterEvent(QEnterEvent *event)
+{
+    QComboBox::enterEvent(event);
+    emit hovered();
+}
+
+void ComboBoxAction::moveEvent(QMoveEvent *event)
+{
+    QComboBox::moveEvent(event);
+    emit hovered();
 }
 
 } // namespace QmlDesigner

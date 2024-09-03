@@ -19,7 +19,7 @@ add_qtc_library(QmlDesignerSettings STATIC
 
 add_qtc_plugin(QmlDesignerBase
   CONDITION TARGET Qt::QuickWidgets
-  DEPENDS Qt::Core Qt::QuickWidgets
+  DEPENDS Qt::Core Qt::QuickWidgets Qt::GuiPrivate
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
   PUBLIC_INCLUDES settings
   SOURCES
