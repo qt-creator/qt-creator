@@ -249,7 +249,7 @@ void tst_TestCore::initTestCase()
     initializeMetaTypeSystem(IDE_DATA_PATH);
 
     QStringList basePaths;
-    basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    basePaths.append(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
     QmlJS::PathsAndLanguages lPaths;
 
     lPaths.maybeInsert(Utils::FilePath::fromString(basePaths.first()), QmlJS::Dialect::Qml);
