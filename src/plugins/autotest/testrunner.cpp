@@ -454,8 +454,8 @@ void TestRunner::runTestsHelper()
                 emit hadDisabledTests(disabled);
             if (testStorage->m_outputReader->hasSummary())
                 emit reportSummary(testStorage->m_outputReader->id(), testStorage->m_outputReader->summary());
-            if (testStorage->m_outputReader->hasDuration())
-                emit reportDuration(testStorage->m_outputReader->duration());
+            emit reportDuration(testStorage->m_outputReader->duration().value_or(
+                process.processDuration().count()));
 
             testStorage->m_outputReader->resetCommandlineColor();
         }
