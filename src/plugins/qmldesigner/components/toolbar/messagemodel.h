@@ -44,6 +44,7 @@ private:
     void addCategory(const ProjectExplorer::TaskCategory &category);
     void addTask(const ProjectExplorer::Task &task);
     void removeTask(const ProjectExplorer::Task &task);
+    void clearTasks(const Utils::Id &categoryId);
 
     std::vector<ProjectExplorer::Task> m_tasks = {};
     std::unordered_map<quintptr, ProjectExplorer::TaskCategory> m_categories = {};

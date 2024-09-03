@@ -107,6 +107,7 @@ void MessageModel::setupTaskHub()
     connect(hub, &ProjectExplorer::TaskHub::categoryAdded, this, &MessageModel::addCategory);
     connect(hub, &ProjectExplorer::TaskHub::taskAdded, this, &MessageModel::addTask);
     connect(hub, &ProjectExplorer::TaskHub::taskRemoved, this, &MessageModel::removeTask);
+    connect(hub, &ProjectExplorer::TaskHub::tasksCleared, this, &MessageModel::clearTasks);
 }
 
 void MessageModel::addCategory(const ProjectExplorer::TaskCategory &category)
@@ -126,7 +127,7 @@ void MessageModel::addTask(const ProjectExplorer::Task &task)
 void MessageModel::removeTask(const ProjectExplorer::Task &task)
 {
     for (int i = 0; std::cmp_less(i, m_tasks.size()); i++) {
-        if (m_tasks.at(i) == task) {
+        if (m_tasks[static_cast<size_t>(i)] == task) {
             beginRemoveRows(QModelIndex(), i, i);
             m_tasks.erase(m_tasks.begin() + i);
             endRemoveRows();
@@ -134,4 +135,14 @@ void MessageModel::removeTask(const ProjectExplorer::Task &task)
             return;
         }
     }
+}
+
+void MessageModel::clearTasks(const Utils::Id &categoryId)
+{
+    beginResetModel();
+    std::erase_if(m_tasks, [categoryId](const ProjectExplorer::Task& task) {
+        return task.category == categoryId;
+    });
+    endResetModel();
+    emit modelChanged();
 }
