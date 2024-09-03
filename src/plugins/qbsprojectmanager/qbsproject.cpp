@@ -44,8 +44,9 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/mimeconstants.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 
 #include <qmljs/qmljsmodelmanagerinterface.h>
@@ -653,8 +654,9 @@ static QString getMimeType(const QJsonObject &sourceArtifact)
     using namespace Utils::Constants;
     const auto tags = sourceArtifact.value("file-tags").toArray();
     if (tags.contains("hpp")) {
-        if (CppEditor::ProjectFile::isAmbiguousHeader(sourceArtifact.value("file-path").toString()))
-            return QString(AMBIGUOUS_HEADER_MIMETYPE);
+        const QString filePath = sourceArtifact.value("file-path").toString();
+        if (CppEditor::ProjectFile::isAmbiguousHeader(filePath))
+            return Utils::mimeTypeForFile(filePath).name();
         return QString(CPP_HEADER_MIMETYPE);
     }
     if (tags.contains("cpp"))
