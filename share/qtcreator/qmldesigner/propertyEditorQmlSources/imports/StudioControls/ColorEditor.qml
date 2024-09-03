@@ -69,6 +69,8 @@ Item {
 
             property QtObject loaderItem: loader.item
 
+            keepOpen: loader.item?.eyeDropperActive ?? false
+
             width: 260
 
             function ensureLoader() {
@@ -91,6 +93,7 @@ Item {
                     id: popup
                     width: popupDialog.contentWidth
                     visible: popupDialog.visible
+                    parentWindow: popupDialog.window
 
                     onActivateColor: function(color) {
                         colorBackend.activateColor(color)

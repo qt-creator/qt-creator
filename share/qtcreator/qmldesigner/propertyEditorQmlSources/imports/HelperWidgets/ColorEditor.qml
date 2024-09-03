@@ -39,7 +39,7 @@ SecondColumnLayout {
 
     property bool shapeGradients: false
 
-    //for now, gradients on MCUs are limited to Basic and Shape Linear Gradient:
+    // Gradients on MCUs are limited to Basic and Shape Linear Gradient.
     property bool mcuGradients: false
 
     property color originalColor
@@ -91,9 +91,9 @@ SecondColumnLayout {
 
             if (colorEditor.backendValue !== undefined) {
                 if (colorEditor.isVector3D)
-                    colorEditor.backendValue.value = Qt.vector3d(
-                                colorEditor.color.r, colorEditor.color.g,
-                                colorEditor.color.b)
+                    colorEditor.backendValue.value = Qt.vector3d(colorEditor.color.r,
+                                                                 colorEditor.color.g,
+                                                                 colorEditor.color.b)
                 else
                     colorEditor.backendValue.value = colorEditor.color
             }
@@ -223,10 +223,8 @@ SecondColumnLayout {
 
             function open() {
                 popupDialog.ensureLoader()
-
                 popupDialog.show(preview)
-
-                popupDialog.loaderItem.aboutToBeShown() //need it for now
+                popupDialog.loaderItem.aboutToBeShown() // need it for now
             }
 
             function determineActiveColorMode() {

@@ -53,7 +53,7 @@ add_qtc_plugin(QmlDesigner
   PLUGIN_MANUAL_DEPENDS LicenseChecker ${IDE_VERSION} optional
   DEPENDS
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
-    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Zip
+    Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Zip Qt::GuiPrivate
   PUBLIC_DEPENDS
     QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore
   DEFINES
