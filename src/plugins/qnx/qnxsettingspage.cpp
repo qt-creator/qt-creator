@@ -229,8 +229,8 @@ Toolchains QnxConfiguration::createToolChains(const QnxTarget &target)
 {
     Toolchains toolchains;
 
-    for (const Id language : {ProjectExplorer::Constants::C_LANGUAGE_ID,
-                              ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
+    for (const Id language : {Id(ProjectExplorer::Constants::C_LANGUAGE_ID),
+                              Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)}) {
         auto toolchain = new QnxToolchain;
         toolchain->setDetection(Toolchain::ManualDetection);
         toolchain->setLanguage(language);

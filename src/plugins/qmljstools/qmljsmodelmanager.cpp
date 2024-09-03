@@ -339,7 +339,7 @@ void ModelManager::updateDefaultProjectInfo()
 
 
 void ModelManager::addTaskInternal(const QFuture<void> &result, const QString &msg,
-                                   const char *taskId) const
+                                   const Id taskId) const
 {
     ProgressManager::addTask(result, msg, taskId);
 }

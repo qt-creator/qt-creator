@@ -480,7 +480,7 @@ void ToolchainKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expa
 
 QList<OutputLineParser *> ToolchainKitAspectFactory::createOutputParsers(const Kit *k) const
 {
-    for (const Id langId : {Constants::CXX_LANGUAGE_ID, Constants::C_LANGUAGE_ID}) {
+    for (const Id langId : {Id(Constants::CXX_LANGUAGE_ID), Id(Constants::C_LANGUAGE_ID)}) {
         if (const Toolchain * const tc = ToolchainKitAspect::toolchain(k, langId))
             return tc->createOutputParsers();
     }

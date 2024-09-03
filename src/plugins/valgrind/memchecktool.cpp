@@ -997,7 +997,7 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
         QAction *action = m_filterMenu->addAction(file.fileName());
         action->setToolTip(file.toUserOutput());
         connect(action, &QAction::triggered, this, [file] {
-            EditorManager::openEditorAt(file, 0);
+            EditorManager::openEditorAt(file);
         });
         m_suppressionActions.append(action);
     }

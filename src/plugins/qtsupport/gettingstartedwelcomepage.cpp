@@ -77,7 +77,7 @@ int ExamplesWelcomePage::priority() const
 
 Id ExamplesWelcomePage::id() const
 {
-    return m_showExamples ? "Examples" : "Tutorials";
+    return m_showExamples ? Id("Examples") : Id("Tutorials");
 }
 
 static FilePath copyToAlternativeLocation(const FilePath &proFile,

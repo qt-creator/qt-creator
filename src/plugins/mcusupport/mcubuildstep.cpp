@@ -88,7 +88,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
     cmd.setLabelText(QmlProjectManager::Tr::tr("Command:"));
     cmd.setValue(rootPath.pathAppended("/bin/qmlprojectexporter"));
 
-    const char *importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
+    const Id importPathConstant = QtSupport::Constants::KIT_QML_IMPORT_PATH;
     const FilePath qulIncludeDir = FilePath::fromVariant(kit->value(importPathConstant));
     QStringList includeDirs {
         ProcessArgs::quoteArg(qulIncludeDir.toString()),
@@ -96,7 +96,7 @@ DeployMcuProcessStep::DeployMcuProcessStep(ProjectExplorer::BuildStepList *bc, I
         ProcessArgs::quoteArg(qulIncludeDir.pathAppended("Shapes").toString())
     };
 
-    const char *toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
+    const Id toolChainConstant = Internal::Constants::KIT_MCUTARGET_TOOLCHAIN_KEY;
     QStringList arguments = {
         ProcessArgs::quoteArg(buildSystem()->projectFilePath().toString()),
         "--platform", findKitInformation(kit, "QUL_PLATFORM"),

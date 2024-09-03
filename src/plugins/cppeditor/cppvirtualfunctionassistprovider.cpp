@@ -28,6 +28,7 @@
 
 using namespace CPlusPlus;
 using namespace TextEditor;
+using namespace Utils;
 
 namespace CppEditor {
 
@@ -38,9 +39,9 @@ class VirtualFunctionProposalWidget : public GenericProposalWidget
 public:
     VirtualFunctionProposalWidget(bool openInSplit)
     {
-        const char *id = openInSplit
-            ? TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT
-            : TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR;
+        const Id id = openInSplit
+            ? Id(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR_IN_NEXT_SPLIT)
+            : Id(TextEditor::Constants::FOLLOW_SYMBOL_UNDER_CURSOR);
         if (Core::Command *command = Core::ActionManager::command(id))
             m_sequence = command->keySequence();
         setFragile(true);
@@ -144,7 +145,7 @@ private:
 
         auto *item = new VirtualFunctionProposalItem(link, m_params.openInNextSplit);
         item->setText(text);
-        item->setIcon(Icons::iconForSymbol(func));
+        item->setIcon(CPlusPlus::Icons::iconForSymbol(func));
 
         return item;
     }

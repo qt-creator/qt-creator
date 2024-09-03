@@ -1193,7 +1193,7 @@ void AndroidConfigurations::applyConfig()
 static bool matchKit(const ToolchainBundle &bundle, const Kit &kit)
 {
     using namespace ProjectExplorer::Constants;
-    for (const Id lang : {C_LANGUAGE_ID, CXX_LANGUAGE_ID}) {
+    for (const Id lang : {Id(C_LANGUAGE_ID), Id(CXX_LANGUAGE_ID)}) {
         const Toolchain * const tc = ToolchainKitAspect::toolchain(&kit, lang);
         if (!tc || tc->typeId() != Constants::ANDROID_TOOLCHAIN_TYPEID
             || tc->targetAbi() != bundle.targetAbi()) {

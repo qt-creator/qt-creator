@@ -127,8 +127,8 @@ static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, c
     if (compilerId != ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID &&
             compilerId != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
         compilerId = HostOsInfo::isWindowsHost()
-                ? ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
-                : ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID;
+                ? Id(ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)
+                : Id(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID);
         if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
             return kitToolchain;
         if ((toolchain = toolchainFromCompilerId(compilerId, language)))

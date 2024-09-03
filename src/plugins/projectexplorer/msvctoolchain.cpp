@@ -1614,7 +1614,7 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                              .arg(QLatin1String(isDefault ? "Default " : ""))
                              .arg(targetAbi.wordWidth())
                              .arg(Abi::toString(targetAbi.osFlavor()).toUpper());
-    for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
+    for (auto language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
         ClangClToolchain *tc = static_cast<ClangClToolchain *>(
             Utils::findOrDefault(alreadyKnown, [&](Toolchain *tc) -> bool {
                 if (tc->typeId() != Constants::CLANG_CL_TOOLCHAIN_TYPEID)
@@ -1868,7 +1868,7 @@ static Toolchains findOrCreateToolchains(const ToolchainDetector &detector,
                                          const QString &varsBatArg)
 {
     Toolchains res;
-    for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
+    for (auto language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
         Toolchain *tc = Utils::findOrDefault(detector.alreadyKnown, [&](Toolchain *tc) -> bool {
             if (tc->typeId() != Constants::MSVC_TOOLCHAIN_TYPEID)
                 return false;
@@ -1921,7 +1921,7 @@ static void detectCppBuildTools2015(Toolchains *list)
                       Abi::WindowsMsvc2015Flavor,
                       e.format,
                       e.wordSize);
-        for (auto language : {Constants::C_LANGUAGE_ID, Constants::CXX_LANGUAGE_ID}) {
+        for (auto language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
             auto tc = new MsvcToolchain(Constants::MSVC_TOOLCHAIN_TYPEID);
             tc->setupVarsBat(abi, vcVarsBat, QLatin1String(e.varsBatArg));
             tc->setDisplayName(name + QLatin1String(e.postFix));

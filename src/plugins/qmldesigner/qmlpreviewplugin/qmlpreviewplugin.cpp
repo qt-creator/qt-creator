@@ -26,6 +26,8 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 
+using namespace Utils;
+
 namespace QmlPreview {
 using QmlPreviewRunControlList = QList<ProjectExplorer::RunControl *>;
 }
@@ -66,9 +68,9 @@ QmlPreviewWidgetPlugin::QmlPreviewWidgetPlugin()
 
     Core::Context globalContext;
     auto registerCommand = [&globalContext](ActionInterface *action) {
-        const QString id = QStringView(u"QmlPreview.%1").arg(QString::fromLatin1(action->menuId()));
+        const Id id = Id("QmlPreview.").withSuffix(action->menuId());
         Core::Command *cmd = Core::ActionManager::registerAction(action->action(),
-                                                                 id.toLatin1().constData(),
+                                                                 id,
                                                                  globalContext);
 
         cmd->setDefaultKeySequence(action->action()->shortcut());

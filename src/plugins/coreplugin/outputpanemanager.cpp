@@ -252,7 +252,7 @@ void IOutputPane::setFilteringEnabled(bool enable)
     m_filterOutputLineEdit->setEnabled(enable);
 }
 
-void IOutputPane::setupContext(const char *context, QWidget *widget)
+void IOutputPane::setupContext(const Id &context, QWidget *widget)
 {
     return setupContext(Context(context), widget);
 }

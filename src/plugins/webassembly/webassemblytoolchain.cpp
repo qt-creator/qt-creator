@@ -124,8 +124,8 @@ static Toolchains doAutoDetect(const ToolchainDetector &detector)
     WebAssemblyEmSdk::addToEnvironment(sdk, env);
 
     Toolchains result;
-    for (auto languageId : {ProjectExplorer::Constants::C_LANGUAGE_ID,
-                            ProjectExplorer::Constants::CXX_LANGUAGE_ID}) {
+    for (auto languageId : {Id(ProjectExplorer::Constants::C_LANGUAGE_ID),
+                            Id(ProjectExplorer::Constants::CXX_LANGUAGE_ID)}) {
         auto toolChain = new WebAssemblyToolChain;
         toolChain->setLanguage(languageId);
         toolChain->setDetection(Toolchain::AutoDetection);

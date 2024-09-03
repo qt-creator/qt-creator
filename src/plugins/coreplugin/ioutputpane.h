@@ -87,7 +87,7 @@ protected:
     Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
-    void setupContext(const char *context, QWidget *widget);
+    void setupContext(const Utils::Id &context, QWidget *widget);
     void setupContext(const Context &context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
 

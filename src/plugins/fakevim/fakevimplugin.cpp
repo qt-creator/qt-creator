@@ -1678,7 +1678,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     });
 
     handler->findNextRequested.set([](bool reverse) {
-        triggerAction(reverse ? Core::Constants::FIND_PREVIOUS : Core::Constants::FIND_NEXT);
+        triggerAction(reverse ? Id(Core::Constants::FIND_PREVIOUS) : Id(Core::Constants::FIND_NEXT));
     });
 
     handler->foldToggle.set([this, handler](int depth) {
