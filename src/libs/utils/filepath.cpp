@@ -640,10 +640,31 @@ FilePaths FilePath::dirEntries(const FileFilter &filter, QDir::SortFlags sort) c
 
     // FIXME: Not all flags supported here.
     const QDir::SortFlags sortBy = (sort & QDir::SortByMask);
+
+    using Predicate = std::function<bool(const FilePath &, const FilePath &)>;
+
+    std::function<void(FilePaths &, Predicate)> sortWithFolders =
+        [](FilePaths &result, Predicate predicate) { Utils::sort(result, predicate); };
+
+    if (sort & QDir::DirsFirst) {
+        sortWithFolders = [](FilePaths &result, Predicate predicate) {
+            Predicate folderFilter = [predicate](const FilePath &path1, const FilePath &path2) {
+                if (path1.isDir() && !path2.isDir())
+                    return true;
+                if (!path1.isDir() && path2.isDir())
+                    return false;
+                return predicate(path1, path2);
+            };
+            Utils::sort(result, folderFilter);
+        };
+    }
+
     if (sortBy == QDir::Name) {
-        Utils::sort(result);
+        sortWithFolders(result, [](const FilePath &path1, const FilePath &path2) {
+            return path1.fileName() < path2.fileName();
+        });
     } else if (sortBy == QDir::Time) {
-        Utils::sort(result, [](const FilePath &path1, const FilePath &path2) {
+        sortWithFolders(result, [](const FilePath &path1, const FilePath &path2) {
             return path1.lastModified() < path2.lastModified();
         });
     }
