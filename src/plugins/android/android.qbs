@@ -99,6 +99,18 @@ QtcPlugin {
         "sdkmanageroutputparser.h"
     ]
 
+    Group {
+        name: "license"
+        files: "LICENSE.md"
+        fileTags: "pluginjson.license"
+    }
+
+    Group {
+        name: "long description"
+        files: "plugindescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
+
     QtcTestFiles {
         files: [
             "android_tst.qrc",
