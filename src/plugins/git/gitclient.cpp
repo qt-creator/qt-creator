@@ -390,11 +390,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
     const auto onDescriptionSetup = [this, id](Process &process) {
         process.setCodec(gitClient().encoding(GitClient::EncodingCommit, workingDirectory()));
-        const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
-        const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
-        const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
-        const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-        const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
+        const ColorNames colors = GitClient::colorNames();
 
         const QString showFormat = QStringLiteral(
                                     "--pretty=format:"
@@ -402,7 +398,8 @@ ShowController::ShowController(IDocument *document, const QString &id)
                                     "Author: %C(%3)%aN <%aE>%Creset, %C(%4)%ad (%ar)%Creset%n"
                                     "Committer: %C(%3)%cN <%cE>%Creset, %C(%4)%cd (%cr)%Creset%n"
                                     "%n%C(%5)%s%Creset%n%n%b"
-                                    ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
+                                    ).arg(colors.hash, colors.decoration, colors.author,
+                                          colors.date, colors.subject);
         setupCommand(process, {"show", "-s", colorOption, showFormat, id});
         VcsOutputWindow::appendCommand(process.workingDirectory(), process.commandLine());
         setDescription(Tr::tr("Waiting for data..."));
@@ -688,11 +685,7 @@ public:
 
     QStringList graphArguments() const
     {
-        const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
-        const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
-        const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
-        const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-        const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
+        const ColorNames colors = GitClient::colorNames();
 
         const QString formatArg = QStringLiteral(
                     "--pretty=format:"
@@ -701,7 +694,7 @@ public:
                     "%C(%3)%aN%Creset "
                     "%C(%4)%s%Creset "
                     "%C(%5)%ci%Creset"
-                    ).arg(commitHash, decoration, authorName, commitSubject, commitDate);
+                    ).arg(colors.hash, colors.decoration, colors.author, colors.subject, colors.date);
 
         QStringList graphArgs = {graphOption, "--oneline", "--topo-order"};
 
@@ -1024,11 +1017,7 @@ static QStringList normalLogArguments()
     if (!gitHasRgbColors())
         return {};
 
-    const QString authorName = GitClient::styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
-    const QString commitDate = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_DATE);
-    const QString commitHash = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_HASH);
-    const QString commitSubject = GitClient::styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
-    const QString decoration = GitClient::styleColorName(TextEditor::C_LOG_DECORATION);
+    ColorNames colors = GitClient::colorNames();
 
     const QString logArgs = QStringLiteral(
                 "--pretty=format:"
@@ -1036,7 +1025,7 @@ static QStringList normalLogArguments()
                 "Author: %C(%3)%aN <%aE>%Creset%n"
                 "Date:   %C(%4)%cD %Creset%n%n"
                 "%C(%5)%w(0,4,4)%s%Creset%n%n%b"
-                ).arg(commitHash, decoration, authorName, commitDate, commitSubject);
+                ).arg(colors.hash, colors.decoration, colors.author, colors.date, colors.subject);
 
     return {logArgs};
 }
@@ -3783,6 +3772,18 @@ IEditor *GitClient::openShowEditor(const FilePath &workingDirectory, const QStri
     // FIXME: Check should that be relative
     VcsBase::setSource(editor->document(), path);
     return editor;
+}
+
+ColorNames GitClient::colorNames()
+{
+    ColorNames result;
+    result.author = styleColorName(TextEditor::C_LOG_AUTHOR_NAME);
+    result.date = styleColorName(TextEditor::C_LOG_COMMIT_DATE);
+    result.hash = styleColorName(TextEditor::C_LOG_COMMIT_HASH);
+    result.decoration = styleColorName(TextEditor::C_LOG_DECORATION);
+    result.subject = styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
+    result.body = styleColorName(TextEditor::C_TEXT);
+    return result;
 }
 
 } // Git::Internal

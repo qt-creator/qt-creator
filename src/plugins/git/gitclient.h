@@ -33,6 +33,16 @@ class GitBaseDiffEditorController;
 class GitSubmitEditorPanelData;
 class Stash;
 
+struct ColorNames
+{
+    QString author;
+    QString date;
+    QString hash;
+    QString decoration;
+    QString subject;
+    QString body;
+};
+
 enum StatusMode
 {
     ShowAll = 0,
@@ -343,6 +353,7 @@ public:
                          const VcsBase::CommandHandler &handler) const;
 
     static QString styleColorName(TextEditor::TextStyle style);
+    static ColorNames colorNames();
 
 private:
     static GitSettings &settings();
