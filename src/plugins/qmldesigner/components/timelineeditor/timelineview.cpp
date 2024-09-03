@@ -468,11 +468,11 @@ void TimelineView::setTimelineRecording(bool value)
 
 void TimelineView::setCurrentTimeline(const ModelNode &timeline)
 {
-    if (QmlTimeline currentTimeline = currentTimelineNode()) {
+    if (QmlTimeline currentTimeline = currentTimelineNode())
         currentTimeline.toogleRecording(false);
 
+    if (isAttached())
         model()->setCurrentTimelineNode(timeline);
-    }
 }
 
 void TimelineView::customNotification(const AbstractView * /*view*/,
