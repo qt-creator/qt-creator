@@ -249,6 +249,7 @@ public:
     void setMarkup(const QList<Markup> &markup);
     void setNewWindowRequestAllowed(bool c) { m_canRequestNewWindow = c; }
     void setCodec(QTextCodec *codec);
+    QByteArray toByteArray(const QString &s) const;
 
     void clearMarkup() { m_markup.clear(); }
     void addMarkup(quint64 a, quint64 l, const QColor &c, const QString &t) { m_markup.append(Markup(a, l, c, t)); }
@@ -1882,6 +1883,13 @@ void BinEditorWidget::setCodec(QTextCodec *codec)
     viewport()->update();
 }
 
+QByteArray BinEditorWidget::toByteArray(const QString &s) const
+{
+    if (m_codec)
+        return m_codec->fromUnicode(s);
+    return s.toLatin1();
+}
+
 void BinEditorDocument::updateContents()
 {
     m_oldData = m_data;
@@ -1967,8 +1975,8 @@ public:
     {
         m_lastText = txt;
         m_lastFindFlags = findFlags;
-        m_widget->highlightSearchResults(m_codec->fromUnicode(txt),
-                                         Utils::textDocumentFlagsForFindFlags(findFlags));
+        m_widget->highlightSearchResults(
+            m_widget->toByteArray(txt), Utils::textDocumentFlagsForFindFlags(findFlags));
     }
 
     void clearHighlights() final
@@ -1997,17 +2005,9 @@ public:
         return res;
     }
 
-    void setCodec(QTextCodec *codec)
-    {
-        if (codec == m_codec)
-            return;
-        m_codec = codec;
-        rehighlightAll();
-    }
-
     Result findIncremental(const QString &txt, FindFlags findFlags) final
     {
-        QByteArray pattern = m_codec->fromUnicode(txt);
+        QByteArray pattern = m_widget->toByteArray(txt);
         if (txt != m_lastText)
             resetIncrementalSearch(); // Because we don't search for nibbles.
         m_lastText = txt;
@@ -2043,7 +2043,7 @@ public:
 
     Result findStep(const QString &txt, FindFlags findFlags) final
     {
-        QByteArray pattern = m_codec->fromUnicode(txt);
+        QByteArray pattern = m_widget->toByteArray(txt);
         bool wasReset = (m_incrementalStartPos < 0);
         if (m_contPos == -1) {
             m_contPos = m_widget->cursorPosition() + 1;
@@ -2081,7 +2081,6 @@ private:
     bool m_incrementalWrappedState = false;
     QString m_lastText;
     FindFlags m_lastFindFlags;
-    QTextCodec *m_codec;
 };
 
 
@@ -2250,9 +2249,11 @@ public:
 
         auto aggregate = new Aggregation::Aggregate;
         auto binEditorFind = new BinEditorFind(m_widget);
-        connect(codecChooser, &CodecChooser::codecChanged,
-                binEditorFind, &BinEditorFind::setCodec);
-        binEditorFind->setCodec(codecChooser->currentCodec());
+        connect(
+            codecChooser,
+            &CodecChooser::codecChanged,
+            binEditorFind,
+            &BinEditorFind::rehighlightAll);
 
         aggregate->add(binEditorFind);
         aggregate->add(m_widget);
