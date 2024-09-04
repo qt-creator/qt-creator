@@ -814,8 +814,29 @@ QVariant convertValue(const QByteArray &key, const QString &value)
         return value.toInt();
     } else if (key == "opacity") {
         return value.toFloat();
-    } else if ((key == "fillColor" || key == "strokeColor") && value == "none") {
-        return "transparent";
+    } else if ((key == "fillColor" || key == "strokeColor")) {
+        if (value == "none")
+            return QColor(0, 0, 0, 0);
+
+        static const QRegularExpression reRGB(
+            R"(^rgb\((?<red>\d{1,3}),\s*(?<green>\d{1,3}),\s*(?<blue>\d{1,3})\)$)");
+        QRegularExpressionMatch match = reRGB.match(value);
+        if (match.hasMatch()) {
+            return QColor(match.captured("red").toInt(),
+                          match.captured("green").toInt(),
+                          match.captured("blue").toInt());
+        }
+
+        static const QRegularExpression reRGBA(
+            R"(^rgba\((?<red>\d{1,3}),\s*(?<green>\d{1,3}),\s*(?<blue>\d{1,3}),\s*(?<alpha>\d*(?:\.\d+))\)$)");
+        match = reRGBA.match(value);
+        if (match.hasMatch()) {
+            QColor color(match.captured("red").toInt(),
+                         match.captured("green").toInt(),
+                         match.captured("blue").toInt());
+            color.setAlphaF(match.captured("alpha").toFloat());
+            return color;
+        }
     }
 
     return value;
