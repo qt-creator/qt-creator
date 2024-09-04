@@ -138,7 +138,6 @@ private:
 
     TabWidget *m_tabWidget;
     QVector<RunControlTab> m_runControlTabs;
-    int m_runControlCount = 0;
     QAction *m_stopAction;
     QAction *m_closeCurrentTabAction;
     QAction *m_closeAllTabsAction;
