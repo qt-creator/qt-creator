@@ -440,7 +440,7 @@ Item {
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: qsTr("Save Custom Preset")
                 iconFont: StudioTheme.Constants.font
-                iconSize: DialogValues.defaultPixelSize
+
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
 
