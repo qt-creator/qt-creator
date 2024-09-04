@@ -31,7 +31,8 @@ public:
     class Parameters
     {
     public:
-        using OutputParser = std::function<std::optional<Data>(const QString &)>;
+        using OutputParser = std::function<
+            std::optional<Data>(const QString & /* stdOut */, const QString & /* stdErr */)>;
         using ErrorHandler = std::function<void(const Process &)>;
         using Callback = std::function<void(const std::optional<Data> &)>;
 
@@ -133,7 +134,7 @@ inline std::optional<Data> DataFromProcess<Data>::handleProcessFinished(
 
     std::optional<Data> data;
     if (params.allowedResults.contains(process->result()))
-        data = params.parser(process->cleanedStdOut());
+        data = params.parser(process->cleanedStdOut(), process->cleanedStdErr());
     else if (params.errorHandler)
         params.errorHandler(*process);
     QMutexLocker<QMutex> cacheLocker(&m_cacheMutex);

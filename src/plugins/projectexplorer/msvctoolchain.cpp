@@ -852,6 +852,17 @@ MsvcToolchain::MsvcToolchain(Utils::Id typeId)
     setTypeDisplayName(Tr::tr("MSVC"));
     addToAvailableMsvcToolchains(this);
     setTargetAbiKey(KEY_ROOT "SupportedAbi");
+    setVersionFlagsAndParser({}, [](const QString &, const QString &stdErr) -> QVersionNumber {
+        const QString markerString = " Version ";
+        const int markerIndex = stdErr.indexOf(markerString);
+        if (markerIndex == -1)
+            return {};
+        const int versionOffset = markerIndex + markerString.size();
+        const int spaceIndex = stdErr.indexOf(' ', versionOffset);
+        if (spaceIndex == -1)
+            return {};
+        return QVersionNumber::fromString(stdErr.mid(versionOffset, spaceIndex - versionOffset));
+    });
 }
 
 void MsvcToolchain::inferWarningsForLevel(int warningLevel, WarningFlags &flags)
@@ -1677,6 +1688,19 @@ ClangClToolchain::ClangClToolchain()
 {
     setDisplayName("clang-cl");
     setTypeDisplayName(Tr::tr("Clang"));
+    setVersionFlagsAndParser(
+        {"--version"}, [](const QString &output, const QString &) -> QVersionNumber {
+            const QString marker = "clang version ";
+            const int markerIndex = output.indexOf(marker);
+            if (markerIndex == -1)
+                return {};
+            const int versionOffset = markerIndex + marker.size();
+            const int newlineIndex = output.indexOf('\n', versionOffset);
+            if (newlineIndex == -1)
+                return {};
+            return QVersionNumber::fromString(
+                output.mid(versionOffset, newlineIndex - versionOffset).trimmed());
+        });
 }
 
 bool ClangClToolchain::isValid() const
@@ -2251,7 +2275,7 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
 {
     QTC_ASSERT(!filePath.isEmpty(), return {});
 
-    static const auto parser = [](const QString &stdOut) {
+    static const auto parser = [](const QString &stdOut, const QString &) {
         ClangClInfo info;
         const QRegularExpressionMatch versionMatch
             = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);

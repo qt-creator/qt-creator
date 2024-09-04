@@ -19,6 +19,7 @@
 
 #include <QDateTime>
 #include <QSet>
+#include <QVersionNumber>
 
 #include <functional>
 #include <memory>
@@ -98,6 +99,8 @@ public:
 
     Abi targetAbi() const;
     void setTargetAbi(const Abi &abi);
+
+    QVersionNumber version() const;
 
     virtual ProjectExplorer::Abis supportedAbis() const;
     virtual QString originalTargetTriple() const { return {}; }
@@ -179,6 +182,11 @@ protected:
 
     void setTypeDisplayName(const QString &typeName);
 
+    using VersionParser
+        = std::function<QVersionNumber(const QString & /* stdOut */, const QString & /* stdErr */)>;
+    void setVersionFlagsAndParser(const QStringList &flags, const VersionParser &parser);
+    void clearVersion();
+
     void setTargetAbiNoSignal(const Abi &abi);
     void setTargetAbiKey(const Utils::Key &abiKey);
 
@@ -211,6 +219,7 @@ private:
 
     friend class Internal::ToolchainSettingsAccessor;
     friend class ToolchainFactory;
+    friend class Internal::ToolchainPrivate;
 };
 
 using Toolchains = QList<Toolchain *>;

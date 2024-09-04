@@ -107,9 +107,9 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     QTC_ASSERT(le, return false);
 
     const QString binary = le->text();
-    DataFromProcess<QString>::Parameters params(CommandLine(FilePath::fromUserInput(binary),
-                                                            m_arguments),
-                                                [](const QString &output) { return output; });
+    DataFromProcess<QString>::Parameters params(
+        CommandLine(FilePath::fromUserInput(binary), m_arguments),
+        [](const QString &output, const QString &) { return output; });
     params.callback = [binary, self = QPointer(this),
                        le = QPointer(le)](const std::optional<QString> &version) {
         if (!self || !le)

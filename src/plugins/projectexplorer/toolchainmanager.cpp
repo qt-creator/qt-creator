@@ -334,8 +334,8 @@ void ToolchainManager::addBadToolchain(const Utils::FilePath &toolchain)
 
 // Use as a tie-breaker for toolchains that match the strong requirements like toolchain type
 // and ABI.
-// For toolchains with the same priority, gives precedence to icecc and ccache
-// and otherwise simply chooses the one with the shortest path.
+// For toolchains with the same priority, gives precedence to icecc and ccache,
+// prefers the higher version and otherwise simply chooses the one with the shortest path.
 bool ToolchainManager::isBetterToolchain(
     const ToolchainBundle &bundle1, const ToolchainBundle &bundle2)
 {
@@ -346,18 +346,20 @@ bool ToolchainManager::isBetterToolchain(
     if (priority1 < priority2)
         return false;
 
-    const QString path1 = bundle1.get(&Toolchain::compilerCommand).path();
-    const QString path2 = bundle2.get(&Toolchain::compilerCommand).path();
+    const FilePath path1 = bundle1.get(&Toolchain::compilerCommand);
+    const FilePath path2 = bundle2.get(&Toolchain::compilerCommand);
+    const QString pathString1 = path1.path();
+    const QString pathString2 = path2.path();
 
-    const bool b1IsIcecc = path1.contains("icecc");
-    const bool b2IsIcecc = path2.contains("icecc");
+    const bool b1IsIcecc = pathString1.contains("icecc");
+    const bool b2IsIcecc = pathString2.contains("icecc");
     if (b1IsIcecc)
         return !b2IsIcecc;
     if (b2IsIcecc)
         return false;
 
-    const bool b1IsCCache = path1.contains("ccache");
-    const bool b2IsCcache = path2.contains("ccache");
+    const bool b1IsCCache = pathString1.contains("ccache");
+    const bool b2IsCcache = pathString2.contains("ccache");
     if (b1IsCCache)
         return !b2IsCcache;
     if (b2IsCcache)
@@ -383,7 +385,18 @@ bool ToolchainManager::isBetterToolchain(
         }
     }
 
-    return path1.size() < path2.size();
+    if (!path1.needsDevice() && !path2.needsDevice()) {
+        const QVersionNumber v1 = bundle1.get(&Toolchain::version);
+        const QVersionNumber v2 = bundle2.get(&Toolchain::version);
+        if (!v1.isNull() && !v2.isNull()) {
+            if (v1 > v2)
+                return true;
+            if (v1 < v2)
+                return false;
+        }
+    }
+
+    return pathString1.size() < pathString2.size();
 }
 
 } // namespace ProjectExplorer

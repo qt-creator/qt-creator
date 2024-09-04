@@ -74,8 +74,8 @@ void GerritParameters::setPortFlagBySshType()
 {
     bool isPlink = false;
     if (!ssh.isEmpty()) {
-        DataFromProcess<QString>::Parameters params({ssh, {"-V"}},
-                                                    [](const QString &output) { return output; });
+        DataFromProcess<QString>::Parameters
+            params({ssh, {"-V"}}, [](const QString &output, const QString &) { return output; });
         using namespace std::chrono_literals;
         params.timeout = 1s;
         if (const auto version = DataFromProcess<QString>::getData(params))

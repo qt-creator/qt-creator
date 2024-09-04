@@ -12,6 +12,7 @@
 #include "task.h"
 
 #include <utils/async.h>
+#include <utils/datafromprocess.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 
@@ -77,6 +78,11 @@ public:
 
     Toolchain::MacrosCache m_predefinedMacrosCache;
     Toolchain::HeaderPathsCache m_headerPathsCache;
+
+    QStringList m_versionFlags;
+    Toolchain::VersionParser m_versionParser;
+    std::optional<QVersionNumber> m_version;
+
     std::optional<bool> m_isValid;
     bool m_hasError = false;
 };
@@ -353,6 +359,24 @@ void Toolchain::setTargetAbi(const Abi &abi)
     toolChainUpdated();
 }
 
+QVersionNumber Toolchain::version() const
+{
+    if (d->m_version)
+        return *d->m_version;
+
+    if (!d->m_versionParser || compilerCommand().isEmpty())
+        return {};
+
+    using DFP = DataFromProcess<QVersionNumber>;
+    DFP::Parameters params({compilerCommand(), d->m_versionFlags}, d->m_versionParser);
+    params.environment.setupEnglishOutput();
+    params.environment.set("VSLANG", "1033");
+    d->m_version = DFP::getData(params);
+    if (!d->m_version)
+        d->m_version.emplace();
+    return *d->m_version;
+}
+
 void Toolchain::setTargetAbiNoSignal(const Abi &abi)
 {
     d->m_targetAbi = abi;
@@ -375,6 +399,7 @@ void Toolchain::setCompilerCommand(const FilePath &command)
     if (command == d->m_compilerCommand)
         return;
     d->m_compilerCommand = command;
+    clearVersion();
     toolChainUpdated();
 }
 
@@ -391,6 +416,17 @@ void Toolchain::setCompilerCommandKey(const Key &commandKey)
 void Toolchain::setTypeDisplayName(const QString &typeName)
 {
     d->m_typeDisplayName = typeName;
+}
+
+void Toolchain::setVersionFlagsAndParser(const QStringList &flags, const VersionParser &parser)
+{
+    d->m_versionFlags = flags;
+    d->m_versionParser = parser;
+}
+
+void Toolchain::clearVersion()
+{
+    d->m_version.reset();
 }
 
 /*!

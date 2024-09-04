@@ -144,7 +144,7 @@ public:
 
     const QList<MsvcToolchain *> &msvcToolchains() const;
     Utils::FilePath clangPath() const { return m_clangPath; }
-    void setClangPath(const Utils::FilePath &path) { m_clangPath = path; }
+    void setClangPath(const Utils::FilePath &path) { m_clangPath = path; clearVersion(); }
 
     Macros msvcPredefinedMacros(const QStringList &cxxflags,
                                 const Utils::Environment &env) const override;

@@ -390,6 +390,10 @@ GccToolchain::GccToolchain(Id typeId, SubType subType)
         setTypeDisplayName(Tr::tr("Clang"));
         syncAutodetectedWithParentToolchains();
     }
+
+    setVersionFlagsAndParser({"-dumpversion"}, [](const QString &output, const QString &) {
+        return QVersionNumber::fromString(output.trimmed());
+    });
 }
 
 GccToolchain::~GccToolchain()
