@@ -193,7 +193,7 @@ FilePaths CMakeProjectImporter::presetCandidates()
     FilePaths candidates;
 
     for (const auto &configPreset : m_project->presetsData().configurePresets) {
-        if (configPreset.hidden.value())
+        if (configPreset.hidden)
             continue;
 
         if (configPreset.condition) {

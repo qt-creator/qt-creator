@@ -1853,8 +1853,8 @@ void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
                                     enabled = CMakePresets::Macros::evaluatePresetCondition(
                                         preset, project->projectDirectory());
 
-                                return preset.configurePreset == presetName
-                                       && !preset.hidden.value() && enabled;
+                                return preset.configurePreset == presetName && !preset.hidden
+                                       && enabled;
                             });
         if (count != 0)
             buildSteps = count;
@@ -1885,7 +1885,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
                 enabled = CMakePresets::Macros::evaluatePresetCondition(preset,
                                                                         project->projectDirectory());
 
-            return preset.configurePreset == presetName && !preset.hidden.value() && enabled;
+            return preset.configurePreset == presetName && !preset.hidden && enabled;
         });
 
     const QList<BuildStep *> buildStepList

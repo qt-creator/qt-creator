@@ -320,7 +320,7 @@ void CMakeProject::readPresets()
     setupBuildPresets(m_presetsData);
 
     for (const auto &configPreset : m_presetsData.configurePresets) {
-        if (configPreset.hidden.value())
+        if (configPreset.hidden)
             continue;
 
         if (configPreset.condition) {

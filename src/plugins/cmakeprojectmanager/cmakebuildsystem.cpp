@@ -698,7 +698,7 @@ bool CMakeBuildSystem::addSrcFiles(Node *context, const FilePaths &filePaths, Fi
             return false;
         }
 
-        const bool haveGlobbing = isGlobbingFunction(cmakeListFile.value(), function.value());
+        const bool haveGlobbing = isGlobbingFunction(*cmakeListFile, *function);
         n->setVisibleAfterAddFileAction(!haveGlobbing);
         if (haveGlobbing && settings(project()).autorunCMake()) {
             runCMake();
@@ -804,7 +804,7 @@ CMakeBuildSystem::projectFileArgumentPosition(const QString &targetName, const Q
             return ProjectFileArgumentPosition{filePathArgument, targetCMakeFile, fileName};
         } else {
             // Check if the filename is part of globbing variable result
-            const auto haveGlobbing = isGlobbingFunction(cmakeListFile.value(), func.value());
+            const auto haveGlobbing = isGlobbingFunction(*cmakeListFile, *func);
             if (haveGlobbing) {
                 return ProjectFileArgumentPosition{filePathArgument,
                                                    targetCMakeFile,
@@ -869,24 +869,24 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
 
             auto filePos = projectFileArgumentPosition(targetName, fileName);
             if (filePos) {
-                if (!filePos.value().cmakeFile.exists()) {
+                if (!filePos->cmakeFile.exists()) {
                     badFiles << file;
 
                     qCCritical(cmakeBuildSystemLog).noquote()
-                        << "File" << filePos.value().cmakeFile.path() << "does not exist.";
+                        << "File" << filePos->cmakeFile.path() << "does not exist.";
                     continue;
                 }
 
-                if (filePos.value().fromGlobbing) {
+                if (filePos->fromGlobbing) {
                     haveGlobbing = true;
                     continue;
                 }
 
                 BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
                     Core::EditorManager::openEditorAt(
-                        {filePos.value().cmakeFile,
-                         static_cast<int>(filePos.value().argumentPosition.Line),
-                         static_cast<int>(filePos.value().argumentPosition.Column - 1)},
+                        {filePos->cmakeFile,
+                         static_cast<int>(filePos->argumentPosition.Line),
+                         static_cast<int>(filePos->argumentPosition.Column - 1)},
                         Constants::CMAKE_EDITOR_ID,
                         Core::EditorManager::DoNotMakeVisible
                             | Core::EditorManager::DoNotChangeCurrentEditor));
@@ -894,9 +894,9 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                     badFiles << file;
 
                     qCCritical(cmakeBuildSystemLog).noquote()
-                        << "BaseTextEditor cannot be obtained for"
-                        << filePos.value().cmakeFile.path() << filePos.value().argumentPosition.Line
-                        << int(filePos.value().argumentPosition.Column - 1);
+                        << "BaseTextEditor cannot be obtained for" << filePos->cmakeFile.path()
+                        << filePos->argumentPosition.Line
+                        << int(filePos->argumentPosition.Column - 1);
                     continue;
                 }
 
@@ -905,15 +905,14 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
                 if (filePos->argumentPosition.Delim == cmListFileArgument::Quoted)
                     extraChars = 2;
 
-                editor->replace(filePos.value().relativeFileName.length() + extraChars, "");
+                editor->replace(filePos->relativeFileName.length() + extraChars, "");
 
                 editor->editorWidget()->autoIndent();
                 if (!Core::DocumentManager::saveDocument(editor->document())) {
                     badFiles << file;
 
                     qCCritical(cmakeBuildSystemLog).noquote()
-                        << "Changes to" << filePos.value().cmakeFile.path()
-                        << "could not be saved.";
+                        << "Changes to" << filePos->cmakeFile.path() << "could not be saved.";
                     continue;
                 }
             } else {
@@ -959,7 +958,7 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
         if (!filePos)
             return false;
 
-        m_filesToBeRenamed.insert(key, filePos.value());
+        m_filesToBeRenamed.insert(key, *filePos);
         return true;
     }
     return false;
