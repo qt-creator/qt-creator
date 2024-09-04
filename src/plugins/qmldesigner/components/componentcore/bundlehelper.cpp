@@ -48,7 +48,10 @@ void BundleHelper::createImporter()
     m_importer = Utils::makeUniqueObjectPtr<BundleImporter>();
 
 #ifdef QDS_USE_PROJECTSTORAGE
-    QObject::connect(m_importer, &BundleImporter::importFinished, m_widget,
+    QObject::connect(
+        m_importer.get(),
+        &BundleImporter::importFinished,
+        m_widget,
         [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
             QTC_ASSERT(typeName.size(), return);
             if (isMaterialBundle(bundleId)) {

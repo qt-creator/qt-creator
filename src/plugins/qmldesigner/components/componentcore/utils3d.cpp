@@ -256,7 +256,7 @@ void applyMaterialToModels(AbstractView *view, const ModelNode &material,
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
 {
-    ModelNode matLib = Utils3D::materialLibraryNode(this);
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
     if (!matLib.isValid() || !typeName.size())
         return {};
 
