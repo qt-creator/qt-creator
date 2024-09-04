@@ -28,10 +28,6 @@ protected:
     QtVersionData findOrCreateQtVersion(const Utils::FilePath &qmakePath) const;
     ProjectExplorer::Kit *createTemporaryKit(const QtVersionData &versionData,
                                              const KitSetupFunction &setup) const;
-
-private:
-    void cleanupTemporaryQt(ProjectExplorer::Kit *k, const QVariantList &vl);
-    void persistTemporaryQt(ProjectExplorer::Kit *k, const QVariantList &vl);
 };
 
 #ifdef WITH_TESTS
