@@ -352,6 +352,11 @@ function(add_qtc_plugin target_name)
     message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
   endif()
 
+  # ignore _arg_EXPORT for main repository and super repository build
+  if (QTC_MERGE_BINARY_DIR)
+    set(_arg_EXPORT "")
+  endif()
+
   update_cached_list(__QTC_PLUGINS "${target_name}")
 
   set(name ${target_name})
@@ -401,8 +406,6 @@ function(add_qtc_plugin target_name)
   endif()
 
   # Generate dependency list:
-  find_dependent_plugins(_DEP_PLUGINS ${_arg_PLUGIN_DEPENDS})
-
   set(_arg_DEPENDENCY_STRING "\"Dependencies\" : [\n")
   foreach(i IN LISTS _arg_PLUGIN_DEPENDS)
     get_property(_v TARGET "${i}" PROPERTY QTC_PLUGIN_VERSION)
@@ -526,8 +529,8 @@ function(add_qtc_plugin target_name)
     PUBLIC_SYSTEM_INCLUDES ${_arg_PUBLIC_SYSTEM_INCLUDES}
     DEFINES ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
-    DEPENDS ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
-    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
+    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS} ${_arg_PLUGIN_DEPENDS}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
@@ -577,7 +580,6 @@ function(add_qtc_plugin target_name)
     CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
-    QTC_PLUGIN_DEPENDS "${_arg_PLUGIN_DEPENDS}"
     QTC_PLUGIN_VERSION "${_arg_VERSION}"
     BUILD_RPATH "${_PLUGIN_RPATH};${CMAKE_BUILD_RPATH}"
     INSTALL_RPATH "${_PLUGIN_RPATH};${CMAKE_INSTALL_RPATH}"
@@ -592,7 +594,7 @@ function(add_qtc_plugin target_name)
   )
 
   set_property(TARGET ${target_name} APPEND PROPERTY EXPORT_PROPERTIES
-      "QTC_PLUGIN_CLASS_NAME;QTC_PLUGIN_DEPENDS;QTC_PLUGIN_VERSION")
+      "QTC_PLUGIN_CLASS_NAME;QTC_PLUGIN_VERSION")
 
   if (NOT _arg_SKIP_PCH)
     enable_pch(${target_name})
