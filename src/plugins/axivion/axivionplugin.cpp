@@ -806,7 +806,7 @@ Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &h
     if (query.isEmpty())
         return {}; // TODO: Call handler with unexpected?
 
-    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "issues", query);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "issues", query);
     return fetchDataRecipe<Dto::IssueTableDto>(url, handler);
 }
 
@@ -818,7 +818,7 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
     const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
-    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "files", query);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
 
@@ -830,7 +830,7 @@ Group fileSourceRecipe(const FilePath &filePath, const std::function<void(const 
 
     const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
     const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
-    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "sourcecode", query);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "sourcecode", query);
     return fetchPlainTextRecipe(url, handler);
 }
 
@@ -839,9 +839,10 @@ Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
     QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
 
-    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name,
-                                  QString("issues/" + issueId + "/properties/"),
-                                  {{"version", *dd->m_analysisVersion}});
+    const QUrl url = constructUrl(
+        dd->m_currentProjectInfo->name,
+        QString("issues/" + issueId + "/properties/"),
+        {{"version", *dd->m_analysisVersion}});
     return fetchHtmlRecipe(url, handler);
 }
 
@@ -894,7 +895,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 {
     const QUrlQuery query({{"kind", prefix}});
-    const QUrl url = constructUrl(dd->m_currentProjectInfo.value().name, "issues_meta", query);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "issues_meta", query);
     return fetchDataRecipe<Dto::TableInfoDto>(url, handler);
 }
 

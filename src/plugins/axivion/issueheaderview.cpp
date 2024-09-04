@@ -142,7 +142,7 @@ static QIcon iconForSorted(std::optional<Qt::SortOrder> order)
 
     if (!order)
         return unsorted;
-    return order.value() == Qt::AscendingOrder ? sortedAsc : sortedDesc;
+    return *order == Qt::AscendingOrder ? sortedAsc : sortedDesc;
 }
 
 static QIcon iconForFilter(bool isActive)
@@ -173,7 +173,7 @@ QList<QPair<int, Qt::SortOrder>> IssueHeaderView::currentSortColumns() const
 {
     QList<QPair<int, Qt::SortOrder>> result;
     for (int i : m_currentSortIndexes)
-        result.append({i, m_columnInfoList.at(i).sortOrder.value()});
+        result.append({i, *m_columnInfoList.at(i).sortOrder});
     return result;
 }
 
@@ -183,7 +183,7 @@ QList<QPair<int, QString>> IssueHeaderView::currentFilterColumns() const
     for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
         const ColumnInfo ci = m_columnInfoList.at(i);
         if (ci.filter.has_value())
-            result.append({i, ci.filter.value()});
+            result.append({i, *ci.filter});
     }
     return result;
 }
@@ -225,7 +225,7 @@ void IssueHeaderView::mousePressEvent(QMouseEvent *event)
 void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
 {
     bool dontSkip = !m_dragging && m_maybeToggle;
-    const int toggleMode = m_maybeToggle ? m_maybeToggle.value() : -1;
+    const int toggleMode = m_maybeToggle ? *m_maybeToggle : -1;
     bool withShift = m_withShift && event->modifiers() == Qt::ShiftModifier;
     m_dragging = false;
     m_maybeToggle.reset();

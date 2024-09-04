@@ -91,7 +91,7 @@ void TestResultDelegate::paint(QPainter *painter, const QStyleOptionViewItem &op
     }
 
     if (testResult.result() == ResultType::TestStart && m_showDuration && testResult.duration()) {
-        const QString txt = testResult.duration().value() + " ms";
+        const QString txt = *testResult.duration() + " ms";
         QPen tmp = painter->pen();
         painter->setPen(opt.palette.mid().color());
         painter->setClipRect(positions.durationArea());

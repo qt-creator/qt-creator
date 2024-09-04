@@ -73,7 +73,7 @@ expected_str<void> FileAccess::deployAndInit(
         return make_unexpected(
             QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
     }
-    Utils::expected_str<OsType> osType = osTypeFromString(unameOs.value());
+    Utils::expected_str<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
         return make_unexpected(osType.error());
 
@@ -85,7 +85,7 @@ expected_str<void> FileAccess::deployAndInit(
             QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
     }
 
-    const Utils::expected_str<OsArch> osArch = osArchFromString(unameArch.value());
+    const Utils::expected_str<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
         return make_unexpected(osArch.error());
 

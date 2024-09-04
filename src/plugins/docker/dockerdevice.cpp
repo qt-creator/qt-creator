@@ -856,7 +856,7 @@ QStringList DockerDevicePrivate::createMountArgs() const
         mounts.append({m, m});
 
     if (cmdBridgePath && cmdBridgePath->isSameDevice(settings().dockerBinaryPath()))
-        mounts.append({cmdBridgePath.value(), FilePath("/tmp/_qtc_cmdbridge")});
+        mounts.append({*cmdBridgePath, FilePath("/tmp/_qtc_cmdbridge")});
 
     for (const MountPair &mi : mounts) {
         if (isValidMountInfo(mi))
@@ -1363,7 +1363,7 @@ expected_str<Environment> DockerDevicePrivate::environment()
     }
 
     QTC_ASSERT(m_cachedEnviroment, return {});
-    return m_cachedEnviroment.value();
+    return *m_cachedEnviroment;
 }
 
 void DockerDevicePrivate::shutdown()

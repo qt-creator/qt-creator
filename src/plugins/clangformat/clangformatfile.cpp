@@ -35,7 +35,7 @@ ClangFormatFile::ClangFormatFile(
                 0,
                 "# yaml-language-server: "
                 "$schema=https://json.schemastore.org/clang-format.json\n");
-            m_filePath.writeFileContents(fileContent.value());
+            m_filePath.writeFileContents(*fileContent);
         }
         parseConfigurationFile(m_filePath, m_style);
         return;

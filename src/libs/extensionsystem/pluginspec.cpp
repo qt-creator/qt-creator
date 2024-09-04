@@ -1376,7 +1376,7 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
         it.next();
         expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
         if (spec)
-            results.push_back(spec.value());
+            results.push_back(*spec);
     }
     return results;
 }
