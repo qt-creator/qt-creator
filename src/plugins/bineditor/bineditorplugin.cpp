@@ -1262,8 +1262,11 @@ void BinEditorWidget::mousePressEvent(QMouseEvent *e)
 {
     if (e->button() != Qt::LeftButton)
         return;
+    const std::optional<qint64> pos = posAt(e->pos());
+    if (!pos)
+        return;
     MoveMode moveMode = e->modifiers() & Qt::ShiftModifier ? KeepAnchor : MoveAnchor;
-    setCursorPosition(posAt(e->pos()).value(), moveMode);
+    setCursorPosition(*pos, moveMode);
     setBlinkingCursorEnabled(true);
     if (m_hexCursor == inTextArea(e->pos())) {
         m_hexCursor = !m_hexCursor;
@@ -1275,7 +1278,10 @@ void BinEditorWidget::mouseMoveEvent(QMouseEvent *e)
 {
     if (!(e->buttons() & Qt::LeftButton))
         return;
-    setCursorPosition(posAt(e->pos()).value(), KeepAnchor);
+    const std::optional<qint64> pos = posAt(e->pos());
+    if (!pos)
+        return;
+    setCursorPosition(*pos, KeepAnchor);
     if (m_hexCursor == inTextArea(e->pos())) {
         m_hexCursor = !m_hexCursor;
         updateLines();
@@ -1397,7 +1403,7 @@ QString BinEditorWidget::toolTip(const QHelpEvent *helpEvent) const
         std::optional<qint64> pos = posAt(helpEvent->pos(), /*includeEmptyArea*/false);
         if (!pos)
             return QString();
-        selStart = pos.value();
+        selStart = *pos;
         byteCount = 1;
     }
 
