@@ -321,7 +321,7 @@ Item {
                                 visible: true
                                 buttonIcon: qsTr("Cancel")
                                 iconSize: DialogValues.defaultPixelSize
-                                iconFont: StudioTheme.Constants.font
+                                iconFontFamily: StudioTheme.Constants.font.family
 
                                 onClicked: {
                                     BackendApi.reject();
@@ -337,7 +337,7 @@ Item {
                                 buttonIcon: qsTr("Create")
                                 iconSize: DialogValues.defaultPixelSize
                                 enabled: BackendApi.fieldsValid
-                                iconFont: StudioTheme.Constants.font
+                                iconFontFamily: StudioTheme.Constants.font.family
 
                                 onClicked: {
                                     BackendApi.accept();

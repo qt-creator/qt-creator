@@ -384,17 +384,17 @@ QtObject {
     readonly property string zoomSelection: "\u0193"
 
     readonly property font iconFont: Qt.font({
-                                                 "family": controlIcons.name,
-                                                 "pixelSize": 12
-                                             })
+        family: controlIcons.name,
+        pixelSize: 12
+    })
 
     readonly property font font: Qt.font({
-                                             "family": "Arial",
-                                             "pointSize": Qt.application.font.pixelSize
-                                         })
+        family: Qt.application.font.family,
+        pointSize: Qt.application.font.pixelSize
+    })
 
     readonly property font largeFont: Qt.font({
-                                                  "family": "Arial",
-                                                  "pointSize": Qt.application.font.pixelSize * 1.6
-                                              })
+        family: "Arial",
+        pointSize: Qt.application.font.pixelSize * 1.6
+    })
 }

@@ -16,8 +16,10 @@ T.AbstractButton {
 
     property alias buttonIcon: buttonIcon.text
     property alias iconColor: buttonIcon.color
-    property alias iconFont: buttonIcon.font.family
-    property alias iconSize: buttonIcon.font.pixelSize
+
+    property string iconFontFamily: StudioTheme.Constants.iconFont.family
+    property int iconSize: control.style.baseIconFontSize
+
     property alias iconItalic: buttonIcon.font.italic
     property alias iconBold: buttonIcon.font.bold
     property alias iconRotation: buttonIcon.rotation
@@ -58,8 +60,10 @@ T.AbstractButton {
         T.Label {
             id: buttonIcon
             color: control.style.icon.idle
-            font.family: StudioTheme.Constants.iconFont.family
-            font.pixelSize: control.style.baseIconFontSize
+            font {
+                family: control.iconFontFamily
+                pixelSize: control.iconSize
+            }
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
             anchors.fill: parent

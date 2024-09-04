@@ -337,7 +337,6 @@ Section {
         PropertyLabel {
             text: qsTr("Warning")
             visible: root.warningVisible
-            font.weight: Font.Bold
         }
 
         SecondColumnLayout {
@@ -354,7 +353,7 @@ Section {
                     Layout.fillWidth: true
                     font.family: StudioTheme.Constants.font.family
                     font.pixelSize: StudioTheme.Values.myFontSize
-                    color: StudioTheme.Values.themeTextColor
+                    color: StudioTheme.Values.themeAmberLight
                     wrapMode: Text.WordWrap
                     text: qsTr("- The selection contains the root component.")
                 }
@@ -365,7 +364,7 @@ Section {
                     Layout.fillWidth: true
                     font.family: StudioTheme.Constants.font.family
                     font.pixelSize: StudioTheme.Values.myFontSize
-                    color: StudioTheme.Values.themeTextColor
+                    color: StudioTheme.Values.themeAmberLight
                     wrapMode: Text.WordWrap
                     text: qsTr("- The selection contains a non-visual component.")
                 }
@@ -376,7 +375,7 @@ Section {
                     Layout.fillWidth: true
                     font.family: StudioTheme.Constants.font.family
                     font.pixelSize: StudioTheme.Values.myFontSize
-                    color: StudioTheme.Values.themeTextColor
+                    color: StudioTheme.Values.themeAmberLight
                     wrapMode: Text.WordWrap
                     text: qsTr("- A component in the selection uses anchors.")
                 }
