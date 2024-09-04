@@ -42,6 +42,8 @@ struct QmlTypeData
     bool isCppType = false;
 };
 
+enum class InstantQmlTextUpdate { No, Yes };
+
 class QMLDESIGNERCORE_EXPORT RewriterView : public AbstractView
 {
     Q_OBJECT
@@ -54,7 +56,8 @@ public:
 
 public:
     RewriterView(ExternalDependenciesInterface &externalDependencies,
-                 DifferenceHandling differenceHandling = RewriterView::Amend);
+                 DifferenceHandling differenceHandling = RewriterView::Amend,
+                 InstantQmlTextUpdate instantQmlTextUpdate = InstantQmlTextUpdate::Yes);
     ~RewriterView() override;
 
     void modelAttached(Model *model) override;
@@ -189,8 +192,10 @@ protected: // functions
 private: //variables
     ModelNode nodeAtTextCursorPositionHelper(const ModelNode &root, int cursorPosition) const;
     void setupCanonicalHashes() const;
+#ifndef QDS_USE_PROJECTSTORAGE
     void handleLibraryInfoUpdate();
     void handleProjectUpdate();
+#endif
     bool inErrorState() const { return !m_rewritingErrorMessage.isEmpty(); }
 
     QPointer<TextModifier> m_textModifier;
@@ -209,7 +214,7 @@ private: //variables
     QString m_rewritingErrorMessage;
     QString m_lastCorrectQmlSource;
     QTimer m_amendTimer;
-    bool m_instantQmlTextUpdate = false;
+    InstantQmlTextUpdate m_instantQmlTextUpdate = InstantQmlTextUpdate::No;
     std::function<void(bool)> m_setWidgetStatusCallback;
     bool m_hasIncompleteTypeInformation = false;
     bool m_restoringAuxData = false;
