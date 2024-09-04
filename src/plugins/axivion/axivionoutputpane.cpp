@@ -13,6 +13,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/ioutputpane.h>
 
+#include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -56,7 +57,7 @@ namespace Axivion::Internal {
 
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
-    static const QPixmap unchanged = Icons::NEXT.pixmap();
+    static const QPixmap unchanged = Utils::Icons::NEXT.pixmap();
     static const QPixmap increased = Icon(
                 { {":/utils/images/arrowup.png", Theme::IconsErrorColor} }).pixmap();
     static const QPixmap decreased = Icon(
@@ -677,6 +678,13 @@ public:
         pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
         m_outputWidget->setPalette(pal);
 
+        m_disableInlineIssues = new QToolButton(m_outputWidget);
+        m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE.icon());
+        m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
+        m_disableInlineIssues->setCheckable(true);
+        m_disableInlineIssues->setChecked(false);
+        connect(m_disableInlineIssues, &QToolButton::toggled,
+                this, [](bool checked) {  disableInlineIssues(checked); });
         m_toggleIssues = new QToolButton(m_outputWidget);
         m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
         m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
@@ -707,7 +715,7 @@ public:
 
     QList<QWidget *> toolBarWidgets() const final
     {
-        return {m_toggleIssues};
+        return {m_disableInlineIssues, m_toggleIssues};
     }
 
     void clearContents() final {}
@@ -773,6 +781,7 @@ public:
 private:
     QStackedWidget *m_outputWidget = nullptr;
     QToolButton *m_toggleIssues = nullptr;
+    QToolButton *m_disableInlineIssues = nullptr;
 };
 
 

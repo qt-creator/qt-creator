@@ -221,6 +221,7 @@ public:
     void clearAllMarks();
     void updateExistingMarks();
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
+    void disableInlineIssues(bool disable);
     void fetchIssueInfo(const QString &id);
     void setIssueDetails(const QString &issueDetailsHtml);
     void handleAnchorClicked(const QUrl &url);
@@ -248,6 +249,7 @@ public:
     FileInProjectFinder m_fileFinder; // FIXME maybe obsolete when path mapping is implemented
     QMetaObject::Connection m_fileFinderConnection;
     QHash<FilePath, QSet<TextMark *>> m_allMarks;
+    bool m_inlineIssuesEnabled = true;
 };
 
 static AxivionPluginPrivate *dd = nullptr;
@@ -952,6 +954,8 @@ void AxivionPluginPrivate::updateExistingMarks() // update whether highlight mar
 
 void AxivionPluginPrivate::onDocumentOpened(IDocument *doc)
 {
+    if (!m_inlineIssuesEnabled)
+        return;
     if (!doc || !m_currentProjectInfo || !m_project || !m_project->isKnownFile(doc->filePath()))
         return;
 
@@ -1010,6 +1014,18 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
         // current state of the file - some magic has to happen here
         m_allMarks[filePath] << new AxivionTextMark(filePath, marker, color);
     }
+}
+
+void AxivionPluginPrivate::disableInlineIssues(bool disable)
+{
+    if (m_inlineIssuesEnabled != disable)
+        return;
+    m_inlineIssuesEnabled = !disable;
+
+    if (disable)
+        clearAllMarks();
+    else
+        handleOpenedDocs();
 }
 
 void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
@@ -1135,6 +1151,12 @@ void setAnalysisVersion(const QString &version)
     // refetch issues for already opened docs
     dd->clearAllMarks();
     dd->handleOpenedDocs();
+}
+
+void disableInlineIssues(bool disable)
+{
+    QTC_ASSERT(dd, return);
+    dd->disableInlineIssues(disable);
 }
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
