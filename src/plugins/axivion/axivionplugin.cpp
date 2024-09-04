@@ -501,6 +501,12 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
                     }
                 }
 
+                if (statusCode == 400 && error->type == "InvalidFilterException"
+                        && !error->message.isEmpty()) {
+                    // handle error..
+                    showFilterException(error->message);
+                    return DoneResult::Error;
+                }
                 errorString = Error(DashboardError(reply->url(), statusCode,
                     reply->attribute(QNetworkRequest::HttpReasonPhraseAttribute).toString(),
                                      *error)).message();

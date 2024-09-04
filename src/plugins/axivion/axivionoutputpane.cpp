@@ -136,6 +136,8 @@ public:
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
+
+    void showOverlay(const QString &errorMessage = {});
 private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
@@ -145,8 +147,7 @@ private:
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
-    void showNoDataOverlay();
-    void hideNoDataOverlay();
+    void hideOverlay();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -168,7 +169,7 @@ private:
     QStringList m_userNames;
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
-    OverlayWidget *m_noDataOverlay = nullptr;
+    OverlayWidget *m_overlay = nullptr;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
@@ -436,7 +437,7 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
     }
     m_issuesModel->setItems(items);
     if (items.isEmpty() && m_totalRowCount == 0)
-        showNoDataOverlay();
+        showOverlay();
 }
 
 void IssuesWidget::onSearchParameterChanged()
@@ -611,7 +612,7 @@ void IssuesWidget::fetchTable()
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
-    hideNoDataOverlay();
+    hideOverlay();
     const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
         addIssues(dto, startRow);
     };
@@ -631,33 +632,40 @@ void IssuesWidget::onFetchRequested(int startRow, int limit)
     fetchIssues(search);
 }
 
-void IssuesWidget::showNoDataOverlay()
+void IssuesWidget::showOverlay(const QString &errorMessage)
 {
-    if (!m_noDataOverlay) {
+    if (!m_overlay) {
         QTC_ASSERT(m_issuesView, return);
-        m_noDataOverlay = new OverlayWidget(this);
-        m_noDataOverlay->setPaintFunction([](QWidget *that, QPainter &p, QPaintEvent *) {
-                static const QIcon icon = Icon({{":/axivion/images/nodata.png",
-                                                 Theme::IconsDisabledColor}},
-                                               Utils::Icon::Tint).icon();
-                QRect iconRect(0, 0, 32, 32);
-                iconRect.moveCenter(that->rect().center());
-                icon.paint(&p, iconRect);
-                p.save();
-                p.setPen(Utils::creatorColor(Theme::TextColorDisabled));
-                p.drawText(iconRect.bottomRight() + QPoint{10, p.fontMetrics().height() / 2 - 16},
-                           Tr::tr("No Data"));
-                p.restore();
-            });
-        m_noDataOverlay->attachToWidget(m_issuesView);
+        m_overlay = new OverlayWidget(this);
+        m_overlay->attachToWidget(m_issuesView);
     }
-    m_noDataOverlay->show();
+
+    m_overlay->setPaintFunction([errorMessage](QWidget *that, QPainter &p, QPaintEvent *) {
+        static const QIcon noData = Icon({{":/axivion/images/nodata.png", Theme::IconsDisabledColor}},
+                                         Utils::Icon::Tint).icon();
+        static const QIcon error = Icon({{":/axivion/images/error.png", Theme::IconsErrorColor}},
+                                        Utils::Icon::Tint).icon();
+        QRect iconRect(0, 0, 32, 32);
+        iconRect.moveCenter(that->rect().center());
+        if (errorMessage.isEmpty())
+            noData.paint(&p, iconRect);
+        else
+            error.paint(&p, iconRect);
+        p.save();
+        p.setPen(Utils::creatorColor(Theme::TextColorDisabled));
+        const QFontMetrics &fm = p.fontMetrics();
+        p.drawText(iconRect.bottomRight() + QPoint{10, fm.height() / 2 - 16 - fm.descent()},
+                   errorMessage.isEmpty() ? Tr::tr("No Data") : errorMessage);
+        p.restore();
+    });
+
+    m_overlay->show();
 }
 
-void IssuesWidget::hideNoDataOverlay()
+void IssuesWidget::hideOverlay()
 {
-    if (m_noDataOverlay)
-        m_noDataOverlay->hide();
+    if (m_overlay)
+        m_overlay->hide();
 }
 
 class AxivionOutputPane final : public IOutputPane
@@ -736,6 +744,13 @@ public:
             issues->updateUi(kind);
     }
 
+    void handleShowFilterException(const QString &errorMessage)
+    {
+        QTC_ASSERT(m_outputWidget, return);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
+            issues->showOverlay(errorMessage);
+    }
+
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
     {
         auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0));
@@ -808,6 +823,12 @@ static bool issueListContextMenuEvent(const ItemViewEvent &ev)
         return false;
     const QString issue = first.data().toString();
     return theAxivionOutputPane->handleContextMenu(issue, ev);
+}
+
+void showFilterException(const QString &errorMessage)
+{
+    QTC_ASSERT(theAxivionOutputPane, return);
+    theAxivionOutputPane->handleShowFilterException(errorMessage);
 }
 
 } // Axivion::Internal

@@ -4130,6 +4130,27 @@
            sodipodi:nodetypes="ccccccc" />
       </g>
     </g>
+    <g
+       id="src/plugins/axivion/images/error"
+       transform="translate(33)">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_32"
+         id="use2674"
+         width="100%"
+         height="100%"
+         transform="translate(2168,172)" />
+      <use
+         x="0"
+         y="0"
+         xlink:href="#src/libs/utils/images/error"
+         id="use4537"
+         style="display:inline"
+         width="100%"
+         height="100%"
+         transform="matrix(2,0,0,2,2040,-520)" />
+    </g>
   </g>
   <g
      inkscape:groupmode="layer"
