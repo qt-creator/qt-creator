@@ -4,6 +4,7 @@
 #include "effectcomposermodel.h"
 
 #include "compositionnode.h"
+#include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
 #include "syntaxhighlighterdata.h"
@@ -252,6 +253,8 @@ void EffectComposerModel::setFragmentShader(const QString &newFragmentShader)
         return;
 
     m_fragmentShader = newFragmentShader;
+
+    rebakeIfLiveUpdateMode();
 }
 
 QString EffectComposerModel::vertexShader() const
@@ -265,6 +268,8 @@ void EffectComposerModel::setVertexShader(const QString &newVertexShader)
         return;
 
     m_vertexShader = newVertexShader;
+
+    rebakeIfLiveUpdateMode();
 }
 
 QString EffectComposerModel::qmlComponentString() const
@@ -988,6 +993,50 @@ void EffectComposerModel::saveComposition(const QString &name)
 
     saveResources(name);
     setHasUnsavedChanges(false);
+}
+
+void EffectComposerModel::openShadersCodeEditor(int idx)
+{
+    if (m_nodes.size() < idx || idx < 0)
+        return;
+
+    CompositionNode *node = m_nodes.at(idx);
+    node->openShadersCodeEditor();
+}
+
+void EffectComposerModel::openMainShadersCodeEditor()
+{
+    if (!m_shadersCodeEditor) {
+        m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
+            currentComposition());
+        m_shadersCodeEditor->setFragmentValue(generateFragmentShader(true));
+        m_shadersCodeEditor->setVertexValue(generateVertexShader(true));
+
+        connect(
+            m_shadersCodeEditor.get(),
+            &EffectShadersCodeEditor::vertexValueChanged,
+            this,
+            [this] {
+                setVertexShader(m_shadersCodeEditor->vertexValue());
+                setHasUnsavedChanges(true);
+            });
+
+        connect(
+            m_shadersCodeEditor.get(),
+            &EffectShadersCodeEditor::fragmentValueChanged,
+            this,
+            [this] {
+                setFragmentShader(m_shadersCodeEditor->fragmentValue());
+                setHasUnsavedChanges(true);
+            });
+
+        connect(
+            m_shadersCodeEditor.get(),
+            &EffectShadersCodeEditor::rebakeRequested,
+            this,
+            &EffectComposerModel::startRebakeTimer);
+    }
+    m_shadersCodeEditor->showWidget();
 }
 
 void EffectComposerModel::openComposition(const QString &path)
@@ -1828,7 +1877,6 @@ void EffectComposerModel::bakeShaders()
 
     runQsb(qsbPath, outPaths, false);
     runQsb(qsbPrevPath, outPrevPaths, true);
-
 }
 
 bool EffectComposerModel::shadersUpToDate() const
@@ -2003,14 +2051,16 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
 
 void EffectComposerModel::connectCompositionNode(CompositionNode *node)
 {
-    connect(qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
-            &EffectComposerUniformsModel::dataChanged, this, [this] {
-                setHasUnsavedChanges(true);
-            });
-    connect(node, &CompositionNode::rebakeRequested, this, [this] {
-        // This can come multiple times in a row in response to property changes, so let's buffer it
-        m_rebakeTimer.start(200);
-    });
+    auto setUnsaved = std::bind(&EffectComposerModel::setHasUnsavedChanges, this, true);
+    connect(
+        qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
+        &EffectComposerUniformsModel::dataChanged,
+        this,
+        setUnsaved);
+
+    connect(node, &CompositionNode::rebakeRequested, this, &EffectComposerModel::startRebakeTimer);
+    connect(node, &CompositionNode::fragmentCodeChanged, this, setUnsaved);
+    connect(node, &CompositionNode::vertexCodeChanged, this, setUnsaved);
 }
 
 void EffectComposerModel::updateExtraMargin()
@@ -2018,6 +2068,18 @@ void EffectComposerModel::updateExtraMargin()
     m_extraMargin = 0;
     for (CompositionNode *node : std::as_const(m_nodes))
         m_extraMargin = qMax(node->extraMargin(), m_extraMargin);
+}
+
+void EffectComposerModel::startRebakeTimer()
+{
+    // This can come multiple times in a row in response to property changes, so let's buffer it
+    m_rebakeTimer.start(200);
+}
+
+void EffectComposerModel::rebakeIfLiveUpdateMode()
+{
+    if (m_shadersCodeEditor && m_shadersCodeEditor->liveUpdate())
+        startRebakeTimer();
 }
 
 QSet<QByteArray> EffectComposerModel::getExposedProperties(const QByteArray &qmlContent)
@@ -2051,6 +2113,8 @@ void EffectComposerModel::setCurrentComposition(const QString &newCurrentComposi
 
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+
+    m_shadersCodeEditor.reset();
 }
 
 Utils::FilePath EffectComposerModel::compositionPath() const

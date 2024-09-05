@@ -1,9 +1,9 @@
-// Copyright (C) 2019 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "bindingeditorwidget.h"
+#include "effectcodeeditorwidget.h"
 
-#include <indentingtexteditormodifier.h>
+#include <qmldesigner/textmodifier/indentingtexteditormodifier.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>
@@ -13,8 +13,6 @@
 
 #include <qmljseditor/qmljsautocompleter.h>
 #include <qmljseditor/qmljscompletionassist.h>
-#include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditordocument.h>
 #include <qmljseditor/qmljshighlighter.h>
 #include <qmljseditor/qmljshoverhandler.h>
 #include <qmljseditor/qmljssemantichighlighter.h>
@@ -26,13 +24,14 @@
 
 #include <QAction>
 
-namespace QmlDesigner {
+namespace EffectComposer {
 
-BindingEditorWidget::BindingEditorWidget()
+constexpr char EFFECTEDITOR_CONTEXT_ID[] = "EffectEditor.EffectEditorContext";
+
+EffectCodeEditorWidget::EffectCodeEditorWidget()
     : m_context(new Core::IContext(this))
 {
-    Core::Context context(BINDINGEDITOR_CONTEXT_ID,
-                          ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
+    Core::Context context(EFFECTEDITOR_CONTEXT_ID, ProjectExplorer::Constants::QMLJS_LANGUAGE_ID);
 
     m_context->setWidget(this);
     m_context->setContext(context);
@@ -41,7 +40,7 @@ BindingEditorWidget::BindingEditorWidget()
     Utils::TransientScrollAreaSupport::support(this);
 
     /*
-     * We have to register our own active auto completion shortcut, because the original short cut will
+     * We have to register our own active auto completion shortcut, because the original shortcut will
      * use the cursor position of the original editor in the editor manager.
      */
     m_completionAction = new QAction(tr("Trigger Completion"), this);
@@ -58,12 +57,12 @@ BindingEditorWidget::BindingEditorWidget()
     });
 }
 
-BindingEditorWidget::~BindingEditorWidget()
+EffectCodeEditorWidget::~EffectCodeEditorWidget()
 {
     unregisterAutoCompletion();
 }
 
-void BindingEditorWidget::unregisterAutoCompletion()
+void EffectCodeEditorWidget::unregisterAutoCompletion()
 {
     if (m_completionAction) {
         Core::ActionManager::unregisterAction(m_completionAction, TextEditor::Constants::COMPLETE_THIS);
@@ -72,62 +71,30 @@ void BindingEditorWidget::unregisterAutoCompletion()
     }
 }
 
-bool BindingEditorWidget::event(QEvent *event)
-{
-    if (event->type() == QEvent::KeyPress) {
-        const QKeyEvent *keyEvent = static_cast<QKeyEvent *>(event);
-        const bool returnPressed = (keyEvent->key() == Qt::Key_Return)
-                                   || (keyEvent->key() == Qt::Key_Enter);
-        const Qt::KeyboardModifiers mods = keyEvent->modifiers();
-        constexpr Qt::KeyboardModifier submitModifier = Qt::ControlModifier;
-        const bool submitModed = mods.testFlag(submitModifier);
-
-        if (!m_isMultiline && (returnPressed && !mods)) {
-            emit returnKeyClicked();
-            return true;
-        } else if (m_isMultiline && (returnPressed && submitModed)) {
-            emit returnKeyClicked();
-            return true;
-        }
-    }
-    return QmlJSEditor::QmlJSEditorWidget::event(event);
-}
-
-std::unique_ptr<TextEditor::AssistInterface> BindingEditorWidget::createAssistInterface(
-    [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
-{
-    return std::make_unique<QmlJSEditor::QmlJSCompletionAssistInterface>(
-        textCursor(), Utils::FilePath(), assistReason, qmljsdocument->semanticInfo());
-}
-
-void BindingEditorWidget::setEditorTextWithIndentation(const QString &text)
+void EffectCodeEditorWidget::setEditorTextWithIndentation(const QString &text)
 {
     auto *doc = document();
     doc->setPlainText(text);
 
-    //we don't need to indent an empty text
-    //but is also needed for safer text.length()-1 below
+    // We don't need to indent an empty text but is also needed for safer text.length()-1 below
     if (text.isEmpty())
         return;
 
-    auto modifier = std::make_unique<IndentingTextEditModifier>(
-        doc, QTextCursor{doc});
+    auto modifier = std::make_unique<QmlDesigner::IndentingTextEditModifier>(doc, QTextCursor{doc});
     modifier->indent(0, text.length()-1);
 }
 
-BindingDocument::BindingDocument()
-    : QmlJSEditor::QmlJSEditorDocument(BINDINGEDITOR_CONTEXT_ID)
+EffectDocument::EffectDocument()
+    : QmlJSEditor::QmlJSEditorDocument(EFFECTEDITOR_CONTEXT_ID)
     , m_semanticHighlighter(new QmlJSEditor::SemanticHighlighter(this))
-{
+{}
 
-}
-
-BindingDocument::~BindingDocument()
+EffectDocument::~EffectDocument()
 {
     delete m_semanticHighlighter;
 }
 
-void BindingDocument::applyFontSettings()
+void EffectDocument::applyFontSettings()
 {
     TextDocument::applyFontSettings();
     m_semanticHighlighter->updateFontSettings(fontSettings());
@@ -135,24 +102,24 @@ void BindingDocument::applyFontSettings()
         m_semanticHighlighter->rerun(semanticInfo());
 }
 
-void BindingDocument::triggerPendingUpdates()
+void EffectDocument::triggerPendingUpdates()
 {
-    TextDocument::triggerPendingUpdates(); // calls applyFontSettings if necessary
+    TextDocument::triggerPendingUpdates(); // Calls applyFontSettings if necessary
     if (!isSemanticInfoOutdated() && semanticInfo().isValid())
         m_semanticHighlighter->rerun(semanticInfo());
 }
 
-BindingEditorFactory::BindingEditorFactory()
+EffectCodeEditorFactory::EffectCodeEditorFactory()
 {
-    setId(BINDINGEDITOR_CONTEXT_ID);
-    setDisplayName(::Core::Tr::tr("Binding Editor"));
-    addMimeType(BINDINGEDITOR_CONTEXT_ID);
+    setId(EFFECTEDITOR_CONTEXT_ID);
+    setDisplayName(::Core::Tr::tr("Effect Code Editor"));
+    addMimeType(EFFECTEDITOR_CONTEXT_ID);
     addMimeType(Utils::Constants::QML_MIMETYPE);
     addMimeType(Utils::Constants::QMLTYPES_MIMETYPE);
     addMimeType(Utils::Constants::JS_MIMETYPE);
 
-    setDocumentCreator([]() { return new BindingDocument; });
-    setEditorWidgetCreator([]() { return new BindingEditorWidget; });
+    setDocumentCreator([]() { return new EffectDocument; });
+    setEditorWidgetCreator([]() { return new EffectCodeEditorWidget; });
     setEditorCreator([]() { return new QmlJSEditor::QmlJSEditor; });
     setAutoCompleterCreator([]() { return new QmlJSEditor::AutoCompleter; });
     setCommentDefinition(Utils::CommentDefinition::CppStyle);
@@ -163,7 +130,7 @@ BindingEditorFactory::BindingEditorFactory()
     setCompletionAssistProvider(new QmlJSEditor::QmlJSCompletionAssistProvider);
 }
 
-void BindingEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
+void EffectCodeEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
 {
     editor->textDocument()->resetSyntaxHighlighter(
         [] { return new QmlJSEditor::QmlJSHighlighter(); });
@@ -172,4 +139,4 @@ void BindingEditorFactory::decorateEditor(TextEditor::TextEditorWidget *editor)
     editor->setAutoCompleter(new QmlJSEditor::AutoCompleter);
 }
 
-} // QmlDesigner namespace
+} // namespace EffectComposer

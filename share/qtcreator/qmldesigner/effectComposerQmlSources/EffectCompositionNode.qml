@@ -30,8 +30,32 @@ HelperWidgets.Section {
     eyeEnabled: nodeEnabled
     eyeButtonToolTip: qsTr("Enable/Disable Node")
 
+    signal openShadersCodeEditor(index: int)
+
     onEyeButtonClicked: {
         nodeEnabled = root.eyeEnabled
+    }
+
+    icons: HelperWidgets.IconButton {
+        icon: StudioTheme.Constants.codeEditor_medium
+        transparentBg: true
+        buttonSize: 21
+        iconSize: StudioTheme.Values.smallIconFontSize
+        iconColor: StudioTheme.Values.themeTextColor
+        iconScale: containsMouse ? 1.2 : 1
+        implicitWidth: width
+        onClicked: root.openShadersCodeEditor(index)
+    }
+
+    content: Label {
+        text: root.caption
+        color: root.labelColor
+        elide: Text.ElideRight
+        font.pixelSize: root.sectionFontSize
+        font.capitalization: root.labelCapitalization
+        anchors.verticalCenter: parent?.verticalCenter
+        textFormat: Text.RichText
+        leftPadding: StudioTheme.Values.toolbarSpacing
     }
 
     Column {

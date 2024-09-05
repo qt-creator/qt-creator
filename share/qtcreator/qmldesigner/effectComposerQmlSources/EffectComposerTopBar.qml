@@ -19,6 +19,7 @@ Rectangle {
     signal saveClicked
     signal saveAsClicked
     signal assignToSelectedClicked
+    signal openShadersCodeEditor
 
     Row {
         spacing: 5
@@ -48,10 +49,22 @@ Rectangle {
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
-            enabled: root.backendModel ? root.backendModel.isEnabled && root.backendModel.currentComposition !== ""
+            enabled: root.backendModel ? root.backendModel.isEnabled
+                                         && root.backendModel.currentComposition !== ""
                                        : false
 
             onClicked: root.saveAsClicked()
+        }
+
+        HelperWidgets.AbstractButton {
+            style: StudioTheme.Values.viewBarButtonStyle
+            buttonIcon: StudioTheme.Constants.codeEditor_medium
+            tooltip: qsTr("Open Code")
+            enabled: root.backendModel ? root.backendModel.isEnabled
+                                         && root.backendModel.currentComposition !== ""
+                                       : false
+
+            onClicked: root.openShadersCodeEditor()
         }
 
         HelperWidgets.AbstractButton {

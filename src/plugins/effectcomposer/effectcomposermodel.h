@@ -6,6 +6,7 @@
 #include "shaderfeatures.h"
 
 #include <utils/filepath.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QAbstractListModel>
 #include <QFileSystemWatcher>
@@ -26,6 +27,7 @@ class Process;
 namespace EffectComposer {
 
 class CompositionNode;
+class EffectShadersCodeEditor;
 class Uniform;
 
 struct EffectError {
@@ -99,6 +101,9 @@ public:
     Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
 
     Q_INVOKABLE void saveComposition(const QString &name);
+
+    Q_INVOKABLE void openShadersCodeEditor(int idx);
+    Q_INVOKABLE void openMainShadersCodeEditor();
 
     void openComposition(const QString &path);
 
@@ -190,6 +195,8 @@ private:
 
     void connectCompositionNode(CompositionNode *node);
     void updateExtraMargin();
+    void startRebakeTimer();
+    void rebakeIfLiveUpdateMode();
     QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
     QList<CompositionNode *> m_nodes;
@@ -230,6 +237,7 @@ private:
     int m_extraMargin = 0;
     QString m_effectTypePrefix;
     Utils::FilePath m_compositionPath;
+    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

@@ -1759,13 +1759,10 @@ void editInEffectComposer(const SelectionContext &selectionContext)
 
 bool isEffectComposerActivated()
 {
-    const ExtensionSystem::PluginSpecs specs = ExtensionSystem::PluginManager::plugins();
-    return std::ranges::find_if(specs,
-                                [](ExtensionSystem::PluginSpec *spec) {
-                                    return spec->name() == "EffectComposer"
-                                           && spec->isEffectivelyEnabled();
-                                })
-           != specs.end();
+    using namespace ExtensionSystem;
+    return Utils::anyOf(PluginManager::plugins(), [](PluginSpec *spec) {
+        return spec->name() == "EffectComposer" && spec->isEffectivelyEnabled();
+    });
 }
 
 void openEffectComposer(const QString &filePath)
