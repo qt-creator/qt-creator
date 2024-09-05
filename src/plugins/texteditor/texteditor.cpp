@@ -10218,6 +10218,7 @@ TextEditorFactory::TextEditorFactory()
     : d(new TextEditorFactoryPrivate(this))
 {
     setEditorCreator([]() { return new BaseTextEditor; });
+    addHoverHandler(new SuggestionHoverHandler);
 }
 
 TextEditorFactory::~TextEditorFactory()

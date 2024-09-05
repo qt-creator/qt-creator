@@ -97,13 +97,7 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
         openDoc(doc);
 }
 
-CopilotClient::~CopilotClient()
-{
-    for (IEditor *editor : DocumentModel::editorsForOpenedDocuments()) {
-        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-            textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
-    }
-}
+CopilotClient::~CopilotClient() = default;
 
 void CopilotClient::openDocument(TextDocument *document)
 {
@@ -240,7 +234,6 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
             return;
         editor->insertSuggestion(
             std::make_unique<TextEditor::CyclicSuggestion>(suggestions, editor->document()));
-        editor->addHoverHandler(&m_hoverHandler);
     }
 }
 
