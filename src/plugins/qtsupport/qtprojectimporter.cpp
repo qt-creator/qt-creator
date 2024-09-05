@@ -246,7 +246,7 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
     const int major = qt->qtVersion().majorVersion();
     if (major >= 6) {
         if (HostOsInfo::isMacHost()) {
-            return {"lib/QtCore.framework/Versions/A/QtCore"};
+            return {qt->libraryPath().pathAppended("/QtCore.framework/Versions/A/QtCore").toString()};
         } else if (HostOsInfo::isWindowsHost()) {
             const QString release = QString("bin/Qt%1Core.dll").arg(major);
             const QString debug = QString("bin/Qt%1Cored.dll").arg(major);
@@ -254,15 +254,21 @@ static QStringList additionalFilesToCopy(const QtVersion *qt)
             const QString mingwStd("bin/libstdc++-6.dll");
             const QString mingwPthread("bin/libwinpthread-1.dll");
             const FilePath base = qt->qmakeFilePath().parentDir().parentDir();
-            const QStringList allFiles = {release, debug, mingwGcc, mingwStd, mingwPthread};
-            const QStringList existingFiles = Utils::filtered(allFiles, [&base](const QString &f) {
-                return base.pathAppended(f).exists();
+            const QStringList allFiles = Utils::transform(
+                        {release, debug, mingwGcc, mingwStd, mingwPthread}, [&base](const QString &s) {
+                return base.pathAppended(s).toString();
+            });
+            const QStringList existingFiles = Utils::filtered(allFiles, [](const QString &f) {
+                return FilePath::fromUserInput(f).exists();
             });
             return !existingFiles.empty() ? existingFiles : QStringList(release);
         } else if (HostOsInfo::isLinuxHost()) {
-            const QString core = QString("lib/libQt%1Core.so.%1").arg(major);
-            const QDir base(qt->qmakeFilePath().parentDir().parentDir().pathAppended("lib").toString());
-            const QStringList icuLibs = Utils::transform(base.entryList({"libicu*.so.*"}), [](const QString &lib) { return QString("lib/" + lib); });
+            const QDir base(qt->libraryPath().toString());
+            const QString core = base.absolutePath() + QString("/libQt%1Core.so.%1").arg(major);
+            const QStringList icuLibs
+                = Utils::transform(base.entryInfoList({"libicu*.so.*"}), [](const QFileInfo &fi) {
+                      return fi.absoluteFilePath();
+                  });
             return QStringList(core) + icuLibs;
         }
     }
@@ -273,21 +279,25 @@ static Utils::FilePath setupQmake(const QtVersion *qt, const QString &path)
 {
     // This is a hack and only works with local, "standard" installations of Qt
     const FilePath qmake = qt->qmakeFilePath().canonicalPath();
-    const QString qmakeFile = "bin/" + qmake.fileName();
-    const FilePath source = qmake.parentDir().parentDir();
     const FilePath target = FilePath::fromString(path);
 
-    const QStringList filesToCopy = QStringList(qmakeFile) + additionalFilesToCopy(qt);
+    auto removeDriveLetter = [](const FilePath &fp) {
+        if (fp.startsWithDriveLetter())
+            return fp.path().mid(2);
+        return fp.path();
+    };
+
+    const QStringList filesToCopy = QStringList(qmake.toString()) + additionalFilesToCopy(qt);
     for (const QString &file : filesToCopy) {
-        const FilePath sourceFile = source.pathAppended(file);
-        const FilePath targetFile = target.pathAppended(file);
+        const FilePath sourceFile = FilePath::fromString(file);
+        const FilePath targetFile = target.pathAppended(removeDriveLetter(sourceFile));
         if (!targetFile.parentDir().ensureWritableDir() || !sourceFile.copyFile(targetFile)) {
             qDebug() << "Failed to copy" << sourceFile.toString() << "to" << targetFile.toString();
             return {};
         }
     }
 
-    return target.pathAppended(qmakeFile);
+    return target.pathAppended(removeDriveLetter(qmake));
 }
 
 class QtProjectImporterTest final : public QObject
