@@ -86,7 +86,7 @@ static bool isLocal(Target *target)
 
 static FilePath ensureExeEnding(const FilePath &file)
 {
-    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.toString().toLower().endsWith(".exe"))
+    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.suffix().toLower() == "exe")
         return file;
     return file.withExecutableSuffix();
 }
@@ -122,9 +122,11 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
     FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
-        const QString projBase = startupProject->projectDirectory().toString();
-        if (m_projectFile.startsWith(projBase))
-            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
+        const FilePath projBase = startupProject->projectDirectory();
+        if (m_projectFile.isChildOf(projBase)) {
+            m_buildDir
+                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+        }
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
         m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
@@ -188,9 +190,11 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
-        const QString projBase = startupProject->projectDirectory().toString();
-        if (m_projectFile.startsWith(projBase))
-            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
+        const FilePath projBase = startupProject->projectDirectory();
+        if (m_projectFile.isChildOf(projBase)) {
+            m_buildDir
+                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+        }
     }
 
     // deployment information should get taken into account, but it pretty much seems as if

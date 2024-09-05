@@ -102,7 +102,7 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (doc.isNull() || !includesCatchHeader(doc, m_cppSnapshot))
         return false;
 
-    const QString &filePath = doc->filePath().toString();
+    const QString &filePath = doc->filePath().toUserOutput();
     const QByteArray &fileContent = getFileContent(fileName);
 
     if (!hasCatchNames(doc)) {
