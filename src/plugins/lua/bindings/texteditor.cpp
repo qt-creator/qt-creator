@@ -20,32 +20,13 @@ using namespace Utils;
 
 namespace {
 
-class Suggestion
-{
-public:
-    Suggestion(Text::Range range, Text::Position position, const QString &text)
-        : m_range(range)
-        , m_position(position)
-        , m_text(text)
-    {}
-
-    Text::Range range() const { return m_range; }
-    Text::Position position() const { return m_position; }
-    QString text() const { return m_text; }
-
-private:
-    Text::Range m_range;
-    Text::Position m_position;
-    QString m_text;
-};
-
 class CyclicSuggestion : public QObject, public TextEditor::TextSuggestion
 {
     Q_OBJECT
 
 public:
     CyclicSuggestion(
-        const QList<Suggestion> &suggestions,
+        const QList<TextEditor::CyclicSuggestion::Data> &suggestions,
         TextEditor::TextDocument *origin_document,
         int current_suggestion = 0,
         bool is_locked = false)
@@ -56,18 +37,18 @@ public:
     {
         QTC_ASSERT(current_suggestion < m_suggestions.size(), return);
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        const auto start = suggestion.range().begin;
-        const auto end = suggestion.range().end;
+        const auto start = suggestion.range.begin;
+        const auto end = suggestion.range.end;
 
         QString text = start.toTextCursor(origin_document->document()).block().text();
         int length = text.length() - start.column;
         if (start.line == end.line)
             length = end.column - start.column;
 
-        text.replace(start.column, length, suggestion.text());
+        text.replace(start.column, length, suggestion.text);
         document()->setPlainText(text);
 
-        m_start = suggestion.position().toTextCursor(origin_document->document());
+        m_start = suggestion.position.toTextCursor(origin_document->document());
         m_start.setKeepPositionOnInsert(true);
         setCurrentPosition(m_start.position());
 
@@ -83,8 +64,8 @@ public:
         QTC_ASSERT(m_currentSuggestion < m_suggestions.size(), return false);
         reset();
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        QTextCursor cursor = suggestion.range().toTextCursor(m_start.document());
-        cursor.insertText(suggestion.text());
+        QTextCursor cursor = suggestion.range.toTextCursor(m_start.document());
+        cursor.insertText(suggestion.text);
         return true;
     }
 
@@ -95,9 +76,9 @@ public:
 
         lockCurrentSuggestion();
         const auto &suggestion = m_suggestions.at(m_currentSuggestion);
-        QTextCursor cursor = suggestion.range().toTextCursor(m_start.document());
+        QTextCursor cursor = suggestion.range.toTextCursor(m_start.document());
         QTextCursor currentCursor = widget->textCursor();
-        const QString text = suggestion.text();
+        const QString text = suggestion.text;
         const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
                              + (cursor.selectionEnd() - cursor.selectionStart());
         const int next = Utils::endOfNextWord(text, startPos);
@@ -178,7 +159,7 @@ private:
             return;
         }
 
-        m_suggestions = QList<Suggestion>{m_suggestions.at(m_currentSuggestion)};
+        m_suggestions = QList<TextEditor::CyclicSuggestion::Data>{m_suggestions.at(m_currentSuggestion)};
         m_currentSuggestion = 0;
         emit update();
     }
@@ -186,7 +167,7 @@ private:
 private:
     int m_currentSuggestion;
     QTextCursor m_start;
-    QList<Suggestion> m_suggestions;
+    QList<TextEditor::CyclicSuggestion::Data> m_suggestions;
     TextEditor::TextDocument *m_originDocument;
     bool m_locked = false;
 }; // class CyclicSuggestion
@@ -473,19 +454,11 @@ void setupTextEditorModule()
         };
 
         result["currentSuggestion"] = []() -> CyclicSuggestion * {
-            const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
-            if (!textEditor)
-                return nullptr;
-
-            auto *widget = textEditor->editorWidget();
-            if (!widget)
-                return nullptr;
-
-            auto res = dynamic_cast<CyclicSuggestion *>(widget->currentSuggestion());
-            if (!res)
-                return nullptr;
-
-            return res;
+            if (const auto *textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
+                if (const TextEditor::TextEditorWidget *widget = textEditor->editorWidget())
+                    return dynamic_cast<CyclicSuggestion *>(widget->currentSuggestion());
+            }
+            return nullptr;
         };
 
         result.new_usertype<CyclicSuggestion>(
@@ -539,14 +512,14 @@ void setupTextEditorModule()
                 return textEditor->editorWidget()->multiTextCursor();
             });
 
-        result.new_usertype<Suggestion>(
+        result.new_usertype<TextEditor::CyclicSuggestion::Data>(
             "Suggestion",
             "create",
             [](int start_line,
                int start_character,
                int end_line,
                int end_character,
-               const QString &text) -> Suggestion {
+               const QString &text) -> TextEditor::CyclicSuggestion::Data {
                 auto one_based = [](int zero_based) { return zero_based + 1; };
                 Text::Position start_pos = {one_based(start_line), start_character};
                 Text::Position end_pos = {one_based(end_line), end_character};
@@ -579,7 +552,7 @@ void setupTextEditorModule()
                 return document->document()->blockCount();
             },
             "setSuggestions",
-            [](const TextDocumentPtr &document, QList<Suggestion> suggestions) {
+            [](const TextDocumentPtr &document, QList<TextEditor::CyclicSuggestion::Data> suggestions) {
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
 
                 if (suggestions.isEmpty())
