@@ -369,10 +369,14 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+    CONDITION QT_BUILT_WITH_MSVC2019
+    DEFINES QML_DOM_MSVC2019_COMPAT
+)
+
+extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   PUBLIC_INCLUDES projectstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON
-  DEFINES QML_DOM_MSVC2019_COMPAT # can be removed for Qt 6.8
   SOURCES
     commontypecache.h
     directorypathcompressor.h
