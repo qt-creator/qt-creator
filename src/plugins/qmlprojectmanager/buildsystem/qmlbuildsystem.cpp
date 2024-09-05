@@ -380,6 +380,9 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
     if (!target())
         return {};
 
+    if (projectFilePath().endsWith(Constants::fakeProjectName))
+        return {};
+
     const auto getFirstFittingFile = [](const Utils::FilePaths &files) -> Utils::FilePath {
         for (const auto &file : files) {
             if (file.exists())
