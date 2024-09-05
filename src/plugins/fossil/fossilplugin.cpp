@@ -73,7 +73,7 @@ public:
     FossilPluginPrivate();
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Fossil"; }
     Id id() const final;
 
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
@@ -776,11 +776,6 @@ void FossilPluginPrivate::updateActions(VersionControlBase::ActionState as)
 
     for (QAction *repoAction : std::as_const(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
-}
-
-QString FossilPluginPrivate::displayName() const
-{
-    return Tr::tr("Fossil");
 }
 
 Id FossilPluginPrivate::id() const

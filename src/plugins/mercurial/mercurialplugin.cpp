@@ -58,7 +58,7 @@ public:
     MercurialPluginPrivate();
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Mercurial"; }
     Utils::Id id() const final;
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
@@ -638,11 +638,6 @@ void MercurialPluginPrivate::updateActions(VersionControlBase::ActionState as)
 
     for (QAction *repoAction : std::as_const(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
-}
-
-QString MercurialPluginPrivate::displayName() const
-{
-    return Tr::tr("Mercurial");
 }
 
 Utils::Id MercurialPluginPrivate::id() const

@@ -158,7 +158,7 @@ public:
     ~CvsPluginPrivate() final;
 
     // IVersionControl
-    QString displayName() const final { return QLatin1String("cvs"); }
+    QString displayName() const final { return "CVS"; }
     Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const final;

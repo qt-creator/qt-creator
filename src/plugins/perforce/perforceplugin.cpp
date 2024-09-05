@@ -151,7 +151,7 @@ public:
     PerforcePluginPrivate();
 
     // IVersionControl
-    QString displayName() const final { return {"perforce"}; }
+    QString displayName() const final { return "Perforce"; }
     Id id() const final { return VcsBase::Constants::VCS_ID_PERFORCE; }
 
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;

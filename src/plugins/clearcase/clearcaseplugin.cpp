@@ -119,7 +119,7 @@ public:
     ~ClearCasePluginPrivate() final;
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "ClearCase"; }
     Id id() const final;
 
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
@@ -2300,11 +2300,6 @@ void ClearCasePluginPrivate::sync(QPromise<void> &promise, QStringList files)
     ClearCaseSync ccSync(plugin->m_statusMap);
     connect(&ccSync, &ClearCaseSync::updateStreamAndView, plugin, &ClearCasePluginPrivate::updateStreamAndView);
     ccSync.run(promise, files);
-}
-
-QString ClearCasePluginPrivate::displayName() const
-{
-    return QLatin1String("ClearCase");
 }
 
 Id ClearCasePluginPrivate::id() const

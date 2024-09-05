@@ -128,7 +128,7 @@ class BazaarPluginPrivate final : public VersionControlBase
 public:
     BazaarPluginPrivate();
 
-    QString displayName() const final;
+    QString displayName() const final { return "Bazaar"; }
     Utils::Id id() const final;
 
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const final;
@@ -853,11 +853,6 @@ void BazaarPluginPrivate::updateActions(VersionControlBase::ActionState as)
 
     for (QAction *repoAction : std::as_const(m_repositoryActionList))
         repoAction->setEnabled(repoEnabled);
-}
-
-QString BazaarPluginPrivate::displayName() const
-{
-    return Tr::tr("Bazaar");
 }
 
 Utils::Id BazaarPluginPrivate::id() const

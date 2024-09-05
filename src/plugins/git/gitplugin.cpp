@@ -147,7 +147,7 @@ public:
     ~GitPluginPrivate() final;
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Git"; }
     Id id() const final;
 
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
@@ -1733,11 +1733,6 @@ void GitPluginPrivate::updateRepositoryBrowserAction()
     const bool repositoryEnabled = currentState().hasTopLevel();
     const bool hasRepositoryBrowserCmd = !settings().repositoryBrowserCmd().isEmpty();
     m_repositoryBrowserAction->setEnabled(repositoryEnabled && hasRepositoryBrowserCmd);
-}
-
-QString GitPluginPrivate::displayName() const
-{
-    return QLatin1String("Git");
 }
 
 Id GitPluginPrivate::id() const

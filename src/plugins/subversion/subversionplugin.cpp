@@ -133,7 +133,7 @@ public:
     ~SubversionPluginPrivate() final;
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Subversion"; }
     Utils::Id id() const final;
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
@@ -1048,11 +1048,6 @@ bool SubversionPluginPrivate::checkSVNSubDir(const QDir &directory) const
         return true;
     }
     return false;
-}
-
-QString SubversionPluginPrivate::displayName() const
-{
-    return QLatin1String("subversion");
 }
 
 Utils::Id SubversionPluginPrivate::id() const
