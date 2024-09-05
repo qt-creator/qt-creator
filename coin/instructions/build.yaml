@@ -15,17 +15,25 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z
+                https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
       - type: ExecuteCommand
-        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z -o{{.AgentWorkingDir}}/build/qt_temp/elfutils"
+        command: >-
+            7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils-release_0.175qt-linux-x86_64.7z
+                -o{{.AgentWorkingDir}}/build/qt_temp/elfutils
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-linux-Rhel8.6-gcc10.3-x86_64.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
+                {{.Env.LLVM_BASE_URL}}-linux-Rhel8.6-gcc10.3-x86_64.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
@@ -35,14 +43,33 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang {{.Env.QTC_TEST_OPTION}} --no-zip {{.Env.QTC_SCCACHE_C_OPTION}} {{.Env.QTC_SCCACHE_CXX_OPTION}} {{.Env.QTC_SCCACHE_ENABLE_OPTION}}"
+        command: >-
+            python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
+                --build-type {{.Env.QTC_BUILD_TYPE}}
+                --src {{.AgentWorkingDir}}/qt-creator/qt-creator
+                --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build
+                --qt-path {{.AgentWorkingDir}}/build/qt_install_dir
+                --elfutils-path {{.AgentWorkingDir}}/build/qt_temp/elfutils
+                --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
+                {{.Env.QTC_TEST_OPTION}}
+                --no-zip
+                {{.Env.QTC_SCCACHE_C_OPTION}}
+                {{.Env.QTC_SCCACHE_CXX_OPTION}}
+                {{.Env.QTC_SCCACHE_ENABLE_OPTION}}
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
       - type: ChangeDirectory
         directory: "{{.AgentWorkingDir}}/build/tqtc-qtsdk/packaging_tools"
       - type: ExecuteCommand
-        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command ninja"
+        command: >-
+            python3 -m pipenv run python -u bld_sdktool.py
+                --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
+                --qt-build {{.AgentWorkingDir}}/build/sdktool/qt
+                --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool
+                --build {{.AgentWorkingDir}}/build/sdktool/build
+                --install {{.AgentWorkingDir}}/build/sdktool/install
+                --make-command ninja
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
@@ -56,7 +83,10 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z {{.Env.LLVM_BASE_URL}}-macos-universal.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
+                {{.Env.LLVM_BASE_URL}}-macos-universal.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
@@ -66,7 +96,19 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}/qt-creator/qt-creator --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang --keychain-unlock-script /Users/qt/unlock-keychain.sh {{.Env.QTC_TEST_OPTION}} --no-zip {{.Env.QTC_SCCACHE_C_OPTION}} {{.Env.QTC_SCCACHE_CXX_OPTION}} {{.Env.QTC_SCCACHE_ENABLE_OPTION}}"
+        command: >-
+            python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
+                --build-type {{.Env.QTC_BUILD_TYPE}}
+                --src {{.AgentWorkingDir}}/qt-creator/qt-creator
+                --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build
+                --qt-path {{.AgentWorkingDir}}/build/qt_install_dir
+                --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
+                --keychain-unlock-script /Users/qt/unlock-keychain.sh
+                {{.Env.QTC_TEST_OPTION}}
+                --no-zip
+                {{.Env.QTC_SCCACHE_C_OPTION}}
+                {{.Env.QTC_SCCACHE_CXX_OPTION}}
+                {{.Env.QTC_SCCACHE_ENABLE_OPTION}}
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
@@ -76,7 +118,15 @@ instructions:
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: "{{.Env.SDKTOOL_MACOSX_DEPLOYMENT_TARGET}}"
       - type: ExecuteCommand
-        command: "python3 -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}/build/sdktool/qt --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool --build {{.AgentWorkingDir}}/build/sdktool/build --install {{.AgentWorkingDir}}/build/sdktool/install --make-command ninja --universal"
+        command: >-
+            python3 -m pipenv run python -u bld_sdktool.py
+                --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
+                --qt-build {{.AgentWorkingDir}}/build/sdktool/qt
+                --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool
+                --build {{.AgentWorkingDir}}/build/sdktool/build
+                --install {{.AgentWorkingDir}}/build/sdktool/install
+                --make-command ninja
+                --universal
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
@@ -88,44 +138,82 @@ instructions:
   - type: Group
     instructions:
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\elfutils-release_0.175qt-windows-x86_64.7z
+                https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download elfutils package, check logs."
       - type: ExecuteCommand
-        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\elfutils-release_0.175qt-windows-x86_64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\elfutils"
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\elfutils-release_0.175qt-windows-x86_64.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp\elfutils
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract elfutils package, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z https://master.qt.io/development_releases/prebuilt/python/Python38-win-x64.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\Python38-win-x64.7z
+                https://master.qt.io/development_releases/prebuilt/python/Python38-win-x64.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download python package, check logs."
       - type: ExecuteCommand
-        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\Python38-win-x64.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\python"
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\Python38-win-x64.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp\python
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract python package, check logs."
       - type: ExecuteCommand
-        command: "curl --fail -L --retry 5 --retry-delay 5 -o {{.AgentWorkingDir}}\\build\\qt_temp\\libclang.7z {{.Env.LLVM_BASE_URL}}-windows-vs2019_64.7z"
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
+                {{.Env.LLVM_BASE_URL}}-windows-vs2019_64.7z
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to download LLVM package, check logs."
       - type: ExecuteCommand
-        command: "7z.exe x -y {{.AgentWorkingDir}}\\build\\qt_temp\\libclang.7z -o{{.AgentWorkingDir}}\\build\\qt_temp\\"
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp
         maxTimeInSeconds: 3600
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --python-path {{.AgentWorkingDir}}\\build\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\buid\\qt_temp\\elfutils --llvm-path {{.AgentWorkingDir}}\\build\\qt_temp\\libclang {{.Env.QTC_TEST_OPTION}} --no-zip {{.Env.QTC_SCCACHE_C_OPTION}} {{.Env.QTC_SCCACHE_CXX_OPTION}} {{.Env.QTC_SCCACHE_ENABLE_OPTION}}"
+        command: >-
+            python -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\build.py
+                --build-type {{.Env.QTC_BUILD_TYPE}}
+                --src {{.AgentWorkingDir}}\qt-creator\qt-creator
+                --build {{.AgentWorkingDir}}\qt-creator\qt-creator_build
+                --qt-path {{.AgentWorkingDir}}/build/qt_install_dir
+                --python-path {{.AgentWorkingDir}}\build\qt_temp\python
+                --elfutils-path {{.AgentWorkingDir}}/buid/qt_temp/elfutils
+                --llvm-path {{.AgentWorkingDir}}/build/qt_temp/libclang
+                {{.Env.QTC_TEST_OPTION}}
+                --no-zip
+                {{.Env.QTC_SCCACHE_C_OPTION}}
+                {{.Env.QTC_SCCACHE_CXX_OPTION}}
+                {{.Env.QTC_SCCACHE_ENABLE_OPTION}}
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
       - type: ChangeDirectory
         directory: "{{.AgentWorkingDir}}\\build\\tqtc-qtsdk\\packaging_tools"
       - type: ExecuteCommand
-        command: "python -m pipenv run python -u bld_sdktool.py --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}} --qt-build {{.AgentWorkingDir}}\\build\\sdktool\\qt --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\src\\tools\\sdktool --build {{.AgentWorkingDir}}\\build\\sdktool\\build --install {{.AgentWorkingDir}}\\build\\sdktool\\install --make-command ninja"
+        command: >-
+            python -m pipenv run python -u bld_sdktool.py
+                --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
+                --qt-build {{.AgentWorkingDir}}\build\sdktool\qt
+                --src {{.AgentWorkingDir}}\qt-creator\qt-creator\src\tools\sdktool
+                --build {{.AgentWorkingDir}}\build\sdktool\build
+                --install {{.AgentWorkingDir}}\build\sdktool\install
+                --make-command ninja
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
