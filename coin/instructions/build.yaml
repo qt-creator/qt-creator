@@ -52,9 +52,6 @@ instructions:
         - condition: property
           property: host.os
           equals_value: Linux
-        - condition: property
-          property: target.compiler
-          in_values: [GCC]
 
   - type: Group
     instructions:
@@ -133,14 +130,9 @@ instructions:
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to build sdktool, check logs."
     enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: target.compiler
-          in_values: [MSVC2013, MSVC2015, MSVC2017, MSVC2019]
-        - condition: property
-          property: target.arch
-          equals_value: X86_64
+      condition: property
+      property: host.os
+      equals_value: Windows
 
   - type: UploadArtifact
     archiveDirectory: "{{.AgentWorkingDir}}/qt-creator/qt-creator_build/build"
