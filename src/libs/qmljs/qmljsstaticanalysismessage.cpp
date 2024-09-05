@@ -238,6 +238,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("Do not reference the root item as alias."));
     newMsg(WarnAliasReferRootHierarchy, Warning,
            Tr::tr("Avoid referencing the root item in a hierarchy."));
+    newMsg(ErrWhenConditionCannotBeObject, Error, Tr::tr("When condtion cannot contain an object."));
 }
 
 } // anonymous namespace

@@ -953,6 +953,13 @@ bool Check::visit(UiObjectBinding *ast)
         //addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == "State"
+        && toString(ast->qualifiedId) == "when") {
+        addMessage(
+            ErrWhenConditionCannotBeObject,
+            locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+    }
+
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
     return false;
 }
