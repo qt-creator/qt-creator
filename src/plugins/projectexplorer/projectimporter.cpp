@@ -318,8 +318,10 @@ static Toolchain *toolChainFromVariant(const QVariant &v)
 
 void ProjectImporter::cleanupTemporaryToolchains(Kit *k, const QVariantList &vl)
 {
-    ToolchainManager::deregisterToolchains(Utils::transform(vl, toolChainFromVariant));
-    ToolchainKitAspect::setToolchain(k, nullptr);
+    const Toolchains toolchains = Utils::transform(vl, toolChainFromVariant);
+    for (Toolchain * const tc : toolchains)
+        ToolchainKitAspect::clearToolchain(k, tc->language());
+    ToolchainManager::deregisterToolchains(toolchains);
 }
 
 void ProjectImporter::persistTemporaryToolchains(Kit *k, const QVariantList &vl)
