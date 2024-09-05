@@ -89,7 +89,6 @@ private:
     void handleSelectionChangeTimeout();
     void handleDynamicAddObjectTimeout();
     void createEditView3D();
-    void create3DPreviewView();
     void setup3DEditView(const QList<ServerNodeInstance> &instanceList,
                          const CreateSceneCommand &command);
     void createGizmos(const QList<ServerNodeInstance> &instanceList) const;
