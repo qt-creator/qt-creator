@@ -49,18 +49,6 @@ const expected_str<QJsonObject> projectDefinition(const Project *project)
     return {};
 }
 
-static bool checkEnabled(FolderNode *fn)
-{
-    if (fn->findChildFileNode([](FileNode *fn) { return fn->isEnabled(); }))
-        return true;
-
-    if (fn->findChildFolderNode([](FolderNode *fn) { return checkEnabled(fn); }))
-        return true;
-
-    fn->setEnabled(false);
-    return false;
-}
-
 class WorkspaceBuildSystem final : public BuildSystem
 {
 public:
@@ -71,15 +59,10 @@ public:
             auto root = std::make_unique<ProjectNode>(projectDirectory());
             root->setDisplayName(target()->project()->displayName());
             std::vector<std::unique_ptr<FileNode>> nodePtrs
-                = Utils::transform<std::vector>(m_scanner.release().allFiles, [this](FileNode *fn) {
-                      fn->setEnabled(!Utils::anyOf(
-                          m_filters, [path = fn->path().path()](const QRegularExpression &filter) {
-                              return filter.match(path).hasMatch();
-                          }));
+                = Utils::transform<std::vector>(m_scanner.release().allFiles, [](FileNode *fn) {
                       return std::unique_ptr<FileNode>(fn);
                   });
             root->addNestedNodes(std::move(nodePtrs));
-            root->forEachFolderNode(&checkEnabled);
             setRootProjectNode(std::move(root));
 
             m_parseGuard.markAsSuccess();
@@ -88,6 +71,11 @@ public:
             emitBuildSystemUpdated();
         });
         m_scanner.setDirFilter(QDir::AllEntries | QDir::NoDotAndDotDot | QDir::Hidden);
+        m_scanner.setFilter([&](const Utils::MimeType &, const Utils::FilePath &filePath) {
+            return Utils::anyOf(m_filters, [filePath](const QRegularExpression &filter) {
+                return filter.match(filePath.path()).hasMatch();
+            });
+        });
 
         connect(target()->project(),
                 &Project::projectFileIsDirty,
@@ -110,8 +98,6 @@ public:
         for (const QJsonValue &excludeJson : excludesJson) {
             if (excludeJson.isString()) {
                 FilePath absolute = projectPath.pathAppended(excludeJson.toString());
-                if (absolute.isDir())
-                    absolute = absolute.pathAppended("*");
                 m_filters << QRegularExpression(
                     Utils::wildcardToRegularExpression(absolute.path()),
                     QRegularExpression::CaseInsensitiveOption);

@@ -54,7 +54,7 @@ bool TreeScanner::asyncScanForFiles(const Utils::FilePath &directory)
     return true;
 }
 
-void TreeScanner::setFilter(TreeScanner::FileFilter filter)
+void TreeScanner::setFilter(TreeScanner::Filter filter)
 {
     if (isFinished())
         m_filter = filter;
@@ -182,10 +182,17 @@ static DirectoryScanResult scanForFilesImpl(
     return result;
 }
 
+static const Utils::MimeType &directoryMimeType()
+{
+    static const Utils::MimeType mimeType = Utils::mimeTypeForName("inode/directory");
+    return mimeType;
+}
+
 static QList<FileNode *> scanForFilesHelper(
     TreeScanner::Promise &promise,
     const Utils::FilePath &directory,
-    QDir::Filters filter,
+    QDir::Filters dirfilter,
+    const TreeScanner::Filter &filter,
     const std::function<FileNode *(const Utils::FilePath &)> &factory)
 {
     const QFuture<void> future(promise.future());
@@ -195,7 +202,7 @@ static QList<FileNode *> scanForFilesHelper(
     promise.setProgressRange(0, progressRange);
 
     QSet<Utils::FilePath> visited;
-    const DirectoryScanResult result = scanForFilesImpl(future, directory, filter, factory, versionControls);
+    const DirectoryScanResult result = scanForFilesImpl(future, directory, dirfilter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
     const int progressIncrement = int(
         progressRange / static_cast<double>(fileNodes.count() + result.subDirectories.count()));
@@ -203,10 +210,12 @@ static QList<FileNode *> scanForFilesHelper(
     QList<QPair<Utils::FilePath, int>> subDirectories;
     auto addSubDirectories = [&](const Utils::FilePaths &subdirs, int progressIncrement) {
         for (const Utils::FilePath &subdir : subdirs) {
-            if (Utils::insert(visited, subdir.canonicalPath()))
+            if (Utils::insert(visited, subdir.canonicalPath())
+                && !(filter && filter(directoryMimeType(), subdir))) {
                 subDirectories.append(qMakePair(subdir, progressIncrement));
-            else
+            } else {
                 promise.setProgressValue(future.progressValue() + progressIncrement);
+            }
         }
     };
     addSubDirectories(result.subDirectories, progressIncrement);
@@ -218,7 +227,7 @@ static QList<FileNode *> scanForFilesHelper(
 
         auto onSetup = [&, iterator](Utils::Async<DirectoryScanResult> &task) {
             task.setConcurrentCallData(
-                scanForFilesImpl, future, iterator->first, filter, factory, versionControls);
+                scanForFilesImpl, future, iterator->first, dirfilter, factory, versionControls);
         };
 
         auto onDone = [&, iterator](const Utils::Async<DirectoryScanResult> &task) {
@@ -250,12 +259,12 @@ static QList<FileNode *> scanForFilesHelper(
 void TreeScanner::scanForFiles(
     Promise &promise,
     const Utils::FilePath &directory,
-    const FileFilter &filter,
+    const Filter &filter,
     QDir::Filters dirFilter,
     const FileTypeFactory &factory)
 {
     QList<FileNode *> nodes = scanForFilesHelper(
-        promise, directory, dirFilter, [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
+        promise, directory, dirFilter, filter, [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
             const Utils::MimeType mimeType = Utils::mimeTypesForFileName(fn.path()).value(0);
 
             // Skip some files during scan.
