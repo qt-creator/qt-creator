@@ -1140,7 +1140,7 @@ void setAnalysisVersion(const QString &version)
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
 {
     QTC_ASSERT(dd, return {});
-    const FilePaths result = dd->m_fileFinder.findFile(QUrl::fromLocalFile(issuePath.toString()));
+    const FilePaths result = dd->m_fileFinder.findFile(issuePath.toUrl());
     if (result.size() == 1)
         return dd->m_project->projectDirectory().resolvePath(result.first());
     return {};
