@@ -35,7 +35,7 @@ CyclicSuggestion::CyclicSuggestion(const QList<Data> &suggestions, QTextDocument
             m_currentSuggestion >= 0 && m_currentSuggestion < suggestions.size(),
             m_currentSuggestion = 0);
         Data current = suggestions.at(m_currentSuggestion);
-        document()->setPlainText(current.text);
+        replacementDocument()->setPlainText(current.text);
         setCurrentPosition(current.position.toPositionInDocument(sourceDocument));
     }
 }

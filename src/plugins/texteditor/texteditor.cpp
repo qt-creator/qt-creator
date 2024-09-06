@@ -1824,10 +1824,10 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
 
     auto cursor = q->textCursor();
     cursor.setPosition(suggestion->currentPosition());
-    QTextOption option = suggestion->document()->defaultTextOption();
+    QTextOption option = suggestion->replacementDocument()->defaultTextOption();
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
-    suggestion->document()->setDefaultTextOption(option);
-    auto options = suggestion->document()->defaultTextOption();
+    suggestion->replacementDocument()->setDefaultTextOption(option);
+    auto options = suggestion->replacementDocument()->defaultTextOption();
     m_suggestionBlock = cursor.block();
     m_document->insertSuggestion(std::move(suggestion));
 }
@@ -5059,7 +5059,7 @@ QRectF TextEditorWidgetPrivate::getLastLineLineRect(const QTextBlock &block)
 {
     QTextLayout *layout = nullptr;
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block))
-        layout = suggestion->document()->firstBlock().layout();
+        layout = suggestion->replacementDocument()->firstBlock().layout();
     else
         layout = block.layout();
 
@@ -5516,11 +5516,12 @@ void TextEditorWidgetPrivate::paintAdditionalVisualWhitespaces(PaintEventData &d
         }
         if (!nextBlockIsValid) { // paint EOF symbol
             if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(data.block)) {
-                const QTextBlock lastReplacementBlock = suggestion->document()->lastBlock();
-                for (QTextBlock block = suggestion->document()->firstBlock();
+                const QTextBlock lastReplacementBlock
+                    = suggestion->replacementDocument()->lastBlock();
+                for (QTextBlock block = suggestion->replacementDocument()->firstBlock();
                      block != lastReplacementBlock && block.isValid();
                      block = block.next()) {
-                    top += suggestion->document()
+                    top += suggestion->replacementDocument()
                                ->documentLayout()
                                ->blockBoundingRect(block)
                                .height();
@@ -5787,8 +5788,10 @@ void TextEditorWidgetPrivate::setupSelections(const PaintEventData &data,
         deltaPos = suggestion->currentPosition() - data.block.position();
         const QString trailingText = data.block.text().mid(deltaPos);
         if (!trailingText.isEmpty()) {
-            const int trailingIndex
-                = suggestion->document()->firstBlock().text().indexOf(trailingText, deltaPos);
+            const int trailingIndex = suggestion->replacementDocument()
+                                          ->firstBlock()
+                                          .text()
+                                          .indexOf(trailingText, deltaPos);
             if (trailingIndex >= 0)
                 delta = std::max(trailingIndex - deltaPos, 0);
         }
@@ -6047,7 +6050,7 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                   const QRect &clipRect) const
 {
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
-        QTextBlock suggestionBlock = suggestion->document()->firstBlock();
+        QTextBlock suggestionBlock = suggestion->replacementDocument()->firstBlock();
         QPointF suggestionOffset = offset;
         suggestionOffset.rx() += document()->documentMargin();
         while (suggestionBlock.isValid()) {
@@ -6058,7 +6061,7 @@ void TextEditorWidget::paintBlock(QPainter *painter,
                                             suggestionOffset,
                                             blockSelections,
                                             clipRect);
-            suggestionOffset.ry() += suggestion->document()
+            suggestionOffset.ry() += suggestion->replacementDocument()
                                          ->documentLayout()
                                          ->blockBoundingRect(suggestionBlock)
                                          .height();
@@ -9848,9 +9851,9 @@ void TextEditorWidgetPrivate::updateTabStops()
     option.setTabStopDistance(charWidth() * m_document->tabSettings().m_tabSize);
     q->document()->setDefaultTextOption(option);
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock)) {
-        QTextOption option = suggestion->document()->defaultTextOption();
+        QTextOption option = suggestion->replacementDocument()->defaultTextOption();
         option.setTabStopDistance(option.tabStopDistance());
-        suggestion->document()->setDefaultTextOption(option);
+        suggestion->replacementDocument()->setDefaultTextOption(option);
     }
 }
 

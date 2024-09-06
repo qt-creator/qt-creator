@@ -32,7 +32,7 @@ public:
     int currentPosition() const { return m_currentPosition; }
     void setCurrentPosition(int position) { m_currentPosition = position; }
 
-    QTextDocument *document() { return &m_replacementDocument; }
+    QTextDocument *replacementDocument() { return &m_replacementDocument; }
 
 private:
     QTextDocument m_replacementDocument;

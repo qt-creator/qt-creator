@@ -562,7 +562,7 @@ void TextDocumentLayout::updateSuggestionFormats(const QTextBlock &block,
                                                  const FontSettings &fontSettings)
 {
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
-        QTextDocument *suggestionDoc = suggestion->document();
+        QTextDocument *suggestionDoc = suggestion->replacementDocument();
         const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
             TextStyles{C_TEXT, {C_DISABLED_CODE}});
         QList<QTextLayout::FormatRange> formats = block.layout()->formats();
@@ -618,7 +618,7 @@ bool TextDocumentLayout::updateSuggestion(const QTextBlock &block,
         const int positionInBlock = position - block.position();
         const QString start = block.text().left(positionInBlock);
         const QString end = block.text().mid(positionInBlock);
-        const QString replacement = suggestion->document()->firstBlock().text();
+        const QString replacement = suggestion->replacementDocument()->firstBlock().text();
         if (replacement.startsWith(start) && replacement.indexOf(end, start.size()) >= 0) {
             suggestion->setCurrentPosition(position);
             TextDocumentLayout::updateSuggestionFormats(block, fontSettings);
@@ -786,7 +786,7 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         // since multiple code paths expects that we have a valid block layout after requesting the
         // block bounding rect explicitly create that layout here
         ensureBlockLayout(block);
-        return replacementBoundingRect(suggestion->document());
+        return replacementBoundingRect(suggestion->replacementDocument());
     }
 
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
