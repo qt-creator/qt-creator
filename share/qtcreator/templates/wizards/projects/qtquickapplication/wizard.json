@@ -50,7 +50,7 @@
                 },
                 {
                     "name": "MinimumSupportedQtVersion",
-                    "trDisplayName": "The minimum version of Qt you want to build the application for",
+                    "trDisplayName": "Minimum required Qt version:",
                     "type": "ComboBox",
                     "data":
                     {
