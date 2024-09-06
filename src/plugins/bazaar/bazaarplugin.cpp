@@ -832,7 +832,7 @@ bool BazaarPluginPrivate::activateCommit()
         // Whether local commit or not
         if (commitWidget->isLocalOptionEnabled())
             extraOptions += QLatin1String("--local");
-        m_client.commit(m_submitRepository, files, editorDocument->filePath().toString(), extraOptions);
+        m_client.commit(m_submitRepository, files, editorDocument->filePath().path(), extraOptions);
     }
     return true;
 }
