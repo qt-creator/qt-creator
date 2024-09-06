@@ -216,12 +216,13 @@ void NameItemDelegate::paint(QPainter *painter,
             QByteArray dragType = widget->dragType();
             const NodeMetaInfo metaInfo = node.metaInfo();
 
-            auto isValid3dTextureTarget = [&metaInfo]() -> bool {
-                return metaInfo.isQtQuick3DModel()
-                       || metaInfo.isQtQuick3DTexture()
-                       || metaInfo.isQtQuick3DSceneEnvironment()
-                       || metaInfo.isQtQuick3DTextureInput()
-                       || metaInfo.isQtQuick3DParticles3DSpriteParticle3D();
+            auto isValid3dTextureTarget = [&metaInfo, &node]() -> bool {
+                Model *model = node.model();
+                return metaInfo.isBasedOn(model->qtQuick3DModelMetaInfo(),
+                                          model->qtQuick3DTextureMetaInfo(),
+                                          model->qtQuick3DSceneEnvironmentMetaInfo(),
+                                          model->qtQuick3DTextureInputMetaInfo(),
+                                          model->qtQuick3DParticles3DSpriteParticle3DMetaInfo());
             };
 
             bool validDrop = false;
@@ -230,8 +231,9 @@ void NameItemDelegate::paint(QPainter *painter,
             } else if (dragType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 validDrop = isValid3dTextureTarget();
             } else if (dragType == Constants::MIME_TYPE_ASSET_IMAGE) {
-                validDrop = isValid3dTextureTarget()
-                            || metaInfo.isQtQuickImage() || metaInfo.isQtQuickBorderImage();
+                Model *model = node.model();
+                validDrop = isValid3dTextureTarget() || metaInfo.isBasedOn(model->qtQuickImageMetaInfo(),
+                                                                           model->qtQuickBorderImageMetaInfo());
             } else {
                 const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
                 ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);

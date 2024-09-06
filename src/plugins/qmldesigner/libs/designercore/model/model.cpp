@@ -2545,6 +2545,16 @@ NodeMetaInfo Model::qtQuick3DOrthographicCameraMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuick3DParticles3DSpriteParticle3DMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D_Particles3D, SpriteParticle3D>();
+    } else {
+        return metaInfo("QtQuick3D.Particles3D.SpriteParticle3D");
+    }
+}
+
 NodeMetaInfo Model::qtQuick3DPerspectiveCameraMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2561,6 +2571,26 @@ NodeMetaInfo Model::qtQuick3DTextureMetaInfo() const
         return createNodeMetaInfo<QtQuick3D, Texture>();
     } else {
         return metaInfo("QtQuick3D.Texture");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DTextureInputMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, TextureInput>();
+    } else {
+        return metaInfo("QtQuick3D.TextureInput");
+    }
+}
+
+NodeMetaInfo Model::qtQuickBorderImageMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick, BorderImage>();
+    } else {
+        return metaInfo("QtQuick.BorderImage");
     }
 }
 
@@ -2611,6 +2641,16 @@ NodeMetaInfo Model::qtQuick3DPrincipledMaterialMetaInfo() const
         return createNodeMetaInfo<QtQuick3D, PrincipledMaterial>();
     } else {
         return metaInfo("QtQuick3D.PrincipledMaterial");
+    }
+}
+
+NodeMetaInfo Model::qtQuick3DSceneEnvironmentMetaInfo() const
+{
+    if constexpr (useProjectStorage()) {
+        using namespace Storage::Info;
+        return createNodeMetaInfo<QtQuick3D, SceneEnvironment>();
+    } else {
+        return metaInfo("QtQuick3D.SceneEnvironment");
     }
 }
 
