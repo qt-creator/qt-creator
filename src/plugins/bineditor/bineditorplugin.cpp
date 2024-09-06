@@ -618,12 +618,14 @@ void BinEditorDocument::setModified(bool modified)
 bool BinEditorDocument::save(QString *errorString, const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (oldFilePath != newFilePath) {
+        // Get a unique temporary file name
         FilePath tmpName;
         {
-            QTemporaryFile tmp(newFilePath.toString() + QLatin1String("_XXXXXX.new"));
-            if (!tmp.open())
+            const auto result = TemporaryFilePath::create(
+                newFilePath.stringAppended("_XXXXXX.new"));
+            if (!result)
                 return false;
-            tmpName = FilePath::fromString(tmp.fileName());
+            tmpName = (*result)->filePath();
         }
         if (!oldFilePath.copyFile(tmpName))
             return false;
