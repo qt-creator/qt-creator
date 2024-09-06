@@ -277,7 +277,7 @@ public:
 
             painter->setFont(countTF.font());
             painter->setPen(countTF.color());
-            const PluginsData plugins = index.data(RolePlugins).value<PluginsData>();
+            const QStringList plugins = index.data(RolePlugins).toStringList();
             painter->drawText(smallCircle, countTF.drawTextFlags, QString::number(plugins.count()));
         }
         {
@@ -487,10 +487,12 @@ public:
     SpinnerSolution::Spinner *m_spinner;
 };
 
-ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
+ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     : QWidget(parent)
     , d(new ExtensionsBrowserPrivate)
 {
+    d->model = model;
+
     setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     static const TextFormat titleTF
@@ -500,8 +502,6 @@ ExtensionsBrowser::ExtensionsBrowser(QWidget *parent)
 
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));
-
-    d->model = new ExtensionsModel(this);
 
     d->searchProxyModel = new QSortFilterProxyModel(this);
     d->searchProxyModel->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -622,28 +622,11 @@ void ExtensionsBrowser::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 }
 
-static QString customOsTypeToString(OsType osType)
-{
-    switch (osType) {
-    case OsTypeWindows:
-        return "Windows";
-    case OsTypeLinux:
-        return "Linux";
-    case OsTypeMac:
-        return "macOS";
-    case OsTypeOtherUnix:
-        return "Other Unix";
-    case OsTypeOther:
-    default:
-        return "Other";
-    }
-}
-
 void ExtensionsBrowser::fetchExtensions()
 {
 #ifdef WITH_TESTS
     // Uncomment for testing with local json data.
-    // Available: "augmentedplugindata", "defaultpacks", "varieddata", "thirdpartyplugins"
+    // Available: "defaultpacks", "thirdpartyplugins"
     // d->model->setExtensionsJson(testData("defaultpacks")); return;
 #endif // WITH_TESTS
 
@@ -655,14 +638,8 @@ void ExtensionsBrowser::fetchExtensions()
     using namespace Tasking;
 
     const auto onQuerySetup = [this](NetworkQuery &query) {
-        const QString url = "%1/api/v1/search?request=";
-        const QString requestTemplate
-            = R"({"qtc_version":"%1","host_os":"%2","host_os_version":"%3","host_architecture":"%4","page_size":200})";
-        const QString request = url.arg(settings().externalRepoUrl()) + requestTemplate
-                                                    .arg(QCoreApplication::applicationVersion())
-                                                    .arg(customOsTypeToString(HostOsInfo::hostOs()))
-                                                    .arg(QSysInfo::productVersion())
-                                                    .arg(QSysInfo::currentCpuArchitecture());
+        const QString url = "%1/api/v1/search";
+        const QString request = url.arg(settings().externalRepoUrl());
         query.setRequest(QNetworkRequest(QUrl::fromUserInput(request)));
         query.setNetworkAccessManager(NetworkAccessManager::instance());
         qCDebug(browserLog).noquote() << "Sending JSON request:" << request;

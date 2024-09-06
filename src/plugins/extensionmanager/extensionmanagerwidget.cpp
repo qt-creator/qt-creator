@@ -57,14 +57,14 @@ namespace ExtensionManager::Internal {
 
 Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
-constexpr TextFormat h5TF
-    {Theme::Token_Text_Default, UiElement::UiElementH5};
-constexpr TextFormat h6TF
-    {h5TF.themeColor, UiElement::UiElementH6};
-constexpr TextFormat h6CapitalTF
-    {Theme::Token_Text_Muted, UiElement::UiElementH6Capital};
 constexpr TextFormat contentTF
     {Theme::Token_Text_Default, UiElement::UiElementBody2};
+constexpr TextFormat h5TF
+    {contentTF.themeColor, UiElement::UiElementH5};
+constexpr TextFormat h6TF
+    {contentTF.themeColor, UiElement::UiElementH6};
+constexpr TextFormat h6CapitalTF
+    {Theme::Token_Text_Muted, UiElement::UiElementH6Capital};
 
 static QLabel *sectionTitle(const TextFormat &tf, const QString &title)
 {
@@ -215,9 +215,9 @@ public:
             m_dlCount->setText(QString::number(dlCount));
         m_dlCountItems->setVisible(showDlCount);
 
-        const auto pluginData = current.data(RolePlugins).value<PluginsData>();
+        const QStringList plugins = current.data(RolePlugins).toStringList();
         if (current.data(RoleItemType).toInt() == ItemTypePack) {
-            const int pluginsCount = pluginData.count();
+            const int pluginsCount = plugins.count();
             const QString details = Tr::tr("Pack contains %n plugins.", nullptr, pluginsCount);
             m_details->setText(details);
         } else {
@@ -227,9 +227,10 @@ public:
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
         const bool isRemotePlugin = !(isPack || pluginSpecForId(current.data(RoleId).toString()));
-        installButton->setVisible(isRemotePlugin && !pluginData.empty());
+        const QString downloadUrl = current.data(RoleDownloadUrl).toString();
+        installButton->setVisible(isRemotePlugin && !downloadUrl.isEmpty());
         if (installButton->isVisible())
-            installButton->setToolTip(pluginData.constFirst().second);
+            installButton->setToolTip(downloadUrl);
     }
 
 signals:
@@ -383,25 +384,17 @@ public:
 private:
     void updateView(const QModelIndex &current);
     void fetchAndInstallPlugin(const QUrl &url);
-    void fetchAndDisplayImage(const QUrl &url);
 
     QString m_currentItemName;
+    ExtensionsModel *m_extensionModel;
     ExtensionsBrowser *m_extensionBrowser;
     CollapsingWidget *m_secondaryDescriptionWidget;
     HeadingWidget *m_headingWidget;
     QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
     QLabel *m_description;
-    QLabel *m_linksTitle;
-    QLabel *m_links;
-    QLabel *m_imageTitle;
-    QLabel *m_image;
-    QBuffer m_imageDataBuffer;
-    QMovie m_imageMovie;
     QLabel *m_tagsTitle;
     TagList *m_tags;
-    QLabel *m_compatVersionTitle;
-    QLabel *m_compatVersion;
     QLabel *m_platformsTitle;
     QLabel *m_platforms;
     QLabel *m_dependenciesTitle;
@@ -409,14 +402,14 @@ private:
     QLabel *m_packExtensionsTitle;
     QLabel *m_packExtensions;
     PluginStatusWidget *m_pluginStatus;
-    PluginsData m_currentItemPlugins;
+    QString m_currentDownloadUrl;
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
-    Tasking::TaskTreeRunner m_imgTaskTreeRunner;
 };
 
 ExtensionManagerWidget::ExtensionManagerWidget()
 {
-    m_extensionBrowser = new ExtensionsBrowser;
+    m_extensionModel = new ExtensionsModel(this);
+    m_extensionBrowser = new ExtensionsBrowser(m_extensionModel);
     auto descriptionColumns = new QWidget;
     m_secondaryDescriptionWidget = new CollapsingWidget;
 
@@ -425,21 +418,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setWordWrap(true);
     m_description->setTextInteractionFlags(Qt::TextBrowserInteraction);
     m_description->setOpenExternalLinks(true);
-    m_linksTitle = sectionTitle(h6CapitalTF, Tr::tr("More information"));
-    m_links = tfLabel(contentTF, false);
-    m_links->setOpenExternalLinks(true);
-    m_links->setTextInteractionFlags(Qt::TextBrowserInteraction);
-    m_imageTitle = sectionTitle(h6CapitalTF, {});
-    m_image = new QLabel;
-    m_imageMovie.setDevice(&m_imageDataBuffer);
 
     using namespace Layouting;
     auto primary = new QWidget;
     const auto spL = spacing(SpacingTokens::VPaddingL);
     Column {
         m_description,
-        Column { m_linksTitle, m_links, spL },
-        Column { m_imageTitle, m_image, spL },
         st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
     }.attachTo(primary);
@@ -447,8 +431,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
     m_tags = new TagList;
-    m_compatVersionTitle = sectionTitle(h6TF, Tr::tr("Compatibility"));
-    m_compatVersion = tfLabel(contentTF, false);
     m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
     m_platforms = tfLabel(contentTF, false);
     m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
@@ -463,7 +445,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
             Column { m_tagsTitle, m_tags, spXxs },
-            Column { m_compatVersionTitle, m_compatVersion, spXxs },
             Column { m_platformsTitle, m_platforms, spXxs },
             Column { m_dependenciesTitle, m_dependencies, spXxs },
             Column { m_packExtensionsTitle, m_packExtensions, spXxs },
@@ -522,7 +503,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
     connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this](){
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentItemPlugins.constFirst().second));
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl));
     });
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
@@ -546,7 +527,10 @@ static QString markdownToHtml(const QString &markdown)
         blockFormat.setBottomMargin(SpacingTokens::VGapL);
         QTextCursor cursor(block);
         cursor.mergeBlockFormat(blockFormat);
-        const TextFormat headingTf = blockFormat.headingLevel() == 1 ? h5TF : h6TF;
+        const TextFormat headingTf =
+                blockFormat.headingLevel() == 1 ? h5TF
+                                                : blockFormat.headingLevel() == 2 ? h6TF
+                                                                                  : h6CapitalTF;
         const QFont headingFont = headingTf.font();
         for (auto it = block.begin(); !(it.atEnd()); ++it) {
             QTextFragment fragment = it.fragment();
@@ -555,9 +539,10 @@ static QString markdownToHtml(const QString &markdown)
                 cursor.setPosition(fragment.position());
                 cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
                 if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
+                    charFormat.setFontCapitalization(headingFont.capitalization());
                     charFormat.setFontFamilies(headingFont.families());
-                    charFormat.setFontWeight(headingFont.weight());
                     charFormat.setFontPointSize(headingFont.pointSizeF());
+                    charFormat.setFontWeight(headingFont.weight());
                     charFormat.setForeground(headingTf.color());
                 } else if (charFormat.isAnchor()) {
                     charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
@@ -587,96 +572,60 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_currentItemName = current.data(RoleName).toString();
     const bool isPack = current.data(RoleItemType) == ItemTypePack;
     m_pluginStatus->setPluginId(isPack ? QString() : current.data(RoleId).toString());
-    m_currentItemPlugins = current.data(RolePlugins).value<PluginsData>();
-
-    auto toContentParagraph = [](const QString &text) {
-        const QString pHtml = QString::fromLatin1("<p style=\"margin-top:0;margin-bottom:0;"
-                                                  "line-height:%1px\">%2</p>")
-                                  .arg(contentTF.lineHeight()).arg(text);
-        return pHtml;
-    };
+    m_currentDownloadUrl = current.data(RoleDownloadUrl).toString();
 
     {
-        const TextData textData = current.data(RoleDescriptionText).value<TextData>();
-        const bool hasDescription = !textData.isEmpty();
-        if (hasDescription) {
-            QString descriptionMarkdown;
-            for (const TextData::Type &text : textData) {
-                if (!text.first.isEmpty()) {
-                    const QLatin1String headingMark(descriptionMarkdown.isEmpty() ? "#" : "\n\n##");
-                    descriptionMarkdown.append(headingMark + " " + text.first + "\n");
-                }
-                descriptionMarkdown.append(text.second.join("\n"));
-            }
-            m_description->setText(markdownToHtml(descriptionMarkdown));
-        }
-        m_description->setVisible(hasDescription);
-
-        const LinksData linksData = current.data(RoleDescriptionLinks).value<LinksData>();
-        const bool hasLinks = !linksData.isEmpty();
-        if (hasLinks) {
-            QString linksHtml;
-            const QStringList links = transform(linksData, [](const LinksData::Type &link) {
-                const QString anchor = link.first.isEmpty() ? link.second : link.first;
-                return QString::fromLatin1(R"(<a href="%1" style="color:%2">%3 &gt;</a>)")
-                    .arg(link.second)
-                    .arg(creatorColor(Theme::Token_Text_Accent).name())
-                    .arg(anchor);
-            });
-            linksHtml = links.join("<br/>");
-            m_links->setText(toContentParagraph(linksHtml));
-        }
-        m_linksTitle->setVisible(hasLinks);
-        m_links->setVisible(hasLinks);
-
-        m_imgTaskTreeRunner.reset();
-        m_imageMovie.stop();
-        m_imageDataBuffer.close();
-        m_image->clear();
-        const ImagesData imagesData = current.data(RoleDescriptionImages).value<ImagesData>();
-        const bool hasImages = !imagesData.isEmpty();
-        if (hasImages) {
-            const ImagesData::Type &image = imagesData.constFirst(); // Only show one image
-            m_imageTitle->setText(image.first);
-            fetchAndDisplayImage(image.second);
-        }
-        m_imageTitle->setVisible(hasImages);
-        m_image->setVisible(hasImages);
+        const QStringList description = {
+            "# " + m_currentItemName,
+            current.data(RoleDescriptionShort).toString(),
+            "",
+            current.data(RoleDescriptionLong).toString()
+        };
+        const QString descriptionMarkdown = description.join("\n");
+        m_description->setText(markdownToHtml(descriptionMarkdown));
     }
 
     {
+        auto idToDisplayName = [this](const QString &id) {
+            const QModelIndex dependencyIndex = m_extensionModel->indexOfId(id);
+            return dependencyIndex.data(RoleName).toString();
+        };
+
+        auto toContentParagraph = [](const QStringList &text) {
+            const QString lines = text.join("<br/>");
+            const QString pHtml = QString::fromLatin1("<p style=\"margin-top:0;margin-bottom:0;"
+                                                      "line-height:%1px\">%2</p>")
+                                      .arg(contentTF.lineHeight()).arg(lines);
+            return pHtml;
+        };
+
         const QStringList tags = current.data(RoleTags).toStringList();
         m_tags->setTags(tags);
         const bool hasTags = !tags.isEmpty();
         m_tagsTitle->setVisible(hasTags);
         m_tags->setVisible(hasTags);
 
-        const QString compatVersion = current.data(RoleCompatVersion).toString();
-        const bool hasCompatVersion = !compatVersion.isEmpty();
-        if (hasCompatVersion)
-            m_compatVersion->setText(compatVersion);
-        m_compatVersionTitle->setVisible(hasCompatVersion);
-        m_compatVersion->setVisible(hasCompatVersion);
-
         const QStringList platforms = current.data(RolePlatforms).toStringList();
         const bool hasPlatforms = !platforms.isEmpty();
         if (hasPlatforms)
-            m_platforms->setText(toContentParagraph(platforms.join("<br/>")));
+            m_platforms->setText(toContentParagraph(platforms));
         m_platformsTitle->setVisible(hasPlatforms);
         m_platforms->setVisible(hasPlatforms);
 
         const QStringList dependencies = current.data(RoleDependencies).toStringList();
         const bool hasDependencies = !dependencies.isEmpty();
-        if (hasDependencies)
-            m_dependencies->setText(toContentParagraph(dependencies.join("<br/>")));
+        if (hasDependencies) {
+            const QStringList displayNames = transform(dependencies, idToDisplayName);
+            m_dependencies->setText(toContentParagraph(displayNames));
+        }
         m_dependenciesTitle->setVisible(hasDependencies);
         m_dependencies->setVisible(hasDependencies);
 
-        const PluginsData plugins = current.data(RolePlugins).value<PluginsData>();
+        const QStringList plugins = current.data(RolePlugins).toStringList();
         const bool hasExtensions = isPack && !plugins.isEmpty();
         if (hasExtensions) {
-            const QStringList extensions = transform(plugins, &QPair<QString, QString>::first);
-            m_packExtensions->setText(toContentParagraph(extensions.join("<br/>")));
+            const QStringList displayNames = transform(plugins, idToDisplayName);
+            m_packExtensions->setText(toContentParagraph(displayNames));
         }
         m_packExtensionsTitle->setVisible(hasExtensions);
         m_packExtensions->setVisible(hasExtensions);
@@ -741,60 +690,6 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
     };
 
     m_dlTaskTreeRunner.start(group);
-}
-
-void ExtensionManagerWidget::fetchAndDisplayImage(const QUrl &url)
-{
-    using namespace Tasking;
-
-    struct StorageStruct
-    {
-        QByteArray imageData;
-        QUrl url;
-    };
-    Storage<StorageStruct> storage;
-
-    const auto onFetchSetup = [url, storage](NetworkQuery &query) {
-        storage->url = url;
-        query.setRequest(QNetworkRequest(url));
-        query.setNetworkAccessManager(NetworkAccessManager::instance());
-        qCDebug(widgetLog).noquote() << "Sending image request:" << url.toDisplayString();
-    };
-    const auto onFetchDone = [storage](const NetworkQuery &query, DoneWith result) {
-        qCDebug(widgetLog) << "Got image QNetworkReply:" << query.reply()->error();
-        if (result == DoneWith::Success)
-            storage->imageData = query.reply()->readAll();
-    };
-
-    const auto onShowImage = [storage, this]() {
-        if (storage->imageData.isEmpty())
-            return;
-        m_imageDataBuffer.setData(storage->imageData);
-        qCDebug(widgetLog).noquote() << "Image reponse size:"
-                                     << QLocale::system().formattedDataSize(
-                                            m_imageDataBuffer.size());
-        if (!m_imageDataBuffer.open(QIODevice::ReadOnly))
-            return;
-        QImageReader reader(&m_imageDataBuffer);
-        const bool animated = reader.supportsAnimation();
-        if (animated) {
-            m_image->setMovie(&m_imageMovie);
-            m_imageMovie.start();
-        } else {
-            const QPixmap pixmap = QPixmap::fromImage(reader.read());
-            m_image->setPixmap(pixmap);
-        }
-        qCDebug(widgetLog) << "Image dimensions:" << reader.size();
-        qCDebug(widgetLog) << "Image is animated:" << animated;
-    };
-
-    Group group{
-        storage,
-        NetworkQueryTask{onFetchSetup, onFetchDone},
-        onGroupDone(onShowImage),
-    };
-
-    m_imgTaskTreeRunner.start(group);
 }
 
 QWidget *createExtensionManagerWidget()

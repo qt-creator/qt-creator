@@ -13,12 +13,14 @@ class TextFormat;
 
 namespace ExtensionManager::Internal {
 
+class ExtensionsModel;
+
 class ExtensionsBrowser final : public QWidget
 {
     Q_OBJECT
 
 public:
-    ExtensionsBrowser(QWidget *parent = nullptr);
+    ExtensionsBrowser(ExtensionsModel *model, QWidget *parent = nullptr);
     ~ExtensionsBrowser();
 
     void setFilter(const QString &filter);

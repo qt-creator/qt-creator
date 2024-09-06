@@ -5,7 +5,8 @@
 
 #include "extensionmanagertr.h"
 
-#include "utils/algorithm.h"
+#include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
@@ -21,272 +22,197 @@
 #include <QStandardItemModel>
 #include <QVersionNumber>
 
-#include <functional>
-
 using namespace ExtensionSystem;
 using namespace Core;
 using namespace Utils;
 
 namespace ExtensionManager::Internal {
 
+const char EXTENSION_KEY_ID[] = "id";
+
 Q_LOGGING_CATEGORY(modelLog, "qtc.extensionmanager.model", QtWarningMsg)
-
-struct Dependency
-{
-    QString id;
-    QString version;
-};
-using Dependencies = QList<Dependency>;
-
-struct Plugin
-{
-    QString copyright;
-    Dependencies dependencies;
-    bool isInternal = false;
-    QString id;
-    QString name;
-    QString packageUrl;
-    QString vendor;
-    QString version;
-};
-using Plugins = QList<Plugin>;
-
-struct Description {
-    ImagesData images;
-    LinksData links;
-    TextData text;
-};
-
-struct Extension {
-    QString compatVersion;
-    QString copyright;
-    Description description;
-    int downloadCount = -1;
-    QString id;
-    QString license;
-    QString name;
-    QStringList platforms;
-    Plugins plugins;
-    qint64 size = 0;
-    QStringList tags;
-    ItemType type = ItemTypePack;
-    QString vendor;
-    QString vendorId;
-    QString version;
-};
-using Extensions = QList<Extension>;
-
-static const Dependencies dependenciesFromJson(const QJsonObject &obj)
-{
-    const QJsonArray dependenciesArray = obj.value("Dependencies").toArray();
-    Dependencies dependencies;
-    for (const QJsonValueConstRef &dependencyVal : dependenciesArray) {
-        const QJsonObject dependencyObj = dependencyVal.toObject();
-        const QJsonObject metaDataObj = dependencyObj.value("meta_data").toObject();
-        dependencies.append({
-            .id = metaDataObj.value("Id").toString(),
-            .version = metaDataObj.value("Version").toString(),
-        });
-    }
-
-    return dependencies;
-}
-
-static Plugin pluginFromJson(const QJsonObject &obj)
-{
-    const QJsonObject metaDataObj = obj.value("meta_data").toObject();
-
-    return {
-        .copyright = metaDataObj.value("Copyright").toString(),
-        .dependencies = dependenciesFromJson(metaDataObj),
-        .isInternal = obj.value("is_internal").toBool(false),
-        .id = metaDataObj.value("Id").toString(),
-        .name = metaDataObj.value("Name").toString(),
-        .packageUrl = obj.value("url").toString(),
-        .vendor = metaDataObj.value("Vendor").toString(),
-        .version = metaDataObj.value("Version").toString(),
-    };
-}
-
-static Description descriptionFromJson(const QJsonObject &obj)
-{
-    TextData descriptionText;
-    const QJsonArray paragraphsArray = obj.value("paragraphs").toArray();
-    for (const QJsonValueConstRef &paragraphVal : paragraphsArray) {
-        const QJsonObject &paragraphObj = paragraphVal.toObject();
-        const QJsonArray &textArray = paragraphObj.value("text").toArray();
-        QStringList textLines;
-        for (const QJsonValueConstRef &textVal : textArray)
-            textLines.append(textVal.toString());
-        descriptionText.append({
-            paragraphObj.value("header").toString(),
-            textLines,
-        });
-    }
-
-    LinksData links;
-    const QJsonArray linksArray = obj.value("links").toArray();
-    for (const QJsonValueConstRef &linkVal : linksArray) {
-        const QJsonObject &linkObj = linkVal.toObject();
-        links.append({
-            linkObj.value("link_text").toString(),
-            linkObj.value("url").toString(),
-        });
-    }
-
-    ImagesData images;
-    const QJsonArray imagesArray = obj.value("images").toArray();
-    for (const QJsonValueConstRef &imageVal : imagesArray) {
-        const QJsonObject &imageObj = imageVal.toObject();
-        images.append({
-            imageObj.value("image_label").toString(),
-            imageObj.value("url").toString(),
-        });
-    }
-
-    const Description description = {
-        .images = images,
-        .links = links,
-        .text = descriptionText,
-    };
-
-    return description;
-}
-
-static Extension extensionFromJson(const QJsonObject &obj)
-{
-    Plugins plugins;
-    const QJsonArray pluginsArray = obj.value("plugins").toArray();
-    for (const QJsonValueConstRef &pluginVal : pluginsArray)
-        plugins.append(pluginFromJson(pluginVal.toObject()));
-
-    QStringList tags;
-    const QJsonArray tagsArray = obj.value("tags").toArray();
-    for (const QJsonValueConstRef &tagVal : tagsArray)
-        tags.append(tagVal.toString());
-
-    QStringList platforms;
-    const QJsonArray platformsArray = obj.value("platforms").toArray();
-    for (const QJsonValueConstRef &platformsVal : platformsArray)
-        platforms.append(platformsVal.toString());
-
-    const QJsonObject descriptionObj = obj.value("description").toObject();
-    const Description description = descriptionFromJson(descriptionObj);
-
-    const Extension extension = {
-        .compatVersion = obj.value("compatibility").toString(),
-        .copyright = obj.value("copyright").toString(),
-        .description = description,
-        .downloadCount = obj.value("download_count").toInt(-1),
-        .id = obj.value("id").toString(),
-        .license = obj.value("license").toString(),
-        .name = obj.value("name").toString(),
-        .platforms = platforms,
-        .plugins = plugins,
-        .size = obj.value("total_size").toInteger(),
-        .tags = tags,
-        .type = obj.value("is_pack").toBool(true) ? ItemTypePack : ItemTypeExtension,
-        .vendor = obj.value("vendor").toString(),
-        .vendorId = obj.value("vendor_id").toString(),
-        .version = obj.value("version").toString(),
-    };
-
-    return extension;
-}
-
-static Extensions parseExtensionsRepoReply(const QByteArray &jsonData)
-{
-    // https://qc-extensions.qt.io/api-docs
-    Extensions parsedExtensions;
-    const QJsonObject jsonObj = QJsonDocument::fromJson(jsonData).object();
-    const QJsonArray items = jsonObj.value("items").toArray();
-    for (const QJsonValueConstRef &itemVal : items) {
-        const QJsonObject itemObj = itemVal.toObject();
-        const Extension extension = extensionFromJson(itemObj);
-        parsedExtensions.append(extension);
-    }
-    return parsedExtensions;
-}
-
-static Extension extensionFromPluginSpec(const PluginSpec *pluginSpec)
-{
-    const Dependencies dependencies
-        = transform(pluginSpec->dependencies(), [](const PluginDependency &pd) -> Dependency {
-              return {
-                  .id = pd.id,
-                  .version = pd.version,
-              };
-          });
-    const Plugin plugin = {
-        .copyright = pluginSpec->copyright(),
-        .dependencies = dependencies,
-        .id = pluginSpec->id(),
-        .name = pluginSpec->name(),
-        .packageUrl = {},
-        .vendor = pluginSpec->vendor(),
-        .version = pluginSpec->version(),
-    };
-
-    const QStringList lines = pluginSpec->description().split('\n')
-                              + pluginSpec->longDescription().split('\n');
-    const TextData text = {{pluginSpec->name(), lines}};
-    LinksData links;
-    if (const QString url = pluginSpec->url(); !url.isEmpty())
-        links.append({{}, url});
-    if (const QString docUrl = pluginSpec->documentationUrl(); !docUrl.isEmpty())
-        links.append({{Tr::tr("Documentation")}, docUrl});
-    const Description description = {
-        .images = {},
-        .links = links,
-        .text = text,
-    };
-
-    const QString platformsPattern = pluginSpec->platformSpecification().pattern();
-    const QStringList platforms = platformsPattern.isEmpty()
-                                      ? QStringList({"macOS", "Windows", "Linux"})
-                                      : QStringList(platformsPattern);
-
-    const Extension extension = {
-        .compatVersion = pluginSpec->compatVersion(),
-        .copyright = pluginSpec->copyright(),
-        .description = description,
-        .id = pluginSpec->id(),
-        .license = pluginSpec->license(),
-        .name = pluginSpec->name(),
-        .platforms = platforms,
-        .plugins = {plugin},
-        .tags = {},
-        .type = ItemTypeExtension,
-        .vendor = pluginSpec->vendor(),
-        .vendorId = pluginSpec->vendorId(),
-        .version = pluginSpec->version(),
-    };
-    return extension;
-}
 
 class ExtensionsModelPrivate
 {
 public:
-    void setExtensions(const Extensions &extensions);
-    void addUnlistedLocalExtensions();
+    void addUnlistedLocalPlugins();
 
-    Extensions extensions;
+    static QVariant dataFromRemotePack(const QJsonObject &json, int role);
+    static QVariant dataFromRemotePlugin(const QJsonObject &json, int role);
+    QVariant dataFromRemoteExtension(int index, int role) const;
+    QVariant dataFromLocalPlugin(int index, int role) const;
+
+    QJsonArray responseItems;
+    PluginSpecs localPlugins;
 };
 
-void ExtensionsModelPrivate::setExtensions(const Extensions &extensions)
+void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
-    this->extensions = extensions;
-    qCDebug(modelLog) << "Number of extensions from JSON:" << this->extensions.count();
-    addUnlistedLocalExtensions();
-    qCDebug(modelLog) << "Number of extensions with added local ones:" << this->extensions.count();
+    QStringList responseExtensions;
+    for (const QJsonValueConstRef &responseItem : responseItems)
+        responseExtensions << responseItem.toObject().value("id").toString();
+
+    localPlugins.clear();
+    for (PluginSpec *plugin : PluginManager::plugins())
+        if (!responseExtensions.contains(plugin->id()))
+            localPlugins.append(plugin);
+
+    qCDebug(modelLog) << "Number of extensions from JSON:" << responseExtensions.count();
+    qCDebug(modelLog) << "Number of added local plugins:" << localPlugins.count();
 }
 
-void ExtensionsModelPrivate::addUnlistedLocalExtensions()
+QString joinedStringList(const QJsonValue &json)
 {
-    const QStringList listedModelExtensions = transform(extensions, &Extension::name);
-    for (const PluginSpec *plugin : PluginManager::plugins())
-        if (!listedModelExtensions.contains(plugin->name()))
-            extensions.append(extensionFromPluginSpec(plugin));
+    if (json.isArray()) {
+        const QStringList lines = json.toVariant().toStringList();
+        return lines.join("\n");
+    }
+    return json.toString();
+}
+
+QString descriptionWithLinks(const QString &description, const QString &url,
+                             const QString &documentationUrl)
+{
+    QStringList fragments;
+    const QString mdLink("[%1](%2)");
+    if (!url.isEmpty())
+        fragments.append(mdLink.arg(url).arg(url));
+    if (!documentationUrl.isEmpty())
+        fragments.append(mdLink.arg(Tr::tr("Documentation")).arg(documentationUrl));
+    if (!fragments.isEmpty())
+        fragments.prepend("### " + Tr::tr("More Information"));
+    fragments.prepend(description);
+    return fragments.join("\n\n");
+}
+
+QVariant ExtensionsModelPrivate::dataFromRemotePack(const QJsonObject &json, int role)
+{
+    switch (role) {
+    case RoleDescriptionLong:
+        return joinedStringList(json.value("long_description"));
+    case RoleDescriptionShort:
+        return joinedStringList(json.value("description"));
+    case RoleItemType:
+        return ItemTypePack;
+    case RolePlugins:
+        return json.value("plugins").toVariant().toStringList();
+    default:
+        break;
+    }
+
+    return {};
+}
+
+QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, int role)
+{
+    const QJsonObject metaData = json.value("metadata").toObject();
+
+    switch (role) {
+    case RoleCopyright:
+        return metaData.value("Copyright");
+    case RoleDownloadUrl: {
+        const QJsonArray sources = json.value("sources").toArray();
+        const QString thisPlatform = customOsTypeToString(HostOsInfo::hostOs());
+        const QString thisArch = QSysInfo::currentCpuArchitecture();
+        for (const QJsonValue source : sources) {
+            const QJsonObject sourceObject = source.toObject();
+            const QJsonObject platform = sourceObject.value("platform").toObject();
+            if (platform.isEmpty() // Might be a Lua plugin
+                    || (platform.value("name").toString() == thisPlatform
+                        && platform.value("architecture") == thisArch))
+                return sourceObject.value("url").toString();
+        }
+        break;
+    }
+    case RoleItemType:
+        return ItemTypeExtension;
+    case RoleDescriptionLong: {
+        const QString description = joinedStringList(metaData.value("LongDescription"));
+        const QString url = metaData.value("Url").toString();
+        const QString documentationUrl = metaData.value("DocumentationUrl").toString();
+        return descriptionWithLinks(description, url, documentationUrl);
+    }
+    case RoleDescriptionShort:
+        return joinedStringList(metaData.value("Description"));
+    default:
+        break;
+    }
+
+    return {};
+}
+
+QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) const
+{
+    const QJsonObject json = responseItems.at(index).toObject();
+
+    switch (role) {
+    case Qt::DisplayRole:
+    case RoleName:
+        return json.value("display_name");
+    case RoleDownloadCount:
+        return json.value("downloads");
+    case RoleId:
+        return json.value(EXTENSION_KEY_ID);
+    case RoleTags:
+        return json.value("tags").toVariant().toStringList();
+    case RoleVendor:
+        return json.value("display_vendor");
+    default:
+        break;
+    }
+
+    const QJsonObject pluginObject = json.value("plugin").toObject();
+    if (!pluginObject.isEmpty())
+        return dataFromRemotePlugin(pluginObject, role);
+
+    const QJsonObject packObject = json.value("pack").toObject();
+    if (!packObject.isEmpty())
+        return dataFromRemotePack(packObject, role);
+
+    return {};
+}
+
+QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
+{
+    const PluginSpec *pluginSpec = localPlugins.at(index);
+
+    switch (role) {
+    case Qt::DisplayRole:
+    case RoleName:
+        return pluginSpec->displayName();
+    case RoleCopyright:
+        return pluginSpec->copyright();
+    case RoleDependencies: {
+        const QStringList dependencies
+            = transform(pluginSpec->dependencies(), &PluginDependency::id);
+        return dependencies;
+    }
+    case RoleDescriptionLong:
+        return descriptionWithLinks(pluginSpec->longDescription(), pluginSpec->url(),
+                                    pluginSpec->documentationUrl());
+    case RoleDescriptionShort:
+        return pluginSpec->description();
+    case RoleId:
+        return pluginSpec->id();
+    case RoleItemType:
+        return ItemTypeExtension;
+    case RolePlatforms: {
+        const QString platformsPattern = pluginSpec->platformSpecification().pattern();
+        const QStringList platforms = platformsPattern.isEmpty()
+                                          ? QStringList({customOsTypeToString(OsTypeMac),
+                                                         customOsTypeToString(OsTypeWindows),
+                                                         customOsTypeToString(OsTypeLinux)})
+                                          : QStringList(platformsPattern);
+        return platforms;
+    }
+    case RoleVendor:
+        return pluginSpec->vendor();
+    case RoleVendorId:
+        return pluginSpec->vendorId();
+    default:
+        break;
+    }
+    return {};
 }
 
 ExtensionsModel::ExtensionsModel(QObject *parent)
@@ -302,77 +228,7 @@ ExtensionsModel::~ExtensionsModel()
 
 int ExtensionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
-    return d->extensions.count();
-}
-
-static QStringList dependenciesFromExtension(const Extension &extension)
-{
-    QStringList dependencies;
-    for (const Plugin &plugin : extension.plugins) {
-        for (const Dependency &dependency : plugin.dependencies) {
-            const QString withVersion
-                = QString::fromLatin1("%1 (%2)").arg(dependency.id).arg(dependency.version);
-            dependencies.append(withVersion);
-        }
-    }
-    dependencies.sort();
-    dependencies.removeDuplicates();
-    return dependencies;
-}
-
-static QVariant dataFromExtension(const Extension &extension, int role)
-{
-    switch (role) {
-    case Qt::DisplayRole:
-    case RoleName:
-        return Utils::findOr(
-            QStringList{extension.name, extension.id},
-            "No name found",
-            std::not_fn(&QString::isEmpty));
-    case RoleCompatVersion:
-        return extension.compatVersion;
-    case RoleCopyright:
-        return !extension.copyright.isEmpty() ? extension.copyright : QVariant();
-    case RoleDependencies:
-        return dependenciesFromExtension(extension);
-    case RoleDescriptionImages:
-        return QVariant::fromValue(extension.description.images);
-    case RoleDescriptionLinks:
-        return QVariant::fromValue(extension.description.links);
-    case RoleDescriptionText:
-        return QVariant::fromValue(extension.description.text);
-    case RoleDownloadCount:
-        return extension.downloadCount;
-    case RoleId:
-        return extension.id;
-    case RoleItemType:
-        return extension.type;
-    case RoleLicense:
-        return extension.license;
-    case RoleLocation:
-        break;
-    case RolePlatforms:
-        return extension.platforms;
-    case RolePlugins: {
-        PluginsData plugins;
-        for (const Plugin &plugin : extension.plugins)
-            plugins.append(qMakePair(plugin.id, plugin.packageUrl));
-        return QVariant::fromValue(plugins);
-    }
-    case RoleSize:
-        return extension.size;
-    case RoleTags:
-        return extension.tags;
-    case RoleVendor:
-        return !extension.vendor.isEmpty() ? extension.vendor : QVariant();
-    case RoleVersion:
-        return !extension.version.isEmpty() ? extension.version : QVariant();
-    case RoleVendorId:
-        return extension.vendorId;
-    default:
-        break;
-    }
-    return {};
+    return d->responseItems.count() + d->localPlugins.count();
 }
 
 ExtensionState extensionState(const QModelIndex &index)
@@ -392,10 +248,8 @@ static QString searchText(const QModelIndex &index)
     QStringList searchTexts;
     searchTexts.append(index.data(RoleName).toString());
     searchTexts.append(index.data(RoleTags).toStringList());
-    for (const auto &data : index.data(RoleDescriptionText).value<TextData>()) {
-        searchTexts.append(data.first);
-        searchTexts.append(data.second);
-    }
+    searchTexts.append(index.data(RoleDescriptionShort).toString());
+    searchTexts.append(index.data(RoleDescriptionLong).toString());
     searchTexts.append(index.data(RoleVendor).toString());
     return searchTexts.join(" ");
 }
@@ -407,26 +261,54 @@ QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
     if (role == RoleSearchText)
         return searchText(index);
 
-    const Extension &extension = d->extensions.at(index.row());
-    const QVariant extensionData = dataFromExtension(extension, role);
-    // If data is unavailable, retrieve it from the first contained plugin
-    if (extensionData.isNull() && !extension.plugins.isEmpty()) {
-        const QString firstPluginId = extension.plugins.constFirst().id;
-        const Extension firstPluginExtension
-            = findOrDefault(d->extensions, Utils::equal(&Extension::id, firstPluginId));
-        if (firstPluginExtension.name.isEmpty())
-            return {};
-        return dataFromExtension(firstPluginExtension, role);
+    const bool isRemoteExtension = index.row() < d->responseItems.count();
+    const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->responseItems.count());
+
+    return isRemoteExtension ? d->dataFromRemoteExtension(itemIndex, role)
+                             : d->dataFromLocalPlugin(itemIndex, role);
+}
+
+QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
+{
+    const int localIndex = indexOf(d->localPlugins, equal(&PluginSpec::id, extensionId));
+    if (localIndex >= 0)
+        return index(d->responseItems.count() + localIndex);
+
+    for (int remoteIndex = 0; const QJsonValueConstRef vlaue : d->responseItems) {
+        if (vlaue.toObject().value(EXTENSION_KEY_ID) == extensionId)
+            return index(remoteIndex);
+        ++remoteIndex;
     }
-    return extensionData;
+
+    return {};
 }
 
 void ExtensionsModel::setExtensionsJson(const QByteArray &json)
 {
-    const Extensions extensions = parseExtensionsRepoReply(json);
     beginResetModel();
-    d->setExtensions(extensions);
+    QJsonParseError error;
+    const QJsonObject jsonObj = QJsonDocument::fromJson(json, &error).object();
+    qCDebug(modelLog) << "QJsonParseError:" << error.errorString();
+    d->responseItems = jsonObj.value("items").toArray();
+    d->addUnlistedLocalPlugins();
     endResetModel();
+}
+
+QString customOsTypeToString(OsType osType)
+{
+    switch (osType) {
+    case OsTypeWindows:
+        return "Windows";
+    case OsTypeLinux:
+        return "Linux";
+    case OsTypeMac:
+        return "macOS";
+    case OsTypeOtherUnix:
+        return "Other Unix";
+    case OsTypeOther:
+    default:
+        return "Other";
+    }
 }
 
 PluginSpec *pluginSpecForId(const QString &pluginId)
