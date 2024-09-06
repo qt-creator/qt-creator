@@ -197,7 +197,7 @@ void Project::fillAllFiles(const FilePaths &headers, const FilePaths &sources,
         const auto fileGroup = filesGroup->appendPropertyGroup("File");
         fileGroup->appendProperty("FileName", filePath.fileName());
         fileGroup->appendProperty("FileType", fileType);
-        fileGroup->appendProperty("FilePath", filePath.toString());
+        fileGroup->appendProperty("FilePath", filePath.path());
     };
 
     // Add headers.

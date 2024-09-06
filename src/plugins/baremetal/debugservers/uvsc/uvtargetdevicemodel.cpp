@@ -18,21 +18,17 @@ namespace BareMetal::Internal::Uv {
 
 static QString extractPacksPath(const FilePath &toolsIniFile)
 {
-    QFile f(toolsIniFile.toString());
+    QFile f(toolsIniFile.toFSPathString());
     if (!f.open(QIODevice::ReadOnly))
         return {};
     QTextStream in(&f);
     while (!in.atEnd()) {
         const QByteArray line = f.readLine().trimmed();
-        const auto startIndex = line.indexOf("RTEPATH=\"");
-        const auto stopIndex = line.lastIndexOf('"');
-        if (startIndex != 0 || (stopIndex + 1) != line.size())
+        static constexpr QByteArrayView rtepath = "RTEPATH=\"";
+        if (!line.startsWith(rtepath) || !line.endsWith('"'))
             continue;
-        const QFileInfo path(QString::fromUtf8(line.mid(startIndex + 9,
-                                                        stopIndex - startIndex - 9)));
-        if (!path.exists())
-            return {};
-        return path.absoluteFilePath();
+        const QFileInfo path(QString::fromUtf8(line.mid(rtepath.length()).chopped(1)));
+        return path.exists() ? path.absoluteFilePath() : QString{};
     }
     return {};
 }

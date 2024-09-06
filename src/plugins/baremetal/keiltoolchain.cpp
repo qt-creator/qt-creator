@@ -294,20 +294,20 @@ static HeaderPaths dumpHeaderPaths(const FilePath &compiler)
     if (!compiler.exists())
         return {};
 
-    QDir toolkitDir(compiler.parentDir().toString());
-    if (!toolkitDir.cdUp())
+    const FilePath toolkitDir = compiler.parentDir().parentDir();
+    if (!toolkitDir.exists())
         return {};
 
     HeaderPaths headerPaths;
 
     const Abi::Architecture arch = guessArchitecture(compiler);
     if (isMcsArchitecture(arch) || isC166Architecture(arch)) {
-        QDir includeDir(toolkitDir);
-        if (includeDir.cd("inc"))
+        const FilePath includeDir = toolkitDir.pathAppended("inc");
+        if (includeDir.exists())
             headerPaths.push_back(HeaderPath::makeBuiltIn(includeDir.canonicalPath()));
     } else if (isArmArchitecture(arch)) {
-        QDir includeDir(toolkitDir);
-        if (includeDir.cd("include"))
+        const FilePath includeDir = toolkitDir.pathAppended("include");
+        if (includeDir.exists())
             headerPaths.push_back(HeaderPath::makeBuiltIn(includeDir.canonicalPath()));
     }
 

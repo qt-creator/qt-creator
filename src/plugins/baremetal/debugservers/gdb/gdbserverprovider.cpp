@@ -145,8 +145,8 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
         return false;
     }
     if (!bin.exists()) {
-        errorMessage = Tr::tr("Cannot debug: Could not find executable for \"%1\".")
-                .arg(bin.toString());
+        errorMessage
+            = Tr::tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toUserOutput());
         return false;
     }
 
