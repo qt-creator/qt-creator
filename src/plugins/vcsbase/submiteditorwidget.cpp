@@ -104,6 +104,7 @@ struct SubmitEditorWidgetPrivate
     QCheckBox *checkAllCheckBox;
     QTreeView *fileView;
     QHBoxLayout *buttonLayout;
+    QLabel *error;
     QVBoxLayout *vboxLayout;
 
     QList<AdditionalContextMenuAction> descriptionEditContextMenuActions;
@@ -194,6 +195,9 @@ SubmitEditorWidget::SubmitEditorWidget() :
     d->buttonLayout->addWidget(openSettingsButton);
     d->buttonLayout->addItem(new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
+    d->error = new QLabel();
+    d->buttonLayout->addWidget(d->error);
+
     d->vboxLayout = new QVBoxLayout(scrollAreaWidgetContents);
     d->vboxLayout->setSpacing(6);
     d->vboxLayout->setContentsMargins(9, 9, 9, 9);
@@ -251,16 +255,28 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
     }
 
     if (submitAction) {
+        auto updateSubmitEnabled = [this, submitAction] {
+            QString errorMessage;
+            const bool submitEnabled = canSubmit(&errorMessage);
+            submitAction->setEnabled(submitEnabled);
+
+            if (submitEnabled || errorMessage.isEmpty()) {
+                d->error->clear();
+            } else {
+                const QString hint = QString("<font color=\"%1\">")
+                    .arg(Utils::creatorColor(Utils::Theme::TextColorError).name());
+                d->error->setText(hint + Tr::tr("Cannot commit: %1").arg(errorMessage));
+            }
+        };
+
         if (debug) {
             const SubmitFileModel *model = fileModel();
             int count = model ? model->rowCount() : 0;
             qDebug() << Q_FUNC_INFO << submitAction << count << "items";
         }
-        d->m_commitEnabled = !canSubmit();
-        connect(this, &SubmitEditorWidget::submitActionEnabledChanged,
-                submitAction, &QAction::setEnabled);
-        connect(this, &SubmitEditorWidget::submitActionTextChanged,
-                submitAction, &QAction::setText);
+        updateSubmitEnabled();
+        connect(this, &SubmitEditorWidget::submitActionEnabledChanged, this, updateSubmitEnabled);
+        connect(this, &SubmitEditorWidget::submitActionTextChanged, this, updateSubmitEnabled);
         d->m_submitButton = new QActionPushButton(submitAction);
         d->buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
