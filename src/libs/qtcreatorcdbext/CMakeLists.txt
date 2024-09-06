@@ -172,8 +172,9 @@ if (_library_enabled)
       return()
     endif()
 
+    file(TO_NATIVE_PATH ${PythonDll} NativePythonDll)
     execute_process(
-      COMMAND ${dumpbin_executable} /exports ${PythonDll}
+      COMMAND ${dumpbin_executable} /exports ${NativePythonDll}
       OUTPUT_VARIABLE dumpbin_output
       RESULT_VARIABLE dumpbin_result)
 
