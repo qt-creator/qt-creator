@@ -163,6 +163,7 @@ Core::GeneratedFile JsonWizardFileGenerator::generateFile(const File &file,
                 return Core::GeneratedFile();
             }
         }
+        gf.setPermissions(file.source.permissions());
     }
 
     Core::GeneratedFile::Attributes attributes;
