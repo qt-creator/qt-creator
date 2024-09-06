@@ -20,28 +20,6 @@ class TextEditorWidget;
 class TEXTEDITOR_EXPORT TextSuggestion
 {
 public:
-    TextSuggestion();
-    virtual ~TextSuggestion();
-    // Returns true if the suggestion was applied completely, false if it was only partially applied.
-    virtual bool apply() = 0;
-    // Returns true if the suggestion was applied completely, false if it was only partially applied.
-    virtual bool applyWord(TextEditorWidget *widget) = 0;
-    virtual bool applyLine(TextEditorWidget *widget) = 0;
-    virtual void reset() = 0;
-
-    int currentPosition() const { return m_currentPosition; }
-    void setCurrentPosition(int position) { m_currentPosition = position; }
-
-    QTextDocument *replacementDocument() { return &m_replacementDocument; }
-
-private:
-    QTextDocument m_replacementDocument;
-    int m_currentPosition = -1;
-};
-
-class TEXTEDITOR_EXPORT CyclicSuggestion : public TextSuggestion
-{
-public:
     class TEXTEDITOR_EXPORT Data
     {
     public:
@@ -50,24 +28,43 @@ public:
         QString text;
     };
 
-    CyclicSuggestion(
-        const QList<Data> &suggestions, QTextDocument *sourceDocument, int currentCompletion = 0);
+    TextSuggestion(const Data &suggestion, QTextDocument *sourceDocument);
+    virtual ~TextSuggestion();
+    // Returns true if the suggestion was applied completely, false if it was only partially applied.
+    virtual bool apply();
+    // Returns true if the suggestion was applied completely, false if it was only partially applied.
+    virtual bool applyWord(TextEditorWidget *widget);
+    virtual bool applyLine(TextEditorWidget *widget);
+    virtual void reset();
 
-    bool apply() override;
-    bool applyWord(TextEditorWidget *widget) override;
-    bool applyLine(TextEditorWidget *widget) override;
-    void reset() override;
+    int currentPosition() const { return m_currentPosition; }
+    void setCurrentPosition(int position) { m_currentPosition = position; }
 
-    QList<Data> suggestions() const { return m_suggestions; }
-    int currentSuggestion() const { return m_currentSuggestion; }
+    QTextDocument *replacementDocument() { return &m_replacementDocument; }
+    QTextDocument *sourceDocument() { return m_sourceDocument; }
 
 private:
     enum Part {Word, Line};
     bool applyPart(Part part, TextEditor::TextEditorWidget *widget);
 
+    Data m_suggestion;
+    QTextDocument m_replacementDocument;
+    QTextDocument *m_sourceDocument = nullptr;
+    int m_currentPosition = -1;
+};
+
+class TEXTEDITOR_EXPORT CyclicSuggestion : public TextSuggestion
+{
+public:
+    CyclicSuggestion(
+        const QList<Data> &suggestions, QTextDocument *sourceDocument, int currentCompletion = 0);
+
+    QList<Data> suggestions() const { return m_suggestions; }
+    int currentSuggestion() const { return m_currentSuggestion; }
+
+private:
     QList<Data> m_suggestions;
     int m_currentSuggestion = 0;
-    QTextDocument *m_sourceDocument = nullptr;
 };
 
 class SuggestionHoverHandler final : public BaseHoverHandler

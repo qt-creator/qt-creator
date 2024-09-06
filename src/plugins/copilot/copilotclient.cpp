@@ -228,7 +228,7 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
 
             Text::Range range{toTextPos(c.range().start()), toTextPos(c.range().end())};
             Text::Position pos{toTextPos(c.position())};
-            return CyclicSuggestion::Data{range, pos, c.text()};
+            return TextSuggestion::Data{range, pos, c.text()};
         });
         if (completions.isEmpty())
             return;

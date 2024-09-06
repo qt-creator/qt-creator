@@ -17,63 +17,49 @@ using namespace Utils;
 
 namespace TextEditor {
 
-TextSuggestion::TextSuggestion()
+TextSuggestion::TextSuggestion(const Data &suggestion, QTextDocument *sourceDocument)
+    : m_suggestion(suggestion)
+    , m_sourceDocument(sourceDocument)
 {
     m_replacementDocument.setDocumentLayout(new TextDocumentLayout(&m_replacementDocument));
     m_replacementDocument.setDocumentMargin(0);
+    replacementDocument()->setPlainText(suggestion.text);
+    setCurrentPosition(suggestion.position.toPositionInDocument(sourceDocument));
 }
 
 TextSuggestion::~TextSuggestion() = default;
 
-CyclicSuggestion::CyclicSuggestion(const QList<Data> &suggestions, QTextDocument *sourceDocument, int currentSuggestion)
-    : m_suggestions(suggestions)
-    , m_currentSuggestion(currentSuggestion)
-    , m_sourceDocument(sourceDocument)
+bool TextSuggestion::apply()
 {
-    if (QTC_GUARD(!suggestions.isEmpty())) {
-        QTC_ASSERT(
-            m_currentSuggestion >= 0 && m_currentSuggestion < suggestions.size(),
-            m_currentSuggestion = 0);
-        Data current = suggestions.at(m_currentSuggestion);
-        replacementDocument()->setPlainText(current.text);
-        setCurrentPosition(current.position.toPositionInDocument(sourceDocument));
-    }
-}
-
-bool CyclicSuggestion::apply()
-{
-    const Data &suggestion = m_suggestions.value(m_currentSuggestion);
-    QTextCursor c = suggestion.range.begin.toTextCursor(m_sourceDocument);
+    QTextCursor c = m_suggestion.range.begin.toTextCursor(sourceDocument());
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
-    c.insertText(suggestion.text);
+    c.insertText(m_suggestion.text);
     return true;
 }
 
-bool CyclicSuggestion::applyWord(TextEditorWidget *widget)
+bool TextSuggestion::applyWord(TextEditorWidget *widget)
 {
     return applyPart(Word, widget);
 }
 
-bool CyclicSuggestion::applyLine(TextEditorWidget *widget)
+bool TextSuggestion::applyLine(TextEditorWidget *widget)
 {
     return applyPart(Line, widget);
 }
 
-void CyclicSuggestion::reset()
+void TextSuggestion::reset()
 {
-    const Data &suggestion = m_suggestions.value(m_currentSuggestion);
-    QTextCursor c = suggestion.position.toTextCursor(m_sourceDocument);
+    QTextCursor c = m_suggestion.position.toTextCursor(sourceDocument());
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
     c.removeSelectedText();
 }
 
-bool CyclicSuggestion::applyPart(Part part, TextEditorWidget *widget)
+bool TextSuggestion::applyPart(Part part, TextEditorWidget *widget)
 {
-    const Data suggestion = m_suggestions.value(m_currentSuggestion);
-    const Text::Range range = suggestion.range;
-    const QTextCursor cursor = range.toTextCursor(m_sourceDocument);
+    const Text::Range range = m_suggestion.range;
+    const QTextCursor cursor = range.toTextCursor(sourceDocument());
     QTextCursor currentCursor = widget->textCursor();
-    const QString text = suggestion.text;
+    const QString text = m_suggestion.text;
     const int startPos = currentCursor.positionInBlock() - cursor.positionInBlock()
                          + (cursor.selectionEnd() - cursor.selectionStart());
     int next = part == Word ? endOfNextWord(text, startPos) : text.indexOf('\n', startPos);
@@ -102,11 +88,21 @@ bool CyclicSuggestion::applyPart(Part part, TextEditorWidget *widget)
     return false;
 }
 
+CyclicSuggestion::CyclicSuggestion(
+    const QList<Data> &suggestions, QTextDocument *sourceDocument, int currentSuggestion)
+    : TextSuggestion(
+          QTC_GUARD(currentSuggestion < suggestions.size()) ? suggestions.at(currentSuggestion)
+                                                            : Data(),
+          sourceDocument)
+    , m_suggestions(suggestions)
+    , m_currentSuggestion(currentSuggestion)
+{}
+
 class SuggestionToolTip : public QToolBar
 {
 public:
     SuggestionToolTip(
-        QList<CyclicSuggestion::Data> suggestions, int currentSuggestion, TextEditorWidget *editor)
+        QList<TextSuggestion::Data> suggestions, int currentSuggestion, TextEditorWidget *editor)
         : m_numberLabel(new QLabel)
         , m_suggestions(suggestions)
         , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
@@ -194,7 +190,7 @@ private:
     }
 
     QLabel *m_numberLabel;
-    QList<CyclicSuggestion::Data> m_suggestions;
+    QList<TextSuggestion::Data> m_suggestions;
     int m_currentSuggestion = 0;
     TextEditorWidget *m_editor;
 };
@@ -214,7 +210,7 @@ void SuggestionHoverHandler::identifyMatch(
     if (!suggestion)
         return;
 
-    const QList<CyclicSuggestion::Data> suggestions = suggestion->suggestions();
+    const QList<TextSuggestion::Data> suggestions = suggestion->suggestions();
     if (suggestions.isEmpty())
         return;
 

@@ -206,14 +206,14 @@ void setupTextEditorModule()
                 return textEditor->editorWidget()->multiTextCursor();
             });
 
-        result.new_usertype<TextEditor::CyclicSuggestion::Data>(
+        result.new_usertype<TextEditor::TextSuggestion::Data>(
             "Suggestion",
             "create",
             [](int start_line,
                int start_character,
                int end_line,
                int end_character,
-               const QString &text) -> TextEditor::CyclicSuggestion::Data {
+               const QString &text) -> TextEditor::TextSuggestion::Data {
                 auto one_based = [](int zero_based) { return zero_based + 1; };
                 Text::Position start_pos = {one_based(start_line), start_character};
                 Text::Position end_pos = {one_based(end_line), end_character};
@@ -246,7 +246,7 @@ void setupTextEditorModule()
                 return document->document()->blockCount();
             },
             "setSuggestions",
-            [](const TextDocumentPtr &document, QList<TextEditor::CyclicSuggestion::Data> suggestions) {
+            [](const TextDocumentPtr &document, QList<TextEditor::TextSuggestion::Data> suggestions) {
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
 
                 if (suggestions.isEmpty())
