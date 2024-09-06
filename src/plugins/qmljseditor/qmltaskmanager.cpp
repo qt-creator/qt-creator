@@ -112,18 +112,13 @@ void QmlTaskManager::updateMessages()
     m_updateDelay.start();
 }
 
-void QmlTaskManager::updateSemanticMessagesNow()
-{
-    updateMessagesNow(true);
-}
-
 static void triggerQmllintCMakeTarget()
 {
     if (ProjectManager::startupProject())
         ProjectManager::startupProject()->buildTarget(Constants::QMLLINT_BUILD_TARGET);
 }
 
-void QmlTaskManager::updateMessagesNow(bool updateSemantic)
+void QmlTaskManager::updateSemanticMessagesNow()
 {
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
     if (QmllsSettingsManager::instance()->useQmlls()) {
@@ -134,6 +129,11 @@ void QmlTaskManager::updateMessagesNow(bool updateSemantic)
         return;
     }
 
+    updateMessagesNow(true);
+}
+
+void QmlTaskManager::updateMessagesNow(bool updateSemantic)
+{
     // clear out the qmllint warnings when qmlls was disabled after being enabled
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
 

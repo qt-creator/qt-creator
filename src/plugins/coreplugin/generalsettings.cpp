@@ -239,6 +239,10 @@ void GeneralSettingsWidget::fillLanguageBox() const
         QStringList(QLatin1String("qtcreator*.qm")));
     for (const FilePath &languageFile : languageFiles) {
         const QString name = languageFile.fileName();
+        // Ignore english ts file that is for temporary spelling fixes only.
+        // We have the "English" item that is explicitly added at the top.
+        if (name == "qtcreator_en.qm")
+            continue;
         int start = name.indexOf('_') + 1;
         int end = name.lastIndexOf('.');
         const QString locale = name.mid(start, end - start);

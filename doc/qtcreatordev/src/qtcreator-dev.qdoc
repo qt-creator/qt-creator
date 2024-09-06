@@ -243,7 +243,7 @@
             \endlist
         \li Reference
             \list
-                \li \l{http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html}
+                \li \l{https://specifications.freedesktop.org/shared-mime-info-spec/latest/}
                     {MIME Type Specification Files}
                 \li \l{External Tool Specification Files}
                 \li \l{http://kate-editor.org/2005/03/24/writing-a-syntax-highlighting-file/}

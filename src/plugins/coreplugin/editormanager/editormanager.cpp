@@ -1902,6 +1902,18 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
             };
             if (isReallyVisibile(area))
                 return;
+
+            // Hack for the case that the hidden area has the current editor,
+            // and that is currently shown in Design mode. We may not switch the
+            // current editor (so not switch the current view) in that case.
+            // QTCREATORBUG-31378
+            // It would be good if the Design mode didn't rely on the current
+            // editor, instead.
+            if (area->currentView() == currentEditorView()
+                && ModeManager::currentModeId() == Constants::MODE_DESIGN) {
+                return;
+            }
+
             // In case the hidden editor area has the current view, look for a view
             // that is not hidden, iterating through the history of current views.
             // This could be the first==current view (which results in a no-op).

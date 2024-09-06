@@ -825,7 +825,7 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
             Symbol * const symbol = scope->memberAt(i);
             if (const Scope * const s = symbol->asScope())
                 scopes << s;
-            if (symbol->asNamespace())
+            if (symbol->asNamespace() || !symbol->name())
                 continue;
             qCDebug(log) << '\t' << Overview().prettyName(symbol->name());
             if (!symbol->name()->match(&oldIdentifier))
