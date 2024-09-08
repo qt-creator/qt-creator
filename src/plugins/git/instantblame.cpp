@@ -423,7 +423,7 @@ void InstantBlame::perform()
     if (settings().instantBlameIgnoreLineMoves())
         options.append("-M");
     options.append({"-L", lineString, "--", filePath.toString()});
-    qCDebug(log) << "Running git" << options;
+    qCDebug(log) << "Running git" << options.join(' ');
     gitClient().vcsExecWithHandler(workingDirectory, options, this,
                                    commandHandler, RunFlags::NoOutput, m_codec);
 }
