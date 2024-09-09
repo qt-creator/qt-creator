@@ -118,12 +118,17 @@ Storage::TypeTraits createAccessTypeTraits(QQmlJSScope::AccessSemantics accessSe
     return Storage::TypeTraitsKind::None;
 }
 
-Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics, bool hasCustomParser)
+Storage::TypeTraits createTypeTraits(QQmlJSScope::AccessSemantics accessSematics,
+                                     bool hasCustomParser,
+                                     bool isSingleton)
 {
     auto typeTrait = createAccessTypeTraits(accessSematics);
 
     if (hasCustomParser)
         typeTrait.usesCustomParser = true;
+
+    if (isSingleton)
+        typeTrait.isSingleton = true;
 
     return typeTrait;
 }
@@ -451,7 +456,9 @@ void addType(Storage::Synchronization::Types &types,
         Utils::SmallStringView{typeName},
         Storage::Synchronization::ImportedType{TypeNameString{component.baseTypeName()}},
         Storage::Synchronization::ImportedType{TypeNameString{component.extensionTypeName()}},
-        createTypeTraits(component.accessSemantics(), component.hasCustomParser()),
+        createTypeTraits(component.accessSemantics(),
+                         component.hasCustomParser(),
+                         component.isSingleton()),
         sourceId,
         createExports(exports, typeName, storage, cppModuleId),
         createProperties(component.ownProperties(), enumerationTypes, componentNameWithoutNamespace),

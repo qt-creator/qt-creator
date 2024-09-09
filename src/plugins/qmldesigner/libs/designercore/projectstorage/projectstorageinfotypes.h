@@ -132,6 +132,7 @@ struct TypeTraits
         , isEnum{false}
         , isFileComponent{false}
         , usesCustomParser{false}
+        , isSingleton{false}
         , dummy{0U}
         , canBeContainer{FlagIs::False}
         , forceClip{FlagIs::False}
@@ -204,7 +205,8 @@ struct TypeTraits
             unsigned int isEnum : 1;
             unsigned int isFileComponent : 1;
             unsigned int usesCustomParser : 1;
-            unsigned int dummy : 25;
+            unsigned int isSingleton : 1;
+            unsigned int dummy : 24;
         };
 
         unsigned int type;
