@@ -31,6 +31,20 @@ using namespace Utils;
 
 namespace Vcpkg::Internal::Search {
 
+static void vcpkgManifests(QPromise<VcpkgManifest> &promise, const FilePath &vcpkgRoot)
+{
+    const FilePath portsDir = vcpkgRoot / "ports";
+    const FilePaths manifestFiles =
+        portsDir.dirEntries({{"vcpkg.json"}, QDir::Files, QDirIterator::Subdirectories});
+    for (const FilePath &manifestFile : manifestFiles) {
+        if (promise.isCanceled())
+            return;
+        FileReader reader;
+        if (reader.fetch(manifestFile))
+            promise.addResult(parseVcpkgManifest(reader.data()));
+    }
+}
+
 class VcpkgPackageSearchDialog : public QDialog
 {
 public:
@@ -44,7 +58,7 @@ private:
     void updateStatus();
     void updatePackages();
 
-    VcpkgManifests m_allPackages;
+    QList<VcpkgManifest> m_allPackages;
     VcpkgManifest m_selectedPackage;
 
     const VcpkgManifest m_projectManifest;
@@ -140,8 +154,7 @@ VcpkgManifest VcpkgPackageSearchDialog::selectedPackage() const
 
 void VcpkgPackageSearchDialog::listPackages(const QString &filter)
 {
-    const VcpkgManifests filteredPackages = filtered(m_allPackages,
-                                                     [&filter] (const VcpkgManifest &package) {
+    const auto filteredPackages = filtered(m_allPackages, [&filter](const VcpkgManifest &package) {
         return filter.isEmpty()
                || package.name.contains(filter, Qt::CaseInsensitive)
                || package.shortDescription.contains(filter, Qt::CaseInsensitive)
@@ -187,33 +200,22 @@ void VcpkgPackageSearchDialog::updateStatus()
 
 void VcpkgPackageSearchDialog::updatePackages()
 {
-    using ResultType = VcpkgManifests;
-
-    const auto parseManifests = [=](QPromise<ResultType> &promise, const FilePath &srcPath) {
-        promise.addResult(vcpkgManifests(srcPath));
-    };
-
     using namespace Tasking;
-    Group group {
-        onGroupSetup([this]() {
-            m_spinner->show();
-        }),
-        AsyncTask<ResultType>{
-            [parseManifests](Async<ResultType> &task) {
-                task.setConcurrentCallData(parseManifests,
-                                           settings().vcpkgRoot());
+
+    const Group group {
+        onGroupSetup([this] { m_spinner->show(); }),
+        AsyncTask<VcpkgManifest>{
+            [](Async<VcpkgManifest> &task) {
+                task.setConcurrentCallData(vcpkgManifests, settings().vcpkgRoot());
             },
-            [this](const Async<ResultType> &task) {
-                m_allPackages = task.result();
-            }
+            [this](const Async<VcpkgManifest> &task) { m_allPackages = task.results(); }
         },
-        onGroupDone([this]() {
+        onGroupDone([this] {
             m_spinner->hide();
             listPackages({});
             updateStatus();
         }),
     };
-
     m_taskTreeRunner.start(group);
 }
 
@@ -262,23 +264,6 @@ VcpkgManifest parseVcpkgManifest(const QByteArray &vcpkgManifestJsonData, bool *
     if (ok)
         *ok = !(result.name.isEmpty() || result.version.isEmpty());
 
-    return result;
-}
-
-VcpkgManifests vcpkgManifests(const FilePath &vcpkgRoot)
-{
-    const FilePath portsDir = vcpkgRoot / "ports";
-    VcpkgManifests result;
-    const FilePaths manifestFiles =
-            portsDir.dirEntries({{"vcpkg.json"}, QDir::Files, QDirIterator::Subdirectories});
-    for (const FilePath &manifestFile : manifestFiles) {
-        FileReader reader;
-        if (reader.fetch(manifestFile)) {
-            const QByteArray &manifestData = reader.data();
-            const VcpkgManifest manifest = parseVcpkgManifest(manifestData);
-            result.append(manifest);
-        }
-    }
     return result;
 }
 
