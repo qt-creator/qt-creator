@@ -2492,4 +2492,54 @@ QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug dbg, const FilePath &c)
     return dbg << c.toString();
 }
 
+class TemporaryFilePathPrivate
+{
+public:
+    FilePath templatePath;
+    FilePath filePath;
+    bool autoRemove = true;
+};
+
+expected_str<std::unique_ptr<TemporaryFilePath>> TemporaryFilePath::create(
+    const FilePath &templatePath)
+{
+    expected_str<FilePath> result = templatePath.createTempFile();
+    if (!result)
+        return make_unexpected(result.error());
+    return std::unique_ptr<TemporaryFilePath>(new TemporaryFilePath(templatePath, *result));
+}
+
+TemporaryFilePath::TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath)
+    : d(std::make_unique<TemporaryFilePathPrivate>())
+{
+    d->templatePath = templatePath;
+    d->filePath = filePath;
+}
+
+TemporaryFilePath::~TemporaryFilePath()
+{
+    if (d->autoRemove)
+        d->filePath.removeFile();
+}
+
+void TemporaryFilePath::setAutoRemove(bool autoRemove)
+{
+    d->autoRemove = autoRemove;
+}
+
+bool TemporaryFilePath::autoRemove() const
+{
+    return d->autoRemove;
+}
+
+FilePath TemporaryFilePath::templatePath() const
+{
+    return d->templatePath;
+}
+
+FilePath TemporaryFilePath::filePath() const
+{
+    return d->filePath;
+}
+
 } // Utils

@@ -122,6 +122,8 @@ private slots:
 
     void asQMapKey();
 
+    void makeTemporaryFile();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1764,6 +1766,46 @@ void tst_filepath::sort_data()
                                            "b://b//b"};
     QTest::addRow("others-reversed")
         << QStringList{"b://b//b", "a://b//b", "a://a//b", "a://b//a", "a://a//a"};
+}
+
+void tst_filepath::makeTemporaryFile()
+{
+    FilePath tmpFilePath;
+    // Test auto remove
+    {
+        const FilePath tmplate = FilePath::fromUserInput(QDir::tempPath())
+                                 / "test-auto-remove-XXXXXX.txt";
+        auto tmpFile = TemporaryFilePath::create(tmplate);
+        QVERIFY(tmpFile);
+
+        QVERIFY(!(*tmpFile)->templatePath().exists());
+        QVERIFY((*tmpFile)->filePath().exists());
+        tmpFilePath = (*tmpFile)->filePath();
+    }
+    QVERIFY(!tmpFilePath.exists());
+
+    // Check !autoRemove
+    {
+        const FilePath tmplate = FilePath::fromUserInput(QDir::tempPath())
+                                 / "test-no-auto-remove-XXXXXX.txt";
+        auto tmpFile = TemporaryFilePath::create(tmplate);
+        QVERIFY(tmpFile);
+        (*tmpFile)->setAutoRemove(false);
+
+        QVERIFY(!(*tmpFile)->templatePath().exists());
+        QVERIFY((*tmpFile)->filePath().exists());
+        tmpFilePath = (*tmpFile)->filePath();
+    }
+    QVERIFY(tmpFilePath.exists());
+    QVERIFY(tmpFilePath.removeFile());
+
+    // Check invalid filename
+    {
+        const FilePath tmplate = FilePath::fromUserInput("/Some/non/existing/path")
+                                 / "test-invalid-filename-XXXXXX";
+        auto tmpFile = TemporaryFilePath::create(tmplate);
+        QVERIFY(!tmpFile);
+    }
 }
 
 } // Utils

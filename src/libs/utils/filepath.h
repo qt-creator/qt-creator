@@ -65,6 +65,31 @@ signals:
     void pathChanged(const Utils::FilePath &path);
 };
 
+class TemporaryFilePathPrivate;
+
+class QTCREATOR_UTILS_EXPORT TemporaryFilePath
+{
+public:
+    TemporaryFilePath() = delete;
+    TemporaryFilePath(const TemporaryFilePath &other) = delete;
+
+    ~TemporaryFilePath();
+
+    static expected_str<std::unique_ptr<TemporaryFilePath>> create(const FilePath &templatePath);
+
+    void setAutoRemove(bool autoDelete);
+    bool autoRemove() const;
+
+    FilePath templatePath() const;
+    FilePath filePath() const;
+
+private:
+    TemporaryFilePath(const FilePath &templatePath, const FilePath &filePath);
+
+private:
+    std::unique_ptr<TemporaryFilePathPrivate> d;
+};
+
 class QTCREATOR_UTILS_EXPORT FilePath
 {
 public:
