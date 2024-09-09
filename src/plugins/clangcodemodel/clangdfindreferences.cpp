@@ -191,22 +191,23 @@ ClangdFindReferences::ClangdFindReferences(ClangdClient *client, const Link &lin
     d->categorize = true;
     d->search = search;
 
-    if (!client->documentForFilePath(link.targetFilePath)) {
-        QFile f(link.targetFilePath.toString());
-        if (!f.open(QIODevice::ReadOnly)) {
+    const FilePath &targetFilePath = link.targetFilePath;
+    if (!client->documentForFilePath(targetFilePath)) {
+        expected_str<QByteArray> fileContents = targetFilePath.fileContents();
+        if (!fileContents) {
             d->finishSearch();
             return;
         }
-        const QString contents = QString::fromUtf8(f.readAll());
+        const QString contents = QString::fromUtf8(*std::move(fileContents));
         QTextDocument doc(contents);
         QTextCursor cursor(&doc);
         cursor.setPosition(Text::positionInText(&doc, link.targetLine, link.targetColumn + 1));
         cursor.select(QTextCursor::WordUnderCursor);
         d->searchTerm = cursor.selectedText();
-        client->openExtraFile(link.targetFilePath, contents);
+        client->openExtraFile(targetFilePath, contents);
         d->checkUnusedData->openedExtraFileForLink = true;
     }
-    const TextDocumentIdentifier documentId(client->hostPathToServerUri(link.targetFilePath));
+    const TextDocumentIdentifier documentId(client->hostPathToServerUri(targetFilePath));
     const Position pos(link.targetLine - 1, link.targetColumn);
     ReferenceParams params(TextDocumentPositionParams(documentId, pos));
     params.setContext(ReferenceParams::ReferenceContext(true));

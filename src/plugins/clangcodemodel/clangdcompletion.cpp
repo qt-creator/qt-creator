@@ -321,7 +321,7 @@ bool ClangdCompletionAssistProvider::isContinuationChar(const QChar &c) const
 bool ClangdCompletionAssistProvider::isInCommentOrString(const AssistInterface *interface) const
 {
     LanguageFeatures features = LanguageFeatures::defaultFeatures();
-    features.objCEnabled = ProjectFile::isObjC(interface->filePath().toString());
+    features.objCEnabled = ProjectFile::isObjC(interface->filePath());
     return CppEditor::isInCommentOrString(interface, features);
 }
 
@@ -543,7 +543,7 @@ IAssistProposal *CustomAssistProcessor::perform()
              : CppCompletionAssistProcessor::preprocessorCompletions()) {
             completions << createItem(completion, macroIcon);
         }
-        if (ProjectFile::isObjC(interface()->filePath().toString()))
+        if (ProjectFile::isObjC(interface()->filePath()))
             completions << createItem("import", macroIcon);
         break;
     }
