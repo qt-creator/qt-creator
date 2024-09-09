@@ -40,7 +40,7 @@ public:
     void setCommitData(const CommitData &);
     GitSubmitEditorPanelData panelData() const;
     CommitType commitType() const { return m_commitType; }
-    QString amendSHA1() const;
+    QString amendHash() const;
     void updateFileModel() override;
 
 protected:
@@ -58,7 +58,7 @@ private:
     VcsBase::SubmitFileModel *m_model = nullptr;
     QTextCodec *m_commitEncoding = nullptr;
     CommitType m_commitType = SimpleCommit;
-    QString m_amendSHA1;
+    QString m_amenHash;
     Utils::FilePath m_workingDirectory;
     bool m_firstUpdate = true;
     QFutureWatcher<CommitDataFetchResult> m_fetchWatcher;

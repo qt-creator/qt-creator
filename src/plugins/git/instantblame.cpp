@@ -254,7 +254,7 @@ void InstantBlame::setup()
 
 // Porcelain format of git blame output:
 // Consists of 12 or 13 lines (line 11 can be missing, "boundary", or "previous")
-// The first line contains SHA-1, original line, current line,
+// The first line contains hash, original line, current line,
 // and optional the  number of lines in this group when blaming multiple lines.
 // The last line starts with a tab and is followed by the actual file content.
 // ----------------------------------------------------------------------------

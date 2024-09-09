@@ -106,7 +106,7 @@ void GitSubmitEditor::setCommitData(const CommitData &d)
     m_commitEncoding = d.commitEncoding;
     m_workingDirectory = d.panelInfo.repository;
     m_commitType = d.commitType;
-    m_amendSHA1 = d.amendSHA1;
+    m_amenHash = d.amendHash;
 
     GitSubmitEditorWidget *w = submitEditorWidget();
     w->initialize(m_workingDirectory, d);
@@ -243,10 +243,10 @@ GitSubmitEditorPanelData GitSubmitEditor::panelData() const
     return submitEditorWidget()->panelData();
 }
 
-QString GitSubmitEditor::amendSHA1() const
+QString GitSubmitEditor::amendHash() const
 {
-    const QString commit = submitEditorWidget()->amendSHA1();
-    return commit.isEmpty() ? m_amendSHA1 : commit;
+    const QString commit = submitEditorWidget()->amendHash();
+    return commit.isEmpty() ? m_amenHash : commit;
 }
 
 QByteArray GitSubmitEditor::fileContents() const

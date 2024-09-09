@@ -1608,7 +1608,7 @@ static QString msgParentRevisionFailed(const FilePath &workingDirectory,
                                               const QString &revision,
                                               const QString &why)
 {
-    //: Failed to find parent revisions of a SHA1 for "annotate previous"
+    //: Failed to find parent revisions of a hash for "annotate previous"
     return Tr::tr("Cannot find parent revisions of \"%1\" in \"%2\": %3")
             .arg(revision, workingDirectory.toUserOutput(), why);
 }
@@ -1685,7 +1685,7 @@ QString GitClient::synchronousShortDescription(const FilePath &workingDirectory,
     // leaving it in breaks command line quoting on Windows, see QTCREATORBUG-23208.
     const QString quoteReplacement = "_-_";
 
-    // Short SHA1, author, subject
+    // Short hash, author, subject
     const QString defaultShortLogFormat = "%h (%aN " + quoteReplacement + "%s";
     const int maxShortLogLength = 120;
 
@@ -2661,7 +2661,7 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
                                    CommitData &commitData, QString *errorMessage,
                                    QString *commitTemplate)
 {
-    // Get commit data as "SHA1<lf>author<lf>email<lf>message".
+    // Get commit data as "hash<lf>author<lf>email<lf>message".
     const QStringList arguments = {"log", "--max-count=1", "--pretty=format:%h\n%aN\n%aE\n%B", commit};
     const CommandResult result = vcsSynchronousExec(repoDirectory, arguments, RunFlags::NoOutput);
 
@@ -2677,7 +2677,7 @@ bool GitClient::readDataFromCommit(const FilePath &repoDirectory, const QString 
             ? QTextCodec::codecForName("UTF-8")
             : commitData.commitEncoding;
     QByteArray stdOut = result.rawStdOut();
-    commitData.amendSHA1 = QLatin1String(shiftLogLine(stdOut));
+    commitData.amendHash = QLatin1String(shiftLogLine(stdOut));
     commitData.panelData.author = authorCodec->toUnicode(shiftLogLine(stdOut));
     commitData.panelData.email = authorCodec->toUnicode(shiftLogLine(stdOut));
     if (commitTemplate)
@@ -2800,7 +2800,7 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
         // For cherry-picked commit, read author data from the commit (but template from MERGE_MSG)
         if (gitDir.pathAppended(CHERRY_PICK_HEAD).exists()) {
             authorFromCherryPick = readDataFromCommit(repoDirectory, CHERRY_PICK_HEAD, commitData);
-            commitData.amendSHA1.clear();
+            commitData.amendHash.clear();
         }
         if (!authorFromCherryPick) {
             const Author author = getAuthor(workingDirectory);
@@ -2839,19 +2839,19 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
 }
 
 // Log message for commits/amended commits to go to output window
-static inline QString msgCommitted(const QString &amendSHA1, int fileCount)
+static inline QString msgCommitted(const QString &amendHash, int fileCount)
 {
-    if (amendSHA1.isEmpty())
+    if (amendHash.isEmpty())
         return Tr::tr("Committed %n files.", nullptr, fileCount);
     if (fileCount)
-        return Tr::tr("Amended \"%1\" (%n files).", nullptr, fileCount).arg(amendSHA1);
-    return Tr::tr("Amended \"%1\".").arg(amendSHA1);
+        return Tr::tr("Amended \"%1\" (%n files).", nullptr, fileCount).arg(amendHash);
+    return Tr::tr("Amended \"%1\".").arg(amendHash);
 }
 
 bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
                              const GitSubmitEditorPanelData &data,
                              CommitType commitType,
-                             const QString &amendSHA1,
+                             const QString &amendHash,
                              const FilePath &messageFile,
                              SubmitFileModel *model)
 {
@@ -2914,7 +2914,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     // Do the final commit
     QStringList arguments = {"commit"};
     if (commitType == FixupCommit) {
-        arguments << "--fixup" << amendSHA1;
+        arguments << "--fixup" << amendHash;
     } else {
         arguments << "-F" << messageFile.nativePath();
         if (commitType == AmendCommit)
@@ -2931,7 +2931,7 @@ bool GitClient::addAndCommit(const FilePath &repositoryDirectory,
     const CommandResult result = vcsSynchronousExec(repositoryDirectory, arguments,
                                                     RunFlags::UseEventLoop);
     if (result.result() == ProcessResult::FinishedWithSuccess) {
-        VcsOutputWindow::appendMessage(msgCommitted(amendSHA1, commitCount));
+        VcsOutputWindow::appendMessage(msgCommitted(amendHash, commitCount));
         updateCurrentBranch();
         return true;
     }
@@ -3449,9 +3449,9 @@ bool GitClient::synchronousStashRemove(const FilePath &workingDirectory, const Q
 }
 
 /* Parse a stash line in its 2 manifestations (with message/without message containing
- * <base_sha1>+subject):
+ * <base_hash>+subject):
 \code
-stash@{1}: WIP on <branch>: <base_sha1> <subject_base_sha1>
+stash@{1}: WIP on <branch>: <base_hash> <subject_base_hash>
 stash@{2}: On <branch>: <message>
 \endcode */
 

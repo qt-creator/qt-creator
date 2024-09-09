@@ -48,7 +48,7 @@ void CommitData::clear()
 {
     panelInfo.clear();
     panelData.clear();
-    amendSHA1.clear();
+    amendHash.clear();
     enablePush = false;
 
     files.clear();

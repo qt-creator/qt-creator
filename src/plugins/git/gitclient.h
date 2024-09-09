@@ -303,7 +303,7 @@ public:
     bool addAndCommit(const Utils::FilePath &workingDirectory,
                       const GitSubmitEditorPanelData &data,
                       CommitType commitType,
-                      const QString &amendSHA1,
+                      const QString &amendHash,
                       const Utils::FilePath &messageFile,
                       VcsBase::SubmitFileModel *model);
 

@@ -1362,7 +1362,7 @@ IEditor *GitPluginPrivate::openSubmitEditor(const FilePath &fileName, const Comm
     QString title;
     switch (cd.commitType) {
     case AmendCommit:
-        title = Tr::tr("Amend %1").arg(cd.amendSHA1);
+        title = Tr::tr("Amend %1").arg(cd.amendHash);
         break;
     case FixupCommit:
         title = Tr::tr("Git Fixup Commit");
@@ -1393,14 +1393,14 @@ bool GitPluginPrivate::activateCommit()
 
     auto model = qobject_cast<SubmitFileModel *>(editor->fileModel());
     const CommitType commitType = editor->commitType();
-    const QString amendSHA1 = editor->amendSHA1();
-    if (model->hasCheckedFiles() || !amendSHA1.isEmpty()) {
+    const QString amendHash = editor->amendHash();
+    if (model->hasCheckedFiles() || !amendHash.isEmpty()) {
         // get message & commit
         if (!DocumentManager::saveDocument(editorDocument))
             return false;
 
         if (!gitClient().addAndCommit(m_submitRepository, editor->panelData(), commitType,
-                                       amendSHA1, m_commitMessageFileName, model)) {
+                                       amendHash, m_commitMessageFileName, model)) {
             editor->updateFileModel();
             return false;
         }
@@ -1411,7 +1411,7 @@ bool GitPluginPrivate::activateCommit()
                                           NoPrompt, editor->panelData().pushAction)) {
             return false;
         }
-        gitClient().interactiveRebase(m_submitRepository, amendSHA1, true);
+        gitClient().interactiveRebase(m_submitRepository, amendHash, true);
     } else {
         gitClient().continueCommandIfNeeded(m_submitRepository);
         if (editor->panelData().pushAction == NormalPush) {

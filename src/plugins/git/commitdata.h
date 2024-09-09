@@ -84,7 +84,7 @@ public:
     static QString stateDisplayName(const FileStates &state);
 
     CommitType commitType;
-    QString amendSHA1;
+    QString amendHash;
     QTextCodec *commitEncoding = nullptr;
     GitSubmitEditorPanelInfo panelInfo;
     GitSubmitEditorPanelData panelData;

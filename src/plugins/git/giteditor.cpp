@@ -272,7 +272,7 @@ void GitEditorWidget::aboutToOpen(const FilePath &filePath, const FilePath &real
 
 QString GitEditorWidget::decorateVersion(const QString &revision) const
 {
-    // Format verbose, SHA1 being first token
+    // Format verbose, hash being first token
     return gitClient().synchronousShortDescription(sourceWorkingDirectory(), revision);
 }
 
@@ -280,7 +280,7 @@ QStringList GitEditorWidget::annotationPreviousVersions(const QString &revision)
 {
     QStringList revisions;
     QString errorMessage;
-    // Get the SHA1's of the file.
+    // Get the hashes of the file.
     if (!gitClient().synchronousParentRevisions(
                 sourceWorkingDirectory(), revision, &revisions, &errorMessage)) {
         VcsOutputWindow::appendSilently(errorMessage);
