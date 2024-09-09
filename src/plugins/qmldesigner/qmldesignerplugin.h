@@ -64,7 +64,6 @@ public:
     QWidget *createProjectExplorerWidget(QWidget *parent) const;
 
     void switchToTextModeDeferred();
-    void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
     static double formEditorDevicePixelRatio();
 

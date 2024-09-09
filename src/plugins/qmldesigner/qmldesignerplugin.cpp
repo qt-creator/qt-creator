@@ -178,7 +178,6 @@ public:
     SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
-    Utils::Guard m_ignoreChanges;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
     Utils::UniqueObjectPtr<QWidget> statusBar;
     QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
@@ -520,9 +519,6 @@ void QmlDesignerPlugin::hideDesigner()
 
 void QmlDesignerPlugin::changeEditor()
 {
-    if (d->m_ignoreChanges.isLocked())
-        return;
-
     clearDesigner();
     setupDesigner();
 }
@@ -709,12 +705,6 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
     QTimer::singleShot(0, this, [] {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
-}
-
-void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
-{
-    const std::lock_guard locker(d->m_ignoreChanges);
-    emit Core::EditorManager::instance()->currentEditorChanged(editor);
 }
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()

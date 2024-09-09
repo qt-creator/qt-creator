@@ -69,8 +69,6 @@ void TextEditorWidget::setTextEditor(
 
         setFocusProxy(m_textEditor->editorWidget());
 
-        QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(m_textEditor.get());
-
         connect(m_textEditor->editorWidget(), &QPlainTextEdit::cursorPositionChanged, this, [this] {
             // Cursor position is changed by rewriter
             if (!m_blockCursorSelectionSynchronisation)
