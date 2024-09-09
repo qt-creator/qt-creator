@@ -349,9 +349,11 @@ bool SessionManager::deleteSession(const QString &session)
     d->m_lastActiveTimes.remove(session);
     emit instance()->sessionRemoved(session);
     FilePath sessionFile = sessionNameToFileName(session);
-    if (sessionFile.exists())
-        return sessionFile.removeFile();
-    return false;
+    if (!sessionFile.exists())
+        return false;
+    expected_str<void> result = sessionFile.removeFile();
+    QTC_CHECK_EXPECTED(result);
+    return result.has_value();
 }
 
 void SessionManager::deleteSessions(const QStringList &sessions)

@@ -69,7 +69,7 @@ protected:
     Utils::expected_str<qint64> writeFileContents(const Utils::FilePath &filePath,
                                                   const QByteArray &data) const override;
 
-    bool removeFile(const Utils::FilePath &filePath) const override;
+    Utils::expected_str<void> removeFile(const Utils::FilePath &filePath) const override;
     bool removeRecursively(const Utils::FilePath &filePath, QString *error) const override;
 
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;

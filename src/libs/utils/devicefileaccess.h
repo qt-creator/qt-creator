@@ -42,7 +42,7 @@ protected:
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
     virtual bool exists(const FilePath &filePath) const;
-    virtual bool removeFile(const FilePath &filePath) const;
+    virtual expected_str<void> removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
     virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
     virtual expected_str<void> copyRecursively(const FilePath &filePath,
@@ -101,7 +101,7 @@ protected:
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    bool removeFile(const FilePath &filePath) const override;
+    expected_str<void> removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;
@@ -159,7 +159,7 @@ protected:
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    bool removeFile(const FilePath &filePath) const override;
+    expected_str<void> removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
     bool renameFile(const FilePath &filePath, const FilePath &target) const override;

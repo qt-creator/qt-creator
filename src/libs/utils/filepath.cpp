@@ -1973,7 +1973,7 @@ OsType FilePath::osType() const
     return s_deviceHooks.osType(*this);
 }
 
-bool FilePath::removeFile() const
+expected_str<void> FilePath::removeFile() const
 {
     return fileAccess()->removeFile(*this);
 }

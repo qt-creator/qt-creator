@@ -156,11 +156,12 @@ bool DeviceFileAccess::exists(const FilePath &filePath) const
     return false;
 }
 
-bool DeviceFileAccess::removeFile(const FilePath &filePath) const
+expected_str<void> DeviceFileAccess::removeFile(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
     QTC_CHECK(false);
-    return false;
+    return make_unexpected(
+        Tr::tr("removeFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
@@ -691,9 +692,12 @@ bool DesktopDeviceFileAccess::exists(const FilePath &filePath) const
     return !filePath.isEmpty() && QFileInfo::exists(filePath.path());
 }
 
-bool DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
+expected_str<void> DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    return QFile::remove(filePath.path());
+    QFile f(filePath.path());
+    if (!f.remove())
+        return make_unexpected(f.errorString());
+    return {};
 }
 
 static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
@@ -1129,11 +1133,14 @@ bool UnixDeviceFileAccess::exists(const FilePath &filePath) const
     return runInShellSuccess({"test", {"-e", path}, OsType::OsTypeLinux});
 }
 
-bool UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
+expected_str<void> UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
     if (disconnected())
-        return false;
-    return runInShellSuccess({"rm", {filePath.path()}, OsType::OsTypeLinux});
+        return make_unexpected_disconnected();
+    RunResult result = runInShell({"rm", {filePath.path()}, OsType::OsTypeLinux});
+    if (result.exitCode != 0)
+        return make_unexpected(QString::fromUtf8(result.stdErr));
+    return {};
 }
 
 bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const

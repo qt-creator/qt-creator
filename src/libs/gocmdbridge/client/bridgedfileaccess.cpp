@@ -468,23 +468,26 @@ expected_str<qint64> FileAccess::writeFileContents(const FilePath &filePath,
     }
 }
 
-bool FileAccess::removeFile(const Utils::FilePath &filePath) const
+expected_str<void> FileAccess::removeFile(const Utils::FilePath &filePath) const
 {
     try {
-        auto f = m_client->removeFile(filePath.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        Utils::expected_str<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
+        if (!f)
+            return make_unexpected(f.error());
         f->waitForFinished();
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return false;
+            return make_unexpected(Tr::tr("File does not exist"));
         qCWarning(faLog) << "Error removing file:" << e.what();
-        return false;
+        return make_unexpected(
+            Tr::tr("Error removing file: %1").arg(QString::fromLocal8Bit(e.what())));
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error removing file:" << e.what();
-        return false;
+        return make_unexpected(
+            Tr::tr("Error removing file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 
-    return true;
+    return {};
 }
 
 bool FileAccess::removeRecursively(const Utils::FilePath &filePath, QString *error) const

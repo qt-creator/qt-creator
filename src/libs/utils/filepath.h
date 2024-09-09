@@ -138,7 +138,7 @@ public:
     QFile::Permissions permissions() const;
     bool setPermissions(QFile::Permissions permissions) const;
     OsType osType() const;
-    bool removeFile() const;
+    expected_str<void> removeFile() const;
     bool removeRecursively(QString *error = nullptr) const;
     expected_str<void> copyRecursively(const FilePath &target) const;
     expected_str<void> copyFile(const FilePath &target) const;
