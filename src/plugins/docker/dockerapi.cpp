@@ -124,7 +124,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return settings().dockerBinaryPath();
+    return settings().dockerBinaryPath.effectiveBinary();
 }
 
 QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()
