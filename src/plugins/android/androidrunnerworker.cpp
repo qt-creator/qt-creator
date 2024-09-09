@@ -332,7 +332,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
     };
 
     const auto onForwardRemoveSetup = [storage, port](Process &process) {
-        process.setCommand(storage->adbCommand({"--remove", port}));
+        process.setCommand(storage->adbCommand({"forward", "--remove", port}));
     };
     const auto onForwardRemoveDone = [storage](const Process &process) {
         emit storage->remoteErrorOutput(process.cleanedStdErr().trimmed());
