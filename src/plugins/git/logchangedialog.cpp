@@ -66,8 +66,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     , m_model(new LogChangeModel(this))
     , m_hasCustomDelegate(false)
 {
-    QStringList headers;
-    headers << Tr::tr("Sha1")<< Tr::tr("Subject");
+    const QStringList headers = {Tr::tr("Hash"), Tr::tr("Subject")};
     m_model->setHorizontalHeaderLabels(headers);
     setModel(m_model);
     setMinimumWidth(300);

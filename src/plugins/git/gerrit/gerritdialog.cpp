@@ -67,7 +67,7 @@ GerritDialog::GerritDialog(const std::shared_ptr<GerritServer> &s,
 
     m_queryLineEdit = new FancyLineEdit(changesGroup);
     m_queryLineEdit->setMinimumSize(QSize(400, 0));
-    m_queryLineEdit->setPlaceholderText(Git::Tr::tr("Change #, SHA-1, tr:id, owner:email or reviewer:email"));
+    m_queryLineEdit->setPlaceholderText(Git::Tr::tr("Change #, hash, tr:id, owner:email or reviewer:email"));
     m_queryLineEdit->setSpecialCompleter(new QCompleter(m_queryModel, this));
     m_queryLineEdit->setValidationFunction(
         [this](FancyLineEdit *, QString *) { return m_model->state() != GerritModel::Error; });

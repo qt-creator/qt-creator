@@ -56,7 +56,7 @@ BlameMark::BlameMark(const FilePath &fileName, int lineNumber, const CommitInfo 
     setActionsProvider([info] {
         QAction *copyToClipboardAction = new QAction;
         copyToClipboardAction->setIcon(QIcon::fromTheme("edit-copy", Utils::Icons::COPY.icon()));
-        copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy SHA1 to Clipboard"));
+        copyToClipboardAction->setToolTip(TextEditor::Tr::tr("Copy Hash to Clipboard"));
         QObject::connect(copyToClipboardAction, &QAction::triggered, [info] {
             Utils::setClipboardAndSelection(info.hash);
         });
