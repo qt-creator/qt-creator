@@ -164,9 +164,8 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
         [&clangToolPath](const QString &stdOut, const QString &) -> std::optional<FilePath> {
         QString output = stdOut;
         QTextStream stream(&output);
-        const QString path = clangToolPath.parentDir().parentDir()
-                                 .pathAppended(stream.readLine()).toString();
-        const auto filePath = FilePath::fromUserInput(QDir::cleanPath(path));
+        const FilePath filePath
+            = clangToolPath.parentDir().parentDir().pathAppended(stream.readLine()).cleanPath();
         if (filePath.exists())
             return filePath;
         return {};

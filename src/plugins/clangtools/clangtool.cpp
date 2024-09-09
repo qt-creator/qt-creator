@@ -1250,7 +1250,7 @@ void ClangTool::setState(State state)
 QSet<Diagnostic> ClangTool::diagnostics() const
 {
     return Utils::filtered(m_diagnosticModel->diagnostics(), [](const Diagnostic &diagnostic) {
-        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath.toString()));
+        return ProjectFile::isSource(ProjectFile::classify(diagnostic.location.filePath));
     });
 }
 

@@ -154,7 +154,7 @@ FilePath fullPath(const FilePath &executable)
             candidate = candidate.withExecutableSuffix();
     } else {
         const Environment environment = Environment::systemEnvironment();
-        const FilePath expandedPath = environment.searchInPath(candidate.toString());
+        const FilePath expandedPath = environment.searchInPath(candidate.fileName());
         if (!expandedPath.isEmpty())
             candidate = expandedPath;
     }

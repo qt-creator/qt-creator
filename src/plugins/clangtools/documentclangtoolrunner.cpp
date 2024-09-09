@@ -208,13 +208,14 @@ void DocumentClangToolRunner::run()
         const AnalyzeUnits units{{m_fileInfo, tool}};
         const auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
                                     const FilePath &path) { return path == mappedPath; };
-        const AnalyzeInputData input{tool,
-                                     runSettings,
-                                     config,
-                                     m_temporaryDir.path(),
-                                     env,
-                                     vfso().overlayFilePath().toString(),
-                                     diagnosticFilter};
+        const AnalyzeInputData input{
+            tool,
+            runSettings,
+            config,
+            m_temporaryDir.path(),
+            env,
+            vfso().overlayFilePath().nativePath(),
+            diagnosticFilter};
         const auto setupHandler = [this, executable](const AnalyzeUnit &) {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
@@ -317,7 +318,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
             return false;
         FilePath filePath = suppressed.filePath;
         if (filePath.toFileInfo().isRelative())
-            filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
+            filePath = m_lastProjectDirectory.resolvePath(filePath);
         return filePath == diagnostic.location.filePath;
     };
     return Utils::anyOf(m_suppressed, equalsSuppressed);

@@ -401,8 +401,7 @@ static void buildTree(ProjectExplorer::Tree *parent,
     current->name = node.name;
     current->isDir = node.children.size();
     if (parent) {
-        current->fullPath = Utils::FilePath::fromString(parent->fullPath.toString()
-                                                        + current->name);
+        current->fullPath = parent->fullPath.pathAppended(current->name);
         parent->childDirectories.push_back(current);
     } else {
         current->fullPath = Utils::FilePath::fromString(current->name);
@@ -413,9 +412,9 @@ static void buildTree(ProjectExplorer::Tree *parent,
 }
 
 static bool needsLink(ProjectExplorer::Tree *node) {
-    if (node->fullPath.toString() == "clang-analyzer-")
+    if (node->fullPath.path() == "clang-analyzer-")
         return true;
-    return !node->isDir && !node->fullPath.toString().startsWith("clang-analyzer-");
+    return !node->isDir && !node->fullPath.startsWith("clang-analyzer-");
 }
 
 class BaseChecksTreeModel : public ProjectExplorer::SelectableFilesModel // FIXME: This isn't about files.
@@ -591,7 +590,7 @@ public:
                 // 'clang-analyzer-' group
                 if (node->isDir)
                     return CppEditor::Constants::CLANG_STATIC_ANALYZER_DOCUMENTATION_URL;
-                return clangTidyDocUrl(node->fullPath.toString());
+                return clangTidyDocUrl(node->fullPath.path());
             }
 
             return BaseChecksTreeModel::data(fullIndex, role);
@@ -629,7 +628,7 @@ private:
                 return false;
 
             auto *node = static_cast<Tree *>(index.internalPointer());
-            const QString nodeName = node->fullPath.toString();
+            const QString nodeName = node->fullPath.path();
             if ((check.endsWith("*") && nodeName.startsWith(check.left(check.length() - 1)))
                     || (!node->isDir && nodeName == check)) {
                 result = index;
@@ -646,7 +645,7 @@ private:
         if (root->checked == Qt::Unchecked)
             return;
         if (root->checked == Qt::Checked) {
-            checks += "," + root->fullPath.toString();
+            checks += "," + root->fullPath.path();
             if (root->isDir)
                 checks += "*";
             return;
