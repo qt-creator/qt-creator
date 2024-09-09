@@ -19,9 +19,6 @@
     Build the applications and deploy them to desktop, embedded, and mobile
     target platforms.
 
-    You can select an option to create a project that you can open in a separate
-    visual editor, \QDS.
-
     To create a Qt Quick Application project:
 
     \list 1
@@ -45,20 +42,10 @@
             box to create new projects in this folder by default. You can move
             project folders later without problems.
 
-        \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
-            the \uicontrol {Define Build System} dialog.
-
-            \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
-
-            To create a project that you can develop with a visual editor in
-            \QDS, select \uicontrol {Create a project that you can open in \QDS}.
-
-        \li In the \uicontrol {Build system} field, select the build system to
-            use for building and running the project: \l {CMake}
-            {CMake} or \l {qbs-build-system}{Qbs}.
-
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
+
+            \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
 
         \li Select the Qt version to develop with in the
             \uicontrol {Minimum required Qt version} field.
@@ -71,7 +58,7 @@
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
             \e Main.qml for editing. You can use \l {Installing Qt}
-            {\QMT} to install Qt Virtual Keyboard.
+            {\QOI} to install Qt Virtual Keyboard.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
