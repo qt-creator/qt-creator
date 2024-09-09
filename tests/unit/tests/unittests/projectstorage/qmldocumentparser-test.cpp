@@ -543,4 +543,25 @@ TEST_F(QmlDocumentParser, has_is_reference_trait)
     ASSERT_THAT(type.traits.kind, QmlDesigner::Storage::TypeTraitsKind::Reference);
 }
 
+TEST_F(QmlDocumentParser, is_singleton)
+{
+    QString component = R"(pragma Singleton
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_TRUE(type.traits.isSingleton);
+}
+
+TEST_F(QmlDocumentParser, is_not_singleton)
+{
+    QString component = R"(Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_FALSE(type.traits.isSingleton);
+}
+
 } // namespace

@@ -30,6 +30,8 @@ using Tracer = ProjectStorageTracing::Category::TracerType;
 namespace QmlDom = QQmlJS::Dom;
 namespace Synchronization = Storage::Synchronization;
 
+using namespace Qt::StringLiterals;
+
 namespace {
 
 using QualifiedImports = std::map<QString, Storage::Import>;
@@ -297,11 +299,20 @@ void addEnumeraton(Storage::Synchronization::Type &type, const QmlDom::Component
     }
 }
 
-Storage::TypeTraits createTypeTraits()
+bool isSingleton(const QmlDom::QmlFile *qmlFile)
+{
+    const auto &pragmas = qmlFile->pragmas();
+
+    return std::ranges::find(pragmas, "Singleton"_L1, &QQmlJS::Dom::Pragma::name) != pragmas.end();
+}
+
+Storage::TypeTraits createTypeTraits(const QmlDom::QmlFile *qmlFile)
 {
     Storage::TypeTraits traits = Storage::TypeTraitsKind::Reference;
 
     traits.isFileComponent = true;
+
+    traits.isSingleton = isSingleton(qmlFile);
 
     return traits;
 }
@@ -353,7 +364,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
     QmlDom::DomItem file = items.field(QmlDom::Fields::currentItem);
     const QmlDom::QmlFile *qmlFile = file.as<QmlDom::QmlFile>();
     const auto &components = qmlFile->components();
-
+    qmlFile->pragmas();
     if (components.empty())
         return type;
 
@@ -372,7 +383,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                          directoryPath,
                                                          m_storage);
 
-    type.traits = createTypeTraits();
+    type.traits = createTypeTraits(qmlFile);
     type.prototype = createImportedTypeName(qmlObject.name(), qualifiedImports);
     type.defaultPropertyName = qmlObject.localDefaultPropertyName();
     addImports(imports, qmlFile->imports(), sourceId, directoryPath, m_storage);
