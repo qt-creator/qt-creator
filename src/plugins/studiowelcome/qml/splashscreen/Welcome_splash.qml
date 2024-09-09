@@ -6,7 +6,6 @@ import QtQuick.Layouts 1.15
 import StudioFonts 1.0
 import projectmodel 1.0
 import usagestatistics 1.0
-import studiousagestatistics 1.0
 import QtQuick.Shapes 1.0
 
 Rectangle {
@@ -160,10 +159,6 @@ Rectangle {
         UsageStatisticModel {
             id: usageStatisticModel
         }
-
-        StudioUsageStatisticModel {
-            id: studioUsageStatisticModel
-        }
     }
 
     //DOF seems to do nothing, we should probably just remove it.
@@ -207,9 +202,7 @@ Rectangle {
             text: qsTr("Turn Off")
             fontpixelSize: 14
             onClicked: {
-                studioUsageStatisticModel.setInsightEnabled(false)
                 usageStatisticModel.setTelemetryEnabled(false)
-                usageStatisticModel.setCrashReporterEnabled(false)
                 welcome_splash.closeClicked()
             }
         }
@@ -219,9 +212,7 @@ Rectangle {
             forceHover: false
             fontpixelSize: 14
             onClicked: {
-                studioUsageStatisticModel.setInsightEnabled(true)
                 usageStatisticModel.setTelemetryEnabled(true)
-                usageStatisticModel.setCrashReporterEnabled(true)
                 welcome_splash.closeClicked()
             }
         }
