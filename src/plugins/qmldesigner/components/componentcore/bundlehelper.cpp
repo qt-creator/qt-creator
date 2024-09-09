@@ -660,9 +660,24 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                 if (std::string_view{pValue.typeName()} == "QUrl") {
                     QString pValueStr = pValue.toString();
                     if (!pValueStr.isEmpty() && !pValueStr.startsWith("#")) {
-                        Utils::FilePath assetPath = filePath.parentDir().resolvePath(pValueStr);
-                        Utils::FilePath assetPathRelative = assetPath.relativePathFrom(mainCompDir);
-                        depList.insert({mainCompDir, assetPathRelative.toFSPathString()});
+                        Utils::FilePath pValuePath = Utils::FilePath::fromString(pValueStr);
+                        Utils::FilePath assetPathBase;
+                        QString assetPathRelative;
+
+                        if (!pValuePath.toUrl().isLocalFile() || pValuePath.startsWith("www.")) {
+                            qWarning() << "BundleHelper::getComponentDependencies(): Web urls are not"
+                                          " supported. Skipping " << pValuePath;
+                            continue;
+                        } else if (pValuePath.isAbsolutePath()) {
+                            assetPathRelative = pValuePath.fileName();
+                            assetPathBase = pValuePath.parentDir();
+                        } else {
+                            Utils::FilePath assetPath = filePath.parentDir().resolvePath(pValueStr);
+                            assetPathRelative = assetPath.relativePathFrom(mainCompDir).toFSPathString();
+                            assetPathBase = mainCompDir;
+                        }
+
+                        depList.insert({assetPathBase, assetPathRelative});
                     }
                 }
             }
