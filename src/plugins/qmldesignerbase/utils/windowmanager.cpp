@@ -11,9 +11,7 @@
 #include <QScreen>
 #include <QWindow>
 
-namespace QmlDesignerBase {
-
-QPointer<WindowManager> WindowManager::m_instance = nullptr;
+namespace QmlDesigner {
 
 WindowManager::WindowManager()
 {
@@ -56,4 +54,4 @@ QRect WindowManager::getScreenGeometry(QPoint point)
     return screen->geometry();
 }
 
-} // namespace QmlDesignerBase
+} // namespace QmlDesigner

@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Templates as T
 import StudioTheme 1.0 as StudioTheme
+import StudioQuickUtils
 
 T.SpinBox {
     id: control
@@ -70,6 +71,8 @@ T.SpinBox {
     signal dragEnded
     signal dragging
     signal indicatorPressed
+
+    locale: Utils.locale
 
     // Use custom wheel handling due to bugs
     property bool __wheelEnabled: false

@@ -10,7 +10,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QWindow)
 
-namespace QmlDesignerBase {
+namespace QmlDesigner {
 
 class QMLDESIGNERBASE_EXPORT WindowManager : public QObject
 {
@@ -34,8 +34,6 @@ signals:
 
 private:
     WindowManager();
-
-    static QPointer<WindowManager> m_instance;
 };
 
-} // namespace QmlDesignerBase
+} // namespace QmlDesigner

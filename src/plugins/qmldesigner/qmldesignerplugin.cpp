@@ -27,7 +27,6 @@
 #include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
-#include <windowmanager.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
@@ -311,7 +310,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
     StudioQuickWidget::registerDeclarativeType();
-    QmlDesignerBase::WindowManager::registerDeclarativeType();
 
     Exception::setWarnAboutException(!QmlDesignerPlugin::instance()
                                           ->settings()
