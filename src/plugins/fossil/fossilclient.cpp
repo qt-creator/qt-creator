@@ -1082,7 +1082,7 @@ QStringList FossilClient::revisionSpec(const QString &revision) const
 {
     // Pass the revision verbatim.
     // Fossil uses a variety of ways to spec the revisions.
-    // In most cases revision is passed directly (SHA1) or via tag.
+    // In most cases revision is passed directly (hash) or via tag.
     // Tag name may need to be prefixed with tag: to disambiguate it from hex (beef).
     // Handle the revision option per specific command (e.g. diff, revert ).
 
