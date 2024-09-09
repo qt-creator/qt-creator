@@ -620,7 +620,12 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
 
     depList.insert({mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()});
 
+#ifdef QDS_USE_PROJECTSTORAGE
+    // TODO add model with ProjectStorageDependencies
+    ModelPointer model;
+#else
     ModelPointer model = Model::create("Item");
+#endif
     Utils::FileReader reader;
     QTC_ASSERT(reader.fetch(filePath), return {});
 
