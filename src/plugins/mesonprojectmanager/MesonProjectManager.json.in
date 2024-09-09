@@ -7,7 +7,7 @@
     "Vendor" : "Laboratory of Plasma Physics",
     "Experimental" : true,
     "DisabledByDefault" : true,
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} Laboratory of Plasma Physics",
+    "Copyright" : "(C) Laboratory of Plasma Physics",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",

@@ -17,8 +17,8 @@ Module {
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
-    property string qtcreator_copyright_year: '2024'
-    property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
+    property string ide_author: "The Qt Company Ltd. and other contributors."
+    property string ide_copyright_string: "Copyright (C) The Qt Company Ltd. and other contributors."
 
     property string ide_display_name: 'Qt Creator'
     property string ide_id: 'qtcreator'

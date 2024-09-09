@@ -82,8 +82,7 @@ Module {
                 vars['IDE_VERSION_MAJOR'] = product.moduleProperty("qtc", "ide_version_major");
                 vars['IDE_VERSION_MINOR'] = product.moduleProperty("qtc", "ide_version_minor");
                 vars['IDE_VERSION_RELEASE'] = product.moduleProperty("qtc", "ide_version_release");
-                vars['IDE_COPYRIGHT_YEAR']
-                        = product.moduleProperty("qtc", "qtcreator_copyright_year")
+                vars['IDE_COPYRIGHT'] = product.moduleProperty("qtc", "ide_copyright_string");
                 if (!vars['QTC_PLUGIN_REVISION'])
                     vars['QTC_PLUGIN_REVISION'] = product.vcs ? (product.vcs.repoState || "") : "";
                 var deplist = [];

@@ -1264,18 +1264,18 @@ QString ICore::aboutInformationHtml()
                  "%4"
                  "%5"
                  "<br/>"
-                 "Copyright 2008-%6 %7. All rights reserved.<br/>"
+                 "%6<br/>"
                  "<br/>"
                  "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
                  "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
                  "PARTICULAR PURPOSE.<br/>")
-              .arg(ICore::versionString(),
-                   buildCompatibilityString,
-                   buildDateInfo,
-                   ideRev,
-                   additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
-                   appInfo.year,
-                   appInfo.author)
+              .arg(
+                  ICore::versionString(),
+                  buildCompatibilityString,
+                  buildDateInfo,
+                  ideRev,
+                  additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
+                  appInfo.copyright)
           + "<br/>"
           + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
                    "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "

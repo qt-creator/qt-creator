@@ -740,7 +740,7 @@ int main(int argc, char **argv)
     using namespace Core;
     AppInfo info;
     info.author = Constants::IDE_AUTHOR;
-    info.year = Constants::IDE_YEAR;
+    info.copyright = Constants::IDE_COPYRIGHT;
     info.displayVersion = Constants::IDE_VERSION_DISPLAY;
     info.id = Constants::IDE_ID;
     info.revision = Constants::IDE_REVISION_STR;

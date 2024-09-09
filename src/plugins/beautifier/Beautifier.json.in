@@ -6,7 +6,7 @@
     "Experimental" : true,
     "VendorId" : "lorenzhaas",
     "Vendor" : "Lorenz Haas",
-    "Copyright" : "(C) 2017 Lorenz Haas, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2017 Lorenz Haas, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",

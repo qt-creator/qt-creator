@@ -5,7 +5,7 @@ include($QT_INSTALL_DOCS/global/qt-html-templates-online.qdocconf)
 HTML.footer = \
     "   </div>\n" \
     "   <p class=\"copy-notice\">\n" \
-    "   <acronym title=\"Copyright\">&copy;</acronym> $QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd.\n" \
+    "   $QTCREATOR_COPYRIGHT\n" \
     "   Documentation contributions included herein are the copyrights of\n" \
     "   their respective owners. " \
     "   The documentation provided herein is licensed under the terms of the" \

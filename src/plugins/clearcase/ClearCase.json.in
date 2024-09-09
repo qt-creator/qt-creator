@@ -7,7 +7,7 @@
     "Platform" : "^(Linux|Windows)",
     "VendorId" : "audiocodes",
     "Vendor" : "AudioCodes",
-    "Copyright" : "(C) 2016 AudioCodes Ltd., (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2016 AudioCodes Ltd., ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",

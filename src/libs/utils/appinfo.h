@@ -15,7 +15,7 @@ class QTCREATOR_UTILS_EXPORT AppInfo
 {
 public:
     QString author;
-    QString year;
+    QString copyright;
     QString displayVersion;
     QString id;
     QString revision;
