@@ -1183,7 +1183,8 @@ void ICore::saveSettings(SaveSettingsReason reason)
 QStringList ICore::additionalAboutInformation()
 {
     auto aboutInformation = d->m_aboutInformation;
-    aboutInformation.prepend(d->m_prependAboutInformation);
+    if (!d->m_prependAboutInformation.isEmpty())
+        aboutInformation.prepend(d->m_prependAboutInformation);
     return aboutInformation;
 }
 
@@ -1200,7 +1201,7 @@ void ICore::clearAboutInformation()
 */
 void ICore::setPrependAboutInformation(const QString &line)
 {
-    d->m_prependAboutInformation = line;
+    d->m_prependAboutInformation = line.toHtmlEscaped();
 }
 
 /*!
@@ -1208,7 +1209,7 @@ void ICore::setPrependAboutInformation(const QString &line)
 */
 void ICore::appendAboutInformation(const QString &line)
 {
-    d->m_aboutInformation.append(line);
+    d->m_aboutInformation.append(line.toHtmlEscaped());
 }
 
 /*!
@@ -1253,33 +1254,30 @@ QString ICore::aboutInformationHtml()
                                                            QLatin1String(__TIME__));
 #endif
 
-    const QString br = QLatin1String("<br/>");
+    static const QString br = QLatin1String("<br/>");
+    const auto wrapBr = [](const QString &s) { return s.isEmpty() ? QString() : br + s + br; };
     const QStringList additionalInfoLines = ICore::additionalAboutInformation();
-    const QString additionalInfo =
-        QStringList(Utils::transform(additionalInfoLines, &QString::toHtmlEscaped)).join(br);
+    const QString additionalInfo = additionalInfoLines.join(br);
     const QString information
-        = Tr::tr("<h3>%1</h3>"
-                 "%2<br/>"
-                 "%3"
-                 "%4"
-                 "%5"
-                 "<br/>"
-                 "%6<br/>"
-                 "<br/>"
-                 "The program is provided AS IS with NO WARRANTY OF ANY KIND, "
-                 "INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A "
-                 "PARTICULAR PURPOSE.<br/>")
+        = QString("<h3>%1</h3>"
+                  "%2"
+                  "%3"
+                  "%4"
+                  "%5"
+                  "%6")
               .arg(
                   ICore::versionString(),
-                  buildCompatibilityString,
+                  buildCompatibilityString + br,
                   buildDateInfo,
                   ideRev,
-                  additionalInfo.isEmpty() ? QString() : br + additionalInfo + br,
-                  appInfo.copyright)
-          + "<br/>"
-          + Tr::tr("The Qt logo as well as Qt®, Qt Quick®, Built with Qt®, Boot to Qt®, "
-                   "Qt Quick Compiler®, Qt Enterprise®, Qt Mobile® and Qt Embedded® are "
-                   "registered trademarks of The Qt Company Ltd.");
+                  wrapBr(additionalInfo),
+                  wrapBr(appInfo.copyright))
+          + br
+          + Tr::tr("The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as "
+                   "Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with "
+                   "Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, "
+                   "Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® "
+                   "are registered trademarks of The Qt Company Ltd. or its subsidiaries.");
 
     return information;
 }
@@ -1312,6 +1310,14 @@ namespace Internal {
 
 void ICorePrivate::init()
 {
+    m_aboutInformation = {
+        Tr::tr("%1 is free software, and you are welcome to redistribute it under <a "
+               "href=\"%2\">certain conditions</a>. For some components, different conditions "
+               "might apply though.")
+            .arg(
+                QGuiApplication::applicationDisplayName(),
+                "https://www.gnu.org/licenses/gpl-3.0.en.html")};
+
     m_mainwindow = new MainWindow;
 
     m_progressManager = new ProgressManagerPrivate;
