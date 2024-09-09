@@ -5,6 +5,7 @@
 
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
+#include "desktopdeviceconfigurationwidget.h"
 #include "desktopprocesssignaloperation.h"
 
 #include <coreplugin/fileutils.h>
@@ -80,10 +81,7 @@ IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 
 IDeviceWidget *DesktopDevice::createWidget()
 {
-    return nullptr;
-    // DesktopDeviceConfigurationWidget currently has just one editable field viz. free ports.
-    // Querying for an available port is quite straightforward. Having a field for the port
-    // range can be confusing to the user. Hence, disabling the widget for now.
+    return new DesktopDeviceConfigurationWidget(shared_from_this());
 }
 
 bool DesktopDevice::canCreateProcessModel() const
