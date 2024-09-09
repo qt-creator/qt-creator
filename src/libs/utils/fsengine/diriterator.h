@@ -15,6 +15,38 @@
 namespace Utils {
 namespace Internal {
 
+#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+inline std::pair<QDir::Filters, QDirIterator::IteratorFlags> convertQDirListingIteratorFlags(
+    QDirListing::IteratorFlags flags)
+{
+    QDir::Filters filters = QDir::Files | QDir::Dirs | QDir::System | QDir::NoDotAndDotDot;
+    QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
+
+    if (flags & QDirListing::IteratorFlag::ExcludeFiles)
+        filters.setFlag(QDir::Files, false);
+    if (flags & QDirListing::IteratorFlag::ExcludeDirs)
+        filters.setFlag(QDir::Dirs, false);
+    if (flags & QDirListing::IteratorFlag::ExcludeSpecial)
+        filters.setFlag(QDir::System, false);
+    if (flags & QDirListing::IteratorFlag::CaseSensitive)
+        filters.setFlag(QDir::CaseSensitive, true);
+    if (flags & QDirListing::IteratorFlag::IncludeHidden)
+        filters.setFlag(QDir::Hidden, true);
+
+    if (flags & QDirListing::IteratorFlag::IncludeDotAndDotDot) {
+        filters.setFlag(QDir::NoDot, false);
+        filters.setFlag(QDir::NoDotDot, false);
+    }
+
+    if (flags & QDirListing::IteratorFlag::Recursive)
+        iteratorFlags.setFlag(QDirIterator::Subdirectories, true);
+    if (flags & QDirListing::IteratorFlag::FollowDirSymlinks)
+        iteratorFlags.setFlag(QDirIterator::FollowSymlinks, true);
+
+    return {filters, iteratorFlags};
+}
+#endif
+
 class DirIterator : public QAbstractFileEngineIterator
 {
 public:

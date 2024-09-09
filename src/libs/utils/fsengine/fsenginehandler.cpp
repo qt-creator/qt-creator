@@ -72,6 +72,11 @@ public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
     IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters,
                                      const QStringList &filterNames) final;
+    IteratorUniquePtr beginEntryList(
+        const QString &path,
+        QDirListing::IteratorFlags filters,
+        const QStringList &filterNames) final;
+
     IteratorUniquePtr endEntryList() final { return {}; }
 #else
     Iterator *beginEntryList(QDir::Filters filters, const QStringList &filterNames) final;
@@ -379,6 +384,26 @@ bool FSEngineImpl::cloneTo(QAbstractFileEngine *target)
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
+
+QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(
+    const QString &path, QDirListing::IteratorFlags itFlags, const QStringList &filterNames)
+{
+    const auto [filters, iteratorFlags] = convertQDirListingIteratorFlags(itFlags);
+
+    FilePaths paths{m_filePath.pathAppended(".")};
+    m_filePath.iterateDirectory(
+        [&paths](const FilePath &p, const FilePathInfo &fi) {
+            paths.append(p);
+            FilePathInfoCache::CachedData *data
+                = new FilePathInfoCache::CachedData{fi, QDateTime::currentDateTime().addSecs(60)};
+            g_filePathInfoCache.cache(p, data);
+            return IterationPolicy::Continue;
+        },
+        {filterNames, filters, iteratorFlags});
+
+    return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
+}
+
 QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(const QString &path,
                                                                     QDir::Filters filters,
                                                                     const QStringList &filterNames)
@@ -458,6 +483,15 @@ public:
     IteratorUniquePtr beginEntryList(const QString &path,
                                      QDir::Filters filters,
                                      const QStringList &filterNames) final
+    {
+        return std::make_unique<FileIteratorWrapper>(
+            QFSFileEngine::beginEntryList(path, filters, filterNames));
+    }
+
+    IteratorUniquePtr beginEntryList(
+        const QString &path,
+        QDirListing::IteratorFlags filters,
+        const QStringList &filterNames) override
     {
         return std::make_unique<FileIteratorWrapper>(
             QFSFileEngine::beginEntryList(path, filters, filterNames));
