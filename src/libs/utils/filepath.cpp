@@ -600,7 +600,7 @@ expected_str<FilePath> FilePath::tmpDir() const
 expected_str<FilePath> FilePath::createTempFile() const
 {
     if (!needsDevice()) {
-        QTemporaryFile file(toFSPathString());
+        QTemporaryFile file(path());
         file.setAutoRemove(false);
         if (file.open())
             return FilePath::fromString(file.fileName());
