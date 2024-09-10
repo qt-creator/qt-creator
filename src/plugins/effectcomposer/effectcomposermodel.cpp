@@ -14,6 +14,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <uniquename.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
@@ -202,8 +203,10 @@ void EffectComposerModel::clear(bool clearName)
     m_nodes.clear();
     endResetModel();
 
-    if (clearName)
+    if (clearName) {
         setCurrentComposition("");
+        setCompositionPath("");
+    }
 
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
 
@@ -221,20 +224,19 @@ void EffectComposerModel::assignToSelected()
 QString EffectComposerModel::getUniqueEffectName() const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsDir + '/' + "Effect%1.qep";
+    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toString()
+                                                      : effectsDir + '/' + "%1" + ".qep";
 
-    int num = 0;
-
-    while (QFile::exists(path.arg(++num, 2, 10, QChar('0'))))
-        ; // empty body
-
-    return QString("Effect%1").arg(num, 2, 10, QChar('0'));
+    return QmlDesigner::UniqueName::generate("Effect01", [&] (const QString &effectName) {
+        return QFile::exists(path.arg(effectName));
+    });
 }
 
 bool EffectComposerModel::nameExists(const QString &name) const
 {
     const QString effectsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsDir + '/' + "%1" + ".qep";
+    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended("%1.qep").toString()
+                                                      : effectsDir + '/' + "%1" + ".qep";
 
     return QFile::exists(path.arg(name));
 }
@@ -947,7 +949,10 @@ void EffectComposerModel::saveComposition(const QString &name)
     }
 
     const QString effectsAssetsDir = QmlDesigner::ModelNodeOperations::getEffectsDefaultDirectory();
-    const QString path = effectsAssetsDir + '/' + name + ".qep";
+
+    const QString path = !m_compositionPath.isEmpty() ? m_compositionPath.parentDir().pathAppended(name + ".qep").toString()
+                                                      : effectsAssetsDir + '/' + name + ".qep";
+
     auto saveFile = QFile(path);
     if (!saveFile.open(QIODevice::WriteOnly)) {
         QString error = QString("Error: Couldn't save composition file: '%1'").arg(path);
@@ -977,7 +982,9 @@ void EffectComposerModel::saveComposition(const QString &name)
 
     saveFile.write(jsonDoc.toJson());
     saveFile.close();
+
     setCurrentComposition(name);
+    setCompositionPath(Utils::FilePath::fromString(path));
 
     saveResources(name);
     setHasUnsavedChanges(false);
@@ -988,7 +995,9 @@ void EffectComposerModel::openComposition(const QString &path)
     clear(true);
 
     const QString effectName = QFileInfo(path).baseName();
+
     setCurrentComposition(effectName);
+    setCompositionPath(Utils::FilePath::fromString(path));
 
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
@@ -2042,6 +2051,19 @@ void EffectComposerModel::setCurrentComposition(const QString &newCurrentComposi
 
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+}
+
+Utils::FilePath EffectComposerModel::compositionPath() const
+{
+    return m_compositionPath;
+}
+
+void EffectComposerModel::setCompositionPath(const Utils::FilePath &newCompositionPath)
+{
+    if (m_compositionPath == newCompositionPath)
+        return;
+
+    m_compositionPath = newCompositionPath;
 }
 
 bool EffectComposerModel::hasUnsavedChanges() const

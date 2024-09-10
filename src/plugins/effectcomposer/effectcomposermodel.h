@@ -105,6 +105,9 @@ public:
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
 
+    Utils::FilePath compositionPath() const;
+    void setCompositionPath(const Utils::FilePath &newCompositionPath);
+
     bool hasUnsavedChanges() const;
     void setHasUnsavedChanges(bool val);
 
@@ -226,6 +229,7 @@ private:
     QTimer m_rebakeTimer;
     int m_extraMargin = 0;
     QString m_effectTypePrefix;
+    Utils::FilePath m_compositionPath;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };
