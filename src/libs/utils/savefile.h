@@ -32,7 +32,7 @@ public:
 
 private:
     const FilePath m_finalFilePath;
-    std::unique_ptr<QTemporaryFile> m_tempFile;
+    std::unique_ptr<TemporaryFilePath> m_tempFile;
     bool m_finalized = true;
 };
 
