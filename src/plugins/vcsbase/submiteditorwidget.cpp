@@ -277,6 +277,8 @@ void SubmitEditorWidget::registerActions(QAction *editorUndoAction, QAction *edi
         updateSubmitEnabled();
         connect(this, &SubmitEditorWidget::submitActionEnabledChanged, this, updateSubmitEnabled);
         connect(this, &SubmitEditorWidget::submitActionTextChanged, this, updateSubmitEnabled);
+        connect(this, &SubmitEditorWidget::submitActionTextChanged,
+                submitAction, &QAction::setText);
         d->m_submitButton = new QActionPushButton(submitAction);
         d->buttonLayout->addWidget(d->m_submitButton);
         if (!d->m_submitShortcut)
