@@ -249,7 +249,7 @@ bool FileAccess::hasHardLinks(const FilePath &filePath) const
     try {
         auto f = m_client->stat(filePath.nativePath());
         QTC_ASSERT_EXPECTED(f, return false);
-        return f->result().numHardLinks >= 1;
+        return f->result().numHardLinks > 1;
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error checking hard links:" << e.what();
         return false;
