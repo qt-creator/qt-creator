@@ -8835,4 +8835,52 @@ TEST_F(ProjectStorage, changed_export_is_notifing_changed_exported_types)
 
     storage.synchronize(std::move(package));
 }
+
+TEST_F(ProjectStorage, get_unqiue_singleton_type_ids)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.back().traits.isSingleton = true;
+    Storage::Imports imports;
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+    storage.synchronizeDocumentImports(imports, sourceId5);
+    storage.synchronize(package);
+
+    auto singletonTypeIds = storage.singletonTypeIds(sourceId5);
+
+    ASSERT_THAT(singletonTypeIds, ElementsAre(fetchTypeId(sourceId2, "QObject")));
+}
+
+TEST_F(ProjectStorage, get_only_singleton_type_ids_for_document_imports)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.back().traits.isSingleton = true;
+    package.types.front().traits.isSingleton = true;
+    Storage::Imports imports;
+    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+    storage.synchronizeDocumentImports(imports, sourceId5);
+    storage.synchronize(package);
+
+    auto singletonTypeIds = storage.singletonTypeIds(sourceId5);
+
+    ASSERT_THAT(singletonTypeIds, ElementsAre(fetchTypeId(sourceId1, "QQuickItem")));
+}
+
+TEST_F(ProjectStorage, get_only_singleton_type_ids_exported_types)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.types.back().traits.isSingleton = true;
+    package.types.back().exportedTypes.clear();
+    package.types.front().traits.isSingleton = true;
+    Storage::Imports imports;
+    imports.emplace_back(qmlModuleId, Storage::Version{}, sourceId5);
+    imports.emplace_back(qtQuickModuleId, Storage::Version{}, sourceId5);
+    storage.synchronizeDocumentImports(imports, sourceId5);
+    storage.synchronize(package);
+
+    auto singletonTypeIds = storage.singletonTypeIds(sourceId5);
+
+    ASSERT_THAT(singletonTypeIds, ElementsAre(fetchTypeId(sourceId1, "QQuickItem")));
+}
+
 } // namespace

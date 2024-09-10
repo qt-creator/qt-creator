@@ -70,7 +70,9 @@ public:
 
     TypeId typeId(ImportedTypeNameId typeNameId) const override;
 
-    QVarLengthArray<TypeId, 256> typeIds(ModuleId moduleId) const override;
+    SmallTypeIds<256> typeIds(ModuleId moduleId) const override;
+
+    SmallTypeIds<256> singletonTypeIds(SourceId sourceId) const override;
 
     Storage::Info::ExportedTypeNames exportedTypeNames(TypeId typeId) const override;
 

@@ -18,6 +18,7 @@ enum class SpecialIdState { Unresolved = -1 };
 
 constexpr TypeId unresolvedTypeId = TypeId::createSpecialState(SpecialIdState::Unresolved);
 
+namespace {
 class UnresolvedTypeId : public TypeId
 {
 public:
@@ -32,6 +33,25 @@ public:
         return id;
     }
 };
+
+auto createSingletonTypeTraitMask()
+{
+    Storage::TypeTraits traits;
+    traits.type = 0;
+    traits.isSingleton = true;
+
+    return traits.type;
+}
+
+auto createSingletonTraitsExpression()
+{
+    Utils::SmallString traitsExpression = "traits & ";
+    traitsExpression.append(Utils::SmallString::number(createSingletonTypeTraitMask()));
+
+    return traitsExpression;
+}
+
+} // namespace
 
 struct ProjectStorage::Statements
 {
@@ -874,6 +894,14 @@ struct ProjectStorage::Statements
         "    propertyImportedTypeNameId IS NULL "
         "LIMIT 1",
         database};
+    mutable Sqlite::ReadStatement<1, 1> selectSingletonTypeIdsBySourceIdStatement{
+        "SELECT DISTINCT typeId "
+        "FROM types "
+        "  JOIN exportedTypeNames USING (typeId) "
+        "  JOIN documentImports AS di USING(moduleId) "
+        "WHERE di.sourceId=?1 AND "
+            + createSingletonTraitsExpression(),
+        database};
 };
 
 class ProjectStorage::Initializer
@@ -909,7 +937,7 @@ public:
         typesTable.addColumn("typeId", Sqlite::StrictColumnType::Integer, {Sqlite::PrimaryKey{}});
         auto &sourceIdColumn = typesTable.addColumn("sourceId", Sqlite::StrictColumnType::Integer);
         auto &typesNameColumn = typesTable.addColumn("name", Sqlite::StrictColumnType::Text);
-        typesTable.addColumn("traits", Sqlite::StrictColumnType::Integer);
+        auto &traitsColumn = typesTable.addColumn("traits", Sqlite::StrictColumnType::Integer);
         auto &prototypeIdColumn = typesTable.addColumn("prototypeId",
                                                        Sqlite::StrictColumnType::Integer);
         auto &prototypeNameIdColumn = typesTable.addColumn("prototypeNameId",
@@ -927,6 +955,9 @@ public:
         typesTable.addIndex({extensionIdColumn, sourceIdColumn});
         typesTable.addIndex({prototypeNameIdColumn});
         typesTable.addIndex({extensionNameIdColumn});
+        Utils::SmallString traitsExpression = "traits & ";
+        traitsExpression.append(Utils::SmallString::number(createSingletonTypeTraitMask()));
+        typesTable.addIndex({traitsColumn}, traitsExpression);
 
         typesTable.initialize(database);
 
@@ -1453,8 +1484,23 @@ QVarLengthArray<TypeId, 256> ProjectStorage::typeIds(ModuleId moduleId) const
                                projectStorageCategory(),
                                keyValue("module id", moduleId)};
 
-    auto typeIds = s->selectTypeIdsByModuleIdStatement
-                       .valuesWithTransaction<QVarLengthArray<TypeId, 256>>(moduleId);
+    auto typeIds = s->selectTypeIdsByModuleIdStatement.valuesWithTransaction<SmallTypeIds<256>>(
+        moduleId);
+
+    tracer.end(keyValue("type ids", typeIds));
+
+    return typeIds;
+}
+
+SmallTypeIds<256> ProjectStorage::singletonTypeIds(SourceId sourceId) const
+{
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get singleton type ids by source id",
+                               projectStorageCategory(),
+                               keyValue("source id", sourceId)};
+
+    auto typeIds = s->selectSingletonTypeIdsBySourceIdStatement.valuesWithTransaction<SmallTypeIds<256>>(
+        sourceId);
 
     tracer.end(keyValue("type ids", typeIds));
 

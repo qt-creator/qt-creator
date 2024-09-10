@@ -153,9 +153,13 @@ public:
                  ::Utils::SmallStringView exportedTypeName,
                  QmlDesigner::Storage::Version version),
                 (const, override));
-    MOCK_METHOD((QVarLengthArray<QmlDesigner::TypeId, 256>),
+    MOCK_METHOD((QmlDesigner::SmallTypeIds<256>),
                 typeIds,
                 (QmlDesigner::ModuleId moduleId),
+                (const, override));
+    MOCK_METHOD((QmlDesigner::SmallTypeIds<256>),
+                singletonTypeIds,
+                (QmlDesigner::SourceId sourceId),
                 (const, override));
     MOCK_METHOD(QmlDesigner::Storage::Info::ExportedTypeNames,
                 exportedTypeNames,
