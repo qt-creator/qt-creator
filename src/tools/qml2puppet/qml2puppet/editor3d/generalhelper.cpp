@@ -692,18 +692,19 @@ bool GeneralHelper::isOrthographicCamera(QQuick3DNode *node) const
     return node && qobject_cast<QQuick3DOrthographicCamera *>(node);
 }
 
-QQuick3DNode *GeneralHelper::view3dRootNode(QQuick3DNode *node) const
+bool GeneralHelper::isSceneObject(QQuick3DNode *node) const
 {
     if (!node)
-        return nullptr;
+        return false;
 
-    QQuick3DNode *parentNode = node->parentNode();
-    while (parentNode) {
-        if (parentNode->inherits("QQuick3DSceneRootNode"))
-            return parentNode;
-        parentNode = parentNode->parentNode();
-    }
-    return nullptr;
+    const auto objectPrivate = QQuick3DObjectPrivate::get(node);
+    const QQuick3DSceneManager *importSceneManager = objectPrivate->sceneManager;
+    if (!importSceneManager)
+        return false;
+
+    const QQuick3DObject *sceneObject
+        = importSceneManager->m_nodeMap.value(objectPrivate->spatialNode, nullptr);
+    return sceneObject != nullptr;
 }
 
 // Emitter gizmo model creation is done in C++ as creating dynamic properties and

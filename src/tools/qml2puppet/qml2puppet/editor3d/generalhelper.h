@@ -97,7 +97,7 @@ public:
     Q_INVOKABLE bool isPickable(QQuick3DNode *node) const;
     Q_INVOKABLE bool isCamera(QQuick3DNode *node) const;
     Q_INVOKABLE bool isOrthographicCamera(QQuick3DNode *node) const;
-    Q_INVOKABLE QQuick3DNode *view3dRootNode(QQuick3DNode *node) const;
+    Q_INVOKABLE bool isSceneObject(QQuick3DNode *node) const;
     Q_INVOKABLE QQuick3DNode *createParticleEmitterGizmoModel(QQuick3DNode *emitter,
                                                               QQuick3DMaterial *material) const;
 

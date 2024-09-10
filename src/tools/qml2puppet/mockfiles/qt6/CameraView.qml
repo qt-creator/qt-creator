@@ -46,10 +46,10 @@ Rectangle {
 
         property Camera camera
         property Camera oldCamera
-        property bool view3dRootNodeExists
+        property bool cameraIsSceneObject
         property bool forceDeactive: false
         readonly property bool cameraViewIsOn: !forceDeactive && (cameraView.alwaysOn || cameraView.showCameraView) && priv.camera
-        readonly property bool cameraHasValidScene: priv.cameraViewIsOn && priv.view3dRootNodeExists
+        readonly property bool cameraHasValidScene: priv.cameraViewIsOn && priv.cameraIsSceneObject
         property Loader activeLoader
         readonly property size loaderSize: activeLoader && activeLoader.active
                                            ? Qt.size(activeLoader.width, activeLoader.height)
@@ -58,7 +58,7 @@ Rectangle {
         function updateCamera() {
             let activeCam = activeCamera()
             priv.camera = activeCam
-            priv.view3dRootNodeExists = _generalHelper.view3dRootNode(activeCam)
+            priv.cameraIsSceneObject = _generalHelper.isSceneObject(activeCam)
         }
 
         function activeCamera() {
