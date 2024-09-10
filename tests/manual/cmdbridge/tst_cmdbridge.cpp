@@ -131,6 +131,29 @@ private slots:
         QVERIFY(!fileAccess.exists(*tempFile));
     }
 
+    void testTempFileWithoutPlaceholder()
+    {
+        CmdBridge::FileAccess fileAccess;
+        auto res = fileAccess.deployAndInit(
+            FilePath::fromUserInput(libExecPath), FilePath::fromUserInput("/"));
+
+        QVERIFY(res);
+
+        const FilePath pattern = FilePath::fromUserInput(QDir::tempPath()) / "test.txt";
+
+        // We have to create a file with the pattern name to test the automatic placeholder
+        // adding. go' os.CreateTemp() will fail if no placeholder is present, and the file exists.
+        pattern.writeFileContents("Test");
+
+        auto tempFile = fileAccess.createTempFile(pattern);
+
+        QVERIFY(tempFile);
+        QVERIFY(fileAccess.exists(*tempFile));
+        QVERIFY(fileAccess.removeFile(*tempFile));
+        QVERIFY(!fileAccess.exists(*tempFile));
+        QVERIFY(tempFile->fileName().startsWith("test.txt."));
+    }
+
     void testFileContents()
     {
         CmdBridge::FileAccess fileAccess;

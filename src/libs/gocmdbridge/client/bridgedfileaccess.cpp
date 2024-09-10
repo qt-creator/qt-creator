@@ -592,12 +592,18 @@ expected_str<FilePath> FileAccess::createTempFile(const FilePath &filePath)
                 if (path[i] != 'X')
                     break;
             path = path.left(i + 1) + "*";
+        } else {
+            path += ".*";
         }
 
         Utils::expected_str<QFuture<Utils::FilePath>> f = m_client->createTempFile(path);
         QTC_ASSERT_EXPECTED(f, return {});
         f->waitForFinished();
-        return f->result();
+
+        expected_str<FilePath> result = f->result();
+        if (!result)
+            return result;
+        return filePath.withNewPath(result->path());
     } catch (const std::exception &e) {
         return make_unexpected(
             Tr::tr("Error creating temporary file: %1").arg(QString::fromLocal8Bit(e.what())));
