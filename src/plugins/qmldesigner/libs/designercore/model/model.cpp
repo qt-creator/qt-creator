@@ -2726,17 +2726,26 @@ NodeMetaInfo Model::vector4dMetaInfo() const
     }
 }
 
+#ifdef QDS_USE_PROJECTSTORAGE
+
 QVarLengthArray<NodeMetaInfo, 256> Model::metaInfosForModule(Module module) const
 {
-    if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
 
         return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(
             d->projectStorage->typeIds(module.id()), NodeMetaInfo::bind(d->projectStorage));
-    } else {
-        return {};
-    }
 }
+
+SmallNodeMetaInfos<256> Model::singletonMetaInfos() const
+{
+    using namespace Storage::Info;
+
+    return Utils::transform<QVarLengthArray<NodeMetaInfo, 256>>(d->projectStorage->singletonTypeIds(
+                                                                    d->m_sourceId),
+                                                                NodeMetaInfo::bind(d->projectStorage));
+}
+
+#endif
 
 QList<ItemLibraryEntry> Model::itemLibraryEntries() const
 {

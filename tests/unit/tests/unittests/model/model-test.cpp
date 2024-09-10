@@ -1095,11 +1095,21 @@ TEST_F(Model_MetaInfo, meta_infos_for_mdoule)
     auto module = model.module("Foo", ModuleKind::QmlLibrary);
     auto typeId = projectStorageMock.createObject(module.id(), "Bar");
     ON_CALL(projectStorageMock, typeIds(module.id()))
-        .WillByDefault(Return(QVarLengthArray<QmlDesigner::TypeId, 256>{typeId}));
+        .WillByDefault(Return(QmlDesigner::SmallTypeIds<256>{typeId}));
 
     auto types = model.metaInfosForModule(module);
 
     ASSERT_THAT(types, ElementsAre(Eq(QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock})));
+}
+
+TEST_F(Model_MetaInfo, singleton_meta_infos)
+{
+    ON_CALL(projectStorageMock, singletonTypeIds(filePathId))
+        .WillByDefault(Return(QmlDesigner::SmallTypeIds<256>{itemTypeId}));
+
+    auto types = model.singletonMetaInfos();
+
+    ASSERT_THAT(types, ElementsAre(Eq(QmlDesigner::NodeMetaInfo{itemTypeId, &projectStorageMock})));
 }
 
 TEST_F(Model_MetaInfo, create_node_resolved_meta_type)

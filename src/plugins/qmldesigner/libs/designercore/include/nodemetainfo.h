@@ -293,6 +293,8 @@ private:
 };
 
 using NodeMetaInfos = std::vector<NodeMetaInfo>;
+template<qsizetype size>
+using SmallNodeMetaInfos = QVarLengthArray<NodeMetaInfo, size>;
 
 } //QmlDesigner
 

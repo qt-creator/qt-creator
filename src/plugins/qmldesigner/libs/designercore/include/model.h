@@ -59,6 +59,8 @@ class TextModifier;
 class ItemLibraryEntry;
 
 using PropertyListType = QList<QPair<PropertyName, QVariant>>;
+template<qsizetype size>
+using SmallNodeMetaInfos = QVarLengthArray<NodeMetaInfo, size>;
 
 enum class BypassModelResourceManagement { No, Yes };
 
@@ -201,7 +203,11 @@ public:
     NodeMetaInfo vector2dMetaInfo() const;
     NodeMetaInfo vector3dMetaInfo() const;
     NodeMetaInfo vector4dMetaInfo() const;
-    QVarLengthArray<NodeMetaInfo, 256> metaInfosForModule(Module module) const;
+
+#ifdef QDS_USE_PROJECTSTORAGE
+    SmallNodeMetaInfos<256> metaInfosForModule(Module module) const;
+    SmallNodeMetaInfos<256> singletonMetaInfos() const;
+#endif
 
     QList<ItemLibraryEntry> itemLibraryEntries() const;
 
