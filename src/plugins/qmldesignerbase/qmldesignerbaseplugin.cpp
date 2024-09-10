@@ -9,6 +9,7 @@
 
 #include <designersettings.h>
 #include <studioquickutils.h>
+#include <studiovalidator.h>
 #include <windowmanager.h>
 
 #include <coreplugin/icore.h>
@@ -93,6 +94,8 @@ bool QmlDesignerBasePlugin::initialize(const QStringList &arguments, QString *)
 
     WindowManager::registerDeclarativeType();
     StudioQuickUtils::registerDeclarativeType();
+    StudioIntValidator::registerDeclarativeType();
+    StudioDoubleValidator::registerDeclarativeType();
 
     d = std::make_unique<Data>();
     if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())
