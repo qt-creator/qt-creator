@@ -138,7 +138,8 @@ public:
 
     static Command *registerAction(QAction *action, Utils::Id id,
                                    const Context &context = Context(Constants::C_GLOBAL),
-                                   bool scriptable = false);
+                                   bool scriptable = false,
+                                   const QString &shortcutTemplate = {});
 
     static Command *createCommand(Utils::Id id);
     static Command *command(Utils::Id id);

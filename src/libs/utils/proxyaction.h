@@ -35,7 +35,8 @@ public:
     void removeAttribute(Attribute attribute);
     bool hasAttribute(Attribute attribute);
 
-    static QString stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut);
+    static QString stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut,
+                                              const QString &shortcutTemplate = {});
     static ProxyAction *proxyActionWithIcon(QAction *original, const QIcon &newIcon);
 
 signals:

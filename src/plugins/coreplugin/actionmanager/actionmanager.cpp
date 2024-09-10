@@ -640,9 +640,10 @@ ActionContainer *ActionManager::createTouchBar(Id id, const QIcon &icon, const Q
     specified, the global context will be assumed. A \a scriptable action can
     be called from a script without the need for the user to interact with it.
 */
-Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable)
+Command *ActionManager::registerAction(QAction *action, Id id, const Context &context, bool scriptable,
+                                       const QString &shortcutTemplate)
 {
-    Command *cmd = d->overridableAction(id);
+    Command *cmd = d->overridableAction(id, shortcutTemplate);
     if (cmd) {
         cmd->d->addOverrideAction(action, context, scriptable);
         emit m_instance->commandListChanged();
@@ -849,11 +850,11 @@ void ActionManagerPrivate::containerDestroyed(QObject *sender)
     m_scheduledContainerUpdates.remove(container);
 }
 
-Command *ActionManagerPrivate::overridableAction(Id id)
+Command *ActionManagerPrivate::overridableAction(Id id, const QString &shortcutTemplate)
 {
     Command *cmd = m_idCmdMap.value(id, nullptr);
     if (!cmd) {
-        cmd = new Command(id);
+        cmd = new Command(id, shortcutTemplate);
         m_idCmdMap.insert(id, cmd);
         readUserSettings(id, cmd);
         QAction *action = cmd->action();

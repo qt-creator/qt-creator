@@ -93,8 +93,9 @@ signals:
 private:
     friend class ActionManager;
     friend class Internal::ActionManagerPrivate;
+    QString m_shortcutTemplate;
 
-    Command(Utils::Id id);
+    Command(Utils::Id id, const QString &shortcutTemplate = {});
 
     Internal::CommandPrivate *d;
 };

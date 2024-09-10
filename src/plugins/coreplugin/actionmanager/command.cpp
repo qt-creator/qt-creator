@@ -242,8 +242,9 @@ using namespace Utils;
 
 namespace Core {
 
-Command::Command(Utils::Id id)
-    : d(new Internal::CommandPrivate(this))
+Command::Command(Utils::Id id, const QString &shortcutTemplate)
+    : m_shortcutTemplate(shortcutTemplate)
+    , d(new Internal::CommandPrivate(this))
 {
     d->m_id = id;
 }
@@ -302,7 +303,7 @@ QAction *Command::actionForContext(const Utils::Id &contextId) const
 
 QString Command::stringWithAppendedShortcut(const QString &str) const
 {
-    return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence());
+    return Utils::ProxyAction::stringWithAppendedShortcut(str, keySequence(), m_shortcutTemplate);
 }
 
 Context Command::context() const

@@ -148,12 +148,17 @@ void ProxyAction::updateToolTipWithKeySequence()
     m_block = false;
 }
 
-QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut)
+QString ProxyAction::stringWithAppendedShortcut(const QString &str, const QKeySequence &shortcut,
+                                                const QString &shortcutTemplate)
 {
     const QString s = stripAccelerator(str);
-    return QString::fromLatin1("<div style=\"white-space:pre\">%1 "
-                               "<span style=\"color: gray; font-size: small\">%2</span></div>")
-        .arg(s, shortcut.toString(QKeySequence::NativeText));
+
+    const QString shortcutBlock = (shortcutTemplate.isEmpty()
+        ? "<span style=\"color: gray; font-size: small\">%1</span>" : shortcutTemplate)
+                                      .arg(shortcut.toString(QKeySequence::NativeText));
+
+    return QString::fromLatin1("<div style=\"white-space:pre\">%1 %2</div>")
+        .arg(s, shortcutBlock);
 }
 
 ProxyAction *ProxyAction::proxyActionWithIcon(QAction *original, const QIcon &newIcon)

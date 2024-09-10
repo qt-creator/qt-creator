@@ -39,7 +39,7 @@ public:
     static void saveSettings(Command *cmd);
 
     bool hasContext(const Context &context) const;
-    Command *overridableAction(Utils::Id id);
+    Command *overridableAction(Utils::Id id, const QString &shortcutTemplate = {});
 
     static void readUserSettings(Utils::Id id, Command *cmd);
 

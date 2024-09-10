@@ -129,8 +129,12 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
                 previousWasSeparator = false;
 
                 // Register action as creator command to make it configurable
+                QString shortcutTemplate = QString("<span style=\"color: %1; font-size: large \">"
+                                                   "<b>[%2]</b></span>")
+                    .arg(Theme::getColor(Theme::Color::DStextColor).name(), "%1"); // DStextSelectionColor
+
                 Core::Command *command = Core::ActionManager::registerAction(
-                            a, action->menuId().constData(), context);
+                            a, action->menuId().constData(), context, false, shortcutTemplate);
                 m_actionToCommandHash.insert(a, command);
                 command->setDefaultKeySequence(a->shortcut());
                 if (proxyGroup)
