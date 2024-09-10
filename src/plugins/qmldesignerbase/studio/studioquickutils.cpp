@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "studioquickutils.h"
@@ -9,7 +9,7 @@ namespace QmlDesigner {
 
 StudioQuickUtils::StudioQuickUtils()
 {
-    m_locale = QLocale("DesignStudioLocale");
+    m_locale = QLocale(QLocale::system());
     m_locale.setNumberOptions(QLocale::OmitGroupSeparator);
 }
 

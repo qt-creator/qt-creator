@@ -3,7 +3,7 @@
 
 import QtQuick
 import QtQuick.Templates as T
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 import StudioQuickUtils
 
 T.SpinBox {
@@ -79,7 +79,7 @@ T.SpinBox {
 
     DoubleValidator {
         id: doubleValidator
-        locale: control.locale.name
+        locale: control.locale
         notation: DoubleValidator.StandardNotation
         decimals: control.decimals
         bottom: Math.min(control.from, control.to) / control.factor
@@ -88,7 +88,7 @@ T.SpinBox {
 
     IntValidator {
         id: intValidator
-        locale: control.locale.name
+        locale: control.locale
         bottom: Math.min(control.from, control.to)
         top: Math.max(control.from, control.to)
     }
