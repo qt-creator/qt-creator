@@ -1,5 +1,8 @@
+if (IS_SUPPORTED_PROJECTSTORAGE_QT)
+  find_package(Qt6 COMPONENTS QmlDomPrivate QmlCompiler REQUIRED)
+endif()
+
 add_qtc_library(QmlDesignerCore
-  CONDITION TARGET Qt6::QmlPrivate AND TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate
   PROPERTIES SKIP_AUTOUIC ON
   DEPENDS
     Threads::Threads
@@ -8,8 +11,6 @@ add_qtc_library(QmlDesignerCore
     Qt::Qml
     Qt::QmlPrivate
     Qt::Quick
-    Qt6::QmlDomPrivate
-    Qt6::QmlCompilerPrivate
     QmlJS
     TextEditorSupport
     QmlDesignerSettings
@@ -63,6 +64,7 @@ extend_qtc_library(QmlDesignerCore
 
 extend_qtc_library(QmlDesignerCore
   CONDITION IS_SUPPORTED_PROJECTSTORAGE_QT
+  DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   PUBLIC_DEFINES QDS_BUILD_QMLPARSER
 )
 extend_qtc_library(QmlDesignerCore
