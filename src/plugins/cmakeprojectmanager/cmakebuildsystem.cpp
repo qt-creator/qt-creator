@@ -246,9 +246,12 @@ bool CMakeBuildSystem::supportsAction(Node *context, ProjectAction action, const
 
 static QString relativeFilePaths(const FilePaths &filePaths, const FilePath &projectDir)
 {
-    return Utils::transform(filePaths, [projectDir](const FilePath &path) {
-        return path.canonicalPath().relativePathFrom(projectDir).cleanPath().toString();
-    }).join(' ');
+    return Utils::transform(
+               filePaths,
+               [projectDir](const FilePath &path) {
+                   return path.canonicalPath().relativePathFrom(projectDir).cleanPath().path();
+               })
+        .join(' ');
 };
 
 static QString newFilesForFunction(const std::string &cmakeFunction,
@@ -735,7 +738,7 @@ bool CMakeBuildSystem::addFiles(Node *context, const FilePaths &filePaths, FileP
 {
     FilePaths tsFiles, srcFiles;
     std::tie(tsFiles, srcFiles) = Utils::partition(filePaths, [](const FilePath &fp) {
-        return Utils::mimeTypeForFile(fp.toString()).name() == Utils::Constants::LINGUIST_MIMETYPE;
+        return Utils::mimeTypeForFile(fp).name() == Utils::Constants::LINGUIST_MIMETYPE;
     });
     bool success = true;
     if (!srcFiles.isEmpty())
@@ -862,7 +865,7 @@ RemovedFilesFromProject CMakeBuildSystem::removeFiles(Node *context,
         bool haveGlobbing = false;
         for (const auto &file : filePaths) {
             const QString fileName
-                = file.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+                = file.canonicalPath().relativePathFrom(projDir).cleanPath().path();
 
             auto filePos = projectFileArgumentPosition(targetName, fileName);
             if (filePos) {
@@ -944,7 +947,7 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
     if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
         const FilePath projDir = n->filePath().canonicalPath();
         const QString oldRelPathName
-            = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().toString();
+            = oldFilePath.canonicalPath().relativePathFrom(projDir).cleanPath().path();
 
         const QString targetName = n->buildKey();
 
@@ -1366,7 +1369,7 @@ void CMakeBuildSystem::updateProjectData()
         QStringList apps;
         for (const auto &target : std::as_const(m_buildTargets)) {
             if (target.targetType == DynamicLibraryType) {
-                res.insert(target.executable.parentDir().toString());
+                res.insert(target.executable.parentDir().path());
                 apps.push_back(target.executable.toUserOutput());
             }
             // ### shall we add also the ExecutableType ?
@@ -2192,9 +2195,10 @@ DeploymentData CMakeBuildSystem::deploymentDataFromFile() const
         if (ct.targetType == ExecutableType || ct.targetType == DynamicLibraryType) {
             if (!ct.executable.isEmpty()
                     && result.deployableForLocalFile(ct.executable).localFilePath() != ct.executable) {
-                result.addFile(ct.executable,
-                               deploymentPrefix + buildDir.relativeChildPath(ct.executable).toString(),
-                               DeployableFile::TypeExecutable);
+                result.addFile(
+                    ct.executable,
+                    deploymentPrefix + buildDir.relativeChildPath(ct.executable).path(),
+                    DeployableFile::TypeExecutable);
             }
         }
     }

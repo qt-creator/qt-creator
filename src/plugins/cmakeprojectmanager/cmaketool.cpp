@@ -120,7 +120,7 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
 
-    setFilePath(FilePath::fromUserInput(map.value(CMAKE_INFORMATION_COMMAND).toString()));
+    setFilePath(FilePath::fromSettings(map.value(CMAKE_INFORMATION_COMMAND)));
 
     m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
@@ -178,8 +178,8 @@ Store CMakeTool::toMap() const
     Store data;
     data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
-    data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
-    data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toString());
+    data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toSettings());
+    data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toSettings());
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
         data.insert(CMAKE_INFORMATION_READERTYPE,
@@ -384,16 +384,16 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
         return {};
 
     FilePath prefixDir = executable.parentDir().parentDir();
-    QDir docDir{prefixDir.pathAppended("doc/cmake").toString()};
+    FilePath docDir = prefixDir.pathAppended("doc/cmake");
     if (!docDir.exists())
-        docDir.setPath(prefixDir.pathAppended("share/doc/cmake").toString());
+        docDir = prefixDir.pathAppended("share/doc/cmake");
     if (!docDir.exists())
         return {};
 
-    const QStringList files = docDir.entryList(QStringList("*.qch"));
-    for (const QString &docFile : files) {
-        if (docFile.startsWith("cmake", Qt::CaseInsensitive)) {
-            return FilePath::fromString(docDir.absoluteFilePath(docFile));
+    const FilePaths files = docDir.dirEntries(QStringList("*.qch"));
+    for (const FilePath &docFile : files) {
+        if (docFile.startsWith("cmake")) {
+            return docDir.resolvePath(docFile).absolutePath();
         }
     }
 

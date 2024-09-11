@@ -37,8 +37,8 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
 {
     value.replace("${dollar}", "$");
 
-    value.replace("${sourceDir}", sourceDirectory.toString());
-    value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
+    value.replace("${sourceDir}", sourceDirectory.path());
+    value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
@@ -57,9 +57,9 @@ static void expandAllButEnv(const PresetsDetails::BuildPreset &preset,
 {
     value.replace("${dollar}", "$");
 
-    value.replace("${sourceDir}", sourceDirectory.toString());
+    value.replace("${sourceDir}", sourceDirectory.path());
     value.replace("${fileDir}", preset.fileDir.path());
-    value.replace("${sourceParentDir}", sourceDirectory.parentDir().toString());
+    value.replace("${sourceParentDir}", sourceDirectory.parentDir().path());
     value.replace("${sourceDirName}", sourceDirectory.fileName());
 
     value.replace("${presetName}", preset.name);
@@ -233,7 +233,7 @@ void updateToolchainFile(
     if (!toolchainFile.exists())
         return;
 
-    const QString toolchainFileString = toolchainFile.cleanPath().toString();
+    const QString toolchainFileString = toolchainFile.cleanPath().path();
 
     // toolchainFile takes precedence to CMAKE_TOOLCHAIN_FILE
     CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()
@@ -270,7 +270,7 @@ void updateInstallDir(PresetsDetails::ConfigurePreset &configurePreset,
             installDir = probePath;
         }
     }
-    installDirString = installDir.cleanPath().toString();
+    installDirString = installDir.cleanPath().path();
 
     // installDir takes precedence to CMAKE_INSTALL_PREFIX
     CMakeConfig cache = configurePreset.cacheVariables ? configurePreset.cacheVariables.value()

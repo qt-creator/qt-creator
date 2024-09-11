@@ -277,8 +277,8 @@ static QVariant findOrRegisterDebugger(
         QString errorMessage;
         debugger.reinitializeFromFile(&errorMessage, &env);
         if (!errorMessage.isEmpty())
-            qCWarning(cmInputLog()) << "Error reinitializing debugger" << debuggerPath.toString()
-                                    << "Error:" << errorMessage;
+            qCWarning(cmInputLog()) << "Error reinitializing debugger"
+                                    << debuggerPath.toUserOutput() << "Error:" << errorMessage;
 
         return DebuggerItemManager::registerDebugger(debugger);
     } else {
@@ -572,11 +572,11 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     }
 
     if (!cmakeMakeProgram.isEmpty()) {
-        args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
+        args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.path()));
     }
 
     if (!toolchainFile.isEmpty()) {
-        args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
+        args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.path()));
     }
     if (!prefixPath.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
@@ -585,7 +585,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
         args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
     }
     if (!hostPath.isEmpty()) {
-        args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.toString()));
+        args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.path()));
     }
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
@@ -717,20 +717,20 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
                                         });
 
         if (it != config.end() && it->value.isEmpty())
-            it->value = tcd.compilerPath.toString().toUtf8();
+            it->value = tcd.compilerPath.path().toUtf8();
         else
-            config << CMakeConfigItem(key,
-                                      CMakeConfigItem::FILEPATH,
-                                      tcd.compilerPath.toString().toUtf8());
+            config << CMakeConfigItem(
+                key, CMakeConfigItem::FILEPATH, tcd.compilerPath.path().toUtf8());
     };
 
     updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
     updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (data->qt.qt)
-        config << CMakeConfigItem("QT_QMAKE_EXECUTABLE",
-                                  CMakeConfigItem::FILEPATH,
-                                  data->qt.qt->qmakeFilePath().toString().toUtf8());
+        config << CMakeConfigItem(
+            "QT_QMAKE_EXECUTABLE",
+            CMakeConfigItem::FILEPATH,
+            data->qt.qt->qmakeFilePath().path().toUtf8());
 }
 
 Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
@@ -811,7 +811,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
             qCDebug(cmInputLog) << "For external architecture" << presetArchitecture
                                 << "and toolset" << presetToolset
                                 << "the following toolchain was selected:\n"
-                                << compilerPath.toString();
+                                << compilerPath.toUserOutput();
             return true;
         });
 }

@@ -247,7 +247,7 @@ QVariant CMakeTargetNode::data(Id role) const
         // or "-iphonesimulator" depending on the device type (which is unavailable here).
 
         // dir/target.app/target -> dir
-        return m_artifact.parentDir().parentDir().toString();
+        return m_artifact.parentDir().parentDir().path();
     }
 
     if (role == Ios::Constants::IosCmakeGenerator)

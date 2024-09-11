@@ -616,7 +616,7 @@ void CMakeManager::buildFile(Node *node)
     Target *target = project->activeTarget();
     QTC_ASSERT(target, return);
     const QString generator = CMakeGeneratorKitAspect::generator(target->kit());
-    const QString relativeSource = filePath.relativeChildPath(targetNode->filePath()).toString();
+    const FilePath relativeSource = filePath.relativeChildPath(targetNode->filePath());
     Utils::FilePath targetBase;
     BuildConfiguration *bc = target->activeBuildConfiguration();
     QTC_ASSERT(bc, return);
@@ -631,7 +631,7 @@ void CMakeManager::buildFile(Node *node)
     }
 
     auto cbc = static_cast<CMakeBuildSystem *>(bc->buildSystem());
-    const QString sourceFile = targetBase.pathAppended(relativeSource).toString();
+    const QString sourceFile = targetBase.resolvePath(relativeSource).path();
     const QString objExtension = [&]() -> QString {
         const auto sourceKind = ProjectFile::classify(relativeSource);
         const QByteArray cmakeLangExtension = ProjectFile::isCxx(sourceKind)
