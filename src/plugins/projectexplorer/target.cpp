@@ -926,8 +926,6 @@ bool Target::addConfigurationsFromMap(const Utils::Store &map, bool setActiveCon
         if (i == activeConfiguration)
             setActiveBuildConfiguration(bc);
     }
-    if (buildConfigurations().isEmpty() && BuildConfigurationFactory::find(this))
-        return false;
 
     int dcCount = map.value(DC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || dcCount < 0)
