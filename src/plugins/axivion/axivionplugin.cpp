@@ -214,8 +214,8 @@ public:
     AxivionPluginPrivate();
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged(Project *project);
-    void fetchDashboardInfo(const DashboardInfoHandler &handler);
-    void fetchProjectInfo(const QString &projectName);
+    void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler,
+                                      const QString &projectName);
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
     void onDocumentClosed(IDocument * doc);
@@ -283,16 +283,10 @@ public:
     }
 };
 
-void fetchDashboardInfo(const DashboardInfoHandler &handler)
+void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName)
 {
     QTC_ASSERT(dd, return);
-    dd->fetchDashboardInfo(handler);
-}
-
-void fetchProjectInfo(const QString &projectName)
-{
-    QTC_ASSERT(dd, return);
-    dd->fetchProjectInfo(projectName);
+    dd->fetchDashboardAndProjectInfo(handler, projectName);
 }
 
 std::optional<Dto::ProjectInfoDto> projectInfo()
@@ -798,7 +792,8 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
 {
     const auto onSetup = [handler] {
         if (dd->m_dashboardInfo) {
-            handler(*dd->m_dashboardInfo);
+            if (handler)
+                handler(*dd->m_dashboardInfo);
             return SetupResult::StopWithSuccess;
         }
         return SetupResult::Continue;
@@ -813,7 +808,7 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
     const Group root {
         onGroupSetup(onSetup), // Stops if cache exists.
         authorizationRecipe(),
-        onGroupDone(onDone)
+        handler ? onGroupDone(onDone) : nullItem
     };
     return root;
 }
@@ -824,11 +819,6 @@ Group projectInfoRecipe(const QString &projectName)
         dd->clearAllMarks();
         dd->m_currentProjectInfo = {};
         dd->m_analysisVersion = {};
-        if (!projectName.isEmpty())
-            return SetupResult::Continue;
-
-        updateDashboard();
-        return SetupResult::StopWithSuccess;
     };
 
     const auto onTaskTreeSetup = [projectName](TaskTree &taskTree) {
@@ -838,10 +828,19 @@ Group projectInfoRecipe(const QString &projectName)
             return SetupResult::StopWithError;
         }
 
-        const auto it = dd->m_dashboardInfo->projectUrls.constFind(projectName);
+        const QString targetProjectName
+            = (projectName.isEmpty() && !dd->m_dashboardInfo->projects.isEmpty())
+                ? dd->m_dashboardInfo->projects.first() : projectName;
+
+        if (targetProjectName.isEmpty()) {
+            updateDashboard();
+            return SetupResult::StopWithSuccess;
+        }
+
+        const auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
         if (it == dd->m_dashboardInfo->projectUrls.constEnd()) {
             MessageManager::writeDisrupting(QString("Axivion: %1")
-                                                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(projectName)));
+                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(targetProjectName)));
             return SetupResult::StopWithError;
         }
 
@@ -859,7 +858,6 @@ Group projectInfoRecipe(const QString &projectName)
 
     return {
         onGroupSetup(onSetup),
-        authorizationRecipe(),
         TaskTreeTask(onTaskTreeSetup)
     };
 }
@@ -912,14 +910,10 @@ Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
     return fetchHtmlRecipe(url, handler);
 }
 
-void AxivionPluginPrivate::fetchDashboardInfo(const DashboardInfoHandler &handler)
+void AxivionPluginPrivate::fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler,
+                                                        const QString &projectName)
 {
-    m_taskTreeRunner.start(dashboardInfoRecipe(handler));
-}
-
-void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
-{
-    m_taskTreeRunner.start(projectInfoRecipe(projectName));
+    m_taskTreeRunner.start({dashboardInfoRecipe(handler), projectInfoRecipe(projectName)});
 }
 
 Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)

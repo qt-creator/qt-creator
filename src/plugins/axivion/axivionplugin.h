@@ -80,8 +80,7 @@ Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarke
 using HtmlHandler = std::function<void(const QByteArray &)>;
 Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
 
-void fetchDashboardInfo(const DashboardInfoHandler &handler);
-void fetchProjectInfo(const QString &projectName);
+void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 

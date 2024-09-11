@@ -200,7 +200,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         m_currentPrefix.clear();
         m_currentProject.clear();
         m_issuesModel->clear();
-        fetchProjectInfo(m_dashboardProjects->currentText());
+        fetchDashboardAndProjectInfo({}, m_dashboardProjects->currentText());
     });
     // row with issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
@@ -388,10 +388,8 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
         m_dashboardProjects->addItems(info->projects);
         if (!currentProject.isEmpty() && info->projects.contains(currentProject))
             m_dashboardProjects->setCurrentText(currentProject);
-        // FIXME ugly.. any better solution?
-        QTimer::singleShot(0, this, [this]() { fetchProjectInfo(m_dashboardProjects->currentText()); });
     };
-    fetchDashboardInfo(onDashboardInfoFetched);
+    fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
 static Qt::Alignment alignmentFromString(const QString &str)
