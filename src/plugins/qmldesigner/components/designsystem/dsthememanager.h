@@ -43,7 +43,8 @@ public:
     void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p);
     void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p, const PropertyName &newName);
 
-    void decorate(ModelNode rootNode) const;
+    void decorate(ModelNode rootNode, const QByteArray& nodeType, bool isMCU) const;
+    void decorateThemeComponent(ModelNode rootNode) const;
 
 private:
     DSThemeGroup *propertyGroup(GroupType type);

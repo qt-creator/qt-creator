@@ -130,25 +130,36 @@ void DSThemeManager::updateProperty(ThemeId id,
     dsGroup->updateProperty(id, newName, p);
 }
 
-void DSThemeManager::decorate(ModelNode rootNode) const
+void DSThemeManager::decorate(ModelNode rootNode, const QByteArray &nodeType, bool isMCU) const
 {
     if (!m_themes.size())
         return;
 
     auto p = rootNode.bindingProperty("currentTheme");
-    p.setDynamicTypeNameAndExpression("QtObject", QString::fromLatin1(m_themes.begin()->second));
-    addGroupAliases(rootNode);
-
+    p.setDynamicTypeNameAndExpression(nodeType, QString::fromLatin1(m_themes.begin()->second));
+    if (!isMCU)
+        addGroupAliases(rootNode);
     auto model = rootNode.model();
+
     for (auto itr = m_themes.begin(); itr != m_themes.end(); ++itr) {
-        auto themeNode  = model->createModelNode("QtObject");
+        auto themeNode = model->createModelNode(nodeType);
         auto themeProperty = model->rootModelNode().nodeProperty(itr->second);
-        themeProperty.setDynamicTypeNameAndsetModelNode("QtObject", themeNode);
+        themeProperty.setDynamicTypeNameAndsetModelNode(nodeType, themeNode);
 
         // Add property groups
         for (auto groupItr = m_groups.begin(); groupItr != m_groups.end(); ++groupItr)
-            groupItr->second->decorate(itr->first, themeNode);
+            groupItr->second->decorate(itr->first, themeNode, isMCU ? DECORATION_CONTEXT::MCU : DECORATION_CONTEXT::MPU);
     }
+}
+
+void DSThemeManager::decorateThemeComponent(ModelNode rootNode) const
+{
+    if (!m_themes.size())
+        return;
+
+    auto itr = m_themes.begin();
+    for (auto groupItr = m_groups.begin(); groupItr != m_groups.end(); ++groupItr)
+        groupItr->second->decorate(itr->first, rootNode, DECORATION_CONTEXT::COMPONENT_THEME);
 }
 
 DSThemeGroup *DSThemeManager::propertyGroup(GroupType type)
