@@ -42,7 +42,6 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QStackedWidget>
 #include <QToolButton>
 #include <QUrlQuery>
 
@@ -766,22 +765,20 @@ public:
         setDisplayName(Tr::tr("Axivion"));
         setPriorityInStatusBar(-50);
 
-        m_outputWidget = new QStackedWidget;
-        IssuesWidget *issuesWidget = new IssuesWidget(m_outputWidget);
-        m_outputWidget->addWidget(issuesWidget);
+        m_issuesWidget = new IssuesWidget;
 
-        QPalette pal = m_outputWidget->palette();
+        QPalette pal = m_issuesWidget->palette();
         pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
-        m_outputWidget->setPalette(pal);
+        m_issuesWidget->setPalette(pal);
 
-        m_disableInlineIssues = new QToolButton(m_outputWidget);
+        m_disableInlineIssues = new QToolButton(m_issuesWidget);
         m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE.icon());
         m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
         m_disableInlineIssues->setCheckable(true);
         m_disableInlineIssues->setChecked(false);
         connect(m_disableInlineIssues, &QToolButton::toggled,
                 this, [](bool checked) {  disableInlineIssues(checked); });
-        m_toggleIssues = new QToolButton(m_outputWidget);
+        m_toggleIssues = new QToolButton(m_issuesWidget);
         m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
         m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
         m_toggleIssues->setCheckable(true);
@@ -796,17 +793,17 @@ public:
 
     ~AxivionOutputPane()
     {
-        if (!m_outputWidget->parent())
-            delete m_outputWidget;
+        if (!m_issuesWidget->parent())
+            delete m_issuesWidget;
     }
 
     QWidget *outputWidget(QWidget *parent) final
     {
-        if (m_outputWidget)
-            m_outputWidget->setParent(parent);
+        if (m_issuesWidget)
+            m_issuesWidget->setParent(parent);
         else
             QTC_CHECK(false);
-        return m_outputWidget;
+        return m_issuesWidget;
     }
 
     QList<QWidget *> toolBarWidgets() const final
@@ -826,38 +823,27 @@ public:
 
     void handleShowIssues(const QString &kind)
     {
-        QTC_ASSERT(m_outputWidget, return);
-        m_outputWidget->setCurrentIndex(0);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
-            issues->updateUi(kind);
+        m_issuesWidget->updateUi(kind);
     }
 
     void handleShowFilterException(const QString &errorMessage)
     {
-        QTC_ASSERT(m_outputWidget, return);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
-            issues->showOverlay(errorMessage);
+        m_issuesWidget->showOverlay(errorMessage);
     }
 
     void reinitDashboardList(const QString &preferredProject)
     {
-        QTC_ASSERT(m_outputWidget, return);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
-            issues->initDashboardList(preferredProject);
+        m_issuesWidget->initDashboardList(preferredProject);
     }
 
     void resetDashboard()
     {
-        QTC_ASSERT(m_outputWidget, return);
-        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
-            issues->resetDashboard();
+        m_issuesWidget->resetDashboard();
     }
 
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
     {
-        auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0));
-        std::optional<Dto::TableInfoDto> tableInfoOpt = issues ? issues->currentTableInfo()
-                                                               : std::nullopt;
+        std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
         if (!tableInfoOpt)
             return false;
         const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
@@ -869,7 +855,7 @@ public:
 
         QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
         QUrl dashboardUrl = info->source.resolved(baseUri);
-        const IssueListSearch search = issues->searchFromUi();
+        const IssueListSearch search = m_issuesWidget->searchFromUi();
         issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
         dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
 
@@ -896,7 +882,7 @@ public:
     }
 
 private:
-    QStackedWidget *m_outputWidget = nullptr;
+    IssuesWidget *m_issuesWidget = nullptr;
     QToolButton *m_toggleIssues = nullptr;
     QToolButton *m_disableInlineIssues = nullptr;
 };
