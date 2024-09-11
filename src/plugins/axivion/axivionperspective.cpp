@@ -1,7 +1,7 @@
 // Copyright (C) 2022 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "axivionoutputpane.h"
+#include "axivionperspective.h"
 
 #include "axivionplugin.h"
 #include "axivionsettings.h"
@@ -10,8 +10,12 @@
 #include "issueheaderview.h"
 #include "dynamiclistmodel.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/icore.h>
 #include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/ioutputpane.h>
+
+#include <debugger/analyzer/analyzerconstants.h>
+#include <debugger/debuggermainwindow.h>
 
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/project.h>
@@ -22,6 +26,7 @@
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/checkablemessagebox.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/link.h>
@@ -42,6 +47,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QTextBrowser>
 #include <QToolButton>
 #include <QUrlQuery>
 
@@ -755,180 +761,217 @@ void IssuesWidget::hideOverlay()
         m_overlay->hide();
 }
 
-class AxivionOutputPane final : public IOutputPane
+class AxivionPerspective : public Perspective
 {
 public:
-    explicit AxivionOutputPane(QObject *parent)
-        : IOutputPane(parent)
-    {
-        setId("Axivion");
-        setDisplayName(Tr::tr("Axivion"));
-        setPriorityInStatusBar(-50);
+    AxivionPerspective() : Perspective("Axivion.Perspective", Tr::tr("Axivion")) {}
+    void initPerspective();
 
-        m_issuesWidget = new IssuesWidget;
-
-        QPalette pal = m_issuesWidget->palette();
-        pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
-        m_issuesWidget->setPalette(pal);
-
-        m_disableInlineIssues = new QToolButton(m_issuesWidget);
-        m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE.icon());
-        m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
-        m_disableInlineIssues->setCheckable(true);
-        m_disableInlineIssues->setChecked(false);
-        connect(m_disableInlineIssues, &QToolButton::toggled,
-                this, [](bool checked) {  disableInlineIssues(checked); });
-        m_toggleIssues = new QToolButton(m_issuesWidget);
-        m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-        m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
-        m_toggleIssues->setCheckable(true);
-        m_toggleIssues->setChecked(true);
-        connect(m_toggleIssues, &QToolButton::toggled, this, [](bool checked) {
-            if (checked)
-                TextEditor::TextDocument::showMarksAnnotation("AxivionTextMark");
-            else
-                TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
-        });
-    }
-
-    ~AxivionOutputPane()
-    {
-        if (!m_issuesWidget->parent())
-            delete m_issuesWidget;
-    }
-
-    QWidget *outputWidget(QWidget *parent) final
-    {
-        if (m_issuesWidget)
-            m_issuesWidget->setParent(parent);
-        else
-            QTC_CHECK(false);
-        return m_issuesWidget;
-    }
-
-    QList<QWidget *> toolBarWidgets() const final
-    {
-        return {m_disableInlineIssues, m_toggleIssues};
-    }
-
-    void clearContents() final {}
-    void setFocus() final {}
-    bool hasFocus() const final { return false; }
-    bool canFocus() const final { return true; }
-    bool canNavigate() const final { return true; }
-    bool canNext() const final { return false; }
-    bool canPrevious() const final { return false; }
-    void goToNext() final {}
-    void goToPrev() final {}
-
-    void handleShowIssues(const QString &kind)
-    {
-        m_issuesWidget->updateUi(kind);
-    }
-
-    void handleShowFilterException(const QString &errorMessage)
-    {
-        m_issuesWidget->showOverlay(errorMessage);
-    }
-
-    void reinitDashboardList(const QString &preferredProject)
-    {
-        m_issuesWidget->initDashboardList(preferredProject);
-    }
-
-    void resetDashboard()
-    {
-        m_issuesWidget->resetDashboard();
-    }
-
-    bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
-    {
-        std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
-        if (!tableInfoOpt)
-            return false;
-        const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
-        if (baseUri.isEmpty())
-            return false;
-        auto info = currentDashboardInfo();
-        if (!info)
-            return false;
-
-        QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
-        QUrl dashboardUrl = info->source.resolved(baseUri);
-        const IssueListSearch search = m_issuesWidget->searchFromUi();
-        issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
-        dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
-
-        QMenu *menu = new QMenu;
-        auto action = new QAction(Tr::tr("Open Issue in Dashboard"), menu);
-        menu->addAction(action);
-        QObject::connect(action, &QAction::triggered, menu, [issueBaseUrl] {
-            QDesktopServices::openUrl(issueBaseUrl);
-        });
-        action = new QAction(Tr::tr("Open Table in Dashboard"), menu);
-        QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
-            QDesktopServices::openUrl(dashboardUrl);
-        });
-        menu->addAction(action);
-        action = new QAction(Tr::tr("Copy Dashboard Link to Clipboard"), menu);
-        QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
-            if (auto clipboard = QGuiApplication::clipboard())
-                clipboard->setText(dashboardUrl.toString());
-        });
-        menu->addAction(action);
-        QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
-        menu->popup(e.globalPos());
-        return true;
-    }
+    void handleShowIssues(const QString &kind);
+    void handleShowFilterException(const QString &errorMessage);
+    void reinitDashboardList(const QString &preferredProject);
+    void resetDashboard();
+    bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
+    void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
+    void handleAnchorClicked(const QUrl &url);
 
 private:
     IssuesWidget *m_issuesWidget = nullptr;
-    QToolButton *m_toggleIssues = nullptr;
-    QToolButton *m_disableInlineIssues = nullptr;
+    QTextBrowser *m_issueDetails = nullptr;
+    QAction *m_disableInlineIssues = nullptr;
+    QAction *m_toggleIssues = nullptr;
 };
 
-
-static QPointer<AxivionOutputPane> theAxivionOutputPane;
-
-void setupAxivionOutputPane(QObject *guard)
+void AxivionPerspective::initPerspective()
 {
-    theAxivionOutputPane = new AxivionOutputPane(guard);
+    m_issuesWidget = new IssuesWidget;
+    m_issuesWidget->setObjectName("AxivionIssuesWidget");
+    m_issuesWidget->setWindowTitle(Tr::tr("Issues"));
+    QPalette pal = m_issuesWidget->palette();
+    pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
+    m_issuesWidget->setPalette(pal);
+
+    m_issueDetails = new QTextBrowser;
+    m_issueDetails->setObjectName("AxivionIssuesDetails");
+    m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
+    const QString text = Tr::tr(
+                "Search for issues inside the Axivion dashboard or request issue details for "
+                "Axivion inline annotations to see them here.");
+    m_issueDetails->setText("<p style='text-align:center'>" + text + "</p>");
+    m_issueDetails->setOpenLinks(false);
+    connect(m_issueDetails, &QTextBrowser::anchorClicked,
+            this, &AxivionPerspective::handleAnchorClicked);
+
+    m_disableInlineIssues = new QAction(this);
+    m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE.icon());
+    m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
+    m_disableInlineIssues->setCheckable(true);
+    m_disableInlineIssues->setChecked(false);
+    connect(m_disableInlineIssues, &QAction::toggled,
+            this, [](bool checked) {  disableInlineIssues(checked); });
+    m_toggleIssues = new QAction(this);
+    m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
+    m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
+    m_toggleIssues->setCheckable(true);
+    m_toggleIssues->setChecked(true);
+    connect(m_toggleIssues, &QAction::toggled, this, [](bool checked) {
+        if (checked)
+            TextEditor::TextDocument::showMarksAnnotation("AxivionTextMark");
+        else
+            TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
+    });
+
+
+    addToolBarAction(m_disableInlineIssues);
+    addToolBarAction(m_toggleIssues);
+
+    addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
+    addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
+
+    ActionContainer *menu = ActionManager::actionContainer(Debugger::Constants::M_DEBUG_ANALYZER);
+    QAction *action = new QAction(Tr::tr("Axivion"), this);
+    menu->addAction(ActionManager::registerAction(action, "Axivion.Perspective"),
+                    Debugger::Constants::G_ANALYZER_TOOLS);
+    connect(action, &QAction::triggered,
+            this, &Perspective::select);
+}
+
+void AxivionPerspective::handleShowIssues(const QString &kind)
+{
+    m_issuesWidget->updateUi(kind);
+}
+
+void AxivionPerspective::handleShowFilterException(const QString &errorMessage)
+{
+    m_issuesWidget->showOverlay(errorMessage);
+}
+
+void AxivionPerspective::reinitDashboardList(const QString &preferredProject)
+{
+    m_issuesWidget->initDashboardList(preferredProject);
+}
+
+void AxivionPerspective::resetDashboard()
+{
+    m_issuesWidget->resetDashboard();
+}
+
+bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewEvent &e)
+{
+    std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
+    if (!tableInfoOpt)
+        return false;
+    const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
+    if (baseUri.isEmpty())
+        return false;
+    auto info = currentDashboardInfo();
+    if (!info)
+        return false;
+
+    QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
+    QUrl dashboardUrl = info->source.resolved(baseUri);
+    const IssueListSearch search = m_issuesWidget->searchFromUi();
+    issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
+    dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
+
+    QMenu *menu = new QMenu;
+    auto action = new QAction(Tr::tr("Open Issue in Dashboard"), menu);
+    menu->addAction(action);
+    QObject::connect(action, &QAction::triggered, menu, [issueBaseUrl] {
+        QDesktopServices::openUrl(issueBaseUrl);
+    });
+    action = new QAction(Tr::tr("Open Table in Dashboard"), menu);
+    QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
+        QDesktopServices::openUrl(dashboardUrl);
+    });
+    menu->addAction(action);
+    action = new QAction(Tr::tr("Copy Dashboard Link to Clipboard"), menu);
+    QObject::connect(action, &QAction::triggered, menu, [dashboardUrl] {
+        if (auto clipboard = QGuiApplication::clipboard())
+            clipboard->setText(dashboardUrl.toString());
+    });
+    menu->addAction(action);
+    QObject::connect(menu, &QMenu::aboutToHide, menu, &QObject::deleteLater);
+    menu->popup(e.globalPos());
+    return true;
+}
+
+void AxivionPerspective::handleAnchorClicked(const QUrl &url)
+{
+    if (!url.scheme().isEmpty()) {
+        const QString detail = Tr::tr("The activated link appears to be external.\n"
+                                      "Do you want to open \"%1\" with its default application?")
+                .arg(url.toString());
+        const QMessageBox::StandardButton pressed
+            = CheckableMessageBox::question(Core::ICore::dialogParent(),
+                                            Tr::tr("Open External Links"),
+                                            detail,
+                                            Key("AxivionOpenExternalLinks"));
+        if (pressed == QMessageBox::Yes)
+            QDesktopServices::openUrl(url);
+        return;
+    }
+    const QUrlQuery query(url);
+    if (query.isEmpty())
+        return;
+    Link link;
+    if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
+        link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
+    if (const QString line = query.queryItemValue("line"); !line.isEmpty())
+        link.targetLine = line.toInt();
+    // column entry is wrong - so, ignore it
+    if (link.hasValidTarget() && link.targetFilePath.exists())
+        EditorManager::openEditorAt(link);
+}
+
+static QPointer<AxivionPerspective> theAxivionPerspective;
+
+void setupAxivionPerspective()
+{
+    QTC_ASSERT(!theAxivionPerspective, return);
+    theAxivionPerspective = new AxivionPerspective();
+    theAxivionPerspective->initPerspective();
 }
 
 void updateDashboard()
 {
-    QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->handleShowIssues({});
-    theAxivionOutputPane->flash();
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->handleShowIssues({});
 }
 
 void reinitDashboard(const QString &preferredProject)
 {
-    QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->reinitDashboardList(preferredProject);
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->reinitDashboardList(preferredProject);
 }
 
 void resetDashboard()
 {
-    QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->resetDashboard();
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->resetDashboard();
 }
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev)
 {
-    QTC_ASSERT(theAxivionOutputPane, return false);
+    QTC_ASSERT(theAxivionPerspective, return false);
     const QModelIndexList selectedIndices = ev.selectedRows();
     const QModelIndex first = selectedIndices.isEmpty() ? QModelIndex() : selectedIndices.first();
     if (!first.isValid())
         return false;
     const QString issue = first.data().toString();
-    return theAxivionOutputPane->handleContextMenu(issue, ev);
+    return theAxivionPerspective->handleContextMenu(issue, ev);
 }
 
 void showFilterException(const QString &errorMessage)
 {
-    QTC_ASSERT(theAxivionOutputPane, return);
-    theAxivionOutputPane->handleShowFilterException(errorMessage);
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->handleShowFilterException(errorMessage);
+}
+
+void updateIssueDetails(const QString &html)
+{
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->setIssueDetailsHtml(html);
 }
 
 } // Axivion::Internal

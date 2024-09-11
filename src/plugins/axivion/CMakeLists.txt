@@ -1,10 +1,10 @@
 add_qtc_plugin(Axivion
   PLUGIN_DEPENDS
-    Core ProjectExplorer TextEditor
+    Core Debugger ProjectExplorer TextEditor
   DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils qtkeychain
   SOURCES
     axivion.qrc
-    axivionoutputpane.cpp axivionoutputpane.h
+    axivionperspective.cpp axivionperspective.h
     axivionplugin.cpp axivionplugin.h
     axivionsettings.cpp axivionsettings.h
     axiviontr.h

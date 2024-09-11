@@ -3,7 +3,7 @@
 
 #include "axivionplugin.h"
 
-#include "axivionoutputpane.h"
+#include "axivionperspective.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 #include "credentialquery.h"
@@ -13,14 +13,11 @@
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/navigationwidget.h>
 #include <coreplugin/session.h>
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
@@ -28,12 +25,10 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <texteditor/textdocument.h>
-#include <texteditor/texteditor.h>
 #include <texteditor/textmark.h>
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
-#include <utils/checkablemessagebox.h>
 #include <utils/environment.h>
 #include <utils/fileinprojectfinder.h>
 #include <utils/networkaccessmanager.h>
@@ -41,13 +36,10 @@
 #include <utils/utilsicons.h>
 
 #include <QAction>
-#include <QDesktopServices>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
-#include <QTextBrowser>
-#include <QTimer>
 #include <QUrlQuery>
 
 #include <memory>
@@ -224,14 +216,9 @@ public:
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
     void disableInlineIssues(bool disable);
     void fetchIssueInfo(const QString &id);
-    void setIssueDetails(const QString &issueDetailsHtml);
-    void handleAnchorClicked(const QUrl &url);
 
     void onSessionLoaded(const QString &sessionName);
     void onAboutToSaveSession();
-
-signals:
-    void issueDetailsChanged(const QString &issueDetailsHtml);
 
 public:
     // active id used for any network communication, defaults to settings' default
@@ -934,16 +921,10 @@ void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
         if (idx >= 0)
             fixedHtml = "<html><body>" + htmlText.mid(idx);
 
-        NavigationWidget::activateSubWidget("Axivion.Issue", Side::Right);
-        dd->setIssueDetails(QString::fromUtf8(fixedHtml));
+        updateIssueDetails(QString::fromUtf8(fixedHtml));
     };
 
     m_issueInfoRunner.start(issueHtmlRecipe(id, ruleHandler));
-}
-
-void AxivionPluginPrivate::setIssueDetails(const QString &issueDetailsHtml)
-{
-    emit issueDetailsChanged(issueDetailsHtml);
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()
@@ -1050,36 +1031,6 @@ void AxivionPluginPrivate::disableInlineIssues(bool disable)
         handleOpenedDocs();
 }
 
-void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
-{
-    QTC_ASSERT(dd, return);
-    QTC_ASSERT(dd->m_project, return);
-    if (!url.scheme().isEmpty()) {
-        const QString detail = Tr::tr("The activated link appears to be external.\n"
-                                      "Do you want to open \"%1\" with its default application?")
-                .arg(url.toString());
-        const QMessageBox::StandardButton pressed
-            = CheckableMessageBox::question(Core::ICore::dialogParent(),
-                                            Tr::tr("Open External Links"),
-                                            detail,
-                                            Key("AxivionOpenExternalLinks"));
-        if (pressed == QMessageBox::Yes)
-            QDesktopServices::openUrl(url);
-        return;
-    }
-    const QUrlQuery query(url);
-    if (query.isEmpty())
-        return;
-    Link link;
-    if (const QString path = query.queryItemValue("filename", QUrl::FullyDecoded); !path.isEmpty())
-        link.targetFilePath = findFileForIssuePath(FilePath::fromUserInput(path));
-    if (const QString line = query.queryItemValue("line"); !line.isEmpty())
-        link.targetLine = line.toInt();
-    // column entry is wrong - so, ignore it
-    if (link.hasValidTarget() && link.targetFilePath.exists())
-        EditorManager::openEditorAt(link);
-}
-
 static constexpr char SV_PROJECTNAME[] = "Axivion.ProjectName";
 static constexpr char SV_DASHBOARDID[] = "Axivion.DashboardId";
 
@@ -1113,39 +1064,6 @@ void AxivionPluginPrivate::onAboutToSaveSession()
     SessionManager::setSessionValue(SV_PROJECTNAME, projectName);
 }
 
-class AxivionIssueWidgetFactory final : public INavigationWidgetFactory
-{
-public:
-    AxivionIssueWidgetFactory()
-    {
-        setDisplayName(Tr::tr("Axivion"));
-        setId("Axivion.Issue");
-        setPriority(555);
-    }
-
-    NavigationView createWidget() final
-    {
-        QTC_ASSERT(dd, return {});
-        QTextBrowser *browser = new QTextBrowser;
-        const QString text = Tr::tr(
-                    "Search for issues inside the Axivion dashboard or request issue details for "
-                    "Axivion inline annotations to see them here.");
-        browser->setText("<p style='text-align:center'>" + text + "</p>");
-        browser->setOpenLinks(false);
-        NavigationView view;
-        view.widget = browser;
-        connect(dd, &AxivionPluginPrivate::issueDetailsChanged, browser, &QTextBrowser::setHtml);
-        connect(browser, &QTextBrowser::anchorClicked,
-                dd, &AxivionPluginPrivate::handleAnchorClicked);
-        return view;
-    }
-};
-
-void setupAxivionIssueWidgetFactory()
-{
-    static AxivionIssueWidgetFactory issueWidgetFactory;
-}
-
 class AxivionPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -1159,11 +1077,9 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
-        setupAxivionOutputPane(this);
+        setupAxivionPerspective();
 
         dd = new AxivionPluginPrivate;
-
-        setupAxivionIssueWidgetFactory();
 
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
                 dd, &AxivionPluginPrivate::onStartupProjectChanged);

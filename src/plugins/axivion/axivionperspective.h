@@ -7,10 +7,11 @@
 
 namespace Axivion::Internal {
 
-void setupAxivionOutputPane(QObject *guard);
+void setupAxivionPerspective();
 void updateDashboard();
 void showFilterException(const QString &errorMessage);
 void reinitDashboard(const QString &projectName);
 void resetDashboard();
+void updateIssueDetails(const QString &html);
 
 } // Axivion::Internal

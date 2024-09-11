@@ -4,6 +4,7 @@ QtcPlugin {
     name: "Axivion"
 
     Depends { name: "Core" }
+    Depends { name: "Debugger" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
@@ -14,8 +15,8 @@ QtcPlugin {
 
     files: [
         "axivion.qrc",
-        "axivionoutputpane.cpp",
-        "axivionoutputpane.h",
+        "axivionperspective.cpp",
+        "axivionperspective.h",
         "axivionplugin.cpp",
         "axivionplugin.h",
         "axivionsettings.cpp",
