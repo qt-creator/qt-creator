@@ -949,7 +949,7 @@ VcsCommand *BazaarPluginPrivate::createInitialCheckoutCommand(const QString &url
 {
     Environment env = m_client.processEnvironment(baseDirectory);
     env.set("BZR_PROGRESS_BAR", "text");
-    auto command = VcsBaseClient::createVcsCommand(this, baseDirectory, env);
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory, env);
     command->addJob({m_client.vcsBinary(baseDirectory),
         {m_client.vcsCommandString(BazaarClient::CloneCommand), extraArgs, url, localName}}, -1);
     return command;

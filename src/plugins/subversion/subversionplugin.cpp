@@ -1149,7 +1149,7 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
     args << SubversionClient::AddAuthOptions();
     args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;
 
-    auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
                    subversionClient().processEnvironment(baseDirectory));
     command->addJob(args, -1);
     return command;

@@ -42,10 +42,7 @@ public:
     virtual Utils::FilePath vcsBinary(const Utils::FilePath &forDirectory) const;
     int vcsTimeoutS() const;
 
-    // TODO: For master: remove this overload.
     static VcsCommand *createVcsCommand(const Utils::FilePath &defaultWorkingDir,
-                                        const Utils::Environment &environment);
-    static VcsCommand *createVcsCommand(QObject *parent, const Utils::FilePath &defaultWorkingDir,
                                         const Utils::Environment &environment);
 
     VcsBaseEditorWidget *createVcsEditor(Utils::Id kind, QString title,
