@@ -342,13 +342,14 @@ public:
             !m_data->installIntoApplication);
         installLocation.ensureWritableDir();
 
-        m_summaryLabel->setText(Tr::tr("%1 will be installed into %2.")
-                                    .arg(QString("[%1](%2)")
-                                             .arg(m_data->sourcePath.fileName())
-                                             .arg(m_data->sourcePath.parentDir().toUrl().toString()))
-                                    .arg(QString("[%1](%2)")
-                                             .arg(installLocation.fileName())
-                                             .arg(installLocation.toUrl().toString())));
+        m_summaryLabel->setText(
+            Tr::tr("%1 will be installed into %2.")
+                .arg(QString("[%1](%2)")
+                         .arg(m_data->sourcePath.fileName())
+                         .arg(m_data->sourcePath.parentDir().toUrl().toString(QUrl::FullyEncoded)))
+                .arg(QString("[%1](%2)")
+                         .arg(installLocation.fileName())
+                         .arg(installLocation.toUrl().toString(QUrl::FullyEncoded))));
 
         m_loadImmediately->setVisible(m_data->pluginSpec && m_data->pluginSpec->isSoftLoadable());
     }
