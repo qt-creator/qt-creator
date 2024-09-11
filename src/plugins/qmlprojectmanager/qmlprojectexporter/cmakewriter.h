@@ -20,6 +20,7 @@ struct Node
         Module,
         Library,
         Folder,
+        MockModule
     };
 
     std::shared_ptr<Node> parent = nullptr;
@@ -63,6 +64,8 @@ public:
     static void writeFile(const Utils::FilePath &path, const QString &content);
 
     CMakeWriter(CMakeGenerator *parent);
+    virtual ~CMakeWriter() = default;
+
     const CMakeGenerator *parent() const;
 
     virtual bool isPlugin(const NodePtr &node) const;
@@ -89,11 +92,12 @@ protected:
     QString makeSingletonBlock(const NodePtr &node) const;
     QString makeSubdirectoriesBlock(const NodePtr &node) const;
     QString makeSetEnvironmentFn() const;
-    std::tuple<QString, QString> makeResourcesBlocks(const NodePtr &node) const;
-
+    std::tuple<QString, QString> makeResourcesBlocksRoot(const NodePtr &node) const;
+    std::tuple<QString, QString> makeResourcesBlocksModule(const NodePtr &node) const;
 
 private:
     void collectPlugins(const NodePtr &node, std::vector<QString> &out) const;
+    void collectResources(const NodePtr &node, QStringList &res, QStringList &bigRes) const;
     const CMakeGenerator *m_parent = nullptr;
 };
 

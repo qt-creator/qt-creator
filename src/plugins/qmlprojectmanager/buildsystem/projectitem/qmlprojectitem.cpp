@@ -212,6 +212,16 @@ void QmlProjectItem::setImportPaths(const QStringList &importPaths)
     insertAndUpdateProjectFile("importPaths", QJsonArray::fromStringList(importPaths));
 }
 
+QStringList QmlProjectItem::mockImports() const
+{
+    return m_project["mockImports"].toVariant().toStringList();
+}
+
+void QmlProjectItem::setMockImports(const QStringList &paths)
+{
+    insertAndUpdateProjectFile("mockImports", QJsonArray::fromStringList(paths));
+}
+
 void QmlProjectItem::addImportPath(const QString &importPath)
 {
     QJsonArray importPaths = m_project["importPaths"].toArray();

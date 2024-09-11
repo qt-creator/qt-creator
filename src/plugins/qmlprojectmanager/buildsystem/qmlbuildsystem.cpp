@@ -716,14 +716,24 @@ QStringList QmlBuildSystem::shaderToolFiles() const
     return m_projectItem->shaderToolFiles();
 }
 
+QStringList QmlBuildSystem::allImports() const
+{
+    return m_projectItem->importPaths() + m_projectItem->mockImports();
+}
+
 QStringList QmlBuildSystem::importPaths() const
 {
     return m_projectItem->importPaths();
 }
 
+QStringList QmlBuildSystem::mockImports() const
+{
+    return m_projectItem->mockImports();
+}
+
 QStringList QmlBuildSystem::absoluteImportPaths() const
 {
-    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
+    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
         Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
         if (!filePath.isAbsolutePath())
             return (projectDirectory() / importPath).toString();

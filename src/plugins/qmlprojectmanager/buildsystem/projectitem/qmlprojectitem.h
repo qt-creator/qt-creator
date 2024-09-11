@@ -46,6 +46,9 @@ public:
     void setImportPaths(const QStringList &paths);
     void addImportPath(const QString &importPath);
 
+    QStringList mockImports() const;
+    void setMockImports(const QStringList &paths);
+
     QStringList qmlProjectModules() const;
 
     QStringList fileSelectors() const;

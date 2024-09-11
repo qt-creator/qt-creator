@@ -88,7 +88,17 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
         const Utils::FilePath userFile = node->dir.pathAppended("qds.cmake");
         QString userFileContent(DO_NOT_EDIT_FILE);
         userFileContent.append(makeSubdirectoriesBlock(node));
-        userFileContent.append("\n");
+
+        auto [resources, bigResources] = makeResourcesBlocksRoot(node);
+        if (!resources.isEmpty()) {
+            userFileContent.append(resources);
+            userFileContent.append("\n");
+        }
+
+        if (!bigResources.isEmpty()) {
+            userFileContent.append(bigResources);
+            userFileContent.append("\n");
+        }
 
         QString pluginNames;
         std::vector<QString> plugs = plugins(node);
@@ -102,6 +112,7 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
             "target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE\n"
             "%1)");
 
+        userFileContent.append("\n");
         userFileContent.append(linkLibrariesTemplate.arg(pluginNames));
         writeFile(userFile, userFileContent);
         return;
@@ -119,7 +130,7 @@ void CMakeWriterV1::writeModuleCMakeFile(const NodePtr &node, const NodePtr &) c
     prefix.append(makeSubdirectoriesBlock(node));
     prefix.append(makeSingletonBlock(node));
 
-    auto [resources, bigResources] = makeResourcesBlocks(node);
+    auto [resources, bigResources] = makeResourcesBlocksModule(node);
     QString moduleContent;
     moduleContent.append(makeQmlFilesBlock(node));
     moduleContent.append(resources);

@@ -147,6 +147,7 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendBool("enablePythonGeneration", deploymentConfig["enablePythonGeneration"].toBool());
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
+        appendStringArray("mockImports", rootObject["mockImports"].toVariant().toStringList());
         appendBreak();
         appendString("qdsVersion", versionConfig["designStudio"].toString());
         appendString("quickVersion", versionConfig["qtQuick"].toString());
@@ -411,6 +412,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
         } else if (propName.contains("importpaths", Qt::CaseInsensitive)) {
             objKey = "importPaths";
             importPaths = value.toVariant().toStringList();
+        } else if (propName.contains("mockImports", Qt::CaseInsensitive)) {
+            objKey = "mockImports";
         } else {
             currentObj = &otherProperties;
             objKey = propName; // With prefix

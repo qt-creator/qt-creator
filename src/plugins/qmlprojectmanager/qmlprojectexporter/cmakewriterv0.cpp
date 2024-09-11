@@ -106,7 +106,7 @@ void CMakeWriterV0::writeModuleCMakeFile(const NodePtr &node, const NodePtr &roo
     QString qmlModulesContent;
     qmlModulesContent.append(makeQmlFilesBlock(node));
 
-    auto [resources, bigResources] = makeResourcesBlocks(node);
+    auto [resources, bigResources] = makeResourcesBlocksModule(node);
     qmlModulesContent.append(resources);
 
     if (!qmlModulesContent.isEmpty()) {

@@ -172,7 +172,7 @@ bool CMakeGenerator::checkUri(const QString& uri, const Utils::FilePath &path) c
     Utils::FilePath relative = path.relativeChildPath(m_root->dir);
     QList<QStringView> pathComponents = relative.pathView().split('/', Qt::SkipEmptyParts);
 
-    for (const auto& import : buildSystem()->importPaths()) {
+    for (const auto& import : buildSystem()->allImports()) {
         Utils::FilePath importPath = Utils::FilePath::fromUserInput(import);
         for (const auto& component : importPath.pathView().split('/', Qt::SkipEmptyParts)) {
             if (component == pathComponents.first())
@@ -219,9 +219,25 @@ void CMakeGenerator::createSourceFiles() const
         m_writer->writeSourceFiles(sourceNode, m_root);
 }
 
+bool CMakeGenerator::isMockModule(const NodePtr &node) const
+{
+    QTC_ASSERT(buildSystem(), return false);
+
+    Utils::FilePath dir = node->dir.parentDir();
+    QString mockDir = dir.relativeChildPath(m_root->dir).path();
+    for (const QString &import : buildSystem()->mockImports()) {
+        if (import == mockDir)
+            return true;
+    }
+    return false;
+}
+
 void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) const
 {
-    node->type = Node::Type::Module;
+    if (isMockModule(node))
+        node->type = Node::Type::MockModule;
+    else
+        node->type = Node::Type::Module;
 
     QFile f(filePath.toString());
     f.open(QIODevice::ReadOnly);

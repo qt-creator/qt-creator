@@ -17,6 +17,13 @@ namespace QmlProjectManager {
 
 namespace QmlProjectExporter {
 
+const char TEMPLATE_RESOURCES[] = R"(
+qt6_add_resources(%1 %2
+    PREFIX "%3"
+    VERSION 1.0
+    FILES %4
+))";
+
 const char TEMPLATE_BIG_RESOURCES[] = R"(
 qt6_add_resources(%1 %2
     BIG_RESOURCES
@@ -235,36 +242,64 @@ QString CMakeWriter::makeSetEnvironmentFn() const
     return out;
 }
 
-std::tuple<QString, QString> CMakeWriter::makeResourcesBlocks(const NodePtr &node) const
+std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksRoot(const NodePtr &node) const
 {
     QString resourcesOut;
     QString bigResourcesOut;
 
-    QString resourceFiles;
-    std::vector<QString> bigResources;
-    for (const Utils::FilePath &path : assets(node)) {
-        if (path.fileSize() > 5000000) {
-            bigResources.push_back(makeRelative(node, path));
-            continue;
-        }
-        resourceFiles.append(QString("\t\t%1\n").arg(makeRelative(node, path)));
+    QStringList res;
+    QStringList bigRes;
+    collectResources(node, res, bigRes);
+
+    if (!res.isEmpty()) {
+        QString resourceContent;
+        for (const QString &r : res)
+            resourceContent.append(QString("\n\t\t%1").arg(r));
+
+        const QString resourceName = node->name + "Resource";
+        resourcesOut = QString::fromUtf8(TEMPLATE_RESOURCES, -1)
+            .arg("${CMAKE_PROJECT_NAME}", resourceName, "/qt/qml", resourceContent);
     }
 
-    if (!resourceFiles.isEmpty())
-        resourcesOut.append(QString("\tRESOURCES\n%1").arg(resourceFiles));
+    if (!bigRes.isEmpty()) {
+        QString bigResourceContent;
+        for (const QString &r : bigRes)
+            bigResourceContent.append(QString("\n\t\t%1").arg(r));
 
-    QString templatePostfix;
-    if (!bigResources.empty()) {
+        const QString resourceName = node->name + "BigResource";
+        bigResourcesOut = QString::fromUtf8(TEMPLATE_BIG_RESOURCES, -1)
+            .arg("${CMAKE_PROJECT_NAME}", resourceName, "/qt/qml", bigResourceContent);
+    }
+
+    return {resourcesOut, bigResourcesOut};
+}
+
+std::tuple<QString, QString> CMakeWriter::makeResourcesBlocksModule(const NodePtr &node) const
+{
+    QString resourcesOut;
+    QString bigResourcesOut;
+
+    QStringList res;
+    QStringList bigRes;
+    collectResources(node, res, bigRes);
+
+    if (!res.isEmpty()) {
+        resourcesOut = "\tRESOURCES\n";
+        for (const QString &r : res)
+            resourcesOut.append(QString("\t\t%1\n").arg(r));
+    }
+
+    if (!bigRes.isEmpty()) {
         QString resourceContent;
-        for (const QString &res : bigResources)
-            resourceContent.append(QString("\n    %1").arg(res));
+        for (const QString &res : bigRes)
+            resourceContent.append(QString("\n\t\t%1").arg(res));
 
         const QString prefixPath = QString(node->uri).replace('.', '/');
         const QString prefix = "/qt/qml/" + prefixPath;
         const QString resourceName = node->name + "BigResource";
 
         bigResourcesOut = QString::fromUtf8(TEMPLATE_BIG_RESOURCES, -1)
-                              .arg(node->name, resourceName, prefix, resourceContent);
+            .arg(node->name, resourceName, prefix, resourceContent);
     }
 
     return {resourcesOut, bigResourcesOut};
@@ -276,6 +311,17 @@ void CMakeWriter::collectPlugins(const NodePtr &node, std::vector<QString> &out)
         out.push_back(node->name);
     for (const auto &child : node->subdirs)
         collectPlugins(child, out);
+}
+
+void CMakeWriter::collectResources(const NodePtr &node, QStringList &res, QStringList &bigRes) const
+{
+    for (const Utils::FilePath &path : assets(node)) {
+        if (path.fileSize() > 5000000) {
+            bigRes.push_back(makeRelative(node, path));
+        } else {
+            res.append(makeRelative(node, path));
+        }
+    }
 }
 
 } // End namespace QmlProjectExporter.

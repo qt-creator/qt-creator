@@ -73,7 +73,9 @@ public:
 
     Utils::EnvironmentItems environment() const;
 
+    QStringList allImports() const;
     QStringList importPaths() const;
+    QStringList mockImports() const;
     QStringList absoluteImportPaths() const;
     QStringList fileSelectors() const;
 
