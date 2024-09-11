@@ -78,6 +78,7 @@ Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarke
 using HtmlHandler = std::function<void(const QByteArray &)>;
 Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
 
+void fetchDashboardInfo(const DashboardInfoHandler &handler);
 void fetchProjectInfo(const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
@@ -87,6 +88,7 @@ QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
+const Utils::Id activeDashboardId();
 const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);
 void disableInlineIssues(bool disable);

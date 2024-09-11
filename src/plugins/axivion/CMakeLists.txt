@@ -6,7 +6,6 @@ add_qtc_plugin(Axivion
     axivion.qrc
     axivionoutputpane.cpp axivionoutputpane.h
     axivionplugin.cpp axivionplugin.h
-    axivionprojectsettings.cpp axivionprojectsettings.h
     axivionsettings.cpp axivionsettings.h
     axiviontr.h
     credentialquery.h credentialquery.cpp

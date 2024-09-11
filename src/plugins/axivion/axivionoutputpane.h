@@ -10,5 +10,7 @@ namespace Axivion::Internal {
 void setupAxivionOutputPane(QObject *guard);
 void updateDashboard();
 void showFilterException(const QString &errorMessage);
+void reinitDashboard(const QString &projectName);
+void resetDashboard();
 
 } // Axivion::Internal

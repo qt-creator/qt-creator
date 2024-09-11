@@ -133,12 +133,17 @@ class IssuesWidget : public QScrollArea
 public:
     explicit IssuesWidget(QWidget *parent = nullptr);
     void updateUi(const QString &kind);
+    void initDashboardList(const QString &preferredProject = {});
+    void resetDashboard();
 
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
 
     void showOverlay(const QString &errorMessage = {});
+protected:
+    void showEvent(QShowEvent *event) override;
 private:
+    void reinitProjectList(const QString &currentProject);
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
@@ -156,6 +161,8 @@ private:
     QButtonGroup *m_typesButtonGroup = nullptr;
     QPushButton *m_addedFilter = nullptr;
     QPushButton *m_removedFilter = nullptr;
+    QComboBox *m_dashboards = nullptr;
+    QComboBox *m_dashboardProjects = nullptr;
     QComboBox *m_ownerFilter = nullptr;
     QComboBox *m_versionStart = nullptr;
     QComboBox *m_versionEnd = nullptr;
@@ -170,12 +177,31 @@ private:
     QStringList m_versionDates;
     TaskTreeRunner m_taskTreeRunner;
     OverlayWidget *m_overlay = nullptr;
+    bool m_dashboardListUninitialized = true;
 };
 
 IssuesWidget::IssuesWidget(QWidget *parent)
     : QScrollArea(parent)
 {
     QWidget *widget = new QWidget(this);
+    m_dashboards = new QComboBox(this);
+    m_dashboards->setMinimumContentsLength(15);
+    connect(m_dashboards, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        reinitProjectList(m_dashboardProjects->currentText());
+    });
+
+    m_dashboardProjects = new QComboBox(this);
+    m_dashboardProjects->setMinimumContentsLength(25);
+    connect(m_dashboardProjects, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_signalBlocker.isLocked())
+            return;
+        m_currentPrefix.clear();
+        m_currentProject.clear();
+        m_issuesModel->clear();
+        fetchProjectInfo(m_dashboardProjects->currentText());
+    });
     // row with issue types (-> depending on choice, tables below change)
     //  and a selectable range (start version, end version)
     // row with added/removed and some filters (assignee, path glob, (named filter))
@@ -256,7 +282,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
 
     using namespace Layouting;
     Column {
-        Row { m_typesLayout, st, m_versionStart, m_versionEnd, st },
+        Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
         Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
         m_issuesView,
         Row { st, m_totalRows }
@@ -265,6 +291,9 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     setWidget(widget);
     setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     setWidgetResizable(true);
+
+    connect(&settings(), &AxivionSettings::changed,
+            this, [this] { initDashboardList(); });
 }
 
 void IssuesWidget::updateUi(const QString &kind)
@@ -308,6 +337,63 @@ void IssuesWidget::updateUi(const QString &kind)
     fetchTable();
 }
 
+void IssuesWidget::resetDashboard()
+{
+    setFiltersEnabled(false);
+    updateBasicProjectInfo(std::nullopt);
+    GuardLocker lock(m_signalBlocker);
+    m_dashboardProjects->clear();
+    m_dashboards->clear();
+    m_dashboardListUninitialized = true;
+}
+
+void IssuesWidget::initDashboardList(const QString &preferredProject)
+{
+    const QString currentProject = preferredProject.isEmpty() ? m_dashboardProjects->currentText()
+                                                              : preferredProject;
+    resetDashboard();
+    m_dashboardListUninitialized = false;
+    GuardLocker lock(m_signalBlocker);
+    const QList<AxivionServer> servers = settings().allAvailableServers();
+    if (servers.isEmpty()) {
+        switchActiveDashboardId({});
+        return;
+    }
+    for (const AxivionServer &server : servers)
+        m_dashboards->addItem(server.displayString(), QVariant::fromValue(server));
+
+    Id activeId = activeDashboardId();
+    if (!activeId.isValid())
+        activeId = settings().defaultDashboardId();
+    if (activeId.isValid()) {
+        int index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
+        if (index < 0) {
+            activeId = settings().defaultDashboardId();
+            index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
+        }
+        m_dashboards->setCurrentIndex(index);
+    }
+    switchActiveDashboardId(activeId);
+    reinitProjectList(currentProject);
+}
+
+void IssuesWidget::reinitProjectList(const QString &currentProject)
+{
+    const auto onDashboardInfoFetched
+            = [this, currentProject] (const expected_str<DashboardInfo> &info) {
+        if (!info)
+            return;
+        GuardLocker lock(m_signalBlocker);
+        m_dashboardProjects->clear();
+        m_dashboardProjects->addItems(info->projects);
+        if (!currentProject.isEmpty() && info->projects.contains(currentProject))
+            m_dashboardProjects->setCurrentText(currentProject);
+        // FIXME ugly.. any better solution?
+        QTimer::singleShot(0, this, [this]() { fetchProjectInfo(m_dashboardProjects->currentText()); });
+    };
+    fetchDashboardInfo(onDashboardInfoFetched);
+}
+
 static Qt::Alignment alignmentFromString(const QString &str)
 {
     if (str == "left")
@@ -317,6 +403,13 @@ static Qt::Alignment alignmentFromString(const QString &str)
     if (str == "center")
         return Qt::AlignHCenter;
     return Qt::AlignLeft;
+}
+
+void IssuesWidget::showEvent(QShowEvent *event)
+{
+    if (m_dashboardListUninitialized)
+        initDashboardList();
+    QWidget::showEvent(event);
 }
 
 void IssuesWidget::updateTable()
@@ -509,6 +602,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     if (auto firstButton = m_typesButtonGroup->button(1))
         firstButton->setChecked(true);
 
+    GuardLocker lock(m_signalBlocker);
     m_userNames.clear();
     m_ownerFilter->clear();
     QStringList userDisplayNames;
@@ -516,9 +610,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         userDisplayNames.append(user.displayName);
         m_userNames.append(user.name);
     }
-    m_signalBlocker.lock();
     m_ownerFilter->addItems(userDisplayNames);
-    m_signalBlocker.unlock();
 
     m_versionDates.clear();
     m_versionStart->clear();
@@ -530,11 +622,9 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         versionLabels.append(version.name);
         m_versionDates.append(version.date);
     }
-    m_signalBlocker.lock();
     m_versionStart->addItems(versionLabels);
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
-    m_signalBlocker.unlock();
 }
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
@@ -751,6 +841,20 @@ public:
             issues->showOverlay(errorMessage);
     }
 
+    void reinitDashboardList(const QString &preferredProject)
+    {
+        QTC_ASSERT(m_outputWidget, return);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
+            issues->initDashboardList(preferredProject);
+    }
+
+    void resetDashboard()
+    {
+        QTC_ASSERT(m_outputWidget, return);
+        if (auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0)))
+            issues->resetDashboard();
+    }
+
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e)
     {
         auto issues = static_cast<IssuesWidget *>(m_outputWidget->widget(0));
@@ -812,6 +916,18 @@ void updateDashboard()
     QTC_ASSERT(theAxivionOutputPane, return);
     theAxivionOutputPane->handleShowIssues({});
     theAxivionOutputPane->flash();
+}
+
+void reinitDashboard(const QString &preferredProject)
+{
+    QTC_ASSERT(theAxivionOutputPane, return);
+    theAxivionOutputPane->reinitDashboardList(preferredProject);
+}
+
+void resetDashboard()
+{
+    QTC_ASSERT(theAxivionOutputPane, return);
+    theAxivionOutputPane->resetDashboard();
 }
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev)

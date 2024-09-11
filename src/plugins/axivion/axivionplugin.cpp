@@ -4,7 +4,6 @@
 #include "axivionplugin.h"
 
 #include "axivionoutputpane.h"
-#include "axivionprojectsettings.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
 #include "credentialquery.h"
@@ -17,6 +16,7 @@
 #include <coreplugin/inavigationwidgetfactory.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/navigationwidget.h>
+#include <coreplugin/session.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -214,6 +214,7 @@ public:
     AxivionPluginPrivate();
     void handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors);
     void onStartupProjectChanged(Project *project);
+    void fetchDashboardInfo(const DashboardInfoHandler &handler);
     void fetchProjectInfo(const QString &projectName);
     void handleOpenedDocs();
     void onDocumentOpened(IDocument *doc);
@@ -225,6 +226,9 @@ public:
     void fetchIssueInfo(const QString &id);
     void setIssueDetails(const QString &issueDetailsHtml);
     void handleAnchorClicked(const QUrl &url);
+
+    void onSessionLoaded(const QString &sessionName);
+    void onAboutToSaveSession();
 
 signals:
     void issueDetailsChanged(const QString &issueDetailsHtml);
@@ -279,6 +283,12 @@ public:
     }
 };
 
+void fetchDashboardInfo(const DashboardInfoHandler &handler)
+{
+    QTC_ASSERT(dd, return);
+    dd->fetchDashboardInfo(handler);
+}
+
 void fetchProjectInfo(const QString &projectName)
 {
     QTC_ASSERT(dd, return);
@@ -319,6 +329,11 @@ AxivionPluginPrivate::AxivionPluginPrivate()
 #endif // ssl
     connect(&settings().highlightMarks, &BoolAspect::changed,
             this, &AxivionPluginPrivate::updateExistingMarks);
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &AxivionPluginPrivate::onSessionLoaded);
+    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
+            this, &AxivionPluginPrivate::onAboutToSaveSession);
+
 }
 
 void AxivionPluginPrivate::handleSslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
@@ -367,9 +382,6 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
         m_fileFinder.setProjectFiles(m_project->files(Project::AllFiles));
         handleOpenedDocs();
     });
-    const AxivionProjectSettings *projSettings = AxivionProjectSettings::projectSettings(m_project);
-    switchActiveDashboardId(projSettings->dashboardId());
-    fetchProjectInfo(projSettings->dashboardProjectName());
 }
 
 static QUrl constructUrl(const QString &projectName, const QString &subPath, const QUrlQuery &query)
@@ -854,15 +866,17 @@ Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
     return fetchHtmlRecipe(url, handler);
 }
 
+void AxivionPluginPrivate::fetchDashboardInfo(const DashboardInfoHandler &handler)
+{
+    m_taskTreeRunner.start(dashboardInfoRecipe(handler));
+}
+
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    if (!m_project)
-        return;
-
     clearAllMarks();
+    m_currentProjectInfo = {};
+    m_analysisVersion = {};
     if (projectName.isEmpty()) {
-        m_currentProjectInfo = {};
-        m_analysisVersion = {};
         updateDashboard();
         return;
     }
@@ -1064,6 +1078,39 @@ void AxivionPluginPrivate::handleAnchorClicked(const QUrl &url)
         EditorManager::openEditorAt(link);
 }
 
+static constexpr char SV_PROJECTNAME[] = "Axivion.ProjectName";
+static constexpr char SV_DASHBOARDID[] = "Axivion.DashboardId";
+
+void AxivionPluginPrivate::onSessionLoaded(const QString &sessionName)
+{
+    // explicitly ignore default session to avoid triggering dialogs at startup
+    if (sessionName == "default")
+        return;
+
+    const QString projectName = SessionManager::sessionValue(SV_PROJECTNAME).toString();
+    const Id dashboardId = Id::fromSetting(SessionManager::sessionValue(SV_DASHBOARDID));
+    if (!dashboardId.isValid()) {
+        switchActiveDashboardId({});
+        resetDashboard();
+        return;
+    }
+
+    if (activeDashboardId() != dashboardId)
+        switchActiveDashboardId(dashboardId);
+    reinitDashboard(projectName);
+}
+
+void AxivionPluginPrivate::onAboutToSaveSession()
+{
+    // explicitly ignore default session
+    if (SessionManager::startupSession() == "default")
+        return;
+
+    SessionManager::setSessionValue(SV_DASHBOARDID, activeDashboardId().toSetting());
+    const QString projectName = m_currentProjectInfo ? m_currentProjectInfo->name : QString();
+    SessionManager::setSessionValue(SV_PROJECTNAME, projectName);
+}
+
 class AxivionIssueWidgetFactory final : public INavigationWidgetFactory
 {
 public:
@@ -1104,7 +1151,6 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     ~AxivionPlugin() final
     {
-        AxivionProjectSettings::destroyProjectSettings();
         delete dd;
         dd = nullptr;
     }
@@ -1115,7 +1161,6 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
         dd = new AxivionPluginPrivate;
 
-        AxivionProjectSettings::setupProjectPanel();
         setupAxivionIssueWidgetFactory();
 
         connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
@@ -1148,6 +1193,12 @@ const std::optional<DashboardInfo> currentDashboardInfo()
     return dd->m_dashboardInfo;
 }
 
+const Id activeDashboardId()
+{
+    QTC_ASSERT(dd, return {});
+    return dd->m_dashboardServerId;
+}
+
 void setAnalysisVersion(const QString &version)
 {
     QTC_ASSERT(dd, return);
@@ -1168,6 +1219,8 @@ void disableInlineIssues(bool disable)
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)
 {
     QTC_ASSERT(dd, return {});
+    if (!dd->m_project || !dd->m_currentProjectInfo)
+        return {};
     const FilePaths result = dd->m_fileFinder.findFile(issuePath.toUrl());
     if (result.size() == 1)
         return dd->m_project->projectDirectory().resolvePath(result.first());
