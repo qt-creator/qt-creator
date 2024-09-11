@@ -332,6 +332,8 @@ FileUtils::CopyHelper FileUtils::CopyAskingForOverwrite::operator()()
                 }
                 if (copyFile)
                     dest.removeFile();
+            } else {
+                dest.removeFile();
             }
         }
         if (copyFile) {
