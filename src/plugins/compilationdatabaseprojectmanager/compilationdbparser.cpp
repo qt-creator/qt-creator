@@ -100,8 +100,8 @@ static DbContents parseProject(const QByteArray &projectFileContents,
 {
     DbContents dbContents;
     dbContents.entries = readJsonObjects(projectFileContents);
-    dbContents.extraFileName = projectFilePath.toString() +
-                               Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
+    dbContents.extraFileName = projectFilePath.path()
+                               + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX;
     dbContents.extras = readExtraFiles(dbContents.extraFileName);
     std::sort(dbContents.entries.begin(), dbContents.entries.end(),
               [](const DbEntry &lhs, const DbEntry &rhs) {
@@ -142,14 +142,15 @@ CompilationDbParser::~CompilationDbParser()
 void CompilationDbParser::start()
 {
     // Check hash first.
-    QFile file(m_projectFilePath.toString());
-    if (!file.open(QIODevice::ReadOnly)) {
+    expected_str<QByteArray> fileContents = m_projectFilePath.fileContents();
+    if (!fileContents) {
         finish(ParseResult::Failure);
         return;
     }
-    m_projectFileContents = file.readAll();
-    const QByteArray newHash = QCryptographicHash::hash(m_projectFileContents,
-                                                        QCryptographicHash::Sha1);
+
+    m_projectFileContents = *std::move(fileContents);
+    const QByteArray newHash
+        = QCryptographicHash::hash(m_projectFileContents, QCryptographicHash::Sha1);
     if (m_projectFileHash == newHash) {
         finish(ParseResult::Cached);
         return;
@@ -162,8 +163,8 @@ void CompilationDbParser::start()
         m_treeScanner = new TreeScanner(this);
         m_treeScanner->setFilter([this](const MimeType &mimeType, const FilePath &fn) {
             // Mime checks requires more resources, so keep it last in check list
-            bool isIgnored = fn.toString().startsWith(m_projectFilePath.toString() + ".user")
-                    || TreeScanner::isWellKnownBinary(mimeType, fn);
+            bool isIgnored = fn.startsWith(m_projectFilePath.path() + ".user")
+                             || TreeScanner::isWellKnownBinary(mimeType, fn);
 
             // Cache mime check result for speed up
             if (!isIgnored) {

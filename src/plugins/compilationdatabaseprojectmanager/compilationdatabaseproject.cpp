@@ -88,15 +88,14 @@ static QString compilerPath(QString pathFlag)
         return pathFlag;
 #ifdef Q_OS_WIN
     // Handle short DOS style file names (cmake can generate them).
-    const DWORD pathLength = GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()),
-                                              nullptr,
-                                              0);
+    const DWORD pathLength
+        = GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), nullptr, 0);
     if (pathLength > 0) {
         // Works only with existing paths.
         wchar_t *buffer = new wchar_t[pathLength];
         GetLongPathNameW(reinterpret_cast<LPCWSTR>(pathFlag.utf16()), buffer, pathLength);
-        pathFlag = QString::fromUtf16(reinterpret_cast<ushort *>(buffer),
-                                      static_cast<int>(pathLength - 1));
+        pathFlag = QString::fromUtf16(
+            reinterpret_cast<ushort *>(buffer), static_cast<int>(pathLength - 1));
         delete[] buffer;
     }
 #endif
@@ -105,7 +104,7 @@ static QString compilerPath(QString pathFlag)
 
 static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, const Id &language)
 {
-    Toolchain * const kitToolchain = ToolchainKitAspect::toolchain(kit, language);
+    Toolchain *const kitToolchain = ToolchainKitAspect::toolchain(kit, language);
 
     if (flags.empty())
         return kitToolchain;
@@ -124,11 +123,11 @@ static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, c
     if ((toolchain = toolchainFromCompilerId(compilerId, language)))
         return toolchain;
 
-    if (compilerId != ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID &&
-            compilerId != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
+    if (compilerId != ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID
+        && compilerId != ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID) {
         compilerId = HostOsInfo::isWindowsHost()
-                ? Id(ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)
-                : Id(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID);
+                         ? Id(ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID)
+                         : Id(ProjectExplorer::Constants::CLANG_TOOLCHAIN_TYPEID);
         if (kitToolchain->isValid() && kitToolchain->typeId() == compilerId)
             return kitToolchain;
         if ((toolchain = toolchainFromCompilerId(compilerId, language)))
@@ -139,9 +138,8 @@ static Toolchain *toolchainFromFlags(const Kit *kit, const QStringList &flags, c
     return kitToolchain;
 }
 
-static void addDriverModeFlagIfNeeded(const Toolchain *toolchain,
-                                      QStringList &flags,
-                                      const QStringList &originalFlags)
+static void addDriverModeFlagIfNeeded(
+    const Toolchain *toolchain, QStringList &flags, const QStringList &originalFlags)
 {
     if (toolchain->typeId() == ProjectExplorer::Constants::CLANG_CL_TOOLCHAIN_TYPEID
         && !originalFlags.empty() && !originalFlags.front().endsWith("cl")
@@ -150,25 +148,20 @@ static void addDriverModeFlagIfNeeded(const Toolchain *toolchain,
     }
 }
 
-static RawProjectPart makeRawProjectPart(const FilePath &projectFile,
-                                         Kit *kit,
-                                         ProjectExplorer::KitInfo &kitInfo,
-                                         const FilePath &workingDir,
-                                         const FilePath &filePath,
-                                         QStringList flags)
+static RawProjectPart makeRawProjectPart(
+    const FilePath &projectFile,
+    Kit *kit,
+    ProjectExplorer::KitInfo &kitInfo,
+    const FilePath &workingDir,
+    const FilePath &filePath,
+    QStringList flags)
 {
     HeaderPaths headerPaths;
     Macros macros;
     CppEditor::ProjectFile::Kind fileKind = CppEditor::ProjectFile::Unclassified;
 
     const QStringList originalFlags = flags;
-    filteredFlags(filePath,
-                  workingDir,
-                  flags,
-                  headerPaths,
-                  macros,
-                  fileKind,
-                  kitInfo.sysRootPath);
+    filteredFlags(filePath, workingDir, flags, headerPaths, macros, fileKind, kitInfo.sysRootPath);
 
     RawProjectPart rpp;
 
@@ -181,19 +174,17 @@ static RawProjectPart makeRawProjectPart(const FilePath &projectFile,
     rpp.setMacros(macros);
 
     if (fileKind == CppEditor::ProjectFile::Kind::CHeader
-            || fileKind == CppEditor::ProjectFile::Kind::CSource) {
+        || fileKind == CppEditor::ProjectFile::Kind::CSource) {
         if (!kitInfo.cToolchain) {
-            kitInfo.cToolchain = toolchainFromFlags(kit,
-                                                    originalFlags,
-                                                    ProjectExplorer::Constants::C_LANGUAGE_ID);
+            kitInfo.cToolchain
+                = toolchainFromFlags(kit, originalFlags, ProjectExplorer::Constants::C_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cToolchain, flags, originalFlags);
         rpp.setFlagsForC({kitInfo.cToolchain, flags, workingDir});
     } else {
         if (!kitInfo.cxxToolchain) {
-            kitInfo.cxxToolchain = toolchainFromFlags(kit,
-                                                      originalFlags,
-                                                      ProjectExplorer::Constants::CXX_LANGUAGE_ID);
+            kitInfo.cxxToolchain
+                = toolchainFromFlags(kit, originalFlags, ProjectExplorer::Constants::CXX_LANGUAGE_ID);
         }
         addDriverModeFlagIfNeeded(kitInfo.cxxToolchain, flags, originalFlags);
         rpp.setFlagsForCxx({kitInfo.cxxToolchain, flags, workingDir});
@@ -208,7 +199,7 @@ static QStringList relativeDirsList(FilePath currentPath, const FilePath &rootPa
     while (!currentPath.isEmpty() && currentPath != rootPath) {
         QString dirName = currentPath.fileName();
         if (dirName.isEmpty())
-            dirName = currentPath.toString();
+            dirName = currentPath.path();
         dirsList.prepend(dirName);
         currentPath = currentPath.parentDir();
     }
@@ -228,9 +219,8 @@ static FolderNode *addChildFolderNode(FolderNode *parent, const QString &childNa
 
 static FolderNode *addOrGetChildFolderNode(FolderNode *parent, const QString &childName)
 {
-    FolderNode *fn = parent->findChildFolderNode([&](FolderNode *folder) {
-        return folder->filePath().fileName() == childName;
-    });
+    FolderNode *fn = parent->findChildFolderNode(
+        [&](FolderNode *folder) { return folder->filePath().fileName() == childName; });
     return fn ? fn : addChildFolderNode(parent, childName);
 }
 
@@ -263,10 +253,11 @@ static void addChild(FolderNode *root, const FilePath &fileName)
     }
 }
 
-static void createTree(std::unique_ptr<ProjectNode> &root,
-                const FilePath &rootPath,
-                const RawProjectParts &rpps,
-                const QList<FileNode *> &scannedFiles = QList<FileNode *>())
+static void createTree(
+    std::unique_ptr<ProjectNode> &root,
+    const FilePath &rootPath,
+    const RawProjectParts &rpps,
+    const QList<FileNode *> &scannedFiles = QList<FileNode *>())
 {
     root->setAbsoluteFilePathAndLine(rootPath, -1);
     std::unique_ptr<FolderNode> secondRoot;
@@ -331,7 +322,7 @@ public:
     MimeBinaryCache m_mimeBinaryCache;
     QByteArray m_projectFileHash;
     CompilationDbParser *m_parser = nullptr;
-    FileSystemWatcher * const m_deployFileWatcher;
+    FileSystemWatcher *const m_deployFileWatcher;
 };
 
 CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
@@ -339,20 +330,29 @@ CompilationDatabaseBuildSystem::CompilationDatabaseBuildSystem(Target *target)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
     , m_deployFileWatcher(new FileSystemWatcher(this))
 {
-    connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged,
-            this, [this] {
+    connect(target->project(), &CompilationDatabaseProject::rootProjectDirectoryChanged, this, [this] {
         m_projectFileHash.clear();
         requestDelayedParse();
     });
 
     requestDelayedParse();
 
-    connect(project(), &Project::projectFileIsDirty, this, &CompilationDatabaseBuildSystem::reparseProject);
+    connect(
+        project(),
+        &Project::projectFileIsDirty,
+        this,
+        &CompilationDatabaseBuildSystem::reparseProject);
 
-    connect(m_deployFileWatcher, &FileSystemWatcher::fileChanged,
-            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
-    connect(target->project(), &Project::activeTargetChanged,
-            this, &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(
+        m_deployFileWatcher,
+        &FileSystemWatcher::fileChanged,
+        this,
+        &CompilationDatabaseBuildSystem::updateDeploymentData);
+    connect(
+        target->project(),
+        &Project::activeTargetChanged,
+        this,
+        &CompilationDatabaseBuildSystem::updateDeploymentData);
 }
 
 CompilationDatabaseBuildSystem::~CompilationDatabaseBuildSystem()
@@ -381,18 +381,14 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     const DbEntry *prevEntry = nullptr;
     for (const DbEntry &entry : dbContents.entries) {
         if (prevEntry && prevEntry->flags == entry.flags) {
-            rpps.back().files.append(entry.fileName.toString());
+            rpps.back().files.append(entry.fileName.path());
             continue;
         }
 
         prevEntry = &entry;
 
-        RawProjectPart rpp = makeRawProjectPart(projectFilePath(),
-                                                k,
-                                                kitInfo,
-                                                entry.workingDir,
-                                                entry.fileName,
-                                                entry.flags);
+        RawProjectPart rpp = makeRawProjectPart(
+            projectFilePath(), k, kitInfo, entry.workingDir, entry.fileName, entry.flags);
 
         rpps.append(rpp);
     }
@@ -402,13 +398,12 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
 
         QStringList extraFiles;
         for (const QString &extra : dbContents.extras)
-            extraFiles.append(baseDir.pathAppended(extra).toString());
+            extraFiles.append(baseDir.pathAppended(extra).path());
 
         RawProjectPart rppExtra;
         rppExtra.setFiles(extraFiles);
         rpps.append(rppExtra);
     }
-
 
     auto root = std::make_unique<ProjectNode>(projectDirectory());
     createTree(root, project()->rootProjectDirectory(), rpps, m_parser->scannedFiles());
@@ -416,8 +411,8 @@ void CompilationDatabaseBuildSystem::buildTreeAndProjectParts()
     root->addNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
     if (QFileInfo::exists(dbContents.extraFileName))
-        root->addNode(std::make_unique<FileNode>(FilePath::fromString(dbContents.extraFileName),
-                                                 FileType::Project));
+        root->addNode(std::make_unique<FileNode>(
+            FilePath::fromString(dbContents.extraFileName), FileType::Project));
 
     setRootProjectNode(std::move(root));
 
@@ -465,12 +460,13 @@ void CompilationDatabaseBuildSystem::reparseProject()
         m_parser->stop();
     }
     const FilePath rootPath = rootPathFromSettings(project());
-    m_parser = new CompilationDbParser(project()->displayName(),
-                                       projectFilePath(),
-                                       rootPath,
-                                       m_mimeBinaryCache,
-                                       guardParsingRun(),
-                                       this);
+    m_parser = new CompilationDbParser(
+        project()->displayName(),
+        projectFilePath(),
+        rootPath,
+        m_mimeBinaryCache,
+        guardParsingRun(),
+        this);
     connect(m_parser, &CompilationDbParser::finished, this, [this](ParseResult result) {
         m_projectFileHash = m_parser->projectFileHash();
         if (result == ParseResult::Success)
@@ -483,15 +479,13 @@ void CompilationDatabaseBuildSystem::reparseProject()
 
 void CompilationDatabaseBuildSystem::updateDeploymentData()
 {
-    const FilePath deploymentFilePath = projectDirectory()
-            .pathAppended("QtCreatorDeployment.txt");
+    const FilePath deploymentFilePath = projectDirectory().pathAppended("QtCreatorDeployment.txt");
     DeploymentData deploymentData;
     deploymentData.addFilesFromDeploymentFile(deploymentFilePath, projectDirectory());
     setDeploymentData(deploymentData);
-    if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.toString())) {
+    if (m_deployFileWatcher->files() != QStringList(deploymentFilePath.path())) {
         m_deployFileWatcher->clear();
-        m_deployFileWatcher->addFile(deploymentFilePath.toString(),
-                                     FileSystemWatcher::WatchModifiedDate);
+        m_deployFileWatcher->addFile(deploymentFilePath.path(), FileSystemWatcher::WatchModifiedDate);
     }
 
     emitBuildSystemUpdated();
@@ -566,4 +560,4 @@ void setupCompilationDatabaseBuildConfiguration()
     static CompilationDatabaseBuildConfigurationFactory theCDBuildConfigurationFactory;
 }
 
-} // CompilationDatabaseProjectManager::Internal
+} // namespace CompilationDatabaseProjectManager::Internal
