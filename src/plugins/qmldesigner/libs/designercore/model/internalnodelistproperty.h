@@ -15,6 +15,9 @@ class InternalNodeListProperty final : public InternalNodeAbstractProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalNodeListProperty>;
+    using FewNodes = QVarLengthArray<InternalNodePointer, 32>;
+    using ManyNodes = QVarLengthArray<InternalNodePointer, 1024>;
+
     static constexpr PropertyType type = PropertyType::NodeList;
 
     InternalNodeListProperty(PropertyNameView name, const InternalNodePointer &propertyOwner);
@@ -22,46 +25,49 @@ public:
     bool isValid() const override;
 
     bool isEmpty() const override;
-    int size() const { return m_nodeList.size(); }
+
+    int size() const { return m_nodes.size(); }
+
     int count() const override;
     int indexOf(const InternalNodePointer &node) const override;
+
     const InternalNodePointer &at(int index) const
     {
-        Q_ASSERT(index >= 0 && index < m_nodeList.size());
-        return m_nodeList[index];
+        Q_ASSERT(index >= 0 && index < m_nodes.size());
+        return m_nodes[index];
     }
 
     InternalNodePointer &at(int index)
     {
-        Q_ASSERT(index >= 0 && index < m_nodeList.size());
-        return m_nodeList[index];
+        Q_ASSERT(index >= 0 && index < m_nodes.size());
+        return m_nodes[index];
     }
 
     InternalNodePointer &find(InternalNodePointer node)
     {
-        auto found = std::find(m_nodeList.begin(), m_nodeList.end(), node);
+        auto found = std::find(m_nodes.begin(), m_nodes.end(), node);
 
         return *found;
     }
 
-    QList<InternalNodePointer> allSubNodes() const;
-    const QList<InternalNodePointer> &nodeList() const;
+    ManyNodes allSubNodes() const;
+    const FewNodes &nodeList() const;
     void slide(int from, int to);
 
-    void addSubNodes(QList<InternalNodePointer> &container) const;
+    void addSubNodes(ManyNodes &container) const;
 
-    QList<InternalNodePointer>::iterator begin() { return m_nodeList.begin(); }
+    FewNodes::iterator begin() { return m_nodes.begin(); }
 
-    QList<InternalNodePointer>::iterator end() { return m_nodeList.end(); }
+    FewNodes::iterator end() { return m_nodes.end(); }
 
-    const QList<InternalNodePointer> &nodes() const { return m_nodeList; }
+    const FewNodes &nodes() const { return m_nodes; }
 
 protected:
     void add(const InternalNodePointer &node) override;
     void remove(const InternalNodePointer &node) override;
 
 private:
-    QList<InternalNodePointer> m_nodeList;
+    FewNodes m_nodes;
 };
 
 } // namespace Internal

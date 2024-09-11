@@ -120,9 +120,9 @@ PropertyNameViews InternalNode::propertyNameViews() const
     return CoreUtils::to<PropertyNameViews>(m_nameProperties | std::views::keys);
 }
 
-QList<InternalNode::Pointer> InternalNode::allSubNodes() const
+InternalNode::ManyNodes InternalNode::allSubNodes() const
 {
-    QList<InternalNode::Pointer> nodes;
+    ManyNodes nodes;
     nodes.reserve(1024);
 
     addSubNodes(nodes);
@@ -130,7 +130,7 @@ QList<InternalNode::Pointer> InternalNode::allSubNodes() const
     return nodes;
 }
 
-void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property)
+void InternalNode::addSubNodes(ManyNodes &nodes, const InternalProperty *property)
 {
     switch (property->type()) {
     case PropertyType::NodeList:
@@ -148,24 +148,30 @@ void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes, const Internal
     }
 }
 
-void InternalNode::addSubNodes(QList<InternalNodePointer> &nodes) const
+void InternalNode::addSubNodes(ManyNodes &nodes) const
 {
     for (const auto &entry : m_nameProperties)
         addSubNodes(nodes, entry.second.get());
 }
 
-void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes) const
+void InternalNode::addDirectSubNodes(ManyNodes &nodes) const
 {
     for (const auto &entry : m_nameProperties)
         addDirectSubNodes(nodes, entry.second.get());
 }
 
-void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes,
-                                     const InternalProperty *property)
+namespace {
+void append(InternalNode::ManyNodes &nodes, auto &appendNodes)
+{
+    std::copy(appendNodes.begin(), appendNodes.end(), std::back_inserter(nodes));
+}
+} // namespace
+
+void InternalNode::addDirectSubNodes(ManyNodes &nodes, const InternalProperty *property)
 {
     switch (property->type()) {
     case PropertyType::NodeList:
-        nodes.append(property->to<PropertyType::NodeList>()->nodes());
+        append(nodes, property->to<PropertyType::NodeList>()->nodes());
         break;
     case PropertyType::Node:
         nodes.append(property->to<PropertyType::Node>()->node());
@@ -179,9 +185,9 @@ void InternalNode::addDirectSubNodes(QList<InternalNodePointer> &nodes,
     }
 }
 
-QList<InternalNode::Pointer> InternalNode::allDirectSubNodes() const
+InternalNode::ManyNodes InternalNode::allDirectSubNodes() const
 {
-    QList<InternalNode::Pointer> nodes;
+    ManyNodes nodes;
     nodes.reserve(96);
 
     addDirectSubNodes(nodes);

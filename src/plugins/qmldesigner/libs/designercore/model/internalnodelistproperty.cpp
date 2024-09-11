@@ -21,12 +21,12 @@ bool InternalNodeListProperty::isValid() const
 
 bool InternalNodeListProperty::isEmpty() const
 {
-    return m_nodeList.isEmpty();
+    return m_nodes.isEmpty();
 }
 
 int InternalNodeListProperty::count() const
 {
-    return m_nodeList.size();
+    return m_nodes.size();
 }
 
 int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
@@ -34,53 +34,54 @@ int InternalNodeListProperty::indexOf(const InternalNode::Pointer &node) const
     if (!node)
         return -1;
 
-    return m_nodeList.indexOf(node);
+    return m_nodes.indexOf(node);
 }
 
 void InternalNodeListProperty::add(const InternalNode::Pointer &internalNode)
 {
-    Q_ASSERT(!m_nodeList.contains(internalNode));
+    Q_ASSERT(!m_nodes.contains(internalNode));
 
     auto flowToken = traceToken.tickWithFlow("add node"_t);
     internalNode->traceToken.tick(flowToken, "node added"_t);
 
-    m_nodeList.append(internalNode);
+    m_nodes.append(internalNode);
 }
 
 void InternalNodeListProperty::remove(const InternalNodePointer &internalNode)
 {
-    Q_ASSERT(m_nodeList.contains(internalNode));
+    Q_ASSERT(m_nodes.contains(internalNode));
 
     auto flowToken = traceToken.tickWithFlow("remove node"_t);
     internalNode->traceToken.tick(flowToken, "node removed"_t);
 
-    m_nodeList.removeAll(internalNode);
+    m_nodes.removeAll(internalNode);
 }
 
-const QList<InternalNode::Pointer> &InternalNodeListProperty::nodeList() const
+const InternalNodeListProperty::FewNodes &InternalNodeListProperty::nodeList() const
 {
-    return m_nodeList;
+    return m_nodes;
 }
 
 void InternalNodeListProperty::slide(int from, int to)
 {
     traceToken.tick("slide"_t, keyValue("from", from), keyValue("to", to));
 
-    InternalNode::Pointer internalNode = m_nodeList.takeAt(from);
-    m_nodeList.insert(to, internalNode);
+    InternalNode::Pointer internalNode = m_nodes.at(from);
+    m_nodes.remove(from);
+    m_nodes.insert(to, internalNode);
 }
 
-void InternalNodeListProperty::addSubNodes(QList<InternalNodePointer> &container) const
+void InternalNodeListProperty::addSubNodes(ManyNodes &container) const
 {
-    for (const auto &node : std::as_const(m_nodeList)) {
+    for (const auto &node : std::as_const(m_nodes)) {
         container.push_back(node);
         node->addSubNodes(container);
     }
 }
 
-QList<InternalNode::Pointer> InternalNodeListProperty::allSubNodes() const
+InternalNodeListProperty::ManyNodes InternalNodeListProperty::allSubNodes() const
 {
-    QList<InternalNode::Pointer> nodes;
+    ManyNodes nodes;
     nodes.reserve(1024);
 
     addSubNodes(nodes);

@@ -15,6 +15,7 @@
 
 #include <sqlitedatabase.h>
 #include <tracing/qmldesignertracing.h>
+#include <utils/algorithm.h>
 #include <utils/set_algorithm.h>
 
 #include <QDirIterator>
@@ -273,8 +274,8 @@ void ProjectStorageUpdater::update(Update update)
                                keyValue("qml types paths", qmlTypesPaths)};
 
     Storage::Synchronization::SynchronizationPackage package;
-    WatchedSourceIdsIds watchedSourceIds{Utils::span{directories}.size()};
-    NotUpdatedSourceIds notUpdatedSourceIds{Utils::span{directories}.size()};
+    WatchedSourceIdsIds watchedSourceIds{Utils::usize(directories)};
+    NotUpdatedSourceIds notUpdatedSourceIds{Utils::usize(directories)};
 
     updateDirectories(directories, package, notUpdatedSourceIds, watchedSourceIds);
     updateQmlTypes(qmlTypesPaths, package, notUpdatedSourceIds, watchedSourceIds);

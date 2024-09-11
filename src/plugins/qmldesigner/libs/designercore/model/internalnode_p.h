@@ -50,6 +50,8 @@ class InternalNode : public std::enable_shared_from_this<InternalNode>
 public:
     using Pointer = std::shared_ptr<InternalNode>;
     using WeakPointer = std::weak_ptr<InternalNode>;
+    using FewNodes = QVarLengthArray<Pointer, 32>;
+    using ManyNodes = QVarLengthArray<Pointer, 1024>;
 
     explicit InternalNode(TypeNameView typeName,
                           int majorVersion,
@@ -193,12 +195,12 @@ public:
 
     bool hasProperties() const { return m_nameProperties.size(); }
 
-    QList<InternalNode::Pointer> allSubNodes() const;
-    QList<InternalNode::Pointer> allDirectSubNodes() const;
-    void addSubNodes(QList<InternalNodePointer> &nodes) const;
-    void addDirectSubNodes(QList<InternalNodePointer> &nodes) const;
-    static void addSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property);
-    static void addDirectSubNodes(QList<InternalNodePointer> &nodes, const InternalProperty *property);
+    ManyNodes allSubNodes() const;
+    ManyNodes allDirectSubNodes() const;
+    void addSubNodes(ManyNodes &nodes) const;
+    void addDirectSubNodes(ManyNodes &nodes) const;
+    static void addSubNodes(ManyNodes &nodes, const InternalProperty *property);
+    static void addDirectSubNodes(ManyNodes &nodes, const InternalProperty *property);
 
     friend bool operator<(const InternalNode::Pointer &firstNode,
                           const InternalNode::Pointer &secondNode)

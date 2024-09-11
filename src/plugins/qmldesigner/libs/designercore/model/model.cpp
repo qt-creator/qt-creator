@@ -367,12 +367,12 @@ void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
 
     node->resetParentProperty();
 
-    m_selectedInternalNodeList.removeAll(node);
+    m_selectedInternalNodes.removeAll(node);
     if (!node->id.isEmpty())
         m_idNodeHash.remove(node->id);
     node->isValid = false;
     node->traceToken.end();
-    std::erase(m_nodes, node);
+    m_nodes.removeOne(node);
     m_internalIdNodeHash.remove(node->internalId);
 }
 
@@ -677,10 +677,10 @@ void ModelPrivate::notifyInstanceErrorChange(const QVector<qint32> &instanceIds)
 
 void ModelPrivate::notifyInstancesCompleted(const QVector<ModelNode> &modelNodeVector)
 {
-    QVector<InternalNodePointer> internalVector(toInternalNodeVector(modelNodeVector));
+    auto internalNodes = toInternalNodeList(modelNodeVector);
 
     notifyInstanceChanges([&](AbstractView *view) {
-        view->instancesCompleted(toModelNodeVector(internalVector, view));
+        view->instancesCompleted(toModelNodeList(internalNodes, view));
     });
 }
 
@@ -707,28 +707,28 @@ void ModelPrivate::notifyInstancesInformationsChange(
 
 void ModelPrivate::notifyInstancesRenderImageChanged(const QVector<ModelNode> &modelNodeVector)
 {
-    QVector<InternalNodePointer> internalVector(toInternalNodeVector(modelNodeVector));
+    auto internalNodes = toInternalNodeList(modelNodeVector);
 
     notifyInstanceChanges([&](AbstractView *view) {
-        view->instancesRenderImageChanged(toModelNodeVector(internalVector, view));
+        view->instancesRenderImageChanged(toModelNodeList(internalNodes, view));
     });
 }
 
 void ModelPrivate::notifyInstancesPreviewImageChanged(const QVector<ModelNode> &modelNodeVector)
 {
-    QVector<InternalNodePointer> internalVector(toInternalNodeVector(modelNodeVector));
+    auto internalNodes = toInternalNodeList(modelNodeVector);
 
     notifyInstanceChanges([&](AbstractView *view) {
-        view->instancesPreviewImageChanged(toModelNodeVector(internalVector, view));
+        view->instancesPreviewImageChanged(toModelNodeList(internalNodes, view));
     });
 }
 
 void ModelPrivate::notifyInstancesChildrenChanged(const QVector<ModelNode> &modelNodeVector)
 {
-    QVector<InternalNodePointer> internalVector(toInternalNodeVector(modelNodeVector));
+    auto internalNodes = toInternalNodeList(modelNodeVector);
 
     notifyInstanceChanges([&](AbstractView *view) {
-        view->instancesChildrenChanged(toModelNodeVector(internalVector, view));
+        view->instancesChildrenChanged(toModelNodeList(internalNodes, view));
     });
 }
 
@@ -802,10 +802,10 @@ void ModelPrivate::notifyRewriterEndTransaction()
 void ModelPrivate::notifyInstanceToken(const QString &token, int number,
                                        const QVector<ModelNode> &modelNodeVector)
 {
-    QVector<InternalNodePointer> internalVector(toInternalNodeVector(modelNodeVector));
+    auto internalNodes = toInternalNodeList(modelNodeVector);
 
     notifyInstanceChanges([&](AbstractView *view) {
-        view->instancesToken(token, number, toModelNodeVector(internalVector, view));
+        view->instancesToken(token, number, toModelNodeList(internalNodes, view));
     });
 }
 
@@ -814,7 +814,7 @@ void ModelPrivate::notifyCustomNotification(const AbstractView *senderView,
                                             const QList<ModelNode> &modelNodeList,
                                             const QList<QVariant> &data)
 {
-    QList<InternalNodePointer> internalList(toInternalNodeList(modelNodeList));
+    auto internalList = toInternalNodeList(modelNodeList);
     notifyNodeInstanceViewLast([&](AbstractView *view) {
         view->customNotification(senderView, identifier, toModelNodeList(internalList, view), data);
     });
@@ -1159,7 +1159,7 @@ void ModelPrivate::notifyNodeOrderChanged(const InternalNodeListProperty *intern
     });
 }
 
-void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList)
+void ModelPrivate::setSelectedNodes(const FewNodes &selectedNodeList)
 {
     auto sortedSelectedList = Utils::filtered(selectedNodeList, [](const auto &node) {
         return node && node->isValid;
@@ -1169,7 +1169,7 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNo
     sortedSelectedList.erase(std::unique(sortedSelectedList.begin(), sortedSelectedList.end()),
                              sortedSelectedList.end());
 
-    if (sortedSelectedList == m_selectedInternalNodeList)
+    if (sortedSelectedList == m_selectedInternalNodes)
         return;
 
     auto flowToken = traceToken.tickWithFlow("selected model nodes"_t);
@@ -1177,21 +1177,21 @@ void ModelPrivate::setSelectedNodes(const QList<InternalNodePointer> &selectedNo
     if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
         std::set_difference(sortedSelectedList.begin(),
                             sortedSelectedList.end(),
-                            m_selectedInternalNodeList.begin(),
-                            m_selectedInternalNodeList.end(),
+                            m_selectedInternalNodes.begin(),
+                            m_selectedInternalNodes.end(),
                             Utils::make_iterator([&](const auto &node) {
                                 node->traceToken.tick(flowToken, "select model node"_t);
                             }));
     }
 
-    const QList<InternalNodePointer> lastSelectedNodeList = m_selectedInternalNodeList;
-    m_selectedInternalNodeList = sortedSelectedList;
+    const auto lastSelectedNodeList = std::move(m_selectedInternalNodes);
+    m_selectedInternalNodes = sortedSelectedList;
 
     if constexpr (decltype(traceToken)::categoryIsActive()) { // the compiler should optimize it away but to be sure
         std::set_difference(lastSelectedNodeList.begin(),
                             lastSelectedNodeList.end(),
-                            m_selectedInternalNodeList.begin(),
-                            m_selectedInternalNodeList.end(),
+                            m_selectedInternalNodes.begin(),
+                            m_selectedInternalNodes.end(),
                             Utils::make_iterator([&](const auto &node) {
                                 node->traceToken.tick(flowToken, "deselect model node"_t);
                             }));
@@ -1204,9 +1204,9 @@ void ModelPrivate::clearSelectedNodes()
 {
     auto tracer = traceToken.begin("clear selected model nodes"_t);
 
-    const QList<InternalNodePointer> lastSelectedNodeList = m_selectedInternalNodeList;
-    m_selectedInternalNodeList.clear();
-    changeSelectedNodes(m_selectedInternalNodeList, lastSelectedNodeList);
+    auto lastSelectedNodeList = m_selectedInternalNodes;
+    m_selectedInternalNodes.clear();
+    changeSelectedNodes(m_selectedInternalNodes, lastSelectedNodeList);
 }
 
 void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const AuxiliaryDataKeyView &key)
@@ -1217,7 +1217,8 @@ void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const Au
         notifyAuxiliaryDataChanged(node, key, QVariant());
 }
 
-QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const
+QList<ModelNode> ModelPrivate::toModelNodeList(std::span<const InternalNodePointer> nodeList,
+                                               AbstractView *view) const
 {
     QList<ModelNode> modelNodeList;
     modelNodeList.reserve(nodeList.size());
@@ -1227,34 +1228,14 @@ QList<ModelNode> ModelPrivate::toModelNodeList(const QList<InternalNodePointer> 
     return modelNodeList;
 }
 
-QVector<ModelNode> ModelPrivate::toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const
+ModelPrivate::ManyNodes ModelPrivate::toInternalNodeList(const QList<ModelNode> &modelNodeList) const
 {
-    QVector<ModelNode> modelNodeVector;
-    modelNodeVector.reserve(nodeVector.size());
-    for (const InternalNodePointer &node : nodeVector)
-        modelNodeVector.emplace_back(node, m_model, view);
-
-    return modelNodeVector;
-}
-
-QList<InternalNodePointer> ModelPrivate::toInternalNodeList(const QList<ModelNode> &modelNodeList) const
-{
-    QList<InternalNodePointer> newNodeList;
+    ManyNodes newNodeList;
     newNodeList.reserve(modelNodeList.size());
     for (const ModelNode &modelNode : modelNodeList)
         newNodeList.append(modelNode.internalNode());
 
     return newNodeList;
-}
-
-QVector<InternalNodePointer> ModelPrivate::toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const
-{
-    QVector<InternalNodePointer> newNodeVector;
-    newNodeVector.reserve(modelNodeVector.size());
-    for (const ModelNode &modelNode : modelNodeVector)
-        newNodeVector.append(modelNode.internalNode());
-
-    return newNodeVector;
 }
 
 QList<InternalProperty *> ModelPrivate::toInternalProperties(const AbstractProperties &properties)
@@ -1290,8 +1271,8 @@ QList<std::tuple<InternalBindingProperty *, QString>> ModelPrivate::toInternalBi
     return internalProperties;
 }
 
-void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSelectedNodeList,
-                                       const QList<InternalNodePointer> &oldSelectedNodeList)
+void ModelPrivate::changeSelectedNodes(const FewNodes &newSelectedNodeList,
+                                       const FewNodes &oldSelectedNodeList)
 {
     for (const QPointer<AbstractView> &view : std::as_const(m_viewList)) {
         Q_ASSERT(view != nullptr);
@@ -1305,14 +1286,15 @@ void ModelPrivate::changeSelectedNodes(const QList<InternalNodePointer> &newSele
     }
 }
 
-QList<InternalNodePointer> ModelPrivate::selectedNodes() const
+const ModelPrivate::FewNodes &ModelPrivate::selectedNodes() const
 {
-    for (const InternalNodePointer &node : m_selectedInternalNodeList) {
+    static FewNodes empty;
+    for (const InternalNodePointer &node : m_selectedInternalNodes) {
         if (!node->isValid)
-            return {};
+            return empty;
     }
 
-    return m_selectedInternalNodeList;
+    return m_selectedInternalNodes;
 }
 
 void ModelPrivate::selectNode(const InternalNodePointer &node)
@@ -1320,14 +1302,14 @@ void ModelPrivate::selectNode(const InternalNodePointer &node)
     if (selectedNodes().contains(node))
         return;
 
-    QList<InternalNodePointer> selectedNodeList(selectedNodes());
+    FewNodes selectedNodeList(selectedNodes());
     selectedNodeList += node;
     setSelectedNodes(selectedNodeList);
 }
 
 void ModelPrivate::deselectNode(const InternalNodePointer &node)
 {
-    QList<InternalNodePointer> selectedNodeList(selectedNodes());
+    FewNodes selectedNodeList(selectedNodes());
     bool isRemoved = selectedNodeList.removeOne(node);
 
     if (isRemoved)
@@ -1697,16 +1679,17 @@ bool ModelPrivate::hasNodeForInternalId(qint32 internalId) const
 {
     return m_internalIdNodeHash.contains(internalId);
 }
-QList<InternalNodePointer> ModelPrivate::allNodesOrdered() const
+
+ModelPrivate::ManyNodes ModelPrivate::allNodesOrdered() const
 {
     if (!m_rootInternalNode || !m_rootInternalNode->isValid)
         return {};
 
     // the nodes must be ordered.
 
-    QList<InternalNodePointer> nodeList;
+    ManyNodes nodeList;
     nodeList.append(m_rootInternalNode);
-    nodeList.append(m_rootInternalNode->allSubNodes());
+    m_rootInternalNode->addSubNodes(nodeList);
     // FIXME: This is horribly expensive compared to a loop.
 
     auto nodesSorted = nodeList;
@@ -1716,7 +1699,7 @@ QList<InternalNodePointer> ModelPrivate::allNodesOrdered() const
     return nodeList;
 }
 
-std::vector<InternalNodePointer> ModelPrivate::allNodesUnordered() const
+ModelPrivate::ManyNodes ModelPrivate::allNodesUnordered() const
 {
     return m_nodes;
 }
@@ -2251,7 +2234,7 @@ void Model::setSelectedModelNodes(const QList<ModelNode> &selectedNodeList)
             unlockedNodes.push_back(modelNode);
     }
 
-    d->setSelectedNodes(toInternalNodeList(unlockedNodes));
+    d->setSelectedNodes(toInternalNodeList<Internal::InternalNode::FewNodes>(unlockedNodes));
 }
 
 void Model::clearMetaInfoCache()

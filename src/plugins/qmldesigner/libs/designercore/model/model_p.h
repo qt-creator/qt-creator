@@ -79,6 +79,9 @@ class ModelPrivate : public QObject,
     friend Internal::WriteLocker;
 
 public:
+    using FewNodes = QVarLengthArray<InternalNodePointer, 32>;
+    using ManyNodes = QVarLengthArray<InternalNodePointer, 1024>;
+
     ModelPrivate(Model *model,
                  ProjectStorageDependencies m_projectStorageDependencies,
                  const TypeName &type,
@@ -226,13 +229,12 @@ public:
     void notifyRewriterBeginTransaction();
     void notifyRewriterEndTransaction();
 
-    void setSelectedNodes(const QList<InternalNodePointer> &selectedNodeList);
+    void setSelectedNodes(const FewNodes &selectedNodeList);
     void clearSelectedNodes();
-    QList<InternalNodePointer> selectedNodes() const;
+    const FewNodes &selectedNodes() const;
     void selectNode(const InternalNodePointer &node);
     void deselectNode(const InternalNodePointer &node);
-    void changeSelectedNodes(const QList<InternalNodePointer> &newSelectedNodeList,
-                             const QList<InternalNodePointer> &oldSelectedNodeList);
+    void changeSelectedNodes(const FewNodes &newSelectedNodeList, const FewNodes &oldSelectedNodeList);
 
     void setAuxiliaryData(const InternalNodePointer &node,
                           const AuxiliaryDataKeyView &key,
@@ -296,8 +298,8 @@ public:
     InternalNodePointer nodeForInternalId(qint32 internalId) const;
     bool hasNodeForInternalId(qint32 internalId) const;
 
-    std::vector<InternalNodePointer> allNodesUnordered() const;
-    QList<InternalNodePointer> allNodesOrdered() const;
+    ManyNodes allNodesUnordered() const;
+    ManyNodes allNodesOrdered() const;
 
     bool isWriteLocked() const;
 
@@ -330,10 +332,9 @@ private:
     void removePropertyWithoutNotification(InternalProperty *property);
     void removeAllSubNodes(const InternalNodePointer &node);
     void removeNodeFromModel(const InternalNodePointer &node);
-    QList<InternalNodePointer> toInternalNodeList(const QList<ModelNode> &modelNodeList) const;
-    QList<ModelNode> toModelNodeList(const QList<InternalNodePointer> &nodeList, AbstractView *view) const;
-    QVector<ModelNode> toModelNodeVector(const QVector<InternalNodePointer> &nodeVector, AbstractView *view) const;
-    QVector<InternalNodePointer> toInternalNodeVector(const QVector<ModelNode> &modelNodeVector) const;
+    ManyNodes toInternalNodeList(const QList<ModelNode> &modelNodeList) const;
+    QList<ModelNode> toModelNodeList(std::span<const InternalNodePointer> nodeList,
+                                     AbstractView *view) const;
     static QList<InternalProperty *> toInternalProperties(const AbstractProperties &properties);
     static QList<std::tuple<QmlDesigner::Internal::InternalBindingProperty *, QString>>
     toInternalBindingProperties(const ModelResourceSet::SetExpressions &setExpressions);
@@ -355,10 +356,10 @@ private:
     Imports m_possibleImportList;
     Imports m_usedImportList;
     QList<QPointer<AbstractView>> m_viewList;
-    QList<InternalNodePointer> m_selectedInternalNodeList;
+    FewNodes m_selectedInternalNodes;
     QHash<QString,InternalNodePointer> m_idNodeHash;
     QHash<qint32, InternalNodePointer> m_internalIdNodeHash;
-    std::vector<InternalNodePointer> m_nodes;
+    ManyNodes m_nodes;
     InternalNodePointer m_currentStateNode;
     InternalNodePointer m_rootInternalNode;
     InternalNodePointer m_currentTimelineNode;

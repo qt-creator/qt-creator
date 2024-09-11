@@ -411,15 +411,6 @@ QList<ModelNode> toModelNodeList(Utils::span<const Internal::InternalNode::Point
     return newNodeList;
 }
 
-QList<Internal::InternalNode::Pointer> toInternalNodeList(const QList<ModelNode> &nodeList)
-{
-    QList<Internal::InternalNode::Pointer> newNodeList;
-    for (const ModelNode &node : nodeList)
-        newNodeList.append(node.internalNode());
-
-    return newNodeList;
-}
-
 /*!
     Sets the list of nodes to the actual selected nodes specified by
     \a selectedNodeList if the node or its ancestors are not locked.
@@ -466,7 +457,7 @@ QList<ModelNode> AbstractView::selectedModelNodes() const
 ModelNode AbstractView::firstSelectedModelNode() const
 {
     if (hasSelectedModelNodes())
-        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
+        return ModelNode(model()->d->selectedNodes().front(), model(), this);
 
     return ModelNode();
 }
@@ -474,7 +465,7 @@ ModelNode AbstractView::firstSelectedModelNode() const
 ModelNode AbstractView::singleSelectedModelNode() const
 {
     if (hasSingleSelectedModelNode())
-        return ModelNode(model()->d->selectedNodes().constFirst(), model(), this);
+        return ModelNode(model()->d->selectedNodes().front(), model(), this);
 
     return ModelNode();
 }

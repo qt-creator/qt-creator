@@ -1399,4 +1399,19 @@ QString ModelNode::behaviorPropertyName() const
     return m_internalNode->behaviorPropertyName;
 }
 
+template<typename Result>
+Result toInternalNodeList(const QList<ModelNode> &nodeList)
+{
+    Result newNodeList;
+    for (const ModelNode &node : nodeList)
+        newNodeList.append(node.internalNode());
+
+    return newNodeList;
+}
+
+template QMLDESIGNERCORE_EXPORT QVarLengthArray<Internal::InternalNodePointer, 1024> toInternalNodeList<
+    QVarLengthArray<Internal::InternalNodePointer, 1024>>(const QList<ModelNode> &nodeList);
+template QMLDESIGNERCORE_EXPORT QVarLengthArray<Internal::InternalNodePointer, 32> toInternalNodeList<
+    QVarLengthArray<Internal::InternalNodePointer, 32>>(const QList<ModelNode> &nodeList);
+
 } // namespace QmlDesigner

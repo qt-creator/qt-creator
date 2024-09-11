@@ -45,7 +45,13 @@ class GlobalAnnotationStatus;
 class Comment;
 class Annotation;
 
-QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
+template<typename Result = QVarLengthArray<Internal::InternalNodePointer, 1024>>
+QMLDESIGNERCORE_EXPORT Result toInternalNodeList(const QList<ModelNode> &nodeList);
+
+extern template QMLDESIGNERCORE_EXPORT QVarLengthArray<Internal::InternalNodePointer, 1024>
+toInternalNodeList<QVarLengthArray<Internal::InternalNodePointer, 1024>>(const QList<ModelNode> &nodeList);
+extern template QMLDESIGNERCORE_EXPORT QVarLengthArray<Internal::InternalNodePointer, 32>
+toInternalNodeList<QVarLengthArray<Internal::InternalNodePointer, 32>>(const QList<ModelNode> &nodeList);
 
 using PropertyListType = QList<QPair<PropertyName, QVariant> >;
 using AuxiliaryPropertyListType = QList<QPair<AuxiliaryDataKey, QVariant>>;
@@ -59,7 +65,9 @@ inline constexpr AuxiliaryDataKeyView transitionExpandedPropery{AuxiliaryDataTyp
 class QMLDESIGNERCORE_EXPORT ModelNode
 {
     friend QMLDESIGNERCORE_EXPORT QDebug operator<<(QDebug debug, const ModelNode &modelNode);
-    friend QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
+    template<typename Result>
+    friend QMLDESIGNERCORE_EXPORT Result toInternalNodeList(const QList<ModelNode> &nodeList);
+
     friend Model;
     friend AbstractView;
     friend NodeListProperty;

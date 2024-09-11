@@ -60,9 +60,9 @@ void InternalNodeProperty::add(const InternalNode::Pointer &node)
     m_node = node;
 }
 
-QList<InternalNode::Pointer> InternalNodeProperty::allSubNodes() const
+InternalNodeProperty::ManyNodes InternalNodeProperty::allSubNodes() const
 {
-    QList<InternalNode::Pointer> nodes;
+    ManyNodes nodes;
     nodes.reserve(1024);
 
     addSubNodes(nodes);
@@ -70,7 +70,7 @@ QList<InternalNode::Pointer> InternalNodeProperty::allSubNodes() const
     return nodes;
 }
 
-void InternalNodeProperty::addSubNodes(QList<InternalNodePointer> &container) const
+void InternalNodeProperty::addSubNodes(ManyNodes &container) const
 {
     container.push_back(m_node);
     m_node->addSubNodes(container);

@@ -328,7 +328,6 @@ private:
     Kind m_kind = Kind::Other;
 };
 
-QMLDESIGNERCORE_EXPORT QList<Internal::InternalNodePointer> toInternalNodeList(const QList<ModelNode> &nodeList);
 QMLDESIGNERCORE_EXPORT QList<ModelNode> toModelNodeList(
     Utils::span<const Internal::InternalNodePointer> nodeList,
     Model *model,

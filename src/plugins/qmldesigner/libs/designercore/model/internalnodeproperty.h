@@ -12,6 +12,8 @@ class InternalNodeProperty : public InternalNodeAbstractProperty
 {
 public:
     using Pointer = std::shared_ptr<InternalNodeProperty>;
+    using ManyNodes = QVarLengthArray<InternalNodePointer, 1024>;
+
     static constexpr PropertyType type = PropertyType::Node;
 
     InternalNodeProperty(PropertyNameView name, const InternalNodePointer &node);
@@ -21,8 +23,8 @@ public:
     int count() const override;
     int indexOf(const InternalNodePointer &node) const override;
 
-    QList<InternalNodePointer> allSubNodes() const;
-    void addSubNodes(QList<InternalNodePointer> &container) const;
+    ManyNodes allSubNodes() const;
+    void addSubNodes(ManyNodes &container) const;
 
     const InternalNodePointer &node() const { return m_node; }
 
