@@ -1102,6 +1102,7 @@ QStringList RewriterView::autoComplete(const QString &text, int pos, bool explic
     return list;
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QList<QmlTypeData> RewriterView::getQMLTypes() const
 {
     QList<QmlTypeData> qmlDataList;
@@ -1127,6 +1128,7 @@ QList<QmlTypeData> RewriterView::getQMLTypes() const
 
     return qmlDataList;
 }
+#endif
 
 void RewriterView::setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback)
 {

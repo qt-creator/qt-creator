@@ -558,7 +558,6 @@ extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/connectioneditor
   SOURCES
     addnewbackenddialog.cpp addnewbackenddialog.h addnewbackenddialog.ui
-    backendmodel.cpp backendmodel.h
     bindingmodel.cpp bindingmodel.h
     bindingmodelitem.cpp bindingmodelitem.h
     connectioneditor.qrc

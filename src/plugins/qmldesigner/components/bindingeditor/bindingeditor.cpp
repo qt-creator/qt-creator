@@ -246,6 +246,26 @@ void BindingEditor::prepareBindings()
     }
 
     //singletons:
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (auto model = m_modelNode.view()->model()) {
+        for (const auto &metaInfo : model->singletonMetaInfos()) {
+            BindingEditorDialog::BindingOption binding;
+
+            for (const auto &property : metaInfo.properties()) {
+                const auto propertyType = property.propertyType();
+
+                if (compareTypes(m_backendValueType, propertyType)) {
+                    binding.properties.append(QString::fromUtf8(property.name()));
+                }
+            }
+
+            if (!binding.properties.isEmpty()) {
+                binding.item = metaInfo.displayName();
+                bindings.append(binding);
+            }
+        }
+    }
+#else
     if (RewriterView *rv = m_modelNode.view()->rewriterView()) {
         for (const QmlTypeData &data : rv->getQMLTypes()) {
             if (!data.typeName.isEmpty()) {
@@ -270,7 +290,7 @@ void BindingEditor::prepareBindings()
             }
         }
     }
-
+#endif
     if (!bindings.isEmpty() && m_dialog)
         m_dialog->setAllBindings(bindings, m_backendValueType);
 }
@@ -289,7 +309,7 @@ void BindingEditor::updateWindowName()
         } else {
 #ifdef QDS_USE_PROJECTSTORAGE
             targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
-                           + QString::fromUtf8(m_backendValueType.displayName()) + "]";
+                           + m_backendValueType.displayName() + "]";
 #else
             targetString = " [" + (m_targetName.isEmpty() ? QString() : (m_targetName + ": "))
                            + QString::fromUtf8(m_backendValueType.simplifiedTypeName()) + "]";

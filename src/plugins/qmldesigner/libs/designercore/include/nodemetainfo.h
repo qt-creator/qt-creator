@@ -117,7 +117,7 @@ public:
 
     bool defaultPropertyIsComponent() const;
 
-    TypeName displayName() const;
+    QString displayName() const;
     DEPRECATED_TYPENAME TypeName typeName() const;
     DEPRECATED_TYPENAME TypeName simplifiedTypeName() const;
     DEPRECATED_VERSION_NUMBER int majorVersion() const;

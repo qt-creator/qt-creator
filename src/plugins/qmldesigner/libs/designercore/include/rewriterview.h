@@ -143,7 +143,9 @@ public:
 
     QStringList autoComplete(const QString &text, int pos, bool explicitComplete = true);
 
+#ifndef QDS_USE_PROJECTSTORAGE
     QList<QmlTypeData> getQMLTypes() const;
+#endif
 
     void setWidgetStatusCallback(std::function<void(bool)> setWidgetStatusCallback);
 

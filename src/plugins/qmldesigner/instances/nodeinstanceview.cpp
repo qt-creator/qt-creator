@@ -1208,6 +1208,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
 
     QVector<MockupTypeContainer> mockupTypesVector;
 
+#ifndef QDS_USE_PROJECTSTORAGE
     for (const QmlTypeData &cppTypeData : model()->rewriterView()->getQMLTypes()) {
         const QString versionString = cppTypeData.versionString;
         int majorVersion = -1;
@@ -1242,6 +1243,7 @@ CreateSceneCommand NodeInstanceView::createCreateSceneCommand()
             mockupTypesVector.append(mockupType);
         }
     }
+#endif
 
     QString lastUsedLanguage;
     if (auto multiLanguageAspect = QmlProjectManager::QmlMultiLanguageAspect::current(m_currentTarget))

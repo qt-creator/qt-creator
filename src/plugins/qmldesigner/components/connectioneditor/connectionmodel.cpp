@@ -40,10 +40,10 @@ const char defaultCondition[] = "condition";
 QStringList propertyNameListToStringList(const QmlDesigner::PropertyNameList &propertyNameList)
 {
     QStringList stringList;
+    stringList.reserve(propertyNameList.size());
     for (const QmlDesigner::PropertyName &propertyName : propertyNameList)
-        stringList << QString::fromUtf8(propertyName);
+        stringList.push_back(QString::fromUtf8(propertyName));
 
-    stringList.removeDuplicates();
     return stringList;
 }
 
@@ -206,6 +206,62 @@ void ConnectionModel::updateSignalName(int rowNumber)
     }
 }
 
+namespace {
+#ifdef QDS_USE_PROJECTSTORAGE
+bool isSingleton(AbstractView *view, bool isAlias, QStringView newTarget)
+{
+    using Storage::Info::ExportedTypeName;
+
+    auto model = view->model();
+
+    if (!model)
+        return false;
+
+    const auto sourceId = model->fileUrlSourceId();
+    const Utils::SmallString name = newTarget;
+    const Utils::SmallString aliasName = newTarget.split(u'.').front();
+    auto hasTargetExportedTypeName = [&](const auto &metaInfo) {
+        const auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(sourceId);
+        if (std::ranges::find(exportedTypeNames, name, &ExportedTypeName::name)
+            != exportedTypeNames.end())
+            return true;
+        if (isAlias) {
+            if (std::ranges::find(exportedTypeNames, aliasName, &ExportedTypeName::name)
+                != exportedTypeNames.end())
+                return true;
+        }
+        return false;
+    };
+
+    auto singletonMetaInfos = model->singletonMetaInfos();
+    return std::ranges::find_if(singletonMetaInfos, hasTargetExportedTypeName)
+           != singletonMetaInfos.end();
+}
+#else
+bool isSingleton(AbstractView *view, bool isAlias, const QString &newTarget)
+{
+    if (RewriterView *rv = view->rewriterView()) {
+        for (const QmlTypeData &data : rv->getQMLTypes()) {
+            if (!data.typeName.isEmpty()) {
+                if (data.typeName == newTarget) {
+                    if (view->model()->metaInfo(data.typeName.toUtf8()).isValid())
+                        return true;
+
+                } else if (isAlias) {
+                    if (data.typeName == newTarget.split(".").constFirst()) {
+                        if (view->model()->metaInfo(data.typeName.toUtf8()).isValid())
+                            return true;
+                    }
+                }
+            }
+        }
+    }
+
+    return false;
+}
+#endif
+} // namespace
+
 void ConnectionModel::updateTargetNode(int rowNumber)
 {
     SignalHandlerProperty signalHandlerProperty = signalHandlerPropertyForRow(rowNumber);
@@ -213,27 +269,7 @@ void ConnectionModel::updateTargetNode(int rowNumber)
     ModelNode connectionNode = signalHandlerProperty.parentModelNode();
 
     const bool isAlias = newTarget.contains(".");
-    bool isSingleton = false;
-
-    if (RewriterView* rv = connectionView()->rewriterView()) {
-        for (const QmlTypeData &data : rv->getQMLTypes()) {
-            if (!data.typeName.isEmpty()) {
-                if (data.typeName == newTarget) {
-                    if (connectionView()->model()->metaInfo(data.typeName.toUtf8()).isValid()) {
-                        isSingleton = true;
-                        break;
-                    }
-                } else if (isAlias) {
-                    if (data.typeName == newTarget.split(".").constFirst()) {
-                        if (connectionView()->model()->metaInfo(data.typeName.toUtf8()).isValid()) {
-                            isSingleton = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        }
-    }
+    bool isSingleton = QmlDesigner::isSingleton(m_connectionView, isAlias, newTarget);
 
     if (!newTarget.isEmpty()) {
         //if it's a singleton, then let's reparent connections to rootNode,
@@ -595,78 +631,96 @@ QStringList ConnectionModel::getflowActionTriggerForRow(int row) const
      return stringList;
 }
 
+namespace {}
+
 QStringList ConnectionModel::getPossibleSignalsForConnection(const ModelNode &connection) const
 {
+    if (!connection)
+        return {};
+
     QStringList stringList;
 
-    auto getAliasMetaSignals = [&](QString aliasPart, NodeMetaInfo metaInfo) {
-        if (metaInfo.isValid() && metaInfo.hasProperty(aliasPart.toUtf8())) {
-            NodeMetaInfo propertyMetaInfo = metaInfo.property(aliasPart.toUtf8()).propertyType();
-            if (propertyMetaInfo.isValid()) {
-                return propertyNameListToStringList(propertyMetaInfo.signalNames());
-            }
-        }
-        return QStringList();
+    auto getAliasMetaSignals = [&](PropertyNameView aliasPart, NodeMetaInfo metaInfo) -> QStringList {
+        if (NodeMetaInfo propertyMetaInfo = metaInfo.property(aliasPart).propertyType())
+            return propertyNameListToStringList(propertyMetaInfo.signalNames());
+
+        return {};
     };
 
-    if (connection.isValid()) {
-        //separate check for singletons
-        if (connection.hasBindingProperty("target")) {
-            const BindingProperty bp = connection.bindingProperty("target");
+    //separate check for singletons
+    if (const BindingProperty bp = connection.bindingProperty("target")) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (auto model = m_connectionView->model()) {
+            const Utils::SmallString bindExpression = bp.expression();
+            using Storage::Info::ExportedTypeName;
+            const auto sourceId = model->fileUrlSourceId();
+            for (const auto &metaInfo : model->singletonMetaInfos()) {
+                const auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(sourceId);
+                if (std::ranges::find(exportedTypeNames, bindExpression, &ExportedTypeName::name)
+                    != exportedTypeNames.end()) {
+                    stringList.append(propertyNameListToStringList(metaInfo.signalNames()));
+                } else {
+                    std::string_view expression = bindExpression;
+                    auto index = expression.find('.');
+                    if (index == std::string_view::npos)
+                        continue;
 
-            if (bp.isValid()) {
-                const QString bindExpression = bp.expression();
+                    expression.remove_prefix(index);
 
-                if (const RewriterView * const rv = connectionView()->rewriterView()) {
-                    for (const QmlTypeData &data : rv->getQMLTypes()) {
-                        if (!data.typeName.isEmpty()) {
-                            if (data.typeName == bindExpression) {
-                                NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(data.typeName.toUtf8());
-                                if (metaInfo.isValid()) {
-                                    stringList << propertyNameListToStringList(metaInfo.signalNames());
-                                    break;
-                                }
-                            } else if (bindExpression.contains(".")) {
-                                //if it doesn't fit the same name, maybe it's an alias?
-                                QStringList expression = bindExpression.split(".");
-                                if ((expression.size() > 1) && (expression.constFirst() == data.typeName)) {
-                                    expression.removeFirst();
+                    stringList.append(getAliasMetaSignals(expression, metaInfo));
+                }
+            }
+        }
+#else
+        const QString bindExpression = bp.expression();
 
-                                    stringList << getAliasMetaSignals(
-                                                      expression.join("."),
-                                                      connectionView()->model()->metaInfo(data.typeName.toUtf8()));
-                                    break;
-                                }
-                            }
+        if (const RewriterView *const rv = connectionView()->rewriterView()) {
+            for (const QmlTypeData &data : rv->getQMLTypes()) {
+                if (!data.typeName.isEmpty()) {
+                    if (data.typeName == bindExpression) {
+                        NodeMetaInfo metaInfo = connectionView()->model()->metaInfo(
+                            data.typeName.toUtf8());
+                        if (metaInfo.isValid()) {
+                            stringList << propertyNameListToStringList(metaInfo.signalNames());
+                            break;
+                        }
+                    } else if (bindExpression.contains(".")) {
+                        //if it doesn't fit the same name, maybe it's an alias?
+                        QStringList expression = bindExpression.split(".");
+                        if ((expression.size() > 1) && (expression.constFirst() == data.typeName)) {
+                            expression.removeFirst();
+
+                            stringList << getAliasMetaSignals(expression.join(".").toUtf8(),
+                                                              connectionView()->model()->metaInfo(
+                                                                  data.typeName.toUtf8()));
+                            break;
                         }
                     }
                 }
             }
         }
+#endif
+        std::ranges::sort(stringList);
+        stringList.erase(std::ranges::unique(stringList).begin(), stringList.end());
+    }
 
-        ModelNode targetNode = getTargetNodeForConnection(connection);
-        if (targetNode.isValid() && targetNode.metaInfo().isValid()) {
-            stringList.append(propertyNameListToStringList(targetNode.metaInfo().signalNames()));
-        } else {
-            //most likely it's component's internal alias:
+    ModelNode targetNode = getTargetNodeForConnection(connection);
+    if (auto metaInfo = targetNode.metaInfo()) {
+        stringList.append(propertyNameListToStringList(metaInfo.signalNames()));
+    } else {
+        //most likely it's component's internal alias:
 
-            if (connection.hasBindingProperty("target")) {
-                const BindingProperty bp = connection.bindingProperty("target");
-
-                if (bp.isValid()) {
-                    QStringList expression = bp.expression().split(".");
-                    if (expression.size() > 1) {
-                        const QString itemId = expression.constFirst();
-                        if (connectionView()->hasId(itemId)) {
-                            ModelNode parentItem = connectionView()->modelNodeForId(itemId);
-                            if (parentItem.isValid()
-                                    && parentItem.hasMetaInfo()
-                                    && parentItem.metaInfo().isValid()) {
-                                expression.removeFirst();
-                                stringList << getAliasMetaSignals(expression.join("."),
-                                                                  parentItem.metaInfo());
-                            }
-                        }
+        if (const BindingProperty bp = connection.bindingProperty("target")) {
+            QStringList expression = bp.expression().split(".");
+            if (expression.size() > 1) {
+                const QString itemId = expression.constFirst();
+                if (connectionView()->hasId(itemId)) {
+                    ModelNode parentItem = connectionView()->modelNodeForId(itemId);
+                    if (parentItem.isValid() && parentItem.hasMetaInfo()
+                        && parentItem.metaInfo().isValid()) {
+                        expression.removeFirst();
+                        stringList << getAliasMetaSignals(expression.join(".").toUtf8(),
+                                                          parentItem.metaInfo());
                     }
                 }
             }

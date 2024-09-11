@@ -2106,7 +2106,7 @@ bool NodeMetaInfo::defaultPropertyIsComponent() const
     }
 }
 
-TypeName NodeMetaInfo::displayName() const
+QString NodeMetaInfo::displayName() const
 {
     return {};
 }
