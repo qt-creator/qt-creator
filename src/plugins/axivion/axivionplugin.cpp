@@ -818,6 +818,52 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
     return root;
 }
 
+Group projectInfoRecipe(const QString &projectName)
+{
+    const auto onSetup = [projectName] {
+        dd->clearAllMarks();
+        dd->m_currentProjectInfo = {};
+        dd->m_analysisVersion = {};
+        if (!projectName.isEmpty())
+            return SetupResult::Continue;
+
+        updateDashboard();
+        return SetupResult::StopWithSuccess;
+    };
+
+    const auto onTaskTreeSetup = [projectName](TaskTree &taskTree) {
+        if (!dd->m_dashboardInfo) {
+            MessageManager::writeDisrupting(QString("Axivion: %1")
+                                                .arg(Tr::tr("Fetching DashboardInfo error.")));
+            return SetupResult::StopWithError;
+        }
+
+        const auto it = dd->m_dashboardInfo->projectUrls.constFind(projectName);
+        if (it == dd->m_dashboardInfo->projectUrls.constEnd()) {
+            MessageManager::writeDisrupting(QString("Axivion: %1")
+                                                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(projectName)));
+            return SetupResult::StopWithError;
+        }
+
+        const auto handler = [](const Dto::ProjectInfoDto &data) {
+            dd->m_currentProjectInfo = data;
+            if (!dd->m_currentProjectInfo->versions.empty())
+                setAnalysisVersion(dd->m_currentProjectInfo->versions.back().date);
+            updateDashboard();
+        };
+
+        taskTree.setRecipe(
+            fetchDataRecipe<Dto::ProjectInfoDto>(dd->m_dashboardInfo->source.resolved(*it), handler));
+        return SetupResult::Continue;
+    };
+
+    return {
+        onGroupSetup(onSetup),
+        authorizationRecipe(),
+        TaskTreeTask(onTaskTreeSetup)
+    };
+}
+
 Group issueTableRecipe(const IssueListSearch &search, const IssueTableHandler &handler)
 {
     QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
@@ -873,49 +919,7 @@ void AxivionPluginPrivate::fetchDashboardInfo(const DashboardInfoHandler &handle
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    const auto onSetup = [this, projectName] {
-        clearAllMarks();
-        m_currentProjectInfo = {};
-        m_analysisVersion = {};
-        if (!projectName.isEmpty())
-            return SetupResult::Continue;
-
-        updateDashboard();
-        return SetupResult::StopWithSuccess;
-    };
-
-    const auto onTaskTreeSetup = [this, projectName](TaskTree &taskTree) {
-        if (!m_dashboardInfo) {
-            MessageManager::writeDisrupting(QString("Axivion: %1")
-                .arg(Tr::tr("Fetching DashboardInfo error.")));
-            return SetupResult::StopWithError;
-        }
-
-        const auto it = m_dashboardInfo->projectUrls.constFind(projectName);
-        if (it == m_dashboardInfo->projectUrls.constEnd()) {
-            MessageManager::writeDisrupting(QString("Axivion: %1")
-                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(projectName)));
-            return SetupResult::StopWithError;
-        }
-
-        const auto handler = [this](const Dto::ProjectInfoDto &data) {
-            m_currentProjectInfo = data;
-            if (!m_currentProjectInfo->versions.empty())
-                setAnalysisVersion(m_currentProjectInfo->versions.back().date);
-            updateDashboard();
-        };
-
-        taskTree.setRecipe(
-            fetchDataRecipe<Dto::ProjectInfoDto>(m_dashboardInfo->source.resolved(*it), handler));
-        return SetupResult::Continue;
-    };
-
-    const Group root {
-        onGroupSetup(onSetup),
-        authorizationRecipe(),
-        TaskTreeTask(onTaskTreeSetup)
-    };
-    m_taskTreeRunner.start(root);
+    m_taskTreeRunner.start(projectInfoRecipe(projectName));
 }
 
 Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)

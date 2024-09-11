@@ -63,6 +63,8 @@ public:
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
 
+Tasking::Group projectInfoRecipe(const QString &projectName);
+
 // TODO: Wrap into expected_str<>?
 using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
 Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler);
