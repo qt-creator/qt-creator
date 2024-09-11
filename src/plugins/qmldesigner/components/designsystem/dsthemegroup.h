@@ -12,6 +12,11 @@
 #include <optional>
 
 namespace QmlDesigner {
+enum class DECORATION_CONTEXT {
+    MCU,
+    MPU,
+    COMPONENT_THEME,
+};
 
 class QMLDESIGNERCOMPONENTS_EXPORT DSThemeGroup
 {
@@ -50,7 +55,7 @@ public:
     void removeTheme(ThemeId theme);
 
     void duplicateValues(ThemeId from, ThemeId to);
-    void decorate(ThemeId theme, ModelNode themeNode);
+    void decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTEXT decorationContext);
 
 private:
     const GroupType m_type;
