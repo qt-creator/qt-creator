@@ -873,13 +873,16 @@ void AxivionPluginPrivate::fetchDashboardInfo(const DashboardInfoHandler &handle
 
 void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
 {
-    clearAllMarks();
-    m_currentProjectInfo = {};
-    m_analysisVersion = {};
-    if (projectName.isEmpty()) {
+    const auto onSetup = [this, projectName] {
+        clearAllMarks();
+        m_currentProjectInfo = {};
+        m_analysisVersion = {};
+        if (!projectName.isEmpty())
+            return SetupResult::Continue;
+
         updateDashboard();
-        return;
-    }
+        return SetupResult::StopWithSuccess;
+    };
 
     const auto onTaskTreeSetup = [this, projectName](TaskTree &taskTree) {
         if (!m_dashboardInfo) {
@@ -908,6 +911,7 @@ void AxivionPluginPrivate::fetchProjectInfo(const QString &projectName)
     };
 
     const Group root {
+        onGroupSetup(onSetup),
         authorizationRecipe(),
         TaskTreeTask(onTaskTreeSetup)
     };
