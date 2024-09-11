@@ -1,5 +1,5 @@
 project     = $IDE_ID
-description = "$IDE_DISPLAY_NAME Manual"
+description = "$IDE_DISPLAY_NAME Documentation"
 url         = https://doc.qt.io/qtdesignstudio
 version     = $QTC_VERSION
 
@@ -102,14 +102,14 @@ qhp.projects = qtdesignstudio
 qhp.qtdesignstudio.file = qtdesignstudio.qhp
 qhp.qtdesignstudio.namespace = org.qt-project.$IDE_ID.$QTC_VERSION_TAG
 qhp.qtdesignstudio.virtualFolder = doc
-qhp.qtdesignstudio.indexTitle       = $IDE_DISPLAY_NAME Manual $QTC_VERSION
+qhp.qtdesignstudio.indexTitle       = $IDE_DISPLAY_NAME Documentation $QTC_VERSION
 qhp.qtdesignstudio.filterAttributes = $IDE_ID $QTC_VERSION
 qhp.qtdesignstudio.customFilters.qtdesignstudio.name = $IDE_DISPLAY_NAME $QTC_VERSION
 qhp.qtdesignstudio.customFilters.qtdesignstudio.filterAttributes = $IDE_ID $QTC_VERSION
 qhp.qtdesignstudio.indexRoot =
 
 qhp.qtdesignstudio.subprojects = manual
-qhp.qtdesignstudio.subprojects.manual.title = $IDE_DISPLAY_NAME Manual
+qhp.qtdesignstudio.subprojects.manual.title = $IDE_DISPLAY_NAME Documentation
 qhp.qtdesignstudio.subprojects.manual.indexTitle = All Topics
 qhp.qtdesignstudio.subprojects.manual.type = manual
 
@@ -119,10 +119,10 @@ macro.see                       = "\\sa"
 macro.function                  = "\\fn"
 macro.QMLD                      = "Qt Design Studio"
 
-navigation.landingpage = "$IDE_DISPLAY_NAME Manual"
+navigation.landingpage = "$IDE_DISPLAY_NAME Documentation"
 
 # Auto-generate navigation linking based on "All Topics":
 navigation.toctitles = "All Topics"
 navigation.toctitles.inclusive = false
 
-buildversion = "$IDE_DISPLAY_NAME Manual $QTC_VERSION"
+buildversion = "$IDE_DISPLAY_NAME Documentation $QTC_VERSION"
