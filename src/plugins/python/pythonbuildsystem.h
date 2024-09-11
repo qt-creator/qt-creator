@@ -25,9 +25,10 @@ public:
                                                          const Utils::FilePaths &filePaths,
                                                          Utils::FilePaths *) override;
     bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) override;
-    bool renameFile(ProjectExplorer::Node *,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) override;
+    bool renameFiles(
+        ProjectExplorer::Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) override;
     QString name() const override { return QLatin1String("python"); }
 
     void parse();

@@ -17,6 +17,7 @@
 #include <functional>
 #include <memory>
 #include <optional>
+#include <utility>
 #include <variant>
 
 QT_BEGIN_NAMESPACE
@@ -53,7 +54,12 @@ public:
     const QDirIterator::IteratorFlags iteratorFlags = QDirIterator::NoIteratorFlags;
 };
 
-using FilePaths = QList<class FilePath>;
+class FilePath;
+using FilePaths = QList<FilePath>;
+using FilePair = std::pair<FilePath, FilePath>;
+using FilePairs = QList<FilePair>;
+QTCREATOR_UTILS_EXPORT FilePaths firstPaths(const FilePairs &pairs);
+QTCREATOR_UTILS_EXPORT FilePaths secondPaths(const FilePairs &pairs);
 
 class QTCREATOR_UTILS_EXPORT FilePathWatcher : public QObject
 {

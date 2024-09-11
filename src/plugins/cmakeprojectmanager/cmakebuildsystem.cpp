@@ -962,74 +962,95 @@ bool CMakeBuildSystem::canRenameFile(Node *context,
     return false;
 }
 
-bool CMakeBuildSystem::renameFile(Node *context,
-                                  const FilePath &oldFilePath,
-                                  const FilePath &newFilePath)
+bool CMakeBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
-    if (auto n = dynamic_cast<CMakeTargetNode *>(context)) {
-        const FilePath projDir = n->filePath().canonicalPath();
-        const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
-        const QString newRelPathName = newRelPath.toString();
-
-        const QString targetName = n->buildKey();
-        const QString key
-            = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
-                ";");
-
-        std::optional<CMakeBuildSystem::ProjectFileArgumentPosition> fileToRename
-            = m_filesToBeRenamed.take(key);
-        if (!fileToRename->cmakeFile.exists()) {
-            qCCritical(cmakeBuildSystemLog).noquote()
-                << "File" << fileToRename->cmakeFile.path() << "does not exist.";
-            return false;
-        }
-
-        bool haveGlobbing = false;
-        do {
-            if (!fileToRename->fromGlobbing) {
-                BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
-                    Core::EditorManager::openEditorAt(
-                        {fileToRename->cmakeFile,
-                         static_cast<int>(fileToRename->argumentPosition.Line),
-                         static_cast<int>(fileToRename->argumentPosition.Column - 1)},
-                        Constants::CMAKE_EDITOR_ID,
-                        Core::EditorManager::DoNotMakeVisible
-                            | Core::EditorManager::DoNotChangeCurrentEditor));
-                if (!editor) {
-                    qCCritical(cmakeBuildSystemLog).noquote()
-                        << "BaseTextEditor cannot be obtained for" << fileToRename->cmakeFile.path()
-                        << fileToRename->argumentPosition.Line
-                        << int(fileToRename->argumentPosition.Column);
-                    return false;
-                }
-
-                // If quotes were used for the source file, skip the starting quote
-                if (fileToRename->argumentPosition.Delim == cmListFileArgument::Quoted)
-                    editor->setCursorPosition(editor->position() + 1);
-
-                editor->replace(fileToRename->relativeFileName.length(), newRelPathName);
-
-                editor->editorWidget()->autoIndent();
-                if (!Core::DocumentManager::saveDocument(editor->document())) {
-                    qCCritical(cmakeBuildSystemLog).noquote()
-                        << "Changes to" << fileToRename->cmakeFile.path() << "could not be saved.";
-                    return false;
-                }
-            } else {
-                haveGlobbing = true;
-            }
-
-            // Try the next occurrence. This can happen if set_source_file_properties is used
-            fileToRename = projectFileArgumentPosition(targetName, fileToRename->relativeFileName);
-        } while (fileToRename && !fileToRename->fromGlobbing);
-
-        if (haveGlobbing && settings(project()).autorunCMake())
-            runCMake();
-
-        return true;
+    const auto n = dynamic_cast<CMakeTargetNode *>(context);
+    if (!n) {
+        if (notRenamed)
+            *notRenamed = firstPaths(filesToRename);
+        return false;
     }
 
-    return false;
+    bool shouldRunCMake = false;
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        if (!renameFile(n, oldFilePath, newFilePath, shouldRunCMake)) {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
+        }
+    }
+
+    if (shouldRunCMake && settings(project()).autorunCMake())
+        runCMake();
+
+    return success;
+}
+
+bool CMakeBuildSystem::renameFile(
+        CMakeTargetNode *context,
+        const Utils::FilePath &oldFilePath,
+        const Utils::FilePath &newFilePath,
+        bool &shouldRunCMake)
+{
+    const FilePath projDir = context->filePath().canonicalPath();
+    const FilePath newRelPath = newFilePath.canonicalPath().relativePathFrom(projDir).cleanPath();
+    const QString newRelPathName = newRelPath.toString();
+
+    const QString targetName = context->buildKey();
+    const QString key
+        = QStringList{projDir.path(), targetName, oldFilePath.path(), newFilePath.path()}.join(
+            ";");
+
+    std::optional<CMakeBuildSystem::ProjectFileArgumentPosition> fileToRename
+        = m_filesToBeRenamed.take(key);
+    if (!fileToRename->cmakeFile.exists()) {
+        qCCritical(cmakeBuildSystemLog).noquote()
+        << "File" << fileToRename->cmakeFile.path() << "does not exist.";
+        return false;
+    }
+
+    bool haveGlobbing = false;
+    do {
+        if (!fileToRename->fromGlobbing) {
+            BaseTextEditor *editor = qobject_cast<BaseTextEditor *>(
+                Core::EditorManager::openEditorAt(
+                    {fileToRename->cmakeFile,
+                     static_cast<int>(fileToRename->argumentPosition.Line),
+                     static_cast<int>(fileToRename->argumentPosition.Column - 1)},
+                    Constants::CMAKE_EDITOR_ID,
+                    Core::EditorManager::DoNotMakeVisible
+                        | Core::EditorManager::DoNotChangeCurrentEditor));
+            if (!editor) {
+                qCCritical(cmakeBuildSystemLog).noquote()
+                << "BaseTextEditor cannot be obtained for" << fileToRename->cmakeFile.path()
+                << fileToRename->argumentPosition.Line
+                << int(fileToRename->argumentPosition.Column);
+                return false;
+            }
+
+            // If quotes were used for the source file, skip the starting quote
+            if (fileToRename->argumentPosition.Delim == cmListFileArgument::Quoted)
+                editor->setCursorPosition(editor->position() + 1);
+
+            editor->replace(fileToRename->relativeFileName.length(), newRelPathName);
+            editor->editorWidget()->autoIndent();
+            if (!Core::DocumentManager::saveDocument(editor->document())) {
+                qCCritical(cmakeBuildSystemLog).noquote()
+                << "Changes to" << fileToRename->cmakeFile.path() << "could not be saved.";
+                return false;
+            }
+        } else {
+            haveGlobbing = true;
+        }
+
+        // Try the next occurrence. This can happen if set_source_file_properties is used
+        fileToRename = projectFileArgumentPosition(targetName, fileToRename->relativeFileName);
+    } while (fileToRename && !fileToRename->fromGlobbing);
+
+    if (haveGlobbing)
+        shouldRunCMake = true;
+    return true;
 }
 
 void CMakeBuildSystem::buildNamedTarget(const QString &target)

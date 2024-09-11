@@ -267,27 +267,43 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const FilePat
     return BuildSystem::removeFiles(context, filePaths, notRemoved);
 }
 
-bool QbsBuildSystem::renameFile(Node *context,
-                                const FilePath &oldFilePath,
-                                const FilePath &newFilePath)
+bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
-        return renameFileInProduct(oldFilePath.toString(),
-                                   newFilePath.toString(),
-                                   prdNode->productData(),
-                                   n->groupData());
+        bool success = true;
+        for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+            if (!renameFileInProduct(
+                    oldFilePath.toString(),
+                    newFilePath.toString(),
+                    prdNode->productData(),
+                    n->groupData())) {
+                success = false;
+                if (notRenamed)
+                    *notRenamed << oldFilePath;
+            }
+        }
+        return success;
     }
 
     if (auto *n = dynamic_cast<QbsProductNode *>(context)) {
-        return renameFileInProduct(oldFilePath.toString(),
-                                   newFilePath.toString(),
-                                   n->productData(),
-                                   n->mainGroup());
+        bool success = true;
+        for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+            if (!renameFileInProduct(
+                    oldFilePath.toString(),
+                    newFilePath.toString(),
+                    n->productData(),
+                    n->mainGroup())) {
+                success = false;
+                if (notRenamed)
+                    *notRenamed << oldFilePath;
+            }
+        }
+        return success;
     }
 
-    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
+    return BuildSystem::renameFiles(context, filesToRename, notRenamed);
 }
 
 QVariant QbsBuildSystem::additionalData(Id id) const
@@ -409,6 +425,7 @@ bool QbsBuildSystem::renameFileInProduct(
     if (newPath.isEmpty())
         return false;
     FilePaths dummy;
+    // FIXME: The qbs API need a (bulk) renaming feature
     if (removeFilesFromProduct({FilePath::fromString(oldPath)}, product, group, &dummy)
             != RemovedFilesFromProject::Ok) {
         return false;

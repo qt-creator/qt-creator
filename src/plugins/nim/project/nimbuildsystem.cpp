@@ -152,7 +152,10 @@ public:
                                         const FilePaths &filePaths,
                                         FilePaths *) final;
     bool deleteFiles(Node *, const FilePaths &) final;
-    bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool renameFiles(
+        Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) final;
     QString name() const final { return QLatin1String("nim"); }
 
     void triggerParsing() final;
@@ -237,9 +240,17 @@ bool NimBuildSystem::deleteFiles(Node *, const FilePaths &)
     return true;
 }
 
-bool NimBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
+bool NimBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
-    return m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString());
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        if (!m_projectScanner.renameFile(oldFilePath.toString(), newFilePath.toString())) {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
+        }
+    }
+    return success;
 }
 
 BuildSystem *createNimBuildSystem(Target *target)

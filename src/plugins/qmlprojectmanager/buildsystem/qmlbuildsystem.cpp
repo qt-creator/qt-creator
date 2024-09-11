@@ -627,19 +627,35 @@ bool QmlBuildSystem::deleteFiles(Node *context, const Utils::FilePaths &filePath
     return BuildSystem::deleteFiles(context, filePaths);
 }
 
-bool QmlBuildSystem::renameFile(Node *context,
-                                const Utils::FilePath &oldFilePath,
-                                const Utils::FilePath &newFilePath)
+bool QmlBuildSystem::renameFiles(Node *context,
+                                 const Utils::FilePairs &filesToRename,
+                                 Utils::FilePaths *notRenamed)
 {
-    if (dynamic_cast<Internal::QmlProjectNode *>(context)) {
-        if (oldFilePath.endsWith(mainFile()))
-            return setMainFileInProjectFile(newFilePath);
-        if (oldFilePath.endsWith(m_projectItem->mainUiFile()))
-            return setMainUiFileInProjectFile(newFilePath);
-        return true;
+    if (!dynamic_cast<Internal::QmlProjectNode *>(context))
+        return BuildSystem::renameFiles(context, filesToRename, notRenamed);
+
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        const auto fail = [&] {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
+        };
+        if (oldFilePath.endsWith(mainFile())) {
+            if (!setMainFileInProjectFile(newFilePath))
+                fail();
+            continue;
+        }
+        if (oldFilePath.endsWith(m_projectItem->mainUiFile())) {
+            if (!setMainUiFileInProjectFile(newFilePath))
+                fail();
+            continue;
+        }
+
+        // Why is this not an error?
     }
 
-    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
+    return success;
 }
 
 QString QmlBuildSystem::mainFile() const

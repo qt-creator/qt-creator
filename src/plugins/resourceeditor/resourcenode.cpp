@@ -157,7 +157,7 @@ public:
     RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
                                         Utils::FilePaths *notRemoved) final;
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
-    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    bool renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed) final;
 
     QString prefix() const { return m_prefix; }
     ResourceTopLevelNode *resourceNode() const { return m_topLevelNode; }
@@ -211,9 +211,9 @@ bool SimpleResourceFolderNode::canRenameFile(const FilePath &oldFilePath,
     return prefixNode()->canRenameFile(oldFilePath, newFilePath);
 }
 
-bool SimpleResourceFolderNode::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
+bool SimpleResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
-    return prefixNode()->renameFile(oldFilePath, newFilePath);
+    return prefixNode()->renameFiles(filesToRename, notRenamed);
 }
 
 } // Internal
@@ -531,7 +531,7 @@ bool ResourceFolderNode::canRenameFile(const FilePath &oldFilePath, const FilePa
     return fileEntryExists;
 }
 
-bool ResourceFolderNode::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
+bool ResourceFolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     ResourceFile file(m_topLevelNode->filePath());
     if (file.load() != IDocument::OpenResult::Success)
@@ -540,16 +540,27 @@ bool ResourceFolderNode::renameFile(const FilePath &oldFilePath, const FilePath 
     if (index == -1)
         return false;
 
-    for (int j = 0; j < file.fileCount(index); ++j) {
-        if (file.file(index, j) == oldFilePath.toString()) {
-            file.replaceFile(index, j, newFilePath.toString());
-            FileChangeBlocker changeGuard(m_topLevelNode->filePath());
-            file.save();
-            return true;
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        bool found = false;
+        for (int j = 0; j < file.fileCount(index); ++j) {
+            if (file.file(index, j) == oldFilePath.toString()) {
+                file.replaceFile(index, j, newFilePath.toString());
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
         }
     }
 
-    return false;
+    FileChangeBlocker changeGuard(m_topLevelNode->filePath());
+    file.save();
+
+    return success;
 }
 
 bool ResourceFolderNode::renamePrefix(const QString &prefix, const QString &lang)

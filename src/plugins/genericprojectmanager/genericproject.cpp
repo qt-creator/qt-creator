@@ -114,7 +114,10 @@ public:
     }
 
     RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
-    bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool renameFiles(
+        Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
     QString name() const final { return QLatin1String("generic"); }
 
@@ -376,21 +379,42 @@ bool GenericBuildSystem::setFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
-bool GenericBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
+bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     QStringList newList = m_rawFileList;
 
-    QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
-    if (i != m_rawListEntries.end()) {
-        int index = newList.indexOf(i.value());
-        if (index != -1) {
-            QDir baseDir(projectDirectory().toString());
-            newList.removeAt(index);
-            insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        const auto fail = [&] {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
+        };
+
+        const auto i = m_rawListEntries.find(oldFilePath.toString());
+        if (i == m_rawListEntries.end()) {
+            fail();
+            continue;
         }
+
+        const int index = newList.indexOf(i.value());
+        if (index == -1) {
+            fail();
+            continue;
+        }
+
+        QDir baseDir(projectDirectory().toString());
+        newList.removeAt(index);
+        insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
     }
 
-    return saveRawFileList(newList);
+    if (!saveRawFileList(newList)) {
+        success = false;
+        if (notRenamed)
+            *notRenamed = firstPaths(filesToRename);
+    }
+
+    return success;
 }
 
 static QStringList readFlags(const QString &filePath)

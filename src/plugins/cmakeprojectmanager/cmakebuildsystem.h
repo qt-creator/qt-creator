@@ -61,9 +61,9 @@ public:
     bool canRenameFile(ProjectExplorer::Node *context,
                        const Utils::FilePath &oldFilePath,
                        const Utils::FilePath &newFilePath) final;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) final;
+    bool renameFiles(ProjectExplorer::Node *context,
+                     const Utils::FilePairs &filesToRename,
+                     Utils::FilePaths *notRenamed) final;
     void buildNamedTarget(const QString &target) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
@@ -157,6 +157,9 @@ private:
                      Utils::FilePaths *);
     bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
                     Utils::FilePaths *);
+    bool renameFile(CMakeTargetNode *context,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath, bool &shouldRunCMake);
 
     // Actually ask for parsing:
     enum ReparseParameters {

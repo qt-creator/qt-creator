@@ -224,10 +224,10 @@ bool BuildSystem::canRenameFile(Node *, const FilePath &oldFilePath, const FileP
     return true;
 }
 
-bool BuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
+bool BuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
-    Q_UNUSED(oldFilePath)
-    Q_UNUSED(newFilePath)
+    if (notRenamed)
+        *notRenamed = firstPaths(filesToRename);
     return false;
 }
 

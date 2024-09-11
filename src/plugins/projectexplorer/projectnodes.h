@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <optional>
+#include <utility>
 #include <variant>
 
 namespace Utils { class MimeType; }
@@ -300,7 +301,7 @@ public:
     virtual bool deleteFiles(const Utils::FilePaths &filePaths);
     virtual bool canRenameFile(const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
-    virtual bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
+    virtual bool renameFiles(const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed);
     virtual bool addDependencies(const QStringList &dependencies);
 
     class AddNewInformation
@@ -382,8 +383,9 @@ public:
     RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
                                         Utils::FilePaths *notRemoved = nullptr) final;
     bool deleteFiles(const Utils::FilePaths &filePaths) final;
-    bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
-    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    bool canRenameFile(
+        const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    bool renameFiles(const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed) final;
     bool addDependencies(const QStringList &dependencies) final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
 

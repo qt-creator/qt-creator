@@ -837,11 +837,11 @@ bool FolderNode::canRenameFile(const FilePath &oldFilePath, const FilePath &newF
     return false;
 }
 
-bool FolderNode::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
+bool FolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     ProjectNode *pn = managingProject();
     if (pn)
-        return pn->renameFile(oldFilePath, newFilePath);
+        return pn->renameFiles(filesToRename, notRenamed);
     return false;
 }
 
@@ -970,17 +970,20 @@ bool ProjectNode::deleteFiles(const FilePaths &filePaths)
     return false;
 }
 
-bool ProjectNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool ProjectNode::canRenameFile(
+    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
-    if (BuildSystem *bs = buildSystem())
+    if (BuildSystem * const bs = buildSystem())
         return bs->canRenameFile(this, oldFilePath, newFilePath);
-    return true;
+    return false;
 }
 
-bool ProjectNode::renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool ProjectNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     if (BuildSystem *bs = buildSystem())
-        return bs->renameFile(this, oldFilePath, newFilePath);
+        return bs->renameFiles(this, filesToRename, notRenamed);
+    if (notRenamed)
+        *notRenamed = firstPaths(filesToRename);
     return false;
 }
 

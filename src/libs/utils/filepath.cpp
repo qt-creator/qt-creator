@@ -2558,4 +2558,14 @@ FilePath TemporaryFilePath::filePath() const
     return d->filePath;
 }
 
+FilePaths firstPaths(const FilePairs &pairs)
+{
+    return transform(pairs, &FilePair::first);
+}
+
+FilePaths secondPaths(const FilePairs &pairs)
+{
+    return transform(pairs, &FilePair::second);
+}
+
 } // Utils

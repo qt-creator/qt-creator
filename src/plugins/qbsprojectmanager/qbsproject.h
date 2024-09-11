@@ -67,8 +67,10 @@ public:
     ProjectExplorer::RemovedFilesFromProject removeFiles(ProjectExplorer::Node *context,
                                                          const Utils::FilePaths &filePaths,
                                                          Utils::FilePaths *notRemoved = nullptr) final;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    bool renameFiles(
+        ProjectExplorer::Node *context,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) final;
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QVariant additionalData(Utils::Id id) const final;
     QString name() const final { return QLatin1String("qbs"); }

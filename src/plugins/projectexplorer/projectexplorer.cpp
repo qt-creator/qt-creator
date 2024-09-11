@@ -2478,16 +2478,88 @@ void ProjectExplorerPlugin::showOutputPaneForRunControl(RunControl *runControl)
     appOutputPane().showOutputPaneForRunControl(runControl);
 }
 
-QList<std::pair<FilePath, FilePath>> ProjectExplorerPlugin::renameFiles(
-    const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths)
+static HandleIncludeGuards canTryToRenameIncludeGuards(const Node *node)
 {
-    QList<std::pair<FilePath, FilePath>> renamedFiles;
-    for (const auto &[node, newFilePath] : nodesAndNewFilePaths) {
-        if (const auto res = renameFile(node, newFilePath.toString()))
-            renamedFiles << *res;
+    return node->asFileNode() && node->asFileNode()->fileType() == FileType::Header
+            ? HandleIncludeGuards::Yes : HandleIncludeGuards::No;
+}
+
+FilePairs ProjectExplorerPlugin::renameFiles(
+    const QList<std::pair<Node *, FilePath>> &nodesAndNewFilePaths)
+{
+    const QList<std::pair<Node *, FilePath>> nodesAndNewFilePathsFiltered
+            = Utils::filtered(nodesAndNewFilePaths, [](const std::pair<Node *, FilePath> &elem) {
+        return !elem.first->filePath().equalsCaseSensitive(elem.second);
+    });
+    FilePaths renamedOnly;
+    FilePaths failedRenamings;
+    const auto renameFile = [&failedRenamings](const Node *node, const FilePath &newFilePath) {
+        if (!Core::FileUtils::renameFile(
+                    node->filePath(), newFilePath, canTryToRenameIncludeGuards(node))) {
+            failedRenamings << node->filePath();
+            return false;
+        }
+        return true;
+    };
+    QHash<FolderNode *, QList<std::pair<Node *, FilePath>>> renamingsPerParentNode;
+    for (const auto &elem : nodesAndNewFilePathsFiltered) {
+        if (FolderNode * const folderNode = elem.first->parentFolderNode())
+            renamingsPerParentNode[folderNode] << elem;
+        else if (renameFile(elem.first, elem.second))
+            renamedOnly << elem.first->filePath();
     }
-    emit instance()->filesRenamed(renamedFiles);
-    return renamedFiles;
+
+    for (auto it = renamingsPerParentNode.cbegin(); it != renamingsPerParentNode.cend(); ++it) {
+        FilePairs toUpdateInProject;
+        for (const std::pair<Node *, FilePath> &elem : it.value()) {
+            const bool canUpdateProject
+                    = it.key()->canRenameFile(elem.first->filePath(), elem.second);
+            if (renameFile(elem.first, elem.second)) {
+                if (canUpdateProject )
+                    toUpdateInProject << std::make_pair(elem.first->filePath(), elem.second);
+                else
+                    renamedOnly << elem.first->filePath();
+            }
+        }
+        if (toUpdateInProject.isEmpty())
+            continue;
+        FilePaths notRenamed;
+        if (!it.key()->renameFiles(toUpdateInProject, &notRenamed))
+            renamedOnly << notRenamed;
+    }
+
+    if (!failedRenamings.isEmpty() || !renamedOnly.isEmpty()) {
+        const auto pathsAsHtmlList = [](const FilePaths &files) {
+            QString s("<ul>");
+            for (const FilePath &f : files)
+                s.append("<li>").append(f.toUserOutput()).append("</li>");
+            return s.append("</ul>");
+        };
+        QString failedRenamingsString;
+        if (!failedRenamings.isEmpty()) {
+            failedRenamingsString = Tr::tr("The following files could not be renamed: %1")
+                    .arg(pathsAsHtmlList(failedRenamings));
+        }
+        QString renamedOnlyString;
+        if (!renamedOnly.isEmpty()) {
+            renamedOnlyString = Tr::tr(
+                        "<br>The following files were renamed, but their project files could not "
+                        "be updated accordingly: %1")
+                    .arg(pathsAsHtmlList(renamedOnly));
+        }
+        QTimer::singleShot(0, m_instance, [message = failedRenamingsString + renamedOnlyString] {
+            QMessageBox::warning(
+                        ICore::dialogParent(), Tr::tr("Renaming Did Not Fully Succeed"), message);
+        });
+    }
+
+    FilePairs allRenamedFiles;
+    for (const std::pair<Node *, FilePath> &candidate : nodesAndNewFilePathsFiltered) {
+        if (!failedRenamings.contains(candidate.first->filePath()))
+            allRenamedFiles.emplaceBack(candidate.first->filePath(), candidate.second);
+    }
+    emit instance()->filesRenamed(allRenamedFiles);
+    return allRenamedFiles;
 }
 
 #ifdef WITH_TESTS
@@ -2761,7 +2833,7 @@ void ProjectExplorerPluginPrivate::extendFolderNavigationWidgetFactory()
                 const QVector<FolderNode *> folderNodes = renamableFolderNodes(before, after);
                 QVector<FolderNode *> failedNodes;
                 for (FolderNode *folder : folderNodes) {
-                    if (!folder->renameFile(before, after))
+                    if (!folder->renameFiles({std::make_pair(before, after)}, nullptr))
                         failedNodes.append(folder);
                 }
                 if (!failedNodes.isEmpty()) {
@@ -3859,12 +3931,6 @@ void ProjectExplorerPluginPrivate::removeFile()
     Core::FileUtils::removeFiles(pathList, deleteFile);
 }
 
-static HandleIncludeGuards canTryToRenameIncludeGuards(const Node *node)
-{
-    return node->asFileNode() && node->asFileNode()->fileType() == FileType::Header
-            ? HandleIncludeGuards::Yes : HandleIncludeGuards::No;
-}
-
 void ProjectExplorerPluginPrivate::duplicateFile()
 {
     Node *currentNode = ProjectTree::currentNode();
@@ -3957,67 +4023,6 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
-}
-
-std::optional<std::pair<FilePath, FilePath>>
-ProjectExplorerPlugin::renameFile(Node *node, const QString &newFileName)
-{
-    const FilePath oldFilePath = node->filePath().absoluteFilePath();
-    FolderNode *folderNode = node->parentFolderNode();
-    QTC_ASSERT(folderNode, return {});
-    const QString projectFileName = folderNode->managingProject()->filePath().fileName();
-
-    const FilePath newFilePath = FilePath::fromString(newFileName);
-
-    if (oldFilePath.equalsCaseSensitive(newFilePath))
-        return {};
-
-    const HandleIncludeGuards handleGuards = canTryToRenameIncludeGuards(node);
-    if (!folderNode->canRenameFile(oldFilePath, newFilePath)) {
-        QTimer::singleShot(0, m_instance,
-                           [oldFilePath, newFilePath, projectFileName, handleGuards] {
-            int res = QMessageBox::question(ICore::dialogParent(),
-                                            Tr::tr("Project Editing Failed"),
-                                            Tr::tr("The project file %1 cannot be automatically changed.\n\n"
-                                               "Rename %2 to %3 anyway?")
-                                            .arg(projectFileName)
-                                            .arg(oldFilePath.toUserOutput())
-                                            .arg(newFilePath.toUserOutput()));
-            if (res == QMessageBox::Yes) {
-                QTC_CHECK(Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards));
-            }
-        });
-        return {};
-    }
-
-    if (Core::FileUtils::renameFile(oldFilePath, newFilePath, handleGuards)) {
-        // Tell the project plugin about rename
-        // TODO: We might want to separate this into an extra step to make bulk renamings safer;
-        //       see CppModelManager::renameIncludes().
-        if (!folderNode->renameFile(oldFilePath, newFilePath)) {
-            const QString renameFileError = Tr::tr("The file %1 was renamed to %2, but the project "
-                                               "file %3 could not be automatically changed.")
-                                                .arg(oldFilePath.toUserOutput())
-                                                .arg(newFilePath.toUserOutput())
-                                                .arg(projectFileName);
-
-            QTimer::singleShot(0, m_instance, [renameFileError] {
-                QMessageBox::warning(ICore::dialogParent(),
-                                     Tr::tr("Project Editing Failed"),
-                                     renameFileError);
-            });
-        }
-        return std::make_pair(oldFilePath, newFilePath);
-    }
-
-    const QString renameFileError = Tr::tr("The file %1 could not be renamed %2.")
-                                        .arg(oldFilePath.toUserOutput())
-                                        .arg(newFilePath.toUserOutput());
-
-    QTimer::singleShot(0, m_instance, [renameFileError] {
-        QMessageBox::warning(ICore::dialogParent(), Tr::tr("Cannot Rename File"), renameFileError);
-    });
-    return {};
 }
 
 void ProjectExplorerPluginPrivate::handleSetStartupProject()
@@ -4133,7 +4138,7 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
         const QString &newSymbolName, const FilePaths &files, bool preferLowerCaseFileNames)
 {
     static const auto isAllLowerCase = [](const QString &text) { return text.toLower() == text; };
-    QList<std::pair<FilePath, FilePath>> renamedFiles;
+    QList<std::pair<Node *, FilePath>> filesToRename;
     for (const FilePath &file : files) {
         Node * const node = ProjectTree::nodeForFile(file);
         if (!node)
@@ -4164,10 +4169,9 @@ void ProjectExplorerPlugin::renameFilesForSymbol(const QString &oldSymbolName,
 
         const QString newFilePath = file.absolutePath().toString() + '/' + newBaseName + '.'
                 + file.completeSuffix();
-        if (const auto res = renameFile(node, newFilePath))
-            renamedFiles << *res;
+        filesToRename.emplaceBack(node, FilePath::fromString(newFilePath));
     }
-    emit instance()->filesRenamed(renamedFiles);
+    renameFiles(filesToRename);
 }
 
 void ProjectManager::registerProjectCreator(const QString &mimeType,

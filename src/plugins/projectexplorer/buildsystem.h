@@ -77,9 +77,8 @@ public:
     virtual bool canRenameFile(Node *context,
                                const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
-    virtual bool renameFile(Node *context,
-                            const Utils::FilePath &oldFilePath,
-                            const Utils::FilePath &newFilePath);
+    virtual bool renameFiles(
+        Node *context, const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed);
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
     virtual void buildNamedTarget(const QString &target) { Q_UNUSED(target) }
