@@ -14,7 +14,13 @@ FetchContent_Declare(
 )
 
 FetchContent_GetProperties(ds)
-FetchContent_Populate(ds)
+
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.30")
+  FetchContent_MakeAvailable(ds)
+else ()
+  FetchContent_Populate(ds)
+  add_subdirectory(${ds_SOURCE_DIR} ${ds_BINARY_DIR})
+endif()
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     QuickStudioComponentsplugin
@@ -28,8 +34,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE
     QuickStudioEventSystemplugin
     QuickStudioUtilsplugin
 )
-
-add_subdirectory(${ds_SOURCE_DIR} ${ds_BINARY_DIR})
 
 target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE
   BUILD_QDS_COMPONENTS=true
