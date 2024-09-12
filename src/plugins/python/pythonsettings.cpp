@@ -155,6 +155,7 @@ private:
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
     void detailsChanged();
     void updateCleanButton();
+    void updateGenerateKitButton(const Interpreter &interpreter);
     void addItem();
     void deleteItem();
     void makeDefault();
@@ -283,10 +284,10 @@ void InterpreterOptionsWidget::currentChanged(const QModelIndex &index, const QM
         emit m_model.dataChanged(previous, previous);
     }
     if (index.isValid()) {
-        m_detailsWidget->updateInterpreter(m_model.itemAt(index.row())->itemData);
+        const Interpreter interpreter = m_model.itemAt(index.row())->itemData;
+        m_detailsWidget->updateInterpreter(interpreter);
         m_detailsWidget->show();
-        m_generateKitButton->setEnabled(
-            !KitManager::kit(Id::fromString(m_model.itemAt(index.row())->itemData.id)));
+        updateGenerateKitButton(interpreter);
     } else {
         m_detailsWidget->hide();
         m_generateKitButton->setEnabled(false);
@@ -299,8 +300,10 @@ void InterpreterOptionsWidget::detailsChanged()
 {
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid()) {
-        m_model.itemAt(index.row())->itemData = m_detailsWidget->toInterpreter();
+        const Interpreter interpreter = m_detailsWidget->toInterpreter();
+        m_model.itemAt(index.row())->itemData = interpreter;
         emit m_model.dataChanged(index, index);
+        updateGenerateKitButton(interpreter);
     }
     updateCleanButton();
 }
@@ -310,6 +313,13 @@ void InterpreterOptionsWidget::updateCleanButton()
     m_cleanButton->setEnabled(Utils::anyOf(m_model.allData(), [](const Interpreter &interpreter) {
         return !interpreter.command.isExecutableFile();
     }));
+}
+
+void InterpreterOptionsWidget::updateGenerateKitButton(const Interpreter &interpreter)
+{
+    bool enabled = !KitManager::kit(Id::fromString(interpreter.id))
+            && (interpreter.command.needsDevice() || interpreter.command.isExecutableFile());
+    m_generateKitButton->setEnabled(enabled);
 }
 
 void InterpreterOptionsWidget::addItem()
