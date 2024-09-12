@@ -344,10 +344,6 @@
                     "target": "%{ProjectDirectory}/%{ImportModuleName}/Constants.qml"
                 },
                 {
-                    "source": "../shared-plugin/name/DirectoryFontLoader.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{ImportModuleName}/DirectoryFontLoader.qml"
-                },
-                {
                     "source": "../shared-plugin/name/EventListModel.qml.tpl",
                     "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListModel.qml"
                 },
