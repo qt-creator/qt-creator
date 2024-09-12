@@ -81,7 +81,6 @@
     the project:
 
             \list
-                \li \l{Link projects to Axivion dashboards}{Axivion}
                 \li \l{Specify clangd settings}{Clangd}
                 \li \l{Specify Clang tools settings}{Clang Tools}
                 \li \l{Override CMake settings for a project}{CMake}

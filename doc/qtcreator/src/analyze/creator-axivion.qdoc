@@ -14,25 +14,34 @@
 
     \note Enable the Axivion plugin to use it.
 
-    To use the plugin, you must set up a project in the Axivion dashboard
-    server and link to it from \QC. You can then see found issues in the
-    \uicontrol Edit mode, issues in the \uicontrol Axivion dashboard, and
-    issue details in the \uicontrol Axivion sidebar view.
+    To use the plugin, you must have access to an Axivion dashboard
+    server.
+    To inspect issues found during the analyses:
 
-    The editor shows found issues as inline annotations. Hover the mouse over
-    an annotation to bring up a tool tip with a short description of the issue.
+    \list
+        \li Go to \uicontrol Analyze > \uicontrol Axivion.
+        \li Switch to the \uicontrol Debug mode, and select \uicontrol Axivion
+            in the debugger toolbar.
+    \endlist
+
+    The editor shows found issues as inline annotations if the project matches
+    the currently open one and the respective file is part of the project.
+    Hover the mouse over an annotation to bring up a tooltip with a short
+    description of the issue.
 
     \image qtcreator-axivion-annotation.webp {Annotation popup}
 
     Select \inlineimage icons/info.png to view detailed information about the
-    issue in the \uicontrol Axivion sidebar view.
+    issue in the \uicontrol {Issue Details} view.
 
-    \image qtcreator-axivion-view-rule.webp {Axivion sidebar view}
+    \image qtcreator-axivion-view-rule.webp {Issue Details view}
 
     \section1 View issues
 
+    To view issues, select a dashboard and a project.
+
     The \uicontrol Axivion dashboard displays the following types of
-    issues that Axivion found in the linked project:
+    issues that Axivion found in the selected project:
 
     \table
     \header
@@ -87,8 +96,11 @@
             match the pattern.
     \endlist
 
+    Select \inlineimage icons/filtericon.png for a column to set or clear the
+    filter expression for the column.
+
     The information you see depends on the issue type. Double-click an issue
-    to see more information about it in the \uicontrol Axivion sidebar view.
+    to see more information about it in the \uicontrol {Issue Details} view.
 
     \section1 Jump to issues in the editor
 
@@ -108,8 +120,7 @@
     or \uicontrol {Target Path} column.
 
     \sa {Enable and disable plugins}, {Analyze}{How To: Analyze},
-    {Link projects to Axivion dashboards}, {Analyzers}, {Axivion},
-    {Analyzing Code}
+    {Analyzers}, {Axivion}, {Analyzing Code}
 */
 
 /*!
@@ -150,31 +161,5 @@
     Select \uicontrol {Highlight marks} to highlight found issues on the
     scrollbar in the editor.
 
-    \sa {Enable and disable plugins}, {Link projects to Axivion dashboards},
-    {Prevent code erosion}
-*/
-
-/*!
-    \page creator-link-axivion-dashboards.html
-    \previouspage creator-how-tos.html
-
-    \ingroup creator-how-to-projects-configure
-
-    \title Link projects to Axivion dashboards
-
-    To link a project to an Axivion dashboard:
-
-    \list 1
-        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
-            \uicontrol Axivion.
-            \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
-        \li Select the Axivion dashboard server to fetch projects from.
-        \li Select \uicontrol {Fetch Projects} to list projects from the server.
-        \li In \uicontrol {Dashboard projects} select a project.
-        \li Select \uicontrol {Link Project} to link to the project.
-    \endlist
-
-    To unlink a project, select \uicontrol {Unlink Project}.
-
-    \sa {Enable and disable plugins}, {Prevent code erosion}, {Axivion}
+    \sa {Enable and disable plugins}, {Prevent code erosion}
 */
