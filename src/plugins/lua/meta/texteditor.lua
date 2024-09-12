@@ -6,6 +6,9 @@ local textEditor = {}
 ---@field blockNumber integer The block (line) number of the cursor.
 ---@field columnNumber integer The column number of the cursor.
 local TextCursor = {}
+---Returns the selected text of the cursor.
+---@return string selectedText The selected text of the cursor.
+function TextCursor:selectedText() end
 
 ---@class MultiTextCursor
 ---@field mainCursor TextCursor The main cursor.

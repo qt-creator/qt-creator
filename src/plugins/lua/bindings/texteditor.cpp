@@ -176,7 +176,11 @@ void setupTextEditorModule()
             "columnNumber",
             &QTextCursor::columnNumber,
             "hasSelection",
-            &QTextCursor::hasSelection);
+            &QTextCursor::hasSelection,
+            "selectedText",
+            [](QTextCursor *cursor) {
+                return cursor->selectedText().replace(QChar::ParagraphSeparator, '\n');
+            });
 
         result.new_usertype<TextEditor::BaseTextEditor>(
             "TextEditor",
