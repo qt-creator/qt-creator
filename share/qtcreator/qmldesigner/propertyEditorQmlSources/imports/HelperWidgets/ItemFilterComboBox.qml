@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
 import QtQuick
-import HelperWidgets 2.0 as HelperWidgets
+import HelperWidgets as HelperWidgets
 
 HelperWidgets.ComboBox {
     id: comboBox
@@ -15,7 +15,10 @@ HelperWidgets.ComboBox {
     valueRole: "id"
     textRole: (comboBox.typeFilter === "QtQuick3D.Texture") ? "idAndName" : "id"
 
-    validator: RegularExpressionValidator { regularExpression: /(^$|^[a-z_]\w*)/ }
+    validator: RegularExpressionValidator {
+        regularExpression: (comboBox.textRole !== "id") ? /^(\w+\s)*\w+\s\[[a-z_]\w*\]/
+                                                        : /(^$|^[a-z_]\w*)/
+    }
 
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
@@ -89,8 +92,8 @@ HelperWidgets.ComboBox {
             comboBox.backendValue.resetValue()
         } else {
             let valueData = (comboBox.valueRole === "")
-                                ? comboBox.editText
-                                : itemFilterModel.modelItemData(comboBox.currentIndex - 1)[comboBox.valueRole]
+                ? comboBox.editText
+                : comboBox.model[comboBox.currentIndex][comboBox.valueRole]
 
             if (comboBox.backendValue.expression !== valueData)
                 comboBox.backendValue.expression = valueData
@@ -98,28 +101,29 @@ HelperWidgets.ComboBox {
         comboBox.dirty = false
     }
 
-    Repeater {
+    QtObject {
         id: optionsList
 
-        property var localModel: []
+        property var model
 
         function updateModel() {
-            optionsList.localModel = []
+            let localModel = []
 
-            if (comboBox.textRole !== "" && comboBox.valueRole !== "") {
+            if (comboBox.textRole !== "") {
                 let defaultItem = {}
                 defaultItem[comboBox.textRole] = comboBox.defaultItem
-                defaultItem[comboBox.valueRole] = ""
-                optionsList.localModel.push(defaultItem)
+                if (comboBox.valueRole !== "" && comboBox.textRole !== comboBox.valueRole)
+                    defaultItem[comboBox.valueRole] = ""
+                localModel.push(defaultItem)
             } else {
-                optionsList.localModel.push(comboBox.defaultItem)
+                localModel.push(comboBox.defaultItem)
             }
 
             let rows = itemFilterModel.rowCount()
             for (let i = 0; i < rows; ++i)
-                optionsList.localModel.push(itemFilterModel.modelItemData(i))
+                localModel.push(itemFilterModel.modelItemData(i))
 
-            optionsList.model = optionsList.localModel // trigger on change handler
+            optionsList.model = localModel // trigger on change handler
         }
     }
 }
