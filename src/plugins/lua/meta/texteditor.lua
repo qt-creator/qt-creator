@@ -2,18 +2,38 @@
 local textEditor = {}
 
 ---@class TextCursor
----@field position integer The position of the cursor.
----@field blockNumber integer The block (line) number of the cursor.
----@field columnNumber integer The column number of the cursor.
 local TextCursor = {}
+
+---Returns the position of the cursor.
+---@return integer position The position of the cursor.
+function TextCursor:position() end
+
+---Returns the block (line) and column for the cursor.
+---@return integer block The block (line) of the cursor.
+function TextCursor:blockNumber() end
+
+---Returns the column for the cursor.
+---@return integer column The column of the cursor.
+function TextCursor:columnNumber() end
+
+---Returns true if the cursor has a selection, false otherwise.
+---@return boolean hasSelection True if the cursor has a selection, false otherwise.
+function TextCursor:hasSelection() end
+
 ---Returns the selected text of the cursor.
 ---@return string selectedText The selected text of the cursor.
 function TextCursor:selectedText() end
 
 ---@class MultiTextCursor
----@field mainCursor TextCursor The main cursor.
----@field cursors TextCursor[] The cursors.
 local MultiTextCursor = {}
+
+---Returns the main cursor.
+---@return TextCursor mainCursor The main cursor.
+function MultiTextCursor:mainCursor() end
+
+---Returns the cursors.
+---@return TextCursor[] cursors The cursors.
+function MultiTextCursor:cursors() end
 
 ---@class Suggestion
 local Suggestion = {}
