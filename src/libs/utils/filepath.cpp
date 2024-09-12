@@ -2024,7 +2024,23 @@ expected_str<void> FilePath::copyFile(const FilePath &target) const
 
 expected_str<void> FilePath::renameFile(const FilePath &target) const
 {
-    return fileAccess()->renameFile(*this, target);
+    if (isSameDevice(target))
+        return fileAccess()->renameFile(*this, target);
+
+    return copyFile(target).and_then([this, &target] {
+        return removeFile().or_else(
+            [this, &target](const QString &removeError) -> expected_str<void> {
+                // If we fail to remove the source file, we remove the target file to return to the
+                // original state.
+                expected_str<void> rmResult = target.removeFile();
+                QTC_CHECK_EXPECTED(rmResult);
+                return make_unexpected(
+                    Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
+                        .arg(toUserOutput())
+                        .arg(target.toUserOutput())
+                        .arg(removeError));
+            });
+    });
 }
 
 qint64 FilePath::fileSize() const
