@@ -30,6 +30,7 @@ set(DESIGNSTUDIO_PLUGINS
     Designer
     DiffEditor
     EffectComposer
+    FakeVim
     Help
     Insight
     LanguageClient
