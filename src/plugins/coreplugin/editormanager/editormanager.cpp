@@ -731,7 +731,7 @@ void EditorManagerPrivate::init()
     connect(mainEditorArea, &EditorArea::windowTitleNeedsUpdate,
             this, &EditorManagerPrivate::updateWindowTitle);
     addEditorArea(mainEditorArea);
-    setCurrentView(mainEditorArea->view());
+    setCurrentView(mainEditorArea->currentView());
 
     updateActions();
 
@@ -1796,19 +1796,13 @@ EditorArea *EditorManagerPrivate::findEditorArea(const EditorView *view, int *ar
 {
     if (!view)
         return nullptr;
-    SplitterOrView *current = view->parentSplitterOrView();
-    while (current) {
-        if (auto area = qobject_cast<EditorArea *>(current)) {
-            int index = d->m_editorAreas.indexOf(area);
-            QTC_ASSERT(index >= 0, return nullptr);
-            if (areaIndex)
-                *areaIndex = index;
-            return area;
-        }
-        current = current->findParentSplitter();
-    }
-    QTC_CHECK(false); // we should never have views without a editor area
-    return nullptr;
+    EditorArea *area = view->editorArea();
+    QTC_ASSERT(area, return nullptr);
+    int index = d->m_editorAreas.indexOf(area);
+    QTC_ASSERT(index >= 0, return nullptr);
+    if (areaIndex)
+        *areaIndex = index;
+    return area;
 }
 
 void EditorManagerPrivate::closeView(EditorView *view)
@@ -1817,18 +1811,7 @@ void EditorManagerPrivate::closeView(EditorView *view)
         return;
 
     const QList<IEditor *> editorsToDelete = emptyView(view);
-
-    SplitterOrView *splitterOrView = view->parentSplitterOrView();
-    Q_ASSERT(splitterOrView);
-    Q_ASSERT(splitterOrView->view() == view);
-    SplitterOrView *splitter = splitterOrView->findParentSplitter();
-    Q_ASSERT(splitterOrView->hasEditors() == false);
-    splitterOrView->hide();
-    delete splitterOrView;
-
-    splitter->unsplit();
-
-    EditorView *newCurrent = splitter->findFirstView();
+    EditorView *newCurrent = view->editorArea()->unsplit(view);
     if (newCurrent)
         EditorManagerPrivate::activateView(newCurrent);
     deleteEditors(editorsToDelete);
@@ -1928,7 +1911,7 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
             // If we didn't find a better view, so be it
         },
         Qt::QueuedConnection);
-    connect(area, &SplitterOrView::splitStateChanged, d, &EditorManagerPrivate::viewCountChanged);
+    connect(area, &EditorArea::splitStateChanged, d, &EditorManagerPrivate::viewCountChanged);
     emit d->viewCountChanged();
 }
 
@@ -1947,11 +1930,12 @@ void EditorManagerPrivate::splitNewWindow(EditorView *view)
     win->show();
     ICore::raiseWindow(win);
     if (newEditor) {
-        activateEditor(win->editorArea()->view(), newEditor, EditorManager::IgnoreNavigationHistory);
+        activateEditor(
+            win->editorArea()->currentView(), newEditor, EditorManager::IgnoreNavigationHistory);
         // possibly adapts old state to new layout
         newEditor->restoreState(state);
     } else {
-        win->editorArea()->view()->setFocus();
+        win->editorArea()->currentView()->setFocus();
     }
     updateActions();
 }
@@ -2133,9 +2117,7 @@ void EditorManagerPrivate::updateActions()
     d->m_prevDocAction->setEnabled(DocumentModel::entryCount() > 1);
     d->m_reopenLastClosedDocumenAction->setEnabled(view ? view->canReopen() : false);
 
-    SplitterOrView *viewParent = (view ? view->parentSplitterOrView() : nullptr);
-    SplitterOrView *parentSplitter = (viewParent ? viewParent->findParentSplitter() : nullptr);
-    bool hasSplitter = parentSplitter && parentSplitter->isSplitter();
+    const bool hasSplitter = view && view->isInSplit();
     d->m_removeCurrentSplitAction->setEnabled(hasSplitter);
     d->m_removeAllSplitsAction->setEnabled(hasSplitter);
     d->m_gotoNextSplitAction->setEnabled(hasSplitter || d->m_editorAreas.size() > 1);
@@ -2356,6 +2338,8 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
             d->m_editorAreas.removeAt(i);
             --i; // we removed the current one
         } else if (r->window() == activeWin) {
+            // TODO this doesn't work well in case of multiple areas in the same window
+            // e.g if Edit, Design, and Debug mode have their own editor areas
             newActiveArea = r;
         }
     }
@@ -2369,20 +2353,16 @@ void EditorManagerPrivate::editorAreaDestroyed(QObject *area)
         }
 
         // check if the focusWidget points to some view
-        SplitterOrView *focusSplitterOrView = nullptr;
+        EditorView *focusView = nullptr;
         QWidget *candidate = newActiveArea->focusWidget();
         while (candidate && candidate != newActiveArea) {
-            if ((focusSplitterOrView = qobject_cast<SplitterOrView *>(candidate)))
+            if ((focusView = qobject_cast<EditorView *>(candidate)))
                 break;
             candidate = candidate->parentWidget();
         }
         // focusWidget might have been 0
-        if (!focusSplitterOrView)
-            focusSplitterOrView = newActiveArea->findFirstView()->parentSplitterOrView();
-        QTC_ASSERT(focusSplitterOrView, focusSplitterOrView = newActiveArea);
-        EditorView *focusView
-            = focusSplitterOrView->findFirstView(); // can be just focusSplitterOrView
-        QTC_ASSERT(focusView, focusView = newActiveArea->findFirstView());
+        if (!focusView)
+            focusView = newActiveArea->findFirstView();
         if (QTC_GUARD(focusView))
             EditorManagerPrivate::activateView(focusView);
     }
@@ -2690,7 +2670,7 @@ void EditorManagerPrivate::split(Qt::Orientation orientation)
     EditorView *view = currentEditorView();
 
     if (view)
-        view->parentSplitterOrView()->split(orientation);
+        activateView(view->split(orientation));
 
     updateActions();
 }
@@ -2700,7 +2680,7 @@ void EditorManagerPrivate::removeCurrentSplit()
     EditorView *viewToClose = currentEditorView();
 
     QTC_ASSERT(viewToClose, return);
-    QTC_ASSERT(!qobject_cast<EditorArea *>(viewToClose->parentSplitterOrView()), return);
+    QTC_ASSERT(viewToClose->isInSplit(), return);
 
     closeView(viewToClose);
     updateActions();
@@ -2710,9 +2690,9 @@ void EditorManagerPrivate::removeAllSplits()
 {
     EditorView *view = currentEditorView();
     QTC_ASSERT(view, return);
-    EditorArea *currentArea = findEditorArea(view);
+    EditorArea *currentArea = view->editorArea();
     QTC_ASSERT(currentArea, return);
-    currentArea->unsplitAll();
+    currentArea->unsplitAll(view);
 }
 
 void EditorManagerPrivate::setCurrentEditorFromContextChange()
@@ -2753,7 +2733,7 @@ bool EditorManagerPrivate::hasMoreThanOneview()
     if (d->m_editorAreas.size() > 1)
         return true;
     QTC_ASSERT(d->m_editorAreas.size() > 0, return false);
-    return d->m_editorAreas.constFirst()->isSplitter();
+    return d->m_editorAreas.constFirst()->hasSplits();
 }
 
 /*!
@@ -3494,7 +3474,7 @@ bool EditorManager::hasSplitter()
     QTC_ASSERT(view, return false);
     EditorArea *area = EditorManagerPrivate::findEditorArea(view);
     QTC_ASSERT(area, return false);
-    return area->isSplitter();
+    return area->hasSplits();
 }
 
 /*!
@@ -3733,7 +3713,7 @@ void EditorManager::restoreState(const QByteArray &state)
     // remove extra windows
     for (int i = d->m_editorAreas.count() - 1; i > 0 /* keep first alive */; --i)
         delete d->m_editorAreas.at(i); // automatically removes it from list
-    if (d->m_editorAreas.first()->isSplitter())
+    if (d->m_editorAreas.first()->hasSplits())
         EditorManagerPrivate::removeAllSplits();
 
     QApplication::setOverrideCursor(Qt::WaitCursor);
@@ -3881,7 +3861,7 @@ void EditorManager::gotoOtherSplit()
         QTC_ASSERT(area, return);
         QTC_ASSERT(index >= 0 && index < d->m_editorAreas.size(), return);
         // stay in same window if it is split
-        if (area->isSplitter()) {
+        if (area->hasSplits()) {
             nextView = area->findFirstView();
             QTC_CHECK(nextView != view);
         } else {
@@ -3894,7 +3874,7 @@ void EditorManager::gotoOtherSplit()
             // if we had only one editor area with only one view, we end up at the startpoint
             // in that case we need to split
             if (nextView == view) {
-                QTC_CHECK(!area->isSplitter());
+                QTC_CHECK(!area->hasSplits());
                 splitSideBySide(); // that deletes 'view'
                 view = area->findFirstView();
                 nextView = view->findNextView();

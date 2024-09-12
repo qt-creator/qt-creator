@@ -159,6 +159,30 @@ EditorView::EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent)
         updateCurrentViewOverlay);
 }
 
+bool EditorView::isInSplit() const
+{
+    SplitterOrView *viewParent = parentSplitterOrView();
+    SplitterOrView *parentSplitter = (viewParent ? viewParent->findParentSplitter() : nullptr);
+    return parentSplitter && parentSplitter->isSplitter();
+}
+
+EditorView *EditorView::split(Qt::Orientation orientation)
+{
+    return parentSplitterOrView()->split(orientation);
+}
+
+EditorArea *EditorView::editorArea() const
+{
+    QWidget *current = parentSplitterOrView();
+    while (current) {
+        if (auto area = qobject_cast<EditorArea *>(current))
+            return area;
+        current = current->parentWidget();
+    }
+    QTC_CHECK(false);
+    return nullptr;
+}
+
 EditorView::~EditorView() = default;
 
 SplitterOrView *EditorView::parentSplitterOrView() const
@@ -404,14 +428,14 @@ void EditorView::fillListContextMenu(QMenu *menu) const
 void EditorView::splitHorizontally()
 {
     if (m_parentSplitterOrView)
-        m_parentSplitterOrView->split(Qt::Vertical);
+        EditorManagerPrivate::activateView(m_parentSplitterOrView->split(Qt::Vertical));
     EditorManagerPrivate::updateActions();
 }
 
 void EditorView::splitVertically()
 {
     if (m_parentSplitterOrView)
-        m_parentSplitterOrView->split(Qt::Horizontal);
+        EditorManagerPrivate::activateView(m_parentSplitterOrView->split(Qt::Horizontal));
     EditorManagerPrivate::updateActions();
 }
 
@@ -801,9 +825,9 @@ EditorView *SplitterOrView::takeView()
     return oldView;
 }
 
-void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
+EditorView *SplitterOrView::split(Qt::Orientation orientation)
 {
-    Q_ASSERT(m_view && m_splitter == nullptr);
+    QTC_ASSERT(m_view && m_splitter == nullptr, return nullptr);
     m_splitter = new MiniSplitter(this);
     m_splitter->setOrientation(orientation);
     m_layout->addWidget(m_splitter);
@@ -840,12 +864,11 @@ void SplitterOrView::split(Qt::Orientation orientation, bool activateView)
     if (e)
         e->restoreState(state);
 
-    if (activateView)
-        EditorManagerPrivate::activateView(otherView->view());
     emit splitStateChanged();
+    return otherView->view();
 }
 
-void SplitterOrView::unsplitAll()
+void SplitterOrView::unsplitAll(EditorView *currentView)
 {
     QTC_ASSERT(m_splitter, return);
     // avoid focus changes while unsplitting is in progress
@@ -857,7 +880,6 @@ void SplitterOrView::unsplitAll()
         }
     }
 
-    EditorView *currentView = EditorManagerPrivate::currentEditorView();
     if (currentView) {
         currentView->parentSplitterOrView()->takeView();
         currentView->setParentSplitterOrView(this);
@@ -1020,7 +1042,7 @@ void SplitterOrView::restoreState(const QByteArray &state)
         qint32 orientation;
         QByteArray splitter, first, second;
         stream >> orientation >> splitter >> first >> second;
-        split((Qt::Orientation) orientation, false);
+        split((Qt::Orientation) orientation);
         m_splitter->restoreState(splitter);
         static_cast<SplitterOrView*>(m_splitter->widget(0))->restoreState(first);
         static_cast<SplitterOrView*>(m_splitter->widget(1))->restoreState(second);

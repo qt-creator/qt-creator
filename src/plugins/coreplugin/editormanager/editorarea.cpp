@@ -4,6 +4,7 @@
 #include "editorarea.h"
 
 #include "editormanager.h"
+#include "editorview.h"
 #include "ieditor.h"
 
 #include "../coreconstants.h"
@@ -13,20 +14,35 @@
 #include <utils/qtcassert.h>
 
 #include <QApplication>
+#include <QVBoxLayout>
 
 namespace Core {
 namespace Internal {
 
 EditorArea::EditorArea()
+    : m_splitterOrView(new SplitterOrView)
 {
     IContext::attach(this, Context(Constants::C_EDITORMANAGER));
 
-    setCurrentView(view());
+    auto layout = new QVBoxLayout;
+    layout->setContentsMargins(0, 0, 0, 0);
+    setLayout(layout);
+    layout->addWidget(m_splitterOrView);
+
+    setFocusProxy(m_splitterOrView);
+
+    setCurrentView(m_splitterOrView->view());
     updateCloseSplitButton();
 
     connect(qApp, &QApplication::focusChanged,
             this, &EditorArea::focusChanged);
-    connect(this, &SplitterOrView::splitStateChanged, this, &EditorArea::updateCloseSplitButton);
+    connect(
+        m_splitterOrView,
+        &SplitterOrView::splitStateChanged,
+        this,
+        &EditorArea::updateCloseSplitButton);
+    connect(
+        m_splitterOrView, &SplitterOrView::splitStateChanged, this, &EditorArea::splitStateChanged);
 }
 
 EditorArea::~EditorArea()
@@ -45,6 +61,52 @@ IDocument *EditorArea::currentDocument() const
 EditorView *EditorArea::currentView() const
 {
     return m_currentView;
+}
+
+EditorView *EditorArea::findFirstView() const
+{
+    return m_splitterOrView->findFirstView();
+}
+
+EditorView *EditorArea::findLastView() const
+{
+    return m_splitterOrView->findLastView();
+}
+
+bool EditorArea::hasSplits() const
+{
+    return m_splitterOrView->isSplitter();
+}
+
+EditorView *EditorArea::unsplit(EditorView *view)
+{
+    SplitterOrView *splitterOrView = view->parentSplitterOrView();
+    Q_ASSERT(splitterOrView);
+    Q_ASSERT(splitterOrView->view() == view);
+    SplitterOrView *splitter = splitterOrView->findParentSplitter();
+    Q_ASSERT(splitterOrView->hasEditors() == false);
+    splitterOrView->hide();
+    delete splitterOrView;
+
+    splitter->unsplit();
+
+    // candidate for new current view
+    return splitter->findFirstView();
+}
+
+void EditorArea::unsplitAll(EditorView *viewToKeep)
+{
+    m_splitterOrView->unsplitAll(viewToKeep);
+}
+
+QByteArray EditorArea::saveState() const
+{
+    return m_splitterOrView->saveState();
+}
+
+void EditorArea::restoreState(const QByteArray &s)
+{
+    m_splitterOrView->restoreState(s);
 }
 
 void EditorArea::focusChanged(QWidget *old, QWidget *now)
@@ -99,7 +161,7 @@ void EditorArea::updateCurrentEditor(IEditor *editor)
 
 void EditorArea::updateCloseSplitButton()
 {
-    if (EditorView *v = view())
+    if (EditorView *v = m_splitterOrView->view())
         v->setCloseSplitEnabled(false);
 }
 
