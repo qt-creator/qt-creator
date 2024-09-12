@@ -4,7 +4,7 @@
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "LuaCompatibleVersion" : "15.0.0",
-    "DisabledByDefault" : true,
+    "DisabledByDefault" : false,
     "SoftLoadable" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
