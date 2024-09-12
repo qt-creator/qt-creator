@@ -580,7 +580,7 @@ void InterpreterOptionsWidget::generateKit()
 {
     const QModelIndex &index = m_view->currentIndex();
     if (index.isValid())
-        PythonSettings::addKitsForInterpreter(m_model.itemAt(index.row())->itemData);
+        PythonSettings::addKitsForInterpreter(m_model.itemAt(index.row())->itemData, true);
     m_generateKitButton->setEnabled(false);
 }
 
@@ -808,19 +808,20 @@ static void setRelevantAspectsToKit(Kit *k)
     k->setRelevantAspects(relevantAspects);
 }
 
-void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter)
+void PythonSettings::addKitsForInterpreter(const Interpreter &interpreter, bool force)
 {
     if (!KitManager::isLoaded()) {
-        connect(KitManager::instance(), &KitManager::kitsLoaded, settingsInstance, [interpreter]() {
-            addKitsForInterpreter(interpreter);
-        });
+        connect(KitManager::instance(),
+                &KitManager::kitsLoaded,
+                settingsInstance,
+                [interpreter, force]() { addKitsForInterpreter(interpreter, force); });
         return;
     }
 
     const Id kitId = Id::fromString(interpreter.id);
     if (Kit *k = KitManager::kit(kitId)) {
         setRelevantAspectsToKit(k);
-    } else if (!isVenvPython(interpreter.command)) {
+    } else if (force || !isVenvPython(interpreter.command)) {
         KitManager::registerKit(
             [interpreter](Kit *k) {
                 k->setAutoDetected(true);
@@ -856,7 +857,7 @@ void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, cons
     QList<Interpreter> toRemove = settingsInstance->m_interpreters;
     for (const Interpreter &interpreter : interpreters) {
         if (!Utils::eraseOne(toRemove, Utils::equal(&Interpreter::id, interpreter.id)))
-            addKitsForInterpreter(interpreter);
+            addKitsForInterpreter(interpreter, false);
     }
     for (const Interpreter &interpreter : toRemove)
         removeKitsForInterpreter(interpreter);
@@ -901,7 +902,7 @@ void PythonSettings::addInterpreter(const Interpreter &interpreter, bool isDefau
     if (isDefault)
         settingsInstance->m_defaultInterpreterId = interpreter.id;
     saveSettings();
-    addKitsForInterpreter(interpreter);
+    addKitsForInterpreter(interpreter, false);
 }
 
 Interpreter PythonSettings::addInterpreter(const FilePath &interpreterPath,
@@ -1071,7 +1072,7 @@ void PythonSettings::initFromSettings(QtcSettings *settings)
                 if (cmd.needsDevice() || cmd.parentDir().pathAppended("activate").exists())
                     continue;
             }
-            addKitsForInterpreter(interpreter);
+            addKitsForInterpreter(interpreter, false);
         }
     } else {
         fixupPythonKits();
