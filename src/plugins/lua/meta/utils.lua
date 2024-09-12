@@ -122,4 +122,8 @@ function utils.Timer:start() end
 --- Stops the timer.
 function utils.Timer:stop() end
 
+---Opens the given URL in the default browser.
+---@param url string The URL to open.
+function utils.openExternalUrl(url) end
+
 return utils

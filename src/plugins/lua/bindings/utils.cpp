@@ -8,6 +8,7 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 
+#include <QDesktopServices>
 #include <QTimer>
 #include <QUuid>
 
@@ -183,6 +184,10 @@ void setupUtilsModule()
                 [](QTimer *timer) { timer->start(); },
                 "stop",
                 [](QTimer *timer) { timer->stop(); });
+
+            utils["openExternalUrl"] = [](const QString &url) {
+                QDesktopServices::openUrl(QUrl::fromEncoded(url.toUtf8()));
+            };
 
             return utils;
         });
