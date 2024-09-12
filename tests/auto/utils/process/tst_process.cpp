@@ -5,6 +5,7 @@
 
 #include <app/app_version.h>
 
+#include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/launcherinterface.h>
@@ -98,6 +99,9 @@ class tst_Process : public QObject
 private slots:
     void initTestCase();
 
+    // Keep me as a first test to ensure that all singletons are working OK
+    // when being instantiated from the non-main thread.
+    void processReaperCreatedInNonMainThread();
     void testEnv()
     {
         if (HostOsInfo::isWindowsHost())
@@ -249,6 +253,27 @@ void tst_Process::cleanupTestCase()
 Q_DECLARE_METATYPE(ProcessArgs::SplitError)
 Q_DECLARE_METATYPE(OsType)
 Q_DECLARE_METATYPE(ProcessResult)
+
+static bool deleteRunningProcess()
+{
+    SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
+    Process process;
+    subConfig.setupSubProcess(&process);
+    process.start();
+    process.waitForStarted();
+    return process.isRunning();
+}
+
+void tst_Process::processReaperCreatedInNonMainThread()
+{
+    Singleton::deleteAll();
+
+    auto future = Utils::asyncRun(deleteRunningProcess);
+    future.waitForFinished();
+    QVERIFY(future.result());
+
+    Singleton::deleteAll();
+}
 
 void tst_Process::multiRead_data()
 {
