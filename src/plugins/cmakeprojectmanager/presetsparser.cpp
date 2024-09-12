@@ -365,9 +365,9 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
     return true;
 }
 
-bool parseBuildPresets(const QJsonValue &jsonValue,
-                       QList<PresetsDetails::BuildPreset> &buildPresets,
-                       const Utils::FilePath &fileDir)
+static bool parseBuildPresets(const QJsonValue &jsonValue,
+                              QList<PresetsDetails::BuildPreset> &buildPresets,
+                              const FilePath &fileDir)
 {
     // The whole section is optional
     if (jsonValue.isUndefined())
@@ -470,7 +470,7 @@ const PresetsData &PresetsParser::presetsData() const
     return m_presetsData;
 }
 
-bool PresetsParser::parse(const Utils::FilePath &jsonFile, QString &errorMessage, int &errorLine)
+bool PresetsParser::parse(const FilePath &jsonFile, QString &errorMessage, int &errorLine)
 {
     const Utils::expected_str<QByteArray> jsonContents = jsonFile.fileContents();
     if (!jsonContents) {
