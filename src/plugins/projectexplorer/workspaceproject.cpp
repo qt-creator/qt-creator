@@ -61,6 +61,7 @@ class WorkspaceBuildSystem final : public BuildSystem
 public:
     WorkspaceBuildSystem(Target *t);
 
+    void reparse(bool force);
     void triggerParsing() final;
 
     void watchFolder(const FilePath &path, const QList<IVersionControl *> &versionControls);
@@ -152,8 +153,9 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
     requestDelayedParse();
 }
 
-void WorkspaceBuildSystem::triggerParsing()
+void WorkspaceBuildSystem::reparse(bool force)
 {
+    const QList<QRegularExpression> oldFilters = m_filters;
     m_filters.clear();
     FilePath projectPath = project()->projectDirectory();
 
@@ -211,7 +213,13 @@ void WorkspaceBuildSystem::triggerParsing()
 
     setApplicationTargets(targetInfos);
 
-    scan(target()->project()->projectDirectory());
+    if (force || oldFilters != m_filters)
+        scan(target()->project()->projectDirectory());
+}
+
+void WorkspaceBuildSystem::triggerParsing()
+{
+    reparse(false);
 }
 
 void WorkspaceBuildSystem::watchFolder(
@@ -518,8 +526,8 @@ void setupWorkspaceProject(QObject *guard)
             const auto project = qobject_cast<WorkspaceProject *>(node->getProject());
             QTC_ASSERT(project, return);
             if (auto target = project->activeTarget()) {
-                if (target->buildSystem())
-                    target->buildSystem()->triggerParsing();
+                if (auto buildSystem = dynamic_cast<WorkspaceBuildSystem *>(target->buildSystem()))
+                    buildSystem->reparse(true);
             }
         });
 
