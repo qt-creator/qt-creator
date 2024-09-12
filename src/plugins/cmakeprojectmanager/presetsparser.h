@@ -103,7 +103,7 @@ public:
     std::optional<QString> toolchainFile;
     std::optional<QString> binaryDir;
     std::optional<QString> installDir;
-    std::optional<QString> cmakeExecutable;
+    std::optional<Utils::FilePath> cmakeExecutable;
     std::optional<CMakeConfig> cacheVariables;
     std::optional<Utils::Environment> environment;
     std::optional<Warnings> warnings;

@@ -11,6 +11,8 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 
+using namespace Utils;
+
 namespace CMakeProjectManager::Internal {
 
 bool parseVersion(const QJsonValue &jsonValue, int &version)
@@ -228,7 +230,7 @@ bool parseConfigurePresets(const QJsonValue &jsonValue,
         if (object.contains("toolchainFile"))
             preset.toolchainFile = object.value("toolchainFile").toString();
         if (object.contains("cmakeExecutable"))
-            preset.cmakeExecutable = object.value("cmakeExecutable").toString();
+            preset.cmakeExecutable = FilePath::fromUserInput(object.value("cmakeExecutable").toString());
 
         const QJsonObject cacheVariablesObj = object.value("cacheVariables").toObject();
         for (const QString &cacheKey : cacheVariablesObj.keys()) {

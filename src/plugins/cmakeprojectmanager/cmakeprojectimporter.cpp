@@ -362,7 +362,7 @@ static CMakeConfig configurationFromPresetProbe(
     Process cmake;
     cmake.setDisableUnixTerminal();
 
-    const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
+    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
 
     Environment env = cmakeExecutable.deviceEnvironment();
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
@@ -844,21 +844,21 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (!configurePreset.cmakeExecutable) {
             const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
             if (cmakeTool) {
-                configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable().toString();
+                configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable();
             } else {
-                configurePreset.cmakeExecutable = QString();
+                configurePreset.cmakeExecutable = FilePath();
                 TaskHub::addTask(
                     BuildSystemTask(Task::TaskType::Error, Tr::tr("<No CMake Tool available>")));
                 TaskHub::requestPopup();
             }
         } else {
-            QString cmakeExecutable = configurePreset.cmakeExecutable.value();
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toString();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
 
-            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable).path();
+            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable);
         }
 
-        data->cmakeBinary = Utils::FilePath::fromString(configurePreset.cmakeExecutable.value());
+        data->cmakeBinary = configurePreset.cmakeExecutable.value();
         if (configurePreset.generator)
             data->generator = configurePreset.generator.value();
 
@@ -926,7 +926,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().toUtf8());
+                                      configurePreset.cmakeExecutable.value().toString().toUtf8());
             if (configurePreset.generator)
                 config << CMakeConfigItem("CMAKE_GENERATOR",
                                           CMakeConfigItem::STRING,
