@@ -216,13 +216,17 @@ bool FSEngineImpl::remove()
 bool FSEngineImpl::copy(const QString &newName)
 {
     expected_str<void> result = m_filePath.copyFile(FilePath::fromString(newName));
-    QTC_ASSERT_EXPECTED(result, return false);
-    return true;
+    if (!result)
+        setError(QFile::CopyError, result.error());
+    return result.has_value();
 }
 
 bool FSEngineImpl::rename(const QString &newName)
 {
-    return m_filePath.renameFile(FilePath::fromString(newName));
+    auto result = m_filePath.renameFile(FilePath::fromString(newName));
+    if (!result)
+        setError(QFile::RenameError, result.error());
+    return result.has_value();
 }
 
 bool FSEngineImpl::renameOverwrite(const QString &newName)

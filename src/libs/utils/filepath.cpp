@@ -2022,7 +2022,7 @@ expected_str<void> FilePath::copyFile(const FilePath &target) const
     return fileAccess()->copyFile(*this, target);
 }
 
-bool FilePath::renameFile(const FilePath &target) const
+expected_str<void> FilePath::renameFile(const FilePath &target) const
 {
     return fileAccess()->renameFile(*this, target);
 }

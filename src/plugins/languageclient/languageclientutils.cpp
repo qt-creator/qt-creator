@@ -381,7 +381,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
                 }
             }
         }
-        return oldPath.renameFile(newPath);
+        return oldPath.renameFile(newPath).has_value();
     } else if (const auto deleteOperation = std::get_if<DeleteFileOperation>(&change)) {
         const FilePath filePath = deleteOperation->uri().toFilePath(client->hostPathMapper());
         if (const std::optional<DeleteFileOptions> options = deleteOperation->options()) {

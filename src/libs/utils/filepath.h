@@ -167,7 +167,7 @@ public:
     bool removeRecursively(QString *error = nullptr) const;
     expected_str<void> copyRecursively(const FilePath &target) const;
     expected_str<void> copyFile(const FilePath &target) const;
-    bool renameFile(const FilePath &target) const;
+    expected_str<void> renameFile(const FilePath &target) const;
     qint64 fileSize() const;
     qint64 bytesAvailable() const;
     bool createDir() const;

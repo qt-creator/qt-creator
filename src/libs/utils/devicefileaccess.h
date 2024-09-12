@@ -47,7 +47,7 @@ protected:
     virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
     virtual expected_str<void> copyRecursively(const FilePath &filePath,
                                                const FilePath &target) const;
-    virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
+    virtual expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
@@ -104,7 +104,7 @@ protected:
     expected_str<void> removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    bool renameFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -162,7 +162,7 @@ protected:
     expected_str<void> removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
     expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    bool renameFile(const FilePath &filePath, const FilePath &target) const override;
+    expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;

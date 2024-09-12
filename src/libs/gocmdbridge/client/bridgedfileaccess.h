@@ -78,7 +78,8 @@ protected:
     Utils::expected_str<void> copyFile(const Utils::FilePath &filePath,
                                        const Utils::FilePath &target) const override;
 
-    bool renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
+    Utils::expected_str<void> renameFile(
+        const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
 
     Utils::expected_str<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;
 

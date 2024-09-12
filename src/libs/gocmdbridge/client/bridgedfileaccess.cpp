@@ -544,17 +544,23 @@ expected_str<void> FileAccess::copyFile(const Utils::FilePath &filePath,
     }
 }
 
-bool FileAccess::renameFile(const Utils::FilePath &filePath, const Utils::FilePath &target) const
+expected_str<void> FileAccess::renameFile(
+    const Utils::FilePath &filePath, const Utils::FilePath &target) const
 {
     try {
-        auto f = m_client->renameFile(filePath.nativePath(), target.nativePath());
-        QTC_ASSERT_EXPECTED(f, return false);
+        Utils::expected_str<QFuture<void>> f
+            = m_client->renameFile(filePath.nativePath(), target.nativePath());
+        if (!f)
+            return make_unexpected(f.error());
         f->waitForFinished();
-        return true;
+        if (!f)
+            return make_unexpected(f.error());
     } catch (const std::exception &e) {
-        qCWarning(faLog) << "Error renaming file:" << e.what();
-        return false;
+        return make_unexpected(
+            Tr::tr("Error renaming file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
+
+    return {};
 }
 
 Environment FileAccess::deviceEnvironment() const

@@ -275,12 +275,13 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
 #endif
 }
 
-bool DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return false;
+    return make_unexpected(
+        Tr::tr("renameFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 FilePath DeviceFileAccess::symLinkTarget(const FilePath &filePath) const
@@ -786,9 +787,16 @@ expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
             .arg(filePath.toUserOutput(), target.toUserOutput(), srcFile.errorString()));
 }
 
-bool DesktopDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> DesktopDeviceFileAccess::renameFile(
+    const FilePath &filePath, const FilePath &target) const
 {
-    return QFile::rename(filePath.path(), target.path());
+    QFile f(filePath.path());
+
+    if (f.rename(target.path()))
+        return {};
+    return make_unexpected(
+        Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
+            .arg(filePath.toUserOutput(), target.toUserOutput(), f.errorString()));
 }
 
 FilePathInfo DesktopDeviceFileAccess::filePathInfo(const FilePath &filePath) const
@@ -1181,12 +1189,19 @@ expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
     return {};
 }
 
-bool UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+expected_str<void> UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     if (disconnected())
-        return false;
+        return make_unexpected_disconnected();
 
-    return runInShellSuccess({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    auto result =  runInShell({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    if (result.exitCode != 0) {
+        return make_unexpected(Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
+                                   .arg(filePath.toUserOutput(),
+                                        target.toUserOutput(),
+                                        QString::fromUtf8(result.stdErr)));
+    }
+    return {};
 }
 
 FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
