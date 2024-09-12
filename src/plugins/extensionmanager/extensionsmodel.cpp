@@ -153,6 +153,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
         return json.value("downloads");
     case RoleId:
         return json.value(EXTENSION_KEY_ID);
+    case RoleDateUpdated:
+        return QDate::fromString(json.value("updated_at").toString(), Qt::ISODate);
     case RoleTags:
         return json.value("tags").toVariant().toStringList();
     case RoleVendor:
@@ -205,6 +207,8 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
                                           : QStringList(platformsPattern);
         return platforms;
     }
+    case RoleDateUpdated:
+        return QDate::fromString(QLatin1String(__DATE__), "MMM dd yyyy");
     case RoleVendor:
         return pluginSpec->vendor();
     case RoleVendorId:

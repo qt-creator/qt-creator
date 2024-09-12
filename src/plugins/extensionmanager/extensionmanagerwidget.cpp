@@ -393,6 +393,8 @@ private:
     QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
     QLabel *m_description;
+    QLabel *m_dateUpdatedTitle;
+    QLabel *m_dateUpdated;
     QLabel *m_tagsTitle;
     TagList *m_tags;
     QLabel *m_platformsTitle;
@@ -429,6 +431,8 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(primary);
     m_primaryContent = toScrollableColumn(primary);
 
+    m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
+    m_dateUpdated = tfLabel(contentTF, false);
     m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
     m_tags = new TagList;
     m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
@@ -444,6 +448,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     Column {
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
+            Column { m_dateUpdatedTitle, m_dateUpdated, spXxs },
             Column { m_tagsTitle, m_tags, spXxs },
             Column { m_platformsTitle, m_platforms, spXxs },
             Column { m_dependenciesTitle, m_dependencies, spXxs },
@@ -598,6 +603,9 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
                                       .arg(contentTF.lineHeight()).arg(lines);
             return pHtml;
         };
+
+        const QDate dateUpdated = current.data(RoleDateUpdated).toDate();
+        m_dateUpdated->setText(dateUpdated.toString());
 
         const QStringList tags = current.data(RoleTags).toStringList();
         m_tags->setTags(tags);

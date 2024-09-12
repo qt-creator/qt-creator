@@ -39,6 +39,7 @@ enum Role {
     RoleLicense,
     RolePlatforms,
     RolePlugins,
+    RoleDateUpdated,
     RoleSearchText,
     RoleTags,
     RoleVendor,

@@ -394,6 +394,7 @@ public:
             {Tr::tr("Name"), RoleName},
             {Tr::tr("Vendor"), RoleVendor},
             {Tr::tr("Popularity"), RoleDownloadCount, Qt::DescendingOrder},
+            {Tr::tr("Last updated"), RoleDateUpdated, Qt::DescendingOrder},
         };
         return options;
     }
