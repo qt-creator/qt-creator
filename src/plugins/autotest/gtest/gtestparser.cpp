@@ -97,7 +97,7 @@ bool GTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     const QList<CppEditor::ProjectPart::ConstPtr> &ppList =
         CppEditor::CppModelManager::projectPart(filePath);
     if (!ppList.isEmpty())
-        proFile = FilePath::fromString(ppList.first()->projectFile);
+        proFile = ppList.first()->projectFile;
     else
         return false; // happens if shutting down while parsing
 

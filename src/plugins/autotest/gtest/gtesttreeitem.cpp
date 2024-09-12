@@ -500,10 +500,10 @@ QSet<QString> internalTargets(const TestTreeItem &item)
     if (projectParts.isEmpty())
         return CppEditor::CppModelManager::dependingInternalTargets(item.filePath());
     for (const CppEditor::ProjectPart::ConstPtr &projectPart : projectParts) {
-        if (FilePath::fromString(projectPart->projectFile) == item.proFile()
-                && Utils::anyOf(projectPart->files, [&filePath](const CppEditor::ProjectFile &pf) {
-                                return pf.path == filePath;
-        })) {
+        if (projectPart->projectFile == item.proFile()
+            && Utils::anyOf(projectPart->files, [&filePath](const CppEditor::ProjectFile &pf) {
+                   return pf.path == filePath;
+               })) {
             result.insert(projectPart->buildSystemTarget);
             if (projectPart->buildTargetType != ProjectExplorer::BuildTargetType::Executable)
                 result.unite(CppEditor::CppModelManager::dependingInternalTargets(filePath));

@@ -858,9 +858,10 @@ static RawProjectPart generateProjectPart(
     rpp.setHeaderPaths(headerPaths);
     rpp.setDisplayName(groupName);
     const QJsonObject location = groupOrProduct.value("location").toObject();
-    rpp.setProjectFileLocation(location.value("file-path").toString(),
-                               location.value("line").toInt(),
-                               location.value("column").toInt());
+    rpp.setProjectFileLocation(
+        FilePath::fromUserInput(location.value("file-path").toString()),
+        location.value("line").toInt(),
+        location.value("column").toInt());
     rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(product));
     if (product.value("is-runnable").toBool()) {
         rpp.setBuildTargetType(BuildTargetType::Executable);

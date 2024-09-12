@@ -123,7 +123,7 @@ bool CatchTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
         return false;
     FilePath proFile;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
-    proFile = FilePath::fromString(projectPart->projectFile);
+    proFile = projectPart->projectFile;
 
     CatchCodeParser codeParser(fileContent, projectPart->languageFeatures);
     const CatchTestCodeLocationList foundTests = codeParser.findTests();

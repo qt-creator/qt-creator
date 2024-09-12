@@ -565,7 +565,7 @@ void GenericBuildSystem::refreshCppCodeModel()
 
     RawProjectPart rpp;
     rpp.setDisplayName(project()->displayName());
-    rpp.setProjectFileLocation(projectFilePath().toString());
+    rpp.setProjectFileLocation(projectFilePath());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setHeaderPaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);

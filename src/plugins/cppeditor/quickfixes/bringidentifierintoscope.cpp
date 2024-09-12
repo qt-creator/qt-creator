@@ -398,7 +398,7 @@ private:
                     FileType fileType = node && node->asFileNode() ? node->asFileNode()->fileType()
                                                                    : FileType::Unknown;
                     if (fileType == FileType::Unknown
-                        && ProjectFile::isHeader(ProjectFile::classify(interface.filePath().toString()))) {
+                        && ProjectFile::isHeader(ProjectFile::classify(interface.filePath()))) {
                         fileType = FileType::Header;
                     }
                     if (fileType == FileType::Header) {

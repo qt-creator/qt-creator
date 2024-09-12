@@ -50,7 +50,7 @@ class PROJECTEXPLORER_EXPORT RawProjectPart
 public:
     void setDisplayName(const QString &displayName);
 
-    void setProjectFileLocation(const QString &projectFile, int line = -1, int column = -1);
+    void setProjectFileLocation(const Utils::FilePath &projectFile, int line = -1, int column = -1);
     void setConfigFileName(const QString &configFileName);
     void setCallGroupId(const QString &id);
 
@@ -79,7 +79,7 @@ public:
 public:
     QString displayName;
 
-    QString projectFile;
+    Utils::FilePath projectFile;
     int projectFileLine = -1;
     int projectFileColumn = -1;
     QString callGroupId;

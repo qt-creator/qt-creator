@@ -27,7 +27,7 @@ QString ProjectPart::id() const
 
 QString ProjectPart::projectFileLocation() const
 {
-    QString location = QDir::fromNativeSeparators(projectFile);
+    QString location = projectFile.toString();
     if (projectFileLine > 0)
         location += ":" + QString::number(projectFileLine);
     if (projectFileColumn > 0)

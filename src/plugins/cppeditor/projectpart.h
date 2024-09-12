@@ -54,7 +54,7 @@ public:
 
     const Utils::FilePath topLevelProject;
     const QString displayName;
-    const QString projectFile;
+    const Utils::FilePath projectFile;
     const QString projectConfigFile; // Generic Project Manager only
 
     const int projectFileLine = -1;

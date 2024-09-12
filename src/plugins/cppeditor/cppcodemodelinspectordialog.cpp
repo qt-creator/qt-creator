@@ -1142,7 +1142,7 @@ QVariant ProjectPartsModel::data(const QModelIndex &index, int role) const
         if (column == PartNameColumn)
             return m_projectPartsList.at(row)->displayName;
         else if (column == PartFilePathColumn)
-            return QDir::toNativeSeparators(m_projectPartsList.at(row)->projectFile);
+            return m_projectPartsList.at(row)->projectFile.nativePath();
     } else if (role == Qt::ForegroundRole) {
         if (!m_projectPartsList.at(row)->selectedForBuilding) {
             return QApplication::palette().color(QPalette::ColorGroup::Disabled,

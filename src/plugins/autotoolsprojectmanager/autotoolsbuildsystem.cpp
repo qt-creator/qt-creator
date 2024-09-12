@@ -154,7 +154,7 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
 
     RawProjectPart rpp;
     rpp.setDisplayName(project()->displayName());
-    rpp.setProjectFileLocation(projectFilePath().toString());
+    rpp.setProjectFileLocation(projectFilePath());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     const QStringList cflags = outputData.m_cflags;
     QStringList cxxflags = outputData.m_cxxflags;

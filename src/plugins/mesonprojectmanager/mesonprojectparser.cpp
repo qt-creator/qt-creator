@@ -310,7 +310,7 @@ RawProjectPart MesonProjectParser::buildRawPart(
     CompilerArgs flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);
     part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
-    part.setProjectFileLocation(target.definedIn);
+    part.setProjectFileLocation(FilePath::fromUserInput(target.definedIn));
     if (sources.language == "cpp")
         part.setFlagsForCxx({cxxToolchain, flags.args, {}});
     else if (sources.language == "c")

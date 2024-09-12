@@ -324,7 +324,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         warnOnToolChainMismatch(pro);
         RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
-        rpp.setProjectFileLocation(pro->filePath().toString());
+        rpp.setProjectFileLocation(pro->filePath());
         rpp.setBuildSystemTarget(pro->filePath().toString());
         switch (pro->projectType()) {
         case ProjectType::ApplicationTemplate:

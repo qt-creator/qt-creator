@@ -260,7 +260,7 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const FilePath cppFileName = document->filePath();
-    const FilePath proFile = FilePath::fromString(ppList.at(0)->projectFile);
+    const FilePath proFile = ppList.at(0)->projectFile;
     {
         QWriteLocker lock(&m_parseLock);
         m_mainCppFiles.insert(cppFileName, proFile);
