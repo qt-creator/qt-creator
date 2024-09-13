@@ -119,8 +119,8 @@ private slots:
     void storageIO();
     void storageOperators();
     void storageDestructor();
-    void storageZeroInitialization();
-    void storageDataInitialization();
+    void storageInitialization_data();
+    void storageInitialization();
     void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
@@ -4088,34 +4088,31 @@ void tst_Tasking::storageDestructor()
     QVERIFY(!doneCalled);
 }
 
-// This test ensures that the storage data is zero-initialized.
-void tst_Tasking::storageZeroInitialization()
+void tst_Tasking::storageInitialization_data()
 {
-    const Storage<int> storage;
-    std::optional<int> defaultValue;
+    QTest::addColumn<Storage<int>>("storage");
+    QTest::addColumn<int>("initValue");
 
-    const auto onSetup = [storage, &defaultValue] { defaultValue = *storage; };
-
-    TaskTree taskTree({ storage, onGroupSetup(onSetup) });
-    taskTree.runBlocking();
-
-    QVERIFY(defaultValue);
-    QCOMPARE(*defaultValue, 0);
+    // This test ensures that the storage data is zero-initialized.
+    QTest::newRow("zero initialization") << Storage<int>() << 0;
+    // This test ensures that the storage c'tor with data is initialized properly.
+    QTest::newRow("data initialization") << Storage<int>(42) << 42;
 }
 
-// This test ensures that the storage c'tor with data is initialized properly.
-void tst_Tasking::storageDataInitialization()
+void tst_Tasking::storageInitialization()
 {
-    const Storage<int> storage(42);
-    std::optional<int> defaultValue;
+    QFETCH(Storage<int>, storage);
+    QFETCH(int, initValue);
 
-    const auto onSetup = [storage, &defaultValue] { defaultValue = *storage; };
+    std::optional<int> storageValue;
+
+    const auto onSetup = [storage, &storageValue] { storageValue = *storage; };
 
     TaskTree taskTree({ storage, onGroupSetup(onSetup) });
     taskTree.runBlocking();
 
-    QVERIFY(defaultValue);
-    QCOMPARE(*defaultValue, 42);
+    QVERIFY(storageValue);
+    QCOMPARE(*storageValue, initValue);
 }
 
 // This test ensures that when a missing storage object inside the nested task tree is accessed
