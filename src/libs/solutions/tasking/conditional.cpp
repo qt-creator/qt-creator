@@ -8,27 +8,26 @@ QT_BEGIN_NAMESPACE
 
 namespace Tasking {
 
-static Group conditionRecipe(const Storage<bool> &bodyExecutedStorage,
-                             const ConditionData &condition)
+static Group conditionRecipe(const Storage<bool> &bodyExecutedStorage, const ConditionData &condition)
 {
-    Storage<bool> skipContinuationStorage;
+    const Storage<bool> doExecuteBodyStorage(true);
 
     const auto onSetup = [bodyExecutedStorage] {
         return *bodyExecutedStorage ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
 
-    const auto onConditionDone = [skipContinuationStorage](DoneWith result) {
-        *skipContinuationStorage = result != DoneWith::Success;
+    const auto onConditionDone = [doExecuteBodyStorage](DoneWith result) {
+        *doExecuteBodyStorage = result == DoneWith::Success;
         return DoneResult::Success;
     };
 
-    const auto onContinuationSetup = [skipContinuationStorage, bodyExecutedStorage] {
-        *bodyExecutedStorage = !*skipContinuationStorage;
-        return *skipContinuationStorage ? SetupResult::StopWithSuccess : SetupResult::Continue;
+    const auto onContinuationSetup = [doExecuteBodyStorage, bodyExecutedStorage] {
+        *bodyExecutedStorage = *doExecuteBodyStorage;
+        return *doExecuteBodyStorage ? SetupResult::Continue : SetupResult::StopWithSuccess;
     };
 
     return {
-        skipContinuationStorage,
+        doExecuteBodyStorage,
         onGroupSetup(onSetup),
         condition.m_condition ? Group {
             *condition.m_condition,
