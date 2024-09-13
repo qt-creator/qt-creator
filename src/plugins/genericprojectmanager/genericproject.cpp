@@ -718,7 +718,7 @@ void setupGenericProject(QObject *guard)
     });
 
     ActionBuilder removeDirAction(guard, "GenericProject.RemoveDir");
-    removeDirAction.setContext(PEC::C_PROJECT_TREE);
+    removeDirAction.setContext(Constants::GENERICPROJECT_ID);
     removeDirAction.setText(Tr::tr("Remove Directory"));
     removeDirAction.addToContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
     removeDirAction.addOnTriggered([] {
