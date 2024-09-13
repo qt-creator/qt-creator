@@ -3,9 +3,10 @@
 
 #include "extensionsbrowser.h"
 
+#include "extensionmanagerconstants.h"
+#include "extensionmanagersettings.h"
 #include "extensionmanagertr.h"
 #include "extensionsmodel.h"
-#include "extensionmanagersettings.h"
 
 #ifdef WITH_TESTS
 #include "extensionmanager_test.h"
@@ -35,6 +36,7 @@
 #include <utils/layoutbuilder.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/stylehelper.h>
+#include <utils/utilsicons.h>
 
 #include <QApplication>
 #include <QItemDelegate>
@@ -43,6 +45,7 @@
 #include <QMessageBox>
 #include <QPainter>
 #include <QPainterPath>
+#include <QPushButton>
 #include <QStyle>
 
 using namespace Core;
@@ -521,6 +524,10 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->sortChooser->addItems(Utils::transform(SortFilterProxyModel::sortOptions(),
                                               &SortFilterProxyModel::SortOption::displayName));
 
+    auto settingsToolButton = new QPushButton;
+    settingsToolButton->setIcon(Icons::SETTINGS.icon());
+    settingsToolButton->setFlat(true);
+
     d->extensionsView = new QListView;
     d->extensionsView->setFrameStyle(QFrame::NoFrame);
     d->extensionsView->setItemDelegate(new ExtensionItemDelegate(this));
@@ -547,6 +554,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             Space(HGapS),
             d->sortChooser,
             st,
+            settingsToolButton,
             customMargins(0, 0, extraListViewWidth() + gapSize, 0),
         },
         d->extensionsView,
@@ -580,6 +588,13 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             d->sortFilterProxyModel, &SortFilterProxyModel::setSortOption);
     connect(d->filterChooser, &OptionChooser::currentIndexChanged,
             d->sortFilterProxyModel, &SortFilterProxyModel::setFilterOption);
+    connect(settingsToolButton, &QAbstractButton::pressed, this, []() {
+        ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
+    });
+    connect(&settings(), &AspectContainer::changed, this, [this]() {
+        d->dataFetched = false;
+        fetchExtensions();
+    });
 }
 
 ExtensionsBrowser::~ExtensionsBrowser()

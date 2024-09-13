@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "extensionmanagersettings.h"
+
+#include "extensionmanagerconstants.h"
 #include "extensionmanagertr.h"
 
 #include <coreplugin/coreconstants.h>
@@ -53,7 +55,7 @@ class ExtensionManagerSettingsPage : public Core::IOptionsPage
 public:
     ExtensionManagerSettingsPage()
     {
-        setId("ExtensionManager");
+        setId(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Extensions"));
         setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
         setSettingsProvider([] { return &settings(); });
