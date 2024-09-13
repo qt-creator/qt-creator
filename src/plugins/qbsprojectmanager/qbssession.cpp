@@ -142,6 +142,7 @@ public:
     QHash<QString, QStringList> generatedFilesForSources;
     std::optional<Error> lastError;
     State state = State::Inactive;
+    int apiLevel = 0;
     bool fileUpdatePossible = true;
 };
 
@@ -259,6 +260,11 @@ QJsonObject QbsSession::projectData() const
     return d->projectData;
 }
 
+int QbsSession::apiLevel() const
+{
+    return d->apiLevel;
+}
+
 void QbsSession::sendRequest(const QJsonObject &request)
 {
     QTC_ASSERT(d->currentRequest.isEmpty(),
@@ -315,6 +321,12 @@ FileChangeResult QbsSession::removeFiles(const QStringList &files, const QString
                                          const QString &group)
 {
     return updateFileList("remove-files", files, product, group);
+}
+
+FileChangeResult QbsSession::renameFiles(
+    const QList<std::pair<QString, QString>> &files, const QString &product, const QString &group)
+{
+    return updateFileList("rename-files", files, product, group);
 }
 
 RunEnvironmentResult QbsSession::getRunEnvironment(
@@ -456,7 +468,8 @@ void QbsSession::handlePacket(const QJsonObject &packet)
             setError(Error::VersionMismatch);
             return;
         }
-        if (parent() && packet.value("api-level").toInt() > 4) {
+        d->apiLevel = packet.value("api-level").toInt();
+        if (parent() && d->apiLevel > 4) {
             const QString lspSocket = packet.value("lsp-socket").toString();
             if (!lspSocket.isEmpty())
                 d->languageClient = new QbsLanguageClient(lspSocket,
@@ -585,14 +598,38 @@ void QbsSession::setInactive()
     d->languageClient = nullptr; // Owned by LanguageClientManager
 }
 
-FileChangeResult QbsSession::updateFileList(const char *action, const QStringList &files,
-                                            const QString &product, const QString &group)
+FileChangeResult QbsSession::updateFileList(
+    const char *action,
+    const std::variant<QStringList, QList<std::pair<QString, QString>>> &files,
+    const QString &product,
+    const QString &group)
 {
-    if (d->state != State::Active)
-        return FileChangeResult(files, Tr::tr("The qbs session is not in a valid state."));
+    const bool filesAreStrings = std::holds_alternative<QStringList>(files);
+    if (d->state != State::Active) {
+        QStringList failedFiles;
+        if (filesAreStrings) {
+            failedFiles = std::get<QStringList>(files);
+        } else {
+            failedFiles = Utils::transform(
+                std::get<QList<std::pair<QString, QString>>>(files),
+                [](const std::pair<QString, QString> &p) { return p.first; });
+        }
+        return FileChangeResult(failedFiles, Tr::tr("The qbs session is not in a valid state."));
+    }
+    QJsonArray filesAsJson;
+    if (filesAreStrings) {
+        filesAsJson = QJsonArray::fromStringList(std::get<QStringList>(files));
+    } else {
+        for (const auto &[source, target] : std::get<QList<std::pair<QString, QString>>>(files)) {
+            const QJsonObject file(
+                {std::make_pair(QLatin1String("source-path"), source),
+                 std::make_pair(QLatin1String("target-path"), target)});
+            filesAsJson << file;
+        }
+    }
     const QJsonObject fileUpdateRequest{
         {"type", QLatin1String(action)},
-        {"files", QJsonArray::fromStringList(files)},
+        {"files", filesAsJson},
         {"product", product},
         {"group", group}};
     if (d->fileUpdatePossible)

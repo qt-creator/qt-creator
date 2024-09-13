@@ -87,6 +87,11 @@ public:
     bool renameFileInProduct(const QString &oldPath,
             const QString &newPath, const QJsonObject &product,
             const QJsonObject &group);
+    bool renameFilesInProduct(
+        const Utils::FilePairs &files,
+        const QJsonObject &product,
+        const QJsonObject &group,
+        Utils::FilePaths *notRenamed);
 
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 

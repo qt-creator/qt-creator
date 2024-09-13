@@ -272,6 +272,12 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
+
+        if (session()->apiLevel() >= 6) {
+            return renameFilesInProduct(
+                filesToRename, prdNode->productData(), n->groupData(), notRenamed);
+        }
+
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
@@ -288,6 +294,9 @@ bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, 
     }
 
     if (auto *n = dynamic_cast<QbsProductNode *>(context)) {
+        if (session()->apiLevel() >= 6)
+            return renameFilesInProduct(filesToRename, n->productData(), n->mainGroup(), notRenamed);
+
         bool success = true;
         for (const auto &[oldFilePath, newFilePath] : filesToRename) {
             if (!renameFileInProduct(
@@ -431,6 +440,40 @@ bool QbsBuildSystem::renameFileInProduct(
         return false;
     }
     return addFilesToProduct({FilePath::fromString(newPath)}, product, group, &dummy);
+}
+
+bool QbsBuildSystem::renameFilesInProduct(
+    const Utils::FilePairs &files,
+    const QJsonObject &product,
+    const QJsonObject &group,
+    Utils::FilePaths *notRenamed)
+{
+    const auto allWildcardsInGroup = transform<QStringList>(
+        group.value("source-artifacts-from-wildcards").toArray(),
+        [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+    using FileStringPair = std::pair<QString, QString>;
+    using FileStringPairs = QList<FileStringPair>;
+    const FileStringPairs filesAsStrings = Utils::transform(files, [](const FilePair &fp) {
+        return std::make_pair(fp.first.path(), fp.second.path());
+    });
+    FileStringPairs nonWildcardFiles;
+    for (const FileStringPair &file : filesAsStrings) {
+        if (!allWildcardsInGroup.contains(file.first))
+            nonWildcardFiles << file;
+    }
+
+    const QString groupFilePath = group.value("location")
+                                      .toObject().value("file-path").toString();
+    ensureWriteableQbsFile(groupFilePath);
+    const FileChangeResult result = session()->renameFiles(
+        nonWildcardFiles,
+        product.value("name").toString(),
+        group.value("name").toString());
+
+    *notRenamed = FileUtils::toFilePathList(result.failedFiles());
+    if (result.error().hasError())
+        MessageManager::writeDisrupting(result.error().toString());
+    return notRenamed->isEmpty();
 }
 
 QString QbsBuildSystem::profile() const

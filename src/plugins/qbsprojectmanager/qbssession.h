@@ -14,6 +14,8 @@
 
 #include <functional>
 #include <optional>
+#include <utility>
+#include <variant>
 
 namespace ProjectExplorer { class Target; }
 
@@ -114,6 +116,8 @@ public:
     static QString errorString(Error error);
     QJsonObject projectData() const;
 
+    int apiLevel() const;
+
     void sendRequest(const QJsonObject &request);
     void cancelCurrentJob();
     void requestFilesGeneratedFrom(const QHash<QString, QStringList> &sourceFilesPerProduct);
@@ -122,6 +126,10 @@ public:
                               const QString &group);
     FileChangeResult removeFiles(const QStringList &files, const QString &product,
                                  const QString &group);
+    FileChangeResult renameFiles(
+        const QList<std::pair<QString, QString>> &files,
+        const QString &product,
+        const QString &group);
     RunEnvironmentResult getRunEnvironment(const QString &product,
             const QProcessEnvironment &baseEnv,
             const QStringList &config);
@@ -170,8 +178,11 @@ private:
     void setProjectDataFromReply(const QJsonObject &packet, bool withBuildSystemFiles);
     void setError(Error error);
     void setInactive();
-    FileChangeResult updateFileList(const char *action, const QStringList &files,
-                                    const QString &product, const QString &group);
+    FileChangeResult updateFileList(
+        const char *action,
+        const std::variant<QStringList, QList<std::pair<QString, QString>>> &files,
+        const QString &product,
+        const QString &group);
     void handleFileListUpdated(const QJsonObject &reply);
     void sendNextPendingFileUpdateRequest();
     void sendFileUpdateRequest(const QJsonObject &request);
