@@ -10,33 +10,17 @@ namespace Tasking {
 
 static Group conditionRecipe(const Storage<bool> &bodyExecutedStorage, const ConditionData &condition)
 {
-    const Storage<bool> doExecuteBodyStorage(true);
-
     const auto onSetup = [bodyExecutedStorage] {
         return *bodyExecutedStorage ? SetupResult::StopWithSuccess : SetupResult::Continue;
     };
 
-    const auto onConditionDone = [doExecuteBodyStorage](DoneWith result) {
-        *doExecuteBodyStorage = result == DoneWith::Success;
-        return DoneResult::Success;
-    };
+    const auto onBodyDone = [bodyExecutedStorage] { *bodyExecutedStorage = true; };
 
-    const auto onContinuationSetup = [doExecuteBodyStorage, bodyExecutedStorage] {
-        *bodyExecutedStorage = *doExecuteBodyStorage;
-        return *doExecuteBodyStorage ? SetupResult::Continue : SetupResult::StopWithSuccess;
-    };
+    const Group bodyTask { condition.m_body, onGroupDone(onBodyDone) };
 
     return {
-        doExecuteBodyStorage,
         onGroupSetup(onSetup),
-        condition.m_condition ? Group {
-            *condition.m_condition,
-            onGroupDone(onConditionDone)
-        } : nullItem,
-        Group {
-            onGroupSetup(onContinuationSetup),
-            condition.m_body
-        }
+        condition.m_condition ? Group{ !*condition.m_condition || bodyTask } : bodyTask
     };
 }
 
