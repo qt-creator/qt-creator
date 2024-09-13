@@ -123,7 +123,10 @@ private:
 class ConfigModelTreeItem  : public Utils::TreeItem
 {
 public:
-    ConfigModelTreeItem(ConfigModel::InternalDataItem *di = nullptr) : dataItem(di) {}
+    ConfigModelTreeItem(ConfigModel::InternalDataItem *di, Utils::MacroExpander *macroExpander)
+        : dataItem(di)
+        , m_macroExpander(macroExpander)
+    {}
     ~ConfigModelTreeItem() override;
 
     QVariant data(int column, int role) const final;
@@ -134,6 +137,9 @@ public:
     QString currentValue() const;
 
     ConfigModel::InternalDataItem *dataItem;
+
+private:
+    Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 } // CMakeProjectManager::Internal
