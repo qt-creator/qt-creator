@@ -760,10 +760,14 @@ public:
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
     void setIssueDetailsHtml(const QString &html) { m_issueDetails->setHtml(html); }
     void handleAnchorClicked(const QUrl &url);
+    void updateToolbarButtons();
 
 private:
+    void openFilterHelp();
+
     IssuesWidget *m_issuesWidget = nullptr;
     QTextBrowser *m_issueDetails = nullptr;
+    QAction *m_showFilterHelp = nullptr;
 };
 
 void AxivionPerspective::initPerspective()
@@ -812,10 +816,18 @@ void AxivionPerspective::initPerspective()
             TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
     });
 
+    m_showFilterHelp = new QAction(this);
+    m_showFilterHelp->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
+    m_showFilterHelp->setToolTip(Tr::tr("Show online filter help"));
+    m_showFilterHelp->setEnabled(false);
+    connect(m_showFilterHelp, &QAction::triggered, this, &AxivionPerspective::openFilterHelp);
+
     addToolBarAction(reloadDataAct);
     addToolbarSeparator();
     addToolBarAction(disableInlineIssuesAct);
     addToolBarAction(toggleIssuesAct);
+    addToolbarSeparator();
+    addToolBarAction(m_showFilterHelp); // FIXME move to IssuesWidget when named filters are added
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
@@ -916,6 +928,21 @@ void AxivionPerspective::handleAnchorClicked(const QUrl &url)
         EditorManager::openEditorAt(link);
 }
 
+void AxivionPerspective::updateToolbarButtons()
+{
+    const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo();
+    m_showFilterHelp->setEnabled(pInfo && pInfo->issueFilterHelp);
+}
+
+void AxivionPerspective::openFilterHelp()
+{
+    std::optional<DashboardInfo> dashboardInfo = currentDashboardInfo();
+    QTC_ASSERT(dashboardInfo, return);
+    std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
+    if (projInfo && projInfo->issueFilterHelp)
+        QDesktopServices::openUrl(dashboardInfo->source.resolved(*projInfo->issueFilterHelp));
+}
+
 static QPointer<AxivionPerspective> theAxivionPerspective;
 
 void setupAxivionPerspective()
@@ -964,6 +991,12 @@ void updateIssueDetails(const QString &html)
 {
     QTC_ASSERT(theAxivionPerspective, return);
     theAxivionPerspective->setIssueDetailsHtml(html);
+}
+
+void updatePerspectiveToolbar()
+{
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->updateToolbarButtons();
 }
 
 } // Axivion::Internal

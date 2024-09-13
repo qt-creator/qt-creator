@@ -834,6 +834,7 @@ Group projectInfoRecipe(const QString &projectName)
             dd->m_currentProjectInfo = data;
             if (!dd->m_currentProjectInfo->versions.empty())
                 setAnalysisVersion(dd->m_currentProjectInfo->versions.back().date);
+            updatePerspectiveToolbar();
             updateDashboard();
         };
 
