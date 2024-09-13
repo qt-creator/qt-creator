@@ -213,7 +213,6 @@
 :scrollArea.Details_Utils::DetailsButton	{text='Details' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :scrollArea.Edit build configuration:_QComboBox	{leftWidget=':scrollArea.Edit build configuration:_QLabel' type='QComboBox' unnamed='1' visible='1'}
 :scrollArea.Edit build configuration:_QLabel	{text='Edit build configuration:' type='QLabel' unnamed='1' visible='1'}
-:scrollArea.Library not available_QLabel	{name='qmlDebuggingWarningText' text?='Library not available*' type='QLabel' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :sourceFileLineEdit_Utils::FileNameValidatingLineEdit	{name='SrcFileName' type='Utils::FancyLineEdit' visible='1' window=':New_ProjectExplorer::JsonWizard'}
 :splitter.Commit File(s)_VcsBase::QActionPushButton	{text~='(Commit .+/.+ File.*)' type='QToolButton' unnamed='1' visible='1' window=':Qt Creator_Core::Internal::MainWindow'}
 :splitter.Description_QGroupBox	{container=':Qt Creator.splitter_QSplitter' name='descriptionBox' title='Description' type='QGroupBox' visible='1'}
