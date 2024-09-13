@@ -181,6 +181,8 @@ class Storage final : public StorageBase
 {
 public:
     Storage() : StorageBase(Storage::ctor(), Storage::dtor()) {}
+    Storage(const StorageStruct &data)
+        : StorageBase([data] { return new StorageStruct(data); }, Storage::dtor()) {}
     StorageStruct &operator*() const noexcept { return *activeStorage(); }
     StorageStruct *operator->() const noexcept { return activeStorage(); }
     StorageStruct *activeStorage() const {

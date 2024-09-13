@@ -120,6 +120,7 @@ private slots:
     void storageOperators();
     void storageDestructor();
     void storageZeroInitialization();
+    void storageDataInitialization();
     void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
@@ -4114,7 +4115,22 @@ void tst_Tasking::storageZeroInitialization()
     taskTree.runBlocking();
 
     QVERIFY(defaultValue);
-    QCOMPARE(defaultValue, 0);
+    QCOMPARE(*defaultValue, 0);
+}
+
+// This test ensures that the storage c'tor with data is initialized properly.
+void tst_Tasking::storageDataInitialization()
+{
+    const Storage<int> storage(42);
+    std::optional<int> defaultValue;
+
+    const auto onSetup = [storage, &defaultValue] { defaultValue = *storage; };
+
+    TaskTree taskTree({ storage, onGroupSetup(onSetup) });
+    taskTree.runBlocking();
+
+    QVERIFY(defaultValue);
+    QCOMPARE(*defaultValue, 42);
 }
 
 // This test ensures that when a missing storage object inside the nested task tree is accessed
