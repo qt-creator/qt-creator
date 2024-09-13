@@ -2741,8 +2741,7 @@ void tst_Tasking::testTree_data()
             createSuccessTask(2)
         };
 
-        const For rootSequentialSuccess {
-            LoopRepeat(2),
+        const Group rootSequentialSuccess = For (LoopRepeat(2)) >> Do {
             sequential,
             successItems
         };
@@ -2757,8 +2756,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const For rootParallelSuccess {
-            LoopRepeat(2),
+        const Group rootParallelSuccess = For (LoopRepeat(2)) >> Do {
             parallel,
             successItems
         };
@@ -2773,8 +2771,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const For rootParallelLimitSuccess {
-            LoopRepeat(2),
+        const Group rootParallelLimitSuccess = For (LoopRepeat(2)) >> Do  {
             parallelLimit(2),
             successItems
         };
@@ -2795,8 +2792,7 @@ void tst_Tasking::testTree_data()
             createFailingTask(2)
         };
 
-        const For rootSequentialError {
-            LoopRepeat(2),
+        const Group rootSequentialError = For (LoopRepeat(2)) >> Do {
             sequential,
             errorItems
         };
@@ -2807,8 +2803,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Error}
         };
 
-        const For rootParallelError {
-            LoopRepeat(2),
+        const Group rootParallelError = For (LoopRepeat(2)) >> Do {
             parallel,
             errorItems
         };
@@ -2823,8 +2818,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Canceled}
         };
 
-        const For rootParallelLimitError {
-            LoopRepeat(2),
+        const Group rootParallelLimitError = For (LoopRepeat(2)) >> Do {
             parallelLimit(2),
             errorItems
         };
@@ -2883,8 +2877,7 @@ void tst_Tasking::testTree_data()
             TestTask(onSetupStop(2), onDone(2))
         };
 
-        const For rootSequential {
-            loop,
+        const Group rootSequential = For(loop) >> Do {
             sequential,
             items
         };
@@ -2902,8 +2895,7 @@ void tst_Tasking::testTree_data()
             {22, Handler::Setup}
         };
 
-        const For rootParallel {
-            loop,
+        const Group rootParallel = For(loop) >> Do {
             parallel,
             items
         };
@@ -2921,8 +2913,7 @@ void tst_Tasking::testTree_data()
             {21, Handler::Success}
         };
 
-        const For rootParallelLimit {
-            loop,
+        const Group rootParallelLimit = For(loop) >> Do {
             parallelLimit(2),
             items
         };
@@ -2950,8 +2941,7 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when LoopUntil(false).
-        const For root {
-            LoopUntil([](int) { return false; }),
+        const Group root = For(LoopUntil([](int) { return false; })) >> Do {
             storage,
             createSuccessTask(1)
         };
@@ -2961,11 +2951,9 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when nested LoopUntil(false).
-        const For root {
-            LoopUntil([](int index) { return index < 2; }),
+        const Group root = For (LoopUntil([](int index) { return index < 2; })) >> Do {
             storage,
-            For {
-                LoopUntil([](int) { return false; }),
+            For (LoopUntil([](int) { return false; })) >> Do {
                 createSuccessTask(1)
             }
         };
@@ -2975,13 +2963,12 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if LoopUntil is executed with empty loop body.
-        const For root {
-            LoopUntil([storage](int iteration) {
-                storage->m_log.append({iteration, Handler::Iteration});
-                return iteration < 3;
-            }),
-            storage
-        };
+        const LoopUntil iterator([storage](int iteration) {
+            storage->m_log.append({iteration, Handler::Iteration});
+            return iteration < 3;
+        });
+
+        const Group root = For(iterator) >> Do { storage };
 
         const Log log {
             {0, Handler::Iteration},
@@ -3007,8 +2994,7 @@ void tst_Tasking::testTree_data()
 
     {
         // Check if task tree finishes with the right progress value when nested LoopUntil(false).
-        const For root {
-            LoopUntil([](int index) { return index < 2; }),
+        const Group root = For (LoopUntil([](int index) { return index < 2; })) >> Do {
             storage,
             Group {
                 onGroupSetup([] { return SetupResult::StopWithSuccess; }),
@@ -3186,8 +3172,7 @@ void tst_Tasking::testTree_data()
             return DoneResult::Error;
         };
 
-        const For root {
-            iterator,
+        const Group root = For (iterator) >> Do {
             storage,
             parallel,
             TestTask(onSetup, onDone)

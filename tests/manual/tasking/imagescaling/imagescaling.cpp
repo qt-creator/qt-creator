@@ -93,8 +93,7 @@ void Images::process()
             labels[it]->setText(tr("Image\nData\nError."));
     };
 
-    const For recipe {
-        iterator,
+    const Group recipe = For (iterator) >> Do {
         finishAllAndSuccess,
         parallel,
         onGroupSetup(onRootSetup),

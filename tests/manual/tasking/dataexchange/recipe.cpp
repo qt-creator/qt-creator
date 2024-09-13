@@ -74,8 +74,7 @@ Group recipe(const Storage<ExternalData> &externalStorage)
         internalStorage,
         NetworkQueryTask(onDownloadSetup, onDownloadDone),
         ConcurrentCallTask<QImage>(onReadSetup, onReadDone),
-        For {
-            repeater,
+        For (repeater) >> Do {
             parallelIdealThreadCountLimit,
             ConcurrentCallTask<QImage>(onScaleSetup, onScaleDone)
         }

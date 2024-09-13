@@ -858,8 +858,7 @@ AndroidDeviceManagerInstance::AndroidDeviceManagerInstance(QObject *parent)
     // otherwise, Android Studio would give an error during parsing also. So this fix
     // aim to keep support for Qt Creator and Android Studio.
 
-    m_avdListRecipe = For {
-        iterator,
+    m_avdListRecipe = For (iterator) >> Do {
         storage,
         ProcessTask(onProcessSetup, onProcessDone)
     };

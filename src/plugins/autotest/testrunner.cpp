@@ -461,8 +461,7 @@ void TestRunner::runTestsHelper()
         }
     };
 
-    const For recipe {
-        iterator,
+    const Group recipe = For (iterator) >> Do {
         finishAllAndSuccess,
         Group {
             storage,

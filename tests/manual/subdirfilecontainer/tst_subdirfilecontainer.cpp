@@ -149,8 +149,7 @@ private slots:
                                         parentDir.filePath(destDirName));
         };
 
-        const For recipe = {
-            iterator,
+        const Group recipe = For (iterator) >> Do {
             parallelIdealThreadCountLimit, // Parallelize tree generation
             AsyncTask<void>(onCopySetup)
         };
@@ -169,8 +168,7 @@ private slots:
                                         parentDir.filePath(dirName(iterator.iteration() + 1)));
         };
 
-        const For recipe = {
-            iterator,
+        const Group recipe = For (iterator) >> Do {
             parallelIdealThreadCountLimit, // Parallelize tree removal
             AsyncTask<void>(onSetup)
         };

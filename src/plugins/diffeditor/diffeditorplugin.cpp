@@ -142,8 +142,7 @@ DiffFilesController::DiffFilesController(IDocument *document)
         setDiffFiles(finalList);
     };
 
-    const For recipe {
-        iterator,
+    const Group recipe = For (iterator) >> Do {
         parallelIdealThreadCountLimit,
         finishAllAndSuccess,
         storage,

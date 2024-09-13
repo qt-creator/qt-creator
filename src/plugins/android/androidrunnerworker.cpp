@@ -582,8 +582,7 @@ static ExecutableItem preStartRecipe(RunnerStorage *storage)
     return Group {
         argsStorage,
         onGroupSetup(onArgsSetup),
-        For {
-            iterator,
+        For (iterator) >> Do {
             ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
         },
         Group {
@@ -614,8 +613,7 @@ static ExecutableItem postDoneRecipe(RunnerStorage *storage)
 
     return Group {
         finishAllAndSuccess,
-        For {
-            iterator,
+        For (iterator) >> Do {
             ProcessTask(onProcessSetup)
         },
         onGroupDone(onDone)
@@ -674,8 +672,7 @@ static ExecutableItem uploadDebugServerRecipe(RunnerStorage *storage, const QStr
 
     return Group {
         tempDebugServerPathStorage,
-        For {
-            iterator,
+        For (iterator) >> Do {
             ProcessTask(onDeviceFileExistsSetup, onDeviceFileExistsDone)
         },
         Sync(onTempDebugServerPath),

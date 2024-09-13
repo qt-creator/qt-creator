@@ -4,10 +4,10 @@
 #ifndef RECIPE_H
 #define RECIPE_H
 
-namespace Tasking { class Group; }
+namespace Tasking { class ExecutableItem; }
 
 class GlueInterface;
 
-Tasking::Group recipe(GlueInterface *iface);
+Tasking::ExecutableItem recipe(GlueInterface *iface);
 
 #endif // RECIPE_H

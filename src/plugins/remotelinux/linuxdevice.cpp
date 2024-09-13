@@ -1646,13 +1646,11 @@ private:
         };
 
         const Group recipe {
-            For {
-                iteratorParentDirs,
+            For (iteratorParentDirs) >> Do {
                 parallelIdealThreadCountLimit,
                 AsyncTask<expected_str<void>>(onCreateDirSetup, onCreateDirDone),
             },
-            For {
-                iterator,
+            For (iterator) >> Do {
                 parallelLimit(2),
                 counterStorage,
                 AsyncTask<expected_str<void>>(onCopySetup, onCopyDone),

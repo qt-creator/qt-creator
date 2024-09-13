@@ -246,8 +246,7 @@ static QList<FileNode *> scanForFilesHelper(
             }
         };
 
-        const For recipe {
-            iterator,
+        const Group recipe = For (iterator) >> Do {
             Utils::HostOsInfo::isLinuxHost() ? parallelLimit(2) : parallelIdealThreadCountLimit,
             Utils::AsyncTask<DirectoryScanResult>(onSetup, onDone)
         };

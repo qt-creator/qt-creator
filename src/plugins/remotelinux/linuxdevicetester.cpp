@@ -278,8 +278,7 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
         emit q->errorMessage(message);
     };
 
-    return For {
-        iterator,
+    return For (iterator) >> Do {
         continueOnError,
         onGroupSetup([this] {
             emit q->progressMessage(Tr::tr("Checking if required commands are available..."));

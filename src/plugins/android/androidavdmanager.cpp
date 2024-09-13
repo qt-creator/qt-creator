@@ -138,8 +138,7 @@ static ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<Q
     return Group {
         outputStorage,
         AndroidConfig::devicesCommandOutputRecipe(outputStorage),
-        For {
-            iterator,
+        For (iterator) >> Do {
             parallel,
             stopOnSuccess,
             Group {

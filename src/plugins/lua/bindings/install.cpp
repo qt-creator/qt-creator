@@ -196,8 +196,7 @@ static Group installRecipe(
         return DoneResult::Success;
     };
 
-    return For {
-        installOptionsIt,
+    return For (installOptionsIt) >> Do {
         storage,
         parallelIdealThreadCountLimit,
         Group{

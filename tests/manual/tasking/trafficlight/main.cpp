@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     QApplication app(argc, argv);
 
     GlueInterface iface;
-    TaskTree taskTree(recipe(&iface));
+    TaskTree taskTree({recipe(&iface)});
     TrafficLight widget(&iface);
 
     widget.show();

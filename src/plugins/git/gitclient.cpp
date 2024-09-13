@@ -534,8 +534,7 @@ ShowController::ShowController(IDocument *document, const QString &id)
             updateDescription(*data);
         };
 
-        const For recipe {
-            iterator,
+        const Group recipe = For (iterator) >> Do {
             parallel,
             continueOnSuccess,
             ProcessTask(onFollowSetup, onFollowDone, CallDoneIf::Success),

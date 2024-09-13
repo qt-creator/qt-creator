@@ -1280,6 +1280,11 @@ const GroupItem nullItem = GroupItem({});
 const ExecutableItem successItem = Group { finishAllAndSuccess };
 const ExecutableItem errorItem = Group { finishAllAndError };
 
+Group operator>>(const For &forItem, const Do &doItem)
+{
+    return {forItem.m_loop, doItem.m_children};
+}
+
 // Please note the thread_local keyword below guarantees a separate instance per thread.
 // The s_activeTaskTrees is currently used internally only and is not exposed in the public API.
 // It serves for withLog() implementation now. Add a note here when a new usage is introduced.

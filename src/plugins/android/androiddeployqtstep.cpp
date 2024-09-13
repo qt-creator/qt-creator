@@ -417,13 +417,11 @@ GroupItem AndroidDeployQtStep::runRecipe()
             onGroupDone(onSerialNumberGroupDone)
         },
         deployRecipe(),
-        For {
-            iterator,
+        For (iterator) >> Do {
             parallelIdealThreadCountLimit,
             AsyncTask<void>(onRemoveFileSetup)
         },
-        For {
-            iterator,
+        For (iterator) >> Do {
             ProcessTask(onAdbSetup, onAdbDone)
         }
     };

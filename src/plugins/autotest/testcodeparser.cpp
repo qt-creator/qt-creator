@@ -417,8 +417,7 @@ void TestCodeParser::scanForTests(const QSet<FilePath> &filePaths,
         if (!results.isEmpty())
             emit testParseResultsReady(results);
     };
-    const For recipe {
-        LoopRepeat(filteredFiles.size()),
+    const Group recipe = For (LoopRepeat(filteredFiles.size())) >> Do {
         parallelLimit(limit),
         storage,
         onGroupSetup([storage, filteredFiles] { *storage = filteredFiles.cbegin(); }),

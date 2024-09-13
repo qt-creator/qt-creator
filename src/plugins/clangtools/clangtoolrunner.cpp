@@ -181,8 +181,7 @@ GroupItem clangToolTask(CppEditor::ClangToolType toolType,
                        error});
     };
 
-    return For {
-        iterator,
+    return For (iterator) >> Do {
         parallelLimit(qMax(1, input.runSettings.parallelJobs())),
         finishAllAndSuccess,
         Group {

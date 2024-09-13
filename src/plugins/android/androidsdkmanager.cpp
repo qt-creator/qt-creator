@@ -294,13 +294,11 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
 
     return Group {
         onGroupSetup(onSetup),
-        For {
-            uninstallIterator,
+        For (uninstallIterator) >> Do {
             finishAllAndSuccess,
             ProcessTask(onUninstallSetup, onDone)
         },
-        For {
-            installIterator,
+        For (installIterator) >> Do {
             finishAllAndSuccess,
             ProcessTask(onInstallSetup, onDone)
         }
