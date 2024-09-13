@@ -64,6 +64,12 @@ public:
     void reparse(bool force);
     void triggerParsing() final;
 
+    bool addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded) final;
+    RemovedFilesFromProject removeFiles(Node *context, const FilePaths &filePaths, FilePaths *notRemoved) final;
+    bool deleteFiles(Node *context, const FilePaths &filePaths) final;
+    bool renameFile(Node *context, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool supportsAction(Node *context, ProjectAction action, const Node *node) const final;
+
     void watchFolder(const FilePath &path, const QList<IVersionControl *> &versionControls);
 
     void handleDirectoryChanged(const FilePath &directory);
@@ -220,6 +226,36 @@ void WorkspaceBuildSystem::reparse(bool force)
 void WorkspaceBuildSystem::triggerParsing()
 {
     reparse(false);
+}
+
+bool WorkspaceBuildSystem::addFiles(Node *, const FilePaths &, FilePaths *)
+{
+    // nothing to do here since the changes will be picked up by the file system watcher
+    return true;
+}
+
+RemovedFilesFromProject WorkspaceBuildSystem::removeFiles(Node *, const FilePaths &, FilePaths *)
+{
+    // nothing to do here since the changes will be picked up by the file system watcher
+    return RemovedFilesFromProject::Ok;
+}
+
+bool WorkspaceBuildSystem::deleteFiles(Node *, const FilePaths &)
+{
+    // nothing to do here since the changes will be picked up by the file system watcher
+    return true;
+}
+
+bool WorkspaceBuildSystem::renameFile(Node *, const FilePath &, const FilePath &)
+{
+    // nothing to do here since the changes will be picked up by the file system watcher
+    return true;
+}
+
+bool WorkspaceBuildSystem::supportsAction(Node *, ProjectAction action, const Node *) const
+{
+    return action == ProjectAction::Rename || action == ProjectAction::AddNewFile
+           || action == ProjectAction::EraseFile;
 }
 
 void WorkspaceBuildSystem::watchFolder(
