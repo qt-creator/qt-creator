@@ -69,6 +69,8 @@ const Icon BUILDSTEP_MOVEDOWN({
         {":/projectexplorer/images/buildstepmovedown.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon BUILDSTEP_DISABLE({
         {":/projectexplorer/images/buildstepdisable.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon BUILDSTEP_DISABLE_TOOLBAR({
+        {":/projectexplorer/images/buildstepdisable.png", Theme::IconsBaseColor}});
 const Icon BUILDSTEP_REMOVE({
         {":/projectexplorer/images/buildstepremove.png", Theme::PanelTextColorDark}}, Icon::Tint);
 

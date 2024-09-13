@@ -803,7 +803,7 @@ void AxivionPerspective::initPerspective()
             this, &AxivionPerspective::handleAnchorClicked);
 
     m_disableInlineIssues = new QAction(this);
-    m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE.icon());
+    m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE_TOOLBAR.icon());
     m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
     m_disableInlineIssues->setCheckable(true);
     m_disableInlineIssues->setChecked(false);
