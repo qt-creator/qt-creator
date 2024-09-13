@@ -338,7 +338,7 @@ bool EditorView::event(QEvent *e)
             }
         }
     }
-    return false;
+    return QWidget::event(e);
 }
 
 void EditorView::addEditor(IEditor *editor)

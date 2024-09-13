@@ -204,7 +204,7 @@ bool HelpViewer::event(QEvent *e)
             }
         }
     }
-    return false;
+    return QWidget::event(e);
 }
 
 void HelpViewer::incrementZoom(int steps)
