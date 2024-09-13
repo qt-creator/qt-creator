@@ -10,10 +10,12 @@
 #include <utils/layoutbuilder.h>
 #include <utils/utilsicons.h>
 
+#include <QGuiApplication>
 #include <QLabel>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPushButton>
+#include <QScreen>
 #include <QToolButton>
 
 namespace Axivion::Internal {
@@ -37,6 +39,22 @@ static QString infoText()
                   "\"\" matches issues having an empty value in this column\n"
                   "!\"\" matches issues having any non-empty value in this column");
 }
+
+static void fixGlobalPosOnScreen(QPoint *globalPos, const QSize &size)
+{
+    QScreen *qscreen = QGuiApplication::screenAt(*globalPos);
+    if (!qscreen)
+        qscreen = QGuiApplication::primaryScreen();
+    const QRect screen = qscreen->availableGeometry();
+
+    if (globalPos->x() + size.width() > screen.width())
+        globalPos->setX(screen.width() - size.width());
+    if (globalPos->y() + size.height() > screen.height())
+        globalPos->setY(screen.height() - size.height());
+    if (globalPos->y() < 0)
+        globalPos->setY(0);
+}
+
 class FilterPopupWidget : public QFrame
 {
 public:
@@ -262,8 +280,10 @@ void IssueHeaderView::mouseReleaseEvent(QMouseEvent *event)
                 popup->setOnApply(onApply);
                 const int right = sectionViewportPosition(logical) + sectionSize(logical);
                 const QSize size = popup->sizeHint();
-                popup->move(mapToGlobal(QPoint{x() + right - size.width(),
-                                               this->y() - size.height()}));
+                QPoint globalPos = mapToGlobal(QPoint{std::max(0, x() + right - size.width()),
+                                                      this->y() - size.height()});
+                fixGlobalPosOnScreen(&globalPos, size);
+                popup->move(globalPos);
                 popup->show();
             }
         }
