@@ -133,35 +133,23 @@ FileType TreeScanner::genericFileType(const Utils::MimeType &mimeType, const Uti
     return Node::fileTypeForMimeType(mimeType);
 }
 
-static std::unique_ptr<FolderNode> createFolderNode(const Utils::FilePath &directory,
-                                                    const QList<FileNode *> &allFiles)
-{
-    auto fileSystemNode = std::make_unique<FolderNode>(directory);
-    for (const FileNode *fn : allFiles) {
-        if (!fn->filePath().isChildOf(directory))
-            continue;
-
-        std::unique_ptr<FileNode> node(fn->clone());
-        fileSystemNode->addNestedNode(std::move(node));
-    }
-    ProjectTree::applyTreeManager(fileSystemNode.get(), ProjectTree::AsyncPhase); // QRC nodes
-    return fileSystemNode;
-}
-
 struct DirectoryScanResult
 {
     QList<FileNode *> nodes;
-    Utils::FilePaths subDirectories;
+    QList<FolderNode *> subDirectories;
+    FolderNode *parentNode;
 };
 
 static DirectoryScanResult scanForFilesImpl(
     const QFuture<void> &future,
     const Utils::FilePath &directory,
+    FolderNode *parent,
     QDir::Filters filter,
     const std::function<FileNode *(const Utils::FilePath &)> &factory,
     const QList<Core::IVersionControl *> &versionControls)
 {
     DirectoryScanResult result;
+    result.parentNode = parent;
 
     const Utils::FilePaths entries = directory.dirEntries(filter);
     for (const Utils::FilePath &entry : entries) {
@@ -175,7 +163,7 @@ static DirectoryScanResult scanForFilesImpl(
         }
 
         if (entry.isDir())
-            result.subDirectories.append(entry);
+            result.subDirectories.append(new FolderNode(entry));
         else if (FileNode *node = factory(entry))
             result.nodes.append(node);
     }
@@ -188,7 +176,7 @@ static const Utils::MimeType &directoryMimeType()
     return mimeType;
 }
 
-static QList<FileNode *> scanForFilesHelper(
+static TreeScanner::Result scanForFilesHelper(
     TreeScanner::Promise &promise,
     const Utils::FilePath &directory,
     QDir::Filters dirfilter,
@@ -202,23 +190,32 @@ static QList<FileNode *> scanForFilesHelper(
     promise.setProgressRange(0, progressRange);
 
     QSet<Utils::FilePath> visited;
-    const DirectoryScanResult result = scanForFilesImpl(future, directory, dirfilter, factory, versionControls);
+    const DirectoryScanResult result
+        = scanForFilesImpl(future, directory, nullptr, dirfilter, factory, versionControls);
     QList<FileNode *> fileNodes = result.nodes;
+    QList<Node *> firstLevelNodes;
+    for (auto fileNode : fileNodes)
+        firstLevelNodes.append(fileNode->clone());
     const int progressIncrement = int(
         progressRange / static_cast<double>(fileNodes.count() + result.subDirectories.count()));
     promise.setProgressValue(int(fileNodes.count() * progressIncrement));
-    QList<QPair<Utils::FilePath, int>> subDirectories;
-    auto addSubDirectories = [&](const Utils::FilePaths &subdirs, int progressIncrement) {
-        for (const Utils::FilePath &subdir : subdirs) {
-            if (Utils::insert(visited, subdir.canonicalPath())
-                && !(filter && filter(directoryMimeType(), subdir))) {
+    QList<QPair<FolderNode *, int>> subDirectories;
+    auto addSubDirectories = [&](const QList<FolderNode *> &subdirs, FolderNode * parent, int progressIncrement) {
+        for (FolderNode *subdir : subdirs) {
+            if (Utils::insert(visited, subdir->filePath().canonicalPath())
+                && !(filter && filter(directoryMimeType(), subdir->filePath()))) {
                 subDirectories.append(qMakePair(subdir, progressIncrement));
+                subdir->setDisplayName(subdir->filePath().fileName());
+                if (parent)
+                    parent->addNode(std::unique_ptr<FolderNode>(subdir));
+                else
+                    firstLevelNodes << subdir;
             } else {
                 promise.setProgressValue(future.progressValue() + progressIncrement);
             }
         }
     };
-    addSubDirectories(result.subDirectories, progressIncrement);
+    addSubDirectories(result.subDirectories, nullptr, progressIncrement);
 
     while (!subDirectories.isEmpty()) {
         using namespace Tasking;
@@ -227,7 +224,13 @@ static QList<FileNode *> scanForFilesHelper(
 
         auto onSetup = [&, iterator](Utils::Async<DirectoryScanResult> &task) {
             task.setConcurrentCallData(
-                scanForFilesImpl, future, iterator->first, dirfilter, factory, versionControls);
+                scanForFilesImpl,
+                future,
+                iterator->first->filePath(),
+                iterator->first,
+                dirfilter,
+                factory,
+                versionControls);
         };
 
         auto onDone = [&, iterator](const Utils::Async<DirectoryScanResult> &task) {
@@ -235,6 +238,10 @@ static QList<FileNode *> scanForFilesHelper(
             const DirectoryScanResult result = task.result();
             fileNodes.append(result.nodes);
             const qsizetype subDirCount = result.subDirectories.count();
+            if (iterator->first) {
+                for (auto fn : result.nodes)
+                    iterator->first->addNode(std::unique_ptr<FileNode>(fn->clone()));
+            }
             if (subDirCount == 0) {
                 promise.setProgressValue(future.progressValue() + progressRange);
             } else {
@@ -242,7 +249,7 @@ static QList<FileNode *> scanForFilesHelper(
                 const int increment = int(
                     progressRange / static_cast<double>(fileCount + subDirCount));
                 promise.setProgressValue(future.progressValue() + increment * fileCount);
-                addSubDirectories(result.subDirectories, increment);
+                addSubDirectories(result.subDirectories, result.parentNode, increment);
             }
         };
 
@@ -252,7 +259,10 @@ static QList<FileNode *> scanForFilesHelper(
         };
         TaskTree::runBlocking(recipe);
     }
-    return fileNodes;
+
+    Utils::sort(fileNodes, ProjectExplorer::Node::sortByPath);
+
+    return {fileNodes, firstLevelNodes};
 }
 
 void TreeScanner::scanForFiles(
@@ -262,8 +272,12 @@ void TreeScanner::scanForFiles(
     QDir::Filters dirFilter,
     const FileTypeFactory &factory)
 {
-    QList<FileNode *> nodes = scanForFilesHelper(
-        promise, directory, dirFilter, filter, [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
+    Result result = scanForFilesHelper(
+        promise,
+        directory,
+        dirFilter,
+        filter,
+        [&filter, &factory](const Utils::FilePath &fn) -> FileNode * {
             const Utils::MimeType mimeType = Utils::mimeTypesForFileName(fn.path()).value(0);
 
             // Skip some files during scan.
@@ -278,12 +292,31 @@ void TreeScanner::scanForFiles(
             return new FileNode(fn, type);
         });
 
-    Utils::sort(nodes, ProjectExplorer::Node::sortByPath);
-
     promise.setProgressValue(promise.future().progressMaximum());
-    Result result{createFolderNode(directory, nodes), nodes};
-
     promise.addResult(result);
+}
+
+TreeScanner::Result::Result(QList<FileNode *> files, QList<Node *> nodes)
+    : allFiles(files)
+    , firstLevelNodes(nodes)
+{}
+
+QList<FileNode *> TreeScanner::Result::takeAllFiles()
+{
+    qDeleteAll(firstLevelNodes);
+    firstLevelNodes.clear();
+    QList<FileNode *> result = allFiles;
+    allFiles.clear();
+    return result;
+}
+
+QList<Node *> TreeScanner::Result::takeFirstLevelNodes()
+{
+    qDeleteAll(allFiles);
+    allFiles.clear();
+    QList<Node *> result = firstLevelNodes;
+    firstLevelNodes.clear();
+    return result;
 }
 
 } // namespace ProjectExplorer

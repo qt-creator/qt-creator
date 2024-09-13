@@ -1505,8 +1505,9 @@ void CMakeBuildSystem::updateProjectData()
 void CMakeBuildSystem::handleTreeScanningFinished()
 {
     TreeScanner::Result result = m_treeScanner.release();
-    m_allFiles = result.folderNode;
-    qDeleteAll(result.allFiles);
+    m_allFiles = std::make_shared<ProjectExplorer::FolderNode>(projectDirectory());
+    for (auto node : result.takeFirstLevelNodes())
+        m_allFiles->addNode(std::unique_ptr<Node>(node));
 
     updateFileSystemNodes();
 }

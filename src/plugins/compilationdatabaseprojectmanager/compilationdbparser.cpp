@@ -221,8 +221,8 @@ void CompilationDbParser::stop()
 QList<FileNode *> CompilationDbParser::scannedFiles() const
 {
     const bool canceled = m_treeScanner->future().isCanceled();
-    const TreeScanner::Result result = m_treeScanner->release();
-    return !canceled ? result.allFiles : QList<FileNode *>();
+    TreeScanner::Result result = m_treeScanner->release();
+    return !canceled ? result.takeAllFiles() : QList<FileNode *>();
 }
 
 void CompilationDbParser::parserJobFinished()

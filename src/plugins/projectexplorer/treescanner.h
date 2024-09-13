@@ -24,10 +24,16 @@ class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
     Q_OBJECT
 
 public:
-    struct Result
+    class PROJECTEXPLORER_EXPORT Result
     {
-        std::shared_ptr<FolderNode> folderNode;
+    public:
+        Result() = default;
+        Result(QList<FileNode *> files, QList<Node *> nodes);
+        QList<FileNode *> takeAllFiles();
+        QList<Node *> takeFirstLevelNodes();
+    private:
         QList<FileNode *> allFiles;
+        QList<Node *> firstLevelNodes;
     };
     using Future = QFuture<Result>;
     using FutureWatcher = QFutureWatcher<Result>;

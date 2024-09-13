@@ -70,8 +70,6 @@ public:
     bool renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed) final;
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const final;
 
-    void watchFolder(const FilePath &path, const QList<IVersionControl *> &versionControls);
-
     void handleDirectoryChanged(const FilePath &directory);
 
     void scan(const FilePath &path);
@@ -108,13 +106,28 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
         QTC_ASSERT(!m_scanQueue.isEmpty(), return);
         const FilePath scannedDir = m_scanQueue.takeFirst();
 
-        std::vector<std::unique_ptr<FileNode>> nodePtrs
-            = Utils::transform<std::vector>(m_scanner.release().allFiles, [](FileNode *fn) {
-                  return std::unique_ptr<FileNode>(fn);
-              });
+        TreeScanner::Result result = m_scanner.release();
+        auto addNodes = [this, &result](FolderNode *parent) {
+            QElapsedTimer timer;
+            timer.start();
+            const QList<IVersionControl *> versionControls = VcsManager::versionControls();
+            for (auto node : result.takeFirstLevelNodes())
+                parent->addNode(std::unique_ptr<Node>(node));
+            qCDebug(wsbs) << "Added nodes in" << timer.elapsed() << "ms";
+            FilePaths toWatch;
+            auto collectWatchFolders = [this, &toWatch, &versionControls](FolderNode *fn) {
+                if (!isFiltered(fn->path(), versionControls))
+                    toWatch << fn->path();
+            };
+            collectWatchFolders(parent);
+            parent->forEachNode({}, collectWatchFolders);
+            qCDebug(wsbs) << "Added and collected nodes in" << timer.elapsed() << "ms" << toWatch.size() << "dirs";
+            m_watcher->addDirectories(toWatch, FileSystemWatcher::WatchAllChanges);
+            qCDebug(wsbs) << "Added and and collected and watched nodes in" << timer.elapsed() << "ms";
+        };
+
         if (scannedDir == projectDirectory()) {
-            qCDebug(wsbs) << "Finished scanning new root" << scannedDir << "found"
-                          << nodePtrs.size() << "file entries";
+            qCDebug(wsbs) << "Finished scanning new root" << scannedDir;
             auto root = std::make_unique<ProjectNode>(scannedDir);
             root->setDisplayName(target()->project()->displayName());
             m_watcher.reset(new FileSystemWatcher);
@@ -123,24 +136,22 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
                 &FileSystemWatcher::directoryChanged,
                 this,
                 [this](const QString &path) {
-                    handleDirectoryChanged(Utils::FilePath::fromPathPart(path));
+                    handleDirectoryChanged(FilePath::fromPathPart(path));
                 });
 
-            root->addNestedNodes(std::move(nodePtrs));
+            addNodes(root.get());
             setRootProjectNode(std::move(root));
         } else {
-            qCDebug(wsbs) << "Finished scanning subdir" << scannedDir << "found"
-                          << nodePtrs.size() << "file entries";
+            qCDebug(wsbs) << "Finished scanning subdir" << scannedDir;
             FolderNode *parent = findAvailableParent(project()->rootProjectNode(), scannedDir);
             const FilePath relativePath = scannedDir.relativeChildPath(parent->filePath());
             const QString firstRelativeFolder = relativePath.path().left(relativePath.path().indexOf('/'));
             const FilePath nodePath = parent->filePath() / firstRelativeFolder;
             auto newNode = std::make_unique<FolderNode>(nodePath);
             newNode->setDisplayName(firstRelativeFolder);
-            newNode->addNestedNodes(std::move(nodePtrs));
+            addNodes(newNode.get());
             parent->replaceSubtree(nullptr, std::move(newNode));
         }
-        watchFolder(scannedDir, VcsManager::versionControls());
 
         scanNext();
     });
@@ -256,19 +267,6 @@ bool WorkspaceBuildSystem::supportsAction(Node *, ProjectAction action, const No
 {
     return action == ProjectAction::Rename || action == ProjectAction::AddNewFile
            || action == ProjectAction::EraseFile;
-}
-
-void WorkspaceBuildSystem::watchFolder(
-    const FilePath &path, const QList<IVersionControl *> &versionControls)
-{
-    if (!m_watcher->watchesDirectory(path)) {
-        qCDebug(wsbs) << "Adding watch for " << path;
-        m_watcher->addDirectory(path, FileSystemWatcher::WatchAllChanges);
-    }
-    for (auto entry : path.dirEntries(QDir::NoDotAndDotDot | QDir::Hidden | QDir::Dirs)) {
-        if (!isFiltered(entry, versionControls))
-            watchFolder(entry, versionControls);
-    }
 }
 
 void WorkspaceBuildSystem::handleDirectoryChanged(const FilePath &directory)
