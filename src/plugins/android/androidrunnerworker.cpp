@@ -642,10 +642,14 @@ static ExecutableItem uploadDebugServerRecipe(RunnerStorage *storage, const QStr
             *tempDebugServerPathStorage = tempDebugServerPath(iterator.iteration());
         return true;
     };
-    const auto onTempDebugServerPath = [tempDebugServerPathStorage] {
+    const auto onTempDebugServerPath = [storage, tempDebugServerPathStorage] {
         const bool tempDirOK = !tempDebugServerPathStorage->isEmpty();
-        if (!tempDirOK)
+        if (tempDirOK) {
+            emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer,
+                                               storage->m_processPID);
+        } else {
             qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
+        }
         return tempDirOK;
     };
 
@@ -843,8 +847,10 @@ static ExecutableItem pidRecipe(RunnerStorage *storage)
             if (ok) {
                 storage->m_processUser = processUser;
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
-                emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer,
-                                                   storage->m_processPID);
+                if (!storage->m_useCppDebugger) {
+                    emit storage->remoteProcessStarted(s_localDebugServerPort, storage->m_qmlServer,
+                                                       storage->m_processPID);
+                }
                 return DoneResult::Success;
             }
         }

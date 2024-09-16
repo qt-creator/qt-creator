@@ -218,9 +218,6 @@ void LldbEngine::setupEngine()
 
 void LldbEngine::handleLldbStarted()
 {
-    using namespace std::chrono_literals;
-    m_lldbProc.waitForReadyRead(1s);
-
     showStatusMessage(Tr::tr("Setting up inferior..."));
 
     const DebuggerRunParameters &rp = runParameters();
