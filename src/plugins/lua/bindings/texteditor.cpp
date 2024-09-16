@@ -164,7 +164,7 @@ void setupTextEditorModule()
             "mainCursor",
             &MultiTextCursor::mainCursor,
             "cursors",
-            &MultiTextCursor::cursors);
+            [](MultiTextCursor *self) { return sol::as_table(self->cursors()); });
 
         result.new_usertype<QTextCursor>(
             "TextCursor",
