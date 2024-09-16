@@ -31,9 +31,7 @@ ConnectableItem::ConnectableItem(const QPointF &p, BaseItem *parent)
     setAcceptDrops(true);
 
     m_selectedPen.setStyle(Qt::DotLine);
-    m_selectedPen.setColor(QColor(0x44, 0x44, 0xed));
     m_selectedPen.setCosmetic(true);
-    m_releasedFromParentBrush = QBrush(QColor(0x98, 0x98, 0x98));
 
     setPos(p);
     connect(this, &ConnectableItem::geometryChanged, this, &ConnectableItem::updateCornerPositions);
@@ -530,7 +528,7 @@ void ConnectableItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
 
     if (m_releasedFromParent) {
         painter->setPen(Qt::NoPen);
-        painter->setBrush(m_releasedFromParentBrush);
+        painter->setBrush(scene()->palette().brush(QPalette::ColorGroup::Current, QPalette::Window));
         painter->setClipping(true);
         painter->setClipPath(m_shadowClipPath);
         //Since the form is already cliped just draw a rectangle
@@ -539,6 +537,7 @@ void ConnectableItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *o
     }
 
     if (isSelected()) {
+        m_selectedPen.setColor(painter->pen().color());
         painter->setPen(m_selectedPen);
         painter->setBrush(Qt::NoBrush);
         painter->drawRect(boundingRect());

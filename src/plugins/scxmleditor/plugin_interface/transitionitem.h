@@ -139,7 +139,6 @@ private:
     qreal m_arrowSize = 10;
     qreal m_arrowAngle;
     QPen m_pen;
-    QPen m_highlightPen;
     bool m_lineSelected = false;
 
     TagTextItem *m_eventTagItem;
