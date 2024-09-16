@@ -2547,7 +2547,8 @@ FilePairs ProjectExplorerPlugin::renameFiles(
                         "be updated accordingly: %1")
                     .arg(pathsAsHtmlList(renamedOnly));
         }
-        QTimer::singleShot(0, m_instance, [message = failedRenamingsString + renamedOnlyString] {
+        QTimer::singleShot(
+                    0, m_instance, [message = QString(failedRenamingsString + renamedOnlyString)] {
             QMessageBox::warning(
                         ICore::dialogParent(), Tr::tr("Renaming Did Not Fully Succeed"), message);
         });
