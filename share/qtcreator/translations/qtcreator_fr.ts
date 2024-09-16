@@ -17224,7 +17224,7 @@ Assurez-vous que la variable CMAKE_BUILD_TYPE contient le champ «&#xa0;Build ty
     </message>
     <message>
         <source>Diagnostics</source>
-        <translation>Diagnostiques</translation>
+        <translation>Diagnostics</translation>
     </message>
     <message>
         <source>Release</source>
@@ -35745,7 +35745,7 @@ Date d&apos;expiration&#xa0;: %3</translation>
     </message>
     <message>
         <source>Language Server Diagnostics</source>
-        <translation>Diagnostiques du serveur de langage</translation>
+        <translation>Diagnostics du serveur de langage</translation>
     </message>
     <message>
         <source>Issues provided by the Language Server in the current document.</source>

@@ -28,15 +28,9 @@
 
             \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
 
-        \li Clear \uicontrol {Create a project that you can open in \QDS}.
-
-            \note This tutorial shows how to create the application in the
-            \uicontrol Edit mode. If you leave the checkbox selected, the
-            following instructions won't apply.
-
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection} dialog.
 
-        \li Select Qt 6.4 or later \l{Kits}{kits} for the
+        \li Select Qt 6.5 or later \l{Kits}{kits} for the
             platforms that you want to build the application for. To build
             applications for mobile devices, select kits also for Android and
             iOS.
@@ -52,9 +46,6 @@
             (or \uicontrol Done on \macos) to create the project.
 
     \endlist
-
-    For more information about the settings that you skipped, see
-    \l{Create Qt Quick Applications}.
 
 //! [qtquick empty application]
 */

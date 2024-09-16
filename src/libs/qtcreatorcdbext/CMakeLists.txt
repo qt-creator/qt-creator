@@ -23,15 +23,19 @@ if (NOT QT_CREATOR_API_DEFINED)
       set(generator "Visual Studio 17 2022")
     endif()
 
+    string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}")
+
     macro (setup_library arch)
       ExternalProject_Add(${arch}-bld
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
         CMAKE_GENERATOR "${generator}"
         CMAKE_GENERATOR_PLATFORM "${arch}"
+        LIST_SEPARATOR |
         CMAKE_ARGS
           -D${PROJECT_NAME}-MultiBuild=ON
           -DPythonTargetArchDll=${PythonTarget${arch}Dll}
           -DPython3_ROOT_DIR=${Python3_ROOT_DIR}
+          -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_ALT_SEP}
         BUILD_COMMAND
           ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND
@@ -52,6 +56,12 @@ if (NOT QT_CREATOR_API_DEFINED)
       install(
         DIRECTORY "${CMAKE_BINARY_DIR}/lib"
         DESTINATION .
+        COMPONENT qtcreatorcdbext
+      )
+      install(CODE
+        "if (EXISTS \"${CMAKE_BINARY_DIR}/bin\")
+          file(COPY \"${CMAKE_BINARY_DIR}/bin\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")
+         endif()"
         COMPONENT qtcreatorcdbext
       )
     endif()
