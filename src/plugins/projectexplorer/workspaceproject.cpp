@@ -67,7 +67,7 @@ public:
     bool addFiles(Node *context, const FilePaths &filePaths, FilePaths *notAdded) final;
     RemovedFilesFromProject removeFiles(Node *context, const FilePaths &filePaths, FilePaths *notRemoved) final;
     bool deleteFiles(Node *context, const FilePaths &filePaths) final;
-    bool renameFile(Node *context, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed) final;
     bool supportsAction(Node *context, ProjectAction action, const Node *node) const final;
 
     void watchFolder(const FilePath &path, const QList<IVersionControl *> &versionControls);
@@ -246,7 +246,7 @@ bool WorkspaceBuildSystem::deleteFiles(Node *, const FilePaths &)
     return true;
 }
 
-bool WorkspaceBuildSystem::renameFile(Node *, const FilePath &, const FilePath &)
+bool WorkspaceBuildSystem::renameFiles(Node *, const FilePairs &, FilePaths *)
 {
     // nothing to do here since the changes will be picked up by the file system watcher
     return true;
