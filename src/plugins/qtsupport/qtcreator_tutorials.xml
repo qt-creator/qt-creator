@@ -7,14 +7,14 @@
     <category>Talk</category>
   </categories>
   <tutorials>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Build and run">
       <description><![CDATA[Testing that your installation is successful by opening an existing example application project.]]></description>
       <tags>qt creator,build,compile,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget-Based Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Qt Widgets application">
       <description><![CDATA[Using Qt Creator to create a small Qt application, Text Finder.]]></description>
       <tags>qt creator,qt widgets designer,widgets,c++,text,help</tags>
       <meta>
@@ -28,16 +28,51 @@
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Creating a Qt Quick Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Qt Quick application">
       <description><![CDATA[Using basic QML types and learning about basic concepts of Qt Quick.]]></description>
       <tags>qt creator,qt quick,qml,states,transitions,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Creating a Mobile Qt Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Mobile application">
       <description><![CDATA[Developing Qt Quick applications for Android and iOS devices.]]></description>
       <tags>qt creator,qml,android,ios,controls,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-quick.html" projectPath="" name="Qt Quick and Python">
+      <description><![CDATA[Using Python bindings to develop Qt Quick applications.]]></description>
+      <tags>qt creator,qt quick,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-widgets.html" projectPath="" name="Qt Widgets and Python">
+      <description><![CDATA[Using Python bindings to develop Qt applications using the Qt Widgets module.]]></description>
+      <tags>qt creator,widgets,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-widgets-ui.html" projectPath="" name="Qt Widgets UI and Python">
+      <description><![CDATA[Using Python bindings and Qt Widgets Designer to develop Qt Widgets-based UIs.]]></description>
+      <tags>qt creator,qt widgets designer,widgets,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-debugging-example.html" projectPath="" name="C++ debugging">
+      <description><![CDATA[Debugging Qt C++ applications in the Qt Creator Debug mode.]]></description>
+      <tags>qt creator,c++,debugging,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-qml-debugging-example.html" projectPath="" name="Qt Quick debugging">
+      <description><![CDATA[Debugging Qt Quick applications in the Qt Creator Debug mode.]]></description>
+      <tags>qt creator,qt quick,debugging,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
