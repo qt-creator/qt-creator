@@ -490,15 +490,12 @@ jobs:
     - name: Download ccache archive
       shell: cmake -P {0}
       run: |
-        file(WRITE $ENV{GITHUB_WORKSPACE}/netrc.txt
-          "default login runneradmin password ${{ secrets.GITHUB_TOKEN }}")
-
         foreach(page_id RANGE 1 10)
           file(
             DOWNLOAD "https://api.github.com/repos/${{ github.repository }}/actions/artifacts?per_page=100&page=${page_id}"
-            HTTPHEADER "Accept: application/vnd.github.v3+json"
-            NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-            NETRC REQUIRED
+            HTTPHEADER "Accept: application/vnd.github+json"
+            HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+            HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
             SHOW_PROGRESS
             artifacts.json)
           file(READ artifacts.json artifacts_json)
@@ -515,8 +512,9 @@ jobs:
                 foreach(retry RANGE 10)
                   file(DOWNLOAD "${download_url}"
                     "${{ steps.ccache.outputs.archive_name }}.zip"
-                    NETRC_FILE "$ENV{GITHUB_WORKSPACE}/netrc.txt"
-                    NETRC REQUIRED
+                    HTTPHEADER "Accept: application/vnd.github+json"
+                    HTTPHEADER "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}"
+                    HTTPHEADER "X-GitHub-Api-Version: 2022-11-28"
                     SHOW_PROGRESS)
                   file(SIZE "${{ steps.ccache.outputs.archive_name }}.zip" fileSize)
                   if (fileSize GREATER 0)
