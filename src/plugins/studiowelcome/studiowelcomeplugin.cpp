@@ -799,17 +799,12 @@ WelcomeMode::WelcomeMode()
     boxLayout->addWidget(m_quickWidget);
     setWidget(m_modeWidget);
 
-    QStringList designStudioQchPathes
-        = {Core::HelpManager::documentationPath() + "/qtdesignstudio.qch",
-           Core::HelpManager::documentationPath() + "/qtquick.qch",
-           Core::HelpManager::documentationPath() + "/qtquickcontrols.qch",
-           Core::HelpManager::documentationPath() + "/qtquicktimeline.qch",
-           Core::HelpManager::documentationPath() + "/qtquick3d.qch",
-           Core::HelpManager::documentationPath() + "/qtqml.qch"};
+    QStringList designStudioQchPathes;
+    QDir qchDir(Core::HelpManager::documentationPath());
+    for (const QFileInfo &fileInfo : qchDir.entryInfoList({"*.qch"}, QDir::Files))
+        designStudioQchPathes.append(fileInfo.absoluteFilePath());
 
-    Core::HelpManager::registerDocumentation(
-                Utils::filtered(designStudioQchPathes,
-                                [](const QString &path) { return QFileInfo::exists(path); }));
+    Core::HelpManager::registerDocumentation(designStudioQchPathes);
 }
 
 WelcomeMode::~WelcomeMode()
