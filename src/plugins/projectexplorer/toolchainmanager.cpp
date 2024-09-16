@@ -339,6 +339,11 @@ void ToolchainManager::addBadToolchain(const Utils::FilePath &toolchain)
 bool ToolchainManager::isBetterToolchain(
     const ToolchainBundle &bundle1, const ToolchainBundle &bundle2)
 {
+    if (const ToolchainBundle::Valid valid1 = bundle1.validity(), valid2 = bundle2.validity();
+        valid1 != valid2) {
+        return valid1 == ToolchainBundle::Valid::All || valid2 == ToolchainBundle::Valid::None;
+    }
+
     const int priority1 = bundle1.get(&Toolchain::priority);
     const int priority2 = bundle2.get(&Toolchain::priority);
     if (priority1 > priority2)
