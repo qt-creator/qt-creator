@@ -122,8 +122,14 @@ QPointF TagTextItem::movePoint() const
 
 void TagTextItem::setTextMaxWidth(qreal width)
 {
-    m_maxWidth = width;
     QTextOption opt = m_textItem->document()->defaultTextOption();
+    if (width < 0 || width >= this->boundingRect().width() || m_textItem->toPlainText().isEmpty()) {
+        m_textItem->setTextWidth(-1);
+        opt.setWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
+        return;
+    }
+
+    m_maxWidth = width;
     opt.setWrapMode(QTextOption::WordWrap);
     m_textItem->document()->setDefaultTextOption(opt);
     m_textItem->setTextWidth(m_maxWidth);
