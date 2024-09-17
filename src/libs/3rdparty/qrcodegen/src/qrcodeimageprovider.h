@@ -1,36 +1,19 @@
-/****************************************************************************
-**
-** Copyright (C) 2022 The Qt Company Ltd
-** All rights reserved.
-** For any questions to The Qt Company, please use contact form at http://www.qt.io/contact-us
-**
-** This file is part of the Custom Merge QtDesignStudio plugin.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see http://www.qt.io/terms-conditions. For further
-** information use the contact form at http://www.qt.io/contact-us.
-**
-** If you have questions regarding the use of this file, please use
-** contact form at http://www.qt.io/contact-us
-**
-******************************************************************************/
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
-#ifndef QRCODEIMAGEPROVIDER_H
-#define QRCODEIMAGEPROVIDER_H
+#pragma once
+
+#include "qrcodegenerator_exports.h"
 
 #include <QPixmap>
 #include <QQuickImageProvider>
 
-class QrCodeImageProvider : public QQuickImageProvider
+class QRCODEGENERATOR_EXPORT QrCodeImageProvider : public QQuickImageProvider
 {
+    Q_OBJECT
+
 public:
     QrCodeImageProvider();
 
-    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize) override;
 };
-
-#endif // QRCODEIMAGEPROVIDER_H
