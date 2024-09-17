@@ -73,7 +73,8 @@ function TextEditor:addFloatingWidget(widget, position) end
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end
 
----@return CyclicSuggestion|nil The current suggestion if available. Otherwise nil.
+---Returns the current suggestion of the current editor if available.
+---@return CyclicSuggestion|nil suggestion The current suggestion if available. Otherwise nil.
 function textEditor.currentSuggestion() end
 
 return textEditor
