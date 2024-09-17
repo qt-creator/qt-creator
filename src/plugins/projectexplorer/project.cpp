@@ -508,7 +508,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
 
     const Project * const project = newTarget->project();
     for (BuildConfiguration *sourceBc : sourceTarget->buildConfigurations()) {
-        BuildConfiguration *newBc = BuildConfigurationFactory::clone(newTarget, sourceBc);
+        BuildConfiguration *newBc = sourceBc->clone(newTarget);
         if (!newBc) {
             buildconfigurationError << sourceBc->displayName();
             continue;

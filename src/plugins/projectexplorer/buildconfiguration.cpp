@@ -371,6 +371,13 @@ void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
     d->m_initialCleanSteps.append(id);
 }
 
+BuildConfiguration *BuildConfiguration::clone(Target *target) const
+{
+    Store map;
+    toMap(map);
+    return BuildConfigurationFactory::restore(target, map);
+}
+
 void BuildConfiguration::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
@@ -832,14 +839,6 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Sto
         return bc;
     }
     return nullptr;
-}
-
-BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
-                                                     const BuildConfiguration *source)
-{
-    Store map;
-    source->toMap(map);
-    return restore(parent, map);
 }
 
 } // namespace ProjectExplorer

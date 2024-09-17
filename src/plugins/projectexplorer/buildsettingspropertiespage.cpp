@@ -187,7 +187,7 @@ void BuildSettingsWidget::currentIndexChanged(int index)
 
 void BuildSettingsWidget::updateActiveConfiguration()
 {
-    if (!m_buildConfiguration || m_buildConfiguration == m_target->activeBuildConfiguration())
+    if (m_buildConfiguration == m_target->activeBuildConfiguration())
         return;
 
     m_buildConfiguration = m_target->activeBuildConfiguration();
@@ -281,7 +281,7 @@ void BuildSettingsWidget::cloneConfiguration()
     // Save the current build configuration settings, so that the clone gets all the settings
     m_target->project()->saveSettings();
 
-    BuildConfiguration *bc = BuildConfigurationFactory::clone(m_target, m_buildConfiguration);
+    BuildConfiguration *bc = m_buildConfiguration->clone(m_target);
     if (!bc)
         return;
 

@@ -5,7 +5,9 @@
 
 #include "buildconfiguration.h"
 #include "buildinfo.h"
+#include "buildsteplist.h"
 #include "buildsystem.h"
+#include "processstep.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -35,7 +37,8 @@ using namespace Core;
 
 namespace ProjectExplorer {
 
-Q_LOGGING_CATEGORY(wsbs, "qtc.projectexplorer.workspacebuildsystem", QtWarningMsg);
+Q_LOGGING_CATEGORY(wsbs, "qtc.projectexplorer.workspace.buildsystem", QtWarningMsg);
+Q_LOGGING_CATEGORY(wsp, "qtc.projectexplorer.workspace.project", QtWarningMsg);
 
 const QLatin1StringView FOLDER_MIMETYPE{"inode/directory"};
 const QLatin1StringView WORKSPACE_MIMETYPE{"text/x-workspace-project"};
@@ -47,9 +50,9 @@ const QLatin1StringView FILES_EXCLUDE_KEY{"files.exclude"};
 const char EXCLUDE_ACTION_ID[] = "ProjectExplorer.ExcludeFromWorkspace";
 const char RESCAN_ACTION_ID[] = "ProjectExplorer.RescanWorkspace";
 
-const expected_str<QJsonObject> projectDefinition(const Project *project)
+const expected_str<QJsonObject> projectDefinition(const FilePath &path)
 {
-    if (auto fileContents = project->projectFilePath().fileContents())
+    if (auto fileContents = path.fileContents())
         return QJsonDocument::fromJson(*fileContents).object();
     return {};
 }
@@ -156,7 +159,7 @@ WorkspaceBuildSystem::WorkspaceBuildSystem(Target *t)
         scanNext();
     });
     m_scanner.setDirFilter(workspaceDirFilter);
-    m_scanner.setFilter([&](const Utils::MimeType &, const Utils::FilePath &filePath) {
+    m_scanner.setFilter([&](const MimeType &, const FilePath &filePath) {
         return Utils::anyOf(m_filters, [filePath](const QRegularExpression &filter) {
             return filter.match(filePath.path()).hasMatch();
         });
@@ -176,7 +179,7 @@ void WorkspaceBuildSystem::reparse(bool force)
     m_filters.clear();
     FilePath projectPath = project()->projectDirectory();
 
-    const QJsonObject json = projectDefinition(project()).value_or(QJsonObject());
+    const QJsonObject json = projectDefinition(project()->projectFilePath()).value_or(QJsonObject());
     const QJsonValue projectNameValue = json.value(PROJECT_NAME_KEY);
     if (projectNameValue.isString())
         project()->setDisplayName(projectNameValue.toString());
@@ -434,39 +437,145 @@ public:
 
 class WorkspaceBuildConfiguration : public BuildConfiguration
 {
+    Q_OBJECT
 public:
     WorkspaceBuildConfiguration(Target *target, Id id)
         : BuildConfiguration(target, id)
     {
+        setInitializer([this](const BuildInfo &info) {
+            const QVariantMap extraInfos = info.extraInfo.toMap();
+            if (extraInfos.empty())
+                return;
+            BuildStepList *steps = buildSteps();
+            for (const QVariant &buildStep : extraInfos["steps"].toList()) {
+                const QVariantMap bs = buildStep.toMap();
+                auto step = new Internal::ProcessStep(steps, Constants::CUSTOM_PROCESS_STEP);
+                step->setCommand(FilePath::fromUserInput(bs["executable"].toString()));
+                step->setArguments(bs["arguments"].toStringList());
+                FilePath wd = FilePath::fromUserInput(bs["workingDirectory"].toString());
+                if (wd.isEmpty())
+                    wd = "%{ActiveProject:BuildConfig:Path}";
+                else if (wd.isRelativePath())
+                    wd = project()->projectDirectory().resolvePath(wd);
+                step->setWorkingDirectory(wd);
+                steps->appendStep(step);
+            }
+            initializeExtraInfo(extraInfos);
+        });
         setBuildDirectoryHistoryCompleter("Workspace.BuildDir.History");
         setConfigWidgetDisplayName(Tr::tr("Workspace Manager"));
-
-        //appendInitialBuildStep(Constants::CUSTOM_PROCESS_STEP);
     }
+
+    void initializeExtraInfo(const QVariantMap &extraInfos)
+    {
+        resetExtraInfo();
+        if (extraInfos["forSetup"].toBool()) {
+            originalExtraInfo = extraInfos;
+            buildInfoResetConnection = connect(
+                this, &BaseAspect::changed, this, &WorkspaceBuildConfiguration::resetExtraInfo);
+        }
+    }
+
+    void fromMap(const Utils::Store &map) override
+    {
+        BuildConfiguration::fromMap(map);
+        initializeExtraInfo(mapFromStore(storeFromVariant(map.value("extraInfo"))));
+    }
+
+    void toMap(Utils::Store &map) const override
+    {
+        BuildConfiguration::toMap(map);
+        if (originalExtraInfo)
+            map.insert("extraInfo", *originalExtraInfo);
+    }
+
+    BuildConfiguration *clone(Target *target) const override
+    {
+        auto clone = BuildConfiguration::clone(target);
+        if (auto bc = qobject_cast<WorkspaceBuildConfiguration *>(clone); QTC_GUARD(bc))
+            bc->resetExtraInfo();
+        return clone;
+    }
+
+    void resetExtraInfo()
+    {
+        originalExtraInfo.reset();
+        disconnect(buildInfoResetConnection);
+    }
+
+    std::optional<QVariantMap> originalExtraInfo;
+    QMetaObject::Connection buildInfoResetConnection;
 };
 
 class WorkspaceBuildConfigurationFactory : public BuildConfigurationFactory
 {
 public:
+    static WorkspaceBuildConfigurationFactory *m_instance;
+
     WorkspaceBuildConfigurationFactory()
     {
+        QTC_CHECK(m_instance == nullptr);
+        m_instance = this;
         registerBuildConfiguration<WorkspaceBuildConfiguration>
                 ("WorkspaceProject.BuildConfiguration");
 
         setSupportedProjectType(WORKSPACE_PROJECT_ID);
+        setSupportedProjectMimeTypeName(WORKSPACE_MIMETYPE);
 
-        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
-            BuildInfo info;
-            info.typeName = ::ProjectExplorer::Tr::tr("Build");
-            info.buildDirectory = projectPath.parentDir().parentDir().pathAppended("build");
-            if (forSetup) {
-                //: The name of the build configuration created by default for a workspace project.
+        setBuildGenerator([this](const Kit *, const FilePath &projectPath, bool forSetup) {
+            QList<BuildInfo> result = parseBuildConfigurations(projectPath, forSetup);
+            if (!forSetup) {
+                BuildInfo info;
+                info.factory = this;
+                info.typeName = ::ProjectExplorer::Tr::tr("Build");
+                info.buildDirectory = projectPath.parentDir().parentDir().pathAppended("build");
                 info.displayName = ::ProjectExplorer::Tr::tr("Default");
+                result << info;
             }
-            return QList<BuildInfo>{info};
+            return result;
         });
     }
+
+    static QList<BuildInfo> parseBuildConfigurations(const FilePath &projectPath, bool forSetup = false)
+    {
+        const QJsonObject json = projectDefinition(projectPath).value_or(QJsonObject());
+        const QJsonArray buildConfigs = json.value("build.configuration").toArray();
+        QList<BuildInfo> buildInfos;
+        for (const QJsonValue &buildConfig : buildConfigs) {
+            QTC_ASSERT(buildConfig.isObject(), continue);
+
+            BuildInfo buildInfo;
+            const QJsonObject buildConfigObject = buildConfig.toObject();
+            buildInfo.displayName = buildConfigObject["name"].toString();
+            if (buildInfo.displayName.isEmpty())
+                continue;
+            buildInfo.typeName = buildInfo.displayName;
+            buildInfo.factory = m_instance;
+            buildInfo.buildDirectory = FilePath::fromUserInput(
+                buildConfigObject["buildDirectory"].toString());
+            if (buildInfo.buildDirectory.isRelativePath()) {
+                buildInfo.buildDirectory = projectPath.parentDir().parentDir().resolvePath(
+                    buildInfo.buildDirectory);
+            }
+
+            QVariantList buildSteps;
+            for (const QJsonValue &step : buildConfigObject["steps"].toArray()) {
+                if (step.isObject() && step.toObject().contains("executable"))
+                    buildSteps.append(step.toObject().toVariantMap());
+            }
+            if (buildSteps.isEmpty())
+                continue;
+            QVariantMap extraInfo = buildConfigObject.toVariantMap();
+            extraInfo["forSetup"] = forSetup;
+            buildInfo.extraInfo = extraInfo;
+
+            buildInfos.append(buildInfo);
+        }
+        return buildInfos;
+    }
 };
+
+WorkspaceBuildConfigurationFactory *WorkspaceBuildConfigurationFactory::m_instance = nullptr;
 
 class WorkspaceProject : public Project
 {
@@ -486,6 +595,48 @@ public:
         setId(WORKSPACE_PROJECT_ID);
         setDisplayName(projectDirectory().fileName());
         setBuildSystemCreator<WorkspaceBuildSystem>();
+
+        connect(this, &Project::projectFileIsDirty, this, &WorkspaceProject::updateBuildConfigurations);
+    }
+
+    void updateBuildConfigurations()
+    {
+        qCDebug(wsp) << "Updating build configurations for" << displayName();
+        const QList<BuildInfo> buildInfos
+            = WorkspaceBuildConfigurationFactory::parseBuildConfigurations(projectFilePath(), true);
+        for (Target *target : targets()) {
+            qCDebug(wsp) << "Updating build configurations for target" << target->displayName();
+            QList<BuildInfo> toAdd = buildInfos;
+            QString removedActiveBuildConfiguration;
+            for (BuildConfiguration *bc : target->buildConfigurations()) {
+                auto *wbc = qobject_cast<WorkspaceBuildConfiguration *>(bc);
+                if (!wbc)
+                    continue;
+                if (std::optional<QVariantMap> extraInfo = wbc->originalExtraInfo) {
+                    // remove the buildConfiguration if it is unchanged from the project file
+                    auto equalExtraInfo = [&extraInfo](const BuildInfo &info) {
+                        return info.extraInfo == *extraInfo;
+                    };
+                    if (toAdd.removeIf(equalExtraInfo) == 0) {
+                        qCDebug(wsp) << " Removing build configuration" << wbc->displayName();
+                        if (target->activeBuildConfiguration() == wbc)
+                            removedActiveBuildConfiguration = wbc->displayName();
+                        target->removeBuildConfiguration(bc);
+                    }
+                }
+            }
+            for (const BuildInfo &buildInfo : toAdd) {
+                if (BuildConfiguration *bc = buildInfo.factory->create(target, buildInfo)) {
+                    qCDebug(wsp) << " Adding build configuration" << bc->displayName();
+                    target->addBuildConfiguration(bc);
+                    if (!removedActiveBuildConfiguration.isEmpty()
+                        && (bc->displayName() == removedActiveBuildConfiguration
+                            || toAdd.size() == 1)) {
+                        target->setActiveBuildConfiguration(bc, SetActive::NoCascade);
+                    }
+                }
+            }
+        }
     }
 
     FilePath projectDirectory() const override
@@ -503,7 +654,7 @@ public:
     void excludePath(const FilePath &path)
     {
         QTC_ASSERT(projectFilePath().exists(), return);
-        if (expected_str<QJsonObject> json = projectDefinition(this)) {
+        if (expected_str<QJsonObject> json = projectDefinition(projectFilePath())) {
             QJsonArray excludes = (*json)[FILES_EXCLUDE_KEY].toArray();
             const QString relative = path.relativePathFrom(projectDirectory()).path();
             if (excludes.contains(relative))
