@@ -429,6 +429,7 @@ void IssuesWidget::updateTable()
         if (!column.showByDefault)
             hiddenColumns << column.key;
         IssueHeaderView::ColumnInfo info;
+        info.key = column.key;
         info.sortable = column.canSort;
         info.filterable = column.canFilter;
         info.width = column.width;
@@ -643,6 +644,7 @@ void IssuesWidget::setFiltersEnabled(bool enabled)
 IssueListSearch IssuesWidget::searchFromUi() const
 {
     IssueListSearch search;
+    QTC_ASSERT(m_currentTableInfo, return search);
     search.kind = m_currentPrefix; // not really ui.. but anyhow
     search.owner = m_userNames.at(m_ownerFilter->currentIndex());
     search.filter_path = m_pathGlobFilter->text();
@@ -656,24 +658,8 @@ IssueListSearch IssuesWidget::searchFromUi() const
     else if (m_removedFilter->isChecked())
         search.state = "removed";
 
-    QTC_ASSERT(m_currentTableInfo, return search);
-    QString sort;
-    const QList<QPair<int, Qt::SortOrder>> currentSortColumns = m_headerView->currentSortColumns();
-    for (const auto &pair : currentSortColumns) {
-        QTC_ASSERT((ulong)pair.first < m_currentTableInfo->columns.size(), return search);
-        if (!sort.isEmpty())
-            sort.append(',');
-        sort.append(m_currentTableInfo->columns.at(pair.first).key
-                    + (pair.second == Qt::AscendingOrder ? " asc" : " desc"));
-    }
-    search.sort = sort;
-    QMap<QString, QString> filter;
-    const QList<QPair<int, QString>> currentFilterColumns = m_headerView->currentFilterColumns();
-    for (const auto &pair : currentFilterColumns) {
-        QTC_ASSERT((ulong)pair.first < m_currentTableInfo->columns.size(), return search);
-        filter.insert("filter_" + m_currentTableInfo->columns.at(pair.first).key, pair.second);
-    }
-    search.filter = filter;
+    search.sort = m_headerView->currentSortString();
+    search.filter = m_headerView->currentFilterMapping();
     return search;
 }
 

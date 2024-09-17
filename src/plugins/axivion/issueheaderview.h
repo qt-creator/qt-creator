@@ -16,6 +16,7 @@ class IssueHeaderView : public QHeaderView
 public:
     struct ColumnInfo
     {
+        QString key;
         int width = 0;
         std::optional<Qt::SortOrder> sortOrder = std::nullopt;
         bool sortable = false;
@@ -26,8 +27,8 @@ public:
     explicit IssueHeaderView(QWidget *parent = nullptr) : QHeaderView(Qt::Horizontal, parent) {}
     void setColumnInfoList(const QList<ColumnInfo> &infos);
 
-    QList<QPair<int, Qt::SortOrder>> currentSortColumns() const;
-    QList<QPair<int, QString>> currentFilterColumns() const;
+    const QString currentSortString() const;
+    const QMap<QString, QString> currentFilterMapping() const;
 
 signals:
     void filterChanged();

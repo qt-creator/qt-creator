@@ -169,23 +169,28 @@ void IssueHeaderView::setColumnInfoList(const QList<ColumnInfo> &infos)
         headerDataChanged(Qt::Horizontal, oldIndex, oldIndex);
 }
 
-QList<QPair<int, Qt::SortOrder>> IssueHeaderView::currentSortColumns() const
+const QString IssueHeaderView::currentSortString() const
 {
-    QList<QPair<int, Qt::SortOrder>> result;
-    for (int i : m_currentSortIndexes)
-        result.append({i, *m_columnInfoList.at(i).sortOrder});
-    return result;
+    QString sort;
+    for (int i : m_currentSortIndexes) {
+        QTC_ASSERT(i >= 0 && i < m_columnInfoList.size(), return {});
+        if (!sort.isEmpty())
+            sort.append(',');
+        const ColumnInfo info = m_columnInfoList.at(i);
+        sort.append(info.key + (info.sortOrder == Qt::AscendingOrder ? " asc" : " desc"));
+    }
+    return sort;
 }
 
-QList<QPair<int, QString>> IssueHeaderView::currentFilterColumns() const
+const QMap<QString, QString> IssueHeaderView::currentFilterMapping() const
 {
-    QList<QPair<int, QString>> result;
+    QMap<QString, QString> filter;
     for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
         const ColumnInfo ci = m_columnInfoList.at(i);
         if (ci.filter.has_value())
-            result.append({i, *ci.filter});
+            filter.insert("filter_" + ci.key, *ci.filter);
     }
-    return result;
+    return filter;
 }
 
 void IssueHeaderView::mousePressEvent(QMouseEvent *event)
