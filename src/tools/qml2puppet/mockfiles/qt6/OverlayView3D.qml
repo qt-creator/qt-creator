@@ -12,6 +12,7 @@ View3D {
     property alias rotateGizmo: rotateGizmo
     property alias scaleGizmo: scaleGizmo
     property alias lightGizmo: lightGizmo
+    property alias cameraFrustumGizmo: cameraFrustumGizmo
     property alias lookAtGizmo: lookAtGizmo
 
     property var viewRoot: null
@@ -580,6 +581,13 @@ View3D {
             onPropertyValueChange: (propName) => {
                 overlayView.changeObjectProperty([targetNode], [propName]);
             }
+        }
+
+        CameraFrustumGizmo {
+            id: cameraFrustumGizmo
+            targetNode: viewRoot.selectedNode !== viewRoot.multiSelectionNode ? viewRoot.selectedNode : null
+            view3D: overlayView
+            dragHelper: gizmoDragHelper
         }
 
         Line3D {

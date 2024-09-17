@@ -1082,30 +1082,44 @@ Item {
             }
 
             Rectangle {
-                id: lightGizmoLabel
+                id: commonGizmoLabel
                 color: "white"
-                width: lightGizmoLabelText.width + 4
-                height: lightGizmoLabelText.height + 4
+                width: commonGizmoLabelText.width + 4
+                height: commonGizmoLabelText.height + 4
                 border.width: 1
-                visible: activeOverlayView.lightGizmo.dragging
+                visible: activeOverlayView.lightGizmo.dragging || activeOverlayView.cameraFrustumGizmo.dragging
                 z: 300
 
                 Connections {
                     target: activeOverlayView.lightGizmo
                     function onCurrentMousePosChanged()
                     {
+                        commonGizmoLabelText.text = activeOverlayView.lightGizmo.currentLabel;
                         let newPos = viewContainer.mapFromItem(
                                 activeOverlayView,
                                 activeOverlayView.lightGizmo.currentMousePos.x,
                                 activeOverlayView.lightGizmo.currentMousePos.y);
-                        lightGizmoLabel.x = newPos.x - (10 + lightGizmoLabel.width);
-                        lightGizmoLabel.y = newPos.y - (10 + lightGizmoLabel.height);
+                        commonGizmoLabel.x = newPos.x - (10 + commonGizmoLabel.width);
+                        commonGizmoLabel.y = newPos.y - (10 + commonGizmoLabel.height);
+                    }
+                }
+
+                Connections {
+                    target: activeOverlayView.cameraFrustumGizmo
+                    function onCurrentMousePosChanged()
+                    {
+                        commonGizmoLabelText.text = activeOverlayView.cameraFrustumGizmo.currentLabel;
+                        let newPos = viewContainer.mapFromItem(
+                                activeOverlayView,
+                                activeOverlayView.cameraFrustumGizmo.currentMousePos.x,
+                                activeOverlayView.cameraFrustumGizmo.currentMousePos.y);
+                        commonGizmoLabel.x = newPos.x - (10 + commonGizmoLabel.width);
+                        commonGizmoLabel.y = newPos.y - (10 + commonGizmoLabel.height);
                     }
                 }
 
                 Text {
-                    id: lightGizmoLabelText
-                    text: activeOverlayView.lightGizmo.currentLabel
+                    id: commonGizmoLabelText
                     anchors.centerIn: parent
                 }
             }
