@@ -528,18 +528,27 @@ QList<Project *> ProjectManager::projectsForFile(const Utils::FilePath &fileName
     });
 }
 
-bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
+bool ProjectManager::isInProjectBuildDir(const Utils::FilePath &filePath, const Project &project)
 {
     for (const Target * const target : project.targets()) {
         for (const BuildConfiguration * const bc : target->buildConfigurations()) {
+            if (bc->buildDirectory() == project.projectDirectory())
+                continue;
             if (filePath.isChildOf(bc->buildDirectory()))
-                return false;
+                return true;
             if (const FilePath canonicalBuildDir = bc->buildDirectory().canonicalPath();
                 canonicalBuildDir != bc->buildDirectory() && filePath.isChildOf(canonicalBuildDir)) {
-                return false;
+                return true;
             }
         }
     }
+    return false;
+}
+
+bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
+{
+    if (isInProjectBuildDir(filePath, project))
+        return false;
     if (filePath.isChildOf(project.projectDirectory()))
         return true;
     if (const FilePath canonicalRoot = project.projectDirectory().canonicalPath();
