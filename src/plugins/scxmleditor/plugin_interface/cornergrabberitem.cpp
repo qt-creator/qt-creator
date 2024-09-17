@@ -7,6 +7,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 

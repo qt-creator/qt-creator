@@ -5,6 +5,7 @@
 
 #include <QGraphicsScene>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 
