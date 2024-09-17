@@ -9,12 +9,14 @@
 #include <documentmanager.h>
 #include <modelnode.h>
 #include <modelnodeoperations.h>
+#include <modelutils.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
-#include <variantproperty.h>
+#include <uniquename.h>
 #include <utils3d.h>
+#include <variantproperty.h>
 
 #include <coreplugin/messagebox.h>
 
@@ -122,6 +124,90 @@ ModelNode CreateTexture::execute(const QString &filePath, AddTextureMode mode, i
     });
 
     return texture;
+}
+
+/*!
+ * \brief Duplicates a texture node.
+ * The duplicate keeps a copy of all of the source node properties.
+ * It also generates a unique id, and also a name based on its id.
+ * \param texture The source texture
+ * \return Duplicate texture
+ */
+ModelNode CreateTexture::execute(const ModelNode &texture)
+{
+    QTC_ASSERT(texture.isValid(), return {});
+
+    if (!m_view || !m_view->model())
+        return {};
+
+    TypeName matType = texture.type();
+    QmlObjectNode sourceTexture(texture);
+    ModelNode duplicateTextureNode;
+    QList<AbstractProperty> dynamicProps;
+
+    m_view->executeInTransaction(__FUNCTION__, [&] {
+        ModelNode matLib = Utils3D::materialLibraryNode(m_view);
+        if (!matLib.isValid())
+            return;
+
+        // create the duplicate texture
+#ifdef QDS_USE_PROJECTSTORAGE
+        QmlObjectNode duplicateTex = m_view->createModelNode(matType);
+#else
+            NodeMetaInfo metaInfo = m_view->model()->metaInfo(matType);
+            QmlObjectNode duplicateTex = m_view->createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
+#endif
+        duplicateTextureNode = duplicateTex.modelNode();
+
+        // sync properties. Only the base state is duplicated.
+        const QList<AbstractProperty> props = texture.properties();
+        for (const AbstractProperty &prop : props) {
+            if (prop.name() == "objectName" || prop.name() == "data")
+                continue;
+
+            if (prop.isVariantProperty()) {
+                if (prop.isDynamic())
+                    dynamicProps.append(prop);
+                else
+                    duplicateTex.setVariantProperty(prop.name(), prop.toVariantProperty().value());
+            } else if (prop.isBindingProperty()) {
+                if (prop.isDynamic()) {
+                    dynamicProps.append(prop);
+                } else {
+                    duplicateTex.setBindingProperty(prop.name(),
+                                                    prop.toBindingProperty().expression());
+                }
+            }
+        }
+
+        const QString preferredId = m_view->model()->generateNewId(sourceTexture.id(), "Texture");
+        duplicateTextureNode.setIdWithoutRefactoring(preferredId);
+        duplicateTextureNode.ensureIdExists();
+        duplicateTex.setVariantProperty("objectName", nameFromId(duplicateTex.id(), "Texture"_L1));
+
+        matLib.defaultNodeListProperty().reparentHere(duplicateTex);
+    });
+
+    // For some reason, creating dynamic properties in the same transaction doesn't work, so
+    // let's do it in separate transaction.
+    // TODO: Fix the issue and merge transactions (QDS-8094)
+    if (!dynamicProps.isEmpty()) {
+        m_view->executeInTransaction(__FUNCTION__, [&] {
+            for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
+                if (prop.isVariantProperty()) {
+                    VariantProperty variantProp = duplicateTextureNode.variantProperty(prop.name());
+                    variantProp.setDynamicTypeNameAndValue(prop.dynamicTypeName(),
+                                                           prop.toVariantProperty().value());
+                } else if (prop.isBindingProperty()) {
+                    BindingProperty bindingProp = duplicateTextureNode.bindingProperty(prop.name());
+                    bindingProp.setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
+                                                                prop.toBindingProperty().expression());
+                }
+            }
+        });
+    }
+
+    return duplicateTextureNode;
 }
 
 bool CreateTexture::addFileToProject(const QString &filePath)

@@ -845,74 +845,7 @@ void TextureEditorView::importsChanged([[maybe_unused]] const Imports &addedImpo
 void TextureEditorView::duplicateTexture(const ModelNode &texture)
 {
     QTC_ASSERT(texture.isValid(), return);
-
-    if (!model())
-        return;
-
-    TypeName matType = texture.type();
-    QmlObjectNode sourceTexture(texture);
-    ModelNode duplicateTextureNode;
-    QList<AbstractProperty> dynamicProps;
-
-    executeInTransaction(__FUNCTION__, [&] {
-        ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
-
-        // create the duplicate texture
-#ifdef QDS_USE_PROJECTSTORAGE
-        QmlObjectNode duplicateTex = createModelNode(matType);
-#else
-        NodeMetaInfo metaInfo = model()->metaInfo(matType);
-        QmlObjectNode duplicateTex = createModelNode(matType, metaInfo.majorVersion(), metaInfo.minorVersion());
-#endif
-        duplicateTextureNode = duplicateTex .modelNode();
-        duplicateTextureNode.ensureIdExists();
-
-        // sync properties. Only the base state is duplicated.
-        const QList<AbstractProperty> props = texture.properties();
-        for (const AbstractProperty &prop : props) {
-            if (prop.name() == "objectName" || prop.name() == "data")
-                continue;
-
-            if (prop.isVariantProperty()) {
-                if (prop.isDynamic()) {
-                    dynamicProps.append(prop);
-                } else {
-                    duplicateTextureNode.variantProperty(prop.name())
-                            .setValue(prop.toVariantProperty().value());
-                }
-            } else if (prop.isBindingProperty()) {
-                if (prop.isDynamic()) {
-                    dynamicProps.append(prop);
-                } else {
-                    duplicateTextureNode.bindingProperty(prop.name())
-                            .setExpression(prop.toBindingProperty().expression());
-                }
-            }
-        }
-
-        matLib.defaultNodeListProperty().reparentHere(duplicateTex);
-    });
-
-    // For some reason, creating dynamic properties in the same transaction doesn't work, so
-    // let's do it in separate transaction.
-    // TODO: Fix the issue and merge transactions (QDS-8094)
-    if (!dynamicProps.isEmpty()) {
-        executeInTransaction(__FUNCTION__, [&] {
-            for (const AbstractProperty &prop : std::as_const(dynamicProps)) {
-                if (prop.isVariantProperty()) {
-                    duplicateTextureNode.variantProperty(prop.name())
-                            .setDynamicTypeNameAndValue(prop.dynamicTypeName(),
-                                                        prop.toVariantProperty().value());
-                } else if (prop.isBindingProperty()) {
-                    duplicateTextureNode.bindingProperty(prop.name())
-                            .setDynamicTypeNameAndExpression(prop.dynamicTypeName(),
-                                                             prop.toBindingProperty().expression());
-                }
-            }
-        });
-    }
+    m_createTexture->execute(texture);
 }
 
 void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *view,

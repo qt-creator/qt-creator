@@ -82,7 +82,7 @@ QString generate(const QString &name, std::function<bool(const QString &)> predi
         return name;
 
     // match prefix and number (including zero padding) parts
-    static QRegularExpression rgx("(\\D*?)(\\d+)$");
+    static const QRegularExpression rgx(R"((\D\w*?)(\d+)$)");
     QRegularExpressionMatch match = rgx.match(name);
 
     QString prefix;
