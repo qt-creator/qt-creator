@@ -41,12 +41,12 @@ private:
     void remoteStdOut(const QString &output);
     void remoteStdErr(const QString &output);
 
-    QPointer<ProjectExplorer::Target> m_target;
     Utils::Port m_debugServerPort;
     QUrl m_qmlServer;
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
     Tasking::TaskTreeRunner m_taskTreeRunner;
+    QString m_packageName;
 };
 
 } // namespace Android::Internal

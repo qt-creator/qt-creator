@@ -30,7 +30,6 @@ namespace Android::Internal {
 
 AndroidRunner::AndroidRunner(RunControl *runControl)
     : RunWorker(runControl)
-    , m_target(runControl->target())
 {
     setId("AndroidRunner");
     static const int metaTypes[] = {
@@ -46,19 +45,21 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
 
 void AndroidRunner::start()
 {
+    auto target = runControl()->target();
+    QTC_ASSERT(target, return);
+    QString deviceSerialNumber;
+    int apiLevel = -1;
+
     const Storage<RunnerInterface> glueStorage;
 
     std::optional<ExecutableItem> avdRecipe;
 
-    QString deviceSerialNumber;
-    int apiLevel = -1;
-
-    if (!projectExplorerSettings().deployBeforeRun && m_target && m_target->project()) {
+    if (!projectExplorerSettings().deployBeforeRun && target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
-        const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
+        const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-        AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
+        AndroidManager::setDeviceSerialNumber(target, info.serialNumber);
         deviceSerialNumber = info.serialNumber;
         apiLevel = info.sdk;
         qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
@@ -75,8 +76,8 @@ void AndroidRunner::start()
             });
         }
     } else {
-        deviceSerialNumber = AndroidManager::deviceSerialNumber(m_target);
-        apiLevel = AndroidManager::deviceApiLevel(m_target);
+        deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+        apiLevel = AndroidManager::deviceApiLevel(target);
     }
 
     const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {
@@ -100,6 +101,7 @@ void AndroidRunner::start()
         runnerRecipe(glueStorage)
     };
     m_taskTreeRunner.start(recipe);
+    m_packageName = AndroidManager::packageName(target);
 }
 
 void AndroidRunner::stop()
@@ -108,7 +110,7 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-    appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(AndroidManager::packageName(m_target)),
+    appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
                   Utils::NormalMessageFormat);
 }
 
