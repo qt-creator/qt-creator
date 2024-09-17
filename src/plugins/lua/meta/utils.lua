@@ -126,4 +126,23 @@ function utils.Timer:stop() end
 ---@param url string The URL to open.
 function utils.openExternalUrl(url) end
 
+---Converts a string to a base64 URL encoding. Instead of using "+" and "/" characters, it uses "-" and "_".
+---@param text string The text to convert.
+---@return string The base64 URL encoded string.
+function utils.stringToBase64Url(text) end
+
+---Converts a base64 URL encoded string back to a normal string.
+---@param text string The base64 URL encoded string.
+---@return string The decoded string.
+function utils.base64UrlToString(text) end
+
+---Converts a string to a base64 encoding.
+---@param text string The text to convert.
+---@return string The base64 encoded string.
+function utils.stringToBase64(text) end
+
+---Converts a base64 encoded string back to a normal string.
+---@param text string The base64 encoded string.
+---@return string The decoded string.
+function utils.base64ToString(text) end
 return utils

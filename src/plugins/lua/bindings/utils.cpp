@@ -189,6 +189,21 @@ void setupUtilsModule()
                 QDesktopServices::openUrl(QUrl::fromEncoded(url.toUtf8()));
             };
 
+            utils["stringToBase64Url"] = [](const QString &data) {
+                return QString::fromLatin1(data.toUtf8().toBase64(QByteArray::Base64UrlEncoding));
+            };
+            utils["base64UrlToString"] = [](const char *data) {
+                return QString::fromUtf8(
+                    QByteArray::fromBase64(data, QByteArray::Base64UrlEncoding));
+            };
+
+            utils["stringToBase64"] = [](const QString &data) {
+                return QString::fromLatin1(data.toUtf8().toBase64());
+            };
+            utils["base64ToString"] = [](const char *data) {
+                return QString::fromUtf8(QByteArray::fromBase64(data));
+            };
+
             return utils;
         });
 }
