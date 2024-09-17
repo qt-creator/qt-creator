@@ -121,7 +121,7 @@ instructions:
         maxTimeBetweenOutput: 360
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
-        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --python-path {{.AgentWorkingDir}}\\build\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\buid\\qt_temp\\elfutils --llvm-path {{.AgentWorkingDir}}\\build\\qt_temp\\libclang {{.Env.QTC_TEST_OPTION}} --no-zip {{.Env.QTC_SCCACHE_C_OPTION}} {{.Env.QTC_SCCACHE_CXX_OPTION}} {{.Env.QTC_SCCACHE_ENABLE_OPTION}}"
+        command: "python -u {{.AgentWorkingDir}}\\qt-creator\\qt-creator\\scripts\\build.py --build-type {{.Env.QTC_BUILD_TYPE}} --src {{.AgentWorkingDir}}\\qt-creator\\qt-creator --build {{.AgentWorkingDir}}\\qt-creator\\qt-creator_build --qt-path {{.AgentWorkingDir}}/build/qt_install_dir --python-path {{.AgentWorkingDir}}\\build\\qt_temp\\python --elfutils-path {{.AgentWorkingDir}}\\buid\\qt_temp\\elfutils --llvm-path {{.AgentWorkingDir}}\\build\\qt_temp\\libclang {{.Env.QTC_TEST_OPTION}} --no-zip {{.Env.QTC_SCCACHE_C_OPTION}} {{.Env.QTC_SCCACHE_CXX_OPTION}} {{.Env.QTC_SCCACHE_ENABLE_OPTION}} --add-config=-DQTCREATORCDBEXT_BUILD_ARCHS=x64"
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
