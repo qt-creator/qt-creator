@@ -134,12 +134,11 @@ static FilePath debugServer(bool useLldb, const Target *target)
 class RunnerStorage
 {
 public:
-    QStringList selector() const { return AndroidDeviceInfo::adbSelector(m_deviceSerialNumber); }
-    bool isPreNougat() const { return m_apiLevel > 0 && m_apiLevel <= 23; }
+    bool isPreNougat() const { return m_glue->apiLevel() > 0 && m_glue->apiLevel() <= 23; }
     Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const
     {
         CommandLine cmd{AndroidConfig::adbToolPath(), args};
-        cmd.prependArgs(selector());
+        cmd.prependArgs(AndroidDeviceInfo::adbSelector(m_glue->deviceSerialNumber()));
         return cmd;
     }
     QStringList userArgs() const
@@ -165,8 +164,6 @@ public:
     bool m_useLldb = false;
     QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
-    QString m_deviceSerialNumber; // TODO: remove
-    int m_apiLevel = -1; // TODO: remove
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
     Utils::FilePath m_debugServerPath; // On build device, typically as part of ndk
@@ -206,11 +203,9 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     auto target = glue->runControl()->target();
     storage->m_packageName = AndroidManager::packageName(target);
     storage->m_intentName = storage->m_packageName + '/' + AndroidManager::activityName(target);
-    storage->m_deviceSerialNumber = glue->deviceSerialNumber();
-    storage->m_apiLevel = glue->apiLevel();
     qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
                                  << "Package name:" << storage->m_packageName;
-    qCDebug(androidRunWorkerLog) << "Device API:" << storage->m_apiLevel;
+    qCDebug(androidRunWorkerLog) << "Device API:" << glue->apiLevel();
 
     storage->m_extraEnvVars = glue->runControl()->aspectData<EnvironmentAspect>()->environment;
     qCDebug(androidRunWorkerLog).noquote() << "Environment variables for the app"
@@ -245,8 +240,8 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     }
 
     storage->m_debugServerPath = debugServer(storage->m_useLldb, target);
-    qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << storage->m_deviceSerialNumber
-                                           << ", API level:" << storage->m_apiLevel
+    qCDebug(androidRunWorkerLog).noquote() << "Device Serial:" << glue->deviceSerialNumber()
+                                           << ", API level:" << glue->apiLevel()
                                            << ", Extra Start Args:" << storage->m_amStartExtraArgs
                                            << ", Before Start ADB cmds:" << storage->m_beforeStartAdbCommands
                                            << ", After finish ADB cmds:" << storage->m_afterFinishAdbCommands
