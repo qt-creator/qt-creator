@@ -30,6 +30,9 @@ const qreal SELECTION_DISTANCE = 10;
 
 static QString wrapText(const QString &text)
 {
+    if (text.isEmpty())
+        return QString();
+
     QString wrappedText = "[" + text.trimmed() + "]";
     return wrappedText;
 }
