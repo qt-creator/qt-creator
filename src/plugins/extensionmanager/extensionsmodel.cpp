@@ -159,6 +159,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
         return json.value("tags").toVariant().toStringList();
     case RoleVendor:
         return json.value("display_vendor");
+    case RoleVendorId:
+        return json.value("vendor_id");
     default:
         break;
     }

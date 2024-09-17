@@ -15,7 +15,6 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
-#include <coreplugin/plugininstallwizard.h>
 #include <coreplugin/welcomepagehelper.h>
 
 #include <extensionsystem/iplugin.h>

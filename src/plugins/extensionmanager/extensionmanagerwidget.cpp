@@ -3,6 +3,7 @@
 
 #include "extensionmanagerwidget.h"
 
+#include "extensionmanagersettings.h"
 #include "extensionmanagertr.h"
 #include "extensionsbrowser.h"
 #include "extensionsmodel.h"
@@ -383,7 +384,7 @@ public:
 
 private:
     void updateView(const QModelIndex &current);
-    void fetchAndInstallPlugin(const QUrl &url);
+    void fetchAndInstallPlugin(const QUrl &url, const QString &id);
 
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
@@ -405,6 +406,7 @@ private:
     QLabel *m_packExtensions;
     PluginStatusWidget *m_pluginStatus;
     QString m_currentDownloadUrl;
+    QString m_currentId;
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
 };
 
@@ -507,8 +509,8 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
-    connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this](){
-        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl));
+    connect(m_headingWidget, &HeadingWidget::pluginInstallationRequested, this, [this]() {
+        fetchAndInstallPlugin(QUrl::fromUserInput(m_currentDownloadUrl), m_currentId);
     });
     connect(m_tags, &TagList::tagSelected, m_extensionBrowser, &ExtensionsBrowser::setFilter);
     connect(m_headingWidget, &HeadingWidget::vendorClicked,
@@ -579,6 +581,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_pluginStatus->setPluginId(isPack ? QString() : current.data(RoleId).toString());
     m_currentDownloadUrl = current.data(RoleDownloadUrl).toString();
 
+    m_currentId = current.data(RoleVendorId).toString() + "." + current.data(RoleId).toString();
+
     {
         const QStringList description = {
             "# " + m_currentItemName,
@@ -640,7 +644,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     }
 }
 
-void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
+void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url, const QString &id)
 {
     using namespace Tasking;
 
@@ -681,20 +685,40 @@ void ExtensionManagerWidget::fetchAndInstallPlugin(const QUrl &url)
 
     const auto onPluginInstallation = [storage]() {
         if (storage->packageData.isEmpty())
-            return;
+            return false;
         const FilePath source = FilePath::fromUrl(storage->url);
         TempFileSaver saver(
             TemporaryDirectory::masterDirectoryPath() + "/XXXXXX-" + source.fileName());
 
         saver.write(storage->packageData);
         if (saver.finalize(ICore::dialogParent()))
-            executePluginInstallWizard(saver.filePath());;
+            return executePluginInstallWizard(saver.filePath());
+        return false;
+    };
+
+    const auto onDownloadSetup = [id](NetworkQuery &query) {
+        query.setOperation(NetworkOperation::Post);
+        query.setRequest(QNetworkRequest(
+            QUrl(settings().externalRepoUrl() + "/api/v1/downloads/completed/" + id)));
+        query.setNetworkAccessManager(NetworkAccessManager::instance());
+    };
+
+    const auto onDownloadDone = [id](const NetworkQuery &query, DoneWith result) {
+        if (result != DoneWith::Success) {
+            qCWarning(widgetLog) << "Failed to notify download completion for" << id;
+            qCWarning(widgetLog) << query.reply()->errorString();
+            qCWarning(widgetLog) << query.reply()->readAll();
+        } else {
+            qCDebug(widgetLog) << "Download completion notification sent for" << id;
+            qCDebug(widgetLog) << query.reply()->readAll();
+        }
     };
 
     Group group{
         storage,
         NetworkQueryTask{onQuerySetup, onQueryDone},
-        onGroupDone(onPluginInstallation),
+        Sync{onPluginInstallation},
+        NetworkQueryTask{onDownloadSetup, onDownloadDone},
     };
 
     m_dlTaskTreeRunner.start(group);
