@@ -636,7 +636,7 @@ bool QmlBuildSystem::renameFiles(Node *context,
 
     bool success = true;
     for (const auto &[oldFilePath, newFilePath] : filesToRename) {
-        const auto fail = [&] {
+        const auto fail = [&, oldFilePath = oldFilePath] {
             success = false;
             if (notRenamed)
                 *notRenamed << oldFilePath;
