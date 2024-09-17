@@ -584,7 +584,7 @@ def qdump__QEvent(d, value):
                 (vtable, privateD, t, flags) = value.split("pp{short}{short}")
                 event_type_name = d.qtNamespace() + "QEvent::Type"
                 type_value = t.cast(event_type_name)
-                d.putValue(type_value.displayEnum('0x%04x', bitsize=16))
+                d.putValue(type_value.displayEnum('0x%04x'))
                 d.putType(event_type_name)
 
             # Show the rest of the class fields as usual.
@@ -622,7 +622,7 @@ def qdump__QKeyEvent(d, value):
 
     k_type_name = d.qtNamespace() + "Qt::Key"
     k_cast_to_enum_value = k.cast(k_type_name)
-    k_name = k_cast_to_enum_value.displayEnum(bitsize=32)
+    k_name = k_cast_to_enum_value.displayEnum()
     matches = re.search(r'Key_(\w+)', k_name)
     if matches:
         k_name = matches.group(1)
@@ -677,7 +677,7 @@ def qdump__QKeyEvent(d, value):
             # Add a sub-item with the enum name and value.
             with SubItem(d, '[{}]'.format(k_type_name)):
                 k_cast_to_enum_value = k.cast(k_type_name)
-                d.putValue(k_cast_to_enum_value.displayEnum('0x%04x', bitsize=32))
+                d.putValue(k_cast_to_enum_value.displayEnum('0x%04x'))
                 d.putType(k_type_name)
 
             # Show the rest of the class fields as usual.
@@ -874,10 +874,11 @@ def qdump__QFiniteStack(d, value):
 
 
 def qdump__QFlags(d, value):
-    i = value.split('{int}')[0]
     enumType = value.type[0]
-    v = i.cast(enumType.name)
-    d.putValue(v.displayEnum('0x%04x', bitsize=32))
+    v = value.cast(enumType.name)
+    size = enumType.size()
+    # One byte is 2 hex digits
+    d.putValue(v.displayEnum(f'0x%0{2 * size}x'))
 
 
 def qform__QHash():
