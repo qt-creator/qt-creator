@@ -27,6 +27,7 @@ public:
     ModelNode execute(const QString &filePath,
                       AddTextureMode mode = AddTextureMode::Texture,
                       int sceneId = -1);
+    ModelNode execute(const ModelNode &texture);
     ModelNode resolveSceneEnv(int sceneId);
     void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
 
