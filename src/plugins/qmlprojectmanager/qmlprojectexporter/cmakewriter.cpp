@@ -51,7 +51,7 @@ CMakeWriter::Ptr CMakeWriter::create(CMakeGenerator *parent)
 QString CMakeWriter::readTemplate(const QString &templatePath)
 {
     QFile templatefile(templatePath);
-    templatefile.open(QIODevice::ReadOnly);
+    templatefile.open(QIODevice::ReadOnly | QIODevice::Text);
     QTextStream stream(&templatefile);
     QString content = stream.readAll();
     templatefile.close();
@@ -61,9 +61,12 @@ QString CMakeWriter::readTemplate(const QString &templatePath)
 void CMakeWriter::writeFile(const Utils::FilePath &path, const QString &content)
 {
     QFile fileHandle(path.toString());
-    if (fileHandle.open(QIODevice::WriteOnly)) {
+    if (fileHandle.open(QIODevice::WriteOnly | QIODevice::Text)) {
+        QString cpy = content;
+        cpy.replace("\t", "    ");
+
         QTextStream stream(&fileHandle);
-        stream << content;
+        stream << cpy;
     } else {
         QString text("Failed to write");
         CMakeGenerator::logIssue(ProjectExplorer::Task::Error, text, path);
