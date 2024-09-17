@@ -572,6 +572,9 @@ void setupSettingsModule()
                                                  options.get_or<QString>("categoryIconPath", {})));
                 setCategoryIconPath(catIcon);
                 AspectContainer *container = options.get<AspectContainer *>("aspectContainer");
+                if (container->isAutoApply())
+                    throw sol::error("AspectContainer must have autoApply set to false");
+
                 setSettingsProvider([container]() { return container; });
             }
         };
