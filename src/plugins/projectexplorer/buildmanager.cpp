@@ -814,16 +814,19 @@ void BuildManager::startBuildQueue()
                 return;
             const QString projectName = buildStep->project()->displayName();
             const QString targetName = target->displayName();
-            addToOutputWindow(Tr::tr("Error while building/deploying project %1 (kit: %2)")
-                                  .arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
+            addToOutputWindow(
+                Tr::tr("Error while building/deploying project %1 (kit: %2)")
+                    .arg(projectName, targetName),
+                BuildStep::OutputFormat::ErrorMessage);
             const Tasks kitTasks = target->kit()->validate();
             if (!kitTasks.isEmpty()) {
                 addToOutputWindow(Tr::tr("The kit %1 has configuration issues which might "
                                          "be the root cause for this problem.")
-                                      .arg(targetName), BuildStep::OutputFormat::Stderr);
+                                      .arg(targetName), BuildStep::OutputFormat::ErrorMessage);
             }
-            addToOutputWindow(Tr::tr("When executing step \"%1\"")
-                                  .arg(buildStep->displayName()), BuildStep::OutputFormat::Stderr);
+            addToOutputWindow(
+                Tr::tr("When executing step \"%1\"").arg(buildStep->displayName()),
+                BuildStep::OutputFormat::ErrorMessage);
         };
         const Group recipeGroup {
             onGroupSetup(onRecipeSetup),
@@ -919,9 +922,9 @@ bool BuildManager::buildQueueAppend(const QList<BuildItem> &items, const QString
         const QString projectName = buildStep->project()->displayName();
         const QString targetName = buildStep->target()->displayName();
         addToOutputWindow(Tr::tr("Error while building/deploying project %1 (kit: %2)")
-                              .arg(projectName, targetName), BuildStep::OutputFormat::Stderr);
+                              .arg(projectName, targetName), BuildStep::OutputFormat::ErrorMessage);
         addToOutputWindow(Tr::tr("When executing step \"%1\"")
-                              .arg(buildStep->displayName()), BuildStep::OutputFormat::Stderr);
+                              .arg(buildStep->displayName()), BuildStep::OutputFormat::ErrorMessage);
         for (BuildStep *buildStep : std::as_const(connectedSteps))
             disconnect(buildStep, nullptr, m_instance, nullptr);
         d->m_outputWindow->popup(IOutputPane::NoModeSwitch);
