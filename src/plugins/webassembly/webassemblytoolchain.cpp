@@ -153,7 +153,8 @@ void registerToolChains()
     ToolchainManager::deregisterToolchains(oldToolchains);
 
     // Create new toolchains and register them
-    ToolchainManager::registerToolchains(doAutoDetect(ToolchainDetector({}, {}, {})));
+    ToolchainManager::registerToolchains(
+        doAutoDetect(ToolchainDetector({}, DeviceManager::defaultDesktopDevice(), {})));
 
     // Let kits pick up the new toolchains
     for (Kit *kit : KitManager::kits()) {
