@@ -7,8 +7,6 @@
 #include "hostosinfo.h"
 #include "qtcassert.h"
 
-#include <QTemporaryFile>
-
 #ifdef Q_OS_WIN
 #  include <windows.h>
 #  include <io.h>
