@@ -1,6 +1,16 @@
 ---@meta TextEditor
 local textEditor = {}
 
+---@class Position
+---@field line integer The line number.
+---@field column integer The column number.
+local Position = {}
+
+---@class Range
+---@field from Position The beginning position of the range.
+---@field to Position The end position of the range.
+local Range = {}
+
 ---@class TextCursor
 local TextCursor = {}
 
@@ -23,6 +33,10 @@ function TextCursor:hasSelection() end
 ---Returns the selected text of the cursor.
 ---@return string selectedText The selected text of the cursor.
 function TextCursor:selectedText() end
+
+---Returns the range of selected text of the cursor.
+---@return Range selectionRange The range of selected text of the cursor.
+function TextCursor:selectionRange() end
 
 ---@class MultiTextCursor
 local MultiTextCursor = {}

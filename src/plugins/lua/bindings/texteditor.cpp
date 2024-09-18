@@ -17,6 +17,7 @@
 #include "sol/sol.hpp"
 
 using namespace Utils;
+using namespace Text;
 
 namespace {
 
@@ -166,6 +167,23 @@ void setupTextEditorModule()
             "cursors",
             [](MultiTextCursor *self) { return sol::as_table(self->cursors()); });
 
+        result.new_usertype<Position>(
+            "Position",
+            sol::no_constructor,
+            "line",
+            sol::property([](Position &pos) { return pos.line; }),
+            "column",
+            sol::property([](Position &pos) { return pos.column; }));
+
+        // In range can't use begin/end as "end" is a reserved word for LUA scripts
+        result.new_usertype<Range>(
+            "Range",
+            sol::no_constructor,
+            "from",
+            sol::property([](Range &range) { return range.begin; }),
+            "to",
+            sol::property([](Range &range) { return range.end; }));
+
         result.new_usertype<QTextCursor>(
             "TextCursor",
             sol::no_constructor,
@@ -180,6 +198,29 @@ void setupTextEditorModule()
             "selectedText",
             [](QTextCursor *cursor) {
                 return cursor->selectedText().replace(QChar::ParagraphSeparator, '\n');
+            },
+            "selectionRange",
+            [](const QTextCursor &textCursor) -> Range {
+                Range ret;
+                if (!textCursor.hasSelection())
+                    throw sol::error("Cursor has no selection");
+
+                int startPos = textCursor.selectionStart();
+                int endPos = textCursor.selectionEnd();
+
+                QTextDocument *doc = textCursor.document();
+                if (!doc)
+                    throw sol::error("Cursor has no document");
+
+                QTextBlock startBlock = doc->findBlock(startPos);
+                QTextBlock endBlock = doc->findBlock(endPos);
+
+                ret.begin.line = startBlock.blockNumber();
+                ret.begin.column = startPos - startBlock.position() - 1;
+
+                ret.end.line = endBlock.blockNumber();
+                ret.end.column = endPos - endBlock.position() - 1;
+                return ret;
             });
 
         result.new_usertype<TextEditor::BaseTextEditor>(
