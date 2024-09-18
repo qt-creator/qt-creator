@@ -10,7 +10,7 @@ class Component;
 class AssetNodeDumper : public ItemNodeDumper
 {
 public:
-    AssetNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    AssetNodeDumper(const ModelNode &node);
     ~AssetNodeDumper() override = default;
 
     bool isExportable() const override;

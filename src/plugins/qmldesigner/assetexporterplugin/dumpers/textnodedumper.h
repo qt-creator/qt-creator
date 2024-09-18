@@ -10,7 +10,7 @@ class Component;
 class TextNodeDumper : public ItemNodeDumper
 {
 public:
-    TextNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    TextNodeDumper(const ModelNode &node);
     ~TextNodeDumper() override = default;
 
     bool isExportable() const override;

@@ -5,6 +5,7 @@
 
 #include "modelfwd.h"
 #include <projectstoragefwd.h>
+#include <qmldesigner_global.h>
 
 #include <QList>
 #include <QObject>
@@ -28,7 +29,7 @@ namespace QmlDesigner {
 
 class ExternalDependenciesInterface;
 
-class QmlDesignerProjectManager
+class QMLDESIGNER_EXPORT QmlDesignerProjectManager
 {
     class QmlDesignerProjectManagerProjectData;
     class PreviewImageCacheData;

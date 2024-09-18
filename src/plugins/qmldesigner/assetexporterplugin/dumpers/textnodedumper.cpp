@@ -4,6 +4,8 @@
 #include "textnodedumper.h"
 #include "assetexportpluginconstants.h"
 
+#include <model.h>
+
 #include <QColor>
 #include <QFontInfo>
 #include <QFontMetricsF>
@@ -35,18 +37,18 @@ QString toJsonAlignEnum(QString value) {
 
 namespace QmlDesigner {
 using namespace Constants;
-TextNodeDumper::TextNodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
-    ItemNodeDumper(lineage, node)
+
+TextNodeDumper::TextNodeDumper(const ModelNode &node)
+    : ItemNodeDumper(node)
 {
 
 }
 
 bool TextNodeDumper::isExportable() const
 {
-    const QByteArrayList &baseClasses = lineage();
-    return std::any_of(baseClasses.cbegin(), baseClasses.cend(), [](const QByteArray &type) {
-        return type == "QtQuick.Text" || type == "QtQuick.Controls.Label";
-    });
+    auto qtQuickTextMetaInfo = model()->qtQuickTextMetaInfo();
+    auto qtQuickControlsLabelMetaInfo = model()->qtQuickControlsLabelMetaInfo();
+    return metaInfo().isBasedOn(qtQuickTextMetaInfo, qtQuickControlsLabelMetaInfo);
 }
 
 QJsonObject TextNodeDumper::json([[maybe_unused]] Component &component) const

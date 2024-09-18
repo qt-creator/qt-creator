@@ -1788,6 +1788,7 @@ Model::Model(ProjectStorageDependencies projectStorageDependencies,
                                                  std::move(resourceManagement)))
 {}
 
+#ifndef QDS_USE_PROJECTSTORAGE
 Model::Model(const TypeName &typeName,
              int major,
              int minor,
@@ -1796,6 +1797,7 @@ Model::Model(const TypeName &typeName,
     : d(std::make_unique<Internal::ModelPrivate>(
         this, typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)))
 {}
+#endif
 
 ModelPointer Model::createModel(const TypeName &typeName,
                                 std::unique_ptr<ModelResourceManagementInterface> resourceManagement)
@@ -2480,6 +2482,16 @@ NodeMetaInfo Model::qtQuickTextEditMetaInfo() const
     }
 }
 
+NodeMetaInfo Model::qtQuickControlsLabelMetaInfo() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    using namespace Storage::Info;
+    return createNodeMetaInfo<QtQuick_Controls, Label>();
+#else
+    return metaInfo("QtQuick.Controls.Label");
+#endif
+}
+
 NodeMetaInfo Model::qtQuickControlsTextAreaMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
@@ -2773,24 +2785,26 @@ namespace {
 }
 } // namespace
 
-NodeMetaInfo Model::metaInfo(const TypeName &typeName, int majorVersion, int minorVersion) const
+NodeMetaInfo Model::metaInfo(const TypeName &typeName,
+                             [[maybe_unused]] int majorVersion,
+                             [[maybe_unused]] int minorVersion) const
 {
-    if constexpr (useProjectStorage()) {
-        return NodeMetaInfo(d->projectStorage->typeId(d->importedTypeNameId(typeName)),
-                            d->projectStorage);
-    } else {
-        return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return NodeMetaInfo(d->projectStorage->typeId(d->importedTypeNameId(typeName)), d->projectStorage);
+#else
+    return NodeMetaInfo(metaInfoProxyModel(), typeName, majorVersion, minorVersion);
+#endif
 }
 
-NodeMetaInfo Model::metaInfo(Module module, Utils::SmallStringView typeName, Storage::Version version) const
+NodeMetaInfo Model::metaInfo([[maybe_unused]] Module module,
+                             [[maybe_unused]] Utils::SmallStringView typeName,
+                             [[maybe_unused]] Storage::Version version) const
 {
-    if constexpr (useProjectStorage()) {
-        return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version),
-                            d->projectStorage);
-    } else {
-        return {};
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return NodeMetaInfo(d->projectStorage->typeId(module.id(), typeName, version), d->projectStorage);
+#else
+    return {};
+#endif
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE
