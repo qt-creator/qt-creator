@@ -437,15 +437,24 @@ class DesktopFilePathWatcher final : public FilePathWatcher
             void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
             bool watch(DesktopFilePathWatcher *watcher)
             {
-                return QMetaObject::invokeMethod(
-                    this, [this, watcher] { return _watch(watcher); }, Qt::BlockingQueuedConnection);
+                bool result;
+                QMetaObject::invokeMethod(
+                    this,
+                    [this, watcher] { return _watch(watcher); },
+                    Qt::BlockingQueuedConnection,
+                    &result);
+
+                return result;
             }
             bool removeWatch(DesktopFilePathWatcher *watcher)
             {
+                bool result;
                 return QMetaObject::invokeMethod(
                     this,
                     [this, watcher] { return _removeWatch(watcher); },
-                    Qt::BlockingQueuedConnection);
+                    Qt::BlockingQueuedConnection,
+                    &result);
+                return result;
             }
 
         protected:
