@@ -3303,6 +3303,47 @@
          sodipodi:nodetypes="ccccccccccccccccc" />
     </g>
     <g
+       id="src/plugins/extensionmanager/images/settingscategory_extensionmanager">
+      <use
+         x="0"
+         y="0"
+         xlink:href="#backgroundRect_24"
+         id="use2677"
+         width="100%"
+         height="100%"
+         transform="translate(1191,64)" />
+      <g
+         id="g9884"
+         style="fill:none;stroke:#000000">
+        <rect
+           id="rect4661"
+           width="6"
+           height="6"
+           x="1171.5"
+           y="480.5"
+           ry="1.5" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect4661"
+           id="use8095"
+           transform="translate(9)"
+           width="100%"
+           height="100%" />
+        <use
+           x="0"
+           y="0"
+           xlink:href="#rect4661"
+           id="use8097"
+           transform="translate(0,9)"
+           width="100%"
+           height="100%" />
+        <path
+           id="path5111"
+           d="m 1183.5,489 v 7 m -3.5,-3.5 h 7" />
+      </g>
+    </g>
+    <g
        id="src/plugins/valgrind/images/kcachegrind"
        transform="translate(112)">
       <use
