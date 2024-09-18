@@ -250,7 +250,16 @@ macro(qtc_auto_setup_vcpkg)
             set(vcpkg_triplet ${CMAKE_MATCH_1}-windows)
           endif()
         elseif(APPLE)
-          set(vcpkg_triplet x64-osx)
+          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+          execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE __apple_host_system_processor
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+          if (__apple_host_system_processor MATCHES "arm64")
+            set(vcpkg_triplet arm64-osx)
+          else()
+            set(vcpkg_triplet x64-osx)
+          endif()
         else()
           set(vcpkg_triplet x64-linux)
         endif()
