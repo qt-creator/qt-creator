@@ -184,6 +184,7 @@ public:
         setUserCreatable(true);
     }
 
+private:
     Toolchains autoDetect(const ToolchainDetector &detector) const override
     {
         return doAutoDetect(detector);
@@ -193,6 +194,11 @@ public:
         const ToolchainBundle &bundle) const override
     {
         return GccToolchain::createConfigurationWidget(bundle);
+    }
+
+    FilePath correspondingCompilerCommand(const FilePath &srcPath, Id targetLang) const override
+    {
+        return GccToolchain::correspondingCompilerCommand(srcPath, targetLang, "emcc", "em++");
     }
 };
 
