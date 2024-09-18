@@ -202,6 +202,7 @@ public:
     QString copyright;
     QStringList arguments;
     QRegularExpression platformSpecification;
+    std::optional<TermsAndConditions> termsAndConditions;
     QVector<ExtensionSystem::PluginDependency> dependencies;
 
     PluginSpec::PluginArgumentDescriptions argumentDescriptions;
@@ -390,6 +391,11 @@ QString PluginSpec::revision() const
 QRegularExpression PluginSpec::platformSpecification() const
 {
     return d->platformSpecification;
+}
+
+std::optional<TermsAndConditions> PluginSpec::termsAndConditions() const
+{
+    return d->termsAndConditions;
 }
 
 /*!
@@ -734,6 +740,7 @@ namespace {
     const char ARGUMENT_NAME[] = "Name";
     const char ARGUMENT_PARAMETER[] = "Parameter";
     const char ARGUMENT_DESCRIPTION[] = "Description";
+    const char TERMSANDCONDITIONS[] = "TermsAndConditions";
 }
 
 /*!
@@ -977,6 +984,23 @@ Utils::expected_str<void> PluginSpecPrivate::readMetaData(const QJsonObject &dat
 
     if (auto r = assignOr(revision, "Revision", QString{}); !r.has_value())
         return reportError(r.error());
+
+    QJsonObject tAndC = metaData.value(QLatin1String(TERMSANDCONDITIONS)).toObject();
+    if (!tAndC.isEmpty()) {
+        QJsonValue version = tAndC.value(QLatin1String("version"));
+        QJsonValue text = tAndC.value(QLatin1String("text"));
+
+        if (!version.isDouble()) {
+            return reportError(::ExtensionSystem::Tr::tr("Terms and conditions: %1")
+                                   .arg(msgValueMissing("version")));
+        }
+        if (!text.isString() || text.toString().isEmpty()) {
+            return reportError(
+                ::ExtensionSystem::Tr::tr("Terms and conditions: %1").arg(msgValueMissing("text")));
+        }
+
+        termsAndConditions.emplace(TermsAndConditions{version.toInt(), text.toString()});
+    }
 
     QJsonValue value = metaData.value(QLatin1String(PLATFORM));
     if (!value.isUndefined() && !value.isString())

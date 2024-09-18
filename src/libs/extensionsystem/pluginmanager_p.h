@@ -68,6 +68,9 @@ public:
     void readSettings();
     void writeSettings();
 
+    bool acceptTermsAndConditions(PluginSpec *spec);
+    void setAcceptTermsAndConditionsCallback(const std::function<bool(PluginSpec *)> &callback);
+
     class TestSpec {
     public:
         TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctionsOrObjects = QStringList())
@@ -98,6 +101,7 @@ public:
     QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
+    QStringList pluginsWithAcceptedTermsAndConditions;
     // delayed initialization
     QTimer delayedInitializeTimer;
     std::queue<PluginSpec *> delayedInitializeQueue;
@@ -114,6 +118,8 @@ public:
     unsigned m_profilingVerbosity = 0;
     Utils::QtcSettings *settings = nullptr;
     Utils::QtcSettings *globalSettings = nullptr;
+
+    std::function<bool(PluginSpec *)> acceptTermsAndConditionsCallback;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;

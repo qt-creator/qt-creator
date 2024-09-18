@@ -31,6 +31,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/infobar.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
@@ -163,6 +164,37 @@ static void initProxyAuthDialog()
                      });
 }
 
+static void initTAndCAcceptDialog()
+{
+    ExtensionSystem::PluginManager::instance()->setAcceptTermsAndConditionsCallback(
+        [](ExtensionSystem::PluginSpec *spec) {
+            using namespace Layouting;
+
+            QDialog dialog(ICore::dialogParent());
+            dialog.setWindowTitle(Tr::tr("Terms and Conditions"));
+
+            QDialogButtonBox buttonBox(
+                QDialogButtonBox::StandardButton::Yes | QDialogButtonBox::StandardButton::No);
+            QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+            QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+            // clang-format off
+            Column {
+                Tr::tr("The plugin %1 requires you to accept the following terms and conditions:").arg(spec->name()), br,
+                TextEdit {
+                    markdown(spec->termsAndConditions()->text),
+                    readOnly(true),
+                }, br,
+                Row {
+                    Tr::tr("Do you wish to accept?"), &buttonBox,
+                }
+            }.attachTo(&dialog);
+            // clang-format on
+
+            return dialog.exec() == QDialog::Accepted;
+        });
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
@@ -171,7 +203,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
             continue;
         loadMimeFromPlugin(plugin);
     }
-
+    initTAndCAcceptDialog();
     initProxyAuthDialog();
 
     if (ThemeEntry::availableThemes().isEmpty()) {

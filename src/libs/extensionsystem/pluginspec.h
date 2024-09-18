@@ -34,6 +34,12 @@ class PluginSpecPrivate;
 
 class PluginView;
 
+struct EXTENSIONSYSTEM_EXPORT TermsAndConditions
+{
+    int version;
+    QString text;
+};
+
 struct EXTENSIONSYSTEM_EXPORT PluginDependency
 {
     enum Type { Required, Optional, Test };
@@ -110,6 +116,7 @@ public:
     virtual QString category() const;
     virtual QString revision() const;
     virtual QRegularExpression platformSpecification() const;
+    virtual std::optional<TermsAndConditions> termsAndConditions() const;
 
     virtual QString displayName() const;
 

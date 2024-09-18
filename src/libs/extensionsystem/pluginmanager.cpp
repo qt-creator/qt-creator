@@ -57,6 +57,8 @@ Q_LOGGING_CATEGORY(pluginLog, "qtc.extensionsystem", QtWarningMsg)
 
 const char C_IGNORED_PLUGINS[] = "Plugins/Ignored";
 const char C_FORCEENABLED_PLUGINS[] = "Plugins/ForceEnabled";
+const char C_TANDCACCEPTED_PLUGINS[] = "Plugins/TermsAndConditionsAccepted";
+
 const std::chrono::milliseconds DELAYED_INITIALIZE_INTERVAL{20};
 
 enum { debugLeaks = 0 };
@@ -1051,6 +1053,8 @@ void PluginManagerPrivate::readSettings()
     if (settings) {
         disabledPlugins = toLower(settings->value(C_IGNORED_PLUGINS).toStringList());
         forceEnabledPlugins = toLower(settings->value(C_FORCEENABLED_PLUGINS).toStringList());
+        pluginsWithAcceptedTermsAndConditions
+            = settings->value(C_TANDCACCEPTED_PLUGINS).toStringList();
     }
 }
 
@@ -1688,6 +1692,34 @@ PluginSpec *PluginManager::specForPlugin(IPlugin *plugin)
     return findOrDefault(d->pluginSpecs, equal(&PluginSpec::plugin, plugin));
 }
 
+bool PluginManagerPrivate::acceptTermsAndConditions(PluginSpec *spec)
+{
+    if (pluginsWithAcceptedTermsAndConditions.contains(spec->id()))
+        return true;
+
+    if (!acceptTermsAndConditionsCallback) {
+        spec->setError(Tr::tr("No callback set to accept terms and conditions"));
+        return false;
+    }
+
+    if (!acceptTermsAndConditionsCallback(spec)) {
+        spec->setError(Tr::tr("You did not accept the terms and conditions"));
+        return false;
+    }
+
+    pluginsWithAcceptedTermsAndConditions.append(spec->id());
+    if (settings)
+        settings->setValue(C_TANDCACCEPTED_PLUGINS, pluginsWithAcceptedTermsAndConditions);
+
+    return true;
+}
+
+void PluginManagerPrivate::setAcceptTermsAndConditionsCallback(
+    const std::function<bool(PluginSpec *)> &callback)
+{
+    acceptTermsAndConditionsCallback = callback;
+}
+
 /*!
     \internal
 */
@@ -1699,6 +1731,13 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     // don't load disabled plugins.
     if (!spec->isEffectivelyEnabled() && destState == PluginSpec::Loaded)
         return;
+
+    if (spec->termsAndConditions()) {
+        if (!acceptTermsAndConditions(spec)) {
+            spec->setError(Tr::tr("You did not accept the terms and conditions"));
+            return;
+        }
+    }
 
     std::unique_ptr<LockFile> lockFile;
     if (enableCrashCheck && destState < PluginSpec::Stopped)
@@ -2024,6 +2063,12 @@ void PluginManager::startProfiling()
     d->m_profileTimer.reset(new QElapsedTimer);
     d->m_profileTimer->start();
     d->m_profileElapsedMS = 0;
+}
+
+void PluginManager::setAcceptTermsAndConditionsCallback(
+    const std::function<bool(PluginSpec *)> &callback)
+{
+    d->setAcceptTermsAndConditionsCallback(callback);
 }
 
 } // ExtensionSystem
