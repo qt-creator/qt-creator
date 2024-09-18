@@ -531,14 +531,11 @@ public:
 
         QVariant value(cleanedValue);
         if (propertyTypeMetaInfo.isBool()) {
-            value.convert(QVariant::Bool);
-            return value;
+            return value.toBool();
         } else if (propertyTypeMetaInfo.isInteger()) {
-            value.convert(QVariant::Int);
-            return value;
+            return value.toInt();
         } else if (propertyTypeMetaInfo.isFloat()) {
-            value.convert(QVariant::Double);
-            return value;
+            return value.toDouble();
         } else if (propertyTypeMetaInfo.isString()) {
             // nothing to do
         } else { //property alias et al
