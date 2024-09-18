@@ -24,11 +24,20 @@ action.CommandAttribute = {
 ---@field commandDescription? string The description of the command.
 ---@field defaultKeySequence? string The default key sequence for the action.
 ---@field defaultKeySequences? string[] The default key sequences for the action.
-local ActionOptions = {}
+---@field asModeAction? integer Register the action as a mode action with the given priority.
+ActionOptions = {}
 
 ---Creates a new Action.
 ---@param id string The id of the action.
 ---@param options ActionOptions
+---@return Command command The created command.
 function action.create(id, options) end
 
+---@class Command
+---@field enabled boolean Whether the command is enabled or not.
+---@field text string The text of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
+---@field tooltip string The tooltip of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
+Command = {}
+
+---return the module
 return action

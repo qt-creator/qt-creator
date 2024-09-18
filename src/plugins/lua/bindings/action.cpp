@@ -4,8 +4,10 @@
 #include "../luaengine.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/modemanager.h>
 
 using namespace Utils;
+using namespace Core;
 
 namespace Lua::Internal {
 
@@ -23,6 +25,32 @@ void setupActionModule()
                         Core::Command::CA_UpdateIcon,
                         "CA_NonConfigurable",
                         Core::Command::CA_NonConfigurable);
+
+        struct ScriptCommand
+        {
+            Command *m_cmd;
+            QAction *m_contextAction;
+        };
+
+        result.new_usertype<ScriptCommand>(
+            "Command",
+            sol::no_constructor,
+            "enabled",
+            sol::property(
+                [](ScriptCommand *cmd) { return cmd->m_contextAction->isEnabled(); },
+                [](ScriptCommand *cmd, bool enabled) { cmd->m_contextAction->setEnabled(enabled); }),
+            "tooltip",
+            sol::property(
+                [](ScriptCommand *cmd) { return cmd->m_contextAction->toolTip(); },
+                [](ScriptCommand *cmd, const QString &tooltip) {
+                    cmd->m_contextAction->setToolTip(tooltip);
+                }),
+            "text",
+            sol::property(
+                [](ScriptCommand *cmd) { return cmd->m_contextAction->text(); },
+                [](ScriptCommand *cmd, const QString &text) {
+                    cmd->m_contextAction->setText(text);
+                }));
 
         result["create"] = [parent = std::make_unique<QObject>()](
                                const std::string &actionId, const sol::table &options) mutable {
@@ -57,9 +85,18 @@ void setupActionModule()
                     for (const auto &[_, v] : t)
                         sequences.push_back(QKeySequence(v.as<QString>()));
                     b.setDefaultKeySequences(sequences);
+                } else if (key == "asModeAction") {
+                    if (v.is<int>()) {
+                        Core::ModeManager::addAction(b.commandAction(), v.as<int>());
+                    } else {
+                        throw std::runtime_error(
+                            "asMode needs an integer argument for the priority");
+                    }
                 } else
                     throw std::runtime_error("Unknown key: " + key.toStdString());
             }
+
+            return ScriptCommand{b.command(), b.contextAction()};
         };
 
         return result;
