@@ -875,7 +875,10 @@ ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)
     const Storage<RunnerStorage> storage;
 
     const auto onSetup = [glueStorage, storage] {
+        if (glueStorage->runControl()->target() == nullptr)
+            return SetupResult::StopWithError;
         setupStorage(storage.activeStorage(), glueStorage.activeStorage());
+        return SetupResult::Continue;
     };
 
     return Group {
