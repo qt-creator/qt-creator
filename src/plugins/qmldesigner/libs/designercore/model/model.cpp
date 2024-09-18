@@ -1948,6 +1948,9 @@ void Model::startDrag(std::unique_ptr<QMimeData> mimeData, const QPixmap &icon, 
 
 void Model::endDrag()
 {
+    if (!d->drag)
+        return;
+
     d->notifyDragEnded();
     d->drag.reset();
 }

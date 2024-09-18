@@ -6,6 +6,7 @@
 #include "effectcomposermodel.h"
 #include "effectcomposernodesmodel.h"
 #include "effectcomposerwidget.h"
+#include "studioquickwidget.h"
 
 #include <designermcumanager.h>
 #include <documentmanager.h>
@@ -232,6 +233,29 @@ void EffectComposerView::removeUnusedEffectImports()
             removeImports.append(import);
         model()->changeImports({}, removeImports);
     }
+}
+
+void EffectComposerView::highlightSupportedProperties(bool highlight, const QString &suffix)
+{
+    QQmlContext *ctxObj = m_widget->quickWidget()->rootContext();
+    ctxObj->setContextProperty("activeDragSuffix", suffix);
+    ctxObj->setContextProperty("hasActiveDrag", highlight);
+}
+
+void EffectComposerView::dragStarted(QMimeData *mimeData)
+{
+    if (mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_ASSETS)) {
+        QString format = mimeData->formats()[0];
+        const QString assetPath = QString::fromUtf8(mimeData->data(format)).split(',')[0];
+        const QString suffix = "*." + assetPath.split('.').last().toLower();
+
+        highlightSupportedProperties(true, suffix);
+    }
+}
+
+void EffectComposerView::dragEnded()
+{
+    highlightSupportedProperties(false);
 }
 
 } // namespace EffectComposer

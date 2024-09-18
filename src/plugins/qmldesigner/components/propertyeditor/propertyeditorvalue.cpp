@@ -530,7 +530,12 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
         });
     }
 
-    m_modelNode.view()->model()->endDrag();
+    emit dropCommitted(dropData);
+
+    if (!m_modelNode.model())
+        return;
+
+    m_modelNode.model()->endDrag();
 }
 
 void PropertyEditorValue::openMaterialEditor(int idx)
