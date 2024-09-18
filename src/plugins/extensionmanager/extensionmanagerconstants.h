@@ -8,5 +8,6 @@ namespace ExtensionManager::Constants {
 const char MODE_EXTENSIONMANAGER[] = "ExtensionManager";
 const char C_EXTENSIONMANAGER[]  = "ExtensionManager";
 const char EXTENSIONMANAGER_SETTINGSPAGE_ID[] = "ExtensionManager.ExtensionManagerSettings";
+const char EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY[] = "ExtensionManager";
 
 } // ExtensionManager::Constant
