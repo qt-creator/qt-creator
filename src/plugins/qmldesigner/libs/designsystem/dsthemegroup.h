@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
-#include "qmldesignercomponents_global.h"
+#include "designsystem_global.h"
 #include "dsconstants.h"
 #include "nodeinstanceglobal.h"
 
@@ -18,7 +18,7 @@ enum class DECORATION_CONTEXT {
     COMPONENT_THEME,
 };
 
-class QMLDESIGNERCOMPONENTS_EXPORT DSThemeGroup
+class DESIGNSYSTEM_EXPORT DSThemeGroup
 {
     struct PropertyData
     {
