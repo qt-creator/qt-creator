@@ -69,13 +69,13 @@ AxivionServer AxivionServer::fromJson(const QJsonObject &json)
     return {Id::fromString(id.toString()), fixUrl(dashboard.toString()), username.toString()};
 }
 
-static FilePath tokensFilePath()
+static FilePath axivionJsonFilePath()
 {
     return FilePath::fromString(ICore::settings()->fileName()).parentDir()
             .pathAppended("qtcreator/axivion.json");
 }
 
-static void writeTokenFile(const FilePath &filePath, const QList<AxivionServer> &servers)
+static void writeAxivionJson(const FilePath &filePath, const QList<AxivionServer> &servers)
 {
     QJsonDocument doc;
     QJsonArray serverArray;
@@ -87,7 +87,7 @@ static void writeTokenFile(const FilePath &filePath, const QList<AxivionServer> 
     filePath.setPermissions(QFile::ReadUser | QFile::WriteUser);
 }
 
-static QList<AxivionServer> readTokenFile(const FilePath &filePath)
+static QList<AxivionServer> readAxivionJson(const FilePath &filePath)
 {
     if (!filePath.exists())
         return {};
@@ -129,7 +129,7 @@ AxivionSettings::AxivionSettings()
     m_defaultServerId.setSettingsKey("DefaultDashboardId");
     AspectContainer::readSettings();
 
-    m_allServers = readTokenFile(tokensFilePath());
+    m_allServers = readAxivionJson(axivionJsonFilePath());
 
     if (m_allServers.size() == 1 && m_defaultServerId().isEmpty()) // handle settings transition
         m_defaultServerId.setValue(m_allServers.first().id.toString());
@@ -137,7 +137,7 @@ AxivionSettings::AxivionSettings()
 
 void AxivionSettings::toSettings() const
 {
-    writeTokenFile(tokensFilePath(), m_allServers);
+    writeAxivionJson(axivionJsonFilePath(), m_allServers);
     AspectContainer::writeSettings();
 }
 
