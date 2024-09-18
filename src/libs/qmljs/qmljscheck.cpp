@@ -628,12 +628,8 @@ class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
 {
 public:
     UnsupportedRootObjectTypesByVisualDesigner()
-        : QStringList({"QtObject"
-                       "ListModel"
-                       "Component"
-                       "Timer"
-                       "Package",
-                       "ApplicationWindow"})
+        : QStringList(
+            {"QtObject", "ListModel", "Component", "Timer", "Package", "ApplicationWindow"})
     {}
 };
 
