@@ -193,7 +193,8 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
 
     OpenResult openResult = m_model.reload();
     if (openResult != OpenResult::Success) {
-        *errorString = m_model.errorMessage();
+        if (errorString)
+            *errorString = m_model.errorMessage();
         setBlockDirtyChanged(false);
         emit loaded(false);
         return openResult;
@@ -219,7 +220,8 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
     m_blockDirtyChanged = true;
     m_model.setFilePath(filePath);
     if (!m_model.save()) {
-        *errorString = m_model.errorMessage();
+        if (errorString)
+            *errorString = m_model.errorMessage();
         m_model.setFilePath(this->filePath());
         m_blockDirtyChanged = false;
         return false;
