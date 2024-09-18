@@ -288,24 +288,27 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
 
 void setupSettingsModule()
 {
-    registerProvider("Settings", [](sol::state_view l) -> sol::object {
-        sol::table settings = l.create_table();
+    registerProvider("Settings", [](sol::state_view lua) -> sol::object {
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+
+        sol::table settings = lua.create_table();
 
         settings.new_usertype<BaseAspect>("Aspect", "apply", &BaseAspect::apply);
 
-        settings.new_usertype<LuaAspectContainer>("AspectContainer",
-                                                  "create",
-                                                  &aspectContainerCreate,
-                                                  "apply",
-                                                  &LuaAspectContainer::apply,
-                                                  sol::meta_function::index,
-                                                  &LuaAspectContainer::dynamic_get,
-                                                  sol::meta_function::new_index,
-                                                  &LuaAspectContainer::dynamic_set,
-                                                  sol::meta_function::length,
-                                                  &LuaAspectContainer::size,
-                                                  sol::base_classes,
-                                                  sol::bases<AspectContainer, BaseAspect>());
+        settings.new_usertype<LuaAspectContainer>(
+            "AspectContainer",
+            "create",
+            &aspectContainerCreate,
+            "apply",
+            &LuaAspectContainer::apply,
+            sol::meta_function::index,
+            &LuaAspectContainer::dynamic_get,
+            sol::meta_function::new_index,
+            &LuaAspectContainer::dynamic_set,
+            sol::meta_function::length,
+            &LuaAspectContainer::size,
+            sol::base_classes,
+            sol::bases<AspectContainer, BaseAspect>());
 
         addTypedAspect<BoolAspect>(settings, "BoolAspect");
         addTypedAspect<ColorAspect>(settings, "ColorAspect");
@@ -515,13 +518,12 @@ void setupSettingsModule()
                     options,
                     [](AspectList *aspect, const std::string &key, const sol::object &value) {
                         if (key == "createItemFunction") {
-                            aspect->setCreateItemFunction([func = value.as<sol::function>()]()
-                                                              -> std::shared_ptr<BaseAspect> {
-                                auto res = safe_call<std::shared_ptr<BaseAspect>>(
-                                    func);
-                                QTC_ASSERT_EXPECTED(res, return nullptr);
-                                return *res;
-                            });
+                            aspect->setCreateItemFunction(
+                                [func = value.as<sol::function>()]() -> std::shared_ptr<BaseAspect> {
+                                    auto res = safe_call<std::shared_ptr<BaseAspect>>(func);
+                                    QTC_ASSERT_EXPECTED(res, return nullptr);
+                                    return *res;
+                                });
                         } else if (key == "onItemAdded") {
                             aspect->setItemAddedCallback([func = value.as<sol::function>()](
                                                              std::shared_ptr<BaseAspect> item) {
@@ -558,19 +560,42 @@ void setupSettingsModule()
             sol::base_classes,
             sol::bases<BaseAspect>());
 
+        class ExtensionOptionsPage : public Core::IOptionsPage
+        {
+        public:
+            ExtensionOptionsPage(const ScriptPluginSpec *spec, AspectContainer *container)
+            {
+                setId(Id::fromString(QString("Extension.%2").arg(spec->id)));
+                setCategory(Id("ExtensionManager"));
+
+                setDisplayName(spec->name);
+
+                if (container->isAutoApply())
+                    throw sol::error("AspectContainer must have autoApply set to false");
+
+                setSettingsProvider([container]() { return container; });
+            }
+        };
+
         class OptionsPage : public Core::IOptionsPage
         {
         public:
-            OptionsPage(const sol::table &options)
+            OptionsPage(const ScriptPluginSpec *spec, const sol::table &options)
             {
-                setId(Id::fromString(options.get<QString>("id")));
+                setId(
+                    Id::fromString(QString("%1.%2").arg(spec->id).arg(options.get<QString>("id"))));
+                setCategory(Id::fromString(
+                    QString("%1.%2").arg(spec->id).arg(options.get<QString>("categoryId"))));
+
                 setDisplayName(options.get<QString>("displayName"));
-                setCategory(Id::fromString(options.get<QString>("categoryId")));
                 setDisplayCategory(options.get<QString>("displayCategory"));
+
                 const FilePath catIcon = options.get<std::optional<FilePath>>("categoryIconPath")
                                              .value_or(FilePath::fromUserInput(
                                                  options.get_or<QString>("categoryIconPath", {})));
+
                 setCategoryIconPath(catIcon);
+
                 AspectContainer *container = options.get<AspectContainer *>("aspectContainer");
                 if (container->isAutoApply())
                     throw sol::error("AspectContainer must have autoApply set to false");
@@ -582,28 +607,39 @@ void setupSettingsModule()
         settings.new_usertype<OptionsPage>(
             "OptionsPage",
             "create",
-            [](const sol::table &options) { return std::make_unique<OptionsPage>(options); },
+            [pluginSpec](const sol::table &options) {
+                return std::make_unique<OptionsPage>(pluginSpec, options);
+            },
             "show",
             [](OptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
 
+        settings.new_usertype<ExtensionOptionsPage>(
+            "ExtensionOptionsPage",
+            "create",
+            [pluginSpec](AspectContainer *container) {
+                return std::make_unique<ExtensionOptionsPage>(pluginSpec, container);
+            },
+            "show",
+            [](ExtensionOptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
+
         // clang-format off
-        settings["StringDisplayStyle"] = l.create_table_with(
+        settings["StringDisplayStyle"] = lua.create_table_with(
             "Label", StringAspect::DisplayStyle::LabelDisplay,
             "LineEdit", StringAspect::DisplayStyle::LineEditDisplay,
             "TextEdit", StringAspect::DisplayStyle::TextEditDisplay,
             "PasswordLineEdit", StringAspect::DisplayStyle::PasswordLineEditDisplay
         );
 
-        settings["SelectionDisplayStyle"] = l.create_table_with(
+        settings["SelectionDisplayStyle"] = lua.create_table_with(
             "RadioButtons", SelectionAspect::DisplayStyle::RadioButtons,
             "ComboBox", SelectionAspect::DisplayStyle::ComboBox
         );
 
-        settings["CheckBoxPlacement"] = l.create_table_with(
+        settings["CheckBoxPlacement"] = lua.create_table_with(
             "Top", CheckBoxPlacement::Top,
             "Right", CheckBoxPlacement::Right
         );
-        settings["Kind"] = l.create_table_with(
+        settings["Kind"] = lua.create_table_with(
             "ExistingDirectory", PathChooser::Kind::ExistingDirectory,
             "Directory", PathChooser::Kind::Directory,
             "File", PathChooser::Kind::File,
@@ -612,7 +648,7 @@ void setupSettingsModule()
             "Command", PathChooser::Kind::Command,
             "Any", PathChooser::Kind::Any
         );
-        settings["LabelPlacement"] = l.create_table_with(
+        settings["LabelPlacement"] = lua.create_table_with(
             "AtCheckBox", BoolAspect::LabelPlacement::AtCheckBox,
             "Compact", BoolAspect::LabelPlacement::Compact,
             "InExtraLabel", BoolAspect::LabelPlacement::InExtraLabel

@@ -218,4 +218,14 @@ function settings.OptionsPage.create(options) end
 ---Shows options page.
 function settings.OptionsPage:show() end
 
+---@class ExtensionOptionsPage
+settings.extensionOptionsPage = {}
+
+---Create an ExtensionOptionsPage.
+---@param aspectContainer AspectContainer
+---@return ExtensionOptionsPage
+function settings.extensionOptionsPage.create(aspectContainer) end
+
+---Show the options page.
+function settings.extensionOptionsPage:show() end
 return settings
