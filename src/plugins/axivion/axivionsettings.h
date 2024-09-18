@@ -33,6 +33,18 @@ public:
     bool validateCert = true;
 };
 
+class PathMapping
+{
+public:
+    bool operator==(const PathMapping &other) const;
+    bool operator!=(const PathMapping &other) const;
+
+    bool isValid() const {return !projectName.isEmpty() && !localPath.isEmpty(); }
+    QString projectName;
+    Utils::FilePath analysisPath;
+    Utils::FilePath localPath;
+};
+
 class AxivionSettings : public Utils::AspectContainer
 {
 public:
@@ -46,6 +58,7 @@ public:
     void disableCertificateValidation(const Utils::Id &id);
     const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
     void updateDashboardServers(const QList<AxivionServer> &other);
+    const QList<PathMapping> pathMappings() const;
 
     Utils::BoolAspect highlightMarks{this};
 private:
