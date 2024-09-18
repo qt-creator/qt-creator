@@ -31,6 +31,14 @@ struct CoroutineState
 
 struct ScriptPluginSpec
 {
+    static QObject *setup(
+        sol::state_view lua,
+        const QString &id,
+        const QString &name,
+        const Utils::FilePath appDataPath,
+        const Utils::FilePath pluginLocation);
+
+    QString id;
     QString name;
     Utils::FilePath appDataPath;
     std::unique_ptr<QObject> connectionGuard;

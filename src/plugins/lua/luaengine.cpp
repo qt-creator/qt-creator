@@ -10,6 +10,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <utils/algorithm.h>
+#include <utils/hostosinfo.h>
 #include <utils/lua.h>
 #include <utils/stringutils.h>
 #include <utils/theme/theme.h>
@@ -56,6 +57,31 @@ public:
     QTemporaryDir appDataDir;
 };
 
+QObject *ScriptPluginSpec::setup(
+    sol::state_view lua,
+    const QString &id,
+    const QString &name,
+    const Utils::FilePath appDataPath,
+    const Utils::FilePath pluginLocation)
+{
+    lua.new_usertype<ScriptPluginSpec>(
+        "PluginSpec",
+        sol::no_constructor,
+        "id",
+        sol::property([](ScriptPluginSpec &self) { return self.id; }),
+        "name",
+        sol::property([](ScriptPluginSpec &self) { return self.name; }),
+        "pluginDirectory",
+        sol::property([pluginLocation]() { return pluginLocation; }));
+
+    auto guardObject = std::make_unique<QObject>();
+    auto guardObjectPtr = guardObject.get();
+
+    lua["PluginSpec"] = ScriptPluginSpec{id, name, appDataPath, std::move(guardObject)};
+
+    return guardObjectPtr;
+}
+
 void prepareLuaState(
     sol::state &lua,
     const QString &name,
@@ -85,13 +111,11 @@ void prepareLuaState(
             Core::MessageManager::writeSilently(QString("%1 %2").arg(p, msg));
         }
     };
-
-    lua.new_usertype<ScriptPluginSpec>(
-        "PluginSpec", sol::no_constructor, "name", sol::property([](ScriptPluginSpec &self) {
-            return self.name;
-        }));
-
-    lua["PluginSpec"] = ScriptPluginSpec{name, appDataPath, std::make_unique<QObject>()};
+    const expected_str<FilePath> tmpDir = HostOsInfo::root().tmpDir();
+    QTC_ASSERT_EXPECTED(tmpDir, return);
+    QString id = name;
+    id = id.replace(QRegularExpression("[^a-zA-Z0-9_]"), "_").toLower();
+    ScriptPluginSpec::setup(lua, id, name, appDataPath, *tmpDir);
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
         lua["package"]["preload"][name.toStdString()] = [func = func](const sol::this_state &s) {
@@ -247,18 +271,8 @@ expected_str<sol::protected_function> prepareSetup(
     const FilePath appDataPath = Core::ICore::userResourcePath() / "plugin-data" / "lua"
                                  / pluginSpec.location().fileName();
 
-    lua.new_usertype<ScriptPluginSpec>(
-        "PluginSpec",
-        sol::no_constructor,
-        "name",
-        sol::property([](ScriptPluginSpec &self) { return self.name; }),
-        "pluginDirectory",
-        sol::property([p = pluginSpec.location()]() { return p; }));
-
-    auto guardObject = std::make_unique<QObject>();
-    auto guardObjectPtr = guardObject.get();
-
-    lua["PluginSpec"] = ScriptPluginSpec{pluginSpec.name(), appDataPath, std::move(guardObject)};
+    QObject *guard = ScriptPluginSpec::setup(
+        lua, pluginSpec.id(), pluginSpec.name(), appDataPath, pluginSpec.location());
 
     // TODO: only register what the plugin requested
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {
@@ -291,7 +305,7 @@ expected_str<sol::protected_function> prepareSetup(
 
     qCDebug(logLuaEngine) << "Hooks table found: " << hookTable.has_value();
     if (hookTable) {
-        auto connectResult = connectHooks(lua, *hookTable, {}, guardObjectPtr);
+        auto connectResult = connectHooks(lua, *hookTable, {}, guard);
         if (!connectResult)
             return make_unexpected(connectResult.error());
     }
