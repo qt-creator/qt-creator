@@ -45,6 +45,7 @@ void setupLocalSocketModule();
 void setupMacroModule();
 void setupMessageManagerModule();
 void setupProcessModule();
+void setupProjectModule();
 void setupQtModule();
 void setupSettingsModule();
 void setupTextEditorModule();
@@ -263,6 +264,7 @@ public:
         setupMacroModule();
         setupMessageManagerModule();
         setupProcessModule();
+        setupProjectModule();
         setupQtModule();
         setupSettingsModule();
         setupTextEditorModule();

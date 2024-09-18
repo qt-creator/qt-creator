@@ -52,6 +52,14 @@ EditorHooks = {}
 ---@field contentsChanged? function function(document: TextDocument, position: integer, charsRemoved: integer, charsAdded: integer)
 ---@field cursorChanged? function function(editor: TextEditor, cursor: MultiTextCursor)
 
+---@class ProjectHooks
+---@field startupProjectChanged? function function(project: Project)
+---@field projectAdded? function function(project: Project)
+---@field projectRemoved? function function(project: Project)
+---@field aboutToRemoveProject? function function(project: Project)
+---@field runActionsUpdated? function function() Called when Project.canRunStartupProject() might have changed.
+
 ---@class Hooks
 ---@field editors? EditorHooks
+---@field projects? ProjectHooks
 Hooks = {}
