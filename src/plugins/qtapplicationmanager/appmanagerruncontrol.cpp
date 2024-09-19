@@ -63,6 +63,7 @@ public:
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
+            envVars.replaceInStrings(" ", "\\ ");
 
             // Always use the default environment to start the appman-controller in
             // The env variables from the EnvironmentAspect are set through the controller
@@ -125,6 +126,7 @@ public:
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
+            envVars.replaceInStrings(" ", "\\ ");
 
             const int gdbServerPort = m_portsGatherer->gdbServer().port();
             const int qmlServerPort = m_portsGatherer->qmlServer().port();
