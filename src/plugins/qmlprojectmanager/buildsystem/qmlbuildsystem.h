@@ -75,6 +75,7 @@ public:
 
     QStringList importPaths() const;
     QStringList absoluteImportPaths() const;
+    QStringList targetImportPaths() const;
     QStringList fileSelectors() const;
 
     bool multilanguageSupport() const;
