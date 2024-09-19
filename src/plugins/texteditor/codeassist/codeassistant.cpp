@@ -368,9 +368,9 @@ QString CodeAssistantPrivate::proposalPrefix() const
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
     m_processor = nullptr;
-    m_requestProvider = nullptr;
     disconnect(
         m_requestProvider, &QObject::destroyed, this, &CodeAssistantPrivate::cancelCurrentRequest);
+    m_requestProvider = nullptr;
     m_receivedContentWhileWaiting = false;
 }
 
