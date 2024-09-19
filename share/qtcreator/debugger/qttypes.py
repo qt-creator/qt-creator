@@ -581,7 +581,26 @@ def qdump__QEvent(d, value):
         with Children(d):
             # Add a sub-item with the event type.
             with SubItem(d, '[type]'):
-                (vtable, privateD, t, flags) = value.split("pp{short}{short}")
+                if d.qtVersionAtLeast(0x060000):
+                    (
+                        # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+                        vtable, # virtual table pointer
+                        t,      # quint16 t
+                        posted, # bool m_posted
+                        spont,  # bool m_spont
+                        accept, # bool m_accept
+                        unused, # bool m_unused
+                        flags,  # quint16 m_reserved:13, quint16 m_inputEvent:1
+                                # + quint16 m_pointerEvent:1 + quint16 m_singlePointEvent:1
+                    ) = value.split("p{short}ccccH")
+                else:
+                    (
+                        # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+                        vtable,   # virtual table pointer
+                        privateD, # QEventPrivate *d
+                        t,        # ushort t
+                        flags,    # ushort posted:1 + ushort spont:1 + ushort m_accept:1 + ushort reserved:13
+                    ) = value.split("pp{short}{short}")
                 event_type_name = d.qtNamespace() + "QEvent::Type"
                 type_value = t.cast(event_type_name)
                 d.putValue(type_value.displayEnum('0x%04x'))
@@ -592,29 +611,49 @@ def qdump__QEvent(d, value):
 
 
 def qdump__QKeyEvent(d, value):
-    # QEvent fields
-    #   virtual table pointer
-    #   QEventPrivate *d;
-    #   ushort t;
-    #   ushort posted : 1;
-    #   ushort spont : 1;
-    #   ushort m_accept : 1;
-    #   ushort reserved : 13;
-    # QInputEvent fields
-    #   Qt::KeyboardModifiers modState;
-    #   ulong ts;
-    # QKeyEvent fields
-    #   QString txt;
-    #   int k;
-    #   quint32 nScanCode;
-    #   quint32 nVirtualKey;
-    #   quint32 nModifiers; <- nativeModifiers
-    #   ushort c;
-    #   ushort autor:1;
-    #   ushort reserved:15;
-    (vtable, privateD, t, flags, modState, ts, txt, k, scanCode,
-     virtualKey, modifiers,
-     c, autor) = value.split("ppHHiQ{@QString}{int}IIIHH")
+    if d.qtVersionAtLeast(0x060000):
+        (
+            # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+            vtable,         # virtual table pointer
+            t,              # quint16 t
+            posted,         # bool m_posted
+            spont,          # bool m_spont
+            accept,         # bool m_accept
+            unused,         # bool m_unused
+            qevent_flags,   # quint16 m_reserved:13, quint16 m_inputEvent:1
+                            # + quint16 m_pointerEvent:1 + quint16 m_singlePointEvent:1
+            # QInputEvent fields (must be kept in sync with the definition in qevent.h)
+            dev,            # const QInputDevice *m_dev
+            ts,             # quint64 m_timeStamp
+            modState,       # Qt::KeyboardModifiers modState
+            reserved,       # quint32 m_reserved
+            # QKeyEvent fields (must be kept in sync with the definition in qevent.h)
+            txt,            # QString m_text
+            k,              # int m_key; (actually a Qt::Key in disguise)
+            scanCode,       # quint32 m_scanCode
+            virtualKey,     # quint32 m_virtualKey
+            modifiers,      # quint32 m_nativeModifiers
+            qkeyevent_flags # quint16 m_count:15 + quint16 m_autoRepeat:1
+        ) = value.split("pHccccHpQiI{@QString}{int}IIIH")
+    else:
+        (
+            # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+            vtable,     # virtual table pointer
+            privateD,   # QEventPrivate *d
+            t,          # ushort t
+            flags,      # ushort posted:1 + ushort spont:1 + ushort m_accept:1 + ushort reserved:13
+            # QInputEvent fields (must be kept in sync with the definition in qevent.h)
+            modState,   # Qt::KeyboardModifiers modState
+            ts,         # ulong ts
+            # QKeyEvent fields (must be kept in sync with the definition in qevent.h)
+            txt,        # QString txt
+            k,          # int k
+            scanCode,   # quint32 nScanCode
+            virtualKey, # quint32 nVirtualKey
+            modifiers,  # quint32 nModifiers
+            c,          # ushort c
+            autor       # ushort author:1
+        ) = value.split("ppHHiQ{@QString}{int}IIIHH")
 
     #d.putStringValue(txt)
     #data = d.encodeString(txt)
