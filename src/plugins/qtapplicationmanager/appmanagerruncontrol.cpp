@@ -59,6 +59,7 @@ public:
             QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
@@ -71,13 +72,17 @@ public:
             CommandLine cmd{controller};
             if (!instanceId.isEmpty())
                 cmd.addArgs({"--instance-id", instanceId});
-            if (envVars.isEmpty()) {
-                cmd.addArgs({"start-application", "-eio", appId});
-            } else {
+
+            if (envVars.isEmpty())
+                cmd.addArgs({"start-application", "-eio"});
+            else
                 cmd.addArgs({"debug-application", "-eio"});
+
+            if (restartIfRunning)
+                cmd.addArg("--restart");
+            if (!envVars.isEmpty())
                 cmd.addArg(envVars.join(' '));
-                cmd.addArg(appId);
-            }
+            cmd.addArg(appId);
             if (!documentUrl.isEmpty())
                 cmd.addArg(documentUrl);
             setCommandLine(cmd);
@@ -116,6 +121,7 @@ public:
             QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
@@ -150,6 +156,8 @@ public:
             }
 
             cmd.addArg("-eio");
+            if (restartIfRunning)
+                cmd.addArg("--restart");
             cmd.addArg(appId);
 
             if (!documentUrl.isEmpty())
