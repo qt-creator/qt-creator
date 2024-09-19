@@ -94,6 +94,8 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
 HAS_MEM_FUNC(onTextChanged, hasOnTextChanged);
 HAS_MEM_FUNC(onClicked, hasOnClicked);
 HAS_MEM_FUNC(setText, hasSetText);
+HAS_MEM_FUNC(setMarkdown, hasSetMarkdown);
+HAS_MEM_FUNC(setReadOnly, hasSetReadOnly);
 HAS_MEM_FUNC(setTitle, hasSetTitle);
 HAS_MEM_FUNC(setValue, hasSetValue);
 HAS_MEM_FUNC(setSize, hasSetSize);
@@ -176,7 +178,14 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
     if constexpr (hasSetText<T, void (T::*)(const QString &)>::value) {
-        item->setText(children.get_or<QString>("text", ""));
+        auto text = children.get<sol::optional<QString>>("text");
+        if (text)
+            item->setText(*text);
+    }
+    if constexpr (hasSetMarkdown<T, void (T::*)(const QString &)>::value) {
+        auto markdown = children.get<sol::optional<QString>>("markdown");
+        if (markdown)
+            item->setMarkdown(*markdown);
     }
     if constexpr (hasSetTitle<T, void (T::*)(const QString &)>::value) {
         item->setTitle(children.get_or<QString>("title", ""));
@@ -185,6 +194,11 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<int> value = children.get<sol::optional<int>>("value");
         if (value)
             item->setValue(*value);
+    }
+    if constexpr (hasSetReadOnly<T, void (T::*)(bool)>::value) {
+        sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly");
+        if (readOnly)
+            item->setReadOnly(*readOnly);
     }
 }
 
