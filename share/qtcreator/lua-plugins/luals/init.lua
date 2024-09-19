@@ -79,8 +79,10 @@ local function installOrUpdateServer()
       binary = "bin/lua-language-server.exe"
     end
 
-    Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
-    Settings:apply()
+    if lspPkgInfo.path:resolvePath(binary) ~= Settings.binary.expandedValue then
+      Settings.binary:setValue(lspPkgInfo.path:resolvePath(binary))
+      Settings:apply()
+    end
     return
   end
 
