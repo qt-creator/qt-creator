@@ -43,7 +43,7 @@ namespace Utils {
 template <typename T>
 class DuplicateTracker {
 public:
-    bool hasSeen(const T &v) { return Utils::insert(seen, v); }
+    bool hasSeen(const T &v) { return !Utils::insert(seen, v); }
 private:
     QSet<T> seen;
 };
