@@ -252,6 +252,13 @@ public:
 
     bool isComplete() const final { return m_isComplete; }
 
+    int nextId() const override
+    {
+        if (!m_data->pluginSpec || !m_data->pluginSpec->termsAndConditions())
+            return WizardPage::nextId() + 1;
+        return WizardPage::nextId();
+    }
+
     std::unique_ptr<TemporaryDirectory> m_tempDir;
     TaskTreeRunner m_taskTreeRunner;
     InfoLabel *m_label = nullptr;
@@ -360,6 +367,48 @@ private:
     Data *m_data = nullptr;
 };
 
+class AcceptTermsAndConditionsPage : public WizardPage
+{
+public:
+    AcceptTermsAndConditionsPage(Data *data, QWidget *parent)
+        : WizardPage(parent)
+        , m_data(data)
+    {
+        setTitle(Tr::tr("Accept Terms and Conditions"));
+
+        using namespace Layouting;
+        // clang-format off
+        Column {
+            Label { bindTo(&m_intro) }, br,
+            TextEdit {
+                bindTo(&m_terms),
+                readOnly(true),
+            }, br,
+            m_accept = new QCheckBox(Tr::tr("I accept the terms and conditions.")),
+        }.attachTo(this);
+        // clang-format on
+
+        connect(m_accept, &QCheckBox::toggled, this, [this]() { emit completeChanged(); });
+    }
+
+    void initializePage() final
+    {
+        QTC_ASSERT(m_data->pluginSpec, return);
+        m_intro->setText(Tr::tr("The plugin %1 requires you to accept the following terms and "
+                                "conditions:")
+                             .arg(m_data->pluginSpec->name()));
+        m_terms->setMarkdown(m_data->pluginSpec->termsAndConditions()->text);
+    }
+
+    bool isComplete() const final { return m_accept->isChecked(); }
+
+private:
+    Data *m_data = nullptr;
+    QLabel *m_intro = nullptr;
+    QCheckBox *m_accept = nullptr;
+    QTextEdit *m_terms = nullptr;
+};
+
 static std::function<void(FilePath)> postCopyOperation()
 {
     return [](const FilePath &filePath) {
@@ -417,6 +466,9 @@ bool executePluginInstallWizard(const FilePath &archive)
 
     auto checkArchivePage = new CheckArchivePage(&data, &wizard);
     wizard.addPage(checkArchivePage);
+
+    auto acceptTAndCPage = new AcceptTermsAndConditionsPage(&data, &wizard);
+    wizard.addPage(acceptTAndCPage);
 
     auto installLocationPage = new InstallLocationPage(&data, &wizard);
     wizard.addPage(installLocationPage);
