@@ -309,6 +309,8 @@ public:
     TextEdit(std::initializer_list<I> ps);
 
     void setText(const QString &);
+    void setMarkdown(const QString &);
+    void setReadOnly(bool);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget
@@ -447,6 +449,8 @@ QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
 QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
 QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
 QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
+QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
+QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown)
 
 // Nesting dispatchers
 

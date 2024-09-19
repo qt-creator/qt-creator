@@ -863,6 +863,16 @@ void TextEdit::setText(const QString &text)
     access(this)->setText(text);
 }
 
+void TextEdit::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void TextEdit::setReadOnly(bool on)
+{
+    access(this)->setReadOnly(on);
+}
+
 // PushButton
 
 PushButton::PushButton(std::initializer_list<I> ps)
