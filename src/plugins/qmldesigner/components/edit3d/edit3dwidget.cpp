@@ -764,7 +764,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 
     // handle dropping bundle items
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
-        m_view->dropBundleEffect(pos);
+        m_view->dropBundleItem(pos);
         m_view->model()->endDrag();
         return;
     }
