@@ -11,7 +11,7 @@ import StudioTheme as StudioTheme
 import OutputPane
 
 ScrollView {
-    id: issuesPanel
+    id: root
 
     signal showCodeViewSignal
 
@@ -23,12 +23,12 @@ ScrollView {
     ScrollBar.vertical: StudioControls.TransientScrollBar {
         id: verticalScrollBar
         style: StudioTheme.Values.viewStyle
-        parent: issuesPanel
-        x: issuesPanel.width - verticalScrollBar.width
+        parent: root
+        x: root.width - verticalScrollBar.width
         y: 0
-        height: issuesPanel.availableHeight
+        height: root.availableHeight
         orientation: Qt.Vertical
-        show: (issuesPanel.hovered || issuesPanel.focus) && verticalScrollBar.isNeeded
+        show: (root.hovered || root.focus) && verticalScrollBar.isNeeded
     }
 
     ColumnLayout {
@@ -37,46 +37,58 @@ ScrollView {
 
             model: MessageModel { id: messageModel }
 
-            delegate: RowLayout {
-                spacing: 10
+            delegate: Row {
+                id: row
 
                 required property int index
                 required property string message
                 required property string location
                 required property string type
 
+                width: root.width
+                spacing: 10
+
                 Text {
+                    id: labelIcon
                     font.family: StudioTheme.Constants.iconFont.family
                     font.pixelSize: StudioTheme.Values.baseIconFontSize
                     color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
                                                : StudioTheme.Values.themeRedLight
                     text: (type == "Warning") ? StudioTheme.Constants.warning2_medium
                                               : StudioTheme.Constants.error_medium
+                    width: 18
+                    height: 18
+                    horizontalAlignment: Text.AlignHCenter
+                    verticalAlignment: Text.AlignVCenter
                 }
 
                 Text {
+                    id: labelLocation
                     text: location
                     color: "#57b9fc"
-                    font.pixelSize: 12
+                    font.pixelSize: StudioTheme.Values.baseFontSize
                     verticalAlignment: Text.AlignVCenter
-                    Layout.preferredHeight: 18
-                    font.underline: mouseArea.containsMouse ? true : false
+                    font.underline: mouseArea.containsMouse
+                    height: 18
 
                     MouseArea {
                         id: mouseArea
                         anchors.fill: parent
                         hoverEnabled: true
-                        cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor : Qt.ArrowCursor
+                        cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor
+                                                             : Qt.ArrowCursor
                     }
                 }
 
                 Text {
+                    id: labelInfo
                     color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
                                                : StudioTheme.Values.themeRedLight
                     text: message
                     font.pixelSize: StudioTheme.Values.baseFontSize
-                    verticalAlignment: Text.AlignVCenter
-                    Layout.preferredHeight: 18
+                    verticalAlignment: Text.AlignTop
+                    wrapMode: Text.WordWrap
+                    width: row.width - labelIcon.width - labelLocation.width - row.spacing * 2
                 }
             }
         }
