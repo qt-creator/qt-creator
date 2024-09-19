@@ -2,12 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "navigatortreemodel.h"
+
+#include "assetslibrarywidget.h"
+#include "choosefrompropertylistdialog.h"
+#include "createtexture.h"
 #include "navigatorview.h"
 #include "navigatorwidget.h"
-#include "choosefrompropertylistdialog.h"
 #include "qmldesignerconstants.h"
 #include "qmldesignerplugin.h"
-#include "assetslibrarywidget.h"
 
 #include <abstractview.h>
 #include <bindingproperty.h>
@@ -176,6 +178,7 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
 }
 
 NavigatorTreeModel::NavigatorTreeModel(QObject *parent) : QAbstractItemModel(parent)
+    , m_createTextures(Utils::makeUniqueObjectPtr<CreateTextures>(m_view))
 {
     m_actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
@@ -569,6 +572,30 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
             if (targetNode.metaInfo().isQtQuick3DModel()) {
                 QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
                 m_view->emitCustomNotification("apply_asset_to_model3D", {targetNode}, {filePath}); // To MaterialBrowserView
+            } else {
+                QString texturePath = QString::fromUtf8(mimeData->data(Constants::MIME_TYPE_BUNDLE_TEXTURE));
+                NodeAbstractProperty targetProperty;
+
+                const QModelIndex rowModelIndex = dropModelIndex.sibling(dropModelIndex.row(), 0);
+                int targetRowNumber = rowNumber;
+                bool foundTarget = findTargetProperty(rowModelIndex, this, &targetProperty, &targetRowNumber);
+                if (foundTarget) {
+                    bool moveNodesAfter = false;
+
+                    m_view->executeInTransaction(__FUNCTION__, [&] {
+                        m_createTextures->execute(QStringList{texturePath},
+                                                 AddTextureMode::Image,
+                                                 Utils3D::active3DSceneId(m_view->model()));
+                        QString textureName = Utils::FilePath::fromString(texturePath).fileName();
+                        QString textureAbsolutePath = DocumentManager::currentResourcePath()
+                                                        .pathAppended("images/" + textureName).toString();
+                        ModelNodeOperations::handleItemLibraryImageDrop(textureAbsolutePath,
+                                                                        targetProperty,
+                                                                        modelNodeForIndex(
+                                                                            rowModelIndex),
+                                                                        moveNodesAfter);
+                    });
+                }
             }
         } else if (mimeData->hasFormat(Constants::MIME_TYPE_BUNDLE_MATERIAL)) {
             if (targetNode.isValid())

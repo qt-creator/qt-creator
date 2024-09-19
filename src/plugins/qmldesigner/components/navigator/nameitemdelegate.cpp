@@ -226,11 +226,10 @@ void NameItemDelegate::paint(QPainter *painter,
             };
 
             bool validDrop = false;
-            if (dragType == Constants::MIME_TYPE_BUNDLE_TEXTURE) {
-                validDrop = metaInfo.isQtQuick3DModel();
-            } else if (dragType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
+            if (dragType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 validDrop = isValid3dTextureTarget();
-            } else if (dragType == Constants::MIME_TYPE_ASSET_IMAGE) {
+            } else if (dragType == Constants::MIME_TYPE_ASSET_IMAGE
+                       || dragType == Constants::MIME_TYPE_BUNDLE_TEXTURE) {
                 Model *model = node.model();
                 validDrop = isValid3dTextureTarget() || metaInfo.isBasedOn(model->qtQuickImageMetaInfo(),
                                                                            model->qtQuickBorderImageMetaInfo());
