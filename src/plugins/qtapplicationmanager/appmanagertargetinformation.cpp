@@ -12,6 +12,7 @@
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/taskhub.h>
 
 #include <utils/qtcassert.h>
 
@@ -45,12 +46,6 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
         const FilePath packageFilePath = packageTargetMap.value("packageFilePath").value<FilePath>();
         const bool isBuiltinPackage = packageTargetMap.value("isBuiltinPackage").toBool();
 
-        const Utils::expected_str<QByteArray> localFileContents = manifestFilePath.fileContents();
-        if (!localFileContents.has_value()) {
-            qWarning() << "NOPE:" << localFileContents.error();
-            continue;
-        }
-
         auto createTargetInformation = [buildKey, manifestFilePath, cmakeTarget, packageFilePath, isBuiltinPackage, &result](const YAML::Node &document) {
             const QString id = QString::fromStdString(document["id"].as<std::string>());
             const QString runtime = QString::fromStdString(document["runtime"].as<std::string>());
@@ -77,9 +72,13 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
         };
 
         try {
+            const Utils::expected_str<QByteArray> localFileContents = manifestFilePath.fileContents();
+            if (!localFileContents.has_value())
+                throw std::runtime_error("Invalid empty file");
+
             std::vector<YAML::Node> documents = YAML::LoadAll(*localFileContents);
             if (documents.size() != 2)
-                throw std::runtime_error("Must contain two documents");
+                throw std::runtime_error("Must contain exactly two documents");
             YAML::Node header = documents[0];
             YAML::Node document = documents[1];
 
@@ -94,7 +93,8 @@ QList<TargetInformation> TargetInformation::readFromProject(const Target *target
             }
 
         } catch (const std::exception &e) {
-            qWarning() << "NOPE:" << e.what();
+            const QString error = QString("Error parsing package manifest: %1").arg(QString::fromUtf8(e.what()));
+            ProjectExplorer::TaskHub::addTask(BuildSystemTask(ProjectExplorer::Task::Error, error, manifestFilePath));
         }
     }
     return result;
