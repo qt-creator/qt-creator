@@ -24,8 +24,7 @@ namespace Lua::Internal {
 void setupUtilsModule()
 {
     registerProvider(
-        "Utils",
-        [futureSync = Utils::FutureSynchronizer()](sol::state_view lua) mutable -> sol::object {
+        "Utils", [futureSync = FutureSynchronizer()](sol::state_view lua) mutable -> sol::object {
             const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
             auto async = lua.script("return require('async')", "_utils_").get<sol::table>();
@@ -51,7 +50,7 @@ void setupUtilsModule()
 
                 FileFilter filter(nameFilters, fileFilters, flags);
 
-                QFuture<FilePath> future = Utils::asyncRun([p, filter](QPromise<FilePath> &promise) {
+                QFuture<FilePath> future = asyncRun([p, filter](QPromise<FilePath> &promise) {
                     p.iterateDirectory(
                         [&promise](const FilePath &item) {
                             if (promise.isCanceled())
@@ -65,7 +64,7 @@ void setupUtilsModule()
 
                 futureSync.addFuture<FilePath>(future);
 
-                Utils::onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
+                onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
                     cb(future.results());
                 });
             };
@@ -73,12 +72,12 @@ void setupUtilsModule()
             auto searchInPath_cb = [&futureSync,
                                     guard = pluginSpec->connectionGuard
                                                 .get()](const FilePath &p, const sol::function &cb) {
-                QFuture<FilePath> future = Utils::asyncRun(
+                QFuture<FilePath> future = asyncRun(
                     [p](QPromise<FilePath> &promise) { promise.addResult(p.searchInPath()); });
 
                 futureSync.addFuture<FilePath>(future);
 
-                Utils::onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
+                onFinished<FilePath>(future, guard, [cb](const QFuture<FilePath> &future) {
                     cb(future.result());
                 });
             };

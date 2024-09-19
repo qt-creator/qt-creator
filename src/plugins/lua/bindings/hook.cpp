@@ -6,33 +6,33 @@
 #include <coreplugin/editormanager/editormanager.h>
 #include <texteditor/textdocument.h>
 
+using namespace Utils;
+
 namespace Lua::Internal {
 
 void setupHookModule()
 {
-    registerHook(
-        "editors.documentOpened", [](const sol::protected_function &func, QObject *guard) {
-            QObject::connect(
-                Core::EditorManager::instance(),
-                &Core::EditorManager::documentOpened,
-                guard,
-                [func](Core::IDocument *document) {
-                    Utils::expected_str<void> res = void_safe_call(func, document);
-                    QTC_CHECK_EXPECTED(res);
-                });
-        });
+    registerHook("editors.documentOpened", [](const sol::protected_function &func, QObject *guard) {
+        QObject::connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::documentOpened,
+            guard,
+            [func](Core::IDocument *document) {
+                expected_str<void> res = void_safe_call(func, document);
+                QTC_CHECK_EXPECTED(res);
+            });
+    });
 
-    registerHook(
-        "editors.documentClosed", [](const sol::protected_function &func, QObject *guard) {
-            QObject::connect(
-                Core::EditorManager::instance(),
-                &Core::EditorManager::documentClosed,
-                guard,
-                [func](Core::IDocument *document) {
-                    Utils::expected_str<void> res = void_safe_call(func, document);
-                    QTC_CHECK_EXPECTED(res);
-                });
-        });
+    registerHook("editors.documentClosed", [](const sol::protected_function &func, QObject *guard) {
+        QObject::connect(
+            Core::EditorManager::instance(),
+            &Core::EditorManager::documentClosed,
+            guard,
+            [func](Core::IDocument *document) {
+                expected_str<void> res = void_safe_call(func, document);
+                QTC_CHECK_EXPECTED(res);
+            });
+    });
 }
 
 } // namespace Lua::Internal

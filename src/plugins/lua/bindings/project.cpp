@@ -46,7 +46,7 @@ void setupProjectModule()
 
         result["canRunStartupProject"] =
             [](const QString &mode) -> std::pair<bool, std::variant<QString, sol::lua_nil_t>> {
-            auto result = ProjectExplorerPlugin::canRunStartupProject(Utils::Id::fromString(mode));
+            auto result = ProjectExplorerPlugin::canRunStartupProject(Id::fromString(mode));
             if (result)
                 return std::make_pair(true, sol::lua_nil);
             return std::make_pair(false, result.error());
@@ -108,8 +108,8 @@ void setupProjectModule()
             ProjectManager::instance(),
             &ProjectManager::startupProjectChanged,
             guard,
-            [func](ProjectExplorer::Project *project) {
-                Utils::expected_str<void> res = void_safe_call(func, project);
+            [func](Project *project) {
+                expected_str<void> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -120,8 +120,8 @@ void setupProjectModule()
             ProjectManager::instance(),
             &ProjectManager::projectAdded,
             guard,
-            [func](ProjectExplorer::Project *project) {
-                Utils::expected_str<void> res = void_safe_call(func, project);
+            [func](Project *project) {
+                expected_str<void> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -132,8 +132,8 @@ void setupProjectModule()
             ProjectManager::instance(),
             &ProjectManager::projectRemoved,
             guard,
-            [func](ProjectExplorer::Project *project) {
-                Utils::expected_str<void> res = void_safe_call(func, project);
+            [func](Project *project) {
+                expected_str<void> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -144,8 +144,8 @@ void setupProjectModule()
             ProjectManager::instance(),
             &ProjectManager::aboutToRemoveProject,
             guard,
-            [func](ProjectExplorer::Project *project) {
-                Utils::expected_str<void> res = void_safe_call(func, project);
+            [func](Project *project) {
+                expected_str<void> res = void_safe_call(func, project);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -157,7 +157,7 @@ void setupProjectModule()
             &ProjectExplorerPlugin::runActionsUpdated,
             guard,
             [func]() {
-                Utils::expected_str<void> res = void_safe_call(func);
+                expected_str<void> res = void_safe_call(func);
                 QTC_CHECK_EXPECTED(res);
             });
     });

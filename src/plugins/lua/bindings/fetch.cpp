@@ -23,6 +23,7 @@
 #include <QNetworkReply>
 
 using namespace Utils;
+using namespace Core;
 
 namespace Lua::Internal {
 
@@ -54,7 +55,7 @@ void setupFetchModule()
         StringListAspect pluginsAllowedToFetch{this};
         StringListAspect pluginsNotAllowedToFetch{this};
 
-        class LuaOptionsPage : public Core::IOptionsPage
+        class LuaOptionsPage : public IOptionsPage
         {
         public:
             LuaOptionsPage(Module *module)
@@ -183,7 +184,7 @@ void setupFetchModule()
                         .arg(pluginName)
                         .arg(url),
                     QMessageBox::Yes | QMessageBox::No,
-                    Core::ICore::dialogParent());
+                    ICore::dialogParent());
                 msgBox->setCheckBox(new QCheckBox(Tr::tr("Remember choice")));
 
                 QObject::connect(
@@ -223,20 +224,20 @@ void setupFetchModule()
             });
             entry.addCustomButton(Tr::tr("Always Allow"), [mod, pluginName, fetch]() {
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                Core::ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
             entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
-                Core::ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
 
             entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                Core::ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
                 notAllowed();
             });
-            Core::ICore::infoBar()->addInfo(entry);
+            ICore::infoBar()->addInfo(entry);
         };
 
         fetch["fetch_cb"] = [checkPermission,

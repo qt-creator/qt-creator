@@ -328,13 +328,13 @@ void setupInstallModule()
                             Tr::tr("Install Package"),
                             msg,
                             QMessageBox::Yes | QMessageBox::No,
-                            Core::ICore::dialogParent());
+                            ICore::dialogParent());
 
                         const QString details
                             = Tr::tr("The extension \"%1\" wants to install the following "
                                      "package(s):\n\n")
                                   .arg(pluginSpec->name)
-                              + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                              + transform(installOptionsList, [](const InstallOptions &options) {
                                     //: %1 = package name, %2 = version, %3 = URL
                                     return QString("* %1 - %2 (from: %3)")
                                         .arg(options.name, options.version, options.url.toString());
@@ -350,15 +350,15 @@ void setupInstallModule()
                         return;
                     }
 
-                    const Utils::Id infoBarId = Utils::Id("Install")
-                            .withSuffix(pluginSpec->name)
-                            .withSuffix(QString::number(qHash(installOptionsList)));
+                    const Id infoBarId = Id("Install")
+                                             .withSuffix(pluginSpec->name)
+                                             .withSuffix(QString::number(qHash(installOptionsList)));
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
                     entry.addCustomButton(Tr::tr("Install"), [install, infoBarId]() {
                         install();
-                        Core::ICore::infoBar()->removeInfo(infoBarId);
+                        ICore::infoBar()->removeInfo(infoBarId);
                     });
 
                     entry.setCancelButtonInfo(denied);
@@ -367,7 +367,7 @@ void setupInstallModule()
                         = Tr::tr("The extension \"%1\" wants to install the following "
                                  "package(s):\n\n")
                               .arg("**" + pluginSpec->name + "**") // markdown bold
-                          + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                          + transform(installOptionsList, [](const InstallOptions &options) {
                                 //: Markdown list item: %1 = package name, %2 = version, %3 = URL
                                 return Tr::tr("* %1 - %2 (from: [%3](%3))")
                                     .arg(options.name, options.version, options.url.toString());
@@ -380,7 +380,7 @@ void setupInstallModule()
                         list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                         return list;
                     });
-                    Core::ICore::infoBar()->addInfo(entry);
+                    ICore::infoBar()->addInfo(entry);
                 };
 
             install["install"] = wrap(install["install_cb"]);

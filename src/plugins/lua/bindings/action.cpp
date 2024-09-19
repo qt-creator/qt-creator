@@ -21,13 +21,13 @@ void setupActionModule()
         result.new_enum(
             "CommandAttribute",
             "CA_Hide",
-            Core::Command::CA_Hide,
+            Command::CA_Hide,
             "CA_UpdateText",
-            Core::Command::CA_UpdateText,
+            Command::CA_UpdateText,
             "CA_UpdateIcon",
-            Core::Command::CA_UpdateIcon,
+            Command::CA_UpdateIcon,
             "CA_NonConfigurable",
-            Core::Command::CA_NonConfigurable);
+            Command::CA_NonConfigurable);
 
         struct ScriptCommand
         {
@@ -61,7 +61,7 @@ void setupActionModule()
 
         result["create"] = [parent = std::make_unique<QObject>()](
                                const std::string &actionId, const sol::table &options) mutable {
-            Core::ActionBuilder b(parent.get(), Id::fromString(QString::fromStdString(actionId)));
+            ActionBuilder b(parent.get(), Id::fromString(QString::fromStdString(actionId)));
 
             for (const auto &[k, v] : options) {
                 QString key = k.as<QString>();
@@ -80,7 +80,7 @@ void setupActionModule()
                 else if (key == "toolTip")
                     b.setToolTip(v.as<QString>());
                 else if (key == "commandAttributes")
-                    b.setCommandAttributes(Core::Command::CommandAttributes::fromInt(v.as<int>()));
+                    b.setCommandAttributes(Command::CommandAttributes::fromInt(v.as<int>()));
                 else if (key == "commandDescription")
                     b.setCommandDescription(v.as<QString>());
                 else if (key == "defaultKeySequence")
@@ -94,7 +94,7 @@ void setupActionModule()
                     b.setDefaultKeySequences(sequences);
                 } else if (key == "asModeAction") {
                     if (v.is<int>()) {
-                        Core::ModeManager::addAction(b.commandAction(), v.as<int>());
+                        ModeManager::addAction(b.commandAction(), v.as<int>());
                     } else {
                         throw std::runtime_error(
                             "asMode needs an integer argument for the priority");

@@ -114,8 +114,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             item->setFlat(*flat);
     }
 
-    if constexpr (hasSetIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
-        const auto iconPath = children.get<sol::optional<Utils::FilePath>>("iconPath");
+    if constexpr (hasSetIconPath<T, void (T::*)(const FilePath &)>::value) {
+        const auto iconPath = children.get<sol::optional<FilePath>>("iconPath");
         if (iconPath)
             item->setIconPath(*iconPath);
     }

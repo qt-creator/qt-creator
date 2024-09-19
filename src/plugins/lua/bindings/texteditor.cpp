@@ -18,6 +18,7 @@
 
 using namespace Utils;
 using namespace Text;
+using namespace TextEditor;
 
 namespace {
 
@@ -33,7 +34,7 @@ Return get_or_throw(const Argument &arg, const char *key)
 
 TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDocument *document)
 {
-    const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
+    const auto textEditor = BaseTextEditor::currentTextEditor();
     if (!textEditor || textEditor->document() != document)
         return nullptr;
 
@@ -44,7 +45,7 @@ TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDoc
     return widget;
 }
 
-void addFloatingWidget(TextEditor::BaseTextEditor *editor, QWidget *widget, int position)
+void addFloatingWidget(BaseTextEditor *editor, QWidget *widget, int position)
 {
     widget->setParent(editor->editorWidget()->viewport());
     const auto editorWidget = editor->editorWidget();
@@ -64,8 +65,8 @@ void addFloatingWidget(TextEditor::BaseTextEditor *editor, QWidget *widget, int 
 
 namespace Lua::Internal {
 
-using TextEditorPtr = QPointer<TextEditor::BaseTextEditor>;
-using TextDocumentPtr = QPointer<TextEditor::TextDocument>;
+using TextEditorPtr = QPointer<BaseTextEditor>;
+using TextDocumentPtr = QPointer<TextDocument>;
 
 class TextEditorRegistry : public QObject
 {
@@ -97,7 +98,7 @@ public:
                     m_currentTextEditor = nullptr;
                 }
 
-                m_currentTextEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+                m_currentTextEditor = qobject_cast<BaseTextEditor *>(editor);
 
                 if (m_currentTextEditor) {
                     if (!connectTextEditor(m_currentTextEditor))
@@ -108,19 +109,19 @@ public:
             });
     }
 
-    bool connectTextEditor(TextEditor::BaseTextEditor *editor)
+    bool connectTextEditor(BaseTextEditor *editor)
     {
         auto textEditorWidget = editor->editorWidget();
         if (!textEditorWidget)
             return false;
 
-        TextEditor::TextDocument *textDocument = editor->textDocument();
+        TextDocument *textDocument = editor->textDocument();
         if (!textDocument)
             return false;
 
         connect(
             textEditorWidget,
-            &TextEditor::TextEditorWidget::cursorPositionChanged,
+            &TextEditorWidget::cursorPositionChanged,
             this,
             [editor, textEditorWidget, this]() {
                 emit currentCursorChanged(editor, textEditorWidget->multiTextCursor());
@@ -128,7 +129,7 @@ public:
 
         connect(
             textDocument,
-            &TextEditor::TextDocument::contentsChangedWithPosition,
+            &TextDocument::contentsChangedWithPosition,
             this,
             [this, textDocument](int position, int charsRemoved, int charsAdded) {
                 emit documentContentsChanged(textDocument, position, charsRemoved, charsAdded);
@@ -138,11 +139,11 @@ public:
     }
 
 signals:
-    void currentEditorChanged(TextEditor::BaseTextEditor *editor);
+    void currentEditorChanged(BaseTextEditor *editor);
     void documentContentsChanged(
-        TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded);
+        TextDocument *document, int position, int charsRemoved, int charsAdded);
 
-    void currentCursorChanged(TextEditor::BaseTextEditor *editor, MultiTextCursor cursor);
+    void currentCursorChanged(BaseTextEditor *editor, MultiTextCursor cursor);
 
 protected:
     TextEditorPtr m_currentTextEditor = nullptr;
@@ -156,7 +157,7 @@ void setupTextEditorModule()
         sol::table result = lua.create_table();
 
         result["currentEditor"] = []() -> TextEditorPtr {
-            return TextEditor::BaseTextEditor::currentTextEditor();
+            return BaseTextEditor::currentTextEditor();
         };
 
         result.new_usertype<MultiTextCursor>(
@@ -223,7 +224,7 @@ void setupTextEditorModule()
                 return ret;
             });
 
-        result.new_usertype<TextEditor::BaseTextEditor>(
+        result.new_usertype<BaseTextEditor>(
             "TextEditor",
             sol::no_constructor,
             "document",
@@ -256,7 +257,7 @@ void setupTextEditorModule()
                 return textEditor->editorWidget()->suggestionVisible();
             });
 
-        result.new_usertype<TextEditor::TextSuggestion::Data>(
+        result.new_usertype<TextSuggestion::Data>(
             "Suggestion",
             "create",
             [](const sol::table &suggestion) -> TextEditor::TextSuggestion::Data {
@@ -277,14 +278,14 @@ void setupTextEditorModule()
 
                 const auto text = get_or_throw<QString>(suggestion, "text");
 
-                const Text::Position cursor_pos = {one_based(position_line), position_column};
-                const Text::Position from_pos = {one_based(from_line), from_column};
-                const Text::Position to_pos = {one_based(to_line), to_column};
+                const Position cursor_pos = {one_based(position_line), position_column};
+                const Position from_pos = {one_based(from_line), from_column};
+                const Position to_pos = {one_based(to_line), to_column};
 
-                return {Text::Range{from_pos, to_pos}, cursor_pos, text};
+                return {Range{from_pos, to_pos}, cursor_pos, text};
             });
 
-        result.new_usertype<TextEditor::TextDocument>(
+        result.new_usertype<TextDocument>(
             "TextDocument",
             sol::no_constructor,
             "file",
@@ -293,8 +294,7 @@ void setupTextEditorModule()
                 return document->filePath();
             },
             "blockAndColumn",
-            [](const TextDocumentPtr &document,
-               int position) -> std::optional<std::pair<int, int>> {
+            [](const TextDocumentPtr &document, int position) -> std::optional<std::pair<int, int>> {
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
                 QTextBlock block = document->document()->findBlock(position);
                 if (!block.isValid())
@@ -310,7 +310,7 @@ void setupTextEditorModule()
                 return document->document()->blockCount();
             },
             "setSuggestions",
-            [](const TextDocumentPtr &document, QList<TextEditor::TextSuggestion::Data> suggestions) {
+            [](const TextDocumentPtr &document, QList<TextSuggestion::Data> suggestions) {
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
 
                 if (suggestions.isEmpty())
@@ -321,7 +321,7 @@ void setupTextEditorModule()
                     return;
 
                 widget->insertSuggestion(
-                    std::make_unique<TextEditor::CyclicSuggestion>(suggestions, document->document()));
+                    std::make_unique<CyclicSuggestion>(suggestions, document->document()));
             });
 
         return result;
@@ -332,8 +332,8 @@ void setupTextEditorModule()
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentEditorChanged,
             guard,
-            [func](TextEditor::BaseTextEditor *editor) {
-                Utils::expected_str<void> res = void_safe_call(func, editor);
+            [func](BaseTextEditor *editor) {
+                expected_str<void> res = void_safe_call(func, editor);
                 QTC_CHECK_EXPECTED(res);
             });
     });
@@ -343,8 +343,8 @@ void setupTextEditorModule()
             TextEditorRegistry::instance(),
             &TextEditorRegistry::documentContentsChanged,
             guard,
-            [func](TextEditor::TextDocument *document, int position, int charsRemoved, int charsAdded) {
-                Utils::expected_str<void> res
+            [func](TextDocument *document, int position, int charsRemoved, int charsAdded) {
+                expected_str<void> res
                     = void_safe_call(func, document, position, charsRemoved, charsAdded);
                 QTC_CHECK_EXPECTED(res);
             });
@@ -355,8 +355,8 @@ void setupTextEditorModule()
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentCursorChanged,
             guard,
-            [func](TextEditor::BaseTextEditor *editor, const MultiTextCursor &cursor) {
-                Utils::expected_str<void> res = void_safe_call(func, editor, cursor);
+            [func](BaseTextEditor *editor, const MultiTextCursor &cursor) {
+                expected_str<void> res = void_safe_call(func, editor, cursor);
                 QTC_CHECK_EXPECTED(res);
             });
     });
