@@ -320,6 +320,12 @@ private:
 */
 
 /*!
+    \typealias GroupItems
+
+    Type alias for QList<GroupItem>.
+*/
+
+/*!
     \class Tasking::GroupItem
     \inheaderfile solutions/tasking/tasktree.h
     \inmodule TaskingSolution
@@ -383,7 +389,7 @@ private:
 */
 
 /*!
-    \fn GroupItem::GroupItem(const QList<GroupItem> &items)
+    \fn GroupItem::GroupItem(const GroupItems &items)
 
     Constructs a \c GroupItem element with a given list of \a items.
 
@@ -419,7 +425,7 @@ private:
 /*!
     \fn GroupItem::GroupItem(std::initializer_list<GroupItem> items)
     \overload
-    \sa GroupItem(const QList<Tasking::GroupItem> &items)
+    \sa GroupItem(const GroupItems &items)
 */
 
 /*!
@@ -508,7 +514,7 @@ private:
 */
 
 /*!
-    \fn Group::Group(const QList<GroupItem> &children)
+    \fn Group::Group(const GroupItems &children)
 
     Constructs a group with a given list of \a children.
 
@@ -518,7 +524,7 @@ private:
     \code
         const QStringList sourceList = ...;
 
-        QList<GroupItem> groupItems { parallel };
+        GroupItems groupItems { parallel };
 
         for (const QString &source : sourceList) {
             const NetworkQueryTask task(...); // use source for setup handler
@@ -1446,7 +1452,7 @@ void *StorageBase::activeStorageVoid() const
     return m_storageData->threadData().activeStorage();
 }
 
-void GroupItem::addChildren(const QList<GroupItem> &children)
+void GroupItem::addChildren(const GroupItems &children)
 {
     QT_ASSERT(m_type == Type::Group || m_type == Type::List,
               qWarning("Only Group or List may have children, skipping..."); return);
@@ -2110,7 +2116,7 @@ void RuntimeIteration::deleteChild(RuntimeTask *task)
 }
 
 static std::vector<TaskNode> createChildren(TaskTreePrivate *taskTreePrivate,
-                                            const QList<GroupItem> &children)
+                                            const GroupItems &children)
 {
     std::vector<TaskNode> result;
     result.reserve(children.size());

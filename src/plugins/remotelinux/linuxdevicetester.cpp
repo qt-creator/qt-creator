@@ -46,7 +46,7 @@ public:
     LinuxDevice::Ptr m_device;
     TaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
-    QList<GroupItem> m_extraTests;
+    GroupItems m_extraTests;
 };
 
 QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
@@ -306,7 +306,7 @@ void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCo
     d->m_extraCommands = extraCommands;
 }
 
-void GenericLinuxDeviceTester::setExtraTests(const QList<GroupItem> &extraTests)
+void GenericLinuxDeviceTester::setExtraTests(const GroupItems &extraTests)
 {
     d->m_extraTests = extraTests;
 }

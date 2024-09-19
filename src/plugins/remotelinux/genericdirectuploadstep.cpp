@@ -154,7 +154,7 @@ GroupItem GenericDirectUploadStep::statTree(const Storage<UploadStorage> &storag
     const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<GroupItem> statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
+        GroupItems statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));

@@ -18,6 +18,12 @@ class QFuture;
 
 namespace Tasking {
 
+class Do;
+class For;
+class Group;
+class GroupItem;
+using GroupItems = QList<GroupItem>;
+
 Q_NAMESPACE_EXPORT(TASKING_EXPORT)
 
 // WorkflowPolicy:
@@ -196,10 +202,6 @@ private:
     }
 };
 
-class Do;
-class For;
-class Group;
-
 class TASKING_EXPORT GroupItem
 {
 public:
@@ -214,7 +216,7 @@ public:
         , m_storageList{storage} {}
 
     // TODO: Add tests.
-    GroupItem(const QList<GroupItem> &children) : m_type(Type::List) { addChildren(children); }
+    GroupItem(const GroupItems &children) : m_type(Type::List) { addChildren(children); }
     GroupItem(std::initializer_list<GroupItem> children) : m_type(Type::List) { addChildren(children); }
 
 protected:
@@ -262,7 +264,7 @@ protected:
     GroupItem(const TaskHandler &handler)
         : m_type(Type::TaskHandler)
         , m_taskHandler(handler) {}
-    void addChildren(const QList<GroupItem> &children);
+    void addChildren(const GroupItems &children);
 
     static GroupItem groupHandler(const GroupHandler &handler) { return GroupItem({handler}); }
 
@@ -285,7 +287,7 @@ private:
     friend class ParallelLimitFunctor;
     friend class WorkflowPolicyFunctor;
     Type m_type = Type::Group;
-    QList<GroupItem> m_children;
+    GroupItems m_children;
     GroupData m_groupData;
     QList<StorageBase> m_storageList;
     TaskHandler m_taskHandler;
@@ -329,7 +331,7 @@ private:
 class TASKING_EXPORT Group : public ExecutableItem
 {
 public:
-    Group(const QList<GroupItem> &children) { addChildren(children); }
+    Group(const GroupItems &children) { addChildren(children); }
     Group(std::initializer_list<GroupItem> children) { addChildren(children); }
 
     // GroupData related:
@@ -453,7 +455,7 @@ private:
 class TASKING_EXPORT Do final
 {
 public:
-    explicit Do(const QList<GroupItem> &children) : m_children(children) {}
+    explicit Do(const GroupItems &children) : m_children(children) {}
     explicit Do(std::initializer_list<GroupItem> children) : m_children(children) {}
 
 private:
@@ -465,7 +467,7 @@ private:
 class TASKING_EXPORT Forever final : public ExecutableItem
 {
 public:
-    explicit Forever(const QList<GroupItem> &children)
+    explicit Forever(const GroupItems &children)
         { addChildren({ For (LoopForever()) >> Do { children } } ); }
     explicit Forever(std::initializer_list<GroupItem> children)
         { addChildren({ For (LoopForever()) >> Do { children } } ); }

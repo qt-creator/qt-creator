@@ -682,7 +682,7 @@ Group ClangTool::runRecipe(const RunSettings &runSettings,
         return SetupResult::StopWithError;
     };
 
-    QList<GroupItem> topTasks { onGroupSetup(onTopSetup) };
+    GroupItems topTasks { onGroupSetup(onTopSetup) };
 
     if (buildBeforeAnalysis) {
         QPointer<RunControl> runControl(m_runControl);

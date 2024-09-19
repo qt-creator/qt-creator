@@ -2735,7 +2735,7 @@ void tst_Tasking::testTree_data()
     }
 
     {
-        const QList<GroupItem> successItems {
+        const GroupItems successItems {
             storage,
             createSuccessTask(1),
             createSuccessTask(2)
@@ -2786,7 +2786,7 @@ void tst_Tasking::testTree_data()
             {2, Handler::Success}
         };
 
-        const QList<GroupItem> errorItems {
+        const GroupItems errorItems {
             storage,
             createSuccessTask(1),
             createFailingTask(2)
@@ -2871,7 +2871,7 @@ void tst_Tasking::testTree_data()
             };
         };
 
-        const QList<GroupItem> items {
+        const GroupItems items {
             storage,
             TestTask(onSetupContinue(1), onDone(1)),
             TestTask(onSetupStop(2), onDone(2))
@@ -3982,7 +3982,7 @@ void tst_Tasking::testInThread()
         QCOMPARE(result.executeCount, s_loopCount);
     };
 
-    QList<GroupItem> tasks = { parallel };
+    GroupItems tasks = { parallel };
     for (int i = 0; i < s_threadCount; ++i)
         tasks.append(ConcurrentCallTask<TestResult>(onSetup, onDone));
 

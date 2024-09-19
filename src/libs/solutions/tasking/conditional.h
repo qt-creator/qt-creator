@@ -51,7 +51,7 @@ private:
 class TASKING_EXPORT Else
 {
 public:
-    explicit Else(const QList<GroupItem> &children) : m_body({children}) {}
+    explicit Else(const GroupItems &children) : m_body({children}) {}
     explicit Else(std::initializer_list<GroupItem> children) : m_body({children}) {}
 
 private:
@@ -62,7 +62,7 @@ private:
 class TASKING_EXPORT Then
 {
 public:
-    explicit Then(const QList<GroupItem> &children) : m_body({children}) {}
+    explicit Then(const GroupItems &children) : m_body({children}) {}
     explicit Then(std::initializer_list<GroupItem> children) : m_body({children}) {}
 
 private:

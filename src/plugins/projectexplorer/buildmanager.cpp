@@ -762,10 +762,10 @@ void BuildManager::startBuildQueue()
     const GroupItem abortPolicy
         = projectExplorerSettings().abortBuildAllOnError ? stopOnError : continueOnError;
 
-    QList<GroupItem> topLevel { abortPolicy, ParserAwaiterTask(onAwaiterSetup) };
+    GroupItems topLevel { abortPolicy, ParserAwaiterTask(onAwaiterSetup) };
     Project *lastProject = nullptr;
     Target *lastTarget = nullptr;
-    QList<GroupItem> targetTasks;
+    GroupItems targetTasks;
     d->m_progress = 0;
     d->m_maxProgress = 0;
 

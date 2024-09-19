@@ -28,7 +28,7 @@ static ExecutableItem conditionsRecipe(const QList<ConditionData> &conditions)
 {
     Storage<bool> bodyExecutedStorage;
 
-    QList<GroupItem> recipes;
+    GroupItems recipes;
     for (const ConditionData &condition : conditions)
         recipes << conditionRecipe(bodyExecutedStorage, condition);
 
