@@ -4240,7 +4240,7 @@ void GdbEngine::createFullBacktrace()
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
     cmd.callback = [](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone) {
-            Internal::openTextEditor("Backtrace $",
+            Internal::openTextEditor("Backtrace$",
                 response.consoleStreamOutput + response.logStreamOutput);
         }
     };

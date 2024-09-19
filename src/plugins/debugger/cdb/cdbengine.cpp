@@ -255,7 +255,7 @@ int CdbEngine::elapsedLogTime()
 void CdbEngine::createFullBacktrace()
 {
     runCommand({"~*kp", BuiltinCommand, [](const DebuggerResponse &response) {
-        Internal::openTextEditor("Backtrace $", response.data.data());
+        Internal::openTextEditor("Backtrace$", response.data.data());
     }});
 }
 
