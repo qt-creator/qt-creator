@@ -279,33 +279,33 @@ def package_qtcreator(args, paths):
         if not args.no_cdb:
             common.check_print_call(command + [paths.qtcreatorcdbext_install])
 
+    # use -mf=off to avoid usage of the ARM executable compression filter,
+    # which cannot be extracted by p7zip
+    zip = ['7z', 'a', '-mmt' + args.zip_threads, '-mf=off']
     if not args.no_zip:
         if not args.no_qtcreator:
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
-                                     zipPatternForApp(paths)],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
+                                       zipPatternForApp(paths)],
                                     paths.install)
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
-                                     '*'],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
+                                       '*'],
                                     paths.dev_install)
             if args.with_debug_info:
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                         os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
-                                         '*'],
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
+                                           '*'],
                                         paths.debug_install)
         if common.is_windows_platform():
-            # use -mf=off to avoid usage of the ARM executable compression filter,
-            # which cannot be extracted by the p7zip version on the machine doing
-            # the repository builds
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
-                                     os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
-                                     '*'],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
+                                       '*'],
                                     paths.wininterrupt_install)
             if not args.no_cdb:
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
-                                         os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
-                                         '*'],
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
+                                           '*'],
                                         paths.qtcreatorcdbext_install)
 
     if common.is_mac_platform() and not args.no_qtcreator:
@@ -319,9 +319,9 @@ def package_qtcreator(args, paths):
                 app = apps[0]
                 common.codesign(os.path.join(signed_install_path, app))
                 if not args.no_zip:
-                    common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                             os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
-                                             app],
+                    common.check_print_call(zip
+                                            + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
+                                               app],
                                             signed_install_path)
         if not args.no_dmg:
             common.check_print_call(['python', '-u',
