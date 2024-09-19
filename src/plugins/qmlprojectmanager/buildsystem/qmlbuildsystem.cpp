@@ -527,6 +527,7 @@ Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) co
     const Utils::FilePath relative = sourceFile.relativePathFrom(sourceDir);
     return targetDirectory().resolvePath(relative);
 }
+
 void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 {
         m_projectItem->setSupportedLanguages(languages);
@@ -733,11 +734,22 @@ QStringList QmlBuildSystem::mockImports() const
 
 QStringList QmlBuildSystem::absoluteImportPaths() const
 {
-    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
+    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
         Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
-        if (!filePath.isAbsolutePath())
-            return (projectDirectory() / importPath).toString();
-        return projectDirectory().resolvePath(importPath).toString();
+        if (filePath.isAbsolutePath())
+            return projectDirectory().resolvePath(importPath).path();
+        return (projectDirectory() / importPath).path();
+    });
+}
+
+QStringList QmlBuildSystem::targetImportPaths() const
+{
+    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
+        const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+        if (filePath.isAbsolutePath()) {
+            return importPath;
+        }
+        return (targetDirectory() / importPath).path();
     });
 }
 
