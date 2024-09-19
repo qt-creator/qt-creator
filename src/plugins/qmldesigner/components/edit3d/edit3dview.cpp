@@ -1472,7 +1472,7 @@ void Edit3DView::dropBundleMaterial(const QPointF &pos)
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
-void Edit3DView::dropBundleEffect(const QPointF &pos)
+void Edit3DView::dropBundleItem(const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::BundleEffectDrop;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);

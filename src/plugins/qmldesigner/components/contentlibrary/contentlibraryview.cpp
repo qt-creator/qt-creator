@@ -220,8 +220,7 @@ void ContentLibraryView::connectImporter()
             // delete instances of the bundle material that is about to be unimported
             executeInTransaction("ContentLibraryView::connectImporter", [&] {
                 ModelNode matLib = Utils3D::materialLibraryNode(this);
-                if (!matLib.isValid())
-                    return;
+                QTC_ASSERT(matLib.isValid(), return);
 
                 Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
                     if (mat.isValid() && mat.type() == type)
@@ -342,8 +341,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
     if (identifier == "drop_bundle_material") {
         ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
+        QTC_ASSERT(matLib.isValid(), return);
 
         m_bundleMaterialTargets = nodeList;
 
@@ -367,8 +365,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         m_draggedBundleMaterial = nullptr;
     } else if (identifier == "drop_bundle_texture") {
         ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
+        QTC_ASSERT(matLib.isValid(), return);
 
         m_widget->addTexture(m_draggedBundleTexture);
 
@@ -377,13 +374,39 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         QTC_ASSERT(nodeList.size() == 1, return);
 
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool is3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
+        bool isUser3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
+        bool isUserMaterial = m_draggedBundleItem->type().startsWith(compUtils.userMaterialsBundleType().toLatin1());
 
         m_bundleItemPos = data.size() == 1 ? data.first() : QVariant();
-        if (is3D)
+        if (isUser3D) {
             m_widget->userModel()->addToProject(m_draggedBundleItem);
-        else
+        } else if (isUserMaterial) {
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
+            QTC_ASSERT(matLib.isValid(), return);
+
+            m_bundleMaterialTargets = nodeList;
+
+            ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleItem->type());
+            if (defaultMat.isValid()) {
+                if (m_bundleMaterialTargets.isEmpty()) { // if no drop target, create a duplicate material
+                    executeInTransaction(__FUNCTION__, [&] {
+#ifdef QDS_USE_PROJECTSTORAGE
+                        Utils3D::createMaterial(this, m_draggedBundleItem->type());
+#else
+                        Utils3D::createMaterial(this, defaultMat.metaInfo());
+#endif
+                    });
+                } else {
+                    applyBundleMaterialToDropTarget(defaultMat);
+                }
+            } else {
+                m_widget->userModel()->addToProject(m_draggedBundleItem);
+            }
+
+            m_draggedBundleItem = nullptr;
+        } else {
             m_widget->effectsModel()->addInstance(m_draggedBundleItem);
+        }
         m_bundleItemTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
