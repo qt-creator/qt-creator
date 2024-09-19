@@ -43,8 +43,6 @@ ScrollView {
     }
 
     Column {
-        id: clayout
-
         Repeater {
             id: parentList
 
