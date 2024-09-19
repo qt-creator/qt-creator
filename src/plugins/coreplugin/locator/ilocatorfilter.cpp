@@ -1365,7 +1365,7 @@ static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStor
     When this cache started a new search in meantime, the cache was invalidated or even deleted,
     the update of the cache after a successful run of the task is ignored.
 */
-LocatorMatcherTask LocatorFileCache::matcher() const
+ExecutableItem LocatorFileCache::matcher() const
 {
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 

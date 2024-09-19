@@ -136,8 +136,7 @@ private:
     std::shared_ptr<LocatorStoragePrivate> d;
 };
 
-using LocatorMatcherTask = Tasking::GroupItem;
-using LocatorMatcherTasks = QList<LocatorMatcherTask>;
+using LocatorMatcherTasks = QList<Tasking::ExecutableItem>;
 using LocatorMatcherTaskCreator = std::function<LocatorMatcherTasks()>;
 class LocatorMatcherPrivate;
 
@@ -307,7 +306,7 @@ public:
     std::optional<Utils::FilePaths> filePaths() const;
 
     static FilePathsGenerator filePathsGenerator(const Utils::FilePaths &filePaths);
-    LocatorMatcherTask matcher() const;
+    Tasking::ExecutableItem matcher() const;
 
     using MatchedEntries = std::array<LocatorFilterEntries, int(ILocatorFilter::MatchLevel::Count)>;
     static Utils::FilePaths processFilePaths(const QFuture<void> &future,

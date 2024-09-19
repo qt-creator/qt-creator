@@ -20,7 +20,7 @@ using namespace Utils;
 
 namespace LanguageClient {
 
-void filterResults(QPromise<void> &promise, const LocatorStorage &storage, Client *client,
+static void filterResults(QPromise<void> &promise, const LocatorStorage &storage, Client *client,
                    const QList<SymbolInformation> &results, const QList<SymbolKind> &filter)
 {
     const auto doFilter = [&](const SymbolInformation &info) {
@@ -42,7 +42,7 @@ void filterResults(QPromise<void> &promise, const LocatorStorage &storage, Clien
     storage.reportOutput(Utils::transform(filteredResults, generateEntry));
 }
 
-LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
+static ExecutableItem locatorMatcher(Client *client, int maxResultCount,
                                   const QList<SymbolKind> &filter)
 {
     Storage<QList<SymbolInformation>> resultStorage;
@@ -79,17 +79,17 @@ LocatorMatcherTask locatorMatcher(Client *client, int maxResultCount,
     return root;
 }
 
-LocatorMatcherTask allSymbolsMatcher(Client *client, int maxResultCount)
+static ExecutableItem allSymbolsMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount, {});
 }
 
-LocatorMatcherTask classMatcher(Client *client, int maxResultCount)
+static ExecutableItem classMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount, {SymbolKind::Class, SymbolKind::Struct});
 }
 
-LocatorMatcherTask functionMatcher(Client *client, int maxResultCount)
+static ExecutableItem functionMatcher(Client *client, int maxResultCount)
 {
     return locatorMatcher(client, maxResultCount,
                           {SymbolKind::Method, SymbolKind::Function, SymbolKind::Constructor});
@@ -111,7 +111,7 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
                                                                 docSymbolModifier));
 }
 
-LocatorMatcherTask currentDocumentMatcher()
+static ExecutableItem currentDocumentMatcher()
 {
     Storage<CurrentDocumentSymbolsData> resultStorage;
 
@@ -132,7 +132,7 @@ LocatorMatcherTask currentDocumentMatcher()
     return root;
 }
 
-using MatcherCreator = std::function<Core::LocatorMatcherTask(Client *, int)>;
+using MatcherCreator = std::function<ExecutableItem(Client *, int)>;
 
 static MatcherCreator creatorForType(MatcherType type)
 {

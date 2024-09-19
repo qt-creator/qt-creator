@@ -172,7 +172,7 @@ static void filterCurrentResults(QPromise<void> &promise, const LocatorStorage &
                                           [](const Entry &entry) { return entry.entry; }));
 }
 
-static LocatorMatcherTask currentDocumentMatcher()
+static ExecutableItem currentDocumentMatcher()
 {
     Storage<CurrentDocumentSymbolsData> resultStorage;
 
