@@ -38,6 +38,8 @@ Rectangle {
             PerspectiveCamera {
                 id: sceneCamera
                 z: 350
+                y: 80
+                eulerRotation.x: -10
             }
 
             Model {
