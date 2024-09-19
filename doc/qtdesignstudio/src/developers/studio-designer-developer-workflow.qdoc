@@ -47,8 +47,8 @@
                 > \uicontrol {Enable Automatic CMake Generation}. This creates a
                 \e {CMakeLists.txt} file in your project folder.
 
-                \note Enabling this option tracks the changes made to the project in Qt Creator
-                    and automatically updates in \QDS. The connection works unless you
+                \note Enabling this option tracks the changes made to the project in \QDS
+                    and automatically updates in Qt Creator. The connection works unless you
                     deactivate the option.
 
             \image studio-project-export.webp "Exporting Qt Design Studio project"
