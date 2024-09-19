@@ -41,6 +41,7 @@
 #include <QDesktopServices>
 #include <QDockWidget>
 #include <QFutureWatcher>
+#include <QInputDialog>
 #include <QPushButton>
 #include <QTimer>
 #include <QToolBar>
@@ -1118,10 +1119,12 @@ QWidget *Editor::toolBar()
 
         m_toolBar->addSeparator();
 
-        QString link = QString(R"(<a href="%1">%1</a>)")
-                           .arg(m_document->settings()->compilerExplorerUrl.value());
-
-        auto poweredByLabel = new QLabel(Tr::tr("powered by %1").arg(link));
+        auto labelText = [this]() {
+            return Tr::tr("powered by %1")
+                .arg(QString(R"(<a href="%1">%1</a>)")
+                         .arg(m_document->settings()->compilerExplorerUrl.value()));
+        };
+        auto poweredByLabel = new QLabel(labelText());
 
         poweredByLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextBrowserInteraction);
         poweredByLabel->setContentsMargins(6, 0, 0, 0);
@@ -1130,7 +1133,30 @@ QWidget *Editor::toolBar()
             QDesktopServices::openUrl(link);
         });
 
+        connect(
+            &m_document->settings()->compilerExplorerUrl,
+            &StringAspect::changed,
+            poweredByLabel,
+            [labelText, poweredByLabel] { poweredByLabel->setText(labelText()); });
+
         m_toolBar->addWidget(poweredByLabel);
+
+        QAction *setUrlAction = new QAction();
+        setUrlAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+        setUrlAction->setToolTip(Tr::tr("Change backend URL"));
+        connect(setUrlAction, &QAction::triggered, this, [this] {
+            bool ok;
+            QString text = QInputDialog::getText(
+                ICore::dialogParent(),
+                Tr::tr("Set Compiler Explorer URL"),
+                Tr::tr("URL:"),
+                QLineEdit::Normal,
+                m_document->settings()->compilerExplorerUrl.value(),
+                &ok);
+            if (ok)
+                m_document->settings()->compilerExplorerUrl.setValue(text);
+        });
+        m_toolBar->addAction(setUrlAction);
 
         connect(newSource,
                 &QAction::triggered,
