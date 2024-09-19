@@ -9,6 +9,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick3D
 import QtQuick3D.Effects
+import QtQuick3D.Helpers
 import %{ImportModuleName}
 
 Rectangle {
@@ -27,6 +28,11 @@ Rectangle {
             id: sceneEnvironment
             antialiasingMode: SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.High
+            backgroundMode: SceneEnvironment.SkyBox
+            lightProbe: Texture {
+                textureData: ProceduralSkyTextureData {
+                }
+            }
         }
 
         Node {

@@ -28,6 +28,11 @@ Rectangle {
             id: sceneEnvironment
             antialiasingMode: SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.High
+            backgroundMode: SceneEnvironment.SkyBox
+            lightProbe: Texture {
+                textureData: ProceduralSkyTextureData {
+                }
+            }
         }
 
         Node {
