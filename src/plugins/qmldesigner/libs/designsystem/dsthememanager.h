@@ -8,7 +8,10 @@
 #include "dsconstants.h"
 #include "dsthemegroup.h"
 
+#include <externaldependenciesinterface.h>
 #include <modelnode.h>
+
+#include <QCoreApplication>
 
 namespace QmlDesigner {
 
@@ -18,6 +21,7 @@ class DSTheme;
 
 class DESIGNSYSTEM_EXPORT DSThemeManager
 {
+    Q_DECLARE_TR_FUNCTIONS(DSThemeManager);
 
 public:
     DSThemeManager();
@@ -27,7 +31,7 @@ public:
     DSThemeManager& operator=(const DSThemeManager&) = delete;
 
     DSThemeManager(DSThemeManager&&) = default;
-    DSThemeManager& operator=(DSThemeManager&&) = default;
+    DSThemeManager &operator=(DSThemeManager &&) = default;
 
     std::optional<ThemeId> addTheme(const ThemeName &themeName);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
@@ -44,12 +48,16 @@ public:
     void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p);
     void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p, const PropertyName &newName);
 
-    void decorate(ModelNode rootNode, const QByteArray& nodeType, bool isMCU) const;
-    void decorateThemeComponent(ModelNode rootNode) const;
+    void decorate(ModelNode rootNode, const QByteArray &nodeType = "QtObject", bool isMCU = false) const;
+    void decorateThemeInterface(ModelNode rootNode) const;
+
+    std::optional<QString> load(ModelNode rootModelNode);
 
 private:
     DSThemeGroup *propertyGroup(GroupType type);
     void addGroupAliases(ModelNode rootNode) const;
+
+    bool findPropertyType(const AbstractProperty &p, ThemeProperty *themeProp, GroupType *gt) const;
 
 private:
     std::map<ThemeId, ThemeName> m_themes;

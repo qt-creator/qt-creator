@@ -3,10 +3,12 @@
 
 #include "dsthemegroup.h"
 
+#include <abstractproperty.h>
 #include <model.h>
+#include <nodemetainfo.h>
 #include <nodeproperty.h>
-#include <variantproperty.h>
 #include <utils/qtcassert.h>
+#include <variantproperty.h>
 
 #include <QLoggingCategory>
 #include <QVariant>
@@ -142,64 +144,73 @@ void DSThemeGroup::removeTheme(ThemeId theme)
 
 void DSThemeGroup::duplicateValues(ThemeId from, ThemeId to)
 {
-    for (auto itr = m_values.begin(); itr != m_values.end(); ++itr) {
-        auto &[propName, values] = *itr;
-        auto fromValueItr = values.find(from);
+    for (auto &[propName, values] : m_values) {
+        ThemeValues::iterator fromValueItr = values.find(from);
         if (fromValueItr != values.end())
             values[to] = fromValueItr->second;
     }
 }
 
-void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTEXT decorationContext)
+void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, bool wrapInGroups)
 {
     if (!count(theme))
         return; // No props for this theme in this group.
 
-    ModelNode *targetNode = &themeNode;
+    ModelNode targetNode = themeNode;
     const auto typeName = groupTypeName(m_type);
 
-    if (decorationContext == DECORATION_CONTEXT::MPU) {
+    if (wrapInGroups) {
         // Create a group node
         const auto groupName = GroupId(m_type);
         auto groupNode = themeNode.model()->createModelNode("QtObject");
-        auto groupProperty = themeNode.nodeProperty(groupName);
+        NodeProperty groupProperty = themeNode.nodeProperty(groupName);
 
         if (!groupProperty || !typeName || !groupNode) {
             qCDebug(dsLog) << "Adding group node failed." << groupName << theme;
             return;
         }
         groupProperty.setDynamicTypeNameAndsetModelNode("QtObject", groupNode);
-        targetNode = &groupNode;
+        targetNode = groupNode;
     }
 
     // Add properties
-    for (auto itr = m_values.begin(); itr != m_values.end(); ++itr) {
-        auto &[propName, values] = *itr;
+    for (auto &[propName, values] : m_values) {
         auto themeValue = values.find(theme);
-        if (themeValue != values.end()) {
-            auto &propData = themeValue->second;
-            if (propData.isBinding) {
-                auto bindingProp = targetNode->bindingProperty(propName);
-                if (!bindingProp)
-                    continue;
-
-                if (decorationContext == DECORATION_CONTEXT::MCU)
-                    bindingProp.setExpression(propData.value.toString());
-                else
-                    bindingProp.setDynamicTypeNameAndExpression(*typeName, propData.value.toString());
-
-            } else {
-                auto nodeProp = targetNode->variantProperty(propName);
-                if (!nodeProp)
-                    continue;
-
-                if (decorationContext == DECORATION_CONTEXT::MCU)
-                    nodeProp.setValue(propData.value);
-                else
-                    nodeProp.setDynamicTypeNameAndValue(*typeName, propData.value);
-            }
-        }
+        if (themeValue != values.end())
+            addProperty(targetNode, propName, themeValue->second);
     }
+}
 
+void DSThemeGroup::decorateComponent(ModelNode node)
+{
+    const auto typeName = groupTypeName(m_type);
+    // Add properties with type to the node
+    for (auto &[propName, values] : m_values) {
+        auto nodeProp = node.variantProperty(propName);
+        nodeProp.setDynamicTypeNameAndValue(*typeName, nodeProp.value());
+    }
+}
+
+void DSThemeGroup::addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const
+{
+    auto metaInfo = n.model()->metaInfo(n.type());
+    const bool propDefined = metaInfo.property(propName).isValid();
+
+    const auto typeName = groupTypeName(m_type);
+    if (data.isBinding) {
+        if (propDefined)
+            n.bindingProperty(propName).setExpression(data.value.toString());
+        else if (auto bindingProp = n.bindingProperty(propName))
+            bindingProp.setDynamicTypeNameAndExpression(*typeName, data.value.toString());
+        else
+            qCDebug(dsLog) << "Assigning invalid binding" << propName << n.id();
+    } else {
+        if (propDefined)
+            n.variantProperty(propName).setValue(data.value);
+        else if (auto nodeProp = n.variantProperty(propName))
+            nodeProp.setDynamicTypeNameAndValue(*typeName, data.value);
+        else
+            qCDebug(dsLog) << "Assigning invalid variant property" << propName << n.id();
+    }
 }
 }
