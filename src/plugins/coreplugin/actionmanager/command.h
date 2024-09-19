@@ -61,6 +61,7 @@ public:
 
     Context context() const;
 
+    void setAttributes(CommandAttributes attributes);
     void setAttribute(CommandAttribute attr);
     void removeAttribute(CommandAttribute attr);
     bool hasAttribute(CommandAttribute attr) const;

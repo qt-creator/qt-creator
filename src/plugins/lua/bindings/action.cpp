@@ -45,7 +45,7 @@ void setupActionModule()
                 else if (key == "toolTip")
                     b.setToolTip(v.as<QString>());
                 else if (key == "commandAttributes")
-                    b.setCommandAttribute((Core::Command::CommandAttribute) v.as<int>());
+                    b.setCommandAttributes(Core::Command::CommandAttributes::fromInt(v.as<int>()));
                 else if (key == "commandDescription")
                     b.setCommandDescription(v.as<QString>());
                 else if (key == "defaultKeySequence")

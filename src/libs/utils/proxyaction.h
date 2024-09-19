@@ -31,6 +31,7 @@ public:
     bool shortcutVisibleInToolTip() const;
     void setShortcutVisibleInToolTip(bool visible);
 
+    void setAttributes(Attributes attributes);
     void setAttribute(Attribute attribute);
     void removeAttribute(Attribute attribute);
     bool hasAttribute(Attribute attribute);

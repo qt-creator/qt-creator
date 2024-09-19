@@ -211,6 +211,12 @@ ActionBuilder &ActionBuilder::setCommandAttribute(Command::CommandAttribute attr
     return *this;
 }
 
+ActionBuilder &ActionBuilder::setCommandAttributes(Command::CommandAttributes attr)
+{
+    d->command->setAttributes(attr);
+    return *this;
+}
+
 ActionBuilder &ActionBuilder::setCommandDescription(const QString &desc)
 {
     d->command->setDescription(desc);
