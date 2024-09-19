@@ -764,8 +764,6 @@ public:
 private:
     IssuesWidget *m_issuesWidget = nullptr;
     QTextBrowser *m_issueDetails = nullptr;
-    QAction *m_disableInlineIssues = nullptr;
-    QAction *m_toggleIssues = nullptr;
 };
 
 void AxivionPerspective::initPerspective()
@@ -788,28 +786,36 @@ void AxivionPerspective::initPerspective()
     connect(m_issueDetails, &QTextBrowser::anchorClicked,
             this, &AxivionPerspective::handleAnchorClicked);
 
-    m_disableInlineIssues = new QAction(this);
-    m_disableInlineIssues->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE_TOOLBAR.icon());
-    m_disableInlineIssues->setToolTip(Tr::tr("Disable inline issues"));
-    m_disableInlineIssues->setCheckable(true);
-    m_disableInlineIssues->setChecked(false);
-    connect(m_disableInlineIssues, &QAction::toggled,
+    auto reloadDataAct = new QAction(this);
+    reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
+    reloadDataAct->setToolTip(Tr::tr("Reload"));
+    connect(reloadDataAct, &QAction::triggered, this, [this] {
+        reinitDashboardList({});
+    });
+
+    auto disableInlineIssuesAct = new QAction(this);
+    disableInlineIssuesAct->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE_TOOLBAR.icon());
+    disableInlineIssuesAct->setToolTip(Tr::tr("Disable inline issues"));
+    disableInlineIssuesAct->setCheckable(true);
+    disableInlineIssuesAct->setChecked(false);
+    connect(disableInlineIssuesAct, &QAction::toggled,
             this, [](bool checked) {  disableInlineIssues(checked); });
-    m_toggleIssues = new QAction(this);
-    m_toggleIssues->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    m_toggleIssues->setToolTip(Tr::tr("Show issue annotations inline"));
-    m_toggleIssues->setCheckable(true);
-    m_toggleIssues->setChecked(true);
-    connect(m_toggleIssues, &QAction::toggled, this, [](bool checked) {
+    auto toggleIssuesAct = new QAction(this);
+    toggleIssuesAct->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
+    toggleIssuesAct->setToolTip(Tr::tr("Show issue annotations inline"));
+    toggleIssuesAct->setCheckable(true);
+    toggleIssuesAct->setChecked(true);
+    connect(toggleIssuesAct, &QAction::toggled, this, [](bool checked) {
         if (checked)
             TextEditor::TextDocument::showMarksAnnotation("AxivionTextMark");
         else
             TextEditor::TextDocument::temporaryHideMarksAnnotation("AxivionTextMark");
     });
 
-
-    addToolBarAction(m_disableInlineIssues);
-    addToolBarAction(m_toggleIssues);
+    addToolBarAction(reloadDataAct);
+    addToolbarSeparator();
+    addToolBarAction(disableInlineIssuesAct);
+    addToolBarAction(toggleIssuesAct);
 
     addWindow(m_issuesWidget, Perspective::SplitVertical, nullptr);
     addWindow(m_issueDetails, Perspective::AddToTab, nullptr, true, Qt::RightDockWidgetArea);
