@@ -199,7 +199,10 @@ macro(qtc_auto_setup_vcpkg)
   if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json" AND NOT QT_CREATOR_SKIP_VCPKG_SETUP)
     option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
 
-    find_program(vcpkg_program vcpkg $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg)
+    find_program(vcpkg_program vcpkg
+      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg
+      NO_DEFAULT_PATH
+    )
     if (NOT vcpkg_program)
       message(WARNING "Qt Creator: vcpkg executable not found. "
                       "Package manager auto-setup will be skipped. "
