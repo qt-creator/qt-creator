@@ -609,7 +609,11 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
         };
 
         const QDate dateUpdated = current.data(RoleDateUpdated).toDate();
-        m_dateUpdated->setText(dateUpdated.toString());
+        const bool hasDateUpdated = dateUpdated.isValid();
+        if (hasDateUpdated)
+            m_dateUpdated->setText(dateUpdated.toString());
+        m_dateUpdatedTitle->setVisible(hasDateUpdated);
+        m_dateUpdated->setVisible(hasDateUpdated);
 
         const QStringList tags = current.data(RoleTags).toStringList();
         m_tags->setTags(tags);

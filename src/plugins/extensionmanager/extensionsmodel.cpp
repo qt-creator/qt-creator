@@ -209,8 +209,10 @@ QVariant ExtensionsModelPrivate::dataFromLocalPlugin(int index, int role) const
                                           : QStringList(platformsPattern);
         return platforms;
     }
+#ifdef QTC_SHOW_BUILD_DATE
     case RoleDateUpdated:
         return QDate::fromString(QLatin1String(__DATE__), "MMM dd yyyy");
+#endif
     case RoleVendor:
         return pluginSpec->vendor();
     case RoleVendorId:
