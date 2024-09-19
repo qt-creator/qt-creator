@@ -3794,7 +3794,13 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
 
         infoBar->removeInfo(multiple);
         infoBar->addInfo(info);
-    } else if (definitions.size() > 1) {
+        return;
+    }
+
+    infoBar->removeInfo(multiple);
+    infoBar->removeInfo(missing);
+
+    if (definitions.size() > 1) {
         InfoBarEntry info(multiple,
                           Tr::tr("More than one highlight definition was found for this file. "
                                  "Which one should be used to highlight this file?"));
@@ -3808,11 +3814,7 @@ void TextEditorWidgetPrivate::updateSyntaxInfoBar(const HighlighterHelper::Defin
             rememberCurrentSyntaxDefinition();
         });
 
-        infoBar->removeInfo(missing);
         infoBar->addInfo(info);
-    } else {
-        infoBar->removeInfo(multiple);
-        infoBar->removeInfo(missing);
     }
 }
 
