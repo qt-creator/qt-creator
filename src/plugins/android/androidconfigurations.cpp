@@ -1144,8 +1144,7 @@ FilePath getJdkPath()
 
         Process findJdkPathProc;
         findJdkPathProc.setCommand({"sh", args});
-        findJdkPathProc.start();
-        findJdkPathProc.waitForFinished();
+        findJdkPathProc.runBlocking();
         QByteArray jdkPath = findJdkPathProc.rawStdOut().trimmed();
 
         if (HostOsInfo::isMacHost()) {
