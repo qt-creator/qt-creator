@@ -734,7 +734,7 @@ QStringList QmlBuildSystem::absoluteImportPaths() const
 
 QStringList QmlBuildSystem::targetImportPaths() const
 {
-    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
+    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
         const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
         if (filePath.isAbsolutePath()) {
             return importPath;
