@@ -21,6 +21,7 @@
 #include "unstartedappwatcherdialog.h"
 #include "loadcoredialog.h"
 #include "sourceutils.h"
+#include "shared/coredumputils.h"
 #include "shared/hostutils.h"
 #include "console/console.h"
 
@@ -109,6 +110,7 @@
 #include <QJsonObject>
 #include <QMenu>
 #include <QMessageBox>
+#include <QOperatingSystemVersion>
 #include <QPointer>
 #include <QPushButton>
 #include <QScopeGuard>
@@ -634,6 +636,7 @@ public:
     void attachToQmlPort();
     void runScheduled();
     void attachCore();
+    void attachToLastCore();
     void reloadDebuggingHelpers();
 
     void remoteCommand(const QStringList &options);
@@ -671,6 +674,7 @@ public:
     QAction m_attachToRemoteServerAction{Tr::tr("Attach to Running Debug Server...")};
     QAction m_startRemoteCdbAction{Tr::tr("Attach to Remote CDB Session...")};
     QAction m_attachToCoreAction{Tr::tr("Load Core File...")};
+    QAction m_attachToLastCoreAction{Tr::tr("Load Last Core File")};
 
     // In the Debug menu.
     QAction m_startAndBreakOnMain{Tr::tr("Start and Break on Main")};
@@ -872,6 +876,9 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     connect(&m_attachToCoreAction, &QAction::triggered,
             this, &DebuggerPluginPrivate::attachCore);
 
+    connect(&m_attachToLastCoreAction, &QAction::triggered,
+            this, &DebuggerPluginPrivate::attachToLastCore);
+
     connect(&m_attachToRemoteServerAction, &QAction::triggered,
             this, &StartApplicationDialog::attachToRemoteServer);
 
@@ -944,6 +951,11 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
 
     cmd = ActionManager::registerAction(&m_attachToCoreAction,
          "Debugger.AttachCore");
+    cmd->setAttribute(Command::CA_Hide);
+    mstart->addAction(cmd, MENU_GROUP_GENERAL);
+
+    cmd = ActionManager::registerAction(&m_attachToLastCoreAction,
+                                        "Debugger.AttachLastCore");
     cmd->setAttribute(Command::CA_Hide);
     mstart->addAction(cmd, MENU_GROUP_GENERAL);
 
@@ -1571,6 +1583,8 @@ void DebuggerPluginPrivate::updatePresetState()
     m_startAndDebugApplicationAction.setEnabled(true);
     m_attachToQmlPortAction.setEnabled(true);
     m_attachToCoreAction.setEnabled(true);
+    m_attachToLastCoreAction.setEnabled(Utils::HostOsInfo::isLinuxHost());
+
     m_attachToRemoteServerAction.setEnabled(true);
     m_attachToRunningApplication.setEnabled(true);
     m_attachToUnstartedApplication.setEnabled(true);
@@ -1632,6 +1646,29 @@ void DebuggerPluginPrivate::attachCore()
     const FilePath sysRoot = dlg.sysRoot();
     if (!sysRoot.isEmpty())
         debugger->setSysRoot(sysRoot);
+    debugger->startRunControl();
+}
+
+void DebuggerPluginPrivate::attachToLastCore()
+{
+    QGuiApplication::setOverrideCursor(Qt::WaitCursor);
+    LastCore lastCore = getLastCore();
+    QGuiApplication::restoreOverrideCursor();
+    if (!lastCore) {
+        AsynchronousMessageBox::warning(Tr::tr("Warning"),
+                                        Tr::tr("coredumpctl did not find any cores created by systemd-coredump"));
+        return;
+    }
+
+    auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
+    runControl->setKit(KitManager::defaultKit());
+    runControl->setDisplayName(Tr::tr("Last Core file \"%1\"").arg(lastCore.coreFile.toString()));
+    auto debugger = new DebuggerRunTool(runControl);
+
+    debugger->setInferiorExecutable(lastCore.binary);
+    debugger->setCoreFilePath(lastCore.coreFile);
+    debugger->setStartMode(AttachToCore);
+    debugger->setCloseMode(DetachAtClose);
     debugger->startRunControl();
 }
 

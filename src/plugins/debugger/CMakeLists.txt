@@ -80,6 +80,7 @@ add_qtc_plugin(Debugger
     qml/qmlv8debuggerclientconstants.h
     registerhandler.cpp registerhandler.h
     shared/cdbsymbolpathlisteditor.cpp shared/cdbsymbolpathlisteditor.h
+    shared/coredumputils.cpp shared/coredumputils.h
     shared/hostutils.cpp shared/hostutils.h
     shared/peutils.cpp shared/peutils.h
     shared/symbolpathsdialog.cpp shared/symbolpathsdialog.h
