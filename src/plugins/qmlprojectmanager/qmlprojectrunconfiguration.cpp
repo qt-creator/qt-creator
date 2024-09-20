@@ -309,7 +309,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
 bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
-           && !commandLine().executable().isEmpty()
+           && !qmlRuntimeFilePath().isEmpty()
            && activeBuildSystem()->hasParsingData();
 }
 
