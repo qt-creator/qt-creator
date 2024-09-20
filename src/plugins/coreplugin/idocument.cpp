@@ -647,15 +647,13 @@ void IDocument::setMimeType(const QString &mimeType)
 /*!
     \internal
 */
-bool IDocument::autoSave(QString *errorString, const FilePath &filePath)
+expected_str<void> IDocument::autoSave(const FilePath &filePath)
 {
-    const expected_str<void> res = save(filePath, true);
-    if (!res) {
-        *errorString = res.error();
-        return false;
-    }
+    if (const expected_str<void> res = save(filePath, true); !res)
+        return res;
+
     d->autoSavePath = filePath;
-    return true;
+    return {};
 }
 
 static const char kRestoredAutoSave[] = "RestoredAutoSave";

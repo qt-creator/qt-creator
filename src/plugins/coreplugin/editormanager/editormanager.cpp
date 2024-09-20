@@ -2382,9 +2382,8 @@ void EditorManagerPrivate::autoSave()
         if (document->filePath().isEmpty()
                 || !savePath.isWritableDir()) // FIXME: save them to a dedicated directory
             continue;
-        QString errorString;
-        if (!document->autoSave(&errorString, saveName))
-            errors << errorString;
+        if (expected_str<void> res = document->autoSave(saveName); !res)
+            errors << res.error();
     }
     if (!errors.isEmpty())
         QMessageBox::critical(ICore::dialogParent(),

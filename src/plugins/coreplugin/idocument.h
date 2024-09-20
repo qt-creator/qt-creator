@@ -104,7 +104,7 @@ public:
 
     void checkPermissions();
 
-    bool autoSave(QString *errorString, const Utils::FilePath &filePath);
+    Utils::expected_str<void> autoSave(const Utils::FilePath &filePath);
     void setRestoredFrom(const Utils::FilePath &path);
     void removeAutoSaveFile();
 
