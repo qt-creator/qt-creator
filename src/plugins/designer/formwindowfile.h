@@ -52,7 +52,7 @@ public:
     void updateIsModified();
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);

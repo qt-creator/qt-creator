@@ -242,10 +242,9 @@ void AssetExporter::onQmlFileLoaded()
                                      .arg(designDocument->displayName()));
     } else {
         exportComponent(m_view->rootModelNode());
-        QString error;
-        if (!m_view->saveQmlFile(&error)) {
+        if (Utils::expected_str<void> res = m_view->saveQmlFile(); !res) {
             ExportNotification::addError(tr("Error saving component file. %1")
-                                         .arg(error.isEmpty()? tr("Unknown") : error));
+                                         .arg(res.error().isEmpty()? tr("Unknown") : res.error()));
         }
     }
     notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);

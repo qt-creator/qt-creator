@@ -19,7 +19,7 @@
 #include <utils/id.h>
 #include <utils/fileutils.h>
 
-using Utils::FilePath;
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -54,19 +54,16 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    if (!d->documentController) {
-        *errorString = Tr::tr("No model loaded. Cannot save.");
-        return false;
-    }
+    if (!d->documentController)
+        return make_unexpected(Tr::tr("No model loaded. Cannot save."));
 
     d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
-        *errorString = ex.errorMessage();
-        return false;
+        return make_unexpected(ex.errorMessage());
     }
 
     if (autoSave) {
@@ -76,7 +73,7 @@ bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, boo
         emit changed();
     }
 
-    return true;
+    return {};
 }
 
 bool ModelDocument::shouldAutoSave() const

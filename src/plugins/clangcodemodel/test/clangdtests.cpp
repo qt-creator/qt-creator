@@ -1953,8 +1953,8 @@ void ClangdTestCompletion::testCompleteAfterProjectChange()
                 EditorManager::openEditor(project()->projectFilePath()));
     QVERIFY(proFileEditor);
     proFileEditor->insert("DEFINES += PROJECT_CONFIGURATION_1\n");
-    QString saveError;
-    QVERIFY2(proFileEditor->document()->save(&saveError), qPrintable(saveError));
+    const expected_str<void> res = proFileEditor->document()->save();
+    QVERIFY2(res, qPrintable(res.error()));
     QVERIFY(waitForSignalOrTimeout(project(), &Project::anyParsingFinished, timeOutInMs()));
     QVERIFY(waitForSignalOrTimeout(LanguageClientManager::instance(),
                                    &LanguageClientManager::clientRemoved,

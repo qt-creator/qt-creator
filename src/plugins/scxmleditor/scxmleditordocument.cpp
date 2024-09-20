@@ -58,23 +58,22 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool ScxmlEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Utils::expected_str<void> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return false;
+        return make_unexpected(QString());
     bool dirty = m_designWidget->isDirty();
 
     m_designWidget->setFileName(filePath.toString());
     if (!m_designWidget->save()) {
-        *errorString = m_designWidget->errorMessage();
         m_designWidget->setFileName(this->filePath().toString());
-        return false;
+        return make_unexpected(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
         m_designWidget->setFileName(this->filePath().toString());
         m_designWidget->save();
-        return true;
+        return {};
     }
 
     setFilePath(filePath);
@@ -82,7 +81,7 @@ bool ScxmlEditorDocument::saveImpl(QString *errorString, const FilePath &filePat
     if (dirty != m_designWidget->isDirty())
         emit changed();
 
-    return true;
+    return {};
 }
 
 void ScxmlEditorDocument::setFilePath(const FilePath &newName)

@@ -329,8 +329,7 @@ void ClangFormatConfigWidget::apply()
     if (!m_editorWidget->isEnabled())
         return;
 
-    QString errorString;
-    m_editor->document()->save(&errorString, m_config->filePath());
+    m_editor->document()->save(m_config->filePath());
 }
 
 TextEditor::CodeStyleEditorWidget *createClangFormatConfigWidget(

@@ -67,20 +67,21 @@ void SubmitEditorFile::setModified(bool modified)
     emit changed();
 }
 
-bool SubmitEditorFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> SubmitEditorFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
     FileSaver saver(filePath, QIODevice::WriteOnly | QIODevice::Truncate | QIODevice::Text);
     saver.write(m_editor->fileContents());
-    if (!saver.finalize(errorString))
-        return false;
+    QString errorString;
+    if (!saver.finalize(&errorString))
+        return make_unexpected(errorString);
     if (autoSave)
-        return true;
+        return {};
     setFilePath(filePath.absoluteFilePath());
     setModified(false);
-    if (!errorString->isEmpty())
-        return false;
+    if (!errorString.isEmpty())
+        return make_unexpected(errorString);
     emit changed();
-    return true;
+    return {};
 }
 
 IDocument::ReloadBehavior SubmitEditorFile::reloadBehavior(ChangeTrigger state, ChangeType type) const

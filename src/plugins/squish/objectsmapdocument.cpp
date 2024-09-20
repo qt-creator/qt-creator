@@ -13,6 +13,8 @@
 
 #include <QtCore5Compat/QTextCodec>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -40,25 +42,20 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
     return result;
 }
 
-bool ObjectsMapDocument::saveImpl(QString *errorString,
-                                  const Utils::FilePath &filePath,
-                                  bool autoSave)
+expected_str<void> ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return false;
+        return make_unexpected(QString());
 
     const bool writeOk = writeFile(filePath);
-    if (!writeOk) {
-        if (errorString)
-            *errorString = Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput());
-        return false;
-    }
+    if (!writeOk)
+        return make_unexpected(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
 
     if (!autoSave) {
         setModified(false);
         setFilePath(filePath);
     }
-    return true;
+    return {};
 }
 
 Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const

@@ -34,7 +34,7 @@ public:
     ObjectsMapModel *model() const { return m_contentModel; }
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &fileName, bool autoSave) override;
+    Utils::expected_str<void> saveImpl(const Utils::FilePath &fileName, bool autoSave) override;
 
 private:
     OpenResult openImpl(QString *error,

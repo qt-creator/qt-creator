@@ -121,7 +121,7 @@ public:
     bool isSaveAsAllowed() const final { return true; }
 
     bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) final;
+    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
 
     void fetchData(quint64 address) const { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
@@ -2194,16 +2194,13 @@ bool BinEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType
     return success;
 }
 
-bool BinEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    QTC_ASSERT(!autoSave, return true); // bineditor does not support autosave - it would be a bit expensive
-    if (expected_str<void> res = save(this->filePath(), filePath); !res) {
-        if (errorString)
-            *errorString = res.error();
-        return false;
-    }
+    QTC_ASSERT(!autoSave, return {}); // bineditor does not support autosave - it would be a bit expensive
+    if (expected_str<void> res = save(this->filePath(), filePath); !res)
+        return res;
     setFilePath(filePath);
-    return true;
+    return {};
 }
 
 class BinEditorImpl final : public IEditor, public EditorService

@@ -435,7 +435,7 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
     bool openedSomething = stringValue("DoNotOpenFile") == "true";
     static const auto formatFile = [](Core::IEditor *editor) {
         editor->document()->formatContents();
-        editor->document()->save(nullptr);
+        editor->document()->save();
     };
     for (const JsonWizard::GeneratorFile &f : files) {
         const Core::GeneratedFile &file = f.file;

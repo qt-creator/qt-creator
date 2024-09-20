@@ -1517,10 +1517,10 @@ private:
 
     bool isSaveAsAllowed() const override { return false; }
 
-    bool saveImpl(QString *errorString, const FilePath &filePath, bool autoSave = false) override
+    expected_str<void> saveImpl(const FilePath &filePath, bool autoSave) override
     {
         m_editorWidget->preSave();
-        bool result = TextDocument::saveImpl(errorString, filePath, autoSave);
+        expected_str<void> result = TextDocument::saveImpl(filePath, autoSave);
         m_editorWidget->postSave();
         return result;
     }

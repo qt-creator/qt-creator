@@ -234,18 +234,18 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-bool DiffEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
+    QString errorString;
     if (state() != LoadOK)
-        return false;
+        return make_unexpected(errorString);
 
-    const bool ok = write(filePath, format(), plainText(), errorString);
+    const bool ok = write(filePath, format(), plainText(), &errorString);
 
     if (!ok)
-        return false;
+        return make_unexpected(errorString);
 
     setController(nullptr);
     setDescription({});
@@ -256,7 +256,7 @@ bool DiffEditorDocument::saveImpl(QString *errorString, const FilePath &filePath
     setPreferredDisplayName({});
     emit temporaryStateChanged();
 
-    return true;
+    return {};
 }
 
 void DiffEditorDocument::reload()

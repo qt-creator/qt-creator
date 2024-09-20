@@ -84,31 +84,35 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool FormWindowFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    QTC_ASSERT(m_formWindow, return false);
+    QTC_ASSERT(m_formWindow, return make_unexpected(QString()));
 
     if (filePath.isEmpty())
-        return false;
+        return make_unexpected(QString());
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(filePath.toString());
-    const bool writeOK = writeFile(filePath, errorString);
+    QString errorString;
+    const bool writeOK = writeFile(filePath, &errorString);
     m_shouldAutoSave = false;
-    if (autoSave)
-        return writeOK;
+    if (autoSave) {
+        if (writeOK)
+            return {};
+        return make_unexpected(errorString);
+    }
 
     if (!writeOK) {
         m_formWindow->setFileName(oldFormName);
-        return false;
+        return make_unexpected(errorString);
     }
 
     m_formWindow->setDirty(false);
     setFilePath(filePath);
     updateIsModified();
 
-    return true;
+    return {};
 }
 
 QByteArray FormWindowFile::contents() const

@@ -49,13 +49,14 @@ bool AssetExporterView::loadQmlFile(const Utils::FilePath &path, uint timeoutSec
     return true;
 }
 
-bool AssetExporterView::saveQmlFile(QString *error) const
+Utils::expected_str<void> AssetExporterView::saveQmlFile() const
 {
     if (!m_currentEditor) {
         qCDebug(loggerWarn) << "Saving QML file failed. No editor.";
-        return false;
+        return Utils::make_unexpected(QString("Saving QML file failed. No editor."));
     }
-    return m_currentEditor->document()->save(error);
+
+    return m_currentEditor->document()->save();
 }
 
 void AssetExporterView::modelAttached(Model *model)

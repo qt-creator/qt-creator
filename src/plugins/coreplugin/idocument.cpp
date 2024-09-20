@@ -343,14 +343,14 @@ IDocument::OpenResult IDocument::open(QString *errorString, const Utils::FilePat
     \sa saved()
     \sa filePath()
 */
-bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+expected_str<void> IDocument::save(const FilePath &filePath, bool autoSave)
 {
-    const Utils::FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
+    const FilePath savePath = filePath.isEmpty() ? this->filePath() : filePath;
     emit aboutToSave(savePath, autoSave);
-    const bool success = saveImpl(errorString, savePath, autoSave);
-    if (success)
+    const expected_str<void> res = saveImpl(savePath, autoSave);
+    if (res)
         emit saved(savePath, autoSave);
-    return success;
+    return res;
 }
 
 /*!
@@ -360,18 +360,15 @@ bool IDocument::save(QString *errorString, const Utils::FilePath &filePath, bool
     document should avoid cleanups or other operations that it does for
     user-requested saves.
 
-    Use \a errorString to return an error message if saving failed.
-
-    Returns whether saving was successful.
+    Returns whether saving was successful, including an error message when it was not.
 
     The default implementation does nothing and returns \c false.
 */
-bool IDocument::saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave)
+expected_str<void> IDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(filePath)
     Q_UNUSED(autoSave)
-    return false;
+    return make_unexpected(Tr::tr("Not implemented"));
 }
 
 /*!
@@ -653,8 +650,11 @@ void IDocument::setMimeType(const QString &mimeType)
 */
 bool IDocument::autoSave(QString *errorString, const FilePath &filePath)
 {
-    if (!save(errorString, filePath, true))
+    const expected_str<void> res = save(filePath, true);
+    if (!res) {
+        *errorString = res.error();
         return false;
+    }
     d->autoSavePath = filePath;
     return true;
 }

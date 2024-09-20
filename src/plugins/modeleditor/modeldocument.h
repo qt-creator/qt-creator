@@ -40,7 +40,7 @@ public:
     OpenResult load(QString *errorString, const Utils::FilePath &fileName);
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     ModelDocumentPrivate *d;

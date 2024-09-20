@@ -589,7 +589,7 @@ QTextDocument *TextDocument::document() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Utils::expected_str<void> TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -644,7 +644,8 @@ bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool
         }
     }
 
-    const bool ok = write(filePath, saveFormat, plainText(), errorString);
+    QString errorString;
+    const bool ok = write(filePath, saveFormat, plainText(), &errorString);
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {
@@ -660,16 +661,16 @@ bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool
     }
 
     if (!ok)
-        return false;
+        return make_unexpected(errorString);
     d->m_autoSaveRevision = d->m_document.revision();
     if (autoSave)
-        return true;
+        return {};
 
     // inform about the new filename
     d->m_document.setModified(false); // also triggers update of the block revisions
     setFilePath(filePath.absoluteFilePath());
     emit changed();
-    return true;
+    return {};
 }
 
 QByteArray TextDocument::contents() const

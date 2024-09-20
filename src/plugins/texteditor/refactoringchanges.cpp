@@ -280,7 +280,7 @@ bool RefactoringFile::apply()
 
             fileChanged();
             if (withUnmodifiedEditor && EditorManager::autoSaveAfterRefactoring())
-                m_editor->textDocument()->save(nullptr, m_filePath, false);
+                m_editor->textDocument()->save(m_filePath, false);
         }
     }
 

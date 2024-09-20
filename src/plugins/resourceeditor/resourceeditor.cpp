@@ -67,7 +67,7 @@ signals:
     void loaded(bool success);
 
 private:
-    bool saveImpl(QString *errorString, const FilePath &filePath, bool autoSave) final;
+    Utils::expected_str<void> saveImpl(const FilePath &filePath, bool autoSave) final;
     void dirtyChanged(bool);
 
     RelativeResourceModel m_model;
@@ -209,22 +209,20 @@ IDocument::OpenResult ResourceEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+expected_str<void> ResourceEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (debugResourceEditorW)
         qDebug() << ">ResourceEditorW::saveImpl: " << filePath;
 
     if (filePath.isEmpty())
-        return false;
+        return make_unexpected(QString()); // FIXME: better message
 
     m_blockDirtyChanged = true;
     m_model.setFilePath(filePath);
     if (!m_model.save()) {
-        if (errorString)
-            *errorString = m_model.errorMessage();
         m_model.setFilePath(this->filePath());
         m_blockDirtyChanged = false;
-        return false;
+        return make_unexpected(m_model.errorMessage());
     }
 
     m_shouldAutoSave = false;
@@ -232,14 +230,14 @@ bool ResourceEditorDocument::saveImpl(QString *errorString, const FilePath &file
         m_model.setFilePath(this->filePath());
         m_model.setDirty(true);
         m_blockDirtyChanged = false;
-        return true;
+        return {};
     }
 
     setFilePath(filePath);
     m_blockDirtyChanged = false;
 
     emit changed();
-    return true;
+    return {};
 }
 
 bool ResourceEditorDocument::setContents(const QByteArray &contents)

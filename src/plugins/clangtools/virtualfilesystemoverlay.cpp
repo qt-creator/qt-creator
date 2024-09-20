@@ -38,12 +38,11 @@ void VirtualFileSystemOverlay::update()
         if (saved.revision != document->document()->revision()) {
             saved.path.removeRecursively();
             saved.revision = document->document()->revision();
-            QString error;
             saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
                 saved.path = saved.path.stringAppended(".1");
-            if (!doc->save(&error, saved.path, true)) {
-                qCDebug(LOG) << error;
+            if (Utils::expected_str<void> res = doc->save(saved.path, true); !res) {
+                qCDebug(LOG) << res.error();
                 continue;
             }
         }

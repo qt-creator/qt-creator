@@ -715,8 +715,7 @@ bool DocumentManager::saveDocument(IDocument *document,
     expectFileChange(savePath); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
-    QString errorString;
-    if (!document->save(&errorString, savePath, false)) {
+    if (const expected_str<void> res = document->save(savePath, false); !res) {
         if (isReadOnly) {
             QFile ofi(savePath.toString());
             // Check whether the existing file is writable
@@ -727,7 +726,7 @@ bool DocumentManager::saveDocument(IDocument *document,
             *isReadOnly = false;
         }
         QMessageBox::critical(ICore::dialogParent(), Tr::tr("File Error"),
-                              Tr::tr("Error while saving file: %1").arg(errorString));
+                              Tr::tr("Error while saving file: %1").arg(res.error()));
       out:
         ret = false;
     }
