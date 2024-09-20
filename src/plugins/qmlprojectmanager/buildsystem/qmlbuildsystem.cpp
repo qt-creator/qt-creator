@@ -734,7 +734,7 @@ QStringList QmlBuildSystem::mockImports() const
 
 QStringList QmlBuildSystem::absoluteImportPaths() const
 {
-    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
+    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
         Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
         if (filePath.isAbsolutePath())
             return projectDirectory().resolvePath(importPath).path();
