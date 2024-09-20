@@ -154,7 +154,7 @@ public:
                     const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
 
-    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
     bool setContents(const QByteArray &contents) override;
 
@@ -409,7 +409,7 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-expected_str<void> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
+Result JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
 {
     Store store;
 
@@ -435,10 +435,10 @@ expected_str<void> JsonSettingsDocument::saveImpl(const FilePath &newFilePath, b
 
     expected_str<qint64> result = path.writeFileContents(jsonFromStore(store));
     if (!result)
-        return make_unexpected(result.error());
+        return Result::Error(result.error());
 
     emit changed();
-    return {};
+    return Result::Ok;
 }
 
 bool JsonSettingsDocument::isModified() const

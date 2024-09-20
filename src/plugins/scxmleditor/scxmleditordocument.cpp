@@ -58,22 +58,23 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-Utils::expected_str<void> ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return make_unexpected(QString());
+        return Result::Error("ASSERT: ScxmlEditorDocument: filePath.isEmpty()");
+
     bool dirty = m_designWidget->isDirty();
 
     m_designWidget->setFileName(filePath.toString());
     if (!m_designWidget->save()) {
         m_designWidget->setFileName(this->filePath().toString());
-        return make_unexpected(m_designWidget->errorMessage());
+        return Result::Error(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
         m_designWidget->setFileName(this->filePath().toString());
         m_designWidget->save();
-        return {};
+        return Result::Ok;
     }
 
     setFilePath(filePath);
@@ -81,7 +82,7 @@ Utils::expected_str<void> ScxmlEditorDocument::saveImpl(const FilePath &filePath
     if (dirty != m_designWidget->isDirty())
         emit changed();
 
-    return {};
+    return Result::Ok;
 }
 
 void ScxmlEditorDocument::setFilePath(const FilePath &newName)
@@ -110,19 +111,17 @@ bool ScxmlEditorDocument::isModified() const
     return m_designWidget && m_designWidget->isDirty();
 }
 
-Utils::expected_str<void> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return {};
+        return Result::Ok;
     emit aboutToReload();
     QString errorString;
     emit reloadRequested(&errorString, filePath().toString());
     const bool success = errorString.isEmpty();
     emit reloadFinished(success);
-    if (!success)
-        return make_unexpected(errorString);
-    return {};
+    return Result(success, errorString);
 }
 
 bool ScxmlEditorDocument::supportsCodec(const QTextCodec *codec) const

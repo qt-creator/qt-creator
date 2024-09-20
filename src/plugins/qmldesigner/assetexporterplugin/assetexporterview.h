@@ -28,7 +28,7 @@ public:
     AssetExporterView(ExternalDependenciesInterface &externalDependencies);
 
     bool loadQmlFile(const Utils::FilePath &path, uint timeoutSecs = 10);
-    Utils::expected_str<void> saveQmlFile() const;
+    Utils::Result saveQmlFile() const;
 
     void modelAttached(Model *model) override;
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;

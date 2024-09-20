@@ -52,16 +52,16 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-expected_str<void> ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!d->documentController)
-        return make_unexpected(Tr::tr("No model loaded. Cannot save."));
+        return Result::Error(Tr::tr("No model loaded. Cannot save."));
 
     d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
-        return make_unexpected(ex.errorMessage());
+        return Result::Error(ex.errorMessage());
     }
 
     if (autoSave) {
@@ -71,7 +71,7 @@ expected_str<void> ModelDocument::saveImpl(const FilePath &filePath, bool autoSa
         emit changed();
     }
 
-    return {};
+    return Result::Ok;
 }
 
 bool ModelDocument::shouldAutoSave() const
@@ -89,22 +89,22 @@ bool ModelDocument::isSaveAsAllowed() const
     return true;
 }
 
-Utils::expected_str<void> ModelDocument::reload(Core::IDocument::ReloadFlag flag,
-                                                Core::IDocument::ChangeType type)
+Result ModelDocument::reload(Core::IDocument::ReloadFlag flag,
+                             Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return {};
+        return Result::Ok;
     try {
         d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
-        return make_unexpected(ex.errorMessage());
+        return Result::Error(ex.errorMessage());
     } catch (const qmt::Exception &ex) {
-        return make_unexpected(Tr::tr("Could not open \"%1\" for reading: %2.")
+        return Result::Error(Tr::tr("Could not open \"%1\" for reading: %2.")
                            .arg(filePath().toUserOutput(), ex.errorMessage()));
     }
     emit contentSet();
-    return {};
+    return Result::Ok;
 }
 
 ExtDocumentController *ModelDocument::documentController() const

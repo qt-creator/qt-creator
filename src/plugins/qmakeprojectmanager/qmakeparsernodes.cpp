@@ -929,8 +929,7 @@ void QmakePriFile::save(const QStringList &lines)
     QStringList errorStrings;
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (document) {
-        expected_str<void> res =
-            document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        Result res = document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
         if (!res)
             errorStrings << res.error();
     }

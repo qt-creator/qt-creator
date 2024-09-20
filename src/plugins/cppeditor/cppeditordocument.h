@@ -67,7 +67,7 @@ signals:
 
 protected:
     void applyFontSettings() override;
-    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void invalidateFormatterCache();

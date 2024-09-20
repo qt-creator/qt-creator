@@ -145,13 +145,13 @@ public:
         return BehaviorSilent;
     }
 
-    expected_str<void> reload(ReloadFlag flag, ChangeType type) final
+    Result reload(ReloadFlag flag, ChangeType type) final
     {
         Q_UNUSED(flag)
         Q_UNUSED(type)
 
         emit m_project->projectFileIsDirty(filePath());
-        return {};
+        return Result::Ok;
     }
 
 private:

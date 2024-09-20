@@ -119,8 +119,8 @@ public:
 
     bool isSaveAsAllowed() const final { return true; }
 
-    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) final;
-    Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
+    Utils::Result reload(ReloadFlag flag, ChangeType type) final;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
 
     void fetchData(quint64 address) const { if (m_fetchDataHandler) m_fetchDataHandler(address); }
     void requestNewWindow(quint64 address) { if (m_newWindowRequestHandler) m_newWindowRequestHandler(address); }
@@ -156,7 +156,7 @@ public:
     void addData(quint64 addr, const QByteArray &data);
     void updateContents();
 
-    expected_str<void> save(const FilePath &oldFilePath, const FilePath &newFilePath);
+    Result save(const FilePath &oldFilePath, const FilePath &newFilePath);
     void clear();
 
     void undo();
@@ -614,7 +614,7 @@ void BinEditorDocument::setModified(bool modified)
     emit changed();
 }
 
-expected_str<void> BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newFilePath)
+Result BinEditorDocument::save(const FilePath &oldFilePath, const FilePath &newFilePath)
 {
     if (oldFilePath != newFilePath) {
         // Get a unique temporary file name
@@ -623,19 +623,19 @@ expected_str<void> BinEditorDocument::save(const FilePath &oldFilePath, const Fi
             const auto result = TemporaryFilePath::create(
                 newFilePath.stringAppended("_XXXXXX.new"));
             if (!result)
-                return make_unexpected(result.error());
+                return Result::Error(result.error());
             tmpName = (*result)->filePath();
         }
 
-        if (expected_str<void> res = oldFilePath.copyFile(tmpName); !res)
+        if (Result res = oldFilePath.copyFile(tmpName); !res)
             return res;
 
         if (newFilePath.exists()) {
-            if (expected_str<void> res = newFilePath.removeFile(); !res)
+            if (Result res = newFilePath.removeFile(); !res)
                 return res;
         }
 
-        if (expected_str<void> res = tmpName.renameFile(newFilePath); !res)
+        if (Result res = tmpName.renameFile(newFilePath); !res)
             return res;
     }
 
@@ -661,10 +661,10 @@ expected_str<void> BinEditorDocument::save(const FilePath &oldFilePath, const Fi
 
     QString errorString;
     if (!saver.finalize(&errorString))
-        return make_unexpected(errorString);
+        return Result::Error(errorString);
 
     setModified(false);
-    return {};
+    return Result::Ok;
 }
 
 void BinEditorDocument::setSizes(quint64 startAddr, qint64 range, int blockSize)
@@ -2181,28 +2181,26 @@ bool BinEditorDocument::isModified() const
     return m_undoStack.size() != m_unmodifiedState;
 }
 
-expected_str<void> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
+Result BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return {};
+        return Result::Ok;
     emit aboutToReload();
     clear();
     QString errorString;
     const bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    if (!success)
-        return make_unexpected(errorString);
-    return {};
+    return Result(success, errorString);
 }
 
-expected_str<void> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    QTC_ASSERT(!autoSave, return {}); // bineditor does not support autosave - it would be a bit expensive
-    if (expected_str<void> res = save(this->filePath(), filePath); !res)
+    QTC_ASSERT(!autoSave, return Result::Ok); // bineditor does not support autosave - it would be a bit expensive
+    if (Result res = save(this->filePath(), filePath); !res)
         return res;
     setFilePath(filePath);
-    return {};
+    return Result::Ok;
 }
 
 class BinEditorImpl final : public IEditor, public EditorService

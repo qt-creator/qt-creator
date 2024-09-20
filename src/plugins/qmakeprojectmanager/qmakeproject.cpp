@@ -101,13 +101,13 @@ public:
         Q_UNUSED(type)
         return BehaviorSilent;
     }
-    expected_str<void> reload(ReloadFlag flag, ChangeType type) override
+    Result reload(ReloadFlag flag, ChangeType type) override
     {
         Q_UNUSED(flag)
         Q_UNUSED(type)
         if (m_priFile)
             m_priFile->scheduleUpdate();
-        return {};
+        return Result::Ok;
     }
 
     void setPriFile(QmakePriFile *priFile) { m_priFile = priFile; }

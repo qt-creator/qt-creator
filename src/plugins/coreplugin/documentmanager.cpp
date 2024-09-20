@@ -715,7 +715,7 @@ bool DocumentManager::saveDocument(IDocument *document,
     expectFileChange(savePath); // This only matters to other IDocuments which refer to this file
     bool addWatcher = removeDocument(document); // So that our own IDocument gets no notification at all
 
-    if (const expected_str<void> res = document->save(savePath, false); !res) {
+    if (const Result res = document->save(savePath, false); !res) {
         if (isReadOnly) {
             QFile ofi(savePath.toString());
             // Check whether the existing file is writable
@@ -1188,13 +1188,12 @@ void DocumentManager::checkForReload()
         removeFileInfo(document);
         addFileInfos({document});
 
-        expected_str<void> success;
+        Result success = Result::Ok;
         // we've got some modification
         document->checkPermissions();
         // check if it's contents or permissions:
         if (!type) {
             // Only permission change
-            success = {};
             // now we know it's a content change or file was removed
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeContents
                    && !document->isModified()) {

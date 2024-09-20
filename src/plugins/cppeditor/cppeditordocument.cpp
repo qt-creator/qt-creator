@@ -489,7 +489,7 @@ TextEditor::TabSettings CppEditorDocument::tabSettings() const
     return indenter()->tabSettings().value_or(TextEditor::TextDocument::tabSettings());
 }
 
-expected_str<void> CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
+Result CppEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (!indenter()->formatOnSave() || autoSave)
         return TextEditor::TextDocument::saveImpl(filePath, autoSave);

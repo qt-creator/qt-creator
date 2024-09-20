@@ -45,19 +45,17 @@ Core::IDocument::ReloadBehavior TaskFile::reloadBehavior(ChangeTrigger state, Ch
     return BehaviorSilent;
 }
 
-expected_str<void> TaskFile::reload(ReloadFlag flag, ChangeType type)
+Result TaskFile::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(flag)
 
     if (type == TypeRemoved) {
         deleteLater();
-        return {};
+        return Result::Ok;
     }
     QString errorString;
     bool success = load(&errorString, filePath());
-    if (!success)
-        return make_unexpected(errorString);
-    return {};
+    return Result(success, errorString);
 }
 
 static Task::TaskType typeFrom(const QString &typeName)

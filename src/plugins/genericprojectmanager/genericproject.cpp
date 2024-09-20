@@ -84,7 +84,7 @@ public:
         return BehaviorSilent;
     }
 
-    expected_str<void> reload(ReloadFlag flag, ChangeType type) final;
+    Result reload(ReloadFlag flag, ChangeType type) final;
 
 private:
     GenericProject *m_project = nullptr;
@@ -695,14 +695,14 @@ void GenericProject::configureAsExampleProject(Kit *kit)
     setup(infoList);
 }
 
-expected_str<void> GenericProjectFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
+Result GenericProjectFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
 {
     Q_UNUSED(flag)
     Q_UNUSED(type)
     if (Target *t = m_project->activeTarget())
         static_cast<GenericBuildSystem *>(t->buildSystem())->refresh(m_options);
 
-    return {};
+    return Result::Ok;
 }
 
 void GenericProject::editFilesTriggered()
