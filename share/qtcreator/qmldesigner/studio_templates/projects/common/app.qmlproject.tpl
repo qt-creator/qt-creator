@@ -22,7 +22,7 @@ Project {
     }
 
     JavaScriptFiles {
-        directory: "%{ProjectName}"
+        directory: "%{ContentDir}"
     }
 
     ImageFiles {
