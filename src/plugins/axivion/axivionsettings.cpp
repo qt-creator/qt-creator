@@ -541,11 +541,14 @@ private:
     void deleteMapping();
     void mappingChanged();
     void currentChanged(const QModelIndex &index, const QModelIndex &previous);
+    void moveCurrent(bool up);
 
     QTreeWidget m_mappingTree;
     PathMappingDetails m_details;
     QWidget *m_detailsWidget = nullptr;
     QPushButton *m_deleteButton = nullptr;
+    QPushButton *m_moveUp = nullptr;
+    QPushButton *m_moveDown = nullptr;
 };
 
 PathMappingSettingsWidget::PathMappingSettingsWidget()
@@ -560,9 +563,11 @@ PathMappingSettingsWidget::PathMappingSettingsWidget()
 
     auto addButton = new QPushButton(Tr::tr("Add"), this);
     m_deleteButton = new QPushButton(Tr::tr("Delete"), this);
+    m_moveUp = new QPushButton(Tr::tr("Move Up"), this);
+    m_moveDown = new QPushButton(Tr::tr("Move Down"), this);
 
     using namespace Layouting;
-    Column buttons { addButton, m_deleteButton, st };
+    Column buttons { addButton, m_deleteButton, empty, m_moveUp, m_moveDown, st };
 
     Column {
         Row { &m_mappingTree, buttons },
@@ -582,10 +587,15 @@ PathMappingSettingsWidget::PathMappingSettingsWidget()
     m_mappingTree.addTopLevelItems(items);
 
     m_deleteButton->setEnabled(false);
+    m_moveUp->setEnabled(false);
+    m_moveDown->setEnabled(false);
+
     m_detailsWidget->setVisible(false);
 
     connect(addButton, &QPushButton::clicked, this, &PathMappingSettingsWidget::addMapping);
     connect(m_deleteButton, &QPushButton::clicked, this, &PathMappingSettingsWidget::deleteMapping);
+    connect(m_moveUp, &QPushButton::clicked, this, [this]{ moveCurrent(true); });
+    connect(m_moveDown, &QPushButton::clicked, this, [this]{ moveCurrent(false); });
     connect(m_mappingTree.selectionModel(), &QItemSelectionModel::currentChanged,
             this, &PathMappingSettingsWidget::currentChanged);
     connect(&m_details, &AspectContainer::changed, this,
@@ -640,8 +650,11 @@ void PathMappingSettingsWidget::mappingChanged()
 void PathMappingSettingsWidget::currentChanged(const QModelIndex &index,
                                                const QModelIndex &/*previous*/)
 {
-    bool indexValid = index.isValid();
+    const bool indexValid = index.isValid();
+    const int row = index.row();
     m_deleteButton->setEnabled(indexValid);
+    m_moveUp->setEnabled(indexValid && row > 0);
+    m_moveDown->setEnabled(indexValid && row < m_mappingTree.topLevelItemCount() - 1);
     m_detailsWidget->setVisible(indexValid);
     if (indexValid) {
         const QTreeWidgetItem * const item = m_mappingTree.itemFromIndex(index);
@@ -649,6 +662,21 @@ void PathMappingSettingsWidget::currentChanged(const QModelIndex &index,
                                  FilePath::fromUserInput(item->text(1)),
                                  FilePath::fromUserInput(item->text(2))});
     }
+}
+
+void PathMappingSettingsWidget::moveCurrent(bool up)
+{
+    const int itemCount = m_mappingTree.topLevelItemCount();
+    const QModelIndexList indexes = m_mappingTree.selectionModel()->selectedRows();
+    QTC_ASSERT(indexes.size() == 1, return);
+    const QModelIndex index = indexes.first();
+    QTC_ASSERT(index.isValid(), return);
+    const int row = index.row();
+    QTC_ASSERT(up ? row > 0 : row < itemCount - 1, return);
+
+    QTreeWidgetItem *item = m_mappingTree.takeTopLevelItem(row);
+    m_mappingTree.insertTopLevelItem(up ? row - 1 : row + 1, item);
+    m_mappingTree.setCurrentItem(item);
 }
 
 // settings pages
