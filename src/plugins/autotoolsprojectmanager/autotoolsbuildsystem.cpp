@@ -75,7 +75,7 @@ void AutotoolsBuildSystem::triggerParsing()
 
     const auto onSetup = [this, storage](Async<MakefileParserOutputData> &async) {
         *storage = guardParsingRun();
-        async.setConcurrentCallData(parseMakefileImpl, projectFilePath().toString());
+        async.setConcurrentCallData(parseMakefileImpl, projectFilePath().path());
     };
     const auto onDone = [this, storage](const Async<MakefileParserOutputData> &async) {
         (*storage)->markAsSuccess();
@@ -165,10 +165,10 @@ void AutotoolsBuildSystem::makefileParsingFinished(const MakefileParserOutputDat
     rpp.setFlagsForC({kitInfo.cToolchain, cflags, includeFileBaseDir});
     rpp.setFlagsForCxx({kitInfo.cxxToolchain, cxxflags, includeFileBaseDir});
 
-    const QString absSrc = project()->projectDirectory().toString();
+    const QString absSrc = project()->projectDirectory().path();
     BuildConfiguration *bc = target()->activeBuildConfiguration();
 
-    const QString absBuild = bc ? bc->buildDirectory().toString() : QString();
+    const QString absBuild = bc ? bc->buildDirectory().path() : QString();
 
     rpp.setIncludePaths(filterIncludes(absSrc, absBuild, outputData.m_includePaths));
     rpp.setMacros(outputData.m_macros);
