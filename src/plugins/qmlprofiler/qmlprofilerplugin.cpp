@@ -58,10 +58,8 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "QmlProfiler.json")
 
-    bool initialize(const QStringList &arguments, QString *errorString) final
+    void initialize() final
     {
-        Q_UNUSED(arguments)
-
         setupQmlProfilerTool();
         setupQmlProfilerRunning();
 
@@ -88,8 +86,6 @@ class QmlProfilerPlugin final : public ExtensionSystem::IPlugin
 
         addTest<QQmlEngine>(); // Trigger debug connector to be started
 #endif
-
-        return Utils::HostOsInfo::canCreateOpenGLContext(errorString);
     }
 
     void extensionsInitialized() final

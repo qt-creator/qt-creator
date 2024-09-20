@@ -293,8 +293,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         lauchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
     });
 
-    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
-        return false;
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
     if (Core::ICore::isQtDesignStudio())

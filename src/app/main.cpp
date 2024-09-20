@@ -599,8 +599,6 @@ int main(int argc, char **argv)
         QSurfaceFormat::setDefaultFormat(surfaceFormat);
     }
 
-    qputenv("QSG_RHI_BACKEND", "opengl");
-
     if (qEnvironmentVariableIsSet("QTCREATOR_DISABLE_NATIVE_MENUBAR")
             || qgetenv("XDG_CURRENT_DESKTOP").startsWith("Unity")) {
         QApplication::setAttribute(Qt::AA_DontUseNativeMenuBar);
