@@ -33,7 +33,7 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
     bool supportsCodec(const QTextCodec *codec) const override;
 

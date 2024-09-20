@@ -2630,9 +2630,10 @@ void EditorManagerPrivate::revertToSaved(IDocument *document)
             return;
         }
     }
-    QString errorString;
-    if (!document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents))
-        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("File Error"), errorString);
+
+    const expected_str<void> res = document->reload(IDocument::FlagReload, IDocument::TypeContents);
+    if (!res)
+        QMessageBox::critical(ICore::dialogParent(), ::Core::Tr::tr("File Error"), res.error());
 }
 
 void EditorManagerPrivate::autoSuspendDocuments()

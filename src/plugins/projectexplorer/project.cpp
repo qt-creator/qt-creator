@@ -145,14 +145,13 @@ public:
         return BehaviorSilent;
     }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final
+    expected_str<void> reload(ReloadFlag flag, ChangeType type) final
     {
-        Q_UNUSED(errorString)
         Q_UNUSED(flag)
         Q_UNUSED(type)
 
         emit m_project->projectFileIsDirty(filePath());
-        return true;
+        return {};
     }
 
 private:

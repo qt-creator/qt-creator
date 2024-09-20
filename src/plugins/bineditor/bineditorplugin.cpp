@@ -120,7 +120,7 @@ public:
 
     bool isSaveAsAllowed() const final { return true; }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
+    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) final;
     Utils::expected_str<void> saveImpl(const Utils::FilePath &filePath, bool autoSave) final;
 
     void fetchData(quint64 address) const { if (m_fetchDataHandler) m_fetchDataHandler(address); }
@@ -2182,16 +2182,19 @@ bool BinEditorDocument::isModified() const
     return m_undoStack.size() != m_unmodifiedState;
 }
 
-bool BinEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+expected_str<void> BinEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return {};
     emit aboutToReload();
     clear();
-    const bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
+    QString errorString;
+    const bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 expected_str<void> BinEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)

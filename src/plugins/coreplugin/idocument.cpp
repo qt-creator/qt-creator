@@ -467,12 +467,11 @@ IDocument::ReloadBehavior IDocument::reloadBehavior(ChangeTrigger trigger, Chang
     \sa reloadFinished()
     \sa changed()
 */
-bool IDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Utils::expected_str<void> IDocument::reload(ReloadFlag flag, ChangeType type)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
-    return true;
+    return {};
 }
 
 /*!

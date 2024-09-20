@@ -929,9 +929,10 @@ void QmakePriFile::save(const QStringList &lines)
     QStringList errorStrings;
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (document) {
-        QString errorString;
-        if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
-            errorStrings << errorString;
+        expected_str<void> res =
+            document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        if (!res)
+            errorStrings << res.error();
     }
     if (!errorStrings.isEmpty())
         QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("File Error"),

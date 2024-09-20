@@ -1862,9 +1862,8 @@ void TextEditorWidget::selectEncoding()
     const CodecSelectorResult result = Core::askForCodec(Core::ICore::dialogParent(), doc);
     switch (result.action) {
     case Core::CodecSelectorResult::Reload: {
-        QString errorString;
-        if (!doc->reload(&errorString, result.codec)) {
-            QMessageBox::critical(this, Tr::tr("File Error"), errorString);
+        if (expected_str<void> res = doc->reload(result.codec); !res) {
+            QMessageBox::critical(this, Tr::tr("File Error"), res.error());
             break;
         }
         break;

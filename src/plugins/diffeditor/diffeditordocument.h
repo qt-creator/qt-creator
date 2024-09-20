@@ -61,7 +61,7 @@ public:
 
     bool isSaveAsAllowed() const override;
     void reload();
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) override;
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
     bool selectEncoding();

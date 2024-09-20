@@ -791,19 +791,19 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
     return OpenResult::Success;
 }
 
-bool TextDocument::reload(QString *errorString, QTextCodec *codec)
+expected_str<void> TextDocument::reload(QTextCodec *codec)
 {
-    QTC_ASSERT(codec, return false);
+    QTC_ASSERT(codec, return make_unexpected(QString("No codec given")));
     setCodec(codec);
-    return reload(errorString);
+    return reload();
 }
 
-bool TextDocument::reload(QString *errorString)
+expected_str<void> TextDocument::reload()
 {
-    return reload(errorString, filePath());
+    return reload(filePath());
 }
 
-bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
+expected_str<void> TextDocument::reload(const FilePath &realFilePath)
 {
     emit aboutToReload();
     auto documentLayout =
@@ -811,13 +811,16 @@ bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
     if (documentLayout)
         documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
-    bool success = openImpl(errorString, filePath(), realFilePath, /*reload =*/true)
+    QString errorString;
+    bool success = openImpl(&errorString, filePath(), realFilePath, /*reload =*/true)
                    == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(this); // re-adds text marks
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 bool TextDocument::setPlainText(const QString &text)
@@ -834,24 +837,24 @@ bool TextDocument::setPlainText(const QString &text)
     return true;
 }
 
-bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+expected_str<void> TextDocument::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (type != TypeContents)
-            return true;
+            return {};
 
         const bool wasModified = document()->isModified();
         {
-            Utils::GuardLocker locker(d->m_modificationChangedGuard);
+            GuardLocker locker(d->m_modificationChangedGuard);
             // hack to ensure we clean the clear state in QTextDocument
             document()->setModified(false);
             document()->setModified(true);
         }
         if (!wasModified)
             modificationChanged(true);
-        return true;
+        return {};
     }
-    return reload(errorString);
+    return reload();
 }
 
 void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator)

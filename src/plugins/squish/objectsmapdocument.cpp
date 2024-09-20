@@ -74,19 +74,21 @@ void ObjectsMapDocument::setModified(bool modified)
     emit changed();
 }
 
-bool ObjectsMapDocument::reload(QString *errorString,
-                                Core::IDocument::ReloadFlag flag,
-                                Core::IDocument::ChangeType type)
+expected_str<void> ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
+                                              Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type);
     if (flag == FlagIgnore)
-        return true;
+        return {};
     emit aboutToReload();
-    const bool success = (openImpl(errorString, filePath(), filePath()) == OpenResult::Success);
+    QString errorString;
+    const bool success = (openImpl(&errorString, filePath(), filePath()) == OpenResult::Success);
     if (success)
         setModified(false);
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)

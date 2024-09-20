@@ -47,14 +47,13 @@ public:
         return BehaviorSilent;
     }
 
-    bool reload(QString *, ReloadFlag, ChangeType type) final
+    expected_str<void> reload(ReloadFlag, ChangeType) final
     {
-        Q_UNUSED(type)
         FolderNode *parent = m_node->parentFolderNode();
-        QTC_ASSERT(parent, return false);
+        QTC_ASSERT(parent, return make_unexpected(QString()));
         parent->replaceSubtree(m_node, std::make_unique<ResourceTopLevelNode>(
                                    m_node->filePath(), parent->filePath(), m_node->contents()));
-        return true;
+        return {};
     }
 
 private:

@@ -100,7 +100,7 @@ public:
     void setSuspendAllowed(bool value);
 
     virtual ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const;
-    virtual bool reload(QString *errorString, ReloadFlag flag, ChangeType type);
+    virtual Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type);
 
     void checkPermissions();
 

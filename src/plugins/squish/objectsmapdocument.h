@@ -26,7 +26,7 @@ public:
     bool isModified() const override { return m_isModified; }
     void setModified(bool modified);
     bool isSaveAsAllowed() const override { return true; }
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) override;
 
     bool shouldAutoSave() const override { return true; }
     bool setContents(const QByteArray &contents) override;

@@ -25,6 +25,8 @@
 #include <QGraphicsSvgItem>
 #endif
 
+using namespace Utils;
+
 namespace ImageViewer::Internal {
 
 class MovieItem : public QObject, public QGraphicsPixmapItem
@@ -144,17 +146,19 @@ Core::IDocument::ReloadBehavior ImageViewerFile::reloadBehavior(ChangeTrigger st
     return BehaviorAsk;
 }
 
-bool ImageViewerFile::reload(QString *errorString,
-                             Core::IDocument::ReloadFlag flag,
-                             Core::IDocument::ChangeType type)
+expected_str<void> ImageViewerFile::reload(Core::IDocument::ReloadFlag flag,
+                                           Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return {};
     emit aboutToReload();
-    bool success = (openImpl(errorString, filePath()) == OpenResult::Success);
+    QString errorString;
+    bool success = (openImpl(&errorString, filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 QMovie *ImageViewerFile::movie() const

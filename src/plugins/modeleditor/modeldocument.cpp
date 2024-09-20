@@ -11,8 +11,6 @@
 
 #include "qmt/config/configcontroller.h"
 #include "qmt/infrastructure/ioexceptions.h"
-#include "qmt/model_controller/modelcontroller.h"
-#include "qmt/model/mdiagram.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
 
@@ -91,24 +89,22 @@ bool ModelDocument::isSaveAsAllowed() const
     return true;
 }
 
-bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag flag,
-                           Core::IDocument::ChangeType type)
+Utils::expected_str<void> ModelDocument::reload(Core::IDocument::ReloadFlag flag,
+                                                Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return {};
     try {
         d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
-        *errorString = ex.errorMessage();
-        return false;
+        return make_unexpected(ex.errorMessage());
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.")
-                           .arg(filePath().toUserOutput(), ex.errorMessage());
-        return false;
+        return make_unexpected(Tr::tr("Could not open \"%1\" for reading: %2.")
+                           .arg(filePath().toUserOutput(), ex.errorMessage()));
     }
     emit contentSet();
-    return true;
+    return {};
 }
 
 ExtDocumentController *ModelDocument::documentController() const

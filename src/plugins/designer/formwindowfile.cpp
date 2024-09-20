@@ -189,11 +189,11 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+expected_str<void> FormWindowFile::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (!m_formWindow || type != TypeContents)
-            return true;
+            return {};
         const bool wasModified = m_formWindow->isDirty();
         {
             Utils::GuardLocker locker(m_modificationChangedGuard);
@@ -203,13 +203,16 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         }
         if (!wasModified)
             updateIsModified();
-        return true;
+        return {};
     } else {
         emit aboutToReload();
+        QString errorString;
         const bool success
-                = (open(errorString, filePath(), filePath()) == OpenResult::Success);
+                = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
         emit reloadFinished(success);
-        return success;
+        if (!success)
+            return make_unexpected(errorString);
+        return {};
     }
 }
 

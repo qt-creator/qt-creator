@@ -1188,19 +1188,18 @@ void DocumentManager::checkForReload()
         removeFileInfo(document);
         addFileInfos({document});
 
-        bool success = true;
-        QString errorString;
+        expected_str<void> success;
         // we've got some modification
         document->checkPermissions();
         // check if it's contents or permissions:
         if (!type) {
             // Only permission change
-            success = true;
+            success = {};
             // now we know it's a content change or file was removed
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeContents
                    && !document->isModified()) {
             // content change, but unmodified (and settings say to reload in this case)
-            success = document->reload(&errorString, IDocument::FlagReload, *type);
+            success = document->reload(IDocument::FlagReload, *type);
             // file was removed or it's a content change and the default behavior for
             // unmodified files didn't kick in
         } else if (defaultBehavior == IDocument::ReloadUnmodified && type == IDocument::TypeRemoved
@@ -1210,7 +1209,7 @@ void DocumentManager::checkForReload()
             documentsToClose << document;
         } else if (defaultBehavior == IDocument::IgnoreAll) {
             // content change or removed, but settings say ignore
-            success = document->reload(&errorString, IDocument::FlagIgnore, *type);
+            success = document->reload(IDocument::FlagIgnore, *type);
             // either the default behavior is to always ask,
             // or the ReloadUnmodified default behavior didn't kick in,
             // so do whatever the IDocument wants us to do
@@ -1221,16 +1220,16 @@ void DocumentManager::checkForReload()
                 if (type == IDocument::TypeRemoved)
                     documentsToClose << document;
                 else
-                    success = document->reload(&errorString, IDocument::FlagReload, *type);
+                    success = document->reload(IDocument::FlagReload, *type);
             // IDocument wants us to ask
             } else if (type == IDocument::TypeContents) {
                 // content change, IDocument wants to ask user
                 if (previousReloadAnswer == ReloadNone || previousReloadAnswer == ReloadNoneAndDiff) {
                     // answer already given, ignore
-                    success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
+                    success = document->reload(IDocument::FlagIgnore, IDocument::TypeContents);
                 } else if (previousReloadAnswer == ReloadAll) {
                     // answer already given, reload
-                    success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
+                    success = document->reload(IDocument::FlagReload, IDocument::TypeContents);
                 } else {
                     // Ask about content change
                     previousReloadAnswer = reloadPrompt(document->filePath(), document->isModified(),
@@ -1239,12 +1238,12 @@ void DocumentManager::checkForReload()
                     switch (previousReloadAnswer) {
                     case ReloadAll:
                     case ReloadCurrent:
-                        success = document->reload(&errorString, IDocument::FlagReload, IDocument::TypeContents);
+                        success = document->reload(IDocument::FlagReload, IDocument::TypeContents);
                         break;
                     case ReloadSkipCurrent:
                     case ReloadNone:
                     case ReloadNoneAndDiff:
-                        success = document->reload(&errorString, IDocument::FlagIgnore, IDocument::TypeContents);
+                        success = document->reload(IDocument::FlagIgnore, IDocument::TypeContents);
                         break;
                     case CloseCurrent:
                         documentsToClose << document;
@@ -1288,10 +1287,10 @@ void DocumentManager::checkForReload()
             }
         }
         if (!success) {
+            QString errorString = success.error();
             if (errorString.isEmpty())
-                errorStrings << Tr::tr("Cannot reload %1").arg(document->filePath().toUserOutput());
-            else
-                errorStrings << errorString;
+                errorString = Tr::tr("Cannot reload %1").arg(document->filePath().toUserOutput());
+            errorStrings << errorString;
         }
 
         d->m_blockedIDocument = nullptr;

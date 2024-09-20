@@ -110,16 +110,19 @@ bool ScxmlEditorDocument::isModified() const
     return m_designWidget && m_designWidget->isDirty();
 }
 
-bool ScxmlEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Utils::expected_str<void> ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return {};
     emit aboutToReload();
-    emit reloadRequested(errorString, filePath().toString());
-    const bool success = errorString->isEmpty();
+    QString errorString;
+    emit reloadRequested(&errorString, filePath().toString());
+    const bool success = errorString.isEmpty();
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 bool ScxmlEditorDocument::supportsCodec(const QTextCodec *codec) const

@@ -105,7 +105,7 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::expected_str<void> reload(ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FilePath &newName) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
@@ -117,8 +117,8 @@ public:
 
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
-    virtual bool reload(QString *errorString);
-    bool reload(QString *errorString, const Utils::FilePath &realFilePath);
+    virtual Utils::expected_str<void> reload();
+    Utils::expected_str<void> reload(const Utils::FilePath &realFilePath);
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
@@ -127,7 +127,7 @@ public:
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
-    bool reload(QString *errorString, QTextCodec *codec);
+    Utils::expected_str<void> reload(QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();

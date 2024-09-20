@@ -56,7 +56,7 @@ public:
     bool shouldAutoSave() const final { return m_shouldAutoSave; }
     bool isModified() const final { return m_model.dirty(); }
     bool isSaveAsAllowed() const final { return true; }
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
+    expected_str<void> reload(ReloadFlag flag, ChangeType type) final;
     void setFilePath(const FilePath &newName) final;
     void setBlockDirtyChanged(bool value) { m_blockDirtyChanged = value; }
 
@@ -280,15 +280,18 @@ void ResourceEditorImpl::restoreState(const QByteArray &state)
     m_resourceEditor->restoreState(splitterState);
 }
 
-bool ResourceEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+expected_str<void> ResourceEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return {};
     emit aboutToReload();
-    const bool success = (open(errorString, filePath(), filePath()) == OpenResult::Success);
+    QString errorString;
+    const bool success = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
     emit reloadFinished(success);
-    return success;
+    if (!success)
+        return make_unexpected(errorString);
+    return {};
 }
 
 void ResourceEditorDocument::dirtyChanged(bool dirty)
