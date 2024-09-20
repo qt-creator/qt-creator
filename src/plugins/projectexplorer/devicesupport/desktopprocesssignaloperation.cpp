@@ -51,17 +51,6 @@ void DesktopProcessSignalOperation::interruptProcess(qint64 pid)
     emit finished(m_errorMessage);
 }
 
-void DesktopProcessSignalOperation::interruptProcess(const QString &filePath)
-{
-    m_errorMessage.clear();
-    const QList<ProcessInfo> processInfoList = ProcessInfo::processInfoList();
-    for (const ProcessInfo &processInfo : processInfoList) {
-        if (processInfo.commandLine == filePath)
-            interruptProcessSilently(processInfo.processId);
-    }
-    emit finished(m_errorMessage);
-}
-
 void DesktopProcessSignalOperation::appendMsgCannotKill(qint64 pid, const QString &why)
 {
     if (!m_errorMessage.isEmpty())

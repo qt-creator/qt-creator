@@ -51,11 +51,6 @@ public:
         return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
                                                  signalProcessByNameQnxCommandLine(filePath, 9));
     }
-
-    QString interruptProcessByNameCommandLine(const QString &filePath) const override
-    {
-        return signalProcessByNameQnxCommandLine(filePath, 2);
-    }
 };
 
 class QnxDevice final : public LinuxDevice

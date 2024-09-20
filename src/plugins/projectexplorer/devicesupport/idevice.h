@@ -61,7 +61,6 @@ public:
     virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
     virtual void interruptProcess(qint64 pid) = 0;
-    virtual void interruptProcess(const QString &filePath) = 0;
 
     void setDebuggerCommand(const Utils::FilePath &cmd);
 

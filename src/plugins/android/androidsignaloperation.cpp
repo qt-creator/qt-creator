@@ -114,13 +114,5 @@ void AndroidSignalOperation::interruptProcess(qint64 pid)
     signalOperationViaADB(pid, 2);
 }
 
-void AndroidSignalOperation::interruptProcess(const QString &filePath)
-{
-    Q_UNUSED(filePath)
-    m_errorMessage = QLatin1String("The android signal operation does "
-                                   "not support interrupting by filepath.");
-    emit finished(m_errorMessage);
-}
-
 } // Internal
 } // Android

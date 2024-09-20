@@ -38,6 +38,7 @@ void RemoteLinuxSignalOperation::run(const QString &command)
     m_process->start();
 }
 
+// TODO: check if used?
 static QString signalProcessGroupByNameCommandLine(const QString &filePath, int signal)
 {
     return QString::fromLatin1(
@@ -57,11 +58,6 @@ QString RemoteLinuxSignalOperation::killProcessByNameCommandLine(const QString &
         .arg(signalProcessGroupByNameCommandLine(filePath, 9));
 }
 
-QString RemoteLinuxSignalOperation::interruptProcessByNameCommandLine(const QString &filePath) const
-{
-    return signalProcessGroupByNameCommandLine(filePath, 2);
-}
-
 void RemoteLinuxSignalOperation::killProcess(qint64 pid)
 {
     run(QString::fromLatin1("%1 && %2")
@@ -77,11 +73,6 @@ void RemoteLinuxSignalOperation::killProcess(const QString &filePath)
 void RemoteLinuxSignalOperation::interruptProcess(qint64 pid)
 {
     run(signalProcessGroupByPidCommandLine(pid, 2));
-}
-
-void RemoteLinuxSignalOperation::interruptProcess(const QString &filePath)
-{
-    run(interruptProcessByNameCommandLine(filePath));
 }
 
 void RemoteLinuxSignalOperation::runnerDone()
