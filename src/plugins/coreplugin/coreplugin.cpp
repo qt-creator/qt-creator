@@ -47,6 +47,7 @@
 #include <QAuthenticator>
 #include <QDateTime>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QGuiApplication>
 #include <QJsonObject>
