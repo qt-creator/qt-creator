@@ -215,6 +215,8 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                 tooltip += "<p>" + Tr::tr("No kits are enabled for this project. "
                                       "Enable kits in the \"Projects\" mode.");
             }
+        } else if (fileNode && fileNode->hasModification()) {
+            tooltip += "<p>" + Tr::tr("Version control state: modified");
         }
         return tooltip;
     }
