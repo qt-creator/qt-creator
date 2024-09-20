@@ -99,10 +99,10 @@ public:
 
     Group m_avdListRecipe;
     TaskTreeRunner m_avdListRunner;
+    TaskTreeRunner m_avdDeviceWatcherRunner;
     std::unique_ptr<Process> m_removeAvdProcess;
     QFileSystemWatcher m_avdFileSystemWatcher;
     Guard m_avdPathGuard;
-    std::unique_ptr<Process> m_adbDeviceWatcherProcess;
 };
 
 static QString displayNameFromInfo(const AndroidDeviceInfo &info)
@@ -872,37 +872,34 @@ void AndroidDeviceManagerInstance::setupDevicesWatcher()
         return;
     }
 
-    if (!m_adbDeviceWatcherProcess)
-        m_adbDeviceWatcherProcess.reset(new Process(this));
-
-    if (m_adbDeviceWatcherProcess->isRunning()) {
+    if (m_avdDeviceWatcherRunner.isRunning()) {
         qCDebug(androidDeviceLog) << "ADB device watcher is already running.";
         return;
     }
 
-    connect(m_adbDeviceWatcherProcess.get(), &Process::done, this, [this] {
-        if (m_adbDeviceWatcherProcess->error() != QProcess::UnknownError) {
-            qCDebug(androidDeviceLog) << "ADB device watcher encountered an error:"
-                                      << m_adbDeviceWatcherProcess->errorString();
-            if (!m_adbDeviceWatcherProcess->isRunning()) {
-                qCDebug(androidDeviceLog) << "Restarting the ADB device watcher now.";
-                QTimer::singleShot(0, m_adbDeviceWatcherProcess.get(), &Process::start);
-            }
-        }
+    const auto onSetup = [](Process &process) {
+        const CommandLine command{AndroidConfig::adbToolPath(), {"track-devices"}};
+        process.setCommand(command);
+        process.setWorkingDirectory(command.executable().parentDir());
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
+        process.setStdErrLineCallback([](const QString &error) {
+            qCDebug(androidDeviceLog) << "ADB device watcher error" << error; });
+        process.setStdOutLineCallback([](const QString &output) {
+            handleDevicesListChange(output);
+        });
+    };
+    const auto onDone = [](const Process &process, DoneWith result) {
         qCDebug(androidDeviceLog) << "ADB device watcher finished.";
-    });
+        if (result != DoneWith::Error)
+            return DoneResult::Error; // Stop the Forever loop.
 
-    m_adbDeviceWatcherProcess->setStdErrLineCallback([](const QString &error) {
-        qCDebug(androidDeviceLog) << "ADB device watcher error" << error; });
-    m_adbDeviceWatcherProcess->setStdOutLineCallback([](const QString &output) {
-        handleDevicesListChange(output);
-    });
+        qCDebug(androidDeviceLog) << "ADB device watcher encountered an error:"
+                                  << process.errorString();
+        qCDebug(androidDeviceLog) << "Restarting the ADB device watcher now.";
+        return DoneResult::Success; // Continue the Forever loop.
+    };
 
-    const CommandLine command{AndroidConfig::adbToolPath(), {"track-devices"}};
-    m_adbDeviceWatcherProcess->setCommand(command);
-    m_adbDeviceWatcherProcess->setWorkingDirectory(command.executable().parentDir());
-    m_adbDeviceWatcherProcess->setEnvironment(AndroidConfig::toolsEnvironment());
-    m_adbDeviceWatcherProcess->start();
+    m_avdDeviceWatcherRunner.start(Group { Forever { ProcessTask(onSetup, onDone) } });
 
     // Setup AVD filesystem watcher to listen for changes when an avd is created/deleted,
     // or started/stopped
