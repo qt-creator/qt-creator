@@ -521,6 +521,8 @@ void DesignModeWidget::aboutToShowViews()
     for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
         QString id = widgetInfo.uniqueId;
         ADS::DockWidget *dockWidget = m_dockManager->findDockWidget(id);
+        if (!dockWidget)
+            continue;
         QAction *action = dockWidget->toggleViewAction();
 
         bool isMcuProject = currentDesignDocument() && currentDesignDocument()->isQtForMCUsProject();

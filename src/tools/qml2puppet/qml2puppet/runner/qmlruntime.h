@@ -6,6 +6,11 @@
 #include "../qmlbase.h"
 #include "qmlconfiguration.h"
 
+#include <QSharedMemory>
+#include <QTimer>
+
+QT_FORWARD_DECLARE_CLASS(QQuickWindow)
+
 class QmlRuntime : public QmlBase
 {
     using QmlBase::QmlBase;
@@ -17,14 +22,19 @@ private:
 
     void listConfFiles();
     void loadConf(const QString &override, bool quiet);
+    QQuickWindow *window() const;
+    QRect liveRect();
+    void resizeWindow();
 
     const QString m_iconResourcePath = QStringLiteral(":/qt-project.org/QmlRuntime/resources/qml-64.png");
     const QString m_confResourcePath = QStringLiteral(":/runner/runnerconf/qmlruntime/");
-
 
     QSharedPointer<Config> m_conf;
     bool m_verboseMode = false;
     bool m_quietMode = false;
     int m_exitTimerId = -1;
+    QSharedMemory m_sharedMemory;
+    bool m_isLivePreview = false;
+    QTimer m_timer;
 };
 

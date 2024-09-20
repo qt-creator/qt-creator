@@ -230,6 +230,13 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/liveview
+  SOURCES
+    liveview.cpp liveview.h
+    liveviewwidget.cpp liveviewwidget.h
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/edit3d
   SOURCES
   cameraviewwidgetaction.cpp cameraviewwidgetaction.h

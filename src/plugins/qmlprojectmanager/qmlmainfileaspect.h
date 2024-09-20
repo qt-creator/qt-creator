@@ -40,6 +40,7 @@ public:
     {
         Utils::FilePath mainScript;
         Utils::FilePath currentFile;
+        Utils::FilePath mainUiFile;
     };
 
     void addToLayout(Layouting::Layout &parent) final;
@@ -55,6 +56,7 @@ public:
 
     Utils::FilePath mainScript() const;
     Utils::FilePath currentFile() const;
+    Utils::FilePath mainUiFile() const;
     void changeCurrentFile(Core::IEditor *editor = nullptr);
     bool isQmlFilePresent();
     QmlBuildSystem *qmlBuildSystem() const;

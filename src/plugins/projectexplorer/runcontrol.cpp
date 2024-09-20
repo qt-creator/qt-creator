@@ -1042,19 +1042,7 @@ void RunControl::setApplicationProcessHandle(const ProcessHandle &handle)
 
 bool RunControl::promptToStop(bool *optionalPrompt) const
 {
-    QTC_ASSERT(isRunning(), return true);
-    if (optionalPrompt && !*optionalPrompt)
-        return true;
-
-    // Overridden.
-    if (d->promptToStop)
-        return d->promptToStop(optionalPrompt);
-
-    const QString msg = Tr::tr("<html><head/><body><center><i>%1</i> is still running.<center/>"
-                           "<center>Force it to quit?</center></body></html>").arg(displayName());
-    return showPromptToStopDialog(Tr::tr("Application Still Running"), msg,
-                                  Tr::tr("Force &Quit"), Tr::tr("&Keep Running"),
-                                  optionalPrompt);
+    return true; // Always stop live preview without prompting in PoC
 }
 
 void RunControl::setPromptToStop(const std::function<bool (bool *)> &promptToStop)

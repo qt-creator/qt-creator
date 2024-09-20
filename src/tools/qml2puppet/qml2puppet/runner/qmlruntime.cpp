@@ -10,10 +10,15 @@
 #include <private/qabstractanimation_p.h>
 #endif
 
+#include <QBuffer>
+#include <QDataStream>
 #include <QDirIterator>
 #include <QFontDatabase>
 #include <QIcon>
 #include <QLibraryInfo>
+#include <QQuickItem>
+#include <QQuickWindow>
+#include <QSharedMemory>
 #include <QStandardPaths>
 #include <QSurfaceFormat>
 #include <QTranslator>
@@ -51,6 +56,15 @@ static QDir findProjectFolder(const QDir &currentDir, int ret = 0)
 
 void QmlRuntime::populateParser()
 {
+    // Resolve live preview status before args are parsed as qmljsdebugger parameter gets lost
+    // somewhere along the way
+    for (int i = 0; i < m_args.argc; i++) {
+        if (QString::fromLocal8Bit(m_args.argv[i]).startsWith("-qmljsdebugger")) {
+            m_isLivePreview = true;
+            break;
+        }
+    }
+
     m_argParser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     m_argParser.setOptionsAfterPositionalArgumentsMode(
         QCommandLineParser::ParseAsPositionalArguments);
@@ -288,6 +302,71 @@ void QmlRuntime::initQmlRunner()
 
     if (lw->earlyExit)
         exit(lw->returnCode);
+
+    if (m_isLivePreview) {
+        m_sharedMemory.setKey("LiveViewSharedMemory");
+        if (!m_sharedMemory.attach())
+            qDebug() << "QmlRuntime: Unable to attach to shared memory segment.";
+
+        auto w = window();
+        if (w && !liveRect().isNull()) {
+            w->setFlags(Qt::FramelessWindowHint);
+            resizeWindow();
+        }
+
+        m_timer.callOnTimeout(this, &QmlRuntime::resizeWindow);
+        m_timer.setInterval(10);
+        m_timer.start();
+    }
+}
+
+QQuickWindow *QmlRuntime::window() const
+{
+    if (auto app = qobject_cast<QGuiApplication *>(m_coreApp.data())) {
+        const auto allWindows = app->allWindows();
+        for (QWindow *w : allWindows) {
+            if (auto qw = qobject_cast<QQuickWindow *>(w))
+                return qw;
+        }
+    }
+    return {};
+}
+
+QRect QmlRuntime::liveRect()
+{
+    if (!m_sharedMemory.isAttached())
+        return {};
+
+    m_sharedMemory.lock();
+    QBuffer buffer;
+    QDataStream in(&buffer);
+    QRect rect;
+    buffer.setData((char *)m_sharedMemory.constData(), m_sharedMemory.size());
+    buffer.open(QBuffer::ReadOnly);
+    in >> rect;
+    buffer.close();
+    m_sharedMemory.unlock();
+
+    if (rect.width() < 2 || rect.height() < 2)
+        return {};
+
+    return rect;
+}
+
+void QmlRuntime::resizeWindow()
+{
+    QQuickWindow *w = window();
+    if (!w)
+        return;
+
+    QRect rect = liveRect();
+
+    if (!rect.isNull() && w->geometry() != rect) {
+        auto contentChildren = w->contentItem()->childItems();
+        if (!contentChildren.isEmpty())
+            contentChildren.first()->setSize(rect.size());
+        w->setGeometry(rect);
+    }
 }
 
 void QmlRuntime::loadConf(const QString &override, bool quiet) // Terminates app on failure

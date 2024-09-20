@@ -34,6 +34,7 @@
 #include <qmljs/qmljsdocument.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 
+#include <qmlprojectmanager/qmlmainfileaspect.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
@@ -376,7 +377,11 @@ void QmlPreviewPlugin::previewCurrentFile()
                              Tr::tr("Start the QML Preview for the project before selecting "
                                     "a specific file for preview."));
 
-    const QString file = currentNode->filePath().toString();
+    auto &runControl = runningPreviews().first();
+    const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>();
+
+    const QString file = aspect->mainUiFile.toFSPathString();
+
     if (file != d->m_previewedFile)
         setPreviewedFile(file);
     else

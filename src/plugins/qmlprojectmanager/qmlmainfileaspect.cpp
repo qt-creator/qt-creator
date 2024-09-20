@@ -44,6 +44,7 @@ QmlMainFileAspect::QmlMainFileAspect(AspectContainer *container)
 {
     addDataExtractor(this, &QmlMainFileAspect::mainScript, &Data::mainScript);
     addDataExtractor(this, &QmlMainFileAspect::currentFile, &Data::currentFile);
+    addDataExtractor(this, &QmlMainFileAspect::mainUiFile, &Data::mainUiFile);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
             this, &QmlMainFileAspect::changeCurrentFile);
@@ -200,6 +201,16 @@ FilePath QmlMainFileAspect::mainScript() const
 
 FilePath QmlMainFileAspect::currentFile() const
 {
+    return m_currentFileFilename;
+}
+
+FilePath QmlMainFileAspect::mainUiFile() const
+{
+    if (!qmlBuildSystem()->mainUiFile().isEmpty()) {
+        const FilePath pathInProject = qmlBuildSystem()->mainUiFilePath();
+        return qmlBuildSystem()->canonicalProjectDir().resolvePath(pathInProject);
+    }
+
     return m_currentFileFilename;
 }
 

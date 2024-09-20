@@ -18,6 +18,7 @@
 #include <edit3dview.h>
 #include <formeditorview.h>
 #include <itemlibraryview.h>
+#include <liveview.h>
 #include <materialbrowserview.h>
 #include <materialeditorview.h>
 #include <model/auxiliarypropertystorageview.h>
@@ -77,6 +78,7 @@ public:
         , textureEditorView{imageCache, externalDependencies}
 #endif
         , statesEditorView{externalDependencies}
+        , liveView{externalDependencies}
     {}
 
     InteractiveConnectionManager connectionManager;
@@ -107,6 +109,7 @@ public:
     TextureEditorView textureEditorView;
 #endif
     StatesEditorView statesEditorView;
+    LiveView liveView;
 
     std::vector<std::unique_ptr<AbstractView>> additionalViews;
     bool disableStandardViews = false;
@@ -236,7 +239,8 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->materialBrowserView,
                                   &d->textureEditorView,
                                   &d->statesEditorView,
-                                  &d->designerActionManagerView};
+                                  &d->designerActionManagerView,
+                                  &d->liveView};
 #else
     QList<AbstractView *> list = {&d->formEditorView,
                                   &d->textEditorView,
@@ -464,6 +468,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->textureEditorView.widgetInfo());
 #endif
     widgetInfoList.append(d->statesEditorView.widgetInfo());
+    widgetInfoList.append(d->liveView.widgetInfo());
 
     if (checkEnterpriseLicense())
         widgetInfoList.append(d->contentLibraryView.widgetInfo());

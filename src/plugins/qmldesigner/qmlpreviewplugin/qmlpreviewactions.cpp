@@ -77,9 +77,6 @@ QmlPreviewAction::QmlPreviewAction() : ModelNodeAction(livePreviewId,
 
 void QmlPreviewAction::updateContext()
 {
-    if (selectionContext().view()->isAttached())
-        QmlPreviewWidgetPlugin::setQmlFile();
-
     pureAction()->setSelectionContext(selectionContext());
 }
 

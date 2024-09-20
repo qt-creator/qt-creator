@@ -212,7 +212,7 @@ public:
                 QTC_ASSERT(qmlBuildSystem, return);
 
                 const FilePath mainScript = aspect->mainScript;
-                const FilePath currentFile = aspect->currentFile;
+                const FilePath currentFile = aspect->mainUiFile;
 
                 const QString mainScriptFromProject = qmlBuildSystem->targetFile(mainScript).path();
 
