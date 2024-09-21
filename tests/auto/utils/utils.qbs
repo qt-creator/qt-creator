@@ -12,6 +12,7 @@ Project {
         "fileutils/fileutils.qbs",
         "fsengine/fsengine.qbs",
         "fuzzymatcher/fuzzymatcher.qbs",
+        "id/id.qbs",
         "indexedcontainerproxyconstiterator/indexedcontainerproxyconstiterator.qbs",
         "mathutils/mathutils.qbs",
         "multicursor/multicursor.qbs",
