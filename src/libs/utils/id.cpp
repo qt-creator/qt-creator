@@ -125,7 +125,7 @@ static quintptr theId(const char *str, int n)
 
 */
 Id::Id(const char *s, size_t len)
-    : m_id(theId(s, len))
+    : m_id(theId(s, static_cast<int>(len)))
 {}
 
 Id Id::generate()
