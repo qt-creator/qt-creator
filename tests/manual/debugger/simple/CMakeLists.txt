@@ -15,7 +15,7 @@ endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Network Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Network Widgets)
 find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Script Webkit WebkitWidgets QUIET)
-find_package(Boost QUIET)
+find_package(Boost CONFIG QUIET)
 find_package(Eigen2 QUIET)
 find_package(Eigen3 QUIET)
 
