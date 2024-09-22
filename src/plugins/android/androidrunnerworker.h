@@ -28,9 +28,10 @@ public:
     ProjectExplorer::RunControl *runControl() const { return m_runControl; }
     QString deviceSerialNumber() const { return m_deviceSerialNumber; }
     int apiLevel() const { return m_apiLevel; }
+    bool wasCancelled() const { return m_wasCancelled; };
 
     // GUI -> business logic
-    void cancel() { emit canceled(); }
+    void cancel();
 
     // business logic -> GUI
     void setStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
@@ -51,6 +52,7 @@ signals:
 private:
     ProjectExplorer::RunControl *m_runControl = nullptr;
     QString m_deviceSerialNumber;
+    bool m_wasCancelled = false;
     int m_apiLevel = -1;
 };
 

@@ -110,7 +110,7 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-    appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
+    appendMessage(Tr::tr("Android target \"%1\" terminated.").arg(m_packageName),
                   Utils::NormalMessageFormat);
 }
 

@@ -581,7 +581,10 @@ static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
     const auto onDone = [storage] {
         storage->m_processPID = -1;
         storage->m_processUser = -1;
-        storage->m_glue->setFinished("\n\n" + Tr::tr("\"%1\" died.").arg(storage->m_packageName));
+        if (!storage->m_glue->wasCancelled()) {
+            storage->m_glue->setFinished(Tr::tr("Android target \"%1\" died.")
+                                             .arg(storage->m_packageName));
+        }
     };
 
     return Group {
@@ -862,6 +865,12 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
             ProcessTask(onIsAliveSetup)
         }
     };
+}
+
+void RunnerInterface::cancel()
+{
+    m_wasCancelled = true;
+    emit canceled();
 }
 
 void RunnerInterface::setStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer,
