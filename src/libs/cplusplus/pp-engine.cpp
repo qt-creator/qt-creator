@@ -1876,8 +1876,11 @@ void Preprocessor::handlePragmaDirective(PPToken *tk)
     lex(tk); // consume "pragma" token
 
     while (isContinuationToken(*tk)) {
-        if (!consumeComments(tk))
-            return;
+        if (tk->isComment()) {
+            if (!consumeComments(tk))
+                return;
+            continue;
+        }
         pragma.tokens << tk->asByteArrayRef().toByteArray();
         lex(tk);
     }

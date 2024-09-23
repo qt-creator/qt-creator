@@ -2105,10 +2105,12 @@ void tst_Preprocessor::pragmas()
     QByteArray output;
     MockClient client(&env, &output);
     Preprocessor preprocess(&client, &env);
+    preprocess.setKeepComments(true);
     QByteArray input =
         "#pragma once\n"
         "#include <iostream>\n"
-        "#pragma pack(/*distraction*/push)\n"
+        "#pragma pack(/*distraction*/push) // comment\n"
+        "#define THE_MACRO\n"
         "struct S { bool b1; int i; short s; bool b2; };\n"
         "#pragma pack(pop)\n";
     preprocess.run(QLatin1String("<stdin>"), input);
@@ -2117,8 +2119,9 @@ void tst_Preprocessor::pragmas()
     QCOMPARE(client.pragmas().at(0).tokens, QByteArrayList{"once"});
     QCOMPARE(client.pragmas().at(1).line, 3);
     QCOMPARE(client.pragmas().at(1).tokens, (QByteArrayList{"pack", "(", "push", ")"}));
-    QCOMPARE(client.pragmas().at(2).line, 5);
+    QCOMPARE(client.pragmas().at(2).line, 6);
     QCOMPARE(client.pragmas().at(2).tokens, (QByteArrayList{"pack", "(", "pop", ")"}));
+    QCOMPARE(client.definedMacrosLine(), QList<int>{4});
 }
 
 void tst_Preprocessor::excessive_nesting()
