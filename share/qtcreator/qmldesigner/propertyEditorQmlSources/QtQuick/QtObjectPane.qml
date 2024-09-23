@@ -11,10 +11,7 @@ PropertyEditorPane {
 
     ComponentSection {}
 
-    DynamicPropertiesSection {
-        propertiesModel: SelectionDynamicPropertiesModel {}
-        visible: !hasMultiSelection
-    }
+
 
     Column {
         anchors.left: parent.left
@@ -41,6 +38,11 @@ PropertyEditorPane {
             anchors.left: parent.left
             anchors.right: parent.right
             source: specificsUrl
+        }
+
+        DynamicPropertiesSection {
+            propertiesModel: SelectionDynamicPropertiesModel {}
+            visible: !hasMultiSelection
         }
     }
 }

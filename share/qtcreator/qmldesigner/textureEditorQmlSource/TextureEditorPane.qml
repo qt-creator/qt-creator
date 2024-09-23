@@ -32,10 +32,6 @@ PropertyEditorPane {
 
     Item { width: 1; height: 10 }
 
-    DynamicPropertiesSection {
-        propertiesModel: TextureEditorDynamicPropertiesModel {}
-    }
-
     Loader {
         id: specificsTwo
 
@@ -63,5 +59,9 @@ PropertyEditorPane {
         anchors.left: parent.left
         anchors.right: parent.right
         source: specificsUrl
+    }
+
+    DynamicPropertiesSection {
+        propertiesModel: TextureEditorDynamicPropertiesModel {}
     }
 }

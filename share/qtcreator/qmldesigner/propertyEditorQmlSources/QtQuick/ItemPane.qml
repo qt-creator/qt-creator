@@ -12,16 +12,10 @@ PropertyEditorPane {
     id: itemPane
 
     ComponentSection {
-        showState: true
     }
 
     InsightSection {
         visible: insightEnabled
-    }
-
-    DynamicPropertiesSection {
-        propertiesModel: SelectionDynamicPropertiesModel {}
-        visible: !hasMultiSelection
     }
 
     GeometrySection {}
@@ -143,6 +137,11 @@ PropertyEditorPane {
 
             LayerSection {
                 expanded: false
+            }
+
+            DynamicPropertiesSection {
+                propertiesModel: SelectionDynamicPropertiesModel {}
+                visible: !hasMultiSelection
             }
         }
 

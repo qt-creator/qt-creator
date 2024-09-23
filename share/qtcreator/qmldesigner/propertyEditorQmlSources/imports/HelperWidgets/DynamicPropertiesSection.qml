@@ -36,6 +36,7 @@ Section {
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Local Custom Properties")
+    expanded: false
 
     property DynamicPropertiesModel propertiesModel: null
 

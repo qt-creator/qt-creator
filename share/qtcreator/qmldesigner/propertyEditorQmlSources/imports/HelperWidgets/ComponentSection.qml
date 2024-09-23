@@ -16,7 +16,7 @@ Section {
     anchors.right: parent.right
 
     property bool showState: false
-
+    property bool enableAddAnotationButton : false && !annotationEditor.hasAuxData // Currently button is not to be shown
     SectionLayout {
         PropertyLabel {
             text: qsTr("Type")
@@ -244,7 +244,7 @@ Section {
                 id: addAnnotationButton
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: StudioTheme.Values.singleControlColumnWidth
-                visible: !annotationEditor.hasAuxData
+                visible: root.enableAddAnotationButton
                 buttonIcon: qsTr("Add Annotation")
                 iconFontFamily: StudioTheme.Constants.font.family
                 tooltip: qsTr("Adds a note with a title to explain the component.")

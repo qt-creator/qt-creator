@@ -10,17 +10,13 @@ PropertyEditorPane {
     id: itemPane
 
     ComponentSection {
-        showState: majorQtQuickVersion >= 6
     }
 
     Column {
         anchors.left: parent.left
         anchors.right: parent.right
 
-        DynamicPropertiesSection {
-            propertiesModel: SelectionDynamicPropertiesModel {}
-            visible: !hasMultiSelection
-        }
+
 
         Loader {
             id: specificsTwo
@@ -43,6 +39,11 @@ PropertyEditorPane {
             anchors.left: parent.left
             anchors.right: parent.right
             source: specificsUrl
+        }
+
+        DynamicPropertiesSection {
+            propertiesModel: SelectionDynamicPropertiesModel {}
+            visible: !hasMultiSelection
         }
     }
 }
