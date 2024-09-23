@@ -153,7 +153,8 @@
     \endlist
 
     \if defined(qtcreator)
-    \sa {Read Documentation}{How To: Read Documentation}
+    \sa {Read Documentation}{How To: Read Documentation}, {Installation},
+    {Get and Install Qt}
     \endif
 */
 

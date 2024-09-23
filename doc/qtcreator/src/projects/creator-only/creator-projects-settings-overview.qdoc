@@ -105,7 +105,7 @@
 
     \sa {Activate kits for a project}, {Configure projects for building},
     {Configure projects for running}, {Open projects},
-    {Activate custom output parsers}
+    {Activate custom output parsers}, {Get and Install Qt}
 */
 
 /*!

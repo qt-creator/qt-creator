@@ -17,7 +17,7 @@
     configured iOS devices.
 
     You only need Qt libraries that are built for iOS. You can install Qt for iOS
-    with \QOI.
+    with \l{Get and Install Qt}{\QOI}.
 
     \section1 iOS 17 Devices
 

@@ -31,8 +31,8 @@
     sources. Because the client has a local cache for package storage, you can
     work offline, as long as no new packages are needed from remote servers.
 
-    To use Conan, install it by using \QOI or the tools that
-    your operating system has. For example, on Windows, you can use the
+    To use Conan, install it by using \l{Get and Install Qt}{\QOI} or the tools
+    that your operating system has. For example, on Windows, you can use the
     \c {choco install conan} or \c {pip install conan} command.
 
     \note Enable the Conan plugin to use it.

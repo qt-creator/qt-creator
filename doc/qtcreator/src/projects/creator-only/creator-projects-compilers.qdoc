@@ -22,9 +22,9 @@
     necessary tools for building an application for and running it on a
     particular platform.
 
-    \QC automatically detects the compilers that your system or \QOI
-    registers and lists them in \preferences > \uicontrol Kits >
-    \uicontrol Compilers.
+    \QC automatically detects the compilers that your system or
+    \l{Get and Install Qt}{\QOI} registers and lists them in
+    \preferences > \uicontrol Kits > \uicontrol Compilers.
 
     \image qtcreator-toolchains.png
 

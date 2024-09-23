@@ -38,5 +38,5 @@
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
 
-    \sa {Enable and disable plugins}
+    \sa {Enable and disable plugins}, {Installation}, {Get and Install Qt}
 */
