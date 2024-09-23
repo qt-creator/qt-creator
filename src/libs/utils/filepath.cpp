@@ -1949,6 +1949,13 @@ std::optional<FilePath> FilePath::tailRemoved(const QString &str) const
     return {};
 }
 
+std::optional<FilePath> FilePath::prefixRemoved(const QString &str) const
+{
+    if (pathView().startsWith(str))
+        return withNewPath(pathView().mid(str.size()).toString());
+    return {};
+}
+
 QDateTime FilePath::lastModified() const
 {
     return fileAccess()->lastModified(*this);

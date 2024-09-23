@@ -140,6 +140,7 @@ public:
     [[nodiscard]] FilePath pathAppended(const QString &str) const;
     [[nodiscard]] FilePath stringAppended(const QString &str) const;
     [[nodiscard]] std::optional<FilePath> tailRemoved(const QString &str) const;
+    [[nodiscard]] std::optional<FilePath> prefixRemoved(const QString &str) const;
     bool startsWith(const QString &s) const;
     bool endsWith(const QString &s) const;
     bool contains(const QString &s) const;
