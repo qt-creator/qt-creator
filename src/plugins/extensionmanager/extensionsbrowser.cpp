@@ -393,10 +393,10 @@ public:
     static const QList<SortOption> &sortOptions()
     {
         static const QList<SortOption> options = {
+            {Tr::tr("Last updated"), RoleDateUpdated, Qt::DescendingOrder},
             {Tr::tr("Name"), RoleName},
             {Tr::tr("Vendor"), RoleVendor},
             {Tr::tr("Popularity"), RoleDownloadCount, Qt::DescendingOrder},
-            {Tr::tr("Last updated"), RoleDateUpdated, Qt::DescendingOrder},
         };
         return options;
     }
