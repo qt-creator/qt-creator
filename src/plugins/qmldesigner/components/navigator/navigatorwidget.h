@@ -41,10 +41,6 @@ public:
     void clearSearch();
 
 signals:
-    void leftButtonClicked();
-    void rightButtonClicked();
-    void upButtonClicked();
-    void downButtonClicked();
     void filterToggled(bool);
     void reverseOrderToggled(bool);
     void textFilterChanged(const QString &name);

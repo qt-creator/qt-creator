@@ -84,39 +84,6 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     QList<QWidget *> buttons;
 
     auto empty = new QWidget();
-    empty->setFixedWidth(5);
-    empty->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
-    buttons.append(empty);
-
-    auto button = new QToolButton();
-    button->setIcon(Theme::iconFromName(Theme::Icon::moveUpwards_medium));
-    button->setToolTip(tr("Become last sibling of parent (CTRL + Left)."));
-    button->setShortcut(QKeySequence(Qt::Key_Left | Qt::CTRL));
-    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::leftButtonClicked);
-    buttons.append(button);
-
-    button = new QToolButton();
-    button->setIcon(Theme::iconFromName(Theme::Icon::moveInwards_medium));
-    button->setToolTip(tr("Become child of last sibling (CTRL + Right)."));
-    button->setShortcut(QKeySequence(Qt::Key_Right | Qt::CTRL));
-    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::rightButtonClicked);
-    buttons.append(button);
-
-    button = new QToolButton();
-    button->setIcon(Theme::iconFromName(Theme::Icon::moveDown_medium));
-    button->setToolTip(tr("Move down (CTRL + Down)."));
-    button->setShortcut(QKeySequence(Qt::Key_Down | Qt::CTRL));
-    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::downButtonClicked);
-    buttons.append(button);
-
-    button = new QToolButton();
-    button->setIcon(Theme::iconFromName(Theme::Icon::moveUp_medium));
-    button->setToolTip(tr("Move up (CTRL + Up)."));
-    button->setShortcut(QKeySequence(Qt::Key_Up | Qt::CTRL));
-    connect(button, &QAbstractButton::clicked, this, &NavigatorWidget::upButtonClicked);
-    buttons.append(button);
-
-    empty = new QWidget();
     empty->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
     buttons.append(empty);
 
@@ -128,7 +95,7 @@ QList<QWidget *> NavigatorWidget::createToolBarWidgets()
     vIcon.addPixmap(invisibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::On);
     vIcon.addPixmap(visibleIcon.pixmap({16, 16}), QIcon::Normal, QIcon::Off);
 
-    button = new QToolButton();
+    auto button = new QToolButton();
     button->setIcon(vIcon);
     button->setCheckable(true);
     bool visibleFlag = QmlDesignerPlugin::settings()

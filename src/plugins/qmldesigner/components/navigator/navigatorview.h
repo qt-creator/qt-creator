@@ -96,10 +96,6 @@ private:
     QAbstractItemModel *currentModel() const;
     void propagateInstanceErrorToExplorer(const ModelNode &modelNode);
 
-    void leftButtonClicked();
-    void rightButtonClicked();
-    void upButtonClicked();
-    void downButtonClicked();
     void filterToggled(bool);
     void reverseOrderToggled(bool);
 

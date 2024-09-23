@@ -537,102 +537,6 @@ void NavigatorView::propagateInstanceErrorToExplorer(const ModelNode &modelNode)
     } while (index.isValid());
 }
 
-void NavigatorView::leftButtonClicked()
-{
-    if (selectedModelNodes().size() > 1)
-        return; //Semantics are unclear for multi selection.
-
-    bool blocked = blockSelectionChangedSignal(true);
-
-    for (const ModelNode &node : selectedModelNodes()) {
-        if (!node.isRootNode() && !node.parentProperty().parentModelNode().isRootNode()) {
-            if (QmlItemNode::isValidQmlItemNode(node)) {
-                QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                reparentAndCatch(node.parentProperty().parentProperty(), node);
-                if (!scenePos.isNull())
-                    setScenePos(node, scenePos);
-            } else {
-                reparentAndCatch(node.parentProperty().parentProperty(), node);
-            }
-        }
-    }
-
-    updateItemSelection();
-    blockSelectionChangedSignal(blocked);
-}
-
-void NavigatorView::rightButtonClicked()
-{
-    if (selectedModelNodes().size() > 1)
-        return; //Semantics are unclear for multi selection.
-
-    bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
-
-    for (const ModelNode &node : selectedModelNodes()) {
-        if (!node.isRootNode() && node.parentProperty().isNodeListProperty()
-            && node.parentProperty().count() > 1) {
-            int index = node.parentProperty().indexOf(node);
-
-            bool indexOk = false;
-
-            if (reverse) {
-                index++;
-                indexOk = (index < node.parentProperty().count());
-            } else {
-                index--;
-                indexOk = (index >= 0);
-            }
-
-            if (indexOk) { //for the first node the semantics are not clear enough. Wrapping would be irritating.
-                ModelNode newParent = node.parentProperty().toNodeListProperty().at(index);
-
-                if (QmlItemNode::isValidQmlItemNode(node)
-                        && QmlItemNode::isValidQmlItemNode(newParent)
-                        && !newParent.metaInfo().defaultPropertyIsComponent()) {
-                    QPointF scenePos = QmlItemNode(node).instanceScenePosition();
-                    reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
-                    if (!scenePos.isNull())
-                        setScenePos(node, scenePos);
-                } else {
-                    if (newParent.metaInfo().isValid() && !newParent.metaInfo().defaultPropertyIsComponent())
-                        reparentAndCatch(newParent.nodeAbstractProperty(newParent.metaInfo().defaultPropertyName()), node);
-                }
-            }
-        }
-    }
-    updateItemSelection();
-    blockSelectionChangedSignal(blocked);
-}
-
-void NavigatorView::upButtonClicked()
-{
-    bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
-
-    if (reverse)
-        moveNodesDown(selectedModelNodes());
-    else
-        moveNodesUp(selectedModelNodes());
-
-    updateItemSelection();
-    blockSelectionChangedSignal(blocked);
-}
-
-void NavigatorView::downButtonClicked()
-{
-    bool blocked = blockSelectionChangedSignal(true);
-    bool reverse = QmlDesignerPlugin::settings().value(DesignerSettingsKey::NAVIGATOR_REVERSE_ITEM_ORDER).toBool();
-
-    if (reverse)
-        moveNodesUp(selectedModelNodes());
-    else
-        moveNodesDown(selectedModelNodes());
-
-    updateItemSelection();
-    blockSelectionChangedSignal(blocked);
-}
-
 void NavigatorView::filterToggled(bool flag)
 {
     m_currentModelInterface->setFilter(flag);
@@ -772,10 +676,6 @@ void NavigatorView::setupWidget()
 
     connect(treeWidget()->selectionModel(), &QItemSelectionModel::selectionChanged, this, &NavigatorView::changeSelection);
 
-    connect(m_widget.data(), &NavigatorWidget::leftButtonClicked, this, &NavigatorView::leftButtonClicked);
-    connect(m_widget.data(), &NavigatorWidget::rightButtonClicked, this, &NavigatorView::rightButtonClicked);
-    connect(m_widget.data(), &NavigatorWidget::downButtonClicked, this, &NavigatorView::downButtonClicked);
-    connect(m_widget.data(), &NavigatorWidget::upButtonClicked, this, &NavigatorView::upButtonClicked);
     connect(m_widget.data(), &NavigatorWidget::filterToggled, this, &NavigatorView::filterToggled);
     connect(m_widget.data(), &NavigatorWidget::reverseOrderToggled, this, &NavigatorView::reverseOrderToggled);
 
