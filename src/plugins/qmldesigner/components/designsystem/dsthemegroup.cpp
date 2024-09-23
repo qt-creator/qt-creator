@@ -180,9 +180,14 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTE
             auto &propData = themeValue->second;
             if (propData.isBinding) {
                 auto bindingProp = targetNode->bindingProperty(propName);
-                if (bindingProp)
-                    bindingProp.setDynamicTypeNameAndExpression(*typeName,
-                                                                propData.value.toString());
+                if (!bindingProp)
+                    continue;
+
+                if (decorationContext == DECORATION_CONTEXT::MCU)
+                    bindingProp.setExpression(propData.value.toString());
+                else
+                    bindingProp.setDynamicTypeNameAndExpression(*typeName, propData.value.toString());
+
             } else {
                 auto nodeProp = targetNode->variantProperty(propName);
                 if (!nodeProp)
