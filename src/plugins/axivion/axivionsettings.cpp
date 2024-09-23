@@ -171,7 +171,11 @@ public:
     }
 
     QVariant variantValue() const final { return pathMappingsToSetting(m_pathMapping); }
-    const QList<PathMapping> pathMappings() const { return m_pathMapping; }
+
+    const QList<PathMapping> validPathMappings() const
+    {
+        return Utils::filtered(m_pathMapping, &PathMapping::isValid);
+    }
 
 private:
     QList<PathMapping> m_pathMapping;
@@ -254,9 +258,9 @@ void AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other)
     emit changed(); // should we be more detailed? (id)
 }
 
-const QList<PathMapping> AxivionSettings::pathMappings() const
+const QList<PathMapping> AxivionSettings::validPathMappings() const
 {
-    return pathMappingSettings().pathMappings();
+    return pathMappingSettings().validPathMappings();
 }
 
 // AxivionSettingsPage
@@ -574,7 +578,7 @@ PathMappingSettingsWidget::PathMappingSettingsWidget()
         m_detailsWidget
     }.attachTo(this);
 
-    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().pathMappings(),
+    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
                      [this](const PathMapping &m) {
         QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
                                                     {m.projectName,
@@ -604,7 +608,7 @@ PathMappingSettingsWidget::PathMappingSettingsWidget()
 
 void PathMappingSettingsWidget::apply()
 {
-    const QList<PathMapping> oldMappings = settings().pathMappings();
+    const QList<PathMapping> oldMappings = settings().validPathMappings();
     QList<PathMapping> newMappings;
     for (int row = 0, count = m_mappingTree.topLevelItemCount(); row < count; ++row) {
         const QTreeWidgetItem * const item = m_mappingTree.topLevelItem(row);

@@ -58,7 +58,7 @@ public:
     void disableCertificateValidation(const Utils::Id &id);
     const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
     void updateDashboardServers(const QList<AxivionServer> &other);
-    const QList<PathMapping> pathMappings() const;
+    const QList<PathMapping> validPathMappings() const;
 
     Utils::BoolAspect highlightMarks{this};
 private:

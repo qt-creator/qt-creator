@@ -80,6 +80,33 @@ struct LinkWithColumns
 
 static bool issueListContextMenuEvent(const ItemViewEvent &ev); // impl at bottom
 
+static std::optional<PathMapping> findPathMappingMatch(const QString &projectName,
+                                                       const Link &link)
+{
+    QTC_ASSERT(!projectName.isEmpty(), return std::nullopt);
+    for (const PathMapping &mapping : settings().validPathMappings()) {
+        if (mapping.projectName != projectName)
+            continue;
+        if (mapping.localPath.isRelativePath())    // TODO mark inside settings
+            continue;
+        if (mapping.analysisPath.isAbsolutePath()) // TODO mark inside settings
+            continue;
+
+        if (mapping.analysisPath.isEmpty())
+            return mapping;
+
+        QString analysis = mapping.analysisPath.toString();
+        // ensure we use complete paths
+        if (!analysis.endsWith('/'))
+            analysis.append('/');
+        if (!link.targetFilePath.startsWith(analysis))
+            continue;
+
+        return mapping;
+    }
+    return std::nullopt;
+}
+
 class IssueListItem final : public ListItem
 {
 public:
@@ -109,9 +136,24 @@ public:
                         = Utils::findOr(m_links, m_links.first(), [column](const LinkWithColumns &link) {
                     return link.columns.contains(column);
                 }).link;
-                Project *project = ProjectManager::startupProject();
-                FilePath baseDir = project ? project->projectDirectory() : FilePath{};
-                link.targetFilePath = findFileForIssuePath(link.targetFilePath);
+
+                // get the file path either by the open project(s) or by using the path mapping
+                // prefer to use the open project's file instead of some generic approach
+                const FilePath computedPath = findFileForIssuePath(link.targetFilePath);
+                FilePath targetFilePath;
+                if (!computedPath.exists()) {
+                    if (const std::optional<Dto::ProjectInfoDto> pInfo = projectInfo()) {
+                        if (auto mapping = findPathMappingMatch(pInfo->name, link)) {
+                            std::optional<FilePath> fp = link.targetFilePath.prefixRemoved(
+                                        mapping->analysisPath.toString());
+                            QTC_CHECK(fp);
+                            fp = mapping->localPath.pathAppended(fp->toString());
+                            if (fp->exists())
+                                targetFilePath = *fp;
+                        }
+                    }
+                }
+                link.targetFilePath = targetFilePath.isEmpty() ? computedPath : targetFilePath;
                 if (link.targetFilePath.exists())
                     EditorManager::openEditorAt(link);
             }
