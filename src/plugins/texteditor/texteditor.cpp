@@ -5160,6 +5160,7 @@ void TextEditorWidgetPrivate::updateLineAnnotation(const PaintEventData &data,
             q->viewport()->update(annotationRect.rect.toAlignedRect());
     }
     m_annotationRects[data.block.blockNumber()] = newRects;
+    QTC_ASSERT(data.lineSpacing != 0, return);
     const int maxVisibleLines = data.viewportRect.height() / data.lineSpacing;
     if (m_annotationRects.size() >= maxVisibleLines * 2)
         scheduleCleanupAnnotationCache();
