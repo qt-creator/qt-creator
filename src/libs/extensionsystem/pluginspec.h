@@ -191,16 +191,16 @@ using PluginFromArchiveFactory = std::function<QList<PluginSpec *>(const Utils::
 EXTENSIONSYSTEM_EXPORT QList<PluginFromArchiveFactory> &pluginSpecsFromArchiveFactories();
 EXTENSIONSYSTEM_EXPORT QList<PluginSpec *> pluginSpecsFromArchive(const Utils::FilePath &path);
 
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
     const Utils::FilePath &filePath);
-EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
     const QStaticPlugin &plugin);
 
 class EXTENSIONSYSTEM_TEST_EXPORT CppPluginSpec : public PluginSpec
 {
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
         const Utils::FilePath &filePath);
-    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<PluginSpec *> readCppPluginSpec(
+    friend EXTENSIONSYSTEM_EXPORT Utils::expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(
         const QStaticPlugin &plugin);
 
 public:

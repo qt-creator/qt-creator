@@ -747,9 +747,9 @@ namespace {
     \internal
     Returns false if the file does not represent a Qt Creator plugin.
 */
-expected_str<PluginSpec *> readCppPluginSpec(const FilePath &fileName)
+expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(const FilePath &fileName)
 {
-    auto spec = new CppPluginSpec;
+    auto spec = std::unique_ptr<CppPluginSpec>(new CppPluginSpec());
 
     const FilePath absPath = fileName.absoluteFilePath();
 
@@ -771,9 +771,9 @@ expected_str<PluginSpec *> readCppPluginSpec(const FilePath &fileName)
     return spec;
 }
 
-expected_str<PluginSpec *> readCppPluginSpec(const QStaticPlugin &plugin)
+expected_str<std::unique_ptr<PluginSpec>> readCppPluginSpec(const QStaticPlugin &plugin)
 {
-    auto spec = new CppPluginSpec;
+    auto spec = std::unique_ptr<CppPluginSpec>(new CppPluginSpec());
 
     qCDebug(pluginLog) << "\nReading meta data of static plugin";
     spec->d->staticPlugin = plugin;
@@ -1398,9 +1398,10 @@ static QList<PluginSpec *> createCppPluginsFromArchive(const FilePath &path)
 
     while (it.hasNext()) {
         it.next();
-        expected_str<PluginSpec *> spec = readCppPluginSpec(FilePath::fromUserInput(it.filePath()));
+        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(
+            FilePath::fromUserInput(it.filePath()));
         if (spec)
-            results.push_back(*spec);
+            results.push_back(spec->release());
     }
     return results;
 }

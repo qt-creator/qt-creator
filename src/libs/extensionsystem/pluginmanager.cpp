@@ -1877,21 +1877,21 @@ void PluginManagerPrivate::readPluginPaths()
 
     // from the file system
     for (const FilePath &pluginFile : pluginFiles(pluginPaths)) {
-        expected_str<PluginSpec *> spec = readCppPluginSpec(pluginFile);
+        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(pluginFile);
         if (!spec) {
             qCInfo(pluginLog).noquote() << QString("Ignoring plugin \"%1\" because: %2")
                                                .arg(pluginFile.toUserOutput())
                                                .arg(spec.error());
             continue;
         }
-        newSpecs.append(*spec);
+        newSpecs.append(spec->release());
     }
 
     // static
     for (const QStaticPlugin &plugin : QPluginLoader::staticPlugins()) {
-        expected_str<PluginSpec *> spec = readCppPluginSpec(plugin);
+        expected_str<std::unique_ptr<PluginSpec>> spec = readCppPluginSpec(plugin);
         QTC_ASSERT_EXPECTED(spec, continue);
-        newSpecs.append(*spec);
+        newSpecs.append(spec->release());
     }
 
     addPlugins(newSpecs);
