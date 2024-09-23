@@ -356,7 +356,9 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
 
 void LanguageClientSettingsPage::init()
 {
-    m_model.reset(LanguageClientSettings::fromSettings(Core::ICore::settings()));
+    QList<BaseSettings *> newList = LanguageClientSettings::fromSettings(Core::ICore::settings());
+    m_model.reset(newList);
+    qDeleteAll(newList);
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
