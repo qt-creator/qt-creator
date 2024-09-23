@@ -331,6 +331,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
         dd = new QmlJSEditorPluginPrivate;
 
         setupQmlJSEditor();
+        setupQmlJsEditingProjectPanel();
     }
 
     void extensionsInitialized() final

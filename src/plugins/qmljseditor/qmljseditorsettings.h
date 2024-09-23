@@ -5,6 +5,8 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
+#include <projectexplorer/project.h>
+
 #include <utils/filepath.h>
 
 #include <QMutex>
@@ -51,7 +53,7 @@ public:
     Utils::FilePath latestQmlls();
     void setupAutoupdate();
 
-    bool useQmlls() const;
+    bool useQmlls(ProjectExplorer::Project* project) const;
     bool useLatestQmlls() const;
 
 public slots:
@@ -75,5 +77,18 @@ class QmlJsEditingSettingsPage : public Core::IOptionsPage
 public:
     QmlJsEditingSettingsPage();
 };
+
+class ProjectSettings : public Utils::AspectContainer
+{
+public:
+    ProjectSettings(ProjectExplorer::Project *project);
+
+    Utils::BoolAspect useQmlls{this};
+    Utils::BoolAspect useGlobalSettings{this};
+
+    void save(ProjectExplorer::Project *project);
+};
+
+void setupQmlJsEditingProjectPanel();
 
 } // QmlJSEditor::Internal

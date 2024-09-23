@@ -120,8 +120,13 @@ static void triggerQmllintCMakeTarget()
 
 void QmlTaskManager::updateSemanticMessagesNow()
 {
+    // note: this can only be called for the startup project
+    Project *project = ProjectManager::startupProject();
+    if (!project)
+        return;
+
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
-    if (QmllsSettingsManager::instance()->useQmlls()) {
+    if (QmllsSettingsManager::instance()->useQmlls(project)) {
         // abort any update that's going on already, and remove old codemodel warnings
         m_messageCollector.cancel();
         removeAllTasks(true);

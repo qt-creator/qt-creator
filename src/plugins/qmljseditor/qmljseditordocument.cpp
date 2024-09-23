@@ -18,6 +18,8 @@
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/modemanager.h>
 
+#include <projectexplorer/projectmanager.h>
+
 #include <qmljstools/qmljsindenter.h>
 #include <qmljstools/qmljsmodelmanager.h>
 #include <qmljstools/qmljsqtstylecodeformatter.h>
@@ -741,7 +743,8 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
 static FilePath qmllsForFile(const FilePath &file, QmlJS::ModelManagerInterface *modelManager)
 {
     QmllsSettingsManager *settingsManager = QmllsSettingsManager::instance();
-    bool enabled = settingsManager->useQmlls();
+    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(file);
+    const bool enabled = settingsManager->useQmlls(project);
     if (!enabled)
         return {};
     if (settingsManager->useLatestQmlls())
