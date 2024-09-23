@@ -297,15 +297,31 @@
 
     \section1 Examples of CLI commands
 
+    The following are examples of the commands on supported platforms when you
+    install \QC with \l{Get and Install Qt}{\QOI} to the default location. Change
+    the paths as necessary.
+
     On Windows:
 
     \list
 
-        \li \c {C:\qtcreator\bin>qtcreator -help}
+        \li \c {C:\Qt\Tools\QtCreator\bin\qtcreator -help}
 
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp:100:2}
+        \li \c {C:\Qt\Tools\QtCreator\bin\qtcreator C:\TextFinder\textfinder.cpp:100:2}
 
-        \li \c {C:\qtcreator\bin>qtcreator C:\TextFinder\textfinder.cpp +100+2}
+        \li \c {C:\Qt\Tools\QtCreator\bin\qtcreator C:\TextFinder\textfinder.cpp +100+2}
+
+    \endlist
+
+    On Linux:
+
+    \list
+
+        \li \c {~/Qt/Tools/QtCreator/bin/qtcreator -help}
+
+        \li \c {~/Qt/Tools/QtCreator/bin/qtcreator /src/TextFinder/textfinder.cpp:100:2}
+
+        \li \c {~/Qt/Tools/QtCreator/bin/qtcreator /src/TextFinder/textfinder.cpp+100+2}
 
     \endlist
 
@@ -313,7 +329,7 @@
 
     \list
 
-        \li \c {Qt\ Creator.app/Contents/MacOS/Qt\ Creator -help}
+        \li \c {~/Qt/Qt\ Creator.app/Contents/MacOS/Qt\ Creator -help}
 
     \endlist
 
