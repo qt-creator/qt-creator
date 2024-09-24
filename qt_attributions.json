@@ -335,6 +335,7 @@
         "Path": "src/libs/3rdparty/span",
         "Description": "A single-header implementation of C++20's std::span, conforming to the C++20 committee draft.",
         "Homepage": "https://github.com/martinmoene/span-lite",
+        "Version": "00afc28",
         "License": "Boost Software License 1.0",
         "LicenseFile": "src/libs/3rdparty/span/LICENSE_1_0.txt",
         "Copyright": "Copyright 2018-2021 Martin Moene"

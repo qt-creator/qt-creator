@@ -32,7 +32,10 @@ QT_WARNING_PUSH
 #include <3rdparty/span/span.hpp>
 namespace Utils {
 using namespace nonstd;
+
 }
 
+template<typename T, std::size_t N>
+inline constexpr bool std::ranges::enable_borrowed_range<Utils::span<T, N>> = true;
 QT_WARNING_POP
 #endif
