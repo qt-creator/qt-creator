@@ -1432,8 +1432,13 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                                                       prefix,
                                                       script->qualifiedId,
                                                       astValue);
+
+#ifndef QDS_USE_PROJECTSTORAGE
     // Can happen if the type was just created and was not fully processed yet
     const bool newlyCreatedTypeCase = !modelNode.metaInfo().properties().size();
+#else
+    const bool newlyCreatedTypeCase = false;
+#endif
 
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
