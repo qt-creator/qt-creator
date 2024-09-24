@@ -1169,5 +1169,3 @@ FossilClient &fossilClient()
 }
 
 } // namespace Fossil::Internal
-
-#include "fossilclient.moc"
