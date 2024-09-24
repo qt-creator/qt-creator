@@ -8,6 +8,7 @@
 #include <utils/commandline.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
+#include <utils/processinterface.h>
 
 #include <QDesktopServices>
 #include <QTimer>
@@ -178,6 +179,31 @@ void setupUtilsModule()
                 [](CommandLine &cmd, const QString &arg) { cmd.addArg(arg); },
                 sol::meta_function::to_string,
                 &CommandLine::toUserOutput);
+
+            auto procRunDataType = utils.new_usertype<ProcessRunData>(
+                "ProcessRunData",
+                sol::call_constructor,
+                sol::constructors<ProcessRunData()>(),
+                "commandLine",
+                sol::property(
+                    [](const ProcessRunData &prd) { return prd.command; },
+                    [](ProcessRunData &prd, const CommandLine &cmd) { prd.command = cmd; }),
+                "workingDirectory",
+                sol::property(
+                    [](const ProcessRunData &prd) { return prd.workingDirectory; },
+                    [](ProcessRunData &prd, const FilePath &wd) { prd.workingDirectory = wd; }),
+                "environment",
+                sol::property(
+                    [](const ProcessRunData &prd) { return prd.environment; },
+                    [](ProcessRunData &prd, const Environment &env) { prd.environment = env; }),
+                sol::meta_function::to_string,
+                [](const ProcessRunData &prd) {
+                    return QString("ProcessRunData{\n  command=%1,\n  workingDirectory=%2,\n  "
+                                   "environment={\n    %3\n}\n}")
+                        .arg(prd.command.toUserOutput())
+                        .arg(prd.workingDirectory.toString())
+                        .arg(prd.environment.toStringList().join(",\n    "));
+                });
 
             utils.new_usertype<QTimer>(
                 "Timer",

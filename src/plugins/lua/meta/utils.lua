@@ -98,6 +98,12 @@ utils.CommandLine = {}
 ---@param argument string The argument to add.
 function utils.CommandLine:addArgument(argument) end
 
+---@class ProcessRunData
+---@field commandLine CommandLine The command line to execute.
+---@field workingDirectory FilePath The working directory for the process.
+---@field environment Environment The environment variables for the process.
+utils.ProcessRunData = {}
+
 ---@class HostOsInfo
 ---@field os "mac"|"windows"|"linux" The current host operating system.
 ---@field architecture "unknown"|"x86"|"x86_64"|"itanium"|"arm"|"arm64" The current host architecture.
