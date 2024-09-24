@@ -581,28 +581,6 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
 ///////////////////////////////
 
-class BaseGitDiffArgumentsWidget : public VcsBaseEditorConfig
-{
-    Q_OBJECT
-
-public:
-    explicit BaseGitDiffArgumentsWidget(QToolBar *toolBar)
-        : VcsBaseEditorConfig(toolBar)
-    {
-        m_patienceButton
-                = addToggleButton("--patience", Tr::tr("Patience"),
-                                  Tr::tr("Use the patience algorithm for calculating the differences."));
-        mapSetting(m_patienceButton, &settings().diffPatience);
-        m_ignoreWSButton = addToggleButton("--ignore-space-change", Tr::tr("Ignore Whitespace"),
-                                           Tr::tr("Ignore whitespace only changes."));
-        mapSetting(m_ignoreWSButton, &settings().ignoreSpaceChangesInDiff);
-    }
-
-protected:
-    QAction *m_patienceButton;
-    QAction *m_ignoreWSButton;
-};
-
 class GitBlameArgumentsWidget : public VcsBaseEditorConfig
 {
     Q_OBJECT
@@ -631,22 +609,27 @@ public:
     }
 };
 
-class BaseGitLogArgumentsWidget : public BaseGitDiffArgumentsWidget
+class BaseGitLogArgumentsWidget : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     BaseGitLogArgumentsWidget(GitEditorWidget *editor)
-        : BaseGitDiffArgumentsWidget(editor->toolBar())
+        : VcsBaseEditorConfig(editor->toolBar())
     {
+        QAction *patienceAction = addToggleButton("--patience", Tr::tr("Patience"),
+            Tr::tr("Use the patience algorithm for calculating the differences."));
+        mapSetting(patienceAction, &settings().diffPatience);
+        QAction *ignoreWSAction = addToggleButton("--ignore-space-change", Tr::tr("Ignore Whitespace"),
+                                           Tr::tr("Ignore whitespace only changes."));
+        mapSetting(ignoreWSAction, &settings().ignoreSpaceChangesInDiff);
+
         QToolBar *toolBar = editor->toolBar();
         QAction *diffButton = addToggleButton(patchOption, Tr::tr("Diff"),
                                               Tr::tr("Show difference."));
         mapSetting(diffButton, &settings().logDiff);
-        connect(diffButton, &QAction::toggled, m_patienceButton, &QAction::setVisible);
-        connect(diffButton, &QAction::toggled, m_ignoreWSButton, &QAction::setVisible);
-        m_patienceButton->setVisible(diffButton->isChecked());
-        m_ignoreWSButton->setVisible(diffButton->isChecked());
+        connect(diffButton, &QAction::toggled, patienceAction, &QAction::setVisible);
+        connect(diffButton, &QAction::toggled, ignoreWSAction, &QAction::setVisible);
+        patienceAction->setVisible(diffButton->isChecked());
+        ignoreWSAction->setVisible(diffButton->isChecked());
         auto filterAction = new QAction(Tr::tr("Filter"), toolBar);
         filterAction->setToolTip(Tr::tr("Filter commits by message or content."));
         filterAction->setCheckable(true);
