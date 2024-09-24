@@ -1432,6 +1432,9 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                                                       prefix,
                                                       script->qualifiedId,
                                                       astValue);
+    // Can happen if the type was just created and was not fully processed yet
+    const bool newlyCreatedTypeCase = !modelNode.metaInfo().properties().size();
+
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
         syncVariantProperty(modelProperty, enumValue, TypeName(), differenceHandler); // TODO: parse type
@@ -1439,7 +1442,8 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
     } else { // Not an enum, so:
         if (isPropertyChangesType(modelNode.type()) || isConnectionsType(modelNode.type())
             || isSupportedAttachedProperties(astPropertyName)
-            || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())) {
+            || modelNode.metaInfo().hasProperty(astPropertyName.toUtf8())
+            || newlyCreatedTypeCase) {
             AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
             syncExpressionProperty(modelProperty, astValue, TypeName(), differenceHandler); // TODO: parse type
             return astPropertyName.toUtf8();
