@@ -2087,9 +2087,29 @@ void DebuggerEngine::setSecondaryEngine()
     d->m_isPrimaryEngine = false;
 }
 
-TerminalRunner *DebuggerEngine::terminal() const
+bool DebuggerEngine::usesTerminal() const
 {
-    return d->m_terminalRunner;
+    return bool(d->m_terminalRunner);
+}
+
+qint64 DebuggerEngine::applicationPid() const
+{
+    return d->m_terminalRunner->applicationPid();
+}
+
+qint64 DebuggerEngine::applicationMainThreadId() const
+{
+    return d->m_terminalRunner->applicationMainThreadId();
+}
+
+void DebuggerEngine::interruptTerminal() const
+{
+    d->m_terminalRunner->interrupt();
+}
+
+void DebuggerEngine::kickoffTerminalProcess() const
+{
+    d->m_terminalRunner->kickoffProcess();
 }
 
 void DebuggerEngine::selectWatchData(const QString &)
@@ -2673,7 +2693,7 @@ QString DebuggerEngine::formatStartParameters() const
     str << '\n';
     if (!sp.inferior.command.isEmpty()) {
         str << "Executable: " << sp.inferior.command.toUserOutput();
-        if (d->m_terminalRunner)
+        if (usesTerminal())
             str << " [terminal]";
         str << '\n';
         if (!sp.inferior.workingDirectory.isEmpty())

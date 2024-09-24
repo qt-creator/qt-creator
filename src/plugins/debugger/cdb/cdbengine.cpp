@@ -280,10 +280,10 @@ void CdbEngine::setupEngine()
     // console, too, but that immediately closes when the debuggee quits.
     // Use the Creator stub instead.
     DebuggerRunParameters sp = runParameters();
-    if (terminal()) {
+    if (usesTerminal()) {
         m_effectiveStartMode = AttachToLocalProcess;
         sp.inferior.command = {};
-        sp.attachPID = ProcessHandle(terminal()->applicationPid());
+        sp.attachPID = ProcessHandle(applicationPid());
         sp.startMode = AttachToLocalProcess;
         sp.useTerminal = false; // Force no terminal.
         showMessage(QString("Attaching to %1...").arg(sp.attachPID.pid()), LogMisc);
@@ -372,7 +372,7 @@ void CdbEngine::setupEngine()
         if (sp.startMode == AttachToCrashedProcess) {
             debugger.addArgs({"-e", sp.crashParameter, "-g"});
         } else {
-            if (terminal())
+            if (usesTerminal())
                 debugger.addArgs({"-pr", "-pb"});
         }
         break;

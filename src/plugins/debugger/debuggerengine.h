@@ -93,7 +93,6 @@ class WatchTreeView;
 class DebuggerToolTipContext;
 class DebuggerToolTipManager;
 class MemoryViewSetupData;
-class TerminalRunner;
 
 class DebuggerRunParameters
 {
@@ -536,7 +535,11 @@ protected:
 
     virtual void doUpdateLocals(const UpdateParameters &params);
 
-    TerminalRunner *terminal() const;
+    bool usesTerminal() const;
+    qint64 applicationPid() const;
+    qint64 applicationMainThreadId() const;
+    void interruptTerminal() const;
+    void kickoffTerminalProcess() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);

@@ -970,7 +970,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (rp.startMode == AttachToLocalProcess || terminal()))
+            && (rp.startMode == AttachToLocalProcess || usesTerminal()))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1126,7 +1126,7 @@ void GdbEngine::updateStateForStop()
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen for local setups.
         notifyEngineRunAndInferiorStopOk();
-        if (terminal()) {
+        if (usesTerminal()) {
             continueInferiorInternal();
             return;
         }
@@ -1358,7 +1358,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
     bool isStopperThread = false;
 
     if (rp.toolChainAbi.os() == Abi::WindowsOS
-            && terminal()
+            && usesTerminal()
             && reason == "signal-received"
             && data["signal-name"].data() == "SIGTRAP")
     {
@@ -1425,7 +1425,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
-                if (terminal() && name == "SIGCONT" && m_expectTerminalTrap) {
+                if (usesTerminal() && name == "SIGCONT" && m_expectTerminalTrap) {
                     continueInferior();
                     m_expectTerminalTrap = false;
                 } else {
@@ -1453,7 +1453,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop3()
 {
-    if (!terminal() || state() != InferiorRunOk) {
+    if (!usesTerminal() || state() != InferiorRunOk) {
         DebuggerCommand cmd("-thread-info", Discardable);
         cmd.callback = CB(handleThreadInfo);
         runCommand(cmd);
@@ -3846,7 +3846,7 @@ void GdbEngine::setupEngine()
     for (int test : std::as_const(m_testCases))
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
-    m_expectTerminalTrap = terminal();
+    m_expectTerminalTrap = usesTerminal();
 
     if (rp.debugger.command.isEmpty()) {
         handleGdbStartFailed();
@@ -4381,7 +4381,7 @@ bool GdbEngine::isLocalRunEngine() const
 
 bool GdbEngine::isPlainEngine() const
 {
-    return isLocalRunEngine() && !terminal();
+    return isLocalRunEngine() && !usesTerminal();
 }
 
 bool GdbEngine::isCoreEngine() const
@@ -4402,7 +4402,7 @@ bool GdbEngine::isLocalAttachEngine() const
 
 bool GdbEngine::isTermEngine() const
 {
-    return isLocalRunEngine() && terminal();
+    return isLocalRunEngine() && usesTerminal();
 }
 
 bool GdbEngine::usesOutputCollector() const
@@ -4555,8 +4555,8 @@ void GdbEngine::setupInferior()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = terminal()->applicationPid();
-        const qint64 attachedMainThreadID = terminal()->applicationMainThreadId();
+        const qint64 attachedPID = applicationPid();
+        const qint64 attachedMainThreadID = applicationMainThreadId();
         notifyInferiorPid(ProcessHandle(attachedPID));
         const QString msg = (attachedMainThreadID != -1)
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
@@ -4634,8 +4634,8 @@ void GdbEngine::runEngine()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = terminal()->applicationPid();
-        const qint64 mainThreadId = terminal()->applicationMainThreadId();
+        const qint64 attachedPID = applicationPid();
+        const qint64 mainThreadId = applicationMainThreadId();
         runCommand({"attach " + QString::number(attachedPID),
                     [this, mainThreadId](const DebuggerResponse &r) {
                         handleStubAttached(r, mainThreadId);
@@ -4751,7 +4751,7 @@ void GdbEngine::interruptInferior2()
 
     } else if (isTermEngine()) {
 
-        terminal()->interrupt();
+        interruptTerminal();
     }
 }
 
@@ -5033,8 +5033,8 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
             continueInferiorInternal();
         } else {
             showMessage("INFERIOR ATTACHED");
-            QTC_ASSERT(terminal(), return);
-            terminal()->kickoffProcess();
+            QTC_ASSERT(usesTerminal(), return);
+            kickoffTerminalProcess();
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }
@@ -5220,7 +5220,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
 QString GdbEngine::mainFunction() const
 {
     const DebuggerRunParameters &rp = runParameters();
-    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !terminal() ? "qMain" : "main");
+    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !usesTerminal() ? "qMain" : "main");
 }
 
 //
