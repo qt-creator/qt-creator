@@ -730,7 +730,7 @@ void Edit3DView::createSyncEnvBackgroundAction()
         QmlDesigner::Constants::EDIT3D_EDIT_SYNC_ENV_BACKGROUND,
         View3DActionType::SyncEnvBackground,
         description,
-        QKeySequence(),
+        QKeySequence(Qt::Key_K),
         true,
         false,
         QIcon(),
