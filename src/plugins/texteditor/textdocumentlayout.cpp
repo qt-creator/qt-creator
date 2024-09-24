@@ -437,7 +437,7 @@ int TextDocumentLayout::braceDepth(const QTextBlock &block)
     int state = block.userState();
     if (state == -1)
         return 0;
-    return state >> 8;
+    return (state >> 8) & 0xff;
 }
 
 void TextDocumentLayout::setBraceDepth(QTextBlock &block, int depth)
