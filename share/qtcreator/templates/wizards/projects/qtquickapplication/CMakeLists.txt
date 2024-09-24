@@ -7,11 +7,11 @@ set(CMAKE_AUTOMOC ON)
 @endif
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-find_package(Qt6 %{MinimumSupportedQtVersion} REQUIRED COMPONENTS Quick)
+find_package(Qt6 REQUIRED COMPONENTS Quick)
 
 @if %{HasQSPSetup}
 @if %{UsesAutoResourcePrefix}
-qt_standard_project_setup(REQUIRES 6.5)
+qt_standard_project_setup(REQUIRES %{MinimumSupportedQtVersion})
 @else
 qt_standard_project_setup()
 @endif
