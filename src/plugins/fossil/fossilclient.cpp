@@ -40,8 +40,6 @@ const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class FossilDiffConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilDiffConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -63,8 +61,6 @@ public:
 // Parameter widget controlling annotate/blame mode
 class FossilAnnotateConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilAnnotateConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -89,8 +85,6 @@ public:
 
 class FossilLogCurrentFileConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilLogCurrentFileConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -102,8 +96,6 @@ public:
 
 class FossilLogConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilLogConfig(QToolBar *toolBar)
         : VcsBaseEditorConfig(toolBar)
