@@ -5,6 +5,7 @@
 #include "../luaqttypes.h"
 
 #include <utils/async.h>
+#include <utils/commandline.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 
@@ -164,6 +165,19 @@ void setupUtilsModule()
 
             utils["FilePath"]["searchInPath_cb"] = utils["__searchInPath_cb__"];
             utils["FilePath"]["searchInPath"] = wrap(utils["__searchInPath_cb__"]);
+
+            utils.new_usertype<CommandLine>(
+                "CommandLine",
+                sol::call_constructor,
+                sol::constructors<CommandLine()>(),
+                "executable",
+                sol::property(&CommandLine::executable, &CommandLine::setExecutable),
+                "arguments",
+                sol::property(&CommandLine::arguments, &CommandLine::setArguments),
+                "addArgument",
+                [](CommandLine &cmd, const QString &arg) { cmd.addArg(arg); },
+                sol::meta_function::to_string,
+                &CommandLine::toUserOutput);
 
             utils.new_usertype<QTimer>(
                 "Timer",

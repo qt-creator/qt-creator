@@ -89,6 +89,15 @@ function utils.FilePath:completeSuffix() end
 ---@return boolean
 function utils.FilePath:isAbsolutePath() end
 
+---@class CommandLine
+---@field command FilePath The command to execute.
+---@field arguments string[] The arguments to pass to the command.
+utils.CommandLine = {}
+
+---Add an argument to the command line.
+---@param argument string The argument to add.
+function utils.CommandLine:addArgument(argument) end
+
 ---@class HostOsInfo
 ---@field os "mac"|"windows"|"linux" The current host operating system.
 ---@field architecture "unknown"|"x86"|"x86_64"|"itanium"|"arm"|"arm64" The current host architecture.
