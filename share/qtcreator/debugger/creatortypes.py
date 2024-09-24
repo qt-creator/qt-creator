@@ -12,7 +12,7 @@ def typeTarget(type):
 
 
 def stripTypeName(value):
-    return typeTarget(value.type).unqualified().name
+    return typeTarget(value.type).name
 
 
 def extractPointerType(d, value):
