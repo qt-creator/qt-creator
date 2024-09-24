@@ -5,7 +5,6 @@
 
 #include "debuggermainwindow.h"
 #include "debuggertr.h"
-#include "terminal.h"
 
 #include "console/console.h"
 #include "debuggeractions.h"
@@ -156,15 +155,15 @@ private:
 class DebuggerRunToolPrivate
 {
 public:
-    bool useTerminal = false;
     QPointer<CoreUnpacker> coreUnpacker;
     QPointer<DebugServerPortsGatherer> portsGatherer;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
-    TerminalRunner *terminalRunner = nullptr;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
+    Process terminalProc;
+    DebuggerRunTool::AllowTerminal allowTerminal = DebuggerRunTool::DoAllowTerminal;
 };
 
 } // namespace Internal
@@ -288,20 +287,7 @@ void DebuggerRunTool::setBreakOnMain(bool on)
 
 void DebuggerRunTool::setUseTerminal(bool on)
 {
-    // CDB has a built-in console that might be preferred by some.
-    bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
-            && (m_runParameters.startMode == StartInternal
-                || m_runParameters.startMode == StartExternal)
-            && settings().useCdbConsole();
-
-    if (on && !d->terminalRunner && !useCdbConsole) {
-        d->terminalRunner =
-            new TerminalRunner(runControl(), [this] { return m_runParameters.inferior; });
-        addStartDependency(d->terminalRunner);
-    }
-    if (!on && d->terminalRunner) {
-        QTC_CHECK(false); // User code can only switch from no terminal to one terminal.
-    }
+    m_runParameters.useTerminal = on;
 }
 
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
@@ -415,6 +401,56 @@ void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 }
 
 void DebuggerRunTool::start()
+{
+    startTerminalIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
+{
+    if (d->allowTerminal == DoNotAllowTerminal)
+        m_runParameters.useTerminal = false;
+
+    // CDB has a built-in console that might be preferred by some.
+    const bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
+            && (m_runParameters.startMode == StartInternal
+                || m_runParameters.startMode == StartExternal)
+            && settings().useCdbConsole();
+    if (useCdbConsole)
+        m_runParameters.useTerminal = false;
+
+    if (!m_runParameters.useTerminal) {
+        continueAfterTerminalStart();
+        return;
+    }
+
+    // Actually start the terminal.
+    ProcessRunData stub = m_runParameters.inferior;
+
+    if (m_runParameters.runAsRoot) {
+        d->terminalProc.setRunAsRoot(true);
+        RunControl::provideAskPassEntry(stub.environment);
+    }
+
+    d->terminalProc.setTerminalMode(TerminalMode::Debug);
+    d->terminalProc.setRunData(stub);
+
+    connect(&d->terminalProc, &Process::started, this, [this] {
+        m_runParameters.applicationPid = d->terminalProc.processId();
+        m_runParameters.applicationMainThreadId = d->terminalProc.applicationMainThreadId();
+        continueAfterTerminalStart();
+    });
+
+    connect(&d->terminalProc, &Process::done, this, [this] {
+        if (d->terminalProc.error() != QProcess::UnknownError)
+            reportFailure(d->terminalProc.errorString());
+        if (d->terminalProc.error() != QProcess::FailedToStart)
+            reportDone();
+    });
+
+    d->terminalProc.start();
+}
+
+void DebuggerRunTool::continueAfterTerminalStart()
 {
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
@@ -648,6 +684,16 @@ void DebuggerRunTool::start()
     Utils::reverseForeach(m_engines, [](DebuggerEngine *engine) { engine->start(); });
 }
 
+void DebuggerRunTool::kickoffTerminalProcess()
+{
+    d->terminalProc.kickoffProcess();
+}
+
+void DebuggerRunTool::interruptTerminal()
+{
+    d->terminalProc.interrupt();
+}
+
 void DebuggerRunTool::stop()
 {
     QTC_ASSERT(!m_engines.isEmpty(), reportStopped(); return);
@@ -810,11 +856,6 @@ bool DebuggerRunTool::fixupParameters()
     return true;
 }
 
-Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
-{
-    return d->terminalRunner;
-}
-
 DebuggerEngineType DebuggerRunTool::cppEngineType() const
 {
     return m_runParameters.cppEngineType;
@@ -832,6 +873,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         toolRunCount = 0;
 
     d->runId = QString::number(++toolRunCount);
+    d->allowTerminal = allowTerminal;
 
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
@@ -890,8 +932,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     // Normalize to work around QTBUG-17529 (QtDeclarative fails with 'File name case mismatch'...)
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     m_runParameters.inferior = inferior;
-
-    setUseTerminal(allowTerminal == DoAllowTerminal && m_runParameters.useTerminal);
 
     const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())

@@ -166,6 +166,10 @@ public:
     Utils::FilePath projectSourceDirectory;
     Utils::FilePaths projectSourceFiles;
 
+    // Terminal
+    qint64 applicationPid = 0;
+    qint64 applicationMainThreadId = 0;
+
     // Used by Script debugging
     Utils::FilePath interpreter;
     Utils::FilePath mainScript;

@@ -6,7 +6,6 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 #include "debuggerengine.h"
-#include "terminal.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
@@ -16,10 +15,7 @@
 
 namespace Debugger {
 
-namespace Internal {
-class TerminalRunner;
-class DebuggerRunToolPrivate;
-} // Internal
+namespace Internal { class DebuggerRunToolPrivate; }
 
 class DebugServerPortsGatherer;
 
@@ -80,7 +76,8 @@ public:
     void setTestCase(int testCase);
     void setOverrideStartScript(const Utils::FilePath &script);
 
-    Internal::TerminalRunner *terminalRunner() const;
+    void kickoffTerminalProcess();
+    void interruptTerminal();
 
     Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
 
@@ -114,6 +111,9 @@ private:
     bool fixupParameters();
     void handleEngineStarted(Internal::DebuggerEngine *engine);
     void handleEngineFinished(Internal::DebuggerEngine *engine);
+
+    void startTerminalIfNeededAndContinueStartup();
+    void continueAfterTerminalStart();
 
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;

@@ -6,18 +6,7 @@
 #include <QCoreApplication>
 #include <QSocketNotifier>
 
-#include <projectexplorer/runcontrol.h>
-
-namespace Utils {
-class Process;
-class ProcessRunData;
-}
-
-namespace Debugger {
-
-class DebuggerRunTool;
-
-namespace Internal {
+namespace Debugger::Internal {
 
 class Terminal : public QObject
 {
@@ -48,31 +37,4 @@ private:
     QByteArray m_slaveName;
 };
 
-
-class TerminalRunner : public ProjectExplorer::RunWorker
-{
-public:
-    TerminalRunner(ProjectExplorer::RunControl *runControl,
-                   const std::function<Utils::ProcessRunData()> &stubRunnable);
-
-    qint64 applicationPid() const { return m_applicationPid; }
-    qint64 applicationMainThreadId() const { return m_applicationMainThreadId; }
-
-    void kickoffProcess();
-    void interrupt();
-
-private:
-    void start() final;
-    void stop() final;
-
-    void stubStarted();
-    void stubDone();
-
-    Utils::Process *m_stubProc = nullptr;
-    std::function<Utils::ProcessRunData()> m_stubRunnable;
-    qint64 m_applicationPid = 0;
-    qint64 m_applicationMainThreadId = 0;
-};
-
-} // namespace Internal
-} // namespace Debugger
+} // namespace Debugger::Internal

@@ -27,7 +27,6 @@
 #include "sourceutils.h"
 #include "stackhandler.h"
 #include "stackwindow.h"
-#include "terminal.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
@@ -451,7 +450,6 @@ public:
     // The current state.
     DebuggerState m_state = DebuggerNotReady;
 
-//    Terminal m_terminal;
     ProcessHandle m_inferiorPid;
 
     BreakHandler m_breakHandler;
@@ -531,7 +529,7 @@ public:
     OptionalAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
     OptionalAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
-    QPointer<TerminalRunner> m_terminalRunner;
+    QPointer<DebuggerRunTool> m_runTool;
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
 };
@@ -1075,9 +1073,8 @@ void DebuggerEngine::setRunId(const QString &id)
 
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
+    d->m_runTool = runTool;
     d->m_device = runTool->device();
-
-    d->m_terminalRunner = runTool->terminalRunner();
 
     validateRunParameters(d->m_runParameters);
 
@@ -2089,27 +2086,31 @@ void DebuggerEngine::setSecondaryEngine()
 
 bool DebuggerEngine::usesTerminal() const
 {
-    return bool(d->m_terminalRunner);
+    return d->m_runParameters.useTerminal;
 }
 
 qint64 DebuggerEngine::applicationPid() const
 {
-    return d->m_terminalRunner->applicationPid();
+    QTC_CHECK(usesTerminal());
+    return d->m_runParameters.applicationPid;
 }
 
 qint64 DebuggerEngine::applicationMainThreadId() const
 {
-    return d->m_terminalRunner->applicationMainThreadId();
+    QTC_CHECK(usesTerminal());
+    return d->m_runParameters.applicationMainThreadId;
 }
 
 void DebuggerEngine::interruptTerminal() const
 {
-    d->m_terminalRunner->interrupt();
+    QTC_ASSERT(usesTerminal(), return);
+    d->m_runTool->interruptTerminal();
 }
 
 void DebuggerEngine::kickoffTerminalProcess() const
 {
-    d->m_terminalRunner->kickoffProcess();
+    QTC_ASSERT(usesTerminal(), return);
+    d->m_runTool->kickoffTerminalProcess();
 }
 
 void DebuggerEngine::selectWatchData(const QString &)
