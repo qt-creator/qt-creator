@@ -60,13 +60,6 @@ local Suggestion = {}
 ---@return Suggestion suggestion The created suggestion.
 function Suggestion:create(startLine, startCharacter, endLine, endCharacter, text) end
 
----@class CyclicSuggestion
-local CyclicSuggestion = {}
-
----@return boolean True if the suggestion is locked, false otherwise.
----Suggestion is locked when the user selects it and already started applying it partially.
-function CyclicSuggestion:isLocked() end
-
 ---@class TextDocument
 local TextDocument = {}
 
@@ -106,12 +99,13 @@ function TextEditor:cursor() end
 ---@param position integer The position in the document where the widget should appear.
 function TextEditor:addFloatingWidget(widget, position) end
 
+---Checks if the current suggestion is locked. The suggestion is locked when the user can use it.
+---@return boolean True if the suggestion is locked, false otherwise.
+function TextEditor:hasLockedSuggestion() end
+
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end
 
----Returns the current suggestion of the current editor if available.
----@return CyclicSuggestion|nil suggestion The current suggestion if available. Otherwise nil.
-function textEditor.currentSuggestion() end
 
 return textEditor

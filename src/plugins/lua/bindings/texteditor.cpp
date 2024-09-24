@@ -149,16 +149,6 @@ void setupTextEditorModule()
             return TextEditor::BaseTextEditor::currentTextEditor();
         };
 
-        result["currentSuggestion"] = []() -> TextEditor::CyclicSuggestion * {
-            if (const auto *textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
-                if (const TextEditor::TextEditorWidget *widget = textEditor->editorWidget())
-                    return dynamic_cast<TextEditor::CyclicSuggestion *>(widget->currentSuggestion());
-            }
-            return nullptr;
-        };
-
-        result.new_usertype<TextEditor::CyclicSuggestion>("CyclicSuggestion", sol::no_constructor);
-
         result.new_usertype<MultiTextCursor>(
             "MultiTextCursor",
             sol::no_constructor,
@@ -249,6 +239,11 @@ void setupTextEditorModule()
             [](const TextEditorPtr &textEditor) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->multiTextCursor();
+            },
+            "hasLockedSuggestion",
+            [](const TextEditorPtr &textEditor) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                return textEditor->editorWidget()->suggestionVisible();
             });
 
         result.new_usertype<TextEditor::TextSuggestion::Data>(
