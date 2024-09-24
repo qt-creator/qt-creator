@@ -333,7 +333,7 @@ private:
     void removeAllSubNodes(const InternalNodePointer &node);
     void removeNodeFromModel(const InternalNodePointer &node);
     ManyNodes toInternalNodeList(const QList<ModelNode> &modelNodeList) const;
-    QList<ModelNode> toModelNodeList(std::span<const InternalNodePointer> nodeList,
+    QList<ModelNode> toModelNodeList(Utils::span<const InternalNodePointer> nodeList,
                                      AbstractView *view) const;
     static QList<InternalProperty *> toInternalProperties(const AbstractProperties &properties);
     static QList<std::tuple<QmlDesigner::Internal::InternalBindingProperty *, QString>>

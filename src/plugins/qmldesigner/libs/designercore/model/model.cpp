@@ -1217,7 +1217,7 @@ void ModelPrivate::removeAuxiliaryData(const InternalNodePointer &node, const Au
         notifyAuxiliaryDataChanged(node, key, QVariant());
 }
 
-QList<ModelNode> ModelPrivate::toModelNodeList(std::span<const InternalNodePointer> nodeList,
+QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePointer> nodeList,
                                                AbstractView *view) const
 {
     QList<ModelNode> modelNodeList;
