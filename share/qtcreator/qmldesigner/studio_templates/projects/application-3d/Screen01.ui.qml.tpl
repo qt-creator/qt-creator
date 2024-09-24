@@ -39,21 +39,41 @@ Rectangle {
             id: scene
             DirectionalLight {
                 id: directionalLight
+                y: 400
+                z: 400
+                eulerRotation.x: -40
+                shadowMapQuality: Light.ShadowMapQualityVeryHigh
+                shadowFactor: 100
+                castsShadow: true
             }
 
             PerspectiveCamera {
                 id: sceneCamera
-                z: 350
-                y: 80
-                eulerRotation.x: -10
+                z: 390
+                y: 300
+                eulerRotation.x: -15
             }
 
             Model {
                 id: cubeModel
+                y: 200
                 eulerRotation.y: 45
                 eulerRotation.x: 30
                 materials: defaultMaterial
                 source: "#Cube"
+                castsShadows: true
+            }
+
+            Model {
+                id: groundPlane
+                y: -1
+                source: "#Rectangle"
+                castsShadows: false
+                receivesShadows: true
+                eulerRotation.x: -90
+                scale.y: 900
+                scale.x: 900
+                materials: groundPlaneMaterial
             }
         }
     }
@@ -64,6 +84,12 @@ Rectangle {
             id: defaultMaterial
             objectName: "Default Material"
             baseColor: "#4aee45"
+        }
+
+        PrincipledMaterial {
+            id: groundPlaneMaterial
+            objectName: "Plane Material"
+            baseColor: "gray"
         }
     }
 
