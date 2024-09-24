@@ -56,8 +56,8 @@
                     {
                         "items": [
                             { "trKey": "Qt 6.2", "value": "6.2" },
-                            { "trKey": "Qt 6.4", "value": "6.4" },
-                            { "trKey": "Qt 6.5", "value": "6.5" }
+                            { "trKey": "Qt 6.5", "value": "6.5" },
+                            { "trKey": "Qt 6.8", "value": "6.8" }
                         ],
                         "index": 2
                     }
