@@ -581,12 +581,10 @@ ShowController::ShowController(IDocument *document, const QString &id)
 
 ///////////////////////////////
 
-class GitBlameArgumentsWidget : public VcsBaseEditorConfig
+class GitBlameConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
-    explicit GitBlameArgumentsWidget(QToolBar *toolBar)
+    explicit GitBlameConfig(QToolBar *toolBar)
         : VcsBaseEditorConfig(toolBar)
     {
         mapSetting(addToggleButton(QString(), Tr::tr("Omit Date"),
@@ -609,10 +607,10 @@ public:
     }
 };
 
-class BaseGitLogArgumentsWidget : public VcsBaseEditorConfig
+class GitBaseConfig : public VcsBaseEditorConfig
 {
 public:
-    BaseGitLogArgumentsWidget(GitEditorWidget *editor)
+    GitBaseConfig(GitEditorWidget *editor)
         : VcsBaseEditorConfig(editor->toolBar())
     {
         QAction *patienceAction = addToggleButton("--patience", Tr::tr("Patience"),
@@ -643,13 +641,11 @@ static bool gitHasRgbColors()
     return gitClient().gitVersion().result() >= QVersionNumber{2, 3};
 }
 
-class GitLogArgumentsWidget : public BaseGitLogArgumentsWidget
+class GitLogConfig : public GitBaseConfig
 {
-    Q_OBJECT
-
 public:
-    GitLogArgumentsWidget(bool fileRelated, GitEditorWidget *editor)
-        : BaseGitLogArgumentsWidget(editor)
+    GitLogConfig(bool fileRelated, GitEditorWidget *editor)
+        : GitBaseConfig(editor)
     {
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
@@ -698,13 +694,11 @@ public:
     }
 };
 
-class GitRefLogArgumentsWidget : public BaseGitLogArgumentsWidget
+class GitRefLogConfig : public GitBaseConfig
 {
-    Q_OBJECT
-
 public:
-    explicit GitRefLogArgumentsWidget(GitEditorWidget *editor)
-        : BaseGitLogArgumentsWidget(editor)
+    explicit GitRefLogConfig(GitEditorWidget *editor)
+        : GitBaseConfig(editor)
     {
         QAction *showDateButton =
                 addToggleButton("--date=iso",
@@ -1123,7 +1117,7 @@ void GitClient::log(const FilePath &workingDirectory, const QString &fileName,
         editorId, title, sourceFile, encoding(EncodingLogOutput, sourceFile), "logTitle", msgArg));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitLogArgumentsWidget(!fileName.isEmpty(), editor);
+        argWidget = new GitLogConfig(!fileName.isEmpty(), editor);
         argWidget->setBaseArguments(args);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [this, workingDir, fileName, enableAnnotationContextMenu, args] {
@@ -1181,7 +1175,7 @@ void GitClient::reflog(const FilePath &workingDirectory, const QString &ref)
                                 "reflogRepository", workingDir.toString()));
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitRefLogArgumentsWidget(editor);
+        argWidget = new GitRefLogConfig(editor);
         if (!ref.isEmpty())
             argWidget->setBaseArguments({ref});
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
@@ -1293,7 +1287,7 @@ void GitClient::annotate(const Utils::FilePath &workingDir, const QString &file,
             encoding(EncodingSource, sourceFile), "blameFileName", id);
     VcsBaseEditorConfig *argWidget = editor->editorConfig();
     if (!argWidget) {
-        argWidget = new GitBlameArgumentsWidget(editor->toolBar());
+        argWidget = new GitBlameConfig(editor->toolBar());
         argWidget->setBaseArguments(extraOptions);
         connect(argWidget, &VcsBaseEditorConfig::commandExecutionRequested, this,
                 [this, workingDir, file, revision, extraOptions] {
