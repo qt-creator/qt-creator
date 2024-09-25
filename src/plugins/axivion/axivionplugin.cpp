@@ -347,10 +347,6 @@ void AxivionPluginPrivate::onStartupProjectChanged(Project *project)
         disconnect(m_fileFinderConnection);
 
     m_project = project;
-    clearAllMarks();
-    m_currentProjectInfo = {};
-    m_analysisVersion = {};
-    updateDashboard();
 
     if (!m_project) {
         m_fileFinder.setProjectDirectory({});
