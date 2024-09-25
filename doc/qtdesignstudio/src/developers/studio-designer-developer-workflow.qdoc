@@ -200,6 +200,9 @@
                 \code
                     python Python\main.py
                 \endcode
+
+                \note Any extra data or Python files you add to the project and,
+                    import from \e {main.py} must remain inside the \c {Python} folder.
         \endlist
 
         Your \QDS project now runs in Python. Use Python to add more
