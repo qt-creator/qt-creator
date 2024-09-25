@@ -100,7 +100,7 @@ class AndroidRunConfigurationFactory : public RunConfigurationFactory
 public:
     AndroidRunConfigurationFactory()
     {
-        registerRunConfiguration<AndroidRunConfiguration>("Qt4ProjectManager.AndroidRunConfiguration:");
+        registerRunConfiguration<AndroidRunConfiguration>(Android::Constants::ANDROID_RUNCONFIG_ID);
         addSupportedTargetDeviceType(Android::Constants::ANDROID_DEVICE_TYPE);
     }
 };
