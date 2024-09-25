@@ -1,0 +1,3 @@
+QtLupdateRunner {
+    limitToSubProject: false
+}
