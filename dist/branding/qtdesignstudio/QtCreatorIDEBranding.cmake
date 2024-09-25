@@ -31,6 +31,7 @@ set(DESIGNSTUDIO_PLUGINS
     DiffEditor
     EffectComposer
     FakeVim
+    Git
     Help
     Insight
     LanguageClient
