@@ -19,7 +19,7 @@ action.CommandAttribute = {
 ---@field text? string The text to display for the action.
 ---@field icon? FilePath|string The icon to display for the action.
 ---@field iconText? string The icon text to display for the action.
----@field toolTip? string The tooltip to display for the action.
+---@field toolTip? string The toolTip to display for the action.
 ---@field onTrigger? function The callback to call when the action is triggered.
 ---@field commandAttributes? CommandAttributes The attributes of the action.
 ---@field commandDescription? string The description of the command.
@@ -37,7 +37,7 @@ function action.create(id, options) end
 ---@class Command
 ---@field enabled boolean Whether the command is enabled or not.
 ---@field text string The text of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
----@field tooltip string The tooltip of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
+---@field toolTip string The toolTip of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
 Command = {}
 
 ---return the module

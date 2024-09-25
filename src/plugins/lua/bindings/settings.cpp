@@ -333,11 +333,11 @@ void setupSettingsModule()
                                     if (data) {
                                         aspect->addOption(
                                             {option["name"],
-                                             option["tooltip"].get_or(QString()),
+                                             option["toolTip"].get_or(QString()),
                                              QVariant::fromValue(*data)});
                                     } else {
                                         aspect->addOption(
-                                            option["name"], option["tooltip"].get_or(QString()));
+                                            option["name"], option["toolTip"].get_or(QString()));
                                     }
                                 } else if (
                                     sol::optional<QString> name
@@ -362,14 +362,14 @@ void setupSettingsModule()
             "addOption",
             sol::overload(
                 [](SelectionAspect &self, const QString &name) { self.addOption(name); },
-                [](SelectionAspect &self, const QString &name, const QString &tooltip) {
-                    self.addOption(name, tooltip);
+                [](SelectionAspect &self, const QString &name, const QString &toolTip) {
+                    self.addOption(name, toolTip);
                 },
                 [](SelectionAspect &self,
                    const QString &name,
-                   const QString &tooltip,
+                   const QString &toolTip,
                    const sol::object &data) {
-                    self.addOption({name, tooltip, QVariant::fromValue(data)});
+                    self.addOption({name, toolTip, QVariant::fromValue(data)});
                 }),
             sol::base_classes,
             sol::bases<TypedAspect<int>, BaseAspect>());

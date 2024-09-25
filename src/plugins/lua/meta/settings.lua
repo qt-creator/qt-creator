@@ -88,7 +88,7 @@ settings.SelectionDisplayStyle = {
 
 ---@class SelectionOption
 ---@field name string The name of the option.
----@field tooltip? string The tooltip of the option.
+---@field toolTip? string The toolTip of the option.
 ---@field data? any The data of the option.
 SelectionOption = {}
 
@@ -104,7 +104,7 @@ function settings.SelectionAspect.create(options) end
 
 function settings.SelectionAspect:addOption(option) end
 
-function settings.SelectionAspect:addOption(option, tooltip) end
+function settings.SelectionAspect:addOption(option, toolTip) end
 settings.MultiSelectionAspect = {}
 function settings.MultiSelectionAspect.create(options) end
 

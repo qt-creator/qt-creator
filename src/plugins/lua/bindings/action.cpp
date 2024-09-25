@@ -42,11 +42,11 @@ void setupActionModule()
             sol::property(
                 [](ScriptCommand *cmd) { return cmd->m_contextAction->isEnabled(); },
                 [](ScriptCommand *cmd, bool enabled) { cmd->m_contextAction->setEnabled(enabled); }),
-            "tooltip",
+            "toolTip",
             sol::property(
                 [](ScriptCommand *cmd) { return cmd->m_contextAction->toolTip(); },
-                [](ScriptCommand *cmd, const QString &tooltip) {
-                    cmd->m_contextAction->setToolTip(tooltip);
+                [](ScriptCommand *cmd, const QString &toolTip) {
+                    cmd->m_contextAction->setToolTip(toolTip);
                 }),
             "text",
             sol::property(

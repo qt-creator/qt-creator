@@ -77,7 +77,7 @@ function TextDocument:blockAndColumn(position) end
 ---@return integer blockCount The number of blocks in the document.
 function TextDocument:blockCount() end
 
----Sets the suggestions for the document and enables tooltip on the mouse cursor hover.
+---Sets the suggestions for the document and enables toolTip on the mouse cursor hover.
 ---@param suggestions Suggestion[] A list of possible suggestions to display.
 function TextDocument:setSuggestions(suggestions) end
 
