@@ -1895,6 +1895,8 @@ void EditorManagerPrivate::addEditorArea(EditorArea *area)
         &EditorArea::hidden,
         d,
         [area = QPointer<EditorArea>(area)] {
+            if (ExtensionSystem::PluginManager::isShuttingDown())
+                return;
             // The connection is queued, because the hiding might be very short term, e.g.
             // when switching between Edit and Debug modes. Check if it is still hidden.
             const auto isReallyVisibile = [](QWidget *w) {

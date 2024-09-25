@@ -183,6 +183,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     m_requestProvider = provider;
+    connect(
+        m_requestProvider, &QObject::destroyed, this, &CodeAssistantPrivate::cancelCurrentRequest);
     IAssistProcessor *processor = provider->createProcessor(assistInterface.get());
     processor->setAsyncCompletionAvailableHandler([this, reason, processor](
                                                   IAssistProposal *newProposal) {
@@ -365,6 +367,8 @@ QString CodeAssistantPrivate::proposalPrefix() const
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
     m_processor = nullptr;
+    disconnect(
+        m_requestProvider, &QObject::destroyed, this, &CodeAssistantPrivate::cancelCurrentRequest);
     m_requestProvider = nullptr;
     m_receivedContentWhileWaiting = false;
 }

@@ -505,8 +505,6 @@ public:
     void duplicateFile();
     void deleteFile();
     void handleRenameFile();
-    void handleSetStartupProject();
-    void setStartupProject(Project *project);
     bool closeAllFilesInProject(const Project *project);
 
     void checkRecentProjectsAsync();
@@ -884,6 +882,8 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(sessionManager, &ProjectManager::dependencyChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            dd, &ProjectExplorerPluginPrivate::updateActions);
+    connect(ProjectManager::instance(), &ProjectManager::startupProjectChanged,
             dd, &ProjectExplorerPluginPrivate::updateActions);
     connect(SessionManager::instance(), &SessionManager::sessionLoaded,
             dd, &ProjectExplorerPluginPrivate::updateWelcomePage);
@@ -1863,7 +1863,7 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     connect(dd->m_createSourceAction, &QAction::triggered,
             dd, &ProjectExplorerPluginPrivate::addNewHeaderOrSource);
     connect(dd->m_setStartupProjectAction, &QAction::triggered,
-            dd, &ProjectExplorerPluginPrivate::handleSetStartupProject);
+            dd, [] { ProjectManager::setStartupProject(ProjectTree::currentProject()); });
     connect(dd->m_closeProjectFilesActionFileMenu, &QAction::triggered,
             dd, [] { dd->closeAllFilesInProject(ProjectManager::projects().first()); });
     connect(dd->m_closeProjectFilesActionContextMenu, &QAction::triggered,
@@ -2185,14 +2185,6 @@ void ProjectExplorerPlugin::openNewProjectDialog()
     } else {
         ICore::raiseWindow(ICore::newItemDialog());
     }
-}
-
-void ProjectExplorerPluginPrivate::setStartupProject(Project *project)
-{
-    if (!project)
-        return;
-    ProjectManager::setStartupProject(project);
-    updateActions();
 }
 
 bool ProjectExplorerPluginPrivate::closeAllFilesInProject(const Project *project)
@@ -4024,11 +4016,6 @@ void ProjectExplorerPluginPrivate::handleRenameFile()
         }
         focusWidget = focusWidget->parentWidget();
     }
-}
-
-void ProjectExplorerPluginPrivate::handleSetStartupProject()
-{
-    setStartupProject(ProjectTree::currentProject());
 }
 
 void ProjectExplorerPlugin::setCustomParsers(const QList<CustomParserSettings> &settings)

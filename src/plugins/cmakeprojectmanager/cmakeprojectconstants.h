@@ -33,6 +33,7 @@ const char CMAKEFORMATTER_MENU_ID[] = "CMakeFormatter.Menu";
 const char CMAKE_DEBUGGING_GROUP[] = "Debugger.Group.CMake";
 
 const char PACKAGE_MANAGER_DIR[] = ".qtc/package-manager";
+const char VCPKG_ROOT[] = "VCPKG_ROOT";
 
 const char CMAKE_LISTS_TXT[] = "CMakeLists.txt";
 const char CMAKE_CACHE_TXT[] = "CMakeCache.txt";

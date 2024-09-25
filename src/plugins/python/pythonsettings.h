@@ -43,7 +43,7 @@ public:
         const Utils::FilePath &directory,
         const std::function<void(const Utils::FilePath &)> &callback = {});
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
-    static void addKitsForInterpreter(const Interpreter &interpreter);
+    static void addKitsForInterpreter(const Interpreter &interpreter, bool force);
     static void removeKitsForInterpreter(const Interpreter &interpreter);
 
 signals:

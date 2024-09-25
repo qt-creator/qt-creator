@@ -57,8 +57,8 @@
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
-            \e Main.qml for editing. You can use \l {Installing Qt}
-            {\QOI} to install Qt Virtual Keyboard.
+            \e Main.qml for editing. You can use \l{Get and Install Qt}{\QOI}
+            to install Qt Virtual Keyboard.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.

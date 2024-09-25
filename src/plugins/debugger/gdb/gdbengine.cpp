@@ -4235,13 +4235,43 @@ void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
     notifyEngineSetupFailed();
 }
 
+static QString reverseBacktrace(const QString &trace)
+{
+    static const QRegularExpression threadPattern(R"(Thread \d+ \(Thread )");
+    Q_ASSERT(threadPattern.isValid());
+
+    if (!trace.contains(threadPattern)) // Pattern mismatch fallback
+        return trace;
+
+    const QStringView traceView{trace};
+    QList<QStringView> threadTraces;
+    const auto traceSize = traceView.size();
+    for (qsizetype pos = 0; pos < traceSize; ) {
+        auto nextThreadPos = traceView.indexOf(threadPattern, pos + 1);
+        if (nextThreadPos == -1)
+            nextThreadPos = traceSize;
+        threadTraces.append(traceView.sliced(pos, nextThreadPos - pos));
+        pos = nextThreadPos;
+    }
+
+    QString result;
+    result.reserve(traceSize);
+    for (auto it = threadTraces.crbegin(), end = threadTraces.crend(); it != end; ++it) {
+        result += *it;
+        if (result.endsWith('\n'))
+            result += '\n';
+    }
+    return result;
+}
+
 void GdbEngine::createFullBacktrace()
 {
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
     cmd.callback = [](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone) {
-            Internal::openTextEditor("Backtrace $",
-                response.consoleStreamOutput + response.logStreamOutput);
+            Internal::openTextEditor("Backtrace$",
+                                     reverseBacktrace(response.consoleStreamOutput)
+                                     + response.logStreamOutput);
         }
     };
     runCommand(cmd);

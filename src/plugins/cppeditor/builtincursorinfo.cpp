@@ -29,22 +29,22 @@ namespace {
 
 static bool isOwnershipRAIIName(const QString &name)
 {
-    static QSet<QString> knownNames;
-    if (knownNames.isEmpty()) {
+    static const QSet<QString> knownNames{
         // Qt
-        knownNames.insert(QLatin1String("QScopedPointer"));
-        knownNames.insert(QLatin1String("QScopedArrayPointer"));
-        knownNames.insert(QLatin1String("QMutexLocker"));
-        knownNames.insert(QLatin1String("QReadLocker"));
-        knownNames.insert(QLatin1String("QWriteLocker"));
-        // Standard C++
-        knownNames.insert(QLatin1String("auto_ptr"));
-        knownNames.insert(QLatin1String("unique_ptr"));
-        // Boost
-        knownNames.insert(QLatin1String("scoped_ptr"));
-        knownNames.insert(QLatin1String("scoped_array"));
-    }
+        "QMutexLocker",
+        "QReadLocker",
+        "QScopedArrayPointer",
+        "QScopedPointer",
+        "QWriteLocker",
 
+        // Standard C++
+        "auto_ptr",
+        "unique_ptr",
+
+        // Boost
+        "scoped_array",
+        "scoped_ptr",
+    };
     return knownNames.contains(name);
 }
 
@@ -59,8 +59,8 @@ static bool isOwnershipRAIIType(Symbol *symbol, const LookupContext &context)
         Declaration *declaration = symbol->asDeclaration();
         const NamedType *namedType = declaration->type()->asNamedType();
         if (namedType) {
-            ClassOrNamespace *clazz = context.lookupType(namedType->name(),
-                                                         declaration->enclosingScope());
+            ClassOrNamespace *clazz
+                = context.lookupType(namedType->name(), declaration->enclosingScope());
             if (clazz && !clazz->symbols().isEmpty()) {
                 Overview overview;
                 Symbol *symbol = clazz->symbols().at(0);

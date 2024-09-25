@@ -2088,6 +2088,13 @@ CMakeBuildSystem *CMakeBuildConfiguration::cmakeBuildSystem() const
 
 void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
 {
+    // Use the user provided VCPKG_ROOT if existing
+    // Visual C++ 2022 (and newer) come with their own VCPKG_ROOT
+    // that is incompatible with Qt Creator
+    const QString vcpkgRoot = qtcEnvironmentVariable(Constants::VCPKG_ROOT);
+    if (!vcpkgRoot.isEmpty())
+        env.set(Constants::VCPKG_ROOT, vcpkgRoot);
+
     const CMakeTool *tool = CMakeKitAspect::cmakeTool(kit());
     // The hack further down is only relevant for desktop
     if (tool && tool->cmakeExecutable().needsDevice())
