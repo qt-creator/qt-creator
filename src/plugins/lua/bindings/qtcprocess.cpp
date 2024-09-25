@@ -3,25 +3,14 @@
 
 #include "../luaengine.h"
 
+#include "utils.h"
+
 #include <utils/environment.h>
 #include <utils/qtcprocess.h>
 
 using namespace Utils;
 
 namespace Lua::Internal {
-
-FilePath toFilePath(std::variant<FilePath, QString> &&v)
-{
-    return std::visit(
-        [](auto &&arg) -> FilePath {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::is_same_v<T, QString>)
-                return FilePath::fromUserInput(arg);
-            else
-                return arg;
-        },
-        v);
-}
 
 void setupProcessModule()
 {

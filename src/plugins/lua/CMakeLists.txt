@@ -21,6 +21,7 @@ add_qtc_plugin(Lua
     bindings/texteditor.cpp
     bindings/translate.cpp
     bindings/utils.cpp
+    bindings/utils.h
     luaengine.cpp
     luaengine.h
     luaexpander.cpp

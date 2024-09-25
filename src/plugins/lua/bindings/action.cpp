@@ -16,15 +16,16 @@ void setupActionModule()
     registerProvider("Action", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();
 
-        result.new_enum("CommandAttribute",
-                        "CA_Hide",
-                        Core::Command::CA_Hide,
-                        "CA_UpdateText",
-                        Core::Command::CA_UpdateText,
-                        "CA_UpdateIcon",
-                        Core::Command::CA_UpdateIcon,
-                        "CA_NonConfigurable",
-                        Core::Command::CA_NonConfigurable);
+        result.new_enum(
+            "CommandAttribute",
+            "CA_Hide",
+            Core::Command::CA_Hide,
+            "CA_UpdateText",
+            Core::Command::CA_UpdateText,
+            "CA_UpdateIcon",
+            Core::Command::CA_UpdateIcon,
+            "CA_NonConfigurable",
+            Core::Command::CA_NonConfigurable);
 
         struct ScriptCommand
         {
