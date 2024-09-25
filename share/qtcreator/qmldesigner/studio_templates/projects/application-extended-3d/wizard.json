@@ -334,6 +334,11 @@
                 {
                     "source": "../shared-plugin/name/designer/plugin.metainfo",
                     "target": "%{ProjectDirectory}/%{ImportModuleName}/designer/plugin.metainfo"
+                },
+                {
+                    "isBinary": true,
+                    "source": "../common/assets/images/",
+                    "target": "%{ProjectDirectory}/%{AssetDir}/images/"
                 }
             ]
         }

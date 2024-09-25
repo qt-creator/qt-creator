@@ -83,13 +83,19 @@ Rectangle {
         PrincipledMaterial {
             id: defaultMaterial
             objectName: "Default Material"
-            baseColor: "#4aee45"
+            baseColorMap: defaultTexture
         }
 
         PrincipledMaterial {
             id: groundPlaneMaterial
             objectName: "Plane Material"
             baseColor: "gray"
+        }
+
+        Texture{
+            id: defaultTexture
+            source: "../Generated/images/template_texture.jpg"
+            objectName: "Default Material"
         }
     }
 

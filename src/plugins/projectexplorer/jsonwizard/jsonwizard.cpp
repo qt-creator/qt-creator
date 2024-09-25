@@ -471,6 +471,8 @@ void JsonWizard::openFiles(const JsonWizard::GeneratorFiles &files)
             }
             openedSomething = true;
         } else if (file.filePath().fileSize() < 100 * 1024 ) {
+            if (file.isBinary())
+                continue;
             Core::EditorManager::runWithTemporaryEditor(file.filePath(), formatFile);
         }
     }
