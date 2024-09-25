@@ -62,6 +62,7 @@ public:
     void setContinueAfterAttach(bool on);
     void setBreakOnMain(bool on);
     void setUseTerminal(bool on);
+    void setUseDebugServer(Utils::ProcessHandle attachPid, bool essential, bool useMulti);
 
     void setCommandsAfterConnect(const QString &commands);
     void setCommandsForReset(const QString &commands);
@@ -115,6 +116,9 @@ private:
     void startTerminalIfNeededAndContinueStartup();
     void continueAfterTerminalStart();
 
+    void startDebugServerIfNeededAndContinueStartup();
+    void continueAfterDebugServerStart();
+
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
     Internal::DebuggerRunParameters m_runParameters;
@@ -137,22 +141,6 @@ public:
 private:
     bool m_useGdbServer = false;
     bool m_useQmlServer = false;
-};
-
-class DEBUGGER_EXPORT DebugServerRunner : public ProjectExplorer::SimpleTargetRunner
-{
-public:
-    explicit DebugServerRunner(ProjectExplorer::RunControl *runControl,
-                               DebugServerPortsGatherer *portsGatherer);
-
-    ~DebugServerRunner() override;
-
-    void setUseMulti(bool on);
-    void setAttachPid(Utils::ProcessHandle pid);
-
-private:
-    Utils::ProcessHandle m_pid;
-    bool m_useMulti = true;
 };
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

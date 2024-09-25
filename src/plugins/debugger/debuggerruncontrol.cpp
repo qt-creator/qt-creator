@@ -162,8 +162,17 @@ public:
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
+
+    // Terminal
     Process terminalProc;
     DebuggerRunTool::AllowTerminal allowTerminal = DebuggerRunTool::DoAllowTerminal;
+
+    // DebugServer
+    Process debuggerServerProc;
+    bool useDebugServer = false;
+    Utils::ProcessHandle serverAttachPid;
+    bool serverUseMulti = true;
+    bool serverEssential = true;
 };
 
 } // namespace Internal
@@ -509,6 +518,11 @@ void DebuggerRunTool::continueAfterTerminalStart()
         return;
     }
 
+    startDebugServerIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::continueAfterDebugServerStart()
+{
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", Tr::tr("Debugged executable"),
                 [this] { return m_runParameters.inferior.command.executable(); }
@@ -1033,36 +1047,35 @@ QUrl DebugServerPortsGatherer::qmlServer() const
     return channel(1);
 }
 
-// DebugServerRunner
-
-DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
-   : SimpleTargetRunner(runControl)
+void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    setId("DebugServerRunner");
-    addStartDependency(portsGatherer);
+    if (!d->useDebugServer) {
+        continueAfterDebugServerStart();
+        return;
+    }
 
-    QTC_ASSERT(portsGatherer, reportFailure(); return);
+    // FIXME: Indentation intentionally wrong to keep diff in gerrit small. Will fix later.
 
-    setStartModifier([this, runControl, portsGatherer] {
-        QTC_ASSERT(portsGatherer, reportFailure(); return);
+        QTC_ASSERT(portsGatherer(), reportFailure(); return);
 
-        const bool isQmlDebugging = portsGatherer->useQmlServer();
-        const bool isCppDebugging = portsGatherer->useGdbServer();
+        const bool isQmlDebugging = portsGatherer()->useQmlServer();
+        const bool isCppDebugging = portsGatherer()->useGdbServer();
 
+        CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
         if (isQmlDebugging && !isCppDebugging) {
             // FIXME: Case should not happen?
-            cmd.setExecutable(commandLine().executable());
+            cmd.setExecutable(commandLine.executable());
             cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                      portsGatherer->qmlServer()));
-            cmd.addArgs(commandLine().arguments(), CommandLine::Raw);
+                                                      portsGatherer()->qmlServer()));
+            cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
-            cmd.setExecutable(runControl->device()->debugServerPath());
+            cmd.setExecutable(device()->debugServerPath());
 
             if (cmd.isEmpty()) {
-                if (runControl->device()->osType() == Utils::OsTypeMac) {
-                    const FilePath debugServerLocation = runControl->device()->filePath(
+                if (device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = device()->filePath(
                         "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
                         "Resources/debugserver");
 
@@ -1072,15 +1085,15 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                         // TODO: In the future it is expected that the debugserver will be
                         // replaced by lldb-server. Remove the check for debug server at that point.
                         const FilePath lldbserver
-                            = runControl->device()->filePath("lldb-server").searchInPath();
+                                = device()->filePath("lldb-server").searchInPath();
                         if (lldbserver.isExecutableFile())
                             cmd.setExecutable(lldbserver);
                     }
                 } else {
                     const FilePath gdbServerPath
-                        = runControl->device()->filePath("gdbserver").searchInPath();
+                            = device()->filePath("gdbserver").searchInPath();
                     FilePath lldbServerPath
-                        = runControl->device()->filePath("lldb-server").searchInPath();
+                            = device()->filePath("lldb-server").searchInPath();
 
                     // TODO: Which one should we prefer?
                     if (gdbServerPath.isExecutableFile())
@@ -1102,50 +1115,60 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                cmd.addArg(QString("*:%1").arg(portsGatherer()->gdbServer().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(portsGatherer->gdbServer().port()), CommandLine::Raw);
+                cmd.addArgs(ipAndPort.arg(portsGatherer()->gdbServer().port()), CommandLine::Raw);
 
-                if (m_pid.isValid())
-                    cmd.addArgs({"--attach", QString::number(m_pid.pid())});
+                if (d->serverAttachPid.isValid())
+                    cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
                 else
-                    cmd.addCommandLineAsArgs(runControl->runnable().command);
+                    cmd.addCommandLineAsArgs(runControl()->runnable().command);
             } else {
                 // Something resembling gdbserver
-                if (m_useMulti)
+                if (d->serverUseMulti)
                     cmd.addArg("--multi");
-                if (m_pid.isValid())
+                if (d->serverAttachPid.isValid())
                     cmd.addArg("--attach");
 
-                const auto port = portsGatherer->gdbServer().port();
+                const auto port = portsGatherer()->gdbServer().port();
                 cmd.addArg(QString(":%1").arg(port));
 
-                if (runControl->device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {
-                    addExtraData(RemoteLinux::Constants::SshForwardPort, port);
-                    addExtraData(RemoteLinux::Constants::DisableSharing, true);
+                if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {
+                    QVariantHash extraData;
+                    extraData[RemoteLinux::Constants::SshForwardPort] = port;
+                    extraData[RemoteLinux::Constants::DisableSharing] = true;
+                    d->debuggerServerProc.setExtraData(extraData);
                 }
 
-                if (m_pid.isValid())
-                    cmd.addArg(QString::number(m_pid.pid()));
+                if (d->serverAttachPid.isValid())
+                    cmd.addArg(QString::number(d->serverAttachPid.pid()));
             }
         }
 
-        setCommandLine(cmd);
+    d->debuggerServerProc.setCommand(cmd);
+
+    connect(&d->debuggerServerProc, &Process::started, this, [this] {
+        continueAfterDebugServerStart();
     });
+
+    connect(&d->debuggerServerProc, &Process::done, this, [this] {
+        if (d->terminalProc.error() != QProcess::UnknownError)
+            reportFailure(d->terminalProc.errorString());
+        if (d->terminalProc.error() != QProcess::FailedToStart && d->serverEssential)
+            reportDone();
+    });
+
+    d->debuggerServerProc.start();
 }
 
-DebugServerRunner::~DebugServerRunner() = default;
-
-void DebugServerRunner::setUseMulti(bool on)
+void DebuggerRunTool::setUseDebugServer(ProcessHandle attachPid, bool essential, bool useMulti)
 {
-    m_useMulti = on;
-}
-
-void DebugServerRunner::setAttachPid(ProcessHandle pid)
-{
-    m_pid = pid;
+    d->useDebugServer = true;
+    d->serverAttachPid = attachPid;
+    d->serverEssential = essential;
+    d->serverUseMulti = useMulti;
 }
 
 // DebuggerRunWorkerFactory

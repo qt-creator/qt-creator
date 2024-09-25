@@ -29,11 +29,7 @@ public:
 
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
         addQmlServerInferiorCommandLineArgumentIfNeeded();
-
-        auto debugServer = new DebugServerRunner(runControl, portsGatherer());
-        debugServer->setEssential(true);
-
-        addStartDependency(debugServer);
+        setUseDebugServer({}, true, true);
 
         setStartMode(AttachToRemoteServer);
         setCloseMode(KillAndExitMonitorAtClose);

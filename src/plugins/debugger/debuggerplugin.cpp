@@ -1712,12 +1712,7 @@ public:
     {
         setId("AttachToRunningProcess");
         setUsePortsGatherer(true, false);
-
-        auto gdbServer = new DebugServerRunner(runControl, portsGatherer());
-        gdbServer->setUseMulti(false);
-        gdbServer->setAttachPid(pid);
-
-        addStartDependency(gdbServer);
+        setUseDebugServer(pid, false, false);
 
         setStartMode(AttachToRemoteProcess);
         setCloseMode(DetachAtClose);
