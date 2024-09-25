@@ -87,6 +87,12 @@ inline bool is3DNode(const SelectionContext &selectionState)
     return modelNode.metaInfo().isQtQuick3DNode();
 }
 
+inline bool is2DNode(const SelectionContext &selectionState)
+{
+    ModelNode modelNode = selectionState.currentSingleSelectedNode();
+    return modelNode.metaInfo().isQtQuickItem();
+}
+
 inline bool hasEditableMaterial(const SelectionContext &selectionState)
 {
     ModelNode node = selectionState.currentSingleSelectedNode();

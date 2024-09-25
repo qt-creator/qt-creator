@@ -1631,6 +1631,207 @@ void addMouseAreaFill(const SelectionContext &selectionContext)
         });
 }
 
+static void createQmlObjectNodeAsChild(const SelectionContext &context, const QByteArray& typeName, const QString& name = QString{})
+{
+    const auto model = context.model();
+    const auto view = context.view();
+    if (!model || !view)
+        return;
+
+    const auto itemLibraryEntries = model->itemLibraryEntries();
+    const auto it = std::find_if(itemLibraryEntries.cbegin(), itemLibraryEntries.cend(), [&typeName, &name](const auto& entry){
+        if (entry.typeName() != typeName)
+            return false;
+
+        if (!name.isEmpty() && (entry.name() != name))
+            return false;
+
+        return true;
+    });
+    if (it == itemLibraryEntries.cend())
+        return;
+
+    view->executeInTransaction(__FUNCTION__, [context, it]() {
+        ModelNode parent = context.currentSingleSelectedNode();
+
+        auto child = QmlVisualNode::createQmlObjectNode(context.view(),
+                                                        *it,
+                                                        QmlVisualNode::Position{},
+                                                        QmlVisualNode{ parent });
+        QTC_ASSERT(child.isValid(), return);
+        context.view()->setSelectedModelNode(child);
+
+        // if added node is a Model, assign it a material
+        if (child.metaInfo().isQtQuick3DModel())
+            MaterialUtils::assignMaterialTo3dModel(context.view(), child);
+    });
+}
+
+void createImage(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Image");
+}
+
+void createItem(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Item");
+}
+
+void createMouseArea(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.MouseArea");
+}
+
+void createRectangle(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Rectangle");
+}
+
+void createText(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Text");
+}
+
+void createTextEdit(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.TextEdit");
+}
+
+void createTextInput(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.TextInput");
+}
+
+void createButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Button");
+}
+
+void createCheckBox(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.CheckBox");
+}
+
+void createLabel(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Label");
+}
+
+void createSlider(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Slider");
+}
+
+void createSpinBox(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.SpinBox");
+}
+
+void createSwitch(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Switch");
+}
+
+void createTextField(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.TextField");
+}
+
+void createGridView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.GridView");
+}
+
+void createListView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.ListView");
+}
+
+void createPathView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.PathView");
+}
+
+void createColumn(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Column");
+}
+
+void createFlow(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Flow");
+}
+
+void createGrid(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Grid");
+}
+
+void createRow(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Row");
+}
+
+void createNode(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Node");
+}
+
+void createOrthographicCamera(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.OrthographicCamera");
+}
+
+void createPerspectiveCamera(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.PerspectiveCamera");
+}
+
+void createDirectionalLight(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.DirectionalLight");
+}
+
+void createPointLight(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.PointLight");
+}
+
+void createSpotLight(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.SpotLight");
+}
+
+void createCone(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Cone");
+}
+
+void createCube(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Cube");
+}
+
+void createCylinder(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Cylinder");
+}
+
+void createModel(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Model");
+}
+
+void createPlane(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Plane");
+}
+
+void createSphere(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Sphere");
+}
+
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     if (auto model = modelNode.model()) {

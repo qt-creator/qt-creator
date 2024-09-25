@@ -2077,6 +2077,122 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &updateImported3DAsset,
                           &selectionIsImported3DAsset,
                           &selectionIsImported3DAsset));
+
+    addDesignerAction(new SeparatorDesignerAction(rootCategory, Priorities::CreateSection));
+
+    struct ContextMenuActionData {
+        QByteArray id;
+        QString description;
+        // QIcon icon;
+        // QByteArray category;
+        // QKeySequence key;
+        int priority;
+        SelectionContextOperation selectionAction;
+    };
+
+    const auto createSubActionGroup = [this](const QString &name, const QByteArray &id, int priority, const QByteArray &parentCategory) {
+        auto group = new ActionGroup(name,
+                                     id,
+                                     contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+                                     priority);
+        group->setCategory(parentCategory);
+        addDesignerAction(group);
+    };
+
+    const auto createModelNodeContextMenuActions = [this](const QList<ContextMenuActionData>& list, const QByteArray& category) {
+        for (const auto& data : list) {
+            addDesignerAction(new ModelNodeContextMenuAction(data.id,
+                                                             data.description,
+                                                             contextIcon(DesignerIcons::CreateIcon), //is not visible in submenu
+                                                             category,
+                                                             QKeySequence(),
+                                                             data.priority,
+                                                             data.selectionAction));
+        }
+    };
+
+    addDesignerAction(new ActionGroup(create2DCategoryDisplayName,
+                                      create2DCategory,
+                                      contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+                                      Priorities::Create2DCategory,
+                                      &is2DNode));
+
+    createSubActionGroup(basicCategoryDisplayName, basicCategory, Priorities::BasicCategory, create2DCategory);
+    const QList<ContextMenuActionData> basic = {
+        { createImageCommandId, createImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateImage, &createImage },
+        { createItemCommandId, createItemDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateItem, &createItem },
+        { createMouseAreaCommandId, createMouseAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateMouseArea, &createMouseArea },
+        { createRectangleCommandId, createRectangleDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRectangle, &createRectangle },
+        { createTextCommandId, createTextDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateText, &createText },
+        { createTextEditCommandId, createTextEditDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextEdit, &createTextEdit },
+        { createTextInputCommandId, createTextInputDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextInput, &createTextInput },
+    };
+    createModelNodeContextMenuActions(basic, basicCategory);
+
+    createSubActionGroup(controlsCategoryDisplayName, controlsCategory, Priorities::ControlsCategory, create2DCategory);
+    const QList<ContextMenuActionData> controls = {
+        { createButtonCommandId, createButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateButton, &createButton },
+        { createCheckBoxCommandId, createCheckBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateCheckBox, &createCheckBox },
+        { createLabelCommandId, createLabelDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateLabel, &createLabel },
+        { createSliderCommandId, createSliderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSlider, &createSlider },
+        { createSpinBoxCommandId, createSpinBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpinBox, &createSpinBox },
+        { createSwitchCommandId, createSwitchDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwitch, &createSwitch },
+        { createTextFieldCommandId, createTextFieldDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*controlsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextField, &createTextField },
+    };
+    createModelNodeContextMenuActions(controls, controlsCategory);
+
+    createSubActionGroup(viewsCategoryDisplayName, viewsCategory, Priorities::ViewsCategory, create2DCategory);
+    const QList<ContextMenuActionData> views = {
+        { createGridViewCommandId, createGridViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateGridView, &createGridView },
+        { createListViewCommandId, createListViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateListView, &createListView },
+        { createPathViewCommandId, createPathViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePathView, &createPathView },
+    };
+    createModelNodeContextMenuActions(views, viewsCategory);
+
+    createSubActionGroup(positioner2CategoryDisplayName, positioner2Category, Priorities::Positioner2Category, create2DCategory);
+    const QList<ContextMenuActionData> positioner2 = {
+        { createColumnCommandId, createColumnDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*positioner2Category,*/ /*QKeySequence(),*/ Priorities::CreateColumn, &createColumn },
+        { createFlowCommandId, createFlowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*positioner2Category,*/ /*QKeySequence(),*/ Priorities::CreateFlow, &createFlow },
+        { createGridCommandId, createGridDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*positioner2Category,*/ /*QKeySequence(),*/ Priorities::CreateGrid, &createGrid },
+        { createRowCommandId, createRowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*positioner2Category,*/ /*QKeySequence(),*/ Priorities::CreateRow, &createRow },
+    };
+    createModelNodeContextMenuActions(positioner2, positioner2Category);
+
+    addDesignerAction(new ActionGroup(create3DCategoryDisplayName,
+                                      create3DCategory,
+                                      contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
+                                      Priorities::Create3DCategory,
+                                      &is3DNode));
+    const QList<ContextMenuActionData> basics = {
+        { createNodeCommandId, createNodeDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*create3DCategory,*/ /*QKeySequence(),*/ Priorities::CreateNode, &createNode },
+    };
+    createModelNodeContextMenuActions(basics, create3DCategory);
+
+    createSubActionGroup(camerasCategoryDisplayName, camerasCategory, Priorities::CamerasCategory, create3DCategory);
+    const QList<ContextMenuActionData> cameras = {
+        { createOrthographicCameraCommandId, createOrthographicCameraDisplayName, /*contextIcon(DesignerIcons::CameraOrthographicIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreateOrthographicCamera, &createOrthographicCamera },
+        { createPerspectiveCameraCommandId, createPerspectiveCameraDisplayName, /*contextIcon(DesignerIcons::CameraPerspectiveIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreatePerspectiveCamera, &createPerspectiveCamera },
+    };
+    createModelNodeContextMenuActions(cameras, camerasCategory);
+
+    createSubActionGroup(lightsCategoryDisplayName, lightsCategory, Priorities::LightsCategory, create3DCategory);
+    const QList<ContextMenuActionData> lights = {
+        { createDirectionalLightCommandId, createDirectionalLightDisplayName, /*contextIcon(DesignerIcons::LightDirectionalIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDirectionalLight, &createDirectionalLight },
+        { createPointLightCommandId, createPointLightDisplayName, /*contextIcon(DesignerIcons::LightPointIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePointLight, &createPointLight },
+        { createSpotLightCommandId, createSpotLightDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpotLight, &createSpotLight },
+    };
+    createModelNodeContextMenuActions(lights, lightsCategory);
+
+    createSubActionGroup(primitivesCategoryDisplayName, primitivesCategory, Priorities::PrimitivesCategory, create3DCategory);
+    const QList<ContextMenuActionData> primitives = {
+        { createConeCommandId, createConeDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCone, &createCone },
+        { createCubeCommandId, createCubeDisplayName, /*contextIcon(DesignerIcons::ModelCubeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCube, &createCube },
+        { createCylinderCommandId, createCylinderDisplayName, /*contextIcon(DesignerIcons::ModelCylinderIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCylinder, &createCylinder },
+        { createModelCommandId, createModelDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateModel, &createModel },
+        { createPlaneCommandId, createPlaneDisplayName, /*contextIcon(DesignerIcons::ModelPlaneIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreatePlane, &createPlane },
+        { createSphereCommandId, createSphereDisplayName, /*contextIcon(DesignerIcons::ModelSphereIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateSphere, &createSphere },
+    };
+    createModelNodeContextMenuActions(primitives, primitivesCategory);
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()
