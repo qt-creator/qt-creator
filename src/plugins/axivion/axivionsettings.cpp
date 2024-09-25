@@ -245,17 +245,17 @@ void AxivionSettings::disableCertificateValidation(const Utils::Id &id)
     m_allServers[index].validateCert = false;
 }
 
-void AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other)
+bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
+                                             const Utils::Id &selected)
 {
-    if (m_allServers == other)
-        return;
-
     const Id oldDefault = defaultDashboardId();
-    if (!Utils::anyOf(other, [&oldDefault](const AxivionServer &s) { return s.id == oldDefault; }))
-        m_defaultServerId.setValue(other.isEmpty() ? QString{} : other.first().id.toString());
+    if (selected == oldDefault && m_allServers == other)
+        return false;
 
+    m_defaultServerId.setValue(selected.toString());
     m_allServers = other;
     emit changed(); // should we be more detailed? (id)
+    return true;
 }
 
 const QList<PathMapping> AxivionSettings::validPathMappings() const
@@ -417,15 +417,22 @@ void AxivionSettingsWidget::apply()
     QList<AxivionServer> servers;
     for (int i = 0, end = m_dashboardServers->count(); i < end; ++i)
         servers.append(m_dashboardServers->itemData(i).value<AxivionServer>());
-    settings().updateDashboardServers(servers);
-    settings().toSettings();
+    if (settings().updateDashboardServers(servers, servers.at(m_dashboardServers->currentIndex()).id))
+        settings().toSettings();
 }
 
 void AxivionSettingsWidget::updateDashboardServers()
 {
     m_dashboardServers->clear();
-    for (const AxivionServer &server : settings().allAvailableServers())
+    const QList<AxivionServer> servers = settings().allAvailableServers();
+    for (const AxivionServer &server : servers)
         m_dashboardServers->addItem(server.displayString(), QVariant::fromValue(server));
+    int index = Utils::indexOf(servers,
+                               [id = settings().defaultDashboardId()](const AxivionServer &s) {
+        return id == s.id;
+    });
+    if (index != -1)
+        m_dashboardServers->setCurrentIndex(index);
 }
 
 void AxivionSettingsWidget::updateEnabledStates()
