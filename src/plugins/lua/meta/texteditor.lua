@@ -52,13 +52,16 @@ function MultiTextCursor:cursors() end
 ---@class Suggestion
 local Suggestion = {}
 
----@param startLine integer Start position line where to apply the suggestion.
----@param startCharacter integer Start position character where to apply the suggestion.
----@param endLine integer  End position line where to apply the suggestion.
----@param endCharacter integer End position character where to apply the suggestion.
----@param text string Suggestions text.
+---@class SuggestionParams 
+---@field text string The text of the suggestion.
+---@field position Position The cursor position where the suggestion should be inserted.
+---@field range Range The range of the text preceding the suggestion.
+SuggestionParams = {}
+
+---Creates Suggestion.
+---@param params SuggestionParams Parameters for creating the suggestion.
 ---@return Suggestion suggestion The created suggestion.
-function Suggestion:create(startLine, startCharacter, endLine, endCharacter, text) end
+function Suggestion:create(params) end
 
 ---@class TextDocument
 local TextDocument = {}

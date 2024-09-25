@@ -21,6 +21,16 @@ using namespace Text;
 
 namespace {
 
+template<typename Return, typename Argument>
+Return get_or_throw(const Argument &arg, const char *key)
+{
+    const auto value = arg.template get<sol::optional<Return>>(key);
+    if (!value) {
+        throw sol::error(std::string("Failed to get value for key: ") + key);
+    }
+    return *value;
+}
+
 TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDocument *document)
 {
     const auto textEditor = TextEditor::BaseTextEditor::currentTextEditor();
@@ -249,15 +259,29 @@ void setupTextEditorModule()
         result.new_usertype<TextEditor::TextSuggestion::Data>(
             "Suggestion",
             "create",
-            [](int start_line,
-               int start_character,
-               int end_line,
-               int end_character,
-               const QString &text) -> TextEditor::TextSuggestion::Data {
-                auto one_based = [](int zero_based) { return zero_based + 1; };
-                Text::Position start_pos = {one_based(start_line), start_character};
-                Text::Position end_pos = {one_based(end_line), end_character};
-                return {Text::Range{start_pos, end_pos}, start_pos, text};
+            [](const sol::table &suggestion) -> TextEditor::TextSuggestion::Data {
+                const auto one_based = [](int zero_based) { return zero_based + 1; };
+                const auto position = get_or_throw<sol::table>(suggestion, "position");
+                const auto position_line = get_or_throw<int>(position, "line");
+                const auto position_column = get_or_throw<int>(position, "column");
+
+                const auto range = get_or_throw<sol::table>(suggestion, "range");
+
+                const auto from = get_or_throw<sol::table>(range, "from");
+                const auto from_line = get_or_throw<int>(from, "line");
+                const auto from_column = get_or_throw<int>(from, "column");
+
+                const auto to = get_or_throw<sol::table>(range, "to");
+                const auto to_line = get_or_throw<int>(to, "line");
+                const auto to_column = get_or_throw<int>(to, "column");
+
+                const auto text = get_or_throw<QString>(suggestion, "text");
+
+                const Text::Position cursor_pos = {one_based(position_line), position_column};
+                const Text::Position from_pos = {one_based(from_line), from_column};
+                const Text::Position to_pos = {one_based(to_line), to_column};
+
+                return {Text::Range{from_pos, to_pos}, cursor_pos, text};
             });
 
         result.new_usertype<TextEditor::TextDocument>(
