@@ -70,7 +70,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (m_itemToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+            if ((me->globalPosition() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
                 QMimeData *mimeData = new QMimeData;
                 QDataStream stream(&data, QIODevice::WriteOnly);
