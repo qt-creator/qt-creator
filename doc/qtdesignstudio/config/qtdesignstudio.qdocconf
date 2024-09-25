@@ -55,6 +55,7 @@ excludedirs  += ../../qtcreator/examples/accelbubble \
                 ../../qtcreator/src/python \
                 ../../qtcreator/src/qnx \
                 ../../qtcreator/src/qtquick/creator-only \
+                ../../qtcreator/src/reference \
                 ../../qtcreator/src/user-interface/creator-only \
                 ../../qtcreator/src/vcs/creator-only \
                 ../../qtcreator/src/widgets \
