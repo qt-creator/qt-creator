@@ -8,6 +8,8 @@
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/plugininstallwizard.h>
 
 #include <utils/layoutbuilder.h>
 
@@ -41,7 +43,18 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 groupChecker(useExternalRepo.groupChecker()),
                 Form {
                     externalRepoUrl
-                }
+                },
+            },
+            Row {
+                PushButton {
+                    text(Tr::tr("Install Extension...")),
+                    onClicked([] {
+                        if (Core::executePluginInstallWizard())
+                            Core::ICore::askForRestart(
+                                    Tr::tr("Plugin changes will take effect after restart."));
+                    }, this),
+                },
+                st,
             },
             st
         };
