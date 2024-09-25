@@ -3,6 +3,7 @@
 
 #include "edit3dactions.h"
 
+#include "cameraviewwidgetaction.h"
 #include "edit3dview.h"
 #include "indicatoractionwidget.h"
 #include "qmldesignerconstants.h"
@@ -11,6 +12,7 @@
 #include <utils3d.h>
 
 #include <utils/algorithm.h>
+#include <utils/qtcassert.h>
 
 namespace QmlDesigner {
 
@@ -26,8 +28,8 @@ Edit3DActionTemplate::Edit3DActionTemplate(const QString &description,
 
 void Edit3DActionTemplate::actionTriggered(bool b)
 {
-    if (m_type != View3DActionType::Empty)
-        m_view->emitView3DAction(m_type, b);
+    if (m_type != View3DActionType::Empty && m_view->isAttached())
+        m_view->model()->emitView3DAction(m_type, b);
 
     if (m_action)
         m_action(m_selectionContext);
@@ -196,6 +198,29 @@ bool Edit3DIndicatorButtonAction::isVisible(const SelectionContext &) const
 bool Edit3DIndicatorButtonAction::isEnabled(const SelectionContext &) const
 {
     return m_buttonAction->isEnabled();
+}
+
+Edit3DCameraViewAction::Edit3DCameraViewAction(const QByteArray &menuId,
+                                               View3DActionType type,
+                                               Edit3DView *view)
+    : Edit3DAction(menuId, type, view, new Edit3DWidgetActionTemplate(new CameraViewWidgetAction(view)))
+{
+    CameraViewWidgetAction *widgetAction = qobject_cast<CameraViewWidgetAction *>(action());
+    Q_ASSERT(widgetAction);
+
+    QObject::connect(widgetAction,
+                     &CameraViewWidgetAction::currentModeChanged,
+                     view,
+                     [this, edit3dview = std::move(view)](const QString &newState) {
+                         edit3dview->emitView3DAction(actionType(), newState);
+                     });
+}
+
+void Edit3DCameraViewAction::setMode(const QString &mode)
+{
+    CameraViewWidgetAction *widgetAction = qobject_cast<CameraViewWidgetAction *>(action());
+    QTC_ASSERT(widgetAction, return);
+    widgetAction->setMode(mode);
 }
 
 } // namespace QmlDesigner

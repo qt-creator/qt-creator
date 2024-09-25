@@ -5,9 +5,9 @@
 
 #include "../utils/googletest.h"
 
-#include <projectstorage/sourcepath.h>
-#include <projectstorage/sourcepathcacheinterface.h>
-#include <projectstorageids.h>
+#include <sourcepathids.h>
+#include <sourcepathstorage/sourcepath.h>
+#include <sourcepathstorage/sourcepathcacheinterface.h>
 
 class SourcePathCacheMock : public QmlDesigner::SourcePathCacheInterface
 {

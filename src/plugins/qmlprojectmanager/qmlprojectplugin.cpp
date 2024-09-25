@@ -9,7 +9,8 @@
 #include "qmlprojectmanagertr.h"
 #include "qmlprojectrunconfiguration.h"
 #include "projectfilecontenttools.h"
-#include "cmakegen/cmakegenerator.h"
+#include "qmlprojectexporter/cmakegenerator.h"
+#include "qmlprojectexporter/pythongenerator.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
@@ -24,12 +25,12 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
 #include <qmlprofiler/qmlprofilerruncontrol.h>
@@ -400,7 +401,27 @@ void QmlProjectPlugin::initialize()
                                                      != fileNode->filePath());
                 });
 
-        GenerateCmake::CMakeGenerator::createMenuAction(this);
+        connect(EditorManager::instance(),
+                &EditorManager::documentOpened,
+                this,
+                [](Core::IDocument *document) {
+                    if (!ProjectManager::startupProject()
+                        && document->filePath().completeSuffix() == "ui.qml") {
+                        QTimer::singleShot(1000, [document]() {
+                            if (ProjectManager::startupProject())
+                                return;
+
+                            const Utils::FilePath fileName = Utils::FilePath::fromString(
+                                document->filePath().toString() + Constants::fakeProjectName);
+                            auto result = ProjectExplorer::ProjectExplorerPlugin::openProjects(
+                                {fileName});
+                            QTC_ASSERT(result.project(), return);
+                        });
+                    }
+                });
+
+        QmlProjectExporter::CMakeGenerator::createMenuAction(this);
+        QmlProjectExporter::PythonGenerator::createMenuAction(this);
     }
 }
 

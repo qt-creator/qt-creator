@@ -209,8 +209,10 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("This type (%1) is not supported as a root element of a UI file (.ui.qml)."), 1);
     newMsg(ErrUnsupportedTypeInQmlUi, Error,
            Tr::tr("This type (%1) is not supported in a UI file (.ui.qml)."), 1);
-    newMsg(ErrFunctionsNotSupportedInQmlUi, Error,
-           Tr::tr("Functions are not supported in a UI file (.ui.qml)."));
+    newMsg(
+        ErrFunctionsNotSupportedInQmlUi,
+        Error,
+        Tr::tr("Arbitrary functions and function calls outside of a Connections object are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBlocksNotSupportedInQmlUi, Error,
            Tr::tr("JavaScript blocks are not supported in a UI file (.ui.qml)."));
     newMsg(ErrBehavioursNotSupportedInQmlUi, Error,
@@ -238,6 +240,7 @@ StaticAnalysisMessages::StaticAnalysisMessages()
            Tr::tr("Do not reference the root item as alias."));
     newMsg(WarnAliasReferRootHierarchy, Warning,
            Tr::tr("Avoid referencing the root item in a hierarchy."));
+    newMsg(ErrWhenConditionCannotBeObject, Error, Tr::tr("When condtion cannot contain an object."));
 }
 
 } // anonymous namespace

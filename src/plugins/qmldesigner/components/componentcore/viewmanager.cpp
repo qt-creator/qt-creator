@@ -30,6 +30,8 @@
 #include <texteditorview.h>
 #include <textureeditorview.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 
 #include <sqlitedatabase.h>
@@ -119,11 +121,12 @@ ViewManager::ViewManager(AsynchronousImageCache &imageCache,
     : d(std::make_unique<ViewManagerData>(imageCache, externalDependencies))
 {
     d->formEditorView.setGotoErrorCallback([this](int line, int column) {
+        if (Internal::DesignModeWidget *w = QmlDesignerPlugin::instance()->mainWidget())
+            w->showDockWidget("TextEditor");
         d->textEditorView.gotoCursorPosition(line, column);
-        if (Internal::DesignModeWidget *designModeWidget = QmlDesignerPlugin::instance()
-                                                               ->mainWidget())
-            designModeWidget->showDockWidget("TextEditor");
     });
+
+    registerViewActions();
 
     registerNanotraceActions();
 }
@@ -206,6 +209,18 @@ QList<AbstractView *> ViewManager::views() const
     return list;
 }
 
+void ViewManager::hideView(AbstractView &view)
+{
+    disableView(view);
+    view.setVisibility(false);
+}
+
+void ViewManager::showView(AbstractView &view)
+{
+    view.setVisibility(true);
+    enableView(view);
+}
+
 QList<AbstractView *> ViewManager::standardViews() const
 {
 #ifndef QTC_USE_QML_DESIGNER_LITE
@@ -280,6 +295,42 @@ void ViewManager::registerNanotraceActions()
 
         d->designerActionManagerView.designerActionManager().addDesignerAction(shutDownNanotraceAction);
     }
+}
+
+void ViewManager::registerViewActions()
+{
+    for (auto view : views()) {
+        if (view->hasWidget())
+            registerViewAction(*view);
+    }
+}
+
+void ViewManager::registerViewAction(AbstractView &view)
+{
+    auto viewAction = view.action();
+    viewAction->setCheckable(true);
+#ifdef DETACH_DISABLED_VIEWS
+    QObject::connect(view.action(),
+                     &AbstractViewAction::viewCheckedChanged,
+                     [&](bool checked, AbstractView &view) {
+                         if (checked)
+                             enableView(view);
+                         else
+                             disableView(view);
+                     });
+#endif
+}
+
+void ViewManager::enableView(AbstractView &view)
+{
+    if (auto model = currentModel())
+        model->attachView(&view);
+}
+
+void ViewManager::disableView(AbstractView &view)
+{
+    if (auto model = currentModel())
+        model->detachView(&view);
 }
 
 void ViewManager::resetPropertyEditorView()
@@ -488,7 +539,10 @@ void ViewManager::qmlJSEditorContextHelp(const Core::IContext::HelpCallback &cal
 
 Model *ViewManager::currentModel() const
 {
-    return currentDesignDocument()->currentModel();
+    if (auto document = currentDesignDocument())
+        return document->currentModel();
+
+    return nullptr;
 }
 
 Model *ViewManager::documentModel() const
@@ -530,6 +584,7 @@ void ViewManager::enableStandardViews()
 
 void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
 {
+    d->textEditorView.action()->setChecked(true);
     ADS::DockWidget *dockWidget = qobject_cast<ADS::DockWidget *>(
         d->textEditorView.widgetInfo().widget->parentWidget());
     if (dockWidget)
@@ -540,6 +595,7 @@ void ViewManager::jumpToCodeInTextEditor(const ModelNode &modelNode)
 void ViewManager::addView(std::unique_ptr<AbstractView> &&view)
 {
     d->additionalViews.push_back(std::move(view));
+    registerViewAction(*d->additionalViews.back());
 }
 
 } // namespace QmlDesigner

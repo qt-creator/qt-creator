@@ -44,11 +44,11 @@ public:
 
     DockWidget *q = nullptr;
     QBoxLayout *m_layout = nullptr;
-    QWidget *m_widget = nullptr;
+    QPointer<QWidget> m_widget;
     DockWidgetTab *m_tabWidget = nullptr;
     DockWidget::DockWidgetFeatures m_features = DockWidget::DefaultDockWidgetFeatures;
     DockManager *m_dockManager = nullptr;
-    DockAreaWidget *m_dockArea = nullptr;
+    QPointer<DockAreaWidget> m_dockArea;
     QAction *m_toggleViewAction = nullptr;
     bool m_closed = false;
     bool m_focused = false;
@@ -624,7 +624,7 @@ void DockWidget::toggleViewInternal(bool open)
 void DockWidget::setDockArea(DockAreaWidget *dockArea)
 {
     d->m_dockArea = dockArea;
-    d->m_toggleViewAction->setChecked(dockArea != nullptr && !isClosed());
+    d->m_toggleViewAction->setChecked(!isClosed());
     setParent(dockArea);
 }
 

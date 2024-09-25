@@ -1,9 +1,6 @@
-import QtQuick %{QtQuickVersion}
-import QtQuick.Controls %{QtQuickVersion}
-@if !%{IsQt6Project}
-import QtQuick.Window %{QtQuickVersion}
-@endif
-import %{ImportModuleName} %{ImportModuleVersion}
+import QtQuick
+import QtQuick.Controls
+import %{ImportModuleName}
 
 Window {
     width: Constants.width

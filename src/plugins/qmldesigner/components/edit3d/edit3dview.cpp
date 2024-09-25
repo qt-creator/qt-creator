@@ -6,28 +6,30 @@
 #include "backgroundcolorselection.h"
 #include "bakelights.h"
 #include "cameraspeedconfiguration.h"
-#include "designeractionmanager.h"
-#include "designericons.h"
-#include "designersettings.h"
 #include "edit3dcanvas.h"
 #include "edit3dviewconfig.h"
 #include "edit3dwidget.h"
-#include "materialutils.h"
-#include "metainfo.h"
-#include "nodeabstractproperty.h"
-#include "nodehints.h"
-#include "nodeinstanceview.h"
-#include "qmldesignerconstants.h"
-#include "qmldesignerplugin.h"
-#include "qmlitemnode.h"
-#include "qmlvisualnode.h"
-#include "seekerslider.h"
 #include "snapconfiguration.h"
-#include "variantproperty.h"
 
 #include <auxiliarydataproperties.h>
+#include <customnotificationpackage.h>
+#include <designeractionmanager.h>
+#include <designericons.h>
+#include <designersettings.h>
+#include <designmodewidget.h>
+#include <materialutils.h>
+#include <metainfo.h>
 #include <modelutils.h>
+#include <nodeabstractproperty.h>
+#include <nodehints.h>
+#include <nodeinstanceview.h>
+#include <qmldesignerconstants.h>
+#include <qmldesignerplugin.h>
+#include <qmlitemnode.h>
+#include <qmlvisualnode.h>
+#include <seekerslider.h>
 #include <utils3d.h>
+#include <variantproperty.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -41,7 +43,14 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
+
+#include <QMenu>
 #include <QToolButton>
+
+static const QByteArray operator""_actionId(const char *text, size_t size)
+{
+    return QString("QmlDesigner.Edit3D.%1").arg(QLatin1String(text, size)).toLatin1();
+}
 
 namespace QmlDesigner {
 
@@ -122,23 +131,24 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_activeSplit = 0;
     }
 
-    const QString sceneKey           = QStringLiteral("sceneInstanceId");
-    const QString selectKey          = QStringLiteral("selectionMode");
-    const QString transformKey       = QStringLiteral("transformMode");
-    const QString perspectiveKey     = QStringLiteral("usePerspective");
-    const QString orientationKey     = QStringLiteral("globalOrientation");
-    const QString editLightKey       = QStringLiteral("showEditLight");
-    const QString gridKey            = QStringLiteral("showGrid");
-    const QString showLookAtKey      = QStringLiteral("showLookAt");
-    const QString selectionBoxKey    = QStringLiteral("showSelectionBox");
-    const QString iconGizmoKey       = QStringLiteral("showIconGizmo");
-    const QString cameraFrustumKey   = QStringLiteral("showCameraFrustum");
-    const QString particleEmitterKey = QStringLiteral("showParticleEmitter");
-    const QString particlesPlayKey   = QStringLiteral("particlePlay");
-    const QString syncEnvBgKey       = QStringLiteral("syncEnvBackground");
-    const QString splitViewKey       = QStringLiteral("splitView");
-    const QString matOverrideKey     = QStringLiteral("matOverride");
-    const QString showWireframeKey   = QStringLiteral("showWireframe");
+    const QString sceneKey              = QStringLiteral("sceneInstanceId");
+    const QString selectKey             = QStringLiteral("selectionMode");
+    const QString transformKey          = QStringLiteral("transformMode");
+    const QString perspectiveKey        = QStringLiteral("usePerspective");
+    const QString orientationKey        = QStringLiteral("globalOrientation");
+    const QString editLightKey          = QStringLiteral("showEditLight");
+    const QString gridKey               = QStringLiteral("showGrid");
+    const QString showLookAtKey         = QStringLiteral("showLookAt");
+    const QString selectionBoxKey       = QStringLiteral("showSelectionBox");
+    const QString iconGizmoKey          = QStringLiteral("showIconGizmo");
+    const QString cameraFrustumKey      = QStringLiteral("showCameraFrustum");
+    const QString cameraViewModeKey     = QStringLiteral("cameraViewMode");
+    const QString particleEmitterKey    = QStringLiteral("showParticleEmitter");
+    const QString particlesPlayKey      = QStringLiteral("particlePlay");
+    const QString syncEnvBgKey          = QStringLiteral("syncEnvBackground");
+    const QString splitViewKey          = QStringLiteral("splitView");
+    const QString matOverrideKey        = QStringLiteral("matOverride");
+    const QString showWireframeKey      = QStringLiteral("showWireframe");
 
     if (sceneState.contains(sceneKey)) {
         qint32 newActiveScene = sceneState[sceneKey].value<qint32>();
@@ -203,6 +213,11 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showCameraFrustumAction->action()->setChecked(sceneState[cameraFrustumKey].toBool());
     else
         m_showCameraFrustumAction->action()->setChecked(false);
+
+    if (sceneState.contains(cameraViewModeKey))
+        m_cameraViewAction->setMode(sceneState[cameraViewModeKey].toString());
+    else
+        m_cameraViewAction->setMode("");
 
     if (sceneState.contains(particleEmitterKey))
         m_showParticleEmitterAction->action()->setChecked(sceneState[particleEmitterKey].toBool());
@@ -401,6 +416,12 @@ void Edit3DView::setActive3DSceneId(qint32 sceneId)
     rootModelNode().setAuxiliaryData(Utils3D::active3dSceneProperty, sceneId);
 }
 
+void Edit3DView::emitView3DAction(View3DActionType type, const QVariant &value)
+{
+    if (isAttached())
+        model()->emitView3DAction(type, value);
+}
+
 void Edit3DView::modelAboutToBeDetached(Model *model)
 {
     m_isBakingLightsSupported = false;
@@ -431,18 +452,16 @@ void Edit3DView::customNotification([[maybe_unused]] const AbstractView *view,
                                     [[maybe_unused]] const QList<ModelNode> &nodeList,
                                     [[maybe_unused]] const QList<QVariant> &data)
 {
-    if (identifier == "asset_import_update") {
-        resetPuppet();
-    } else if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 1 && nodeList.size() == 1) {
+    if (identifier == "pick_3d_node_from_2d_scene" && data.size() == 2) {
         // Pick via 2D view, data has pick coordinates in main scene coordinates
         QTimer::singleShot(0, this, [=, self = QPointer{this}]() {
             if (!self)
                 return;
 
             self->emitView3DAction(View3DActionType::GetNodeAtMainScenePos,
-                                   QVariantList{data[0], nodeList[0].internalId()});
+                                   QVariantList{data[0], data[1]});
             self->m_nodeAtPosReqType = NodeAtPosReqType::MainScenePick;
-            self->m_pickView3dNode = nodeList[0];
+            self->m_pickView3dNode = self->modelNodeForInternalId(qint32(data[1].toInt()));
         });
     }
 }
@@ -487,11 +506,14 @@ void Edit3DView::nodeAtPosReady(const ModelNode &modelNode, const QVector3D &pos
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::BundleEffectDrop) {
         emitCustomNotification("drop_bundle_item", {modelNode}, {pos3d}); // To ContentLibraryView
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::TextureDrop) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
         emitCustomNotification("apply_texture_to_model3D", {modelNode, m_droppedModelNode});
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::AssetDrop) {
         bool isModel = modelNode.metaInfo().isQtQuick3DModel();
-        if (!m_droppedFile.isEmpty() && isModel)
+        if (!m_droppedFile.isEmpty() && isModel) {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialBrowser");
             emitCustomNotification("apply_asset_to_model3D", {modelNode}, {m_droppedFile}); // To MaterialBrowserView
+        }
     } else if (m_nodeAtPosReqType == NodeAtPosReqType::MainScenePick) {
         if (modelNode.isValid())
             setSelectedModelNode(modelNode);
@@ -537,14 +559,14 @@ void Edit3DView::variantPropertiesChanged(const QList<VariantProperty> &property
 
 void Edit3DView::sendInputEvent(QEvent *e) const
 {
-    if (nodeInstanceView())
-        nodeInstanceView()->sendInputEvent(e);
+    if (isAttached())
+        model()->sendCustomNotificationToNodeInstanceView(InputEvent{e});
 }
 
 void Edit3DView::edit3DViewResized(const QSize &size) const
 {
-    if (nodeInstanceView())
-        nodeInstanceView()->edit3DViewResized(size);
+    if (isAttached())
+        model()->sendCustomNotificationToNodeInstanceView(Resize3DCanvas{size});
 }
 
 QSize Edit3DView::canvasSize() const
@@ -1094,6 +1116,10 @@ void Edit3DView::createEdit3DActions()
             "Toggle between always showing the camera frustum visualization and only showing it "
             "when the camera is selected."));
 
+    m_cameraViewAction = std::make_unique<Edit3DCameraViewAction>("CamerView"_actionId,
+                                                                  View3DActionType::CameraViewMode,
+                                                                  this);
+
     m_showParticleEmitterAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER,
         View3DActionType::ShowParticleEmitter,
@@ -1362,6 +1388,7 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showSelectionBoxAction.get();
     m_visibilityToggleActions << m_showIconGizmoAction.get();
     m_visibilityToggleActions << m_showCameraFrustumAction.get();
+    m_visibilityToggleActions << m_cameraViewAction.get();
     m_visibilityToggleActions << m_showParticleEmitterAction.get();
 
     createSyncEnvBackgroundAction();
@@ -1441,7 +1468,7 @@ void Edit3DView::dropBundleMaterial(const QPointF &pos)
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);
 }
 
-void Edit3DView::dropBundleEffect(const QPointF &pos)
+void Edit3DView::dropBundleItem(const QPointF &pos)
 {
     m_nodeAtPosReqType = NodeAtPosReqType::BundleEffectDrop;
     emitView3DAction(View3DActionType::GetNodeAtPos, pos);

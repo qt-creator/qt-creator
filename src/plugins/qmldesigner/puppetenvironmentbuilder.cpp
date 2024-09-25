@@ -86,19 +86,16 @@ QString PuppetEnvironmentBuilder::getStyleConfigFileName() const
             m_target->buildSystem());
         if (qmlBuild) {
             const auto &environment = qmlBuild->environment();
-            const auto &envVar = std::find_if(
-                std::begin(environment), std::end(environment), [](const auto &envVar) {
-                    return (envVar.name == u"QT_QUICK_CONTROLS_CONF"
-                            && envVar.operation != Utils::EnvironmentItem::SetDisabled);
-                });
+            const auto &envVar = std::ranges::find_if(environment, [](const auto &envVar) {
+                return envVar.name == u"QT_QUICK_CONTROLS_CONF"
+                       && envVar.operation != Utils::EnvironmentItem::SetDisabled;
+            });
             if (envVar != std::end(environment)) {
                 const auto &sourceFiles = m_target->project()->files(
                     ProjectExplorer::Project::SourceFiles);
-                const auto &foundFile = std::find_if(std::begin(sourceFiles),
-                                                     std::end(sourceFiles),
-                                                     [&](const auto &fileName) {
-                                                         return fileName.fileName() == envVar->value;
-                                                     });
+                const auto &foundFile = std::ranges::find(sourceFiles,
+                                                          envVar->value,
+                                                          &Utils::FilePath::fileName);
                 if (foundFile != std::end(sourceFiles))
                     return foundFile->toString();
             }

@@ -5,6 +5,8 @@
 
 #include "abstractview.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QPointer>
 
 #include <mutex>
@@ -40,7 +42,7 @@ private:
 
     std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;
-    QPointer<AssetsLibraryWidget> m_widget;
+    Utils::UniqueObjectPtr<AssetsLibraryWidget> m_widget;
     QString m_lastResourcePath;
 };
 

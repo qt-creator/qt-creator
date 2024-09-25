@@ -39,13 +39,16 @@ extend_qtc_plugin(QmlProjectManager
 )
 
 extend_qtc_plugin(QmlProjectManager
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/cmakegen
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/cmakegen
+  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
+  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/qmlprojectexporter
   SOURCES
+      pythongenerator.cpp pythongenerator.h
       cmakegenerator.cpp cmakegenerator.h
       cmakewriter.cpp cmakewriter.h
       cmakewriterv0.cpp cmakewriterv0.h
       cmakewriterv1.cpp cmakewriterv1.h
+      exporter.cpp exporter.h
+      filegenerator.cpp filegenerator.h
       filetypes.cpp filetypes.h
       boilerplate.qrc
 )
@@ -55,12 +58,12 @@ add_qtc_library(QmlProjectManagerLib OBJECT
     EXCLUDE_FROM_INSTALL
     DEFINES QMLPROJECTMANAGER_STATIC_LIBRARY
     DEPENDS
-        QmlJS Utils ProjectExplorer
+        QmlJS Utils
     INCLUDES
         ${CMAKE_CURRENT_LIST_DIR}
     SOURCES
         buildsystem/projectitem/filefilteritems.cpp buildsystem/projectitem/filefilteritems.h
         buildsystem/projectitem/qmlprojectitem.cpp buildsystem/projectitem/qmlprojectitem.h
         buildsystem/projectitem/converters.cpp buildsystem/projectitem/converters.h
-        cmakegen/filetypes.cpp cmakegen/filetypes.h
+        qmlprojectexporter/filetypes.cpp qmlprojectexporter/filetypes.h
 )

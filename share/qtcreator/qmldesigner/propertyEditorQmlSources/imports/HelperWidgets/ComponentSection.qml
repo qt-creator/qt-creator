@@ -246,7 +246,7 @@ Section {
                 width: StudioTheme.Values.singleControlColumnWidth
                 visible: !annotationEditor.hasAuxData
                 buttonIcon: qsTr("Add Annotation")
-                iconFont: StudioTheme.Constants.font
+                iconFontFamily: StudioTheme.Constants.font.family
                 tooltip: qsTr("Adds a note with a title to explain the component.")
                 onClicked: annotationEditor.showWidget()
                 onHoveredChanged: annotationEditor.checkAux()

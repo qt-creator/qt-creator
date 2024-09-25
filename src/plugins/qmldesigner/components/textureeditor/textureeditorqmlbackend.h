@@ -38,6 +38,7 @@ public:
     void setup(const QmlObjectNode &selectedTextureNode, const QString &stateName, const QUrl &qmlSpecificsFile,
                TextureEditorView *textureEditor);
     void setValue(const QmlObjectNode &fxObjectNode, PropertyNameView name, const QVariant &value);
+    void setExpression(PropertyNameView propName, const QString &exp);
 
     QQmlContext *context() const;
     TextureEditorContextObject *contextObject() const;

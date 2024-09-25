@@ -5,14 +5,14 @@ extend_qtc_test(unittest
 )
 extend_qtc_test(unittest
   SOURCES_PREFIX
-    "${QmlDesignerDir}"
+    "${QML_DESIGNER_DIRECTORY}"
   SOURCES
     components/listmodeleditor/listmodeleditormodel.cpp components/listmodeleditor/listmodeleditormodel.h
 )
 
 extend_qtc_test(unittest
   SOURCES
-    ${QtCreatorLibsDir}/qmlpuppetcommunication/interfaces/commondefines.h
-    ${QmlDesignerDir}/components/listmodeleditor/listmodeleditormodel.cpp
-    ${QmlDesignerDir}/components/listmodeleditor/listmodeleditormodel.h
+    ${QT_CREATOR_LIBS_DIRECTORY}/qmlpuppetcommunication/interfaces/commondefines.h
+    ${QML_DESIGNER_DIRECTORY}/components/listmodeleditor/listmodeleditormodel.cpp
+    ${QML_DESIGNER_DIRECTORY}/components/listmodeleditor/listmodeleditormodel.h
 )

@@ -1,9 +1,6 @@
 pragma Singleton
-import QtQuick %{QtQuickVersion}
-@if %{IsQt6Project}
+import QtQuick
 import QtQuick.Studio.Application
-@else
-@endif
 
 QtObject {
     readonly property int width: %{ScreenWidth}
@@ -24,13 +21,7 @@ QtObject {
     readonly property color backgroundColor: "#EAEAEA"
 
 
-@if %{IsQt6Project}
     property StudioApplication application: StudioApplication {
         fontPath: Qt.resolvedUrl("../%{ContentDir}/" + relativeFontDirectory)
     }
-@else
-    property DirectoryFontLoader directoryFontLoader: DirectoryFontLoader {
-        id: directoryFontLoader
-    }
-@endif
 }

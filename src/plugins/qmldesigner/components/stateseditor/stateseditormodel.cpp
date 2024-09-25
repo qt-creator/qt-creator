@@ -277,7 +277,7 @@ QStringList StatesEditorModel::stateGroups() const
     const auto groupMetaInfo = m_statesEditorView->model()->qtQuickStateGroupMetaInfo();
 
     auto stateGroups = Utils::transform(m_statesEditorView->allModelNodesOfType(groupMetaInfo),
-                                        [](const ModelNode &node) { return node.displayName(); });
+                                        &ModelNode::displayName);
     stateGroups.prepend(tr("Default"));
     return stateGroups;
 }

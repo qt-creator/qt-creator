@@ -7,13 +7,13 @@
 #include <mocks/projectstoragemock.h>
 #include <mocks/sourcepathcachemock.h>
 
+#include <abstractview.h>
+#include <bindingproperty.h>
+#include <model.h>
+#include <nodelistproperty.h>
+#include <nodeproperty.h>
 #include <qmldesigner/components/listmodeleditor/listmodeleditormodel.h>
-#include <qmldesigner/designercore/include/abstractview.h>
-#include <qmldesigner/designercore/include/bindingproperty.h>
-#include <qmldesigner/designercore/include/model.h>
-#include <qmldesigner/designercore/include/nodelistproperty.h>
-#include <qmldesigner/designercore/include/nodeproperty.h>
-#include <qmldesigner/designercore/include/variantproperty.h>
+#include <variantproperty.h>
 
 namespace {
 

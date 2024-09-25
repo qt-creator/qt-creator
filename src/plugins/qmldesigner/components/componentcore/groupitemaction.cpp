@@ -4,6 +4,7 @@
 #include "groupitemaction.h"
 
 #include "designermcumanager.h"
+#include "modelnodeoperations.h"
 #include "nodeabstractproperty.h"
 #include "nodelistproperty.h"
 

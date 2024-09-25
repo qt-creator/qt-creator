@@ -1,13 +1,10 @@
 // Copyright (C) 2021 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only
 
-import QtQuick %{QtQuickVersion}
-@if !%{IsQt6Project}
-import QtQuick.Window %{QtQuickVersion}
-@endif
-import %{ImportModuleName} %{ImportModuleVersion}
+import QtQuick
+import %{ImportModuleName}
 @if %{UseVirtualKeyboard}
-import QtQuick.VirtualKeyboard %{QtQuickVersion}
+import QtQuick.VirtualKeyboard
 @endif
 
 Window {

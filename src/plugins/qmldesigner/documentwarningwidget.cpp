@@ -8,6 +8,8 @@
 #include <utils/stylehelper.h>
 #include <utils/theme/theme.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <QBoxLayout>
 #include <QCheckBox>
 #include <QEvent>

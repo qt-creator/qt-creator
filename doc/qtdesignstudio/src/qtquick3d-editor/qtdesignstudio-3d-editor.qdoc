@@ -89,11 +89,14 @@
     camera:
 
     \list
-        \li To pan, press \key Alt (or \key Option on \macos) and use the
-            wheel button to drag anywhere in the \uicontrol 3D view to
-            slide the view around. Alternatively, press and hold \key
-            {right mouse button} and \key {left mouse button} and drag
-            anywhere in the view to pan.
+        \li To pan, do one of the following and drag anywhere in the view to pan:
+            \list
+              \li Press and hold \key Alt (or \key Option on \macos) and
+              \key {middle mouse button}.
+              \li Press and hold \key {right mouse button}, and then press and hold
+              \key {left mouse button}.
+              \li Press and hold \key Shift and \key {left mouse button}.
+            \endlist
         \li To orbit, press \key Alt and and drag anywhere in the
             \uicontrol 3D view to rotate the view.
         \li To zoom, use the mouse wheel or press \key Alt and right-click
@@ -178,6 +181,30 @@
         \li Adjust the movement speed of the camera with a slider.
         \li Set a value multiplier for the speed slider.
     \endlist
+
+    \section1 Toggling Camera View
+
+    In the 3D view, you can show a small window displaying the camera view.
+
+    \image 3d-view-camera-view.webp
+
+    To toggle this view,
+    select \inlineimage icons/visibilityon.png
+    and then one of the options:
+
+    \table
+      \row
+        \li \uicontrol {Hide Camera View}
+        \li Never shows the camera view.
+      \row
+        \li \uicontrol {Show Selected Camera View}
+        \li Shows the camera view of the selected camera. If no camera is selected, the camera
+        view is hidden.
+      \row
+        \li \uicontrol {Always Show Camera View}
+        \li Always shows the camera view of the camera that was selected last, even if no camera
+        is currently selected.
+    \endtable
 
     \section1 Using Global and Local Orientation
 

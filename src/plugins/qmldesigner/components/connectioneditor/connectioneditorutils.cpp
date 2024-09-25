@@ -277,12 +277,12 @@ std::pair<QString, QString> splitExpression(const QString &expression)
     return {sourceNode, propertyName};
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QStringList singletonsFromView(AbstractView *view)
 {
     RewriterView *rv = view->rewriterView();
     if (!rv)
         return {};
-
     QStringList out;
     for (const QmlTypeData &data : rv->getQMLTypes()) {
         if (data.isSingleton && !data.typeName.isEmpty())
@@ -301,6 +301,7 @@ std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, Abstr
 
     return {};
 }
+#endif
 
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
 {
@@ -317,9 +318,30 @@ QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node)
     return dynamicProperties;
 }
 
+#ifdef QDS_USE_PROJECTSTORAGE
+QStringList availableSources(AbstractView *view)
+{
+    if (!view->isAttached())
+        return {};
+
+    QStringList sourceNodes;
+
+    for (const auto &metaInfo : view->model()->singletonMetaInfos())
+        sourceNodes.push_back(metaInfo.displayName());
+
+    for (const ModelNode &modelNode : view->allModelNodes()) {
+        if (auto id = modelNode.id(); !id.isEmpty())
+            sourceNodes.append(id);
+    }
+
+    std::sort(sourceNodes.begin(), sourceNodes.end());
+    return sourceNodes;
+}
+#else
 QStringList availableSources(AbstractView *view)
 {
     QStringList sourceNodes;
+
     for (const ModelNode &modelNode : view->allModelNodes()) {
         if (!modelNode.id().isEmpty())
             sourceNodes.append(modelNode.id());
@@ -327,6 +349,7 @@ QStringList availableSources(AbstractView *view)
     std::sort(sourceNodes.begin(), sourceNodes.end());
     return singletonsFromView(view) + sourceNodes;
 }
+#endif
 
 QStringList availableTargetProperties(const BindingProperty &bindingProperty)
 {
@@ -351,6 +374,8 @@ QStringList availableTargetProperties(const BindingProperty &bindingProperty)
     return {};
 }
 
+namespace {
+
 ModelNode getNodeByIdOrParent(AbstractView *view, const QString &id, const ModelNode &targetNode)
 {
     if (id != QLatin1String("parent"))
@@ -361,6 +386,35 @@ ModelNode getNodeByIdOrParent(AbstractView *view, const QString &id, const Model
 
     return {};
 }
+
+#ifdef QDS_USE_PROJECTSTORAGE
+NodeMetaInfo singletonMetaInfoForId(const QString &id, AbstractView *view)
+{
+    using Storage::Info::ExportedTypeName;
+    const auto model = view->model();
+
+    if (!model)
+        return {};
+
+    const Utils::SmallString name = id;
+
+    const auto singletonMetaInfos = model->singletonMetaInfos();
+
+    const auto sourceId = model->fileUrlSourceId();
+
+    auto found = std::ranges::find_if(singletonMetaInfos, [&](const auto &metaInfo) {
+        auto exportedTypeNames = metaInfo.exportedTypeNamesForSourceId(sourceId);
+        return std::ranges::find(exportedTypeNames, name, &ExportedTypeName::name)
+               != exportedTypeNames.end();
+    });
+
+    if (found == singletonMetaInfos.end())
+        return {};
+
+    return *found;
+}
+#endif
+} // namespace
 
 QStringList availableSourceProperties(const QString &id,
                                       const BindingProperty &targetProperty,
@@ -378,6 +432,15 @@ QStringList availableSourceProperties(const QString &id,
 
     QStringList possibleProperties;
     if (!modelNode.isValid()) {
+#ifdef QDS_USE_PROJECTSTORAGE
+        if (auto singletonMetaInfo = singletonMetaInfoForId(id, view)) {
+            for (const auto &property : singletonMetaInfo.properties()) {
+                if (metaInfoIsCompatible(targetType, property))
+                    possibleProperties.push_back(QString::fromUtf8(property.name()));
+            }
+            return possibleProperties;
+        }
+#else
         QStringList singletons = singletonsFromView(view);
         if (singletons.contains(id)) {
             for (const auto &property : propertiesFromSingleton(id, view)) {
@@ -386,6 +449,7 @@ QStringList availableSourceProperties(const QString &id,
             }
             return possibleProperties;
         }
+#endif
         qCWarning(ConnectionEditorLog) << __FUNCTION__ << "invalid model node:" << id;
         return {};
     }

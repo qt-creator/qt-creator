@@ -4,10 +4,10 @@
 #include "assetimageprovider.h"
 
 #include <asset.h>
-#include <imagecacheimageresponse.h>
+#include <imagecache/imagecacheimageresponse.h>
 
 #include <projectexplorer/target.h>
-#include <utils/hdrimage.h>
+#include <qmldesignerutils/hdrimage.h>
 #include <utils/stylehelper.h>
 
 #include <QMetaObject>

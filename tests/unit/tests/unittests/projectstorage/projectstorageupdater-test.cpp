@@ -15,7 +15,7 @@
 #include <projectstorage/filestatuscache.h>
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/projectstorageupdater.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 #include <sqlitedatabase.h>
 
 namespace {
@@ -146,8 +146,11 @@ public:
     struct StaticData
     {
         Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
+        Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
         NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
         QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
+        QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                         sourcePathDatabase.isInitialized()};
     };
 
     static void SetUpTestSuite() { staticData = std::make_unique<StaticData>(); }
@@ -331,8 +334,8 @@ protected:
     inline static std::unique_ptr<StaticData> staticData;
     Sqlite::Database &database = staticData->database;
     QmlDesigner::ProjectStorage &storage = staticData->storage;
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
-        storage};
+    QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{
+        staticData->sourcePathStorage};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
     QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);
     QmlDesigner::ProjectPartId otherProjectPartId = QmlDesigner::ProjectPartId::create(0);
@@ -3491,7 +3494,7 @@ TEST_F(ProjectStorageUpdater, errors_for_watcher_updates_are_handled)
     setContent(u"/path/qmldir", qmldir);
 
     ON_CALL(projectStorageMock, synchronize(_))
-        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
+        .WillByDefault(Throw(QmlDesigner::TypeHasInvalidSourceId{}));
 
     ASSERT_NO_THROW(updater.pathsWithIdsChanged({{directoryProjectChunkId, {directoryPathSourceId}}}));
 }
@@ -3509,7 +3512,7 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens)
          {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
     ON_CALL(projectStorageMock, synchronize(_))
-        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
+        .WillByDefault(Throw(QmlDesigner::TypeHasInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());
@@ -3569,7 +3572,7 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens_and_
          {directoryPathSourceId, qmltypes2PathSourceId, exampleModuleId, FileType::QmlTypes}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
     ON_CALL(projectStorageMock, synchronize(_))
-        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
+        .WillByDefault(Throw(QmlDesigner::TypeHasInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmltypesProjectChunkId, {qmltypesPathSourceId, qmltypes2PathSourceId}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());
@@ -3632,7 +3635,7 @@ TEST_F(ProjectStorageUpdater, input_is_reused_next_call_if_an_error_happens_and_
          {directoryPathSourceId, qmlDocumentSourceId1, QmlDesigner::ModuleId{}, FileType::QmlDocument}});
     setFilesDontChanged({directoryPathSourceId, qmlDirPathSourceId});
     ON_CALL(projectStorageMock, synchronize(_))
-        .WillByDefault(Throw(QmlDesigner::NoSourcePathForInvalidSourceId{}));
+        .WillByDefault(Throw(QmlDesigner::TypeHasInvalidSourceId{}));
     updater.pathsWithIdsChanged(
         {{qmlDocumentProjectChunkId, {qmlDocumentSourceId1, qmlDocumentSourceId2}}});
     ON_CALL(projectStorageMock, synchronize(_)).WillByDefault(Return());

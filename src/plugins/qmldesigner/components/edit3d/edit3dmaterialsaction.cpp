@@ -10,6 +10,7 @@
 #include <modelutils.h>
 #include <qmldesignerplugin.h>
 #include <qmleditormenu.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 
 #include <utils/qtcassert.h>
@@ -181,8 +182,7 @@ QAction *Edit3DMaterialsAction::createMaterialAction(const ModelNode &material,
     QAction *editMaterialAction = new QAction(tr("Edit"), menu);
     connect(editMaterialAction, &QAction::triggered, menu, [material] {
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-        if (auto materialView = material.view())
-            materialView->emitCustomNotification("select_material", {material});
+        Utils3D::selectMaterial(material);
     });
 
     menu->addAction(editMaterialAction);

@@ -931,4 +931,13 @@ SmallString operator+(const char(&first)[Size], SmallStringView second)
 
 } // namespace Utils
 
+namespace std {
+
+template<uint Size1, uint Size2, template<class> class TQual, template<class> class UQual>
+struct basic_common_reference<Utils::BasicSmallString<Size1>, Utils::BasicSmallString<Size2>, TQual, UQual>
+{
+    using type = Utils::SmallStringView;
+};
+} // namespace std
+
 Q_DECLARE_METATYPE(Utils::SmallString)

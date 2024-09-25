@@ -4,10 +4,12 @@
 #include "designeractionmanager.h"
 
 #include "anchoraction.h"
+#include "bundlehelper.h"
 #include "changestyleaction.h"
 #include "designeractionmanagerview.h"
 #include "designericons.h"
 #include "designermcumanager.h"
+#include "designmodewidget.h"
 #include "formatoperation.h"
 #include "groupitemaction.h"
 #include "modelnodecontextmenu_helper.h"
@@ -110,11 +112,11 @@ void DesignerActionManager::polishActions() const
     QList<ActionInterface* > actions =  Utils::filtered(designerActions(),
                                                         [](ActionInterface *action) { return action->type() != ActionInterface::ContextMenu; });
 
-    Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
-    Core::Context qmlDesignerEditor3DContext(Constants::C_QMLEDITOR3D);
-    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
-    Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
-    Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
+    Core::Context qmlDesignerFormEditorContext(Constants::qmlFormEditorContextId);
+    Core::Context qmlDesignerEditor3DContext(Constants::qml3DEditorContextId);
+    Core::Context qmlDesignerNavigatorContext(Constants::qmlNavigatorContextId);
+    Core::Context qmlDesignerMaterialBrowserContext(Constants::qmlMaterialBrowserContextId);
+    Core::Context qmlDesignerAssetsLibraryContext(Constants::qmlAssetsLibraryContextId);
 
     Core::Context qmlDesignerUIContext;
     qmlDesignerUIContext.add(qmlDesignerFormEditorContext);
@@ -731,6 +733,7 @@ public:
                         (propertyName + "OpenEditorId").toLatin1(),
                         QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Edit the Connection")),
                         [=](const SelectionContext &) {
+                            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ConnectionView");
                             signalHandler.view()
                                 ->emitCustomNotification(EditConnectionNotification,
                                                          {signalHandler.parentModelNode()},
@@ -812,6 +815,7 @@ public:
                 (signalStr + "OpenEditorId").toLatin1(),
                 QString(QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Add new Connection")),
                 [=](const SelectionContext &) {
+                    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ConnectionView");
                     currentNode.view()->emitCustomNotification(AddConnectionNotification,
                                                                {currentNode},
                                                                {signalStr});
@@ -1910,7 +1914,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      contextIcon(DesignerIcons::EnterComponentIcon),
                                                      rootCategory,
                                                      QKeySequence(Qt::Key_F2),
-                                                     Priorities::ComponentActions + 3,
+                                                     Priorities::ComponentActions + 4,
                                                      &goIntoComponentOperation,
                                                      &selectionIsEditableComponent));
 
@@ -1980,13 +1984,24 @@ void DesignerActionManager::createDefaultDesignerActions()
                           &singleSelection));
 
     addDesignerAction(new ModelNodeContextMenuAction(
+        editInEffectComposerCommandId,
+        editInEffectComposerDisplayName,
+        contextIcon(DesignerIcons::EditIcon),
+        rootCategory,
+        QKeySequence(),
+        Priorities::ComponentActions + 3,
+        &editInEffectComposer,
+        &SelectionContextFunctors::always, // If action is visible, it is usable
+        &singleSelectionEffectComposer));
+
+    addDesignerAction(new ModelNodeContextMenuAction(
         importComponentCommandId,
         importComponentDisplayName,
         contextIcon(DesignerIcons::CreateIcon), // TODO: placeholder icon
         rootCategory,
         QKeySequence(),
         Priorities::ImportComponent,
-        &importComponent));
+        [&](const SelectionContext &) { m_bundleHelper->importBundleToProject(); }));
 
     addDesignerAction(new ModelNodeContextMenuAction(
         exportComponentCommandId,
@@ -1995,7 +2010,9 @@ void DesignerActionManager::createDefaultDesignerActions()
         rootCategory,
         QKeySequence(),
         Priorities::ExportComponent,
-        &exportComponent,
+        [&](const SelectionContext &context) {
+            m_bundleHelper->exportBundle(context.currentSingleSelectedNode());
+        },
         &is3DNode,
         &is3DNode));
 
@@ -2115,8 +2132,8 @@ void DesignerActionManager::createDefaultModelNodePreviewImageHandlers()
                 ModelNodePreviewImageHandler("QtQuick3D.Texture",
                                              ModelNodeOperations::previewImageDataForImageNode));
     registerModelNodePreviewHandler(
-                ModelNodePreviewImageHandler("QtQuick3D.Material",
-                                             ModelNodeOperations::previewImageDataForGenericNode));
+        ModelNodePreviewImageHandler("QtQuick3D.Material",
+                                     ModelNodeOperations::previewImageDataForGenericNode));
     registerModelNodePreviewHandler(
                 ModelNodePreviewImageHandler("QtQuick3D.Model",
                                              ModelNodeOperations::previewImageDataForGenericNode));
@@ -2162,9 +2179,7 @@ QList<QSharedPointer<ActionInterface> > DesignerActionManager::actionsForTargetV
 
 QList<ActionInterface* > DesignerActionManager::designerActions() const
 {
-    return Utils::transform(m_designerActions, [](const QSharedPointer<ActionInterface> &pointer) {
-        return pointer.data();
-    });
+    return Utils::transform(m_designerActions, &QSharedPointer<ActionInterface>::get);
 }
 
 ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
@@ -2175,9 +2190,12 @@ ActionInterface *DesignerActionManager::actionByMenuId(const QByteArray &id)
     return nullptr;
 }
 
-DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView, ExternalDependenciesInterface &externalDependencies)
+DesignerActionManager::DesignerActionManager(DesignerActionManagerView *designerActionManagerView,
+                                             ExternalDependenciesInterface &externalDependencies)
     : m_designerActionManagerView(designerActionManagerView)
     , m_externalDependencies(externalDependencies)
+    , m_bundleHelper(std::make_unique<BundleHelper>(designerActionManagerView,
+                                                    QmlDesignerPlugin::instance()->mainWidget()))
 {
     setupIcons();
 }

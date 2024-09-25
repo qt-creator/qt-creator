@@ -150,38 +150,56 @@ void DSThemeGroup::duplicateValues(ThemeId from, ThemeId to)
     }
 }
 
-void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode)
+void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTEXT decorationContext)
 {
     if (!count(theme))
         return; // No props for this theme in this group.
 
-    const auto groupName = GroupId(m_type);
+    ModelNode *targetNode = &themeNode;
     const auto typeName = groupTypeName(m_type);
-    auto groupNode = themeNode.model()->createModelNode("QtObject");
-    auto groupProperty = themeNode.nodeProperty(groupName);
 
-    if (!groupProperty || !typeName || !groupNode) {
-        qCDebug(dsLog) << "Adding group node failed." << groupName << theme;
-        return;
+    if (decorationContext == DECORATION_CONTEXT::MPU) {
+        // Create a group node
+        const auto groupName = GroupId(m_type);
+        auto groupNode = themeNode.model()->createModelNode("QtObject");
+        auto groupProperty = themeNode.nodeProperty(groupName);
+
+        if (!groupProperty || !typeName || !groupNode) {
+            qCDebug(dsLog) << "Adding group node failed." << groupName << theme;
+            return;
+        }
+        groupProperty.setDynamicTypeNameAndsetModelNode("QtObject", groupNode);
+        targetNode = &groupNode;
     }
 
+    // Add properties
     for (auto itr = m_values.begin(); itr != m_values.end(); ++itr) {
         auto &[propName, values] = *itr;
         auto themeValue = values.find(theme);
         if (themeValue != values.end()) {
             auto &propData = themeValue->second;
             if (propData.isBinding) {
-                auto bindingProp = groupNode.bindingProperty(propName);
-                if (bindingProp)
+                auto bindingProp = targetNode->bindingProperty(propName);
+                if (!bindingProp)
+                    continue;
+
+                if (decorationContext == DECORATION_CONTEXT::MCU)
+                    bindingProp.setExpression(propData.value.toString());
+                else
                     bindingProp.setDynamicTypeNameAndExpression(*typeName, propData.value.toString());
+
             } else {
-                auto nodeProp = groupNode.variantProperty(propName);
-                if (nodeProp)
+                auto nodeProp = targetNode->variantProperty(propName);
+                if (!nodeProp)
+                    continue;
+
+                if (decorationContext == DECORATION_CONTEXT::MCU)
+                    nodeProp.setValue(propData.value);
+                else
                     nodeProp.setDynamicTypeNameAndValue(*typeName, propData.value);
             }
         }
     }
 
-    groupProperty.setDynamicTypeNameAndsetModelNode("QtObject", groupNode);
 }
 }

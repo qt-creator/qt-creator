@@ -3,11 +3,17 @@
 
 #include "utils3d.h"
 
+#include <modelutils.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
+#include <qmlobjectnode.h>
 #include <variantproperty.h>
+
+#include <utils/qtcassert.h>
+
+#include <QRegularExpression>
 
 namespace QmlDesigner {
 namespace Utils3D {
@@ -152,6 +158,152 @@ QString activeView3dId(AbstractView *view)
 
     return {};
 }
+
+ModelNode getMaterialOfModel(const ModelNode &model, int idx)
+{
+    QTC_ASSERT(model.isValid(), return {});
+
+    QmlObjectNode qmlObjNode(model);
+    QString matExp = qmlObjNode.expression("materials");
+    if (matExp.isEmpty())
+        return {};
+
+    const QStringList mats = matExp.remove('[').remove(']').split(',', Qt::SkipEmptyParts);
+    if (mats.isEmpty())
+        return {};
+
+    ModelNode mat = model.model()->modelNodeForId(mats.at(idx));
+
+    QTC_CHECK(mat);
+
+    return mat;
+}
+
+void selectMaterial(const ModelNode &material)
+{
+    if (material.metaInfo().isQtQuick3DMaterial()) {
+        material.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedMaterialProperty,
+                                                           material.id());
+    }
+}
+
+void selectTexture(const ModelNode &texture)
+{
+    if (texture.metaInfo().isQtQuick3DTexture()) {
+        texture.model()->rootModelNode().setAuxiliaryData(Utils3D::matLibSelectedTextureProperty,
+                                                          texture.id());
+    }
+}
+
+ModelNode selectedMaterial(AbstractView *view)
+{
+    if (!view)
+        return {};
+
+    ModelNode root = view->rootModelNode();
+
+    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedMaterialProperty))
+        return view->modelNodeForId(selectedProperty->toString());
+    return {};
+}
+
+ModelNode selectedTexture(AbstractView *view)
+{
+    if (!view)
+        return {};
+
+    ModelNode root = view->rootModelNode();
+    if (auto selectedProperty = root.auxiliaryData(Utils3D::matLibSelectedTextureProperty))
+        return view->modelNodeForId(selectedProperty->toString());
+    return {};
+}
+
+QList<ModelNode> getSelectedModels(AbstractView *view)
+{
+    if (!view || !view->model())
+        return {};
+
+    return Utils::filtered(view->selectedModelNodes(), [](const ModelNode &node) {
+        return node.metaInfo().isQtQuick3DModel();
+    });
+}
+
+void applyMaterialToModels(AbstractView *view, const ModelNode &material,
+                           const QList<ModelNode> &models, bool add)
+{
+    if (models.isEmpty() || !view)
+        return;
+
+    QTC_CHECK(material);
+
+    view->executeInTransaction(__FUNCTION__, [&] {
+        for (const ModelNode &node : std::as_const(models)) {
+            QmlObjectNode qmlObjNode(node);
+            if (add) {
+                QStringList matList = ModelUtils::expressionToList(
+                    qmlObjNode.expression("materials"));
+                matList.append(material.id());
+                QString updatedExp = ModelUtils::listToExpression(matList);
+                qmlObjNode.setBindingProperty("materials", updatedExp);
+            } else {
+                qmlObjNode.setBindingProperty("materials", material.id());
+            }
+        }
+    });
+}
+
+// This method should be executed within a transaction as it performs multiple modifications to the model
+#ifdef QDS_USE_PROJECTSTORAGE
+ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
+{
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
+    if (!matLib.isValid() || !typeName.size())
+        return {};
+
+    ModelNode newMatNode = view->createModelNode(typeName, -1, -1);
+    matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+    static QRegularExpression rgx("([A-Z])([a-z]*)");
+    QString newName = QString::fromUtf8(typeName).replace(rgx, " \\1\\2").trimmed();
+    if (newName.endsWith(" Material"))
+        newName.chop(9); // remove trailing " Material"
+    QString newId = view->model()->generateNewId(newName, "material");
+    newMatNode.setIdWithRefactoring(newId);
+
+    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+    objNameProp.setValue(newName);
+
+    view->emitCustomNotification("focus_material_section", {});
+
+    return newMatNode;
+}
+#else
+ModelNode createMaterial(AbstractView *view, const NodeMetaInfo &metaInfo)
+{
+    ModelNode matLib = Utils3D::materialLibraryNode(view);
+    if (!matLib.isValid() || !metaInfo.isValid())
+        return {};
+
+    ModelNode newMatNode = view->createModelNode(metaInfo.typeName(),
+                                                 metaInfo.majorVersion(),
+                                                 metaInfo.minorVersion());
+    matLib.defaultNodeListProperty().reparentHere(newMatNode);
+
+    static QRegularExpression rgx("([A-Z])([a-z]*)");
+    QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
+    if (newName.endsWith(" Material"))
+        newName.chop(9); // remove trailing " Material"
+    QString newId = view->model()->generateNewId(newName, "material");
+    newMatNode.setIdWithRefactoring(newId);
+
+    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
+    objNameProp.setValue(newName);
+
+    view->emitCustomNotification("focus_material_section", {});
+
+    return newMatNode;
+}
+#endif
 
 } // namespace Utils3D
 } // namespace QmlDesigner

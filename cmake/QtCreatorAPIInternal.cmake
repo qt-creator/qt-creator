@@ -356,6 +356,18 @@ function(add_qtc_depends target_name)
   endforeach()
 endfunction()
 
+function(check_library_dependencies)
+  foreach(i ${ARGN})
+    if (NOT TARGET ${i})
+      continue()
+    endif()
+    get_property(_class_name TARGET "${i}" PROPERTY QTC_PLUGIN_CLASS_NAME)
+    if (_class_name)
+       message(SEND_ERROR "${i} is a plugin, not a library!")
+    endif()
+  endforeach()
+endfunction()
+
 function(enable_pch target)
   if (BUILD_WITH_PCH)
     # Skip PCH for targets that do not use the expected visibility settings:

@@ -8,6 +8,9 @@
 
 #include "converters.h"
 
+#include <qmlproject.h>
+#include <qmlprojectconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 #include <qmljs/qmljssimplereader.h>
@@ -28,6 +31,17 @@ QmlProjectItem::QmlProjectItem(const Utils::FilePath &filePath, const bool skipR
 
 bool QmlProjectItem::initProjectObject()
 {
+    if (m_projectFile.endsWith(Constants::fakeProjectName)) {
+        auto uiFile = m_projectFile.toString();
+        uiFile.remove(Constants::fakeProjectName);
+
+        auto parentDir = Utils::FilePath::fromString(uiFile).parentDir();
+        m_projectFile = parentDir.pathAppended(Constants::fakeProjectName);
+        m_project = Converters::qmlProjectTojson({});
+
+        return true;
+    }
+
     auto contents = m_projectFile.fileContents();
     if (!contents) {
         qWarning() << "Cannot open project file. Path:" << m_projectFile.fileName();
@@ -196,6 +210,16 @@ QStringList QmlProjectItem::importPaths() const
 void QmlProjectItem::setImportPaths(const QStringList &importPaths)
 {
     insertAndUpdateProjectFile("importPaths", QJsonArray::fromStringList(importPaths));
+}
+
+QStringList QmlProjectItem::mockImports() const
+{
+    return m_project["mockImports"].toVariant().toStringList();
+}
+
+void QmlProjectItem::setMockImports(const QStringList &paths)
+{
+    insertAndUpdateProjectFile("mockImports", QJsonArray::fromStringList(paths));
 }
 
 void QmlProjectItem::addImportPath(const QString &importPath)
@@ -433,6 +457,18 @@ void QmlProjectItem::setEnableCMakeGeneration(bool enable)
 {
     QJsonObject obj = m_project["deployment"].toObject();
     obj["enableCMakeGeneration"] = enable;
+    insertAndUpdateProjectFile("deployment", obj);
+}
+
+bool QmlProjectItem::enablePythonGeneration() const
+{
+    return m_project["deployment"].toObject()["enablePythonGeneration"].toBool();
+}
+
+void QmlProjectItem::setEnablePythonGeneration(bool enable)
+{
+    QJsonObject obj = m_project["deployment"].toObject();
+    obj["enablePythonGeneration"] = enable;
     insertAndUpdateProjectFile("deployment", obj);
 }
 

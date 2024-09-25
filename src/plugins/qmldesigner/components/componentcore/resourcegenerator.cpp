@@ -13,7 +13,7 @@
 
 #include <qmlprojectmanager/buildsystem/qmlbuildsystem.h>
 #include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/cmakegen/filetypes.h>
+#include <qmlprojectmanager/qmlprojectexporter/filetypes.h>
 
 #include <qtsupport/qtkitaspect.h>
 

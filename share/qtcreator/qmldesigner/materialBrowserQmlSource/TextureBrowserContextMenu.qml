@@ -10,16 +10,17 @@ import MaterialBrowserBackend
 StudioControls.Menu {
     id: root
 
-    property var targetTexture: null
-    property int copiedTextureInternalId: -1
+    property int textureInternalId: -1
 
     property var materialBrowserTexturesModel: MaterialBrowserBackend.materialBrowserTexturesModel
 
     function popupMenu(targetTexture = null)
     {
-        this.targetTexture = targetTexture
+        root.textureInternalId = targetTexture ? targetTexture.textureInternalId : -1
+
         materialBrowserTexturesModel.updateSceneEnvState()
         materialBrowserTexturesModel.updateModelSelectionState()
+
         popup()
     }
 
@@ -27,33 +28,33 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected model")
-        enabled: root.targetTexture && materialBrowserTexturesModel.hasSingleModelSelection
-        onTriggered: materialBrowserTexturesModel.applyToSelectedModel(root.targetTexture.textureInternalId)
+        enabled: root.textureInternalId >= 0 && materialBrowserTexturesModel.hasSingleModelSelection
+        onTriggered: materialBrowserTexturesModel.applyToSelectedModel(root.textureInternalId)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Apply to selected material")
-        enabled: root.targetTexture && MaterialBrowserBackend.materialBrowserModel.selectedIndex >= 0
-        onTriggered: materialBrowserTexturesModel.applyToSelectedMaterial(root.targetTexture.textureInternalId)
+        enabled: root.textureInternalId >= 0 && MaterialBrowserBackend.materialBrowserModel.selectedIndex >= 0
+        onTriggered: materialBrowserTexturesModel.applyToSelectedMaterial(root.textureInternalId)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Apply as light probe")
-        enabled: root.targetTexture && materialBrowserTexturesModel.hasSceneEnv
-        onTriggered: materialBrowserTexturesModel.applyAsLightProbe(root.targetTexture.textureInternalId)
+        enabled: root.textureInternalId >= 0 && materialBrowserTexturesModel.hasSceneEnv
+        onTriggered: materialBrowserTexturesModel.applyAsLightProbe(root.textureInternalId)
     }
 
     StudioControls.MenuSeparator {}
 
     StudioControls.MenuItem {
         text: qsTr("Duplicate")
-        enabled: root.targetTexture
+        enabled: root.textureInternalId >= 0
         onTriggered: materialBrowserTexturesModel.duplicateTexture(materialBrowserTexturesModel.selectedIndex)
     }
 
     StudioControls.MenuItem {
         text: qsTr("Delete")
-        enabled: root.targetTexture
+        enabled: root.textureInternalId >= 0
         onTriggered: materialBrowserTexturesModel.deleteTexture(materialBrowserTexturesModel.selectedIndex)
     }
 

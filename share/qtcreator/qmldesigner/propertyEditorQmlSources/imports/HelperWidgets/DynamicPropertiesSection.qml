@@ -732,7 +732,7 @@ Section {
                         id: acceptButton
 
                         buttonIcon: qsTr("Add Property")
-                        iconFont: StudioTheme.Constants.font
+                        iconFontFamily: StudioTheme.Constants.font.family
                         width: cePopup.width / 3
                         enabled: textField.acceptableInput
 

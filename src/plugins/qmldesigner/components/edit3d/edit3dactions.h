@@ -150,4 +150,12 @@ private:
     Edit3DView *m_view = nullptr;
 };
 
+class Edit3DCameraViewAction : public Edit3DAction
+{
+public:
+    Edit3DCameraViewAction(const QByteArray &menuId, View3DActionType type, Edit3DView *view);
+
+    void setMode(const QString &mode);
+};
+
 } // namespace QmlDesigner

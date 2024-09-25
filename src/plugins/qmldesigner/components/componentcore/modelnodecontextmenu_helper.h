@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "modelnodeoperations.h"
 #include "abstractaction.h"
 #include "bindingproperty.h"
 #include "abstractactiongroup.h"
@@ -12,6 +11,7 @@
 #include <nodemetainfo.h>
 
 #include <coreplugin/actionmanager/command.h>
+#include <coreplugin/icore.h>
 
 #include <utils/proxyaction.h>
 
@@ -132,6 +132,18 @@ inline bool singleSelectionView3D(const SelectionContext &selectionState)
         }
     }
 
+    return false;
+}
+
+inline bool singleSelectionEffectComposer(const SelectionContext &selectionState)
+{
+    if (!Core::ICore::isQtDesignStudio())
+        return false;
+
+    if (selectionState.hasSingleSelectedModelNode()) {
+        QmlItemNode targetNode = selectionState.currentSingleSelectedNode();
+        return targetNode.isEffectItem();
+    }
     return false;
 }
 

@@ -21,7 +21,6 @@ class ConnectionViewWidget;
 class BindingModel;
 class ConnectionModel;
 class DynamicPropertiesModel;
-class BackendModel;
 class ConnectionViewQuickWidget;
 class PropertyTreeModel;
 class PropertyListProxyModel;
@@ -55,8 +54,6 @@ public:
     void selectedNodesChanged(const QList<ModelNode> &selectedNodeList,
                               const QList<ModelNode> &lastSelectedNodeList) override;
 
-    void importsChanged(const Imports &addedImports, const Imports &removedImports) override;
-
     void currentStateChanged(const ModelNode &node) override;
 
     WidgetInfo widgetInfo() override;
@@ -67,7 +64,6 @@ public:
 
     ConnectionModel *connectionModel() const;
     BindingModel *bindingModel() const;
-    BackendModel *backendModel() const;
 
     int currentIndex() const;
     void setCurrentIndex(int i);

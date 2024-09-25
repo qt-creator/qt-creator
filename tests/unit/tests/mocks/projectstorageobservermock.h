@@ -11,4 +11,5 @@ class ProjectStorageObserverMock : public QmlDesigner::ProjectStorageObserver
 {
 public:
     MOCK_METHOD(void, removedTypeIds, (const QmlDesigner::TypeIds &), (override));
+    MOCK_METHOD(void, exportedTypesChanged, (), (override));
 };

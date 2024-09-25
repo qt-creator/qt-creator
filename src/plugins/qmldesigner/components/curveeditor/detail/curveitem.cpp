@@ -299,8 +299,7 @@ QList<HandleItem *> CurveItem::handles() const
 
 CurveSegment CurveItem::segment(const KeyframeItem *keyframe, HandleItem::Slot slot) const
 {
-    auto finder = [keyframe](KeyframeItem *item) { return item == keyframe; };
-    const auto iter = std::find_if(m_keyframes.cbegin(), m_keyframes.cend(), finder);
+    const auto iter = std::ranges::find(m_keyframes, keyframe);
     if (iter == m_keyframes.cend())
         return CurveSegment();
 

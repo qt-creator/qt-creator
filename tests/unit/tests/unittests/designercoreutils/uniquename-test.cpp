@@ -90,6 +90,16 @@ TEST(UniqueName, generateId_stable_captilzation)
     ASSERT_THAT(uniqueId, "aCaMeLCAsE");
 }
 
+TEST(UniqueName, generateId_contains_number_in_prefix_and_suffix)
+{
+    QString id = "_4KScartchySurface6";
+    auto pred = [&](const QString &str) -> bool { return str == id; };
+
+    QString uniqueId = UniqueName::generateId(id, pred);
+
+    ASSERT_THAT(uniqueId, "_4KScartchySurface7");
+}
+
 TEST(UniqueName, generateId_begins_with_non_latin)
 {
     QString id = "😂_saneId";

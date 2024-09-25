@@ -120,7 +120,7 @@ Column {
         buttonIcon: qsTr("Add Condition")
         tooltip: qsTr("Sets a logical condition for the selected <b>Signal</b>. It works with the properties of the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
-        iconFont: StudioTheme.Constants.font
+        iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && !backend.hasCondition
 
@@ -133,7 +133,7 @@ Column {
         buttonIcon: qsTr("Remove Condition")
         tooltip: qsTr("Removes the logical condition for the <b>Target</b> component.")
         iconSize: StudioTheme.Values.baseFontSize
-        iconFont: StudioTheme.Constants.font
+        iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom && backend.hasCondition
 
@@ -184,7 +184,7 @@ Column {
         buttonIcon: qsTr("Add Else Statement")
         tooltip: qsTr("Sets an alternate condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
-        iconFont: StudioTheme.Constants.font
+        iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
                  && backend.hasCondition && !backend.hasElse
@@ -198,7 +198,7 @@ Column {
         buttonIcon: qsTr("Remove Else Statement")
         tooltip: qsTr("Removes the alternate logical condition for the previously defined logical condition.")
         iconSize: StudioTheme.Values.baseFontSize
-        iconFont: StudioTheme.Constants.font
+        iconFontFamily: StudioTheme.Constants.font.family
         anchors.horizontalCenter: parent.horizontalCenter
         visible: action.currentValue !== ConnectionModelStatementDelegate.Custom
                  && backend.hasCondition && backend.hasElse

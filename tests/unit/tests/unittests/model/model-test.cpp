@@ -76,7 +76,6 @@ class Model : public ::testing::Test
 protected:
     Model()
     {
-        model.setFileUrl(QUrl::fromLocalFile(pathCacheMock.path.toQString()));
         model.attachView(&viewMock);
         rootNode = viewMock.rootModelNode();
         ON_CALL(resourceManagementMock, removeNodes(_, _)).WillByDefault([](auto nodes, auto) {
@@ -123,21 +122,88 @@ protected:
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",
                              imports,
-                             pathCacheMock.path.toQString(),
+                             QUrl::fromLocalFile(pathCacheMock.path.toQString()),
                              std::make_unique<ModelResourceManagementMockWrapper>(
                                  resourceManagementMock)};
     NiceMock<AbstractViewMock> viewMock;
     QmlDesigner::SourceId filePathId = pathCacheMock.sourceId;
-    QmlDesigner::TypeId itemTypeId = projectStorageMock.typeId(
-        projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary),
-        "Item",
-        QmlDesigner::Storage::Version{});
+    QmlDesigner::ModuleId qtQuickModuleId = projectStorageMock.moduleId("QtQuick",
+                                                                        ModuleKind::QmlLibrary);
+    QmlDesigner::TypeId itemTypeId = projectStorageMock.typeId(qtQuickModuleId,
+                                                               "Item",
+                                                               QmlDesigner::Storage::Version{});
     QmlDesigner::ImportedTypeNameId itemTypeNameId = projectStorageMock.createImportedTypeNameId(
         filePathId, "Item", itemTypeId);
     ModelNode rootNode;
 };
 
-TEST_F(Model, model_node_destroy_is_calling_model_resource_management_remove_node)
+class Model_Creation : public Model
+{};
+
+TEST_F(Model_Creation, root_node_has_item_type_name)
+{
+    auto model = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                            "Item",
+                                            imports,
+                                            QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                            std::make_unique<ModelResourceManagementMockWrapper>(
+                                                resourceManagementMock));
+
+    ASSERT_THAT(model->rootModelNode().type(), Eq("Item"));
+}
+
+TEST_F(Model_Creation, root_node_has_item_meta_info)
+{
+    auto model = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                            "Item",
+                                            imports,
+                                            QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                            std::make_unique<ModelResourceManagementMockWrapper>(
+                                                resourceManagementMock));
+
+    ASSERT_THAT(model->rootModelNode().metaInfo(), model->qtQuickItemMetaInfo());
+}
+
+TEST_F(Model_Creation, file_url)
+{
+    auto model = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                            "Item",
+                                            imports,
+                                            QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                            std::make_unique<ModelResourceManagementMockWrapper>(
+                                                resourceManagementMock));
+
+    ASSERT_THAT(model->fileUrl().toLocalFile(), Eq(pathCacheMock.path.toQString()));
+}
+
+TEST_F(Model_Creation, file_url_source_id)
+{
+    auto model = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                            "Item",
+                                            imports,
+                                            QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                            std::make_unique<ModelResourceManagementMockWrapper>(
+                                                resourceManagementMock));
+
+    ASSERT_THAT(model->fileUrlSourceId(), pathCacheMock.sourceId);
+}
+
+TEST_F(Model_Creation, imports)
+{
+    auto model = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
+                                            "Item",
+                                            imports,
+                                            QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                            std::make_unique<ModelResourceManagementMockWrapper>(
+                                                resourceManagementMock));
+
+    ASSERT_THAT(model->imports(), UnorderedElementsAreArray(imports));
+}
+
+class Model_ResourceManagment : public Model
+{};
+
+TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_model_resource_management_remove_node)
 {
     auto node = createNodeWithParent(rootNode);
 
@@ -146,7 +212,8 @@ TEST_F(Model, model_node_destroy_is_calling_model_resource_management_remove_nod
     node.destroy();
 }
 
-TEST_F(Model, model_node_remove_propery_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_propery_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);
@@ -156,7 +223,8 @@ TEST_F(Model, model_node_remove_propery_is_calling_model_resource_management_rem
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, node_abstract_property_reparent_here_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       node_abstract_property_reparent_here_is_calling_model_resource_management_remove_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.variantProperty("foo");
@@ -167,7 +235,8 @@ TEST_F(Model, node_abstract_property_reparent_here_is_calling_model_resource_man
     rootNode.nodeListProperty("foo").reparentHere(node);
 }
 
-TEST_F(Model, node_property_set_model_node_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       node_property_set_model_node_is_calling_model_resource_management_remove_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.variantProperty("foo");
@@ -178,7 +247,8 @@ TEST_F(Model, node_property_set_model_node_is_calling_model_resource_management_
     rootNode.nodeProperty("foo").setModelNode(node);
 }
 
-TEST_F(Model, variant_property_set_value_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       variant_property_set_value_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -188,7 +258,7 @@ TEST_F(Model, variant_property_set_value_is_calling_model_resource_management_re
     rootNode.variantProperty("foo").setValue(7);
 }
 
-TEST_F(Model,
+TEST_F(Model_ResourceManagment,
        variant_property_set_dynamic_type_name_and_enumeration_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
@@ -199,7 +269,8 @@ TEST_F(Model,
     rootNode.variantProperty("foo").setDynamicTypeNameAndEnumeration("int", "Ha");
 }
 
-TEST_F(Model, variant_property_set_dynamic_type_name_and_value_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       variant_property_set_dynamic_type_name_and_value_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -209,7 +280,8 @@ TEST_F(Model, variant_property_set_dynamic_type_name_and_value_is_calling_model_
     rootNode.variantProperty("foo").setDynamicTypeNameAndValue("int", 7);
 }
 
-TEST_F(Model, binding_property_set_expression_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       binding_property_set_expression_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
     property.setValue(4);
@@ -219,7 +291,7 @@ TEST_F(Model, binding_property_set_expression_is_calling_model_resource_manageme
     rootNode.bindingProperty("foo").setExpression("blah");
 }
 
-TEST_F(Model,
+TEST_F(Model_ResourceManagment,
        binding_property_set_dynamic_type_name_and_expression_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.variantProperty("foo");
@@ -230,7 +302,8 @@ TEST_F(Model,
     rootNode.bindingProperty("foo").setDynamicTypeNameAndExpression("int", "blah");
 }
 
-TEST_F(Model, signal_handler_property_set_source_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       signal_handler_property_set_source_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -240,7 +313,8 @@ TEST_F(Model, signal_handler_property_set_source_is_calling_model_resource_manag
     rootNode.signalHandlerProperty("foo").setSource("blah");
 }
 
-TEST_F(Model, signal_declaration_property_set_signature_is_calling_model_resource_management_remove_property)
+TEST_F(Model_ResourceManagment,
+       signal_declaration_property_set_signature_is_calling_model_resource_management_remove_property)
 {
     auto property = rootNode.bindingProperty("foo");
     property.setExpression("blah");
@@ -250,7 +324,7 @@ TEST_F(Model, signal_declaration_property_set_signature_is_calling_model_resourc
     rootNode.signalDeclarationProperty("foo").setSignature("blah");
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_about_to_be_removed)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_abstract_view_node_about_to_be_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -263,7 +337,7 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_about_to_be_remov
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_abstract_view_node_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -276,7 +350,8 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed)
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed_with_valid_nodes)
+TEST_F(Model_ResourceManagment,
+       model_node_destroy_is_calling_abstract_view_node_removed_with_valid_nodes)
 {
     auto node = createNodeWithParent(rootNode);
     auto node2 = createNodeWithParent(rootNode);
@@ -289,7 +364,8 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_node_removed_with_vali
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_about_to_be_removed)
+TEST_F(Model_ResourceManagment,
+       model_node_destroy_is_calling_abstract_view_properties_about_to_be_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -302,7 +378,7 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_about_to_be
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_abstract_view_properties_removed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -315,7 +391,8 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed)
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed_only_with_valid_properties)
+TEST_F(Model_ResourceManagment,
+       model_node_destroy_is_calling_abstract_view_properties_removed_only_with_valid_properties)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createProperty(rootNode, "foo");
@@ -328,7 +405,8 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_properties_removed_onl
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_about_to_be_changed)
+TEST_F(Model_ResourceManagment,
+       model_node_destroy_is_calling_abstract_view_binding_properties_about_to_be_changed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -342,7 +420,7 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_abo
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_changed)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_calling_abstract_view_binding_properties_changed)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -355,7 +433,7 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_cha
     node.destroy();
 }
 
-TEST_F(Model, model_node_destroy_is_changing_binding_property_expression)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_changing_binding_property_expression)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -369,7 +447,7 @@ TEST_F(Model, model_node_destroy_is_changing_binding_property_expression)
     ASSERT_THAT(property2.expression(), "er");
 }
 
-TEST_F(Model, model_node_destroy_is_only_changing_existing_binding_property)
+TEST_F(Model_ResourceManagment, model_node_destroy_is_only_changing_existing_binding_property)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = rootNode.bindingProperty("foo");
@@ -381,7 +459,8 @@ TEST_F(Model, model_node_destroy_is_only_changing_existing_binding_property)
     ASSERT_FALSE(rootNode.hasBindingProperty("foo"));
 }
 
-TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_changed_only_with_existing_properties)
+TEST_F(Model_ResourceManagment,
+       model_node_destroy_is_calling_abstract_view_binding_properties_changed_only_with_existing_properties)
 {
     auto node = createNodeWithParent(rootNode);
     auto property = createBindingProperty(rootNode, "foo");
@@ -395,7 +474,8 @@ TEST_F(Model, model_node_destroy_is_calling_abstract_view_binding_properties_cha
     node.destroy();
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_about_to_be_removed)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_node_about_to_be_removed)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -409,7 +489,7 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_about_to_
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed)
+TEST_F(Model_ResourceManagment, model_node_remove_property_is_calling_abstract_view_node_removed)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -423,7 +503,8 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed)
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed_with_valid_nodes)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_node_removed_with_valid_nodes)
 {
     auto property = createProperty(rootNode, "foo");
     auto node = createNodeWithParent(rootNode);
@@ -437,7 +518,8 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_node_removed_w
     rootNode.removeProperty("foo");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_about_to_be_removed)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_properties_about_to_be_removed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -449,7 +531,7 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_abo
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_removed)
+TEST_F(Model_ResourceManagment, model_node_remove_property_is_calling_abstract_view_properties_removed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -461,7 +543,8 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_rem
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_removed_only_with_valid_properties)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_properties_removed_only_with_valid_properties)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -473,7 +556,8 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_properties_rem
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_properties_about_to_be_changed)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_binding_properties_about_to_be_changed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property1 = createBindingProperty(rootNode, "foo");
@@ -487,7 +571,8 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_proper
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_properties_changed)
+TEST_F(Model_ResourceManagment,
+       model_node_remove_property_is_calling_abstract_view_binding_properties_changed)
 {
     auto property = createProperty(rootNode, "yi");
     auto property1 = createBindingProperty(rootNode, "foo");
@@ -501,7 +586,7 @@ TEST_F(Model, model_node_remove_property_is_calling_abstract_view_binding_proper
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model,
+TEST_F(Model_ResourceManagment,
        model_node_remove_property_is_calling_abstract_view_binding_properties_changed_only_with_valid_properties)
 {
     auto property = createProperty(rootNode, "yi");
@@ -516,7 +601,7 @@ TEST_F(Model,
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, by_default_remove_model_node_removes_node)
+TEST_F(Model_ResourceManagment, by_default_remove_model_node_removes_node)
 {
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
     NiceMock<AbstractViewMock> viewMock;
@@ -528,7 +613,7 @@ TEST_F(Model, by_default_remove_model_node_removes_node)
     node.destroy();
 }
 
-TEST_F(Model, by_default_remove_properties_removes_property)
+TEST_F(Model_ResourceManagment, by_default_remove_properties_removes_property)
 {
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
     NiceMock<AbstractViewMock> viewMock;
@@ -541,7 +626,7 @@ TEST_F(Model, by_default_remove_properties_removes_property)
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, by_default_remove_model_node_in_factory_method_calls_removes_node)
+TEST_F(Model_ResourceManagment, by_default_remove_model_node_in_factory_method_calls_removes_node)
 {
     model.detachView(&viewMock);
     auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
@@ -556,7 +641,7 @@ TEST_F(Model, by_default_remove_model_node_in_factory_method_calls_removes_node)
     node.destroy();
 }
 
-TEST_F(Model, by_default_remove_properties_in_factory_method_calls_remove_property)
+TEST_F(Model_ResourceManagment, by_default_remove_properties_in_factory_method_calls_remove_property)
 {
     model.detachView(&viewMock);
     auto newModel = QmlDesigner::Model::create({projectStorageMock, pathCacheMock},
@@ -572,7 +657,7 @@ TEST_F(Model, by_default_remove_properties_in_factory_method_calls_remove_proper
     rootNode.removeProperty("yi");
 }
 
-TEST_F(Model, remove_model_nodes)
+TEST_F(Model_ResourceManagment, remove_model_nodes)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -583,7 +668,7 @@ TEST_F(Model, remove_model_nodes)
     model.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, remove_model_nodes_filters_invalid_model_nodes)
+TEST_F(Model_ResourceManagment, remove_model_nodes_filters_invalid_model_nodes)
 {
     auto node = createNodeWithParent(rootNode, "yi");
 
@@ -592,14 +677,14 @@ TEST_F(Model, remove_model_nodes_filters_invalid_model_nodes)
     model.removeModelNodes({{}, node});
 }
 
-TEST_F(Model, remove_model_nodes_for_only_invalid_model_nodes_does_nothing)
+TEST_F(Model_ResourceManagment, remove_model_nodes_for_only_invalid_model_nodes_does_nothing)
 {
     EXPECT_CALL(resourceManagementMock, removeNodes(_, _)).Times(0);
 
     model.removeModelNodes({{}});
 }
 
-TEST_F(Model, remove_model_nodes_reverse)
+TEST_F(Model_ResourceManagment, remove_model_nodes_reverse)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -610,7 +695,7 @@ TEST_F(Model, remove_model_nodes_reverse)
     model.removeModelNodes({node2, node});
 }
 
-TEST_F(Model, remove_model_nodes_calls_notifier)
+TEST_F(Model_ResourceManagment, remove_model_nodes_calls_notifier)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -631,7 +716,7 @@ TEST_F(Model, remove_model_nodes_calls_notifier)
     model.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, remove_model_nodes_bypasses_model_resource_management)
+TEST_F(Model_ResourceManagment, remove_model_nodes_bypasses_model_resource_management)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -651,7 +736,7 @@ TEST_F(Model, remove_model_nodes_bypasses_model_resource_management)
     model.removeModelNodes({node, node2}, QmlDesigner::BypassModelResourceManagement::Yes);
 }
 
-TEST_F(Model, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
+TEST_F(Model_ResourceManagment, by_default_remove_model_nodes_in_factory_method_calls_removes_node)
 {
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
     NiceMock<AbstractViewMock> viewMock;
@@ -666,7 +751,7 @@ TEST_F(Model, by_default_remove_model_nodes_in_factory_method_calls_removes_node
     newModel.removeModelNodes({node, node2});
 }
 
-TEST_F(Model, remove_properties)
+TEST_F(Model_ResourceManagment, remove_properties)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -677,7 +762,7 @@ TEST_F(Model, remove_properties)
     model.removeProperties({property, property2});
 }
 
-TEST_F(Model, remove_properties_filters_invalid_properties)
+TEST_F(Model_ResourceManagment, remove_properties_filters_invalid_properties)
 {
     auto property = createProperty(rootNode, "yi");
 
@@ -686,14 +771,14 @@ TEST_F(Model, remove_properties_filters_invalid_properties)
     model.removeProperties({{}, property});
 }
 
-TEST_F(Model, remove_properties_for_only_invalid_properties_does_nothing)
+TEST_F(Model_ResourceManagment, remove_properties_for_only_invalid_properties_does_nothing)
 {
     EXPECT_CALL(resourceManagementMock, removeProperties(_, _)).Times(0);
 
     model.removeProperties({{}});
 }
 
-TEST_F(Model, remove_properties_reverse)
+TEST_F(Model_ResourceManagment, remove_properties_reverse)
 {
     auto property = createProperty(rootNode, "yi");
     auto property2 = createProperty(rootNode, "er");
@@ -704,7 +789,7 @@ TEST_F(Model, remove_properties_reverse)
     model.removeProperties({property2, property});
 }
 
-TEST_F(Model, remove_properties_calls_notifier)
+TEST_F(Model_ResourceManagment, remove_properties_calls_notifier)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -725,7 +810,7 @@ TEST_F(Model, remove_properties_calls_notifier)
     model.removeProperties({property, property3});
 }
 
-TEST_F(Model, remove_properties_bypasses_model_resource_management)
+TEST_F(Model_ResourceManagment, remove_properties_bypasses_model_resource_management)
 {
     auto node = createNodeWithParent(rootNode, "yi");
     auto node2 = createNodeWithParent(rootNode, "er");
@@ -744,7 +829,7 @@ TEST_F(Model, remove_properties_bypasses_model_resource_management)
     model.removeProperties({property, property3}, QmlDesigner::BypassModelResourceManagement::Yes);
 }
 
-TEST_F(Model, by_default_remove_properties_in_factory_method_calls_removes_properties)
+TEST_F(Model_ResourceManagment, by_default_remove_properties_in_factory_method_calls_removes_properties)
 {
     model.detachView(&viewMock);
     QmlDesigner::Model newModel{{projectStorageMock, pathCacheMock}, "QtQuick.Item"};
@@ -758,7 +843,10 @@ TEST_F(Model, by_default_remove_properties_in_factory_method_calls_removes_prope
     newModel.removeProperties({property, property2});
 }
 
-TEST_F(Model, change_imports_is_synchronizing_imports_with_project_storage)
+class Model_Imports : public Model
+{};
+
+TEST_F(Model_Imports, change_imports_is_synchronizing_imports_with_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
@@ -779,7 +867,7 @@ TEST_F(Model, change_imports_is_synchronizing_imports_with_project_storage)
     model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
 }
 
-TEST_F(Model,
+TEST_F(Model_Imports,
        change_imports_is_not_synchronizing_imports_with_project_storage_if_no_new_imports_are_added)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
@@ -794,7 +882,7 @@ TEST_F(Model,
     model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
 }
 
-TEST_F(Model, change_imports_is_adding_import_in_project_storage)
+TEST_F(Model_Imports, change_imports_is_adding_import_in_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
@@ -816,7 +904,7 @@ TEST_F(Model, change_imports_is_adding_import_in_project_storage)
     model.changeImports({qtQuickImport}, {});
 }
 
-TEST_F(Model, change_imports_is_removing_import_in_project_storage)
+TEST_F(Model_Imports, change_imports_is_removing_import_in_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
@@ -836,7 +924,7 @@ TEST_F(Model, change_imports_is_removing_import_in_project_storage)
     model.changeImports({}, {qtQuickImport});
 }
 
-TEST_F(Model,
+TEST_F(Model_Imports,
        change_imports_is_not_removing_import_in_project_storage_if_import_is_not_in_model_imports)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
@@ -851,7 +939,7 @@ TEST_F(Model,
     model.changeImports({}, {qtQmlModelsImport});
 }
 
-TEST_F(Model, change_imports_is_changing_import_version_with_project_storage)
+TEST_F(Model_Imports, change_imports_is_changing_import_version_with_project_storage)
 {
     QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
     ON_CALL(pathCacheMock, sourceId(Eq("/path/foo/."))).WillByDefault(Return(directoryPathId));
@@ -874,14 +962,17 @@ TEST_F(Model, change_imports_is_changing_import_version_with_project_storage)
     model.changeImports({qtQuickImport}, {});
 }
 
-TEST_F(Model, create_model_node_has_meta_info)
+class Model_Node : public Model
+{};
+
+TEST_F(Model_Node, create_model_node_has_meta_info)
 {
     auto node = model.createModelNode("Item");
 
     ASSERT_THAT(node.metaInfo(), model.qtQuickItemMetaInfo());
 }
 
-TEST_F(Model, create_qualified_model_node_has_meta_info)
+TEST_F(Model_Node, create_qualified_model_node_has_meta_info)
 {
     auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models", "", "Foo");
     auto qtQmlModelsModulesId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
@@ -897,7 +988,7 @@ TEST_F(Model, create_qualified_model_node_has_meta_info)
     ASSERT_THAT(node.metaInfo(), model.qtQmlModelsListModelMetaInfo());
 }
 
-TEST_F(Model, change_root_node_type_changes_meta_info)
+TEST_F(Model_Node, change_root_node_type_changes_meta_info)
 {
     projectStorageMock.createImportedTypeNameId(filePathId,
                                                 "QtObject",
@@ -908,28 +999,31 @@ TEST_F(Model, change_root_node_type_changes_meta_info)
     ASSERT_THAT(rootNode.metaInfo(), model.qmlQtObjectMetaInfo());
 }
 
-TEST_F(Model, meta_info)
+class Model_MetaInfo : public Model
+{};
+
+TEST_F(Model_MetaInfo, get_meta_info_for_type_name)
 {
     auto meta_info = model.metaInfo("QtObject");
 
     ASSERT_THAT(meta_info, model.qmlQtObjectMetaInfo());
 }
 
-TEST_F(Model, meta_info_of_not_existing_type_is_invalid)
+TEST_F(Model_MetaInfo, meta_info_of_not_existing_type_is_invalid)
 {
     auto meta_info = model.metaInfo("Foo");
 
     ASSERT_THAT(meta_info, IsFalse());
 }
 
-TEST_F(Model, module_is_valid)
+TEST_F(Model_MetaInfo, module_is_valid)
 {
     auto module = model.module("QML", ModuleKind::QmlLibrary);
 
     ASSERT_THAT(module, IsTrue());
 }
 
-TEST_F(Model, module_returns_always_the_same)
+TEST_F(Model_MetaInfo, module_returns_always_the_same)
 {
     auto oldModule = model.module("QML", ModuleKind::QmlLibrary);
 
@@ -938,7 +1032,7 @@ TEST_F(Model, module_returns_always_the_same)
     ASSERT_THAT(module, oldModule);
 }
 
-TEST_F(Model, get_meta_info_by_module)
+TEST_F(Model_MetaInfo, get_meta_info_by_module)
 {
     auto module = model.module("QML", ModuleKind::QmlLibrary);
 
@@ -947,7 +1041,7 @@ TEST_F(Model, get_meta_info_by_module)
     ASSERT_THAT(metaInfo, model.qmlQtObjectMetaInfo());
 }
 
-TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_name)
+TEST_F(Model_MetaInfo, get_invalid_meta_info_by_module_for_wrong_name)
 {
     auto module = model.module("QML", ModuleKind::QmlLibrary);
 
@@ -956,7 +1050,7 @@ TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_name)
     ASSERT_THAT(metaInfo, IsFalse());
 }
 
-TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_module)
+TEST_F(Model_MetaInfo, get_invalid_meta_info_by_module_for_wrong_module)
 {
     auto module = model.module("Qml", ModuleKind::QmlLibrary);
 
@@ -965,21 +1059,21 @@ TEST_F(Model, get_invalid_meta_info_by_module_for_wrong_module)
     ASSERT_THAT(metaInfo, IsFalse());
 }
 
-TEST_F(Model, add_project_storage_observer_to_project_storage)
+TEST_F(Model_MetaInfo, add_project_storage_observer_to_project_storage)
 {
     EXPECT_CALL(projectStorageMock, addObserver(_));
 
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
 }
 
-TEST_F(Model, remove_project_storage_observer_from_project_storage)
+TEST_F(Model_MetaInfo, remove_project_storage_observer_from_project_storage)
 {
     EXPECT_CALL(projectStorageMock, removeObserver(_)).Times(2); // the fixture model is calling it too
 
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock}, "Item", -1, -1, nullptr, {}};
 }
 
-TEST_F(Model, refresh_callback_is_calling_abstract_view)
+TEST_F(Model_MetaInfo, refresh_callback_is_calling_abstract_view)
 {
     const QmlDesigner::TypeIds typeIds = {QmlDesigner::TypeId::create(3),
                                           QmlDesigner::TypeId::create(1)};
@@ -995,20 +1089,88 @@ TEST_F(Model, refresh_callback_is_calling_abstract_view)
     observer->removedTypeIds(typeIds);
 }
 
-TEST_F(Model, meta_infos_for_mdoule)
+TEST_F(Model_MetaInfo, meta_infos_for_mdoule)
 {
     projectStorageMock.createModule("Foo", ModuleKind::QmlLibrary);
     auto module = model.module("Foo", ModuleKind::QmlLibrary);
     auto typeId = projectStorageMock.createObject(module.id(), "Bar");
     ON_CALL(projectStorageMock, typeIds(module.id()))
-        .WillByDefault(Return(QVarLengthArray<QmlDesigner::TypeId, 256>{typeId}));
+        .WillByDefault(Return(QmlDesigner::SmallTypeIds<256>{typeId}));
 
     auto types = model.metaInfosForModule(module);
 
     ASSERT_THAT(types, ElementsAre(Eq(QmlDesigner::NodeMetaInfo{typeId, &projectStorageMock})));
 }
 
-TEST_F(Model, item_library_entries)
+TEST_F(Model_MetaInfo, singleton_meta_infos)
+{
+    ON_CALL(projectStorageMock, singletonTypeIds(filePathId))
+        .WillByDefault(Return(QmlDesigner::SmallTypeIds<256>{itemTypeId}));
+
+    auto types = model.singletonMetaInfos();
+
+    ASSERT_THAT(types, ElementsAre(Eq(QmlDesigner::NodeMetaInfo{itemTypeId, &projectStorageMock})));
+}
+
+TEST_F(Model_MetaInfo, create_node_resolved_meta_type)
+{
+    auto node = model.createModelNode("Item");
+
+    ASSERT_THAT(node.metaInfo(), model.qtQuickItemMetaInfo());
+}
+
+TEST_F(Model_MetaInfo, create_node_has_unresolved_meta_type_for_invalid_type_name)
+{
+    auto node = model.createModelNode("Foo");
+
+    ASSERT_THAT(node.metaInfo(), IsFalse());
+}
+
+TEST_F(Model_MetaInfo, refresh_type_id_if_project_storage_removed_type_id)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    auto observer = projectStorageMock.observers.front();
+    auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, itemTypeId2);
+
+    observer->removedTypeIds({itemTypeId});
+
+    ASSERT_THAT(node.metaInfo().id(), itemTypeId2);
+}
+
+TEST_F(Model_MetaInfo, set_null_type_id_if_project_storage_removed_type_id_cannot_be_refreshed)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, QmlDesigner::TypeId{});
+
+    auto observer = projectStorageMock.observers.front();
+
+    observer->removedTypeIds({itemTypeId});
+
+    ASSERT_THAT(node.metaInfo().id(), IsFalse());
+}
+
+TEST_F(Model_MetaInfo, null_type_id_are_refreshed_if_exported_types_are_updated)
+{
+    auto node = model.createModelNode("Item");
+    projectStorageMock.removeType(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, QmlDesigner::TypeId{});
+    auto observer = projectStorageMock.observers.front();
+    observer->removedTypeIds({itemTypeId});
+    auto itemTypeId2 = projectStorageMock.createObject(qtQuickModuleId, "Item");
+    projectStorageMock.refreshImportedTypeNameId(itemTypeNameId, itemTypeId2);
+
+    observer->exportedTypesChanged();
+
+    ASSERT_THAT(node.metaInfo().id(), itemTypeId2);
+}
+
+class Model_TypeAnnotation : public Model
+{};
+
+TEST_F(Model_TypeAnnotation, item_library_entries)
 {
     using namespace Qt::StringLiterals;
     QmlDesigner::Storage::Info::ItemLibraryEntries storageEntries{{itemTypeId,

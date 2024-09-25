@@ -1,10 +1,7 @@
-import QtQuick %{QtQuickVersion}
-@if !%{IsQt6Project}
-import QtQuick.Window %{QtQuickVersion}
-@endif
+import QtQuick
 import %{ApplicationImport}
 @if %{UseVirtualKeyboard}
-import QtQuick.VirtualKeyboard %{QtQuickVersion}
+import QtQuick.VirtualKeyboard
 @endif
 
 Window {

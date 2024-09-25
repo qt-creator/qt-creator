@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ ],
     "id": "Q.QtStudio.QmlUI.2",
     "category": "B.StudioQtQuickFiles",
-    "trDescription": "Creates a UI file (.ui.qml) with boilerplate code, starting with \"import QtQuick 2.15\".",
+    "trDescription": "Creates a UI file (.ui.qml) with boilerplate code, starting with \"import QtQuick\".",
     "trDisplayName": "Qt Quick UI File",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "file_ui.png",

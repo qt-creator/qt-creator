@@ -153,7 +153,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: runProject.right
             anchors.leftMargin: 10
-            iconFont: StudioTheme.Constants.font
+            iconFontFamily: StudioTheme.Constants.font.family
             buttonIcon: qsTr("Live Preview")
 
             onClicked: {
@@ -340,7 +340,7 @@ Rectangle {
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: moreItems.left
             anchors.rightMargin: 8
-            iconFont: StudioTheme.Constants.font
+            iconFontFamily: StudioTheme.Constants.font.family
             buttonIcon: qsTr("Share")
             visible: !root.flyoutEnabled && backend.isSharingEnabled
             enabled: backend.isSharingEnabled
@@ -466,7 +466,7 @@ Rectangle {
                             anchors.verticalCenter: parent.verticalCenter
                             style: StudioTheme.Values.primaryToolbarStyle
                             width: shareButton.width
-                            iconFont: StudioTheme.Constants.font
+                            iconFontFamily: StudioTheme.Constants.font.family
                             buttonIcon: qsTr("Share")
                             enabled: backend.isSharingEnabled
                             tooltip: shareButton.enabled ? qsTr("Share your project online.") : qsTr("Sharing your project online is disabled in the Community Version.")

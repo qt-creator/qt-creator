@@ -113,7 +113,8 @@ enum Type {
     WarnComponentRequiresChildren = 327,
     WarnDuplicateImport = 400,
     ErrAliasReferRoot = 401,
-    WarnAliasReferRootHierarchy = 402
+    WarnAliasReferRootHierarchy = 402,
+    ErrWhenConditionCannotBeObject = 403,
 };
 
 class QMLJS_EXPORT PrototypeMessageData {

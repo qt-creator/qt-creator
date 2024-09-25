@@ -34,30 +34,33 @@ add_qtc_plugin(Lua
     # generateqtbindings.cpp # Use this if you need to generate some code.
 )
 
-qt_add_resources(Lua lua_images_rcc
-  PREFIX "/lua"
-  FILES
-    images/settingscategory_lua.png
-    images/settingscategory_lua@2x.png
-)
+if(TARGET Lua)
 
-qt_add_resources(Lua lua_script_rcc
-  PREFIX "/lua"
-  FILES
-    scripts/ilua.lua
-)
+    qt_add_resources(Lua lua_images_rcc
+      PREFIX "/lua"
+      FILES
+        images/settingscategory_lua.png
+        images/settingscategory_lua@2x.png
+    )
 
-set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)
+    qt_add_resources(Lua lua_script_rcc
+      PREFIX "/lua"
+      FILES
+        scripts/ilua.lua
+    )
 
-if (MSVC)
-    # Prevent fatal error C1128
-    target_compile_options(Lua PRIVATE /bigobj)
+    set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)
+
+    if (MSVC)
+        # Prevent fatal error C1128
+        target_compile_options(Lua PRIVATE /bigobj)
+    endif()
+    if (MINGW)
+        target_compile_options(Lua PRIVATE "-Wa,-mbig-obj")
+    endif()
+
+    qtc_copy_to_builddir(copy_lua_meta_files
+      DIRECTORIES meta
+      DESTINATION ${IDE_DATA_PATH}/lua/meta
+    )
 endif()
-if (MINGW)
-    target_compile_options(Lua PRIVATE "-Wa,-mbig-obj")
-endif()
-
-qtc_copy_to_builddir(copy_lua_meta_files
-  DIRECTORIES meta
-  DESTINATION ${IDE_DATA_PATH}/lua/meta
-)

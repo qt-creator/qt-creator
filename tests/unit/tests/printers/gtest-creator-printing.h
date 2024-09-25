@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <designercore/model/modelresourcemanagementfwd.h>
+#include <model/modelresourcemanagementfwd.h>
 #include <qmlpuppetcommunication/interfaces/nodeinstanceglobal.h>
 #include <utils/cpplanguage_details.h>
 #include <utils/smallstringio.h>

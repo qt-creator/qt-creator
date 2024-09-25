@@ -121,8 +121,8 @@ HelperWidgets.ScrollView {
                     qsTr("To use <b>Content Library</b>, version 6.3 or later of the QtQuick3D module is required.")
                 else if (!ContentLibraryBackend.rootView.hasMaterialLibrary)
                     qsTr("<b>Content Library</b> is disabled inside a non-visual component.")
-                else if (!root.materialsModel.matBundleExists)
-                    qsTr("No materials available. Make sure you have internet connection.")
+                else if (!root.materialsModel.bundleExists)
+                    qsTr("No materials available. Make sure you have an internet connection.")
                 else if (!searchBox.isEmpty())
                     qsTr("No match found.")
                 else

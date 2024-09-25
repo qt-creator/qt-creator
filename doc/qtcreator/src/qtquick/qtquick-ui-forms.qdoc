@@ -144,10 +144,10 @@
     \list
         \li \l{Qt::}{qsTr()}
         \li \l{Qt::}{qsTranslate()}
-        \li \l{Qt::}{qsTranslateNoOp()}
+        \li \l{Qt::}{QT_TRANSLATE_NOOP()}
         \li \l{Qt::}{qsTrId()}
-        \li \l{Qt::}{qsTrIdNoOp()}
-        \li \l{Qt::}{qsTrNoOp()}
+        \li \l{Qt::}{QT_TRID_NOOP()}
+        \li \l{Qt::}{QT_TR_NOOP()}
     \endlist
 
     \note Do not mix translation methods in a UI file.

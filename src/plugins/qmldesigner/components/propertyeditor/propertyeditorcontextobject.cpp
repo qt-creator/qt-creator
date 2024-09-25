@@ -14,6 +14,8 @@
 #include "qmlobjectnode.h"
 #include "qmltimeline.h"
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/messagebox.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -206,8 +208,7 @@ void PropertyEditorContextObject::changeTypeName(const QString &typeName)
 
         // Create a list of properties available for the new type
         auto propertiesAndSignals = Utils::transform<PropertyNameList>(
-            PropertyEditorUtils::filteredPropertes(metaInfo),
-            [](const auto &property) { return property.name(); });
+            PropertyEditorUtils::filteredProperties(metaInfo), &PropertyMetaInfo::name);
         // Add signals to the list
         for (const auto &signal : metaInfo.signalNames()) {
             if (signal.isEmpty())
@@ -305,7 +306,7 @@ void PropertyEditorContextObject::insertKeyframe(const QString &propertyName)
 
     ModelNode selectedNode = rewriterView->selectedModelNodes().constFirst();
 
-    QmlTimeline timeline = rewriterView->currentTimeline();
+    QmlTimeline timeline = rewriterView->currentTimelineNode();
 
     QTC_ASSERT(timeline.isValid(), return );
     QTC_ASSERT(selectedNode.isValid(), return );

@@ -300,6 +300,30 @@ void Qt5InformationNodeInstanceServer::resolveImportSupport()
 #endif
 }
 
+void Qt5InformationNodeInstanceServer::updateActiveScenePreferredCamera()
+{
+#ifdef QUICK3D_MODULE
+    auto preferredCamera = [&]() -> QQuick3DCamera * {
+        if (auto activeView = qobject_cast<QQuick3DViewport *>(m_active3DView)) {
+            if (auto camera = activeView->camera()) {
+                if (hasInstanceForObject(camera) && find3DSceneRoot(camera) == m_active3DScene)
+                    return camera;
+            }
+        }
+
+        const QList<ServerNodeInstance> allCameras = allCameraInstances();
+        for (const auto &camera : allCameras) {
+            if (find3DSceneRoot(camera) == m_active3DScene)
+                return qobject_cast<QQuick3DCamera *>(camera.internalObject());
+        }
+        return nullptr;
+    };
+
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    helper->setActiveScenePreferredCamera(preferredCamera());
+#endif
+}
+
 void Qt5InformationNodeInstanceServer::updateMaterialPreviewData(
     const QVector<PropertyValueContainer> &valueChanges)
 {
@@ -535,6 +559,11 @@ void Qt5InformationNodeInstanceServer::createEditView3D()
     QObject::connect(helper, &QmlDesigner::Internal::GeneralHelper::requestRender, this, [this]() {
         render3DEditView(1);
     });
+    QObject::connect(
+        helper,
+        &QmlDesigner::Internal::GeneralHelper::requestActiveScenePreferredCamera,
+        this,
+        &Qt5InformationNodeInstanceServer::updateActiveScenePreferredCamera);
     engine()->rootContext()->setContextProperty("_generalHelper", helper);
     engine()->addImageProvider(QLatin1String("IconGizmoImageProvider"),
                                new QmlDesigner::Internal::IconGizmoImageProvider);
@@ -1034,6 +1063,8 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unu
         if (sceneRoot)
             activeSceneVar = objectToVariant(sceneRoot);
     }
+
+    updateActiveScenePreferredCamera();
 
     QMetaObject::invokeMethod(m_editView3DData.rootItem, "setActiveScene", Qt::QueuedConnection,
                               Q_ARG(QVariant, activeSceneVar),
@@ -2485,7 +2516,7 @@ void Qt5InformationNodeInstanceServer::inputEvent(const InputEventCommand &comma
     }
 }
 
-void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &command)
+void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3DActionCommand &command)
 {
     if (!m_editView3DSetupDone)
         return;
@@ -2548,6 +2579,9 @@ void Qt5InformationNodeInstanceServer::view3DAction(const View3DActionCommand &c
         break;
     case View3DActionType::ShowCameraFrustum:
         updatedToolState.insert("showCameraFrustum", command.isEnabled());
+        break;
+    case View3DActionType::CameraViewMode:
+        updatedToolState.insert("cameraViewMode", command.value());
         break;
     case View3DActionType::SyncEnvBackground:
         updatedToolState.insert("syncEnvBackground", command.isEnabled());

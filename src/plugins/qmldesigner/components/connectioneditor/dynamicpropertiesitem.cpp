@@ -46,7 +46,7 @@ PropertyName DynamicPropertiesItem::propertyName() const
 std::optional<const QmlObjectNode> parentIfNotDefaultState(const AbstractProperty &property)
 {
     const QmlObjectNode objectNode = QmlObjectNode(property.parentModelNode());
-    if (objectNode.isValid() && !objectNode.view()->currentState().isBaseState())
+    if (objectNode.isValid() && !QmlModelState::isBaseState(objectNode.view()->currentStateNode()))
         return objectNode;
     return std::nullopt;
 }

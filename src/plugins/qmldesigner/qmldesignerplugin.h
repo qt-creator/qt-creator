@@ -6,9 +6,8 @@
 #include "documentmanager.h"
 #include "qmldesigner_global.h"
 
-#include <designersettings.h>
-#include <viewmanager.h>
 #include <qmldesignercorelib_global.h>
+#include <viewmanager.h>
 
 #include <extensionsystem/iplugin.h>
 

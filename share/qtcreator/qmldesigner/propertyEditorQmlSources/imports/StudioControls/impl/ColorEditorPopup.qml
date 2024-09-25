@@ -12,8 +12,12 @@ import QtQuickDesignerColorPalette
 Column {
     id: root
 
+    property bool eyeDropperActive: ColorPaletteBackend.eyeDropperActive
+
     property color color
     property color originalColor
+
+    property Window parentWindow: null
 
     readonly property real twoColumnWidth: (colorColumn.width - StudioTheme.Values.controlGap) * 0.5
     readonly property real fourColumnWidth: (colorColumn.width - (3 * StudioTheme.Values.controlGap)) * 0.25
@@ -42,7 +46,7 @@ Column {
             icon: StudioTheme.Constants.eyeDropper
             pixelSize: StudioTheme.Values.myIconFontSize * 1.4
             toolTip: qsTr("Eye Dropper")
-            onClicked: ColorPaletteBackend.eyeDropper()
+            onClicked: ColorPaletteBackend.invokeEyeDropper()
         }
     }
 

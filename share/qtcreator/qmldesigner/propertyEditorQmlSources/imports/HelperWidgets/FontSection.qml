@@ -8,7 +8,7 @@ import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
 Section {
-    id: fontSection
+    id: root
     anchors.left: parent.left
     anchors.right: parent.right
     caption: qsTr("Font")
@@ -16,19 +16,20 @@ Section {
     property string fontName: "font"
 
     property bool showStyle: false
+    property bool showHinting: true
 
     function getBackendValue(name) {
-        return backendValues[fontSection.fontName + "_" + name]
+        return backendValues[root.fontName + "_" + name]
     }
 
-    property variant fontFamily: getBackendValue("family")
-    property variant pointSize: getBackendValue("pointSize")
-    property variant pixelSize: getBackendValue("pixelSize")
+    property variant fontFamily: root.getBackendValue("family")
+    property variant pointSize: root.getBackendValue("pointSize")
+    property variant pixelSize: root.getBackendValue("pixelSize")
 
-    property variant boldStyle: getBackendValue("bold")
-    property variant italicStyle: getBackendValue("italic")
-    property variant underlineStyle: getBackendValue("underline")
-    property variant strikeoutStyle: getBackendValue("strikeout")
+    property variant boldStyle: root.getBackendValue("bold")
+    property variant italicStyle: root.getBackendValue("italic")
+    property variant underlineStyle: root.getBackendValue("underline")
+    property variant strikeoutStyle: root.getBackendValue("strikeout")
 
     onPointSizeChanged: sizeWidget.setPointPixelSize()
     onPixelSizeChanged: sizeWidget.setPointPixelSize()
@@ -42,11 +43,13 @@ Section {
         SecondColumnLayout {
             FontComboBox {
                 id: fontComboBox
-                property string familyName: backendValue.value
-                backendValue: fontSection.fontFamily
+
+                property string familyName: fontComboBox.backendValue.value
+
+                backendValue: root.fontFamily
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
+                width: fontComboBox.implicitWidth
             }
 
             ExpandingSpacer {}
@@ -59,8 +62,8 @@ Section {
 
         SecondColumnLayout {
             id: sizeWidget
-            property bool selectionFlag: selectionChanged
 
+            property bool selectionFlag: selectionChanged
             property bool pixelSize: sizeType.currentText === "px"
             property bool isSetup
 
@@ -68,7 +71,7 @@ Section {
                 sizeWidget.isSetup = true
                 sizeType.currentIndex = 1
 
-                if (fontSection.pixelSize.isInModel)
+                if (root.pixelSize.isInModel)
                     sizeType.currentIndex = 0
 
                 sizeWidget.isSetup = false
@@ -77,31 +80,33 @@ Section {
             onSelectionFlagChanged: sizeWidget.setPointPixelSize()
 
             Item {
+                id: sizeSpinBoxItem
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                height: sizeSpinBox.height
+                width: sizeSpinBoxItem.implicitWidth
+                height: sizeSpinBoxPoint.height
 
                 SpinBox {
-                    id: sizeSpinBox
+                    id: sizeSpinBoxPoint
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
-                    width: implicitWidth
+                    width: sizeSpinBoxPoint.implicitWidth
                     minimumValue: 0
                     visible: !sizeWidget.pixelSize
                     z: !sizeWidget.pixelSize ? 1 : 0
                     maximumValue: 400
-                    backendValue: pointSize
+                    backendValue: root.pointSize
                 }
                 SpinBox {
+                    id: sizeSpinBoxPixel
                     implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                    + StudioTheme.Values.actionIndicatorWidth
-                    width: implicitWidth
+                    width: sizeSpinBoxPixel.implicitWidth
                     minimumValue: 0
                     visible: sizeWidget.pixelSize
                     z: sizeWidget.pixelSize ? 1 : 0
                     maximumValue: 400
-                    backendValue: pixelSize
+                    backendValue: root.pixelSize
                 }
             }
 
@@ -113,7 +118,7 @@ Section {
             StudioControls.ComboBox {
                 id: sizeType
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
-                width: implicitWidth
+                width: sizeType.implicitWidth
                 model: ["px", "pt"]
                 actionIndicatorVisible: false
 
@@ -122,10 +127,10 @@ Section {
                         return
 
                     if (sizeType.currentText === "px") {
-                        pointSize.resetValue()
-                        pixelSize.value = 8
+                        root.pointSize.resetValue()
+                        root.pixelSize.value = 8
                     } else {
-                        pixelSize.resetValue()
+                        root.pixelSize.resetValue()
                     }
                 }
             }
@@ -136,35 +141,36 @@ Section {
         PropertyLabel {
             text: qsTr("Emphasis")
             tooltip: qsTr("Sets the text to bold, italic, underlined, or strikethrough.")
-            blockedByTemplate: !fontSection.boldStyle.isAvailable
-                               && !fontSection.italicStyle.isAvailable
-                               && !fontSection.underlineStyle.isAvailable
-                               && !fontSection.strikeoutStyle.isAvailable
+            blockedByTemplate: !root.boldStyle.isAvailable
+                               && !root.italicStyle.isAvailable
+                               && !root.underlineStyle.isAvailable
+                               && !root.strikeoutStyle.isAvailable
         }
 
         FontStyleButtons {
-            bold: fontSection.boldStyle
-            italic: fontSection.italicStyle
-            underline: fontSection.underlineStyle
-            strikeout: fontSection.strikeoutStyle
+            bold: root.boldStyle
+            italic: root.italicStyle
+            underline: root.underlineStyle
+            strikeout: root.strikeoutStyle
             enabled: !styleNameComboBox.styleSet
         }
 
         PropertyLabel {
             text: qsTr("Capitalization")
             tooltip: qsTr("Sets capitalization rules for the text.")
-            blockedByTemplate: !getBackendValue("capitalization").isAvailable
+            blockedByTemplate: !root.getBackendValue("capitalization").isAvailable
         }
 
         SecondColumnLayout {
             ComboBox {
+                id: capitalizationComboBox
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                backendValue: getBackendValue("capitalization")
+                width: capitalizationComboBox.implicitWidth
+                backendValue: root.getBackendValue("capitalization")
                 scope: "Font"
                 model: ["MixedCase", "AllUppercase", "AllLowercase", "SmallCaps", "Capitalize"]
-                enabled: backendValue.isAvailable
+                enabled: capitalizationComboBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -178,10 +184,11 @@ Section {
 
         SecondColumnLayout {
             ComboBox {
+                id: weightComboBox
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                backendValue: getBackendValue("weight")
+                width: weightComboBox.implicitWidth
+                backendValue: root.getBackendValue("weight")
                 model: ["Normal", "Light", "ExtraLight", "Thin", "Medium", "DemiBold", "Bold", "ExtraBold", "Black"]
                 scope: "Font"
                 enabled: !styleNameComboBox.styleSet
@@ -199,38 +206,41 @@ Section {
         SecondColumnLayout {
             ComboBox {
                 id: styleNameComboBox
+
                 property bool styleSet: backendValue.isInModel
+
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                backendValue: getBackendValue("styleName")
+                width: styleNameComboBox.implicitWidth
+                backendValue: root.getBackendValue("styleName")
                 model: styleNamesForFamily(fontComboBox.familyName)
                 valueType: ComboBox.String
-                enabled: backendValue.isAvailable
+                enabled: styleNameComboBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
         }
 
         PropertyLabel {
-            visible: fontSection.showStyle
+            visible: root.showStyle
             text: qsTr("Style")
             tooltip: qsTr("Sets the font style.")
             blockedByTemplate: !styleComboBox.enabled
         }
 
         SecondColumnLayout {
-            visible: fontSection.showStyle
+            visible: root.showStyle
+
             ComboBox {
                 id: styleComboBox
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
+                width: styleComboBox.implicitWidth
                 backendValue: (backendValues.style === undefined) ? dummyBackendValue
                                                                   : backendValues.style
                 scope: "Text"
                 model: ["Normal", "Outline", "Raised", "Sunken"]
-                enabled: backendValue.isAvailable
+                enabled: styleComboBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -239,30 +249,34 @@ Section {
         PropertyLabel {
             text: qsTr("Style color")
             tooltip: qsTr("Sets the color for the font style.")
-            visible: fontSection.showStyle && backendValues.styleColor.isAvailable
+            visible: root.showStyle && backendValues.styleColor.isAvailable
         }
 
         ColorEditor {
-            visible: fontSection.showStyle && backendValues.styleColor.isAvailable
+            visible: root.showStyle && backendValues.styleColor.isAvailable
             backendValue: backendValues.styleColor
             supportGradient: false
         }
 
         PropertyLabel {
+            visible: root.showHinting
             text: qsTr("Hinting")
             tooltip: qsTr("Sets how to interpolate the text to render it more clearly when scaled.")
-            blockedByTemplate: !getBackendValue("hintingPreference").isAvailable
+            blockedByTemplate: !root.getBackendValue("hintingPreference").isAvailable
         }
 
         SecondColumnLayout {
+            visible: root.showHinting
+
             ComboBox {
+                id: hintingPreferenceComboBox
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                width: implicitWidth
-                backendValue: getBackendValue("hintingPreference")
+                width: hintingPreferenceComboBox.implicitWidth
+                backendValue: root.getBackendValue("hintingPreference")
                 scope: "Font"
                 model: ["PreferDefaultHinting", "PreferNoHinting", "PreferVerticalHinting", "PreferFullHinting"]
-                enabled: backendValue.isAvailable
+                enabled: hintingPreferenceComboBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -271,19 +285,20 @@ Section {
         PropertyLabel {
             text: qsTr("Letter spacing")
             tooltip: qsTr("Sets the letter spacing for the text.")
-            blockedByTemplate: !getBackendValue("letterSpacing").isAvailable
+            blockedByTemplate: !root.getBackendValue("letterSpacing").isAvailable
         }
 
         SecondColumnLayout {
             SpinBox {
+                id: letterSpacingSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("letterSpacing")
+                backendValue: root.getBackendValue("letterSpacing")
                 decimals: 2
                 minimumValue: -500
                 maximumValue: 500
                 stepSize: 0.1
-                enabled: backendValue.isAvailable
+                enabled: letterSpacingSpinBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -292,19 +307,20 @@ Section {
         PropertyLabel {
             text: qsTr("Word spacing")
             tooltip: qsTr("Sets the word spacing for the text.")
-            blockedByTemplate: !getBackendValue("wordSpacing").isAvailable
+            blockedByTemplate: !root.getBackendValue("wordSpacing").isAvailable
         }
 
         SecondColumnLayout {
             SpinBox {
+                id: wordSpacingSpinBox
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("wordSpacing")
+                backendValue: root.getBackendValue("wordSpacing")
                 decimals: 2
                 minimumValue: -500
                 maximumValue: 500
                 stepSize: 0.1
-                enabled: backendValue.isAvailable
+                enabled: wordSpacingSpinBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -313,16 +329,17 @@ Section {
         PropertyLabel {
             text: qsTr("Auto kerning")
             tooltip: qsTr("Resolves the gap between texts if turned true.")
-            blockedByTemplate: !getBackendValue("kerning").isAvailable
+            blockedByTemplate: !root.getBackendValue("kerning").isAvailable
         }
 
         SecondColumnLayout {
             CheckBox {
-                text: backendValue.valueToString
+                id: kerningCheckBox
+                text: kerningCheckBox.backendValue.valueToString
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("kerning")
-                enabled: backendValue.isAvailable
+                backendValue: root.getBackendValue("kerning")
+                enabled: kerningCheckBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}
@@ -331,16 +348,17 @@ Section {
         PropertyLabel {
             text: qsTr("Prefer shaping")
             tooltip: qsTr("Toggles the disables font-specific special features.")
-            blockedByTemplate: !getBackendValue("preferShaping").isAvailable
+            blockedByTemplate: !root.getBackendValue("preferShaping").isAvailable
         }
 
         SecondColumnLayout {
             CheckBox {
-                text: backendValue.valueToString
+                id: preferShapingCheckBox
+                text: preferShapingCheckBox.backendValue.valueToString
                 implicitWidth: StudioTheme.Values.twoControlColumnWidth
                                + StudioTheme.Values.actionIndicatorWidth
-                backendValue: getBackendValue("preferShaping")
-                enabled: backendValue.isAvailable
+                backendValue: root.getBackendValue("preferShaping")
+                enabled: preferShapingCheckBox.backendValue.isAvailable
             }
 
             ExpandingSpacer {}

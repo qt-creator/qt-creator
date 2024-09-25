@@ -14,6 +14,7 @@
 #include <designdocument.h>
 #include <designericons.h>
 #include <designermcumanager.h>
+#include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <generatedcomponentutils.h>
 #include <import.h>
@@ -38,7 +39,7 @@
 
 #include <modelutils.h>
 
-#include <utils/asset.h>
+#include <qmldesignerutils/asset.h>
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -46,6 +47,8 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
+#include <QLabel>
+#include <QMenu>
 #include <QMimeData>
 #include <QVBoxLayout>
 
@@ -82,13 +85,14 @@ static QIcon getEntryIcon(const ItemLibraryEntry &entry)
 
 Edit3DWidget::Edit3DWidget(Edit3DView *view)
     : m_view(view)
+    , m_bundleHelper(std::make_unique<BundleHelper>(view, this))
 {
     setAcceptDrops(true);
 
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
-    Core::Context context(Constants::C_QMLEDITOR3D);
+    Core::Context context(Constants::qml3DEditorContextId);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
     m_context->setWidget(this);
@@ -192,7 +196,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     showCanvas(false);
 
     IContext::attach(this,
-                     Context(Constants::C_QMLEDITOR3D, Constants::C_QT_QUICK_TOOLS_MENU),
+                     Context(Constants::qml3DEditorContextId, Constants::qtQuickToolsMenuContextId),
                      [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
@@ -370,19 +374,20 @@ void Edit3DWidget::createContextMenu()
     m_addToContentLibAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Add to Content Library"), [&] {
+            QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("ContentLibrary");
             view()->emitCustomNotification("add_3d_to_content_lib", {m_contextMenuTarget}); // To ContentLibrary
         });
 
     m_importBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Import Component"), [&] {
-            view()->emitCustomNotification("import_bundle_to_project"); // To ContentLibrary
+            m_bundleHelper->importBundleToProject();
         });
 
     m_exportBundleAction = m_contextMenu->addAction(
         contextIcon(DesignerIcons::CreateIcon),  // TODO: placeholder icon
         tr("Export Component"), [&] {
-            view()->emitCustomNotification("export_item_as_bundle", {m_contextMenuTarget}); // To ContentLibrary
+            m_bundleHelper->exportBundle(m_contextMenuTarget);
         });
 
     m_contextMenu->addSeparator();
@@ -766,7 +771,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
 
     // handle dropping bundle items
     if (dropEvent->mimeData()->hasFormat(Constants::MIME_TYPE_BUNDLE_ITEM)) {
-        m_view->dropBundleEffect(pos);
+        m_view->dropBundleItem(pos);
         m_view->model()->endDrag();
         return;
     }
@@ -807,7 +812,7 @@ void Edit3DWidget::dropEvent(QDropEvent *dropEvent)
             auto moduleId = model->module(import3dTypePrefix, Storage::ModuleKind::QmlLibrary);
             auto metaInfo = model->metaInfo(moduleId, fileName.toUtf8());
             if (auto entries = metaInfo.itemLibrariesEntries(); entries.size()) {
-                auto entry = ItemLibraryEntry{entries.front()};
+                auto entry = ItemLibraryEntry::create(entries.front());
                 QmlVisualNode::createQml3DNode(view(), entry, m_canvas->activeScene(), {}, false);
             }
         }

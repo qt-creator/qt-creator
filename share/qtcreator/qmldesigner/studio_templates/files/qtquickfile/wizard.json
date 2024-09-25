@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ ],
     "id": "B.QtStudio.Qml.2",
     "category": "B.StudioQtQuickFiles",
-    "trDescription": "Creates a component file (.qml) with boilerplate code, starting with \"import QtQuick 2.15\".",
+    "trDescription": "Creates a component file (.qml) with boilerplate code, starting with \"import QtQuick\".",
     "trDisplayName": "Qt Quick File",
     "trDisplayCategory": "Qt Quick Files",
     "icon": "file_qml.png",

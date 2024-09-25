@@ -20,9 +20,11 @@
 #include <QVBoxLayout>
 #include <QSortFilterProxyModel>
 
+#include <memory>
+
 namespace QmlDesigner {
 
-QWidget *createFilterWidget(Utils::FancyLineEdit *lineEdit)
+std::unique_ptr<QWidget> createFilterWidget(Utils::FancyLineEdit *lineEdit)
 {
     const QString unicode = Theme::getIconUnicode(Theme::Icon::search);
     const QString fontName = "qtds_propertyIconFont.ttf";
@@ -38,7 +40,7 @@ QWidget *createFilterWidget(Utils::FancyLineEdit *lineEdit)
     auto *box = new QHBoxLayout;
     box->addWidget(label);
     box->addWidget(lineEdit);
-    auto *widget = new QWidget;
+    auto widget = std::make_unique<QWidget>();
     widget->setLayout(box);
     return widget;
 }
@@ -52,24 +54,24 @@ void modifyPalette(QTableView *view, const QColor &selectionColor)
     view->setAlternatingRowColors(true);
 }
 
-
 SignalListDialog::SignalListDialog(QWidget *parent)
     : QDialog(parent)
-    , m_table(new QTableView())
-    , m_searchLine(new Utils::FancyLineEdit())
+    , m_signalListDelegate{Utils::makeUniqueObjectPtr<SignalListDelegate>()}
+    , m_table(Utils::makeUniqueObjectPtr<QTableView>())
+    , m_searchLine(Utils::makeUniqueObjectPtr<Utils::FancyLineEdit>())
 {
-    auto *signalListDelegate = new SignalListDelegate(m_table);
-    m_table->setItemDelegate(signalListDelegate);
+    m_table->setItemDelegate(m_signalListDelegate.get());
     m_table->setFocusPolicy(Qt::NoFocus);
     m_table->setSelectionMode(QAbstractItemView::NoSelection);
     m_table->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_table->verticalHeader()->hide();
 
-    modifyPalette(m_table, QColor("#d87b00"));
+    modifyPalette(m_table.get(), QColor("#d87b00"));
 
     auto *layout = new QVBoxLayout;
-    layout->addWidget(createFilterWidget(m_searchLine));
-    layout->addWidget(m_table);
+    auto filterWidget = createFilterWidget(m_searchLine.get());
+    layout->addWidget(filterWidget.release());
+    layout->addWidget(m_table.get());
     setLayout(layout);
 
     setWindowFlag(Qt::Tool, true);
@@ -105,12 +107,12 @@ void SignalListDialog::initialize(QStandardItemModel *model)
                 QRegularExpression(QRegularExpression::escape(str), option));
         }
     };
-    connect(m_searchLine, &Utils::FancyLineEdit::filterChanged, eventFilterFun);
+    connect(m_searchLine.get(), &Utils::FancyLineEdit::filterChanged, eventFilterFun);
 }
 
-QTableView *SignalListDialog::tableView() const
+SignalListDelegate *SignalListDialog::signalListDelegate() const
 {
-    return m_table;
+    return m_signalListDelegate.get();
 }
 
 } // QmlDesigner namespace

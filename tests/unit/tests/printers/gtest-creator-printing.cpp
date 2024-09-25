@@ -18,7 +18,7 @@
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragepathwatchertypes.h>
 #include <projectstorage/projectstoragetypes.h>
-#include <projectstorage/sourcepathcachetypes.h>
+#include <sourcepathstorage/sourcepathcachetypes.h>
 #include <sqlitesessionchangeset.h>
 #include <sqlitevalue.h>
 #include <utils/fileutils.h>

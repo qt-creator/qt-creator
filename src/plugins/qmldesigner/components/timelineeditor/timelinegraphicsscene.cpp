@@ -487,9 +487,10 @@ QmlTimeline TimelineGraphicsScene::currentTimeline() const
 {
     QmlTimeline timeline(timelineModelNode());
     if (timeline.isValid()) {
-        QTC_ASSERT(timeline == timelineView()->currentTimeline(), ;);
+        QTC_CHECK(timeline == timelineView()->currentTimelineNode());
     }
-    return timelineView()->currentTimeline();
+
+    return timelineView()->currentTimelineNode();
 }
 
 QRectF AbstractScrollGraphicsScene::selectionBounds() const

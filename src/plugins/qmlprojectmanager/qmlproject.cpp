@@ -54,10 +54,18 @@ QmlProject::QmlProject(const Utils::FilePath &fileName)
     setBuildSystemCreator<QmlBuildSystem>();
 
     if (Core::ICore::isQtDesignStudio()) {
-        if (allowOnlySingleProject()) {
+        if (allowOnlySingleProject() && !fileName.endsWith(Constants::fakeProjectName)) {
             EditorManager::closeAllDocuments();
             ProjectManager::closeAllProjects();
         }
+    }
+
+    if (fileName.endsWith(Constants::fakeProjectName)) {
+        auto uiFile = fileName.toString();
+        uiFile.remove(Constants::fakeProjectName);
+        auto parentDir = Utils::FilePath::fromString(uiFile).parentDir();
+
+        setDisplayName(parentDir.completeBaseName());
     }
 
     connect(this, &QmlProject::anyParsingFinished, this, &QmlProject::parsingFinished);

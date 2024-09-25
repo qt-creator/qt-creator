@@ -18,11 +18,61 @@
 
 namespace QmlDesigner {
 
-class QColorPickingEventFilter;
-
 const int g_maxPaletteSize = 8;
 const QString g_recent = "Recent";
 const QString g_favorite = "Favorite";
+
+class EyeDropperEventFilter : public QObject
+{
+public:
+    enum class LeaveReason { Default, Cancel };
+
+    explicit EyeDropperEventFilter(std::function<void(QPoint, LeaveReason)> callOnLeave,
+                                   std::function<void(QPoint)> callOnUpdate)
+        : m_leave(callOnLeave)
+        , m_update(callOnUpdate)
+    {}
+
+    bool eventFilter(QObject *obj, QEvent *event) override
+    {
+        switch (event->type()) {
+        case QEvent::MouseMove: {
+            m_lastPosition = static_cast<QMouseEvent *>(event)->globalPosition().toPoint();
+            m_update(m_lastPosition);
+            return true;
+        }
+        case QEvent::MouseButtonRelease: {
+            m_lastPosition = static_cast<QMouseEvent *>(event)->globalPosition().toPoint();
+            m_leave(m_lastPosition, EyeDropperEventFilter::LeaveReason::Default);
+            return true;
+        }
+        case QEvent::MouseButtonPress:
+            return true;
+        case QEvent::KeyPress: {
+            auto keyEvent = static_cast<QKeyEvent *>(event);
+#if QT_CONFIG(shortcut)
+            if (keyEvent->matches(QKeySequence::Cancel))
+                m_leave(m_lastPosition, EyeDropperEventFilter::LeaveReason::Cancel);
+            else
+#endif
+                if (keyEvent->key() == Qt::Key_Return || keyEvent->key() == Qt::Key_Enter) {
+                m_leave(m_lastPosition, EyeDropperEventFilter::LeaveReason::Default);
+            } else if (keyEvent->key() == Qt::Key_Escape) {
+                m_leave(m_lastPosition, EyeDropperEventFilter::LeaveReason::Cancel);
+            }
+            keyEvent->accept();
+            return true;
+        }
+        default:
+            return QObject::eventFilter(obj, event);
+        }
+    }
+
+private:
+    std::function<void(QPoint, LeaveReason)> m_leave;
+    std::function<void(QPoint)> m_update;
+    QPoint m_lastPosition;
+};
 
 struct Palette
 {
@@ -100,20 +150,22 @@ public:
 
     Q_INVOKABLE void showDialog(QColor color);
 
-    Q_INVOKABLE void eyeDropper();
+    //Q_INVOKABLE void eyeDropper();
+
+    Q_INVOKABLE void invokeEyeDropper();
 
     QColor grabScreenColor(const QPoint &p);
-    QImage grabScreenRect(const QPoint &p);
+    QImage grabScreenRect(const QRect &r);
     void updateEyeDropper();
     void updateEyeDropperPosition(const QPoint &globalPos);
 
     void updateCursor(const QImage &image);
 
-    void releaseEyeDropper();
-
-    bool handleEyeDropperMouseMove(QMouseEvent *e);
-    bool handleEyeDropperMouseButtonRelease(QMouseEvent *e);
-    bool handleEyeDropperKeyPress(QKeyEvent *e);
+    //void releaseEyeDropper();
+    //
+    //bool handleEyeDropperMouseMove(QMouseEvent *e);
+    //bool handleEyeDropperMouseButtonRelease(QMouseEvent *e);
+    //bool handleEyeDropperKeyPress(QKeyEvent *e);
 
     bool eyeDropperActive() const;
 
@@ -134,47 +186,25 @@ signals:
 private:
     ColorPaletteBackend();
 
+    void eyeDropperEnter();
+    void eyeDropperLeave(const QPoint &pos, EyeDropperEventFilter::LeaveReason actionOnLeave);
+    void eyeDropperPointerMoved(const QPoint &pos);
+
 private:
     static QPointer<ColorPaletteBackend> m_instance;
     QString m_currentPalette;
     QStringList m_currentPaletteColors;
     QHash<QString, Palette> m_data;
 
-    QColorPickingEventFilter *m_colorPickingEventFilter;
+    std::unique_ptr<EyeDropperEventFilter> m_eyeDropperEventFilter;
+    QPointer<QWindow> m_eyeDropperWindow;
+    QColor m_eyeDropperCurrentColor;
+    QColor m_eyeDropperPreviousColor;
     bool m_eyeDropperActive = false;
 #ifdef Q_OS_WIN32
     QTimer *updateTimer;
     QWindow dummyTransparentWindow;
 #endif
-};
-
-class QColorPickingEventFilter : public QObject {
-public:
-    explicit QColorPickingEventFilter(ColorPaletteBackend *colorPalette)
-        : QObject(colorPalette)
-        , m_colorPalette(colorPalette)
-    {}
-
-    bool eventFilter(QObject *, QEvent *event) override
-    {
-        switch (event->type()) {
-        case QEvent::MouseMove:
-            return m_colorPalette->handleEyeDropperMouseMove(
-                        static_cast<QMouseEvent *>(event));
-        case QEvent::MouseButtonRelease:
-            return m_colorPalette->handleEyeDropperMouseButtonRelease(
-                        static_cast<QMouseEvent *>(event));
-        case QEvent::KeyPress:
-            return m_colorPalette->handleEyeDropperKeyPress(
-                        static_cast<QKeyEvent *>(event));
-        default:
-            break;
-        }
-        return false;
-    }
-
-private:
-    ColorPaletteBackend *m_colorPalette;
 };
 
 } // namespace QmlDesigner

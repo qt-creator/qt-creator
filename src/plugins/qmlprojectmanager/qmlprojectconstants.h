@@ -35,4 +35,6 @@ const char EXPORT_MENU[] = "QmlDesigner.ExportMenu";
 const char G_EXPORT_GENERATE[] = "QmlDesigner.Group.GenerateProject";
 const char G_EXPORT_CONVERT[] = "QmlDesigner.Group.ConvertProject";
 
+const char fakeProjectName[] = "fake85673.qmlproject";
+
 } // QmlProjectManager::Constants

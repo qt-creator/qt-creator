@@ -145,6 +145,7 @@ void ContentLibraryTexturesModel::loadTextureBundle(const QString &textureBundle
                                  dimensions, sizeInBytes, hasUpdate, isNew);
         }
         m_bundleCategories.append(category);
+        emit bundleChanged();
     }
 
     resetModel();
@@ -197,7 +198,7 @@ void ContentLibraryTexturesModel::markTextureHasNoUpdates(const QString &subcate
     categ->markTextureHasNoUpdate(textureKey);
 }
 
-bool ContentLibraryTexturesModel::texBundleExists() const
+bool ContentLibraryTexturesModel::bundleExists() const
 {
     return !m_bundleCategories.isEmpty();
 }

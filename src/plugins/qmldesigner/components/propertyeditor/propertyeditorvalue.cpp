@@ -19,6 +19,7 @@
 #include "rewritingexception.h"
 
 #include <enumeration.h>
+#include <utils3d.h>
 
 #include <utils/qtcassert.h>
 
@@ -516,8 +517,7 @@ bool PropertyEditorValue::idListReplace(int idx, const QString &value)
 
 void PropertyEditorValue::commitDrop(const QString &dropData)
 {
-    if (m_modelNode.metaInfo().isQtQuick3DMaterial()
-        && m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
+    if (m_modelNode.metaInfo().property(m_name).propertyType().isQtQuick3DTexture()) {
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
@@ -536,8 +536,10 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
 
 void PropertyEditorValue::openMaterialEditor(int idx)
 {
-    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
-    m_modelNode.view()->emitCustomNotification("select_material", {}, {idx});
+    if (ModelNode material = Utils3D::getMaterialOfModel(m_modelNode, idx)) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
+        Utils3D::selectMaterial(material);
+    }
 }
 
 void PropertyEditorValue::setForceBound(bool b)
@@ -557,7 +559,7 @@ void PropertyEditorValue::insertKeyframe()
     /*If we add more code here we have to forward the property editor view */
     AbstractView *view = m_modelNode.view();
 
-    QmlTimeline timeline = view->currentTimeline();
+    QmlTimeline timeline = view->currentTimelineNode();
 
     QTC_ASSERT(timeline.isValid(), return );
     QTC_ASSERT(m_modelNode.isValid(), return );
@@ -714,7 +716,7 @@ void PropertyEditorNodeWrapper::setup()
         qDeleteAll(m_valuesPropertyMap.children());
 
         if (QmlObjectNode qmlObjectNode = m_modelNode) {
-            const PropertyMetaInfos props = PropertyEditorUtils::filteredPropertes(
+            const PropertyMetaInfos props = PropertyEditorUtils::filteredProperties(
                 m_modelNode.metaInfo());
             for (const auto &property : props) {
                 const auto &propertyName = property.name();
@@ -766,14 +768,18 @@ void PropertyEditorSubSelectionWrapper::createPropertyEditorValue(const QmlObjec
 {
     Utils::SmallString propertyName = name.toByteArray();
     propertyName.replace('.', '_');
-    auto valueObject = qobject_cast<PropertyEditorValue*>(variantToQObject(m_valuesPropertyMap.value(QString::fromUtf8(propertyName))));
+
+    const QString propertyNameQString = QString::fromUtf8(propertyName);
+
+    auto valueObject = qobject_cast<PropertyEditorValue *>(
+        variantToQObject(m_valuesPropertyMap.value(propertyNameQString)));
     if (!valueObject) {
         valueObject = new PropertyEditorValue(&m_valuesPropertyMap);
         QObject::connect(valueObject, &PropertyEditorValue::valueChanged, this, &PropertyEditorSubSelectionWrapper::changeValue);
         QObject::connect(valueObject, &PropertyEditorValue::expressionChanged, this, &PropertyEditorSubSelectionWrapper::changeExpression);
         QObject::connect(valueObject, &PropertyEditorValue::exportPropertyAsAliasRequested, this, &PropertyEditorSubSelectionWrapper::exportPropertyAsAlias);
         QObject::connect(valueObject, &PropertyEditorValue::removeAliasExportRequested, this, &PropertyEditorSubSelectionWrapper::removeAliasExport);
-        m_valuesPropertyMap.insert(QString::fromUtf8(propertyName), QVariant::fromValue(valueObject));
+        m_valuesPropertyMap.insert(propertyNameQString, QVariant::fromValue(valueObject));
     }
     valueObject->setName(name);
     valueObject->setModelNode(qmlObjectNode);
@@ -836,12 +842,10 @@ PropertyEditorSubSelectionWrapper::PropertyEditorSubSelectionWrapper(const Model
 {
     QmlObjectNode qmlObjectNode(modelNode);
 
-    return;
-
     QTC_ASSERT(qmlObjectNode.isValid(), return );
 
     for (const auto &property :
-         PropertyEditorUtils::filteredPropertes(qmlObjectNode.modelNode().metaInfo())) {
+         PropertyEditorUtils::filteredProperties(qmlObjectNode.modelNode().metaInfo())) {
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,

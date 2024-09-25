@@ -21,6 +21,11 @@
     have added an asset from \uicontrol {Content Library}, you can use it in
     your project.
 
+    You can also add assets to the \uicontrol {Content Library} > \uicontrol {User Assets}.
+
+    Assets added to \uicontrol {User Assets} are always available in \uicontrol {Content Library}
+    regardless of what project you are working on.
+
     \image content-library.webp
 
     \section1 Adding a Material to Your Project
@@ -28,7 +33,7 @@
     You can use materials on 3D models.
 
     To add a material from the \uicontrol {Content Library} view to your
-    project, do one of the following:
+    project, download the material and then do one of the following:
 
     \list
       \li Select the \inlineimage icons/plus.png
@@ -79,4 +84,60 @@
       \uicontrol Navigator view.
     \endlist
 
+    \section1 User Assets
+
+    \image user-assets.webp
+
+    Add assets to \uicontrol {User Assets} to access them in any project.
+
+    You can add 3D objects (such as 3D models, cameras, and lights), materials, and images to
+    \uicontrol {User Assets}.
+
+    \section2 Adding an Asset to User Assets
+
+    Add assets to \uicontrol{User Assets} in the following ways:
+
+    \list
+      \li In the \uicontrol {Assets} view, right-click an asset and select
+      \uicontrol {Add to Content Library}.
+      \li In the \uicontrol {3D} view, right-click an asset and select
+      \uicontrol {Add to Content Library}.
+      \li In the \uicontrol {Navigator} view, right-click an asset and select
+      \uicontrol {Add to Content Library}.
+      \li In the \uicontrol {Material Browser} view, right-click a material and select
+      \uicontrol {Add to Content Library}.
+    \endlist
+
+    \section2 Using Assets from User Assets
+
+    \section3 Adding a Material
+
+    Add a material to your project in the following ways:
+
+    \list
+      \li Right-click the material and select \uicontrol {Add an instance to project}. This
+      adds the material to the \uicontrol {Material Browser} view.
+      \li Drag a material to a 3D model in the \uicontrol 3D or \uicontrol Navigator view.
+    \endlist
+
+    \section3 Adding a 3D component
+
+    Add a 3D component to your project in the following ways:
+
+    \list
+      \li Drag the 3D component to the \uicontrol 3D or \uicontrol Navigator view.
+      \li Right-click the 3D component and select \uicontrol {Add an instance to project}.
+    \endlist
+
+    \section3 Adding a Texture
+
+    Add a texture to your project in the following ways:
+
+    \list
+      \li Right-click a texture and select \uicontrol {Add image}, \uicontrol{Add texture}, or
+      \uicontrol {Add light probe}.
+      \li Drag a texture to a 3D model in the \uicontrol 3D, \uicontrol {2D}, or
+      \uicontrol {Navigator} view to add it as a texture to that 3D model.
+      \li Drag a texture to the \uicontrol Assets view.
+    \endlist
 */

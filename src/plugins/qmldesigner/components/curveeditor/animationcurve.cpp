@@ -331,11 +331,7 @@ void AnimationCurve::insert(double time)
         return;
 
     auto insertFrames = [this](std::array<Keyframe, 3> &&frames) {
-        auto samePosition = [frames](const Keyframe &frame) {
-            return frame.position() == frames[0].position();
-        };
-
-        auto iter = std::find_if(m_frames.begin(), m_frames.end(), samePosition);
+        auto iter = std::ranges::find(m_frames, frames[0].position(), &Keyframe::position);
         if (iter != m_frames.end()) {
             auto erased = m_frames.erase(iter, iter + 2);
             m_frames.insert(erased, frames.begin(), frames.end());

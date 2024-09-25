@@ -21,6 +21,7 @@ namespace QmlDesigner {
 class CreateTexture;
 class DynamicPropertiesModel;
 class ModelNode;
+class QmlObjectNode;
 class TextureEditorQmlBackend;
 
 class TextureEditorView : public AbstractView
@@ -53,6 +54,9 @@ public:
                         const NodeAbstractProperty &oldPropertyParent,
                         AbstractView::PropertyChangeFlags propertyChange) override;
     void nodeAboutToBeRemoved(const ModelNode &removedNode) override;
+    void nodeRemoved(const ModelNode &removedNode,
+                     const NodeAbstractProperty &parentProperty,
+                     PropertyChangeFlags propertyChange) override;
 
     void resetView();
     void currentStateChanged(const ModelNode &node) override;
@@ -102,6 +106,7 @@ private:
     void duplicateTexture(const ModelNode &texture);
 
     bool noValidSelection() const;
+    void asyncResetView();
 
     AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedTexture;
@@ -117,6 +122,8 @@ private:
     bool m_hasQuick3DImport = false;
     bool m_hasTextureRoot = false;
     bool m_initializingPreviewData = false;
+    ModelNode m_newSelectedTexture;
+    bool m_selectedTextureChanged = false;
 
     QPointer<QColorDialog> m_colorDialog;
     QPointer<CreateTexture> m_createTexture;

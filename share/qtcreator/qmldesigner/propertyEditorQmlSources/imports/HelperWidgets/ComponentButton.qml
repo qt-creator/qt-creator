@@ -28,7 +28,7 @@ Column {
         AbstractButton {
             implicitWidth: 180
             buttonIcon: qsTr("Edit Component")
-            iconFont: StudioTheme.Constants.font
+            iconFontFamily: StudioTheme.Constants.font.family
 
             onClicked: goIntoComponent()
         }

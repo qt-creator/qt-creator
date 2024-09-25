@@ -63,9 +63,6 @@ void FormEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    if (!isEnabled())
-        return;
-
     m_formEditorWidget->setBackgoundImage({});
 
     temporaryBlockView();
