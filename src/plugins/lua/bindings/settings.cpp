@@ -286,9 +286,23 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
         sol::bases<TypedAspect<typename T::valueType>, BaseAspect>());
 }
 
+class ObjectPool
+{
+public:
+    mutable std::vector<std::shared_ptr<Core::IOptionsPage>> optionsPages;
+
+    template<class T, class... _Args>
+    std::shared_ptr<T> makePage(_Args &&...__args) const
+    {
+        auto page = std::make_shared<T>(std::forward<_Args>(__args)...);
+        optionsPages.push_back(page);
+        return page;
+    }
+};
+
 void setupSettingsModule()
 {
-    registerProvider("Settings", [](sol::state_view lua) -> sol::object {
+    registerProvider("Settings", [pool = ObjectPool()](sol::state_view lua) -> sol::object {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
         sol::table settings = lua.create_table();
@@ -607,8 +621,8 @@ void setupSettingsModule()
         settings.new_usertype<OptionsPage>(
             "OptionsPage",
             "create",
-            [pluginSpec](const sol::table &options) {
-                return std::make_unique<OptionsPage>(pluginSpec, options);
+            [&pool, pluginSpec](const sol::table &options) {
+                return pool.makePage<OptionsPage>(pluginSpec, options);
             },
             "show",
             [](OptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
@@ -616,8 +630,8 @@ void setupSettingsModule()
         settings.new_usertype<ExtensionOptionsPage>(
             "ExtensionOptionsPage",
             "create",
-            [pluginSpec](AspectContainer *container) {
-                return std::make_unique<ExtensionOptionsPage>(pluginSpec, container);
+            [pluginSpec, &pool](AspectContainer *container) {
+                return pool.makePage<ExtensionOptionsPage>(pluginSpec, container);
             },
             "show",
             [](ExtensionOptionsPage *page) { Core::ICore::showOptionsDialog(page->id()); });
