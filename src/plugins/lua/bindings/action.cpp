@@ -55,8 +55,8 @@ void setupActionModule()
                     cmd->m_contextAction->setText(text);
                 }),
             "icon",
-            sol::property([](ScriptCommand *cmd, const FilePathOrString &&icon) {
-                cmd->m_contextAction->setIcon(QIcon(toFilePath(icon).toFSPathString()));
+            sol::property([](ScriptCommand *cmd, const IconFilePathOrString &&icon) {
+                cmd->m_contextAction->setIcon(toIcon(icon)->icon());
             }));
 
         result["create"] = [parent = std::make_unique<QObject>()](
@@ -100,7 +100,7 @@ void setupActionModule()
                             "asMode needs an integer argument for the priority");
                     }
                 } else if (key == "icon") {
-                    b.setIcon(QIcon(toFilePath(v.as<FilePathOrString>()).toFSPathString()));
+                    b.setIcon(toIcon(v.as<IconFilePathOrString>())->icon());
                 } else
                     throw std::runtime_error("Unknown key: " + key.toStdString());
             }

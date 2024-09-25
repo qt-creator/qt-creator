@@ -4,10 +4,13 @@
 #include "../luaengine.h"
 #include "../luaqttypes.h"
 
+#include "utils.h"
+
 #include <utils/async.h>
 #include <utils/commandline.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
+#include <utils/icon.h>
 #include <utils/processinterface.h>
 
 #include <QDesktopServices>
@@ -243,6 +246,33 @@ void setupUtilsModule()
             utils["base64ToString"] = [](const char *data) {
                 return QString::fromUtf8(QByteArray::fromBase64(data));
             };
+
+            utils.new_enum<Icon::IconStyleOption>(
+                "IconStyleOption",
+                {{"None", Icon::None},
+                 {"Tint", Icon::Tint},
+                 {"DropShadow", Icon::DropShadow},
+                 {"PunchEdges", Icon::PunchEdges},
+                 {"ToolBarStyle", Icon::ToolBarStyle},
+                 {"MenuTintedStyle", Icon::MenuTintedStyle}});
+
+            mirrorEnum(utils, QMetaEnum::fromType<Theme::Color>(), "ThemeColor");
+
+            auto iconType = utils.new_usertype<Icon>(
+                "Icon",
+                "create",
+                sol::factories(
+                    [](FilePathOrString path) { return std::make_shared<Icon>(toFilePath(path)); },
+                    [](const sol::table &maskAndColor, Icon::IconStyleOption style) {
+                        QList<IconMaskAndColor> args;
+                        for (const auto &it : maskAndColor) {
+                            auto pair = it.second.as<sol::table>();
+                            args.append(qMakePair(
+                                toFilePath(pair.get<FilePathOrString>(1)),
+                                pair.get<Theme::Color>(2)));
+                        }
+                        return std::make_shared<Icon>(args, Icon::IconStyleOptions::fromInt(style));
+                    }));
 
             return utils;
         });

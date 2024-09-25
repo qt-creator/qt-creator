@@ -4,6 +4,7 @@
 #include "../luaengine.h"
 
 #include "inheritance.h"
+#include "utils.h"
 
 #include <utils/aspects.h>
 #include <utils/filepath.h>
@@ -418,14 +419,8 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Object, Thing>());
 
-        auto mirrorEnum = [&gui](QMetaEnum metaEnum) {
-            sol::table widgetAttributes = gui.create(metaEnum.name());
-            for (int i = 0; i < metaEnum.keyCount(); ++i)
-                widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
-        };
-
-        mirrorEnum(QMetaEnum::fromType<Qt::WidgetAttribute>());
-        mirrorEnum(QMetaEnum::fromType<Qt::WindowType>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
 
         gui.new_usertype<Stack>(
             "Stack",

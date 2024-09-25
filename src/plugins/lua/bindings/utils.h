@@ -3,7 +3,12 @@
 
 #pragma once
 
+#include "../luaengine.h"
+
 #include <utils/filepath.h>
+#include <utils/icon.h>
+
+#include <QMetaEnum>
 
 namespace Lua::Internal {
 
@@ -21,5 +26,28 @@ inline Utils::FilePath toFilePath(const FilePathOrString &v)
         },
         v);
 }
+
+using IconFilePathOrString = std::variant<std::shared_ptr<Utils::Icon>, Utils::FilePath, QString>;
+
+inline std::shared_ptr<Utils::Icon> toIcon(const IconFilePathOrString &v)
+{
+    return std::visit(
+        [](auto &&arg) -> std::shared_ptr<Utils::Icon> {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, std::shared_ptr<Utils::Icon>>)
+                return arg;
+            else
+                return std::make_shared<Utils::Icon>(toFilePath(arg));
+        },
+        v);
+}
+
+inline void mirrorEnum(sol::table &target, QMetaEnum metaEnum, const QString &name = {})
+{
+    sol::table widgetAttributes = target.create(
+        name.isEmpty() ? QString::fromUtf8(metaEnum.name()) : name, metaEnum.keyCount());
+    for (int i = 0; i < metaEnum.keyCount(); ++i)
+        widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
+};
 
 } // namespace Lua::Internal
