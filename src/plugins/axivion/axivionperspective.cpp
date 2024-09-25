@@ -236,6 +236,11 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     connect(m_dashboards, &QComboBox::currentIndexChanged, this, [this] {
         if (m_signalBlocker.isLocked())
             return;
+        const QVariant data = m_dashboards->currentData();
+        if (data.isValid()) {
+            const AxivionServer server = data.value<AxivionServer>();
+            switchActiveDashboardId(server.id);
+        }
         reinitProjectList(m_dashboardProjects->currentText());
     });
 
