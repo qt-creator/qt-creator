@@ -3,6 +3,8 @@
 
 #include "../luaengine.h"
 
+#include "utils.h"
+
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/modemanager.h>
 
@@ -51,7 +53,11 @@ void setupActionModule()
                 [](ScriptCommand *cmd) { return cmd->m_contextAction->text(); },
                 [](ScriptCommand *cmd, const QString &text) {
                     cmd->m_contextAction->setText(text);
-                }));
+                }),
+            "icon",
+            sol::property([](ScriptCommand *cmd, const FilePathOrString &&icon) {
+                cmd->m_contextAction->setIcon(QIcon(toFilePath(icon).toFSPathString()));
+            }));
 
         result["create"] = [parent = std::make_unique<QObject>()](
                                const std::string &actionId, const sol::table &options) mutable {
@@ -93,6 +99,8 @@ void setupActionModule()
                         throw std::runtime_error(
                             "asMode needs an integer argument for the priority");
                     }
+                } else if (key == "icon") {
+                    b.setIcon(QIcon(toFilePath(v.as<FilePathOrString>()).toFSPathString()));
                 } else
                     throw std::runtime_error("Unknown key: " + key.toStdString());
             }
