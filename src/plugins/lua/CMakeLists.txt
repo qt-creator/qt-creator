@@ -5,6 +5,7 @@ add_qtc_plugin(Lua
   SOURCES
     bindings/action.cpp
     bindings/async.cpp
+    bindings/async.h
     bindings/core.cpp
     bindings/fetch.cpp
     bindings/gui.cpp
