@@ -60,9 +60,7 @@ def qdump__std__deque(d, value):
 def qdumpHelper__std__deque__libstdcxx(d, value):
     innerType = value.type[0]
     innerSize = innerType.size()
-    bufsize = 1
-    if innerSize < 512:
-        bufsize = 512 // innerSize
+    bufsize = 512 // innerSize if innerSize < 512 else 1
 
     (mapptr, mapsize, startCur, startFirst, startLast, startNode,
      finishCur, finishFirst, finishLast, finishNode) = value.split("pppppppppp")
@@ -82,12 +80,12 @@ def qdumpHelper__std__deque__libstdcxx(d, value):
                 d.putSubItem(i, d.createValue(pcur, innerType))
                 pcur += innerSize
                 if pcur == plast:
-                    newnode = pnode + d.ptrSize()
-                    pfirst = d.extractPointer(newnode)
-                    plast = pfirst + bufsize * d.ptrSize()
+                    pnode += d.ptrSize()
+                    if pnode > finishNode:
+                        break
+                    pfirst = d.extractPointer(pnode)
+                    plast = pfirst + bufsize * innerSize
                     pcur = pfirst
-                    pnode = newnode
-
 
 def qdumpHelper__std__deque__libcxx(d, value):
     mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
