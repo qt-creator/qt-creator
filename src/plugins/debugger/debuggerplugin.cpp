@@ -500,8 +500,7 @@ public:
         setObjectName("DebugMode");
         setContext(Context(C_DEBUGMODE, CC::C_NAVIGATION_PANE));
         setDisplayName(Tr::tr("Debug"));
-        setIcon(Utils::Icon::modeIcon(Icons::MODE_DEBUGGER_CLASSIC,
-                                      Icons::MODE_DEBUGGER_FLAT, Icons::MODE_DEBUGGER_FLAT_ACTIVE));
+        setIcon(Icon::sideBarIcon(Icons::MODE_DEBUGGER_CLASSIC, Icons::MODE_DEBUGGER_FLAT));
         setPriority(85);
         setId(MODE_DEBUG);
 

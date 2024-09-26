@@ -66,8 +66,7 @@ EditMode::EditMode()
 {
     setObjectName(QLatin1String("EditMode"));
     setDisplayName(Tr::tr("Edit"));
-    setIcon(Utils::Icon::modeIcon(Icons::MODE_EDIT_CLASSIC,
-                                  Icons::MODE_EDIT_FLAT, Icons::MODE_EDIT_FLAT_ACTIVE));
+    setIcon(Utils::Icon::sideBarIcon(Icons::MODE_EDIT_CLASSIC, Icons::MODE_EDIT_FLAT));
     setPriority(Constants::P_MODE_EDIT);
     setId(Constants::MODE_EDIT);
 

@@ -165,13 +165,6 @@ public:
         IconsNavigationArrowsColor,
         IconsBuildHammerHandleColor,
         IconsBuildHammerHeadColor,
-        IconsModeWelcomeActiveColor,
-        IconsModeEditActiveColor,
-        IconsModeDesignActiveColor,
-        IconsModeDebugActiveColor,
-        IconsModeProjectActiveColor,
-        IconsModeAnalyzeActiveColor,
-        IconsModeHelpActiveColor,
 
         /* Code model Icons */
 

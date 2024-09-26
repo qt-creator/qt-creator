@@ -353,9 +353,7 @@ public:
         const Icon CLASSIC(":/welcome/images/mode_welcome.png");
         const Icon FLAT({{":/welcome/images/mode_welcome_mask.png",
                           Theme::IconsBaseColor}});
-        const Icon FLAT_ACTIVE({{":/welcome/images/mode_welcome_mask.png",
-                                 Theme::IconsModeWelcomeActiveColor}});
-        setIcon(Icon::modeIcon(CLASSIC, FLAT, FLAT_ACTIVE));
+        setIcon(Icon::sideBarIcon(CLASSIC, FLAT));
 
         setPriority(Constants::P_MODE_WELCOME);
         setId(Constants::MODE_WELCOME);

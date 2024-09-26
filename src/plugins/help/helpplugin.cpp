@@ -86,8 +86,7 @@ public:
     {
         setObjectName("HelpMode");
         setContext(Core::Context(Constants::C_MODE_HELP));
-        setIcon(Icon::modeIcon(Icons::MODE_HELP_CLASSIC,
-                               Icons::MODE_HELP_FLAT, Icons::MODE_HELP_FLAT_ACTIVE));
+        setIcon(Icon::sideBarIcon(Icons::MODE_HELP_CLASSIC, Icons::MODE_HELP_FLAT));
         setDisplayName(Tr::tr("Help"));
         setPriority(Constants::P_MODE_HELP);
         setId(Constants::ID_MODE_HELP);

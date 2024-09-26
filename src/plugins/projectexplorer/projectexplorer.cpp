@@ -363,8 +363,7 @@ public:
     {
         setContext(Context(Constants::C_PROJECTEXPLORER));
         setDisplayName(Tr::tr("Projects"));
-        setIcon(Icon::modeIcon(Icons::MODE_PROJECT_CLASSIC,
-                               Icons::MODE_PROJECT_FLAT, Icons::MODE_PROJECT_FLAT_ACTIVE));
+        setIcon(Icon::sideBarIcon(Icons::MODE_PROJECT_CLASSIC, Icons::MODE_PROJECT_FLAT));
         setPriority(Constants::P_MODE_SESSION);
         setId(Constants::MODE_SESSION);
     }

@@ -748,9 +748,7 @@ WelcomeMode::WelcomeMode()
 
     const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
                       Utils::Theme::IconsBaseColor}});
-    const Utils::Icon FLAT_ACTIVE({{":/studiowelcome/images/mode_welcome_mask.png",
-                             Utils::Theme::IconsModeWelcomeActiveColor}});
-    setIcon(Utils::Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
+    setIcon(Icon::sideBarIcon(FLAT, FLAT));
 
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);

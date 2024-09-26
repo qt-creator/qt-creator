@@ -210,13 +210,6 @@ QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
     return result;
 }
 
-QIcon Icon::modeIcon(const Icon &classic, const Icon &flat,
-                     [[maybe_unused]] const Icon &flatActive)
-{
-    QIcon result = sideBarIcon(classic, flat);
-    return result;
-}
-
 QIcon Icon::combinedIcon(const QList<QIcon> &icons)
 {
     QIcon result;
