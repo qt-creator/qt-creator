@@ -47,6 +47,7 @@
 #include <QPainter>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStandardItemModel>
 #include <QTextBrowser>
 #include <QToolButton>
 #include <QUrlQuery>
@@ -196,6 +197,7 @@ private:
     void updateTable();
     void addIssues(const Dto::IssueTableDto &dto, int startRow);
     void onSearchParameterChanged();
+    void updateVersionItemsEnabledState();
     void updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info);
     void setFiltersEnabled(bool enabled);
     void fetchTable();
@@ -270,6 +272,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         if (m_signalBlocker.isLocked())
             return;
         QTC_ASSERT(index > -1 && index < m_versionDates.size(), return);
+        updateVersionItemsEnabledState();
         onSearchParameterChanged();
     });
 
@@ -279,6 +282,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         if (m_signalBlocker.isLocked())
             return;
         QTC_ASSERT(index > -1 && index < m_versionDates.size(), return);
+        updateVersionItemsEnabledState();
         onSearchParameterChanged();
         setAnalysisVersion(m_versionDates.at(index));
     });
@@ -600,6 +604,31 @@ void IssuesWidget::onSearchParameterChanged()
     fetchIssues(search);
 }
 
+void IssuesWidget::updateVersionItemsEnabledState()
+{
+    const int versionCount = m_versionDates.size();
+    if (versionCount < 2)
+        return;
+
+    const int currentStart = m_versionStart->currentIndex();
+    const int currentEnd = m_versionEnd->currentIndex();
+    // Note: top-most item == index 0; bottom-most item == last / highest index
+    QTC_ASSERT(currentStart > currentEnd, return);
+
+    QStandardItemModel *model = qobject_cast<QStandardItemModel *>(m_versionStart->model());
+    QTC_ASSERT(model, return);
+    for (int i = 0; i < versionCount; ++i) {
+        if (auto item = model->item(i))
+            item->setEnabled(i > currentEnd);
+    }
+    model = qobject_cast<QStandardItemModel *>(m_versionEnd->model());
+    QTC_ASSERT(model, return);
+    for (int i = 0; i < versionCount; ++i) {
+        if (auto item = model->item(i))
+            item->setEnabled(i < currentStart);
+    }
+}
+
 void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDto> &info)
 {
     auto cleanOld = [this] {
@@ -678,6 +707,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
     m_versionStart->addItems(versionLabels);
     m_versionEnd->addItems(versionLabels);
     m_versionStart->setCurrentIndex(m_versionDates.count() - 1);
+    updateVersionItemsEnabledState();
 }
 
 void IssuesWidget::setFiltersEnabled(bool enabled)
