@@ -177,8 +177,8 @@ static void reparentModelNodeToNodeProperty(NodeAbstractProperty &parentProperty
     }
 }
 
-NavigatorTreeModel::NavigatorTreeModel(QObject *parent) : QAbstractItemModel(parent)
-    , m_createTextures(Utils::makeUniqueObjectPtr<CreateTextures>(m_view))
+NavigatorTreeModel::NavigatorTreeModel(QObject *parent)
+    : QAbstractItemModel(parent)
 {
     m_actionManager = &QmlDesignerPlugin::instance()->viewManager().designerActionManager();
 }
@@ -583,17 +583,10 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                     bool moveNodesAfter = false;
 
                     m_view->executeInTransaction(__FUNCTION__, [&] {
-                        m_createTextures->execute(QStringList{texturePath},
-                                                 AddTextureMode::Image,
-                                                 Utils3D::active3DSceneId(m_view->model()));
-                        QString textureName = Utils::FilePath::fromString(texturePath).fileName();
-                        QString textureAbsolutePath = DocumentManager::currentResourcePath()
-                                                        .pathAppended("images/" + textureName).toString();
-                        ModelNodeOperations::handleItemLibraryImageDrop(textureAbsolutePath,
-                                                                        targetProperty,
-                                                                        modelNodeForIndex(
-                                                                            rowModelIndex),
-                                                                        moveNodesAfter);
+                        ModelNodeOperations::handleItemLibraryTexture3dDrop(texturePath,
+                                                                            modelNodeForIndex(
+                                                                                rowModelIndex),
+                                                                            moveNodesAfter);
                     });
                 }
             }
@@ -664,7 +657,6 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                         } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                             currNode = ModelNodeOperations::handleItemLibraryTexture3dDrop(
                                 assetPath,
-                                targetProperty,
                                 modelNodeForIndex(rowModelIndex),
                                 moveNodesAfter);
                         } else if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
@@ -851,34 +843,6 @@ bool QmlDesigner::NavigatorTreeModel::moveNodeToParent(const NodeAbstractPropert
         return true;
     }
     return false;
-}
-
-ModelNode NavigatorTreeModel::createTextureNode(const NodeAbstractProperty &targetProp,
-                                                const QString &imagePath)
-{
-    if (targetProp.isValid()) {
-        // create a texture item lib
-        ItemLibraryEntry itemLibraryEntry;
-        itemLibraryEntry.setName("Texture");
-        itemLibraryEntry.setType("QtQuick3D.Texture", 1, 0);
-
-        // set texture source
-        PropertyName prop = "source";
-        QString type = "QUrl";
-        QVariant val = imagePath;
-        itemLibraryEntry.addProperty(prop, type, val);
-
-        // create a texture
-        ModelNode newModelNode = QmlItemNode::createQmlObjectNode(m_view, itemLibraryEntry, {},
-                                                                  targetProp, false);
-
-        // Rename the node based on source image
-        QFileInfo fi(imagePath);
-        newModelNode.setIdWithoutRefactoring(
-            m_view->model()->generateNewId(fi.baseName(), "textureImage"));
-        return newModelNode;
-    }
-    return {};
 }
 
 namespace {

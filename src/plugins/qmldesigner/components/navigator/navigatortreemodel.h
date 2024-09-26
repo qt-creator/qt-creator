@@ -96,9 +96,11 @@ private:
     void handleInternalDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
     void handleItemLibraryItemDrop(const QMimeData *mimeData, int rowNumber, const QModelIndex &dropModelIndex);
 
-    bool dropAsImage3dTexture(const ModelNode &targetNode, const NodeAbstractProperty &targetProp,
-                              const QString &imagePath, ModelNode &newNode, bool &outMoveNodesAfter);
-    ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);
+    bool dropAsImage3dTexture(const ModelNode &targetNode,
+                              const NodeAbstractProperty &targetProp,
+                              const QString &imagePath,
+                              ModelNode &newNode,
+                              bool &outMoveNodesAfter);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
     void addImport(const QString &importName);
     QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const;

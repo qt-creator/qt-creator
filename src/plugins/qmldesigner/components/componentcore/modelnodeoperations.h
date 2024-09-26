@@ -160,7 +160,6 @@ ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
                                      NodeAbstractProperty targetProperty,
                                      const ModelNode &targetNode);
 ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath,
-                                         NodeAbstractProperty targetProperty,
                                          const ModelNode &targetNode,
                                          bool &outMoveNodesAfter);
 

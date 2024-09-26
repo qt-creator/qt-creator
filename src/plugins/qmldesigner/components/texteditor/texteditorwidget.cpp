@@ -341,7 +341,6 @@ void TextEditorWidget::dropEvent(QDropEvent *dropEvent)
                                                                                targetNode);
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 newModelNode = ModelNodeOperations::handleItemLibraryTexture3dDrop(assetPath,
-                                                                                   targetProperty,
                                                                                    targetNode,
                                                                                    moveNodesAfter);
             } else if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
