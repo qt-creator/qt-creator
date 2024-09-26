@@ -121,7 +121,7 @@ def selectBuildConfig(wantedKit, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     if any((switchToBuildOrRunSettingsFor(wantedKit, ProjectSettings.BUILD),
             selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName))):
-        waitForProjectParsing(5000, 30000, 0)
+        progressBarWait(30000)
     if afterSwitchTo:
         if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
