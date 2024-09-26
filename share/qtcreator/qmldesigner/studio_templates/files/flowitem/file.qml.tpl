@@ -5,14 +5,14 @@ this file manually, you might introduce QML code that is not supported by Qt Des
 Check out https://doc.qt.io/qtcreator/creator-quick-ui-forms.html for details on .ui.qml files.
 */
 
-import QtQuick 2.15
+import QtQuick
 @if %{UseQtQuickControls2}
-import QtQuick.Controls 2.15
+import QtQuick.Controls
 @endif
 @if %{UseImport}
 import %{ApplicationImport}
 @endif
-import FlowView 1.0
+import FlowView
 
 FlowItem {
 @if %{UseImport}

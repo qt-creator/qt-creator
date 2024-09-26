@@ -5,11 +5,11 @@
 #include "useritemcategory.h"
 #include "usertexturecategory.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryitem.h"
 #include "contentlibrarytexture.h"
 #include "contentlibrarywidget.h"
 
+#include <bundleimporter.h>
 #include <designerpaths.h>
 #include <imageutils.h>
 #include <qmldesignerconstants.h>
@@ -95,6 +95,8 @@ void ContentLibraryUserModel::addItem(const QString &bundleId, const QString &na
 
 void ContentLibraryUserModel::refreshSection(const QString &bundleId)
 {
+    QTC_ASSERT(!bundleId.isEmpty(), return);
+
     SectionIndex sectionIdx = bundleIdToSectionIndex(bundleId);
     emit dataChanged(index(sectionIdx), index(sectionIdx), {ItemsRole, EmptyRole});
     updateIsEmpty();

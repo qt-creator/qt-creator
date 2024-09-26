@@ -227,8 +227,7 @@ std::tuple<PropertyComponentGenerator::Entries, bool> createEntries(
 QStringList createImports(QmlJS::SimpleReaderNode *templateConfiguration)
 {
     auto property = templateConfiguration->property("imports");
-    return Utils::transform<QStringList>(property.value.toList(),
-                                         [](const auto &entry) { return entry.toString(); });
+    return Utils::transform<QStringList>(property.value.toList(), &QVariant::toString);
 }
 
 } // namespace
@@ -270,23 +269,6 @@ void PropertyComponentGenerator::setModel(Model *model)
     m_model = model;
 }
 
-namespace {
-
-bool insect(const TypeIds &first, const TypeIds &second)
-{
-    bool intersecting = false;
-
-    std::set_intersection(first.begin(),
-                          first.end(),
-                          second.begin(),
-                          second.end(),
-                          Utils::make_iterator([&](const auto &) { intersecting = true; }));
-
-    return intersecting;
-}
-
-} // namespace
-
 void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templateConfiguration,
                                             Model *model,
                                             const QString &propertyTemplatesPath)
@@ -303,7 +285,7 @@ void PropertyComponentGenerator::setEntries(QmlJS::SimpleReaderNode::Ptr templat
 
 void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 {
-    if (!insect(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
+    if (!Utils::set_has_common_element(deletedTypeIds, m_entryTypeIds) && !m_hasInvalidTemplates)
         return;
 
     setEntries(m_templateConfiguration, m_model, m_propertyTemplatesPath);
@@ -311,9 +293,7 @@ void PropertyComponentGenerator::refreshMetaInfos(const TypeIds &deletedTypeIds)
 
 const PropertyComponentGenerator::Entry *PropertyComponentGenerator::findEntry(const NodeMetaInfo &type) const
 {
-    auto found = std::find_if(m_entries.begin(), m_entries.end(), [&](const auto &entry) {
-        return entry.type == type;
-    });
+    auto found = std::ranges::find(m_entries, type, &Entry::type);
 
     if (found != m_entries.end())
         return std::addressof(*found);

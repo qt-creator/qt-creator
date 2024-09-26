@@ -83,9 +83,7 @@ TreeView {
         interval: 200
         repeat: false
 
-        onTriggered: {
-            root.updateRows()
-        }
+        onTriggered: root.updateRows()
     }
 
     Connections {
@@ -278,36 +276,6 @@ TreeView {
         return ""
     }
 
-    function startDropHoverOver(row)
-    {
-        let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index)) {
-            let item = root.__getDelegateItemForIndex(index)
-            if (item)
-                item.isHighlighted = true
-            return
-        }
-
-        let parentItem = root.__getDelegateParentForIndex(index)
-        if (parentItem)
-            parentItem.hasChildWithDropHover = true
-    }
-
-    function endDropHover(row)
-    {
-        let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index)) {
-            let item = root.__getDelegateItemForIndex(index)
-            if (item)
-                item.isHighlighted = false
-            return
-        }
-
-        let parentItem = root.__getDelegateParentForIndex(index)
-        if (parentItem)
-            parentItem.hasChildWithDropHover = false
-    }
-
     function isAssetSelected(itemPath)
     {
         return root.selectedAssets[itemPath] ? true : false
@@ -329,12 +297,6 @@ TreeView {
         let parentIndex = assetsModel.parentDirIndex(index)
         let parentCell = root.cellAtIndex(parentIndex)
         return root.itemAtCell(parentCell)
-    }
-
-    function __getDelegateItemForIndex(index)
-    {
-        let cell = root.cellAtIndex(index)
-        return root.itemAtCell(cell)
     }
 
     function __modelIndex(row)
@@ -403,77 +365,6 @@ TreeView {
 
         onAccepted: root.clearSelectedAssets()
         onClosed: confirmDeleteFiles.files = []
-    }
-
-    DropArea {
-        id: dropArea
-        enabled: true
-        anchors.fill: parent
-
-        property bool __isHoveringDrop: false
-        property int __rowHoveringOver: -1
-
-        function __rowAndItem(drag)
-        {
-            let pos = dropArea.mapToItem(root, drag.x, drag.y)
-            let cell = root.cellAtPos(pos.x, pos.y, true)
-            let item = root.itemAtCell(cell)
-
-            return [cell.y, item]
-        }
-
-        onEntered: (drag) => {
-            root.assetsRoot.updateDropExtFiles(drag)
-
-            let [row, item] = dropArea.__rowAndItem(drag)
-            dropArea.__isHoveringDrop = drag.accepted && root.assetsRoot.dropSimpleExtFiles.length > 0
-
-            if (item && dropArea.__isHoveringDrop)
-                root.startDropHoverOver(row)
-
-            dropArea.__rowHoveringOver = row
-        }
-
-        onDropped: (drag) => {
-            let [row, item] = dropArea.__rowAndItem(drag)
-
-            if (item) {
-                drag.accept()
-                root.endDropHover(row)
-
-                let dirPath = item.getDirPath()
-
-                rootView.emitExtFilesDrop(root.assetsRoot.dropSimpleExtFiles,
-                                          root.assetsRoot.dropComplexExtFiles,
-                                          dirPath)
-            }
-
-            dropArea.__isHoveringDrop = false
-            dropArea.__rowHoveringOver = -1
-        }
-
-        onPositionChanged: (drag) => {
-            let [row, item] = dropArea.__rowAndItem(drag)
-
-            if (dropArea.__rowHoveringOver !== row && dropArea.__rowHoveringOver > -1) {
-                root.endDropHover(dropArea.__rowHoveringOver)
-
-                if (item)
-                    root.startDropHoverOver(row)
-            }
-
-            dropArea.__rowHoveringOver = row
-        }
-
-        onExited: {
-            if (!dropArea.__isHoveringDrop || dropArea.__rowHoveringOver === -1)
-                return
-
-            root.endDropHover(dropArea.__rowHoveringOver)
-
-            dropArea.__isHoveringDrop = false
-            dropArea.__rowHoveringOver = -1
-        }
     }
 
     delegate: AssetDelegate {

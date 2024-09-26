@@ -7,6 +7,7 @@ add_qtc_test(tst_qml_testcore
     QmlDesignerCore
     Qt::Widgets
     Qt::Qml
+    QmlJSTools
   DEFINES
     QT_CREATOR
     IDE_PLUGIN_PATH="${PROJECT_BINARY_DIR}/${IDE_PLUGIN_PATH}"

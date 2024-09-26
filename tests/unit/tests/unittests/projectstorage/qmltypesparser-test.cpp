@@ -10,7 +10,7 @@
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/projectstoragetypes.h>
 #include <projectstorage/qmltypesparser.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 namespace {
 
@@ -63,11 +63,18 @@ MATCHER_P(HasFlag, flag, std::string(negation ? "hasn't " : "has ") + PrintToStr
 
 MATCHER_P(UsesCustomParser,
           value,
-          std::string(negation ? "don't used custom parser " : "uses custom parser"))
+          std::string(negation ? "don't used custom parser " : "uses custom parser "))
 {
     const Storage::TypeTraits &traits = arg;
 
     return traits.usesCustomParser == value;
+}
+
+MATCHER_P(IsSingleton, value, std::string(negation ? "isn't singleton " : "is singleton "))
+{
+    const Storage::TypeTraits &traits = arg;
+
+    return traits.isSingleton == value;
 }
 
 template<typename Matcher>
@@ -173,8 +180,10 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ProjectStorageErrorNotifierMock errorNotifierMock;
     QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
-        storage};
+    Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
+    QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                     sourcePathDatabase.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{sourcePathStorage};
     QmlDesigner::QmlTypesParser parser{storage};
     Storage::Imports imports;
     Synchronization::Types types;
@@ -874,6 +883,41 @@ TEST_F(QmlTypesParser, skip_template_item)
                                             Synchronization::ImportedType{},
                                             Storage::TypeTraitsKind::Reference,
                                             qmltypesFileSourceId)));
+}
+
+TEST_F(QmlTypesParser, is_singleton)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    isSingleton: true}})"};
+
+    parser.parse(source, imports, types, directoryInfo);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(IsSingleton(true))));
+}
+
+TEST_F(QmlTypesParser, is_not_singleton)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"
+                                    isSingleton: false}})"};
+
+    parser.parse(source, imports, types, directoryInfo);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(IsSingleton(false))));
+}
+
+TEST_F(QmlTypesParser, is_by_default_not_singleton)
+{
+    QString source{R"(import QtQuick.tooling 1.2
+                      Module{
+                        Component { name: "QObject"}})"};
+
+    parser.parse(source, imports, types, directoryInfo);
+
+    ASSERT_THAT(types, ElementsAre(IsTypeTrait(IsSingleton(false))));
 }
 
 } // namespace

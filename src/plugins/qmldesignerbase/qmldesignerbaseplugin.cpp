@@ -6,7 +6,11 @@
 #include "studio/studiosettingspage.h"
 
 #include "studio/studiostyle.h"
-#include "utils/designersettings.h"
+
+#include <designersettings.h>
+#include <studioquickutils.h>
+#include <studiovalidator.h>
+#include <windowmanager.h>
 
 #include <coreplugin/icore.h>
 #include <utils/appinfo.h>
@@ -87,6 +91,11 @@ bool QmlDesignerBasePlugin::initialize(const QStringList &arguments, QString *)
 {
     if (arguments.contains("-qml-lite-designer"))
         enbableLiteMode();
+
+    WindowManager::registerDeclarativeType();
+    StudioQuickUtils::registerDeclarativeType();
+    StudioIntValidator::registerDeclarativeType();
+    StudioDoubleValidator::registerDeclarativeType();
 
     d = std::make_unique<Data>();
     if (Core::ICore::settings()->value("QML/Designer/StandAloneMode", false).toBool())

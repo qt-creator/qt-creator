@@ -1,5 +1,7 @@
 # Generate documentation
 
+include(Utils)
+
 option(BUILD_DEVELOPER_DOCS "Include developer documentation" OFF)
 add_feature_info("Include developer documentation" BUILD_DEVELOPER_DOCS "")
 
@@ -15,6 +17,7 @@ function(_find_all_includes _ret_includes _ret_framework_paths)
       string(FIND "${_include}" "/src/libs/" _in_libs)
       string(FIND "${_include}" "${CMAKE_BINARY_DIR}" _in_build)
       if(_in_plugins LESS 0 AND _in_libs LESS 0 AND _in_build LESS 0)
+        remove_generator_expressions(_include ${_include})
         list(APPEND _all_includes ${_include})
       endif()
     endforeach()

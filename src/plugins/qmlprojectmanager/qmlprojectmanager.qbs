@@ -45,13 +45,17 @@ QtcPlugin {
 
     Group {
         name: "CMake Generator"
-        prefix: "cmakegen/"
+        prefix: "qmlprojectexporter/"
         files: [
+            "pythongenerator.cpp", "pythongenerator.h",
             "cmakegenerator.cpp", "cmakegenerator.h",
             "cmakewriter.cpp", "cmakewriter.h",
             "cmakewriterv0.cpp", "cmakewriterv0.h",
             "cmakewriterv1.cpp", "cmakewriterv1.h",
-            "filetypes.cpp", "filetypes.h"
+            "exporter.cpp", "exporter.h",
+            "filegenerator.cpp", "filegenerator.h",
+            "filetypes.cpp", "filetypes.h",
+            "boilerplate.qrc"
         ]
     }
 

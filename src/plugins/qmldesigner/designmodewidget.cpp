@@ -21,6 +21,7 @@
 #include <coreplugin/modemanager.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesignerbase/qmldesignerbaseplugin.h>
+#include <qmldesignerbase/settings/designersettings.h>
 
 #include <coreplugin/outputpane.h>
 #include <coreplugin/modemanager.h>
@@ -121,7 +122,7 @@ DesignModeWidget::DesignModeWidget()
         qApp->setStyle(QmlDesignerBasePlugin::style());
 
     IContext::attach(this,
-                     Context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU),
+                     Context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId),
                      [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
@@ -331,7 +332,12 @@ void DesignModeWidget::setup()
     }
 
     // Afterwards get all the other widgets
-    for (const WidgetInfo &widgetInfo : viewManager().widgetInfos()) {
+    for (const auto &view : viewManager().views()) {
+        if (!view->hasWidget())
+            continue;
+
+        auto widgetInfo = view->widgetInfo();
+
         ensureMinimumSize(widgetInfo.widget);
 
         auto dockWidget = createDockWidget(widgetInfo.widget,
@@ -344,7 +350,10 @@ void DesignModeWidget::setup()
         m_viewWidgets.append(widgetInfo.widget);
 
         // Create menu action
-        auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
+        auto viewAction = view->action();
+        viewAction->setText(widgetInfo.tabName);
+        dockWidget->setToggleViewAction(viewAction);
+        auto command = Core::ActionManager::registerAction(viewAction,
                                                            actionToggle.withSuffix(widgetInfo.uniqueId).withSuffix("Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);

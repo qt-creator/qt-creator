@@ -13,40 +13,18 @@
 #include <QObject>
 #include <QPointer>
 
-class ZipWriter;
-
 QT_FORWARD_DECLARE_CLASS(QImage)
 QT_FORWARD_DECLARE_CLASS(QPixmap)
 QT_FORWARD_DECLARE_CLASS(QTemporaryDir)
 
 namespace QmlDesigner {
 
+class BundleHelper;
 class ContentLibraryItem;
 class ContentLibraryMaterial;
 class ContentLibraryTexture;
 class ContentLibraryWidget;
 class Model;
-
-struct AssetPath
-{
-    QString basePath;
-    QString relativePath;
-
-    Utils::FilePath absFilPath() const
-    {
-        return Utils::FilePath::fromString(basePath).pathAppended(relativePath);
-    }
-
-    bool operator==(const AssetPath &other) const
-    {
-        return basePath == other.basePath && relativePath == other.relativePath;
-    }
-
-    friend size_t qHash(const AssetPath &asset)
-    {
-        return ::qHash(asset.relativePath);
-    }
-};
 
 class ContentLibraryView : public AbstractView
 {
@@ -87,19 +65,8 @@ private:
     void updateBundlesQuick3DVersion();
     void addLibAssets(const QStringList &paths);
     void addLib3DComponent(const ModelNode &node);
-    void exportLib3DComponent(const ModelNode &node);
     void addLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
-    void exportLibItem(const ModelNode &node, const QPixmap &iconPixmap = {});
     void importBundleToContentLib();
-    void importBundleToProject();
-    void getImageFromCache(const QString &qmlPath,
-                           std::function<void(const QImage &image)> successCallback);
-    QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
-    QString getExportPath(const ModelNode &node) const;
-    QString getImportPath() const;
-    QString nodeNameToComponentFileName(const QString &name) const;
-    QPair<QString, QSet<AssetPath>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
-    void addIconAndCloseZip(const auto &image);
     void saveIconToBundle(const auto &image);
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -109,11 +76,7 @@ private:
                                          const NodeMetaInfo &metaInfo = {});
 #endif
     ModelNode getBundleMaterialDefaultInstance(const TypeName &type);
-#ifdef QDS_USE_PROJECTSTORAGE
-    ModelNode createMaterial(const TypeName &typeName);
-#else
-    ModelNode createMaterial(const NodeMetaInfo &metaInfo);
-#endif
+
     QPointer<ContentLibraryWidget> m_widget;
     QList<ModelNode> m_bundleMaterialTargets;
     ModelNode m_bundleItemTarget; // target of the dropped bundle item
@@ -122,6 +85,7 @@ private:
     ContentLibraryMaterial *m_draggedBundleMaterial = nullptr;
     ContentLibraryTexture *m_draggedBundleTexture = nullptr;
     ContentLibraryItem *m_draggedBundleItem = nullptr;
+    std::unique_ptr<BundleHelper> m_bundleHelper;
     AsynchronousImageCache &m_imageCache;
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
@@ -130,12 +94,9 @@ private:
     Utils::FilePath m_iconSavePath;
     QString m_generatedFolderName;
     QString m_bundleId;
-    std::unique_ptr<ZipWriter> m_zipWriter;
-    std::unique_ptr<QTemporaryDir> m_tempDir;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
     static constexpr char ADD_ITEM_REQ_ID[] = "AddItemReqId";
-    static constexpr char EXPORT_ITEM_REQ_ID[] = "ExportItemReqId";
 };
 
 } // namespace QmlDesigner

@@ -5,6 +5,8 @@
 
 #include <qmldesignerplugin.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <utils/layoutbuilder.h>
 
 #include <QCheckBox>

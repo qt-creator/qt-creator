@@ -63,9 +63,8 @@ ModuleId ProjectStorageMock::createModule(Utils::SmallStringView moduleName,
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     SourceId sourceId, Utils::SmallStringView typeName, TypeId typeId)
 {
-    if (auto id = importedTypeNameId(sourceId, typeName)) {
+    if (auto id = importedTypeNameId(sourceId, typeName))
         return id;
-    }
 
     static ImportedTypeNameId importedTypeNameId;
     incrementBasicId(importedTypeNameId);
@@ -76,6 +75,12 @@ QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
     ON_CALL(*this, typeId(importedTypeNameId)).WillByDefault(Return(typeId));
 
     return importedTypeNameId;
+}
+
+void ProjectStorageMock::refreshImportedTypeNameId(QmlDesigner::ImportedTypeNameId importedTypeId,
+                                                   TypeId typeId)
+{
+    ON_CALL(*this, typeId(importedTypeId)).WillByDefault(Return(typeId));
 }
 
 QmlDesigner::ImportedTypeNameId ProjectStorageMock::createImportedTypeNameId(
@@ -381,6 +386,14 @@ ProjectStorageMock::ProjectStorageMock()
 
     ON_CALL(*this, exportedTypeNames(_, _)).WillByDefault([&](TypeId typeId, SourceId sourceId) {
         return exportedTypeNameBySourceId[{typeId, sourceId}];
+    });
+
+    ON_CALL(*this, addObserver(_)).WillByDefault([&](auto observer) {
+        observers.push_back(observer);
+    });
+
+    ON_CALL(*this, removeObserver(_)).WillByDefault([&](auto observer) {
+        std::erase(observers, observer);
     });
 }
 

@@ -93,6 +93,9 @@ public:
     void jumpToCodeInTextEditor(const ModelNode &modelNode);
     QList<AbstractView *> views() const;
 
+    void hideView(AbstractView &view);
+    void showView(AbstractView &view);
+
 private: // functions
     Q_DISABLE_COPY(ViewManager)
 
@@ -112,6 +115,11 @@ private: // functions
     QList<AbstractView *> standardViews() const;
 
     void registerNanotraceActions();
+
+    void registerViewActions();
+    void registerViewAction(AbstractView &view);
+    void enableView(AbstractView &view);
+    void disableView(AbstractView &view);
 
 private: // variables
     std::unique_ptr<ViewManagerData> d;

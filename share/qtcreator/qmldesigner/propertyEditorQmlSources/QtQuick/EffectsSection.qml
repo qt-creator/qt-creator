@@ -62,7 +62,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: root.hasDesignerEffect ? qsTr("Remove Effects") : qsTr("Add Effects")
-                iconFont: StudioTheme.Constants.font
+                iconFontFamily: StudioTheme.Constants.font.family
                 tooltip: qsTr("Adds visual effects on the component.")
                 onClicked: {
                     if (root.hasDesignerEffect) {
@@ -535,7 +535,7 @@ Section {
                 implicitWidth: StudioTheme.Values.singleControlColumnWidth
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: qsTr("Add Shadow Effect")
-                iconFont: StudioTheme.Constants.font
+                iconFontFamily: StudioTheme.Constants.font.family
                 tooltip: qsTr("Adds <b>Drop Shadow</b> or <b>Inner Shadow</b> effects to a component.")
                 onClicked: {
                     modelNodeBackend.createModelNode(root.effectNode,

@@ -12,10 +12,9 @@ import QtQuickDesignerColorPalette
 Column {
     id: root
 
-    // There seems to be an issue on Windows and MacOS with ColorPickers
-    // Canvases not being painted on initialization
-    // because ColorEditorPopup is invisible at init time,
-    // so we use this signal to explicitly pass visibility status
+    // There seems to be an issue on Windows and macOS with ColorPickers canvas not being painted
+    // on initialization, because ColorEditorPopup is invisible at init time, so we use this signal
+    // to explicitly pass visibility status.
     signal aboutToBeShown
 
     property bool eyeDropperActive: ColorPaletteBackend.eyeDropperActive
@@ -23,7 +22,7 @@ Column {
     property bool supportGradient: false
     property bool shapeGradients: false
 
-    //for now, gradients on MCUs are limited to Basic and Shape Linear Gradient:
+    // Gradients on MCUs are limited to Basic and Shape Linear Gradient.
     property bool mcuGradients: false
 
     property alias gradientLine: gradientLine
@@ -188,7 +187,7 @@ Column {
             icon: StudioTheme.Constants.eyeDropper
             pixelSize: StudioTheme.Values.myIconFontSize * 1.4
             tooltip: qsTr("Eye Dropper")
-            onClicked: ColorPaletteBackend.eyeDropper()
+            onClicked: ColorPaletteBackend.invokeEyeDropper()
         }
     }
 

@@ -8,6 +8,7 @@ Project {
     mainUiFile: "content/Screen01.ui.qml"
     targetDirectory: "/opt/UntitledProject13"
     enableCMakeGeneration: false
+    enablePythonGeneration: false
     widgetApp: true
     importPaths: [ "imports","asset_imports" ]
 

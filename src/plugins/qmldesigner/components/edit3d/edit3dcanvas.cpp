@@ -193,11 +193,13 @@ void Edit3DCanvas::mouseMoveEvent(QMouseEvent *e)
             // edit camera mouse area. This also simplifies split view handling.
             QPointF diff = m_isQDSTrusted ? (m_hiddenCursorPos - e->globalPos()) : (m_lastCursorPos - e->globalPos());
 
-            if (e->buttons() == (Qt::LeftButton | Qt::RightButton)) {
-                m_parent->view()->emitView3DAction(View3DActionType::EditCameraMove,
-                                                   QVector3D{float(-diff.x()), float(-diff.y()), 0.f});
-            } else {
-                m_parent->view()->emitView3DAction(View3DActionType::EditCameraRotation, diff / 6.);
+            if (auto model = m_parent->view()->model()) {
+                if (e->buttons() == (Qt::LeftButton | Qt::RightButton)) {
+                    model->emitView3DAction(View3DActionType::EditCameraMove,
+                                            QVector3D{float(-diff.x()), float(-diff.y()), 0.f});
+                } else {
+                    model->emitView3DAction(View3DActionType::EditCameraRotation, diff / 6.);
+                }
             }
         } else {
             // Skip first move to avoid undesirable jump occasionally when initiating flight mode
@@ -266,7 +268,8 @@ void Edit3DCanvas::focusOutEvent(QFocusEvent *focusEvent)
                                                m_usageTimer.elapsed());
 
     setFlyMode(false);
-    m_parent->view()->emitView3DAction(View3DActionType::EditCameraStopAllMoves, {});
+    if (auto model = m_parent->view()->model())
+        model->emitView3DAction(View3DActionType::EditCameraStopAllMoves, {});
 
     QWidget::focusOutEvent(focusEvent);
 }

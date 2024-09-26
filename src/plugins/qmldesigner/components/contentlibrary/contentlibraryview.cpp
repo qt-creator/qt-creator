@@ -3,7 +3,6 @@
 
 #include "contentlibraryview.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
 #include "contentlibraryeffectsmodel.h"
@@ -16,6 +15,8 @@
 
 #include <asset.h>
 #include <bindingproperty.h>
+#include <bundlehelper.h>
+#include <bundleimporter.h>
 #include <designerpaths.h>
 #include <documentmanager.h>
 #include <enumeration.h>
@@ -31,7 +32,6 @@
 #include <variantproperty.h>
 
 #include <solutions/zip/zipreader.h>
-#include <solutions/zip/zipwriter.h>
 
 #include <utils/algorithm.h>
 
@@ -43,14 +43,12 @@
 #include <qtsupport/qtkitaspect.h>
 #endif
 
-#include <QBuffer>
 #include <QImage>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QMessageBox>
 #include <QPixmap>
-#include <QTemporaryDir>
 #include <QVector3D>
 
 namespace QmlDesigner {
@@ -74,6 +72,8 @@ WidgetInfo ContentLibraryView::widgetInfo()
 {
     if (m_widget.isNull()) {
         m_widget = new ContentLibraryWidget();
+
+        m_bundleHelper = std::make_unique<BundleHelper>(this, m_widget);
 
         connect(m_widget, &ContentLibraryWidget::bundleMaterialDragStarted, this,
                 [&] (QmlDesigner::ContentLibraryMaterial *mat) {
@@ -152,7 +152,7 @@ void ContentLibraryView::connectImporter()
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_widget->importer(),
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
                 QTC_ASSERT(typeName.size(), return);
@@ -179,7 +179,7 @@ void ContentLibraryView::connectImporter()
             });
 #else
     connect(m_widget->importer(),
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
                 QTC_ASSERT(metaInfo.isValid(), return);
@@ -214,14 +214,13 @@ void ContentLibraryView::connectImporter()
             });
 #endif
 
-    connect(m_widget->importer(), &ContentLibraryBundleImporter::aboutToUnimport, this,
+    connect(m_widget->importer(), &BundleImporter::aboutToUnimport, this,
             [&] (const QmlDesigner::TypeName &type, const QString &bundleId) {
         if (isMaterialBundle(bundleId)) {
             // delete instances of the bundle material that is about to be unimported
             executeInTransaction("ContentLibraryView::connectImporter", [&] {
                 ModelNode matLib = Utils3D::materialLibraryNode(this);
-                if (!matLib.isValid())
-                    return;
+                QTC_ASSERT(matLib.isValid(), return);
 
                 Utils::reverseForeach(matLib.directSubModelNodes(), [&](const ModelNode &mat) {
                     if (mat.isValid() && mat.type() == type)
@@ -342,21 +341,23 @@ void ContentLibraryView::customNotification(const AbstractView *view,
 
     if (identifier == "drop_bundle_material") {
         ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
+        QTC_ASSERT(matLib.isValid(), return);
 
         m_bundleMaterialTargets = nodeList;
 
         ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleMaterial->type());
         if (defaultMat.isValid()) {
-            if (m_bundleMaterialTargets.isEmpty()) // if no drop target, create a duplicate material
+            if (m_bundleMaterialTargets.isEmpty()) { // if no drop target, create a duplicate material
+                executeInTransaction(__FUNCTION__, [&] {
 #ifdef QDS_USE_PROJECTSTORAGE
-                createMaterial(m_draggedBundleMaterial->type());
+                    Utils3D::createMaterial(this, m_draggedBundleMaterial->type());
 #else
-                createMaterial(defaultMat.metaInfo());
+                    Utils3D::createMaterial(this, defaultMat.metaInfo());
 #endif
-            else
+                });
+            } else {
                 applyBundleMaterialToDropTarget(defaultMat);
+            }
         } else {
             m_widget->materialsModel()->addToProject(m_draggedBundleMaterial);
         }
@@ -364,8 +365,7 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         m_draggedBundleMaterial = nullptr;
     } else if (identifier == "drop_bundle_texture") {
         ModelNode matLib = Utils3D::materialLibraryNode(this);
-        if (!matLib.isValid())
-            return;
+        QTC_ASSERT(matLib.isValid(), return);
 
         m_widget->addTexture(m_draggedBundleTexture);
 
@@ -374,35 +374,54 @@ void ContentLibraryView::customNotification(const AbstractView *view,
         QTC_ASSERT(nodeList.size() == 1, return);
 
         auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool is3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
+        bool isUser3D = m_draggedBundleItem->type().startsWith(compUtils.user3DBundleType().toLatin1());
+        bool isUserMaterial = m_draggedBundleItem->type().startsWith(compUtils.userMaterialsBundleType().toLatin1());
 
         m_bundleItemPos = data.size() == 1 ? data.first() : QVariant();
-        if (is3D)
+        if (isUser3D) {
             m_widget->userModel()->addToProject(m_draggedBundleItem);
-        else
+        } else if (isUserMaterial) {
+            ModelNode matLib = Utils3D::materialLibraryNode(this);
+            QTC_ASSERT(matLib.isValid(), return);
+
+            m_bundleMaterialTargets = nodeList;
+
+            ModelNode defaultMat = getBundleMaterialDefaultInstance(m_draggedBundleItem->type());
+            if (defaultMat.isValid()) {
+                if (m_bundleMaterialTargets.isEmpty()) { // if no drop target, create a duplicate material
+                    executeInTransaction(__FUNCTION__, [&] {
+#ifdef QDS_USE_PROJECTSTORAGE
+                        Utils3D::createMaterial(this, m_draggedBundleItem->type());
+#else
+                        Utils3D::createMaterial(this, defaultMat.metaInfo());
+#endif
+                    });
+                } else {
+                    applyBundleMaterialToDropTarget(defaultMat);
+                }
+            } else {
+                m_widget->userModel()->addToProject(m_draggedBundleItem);
+            }
+
+            m_draggedBundleItem = nullptr;
+        } else {
             m_widget->effectsModel()->addInstance(m_draggedBundleItem);
+        }
         m_bundleItemTarget = nodeList.first() ? nodeList.first() : Utils3D::active3DSceneNode(this);
     } else if (identifier == "add_material_to_content_lib") {
         QTC_ASSERT(nodeList.size() == 1 && data.size() == 1, return);
 
         addLibItem(nodeList.first(), data.first().value<QPixmap>());
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "add_assets_to_content_lib") {
         addLibAssets(data.first().toStringList());
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     } else if (identifier == "add_3d_to_content_lib") {
         if (nodeList.first().isComponent())
             addLib3DComponent(nodeList.first());
         else
             addLibItem(nodeList.first());
-    } else if (identifier == "export_item_as_bundle") {
-        // TODO: support exporting 2D items
-        if (nodeList.first().isComponent())
-            exportLib3DComponent(nodeList.first());
-        else
-            exportLibItem(nodeList.first());
-    } else if (identifier == "export_material_as_bundle") {
-        exportLibItem(nodeList.first(), data.first().value<QPixmap>());
-    } else if (identifier == "import_bundle_to_project") {
-        importBundleToProject();
+        m_widget->showTab(ContentLibraryWidget::TabIndex::UserAssetsTab);
     }
 }
 
@@ -435,8 +454,6 @@ void ContentLibraryView::modelNodePreviewPixmapChanged(const ModelNode &,
 {
     if (requestId == ADD_ITEM_REQ_ID)
         saveIconToBundle(pixmap);
-    else if (requestId == EXPORT_ITEM_REQ_ID)
-        addIconAndCloseZip(pixmap);
 }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -447,7 +464,7 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
         return;
 
     executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
-        ModelNode newMatNode = typeName.size() ? createMaterial(typeName) : bundleMat;
+        ModelNode newMatNode = typeName.size() ? Utils3D::createMaterial(this, typeName) : bundleMat;
         for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
             if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
                 QmlObjectNode qmlObjNode(target);
@@ -475,7 +492,7 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
         return;
 
     executeInTransaction("ContentLibraryView::applyBundleMaterialToDropTarget", [&] {
-        ModelNode newMatNode = metaInfo.isValid() ? createMaterial(metaInfo) : bundleMat;
+        ModelNode newMatNode = metaInfo.isValid() ? Utils3D::createMaterial(this, metaInfo) : bundleMat;
 
         for (const ModelNode &target : std::as_const(m_bundleMaterialTargets)) {
             if (target.isValid() && target.metaInfo().isQtQuick3DModel()) {
@@ -498,123 +515,6 @@ void ContentLibraryView::applyBundleMaterialToDropTarget(const ModelNode &bundle
 }
 #endif
 
-namespace {
-Utils::FilePath componentPath([[maybe_unused]] const NodeMetaInfo &metaInfo)
-{
-#ifdef QDS_USE_PROJECTSTORAGE
-    // TODO
-    return {};
-#else
-    return Utils::FilePath::fromString(metaInfo.importDirectoryPath());
-#endif
-}
-
-} // namespace
-
-QPair<QString, QSet<AssetPath>> ContentLibraryView::modelNodeToQmlString(const ModelNode &node, int depth)
-{
-    static QStringList depListIds;
-
-    QString qml;
-    QSet<AssetPath> assets;
-
-    if (depth == 0) {
-        qml.append("import QtQuick\nimport QtQuick3D\n\n");
-        depListIds.clear();
-    }
-
-    QString indent = QString(" ").repeated(depth * 4);
-
-    qml += indent + node.simplifiedTypeName() + " {\n";
-
-    indent = QString(" ").repeated((depth + 1) * 4);
-
-    qml += indent + "id: " + (depth == 0 ? "root" : node.id()) + " \n\n";
-
-    const QList<PropertyName> excludedProps = {"x", "y", "z", "eulerRotation.x", "eulerRotation.y",
-                                               "eulerRotation.z", "scale.x", "scale.y", "scale.z",
-                                               "pivot.x", "pivot.y", "pivot.z"};
-    const QList<AbstractProperty> matProps = node.properties();
-    for (const AbstractProperty &p : matProps) {
-        if (excludedProps.contains(p.name()))
-            continue;
-
-        if (p.isVariantProperty()) {
-            QVariant pValue = p.toVariantProperty().value();
-            QString val;
-
-            if (!pValue.typeName()) {
-                // dynamic property with no value assigned
-            } else if (strcmp(pValue.typeName(), "QString") == 0 || strcmp(pValue.typeName(), "QColor") == 0) {
-                val = QLatin1String("\"%1\"").arg(pValue.toString());
-            } else if (strcmp(pValue.typeName(), "QUrl") == 0) {
-                QString pValueStr = pValue.toString();
-                val = QLatin1String("\"%1\"").arg(pValueStr);
-                if (!pValueStr.startsWith("#")) {
-                    assets.insert({DocumentManager::currentResourcePath().toFSPathString(),
-                                   pValue.toString()});
-                }
-            } else if (strcmp(pValue.typeName(), "QmlDesigner::Enumeration") == 0) {
-                val = pValue.value<QmlDesigner::Enumeration>().toString();
-            } else {
-                val = pValue.toString();
-            }
-            if (p.isDynamic()) {
-                QString valWithColon = val.isEmpty() ? QString() : (": " + val);
-                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + valWithColon + "\n";
-            } else {
-                qml += indent + p.name() + ": " + val + "\n";
-            }
-        } else if (p.isBindingProperty()) {
-            ModelNode depNode = modelNodeForId(p.toBindingProperty().expression());
-            QTC_ASSERT(depNode.isValid(), continue);
-
-            if (p.isDynamic())
-                qml += indent + "property "  + p.dynamicTypeName() + " " + p.name() + ": " + depNode.id() + "\n";
-            else
-                qml += indent + p.name() + ": " + depNode.id() + "\n";
-
-            if (depNode && !depListIds.contains(depNode.id())) {
-                depListIds.append(depNode.id());
-                auto [depQml, depAssets] = modelNodeToQmlString(depNode, depth + 1);
-                qml += "\n" + depQml + "\n";
-                assets.unite(depAssets);
-            }
-        }
-    }
-
-    // add child nodes
-    const ModelNodes nodeChildren = node.directSubModelNodes();
-    for (const ModelNode &childNode : nodeChildren) {
-        if (childNode && !depListIds.contains(childNode.id())) {
-            depListIds.append(childNode.id());
-            auto [depQml, depAssets] = modelNodeToQmlString(childNode, depth + 1);
-            qml += "\n" + depQml + "\n";
-            assets.unite(depAssets);
-        }
-    }
-
-    indent = QString(" ").repeated(depth * 4);
-
-    qml += indent + "}\n";
-
-    if (node.isComponent()) {
-        auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-        bool isBundle = node.type().startsWith(compUtils.componentBundlesTypePrefix().toLatin1());
-
-        if (depth > 0) {
-            // add component file to the dependency assets
-            Utils::FilePath compFilePath = componentPath(node.metaInfo());
-            assets.insert({compFilePath.parentDir().path(), compFilePath.fileName()});
-        }
-
-        if (isBundle)
-            assets.unite(getBundleComponentDependencies(node));
-    }
-
-    return {qml, assets};
-}
-
 void ContentLibraryView::addLibAssets(const QStringList &paths)
 {
     auto bundlePath = Utils::FilePath::fromString(Paths::bundlesPathSetting() + "/User/textures");
@@ -623,9 +523,7 @@ void ContentLibraryView::addLibAssets(const QStringList &paths)
     QStringList fileNamesToRemove;
 
     const QStringList existingAssetsFileNames = Utils::transform(bundlePath.dirEntries(QDir::Files),
-                                                    [](const Utils::FilePath &path) {
-        return path.fileName();
-    });
+                                                                 &Utils::FilePath::fileName);
 
     for (const QString &path : paths) {
         auto assetFilePath = Utils::FilePath::fromString(path);
@@ -696,13 +594,9 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
         m_widget->userModel()->removeItemByName(compFileName, m_bundleId);
     }
 
-    // generate and save icon
     QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
     m_iconSavePath = bundlePath.pathAppended(iconPath);
     m_iconSavePath.parentDir().ensureWritableDir();
-    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
-        saveIconToBundle(image);
-    });
 
     const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
     const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
@@ -742,78 +636,11 @@ void ContentLibraryView::addLib3DComponent(const ModelNode &node)
 
     m_widget->userModel()->addItem(m_bundleId, compBaseName, compFileName, m_iconSavePath.toUrl(),
                                    filesList);
-}
 
-void ContentLibraryView::exportLib3DComponent(const ModelNode &node)
-{
-    QString exportPath = getExportPath(node);
-    if (exportPath.isEmpty())
-        return;
-
-    // targetPath is a temp path for collecting and zipping assets, actual export target is where
-    // the user chose to export (i.e. exportPath)
-    QTemporaryDir tempDir;
-    QTC_ASSERT(tempDir.isValid(), return);
-    auto targetPath = Utils::FilePath::fromString(tempDir.path());
-
-    m_zipWriter = std::make_unique<ZipWriter>(exportPath);
-
-    QString compBaseName = node.simplifiedTypeName();
-    QString compFileName = compBaseName + ".qml";
-
-    auto compDir = Utils::FilePath::fromString(ModelUtils::componentFilePath(node)).parentDir();
-
-    QString iconPath = QLatin1String("icons/%1").arg(UniqueName::generateId(compBaseName) + ".png");
-
-    const Utils::FilePaths sourceFiles = compDir.dirEntries({{}, QDir::Files, QDirIterator::Subdirectories});
-    const QStringList ignoreList {"_importdata.json", "qmldir", compBaseName + ".hints"};
-    QStringList filesList; // 3D component's assets (dependencies)
-
-    for (const Utils::FilePath &sourcePath : sourceFiles) {
-        Utils::FilePath relativePath = sourcePath.relativePathFrom(compDir);
-        if (ignoreList.contains(sourcePath.fileName()) || relativePath.startsWith("source scene"))
-            continue;
-
-        m_zipWriter->addFile(relativePath.toFSPathString(), sourcePath.fileContents().value_or(""));
-
-        if (sourcePath.fileName() != compFileName) // skip component file (only collect dependencies)
-            filesList.append(relativePath.path());
-    }
-
-    // add the item to the bundle json
-    QJsonObject jsonObj;
-    QJsonArray itemsArr;
-    itemsArr.append(QJsonObject {
-        {"name", node.simplifiedTypeName()},
-        {"qml", compFileName},
-        {"icon", iconPath},
-        {"files", QJsonArray::fromStringList(filesList)}
+    // generate and save icon
+    m_bundleHelper->getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
+        saveIconToBundle(image);
     });
-
-    jsonObj["items"] = itemsArr;
-
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    jsonObj["id"] = compUtils.user3DBundleId();
-    jsonObj["version"] = BUNDLE_VERSION;
-
-    Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
-    m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
-
-    // add icon
-    m_iconSavePath = targetPath.pathAppended(iconPath);
-    m_iconSavePath.parentDir().ensureWritableDir();
-    getImageFromCache(compDir.pathAppended(compFileName).path(), [&](const QImage &image) {
-        addIconAndCloseZip(image);
-    });
-}
-
-QString ContentLibraryView::nodeNameToComponentFileName(const QString &name) const
-{
-    QString fileName = UniqueName::generateId(name, "Component");
-    fileName[0] = fileName.at(0).toUpper();
-    fileName.prepend("My");
-
-    return fileName + ".qml";
 }
 
 void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPixmap)
@@ -844,7 +671,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     QJsonObject &jsonRef = m_widget->userModel()->bundleObjectRef(m_bundleId);
     QJsonArray itemsArr = jsonRef.value("items").toArray();
 
-    QString qml = nodeNameToComponentFileName(name);
+    QString qml = m_bundleHelper->nodeNameToComponentFileName(name);
 
     // confirm overwrite if an item with same name exists
     if (m_widget->userModel()->jsonPropertyExists("qml", qml, m_bundleId)) {
@@ -861,7 +688,7 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     }
 
     // generate and save Qml file
-    auto [qmlString, depAssets] = modelNodeToQmlString(node);
+    auto [qmlString, depAssets] = m_bundleHelper->modelNodeToQmlString(node);
     const QList<AssetPath> depAssetsList = depAssets.values();
 
     QStringList depAssetsRelativePaths;
@@ -919,126 +746,13 @@ void ContentLibraryView::addLibItem(const ModelNode &node, const QPixmap &iconPi
     else
         iconPixmapToSave = iconPixmap;
 
-    if (iconPixmapToSave.isNull())
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
-    else
+    if (iconPixmapToSave.isNull()) {
+        static_cast<const NodeInstanceView *>(model()->nodeInstanceView())
+            ->previewImageDataForGenericNode(node, {}, {}, ADD_ITEM_REQ_ID);
+    } else {
         saveIconToBundle(iconPixmapToSave);
-}
-
-QString ContentLibraryView::getExportPath(const ModelNode &node) const
-{
-    QString defaultExportFileName = QLatin1String("%1.%2").arg(node.displayName(),
-                                                               Constants::BUNDLE_SUFFIX);
-    Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
-    if (projectFP.isEmpty()) {
-        projectFP = QmlDesignerPlugin::instance()->documentManager()
-                        .currentDesignDocument()->fileName().parentDir();
     }
-
-    QString dialogTitle = node.metaInfo().isQtQuick3DMaterial() ? tr("Export Material")
-                                                                : tr("Export Component");
-    return QFileDialog::getSaveFileName(m_widget, dialogTitle,
-                            projectFP.pathAppended(defaultExportFileName).toFSPathString(),
-                            tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
 }
-
-QString ContentLibraryView::getImportPath() const
-{
-    Utils::FilePath projectFP = DocumentManager::currentProjectDirPath();
-    if (projectFP.isEmpty()) {
-        projectFP = QmlDesignerPlugin::instance()->documentManager()
-                        .currentDesignDocument()->fileName().parentDir();
-    }
-
-    return QFileDialog::getOpenFileName(m_widget, tr("Import Component"), projectFP.toFSPathString(),
-                                        tr("Qt Design Studio Bundle Files (*.%1)").arg(Constants::BUNDLE_SUFFIX));
-}
-
-void ContentLibraryView::exportLibItem(const ModelNode &node, const QPixmap &iconPixmap)
-{
-    QString exportPath = getExportPath(node);
-    if (exportPath.isEmpty())
-        return;
-
-    // targetPath is a temp path for collecting and zipping assets, actual export target is where
-    // the user chose to export (i.e. exportPath)
-    m_tempDir = std::make_unique<QTemporaryDir>();
-    QTC_ASSERT(m_tempDir->isValid(), return);
-    auto targetPath = Utils::FilePath::fromString(m_tempDir->path());
-
-    m_zipWriter = std::make_unique<ZipWriter>(exportPath);
-
-    QString name = node.variantProperty("objectName").value().toString();
-    if (name.isEmpty())
-        name = node.displayName();
-
-    QString qml = nodeNameToComponentFileName(name);
-    QString iconBaseName = UniqueName::generateId(name);
-
-    // generate and save Qml file
-    auto [qmlString, depAssets] = modelNodeToQmlString(node);
-    const QList<AssetPath> depAssetsList = depAssets.values();
-
-    QStringList depAssetsRelativePaths;
-    for (const AssetPath &assetPath : depAssetsList)
-        depAssetsRelativePaths.append(assetPath.relativePath);
-
-    auto qmlFilePath = targetPath.pathAppended(qml);
-    auto result = qmlFilePath.writeFileContents(qmlString.toUtf8());
-    QTC_ASSERT_EXPECTED(result, return);
-    m_zipWriter->addFile(qmlFilePath.fileName(), qmlString.toUtf8());
-
-    QString iconPath = QLatin1String("icons/%1.png").arg(iconBaseName);
-
-    // add the item to the bundle json
-    QJsonObject jsonObj;
-    QJsonArray itemsArr;
-    itemsArr.append(QJsonObject {
-        {"name", name},
-        {"qml", qml},
-        {"icon", iconPath},
-        {"files", QJsonArray::fromStringList(depAssetsRelativePaths)}
-    });
-
-    jsonObj["items"] = itemsArr;
-
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-    jsonObj["id"] = node.metaInfo().isQtQuick3DMaterial() ? compUtils.userMaterialsBundleId()
-                                                          : compUtils.user3DBundleId();
-    jsonObj["version"] = BUNDLE_VERSION;
-
-    Utils::FilePath jsonFilePath = targetPath.pathAppended(Constants::BUNDLE_JSON_FILENAME);
-    m_zipWriter->addFile(jsonFilePath.fileName(), QJsonDocument(jsonObj).toJson());
-
-    // add item's dependency assets to the bundle zip
-    for (const AssetPath &assetPath : depAssetsList)
-        m_zipWriter->addFile(assetPath.relativePath, assetPath.absFilPath().fileContents().value_or(""));
-
-    // add icon
-    QPixmap iconPixmapToSave;
-    if (node.metaInfo().isQtQuick3DCamera())
-        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("camera.png", nullptr, {});
-    else if (node.metaInfo().isQtQuick3DLight())
-        iconPixmapToSave = m_widget->iconProvider()->requestPixmap("light.png", nullptr, {});
-    else
-        iconPixmapToSave = iconPixmap;
-
-    m_iconSavePath = targetPath.pathAppended(iconPath);
-    if (iconPixmapToSave.isNull())
-        model()->nodeInstanceView()->previewImageDataForGenericNode(node, {}, {}, EXPORT_ITEM_REQ_ID);
-    else
-        addIconAndCloseZip(iconPixmapToSave);
-}
-
-void ContentLibraryView::addIconAndCloseZip(const auto &image) { // auto: QImage or QPixmap
-    QByteArray iconByteArray;
-    QBuffer buffer(&iconByteArray);
-    buffer.open(QIODevice::WriteOnly);
-    image.save(&buffer, "PNG");
-
-    m_zipWriter->addFile("icons/" + m_iconSavePath.fileName(), iconByteArray);
-    m_zipWriter->close();
-};
 
 void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage or QPixmap
     bool iconSaved = image.save(m_iconSavePath.toFSPathString());
@@ -1048,12 +762,11 @@ void ContentLibraryView::saveIconToBundle(const auto &image) { // auto: QImage o
         qWarning() << __FUNCTION__ << ": icon save failed";
 
     m_iconSavePath.clear();
-    m_bundleId.clear();
 };
 
 void ContentLibraryView::importBundleToContentLib()
 {
-    QString importPath = getImportPath();
+    QString importPath = m_bundleHelper->getImportPath();
     if (importPath.isEmpty())
         return;
 
@@ -1137,145 +850,6 @@ void ContentLibraryView::importBundleToContentLib()
     QTC_ASSERT_EXPECTED(result,);
 }
 
-void ContentLibraryView::importBundleToProject()
-{
-    QString importPath = getImportPath();
-    if (importPath.isEmpty())
-        return;
-
-    auto compUtils = QmlDesignerPlugin::instance()->documentManager().generatedComponentUtils();
-
-    ZipReader zipReader(importPath);
-
-    QByteArray bundleJsonContent = zipReader.fileData(Constants::BUNDLE_JSON_FILENAME);
-    QTC_ASSERT(!bundleJsonContent.isEmpty(), return);
-
-    const QJsonObject importedJsonObj = QJsonDocument::fromJson(bundleJsonContent).object();
-    const QJsonArray importedItemsArr = importedJsonObj.value("items").toArray();
-    QTC_ASSERT(!importedItemsArr.isEmpty(), return);
-
-    QString bundleVersion = importedJsonObj.value("version").toString();
-    bool bundleVersionOk = !bundleVersion.isEmpty() && bundleVersion == BUNDLE_VERSION;
-    if (!bundleVersionOk) {
-        QMessageBox::warning(m_widget, tr("Unsupported bundle file"),
-                             tr("The chosen bundle was created with an incompatible version of Qt Design Studio"));
-        return;
-    }
-    QString bundleId = importedJsonObj.value("id").toString();
-
-    QTemporaryDir tempDir;
-    QTC_ASSERT(tempDir.isValid(), return);
-    auto bundlePath = Utils::FilePath::fromString(tempDir.path());
-
-    const QStringList existingQmls = Utils::transform(compUtils.userBundlePath(bundleId)
-                                       .dirEntries(QDir::Files), [](const Utils::FilePath &path) {
-                                                                       return path.fileName();
-                                                                   });
-
-    for (const QJsonValueConstRef &itemRef : importedItemsArr) {
-        QJsonObject itemObj = itemRef.toObject();
-        QString qml = itemObj.value("qml").toString();
-
-        // confirm overwrite if an item with same name exists
-        if (existingQmls.contains(qml)) {
-            QMessageBox::StandardButton reply = QMessageBox::question(m_widget, tr("Component Exists"),
-                                                  tr("A component with the same name '%1' already "
-                                                     "exists in the project, are you sure "
-                                                     "you want to overwrite it?")
-                                                      .arg(qml), QMessageBox::Yes | QMessageBox::No);
-            if (reply == QMessageBox::No)
-                continue;
-
-            // TODO: before overwriting remove old item's dependencies (not harmful but for cleanup)
-        }
-
-        // add entry to model
-        QStringList files = itemObj.value("files").toVariant().toStringList();
-        QString icon = itemObj.value("icon").toString();
-
-        // copy files
-        QStringList allFiles = files;
-        allFiles << qml << icon;
-        for (const QString &file : std::as_const(allFiles)) {
-            Utils::FilePath filePath = bundlePath.pathAppended(file);
-            filePath.parentDir().ensureWritableDir();
-            QTC_ASSERT_EXPECTED(filePath.writeFileContents(zipReader.fileData(file)),);
-        }
-
-        QString typePrefix = compUtils.userBundleType(bundleId);
-        TypeName type = QLatin1String("%1.%2").arg(typePrefix, qml.chopped(4)).toLatin1();
-
-        QString err = m_widget->importer()->importComponent(bundlePath.toFSPathString(), type, qml, files);
-
-        if (err.isEmpty())
-            m_widget->setImporterRunning(true);
-        else
-            qWarning() << __FUNCTION__ << err;
-    }
-
-    zipReader.close();
-}
-
-/**
- * @brief Generates an icon image from a qml component
- * @param qmlPath path to the qml component file to be rendered
- * @param iconPath output save path of the generated icon
- */
-void ContentLibraryView::getImageFromCache(const QString &qmlPath,
-                                           std::function<void(const QImage &image)> successCallback)
-{
-    m_imageCache.requestSmallImage(
-        Utils::PathString{qmlPath},
-        successCallback,
-        [&](ImageCache::AbortReason abortReason) {
-            if (abortReason == ImageCache::AbortReason::Abort) {
-                qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
-                                            "failed for path %1, reason: Abort").arg(qmlPath);
-            } else if (abortReason == ImageCache::AbortReason::Failed) {
-                qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
-                                             "failed for path %1, reason: Failed").arg(qmlPath);
-            } else if (abortReason == ImageCache::AbortReason::NoEntry) {
-                qWarning() << QLatin1String("ContentLibraryView::getImageFromCache(): icon generation "
-                                            "failed for path %1, reason: NoEntry").arg(qmlPath);
-            }
-        });
-}
-
-QSet<AssetPath> ContentLibraryView::getBundleComponentDependencies(const ModelNode &node) const
-{
-    const QString compFileName = node.simplifiedTypeName() + ".qml";
-
-    Utils::FilePath compPath = componentPath(node.metaInfo());
-
-    QTC_ASSERT(compPath.exists(), return {});
-
-    QSet<AssetPath> depList;
-
-    Utils::FilePath assetRefPath = compPath.pathAppended(Constants::COMPONENT_BUNDLES_ASSET_REF_FILE);
-
-    Utils::expected_str<QByteArray> assetRefContents = assetRefPath.fileContents();
-    if (!assetRefContents.has_value()) {
-        qWarning() << __FUNCTION__ << assetRefContents.error();
-        return {};
-    }
-
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(assetRefContents.value());
-    if (jsonDoc.isNull()) {
-        qWarning() << __FUNCTION__ << "Invalid json file" << assetRefPath;
-        return {};
-    }
-
-    const QJsonObject rootObj = jsonDoc.object();
-    const QStringList bundleAssets = rootObj.keys();
-
-    for (const QString &asset : bundleAssets) {
-        if (rootObj.value(asset).toArray().contains(compFileName))
-            depList.insert({compPath.toFSPathString(), asset});
-    }
-
-    return depList;
-}
-
 ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &type)
 {
     ModelNode matLib = Utils3D::materialLibraryNode(this);
@@ -1301,58 +875,6 @@ ModelNode ContentLibraryView::getBundleMaterialDefaultInstance(const TypeName &t
 
     return {};
 }
-
-#ifdef QDS_USE_PROJECTSTORAGE
-ModelNode ContentLibraryView::createMaterial(const TypeName &typeName)
-{
-    ModelNode matLib = Utils3D::materialLibraryNode(this);
-    if (!matLib.isValid() || !typeName.size())
-        return {};
-
-    ModelNode newMatNode = createModelNode(typeName, -1, -1);
-    matLib.defaultNodeListProperty().reparentHere(newMatNode);
-
-    static QRegularExpression rgx("([A-Z])([a-z]*)");
-    QString newName = QString::fromUtf8(typeName).replace(rgx, " \\1\\2").trimmed();
-    if (newName.endsWith(" Material"))
-        newName.chop(9); // remove trailing " Material"
-    QString newId = model()->generateNewId(newName, "material");
-    newMatNode.setIdWithRefactoring(newId);
-
-    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
-    objNameProp.setValue(newName);
-
-    emitCustomNotification("focus_material_section", {});
-
-    return newMatNode;
-}
-#else
-ModelNode ContentLibraryView::createMaterial(const NodeMetaInfo &metaInfo)
-{
-    ModelNode matLib = Utils3D::materialLibraryNode(this);
-    if (!matLib.isValid() || !metaInfo.isValid())
-        return {};
-
-    ModelNode newMatNode = createModelNode(metaInfo.typeName(),
-                                           metaInfo.majorVersion(),
-                                           metaInfo.minorVersion());
-    matLib.defaultNodeListProperty().reparentHere(newMatNode);
-
-    static QRegularExpression rgx("([A-Z])([a-z]*)");
-    QString newName = QString::fromLatin1(metaInfo.simplifiedTypeName()).replace(rgx, " \\1\\2").trimmed();
-    if (newName.endsWith(" Material"))
-        newName.chop(9); // remove trailing " Material"
-    QString newId = model()->generateNewId(newName, "material");
-    newMatNode.setIdWithRefactoring(newId);
-
-    VariantProperty objNameProp = newMatNode.variantProperty("objectName");
-    objNameProp.setValue(newName);
-
-    emitCustomNotification("focus_material_section", {});
-
-    return newMatNode;
-}
-#endif
 
 void ContentLibraryView::updateBundlesQuick3DVersion()
 {

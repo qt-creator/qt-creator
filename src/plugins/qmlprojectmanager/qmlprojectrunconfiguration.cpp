@@ -97,7 +97,7 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
 
         // arguments from .qmlproject file
         const QmlBuildSystem *bs = qobject_cast<QmlBuildSystem *>(target->buildSystem());
-        for (const QString &importPath : bs->absoluteImportPaths()) {
+        for (const QString &importPath : bs->targetImportPaths()) {
             cmd.addArg("-I");
             cmd.addArg(importPath);
         }
@@ -309,7 +309,7 @@ void QmlProjectRunConfiguration::setupQtVersionAspect()
 bool QmlProjectRunConfiguration::isEnabled(Id) const
 {
     return const_cast<QmlProjectRunConfiguration *>(this)->qmlMainFile.isQmlFilePresent()
-           && !commandLine().executable().isEmpty()
+           && !qmlRuntimeFilePath().isEmpty()
            && activeBuildSystem()->hasParsingData();
 }
 

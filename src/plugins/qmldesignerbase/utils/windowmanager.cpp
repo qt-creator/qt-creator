@@ -11,18 +11,18 @@
 #include <QScreen>
 #include <QWindow>
 
-namespace QmlDesignerBase {
-
-QPointer<WindowManager> WindowManager::m_instance = nullptr;
+namespace QmlDesigner {
 
 WindowManager::WindowManager()
 {
     connect(qGuiApp, &QGuiApplication::focusWindowChanged, this, &WindowManager::focusWindowChanged);
-    connect(qGuiApp, &QGuiApplication::aboutToQuit, this, &WindowManager::aboutToQuit);
-    connect(Core::ICore::instance()->mainWindow()->windowHandle(),
-            &QWindow::visibleChanged,
-            this,
-            &WindowManager::mainWindowVisibleChanged);
+    connect(
+        Core::ICore::instance(), &Core::ICore::coreAboutToClose, this, &WindowManager::aboutToQuit);
+    connect(
+        Core::ICore::instance()->mainWindow()->windowHandle(),
+        &QWindow::visibleChanged,
+        this,
+        &WindowManager::mainWindowVisibleChanged);
 }
 
 void WindowManager::registerDeclarativeType()
@@ -54,4 +54,4 @@ QRect WindowManager::getScreenGeometry(QPoint point)
     return screen->geometry();
 }
 
-} // namespace QmlDesignerBase
+} // namespace QmlDesigner

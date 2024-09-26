@@ -2,15 +2,20 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-#include <QLabel>
-#include <QMenu>
+#include <bundlehelper.h>
+#include <itemlibraryentry.h>
+#include <modelnode.h>
+
+#include <coreplugin/icontext.h>
+
 #include <QPointer>
 #include <QVector3D>
 #include <QWidget>
 
-#include <coreplugin/icontext.h>
-#include <itemlibraryentry.h>
-#include <modelnode.h>
+#include <memory>
+
+QT_FORWARD_DECLARE_CLASS(QLabel)
+QT_FORWARD_DECLARE_CLASS(QMenu)
 
 namespace Core {
 class Command;
@@ -18,19 +23,17 @@ class Command;
 
 namespace QmlDesigner {
 
-class Edit3DView;
 class Edit3DCanvas;
-class ToolBox;
 class Edit3DMaterialsAction;
+class Edit3DView;
+class ToolBox;
 
 struct ItemLibraryDetails {
     QString name;
     QIcon icon;
     QList<ItemLibraryEntry> entryList;
 
-    ItemLibraryDetails(
-            const QString &name = QString(),
-            const QIcon &icon = QIcon())
+    ItemLibraryDetails(const QString &name = QString(), const QIcon &icon = QIcon())
         : name (name)
         , icon(icon)
     {}
@@ -111,6 +114,7 @@ private:
     QHash<QString, ItemLibraryEntry> m_nameToEntry;
     ItemLibraryEntry m_draggedEntry;
     QHash<QAction *, Core::Command *> m_actionToCommandHash;
+    std::unique_ptr<BundleHelper> m_bundleHelper;
 };
 
 } // namespace QmlDesigner

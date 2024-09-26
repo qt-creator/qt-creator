@@ -17,6 +17,14 @@ Item {
     // and set the ads focus on it.
     objectName: "__mainSrollView"
 
+    enum TabIndex {
+        MaterialsTab,
+        TexturesTab,
+        EnvironmentsTab,
+        EffectsTab,
+        UserAssetsTab
+    }
+
     // Called also from C++ to close context menu on focus out
     function closeContextMenu() {
         materialsView.closeContextMenu()
@@ -67,6 +75,13 @@ Item {
         root.numColumns = numColumns
     }
 
+    Connections {
+        target: ContentLibraryBackend.rootView
+        function onRequestTab(tabIndex) {
+            tabBar.currIndex = tabIndex
+        }
+    }
+
     Column {
         id: col
         anchors.fill: parent
@@ -90,12 +105,22 @@ Item {
                     width: parent.width
                     style: StudioTheme.Values.searchControlStyle
                     enabled: {
-                        if (tabBar.currIndex === 0) { // Materials tab
-                            ContentLibraryBackend.materialsModel.matBundleExists
-                                && ContentLibraryBackend.rootView.hasMaterialLibrary
-                                && ContentLibraryBackend.materialsModel.hasRequiredQuick3DImport
-                        } else { // Textures / Environments tabs
-                            ContentLibraryBackend.texturesModel.texBundleExists
+                        switch (tabBar.currIndex) {
+                            case ContentLibrary.TabIndex.MaterialsTab:
+                                return ContentLibraryBackend.materialsModel.hasRequiredQuick3DImport
+                                    && ContentLibraryBackend.rootView.hasMaterialLibrary
+                                    && ContentLibraryBackend.materialsModel.bundleExists
+                            case ContentLibrary.TabIndex.TexturesTab:
+                            case ContentLibrary.TabIndex.EnvironmentsTab:
+                                return ContentLibraryBackend.texturesModel.bundleExists
+                            case ContentLibrary.TabIndex.EffectsTab:
+                                return ContentLibraryBackend.effectsModel.hasRequiredQuick3DImport
+                                    && ContentLibraryBackend.effectsModel.bundleExists
+                            case ContentLibrary.TabIndex.UserAssetsTab:
+                                return ContentLibraryBackend.rootView.hasQuick3DImport
+                                    && !ContentLibraryBackend.userModel.isEmpty
+                            default:
+                                return false
                         }
                     }
 
@@ -240,14 +265,16 @@ Item {
 
                 onUnimport: (bundleItem) => {
                     confirmUnimportDialog.targetBundleItem = bundleItem
-                    confirmUnimportDialog.targetBundleLabel = "material"
+                    confirmUnimportDialog.targetBundleLabel = bundleItem.bundleId === "MaterialBundle"
+                                                                ? qsTr("material") : qsTr("item")
                     confirmUnimportDialog.targetBundleModel = ContentLibraryBackend.userModel
                     confirmUnimportDialog.open()
                 }
 
                 onRemoveFromContentLib: (bundleItem) => {
                     confirmDeleteDialog.targetBundleItem = bundleItem
-                    confirmDeleteDialog.targetBundleLabel = "material"
+                    confirmDeleteDialog.targetBundleLabel = bundleItem.bundleId === "MaterialBundle"
+                                                                ? qsTr("material") : qsTr("item")
                     confirmDeleteDialog.open()
                 }
 

@@ -4,9 +4,9 @@
 #include "assetslibraryiconprovider.h"
 
 #include <modelnodeoperations.h>
+#include <qmldesignerutils/hdrimage.h>
+#include <qmldesignerutils/ktximage.h>
 #include <theme.h>
-#include <utils/hdrimage.h>
-#include <utils/ktximage.h>
 #include <utils/stylehelper.h>
 
 namespace QmlDesigner {
@@ -110,6 +110,8 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
             type = "video";
         else if (asset.isEffect())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
+        else if (asset.isFolder())
+            type = "folder";
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);
         QString path = pathTemplate.arg('_' + QString::number(requestedSize.width()));

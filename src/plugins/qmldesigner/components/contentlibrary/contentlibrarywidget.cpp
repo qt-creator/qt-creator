@@ -3,7 +3,6 @@
 
 #include "contentlibrarywidget.h"
 
-#include "contentlibrarybundleimporter.h"
 #include "contentlibraryeffectsmodel.h"
 #include "contentlibraryiconprovider.h"
 #include "contentlibraryitem.h"
@@ -14,20 +13,26 @@
 #include "contentlibraryusermodel.h"
 
 #include <coreplugin/icore.h>
+#include <bundleimporter.h>
+#include <coreplugin/icore.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-
 #include <studioquickwidget.h>
 #include <theme.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
+#include <coreplugin/icore.h>
+
+#include <qmldesignerutils/filedownloader.h>
+#include <qmldesignerutils/fileextractor.h>
+#include <qmldesignerutils/multifiledownloader.h>
+
 #include <utils/algorithm.h>
-#include <utils/filedownloader.h>
-#include <utils/fileextractor.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
-#include <utils/multifiledownloader.h>
 #include <utils/qtcassert.h>
 
 #include <QDir>
@@ -72,35 +77,37 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_itemToDrag->type();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_ITEM, data);
 
                 emit bundleItemDragStarted(m_itemToDrag);
-                model->startDrag(mimeData, m_itemToDrag->icon().toLocalFile());
+                const QString iconPath = m_itemToDrag->icon().toLocalFile();
                 m_itemToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         } else if (m_materialToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_materialsModel->isMaterialDownloaded(m_materialToDrag)) {
                 QByteArray data;
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);
                 stream << m_materialToDrag->type();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_MATERIAL, data);
                 mimeData->removeFormat("text/plain");
 
                 emit bundleMaterialDragStarted(m_materialToDrag);
-                model->startDrag(mimeData, m_materialToDrag->icon().toLocalFile());
+                const QString iconPath = m_materialToDrag->icon().toLocalFile();
                 m_materialToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         } else if (m_textureToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 20
                 && m_textureToDrag->isDownloaded()) {
-                QMimeData *mimeData = new QMimeData;
+                auto mimeData = std::make_unique<QMimeData>();
                 mimeData->setData(Constants::MIME_TYPE_BUNDLE_TEXTURE,
                                   {m_textureToDrag->texturePath().toUtf8()});
 
@@ -108,8 +115,9 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 mimeData->setUrls({QUrl::fromLocalFile(m_textureToDrag->texturePath())});
 
                 emit bundleTextureDragStarted(m_textureToDrag);
-                model->startDrag(mimeData, m_textureToDrag->icon().toLocalFile());
+                const QString iconPath = m_textureToDrag->icon().toLocalFile();
                 m_textureToDrag = nullptr;
+                model->startDrag(std::move(mimeData), iconPath, this);
             }
         }
     } else if (event->type() == QMouseEvent::MouseButtonRelease) {
@@ -187,10 +195,10 @@ ContentLibraryWidget::~ContentLibraryWidget()
 
 void ContentLibraryWidget::createImporter()
 {
-    m_importer = new ContentLibraryBundleImporter();
+    m_importer = new BundleImporter();
 #ifdef QDS_USE_PROJECTSTORAGE
     connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::TypeName &typeName, const QString &bundleId) {
                 setImporterRunning(false);
@@ -199,7 +207,7 @@ void ContentLibraryWidget::createImporter()
             });
 #else
     connect(m_importer,
-            &ContentLibraryBundleImporter::importFinished,
+            &BundleImporter::importFinished,
             this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
                 setImporterRunning(false);
@@ -208,7 +216,7 @@ void ContentLibraryWidget::createImporter()
             });
 #endif
 
-    connect(m_importer, &ContentLibraryBundleImporter::unimportFinished, this,
+    connect(m_importer, &BundleImporter::unimportFinished, this,
             [&](const QmlDesigner::NodeMetaInfo &metaInfo, const QString &bundleId) {
                 Q_UNUSED(metaInfo)
                 setImporterRunning(false);
@@ -219,6 +227,11 @@ void ContentLibraryWidget::createImporter()
 ContentLibraryIconProvider *ContentLibraryWidget::iconProvider() const
 {
     return m_iconProvider.get();
+}
+
+void ContentLibraryWidget::showTab(TabIndex tabIndex)
+{
+    emit requestTab(int(tabIndex));
 }
 
 void ContentLibraryWidget::updateImportedState(const QString &bundleId)
@@ -243,7 +256,7 @@ void ContentLibraryWidget::updateImportedState(const QString &bundleId)
         m_userModel->updateImportedState(importedItems, bundleId);
 }
 
-ContentLibraryBundleImporter *ContentLibraryWidget::importer() const
+BundleImporter *ContentLibraryWidget::importer() const
 {
     return m_importer;
 }
@@ -438,8 +451,6 @@ QStringList ContentLibraryWidget::saveNewTextures(const QDir &bundleDir, const Q
 
                 bool hasFile = (o["file"] == file);
                 return hasFile;
-
-                return false;
             });
             return !contains;
         });

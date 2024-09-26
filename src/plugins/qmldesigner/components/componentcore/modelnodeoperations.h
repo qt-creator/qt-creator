@@ -97,8 +97,6 @@ void removeLayout(const SelectionContext &selectionContext);
 void removePositioner(const SelectionContext &selectionContext);
 void moveToComponent(const SelectionContext &selectionContext);
 void add3DAssetToContentLibrary(const SelectionContext &selectionContext);
-void importComponent(const SelectionContext &selectionContext);
-void exportComponent(const SelectionContext &selectionContext);
 PropertyName getIndexPropertyName(const ModelNode &modelNode);
 void addItemToStackedContainer(const SelectionContext &selectionContext);
 void increaseIndexOfStackedContainer(const SelectionContext &selectionContext);
@@ -127,6 +125,8 @@ void addMouseAreaFill(const SelectionContext &selectionContext);
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);
 void editIn3dView(const SelectionContext &selectionContext);
+QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath findEffectFile(const ModelNode &effectNode);
+void editInEffectComposer(const SelectionContext &selectionContext);
 
 QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getEffectsImportDirectory();
 QMLDESIGNERCOMPONENTS_EXPORT QString getEffectsDefaultDirectory(const QString &defaultDir = {});

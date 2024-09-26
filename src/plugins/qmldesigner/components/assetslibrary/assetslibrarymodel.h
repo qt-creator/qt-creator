@@ -49,6 +49,8 @@ public:
     Q_INVOKABLE QString addNewFolder(const QString &folderPath);
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
+    Q_INVOKABLE bool allFilePathsAreComposedEffects(const QStringList &filePaths) const;
+    Q_INVOKABLE bool isSameOrDescendantPath(const QUrl &source, const QString &target) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
@@ -68,6 +70,7 @@ signals:
 private:
     void setHasFiles(bool value);
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
+    bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
     void resetModel();
     void createBackendModel();
     void destroyBackendModel();

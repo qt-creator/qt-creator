@@ -22,7 +22,7 @@ class StudioQuickWidget;
 
 namespace QmlDesigner {
 
-class ContentLibraryBundleImporter;
+class BundleImporter;
 class ContentLibraryEffectsModel;
 class ContentLibraryIconProvider;
 class ContentLibraryItem;
@@ -47,6 +47,16 @@ class ContentLibraryWidget : public QFrame
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
+
+    enum class TabIndex {
+        MaterialsTab,
+        TexturesTab,
+        EnvironmentsTab,
+        EffectsTab,
+        UserAssetsTab
+    };
+    Q_ENUM(TabIndex)
+
     ContentLibraryWidget();
     ~ContentLibraryWidget();
 
@@ -94,8 +104,10 @@ public:
 
     QSize sizeHint() const override;
 
-    ContentLibraryBundleImporter *importer() const;
+    BundleImporter *importer() const;
     ContentLibraryIconProvider *iconProvider() const;
+
+    void showTab(TabIndex tabIndex);
 
 signals:
     void bundleItemDragStarted(QmlDesigner::ContentLibraryItem *item);
@@ -111,6 +123,7 @@ signals:
     void importerRunningChanged();
     void hasModelSelectionChanged();
     void importBundle();
+    void requestTab(int tabIndex);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event) override;
@@ -139,7 +152,7 @@ private:
     QPointer<ContentLibraryEffectsModel> m_effectsModel;
     QPointer<ContentLibraryUserModel> m_userModel;
 
-    ContentLibraryBundleImporter *m_importer = nullptr;
+    BundleImporter *m_importer = nullptr;
     QShortcut *m_qmlSourceUpdateShortcut = nullptr;
 
     QString m_filterText;

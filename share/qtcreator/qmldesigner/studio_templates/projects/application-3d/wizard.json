@@ -18,7 +18,6 @@
         { "key": "ProjectPluginName", "value": "%{ProjectName}plugin" },
         { "key": "ProjectPluginClassName", "value": "%{ProjectName}Plugin" },
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName('%{ProjectName}', 'qmlproject')}" },
-        { "key": "IsQt6Project", "value": "%{JS: value('QtQuickVersion') !== '2.15' }" },
         { "key": "AssetDir", "value": "Generated" },
         { "key": "ContentDir", "value": "%{ProjectName}Content" },
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
@@ -28,13 +27,12 @@
         { "key": "QtQuickFeature", "value": "QtSupport.Wizards.FeatureQtQuick.%{QtQuickVersion}" },
         { "key": "QtQuickControlsStyle", "value": "Basic" },
         { "key": "QtQuickControlsStyleTheme", "value": "%{JS: %{ControlsStyle}.QtQuickControlsStyleTheme}" },
-        { "key": "ApplicationImport", "value": "%{JS: value('IsQt6Project') === 'true' ? '%{ImportModuleName}' : '%{ImportModuleName} 1.0'}" },
+        { "key": "ApplicationImport", "value": "%{ImportModuleName}" },
         { "key": "UseStandardResolution", "value": "%{JS: value('CustomScreenWidth') === '' || value('CustomScreenHeight') === ''}" },
         { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
         { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" },
         { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" },
-        { "key": "QtQuick3DVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuick3DVersion}" },
-        { "key": "ImportModuleVersion", "value": "%{JS: value('IsQt6Project') === 'true' ? '' : '1.0'}" }
+        { "key": "QtQuick3DVersion", "value": "%{JS: %{TargetQtVersion}.TargetQuick3DVersion}" }
     ],
 
     "pages":
@@ -344,10 +342,6 @@
                 {
                     "source": "../shared-plugin/name/Constants.qml.tpl",
                     "target": "%{ProjectDirectory}/%{ImportModuleName}/Constants.qml"
-                },
-                {
-                    "source": "../shared-plugin/name/DirectoryFontLoader.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{ImportModuleName}/DirectoryFontLoader.qml"
                 },
                 {
                     "source": "../shared-plugin/name/EventListModel.qml.tpl",

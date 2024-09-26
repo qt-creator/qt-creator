@@ -4,6 +4,9 @@
 #pragma once
 
 #include <algorithm>
+#include <concepts>
+#include <functional>
+#include <ranges>
 
 namespace Utils {
 
@@ -13,7 +16,7 @@ class function_output_iterator
 public:
     typedef std::output_iterator_tag iterator_category;
     typedef void value_type;
-    typedef void difference_type;
+    typedef std::ptrdiff_t difference_type;
     typedef void pointer;
     typedef void reference;
 
@@ -51,114 +54,243 @@ function_output_iterator<Callable> make_iterator(const Callable &callable)
     return function_output_iterator<Callable>(callable);
 }
 
-template<class InputIt1, class InputIt2, class Callable, class Compare>
-bool set_intersection_compare(
-    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable call, Compare comp)
-{
-    while (first1 != last1 && first2 != last2) {
-        if (comp(*first1, *first2)) {
-            ++first1;
-        } else {
-            if (!comp(*first2, *first1)) {
-                if constexpr (std::is_void_v<std::invoke_result_t<Callable,
-                                                                  decltype(*first1),
-                                                                  decltype(*first2)>>) {
-                    call(*first1, *first2);
-                    ++first1;
-                } else {
-                    auto success = call(*first1, *first2);
-                    ++first1;
-                    if (success)
-                        return true;
-                }
-            }
-            ++first2;
-        }
-    }
+template<typename Iterator1,
+         typename Iterator2,
+         typename Relation = std::ranges::less,
+         typename Projection1 = std::identity,
+         typename Projection2 = std::identity>
+concept callmergeable = std::indirect_strict_weak_order<Relation,
+                                                        std::projected<Iterator1, Projection1>,
+                                                        std::projected<Iterator2, Projection2>>;
 
-    return false;
-}
+template<typename Iterator1, typename Iterator2, typename OutIterator>
+using set_intersection_result = std::ranges::set_intersection_result<Iterator1, Iterator2, OutIterator>;
 
-template<class InputIt1, class InputIt2, class Callable, class Compare>
-bool set_greedy_intersection_compare(
-    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable call, Compare comp)
+struct set_greedy_intersection_functor
 {
-    while (first1 != last1 && first2 != last2) {
-        if (comp(*first1, *first2)) {
-            ++first1;
-        } else {
-            if (!comp(*first2, *first1)) {
-                if constexpr (std::is_void_v<std::invoke_result_t<Callable,
-                                                                  decltype(*first1),
-                                                                  decltype(*first2)>>) {
-                    call(*first1, *first2);
-                    ++first1;
-                } else {
-                    auto success = call(*first1, *first2);
-                    ++first1;
-                    if (success)
-                        return true;
-                }
-            } else {
+    template<std::input_iterator Iterator1,
+             std::sentinel_for<Iterator1> Sentinel1,
+             std::input_iterator Iterator2,
+             std::sentinel_for<Iterator2> Sentinel2,
+             std::invocable<std::iter_value_t<Iterator1> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<Iterator1, Iterator2, Comp, Projection1, Projection2>
+    constexpr void operator()(Iterator1 first1,
+                              Sentinel1 last1,
+                              Iterator2 first2,
+                              Sentinel2 last2,
+                              Callable &&callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        while (first1 != last1 && first2 != last2)
+            if (std::invoke(comp, std::invoke(proj1, *first1), std::invoke(proj2, *first2)))
+                ++first1;
+            else if (std::invoke(comp, std::invoke(proj2, *first2), std::invoke(proj1, *first1)))
                 ++first2;
+            else {
+                std::invoke(callable, *first1);
+                ++first1;
+            }
+    }
+
+    template<std::ranges::input_range Range1,
+             std::ranges::input_range Range2,
+             std::invocable<std::iter_value_t<Range1> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<std::ranges::iterator_t<Range1>, std::ranges::iterator_t<Range2>, Comp, Projection1, Projection2>
+    constexpr void operator()(Range1 &&range1,
+                              Range2 &&range2,
+                              Callable callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        (*this)(std::ranges::begin(range1),
+                std::ranges::end(range1),
+                std::ranges::begin(range2),
+                std::ranges::end(range2),
+                std::forward<Callable>(callable),
+                std::move(comp),
+                std::move(proj1),
+                std::move(proj2));
+    }
+
+    template<std::input_iterator Iterator1,
+             std::sentinel_for<Iterator1> Sentinel1,
+             std::input_iterator Iterator2,
+             std::sentinel_for<Iterator2> Sentinel2,
+             std::invocable<std::iter_value_t<Iterator1> &, std::iter_value_t<Iterator2> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<Iterator1, Iterator2, Comp, Projection1, Projection2>
+    constexpr void operator()(Iterator1 first1,
+                              Sentinel1 last1,
+                              Iterator2 first2,
+                              Sentinel2 last2,
+                              Callable &&callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        while (first1 != last1 && first2 != last2)
+            if (std::invoke(comp, std::invoke(proj1, *first1), std::invoke(proj2, *first2)))
+                ++first1;
+            else if (std::invoke(comp, std::invoke(proj2, *first2), std::invoke(proj1, *first1)))
+                ++first2;
+            else {
+                std::invoke(callable, *first1, *first2);
+                ++first1;
+            }
+    }
+
+    template<std::ranges::input_range Range1,
+             std::ranges::input_range Range2,
+             std::invocable<std::iter_value_t<Range1> &, std::iter_value_t<Range2> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<std::ranges::iterator_t<Range1>, std::ranges::iterator_t<Range2>, Comp, Projection1, Projection2>
+    constexpr void operator()(Range1 &&range1,
+                              Range2 &&range2,
+                              Callable &&callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        (*this)(std::ranges::begin(range1),
+                std::ranges::end(range1),
+                std::ranges::begin(range2),
+                std::ranges::end(range2),
+                std::forward<Callable>(callable),
+                std::move(comp),
+                std::move(proj1),
+                std::move(proj2));
+    }
+};
+
+inline constexpr set_greedy_intersection_functor set_greedy_intersection{};
+
+struct set_greedy_difference_functor
+{
+    template<std::input_iterator Iterator1,
+             std::sentinel_for<Iterator1> Sentinel1,
+             std::input_iterator Iterator2,
+             std::sentinel_for<Iterator2> Sentinel2,
+             std::invocable<std::iter_value_t<Iterator1> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<Iterator1, Iterator2, Comp, Projection1, Projection2>
+    constexpr void operator()(Iterator1 first1,
+                              Sentinel1 last1,
+                              Iterator2 first2,
+                              Sentinel2 last2,
+                              Callable &&callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        while (first1 != last1 && first2 != last2) {
+            if (std::invoke(comp, std::invoke(proj1, *first1), std::invoke(proj2, *first2))) {
+                std::invoke(callable, *first1);
+                ++first1;
+            } else if (std::invoke(comp, std::invoke(proj2, *first2), std::invoke(proj1, *first1))) {
+                ++first2;
+            } else {
+                ++first1;
             }
         }
-    }
 
-    return false;
-}
-
-template<typename InputIt1, typename InputIt2, typename OutputIt>
-constexpr OutputIt set_greedy_intersection(
-    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, OutputIt result)
-{
-    while (first1 != last1 && first2 != last2)
-        if (*first1 < *first2)
-            ++first1;
-        else if (*first2 < *first1)
-            ++first2;
-        else {
-            *result = *first1;
-            ++first1;
-            ++result;
-        }
-    return result;
-}
-
-template<class InputIt1, class InputIt2, class Callable, class Compare>
-void set_greedy_difference(
-    InputIt1 first1, InputIt1 last1, InputIt2 first2, InputIt2 last2, Callable call, Compare comp)
-{
-    while (first1 != last1 && first2 != last2) {
-        if (comp(*first1, *first2)) {
-            call(*first1++);
-        } else if (comp(*first2, *first1)) {
-            ++first2;
-        } else {
+        while (first1 != last1) {
+            std::invoke(callable, *first1);
             ++first1;
         }
     }
 
-    while (first1 != last1)
-        call(*first1++);
-}
+    template<std::ranges::input_range Range1,
+             std::ranges::input_range Range2,
+             std::invocable<std::iter_value_t<Range1> &> Callable,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<std::ranges::iterator_t<Range1>, std::ranges::iterator_t<Range2>, Comp, Projection1, Projection2>
+    constexpr void operator()(Range1 &&range1,
+                              Range2 &&range2,
+                              Callable &&callable,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        (*this)(std::ranges::begin(range1),
+                std::ranges::end(range1),
+                std::ranges::begin(range2),
+                std::ranges::end(range2),
+                std::forward<Callable>(callable),
+                std::move(comp),
+                std::move(proj1),
+                std::move(proj2));
+    }
+};
 
-template<typename InputIt1, typename InputIt2, typename BinaryPredicate, typename Callable, typename Value>
-Value mismatch_collect(InputIt1 first1,
-                       InputIt1 last1,
-                       InputIt2 first2,
-                       InputIt2 last2,
-                       Value value,
-                       BinaryPredicate predicate,
-                       Callable callable)
+inline constexpr set_greedy_difference_functor set_greedy_difference{};
+
+struct set_has_common_element_functor
 {
-    while (first1 != last1 && first2 != last2) {
-        if (predicate(*first1, *first2))
-            value = callable(*first1, *first2, value);
-        ++first1, ++first2;
+    template<std::input_iterator Iterator1,
+             std::sentinel_for<Iterator1> Sentinel1,
+             std::input_iterator Iterator2,
+             std::sentinel_for<Iterator2> Sentinel2,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<Iterator1, Iterator2, Comp, Projection1, Projection2>
+    constexpr bool operator()(Iterator1 first1,
+                              Sentinel1 last1,
+                              Iterator2 first2,
+                              Sentinel2 last2,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        while (first1 != last1 && first2 != last2)
+            if (std::invoke(comp, std::invoke(proj1, *first1), std::invoke(proj2, *first2)))
+                ++first1;
+            else if (std::invoke(comp, std::invoke(proj2, *first2), std::invoke(proj1, *first1)))
+                ++first2;
+            else
+                return true;
+
+        return false;
     }
 
-    return value;
-}
+    template<std::ranges::input_range Range1,
+             std::ranges::input_range Range2,
+             typename Comp = std::ranges::less,
+             typename Projection1 = std::identity,
+             typename Projection2 = std::identity>
+        requires callmergeable<std::ranges::iterator_t<Range1>, std::ranges::iterator_t<Range2>, Comp, Projection1, Projection2>
+    constexpr bool operator()(Range1 &&range1,
+                              Range2 &&range2,
+                              Comp comp = {},
+                              Projection1 proj1 = {},
+                              Projection2 proj2 = {}) const
+    {
+        return (*this)(std::ranges::begin(range1),
+                       std::ranges::end(range1),
+                       std::ranges::begin(range2),
+                       std::ranges::end(range2),
+                       std::move(comp),
+                       std::move(proj1),
+                       std::move(proj2));
+    }
+};
 
+inline constexpr set_has_common_element_functor set_has_common_element{};
 } // namespace Utils

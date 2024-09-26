@@ -168,7 +168,7 @@ Item {
                     height: stateBackground.controlHeight
                     checkedInverted: true
                     buttonIcon: qsTr("Default")
-                    iconFont: StudioTheme.Constants.font
+                    iconFontFamily: StudioTheme.Constants.font.family
                     tooltip: qsTr("Set State as default")
                     onClicked: {
                         root.defaultClicked()

@@ -40,8 +40,10 @@ QVariant defaultValueForType(const TypeName &type);
 QString defaultExpressionForType(const TypeName &type);
 std::pair<QString, QString> splitExpression(const QString &expression);
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QStringList singletonsFromView(AbstractView *view);
 std::vector<PropertyMetaInfo> propertiesFromSingleton(const QString &name, AbstractView *view);
+#endif
 
 QList<AbstractProperty> dynamicPropertiesFromNode(const ModelNode &node);
 QStringList availableSources(AbstractView *view);

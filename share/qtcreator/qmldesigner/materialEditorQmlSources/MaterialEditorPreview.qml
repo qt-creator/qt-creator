@@ -45,6 +45,8 @@ Rectangle {
         image.source = "image://materialEditor/preview"
     }
 
+    onPreviewEnvChanged: envMenu.updateEnvParams(root.previewEnv)
+
     Image {
         id: image
 
@@ -107,6 +109,7 @@ Rectangle {
 
     StudioControls.Menu {
         id: modelMenu
+
         closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
         ListModel {
@@ -146,40 +149,111 @@ Rectangle {
 
     StudioControls.Menu {
         id: envMenu
+
+        property string previewEnvName
+        property string previewEnvValue
+
+        signal envParametersChanged()
+
         closePolicy: StudioControls.Menu.CloseOnEscape | StudioControls.Menu.CloseOnPressOutside
 
-        ListModel {
-            id: envMenuModel
-            ListElement {
-                envName: qsTr("Basic")
-                envStr: "Basic"
-            }
-            ListElement {
-                envName: qsTr("Color")
-                envStr: "Color"
-            }
-            ListElement {
-                envName: qsTr("Studio")
-                envStr: "SkyBox=preview_studio"
-            }
-            ListElement {
-                envName: qsTr("Landscape")
-                envStr: "SkyBox=preview_landscape"
+        Component.onCompleted: envMenu.updateEnvParams(root.previewEnv)
+
+        function updateEnvParams(str: string) {
+            let eqFound = str.lastIndexOf("=")
+            let newEnvName = (eqFound > 0) ? str.substr(0, eqFound) : str
+            let newEnvValue = (eqFound > 0) ? str.substr(eqFound + 1, str.length - eqFound) : ""
+
+            if (envMenu.previewEnvName !== newEnvName
+                    || envMenu.previewEnvValue !== newEnvValue) {
+                envMenu.previewEnvName = newEnvName
+                envMenu.previewEnvValue = newEnvValue
+                envMenu.envParametersChanged()
             }
         }
 
-        Repeater {
-            model: envMenuModel
-            StudioControls.MenuItemWithIcon {
-                text: envName
-                onClicked: {
-                    // Force property change notifications to keep check mark when reselected
-                    root.previewEnv = ""
-                    root.previewEnv = envStr
+        EnvMenuItem {
+            envName: qsTr("Basic")
+            envStr: "Basic"
+        }
+
+        EnvMenuItem {
+            id: colorItem
+
+            property color color
+            property bool colorIsValid: false
+
+            envName: qsTr("Color")
+            envStr: "Color"
+            checked: false
+
+            Component.onCompleted: update()
+            onColorIsValidChanged: updatePopupOriginalColor()
+
+            onClicked: {
+                colorItem.updatePopupOriginalColor()
+                colorPopup.open(colorItem)
+            }
+
+            onColorChanged: {
+                colorItem.envStr = colorItem.checked
+                        ? "Color=" + color.toString()
+                        : "Color"
+                colorItem.commit()
+            }
+
+            function updatePopupOriginalColor() {
+                if (colorItem.colorIsValid)
+                    colorPopup.originalColor = colorItem.color
+            }
+
+            function update() {
+                colorItem.checked = envMenu.previewEnvName === "Color"
+                if (colorItem.checked && envMenu.previewEnvValue) {
+                    colorItem.color = envMenu.previewEnvValue
+                    colorItem.colorIsValid = true
+                } else {
+                    colorItem.colorIsValid = false
                 }
-                checkable: true
-                checked: root.previewEnv === envStr
+            }
+
+            Connections {
+                target: envMenu
+                function onEnvParametersChanged() {
+                    colorItem.update();
+                }
             }
         }
+
+        EnvMenuItem {
+            envName: qsTr("Studio")
+            envStr: "SkyBox=preview_studio"
+        }
+
+        EnvMenuItem {
+            envName: qsTr("Landscape")
+            envStr: "SkyBox=preview_landscape"
+        }
+    }
+
+    ColorEditorPopup {
+        id: colorPopup
+
+        currentColor: colorItem.color
+        onActivateColor: (color) => colorItem.color = color
+    }
+
+    component EnvMenuItem: StudioControls.MenuItemWithIcon {
+        required property string envName
+        property string envStr
+
+        function commit() {
+            root.previewEnv = envStr
+        }
+
+        text: envName
+        onClicked: commit()
+        checkable: false
+        checked: root.previewEnv === envStr
     }
 }

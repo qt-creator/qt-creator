@@ -54,9 +54,11 @@ void View3DTool::mouseReleaseEvent(const QList<QGraphicsItem *> &,
                                    QGraphicsSceneMouseEvent *event)
 {
     if (m_view3dNode.isValid()) {
+        Model *model = view()->model();
+        qint32 id = m_view3dNode.internalId();
         QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
-        view()->emitCustomNotification("pick_3d_node_from_2d_scene",
-                                       {m_view3dNode}, {event->scenePos()});
+        model->emitCustomNotification(view(), "pick_3d_node_from_2d_scene",
+                                      {}, {event->scenePos(), id});
     }
 
     view()->changeToSelectionTool();

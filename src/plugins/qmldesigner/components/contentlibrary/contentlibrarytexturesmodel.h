@@ -13,7 +13,7 @@ class ContentLibraryTexturesModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    Q_PROPERTY(bool texBundleExists READ texBundleExists CONSTANT)
+    Q_PROPERTY(bool bundleExists READ bundleExists NOTIFY bundleChanged)
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(bool hasSceneEnv READ hasSceneEnv NOTIFY hasSceneEnvChanged)
 
@@ -31,7 +31,7 @@ public:
     QString removeModifiedFileEntry(const QString &key);
     void markTextureHasNoUpdates(const QString &subcategory, const QString &textureKey);
 
-    bool texBundleExists() const;
+    bool bundleExists() const;
 
     bool hasSceneEnv() const;
     void setHasSceneEnv(bool b);
@@ -44,6 +44,7 @@ signals:
     void isEmptyChanged();
     void materialVisibleChanged();
     void hasSceneEnvChanged();
+    void bundleChanged();
 
 private:
     bool isValidIndex(int idx) const;

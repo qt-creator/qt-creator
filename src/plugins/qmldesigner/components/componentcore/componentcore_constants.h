@@ -86,6 +86,7 @@ inline constexpr char fitSelectionToScreenCommandId[] = "FitSelectionToScreen";
 inline constexpr char editAnnotationsCommandId[] = "EditAnnotation";
 inline constexpr char addMouseAreaFillCommandId[] = "AddMouseAreaFill";
 inline constexpr char editIn3dViewCommandId[] = "editIn3dView";
+inline constexpr char editInEffectComposerCommandId[] = "editInEffectComposer";
 
 inline constexpr char openSignalDialogCommandId[] = "OpenSignalDialog";
 inline constexpr char update3DAssetCommandId[] = "Update3DAsset";
@@ -173,6 +174,8 @@ inline constexpr char addMouseAreaFillDisplayName[] = QT_TRANSLATE_NOOP("QmlDesi
                                                                         "Add Mouse Area");
 inline constexpr char editIn3dViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                     "Edit in 3D View");
+inline constexpr char editInEffectComposerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
+                                                                            "Edit in Effect Composer");
 
 inline constexpr char openSignalDialogDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                         "Open Signal Dialog");

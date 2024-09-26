@@ -826,20 +826,18 @@ public:
     {
         if (node.modelNode().hasBindingProperty("from")) {
             if (node.modelNode().bindingProperty("from").isList())
-                from = Utils::transform<QList>(node.modelNode().bindingProperty("from").resolveToModelNodeList(),
-                                               [](const ModelNode &node) {
-                    return QmlItemNode(node);
-                });
+                from = Utils::transform<QList>(
+                    node.modelNode().bindingProperty("from").resolveToModelNodeList(),
+                    &QmlItemNode::create);
             else
                 from = QList<QmlItemNode>({node.modelNode().bindingProperty("from").resolveToModelNode()});
         }
 
         if (node.modelNode().hasBindingProperty("to")) {
             if (node.modelNode().bindingProperty("to").isList())
-                to = Utils::transform<QList>(node.modelNode().bindingProperty("to").resolveToModelNodeList(),
-                                               [](const ModelNode &node) {
-                    return QmlItemNode(node);
-                });
+                to = Utils::transform<QList>(
+                    node.modelNode().bindingProperty("to").resolveToModelNodeList(),
+                    &QmlItemNode::create);
             else
                 to = QList<QmlItemNode>({node.modelNode().bindingProperty("to").resolveToModelNode()});
         }

@@ -121,7 +121,7 @@ Item {
                                 iconSize: 20
                                 visible: true
                                 buttonIcon: "…"
-                                iconFont: StudioTheme.Constants.font
+                                iconFontFamily: StudioTheme.Constants.font.family
 
                                 onClicked: {
                                     var newLocation = BackendApi.chooseProjectLocation()
@@ -439,8 +439,9 @@ Item {
                 id: savePresetButton
                 width: StudioTheme.Values.singleControlColumnWidth
                 buttonIcon: qsTr("Save Custom Preset")
-                iconFont: StudioTheme.Constants.font
                 iconSize: DialogValues.defaultPixelSize
+                iconFontFamily: StudioTheme.Constants.font.family
+
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
 

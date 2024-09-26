@@ -9,7 +9,7 @@
 
 #include <projectstorage/projectstorage.h>
 #include <projectstorage/qmldocumentparser.h>
-#include <projectstorage/sourcepathcache.h>
+#include <sourcepathstorage/sourcepathcache.h>
 
 namespace {
 
@@ -151,8 +151,10 @@ protected:
     Sqlite::Database database{":memory:", Sqlite::JournalMode::Memory};
     ProjectStorageErrorNotifierMock errorNotifierMock;
     QmlDesigner::ProjectStorage storage{database, errorNotifierMock, database.isInitialized()};
-    QmlDesigner::SourcePathCache<QmlDesigner::ProjectStorage> sourcePathCache{
-        storage};
+    Sqlite::Database sourcePathDatabase{":memory:", Sqlite::JournalMode::Memory};
+    QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
+                                                     sourcePathDatabase.isInitialized()};
+    QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{sourcePathStorage};
     QmlDesigner::QmlDocumentParser parser{storage, sourcePathCache};
     Storage::Imports imports;
     SourceId qmlFileSourceId{sourcePathCache.sourceId("/path/to/qmlfile.qml")};
@@ -539,6 +541,27 @@ TEST_F(QmlDocumentParser, has_is_reference_trait)
     auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
 
     ASSERT_THAT(type.traits.kind, QmlDesigner::Storage::TypeTraitsKind::Reference);
+}
+
+TEST_F(QmlDocumentParser, is_singleton)
+{
+    QString component = R"(pragma Singleton
+                           Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_TRUE(type.traits.isSingleton);
+}
+
+TEST_F(QmlDocumentParser, is_not_singleton)
+{
+    QString component = R"(Item{
+                           })";
+
+    auto type = parser.parse(component, imports, qmlFileSourceId, directoryPath);
+
+    ASSERT_FALSE(type.traits.isSingleton);
 }
 
 } // namespace

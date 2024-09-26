@@ -55,7 +55,7 @@ public:
     explicit SignalList(QObject *parent = nullptr);
     ~SignalList();
 
-    static SignalList* showWidget(const ModelNode &modelNode);
+    static void showWidget(const ModelNode &modelNode);
 
     void setModelNode(const ModelNode &modelNode);
     void connectClicked(const QModelIndex &modelIndex);

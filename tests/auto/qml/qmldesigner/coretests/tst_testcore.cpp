@@ -166,7 +166,10 @@ public:
     bool isQt6Project() const override { return {}; }
     bool isQtForMcusProject() const override { return {}; }
     QString qtQuickVersion() const override { return {}; }
+
     Utils::FilePath resourcePath(const QString &) const override { return {}; }
+
+    QString userResourcePath(QStringView) const override { return {}; }
 
 public:
     Utils::QtcSettings qsettings;

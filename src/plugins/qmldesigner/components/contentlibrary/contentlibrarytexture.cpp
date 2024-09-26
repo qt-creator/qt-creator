@@ -65,9 +65,7 @@ QString ContentLibraryTexture::resolveSuffix()
 
     if (textureFiles.size() > 1) {
         qWarning() << "Found multiple textures with the same name in the same directories: "
-                   << Utils::transform(textureFiles, [](const QFileInfo &fi) {
-                          return fi.fileName();
-                      });
+                   << Utils::transform(textureFiles, &QFileInfo::fileName);
     }
 
     return '.' + textureFiles.at(0).completeSuffix();

@@ -100,4 +100,30 @@ function(configure_qml_designer Qt6_VERSION)
     env_with_default("QTC_IS_SUPPORTED_PROJECTSTORAGE_QT" ENV_QTC_IS_SUPPORTED_PROJECTSTORAGE_QT ${QTC_IS_SUPPORTED_PROJECTSTORAGE_QT_DEFAULT})
     option(IS_SUPPORTED_PROJECTSTORAGE_QT "IS_SUPPORTED_PROJECTSTORAGE_QT" ${ENV_QTC_IS_SUPPORTED_PROJECTSTORAGE_QT})
     add_feature_info("IS_SUPPORTED_PROJECTSTORAGE_QT" ${IS_SUPPORTED_PROJECTSTORAGE_QT} "is ${IS_SUPPORTED_PROJECTSTORAGE_QT}")
+
+    # to enable define QML_DOM_MSVC2019_COMPAT if necessary, see QTBUG-127761
+    if(NOT DEFINED QT_BUILT_WITH_MSVC2019)
+        get_target_property(QT_QMAKE_EXECUTABLE Qt6::qmake IMPORTED_LOCATION)
+
+        execute_process(
+            COMMAND dumpbin /headers ${QT_QMAKE_EXECUTABLE} | findstr /c:"linker version"
+            OUTPUT_VARIABLE DUMPBIN_OUTPUT
+        )
+
+        string(FIND "${DUMPBIN_OUTPUT}" "14.2" QT_BUILT_WITH_MSVC2019)
+
+        if(QT_BUILT_WITH_MSVC2019 GREATER -1)
+            set(QT_BUILT_WITH_MSVC2019 TRUE CACHE BOOL "Qt was built with MSVC 2019")
+        else()
+            set(QT_BUILT_WITH_MSVC2019 FALSE CACHE BOOL "Qt was not built with MSVC 2019")
+        endif()
+    endif()
+endfunction()
+
+function(remove_generator_expressions out_var list)
+  set(result ${list})
+  list(FILTER result EXCLUDE REGEX "\\$<TARGET_PROPERTY")
+  list(FILTER result EXCLUDE REGEX "\\$<INSTALL_INTERFACE")
+  list(TRANSFORM result REPLACE "\\$<BUILD_INTERFACE:([^>]+)>" "\\1")
+  set(${out_var} ${result} PARENT_SCOPE)
 endfunction()

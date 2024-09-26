@@ -86,7 +86,7 @@ void MoveTool::mouseMoveEvent(const QList<QGraphicsItem*> &itemList,
         m_bindingIndicator.hide();
 
         FormEditorItem *containerItem = containerFormEditorItem(itemList, m_movingItems);
-        if (containerItem && view()->currentState().isBaseState()) {
+        if (containerItem && QmlModelState::isBaseState(view()->currentStateNode())) {
             if (containerItem != m_movingItems.constFirst()->parentItem()
                     && event->modifiers().testFlag(Qt::ControlModifier)
                     && event->modifiers().testFlag(Qt::ShiftModifier)) {

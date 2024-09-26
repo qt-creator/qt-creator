@@ -56,6 +56,7 @@ public:
 
     Edit3DView(ExternalDependenciesInterface &externalDependencies);
 
+    bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
     Edit3DWidget *edit3DWidget() const;
@@ -97,7 +98,7 @@ public:
     void showContextMenu();
     void dropMaterial(const ModelNode &matNode, const QPointF &pos);
     void dropBundleMaterial(const QPointF &pos);
-    void dropBundleEffect(const QPointF &pos);
+    void dropBundleItem(const QPointF &pos);
     void dropTexture(const ModelNode &textureNode, const QPointF &pos);
     void dropComponent(const ItemLibraryEntry &entry, const QPointF &pos);
     void dropAsset(const QString &file, const QPointF &pos);
@@ -114,6 +115,7 @@ public:
     int activeSplit() const;
     bool isSplitView() const;
     void setFlyMode(bool enabled);
+    void emitView3DAction(View3DActionType type, const QVariant &value);
 
 private slots:
     void onEntriesChanged();
@@ -176,6 +178,7 @@ private:
     std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
     std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
     std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;
+    std::unique_ptr<Edit3DCameraViewAction> m_cameraViewAction;
     std::unique_ptr<Edit3DAction> m_showParticleEmitterAction;
     std::unique_ptr<Edit3DAction> m_particleViewModeAction;
     std::unique_ptr<Edit3DAction> m_particlesPlayAction;

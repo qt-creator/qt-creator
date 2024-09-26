@@ -9,22 +9,22 @@
 #include <asynchronousimagecache.h>
 #include <bindingproperty.h>
 #include <coreplugin/icore.h>
-#include <imagecache/imagecachecollector.h>
-#include <imagecache/imagecacheconnectionmanager.h>
-#include <imagecache/imagecachefontcollector.h>
 #include <imagecache/imagecachegenerator.h>
 #include <imagecache/imagecachestorage.h>
 #include <imagecache/timestampprovider.h>
+#include <imagecachecollectors/imagecachecollector.h>
+#include <imagecachecollectors/imagecacheconnectionmanager.h>
+#include <imagecachecollectors/imagecachefontcollector.h>
 #include <nodelistproperty.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+#include <qmlitemnode.h>
 #include <rewriterview.h>
 #include <sqlitedatabase.h>
 #include <synchronousimagecache.h>
 #include <utils/algorithm.h>
-#include <qmlitemnode.h>
 
 namespace QmlDesigner {
 
@@ -57,13 +57,14 @@ bool AssetsLibraryView::hasWidget() const
 
 WidgetInfo AssetsLibraryView::widgetInfo()
 {
-    if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache,
-                                           this};
+    if (!m_widget) {
+        m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            imageCacheData()->asynchronousFontImageCache,
+            imageCacheData()->synchronousFontImageCache,
+            this);
     }
 
-    return createWidgetInfo(m_widget.data(), "Assets", WidgetInfo::LeftPane, tr("Assets"));
+    return createWidgetInfo(m_widget.get(), "Assets", WidgetInfo::LeftPane, tr("Assets"));
 }
 
 void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
@@ -97,10 +98,11 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
     m_lastResourcePath = resourcePath;
 
-    if (m_widget.isNull()) {
-        m_widget = new AssetsLibraryWidget{imageCacheData()->asynchronousFontImageCache,
-                                           imageCacheData()->synchronousFontImageCache,
-                                           this};
+    if (!m_widget) {
+        m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            imageCacheData()->asynchronousFontImageCache,
+            imageCacheData()->synchronousFontImageCache,
+            this);
     }
 
     m_widget->setResourcePath(resourcePath);

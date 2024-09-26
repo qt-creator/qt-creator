@@ -2,9 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "converters.h"
-#include "../../cmakegen/filetypes.h"
-
-#include <utils/algorithm.h>
+#include "utils/algorithm.h"
+#include "qmlprojectexporter/filetypes.h"
 
 #include <QJsonDocument>
 
@@ -145,8 +144,10 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("mainUiFile", runConfig["mainUiFile"].toString());
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
         appendBool("enableCMakeGeneration", deploymentConfig["enableCMakeGeneration"].toBool());
+        appendBool("enablePythonGeneration", deploymentConfig["enablePythonGeneration"].toBool());
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
+        appendStringArray("mockImports", rootObject["mockImports"].toVariant().toStringList());
         appendBreak();
         appendString("qdsVersion", versionConfig["designStudio"].toString());
         appendString("quickVersion", versionConfig["qtQuick"].toString());
@@ -321,7 +322,20 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
 {
     QmlJS::SimpleReader simpleQmlJSReader;
 
-    const QmlJS::SimpleReaderNode::Ptr rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
+    QmlJS::SimpleReaderNode::Ptr rootNode;
+
+    if (!projectFile.isEmpty()) {
+        rootNode = simpleQmlJSReader.readFile(projectFile.toFSPathString());
+    } else {
+        rootNode = simpleQmlJSReader.readFromSource("import QmlProject 1.1\n"
+
+                                                    "Project {\n"
+                                                    "QmlFiles {\n"
+                                                    "directory: \".\"\n"
+                                                    "}\n"
+                                                    "qt6Project: true\n"
+                                                    "}\n");
+    }
 
     if (!simpleQmlJSReader.errors().isEmpty() || !rootNode->isValid()) {
         qCritical() << "Unable to parse:" << projectFile;
@@ -385,7 +399,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
                    || propName.contains("forcefreetype", Qt::CaseInsensitive)) {
             currentObj = &runConfigObject;
         } else if (propName.contains("targetdirectory", Qt::CaseInsensitive)
-                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)) {
+                || propName.contains("enableCMakeGeneration", Qt::CaseInsensitive)
+                || propName.contains("enablePythonGeneration", Qt::CaseInsensitive)) {
             currentObj = &deploymentObject;
         } else if (propName.contains("qtformcus", Qt::CaseInsensitive)) {
             qtForMCUs = value.toBool();
@@ -397,6 +412,8 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
         } else if (propName.contains("importpaths", Qt::CaseInsensitive)) {
             objKey = "importPaths";
             importPaths = value.toVariant().toStringList();
+        } else if (propName.contains("mockImports", Qt::CaseInsensitive)) {
+            objKey = "mockImports";
         } else {
             currentObj = &otherProperties;
             objKey = propName; // With prefix

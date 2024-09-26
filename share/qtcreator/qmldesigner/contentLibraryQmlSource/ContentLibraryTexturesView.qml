@@ -109,8 +109,8 @@ HelperWidgets.ScrollView {
         Text {
             id: infoText
             text: {
-                if (!root.model.texBundleExists)
-                    qsTr("No textures available. Make sure you have internet connection.")
+                if (!root.model.bundleExists)
+                    qsTr("No textures available. Make sure you have an internet connection.")
                 else if (!searchBox.isEmpty())
                     qsTr("No match found.")
                 else

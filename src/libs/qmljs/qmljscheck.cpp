@@ -628,12 +628,8 @@ class UnsupportedRootObjectTypesByVisualDesigner : public QStringList
 {
 public:
     UnsupportedRootObjectTypesByVisualDesigner()
-        : QStringList({"QtObject"
-                       "ListModel"
-                       "Component"
-                       "Timer"
-                       "Package",
-                       "ApplicationWindow"})
+        : QStringList(
+            {"QtObject", "ListModel", "Component", "Timer", "Package", "ApplicationWindow"})
     {}
 };
 
@@ -951,6 +947,13 @@ bool Check::visit(UiObjectBinding *ast)
         checkProperty(ast->qualifiedId);
     } else {
         //addMessage(ErrBehavioursNotSupportedInQmlUi, locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
+    }
+
+    if (!m_typeStack.isEmpty() && m_typeStack.last() == "State"
+        && toString(ast->qualifiedId) == "when") {
+        addMessage(
+            ErrWhenConditionCannotBeObject,
+            locationFromRange(ast->firstSourceLocation(), ast->lastSourceLocation()));
     }
 
     visitQmlObject(ast, ast->qualifiedTypeNameId, ast->initializer);
@@ -1853,9 +1856,16 @@ bool Check::visit(CallExpression *ast)
     const QString namespaceName = functionNamespace(ast->base);
 
     // We have to allow the translation functions
-
-    static const QStringList translationFunctions = {"qsTr", "qsTrId", "qsTranslate",
-                                                     "qsTrNoOp", "qsTrIdNoOp", "qsTranslateNoOp"};
+    static const QStringList translationFunctions
+        = {"qsTr",
+           "qsTrId",
+           "qsTranslate",
+           "qsTrNoOp",
+           "qsTrIdNoOp",
+           "qsTranslateNoOp",
+           "QT_TR_NOOP",
+           " QT_TRANSLATE_NOOP",
+           "QT_TRID_NOOP"};
 
     static const QStringList whiteListedFunctions = {
         "toString",    "toFixed",           "toExponential", "toPrecision",    "isFinite",

@@ -15,8 +15,6 @@ signals:
     void connectClicked(const QModelIndex &modelIndex) const;
 
 public:
-    SignalListDelegate(QObject *parent = nullptr);
-
     QWidget *createEditor(QWidget *parent,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const override;

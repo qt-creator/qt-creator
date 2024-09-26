@@ -3,7 +3,7 @@
 
 #include "bindingeditorwidget.h"
 
-#include <plaintexteditmodifier.h>
+#include <indentingtexteditormodifier.h>
 
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreplugintr.h>

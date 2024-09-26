@@ -7,15 +7,11 @@ extend_qtc_test(unittest
     projectstorage-test.cpp
     projectstoragepathwatcher-test.cpp
     projectstorageupdater-test.cpp
-    sourcepath-test.cpp
-    sourcepathcache-test.cpp
-    sourcepathview-test.cpp
-    storagecache-test.cpp
     typeannotationreader-test.cpp
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND IS_SUPPORTED_PROJECTSTORAGE_QT
+  CONDITION IS_SUPPORTED_PROJECTSTORAGE_QT
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   SOURCES
     qmldocumentparser-test.cpp
@@ -23,8 +19,8 @@ extend_qtc_test(unittest
 )
 
 extend_qtc_test(unittest
-  CONDITION TARGET Qt6::QmlDomPrivate AND TARGET Qt6::QmlCompilerPrivate AND IS_SUPPORTED_PROJECTSTORAGE_QT
-  SOURCES_PREFIX "${QmlDesignerDir}/designercore"
+  CONDITION IS_SUPPORTED_PROJECTSTORAGE_QT
+  SOURCES_PREFIX "${QML_DESIGNER_DIRECTORY}/libs/designercore"
   DEPENDS Qt6::QmlDomPrivate Qt6::QmlCompilerPrivate
   DEFINES QDS_BUILD_QMLPARSER QML_DOM_MSVC2019_COMPAT # QML_DOM_MSVC2019_COMPAT can be revmoved for Qt 6.8
   SOURCES

@@ -1,6 +1,6 @@
-import QtQuick 2.15
+import QtQuick
 @if %{UseQtQuickControls2}
-import QtQuick.Controls 2.15
+import QtQuick.Controls
 @endif
 @if %{UseImport}
 import %{ApplicationImport}

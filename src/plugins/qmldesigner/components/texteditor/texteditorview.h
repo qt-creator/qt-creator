@@ -40,6 +40,7 @@ public:
     void documentMessagesChanged(const QList<DocumentMessage> &errors, const QList<DocumentMessage> &warnings) override;
 
     // TextEditorView
+    bool hasWidget() const override { return true; }
     WidgetInfo widgetInfo() override;
 
     void qmlJSEditorContextHelp(const Core::IContext::HelpCallback &callback) const;

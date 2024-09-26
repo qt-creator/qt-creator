@@ -3,7 +3,6 @@
 
 #include "connectionview.h"
 
-#include "backendmodel.h"
 #include "bindingmodel.h"
 #include "connectionmodel.h"
 #include "dynamicpropertiesmodel.h"
@@ -146,7 +145,6 @@ struct ConnectionView::ConnectionViewData
         : connectionModel{view}
         , bindingModel{view}
         , dynamicPropertiesModel{false, view}
-        , backendModel{view}
         , propertyTreeModel{view}
         , connectionViewQuickWidget{Utils::makeUniqueObjectPtr<ConnectionViewQuickWidget>(
               view, &connectionModel, &bindingModel, &dynamicPropertiesModel)}
@@ -155,7 +153,6 @@ struct ConnectionView::ConnectionViewData
     ConnectionModel connectionModel;
     BindingModel bindingModel;
     DynamicPropertiesModel dynamicPropertiesModel;
-    BackendModel backendModel;
     PropertyTreeModel propertyTreeModel;
     int currentIndex = 0;
 
@@ -177,7 +174,6 @@ void ConnectionView::modelAttached(Model *model)
     d->bindingModel.reset();
     d->dynamicPropertiesModel.reset();
     d->connectionModel.resetModel();
-    d->backendModel.resetModel();
 }
 
 void ConnectionView::modelAboutToBeDetached(Model *model)
@@ -249,8 +245,6 @@ void ConnectionView::variantPropertiesChanged(const QList<VariantProperty> &prop
     for (const VariantProperty &variantProperty : propertyList) {
         if (variantProperty.isDynamic())
             d->dynamicPropertiesModel.updateItem(variantProperty);
-        if (variantProperty.isDynamic() && variantProperty.parentModelNode().isRootNode())
-            d->backendModel.resetModel();
 
         d->connectionModel.variantPropertyChanged(variantProperty);
 
@@ -265,8 +259,6 @@ void ConnectionView::bindingPropertiesChanged(const QList<BindingProperty> &prop
         d->bindingModel.updateItem(bindingProperty);
         if (bindingProperty.isDynamic())
             d->dynamicPropertiesModel.updateItem(bindingProperty);
-        if (bindingProperty.isDynamic() && bindingProperty.parentModelNode().isRootNode())
-            d->backendModel.resetModel();
 
         d->connectionModel.bindingPropertyChanged(bindingProperty);
 
@@ -286,11 +278,6 @@ void ConnectionView::selectedNodesChanged(const QList<ModelNode> & selectedNodeL
 {
     d->bindingModel.reset(selectedNodeList);
     d->dynamicPropertiesModel.reset();
-}
-
-void ConnectionView::importsChanged(const Imports & /*addedImports*/, const Imports & /*removedImports*/)
-{
-    d->backendModel.resetModel();
 }
 
 void ConnectionView::currentStateChanged(const ModelNode &)
@@ -330,11 +317,6 @@ BindingModel *ConnectionView::bindingModel() const
 DynamicPropertiesModel *ConnectionView::dynamicPropertiesModel() const
 {
     return &d->dynamicPropertiesModel;
-}
-
-BackendModel *ConnectionView::backendModel() const
-{
-    return &d->backendModel;
 }
 
 int ConnectionView::currentIndex() const

@@ -89,9 +89,7 @@ static void openOpenProjectDialog()
 
 const char DO_NOT_SHOW_SPLASHSCREEN_AGAIN_KEY[] = "StudioSplashScreen";
 
-const char DETAILED_USAGE_STATISTICS[] = "DetailedUsageStatistics";
-const char STATISTICS_COLLECTION_MODE[] = "StatisticsCollectionMode";
-const char NO_TELEMETRY[] = "NoTelemetry";
+const char TELEMETRY_INSIGHT_SETTING[] = "Telemetry";
 const char CRASH_REPORTER_SETTING[] = "CrashReportingEnabled";
 
 QPointer<QQuickView> s_viewWindow = nullptr;
@@ -159,40 +157,24 @@ public:
 
     void setupModel()
     {
-        auto settings = makeUserFeedbackSettings();
-        QVariant value = settings->value(STATISTICS_COLLECTION_MODE);
-        m_usageStatisticEnabled = value.isValid() && value.toString() == DETAILED_USAGE_STATISTICS;
-
+        m_usageStatisticEnabled = Core::ICore::settings()->value(TELEMETRY_INSIGHT_SETTING, false).toBool();
         m_crashReporterEnabled = Core::ICore::settings()->value(CRASH_REPORTER_SETTING, false).toBool();
 
         emit usageStatisticChanged();
         emit crashReporterEnabledChanged();
     }
-
-    Q_INVOKABLE void setCrashReporterEnabled(bool b)
-    {
-        if (m_crashReporterEnabled == b)
-            return;
-
-        Core::ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
-
-        Core::ICore::askForRestart(tr("The change will take effect after restart."));
-
-        setupModel();
-    }
-
     Q_INVOKABLE void setTelemetryEnabled(bool b)
     {
-        if (m_usageStatisticEnabled == b)
+        if (m_usageStatisticEnabled == b && m_crashReporterEnabled == b)
             return;
 
-        auto settings = makeUserFeedbackSettings();
+        bool restartPending = ICore::askForRestart(tr("The change will take effect after restart."));
 
-        settings->setValue(STATISTICS_COLLECTION_MODE, b ? DETAILED_USAGE_STATISTICS : NO_TELEMETRY);
+        ICore::settings()->setValue(TELEMETRY_INSIGHT_SETTING, b);
+        ICore::settings()->setValue(CRASH_REPORTER_SETTING, b);
 
-        Core::ICore::askForRestart(tr("The change will take effect after restart."));
-
-        setupModel();
+        if (restartPending)
+            ICore::restart();
     }
 
 signals:
@@ -203,27 +185,6 @@ private:
     bool m_usageStatisticEnabled = false;
     bool m_crashReporterEnabled = false;
     QString m_versionString;
-};
-
-class StudioUsageStatisticPluginModel : public QObject
-{
-    Q_OBJECT
-public:
-    explicit StudioUsageStatisticPluginModel(QObject *parent = nullptr)
-        : QObject(parent)
-    {
-    }
-
-    Q_INVOKABLE void setInsightEnabled(bool b)
-    {
-        bool currentTrackingStatus = Core::ICore::settings()->value("InsightTracking", false).toBool();
-
-        if (currentTrackingStatus == b)
-            return;
-
-        Core::ICore::settings()->setValue("InsightTracking", b);
-        Core::ICore::askForRestart(tr("The change will take effect after restart."));
-    }
 };
 
 class ProjectModel : public QAbstractListModel
@@ -601,7 +562,6 @@ void StudioWelcomePlugin::initialize()
 {
     qmlRegisterType<ProjectModel>("projectmodel", 1, 0, "ProjectModel");
     qmlRegisterType<UsageStatisticPluginModel>("usagestatistics", 1, 0, "UsageStatisticModel");
-    qmlRegisterType<StudioUsageStatisticPluginModel>("studiousagestatistics", 1, 0, "StudioUsageStatisticModel");
 
     m_welcomeMode = new WelcomeMode;
 }
@@ -841,17 +801,12 @@ WelcomeMode::WelcomeMode()
     IContext::attach(m_modeWidget, {}, "Qt Design Studio Manual");
     setWidget(m_modeWidget);
 
-    QStringList designStudioQchPathes
-        = {Core::HelpManager::documentationPath() + "/qtdesignstudio.qch",
-           Core::HelpManager::documentationPath() + "/qtquick.qch",
-           Core::HelpManager::documentationPath() + "/qtquickcontrols.qch",
-           Core::HelpManager::documentationPath() + "/qtquicktimeline.qch",
-           Core::HelpManager::documentationPath() + "/qtquick3d.qch",
-           Core::HelpManager::documentationPath() + "/qtqml.qch"};
+    QStringList designStudioQchPathes;
+    QDir qchDir(Core::HelpManager::documentationPath());
+    for (const QFileInfo &fileInfo : qchDir.entryInfoList({"*.qch"}, QDir::Files))
+        designStudioQchPathes.append(fileInfo.absoluteFilePath());
 
-    Core::HelpManager::registerDocumentation(
-                Utils::filtered(designStudioQchPathes,
-                                [](const QString &path) { return QFileInfo::exists(path); }));
+    Core::HelpManager::registerDocumentation(designStudioQchPathes);
 }
 
 WelcomeMode::~WelcomeMode()

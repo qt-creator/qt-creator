@@ -7,10 +7,12 @@
 #include <qmldesignerplugin.h>
 #include <uniquename.h>
 
+#include <qmldesignerbase/settings/designersettings.h>
+
 #include <coreplugin/icore.h>
 
+#include <qmldesignerutils/asset.h>
 #include <utils/algorithm.h>
-#include <utils/asset.h>
 #include <utils/filepath.h>
 #include <utils/filesystemwatcher.h>
 
@@ -24,8 +26,8 @@ AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
     createBackendModel();
-
     setRecursiveFilteringEnabled(true);
+    sort(0);
 }
 
 void AssetsLibraryModel::createBackendModel()
@@ -188,6 +190,21 @@ bool AssetsLibraryModel::allFilePathsAreTextures(const QStringList &filePaths) c
     });
 }
 
+bool AssetsLibraryModel::allFilePathsAreComposedEffects(const QStringList &filePaths) const
+{
+    return Utils::allOf(filePaths, [](const QString &path) {
+        return Asset(path).isEffect();
+    });
+}
+
+bool AssetsLibraryModel::isSameOrDescendantPath(const QUrl &source, const QString &target) const
+{
+    Utils::FilePath srcPath = Utils::FilePath::fromUrl(source);
+    Utils::FilePath targetPath = Utils::FilePath::fromString(target);
+
+    return targetPath.isChildOf(srcPath);
+}
+
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
     QString path = m_sourceFsModel->filePath(sourceParent);
@@ -327,6 +344,23 @@ QString AssetsLibraryModel::parentDirPath(const QString &path) const
     QModelIndex idx = indexForPath(path);
     QModelIndex parentIdx = idx.parent();
     return filePath(parentIdx);
+}
+
+bool AssetsLibraryModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+{
+    bool leftIsDir = m_sourceFsModel->isDir(left);
+    bool rightIsDir = m_sourceFsModel->isDir(right);
+
+    if (leftIsDir && !rightIsDir)
+        return true;
+
+    if (!leftIsDir && rightIsDir)
+        return false;
+
+    const QString leftName = m_sourceFsModel->fileName(left);
+    const QString rightName = m_sourceFsModel->fileName(right);
+
+    return QString::localeAwareCompare(leftName, rightName) < 0;
 }
 
 } // namespace QmlDesigner

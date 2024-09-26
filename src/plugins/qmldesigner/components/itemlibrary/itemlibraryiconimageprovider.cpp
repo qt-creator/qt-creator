@@ -3,7 +3,7 @@
 
 #include "itemlibraryiconimageprovider.h"
 
-#include <imagecacheimageresponse.h>
+#include <imagecache/imagecacheimageresponse.h>
 
 #include <projectexplorer/target.h>
 #include <utils/stylehelper.h>

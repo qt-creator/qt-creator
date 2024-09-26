@@ -16,9 +16,9 @@
 #include <projectexplorer/projectmanager.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
+#include <qmldesignerutils/version.h>
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
-#include <utils/version.h>
 
 #include <QIODevice>
 #include <QLoggingCategory>
@@ -486,9 +486,9 @@ void ItemLibraryModel::update(Model *model)
     endResetModel();
 }
 
-QMimeData *ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
+std::unique_ptr<QMimeData> ItemLibraryModel::getMimeData(const ItemLibraryEntry &itemLibraryEntry)
 {
-    auto mimeData = new QMimeData();
+    auto mimeData = std::make_unique<QMimeData>();
 
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);

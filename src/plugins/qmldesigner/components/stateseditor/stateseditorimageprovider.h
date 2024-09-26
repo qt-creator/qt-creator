@@ -20,10 +20,10 @@ public:
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
 
-    void setNodeInstanceView(const NodeInstanceView *nodeInstanceView);
+    void setNodeInstanceView(const AbstractView *nodeInstanceView);
 
 private:
-    QPointer<const NodeInstanceView> m_nodeInstanceView;
+    QPointer<const AbstractView> m_nodeInstanceView;
 };
 
 } // namespace Internal

@@ -11,15 +11,15 @@
 #include "qmldesignerconstants.h"
 #include "qmlobjectnode.h"
 #include "qmltimeline.h"
-#include "textureeditortransaction.h"
 #include "textureeditorcontextobject.h"
+#include "textureeditortransaction.h"
 
 #include <coreplugin/icore.h>
 
+#include <qmldesignerutils/hdrimage.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/fileutils.h>
-#include <utils/hdrimage.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
@@ -153,6 +153,13 @@ void TextureEditorQmlBackend::setValue(const QmlObjectNode &,
         if (propertyValue)
             propertyValue->setValue(value);
     }
+}
+
+void TextureEditorQmlBackend::setExpression(PropertyNameView propName, const QString &exp)
+{
+    PropertyEditorValue *propertyValue = propertyValueForName(QString::fromUtf8(propName));
+    if (propertyValue)
+        propertyValue->setExpression(exp);
 }
 
 QQmlContext *TextureEditorQmlBackend::context() const

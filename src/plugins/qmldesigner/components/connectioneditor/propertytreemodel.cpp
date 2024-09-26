@@ -520,8 +520,8 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
     const ModelNode &modelNode) const
 {
     auto dynamicProperties = modelNode.dynamicProperties();
-    auto dynamicPropertyNames = Utils::transform<PropertyNameViews>(
-        dynamicProperties, [](const AbstractProperty &property) { return property.name(); });
+    auto dynamicPropertyNames = Utils::transform<PropertyNameViews>(dynamicProperties,
+                                                                    &AbstractProperty::name);
 
     auto filtered = Utils::filtered(dynamicPropertyNames, [this, modelNode](PropertyNameView propertyName) {
         TypeName propertyType = modelNode.property(propertyName).dynamicTypeName();
@@ -546,9 +546,7 @@ const std::vector<PropertyName> PropertyTreeModel::getDynamicProperties(
 
     auto sorted = Utils::sorted(filtered);
 
-    return Utils::transform<std::vector<PropertyName>>(sorted, [](PropertyNameView propertyName) {
-        return propertyName.toByteArray();
-    });
+    return Utils::transform<std::vector<PropertyName>>(sorted, &PropertyNameView::toByteArray);
 }
 
 const std::vector<PropertyName> PropertyTreeModel::getDynamicSignals(const ModelNode &modelNode) const
@@ -581,10 +579,7 @@ const std::vector<PropertyName> PropertyTreeModel::sortedAndFilteredPropertyName
                                         return filterProperty(name, metaInfo, recursive);
                                     });
 
-    auto sorted = Utils::sorted(
-        Utils::transform(filtered, [](const PropertyMetaInfo &metaInfo) -> PropertyName {
-            return metaInfo.name();
-        }));
+    auto sorted = Utils::sorted(Utils::transform(filtered, &PropertyMetaInfo::name));
 
     std::set<PropertyName> set(std::make_move_iterator(sorted.begin()),
                                std::make_move_iterator(sorted.end()));
@@ -909,8 +904,7 @@ void PropertyTreeModelDelegate::setPropertyType(PropertyTreeModel::PropertyTypes
 void PropertyTreeModelDelegate::setup(const QString &id, const QString &name, bool *nameExists)
 {
     m_model.resetModel();
-    QStringList idLists = Utils::transform(m_model.nodeList(),
-                                           [](const ModelNode &node) { return node.id(); });
+    QStringList idLists = Utils::transform(m_model.nodeList(), &ModelNode::id);
 
     if (!idLists.contains(id))
         idLists.prepend(id);

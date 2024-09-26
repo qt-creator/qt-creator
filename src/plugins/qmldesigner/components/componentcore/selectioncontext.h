@@ -38,6 +38,7 @@ public:
     bool hasSingleSelectedModelNode() const;
 
     AbstractView *view() const;
+    Model *model() const;
 
     void setShowSelectionTools(bool show);
     bool showSelectionTools() const;

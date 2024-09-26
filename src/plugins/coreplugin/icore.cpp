@@ -230,6 +230,8 @@ const char windowStateKey[] = "WindowState";
 const char modeSelectorLayoutKey[] = "ModeSelectorLayout";
 const char menubarVisibleKey[] = "MenubarVisible";
 
+const char DEFAULT_ALT_BUTTON_TEXT[] = QT_TRANSLATE_NOOP("QtC::Core", "Later");
+
 namespace Internal {
 
 class MainWindow : public AppMainWindow
@@ -865,17 +867,22 @@ Utils::InfoBar *ICore::infoBar()
     Uses \a text as the main text in the dialog, and triggers a restart
     of \QC if the user chooses that option.
 */
-void ICore::askForRestart(const QString &text)
+bool ICore::askForRestart(const QString &text, const QString &altButtonText)
 {
     QMessageBox mb(dialogParent());
     mb.setWindowTitle(Tr::tr("Restart Required"));
     mb.setText(text);
     mb.setIcon(QMessageBox::Information);
-    mb.addButton(Tr::tr("Later"), QMessageBox::NoRole);
+
+    QString translatedAltButtonText = altButtonText.isEmpty() ? Tr::tr(DEFAULT_ALT_BUTTON_TEXT) : altButtonText;
+
+    mb.addButton(translatedAltButtonText, QMessageBox::NoRole);
     mb.addButton(Tr::tr("Restart Now"), QMessageBox::YesRole);
 
     mb.connect(&mb, &QDialog::accepted, ICore::instance(), &ICore::restart, Qt::QueuedConnection);
     mb.exec();
+
+    return mb.buttonRole(mb.clickedButton()) == QMessageBox::YesRole;
 }
 
 /*!

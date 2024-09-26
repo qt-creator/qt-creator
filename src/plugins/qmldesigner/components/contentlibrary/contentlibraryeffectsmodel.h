@@ -37,6 +37,7 @@ public:
     bool hasRequiredQuick3DImport() const;
 
     bool bundleExists() const;
+    void setBundleExists(bool exists);
 
     void resetModel();
     void updateIsEmpty();

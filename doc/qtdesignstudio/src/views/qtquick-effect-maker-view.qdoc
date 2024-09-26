@@ -43,9 +43,8 @@
 
     \image studio-effect-composer-assets.webp "Effect Composer and the Assets view"
 
-    The saved custom effects appear in the \uicontrol {Assets} view. Double-click a
-    custom effect in \uicontrol Assets to view and edit it in \uicontrol {Effect Composer}.
-    To delete a custom effect, right-click it in the \uicontrol {Assets} view, and then
+    The saved custom effects appear in the \uicontrol {Assets} view. To delete a custom effect,
+    right-click it in the \uicontrol {Assets} view, and then
     select \uicontrol {Delete File}.
 
     \section1 Assigning a Custom Effect to a Component
@@ -62,6 +61,18 @@
     \endlist
 
     \note To assign an effect to a component, you need to save it first.
+
+    \section1 Editing Effects
+
+    To open an effect in the \uicontrol {Effect Composer} to edit it, do one of the following:
+
+    \list
+      \li In the \uicontrol Assets view, double-click the effect.
+      \li In the \uicontrol Navigator or \uicontrol Assets view, right-click and select
+      \uicontrol {Edit in Effect Composer}.
+      \li Drag the effect from the \uicontrol Navigator or \uicontrol Assets view to the
+      \uicontrol {Effect Composer} view.
+    \endlist
 
     \section1 Stacking Effects
 

@@ -55,7 +55,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 {
     setAcceptDrops(true);
 
-    Core::Context context(Constants::C_QMLFORMEDITOR);
+    Core::Context context(Constants::qmlFormEditorContextId);
     m_context = new Core::IContext(this);
     m_context->setContext(context);
     m_context->setWidget(this);
@@ -77,8 +77,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_noSnappingAction->setCheckable(true);
     m_noSnappingAction->setChecked(true);
 
+    static constexpr char formEditorNoSnappingActionId[] = "QmlDesigner.FormEditor.NoSnapping";
     registerActionAsCommand(m_noSnappingAction,
-                            Constants::FORMEDITOR_NO_SNAPPING,
+                            formEditorNoSnappingActionId,
                             QKeySequence(Qt::Key_T),
                             ComponentCoreConstants::snappingCategory,
                             1);
@@ -87,8 +88,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAndAnchoringAction->setCheckable(true);
     m_snappingAndAnchoringAction->setChecked(true);
 
+    static constexpr char formEditorNoSnappingAndAnchoringActionId[]
+        = "QmlDesigner.FormEditor.NoSnappingAndAnchoring";
     registerActionAsCommand(m_snappingAndAnchoringAction,
-                            Constants::FORMEDITOR_NO_SNAPPING_AND_ANCHORING,
+                            formEditorNoSnappingAndAnchoringActionId,
                             QKeySequence(Qt::Key_W),
                             ComponentCoreConstants::snappingCategory,
                             2);
@@ -97,8 +100,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_snappingAction->setCheckable(true);
     m_snappingAction->setChecked(true);
 
+    static constexpr char formEditorSnappingActionId[] = "QmlDesigner.FormEditor.Snapping";
     registerActionAsCommand(m_snappingAction,
-                            Constants::FORMEDITOR_SNAPPING,
+                            formEditorSnappingActionId,
                             QKeySequence(Qt::Key_E),
                             ComponentCoreConstants::snappingCategory,
                             3);
@@ -110,8 +114,11 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     m_showBoundingRectAction->setChecked(false);
     m_showBoundingRectAction->setIcon(
         DesignerActionManager::instance().contextIcon(DesignerIcons::ShowBoundsIcon));
+
+    static constexpr char formEditorShowBoundingRctangeActionId[]
+        = "QmlDesigner.FormEditor.ShowBoundingRectangle";
     registerActionAsCommand(m_showBoundingRectAction,
-                            Constants::FORMEDITOR_NO_SHOW_BOUNDING_RECTANGLE,
+                            formEditorShowBoundingRctangeActionId,
                             QKeySequence(Qt::Key_A),
                             ComponentCoreConstants::rootCategory,
                             ComponentCoreConstants::Priorities::ShowBoundingRect);
@@ -271,8 +278,9 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
 
     m_resetAction = new QAction(reloadIcon, tr("Reload View"), this);
+    static constexpr char formEditorRefreshActionId[] = "QmlDesigner.FormEditor.Refresh";
     registerActionAsCommand(m_resetAction,
-                            Constants::FORMEDITOR_REFRESH,
+                            formEditorRefreshActionId,
                             QKeySequence(Qt::Key_R),
                             ComponentCoreConstants::rootCategory,
                             ComponentCoreConstants::Priorities::ResetView);
@@ -296,7 +304,7 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
 
     IContext::attach(this,
-                     Context(Constants::C_QMLFORMEDITOR, Constants::C_QT_QUICK_TOOLS_MENU),
+                     Context(Constants::qmlFormEditorContextId, Constants::qtQuickToolsMenuContextId),
                      [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
@@ -343,7 +351,7 @@ void FormEditorWidget::changeBackgound(const QColor &color)
 void FormEditorWidget::registerActionAsCommand(
     QAction *action, Utils::Id id, const QKeySequence &, const QByteArray &category, int priority)
 {
-    Core::Context context(Constants::C_QMLFORMEDITOR);
+    Core::Context context(Constants::qmlFormEditorContextId);
 
     Core::Command *command = Core::ActionManager::registerAction(action, id, context);
 
@@ -380,30 +388,25 @@ void FormEditorWidget::initialize()
 void FormEditorWidget::updateActions()
 {
     if (m_formEditorView->model() && m_formEditorView->rootModelNode().isValid()) {
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(widthProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(widthProperty))
             m_rootWidthAction->setLineEditText(data->toString());
-        } else {
+        else
             m_rootWidthAction->clearLineEditText();
-        }
 
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(heightProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(heightProperty))
             m_rootHeightAction->setLineEditText(data->toString());
-        } else {
+        else
             m_rootHeightAction->clearLineEditText();
-        }
 
-        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(formeditorColorProperty)) {
+        if (auto data = m_formEditorView->rootModelNode().auxiliaryData(formeditorColorProperty))
             m_backgroundAction->setColor(data->value<QColor>());
-        } else {
+        else
             m_backgroundAction->setColor(Qt::transparent);
-        }
 
-        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty)) {
+        if (m_formEditorView->rootModelNode().hasAuxiliaryData(contextImageProperty))
             m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, true);
-            m_backgroundAction->setColor(BackgroundAction::ContextImage);
-        } else {
+        else
             m_backgroundAction->setColorEnabled(BackgroundAction::ContextImage, false);
-        }
 
     } else {
         m_rootWidthAction->clearLineEditText();
@@ -550,6 +553,9 @@ void FormEditorWidget::exportAsImage(const QRectF &boundingRect)
 
 QImage FormEditorWidget::takeFormEditorScreenshot()
 {
+    if (!m_formEditorView->isAttached())
+        return {};
+
     if (!m_formEditorView->scene()->rootFormEditorItem())
         return {};
 
@@ -640,7 +646,7 @@ void FormEditorWidget::hideEvent(QHideEvent *event)
 {
     QWidget::hideEvent(event);
 
-    m_formEditorView->setEnabled(false);
+    QmlDesignerPlugin::viewManager().hideView(*m_formEditorView);
 }
 
 void FormEditorWidget::showEvent(QShowEvent *event)
@@ -648,7 +654,7 @@ void FormEditorWidget::showEvent(QShowEvent *event)
     QWidget::showEvent(event);
 
     const bool wasEnabled = m_formEditorView->isEnabled();
-    m_formEditorView->setEnabled(true);
+    QmlDesignerPlugin::viewManager().showView(*m_formEditorView);
 
     if (!wasEnabled && m_formEditorView->model()) {
         m_formEditorView->cleanupToolsAndScene();

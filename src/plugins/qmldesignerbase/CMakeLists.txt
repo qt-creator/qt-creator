@@ -8,10 +8,20 @@ env_with_default("QDS_ENABLE_COMPILE_WARNING_AS_ERROR" ENV_ENABLE_COMPILE_WARNIN
 option(ENABLE_COMPILE_WARNING_AS_ERROR "Treat warnings as errors in QmlDesigner" ${ENV_ENABLE_COMPILE_WARNING_AS_ERROR})
 add_feature_info("Treat warnings as errors in QmlDesigner" ${ENABLE_COMPILE_WARNING_AS_ERROR} "")
 
+add_qtc_library(QmlDesignerSettings STATIC
+  DEPENDS Utils
+  PUBLIC_INCLUDES settings
+  SOURCES_PREFIX settings
+  SOURCES
+    qmldesignersettings_global.h
+    designersettings.cpp designersettings.h
+)
+
 add_qtc_plugin(QmlDesignerBase
   CONDITION TARGET Qt::QuickWidgets
-  DEPENDS Qt::Core Qt::QuickWidgets
+  DEPENDS Qt::Core Qt::QuickWidgets Qt::GuiPrivate
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport
+  PUBLIC_INCLUDES settings
   SOURCES
     qmldesignerbase_global.h
     qmldesignerbaseplugin.cpp qmldesignerbaseplugin.h
@@ -23,21 +33,37 @@ extend_qtc_plugin(QmlDesignerBase
 )
 
 extend_qtc_plugin(QmlDesignerBase
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/utils
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/utils
+  PUBLIC_INCLUDES utils
+  SOURCES_PREFIX utils
   SOURCES
     designerpaths.cpp designerpaths.h
-    designersettings.cpp designersettings.h
     qmlpuppetpaths.cpp qmlpuppetpaths.h
     windowmanager.cpp windowmanager.h
 )
 
 extend_qtc_plugin(QmlDesignerBase
-  PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}/studio
-  SOURCES_PREFIX ${CMAKE_CURRENT_LIST_DIR}/studio
+  PUBLIC_INCLUDES studio
+  SOURCES_PREFIX studio
   SOURCES
+    studioquickutils.cpp studioquickutils.h
     studiostyle.cpp studiostyle.h
     studiostyle_p.cpp studiostyle_p.h
     studioquickwidget.cpp studioquickwidget.h
     studiosettingspage.cpp studiosettingspage.h
+    studiovalidator.cpp studiovalidator.h
 )
+
+
+# from cmake 3.24 $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings> is supported which can be added to DEPENDS
+if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+  target_link_libraries(TextEditor PRIVATE $<LINK_LIBRARY:WHOLE_ARCHIVE,QmlDesignerSettings>)
+else ()
+  if (MSVC)
+    qtc_output_binary_dir(_output_binary_dir)
+    set_target_properties(QmlDesignerBase PROPERTIES LINK_FLAGS "/WHOLEARCHIVE:${_output_binary_dir}/${IDE_BIN_PATH}/QmlDesignerSettings.lib")
+  elseif (APPLE)
+    target_link_libraries(QmlDesignerBase PRIVATE -Wl,-force_load $<TARGET_LINKER_FILE:QmlDesignerSettings>)
+  else ()
+    target_link_libraries(QmlDesignerBase PRIVATE -Wl,--whole-archive $<TARGET_LINKER_FILE:QmlDesignerSettings> -Wl,--no-whole-archive)
+  endif ()
+endif ()

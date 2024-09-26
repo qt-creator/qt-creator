@@ -4,7 +4,7 @@
 #pragma once
 
 #include "modelnode.h"
-#include "qmldesignercorelib_global.h"
+#include "qmldesigner_global.h"
 
 #include <QObject>
 #include <QQmlPropertyMap>
@@ -12,6 +12,7 @@
 
 namespace QmlDesigner {
 
+class QmlObjectNode;
 class PropertyEditorValue;
 
 class PropertyEditorSubSelectionWrapper : public QObject
@@ -90,7 +91,7 @@ private:
     PropertyEditorValue *m_editorValue = nullptr;
 };
 
-class QMLDESIGNERCORE_EXPORT PropertyEditorValue : public QObject
+class QMLDESIGNER_EXPORT PropertyEditorValue : public QObject
 {
     Q_OBJECT
 

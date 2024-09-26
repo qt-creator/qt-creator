@@ -18,16 +18,15 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
 {
     QImage image;
 
-    bool nodeInstanceViewIsDetached = m_nodeInstanceView.isNull() || !m_nodeInstanceView->model();
-    if (!nodeInstanceViewIsDetached) {
+    if (auto view = static_cast<const NodeInstanceView *>(m_nodeInstanceView.data())) {
         QString imageId = id.split(QLatin1Char('-')).constFirst();
         if (imageId == QLatin1String("baseState")) {
-            image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->rootModelNode());
+            image = view->statePreviewImage(m_nodeInstanceView->rootModelNode());
         } else {
             bool canBeConverted;
             int instanceId = imageId.toInt(&canBeConverted);
             if (canBeConverted && m_nodeInstanceView->hasModelNodeForInternalId(instanceId)) {
-                image = m_nodeInstanceView->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
+                image = view->statePreviewImage(m_nodeInstanceView->modelNodeForInternalId(instanceId));
             }
         }
     }
@@ -48,9 +47,9 @@ QImage StatesEditorImageProvider::requestImage(const QString &id, QSize *size, c
     return image;
 }
 
-void StatesEditorImageProvider::setNodeInstanceView(const NodeInstanceView *nodeInstanceView)
+void StatesEditorImageProvider::setNodeInstanceView(const AbstractView *nodeInstanceView)
 {
-    m_nodeInstanceView = nodeInstanceView;
+    m_nodeInstanceView = static_cast<const NodeInstanceView *>(nodeInstanceView);
 }
 
 } // namespace Internal

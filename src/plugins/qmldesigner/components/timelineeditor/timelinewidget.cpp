@@ -66,9 +66,7 @@ public:
 
 static qreal next(const QVector<qreal> &vector, qreal current)
 {
-    auto iter = std::find_if(vector.cbegin(), vector.cend(), [&](qreal val) {
-        return val > current;
-    });
+    auto iter = std::ranges::find_if(vector, [&](qreal val) { return val > current; });
     if (iter != vector.end())
         return *iter;
     return current;
@@ -76,9 +74,8 @@ static qreal next(const QVector<qreal> &vector, qreal current)
 
 static qreal previous(const QVector<qreal> &vector, qreal current)
 {
-    auto iter = std::find_if(vector.rbegin(), vector.rend(), [&](qreal val) {
-        return val < current;
-    });
+    auto iter = std::ranges::find_if(vector | std::views::reverse,
+                                     [&](qreal val) { return val < current; });
     if (iter != vector.rend())
         return *iter;
     return current;
@@ -464,7 +461,7 @@ void TimelineWidget::contextHelp(const Core::IContext::HelpCallback &callback) c
 
 void TimelineWidget::init(int zoom)
 {
-    QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentState());
+    QmlTimeline currentTimeline = m_timelineView->timelineForState(m_timelineView->currentStateNode());
     if (currentTimeline.isValid()) {
         setTimelineId(currentTimeline.modelNode().id());
         m_statusBar->setText(
@@ -504,7 +501,7 @@ TimelineToolBar *TimelineWidget::toolBar() const
 void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = timelineView()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimelineNode();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             m_toolbar->setStartFrame(timeline.startKeyframe());
             m_toolbar->setEndFrame(timeline.endKeyframe());
@@ -528,7 +525,7 @@ void TimelineWidget::invalidateTimelineDuration(const QmlTimeline &timeline)
 void TimelineWidget::invalidateTimelinePosition(const QmlTimeline &timeline)
 {
     if (timelineView() && timelineView()->model()) {
-        QmlTimeline currentTimeline = timelineView()->currentTimeline();
+        QmlTimeline currentTimeline = timelineView()->currentTimelineNode();
         if (currentTimeline.isValid() && currentTimeline == timeline) {
             qreal frame = getcurrentFrame(timeline);
             m_toolbar->setCurrentFrame(frame);
@@ -554,7 +551,7 @@ void TimelineWidget::setupScrollbar(int min, int max, int current)
 
 void TimelineWidget::setTimelineId(const QString &id)
 {
-    auto currentState = m_timelineView->currentState();
+    QmlModelState currentState = m_timelineView->currentStateNode();
     auto timelineOfState = m_timelineView->timelineForState(currentState.modelNode());
 
     bool active = false;
@@ -609,7 +606,7 @@ void TimelineWidget::showEvent([[maybe_unused]] QShowEvent *event)
 {
     int zoom = m_toolbar->scaleFactor();
 
-    m_timelineView->setEnabled(true);
+    QmlDesignerPlugin::viewManager().showView(*m_timelineView);
 
     graphicsScene()->setWidth(m_graphicsView->viewport()->width());
     graphicsScene()->invalidateScene();
@@ -632,7 +629,7 @@ void TimelineWidget::resizeEvent(QResizeEvent *event)
 
 void TimelineWidget::hideEvent(QHideEvent *event)
 {
-    m_timelineView->setEnabled(false);
+    QmlDesignerPlugin::viewManager().hideView(*m_timelineView);
     QWidget::hideEvent(event);
 }
 

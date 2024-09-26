@@ -13,9 +13,10 @@
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
 #include <nodemetainfo.h>
-#include <variantproperty.h>
+#include <qmldesignerplugin.h>
 #include <qmlstate.h>
 #include <qmltimeline.h>
+#include <variantproperty.h>
 
 #include <cmath>
 
@@ -32,12 +33,15 @@ CurveEditorView::CurveEditorView(ExternalDependenciesInterface &externalDepoende
     connect(m_model, &CurveEditorModel::commitEndFrame, this, &CurveEditorView::commitEndFrame);
     connect(m_model, &CurveEditorModel::curveChanged, this, &CurveEditorView::commitKeyframes);
 
-    connect(m_editor, &CurveEditor::viewEnabledChanged, this, [this](bool enabled){
-        setEnabled(enabled);
-        if (enabled)
+    connect(m_editor, &CurveEditor::viewEnabledChanged, this, [this](bool enabled) {
+        if (enabled) {
+            QmlDesignerPlugin::viewManager().showView(*this);
             init();
+        } else {
+            QmlDesignerPlugin::viewManager().hideView(*this);
+        }
     });
-    setEnabled(false);
+
 }
 
 CurveEditorView::~CurveEditorView() {}
@@ -56,8 +60,7 @@ void CurveEditorView::modelAttached(Model *model)
 {
     AbstractView::modelAttached(model);
 
-    if (isEnabled())
-        init();
+    init();
 }
 
 void CurveEditorView::modelAboutToBeDetached(Model *model)
@@ -171,7 +174,7 @@ QmlTimeline CurveEditorView::activeTimeline() const
     if (!isAttached())
         return {};
 
-    QmlModelState state = currentState();
+    QmlModelState state = currentStateNode();
     if (state.isBaseState()) {
         for (const ModelNode &node : allModelNodesOfType(model()->qtQuickTimelineTimelineMetaInfo())) {
             if (QmlTimeline::isValidQmlTimeline(node)) {

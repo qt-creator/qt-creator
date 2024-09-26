@@ -156,6 +156,9 @@ T.ComboBox {
         delegate: ItemDelegate {
             id: itemDelegate
 
+            required property var model
+            required property int index
+
             onClicked: {
                 // Necessary to keep the transient parent open otherwise it will change the focus
                 // to the main window "Utils::AppMainWindowClassWindow" and closes the transient
@@ -169,15 +172,12 @@ T.ComboBox {
             width: control.width
             height: control.style.controlSize.height
             padding: 0
-            enabled: model.enabled === undefined ? true : model.enabled
+            enabled: itemDelegate.model["enabled"] === undefined ? true : itemDelegate.model["enabled"]
 
             contentItem: Text {
                 leftPadding: 8
                 rightPadding: verticalScrollBar.style.scrollBarThicknessHover
-                text: control.textRole ? (Array.isArray(control.model)
-                                          ? modelData[control.textRole]
-                                          : model[control.textRole])
-                                       : modelData
+                text: itemDelegate.model[control.textRole]
                 color: {
                     if (!itemDelegate.enabled)
                         return control.style.text.disabled

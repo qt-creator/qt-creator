@@ -249,16 +249,16 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
 
-const char SETTING_HIDE_OPTION_CATEGORIES[] = "HideOptionCategories";
-
 static bool categoryVisible(const Id &id)
 {
+#ifdef QT_NO_DEBUG
+
     static QStringList list
-        = Core::ICore::settings()->value(SETTING_HIDE_OPTION_CATEGORIES).toStringList();
+        = Core::ICore::settings()->value("HideOptionCategories").toStringList();
 
     if (anyOf(list, [id](const QString &str) { return id.toString().contains(str); }))
         return false;
-
+#endif
     return true;
 }
 

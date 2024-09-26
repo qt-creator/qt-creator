@@ -11,14 +11,16 @@
 #include <auxiliarydataproperties.h>
 #include <bindingproperty.h>
 #include <nodemetainfo.h>
-#include <projectstorage/sourcepathcache.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 #include <qmlobjectnode.h>
 #include <qmltimeline.h>
+#include <sourcepathcache.h>
 #include <variantproperty.h>
 
 #include <theme.h>
+
+#include <qmldesignerbase/settings/designersettings.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
@@ -462,7 +464,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        for (const auto &property : PropertyEditorUtils::filteredPropertes(qmlObjectNode.metaInfo())) {
+        for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
             auto propertyName = property.name();
             createPropertyEditorValue(qmlObjectNode,
                                       propertyName,
@@ -572,7 +574,7 @@ void PropertyEditorQmlBackend::initialSetup(const TypeName &typeName, const QUrl
 {
     NodeMetaInfo metaInfo = propertyEditor->model()->metaInfo(typeName);
 
-    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaInfo)) {
+    for (const auto &property : PropertyEditorUtils::filteredProperties(metaInfo)) {
         setupPropertyEditorValue(property.name(), propertyEditor, property.propertyType());
     }
 
@@ -693,7 +695,7 @@ QString PropertyEditorQmlBackend::templateGeneration(const NodeMetaInfo &metaTyp
     PropertyMetaInfos separateSectionProperties;
 
     // Iterate over all properties and isolate the properties which have their own template
-    for (const auto &property : PropertyEditorUtils::filteredPropertes(metaType)) {
+    for (const auto &property : PropertyEditorUtils::filteredProperties(metaType)) {
         const auto &propertyName = property.name();
         if (propertyName.startsWith("__"))
             continue; // private API
@@ -919,6 +921,11 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
     return node.metaInfo();
 }
 
+void PropertyEditorQmlBackend::refreshBackendModel()
+{
+    m_backendModelNode.refresh();
+}
+
 #ifndef QDS_USE_PROJECTSTORAGE
 TypeName PropertyEditorQmlBackend::qmlFileName(const NodeMetaInfo &nodeInfo)
 {
@@ -1025,9 +1032,11 @@ QString PropertyEditorQmlBackend::locateQmlFile(const NodeMetaInfo &info, const 
 {
     static const QDir fileSystemDir(PropertyEditorQmlBackend::propertyEditorResourcesPath());
 
+    constexpr QLatin1String qmlDesignerSubfolder{"/designer/"};
     const QDir resourcesDir(QStringLiteral(":/propertyEditorQmlSources"));
-    const QDir importDir(info.importDirectoryPath() + Constants::QML_DESIGNER_SUBFOLDER);
-    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".") + QString::number(info.majorVersion()) + Constants::QML_DESIGNER_SUBFOLDER);
+    const QDir importDir(info.importDirectoryPath() + qmlDesignerSubfolder);
+    const QDir importDirVersion(info.importDirectoryPath() + QStringLiteral(".")
+                                + QString::number(info.majorVersion()) + qmlDesignerSubfolder);
 
     const QString relativePathWithoutEnding = relativePath.left(relativePath.size() - 4);
     const QString relativePathWithVersion = QString("%1_%2_%3.qml").arg(relativePathWithoutEnding

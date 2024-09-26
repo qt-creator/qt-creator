@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 namespace QmlDesigner {
 
 class MaterialBrowserWidget;
+class QmlObjectNode;
 
 class MaterialBrowserView : public AbstractView
 {
@@ -83,11 +84,12 @@ private:
     void loadPropertyGroups();
     void requestPreviews();
     ModelNode resolveSceneEnv();
-    ModelNode getMaterialOfModel(const ModelNode &model, int idx = 0);
+    void updateMaterialSelection();
+    void updateTextureSelection();
+    void handleModelSelectionChange();
 
     AsynchronousImageCache &m_imageCache;
     QPointer<MaterialBrowserWidget> m_widget;
-    QList<ModelNode> m_selectedModels; // selected 3D model nodes
 
     bool m_hasQuick3DImport = false;
     bool m_autoSelectModelMaterial = false; // TODO: wire this to some action
@@ -95,12 +97,15 @@ private:
     bool m_propertyGroupsLoaded = false;
 
     QTimer m_previewTimer;
+    QTimer m_selectionTimer; // Compress selection and avoid illegal callbacks to model
     QSet<ModelNode> m_previewRequests;
     QPointer<QQuickView> m_chooseMatPropsView;
     QHash<QString, QList<PropertyName>> m_textureModels;
     QString m_appliedTextureId;
     QString m_appliedTexturePath; // defers texture creation until dialog apply
     int m_sceneId = -1;
+    int m_pendingMaterialIndex = -1;
+    int m_pendingTextureIndex = -1;
 };
 
 } // namespace QmlDesigner

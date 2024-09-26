@@ -9,7 +9,7 @@ namespace QmlDesigner {
 
 namespace PropertyEditorUtils {
 
-PropertyMetaInfos filteredPropertes(const NodeMetaInfo &metaInfo);
+PropertyMetaInfos filteredProperties(const NodeMetaInfo &metaInfo);
 
 } // End namespace PropertyEditorUtils.
 

@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "formeditorscene.h"
+#include "formeditoritem.h"
 #include "formeditorview.h"
 #include "formeditorwidget.h"
-#include "formeditoritem.h"
+#include <designeralgorithm.h>
+#include <designersettings.h>
 #include <nodehints.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
-#include <designersettings.h>
 
 #include <QGraphicsSceneDragDropEvent>
 
@@ -83,9 +84,9 @@ double FormEditorScene::canvasHeight() const
 
 QList<FormEditorItem*> FormEditorScene::itemsForQmlItemNodes(const QList<QmlItemNode> &nodeList) const
 {
-    return Utils::filtered(Utils::transform(nodeList, [this](const QmlItemNode &qmlItemNode) {
-        return itemForQmlItemNode(qmlItemNode);
-    }), [] (FormEditorItem* item) { return item; });
+    return CoreUtils::to<QList>(
+        nodeList | std::views::transform(std::bind_front(&FormEditorScene::itemForQmlItemNode, this))
+        | std::views::filter(std::identity{}));
 }
 
 QList<FormEditorItem*> FormEditorScene::allFormEditorItems() const
@@ -395,15 +396,15 @@ FormEditorItem* FormEditorScene::rootFormEditorItem() const
 
 void FormEditorScene::clearFormEditorItems()
 {
-    const QList<QGraphicsItem*> itemList(items());
+    const QList<QGraphicsItem *> itemList(items());
 
-    const QList<FormEditorItem*> formEditorItemsTransformed =
-            Utils::transform(itemList, [](QGraphicsItem *item) { return qgraphicsitem_cast<FormEditorItem* >(item); });
+    auto cast = [](QGraphicsItem *item) { return qgraphicsitem_cast<FormEditorItem *>(item); };
 
-    const QList<FormEditorItem*> formEditorItems = Utils::filtered(formEditorItemsTransformed,
-                                                                   [](FormEditorItem *item) { return item; });
+    auto formEditorItems = itemList | std::views::transform(cast)
+                           | std::views::filter(std::identity{});
+
     for (FormEditorItem *item : formEditorItems)
-            item->setParentItem(nullptr);
+        item->setParentItem(nullptr);
 
     for (FormEditorItem *item : formEditorItems)
             delete item;

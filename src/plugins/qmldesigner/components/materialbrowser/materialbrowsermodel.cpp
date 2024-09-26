@@ -10,6 +10,8 @@
 #include "variantproperty.h"
 #include "qmltimelinekeyframegroup.h"
 
+#include <utils3d.h>
+
 #include <utils/qtcassert.h>
 
 namespace QmlDesigner {
@@ -314,6 +316,11 @@ void MaterialBrowserModel::deleteSelectedMaterial()
 
 void MaterialBrowserModel::updateSelectedMaterial()
 {
+    if (!m_materialList.isEmpty() && m_selectedIndex < 0) {
+        ModelNode mat = Utils3D::selectedMaterial(m_view);
+        m_selectedIndex = materialIndex(mat);
+    }
+
     selectMaterial(m_selectedIndex, true);
 }
 
@@ -326,10 +333,7 @@ void MaterialBrowserModel::updateMaterialName(const ModelNode &material)
 
 int MaterialBrowserModel::materialIndex(const ModelNode &material) const
 {
-    if (m_materialIndexHash.contains(material.internalId()))
-        return m_materialIndexHash.value(material.internalId());
-
-    return -1;
+    return m_materialIndexHash.value(material.internalId(), -1);
 }
 
 ModelNode MaterialBrowserModel::materialAt(int idx) const

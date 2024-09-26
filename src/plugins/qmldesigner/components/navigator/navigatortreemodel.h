@@ -7,6 +7,7 @@
 
 #include <modelnode.h>
 #include <nodemetainfo.h>
+#include <utils/uniqueobjectptr.h>
 
 #include <QAbstractItemModel>
 #include <QPointer>
@@ -16,10 +17,11 @@ QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
-class Model;
-class NavigatorView;
-class ModelNode;
+class CreateTextures;
 class DesignerActionManager;
+class Model;
+class ModelNode;
+class NavigatorView;
 
 class NavigatorTreeModel : public QAbstractItemModel, public NavigatorModelInterface
 {
@@ -103,6 +105,7 @@ private:
     bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const ModelNode &newModelNode);
 
     QPointer<NavigatorView> m_view;
+    Utils::UniqueObjectPtr<CreateTextures> m_createTextures;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     mutable QHash<ModelNode, QList<ModelNode> > m_rowCache;
     bool m_showOnlyVisibleItems = true;

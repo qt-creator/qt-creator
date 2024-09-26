@@ -600,9 +600,7 @@ bool contains(const Container &c, const QStringView &stringView) {
 
 template <typename Container>
 auto findKey(const Container &c, const QStringView &key) {
-    return std::find_if(std::begin(c), std::end(c), [&](const auto &pair){
-        return pair.first == key;
-    });
+    return std::ranges::find(c, key, &std::iter_value_t<Container>::first);
 }
 
 template<typename Callable>
@@ -816,8 +814,29 @@ QVariant convertValue(const QByteArray &key, const QString &value)
         return value.toInt();
     } else if (key == "opacity") {
         return value.toFloat();
-    } else if ((key == "fillColor" || key == "strokeColor") && value == "none") {
-        return "transparent";
+    } else if ((key == "fillColor" || key == "strokeColor")) {
+        if (value == "none")
+            return QColor(0, 0, 0, 0);
+
+        static const QRegularExpression reRGB(
+            R"(^rgb\((?<red>\d{1,3}),\s*(?<green>\d{1,3}),\s*(?<blue>\d{1,3})\)$)");
+        QRegularExpressionMatch match = reRGB.match(value);
+        if (match.hasMatch()) {
+            return QColor(match.captured("red").toInt(),
+                          match.captured("green").toInt(),
+                          match.captured("blue").toInt());
+        }
+
+        static const QRegularExpression reRGBA(
+            R"(^rgba\((?<red>\d{1,3}),\s*(?<green>\d{1,3}),\s*(?<blue>\d{1,3}),\s*(?<alpha>\d*(?:\.\d+))\)$)");
+        match = reRGBA.match(value);
+        if (match.hasMatch()) {
+            QColor color(match.captured("red").toInt(),
+                         match.captured("green").toInt(),
+                         match.captured("blue").toInt());
+            color.setAlphaF(match.captured("alpha").toFloat());
+            return color;
+        }
     }
 
     return value;

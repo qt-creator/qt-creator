@@ -78,7 +78,7 @@ void updateMcuBuildStep(Target *target, bool mcuEnabled)
 
 QmlBuildSystem::QmlBuildSystem(Target *target)
     : BuildSystem(target)
-    , m_cmakeGen(new GenerateCmake::CMakeGenerator(this, this))
+    , m_fileGen(new QmlProjectExporter::Exporter(this))
 {
     // refresh first - project information is used e.g. to decide the default RC's
     refresh(RefreshOptions::Project);
@@ -88,13 +88,13 @@ QmlBuildSystem::QmlBuildSystem(Target *target)
 
     connect(target->project(), &Project::activeTargetChanged, this, [this](Target *target) {
         refresh(RefreshOptions::NoFileRefresh);
-        m_cmakeGen->initialize(qmlProject());
+        m_fileGen->updateProject(qmlProject());
         updateMcuBuildStep(target, qtForMCUs());
     });
     connect(target->project(), &Project::projectFileIsDirty, this, [this] {
         refresh(RefreshOptions::Project);
-        m_cmakeGen->initialize(qmlProject());
-        m_cmakeGen->updateMenuAction();
+        m_fileGen->updateProject(qmlProject());
+        m_fileGen->updateMenuAction();
         updateMcuBuildStep(project()->activeTarget(), qtForMCUs());
     });
 
@@ -218,16 +218,12 @@ void QmlBuildSystem::refresh(RefreshOptions options)
 
 void QmlBuildSystem::initProjectItem()
 {
-    m_projectItem.reset(new QmlProjectItem{projectFilePath()});
+    auto projectPath = projectFilePath();
+
+    m_projectItem.reset(new QmlProjectItem{projectPath});
 
     connect(m_projectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
-    connect(m_projectItem.data(),
-            &QmlProjectItem::filesChanged,
-            m_cmakeGen,
-            &GenerateCmake::CMakeGenerator::update);
-
-    m_cmakeGen->setEnabled(m_projectItem->enableCMakeGeneration());
-
+    m_fileGen->updateProjectItem(m_projectItem.data(), true);
     initMcuProjectItems();
 }
 
@@ -243,10 +239,7 @@ void QmlBuildSystem::initMcuProjectItems()
 
         m_mcuProjectItems.append(qmlProjectItem);
         connect(qmlProjectItem.data(), &QmlProjectItem::filesChanged, this, &QmlBuildSystem::refreshFiles);
-        connect(qmlProjectItem.data(),
-                &QmlProjectItem::filesChanged,
-                m_cmakeGen,
-                &GenerateCmake::CMakeGenerator::update);
+        m_fileGen->updateProjectItem(m_projectItem.data(), false);
 
         m_mcuProjectFilesWatcher.addFile(mcuProjectFile, Utils::FileSystemWatcher::WatchModifiedDate);
 
@@ -290,6 +283,7 @@ void QmlBuildSystem::generateProjectTree()
         const FileType fileType = (file == projectFilePath())
                 ? FileType::Project
                 : FileNode::fileTypeForFileName(file);
+
         newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
     }
 
@@ -302,7 +296,8 @@ void QmlBuildSystem::generateProjectTree()
             newRoot->addNestedNode(std::make_unique<FileNode>(file, fileType));
         }
     }
-    newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
+    if (!projectFilePath().endsWith(Constants::fakeProjectName))
+        newRoot->addNestedNode(std::make_unique<FileNode>(projectFilePath(), FileType::Project));
 
     setRootProjectNode(std::move(newRoot));
     updateDeploymentData();
@@ -383,6 +378,9 @@ Utils::FilePath QmlBuildSystem::getStartupQmlFileWithFallback() const
         return {};
 
     if (!target())
+        return {};
+
+    if (projectFilePath().endsWith(Constants::fakeProjectName))
         return {};
 
     const auto getFirstFittingFile = [](const Utils::FilePaths &files) -> Utils::FilePath {
@@ -529,6 +527,7 @@ Utils::FilePath QmlBuildSystem::targetFile(const Utils::FilePath &sourceFile) co
     const Utils::FilePath relative = sourceFile.relativePathFrom(sourceDir);
     return targetDirectory().resolvePath(relative);
 }
+
 void QmlBuildSystem::setSupportedLanguages(QStringList languages)
 {
         m_projectItem->setSupportedLanguages(languages);
@@ -548,6 +547,17 @@ void QmlBuildSystem::setEnableCMakeGeneration(bool enable)
 {
     if (enable != enableCMakeGeneration())
         m_projectItem->setEnableCMakeGeneration(enable);
+}
+
+bool QmlBuildSystem::enablePythonGeneration() const
+{
+    return m_projectItem->enablePythonGeneration();
+}
+
+void QmlBuildSystem::setEnablePythonGeneration(bool enable)
+{
+    if (enable != enablePythonGeneration())
+        m_projectItem->setEnablePythonGeneration(enable);
 }
 
 void QmlBuildSystem::refreshFiles(const QSet<QString> & /*added*/, const QSet<QString> &removed)
@@ -723,18 +733,39 @@ QStringList QmlBuildSystem::shaderToolFiles() const
     return m_projectItem->shaderToolFiles();
 }
 
+QStringList QmlBuildSystem::allImports() const
+{
+    return m_projectItem->importPaths() + m_projectItem->mockImports();
+}
+
 QStringList QmlBuildSystem::importPaths() const
 {
     return m_projectItem->importPaths();
 }
 
+QStringList QmlBuildSystem::mockImports() const
+{
+    return m_projectItem->mockImports();
+}
+
 QStringList QmlBuildSystem::absoluteImportPaths() const
 {
-    return Utils::transform<QStringList>(m_projectItem->importPaths(), [&](const QString &importPath) {
+    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
         Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
-        if (!filePath.isAbsolutePath())
-            return (projectDirectory() / importPath).toString();
-        return projectDirectory().resolvePath(importPath).toString();
+        if (filePath.isAbsolutePath())
+            return projectDirectory().resolvePath(importPath).path();
+        return (projectDirectory() / importPath).path();
+    });
+}
+
+QStringList QmlBuildSystem::targetImportPaths() const
+{
+    return Utils::transform<QStringList>(allImports(), [&](const QString &importPath) {
+        const Utils::FilePath filePath = Utils::FilePath::fromString(importPath);
+        if (filePath.isAbsolutePath()) {
+            return importPath;
+        }
+        return (targetDirectory() / importPath).path();
     });
 }
 

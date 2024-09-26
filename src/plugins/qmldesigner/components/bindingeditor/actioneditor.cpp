@@ -305,6 +305,31 @@ void ActionEditor::prepareConnections()
     }
 
     // Singletons
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (auto model = m_modelNode.model()) {
+        for (const auto &metaInfo : model->singletonMetaInfos()) {
+            if (metaInfo.isValid()) {
+                ActionEditorDialog::SingletonOption singelton;
+                for (const auto &property : metaInfo.properties()) {
+                    if (isSkippedType(property.propertyType()))
+                        continue;
+                    auto exportedTypeName = model
+                                                ->exportedTypeNameForMetaInfo(property.propertyType())
+                                                .name.toQByteArray();
+                    singelton.properties.append(
+                        ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
+                                                           exportedTypeName,
+                                                           property.isWritable()));
+                }
+
+                if (!singelton.properties.isEmpty()) {
+                    singelton.item = metaInfo.displayName();
+                    singletons.append(singelton);
+                }
+            }
+        }
+    }
+#else
     if (RewriterView *rv = m_modelNode.view()->rewriterView()) {
         for (const QmlTypeData &data : rv->getQMLTypes()) {
             if (!data.typeName.isEmpty()) {
@@ -314,21 +339,10 @@ void ActionEditor::prepareConnections()
                     for (const auto &property : metaInfo.properties()) {
                         if (isSkippedType(property.propertyType()))
                             continue;
-#ifdef QDS_USE_PROJECTSTORAGE
-                        auto exportedTypeName = model
-                                                    ->exportedTypeNameForMetaInfo(
-                                                        property.propertyType())
-                                                    .name.toQByteArray();
-                        singelton.properties.append(
-                            ActionEditorDialog::PropertyOption(QString::fromUtf8(property.name()),
-                                                               exportedTypeName,
-                                                               property.isWritable()));
-#else
                         singelton.properties.append(ActionEditorDialog::PropertyOption(
                             QString::fromUtf8(property.name()),
                             skipCpp(property.propertyType().typeName()),
                             property.isWritable()));
-#endif
                     }
 
                     if (!singelton.properties.isEmpty()) {
@@ -339,6 +353,7 @@ void ActionEditor::prepareConnections()
             }
         }
     }
+#endif
 
     // States
     for (const QmlModelState &state : QmlItemNode(m_modelNode.view()->rootModelNode()).states().allStates())

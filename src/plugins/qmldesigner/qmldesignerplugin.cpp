@@ -26,7 +26,6 @@
 #include <formeditor/transitiontool.h>
 #include <formeditor/view3dtool.h>
 #include <studioquickwidget.h>
-#include <windowmanager.h>
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
@@ -308,7 +307,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     //TODO Move registering those types out of the property editor, since they are used also in the states editor
     Quick2PropertyEditorView::registerQmlTypes();
     StudioQuickWidget::registerDeclarativeType();
-    QmlDesignerBase::WindowManager::registerDeclarativeType();
 
     Exception::setWarnAboutException(!QmlDesignerPlugin::instance()
                                           ->settings()
@@ -323,6 +321,14 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
     if (Core::ICore::isQtDesignStudio()) {
         d->toolBar = ToolBar::create();
         d->statusBar = ToolBar::createStatusBar();
+
+        // uses simplified Telemetry settings page in case of Qt Design Studio
+        ExtensionSystem::PluginSpec *usageStatistic = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(), [](ExtensionSystem::PluginSpec *p) {
+            return p->name() == "UsageStatistic";
+        });
+
+        if (usageStatistic && usageStatistic->plugin())
+            QMetaObject::invokeMethod(usageStatistic->plugin(), "useSimpleUi", true);
     }
 
     return true;
@@ -396,17 +402,17 @@ static QString projectPath(const Utils::FilePath &fileName)
 
 void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 {
-    const Context context(Constants::C_QMLDESIGNER, Constants::C_QT_QUICK_TOOLS_MENU);
+    const Context context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId);
     IContext::attach(modeWidget, context, [modeWidget](const IContext::HelpCallback &callback) {
         modeWidget->contextHelp(callback);
     });
 
-    Core::Context qmlDesignerMainContext(Constants::C_QMLDESIGNER);
-    Core::Context qmlDesignerFormEditorContext(Constants::C_QMLFORMEDITOR);
-    Core::Context qmlDesignerEditor3dContext(Constants::C_QMLEDITOR3D);
-    Core::Context qmlDesignerNavigatorContext(Constants::C_QMLNAVIGATOR);
-    Core::Context qmlDesignerMaterialBrowserContext(Constants::C_QMLMATERIALBROWSER);
-    Core::Context qmlDesignerAssetsLibraryContext(Constants::C_QMLASSETSLIBRARY);
+    Core::Context qmlDesignerMainContext(Constants::qmlDesignerContextId);
+    Core::Context qmlDesignerFormEditorContext(Constants::qmlFormEditorContextId);
+    Core::Context qmlDesignerEditor3dContext(Constants::qml3DEditorContextId);
+    Core::Context qmlDesignerNavigatorContext(Constants::qmlNavigatorContextId);
+    Core::Context qmlDesignerMaterialBrowserContext(Constants::qmlMaterialBrowserContextId);
+    Core::Context qmlDesignerAssetsLibraryContext(Constants::qmlAssetsLibraryContextId);
 
     d->shortCutManager.registerActions(qmlDesignerMainContext, qmlDesignerFormEditorContext,
                                        qmlDesignerEditor3dContext, qmlDesignerNavigatorContext);
@@ -553,6 +559,9 @@ void QmlDesignerPlugin::selectModelNodeUnderTextCursor()
 
 void QmlDesignerPlugin::activateAutoSynchronization()
 {
+    viewManager().detachViewsExceptRewriterAndComponetView();
+    viewManager().detachComponentView();
+
     // text editor -> visual editor
     if (!currentDesignDocument()->isDocumentLoaded())
         currentDesignDocument()->loadDocument(currentDesignDocument()->plainTextEdit());

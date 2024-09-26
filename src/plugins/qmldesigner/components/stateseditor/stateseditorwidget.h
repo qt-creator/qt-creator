@@ -17,6 +17,7 @@ namespace QmlDesigner {
 
 class NodeInstanceView;
 
+class AbstractView;
 class StatesEditorModel;
 class StatesEditorView;
 
@@ -32,7 +33,7 @@ public:
 
     int currentStateInternalId() const;
     void setCurrentStateInternalId(int internalId);
-    void setNodeInstanceView(const NodeInstanceView *nodeInstanceView);
+    void setNodeInstanceView(const AbstractView *nodeInstanceView);
 
     static QString qmlSourcesPath();
 

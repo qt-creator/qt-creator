@@ -7,8 +7,8 @@
 
 #include <projectstorage/filestatus.h>
 #include <projectstorage/projectstoragetypes.h>
-#include <projectstorage/sourcepathcachetypes.h>
 #include <projectstorageids.h>
+#include <sourcepathstorage/sourcepathcachetypes.h>
 #include <sqliteblob.h>
 #include <sqlitetimestamp.h>
 #include <sqlitetransaction.h>

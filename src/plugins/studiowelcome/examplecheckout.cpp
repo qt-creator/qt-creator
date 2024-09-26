@@ -24,7 +24,7 @@
 #include <projectexplorer/projectexplorer.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
-#include <qmldesigner/utils/fileextractor.h>
+#include <qmldesignerutils/fileextractor.h>
 
 #include <QDialog>
 #include <QFileDialog>

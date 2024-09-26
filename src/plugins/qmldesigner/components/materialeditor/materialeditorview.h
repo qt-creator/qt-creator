@@ -22,6 +22,7 @@ namespace QmlDesigner {
 class DynamicPropertiesModel;
 class ItemLibraryInfo;
 class MaterialEditorQmlBackend;
+class QmlObjectNode;
 
 class MaterialEditorView : public AbstractView
 {
@@ -107,7 +108,6 @@ private:
     void highlightSupportedProperties(bool highlight = true);
 
     void requestPreviewRender();
-    void applyMaterialToSelectedModels(const ModelNode &material, bool add = false);
 
     void setupQmlBackend();
 
@@ -121,13 +121,13 @@ private:
 
     void initPreviewData();
     void updatePossibleTypes();
+    void asyncResetView();
 
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;
     int m_timerId = 0;
     QStackedWidget *m_stackedWidget = nullptr;
-    QList<ModelNode> m_selectedModels;
     QHash<QString, MaterialEditorQmlBackend *> m_qmlBackendHash;
     MaterialEditorQmlBackend *m_qmlBackEnd = nullptr;
     bool m_locked = false;
@@ -136,10 +136,11 @@ private:
     bool m_hasMaterialRoot = false;
     bool m_initializingPreviewData = false;
     bool m_textureAboutToBeRemoved = false;
+    ModelNode m_newSelectedMaterial;
+    bool m_selectedMaterialChanged = false;
     QSize m_previewSize;
     QByteArray m_previewRequestId;
 
-    QPointer<QColorDialog> m_colorDialog;
     QPointer<ItemLibraryInfo> m_itemLibraryInfo;
     DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
