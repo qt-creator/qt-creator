@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "createtexture.h"
 #include "previewtooltipbackend.h"
 
 #include <coreplugin/icontext.h>
@@ -135,7 +134,6 @@ private:
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;
     AssetsLibraryModel *m_assetsModel = nullptr;
     AssetsLibraryView *m_assetsView = nullptr;
-    CreateTextures m_createTextures = nullptr;
 
     Utils::UniqueObjectPtr<StudioQuickWidget> m_assetsWidget;
     std::unique_ptr<PreviewTooltipBackend> m_fontPreviewTooltipBackend;

@@ -57,7 +57,6 @@ ContentLibraryView::ContentLibraryView(AsynchronousImageCache &imageCache,
                                        ExternalDependenciesInterface &externalDependencies)
     : AbstractView(externalDependencies)
     , m_imageCache(imageCache)
-    , m_createTexture(this)
 {}
 
 ContentLibraryView::~ContentLibraryView()
@@ -88,15 +87,17 @@ WidgetInfo ContentLibraryView::widgetInfo()
             m_draggedBundleItem = item;
         });
 
-        connect(m_widget, &ContentLibraryWidget::addTextureRequested, this,
-                [&] (const QString &texPath, AddTextureMode mode) {
-            executeInTransaction("ContentLibraryView::widgetInfo", [&]() {
-                m_createTexture.execute(texPath, mode, m_sceneId);
-            });
-        });
+        connect(m_widget,
+                &ContentLibraryWidget::addTextureRequested,
+                this,
+                [&](const QString &texPath, AddTextureMode mode) {
+                    executeInTransaction("ContentLibraryView::widgetInfo", [&]() {
+                        CreateTexture(this).execute(texPath, mode, m_sceneId);
+                    });
+                });
 
         connect(m_widget, &ContentLibraryWidget::updateSceneEnvStateRequested, this, [&]() {
-            ModelNode activeSceneEnv = m_createTexture.resolveSceneEnv(m_sceneId);
+            ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(this, m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->texturesModel()->setHasSceneEnv(sceneEnvExists);
             m_widget->environmentsModel()->setHasSceneEnv(sceneEnvExists);

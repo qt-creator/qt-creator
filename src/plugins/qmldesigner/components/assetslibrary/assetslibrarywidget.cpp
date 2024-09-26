@@ -7,6 +7,7 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 
+#include <createtexture.h>
 #include <designeractionmanager.h>
 #include <designerpaths.h>
 #include <designmodewidget.h>
@@ -100,7 +101,6 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
     , m_assetsView{view}
-    , m_createTextures{view}
     , m_assetsWidget{Utils::makeUniqueObjectPtr<StudioQuickWidget>(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
@@ -231,18 +231,20 @@ int AssetsLibraryWidget::qtVersion() const
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute(filePaths,
-                                 AddTextureMode::Texture,
-                                 Utils3D::active3DSceneId(m_assetsView->model()));
+        CreateTexture(m_assetsView)
+            .execute(filePaths,
+                     AddTextureMode::Texture,
+                     Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
 void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute({filePath},
-                                 AddTextureMode::LightProbe,
-                                 Utils3D::active3DSceneId(m_assetsView->model()));
+        CreateTexture(m_assetsView)
+            .execute(filePath,
+                     AddTextureMode::LightProbe,
+                     Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
@@ -251,8 +253,9 @@ void AssetsLibraryWidget::updateContextMenuActionsEnableState()
     setHasMaterialLibrary(Utils3D::materialLibraryNode(m_assetsView).isValid()
                           && m_assetsView->model()->hasImport("QtQuick3D"));
 
-    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(
-        Utils3D::active3DSceneId(m_assetsView->model()));
+    ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(m_assetsView,
+                                                        Utils3D::active3DSceneId(
+                                                            m_assetsView->model()));
     setHasSceneEnv(activeSceneEnv.isValid());
 }
 

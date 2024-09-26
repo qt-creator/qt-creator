@@ -521,9 +521,8 @@ void PropertyEditorValue::commitDrop(const QString &dropData)
         m_modelNode.view()->executeInTransaction(__FUNCTION__, [&] {
             ModelNode texture = m_modelNode.view()->modelNodeForInternalId(dropData.toInt());
             if (!texture || !texture.metaInfo().isQtQuick3DTexture()) {
-                auto texCreator = new CreateTexture(m_modelNode.view());
-                texture = texCreator->execute(dropData, AddTextureMode::Texture);
-                texCreator->deleteLater();
+                CreateTexture texCreator(m_modelNode.view());
+                texture = texCreator.execute(dropData, AddTextureMode::Texture);
             }
 
             // assign the texture to the property

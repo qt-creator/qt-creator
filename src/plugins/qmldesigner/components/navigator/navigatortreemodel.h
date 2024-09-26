@@ -17,7 +17,6 @@ QT_FORWARD_DECLARE_CLASS(QPixmap)
 
 namespace QmlDesigner {
 
-class CreateTextures;
 class DesignerActionManager;
 class Model;
 class ModelNode;
@@ -88,7 +87,7 @@ public:
     void updateToolTipPixmap(const ModelNode &node, const QPixmap &pixmap);
 
 signals:
-    void toolTipPixmapUpdated(const QString &id, const QPixmap &pixmap) const;
+    void toolTipPixmapUpdated(const QString &id, const QPixmap &pixmap);
 
 private:
     void moveNodesInteractive(NodeAbstractProperty &parentProperty, const QList<ModelNode> &modelNodes,
@@ -107,7 +106,6 @@ private:
     bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const ModelNode &newModelNode);
 
     QPointer<NavigatorView> m_view;
-    Utils::UniqueObjectPtr<CreateTextures> m_createTextures;
     mutable QHash<ModelNode, QModelIndex> m_nodeIndexHash;
     mutable QHash<ModelNode, QList<ModelNode> > m_rowCache;
     bool m_showOnlyVisibleItems = true;

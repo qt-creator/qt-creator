@@ -1915,10 +1915,8 @@ ModelNode createTextureNode(AbstractView *view, const QString &imagePath)
 {
     QTC_ASSERT(view, return {});
 
-    auto textureCreator = new CreateTexture(view);
-    ModelNode texture = textureCreator->execute(imagePath, AddTextureMode::Texture);
-    textureCreator->deleteLater();
-    return texture;
+    CreateTexture textureCreator(view);
+    return textureCreator.execute(imagePath, AddTextureMode::Texture);
 }
 
 bool dropAsImage3dTexture(const ModelNode &targetNode,

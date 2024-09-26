@@ -210,7 +210,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
         });
 
         connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [&]() {
-            ModelNode activeSceneEnv = CreateTexture(this).resolveSceneEnv(m_sceneId);
+            ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(this, m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->materialBrowserTexturesModel()->setHasSceneEnv(sceneEnvExists);
         });
@@ -223,12 +223,14 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             m_widget->materialBrowserTexturesModel()->setHasSingleModelSelection(hasModel);
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::applyAsLightProbeRequested, this,
-                [&] (const ModelNode &texture) {
-            executeInTransaction(__FUNCTION__, [&] {
-                CreateTexture(this).assignTextureAsLightProbe(texture, m_sceneId);
-            });
-        });
+        connect(texturesModel,
+                &MaterialBrowserTexturesModel::applyAsLightProbeRequested,
+                this,
+                [&](const ModelNode &texture) {
+                    executeInTransaction(__FUNCTION__, [&] {
+                        Utils3D::assignTextureAsLightProbe(this, texture, m_sceneId);
+                    });
+                });
     }
 
     return createWidgetInfo(m_widget.data(),
@@ -240,13 +242,9 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
 void MaterialBrowserView::createTextures(const QStringList &assetPaths)
 {
-    auto *create = new CreateTextures(this);
-
     executeInTransaction("MaterialBrowserView::createTextures", [&]() {
-        create->execute(assetPaths, AddTextureMode::Texture, m_sceneId);
+        CreateTexture(this).execute(assetPaths, AddTextureMode::Texture, m_sceneId);
     });
-
-    create->deleteLater();
 }
 
 void MaterialBrowserView::modelAttached(Model *model)
@@ -741,11 +739,10 @@ void MaterialBrowserView::applyTextureToProperty(const QString &matId, const QSt
 {
     executeInTransaction(__FUNCTION__, [&] {
         if (m_appliedTextureId.isEmpty() && !m_appliedTexturePath.isEmpty()) {
-            auto texCreator = new CreateTexture(this);
-            ModelNode tex = texCreator->execute(m_appliedTexturePath, AddTextureMode::Texture);
+            CreateTexture texCreator(this);
+            ModelNode tex = texCreator.execute(m_appliedTexturePath, AddTextureMode::Texture);
             m_appliedTextureId = tex.id();
             m_appliedTexturePath.clear();
-            texCreator->deleteLater();
         }
 
         QTC_ASSERT(!m_appliedTextureId.isEmpty(), return);

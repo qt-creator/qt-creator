@@ -18,7 +18,6 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
-class CreateTexture;
 class DynamicPropertiesModel;
 class ModelNode;
 class QmlObjectNode;
@@ -126,7 +125,6 @@ private:
     bool m_selectedTextureChanged = false;
 
     QPointer<QColorDialog> m_colorDialog;
-    QPointer<CreateTexture> m_createTexture;
     DynamicPropertiesModel *m_dynamicPropertiesModel = nullptr;
 };
 

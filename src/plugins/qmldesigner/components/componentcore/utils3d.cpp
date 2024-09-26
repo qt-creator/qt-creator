@@ -252,6 +252,43 @@ void applyMaterialToModels(AbstractView *view, const ModelNode &material,
     });
 }
 
+ModelNode resolveSceneEnv(AbstractView *view, int sceneId)
+{
+    ModelNode activeSceneEnv;
+    ModelNode selectedNode = view->firstSelectedModelNode();
+
+    if (selectedNode.metaInfo().isQtQuick3DSceneEnvironment()) {
+        activeSceneEnv = selectedNode;
+    } else if (sceneId != -1) {
+        ModelNode activeScene = Utils3D::active3DSceneNode(view);
+        if (activeScene.isValid()) {
+            QmlObjectNode view3D;
+            if (activeScene.metaInfo().isQtQuick3DView3D()) {
+                view3D = activeScene;
+            } else {
+                ModelNode sceneParent = activeScene.parentProperty().parentModelNode();
+                if (sceneParent.metaInfo().isQtQuick3DView3D())
+                    view3D = sceneParent;
+            }
+            if (view3D.isValid())
+                activeSceneEnv = view->modelNodeForId(view3D.expression("environment"));
+        }
+    }
+
+    return activeSceneEnv;
+}
+
+void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int sceneId)
+{
+    ModelNode sceneEnvNode = resolveSceneEnv(view, sceneId);
+    QmlObjectNode sceneEnv = sceneEnvNode;
+    if (sceneEnv.isValid()) {
+        sceneEnv.setBindingProperty("lightProbe", texture.id());
+        sceneEnv.setVariantProperty("backgroundMode",
+                                    QVariant::fromValue(Enumeration("SceneEnvironment", "SkyBox")));
+    }
+}
+
 // This method should be executed within a transaction as it performs multiple modifications to the model
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName)
