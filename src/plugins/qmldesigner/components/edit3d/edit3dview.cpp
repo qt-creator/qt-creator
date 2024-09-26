@@ -261,9 +261,9 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
     }
 
     if (sceneState.contains(syncEnvBgKey))
-        m_syncEnvBackgroundAction->action()->setChecked(sceneState[syncEnvBgKey].toBool());
+        m_syncEnvBackgroundAction->setMode(sceneState[syncEnvBgKey].toString());
     else
-        m_syncEnvBackgroundAction->action()->setChecked(false);
+        m_syncEnvBackgroundAction->setMode({});
 
     // Selection context change updates visible and enabled states
     SelectionContext selectionContext(this);
@@ -622,7 +622,7 @@ QSize Edit3DView::canvasSize() const
     return {};
 }
 
-void Edit3DView::createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction)
+void Edit3DView::createSelectBackgroundColorAction(Edit3DComboBoxAction *syncEnvBackgroundAction)
 {
     QString description = QCoreApplication::translate("SelectBackgroundColorAction",
                                                       "Select Background Color");
@@ -635,11 +635,8 @@ void Edit3DView::createSelectBackgroundColorAction(QAction *syncEnvBackgroundAct
             DesignerSettingsKey::EDIT3DVIEW_BACKGROUND_COLOR,
             this,
             edit3dBgColorProperty,
-            [this, syncEnvBackgroundAction]() {
-                if (syncEnvBackgroundAction->isChecked()) {
-                    emitView3DAction(View3DActionType::SyncEnvBackground, false);
-                    syncEnvBackgroundAction->setChecked(false);
-                }
+            [syncEnvBackgroundAction]() {
+                syncEnvBackgroundAction->setMode("UseNoSceneEnv");
             });
     };
 
@@ -683,7 +680,7 @@ void Edit3DView::createGridColorSelectionAction()
         tooltip);
 }
 
-void Edit3DView::createResetColorAction(QAction *syncEnvBackgroundAction)
+void Edit3DView::createResetColorAction(Edit3DComboBoxAction *syncEnvBackgroundAction)
 {
     QString description = QCoreApplication::translate("ResetEdit3DColorsAction", "Reset Colors");
     QString tooltip = QCoreApplication::translate("ResetEdit3DColorsAction",
@@ -699,10 +696,7 @@ void Edit3DView::createResetColorAction(QAction *syncEnvBackgroundAction)
         Edit3DViewConfig::setColors(this, edit3dGridColorProperty, {gridColor});
         Edit3DViewConfig::saveColors(DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, {gridColor});
 
-        if (syncEnvBackgroundAction->isChecked()) {
-            emitView3DAction(View3DActionType::SyncEnvBackground, false);
-            syncEnvBackgroundAction->setChecked(false);
-        }
+        syncEnvBackgroundAction->setMode("UseNoSceneEnv");
     };
 
     m_resetColorAction = std::make_unique<Edit3DAction>(
@@ -715,27 +709,6 @@ void Edit3DView::createResetColorAction(QAction *syncEnvBackgroundAction)
         QIcon(),
         this,
         operation,
-        tooltip);
-}
-
-void Edit3DView::createSyncEnvBackgroundAction()
-{
-    QString description = QCoreApplication::translate("SyncEnvBackgroundAction",
-                                                      "Use Scene Environment");
-    QString tooltip = QCoreApplication::translate("SyncEnvBackgroundAction",
-                                                  "Sets the 3D view to use the Scene Environment "
-                                                  "color or skybox as background color.");
-
-    m_syncEnvBackgroundAction = std::make_unique<Edit3DAction>(
-        QmlDesigner::Constants::EDIT3D_EDIT_SYNC_ENV_BACKGROUND,
-        View3DActionType::SyncEnvBackground,
-        description,
-        QKeySequence(Qt::Key_K),
-        true,
-        false,
-        QIcon(),
-        this,
-        nullptr,
         tooltip);
 }
 
@@ -1161,10 +1134,49 @@ void Edit3DView::createEdit3DActions()
             "Toggle between always showing the camera frustum visualization and only showing it "
             "when the camera is selected."));
 
-    m_cameraViewAction = std::make_unique<Edit3DCameraViewAction>("CamerView"_actionId,
-                                                                  View3DActionType::CameraViewMode,
-                                                                  this);
+    const QList<ComboBoxActionsModel::DataItem> cameraViewData {
+        {QObject::tr("Hide Camera View"),
+         QObject::tr("Never show the camera view."),
+         "CameraOff"},
+        {QObject::tr("Show Selected Camera View"),
+         QObject::tr("Show the selected camera in the camera view."),
+         "ShowSelectedCamera"},
+        {QObject::tr("Always Show Camera View"),
+         QObject::tr("Show the last selected camera in the camera view."),
+         "AlwaysShowCamera"},
+    };
 
+    m_cameraViewAction = std::make_unique<Edit3DComboBoxAction>("CamerView"_actionId,
+                                                                View3DActionType::CameraViewMode,
+                                                                this,
+                                                                tr("Camera view mode"),
+                                                                QKeySequence(),
+                                                                nullptr,
+                                                                cameraViewData);
+
+    const QList<ComboBoxActionsModel::DataItem> useSceneEnvData {
+        {tr("No Scene Environment"),
+         tr("Don't use current scene environment in 3D view."),
+         "UseNoSceneEnv"},
+        {tr("Use Basic Scene Environment"),
+         tr("Uses light probe and background options from current scene environment in 3D view."),
+         "UseBasicSceneEnv"},
+        {tr("Use Extended Scene Environment"),
+         tr("Uses full extended scene environment in 3D view."),
+         "UseExtendedSceneEnv"},
+    };
+
+    SelectionContextOperation sceneEnvSyncTrigger = [this](const SelectionContext &) {
+        m_syncEnvBackgroundAction->cycleMode();
+    };
+
+    m_syncEnvBackgroundAction = std::make_unique<Edit3DComboBoxAction>("UseSceneEnv"_actionId,
+                                                                       View3DActionType::SyncEnvBackground,
+                                                                       this,
+                                                                       tr("Use scene environment mode"),
+                                                                       QKeySequence(Qt::Key_K),
+                                                                       sceneEnvSyncTrigger,
+                                                                       useSceneEnvData);
     m_showParticleEmitterAction = std::make_unique<Edit3DAction>(
         QmlDesigner::Constants::EDIT3D_EDIT_SHOW_PARTICLE_EMITTER,
         View3DActionType::ShowParticleEmitter,
@@ -1436,10 +1448,9 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_cameraViewAction.get();
     m_visibilityToggleActions << m_showParticleEmitterAction.get();
 
-    createSyncEnvBackgroundAction();
-    createSelectBackgroundColorAction(m_syncEnvBackgroundAction->action());
+    createSelectBackgroundColorAction(m_syncEnvBackgroundAction.get());
     createGridColorSelectionAction();
-    createResetColorAction(m_syncEnvBackgroundAction->action());
+    createResetColorAction(m_syncEnvBackgroundAction.get());
 
     m_backgroundColorActions << m_selectBackgroundColorAction.get();
     m_backgroundColorActions << m_selectGridColorAction.get();

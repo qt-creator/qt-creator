@@ -3,6 +3,7 @@
 #pragma once
 
 #include <abstractaction.h>
+#include <comboboxaction.h>
 
 #include <QAction>
 #include <QWidgetAction>
@@ -150,12 +151,19 @@ private:
     Edit3DView *m_view = nullptr;
 };
 
-class Edit3DCameraViewAction : public Edit3DAction
+class Edit3DComboBoxAction : public Edit3DAction
 {
 public:
-    Edit3DCameraViewAction(const QByteArray &menuId, View3DActionType type, Edit3DView *view);
+    Edit3DComboBoxAction(const QByteArray &menuId,
+                         View3DActionType type,
+                         Edit3DView *view,
+                         const QString &tooltip,
+                         const QKeySequence &key,
+                         SelectionContextOperation selectionAction,
+                         const QList<QmlDesigner::ComboBoxActionsModel::DataItem> &dataItems);
 
     void setMode(const QString &mode);
+    void cycleMode();
 };
 
 } // namespace QmlDesigner

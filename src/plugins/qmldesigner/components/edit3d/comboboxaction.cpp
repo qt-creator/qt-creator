@@ -1,6 +1,6 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
-#include "cameraviewwidgetaction.h"
+#include "comboboxaction.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -9,52 +9,47 @@
 
 namespace QmlDesigner {
 
-struct CameraActionsModel::DataItem
-{
-    QString name;
-    QString tooltip;
-    QString mode;
-};
-
-const QList<CameraActionsModel::DataItem> CameraActionsModel::m_data{
-    {tr("Hide Camera View"), tr("Never show the camera view."), "CameraOff"},
-    {tr("Show Selected Camera View"),
-     tr("Show the selected camera in the camera view."),
-     "ShowSelectedCamera"},
-    {tr("Always Show Camera View"),
-     tr("Show the last selected camera in the camera view."),
-     "AlwaysShowCamera"},
-};
-
-CameraViewWidgetAction::CameraViewWidgetAction(QObject *parent)
+ComboBoxAction::ComboBoxAction(const QList<ComboBoxActionsModel::DataItem> &dataItems, QObject *parent)
     : QWidgetAction(parent)
 {
     QComboBox *defaultComboBox = new QComboBox();
-    CameraActionsModel *comboBoxModel = new CameraActionsModel(defaultComboBox);
+    m_model = new ComboBoxActionsModel(dataItems, defaultComboBox);
 
-    defaultComboBox->setModel(comboBoxModel);
+    defaultComboBox->setModel(m_model);
     setDefaultWidget(defaultComboBox);
     connect(defaultComboBox, &QComboBox::currentIndexChanged, this, [this] {
         emit currentModeChanged(currentMode());
     });
 }
 
-QString CameraViewWidgetAction::currentMode() const
+QString ComboBoxAction::currentMode() const
 {
     QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
-    QTC_ASSERT(defaultComboBox, return "CameraOff");
+    QTC_ASSERT(defaultComboBox, return m_model->defaultMode());
 
-    return defaultComboBox->currentData(CameraActionsModel::ModeRole).toString();
+    return defaultComboBox->currentData(ComboBoxActionsModel::ModeRole).toString();
 }
 
-void CameraViewWidgetAction::setMode(const QString &mode)
+void ComboBoxAction::setMode(const QString &mode)
 {
     QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
     QTC_ASSERT(defaultComboBox, return);
-    defaultComboBox->setCurrentIndex(CameraActionsModel::modeIndex(mode));
+    int i = m_model->modeIndex(mode);
+    if (defaultComboBox->currentIndex() != i)
+        defaultComboBox->setCurrentIndex(i);
 }
 
-QWidget *CameraViewWidgetAction::createWidget(QWidget *parent)
+void ComboBoxAction::cycleMode()
+{
+    QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
+    QTC_ASSERT(defaultComboBox, return);
+    int i = defaultComboBox->currentIndex();
+    if (++i >= defaultComboBox->count())
+        i = 0;
+    defaultComboBox->setCurrentIndex(i);
+}
+
+QWidget *ComboBoxAction::createWidget(QWidget *parent)
 {
     QComboBox *defaultComboBox = qobject_cast<QComboBox *>(defaultWidget());
     QTC_ASSERT(defaultComboBox, return nullptr);
@@ -67,18 +62,22 @@ QWidget *CameraViewWidgetAction::createWidget(QWidget *parent)
     return newComboBox;
 }
 
-CameraActionsModel::CameraActionsModel(QObject *parent)
+ComboBoxActionsModel::ComboBoxActionsModel(const QList<ComboBoxActionsModel::DataItem> &dataItems,
+                                           QObject *parent)
     : QAbstractListModel(parent)
-{}
+    , m_data(dataItems)
+{
 
-CameraActionsModel::~CameraActionsModel() = default;
+}
 
-int CameraActionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
+ComboBoxActionsModel::~ComboBoxActionsModel() = default;
+
+int ComboBoxActionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
 {
     return m_data.size();
 }
 
-QVariant CameraActionsModel::data(const QModelIndex &index, int role) const
+QVariant ComboBoxActionsModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return {};
@@ -96,10 +95,17 @@ QVariant CameraActionsModel::data(const QModelIndex &index, int role) const
     }
 }
 
-int CameraActionsModel::modeIndex(const QString &mode)
+int ComboBoxActionsModel::modeIndex(const QString &mode)
 {
     int idx = Utils::indexOf(m_data, Utils::equal(&DataItem::mode, mode));
     return std::max(0, idx);
+}
+
+QString ComboBoxActionsModel::defaultMode() const
+{
+    if (!m_data.isEmpty())
+        return m_data.at(0).mode;
+    return {};
 }
 
 } // namespace QmlDesigner

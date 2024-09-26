@@ -3,7 +3,7 @@
 
 #include "edit3dactions.h"
 
-#include "cameraviewwidgetaction.h"
+#include "comboboxaction.h"
 #include "edit3dview.h"
 #include "indicatoractionwidget.h"
 #include "qmldesignerconstants.h"
@@ -28,7 +28,8 @@ Edit3DActionTemplate::Edit3DActionTemplate(const QString &description,
 
 void Edit3DActionTemplate::actionTriggered(bool b)
 {
-    if (m_type != View3DActionType::Empty && m_view->isAttached())
+    if (m_type != View3DActionType::Empty && m_type != View3DActionType::SyncEnvBackground
+        && m_view->isAttached())
         m_view->model()->emitView3DAction(m_type, b);
 
     if (m_action)
@@ -200,27 +201,43 @@ bool Edit3DIndicatorButtonAction::isEnabled(const SelectionContext &) const
     return m_buttonAction->isEnabled();
 }
 
-Edit3DCameraViewAction::Edit3DCameraViewAction(const QByteArray &menuId,
-                                               View3DActionType type,
-                                               Edit3DView *view)
-    : Edit3DAction(menuId, type, view, new Edit3DWidgetActionTemplate(new CameraViewWidgetAction(view)))
+Edit3DComboBoxAction::Edit3DComboBoxAction(const QByteArray &menuId,
+                                           View3DActionType type,
+                                           Edit3DView *view,
+                                           const QString &tooltip,
+                                           const QKeySequence &key,
+                                           SelectionContextOperation selectionAction,
+                                           const QList<ComboBoxActionsModel::DataItem> &dataItems)
+    : Edit3DAction(menuId, type, view, new Edit3DWidgetActionTemplate(new ComboBoxAction(dataItems, view),
+                                                                      selectionAction))
 {
-    CameraViewWidgetAction *widgetAction = qobject_cast<CameraViewWidgetAction *>(action());
+    ComboBoxAction *widgetAction = qobject_cast<ComboBoxAction *>(action());
     Q_ASSERT(widgetAction);
 
+    widgetAction->setToolTip(tooltip);
+
     QObject::connect(widgetAction,
-                     &CameraViewWidgetAction::currentModeChanged,
+                     &ComboBoxAction::currentModeChanged,
                      view,
                      [this, edit3dview = std::move(view)](const QString &newState) {
                          edit3dview->emitView3DAction(actionType(), newState);
                      });
+
+    action()->setShortcut(key);
 }
 
-void Edit3DCameraViewAction::setMode(const QString &mode)
+void Edit3DComboBoxAction::setMode(const QString &mode)
 {
-    CameraViewWidgetAction *widgetAction = qobject_cast<CameraViewWidgetAction *>(action());
+    ComboBoxAction *widgetAction = qobject_cast<ComboBoxAction *>(action());
     QTC_ASSERT(widgetAction, return);
     widgetAction->setMode(mode);
+}
+
+void Edit3DComboBoxAction::cycleMode()
+{
+    ComboBoxAction *widgetAction = qobject_cast<ComboBoxAction *>(action());
+    QTC_ASSERT(widgetAction, return);
+    widgetAction->cycleMode();
 }
 
 } // namespace QmlDesigner

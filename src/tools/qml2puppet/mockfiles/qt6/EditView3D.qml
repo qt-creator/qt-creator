@@ -36,7 +36,7 @@ Item {
     property color backgroundGradientColorStart: "#222222"
     property color backgroundGradientColorEnd: "#999999"
     property color gridColor: "#cccccc"
-    property bool syncEnvBackground: true
+    property string syncEnvBackground: "UseBasicSceneEnv"
     property bool splitView: false
     property bool flyMode: false
     property bool showCameraSpeed: false
@@ -269,9 +269,10 @@ Item {
             return;
 
         for (var i = 0; i < 4; ++i) {
-            if (syncEnvBackground) {
+            if (syncEnvBackground === "UseBasicSceneEnv" || syncEnvBackground === "UseExtendedSceneEnv") {
                 if (_generalHelper.hasSceneEnvironmentData(sceneId)) {
-                    _generalHelper.setEditorEnvProps(viewRoot.sceneId, editViews[i].sceneEnv);
+                    _generalHelper.setEditorEnvProps(viewRoot.sceneId, editViews[i].sceneEnv,
+                                                     syncEnvBackground);
                 } else if (activeScene) {
                     // TODO: Handle full extended env for this feature
                     _generalHelper.updateSceneEnvToLast(editViews[i].sceneEnv,
@@ -307,7 +308,7 @@ Item {
             syncEnvBackground = toolStates.syncEnvBackground;
             updateEnvBackground();
         } else if (resetToDefault) {
-            syncEnvBackground = true;
+            syncEnvBackground = "UseBasicSceneEnv";
             updateEnvBackground();
         }
 

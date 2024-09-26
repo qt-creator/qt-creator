@@ -2431,8 +2431,8 @@ void Qt5InformationNodeInstanceServer::setSceneEnvironmentData(
     QVariantMap toolStates = helper->getToolStates(sceneId);
 
     if (toolStates.contains("syncEnvBackground")) {
-        bool sync = toolStates["syncEnvBackground"].toBool();
-        if (sync)
+        QString sync = toolStates["syncEnvBackground"].toString();
+        if (!sync.isEmpty() && sync != "UseNoSceneEnv")
             QMetaObject::invokeMethod(m_editView3DData->rootItem, "updateEnvBackground");
     }
 #endif
@@ -2665,7 +2665,7 @@ void Qt5InformationNodeInstanceServer::view3DAction([[maybe_unused]] const View3
         updatedToolState.insert("cameraViewMode", command.value());
         break;
     case View3DActionType::SyncEnvBackground:
-        updatedToolState.insert("syncEnvBackground", command.isEnabled());
+        updatedToolState.insert("syncEnvBackground", command.value());
         break;
 #ifdef QUICK3D_PARTICLES_MODULE
     case View3DActionType::ShowParticleEmitter:

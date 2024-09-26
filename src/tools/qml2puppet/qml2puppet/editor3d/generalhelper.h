@@ -127,7 +127,8 @@ public:
     Q_INVOKABLE void updateSceneEnvToLast(QQuick3DSceneEnvironment *env, QQuick3DTexture *lightProbe,
                                           QQuick3DCubeMapTexture *cubeMap);
     Q_INVOKABLE bool sceneHasLightProbe(const QString &sceneId);
-    Q_INVOKABLE void setEditorEnvProps(const QString &sceneId, QQuick3DSceneEnvironment *env) const;
+    Q_INVOKABLE void setEditorEnvProps(const QString &sceneId, QQuick3DSceneEnvironment *env,
+                                       const QString &mode) const;
     Q_INVOKABLE void setEditEnvPropsToDefault(QQuick3DSceneEnvironment *env);
     Q_INVOKABLE void storeDefaultEditEnvProps(QQuick3DSceneEnvironment *env);
 
@@ -222,6 +223,7 @@ private:
     QSet<QQuick3DNode *> m_rotationBlockedNodes;
     void updateCombinedCameraMoveVector();
     bool isBlacklistedEnvProperty(const QByteArray &prop) const;
+    bool isBasicEnvProperty(const QByteArray &prop) const;
     void handleSceneEnvPropertyDestruction(QObject *destroyedObj);
 
     QQmlContext *m_context = {};

@@ -802,6 +802,12 @@ bool GeneralHelper::isBlacklistedEnvProperty(const QByteArray &prop) const
     return blackSet.contains(prop);
 }
 
+bool GeneralHelper::isBasicEnvProperty(const QByteArray &prop) const
+{
+    static QSet<QByteArray> basicSet {"backgroundMode", "clearColor", "lightProbe", "skyBoxCubeMap"};
+    return basicSet.contains(prop);
+}
+
 void GeneralHelper::handleSceneEnvPropertyDestruction(QObject *destroyedObj)
 {
     for (auto it = m_sceneEnvironmentData.scenePropertyHash.begin();
@@ -863,11 +869,13 @@ void GeneralHelper::setSceneEnvironmentData(const QString &sceneId, QQuick3DScen
 }
 
 void GeneralHelper::setEditorEnvProps(const QString &sceneId,
-                                      QQuick3DSceneEnvironment *env) const
+                                      QQuick3DSceneEnvironment *env,
+                                      const QString &mode) const
 {
     if (!env || !m_sceneEnvironmentData.defaultPropertyHash.contains(env))
         return;
 
+    const bool basicMode = mode == "UseBasicSceneEnv";
     const QMetaObject *meta = env->metaObject();
     const int propCount = meta->propertyCount();
     QHash<QByteArray, QVariant> currentProps = m_sceneEnvironmentData.scenePropertyHash.value(sceneId);
@@ -881,7 +889,7 @@ void GeneralHelper::setEditorEnvProps(const QString &sceneId,
         QQmlProperty qmlProp(env, QString::fromUtf8(propName), m_context);
         QVariant propVal = qmlProp.read();
 
-        if (currentProps.contains(propName)) {
+        if (currentProps.contains(propName) && (!basicMode || isBasicEnvProperty(propName))) {
             if (propVal != currentProps[propName])
                 qmlProp.write(currentProps[propName]);
         } else {

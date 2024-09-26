@@ -239,7 +239,7 @@ extend_qtc_plugin(QmlDesigner
 extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/edit3d
   SOURCES
-  cameraviewwidgetaction.cpp cameraviewwidgetaction.h
+  comboboxaction.cpp comboboxaction.h
   edit3dview.cpp edit3dview.h
   edit3dviewconfig.h
   edit3dwidget.cpp edit3dwidget.h

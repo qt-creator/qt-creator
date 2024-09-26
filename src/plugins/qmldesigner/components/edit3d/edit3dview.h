@@ -143,10 +143,9 @@ private:
     void updateEmbedded2dItems();
     void setActive3DSceneId(qint32 sceneId);
 
-    void createSelectBackgroundColorAction(QAction *syncEnvBackgroundAction);
+    void createSelectBackgroundColorAction(Edit3DComboBoxAction *syncEnvBackgroundAction);
     void createGridColorSelectionAction();
-    void createResetColorAction(QAction *syncEnvBackgroundAction);
-    void createSyncEnvBackgroundAction();
+    void createResetColorAction(Edit3DComboBoxAction *syncEnvBackgroundAction);
     void createSeekerSliderAction();
     void syncCameraSpeedToNewView();
     QmlObjectNode currentSceneEnv();
@@ -179,13 +178,13 @@ private:
     std::unique_ptr<Edit3DAction> m_showSelectionBoxAction;
     std::unique_ptr<Edit3DAction> m_showIconGizmoAction;
     std::unique_ptr<Edit3DAction> m_showCameraFrustumAction;
-    std::unique_ptr<Edit3DCameraViewAction> m_cameraViewAction;
+    std::unique_ptr<Edit3DComboBoxAction> m_cameraViewAction;
+    std::unique_ptr<Edit3DComboBoxAction> m_syncEnvBackgroundAction;
     std::unique_ptr<Edit3DAction> m_showParticleEmitterAction;
     std::unique_ptr<Edit3DAction> m_particleViewModeAction;
     std::unique_ptr<Edit3DAction> m_particlesPlayAction;
     std::unique_ptr<Edit3DAction> m_particlesRestartAction;
     std::unique_ptr<Edit3DParticleSeekerAction> m_seekerAction;
-    std::unique_ptr<Edit3DAction> m_syncEnvBackgroundAction;
     std::unique_ptr<Edit3DAction> m_selectBackgroundColorAction;
     std::unique_ptr<Edit3DAction> m_selectGridColorAction;
     std::unique_ptr<Edit3DAction> m_resetColorAction;
