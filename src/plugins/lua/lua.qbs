@@ -8,7 +8,9 @@ QtcPlugin {
 
     Depends { name: "lua546" }
     Depends { name: "sol2" }
+    Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
+    Depends { name: "Utils" }
 
     Properties {
         condition: qbs.toolchain.contains("mingw")
@@ -48,6 +50,7 @@ QtcPlugin {
             "localsocket.cpp",
             "macro.cpp",
             "messagemanager.cpp",
+            "project.cpp",
             "qt.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
