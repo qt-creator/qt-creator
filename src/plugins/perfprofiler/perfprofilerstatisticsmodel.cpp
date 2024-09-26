@@ -136,7 +136,7 @@ void PerfProfilerStatisticsMainModel::finalize(PerfProfilerStatisticsData *data)
     resort();
 
     QTC_ASSERT(data->isEmpty(), data->clear());
-    QTC_CHECK(m_offlineData.isNull());
+    QTC_CHECK(!m_offlineData);
     m_offlineData.reset(data);
 }
 
@@ -180,7 +180,7 @@ quint64 PerfProfilerStatisticsMainModel::address(int typeId) const
 void PerfProfilerStatisticsMainModel::initialize()
 {
     // Make offline data unaccessible while we're loading events
-    PerfProfilerStatisticsData *offline = m_offlineData.take();
+    PerfProfilerStatisticsData *offline = m_offlineData.release();
     QTC_ASSERT(offline, return);
     QTC_ASSERT(offline->isEmpty(), offline->clear());
 }
@@ -290,12 +290,12 @@ void PerfProfilerStatisticsMainModel::sort(int column, Qt::SortOrder order)
 void PerfProfilerStatisticsMainModel::clear(PerfProfilerStatisticsData *data)
 {
     beginResetModel();
-    if (m_offlineData.isNull()) {
+    if (!m_offlineData) {
         // We didn't finalize
         data->clear();
         m_offlineData.reset(data);
     } else {
-        QTC_CHECK(data == m_offlineData.data());
+        QTC_CHECK(data == m_offlineData.get());
     }
     m_totalSamples = 0;
     m_data.clear();
@@ -335,7 +335,7 @@ PerfProfilerStatisticsMainModel::PerfProfilerStatisticsMainModel(QObject *parent
 PerfProfilerStatisticsMainModel::~PerfProfilerStatisticsMainModel()
 {
     // If the offline data isn't here, we're being deleted while loading something. That's unnice.
-    QTC_CHECK(!m_offlineData.isNull());
+    QTC_CHECK(m_offlineData);
 }
 
 PerfProfilerStatisticsRelativesModel::PerfProfilerStatisticsRelativesModel(

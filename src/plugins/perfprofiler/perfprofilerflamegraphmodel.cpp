@@ -75,8 +75,8 @@ public:
     void setManager(const PerfProfilerTraceManager *manager) { m_manager = manager; }
     const PerfProfilerTraceManager *manager() const { return m_manager; }
 
-    PerfProfilerFlameGraphModel::Data *stackBottom() const { return m_stackBottom.data(); }
-    void swapStackBottom(QScopedPointer<PerfProfilerFlameGraphModel::Data> &stackBottom)
+    PerfProfilerFlameGraphModel::Data *stackBottom() const { return m_stackBottom.get(); }
+    void swapStackBottom(std::unique_ptr<PerfProfilerFlameGraphModel::Data> &stackBottom)
     {
         m_stackBottom.swap(stackBottom);
     }
@@ -84,7 +84,7 @@ public:
     uint resourcePeakId() const { return m_resourcePeakId; }
 
 private:
-    QScopedPointer<PerfProfilerFlameGraphModel::Data> m_stackBottom;
+    std::unique_ptr<PerfProfilerFlameGraphModel::Data> m_stackBottom;
     std::unordered_map<quint32, ProcessResourceCounter> m_resourceBlocks;
     QPointer<const PerfProfilerTraceManager> m_manager;
     uint m_resourcePeakId = 0;
@@ -106,7 +106,7 @@ PerfProfilerFlameGraphModel::PerfProfilerFlameGraphModel(PerfProfilerTraceManage
 PerfProfilerFlameGraphModel::~PerfProfilerFlameGraphModel()
 {
     // If the offline data isn't here, we're being deleted while loading something. That's unnice.
-    QTC_CHECK(!m_offlineData.isNull());
+    QTC_CHECK(m_offlineData);
 }
 
 QModelIndex PerfProfilerFlameGraphModel::index(int row, int column, const QModelIndex &parent) const
@@ -122,8 +122,8 @@ QModelIndex PerfProfilerFlameGraphModel::parent(const QModelIndex &child) const
 {
     if (child.isValid()) {
         Data *childData = static_cast<Data *>(child.internalPointer());
-        return childData->parent == m_stackBottom.data() ? QModelIndex()
-                                                         : createIndex(0, 0, childData->parent);
+        return childData->parent == m_stackBottom.get() ? QModelIndex()
+                                                        : createIndex(0, 0, childData->parent);
     }
     return {};
 }
@@ -153,7 +153,7 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
 {
     const Data *data = static_cast<Data *>(index.internalPointer());
     if (!data)
-        data = m_stackBottom.data();
+        data = m_stackBottom.get();
 
     switch (role) {
     case TypeIdRole:
@@ -210,7 +210,7 @@ QVariant PerfProfilerFlameGraphModel::data(const QModelIndex &index, int role) c
 
 void PerfProfilerFlameGraphModel::initialize()
 {
-    PerfProfilerFlameGraphData *offline = m_offlineData.take();
+    PerfProfilerFlameGraphData *offline = m_offlineData.release();
     QTC_ASSERT(offline, return);
     QTC_ASSERT(offline->isEmpty(), offline->clear());
     offline->setManager(qobject_cast<PerfProfilerTraceManager *>(QObject::parent()));
@@ -289,7 +289,7 @@ void PerfProfilerFlameGraphData::loadEvent(const PerfEvent &event, const PerfEve
 {
     const uint numSamples = (event.timestamp() < 0) ? 0 : 1;
     m_stackBottom->samples += numSamples;
-    auto data = m_stackBottom.data();
+    auto data = m_stackBottom.get();
     const QVector<int> &stack = event.frames();
     for (auto it = stack.rbegin(), end = stack.rend(); it != end; ++it)
         data = pushChild(data, *it, numSamples);
@@ -304,7 +304,7 @@ void PerfProfilerFlameGraphModel::finalize(PerfProfilerFlameGraphData *data)
     data->swapStackBottom(m_stackBottom);
 
     QQueue<Data *> nodes;
-    nodes.enqueue(m_stackBottom.data());
+    nodes.enqueue(m_stackBottom.get());
     while (!nodes.isEmpty()) {
         Data *node = nodes.dequeue();
         if (node->lastResourceChangeId < data->resourcePeakId()) {
@@ -325,12 +325,12 @@ void PerfProfilerFlameGraphModel::finalize(PerfProfilerFlameGraphData *data)
 void PerfProfilerFlameGraphModel::clear(PerfProfilerFlameGraphData *data)
 {
     beginResetModel();
-    if (m_offlineData.isNull()) {
+    if (!m_offlineData) {
         // We didn't finalize
         data->clear();
         m_offlineData.reset(data);
     } else {
-        QTC_CHECK(data == m_offlineData.data());
+        QTC_CHECK(data == m_offlineData.get());
     }
     m_stackBottom.reset(new Data);
     endResetModel();
