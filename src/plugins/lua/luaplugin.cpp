@@ -103,7 +103,7 @@ public:
         : QListView(parent)
     {
         setModel(&m_model);
-        setItemDelegate(new ItemDelegate);
+        setItemDelegate(new ItemDelegate(this));
     }
 
     void showEvent(QShowEvent *) override
