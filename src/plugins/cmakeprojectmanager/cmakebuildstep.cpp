@@ -80,7 +80,7 @@ public:
 
 using ProjectParserTask = CustomTask<ProjectParserTaskAdapter>;
 
-class CmakeProgressParser : public Utils::OutputLineParser
+class CMakeProgressParser : public Utils::OutputLineParser
 {
     Q_OBJECT
 
@@ -331,8 +331,8 @@ bool CMakeBuildStep::init()
 void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
     CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
-    CmakeProgressParser * const progressParser = new CmakeProgressParser;
-    connect(progressParser, &CmakeProgressParser::progress, this, [this](int percent) {
+    CMakeProgressParser * const progressParser = new CMakeProgressParser;
+    connect(progressParser, &CMakeProgressParser::progress, this, [this](int percent) {
         emit progress(percent, {});
     });
     formatter->addLineParser(progressParser);
