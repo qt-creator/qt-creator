@@ -150,6 +150,8 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         and buildSystem == "qmake"):
         # Don't rebuild now
         clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        # Wait for parsing to finish
+        progressBarWait(14000)
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 
