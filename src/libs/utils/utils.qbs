@@ -267,6 +267,8 @@ QtcLibrary {
         "reloadpromptutils.h",
         "removefiledialog.cpp",
         "removefiledialog.h",
+        "result.cpp",
+        "result.h",
         "savefile.cpp",
         "savefile.h",
         "scopedswap.h",

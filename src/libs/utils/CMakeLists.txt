@@ -143,6 +143,7 @@ add_qtc_library(Utils
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
+    result.cpp result.h
     savefile.cpp savefile.h
     scopedswap.h
     scopedtimer.cpp scopedtimer.h
