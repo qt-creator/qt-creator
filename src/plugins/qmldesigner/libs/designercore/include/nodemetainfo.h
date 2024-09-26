@@ -87,6 +87,7 @@ public:
     FlagIs isStackedContainer() const;
     FlagIs takesOverRenderingOfChildren() const;
     FlagIs visibleInNavigator() const;
+    FlagIs hideInNavigator() const;
     FlagIs visibleInLibrary() const;
 
     bool hasProperty(::Utils::SmallStringView propertyName) const;

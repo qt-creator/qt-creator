@@ -324,7 +324,10 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
 
     if (filter) {
         list.append(::Utils::filtered(nameFilteredList, [](const ModelNode &arg) {
-            const bool value = (QmlItemNode::isValidQmlItemNode(arg) || NodeHints::fromModelNode(arg).visibleInNavigator())
+            const bool visibleInNavigator = NodeHints::fromModelNode(arg).visibleInNavigator();
+            const bool hideInNavigator = NodeHints::fromModelNode(arg).hideInNavigator();
+            const bool value = ((QmlItemNode::isValidQmlItemNode(arg) && !hideInNavigator)
+                                || visibleInNavigator)
                                && arg.id() != Constants::MATERIAL_LIB_ID;
             return value;
         }));
