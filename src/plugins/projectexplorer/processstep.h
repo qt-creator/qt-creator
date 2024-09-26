@@ -3,9 +3,27 @@
 
 #pragma once
 
+#include "abstractprocessstep.h"
 #include "buildstep.h"
 
 namespace ProjectExplorer::Internal {
+
+class ProcessStep final : public AbstractProcessStep
+{
+public:
+    ProcessStep(BuildStepList *bsl, Utils::Id id);
+
+    void setCommand(const Utils::FilePath &command);
+    void setArguments(const QStringList &arguments);
+    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+
+private:
+    void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
+
+    Utils::FilePathAspect m_command{this};
+    Utils::StringAspect m_arguments{this};
+    Utils::FilePathAspect m_workingDirectory{this};
+};
 
 class ProcessStepFactory final : public BuildStepFactory
 {

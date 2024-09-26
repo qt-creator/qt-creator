@@ -21,58 +21,64 @@ const char PROCESS_COMMAND_KEY[] = "ProjectExplorer.ProcessStep.Command";
 const char PROCESS_WORKINGDIRECTORY_KEY[] = "ProjectExplorer.ProcessStep.WorkingDirectory";
 const char PROCESS_ARGUMENTS_KEY[] = "ProjectExplorer.ProcessStep.Arguments";
 
-class ProcessStep final : public AbstractProcessStep
+ProcessStep::ProcessStep(BuildStepList *bsl, Id id)
+    : AbstractProcessStep(bsl, id)
 {
-public:
-    ProcessStep(BuildStepList *bsl, Id id)
-        : AbstractProcessStep(bsl, id)
-    {
-        command.setSettingsKey(PROCESS_COMMAND_KEY);
-        command.setLabelText(Tr::tr("Command:"));
-        command.setExpectedKind(PathChooser::Command);
-        command.setHistoryCompleter("PE.ProcessStepCommand.History");
+    m_command.setSettingsKey(PROCESS_COMMAND_KEY);
+    m_command.setLabelText(Tr::tr("Command:"));
+    m_command.setExpectedKind(PathChooser::Command);
+    m_command.setHistoryCompleter("PE.ProcessStepCommand.History");
 
-        arguments.setSettingsKey(PROCESS_ARGUMENTS_KEY);
-        arguments.setDisplayStyle(StringAspect::LineEditDisplay);
-        arguments.setLabelText(Tr::tr("Arguments:"));
+    m_arguments.setSettingsKey(PROCESS_ARGUMENTS_KEY);
+    m_arguments.setDisplayStyle(StringAspect::LineEditDisplay);
+    m_arguments.setLabelText(Tr::tr("Arguments:"));
 
-        workingDirectory.setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
-        workingDirectory.setValue(QString(Constants::DEFAULT_WORKING_DIR));
-        workingDirectory.setLabelText(Tr::tr("Working directory:"));
-        workingDirectory.setExpectedKind(PathChooser::Directory);
+    m_workingDirectory.setSettingsKey(PROCESS_WORKINGDIRECTORY_KEY);
+    m_workingDirectory.setValue(QString(Constants::DEFAULT_WORKING_DIR));
+    m_workingDirectory.setLabelText(Tr::tr("Working directory:"));
+    m_workingDirectory.setExpectedKind(PathChooser::Directory);
 
-        setWorkingDirectoryProvider([this] {
-            const FilePath workingDir = workingDirectory();
-            if (workingDir.isEmpty())
-                return FilePath::fromString(fallbackWorkingDirectory());
-            return workingDir;
-        });
+    setWorkingDirectoryProvider([this] {
+        const FilePath workingDir = m_workingDirectory();
+        if (workingDir.isEmpty())
+            return FilePath::fromString(fallbackWorkingDirectory());
+        return workingDir;
+    });
 
-        setCommandLineProvider([this] {
-            return CommandLine{command(), arguments(), CommandLine::Raw};
-        });
+    setCommandLineProvider([this] {
+        return CommandLine{m_command(), m_arguments(), CommandLine::Raw};
+    });
 
-        setSummaryUpdater([this] {
-            QString display = displayName();
-            if (display.isEmpty())
-                display = Tr::tr("Custom Process Step");
-            ProcessParameters param;
-            setupProcessParameters(&param);
-            return param.summary(display);
-        });
-    }
+    setSummaryUpdater([this] {
+        QString display = displayName();
+        if (display.isEmpty())
+            display = Tr::tr("Custom Process Step");
+        ProcessParameters param;
+        setupProcessParameters(&param);
+        return param.summary(display);
+    });
+}
 
-private:
-    void setupOutputFormatter(OutputFormatter *formatter) final
-    {
-        formatter->addLineParsers(kit()->createOutputParsers());
-        AbstractProcessStep::setupOutputFormatter(formatter);
-    }
+void ProcessStep::setCommand(const Utils::FilePath &command)
+{
+    m_command.setValue(command);
+}
 
-    FilePathAspect command{this};
-    StringAspect arguments{this};
-    FilePathAspect workingDirectory{this};
-};
+void ProcessStep::setArguments(const QStringList &arguments)
+{
+    m_arguments.setValue(arguments.join(" "));
+}
+
+void ProcessStep::setWorkingDirectory(const Utils::FilePath &workingDirectory)
+{
+    m_workingDirectory.setValue(workingDirectory);
+}
+
+void ProcessStep::setupOutputFormatter(OutputFormatter *formatter)
+{
+    formatter->addLineParsers(kit()->createOutputParsers());
+    AbstractProcessStep::setupOutputFormatter(formatter);
+}
 
 // ProcessStepFactory
 
