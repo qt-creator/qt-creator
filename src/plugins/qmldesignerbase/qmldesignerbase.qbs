@@ -7,6 +7,9 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QtSupport" }
     Depends { name: "Qt.quickwidgets" }
+    Depends { name: "Qt.gui-private" }
+
+    cpp.includePaths: ["settings", "studio", "utils"]
 
     files: [
         "qmldesignerbase_global.h",
@@ -17,6 +20,8 @@ QtcPlugin {
     Group {
         prefix: "studio/"
         files: [
+            "studioquickutils.cpp",
+            "studioquickutils.h",
             "studioquickwidget.cpp",
             "studioquickwidget.h",
             "studiosettingspage.cpp",
@@ -25,6 +30,8 @@ QtcPlugin {
             "studiostyle.h",
             "studiostyle_p.cpp",
             "studiostyle_p.h",
+            "studiovalidator.cpp",
+            "studiovalidator.h",
         ]
     }
     Group {
@@ -32,10 +39,18 @@ QtcPlugin {
         files: [
             "designerpaths.cpp",
             "designerpaths.h",
-            "designersettings.cpp",
-            "designersettings.h",
             "qmlpuppetpaths.cpp",
             "qmlpuppetpaths.h",
+            "windowmanager.cpp",
+            "windowmanager.h",
         ]
+        Group {
+            prefix: "settings/"
+            files: [
+                "designersettings.cpp",
+                "designersettings.h",
+                "qmldesignersettings_global.h",
+            ]
+        }
     }
 }
