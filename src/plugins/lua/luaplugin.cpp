@@ -190,6 +190,8 @@ public:
 
             // clang-format off
             m_ui = Column {
+                noMargin,
+                spacing(0),
                 m_terminal,
                 Row { prompt, inputEdit },
             }.emerge();
