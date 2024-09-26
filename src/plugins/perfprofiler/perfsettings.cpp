@@ -106,7 +106,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
     });
 
     auto resetButton = new QPushButton(Tr::tr("Reset"), this);
-    connect(resetButton, &QPushButton::pressed, m_settings, &PerfSettings::resetToDefault);
+    connect(resetButton, &QPushButton::pressed, m_settings, &PerfSettings::reset);
 
     using namespace Layouting;
     Column {
@@ -478,14 +478,6 @@ QString PerfSettings::perfRecordArguments() const
                  QString::number(period())});
     cmd.addArgs(extraArguments(), CommandLine::Raw);
     return cmd.arguments();
-}
-
-void PerfSettings::resetToDefault()
-{
-    PerfSettings defaults;
-    Store map;
-    defaults.toMap(map);
-    fromMap(map);
 }
 
 QWidget *PerfSettings::createPerfConfigWidget(Target *target)
