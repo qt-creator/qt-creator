@@ -54,6 +54,7 @@ QtcPlugin {
             "texteditor.cpp",
             "translate.cpp",
             "utils.cpp",
+            "utils.h",
         ]
 
         Properties {
