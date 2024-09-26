@@ -3,7 +3,7 @@
     "Name" : "QtApplicationManagerIntegration",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
-    "Experimental" : true,
+    "Experimental" : false,
     "Revision" : "${QTC_PLUGIN_REVISION}",
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
