@@ -20,6 +20,7 @@
 #include <nodeproperty.h>
 #include <rewritingexception.h>
 #include <theme.h>
+#include <utils3d.h>
 #include <variantproperty.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignericons.h>
@@ -572,6 +573,14 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
 
     bool blocked = blockSelectionChangedSignal(true);
     setSelectedModelNodes(Utils::toList(nodeSet));
+
+    if(selectedModelNodes().size() == 1){
+        auto node = selectedModelNodes().constFirst();
+        if (node.isValid() && node.metaInfo().isQtQuick3DMaterial()){
+            Utils3D::selectMaterial(node);
+        }
+    }
+
     blockSelectionChangedSignal(blocked);
 }
 
