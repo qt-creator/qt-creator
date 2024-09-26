@@ -27,7 +27,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
@@ -44,7 +43,6 @@
 #include <QTextBrowser>
 #include <QTreeView>
 
-#include <functional>
 #include <utility>
 
 using namespace Core;
@@ -128,117 +126,132 @@ UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
     return info;
 }
 
-class QtVersionItem : public TreeItem
+void QtVersionItem::setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique)
 {
-public:
-    explicit QtVersionItem(QtVersion *version)
-        : m_version(version)
-    {}
+    m_isNameUnique = isNameUnique;
+}
 
-    ~QtVersionItem()
-    {
-        delete m_version;
+QtVersionItem::Quality QtVersionItem::quality() const
+{
+    const QtVersion *version = this->version();
+    QTC_ASSERT(version, return Quality::Bad);
+
+    if (!version->isValid())
+        return Quality::Bad;
+    if (!version->warningReason().isEmpty() || hasNonUniqueDisplayName())
+        return Quality::Limited;
+    const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
+    switch (abisInfo.status) {
+    case UnsupportedAbisInfo::Status::AllMissing:
+        return Quality::Bad;
+    case UnsupportedAbisInfo::Status::SomeMissing:
+        return Quality::Limited;
+    case UnsupportedAbisInfo::Status::Ok:
+        break;
+    }
+    return Quality::Good;
+}
+
+void QtVersionItem::setChanged(bool changed)
+{
+    if (changed == m_changed)
+        return;
+    m_changed = changed;
+    update();
+}
+
+QVariant QtVersionItem::data(int column, int role) const
+{
+    const QtVersion *version = this->version();
+
+    if (!version) {
+        if (role == Qt::DisplayRole && column == 0)
+            return Tr::tr("No Qt");
+        if (role == IdRole)
+            return -1;
+        return TreeItem::data(column, role);
     }
 
-    void setVersion(QtVersion *version)
-    {
-        m_version = version;
-        update();
+    if (role == Qt::DisplayRole) {
+        if (column == 0)
+            return version->displayName();
+        if (column == 1)
+            return version->qmakeFilePath().toUserOutput();
     }
 
-    int uniqueId() const
-    {
-        return m_version ? m_version->uniqueId() : -1;
+    if (role == Qt::FontRole && m_changed) {
+        QFont font;
+        font.setBold(true);
+        return font;
     }
 
-    QtVersion *version() const
-    {
-        return m_version;
-    }
-
-    QVariant data(int column, int role) const final
-    {
-        if (!m_version)
-            return TreeItem::data(column, role);
-
-        if (role == Qt::DisplayRole) {
-            if (column == 0)
-                return m_version->displayName();
-            if (column == 1)
-                return m_version->qmakeFilePath().toUserOutput();
+    if (role == Qt::DecorationRole && column == 0) {
+        switch (quality()) {
+        case Quality::Good:
+            return validVersionIcon();
+        case Quality::Limited:
+            return warningVersionIcon();
+        case Quality::Bad:
+            return invalidVersionIcon();
         }
+    }
 
-        if (role == Qt::FontRole && m_changed) {
-            QFont font;
-            font.setBold(true);
-            return font;
-         }
-
-        if (role == Qt::DecorationRole && column == 0) {
-             if (!m_version->isValid())
-                return invalidVersionIcon();
-             if (!m_version->warningReason().isEmpty() || hasNonUniqueDisplayName())
-                 return warningVersionIcon();
-             const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(m_version);
-             switch (abisInfo.status) {
-             case UnsupportedAbisInfo::Status::AllMissing:
-                 return invalidVersionIcon();
-             case UnsupportedAbisInfo::Status::SomeMissing:
-                 return warningVersionIcon();
-             case UnsupportedAbisInfo::Status::Ok:
-                 break;
-             }
-             return validVersionIcon();
+    if (role == Qt::ToolTipRole) {
+        const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
+                            "<dd>%2</dd>";
+        QString desc = "<dl style=\"white-space:pre\">";
+        if (version->isValid())
+            desc += row.arg(Tr::tr("Qt Version"), version->qtVersionString());
+        desc += row.arg(Tr::tr("Location of qmake"), version->qmakeFilePath().toUserOutput());
+        if (version->isValid()) {
+            const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
+            if (abisInfo.status == UnsupportedAbisInfo::Status::AllMissing)
+                desc += row.arg(Tr::tr("Error"), abisInfo.message);
+            if (abisInfo.status == UnsupportedAbisInfo::Status::SomeMissing)
+                desc += row.arg(Tr::tr("Warning"), abisInfo.message);
+            const QStringList warnings = version->warningReason();
+            for (const QString &w : warnings)
+                desc += row.arg(Tr::tr("Warning"), w);
+        } else {
+            desc += row.arg(Tr::tr("Error"), version->invalidReason());
         }
-
-        if (role == Qt::ToolTipRole) {
-            const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
-                                "<dd>%2</dd>";
-            QString desc = "<dl style=\"white-space:pre\">";
-            if (m_version->isValid())
-                desc += row.arg(Tr::tr("Qt Version"), m_version->qtVersionString());
-            desc += row.arg(Tr::tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput());
-            if (m_version->isValid()) {
-                const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(m_version);
-                if (abisInfo.status == UnsupportedAbisInfo::Status::AllMissing)
-                    desc += row.arg(Tr::tr("Error"), abisInfo.message);
-                if (abisInfo.status == UnsupportedAbisInfo::Status::SomeMissing)
-                    desc += row.arg(Tr::tr("Warning"), abisInfo.message);
-                const QStringList warnings = m_version->warningReason();
-                for (const QString &w : warnings)
-                    desc += row.arg(Tr::tr("Warning"), w);
-            } else {
-                desc += row.arg(Tr::tr("Error"), m_version->invalidReason());
-            }
-            if (hasNonUniqueDisplayName())
-                desc += row.arg(Tr::tr("Warning"), nonUniqueDisplayNameWarning());
-            desc += "</dl>";
-            return desc;
-        }
-
-        return QVariant();
+        if (hasNonUniqueDisplayName())
+            desc += row.arg(Tr::tr("Warning"), nonUniqueDisplayNameWarning());
+        desc += "</dl>";
+        return desc;
     }
 
-    void setChanged(bool changed)
-    {
-        if (changed == m_changed)
-            return;
-        m_changed = changed;
-        update();
-    }
+    if (role == IdRole)
+        return uniqueId();
 
-    void setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique)
-    {
-        m_isNameUnique = isNameUnique;
-    }
+    return QVariant();
+}
 
-private:
-    bool hasNonUniqueDisplayName() const { return m_isNameUnique && !m_isNameUnique(m_version); }
+int QtVersionItem::uniqueId() const
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        return v ? (*v)->uniqueId() : -1;
+    return *std::get_if<int>(&m_version);
+}
 
-    QtVersion *m_version = nullptr;
-    std::function<bool(QtVersion *)> m_isNameUnique;
-    bool m_changed = false;
-};
+QtVersion *QtVersionItem::version() const
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        return *v;
+    return QtVersionManager::version(*std::get_if<int>(&m_version));
+}
+
+void QtVersionItem::setVersion(QtVersion *version)
+{
+    m_version = version;
+    update();
+}
+
+QtVersionItem::~QtVersionItem()
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        delete *v;
+}
 
 // QtSettingsPageWidget
 
@@ -1130,7 +1143,7 @@ void setupQtSettingsPage()
     static QtSettingsPage theQtSettingsPage;
 }
 
-} // Internal
+} // namespace Internal
 
 bool LinkWithQtSupport::canLinkWithQt()
 {

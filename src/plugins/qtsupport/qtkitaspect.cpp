@@ -3,6 +3,7 @@
 
 #include "qtkitaspect.h"
 
+#include "qtoptionspage.h"
 #include "qtparser.h"
 #include "qtsupportconstants.h"
 #include "qtsupporttr.h"
@@ -30,6 +31,80 @@ using namespace Utils;
 namespace QtSupport {
 namespace Internal {
 
+class QtVersionListModel : public TreeModel<TreeItem, QtVersionItem>
+{
+public:
+    QtVersionListModel(const Kit &kit, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+    {}
+
+    QModelIndex indexForQtId(int id) const
+    {
+        if (id == -1)
+            return index(rowCount() - 1, 0); // The "No Qt" item always comes last
+        const TreeItem *const item = findItemAtLevel<1>(
+            [id](TreeItem *item) { return static_cast<QtVersionItem *>(item)->uniqueId() == id; });
+        return item ? indexForItem(item) : QModelIndex();
+    }
+
+    void reset()
+    {
+        clear();
+
+        const FilePath deviceRoot = BuildDeviceKitAspect::device(&m_kit)->rootPath();
+        const QtVersions versionsForBuildDevice = QtVersionManager::versions(
+            [&deviceRoot](const QtVersion *qt) {
+                return qt->qmakeFilePath().isSameDevice(deviceRoot);
+            });
+        for (QtVersion *v : versionsForBuildDevice)
+            rootItem()->appendChild(new QtVersionItem(v->uniqueId()));
+        rootItem()->appendChild(new QtVersionItem(-1)); // The "No Qt" entry.
+    }
+
+private:
+    const Kit &m_kit;
+};
+
+class QtVersionSortModel : public SortModel
+{
+public:
+    QtVersionSortModel(QObject *parent) : SortModel(parent) {}
+
+    QModelIndex indexForId(int id) const
+    {
+        return mapFromSource(
+            static_cast<QtVersionListModel *>(sourceModel())->indexForQtId(id));
+    }
+
+    void reset() { static_cast<QtVersionListModel *>(sourceModel())->reset(); }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto source = static_cast<QtVersionListModel *>(sourceModel());
+        const auto item1 = static_cast<QtVersionItem *>(source->itemForIndex(source_left));
+        const auto item2 = static_cast<QtVersionItem *>(source->itemForIndex(source_right));
+        QTC_ASSERT(item1 && item2, return false);
+
+        // Criterion 1: "No Qt" comes last
+        if (item1->uniqueId() == -1)
+            return false;
+        if (item2->uniqueId() == -1)
+            return true;
+
+        // Criterion 2: Invalid Qt versions come after valid ones with warnings, which come
+        //              after valid ones without warnings.
+        if (const QtVersionItem::Quality qual1 = item1->quality(), qual2 = item2->quality();
+            qual1 != qual2) {
+            return qual1 == QtVersionItem::Quality::Good || qual2 == QtVersionItem::Quality::Bad;
+        }
+
+        // Criterion 3: Name.
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
+
 class QtKitAspectImpl final : public KitAspect
 {
 public:
@@ -39,8 +114,13 @@ public:
 
         m_combo = createSubWidget<QComboBox>();
         m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
+        const auto sortModel = new QtVersionSortModel(this);
+        sortModel->setSourceModel(new QtVersionListModel(*k, this));
+        m_combo->setModel(sortModel);
 
         refresh();
+
+        // FIXME: We want the tooltip for the current item (also for toolchains etc).
         m_combo->setToolTip(ki->description());
 
         connect(m_combo, &QComboBox::currentIndexChanged, this, [this] {
@@ -48,10 +128,10 @@ public:
                 currentWasChanged(m_combo->currentIndex());
         });
 
-        connect(QtVersionManager::instance(),
-                &QtVersionManager::qtVersionsChanged,
-                this,
-                &QtKitAspectImpl::refresh);
+        connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
+            if (k == kit())
+                refresh();
+        });
     }
 
     ~QtKitAspectImpl() final
@@ -71,20 +151,10 @@ private:
     void refresh() final
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_combo->clear();
-        m_combo->addItem(Tr::tr("None"), -1);
-
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
-        const FilePath deviceRoot = device->rootPath();
-
-        const QtVersions versionsForBuildDevice
-            = Utils::filtered(QtVersionManager::versions(), [device](QtVersion *qt) {
-                  return qt->qmakeFilePath().isSameDevice(device->rootPath());
-              });
-
-        for (QtVersion *item : versionsForBuildDevice)
-            m_combo->addItem(item->displayName(), item->uniqueId());
-        m_combo->setCurrentIndex(findQtVersion(QtKitAspect::qtVersionId(m_kit)));
+        const auto sortModel = static_cast<QtVersionSortModel *>(m_combo->model());
+        sortModel->reset();
+        sortModel->sort(0);
+        m_combo->setCurrentIndex(sortModel->indexForId(QtKitAspect::qtVersionId(m_kit)).row());
     }
 
 private:
@@ -99,16 +169,9 @@ private:
 
     void currentWasChanged(int idx)
     {
-        QtKitAspect::setQtVersionId(m_kit, m_combo->itemData(idx).toInt());
-    }
-
-    int findQtVersion(const int id) const
-    {
-        for (int i = 0; i < m_combo->count(); ++i) {
-            if (id == m_combo->itemData(i).toInt())
-                return i;
-        }
-        return -1;
+        const QAbstractItemModel * const model = m_combo->model();
+        const int versionId = model->data(model->index(idx, 0), QtVersionItem::IdRole).toInt();
+        QtKitAspect::setQtVersionId(m_kit, versionId);
     }
 
     Guard m_ignoreChanges;
