@@ -1,7 +1,7 @@
 // Copyright (C) 2016 Axonian LLC.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 
 #include "cmakeprojectmanagertr.h"
 
@@ -21,7 +21,7 @@ const char COMMON_WARNING_PATTERN[] = "^CMake Warning (\\(dev\\) )?at (.*?):([0-
 const char LOCATION_LINE_PATTERN[] = ":(\\d+?):(?:(\\d+?))?$";
 const char SOURCE_LINE_AND_FUNCTION_PATTERN[] = "  (.*?):([0-9]*?)( \\((.*?)\\))";
 
-CMakeParser::CMakeParser()
+CMakeOutputParser::CMakeOutputParser()
 {
     m_commonError.setPattern(QLatin1String(COMMON_ERROR_PATTERN));
     QTC_CHECK(m_commonError.isValid());
@@ -39,7 +39,7 @@ CMakeParser::CMakeParser()
     QTC_CHECK(m_sourceLineAndFunction.isValid());
 }
 
-void CMakeParser::setSourceDirectory(const FilePath &sourceDir)
+void CMakeOutputParser::setSourceDirectory(const FilePath &sourceDir)
 {
     if (m_sourceDirectory)
         emit searchDirExpired(m_sourceDirectory.value());
@@ -47,14 +47,14 @@ void CMakeParser::setSourceDirectory(const FilePath &sourceDir)
     emit newSearchDirFound(sourceDir);
 }
 
-FilePath CMakeParser::resolvePath(const QString &path) const
+FilePath CMakeOutputParser::resolvePath(const QString &path) const
 {
     if (m_sourceDirectory)
         return m_sourceDirectory->resolvePath(path);
     return FilePath::fromUserInput(path);
 }
 
-OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputFormat type)
+OutputLineParser::Result CMakeOutputParser::handleLine(const QString &line, OutputFormat type)
 {
     if (line.startsWith("ninja: build stopped")) {
         m_lastTask = BuildSystemTask(Task::Error, line);
@@ -202,7 +202,7 @@ OutputLineParser::Result CMakeParser::handleLine(const QString &line, OutputForm
     return Status::NotHandled;
 }
 
-void CMakeParser::flush()
+void CMakeOutputParser::flush()
 {
     if (m_lastTask.isNull())
         return;
@@ -260,16 +260,16 @@ void CMakeParser::flush()
 
 namespace CMakeProjectManager::Internal {
 
-class CMakeParserTest final : public QObject
+class CMakeOutputParserTest final : public QObject
 {
     Q_OBJECT
 
 private slots:
-    void testCMakeParser_data();
-    void testCMakeParser();
+    void testCMakeOutputParser_data();
+    void testCMakeOutputParser();
 };
 
-void CMakeParserTest::testCMakeParser_data()
+void CMakeOutputParserTest::testCMakeOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
@@ -475,10 +475,10 @@ void CMakeParserTest::testCMakeParser_data()
         << QString();
 }
 
-void CMakeParserTest::testCMakeParser()
+void CMakeOutputParserTest::testCMakeOutputParser()
 {
     OutputParserTester testbench;
-    testbench.addLineParser(new CMakeParser);
+    testbench.addLineParser(new CMakeOutputParser);
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
@@ -491,13 +491,13 @@ void CMakeParserTest::testCMakeParser()
                           outputLines);
 }
 
-QObject *createCMakeParserTest()
+QObject *createCMakeOutputParserTest()
 {
-    return new CMakeParserTest;
+    return new CMakeOutputParserTest;
 }
 
 } // CMakeProjectManager::Internal
 
 #endif
 
-#include "cmakeparser.moc"
+#include "cmakeoutputparser.moc"

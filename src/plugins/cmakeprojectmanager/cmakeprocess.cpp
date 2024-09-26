@@ -4,7 +4,7 @@
 #include "cmakeprocess.h"
 
 #include "builddirparameters.h"
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmakespecificsettings.h"
@@ -113,7 +113,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
             idePackageManagerDir.copyRecursively(localPackageManagerDir);
     }
 
-    const auto parser = new CMakeParser;
+    const auto parser = new CMakeOutputParser;
     parser->setSourceDirectory(parameters.sourceDirectory);
     m_parser.addLineParser(parser);
     m_parser.addLineParsers(parameters.outputParsers());

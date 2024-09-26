@@ -9,7 +9,7 @@
 #include "cmakeinstallstep.h"
 #include "cmakelocatorfilter.h"
 #include "cmakekitaspect.h"
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
@@ -70,7 +70,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
         addTestCreator(createCMakeConfigTest);
-        addTestCreator(createCMakeParserTest);
+        addTestCreator(createCMakeOutputParserTest);
         addTestCreator(createCMakeProjectImporterTest);
 #endif
 

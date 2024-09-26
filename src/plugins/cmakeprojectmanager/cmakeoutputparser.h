@@ -16,12 +16,12 @@
 
 namespace CMakeProjectManager {
 
-class CMAKE_EXPORT CMakeParser : public ProjectExplorer::OutputTaskParser
+class CMAKE_EXPORT CMakeOutputParser : public ProjectExplorer::OutputTaskParser
 {
     Q_OBJECT
 
 public:
-    explicit CMakeParser();
+    explicit CMakeOutputParser();
     void setSourceDirectory(const Utils::FilePath &sourceDir);
 
 private:
@@ -54,7 +54,7 @@ private:
 };
 
 #ifdef WITH_TESTS
-namespace Internal { QObject *createCMakeParserTest(); }
+namespace Internal { QObject *createCMakeOutputParserTest(); }
 #endif
 
 } // CMakeProjectManager

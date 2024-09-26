@@ -6,7 +6,7 @@
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -330,14 +330,14 @@ bool CMakeBuildStep::init()
 
 void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
 {
-    CMakeParser *cmakeParser = new CMakeParser;
+    CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
     CmakeProgressParser * const progressParser = new CmakeProgressParser;
     connect(progressParser, &CmakeProgressParser::progress, this, [this](int percent) {
         emit progress(percent, {});
     });
     formatter->addLineParser(progressParser);
-    cmakeParser->setSourceDirectory(project()->projectDirectory());
-    formatter->addLineParsers({cmakeParser, new GnuMakeParser});
+    cmakeOutputParser->setSourceDirectory(project()->projectDirectory());
+    formatter->addLineParsers({cmakeOutputParser, new GnuMakeParser});
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {
