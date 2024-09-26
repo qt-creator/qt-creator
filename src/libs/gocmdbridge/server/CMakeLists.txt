@@ -42,9 +42,11 @@ find_program(GO_BIN go)
 find_program(UPX_BIN upx)
 
 if (${GO_BIN} STREQUAL "GO_BIN-NOTFOUND")
-    message(WARNING "No GO compiler found, cmdbridge will not be built")
+    set(CMDBRIDGEFEATURE NO)
+    set(CMDBRIDGEFEATURE_TEXT "no GO compiler found")
 else ()
-    message(STATUS "Found go compiler at: ${GO_BIN}")
+    set(CMDBRIDGEFEATURE YES)
+    set(CMDBRIDGEFEATURE_TEXT "with GO compiler at ${GO_BIN}")
 
     set(SOURCE_FILES
         channelwriter.go
@@ -66,3 +68,5 @@ else ()
       DEPENDS
         ${ALL_CMDBRIDGE_PLATFORMS})
 endif()
+
+add_feature_info("Executable CmdBridge" ${CMDBRIDGEFEATURE} ${CMDBRIDGEFEATURE_TEXT})
