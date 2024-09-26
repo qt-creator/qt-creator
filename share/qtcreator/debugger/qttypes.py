@@ -1389,7 +1389,10 @@ def qdumpHelper_Qt6_QMap(d, value, keyType, valueType):
     if d_ptr == 0:
         d.putItemCount(0)
         return
-    m = value['d']['d']['m']
+    if d.qtVersionAtLeast(0x060900):
+        m = value['d']['d']['ptr']['m']
+    else:
+        m = value['d']['d']['m']
     d.putItem(m)
     d.putBetterType('@QMap<%s, %s>' % (keyType.name, valueType.name))
 
@@ -1420,7 +1423,10 @@ def qdumpHelper_Qt6_QMultiMap(d, value, keyType, valueType):
     if d_ptr == 0:
         d.putItemCount(0)
         return
-    m = value['d']['d']['m']
+    if d.qtVersionAtLeast(0x060900):
+        m = value['d']['d']['ptr']['m']
+    else:
+        m = value['d']['d']['m']
     d.putItem(m)
     d.putBetterType('@QMultiMap<%s, %s>' % (keyType.name, valueType.name))
 
