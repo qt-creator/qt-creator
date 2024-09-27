@@ -374,6 +374,19 @@ void Theme::setHelpMenu(QMenu *menu)
 #endif
 }
 
+expected_str<Theme::Color> Theme::colorToken(const QString &tokenName,
+                                             [[maybe_unused]] TokenFlags flags)
+{
+    const QString colorName = "Token_" + tokenName;
+    static const QMetaEnum colorEnum = QMetaEnum::fromType<Theme::Color>();
+    bool ok = false;
+    const Color result = static_cast<Color>(colorEnum.keyToValue(colorName.toLatin1(), &ok));
+    if (!ok)
+        return make_unexpected(QString::fromLatin1("%1 - Color token \"%2\" not found.")
+                               .arg(Q_FUNC_INFO).arg(tokenName));
+    return result;
+}
+
 QPalette Theme::initialPalette()
 {
     if (!m_initialPalette) {

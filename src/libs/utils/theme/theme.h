@@ -5,6 +5,8 @@
 
 #include "../utils_global.h"
 
+#include <utils/expected.h>
+
 #include <QBrush> // QGradientStops
 #include <QObject>
 
@@ -535,9 +537,14 @@ public:
         QDSTheme
     };
 
+    enum TokenFlag {
+        UsedInToolbar = 1,
+    };
+
     Q_ENUM(Color)
     Q_ENUM(ImageFile)
     Q_ENUM(Flag)
+    Q_DECLARE_FLAGS(TokenFlags, TokenFlag)
 
     Q_INVOKABLE bool flag(Utils::Theme::Flag f) const;
     Q_INVOKABLE QColor color(Utils::Theme::Color role) const;
@@ -559,6 +566,8 @@ public:
     static void setInitialPalette(Theme *initTheme);
 
     static void setHelpMenu(QMenu *menu);
+
+    static expected_str<Color> colorToken(const QString &token, TokenFlags flags = {});
 
 protected:
     Theme(Theme *originTheme, QObject *parent = nullptr);
