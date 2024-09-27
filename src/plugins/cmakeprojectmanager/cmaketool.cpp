@@ -626,6 +626,10 @@ void CMakeTool::fetchFromCapabilities() const
     } else {
         qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
         m_introspection->m_haveCapabilitites = false;
+
+        // In the rare case when "cmake -E capabilities" crashes / fails to run
+        // allow to try again
+        m_introspection->m_didAttemptToRun = false;
     }
 }
 
