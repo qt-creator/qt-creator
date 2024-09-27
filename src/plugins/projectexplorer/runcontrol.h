@@ -228,7 +228,7 @@ public:
 
     static void provideAskPassEntry(Utils::Environment &env);
 
-    RunWorker *createWorker(Utils::Id workerId);
+    RunWorker *createWorker(Utils::Id runMode);
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
