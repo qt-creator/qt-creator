@@ -182,6 +182,34 @@ void setupUtilsModule()
             utils["FilePath"]["searchInPath_cb"] = utils["__searchInPath_cb__"];
             utils["FilePath"]["searchInPath"] = wrap(utils["__searchInPath_cb__"]);
 
+            utils["standardLocations"] = [](QStandardPaths::StandardLocation location) {
+                const auto locationsStrings = QStandardPaths::standardLocations(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+
+                QList<FilePath> locationsPaths;
+                std::transform(locationsStrings.constBegin(), locationsStrings.constEnd(),
+                               std::back_inserter(locationsPaths), &FilePath::fromString);
+                return locationsPaths;
+            };
+            utils["standardLocation"] =
+                [](QStandardPaths::StandardLocation location) -> sol::optional<FilePath> {
+                const auto paths = QStandardPaths::standardLocations(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+                if (paths.isEmpty())
+                    return sol::nullopt;
+
+                return FilePath::fromString(paths.first());
+            };
+            utils["writableLocation"] =
+                [](QStandardPaths::StandardLocation location) -> sol::optional<FilePath> {
+                const auto path = QStandardPaths::writableLocation(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+                if (path.isEmpty())
+                    return sol::nullopt;
+
+                return FilePath::fromString(path);
+            };
+
             utils.new_usertype<CommandLine>(
                 "CommandLine",
                 sol::call_constructor,

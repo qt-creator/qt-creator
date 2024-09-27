@@ -110,4 +110,33 @@ qt.QFileDevice = {
     }
 }
 
+qt.QStandardPaths = {
+    ---@enum StandardLocation
+    StandardLocation = {
+        DesktopLocation = 0,
+        DocumentsLocation = 0,
+        FontsLocation = 0,
+        ApplicationsLocation = 0,
+        MusicLocation = 0,
+        MoviesLocation = 0,
+        PicturesLocation = 0,
+        TempLocation = 0,
+        HomeLocation = 0,
+        AppLocalDataLocation = 0,
+        CacheLocation = 0,
+        GenericDataLocation = 0,
+        RuntimeLocation = 0,
+        ConfigLocation = 0,
+        DownloadLocation = 0,
+        GenericCacheLocation = 0,
+        GenericConfigLocation = 0,
+        AppDataLocation = 0,
+        AppConfigLocation = 0,
+        PublicShareLocation = 0,
+        TemplatesLocation = 0,
+        StateLocation = 0,
+        GenericStateLocation = 0,
+    }
+}
+
 return qt

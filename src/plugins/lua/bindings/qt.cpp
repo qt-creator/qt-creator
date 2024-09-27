@@ -10,6 +10,7 @@
 #include <QCompleter>
 #include <QDir>
 #include <QFileDevice>
+#include <QStandardPaths>
 
 namespace Lua::Internal {
 
@@ -126,6 +127,34 @@ void setupQtModule()
                 "ExeUser", QFileDevice::ExeUser,
                 "ExeGroup", QFileDevice::ExeGroup,
                 "ExeOther", QFileDevice::ExeOther
+            )
+        );
+
+        qt["QStandardPaths"] = lua.create_table_with(
+            "StandardLocation", lua.create_table_with(
+                "DesktopLocation", QStandardPaths::DesktopLocation,
+                "DocumentsLocation", QStandardPaths::DocumentsLocation,
+                "FontsLocation", QStandardPaths::FontsLocation,
+                "ApplicationsLocation", QStandardPaths::ApplicationsLocation,
+                "MusicLocation", QStandardPaths::MusicLocation,
+                "MoviesLocation", QStandardPaths::MoviesLocation,
+                "PicturesLocation", QStandardPaths::PicturesLocation,
+                "TempLocation", QStandardPaths::TempLocation,
+                "HomeLocation", QStandardPaths::HomeLocation,
+                "AppLocalDataLocation", QStandardPaths::AppLocalDataLocation,
+                "CacheLocation", QStandardPaths::CacheLocation,
+                "GenericDataLocation", QStandardPaths::GenericDataLocation,
+                "RuntimeLocation", QStandardPaths::RuntimeLocation,
+                "ConfigLocation", QStandardPaths::ConfigLocation,
+                "DownloadLocation", QStandardPaths::DownloadLocation,
+                "GenericCacheLocation", QStandardPaths::GenericCacheLocation,
+                "GenericConfigLocation", QStandardPaths::GenericConfigLocation,
+                "AppDataLocation", QStandardPaths::AppDataLocation,
+                "AppConfigLocation", QStandardPaths::AppConfigLocation,
+                "PublicShareLocation", QStandardPaths::PublicShareLocation,
+                "TemplatesLocation", QStandardPaths::TemplatesLocation,
+                "StateLocation", QStandardPaths::StateLocation,
+                "GenericStateLocation", QStandardPaths::GenericStateLocation
             )
         );
         // clang-format on
