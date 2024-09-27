@@ -176,6 +176,10 @@ QColor StyleHelper::borderColor(bool lightColored)
 
 QColor StyleHelper::toolBarBorderColor()
 {
+    if (const QColor sepColor = creatorColor(Theme::FancyToolBarSeparatorColor);
+            sepColor == creatorColor(Theme::SplitterColor))
+        return sepColor; // QTCREATORBUG-31682: Unify all separating line colors if two are the same
+
     const QColor base = baseColor();
     return QColor::fromHsv(base.hue(),
                            base.saturation() ,
