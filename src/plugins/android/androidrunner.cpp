@@ -5,6 +5,7 @@
 #include "androidrunner.h"
 
 #include "androidavdmanager.h"
+#include "androidconstants.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidrunnerworker.h"
@@ -12,8 +13,11 @@
 
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitaspect.h>
+
 #include <utils/url.h>
+#include <utils/utilsicons.h>
 
 #include <QHostAddress>
 #include <QLoggingCategory>
@@ -31,6 +35,7 @@ namespace Android::Internal {
 AndroidRunner::AndroidRunner(RunControl *runControl)
     : RunWorker(runControl)
 {
+    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
     setId("AndroidRunner");
     static const int metaTypes[] = {
         qRegisterMetaType<QList<QStringList>>("QList<QStringList>"),
@@ -150,6 +155,22 @@ void AndroidRunner::remoteStdErr(const QString &output)
 {
     appendMessage(output, Utils::StdErrFormat);
     m_outputParser.processOutput(output);
+}
+
+class AndroidRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    AndroidRunWorkerFactory()
+    {
+        setProduct<AndroidRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidRunWorker()
+{
+    static AndroidRunWorkerFactory theAndroidRunWorkerFactory;
 }
 
 } // namespace Android::Internal

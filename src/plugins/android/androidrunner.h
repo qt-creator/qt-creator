@@ -48,4 +48,6 @@ private:
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
+void setupAndroidRunWorker();
+
 } // namespace Android::Internal

@@ -27,7 +27,6 @@ add_qtc_plugin(Android
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
     androidqtversion.cpp androidqtversion.h
     androidrunconfiguration.cpp androidrunconfiguration.h
-    androidruncontrol.cpp androidruncontrol.h
     androidrunner.cpp androidrunner.h
     androidrunnerworker.cpp androidrunnerworker.h
     androidsdkdownloader.cpp androidsdkdownloader.h
