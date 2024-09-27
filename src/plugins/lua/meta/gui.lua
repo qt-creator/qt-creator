@@ -12,6 +12,8 @@ gui.layout = {}
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object
+---@field visible bool Whether the widget is visible or not.
+---@field enabled bool Whether the widget is enabled or not.
 gui.widget = {}
 
 ---@alias LayoutChild string|BaseAspect|Layout|Widget|function

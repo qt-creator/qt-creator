@@ -430,6 +430,10 @@ void setupGuiModule()
             &Widget::activateWindow,
             "close",
             &Widget::close,
+            "visible",
+            sol::property(&Widget::isVisible, &Widget::setVisible),
+            "enabled",
+            sol::property(&Widget::isEnabled, &Widget::setEnabled),
             sol::base_classes,
             sol::bases<Object, Thing>());
 

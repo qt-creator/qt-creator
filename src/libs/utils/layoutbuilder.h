@@ -231,6 +231,12 @@ public:
     QWidget *emerge() const;
     void show();
 
+    bool isVisible() const;
+    bool isEnabled() const;
+
+    void setVisible(bool);
+    void setEnabled(bool);
+
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
