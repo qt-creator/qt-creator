@@ -31,4 +31,9 @@ private:
     std::optional<QString> m_error;
 };
 
+#define QTC_ASSERT_AND_ERROR_OUT(cond) \
+  QTC_ASSERT(cond, \
+    return Result::Error(QString("The condition %1 failed unexpectedly in %2:%3") \
+       .arg(#cond).arg(__FILE__).arg(__LINE__)))
+
 } // namespace Utils
