@@ -27,6 +27,7 @@ function project.Kit:supportedPlatforms() end
 project.RunConfiguration = {}
 
 ---@class Project
+---@field displayName string The display name of the project.
 ---@field directory FilePath The directory of the project.
 project.Project = {}
 
@@ -46,6 +47,7 @@ function project.canRunStartupProject(runMode) end
 
 ---Starts the active run configuration of the current startup project. It will be build first if necessary.
 ---@param runnable? ProcessRunData Override the run configuration with the specified runnable.
-function project.runStartupProject(runnable) end
+---@param displayName? string Override the run configuration display name with the provided name.
+function project.runStartupProject(runnable, displayName) end
 
 return project

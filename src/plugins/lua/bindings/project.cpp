@@ -48,6 +48,8 @@ void setupProjectModule()
         result.new_usertype<Project>(
             "Project",
             sol::no_constructor,
+            "displayName",
+            sol::property(&Project::displayName),
             "directory",
             sol::property(&Project::projectDirectory),
             "activeRunConfiguration",
@@ -64,7 +66,8 @@ void setupProjectModule()
         };
 
         result["runStartupProject"] =
-            [guard](const sol::optional<ProcessRunData> &runnable) {
+            [guard](const sol::optional<ProcessRunData> &runnable,
+                    const sol::optional<QString> &displayName) {
                 auto project = ProjectManager::instance()->startupProject();
                 if (!project)
                     throw sol::error("No startup project");
@@ -82,6 +85,9 @@ void setupProjectModule()
                     rc->setWorkingDirectory(runnable->workingDirectory);
                     rc->setEnvironment(runnable->environment);
                 }
+
+                if (displayName)
+                    rc->setDisplayName(displayName.value());
 
                 BuildForRunConfigStatus status = BuildManager::potentiallyBuildForRunConfig(
                     runConfiguration);
