@@ -2612,7 +2612,8 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
 
     \code
         const auto onSetup = [](QProcess &process) {
-            process.setCommand({"sleep", {"3"}});
+            process.setProgram("sleep");
+            process.setArguments({"3"});
         };
         const Group root {
             QProcessTask(onSetup)
@@ -2659,7 +2660,8 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeTask *node, DoneWith doneWith)
 
     \code
         const auto onSetup = [](QProcess &process) {
-            process.setCommand({"sleep", {"3"}});
+            process.setProgram("sleep");
+            process.setArguments({"3"});
         };
         const auto onDone = [](const QProcess &process, DoneWith result) {
             if (result == DoneWith::Success)
