@@ -10,7 +10,6 @@
 #include <QLocalServer>
 #include <QLocalSocket>
 #include <QLoggingCategory>
-#include <QTemporaryFile>
 #include <QTimer>
 
 Q_LOGGING_CATEGORY(terminalProcessLog, "qtc.terminal.stubprocess", QtDebugMsg)

@@ -55,7 +55,6 @@
 #include <QSet>
 #include <QStack>
 #include <QString>
-#include <QTemporaryFile>
 #include <QTextCodec>
 #include <QTextDocument>
 #include <QTextFormat>
