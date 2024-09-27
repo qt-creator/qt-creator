@@ -293,7 +293,7 @@ void QtKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) c
 {
     QtVersion *version = QtKitAspect::qtVersion(k);
     if (version)
-        version->addToEnvironment(k, env);
+        version->addToBuildEnvironment(k, env);
 }
 
 QList<OutputLineParser *> QtKitAspectFactory::createOutputParsers(const Kit *k) const

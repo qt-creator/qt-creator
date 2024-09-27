@@ -128,9 +128,9 @@ Abis QnxQtVersion::detectQtAbis() const
     return QnxUtils::convertAbis(QtVersion::detectQtAbis());
 }
 
-void QnxQtVersion::addToEnvironment(const Kit *k, Environment &env) const
+void QnxQtVersion::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
-    QtSupport::QtVersion::addToEnvironment(k, env);
+    QtSupport::QtVersion::addToBuildEnvironment(k, env);
     updateEnvironment();
     env.modify(m_qnxEnv);
 }

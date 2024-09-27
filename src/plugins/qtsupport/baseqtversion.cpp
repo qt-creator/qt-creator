@@ -1701,7 +1701,7 @@ QSet<Id> QtVersion::features() const
     return d->m_overrideFeatures;
 }
 
-void QtVersion::addToEnvironment(const Kit *k, Environment &env) const
+void QtVersion::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     env.set("QTDIR", hostDataPath().nativePath());

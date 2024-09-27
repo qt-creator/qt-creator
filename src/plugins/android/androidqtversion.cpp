@@ -83,9 +83,9 @@ Abis AndroidQtVersion::detectQtAbis() const
     return conf ? Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi) : Abis();
 }
 
-void AndroidQtVersion::addToEnvironment(const Kit *k, Utils::Environment &env) const
+void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
 {
-    QtVersion::addToEnvironment(k, env);
+    QtVersion::addToBuildEnvironment(k, env);
 
     // this env vars are used by qmake mkspecs to generate makefiles (check QTDIR/mkspecs/android-g++/qmake.conf for more info)
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHost(this));
