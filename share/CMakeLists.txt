@@ -20,4 +20,10 @@ if (NOT APPLE AND NOT WIN32)
     DESTINATION
       ${CMAKE_INSTALL_DATAROOTDIR}/metainfo/
   )
+
+endif()
+
+if(NOT ${QT_INSTALLATION_DIR} STREQUAL "")
+message(STATUS "Copying patched qml files to ${QT_INSTALLATION_DIR}")
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/3dfirst/QtQuick3D/ DESTINATION ${QT_INSTALLATION_DIR}/qml/QtQuick3D/)
 endif()
