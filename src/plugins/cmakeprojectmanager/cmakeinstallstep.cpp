@@ -4,6 +4,7 @@
 #include "cmakeinstallstep.h"
 
 #include "cmakeabstractprocessstep.h"
+#include "cmakeautogenparser.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
 #include "cmakeoutputparser.h"
@@ -54,7 +55,7 @@ void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 {
     CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
     cmakeOutputParser->setSourceDirectory(project()->projectDirectory());
-    formatter->addLineParsers({cmakeOutputParser});
+    formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser});
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }
