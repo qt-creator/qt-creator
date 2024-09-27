@@ -92,4 +92,22 @@ qt.QDirIterator = {
     }
 }
 
+qt.QFileDevice = {
+    ---@enum Permission
+    Permission = {
+        ReadOwner = 0,
+        ReadUser = 0,
+        ReadGroup = 0,
+        ReadOther = 0,
+        WriteOwner = 0,
+        WriteUser = 0,
+        WriteGroup = 0,
+        WriteOther = 0,
+        ExeOwner = 0,
+        ExeUser = 0,
+        ExeGroup = 0,
+        ExeOther = 0,
+    }
+}
+
 return qt

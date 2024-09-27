@@ -9,6 +9,7 @@
 #include <QClipboard>
 #include <QCompleter>
 #include <QDir>
+#include <QFileDevice>
 
 namespace Lua::Internal {
 
@@ -108,6 +109,23 @@ void setupQtModule()
                 "LocaleAware", QDir::LocaleAware,
                 "Type", QDir::Type,
                 "NoSort", QDir::NoSort
+            )
+        );
+
+        qt["QFileDevice"] = lua.create_table_with(
+            "Permission", lua.create_table_with(
+                "ReadOwner", QFileDevice::ReadOwner,
+                "ReadUser", QFileDevice::ReadUser,
+                "ReadGroup", QFileDevice::ReadGroup,
+                "ReadOther", QFileDevice::ReadOther,
+                "WriteOwner", QFileDevice::WriteOwner,
+                "WriteUser", QFileDevice::WriteUser,
+                "WriteGroup", QFileDevice::WriteGroup,
+                "WriteOther", QFileDevice::WriteOther,
+                "ExeOwner", QFileDevice::ExeOwner,
+                "ExeUser", QFileDevice::ExeUser,
+                "ExeGroup", QFileDevice::ExeGroup,
+                "ExeOther", QFileDevice::ExeOther
             )
         );
         // clang-format on

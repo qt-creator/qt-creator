@@ -89,6 +89,14 @@ function utils.FilePath:completeSuffix() end
 ---@return boolean
 function utils.FilePath:isAbsolutePath() end
 
+---Returns the complete OR-ed together combination of permissions for the file.
+---@return Permission
+function utils.FilePath:permissions() end
+
+---Sets permissions for the file.
+---@param permissions Permission The complete OR-ed together combination of permissions for the file.
+function utils.FilePath:setPermissions() end
+
 ---@class CommandLine
 ---@field command FilePath The command to execute.
 ---@field arguments string[] The arguments to pass to the command.

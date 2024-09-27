@@ -161,7 +161,15 @@ void setupUtilsModule()
                 "resolvePath",
                 sol::overload(
                     [](const FilePath &p, const QString &path) { return p.resolvePath(path); },
-                    [](const FilePath &p, const FilePath &path) { return p.resolvePath(path); }));
+                    [](const FilePath &p, const FilePath &path) { return p.resolvePath(path); }),
+                "permissions",
+                [](FilePath& p) {
+                    return static_cast<QFileDevice::Permission>(p.permissions().toInt());
+                },
+                "setPermissions",
+                [](FilePath& p, QFileDevice::Permission permissions) {
+                    p.setPermissions(static_cast<QFile::Permissions>(permissions));
+                });
 
             utils["FilePath"]["dirEntries_cb"] = utils["__dirEntries_cb__"];
             utils["FilePath"]["dirEntries"] = wrap(utils["__dirEntries_cb__"]);
