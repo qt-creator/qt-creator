@@ -427,16 +427,26 @@ void ExamplesViewController::updateExamples()
         if (categoryOrder.isEmpty())
             categoryOrder = result->categoryOrder;
     }
-    items = filtered(items, isValidExampleOrDemo(instructionalsModules));
+
+    static const auto filteredItems = [](const QList<ExampleItem *> &items,
+                                         const std::function<bool(ExampleItem *)> &filter) {
+        QList<ExampleItem *> matching;
+        QList<ExampleItem *> nonMatching;
+        std::tie(matching, nonMatching) = Utils::partition(items, filter);
+        qDeleteAll(nonMatching);
+        return matching;
+    };
+    items = filteredItems(items, isValidExampleOrDemo(instructionalsModules));
 
     if (m_isExamples) {
         if (m_exampleSetModel->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)) {
-            items = Utils::filtered(items, [](ExampleItem *item) {
+            items = filteredItems(items, [](ExampleItem *item) {
                 return item->tags.contains("android");
             });
         } else if (m_exampleSetModel->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)) {
-            items = Utils::filtered(items,
-                                    [](ExampleItem *item) { return item->tags.contains("ios"); });
+            items = filteredItems(items, [](ExampleItem *item) {
+                return item->tags.contains("ios");
+            });
         }
     }
 
