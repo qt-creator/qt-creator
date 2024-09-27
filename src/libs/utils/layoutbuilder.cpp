@@ -13,6 +13,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QSize>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
@@ -895,6 +896,11 @@ void PushButton::setIconPath(const Utils::FilePath &iconPath)
 
     Utils::Icon icon{iconPath};
     access(this)->setIcon(icon.icon());
+}
+
+void PushButton::setIconSize(const QSize &size)
+{
+    access(this)->setIconSize(size);
 }
 
 void PushButton::setFlat(bool flat)

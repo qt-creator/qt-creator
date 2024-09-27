@@ -28,6 +28,7 @@ class QLabel;
 class QLayout;
 class QObject;
 class QPushButton;
+class QSize;
 class QSpinBox;
 class QSplitter;
 class QStackedWidget;
@@ -295,6 +296,7 @@ public:
 
     void setText(const QString &);
     void setIconPath(const Utils::FilePath &);
+    void setIconSize(const QSize &);
     void setFlat(bool);
     void onClicked(const std::function<void()> &, QObject *guard);
 };

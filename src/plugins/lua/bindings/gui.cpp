@@ -106,6 +106,7 @@ HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
 HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 HAS_MEM_FUNC(setFlat, hasSetFlat);
 HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
+HAS_MEM_FUNC(setIconSize, hasSetIconSize);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
@@ -119,6 +120,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto iconPath = children.get<sol::optional<FilePath>>("iconPath");
         if (iconPath)
             item->setIconPath(*iconPath);
+    }
+
+    if constexpr (hasSetIconSize<T, void (T::*)(const QSize &)>::value) {
+        const auto iconSize = children.get<sol::optional<QSize>>("iconSize");
+        if (iconSize)
+            item->setIconSize(*iconSize);
     }
 
     if constexpr (hasSetWindowFlags<T, void (T::*)(Qt::WindowFlags)>::value) {

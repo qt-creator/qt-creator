@@ -164,6 +164,17 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
         aspect->setAutoApplyOnEditingFinished(value.as<bool>());
     else if (key == "elideMode")
         aspect->setElideMode((Qt::TextElideMode) value.as<int>());
+    else if (key == "rightSideIconPath")
+        aspect->setRightSideIconPath(value.as<FilePath>());
+    else if (key == "minimumHeight")
+        aspect->setMinimumHeight(value.as<int>());
+    else if (key == "completer")
+        aspect->setCompleter(value.as<QCompleter*>());
+    else if (key == "addOnRightSideIconClicked") {
+        aspect->addOnRightSideIconClicked(aspect, [func = value.as<sol::function>()]() {
+            void_safe_call(func);
+        });
+    }
     else
         typedAspectCreate(static_cast<TypedAspect<QString> *>(aspect), key, value);
 }

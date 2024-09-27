@@ -126,6 +126,9 @@ settings.StringDisplayStyle = {
 ---@field acceptRichText? boolean
 ---@field autoApplyOnEditingFinished? boolean
 ---@field elideMode? Qt.TextElideMode The elide mode of the aspect.
+---@field rightSideIconPath? string Path to the icon
+---@field minimumHeight? int
+---@field completer QCompleter? A QCompleter object.
 StringAspectCreate = {}
 
 ---@class StringAspect : TypedAspect<string>

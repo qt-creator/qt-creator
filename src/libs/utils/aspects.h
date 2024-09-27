@@ -633,6 +633,11 @@ public:
     bool isChecked() const;
     void setChecked(bool checked);
 
+    void setRightSideIconPath(const FilePath &path);
+    void addOnRightSideIconClicked(QObject *guard, const std::function<void()> &);
+    void setMinimumHeight(int);
+    void setCompleter(QCompleter *completer);
+
     enum DisplayStyle {
         LabelDisplay,
         LineEditDisplay,
@@ -652,6 +657,7 @@ signals:
     void acceptRichTextChanged(bool acceptRichText);
     void validationFunctionChanged(const FancyLineEdit::ValidationFunction &validator);
     void placeholderTextChanged(const QString &placeholderText);
+    void rightSideIconClicked();
 
 protected:
     void addToLayoutImpl(Layouting::Layout &parent) override;

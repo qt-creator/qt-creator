@@ -957,6 +957,10 @@ public:
     bool m_autoApplyOnEditingFinished = false;
     bool m_validatePlaceHolder = false;
 
+    FilePath m_rightSideIconPath;
+    int m_minimumHeight = 0;
+    QPointer<QCompleter> m_completer;
+
     UndoableValue<QString> undoable;
 };
 
@@ -1205,6 +1209,20 @@ void StringAspect::addToLayoutImpl(Layout &parent)
         auto lineEditDisplay = createSubWidget<FancyLineEdit>();
         addMacroExpansion(lineEditDisplay);
         lineEditDisplay->setPlaceholderText(d->m_placeHolderText);
+        lineEditDisplay->setMinimumHeight(d->m_minimumHeight);
+
+        if (d->m_completer)
+            lineEditDisplay->setSpecialCompleter(d->m_completer);
+
+        if (!d->m_rightSideIconPath.isEmpty()) {
+            QIcon icon(d->m_rightSideIconPath.toFSPathString());
+            QTC_CHECK(!icon.isNull());
+            lineEditDisplay->setButtonIcon(FancyLineEdit::Right, icon);
+            lineEditDisplay->setButtonVisible(FancyLineEdit::Right, true);
+            connect(lineEditDisplay, &FancyLineEdit::rightButtonClicked,
+                    this, &StringAspect::rightSideIconClicked);
+        }
+
         if (!d->m_historyCompleterKey.isEmpty())
             lineEditDisplay->setHistoryCompleter(d->m_historyCompleterKey);
 
@@ -1416,6 +1434,27 @@ bool StringAspect::isChecked() const
 void StringAspect::setChecked(bool checked)
 {
     return d->m_checkerImpl.setChecked(checked);
+}
+
+void StringAspect::addOnRightSideIconClicked(QObject *guard,
+                                             const std::function<void ()> &callback)
+{
+    connect(this, &StringAspect::rightSideIconClicked, guard, callback);
+}
+
+void StringAspect::setMinimumHeight(int height)
+{
+    d->m_minimumHeight = height;
+}
+
+void StringAspect::setCompleter(QCompleter *completer)
+{
+    d->m_completer = completer;
+}
+
+void StringAspect::setRightSideIconPath(const FilePath &path)
+{
+    d->m_rightSideIconPath = path;
 }
 
 
