@@ -1668,7 +1668,13 @@ Toolchains GccToolchainFactory::autoDetectToolchains(const FilePaths &compilerPa
                 }
             }
             if (existingTcMatches) {
-                if (existingTc->typeId() == requiredTypeId && !result.contains(existingTc))
+                // We call this function only once for GCC and MinGW with required type
+                // GCC_TOOLCHAIN_TYPEID.
+                const bool typeMatches = existingTc->typeId() == requiredTypeId
+                                         || (existingTc->typeId()
+                                                 == Constants::MINGW_TOOLCHAIN_TYPEID
+                                             && requiredTypeId == Constants::GCC_TOOLCHAIN_TYPEID);
+                if (typeMatches && !result.contains(existingTc))
                     result << existingTc;
                 alreadyExists = true;
             }
