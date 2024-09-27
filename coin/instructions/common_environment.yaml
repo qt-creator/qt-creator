@@ -34,6 +34,12 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".zip"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-windows-vs2019_64.7z"
         enable_if:
           condition: property
           property: target.os
@@ -46,10 +52,50 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-linux-Rhel8.8-gcc10.3-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_ICU_URL
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z"
         enable_if:
-          condition: property
-          property: target.os
-          equals_value: Linux
+          condition: and
+          conditions:
+            - condition: property
+              property: target.os
+              equals_value: Linux
+            - condition: property
+              property: target.arch
+              equals_value: X86_64
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Linux-Debian_11_6-GCC-Linux-Debian_11_6-AARCH64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_SDKTOOL_QT_EXT
+            variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-arm64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-linux-Debian-11.6-gcc10.2-arm64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_ICU_URL
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Debian11.6-aarch64.7z"
+        enable_if:
+          condition: and
+          conditions:
+            - condition: property
+              property: target.os
+              equals_value: Linux
+            - condition: property
+              property: target.arch
+              equals_value: AARCH64
       - type: Group
         instructions:
           - type: EnvironmentVariable
@@ -58,6 +104,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-macos-universal.7z"
         enable_if:
           condition: property
           property: target.os

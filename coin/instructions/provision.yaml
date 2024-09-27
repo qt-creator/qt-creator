@@ -52,7 +52,7 @@ instructions:
   - type: ChangeDirectory
     directory: "{{.BuildDir}}/tqtc-qtsdk/packaging_tools"
   - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
+    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z {{.Env.QTC_ICU_URL}} {{.Env.QTC_QT_MODULES}}"
     executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
     maxTimeInSeconds: 3600
     maxTimeBetweenOutput: 360
