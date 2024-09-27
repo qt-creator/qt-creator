@@ -141,7 +141,9 @@ public:
     void removeRotationBlocks(const QSet<QQuick3DNode *> &nodes);
     Q_INVOKABLE bool isRotationBlocked(QQuick3DNode *node) const;
 
-    Q_INVOKABLE QVector3D adjustTranslationForSnap(const QVector3D &newPos,
+    Q_INVOKABLE void setSnapModelDirty() { m_snapModelDirty = true; }
+    Q_INVOKABLE QVector3D adjustTranslationForSnap(QQuick3DViewport *view,
+                                                   const QVector3D &newPos,
                                                    const QVector3D &startPos,
                                                    const QVector3D &snapAxes,
                                                    bool globalOrientation,
@@ -151,6 +153,7 @@ public:
     QVector3D adjustScaleForSnap(const QVector3D &newScale);
 
     void setSnapAbsolute(bool enable) { m_snapAbsolute = enable; }
+    void setSnapModel(bool enable) { m_snapModel = enable; }
     void setSnapPosition(bool enable) { m_snapPosition = enable; }
     void setSnapRotation(bool enable) { m_snapRotation = enable; }
     void setSnapScale(bool enable) { m_snapScale = enable; }
@@ -163,6 +166,8 @@ public:
     Q_INVOKABLE QString snapPositionDragTooltip(const QVector3D &pos) const;
     Q_INVOKABLE QString snapRotationDragTooltip(double angle) const;
     Q_INVOKABLE QString snapScaleDragTooltip(const QVector3D &scale) const;
+
+    void setSnapNodes(const QSet<QQuick3DNode *> &nodes) { m_snapNodes = nodes; }
 
     double minGridStep() const;
     double cameraSpeed() const { return m_cameraSpeed; }
@@ -212,10 +217,10 @@ private:
     void handlePendingToolStateUpdate();
     QVector3D pivotScenePosition(QQuick3DNode *node) const;
     bool getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
-                   QVector3D &maxBounds);
+                   QVector3D &maxBounds, bool skipChildren, bool global);
     QString formatVectorDragTooltip(const QVector3D &vec, const QString &suffix) const;
     QString formatSnapStr(bool snapEnabled, double increment, const QString &suffix) const;
-
+    void updateModelSnapVolumes(QQuick3DNode *node, QQuick3DViewport *view);
     QTimer m_overlayUpdateTimer;
     QTimer m_toolStateUpdateTimer;
     QHash<QString, QVariantMap> m_toolStates;
@@ -225,6 +230,12 @@ private:
     bool isBlacklistedEnvProperty(const QByteArray &prop) const;
     bool isBasicEnvProperty(const QByteArray &prop) const;
     void handleSceneEnvPropertyDestruction(QObject *destroyedObj);
+
+    struct Volume {
+        QVector3D minBounds;
+        QVector3D maxBounds;
+    };
+    int volumeOverlap(const Volume &v1, const Volume &v2, float &outDistance);
 
     QQmlContext *m_context = {};
 
@@ -261,6 +272,8 @@ private:
     QPointer<QQuick3DCamera> m_activeScenePreferredCamera;
 
     bool m_snapAbsolute = true;
+    bool m_snapModel = false;
+    bool m_snapModelDirty = true;
     bool m_snapPosition = false;
     bool m_snapRotation = false;
     bool m_snapScale = false;
@@ -269,6 +282,10 @@ private:
     double m_snapScaleInterval = .1;
     double m_cameraSpeed = 10.;
     double m_cameraSpeedModifier = 1.;
+
+    QSet<QQuick3DNode *> m_snapNodes;
+    QList<Volume> m_snapVolumes;
+    Volume m_draggedVolume;
 
     QVariant m_bgColor;
     QHash<QString, QTimer *> m_eventTimers;

@@ -426,7 +426,7 @@ QVector4D GeneralHelper::approachNode(
     QVector3D minBounds = maxVec;
     QVector3D maxBounds = minVec;
 
-    getBounds(viewPort, node3d, minBounds, maxBounds); // Bounds are in node3d local coordinates
+    getBounds(viewPort, node3d, minBounds, maxBounds, false, false); // Bounds are in node3d local coordinates
 
     QVector3D extents = maxBounds - minBounds;
     QVector3D focusLookAt = minBounds + (extents / 2.f);
@@ -473,10 +473,10 @@ void GeneralHelper::calculateBoundsAndFocusCamera(QQuick3DCamera *camera, QQuick
                                                   bool closeUp, QVector3D &lookAt,
                                                   QVector3D &extents)
 {
-    QVector3D minBounds;
-    QVector3D maxBounds;
+    QVector3D minBounds = maxVec;
+    QVector3D maxBounds = minVec;
 
-    getBounds(viewPort, node, minBounds, maxBounds);
+    getBounds(viewPort, node, minBounds, maxBounds, false, false);
 
     extents = maxBounds - minBounds;
     lookAt = minBounds + (extents / 2.f);
@@ -1290,20 +1290,85 @@ static bool queryKeyboardForSnapping(bool enabled, double &increment)
     return true;
 }
 
-QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
+int GeneralHelper::volumeOverlap(const Volume &v1, const Volume &v2, float &outDistance)
+{
+    // Determines how much volume 1 overlaps into volume 2 and on what axis.
+    // Return value indicates axis (x=0, y=1, z=2).
+    // Sign of the outDistance indicates indicates if overlap is on max(+) or min(-) side.
+    // The smallest overlap distance is chosen.
+    // Returns -1 if there is no overlap.
+    outDistance = floatMax;
+    int axis = -1;
+    bool flip = false;
+    for (int i = 0; i < 3; ++i) {
+        const float max = v2.maxBounds[i] - v1.minBounds[i];
+        const float min = v1.maxBounds[i] - v2.minBounds[i];
+        float overlap = std::min(max, min);
+        if (overlap <= 0.f)
+            return -1;
+        if (overlap < outDistance) {
+            axis = i;
+            flip = overlap == min;
+            outDistance = overlap;
+        }
+    }
+
+    if (flip)
+        outDistance = -outDistance;
+
+    return axis;
+}
+
+QVector3D GeneralHelper::adjustTranslationForSnap(QQuick3DViewport *view,
+                                                  const QVector3D &newPos,
                                                   const QVector3D &startPos,
                                                   const QVector3D &snapAxes,
                                                   bool globalOrientation,
                                                   QQuick3DNode *node)
 {
-    bool snapPos = m_snapPosition;
-    bool snapAbs = m_snapAbsolute;
     double increment = m_snapPositionInterval;
 
-    if (!node || snapAxes.isNull() || qFuzzyIsNull((newPos - startPos).length())
-        || !queryKeyboardForSnapping(snapPos, increment)) {
+    bool snapPos = m_snapPosition;
+    bool snapModel = m_snapModel;
+
+    QVector3D moveVector = newPos - startPos;
+
+    if (!node || snapAxes.isNull() || qFuzzyIsNull(moveVector.length()))
         return newPos;
+
+    // TODO: Inefficient, should combine query to single call
+    snapModel = queryKeyboardForSnapping(snapModel, increment);
+    snapPos = queryKeyboardForSnapping(snapPos, increment);
+    if (!(snapModel || snapPos))
+        return newPos;
+
+    if (snapModel) {
+        if (m_snapModelDirty)
+            updateModelSnapVolumes(node, view);
+        float smallestOverlap = floatMax;
+        int axis = 0;
+        Volume adjustedDragVolume = m_draggedVolume;
+        adjustedDragVolume.minBounds += moveVector;
+        adjustedDragVolume.maxBounds += moveVector;
+        for (const Volume &v : std::as_const(m_snapVolumes)) {
+            // Find out which snapping volume overlaps least and snap to that
+            float overlap = 0;
+            int overlapAxis = volumeOverlap(adjustedDragVolume, v, overlap);
+            if (overlapAxis >= 0 && qAbs(overlap) < qAbs(smallestOverlap)) {
+                smallestOverlap = overlap;
+                axis = overlapAxis;
+            }
+        }
+
+        if (smallestOverlap != floatMax) {
+            QVector3D adjustedPos = newPos;
+            adjustedPos[axis] += smallestOverlap;
+            return adjustedPos;
+        }
     }
+
+    if (!snapPos)
+        return newPos;
 
     // The node is aligned if there is only 0/90/180/270 degree sceneRotation on the node
     // on the drag axis, or the drag plane normal for plane drags
@@ -1362,7 +1427,7 @@ QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
             if (mappedSnapAxes[axis] != 0.f) {
                 double c = newPos[axis];
 
-                if (!snapAbs)
+                if (!m_snapAbsolute)
                     c -= startPos[axis];
 
                 const double snapMult = double(int(c / increment));
@@ -1370,7 +1435,7 @@ QVector3D GeneralHelper::adjustTranslationForSnap(const QVector3D &newPos,
                 const double comp2 = c < 0 ? comp1 - increment : comp1 + increment;
                 c = qAbs(c - comp1) < qAbs(comp2 - c) ? comp1 : comp2;
 
-                if (!snapAbs)
+                if (!m_snapAbsolute)
                     c += startPos[axis];
 
                 return float(c);
@@ -1493,6 +1558,42 @@ QString GeneralHelper::formatSnapStr(bool snapEnabled, double increment, const Q
     return snapStr;
 }
 
+void GeneralHelper::updateModelSnapVolumes(QQuick3DNode *node, QQuick3DViewport *view)
+{
+    if (!node || !view)
+        return;
+
+    m_snapModelDirty = false;
+    m_snapVolumes.clear();
+
+    m_draggedVolume.minBounds = maxVec;
+    m_draggedVolume.maxBounds = minVec;
+
+    getBounds(view, node, m_draggedVolume.minBounds, m_draggedVolume.maxBounds, false, true);
+
+    auto isChildNode = [node](QQuick3DNode *checkNode) -> bool {
+        if (checkNode == node)
+            return true;
+        QQuick3DNode *parentNode = checkNode->parentNode();
+        while (parentNode) {
+            if (parentNode == node)
+                return true;
+            parentNode = parentNode->parentNode();
+        }
+        return false;
+    };
+
+    for (QQuick3DNode *snapNode : std::as_const(m_snapNodes)) {
+        if (isChildNode(snapNode))
+            continue;
+        Volume volume;
+        volume.minBounds = maxVec;
+        volume.maxBounds = minVec;
+        getBounds(view, snapNode, volume.minBounds, volume.maxBounds, qobject_cast<QQuick3DModel *>(snapNode), true);
+        m_snapVolumes.append(volume);
+    }
+}
+
 QString GeneralHelper::snapPositionDragTooltip(const QVector3D &pos) const
 {
     return formatVectorDragTooltip(pos, formatSnapStr(m_snapPosition, m_snapPositionInterval, {}));
@@ -1564,10 +1665,12 @@ QVector3D GeneralHelper::pivotScenePosition(QQuick3DNode *node) const
     return QVector3D(m(0, 3), m(1, 3), m(2, 3));
 }
 
-// Calculate bounds for given node, including all child nodes.
+// Calculate bounds for given node, optionally including all child nodes.
 // Returns true if the tree contains at least one Model node.
+// minBounds/maxBounds should be initialized to maxVec/minVec respectively before a non-recursive
+// call of this method.
 bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVector3D &minBounds,
-                              QVector3D &maxBounds)
+                              QVector3D &maxBounds, bool skipChildren, bool global)
 {
     if (!node) {
         const float halfExtent = 100.f;
@@ -1591,22 +1694,24 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
     QVector3D localMinBounds = maxVec;
     QVector3D localMaxBounds = minVec;
 
-    // Find bounds for children
     QVector<QVector3D> minBoundsVec;
     QVector<QVector3D> maxBoundsVec;
-    const auto children = node->childItems();
     bool hasModel = false;
-    for (const auto child : children) {
-        if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
-            QVector3D newMinBounds = minBounds;
-            QVector3D newMaxBounds = maxBounds;
-            bool childHasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds);
-            // Ignore any subtrees that do not have Model in them as we don't need those
-            // for visual bounds calculations
-            if (childHasModel) {
-                minBoundsVec << newMinBounds;
-                maxBoundsVec << newMaxBounds;
-                hasModel = true;
+
+    if (!skipChildren) {
+        const auto children = node->childItems();
+        for (const auto child : children) {
+            if (auto childNode = qobject_cast<QQuick3DNode *>(child)) {
+                QVector3D newMinBounds = minBounds;
+                QVector3D newMaxBounds = maxBounds;
+                bool childHasModel = getBounds(view3D, childNode, newMinBounds, newMaxBounds, false, false);
+                // Ignore any subtrees that do not have Model in them as we don't need those
+                // for visual bounds calculations
+                if (childHasModel) {
+                    minBoundsVec << newMinBounds;
+                    maxBoundsVec << newMaxBounds;
+                    hasModel = true;
+                }
             }
         }
     }
@@ -1684,6 +1789,32 @@ bool GeneralHelper::getBounds(QQuick3DViewport *view3D, QQuick3DNode *node, QVec
 
     // Transform local space bounding box to parent space
     transformCorners(localTransform, minBounds, maxBounds, localMinBounds, localMaxBounds);
+
+    if (global) {
+        // Transform to scene space
+        QQuick3DNode *parentNode = node->parentNode();
+        while (parentNode) {
+            QMatrix4x4 m;
+            auto parentPriv = QQuick3DObjectPrivate::get(parentNode);
+            auto parentRenderNode = static_cast<QSSGRenderNode *>(parentPriv->spatialNode);
+            if (parentRenderNode) {
+                if (parentRenderNode->isDirty(QSSGRenderNode::DirtyFlag::TransformDirty)) {
+                    parentRenderNode->localTransform = QSSGRenderNode::calculateTransformMatrix(
+                        parentNode->position(), parentNode->scale(),
+                        parentNode->pivot(), parentNode->rotation());
+                }
+                m = parentRenderNode->localTransform;
+                localMinBounds = minBounds;
+                localMaxBounds = maxBounds;
+                minBounds = maxVec;
+                maxBounds = minVec;
+                transformCorners(m, minBounds, maxBounds, localMinBounds, localMaxBounds);
+                parentNode = parentNode->parentNode();
+            } else {
+                break;
+            }
+        }
+    }
 
     return hasModel;
 }

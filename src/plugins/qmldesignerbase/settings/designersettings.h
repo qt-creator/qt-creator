@@ -38,6 +38,7 @@ inline constexpr char EDIT3DVIEW_SNAP_ROTATION[] = "Edit3DViewSnapRotation";
 inline constexpr char EDIT3DVIEW_SNAP_ROTATION_INTERVAL[] = "Edit3DViewSnapRotationInterval";
 inline constexpr char EDIT3DVIEW_SNAP_SCALE[] = "Edit3DViewSnapScale";
 inline constexpr char EDIT3DVIEW_SNAP_SCALE_INTERVAL[] = "Edit3DViewSnapScaleInterval";
+inline constexpr char EDIT3DVIEW_SNAP_MODEL[] = "Edit3DViewSnapModel";
 inline constexpr char ALWAYS_SAVE_IN_CRUMBLEBAR[] = "AlwaysSaveInCrumbleBar";
 inline constexpr char USE_DEFAULT_PUPPET[] = "UseDefaultQml2Puppet";
 inline constexpr char PUPPET_TOPLEVEL_BUILD_DIRECTORY[] = "PuppetToplevelBuildDirectory";

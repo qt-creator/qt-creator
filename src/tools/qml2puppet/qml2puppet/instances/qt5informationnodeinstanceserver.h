@@ -142,6 +142,8 @@ private:
     void setEditViewVisible();
     void resolveAllSceneView3Ds();
     void hideSceneView3Ds(bool hide);
+    void resolveActiveSceneSnapNodes();
+    bool isComponentNode(QObject *o);
 
     RenderViewData *m_editView3DData = {};
     RenderViewData *m_modelNode3DImageViewData = {};

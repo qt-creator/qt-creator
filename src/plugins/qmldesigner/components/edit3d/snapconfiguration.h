@@ -22,6 +22,8 @@ inline constexpr AuxiliaryDataKeyView edit3dSnapPosIntProperty{AuxiliaryDataType
                                                                "snapPosInt3d"};
 inline constexpr AuxiliaryDataKeyView edit3dSnapAbsProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
                                                             "snapAbs3d"};
+inline constexpr AuxiliaryDataKeyView edit3dSnapModelProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
+                                                              "snapModel3d"};
 inline constexpr AuxiliaryDataKeyView edit3dSnapRotProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
                                                             "snapRot3d"};
 inline constexpr AuxiliaryDataKeyView edit3dSnapRotIntProperty{AuxiliaryDataType::NodeInstanceAuxiliary,
@@ -38,6 +40,7 @@ class SnapConfiguration : public QObject
     Q_PROPERTY(bool rotEnabled READ rotEnabled WRITE setRotEnabled NOTIFY rotEnabledChanged)
     Q_PROPERTY(bool scaleEnabled READ scaleEnabled WRITE setScaleEnabled NOTIFY scaleEnabledChanged)
     Q_PROPERTY(bool absolute READ absolute WRITE setAbsolute NOTIFY absoluteChanged)
+    Q_PROPERTY(bool model READ model WRITE setModel NOTIFY modelChanged)
     Q_PROPERTY(double posInt READ posInt WRITE setPosInt NOTIFY posIntChanged)
     Q_PROPERTY(double rotInt READ rotInt WRITE setRotInt NOTIFY rotIntChanged)
     Q_PROPERTY(double scaleInt READ scaleInt WRITE setScaleInt NOTIFY scaleIntChanged)
@@ -65,6 +68,8 @@ public:
     bool scaleEnabled() const { return m_scaleEnabled; }
     void setAbsolute(bool enabled);
     bool absolute() const { return m_absolute; }
+    void setModel(bool enabled);
+    bool model() const { return m_model; }
 
     void setPosInt(double value);
     double posInt() const { return m_positionInterval; }
@@ -82,6 +87,7 @@ signals:
     void rotEnabledChanged();
     void scaleEnabledChanged();
     void absoluteChanged();
+    void modelChanged();
     void posIntChanged();
     void rotIntChanged();
     void scaleIntChanged();
@@ -98,6 +104,7 @@ private:
     bool m_rotationEnabled = true;
     bool m_scaleEnabled = true;
     bool m_absolute = true;
+    bool m_model = false;
     double m_positionInterval = 0.;
     double m_rotationInterval = 0.;
     double m_scaleInterval = 0.;

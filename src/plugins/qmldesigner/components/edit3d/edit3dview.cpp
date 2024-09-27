@@ -814,6 +814,9 @@ void Edit3DView::syncSnapAuxPropsToSettings()
                                                 : false);
     rootModelNode().setAuxiliaryData(edit3dSnapAbsProperty,
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE));
+    rootModelNode().setAuxiliaryData(edit3dSnapModelProperty,
+                                     snapToggle ? Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_MODEL)
+                                                : false);
     rootModelNode().setAuxiliaryData(edit3dSnapPosIntProperty,
                                      Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL));
     rootModelNode().setAuxiliaryData(edit3dSnapRotIntProperty,

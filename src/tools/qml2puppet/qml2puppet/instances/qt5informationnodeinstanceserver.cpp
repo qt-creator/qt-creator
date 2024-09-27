@@ -378,6 +378,9 @@ void Qt5InformationNodeInstanceServer::updateSnapAndCameraSettings(
             } else if (container.name() == "snapAbs3d") {
                 helper->setSnapAbsolute(container.value().toBool());
                 changed = true;
+            } else if (container.name() == "snapModel3d") {
+                helper->setSnapModel(container.value().toBool());
+                changed = true;
             } else if (container.name() == "cameraTotalSpeed3d") {
                 helper->setCameraSpeed(container.value().toDouble());
             }
@@ -1094,6 +1097,8 @@ void Qt5InformationNodeInstanceServer::updateActiveSceneToEditView3D([[maybe_unu
 
     if (auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper))
         helper->storeToolState(helper->globalStateId(), helper->lastSceneIdKey(), QVariant(sceneId), 0);
+
+    resolveActiveSceneSnapNodes();
 #endif
 }
 
@@ -1183,6 +1188,8 @@ void Qt5InformationNodeInstanceServer::resolveSceneRoots()
     if (updateActiveScene) {
         m_active3DView = findView3DForSceneRoot(m_active3DScene);
         updateActiveSceneToEditView3D();
+    } else {
+        resolveActiveSceneSnapNodes();
     }
 #endif
 }
@@ -2347,14 +2354,8 @@ void Qt5InformationNodeInstanceServer::changeSelection(const ChangeSelectionComm
                     return true;
                 }
                 // Node is a component if it has node children that have no instances
-                auto node = qobject_cast<QQuick3DNode *>(object);
-                if (node) {
-                    const auto childItems = node->childItems();
-                    for (const auto &childItem : childItems) {
-                        if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
-                            return true;
-                    }
-                }
+                if (isComponentNode(object))
+                    return true;
 #endif
                 return false;
             };
@@ -2539,6 +2540,52 @@ void Qt5InformationNodeInstanceServer::hideSceneView3Ds(bool hide)
         else
             QQuickItemPrivate::get(static_cast<QQuickItem *>(o))->derefFromEffectItem(true);
     }
+}
+
+void Qt5InformationNodeInstanceServer::resolveActiveSceneSnapNodes()
+{
+#ifdef QUICK3D_MODULE
+    // Snappable nodes are all Models that have an instance and component instances
+    // with Node root (assumption is that they will have Models in them)
+    if (!m_active3DScene)
+        return;
+
+    QSet<QQuick3DNode *> nodes;
+
+    std::function<void(QQuick3DNode *)> scan;
+    scan = [&](QQuick3DNode *node) {
+        if (!node || !hasInstanceForObject(node))
+            return;
+
+        if (qobject_cast<QQuick3DModel *>(node) || isComponentNode(node))
+            nodes.insert(node);
+
+        QList<QQuick3DObject *> children = node->childItems();
+        for (QQuick3DObject *child : children)
+            scan(qobject_cast<QQuick3DNode *>(child));
+    };
+
+    scan(qobject_cast<QQuick3DNode *>(m_active3DScene));
+
+    auto helper = qobject_cast<QmlDesigner::Internal::GeneralHelper *>(m_3dHelper);
+    if (helper)
+        helper->setSnapNodes(nodes);
+#endif
+}
+
+bool Qt5InformationNodeInstanceServer::isComponentNode([[maybe_unused]] QObject *o) {
+#ifdef QUICK3D_MODULE
+    // Node is a component if it has node children that have no instances
+    auto node = qobject_cast<QQuick3DNode *>(o);
+    if (node) {
+        const auto childItems = node->childItems();
+        for (const auto &childItem : childItems) {
+            if (qobject_cast<QQuick3DNode *>(childItem) && !hasInstanceForObject(childItem))
+                return true;
+        }
+    }
+#endif
+    return false;
 }
 
 void Qt5InformationNodeInstanceServer::changePropertyValues(const ChangeValuesCommand &command)

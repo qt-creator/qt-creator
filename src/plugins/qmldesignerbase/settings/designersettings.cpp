@@ -87,6 +87,7 @@ void DesignerSettings::fromSettings(QtcSettings *settings)
                  QStringList{"#222222", "#999999"});
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_GRID_COLOR, "#cccccc");
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true);
+    restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_MODEL, false);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_ENABLED, false);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION, true);
     restoreValue(settings, DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, 50.);

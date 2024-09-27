@@ -62,6 +62,8 @@ void SnapConfiguration::apply()
                                m_scaleEnabled);
         Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE,
                                m_absolute);
+        Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_MODEL,
+                               m_model);
         Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL,
                                m_positionInterval);
         Edit3DViewConfig::save(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION_INTERVAL,
@@ -80,6 +82,7 @@ void SnapConfiguration::resetDefaults()
     setRotEnabled(true);
     setScaleEnabled(true);
     setAbsolute(true);
+    setModel(false);
     setPosInt(defaultPosInt);
     setRotInt(defaultRotInt);
     setScaleInt(defaultScaleInt);
@@ -134,6 +137,7 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
     bool rotEnabled = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ROTATION, true).toBool();
     bool scaleEnabled = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_SCALE, true).toBool();
     bool absolute = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_ABSOLUTE, true).toBool();
+    bool model = Edit3DViewConfig::load(DesignerSettingsKey::EDIT3DVIEW_SNAP_MODEL, false).toBool();
     double posInt = Edit3DViewConfig::load(
                         DesignerSettingsKey::EDIT3DVIEW_SNAP_POSITION_INTERVAL, defaultPosInt).toDouble();
     double rotInt = Edit3DViewConfig::load(
@@ -145,6 +149,7 @@ void SnapConfiguration::showConfigDialog(const QPoint &pos)
     setRotEnabled(rotEnabled);
     setScaleEnabled(scaleEnabled);
     setAbsolute(absolute);
+    setModel(model);
     setPosInt(posInt);
     setRotInt(rotInt);
     setScaleInt(scaleInt);
@@ -207,6 +212,15 @@ void SnapConfiguration::setAbsolute(bool enabled)
         m_absolute = enabled;
         m_changes = true;
         emit absoluteChanged();
+    }
+}
+
+void SnapConfiguration::setModel(bool enabled)
+{
+    if (enabled != m_model) {
+        m_model = enabled;
+        m_changes = true;
+        emit modelChanged();
     }
 }
 

@@ -21,7 +21,8 @@ PlanarDraggable {
                     _targetStartPos.x + sceneRelativeDistance.x,
                     _targetStartPos.y + sceneRelativeDistance.y,
                     _targetStartPos.z + sceneRelativeDistance.z);
-        newScenePos = _generalHelper.adjustTranslationForSnap(newScenePos, _targetStartPos,
+        newScenePos = _generalHelper.adjustTranslationForSnap(view3D, // This is overlay view but it shouldn't be a problem for poc
+                                                              newScenePos, _targetStartPos,
                                                               dragAxes, globalOrientation,
                                                               targetNode);
         return targetNode.parent ? targetNode.parent.mapPositionFromScene(newScenePos) : newScenePos;
@@ -30,6 +31,7 @@ PlanarDraggable {
     onPressed: {
         if (targetNode == multiSelectionNode)
             _generalHelper.restartMultiSelection();
+        _generalHelper.setSnapModelDirty();
     }
 
     onDragged: (mouseArea, sceneRelativeDistance)=> {

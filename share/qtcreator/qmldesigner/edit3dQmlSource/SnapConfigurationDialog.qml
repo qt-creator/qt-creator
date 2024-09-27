@@ -14,7 +14,7 @@ Rectangle {
     property int toolTipDelay: 1000
 
     width: 230
-    height: 270
+    height: 300
     color: StudioTheme.Values.themePanelBackground
     border.color: StudioTheme.Values.themeControlOutline
     border.width: StudioTheme.Values.border
@@ -220,6 +220,24 @@ Rectangle {
                 ToolTip.delay: root.toolTipDelay
 
                 onToggled: absolute = checked
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Snap to Model")
+                Layout.fillWidth: false
+                Layout.leftMargin: 0
+                Layout.column: 0
+                Layout.row: 5
+                Layout.columnSpan: 3
+                checked: model
+                actionIndicatorVisible: false
+
+                hoverEnabled: true
+                ToolTip.visible: hovered
+                ToolTip.text: qsTr("Toggles if the position snaps to model.")
+                ToolTip.delay: root.toolTipDelay
+
+                onToggled: model = checked
             }
 
             Text {
