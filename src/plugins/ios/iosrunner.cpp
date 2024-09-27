@@ -549,6 +549,7 @@ void IosRunner::start()
         args.append(qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
     }
 
+    appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
     m_toolHandler->requestRunApp(bundlePath(), args, runType(), deviceId());
 }
 
@@ -691,40 +692,6 @@ Port IosRunner::gdbServerPort() const
 Port IosRunner::qmlServerPort() const
 {
     return m_qmlServerPort;
-}
-
-//
-// IosRunner
-//
-
-class IosRunSupport : public IosRunner
-{
-public:
-    explicit IosRunSupport(RunControl *runControl);
-    ~IosRunSupport() override;
-
-private:
-    void start() override;
-};
-
-IosRunSupport::IosRunSupport(RunControl *runControl)
-    : IosRunner(runControl)
-{
-    setId("IosRunSupport");
-    runControl->setIcon(Icons::RUN_SMALL_TOOLBAR);
-    runControl->setDisplayName(QString("Run on %1")
-                                   .arg(device() ? device()->displayName() : QString()));
-}
-
-IosRunSupport::~IosRunSupport()
-{
-    stop();
-}
-
-void IosRunSupport::start()
-{
-    appendMessage(Tr::tr("Starting remote process."), NormalMessageFormat);
-    IosRunner::start();
 }
 
 //
@@ -897,7 +864,10 @@ IosRunWorkerFactory::IosRunWorkerFactory()
         if (iosdevice && iosdevice->handler() == IosDevice::Handler::DeviceCtl) {
             return new DeviceCtlRunner(control);
         }
-        return new IosRunSupport(control);
+        control->setIcon(Icons::RUN_SMALL_TOOLBAR);
+        control->setDisplayName(QString("Run on %1")
+                                       .arg(iosdevice ? iosdevice->displayName() : QString()));
+        return new IosRunner(control);
     });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::IOS_RUNCONFIG_ID);
