@@ -33,11 +33,6 @@ Theme *creatorTheme()
     return m_creatorTheme;
 }
 
-Theme *proxyTheme()
-{
-    return new Theme(m_creatorTheme);
-}
-
 // Convenience
 QColor creatorColor(Theme::Color role)
 {

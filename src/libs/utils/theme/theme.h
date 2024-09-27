@@ -576,13 +576,11 @@ protected:
 private:
     void readSettingsInternal(QSettings &settings);
     friend QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
-    friend QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
     QColor readNamedColorNoWarning(const QString &color) const;
     QPair<QColor, QString> readNamedColor(const QString &color) const;
 };
 
 QTCREATOR_UTILS_EXPORT Theme *creatorTheme();
-QTCREATOR_UTILS_EXPORT Theme *proxyTheme();
 QTCREATOR_UTILS_EXPORT QColor creatorColor(Theme::Color role);
 
 } // namespace Utils
