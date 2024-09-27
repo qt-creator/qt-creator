@@ -19,6 +19,7 @@ Node {
 
     visible: (gizmo.targetNode instanceof OrthographicCamera || gizmo.targetNode instanceof PerspectiveCamera)
     position: gizmo.targetNode !== null ? targetNode.scenePosition : Qt.vector3d(0, 0, 0)
+    rotation: gizmo.targetNode !== null ? targetNode.sceneRotation : Qt.quaternion(1, 0, 0, 0)
 
     AutoScaleHelper {
         id: autoScaler
