@@ -74,8 +74,8 @@ static qreal next(const QVector<qreal> &vector, qreal current)
 
 static qreal previous(const QVector<qreal> &vector, qreal current)
 {
-    auto iter = std::ranges::find_if(vector | std::views::reverse,
-                                     [&](qreal val) { return val < current; });
+    auto iter = std::find_if(vector.rbegin(), vector.rend(),
+                             [&](qreal val) { return val < current; });
     if (iter != vector.rend())
         return *iter;
     return current;
