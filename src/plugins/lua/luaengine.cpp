@@ -171,6 +171,23 @@ void registerProvider(const QString &packageName, const PackageProvider &provide
     d->m_providers[packageName] = provider;
 }
 
+void registerProvider(const QString &packageName, const FilePath &path)
+{
+    registerProvider(packageName, [path](sol::state_view lua) -> sol::object {
+        auto content = path.fileContents();
+        if (!content)
+            throw sol::error(content.error().toStdString());
+
+        sol::protected_function_result res
+            = lua.script(content->data(), path.fileName().toStdString());
+        if (!res.valid()) {
+            sol::error err = res;
+            throw err;
+        }
+        return res.get<sol::table>(0);
+    });
+}
+
 void autoRegister(const std::function<void(sol::state_view)> &registerFunction)
 {
     d->m_autoProviders.append(registerFunction);

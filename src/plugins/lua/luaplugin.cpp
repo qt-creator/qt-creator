@@ -34,7 +34,6 @@ using namespace ExtensionSystem;
 namespace Lua::Internal {
 
 void setupActionModule();
-void setupAsyncModule();
 void setupCoreModule();
 void setupFetchModule();
 void setupGuiModule();
@@ -254,8 +253,10 @@ public:
     {
         setupLuaEngine(this);
 
+        registerProvider("async", ":/lua/scripts/async.lua");
+        registerProvider("inspect", ":/lua/scripts/inspect.lua");
+
         setupActionModule();
-        setupAsyncModule();
         setupCoreModule();
         setupFetchModule();
         setupGuiModule();

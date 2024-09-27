@@ -1,11 +1,3 @@
-// Copyright (C) 2024 The Qt Company Ltd.
-// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
-
-#include "../luaengine.h"
-
-namespace Lua::Internal {
-
-static const char *async_source = R"(
 -- From: https://github.com/ms-jpq/lua-async-await
 -- Licensed under MIT
 local co = coroutine
@@ -70,13 +62,15 @@ end
 -- sugar over coroutine
 local await = function(defer)
     local _, isMain = coroutine.running()
-    assert(not isMain, "a.wait was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
+    assert(not isMain,
+        "a.wait was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
     assert(type(defer) == "function", "type error :: expected func :: was: " .. type(defer))
     return co.yield(defer)
 end
 local await_all = function(defer)
     local _, isMain = coroutine.running()
-    assert(not isMain, "a.wait_all was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
+    assert(not isMain,
+        "a.wait_all was called outside of a running coroutine. You need to start one using a.sync(my_function)() first")
     assert(type(defer) == "table", "type error :: expected table")
     return co.yield(join(defer))
 end
@@ -86,14 +80,3 @@ return {
     wait_all = await_all,
     wrap = wrap,
 }
-)";
-
-void setupAsyncModule()
-{
-    registerProvider("async", [](sol::state_view lua) -> sol::object {
-        sol::protected_function_result res = lua.script(async_source, "async.cpp");
-        return res.get<sol::table>(0);
-    });
-}
-
-} // namespace Lua::Internal
