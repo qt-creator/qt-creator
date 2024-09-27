@@ -32,6 +32,7 @@ Item {
     }
 
     Text {
+        visible: !Constants.projectModel.liteDesignerEnabled
         id: brandLabel
         color: Constants.currentBrand
         text: qsTr("Qt Design Studio")
@@ -44,6 +45,20 @@ Item {
     }
 
     Text {
+        visible: Constants.projectModel.liteDesignerEnabled
+        id: brandLabelLite
+        color: Constants.currentBrand
+        text: qsTr("Lite QML Designer")
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.left: welcomeTo.right
+        anchors.leftMargin: 8
+        verticalAlignment: Text.AlignVCenter
+        font.pixelSize: 36
+        font.family: "titillium web"
+    }
+
+    Text {
+        visible: !Constants.projectModel.liteDesignerEnabled
         width: 291
         height: 55
         color: Constants.currentGlobalText
