@@ -92,7 +92,7 @@ void switchActiveDashboardId(const Utils::Id &toDashboardId);
 const Utils::Id activeDashboardId();
 const std::optional<DashboardInfo> currentDashboardInfo();
 void setAnalysisVersion(const QString &version);
-void disableInlineIssues(bool disable);
+void enableInlineIssues(bool enable);
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 

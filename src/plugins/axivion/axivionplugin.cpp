@@ -214,7 +214,7 @@ public:
     void clearAllMarks();
     void updateExistingMarks();
     void handleIssuesForFile(const Dto::FileViewDto &fileView);
-    void disableInlineIssues(bool disable);
+    void enableInlineIssues(bool enable);
     void fetchIssueInfo(const QString &id);
 
     void onSessionLoaded(const QString &sessionName);
@@ -1015,16 +1015,16 @@ void AxivionPluginPrivate::handleIssuesForFile(const Dto::FileViewDto &fileView)
     }
 }
 
-void AxivionPluginPrivate::disableInlineIssues(bool disable)
+void AxivionPluginPrivate::enableInlineIssues(bool enable)
 {
-    if (m_inlineIssuesEnabled != disable)
+    if (m_inlineIssuesEnabled == enable)
         return;
-    m_inlineIssuesEnabled = !disable;
+    m_inlineIssuesEnabled = enable;
 
-    if (disable)
-        clearAllMarks();
-    else
+    if (enable)
         handleOpenedDocs();
+    else
+        clearAllMarks();
 }
 
 static constexpr char SV_PROJECTNAME[] = "Axivion.ProjectName";
@@ -1124,10 +1124,10 @@ void setAnalysisVersion(const QString &version)
     dd->handleOpenedDocs();
 }
 
-void disableInlineIssues(bool disable)
+void enableInlineIssues(bool enable)
 {
     QTC_ASSERT(dd, return);
-    dd->disableInlineIssues(disable);
+    dd->enableInlineIssues(enable);
 }
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath)

@@ -60,6 +60,8 @@ using namespace Utils;
 
 namespace Axivion::Internal {
 
+static const Icon MARKER_ICON({{":/axivion/images/marker.png", Theme::IconsBaseColor}});
+
 static QPixmap trendIcon(qint64 added, qint64 removed)
 {
     static const QPixmap unchanged = Utils::Icons::NEXT.pixmap();
@@ -844,13 +846,13 @@ void AxivionPerspective::initPerspective()
         reinitDashboardList({});
     });
 
-    auto disableInlineIssuesAct = new QAction(this);
-    disableInlineIssuesAct->setIcon(ProjectExplorer::Icons::BUILDSTEP_DISABLE_TOOLBAR.icon());
-    disableInlineIssuesAct->setToolTip(Tr::tr("Disable inline issues"));
-    disableInlineIssuesAct->setCheckable(true);
-    disableInlineIssuesAct->setChecked(false);
-    connect(disableInlineIssuesAct, &QAction::toggled,
-            this, [](bool checked) {  disableInlineIssues(checked); });
+    auto showIssuesAct = new QAction(this);
+    showIssuesAct->setIcon(MARKER_ICON.icon());
+    showIssuesAct->setToolTip(Tr::tr("Show inline issues"));
+    showIssuesAct->setCheckable(true);
+    showIssuesAct->setChecked(true);
+    connect(showIssuesAct, &QAction::toggled,
+            this, [](bool checked) {  enableInlineIssues(checked); });
     auto toggleIssuesAct = new QAction(this);
     toggleIssuesAct->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
     toggleIssuesAct->setToolTip(Tr::tr("Show issue annotations inline"));
@@ -871,7 +873,7 @@ void AxivionPerspective::initPerspective()
 
     addToolBarAction(reloadDataAct);
     addToolbarSeparator();
-    addToolBarAction(disableInlineIssuesAct);
+    addToolBarAction(showIssuesAct);
     addToolBarAction(toggleIssuesAct);
     addToolbarSeparator();
     addToolBarAction(m_showFilterHelp); // FIXME move to IssuesWidget when named filters are added
