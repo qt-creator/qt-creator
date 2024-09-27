@@ -263,7 +263,7 @@ public:
         setActionsProvider([id] {
             auto action = new QAction;
             action->setIcon(Icons::INFO.icon());
-            action->setToolTip(Tr::tr("Show rule details"));
+            action->setToolTip(Tr::tr("Show issue properties"));
             QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
             return QList{action};
         });
