@@ -3,6 +3,9 @@
 
 #include "../luaengine.h"
 
+#include "utils.h"
+
+#include <QCompleter>
 #include <QDir>
 
 namespace Lua::Internal {
@@ -11,6 +14,32 @@ void setupQtModule()
 {
     registerProvider("Qt", [](sol::state_view lua) {
         sol::table qt(lua, sol::create);
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+
+        qt.new_usertype<QCompleter>(
+            "QCompleter",
+            "create",
+            [](const QStringList &list) -> std::unique_ptr<QCompleter> {
+                return std::make_unique<QCompleter>(list);
+            },
+            "currentCompletion",
+            &QCompleter::currentCompletion,
+            "completionMode",
+            sol::property(&QCompleter::completionMode,
+                          [](QCompleter *c, QCompleter::CompletionMode mode) {
+                              c->setCompletionMode(mode);
+                          }),
+            "onActivated",
+            sol::property([guard = pluginSpec](QCompleter &obj, sol::function callback) {
+                QObject::connect(&obj,
+                                 QOverload<const QString &>::of(&QCompleter::activated),
+                                 guard->connectionGuard.get(),
+                                 [callback](const QString &arg) {
+                                     void_safe_call(callback, arg);
+                                 });})
+            );
+
+        mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 
         // clang-format off
         qt["TextElideMode"] = lua.create_table_with(

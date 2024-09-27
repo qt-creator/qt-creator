@@ -4,6 +4,29 @@
 
 local qt = {}
 
+---@enum CompleterCompletionMode
+qt.CompleterCompletionMode = {
+    PopupCompletion = 0,
+    InlineCompletion = 1,
+    UnfilteredPopupCompletion = 2,
+};
+
+---Creates QCompleter.
+---@class QCompleter
+---@field completionMode CompleterCompletionMode The completion mode.
+local QCompleter = {}
+
+---Returns current completion.
+---@return string
+function qt.QCompleter:currentCompletion() end
+
+---@param params string list A list of suggestions.
+---@return QCompleter Created Completer.
+function qt.QCompleter.create(params) end
+
+---@param function The function to be called when user choice is selected from popup.
+function qt.QCompleter.onActivated(function) end
+
 ---@enum TextElideMode
 qt.TextElideMode = {
     ElideLeft = 0,
