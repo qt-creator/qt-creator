@@ -1110,23 +1110,23 @@ DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
     setId("DebugServerPortsGatherer");
     auto portsGatherer = new PortsGatherer(runControl);
 
-    for (int i = 0; i < 2; ++i) {
-        auto channelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
-        m_channelProviders[i] = channelProvider;
-        addStartDependency(channelProvider);
-    }
+    m_gdbChannelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
+    addStartDependency(m_gdbChannelProvider);
+
+    m_qmlChannelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
+    addStartDependency(m_qmlChannelProvider);
 }
 
 DebugServerPortsGatherer::~DebugServerPortsGatherer() = default;
 
 QUrl DebugServerPortsGatherer::gdbServer() const
 {
-    return m_channelProviders[0]->channel();
+    return m_gdbChannelProvider->channel();
 }
 
 QUrl DebugServerPortsGatherer::qmlServer() const
 {
-    return m_channelProviders[1]->channel();
+    return m_qmlChannelProvider->channel();
 }
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()

@@ -142,9 +142,10 @@ public:
     QUrl qmlServer() const;
 
 private:
-    std::array<Internal::SubChannelProvider *, 2> m_channelProviders;
     bool m_useGdbServer = false;
     bool m_useQmlServer = false;
+    Internal::SubChannelProvider *m_gdbChannelProvider;
+    Internal::SubChannelProvider *m_qmlChannelProvider;
 };
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
