@@ -198,7 +198,7 @@ void MCUBuildStepFactory::updateDeployStep(ProjectExplorer::Target *target, bool
     } else {
         if (!step)
             return;
-        step->setEnabled(enabled);
+        step->setStepEnabled(enabled);
     }
 }
 

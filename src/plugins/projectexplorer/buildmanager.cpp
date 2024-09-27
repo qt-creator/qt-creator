@@ -964,7 +964,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> &bsls, const QStringL
         const QString name = displayNameForStepId(list->id());
         const QList<BuildStep *> steps = list->steps();
         for (BuildStep *step : steps)
-            buildItems.append({step, step->enabled(), name});
+            buildItems.append({step, step->stepEnabled(), name});
         d->m_isDeploying = d->m_isDeploying || list->id() == Constants::BUILDSTEPS_DEPLOY;
     }
 
@@ -977,7 +977,7 @@ bool BuildManager::buildLists(const QList<BuildStepList *> &bsls, const QStringL
 
 void BuildManager::appendStep(BuildStep *step, const QString &name)
 {
-    buildQueueAppend({{step, step->enabled(), name}});
+    buildQueueAppend({{step, step->stepEnabled(), name}});
 }
 
 template <class T>

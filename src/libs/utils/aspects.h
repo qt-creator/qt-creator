@@ -98,7 +98,7 @@ public:
     QUndoStack *undoStack() const;
 
     bool isEnabled() const;
-    void setEnabled(bool enabled);
+    virtual void setEnabled(bool enabled);
     void setEnabler(BoolAspect *checker);
 
     bool isReadOnly() const;
@@ -997,6 +997,7 @@ public:
     void setAutoApply(bool on) override;
     bool isDirty() override;
     void setUndoStack(QUndoStack *undoStack) override;
+    void setEnabled(bool enabled) override;
 
     void setMacroExpander(MacroExpander *expander);
 

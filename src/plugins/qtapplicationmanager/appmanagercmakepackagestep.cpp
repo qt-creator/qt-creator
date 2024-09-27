@@ -33,7 +33,7 @@ public:
             const auto updaterSlot = [step] {
                 const TargetInformation targetInformation(step->target());
                 step->setBuildTargets({targetInformation.cmakeBuildTarget});
-                step->setEnabled(!targetInformation.isBuiltin);
+                step->setStepEnabled(!targetInformation.isBuiltin);
             };
             QObject::connect(step->target(), &Target::activeRunConfigurationChanged, step, updaterSlot);
             QObject::connect(step->target(), &Target::activeDeployConfigurationChanged, step, updaterSlot);
