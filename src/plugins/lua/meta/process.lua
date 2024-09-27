@@ -24,6 +24,7 @@ process.Process = {}
 ---@field stdin? string The input to write to stdin.
 ---@field stdout? function The callback to call when the process writes to stdout.
 ---@field stderr? function The callback to call when the process writes to stderr.
+---@field onFinished? function () The callback to call when the process finishes.
 process.ProcessParameters = {}
 
 ---Creates a new process object.
