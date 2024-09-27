@@ -1810,6 +1810,7 @@ void ModelValidator::shouldBeVariantProperty([[maybe_unused]] AbstractProperty &
                                              const QVariant & /*qmlVariantValue*/,
                                              const TypeName & /*dynamicTypeName*/)
 {
+    QTC_CHECK(modelProperty.isVariantProperty());
     Q_ASSERT(modelProperty.isVariantProperty());
     Q_ASSERT(0);
 }
@@ -1871,6 +1872,7 @@ void ModelValidator::propertyAbsentFromQml([[maybe_unused]] AbstractProperty &mo
 {
     Q_ASSERT(!modelProperty.isValid());
     Q_ASSERT(0);
+    QTC_CHECK(!modelProperty.isValid());
 }
 
 void ModelValidator::idsDiffer([[maybe_unused]] ModelNode &modelNode,
