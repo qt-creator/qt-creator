@@ -72,7 +72,9 @@ QObject *ScriptPluginSpec::setup(
         "name",
         sol::property([](ScriptPluginSpec &self) { return self.name; }),
         "pluginDirectory",
-        sol::property([pluginLocation]() { return pluginLocation; }));
+        sol::property([pluginLocation]() { return pluginLocation; }),
+        "appDataPath",
+        sol::property([appDataPath]() { return appDataPath; }));
 
     auto guardObject = std::make_unique<QObject>();
     auto guardObjectPtr = guardObject.get();
