@@ -105,6 +105,7 @@ HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
 HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
 HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 HAS_MEM_FUNC(setFlat, hasSetFlat);
+HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
@@ -200,6 +201,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly");
         if (readOnly)
             item->setReadOnly(*readOnly);
+    }
+    if constexpr (hasSetOpenExternalLinks<T, void (T::*)(bool)>::value) {
+        sol::optional<bool> openExternalLinks = children.get<sol::optional<bool>>(
+            "openExternalLinks");
+        if (openExternalLinks)
+            item->setOpenExternalLinks(*openExternalLinks);
     }
 }
 
