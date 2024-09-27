@@ -50,4 +50,10 @@ function project.canRunStartupProject(runMode) end
 ---@param displayName? string Override the run configuration display name with the provided name.
 function project.runStartupProject(runnable, displayName) end
 
+---Stops any configuration with display names equal to the provided name.
+---@param displayName string The name for projects to stop.
+---@param force? boolean Whether to close project forcefully (false assumeed if not provided).
+---@return int Number of stopped configurations.
+function project.stopRunConfigurationsByName(displayName, force) end
+
 return project

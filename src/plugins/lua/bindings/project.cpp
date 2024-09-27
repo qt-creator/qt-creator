@@ -113,6 +113,26 @@ void setupProjectModule()
                 }
             };
 
+        result["stopRunConfigurationsByName"] =
+            [](const QString &displayName, const std::optional<bool> &force) -> int {
+                const auto runControls = ProjectExplorerPlugin::instance()->allRunControls();
+
+                int stoppedCount = 0;
+                for (const auto rc : runControls) {
+                    if (rc && rc->displayName() == displayName) {
+                        stoppedCount++;
+
+                        if (force.has_value() && force.value()) {
+                            rc->forceStop();
+                        } else {
+                            rc->initiateStop();
+                        }
+                    }
+                }
+
+                return stoppedCount;
+            };
+
         result["RunMode"] = lua.create_table_with(
             "Normal", Constants::NORMAL_RUN_MODE, "Debug", Constants::DEBUG_RUN_MODE);
 
