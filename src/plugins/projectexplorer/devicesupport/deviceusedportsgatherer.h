@@ -15,10 +15,7 @@ using namespace Tasking;
 
 namespace ProjectExplorer {
 
-namespace Internal {
-class DeviceUsedPortsGathererPrivate;
-class SubChannelProvider;
-} // Internal
+namespace Internal { class DeviceUsedPortsGathererPrivate; }
 
 class PROJECTEXPLORER_EXPORT DeviceUsedPortsGatherer : public QObject
 {
@@ -69,20 +66,6 @@ protected:
 private:
     DeviceUsedPortsGatherer m_portsGatherer;
     Utils::PortList m_portList;
-};
-
-class PROJECTEXPLORER_EXPORT ChannelProvider : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    ChannelProvider(RunControl *runControl, int requiredChannels = 1);
-    ~ChannelProvider() override;
-
-    QUrl channel(int i = 0) const;
-
-private:
-    QVector<Internal::SubChannelProvider *> m_channelProviders;
 };
 
 using DeviceUsedPortsGathererTask = CustomTask<DeviceUsedPortsGathererTaskAdapter>;

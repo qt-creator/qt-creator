@@ -15,7 +15,10 @@
 
 namespace Debugger {
 
-namespace Internal { class DebuggerRunToolPrivate; }
+namespace Internal {
+class DebuggerRunToolPrivate;
+class SubChannelProvider;
+}
 
 class DebugServerPortsGatherer;
 
@@ -124,7 +127,7 @@ private:
     Internal::DebuggerRunParameters m_runParameters;
 };
 
-class DEBUGGER_EXPORT DebugServerPortsGatherer : public ProjectExplorer::ChannelProvider
+class DEBUGGER_EXPORT DebugServerPortsGatherer : public ProjectExplorer::RunWorker
 {
 public:
     explicit DebugServerPortsGatherer(ProjectExplorer::RunControl *runControl);
@@ -139,6 +142,7 @@ public:
     QUrl qmlServer() const;
 
 private:
+    std::array<Internal::SubChannelProvider *, 2> m_channelProviders;
     bool m_useGdbServer = false;
     bool m_useQmlServer = false;
 };

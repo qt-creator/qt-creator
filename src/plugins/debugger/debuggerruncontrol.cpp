@@ -1021,30 +1021,112 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
+namespace Internal {
+
+/*!
+    \class Debugger::SubChannelProvider
+
+    \internal
+
+    This is a helper RunWorker implementation to either use or not
+    use port forwarding for one SubChannel in the ChannelProvider
+    implementation.
+
+    By default it is assumed that no forwarding is needed, i.e.
+    end points provided by the shared endpoint resource provider
+    are directly accessible.
+*/
+
+class SubChannelProvider : public RunWorker
+{
+public:
+    SubChannelProvider(RunControl *runControl, PortsGatherer *portsGatherer)
+        : RunWorker(runControl)
+        , m_portGatherer(portsGatherer)
+    {
+        setId("SubChannelProvider");
+    }
+
+    void start() final
+    {
+        m_channel.setScheme(urlTcpScheme());
+        if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool())
+            m_channel.setHost("localhost");
+        else
+            m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+        if (m_portGatherer)
+            m_channel.setPort(m_portGatherer->findEndPoint().port());
+        reportStarted();
+    }
+
+    QUrl channel() const { return m_channel; }
+
+private:
+    QUrl m_channel;
+    PortsGatherer *m_portGatherer = nullptr;
+};
+
+} // Internal
+
 ////////////////////////////////////////////////////////////////////////
 //
 // Externally visible helper.
 //
 ////////////////////////////////////////////////////////////////////////
 
-// GdbServerPortGatherer
+/*!
+    \class Debugger::DebugServerPortsGatherer
+
+    \internal
+
+    The class implements a \c RunWorker to provide
+    to provide a set of urls indicating usable connection end
+    points for 'server-using' tools (typically one, like plain
+    gdbserver and the Qml tooling, but two for mixed debugging).
+
+    Urls can describe local or tcp servers that are directly
+    accessible to the host tools.
+
+    The tool implementations can assume that any needed port
+    forwarding setup is setup and handled transparently by
+    a \c DebugServerPortsGatherer instance.
+
+    If there are multiple subchannels needed that need to share a
+    common set of resources on the remote side, a device implementation
+    can provide a "SharedEndpointGatherer" RunWorker.
+
+    If none is provided, it is assumed that the shared resource
+    is open TCP ports, provided by the device's PortGatherer i
+    implementation.
+
+    FIXME: The current implementation supports only the case
+    of "any number of TCP channels that do not need actual
+    forwarding.
+*/
 
 DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
-    : ChannelProvider(runControl, 2)
+    : RunWorker(runControl)
 {
     setId("DebugServerPortsGatherer");
+    auto portsGatherer = new PortsGatherer(runControl);
+
+    for (int i = 0; i < 2; ++i) {
+        auto channelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
+        m_channelProviders[i] = channelProvider;
+        addStartDependency(channelProvider);
+    }
 }
 
 DebugServerPortsGatherer::~DebugServerPortsGatherer() = default;
 
 QUrl DebugServerPortsGatherer::gdbServer() const
 {
-    return channel(0);
+    return m_channelProviders[0]->channel();
 }
 
 QUrl DebugServerPortsGatherer::qmlServer() const
 {
-    return channel(1);
+    return m_channelProviders[1]->channel();
 }
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
