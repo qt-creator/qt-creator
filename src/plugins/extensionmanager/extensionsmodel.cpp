@@ -150,7 +150,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
     case RoleName:
         return json.value("display_name");
     case RoleDownloadCount:
-        return json.value("downloads");
+        break; // TODO: Reinstate download numbers when they have more substance
+        // return json.value("downloads");
     case RoleId:
         return json.value(EXTENSION_KEY_ID);
     case RoleDateUpdated:
