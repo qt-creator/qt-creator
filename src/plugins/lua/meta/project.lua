@@ -9,8 +9,21 @@ project.RunMode {
     Debug = "RunConfiguration.DebugRunMode",
 }
 
+---@enum Platforms
+project.Platforms {
+    Desktop = 0,
+}
+
+---@class Kit
+project.Kit = {}
+
+---Returns the list of supported platforms (device types) for this kit.
+---@return [Id] The list of supported platforms (device types) for this kit.
+function project.Kit:supportedPlatforms() end
+
 ---@class RunConfiguration
 ---@field runnable ProcessRunData
+---@field kit Kit
 project.RunConfiguration = {}
 
 ---@class Project

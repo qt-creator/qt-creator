@@ -18,6 +18,9 @@ function utils.waitms_cb(ms, callback) end
 ---@return QString Arbitrary UUID string.
 function utils.createUuid() end
 
+---@class Id
+utils.Id = {}
+
 ---@class FilePath
 utils.FilePath = {}
 

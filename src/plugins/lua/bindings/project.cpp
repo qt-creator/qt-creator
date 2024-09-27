@@ -28,11 +28,22 @@ void setupProjectModule()
 
         sol::table result = lua.create_table();
 
+        result.new_usertype<Kit>(
+            "Kit",
+            sol::no_constructor,
+            "supportedPlatforms",
+            [](Kit *kit) {
+                const auto set = kit->supportedPlatforms();
+                return QList<Utils::Id>(set.constBegin(), set.constEnd());
+            });
+
         result.new_usertype<RunConfiguration>(
             "RunConfiguration",
             sol::no_constructor,
             "runnable",
-            sol::property(&RunConfiguration::runnable));
+            sol::property(&RunConfiguration::runnable),
+            "kit",
+            sol::property(&RunConfiguration::kit));
 
         result.new_usertype<Project>(
             "Project",
@@ -98,6 +109,9 @@ void setupProjectModule()
 
         result["RunMode"] = lua.create_table_with(
             "Normal", Constants::NORMAL_RUN_MODE, "Debug", Constants::DEBUG_RUN_MODE);
+
+        result["Platforms"] = lua.create_table_with(
+            "Desktop", Utils::Id(Constants::DESKTOP_DEVICE_TYPE));
 
         return result;
     });

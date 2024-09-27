@@ -11,6 +11,7 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/id.h>
 #include <utils/processinterface.h>
 
 #include <QDesktopServices>
@@ -92,6 +93,10 @@ void setupUtilsModule()
             utils["waitms"] = wrap(utils["waitms_cb"]);
 
             utils["pid"] = QCoreApplication::applicationPid();
+
+            utils.new_usertype<Utils::Id>(
+                "Id",
+                sol::no_constructor);
 
             auto hostOsInfoType = utils.new_usertype<HostOsInfo>("HostOsInfo");
             hostOsInfoType["isWindowsHost"] = &HostOsInfo::isWindowsHost;
