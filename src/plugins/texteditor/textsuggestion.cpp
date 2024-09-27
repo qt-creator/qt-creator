@@ -109,11 +109,11 @@ public:
         , m_editor(editor)
     {
         auto prev = addAction(
-            Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Copilot Suggestion"));
+            Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Suggestion"));
         prev->setEnabled(m_suggestions.size() > 1);
         addWidget(m_numberLabel);
         auto next
-            = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Copilot Suggestion"));
+            = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Suggestion"));
         next->setEnabled(m_suggestions.size() > 1);
 
         auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
