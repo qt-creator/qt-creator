@@ -374,7 +374,7 @@ bool LocatorPopup::eventFilter(QObject *watched, QEvent *event)
         auto fe = static_cast<QFocusEvent *>(event);
         if (fe->reason() == Qt::ActiveWindowFocusReason && !QApplication::activeWindow())
             hide();
-    } else if (watched == m_window && event->type() == QEvent::Resize) {
+    } else if (watched == m_window && (event->type() == QEvent::Resize || event->type() == QEvent::Move)) {
         doUpdateGeometry();
     }
     return QWidget::eventFilter(watched, event);
