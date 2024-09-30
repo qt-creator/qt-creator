@@ -74,6 +74,7 @@ Rectangle {
                 scale.y: 900
                 scale.x: 900
                 materials: groundPlaneMaterial
+                readonly property bool _edit3dLocked: true
             }
         }
     }
