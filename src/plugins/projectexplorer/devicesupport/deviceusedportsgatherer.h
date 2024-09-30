@@ -50,24 +50,6 @@ public:
     void start() final { task()->start(); }
 };
 
-class PROJECTEXPLORER_EXPORT PortsGatherer : public RunWorker
-{
-    Q_OBJECT
-
-public:
-    explicit PortsGatherer(RunControl *runControl);
-
-    QUrl findEndPoint();
-
-protected:
-    void start() override;
-    void stop() override;
-
-private:
-    DeviceUsedPortsGatherer m_portsGatherer;
-    Utils::PortList m_portList;
-};
-
 using DeviceUsedPortsGathererTask = CustomTask<DeviceUsedPortsGathererTaskAdapter>;
 
 } // namespace ProjectExplorer

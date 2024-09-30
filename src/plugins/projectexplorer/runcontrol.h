@@ -234,6 +234,9 @@ public:
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
+    void enablePortsGatherer();
+    QUrl findEndPoint();
+
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();

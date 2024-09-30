@@ -50,19 +50,14 @@ public:
     {
         setId("RemoteLinuxQmlToolingSupport");
 
-        auto portsGatherer = new PortsGatherer(runControl);
-        addStartDependency(portsGatherer);
-
-        // The ports gatherer can safely be stopped once the process is running, even though it has to
-        // be started before.
-        addStopDependency(portsGatherer);
+        runControl->enablePortsGatherer();
 
         auto runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
         runworker->addStartDependency(this);
         addStopDependency(runworker);
 
-        setStartModifier([this, runControl, portsGatherer, runworker] {
-            const QUrl serverUrl = portsGatherer->findEndPoint();
+        setStartModifier([this, runControl, runworker] {
+            const QUrl serverUrl = runControl->findEndPoint();
             runworker->recordData("QmlServerUrl", serverUrl);
 
             QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());

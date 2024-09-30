@@ -7,8 +7,10 @@
 #include "buildconfiguration.h"
 #include "customparser.h"
 #include "devicesupport/devicemanager.h"
+#include "devicesupport/deviceusedportsgatherer.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
+#include "devicesupport/sshparameters.h"
 #include "devicesupport/sshsettings.h"
 #include "kitaspects.h"
 #include "project.h"
@@ -18,6 +20,7 @@
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
+#include "utils/url.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/icore.h>
@@ -326,6 +329,7 @@ public:
     void debugMessage(const QString &msg) const;
 
     void initiateStart();
+    void startPortsGathererIfNeededAndContinueStart();
     void initiateReStart();
     void continueStart();
     void initiateStop();
@@ -348,6 +352,9 @@ public:
     RunControl *q;
     Id runMode;
     TaskTreeRunner m_taskTreeRunner;
+
+    std::unique_ptr<DeviceUsedPortsGatherer> portsGatherer;
+    PortList portList;
 };
 
 } // Internal
@@ -552,7 +559,7 @@ void RunControlPrivate::initiateStart()
     setState(RunControlState::Starting);
     debugMessage("Queue: Starting");
 
-    continueStart();
+    startPortsGathererIfNeededAndContinueStart();
 }
 
 void RunControlPrivate::initiateReStart()
@@ -568,7 +575,45 @@ void RunControlPrivate::initiateReStart()
     setState(RunControlState::Starting);
     debugMessage("Queue: ReStarting");
 
-    continueStart();
+    startPortsGathererIfNeededAndContinueStart();
+}
+
+void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
+{
+    if (!portsGatherer) {
+        continueStart();
+        return;
+    }
+
+    connect(portsGatherer.get(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
+        if (success) {
+            portList = device->freePorts();
+            q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
+                             NormalMessageFormat);
+            continueStart();
+        } else {
+            onWorkerFailed(nullptr, portsGatherer->errorString());
+        }
+    });
+
+    q->appendMessage(Tr::tr("Checking available ports...") + '\n', NormalMessageFormat);
+    portsGatherer->setDevice(device);
+    portsGatherer->start();
+}
+
+void RunControl::enablePortsGatherer()
+{
+    d->portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
+}
+
+QUrl RunControl::findEndPoint()
+{
+    QTC_ASSERT(d->portsGatherer, return {});
+    QUrl result;
+    result.setScheme(urlTcpScheme());
+    result.setHost(device()->sshParameters().host());
+    result.setPort(d->portList.getNextFreePort(d->portsGatherer->usedPorts()).number());
+    return result;
 }
 
 void RunControlPrivate::continueStart()
@@ -734,7 +779,8 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
 
 void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 {
-    worker->d->state = RunWorkerState::Done;
+    if (worker)
+        worker->d->state = RunWorkerState::Done;
 
     showError(msg);
     switch (state) {

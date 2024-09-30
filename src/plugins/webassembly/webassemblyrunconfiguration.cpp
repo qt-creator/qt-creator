@@ -205,16 +205,15 @@ public:
     EmrunRunWorker(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
-        auto portsGatherer = new PortsGatherer(runControl);
-        addStartDependency(portsGatherer);
+        runControl->enablePortsGatherer();
 
-        setStartModifier([this, runControl, portsGatherer] {
+        setStartModifier([this, runControl] {
             const QString browserId =
                     runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
             setCommandLine(emrunCommand(runControl->target(),
                                         runControl->buildKey(),
                                         browserId,
-                                        QString::number(portsGatherer->findEndPoint().port())));
+                                        QString::number(runControl->findEndPoint().port())));
             setEnvironment(runControl->buildEnvironment());
         });
     }

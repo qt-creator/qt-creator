@@ -756,6 +756,7 @@ bool DebuggerRunTool::isQmlDebugging() const
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
 {
     QTC_ASSERT(!d->portsGatherer, reportFailure(); return);
+    runControl()->enablePortsGatherer();
     d->portsGatherer = new DebugServerPortsGatherer(runControl());
     d->portsGatherer->setUseGdbServer(useCpp);
     d->portsGatherer->setUseQmlServer(useQml);
@@ -1040,9 +1041,8 @@ namespace Internal {
 class SubChannelProvider : public RunWorker
 {
 public:
-    SubChannelProvider(RunControl *runControl, PortsGatherer *portsGatherer)
+    SubChannelProvider(RunControl *runControl)
         : RunWorker(runControl)
-        , m_portGatherer(portsGatherer)
     {
         setId("SubChannelProvider");
     }
@@ -1054,8 +1054,7 @@ public:
             m_channel.setHost("localhost");
         else
             m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-        if (m_portGatherer)
-            m_channel.setPort(m_portGatherer->findEndPoint().port());
+        m_channel.setPort(runControl()->findEndPoint().port());
         reportStarted();
     }
 
@@ -1063,7 +1062,6 @@ public:
 
 private:
     QUrl m_channel;
-    PortsGatherer *m_portGatherer = nullptr;
 };
 
 } // Internal
@@ -1108,12 +1106,11 @@ DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
     : RunWorker(runControl)
 {
     setId("DebugServerPortsGatherer");
-    auto portsGatherer = new PortsGatherer(runControl);
 
-    m_gdbChannelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
+    m_gdbChannelProvider = new Internal::SubChannelProvider(runControl);
     addStartDependency(m_gdbChannelProvider);
 
-    m_qmlChannelProvider = new Internal::SubChannelProvider(runControl, portsGatherer);
+    m_qmlChannelProvider = new Internal::SubChannelProvider(runControl);
     addStartDependency(m_qmlChannelProvider);
 }
 

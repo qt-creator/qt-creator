@@ -109,45 +109,4 @@ QString DeviceUsedPortsGatherer::errorString() const
     return d->m_errorString;
 }
 
-// PortGatherer
-
-PortsGatherer::PortsGatherer(RunControl *runControl)
-   : RunWorker(runControl)
-{
-    setId("PortGatherer");
-
-    connect(&m_portsGatherer, &DeviceUsedPortsGatherer::done, this, [this](bool success) {
-        if (success) {
-            m_portList = device()->freePorts();
-            appendMessage(Tr::tr("Found %n free ports.", nullptr, m_portList.count()),
-                          NormalMessageFormat);
-            reportStarted();
-        } else {
-            reportFailure(m_portsGatherer.errorString());
-        }
-    });
-}
-
-void PortsGatherer::start()
-{
-    appendMessage(Tr::tr("Checking available ports..."), NormalMessageFormat);
-    m_portsGatherer.setDevice(device());
-    m_portsGatherer.start();
-}
-
-QUrl PortsGatherer::findEndPoint()
-{
-    QUrl result;
-    result.setScheme(urlTcpScheme());
-    result.setHost(device()->sshParameters().host());
-    result.setPort(m_portList.getNextFreePort(m_portsGatherer.usedPorts()).number());
-    return result;
-}
-
-void PortsGatherer::stop()
-{
-    m_portsGatherer.stop();
-    reportStopped();
-}
-
 } // namespace ProjectExplorer
