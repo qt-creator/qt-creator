@@ -182,6 +182,7 @@ struct VisualStudioInstallation
     QString path;       // Main installation path
     QString vcVarsPath; // Path under which the various vc..bat are to be found
     QString vcVarsAll;
+    QString displayName;
 };
 
 QDebug operator<<(QDebug d, const VisualStudioInstallation &i)
@@ -305,8 +306,12 @@ static QVector<VisualStudioInstallation> detectVisualStudioFromVsWhere(const QSt
         std::optional<VisualStudioInstallation> installation
             = installationFromPathAndVersion(installationPath, version);
 
-        if (installation)
+        if (installation) {
+            QJsonValue displayName = vsVersionObj.value("displayName");
+            if (!displayName.isUndefined())
+                installation->displayName = displayName.toString();
             installations.append(*installation);
+        }
     }
     return installations;
 }
@@ -449,7 +454,8 @@ static Abi findAbiOfMsvc(MsvcToolchain::Type type,
 
 static QString generateDisplayName(const QString &name,
                                    MsvcToolchain::Type t,
-                                   MsvcToolchain::Platform p)
+                                   MsvcToolchain::Platform p,
+                                   const QString &displayName = {})
 {
     if (t == MsvcToolchain::WindowsSDK) {
         QString sdkName = name;
@@ -458,6 +464,8 @@ static QString generateDisplayName(const QString &name,
     }
     // Comes as "9.0" from the registry
     QString vcName = QLatin1String("Microsoft Visual C++ Compiler ");
+    if (!displayName.isEmpty())
+        vcName = QString::fromLatin1("%1 ").arg(displayName);
     vcName += name;
     vcName += QString::fromLatin1(" (%1)").arg(platformName(p));
     return vcName;
@@ -2019,7 +2027,7 @@ Toolchains MsvcToolchainFactory::autoDetect(const ToolchainDetector &detector) c
             if (hostSupportsPlatform(platform) && toolchainInstalled) {
                 results.append(
                     findOrCreateToolchains(detector,
-                                           generateDisplayName(i.vsName, MsvcToolchain::VS, platform),
+                                           generateDisplayName(i.vsName, MsvcToolchain::VS, platform, i.displayName),
                                            findAbiOfMsvc(MsvcToolchain::VS, platform, i.vsName),
                                            i.vcVarsAll,
                                            platformName(platform)));
