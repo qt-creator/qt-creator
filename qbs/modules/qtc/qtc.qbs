@@ -72,9 +72,9 @@ Module {
 
     property bool preferSystemSyntaxHighlighting: true
 
-    property bool withPluginTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
-    property bool testsEnabled: withPluginTests // TODO: compat, remove
-    property bool withAutotests: project.withAutotests // FIXME: withPluginTests
+    property bool withAllTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool withPluginTests: withAllTests
+    property bool withAutotests: withAllTests
 
     property stringList generalDefines: [
         "QT_CREATOR",
