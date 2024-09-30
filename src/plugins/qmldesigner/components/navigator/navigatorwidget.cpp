@@ -45,16 +45,21 @@ NavigatorWidget::NavigatorWidget(NavigatorView *view)
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
 
+    auto rowLayout = new QHBoxLayout;
+    rowLayout->setSpacing(0);
+    rowLayout->setContentsMargins(0, 0, 0, 0);
+    layout->addLayout(rowLayout);
+
     m_searchWidget = new NavigatorSearchWidget();
     connect(m_searchWidget,
             &NavigatorSearchWidget::textChanged,
             this,
             &NavigatorWidget::textFilterChanged);
-    layout->addWidget(m_searchWidget);
+    rowLayout->addWidget(m_searchWidget, 1);
 
     QWidget *toolBar = createToolBar();
     toolBar->setParent(this);
-    layout->addWidget(toolBar);
+    rowLayout->addWidget(toolBar);
 
     layout->addWidget(m_treeView);
     setLayout(layout);
