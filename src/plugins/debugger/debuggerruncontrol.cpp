@@ -156,7 +156,8 @@ class DebuggerRunToolPrivate
 {
 public:
     QPointer<CoreUnpacker> coreUnpacker;
-    QPointer<DebugServerPortsGatherer> portsGatherer;
+    QPointer<SubChannelProvider> debugChannelProvider;
+    QPointer<SubChannelProvider> qmlChannelProvider;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -463,9 +464,11 @@ void DebuggerRunTool::continueAfterTerminalStart()
 {
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    if (d->portsGatherer) {
-        setRemoteChannel(d->portsGatherer->gdbServer());
-        setQmlServer(d->portsGatherer->qmlServer());
+    if (d->debugChannelProvider)
+        setRemoteChannel(d->debugChannelProvider->channel());
+
+    if (d->qmlChannelProvider) {
+        setQmlServer(d->qmlChannelProvider->channel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
@@ -755,17 +758,39 @@ bool DebuggerRunTool::isQmlDebugging() const
 
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
 {
-    QTC_ASSERT(!d->portsGatherer, reportFailure(); return);
     runControl()->enablePortsGatherer();
-    d->portsGatherer = new DebugServerPortsGatherer(runControl());
-    d->portsGatherer->setUseGdbServer(useCpp);
-    d->portsGatherer->setUseQmlServer(useQml);
-    addStartDependency(d->portsGatherer);
+    if (useCpp) {
+        QTC_ASSERT(!d->debugChannelProvider, reportFailure(); return);
+        d->debugChannelProvider = new SubChannelProvider(runControl());
+        addStartDependency(d->debugChannelProvider);
+    }
+    if (useQml) {
+        QTC_ASSERT(!d->qmlChannelProvider, reportFailure(); return);
+        d->qmlChannelProvider = new SubChannelProvider(runControl());
+        addStartDependency(d->qmlChannelProvider);
+    }
 }
 
-DebugServerPortsGatherer *DebuggerRunTool::portsGatherer() const
+SubChannelProvider *DebuggerRunTool::debugChannelProvider() const
 {
-    return d->portsGatherer;
+    return d->debugChannelProvider;
+}
+
+QUrl DebuggerRunTool::debugChannel() const
+{
+    QTC_ASSERT(d->debugChannelProvider, return {});
+    return d->debugChannelProvider->channel();
+}
+
+SubChannelProvider *DebuggerRunTool::qmlChannelProvider() const
+{
+    return d->qmlChannelProvider;
+}
+
+QUrl DebuggerRunTool::qmlChannel() const
+{
+    QTC_ASSERT(d->qmlChannelProvider, return {});
+    return d->qmlChannelProvider->channel();
 }
 
 void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
@@ -1022,50 +1047,6 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     }
 }
 
-namespace Internal {
-
-/*!
-    \class Debugger::SubChannelProvider
-
-    \internal
-
-    This is a helper RunWorker implementation to either use or not
-    use port forwarding for one SubChannel in the ChannelProvider
-    implementation.
-
-    By default it is assumed that no forwarding is needed, i.e.
-    end points provided by the shared endpoint resource provider
-    are directly accessible.
-*/
-
-class SubChannelProvider : public RunWorker
-{
-public:
-    SubChannelProvider(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("SubChannelProvider");
-    }
-
-    void start() final
-    {
-        m_channel.setScheme(urlTcpScheme());
-        if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool())
-            m_channel.setHost("localhost");
-        else
-            m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-        m_channel.setPort(runControl()->findEndPoint().port());
-        reportStarted();
-    }
-
-    QUrl channel() const { return m_channel; }
-
-private:
-    QUrl m_channel;
-};
-
-} // Internal
-
 ////////////////////////////////////////////////////////////////////////
 //
 // Externally visible helper.
@@ -1073,21 +1054,23 @@ private:
 ////////////////////////////////////////////////////////////////////////
 
 /*!
-    \class Debugger::DebugServerPortsGatherer
+    \class Debugger::SubChannelProvider
 
-    \internal
-
-    The class implements a \c RunWorker to provide
-    to provide a set of urls indicating usable connection end
+    The class implements a \c RunWorker to provide a url
+    indicating usable connection end
     points for 'server-using' tools (typically one, like plain
     gdbserver and the Qml tooling, but two for mixed debugging).
 
     Urls can describe local or tcp servers that are directly
     accessible to the host tools.
 
+    By default it is assumed that no forwarding is needed, i.e.
+    end points provided by the shared endpoint resource provider
+    are directly accessible.
+
     The tool implementations can assume that any needed port
     forwarding setup is setup and handled transparently by
-    a \c DebugServerPortsGatherer instance.
+    a \c SubChannelProvider instance.
 
     If there are multiple subchannels needed that need to share a
     common set of resources on the remote side, a device implementation
@@ -1102,28 +1085,21 @@ private:
     forwarding.
 */
 
-DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
+SubChannelProvider::SubChannelProvider(RunControl *runControl)
     : RunWorker(runControl)
 {
-    setId("DebugServerPortsGatherer");
-
-    m_gdbChannelProvider = new Internal::SubChannelProvider(runControl);
-    addStartDependency(m_gdbChannelProvider);
-
-    m_qmlChannelProvider = new Internal::SubChannelProvider(runControl);
-    addStartDependency(m_qmlChannelProvider);
+    setId("SubChannelProvider");
 }
 
-DebugServerPortsGatherer::~DebugServerPortsGatherer() = default;
-
-QUrl DebugServerPortsGatherer::gdbServer() const
+void SubChannelProvider::start()
 {
-    return m_gdbChannelProvider->channel();
-}
-
-QUrl DebugServerPortsGatherer::qmlServer() const
-{
-    return m_qmlChannelProvider->channel();
+    m_channel.setScheme(urlTcpScheme());
+    if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool())
+        m_channel.setHost("localhost");
+    else
+        m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+    m_channel.setPort(runControl()->findEndPoint().port());
+    reportStarted();
 }
 
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
@@ -1135,19 +1111,14 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 
     // FIXME: Indentation intentionally wrong to keep diff in gerrit small. Will fix later.
 
-        QTC_ASSERT(portsGatherer(), reportFailure(); return);
-
-        const bool isQmlDebugging = portsGatherer()->useQmlServer();
-        const bool isCppDebugging = portsGatherer()->useGdbServer();
-
         CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
-        if (isQmlDebugging && !isCppDebugging) {
+        if (d->qmlChannelProvider && !d->debugChannelProvider) {
             // FIXME: Case should not happen?
             cmd.setExecutable(commandLine.executable());
             cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                      portsGatherer()->qmlServer()));
+                                                      d->qmlChannelProvider->channel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
             cmd.setExecutable(device()->debugServerPath());
@@ -1191,14 +1162,15 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                     }
                 }
             }
+            QTC_ASSERT(d->debugChannelProvider, reportFailure({}));
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(portsGatherer()->gdbServer().port()));
+                cmd.addArg(QString("*:%1").arg(d->debugChannelProvider->channel().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(portsGatherer()->gdbServer().port()), CommandLine::Raw);
+                cmd.addArgs(ipAndPort.arg(d->debugChannelProvider->channel().port()), CommandLine::Raw);
 
                 if (d->serverAttachPid.isValid())
                     cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
@@ -1211,7 +1183,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 if (d->serverAttachPid.isValid())
                     cmd.addArg("--attach");
 
-                const auto port = portsGatherer()->gdbServer().port();
+                const auto port = d->debugChannelProvider->channel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
                 if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {

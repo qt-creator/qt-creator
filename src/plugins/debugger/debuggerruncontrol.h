@@ -15,12 +15,9 @@
 
 namespace Debugger {
 
-namespace Internal {
-class DebuggerRunToolPrivate;
-class SubChannelProvider;
-}
+namespace Internal { class DebuggerRunToolPrivate; }
 
-class DebugServerPortsGatherer;
+class SubChannelProvider;
 
 class DEBUGGER_EXPORT DebuggerRunTool : public ProjectExplorer::RunWorker
 {
@@ -85,12 +82,17 @@ public:
 
     Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
 
+    QUrl debugChannel() const;
+    SubChannelProvider *debugChannelProvider() const;
+
+    QUrl qmlChannel() const;
+    SubChannelProvider *qmlChannelProvider() const;
+
 protected:
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
 
     void setUsePortsGatherer(bool useCpp, bool useQml);
-    DebugServerPortsGatherer *portsGatherer() const;
 
     void addSolibSearchDir(const QString &str);
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
@@ -127,25 +129,17 @@ private:
     Internal::DebuggerRunParameters m_runParameters;
 };
 
-class DEBUGGER_EXPORT DebugServerPortsGatherer : public ProjectExplorer::RunWorker
+class DEBUGGER_EXPORT SubChannelProvider : public ProjectExplorer::RunWorker
 {
 public:
-    explicit DebugServerPortsGatherer(ProjectExplorer::RunControl *runControl);
-    ~DebugServerPortsGatherer() override;
+    explicit SubChannelProvider(ProjectExplorer::RunControl *runControl);
 
-    void setUseGdbServer(bool useIt) { m_useGdbServer = useIt; }
-    bool useGdbServer() const { return m_useGdbServer; }
-    QUrl gdbServer() const;
+    void start() final;
 
-    void setUseQmlServer(bool useIt) { m_useQmlServer = useIt; }
-    bool useQmlServer() const { return m_useQmlServer; }
-    QUrl qmlServer() const;
+    QUrl channel() const { return m_channel; }
 
 private:
-    bool m_useGdbServer = false;
-    bool m_useQmlServer = false;
-    Internal::SubChannelProvider *m_gdbChannelProvider;
-    Internal::SubChannelProvider *m_qmlChannelProvider;
+    QUrl m_channel;
 };
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

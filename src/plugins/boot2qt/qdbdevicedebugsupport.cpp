@@ -34,7 +34,6 @@ public:
                       bool usePerf, bool useGdbServer, bool useQmlServer,
                       QmlDebug::QmlDebugServicesPreset qmlServices)
         : RunWorker(runControl),
-          m_usePerf(usePerf), m_useGdbServer(useGdbServer), m_useQmlServer(useQmlServer),
           m_qmlServices(qmlServices)
     {
         setId("QdbDebuggeeRunner");
@@ -49,52 +48,54 @@ public:
                 appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
         });
 
-        m_portsGatherer = new DebugServerPortsGatherer(runControl);
-        m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
-        m_portsGatherer->setUseQmlServer(useQmlServer);
-        addStartDependency(m_portsGatherer);
-    }
+        if (useGdbServer) {
+            m_debugChannelProvider = new SubChannelProvider(runControl);
+            addStartDependency(m_debugChannelProvider);
+        }
 
-    QUrl perfServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl gdbServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl qmlServer() const { return m_portsGatherer->qmlServer(); }
+        if (useQmlServer) {
+            m_qmlChannelProvider = new SubChannelProvider(runControl);
+            addStartDependency(m_qmlChannelProvider);
+        }
+
+        if (usePerf) {
+            m_perfChannelProvider = new SubChannelProvider(runControl);
+            addStartDependency(m_perfChannelProvider);
+        }
+    }
 
     void start() override
     {
-        const int perfPort = m_portsGatherer->gdbServer().port();
-        const int gdbServerPort = m_portsGatherer->gdbServer().port();
-        const int qmlServerPort = m_portsGatherer->qmlServer().port();
-
         int lowerPort = 0;
         int upperPort = 0;
 
         CommandLine cmd;
         cmd.setExecutable(device()->filePath(Constants::AppcontrollerFilepath));
 
-        if (m_useGdbServer) {
+        if (m_debugChannelProvider) {
             cmd.addArg("--debug-gdb");
-            lowerPort = upperPort = gdbServerPort;
+            lowerPort = upperPort = m_debugChannelProvider->channel().port();
         }
-        if (m_useQmlServer) {
+        if (m_qmlChannelProvider) {
             cmd.addArg("--debug-qml");
             cmd.addArg("--qml-debug-services");
             cmd.addArg(QmlDebug::qmlDebugServices(m_qmlServices));
-            lowerPort = upperPort = qmlServerPort;
+            lowerPort = upperPort = m_qmlChannelProvider->channel().port();
         }
-        if (m_useGdbServer && m_useQmlServer) {
-            if (gdbServerPort + 1 != qmlServerPort) {
+        if (m_debugChannelProvider && m_qmlChannelProvider) {
+            lowerPort = m_debugChannelProvider->channel().port();
+            upperPort = m_qmlChannelProvider->channel().port();
+            if (lowerPort + 1 != upperPort) {
                 reportFailure("Need adjacent free ports for combined C++/QML debugging");
                 return;
             }
-            lowerPort = gdbServerPort;
-            upperPort = qmlServerPort;
         }
-        if (m_usePerf) {
+        if (m_perfChannelProvider) {
             const Store perfArgs = runControl()->settingsData(PerfProfiler::Constants::PerfSettingsId);
             const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
             cmd.addArg("--profile-perf");
             cmd.addArgs(recordArgs, CommandLine::Raw);
-            lowerPort = upperPort = perfPort;
+            lowerPort = upperPort = m_perfChannelProvider->channel().port();
         }
         cmd.addArg("--port-range");
         cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
@@ -109,10 +110,14 @@ public:
     void stop() override { m_launcher.close(); }
 
 private:
-    Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
-    bool m_usePerf;
-    bool m_useGdbServer;
-    bool m_useQmlServer;
+    friend class QdbDeviceDebugSupport;
+    friend class QdbDeviceQmlProfilerSupport;
+    friend class QdbDeviceQmlToolingSupport;
+    friend class QdbDevicePerfProfilerSupport;
+
+    Debugger::SubChannelProvider *m_debugChannelProvider = nullptr;
+    Debugger::SubChannelProvider *m_qmlChannelProvider = nullptr;
+    Debugger::SubChannelProvider *m_perfChannelProvider = nullptr;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
     Process m_launcher;
 };
@@ -167,8 +172,10 @@ void QdbDeviceDebugSupport::start()
 {
     setStartMode(Debugger::AttachToRemoteServer);
     setCloseMode(KillAndExitMonitorAtClose);
-    setRemoteChannel(m_debuggee->gdbServer());
-    setQmlServer(m_debuggee->qmlServer());
+    if (SubChannelProvider *provider = m_debuggee->m_debugChannelProvider)
+        setRemoteChannel(provider->channel());
+    if (SubChannelProvider *provider = m_debuggee->m_qmlChannelProvider)
+        setQmlServer(provider->channel());
     setUseContinueInsteadOfRun(true);
     setContinueAfterAttach(true);
     addSolibSearchDir("%{sysroot}/system/lib");
@@ -214,7 +221,8 @@ QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
 
 void QdbDeviceQmlToolingSupport::start()
 {
-    m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
+    QTC_ASSERT(m_runner->m_qmlChannelProvider, reportFailure({}));
+    m_worker->recordData("QmlServerUrl", m_runner->m_qmlChannelProvider->channel());
     reportStarted();
 }
 
@@ -244,7 +252,8 @@ QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runContro
 
 void QdbDevicePerfProfilerSupport::start()
 {
-    runControl()->setProperty("PerfConnection", m_profilee->perfServer());
+    QTC_ASSERT(m_profilee->m_perfChannelProvider, reportFailure({}));
+    runControl()->setProperty("PerfConnection", m_profilee->m_perfChannelProvider->channel());
     reportStarted();
 }
 

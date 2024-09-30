@@ -101,7 +101,6 @@ public:
                          bool usePerf, bool useGdbServer, bool useQmlServer,
                          QmlDebug::QmlDebugServicesPreset qmlServices)
         : SimpleTargetRunner(runControl),
-        m_usePerf(usePerf), m_useGdbServer(useGdbServer), m_useQmlServer(useQmlServer),
         m_qmlServices(qmlServices)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
@@ -110,12 +109,19 @@ public:
         if (usePerf) {
             suppressDefaultStdOutHandling();
             runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
+            m_perfChannelProvider = new Debugger::SubChannelProvider(runControl);
+            addStartDependency(m_perfChannelProvider);
         }
 
-        m_portsGatherer = new Debugger::DebugServerPortsGatherer(runControl);
-        m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
-        m_portsGatherer->setUseQmlServer(useQmlServer);
-        addStartDependency(m_portsGatherer);
+        if (useGdbServer) {
+            m_debugChannelProvider = new Debugger::SubChannelProvider(runControl);
+            addStartDependency(m_debugChannelProvider);
+        }
+
+        if (useQmlServer) {
+            m_qmlChannelProvider = new Debugger::SubChannelProvider(runControl);
+            addStartDependency(m_qmlChannelProvider);
+        }
 
         setStartModifier([this, runControl] {
             FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -128,30 +134,28 @@ public:
                 envVars = envAspect->environment.toStringList();
             envVars.replaceInStrings(" ", "\\ ");
 
-            const int gdbServerPort = m_portsGatherer->gdbServer().port();
-            const int qmlServerPort = m_portsGatherer->qmlServer().port();
-
             CommandLine cmd{controller};
             if (!instanceId.isEmpty())
                 cmd.addArgs({"--instance-id", instanceId});
 
             cmd.addArg("debug-application");
 
-            if (m_useGdbServer || m_useQmlServer) {
+            if (m_debugChannelProvider || m_qmlChannelProvider) {
                 QStringList debugArgs;
                 debugArgs.append(envVars.join(' '));
-                if (m_useGdbServer) {
-                    debugArgs.append(QString("gdbserver :%1").arg(gdbServerPort));
+                if (m_debugChannelProvider) {
+                    debugArgs.append(QString("gdbserver :%1").arg(m_debugChannelProvider->channel().port()));
                 }
-                if (m_useQmlServer) {
-                    debugArgs.append(QString("%program% %1 %arguments%")
-                                         .arg(qmlDebugCommandLineArguments(m_qmlServices,
-                                                                            QString("port:%1").arg(qmlServerPort),
-                                                                            true)));
+                if (m_qmlChannelProvider) {
+                    const QString qmlArgs =
+                            qmlDebugCommandLineArguments(m_qmlServices,
+                                                         QString("port:%1").arg(m_qmlChannelProvider->channel().port()),
+                                                         true);
+                    debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
                 }
                 cmd.addArg(debugArgs.join(' '));
             }
-            if (m_usePerf) {
+            if (m_perfChannelProvider) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
                 cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
@@ -177,15 +181,22 @@ public:
         });
     }
 
-    QUrl perfServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl gdbServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl qmlServer() const { return m_portsGatherer->qmlServer(); }
+    QUrl gdbServer() const
+    {
+        QTC_ASSERT(m_debugChannelProvider, return {});
+        return m_debugChannelProvider->channel();
+    }
+
+    QUrl qmlServer() const
+    {
+        QTC_ASSERT(m_qmlChannelProvider, return {});
+        return m_qmlChannelProvider->channel();
+    }
 
 private:
-    Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
-    bool m_usePerf;
-    bool m_useGdbServer;
-    bool m_useQmlServer;
+    Debugger::SubChannelProvider *m_debugChannelProvider = nullptr;
+    Debugger::SubChannelProvider *m_qmlChannelProvider = nullptr;
+    Debugger::SubChannelProvider *m_perfChannelProvider = nullptr;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
 };
 

@@ -76,26 +76,25 @@ static QStringList searchPaths(Kit *kit)
 class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    QnxDebuggeeRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
+    QnxDebuggeeRunner(RunControl *runControl, DebuggerRunTool *debugger)
         : SimpleTargetRunner(runControl)
     {
         setId("QnxDebuggeeRunner");
 
-        setStartModifier([this, portsGatherer] {
+        setStartModifier([this, debugger] {
             CommandLine cmd = commandLine();
             QStringList arguments;
-            if (portsGatherer->useGdbServer()) {
-                int pdebugPort = portsGatherer->gdbServer().port();
+            if (SubChannelProvider *provider = debugger->debugChannelProvider()) {
+                int pdebugPort = provider->channel().port();
                 cmd.setExecutable(device()->filePath(QNX_DEBUG_EXECUTABLE));
                 arguments.append(QString::number(pdebugPort));
             }
-            if (portsGatherer->useQmlServer()) {
+            if (SubChannelProvider *provider = debugger->qmlChannelProvider()) {
                 arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                                portsGatherer->qmlServer()));
+                                                                provider->channel()));
             }
             cmd.setArguments(ProcessArgs::joinArgs(arguments));
             setCommandLine(cmd);
-
         });
     }
 };
@@ -114,8 +113,7 @@ public:
 
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
-        auto debuggeeRunner = new QnxDebuggeeRunner(runControl, portsGatherer());
-        debuggeeRunner->addStartDependency(portsGatherer());
+        auto debuggeeRunner = new QnxDebuggeeRunner(runControl, this);
 
         auto slog2InfoRunner = new Slog2InfoRunner(runControl);
         debuggeeRunner->addStartDependency(slog2InfoRunner);
@@ -175,14 +173,13 @@ private:
 class PDebugRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    PDebugRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
+    PDebugRunner(RunControl *runControl, DebuggerRunTool *debugger)
         : SimpleTargetRunner(runControl)
     {
         setId("PDebugRunner");
-        addStartDependency(portsGatherer);
 
-        setStartModifier([this, portsGatherer] {
-            const int pdebugPort = portsGatherer->gdbServer().port();
+        setStartModifier([this, debugger] {
+            const int pdebugPort = debugger->debugChannel().port();
             setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
         });
     }
@@ -199,7 +196,7 @@ public:
         setUseCtrlCStub(true);
 
         if (isCppDebugging()) {
-            auto pdebugRunner = new PDebugRunner(runControl, portsGatherer());
+            auto pdebugRunner = new PDebugRunner(runControl, this);
             addStartDependency(pdebugRunner);
         }
     }
