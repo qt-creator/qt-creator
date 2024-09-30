@@ -27,6 +27,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -786,10 +787,15 @@ void ProjectExplorerTest::testSessionSwitch()
         const OpenProjectResult openResult
                 = ProjectExplorerPlugin::openProject(
                     FilePath::fromString(sessionSpec.projectFile.fileName()));
-        if (openResult.errorMessage().contains("text/plain"))
-            QSKIP("This test requires the presence of QmakeProjectManager to be fully functional. "
-                  "Hint: run this test with \"-load QmakeProjectManager\" option.");
-        QVERIFY(openResult);
+        if (!ProjectManager::canOpenProjectForMimeType(
+                Utils::mimeTypeForFile(sessionSpec.projectFile.fileName()))) {
+            QEXPECT_FAIL(
+                nullptr,
+                "This test requires the presence of QmakeProjectManager to be fully functional. "
+                "Hint: run this test with \"-load QmakeProjectManager\" option.",
+                Abort);
+        }
+        QVERIFY2(openResult, qPrintable(openResult.errorMessage()));
         QCOMPARE(openResult.projects().count(), 1);
         QVERIFY(openResult.project());
         QCOMPARE(ProjectManager::projects().count(), 1);
