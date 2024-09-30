@@ -269,7 +269,7 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
 static bool hostValid(const QString &host)
 {
     static const QRegularExpression ip(R"(^(\d+).(\d+).(\d+).(\d+)$)");
-    static const QRegularExpression dn(R"(^([a-zA-Z0-9][a-zA-Z0-9-]+\.)+[a-zA-Z0-9][a-zA-Z0-9-]+$)");
+    static const QRegularExpression dn(R"(^([a-zA-Z0-9][a-zA-Z0-9-]+\.)*[a-zA-Z0-9][a-zA-Z0-9-]+$)");
     const QRegularExpressionMatch match = ip.match(host);
     if (match.hasMatch()) {
         for (int i = 1; i < 5; ++i) {
@@ -279,7 +279,7 @@ static bool hostValid(const QString &host)
         }
         return true;
     }
-    return (host == "localhost") || dn.match(host).hasMatch();
+    return dn.match(host).hasMatch();
 }
 
 static bool isUrlValid(const QString &in)
