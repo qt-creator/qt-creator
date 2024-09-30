@@ -4817,6 +4817,35 @@ void tst_Dumpers::dumper_data()
                + Check("deque2.1.a", "2", "int");
 
 
+    QTest::newRow("StdDequeConst")
+            << Data("#include <deque>\n" + fooData,
+
+                    "struct MyItem {\n"
+                    "    MyItem(uint64_t a, uint16_t b) : a{a}, b{b} {}\n"
+                    "    const uint64_t a;\n"
+                    "    const uint16_t b;\n"
+                    "};\n\n"
+
+                    "std::deque<MyItem> deq;\n"
+                    "for (int i = 0; i < 100; ++i)\n"
+                    "    deq.push_back({i, i});\n",
+
+                    "&deq")
+
+               + CoreProfile()
+               + Check("deq.0", "[0]", "", "MyItem")
+               + Check("deq.0.a", "0", "uint64_t")
+               + Check("deq.0.b", "0", "uint16_t")
+
+               + Check("deq.50", "[50]", "", "MyItem")
+               + Check("deq.50.a", "50", "uint64_t")
+               + Check("deq.50.b", "50", "uint16_t")
+
+               + Check("deq.99", "[99]", "", "MyItem")
+               + Check("deq.99.a", "99", "uint64_t")
+               + Check("deq.99.b", "99", "uint16_t");
+
+
     QTest::newRow("StdHashSet")
             << Data("#include <hash_set>\n"
                     "namespace  __gnu_cxx {\n"
