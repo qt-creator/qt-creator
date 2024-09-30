@@ -67,6 +67,8 @@ public:
     QStringList abiNames() const;
     QDateTime lastModified() const;
 
+    enum class Problem { NoEngine, InvalidCommand, InvalidWorkingDir, None };
+    Problem problem() const;
     QIcon decoration() const;
     QString validityMessage() const;
 

@@ -306,24 +306,46 @@ QDateTime DebuggerItem::lastModified() const
     return m_lastModified;
 }
 
-QIcon DebuggerItem::decoration() const
+DebuggerItem::Problem DebuggerItem::problem() const
 {
     if (isGeneric())
-        return {};
+        return Problem::None;
     if (m_engineType == NoEngineType)
-        return Icons::CRITICAL.icon();
+        return Problem::NoEngine;
     if (!m_command.isExecutableFile())
-        return Icons::WARNING.icon();
+        return Problem::InvalidCommand;
     if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
+        return Problem::InvalidWorkingDir;
+    return Problem::None;
+}
+
+QIcon DebuggerItem::decoration() const
+{
+    switch (problem()) {
+    case Problem::NoEngine:
+        return Icons::CRITICAL.icon();
+    case Problem::InvalidCommand:
+    case Problem::InvalidWorkingDir:
         return Icons::WARNING.icon();
+    case Problem::None:
+        break;
+    }
     return {};
 }
 
 QString DebuggerItem::validityMessage() const
 {
-    if (m_engineType == NoEngineType)
+    switch (problem()) {
+    case Problem::NoEngine:
         return Tr::tr("Could not determine debugger type");
-    return QString();
+    case Problem::InvalidCommand:
+        return Tr::tr("Invalid debugger command");
+    case Problem::InvalidWorkingDir:
+        return Tr::tr("Invalid working directory");
+    case Problem::None:
+        break;
+    }
+    return {};
 }
 
 bool DebuggerItem::operator==(const DebuggerItem &other) const
