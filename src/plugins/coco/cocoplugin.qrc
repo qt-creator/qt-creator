@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/cocoplugin">
+        <file>images/SquishCoco_48x48.png</file>
+        <file>files/cocoplugin.prf</file>
+        <file>files/cocoplugin.cmake</file>
+        <file>files/cocoplugin-clang.cmake</file>
+        <file>files/cocoplugin-gcc.cmake</file>
+        <file>files/cocoplugin-visualstudio.cmake</file>
+    </qresource>
+</RCC>

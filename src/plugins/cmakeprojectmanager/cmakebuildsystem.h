@@ -29,13 +29,11 @@ namespace CMakeProjectManager {
 class CMakeBuildConfiguration;
 class CMakeProject;
 
-namespace Internal {
-
 // --------------------------------------------------------------------
 // CMakeBuildSystem:
 // --------------------------------------------------------------------
 
-class CMakeBuildSystem final : public ProjectExplorer::BuildSystem
+class CMAKE_EXPORT CMakeBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
@@ -157,7 +155,7 @@ private:
                      Utils::FilePaths *);
     bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
                     Utils::FilePaths *);
-    bool renameFile(CMakeTargetNode *context,
+    bool renameFile(Internal::CMakeTargetNode *context,
                     const Utils::FilePath &oldFilePath,
                     const Utils::FilePath &newFilePath, bool &shouldRunCMake);
 
@@ -175,10 +173,10 @@ private:
     };
     void reparse(int reparseParameters);
     QString reparseParametersString(int reparseFlags);
-    void setParametersAndRequestParse(const BuildDirParameters &parameters,
+    void setParametersAndRequestParse(const Internal::BuildDirParameters &parameters,
                                       const int reparseParameters);
 
-    bool mustApplyConfigurationChangesArguments(const BuildDirParameters &parameters) const;
+    bool mustApplyConfigurationChangesArguments(const Internal::BuildDirParameters &parameters) const;
 
     // State handling:
     // Parser states:
@@ -208,7 +206,7 @@ private:
 
     void wireUpConnections();
 
-    void ensureBuildDirectory(const BuildDirParameters &parameters);
+    void ensureBuildDirectory(const Internal::BuildDirParameters &parameters);
     void stopParsingAndClearState();
     void becameDirty();
 
@@ -243,7 +241,7 @@ private:
     ProjectExplorer::ProjectUpdater *m_cppCodeModelUpdater = nullptr;
     QList<ProjectExplorer::ExtraCompiler *> m_extraCompilers;
     QList<CMakeBuildTarget> m_buildTargets;
-    QSet<CMakeFileInfo> m_cmakeFiles;
+    QSet<Internal::CMakeFileInfo> m_cmakeFiles;
     QHash<QString, Utils::Link> m_cmakeSymbolsHash;
     QHash<QString, Utils::Link> m_dotCMakeFilesHash;
     QHash<QString, Utils::Link> m_findPackagesFilesHash;
@@ -254,9 +252,9 @@ private:
     QHash<QString, ProjectFileArgumentPosition> m_filesToBeRenamed;
 
     // Parsing state:
-    BuildDirParameters m_parameters;
+    Internal::BuildDirParameters m_parameters;
     int m_reparseParameters = REPARSE_DEFAULT;
-    FileApiReader m_reader;
+    Internal::FileApiReader m_reader;
     mutable bool m_isHandlingError = false;
 
     // CTest integration
@@ -271,5 +269,4 @@ private:
     QString m_warning;
 };
 
-} // namespace Internal
 } // namespace CMakeProjectManager

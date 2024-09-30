@@ -1,0 +1,33 @@
+# Created by the Coco plugin. Do not edit!
+
+COVERAGE_OPTIONS = \
+
+defineReplace(toCoco) {
+    cmd = $$1
+    path = $$take_first(cmd)
+    prog = $$basename(path)
+
+    return(cs$$prog $$cmd)
+}
+
+isEmpty(COCOPATH): error(The variable COCOPATH must be set)
+
+macos: wrapperdir = $$COCOPATH
+else: unix: wrapperdir = $$COCOPATH/bin
+else: win32: {
+    win32-arm-msvc*|win32-x86-msvc*: wrapperdir = $$COCOPATH/visualstudio
+    else: win32-arm64-msvc*|win32-x64-msvc*: wrapperdir = $$COCOPATH/visualstudio_x64
+    else: wrapperdir = $$COCOPATH
+}
+
+QMAKE_CFLAGS += $$COVERAGE_OPTIONS
+QMAKE_CXXFLAGS += $$COVERAGE_OPTIONS
+QMAKE_LFLAGS += $$COVERAGE_OPTIONS
+
+QMAKE_AR = $$wrapperdir/$$toCoco($$QMAKE_AR)
+QMAKE_CC = $$wrapperdir/$$toCoco($$QMAKE_CC)
+QMAKE_CXX = $$wrapperdir/$$toCoco($$QMAKE_CXX)
+QMAKE_LINK = $$wrapperdir/$$toCoco($$QMAKE_LINK)
+QMAKE_LINK_SHLIB_CMD = $$wrapperdir/$$toCoco($$QMAKE_LINK_SHLIB_CMD)
+
+# User-supplied settings follow here:

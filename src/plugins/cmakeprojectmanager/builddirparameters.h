@@ -19,9 +19,11 @@ namespace ProjectExplorer {
 class Project;
 }
 
-namespace CMakeProjectManager::Internal {
-
+namespace CMakeProjectManager {
 class CMakeBuildSystem;
+}
+
+namespace CMakeProjectManager::Internal {
 
 class BuildDirParameters
 {

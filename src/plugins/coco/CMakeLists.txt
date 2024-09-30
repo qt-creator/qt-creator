@@ -1,7 +1,51 @@
 add_qtc_plugin(Coco
-  PLUGIN_DEPENDS Core LanguageClient
+  PLUGIN_DEPENDS
+    QtCreator::Core
+    QtCreator::LanguageClient
+    QtCreator::ProjectExplorer
+    QtCreator::QmakeProjectManager
+  DEPENDS
+    QtCreator::CMakeProjectManager
+    QtCreator::ExtensionSystem
   SOURCES
-    cocolanguageclient.cpp cocolanguageclient.h
+    Coco.json.in
+    cocobuild/buildsettings.cpp
+    cocobuild/buildsettings.h
+    cocobuild/cmakemodificationfile.cpp
+    cocobuild/cmakemodificationfile.h
+    cocobuild/cococmakesettings.cpp
+    cocobuild/cococmakesettings.h
+    cocobuild/cocobuildstep.cpp
+    cocobuild/cocobuildstep.h
+    cocobuild/cocoprojectwidget.cpp
+    cocobuild/cocoprojectwidget.h
+    cocobuild/modificationfile.cpp
+    cocobuild/modificationfile.h
+    cocobuild/qmakefeaturefile.cpp
+    cocobuild/qmakefeaturefile.h
+    cocobuild/cocoqmakesettings.cpp
+    cocobuild/cocoqmakesettings.h
+    cocolanguageclient.cpp
+    cocolanguageclient.h
     cocoplugin.cpp
+    cocoplugin.qrc
+    cocoplugin_global.h
+    cocopluginconstants.h
     cocotr.h
+    common.cpp
+    common.h
+    files/cocoplugin-clang.cmake
+    files/cocoplugin-gcc.cmake
+    files/cocoplugin-visualstudio.cmake
+    files/cocoplugin.cmake
+    files/cocoplugin.prf
+    images/SquishCoco_48x48.png
+    settings/cocoinstallation.cpp
+    settings/cocoinstallation.h
+    settings/cocoprojectsettingswidget.cpp
+    settings/cocoprojectsettingswidget.h
+    settings/globalsettings.cpp
+    settings/globalsettings.h
+    settings/globalsettingspage.cpp
+    settings/globalsettingspage.h
 )
