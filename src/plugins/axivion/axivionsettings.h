@@ -43,7 +43,7 @@ public:
     bool operator==(const PathMapping &other) const;
     bool operator!=(const PathMapping &other) const;
 
-    bool isValid() const {return !projectName.isEmpty() && !localPath.isEmpty(); }
+    bool isValid() const;
     QString projectName;
     Utils::FilePath analysisPath;
     Utils::FilePath localPath;
