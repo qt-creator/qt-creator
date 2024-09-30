@@ -3,7 +3,6 @@
 
 #include "debuggeritemmanager.h"
 
-#include "debuggeritem.h"
 #include "debuggertr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -26,7 +25,6 @@
 #include <utils/persistentsettings.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/winutils.h>
 
 #include <nanotrace/nanotrace.h>
@@ -102,50 +100,45 @@ private:
 // DebuggerTreeItem
 // --------------------------------------------------------------------------
 
-class DebuggerTreeItem : public TreeItem
+QVariant DebuggerTreeItem::data(int column, int role) const
 {
-public:
-    DebuggerTreeItem(const DebuggerItem &item, bool changed)
-        : m_item(item), m_orig(item), m_added(changed), m_changed(changed)
-    {}
-
-    QVariant data(int column, int role) const override
-    {
-        switch (role) {
-            case Qt::DisplayRole:
-                switch (column) {
-                case 0: return m_item.displayName();
-                case 1: return m_item.command().toUserOutput();
-                case 2: return m_item.engineTypeName();
-                }
-                break;
-
-            case Qt::FontRole: {
-                QFont font;
-                if (m_changed)
-                    font.setBold(true);
-                if (m_removed)
-                    font.setStrikeOut(true);
-                return font;
-            }
-
-            case Qt::DecorationRole:
-                if (column == 0)
-                    return m_item.decoration();
-                break;
-
-            case Qt::ToolTipRole:
-                return m_item.validityMessage();
+    switch (role) {
+    case Qt::DisplayRole:
+        switch (column) {
+        case 0:
+            return m_item.displayName();
+        case 1:
+            return m_item.command().toUserOutput();
+        case 2:
+            return m_item.engineTypeName();
         }
-        return QVariant();
+        break;
+
+    case Qt::FontRole: {
+        QFont font;
+        if (m_changed)
+            font.setBold(true);
+        if (m_removed)
+            font.setStrikeOut(true);
+        return font;
     }
 
-    DebuggerItem m_item; // Displayed, possibly unapplied data.
-    DebuggerItem m_orig; // Stored original data.
-    bool m_added;
-    bool m_changed;
-    bool m_removed = false;
-};
+    case Qt::DecorationRole:
+        if (column == 0)
+            return m_item.decoration();
+        break;
+
+    case Qt::ToolTipRole:
+        return m_item.validityMessage();
+
+    case IdRole:
+        return m_item.id();
+
+    case ProblemRole:
+        return int(m_item.problem());
+    }
+    return QVariant();
+}
 
 // --------------------------------------------------------------------------
 // DebuggerItemModel

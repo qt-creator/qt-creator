@@ -22,7 +22,7 @@
 
 #include <QComboBox>
 
-#include <utility>
+#include <algorithm>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -35,6 +35,98 @@ namespace Debugger {
 
 namespace Internal {
 
+class DebuggerItemListModel : public TreeModel<TreeItem, DebuggerTreeItem>
+{
+public:
+    DebuggerItemListModel(const Kit &kit, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+    {}
+
+    QModelIndex indexForId(const QVariant &id) const
+    {
+        // The "None" item always comes last
+        const auto noneIndex = [this] { return index(rowCount() - 1, 0); };
+
+        if (id.isNull())
+            return noneIndex();
+        const TreeItem *const item = findItemAtLevel<1>(
+            [id](TreeItem *item) { return item->data(0, DebuggerTreeItem::IdRole) == id; });
+        return item ? indexForItem(item) : noneIndex();
+    }
+
+    void reset()
+    {
+        clear();
+
+        const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+        const Utils::FilePath rootPath = device->rootPath();
+        const QList<DebuggerItem> debuggersForBuildDevice
+            = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+                  if (item.isGeneric())
+                      return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+                  return item.command().isSameDevice(rootPath);
+              });
+        for (const DebuggerItem &item : debuggersForBuildDevice)
+            rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        DebuggerItem noneItem;
+        noneItem.setUnexpandedDisplayName(Tr::tr("None"));
+        rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
+    }
+
+private:
+    const Kit &m_kit;
+};
+
+class DebuggerItemSortModel : public SortModel
+{
+public:
+    DebuggerItemSortModel(QObject *parent) : SortModel(parent) {}
+
+    QModelIndex indexForId(const QVariant &id) const
+    {
+        return mapFromSource(
+            static_cast<DebuggerItemListModel *>(sourceModel())->indexForId(id));
+    }
+
+    void reset() { static_cast<DebuggerItemListModel *>(sourceModel())->reset(); }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto source = static_cast<DebuggerItemListModel *>(sourceModel());
+        const auto item1 = static_cast<DebuggerTreeItem *>(source->itemForIndex(source_left));
+        const auto item2 = static_cast<DebuggerTreeItem *>(source->itemForIndex(source_right));
+        QTC_ASSERT(item1 && item2, return false);
+
+        // Criterion 1: "None" comes last
+        if (!item1->data(0, DebuggerTreeItem::IdRole).isValid())
+            return false;
+        if (!item2->data(0, DebuggerTreeItem::IdRole).isValid())
+            return true;
+
+        // Criterion 2: Invalid items come after valid ones with warnings, which come
+        //              after valid ones without warnings.
+        if (const QVariant &p1 = item1->data(0, DebuggerTreeItem::ProblemRole),
+                &p2 = item2->data(0, DebuggerTreeItem::ProblemRole);
+            p1 != p2) {
+            const auto problem1 = static_cast<DebuggerItem::Problem>(p1.toInt());
+            const auto problem2 = static_cast<DebuggerItem::Problem>(p2.toInt());
+            if (problem1 == DebuggerItem::Problem::None
+                || problem2 == DebuggerItem::Problem::NoEngine) {
+                return true;
+            }
+            if (problem2 == DebuggerItem::Problem::None
+                || problem1 == DebuggerItem::Problem::NoEngine) {
+                return false;
+            }
+        }
+
+        // Criterion 3: Name.
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
+
 class DebuggerKitAspectImpl final : public KitAspect
 {
 public:
@@ -46,16 +138,16 @@ public:
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
         m_comboBox->setEnabled(true);
+        const auto sortModel = new DebuggerItemSortModel(this);
+        sortModel->setSourceModel(new DebuggerItemListModel(*workingCopy, this));
+        m_comboBox->setModel(sortModel);
 
         refresh();
         m_comboBox->setToolTip(factory->description());
         connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
             if (m_ignoreChanges.isLocked())
                 return;
-
-            int currentIndex = m_comboBox->currentIndex();
-            QVariant id = m_comboBox->itemData(currentIndex);
-            m_kit->setValue(DebuggerKitAspect::id(), id);
+            m_kit->setValue(DebuggerKitAspect::id(), currentId());
         });
 
     }
@@ -81,34 +173,16 @@ private:
     void refresh() override
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
-        m_comboBox->addItem(Tr::tr("None"), QString());
-
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
-        const Utils::FilePath path = device->rootPath();
-
-        const QList<DebuggerItem> debuggersForBuildDevice
-            = Utils::filtered(DebuggerItemManager::debuggers(), [path](const DebuggerItem &item) {
-                  return item.command().isSameDevice(path);
-              });
-        for (const DebuggerItem &item : debuggersForBuildDevice)
-            m_comboBox->addItem(item.displayName(), item.id());
-
-        const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);
-        updateComboBox(item ? item->id() : QVariant());
+        const auto sortModel = static_cast<DebuggerItemSortModel *>(m_comboBox->model());
+        sortModel->reset();
+        sortModel->sort(0);
+        const DebuggerItem * const item = DebuggerKitAspect::debugger(m_kit);
+        m_comboBox->setCurrentIndex(sortModel->indexForId(item ? item->id() : QVariant()).row());
     }
 
-    QVariant currentId() const { return m_comboBox->itemData(m_comboBox->currentIndex()); }
-
-    void updateComboBox(const QVariant &id)
+    QVariant currentId() const
     {
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == m_comboBox->itemData(i)) {
-                m_comboBox->setCurrentIndex(i);
-                return;
-            }
-        }
-        m_comboBox->setCurrentIndex(0);
+        return m_comboBox->itemData(m_comboBox->currentIndex(), DebuggerTreeItem::IdRole);
     }
 
     Guard m_ignoreChanges;

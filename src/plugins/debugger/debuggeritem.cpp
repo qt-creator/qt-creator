@@ -308,7 +308,7 @@ QDateTime DebuggerItem::lastModified() const
 
 DebuggerItem::Problem DebuggerItem::problem() const
 {
-    if (isGeneric())
+    if (isGeneric() || !m_id.isValid()) // Id can only be invalid for the "none" item.
         return Problem::None;
     if (m_engineType == NoEngineType)
         return Problem::NoEngine;
