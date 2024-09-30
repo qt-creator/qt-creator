@@ -5,7 +5,7 @@
 
 #include <baremetal/idebugserverprovider.h>
 
-#include <projectexplorer/runcontrol.h>
+#include <utils/commandline.h>
 
 QT_BEGIN_NAMESPACE
 class QComboBox;
@@ -89,15 +89,6 @@ protected:
 
     QComboBox *m_startupModeComboBox = nullptr;
     Utils::PathChooser *m_peripheralDescriptionFileChooser = nullptr;
-};
-
-// GdbServerProviderRunner
-
-class GdbServerProviderRunner final : public ProjectExplorer::SimpleTargetRunner
-{
-public:
-    explicit GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                     const Utils::CommandLine &commandLine);
 };
 
 } // BareMetal::Internal

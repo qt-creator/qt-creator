@@ -33,6 +33,21 @@ const char initCommandsKeyC[] = "InitCommands";
 const char resetCommandsKeyC[] = "ResetCommands";
 const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
 
+class GdbServerProviderRunner final : public SimpleTargetRunner
+{
+public:
+    GdbServerProviderRunner(RunControl *runControl, const CommandLine &commandLine)
+        : SimpleTargetRunner(runControl)
+    {
+        setId("BareMetalGdbServer");
+        // Baremetal's GDB servers are launched on the host, not on the target.
+        setStartModifier([this, commandLine] {
+            setCommandLine(commandLine);
+            forceRunOnHost();
+        });
+    }
+};
+
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
@@ -298,20 +313,6 @@ QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
 {
     return Tr::tr("Enter GDB commands to reset the hardware. "
                   "The MCU should be halted after these commands.");
-}
-
-// GdbServerProviderRunner
-
-GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                 const CommandLine &commandLine)
-    : SimpleTargetRunner(runControl)
-{
-    setId("BareMetalGdbServer");
-    // Baremetal's GDB servers are launched on the host, not on the target.
-    setStartModifier([this, commandLine] {
-        setCommandLine(commandLine);
-        forceRunOnHost();
-    });
 }
 
 } // BareMetal::Internal
