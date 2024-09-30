@@ -409,26 +409,14 @@ QStringList lastSessionArgument()
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 
-// should be in sync with src/plugins/coreplugin/icore.cpp -> FilePath ICore::crashReportsPath()
-// and src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
-QString crashReportsPath()
-{
-    std::unique_ptr<QtcSettings> settings(createUserSettings());
-    if (HostOsInfo::isMacHost())
-        return QFileInfo(settings->fileName()).path() + "/crashpad_reports";
-    else
-        return QCoreApplication::applicationDirPath()
-                + '/' + RELATIVE_LIBEXEC_PATH + "crashpad_reports";
-}
-
 #ifdef ENABLE_CRASHPAD
-bool startCrashpad(const QString &libexecPath, bool crashReportingEnabled)
+bool startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
 {
     using namespace crashpad;
 
     // Cache directory that will store crashpad information and minidumps
-    QString databasePath = QDir::cleanPath(crashReportsPath());
-    QString handlerPath = QDir::cleanPath(libexecPath + "/crashpad_handler");
+    const QString databasePath = appInfo.crashReports.path();
+    const QString handlerPath = (appInfo.libexec / "crashpad_handler").path();
 #ifdef Q_OS_WIN
     handlerPath += ".exe";
     base::FilePath database(databasePath.toStdWString());
@@ -716,17 +704,35 @@ int main(int argc, char **argv)
     const int threadCount = QThreadPool::globalInstance()->maxThreadCount();
     QThreadPool::globalInstance()->setMaxThreadCount(qMax(4, 2 * threadCount));
 
-    const QString libexecPath = QCoreApplication::applicationDirPath()
-            + '/' + RELATIVE_LIBEXEC_PATH;
+    using namespace Core;
+    const FilePath appDirPath = FilePath::fromUserInput(QApplication::applicationDirPath());
+    AppInfo info;
+    info.author = Constants::IDE_AUTHOR;
+    info.copyright = Constants::IDE_COPYRIGHT;
+    info.displayVersion = Constants::IDE_VERSION_DISPLAY;
+    info.id = Constants::IDE_ID;
+    info.revision = Constants::IDE_REVISION_STR;
+    info.revisionUrl = Constants::IDE_REVISION_URL;
+    info.userFileExtension = Constants::IDE_PROJECT_USER_FILE_EXTENSION;
+    info.plugins = (appDirPath / RELATIVE_PLUGIN_PATH).cleanPath();
+    info.userPluginsRoot = userPluginsRoot();
+    info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
+    info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
+    info.libexec = (appDirPath / RELATIVE_LIBEXEC_PATH).cleanPath();
+    // sync with src\tools\qml2puppet\qml2puppet\qmlpuppet.cpp -> QString crashReportsPath()
+    info.crashReports = info.userResources / "crashpad_reports";
+    info.luaPlugins = info.resources / "lua-plugins";
+    info.userLuaPlugins = info.userResources / "lua-plugins";
+    Utils::Internal::setAppInfo(info);
 
     // Display a backtrace once a serious signal is delivered (Linux only).
-    CrashHandlerSetup setupCrashHandler(Core::Constants::IDE_DISPLAY_NAME,
-                                        CrashHandlerSetup::EnableRestart,
-                                        libexecPath);
+    CrashHandlerSetup setupCrashHandler(
+        Core::Constants::IDE_DISPLAY_NAME, CrashHandlerSetup::EnableRestart, info.libexec.path());
 
 #ifdef ENABLE_CRASHPAD
+    // depends on AppInfo and QApplication being created
     bool crashReportingEnabled = settings->value("CrashReportingEnabled", false).toBool();
-    startCrashpad(libexecPath, crashReportingEnabled);
+    startCrashpad(info, crashReportingEnabled);
 #endif
 
     PluginManager pluginManager;
@@ -736,27 +742,6 @@ int main(int argc, char **argv)
     PluginManager::startProfiling();
 
     BaseAspect::setQtcSettings(settings);
-
-    using namespace Core;
-    AppInfo info;
-    info.author = Constants::IDE_AUTHOR;
-    info.copyright = Constants::IDE_COPYRIGHT;
-    info.displayVersion = Constants::IDE_VERSION_DISPLAY;
-    info.id = Constants::IDE_ID;
-    info.revision = Constants::IDE_REVISION_STR;
-    info.revisionUrl = Constants::IDE_REVISION_URL;
-    info.userFileExtension = Constants::IDE_PROJECT_USER_FILE_EXTENSION;
-
-    const FilePath appDirPath = FilePath::fromUserInput(QApplication::applicationDirPath());
-
-    info.plugins = (appDirPath / RELATIVE_PLUGIN_PATH).cleanPath();
-    info.userPluginsRoot = userPluginsRoot();
-    info.resources = (appDirPath / RELATIVE_DATA_PATH).cleanPath();
-    info.userResources = userResourcePath(settings->fileName(), Constants::IDE_ID);
-    info.luaPlugins = info.resources / "lua-plugins";
-    info.userLuaPlugins = info.userResources / "lua-plugins";
-
-    Utils::Internal::setAppInfo(info);
 
     QTranslator translator;
     QTranslator qtTranslator;

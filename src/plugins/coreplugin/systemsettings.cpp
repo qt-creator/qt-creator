@@ -277,13 +277,28 @@ public:
         });
         connect(&s.enableCrashReporting, &BaseAspect::changed, this, &SystemSettingsWidget::apply);
 
-        updateClearCrashWidgets();
-        connect(m_clearCrashReportsButton, &QPushButton::clicked, this, [&] {
-            const FilePaths &crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
+        const FilePath reportsPath = ICore::crashReportsPath()
+                                     / QLatin1String(
+                                         HostOsInfo::isMacHost() ? "completed" : "reports");
+        const auto updateClearCrashWidgets = [this, reportsPath] {
+            qint64 size = 0;
+            const FilePaths crashFiles = reportsPath.dirEntries(QDir::Files);
             for (const FilePath &file : crashFiles)
-                file.removeFile();
-            updateClearCrashWidgets();
-        });
+                size += file.fileSize();
+            m_clearCrashReportsButton->setEnabled(!crashFiles.isEmpty());
+            m_crashReportsSizeText->setText(formatSize(size));
+        };
+        updateClearCrashWidgets();
+        connect(
+            m_clearCrashReportsButton,
+            &QPushButton::clicked,
+            this,
+            [updateClearCrashWidgets, reportsPath] {
+                const FilePaths &crashFiles = reportsPath.dirEntries(QDir::Files);
+                for (const FilePath &file : crashFiles)
+                    file.removeFile();
+                updateClearCrashWidgets();
+            });
 #endif
 
         if (HostOsInfo::isAnyUnixHost()) {
@@ -356,8 +371,6 @@ private:
     void updateTerminalUi(const Utils::TerminalCommand &term);
     void updatePath();
     void updateEnvironmentChangesLabel();
-    void updateClearCrashWidgets();
-
     void showHelpDialog(const QString &title, const QString &helpText);
 
     QComboBox *m_fileSystemCaseSensitivityChooser;
@@ -458,20 +471,6 @@ void SystemSettingsWidget::showHelpDialog(const QString &title, const QString &h
     m_dialog = mb;
     mb->show();
 }
-
-#ifdef ENABLE_CRASHPAD
-void SystemSettingsWidget::updateClearCrashWidgets()
-{
-    QDir crashReportsDir(ICore::crashReportsPath().path());
-    crashReportsDir.setFilter(QDir::Files);
-    qint64 size = 0;
-    const FilePaths crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
-    for (const FilePath &file : crashFiles)
-        size += file.fileSize();
-    m_clearCrashReportsButton->setEnabled(!crashFiles.isEmpty());
-    m_crashReportsSizeText->setText(formatSize(size));
-}
-#endif
 
 void SystemSettingsWidget::showHelpForFileBrowser()
 {
