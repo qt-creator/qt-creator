@@ -4905,6 +4905,33 @@ void tst_Dumpers::dumper_data()
                + Check("l4.@1.1", "[1]", "2", "int");
 
 
+    QTest::newRow("StdForwardList")
+            << Data("#include <forward_list>\n",
+
+                    "std::forward_list<int> fl0;\n"
+
+                    "std::forward_list<int> fl1;\n"
+                    "for (int i = 0; i < 10000; ++i)\n"
+                    "    fl1.push_front(i);\n"
+
+                    "std::forward_list<bool> fl2 = {true, false};\n",
+
+                    "&fl0, &fl1, &fl2")
+
+               + BigArrayProfile()
+
+               + Check("fl0", "<0 items>", "std::forward_list<int>")
+
+               + Check("fl1", ValuePattern("<.*1000.* items>"), "std::forward_list<int>")
+               + Check("fl1.0", "[0]", "9999", "int")
+               + Check("fl1.1", "[1]", "9998", "int")
+               + Check("fl1.999", "[999]", "9000", "int")
+
+               + Check("fl2", "<2 items>", "std::forward_list<bool>")
+               + Check("fl2.0", "[0]", "1", "bool")
+               + Check("fl2.1", "[1]", "0", "bool");
+
+
     QTest::newRow("StdListQt")
             << Data("#include <list>\n" + fooData,
 
