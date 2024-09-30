@@ -146,7 +146,8 @@
 
     \generatelist studio-how-to-debug
     \else
-    \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
+    \sa {Add breakpoints}, {Debug}{How To: Debug}, {Debugging}, {Debuggers},
+    {Debugger}
     \endif
 */
 
