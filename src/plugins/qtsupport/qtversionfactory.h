@@ -38,7 +38,8 @@ protected:
     {
         QStringList platforms;
         QStringList config;
-        bool isQnx = false; // eeks...
+        bool isQnx = false; // eeks
+        QString mkspec;
     };
 
     void setQtVersionCreator(const std::function<QtVersion *()> &creator);

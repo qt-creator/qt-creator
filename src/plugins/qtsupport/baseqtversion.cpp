@@ -2372,6 +2372,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     setup.config = evaluator.values("CONFIG");
     setup.platforms = evaluator.values("QMAKE_PLATFORM"); // It's a list in general.
     setup.isQnx = !evaluator.value("QNX_CPUDIR").isEmpty();
+    setup.mkspec = mkspec.fileName();
 
     for (QtVersionFactory *factory : factories) {
         if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {

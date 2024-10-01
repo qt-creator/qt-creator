@@ -103,6 +103,8 @@ const char CMAKE_CXX_FLAGS[] = "CMAKE_CXX_FLAGS";
 const char CMAKE_CXX_FLAGS_DEBUG[] = "CMAKE_CXX_FLAGS_DEBUG";
 const char CMAKE_CXX_FLAGS_RELWITHDEBINFO[] = "CMAKE_CXX_FLAGS_RELWITHDEBINFO";
 
+const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
+
 namespace Internal {
 
 class CMakeBuildSettingsWidget : public NamedWidget
@@ -1132,6 +1134,11 @@ static bool isWebAssembly(const Kit *k)
     return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
+static bool isVxWorks(const Kit *k)
+{
+    return DeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
+}
+
 static bool isQnx(const Kit *k)
 {
     return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
@@ -1556,7 +1563,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             }
         }
 
-        if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k)) {
+        if (isWebAssembly(k) || isQnx(k) || isWindowsARM64(k) || isVxWorks(k)) {
             if (qt && qt->qtVersion().majorVersion() >= 6)
                 cmd.addArg(CMAKE_QT6_TOOLCHAIN_FILE_ARG);
         }
