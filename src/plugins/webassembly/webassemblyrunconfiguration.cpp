@@ -205,7 +205,7 @@ public:
     EmrunRunWorker(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
-        runControl->enablePortsGatherer();
+        runControl->requestWorkerChannel();
 
         setStartModifier([this, runControl] {
             const QString browserId =
@@ -213,7 +213,7 @@ public:
             setCommandLine(emrunCommand(runControl->target(),
                                         runControl->buildKey(),
                                         browserId,
-                                        QString::number(runControl->findEndPoint().port())));
+                                        QString::number(runControl->workerChannel().port())));
             setEnvironment(runControl->buildEnvironment());
         });
     }
