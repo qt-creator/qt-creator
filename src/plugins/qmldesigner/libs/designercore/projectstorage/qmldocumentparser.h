@@ -7,8 +7,8 @@
 #include "qmldocumentparserinterface.h"
 #include "sourcepathstorage/nonlockingmutex.h"
 
+#include <modelfwd.h>
 #include <qmldesignercorelib_exports.h>
-
 namespace QmlDesigner {
 
 template<typename Storage, typename Mutex>
@@ -18,11 +18,9 @@ class SourcePathStorage;
 class QMLDESIGNERCORE_EXPORT QmlDocumentParser final : public QmlDocumentParserInterface
 {
 public:
-    using ProjectStorage = QmlDesigner::ProjectStorage;
-    using PathCache = QmlDesigner::SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
 #ifdef QDS_BUILD_QMLPARSER
-    QmlDocumentParser(ProjectStorage &storage, PathCache &pathCache)
+    QmlDocumentParser(ProjectStorageType &storage, PathCacheType &pathCache)
         : m_storage{storage}
         , m_pathCache{pathCache}
     {}
@@ -39,8 +37,8 @@ public:
 private:
     // m_pathCache and m_storage are only used when compiled for QDS
 #ifdef QDS_BUILD_QMLPARSER
-    ProjectStorage &m_storage;
-    PathCache &m_pathCache;
+    ProjectStorageType &m_storage;
+    PathCacheType &m_pathCache;
 #endif
 };
 } // namespace QmlDesigner

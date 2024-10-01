@@ -7,6 +7,8 @@
 #include "filesysteminterface.h"
 #include "sourcepathstorage/nonlockingmutex.h"
 
+#include <modelfwd.h>
+
 namespace QmlDesigner {
 
 class SourcePathStorage;
@@ -16,10 +18,9 @@ class SourcePathCache;
 
 class QMLDESIGNERCORE_EXPORT FileSystem : public FileSystemInterface
 {
-    using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
 public:
-    FileSystem(PathCache &sourcePathCache)
+    FileSystem(PathCacheType &sourcePathCache)
         : m_sourcePathCache(sourcePathCache)
     {}
 
@@ -33,7 +34,7 @@ public:
     void remove(const SourceIds &sourceIds) override;
 
 private:
-    PathCache &m_sourcePathCache;
+    PathCacheType &m_sourcePathCache;
 };
 
 } // namespace QmlDesigner
