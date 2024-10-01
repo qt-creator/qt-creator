@@ -202,9 +202,6 @@ class QdbDevicePerfProfilerSupport final : public RunWorker
 {
 public:
     explicit QdbDevicePerfProfilerSupport(RunControl *runControl);
-
-private:
-    void start() override;
 };
 
 QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runControl)
@@ -216,13 +213,6 @@ QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runContro
     auto profilee = new QdbDeviceInferiorRunner(runControl, QmlDebug::NoQmlDebugServices);
     addStartDependency(profilee);
     addStopDependency(profilee);
-}
-
-void QdbDevicePerfProfilerSupport::start()
-{
-    QTC_ASSERT(usesPerfChannel(), reportFailure({}));
-    runControl()->setProperty("PerfConnection", perfChannel());
-    reportStarted();
 }
 
 // Factories
