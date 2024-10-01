@@ -2,42 +2,36 @@
 
 [Colors]
 
-Token_Basic_Black=ff131313
-Token_Basic_White=fff8f8f8
+Token_Basic_Black=ff181818
+Token_Basic_White=ffFCFCFC
 
-Token_Accent_Default=ff1F9B5D
-Token_Accent_Muted=ff228C57
-Token_Accent_Subtle=ff1F7A4D
+Token_Accent_Default=ff12A75D
+Token_Accent_Muted=ff12834B
+Token_Accent_Subtle=ff14673E
 
 Token_Background_Default=ff1f1f1f
 Token_Background_Muted=ff262626
-Token_Background_Subtle=ff2e2e2e
+Token_Background_Subtle=ff2D2D2D
 
-Token_Foreground_Default=ff474747
-Token_Foreground_Muted=ff353535
-Token_Foreground_Subtle=ff2A2A2A
+Token_Foreground_Default=ff4A4A4A
+Token_Foreground_Muted=ff3F3F3F
+Token_Foreground_Subtle=ff353535
 
-Token_Text_Default=ffF8F8F8
+Token_Text_Default=ffF2F2F2
 Token_Text_Muted=ffAEAEAE
 Token_Text_Subtle=ff595959
+Token_Text_Accent=ff1EC974
 
-; Token_Text_Accent value from Figma is still too dark. Therefore, it is modified, here.
-; Text (consisting of thin lines) needs to be substantially brighter than accent colors used for
-; larger-area elements like the filled button.
+Token_Stroke_Strong=ffE3E3E3
+Token_Stroke_Muted=ff909090
+Token_Stroke_Subtle=ff4A4A4A
 
-; Token_Text_Accent=ff23B26A
-Token_Text_Accent=ff30C06A
+Token_Notification_Alert=ffEB991F
+Token_Notification_Success=ff1EC974
+Token_Notification_Neutral=ff6052FF
+Token_Notification_Danger=ffDC1343
 
-Token_Stroke_Strong=ffeeeeee
-Token_Stroke_Muted=ff727272
-Token_Stroke_Subtle=ff3a3a3a
-
-Token_Notification_Alert=ffc98014
-Token_Notification_Success=ff1f9b5d
-Token_Notification_Neutral=ff016876
-Token_Notification_Danger=ffb22245
-
-Token_Gradient01_Start=ff016876
-Token_Gradient01_End=ff1F9B5D
-Token_Gradient02_Start=ff3A3A3A
-Token_Gradient02_End=ff838383
+Token_Gradient01_Start=ff057880
+Token_Gradient01_End=ff12A75D
+Token_Gradient02_Start=ff4A4A4A
+Token_Gradient02_End=ff909090

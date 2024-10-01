@@ -2,41 +2,36 @@
 
 [Colors]
 
-Token_Basic_Black=ff131313
-Token_Basic_White=fff2f2f2
+Token_Basic_Black=ff181818
+Token_Basic_White=ffFCFCFC
 
-Token_Accent_Default=ff23b26a
-Token_Accent_Muted=ff1f9b5d
-Token_Accent_Subtle=ff1a8550
+Token_Accent_Default=ff1EC974
+Token_Accent_Muted=ff12A75D
+Token_Accent_Subtle=ff12834B
 
-Token_Background_Default=fffcfcfc
+Token_Background_Default=ffFCFCFC
+Token_Background_Muted=ffF2F2F2
+Token_Background_Subtle=ffE3E3E3
 
-; Token_Background_Muted value from Figma is too dark to ensure proper contrast when used as
-; text bachground. Therefore, it is modified, here.
+Token_Foreground_Default=ffBEBEBE
+Token_Foreground_Muted=ffCDCDCD
+Token_Foreground_Subtle=ffE3E3E3
 
-;Token_Background_Muted=ffF2F2F2
-Token_Background_Muted=ffF6F6F6
-Token_Background_Subtle=ffe7e7e7
+Token_Text_Default=ff2D2D2D
+Token_Text_Muted=ff595959
+Token_Text_Subtle=ffAEAEAE
+Token_Text_Accent=ff12A75D
 
-Token_Foreground_Default=ffD8D8D8
-Token_Foreground_Muted=ffE3E3E3
-Token_Foreground_Subtle=ffEFEFEF
+Token_Stroke_Strong=ff595959
+Token_Stroke_Muted=ff909090
+Token_Stroke_Subtle=ffCDCDCD
 
-Token_Text_Default=ff393939
-Token_Text_Muted=ff6a6a6a
-Token_Text_Subtle=ffbebebe
-Token_Text_Accent=ff1F9B5D
+Token_Notification_Alert=ffEB991F
+Token_Notification_Success=ff12A75D
+Token_Notification_Neutral=ff4C2FF8
+Token_Notification_Danger=ffFC375D
 
-Token_Stroke_Strong=ff464646
-Token_Stroke_Muted=ff727272
-Token_Stroke_Subtle=ffcdcdcd
-
-Token_Notification_Alert=ffeb991f
-Token_Notification_Success=ff23b26a
-Token_Notification_Neutral=ff0e7887
-Token_Notification_Danger=ffdc1343
-
-Token_Gradient01_Start=ff23B26A
-Token_Gradient01_End=ff0E7887
-Token_Gradient02_Start=ff949494
-Token_Gradient02_End=ff474747
+Token_Gradient01_Start=ff1EC974
+Token_Gradient01_End=ff0099A1
+Token_Gradient02_Start=ff9D9D9D
+Token_Gradient02_End=ff595959
