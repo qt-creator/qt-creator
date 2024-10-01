@@ -27,6 +27,12 @@ function qt.QCompleter.create(params) end
 ---@param function The function to be called when user choice is selected from popup.
 function qt.QCompleter.onActivated(function) end
 
+---@class QClipboard
+--- A Lua wrapper for the Qt `QClipboard` class.
+
+qt.QClipboard() Creates QClipboard object, which is a singleton instance of the system clipboard.
+---@field text The text content of the clipboard. Gets or sets the text content of the clipboard.
+
 ---@enum TextElideMode
 qt.TextElideMode = {
     ElideLeft = 0,

@@ -5,6 +5,8 @@
 
 #include "utils.h"
 
+#include <QApplication>
+#include <QClipboard>
 #include <QCompleter>
 #include <QDir>
 
@@ -38,6 +40,16 @@ void setupQtModule()
                                      void_safe_call(callback, arg);
                                  });})
             );
+
+        qt.new_usertype<QClipboard>(
+            "QClipboard",
+            sol::call_constructor,
+            &QApplication::clipboard,
+            "text",
+            sol::property([](QClipboard &self) { return self.text(); },
+                          [](QClipboard &self, const QString &value) { self.setText(value); })
+            );
+
 
         mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 
