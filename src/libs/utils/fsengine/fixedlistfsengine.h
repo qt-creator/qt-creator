@@ -78,13 +78,6 @@ public:
 
         return std::make_unique<DirIterator>(m_children, path, filters, filterNames);
     }
-
-    IteratorUniquePtr beginEntryList(const QString &path,
-                                     QDir::Filters filters,
-                                     const QStringList &filterNames) override
-    {
-        return std::make_unique<DirIterator>(m_children, path, filters, filterNames);
-    }
 #else
     Iterator *beginEntryList(QDir::Filters /*filters*/, const QStringList & /*filterNames*/) override
     {

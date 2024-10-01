@@ -70,8 +70,6 @@ public:
     bool cloneTo(QAbstractFileEngine *target) final;
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    IteratorUniquePtr beginEntryList(const QString &path, QDir::Filters filters,
-                                     const QStringList &filterNames) final;
     IteratorUniquePtr beginEntryList(
         const QString &path,
         QDirListing::IteratorFlags filters,
@@ -404,13 +402,9 @@ QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(
     return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
 }
 
-QAbstractFileEngine::IteratorUniquePtr FSEngineImpl::beginEntryList(const QString &path,
-                                                                    QDir::Filters filters,
-                                                                    const QStringList &filterNames)
 #else
 QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filters,
                                                             const QStringList &filterNames)
-#endif
 {
     FilePaths paths{m_filePath.pathAppended(".")};
     m_filePath.iterateDirectory(
@@ -424,12 +418,9 @@ QAbstractFileEngine::Iterator *FSEngineImpl::beginEntryList(QDir::Filters filter
         },
         {filterNames, filters});
 
-#if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    return std::make_unique<DirIterator>(std::move(paths), path, filters, filterNames);
-#else
     return new DirIterator(std::move(paths));
-#endif
 }
+#endif
 
 qint64 FSEngineImpl::read(char *data, qint64 maxlen)
 {
@@ -480,14 +471,6 @@ public:
 
 public:
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    IteratorUniquePtr beginEntryList(const QString &path,
-                                     QDir::Filters filters,
-                                     const QStringList &filterNames) final
-    {
-        return std::make_unique<FileIteratorWrapper>(
-            QFSFileEngine::beginEntryList(path, filters, filterNames));
-    }
-
     IteratorUniquePtr beginEntryList(
         const QString &path,
         QDirListing::IteratorFlags filters,
