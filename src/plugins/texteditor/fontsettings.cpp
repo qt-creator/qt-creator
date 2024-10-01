@@ -103,6 +103,7 @@ bool FontSettings::fromSettings(const FormatDescriptions &descriptions, const Qt
     m_fontSize = s->value(group + fontSizeKey, m_fontSize).toInt();
     m_fontZoom= s->value(group + fontZoomKey, m_fontZoom).toInt();
     m_lineSpacing = s->value(group + lineSpacingKey, m_lineSpacing).toInt();
+    QTC_ASSERT(m_lineSpacing >= 0, m_lineSpacing = 100);
     m_antialias = s->value(group + antialiasKey, DEFAULT_ANTIALIAS).toBool();
 
     if (s->contains(group + schemeFileNamesKey)) {
@@ -337,7 +338,7 @@ qreal FontSettings::lineSpacing() const
     QFont currentFont = font();
     currentFont.setPointSize(std::max(m_fontSize * m_fontZoom / 100, 1));
     qreal spacing = QFontMetricsF(currentFont).lineSpacing();
-    if (m_lineSpacing != 100)
+    if (QTC_GUARD(m_lineSpacing > 0) && m_lineSpacing != 100)
         spacing *= qreal(m_lineSpacing) / 100;
     return spacing;
 }
