@@ -29,6 +29,7 @@
 .DS_Store
 .qmake.cache
 .qmake.stash
+.qmlls.ini
 .vscode
 Makefile*
 Thumbs.db
