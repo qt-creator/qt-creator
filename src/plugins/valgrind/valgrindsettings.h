@@ -70,6 +70,7 @@ public:
     Utils::StringAspect memcheckArguments{this};
     Utils::IntegerAspect numCallers{this};
     Utils::SelectionAspect leakCheckOnFinish{this};
+    QString leakCheckOnFinishOptionString() const;
     Utils::BoolAspect showReachable{this};
     Utils::BoolAspect trackOrigins{this};
     Utils::BoolAspect filterExternalIssues{this};
