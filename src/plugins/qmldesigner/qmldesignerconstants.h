@@ -140,6 +140,18 @@ inline constexpr char EVENT_TOOLBAR_SET_CURRENT_WORKSPACE[] = "ToolBarSetCurrent
 inline constexpr char EVENT_TOOLBAR_EDIT_GLOBAL_ANNOTATION[] = "ToolBarEditGlobalAnnotation";
 inline constexpr char EVENT_STATUSBAR_SHOW_ZOOM[] = "StatusBarShowZoomMenu";
 inline constexpr char EVENT_STATUSBAR_SET_STYLE[] = "StatusBarSetCurrentStyle";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_UPLOADED[] = "DesignViewerProjectUploaded";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_DOWNLOADED[] = "DesignViewerProjectDownloaded";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_DELETED[] = "DesignViewerProjectDeleted";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_SHARED[] = "DesignViewerProjectShared";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_UNSHARED[] = "DesignViewerProjectUnshared";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_UNSHARED_ALL[] = "DesignViewerProjectUnsharedAll";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_UPLOADED[]
+    = "DesignViewerProjectThumbnailUploaded";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DELETED[]
+    = "DesignViewerProjectThumbnailDeleted";
+inline constexpr char EVENT_DESIGNVIEWER_PROJECT_THUMBNAIL_DOWNLOADED[]
+    = "DesignViewerProjectThumbnailDownloaded";
 
 inline constexpr char PROPERTY_EDITOR_CLASSNAME_PROPERTY[] = "__classNamePrivateInternal";
 
