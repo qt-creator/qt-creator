@@ -30,9 +30,7 @@ namespace Qdb::Internal {
 class QdbDeviceInferiorRunner : public RunWorker
 {
 public:
-    QdbDeviceInferiorRunner(RunControl *runControl,
-                      bool usePerf, bool useGdbServer, bool useQmlServer,
-                      QmlDebug::QmlDebugServicesPreset qmlServices)
+    QdbDeviceInferiorRunner(RunControl *runControl, QmlDebug::QmlDebugServicesPreset qmlServices)
         : RunWorker(runControl),
           m_qmlServices(qmlServices)
     {
@@ -47,15 +45,6 @@ public:
         connect(&m_launcher, &Process::readyReadStandardError, this, [this] {
                 appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
         });
-
-        if (useGdbServer)
-            runControl->requestDebugChannel();
-
-        if (useQmlServer)
-            runControl->requestQmlChannel();
-
-        if (usePerf)
-            runControl->requestPerfChannel();
     }
 
     void start() override
@@ -143,8 +132,6 @@ public:
 private:
     void start() override;
     void stop() override;
-
-    QdbDeviceInferiorRunner *m_debuggee = nullptr;
 };
 
 QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
@@ -152,11 +139,15 @@ QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
 {
     setId("QdbDeviceDebugSupport");
 
-    m_debuggee = new QdbDeviceInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
-                                             QmlDebug::QmlDebuggerServices);
-    addStartDependency(m_debuggee);
+    if (isCppDebugging())
+        runControl->requestDebugChannel();
+    if (isQmlDebugging())
+        runControl->requestQmlChannel();
 
-    m_debuggee->addStopDependency(this);
+    auto debuggee = new QdbDeviceInferiorRunner(runControl, QmlDebug::QmlDebuggerServices);
+    addStartDependency(debuggee);
+
+    debuggee->addStopDependency(this);
 }
 
 void QdbDeviceDebugSupport::start()
@@ -187,12 +178,6 @@ class QdbDeviceQmlToolingSupport final : public RunWorker
 {
 public:
     explicit QdbDeviceQmlToolingSupport(RunControl *runControl);
-
-private:
-    void start() override;
-
-    QdbDeviceInferiorRunner *m_runner = nullptr;
-    RunWorker *m_worker = nullptr;
 };
 
 QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
@@ -200,21 +185,15 @@ QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
 {
     setId("QdbDeviceQmlToolingSupport");
 
+    runControl->requestQmlChannel();
     QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
-    m_runner = new QdbDeviceInferiorRunner(runControl, false, false, true, services);
-    addStartDependency(m_runner);
-    addStopDependency(m_runner);
+    auto runner = new QdbDeviceInferiorRunner(runControl, services);
+    addStartDependency(runner);
+    addStopDependency(runner);
 
-    m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
-    m_worker->addStartDependency(this);
-    addStopDependency(m_worker);
-}
-
-void QdbDeviceQmlToolingSupport::start()
-{
-    QTC_ASSERT(usesQmlChannel(), reportFailure({}));
-    m_worker->recordData("QmlServerUrl", qmlChannel());
-    reportStarted();
+    auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+    worker->addStartDependency(this);
+    addStopDependency(worker);
 }
 
 // QdbDevicePerfProfilerSupport
@@ -226,8 +205,6 @@ public:
 
 private:
     void start() override;
-
-    QdbDeviceInferiorRunner *m_profilee = nullptr;
 };
 
 QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runControl)
@@ -235,10 +212,10 @@ QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runContro
 {
     setId("QdbDevicePerfProfilerSupport");
 
-    m_profilee = new QdbDeviceInferiorRunner(runControl, true, false, false,
-                                             QmlDebug::NoQmlDebugServices);
-    addStartDependency(m_profilee);
-    addStopDependency(m_profilee);
+    runControl->requestPerfChannel();
+    auto profilee = new QdbDeviceInferiorRunner(runControl, QmlDebug::NoQmlDebugServices);
+    addStartDependency(profilee);
+    addStopDependency(profilee);
 }
 
 void QdbDevicePerfProfilerSupport::start()
