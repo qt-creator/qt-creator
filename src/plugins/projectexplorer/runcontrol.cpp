@@ -294,6 +294,13 @@ public:
     bool autoDelete = false;
     bool m_supportsReRunning = true;
     std::optional<Group> m_runRecipe;
+
+    bool useDebugChannel = false;
+    bool useQmlChannel = false;
+    bool usePerfChannel = false;
+    QUrl debugChannel;
+    QUrl qmlChannel;
+    QUrl perfChannel;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -348,6 +355,9 @@ public:
     bool isUsingTaskTree() const { return bool(m_runRecipe); }
     void startTaskTree();
     void checkAutoDeleteAndEmitStopped();
+
+    void enablePortsGatherer();
+    QUrl getNextChannel();
 
     RunControl *q;
     Id runMode;
@@ -590,6 +600,13 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
             portList = device->freePorts();
             q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
                              NormalMessageFormat);
+            if (useDebugChannel)
+                debugChannel = getNextChannel();
+            if (useQmlChannel)
+                qmlChannel = getNextChannel();
+            if (usePerfChannel)
+                perfChannel = getNextChannel();
+
             continueStart();
         } else {
             onWorkerFailed(nullptr, portsGatherer->errorString());
@@ -603,7 +620,26 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
 
 void RunControl::enablePortsGatherer()
 {
-    d->portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
+    d->enablePortsGatherer();
+}
+
+void RunControlPrivate::enablePortsGatherer()
+{
+    if (!portsGatherer)
+        portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
+}
+
+QUrl RunControlPrivate::getNextChannel()
+{
+    QTC_ASSERT(portsGatherer, return {});
+    QUrl result;
+    result.setScheme(urlTcpScheme());
+    if (q->device()->extraData(Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool())
+        result.setHost("localhost");
+    else
+        result.setHost(q->device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+    result.setPort(portList.getNextFreePort(portsGatherer->usedPorts()).number());
+    return result;
 }
 
 QUrl RunControl::findEndPoint()
@@ -614,6 +650,54 @@ QUrl RunControl::findEndPoint()
     result.setHost(device()->sshParameters().host());
     result.setPort(d->portList.getNextFreePort(d->portsGatherer->usedPorts()).number());
     return result;
+}
+
+void RunControl::requestDebugChannel()
+{
+    d->enablePortsGatherer();
+    d->useDebugChannel = true;
+}
+
+bool RunControl::usesDebugChannel() const
+{
+    return d->useDebugChannel;
+}
+
+QUrl RunControl::debugChannel() const
+{
+    return d->debugChannel;
+}
+
+void RunControl::requestQmlChannel()
+{
+    d->enablePortsGatherer();
+    d->useQmlChannel = true;
+}
+
+bool RunControl::usesQmlChannel() const
+{
+    return d->useQmlChannel;
+}
+
+QUrl RunControl::qmlChannel() const
+{
+    return d->qmlChannel;
+}
+
+void RunControl::requestPerfChannel()
+{
+    d->enablePortsGatherer();
+    d->usePerfChannel = true;
+}
+
+bool RunControl::usesPerfChannel() const
+{
+    return d->usePerfChannel;
+}
+
+QUrl RunControl::perfChannel() const
+{
+    return d->perfChannel;
 }
 
 void RunControlPrivate::continueStart()
@@ -1907,6 +1991,36 @@ bool RunWorker::isEssential() const
 void RunWorker::setEssential(bool essential)
 {
     d->essential = essential;
+}
+
+QUrl RunWorker::debugChannel() const
+{
+    return d->runControl->debugChannel();
+}
+
+bool RunWorker::usesDebugChannel() const
+{
+    return d->runControl->usesDebugChannel();
+}
+
+QUrl RunWorker::qmlChannel() const
+{
+    return d->runControl->qmlChannel();
+}
+
+bool RunWorker::usesQmlChannel() const
+{
+    return d->runControl->usesQmlChannel();
+}
+
+QUrl RunWorker::perfChannel() const
+{
+    return d->runControl->perfChannel();
+}
+
+bool RunWorker::usesPerfChannel() const
+{
+    return d->runControl->usesPerfChannel();
 }
 
 void RunWorker::start()

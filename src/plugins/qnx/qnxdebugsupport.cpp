@@ -76,22 +76,22 @@ static QStringList searchPaths(Kit *kit)
 class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
 {
 public:
-    QnxDebuggeeRunner(RunControl *runControl, DebuggerRunTool *debugger)
+    explicit QnxDebuggeeRunner(RunControl *runControl)
         : SimpleTargetRunner(runControl)
     {
         setId("QnxDebuggeeRunner");
 
-        setStartModifier([this, debugger] {
+        setStartModifier([this] {
             CommandLine cmd = commandLine();
             QStringList arguments;
-            if (SubChannelProvider *provider = debugger->debugChannelProvider()) {
-                int pdebugPort = provider->channel().port();
+            if (usesDebugChannel()) {
+                int pdebugPort = debugChannel().port();
                 cmd.setExecutable(device()->filePath(QNX_DEBUG_EXECUTABLE));
                 arguments.append(QString::number(pdebugPort));
             }
-            if (SubChannelProvider *provider = debugger->qmlChannelProvider()) {
+            if (usesQmlChannel()) {
                 arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                                provider->channel()));
+                                                                qmlChannel()));
             }
             cmd.setArguments(ProcessArgs::joinArgs(arguments));
             setCommandLine(cmd);
@@ -113,7 +113,7 @@ public:
 
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
-        auto debuggeeRunner = new QnxDebuggeeRunner(runControl, this);
+        auto debuggeeRunner = new QnxDebuggeeRunner(runControl);
 
         auto slog2InfoRunner = new Slog2InfoRunner(runControl);
         debuggeeRunner->addStartDependency(slog2InfoRunner);

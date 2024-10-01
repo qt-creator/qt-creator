@@ -81,6 +81,15 @@ public:
     bool isEssential() const;
     void setEssential(bool essential);
 
+    QUrl debugChannel() const;
+    bool usesDebugChannel() const;
+
+    QUrl qmlChannel() const;
+    bool usesQmlChannel() const;
+
+    QUrl perfChannel() const;
+    bool usesPerfChannel() const;
+
 signals:
     void started();
     void stopped();
@@ -236,6 +245,18 @@ public:
 
     void enablePortsGatherer();
     QUrl findEndPoint();
+
+    void requestDebugChannel();
+    bool usesDebugChannel() const;
+    QUrl debugChannel() const;
+
+    void requestQmlChannel();
+    bool usesQmlChannel() const;
+    QUrl qmlChannel() const;
+
+    void requestPerfChannel();
+    bool usesPerfChannel() const;
+    QUrl perfChannel() const;
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);

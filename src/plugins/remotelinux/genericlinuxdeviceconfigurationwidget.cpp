@@ -10,6 +10,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
+#include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
@@ -265,7 +266,7 @@ void GenericLinuxDeviceConfigurationWidget::linkDeviceChanged(int index)
 
 void GenericLinuxDeviceConfigurationWidget::sshPortForwardingForDebugging(bool on)
 {
-    device()->setExtraData(Constants::SshForwardDebugServerPort, on);
+    device()->setExtraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT, on);
 }
 
 void GenericLinuxDeviceConfigurationWidget::updateDeviceFromUi()
@@ -347,7 +348,8 @@ void GenericLinuxDeviceConfigurationWidget::initGui()
         sshParams.authenticationType == SshParameters::AuthenticationTypeSpecificKey);
     m_gdbServerLineEdit->setFilePath(device()->debugServerPath());
     m_qmlRuntimeLineEdit->setFilePath(device()->qmlRunCommand());
-    m_useSshPortForwardingForDebugging->setChecked(device()->extraData(Constants::SshForwardDebugServerPort).toBool());
+    m_useSshPortForwardingForDebugging->setChecked(
+                device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool());
 
     updatePortsWarningLabel();
 }

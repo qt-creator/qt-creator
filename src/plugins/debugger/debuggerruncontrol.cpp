@@ -156,8 +156,6 @@ class DebuggerRunToolPrivate
 {
 public:
     QPointer<CoreUnpacker> coreUnpacker;
-    QPointer<SubChannelProvider> debugChannelProvider;
-    QPointer<SubChannelProvider> qmlChannelProvider;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
@@ -170,7 +168,6 @@ public:
 
     // DebugServer
     Process debuggerServerProc;
-    bool useDebugServer = false;
     Utils::ProcessHandle serverAttachPid;
     bool serverUseMulti = true;
     bool serverEssential = true;
@@ -309,14 +306,10 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
 {
     m_runParameters.commandsForReset = commands;
 }
- void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
+
+void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;
-}
-
-QUrl DebuggerRunTool::qmlServer() const
-{
-    return m_runParameters.qmlServer;
 }
 
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
@@ -464,11 +457,11 @@ void DebuggerRunTool::continueAfterTerminalStart()
 {
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    if (d->debugChannelProvider)
-        setRemoteChannel(d->debugChannelProvider->channel());
+    if (usesDebugChannel())
+        setRemoteChannel(debugChannel());
 
-    if (d->qmlChannelProvider) {
-        setQmlServer(d->qmlChannelProvider->channel());
+    if (usesQmlChannel()) {
+        setQmlServer(qmlChannel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
@@ -758,39 +751,10 @@ bool DebuggerRunTool::isQmlDebugging() const
 
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
 {
-    runControl()->enablePortsGatherer();
-    if (useCpp) {
-        QTC_ASSERT(!d->debugChannelProvider, reportFailure(); return);
-        d->debugChannelProvider = new SubChannelProvider(runControl());
-        addStartDependency(d->debugChannelProvider);
-    }
-    if (useQml) {
-        QTC_ASSERT(!d->qmlChannelProvider, reportFailure(); return);
-        d->qmlChannelProvider = new SubChannelProvider(runControl());
-        addStartDependency(d->qmlChannelProvider);
-    }
-}
-
-SubChannelProvider *DebuggerRunTool::debugChannelProvider() const
-{
-    return d->debugChannelProvider;
-}
-
-QUrl DebuggerRunTool::debugChannel() const
-{
-    QTC_ASSERT(d->debugChannelProvider, return {});
-    return d->debugChannelProvider->channel();
-}
-
-SubChannelProvider *DebuggerRunTool::qmlChannelProvider() const
-{
-    return d->qmlChannelProvider;
-}
-
-QUrl DebuggerRunTool::qmlChannel() const
-{
-    QTC_ASSERT(d->qmlChannelProvider, return {});
-    return d->qmlChannelProvider->channel();
+    if (useCpp)
+        runControl()->requestDebugChannel();
+    if (useQml)
+        runControl()->requestQmlChannel();
 }
 
 void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
@@ -1085,26 +1049,9 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
     forwarding.
 */
 
-SubChannelProvider::SubChannelProvider(RunControl *runControl)
-    : RunWorker(runControl)
-{
-    setId("SubChannelProvider");
-}
-
-void SubChannelProvider::start()
-{
-    m_channel.setScheme(urlTcpScheme());
-    if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool())
-        m_channel.setHost("localhost");
-    else
-        m_channel.setHost(device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-    m_channel.setPort(runControl()->findEndPoint().port());
-    reportStarted();
-}
-
 void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    if (!d->useDebugServer) {
+    if (!usesDebugChannel()) {
         continueAfterDebugServerStart();
         return;
     }
@@ -1114,11 +1061,10 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
         CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
-        if (d->qmlChannelProvider && !d->debugChannelProvider) {
+        if (usesQmlChannel() && !usesDebugChannel()) {
             // FIXME: Case should not happen?
             cmd.setExecutable(commandLine.executable());
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                      d->qmlChannelProvider->channel()));
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, qmlChannel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
             cmd.setExecutable(device()->debugServerPath());
@@ -1162,15 +1108,15 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                     }
                 }
             }
-            QTC_ASSERT(d->debugChannelProvider, reportFailure({}));
+            QTC_ASSERT(usesDebugChannel(), reportFailure({}));
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(d->debugChannelProvider->channel().port()));
+                cmd.addArg(QString("*:%1").arg(debugChannel().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(d->debugChannelProvider->channel().port()), CommandLine::Raw);
+                cmd.addArgs(ipAndPort.arg(debugChannel().port()), CommandLine::Raw);
 
                 if (d->serverAttachPid.isValid())
                     cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
@@ -1183,10 +1129,10 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
                 if (d->serverAttachPid.isValid())
                     cmd.addArg("--attach");
 
-                const auto port = d->debugChannelProvider->channel().port();
+                const auto port = debugChannel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
-                if (device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {
+                if (device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
                     QVariantHash extraData;
                     extraData[RemoteLinux::Constants::SshForwardPort] = port;
                     extraData[RemoteLinux::Constants::DisableSharing] = true;
@@ -1216,7 +1162,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 
 void DebuggerRunTool::setUseDebugServer(ProcessHandle attachPid, bool essential, bool useMulti)
 {
-    d->useDebugServer = true;
+    runControl()->requestDebugChannel();
     d->serverAttachPid = attachPid;
     d->serverEssential = essential;
     d->serverUseMulti = useMulti;

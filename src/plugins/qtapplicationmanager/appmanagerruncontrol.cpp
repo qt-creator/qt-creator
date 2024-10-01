@@ -109,19 +109,14 @@ public:
         if (usePerf) {
             suppressDefaultStdOutHandling();
             runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
-            m_perfChannelProvider = new Debugger::SubChannelProvider(runControl);
-            addStartDependency(m_perfChannelProvider);
+            runControl->requestPerfChannel();
         }
 
-        if (useGdbServer) {
-            m_debugChannelProvider = new Debugger::SubChannelProvider(runControl);
-            addStartDependency(m_debugChannelProvider);
-        }
+        if (useGdbServer)
+            runControl->requestDebugChannel();
 
-        if (useQmlServer) {
-            m_qmlChannelProvider = new Debugger::SubChannelProvider(runControl);
-            addStartDependency(m_qmlChannelProvider);
-        }
+        if (useQmlServer)
+            runControl->requestQmlChannel();
 
         setStartModifier([this, runControl] {
             FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -140,22 +135,21 @@ public:
 
             cmd.addArg("debug-application");
 
-            if (m_debugChannelProvider || m_qmlChannelProvider) {
+            if (usesDebugChannel() || usesQmlChannel()) {
                 QStringList debugArgs;
                 debugArgs.append(envVars.join(' '));
-                if (m_debugChannelProvider) {
-                    debugArgs.append(QString("gdbserver :%1").arg(m_debugChannelProvider->channel().port()));
-                }
-                if (m_qmlChannelProvider) {
+                if (usesDebugChannel())
+                    debugArgs.append(QString("gdbserver :%1").arg(debugChannel().port()));
+                if (usesQmlChannel()) {
                     const QString qmlArgs =
                             qmlDebugCommandLineArguments(m_qmlServices,
-                                                         QString("port:%1").arg(m_qmlChannelProvider->channel().port()),
+                                                         QString("port:%1").arg(qmlChannel().port()),
                                                          true);
                     debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
                 }
                 cmd.addArg(debugArgs.join(' '));
             }
-            if (m_perfChannelProvider) {
+            if (usesPerfChannel()) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
                 cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
@@ -181,22 +175,7 @@ public:
         });
     }
 
-    QUrl gdbServer() const
-    {
-        QTC_ASSERT(m_debugChannelProvider, return {});
-        return m_debugChannelProvider->channel();
-    }
-
-    QUrl qmlServer() const
-    {
-        QTC_ASSERT(m_qmlChannelProvider, return {});
-        return m_qmlChannelProvider->channel();
-    }
-
 private:
-    Debugger::SubChannelProvider *m_debugChannelProvider = nullptr;
-    Debugger::SubChannelProvider *m_qmlChannelProvider = nullptr;
-    Debugger::SubChannelProvider *m_perfChannelProvider = nullptr;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
 };
 
@@ -252,13 +231,13 @@ private:
         setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
         if (isQmlDebugging())
-            setQmlServer(m_debuggee->qmlServer());
+            setQmlServer(qmlChannel());
 
         if (isCppDebugging()) {
             setUseExtendedRemote(false);
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
-            setRemoteChannel(m_debuggee->gdbServer());
+            setRemoteChannel(debugChannel());
             setSymbolFile(m_symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
@@ -304,7 +283,7 @@ public:
 private:
     void start() final
     {
-        m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
+        m_worker->recordData("QmlServerUrl", qmlChannel());
         reportStarted();
     }
 

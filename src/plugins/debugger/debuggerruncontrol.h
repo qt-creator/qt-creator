@@ -70,7 +70,6 @@ public:
     void setDebugInfoLocation(const Utils::FilePath &debugInfoLocation);
 
     void setQmlServer(const QUrl &qmlServer);
-    QUrl qmlServer() const; // Used in GammaRay integration.
 
     void setCoreFilePath(const Utils::FilePath &core, bool isSnapshot = false);
 
@@ -81,12 +80,6 @@ public:
     void interruptTerminal();
 
     Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
-
-    QUrl debugChannel() const;
-    SubChannelProvider *debugChannelProvider() const;
-
-    QUrl qmlChannel() const;
-    SubChannelProvider *qmlChannelProvider() const;
 
 protected:
     bool isCppDebugging() const;
@@ -127,19 +120,6 @@ private:
     Internal::DebuggerRunToolPrivate *d;
     QList<QPointer<Internal::DebuggerEngine>> m_engines;
     Internal::DebuggerRunParameters m_runParameters;
-};
-
-class DEBUGGER_EXPORT SubChannelProvider : public ProjectExplorer::RunWorker
-{
-public:
-    explicit SubChannelProvider(ProjectExplorer::RunControl *runControl);
-
-    void start() final;
-
-    QUrl channel() const { return m_channel; }
-
-private:
-    QUrl m_channel;
 };
 
 class DebuggerRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory

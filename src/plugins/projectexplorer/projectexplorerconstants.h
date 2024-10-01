@@ -224,6 +224,7 @@ const char USER_ENVIRONMENT_CHANGES_KEY[] = "ProjectExplorer.BuildConfiguration.
 // Called "RemoteLinux." for backwards compatibility
 const char SUPPORTS_RSYNC[] = "RemoteLinux.SupportsRSync";
 const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
+const char SSH_FORWARD_DEBUGSERVER_PORT[] = "RemoteLinux.SshForwardDebugServerPort";
 
 // UI texts
 PROJECTEXPLORER_EXPORT QString msgAutoDetected();
