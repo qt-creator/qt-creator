@@ -76,6 +76,7 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
+                    m_view->resetPuppet();
                 });
             }
         });
@@ -103,6 +104,7 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
+                    m_view->resetPuppet();
                 });
             }
         });
