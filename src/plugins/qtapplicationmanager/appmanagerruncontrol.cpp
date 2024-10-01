@@ -97,25 +97,16 @@ public:
 class AppManInferiorRunner : public SimpleTargetRunner
 {
 public:
-    AppManInferiorRunner(RunControl *runControl,
-                         bool usePerf, bool useGdbServer, bool useQmlServer,
-                         QmlDebugServicesPreset qmlServices)
+    AppManInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
         : SimpleTargetRunner(runControl)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
         setEssential(true);
 
-        if (usePerf) {
+        if (usesPerfChannel()) {
             suppressDefaultStdOutHandling();
             runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
-            runControl->requestPerfChannel();
         }
-
-        if (useGdbServer)
-            runControl->requestDebugChannel();
-
-        if (useQmlServer)
-            runControl->requestQmlChannel();
 
         setStartModifier([this, runControl, qmlServices] {
             FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
@@ -178,45 +169,50 @@ public:
 
 class AppManagerDebugSupport final : public Debugger::DebuggerRunTool
 {
-private:
-    FilePath m_symbolFile;
-    AppManInferiorRunner *m_debuggee = nullptr;
-
 public:
     AppManagerDebugSupport(RunControl *runControl)
         : DebuggerRunTool(runControl)
     {
         setId("ApplicationManagerPlugin.Debug.Support");
 
-        m_debuggee = new AppManInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
-                                              QmlDebuggerServices);
+        if (isCppDebugging())
+            runControl->requestDebugChannel();
+        if (isQmlDebugging())
+            runControl->requestQmlChannel();
 
-        addStartDependency(m_debuggee);
-        addStopDependency(m_debuggee);
+        auto debuggee = new AppManInferiorRunner(runControl, QmlDebuggerServices);
 
-        Target *target = runControl->target();
-
-        const Internal::TargetInformation targetInformation(target);
-        if (!targetInformation.isValid())
-            return;
-
-        if (targetInformation.manifest.isQmlRuntime()) {
-            m_symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
-                                           target->kit(),
-                                           RunDeviceKitAspect::device(target->kit()));
-        } else if (targetInformation.manifest.isNativeRuntime()) {
-            m_symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(), [&](const BuildTargetInfo &ti) {
-                               return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;
-                           }).targetFilePath;
-        } else {
-            reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
-        }
+        addStartDependency(debuggee);
+        addStopDependency(debuggee);
     }
 
 private:
     void start() override
     {
-        if (m_symbolFile.isEmpty()) {
+        Target *target = runControl()->target();
+
+        const Internal::TargetInformation targetInformation(target);
+        if (!targetInformation.isValid()) {
+            reportFailure(Tr::tr("Cannot debug: Invalid target information"));
+            return;
+        }
+
+        FilePath symbolFile;
+
+        if (targetInformation.manifest.isQmlRuntime()) {
+            symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
+                                         target->kit(),
+                                         RunDeviceKitAspect::device(target->kit()));
+        } else if (targetInformation.manifest.isNativeRuntime()) {
+            symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(),
+               [&](const BuildTargetInfo &ti) {
+                   return ti.buildKey == targetInformation.manifest.code
+                       || ti.projectFilePath.toString() == targetInformation.manifest.code;
+               }).targetFilePath;
+        } else {
+            reportFailure(Tr::tr("Cannot debug: Only QML and native applications are supported."));
+        }
+        if (symbolFile.isEmpty()) {
             reportFailure(Tr::tr("Cannot debug: Local executable is not set."));
             return;
         }
@@ -232,7 +228,7 @@ private:
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
             setRemoteChannel(debugChannel());
-            setSymbolFile(m_symbolFile);
+            setSymbolFile(symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
             if (version) {
@@ -261,27 +257,19 @@ public:
     {
         setId("AppManagerQmlToolingSupport");
 
+        runControl->requestQmlChannel();
         QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-        m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
-        addStartDependency(m_runner);
-        addStopDependency(m_runner);
+        auto runner = new AppManInferiorRunner(runControl, services);
+        addStartDependency(runner);
+        addStopDependency(runner);
 
-        m_worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-        m_worker->addStartDependency(this);
-        addStopDependency(m_worker);
+        auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+        worker->addStartDependency(this);
+        addStopDependency(worker);
 
         // Make sure the QML Profiler is stopped before the appman-controller
-        m_runner->addStopDependency(m_worker);
+        runner->addStopDependency(worker);
     }
-
-private:
-    void start() final
-    {
-        reportStarted();
-    }
-
-    AppManInferiorRunner *m_runner = nullptr;
-    RunWorker *m_worker = nullptr;
 };
 
 // AppManagerDevicePerfProfilerSupport
@@ -294,14 +282,11 @@ public:
     {
         setId("AppManagerPerfProfilerSupport");
 
-        m_profilee = new AppManInferiorRunner(runControl, true, false, false,
-                                              NoQmlDebugServices);
-        addStartDependency(m_profilee);
-        addStopDependency(m_profilee);
+        runControl->requestPerfChannel();
+        auto profilee = new AppManInferiorRunner(runControl, NoQmlDebugServices);
+        addStartDependency(profilee);
+        addStopDependency(profilee);
     }
-
-private:
-    AppManInferiorRunner *m_profilee = nullptr;
 };
 
 // Factories
