@@ -2305,8 +2305,8 @@ void tst_Dumpers::dumper_data()
                + CoreProfile()
 
                + Check("f1", "a (1)", TypeDef("@QFlags<enum Foo>", "FooFlags")) % CdbEngine
-               + Check("f1", "a (0x0001)", "FooFlags") % NoCdbEngine
-               + Check("f2", "(a | b) (0x0003)", "FooFlags") % GdbEngine;
+               + Check("f1", ValuePattern("a [(]0x0+1[)]"), "FooFlags") % NoCdbEngine
+               + Check("f2", ValuePattern("[(]a [|] b[)] [(]0x0+3[)]"), "FooFlags") % GdbEngine;
 
 
     QTest::newRow("QDateTime")
