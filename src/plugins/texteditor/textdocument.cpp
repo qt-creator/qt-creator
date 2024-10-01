@@ -1034,7 +1034,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
-    d->m_marksCache.removeAll(mark);
+    d->m_marksCache.removeOne(mark);
 
     auto scheduleLayoutUpdate = [documentLayout](){
         // make sure all destructors that may directly or indirectly call this function are
