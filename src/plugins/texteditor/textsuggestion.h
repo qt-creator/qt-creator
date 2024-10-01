@@ -35,7 +35,7 @@ public:
     // Returns true if the suggestion was applied completely, false if it was only partially applied.
     virtual bool applyWord(TextEditorWidget *widget);
     virtual bool applyLine(TextEditorWidget *widget);
-    virtual void reset();
+    virtual bool filterSuggestions(TextEditorWidget *widget);
 
     int currentPosition() const { return m_currentPosition; }
     void setCurrentPosition(int position) { m_currentPosition = position; }
@@ -63,6 +63,8 @@ public:
     int currentSuggestion() const { return m_currentSuggestion; }
 
 private:
+    bool filterSuggestions(TextEditorWidget *widget) override;
+
     QList<Data> m_suggestions;
     int m_currentSuggestion = 0;
 };

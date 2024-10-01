@@ -45,7 +45,6 @@ static void cycleSuggestion(TextEditor::TextEditorWidget *editor, Direction dire
             index = suggestion->suggestions().count() - 1;
         else if (index >= suggestion->suggestions().count())
             index = 0;
-        suggestion->reset();
         editor->insertSuggestion(std::make_unique<TextEditor::CyclicSuggestion>(
             suggestion->suggestions(), editor->document(), index));
     }

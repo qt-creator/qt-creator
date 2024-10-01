@@ -1836,15 +1836,22 @@ void TextEditorWidgetPrivate::updateSuggestion()
 {
     if (!m_suggestionBlock.isValid())
         return;
-    if (m_cursors.mainCursor().block() != m_suggestionBlock) {
-        clearCurrentSuggestion();
-    } else {
-        if (!TextDocumentLayout::updateSuggestion(m_suggestionBlock,
-                                                  m_cursors.mainCursor().position(),
-                                                  m_document->fontSettings())) {
-            clearCurrentSuggestion();
+    const QTextCursor cursor = m_cursors.mainCursor();
+    if (cursor.block() == m_suggestionBlock) {
+        TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock);
+        if (QTC_GUARD(suggestion)) {
+            const int pos = cursor.position();
+            if (pos >= suggestion->currentPosition()) {
+                suggestion->setCurrentPosition(pos);
+                if (suggestion->filterSuggestions(q)) {
+                    TextDocumentLayout::updateSuggestionFormats(
+                        m_suggestionBlock, m_document->fontSettings());
+                    return;
+                }
+            }
         }
     }
+    clearCurrentSuggestion();
 }
 
 void TextEditorWidgetPrivate::clearCurrentSuggestion()
