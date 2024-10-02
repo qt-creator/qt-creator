@@ -193,10 +193,10 @@ Group ValgrindProcessPrivate::runRecipe() const
     };
 
     const Group root {
-        parallel,
         storage,
         xmlBarrier,
         If (isSetupValid) >> Then {
+            parallel,
             ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Error),
             If (isAddressValid) >> Then {
                 waitForBarrierTask(xmlBarrier),
