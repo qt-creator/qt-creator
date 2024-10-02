@@ -6,6 +6,7 @@
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakesettingspage.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -49,6 +50,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
+namespace Internal {
 
 static bool isIos(const Kit *k)
 {
@@ -62,6 +64,71 @@ static Id defaultCMakeToolId()
     CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
     return defaultTool ? defaultTool->id() : Id();
 }
+
+class CMakeToolListModel : public TreeModel<TreeItem, Internal::CMakeToolTreeItem>
+{
+public:
+    CMakeToolListModel(const Kit &kit, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+    {}
+
+    void reset()
+    {
+        clear();
+
+        const FilePath rootPath = BuildDeviceKitAspect::device(&m_kit)->rootPath();
+        const QList<CMakeTool *> toolsForBuildDevice
+            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
+                  return item->cmakeExecutable().isSameDevice(rootPath);
+              });
+        for (CMakeTool *item : toolsForBuildDevice)
+            rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+
+        // TODO: The aspect actively prevents the "no value" case in several places
+        // rootItem()->appendChild(new CMakeToolTreeItem);
+    }
+
+private:
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        if (role == CMakeToolTreeItem::DefaultItemIdRole)
+            return defaultCMakeToolId().toSetting();
+        return TreeModel::data(index, role);
+    }
+
+    const Kit &m_kit;
+};
+
+class CMakeToolSortModel : public SortModel
+{
+public:
+    CMakeToolSortModel(QObject *parent) : SortModel(parent) {}
+
+    void reset() { static_cast<CMakeToolListModel *>(sourceModel())->reset(); }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto source = static_cast<CMakeToolListModel *>(sourceModel());
+        const auto item1 = static_cast<CMakeToolTreeItem *>(source->itemForIndex(source_left));
+        const auto item2 = static_cast<CMakeToolTreeItem *>(source->itemForIndex(source_right));
+        QTC_ASSERT(item1 && item2, return false);
+
+        // Criterion 1: "None" comes last
+        if (!item1->data(0, CMakeToolTreeItem::IdRole).isValid())
+            return false;
+        if (!item2->data(0, CMakeToolTreeItem::IdRole).isValid())
+            return true;
+
+        // Criterion 2: Tools with errors come after those without errors.
+        if (const bool item1Error = item1->hasError(); item1Error != item2->hasError())
+            return !item1Error;
+
+        // Criterion 3: Name.
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
 
 // Factories
 
@@ -126,8 +193,10 @@ public:
     {
         setManagingPage(Constants::Settings::TOOLS_ID);
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setEnabled(false);
         m_comboBox->setToolTip(factory->description());
+        const auto sortModel = new CMakeToolSortModel(this);
+        sortModel->setSourceModel(new CMakeToolListModel(*kit, this));
+        m_comboBox->setModel(sortModel);
 
         refresh();
 
@@ -158,35 +227,23 @@ private:
     void refresh() override
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
 
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
-        const FilePath rootPath = device->rootPath();
-
-        const QList<CMakeTool *> toolsForBuildDevice
-            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
-                  return item->cmakeExecutable().isSameDevice(rootPath);
-              });
-
-        m_comboBox->setEnabled(!toolsForBuildDevice.isEmpty());
-        if (toolsForBuildDevice.isEmpty()) {
-            m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
-            return;
-        }
-
-        for (CMakeTool *item : toolsForBuildDevice)
-            m_comboBox->addItem(item->displayName(), item->id().toSetting());
-
-        CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
-        m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
+        const auto sortModel = static_cast<CMakeToolSortModel *>(m_comboBox->model());
+        sortModel->reset();
+        sortModel->sort(0);
+        m_comboBox->setCurrentIndex(indexOf(CMakeKitAspect::cmakeToolId(m_kit)));
     }
 
     int indexOf(Id id)
     {
         for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == Id::fromSetting(m_comboBox->itemData(i)))
+            if (id == Id::fromSetting(m_comboBox->itemData(i, CMakeToolTreeItem::IdRole)))
                 return i;
         }
+
+        // TODO: Enable once we have "none" entry.
+        // return m_comboBox->count() - 1;
+
         return -1;
     }
 
@@ -195,7 +252,7 @@ private:
         if (m_ignoreChanges.isLocked())
             return;
 
-        const Id id = Id::fromSetting(m_comboBox->itemData(index));
+        const Id id = Id::fromSetting(m_comboBox->itemData(index, CMakeToolTreeItem::IdRole));
         CMakeKitAspect::setCMakeTool(m_kit, id);
     }
 
@@ -225,6 +282,10 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
     connect(CMakeToolManager::instance(), &CMakeToolManager::defaultCMakeChanged,
             this, updateKits);
 }
+
+} // Internal
+
+using namespace Internal;
 
 Id CMakeKitAspect::id()
 {
