@@ -84,9 +84,7 @@ public:
               });
         for (CMakeTool *item : toolsForBuildDevice)
             rootItem()->appendChild(new CMakeToolTreeItem(item, false));
-
-        // TODO: The aspect actively prevents the "no value" case in several places
-        // rootItem()->appendChild(new CMakeToolTreeItem);
+        rootItem()->appendChild(new CMakeToolTreeItem); // The "none" item.
     }
 
 private:
@@ -241,10 +239,7 @@ private:
                 return i;
         }
 
-        // TODO: Enable once we have "none" entry.
-        // return m_comboBox->count() - 1;
-
-        return -1;
+        return m_comboBox->count() - 1;
     }
 
     void currentCMakeToolChanged(int index)
@@ -306,10 +301,9 @@ CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
 
 void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
 {
-    const Id toSet = id.isValid() ? id : defaultCMakeToolId();
-    QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(toSet), return);
+    QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);
     if (k)
-        k->setValue(Constants::TOOL_ID, toSet.toSetting());
+        k->setValue(Constants::TOOL_ID, id.toSetting());
 }
 
 Tasks CMakeKitAspectFactory::validate(const Kit *k) const
@@ -347,7 +341,11 @@ void CMakeKitAspectFactory::setup(Kit *k)
 
 void CMakeKitAspectFactory::fix(Kit *k)
 {
-    setup(k);
+    // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
+    if (const Id id = CMakeKitAspect::cmakeToolId(k);
+        id.isValid() && !CMakeToolManager::findById(id)) {
+        setup(k);
+    }
 }
 
 KitAspectFactory::ItemList CMakeKitAspectFactory::toUserOutput(const Kit *k) const
