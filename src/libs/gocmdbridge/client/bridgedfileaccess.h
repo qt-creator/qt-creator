@@ -27,17 +27,17 @@ class QTCREATOR_CMDBRIDGE_EXPORT FileAccess : public Utils::DeviceFileAccess
 public:
     ~FileAccess() override;
 
-    Utils::expected_str<void> deployAndInit(
+    Utils::Result deployAndInit(
         const Utils::FilePath &libExecPath, const Utils::FilePath &remoteRootPath);
 
-    Utils::expected_str<void> init(const Utils::FilePath &pathToBridge);
+    Utils::Result init(const Utils::FilePath &pathToBridge);
 
-    Utils::expected_str<void> signalProcess(int pid, Utils::ControlSignal signal) const;
+    Utils::Result signalProcess(int pid, Utils::ControlSignal signal) const;
 
     Utils::Environment deviceEnvironment() const override;
 
 protected:
-    Utils::expected_str<void> reinit();
+    Utils::Result reinit();
 
     void iterateDirectory(const Utils::FilePath &filePath,
                           const Utils::FilePath::IterateDirCallback &callBack,
@@ -69,16 +69,16 @@ protected:
     Utils::expected_str<qint64> writeFileContents(const Utils::FilePath &filePath,
                                                   const QByteArray &data) const override;
 
-    Utils::expected_str<void> removeFile(const Utils::FilePath &filePath) const override;
+    Utils::Result removeFile(const Utils::FilePath &filePath) const override;
     bool removeRecursively(const Utils::FilePath &filePath, QString *error) const override;
 
     bool ensureExistingFile(const Utils::FilePath &filePath) const override;
     bool createDirectory(const Utils::FilePath &filePath) const override;
 
-    Utils::expected_str<void> copyFile(const Utils::FilePath &filePath,
-                                       const Utils::FilePath &target) const override;
+    Utils::Result copyFile(const Utils::FilePath &filePath,
+                           const Utils::FilePath &target) const override;
 
-    Utils::expected_str<void> renameFile(
+    Utils::Result renameFile(
         const Utils::FilePath &filePath, const Utils::FilePath &target) const override;
 
     Utils::expected_str<Utils::FilePath> createTempFile(const Utils::FilePath &filePath) override;

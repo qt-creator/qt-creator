@@ -38,16 +38,15 @@ protected:
     virtual bool isDirectory(const FilePath &filePath) const;
     virtual bool isSymLink(const FilePath &filePath) const;
     virtual bool hasHardLinks(const FilePath &filePath) const;
-    virtual expected_str<void> ensureWritableDirectory(const FilePath &filePath) const;
+    virtual Result ensureWritableDirectory(const FilePath &filePath) const;
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
     virtual bool exists(const FilePath &filePath) const;
-    virtual expected_str<void> removeFile(const FilePath &filePath) const;
+    virtual Result removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
-    virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
-    virtual expected_str<void> copyRecursively(const FilePath &filePath,
-                                               const FilePath &target) const;
-    virtual expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result copyRecursively(const FilePath &filePath, const FilePath &target) const;
+    virtual Result renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
@@ -97,14 +96,14 @@ protected:
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
     bool hasHardLinks(const FilePath &filePath) const override;
-    expected_str<void> ensureWritableDirectory(const FilePath &filePath) const override;
+    Result ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    expected_str<void> removeFile(const FilePath &filePath) const override;
+    Result removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -159,10 +158,10 @@ protected:
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    expected_str<void> removeFile(const FilePath &filePath) const override;
+    Result removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    expected_str<void> renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;

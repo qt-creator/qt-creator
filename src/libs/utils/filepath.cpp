@@ -551,7 +551,7 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 
     \sa createDir()
 */
-expected_str<void> FilePath::ensureWritableDir() const
+Result FilePath::ensureWritableDir() const
 {
     return fileAccess()->ensureWritableDirectory(*this);
 }
@@ -1980,7 +1980,7 @@ OsType FilePath::osType() const
     return s_deviceHooks.osType(*this);
 }
 
-expected_str<void> FilePath::removeFile() const
+Result FilePath::removeFile() const
 {
     return fileAccess()->removeFile(*this);
 }
@@ -1997,18 +1997,18 @@ bool FilePath::removeRecursively(QString *error) const
     return fileAccess()->removeRecursively(*this, error);
 }
 
-expected_str<void> FilePath::copyRecursively(const FilePath &target) const
+Result FilePath::copyRecursively(const FilePath &target) const
 {
     return fileAccess()->copyRecursively(*this, target);
 }
 
-expected_str<void> FilePath::copyFile(const FilePath &target) const
+Result FilePath::copyFile(const FilePath &target) const
 {
     if (!isSameDevice(target)) {
         // FIXME: This does not scale.
         const expected_str<QByteArray> contents = fileContents();
         if (!contents) {
-            return make_unexpected(
+            return Result::Error(
                 Tr::tr("Error while trying to copy file: %1").arg(contents.error()));
         }
 
@@ -2016,38 +2016,41 @@ expected_str<void> FilePath::copyFile(const FilePath &target) const
         const expected_str<qint64> copyResult = target.writeFileContents(*contents);
 
         if (!copyResult)
-            return make_unexpected(Tr::tr("Could not copy file: %1").arg(copyResult.error()));
+            return Result::Error(Tr::tr("Could not copy file: %1").arg(copyResult.error()));
 
         if (!target.setPermissions(perms)) {
             target.removeFile();
-            return make_unexpected(
+            return Result::Error(
                 Tr::tr("Could not set permissions on \"%1\"").arg(target.toString()));
         }
 
-        return {};
+        return Result::Ok;
     }
     return fileAccess()->copyFile(*this, target);
 }
 
-expected_str<void> FilePath::renameFile(const FilePath &target) const
+Result FilePath::renameFile(const FilePath &target) const
 {
     if (isSameDevice(target))
         return fileAccess()->renameFile(*this, target);
 
-    return copyFile(target).and_then([this, &target] {
-        return removeFile().or_else(
-            [this, &target](const QString &removeError) -> expected_str<void> {
-                // If we fail to remove the source file, we remove the target file to return to the
-                // original state.
-                expected_str<void> rmResult = target.removeFile();
-                QTC_CHECK_EXPECTED(rmResult);
-                return make_unexpected(
-                    Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
-                        .arg(toUserOutput())
-                        .arg(target.toUserOutput())
-                        .arg(removeError));
-            });
-    });
+    const Result copyResult = copyFile(target);
+    if (!copyResult)
+        return copyResult;
+
+    const Result removeResult = removeFile();
+    if (removeResult)
+        return Result::Ok;
+
+    // If we fail to remove the source file, we remove the target file to return to the
+    // original state.
+    Result rmResult = target.removeFile();
+    QTC_CHECK_EXPECTED(rmResult);
+    return Result::Error(
+        Tr::tr("Failed to move %1 to %2. Removing the source file failed: %3")
+            .arg(toUserOutput())
+            .arg(target.toUserOutput())
+            .arg(rmResult.error()));
 }
 
 qint64 FilePath::fileSize() const
