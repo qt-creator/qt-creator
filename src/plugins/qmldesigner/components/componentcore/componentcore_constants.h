@@ -21,6 +21,7 @@ inline constexpr char positionerCategory[] = "Position";
 inline constexpr char groupCategory[] = "Group";
 inline constexpr char snappingCategory[] = "Snapping";
 inline constexpr char layoutCategory[] = "Layout";
+inline constexpr char instancesCategory[] = "Instances";
 inline constexpr char flowCategory[] = "Flow";
 inline constexpr char flowEffectCategory[] = "FlowEffect";
 inline constexpr char flowConnectionCategory[] = "FlowConnection";
@@ -28,15 +29,17 @@ inline constexpr char stackedContainerCategory[] = "StackedContainer";
 inline constexpr char genericToolBarCategory[] = "GenericToolBar";
 inline constexpr char eventListCategory[] = "QmlEventList";
 inline constexpr char create2DCategory[] = "Create 2D";
-inline constexpr char basicCategory[] = "Basic";
-inline constexpr char controlsCategory[] = "Controls 2";
+inline constexpr char layoutsCategory[] = "Layouts";
+inline constexpr char buttonsCategory[] = "Buttons";
 inline constexpr char viewsCategory[] = "Views";
-inline constexpr char positioner2Category[] = "Positioner";
+inline constexpr char displayCategory[] = "Display";
+inline constexpr char inputCategory[] = "Input";
+inline constexpr char animationCategory[] = "Animation";
+inline constexpr char containerCategory[] = "Container";
 inline constexpr char create3DCategory[] = "Create 3D";
 inline constexpr char camerasCategory[] = "Cameras";
 inline constexpr char lightsCategory[] = "Lights";
 inline constexpr char primitivesCategory[] = "Primitives";
-
 inline constexpr char toFrontCommandId[] = "ToFront";
 inline constexpr char toBackCommandId[] = "ToBack";
 inline constexpr char raiseCommandId[] = "Raise";
@@ -102,25 +105,66 @@ inline constexpr char update3DAssetCommandId[] = "Update3DAsset";
 
 inline constexpr char createImageCommandId[] = "CreateImage";
 inline constexpr char createItemCommandId[] = "CreateItem";
+inline constexpr char createFlickableCommandId[] = "CreateFlickable";
 inline constexpr char createMouseAreaCommandId[] = "CreateMouseArea";
+inline constexpr char createDropAreaCommandId[] = "CreateDropArea";
+inline constexpr char createFocusScopeCommandId[] = "CreateFocusScopw";
 inline constexpr char createRectangleCommandId[] = "CreateRectangle";
 inline constexpr char createTextCommandId[] = "CreateText";
+inline constexpr char createProgressBarCommandId[] = "CreateProgressBar";
+inline constexpr char createTextAreaCommandId[] = "CreateTextArea";
+inline constexpr char createFrameCommandId[] = "CreateFrame";
+inline constexpr char createPageCommandId[] = "CreatePage";
+inline constexpr char createPaneCommandId[] = "CreatePane";
+inline constexpr char createControlCommandId[] = "CreateControl";
+inline constexpr char createTabBarCommandId[] = "CreateTabBar";
+inline constexpr char createToolBarCommandId[] = "CreateToolBar";
+inline constexpr char createBusyIndicatorCommandId[] = "CreateBusyIndicator";
 inline constexpr char createTextEditCommandId[] = "CreateTextEdit";
+inline constexpr char createColorAnimationCommandId[] = "CreateColorAnimation";
+inline constexpr char createFrameAnimationCommandId[] = "CreateFrameAnimation";
+inline constexpr char createNumberAnimationCommandId[] = "CreateNumberAnimation";
+inline constexpr char createParallelAnimationCommandId[] = "CreateParallelAnimation";
+inline constexpr char createPauseAnimationCommandId[] = "CreatePauseAnimation";
+inline constexpr char createPropertyActionCommandId[] = "CreatePropertyAction";
+inline constexpr char createPropertyAnimationCommandId[] = "CreatePropertyAnimation";
+inline constexpr char createScriptActionCommandId[] = "CreateScriptAction";
+inline constexpr char createSequentialAnimationCommandId[] = "CreateSequentialAnimation";
+inline constexpr char createTimerCommandId[] = "CreateTimer";
+inline constexpr char createComponentCommandId[] = "CreateComponent";
+inline constexpr char createLoaderCommandId[] = "CreateLoader";
+inline constexpr char createRepeaterCommandId[] = "CreateRepeater";
 inline constexpr char createTextInputCommandId[] = "CreateTextInput";
+inline constexpr char createAnimatedImageCommandId[] = "CreateAnimatedImage";
+inline constexpr char createBorderImageCommandId[] = "CreateBorderImage";
+inline constexpr char createAnimatedSpriteCommandId[] = "CreateAnimatedSprite";
 inline constexpr char createGridViewCommandId[] = "CreateGridView";
 inline constexpr char createListViewCommandId[] = "CreateListView";
 inline constexpr char createPathViewCommandId[] = "CreatePathView";
+inline constexpr char createScrollViewCommandId[] = "CreateScrollView";
+inline constexpr char createStackViewCommandId[] = "CreateStackView";
+inline constexpr char createSwipeViewCommandId[] = "CreateSwipeView";
 inline constexpr char createColumnCommandId[] = "CreateColumn";
+inline constexpr char createView3DCommandId[] = "CreateView3D";
+inline constexpr char createExtendedView3DCommandId[] = "CreateExtendedView3D";
 inline constexpr char createFlowCommandId[] = "CreateFlow";
 inline constexpr char createGridCommandId[] = "CreateGrid";
 inline constexpr char createRowCommandId[] = "CreateRow";
 inline constexpr char createButtonCommandId[] = "CreateButton";
+inline constexpr char createToolButtonCommandId[] = "CreateToolButton";
+inline constexpr char createTabButtonCommandId[] = "CreateTabButton";
+inline constexpr char createDelayButtonCommandId[] = "CreateDelayButton";
 inline constexpr char createCheckBoxCommandId[] = "CreateCheckBox";
+inline constexpr char createDialCommandId[] = "CreateDial";
+inline constexpr char createRadioButtonCommandId[] = "CreateRadioButton";
+inline constexpr char createRoundButtonCommandId[] = "CreateRoundButton";
 inline constexpr char createLabelCommandId[] = "CreateLabel";
 inline constexpr char createSliderCommandId[] = "CreateSlider";
+inline constexpr char createRangeSliderCommandId[] = "CreateRangeSlider";
 inline constexpr char createSpinBoxCommandId[] = "CreateSpinBox";
 inline constexpr char createSwitchCommandId[] = "CreateSwitch";
 inline constexpr char createTextFieldCommandId[] = "CreateTextField";
+inline constexpr char createTumblerCommandId[] = "CreateTumbler";
 inline constexpr char createNodeCommandId[] = "CreateNode";
 inline constexpr char createOrthographicCameraCommandId[] = "CreateOrthographicCamera";
 inline constexpr char createPerspectiveCameraCommandId[] = "CreatePerspectiveCamera";
@@ -133,6 +177,11 @@ inline constexpr char createCylinderCommandId[] = "CreateCylinder";
 inline constexpr char createModelCommandId[] = "CreateModel";
 inline constexpr char createPlaneCommandId[] = "CreatePlane";
 inline constexpr char createSphereCommandId[] = "CreateSphere";
+inline constexpr char createCheckDelegateCommandId[] = "CreateCheckDelegate";
+inline constexpr char createItemDelegateCommandId[] = "CreateItemDelegate";
+inline constexpr char createRadioDelegateCommandId[] = "CreateRadioDelegate";
+inline constexpr char createSwipeDelegateCommandId[] = "CreateSwipeDelegate";
+inline constexpr char createSwitchDelegateCommandId[] = "CreateSwitchDelegate";
 
 inline constexpr char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                          "Selection");
@@ -335,28 +384,75 @@ inline constexpr char editListModelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesigne
                                                                      "Edit List Model...");
 
 inline constexpr char create2DCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Create 2D");
-inline constexpr char basicCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Basic");
+inline constexpr char layoutsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Layouts");
+inline constexpr char buttonsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Buttons");
 inline constexpr char createImageDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Image");
+inline constexpr char createProgressBarDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Progress Bar");
+inline constexpr char createTextAreaDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text Area");
+inline constexpr char createBusyIndicatorDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Busy Indicator");
 inline constexpr char createItemDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Item");
+inline constexpr char createFlickableDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Flickable");
+inline constexpr char createDropAreaDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Drop Area");
+inline constexpr char createFocusScopeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Focus Scope");
 inline constexpr char createMouseAreaDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Mouse Area");
 inline constexpr char createRectangleDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Rectangle");
 inline constexpr char createTextDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text");
+inline constexpr char createColorAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Color Animation");
+inline constexpr char createFrameAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Frame Animation");
+inline constexpr char createNumberAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Number Animation");
+inline constexpr char createParallelAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Parallel Animation");
+inline constexpr char createPauseAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Pause Animation");
+inline constexpr char createPropertyActionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Property Action");
+inline constexpr char createPropertyAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Property Animation");
+inline constexpr char createScriptActionDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Script Action");
+inline constexpr char createSequentialAnimationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Sequential Animation");
+inline constexpr char createTimerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Timer");
+inline constexpr char createComponentDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Component");
+inline constexpr char createLoaderDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Loader");
+inline constexpr char createRepeaterDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Repeater");
 inline constexpr char createTextEditDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text Edit");
 inline constexpr char createTextInputDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text Input");
-inline constexpr char controlsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Controls 2");
 inline constexpr char createButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Button");
+inline constexpr char createDelayButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Delay Button");
+inline constexpr char createTabButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Tab Button");
+inline constexpr char createToolButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Tool Button");
 inline constexpr char createCheckBoxDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Check Box");
+inline constexpr char createRadioButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Radio Button");
+inline constexpr char createRoundButtonDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Round Button");
+inline constexpr char createDialDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Dial");
 inline constexpr char createLabelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Label");
 inline constexpr char createSliderDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Slider");
+inline constexpr char createRangeSliderDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Range Slider");
 inline constexpr char createSpinBoxDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Spin Box");
 inline constexpr char createSwitchDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Switch");
+inline constexpr char createAnimatedSpriteDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Animated Sprite");
+inline constexpr char createBorderImageDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Border Image");
+inline constexpr char createAnimatedImageDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Animated Image");
 inline constexpr char createTextFieldDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text Field");
+inline constexpr char createTumblerDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Tumbler");
 inline constexpr char viewsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Views");
+inline constexpr char displayCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Display");
+inline constexpr char displayPaneDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Pane");
+inline constexpr char containerCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Container");
+inline constexpr char containerInputDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Input");
+inline constexpr char animationDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Animation");
+inline constexpr char instancesDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Instances");
 inline constexpr char createGridViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Grid View");
+inline constexpr char createFrameDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Frame");
+inline constexpr char createPageDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Page");
+inline constexpr char createTabBarDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "TabBar");
+inline constexpr char createToolBarDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "ToolBar");
+inline constexpr char createControlDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Control");
+inline constexpr char createPaneDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Pane");
+inline constexpr char createStackViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Stack View");
+inline constexpr char createSwipeViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Swipe View");
+inline constexpr char createScrollViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Scroll View");
 inline constexpr char createListViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "List View");
 inline constexpr char createPathViewDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Path View");
 inline constexpr char positioner2CategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Positioner");
 inline constexpr char createColumnDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Column");
+inline constexpr char createView3DDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "View3D");
+inline constexpr char createExtendedView3DDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Extended View3D");
 inline constexpr char createFlowDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Flow");
 inline constexpr char createGridDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Grid");
 inline constexpr char createRowDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Row");
@@ -376,6 +472,11 @@ inline constexpr char createCylinderDisplayName[] = QT_TRANSLATE_NOOP("QmlDesign
 inline constexpr char createModelDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Model");
 inline constexpr char createPlaneDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Plane");
 inline constexpr char createSphereDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Sphere");
+inline constexpr char createCheckDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Check Delegate");
+inline constexpr char createItemDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Item Delegate");
+inline constexpr char createRadioDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Radio Delegate");
+inline constexpr char createSwipeDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Swipe Delegate");
+inline constexpr char createSwitchDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Switch Delegate");
 
 namespace Priorities {
 enum PrioritiesEnum : int {
@@ -425,49 +526,99 @@ enum PrioritiesEnum : int {
     ImportComponent,
     ExportComponent,
     /******** Section *****************************/
-    CreateSection = 8000,
-    Create2DCategory,
-    BasicCategory,
-    CreateImage,
-    CreateItem,
-    CreateMouseArea,
-    CreateRectangle,
-    CreateText,
-    CreateTextEdit,
-    CreateTextInput,
+    CreateView3D = 8000,
+    CreateNode,
+    AnimationCategory,
+    ButtonsCategory,
+    CamerasCategory,
+    ContainerCategory,
     ControlsCategory,
+    Create2DCategory,
+    Create3DCategory,
+    CreateAnimatedImage,
+    CreateAnimatedSprite,
+    CreateBorderImage,
+    CreateBusyIndicator,
     CreateButton,
     CreateCheckBox,
-    CreateLabel,
-    CreateSlider,
-    CreateSpinBox,
-    CreateSwitch,
-    CreateTextField,
-    ViewsCategory,
-    CreateGridView,
-    CreateListView,
-    CreatePathView,
-    Positioner2Category,
+    CreateCheckDelegate,
+    CreateColorAnimation,
     CreateColumn,
-    CreateFlow,
-    CreateGrid,
-    CreateRow,
-    Create3DCategory,
-    CreateNode,
-    CamerasCategory,
-    CreateOrthographicCamera,
-    CreatePerspectiveCamera,
-    LightsCategory,
-    CreateDirectionalLight,
-    CreatePointLight,
-    CreateSpotLight,
-    PrimitivesCategory,
+    CreateComponent,
     CreateCone,
+    CreateControl,
     CreateCube,
     CreateCylinder,
+    CreateDelayButton,
+    CreateDial,
+    CreateDirectionalLight,
+    CreateDropArea,
+    CreateFlickable,
+    CreateFlow,
+    CreateFocusScope,
+    CreateFrame,
+    CreateFrameAnimation,
+    CreateGrid,
+    CreateGridView,
+    CreateImage,
+    CreateItem,
+    CreateItemDelegate,
+    CreateLabel,
+    CreateListView,
+    CreateLoader,
     CreateModel,
+    CreateMouseArea,
+    CreateNumberAnimation,
+    CreateOrthographicCamera,
+    CreatePage,
+    CreatePane,
+    CreateParallelAnimation,
+    CreatePathView,
+    CreatePauseAnimation,
+    CreatePerspectiveCamera,
     CreatePlane,
+    CreatePointLight,
+    CreateProgressBar,
+    CreatePropertyAction,
+    CreatePropertyAnimation,
+    CreateRadioButton,
+    CreateRadioDelegate,
+    CreateRangeSlider,
+    CreateRectangle,
+    CreateRepeater,
+    CreateRow,
+    CreateRoundButton,
+    CreateScriptAction,
+    CreateScrollView,
+    CreateSection,
+    CreateSequentialAnimation,
+    CreateSlider,
+    CreateSpinBox,
     CreateSphere,
+    CreateSpotLight,
+    CreateStackView,
+    CreateSwipeDelegate,
+    CreateSwipeView,
+    CreateSwitch,
+    CreateSwitchDelegate,
+    CreateTabBar,
+    CreateTabButton,
+    CreateText,
+    CreateTextArea,
+    CreateTextEdit,
+    CreateTextField,
+    CreateTextInput,
+    CreateTimer,
+    CreateToolBar,
+    CreateToolButton,
+    CreateTumbler,
+    DisplayCategory,
+    InputCategory,
+    InstancesCategory,
+    LayoutsCategory,
+    LightsCategory,
+    PrimitivesCategory,
+    ViewsCategory,
 };
 };
 

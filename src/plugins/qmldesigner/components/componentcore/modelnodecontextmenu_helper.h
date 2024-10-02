@@ -42,6 +42,11 @@ inline bool always(const SelectionContext &)
     return true;
 }
 
+inline bool never(const SelectionContext &)
+{
+    return false;
+}
+
 inline bool inBaseState(const SelectionContext &selectionState)
 {
     return selectionState.isInBaseState();

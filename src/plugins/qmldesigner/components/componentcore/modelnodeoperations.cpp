@@ -1667,6 +1667,11 @@ static void createQmlObjectNodeAsChild(const SelectionContext &context, const QB
     });
 }
 
+void createView3D(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.View3D");
+}
+
 void createImage(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Image");
@@ -1677,9 +1682,24 @@ void createItem(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Item");
 }
 
+void createFlickable(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Flickable");
+}
+
 void createMouseArea(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.MouseArea");
+}
+
+void createDropArea(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.DropArea");
+}
+
+void createFocusScope(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.FocusScope");
 }
 
 void createRectangle(const SelectionContext &selectionContext)
@@ -1687,9 +1707,24 @@ void createRectangle(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Rectangle");
 }
 
+void createProgressBar(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.ProgressBar");
+}
+
 void createText(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Text");
+}
+
+void createBusyIndicator(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.BusyIndicator");
+}
+
+void createTextArea(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.TextArea");
 }
 
 void createTextEdit(const SelectionContext &selectionContext)
@@ -1707,9 +1742,39 @@ void createButton(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Button");
 }
 
+void createToolButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.ToolButton");
+}
+
+void createTabButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.TabButton");
+}
+
 void createCheckBox(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.CheckBox");
+}
+
+void createDial(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Dial");
+}
+
+void createRadioButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.RadioButton");
+}
+
+void createRoundButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.RoundButton");
+}
+
+void createDelayButton(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.DelayButton");
 }
 
 void createLabel(const SelectionContext &selectionContext)
@@ -1720,6 +1785,61 @@ void createLabel(const SelectionContext &selectionContext)
 void createSlider(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Slider");
+}
+
+void createRangeSlider(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.RangeSlider");
+}
+
+void createColorAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.ColorAnimation");
+}
+
+void createFrameAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.FrameAnimation");
+}
+
+void createNumberAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.NumberAnimation");
+}
+
+void createParallelAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.ParallelAnimation");
+}
+
+void createPauseAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.PauseAnimation");
+}
+
+void createPropertyAction(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.PropertyAction");
+}
+
+void createPropertyAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.PropertyAnimation");
+}
+
+void createScriptAction(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.ScriptAction");
+}
+
+void createSequentialAnimation(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.SequentialAnimation");
+}
+
+void createTimer(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQml.Timer");
 }
 
 void createSpinBox(const SelectionContext &selectionContext)
@@ -1737,9 +1857,59 @@ void createTextField(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.TextField");
 }
 
+void createTumbler(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Tumbler");
+}
+
 void createGridView(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.GridView");
+}
+
+void createFrame(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Frame");
+}
+
+void createPage(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Page");
+}
+
+void createPane(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Pane");
+}
+
+void createControl(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.Control");
+}
+
+void createTabBar(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.TabBar");
+}
+
+void createQQCToolBar(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.ToolBar");
+}
+
+void createAnimatedImage(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.AnimatedImage");
+}
+
+void createBorderImage(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.BorderImage");
+}
+
+void createAnimatedSprite(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.AnimatedSprite");
 }
 
 void createListView(const SelectionContext &selectionContext)
@@ -1750,6 +1920,21 @@ void createListView(const SelectionContext &selectionContext)
 void createPathView(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.PathView");
+}
+
+void createScrollView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.ScrollView");
+}
+
+void createStackView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.StackView");
+}
+
+void createSwipeView(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.SwipeView");
 }
 
 void createColumn(const SelectionContext &selectionContext)
@@ -1830,6 +2015,47 @@ void createPlane(const SelectionContext &selectionContext)
 void createSphere(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Sphere");
+}
+
+void createComponent(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQml.Component");
+}
+
+void createCheckDelegate(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.CheckDelegate");
+}
+
+void createItemDelegate(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.ItemDelegate");
+}
+
+void createRadioDelegate(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.RadioDelegate");
+}
+
+void createSwipeDelegate(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.SwipeDelegate");
+}
+
+void createSwitchDelegate(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Controls.SwitchDelegate");
+}
+
+
+void createLoader(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Loader");
+}
+
+void createRepeater(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick.Repeater");
 }
 
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
