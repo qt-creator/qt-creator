@@ -95,12 +95,6 @@ public:
         connect(process, &Process::started, this, [this, process] {
             emit q->valgrindStarted(process->processId());
         });
-        connect(process, &Process::done, this, [this, process] {
-            const bool success = process->result() == ProcessResult::FinishedWithSuccess;
-            if (!success)
-                emit q->processErrorReceived(process->errorString(), process->error());
-            emit q->done(toDoneResult(success));
-        });
         connect(process, &Process::readyReadStandardOutput, this, [this, process] {
             emit q->appendMessage(process->readAllStandardOutput(), StdOutFormat);
         });
@@ -185,6 +179,9 @@ Group ValgrindProcessPrivate::runRecipe() const
     const auto onProcessSetup = [this, storage](Process &process) {
         setupValgrindProcess(&process, storage->m_valgrindCommand);
     };
+    const auto onProcessDone = [this, storage](const Process &process) {
+        emit q->processErrorReceived(process.errorString(), process.error());
+    };
 
     const auto isAddressValid = [this] { return !m_localServerAddress.isNull(); };
 
@@ -194,7 +191,7 @@ Group ValgrindProcessPrivate::runRecipe() const
         parser.setSocket(storage->m_xmlSocket.release());
     };
 
-    const auto onParserError = [this](const Parser &parser) {
+    const auto onParserDone = [this](const Parser &parser) {
         emit q->internalError(parser.errorString());
     };
 
@@ -203,10 +200,10 @@ Group ValgrindProcessPrivate::runRecipe() const
         storage,
         xmlBarrier,
         If (isSetupValid) >> Then {
-            ProcessTask(onProcessSetup),
+            ProcessTask(onProcessSetup, onProcessDone, CallDoneIf::Error),
             If (isAddressValid) >> Then {
                 waitForBarrierTask(xmlBarrier),
-                ParserTask(onParserSetup, onParserError, CallDoneIf::Error)
+                ParserTask(onParserSetup, onParserDone, CallDoneIf::Error)
             }
         } >> Else {
             errorItem
