@@ -1539,8 +1539,8 @@ void GroupItem::addChildren(const GroupItems &children)
     immediately with the task's result. Otherwise, \a handler is invoked (if provided),
     the task is canceled, and the returned item finishes with an error.
 */
-ExecutableItem ExecutableItem::withTimeout(milliseconds timeout,
-                                           const std::function<void()> &handler) const
+Group ExecutableItem::withTimeout(milliseconds timeout,
+                                  const std::function<void()> &handler) const
 {
     const auto onSetup = [timeout](milliseconds &timeoutData) { timeoutData = timeout; };
     return Group {
@@ -1573,7 +1573,7 @@ static QString logHeader(const QString &logName)
     synchronous or asynchronous, its result (the value described by the DoneWith enum),
     and the total execution time in milliseconds.
 */
-ExecutableItem ExecutableItem::withLog(const QString &logName) const
+Group ExecutableItem::withLog(const QString &logName) const
 {
     struct LogStorage
     {
@@ -1604,9 +1604,9 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
 }
 
 /*!
-    \fn ExecutableItem ExecutableItem::operator!(const ExecutableItem &item)
+    \fn Group ExecutableItem::operator!(const ExecutableItem &item)
 
-    Returns an ExecutableItem with the DoneResult of \a item negated.
+    Returns a Group with the DoneResult of \a item negated.
 
     If \a item reports DoneResult::Success, the returned item reports DoneResult::Error.
     If \a item reports DoneResult::Error, the returned item reports DoneResult::Success.
@@ -1621,18 +1621,18 @@ ExecutableItem ExecutableItem::withLog(const QString &logName) const
 
     \sa operator&&(), operator||()
 */
-ExecutableItem operator!(const ExecutableItem &item)
+Group operator!(const ExecutableItem &item)
 {
-    return Group {
+    return {
         item,
         onGroupDone([](DoneWith doneWith) { return toDoneResult(doneWith == DoneWith::Error); })
     };
 }
 
 /*!
-    \fn ExecutableItem ExecutableItem::operator&&(const ExecutableItem &first, const ExecutableItem &second)
+    \fn Group ExecutableItem::operator&&(const ExecutableItem &first, const ExecutableItem &second)
 
-    Returns an ExecutableItem with \a first and \a second tasks merged with conjunction.
+    Returns a Group with \a first and \a second tasks merged with conjunction.
 
     Both \a first and \a second tasks execute in sequence.
     If both tasks report DoneResult::Success, the returned item reports DoneResult::Success.
@@ -1655,15 +1655,15 @@ ExecutableItem operator!(const ExecutableItem &item)
 
     \sa operator||(), operator!()
 */
-ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &second)
+Group operator&&(const ExecutableItem &first, const ExecutableItem &second)
 {
-    return Group { stopOnError, first, second };
+    return { stopOnError, first, second };
 }
 
 /*!
-    \fn ExecutableItem ExecutableItem::operator||(const ExecutableItem &first, const ExecutableItem &second)
+    \fn Group ExecutableItem::operator||(const ExecutableItem &first, const ExecutableItem &second)
 
-    Returns an ExecutableItem with \a first and \a second tasks merged with disjunction.
+    Returns a Group with \a first and \a second tasks merged with disjunction.
 
     Both \a first and \a second tasks execute in sequence.
     If both tasks report DoneResult::Error, the returned item reports DoneResult::Error.
@@ -1686,13 +1686,13 @@ ExecutableItem operator&&(const ExecutableItem &first, const ExecutableItem &sec
 
     \sa operator&&(), operator!()
 */
-ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &second)
+Group operator||(const ExecutableItem &first, const ExecutableItem &second)
 {
-    return Group { stopOnSuccess, first, second };
+    return { stopOnSuccess, first, second };
 }
 
 /*!
-    \fn ExecutableItem ExecutableItem::operator&&(const ExecutableItem &item, DoneResult result)
+    \fn Group ExecutableItem::operator&&(const ExecutableItem &item, DoneResult result)
     \overload ExecutableItem::operator&&()
 
     Returns the \a item task if the \a result is DoneResult::Success; otherwise returns
@@ -1701,15 +1701,13 @@ ExecutableItem operator||(const ExecutableItem &first, const ExecutableItem &sec
     The \c {task && DoneResult::Error} is an eqivalent to tweaking the task's done result
     into DoneResult::Error unconditionally.
 */
-ExecutableItem operator&&(const ExecutableItem &item, DoneResult result)
+Group operator&&(const ExecutableItem &item, DoneResult result)
 {
-    if (result == DoneResult::Success)
-        return item;
-    return Group { finishAllAndError, item };
+    return { result == DoneResult::Success ? stopOnError : finishAllAndError, item };
 }
 
 /*!
-    \fn ExecutableItem ExecutableItem::operator||(const ExecutableItem &item, DoneResult result)
+    \fn Group ExecutableItem::operator||(const ExecutableItem &item, DoneResult result)
     \overload ExecutableItem::operator||()
 
     Returns the \a item task if the \a result is DoneResult::Error; otherwise returns
@@ -1718,14 +1716,12 @@ ExecutableItem operator&&(const ExecutableItem &item, DoneResult result)
     The \c {task || DoneResult::Success} is an eqivalent to tweaking the task's done result
     into DoneResult::Success unconditionally.
 */
-ExecutableItem operator||(const ExecutableItem &item, DoneResult result)
+Group operator||(const ExecutableItem &item, DoneResult result)
 {
-    if (result == DoneResult::Error)
-        return item;
-    return Group { finishAllAndSuccess, item };
+    return { result == DoneResult::Error ? stopOnError : finishAllAndSuccess, item };
 }
 
-ExecutableItem ExecutableItem::withCancelImpl(
+Group ExecutableItem::withCancelImpl(
     const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
 {
     const auto onSetup = [connectWrapper](Barrier &barrier) {

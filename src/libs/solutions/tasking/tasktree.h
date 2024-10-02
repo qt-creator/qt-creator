@@ -296,35 +296,26 @@ private:
 class TASKING_EXPORT ExecutableItem : public GroupItem
 {
 public:
-    ExecutableItem withTimeout(std::chrono::milliseconds timeout,
-                               const std::function<void()> &handler = {}) const;
-    ExecutableItem withLog(const QString &logName) const;
+    Group withTimeout(std::chrono::milliseconds timeout,
+                      const std::function<void()> &handler = {}) const;
+    Group withLog(const QString &logName) const;
     template <typename SenderSignalPairGetter>
-    ExecutableItem withCancel(SenderSignalPairGetter &&getter) const
-    {
-        const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
-            const auto senderSignalPair = getter();
-            QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
-                trigger();
-            }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
-        };
-        return withCancelImpl(connectWrapper);
-    }
+    Group withCancel(SenderSignalPairGetter &&getter) const;
 
 protected:
     ExecutableItem() = default;
     ExecutableItem(const TaskHandler &handler) : GroupItem(handler) {}
 
 private:
-    TASKING_EXPORT friend ExecutableItem operator!(const ExecutableItem &item);
-    TASKING_EXPORT friend ExecutableItem operator&&(const ExecutableItem &first,
+    TASKING_EXPORT friend Group operator!(const ExecutableItem &item);
+    TASKING_EXPORT friend Group operator&&(const ExecutableItem &first,
                                                     const ExecutableItem &second);
-    TASKING_EXPORT friend ExecutableItem operator||(const ExecutableItem &first,
+    TASKING_EXPORT friend Group operator||(const ExecutableItem &first,
                                                     const ExecutableItem &second);
-    TASKING_EXPORT friend ExecutableItem operator&&(const ExecutableItem &item, DoneResult result);
-    TASKING_EXPORT friend ExecutableItem operator||(const ExecutableItem &item, DoneResult result);
+    TASKING_EXPORT friend Group operator&&(const ExecutableItem &item, DoneResult result);
+    TASKING_EXPORT friend Group operator||(const ExecutableItem &item, DoneResult result);
 
-    ExecutableItem withCancelImpl(
+    Group withCancelImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
 
@@ -395,6 +386,18 @@ private:
         };
     }
 };
+
+template <typename SenderSignalPairGetter>
+Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter) const
+{
+    const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
+        const auto senderSignalPair = getter();
+        QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
+            trigger();
+        }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+    };
+    return withCancelImpl(connectWrapper);
+}
 
 template <typename Handler>
 static GroupItem onGroupSetup(Handler &&handler)
