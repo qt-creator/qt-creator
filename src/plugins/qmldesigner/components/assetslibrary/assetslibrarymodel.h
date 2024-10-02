@@ -17,13 +17,13 @@ class AssetsLibraryModel : public QSortFilterProxyModel
 {
     Q_OBJECT
 
+    Q_PROPERTY(bool hasFiles READ hasFiles NOTIFY hasFilesChanged)
+
 public:
     AssetsLibraryModel(QObject *parent = nullptr);
 
     void setRootPath(const QString &newPath);
     void setSearchText(const QString &searchText);
-
-    Q_PROPERTY(bool hasFiles READ hasFiles NOTIFY hasFilesChanged)
 
     Q_INVOKABLE QString rootPath() const;
     Q_INVOKABLE QString filePath(const QModelIndex &index) const;
@@ -50,6 +50,7 @@ public:
     Q_INVOKABLE bool deleteFolderRecursively(const QModelIndex &folderIndex);
     Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
     Q_INVOKABLE bool allFilePathsAreComposedEffects(const QStringList &filePaths) const;
+    Q_INVOKABLE bool dirEmpty(const QString &dirPath) const;
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
@@ -65,6 +66,7 @@ signals:
     void hasFilesChanged();
     void fileChanged(const QString &path);
     void effectsDeleted(const QStringList &effectNames);
+    void modelResetFinished();
 
 private:
     void setHasFiles(bool value);

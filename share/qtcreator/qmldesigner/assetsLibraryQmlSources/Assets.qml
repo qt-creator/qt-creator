@@ -23,6 +23,9 @@ Item {
     property bool __searchBoxEmpty: true
     property bool highlightCanvas: false
 
+    readonly property bool searchBoxEmpty: searchBox.text === ""
+    property alias contextMenu: contextMenu
+
     AssetsContextMenu {
         id: contextMenu
         assetsView: assetsView
@@ -52,7 +55,8 @@ Item {
         drag.accepted = root.dropSimpleExtFiles.length > 0 || root.dropComplexExtFiles.length > 0
     }
 
-    DropArea { // handles external drop on empty area of the view (goes to root folder)
+    // TODO: to be removed if AssetsView is removed and AssetsViewGrid is used
+    /*DropArea { // handles external drop on empty area of the view (goes to root folder)
         id: dropArea
         y: assetsView.y + assetsView.contentHeight - assetsView.rowSpacing
         width: parent.width
@@ -95,7 +99,7 @@ Item {
                 ctx.stroke()
             }
         }
-    }
+    }*/
 
     MouseArea { // right clicking the empty area of the view
         anchors.fill: parent
@@ -265,7 +269,9 @@ Item {
             }
         }
 
-        AssetsView {
+        // TODO
+        // AssetsView {
+        AssetsViewGrid {
             id: assetsView
 
             width: parent.width

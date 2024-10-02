@@ -84,6 +84,9 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
     if (id == "browse") {
         QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/browse.png");
         return {QPixmap{filePath}, 0};
+    } else if (id == "folder") {
+        QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/folder.png");
+        return {QPixmap{filePath}, 0};
     } else if (asset.isFont()) {
         qint64 size = QFileInfo(id).size();
         QPixmap pixmap = generateFontIcons(id, requestedSize);

@@ -25,9 +25,7 @@ namespace QmlDesigner {
 AssetsLibraryModel::AssetsLibraryModel(QObject *parent)
     : QSortFilterProxyModel{parent}
 {
-    createBackendModel();
     setRecursiveFilteringEnabled(true);
-    sort(0);
 }
 
 void AssetsLibraryModel::createBackendModel()
@@ -53,14 +51,18 @@ void AssetsLibraryModel::createBackendModel()
 
 void AssetsLibraryModel::destroyBackendModel()
 {
-    setSourceModel(nullptr);
-    m_sourceFsModel->disconnect(this);
-    m_sourceFsModel->deleteLater();
-    m_sourceFsModel = nullptr;
+    if (m_sourceFsModel) {
+        setSourceModel(nullptr);
+        m_sourceFsModel->disconnect(this);
+        m_sourceFsModel->deleteLater();
+        m_sourceFsModel = nullptr;
+    }
 
-    m_fileWatcher->disconnect(this);
-    m_fileWatcher->deleteLater();
-    m_fileWatcher = nullptr;
+    if (m_fileWatcher) {
+        m_fileWatcher->disconnect(this);
+        m_fileWatcher->deleteLater();
+        m_fileWatcher = nullptr;
+    }
 }
 
 void AssetsLibraryModel::setSearchText(const QString &searchText)
@@ -199,21 +201,21 @@ bool AssetsLibraryModel::allFilePathsAreComposedEffects(const QStringList &fileP
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
 {
-    QString path = m_sourceFsModel->filePath(sourceParent);
-
     QModelIndex sourceIdx = m_sourceFsModel->index(sourceRow, 0, sourceParent);
     QString sourcePath = m_sourceFsModel->filePath(sourceIdx);
+
+    if (m_rootPath.isEmpty() || !sourcePath.startsWith(m_rootPath))
+        return false;
 
     if (QFileInfo(sourcePath).isFile() && !m_fileWatcher->watchesFile(sourcePath))
         m_fileWatcher->addFile(sourcePath, Utils::FileSystemWatcher::WatchModifiedDate);
 
-    if (!m_searchText.isEmpty() && path.startsWith(m_rootPath) && QFileInfo{path}.isDir()) {
+    if (!m_searchText.isEmpty()) {
         QString sourceName = m_sourceFsModel->fileName(sourceIdx);
-
         return QFileInfo{sourcePath}.isFile() && sourceName.contains(m_searchText, Qt::CaseInsensitive);
-    } else {
-        return sourcePath.startsWith(m_rootPath) || m_rootPath.startsWith(sourcePath);
     }
+
+    return true;
 }
 
 bool AssetsLibraryModel::checkHasFiles(const QModelIndex &parentIdx) const
@@ -294,10 +296,21 @@ QModelIndex AssetsLibraryModel::indexForPath(const QString &path) const
     return mapFromSource(idx);
 }
 
+bool AssetsLibraryModel::dirEmpty(const QString &dirPath) const
+{
+    QModelIndex modelIdx = indexForPath(dirPath);
+
+    if (!modelIdx.isValid() || !isDirectory(dirPath))
+        return true;
+
+    return rowCount(modelIdx) == 0;
+}
+
 void AssetsLibraryModel::resetModel()
 {
     beginResetModel();
     endResetModel();
+    emit modelResetFinished();
 }
 
 QModelIndex AssetsLibraryModel::rootIndex() const
@@ -313,16 +326,12 @@ bool AssetsLibraryModel::isDirectory(const QString &path) const
 
 bool AssetsLibraryModel::isDirectory(const QModelIndex &index) const
 {
-    QString path = filePath(index);
-    return isDirectory(path);
+    return m_sourceFsModel->isDir(mapToSource(index));
 }
 
 QModelIndex AssetsLibraryModel::parentDirIndex(const QString &path) const
 {
-    QModelIndex idx = indexForPath(path);
-    QModelIndex parentIdx = idx.parent();
-
-    return parentIdx;
+    return parentDirIndex(indexForPath(path));
 }
 
 QModelIndex AssetsLibraryModel::parentDirIndex(const QModelIndex &index) const
@@ -333,8 +342,7 @@ QModelIndex AssetsLibraryModel::parentDirIndex(const QModelIndex &index) const
 
 QString AssetsLibraryModel::parentDirPath(const QString &path) const
 {
-    QModelIndex idx = indexForPath(path);
-    QModelIndex parentIdx = idx.parent();
+    QModelIndex parentIdx = parentDirIndex(path);
     return filePath(parentIdx);
 }
 
