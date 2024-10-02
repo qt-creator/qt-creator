@@ -28,7 +28,6 @@ public:
     ~Theme() override;
 
     enum Color {
-        BackgroundColorAlternate,
         BackgroundColorDark,
         BackgroundColorHover,
         BackgroundColorNormal,
@@ -38,23 +37,11 @@ public:
         BadgeLabelBackgroundColorUnchecked,
         BadgeLabelTextColorChecked,
         BadgeLabelTextColorUnchecked,
-        ComboBoxArrowColor,
-        ComboBoxArrowColorDisabled,
         ComboBoxTextColor,
-        DetailsButtonBackgroundColorHover,
         DetailsWidgetBackgroundColor,
         DockWidgetResizeHandleColor,
-        DoubleTabWidget1stSeparatorColor,
-        DoubleTabWidget1stTabActiveTextColor,
-        DoubleTabWidget1stTabBackgroundColor,
-        DoubleTabWidget1stTabInactiveTextColor,
-        DoubleTabWidget2ndSeparatorColor,
-        DoubleTabWidget2ndTabActiveTextColor,
-        DoubleTabWidget2ndTabBackgroundColor,
-        DoubleTabWidget2ndTabInactiveTextColor,
         EditorPlaceholderColor,
         FancyToolBarSeparatorColor,
-        FancyTabBarBackgroundColor,
         FancyTabBarSelectedBackgroundColor,
         FancyTabWidgetDisabledSelectedTextColor,
         FancyTabWidgetDisabledUnselectedTextColor,
@@ -62,24 +49,19 @@ public:
         FancyTabWidgetEnabledUnselectedTextColor,
         FancyToolButtonHoverColor,
         FancyToolButtonSelectedColor,
-        FutureProgressBackgroundColor,
         InfoBarBackground,
-        InfoBarText, // TODO: Deprecate. Unused.
-        MenuBarEmptyAreaBackgroundColor,
-        MenuBarItemBackgroundColor,
+        InfoBarText,
         MenuBarItemTextColorDisabled,
         MenuBarItemTextColorNormal,
         MenuItemTextColorDisabled,
         MenuItemTextColorNormal,
-        MiniProjectTargetSelectorBackgroundColor, // TODO: Deprecate. -> Utils::StyleHelper().baseColor()
+        MiniProjectTargetSelectorBackgroundColor,
         MiniProjectTargetSelectorBorderColor,
-        MiniProjectTargetSelectorSummaryBackgroundColor, // TODO: Deprecate. -> Utils::StyleHelper().baseColor()
         MiniProjectTargetSelectorTextColor,
         OutputPaneButtonFlashColor,
         OutputPaneToggleButtonTextColorChecked,
         OutputPaneToggleButtonTextColorUnchecked,
         PanelStatusBarBackgroundColor,
-        PanelsWidgetSeparatorLineColor, // TODO: Deprecate. Unused.
         PanelTextColorDark,
         PanelTextColorMid,
         PanelTextColorLight,
@@ -93,12 +75,7 @@ public:
         TextColorError,
         TextColorHighlightBackground,
         TextColorLink,
-        TextColorLinkVisited,
         TextColorNormal,
-        ToggleButtonBackgroundColor,
-        ToolBarBackgroundColor,
-        TreeViewArrowColorNormal,
-        TreeViewArrowColorSelected,
 
         /* Palette for QPalette */
 
