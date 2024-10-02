@@ -172,6 +172,8 @@ bool QmllsSettingsManager::useLatestQmlls() const
 
 bool QmllsSettingsManager::useQmlls(Project* onProject) const
 {
+    if (!onProject)
+        return m_useQmlls;
     // check if disabled via project specific settings
     ProjectSettings projectSettings{onProject};
 
