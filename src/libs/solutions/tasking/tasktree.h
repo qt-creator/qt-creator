@@ -633,10 +633,8 @@ public:
     // Don't use it in main thread. To be used in non-main threads or in auto tests.
     DoneWith runBlocking();
     DoneWith runBlocking(const QFuture<void> &future);
-    static DoneWith runBlocking(const Group &recipe,
-        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
-    static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future,
-        std::chrono::milliseconds timeout = std::chrono::milliseconds::max());
+    static DoneWith runBlocking(const Group &recipe);
+    static DoneWith runBlocking(const Group &recipe, const QFuture<void> &future);
 
     int asyncCount() const;
     int taskCount() const;

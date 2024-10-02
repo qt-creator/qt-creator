@@ -3274,9 +3274,6 @@ DoneWith TaskTree::runBlocking(const QFuture<void> &future)
 /*!
     Constructs a temporary task tree using the passed \a recipe and runs it blocking.
 
-    The optionally provided \a timeout is used to cancel the tree automatically after
-    \a timeout milliseconds have passed.
-
     Returns DoneWith::Success if the task tree finished successfully;
     otherwise returns DoneWith::Error.
 
@@ -3285,24 +3282,22 @@ DoneWith TaskTree::runBlocking(const QFuture<void> &future)
 
     \sa start()
 */
-DoneWith TaskTree::runBlocking(const Group &recipe, milliseconds timeout)
+DoneWith TaskTree::runBlocking(const Group &recipe)
 {
     QPromise<void> dummy;
     dummy.start();
-    return TaskTree::runBlocking(recipe, dummy.future(), timeout);
+    return TaskTree::runBlocking(recipe, dummy.future());
 }
 
 /*!
-    \overload runBlocking(const Group &recipe, milliseconds timeout)
+    \overload runBlocking(const Group &recipe)
 
     The passed \a future is used for listening to the cancel event.
     When the task tree is canceled, this method cancels the passed \a future.
 */
-DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future, milliseconds timeout)
+DoneWith TaskTree::runBlocking(const Group &recipe, const QFuture<void> &future)
 {
-    const Group root = timeout == milliseconds::max() ? recipe
-                                                      : Group { recipe.withTimeout(timeout) };
-    TaskTree taskTree(root);
+    TaskTree taskTree(recipe);
     return taskTree.runBlocking(future);
 }
 
