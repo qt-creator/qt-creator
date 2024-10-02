@@ -267,6 +267,10 @@ public:
             const QPixmap icon = itemIcon(index, SizeSmall);
             painter->drawPixmap(iconBgR.topLeft(), icon);
         }
+        {
+            const QPixmap badge = itemBadge(index, SizeSmall);
+            painter->drawPixmap(bgR.topLeft(), badge);
+        }
         if (isPack) {
             constexpr int circleSize = 18;
             constexpr int circleOverlap = 3; // Protrusion from lower right corner of iconRect
@@ -700,6 +704,8 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
     return label;
 }
 
+const int iconRectRounding = 4;
+
 QPixmap itemIcon(const QModelIndex &index, Size size)
 {
     const QSize iconBgS = size == SizeSmall ? iconBgSizeSmall : iconBgSizeBig;
@@ -730,7 +736,6 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     const ItemType itemType = index.data(RoleItemType).value<ItemType>();
     const QIcon &icon = (itemType == ItemTypePack) ? (size == SizeSmall ? packS : packB)
                                                    : (size == SizeSmall ? extensionS : extensionB);
-    const int iconRectRounding = 4;
     const qreal iconOpacityDisabled = 0.6;
 
     QPainter p(&pixmap);
@@ -741,6 +746,35 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
         p.setOpacity(iconOpacityDisabled);
     icon.paint(&p, iconBgR);
 
+    return pixmap;
+}
+
+QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
+{
+    const QString badgeText = index.data(RoleBadge).toString();
+    if (badgeText.isNull())
+        return {};
+
+    constexpr TextFormat badgeTF
+        {Theme::Token_Basic_White, UiElement::UiElementLabelSmall};
+
+    const QFont font = badgeTF.font();
+    const int textWidth = QFontMetrics(font).horizontalAdvance(badgeText);
+    const QSize badgeS(ExPaddingGapM + textWidth + ExPaddingGapM,
+                       ExPaddingGapS + badgeTF.lineHeight() + ExPaddingGapS);
+    const QRect badgeR(QPoint(), badgeS);
+    const qreal dpr = qApp->devicePixelRatio();
+    QPixmap pixmap(badgeS * dpr);
+    pixmap.fill(Qt::transparent);
+    pixmap.setDevicePixelRatio(dpr);
+
+    QPainter p(&pixmap);
+    WelcomePageHelpers::drawCardBackground(&p, badgeR,
+                                           creatorColor(Theme::Token_Notification_Neutral),
+                                           Qt::NoPen, iconRectRounding);
+    p.setFont(font);
+    p.setPen(badgeTF.color());
+    p.drawText(badgeR, Qt::AlignCenter, badgeText);
     return pixmap;
 }
 

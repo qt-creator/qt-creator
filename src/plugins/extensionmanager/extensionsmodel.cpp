@@ -240,6 +240,13 @@ int ExtensionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
     return d->responseItems.count() + d->localPlugins.count();
 }
 
+static QString badgeText(const QModelIndex &index)
+{
+    if (index.data(RoleDownloadUrl).isNull())
+        return {};
+    return Tr::tr("New");
+}
+
 ExtensionState extensionState(const QModelIndex &index)
 {
     if (index.data(RoleItemType) != ItemTypeExtension)
@@ -265,10 +272,16 @@ static QString searchText(const QModelIndex &index)
 
 QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
 {
-    if (role == RoleExtensionState)
+    switch (role) {
+    case RoleBadge:
+        return badgeText(index);
+    case RoleExtensionState:
         return extensionState(index);
-    if (role == RoleSearchText)
+    case RoleSearchText:
         return searchText(index);
+    default:
+        break;
+    }
 
     const bool isRemoteExtension = index.row() < d->responseItems.count();
     const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->responseItems.count());

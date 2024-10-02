@@ -27,7 +27,9 @@ enum ExtensionState {
 
 enum Role {
     RoleName = Qt::UserRole,
+    RoleBadge,
     RoleCopyright,
+    RoleDateUpdated,
     RoleDependencies,
     RoleDescriptionLong,
     RoleDescriptionShort,
@@ -39,7 +41,6 @@ enum Role {
     RoleLicense,
     RolePlatforms,
     RolePlugins,
-    RoleDateUpdated,
     RoleSearchText,
     RoleTags,
     RoleVendor,

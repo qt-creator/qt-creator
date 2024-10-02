@@ -50,5 +50,6 @@ enum Size {
     SizeBig,
 };
 QPixmap itemIcon(const QModelIndex &index, Size size);
+QPixmap itemBadge(const QModelIndex &index, Size size);
 
 } // ExtensionManager::Internal
