@@ -8326,7 +8326,8 @@ void TextEditorWidget::focusOutEvent(QFocusEvent *e)
         viewport()->update(d->cursorUpdateRect(d->m_cursors));
     }
     d->updateHighlights();
-    d->clearCurrentSuggestion();
+    if (!Utils::ToolTip::isVisible())
+        d->clearCurrentSuggestion();
 }
 
 void TextEditorWidgetPrivate::maybeSelectLine()
