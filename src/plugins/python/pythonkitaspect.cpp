@@ -20,8 +20,49 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Python {
+namespace Internal {
 
-using namespace Internal;
+class PythonAspectSortModel : public SortModel
+{
+public:
+    PythonAspectSortModel(QObject *parent) : SortModel(parent) {}
+
+    void reset()
+    {
+        beginResetModel();
+        if (QAbstractItemModel * const model = sourceModel())
+            model->deleteLater();
+        ListModel<Interpreter> * const model = createInterpreterModel(this);
+        model->setAllData(model->allData() << Interpreter("none", {}, {}));
+        setSourceModel(model);
+        endResetModel();
+        sort(0);
+    }
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto source = static_cast<ListModel<Interpreter> *>(sourceModel());
+        const auto item1 = static_cast<ListItem<Interpreter> *>(source->itemForIndex(source_left));
+        const auto item2 = static_cast<ListItem<Interpreter> *>(source->itemForIndex(source_right));
+        QTC_ASSERT(item1 && item2, return false);
+
+        // Criterion 1: "None" comes last
+        if (item1->itemData.id == "none")
+            return false;
+        if (item2->itemData.id == "none")
+            return true;
+
+        // Criterion 2: Valid interpreters come before invalid ones.
+        const bool item1Valid = PythonSettings::interpreterIsValid(item1->itemData);
+        const bool item2Valid = PythonSettings::interpreterIsValid(item2->itemData);
+        if (item1Valid != item2Valid)
+            return item1Valid;
+
+        // Criterion 3: Name.
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
 
 class PythonKitAspectImpl final : public KitAspect
 {
@@ -33,6 +74,7 @@ public:
 
         m_comboBox = createSubWidget<QComboBox>();
         m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        m_comboBox->setModel(new PythonAspectSortModel(this));
 
         refresh();
         m_comboBox->setToolTip(kitInfo->description());
@@ -56,19 +98,18 @@ public:
     void refresh() override
     {
         const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
-        m_comboBox->addItem(Tr::tr("None"), QString());
-
-        for (const Interpreter &interpreter : PythonSettings::interpreters())
-            m_comboBox->addItem(interpreter.name, interpreter.id);
-
+        static_cast<PythonAspectSortModel *>(m_comboBox->model())->reset();
         updateComboBox(PythonKitAspect::python(kit()));
         emit changed(); // we need to emit changed here to update changes in the macro expander
     }
 
     void updateComboBox(const std::optional<Interpreter> &python)
     {
-        const int index = python ? std::max(m_comboBox->findData(python->id), 0) : 0;
+        int index = m_comboBox->count() - 1;
+        if (python) {
+            if (const int idx = m_comboBox->findData(python->id); idx != -1)
+                index = idx;
+        }
         m_comboBox->setCurrentIndex(index);
     }
 
@@ -174,6 +215,10 @@ public:
                                    });
     }
 };
+
+} // Internal
+
+using namespace Internal;
 
 std::optional<Interpreter> PythonKitAspect::python(const Kit *kit)
 {
