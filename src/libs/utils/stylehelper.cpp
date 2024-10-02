@@ -186,11 +186,6 @@ QColor StyleHelper::toolBarBorderColor()
                            clamp(base.value() * 0.80f));
 }
 
-QColor StyleHelper::buttonTextColor()
-{
-    return QColor(0x4c4c4c);
-}
-
 // We try to ensure that the actual color used are within
 // reasonalbe bounds while generating the actual baseColor
 // from the users request.

@@ -116,7 +116,6 @@ QTCREATOR_UTILS_EXPORT QColor highlightColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor shadowColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor borderColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor toolBarBorderColor();
-QTCREATOR_UTILS_EXPORT QColor buttonTextColor();
 QTCREATOR_UTILS_EXPORT QColor mergedColors(const QColor &colorA, const QColor &colorB,
                                            int factor = 50);
 QTCREATOR_UTILS_EXPORT QColor alphaBlendedColors(const QColor &colorA, const QColor &colorB);
