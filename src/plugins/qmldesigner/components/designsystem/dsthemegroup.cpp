@@ -155,7 +155,7 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTE
     if (!count(theme))
         return; // No props for this theme in this group.
 
-    ModelNode *targetNode = &themeNode;
+    ModelNode targetNode = themeNode;
     const auto typeName = groupTypeName(m_type);
 
     if (decorationContext == DECORATION_CONTEXT::MPU) {
@@ -169,7 +169,7 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTE
             return;
         }
         groupProperty.setDynamicTypeNameAndsetModelNode("QtObject", groupNode);
-        targetNode = &groupNode;
+        targetNode = groupNode;
     }
 
     // Add properties
@@ -179,12 +179,12 @@ void DSThemeGroup::decorate(ThemeId theme, ModelNode themeNode, DECORATION_CONTE
         if (themeValue != values.end()) {
             auto &propData = themeValue->second;
             if (propData.isBinding) {
-                auto bindingProp = targetNode->bindingProperty(propName);
+                auto bindingProp = targetNode.bindingProperty(propName);
                 if (bindingProp)
                     bindingProp.setDynamicTypeNameAndExpression(*typeName,
                                                                 propData.value.toString());
             } else {
-                auto nodeProp = targetNode->variantProperty(propName);
+                auto nodeProp = targetNode.variantProperty(propName);
                 if (!nodeProp)
                     continue;
 
