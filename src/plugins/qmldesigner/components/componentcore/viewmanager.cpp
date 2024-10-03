@@ -17,7 +17,7 @@
 #include <dynamiclicensecheck.h>
 #include <edit3dview.h>
 #include <formeditorview.h>
-#include <itemlibraryview.h>
+// #include <itemlibraryview.h>
 #include <liveview.h>
 #include <materialbrowserview.h>
 #include <materialeditorview.h>
@@ -69,7 +69,7 @@ public:
         , formEditorView{externalDependencies}
         , textEditorView{externalDependencies}
         , assetsLibraryView{externalDependencies}
-        , itemLibraryView(imageCache, externalDependencies)
+        // , itemLibraryView(imageCache, externalDependencies)
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
 #ifndef QTC_USE_QML_DESIGNER_LITE
@@ -100,7 +100,7 @@ public:
     FormEditorView formEditorView;
     TextEditorView textEditorView;
     AssetsLibraryView assetsLibraryView;
-    ItemLibraryView itemLibraryView;
+    // ItemLibraryView itemLibraryView;
     NavigatorView navigatorView;
     PropertyEditorView propertyEditorView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
@@ -232,7 +232,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->formEditorView,
                                   &d->textEditorView,
                                   &d->assetsLibraryView,
-                                  &d->itemLibraryView,
+                                  // &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
                                   &d->materialEditorView,
@@ -245,7 +245,7 @@ QList<AbstractView *> ViewManager::standardViews() const
     QList<AbstractView *> list = {&d->formEditorView,
                                   &d->textEditorView,
                                   &d->assetsLibraryView,
-                                  &d->itemLibraryView,
+                                  // &d->itemLibraryView,
                                   &d->navigatorView,
                                   &d->propertyEditorView,
                                   &d->statesEditorView,
@@ -459,7 +459,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->formEditorView.widgetInfo());
     widgetInfoList.append(d->textEditorView.widgetInfo());
     widgetInfoList.append(d->assetsLibraryView.widgetInfo());
-    widgetInfoList.append(d->itemLibraryView.widgetInfo());
+    // widgetInfoList.append(d->itemLibraryView.widgetInfo());
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
 #ifndef QTC_USE_QML_DESIGNER_LITE
