@@ -107,6 +107,7 @@ private:
     QPointer<LineEditAction> m_rootHeightAction;
     QPointer<BackgroundAction> m_backgroundAction;
     QPointer<QAction> m_resetAction;
+    QPointer<QAction> m_open3dViewAction;
     QPointer<QAction> m_zoomAllAction;
     QPointer<QAction> m_zoomSelectionAction;
     QPointer<QAction> m_zoomInAction;

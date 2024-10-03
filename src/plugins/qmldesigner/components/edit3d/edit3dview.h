@@ -192,6 +192,7 @@ private:
 
     // View3DActionType::Empty actions
     std::unique_ptr<Edit3DAction> m_resetAction;
+    std::unique_ptr<Edit3DAction> m_open2dAction;
     std::unique_ptr<Edit3DAction> m_visibilityTogglesAction;
     std::unique_ptr<Edit3DAction> m_backgroundColorMenuAction;
     std::unique_ptr<Edit3DAction> m_snapToggleAction;

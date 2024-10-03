@@ -16,6 +16,7 @@
 
 #include <auxiliarydataproperties.h>
 #include <backgroundaction.h>
+#include <designmodewidget.h>
 #include <formeditorgraphicsview.h>
 #include <formeditorscene.h>
 #include <formeditorview.h>
@@ -274,6 +275,22 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
     upperActions.append(m_zoomSelectionAction.data());
     m_toolBox->addRightSideAction(m_zoomSelectionAction.data());
     connect(m_zoomSelectionAction.data(), &QAction::triggered, frameSelection);
+
+    m_open3dViewAction = new QAction(QIcon(), tr("3D"), this);
+    static constexpr char formEditorOpen3dViewActionId[] = "QmlDesigner.FormEditor.Open3dView";
+    registerActionAsCommand(m_open3dViewAction,
+                            formEditorOpen3dViewActionId,
+                            QKeySequence(Qt::Key_J),
+                            ComponentCoreConstants::rootCategory,
+                            ComponentCoreConstants::Priorities::ResetView);
+
+    addAction(m_open3dViewAction.data());
+    upperActions.append(m_open3dViewAction.data());
+    m_toolBox->addRightSideAction(m_open3dViewAction.data());
+    connect(m_open3dViewAction.data(), &QAction::triggered,
+            this, []() {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("Editor3D", true);
+    });
 
     m_resetAction = new QAction(reloadIcon, tr("Reload View"), this);
     static constexpr char formEditorRefreshActionId[] = "QmlDesigner.FormEditor.Refresh";

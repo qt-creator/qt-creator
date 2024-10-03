@@ -45,6 +45,7 @@ inline constexpr char EDIT3D_EDIT_SHOW_CAMERA_FRUSTUM[]
 inline constexpr char EDIT3D_EDIT_SHOW_PARTICLE_EMITTER[]
     = "QmlDesigner.Editor3D.ToggleParticleEmitter";
 inline constexpr char EDIT3D_RESET_VIEW[] = "QmlDesigner.Editor3D.ResetView";
+inline constexpr char EDIT3D_OPEN_2D_VIEW[] = "QmlDesigner.Editor3D.Open2dView";
 inline constexpr char EDIT3D_PARTICLE_MODE[] = "QmlDesigner.Editor3D.ParticleViewModeToggle";
 inline constexpr char EDIT3D_PARTICLES_PLAY[] = "QmlDesigner.Editor3D.ParticlesPlay";
 inline constexpr char EDIT3D_PARTICLES_SEEKER[] = "QmlDesigner.Editor3D.ParticlesSeeker";

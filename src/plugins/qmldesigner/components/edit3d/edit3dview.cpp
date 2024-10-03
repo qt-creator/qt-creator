@@ -1282,6 +1282,21 @@ void Edit3DView::createEdit3DActions()
         this,
         resetTrigger);
 
+    SelectionContextOperation open2dTrigger = [this](const SelectionContext &) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("FormEditor", true);
+    };
+
+    m_open2dAction = std::make_unique<Edit3DAction>(
+        QmlDesigner::Constants::EDIT3D_OPEN_2D_VIEW,
+        View3DActionType::Empty,
+        QCoreApplication::translate("Open2dView", "2D"),
+        QKeySequence(Qt::Key_J),
+        false,
+        false,
+        QIcon(),
+        this,
+        open2dTrigger);
+
     SelectionContextOperation visibilityTogglesTrigger = [this](const SelectionContext &) {
         if (!edit3DWidget()->visibilityTogglesMenu())
             return;
@@ -1441,6 +1456,7 @@ void Edit3DView::createEdit3DActions()
     m_rightActions << m_seekerAction.get();
     m_rightActions << nullptr;
     m_rightActions << m_bakeLightsAction.get();
+    m_rightActions << m_open2dAction.get();
     m_rightActions << m_resetAction.get();
 
     m_visibilityToggleActions << m_showGridAction.get();
