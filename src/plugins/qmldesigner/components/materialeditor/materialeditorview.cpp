@@ -74,8 +74,10 @@ static bool isPreviewAuxiliaryKey(AuxiliaryDataKeyView key)
     return Utils::containsInSorted(previewKeys, key);
 }
 
-MaterialEditorView::MaterialEditorView(ExternalDependenciesInterface &externalDependencies)
+MaterialEditorView::MaterialEditorView(AsynchronousImageCache &imageCache,
+                                       ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
+    , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
@@ -572,7 +574,7 @@ void MaterialEditorView::setupQmlBackend()
     QString currentStateName = currentState.isBaseState() ? currentState.name() : "invalid state";
 
     if (!currentQmlBackend) {
-        currentQmlBackend = new MaterialEditorQmlBackend(this);
+        currentQmlBackend = new MaterialEditorQmlBackend(this, m_imageCache);
 
         m_stackedWidget->addWidget(currentQmlBackend->widget());
         m_qmlBackendHash.insert(qmlPaneUrl.toString(), currentQmlBackend);

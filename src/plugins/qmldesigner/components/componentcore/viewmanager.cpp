@@ -73,7 +73,7 @@ public:
         , navigatorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
 #ifndef QTC_USE_QML_DESIGNER_LITE
-        , materialEditorView{externalDependencies}
+        , materialEditorView{imageCache, externalDependencies}
         , materialBrowserView{imageCache, externalDependencies}
         , textureEditorView{imageCache, externalDependencies}
 #endif

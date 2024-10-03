@@ -17,6 +17,8 @@ HelperWidgets.ComboBox {
 
     validator: RegularExpressionValidator { regularExpression: /(^$|^[a-z_]\w*)/ }
 
+    delegateThumbnails: itemFilterModel.textureSources
+
     HelperWidgets.ItemFilterModel {
         id: itemFilterModel
         modelNodeBackendProperty: modelNodeBackend
@@ -96,6 +98,7 @@ HelperWidgets.ComboBox {
                 comboBox.backendValue.expression = valueData
         }
         comboBox.dirty = false
+        itemFilterModel.updateTextureSource(comboBox.expressionValue)
     }
 
     Repeater {
@@ -122,4 +125,19 @@ HelperWidgets.ComboBox {
             optionsList.model = optionsList.localModel // trigger on change handler
         }
     }
+
+    Rectangle {
+        x: comboBox.width - 52
+        y: (comboBox.height - height) / 2
+        width: 20
+        height: 20
+        border.width: 1
+        z: 100
+        visible: comboBox.typeFilter === "QtQuick3D.Texture" && itemFilterModel.textureSource
+        Image {
+            anchors.fill: parent
+            source: parent.visible ? itemFilterModel.textureSource : ""
+        }
+    }
+
 }

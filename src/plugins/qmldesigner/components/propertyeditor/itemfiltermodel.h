@@ -28,6 +28,8 @@ class ItemFilterModel : public QAbstractListModel
     Q_PROPERTY(QStringList validationRoles READ validationRoles WRITE setValidationRoles NOTIFY
                    validationRolesChanged)
     Q_PROPERTY(QStringList validationItems READ validationItems NOTIFY validationItemsChanged)
+    Q_PROPERTY(QString textureSource READ textureSource NOTIFY textureSourceChanged)
+    Q_PROPERTY(QStringList textureSources READ textureSources NOTIFY textureSourcesChanged)
 
 public:
     enum Role { IdRole = Qt::DisplayRole, NameRole = Qt::UserRole, IdAndNameRole, EnabledRole };
@@ -49,6 +51,9 @@ public:
     QStringList validationItems() const;
     Q_INVOKABLE QVariant modelItemData(int row) const;
     Q_INVOKABLE int indexFromId(const QString &id) const;
+    Q_INVOKABLE void updateTextureSource(const QString &id);
+    QString textureSource() const;
+    QStringList textureSources() const;
 
     static void registerDeclarativeType();
 
@@ -64,12 +69,15 @@ signals:
     void selectedItemsChanged();
     void validationRolesChanged();
     void validationItemsChanged();
+    void textureSourceChanged();
+    void textureSourcesChanged();
 
 private:
     void setupModel();
     void setupValidationItems();
     QVariant modelNodeBackend() const;
     QmlDesigner::ModelNode modelNodeForRow(const int &row) const;
+    void updateTextureSources();
 
 private:
     QString m_typeFilter;
@@ -81,6 +89,10 @@ private:
 
     QStringList m_validationRoles;
     QStringList m_validationItems;
+    QString m_textureSource;
+    QStringList m_textureSources;
+    QHash<QString, QString> m_textureSourceMap;
+    QDir m_docPath;
 };
 
 QML_DECLARE_TYPE(ItemFilterModel)

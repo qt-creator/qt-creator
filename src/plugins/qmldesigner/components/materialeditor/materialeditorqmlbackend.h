@@ -21,6 +21,7 @@ QT_END_NAMESPACE
 
 namespace QmlDesigner {
 
+class AssetImageProvider;
 class MaterialEditorContextObject;
 class MaterialEditorImageProvider;
 class MaterialEditorTransaction;
@@ -31,7 +32,8 @@ class MaterialEditorQmlBackend
     Q_DISABLE_COPY(MaterialEditorQmlBackend)
 
 public:
-    MaterialEditorQmlBackend(MaterialEditorView *materialEditor);
+    MaterialEditorQmlBackend(MaterialEditorView *materialEditor,
+                             class AsynchronousImageCache &imageCache);
     ~MaterialEditorQmlBackend();
 
     void setup(const QmlObjectNode &selectedMaterialNode, const QString &stateName, const QUrl &qmlSpecificsFile,
@@ -75,6 +77,7 @@ private:
     std::unique_ptr<MaterialEditorTransaction> m_materialEditorTransaction;
     std::unique_ptr<MaterialEditorContextObject> m_contextObject;
     QPointer<MaterialEditorImageProvider> m_materialEditorImageProvider;
+    QPointer<AssetImageProvider> m_textureThumbnailProvider;
 };
 
 } // namespace QmlDesigner

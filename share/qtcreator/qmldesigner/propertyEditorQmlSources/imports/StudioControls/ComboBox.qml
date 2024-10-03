@@ -38,6 +38,8 @@ T.ComboBox {
 
     property string tooltipRole: ""
 
+    property var delegateThumbnails: []
+
     signal compressedActivated(int index, int reason)
 
     enum ActivatedReason { EditingFinished, Other }
@@ -162,6 +164,22 @@ T.ComboBox {
                 enabled: text
                 onClicked: itemDelegate.clicked()
                 onDoubleClicked: itemDelegate.doubleClicked()
+            }
+
+            Rectangle {
+                id: delegateThumbnail
+                visible: control.delegateThumbnails.length > itemDelegate.index
+                         && control.delegateThumbnails[itemDelegate.index]
+                x: control.width - 52
+                y: (control.height - height) / 2
+                width: 20
+                height: 20
+                border.width: 1
+                z: 90
+                Image {
+                    anchors.fill: parent
+                    source: parent.visible ? control.delegateThumbnails[itemDelegate.index] : ""
+                }
             }
         }
 

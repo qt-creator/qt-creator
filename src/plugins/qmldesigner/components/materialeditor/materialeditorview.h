@@ -29,7 +29,8 @@ class MaterialEditorView : public AbstractView
     Q_OBJECT
 
 public:
-    MaterialEditorView(ExternalDependenciesInterface &externalDependencies);
+    MaterialEditorView(class AsynchronousImageCache &imageCache,
+                       ExternalDependenciesInterface &externalDependencies);
     ~MaterialEditorView() override;
 
     bool hasWidget() const override;
@@ -123,6 +124,7 @@ private:
     void updatePossibleTypes();
     void asyncResetView();
 
+    AsynchronousImageCache &m_imageCache;
     ModelNode m_selectedMaterial;
     QTimer m_ensureMatLibTimer;
     QShortcut *m_updateShortcut = nullptr;

@@ -10,6 +10,7 @@
 #include <qmldesignerconstants.h>
 #include <qmltimeline.h>
 
+#include <assetimageprovider.h>
 #include <qmlobjectnode.h>
 #include <nodemetainfo.h>
 #include <variantproperty.h>
@@ -39,16 +40,19 @@ static QObject *variantToQObject(const QVariant &value)
 
 namespace QmlDesigner {
 
-MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialEditor)
+MaterialEditorQmlBackend::MaterialEditorQmlBackend(MaterialEditorView *materialEditor,
+                                                   AsynchronousImageCache &imageCache)
     : m_quickWidget(Utils::makeUniqueObjectPtr<QQuickWidget>())
     , m_materialEditorTransaction(std::make_unique<MaterialEditorTransaction>(materialEditor))
     , m_contextObject(std::make_unique<MaterialEditorContextObject>(m_quickWidget.get()))
     , m_materialEditorImageProvider(new MaterialEditorImageProvider(materialEditor))
+    , m_textureThumbnailProvider(new AssetImageProvider(imageCache, {}))
 {
     m_quickWidget->setObjectName(Constants::OBJECT_NAME_MATERIAL_EDITOR);
     m_quickWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
     m_quickWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
     m_quickWidget->engine()->addImageProvider("materialEditor", m_materialEditorImageProvider);
+    m_quickWidget->engine()->addImageProvider("qmldesigner_thumbnails", m_textureThumbnailProvider);
     m_contextObject->setBackendValues(&m_backendValuesPropertyMap);
     m_contextObject->setModel(materialEditor->model());
     context()->setContextObject(m_contextObject.get());

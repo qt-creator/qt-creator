@@ -38,6 +38,8 @@ void ItemFilterModel::setModelNodeBackend(const QVariant &modelNodeBackend)
                                      &ItemFilterModel::setupModel);
     }
 
+    m_docPath = QDir{QFileInfo{m_modelNode.model()->fileUrl().toLocalFile()}.absolutePath()};
+
     setupModel();
     emit modelNodeBackendChanged();
 }
@@ -154,6 +156,68 @@ int ItemFilterModel::indexFromId(const QString &id) const
     return -1;
 }
 
+void ItemFilterModel::updateTextureSources()
+{
+    AbstractView *view = m_modelNode.view();
+    if (!view || !view->model())
+        return;
+
+    const QStringList ids = itemModel();
+    const QString provider = "image://qmldesigner_thumbnails/";
+    QHash<QString, QString> textureSourceMap;
+    QStringList textureSources;
+    textureSources.append(QString()); // The "None" option
+
+    for (const auto &id : ids) {
+        QString newSource;
+        ModelNode node = view->modelNodeForId(id);
+        if (node.metaInfo().isQtQuick3DTexture()) {
+            QString src = node.property("source").toVariantProperty().value().toString();
+
+            if (QDir::isAbsolutePath(src) || !QUrl::fromUserInput(src, m_docPath.path()).isLocalFile()) {
+                newSource = provider + src;
+            } else {
+                const QUrl relUrl(src);
+                if (relUrl.isLocalFile()) {
+                    QString localFile = relUrl.toLocalFile();
+                    if (QDir::isAbsolutePath(localFile))
+                        newSource = provider + localFile;
+                }
+            }
+
+            if (newSource.isEmpty())
+                newSource = provider + QFileInfo(m_docPath, src).absoluteFilePath();
+        }
+        textureSourceMap[id] = newSource;
+        textureSources.append(newSource);
+    }
+
+    if (m_textureSourceMap != textureSourceMap) {
+        m_textureSourceMap = textureSourceMap;
+        m_textureSources = textureSources;
+        emit textureSourcesChanged();
+    }
+}
+
+void ItemFilterModel::updateTextureSource(const QString &id)
+{
+    const QString newSource = m_textureSourceMap.value(id);
+    if (newSource != m_textureSource) {
+        m_textureSource = newSource;
+        emit textureSourceChanged();
+    }
+}
+
+QString ItemFilterModel::textureSource() const
+{
+    return m_textureSource;
+}
+
+QStringList ItemFilterModel::textureSources() const
+{
+    return m_textureSources;
+}
+
 void ItemFilterModel::registerDeclarativeType()
 {
     qmlRegisterType<ItemFilterModel>("HelperWidgets", 2, 0, "ItemFilterModel");
@@ -232,6 +296,7 @@ void ItemFilterModel::setupModel()
 
     endResetModel();
     emit itemModelChanged();
+    updateTextureSources();
 
     setupValidationItems();
 }
