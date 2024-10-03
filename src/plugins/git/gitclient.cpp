@@ -647,6 +647,11 @@ public:
     GitLogConfig(bool fileRelated, GitEditorWidget *editor)
         : GitBaseConfig(editor)
     {
+        QAction *allBranchesButton =
+            addToggleButton(QStringList{"--all"},
+                            Tr::tr("All"),
+                            Tr::tr("Show log for all local branches."));
+        mapSetting(allBranchesButton, &settings().allBranches);
         QAction *firstParentButton =
                 addToggleButton({"-m", "--first-parent"},
                                 Tr::tr("First Parent"),
