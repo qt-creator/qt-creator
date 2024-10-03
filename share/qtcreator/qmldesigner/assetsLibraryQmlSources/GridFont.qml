@@ -22,7 +22,6 @@ GridFile {
     }
 
     mouseArea.onPressed: (mouse) => {
-        print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> 2")
         root.allowTooltip = false
         AssetsLibraryBackend.tooltipBackend.hideTooltip()
     }
