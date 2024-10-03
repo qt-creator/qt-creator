@@ -7,6 +7,7 @@ import HelperWidgets 2.0
 import StudioTheme 1.0 as StudioTheme
 
 Column {
+    property int transformSpinBoxMaxWidth: 120
     width: parent.width
     Section {
         id: transformSection
@@ -14,118 +15,157 @@ Column {
         caption: qsTr("Transform")
 
         ColumnLayout {
-            spacing: StudioTheme.Values.transform3DSectionSpacing / 2
+            spacing: StudioTheme.Values.transform3DSectionSpacing
 
             SectionLayout {
                 PropertyLabel {
                     text: qsTr("Translation")
                     tooltip: qsTr("Sets the translation of the node.")
                 }
-
                 SecondColumnLayout {
+                    Row {
+                        width: StudioTheme.Values.controlColumnWidth
+                        height: parent.height
+                        RowLayout {
+                            spacing: 25
+                            width: StudioTheme.Values.controlColumnWidth
 
-                    ControlLabel {
+                            SpinBox {
+                                id: _spinbox
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    id: _labelx
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
 
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.x
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
+                                    color: StudioTheme.Values.theme3DAxisXColor
+                                }
 
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.x
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "Y"
+                                    color: StudioTheme.Values.theme3DAxisYColor
+                                }
 
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.y
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.y
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "Z"
+                                    color: StudioTheme.Values.theme3DAxisZColor
+                                }
 
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.z
 
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.z
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
                     }
                 }
             }
 
             SectionLayout {
+
                 PropertyLabel {
                     text: qsTr("Rotation")
                     tooltip: qsTr("Sets the rotation of the node in degrees.")
                 }
-
                 SecondColumnLayout {
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_x
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
+                    Row {
+                        width: StudioTheme.Values.controlColumnWidth
+                        height: parent.height
+                        RowLayout {
+                            spacing: 25
+                            width: StudioTheme.Values.controlColumnWidth
 
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisXColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.eulerRotation_x
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "Y"
+                                    color: StudioTheme.Values.theme3DAxisYColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.eulerRotation_y
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_y
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.eulerRotation_z
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisZColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.eulerRotation_z
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
                     }
                 }
             }
@@ -137,55 +177,75 @@ Column {
                 }
 
                 SecondColumnLayout {
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
+                    Row {
+                        width: StudioTheme.Values.controlColumnWidth
+                        height: parent.height
+                        RowLayout {
+                            spacing: 25
+                            width: StudioTheme.Values.controlColumnWidth
 
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_x
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisXColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.scale_x
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "Y"
+                                    color: StudioTheme.Values.theme3DAxisYColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.scale_y
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
-
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_y
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
-
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
-
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.scale_z
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisZColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.scale_z
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
                     }
                 }
             }
-            PropertyLabel {}
+            Item {
+                height: 1
+            }
             SectionLayout {
 
                 PropertyLabel {
@@ -194,48 +254,69 @@ Column {
                 }
 
                 SecondColumnLayout {
+                    Row {
+                        width: StudioTheme.Values.controlColumnWidth
+                        height: parent.height
+                        RowLayout {
+                            spacing: 25
+                            width: StudioTheme.Values.controlColumnWidth
 
-                    ControlLabel {
-                        text: "X"
-                        color: StudioTheme.Values.theme3DAxisXColor
-                    }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisXColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.pivot_x
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "Y"
+                                    color: StudioTheme.Values.theme3DAxisYColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.pivot_y
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
 
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_x
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
-                    ControlLabel {
-                        text: "Y"
-                        color: StudioTheme.Values.theme3DAxisYColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_y
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
-                    }
-                    Spacer {
-                        implicitWidth: StudioTheme.Values.controlLabelGap * 3
-                    }
-                    ControlLabel {
-                        text: "Z"
-                        color: StudioTheme.Values.theme3DAxisZColor
-                    }
-
-                    SpinBox {
-                        minimumValue: -9999999
-                        maximumValue: 9999999
-                        decimals: 2
-                        backendValue: backendValues.pivot_z
-                        implicitWidth: StudioTheme.Values.twoControlColumnWidth / 1.8 + StudioTheme.Values.actionIndicatorWidth
+                            SpinBox {
+                                enableValueChangeVisualCue: true
+                                spinBoxIndicatorVisible: false
+                                ControlLabel {
+                                    anchors.verticalCenter: parent.verticalCenter
+                                    anchors.right: parent.left
+                                    anchors.rightMargin: -4
+                                    text: "X"
+                                    color: StudioTheme.Values.theme3DAxisZColor
+                                }
+                                minimumValue: -9999999
+                                maximumValue: 9999999
+                                decimals: 2
+                                backendValue: backendValues.pivot_z
+                                Layout.fillWidth: true
+                                Layout.maximumWidth: transformSpinBoxMaxWidth
+                                Layout.alignment: Qt.AlignHCenter
+                            }
+                        }
                     }
                 }
             }

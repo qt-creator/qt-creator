@@ -25,6 +25,9 @@ Item {
     property alias actionIndicatorEnabled: spinBox.actionIndicator.enabled
     property alias actionIndicatorVisible: spinBox.actionIndicatorVisible
 
+    property alias enableValueChangeVisualCue : spinBox.enableValueChangeVisualCue
+    property alias spinBoxIndicatorVisible: spinBox.spinBoxIndicatorVisible
+
     width: 96
     implicitHeight: spinBox.height
 

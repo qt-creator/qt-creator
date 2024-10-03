@@ -65,6 +65,8 @@ T.SpinBox {
 
     property string preFocusText: ""
 
+    property bool enableValueChangeVisualCue: false
+
     signal realValueModified
     signal compressedRealValueModified
     signal dragStarted
@@ -84,6 +86,13 @@ T.SpinBox {
 
     leftPadding: spinBoxIndicatorDown.x + spinBoxIndicatorDown.width
     rightPadding: sliderIndicator.width + control.style.borderWidth
+
+    Behavior on font.pixelSize {
+        PropertyAnimation {
+            easing.type: Easing.OutBounce
+            duration: 200
+        }
+    }
 
     font.pixelSize: control.style.baseFontSize
     editable: true
@@ -307,11 +316,27 @@ T.SpinBox {
         onTriggered: control.compressedRealValueModified()
     }
 
+    Timer {
+        id: fontTimer
+        interval: 1300
+        running: false
+        onTriggered: {
+            font.bold = false;
+            font.pixelSize = control.style.baseFontSize;
+        }
+    }
+
     onRealValueChanged: {
         control.setRealValue(control.realValue) // sanitize and clamp realValue
         spinBoxInput.text = control.textFromValue(control.realValue, control.locale)
         control.value = 0 // Without setting value back to 0, it can happen that one of
                           // the indicator will be disabled due to range logic.
+
+          if (control.enableValueChangeVisualCue) {
+            font.bold = true;
+            font.pixelSize = control.style.mediumFontSize;
+            fontTimer.restart();
+        }
     }
     onRealValueModified: myTimer.restart()
     onFocusChanged: {
