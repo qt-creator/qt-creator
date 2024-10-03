@@ -282,7 +282,7 @@ Rectangle {
         ToolbarButton {
             id: enterComponent
             anchors.verticalCenter: parent.verticalCenter
-            anchors.right: backend.isLiteModeEnabled ? shareButton.left : lockWorkspace.left
+            anchors.right: backend.isLiteModeEnabled ? shareButton.left :  shareButton.left
             anchors.rightMargin: 10
             enabled: goIntoComponentBackend.available
             tooltip: goIntoComponentBackend.tooltip
@@ -295,42 +295,6 @@ Rectangle {
                 id: goIntoComponentBackend
                 actionId: "GoIntoComponent"
             }
-        }
-
-        ToolbarButton {
-            id: lockWorkspace
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: workspaces.left
-            anchors.rightMargin: 10
-            tooltip: qsTr("Sets the visible <b>Views</b> to immovable across the Workspaces.")
-            buttonIcon: backend.lockWorkspace ? StudioTheme.Constants.lockOn
-                                              : StudioTheme.Constants.lockOff
-            visible: !root.flyoutEnabled && !backend.isLiteModeEnabled
-            checkable: true
-            checked: backend.lockWorkspace
-            checkedInverted: true
-
-            onClicked: backend.setLockWorkspace(lockWorkspace.checked)
-        }
-
-        StudioControls.TopLevelComboBox {
-            id: workspaces
-            style: StudioTheme.Values.toolbarStyle
-            width: 210
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: shareButton.left
-            anchors.rightMargin: 10
-            visible: !root.flyoutEnabled && !backend.isLiteModeEnabled
-            model: WorkspaceModel { id: workspaceModel }
-            textRole: "displayName"
-            valueRole: "fileName"
-            suffix: qsTr(" Workspace")
-
-            property int currentWorkspaceIndex: workspaces.indexOfValue(backend.currentWorkspace)
-
-            onCurrentWorkspaceIndexChanged: workspaces.currentIndex = workspaces.currentWorkspaceIndex
-            onActivated: backend.setCurrentWorkspace(workspaces.currentValue)
-            onCountChanged: workspaces.currentIndex = workspaces.indexOfValue(backend.currentWorkspace)
         }
 
         ToolbarButton {
@@ -446,20 +410,6 @@ Rectangle {
                             buttonIcon: StudioTheme.Constants.annotations_large
 
                             onClicked: backend.editGlobalAnnoation()
-                        }
-
-                        ToolbarButton {
-                            id: lockWorkspaceFlyout
-                            style: StudioTheme.Values.statusbarButtonStyle
-                            anchors.verticalCenter: parent.verticalCenter
-                            tooltip: lockWorkspace.tooltip
-                            buttonIcon: backend.lockWorkspace ? StudioTheme.Constants.lockOn
-                                                              : StudioTheme.Constants.lockOff
-                            checkable: true
-                            checked: backend.lockWorkspace
-                            visible: !backend.isLiteModeEnabled
-
-                            onClicked: backend.setLockWorkspace(lockWorkspaceFlyout.checked)
                         }
 
                         ToolbarButton {

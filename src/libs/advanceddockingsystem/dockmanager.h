@@ -30,7 +30,7 @@ namespace Utils { class QtcSettings; }
 namespace ADS {
 
 namespace Constants {
-const char DEFAULT_WORKSPACE[] = "Basic.wrk"; // Needs to align with a shipped preset
+const char DEFAULT_WORKSPACE[] = "3DFirst.wrk"; // Needs to align with a shipped preset
 const char LITE_WORKSPACE[] = "Lite-QML-Designer.wrk";
 const char STARTUP_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/StartupWorkspace";
 const char AUTO_RESTORE_WORKSPACE_SETTINGS_KEY[] = "QML/Designer/AutoRestoreLastWorkspace";
