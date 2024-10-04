@@ -813,11 +813,18 @@ void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
     m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
     m_comboBox->setEnabled(true);
     m_comboBox->setModel(m_listAspectSpec->model);
-    m_comboBox->setToolTip(factory()->description()); // FIXME: We want the tooltip for the current item
+
     refresh();
-    connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
+
+    const auto updateTooltip = [this] {
+        m_comboBox->setToolTip(
+            m_comboBox->itemData(m_comboBox->currentIndex(), Qt::ToolTipRole).toString());
+    };
+    updateTooltip();
+    connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this, updateTooltip] {
         if (m_ignoreChanges.isLocked())
             return;
+        updateTooltip();
         m_listAspectSpec->setter(
             *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), m_listAspectSpec->itemRole));
     });
