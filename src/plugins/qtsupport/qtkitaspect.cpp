@@ -23,8 +23,6 @@
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -97,71 +95,27 @@ public:
     {
         setManagingPage(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
-        m_combo = createSubWidget<QComboBox>();
-        m_combo->setSizePolicy(QSizePolicy::Ignored, m_combo->sizePolicy().verticalPolicy());
         const auto sortModel = new QtVersionSortModel(this);
         sortModel->setSourceModel(new QtVersionListModel(*k, this));
-        m_combo->setModel(sortModel);
-
-        refresh();
-
-        // FIXME: We want the tooltip for the current item (also for toolchains etc).
-        m_combo->setToolTip(ki->description());
-
-        connect(m_combo, &QComboBox::currentIndexChanged, this, [this] {
-            if (!m_ignoreChanges.isLocked())
-                currentWasChanged(m_combo->currentIndex());
-        });
+        auto getter = [](const Kit &k) { return QtKitAspect::qtVersionId(&k); };
+        auto setter = [](Kit &k, const QVariant &versionId) {
+            QtKitAspect::setQtVersionId(&k, versionId.toInt());
+        };
+        auto resetModel = [](QAbstractItemModel &model) {
+            static_cast<QtVersionSortModel &>(model).reset();
+        };
+        setListAspectSpec(
+            {sortModel,
+             std::move(getter),
+             std::move(setter),
+             std::move(resetModel),
+             QtVersionItem::IdRole});
 
         connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
             if (k == kit())
                 refresh();
         });
     }
-
-    ~QtKitAspectImpl() final
-    {
-        delete m_combo;
-    }
-
-private:
-    void makeReadOnly() final { m_combo->setEnabled(false); }
-
-    void addToInnerLayout(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_combo);
-        parent.addItem(m_combo);
-    }
-
-    void refresh() final
-    {
-        const GuardLocker locker(m_ignoreChanges);
-        const auto sortModel = static_cast<QtVersionSortModel *>(m_combo->model());
-        sortModel->reset();
-        sortModel->sort(0);
-        m_combo->setCurrentIndex(
-            m_combo->findData(QtKitAspect::qtVersionId(m_kit), QtVersionItem::IdRole));
-    }
-
-private:
-    static QString itemNameFor(const QtVersion *v)
-    {
-        QTC_ASSERT(v, return QString());
-        QString name = v->displayName();
-        if (!v->isValid())
-            name = Tr::tr("%1 (invalid)").arg(v->displayName());
-        return name;
-    }
-
-    void currentWasChanged(int idx)
-    {
-        const QAbstractItemModel * const model = m_combo->model();
-        const int versionId = model->data(model->index(idx, 0), QtVersionItem::IdRole).toInt();
-        QtKitAspect::setQtVersionId(m_kit, versionId);
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_combo;
 };
 } // namespace Internal
 

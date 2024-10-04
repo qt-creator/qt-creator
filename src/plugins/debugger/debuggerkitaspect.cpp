@@ -20,8 +20,6 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-
 #include <algorithm>
 
 using namespace ProjectExplorer;
@@ -117,59 +115,24 @@ public:
     {
         setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
 
-        m_comboBox = createSubWidget<QComboBox>();
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setEnabled(true);
         const auto sortModel = new DebuggerItemSortModel(this);
         sortModel->setSourceModel(new DebuggerItemListModel(*workingCopy, this));
-        m_comboBox->setModel(sortModel);
-
-        refresh();
-        m_comboBox->setToolTip(factory->description());
-        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
-            if (m_ignoreChanges.isLocked())
-                return;
-            m_kit->setValue(DebuggerKitAspect::id(), currentId());
-        });
-
+        auto getter = [](const Kit &k) {
+            if (const DebuggerItem * const item = DebuggerKitAspect::debugger(&k))
+                return item->id();
+            return QVariant();
+        };
+        auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
+        auto resetModel = [](QAbstractItemModel &model) {
+            static_cast<DebuggerItemSortModel &>(model).reset();
+        };
+        setListAspectSpec(
+            {sortModel,
+             std::move(getter),
+             std::move(setter),
+             std::move(resetModel),
+             DebuggerTreeItem::IdRole});
     }
-
-    ~DebuggerKitAspectImpl() override
-    {
-        delete m_comboBox;
-    }
-
-private:
-    void addToInnerLayout(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_comboBox);
-        parent.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override
-    {
-        KitAspect::makeReadOnly();
-        m_comboBox->setEnabled(false);
-    }
-
-    void refresh() override
-    {
-        const GuardLocker locker(m_ignoreChanges);
-        const auto sortModel = static_cast<DebuggerItemSortModel *>(m_comboBox->model());
-        sortModel->reset();
-        sortModel->sort(0);
-        const DebuggerItem * const item = DebuggerKitAspect::debugger(m_kit);
-        m_comboBox->setCurrentIndex(
-            m_comboBox->findData(item ? item->id() : QVariant(), DebuggerTreeItem::IdRole));
-    }
-
-    QVariant currentId() const
-    {
-        return m_comboBox->itemData(m_comboBox->currentIndex(), DebuggerTreeItem::IdRole);
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
 };
 } // namespace Internal
 

@@ -10,12 +10,18 @@
 #include <coreplugin/featureprovider.h>
 
 #include <utils/aspects.h>
+#include <utils/guard.h>
 
 #include <QPair>
 #include <QPushButton>
 #include <QSet>
 
 #include <functional>
+
+QT_BEGIN_NAMESPACE
+class QAbstractItemModel;
+class QComboBox;
+QT_END_NAMESPACE
 
 namespace Utils {
 class Environment;
@@ -108,7 +114,7 @@ public:
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
 
-    virtual void refresh() = 0;
+    virtual void refresh();
 
     void addToLayoutImpl(Layouting::Layout &layout) override;
     static QString msgManage();
@@ -122,15 +128,48 @@ public:
     void makeStickySubWidgetsReadOnly();
 
 protected:
-    virtual void makeReadOnly() {}
-    virtual void addToInnerLayout(Layouting::Layout &parentItem) = 0;
+    virtual void makeReadOnly();
+    virtual void addToInnerLayout(Layouting::Layout &parentItem);
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
+
+    // Convenience for aspects that provide a list model from which one value can be chosen.
+    // It will be exposed via a QComboBox.
+    class ListAspectSpec
+    {
+    public:
+        using Getter = std::function<QVariant(const Kit &)>;
+        using Setter = std::function<void(Kit &, const QVariant &)>;
+        using ResetModel = std::function<void(QAbstractItemModel &)>;
+
+        ListAspectSpec(
+            QAbstractItemModel *model,
+            Getter &&getter,
+            Setter &&setter,
+            ResetModel &&resetModel,
+            int itemRole)
+            : model(model)
+            , getter(std::move(getter))
+            , setter(std::move(setter))
+            , resetModel(std::move(resetModel))
+            , itemRole(itemRole)
+        {}
+
+        QAbstractItemModel *model;
+        Getter getter;
+        Setter setter;
+        ResetModel resetModel;
+        int itemRole;
+    };
+    void setListAspectSpec(ListAspectSpec &&listAspectSpec);
 
     Kit *m_kit;
     const KitAspectFactory *m_factory;
     QAction *m_mutableAction = nullptr;
     Utils::Id m_managingPageId;
     QPushButton *m_manageButton = nullptr;
+    QComboBox *m_comboBox = nullptr;
+    std::optional<ListAspectSpec> m_listAspectSpec;
+    Utils::Guard m_ignoreChanges;
 };
 
 class PROJECTEXPLORER_EXPORT KitManager final : public QObject

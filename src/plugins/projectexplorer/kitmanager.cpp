@@ -29,7 +29,9 @@
 
 #include <nanotrace/nanotrace.h>
 
+#include <QAbstractItemModel>
 #include <QAction>
+#include <QComboBox>
 #include <QHash>
 #include <QLabel>
 #include <QPushButton>
@@ -767,6 +769,17 @@ KitAspect::~KitAspect()
     delete m_mutableAction;
 }
 
+void KitAspect::refresh()
+{
+    if (!m_listAspectSpec)
+        return;
+    const GuardLocker locker(m_ignoreChanges);
+    m_listAspectSpec->resetModel(*m_listAspectSpec->model);
+    m_listAspectSpec->model->sort(0);
+    const QVariant itemId = m_listAspectSpec->getter(*kit());
+    m_comboBox->setCurrentIndex(m_comboBox->findData(itemId, m_listAspectSpec->itemRole));
+}
+
 void KitAspect::makeStickySubWidgetsReadOnly()
 {
     if (!m_kit->isSticky(m_factory->id()))
@@ -776,6 +789,38 @@ void KitAspect::makeStickySubWidgetsReadOnly()
         m_manageButton->setEnabled(false);
 
     makeReadOnly();
+}
+
+void KitAspect::makeReadOnly()
+{
+    if (m_comboBox)
+        m_comboBox->setEnabled(false);
+}
+
+void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
+{
+    if (m_comboBox) {
+        addMutableAction(m_comboBox);
+        parentItem.addItem(m_comboBox);
+    }
+}
+
+void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
+{
+    m_listAspectSpec = std::move(listAspectSpec);
+
+    m_comboBox = createSubWidget<QComboBox>();
+    m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+    m_comboBox->setEnabled(true);
+    m_comboBox->setModel(m_listAspectSpec->model);
+    m_comboBox->setToolTip(factory()->description()); // FIXME: We want the tooltip for the current item
+    refresh();
+    connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
+        if (m_ignoreChanges.isLocked())
+            return;
+        m_listAspectSpec->setter(
+            *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), m_listAspectSpec->itemRole));
+    });
 }
 
 void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
