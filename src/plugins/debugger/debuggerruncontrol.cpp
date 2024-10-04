@@ -83,84 +83,19 @@ static QString noDebuggerInKitMessage()
    return Tr::tr("The kit does not have a debugger set.");
 }
 
-class CoreUnpacker final : public RunWorker
-{
-public:
-    CoreUnpacker(RunControl *runControl, const FilePath &coreFilePath)
-        : RunWorker(runControl), m_coreFilePath(coreFilePath)
-    {}
-
-    FilePath coreFileName() const { return m_tempCoreFilePath; }
-
-private:
-    ~CoreUnpacker() final
-    {
-        if (m_tempCoreFile.isOpen())
-            m_tempCoreFile.close();
-
-        m_tempCoreFilePath.removeFile();
-    }
-
-    void start() final
-    {
-        {
-            Utils::TemporaryFile tmp("tmpcore-XXXXXX");
-            tmp.open();
-            m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
-        }
-
-        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-        connect(&m_coreUnpackProcess, &Process::done, this, [this] {
-            if (m_coreUnpackProcess.error() == QProcess::UnknownError) {
-                reportStopped();
-                return;
-            }
-            reportFailure("Error unpacking " + m_coreFilePath.toUserOutput());
-        });
-
-        const QString msg = Tr::tr("Unpacking core file to %1");
-        appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
-
-        if (m_coreFilePath.endsWith(".lzo")) {
-            m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(),
-                                                     "-x", m_coreFilePath.path()}});
-            reportStarted();
-            m_coreUnpackProcess.start();
-            return;
-        }
-
-        if (m_coreFilePath.endsWith(".gz")) {
-            appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
-            m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
-            m_tempCoreFile.open(QFile::WriteOnly);
-            connect(&m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
-                m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
-            });
-            m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
-            reportStarted();
-            m_coreUnpackProcess.start();
-            return;
-        }
-
-        QTC_CHECK(false);
-        reportFailure("Unknown file extension in " + m_coreFilePath.toUserOutput());
-    }
-
-    QFile m_tempCoreFile;
-    FilePath m_coreFilePath;
-    FilePath m_tempCoreFilePath;
-    Process m_coreUnpackProcess;
-};
-
 class DebuggerRunToolPrivate
 {
 public:
-    QPointer<CoreUnpacker> coreUnpacker;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
+
+    // Core unpacker
+    QFile m_tempCoreFile;
+    FilePath m_tempCoreFilePath;
+    Process m_coreUnpackProcess;
 
     // Terminal
     Process terminalProc;
@@ -168,7 +103,7 @@ public:
 
     // DebugServer
     Process debuggerServerProc;
-    Utils::ProcessHandle serverAttachPid;
+    ProcessHandle serverAttachPid;
     bool serverUseMulti = true;
     bool serverEssential = true;
 };
@@ -369,11 +304,6 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
 
 void DebuggerRunTool::setCoreFilePath(const FilePath &coreFile, bool isSnapshot)
 {
-    if (coreFile.endsWith(".gz") || coreFile.endsWith(".lzo")) {
-        d->coreUnpacker = new CoreUnpacker(runControl(), coreFile);
-        addStartDependency(d->coreUnpacker);
-    }
-
     m_runParameters.coreFile = coreFile;
     m_runParameters.isSnapshot = isSnapshot;
 }
@@ -405,6 +335,63 @@ void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 
 void DebuggerRunTool::start()
 {
+    startCoreFileSetupIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
+{
+    const FilePath coreFile = m_runParameters.coreFile;
+    if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo")) {
+        continueAfterCoreFileSetup();
+        return;
+    }
+
+    {
+        TemporaryFile tmp("tmpcore-XXXXXX");
+        tmp.open();
+        d->m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
+    }
+
+    d->m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
+    connect(&d->m_coreUnpackProcess, &Process::done, this, [this] {
+        if (d->m_coreUnpackProcess.error() == QProcess::UnknownError) {
+            m_runParameters.coreFile = d->m_tempCoreFilePath;
+            continueAfterCoreFileSetup();
+            return;
+        }
+        reportFailure("Error unpacking " + m_runParameters.coreFile.toUserOutput());
+    });
+
+    const QString msg = Tr::tr("Unpacking core file to %1");
+    appendMessage(msg.arg(d->m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
+
+    if (coreFile.endsWith(".lzo")) {
+        d->m_coreUnpackProcess.setCommand({"lzop", {"-o", d->m_tempCoreFilePath.path(),
+                                                 "-x", coreFile.path()}});
+        d->m_coreUnpackProcess.start();
+        return;
+    }
+
+    if (coreFile.endsWith(".gz")) {
+        d->m_tempCoreFile.setFileName(d->m_tempCoreFilePath.path());
+        d->m_tempCoreFile.open(QFile::WriteOnly);
+        connect(&d->m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
+            d->m_tempCoreFile.write(d->m_coreUnpackProcess.readAllRawStandardOutput());
+        });
+        d->m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", coreFile.path()}});
+        d->m_coreUnpackProcess.start();
+        return;
+    }
+
+    QTC_CHECK(false);
+    reportFailure("Unknown file extension in " + coreFile.toUserOutput());
+}
+
+void DebuggerRunTool::continueAfterCoreFileSetup()
+{
+    if (d->m_tempCoreFile.isOpen())
+        d->m_tempCoreFile.close();
+
     startTerminalIfNeededAndContinueStartup();
 }
 
@@ -496,9 +483,6 @@ void DebuggerRunTool::continueAfterTerminalStart()
 //        reportFailure(Tr::tr("Cannot debug: Not enough free ports available."));
 //        return;
 //    }
-
-    if (d->coreUnpacker)
-        m_runParameters.coreFile = d->coreUnpacker->coreFileName();
 
     if (!fixupParameters())
         return;
@@ -978,6 +962,9 @@ void DebuggerRunTool::addSolibSearchDir(const QString &str)
 
 DebuggerRunTool::~DebuggerRunTool()
 {
+    if (d->m_tempCoreFilePath.exists())
+        d->m_tempCoreFilePath.removeFile();
+
     if (m_runParameters.isSnapshot && !m_runParameters.coreFile.isEmpty())
         m_runParameters.coreFile.removeFile();
 
