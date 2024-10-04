@@ -21,6 +21,7 @@
 #include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/listmodel.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -34,6 +35,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include <utility>
 
 using namespace Utils;
 
@@ -197,47 +200,36 @@ class DeviceTypeKitAspectImpl final : public KitAspect
 {
 public:
     DeviceTypeKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
-        : KitAspect(workingCopy, factory), m_comboBox(createSubWidget<QComboBox>())
+        : KitAspect(workingCopy, factory)
     {
-        for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
-            m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
-        m_comboBox->setToolTip(factory->description());
-        refresh();
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &DeviceTypeKitAspectImpl::currentTypeChanged);
+        using ItemData = std::pair<QString, Id>;
+        const auto model = new ListModel<ItemData>(this);
+        model->setDataAccessor([](const ItemData &d, int column, int role) -> QVariant {
+            if (column != 0)
+                return {};
+            if (role == Qt::DisplayRole)
+                return d.first;
+            if (role == Qt::UserRole)
+                return d.second.toSetting();
+            return {};
+        });
+        const auto sortModel = new SortModel(this);
+        sortModel->setSourceModel(model);
+        auto getter = [](const Kit &k) { return DeviceTypeKitAspect::deviceTypeId(&k).toSetting(); };
+        auto setter = [](Kit &k, const QVariant &type) {
+            DeviceTypeKitAspect::setDeviceTypeId(&k, Id::fromSetting(type));
+        };
+        auto resetModel = [](QAbstractItemModel &m) {
+            // FIXME: Change to parameter-less signature.
+            auto model = static_cast<ListModel<ItemData> *>(
+                static_cast<SortModel &>(m).sourceModel());
+            model->clear();
+            for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
+                model->appendItem(std::make_pair(factory->displayName(), factory->deviceType()));
+        };
+        setListAspectSpec(
+            {sortModel, std::move(getter), std::move(setter), std::move(resetModel), Qt::UserRole});
     }
-
-    ~DeviceTypeKitAspectImpl() override { delete m_comboBox; }
-
-private:
-    void addToInnerLayout(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
-    void refresh() override
-    {
-        Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
-        if (!devType.isValid())
-            m_comboBox->setCurrentIndex(-1);
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (m_comboBox->itemData(i) == devType.toSetting()) {
-                m_comboBox->setCurrentIndex(i);
-                break;
-            }
-        }
-    }
-
-    void currentTypeChanged(int idx)
-    {
-        Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
-        DeviceTypeKitAspect::setDeviceTypeId(kit(), type);
-    }
-
-    QComboBox *m_comboBox;
 };
 } // namespace Internal
 
