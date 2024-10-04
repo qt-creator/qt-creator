@@ -944,7 +944,7 @@ void GitClient::updateModificationInfos()
                     {'?', IVCF::UnmanagedState},
                 };
 
-                const IVCF &modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
+                const IVCF modification = std::max(gitStates.value(line.at(0), IVCF::NoModification),
                          gitStates.value(line.at(1), IVCF::NoModification));
 
                 if (modification != IVCF::NoModification)
