@@ -46,7 +46,6 @@ private:
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
     Tasking::TaskTreeRunner m_taskTreeRunner;
-    QString m_packageName;
 };
 
 } // namespace Android::Internal

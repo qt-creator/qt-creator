@@ -101,7 +101,6 @@ void AndroidRunner::start()
         runnerRecipe(glueStorage)
     };
     m_taskTreeRunner.start(recipe);
-    m_packageName = AndroidManager::packageName(target);
 }
 
 void AndroidRunner::stop()
@@ -110,8 +109,6 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-    appendMessage(Tr::tr("Android target \"%1\" terminated.").arg(m_packageName),
-                  Utils::NormalMessageFormat);
 }
 
 void AndroidRunner::qmlServerPortReady(Port port)
