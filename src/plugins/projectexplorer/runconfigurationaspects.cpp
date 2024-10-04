@@ -314,12 +314,11 @@ ArgumentsAspect::ArgumentsAspect(AspectContainer *container)
     : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Arguments"));
+    setLabelText(Tr::tr("Command line arguments:"));
     setId("ArgumentsAspect");
     setSettingsKey("RunConfiguration.Arguments");
 
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
-
-    m_labelText = Tr::tr("Command line arguments:");
 }
 
 void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
@@ -367,14 +366,6 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_chooser->setText(arguments);
     if (m_multiLineChooser && m_multiLineChooser->toPlainText() != arguments)
         m_multiLineChooser->setPlainText(arguments);
-}
-
-/*!
-    Sets the displayed label text to \a labelText.
-*/
-void ArgumentsAspect::setLabelText(const QString &labelText)
-{
-    m_labelText = labelText;
 }
 
 /*!
@@ -502,7 +493,7 @@ void ArgumentsAspect::addToLayoutImpl(Layout &builder)
         containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
     }
 
-    builder.addItems({m_labelText, container});
+    addLabeledItem(builder, container);
 }
 
 /*!

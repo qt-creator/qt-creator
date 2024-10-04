@@ -100,7 +100,6 @@ public:
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
-    void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
     void setMacroExpander(const Utils::MacroExpander *macroExpander);
@@ -117,7 +116,6 @@ private:
     QWidget *setupChooser();
 
     QString m_arguments;
-    QString m_labelText;
     QPointer<Utils::FancyLineEdit> m_chooser;
     QPointer<QPlainTextEdit> m_multiLineChooser;
     QPointer<Utils::ExpandButton> m_multiLineButton;
