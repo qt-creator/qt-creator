@@ -61,7 +61,7 @@ function(setup_dependencies_component)
 endfunction()
 
 function(configure_qml_designer Qt6_VERSION)
-    set(QMLDESIGNER_QT6_REQUIRED_VERSION 6.5.4)
+    set(QMLDESIGNER_QT6_REQUIRED_VERSION 6.7.3)
     set(QMLDESIGNER_GCC_REQUIRED_VERSION 10.0)
     set(QMLDESIGNER_CLANG_REQUIRED_VERSION 13.0)
     set(QMLDESIGNER_APPLECLANG_REQUIRED_VERSION 15.0)
