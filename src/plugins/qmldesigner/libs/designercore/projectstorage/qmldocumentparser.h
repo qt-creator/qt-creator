@@ -25,7 +25,7 @@ public:
         , m_pathCache{pathCache}
     {}
 #else
-    QmlDocumentParser(ProjectStorage &, PathCache &)
+    QmlDocumentParser(ProjectStorage &, PathCacheType &)
     {}
 #endif
 
