@@ -39,15 +39,6 @@ public:
         , m_kit(kit)
     {}
 
-    QModelIndex indexForQtId(int id) const
-    {
-        if (id == -1)
-            return index(rowCount() - 1, 0); // The "No Qt" item always comes last
-        const TreeItem *const item = findItemAtLevel<1>(
-            [id](TreeItem *item) { return static_cast<QtVersionItem *>(item)->uniqueId() == id; });
-        return item ? indexForItem(item) : QModelIndex();
-    }
-
     void reset()
     {
         clear();
@@ -70,12 +61,6 @@ class QtVersionSortModel : public SortModel
 {
 public:
     QtVersionSortModel(QObject *parent) : SortModel(parent) {}
-
-    QModelIndex indexForId(int id) const
-    {
-        return mapFromSource(
-            static_cast<QtVersionListModel *>(sourceModel())->indexForQtId(id));
-    }
 
     void reset() { static_cast<QtVersionListModel *>(sourceModel())->reset(); }
 
@@ -154,7 +139,8 @@ private:
         const auto sortModel = static_cast<QtVersionSortModel *>(m_combo->model());
         sortModel->reset();
         sortModel->sort(0);
-        m_combo->setCurrentIndex(sortModel->indexForId(QtKitAspect::qtVersionId(m_kit)).row());
+        m_combo->setCurrentIndex(
+            m_combo->findData(QtKitAspect::qtVersionId(m_kit), QtVersionItem::IdRole));
     }
 
 private:

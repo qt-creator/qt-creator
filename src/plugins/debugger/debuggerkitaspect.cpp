@@ -43,18 +43,6 @@ public:
         , m_kit(kit)
     {}
 
-    QModelIndex indexForId(const QVariant &id) const
-    {
-        // The "None" item always comes last
-        const auto noneIndex = [this] { return index(rowCount() - 1, 0); };
-
-        if (id.isNull())
-            return noneIndex();
-        const TreeItem *const item = findItemAtLevel<1>(
-            [id](TreeItem *item) { return item->data(0, DebuggerTreeItem::IdRole) == id; });
-        return item ? indexForItem(item) : noneIndex();
-    }
-
     void reset()
     {
         clear();
@@ -82,12 +70,6 @@ class DebuggerItemSortModel : public SortModel
 {
 public:
     DebuggerItemSortModel(QObject *parent) : SortModel(parent) {}
-
-    QModelIndex indexForId(const QVariant &id) const
-    {
-        return mapFromSource(
-            static_cast<DebuggerItemListModel *>(sourceModel())->indexForId(id));
-    }
 
     void reset() { static_cast<DebuggerItemListModel *>(sourceModel())->reset(); }
 
@@ -177,7 +159,8 @@ private:
         sortModel->reset();
         sortModel->sort(0);
         const DebuggerItem * const item = DebuggerKitAspect::debugger(m_kit);
-        m_comboBox->setCurrentIndex(sortModel->indexForId(item ? item->id() : QVariant()).row());
+        m_comboBox->setCurrentIndex(
+            m_comboBox->findData(item ? item->id() : QVariant(), DebuggerTreeItem::IdRole));
     }
 
     QVariant currentId() const
