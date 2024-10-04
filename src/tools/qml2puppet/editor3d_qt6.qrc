@@ -67,5 +67,6 @@
         <file>mockfiles/qt6/SpotLightHandle.qml</file>
         <file>mockfiles/shaders/gridmaterial.frag</file>
         <file>mockfiles/shaders/gridmaterial.vert</file>
+        <file>mockfiles/qt6/RotatePivotArrow.qml</file>
     </qresource>
 </RCC>

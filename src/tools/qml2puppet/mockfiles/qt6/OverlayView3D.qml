@@ -566,6 +566,8 @@ View3D {
                 else
                     overlayView.changeObjectProperty([viewRoot.selectedNode], propertyNames);
             }
+            onPivotCommit: overlayView.commitObjectProperty([viewRoot.selectedNode], ["pivot"]);
+            onPivotChange: overlayView.changeObjectProperty([viewRoot.selectedNode], ["pivot"]);
             onCurrentAngleChanged: rotateGizmoLabel.updateLabel()
         }
 

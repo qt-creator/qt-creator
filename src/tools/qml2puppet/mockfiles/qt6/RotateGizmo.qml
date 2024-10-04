@@ -45,6 +45,8 @@ Node {
 
     signal rotateCommit()
     signal rotateChange()
+    signal pivotCommit()
+    signal pivotChange()
 
     function copyRingProperties(srcRing) {
         draggingRing.rotation = srcRing.sceneRotation;
@@ -84,6 +86,22 @@ Node {
             onRotateChange: rotateGizmo.rotateChange()
             onCurrentAngleChanged: rotateGizmo.currentAngle = currentAngle
             onCurrentMousePosChanged: rotateGizmo.currentMousePos = currentMousePos
+
+            RotatePivotArrow{
+                id: arrowX
+                eulerRotation: Qt.vector3d(-90, 0, 0)
+                targetNode: rotateGizmo.targetNode
+                color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(1, 0, 0, 1))
+                                                                  : Qt.rgba(1, 0, 0, 1)
+                view3D: rotateGizmo.view3D
+                active: rotateGizmo.visible
+                visible:  multiselection
+                dragHelper: rotateGizmo.dragHelper
+                scale: Qt.vector3d(1.4, 1.4, 1.4)
+                dragAxis: Qt.vector3d(1, 0, 0)
+                onPivotCommit: rotateGizmo.pivotCommit()
+                onPivotChange: rotateGizmo.pivotChange()
+            }
         }
 
         RotateRing {
@@ -105,6 +123,21 @@ Node {
             onRotateChange: rotateGizmo.rotateChange()
             onCurrentAngleChanged: rotateGizmo.currentAngle = currentAngle
             onCurrentMousePosChanged: rotateGizmo.currentMousePos = currentMousePos
+
+            RotatePivotArrow{
+                id: arrowY
+                eulerRotation: Qt.vector3d(90, 0, 0)
+                targetNode: rotateGizmo.targetNode
+                color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0.6, 0, 1))
+                                                                  : Qt.rgba(0, 0.6, 0, 1)
+                view3D: rotateGizmo.view3D
+                active: rotateGizmo.visible
+                dragHelper: rotateGizmo.dragHelper
+                scale: Qt.vector3d(1.4, 1.4, 1.4)
+                dragAxis: Qt.vector3d(0, 1, 0)
+                onPivotCommit: rotateGizmo.pivotCommit()
+                onPivotChange: rotateGizmo.pivotChange()
+            }
         }
 
         RotateRing {
@@ -126,6 +159,21 @@ Node {
             onRotateChange: rotateGizmo.rotateChange()
             onCurrentAngleChanged: rotateGizmo.currentAngle = currentAngle
             onCurrentMousePosChanged: rotateGizmo.currentMousePos = currentMousePos
+
+            RotatePivotArrow{
+                id: arrowZ
+                eulerRotation: Qt.vector3d(-90, 0, 0)
+                targetNode: rotateGizmo.targetNode
+                color: highlightOnHover && (hovering || dragging) ? Qt.lighter(Qt.rgba(0, 0, 1, 1))
+                                                                  : Qt.rgba(0, 0, 1, 1)
+                view3D: rotateGizmo.view3D
+                active: rotateGizmo.visible
+                dragHelper: rotateGizmo.dragHelper
+                scale: Qt.vector3d(1.4, 1.4, 1.4)
+                dragAxis: Qt.vector3d(0, 0, 1)
+                onPivotCommit: rotateGizmo.pivotCommit()
+                onPivotChange: rotateGizmo.pivotChange()
+            }
         }
     }
 
