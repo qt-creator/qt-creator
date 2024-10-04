@@ -23,7 +23,7 @@ public:
 
     void start() override;
 
-    Valgrind::Callgrind::ParseData *takeParserData();
+    Callgrind::ParseDataPtr parserData() const;
 
     /// controller actions
     void dump() { run(Dump); }

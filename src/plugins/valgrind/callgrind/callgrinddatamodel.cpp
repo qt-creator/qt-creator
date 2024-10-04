@@ -3,9 +3,8 @@
 
 #include "callgrinddatamodel.h"
 
-#include "callgrindparsedata.h"
-#include "callgrindfunction.h"
 #include "callgrindcostitem.h"
+#include "callgrindfunction.h"
 #include "../valgrindtr.h"
 
 #include <utils/algorithm.h>
@@ -21,7 +20,7 @@ class DataModel::Private
 public:
     void updateFunctions();
 
-    const ParseData *m_data = nullptr;
+    ParseDataPtr m_data;
     int m_event = 0;
     bool m_verboseToolTips = true;
     bool m_cycleDetection = false;
@@ -51,7 +50,7 @@ DataModel::~DataModel()
     delete d;
 }
 
-void DataModel::setParseData(const ParseData *data)
+void DataModel::setParseData(const ParseDataPtr &data)
 {
     if (d->m_data == data)
         return;
@@ -73,7 +72,7 @@ bool DataModel::verboseToolTipsEnabled() const
     return d->m_verboseToolTips;
 }
 
-const ParseData *DataModel::parseData() const
+ParseDataPtr DataModel::parseData() const
 {
     return d->m_data;
 }

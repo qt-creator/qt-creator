@@ -120,11 +120,6 @@ public:
     {
     }
 
-    ~Private()
-    {
-        delete data;
-    }
-
     void parse(const FilePath &filePath);
     void parseHeader(QIODevice *device);
 
@@ -145,7 +140,7 @@ public:
     int addressValuesCount = 0;
     int costValuesCount = 0;
 
-    ParseData *data = nullptr;
+    std::shared_ptr<ParseData> data;
     Function *currentFunction = nullptr;
     qint64 lastObject = -1;
     qint64 lastFile = -1;
@@ -174,17 +169,12 @@ public:
 
 void Parser::Private::parse(const FilePath &filePath)
 {
-    // be sure to clean up existing data before re-allocating
-    // the callee might not have taken the parse data
-    delete data;
-    data = nullptr;
-
     const QString path = filePath.path(); // FIXME: Works only accidentally for docker
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
         qWarning() << "Could not open file for parsing:" << filePath.toUserOutput();
 
-    data = new ParseData(path);
+    data = std::make_shared<ParseData>(path);
     parseHeader(&file);
     while (!file.atEnd()) {
         const QByteArray line = file.readLine();
@@ -426,7 +416,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
     const char *current = begin;
 
     QTC_ASSERT(currentDifferingFile == -1 || currentDifferingFile != currentFunction->fileId(), return);
-    auto costItem = new CostItem(data);
+    auto costItem = new CostItem(data.get());
     costItem->setDifferingFile(currentDifferingFile);
     FunctionCall *call = nullptr;
     if (isParsingFunctionCall) {
@@ -530,7 +520,7 @@ void Parser::Private::parseSourceFile(const char *begin, const char *end)
 
 void Parser::Private::parseFunction(const char *begin, const char *end)
 {
-    currentFunction = new Function(data);
+    currentFunction = new Function(data.get());
     currentFunction->setFile(lastFile);
     currentFunction->setObject(lastObject);
 
@@ -634,11 +624,9 @@ Parser::~Parser()
     delete d;
 }
 
-ParseData *Parser::takeData()
+ParseDataPtr Parser::parserData() const
 {
-    ParseData *data = d->data;
-    d->data = nullptr;
-    return data;
+    return d->data;
 }
 
 } // namespace Valgrind::Callgrind

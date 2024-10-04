@@ -117,9 +117,9 @@ void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectF
     m_argumentForToggleCollect = "--toggle-collect=" + toggleCollectFunction;
 }
 
-Callgrind::ParseData *CallgrindToolRunner::takeParserData()
+Callgrind::ParseDataPtr CallgrindToolRunner::parserData() const
 {
-    return m_parser.takeData();
+    return m_parser.parserData();
 }
 
 void CallgrindToolRunner::showStatusMessage(const QString &message)

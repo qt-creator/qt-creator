@@ -5,6 +5,8 @@
 
 #include "callgrindabstractmodel.h"
 
+#include "callgrindparsedata.h"
+
 #include <QAbstractItemModel>
 
 namespace Valgrind::Callgrind {
@@ -29,8 +31,8 @@ public:
     int costEvent() const;
     void setCostEvent(int event);
 
-    void setParseData(const ParseData *data);
-    const ParseData *parseData() const;
+    void setParseData(const ParseDataPtr &data);
+    ParseDataPtr parseData() const;
 
     void setCalls(const QList<const FunctionCall *> &calls, const Function *function);
     QList<const FunctionCall *> calls() const;

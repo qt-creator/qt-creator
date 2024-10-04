@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "callgrindparsedata.h"
+
 #include <QObject>
 
 namespace Utils { class FilePath; }
@@ -30,7 +32,7 @@ public:
 
     // get and take ownership of the parsing results. If this function is not called the repository
     // will be destroyed when the parser is destroyed. Subsequent calls return null.
-    ParseData *takeData();
+    ParseDataPtr parserData() const;
     void parse(const Utils::FilePath &filePath);
 
 signals:

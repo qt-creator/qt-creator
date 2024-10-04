@@ -5,12 +5,13 @@
 
 #include "callgrindabstractmodel.h"
 
+#include "callgrindparsedata.h"
+
 #include <QAbstractItemModel>
 
 namespace Valgrind::Callgrind {
 
 class Function;
-class ParseData;
 
 class DataModel : public QAbstractItemModel
 {
@@ -20,8 +21,8 @@ public:
     DataModel();
     ~DataModel() override;
 
-    void setParseData(const ParseData *data);
-    const ParseData *parseData() const;
+    void setParseData(const ParseDataPtr &data);
+    ParseDataPtr parseData() const;
 
     void setVerboseToolTipsEnabled(bool enabled);
     bool verboseToolTipsEnabled() const;

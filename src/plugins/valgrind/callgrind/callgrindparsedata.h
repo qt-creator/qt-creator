@@ -109,4 +109,6 @@ private:
     Private *d;
 };
 
+using ParseDataPtr = std::shared_ptr<const ParseData>;
+
 } // namespace Valgrind::Callgrind
