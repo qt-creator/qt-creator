@@ -525,6 +525,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
                                          Tr::tr("Filter by: %1"));
     d->filterChooser->addItems(Utils::transform(SortFilterProxyModel::filterOptions(),
                                                 &SortFilterProxyModel::FilterOption::displayName));
+    d->filterChooser->hide(); // TODO: Unhide when ready. See QTCREATORBUG-31751
 
     d->sortChooser = new OptionChooser(":/extensionmanager/images/sort.png", Tr::tr("Sort by: %1"));
     d->sortChooser->addItems(Utils::transform(SortFilterProxyModel::sortOptions(),
@@ -556,11 +557,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
         },
         Row {
-            d->filterChooser,
-            Space(HGapS),
             d->sortChooser,
+            d->filterChooser,
             st,
             settingsToolButton,
+            spacing(HGapS),
             customMargins(0, 0, extraListViewWidth() + gapSize, 0),
         },
         d->extensionsView,
