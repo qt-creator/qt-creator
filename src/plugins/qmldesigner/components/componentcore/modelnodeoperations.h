@@ -200,6 +200,7 @@ void createItemDelegate(const SelectionContext &selectionContext);
 void createRadioDelegate(const SelectionContext &selectionContext);
 void createSwipeDelegate(const SelectionContext &selectionContext);
 void createSwitchDelegate(const SelectionContext &selectionContext);
+void createEmbedded2dText(const SelectionContext &selectionContext);
 
 void openSignalDialog(const SelectionContext &selectionContext);
 void updateImported3DAsset(const SelectionContext &selectionContext);

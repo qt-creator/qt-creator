@@ -519,6 +519,10 @@ void Edit3DWidget::onCreateAction(QAction *action)
         // if added node is a Model, assign it a material
         if (modelNode.metaInfo().isQtQuick3DModel())
             MaterialUtils::assignMaterialTo3dModel(m_view, modelNode);
+
+        // TODO: Workaround for embedded 2D items not rendering correctly when added
+        if (entry.category() == "Embedded 2D")
+            m_view->resetPuppet();
     });
 }
 

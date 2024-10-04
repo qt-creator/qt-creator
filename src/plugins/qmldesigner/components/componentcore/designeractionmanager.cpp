@@ -2274,6 +2274,12 @@ void DesignerActionManager::createDefaultDesignerActions()
         { createSphereCommandId, createSphereDisplayName, /*contextIcon(DesignerIcons::ModelSphereIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateSphere, &createSphere },
     };
     createModelNodeContextMenuActions(primitives, primitivesCategory);
+
+    createSubActionGroup(embedded2dCategoryDisplayName, embedded2dCategory, Priorities::Embedded2dCategory, create3DCategory);
+    const QList<ContextMenuActionData> embedded2d = {
+        { createEmbedded2dTextCommandId, createEmbedded2dTextDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateEmbedded2dText, &createEmbedded2dText }
+    };
+    createModelNodeContextMenuActions(embedded2d, embedded2dCategory);
 }
 
 void DesignerActionManager::createDefaultAddResourceHandler()

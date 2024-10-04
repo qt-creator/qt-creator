@@ -40,6 +40,8 @@ inline constexpr char create3DCategory[] = "Create 3D";
 inline constexpr char camerasCategory[] = "Cameras";
 inline constexpr char lightsCategory[] = "Lights";
 inline constexpr char primitivesCategory[] = "Primitives";
+inline constexpr char embedded2dCategory[] = "Embedded 2D";
+
 inline constexpr char toFrontCommandId[] = "ToFront";
 inline constexpr char toBackCommandId[] = "ToBack";
 inline constexpr char raiseCommandId[] = "Raise";
@@ -182,6 +184,7 @@ inline constexpr char createItemDelegateCommandId[] = "CreateItemDelegate";
 inline constexpr char createRadioDelegateCommandId[] = "CreateRadioDelegate";
 inline constexpr char createSwipeDelegateCommandId[] = "CreateSwipeDelegate";
 inline constexpr char createSwitchDelegateCommandId[] = "CreateSwitchDelegate";
+inline constexpr char createEmbedded2dTextCommandId[] = "CreateEmbedded2dText";
 
 inline constexpr char selectionCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu",
                                                                          "Selection");
@@ -477,6 +480,8 @@ inline constexpr char createItemDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDe
 inline constexpr char createRadioDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Radio Delegate");
 inline constexpr char createSwipeDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Swipe Delegate");
 inline constexpr char createSwitchDelegateDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Switch Delegate");
+inline constexpr char embedded2dCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Embedded 2D");
+inline constexpr char createEmbedded2dTextDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Text Label");
 
 namespace Priorities {
 enum PrioritiesEnum : int {
@@ -619,6 +624,8 @@ enum PrioritiesEnum : int {
     LightsCategory,
     PrimitivesCategory,
     ViewsCategory,
+    Embedded2dCategory,
+    CreateEmbedded2dText
 };
 };
 

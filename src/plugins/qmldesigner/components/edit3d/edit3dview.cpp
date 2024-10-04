@@ -341,6 +341,7 @@ void Edit3DView::handleEntriesChanged()
         EK_cameras,
         EK_lights,
         EK_primitives,
+        EK_embedded2d,
         EK_importedModels
     };
 
@@ -348,6 +349,7 @@ void Edit3DView::handleEntriesChanged()
         {EK_cameras, {tr("Cameras"), contextIcon(DesignerIcons::CameraIcon)}},
         {EK_lights, {tr("Lights"), contextIcon(DesignerIcons::LightIcon)}},
         {EK_primitives, {tr("Primitives"), contextIcon(DesignerIcons::PrimitivesIcon)}},
+        {EK_embedded2d, {tr("Embedded 2D"), contextIcon(DesignerIcons::ModelPlaneIcon)}},
         {EK_importedModels, {tr("Imported Models"), contextIcon(DesignerIcons::ImportedModelsIcon)}}};
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -386,6 +388,8 @@ void Edit3DView::handleEntriesChanged()
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {
             entryKey = EK_cameras;
+        } else if (entry.category() == "Embedded 2D") {
+            entryKey = EK_embedded2d;
         } else if (entry.typeName().startsWith(QmlDesignerPlugin::instance()
                                                    ->documentManager()
                                                    .generatedComponentUtils()

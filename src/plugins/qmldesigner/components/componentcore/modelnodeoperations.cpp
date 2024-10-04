@@ -2058,6 +2058,14 @@ void createRepeater(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick.Repeater");
 }
 
+void createEmbedded2dText(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Node", "Text Label");
+    // TODO: Workaround for embedded 2D items not rendering correctly when added
+    if (auto *view = selectionContext.view())
+        view->resetPuppet();
+}
+
 QVariant previewImageDataForGenericNode(const ModelNode &modelNode)
 {
     if (auto model = modelNode.model()) {
