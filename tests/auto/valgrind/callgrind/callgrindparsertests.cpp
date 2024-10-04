@@ -21,9 +21,10 @@ using namespace Valgrind::Callgrind;
 
 namespace {
 
-static QString dataFile(const char *file)
+static Utils::FilePath dataFile(const char *file)
 {
-    return QLatin1String(PARSERTESTS_DATA_DIR) + QLatin1String("/") + QLatin1String(file);
+    return Utils::FilePath::fromString(
+                QLatin1String(PARSERTESTS_DATA_DIR) + QLatin1String("/") + QLatin1String(file));
 }
 
 void testCostItem(const CostItem *item, quint64 expectedPosition, quint64 expectedCost)
@@ -78,13 +79,6 @@ void CallgrindParserTests::initTestCase()
 
 void CallgrindParserTests::cleanup()
 {
-}
-
-ParseDataPtr parseDataFile(const QString &dataFile)
-{
-    Parser p;
-    p.parse(Utils::FilePath::fromString(dataFile));
-    return p.parserData();
 }
 
 void CallgrindParserTests::testHeaderData()

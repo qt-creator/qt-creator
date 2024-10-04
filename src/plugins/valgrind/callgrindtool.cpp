@@ -137,7 +137,6 @@ public:
     void visualisationFunctionSelected(const Function *function);
     void showParserResults(const ParseDataPtr &data);
 
-    void takeParserDataFromRunControl(CallgrindToolRunner *rc);
     void setParserData(const ParseDataPtr &data);
     void doSetParseData(const ParseDataPtr &data);
     void engineFinished();
@@ -710,7 +709,7 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 {
     RunControl *runControl = toolRunner->runControl();
 
-    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
+    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::setParserData);
     connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
@@ -870,14 +869,7 @@ void CallgrindTool::loadExternalLogFile()
     Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
-    Parser parser;
-    parser.parse(filePath);
-    setParserData(parser.parserData());
-}
-
-void CallgrindTool::takeParserDataFromRunControl(CallgrindToolRunner *rc)
-{
-    setParserData(rc->parserData());
+    setParserData(parseDataFile(filePath));
 }
 
 void CallgrindTool::setParserData(const ParseDataPtr &data)

@@ -34,13 +34,7 @@ CallgrindToolRunner::CallgrindToolRunner(RunControl *runControl)
     connect(&m_runner, &ValgrindProcess::valgrindStarted, this, [this](qint64 pid) {
         m_pid = pid;
     });
-    connect(&m_runner, &ValgrindProcess::done, this, [this] {
-        triggerParse();
-        emit parserDataReady(this);
-    });
-    connect(&m_parser, &Callgrind::Parser::parserDataReady, this, [this] {
-        emit parserDataReady(this);
-    });
+    connect(&m_runner, &ValgrindProcess::done, this, &CallgrindToolRunner::triggerParse);
 
     m_valgrindRunnable = runControl->runnable();
 
@@ -115,11 +109,6 @@ void CallgrindToolRunner::setToggleCollectFunction(const QString &toggleCollectF
         return;
 
     m_argumentForToggleCollect = "--toggle-collect=" + toggleCollectFunction;
-}
-
-Callgrind::ParseDataPtr CallgrindToolRunner::parserData() const
-{
-    return m_parser.parserData();
 }
 
 void CallgrindToolRunner::showStatusMessage(const QString &message)
@@ -253,7 +242,7 @@ void CallgrindToolRunner::triggerParse()
         if (!res) // failed to run callgrind
             return;
         showStatusMessage(Tr::tr("Parsing Profile Data..."));
-        m_parser.parse(m_hostOutputFile);
+        emit parserDataReady(parseDataFile(m_hostOutputFile));
     };
     // TODO: Store the handle and cancel on CallgrindToolRunner destructor?
     // TODO: Should d'tor of context object cancel the running task?

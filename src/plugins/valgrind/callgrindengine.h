@@ -23,8 +23,6 @@ public:
 
     void start() override;
 
-    Callgrind::ParseDataPtr parserData() const;
-
     /// controller actions
     void dump() { run(Dump); }
     void reset() { run(ResetEventCounters); }
@@ -52,7 +50,7 @@ protected:
     QString progressTitle() const override;
 
 signals:
-    void parserDataReady(CallgrindToolRunner *engine);
+    void parserDataReady(const Callgrind::ParseDataPtr &data);
 
 private:
     void showStatusMessage(const QString &message);
@@ -83,7 +81,6 @@ private:
     Utils::FilePath m_valgrindOutputFile; // On the device that runs valgrind
     Utils::FilePath m_hostOutputFile; // On the device that runs creator
 
-    Callgrind::Parser m_parser;
     bool m_paused = false;
 
     QString m_argumentForToggleCollect;

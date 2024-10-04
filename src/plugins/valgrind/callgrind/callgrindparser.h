@@ -11,8 +11,6 @@ namespace Utils { class FilePath; }
 
 namespace Valgrind::Callgrind {
 
-class ParseData;
-
 /**
  * Parser for Valgrind --tool=callgrind output
  * most of the format is documented at http://kcachegrind.sourceforge.net/html/CallgrindFormat.html
@@ -22,25 +20,7 @@ class ParseData;
  * the rest is assumed to be zero."
  *
  */
-class Parser : public QObject
-{
-    Q_OBJECT
 
-public:
-    Parser();
-    ~Parser() override;
-
-    // get and take ownership of the parsing results. If this function is not called the repository
-    // will be destroyed when the parser is destroyed. Subsequent calls return null.
-    ParseDataPtr parserData() const;
-    void parse(const Utils::FilePath &filePath);
-
-signals:
-    void parserDataReady();
-
-private:
-    class Private;
-    Private *const d;
-};
+ParseDataPtr parseDataFile(const Utils::FilePath &filePath);
 
 } // namespace Valgrind::Callgrind
