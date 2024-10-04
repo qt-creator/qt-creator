@@ -166,7 +166,7 @@ QVariant QtVersionItem::data(int column, int role) const
 
     if (!version) {
         if (role == Qt::DisplayRole && column == 0)
-            return Tr::tr("No Qt");
+            return Tr::tr("None");
         if (role == IdRole)
             return -1;
         return TreeItem::data(column, role);

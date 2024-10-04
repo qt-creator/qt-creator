@@ -39,7 +39,7 @@ public:
     QModelIndex indexForBundleId(Id bundleId) const
     {
         if (!bundleId.isValid())
-            return index(rowCount() - 1, 0); // The "no compiler" item always comes last
+            return index(rowCount() - 1, 0); // The "none" item always comes last
         const TreeItem *const item = findItemAtLevel<1>(
             [bundleId](TreeItem *item) {
                 const auto tcItem = static_cast<ToolchainTreeItem *>(item);
