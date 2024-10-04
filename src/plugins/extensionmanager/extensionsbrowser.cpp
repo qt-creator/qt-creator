@@ -293,9 +293,12 @@ public:
             painter->drawText(effectiveR, itemNameTF.drawTextFlags, titleElided);
         }
         if (showState) {
-            static const QIcon checkmark = Icon({{":/extensionmanager/images/checkmark.png",
-                                                  stateTF.themeColor}}, Icon::Tint).icon();
-            checkmark.paint(painter, checkmarkR);
+            const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
+            static const QIcon enabled = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
+                                                       Icon::Tint).icon();
+            static const QIcon disabled = Icon({{checkmarkMask, stateTF.themeColor}},
+                                                        Icon::Tint).icon();
+            (state == InstalledEnabled ? enabled : disabled).paint(painter, checkmarkR);
             painter->setPen(stateTF.color());
             painter->setFont(stateTF.font());
             painter->drawText(stateR, stateTF.drawTextFlags, stateString);
