@@ -368,7 +368,6 @@ public:
 
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
-        executable.setReadOnly(true);
         executable.setValue(bti.targetFilePath);
 
         auto argumentsAsString = [this]() {
@@ -378,12 +377,10 @@ public:
         };
 
         arguments.setLabelText(Tr::tr("Arguments:"));
-        arguments.setReadOnly(true);
         arguments.setMacroExpander(macroExpander());
         arguments.setArguments(argumentsAsString());
 
         workingDirectory.setLabelText(Tr::tr("Working directory:"));
-        workingDirectory.setReadOnly(true);
         workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
 
         setCommandLineGetter([this] {
@@ -405,6 +402,7 @@ public:
         });
 
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        setEnabled(false);
     }
 
     TextDisplay hint{this};

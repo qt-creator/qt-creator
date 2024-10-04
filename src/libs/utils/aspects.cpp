@@ -294,6 +294,14 @@ void BaseAspect::addLabeledItem(Layout &parent, QWidget *widget)
     }
 }
 
+void BaseAspect::addLabeledItems(Layouting::Layout &parent, const QList<QWidget *> &widgets)
+{
+    if (QLabel *l = createLabel())
+        parent.addItem(l);
+    for (auto widget : widgets)
+        parent.addItem(widget);
+}
+
 /*!
     Sets \a labelText as text for the separate label in the visual
     representation of this aspect.

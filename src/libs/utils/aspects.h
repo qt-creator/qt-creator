@@ -237,6 +237,7 @@ protected:
 
     QLabel *createLabel();
     void addLabeledItem(Layouting::Layout &parent, QWidget *widget);
+    void addLabeledItems(Layouting::Layout &parent, const QList<QWidget *> &widgets);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
     void setDataClonerHelper(const DataCloner &cloner) const;

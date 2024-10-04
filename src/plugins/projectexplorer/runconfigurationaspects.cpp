@@ -157,6 +157,7 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
     : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Working Directory"));
+    setLabelText(Tr::tr("Working directory:"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
 }
@@ -206,7 +207,10 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
     m_chooser->setReadOnly(isReadOnly());
     m_resetButton->setEnabled(!isReadOnly());
 
-    builder.addItems({Tr::tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
+    registerSubWidget(m_chooser);
+    registerSubWidget(m_resetButton);
+
+    addLabeledItems(builder, {m_chooser.data(), m_resetButton.data()});
 }
 
 void WorkingDirectoryAspect::resetPath()
@@ -492,6 +496,7 @@ void ArgumentsAspect::addToLayoutImpl(Layout &builder)
         containerLayout->addWidget(m_resetButton);
         containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
     }
+    registerSubWidget(container);
 
     addLabeledItem(builder, container);
 }
