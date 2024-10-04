@@ -71,13 +71,13 @@ private:
     void refresh() override
     {
         if (!m_ignoreChanges.isLocked())
-            m_chooser->setFilePath(SysRootKitAspect::sysRoot(m_kit));
+            m_chooser->setFilePath(SysRootKitAspect::sysRoot(kit()));
     }
 
     void pathWasChanged()
     {
         const GuardLocker locker(m_ignoreChanges);
-        SysRootKitAspect::setSysRoot(m_kit, m_chooser->filePath());
+        SysRootKitAspect::setSysRoot(kit(), m_chooser->filePath());
     }
 
     PathChooser *m_chooser;
@@ -220,7 +220,7 @@ private:
 
     void refresh() override
     {
-        Id devType = DeviceTypeKitAspect::deviceTypeId(m_kit);
+        Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
         if (!devType.isValid())
             m_comboBox->setCurrentIndex(-1);
         for (int i = 0; i < m_comboBox->count(); ++i) {
@@ -234,7 +234,7 @@ private:
     void currentTypeChanged(int idx)
     {
         Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
-        DeviceTypeKitAspect::setDeviceTypeId(m_kit, type);
+        DeviceTypeKitAspect::setDeviceTypeId(kit(), type);
     }
 
     QComboBox *m_comboBox;
@@ -368,12 +368,12 @@ private:
 
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(m_kit); }
+    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(kit()); }
 
     void refresh() override
     {
-        m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(m_kit));
-        m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(m_kit)));
+        m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
+        m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(kit())));
     }
 
     void modelAboutToReset()
@@ -392,7 +392,7 @@ private:
     {
         if (m_ignoreChanges.isLocked())
             return;
-        DeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+        DeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
     }
 
     Guard m_ignoreChanges;
@@ -660,7 +660,7 @@ private:
         }
 
         m_model->setFilter(blackList);
-        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(m_kit)));
+        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(kit())));
     }
 
     void modelAboutToReset()
@@ -679,7 +679,7 @@ private:
     {
         if (m_ignoreChanges.isLocked())
             return;
-        BuildDeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+        BuildDeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
     }
 
     Guard m_ignoreChanges;
@@ -922,7 +922,7 @@ private:
 
     void editEnvironmentChanges()
     {
-        MacroExpander *expander = m_kit->macroExpander();
+        MacroExpander *expander = kit()->macroExpander();
         EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
             VariableChooser::addSupportForChildWidgets(w, expander);
         };
@@ -941,12 +941,12 @@ private:
             else if (enforcesMSVCEnglish(*changes))
                 m_vslangCheckbox->setChecked(true);
         }
-        EnvironmentKitAspect::setEnvironmentChanges(m_kit, *changes);
+        EnvironmentKitAspect::setEnvironmentChanges(kit(), *changes);
     }
 
     EnvironmentItems envWithoutMSVCEnglishEnforcement() const
     {
-        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
 
         if (HostOsInfo::isWindowsHost())
             changes.removeAll(forceMSVCEnglishItem());
@@ -961,15 +961,15 @@ private:
         m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
-        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(m_kit)))
+        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(kit())))
             m_vslangCheckbox->setChecked(true);
         connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
-            EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+            EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
             if (!checked && changes.indexOf(forceMSVCEnglishItem()) >= 0)
                 changes.removeAll(forceMSVCEnglishItem());
             if (checked && changes.indexOf(forceMSVCEnglishItem()) < 0)
                 changes.append(forceMSVCEnglishItem());
-            EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
+            EnvironmentKitAspect::setEnvironmentChanges(kit(), changes);
         });
     }
 

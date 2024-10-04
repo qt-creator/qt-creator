@@ -40,7 +40,7 @@ public:
             if (m_ignoreChanges.isLocked())
                 return;
 
-            PythonKitAspect::setPython(m_kit, m_comboBox->currentData().toString());
+            PythonKitAspect::setPython(this->kit(), m_comboBox->currentData().toString());
         });
         connect(PythonSettings::instance(),
                 &PythonSettings::interpretersChanged,
@@ -62,7 +62,7 @@ public:
         for (const Interpreter &interpreter : PythonSettings::interpreters())
             m_comboBox->addItem(interpreter.name, interpreter.id);
 
-        updateComboBox(PythonKitAspect::python(m_kit));
+        updateComboBox(PythonKitAspect::python(kit()));
         emit changed(); // we need to emit changed here to update changes in the macro expander
     }
 

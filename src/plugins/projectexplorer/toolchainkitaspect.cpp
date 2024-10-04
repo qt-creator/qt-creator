@@ -163,7 +163,7 @@ private:
 
             Id currentBundleId;
             for (const Id lang : lc) {
-                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang)) {
+                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(kit(), lang)) {
                     currentBundleId = currentTc->bundleId();
                     break;
                 }
@@ -196,9 +196,9 @@ private:
                 return tc->language() == lang;
             });
             if (tc)
-                ToolchainKitAspect::setToolchain(m_kit, tc);
+                ToolchainKitAspect::setToolchain(kit(), tc);
             else
-                ToolchainKitAspect::clearToolchain(m_kit, lang);
+                ToolchainKitAspect::clearToolchain(kit(), lang);
         }
     }
 

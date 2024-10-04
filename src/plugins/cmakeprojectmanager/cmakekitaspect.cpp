@@ -393,7 +393,7 @@ private:
 
     void refresh() override
     {
-        CMakeTool *const tool = CMakeKitAspect::cmakeTool(m_kit);
+        CMakeTool *const tool = CMakeKitAspect::cmakeTool(kit());
         if (tool != m_currentTool)
             m_currentTool = tool;
 

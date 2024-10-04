@@ -162,6 +162,7 @@ protected:
     };
     void setListAspectSpec(ListAspectSpec &&listAspectSpec);
 
+private:
     Kit *m_kit;
     const KitAspectFactory *m_factory;
     QAction *m_mutableAction = nullptr;
