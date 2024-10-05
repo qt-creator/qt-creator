@@ -171,6 +171,8 @@ public:
     constexpr static QSize dividerS{1, 16};
     constexpr static TextFormat itemNameTF
         {Theme::Token_Text_Default, UiElement::UiElementH6};
+    constexpr static TextFormat releaseStatusTF
+        {Theme::Token_Notification_Alert, UiElement::UiElementLabelSmall};
     constexpr static TextFormat countTF
         {Theme::Token_Text_Default, UiElement::UiElementLabelSmall,
          Qt::AlignCenter | Qt::TextDontClip};
@@ -190,23 +192,23 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
-        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
-        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
-        // |               |       |               |          <itemName>         |(HGapXxs)|<status>|(HGapXxs)|<checkmark>|               |         |
-        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
-        // |               |       |               |                               (VGapXxs)                              |               |         |
-        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
-        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |               |       |               |                               (VGapXxs)                              |               |         |
-        // |               |       |               +----------------------------------------------------------------------+               |         |
-        // |               |       |               |                                <tags>                                |               |         |
-        // |               |       |               +----------------------------------------------------------------------+               |         |
-        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
-        // |                                                                (gapSize)                                                               |
-        // +----------------------------------------------------------------------------------------------------------------------------------------+
+        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
+        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
+        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
+        // |               |       |               |<itemName>|(HGapXxs)|<releaseStatus>|(HGapXxs)|<installState>|(HGapXxs)|<checkmark>|               |         |
+        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
+        // |               |       |               |                                     (VGapXxs)                                     |               |         |
+        // |               |       |               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|       <vendor>      |(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
+        // |               |(50x50)|               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |               |       |               |                                     (VGapXxs)                                     |               |         |
+        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
+        // |               |       |               |                                       <tags>                                      |               |         |
+        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
+        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
+        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
+        // |                                                                      (gapSize)                                                                      |
+        // +-----------------------------------------------------------------------------------------------------------------------------------------------------+
 
         const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
@@ -290,11 +292,32 @@ public:
             QRect effectiveR = itemNameR;
             if (showState)
                 effectiveR.setRight(stateR.left() - HGapXxs - 1);
+            const QString releaseStatus = statusDisplayString(index);
+            const bool showReleaseStatus = !releaseStatus.isEmpty();
+
+            if (showReleaseStatus) {
+                const QFont releaseStatusF = releaseStatusTF.font();
+                const int releaseStatusAdv =
+                    QFontMetrics(releaseStatusF).horizontalAdvance(releaseStatus)
+                                             + (showState ? ExVPaddingGapXl - HGapXxs
+                                                          : HGapXxs);
+                effectiveR.setWidth(effectiveR.width() - releaseStatusAdv);
+            }
+
             painter->setPen(itemNameTF.color());
             painter->setFont(itemNameTF.font());
             const QString titleElided
                 = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, effectiveR.width());
             painter->drawText(effectiveR, itemNameTF.drawTextFlags, titleElided);
+
+            if (showReleaseStatus) {
+                const int titleElidedAdv = painter->fontMetrics().horizontalAdvance(titleElided);
+                const QRect releaseStatusR(effectiveR.x() + titleElidedAdv + HGapXxs,
+                                           effectiveR.y(), 1, effectiveR.height() - 1);
+                painter->setPen(releaseStatusTF.color());
+                painter->setFont(releaseStatusTF.font());
+                painter->drawText(releaseStatusR, releaseStatusTF.drawTextFlags, releaseStatus);
+            }
         }
         if (showState) {
             const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";

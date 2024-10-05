@@ -42,6 +42,7 @@ enum Role {
     RolePlatforms,
     RolePlugins,
     RoleSearchText,
+    RoleStatus,
     RoleTags,
     RoleVendor,
     RoleVendorId,
@@ -66,6 +67,7 @@ private:
 
 QString customOsTypeToString(Utils::OsType osType);
 ExtensionSystem::PluginSpec *pluginSpecForId(const QString &pluginId);
+QString statusDisplayString(const QModelIndex &index);
 
 #ifdef WITH_TESTS
 QObject *createExtensionsModelTest();

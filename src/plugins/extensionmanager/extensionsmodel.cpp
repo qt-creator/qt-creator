@@ -156,6 +156,8 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
         return json.value(EXTENSION_KEY_ID);
     case RoleDateUpdated:
         return QDate::fromString(json.value("updated_at").toString(), Qt::ISODate);
+    case RoleStatus:
+        return json.value("status");
     case RoleTags:
         return json.value("tags").toVariant().toStringList();
     case RoleVendor:
@@ -336,6 +338,12 @@ QString customOsTypeToString(OsType osType)
 PluginSpec *pluginSpecForId(const QString &pluginId)
 {
     return findOrDefault(PluginManager::plugins(), equal(&PluginSpec::id, pluginId));
+}
+
+QString statusDisplayString(const QModelIndex &index)
+{
+    const QString statusString = index.data(RoleStatus).toString();
+    return statusString != "published" ? statusString : QString();
 }
 
 } // ExtensionManager::Internal
