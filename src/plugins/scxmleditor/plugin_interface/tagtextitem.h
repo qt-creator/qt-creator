@@ -55,7 +55,7 @@ private:
     QPointF m_movePoint;
     QPointF m_startPos;
     TextItem *m_textItem;
-    qreal m_maxWidth;
+    qreal m_maxWidth = -1.0;
 };
 
 } // namespace PluginInterface
