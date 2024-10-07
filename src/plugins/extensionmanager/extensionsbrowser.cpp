@@ -590,7 +590,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             d->sortFilterProxyModel, &SortFilterProxyModel::setSortOption);
     connect(d->filterChooser, &OptionChooser::currentIndexChanged,
             d->sortFilterProxyModel, &SortFilterProxyModel::setFilterOption);
-    connect(settingsToolButton, &QAbstractButton::pressed, this, []() {
+    connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
     connect(&settings(), &AspectContainer::changed, this, [this]() {
