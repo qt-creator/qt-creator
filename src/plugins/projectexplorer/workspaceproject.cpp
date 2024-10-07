@@ -464,9 +464,7 @@ public:
                 FilePath wd = FilePath::fromUserInput(bs["workingDirectory"].toString());
                 if (wd.isEmpty())
                     wd = "%{ActiveProject:BuildConfig:Path}";
-                else if (wd.isRelativePath())
-                    wd = project()->projectDirectory().resolvePath(wd);
-                step->setWorkingDirectory(wd);
+                step->setWorkingDirectory(wd, project()->projectDirectory());
                 steps->appendStep(step);
             }
             initializeExtraInfo(extraInfos);
