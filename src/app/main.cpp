@@ -418,12 +418,11 @@ bool startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     const QString databasePath = appInfo.crashReports.path();
     const QString handlerPath = (appInfo.libexec / "crashpad_handler").path();
 #ifdef Q_OS_WIN
-    handlerPath += ".exe";
     base::FilePath database(databasePath.toStdWString());
-    base::FilePath handler(handlerPath.toStdWString());
+    base::FilePath handler(HostOsInfo::withExecutableSuffix(handlerPath).toStdWString());
 #elif defined(Q_OS_MACOS) || defined(Q_OS_LINUX)
     base::FilePath database(databasePath.toStdString());
-    base::FilePath handler(handlerPath.toStdString());
+    base::FilePath handler(HostOsInfo::withExecutableSuffix(handlerPath).toStdString());
 #endif
 
     std::unique_ptr<CrashReportDatabase> db = CrashReportDatabase::Initialize(database);
