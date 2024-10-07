@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<QtAdvancedDockingSystem version="1" userVersion="0" containers="1" displayName="3DFirst">
+<QtAdvancedDockingSystem version="1" userVersion="0" containers="2" displayName="3DFirst">
   <container floating="false">
-    <splitter orientation="Vertical" count="3">
+    <splitter orientation="Vertical" count="2">
       <splitter orientation="Horizontal" count="3">
         <splitter orientation="Vertical" count="2">
           <area tabs="2" current="Navigator">
@@ -12,7 +12,7 @@
             <widget name="FileSystem" closed="true"/>
             <widget name="OpenDocuments" closed="true"/>
           </area>
-          <sizes>1409 0</sizes>
+          <sizes>1432 0</sizes>
         </splitter>
         <splitter orientation="Vertical" count="2">
           <splitter orientation="Horizontal" count="2">
@@ -29,7 +29,7 @@
               </area>
               <sizes>0 0</sizes>
             </splitter>
-            <sizes>2628 0</sizes>
+            <sizes>2460 0</sizes>
           </splitter>
           <splitter orientation="Horizontal" count="2">
             <area tabs="2" current="Timelines">
@@ -42,11 +42,14 @@
             </area>
             <sizes>0 0</sizes>
           </splitter>
-          <sizes>1409 0</sizes>
+          <sizes>1432 0</sizes>
         </splitter>
-        <splitter orientation="Vertical" count="3">
+        <splitter orientation="Vertical" count="4">
           <area tabs="1" current="Properties">
             <widget name="Properties" closed="false"/>
+          </area>
+          <area tabs="1" current="LiveView">
+            <widget name="LiveView" closed="false"/>
           </area>
           <area tabs="1" current="TranslationsView">
             <widget name="TranslationsView" closed="true"/>
@@ -54,18 +57,24 @@
           <area tabs="1" current="ConnectionView">
             <widget name="ConnectionView" closed="true"/>
           </area>
-          <sizes>1409 0 0</sizes>
+          <sizes>1001 430 0 0</sizes>
         </splitter>
-        <sizes>508 2628 702</sizes>
+        <sizes>644 2460 734</sizes>
       </splitter>
-      <area tabs="1" current="Components">
-        <widget name="Components" closed="true"/>
-      </area>
       <area tabs="2" current="Assets">
         <widget name="Assets" closed="false"/>
         <widget name="MaterialBrowser" closed="false"/>
       </area>
-      <sizes>1409 0 547</sizes>
+      <sizes>1432 524</sizes>
+    </splitter>
+  </container>
+  <container floating="true">
+    <geometry>AdnQywADAAAAAB26AAADiwAAH0kAAAVUAAAdugAAA7EAAB9JAAAFVAAAAAIAAAAADwAAAB26AAADsQAAH0kAAAVU</geometry>
+    <splitter orientation="Vertical" count="1">
+      <area tabs="1" current="MaterialEditor">
+        <widget name="MaterialEditor" closed="true"/>
+      </area>
+      <sizes>420</sizes>
     </splitter>
   </container>
 </QtAdvancedDockingSystem>
