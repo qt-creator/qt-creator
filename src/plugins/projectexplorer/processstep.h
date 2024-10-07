@@ -15,7 +15,9 @@ public:
 
     void setCommand(const Utils::FilePath &command);
     void setArguments(const QStringList &arguments);
-    void setWorkingDirectory(const Utils::FilePath &workingDirectory);
+    void setWorkingDirectory(
+        const Utils::FilePath &workingDirectory,
+        const Utils::FilePath &relativeBasePath = Utils::FilePath());
 
 private:
     void setupOutputFormatter(Utils::OutputFormatter *formatter) final;
@@ -23,6 +25,7 @@ private:
     Utils::FilePathAspect m_command{this};
     Utils::StringAspect m_arguments{this};
     Utils::FilePathAspect m_workingDirectory{this};
+    Utils::FilePathAspect m_workingDirRelativeBasePath{this};
 };
 
 class ProcessStepFactory final : public BuildStepFactory
