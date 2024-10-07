@@ -879,6 +879,11 @@ TextEdit::TextEdit(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
+QString TextEdit::markdown() const
+{
+    return access(this)->toMarkdown();
+}
+
 void TextEdit::setText(const QString &text)
 {
     access(this)->setText(text);

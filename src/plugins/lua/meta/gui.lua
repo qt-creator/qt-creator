@@ -130,6 +130,9 @@ function gui.Tab(options) end
 ---@class TextEdit : Widget
 local textEdit = {}
 
+---@return string markdown Returns the content of the TextEdit as markdown
+function textEdit:markdown() end
+
 ---@param options WidgetOptions
 ---@return TextEdit
 function gui.TextEdit(options) end

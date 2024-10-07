@@ -462,6 +462,8 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<TextEdit>(children, guard);
             }),
+            "markdown",
+            sol::property(&TextEdit::markdown),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

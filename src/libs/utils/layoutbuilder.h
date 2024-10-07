@@ -316,6 +316,7 @@ public:
 
     TextEdit(std::initializer_list<I> ps);
 
+    QString markdown() const;
     void setText(const QString &);
     void setMarkdown(const QString &);
     void setReadOnly(bool);
