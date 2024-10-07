@@ -49,5 +49,4 @@ inline void mirrorEnum(sol::table &target, QMetaEnum metaEnum, const QString &na
     for (int i = 0; i < metaEnum.keyCount(); ++i)
         widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
 };
-
 } // namespace Lua::Internal
