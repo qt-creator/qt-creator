@@ -774,7 +774,7 @@ void KitAspect::refresh()
     if (!m_listAspectSpec)
         return;
     const GuardLocker locker(m_ignoreChanges);
-    m_listAspectSpec->resetModel(*m_listAspectSpec->model);
+    m_listAspectSpec->resetModel();
     m_listAspectSpec->model->sort(0);
     const QVariant itemId = m_listAspectSpec->getter(*kit());
     m_comboBox->setCurrentIndex(m_comboBox->findData(itemId, m_listAspectSpec->itemRole));

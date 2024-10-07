@@ -103,8 +103,6 @@ class CMakeToolSortModel : public SortModel
 public:
     CMakeToolSortModel(QObject *parent) : SortModel(parent) {}
 
-    void reset() { static_cast<CMakeToolListModel *>(sourceModel())->reset(); }
-
 private:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
     {
@@ -191,15 +189,14 @@ public:
     {
         setManagingPage(Constants::Settings::TOOLS_ID);
 
+        const auto model = new CMakeToolListModel(*kit, this);
         const auto sortModel = new CMakeToolSortModel(this);
-        sortModel->setSourceModel(new CMakeToolListModel(*kit, this));
+        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) { return CMakeKitAspect::cmakeToolId(&k).toSetting(); };
         auto setter = [](Kit &k, const QVariant &id) {
             CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
         };
-        auto resetModel = [](QAbstractItemModel &model) {
-            static_cast<CMakeToolSortModel &>(model).reset();
-        };
+        auto resetModel = [model] { model->reset(); };
         setListAspectSpec(
             {sortModel,
              std::move(getter),

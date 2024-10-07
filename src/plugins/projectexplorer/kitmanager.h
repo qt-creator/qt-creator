@@ -139,7 +139,7 @@ protected:
     public:
         using Getter = std::function<QVariant(const Kit &)>;
         using Setter = std::function<void(Kit &, const QVariant &)>;
-        using ResetModel = std::function<void(QAbstractItemModel &)>;
+        using ResetModel = std::function<void()>;
 
         ListAspectSpec(
             QAbstractItemModel *model,

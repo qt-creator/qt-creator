@@ -219,10 +219,7 @@ public:
         auto setter = [](Kit &k, const QVariant &type) {
             DeviceTypeKitAspect::setDeviceTypeId(&k, Id::fromSetting(type));
         };
-        auto resetModel = [](QAbstractItemModel &m) {
-            // FIXME: Change to parameter-less signature.
-            auto model = static_cast<ListModel<ItemData> *>(
-                static_cast<SortModel &>(m).sourceModel());
+        auto resetModel = [model] {
             model->clear();
             for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
                 model->appendItem(std::make_pair(factory->displayName(), factory->deviceType()));

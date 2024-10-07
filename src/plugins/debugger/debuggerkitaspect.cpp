@@ -69,8 +69,6 @@ class DebuggerItemSortModel : public SortModel
 public:
     DebuggerItemSortModel(QObject *parent) : SortModel(parent) {}
 
-    void reset() { static_cast<DebuggerItemListModel *>(sourceModel())->reset(); }
-
 private:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
     {
@@ -115,17 +113,16 @@ public:
     {
         setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
 
+        const auto model = new DebuggerItemListModel(*workingCopy, this);
         const auto sortModel = new DebuggerItemSortModel(this);
-        sortModel->setSourceModel(new DebuggerItemListModel(*workingCopy, this));
+        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) {
             if (const DebuggerItem * const item = DebuggerKitAspect::debugger(&k))
                 return item->id();
             return QVariant();
         };
         auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
-        auto resetModel = [](QAbstractItemModel &model) {
-            static_cast<DebuggerItemSortModel &>(model).reset();
-        };
+        auto resetModel = [model] { model->reset(); };
         setListAspectSpec(
             {sortModel,
              std::move(getter),

@@ -60,8 +60,6 @@ class QtVersionSortModel : public SortModel
 public:
     QtVersionSortModel(QObject *parent) : SortModel(parent) {}
 
-    void reset() { static_cast<QtVersionListModel *>(sourceModel())->reset(); }
-
 private:
     bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
     {
@@ -95,15 +93,14 @@ public:
     {
         setManagingPage(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
+        const auto model = new QtVersionListModel(*k, this);
         const auto sortModel = new QtVersionSortModel(this);
-        sortModel->setSourceModel(new QtVersionListModel(*k, this));
+        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) { return QtKitAspect::qtVersionId(&k); };
         auto setter = [](Kit &k, const QVariant &versionId) {
             QtKitAspect::setQtVersionId(&k, versionId.toInt());
         };
-        auto resetModel = [](QAbstractItemModel &model) {
-            static_cast<QtVersionSortModel &>(model).reset();
-        };
+        auto resetModel = [model] { model->reset(); };
         setListAspectSpec(
             {sortModel,
              std::move(getter),
