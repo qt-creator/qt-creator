@@ -111,6 +111,8 @@ class PROJECTEXPLORER_EXPORT KitAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
+    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, QualityRole };
+
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
 
@@ -145,20 +147,17 @@ protected:
             QAbstractItemModel *model,
             Getter &&getter,
             Setter &&setter,
-            ResetModel &&resetModel,
-            int itemRole)
+            ResetModel &&resetModel)
             : model(model)
             , getter(std::move(getter))
             , setter(std::move(setter))
             , resetModel(std::move(resetModel))
-            , itemRole(itemRole)
         {}
 
         QAbstractItemModel *model;
         Getter getter;
         Setter setter;
         ResetModel resetModel;
-        int itemRole;
     };
     void setListAspectSpec(ListAspectSpec &&listAspectSpec);
 

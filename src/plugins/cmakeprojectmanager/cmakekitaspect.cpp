@@ -98,34 +98,6 @@ private:
     const Kit &m_kit;
 };
 
-class CMakeToolSortModel : public SortModel
-{
-public:
-    CMakeToolSortModel(QObject *parent) : SortModel(parent) {}
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
-    {
-        const auto source = static_cast<CMakeToolListModel *>(sourceModel());
-        const auto item1 = static_cast<CMakeToolTreeItem *>(source->itemForIndex(source_left));
-        const auto item2 = static_cast<CMakeToolTreeItem *>(source->itemForIndex(source_right));
-        QTC_ASSERT(item1 && item2, return false);
-
-        // Criterion 1: "None" comes last
-        if (!item1->data(0, CMakeToolTreeItem::IdRole).isValid())
-            return false;
-        if (!item2->data(0, CMakeToolTreeItem::IdRole).isValid())
-            return true;
-
-        // Criterion 2: Tools with errors come after those without errors.
-        if (const bool item1Error = item1->hasError(); item1Error != item2->hasError())
-            return !item1Error;
-
-        // Criterion 3: Name.
-        return SortModel::lessThan(source_left, source_right);
-    }
-};
-
 // Factories
 
 class CMakeKitAspectFactory : public KitAspectFactory
@@ -190,19 +162,12 @@ public:
         setManagingPage(Constants::Settings::TOOLS_ID);
 
         const auto model = new CMakeToolListModel(*kit, this);
-        const auto sortModel = new CMakeToolSortModel(this);
-        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) { return CMakeKitAspect::cmakeToolId(&k).toSetting(); };
         auto setter = [](Kit &k, const QVariant &id) {
             CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec(
-            {sortModel,
-             std::move(getter),
-             std::move(setter),
-             std::move(resetModel),
-             CMakeToolTreeItem::IdRole});
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectImpl::refresh);

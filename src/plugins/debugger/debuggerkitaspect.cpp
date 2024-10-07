@@ -64,47 +64,6 @@ private:
     const Kit &m_kit;
 };
 
-class DebuggerItemSortModel : public SortModel
-{
-public:
-    DebuggerItemSortModel(QObject *parent) : SortModel(parent) {}
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
-    {
-        const auto source = static_cast<DebuggerItemListModel *>(sourceModel());
-        const auto item1 = static_cast<DebuggerTreeItem *>(source->itemForIndex(source_left));
-        const auto item2 = static_cast<DebuggerTreeItem *>(source->itemForIndex(source_right));
-        QTC_ASSERT(item1 && item2, return false);
-
-        // Criterion 1: "None" comes last
-        if (!item1->data(0, DebuggerTreeItem::IdRole).isValid())
-            return false;
-        if (!item2->data(0, DebuggerTreeItem::IdRole).isValid())
-            return true;
-
-        // Criterion 2: Invalid items come after valid ones with warnings, which come
-        //              after valid ones without warnings.
-        if (const QVariant &p1 = item1->data(0, DebuggerTreeItem::ProblemRole),
-                &p2 = item2->data(0, DebuggerTreeItem::ProblemRole);
-            p1 != p2) {
-            const auto problem1 = static_cast<DebuggerItem::Problem>(p1.toInt());
-            const auto problem2 = static_cast<DebuggerItem::Problem>(p2.toInt());
-            if (problem1 == DebuggerItem::Problem::None
-                || problem2 == DebuggerItem::Problem::NoEngine) {
-                return true;
-            }
-            if (problem2 == DebuggerItem::Problem::None
-                || problem1 == DebuggerItem::Problem::NoEngine) {
-                return false;
-            }
-        }
-
-        // Criterion 3: Name.
-        return SortModel::lessThan(source_left, source_right);
-    }
-};
-
 class DebuggerKitAspectImpl final : public KitAspect
 {
 public:
@@ -114,8 +73,6 @@ public:
         setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
 
         const auto model = new DebuggerItemListModel(*workingCopy, this);
-        const auto sortModel = new DebuggerItemSortModel(this);
-        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) {
             if (const DebuggerItem * const item = DebuggerKitAspect::debugger(&k))
                 return item->id();
@@ -123,12 +80,7 @@ public:
         };
         auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec(
-            {sortModel,
-             std::move(getter),
-             std::move(setter),
-             std::move(resetModel),
-             DebuggerTreeItem::IdRole});
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
 };
 } // namespace Internal

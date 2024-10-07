@@ -55,37 +55,6 @@ private:
     const Kit &m_kit;
 };
 
-class QtVersionSortModel : public SortModel
-{
-public:
-    QtVersionSortModel(QObject *parent) : SortModel(parent) {}
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
-    {
-        const auto source = static_cast<QtVersionListModel *>(sourceModel());
-        const auto item1 = static_cast<QtVersionItem *>(source->itemForIndex(source_left));
-        const auto item2 = static_cast<QtVersionItem *>(source->itemForIndex(source_right));
-        QTC_ASSERT(item1 && item2, return false);
-
-        // Criterion 1: "No Qt" comes last
-        if (item1->uniqueId() == -1)
-            return false;
-        if (item2->uniqueId() == -1)
-            return true;
-
-        // Criterion 2: Invalid Qt versions come after valid ones with warnings, which come
-        //              after valid ones without warnings.
-        if (const QtVersionItem::Quality qual1 = item1->quality(), qual2 = item2->quality();
-            qual1 != qual2) {
-            return qual1 == QtVersionItem::Quality::Good || qual2 == QtVersionItem::Quality::Bad;
-        }
-
-        // Criterion 3: Name.
-        return SortModel::lessThan(source_left, source_right);
-    }
-};
-
 class QtKitAspectImpl final : public KitAspect
 {
 public:
@@ -94,19 +63,12 @@ public:
         setManagingPage(Constants::QTVERSION_SETTINGS_PAGE_ID);
 
         const auto model = new QtVersionListModel(*k, this);
-        const auto sortModel = new QtVersionSortModel(this);
-        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) { return QtKitAspect::qtVersionId(&k); };
         auto setter = [](Kit &k, const QVariant &versionId) {
             QtKitAspect::setQtVersionId(&k, versionId.toInt());
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec(
-            {sortModel,
-             std::move(getter),
-             std::move(setter),
-             std::move(resetModel),
-             QtVersionItem::IdRole});
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
             if (k == kit())

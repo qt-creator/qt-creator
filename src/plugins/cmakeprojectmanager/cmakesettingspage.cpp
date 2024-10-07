@@ -11,6 +11,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
@@ -139,6 +140,8 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
     if (!m_id.isValid()) {
         if (role == Qt::DisplayRole && column == 0)
             return Tr::tr("None");
+        if (role == ProjectExplorer::KitAspect::IsNoneRole)
+            return true;
         return {};
     }
 
@@ -185,8 +188,10 @@ QVariant CMakeToolTreeItem::data(int column, int role) const
             return Icons::CRITICAL.icon();
         return QVariant();
     }
-    case IdRole:
+    case ProjectExplorer::KitAspect::IdRole:
         return m_id.toSetting();
+    case ProjectExplorer::KitAspect::QualityRole:
+        return int(!hasError());
     }
     return QVariant();
 }

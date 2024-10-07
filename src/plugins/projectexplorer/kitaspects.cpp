@@ -209,14 +209,12 @@ public:
                 return {};
             if (role == Qt::DisplayRole)
                 return std::get<0>(d);
-            if (role == Qt::UserRole)
+            if (role == KitAspect::IdRole)
                 return std::get<1>(d).toSetting();
             if (role == Qt::DecorationRole)
                 return std::get<2>(d);
             return {};
         });
-        const auto sortModel = new SortModel(this);
-        sortModel->setSourceModel(model);
         auto getter = [](const Kit &k) { return DeviceTypeKitAspect::deviceTypeId(&k).toSetting(); };
         auto setter = [](Kit &k, const QVariant &type) {
             DeviceTypeKitAspect::setDeviceTypeId(&k, Id::fromSetting(type));
@@ -229,7 +227,7 @@ public:
             }
         };
         setListAspectSpec(
-            {sortModel, std::move(getter), std::move(setter), std::move(resetModel), Qt::UserRole});
+            {model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
 };
 } // namespace Internal

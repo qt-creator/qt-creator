@@ -26,6 +26,7 @@
 #include <utils/pointeralgorithm.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
+#include <utils/treemodel.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -67,6 +68,36 @@ static FilePath settingsFileName()
 {
     return ICore::userResourcePath(KIT_FILENAME);
 }
+
+class KitAspectSortModel : public SortModel
+{
+public:
+    using SortModel::SortModel;
+
+private:
+    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
+    {
+        const auto getValue = [&](const QModelIndex &index, KitAspect::ItemRole role) {
+            return sourceModel()->data(index, role);
+        };
+
+        // Criterion 1: "None" comes last.
+        if (getValue(source_left, KitAspect::IsNoneRole).toBool())
+            return false;
+        if (getValue(source_right, KitAspect::IsNoneRole).toBool())
+            return true;
+
+        // Criterion 2: "Quality", i.e. how likely is the respective entry to be usable.
+        if (const int qual1 = getValue(source_left, KitAspect::QualityRole).toInt(),
+            qual2 = getValue(source_right, KitAspect::QualityRole).toInt();
+            qual1 != qual2) {
+            return qual1 > qual2;
+        }
+
+        // Criterion 3: Name.
+        return SortModel::lessThan(source_left, source_right);
+    }
+};
 
 // --------------------------------------------------------------------------
 // KitManagerPrivate:
@@ -775,9 +806,9 @@ void KitAspect::refresh()
         return;
     const GuardLocker locker(m_ignoreChanges);
     m_listAspectSpec->resetModel();
-    m_listAspectSpec->model->sort(0);
+    m_comboBox->model()->sort(0);
     const QVariant itemId = m_listAspectSpec->getter(*kit());
-    m_comboBox->setCurrentIndex(m_comboBox->findData(itemId, m_listAspectSpec->itemRole));
+    m_comboBox->setCurrentIndex(m_comboBox->findData(itemId, IdRole));
 }
 
 void KitAspect::makeStickySubWidgetsReadOnly()
@@ -812,7 +843,9 @@ void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
     m_comboBox = createSubWidget<QComboBox>();
     m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
     m_comboBox->setEnabled(true);
-    m_comboBox->setModel(m_listAspectSpec->model);
+    const auto sortModel = new KitAspectSortModel(this);
+    sortModel->setSourceModel(m_listAspectSpec->model);
+    m_comboBox->setModel(sortModel);
 
     refresh();
 
@@ -826,7 +859,7 @@ void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
             return;
         updateTooltip();
         m_listAspectSpec->setter(
-            *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), m_listAspectSpec->itemRole));
+            *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), IdRole));
     });
 }
 

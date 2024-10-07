@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -165,9 +166,11 @@ QVariant QtVersionItem::data(int column, int role) const
     const QtVersion *version = this->version();
 
     if (!version) {
+        if (role == KitAspect::IsNoneRole && column == 0)
+            return true;
         if (role == Qt::DisplayRole && column == 0)
             return Tr::tr("None");
-        if (role == IdRole)
+        if (role == KitAspect::IdRole)
             return -1;
         return TreeItem::data(column, role);
     }
@@ -221,8 +224,11 @@ QVariant QtVersionItem::data(int column, int role) const
         return desc;
     }
 
-    if (role == IdRole)
+    if (role == KitAspect::IdRole)
         return uniqueId();
+
+    if (role == KitAspect::QualityRole)
+        return int(quality());
 
     return QVariant();
 }
