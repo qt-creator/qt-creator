@@ -230,7 +230,7 @@ QVariant QtVersionItem::data(int column, int role) const
 int QtVersionItem::uniqueId() const
 {
     if (const auto v = std::get_if<QtVersion *>(&m_version))
-        return v ? (*v)->uniqueId() : -1;
+        return *v ? (*v)->uniqueId() : -1;
     return *std::get_if<int>(&m_version);
 }
 
