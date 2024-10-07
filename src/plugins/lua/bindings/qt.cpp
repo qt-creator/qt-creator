@@ -5,6 +5,8 @@
 
 #include "utils.h"
 
+#include <utils/stringutils.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QCompleter>
@@ -47,7 +49,7 @@ void setupQtModule()
             "text",
             sol::property(
                 [](QClipboard &self) { return self.text(); },
-                [](QClipboard &self, const QString &value) { self.setText(value); }));
+                [](QClipboard &, const QString &text) { Utils::setClipboardAndSelection(text); }));
 
         qt["clipboard"] = &QApplication::clipboard;
 
