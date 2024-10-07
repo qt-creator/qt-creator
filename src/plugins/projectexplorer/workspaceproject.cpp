@@ -209,9 +209,6 @@ void WorkspaceBuildSystem::reparse(bool force)
         FilePath workingDirectory = FilePath::fromUserInput(
             targetObject["workingDirectory"].toString());
 
-        if (!workingDirectory.isDir())
-            workingDirectory = FilePath::currentWorkingPath();
-
         const QString name = targetObject["name"].toString();
         const FilePath executable = FilePath::fromUserInput(
             targetObject["executable"].toString());
