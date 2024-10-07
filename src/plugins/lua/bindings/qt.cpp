@@ -29,29 +29,27 @@ void setupQtModule()
             "currentCompletion",
             &QCompleter::currentCompletion,
             "completionMode",
-            sol::property(&QCompleter::completionMode,
-                          [](QCompleter *c, QCompleter::CompletionMode mode) {
-                              c->setCompletionMode(mode);
-                          }),
+            sol::property(
+                &QCompleter::completionMode,
+                [](QCompleter *c, QCompleter::CompletionMode mode) { c->setCompletionMode(mode); }),
             "onActivated",
             sol::property([guard = pluginSpec](QCompleter &obj, sol::function callback) {
-                QObject::connect(&obj,
-                                 QOverload<const QString &>::of(&QCompleter::activated),
-                                 guard->connectionGuard.get(),
-                                 [callback](const QString &arg) {
-                                     void_safe_call(callback, arg);
-                                 });})
-            );
+                QObject::connect(
+                    &obj,
+                    QOverload<const QString &>::of(&QCompleter::activated),
+                    guard->connectionGuard.get(),
+                    [callback](const QString &arg) { void_safe_call(callback, arg); });
+            }));
 
         qt.new_usertype<QClipboard>(
             "QClipboard",
-            sol::call_constructor,
-            &QApplication::clipboard,
+            sol::no_constructor,
             "text",
-            sol::property([](QClipboard &self) { return self.text(); },
-                          [](QClipboard &self, const QString &value) { self.setText(value); })
-            );
+            sol::property(
+                [](QClipboard &self) { return self.text(); },
+                [](QClipboard &self, const QString &value) { self.setText(value); }));
 
+        qt["clipboard"] = &QApplication::clipboard;
 
         mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 

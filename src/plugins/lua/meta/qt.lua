@@ -11,27 +11,28 @@ qt.CompleterCompletionMode = {
     UnfilteredPopupCompletion = 2,
 };
 
----Creates QCompleter.
 ---@class QCompleter
 ---@field completionMode CompleterCompletionMode The completion mode.
 local QCompleter = {}
 
+---Creates a new Completer.
+---@param params string[] The list of suggestions.
+---@return QCompleter completer The new Completer.
+function qt.QCompleter.create(params) end
+
 ---Returns current completion.
 ---@return string
 function qt.QCompleter:currentCompletion() end
+---@param callback function The function to be called when user choice is selected from popup.
+function qt.QCompleter.onActivated(callback) end
 
----@param params string list A list of suggestions.
----@return QCompleter Created Completer.
-function qt.QCompleter.create(params) end
+---@class QClipboard A Lua wrapper for the Qt `QClipboard` class.
+---@field text string The text content of the clipboard. Gets or sets the text content of the clipboard.
+qt.QClipboard = {}
 
----@param function The function to be called when user choice is selected from popup.
-function qt.QCompleter.onActivated(function) end
-
----@class QClipboard
---- A Lua wrapper for the Qt `QClipboard` class.
-
-qt.QClipboard() Creates QClipboard object, which is a singleton instance of the system clipboard.
----@field text The text content of the clipboard. Gets or sets the text content of the clipboard.
+---Returns the global clipboard object.
+---@return QClipboard globalClipboard The global clipboard object.
+function qt.clipboard() end
 
 ---@enum TextElideMode
 qt.TextElideMode = {
