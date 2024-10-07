@@ -36,7 +36,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include <utility>
+#include <tuple>
 
 using namespace Utils;
 
@@ -202,15 +202,17 @@ public:
     DeviceTypeKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
         : KitAspect(workingCopy, factory)
     {
-        using ItemData = std::pair<QString, Id>;
+        using ItemData = std::tuple<QString, Id, QIcon>;
         const auto model = new ListModel<ItemData>(this);
         model->setDataAccessor([](const ItemData &d, int column, int role) -> QVariant {
             if (column != 0)
                 return {};
             if (role == Qt::DisplayRole)
-                return d.first;
+                return std::get<0>(d);
             if (role == Qt::UserRole)
-                return d.second.toSetting();
+                return std::get<1>(d).toSetting();
+            if (role == Qt::DecorationRole)
+                return std::get<2>(d);
             return {};
         });
         const auto sortModel = new SortModel(this);
@@ -221,8 +223,10 @@ public:
         };
         auto resetModel = [model] {
             model->clear();
-            for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
-                model->appendItem(std::make_pair(factory->displayName(), factory->deviceType()));
+            for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories()) {
+                model->appendItem(
+                    std::make_tuple(factory->displayName(), factory->deviceType(), factory->icon()));
+            }
         };
         setListAspectSpec(
             {sortModel, std::move(getter), std::move(setter), std::move(resetModel), Qt::UserRole});
