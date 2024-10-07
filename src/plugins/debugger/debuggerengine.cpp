@@ -510,7 +510,7 @@ public:
     QAction m_abortAction{Tr::tr("Abort Debugging")};
     QAction m_stepIntoAction{Tr::tr("Step Into")};
     QAction m_stepOutAction{Tr::tr("Step Out")};
-    QAction m_toggleEnableBreakpointsAction{Tr::tr("Disable all Breakpoints")};
+    QAction m_toggleEnableBreakpointsAction{Tr::tr("Disable All Breakpoints")};
     QAction m_runToLineAction{Tr::tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{Tr::tr("Run to Selected Function")};
     QAction m_jumpToLineAction{Tr::tr("Jump to Line")};
