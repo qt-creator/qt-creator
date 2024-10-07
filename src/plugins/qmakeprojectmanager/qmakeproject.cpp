@@ -68,8 +68,6 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-const int UPDATE_INTERVAL = 3000;
-
 static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarningMsg);
 
 #define TRACE(msg)                                                   \
@@ -204,8 +202,6 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     , m_qmakeVfs(new QMakeVfs)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
-    setParseDelay(0);
-
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
 
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -588,10 +584,11 @@ void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
         return;
     }
 
-    const int interval = qMin(parseDelay(),
-                              delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
-    TRACE("interval: " << interval);
-    requestParseWithCustomDelay(interval);
+    TRACE("delay: " << delay);
+    switch (delay) {
+    case QmakeProFile::ParseNow: requestParse(); break;
+    case QmakeProFile::ParseLater: requestDelayedParse(); break;
+    }
 }
 
 void QmakeBuildSystem::incrementPendingEvaluateFutures()
@@ -666,7 +663,6 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 void QmakeBuildSystem::asyncUpdate()
 {
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    setParseDelay(UPDATE_INTERVAL);
     TRACE("");
 
     if (m_invalidateQmakeVfsContents) {
@@ -945,7 +941,7 @@ void QmakeBuildSystem::activeTargetWasChanged(Target *t)
         return;
 
     m_invalidateQmakeVfsContents = true;
-    scheduleUpdateAll(QmakeProFile::ParseLater);
+    scheduleUpdateAllNowOrLater();
 }
 
 static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)
