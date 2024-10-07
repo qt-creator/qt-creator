@@ -85,6 +85,12 @@ const QStringList &Asset::supportedEffectComposerSuffixes()
     return retList;
 }
 
+const QStringList &Asset::supportedMaterialSuffixes()
+{
+    static QStringList retList {"*.mat"};
+    return retList;
+}
+
 const QSet<QString> &Asset::supportedSuffixes()
 {
     static QSet<QString> allSuffixes;
@@ -100,6 +106,7 @@ const QSet<QString> &Asset::supportedSuffixes()
         insertSuffixes(supportedVideoSuffixes());
         insertSuffixes(supportedTexture3DSuffixes());
         insertSuffixes(supportedEffectComposerSuffixes());
+        insertSuffixes(supportedMaterialSuffixes());
     }
     return allSuffixes;
 }
@@ -182,6 +189,11 @@ bool Asset::isEffect() const
     return m_type == Asset::Type::Effect;
 }
 
+bool Asset::isMaterial() const
+{
+    return m_type == Asset::Type::Material;
+}
+
 const QString Asset::suffix() const
 {
     return m_suffix;
@@ -228,6 +240,8 @@ void Asset::resolveType()
         m_type = Asset::Type::Texture3D;
     else if (supportedEffectComposerSuffixes().contains(m_suffix))
         m_type = Asset::Type::Effect;
+    else if (supportedMaterialSuffixes().contains(m_suffix))
+        m_type = Asset::Type::Material;
 }
 
 bool Asset::hasSuffix() const

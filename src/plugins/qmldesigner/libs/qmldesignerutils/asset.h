@@ -15,16 +15,19 @@ namespace QmlDesigner {
 class QMLDESIGNERUTILS_EXPORT Asset
 {
 public:
-    enum Type { Unknown,
-                Image,
-                MissingImage,
-                FragmentShader,
-                VertexShader,
-                Font,
-                Audio,
-                Video,
-                Texture3D,
-                Effect };
+    enum Type {
+        Unknown,
+        Image,
+        MissingImage,
+        FragmentShader,
+        VertexShader,
+        Font,
+        Audio,
+        Video,
+        Texture3D,
+        Effect,
+        Material
+    };
 
     Asset(const QString &filePath);
 
@@ -37,6 +40,7 @@ public:
     static const QStringList &supportedVideoSuffixes();
     static const QStringList &supportedTexture3DSuffixes();
     static const QStringList &supportedEffectComposerSuffixes();
+    static const QStringList &supportedMaterialSuffixes();
     static const QSet<QString> &supportedSuffixes();
     static bool isSupported(const QString &path);
 
@@ -58,6 +62,7 @@ public:
     bool isHdrFile() const;
     bool isKtxFile() const;
     bool isEffect() const;
+    bool isMaterial() const;
     bool isSupported() const;
     bool isValidTextureSource();
 

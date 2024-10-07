@@ -86,7 +86,7 @@ void AssetsLibraryView::modelAttached(Model *model)
 
     m_widget->clearSearchFilter();
 
-    setResourcePath(DocumentManager::currentResourcePath().toFileInfo().absoluteFilePath());
+    setResourcePath(DocumentManager::currentResourcePath().toFSPathString());
 }
 
 void AssetsLibraryView::modelAboutToBeDetached(Model *model)
@@ -96,7 +96,6 @@ void AssetsLibraryView::modelAboutToBeDetached(Model *model)
 
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 {
-
     if (resourcePath == m_lastResourcePath)
         return;
 
