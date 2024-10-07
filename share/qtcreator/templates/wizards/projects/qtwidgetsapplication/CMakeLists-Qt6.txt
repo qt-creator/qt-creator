@@ -32,6 +32,8 @@ target_link_libraries(%{ProjectName}
         Qt::Widgets
 )
 
+include(GNUInstallDirs)
+
 install(TARGETS %{ProjectName}
     BUNDLE  DESTINATION .
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
