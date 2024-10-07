@@ -235,6 +235,8 @@ void WorkspaceBuildSystem::reparse(bool force)
 
     if (force || oldFilters != m_filters)
         scan(target()->project()->projectDirectory());
+    else
+        emitBuildSystemUpdated();
 }
 
 void WorkspaceBuildSystem::triggerParsing()
@@ -369,6 +371,7 @@ public:
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
         executable.setValue(bti.targetFilePath);
+        executable.setSettingsKey("Workspace.RunConfiguration.Executable");
 
         auto argumentsAsString = [this]() {
             return CommandLine{
@@ -379,36 +382,47 @@ public:
         arguments.setLabelText(Tr::tr("Arguments:"));
         arguments.setMacroExpander(macroExpander());
         arguments.setArguments(argumentsAsString());
+        arguments.setSettingsKey("Workspace.RunConfiguration.Arguments");
 
         workingDirectory.setLabelText(Tr::tr("Working directory:"));
         workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+        workingDirectory.setSettingsKey("Workspace.RunConfiguration.WorkingDirectory");
 
         setCommandLineGetter([this] {
-            const BuildTargetInfo bti = buildTargetInfo();
-            CommandLine cmdLine{
-                macroExpander()->expand(bti.targetFilePath),
-                Utils::transform(
-                    bti.additionalData.toMap()["arguments"].toStringList(),
-                    [this](const QString &arg) { return macroExpander()->expand(arg); })};
-
-            return cmdLine;
+            return CommandLine(executable.effectiveBinary(),
+                               arguments.arguments(),
+                               CommandLine::Raw);
         });
 
         setUpdater([this, argumentsAsString] {
+            if (enabled.value()) // skip the update for cloned run configurations
+                return;
             const BuildTargetInfo bti = buildTargetInfo();
             executable.setValue(bti.targetFilePath);
             arguments.setArguments(argumentsAsString());
             workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         });
 
+        auto enabledUpdater = [this] { setEnabled(enabled.value()); };
+        connect(&enabled, &BaseAspect::changed, this, enabledUpdater);
+        connect(this, &AspectContainer::fromMapFinished, this, enabledUpdater);
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
-        setEnabled(false);
+        enabledUpdater();
+        enabled.setSettingsKey("Workspace.RunConfiguration.Enabled");
+    }
+
+    RunConfiguration *clone(Target *parent) override
+    {
+        RunConfiguration *result = RunConfiguration::clone(parent);
+        dynamic_cast<WorkspaceRunConfiguration *>(result)->enabled.setValue(true);
+        return result;
     }
 
     TextDisplay hint{this};
     FilePathAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
+    BoolAspect enabled{this};
 };
 
 class WorkspaceProjectRunConfigurationFactory : public RunConfigurationFactory

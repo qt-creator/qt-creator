@@ -547,7 +547,7 @@ bool Project::copySteps(Target *sourceTarget, Target *newTarget)
     }
 
     for (RunConfiguration *sourceRc : sourceTarget->runConfigurations()) {
-        RunConfiguration *newRc = RunConfigurationFactory::clone(newTarget, sourceRc);
+        RunConfiguration *newRc = sourceRc->clone(newTarget);
         if (!newRc) {
             runconfigurationError << sourceRc->displayName();
             continue;

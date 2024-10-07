@@ -210,7 +210,7 @@ void RunSettingsWidget::cloneRunConfiguration()
     if (name.isEmpty())
         return;
 
-    RunConfiguration *newRc = RunConfigurationFactory::clone(m_target, activeRunConfiguration);
+    RunConfiguration *newRc = activeRunConfiguration->clone(m_target);
     if (!newRc)
         return;
 

@@ -356,6 +356,13 @@ void RunConfiguration::update()
         ProjectExplorerPlugin::updateRunActions();
 }
 
+RunConfiguration *RunConfiguration::clone(Target *parent)
+{
+    Store map;
+    toMap(map);
+    return RunConfigurationFactory::restore(parent, map);
+}
+
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
     BuildSystem *bs = target()->buildSystem();
@@ -654,13 +661,6 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &
         }
     }
     return nullptr;
-}
-
-RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    Store map;
-    source->toMap(map);
-    return restore(parent, map);
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)
