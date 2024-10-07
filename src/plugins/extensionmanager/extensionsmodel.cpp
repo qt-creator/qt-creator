@@ -49,7 +49,7 @@ public:
 void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
     QStringList responseExtensions;
-    for (const QJsonValueConstRef &responseItem : responseItems)
+    for (const QJsonValueConstRef &responseItem : qAsConst(responseItems))
         responseExtensions << responseItem.toObject().value("id").toString();
 
     localPlugins.clear();
@@ -114,7 +114,7 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
         const QJsonArray sources = json.value("sources").toArray();
         const QString thisPlatform = customOsTypeToString(HostOsInfo::hostOs());
         const QString thisArch = QSysInfo::currentCpuArchitecture();
-        for (const QJsonValue source : sources) {
+        for (const QJsonValue &source : sources) {
             const QJsonObject sourceObject = source.toObject();
             const QJsonObject platform = sourceObject.value("platform").toObject();
             if (platform.isEmpty() // Might be a Lua plugin
@@ -296,8 +296,8 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
     if (localIndex >= 0)
         return index(d->responseItems.count() + localIndex);
 
-    for (int remoteIndex = 0; const QJsonValueConstRef vlaue : d->responseItems) {
-        if (vlaue.toObject().value(EXTENSION_KEY_ID) == extensionId)
+    for (int remoteIndex = 0; const QJsonValueConstRef &value : std::as_const(d->responseItems)) {
+        if (value.toObject().value(EXTENSION_KEY_ID) == extensionId)
             return index(remoteIndex);
         ++remoteIndex;
     }
