@@ -361,6 +361,28 @@ InternalNodePointer ModelPrivate::createNode(TypeNameView typeName,
     return newNode;
 }
 
+InternalNodePointer ModelPrivate::createReferenceNode(const InternalNodePointer& owner, const InternalNodePointer& ref)
+{
+    auto newNode = std::make_shared<InternalNode>(ref.get()->typeName,
+                                                  ref.get()->majorVersion,
+                                                  ref.get()->minorVersion,
+                                                  m_internalIdCounter++,
+                                                  traceToken.tickWithFlow("create node"_t));
+
+    newNode->reference = {
+        true,
+        owner,
+        ref
+    };
+
+    setTypeId(newNode.get(), ref.get()->typeName);
+
+    m_nodes.push_back(newNode);
+    m_internalIdNodeHash.insert(newNode->internalId, newNode);
+
+    return newNode;
+}
+
 void ModelPrivate::removeNodeFromModel(const InternalNodePointer &node)
 {
     Q_ASSERT(node);
@@ -473,8 +495,9 @@ void ModelPrivate::exportedTypesChanged()
 
 void ModelPrivate::removeAllSubNodes(const InternalNodePointer &node)
 {
-    for (const InternalNodePointer &subNode : node->allSubNodes())
+    for (const InternalNodePointer &subNode : node->allSubNodes()) {
         removeNodeFromModel(subNode);
+    }
 }
 
 void ModelPrivate::removeNodeAndRelatedResources(const InternalNodePointer &node)

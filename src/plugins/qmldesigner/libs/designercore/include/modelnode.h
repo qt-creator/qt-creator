@@ -260,6 +260,11 @@ public:
         return firstNode.m_internalNode <=> secondNode.m_internalNode;
     }
 
+    static ModelNode createReference(const ModelNode &ownerModelNode, const ModelNode &modelNode);
+    bool isReference() const;
+    ModelNode refNode() const;
+    ModelNode refOwnerNode() const;
+
 private: // functions
     Internal::InternalNodePointer internalNode() const { return m_internalNode; }
 

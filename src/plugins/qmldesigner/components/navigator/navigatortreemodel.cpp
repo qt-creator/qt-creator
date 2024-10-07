@@ -206,12 +206,12 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
 
     if (index.column() == ColumnType::Name) {
         if (role == Qt::DisplayRole) {
-            return modelNode.displayName();
+            return modelNode.isReference() ? "ref: " + modelNode.refNode().displayName() : modelNode.displayName();
         } else if (role == Qt::DecorationRole) {
             if (currentQmlObjectNode.hasError())
                 return ::Utils::Icons::WARNING.icon();
 
-            return modelNode.typeIcon();
+            return modelNode.isReference() ? ::Utils::Icons::LINK_TOOLBAR.icon() : modelNode.typeIcon();
 
         } else if (role == Qt::ToolTipRole) {
             if (currentQmlObjectNode.hasError()) {
@@ -220,38 +220,44 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
             }
 
             if (modelNode.metaInfo().isValid()) {
-                if (m_actionManager->hasModelNodePreviewHandler(modelNode))
+                if (m_actionManager->hasModelNodePreviewHandler(modelNode.isReference() ? modelNode.refNode() : modelNode))
                     return {}; // Images have special tooltip popup, so suppress regular one
                 else
-                    return modelNode.type();
+                    return (modelNode.isReference() ? modelNode.refNode() : modelNode).type();
             } else {
-                return msgUnknownItem(QString::fromUtf8(modelNode.type()));
+                return msgUnknownItem(QString::fromUtf8((modelNode.isReference() ? modelNode.refNode() : modelNode).type()));
             }
         } else if (role == ToolTipImageRole) {
             if (currentQmlObjectNode.hasError()) // Error already shown on regular tooltip
                 return {};
-            auto op = m_actionManager->modelNodePreviewOperation(modelNode);
+            auto op = m_actionManager->modelNodePreviewOperation(modelNode.isReference() ? modelNode.refNode() : modelNode);
             if (op)
-                return op(modelNode);
+                return op(modelNode.isReference() ? modelNode.refNode() : modelNode);
         }
-    } else if (index.column() == ColumnType::Alias) { // export
+    } else if (index.column() == ColumnType::Alias && !modelNode.isReference()) { // export
         if (role == Qt::CheckStateRole)
             return currentQmlObjectNode.isAliasExported() ? Qt::Checked : Qt::Unchecked;
-        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
+        else if (role == Qt::ToolTipRole && !modelNode.isRootNode())
             return tr("Toggles whether this component is exported as an "
                       "alias property of the root component.");
-    } else if (index.column() == ColumnType::Visibility) { // visible
+    } else if (index.column() == ColumnType::Visibility && !modelNode.isReference()) { // visible
         if (role == Qt::CheckStateRole)
             return m_view->isNodeInvisible(modelNode) ? Qt::Unchecked : Qt::Checked;
-        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
+        else if (role == Qt::ToolTipRole && !modelNode.isRootNode())
             return tr("Toggles the visibility of this component in the 2D and 3D views.\n"
                       "This is independent of the visibility property.");
-    } else if (index.column() == ColumnType::Lock) { // lock
+    } else if (index.column() == ColumnType::Lock && !modelNode.isReference()) { // lock
         if (role == Qt::CheckStateRole)
             return modelNode.locked() ? Qt::Checked : Qt::Unchecked;
-        else if (role == Qt::ToolTipRole && !modelNodeForIndex(index).isRootNode())
+        else if (role == Qt::ToolTipRole && !modelNode.isRootNode())
             return tr("Toggles whether this component is locked.\n"
                       "Locked components cannot be modified or selected.");
+    } else if (index.column() == ColumnType::Edit && modelNode.isReference()) { // edit
+        if (role == Qt::ToolTipRole && !modelNode.isRootNode())
+            return tr("Edit material");
+    }  else if (index.column() == ColumnType::Delete && modelNode.isReference()) { // Delete
+        if (role == Qt::ToolTipRole && !modelNode.isRootNode())
+            return tr("Remove material from model");
     }
 
     return QVariant();
@@ -281,8 +287,12 @@ Qt::ItemFlags NavigatorTreeModel::flags(const QModelIndex &index) const
     if (ModelUtils::isThisOrAncestorLocked(modelNode))
         return Qt::NoItemFlags;
 
-    if (index.column() == ColumnType::Name)
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+    if (index.column() == ColumnType::Name) {
+        Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        if (!modelNode.isReference())
+            flags |= Qt::ItemIsEditable | Qt::ItemIsDropEnabled | Qt::ItemIsDragEnabled;
+        return flags;
+    }
 
     return Qt::ItemIsSelectable | Qt::ItemIsEnabled | Qt::ItemIsUserCheckable;
 }
@@ -299,7 +309,38 @@ static void appendForcedNodes(const NodeListProperty &property, QList<ModelNode>
     }
 }
 
-QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const
+static QList<ModelNode> getMaterials(const ModelNode &node)
+{
+    BindingProperty matsProp = node.bindingProperty("materials");
+    if (!matsProp.exists())
+        return {};
+
+    const QString materialsExpression = matsProp.expression();
+    Model *model = node.model();
+    QList<ModelNode> materials;
+    if (model->hasId(materialsExpression))
+        materials.append(model->modelNodeForId(materialsExpression));
+    else
+        materials = matsProp.resolveToModelNodeList();
+
+    return materials;
+}
+
+static void removeMaterialFromNode(const ModelNode &node, const ModelNode &materialNode)
+{
+    BindingProperty matsProp = node.bindingProperty("materials");
+    if (!matsProp.exists())
+        return;
+
+    const QString materialsExpression = matsProp.expression();
+    if (matsProp.isList()) {
+        matsProp.removeModelNodeFromArray(materialNode);
+    } else {
+        matsProp.parentModelNode().removeProperty(matsProp.name());
+    }
+}
+
+QList<ModelNode> NavigatorTreeModel::filteredList(const ModelNode& node, const NodeListProperty &property, bool filter, bool reverseOrder) const
 {
     auto it = m_rowCache.find(property.parentModelNode());
 
@@ -329,6 +370,10 @@ QList<ModelNode> NavigatorTreeModel::filteredList(const NodeListProperty &proper
         list = nameFilteredList;
     }
 
+    for (const auto& m : getMaterials(node)) {
+        list.append(ModelNode::createReference(node, m));
+    }
+
     appendForcedNodes(property, list);
 
     if (reverseOrder)
@@ -353,7 +398,8 @@ QModelIndex NavigatorTreeModel::index(int row, int column, const QModelIndex &pa
 
     ModelNode modelNode;
     if (parentModelNode.defaultNodeListProperty().isValid())
-        modelNode = filteredList(parentModelNode.defaultNodeListProperty(),
+        modelNode = filteredList(parentModelNode,
+                                 parentModelNode.defaultNodeListProperty(),
                                  m_showOnlyVisibleItems,
                                  m_reverseItemOrder).at(row);
 
@@ -378,15 +424,18 @@ QModelIndex NavigatorTreeModel::parent(const QModelIndex &index) const
     if (!modelNode.isValid())
         return QModelIndex();
 
-    if (!modelNode.hasParentProperty())
+    if (!modelNode.isReference() && !modelNode.hasParentProperty())
         return QModelIndex();
 
-    const ModelNode parentModelNode = modelNode.parentProperty().parentModelNode();
+    const ModelNode parentModelNode = modelNode.isReference()
+        ? modelNode.refOwnerNode()
+        : modelNode.parentProperty().parentModelNode();
 
     int row = 0;
 
     if (!parentModelNode.isRootNode() && parentModelNode.parentProperty().isNodeListProperty()) {
-        row = filteredList(parentModelNode.parentProperty().toNodeListProperty(),
+        row = filteredList(parentModelNode,
+                           parentModelNode.parentProperty().toNodeListProperty(),
                            m_showOnlyVisibleItems,
                            m_reverseItemOrder).indexOf(parentModelNode);
     }
@@ -407,7 +456,8 @@ int NavigatorTreeModel::rowCount(const QModelIndex &parent) const
     int rows = 0;
 
     if (modelNode.defaultNodeListProperty().isValid()) {
-        rows = filteredList(modelNode.defaultNodeListProperty(),
+        rows = filteredList(modelNode,
+                            modelNode.defaultNodeListProperty(),
                             m_showOnlyVisibleItems,
                             m_reverseItemOrder)
                    .size();
@@ -873,6 +923,7 @@ void NavigatorTreeModel::moveNodesInteractive(NodeAbstractProperty &parentProper
         int idx = targetIndex;
         for (const ModelNode &modelNode : modelNodes) {
             if (modelNode.isValid() && modelNode != parentProperty.parentModelNode()
+                && !modelNode.isReference()
                 && !modelNode.isAncestorOf(parentProperty.parentModelNode())
                 && (modelNode.metaInfo().isBasedOn(propertyQmlType) || propertyQmlType.isAlias()
                     || parentProperty.name() == "data"
@@ -946,6 +997,11 @@ bool NavigatorTreeModel::setData(const QModelIndex &index, const QVariant &value
         if (Utils3D::isPartOfMaterialLibrary(modelNode))
             return false;
         modelNode.setLocked(value.toInt() != 0);
+    } else if (index.column() == ColumnType::Edit && modelNode.isReference()) {
+        QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor", true);
+        Utils3D::selectMaterial(modelNode.refNode());
+    } else if (index.column() == ColumnType::Delete && modelNode.isReference()) {
+        removeMaterialFromNode(modelNode.refOwnerNode(), modelNode.refNode());
     }
 
     return true;

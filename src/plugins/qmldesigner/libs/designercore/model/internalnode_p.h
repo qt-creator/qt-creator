@@ -242,6 +242,12 @@ public:
     TypeId typeId;
     NO_UNIQUE_ADDRESS ModelTracing::AsynchronousToken traceToken;
 
+    struct {
+        bool is = false;
+        InternalNode::Pointer owner;
+        InternalNode::Pointer ref;
+    } reference;
+
 private:
     AuxiliaryDatas m_auxiliaryDatas;
     InternalNodeAbstractProperty::WeakPointer m_parentProperty;

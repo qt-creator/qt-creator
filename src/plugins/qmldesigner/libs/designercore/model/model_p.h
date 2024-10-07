@@ -117,6 +117,8 @@ public:
                                    const QString &behaviorPropertyName,
                                    bool isRootNode = false);
 
+    InternalNodePointer createReferenceNode(const InternalNodePointer& owner, const InternalNodePointer& ref);
+
     /*factory methods for internal use in model and rewriter*/
     void removeNodeAndRelatedResources(const InternalNodePointer &node);
     void changeNodeId(const InternalNodePointer &node, const QString &id);

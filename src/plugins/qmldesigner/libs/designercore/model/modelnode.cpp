@@ -1399,4 +1399,35 @@ QString ModelNode::behaviorPropertyName() const
     return m_internalNode->behaviorPropertyName;
 }
 
+ModelNode ModelNode::createReference(const ModelNode &ownerModelNode, const ModelNode &modelNode)
+{
+    return ModelNode(ownerModelNode.model()->d->createReferenceNode(ownerModelNode.internalNode(), modelNode.internalNode()),
+                     ownerModelNode.model(),
+                     ownerModelNode.view());
+}
+
+bool ModelNode::isReference() const
+{
+    if (!m_internalNode)
+        return false;
+
+    return m_internalNode->reference.is;
+}
+
+ModelNode ModelNode::refNode() const
+{
+    if (!isReference())
+        return {};
+
+    return m_view->modelNodeForInternalId(m_internalNode->reference.ref->internalId);
+}
+
+ModelNode ModelNode::refOwnerNode() const
+{
+    if (!isReference())
+        return {};
+
+    return m_view->modelNodeForInternalId(m_internalNode->reference.owner->internalId);
+}
+
 } // namespace QmlDesigner

@@ -29,6 +29,8 @@ public:
 
     enum ColumnType {
         Name = 0,
+        Edit,
+        Delete,
         Alias,
         Visibility,
         Lock,
@@ -99,7 +101,7 @@ private:
     ModelNode createTextureNode(const NodeAbstractProperty &targetProp, const QString &imagePath);
     QList<QPersistentModelIndex> nodesToPersistentIndex(const QList<ModelNode> &modelNodes);
     void addImport(const QString &importName);
-    QList<ModelNode> filteredList(const NodeListProperty &property, bool filter, bool reverseOrder) const;
+    QList<ModelNode> filteredList(const ModelNode& node, const NodeListProperty &property, bool filter, bool reverseOrder) const;
     bool moveNodeToParent(const NodeAbstractProperty &targetProperty, const ModelNode &newModelNode);
 
     QPointer<NavigatorView> m_view;

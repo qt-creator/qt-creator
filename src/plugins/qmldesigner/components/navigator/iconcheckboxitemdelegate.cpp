@@ -79,6 +79,14 @@ void IconCheckboxItemDelegate::paint(QPainter *painter,
     if (rowIsPropertyRole(modelIndex.model(), modelIndex) || getModelNode(modelIndex).isRootNode())
         return; // Do not paint icons for property rows or root node
 
+    const bool isEditOrDelete = false
+                                || modelIndex.column() == NavigatorTreeModel::ColumnType::Edit
+                                || modelIndex.column() == NavigatorTreeModel::ColumnType::Delete;
+    if (!getModelNode(modelIndex).isReference() && isEditOrDelete)
+        return;
+    if (getModelNode(modelIndex).isReference() && !isEditOrDelete)
+        return;
+
     const QSize iconSize(16, 16);
     QPoint iconPosition(styleOption.rect.left() + (styleOption.rect.width() - iconSize.width()) / 2,
                         styleOption.rect.top() + 2 + delegateMargin);
@@ -116,8 +124,9 @@ bool IconCheckboxItemDelegate::editorEvent(QEvent *event,
         return false;
 
     // make sure that we have a check state
+    // ignore for reference
     QVariant value = index.data(Qt::CheckStateRole);
-    if (!value.isValid())
+    if (!getModelNode(index).isReference() && !value.isValid())
         return false;
 
     // make sure that we have the right event type

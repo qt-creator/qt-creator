@@ -3,6 +3,8 @@
 
 #include "navigatorview.h"
 
+#include "designeractionmanager.h"
+#include "designericons.h"
 #include "iconcheckboxitemdelegate.h"
 #include "nameitemdelegate.h"
 #include "navigatortreemodel.h"
@@ -248,6 +250,8 @@ void NavigatorView::importsChanged(const Imports &/*addedImports*/, const Import
 
 void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & propertyList, PropertyChangeFlags /*propertyChange*/)
 {
+    bool needReset = false;
+
     for (const BindingProperty &bindingProperty : propertyList) {
         /* If a binding property that exports an item using an alias property has
          * changed, we have to update the affected item.
@@ -255,6 +259,14 @@ void NavigatorView::bindingPropertiesChanged(const QList<BindingProperty> & prop
 
         if (bindingProperty.isAliasExport())
             m_currentModelInterface->notifyDataChanged(modelNodeForId(bindingProperty.expression()));
+
+        if (bindingProperty.name() == "materials")
+            needReset = true;
+    }
+
+    if (needReset) {
+        m_treeModel->resetModel();
+        treeWidget()->expandAll();
     }
 }
 
@@ -568,7 +580,7 @@ void NavigatorView::changeSelection(const QItemSelection & /*newSelection*/, con
     for (const QModelIndex &index : treeWidget()->selectionModel()->selectedIndexes()) {
         const ModelNode modelNode = modelNodeForIndex(index);
         if (modelNode.isValid())
-            nodeSet.insert(modelNode);
+                nodeSet.insert(modelNode.isReference() ? modelNode.refNode() : modelNode);
     }
 
     bool blocked = blockSelectionChangedSignal(true);
@@ -671,6 +683,11 @@ void NavigatorView::reparentAndCatch(NodeAbstractProperty property, const ModelN
     }
 }
 
+inline static QIcon contextIcon(const DesignerIcons::IconId &iconId)
+{
+    return DesignerActionManager::instance().contextIcon(iconId);
+};
+
 void NavigatorView::setupWidget()
 {
     m_widget = new NavigatorWidget(this);
@@ -701,6 +718,12 @@ void NavigatorView::setupWidget()
 
     const QString lockOnUnicode = Theme::getIconUnicode(Theme::Icon::lockOn);
     const QString lockOffUnicode = Theme::getIconUnicode(Theme::Icon::lockOff);
+
+    const QString materialOnUnicode = Theme::getIconUnicode(Theme::Icon::material_medium);
+    const QString materialOffUnicode = materialOnUnicode;
+
+    const QString deleteOnUnicode = Theme::getIconUnicode(Theme::Icon::deleteMaterial);
+    const QString deleteOffUnicode = deleteOnUnicode;
 
     auto visibilityIconOffNormal = Utils::StyleHelper::IconFontHelper(
         visibilityOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
@@ -765,13 +788,59 @@ void NavigatorView::setupWidget()
                            lockIconOnHover,
                            lockIconOnSelected});
 
+    auto materialIconOffNormal = Utils::StyleHelper::IconFontHelper(
+        materialOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+    auto materialIconOffHover = Utils::StyleHelper::IconFontHelper(
+        materialOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+    auto materialIconOffSelected = Utils::StyleHelper::IconFontHelper(
+        materialOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+    auto materialIconOnNormal = Utils::StyleHelper::IconFontHelper(
+        materialOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+    auto materialIconOnHover = Utils::StyleHelper::IconFontHelper(
+        materialOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+    auto materialIconOnSelected = Utils::StyleHelper::IconFontHelper(
+        materialOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+
+    const QIcon materialIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, {materialIconOffNormal,
+         materialIconOffHover,
+         materialIconOffSelected,
+         materialIconOnNormal,
+         materialIconOnHover,
+         materialIconOnSelected});
+
+    auto deleteIconOffNormal = Utils::StyleHelper::IconFontHelper(
+        deleteOffUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::Off);
+    auto deleteIconOffHover = Utils::StyleHelper::IconFontHelper(
+        deleteOffUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::Off);
+    auto deleteIconOffSelected = Utils::StyleHelper::IconFontHelper(
+        deleteOffUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::Off);
+    auto deleteIconOnNormal = Utils::StyleHelper::IconFontHelper(
+        deleteOnUnicode, Theme::getColor(Theme::DSnavigatorIcon), size, QIcon::Normal, QIcon::On);
+    auto deleteIconOnHover = Utils::StyleHelper::IconFontHelper(
+        deleteOnUnicode, Theme::getColor(Theme::DSnavigatorIconHover), size, QIcon::Active, QIcon::On);
+    auto deleteIconOnSelected = Utils::StyleHelper::IconFontHelper(
+        deleteOnUnicode, Theme::getColor(Theme::DSnavigatorIconSelected), size, QIcon::Selected, QIcon::On);
+
+    const QIcon deleteIcon = Utils::StyleHelper::getIconFromIconFont(
+        fontName, {deleteIconOffNormal,
+         deleteIconOffHover,
+         deleteIconOffSelected,
+         deleteIconOnNormal,
+         deleteIconOnHover,
+         deleteIconOnSelected});
+
     auto idDelegate = new NameItemDelegate(this);
 
     auto visibilityDelegate = new IconCheckboxItemDelegate(this, visibilityIcon);
+    auto editDelegate = new IconCheckboxItemDelegate(this, materialIcon);
+    auto deleteDelegate = new IconCheckboxItemDelegate(this, deleteIcon);
     auto aliasDelegate = new IconCheckboxItemDelegate(this, aliasIcon);
     auto lockDelegate = new IconCheckboxItemDelegate(this, lockIcon);
 
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Name, idDelegate);
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Edit, editDelegate);
+    treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Delete, deleteDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Alias, aliasDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Visibility, visibilityDelegate);
     treeWidget()->setItemDelegateForColumn(NavigatorTreeModel::ColumnType::Lock, lockDelegate);
