@@ -139,9 +139,6 @@ void QmlTaskManager::updateSemanticMessagesNow()
 
 void QmlTaskManager::updateMessagesNow(bool updateSemantic)
 {
-    // clear out the qmllint warnings when qmlls was disabled after being enabled
-    TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_COMPILE);
-
     // don't restart a small update if a big one is running
     if (!updateSemantic && m_updatingSemantic)
         return;
