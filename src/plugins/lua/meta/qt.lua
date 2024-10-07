@@ -134,8 +134,6 @@ qt.QStandardPaths = {
         AppConfigLocation = 0,
         PublicShareLocation = 0,
         TemplatesLocation = 0,
-        StateLocation = 0,
-        GenericStateLocation = 0,
     }
 }
 

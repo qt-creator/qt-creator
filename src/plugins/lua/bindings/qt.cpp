@@ -152,11 +152,8 @@ void setupQtModule()
                 "AppDataLocation", QStandardPaths::AppDataLocation,
                 "AppConfigLocation", QStandardPaths::AppConfigLocation,
                 "PublicShareLocation", QStandardPaths::PublicShareLocation,
-                "TemplatesLocation", QStandardPaths::TemplatesLocation,
-                "StateLocation", QStandardPaths::StateLocation,
-                "GenericStateLocation", QStandardPaths::GenericStateLocation
-            )
-        );
+                "TemplatesLocation", QStandardPaths::TemplatesLocation
+        ));
         // clang-format on
 
         return qt;
