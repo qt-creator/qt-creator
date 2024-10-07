@@ -172,8 +172,6 @@ public:
 
     void update();
 
-    const Utils::MacroExpander *macroExpander() const { return &m_expander; }
-
     virtual RunConfiguration *clone(Target *parent);
 
 protected:

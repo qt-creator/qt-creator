@@ -148,6 +148,8 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
+    setMacroExpander(&m_expander);
+
     m_expander.setDisplayName(Tr::tr("Run Settings"));
     m_expander.setAccumulating(true);
     m_expander.registerSubProvider([target] {

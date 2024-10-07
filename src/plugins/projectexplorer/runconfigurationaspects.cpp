@@ -19,8 +19,8 @@
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -162,11 +162,6 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
     setSettingsKey("RunConfiguration.WorkingDirectory");
 }
 
-void WorkingDirectoryAspect::setMacroExpander(const MacroExpander *expander)
-{
-    m_macroExpander = expander;
-}
-
 void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
 {
     m_envAspect = envAspect;
@@ -179,8 +174,8 @@ void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
-    if (QTC_GUARD(m_macroExpander))
-        m_chooser->setMacroExpander(m_macroExpander);
+    if (QTC_GUARD(macroExpander()))
+        m_chooser->setMacroExpander(macroExpander());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
@@ -254,8 +249,8 @@ FilePath WorkingDirectoryAspect::workingDirectory() const
     const Environment env = m_envAspect ? m_envAspect->environment()
                                         : Environment::systemEnvironment();
     QString workingDir = m_workingDirectory.path();
-    if (m_macroExpander)
-        workingDir = m_macroExpander->expandProcessArgs(workingDir);
+    if (auto expander = macroExpander())
+        workingDir = expander->expandProcessArgs(workingDir);
 
     QString res = workingDir.isEmpty() ? QString() : QDir::cleanPath(env.expandVariables(workingDir));
 
