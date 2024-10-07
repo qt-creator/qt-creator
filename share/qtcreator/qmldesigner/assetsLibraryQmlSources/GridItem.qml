@@ -30,6 +30,13 @@ Rectangle {
     border.width: root.isSelected ? StudioTheme.Values.border : 0
     border.color: StudioTheme.Values.themeInteraction
 
+    function reloadImage() {
+        let source = icon.source
+
+        icon.source = ""
+        icon.source = source
+    }
+
     Column {
         Image {
             id: icon

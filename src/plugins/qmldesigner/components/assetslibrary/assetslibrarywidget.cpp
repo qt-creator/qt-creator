@@ -181,6 +181,13 @@ void AssetsLibraryWidget::deleteSelectedAssets()
     emit deleteSelectedAssetsRequested();
 }
 
+void AssetsLibraryWidget::updateMaterialPreview(const QString &id, const QPixmap &pixmap)
+{
+    const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap);
+    if (!thumb.isEmpty())
+        emit m_assetsModel->fileChanged(thumb);
+}
+
 QString AssetsLibraryWidget::getUniqueEffectPath(const QString &parentFolder, const QString &effectName)
 {
     QString effectsDir = ModelNodeOperations::getEffectsDefaultDirectory(parentFolder);

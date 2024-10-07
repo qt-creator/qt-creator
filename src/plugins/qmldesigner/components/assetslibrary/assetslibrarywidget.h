@@ -68,6 +68,7 @@ public:
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
 
     void deleteSelectedAssets();
+    void updateMaterialPreview(const QString &id, const QPixmap &pixmap);
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();

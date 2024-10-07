@@ -94,6 +94,17 @@ void AssetsLibraryView::modelAboutToBeDetached(Model *model)
     AbstractView::modelAboutToBeDetached(model);
 }
 
+void AssetsLibraryView::modelNodePreviewPixmapChanged(const ModelNode &node, const QPixmap &pixmap, const QByteArray &requestId)
+{
+    if (!node.metaInfo().isQtQuick3DMaterial())
+        return;
+
+    // There might be multiple requests for different preview pixmap sizes.
+    // Here only the one with the default size is picked.
+    if (requestId.isEmpty())
+        m_widget->updateMaterialPreview(node.id(), pixmap);
+}
+
 void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 {
     if (resourcePath == m_lastResourcePath)

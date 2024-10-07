@@ -192,7 +192,8 @@ Item {
 
                 function onFileChanged(filePath)
                 {
-                    // TODO: print("onFileChanged")
+                    rootView.invalidateThumbnail(filePath)
+                    root.delegateItems[filePath].reloadImage()
                 }
 
                 function onModelResetFinished()

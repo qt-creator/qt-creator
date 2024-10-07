@@ -103,6 +103,16 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
         qint64 size = QFileInfo(id).size();
         QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/asset_ktx.png");
         return {QPixmap{filePath}, size};
+    } else if (asset.isMaterial()) {
+        static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/AssetsLibrary/images/asset_material.png"));
+        QPixmap pixmap{requestedSize};
+        QString matId = id.mid(id.lastIndexOf('/') + 1);
+        matId.chop(4); // Remove suffix
+        if (m_pixmaps.contains(matId))
+            pixmap = m_pixmaps.value(matId);
+        else
+            pixmap = defaultPreview;
+        return {pixmap, 0};
     } else {
         QString type;
         if (asset.isShader())
@@ -113,8 +123,6 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
             type = "video";
         else if (asset.isEffect())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
-        else if (asset.isMaterial())
-            type = "material";
 
         QString pathTemplate = QString(":/AssetsLibrary/images/asset_%1%2.png").arg(type);
         QString path = pathTemplate.arg('_' + QString::number(requestedSize.width()));
@@ -146,6 +154,18 @@ QSize AssetsLibraryIconProvider::imageSize(const QString &id)
 qint64 AssetsLibraryIconProvider::fileSize(const QString &id)
 {
     return m_thumbnails.contains(id) ? m_thumbnails[id].fileSize : 0;
+}
+
+QString AssetsLibraryIconProvider::setPixmap(const QString &matId, const QPixmap &pixmap)
+{
+    m_pixmaps.insert(matId, pixmap);
+    const QStringList thumbs = m_thumbnails.keys();
+    const QString checkName = matId + ".mat";
+    for (const auto &thumb : thumbs) {
+        if (thumb.endsWith(checkName))
+            return thumb;
+    }
+    return {};
 }
 
 } // namespace QmlDesigner

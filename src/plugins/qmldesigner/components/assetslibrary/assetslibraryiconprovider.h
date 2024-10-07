@@ -28,6 +28,7 @@ public:
     void invalidateThumbnail(const QString &id);
     QSize imageSize(const QString &id);
     qint64 fileSize(const QString &id);
+    QString setPixmap(const QString &matId, const QPixmap &pixmap);
 
 private:
     QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
@@ -42,6 +43,7 @@ private:
                                     {96, 96},   // list @2x
                                     {48, 48}};  // list
     QHash<QString, Thumbnail> m_thumbnails;
+    QHash<QString, QPixmap> m_pixmaps; // key: material node id
 };
 
 } // namespace QmlDesigner
