@@ -40,7 +40,13 @@ clang::format::FormatStyle calculateQtcStyle()
     style.Language = FormatStyle::LK_Cpp;
     style.AccessModifierOffset = -4;
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
-#if LLVM_VERSION_MAJOR >= 15
+#if LLVM_VERSION_MAJOR >= 20
+    style.AlignConsecutiveAssignments = {false, false, false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false, false, false};
+#elif LLVM_VERSION_MAJOR == 19
+    style.AlignConsecutiveAssignments = {false, false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false, false};
+#elif LLVM_VERSION_MAJOR >= 15
     style.AlignConsecutiveAssignments = {false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false};
 #else
@@ -117,7 +123,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.IndentWrappedFunctionNames = false;
     style.JavaScriptQuotes = FormatStyle::JSQS_Leave;
     style.JavaScriptWrapImports = true;
+#if LLVM_VERSION_MAJOR >= 19
+    style.KeepEmptyLines = {false, false, false};
+#else
     style.KeepEmptyLinesAtTheStartOfBlocks = false;
+#endif
     // Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
     style.MacroBlockBegin = "";
     style.MacroBlockEnd = "";
