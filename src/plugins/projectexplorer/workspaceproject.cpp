@@ -377,7 +377,6 @@ public:
         };
 
         arguments.setLabelText(Tr::tr("Arguments:"));
-        arguments.setMacroExpander(macroExpander());
         arguments.setArguments(argumentsAsString());
         arguments.setSettingsKey("Workspace.RunConfiguration.Arguments");
 
