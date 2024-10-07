@@ -375,9 +375,11 @@ public:
 private:
     void slotImportClicked() final
     {
-        const FilePath filePath =
-            FileUtils::getOpenFilePath(this, Tr::tr("Import Code Format"), {},
-                                       Tr::tr("Clang Format (*clang-format*);;All files (*)"));
+        const FilePath filePath = FileUtils::getOpenFilePath(
+            this,
+            Tr::tr("Import Code Format"),
+            {},
+            Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
         if (!filePath.isEmpty()) {
             QString name = QInputDialog::getText(
                 this,
@@ -407,7 +409,7 @@ private:
             this,
             Tr::tr("Export Code Format"),
             FileUtils::homePath(),
-            Tr::tr("Clang Format (*clang-format*);;All files (*)"));
+            Tr::tr("ClangFormat (*clang-format*);;All files (*)"));
         if (!filePath.isEmpty()) {
             FilePath clangFormatFile = filePathToCurrentSettings(currentPreferences);
             clangFormatFile.copyFile(filePath);
