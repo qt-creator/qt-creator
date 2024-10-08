@@ -3256,8 +3256,8 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         const QString displayPath =
             filePath.osType() == OsTypeWindows ? filePath.displayName()
                                                : filePath.withTildeHomePath();
-        const QString actionText =
-            ActionManager::withNumberAccelerator(displayPath, acceleratorKey);
+        const QString actionText = ActionManager::withNumberAccelerator(
+             displayPath + " (" + item.displayName + ")", acceleratorKey);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, filePath] {
             openRecentProject(filePath);
