@@ -137,6 +137,18 @@ function textEdit:markdown() end
 ---@return TextEdit
 function gui.TextEdit(options) end
 
+---A Single line text edit
+---@class LineEdit : Widget
+---@field rightSideIconPath? FilePath A path to icon
+---@field placeHolderText? string A placeholder text for intput
+---@field completer? QCompleter A QCompleter object.
+---@field minimumHeight? int Minimum height of input
+---@field onReturnPressed? function The function to be called when Enter is pressed
+---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
+---@field text string Current text
+
+local lineEdit = {}
+
 ---@class PushButton : Widget
 local pushButton = {}
 

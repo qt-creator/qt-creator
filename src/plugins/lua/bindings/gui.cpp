@@ -107,9 +107,54 @@ HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 HAS_MEM_FUNC(setFlat, hasSetFlat);
 HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
 HAS_MEM_FUNC(setIconSize, hasSetIconSize);
+HAS_MEM_FUNC(setRightSideIconPath, hasSetRightSideIconPath);
+HAS_MEM_FUNC(setPlaceHolderText, hasSetPlaceHolderText);
+HAS_MEM_FUNC(setCompleter, hasSetCompleter);
+HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
+HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
+HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
+
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetRightSideIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
+        const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath");
+        if (path)
+            item->setRightSideIconPath(*path);
+    }
+
+    if constexpr (hasSetPlaceHolderText<T, void (T::*)(const QString &)>::value) {
+        const auto text = children.get<sol::optional<QString>>("placeHolderText");
+        if (text)
+            item->setPlaceHolderText(*text);
+    }
+
+    if constexpr (hasSetCompleter<T, void (T::*)(QCompleter *)>::value) {
+        const auto completer = children.get<QCompleter *>("completer");
+        if (completer)
+            item->setCompleter(completer);
+    }
+
+    if constexpr (hasSetMinimumHeight<T, void (T::*)(int)>::value) {
+        const auto minHeight = children.get<sol::optional<int>>("minimumHeight");
+        if (minHeight)
+            item->setMinimumHeight(*minHeight);
+    }
+
+    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &)>::value) {
+        const auto callback = children.get<sol::optional<sol::function>>("onReturnPressed");
+        if (callback)
+        {
+            item->onReturnPressed([func = *callback]() { void_safe_call(func); });
+        }
+    }
+
+    if constexpr (hasOnRightSideIconClicked<T, void (T::*)(const std::function<void()> &)>::value) {
+        const auto callback = children.get<sol::optional<sol::function>>("onRightSideIconClicked");
+        if (callback)
+            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); });
+    }
+
     if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
         const auto flat = children.get<sol::optional<bool>>("flat");
         if (flat)
@@ -464,6 +509,17 @@ void setupGuiModule()
             }),
             "markdown",
             sol::property(&TextEdit::markdown),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<LineEdit>(
+            "LineEdit",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<LineEdit>(children, guard);
+            }),
+            "text",
+            sol::property(&LineEdit::text),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
