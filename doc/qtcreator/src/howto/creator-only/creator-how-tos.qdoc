@@ -141,6 +141,12 @@
 
     \generatelist creator-how-to-remote-linux
 
+    \section2 VxWorks
+
+    Build \l {Qt for VxWorks}, and create VxWorks build and run kits.
+
+    \generatelist creator-how-to-vxworks
+
     \section2 WebAssembly
 
     Install \l{Qt for WebAssembly} to build applications for the web and run them

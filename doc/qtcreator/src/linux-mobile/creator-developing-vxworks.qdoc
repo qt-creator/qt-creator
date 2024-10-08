@@ -1,0 +1,46 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-create-vxworks-kits.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-vxworks
+
+    \title Create kits for VxWorks devices
+
+    To develop Qt applications for VxWorks, build \l {Qt for VxWorks} and create
+    a VxWorks \l {Kits}{kit}. Currently, you can develop applications with Qt 6.8
+    and build them for VxWorks 24.03 devices. You cannot connect the devices to
+    \QC yet, so you must deploy the built packages to the devices and run them
+    there manually.
+
+    \note Enable the VxWorks plugin to use it.
+
+    To create a kit:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Devices > \uicontrol VxWorks.
+            \image qtcreator-preferences-devices-vxworks.webp {VxWorks Preferences}
+        \li In \uicontrol {VxWorks installation folder}, select the directory
+            where the WindRiver installer installed VxWorks.
+        \li Select \uicontrol {Add Kit}.
+        \li In \uicontrol {Kit name}, enter a name for the kit.
+            \image qtcreator-create-new-kit-vxworks.webp {Create New Kit dialog}
+        \li In \uicontrol {Qt version}, select the folder that contains qmake for
+            the Qt VxWorks build.
+        \li In \uicontrol {VBS path}, enter the path to the VxWorks VSB directory.
+        \li In \uicontrol {Host name}, enter the host name or IP address of the
+            device.
+        \li Select \uicontrol OK to create a VxWorks kit.
+        \li Go to \uicontrol Projects > \uicontrol {Build & Run} to activate the
+            kit for your project.
+    \endlist
+
+    \note To deploy the built package, you can add a build step to the deploy
+    configuration of the project that copies the built binary of your project to
+    a NFS directory shared with the device.
+
+    \sa {Enable and disable plugins}, {Activate kits for a project},
+    {Remote Linux Deploy Configuration}, {Qt for VxWorks}
+*/
