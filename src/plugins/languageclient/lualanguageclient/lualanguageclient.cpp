@@ -11,6 +11,8 @@
 #include <lua/bindings/inheritance.h>
 #include <lua/luaengine.h>
 
+#include <lua/bindings/async.h>
+
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
@@ -18,6 +20,7 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/commandline.h>
+#include <utils/guardedcallback.h>
 #include <utils/layoutbuilder.h>
 
 #include <QJsonDocument>
@@ -207,6 +210,8 @@ public:
     TransportType m_transportType{TransportType::StdIO};
     std::function<expected_str<void>(CommandLine &)> m_cmdLineCallback;
     std::function<expected_str<void>(QString &)> m_initOptionsCallback;
+    sol::function m_asyncInitOptions;
+    bool m_isUpdatingAsyncOptions{false};
     AspectContainer *m_aspects{nullptr};
     QString m_name;
     Utils::Id m_settingsTypeId;
@@ -324,6 +329,13 @@ public:
             &LanguageClientManager::clientRemoved,
             this,
             &LuaClientWrapper::onClientRemoved);
+
+        if (auto asyncInit = options.get<sol::optional<sol::function>>(
+                "initializationOptionsAsync")) {
+            m_asyncInitOptions = *asyncInit;
+            QMetaObject::invokeMethod(
+                this, &LuaClientWrapper::updateAsyncOptions, Qt::QueuedConnection);
+        }
     }
 
     void onClientRemoved(Client *c, bool unexpected)
@@ -462,6 +474,25 @@ public:
         clients.front()->sendMessage(request);
     }
 
+    void updateAsyncOptions()
+    {
+        if (m_isUpdatingAsyncOptions)
+            return;
+        QTC_ASSERT(m_asyncInitOptions, return);
+        m_isUpdatingAsyncOptions = true;
+        std::function<void(sol::object)> cb = guardedCallback(this, [this](sol::object options) {
+            if (options.is<sol::table>())
+                m_initializationOptions = ::Lua::toJsonString(options.as<sol::table>());
+            else if (options.is<QString>())
+                m_initializationOptions = options.as<QString>();
+
+            emit optionsChanged();
+            m_isUpdatingAsyncOptions = false;
+        });
+
+        ::Lua::Async::start<sol::object>(m_asyncInitOptions, cb);
+    }
+
     void updateOptions()
     {
         if (m_cmdLineCallback) {
@@ -479,6 +510,8 @@ public:
             // optionsChanged() needs to be called for it as well, but only once per updateOptions()
             emit optionsChanged();
         }
+        if (m_asyncInitOptions)
+            updateAsyncOptions();
     }
 
     static CommandLine cmdFromTable(const sol::table &tbl)

@@ -89,7 +89,10 @@ public:
     QbsKitAspectFactory()
     {
         setId(QbsKitAspect::id());
-        setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
+        setDisplayName(Tr::tr("Qbs Profile Additions"));
+        setDescription(Tr::tr("Additional module properties to set in "
+                              "the Qbs profile corresponding to this kit.\n"
+                              "You will rarely need to do this."));
         setPriority(22000);
     }
 

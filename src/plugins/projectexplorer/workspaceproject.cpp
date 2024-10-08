@@ -209,9 +209,6 @@ void WorkspaceBuildSystem::reparse(bool force)
         FilePath workingDirectory = FilePath::fromUserInput(
             targetObject["workingDirectory"].toString());
 
-        if (!workingDirectory.isDir())
-            workingDirectory = FilePath::currentWorkingPath();
-
         const QString name = targetObject["name"].toString();
         const FilePath executable = FilePath::fromUserInput(
             targetObject["executable"].toString());
@@ -235,6 +232,8 @@ void WorkspaceBuildSystem::reparse(bool force)
 
     if (force || oldFilters != m_filters)
         scan(target()->project()->projectDirectory());
+    else
+        emitBuildSystemUpdated();
 }
 
 void WorkspaceBuildSystem::triggerParsing()
@@ -368,8 +367,8 @@ public:
 
         const BuildTargetInfo bti = buildTargetInfo();
         executable.setLabelText(Tr::tr("Executable:"));
-        executable.setReadOnly(true);
         executable.setValue(bti.targetFilePath);
+        executable.setSettingsKey("Workspace.RunConfiguration.Executable");
 
         auto argumentsAsString = [this]() {
             return CommandLine{
@@ -378,39 +377,48 @@ public:
         };
 
         arguments.setLabelText(Tr::tr("Arguments:"));
-        arguments.setReadOnly(true);
-        arguments.setMacroExpander(macroExpander());
         arguments.setArguments(argumentsAsString());
+        arguments.setSettingsKey("Workspace.RunConfiguration.Arguments");
 
         workingDirectory.setLabelText(Tr::tr("Working directory:"));
-        workingDirectory.setReadOnly(true);
         workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
+        workingDirectory.setSettingsKey("Workspace.RunConfiguration.WorkingDirectory");
 
         setCommandLineGetter([this] {
-            const BuildTargetInfo bti = buildTargetInfo();
-            CommandLine cmdLine{
-                macroExpander()->expand(bti.targetFilePath),
-                Utils::transform(
-                    bti.additionalData.toMap()["arguments"].toStringList(),
-                    [this](const QString &arg) { return macroExpander()->expand(arg); })};
-
-            return cmdLine;
+            return CommandLine(executable.effectiveBinary(),
+                               arguments.arguments(),
+                               CommandLine::Raw);
         });
 
         setUpdater([this, argumentsAsString] {
+            if (enabled.value()) // skip the update for cloned run configurations
+                return;
             const BuildTargetInfo bti = buildTargetInfo();
             executable.setValue(bti.targetFilePath);
             arguments.setArguments(argumentsAsString());
             workingDirectory.setDefaultWorkingDirectory(bti.workingDirectory);
         });
 
+        auto enabledUpdater = [this] { setEnabled(enabled.value()); };
+        connect(&enabled, &BaseAspect::changed, this, enabledUpdater);
+        connect(this, &AspectContainer::fromMapFinished, this, enabledUpdater);
         connect(target, &Target::buildSystemUpdated, this, &RunConfiguration::update);
+        enabledUpdater();
+        enabled.setSettingsKey("Workspace.RunConfiguration.Enabled");
+    }
+
+    RunConfiguration *clone(Target *parent) override
+    {
+        RunConfiguration *result = RunConfiguration::clone(parent);
+        dynamic_cast<WorkspaceRunConfiguration *>(result)->enabled.setValue(true);
+        return result;
     }
 
     TextDisplay hint{this};
     FilePathAspect executable{this};
     ArgumentsAspect arguments{this};
     WorkingDirectoryAspect workingDirectory{this};
+    BoolAspect enabled{this};
 };
 
 class WorkspaceProjectRunConfigurationFactory : public RunConfigurationFactory
@@ -455,9 +463,7 @@ public:
                 FilePath wd = FilePath::fromUserInput(bs["workingDirectory"].toString());
                 if (wd.isEmpty())
                     wd = "%{ActiveProject:BuildConfig:Path}";
-                else if (wd.isRelativePath())
-                    wd = project()->projectDirectory().resolvePath(wd);
-                step->setWorkingDirectory(wd);
+                step->setWorkingDirectory(wd, project()->projectDirectory());
                 steps->appendStep(step);
             }
             initializeExtraInfo(extraInfos);
@@ -471,8 +477,11 @@ public:
         resetExtraInfo();
         if (extraInfos["forSetup"].toBool()) {
             originalExtraInfo = extraInfos;
+            setEnabled(false);
             buildInfoResetConnection = connect(
                 this, &BaseAspect::changed, this, &WorkspaceBuildConfiguration::resetExtraInfo);
+            for (BuildStep *step : buildSteps()->steps())
+                step->setEnabled(false);
         }
     }
 
@@ -501,6 +510,9 @@ public:
     {
         originalExtraInfo.reset();
         disconnect(buildInfoResetConnection);
+        setEnabled(true);
+        for (auto step : buildSteps()->steps())
+            step->setEnabled(true);
     }
 
     std::optional<QVariantMap> originalExtraInfo;

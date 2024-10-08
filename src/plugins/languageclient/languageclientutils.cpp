@@ -381,7 +381,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
                 }
             }
         }
-        return oldPath.renameFile(newPath).has_value();
+        return bool(oldPath.renameFile(newPath));
     } else if (const auto deleteOperation = std::get_if<DeleteFileOperation>(&change)) {
         const FilePath filePath = deleteOperation->uri().toFilePath(client->hostPathMapper());
         if (const std::optional<DeleteFileOptions> options = deleteOperation->options()) {
@@ -390,7 +390,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             if (filePath.isDir() && options->recursive().value_or(false))
                 return filePath.removeRecursively();
         }
-        return filePath.removeFile().has_value();
+        return bool(filePath.removeFile());
     }
     return false;
 }

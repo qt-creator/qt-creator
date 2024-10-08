@@ -329,14 +329,36 @@ private:
 };
 #endif
 
+// ------------------------- NullDataProvider --------------------------------
+
+class NullDataProvider : public IDataProvider
+{
+public:
+    NullDataProvider(qint64 pid, QObject *parent = nullptr)
+        : IDataProvider(pid, parent)
+    {}
+
+    double getCpuConsumption()
+    {
+        return 0.0;
+    }
+
+    double getMemoryConsumption()
+    {
+        return 0.0;
+    }
+};
+
 IDataProvider *createDataProvider(qint64 pid)
 {
 #ifdef Q_OS_WIN
     return new WindowsDataProvider(pid);
 #elif defined(Q_OS_MACOS)
     return new MacDataProvider(pid);
-#else // Q_OS_LINUX
+#elif defined(Q_OS_LINUX)
     return new LinuxDataProvider(pid);
+#else
+    return new NullDataProvider(pid);
 #endif
 }
 

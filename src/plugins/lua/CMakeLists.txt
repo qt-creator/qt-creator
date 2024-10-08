@@ -4,7 +4,6 @@ add_qtc_plugin(Lua
   PUBLIC_DEFINES LUA_AVAILABLE
   SOURCES
     bindings/action.cpp
-    bindings/async.cpp
     bindings/async.h
     bindings/core.cpp
     bindings/fetch.cpp
@@ -49,7 +48,9 @@ if(TARGET Lua)
     qt_add_resources(Lua lua_script_rcc
       PREFIX "/lua"
       FILES
+        scripts/async.lua
         scripts/ilua.lua
+        scripts/inspect.lua
     )
 
     set_source_files_properties(luauibindings.cpp PROPERTY SKIP_AUTOMOC ON PROPERTY SKIP_AUTOGEN ON)

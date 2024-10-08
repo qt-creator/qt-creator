@@ -187,72 +187,31 @@ class CMakeKitAspectImpl final : public KitAspect
 {
 public:
     CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
-        : KitAspect(kit, factory), m_comboBox(createSubWidget<QComboBox>())
+        : KitAspect(kit, factory)
     {
         setManagingPage(Constants::Settings::TOOLS_ID);
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setToolTip(factory->description());
+
         const auto sortModel = new CMakeToolSortModel(this);
         sortModel->setSourceModel(new CMakeToolListModel(*kit, this));
-        m_comboBox->setModel(sortModel);
-
-        refresh();
-
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &CMakeKitAspectImpl::currentCMakeToolChanged);
+        auto getter = [](const Kit &k) { return CMakeKitAspect::cmakeToolId(&k).toSetting(); };
+        auto setter = [](Kit &k, const QVariant &id) {
+            CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
+        };
+        auto resetModel = [](QAbstractItemModel &model) {
+            static_cast<CMakeToolSortModel &>(model).reset();
+        };
+        setListAspectSpec(
+            {sortModel,
+             std::move(getter),
+             std::move(setter),
+             std::move(resetModel),
+             CMakeToolTreeItem::IdRole});
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectImpl::refresh);
         connect(cmakeMgr, &CMakeToolManager::cmakeRemoved, this, &CMakeKitAspectImpl::refresh);
         connect(cmakeMgr, &CMakeToolManager::cmakeUpdated, this, &CMakeKitAspectImpl::refresh);
     }
-
-    ~CMakeKitAspectImpl() override
-    {
-        delete m_comboBox;
-    }
-
-private:
-    // KitAspectWidget interface
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
-    void addToInnerLayout(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void refresh() override
-    {
-        const GuardLocker locker(m_ignoreChanges);
-
-        const auto sortModel = static_cast<CMakeToolSortModel *>(m_comboBox->model());
-        sortModel->reset();
-        sortModel->sort(0);
-        m_comboBox->setCurrentIndex(indexOf(CMakeKitAspect::cmakeToolId(m_kit)));
-    }
-
-    int indexOf(Id id)
-    {
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == Id::fromSetting(m_comboBox->itemData(i, CMakeToolTreeItem::IdRole)))
-                return i;
-        }
-
-        return m_comboBox->count() - 1;
-    }
-
-    void currentCMakeToolChanged(int index)
-    {
-        if (m_ignoreChanges.isLocked())
-            return;
-
-        const Id id = Id::fromSetting(m_comboBox->itemData(index, CMakeToolTreeItem::IdRole));
-        CMakeKitAspect::setCMakeTool(m_kit, id);
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
 };
 
 CMakeKitAspectFactory::CMakeKitAspectFactory()
@@ -434,7 +393,7 @@ private:
 
     void refresh() override
     {
-        CMakeTool *const tool = CMakeKitAspect::cmakeTool(m_kit);
+        CMakeTool *const tool = CMakeKitAspect::cmakeTool(kit());
         if (tool != m_currentTool)
             m_currentTool = tool;
 

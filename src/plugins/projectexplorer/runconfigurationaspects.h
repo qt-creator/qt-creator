@@ -69,7 +69,6 @@ public:
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
-    void setMacroExpander(const Utils::MacroExpander *expander);
     void setEnvironment(EnvironmentAspect *envAspect);
 
 private:
@@ -83,7 +82,6 @@ private:
     Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
-    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
@@ -100,7 +98,6 @@ public:
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
-    void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
     void setMacroExpander(const Utils::MacroExpander *macroExpander);
@@ -117,7 +114,6 @@ private:
     QWidget *setupChooser();
 
     QString m_arguments;
-    QString m_labelText;
     QPointer<Utils::FancyLineEdit> m_chooser;
     QPointer<QPlainTextEdit> m_multiLineChooser;
     QPointer<Utils::ExpandButton> m_multiLineButton;

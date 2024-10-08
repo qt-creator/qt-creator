@@ -298,9 +298,11 @@ public:
     bool useDebugChannel = false;
     bool useQmlChannel = false;
     bool usePerfChannel = false;
+    bool useWorkerChannel = false;
     QUrl debugChannel;
     QUrl qmlChannel;
     QUrl perfChannel;
+    QUrl workerChannel;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -606,6 +608,8 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
                 qmlChannel = getNextChannel();
             if (usePerfChannel)
                 perfChannel = getNextChannel();
+            if (useWorkerChannel)
+                workerChannel = getNextChannel();
 
             continueStart();
         } else {
@@ -698,6 +702,17 @@ bool RunControl::usesPerfChannel() const
 QUrl RunControl::perfChannel() const
 {
     return d->perfChannel;
+}
+
+void RunControl::requestWorkerChannel()
+{
+    d->enablePortsGatherer();
+    d->useWorkerChannel = true;
+}
+
+QUrl RunControl::workerChannel() const
+{
+    return d->workerChannel;
 }
 
 void RunControlPrivate::continueStart()

@@ -735,7 +735,7 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
         tgtFilePath.removeFile();
     }
 
-    const expected_str<void> copyResult = srcFilePath.copyFile(tgtFilePath);
+    const Result copyResult = srcFilePath.copyFile(tgtFilePath);
 
     // TODO forward error to caller instead of assert, since IO errors can always be expected
     QTC_ASSERT_EXPECTED(copyResult, return false);

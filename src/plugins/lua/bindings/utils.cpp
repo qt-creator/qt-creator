@@ -11,6 +11,7 @@
 #include <utils/futuresynchronizer.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/id.h>
 #include <utils/processinterface.h>
 
 #include <QDesktopServices>
@@ -93,6 +94,10 @@ void setupUtilsModule()
 
             utils["pid"] = QCoreApplication::applicationPid();
 
+            utils.new_usertype<Utils::Id>(
+                "Id",
+                sol::no_constructor);
+
             auto hostOsInfoType = utils.new_usertype<HostOsInfo>("HostOsInfo");
             hostOsInfoType["isWindowsHost"] = &HostOsInfo::isWindowsHost;
             hostOsInfoType["isMacHost"] = &HostOsInfo::isMacHost;
@@ -161,13 +166,49 @@ void setupUtilsModule()
                 "resolvePath",
                 sol::overload(
                     [](const FilePath &p, const QString &path) { return p.resolvePath(path); },
-                    [](const FilePath &p, const FilePath &path) { return p.resolvePath(path); }));
+                    [](const FilePath &p, const FilePath &path) { return p.resolvePath(path); }),
+                "permissions",
+                [](FilePath& p) {
+                    return static_cast<QFileDevice::Permission>(p.permissions().toInt());
+                },
+                "setPermissions",
+                [](FilePath& p, QFileDevice::Permission permissions) {
+                    p.setPermissions(static_cast<QFile::Permissions>(permissions));
+                });
 
             utils["FilePath"]["dirEntries_cb"] = utils["__dirEntries_cb__"];
             utils["FilePath"]["dirEntries"] = wrap(utils["__dirEntries_cb__"]);
 
             utils["FilePath"]["searchInPath_cb"] = utils["__searchInPath_cb__"];
             utils["FilePath"]["searchInPath"] = wrap(utils["__searchInPath_cb__"]);
+
+            utils["standardLocations"] = [](QStandardPaths::StandardLocation location) {
+                const auto locationsStrings = QStandardPaths::standardLocations(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+
+                QList<FilePath> locationsPaths;
+                std::transform(locationsStrings.constBegin(), locationsStrings.constEnd(),
+                               std::back_inserter(locationsPaths), &FilePath::fromString);
+                return locationsPaths;
+            };
+            utils["standardLocation"] =
+                [](QStandardPaths::StandardLocation location) -> sol::optional<FilePath> {
+                const auto paths = QStandardPaths::standardLocations(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+                if (paths.isEmpty())
+                    return sol::nullopt;
+
+                return FilePath::fromString(paths.first());
+            };
+            utils["writableLocation"] =
+                [](QStandardPaths::StandardLocation location) -> sol::optional<FilePath> {
+                const auto path = QStandardPaths::writableLocation(
+                    static_cast<QStandardPaths::StandardLocation>(location));
+                if (path.isEmpty())
+                    return sol::nullopt;
+
+                return FilePath::fromString(path);
+            };
 
             utils.new_usertype<CommandLine>(
                 "CommandLine",

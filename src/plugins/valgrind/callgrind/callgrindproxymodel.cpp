@@ -119,7 +119,7 @@ bool DataProxyModel::filterAcceptsRow(int source_row, const QModelIndex &source_
     // check minimum inclusive costs
     DataModel *model = dataModel();
     QTC_ASSERT(model, return false); // as always: this should never happen
-    const ParseData *data = model->parseData();
+    const ParseDataPtr data = model->parseData();
     QTC_ASSERT(data, return false);
     if (m_minimumInclusiveCostRatio != 0.0) {
         const quint64 totalCost = data->totalCost(0);

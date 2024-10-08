@@ -148,6 +148,8 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
+    setMacroExpander(&m_expander);
+
     m_expander.setDisplayName(Tr::tr("Run Settings"));
     m_expander.setAccumulating(true);
     m_expander.registerSubProvider([target] {
@@ -354,6 +356,13 @@ void RunConfiguration::update()
 
     if (isActive && project() == ProjectManager::startupProject())
         ProjectExplorerPlugin::updateRunActions();
+}
+
+RunConfiguration *RunConfiguration::clone(Target *parent)
+{
+    Store map;
+    toMap(map);
+    return RunConfigurationFactory::restore(parent, map);
 }
 
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
@@ -654,13 +663,6 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &
         }
     }
     return nullptr;
-}
-
-RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    Store map;
-    source->toMap(map);
-    return restore(parent, map);
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)

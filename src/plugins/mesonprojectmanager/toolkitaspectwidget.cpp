@@ -49,8 +49,8 @@ private:
     {
         const auto id = [this] {
             if (m_type == ToolType::Meson)
-                return MesonToolKitAspect::mesonToolId(m_kit);
-            return NinjaToolKitAspect::ninjaToolId(m_kit);
+                return MesonToolKitAspect::mesonToolId(kit());
+            return NinjaToolKitAspect::ninjaToolId(kit());
         }();
         m_toolsComboBox->setCurrentIndex(indexOf(id));
     }
@@ -107,9 +107,9 @@ void MesonToolKitAspectImpl::setCurrentToolIndex(int index)
         return;
     const Id id = Id::fromSetting(m_toolsComboBox->itemData(index));
     if (m_type == ToolType::Meson)
-        MesonToolKitAspect::setMesonTool(m_kit, id);
+        MesonToolKitAspect::setMesonTool(kit(), id);
     else
-        NinjaToolKitAspect::setNinjaTool(m_kit, id);
+        NinjaToolKitAspect::setNinjaTool(kit(), id);
 }
 
 int MesonToolKitAspectImpl::indexOf(const Id &id)

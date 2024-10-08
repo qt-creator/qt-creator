@@ -33,61 +33,60 @@ expected_str<QString> run(const CommandLine &cmdLine, const QByteArray &inputDat
     return p.readAllStandardOutput().trimmed();
 }
 
-Utils::expected_str<void> FileAccess::init(const Utils::FilePath &pathToBridge)
+Result FileAccess::init(const FilePath &pathToBridge)
 {
     m_client = std::make_unique<Client>(pathToBridge);
 
     auto startResult = m_client->start();
     if (!startResult)
-        return make_unexpected(QString("Could not start cmdbridge: %1").arg(startResult.error()));
+        return Result::Error(QString("Could not start cmdbridge: %1").arg(startResult.error()));
 
     try {
         if (!startResult->isValid())
             startResult->waitForFinished();
         m_environment = startResult->takeResult();
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error starting cmdbridge: %1").arg(QString::fromLocal8Bit(e.what())));
     }
-    return {};
+    return Result::Ok;
 }
 
-expected_str<void> FileAccess::deployAndInit(
-    const FilePath &libExecPath, const FilePath &remoteRootPath)
+Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &remoteRootPath)
 {
     if (remoteRootPath.isEmpty())
-        return make_unexpected(Tr::tr("Remote root path is empty"));
+        return Result::Error(Tr::tr("Remote root path is empty"));
 
     if (!remoteRootPath.isAbsolutePath())
-        return make_unexpected(Tr::tr("Remote root path is not absolute"));
+        return Result::Error(Tr::tr("Remote root path is not absolute"));
 
     const auto whichDD = run({remoteRootPath.withNewPath("which"), {"dd"}});
 
     if (!whichDD) // TODO: Support Windows?
-        return make_unexpected(Tr::tr("Could not find dd on remote host: %1").arg(whichDD.error()));
+        return Result::Error(Tr::tr("Could not find dd on remote host: %1").arg(whichDD.error()));
 
     qCDebug(faLog) << "Found dd on remote host:" << *whichDD;
 
     const expected_str<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
     if (!unameOs) {
-        return make_unexpected(
+        return Result::Error(
             QString("Could not determine OS on remote host: %1").arg(unameOs.error()));
     }
     Utils::expected_str<OsType> osType = osTypeFromString(*unameOs);
     if (!osType)
-        return make_unexpected(osType.error());
+        return Result::Error(osType.error());
 
     qCDebug(faLog) << "Remote host OS:" << *unameOs;
 
     const expected_str<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
     if (!unameArch) {
-        return make_unexpected(
+        return Result::Error(
             QString("Could not determine architecture on remote host: %1").arg(unameArch.error()));
     }
 
     const Utils::expected_str<OsArch> osArch = osArchFromString(*unameArch);
     if (!osArch)
-        return make_unexpected(osArch.error());
+        return Result::Error(osArch.error());
 
     qCDebug(faLog) << "Remote host architecture:" << *unameArch;
 
@@ -95,7 +94,7 @@ expected_str<void> FileAccess::deployAndInit(
         = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
 
     if (!cmdBridgePath) {
-        return make_unexpected(
+        return Result::Error(
             QString("Could not determine compatible cmdbridge for remote host: %1")
                 .arg(cmdBridgePath.error()));
     }
@@ -106,7 +105,7 @@ expected_str<void> FileAccess::deployAndInit(
         const auto cmdBridgeFileData = cmdBridgePath->fileContents();
 
         if (!cmdBridgeFileData) {
-            return make_unexpected(
+            return Result::Error(
                 QString("Could not read cmdbridge file: %1").arg(cmdBridgeFileData.error()));
         }
 
@@ -114,7 +113,7 @@ expected_str<void> FileAccess::deployAndInit(
             {remoteRootPath.withNewPath("mktemp"), {"-t", "cmdbridge.XXXXXXXXXX"}});
 
         if (!tmpFile) {
-            return make_unexpected(
+            return Result::Error(
                 QString("Could not create temporary file: %1").arg(tmpFile.error()));
         }
 
@@ -125,7 +124,7 @@ expected_str<void> FileAccess::deployAndInit(
         const auto makeExecutable = run({remoteRootPath.withNewPath("chmod"), {"+x", *tmpFile}});
 
         if (!makeExecutable) {
-            return make_unexpected(
+            return Result::Error(
                 QString("Could not make temporary file executable: %1").arg(makeExecutable.error()));
         }
 
@@ -468,26 +467,26 @@ expected_str<qint64> FileAccess::writeFileContents(const FilePath &filePath,
     }
 }
 
-expected_str<void> FileAccess::removeFile(const Utils::FilePath &filePath) const
+Result FileAccess::removeFile(const FilePath &filePath) const
 {
     try {
         Utils::expected_str<QFuture<void>> f = m_client->removeFile(filePath.nativePath());
         if (!f)
-            return make_unexpected(f.error());
+            return Result::Error(f.error());
         f->waitForFinished();
     } catch (const std::system_error &e) {
         if (e.code().value() == ENOENT)
-            return make_unexpected(Tr::tr("File does not exist"));
+            return Result::Error(Tr::tr("File does not exist"));
         qCWarning(faLog) << "Error removing file:" << e.what();
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error removing file: %1").arg(QString::fromLocal8Bit(e.what())));
     } catch (const std::exception &e) {
         qCWarning(faLog) << "Error removing file:" << e.what();
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error removing file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 
-    return {};
+    return Result::Ok;
 }
 
 bool FileAccess::removeRecursively(const Utils::FilePath &filePath, QString *error) const
@@ -530,37 +529,35 @@ bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
     }
 }
 
-expected_str<void> FileAccess::copyFile(const Utils::FilePath &filePath,
-                                        const Utils::FilePath &target) const
+Result FileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     try {
         auto f = m_client->copyFile(filePath.nativePath(), target.nativePath());
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_EXPECTED(f, return Result::Ok);
         f->waitForFinished();
-        return {};
+        return Result::Ok;
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error copying file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 }
 
-expected_str<void> FileAccess::renameFile(
-    const Utils::FilePath &filePath, const Utils::FilePath &target) const
+Result FileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     try {
         Utils::expected_str<QFuture<void>> f
             = m_client->renameFile(filePath.nativePath(), target.nativePath());
         if (!f)
-            return make_unexpected(f.error());
+            return Result::Error(f.error());
         f->waitForFinished();
         if (!f)
-            return make_unexpected(f.error());
+            return Result::Error(f.error());
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error renaming file: %1").arg(QString::fromLocal8Bit(e.what())));
     }
 
-    return {};
+    return Result::Ok;
 }
 
 Environment FileAccess::deviceEnvironment() const
@@ -574,15 +571,15 @@ expected_str<std::unique_ptr<FilePathWatcher>> FileAccess::watch(const FilePath 
     return m_client->watch(filePath.nativePath());
 }
 
-Utils::expected_str<void> FileAccess::signalProcess(int pid, ControlSignal signal) const
+Result FileAccess::signalProcess(int pid, ControlSignal signal) const
 {
     try {
         auto f = m_client->signalProcess(pid, signal);
-        QTC_ASSERT_EXPECTED(f, return {});
+        QTC_ASSERT_EXPECTED(f, return Result::Ok);
         f->waitForFinished();
-        return {};
+        return Result::Ok;
     } catch (const std::exception &e) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Error killing process: %1").arg(QString::fromLocal8Bit(e.what())));
     };
 }

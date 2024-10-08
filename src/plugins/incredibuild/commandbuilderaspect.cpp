@@ -104,7 +104,7 @@ void CommandBuilderAspectPrivate::tryToMigrate()
         for (Utils::Id stepId : migratableSteps) {
             if (BuildStep *bs = m_buildStep->stepList()->firstStepWithId(stepId)) {
                 m_activeCommandBuilder = p;
-                bs->setEnabled(false);
+                bs->setStepEnabled(false);
                 m_buildStep->project()->saveSettings();
                 return;
             }

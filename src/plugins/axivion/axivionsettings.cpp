@@ -269,7 +269,7 @@ const QList<PathMapping> AxivionSettings::validPathMappings() const
 static bool hostValid(const QString &host)
 {
     static const QRegularExpression ip(R"(^(\d+).(\d+).(\d+).(\d+)$)");
-    static const QRegularExpression dn(R"(^([a-zA-Z0-9][a-zA-Z0-9-]+\.)+[a-zA-Z0-9][a-zA-Z0-9-]+$)");
+    static const QRegularExpression dn(R"(^([a-zA-Z0-9][a-zA-Z0-9-]+\.)*[a-zA-Z0-9][a-zA-Z0-9-]+$)");
     const QRegularExpressionMatch match = ip.match(host);
     if (match.hasMatch()) {
         for (int i = 1; i < 5; ++i) {
@@ -279,7 +279,7 @@ static bool hostValid(const QString &host)
         }
         return true;
     }
-    return (host == "localhost") || dn.match(host).hasMatch();
+    return dn.match(host).hasMatch();
 }
 
 static bool isUrlValid(const QString &in)
@@ -388,17 +388,17 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     auto addButton = new QPushButton(Tr::tr("Add..."), this);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     m_remove = new QPushButton(Tr::tr("Remove"), this);
-    Column{
-        Row{
-            Form{Tr::tr("Default dashboard server:"), m_dashboardServers, br},
+    Column {
+        Row {
+            Form { Tr::tr("Default dashboard server:"), m_dashboardServers, br },
             st,
-            Column{addButton, m_edit, st, m_remove},
+            Column { addButton, m_edit, st, m_remove },
         },
         Space(10),
         br,
-        Row{settings().highlightMarks},
-        st}
-        .attachTo(this);
+        Row {settings().highlightMarks },
+        st
+    }.attachTo(this);
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         // add an empty item unconditionally

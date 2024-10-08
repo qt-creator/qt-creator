@@ -36,18 +36,6 @@ public:
         reset();
     }
 
-    QModelIndex indexForBundleId(Id bundleId) const
-    {
-        if (!bundleId.isValid())
-            return index(rowCount() - 1, 0); // The "no compiler" item always comes last
-        const TreeItem *const item = findItemAtLevel<1>(
-            [bundleId](TreeItem *item) {
-                const auto tcItem = static_cast<ToolchainTreeItem *>(item);
-                return tcItem->bundle && tcItem->bundle->bundleId() == bundleId;
-            });
-        return item ? indexForItem(item) : QModelIndex();
-    }
-
     void reset()
     {
         clear();
@@ -76,12 +64,6 @@ class ToolchainSortModel : public SortModel
 {
 public:
     ToolchainSortModel(QObject *parent) : SortModel(parent) {}
-
-    QModelIndex indexForBundleId(Id bundleId) const
-    {
-        return mapFromSource(
-            static_cast<ToolchainListModel *>(sourceModel())->indexForBundleId(bundleId));
-    }
 
     void reset() { static_cast<ToolchainListModel *>(sourceModel())->reset(); }
 
@@ -181,7 +163,7 @@ private:
 
             Id currentBundleId;
             for (const Id lang : lc) {
-                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(m_kit, lang)) {
+                if (Toolchain * const currentTc = ToolchainKitAspect::toolchain(kit(), lang)) {
                     currentBundleId = currentTc->bundleId();
                     break;
                 }
@@ -214,15 +196,15 @@ private:
                 return tc->language() == lang;
             });
             if (tc)
-                ToolchainKitAspect::setToolchain(m_kit, tc);
+                ToolchainKitAspect::setToolchain(kit(), tc);
             else
-                ToolchainKitAspect::clearToolchain(m_kit, lang);
+                ToolchainKitAspect::clearToolchain(kit(), lang);
         }
     }
 
     int indexOf(QComboBox *cb, Id bundleId)
     {
-        return static_cast<ToolchainSortModel *>(cb->model())->indexForBundleId(bundleId).row();
+        return cb->findData(bundleId.toSetting(), ToolchainTreeItem::BundleIdRole);
     }
 
     QWidget *m_mainWidget = nullptr;

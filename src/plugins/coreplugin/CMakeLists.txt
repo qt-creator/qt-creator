@@ -1,5 +1,5 @@
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
     actionmanager/actioncontainer.cpp
@@ -29,6 +29,8 @@ add_qtc_plugin(Core
     coreplugin.cpp
     coreplugin.h
     coreplugintr.h
+    credentialquery.cpp
+    credentialquery.h
     designmode.cpp
     designmode.h
     dialogs/addtovcsdialog.cpp

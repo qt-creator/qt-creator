@@ -269,7 +269,7 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
+bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
     if constexpr (isUsingQmlDesignerLite()) {
         if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {

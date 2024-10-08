@@ -185,20 +185,7 @@ void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
     if (m_settings.showReachable())
         cmd << "--show-reachable=yes";
 
-    QString leakCheckValue;
-    switch (m_settings.leakCheckOnFinish()) {
-    case ValgrindSettings::LeakCheckOnFinishNo:
-        leakCheckValue = "no";
-        break;
-    case ValgrindSettings::LeakCheckOnFinishYes:
-        leakCheckValue = "full";
-        break;
-    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
-    default:
-        leakCheckValue = "summary";
-        break;
-    }
-    cmd << "--leak-check=" + leakCheckValue;
+    cmd << "--leak-check=" + m_settings.leakCheckOnFinishOptionString();
 
     for (const FilePath &file : m_settings.suppressions())
         cmd << QString("--suppressions=%1").arg(file.path());

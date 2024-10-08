@@ -111,6 +111,9 @@ private:
     void handleEngineStarted(Internal::DebuggerEngine *engine);
     void handleEngineFinished(Internal::DebuggerEngine *engine);
 
+    void startCoreFileSetupIfNeededAndContinueStartup();
+    void continueAfterCoreFileSetup();
+
     void startTerminalIfNeededAndContinueStartup();
     void continueAfterTerminalStart();
 

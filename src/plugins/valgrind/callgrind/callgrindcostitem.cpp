@@ -3,8 +3,8 @@
 
 #include "callgrindcostitem.h"
 
-#include "callgrindparsedata.h"
 #include "callgrindfunctioncall.h"
+#include "callgrindparsedata.h"
 
 #include <QStringList>
 
@@ -13,18 +13,18 @@ namespace Valgrind::Callgrind {
 class CostItem::Private
 {
 public:
-    Private(ParseData *data);
+    Private(const ParseData *data);
     ~Private();
 
     QList<quint64> m_positions;
     QList<quint64> m_events;
     const FunctionCall *m_call = nullptr;
 
-    const ParseData *m_data = nullptr;
+    const ParseData *m_data;
     qint64 m_differingFileId = -1;
 };
 
-CostItem::Private::Private(ParseData *data)
+CostItem::Private::Private(const ParseData *data)
     : m_positions(data->positions().size(), 0)
     , m_events(data->events().size(), 0)
     , m_data(data)
@@ -36,9 +36,8 @@ CostItem::Private::~Private()
     delete m_call;
 }
 
-
 //BEGIN CostItem
-CostItem::CostItem(ParseData *data)
+CostItem::CostItem(const ParseData *data)
 : d(new Private(data))
 {
 }

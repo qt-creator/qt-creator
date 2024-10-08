@@ -18,6 +18,9 @@ function utils.waitms_cb(ms, callback) end
 ---@return QString Arbitrary UUID string.
 function utils.createUuid() end
 
+---@class Id
+utils.Id = {}
+
 ---@class FilePath
 utils.FilePath = {}
 
@@ -88,6 +91,29 @@ function utils.FilePath:completeSuffix() end
 ---Returns whether the path is absolute.
 ---@return boolean
 function utils.FilePath:isAbsolutePath() end
+
+---Returns the complete OR-ed together combination of permissions for the file.
+---@return Permission
+function utils.FilePath:permissions() end
+
+---Sets permissions for the file.
+---@param permissions Permission The complete OR-ed together combination of permissions for the file.
+function utils.FilePath:setPermissions() end
+
+---Returns the list of paths for the given standard location.
+---@param location StandardLocation The standard location to get paths for.
+---@return [FilePath] The list of paths for the given standard location.
+function utils.standardLocations(location) end
+
+---Returns the first available paths for the given standard location.
+---@param location StandardLocation The standard location to get the path for.
+---@return FilePath|nil The first available paths for the given standard location or nil if no location is available.
+function utils.standardLocation(location) end
+
+---Returns the writable paths for the given standard location.
+---@param location StandardLocation The standard location to get path for.
+---@return FilePath|nil The writable paths for the given standard location or nil if no writable location is available.
+function utils.writableLocation(location) end
 
 ---@class CommandLine
 ---@field command FilePath The command to execute.

@@ -43,8 +43,8 @@ public:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
 
-    bool enabled() const;
-    void setEnabled(bool b);
+    bool stepEnabled() const;
+    void setStepEnabled(bool b);
 
     BuildStepList *stepList() const;
 
@@ -90,6 +90,8 @@ signals:
     void addOutput(const QString &string, OutputFormat format,
                    OutputNewlineSetting newlineSetting = DoAppendNewline);
 
+    void stepEnabledChanged();
+
     void progress(int percentage, const QString &message);
 
 protected:
@@ -112,7 +114,7 @@ private:
     ProjectConfiguration *projectConfiguration() const;
 
     BuildStepList * const m_stepList;
-    bool m_enabled = true;
+    bool m_stepEnabled = true;
     bool m_immutable = false;
     bool m_widgetExpandedByDefault = true;
     std::optional<bool> m_wasExpanded;

@@ -141,24 +141,9 @@ void BuildSystem::requestDelayedParse()
     requestParseHelper(1000);
 }
 
-void BuildSystem::requestParseWithCustomDelay(int delayInMs)
-{
-    requestParseHelper(delayInMs);
-}
-
 void BuildSystem::cancelDelayedParseRequest()
 {
     d->m_delayedParsingTimer.stop();
-}
-
-void BuildSystem::setParseDelay(int delayInMs)
-{
-    d->m_delayedParsingTimer.setInterval(delayInMs);
-}
-
-int BuildSystem::parseDelay() const
-{
-    return d->m_delayedParsingTimer.interval();
 }
 
 bool BuildSystem::isParsing() const

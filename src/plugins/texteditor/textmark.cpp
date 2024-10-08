@@ -177,7 +177,7 @@ TextMark::AnnotationRects TextMark::annotationRects(const QRectF &boundingRect,
                                                     const qreal fadeOutOffset) const
 {
     AnnotationRects rects;
-    rects.text = lineAnnotation();
+    rects.text = lineAnnotation().simplified();
     if (rects.text.isEmpty())
         return rects;
     rects.fadeInRect = boundingRect;

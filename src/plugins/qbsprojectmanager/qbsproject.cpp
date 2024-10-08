@@ -532,7 +532,7 @@ FilePath QbsBuildSystem::installRoot()
     if (dc) {
         const QList<BuildStep *> steps = dc->stepList()->steps();
         for (const BuildStep * const step : steps) {
-            if (!step->enabled())
+            if (!step->stepEnabled())
                 continue;
             if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
                 return qbsInstallStep->installRoot();

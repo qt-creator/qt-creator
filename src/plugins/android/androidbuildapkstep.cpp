@@ -679,7 +679,7 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
 
     if (!destinationFilePath.parentDir().ensureWritableDir())
         return false;
-    expected_str<void> result = sourceFilePath.copyFile(destinationFilePath);
+    Result result = sourceFilePath.copyFile(destinationFilePath);
     QTC_ASSERT_EXPECTED(result, return false);
     return true;
 }

@@ -740,6 +740,26 @@ void Widget::show()
     access(this)->show();
 }
 
+bool Widget::isVisible() const
+{
+    return access(this)->isVisible();
+}
+
+bool Widget::isEnabled() const
+{
+    return access(this)->isEnabled();
+}
+
+void Widget::setVisible(bool visible)
+{
+    access(this)-> setVisible(visible);
+}
+
+void Widget::setEnabled(bool enabled)
+{
+    access(this)->setEnabled(enabled);
+}
+
 void Widget::setNoMargins(int)
 {
     setContentsMargins(0, 0, 0, 0);

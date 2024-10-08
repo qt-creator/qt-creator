@@ -8,7 +8,7 @@
 using namespace QKeychain;
 using namespace Tasking;
 
-namespace Axivion::Internal {
+namespace Core {
 
 CredentialQueryTaskAdapter::~CredentialQueryTaskAdapter() = default;
 
@@ -51,4 +51,4 @@ void CredentialQueryTaskAdapter::start()
     job->start();
 }
 
-} // Axivion::Internal
+} // Core

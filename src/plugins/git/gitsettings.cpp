@@ -113,6 +113,7 @@ GitSettings::GitSettings()
     colorLog.setSettingsKey("ColorLog");
     colorLog.setDefaultValue(true);
 
+    allBranches.setSettingsKey("AllBranches");
     firstParent.setSettingsKey("FirstParent");
 
     followRenames.setSettingsKey("FollowRenames");

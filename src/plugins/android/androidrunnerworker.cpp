@@ -581,10 +581,11 @@ static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
     const auto onDone = [storage] {
         storage->m_processPID = -1;
         storage->m_processUser = -1;
-        if (!storage->m_glue->wasCancelled()) {
-            storage->m_glue->setFinished(Tr::tr("Android target \"%1\" died.")
-                                             .arg(storage->m_packageName));
-        }
+        const QString package = storage->m_packageName;
+        const QString message = storage->m_glue->wasCancelled()
+                                    ? Tr::tr("Android target \"%1\" terminated.").arg(package)
+                                    : Tr::tr("Android target \"%1\" died.").arg(package);
+        storage->m_glue->setFinished(message);
     };
 
     return Group {

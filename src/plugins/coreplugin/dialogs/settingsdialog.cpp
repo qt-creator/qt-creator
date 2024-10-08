@@ -42,8 +42,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-const int kInitialWidth = 750;
-const int kInitialHeight = 450;
+const int kInitialWidth = 800;
+const int kInitialHeight = 500;
 const int kMaxMinimumWidth = 250;
 const int kMaxMinimumHeight = 250;
 

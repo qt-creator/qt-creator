@@ -117,22 +117,21 @@ bool DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-expected_str<void> DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+Result DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
-        return {};
+        return Result::Ok;
 
     if (exists(filePath)) {
-        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+        return Result::Error(Tr::tr("Path \"%1\" exists but is not a writable directory.")
                                    .arg(filePath.toUserOutput()));
     }
 
     const bool result = createDirectory(filePath);
     if (result)
-        return {};
+        return Result::Ok;
 
-    return make_unexpected(
-        Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
+    return Result::Error(Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
@@ -155,11 +154,10 @@ bool DeviceFileAccess::exists(const FilePath &filePath) const
     return false;
 }
 
-expected_str<void> DeviceFileAccess::removeFile(const FilePath &filePath) const
+Result DeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath)
     QTC_CHECK(false);
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("removeFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -171,18 +169,17 @@ bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *erro
     return false;
 }
 
-expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+Result DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
-    Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("copyFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath &target)
+static Result copyRecursively_fallback(const FilePath &src, const FilePath &target)
 {
-    expected_str<void> result;
+    Result result = Result::Ok;
     src.iterateDirectory(
         [&target, &src, &result](const FilePath &path) {
             const FilePath relative = path.relativePathFrom(src);
@@ -202,16 +199,15 @@ expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath 
     return result;
 }
 
-expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
-                                                     const FilePath &target) const
+Result DeviceFileAccess::copyRecursively(const FilePath &src, const FilePath &target) const
 {
     if (!src.isDir()) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Cannot copy from \"%1\", it is not a directory.").arg(src.toUserOutput()));
     }
-    const expected_str<void> result = target.ensureWritableDir();
+    const Result result = target.ensureWritableDir();
     if (!result) {
-        return make_unexpected(Tr::tr("Cannot copy \"%1\" to \"%2\": %3")
+        return Result::Error(Tr::tr("Cannot copy \"%1\" to \"%2\": %3")
                                    .arg(src.toUserOutput())
                                    .arg(target.toUserOutput())
                                    .arg(result.error()));
@@ -254,7 +250,7 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
 
     if (srcProcess.result() != ProcessResult::FinishedWithSuccess) {
         targetProcess.kill();
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
                    "trying to create tar archive from source: %3")
                 .arg(src.toUserOutput(), target.toUserOutput(), srcProcess.readAllStandardError()));
@@ -263,23 +259,22 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
     targetProcess.waitForFinished();
 
     if (targetProcess.result() != ProcessResult::FinishedWithSuccess) {
-        return make_unexpected(Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
+        return Result::Error(Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
                                       "trying to extract tar archive to target: %3")
                                    .arg(src.toUserOutput(),
                                         target.toUserOutput(),
                                         targetProcess.readAllStandardError()));
     }
 
-    return {};
+    return Result::Ok;
 #endif
 }
 
-expected_str<void> DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+Result DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
-    Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("renameFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -684,22 +679,22 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-expected_str<void> DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+Result DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     const QFileInfo fi(filePath.path());
     if (fi.isDir() && fi.isWritable())
-        return {};
+        return Result::Ok;
 
     if (fi.exists()) {
-        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+        return Result::Error(Tr::tr("Path \"%1\" exists but is not a writable directory.")
                                    .arg(filePath.toUserOutput()));
     }
 
     const bool result = QDir().mkpath(filePath.path());
     if (result)
-        return {};
+        return Result::Ok;
 
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -724,12 +719,12 @@ bool DesktopDeviceFileAccess::exists(const FilePath &filePath) const
     return !filePath.isEmpty() && QFileInfo::exists(filePath.path());
 }
 
-expected_str<void> DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
+Result DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
     QFile f(filePath.path());
     if (!f.remove())
-        return make_unexpected(f.errorString());
-    return {};
+        return Result::Error(f.errorString());
+    return Result::Ok;
 }
 
 static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
@@ -806,26 +801,26 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
     return true;
 }
 
-expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
+Result DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
                                                      const FilePath &target) const
 {
     QFile srcFile(filePath.path());
 
     if (srcFile.copy(target.path()))
-        return {};
-    return make_unexpected(
+        return Result::Ok;
+    return Result::Error(
         Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
             .arg(filePath.toUserOutput(), target.toUserOutput(), srcFile.errorString()));
 }
 
-expected_str<void> DesktopDeviceFileAccess::renameFile(
+Result DesktopDeviceFileAccess::renameFile(
     const FilePath &filePath, const FilePath &target) const
 {
     QFile f(filePath.path());
 
     if (f.rename(target.path()))
-        return {};
-    return make_unexpected(
+        return Result::Ok;
+    return Result::Error(
         Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
             .arg(filePath.toUserOutput(), target.toUserOutput(), f.errorString()));
 }
@@ -1060,9 +1055,14 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
 
 // UnixDeviceAccess
 
+static QString disconnectedMessage()
+{
+    return Tr::tr("Device is not connected");
+}
+
 static Utils::unexpected<QString> make_unexpected_disconnected()
 {
-    return make_unexpected(Tr::tr("Device is not connected"));
+    return make_unexpected(disconnectedMessage());
 }
 
 UnixDeviceFileAccess::~UnixDeviceFileAccess() = default;
@@ -1175,20 +1175,21 @@ bool UnixDeviceFileAccess::exists(const FilePath &filePath) const
     return runInShellSuccess({"test", {"-e", path}, OsType::OsTypeLinux});
 }
 
-expected_str<void> UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
+Result UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
     if (disconnected())
-        return make_unexpected_disconnected();
+        return Result::Error(disconnectedMessage());
     RunResult result = runInShell({"rm", {filePath.path()}, OsType::OsTypeLinux});
     if (result.exitCode != 0)
-        return make_unexpected(QString::fromUtf8(result.stdErr));
-    return {};
+        return Result::Error(QString::fromUtf8(result.stdErr));
+    return Result::Ok;
 }
 
 bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
 {
     if (disconnected())
         return false;
+
     QTC_ASSERT(filePath.path().startsWith('/'), return false);
 
     const QString path = filePath.cleanPath().path();
@@ -1206,36 +1207,35 @@ bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *
     return result.exitCode == 0;
 }
 
-expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
-                                                  const FilePath &target) const
+Result UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     if (disconnected())
-        return make_unexpected_disconnected();
+        return Result::Error(disconnectedMessage());
     const RunResult result = runInShell(
         {"cp", {filePath.path(), target.path()}, OsType::OsTypeLinux});
 
     if (result.exitCode != 0) {
-        return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
+        return Result::Error(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
                                    .arg(filePath.toUserOutput(),
                                         target.toUserOutput(),
                                         QString::fromUtf8(result.stdErr)));
     }
-    return {};
+    return Result::Ok;
 }
 
-expected_str<void> UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+Result UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     if (disconnected())
-        return make_unexpected_disconnected();
+        return Result::Error(disconnectedMessage());
 
-    auto result =  runInShell({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    RunResult result = runInShell({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
     if (result.exitCode != 0) {
-        return make_unexpected(Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
+        return Result::Error(Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
                                    .arg(filePath.toUserOutput(),
                                         target.toUserOutput(),
                                         QString::fromUtf8(result.stdErr)));
     }
-    return {};
+    return Result::Ok;
 }
 
 FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const

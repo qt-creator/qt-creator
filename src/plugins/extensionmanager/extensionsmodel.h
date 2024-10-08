@@ -27,7 +27,9 @@ enum ExtensionState {
 
 enum Role {
     RoleName = Qt::UserRole,
+    RoleBadge,
     RoleCopyright,
+    RoleDateUpdated,
     RoleDependencies,
     RoleDescriptionLong,
     RoleDescriptionShort,
@@ -39,8 +41,8 @@ enum Role {
     RoleLicense,
     RolePlatforms,
     RolePlugins,
-    RoleDateUpdated,
     RoleSearchText,
+    RoleStatus,
     RoleTags,
     RoleVendor,
     RoleVendorId,
@@ -65,6 +67,7 @@ private:
 
 QString customOsTypeToString(Utils::OsType osType);
 ExtensionSystem::PluginSpec *pluginSpecForId(const QString &pluginId);
+QString statusDisplayString(const QModelIndex &index);
 
 #ifdef WITH_TESTS
 QObject *createExtensionsModelTest();

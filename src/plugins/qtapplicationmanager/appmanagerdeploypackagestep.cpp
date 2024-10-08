@@ -59,7 +59,7 @@ public:
             targetDirectory.setValue(targetInformation.runDirectory);
             targetDirectory.setDefaultValue(targetDirectory.value());
 
-            setEnabled(!targetInformation.isBuiltin);
+            setStepEnabled(!targetInformation.isBuiltin);
         };
 
         connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);

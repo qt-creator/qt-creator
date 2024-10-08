@@ -13,7 +13,7 @@
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
-#include "androidruncontrol.h"
+#include "androidrunner.h"
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"

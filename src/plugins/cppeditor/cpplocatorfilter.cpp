@@ -19,13 +19,14 @@
 
 using namespace Core;
 using namespace CPlusPlus;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CppEditor {
 
 using EntryFromIndex = std::function<LocatorFilterEntry(const IndexItem::Ptr &)>;
 
-void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
+static void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
                 IndexItem::ItemType wantedType, const EntryFromIndex &converter)
 {
     const QString input = storage.input();
@@ -99,19 +100,15 @@ void matchesFor(QPromise<void> &promise, const LocatorStorage &storage,
                                       LocatorFilterEntries()));
 }
 
-LocatorMatcherTask locatorMatcher(IndexItem::ItemType type, const EntryFromIndex &converter)
+static ExecutableItem locatorMatcher(IndexItem::ItemType type, const EntryFromIndex &converter)
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [=](Async<void> &async) {
-        async.setConcurrentCallData(matchesFor, *storage, type, converter);
+    const auto onSetup = [type, converter](Async<void> &async) {
+        async.setConcurrentCallData(matchesFor, *LocatorStorage::storage(), type, converter);
     };
-    return {AsyncTask<void>(onSetup), storage};
+    return AsyncTask<void>(onSetup);
 }
 
-LocatorMatcherTask allSymbolsMatcher()
+static ExecutableItem allSymbolsMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         LocatorFilterEntry filterEntry;
@@ -129,7 +126,7 @@ LocatorMatcherTask allSymbolsMatcher()
     return locatorMatcher(IndexItem::All, converter);
 }
 
-LocatorMatcherTask classMatcher()
+static ExecutableItem classMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         LocatorFilterEntry filterEntry;
@@ -145,7 +142,7 @@ LocatorMatcherTask classMatcher()
     return locatorMatcher(IndexItem::Class, converter);
 }
 
-LocatorMatcherTask functionMatcher()
+static ExecutableItem functionMatcher()
 {
     const auto converter = [](const IndexItem::Ptr &info) {
         QString name = info->symbolName();
@@ -166,7 +163,7 @@ LocatorMatcherTask functionMatcher()
     return locatorMatcher(IndexItem::Function, converter);
 }
 
-QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)
+static QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)
 {
     if (currentFileName.isEmpty())
         return {};
@@ -188,7 +185,7 @@ QList<IndexItem::Ptr> itemsOfCurrentDocument(const FilePath &currentFileName)
     return results;
 }
 
-LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
+static LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &match,
                                   LocatorFilterEntry::HighlightInfo::DataType dataType)
 {
     const FuzzyMatcher::HighlightingPositions positions =
@@ -197,7 +194,7 @@ LocatorFilterEntry::HighlightInfo highlightInfo(const QRegularExpressionMatch &m
     return LocatorFilterEntry::HighlightInfo(positions.starts, positions.lengths, dataType);
 }
 
-void matchesForCurrentDocument(QPromise<void> &promise, const LocatorStorage &storage,
+static void matchesForCurrentDocument(QPromise<void> &promise, const LocatorStorage &storage,
                                const FilePath &currentFileName)
 {
     const QString input = storage.input();
@@ -290,25 +287,21 @@ void matchesForCurrentDocument(QPromise<void> &promise, const LocatorStorage &st
                                        [](const Entry &entry) { return entry.entry; }));
 }
 
-FilePath currentFileName()
+static FilePath currentFileName()
 {
     IEditor *currentEditor = EditorManager::currentEditor();
     return currentEditor ? currentEditor->document()->filePath() : FilePath();
 }
 
-LocatorMatcherTask currentDocumentMatcher()
+static ExecutableItem currentDocumentMatcher()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [=](Async<void> &async) {
-        async.setConcurrentCallData(matchesForCurrentDocument, *storage, currentFileName());
+    const auto onSetup = [](Async<void> &async) {
+        async.setConcurrentCallData(matchesForCurrentDocument, *LocatorStorage::storage(), currentFileName());
     };
-    return {AsyncTask<void>(onSetup), storage};
+    return AsyncTask<void>(onSetup);
 }
 
-using MatcherCreator = std::function<Core::LocatorMatcherTask()>;
+using MatcherCreator = std::function<ExecutableItem()>;
 
 static MatcherCreator creatorForType(MatcherType type)
 {

@@ -39,7 +39,6 @@ QtcPlugin {
 
         files: [
             "action.cpp",
-            "async.cpp",
             "core.cpp",
             "fetch.cpp",
             "gui.cpp",

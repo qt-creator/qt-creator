@@ -172,7 +172,7 @@ public:
 
     void update();
 
-    const Utils::MacroExpander *macroExpander() const { return &m_expander; }
+    virtual RunConfiguration *clone(Target *parent);
 
 protected:
     RunConfiguration(Target *target, Utils::Id id);
@@ -233,7 +233,6 @@ public:
     virtual ~RunConfigurationFactory();
 
     static RunConfiguration *restore(Target *parent, const Utils::Store &map);
-    static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }

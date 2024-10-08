@@ -21,6 +21,7 @@
 #include <utils/guard.h>
 #include <utils/guiutils.h>
 #include <utils/layoutbuilder.h>
+#include <utils/listmodel.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -34,6 +35,8 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
+
+#include <utility>
 
 using namespace Utils;
 
@@ -71,13 +74,13 @@ private:
     void refresh() override
     {
         if (!m_ignoreChanges.isLocked())
-            m_chooser->setFilePath(SysRootKitAspect::sysRoot(m_kit));
+            m_chooser->setFilePath(SysRootKitAspect::sysRoot(kit()));
     }
 
     void pathWasChanged()
     {
         const GuardLocker locker(m_ignoreChanges);
-        SysRootKitAspect::setSysRoot(m_kit, m_chooser->filePath());
+        SysRootKitAspect::setSysRoot(kit(), m_chooser->filePath());
     }
 
     PathChooser *m_chooser;
@@ -197,47 +200,36 @@ class DeviceTypeKitAspectImpl final : public KitAspect
 {
 public:
     DeviceTypeKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
-        : KitAspect(workingCopy, factory), m_comboBox(createSubWidget<QComboBox>())
+        : KitAspect(workingCopy, factory)
     {
-        for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
-            m_comboBox->addItem(factory->displayName(), factory->deviceType().toSetting());
-        m_comboBox->setToolTip(factory->description());
-        refresh();
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &DeviceTypeKitAspectImpl::currentTypeChanged);
+        using ItemData = std::pair<QString, Id>;
+        const auto model = new ListModel<ItemData>(this);
+        model->setDataAccessor([](const ItemData &d, int column, int role) -> QVariant {
+            if (column != 0)
+                return {};
+            if (role == Qt::DisplayRole)
+                return d.first;
+            if (role == Qt::UserRole)
+                return d.second.toSetting();
+            return {};
+        });
+        const auto sortModel = new SortModel(this);
+        sortModel->setSourceModel(model);
+        auto getter = [](const Kit &k) { return DeviceTypeKitAspect::deviceTypeId(&k).toSetting(); };
+        auto setter = [](Kit &k, const QVariant &type) {
+            DeviceTypeKitAspect::setDeviceTypeId(&k, Id::fromSetting(type));
+        };
+        auto resetModel = [](QAbstractItemModel &m) {
+            // FIXME: Change to parameter-less signature.
+            auto model = static_cast<ListModel<ItemData> *>(
+                static_cast<SortModel &>(m).sourceModel());
+            model->clear();
+            for (IDeviceFactory *factory : IDeviceFactory::allDeviceFactories())
+                model->appendItem(std::make_pair(factory->displayName(), factory->deviceType()));
+        };
+        setListAspectSpec(
+            {sortModel, std::move(getter), std::move(setter), std::move(resetModel), Qt::UserRole});
     }
-
-    ~DeviceTypeKitAspectImpl() override { delete m_comboBox; }
-
-private:
-    void addToInnerLayout(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
-    void refresh() override
-    {
-        Id devType = DeviceTypeKitAspect::deviceTypeId(m_kit);
-        if (!devType.isValid())
-            m_comboBox->setCurrentIndex(-1);
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (m_comboBox->itemData(i) == devType.toSetting()) {
-                m_comboBox->setCurrentIndex(i);
-                break;
-            }
-        }
-    }
-
-    void currentTypeChanged(int idx)
-    {
-        Id type = idx < 0 ? Id() : Id::fromSetting(m_comboBox->itemData(idx));
-        DeviceTypeKitAspect::setDeviceTypeId(m_kit, type);
-    }
-
-    QComboBox *m_comboBox;
 };
 } // namespace Internal
 
@@ -368,12 +360,12 @@ private:
 
     void makeReadOnly() override { m_comboBox->setEnabled(false); }
 
-    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(m_kit); }
+    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(kit()); }
 
     void refresh() override
     {
-        m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(m_kit));
-        m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(m_kit)));
+        m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
+        m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(kit())));
     }
 
     void modelAboutToReset()
@@ -392,7 +384,7 @@ private:
     {
         if (m_ignoreChanges.isLocked())
             return;
-        DeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+        DeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
     }
 
     Guard m_ignoreChanges;
@@ -660,7 +652,7 @@ private:
         }
 
         m_model->setFilter(blackList);
-        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(m_kit)));
+        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(kit())));
     }
 
     void modelAboutToReset()
@@ -679,7 +671,7 @@ private:
     {
         if (m_ignoreChanges.isLocked())
             return;
-        BuildDeviceKitAspect::setDeviceId(m_kit, m_model->deviceId(m_comboBox->currentIndex()));
+        BuildDeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
     }
 
     Guard m_ignoreChanges;
@@ -922,7 +914,7 @@ private:
 
     void editEnvironmentChanges()
     {
-        MacroExpander *expander = m_kit->macroExpander();
+        MacroExpander *expander = kit()->macroExpander();
         EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
             VariableChooser::addSupportForChildWidgets(w, expander);
         };
@@ -941,12 +933,12 @@ private:
             else if (enforcesMSVCEnglish(*changes))
                 m_vslangCheckbox->setChecked(true);
         }
-        EnvironmentKitAspect::setEnvironmentChanges(m_kit, *changes);
+        EnvironmentKitAspect::setEnvironmentChanges(kit(), *changes);
     }
 
     EnvironmentItems envWithoutMSVCEnglishEnforcement() const
     {
-        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
 
         if (HostOsInfo::isWindowsHost())
             changes.removeAll(forceMSVCEnglishItem());
@@ -961,15 +953,15 @@ private:
         m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
-        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(m_kit)))
+        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(kit())))
             m_vslangCheckbox->setChecked(true);
         connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
-            EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(m_kit);
+            EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
             if (!checked && changes.indexOf(forceMSVCEnglishItem()) >= 0)
                 changes.removeAll(forceMSVCEnglishItem());
             if (checked && changes.indexOf(forceMSVCEnglishItem()) < 0)
                 changes.append(forceMSVCEnglishItem());
-            EnvironmentKitAspect::setEnvironmentChanges(m_kit, changes);
+            EnvironmentKitAspect::setEnvironmentChanges(kit(), changes);
         });
     }
 

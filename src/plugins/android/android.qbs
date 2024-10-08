@@ -55,8 +55,6 @@ QtcPlugin {
         "androidqtversion.h",
         "androidrunconfiguration.cpp",
         "androidrunconfiguration.h",
-        "androidruncontrol.cpp",
-        "androidruncontrol.h",
         "androidrunner.cpp",
         "androidrunner.h",
         "androidrunnerworker.cpp",

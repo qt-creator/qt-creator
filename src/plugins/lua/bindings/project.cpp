@@ -28,15 +28,28 @@ void setupProjectModule()
 
         sol::table result = lua.create_table();
 
+        result.new_usertype<Kit>(
+            "Kit",
+            sol::no_constructor,
+            "supportedPlatforms",
+            [](Kit *kit) {
+                const auto set = kit->supportedPlatforms();
+                return QList<Utils::Id>(set.constBegin(), set.constEnd());
+            });
+
         result.new_usertype<RunConfiguration>(
             "RunConfiguration",
             sol::no_constructor,
             "runnable",
-            sol::property(&RunConfiguration::runnable));
+            sol::property(&RunConfiguration::runnable),
+            "kit",
+            sol::property(&RunConfiguration::kit));
 
         result.new_usertype<Project>(
             "Project",
             sol::no_constructor,
+            "displayName",
+            sol::property(&Project::displayName),
             "directory",
             sol::property(&Project::projectDirectory),
             "activeRunConfiguration",
@@ -53,7 +66,8 @@ void setupProjectModule()
         };
 
         result["runStartupProject"] =
-            [guard](const sol::optional<ProcessRunData> &runnable) {
+            [guard](const sol::optional<ProcessRunData> &runnable,
+                    const sol::optional<QString> &displayName) {
                 auto project = ProjectManager::instance()->startupProject();
                 if (!project)
                     throw sol::error("No startup project");
@@ -71,6 +85,9 @@ void setupProjectModule()
                     rc->setWorkingDirectory(runnable->workingDirectory);
                     rc->setEnvironment(runnable->environment);
                 }
+
+                if (displayName)
+                    rc->setDisplayName(displayName.value());
 
                 BuildForRunConfigStatus status = BuildManager::potentiallyBuildForRunConfig(
                     runConfiguration);
@@ -96,8 +113,31 @@ void setupProjectModule()
                 }
             };
 
+        result["stopRunConfigurationsByName"] =
+            [](const QString &displayName, const std::optional<bool> &force) -> int {
+                const auto runControls = ProjectExplorerPlugin::instance()->allRunControls();
+
+                int stoppedCount = 0;
+                for (const auto rc : runControls) {
+                    if (rc && rc->displayName() == displayName) {
+                        stoppedCount++;
+
+                        if (force.has_value() && force.value()) {
+                            rc->forceStop();
+                        } else {
+                            rc->initiateStop();
+                        }
+                    }
+                }
+
+                return stoppedCount;
+            };
+
         result["RunMode"] = lua.create_table_with(
             "Normal", Constants::NORMAL_RUN_MODE, "Debug", Constants::DEBUG_RUN_MODE);
+
+        result["Platforms"] = lua.create_table_with(
+            "Desktop", Utils::Id(Constants::DESKTOP_DEVICE_TYPE));
 
         return result;
     });

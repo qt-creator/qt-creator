@@ -51,6 +51,7 @@ LUA_EXPORT Utils::expected_str<sol::protected_function> prepareSetup(
     sol::state_view lua, const LuaPluginSpec &pluginSpec);
 
 LUA_EXPORT void registerProvider(const QString &packageName, const PackageProvider &provider);
+LUA_EXPORT void registerProvider(const QString &packageName, const Utils::FilePath &path);
 LUA_EXPORT void autoRegister(const std::function<void(sol::state_view)> &registerFunction);
 LUA_EXPORT void registerHook(
     QString name, const std::function<void(sol::function, QObject *guard)> &hookProvider);

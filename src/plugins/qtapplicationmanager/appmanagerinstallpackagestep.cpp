@@ -83,7 +83,7 @@ AppManagerInstallPackageStep::AppManagerInstallPackageStep(BuildStepList *bsl, I
             packageFile.setDefaultPathValue(packageFilePath);
         }
 
-        setEnabled(!targetInformation.isBuiltin);
+        setStepEnabled(!targetInformation.isBuiltin);
     };
 
     connect(target(), &Target::activeRunConfigurationChanged, this, updateAspects);

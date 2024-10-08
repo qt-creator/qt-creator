@@ -98,7 +98,7 @@ public:
     QUndoStack *undoStack() const;
 
     bool isEnabled() const;
-    void setEnabled(bool enabled);
+    virtual void setEnabled(bool enabled);
     void setEnabler(BoolAspect *checker);
 
     bool isReadOnly() const;
@@ -237,6 +237,7 @@ protected:
 
     QLabel *createLabel();
     void addLabeledItem(Layouting::Layout &parent, QWidget *widget);
+    void addLabeledItems(Layouting::Layout &parent, const QList<QWidget *> &widgets);
 
     void setDataCreatorHelper(const DataCreator &creator) const;
     void setDataClonerHelper(const DataCloner &cloner) const;
@@ -996,6 +997,7 @@ public:
     void setAutoApply(bool on) override;
     bool isDirty() override;
     void setUndoStack(QUndoStack *undoStack) override;
+    void setEnabled(bool enabled) override;
 
     void setMacroExpander(MacroExpander *expander);
 

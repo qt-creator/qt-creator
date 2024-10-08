@@ -5,10 +5,14 @@
 
 #include "utils.h"
 
+#include <utils/stringutils.h>
+
 #include <QApplication>
 #include <QClipboard>
 #include <QCompleter>
 #include <QDir>
+#include <QFileDevice>
+#include <QStandardPaths>
 
 namespace Lua::Internal {
 
@@ -27,29 +31,27 @@ void setupQtModule()
             "currentCompletion",
             &QCompleter::currentCompletion,
             "completionMode",
-            sol::property(&QCompleter::completionMode,
-                          [](QCompleter *c, QCompleter::CompletionMode mode) {
-                              c->setCompletionMode(mode);
-                          }),
+            sol::property(
+                &QCompleter::completionMode,
+                [](QCompleter *c, QCompleter::CompletionMode mode) { c->setCompletionMode(mode); }),
             "onActivated",
             sol::property([guard = pluginSpec](QCompleter &obj, sol::function callback) {
-                QObject::connect(&obj,
-                                 QOverload<const QString &>::of(&QCompleter::activated),
-                                 guard->connectionGuard.get(),
-                                 [callback](const QString &arg) {
-                                     void_safe_call(callback, arg);
-                                 });})
-            );
+                QObject::connect(
+                    &obj,
+                    QOverload<const QString &>::of(&QCompleter::activated),
+                    guard->connectionGuard.get(),
+                    [callback](const QString &arg) { void_safe_call(callback, arg); });
+            }));
 
         qt.new_usertype<QClipboard>(
             "QClipboard",
-            sol::call_constructor,
-            &QApplication::clipboard,
+            sol::no_constructor,
             "text",
-            sol::property([](QClipboard &self) { return self.text(); },
-                          [](QClipboard &self, const QString &value) { self.setText(value); })
-            );
+            sol::property(
+                [](QClipboard &self) { return self.text(); },
+                [](QClipboard &, const QString &text) { Utils::setClipboardAndSelection(text); }));
 
+        qt["clipboard"] = &QApplication::clipboard;
 
         mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 
@@ -110,6 +112,48 @@ void setupQtModule()
                 "NoSort", QDir::NoSort
             )
         );
+
+        qt["QFileDevice"] = lua.create_table_with(
+            "Permission", lua.create_table_with(
+                "ReadOwner", QFileDevice::ReadOwner,
+                "ReadUser", QFileDevice::ReadUser,
+                "ReadGroup", QFileDevice::ReadGroup,
+                "ReadOther", QFileDevice::ReadOther,
+                "WriteOwner", QFileDevice::WriteOwner,
+                "WriteUser", QFileDevice::WriteUser,
+                "WriteGroup", QFileDevice::WriteGroup,
+                "WriteOther", QFileDevice::WriteOther,
+                "ExeOwner", QFileDevice::ExeOwner,
+                "ExeUser", QFileDevice::ExeUser,
+                "ExeGroup", QFileDevice::ExeGroup,
+                "ExeOther", QFileDevice::ExeOther
+            )
+        );
+
+        qt["QStandardPaths"] = lua.create_table_with(
+            "StandardLocation", lua.create_table_with(
+                "DesktopLocation", QStandardPaths::DesktopLocation,
+                "DocumentsLocation", QStandardPaths::DocumentsLocation,
+                "FontsLocation", QStandardPaths::FontsLocation,
+                "ApplicationsLocation", QStandardPaths::ApplicationsLocation,
+                "MusicLocation", QStandardPaths::MusicLocation,
+                "MoviesLocation", QStandardPaths::MoviesLocation,
+                "PicturesLocation", QStandardPaths::PicturesLocation,
+                "TempLocation", QStandardPaths::TempLocation,
+                "HomeLocation", QStandardPaths::HomeLocation,
+                "AppLocalDataLocation", QStandardPaths::AppLocalDataLocation,
+                "CacheLocation", QStandardPaths::CacheLocation,
+                "GenericDataLocation", QStandardPaths::GenericDataLocation,
+                "RuntimeLocation", QStandardPaths::RuntimeLocation,
+                "ConfigLocation", QStandardPaths::ConfigLocation,
+                "DownloadLocation", QStandardPaths::DownloadLocation,
+                "GenericCacheLocation", QStandardPaths::GenericCacheLocation,
+                "GenericConfigLocation", QStandardPaths::GenericConfigLocation,
+                "AppDataLocation", QStandardPaths::AppDataLocation,
+                "AppConfigLocation", QStandardPaths::AppConfigLocation,
+                "PublicShareLocation", QStandardPaths::PublicShareLocation,
+                "TemplatesLocation", QStandardPaths::TemplatesLocation
+        ));
         // clang-format on
 
         return qt;

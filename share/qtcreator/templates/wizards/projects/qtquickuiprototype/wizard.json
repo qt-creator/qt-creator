@@ -153,11 +153,6 @@
                     "condition": "%{QdsProjectStyle}"
                 },
                 {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/DirectoryFontLoader.qml.tpl",
-                    "target": "%{ProjectDirectory}/%{ImportModuleName}/DirectoryFontLoader.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
                     "source": "%{QdsWizardPath}/shared-plugin/name/EventListModel.qml.tpl",
                     "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListModel.qml",
                     "condition": "%{QdsProjectStyle}"

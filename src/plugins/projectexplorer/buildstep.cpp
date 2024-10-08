@@ -129,14 +129,14 @@ QWidget *BuildStep::createConfigWidget()
 
 void BuildStep::fromMap(const Store &map)
 {
-    m_enabled = map.value(buildStepEnabledKey, true).toBool();
+    m_stepEnabled = map.value(buildStepEnabledKey, true).toBool();
     ProjectConfiguration::fromMap(map);
 }
 
 void BuildStep::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
-    map.insert(buildStepEnabledKey, m_enabled);
+    map.insert(buildStepEnabledKey, m_stepEnabled);
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const
@@ -235,12 +235,12 @@ QVariant BuildStep::data(Id id) const
     return {};
 }
 
-void BuildStep::setEnabled(bool b)
+void BuildStep::setStepEnabled(bool b)
 {
-    if (m_enabled == b)
+    if (m_stepEnabled == b)
         return;
-    m_enabled = b;
-    emit enabledChanged();
+    m_stepEnabled = b;
+    emit stepEnabledChanged();
 }
 
 BuildStepList *BuildStep::stepList() const
@@ -248,9 +248,9 @@ BuildStepList *BuildStep::stepList() const
     return m_stepList;
 }
 
-bool BuildStep::enabled() const
+bool BuildStep::stepEnabled() const
 {
-    return m_enabled;
+    return m_stepEnabled;
 }
 
 BuildStepFactory::BuildStepFactory()

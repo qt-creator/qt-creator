@@ -397,6 +397,17 @@ ValgrindSettings::ValgrindSettings(bool global)
         readSettings();
 }
 
+QString ValgrindSettings::leakCheckOnFinishOptionString() const
+{
+    switch (leakCheckOnFinish()) {
+    case ValgrindSettings::LeakCheckOnFinishNo: return "no";
+    case ValgrindSettings::LeakCheckOnFinishYes: return "full";
+    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
+    default: return "summary";
+    }
+    return {};
+}
+
 ValgrindSettings &globalSettings()
 {
     static ValgrindSettings theSettings{true};

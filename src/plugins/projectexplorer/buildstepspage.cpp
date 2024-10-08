@@ -153,7 +153,7 @@ BuildStepsWidgetData::BuildStepsWidgetData(BuildStep *s) :
     detailsWidget->setWidget(widget);
 
     toolWidget = new ToolWidget(detailsWidget);
-    toolWidget->setBuildStepEnabled(step->enabled());
+    toolWidget->setBuildStepEnabled(step->stepEnabled());
 
     detailsWidget->setToolWidget(toolWidget);
     detailsWidget->setContentsMargins(0, 0, 0, 0);
@@ -239,8 +239,8 @@ void BuildStepListWidget::addBuildStep(int pos)
         s->detailsWidget->setSummaryText(s->step->summaryText());
     });
 
-    connect(s->step, &BuildStep::enabledChanged, this, [s] {
-        s->toolWidget->setBuildStepEnabled(s->step->enabled());
+    connect(s->step, &BuildStep::stepEnabledChanged, this, [s] {
+        s->toolWidget->setBuildStepEnabled(s->step->stepEnabled());
     });
 
 
@@ -314,8 +314,8 @@ void BuildStepListWidget::updateBuildStepButtonsState()
         connect(s->toolWidget, &ToolWidget::disabledClicked,
                 this, [s] {
             BuildStep *bs = s->step;
-            bs->setEnabled(!bs->enabled());
-            s->toolWidget->setBuildStepEnabled(bs->enabled());
+            bs->setStepEnabled(!bs->stepEnabled());
+            s->toolWidget->setBuildStepEnabled(bs->stepEnabled());
         });
         s->toolWidget->setRemoveEnabled(!m_buildStepList->at(i)->isImmutable());
         connect(s->toolWidget, &ToolWidget::removeClicked,

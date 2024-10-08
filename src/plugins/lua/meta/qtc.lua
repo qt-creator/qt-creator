@@ -3,6 +3,7 @@
 ---@class PluginSpec
 ---@field name string The name of the plugin.
 ---@field pluginDirectory FilePath The directory of the plugin.
+---@field appDataPath FilePath The application data directory of the plugin.
 PluginSpec = {}
 ---The global qtc object defined in the Lua plugin.
 ---@class qtc

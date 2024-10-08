@@ -258,6 +258,9 @@ public:
     bool usesPerfChannel() const;
     QUrl perfChannel() const;
 
+    void requestWorkerChannel();
+    QUrl workerChannel() const;
+
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);
     void aboutToStart();

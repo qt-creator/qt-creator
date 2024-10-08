@@ -15352,12 +15352,12 @@ Par exemple, «&#xa0;Revision&#xa0;: 15&#xa0;» laissera la branche à la révis
         <translation>Style de repli :</translation>
     </message>
     <message>
-        <source>Clang Format command:</source>
-        <translation>Commande de Clang Format :</translation>
+        <source>ClangFormat command:</source>
+        <translation>Commande de ClangFormat :</translation>
     </message>
     <message>
-        <source>Clang Format</source>
-        <translation>Clang Format</translation>
+        <source>ClangFormat</source>
+        <translation>ClangFormat</translation>
     </message>
     <message>
         <source>No description available.</source>

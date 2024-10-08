@@ -582,7 +582,7 @@ DockerDevice::DockerDevice()
             return make_unexpected(cmdBridgePath.error());
 
         auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
-        expected_str<void> initResult;
+        Result initResult = Result::Ok;
         if (!cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
             initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), rootPath());
         } else {

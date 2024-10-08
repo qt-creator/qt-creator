@@ -171,6 +171,8 @@ public:
     constexpr static QSize dividerS{1, 16};
     constexpr static TextFormat itemNameTF
         {Theme::Token_Text_Default, UiElement::UiElementH6};
+    constexpr static TextFormat releaseStatusTF
+        {Theme::Token_Notification_Alert, UiElement::UiElementLabelSmall};
     constexpr static TextFormat countTF
         {Theme::Token_Text_Default, UiElement::UiElementLabelSmall,
          Qt::AlignCenter | Qt::TextDontClip};
@@ -190,23 +192,23 @@ public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
-        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
-        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
-        // |               |       |               |          <itemName>         |(HGapXxs)|<status>|(HGapXxs)|<checkmark>|               |         |
-        // |               |       |               +-----------------------------+---------+--------+---------+-----------+               |         |
-        // |               |       |               |                               (VGapXxs)                              |               |         |
-        // |               |       |               +--------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|<vendor>|(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
-        // |               |(50x50)|               +--------+--------+--------------+--------+--------+---------+---------+               |         |
-        // |               |       |               |                               (VGapXxs)                              |               |         |
-        // |               |       |               +----------------------------------------------------------------------+               |         |
-        // |               |       |               |                                <tags>                                |               |         |
-        // |               |       |               +----------------------------------------------------------------------+               |         |
-        // |               |       |               |                            (ExPaddingGapL)                           |               |         |
-        // +---------------+-------+---------------+----------------------------------------------------------------------+---------------+---------+
-        // |                                                                (gapSize)                                                               |
-        // +----------------------------------------------------------------------------------------------------------------------------------------+
+        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
+        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
+        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
+        // |               |       |               |<itemName>|(HGapXxs)|<releaseStatus>|(HGapXxs)|<installState>|(HGapXxs)|<checkmark>|               |         |
+        // |               |       |               +----------+---------+---------------+---------+--------------+---------+-----------+               |         |
+        // |               |       |               |                                     (VGapXxs)                                     |               |         |
+        // |               |       |               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |(ExPaddingGapL)|<icon> |(ExPaddingGapL)|       <vendor>      |(HGapXs)|<divider>(h16)|(HGapXs)|<dlIcon>|(HGapXxs)|<dlCount>|(ExPaddingGapL)|(gapSize)|
+        // |               |(50x50)|               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
+        // |               |       |               |                                     (VGapXxs)                                     |               |         |
+        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
+        // |               |       |               |                                       <tags>                                      |               |         |
+        // |               |       |               +-----------------------------------------------------------------------------------+               |         |
+        // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
+        // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
+        // |                                                                      (gapSize)                                                                      |
+        // +-----------------------------------------------------------------------------------------------------------------------------------------------------+
 
         const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
         const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
@@ -267,6 +269,10 @@ public:
             const QPixmap icon = itemIcon(index, SizeSmall);
             painter->drawPixmap(iconBgR.topLeft(), icon);
         }
+        {
+            const QPixmap badge = itemBadge(index, SizeSmall);
+            painter->drawPixmap(bgR.topLeft(), badge);
+        }
         if (isPack) {
             constexpr int circleSize = 18;
             constexpr int circleOverlap = 3; // Protrusion from lower right corner of iconRect
@@ -286,16 +292,40 @@ public:
             QRect effectiveR = itemNameR;
             if (showState)
                 effectiveR.setRight(stateR.left() - HGapXxs - 1);
+            const QString releaseStatus = statusDisplayString(index);
+            const bool showReleaseStatus = !releaseStatus.isEmpty();
+
+            if (showReleaseStatus) {
+                const QFont releaseStatusF = releaseStatusTF.font();
+                const int releaseStatusAdv =
+                    QFontMetrics(releaseStatusF).horizontalAdvance(releaseStatus)
+                                             + (showState ? ExVPaddingGapXl - HGapXxs
+                                                          : HGapXxs);
+                effectiveR.setWidth(effectiveR.width() - releaseStatusAdv);
+            }
+
             painter->setPen(itemNameTF.color());
             painter->setFont(itemNameTF.font());
             const QString titleElided
                 = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, effectiveR.width());
             painter->drawText(effectiveR, itemNameTF.drawTextFlags, titleElided);
+
+            if (showReleaseStatus) {
+                const int titleElidedAdv = painter->fontMetrics().horizontalAdvance(titleElided);
+                const QRect releaseStatusR(effectiveR.x() + titleElidedAdv + HGapXxs,
+                                           effectiveR.y(), 1, effectiveR.height() - 1);
+                painter->setPen(releaseStatusTF.color());
+                painter->setFont(releaseStatusTF.font());
+                painter->drawText(releaseStatusR, releaseStatusTF.drawTextFlags, releaseStatus);
+            }
         }
         if (showState) {
-            static const QIcon checkmark = Icon({{":/extensionmanager/images/checkmark.png",
-                                                  stateTF.themeColor}}, Icon::Tint).icon();
-            checkmark.paint(painter, checkmarkR);
+            const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
+            static const QIcon enabled = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
+                                                       Icon::Tint).icon();
+            static const QIcon disabled = Icon({{checkmarkMask, stateTF.themeColor}},
+                                                        Icon::Tint).icon();
+            (state == InstalledEnabled ? enabled : disabled).paint(painter, checkmarkR);
             painter->setPen(stateTF.color());
             painter->setFont(stateTF.font());
             painter->drawText(stateR, stateTF.drawTextFlags, stateString);
@@ -518,6 +548,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
                                          Tr::tr("Filter by: %1"));
     d->filterChooser->addItems(Utils::transform(SortFilterProxyModel::filterOptions(),
                                                 &SortFilterProxyModel::FilterOption::displayName));
+    d->filterChooser->hide(); // TODO: Unhide when ready. See QTCREATORBUG-31751
 
     d->sortChooser = new OptionChooser(":/extensionmanager/images/sort.png", Tr::tr("Sort by: %1"));
     d->sortChooser->addItems(Utils::transform(SortFilterProxyModel::sortOptions(),
@@ -549,11 +580,11 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
         },
         Row {
-            d->filterChooser,
-            Space(HGapS),
             d->sortChooser,
+            d->filterChooser,
             st,
             settingsToolButton,
+            spacing(HGapS),
             customMargins(0, 0, extraListViewWidth() + gapSize, 0),
         },
         d->extensionsView,
@@ -587,7 +618,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             d->sortFilterProxyModel, &SortFilterProxyModel::setSortOption);
     connect(d->filterChooser, &OptionChooser::currentIndexChanged,
             d->sortFilterProxyModel, &SortFilterProxyModel::setFilterOption);
-    connect(settingsToolButton, &QAbstractButton::pressed, this, []() {
+    connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
     connect(&settings(), &AspectContainer::changed, this, [this]() {
@@ -697,6 +728,8 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
     return label;
 }
 
+const int iconRectRounding = 4;
+
 QPixmap itemIcon(const QModelIndex &index, Size size)
 {
     const QSize iconBgS = size == SizeSmall ? iconBgSizeSmall : iconBgSizeBig;
@@ -727,7 +760,6 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     const ItemType itemType = index.data(RoleItemType).value<ItemType>();
     const QIcon &icon = (itemType == ItemTypePack) ? (size == SizeSmall ? packS : packB)
                                                    : (size == SizeSmall ? extensionS : extensionB);
-    const int iconRectRounding = 4;
     const qreal iconOpacityDisabled = 0.6;
 
     QPainter p(&pixmap);
@@ -738,6 +770,35 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
         p.setOpacity(iconOpacityDisabled);
     icon.paint(&p, iconBgR);
 
+    return pixmap;
+}
+
+QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
+{
+    const QString badgeText = index.data(RoleBadge).toString();
+    if (badgeText.isNull())
+        return {};
+
+    constexpr TextFormat badgeTF
+        {Theme::Token_Basic_White, UiElement::UiElementLabelSmall};
+
+    const QFont font = badgeTF.font();
+    const int textWidth = QFontMetrics(font).horizontalAdvance(badgeText);
+    const QSize badgeS(ExPaddingGapM + textWidth + ExPaddingGapM,
+                       ExPaddingGapS + badgeTF.lineHeight() + ExPaddingGapS);
+    const QRect badgeR(QPoint(), badgeS);
+    const qreal dpr = qApp->devicePixelRatio();
+    QPixmap pixmap(badgeS * dpr);
+    pixmap.fill(Qt::transparent);
+    pixmap.setDevicePixelRatio(dpr);
+
+    QPainter p(&pixmap);
+    WelcomePageHelpers::drawCardBackground(&p, badgeR,
+                                           creatorColor(Theme::Token_Notification_Neutral),
+                                           Qt::NoPen, iconRectRounding);
+    p.setFont(font);
+    p.setPen(badgeTF.color());
+    p.drawText(badgeR, Qt::AlignCenter, badgeText);
     return pixmap;
 }
 

@@ -58,7 +58,7 @@
                                 "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },
                             {
-                                "trKey": "CMake for Qt 6",
+                                "trKey": "CMake for Qt 6.5 and Later",
                                 "value": "cmake-qt6",
                                 "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
                             },

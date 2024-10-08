@@ -24,6 +24,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
+#include <QPainter>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 
@@ -34,7 +35,6 @@ using namespace ExtensionSystem;
 namespace Lua::Internal {
 
 void setupActionModule();
-void setupAsyncModule();
 void setupCoreModule();
 void setupFetchModule();
 void setupGuiModule();
@@ -79,7 +79,7 @@ public:
     {
         auto label = new QLabel(parent);
         const QString text = index.data().toString();
-        label->setText(text);
+        label->setText(text.startsWith("__ERROR__") ? text.mid(9) : text);
         label->setFont(option.font);
         label->setTextInteractionFlags(
             Qt::TextInteractionFlag::TextSelectableByMouse
@@ -87,6 +87,29 @@ public:
         label->setAutoFillBackground(true);
         label->setSelection(0, text.size());
         return label;
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+        const override
+    {
+        QStyleOptionViewItem opt = option;
+        initStyleOption(&opt, index);
+
+        bool isError = opt.text.startsWith("__ERROR__");
+
+        if (isError)
+            opt.text = opt.text.mid(9);
+
+        if (opt.state & QStyle::State_Selected) {
+            painter->fillRect(opt.rect, opt.palette.highlight());
+            painter->setPen(opt.palette.highlightedText().color());
+        } else if (isError) {
+            painter->setPen(creatorColor(Theme::Token_Notification_Danger));
+        } else {
+            painter->setPen(opt.palette.text().color());
+        }
+
+        painter->drawText(opt.rect, opt.displayAlignment, opt.text);
     }
 };
 
@@ -136,6 +159,7 @@ public:
                 m_model.setStringList(m_model.stringList() << msgs);
                 scrollToBottom();
             };
+            lua["LuaCopyright"] = LUA_COPYRIGHT;
 
             sol::table async = lua.script("return require('async')", "_ilua_").get<sol::table>();
             sol::function wrap = async["wrap"];
@@ -254,8 +278,10 @@ public:
     {
         setupLuaEngine(this);
 
+        registerProvider("async", ":/lua/scripts/async.lua");
+        registerProvider("inspect", ":/lua/scripts/inspect.lua");
+
         setupActionModule();
-        setupAsyncModule();
         setupCoreModule();
         setupFetchModule();
         setupGuiModule();

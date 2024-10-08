@@ -15239,12 +15239,12 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
         <translation>Fallback-Stil:</translation>
     </message>
     <message>
-        <source>Clang Format command:</source>
-        <translation>Ausführbare Datei von Clang Format:</translation>
+        <source>ClangFormat command:</source>
+        <translation>Ausführbare Datei von ClangFormat:</translation>
     </message>
     <message>
-        <source>Clang Format</source>
-        <translation>Clang Format</translation>
+        <source>ClangFormat</source>
+        <translation>ClangFormat</translation>
     </message>
     <message>
         <source>Use file uncrustify.cfg defined in project files</source>

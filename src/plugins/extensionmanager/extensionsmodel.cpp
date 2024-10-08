@@ -49,7 +49,7 @@ public:
 void ExtensionsModelPrivate::addUnlistedLocalPlugins()
 {
     QStringList responseExtensions;
-    for (const QJsonValueConstRef &responseItem : responseItems)
+    for (const QJsonValueConstRef &responseItem : qAsConst(responseItems))
         responseExtensions << responseItem.toObject().value("id").toString();
 
     localPlugins.clear();
@@ -114,7 +114,7 @@ QVariant ExtensionsModelPrivate::dataFromRemotePlugin(const QJsonObject &json, i
         const QJsonArray sources = json.value("sources").toArray();
         const QString thisPlatform = customOsTypeToString(HostOsInfo::hostOs());
         const QString thisArch = QSysInfo::currentCpuArchitecture();
-        for (const QJsonValue source : sources) {
+        for (const QJsonValue &source : sources) {
             const QJsonObject sourceObject = source.toObject();
             const QJsonObject platform = sourceObject.value("platform").toObject();
             if (platform.isEmpty() // Might be a Lua plugin
@@ -150,11 +150,14 @@ QVariant ExtensionsModelPrivate::dataFromRemoteExtension(int index, int role) co
     case RoleName:
         return json.value("display_name");
     case RoleDownloadCount:
-        return json.value("downloads");
+        break; // TODO: Reinstate download numbers when they have more substance
+        // return json.value("downloads");
     case RoleId:
         return json.value(EXTENSION_KEY_ID);
     case RoleDateUpdated:
         return QDate::fromString(json.value("updated_at").toString(), Qt::ISODate);
+    case RoleStatus:
+        return json.value("status");
     case RoleTags:
         return json.value("tags").toVariant().toStringList();
     case RoleVendor:
@@ -239,6 +242,13 @@ int ExtensionsModel::rowCount([[maybe_unused]] const QModelIndex &parent) const
     return d->responseItems.count() + d->localPlugins.count();
 }
 
+static QString badgeText(const QModelIndex &index)
+{
+    if (index.data(RoleDownloadUrl).isNull())
+        return {};
+    return Tr::tr("New");
+}
+
 ExtensionState extensionState(const QModelIndex &index)
 {
     if (index.data(RoleItemType) != ItemTypeExtension)
@@ -264,10 +274,16 @@ static QString searchText(const QModelIndex &index)
 
 QVariant ExtensionsModel::data(const QModelIndex &index, int role) const
 {
-    if (role == RoleExtensionState)
+    switch (role) {
+    case RoleBadge:
+        return badgeText(index);
+    case RoleExtensionState:
         return extensionState(index);
-    if (role == RoleSearchText)
+    case RoleSearchText:
         return searchText(index);
+    default:
+        break;
+    }
 
     const bool isRemoteExtension = index.row() < d->responseItems.count();
     const int itemIndex = index.row() - (isRemoteExtension ? 0 : d->responseItems.count());
@@ -282,8 +298,8 @@ QModelIndex ExtensionsModel::indexOfId(const QString &extensionId) const
     if (localIndex >= 0)
         return index(d->responseItems.count() + localIndex);
 
-    for (int remoteIndex = 0; const QJsonValueConstRef vlaue : d->responseItems) {
-        if (vlaue.toObject().value(EXTENSION_KEY_ID) == extensionId)
+    for (int remoteIndex = 0; const QJsonValueConstRef &value : std::as_const(d->responseItems)) {
+        if (value.toObject().value(EXTENSION_KEY_ID) == extensionId)
             return index(remoteIndex);
         ++remoteIndex;
     }
@@ -322,6 +338,12 @@ QString customOsTypeToString(OsType osType)
 PluginSpec *pluginSpecForId(const QString &pluginId)
 {
     return findOrDefault(PluginManager::plugins(), equal(&PluginSpec::id, pluginId));
+}
+
+QString statusDisplayString(const QModelIndex &index)
+{
+    const QString statusString = index.data(RoleStatus).toString();
+    return statusString != "published" ? statusString : QString();
 }
 
 } // ExtensionManager::Internal

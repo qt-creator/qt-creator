@@ -220,18 +220,18 @@ bool FSEngineImpl::remove()
 
 bool FSEngineImpl::copy(const QString &newName)
 {
-    expected_str<void> result = m_filePath.copyFile(FilePath::fromString(newName));
+    Result result = m_filePath.copyFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::CopyError, result.error());
-    return result.has_value();
+    return bool(result);
 }
 
 bool FSEngineImpl::rename(const QString &newName)
 {
-    auto result = m_filePath.renameFile(FilePath::fromString(newName));
+    Result result = m_filePath.renameFile(FilePath::fromString(newName));
     if (!result)
         setError(QFile::RenameError, result.error());
-    return result.has_value();
+    return bool(result);
 }
 
 bool FSEngineImpl::renameOverwrite(const QString &newName)
