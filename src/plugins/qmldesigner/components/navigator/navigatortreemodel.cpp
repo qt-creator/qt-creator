@@ -208,13 +208,13 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
         if (role == Qt::DisplayRole) {
             return modelNode.isReference() ? "ref: " + modelNode.refNode().displayName() : modelNode.displayName();
         } else if (role == Qt::DecorationRole) {
-            if (currentQmlObjectNode.hasError())
+            if (currentQmlObjectNode && currentQmlObjectNode.hasError())
                 return ::Utils::Icons::WARNING.icon();
 
             return modelNode.isReference() ? ::Utils::Icons::LINK_TOOLBAR.icon() : modelNode.typeIcon();
 
         } else if (role == Qt::ToolTipRole) {
-            if (currentQmlObjectNode.hasError()) {
+            if (currentQmlObjectNode && currentQmlObjectNode.hasError()) {
                 QString errorString = currentQmlObjectNode.error();
                 return errorString;
             }
@@ -228,7 +228,7 @@ QVariant NavigatorTreeModel::data(const QModelIndex &index, int role) const
                 return msgUnknownItem(QString::fromUtf8((modelNode.isReference() ? modelNode.refNode() : modelNode).type()));
             }
         } else if (role == ToolTipImageRole) {
-            if (currentQmlObjectNode.hasError()) // Error already shown on regular tooltip
+            if (currentQmlObjectNode && currentQmlObjectNode.hasError()) // Error already shown on regular tooltip
                 return {};
             auto op = m_actionManager->modelNodePreviewOperation(modelNode.isReference() ? modelNode.refNode() : modelNode);
             if (op)

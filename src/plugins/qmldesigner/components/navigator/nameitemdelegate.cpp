@@ -257,7 +257,8 @@ void NameItemDelegate::paint(QPainter *painter,
 
     QRect textFrame = drawText(painter, styleOption, modelIndex, iconOffset);
 
-    if (QmlObjectNode(getModelNode(modelIndex)).hasError())
+    QmlObjectNode qmlNode(getModelNode(modelIndex));
+    if (qmlNode && qmlNode.hasError())
         drawRedWavyUnderLine(painter, styleOption, textFrame);
 
     painter->restore();
