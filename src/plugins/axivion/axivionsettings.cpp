@@ -388,17 +388,17 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     auto addButton = new QPushButton(Tr::tr("Add..."), this);
     m_edit = new QPushButton(Tr::tr("Edit..."), this);
     m_remove = new QPushButton(Tr::tr("Remove"), this);
-    Column{
-        Row{
-            Form{Tr::tr("Default dashboard server:"), m_dashboardServers, br},
+    Column {
+        Row {
+            Form { Tr::tr("Default dashboard server:"), m_dashboardServers, br },
             st,
-            Column{addButton, m_edit, st, m_remove},
+            Column { addButton, m_edit, st, m_remove },
         },
         Space(10),
         br,
-        Row{settings().highlightMarks},
-        st}
-        .attachTo(this);
+        Row {settings().highlightMarks },
+        st
+    }.attachTo(this);
 
     connect(addButton, &QPushButton::clicked, this, [this] {
         // add an empty item unconditionally
