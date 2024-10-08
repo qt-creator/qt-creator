@@ -407,6 +407,10 @@ void InstantBlame::perform()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
 
+        static const QString uncommittedHash(40, '0');
+        if (info.hash == uncommittedHash)
+            return;
+
         // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`
         const QString origLineString = QString("%1,%1").arg(info.originalLine);
         const QString fileLineRange = "-L" + origLineString + ":" + info.originalFileName;
