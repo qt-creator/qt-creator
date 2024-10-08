@@ -906,10 +906,10 @@ void AndroidDeviceManagerInstance::setupDevicesWatcher()
     m_avdFileSystemWatcher.addPath(avdFilePath().toFSPathString());
     connect(&m_avdFileSystemWatcher, &QFileSystemWatcher::directoryChanged, this, [this] {
         if (!m_avdPathGuard.isLocked())
-            AndroidDeviceManager::updateAvdList();
+            updateAvdList();
     });
     // Call initial update
-    AndroidDeviceManager::updateAvdList();
+    updateAvdList();
 }
 
 void AndroidDeviceManagerInstance::eraseAvd(const IDevice::Ptr &device, QWidget *parent)
@@ -948,9 +948,10 @@ void AndroidDeviceManagerInstance::eraseAvd(const IDevice::Ptr &device, QWidget 
     m_removeAvdProcess->start();
 }
 
-namespace AndroidDeviceManager {
-
-void setupDevicesWatcher() { s_instance->setupDevicesWatcher(); }
+void setupDevicesWatcher()
+{
+    s_instance->setupDevicesWatcher();
+}
 
 void updateAvdList()
 {
@@ -958,7 +959,7 @@ void updateAvdList()
         s_instance->m_avdListRunner.start(s_instance->m_avdListRecipe);
 }
 
-expected_str<void> createAvd(const CreateAvdInfo &info, bool force)
+Result createAvd(const CreateAvdInfo &info, bool force)
 {
     CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"create", "avd", "-n", info.name});
     cmd.addArgs({"-k", info.sdkStylePath});
@@ -1001,13 +1002,10 @@ expected_str<void> createAvd(const CreateAvdInfo &info, bool force)
         const QString stdErr = process.stdErr();
         const QString errorMessage = stdErr.isEmpty() ? process.exitMessage()
                                                       : process.exitMessage() + "\n\n" + stdErr;
-        return Utils::make_unexpected(errorMessage);
+        return Result::Error(errorMessage);
     }
-    return {};
+    return Result::Ok;
 }
-
-
-} // namespace AndroidDeviceManager
 
 // Factory
 

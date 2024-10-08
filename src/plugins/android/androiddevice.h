@@ -67,13 +67,9 @@ private:
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
-namespace AndroidDeviceManager {
-
 void setupDevicesWatcher();
 void updateAvdList();
-Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
-
-} // namespace AndroidDeviceManager
+Utils::Result createAvd(const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);
