@@ -20,6 +20,7 @@
 
 QT_BEGIN_NAMESPACE
 class QBoxLayout;
+class QCompleter;
 class QFormLayout;
 class QGridLayout;
 class QGroupBox;
@@ -41,6 +42,7 @@ QT_END_NAMESPACE
 
 namespace Utils
 {
+class FancyLineEdit;
 class FilePath;
 } // Utils
 
@@ -320,6 +322,24 @@ public:
     void setText(const QString &);
     void setMarkdown(const QString &);
     void setReadOnly(bool);
+};
+
+class QTCREATOR_UTILS_EXPORT LineEdit : public Widget
+{
+public:
+    using Implementation = Utils::FancyLineEdit;
+    using I = Building::BuilderItem<LineEdit>;
+    using Id = Implementation *;
+
+    LineEdit(std::initializer_list<I> ps);
+
+    QString text() const;
+    void setRightSideIconPath(const Utils::FilePath &path);
+    void setPlaceHolderText(const QString &text);
+    void setCompleter(QCompleter *completer);
+    void setMinimumHeight(int height);
+    void onReturnPressed(const std::function<void()> &);
+    void onRightSideIconClicked(const std::function<void()> &);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget

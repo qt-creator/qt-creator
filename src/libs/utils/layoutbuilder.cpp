@@ -3,6 +3,7 @@
 
 #include "layoutbuilder.h"
 
+#include "fancylineedit.h"
 #include "filepath.h"
 #include "icon.h"
 #include "qtcassert.h"
@@ -1100,6 +1101,52 @@ void tight(Layout *layout)
 {
     layout->setNoMargins();
     layout->setSpacing(0);
+}
+
+LineEdit::LineEdit(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+QString LineEdit::text() const
+{
+    return access(this)->text();
+}
+
+void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
+{
+    if (!path.isEmpty()) {
+        QIcon icon(path.toFSPathString());
+        QTC_CHECK(!icon.isNull());
+        access(this)->setButtonIcon(Utils::FancyLineEdit::Right, icon);
+        access(this)->setButtonVisible(Utils::FancyLineEdit::Right, !icon.isNull());
+    }
+}
+
+void LineEdit::setPlaceHolderText(const QString &text)
+{
+    access(this)->setPlaceholderText(text);
+}
+
+void LineEdit::setCompleter(QCompleter *completer)
+{
+    access(this)->setSpecialCompleter(completer);
+}
+
+void LineEdit::setMinimumHeight(int height)
+{
+    access(this)->setMinimumHeight(height);
+}
+
+void LineEdit::onReturnPressed(const std::function<void ()> &func)
+{
+    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, func);
+}
+
+void LineEdit::onRightSideIconClicked(const std::function<void ()> &func)
+{
+    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, func);
 }
 
 // void createItem(LayoutItem *item, QWidget *t)
