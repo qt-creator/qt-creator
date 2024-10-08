@@ -72,6 +72,7 @@ public:
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
+    Q_INVOKABLE void addMaterial();
     Q_INVOKABLE void handleSearchFilterChanged(const QString &filterText);
     Q_INVOKABLE void invokeAssetsDrop(const QList<QUrl> &urls, const QString &targetDir);
     Q_INVOKABLE void handleAssetsDrop(const QList<QUrl> &urls, const QString &targetDir);

@@ -245,6 +245,14 @@ StudioControls.Menu {
     }
 
     StudioControls.MenuItem {
+        text: qsTr("New Material")
+        visible: root.rootView.hasMaterialLibrary
+        height: visible ? implicitHeight : 0
+
+        onTriggered: root.rootView.addMaterial()
+    }
+
+    StudioControls.MenuItem {
         text: root.rootView.showInGraphicalShellMsg()
 
         enabled: root.__showInGraphicalShellEnabled

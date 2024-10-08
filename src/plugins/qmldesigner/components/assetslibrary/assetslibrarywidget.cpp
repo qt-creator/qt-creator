@@ -6,6 +6,7 @@
 #include "assetslibraryiconprovider.h"
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
+#include "metainfo.h"
 
 #include <designeractionmanager.h>
 #include <designerpaths.h>
@@ -469,6 +470,14 @@ void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 void AssetsLibraryWidget::handleAddAsset()
 {
     addResources({});
+}
+
+void AssetsLibraryWidget::addMaterial()
+{
+    m_assetsView->executeInTransaction(__FUNCTION__, [&] {
+        Utils3D::createMaterial(m_assetsView,
+                                m_assetsView->model()->qtQuick3DPrincipledMaterialMetaInfo());
+    });
 }
 
 void AssetsLibraryWidget::emitExtFilesDrop(const QList<QUrl> &simpleFilePaths,
