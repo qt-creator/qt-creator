@@ -38,6 +38,9 @@ Rectangle {
     }
 
     Column {
+        anchors.fill: parent
+        anchors.margins: 1
+
         Image {
             id: icon
 
