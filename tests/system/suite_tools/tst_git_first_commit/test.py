@@ -24,7 +24,7 @@ def main():
     test.verify(detailsEdit.readOnly, "Details view is read only?")
     waitFor("str(detailsEdit.plainText) != 'Fetching commit data...'")
     commitDetails = str(detailsEdit.plainText)
-    test.verify("commit 05c35356abc31549c5db6eba31fb608c0365c2a0\n" \
+    test.verify("commit 05c35356abc31549c5db6eba31fb608c0365c2a0 \n" \
                 "Author: con <qtc-commiter@nokia.com>" in commitDetails,
                 "Information header in details view?")
     test.verify("Initial import" in commitDetails, "Commit message in details view?")
