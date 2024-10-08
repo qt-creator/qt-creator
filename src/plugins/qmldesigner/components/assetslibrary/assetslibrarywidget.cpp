@@ -68,14 +68,32 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
             if ((me->globalPosition().toPoint() - m_dragStartPoint).manhattanLength() > 10) {
                 auto mimeData = std::make_unique<QMimeData>();
-                mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
-
-                QList<QUrl> urlsToDrag = Utils::transform(m_assetsToDrag, &QUrl::fromLocalFile);
-
-                QString draggedAsset = m_assetsToDrag[0];
+                // If there is a material in selected assets, then drag is considered material drag
+                // and all other assets are ignored
+                QString materialId;
+                QString draggedAsset;
+                for (const QString &asset : std::as_const(m_assetsToDrag)) {
+                    if (asset.endsWith(".mat")) {
+                        const QString id = Utils::FilePath::fromString(asset).baseName();
+                        if (m_assetsView->hasId(id)) {
+                            materialId = id;
+                            draggedAsset = asset;
+                            break;
+                        }
+                    }
+                }
+                if (materialId.isEmpty()) {
+                    mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
+                    mimeData->setUrls(Utils::transform(m_assetsToDrag, &QUrl::fromLocalFile));
+                    draggedAsset = m_assetsToDrag[0];
+                } else {
+                    ModelNode materialNode = m_assetsView->modelNodeForId(materialId);
+                    QByteArray internalId;
+                    internalId.setNum(materialNode.internalId());
+                    mimeData->setData(Constants::MIME_TYPE_MATERIAL, internalId);
+                }
 
                 m_assetsToDrag.clear();
-                mimeData->setUrls(urlsToDrag);
 
                 m_assetsView->model()->startDrag(std::move(mimeData),
                                                  m_assetsIconProvider->requestPixmap(draggedAsset,
