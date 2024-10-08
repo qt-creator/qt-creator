@@ -9,7 +9,6 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "qtkeychain" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.network" }
 
@@ -22,8 +21,6 @@ QtcPlugin {
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axiviontr.h",
-        "credentialquery.cpp",
-        "credentialquery.h",
         "dynamiclistmodel.cpp",
         "dynamiclistmodel.h",
         "issueheaderview.cpp",

@@ -3,13 +3,15 @@
 
 #pragma once
 
+#include "core_global.h"
+
 #include <solutions/tasking/tasktree.h>
 
-namespace Axivion::Internal {
+namespace Core {
 
 enum class CredentialOperation { Get, Set, Delete };
 
-class CredentialQuery
+class CORE_EXPORT CredentialQuery
 {
 public:
     void setOperation(CredentialOperation operation) { m_operation = operation; }
@@ -30,7 +32,7 @@ private:
     friend class CredentialQueryTaskAdapter;
 };
 
-class CredentialQueryTaskAdapter final : public Tasking::TaskAdapter<CredentialQuery>
+class CORE_EXPORT CredentialQueryTaskAdapter final : public Tasking::TaskAdapter<CredentialQuery>
 {
 private:
     ~CredentialQueryTaskAdapter();
@@ -40,4 +42,4 @@ private:
 
 using CredentialQueryTask = Tasking::CustomTask<CredentialQueryTaskAdapter>;
 
-} // Axivion::Internal
+} // Core

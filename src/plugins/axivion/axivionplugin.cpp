@@ -6,10 +6,10 @@
 #include "axivionperspective.h"
 #include "axivionsettings.h"
 #include "axiviontr.h"
-#include "credentialquery.h"
 #include "dashboard/dto.h"
 #include "dashboard/error.h"
 
+#include <coreplugin/credentialquery.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>

@@ -16,6 +16,7 @@ QtcPlugin {
     Depends { name: "Utils" }
     Depends { name: "Aggregation" }
     Depends { name: "TerminalLib" }
+    Depends { name: "qtkeychain" }
 
     cpp.dynamicLibraries: {
         if (qbs.targetOS.contains("windows"))
@@ -43,6 +44,8 @@ QtcPlugin {
             "coreplugin.cpp",
             "coreplugin.h",
             "coreplugintr.h",
+            "credentialquery.cpp",
+            "credentialquery.h",
             "designmode.cpp",
             "designmode.h",
             "diffservice.cpp",
