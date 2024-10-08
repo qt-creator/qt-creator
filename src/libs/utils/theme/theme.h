@@ -49,6 +49,7 @@ public:
         FancyTabWidgetEnabledUnselectedTextColor,
         FancyToolButtonHoverColor,
         FancyToolButtonSelectedColor,
+        FancyToolButtonHighlightColor,
         InfoBarBackground,
         InfoBarText,
         MenuBarItemTextColorDisabled,

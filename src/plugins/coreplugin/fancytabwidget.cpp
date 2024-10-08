@@ -287,10 +287,18 @@ static void paintSelectedTabBackground(QPainter *painter, const QRect &spanRect)
     painter->drawPixmap(spanRect.topLeft() + QPoint(0, -verticalOverlap), selection);
 }
 
+static void paintHighlight(QPainter *painter, const QRect &rect)
+{
+    QRect accentRect = rect;
+    accentRect.setWidth(2);
+    painter->fillRect(accentRect, creatorColor(Theme::FancyToolButtonHighlightColor));
+}
+
 static void paintIcon(QPainter *painter, const QRect &rect,
                       const QIcon &icon,
                       bool enabled, bool selected)
 {
+    painter->save();
     const QIcon::Mode iconMode = enabled ? (selected ? QIcon::Active : QIcon::Normal)
                                          : QIcon::Disabled;
     QRect iconRect(0, 0, Core::Constants::MODEBAR_ICON_SIZE, Core::Constants::MODEBAR_ICON_SIZE);
@@ -299,19 +307,14 @@ static void paintIcon(QPainter *painter, const QRect &rect,
     if (!enabled && !creatorTheme()->flag(Theme::FlatToolBars))
         painter->setOpacity(0.7);
     StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode);
-
-    if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
-        painter->setOpacity(1.0);
-        QRect accentRect = rect;
-        accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
-    }
+    painter->restore();
 }
 
 static void paintIconAndText(QPainter *painter, const QRect &rect,
                              const QIcon &icon, const QString &text,
                              bool enabled, bool selected)
 {
+    painter->save();
     const QFont boldFont = StyleHelper::uiFont(StyleHelper::UiElementCaptionStrong);
     painter->setFont(boldFont);
 
@@ -331,11 +334,6 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?
-    if (selected && creatorTheme()->flag(Theme::FlatToolBars)) {
-        QRect accentRect = rect;
-        accentRect.setWidth(2);
-        painter->fillRect(accentRect, creatorColor(Theme::IconsBaseColor));
-    }
     if (enabled) {
         painter->setPen(
             selected ? creatorColor(Theme::FancyTabWidgetEnabledSelectedTextColor)
@@ -352,6 +350,7 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     const int textFlags = Qt::AlignCenter | (drawIcon ? Qt::AlignBottom : Qt::AlignVCenter)
                           | Qt::TextWordWrap;
     painter->drawText(tabTextRect, textFlags, text);
+    painter->restore();
 }
 
 void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex) const
@@ -391,6 +390,9 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex) co
         paintIcon(painter, rect, tab->icon, enabled, selected);
     else
         paintIconAndText(painter, rect, tab->icon, tab->text, enabled, selected);
+
+    if (selected && creatorTheme()->flag(Theme::FlatToolBars))
+        paintHighlight(painter, rect);
 
     // menu arrow
     if (tab->hasMenu && !m_iconsOnly) {
