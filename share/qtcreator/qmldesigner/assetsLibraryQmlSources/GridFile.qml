@@ -11,6 +11,7 @@ GridItem {
     readonly property string suffix: model.fileName.substr(-4)
     readonly property bool isFont: root.suffix === ".ttf" || root.suffix === ".otf"
     readonly property bool isEffect: root.suffix === ".qep"
+    readonly property bool isMaterial: root.suffix === ".mat"
 
     icon.source: "image://qmldesigner_assets/" + model.filePath
 
@@ -67,6 +68,9 @@ GridItem {
 
     tooltip.text: {
         let filePath = model.filePath.replace(root.assetsModel.contentDirPath(), "")
+        if (root.isMaterial)
+            return filePath
+
         let fileSize = root.rootView.assetFileSize(model.filePath)
         let fileExtMatches = model.filePath.match(/\.(.*)$/)
         let fileExt = fileExtMatches ? "(" + fileExtMatches[1] + ")" : ""
