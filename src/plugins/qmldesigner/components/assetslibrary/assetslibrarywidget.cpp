@@ -759,4 +759,29 @@ void AssetsLibraryWidget::addAssetsToContentLibrary(const QStringList &assetPath
     m_assetsView->emitCustomNotification("add_assets_to_content_lib", {}, {assetPaths});
 }
 
+void AssetsLibraryWidget::assetSelected(const QString &path)
+{
+    selectMaterial(path, false);
+}
+
+void AssetsLibraryWidget::openMaterialEditor(const QString &path)
+{
+    selectMaterial(path, true);
+}
+
+void AssetsLibraryWidget::selectMaterial(const QString &path, bool openEditor)
+{
+    if (path.endsWith(".mat")) {
+        const QString id = Utils::FilePath::fromString(path).baseName();
+        if (m_assetsView->hasId(id)) {
+            ModelNode material = m_assetsView->modelNodeForId(id);
+            if (material.metaInfo().isQtQuick3DMaterial()) {
+                if (openEditor)
+                    QmlDesignerPlugin::instance()->mainWidget()->showDockWidget("MaterialEditor");
+                Utils3D::selectMaterial(material);
+            }
+        }
+    }
+}
+
 } // namespace QmlDesigner

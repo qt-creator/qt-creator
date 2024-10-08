@@ -102,6 +102,8 @@ public:
     Q_INVOKABLE void showInGraphicalShell(const QString &path);
     Q_INVOKABLE QString showInGraphicalShellMsg() const;
     Q_INVOKABLE void addAssetsToContentLibrary(const QStringList &assetPaths);
+    Q_INVOKABLE void assetSelected(const QString &path);
+    Q_INVOKABLE void openMaterialEditor(const QString &path);
 
 signals:
     void itemActivated(const QString &itemName);
@@ -129,6 +131,7 @@ private:
     void setHasSceneEnv(bool b);
 
     void handleDeleteEffects(const QStringList &effectNames);
+    void selectMaterial(const QString &path, bool openEditor);
 
     QSize m_itemIconSize;
 

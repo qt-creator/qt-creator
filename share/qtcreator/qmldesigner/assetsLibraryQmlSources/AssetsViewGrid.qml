@@ -59,6 +59,7 @@ Item {
     {
         root.selectedAssets[itemPath] = selected
         root.updateSelectedAssets()
+        rootView.assetSelected(itemPath)
     }
 
     function updateSelectedAssets()

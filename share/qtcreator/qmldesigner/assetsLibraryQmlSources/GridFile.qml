@@ -47,8 +47,13 @@ GridItem {
     }
 
     mouseArea.onDoubleClicked: (mouse) => {
-        if (mouse.button === Qt.LeftButton && root.isEffect)
-            root.rootView.openEffectComposer(filePath)
+        if (mouse.button === Qt.LeftButton) {
+            if (root.isEffect)
+                root.rootView.openEffectComposer(filePath)
+            else if (root.isMaterial)
+                root.rootView.openMaterialEditor(filePath)
+        }
+
     }
 
     mouseArea.onClicked: (mouse) => {
