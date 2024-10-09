@@ -2334,7 +2334,20 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
     QString errorString;
     for (const FilePath &fileName : filePaths) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
-        const FilePath filePath = fileName.absoluteFilePath();
+        const FilePath filePath = [fileName] {
+            if (!fileName.isDir())
+                return fileName.absoluteFilePath();
+
+            // For the case of directories, try to see if there is a project file in the directory
+            const QStringList existingProjectFilePatterns
+                = Utils::filtered(projectFilePatterns(), [fileName](const QString &pattern) {
+                      return fileName.pathAppended(pattern).exists();
+                  });
+            if (existingProjectFilePatterns.size() == 1)
+                return fileName.pathAppended(existingProjectFilePatterns.first()).absoluteFilePath();
+
+            return fileName.absoluteFilePath();
+        }();
 
         Project *found = Utils::findOrDefault(ProjectManager::projects(),
                                               Utils::equal(&Project::projectFilePath, filePath));
