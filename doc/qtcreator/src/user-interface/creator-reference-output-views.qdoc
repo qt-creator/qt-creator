@@ -110,6 +110,8 @@
         \li To search only whole words, select \uicontrol {Whole words only}.
         \li To search using \l{QRegularExpression}{regular expressions}, select
             \uicontrol {Use regular expressions}.
+        \li To exclude binary files from the search results, select
+            \uicontrol {Ignore binary files}.
     \endlist
 
     \image qtcreator-search-file-system.webp {Search Results view with search options}
