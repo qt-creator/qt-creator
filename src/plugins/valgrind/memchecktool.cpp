@@ -1108,6 +1108,9 @@ int MemcheckTool::updateUiAfterFinishedHelper()
 
 void MemcheckTool::engineFinished()
 {
+    if (m_errorView == nullptr) // Happens on shutdown when memcheck is still running.
+        return;
+
     m_toolBusy = false;
     updateRunActions();
 
