@@ -2112,6 +2112,25 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
 }
 
+void CMakeBuildConfiguration::restrictNextBuild(const ProjectExplorer::RunConfiguration *rc)
+{
+    auto buildStep = qobject_cast<CMakeBuildStep *>(
+        findOrDefault(buildSteps()->steps(), [](const BuildStep *bs) {
+            return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+        }));
+    if (!buildStep)
+        return;
+
+    if (rc) {
+        m_unrestrictedBuildTargets = buildStep->buildTargets();
+        buildStep->setBuildTargets({rc->buildKey()});
+        return;
+    }
+
+    if (!m_unrestrictedBuildTargets.isEmpty())
+        buildStep->setBuildTargets(m_unrestrictedBuildTargets);
+}
+
 Environment CMakeBuildConfiguration::configureEnvironment() const
 {
     Environment env = configureEnv.environment();

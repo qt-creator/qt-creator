@@ -71,6 +71,8 @@ public:
 
     void addToEnvironment(Utils::Environment &env) const override;
 
+    void restrictNextBuild(const ProjectExplorer::RunConfiguration *rc) override;
+
     Utils::Environment configureEnvironment() const;
     Internal::CMakeBuildSystem *cmakeBuildSystem() const;
 
@@ -103,6 +105,7 @@ private:
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
     Internal::CMakeBuildSystem *m_buildSystem = nullptr;
+    QStringList m_unrestrictedBuildTargets;
 
     friend class Internal::CMakeBuildSettingsWidget;
     friend class Internal::CMakeBuildSystem;
