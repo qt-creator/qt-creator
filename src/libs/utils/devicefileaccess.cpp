@@ -1067,12 +1067,15 @@ static Utils::unexpected<QString> make_unexpected_disconnected()
 
 UnixDeviceFileAccess::~UnixDeviceFileAccess() = default;
 
-bool UnixDeviceFileAccess::runInShellSuccess(const CommandLine &cmdLine,
-                                             const QByteArray &stdInData) const
+Result UnixDeviceFileAccess::runInShellSuccess(const CommandLine &cmdLine,
+                                               const QByteArray &stdInData) const
 {
     if (disconnected())
-        return false;
-    return runInShell(cmdLine, stdInData).exitCode == 0;
+        return Result::Error("disconnected");
+    const int retval = runInShell(cmdLine, stdInData).exitCode;
+    if (retval != 0)
+        return Result::Error(QString("return value %1").arg(retval));
+    return Result::Ok;
 }
 
 bool UnixDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
