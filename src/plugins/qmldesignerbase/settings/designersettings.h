@@ -71,6 +71,7 @@ inline constexpr char EDITOR_ZOOM_FACTOR[] = "EditorZoomFactor";
 inline constexpr char ACTIONS_MERGE_TEMPLATE_ENABLED[] = "ActionsMergeTemplateEnabled";
 inline constexpr char DOWNLOADABLE_BUNDLES_URL[] = "DownloadableBundlesLocation";
 inline constexpr char CONTENT_LIBRARY_NEW_FLAG_EXPIRATION_DAYS[] = "ContentLibraryNewFlagExpirationInDays";
+inline constexpr char GROQ_API_KEY[] = "GroqApiKey";
 }
 
 class QMLDESIGNERSETTINGS_EXPORT DesignerSettings
