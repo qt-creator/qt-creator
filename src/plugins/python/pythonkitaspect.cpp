@@ -16,6 +16,7 @@
 #include <utils/qtcprocess.h>
 
 #include <QComboBox>
+#include <QSortFilterProxyModel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -23,10 +24,10 @@ using namespace Utils;
 namespace Python {
 namespace Internal {
 
-class PythonAspectSortModel : public SortModel
+class PythonAspectModel : public QSortFilterProxyModel
 {
 public:
-    PythonAspectSortModel(QObject *parent) : SortModel(parent) {}
+    using QSortFilterProxyModel::QSortFilterProxyModel;
 
     void reset()
     {
@@ -37,31 +38,6 @@ public:
         model->setAllData(model->allData() << Interpreter("none", {}, {}));
         setSourceModel(model);
         endResetModel();
-        sort(0);
-    }
-
-private:
-    bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const override
-    {
-        const auto source = static_cast<ListModel<Interpreter> *>(sourceModel());
-        const auto item1 = static_cast<ListItem<Interpreter> *>(source->itemForIndex(source_left));
-        const auto item2 = static_cast<ListItem<Interpreter> *>(source->itemForIndex(source_right));
-        QTC_ASSERT(item1 && item2, return false);
-
-        // Criterion 1: "None" comes last
-        if (item1->itemData.id == "none")
-            return false;
-        if (item2->itemData.id == "none")
-            return true;
-
-        // Criterion 2: Valid interpreters come before invalid ones.
-        const bool item1Valid = PythonSettings::interpreterIsValid(item1->itemData);
-        const bool item2Valid = PythonSettings::interpreterIsValid(item2->itemData);
-        if (item1Valid != item2Valid)
-            return item1Valid;
-
-        // Criterion 3: Name.
-        return SortModel::lessThan(source_left, source_right);
     }
 };
 
@@ -73,57 +49,29 @@ public:
     {
         setManagingPage(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-        m_comboBox = createSubWidget<QComboBox>();
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setModel(new PythonAspectSortModel(this));
+        const auto model = new PythonAspectModel(this);
+        auto getter = [](const Kit &k) -> QVariant {
+            if (const auto interpreter = PythonKitAspect::python(&k))
+                return interpreter->id;
+            return {};
+        };
+        auto setter = [](Kit &k, const QVariant &v) {
+            PythonKitAspect::setPython(&k, v.toString());
+        };
+        auto resetModel = [model] { model->reset(); };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
-        refresh();
-        m_comboBox->setToolTip(kitInfo->description());
-        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
-            if (m_ignoreChanges.isLocked())
-                return;
-
-            PythonKitAspect::setPython(this->kit(), m_comboBox->currentData().toString());
-        });
         connect(PythonSettings::instance(),
                 &PythonSettings::interpretersChanged,
                 this,
                 &PythonKitAspectImpl::refresh);
     }
 
-    void makeReadOnly() override
-    {
-        m_comboBox->setEnabled(false);
-    }
-
     void refresh() override
     {
-        const GuardLocker locker(m_ignoreChanges);
-        static_cast<PythonAspectSortModel *>(m_comboBox->model())->reset();
-        updateComboBox(PythonKitAspect::python(kit()));
+        KitAspect::refresh();
         emit changed(); // we need to emit changed here to update changes in the macro expander
     }
-
-    void updateComboBox(const std::optional<Interpreter> &python)
-    {
-        int index = m_comboBox->count() - 1;
-        if (python) {
-            if (const int idx = m_comboBox->findData(python->id); idx != -1)
-                index = idx;
-        }
-        m_comboBox->setCurrentIndex(index);
-    }
-
-protected:
-    void addToInnerLayout(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_comboBox);
-        parent.addItem(m_comboBox);
-    }
-
-private:
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox = nullptr;
 };
 
 class PythonKitAspectFactory : public KitAspectFactory

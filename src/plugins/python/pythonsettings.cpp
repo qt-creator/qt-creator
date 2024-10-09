@@ -12,6 +12,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/processprogress.h>
 
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 
@@ -1183,6 +1184,8 @@ Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *
         if (interpreter.id == "none") {
             if (role == Qt::DisplayRole)
                 return Tr::tr("none");
+            if (role == KitAspect::IsNoneRole)
+                return true;
             return {};
         }
         switch (role) {
@@ -1208,8 +1211,10 @@ Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *
             if (column == 0 && !PythonSettings::interpreterIsValid(interpreter))
                 return Utils::Icons::CRITICAL.icon();
             break;
-        case Qt::UserRole:
+        case KitAspect::IdRole:
             return interpreter.id;
+        case KitAspect::QualityRole:
+            return int(PythonSettings::interpreterIsValid(interpreter));
         default:
             break;
         }
