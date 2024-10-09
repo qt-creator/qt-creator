@@ -311,7 +311,7 @@ public:
     explicit LinuxDevicePrivate(LinuxDevice *parent);
     ~LinuxDevicePrivate();
 
-    bool setupShell(const SshParameters &sshParameters, bool announce);
+    Result setupShell(const SshParameters &sshParameters, bool announce);
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
     void announceConnectionAttempt();
     void unannounceConnectionAttempt();
@@ -896,7 +896,7 @@ public:
     }
 
     // Call me with shell mutex locked
-    bool start(const SshParameters &parameters)
+    Result start(const SshParameters &parameters)
     {
         closeShell();
         setSshParameters(parameters);
@@ -913,12 +913,12 @@ public:
         connect(m_shell.get(), &DeviceShell::done, this, [this] {
             closeShell();
         });
-        auto result = m_shell->start();
+        Result result = m_shell->start();
         if (!result) {
             qCWarning(linuxDeviceLog) << "Failed to start shell for:" << parameters.userAtHostAndPort()
                                       << ", " << result.error();
         }
-        return result.has_value();
+        return result;
     }
 
     // Call me with shell mutex locked
@@ -1186,11 +1186,11 @@ void LinuxDevicePrivate::checkOsType()
 }
 
 // Call me with shell mutex locked
-bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
+Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool announce)
 {
     if (m_handler->isRunning(sshParameters)) {
         setDisconnected(false);
-        return true;
+        return Result::Ok;
     }
 
     invalidateEnvironmentCache();
@@ -1198,22 +1198,22 @@ bool LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool ann
     if (announce)
         announceConnectionAttempt();
 
-    bool ok = false;
+    Result result = Result::Error("setupShell failed");
     QMetaObject::invokeMethod(m_handler, [this, sshParameters] {
         return m_handler->start(sshParameters);
-    }, Qt::BlockingQueuedConnection, &ok);
+    }, Qt::BlockingQueuedConnection, &result);
 
     if (announce)
         unannounceConnectionAttempt();
 
-    if (ok) {
+    if (result) {
         setDisconnected(false);
         queryOsType([this](const CommandLine &cmd) { return m_handler->runInShell(cmd); });
     } else {
         setDisconnected(true);
     }
 
-    return ok;
+    return result;
 }
 
 RunResult LinuxDevicePrivate::runInShell(const CommandLine &cmd, const QByteArray &data)
