@@ -427,11 +427,17 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             }
         }
 
-        if (!src.renameFile(dest) && src.isDir()) {
-            QString message = tr("Failed to move folder \"%1\". "
-                                 "The folder might contain subfolders or one of its files is in use.")
-                                  .arg(src.fileName());
-            Core::AsynchronousMessageBox::warning(tr("Folder move failure"), message);
+        bool isDir = src.isDir();
+
+        if (src.renameFile(dest)) {
+            if (isDir)
+                m_assetsModel->updateExpandPath(src, dest);
+        } else if (isDir) {
+            Core::AsynchronousMessageBox::warning(
+                tr("Folder move failure"),
+                tr("Failed to move folder \"%1\". The folder might contain subfolders or one of its files is in use.")
+                    .arg(src.fileName())
+                );
         }
     }
 

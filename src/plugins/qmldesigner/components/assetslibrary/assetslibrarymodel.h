@@ -7,6 +7,7 @@
 
 namespace Utils {
 class FileSystemWatcher;
+class FilePath;
 }
 
 QT_FORWARD_DECLARE_CLASS(QFileSystemModel)
@@ -51,6 +52,10 @@ public:
     Q_INVOKABLE bool allFilePathsAreTextures(const QStringList &filePaths) const;
     Q_INVOKABLE bool allFilePathsAreComposedEffects(const QStringList &filePaths) const;
     Q_INVOKABLE bool isSameOrDescendantPath(const QUrl &source, const QString &target) const;
+    Q_INVOKABLE bool folderExpandState(const QString &path) const;
+    Q_INVOKABLE void initializeExpandState(const QString &path);
+    Q_INVOKABLE void saveExpandState(const QString &path, bool expand);
+    void updateExpandPath(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
 
     int columnCount(const QModelIndex &parent = QModelIndex()) const override
     {
@@ -80,6 +85,7 @@ private:
     QFileSystemModel *m_sourceFsModel = nullptr;
     bool m_isEmpty = true;
     Utils::FileSystemWatcher *m_fileWatcher = nullptr;
+    inline static QHash<QString, bool> s_folderExpandStateHash;
 };
 
 } // namespace QmlDesigner

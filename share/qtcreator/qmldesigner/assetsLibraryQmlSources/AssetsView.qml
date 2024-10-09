@@ -93,7 +93,6 @@ TreeView {
         function onDirectoryCreated(path)
         {
             root.__createdDirectories.push(path)
-
             updateRowsTimer.restart()
         }
 
@@ -118,15 +117,7 @@ TreeView {
             // updating rows for safety: the rows might have been created before the
             // directory (esp. the root path) has been loaded, so we must make sure all rows are
             // expanded -- otherwise, the tree may not become visible.
-
             updateRowsTimer.restart()
-
-            let idx = assetsModel.indexForPath(path)
-            let row = root.rowAtIndex(idx)
-            let column = root.columnAtIndex(idx)
-
-            if (row >= root.rootPathRow && !root.isExpanded(row))
-                root.expand(row)
         }
 
         function onRootPathChanged()
@@ -180,9 +171,9 @@ TreeView {
             let index = assetsModel.indexForPath(dirPath)
             let row = root.rowAtIndex(index)
 
-            if (row > 0)
+            if (row > 0) {
                 root.expand(row)
-            else if (row === -1 && assetsModel.indexIsValid(index)) {
+            } else if (row === -1 && assetsModel.indexIsValid(index)) {
                 // It is possible that this directory, dirPath, was created inside of a parent
                 // directory that was not yet expanded in the TreeView. This can happen with the
                 // bridge plugin. In such a situation, we don't have a "row" for it yet, so we have
@@ -194,6 +185,8 @@ TreeView {
                         root.expand(row)
                 })
             }
+
+            assetsModel.saveExpandState(dirPath, root.isExpanded(row))
         }
 
         // we have no way to know beyond doubt here if updateRows() was called due
@@ -215,10 +208,10 @@ TreeView {
     function __doExpandAll()
     {
         let expandedAny = false
-        for (let nRow = 0; nRow < root.rows; ++nRow) {
-            let index = root.__modelIndex(nRow)
-            if (assetsModel.isDirectory(index) && !root.isExpanded(nRow)) {
-                root.expand(nRow);
+        for (let r = 0; r < root.rows; ++r) {
+            let index = root.__modelIndex(r)
+            if (assetsModel.isDirectory(index) && !root.isExpanded(r)) {
+                root.expand(r)
                 expandedAny = true
             }
         }
@@ -352,15 +345,14 @@ TreeView {
     }
 
     Keys.onRightPressed: {
-        root.toggleDirectoryState("expand")
+        root.expandFolder(true)
     }
 
     Keys.onLeftPressed: {
-        root.toggleDirectoryState("collapse")
+        root.expandFolder(false)
     }
 
-    function toggleDirectoryState(action) {
-
+    function expandFolder(expand) {
         let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
                                          : root.__modelIndex(root.firstRow)
 
@@ -369,9 +361,11 @@ TreeView {
 
         let row = root.rowAtIndex(index)
 
-        if (action === "expand")
+        assetsModel.saveExpandState(root.currentFilePath, expand)
+
+        if (expand)
             root.expand(row)
-        else if (action === "collapse")
+        else
             root.collapse(row)
     }
 

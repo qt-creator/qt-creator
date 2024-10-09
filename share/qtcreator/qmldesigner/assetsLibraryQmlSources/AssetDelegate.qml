@@ -48,6 +48,19 @@ TreeViewDelegate {
             root.depth -= root.assetsView.rootPathDepth
             root.initialDepth = root.depth
         }
+
+        // expand/collapse folder based on its stored expanded state
+        if (root.__isDirectory) {
+            // if the folder expand state is not stored yet, stores it as true (expanded)
+            root.assetsModel.initializeExpandState(root.__itemPath)
+
+            let expandState = assetsModel.folderExpandState(root.__itemPath)
+
+            if (expandState)
+                root.assetsView.expand(root.__currentRow)
+            else
+                root.assetsView.collapse(root.__currentRow)
+        }
     }
 
     // workaround for a bug -- might be fixed by https://codereview.qt-project.org/c/qt/qtdeclarative/+/442721
@@ -295,6 +308,8 @@ TreeViewDelegate {
         } else {
             root.assetsView.expand(root.__currentRow)
         }
+
+        assetsModel.saveExpandState(root.__itemPath, root.expanded)
     }
 
     function reloadImage() {
