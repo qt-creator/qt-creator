@@ -145,8 +145,8 @@ Item {
             reuseItems: false
             boundsBehavior: Flickable.StopAtBounds
 
-            cellWidth: 60
-            cellHeight: 70
+            cellWidth: 80
+            cellHeight: 98
 
             HoverHandler { id: hoverHandler }
 

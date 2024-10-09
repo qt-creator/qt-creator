@@ -44,11 +44,11 @@ Rectangle {
         Image {
             id: icon
 
-            width: 48
-            height: 48
+            width: root.width - 2 // 2: Column margins
+            height: icon.width
             cache: false
-            sourceSize.width: 48
-            sourceSize.height: 48
+            sourceSize.width: icon.width
+            sourceSize.height: icon.width
             asynchronous: true
             fillMode: Image.Pad
             source: "image://qmldesigner_assets/"
@@ -60,7 +60,7 @@ Rectangle {
             text: model.fileName
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFontSize
-            anchors.horizontalCenter: parent.horizontalCenter
+            elide: Text.ElideRight
             width: root.width
             clip: true
             horizontalAlignment: Text.AlignHCenter
