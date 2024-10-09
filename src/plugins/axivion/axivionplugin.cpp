@@ -45,7 +45,6 @@
 #include <memory>
 
 constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
-constexpr char s_axivionKeychainService[] = "keychain.axivion.qtcreator";
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -112,17 +111,6 @@ static QString apiTokenDescription()
     if (user.isEmpty())
         user = Utils::qtcEnvironmentVariable("USER");
     return "Automatically created by " + ua + " on " + user + "@" + QSysInfo::machineHostName();
-}
-
-static QString escapeKey(const QString &string)
-{
-    QString escaped = string;
-    return escaped.replace('\\', "\\\\").replace('@', "\\@");
-}
-
-static QString credentialKey(const AxivionServer &server)
-{
-    return escapeKey(server.username) + '@' + escapeKey(server.dashboard);
 }
 
 template <typename DtoType>
