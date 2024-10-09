@@ -436,7 +436,7 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 
 void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
-    if (filterText == m_filterText || (!m_assetsModel->hasFiles()
+    if (filterText == m_filterText || (m_assetsModel->isEmpty()
                                        && filterText.contains(m_filterText, Qt::CaseInsensitive)))
         return;
 
