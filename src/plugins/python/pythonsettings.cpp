@@ -816,7 +816,7 @@ void PythonSettings::removeKitsForInterpreter(const Interpreter &interpreter)
 
 bool PythonSettings::interpreterIsValid(const Interpreter &interpreter)
 {
-    return !interpreter.command.needsDevice() || interpreter.command.isExecutableFile();
+    return interpreter.command.needsDevice() || interpreter.command.isExecutableFile();
 }
 
 void PythonSettings::setInterpreter(const QList<Interpreter> &interpreters, const QString &defaultId)
