@@ -116,8 +116,8 @@ ExampleSetModel::ExampleSetModel()
 
 void ExampleSetModel::recreateModel(const QtVersions &qtVersionsIn)
 {
-    beginResetModel();
     clear();
+    beginResetModel();
 
     QHash<FilePath, int> extraManifestDirs;
     for (int i = 0; i < m_extraExampleSets.size(); ++i)
