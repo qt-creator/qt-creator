@@ -1640,6 +1640,10 @@ void ICorePrivate::registerDefaultContainers()
     menubar->appendGroup(Constants::G_TOOLS);
     menubar->appendGroup(Constants::G_WINDOW);
     menubar->appendGroup(Constants::G_HELP);
+    menubar->appendGroup("QtCreator.Group.Add");
+    ActionContainer *addmenu = ActionManager::createMenu("QtCreator.Menu.Add");
+    addmenu->setOnAllDisabledBehavior(ActionContainer::Show);
+    menubar->addMenu(addmenu, "QtCreator.Group.Add");
 
     // File Menu
     ActionContainer *filemenu = ActionManager::createMenu(Constants::M_FILE);

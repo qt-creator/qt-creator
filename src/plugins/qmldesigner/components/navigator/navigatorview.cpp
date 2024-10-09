@@ -29,6 +29,7 @@
 #include <qmldesignerplugin.h>
 #include <qmlitemnode.h>
 
+#include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 
@@ -45,6 +46,15 @@
 #include <QMimeData>
 #include <QPixmap>
 #include <QTimer>
+
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/actionmanager/actioncontainer.h>
+#include <coreplugin/actionmanager/command.h>
+#include <coreplugin/coreconstants.h>
+#include <coreplugin/icore.h>
+#include <QMenu>
+
+using namespace Core;
 
 inline static void setScenePos(const QmlDesigner::ModelNode &modelNode, const QPointF &pos)
 {
@@ -180,6 +190,225 @@ void NavigatorView::modelAttached(Model *model)
     });
 
     clearExplorerWarnings();
+
+    ActionContainer *addmenu = ActionManager::createMenu("QtCreator.Menu.Add");
+    addmenu->menu()->setTitle(tr("&Add"));
+    addmenu->appendGroup("QtCreator.Group.Add.Create2D");
+    addmenu->appendGroup("QtCreator.Group.Add.Create3D");
+    addmenu->setOnAllDisabledBehavior(ActionContainer::Show);
+
+    ActionContainer *create2d = ActionManager::createMenu("QtCreator.Menu.Add.Create2D");
+    addmenu->addMenu(create2d, "QtCreator.Group.Add.Create2D");
+    create2d->menu()->setTitle(tr("&Create 2D"));
+    create2d->appendGroup("QtCreator.Group.Add.Create2D");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Animation");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Buttons");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Layouts");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Container");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Display");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Input");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Instances");
+    create2d->appendGroup("QtCreator.Group.Add.Create2D.Views");
+    create2d->setOnAllDisabledBehavior(ActionContainer::Disable);
+    create2d->menu()->setDisabled(false);
+
+    ActionContainer *animation = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Animation");
+    create2d->addMenu(animation, "QtCreator.Group.Add.Create2D.Animation");
+    animation->menu()->setTitle(tr("&Animation"));
+    animation->appendGroup("QtCreator.Group.Add.Create2D.Animation");
+    animation->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *buttons = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Buttons");
+    create2d->addMenu(buttons, "QtCreator.Group.Add.Create2D.Buttons");
+    buttons->menu()->setTitle(tr("&Buttons"));
+    buttons->appendGroup("QtCreator.Group.Add.Create2D.Buttons");
+    buttons->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *layouts = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Layouts");
+    create2d->addMenu(layouts, "QtCreator.Group.Add.Create2D.Layouts");
+    layouts->menu()->setTitle(tr("&Layouts"));
+    layouts->appendGroup("QtCreator.Group.Add.Create2D.Layouts");
+    layouts->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *container = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Container");
+    create2d->addMenu(container, "QtCreator.Group.Add.Create2D.Container");
+    container->menu()->setTitle(tr("&Container"));
+    container->appendGroup("QtCreator.Group.Add.Create2D.Container");
+    container->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *display = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Display");
+    create2d->addMenu(display, "QtCreator.Group.Add.Create2D.Display");
+    display->menu()->setTitle(tr("&Display"));
+    display->appendGroup("QtCreator.Group.Add.Create2D.Display");
+    display->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *input = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Input");
+    create2d->addMenu(input, "QtCreator.Group.Add.Create2D.Input");
+    input->menu()->setTitle(tr("&Input"));
+    input->appendGroup("QtCreator.Group.Add.Create2D.Input");
+    input->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *instances = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Instances");
+    create2d->addMenu(instances, "QtCreator.Group.Add.Create2D.Instances");
+    instances->menu()->setTitle(tr("&Instances"));
+    instances->appendGroup("QtCreator.Group.Add.Create2D.Instances");
+    instances->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *views = ActionManager::createMenu("QtCreator.Menu.Add.Create2D.Views");
+    create2d->addMenu(views, "QtCreator.Group.Add.Create2D.Views");
+    views->menu()->setTitle(tr("&Views"));
+    views->appendGroup("QtCreator.Group.Add.Create2D.Views");
+    views->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *create3d = ActionManager::createMenu("QtCreator.Menu.Add.Create3D");
+    addmenu->addMenu(create3d, "QtCreator.Group.Add.Create2D");
+    create3d->menu()->setTitle(tr("&Create 3D"));
+    create3d->appendGroup("QtCreator.Group.Add.Create3D");
+    create3d->appendGroup("QtCreator.Group.Add.Create3D.Cameras");
+    create3d->appendGroup("QtCreator.Group.Add.Create3D.Lights");
+    create3d->appendGroup("QtCreator.Group.Add.Create3D.Primitives");
+    create3d->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *cameras = ActionManager::createMenu("QtCreator.Menu.Add.Create3D.Cameras");
+    create3d->addMenu(cameras, "QtCreator.Group.Add.Create3D.Cameras");
+    cameras->menu()->setTitle(tr("&Cameras"));
+    cameras->appendGroup("QtCreator.Group.Add.Create3D.Cameras");
+    cameras->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *lights = ActionManager::createMenu("QtCreator.Menu.Add.Create3D.Lights");
+    create3d->addMenu(lights, "QtCreator.Group.Add.Create3D.Lights");
+    lights->menu()->setTitle(tr("&Lights"));
+    lights->appendGroup("QtCreator.Group.Add.Create3D.Lights");
+    lights->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    ActionContainer *primitives = ActionManager::createMenu("QtCreator.Menu.Add.Create3D.Primitives");
+    create3d->addMenu(primitives, "QtCreator.Group.Add.Create3D.Primitives");
+    primitives->menu()->setTitle(tr("&Primitives"));
+    primitives->appendGroup("QtCreator.Group.Add.Create3D.Primitives");
+    primitives->setOnAllDisabledBehavior(ActionContainer::Disable);
+
+    struct actionData{
+        Utils::Id name;
+        const char* text;
+        Utils::Id containerId;
+        Utils::Id groupId;
+        Utils::Id command;
+    };
+
+    QList<actionData> actionDataList = {
+        {"QtCreator.View3D", "View3D", "QtCreator.Menu.Add.Create2D", "QtCreator.Group.Add.Create2D", "QmlDesigner.CreateView3DContext2D"},
+        //Animation
+        {"QtCreator.FrameAnimation", "Frame Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateFrameAnimation"},
+        {"QtCreator.ColorAnimation", "Color Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateColorAnimation"},
+        {"QtCreator.NumberAnimation", "Number Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateNumberAnimation"},
+        {"QtCreator.ParallelAnimation", "Parallel Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateParallelAnimation"},
+        {"QtCreator.PauseAnimation", "Pause Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreatePauseAnimation"},
+        {"QtCreator.PropertyAnimation", "Property Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreatePropertyAnimation"},
+        {"QtCreator.ScriptAction", "Script Action", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateScriptAction"},
+        {"QtCreator.SequentialAnimation", "Sequential Animation", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateSequentialAnimation"},
+        {"QtCreator.Timer", "Timer", "QtCreator.Menu.Add.Create2D.Animation", "QtCreator.Group.Add.Create2D.Animation", "QmlDesigner.CreateTimer"},
+        // Buttons
+        {"QtCreator.Button", "Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateButton"},
+        {"QtCreator.CheckBox", "Check Box", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateCheckBox"},
+        {"QtCreator.CheckDelegate", "Check Delegate", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateCheckDelegate"},
+        {"QtCreator.DelayButton", "Delay Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateDelayButton"},
+        {"QtCreator.Dial", "Dial", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateDial"},
+        {"QtCreator.RadioButton", "Radio Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateRadioButton"},
+        {"QtCreator.RadioDelegate", "Radio Delegate", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateRadioDelegate"},
+        {"QtCreator.RoundButton", "Round Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateRoundButton"},
+        {"QtCreator.Switch", "Switch", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateSwitch"},
+        {"QtCreator.SwitchDelegate", "Switch Delegate", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateSwitchDelegate"},
+        {"QtCreator.TabButton", "Tab Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateTabButton"},
+        {"QtCreator.ToolButton", "Tool Button", "QtCreator.Menu.Add.Create2D.Buttons", "QtCreator.Group.Add.Create2D.Buttons", "QmlDesigner.CreateToolButton"},
+        // Layouts
+        {"QtCreator.Column", "Column", "QtCreator.Menu.Add.Create2D.Layouts", "QtCreator.Group.Add.Create2D.Layouts", "QmlDesigner.CreateColumn"},
+        {"QtCreator.Flow", "Flow", "QtCreator.Menu.Add.Create2D.Layouts", "QtCreator.Group.Add.Create2D.Layouts", "QmlDesigner.CreateFlow"},
+        {"QtCreator.Grid", "Grid", "QtCreator.Menu.Add.Create2D.Layouts", "QtCreator.Group.Add.Create2D.Layouts", "QmlDesigner.CreateGrid"},
+        {"QtCreator.Row", "Row", "QtCreator.Menu.Add.Create2D.Layouts", "QtCreator.Group.Add.Create2D.Layouts", "QmlDesigner.CreateRow"},
+        // Containers
+        {"QtCreator.Control", "Control", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateControl"},
+        {"QtCreator.Flickable", "Flickable", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateFlickable"},
+        {"QtCreator.Frame", "Frame", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateFrame"},
+        {"QtCreator.Item", "Item", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateItem"},
+        {"QtCreator.ItemDelegate", "Item Delegate", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateItemDelegate"},
+        {"QtCreator.Page", "Page", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreatePage"},
+        {"QtCreator.Pane", "Pane", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreatePane"},
+        {"QtCreator.TabBar", "Tab Bar", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateTabBar"},
+        {"QtCreator.ToolBar", "ToolBar", "QtCreator.Menu.Add.Create2D.Container", "QtCreator.Group.Add.Create2D.Container", "QmlDesigner.CreateToolBar"},
+        //Display
+        {"QtCreator.AnimatedImage", "Animated Image", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateAnimatedImage"},
+        {"QtCreator.AnimatedSprite", "Animated Sprite", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateAnimatedSprite"},
+        {"QtCreator.BorderImage", "Border Image", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateBorderImage"},
+        {"QtCreator.BusyIndicator", "Busy Indicator", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateBusyIndicator"},
+        {"QtCreator.Image", "Image", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateImage"},
+        {"QtCreator.ProgressBar", "Progress Bar", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateProgressBar"},
+        {"QtCreator.Rectangle", "Rectangle", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateRectangle"},
+        {"QtCreator.Text", "Text", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateText"},
+        {"QtCreator.TextArea", "Text Area", "QtCreator.Menu.Add.Create2D.Display", "QtCreator.Group.Add.Create2D.Display", "QmlDesigner.CreateTextArea"},
+        //Input
+        {"QtCreator.DropArea", "Drop Area", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateDropArea"},
+        {"QtCreator.FocusScope", "Focus Scope", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateFocusScope"},
+        {"QtCreator.MouseArea", "Mouse Area", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateMouseArea"},
+        {"QtCreator.RangeSlider", "Range Slider", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateRangeSlider"},
+        {"QtCreator.Slider", "Slider", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateSlider"},
+        {"QtCreator.SpinBox", "Spin Box", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateSpinBox"},
+        {"QtCreator.TextEdit", "Text Edit", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateTextEdit"},
+        {"QtCreator.TextField", "Text Field", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateTextField"},
+        {"QtCreator.TextInput", "Text Input", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateTextInput"},
+        {"QtCreator.Tumbler", "Tumbler", "QtCreator.Menu.Add.Create2D.Input", "QtCreator.Group.Add.Create2D.Input", "QmlDesigner.CreateTumbler"},
+        //Views
+        {"QtCreator.GridView", "Grid View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateGridView"},
+        {"QtCreator.ListView", "List View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateListView"},
+        {"QtCreator.PathView", "Path View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreatePathView"},
+        {"QtCreator.ScrollView", "Scroll View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateScrollView"},
+        {"QtCreator.StackView", "Stack View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateStackView"},
+        {"QtCreator.SwipeDelegate", "Swipe Delegate", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateSwipeDelegate"},
+        {"QtCreator.SwipeView", "Swipe View", "QtCreator.Menu.Add.Create2D.Views", "QtCreator.Group.Add.Create2D.Views", "QmlDesigner.CreateSwipeView"},
+        //Instances
+        {"QtCreator.Loader", "Loader", "QtCreator.Menu.Add.Create2D.Instances", "QtCreator.Group.Add.Create2D.Instances", "QmlDesigner.CreateLoader"},
+        {"QtCreator.Repeater", "Repeater", "QtCreator.Menu.Add.Create2D.Instances", "QtCreator.Group.Add.Create2D.Instances", "QmlDesigner.CreateRepeater"},
+        //3D
+        {"QtCreator.View3Dd", "View3D", "QtCreator.Menu.Add.Create3D", "QtCreator.Group.Add.Create3D", "QmlDesigner.CreateView3DContext3D"},
+        {"QtCreator.Node", "Node", "QtCreator.Menu.Add.Create3D", "QtCreator.Group.Add.Create3D", "QmlDesigner.CreateNode"},
+        //Cameras
+        {"QtCreator.OrthographicCamera", "Orthographic Camera", "QtCreator.Menu.Add.Create3D.Cameras", "QtCreator.Group.Add.Create3D.Cameras", "QmlDesigner.CreateOrthographicCamera"},
+        {"QtCreator.PerspectiveCamera", "Perspective Camera", "QtCreator.Menu.Add.Create3D.Cameras", "QtCreator.Group.Add.Create3D.Cameras", "QmlDesigner.CreatePerspectiveCamera"},
+        //Lights
+        {"QtCreator.DirectionalLight", "Directional Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreateDirectionalLight"},
+        {"QtCreator.PointLight", "Point Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreatePointLight"},
+        {"QtCreator.SpotLight", "Spot Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreateSpotLight"},
+        //Primitives
+        {"QtCreator.Cone", "Cone", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateCone"},
+        {"QtCreator.Cube", "Cube", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateCube"},
+        {"QtCreator.Cylinder", "Cylinder", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateCylinder"},
+        {"QtCreator.Model", "Model", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateModel"},
+        {"QtCreator.Plane", "Plane", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreatePlane"},
+        {"QtCreator.Sphere", "Sphere", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateSphere"},
+    };
+
+    for (auto& data : actionDataList) {
+        Core::ActionBuilder action(this, data.name);
+        action.setText(tr(data.text));
+        action.addToContainer(data.containerId, data.groupId);
+        action.addOnTriggered(this, [data] {
+            Core::ActionManager::command(data.command)->action()->trigger();
+        });
+        action.setEnabled(Core::ActionManager::command(data.command)->action()->isEnabled());
+
+    }
+
+    QObject::connect(treeWidget()->selectionModel(), &QItemSelectionModel::selectionChanged,
+        [this, actionDataList](const QItemSelection &selected, const QItemSelection &deselected) {
+            for (auto data : actionDataList) {
+               Core::ActionBuilder action(this, data.name);
+               action.setText(tr(data.text));
+               action.addToContainer(data.containerId, data.groupId);
+               action.addOnTriggered(this, [data] {
+               Core::ActionManager::command(data.command)->action()->trigger();
+            });
+            action.setEnabled(Core::ActionManager::command(data.command)->action()->isEnabled());
+        }
+    });
 }
 
 void NavigatorView::clearExplorerWarnings()

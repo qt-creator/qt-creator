@@ -2088,6 +2088,7 @@ void DesignerActionManager::createDefaultDesignerActions()
         // QKeySequence key;
         int priority;
         SelectionContextOperation selectionAction;
+        SelectionContextPredicate isEnabled;
     };
 
     const auto createSubActionGroup = [this](const QString &name, const QByteArray &id, int priority, const QByteArray &parentCategory) {
@@ -2107,7 +2108,8 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                              category,
                                                              QKeySequence(),
                                                              data.priority,
-                                                             data.selectionAction));
+                                                             data.selectionAction,
+                                                             data.isEnabled));
         }
     };
 
@@ -2117,115 +2119,116 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       Priorities::Create2DCategory,
                                       &is2DNode));
 
-    addDesignerAction(new ModelNodeContextMenuAction(createView3DCommandId,
+    addDesignerAction(new ModelNodeContextMenuAction(createView3DContext2DCommandId,
                                                      createView3DDisplayName,
                                                      contextIcon(DesignerIcons::CreateIcon), //is not visible in submenu
                                                      create2DCategory,
                                                      QKeySequence(),
                                                      Priorities::CreateView3D,
-                                                     &createView3D));
+                                                     &createView3D,
+                                                     &is2DNode));
 
     createSubActionGroup(layoutsCategoryDisplayName, layoutsCategory, Priorities::ButtonsCategory, create2DCategory);
     const QList<ContextMenuActionData> layouts = {
-        { createColumnCommandId, createColumnDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateColumn, &createColumn },
-        { createFlowCommandId, createFlowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFlow, &createFlow },
-        { createGridCommandId, createGridDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateGrid, &createGrid },
-        { createRowCommandId, createRowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRow, &createRow },
+        { createColumnCommandId, createColumnDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateColumn, &createColumn, &is2DNode },
+        { createFlowCommandId, createFlowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFlow, &createFlow, &is2DNode },
+        { createGridCommandId, createGridDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateGrid, &createGrid, &is2DNode },
+        { createRowCommandId, createRowDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*layoutsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRow, &createRow, &is2DNode },
     };
     createModelNodeContextMenuActions(layouts, layoutsCategory);
 
     createSubActionGroup(buttonsCategoryDisplayName, buttonsCategory, Priorities::ButtonsCategory, create2DCategory);
     const QList<ContextMenuActionData> buttons = {
-        { createButtonCommandId, createButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateButton, &createButton },
-        { createCheckDelegateCommandId, createCheckDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateCheckDelegate, &createCheckDelegate },
-        { createToolButtonCommandId, createToolButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateToolButton, &createToolButton },
-        { createTabButtonCommandId, createTabButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTabButton, &createTabButton },
-        { createDelayButtonCommandId, createDelayButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDelayButton, &createDelayButton },
-        { createCheckBoxCommandId, createCheckBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateCheckBox, &createCheckBox },
-        { createDialCommandId, createDialDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDial, &createDial},
-        { createRadioButtonCommandId, createRadioButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRadioButton, &createRadioButton},
-        { createRadioDelegateCommandId, createRadioDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateRadioDelegate, &createRadioDelegate },
-        { createRoundButtonCommandId, createRoundButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRoundButton, &createRoundButton},
-        { createSwitchCommandId, createSwitchDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwitch, &createSwitch},
-        { createSwitchDelegateCommandId, createSwitchDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwitchDelegate, &createSwitchDelegate }
+        { createButtonCommandId, createButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateButton, &createButton, &is2DNode },
+        { createCheckDelegateCommandId, createCheckDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateCheckDelegate, &createCheckDelegate, &is2DNode },
+        { createToolButtonCommandId, createToolButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateToolButton, &createToolButton, &is2DNode },
+        { createTabButtonCommandId, createTabButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTabButton, &createTabButton, &is2DNode },
+        { createDelayButtonCommandId, createDelayButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDelayButton, &createDelayButton, &is2DNode },
+        { createCheckBoxCommandId, createCheckBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateCheckBox, &createCheckBox, &is2DNode },
+        { createDialCommandId, createDialDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDial, &createDial, &is2DNode},
+        { createRadioButtonCommandId, createRadioButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRadioButton, &createRadioButton, &is2DNode},
+        { createRadioDelegateCommandId, createRadioDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateRadioDelegate, &createRadioDelegate, &is2DNode },
+        { createRoundButtonCommandId, createRoundButtonDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRoundButton, &createRoundButton, &is2DNode },
+        { createSwitchCommandId, createSwitchDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*buttonsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwitch, &createSwitch, &is2DNode },
+        { createSwitchDelegateCommandId, createSwitchDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwitchDelegate, &createSwitchDelegate, &is2DNode }
     };
     createModelNodeContextMenuActions(buttons, buttonsCategory);
 
     createSubActionGroup(viewsCategoryDisplayName, viewsCategory, Priorities::ViewsCategory, create2DCategory);
     const QList<ContextMenuActionData> views = {
-        { createGridViewCommandId, createGridViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateGridView, &createGridView },
-        { createListViewCommandId, createListViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateListView, &createListView },
-        { createPathViewCommandId, createPathViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePathView, &createPathView },
-        { createScrollViewCommandId, createScrollViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateScrollView, &createScrollView },
-        { createStackViewCommandId, createStackViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateStackView, &createStackView },
-        { createSwipeViewCommandId, createSwipeViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwipeView, &createSwipeView },
-        { createSwipeDelegateCommandId, createSwipeDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwipeDelegate, &createSwipeDelegate },
+        { createGridViewCommandId, createGridViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateGridView, &createGridView, &is2DNode },
+        { createListViewCommandId, createListViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateListView, &createListView, &is2DNode },
+        { createPathViewCommandId, createPathViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePathView, &createPathView, &is2DNode },
+        { createScrollViewCommandId, createScrollViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateScrollView, &createScrollView, &is2DNode },
+        { createStackViewCommandId, createStackViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateStackView, &createStackView, &is2DNode },
+        { createSwipeViewCommandId, createSwipeViewDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwipeView, &createSwipeView, &is2DNode },
+        { createSwipeDelegateCommandId, createSwipeDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSwipeDelegate, &createSwipeDelegate, &is2DNode },
     };
     createModelNodeContextMenuActions(views, viewsCategory);
 
     createSubActionGroup(displayCategoryDisplayName, displayCategory, Priorities::DisplayCategory, create2DCategory);
     const QList<ContextMenuActionData> display = {
-        { createAnimatedImageCommandId, createAnimatedImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateAnimatedImage, &createAnimatedImage },
-        { createAnimatedSpriteCommandId, createAnimatedSpriteDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateAnimatedSprite, &createAnimatedSprite },
-        { createBorderImageCommandId, createBorderImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateBorderImage, &createBorderImage },
-        { createImageCommandId, createImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateImage, &createImage },
-        { createRectangleCommandId, createRectangleDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRectangle, &createRectangle },
-        { createTextCommandId, createTextDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateText, &createText },
-        { createProgressBarCommandId, createProgressBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateProgressBar, &createProgressBar },
-        { createTextAreaCommandId, createTextAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextArea, &createTextArea },
-        { createBusyIndicatorCommandId, createBusyIndicatorDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateBusyIndicator, &createBusyIndicator },
+        { createAnimatedImageCommandId, createAnimatedImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateAnimatedImage, &createAnimatedImage, &is2DNode },
+        { createAnimatedSpriteCommandId, createAnimatedSpriteDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateAnimatedSprite, &createAnimatedSprite, &is2DNode },
+        { createBorderImageCommandId, createBorderImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateBorderImage, &createBorderImage, &is2DNode },
+        { createImageCommandId, createImageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateImage, &createImage, &is2DNode },
+        { createRectangleCommandId, createRectangleDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateRectangle, &createRectangle, &is2DNode },
+        { createTextCommandId, createTextDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateText, &createText, &is2DNode },
+        { createProgressBarCommandId, createProgressBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateProgressBar, &createProgressBar, &is2DNode },
+        { createTextAreaCommandId, createTextAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextArea, &createTextArea, &is2DNode },
+        { createBusyIndicatorCommandId, createBusyIndicatorDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateBusyIndicator, &createBusyIndicator, &is2DNode },
     };
     createModelNodeContextMenuActions(display, displayCategory);
 
     createSubActionGroup(containerCategoryDisplayName, containerCategory, Priorities::ContainerCategory, create2DCategory);
     const QList<ContextMenuActionData> container = {
-        { createFrameCommandId, createFrameDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFrame, &createFrame },
-        { createPageCommandId, createPageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePage, &createPage },
-        { createPaneCommandId, createPaneDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePane, &createPane },
-        { createControlCommandId, createControlDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateControl, &createControl },
-        { createTabBarCommandId, createTabBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTabBar, &createTabBar },
-        { createToolBarCommandId, createToolBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateToolBar, &createQQCToolBar },
-        { createItemCommandId, createItemDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateItem, &createItem },
-        { createItemDelegateCommandId, createItemDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateItemDelegate, &createItemDelegate },
-        { createFlickableCommandId, createFlickableDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFlickable, &createFlickable },
+        { createFrameCommandId, createFrameDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFrame, &createFrame, &is2DNode },
+        { createPageCommandId, createPageDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePage, &createPage, &is2DNode },
+        { createPaneCommandId, createPaneDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePane, &createPane, &is2DNode },
+        { createControlCommandId, createControlDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateControl, &createControl, &is2DNode },
+        { createTabBarCommandId, createTabBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateTabBar, &createTabBar, &is2DNode },
+        { createToolBarCommandId, createToolBarDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateToolBar, &createQQCToolBar, &is2DNode },
+        { createItemCommandId, createItemDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateItem, &createItem, &is2DNode },
+        { createItemDelegateCommandId, createItemDelegateDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateItemDelegate, &createItemDelegate, &is2DNode },
+        { createFlickableCommandId, createFlickableDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*viewsCategory,*/ /*QKeySequence(),*/ Priorities::CreateFlickable, &createFlickable, &is2DNode },
     };
     createModelNodeContextMenuActions(container, containerCategory);
 
     createSubActionGroup(containerInputDisplayName, inputCategory, Priorities::InputCategory, create2DCategory);
     const QList<ContextMenuActionData> input = {
-        { createTextEditCommandId, createTextEditDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextEdit, &createTextEdit },
-        { createTextInputCommandId, createTextInputDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextInput, &createTextInput },
-        { createSpinBoxCommandId, createSpinBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpinBox, &createSpinBox },
-        { createMouseAreaCommandId, createMouseAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateMouseArea, &createMouseArea },
-        { createDropAreaCommandId, createDropAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateDropArea, &createDropArea },
-        { createFocusScopeCommandId, createFocusScopeDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateFocusScope, &createFocusScope },
-        { createSliderCommandId, createSliderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSlider, &createSlider },
-        { createRangeSliderCommandId, createRangeSliderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateRangeSlider, &createRangeSlider },
-        { createTextFieldCommandId, createTextFieldDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextField, &createTextField },
-        { createTumblerCommandId, createTumblerDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTumbler, &createTumbler },
+        { createTextEditCommandId, createTextEditDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextEdit, &createTextEdit, &is2DNode },
+        { createTextInputCommandId, createTextInputDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextInput, &createTextInput, &is2DNode },
+        { createSpinBoxCommandId, createSpinBoxDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpinBox, &createSpinBox, &is2DNode },
+        { createMouseAreaCommandId, createMouseAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateMouseArea, &createMouseArea, &is2DNode },
+        { createDropAreaCommandId, createDropAreaDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateDropArea, &createDropArea, &is2DNode },
+        { createFocusScopeCommandId, createFocusScopeDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateFocusScope, &createFocusScope, &is2DNode },
+        { createSliderCommandId, createSliderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSlider, &createSlider, &is2DNode },
+        { createRangeSliderCommandId, createRangeSliderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateRangeSlider, &createRangeSlider, &is2DNode },
+        { createTextFieldCommandId, createTextFieldDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTextField, &createTextField, &is2DNode },
+        { createTumblerCommandId, createTumblerDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTumbler, &createTumbler, &is2DNode },
     };
     createModelNodeContextMenuActions(input, inputCategory);
 
     createSubActionGroup(animationDisplayName, animationCategory, Priorities::AnimationCategory, create2DCategory);
     const QList<ContextMenuActionData> animation = {
-        { createColorAnimationCommandId, createColorAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateColorAnimation, &createColorAnimation },
-        { createFrameAnimationCommandId, createFrameAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateFrameAnimation, &createFrameAnimation },
-        { createNumberAnimationCommandId, createNumberAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateNumberAnimation, &createNumberAnimation },
-        { createParallelAnimationCommandId, createParallelAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateParallelAnimation, &createParallelAnimation },
-        { createPauseAnimationCommandId, createPauseAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePauseAnimation, &createPauseAnimation },
-        { createPropertyActionCommandId, createPropertyActionDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePropertyAction, &createPropertyAction },
-        { createPropertyAnimationCommandId, createPropertyAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePropertyAnimation, &createPropertyAnimation },
-        { createScriptActionCommandId, createScriptActionDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateScriptAction, &createScriptAction },
-        { createSequentialAnimationCommandId, createSequentialAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSequentialAnimation, &createSequentialAnimation },
-        { createTimerCommandId, createTimerDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTimer, &createTimer }
+        { createColorAnimationCommandId, createColorAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateColorAnimation, &createColorAnimation, &is2DNode },
+        { createFrameAnimationCommandId, createFrameAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateFrameAnimation, &createFrameAnimation, &is2DNode },
+        { createNumberAnimationCommandId, createNumberAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateNumberAnimation, &createNumberAnimation, &is2DNode },
+        { createParallelAnimationCommandId, createParallelAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateParallelAnimation, &createParallelAnimation, &is2DNode },
+        { createPauseAnimationCommandId, createPauseAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePauseAnimation, &createPauseAnimation, &is2DNode },
+        { createPropertyActionCommandId, createPropertyActionDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePropertyAction, &createPropertyAction, &is2DNode },
+        { createPropertyAnimationCommandId, createPropertyAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreatePropertyAnimation, &createPropertyAnimation, &is2DNode },
+        { createScriptActionCommandId, createScriptActionDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateScriptAction, &createScriptAction, &is2DNode },
+        { createSequentialAnimationCommandId, createSequentialAnimationDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateSequentialAnimation, &createSequentialAnimation, &is2DNode },
+        { createTimerCommandId, createTimerDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*inputCategory,*/ /*QKeySequence(),*/ Priorities::CreateTimer, &createTimer, &is2DNode }
     };
     createModelNodeContextMenuActions(animation, animationCategory);
 
     createSubActionGroup(instancesDisplayName, instancesCategory, Priorities::InstancesCategory, create2DCategory);
     const QList<ContextMenuActionData> instances = {
 //      { createComponentCommandId, createComponentDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*instancesCategory,*/ /*QKeySequence(),*/ Priorities::CreateComponent, &createComponent }, // Component is not visible in the navigator, so the action is disabled to avoid confusion.
-        { createLoaderCommandId, createLoaderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*instancesCategory,*/ /*QKeySequence(),*/ Priorities::CreateLoader, &createLoader },
-        { createRepeaterCommandId, createRepeaterDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*instancesCategory,*/ /*QKeySequence(),*/ Priorities::CreateRepeater, &createRepeater }
+        { createLoaderCommandId, createLoaderDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*instancesCategory,*/ /*QKeySequence(),*/ Priorities::CreateLoader, &createLoader, &is2DNode },
+        { createRepeaterCommandId, createRepeaterDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*instancesCategory,*/ /*QKeySequence(),*/ Priorities::CreateRepeater, &createRepeater, &is2DNode }
     };
     createModelNodeContextMenuActions(instances, instancesCategory);
 
@@ -2235,7 +2238,7 @@ void DesignerActionManager::createDefaultDesignerActions()
                                       Priorities::Create3DCategory,
                                       &is3DNode));
 
-    addDesignerAction(new ModelNodeContextMenuAction(createView3DCommandId,
+    addDesignerAction(new ModelNodeContextMenuAction(createView3DContext3DCommandId,
                                                      createView3DDisplayName,
                                                      contextIcon(DesignerIcons::CreateIcon), //is not visible in submenu
                                                      create3DCategory,
@@ -2245,39 +2248,39 @@ void DesignerActionManager::createDefaultDesignerActions()
                                                      &SelectionContextFunctors::never));
 
     const QList<ContextMenuActionData> basics = {
-        { createNodeCommandId, createNodeDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*create3DCategory,*/ /*QKeySequence(),*/ Priorities::CreateNode, &createNode },
+        { createNodeCommandId, createNodeDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*create3DCategory,*/ /*QKeySequence(),*/ Priorities::CreateNode, &createNode, &is3DNode },
     };
     createModelNodeContextMenuActions(basics, create3DCategory);
 
     createSubActionGroup(camerasCategoryDisplayName, camerasCategory, Priorities::CamerasCategory, create3DCategory);
     const QList<ContextMenuActionData> cameras = {
-        { createOrthographicCameraCommandId, createOrthographicCameraDisplayName, /*contextIcon(DesignerIcons::CameraOrthographicIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreateOrthographicCamera, &createOrthographicCamera },
-        { createPerspectiveCameraCommandId, createPerspectiveCameraDisplayName, /*contextIcon(DesignerIcons::CameraPerspectiveIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreatePerspectiveCamera, &createPerspectiveCamera },
+        { createOrthographicCameraCommandId, createOrthographicCameraDisplayName, /*contextIcon(DesignerIcons::CameraOrthographicIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreateOrthographicCamera, &createOrthographicCamera, &is3DNode },
+        { createPerspectiveCameraCommandId, createPerspectiveCameraDisplayName, /*contextIcon(DesignerIcons::CameraPerspectiveIcon),*/ /*camerasCategory,*/ /*QKeySequence(),*/ Priorities::CreatePerspectiveCamera, &createPerspectiveCamera, &is3DNode },
     };
     createModelNodeContextMenuActions(cameras, camerasCategory);
 
     createSubActionGroup(lightsCategoryDisplayName, lightsCategory, Priorities::LightsCategory, create3DCategory);
     const QList<ContextMenuActionData> lights = {
-        { createDirectionalLightCommandId, createDirectionalLightDisplayName, /*contextIcon(DesignerIcons::LightDirectionalIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDirectionalLight, &createDirectionalLight },
-        { createPointLightCommandId, createPointLightDisplayName, /*contextIcon(DesignerIcons::LightPointIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePointLight, &createPointLight },
-        { createSpotLightCommandId, createSpotLightDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpotLight, &createSpotLight },
+        { createDirectionalLightCommandId, createDirectionalLightDisplayName, /*contextIcon(DesignerIcons::LightDirectionalIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDirectionalLight, &createDirectionalLight, &is3DNode },
+        { createPointLightCommandId, createPointLightDisplayName, /*contextIcon(DesignerIcons::LightPointIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePointLight, &createPointLight, &is3DNode },
+        { createSpotLightCommandId, createSpotLightDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpotLight, &createSpotLight, &is3DNode },
     };
     createModelNodeContextMenuActions(lights, lightsCategory);
 
     createSubActionGroup(primitivesCategoryDisplayName, primitivesCategory, Priorities::PrimitivesCategory, create3DCategory);
     const QList<ContextMenuActionData> primitives = {
-        { createConeCommandId, createConeDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCone, &createCone },
-        { createCubeCommandId, createCubeDisplayName, /*contextIcon(DesignerIcons::ModelCubeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCube, &createCube },
-        { createCylinderCommandId, createCylinderDisplayName, /*contextIcon(DesignerIcons::ModelCylinderIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCylinder, &createCylinder },
-        { createModelCommandId, createModelDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateModel, &createModel },
-        { createPlaneCommandId, createPlaneDisplayName, /*contextIcon(DesignerIcons::ModelPlaneIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreatePlane, &createPlane },
-        { createSphereCommandId, createSphereDisplayName, /*contextIcon(DesignerIcons::ModelSphereIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateSphere, &createSphere },
+        { createConeCommandId, createConeDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCone, &createCone, &is3DNode },
+        { createCubeCommandId, createCubeDisplayName, /*contextIcon(DesignerIcons::ModelCubeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCube, &createCube, &is3DNode },
+        { createCylinderCommandId, createCylinderDisplayName, /*contextIcon(DesignerIcons::ModelCylinderIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateCylinder, &createCylinder, &is3DNode },
+        { createModelCommandId, createModelDisplayName, /*contextIcon(DesignerIcons::CreateIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateModel, &createModel, &is3DNode },
+        { createPlaneCommandId, createPlaneDisplayName, /*contextIcon(DesignerIcons::ModelPlaneIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreatePlane, &createPlane, &is3DNode },
+        { createSphereCommandId, createSphereDisplayName, /*contextIcon(DesignerIcons::ModelSphereIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateSphere, &createSphere, &is3DNode },
     };
     createModelNodeContextMenuActions(primitives, primitivesCategory);
 
     createSubActionGroup(embedded2dCategoryDisplayName, embedded2dCategory, Priorities::Embedded2dCategory, create3DCategory);
     const QList<ContextMenuActionData> embedded2d = {
-        { createEmbedded2dTextCommandId, createEmbedded2dTextDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateEmbedded2dText, &createEmbedded2dText }
+        { createEmbedded2dTextCommandId, createEmbedded2dTextDisplayName, /*contextIcon(DesignerIcons::ModelConeIcon),*/ /*primitivesCategory,*/ /*QKeySequence(),*/ Priorities::CreateEmbedded2dText, &createEmbedded2dText, &is3DNode }
     };
     createModelNodeContextMenuActions(embedded2d, embedded2dCategory);
 }

@@ -394,8 +394,8 @@ void Internal::CommandPrivate::addOverrideAction(QAction *action,
         m_contextActionMap.insert(Constants::C_GLOBAL, action);
     } else {
         for (const Id &id : context) {
-            if (m_contextActionMap.contains(id))
-                qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, nullptr))));
+            // if (m_contextActionMap.contains(id))  // Only for PoC use
+            //     qWarning("%s", qPrintable(msgActionWarning(action, id, m_contextActionMap.value(id, nullptr))));
             m_contextActionMap.insert(id, action);
         }
     }
