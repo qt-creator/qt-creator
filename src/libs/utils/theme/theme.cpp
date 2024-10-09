@@ -6,6 +6,7 @@
 #include "../hostosinfo.h"
 #include "../qtcassert.h"
 #include "filepath.h"
+#include "stylehelper.h"
 #ifdef Q_OS_MACOS
 #import "theme_mac.h"
 #endif
@@ -21,6 +22,7 @@ static Theme *m_creatorTheme = nullptr;
 static std::optional<QPalette> m_initialPalette;
 
 ThemePrivate::ThemePrivate()
+    : defaultToolbarStyle(StyleHelper::ToolbarStyle::Compact)
 {
     const QMetaObject &m = Theme::staticMetaObject;
     colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
@@ -130,6 +132,11 @@ QString Theme::defaultTextEditorColorScheme() const
     return d->defaultTextEditorColorScheme;
 }
 
+StyleHelper::ToolbarStyle Theme::defaultToolbarStyle() const
+{
+    return d->defaultToolbarStyle;
+}
+
 QString Theme::id() const
 {
     return d->id;
@@ -228,6 +235,9 @@ void Theme::readSettingsInternal(QSettings &settings)
         d->preferredStyles.removeAll(QString());
         d->defaultTextEditorColorScheme
             = settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
+        d->defaultToolbarStyle =
+                settings.value(QLatin1String("DefaultToolbarStyle")).toString() == "Relaxed"
+                ? StyleHelper::ToolbarStyle::Relaxed : StyleHelper::ToolbarStyle::Compact;
         d->enforceAccentColorOnMacOS = settings.value("EnforceAccentColorOnMacOS").toString();
     }
 

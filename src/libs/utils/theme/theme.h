@@ -18,6 +18,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+namespace StyleHelper {
+enum class ToolbarStyle;
+}
+
 class ThemePrivate;
 
 class QTCREATOR_UTILS_EXPORT Theme : public QObject
@@ -530,6 +534,7 @@ public:
     QPalette palette() const;
     QStringList preferredStyles() const;
     QString defaultTextEditorColorScheme() const;
+    StyleHelper::ToolbarStyle defaultToolbarStyle() const;
 
     QString id() const;
     QString filePath() const;

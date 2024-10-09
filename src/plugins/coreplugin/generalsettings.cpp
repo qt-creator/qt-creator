@@ -306,7 +306,7 @@ void GeneralSettingsWidget::apply()
     if (const auto newStyle = m_toolbarStyleBox->currentData().value<StyleHelper::ToolbarStyle>();
         newStyle != StyleHelper::toolbarStyle()) {
         ICore::settings()->setValueWithDefault(settingsKeyToolbarStyle, int(newStyle),
-                                               int(StyleHelper::defaultToolbarStyle));
+                                               int(StyleHelper::defaultToolbarStyle()));
         StyleHelper::setToolbarStyle(newStyle);
         QStyle *applicationStyle = QApplication::style();
         for (QWidget *widget : QApplication::allWidgets())
@@ -383,11 +383,11 @@ void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
 StyleHelper::ToolbarStyle toolbarStylefromSettings()
 {
     if (!ExtensionSystem::PluginManager::instance()) // May happen in tests
-        return StyleHelper::defaultToolbarStyle;
+        return StyleHelper::defaultToolbarStyle();
 
     return StyleHelper::ToolbarStyle(
                 ICore::settings()->value(settingsKeyToolbarStyle,
-                                         int(StyleHelper::defaultToolbarStyle)).toInt());
+                                         int(StyleHelper::defaultToolbarStyle())).toInt());
 }
 
 void GeneralSettingsWidget::fillToolbarStyleBox() const

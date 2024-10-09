@@ -77,7 +77,6 @@ enum class ToolbarStyle {
     Compact,
     Relaxed,
 };
-constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyle::Compact;
 
 // Keep in sync with:
 // SyleHelper::uiFontMetrics, ICore::uiConfigInformation, tst_manual_widgets_uifonts::main
@@ -105,6 +104,7 @@ enum UiElement {
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();
 QTCREATOR_UTILS_EXPORT void setToolbarStyle(ToolbarStyle style);
 QTCREATOR_UTILS_EXPORT ToolbarStyle toolbarStyle();
+QTCREATOR_UTILS_EXPORT ToolbarStyle defaultToolbarStyle();
 QTCREATOR_UTILS_EXPORT QPalette sidebarFontPalette(const QPalette &original);
 
 // This is our color table, all colors derive from baseColor

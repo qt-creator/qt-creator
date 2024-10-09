@@ -38,7 +38,7 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
-static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::defaultToolbarStyle;
+static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::ToolbarStyle::Compact;
 // Invalid by default, setBaseColor needs to be called at least once
 static QColor s_baseColor;
 static QColor s_requestedBaseColor;
@@ -93,6 +93,11 @@ void StyleHelper::setToolbarStyle(ToolbarStyle style)
 StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
 {
     return s_toolbarStyle;
+}
+
+StyleHelper::ToolbarStyle StyleHelper::defaultToolbarStyle()
+{
+    return creatorTheme() ? creatorTheme()->defaultToolbarStyle() : ToolbarStyle::Compact;
 }
 
 QColor StyleHelper::notTooBrightHighlightColor()
