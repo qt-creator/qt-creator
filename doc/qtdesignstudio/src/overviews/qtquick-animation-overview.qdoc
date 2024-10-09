@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -15,7 +15,7 @@
 
     \list
         \li Common motion design techniques for 2D and 3D
-        \li Screen-to-screen or state-to-state animations
+        \li State-to-state animations
         \li Data-driven UI logic animations
     \endlist
 
@@ -70,7 +70,7 @@
     \section2 Animation Curves
 
     While easing curves work well for most simple UI animations, more complex
-    3D animations require several keyframes so it becomes necessary to visualize
+    3D animations require several keyframes, so it becomes necessary to visualize
     the value and the interpolation of a keyframe simultaneously. The
     \l {Curves} view visualizes the whole animation of a property at once and
     shows the effective values of a keyframe together with the interpolation
@@ -78,36 +78,11 @@
     simultaneously so that you can see the animation for the x position
     and the animation for the y position side-by-side.
 
-    \section1 Screen-to-Screen or State-to-State Animations
+    \section1 State-to-State Animations
 
-    The following table summarizes techniques used for navigating between
-    screens and UI states.
-
-    \table
-    \header
-        \li Technique
-        \li Use Case
-    \row
-        \li \l{Designing Application Flows}{Application flows}
-        \li An interactive prototype that can be clicked through to simulate
-            the user experience of the application.
-    \row
-        \li \l{Transitions}{Transitions between states}
-        \li Transitions between different states of the UI using a transition
-            timeline that is based on keyframes. You can apply easing curves
-            to the keyframes.
-    \endtable
-
-    \section2 Application Flows
-
-    You can design an application in the form of a \e {schematic diagram}
-    that shows all the significant components of the application UI and their
-    interconnections by means of symbols. This results in an interactive
-    prototype that can be clicked through to simulate the user experience of
-    the application. Code is created in the background and can be used
-    as the base of the production version of the application.
-
-    For more information, see \l{Designing Application Flows}.
+    To navigate between UI states, use transitions between different states of the UI
+    using a transition timeline that is based on keyframes. You can apply easing
+    curves to the keyframes.
 
     \section2 Transitions Between States
 
