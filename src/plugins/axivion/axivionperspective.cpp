@@ -189,7 +189,8 @@ public:
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
 
-    void showOverlay(const QString &errorMessage = {});
+    enum OverlayIconType { EmptyIcon, ErrorIcon, SettingsIcon };
+    void showOverlay(const QString &message = {}, OverlayIconType type = EmptyIcon);
 protected:
     void showEvent(QShowEvent *event) override;
 private:
@@ -426,8 +427,10 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
             m_dashboardProjects->clear();
         }
         updateBasicProjectInfo(std::nullopt);
+        showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
         return;
     }
+    hideOverlay();
 
     GuardLocker lock(m_signalBlocker);
     m_dashboards->addItem(Tr::tr("None"));
@@ -803,7 +806,7 @@ void IssuesWidget::onFetchRequested(int startRow, int limit)
     fetchIssues(search);
 }
 
-void IssuesWidget::showOverlay(const QString &errorMessage)
+void IssuesWidget::showOverlay(const QString &message, OverlayIconType type)
 {
     if (!m_overlay) {
         QTC_ASSERT(m_issuesView, return);
@@ -811,22 +814,26 @@ void IssuesWidget::showOverlay(const QString &errorMessage)
         m_overlay->attachToWidget(m_issuesView);
     }
 
-    m_overlay->setPaintFunction([errorMessage](QWidget *that, QPainter &p, QPaintEvent *) {
+    m_overlay->setPaintFunction([message, type](QWidget *that, QPainter &p, QPaintEvent *) {
         static const QIcon noData = Icon({{":/axivion/images/nodata.png", Theme::IconsDisabledColor}},
                                          Utils::Icon::Tint).icon();
         static const QIcon error = Icon({{":/axivion/images/error.png", Theme::IconsErrorColor}},
                                         Utils::Icon::Tint).icon();
+        static const QIcon settings = Icon({{":/utils/images/settings.png", Theme::IconsDisabledColor}},
+                                           Utils::Icon::Tint).icon();
         QRect iconRect(0, 0, 32, 32);
         iconRect.moveCenter(that->rect().center());
-        if (errorMessage.isEmpty())
+        if (type == EmptyIcon)
             noData.paint(&p, iconRect);
-        else
+        else if (type == ErrorIcon)
             error.paint(&p, iconRect);
+        else if (type == SettingsIcon)
+            settings.paint(&p, iconRect);
         p.save();
         p.setPen(Utils::creatorColor(Theme::TextColorDisabled));
         const QFontMetrics &fm = p.fontMetrics();
         p.drawText(iconRect.bottomRight() + QPoint{10, fm.height() / 2 - 16 - fm.descent()},
-                   errorMessage.isEmpty() ? Tr::tr("No Data") : errorMessage);
+                   message.isEmpty() ? Tr::tr("No Data") : message);
         p.restore();
     });
 
@@ -939,7 +946,7 @@ void AxivionPerspective::handleShowIssues(const QString &kind)
 
 void AxivionPerspective::handleShowFilterException(const QString &errorMessage)
 {
-    m_issuesWidget->showOverlay(errorMessage);
+    m_issuesWidget->showOverlay(errorMessage, IssuesWidget::ErrorIcon);
 }
 
 void AxivionPerspective::reinitDashboardList(const QString &preferredProject)
