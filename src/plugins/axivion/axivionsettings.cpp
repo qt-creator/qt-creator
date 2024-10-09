@@ -252,7 +252,7 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
     if (selected == oldDefault && m_allServers == other)
         return false;
 
-    m_defaultServerId.setValue(selected.toString());
+    m_defaultServerId.setValue(selected.toString(), BeQuiet);
     m_allServers = other;
     emit changed(); // should we be more detailed? (id)
     return true;
@@ -417,7 +417,9 @@ void AxivionSettingsWidget::apply()
     QList<AxivionServer> servers;
     for (int i = 0, end = m_dashboardServers->count(); i < end; ++i)
         servers.append(m_dashboardServers->itemData(i).value<AxivionServer>());
-    if (settings().updateDashboardServers(servers, servers.at(m_dashboardServers->currentIndex()).id))
+    const Id selected = servers.isEmpty() ? Id{}
+                                          : servers.at(m_dashboardServers->currentIndex()).id;
+    if (settings().updateDashboardServers(servers, selected))
         settings().toSettings();
 }
 
