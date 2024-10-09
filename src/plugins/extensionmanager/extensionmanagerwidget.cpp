@@ -497,15 +497,20 @@ public:
         });
 
         connect(this, &QTextDocument::contentsChanged, this, [this]() {
-            if (m_imageLoaderTree.isRunning())
-                m_imageLoaderTree.cancel();
-
-            if (urlsToLoad.isEmpty())
+            if (m_urlsToLoad.isEmpty())
                 return;
+
+            if (m_imageLoaderTree.isRunning()) {
+                if (!m_needsToRestartLoading)
+                    return;
+                m_imageLoaderTree.cancel();
+            }
+
+            m_needsToRestartLoading = false;
 
             using namespace Tasking;
 
-            const LoopList iterator(urlsToLoad);
+            const LoopList iterator(m_urlsToLoad);
 
             auto onQuerySetup = [iterator](NetworkQuery &query) {
                 query.setRequest(QNetworkRequest(*iterator));
@@ -513,6 +518,10 @@ public:
             };
 
             auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
+                if (result == DoneWith::Cancel)
+                    return;
+                m_urlsToLoad.removeOne(query.reply()->url());
+
                 if (result == DoneWith::Success)
                     m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
                 else {
@@ -527,7 +536,6 @@ public:
                     NetworkQueryTask{onQuerySetup, onQueryDone},
                 },
                 onGroupDone([this]() {
-                    urlsToLoad.clear();
                     markContentsDirty(0, this->characterCount());
                 })
             };
@@ -537,11 +545,16 @@ public:
         });
     }
 
-    void scheduleLoad(const QUrl &url) { urlsToLoad.append(url); }
+    void scheduleLoad(const QUrl &url)
+    {
+        m_urlsToLoad.append(url);
+        m_needsToRestartLoading = true;
+    }
 
 private:
     AnimatedImageHandler m_imageHandler;
-    QList<QUrl> urlsToLoad;
+    QList<QUrl> m_urlsToLoad;
+    bool m_needsToRestartLoading = false;
     Tasking::TaskTreeRunner m_imageLoaderTree;
 };
 
@@ -730,13 +743,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     updateView({});
 }
 
-static QString markdownToHtml(const QString &markdown)
+static void setMarkdown(QTextDocument *document, const QString &markdown)
 {
-    QTextDocument doc;
-    doc.setMarkdown(markdown);
-    doc.setDefaultFont(contentTF.font());
+    document->setMarkdown(markdown);
+    document->setDefaultFont(contentTF.font());
 
-    for (QTextBlock block = doc.begin(); block != doc.end(); block = block.next()) {
+    for (QTextBlock block = document->begin(); block != document->end(); block = block.next()) {
         QTextBlockFormat blockFormat = block.blockFormat();
         // Leave images as they are.
         if (block.text().contains(QChar::ObjectReplacementCharacter))
@@ -775,8 +787,6 @@ static QString markdownToHtml(const QString &markdown)
             }
         }
     }
-
-    return doc.toHtml();
 }
 
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
@@ -805,7 +815,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
             current.data(RoleDescriptionLong).toString()
         };
         const QString descriptionMarkdown = description.join("\n");
-        m_description->setText(markdownToHtml(descriptionMarkdown));
+        setMarkdown(m_description->document(), descriptionMarkdown);
     }
 
     {
