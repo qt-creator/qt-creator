@@ -1026,13 +1026,9 @@ void AxivionPluginPrivate::onSessionLoaded(const QString &sessionName)
 
     const QString projectName = SessionManager::sessionValue(SV_PROJECTNAME).toString();
     const Id dashboardId = Id::fromSetting(SessionManager::sessionValue(SV_DASHBOARDID));
-    if (!dashboardId.isValid()) {
+    if (!dashboardId.isValid())
         switchActiveDashboardId({});
-        resetDashboard();
-        return;
-    }
-
-    if (activeDashboardId() != dashboardId)
+    else if (activeDashboardId() != dashboardId)
         switchActiveDashboardId(dashboardId);
     reinitDashboard(projectName);
 }

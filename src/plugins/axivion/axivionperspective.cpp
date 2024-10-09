@@ -244,8 +244,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         if (data.isValid()) {
             const AxivionServer server = data.value<AxivionServer>();
             switchActiveDashboardId(server.id);
+            reinitProjectList(m_dashboardProjects->currentText());
+        } else {
+            switchActiveDashboardId({});
+            {
+                GuardLocker lock(m_signalBlocker);
+                m_dashboardProjects->clear();
+            }
+            updateBasicProjectInfo(std::nullopt);
         }
-        reinitProjectList(m_dashboardProjects->currentText());
     });
 
     m_dashboardProjects = new QComboBox(this);
@@ -411,28 +418,34 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
                                                               : preferredProject;
     resetDashboard();
     m_dashboardListUninitialized = false;
-    GuardLocker lock(m_signalBlocker);
     const QList<AxivionServer> servers = settings().allAvailableServers();
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
+        {
+            GuardLocker lock(m_signalBlocker);
+            m_dashboardProjects->clear();
+        }
+        updateBasicProjectInfo(std::nullopt);
         return;
     }
+
+    GuardLocker lock(m_signalBlocker);
+    m_dashboards->addItem(Tr::tr("None"));
     for (const AxivionServer &server : servers)
         m_dashboards->addItem(server.displayString(), QVariant::fromValue(server));
 
     Id activeId = activeDashboardId();
-    if (!activeId.isValid())
-        activeId = settings().defaultDashboardId();
     if (activeId.isValid()) {
         int index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
         if (index < 0) {
             activeId = settings().defaultDashboardId();
             index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
         }
-        m_dashboards->setCurrentIndex(index);
+        m_dashboards->setCurrentIndex(index + 1);
+        reinitProjectList(currentProject);
+    } else {
+        m_dashboards->setCurrentIndex(0);
     }
-    switchActiveDashboardId(activeId);
-    reinitProjectList(currentProject);
 }
 
 void IssuesWidget::reinitProjectList(const QString &currentProject)
