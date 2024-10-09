@@ -82,7 +82,7 @@ QColor StyleHelper::toolBarDropShadowColor()
 
 int StyleHelper::navigationWidgetHeight()
 {
-    return s_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+    return s_toolbarStyle == ToolbarStyle::Compact ? 24 : 30;
 }
 
 void StyleHelper::setToolbarStyle(ToolbarStyle style)
@@ -478,7 +478,7 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
 
 void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush)
 {
-    if (toolbarStyle() == ToolbarStyleCompact) {
+    if (toolbarStyle() == ToolbarStyle::Compact) {
         painter->fillRect(rect.toRect(), brush);
     } else {
         constexpr int margin = 2;

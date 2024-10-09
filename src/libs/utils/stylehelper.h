@@ -73,11 +73,11 @@ namespace SpacingTokens {
     constexpr int ExVPaddingGapXl = 24;
 }
 
-enum ToolbarStyle {
-    ToolbarStyleCompact,
-    ToolbarStyleRelaxed,
+enum class ToolbarStyle {
+    Compact,
+    Relaxed,
 };
-constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
+constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyle::Compact;
 
 // Keep in sync with:
 // SyleHelper::uiFontMetrics, ICore::uiConfigInformation, tst_manual_widgets_uifonts::main

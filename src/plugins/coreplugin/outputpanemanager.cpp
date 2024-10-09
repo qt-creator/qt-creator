@@ -987,7 +987,7 @@ QSize OutputPaneToggleButton::sizeHint() const
 static QRect bgRect(const QRect &widgetRect)
 {
     // Removes/compensates the left and right margins of StyleHelper::drawPanelBgRect
-    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact
                ? widgetRect : widgetRect.adjusted(-2, 0, 2, 0);
 }
 
@@ -1115,7 +1115,8 @@ OutputPaneManageButton::OutputPaneManageButton()
 {
     setFocusPolicy(Qt::NoFocus);
     setCheckable(true);
-    setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyleCompact ? 17 : 21);
+    setFixedWidth(StyleHelper::toolbarStyle() == Utils::StyleHelper::ToolbarStyle::Compact ? 17
+                                                                                           : 21);
     connect(this, &QToolButton::clicked, this, &OutputPaneManageButton::menuRequested);
 }
 

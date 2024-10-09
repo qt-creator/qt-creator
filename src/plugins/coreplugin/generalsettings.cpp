@@ -386,15 +386,17 @@ StyleHelper::ToolbarStyle toolbarStylefromSettings()
         return StyleHelper::defaultToolbarStyle;
 
     return StyleHelper::ToolbarStyle(
-        ICore::settings()->value(settingsKeyToolbarStyle,
-                                 StyleHelper::defaultToolbarStyle).toInt());
+                ICore::settings()->value(settingsKeyToolbarStyle,
+                                         int(StyleHelper::defaultToolbarStyle)).toInt());
 }
 
 void GeneralSettingsWidget::fillToolbarStyleBox() const
 {
-    m_toolbarStyleBox->addItem(Tr::tr("Compact"), StyleHelper::ToolbarStyleCompact);
-    m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
-    const int curId = m_toolbarStyleBox->findData(toolbarStylefromSettings());
+    m_toolbarStyleBox->addItem(Tr::tr("Compact"),
+                               QVariant::fromValue(StyleHelper::ToolbarStyle::Compact));
+    m_toolbarStyleBox->addItem(Tr::tr("Relaxed"),
+                               QVariant::fromValue(StyleHelper::ToolbarStyle::Relaxed));
+    const int curId = m_toolbarStyleBox->findData(QVariant::fromValue(toolbarStylefromSettings()));
     m_toolbarStyleBox->setCurrentIndex(curId);
 }
 

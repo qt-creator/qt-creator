@@ -306,13 +306,13 @@ void ManhattanStyle::polish(QWidget *widget)
                                 QFontMetrics(QApplication::font()).height());
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setMinimumWidth(
-                StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? 24 : 28);
+                StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact ? 24 : 28);
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(height - 2);
         } else if (qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setFixedHeight(height - (StyleHelper::toolbarStyle()
-                                                     == StyleHelper::ToolbarStyleCompact ? 1 : 3));
+                                             == StyleHelper::ToolbarStyle::Compact ? 1 : 3));
         } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
@@ -321,7 +321,7 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
             const bool flatAndNotCompact =
-                StyleHelper::toolbarStyle() != StyleHelper::ToolbarStyleCompact
+                StyleHelper::toolbarStyle() != StyleHelper::ToolbarStyle::Compact
                                            && creatorTheme()->flag(Theme::FlatToolBars);
             widget->setFixedHeight(height + (flatAndNotCompact ? 3 : 2));
         } else if (qobject_cast<QComboBox*>(widget)) {
@@ -726,7 +726,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (pressed) {
                     StyleHelper::drawPanelBgRect(
                         painter, rect, creatorColor(Theme::FancyToolButtonSelectedColor));
-                    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+                    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact
                         && !creatorTheme()->flag(Theme::FlatToolBars)) {
                         const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                         painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));

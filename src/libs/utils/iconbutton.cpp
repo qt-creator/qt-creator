@@ -52,7 +52,7 @@ QSize IconButton::sizeHint() const
 {
     QSize s = icon().actualSize(QSize(32, 16)) + QSize(8, 8);
 
-    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleRelaxed)
+    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Relaxed)
         s += QSize(5, 5);
 
     return s;
