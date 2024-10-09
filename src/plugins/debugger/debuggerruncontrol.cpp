@@ -752,6 +752,10 @@ bool DebuggerRunTool::fixupParameters()
     if (rp.symbolFile.isEmpty())
         rp.symbolFile = rp.inferior.command.executable();
 
+    // Set a Qt Creator-specific environment variable, to able to check for it in debugger
+    // scripts.
+    rp.debugger.environment.set("QTC_DEBUGGER_PROCESS", "1");
+
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
          QStringList({"DYLD_IMAGE_SUFFIX", "DYLD_LIBRARY_PATH", "DYLD_FRAMEWORK_PATH"}))
