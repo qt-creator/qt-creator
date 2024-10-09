@@ -35,9 +35,11 @@
 #include <utils/temporarydirectory.h>
 #include <utils/utilsicons.h>
 
+#include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QApplication>
 #include <QBuffer>
+#include <QCache>
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QImageReader>
@@ -46,8 +48,9 @@
 #include <QPainter>
 #include <QProgressDialog>
 #include <QScrollArea>
-#include <QTextDocument>
 #include <QTextBlock>
+#include <QTextBrowser>
+#include <QTextDocument>
 
 using namespace Core;
 using namespace Utils;
@@ -377,6 +380,171 @@ private:
     QWidget *m_container = nullptr;
 };
 
+class AnimatedImageHandler : public QObject, public QTextObjectInterface
+{
+    Q_OBJECT
+    Q_INTERFACES(QTextObjectInterface)
+
+    class Entry
+    {
+    public:
+        Entry(const QByteArray &data)
+        {
+            if (data.isEmpty())
+                return;
+
+            buffer.setData(data);
+            movie.setDevice(&buffer);
+        }
+
+        QBuffer buffer;
+        QMovie movie;
+    };
+
+public:
+    AnimatedImageHandler(
+        QObject *parent,
+        std::function<void()> redraw,
+        std::function<void(const QString &name)> scheduleLoad)
+        : QObject(parent)
+        , m_redraw(redraw)
+        , m_scheduleLoad(scheduleLoad)
+        , m_entries(1024 * 1024 * 10) // 10 MB max image cache size
+    {}
+
+    virtual QSizeF intrinsicSize(
+        QTextDocument *doc, int posInDocument, const QTextFormat &format) override
+    {
+        Q_UNUSED(doc);
+        Q_UNUSED(posInDocument);
+        QString name = format.toImageFormat().name();
+
+        Entry *entry = m_entries.object(name);
+
+        if (entry && entry->movie.isValid()) {
+            if (!entry->movie.frameRect().isValid())
+                entry->movie.jumpToFrame(0);
+            return entry->movie.frameRect().size();
+        } else if (!entry) {
+            m_scheduleLoad(name);
+        }
+
+        return Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
+    }
+
+    void drawObject(
+        QPainter *painter,
+        const QRectF &rect,
+        QTextDocument *document,
+        int posInDocument,
+        const QTextFormat &format) override
+    {
+        Q_UNUSED(document);
+        Q_UNUSED(posInDocument);
+
+        Entry *entry = m_entries.object(format.toImageFormat().name());
+
+        if (entry) {
+            if (entry->movie.isValid())
+                painter->drawImage(rect, entry->movie.currentImage());
+            else
+                painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
+            return;
+        }
+
+        painter->drawPixmap(
+            rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
+    }
+
+    void set(const QString &name, QByteArray data)
+    {
+        if (data.size() > m_entries.maxCost())
+            data.clear();
+
+        std::unique_ptr<Entry> entry = std::make_unique<Entry>(data);
+
+        if (entry->movie.frameCount() > 1) {
+            connect(&entry->movie, &QMovie::frameChanged, this, [this]() { m_redraw(); });
+            entry->movie.start();
+        }
+        if (m_entries.insert(name, entry.release(), qMax(1, data.size())))
+            m_redraw();
+    }
+
+private:
+    std::function<void()> m_redraw;
+    std::function<void(const QString &)> m_scheduleLoad;
+    QCache<QString, Entry> m_entries;
+
+    const Icon ErrorCloseIcon = Utils::Icon({{":/utils/images/close.png", Theme::IconsErrorColor}});
+
+    const QIcon m_brokenImage = Icon::combinedIcon(
+        {Utils::Icons::UNKNOWN_FILE.icon(), ErrorCloseIcon.icon()});
+};
+
+class AnimatedDocument : public QTextDocument
+{
+public:
+    AnimatedDocument(QObject *parent = nullptr)
+        : QTextDocument(parent)
+        , m_imageHandler(
+              this,
+              [this]() { documentLayout()->update(); },
+              [this](const QString &name) { scheduleLoad(QUrl(name)); })
+    {
+        connect(this, &QTextDocument::documentLayoutChanged, this, [this]() {
+            documentLayout()->registerHandler(QTextFormat::ImageObject, &m_imageHandler);
+        });
+
+        connect(this, &QTextDocument::contentsChanged, this, [this]() {
+            if (m_imageLoaderTree.isRunning())
+                m_imageLoaderTree.cancel();
+
+            if (urlsToLoad.isEmpty())
+                return;
+
+            using namespace Tasking;
+
+            const LoopList iterator(urlsToLoad);
+
+            auto onQuerySetup = [iterator](NetworkQuery &query) {
+                query.setRequest(QNetworkRequest(*iterator));
+                query.setNetworkAccessManager(NetworkAccessManager::instance());
+            };
+
+            auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
+                if (result == DoneWith::Success)
+                    m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
+                else {
+                    m_imageHandler.set(query.reply()->url().toString(), {});
+                }
+            };
+
+            // clang-format off
+            Group group {
+                For(iterator) >> Do {
+                    continueOnError,
+                    NetworkQueryTask{onQuerySetup, onQueryDone},
+                },
+                onGroupDone([this]() {
+                    urlsToLoad.clear();
+                    markContentsDirty(0, this->characterCount());
+                })
+            };
+            // clang-format on
+
+            m_imageLoaderTree.start(group);
+        });
+    }
+
+    void scheduleLoad(const QUrl &url) { urlsToLoad.append(url); }
+
+private:
+    AnimatedImageHandler m_imageHandler;
+    QList<QUrl> urlsToLoad;
+    Tasking::TaskTreeRunner m_imageLoaderTree;
+};
+
 class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
 {
 public:
@@ -393,7 +561,7 @@ private:
     HeadingWidget *m_headingWidget;
     QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
-    QLabel *m_description;
+    QTextBrowser *m_description;
     QLabel *m_dateUpdatedTitle;
     QLabel *m_dateUpdated;
     QLabel *m_tagsTitle;
@@ -418,19 +586,23 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_secondaryDescriptionWidget = new CollapsingWidget;
 
     m_headingWidget = new HeadingWidget;
-    m_description = new QLabel;
-    m_description->setWordWrap(true);
-    m_description->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_description = new QTextBrowser;
+    m_description->setDocument(new AnimatedDocument(m_description));
+    m_description->setFrameStyle(QFrame::NoFrame);
     m_description->setOpenExternalLinks(true);
+    QPalette browserPal = m_description->palette();
+    browserPal.setColor(QPalette::Base, creatorColor(Theme::Token_Background_Default));
+    m_description->setPalette(browserPal);
 
     using namespace Layouting;
     auto primary = new QWidget;
     const auto spL = spacing(SpacingTokens::VPaddingL);
+    // clang-format off
     Column {
         m_description,
-        st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
     }.attachTo(primary);
+    // clang-format on
     m_primaryContent = toScrollableColumn(primary);
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
@@ -527,6 +699,10 @@ static QString markdownToHtml(const QString &markdown)
 
     for (QTextBlock block = doc.begin(); block != doc.end(); block = block.next()) {
         QTextBlockFormat blockFormat = block.blockFormat();
+        // Leave images as they are.
+        if (block.text().contains(QChar::ObjectReplacementCharacter))
+            continue;
+
         if (blockFormat.hasProperty(QTextFormat::HeadingLevel))
             blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
         else
