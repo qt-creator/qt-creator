@@ -20,9 +20,10 @@
 
     \title Use external tools
 
-    You can use external tools directly from \QC. You can change the default
-    configurations of the QML preview tools and the default text editor for
-    your system or configure new tools.
+    You can add menu items for using external tools directly from \QC to
+    \uicontrol Tools > \uicontrol External. As examples, the menu shows
+    items for opening the currently active file for editing in a text editor
+    or running the currently active QML file.
 
     To run the tools, select \uicontrol Tools > \uicontrol External, or use the
     \c x filter in the locator.
@@ -40,6 +41,7 @@
     \l{Use Qt Creator variables}{variables} that are available in a
     particular context.
     \endif
+
 
     To configure external tools:
 
@@ -197,12 +199,27 @@
 
     \title Use external text editors
 
-    You can open files for editing in the default text editor for your system:
-    Notepad on Windows and vi on Linux and \macos.
-    To open the file you are currently viewing in an external editor, select
-    \uicontrol Tools > \uicontrol External > \uicontrol Text >
-    \uicontrol {Edit with Notepad} or \uicontrol {Edit with vi}, depending on
-    your system.
+    To open files for editing in the default text editor for your system:
+
+    \list 1
+        \li Right-click the filename in one of the following views to open a context
+            menu:
+            \list
+                \li \l {Edit mode}
+                \li \l {File System}
+                \li \l {Open Documents}
+                \li \l {Projects}
+            \endlist
+        \li Select \uicontrol {Open With} > \uicontrol {System Editor}.
+    \endlist
+
+    \section1 Add editors to Tools menu
+
+    You can add menu items for opening the file you are currently viewing in
+    an external editor to \uicontrol Tools > \uicontrol External >
+    \uicontrol Text. The current example commands are
+    \uicontrol {Edit with Notepad} on Windows and \uicontrol {Edit with vi} on
+    Linux and \macos.
 
     \QC looks for the editor path in the PATH environment variable
     of your operating system.
