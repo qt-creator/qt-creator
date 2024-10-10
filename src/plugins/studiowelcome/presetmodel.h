@@ -80,6 +80,7 @@ struct UserPresetItem : public PresetItem
 public:
     QString userName;
     bool useQtVirtualKeyboard;
+    bool enableCMakeGeneration;
     QString qtVersion;
     QString styleName;
 };

@@ -93,6 +93,7 @@ PresetItems PresetData::makeUserPresets(const PresetItems &wizardPresets,
         presetItem->qtVersion = userPresetData.qtVersion;
         presetItem->styleName = userPresetData.styleName;
         presetItem->useQtVirtualKeyboard = userPresetData.useQtVirtualKeyboard;
+        presetItem->enableCMakeGeneration = userPresetData.enableCMakeGeneration;
 
         presetItem->create = foundPreset->create;
         presetItem->description = foundPreset->description;

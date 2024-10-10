@@ -133,6 +133,15 @@ void QdsNewDialog::setProjectLocation(const QString &location)
     m_wizard.setProjectLocation(m_qmlProjectLocation);
 }
 
+void QdsNewDialog::setHasCMakeGeneration(bool haveCmakeGen)
+{
+    if (m_qmlHasCMakeGeneration == haveCmakeGen)
+        return;
+
+    m_qmlHasCMakeGeneration = haveCmakeGen;
+    emit hasCMakeGenerationChanged();
+}
+
 void QdsNewDialog::onStatusMessageChanged(Utils::InfoLabel::InfoType type, const QString &message)
 {
     switch (type) {
@@ -192,9 +201,16 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
     auto userPreset = m_currentPreset->asUserPreset();
 
     if (m_qmlDetailsLoaded) {
+        setHasCMakeGeneration(m_wizard.hasCMakeGeneration());
+
+        if (m_currentPreset->isUserPreset()) {
+            if (getHaveVirtualKeyboard())
+                setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
+            if (hasCMakeGeneration())
+                setEnableCMakeGeneration(userPreset->enableCMakeGeneration);
+        }
+
         m_targetQtVersions.clear();
-        if (m_currentPreset->isUserPreset() && m_wizard.haveVirtualKeyboard())
-            setUseVirtualKeyboard(userPreset->useQtVirtualKeyboard);
         if (m_wizard.haveTargetQtVersion()) {
             m_targetQtVersions = m_wizard.targetQtVersionNames();
             int index = m_currentPreset->isUserPreset() ? m_wizard.targetQtVersionIndex(userPreset->qtVersion)
@@ -225,6 +241,15 @@ void QdsNewDialog::onWizardCreated(QStandardItemModel *screenSizeModel, QStandar
         }
         m_styleModel->reset();
     }
+}
+
+void QdsNewDialog::setEnableCMakeGeneration(bool newQmlEnableCMakeGeneration)
+{
+    if (m_qmlEnableCMakeGeneration == newQmlEnableCMakeGeneration)
+        return;
+
+    m_qmlEnableCMakeGeneration = newQmlEnableCMakeGeneration;
+    emit enableCMakeGenerationChanged();
 }
 
 QString QdsNewDialog::currentPresetQmlPath() const
@@ -385,6 +410,11 @@ bool QdsNewDialog::getHaveTargetQtVersion() const
     return m_wizard.haveTargetQtVersion();
 }
 
+bool QdsNewDialog::hasCMakeGeneration() const
+{
+    return m_qmlHasCMakeGeneration;
+}
+
 void QdsNewDialog::accept()
 {
     CreateProject create{m_wizard};
@@ -395,6 +425,7 @@ void QdsNewDialog::accept()
         .withScreenSizes(m_qmlScreenSizeIndex, m_qmlCustomWidth, m_qmlCustomHeight)
         .withStyle(getStyleIndex())
         .useQtVirtualKeyboard(m_qmlUseVirtualKeyboard)
+        .enableCMakeGeneration(m_qmlEnableCMakeGeneration)
         .saveAsDefaultLocation(m_qmlSaveAsDefaultLocation)
         .withTargetQtVersion(m_qmlTargetQtVersionIndex)
         .execute();
@@ -446,6 +477,7 @@ UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) c
     QString targetQtVersion = "";
     QString styleName = "";
     bool useVirtualKeyboard = false;
+    bool enableCMakeGeneration = false;
 
     if (m_wizard.haveTargetQtVersion())
         targetQtVersion = m_wizard.targetQtVersionName(m_qmlTargetQtVersionIndex);
@@ -456,13 +488,18 @@ UserPresetData QdsNewDialog::currentUserPresetData(const QString &displayName) c
     if (m_wizard.haveVirtualKeyboard())
         useVirtualKeyboard = m_qmlUseVirtualKeyboard;
 
-    UserPresetData preset = {m_currentPreset->categoryId,
-                             m_currentPreset->wizardName,
-                             displayName,
-                             screenSize,
-                             useVirtualKeyboard,
-                             targetQtVersion,
-                             styleName};
+    if (m_wizard.hasCMakeGeneration())
+        enableCMakeGeneration = m_qmlEnableCMakeGeneration;
+
+    UserPresetData preset{
+        m_currentPreset->categoryId,
+        m_currentPreset->wizardName,
+        displayName,
+        screenSize,
+        useVirtualKeyboard,
+        enableCMakeGeneration,
+        targetQtVersion,
+        styleName};
 
     return preset;
 }

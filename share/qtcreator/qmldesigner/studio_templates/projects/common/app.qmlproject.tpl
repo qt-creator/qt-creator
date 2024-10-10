@@ -103,6 +103,10 @@ Project {
     /* Required for deployment */
     targetDirectory: "/opt/%{ProjectName}"
 
+@if %{EnableCMakeGeneration}
+    enableCMakeGeneration: true
+@endif
+
     qdsVersion: "4.6"
 
     quickVersion: "%{QtQuickVersion}"

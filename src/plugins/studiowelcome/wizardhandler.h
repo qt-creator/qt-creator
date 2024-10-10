@@ -48,6 +48,9 @@ public:
     void setUseVirtualKeyboard(bool value);
     bool haveVirtualKeyboard() const;
 
+    void enableCMakeGeneration(bool value);
+    bool hasCMakeGeneration() const;
+
     void setProjectName(const QString &name);
     void setProjectLocation(const Utils::FilePath &location);
 
@@ -67,8 +70,8 @@ private:
     void initializeProjectPage(QWizardPage *page);
     void initializeFieldsPage(QWizardPage *page);
 
-    QStandardItemModel *getScreenFactorModel(ProjectExplorer::JsonFieldPage *page);
-    QStandardItemModel *getStyleModel(ProjectExplorer::JsonFieldPage *page);
+    QStandardItemModel *getScreenFactorModel();
+    QStandardItemModel *getStyleModel();
 
 private slots:
     void onWizardResetting();

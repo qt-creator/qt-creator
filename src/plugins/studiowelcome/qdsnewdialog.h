@@ -34,7 +34,13 @@ public:
     Q_PROPERTY(QString customHeight MEMBER m_qmlCustomHeight)
     Q_PROPERTY(int styleIndex MEMBER m_qmlStyleIndex READ getStyleIndex WRITE setStyleIndex)
     Q_PROPERTY(bool useVirtualKeyboard MEMBER m_qmlUseVirtualKeyboard READ getUseVirtualKeyboard WRITE setUseVirtualKeyboard NOTIFY useVirtualKeyboardChanged)
+    Q_PROPERTY(
+        bool enableCMakeGeneration
+        MEMBER m_qmlEnableCMakeGeneration
+        WRITE setEnableCMakeGeneration
+        NOTIFY enableCMakeGenerationChanged)
     Q_PROPERTY(bool haveVirtualKeyboard MEMBER m_qmlHaveVirtualKeyboard READ getHaveVirtualKeyboard NOTIFY haveVirtualKeyboardChanged)
+    Q_PROPERTY(bool hasCMakeGeneration READ hasCMakeGeneration NOTIFY hasCMakeGenerationChanged)
     Q_PROPERTY(bool haveTargetQtVersion MEMBER m_qmlHaveTargetQtVersion READ getHaveTargetQtVersion NOTIFY haveTargetQtVersionChanged)
     Q_PROPERTY(int targetQtVersionIndex MEMBER m_qmlTargetQtVersionIndex READ getTargetQtVersionIndex WRITE setTargetQtVersionIndex NOTIFY targetQtVersionIndexChanged)
     Q_PROPERTY(bool saveAsDefaultLocation MEMBER m_qmlSaveAsDefaultLocation WRITE setSaveAsDefaultLocation)
@@ -85,11 +91,14 @@ public:
     bool getFieldsValid() const { return m_qmlFieldsValid; }
     bool getHaveVirtualKeyboard() const;
     bool getHaveTargetQtVersion() const;
+    bool hasCMakeGeneration() const;
 
     void setSaveAsDefaultLocation(bool value) { m_qmlSaveAsDefaultLocation = value; }
 
     QString getStatusMessage() const { return m_qmlStatusMessage; }
     QString getStatusType() const { return m_qmlStatusType; }
+
+    void setEnableCMakeGeneration(bool newQmlEnableCMakeGeneration);
 
 public slots:
     void accept();
@@ -102,7 +111,9 @@ signals:
     void projectLocationChanged();
     void projectDescriptionChanged();
     void useVirtualKeyboardChanged();
+    void enableCMakeGenerationChanged();
     void haveVirtualKeyboardChanged();
+    void hasCMakeGenerationChanged();
     void haveTargetQtVersionChanged();
     void statusMessageChanged();
     void statusTypeChanged();
@@ -128,6 +139,8 @@ private:
         m_qmlProjectDescription = description;
         emit projectDescriptionChanged();
     }
+
+    void setHasCMakeGeneration(bool haveCmakeGen);
 
     QString projectDescription() const { return m_qmlProjectDescription; }
 
@@ -156,7 +169,9 @@ private:
     // m_qmlStyleIndex is like a cache, so it needs to be updated on get()
     mutable int m_qmlStyleIndex = -1;
     bool m_qmlUseVirtualKeyboard = false;
+    bool m_qmlEnableCMakeGeneration = false;
     bool m_qmlHaveVirtualKeyboard = false;
+    bool m_qmlHasCMakeGeneration = false;
     bool m_qmlHaveTargetQtVersion = false;
     bool m_qmlSaveAsDefaultLocation = false;
     bool m_qmlFieldsValid = false;

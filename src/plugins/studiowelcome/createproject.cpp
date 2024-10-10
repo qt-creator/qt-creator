@@ -43,6 +43,9 @@ void CreateProject::processFieldPage(ProjectExplorer::JsonFieldPage *page)
     if (page->jsonField("UseVirtualKeyboard"))
         m_wizard.setUseVirtualKeyboard(m_useVirtualKeyboard);
 
+    if (page->jsonField("EnableCMakeGeneration"))
+        m_wizard.enableCMakeGeneration(m_enableCMakeGeneration);
+
     auto widthField = dynamic_cast<ProjectExplorer::LineEditField *>(page->jsonField("CustomScreenWidth"));
     auto heightField = dynamic_cast<ProjectExplorer::LineEditField *>(page->jsonField("CustomScreenHeight"));
 
