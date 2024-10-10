@@ -557,6 +557,7 @@ private:
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
     ExtensionsBrowser *m_extensionBrowser;
+    QStackedWidget *m_detailsStack;
     CollapsingWidget *m_secondaryDescriptionWidget;
     HeadingWidget *m_headingWidget;
     QWidget *m_primaryContent;
@@ -577,6 +578,40 @@ private:
     QString m_currentId;
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
 };
+
+static QWidget *descriptionPlaceHolder()
+{
+    auto placeHolder = new QWidget;
+    static const TextFormat tF {
+        Theme::Token_Text_Muted, UiElement::UiElementH4
+    };
+    auto title = tfLabel(tF);
+    title->setAlignment(Qt::AlignCenter);
+    title->setText(Tr::tr("No details to show"));
+    auto text = tfLabel(tF, false);
+    text->setAlignment(Qt::AlignCenter);
+    text->setText(Tr::tr("Select an extension to see more information about it."));
+    text->setFont({});
+    using namespace Layouting;
+    // clang-format off
+    Row {
+        st,
+        Column {
+            Stretch(2),
+            title,
+            WelcomePageHelpers::createRule(Qt::Horizontal),
+            text,
+            Stretch(3),
+            spacing(SpacingTokens::ExPaddingGapL),
+        },
+        st,
+        noMargin,
+    }.attachTo(placeHolder);
+    // clang-format on
+    WelcomePageHelpers::setBackgroundColor(placeHolder, Theme::Token_Background_Muted);
+    placeHolder->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    return placeHolder;
+}
 
 ExtensionManagerWidget::ExtensionManagerWidget()
 {
@@ -644,7 +679,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(m_secondaryDescriptionWidget);
 
     Row {
-        WelcomePageHelpers::createRule(Qt::Vertical),
         Row {
             Column {
                 Column {
@@ -664,8 +698,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         Row {
             Space(SpacingTokens::ExVPaddingGapXl),
             m_extensionBrowser,
-            descriptionColumns,
-            noMargin, spacing(0),
+            WelcomePageHelpers::createRule(Qt::Vertical),
+            Stack {
+                bindTo(&m_detailsStack),
+                descriptionPlaceHolder(),
+                descriptionColumns,
+            },
         },
         noMargin, spacing(0),
     }.attachTo(this);
@@ -743,15 +781,14 @@ static QString markdownToHtml(const QString &markdown)
 
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
-    m_headingWidget->update(current);
-
-    const bool showContent = current.isValid();
-    m_primaryContent->setVisible(showContent);
-    m_secondaryContent->setVisible(showContent);
-    m_headingWidget->setVisible(showContent);
-    m_pluginStatus->setVisible(showContent);
-    if (!showContent)
+    if (current.isValid()) {
+        m_detailsStack->setCurrentIndex(1);
+    } else {
+        m_detailsStack->setCurrentIndex(0);
         return;
+    }
+
+    m_headingWidget->update(current);
 
     m_currentItemName = current.data(RoleName).toString();
     const bool isPack = current.data(RoleItemType) == ItemTypePack;
