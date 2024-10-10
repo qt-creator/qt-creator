@@ -213,6 +213,7 @@ static BaseClientInterface *clientInterface(Project *project, const Utils::FileP
     }
     const auto interface = new StdIOClientInterface;
     interface->setCommandLine(cmd);
+    interface->setAllowCoreDumps(qtcEnvironmentVariableIsSet("QTC_CLANGD_CORE_DUMPS"));
     return interface;
 }
 

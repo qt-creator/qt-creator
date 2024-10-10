@@ -104,6 +104,7 @@ public:
     void setWriteData(const QByteArray &writeData);
 
     void setUseCtrlCStub(bool enabled); // release only
+    void setAllowCoreDumps(bool enabled);
     void setLowPriority();
     void setDisableUnixTerminal();
     void setRunAsRoot(bool on);

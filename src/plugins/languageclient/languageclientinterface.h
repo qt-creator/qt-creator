@@ -64,6 +64,7 @@ public:
     void setCommandLine(const Utils::CommandLine &cmd);
     void setWorkingDirectory(const Utils::FilePath &workingDirectory);
     void setEnvironment(const Utils::Environment &environment);
+    void setAllowCoreDumps(bool enable);
 
     Utils::FilePath serverDeviceTemplate() const override;
 
@@ -73,6 +74,7 @@ protected:
     Utils::FilePath m_workingDirectory;
     Utils::Process *m_process = nullptr;
     std::optional<Utils::Environment> m_env;
+    bool m_allowCoreDumps = true;       // don't disallow
 
 private:
     void readError();

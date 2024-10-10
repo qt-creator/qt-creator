@@ -507,6 +507,7 @@ private:
         if (m_setup.m_unixTerminalDisabled)
             m_process->setUnixTerminalDisabled();
         m_process->setUseCtrlCStub(m_setup.m_useCtrlCStub);
+        m_process->setAllowCoreDumps(m_setup.m_allowCoreDumps);
         m_process->start(program, arguments, handler->openMode());
         handler->handleProcessStart();
     }
@@ -1129,6 +1130,11 @@ void Process::setWorkingDirectory(const FilePath &dir)
 void Process::setUseCtrlCStub(bool enabled)
 {
     d->m_setup.m_useCtrlCStub = enabled;
+}
+
+void Process::setAllowCoreDumps(bool enabled)
+{
+    d->m_setup.m_allowCoreDumps = enabled;
 }
 
 void Process::start()
