@@ -76,6 +76,7 @@ public:
     LocalsAndExpressionsSettings();
 
     Utils::BoolAspect useDebuggingHelpers{this};
+    Utils::BoolAspect allowInferiorCalls{this};
     Utils::BoolAspect useCodeModel{this};
     Utils::BoolAspect showThreadNames{this};
     Utils::FilePathAspect extraDumperFile{this};   // For loading a file. Recommended.

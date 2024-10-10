@@ -65,6 +65,7 @@ public:
 
     // Page 4: Locals and expressions
     Utils::BoolAspect &useDebuggingHelpers;
+    Utils::BoolAspect &allowInferiorCalls;
     Utils::BoolAspect &useCodeModel;
     Utils::BoolAspect &showThreadNames;
     Utils::FilePathAspect &extraDumperFile;   // For loading a file. Recommended.
