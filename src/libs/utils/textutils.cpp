@@ -4,6 +4,7 @@
 #include "textutils.h"
 #include "qtcassert.h"
 
+#include <QPromise>
 #include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
@@ -299,14 +300,20 @@ static HighlightCallback &codeHighlighter()
     return s_highlighter;
 }
 
-QTextDocument *highlightCode(const QString &code, const QString &mimeType)
+QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
 {
     if (const auto highlighter = codeHighlighter())
         return highlighter(code, mimeType);
 
     QTextDocument *doc = new QTextDocument;
     doc->setPlainText(code);
-    return doc;
+
+    QPromise<QTextDocument *> promise;
+    promise.start();
+    promise.addResult(doc);
+    promise.finish();
+
+    return promise.future();
 }
 
 void setCodeHighlighter(const HighlightCallback &highlighter)
