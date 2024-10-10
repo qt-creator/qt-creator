@@ -507,6 +507,16 @@ QGridLayout *Import3dDialog::createOptionsGrid(
             continue;
         QJsonObject optObj = options.value(optKey).toObject();
         const QString optName = optObj.value("name").toString();
+
+        // TODO: overwritten for 3dfirst PoC
+        if (optName == "Enable Global Scale" || optName == "Global Scale Value") {
+            if (optName == "Enable Global Scale")
+                optObj["value"] = true;
+            else
+                optObj["value"] = 100;
+            m_importOptions[optionsIndex][optKey] = optObj;
+        }
+
         const QString optDesc = optObj.value("description").toString();
         const QString optType = optObj.value("type").toString();
         QJsonObject optRange = optObj.value("range").toObject();
@@ -568,7 +578,6 @@ QGridLayout *Import3dDialog::createOptionsGrid(
                     if (step < 0.02)
                         ++decimals;
                 }
-
             }
             optSpin->setRange(min, max);
             optSpin->setDecimals(decimals);
