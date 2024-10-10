@@ -121,6 +121,8 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
             type = "sound";
         else if (asset.isVideo())
             type = "video";
+        else if (asset.isImported3D())
+            type = "material"; // TODO: Temp until proper preview is supported
         else if (asset.isEffect())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
 

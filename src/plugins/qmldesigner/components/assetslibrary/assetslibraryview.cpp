@@ -54,6 +54,10 @@ AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDepe
     m_matSyncTimer.callOnTimeout(this, &AssetsLibraryView::syncMaterialsMetaData);
     m_matSyncTimer.setInterval(500);
     m_matSyncTimer.setSingleShot(true);
+
+    m_3dImportsSyncTimer.callOnTimeout(this, &AssetsLibraryView::sync3dImportsMetaData);
+    m_3dImportsSyncTimer.setInterval(500);
+    m_3dImportsSyncTimer.setSingleShot(true);
 }
 
 AssetsLibraryView::~AssetsLibraryView()
@@ -86,6 +90,8 @@ void AssetsLibraryView::customNotification(const AbstractView * /*view*/,
 {
     if (identifier == "delete_selected_assets")
         m_widget->deleteSelectedAssets();
+    else if (identifier == "asset_import_finished")
+        m_3dImportsSyncTimer.start();
 }
 
 void AssetsLibraryView::modelAttached(Model *model)
@@ -98,6 +104,7 @@ void AssetsLibraryView::modelAttached(Model *model)
 
     m_matLibRetries = 0;
     m_matSyncTimer.start();
+    m_3dImportsSyncTimer.start();
 }
 
 void AssetsLibraryView::modelAboutToBeDetached(Model *model)
@@ -159,6 +166,9 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
 void AssetsLibraryView::syncMaterialsMetaData()
 {
+    if (!model())
+        return;
+
     // TODO: PoC implementation expects there to be material library node, so it won't properly
     //       clean up if material library node is removed from the project
     ModelNode matLib = Utils3D::materialLibraryNode(this);
@@ -175,7 +185,7 @@ void AssetsLibraryView::syncMaterialsMetaData()
 
     Utils::FilePath resPath = DocumentManager::currentResourcePath();
 
-    QHash<QString, Utils::FilePath> matFiles = collectMatFiles(resPath);
+    QHash<QString, Utils::FilePath> matFiles = collectFiles(resPath, "mat");
 
     const QList<ModelNode> matLibNodes = matLib.directSubModelNodes();
     for (const ModelNode &node : matLibNodes) {
@@ -194,25 +204,62 @@ void AssetsLibraryView::syncMaterialsMetaData()
         f.removeFile();
 }
 
-// recursively find .mat files in a dir
-QHash<QString, Utils::FilePath> AssetsLibraryView::collectMatFiles(const Utils::FilePath &dirPath)
+// recursively find files of certain suffix in a dir
+QHash<QString, Utils::FilePath> AssetsLibraryView::collectFiles(const Utils::FilePath &dirPath,
+                                                                const QString &suffix)
 {
     if (dirPath.isEmpty())
         return {};
 
-    QHash<QString, Utils::FilePath> matFiles;
+    QHash<QString, Utils::FilePath> files;
 
     Utils::FilePaths entryList = dirPath.dirEntries(QDir::Files | QDir::Dirs | QDir::NoDotAndDotDot);
     for (const Utils::FilePath &entry : entryList) {
         if (entry.isDir()) {
-            matFiles.insert(collectMatFiles(entry.absoluteFilePath()));
-        } else if (entry.suffix() == "mat") {
-            QString matId = entry.baseName();
-            matFiles.insert(matId, entry);
+            files.insert(collectFiles(entry.absoluteFilePath(), suffix));
+        } else if (entry.suffix() == suffix) {
+            QString baseName = entry.baseName();
+            files.insert(baseName, entry);
         }
     }
 
-    return matFiles;
+    return files;
+}
+
+void AssetsLibraryView::sync3dImportsMetaData()
+{
+    if (!model())
+        return;
+
+    // Sync generated 3d imports to .3d files in project content
+    auto import3dPath = Utils::FilePath::fromString(
+        QmlDesignerPlugin::instance()->documentManager()
+            .generatedComponentUtils().import3dTypePath());
+    auto projPath = Utils::FilePath::fromString(externalDependencies().currentProjectDirPath());
+    auto fullPath = projPath.resolvePath(import3dPath);
+
+    if (fullPath.isEmpty())
+        return;
+
+    const Utils::FilePaths dirs = fullPath.dirEntries(QDir::Dirs | QDir::NoDotAndDotDot);
+
+    Utils::FilePath resPath = DocumentManager::currentResourcePath();
+
+    QHash<QString, Utils::FilePath> files = collectFiles(resPath, "3d");
+
+    for (const Utils::FilePath &dir : dirs) {
+        const QString dirStr = dir.fileName();
+        if (files.contains(dirStr)) {
+            files.remove(dirStr);
+        } else {
+            Utils::FilePath newFile = resPath.pathAppended("/" + dirStr + ".3d");
+            newFile.writeFileContents(files[dirStr].toFSPathString().toLatin1());
+        }
+    }
+
+    // Remove .3d files that do not match any imported 3d
+    for (const Utils::FilePath &f : std::as_const(files))
+        f.removeFile();
 }
 
 AssetsLibraryView::ImageCacheData *AssetsLibraryView::imageCacheData()

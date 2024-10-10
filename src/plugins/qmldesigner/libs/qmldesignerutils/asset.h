@@ -26,7 +26,8 @@ public:
         Video,
         Texture3D,
         Effect,
-        Material
+        Material,
+        Imported3D
     };
 
     Asset(const QString &filePath);
@@ -41,6 +42,7 @@ public:
     static const QStringList &supportedTexture3DSuffixes();
     static const QStringList &supportedEffectComposerSuffixes();
     static const QStringList &supportedMaterialSuffixes();
+    static const QStringList &supportedImported3dSuffixes();
     static const QSet<QString> &supportedSuffixes();
     static bool isSupported(const QString &path);
 
@@ -63,6 +65,7 @@ public:
     bool isKtxFile() const;
     bool isEffect() const;
     bool isMaterial() const;
+    bool isImported3D() const;
     bool isSupported() const;
     bool isValidTextureSource();
 

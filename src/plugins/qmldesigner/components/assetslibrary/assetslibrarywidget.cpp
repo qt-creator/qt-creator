@@ -14,6 +14,7 @@
 #include <hdrimage.h>
 #include <import.h>
 #include <modelnodeoperations.h>
+#include <modelutils.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
@@ -72,26 +73,55 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                 // If there is a material in selected assets, then drag is considered material drag
                 // and all other assets are ignored
                 QString materialId;
+                QString imported3dId;
                 QString draggedAsset;
-                for (const QString &asset : std::as_const(m_assetsToDrag)) {
-                    if (asset.endsWith(".mat")) {
-                        const QString id = Utils::FilePath::fromString(asset).baseName();
+                ItemLibraryEntry draggerEntry;
+                for (const QString &assetPath : std::as_const(m_assetsToDrag)) {
+                    Asset asset{assetPath};
+                    if (asset.isMaterial()) {
+                        const QString id = Utils::FilePath::fromString(assetPath).baseName();
                         if (m_assetsView->hasId(id)) {
                             materialId = id;
-                            draggedAsset = asset;
+                            draggedAsset = assetPath;
                             break;
+                        }
+                    } else if (asset.isImported3D()) {
+                        const QString id = Utils::FilePath::fromString(assetPath).baseName();
+                        const QList<ItemLibraryEntry> itemLibEntries =
+                            m_assetsView->model()->metaInfo().itemLibraryInfo()->entries();
+                        const QString cat3d{"My 3D Components"};
+                        for (const ItemLibraryEntry &entry : itemLibEntries) {
+                            if (entry.category() == cat3d && entry.name() == id) {
+                                imported3dId = Utils::FilePath::fromString(assetPath).baseName();
+                                draggedAsset = assetPath;
+                                draggerEntry = entry;
+                            }
                         }
                     }
                 }
-                if (materialId.isEmpty()) {
-                    mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
-                    mimeData->setUrls(Utils::transform(m_assetsToDrag, &QUrl::fromLocalFile));
-                    draggedAsset = m_assetsToDrag[0];
-                } else {
+                if (!materialId.isEmpty()) {
                     ModelNode materialNode = m_assetsView->modelNodeForId(materialId);
                     QByteArray internalId;
                     internalId.setNum(materialNode.internalId());
                     mimeData->setData(Constants::MIME_TYPE_MATERIAL, internalId);
+                } else if (!imported3dId.isEmpty()) {
+                    QByteArray data;
+                    QDataStream stream(&data, QIODevice::WriteOnly);
+                    stream << draggerEntry;
+                    mimeData->setData(Constants::MIME_TYPE_ITEM_LIBRARY_INFO, data);
+
+                    // For drag to be handled correctly, we must have the component properly imported
+                    // beforehand, so we import the module immediately when the drag starts
+                    if (!draggerEntry.requiredImport().isEmpty()
+                        && !ModelUtils::addImportWithCheck(draggerEntry.requiredImport(),
+                                                           m_assetsView->model())) {
+                        qWarning() << __FUNCTION__ << "Required import adding failed:"
+                                   << draggerEntry.requiredImport();
+                    }
+                } else {
+                    mimeData->setData(Constants::MIME_TYPE_ASSETS, m_assetsToDrag.join(',').toUtf8());
+                    mimeData->setUrls(Utils::transform(m_assetsToDrag, &QUrl::fromLocalFile));
+                    draggedAsset = m_assetsToDrag[0];
                 }
 
                 m_assetsToDrag.clear();

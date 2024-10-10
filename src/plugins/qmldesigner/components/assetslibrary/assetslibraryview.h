@@ -53,7 +53,9 @@ private:
     void customNotification(const AbstractView *view, const QString &identifier,
                             const QList<ModelNode> &nodeList, const QList<QVariant> &data) override;
     void syncMaterialsMetaData();
-    QHash<QString, Utils::FilePath> collectMatFiles(const Utils::FilePath &dirPath);
+    QHash<QString, Utils::FilePath> collectFiles(const Utils::FilePath &dirPath,
+                                                 const QString &suffix);
+    void sync3dImportsMetaData();
 
     std::once_flag imageCacheFlag;
     std::unique_ptr<ImageCacheData> m_imageCacheData;
@@ -61,6 +63,7 @@ private:
     QString m_lastResourcePath;
     int m_matLibRetries = 0;
     QTimer m_matSyncTimer;
+    QTimer m_3dImportsSyncTimer;
 };
 
 }
