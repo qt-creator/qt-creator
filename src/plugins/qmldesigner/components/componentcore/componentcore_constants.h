@@ -174,6 +174,7 @@ inline constexpr char createPerspectiveCameraCommandId[] = "CreatePerspectiveCam
 inline constexpr char createDirectionalLightCommandId[] = "CreateDirectionalLight";
 inline constexpr char createPointLightCommandId[] = "CreatePointLight";
 inline constexpr char createSpotLightCommandId[] = "CreateSpotLight";
+inline constexpr char createReflectionProbeCommandId[] = "CreateReflectionProbe";
 inline constexpr char createConeCommandId[] = "CreateCone";
 inline constexpr char createCubeCommandId[] = "CreateCube";
 inline constexpr char createCylinderCommandId[] = "CreateCylinder";
@@ -469,6 +470,7 @@ inline constexpr char lightsCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesign
 inline constexpr char createDirectionalLightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Directional Light");
 inline constexpr char createPointLightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Point Light");
 inline constexpr char createSpotLightDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Spot Light");
+inline constexpr char createReflectionProbeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Reflection Probe");
 inline constexpr char primitivesCategoryDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Primitives");
 inline constexpr char createConeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Cone");
 inline constexpr char createCubeDisplayName[] = QT_TRANSLATE_NOOP("QmlDesignerContextMenu", "Cube");
@@ -591,6 +593,7 @@ enum PrioritiesEnum : int {
     CreateRadioDelegate,
     CreateRangeSlider,
     CreateRectangle,
+    CreateReflectionProbe,
     CreateRepeater,
     CreateRow,
     CreateRoundButton,

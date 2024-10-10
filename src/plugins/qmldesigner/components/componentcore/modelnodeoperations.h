@@ -186,6 +186,7 @@ void createPerspectiveCamera(const SelectionContext &selectionContext);
 void createDirectionalLight(const SelectionContext &selectionContext);
 void createPointLight(const SelectionContext &selectionContext);
 void createSpotLight(const SelectionContext &selectionContext);
+void createReflectionProbe(const SelectionContext &selectionContext);
 void createCone(const SelectionContext &selectionContext);
 void createCube(const SelectionContext &selectionContext);
 void createCylinder(const SelectionContext &selectionContext);

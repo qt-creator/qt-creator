@@ -2262,8 +2262,9 @@ void DesignerActionManager::createDefaultDesignerActions()
     createSubActionGroup(lightsCategoryDisplayName, lightsCategory, Priorities::LightsCategory, create3DCategory);
     const QList<ContextMenuActionData> lights = {
         { createDirectionalLightCommandId, createDirectionalLightDisplayName, /*contextIcon(DesignerIcons::LightDirectionalIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateDirectionalLight, &createDirectionalLight, &is3DNode },
-        { createPointLightCommandId, createPointLightDisplayName, /*contextIcon(DesignerIcons::LightPointIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePointLight, &createPointLight, &is3DNode },
-        { createSpotLightCommandId, createSpotLightDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpotLight, &createSpotLight, &is3DNode },
+        { createPointLightCommandId, createPointLightDisplayName, /*contextIcon(DesignerIcons::LightPointIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreatePointLight, &createPointLight,  &is3DNode },
+        { createSpotLightCommandId, createSpotLightDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateSpotLight, &createSpotLight,  &is3DNode },
+        { createReflectionProbeCommandId, createReflectionProbeDisplayName, /*contextIcon(DesignerIcons::LightSpotIcon),*/ /*lightsCategory,*/ /*QKeySequence(),*/ Priorities::CreateReflectionProbe, &createReflectionProbe, &is3DNode},
     };
     createModelNodeContextMenuActions(lights, lightsCategory);
 

@@ -383,7 +383,8 @@ void Edit3DView::handleEntriesChanged()
             entryKey = EK_primitives;
         } else if (entry.typeName() == "QtQuick3D.DirectionalLight"
                    || entry.typeName() == "QtQuick3D.PointLight"
-                   || entry.typeName() == "QtQuick3D.SpotLight") {
+                   || entry.typeName() == "QtQuick3D.SpotLight"
+                   || entry.typeName() == "QtQuick3D.ReflectionProbe") {
             entryKey = EK_lights;
         } else if (entry.typeName() == "QtQuick3D.OrthographicCamera"
                    || entry.typeName() == "QtQuick3D.PerspectiveCamera") {

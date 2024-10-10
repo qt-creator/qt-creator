@@ -1992,6 +1992,11 @@ void createCone(const SelectionContext &selectionContext)
     createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Cone");
 }
 
+void createReflectionProbe(const SelectionContext &selectionContext)
+{
+    createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.ReflectionProbe", "Reflection Probe");
+}
+
 void createCube(const SelectionContext &selectionContext)
 {
     createQmlObjectNodeAsChild(selectionContext, "QtQuick3D.Model", "Cube");

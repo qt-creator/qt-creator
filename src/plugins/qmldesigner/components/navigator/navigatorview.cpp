@@ -377,6 +377,7 @@ void NavigatorView::modelAttached(Model *model)
         {"QtCreator.DirectionalLight", "Directional Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreateDirectionalLight"},
         {"QtCreator.PointLight", "Point Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreatePointLight"},
         {"QtCreator.SpotLight", "Spot Light", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreateSpotLight"},
+        {"QtCreator.ReflectionProbe", "ReflectionProbe", "QtCreator.Menu.Add.Create3D.Lights", "QtCreator.Group.Add.Create3D.Lights", "QmlDesigner.CreateReflectionProbe"},
         //Primitives
         {"QtCreator.Cone", "Cone", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateCone"},
         {"QtCreator.Cube", "Cube", "QtCreator.Menu.Add.Create3D.Primitives", "QtCreator.Group.Add.Create3D.Primitives", "QmlDesigner.CreateCube"},
