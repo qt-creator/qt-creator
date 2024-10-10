@@ -42,9 +42,9 @@ Rectangle {
 
                 ToolbarButton {
                     id: homeOther
-                    tooltip: backend.isDesignModeEnabled ? qsTr("Switch to Design Mode.")
+                    tooltip: backend.isDesignModeEnabled ? qsTr("Return to (" + backend.currentProjectName+")")
                                                          : qsTr("Switch to Welcome Mode.")
-                    buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.designMode_large
+                    buttonIcon: backend.isDesignModeEnabled ? StudioTheme.Constants.previousFile_large
                                                             : StudioTheme.Constants.home_large
                     hover: mouseArea.containsMouse
                     press: mouseArea.pressed
@@ -59,7 +59,7 @@ Rectangle {
                     visible: backend.isDesignModeEnabled
                     horizontalAlignment: Text.AlignLeft
                     verticalAlignment: Text.AlignVCenter
-                    text: qsTr("Return to Design")
+                    text: qsTr("Return to (" + backend.currentProjectName+")")
                     color: StudioTheme.Values.themeTextColor
                 }
             }

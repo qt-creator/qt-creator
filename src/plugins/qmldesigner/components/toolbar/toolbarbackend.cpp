@@ -390,6 +390,7 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
                 emit stylesChanged();
                 emit isMCUsChanged();
                 if (project) {
+                    setCurrentProjectName(project->displayName());
                     m_kitConnection = connect(project,
                                               &ProjectExplorer::Project::activeTargetChanged,
                                               this,
@@ -786,6 +787,19 @@ void ToolBarBackend::launchGlobalAnnotations()
         designModeWidget()->globalAnnotationEditor().setModelNode(node);
         designModeWidget()->globalAnnotationEditor().showWidget();
     }
+}
+
+QString ToolBarBackend::currentProjectName() const
+{
+    return m_currentProjectName;
+}
+
+void ToolBarBackend::setCurrentProjectName(const QString &newCurrentProjectName)
+{
+    if (m_currentProjectName == newCurrentProjectName)
+        return;
+    m_currentProjectName = newCurrentProjectName;
+    emit currentProjectNameChanged();
 }
 
 } // namespace QmlDesigner

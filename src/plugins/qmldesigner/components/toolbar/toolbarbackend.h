@@ -98,6 +98,7 @@ class ToolBarBackend : public QObject
     Q_PROPERTY(bool projectOpened READ projectOpened NOTIFY projectOpenedChanged)
     Q_PROPERTY(bool isSharingEnabled READ isSharingEnabled NOTIFY isSharingEnabledChanged)
     Q_PROPERTY(bool isDocumentDirty READ isDocumentDirty NOTIFY isDocumentDirtyChanged)
+    Q_PROPERTY(QString currentProjectName READ currentProjectName WRITE setCurrentProjectName NOTIFY currentProjectNameChanged)
 
     Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
 
@@ -156,6 +157,9 @@ public:
 
     static void launchGlobalAnnotations();
 
+    QString currentProjectName() const;
+    void setCurrentProjectName(const QString &newCurrentProjectName);
+
 signals:
     void navigationHistoryChanged();
     void openDocumentsChanged();
@@ -176,6 +180,8 @@ signals:
     void isSharingEnabledChanged();
     void isDocumentDirtyChanged();
 
+    void currentProjectNameChanged();
+
 private:
     void setupWorkspaces();
 
@@ -183,6 +189,7 @@ private:
 
     QStringList m_openDocuments;
     QMetaObject::Connection m_kitConnection;
+    QString m_currentProjectName;
 };
 
 } // namespace QmlDesigner
