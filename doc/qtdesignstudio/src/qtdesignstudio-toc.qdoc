@@ -29,7 +29,6 @@
                                 \li \l{Effect Composer}
                                 \li \l{File System}
                                 \li \l{Material Editor and Browser}
-                                \li \l{Model Editor}
                                 \li \l{Navigator}
                                 \li \l{Open Documents}
                                 \li \l{Projects}
@@ -134,7 +133,6 @@
                                 \li\l{Connecting Components to Signals}
                                 \li\l{Adding Bindings Between Properties}
                                 \li\l{Specifying Custom Properties}
-                                \li\l{Connecting Properties to JSON Data Source}
                             \endlist
                         \li \l{Working with States}
                     \endlist
