@@ -1866,7 +1866,7 @@ public:
 
     // Container related methods
 
-    SetupResult continueContainer(RuntimeContainer *container);
+    void continueContainer(RuntimeContainer *container);
     void startChildren(RuntimeContainer *container);
     void childDone(RuntimeIteration *iteration, bool success);
     void stopContainer(RuntimeContainer *container);
@@ -2006,7 +2006,7 @@ public:
 
     const TaskNode &m_taskNode; // Not owning.
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
-    std::optional<RuntimeContainer> m_container = {}; // Owning.
+    std::shared_ptr<RuntimeContainer> m_container = {}; // Owning.
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
 };
 
@@ -2199,18 +2199,19 @@ void RuntimeContainer::deleteFinishedIterations()
     }
 }
 
-SetupResult TaskTreePrivate::continueContainer(RuntimeContainer *container)
+void TaskTreePrivate::continueContainer(RuntimeContainer *container)
 {
     if (container->m_setupResult == SetupResult::Continue)
         startChildren(container);
     if (container->m_setupResult == SetupResult::Continue)
-        return SetupResult::Continue;
+        return;
 
     const bool bit = container->updateSuccessBit(container->m_setupResult == SetupResult::StopWithSuccess);
     RuntimeIteration *parentIteration = container->parentIteration();
     RuntimeTask *parentTask = container->m_parentTask;
     QT_CHECK(parentTask);
     const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
+    container->m_setupResult = toSetupResult(result);
     if (parentIteration) {
         parentIteration->deleteChild(parentTask);
         if (!parentIteration->m_container->isStarting())
@@ -2220,7 +2221,6 @@ SetupResult TaskTreePrivate::continueContainer(RuntimeContainer *container)
         m_runtimeRoot.reset();
         emitDone(result ? DoneWith::Success : DoneWith::Error);
     }
-    return toSetupResult(result);
 }
 
 void TaskTreePrivate::startChildren(RuntimeContainer *container)
@@ -2334,8 +2334,6 @@ bool TaskTreePrivate::invokeDoneHandler(RuntimeContainer *container, DoneWith do
     if (groupHandler.m_doneHandler && shouldCall(groupHandler.m_callDoneIf, doneWith))
         result = invokeHandler(container, groupHandler.m_doneHandler, doneWith);
     container->m_callStorageDoneHandlersOnDestruction = true;
-    // TODO: is it needed?
-    container->m_parentTask->m_container.reset();
     return result == DoneResult::Success;
 }
 
@@ -2357,18 +2355,19 @@ SetupResult TaskTreePrivate::startTask(RuntimeTask *node)
 {
     if (!node->m_taskNode.isTask()) {
         const ContainerNode &containerNode = node->m_taskNode.m_container;
-        node->m_container.emplace(containerNode, node);
-        RuntimeContainer *container = &*node->m_container;
+        node->m_container.reset(new RuntimeContainer(containerNode, node));
+        auto container = node->m_container;
         if (containerNode.m_groupHandler.m_setupHandler) {
-            container->m_setupResult = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
+            container->m_setupResult = invokeHandler(container.get(), containerNode.m_groupHandler.m_setupHandler);
             if (container->m_setupResult != SetupResult::Continue) {
-                if (isProgressive(container))
+                if (isProgressive(container.get()))
                     advanceProgress(containerNode.m_taskCount);
                 // Non-Continue SetupResult takes precedence over the workflow policy.
                 container->m_successBit = container->m_setupResult == SetupResult::StopWithSuccess;
             }
         }
-        return continueContainer(container);
+        continueContainer(container.get());
+        return container->m_setupResult;
     }
 
     const GroupItem::TaskHandler &handler = node->m_taskNode.m_taskHandler;
