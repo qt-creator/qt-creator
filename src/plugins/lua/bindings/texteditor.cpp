@@ -166,7 +166,11 @@ void setupTextEditorModule()
             "mainCursor",
             &MultiTextCursor::mainCursor,
             "cursors",
-            [](MultiTextCursor *self) { return sol::as_table(self->cursors()); });
+            [](MultiTextCursor *self) { return sol::as_table(self->cursors()); },
+            "insertText",
+            [](MultiTextCursor *self, const QString &text) {
+                self->insertText(text);
+            });
 
         result.new_usertype<Position>(
             "Position",
@@ -222,6 +226,10 @@ void setupTextEditorModule()
                 ret.end.line = endBlock.blockNumber();
                 ret.end.column = endPos - endBlock.position() - 1;
                 return ret;
+            },
+            "insertText",
+            [](QTextCursor *textCursor, const QString &text) {
+                textCursor->insertText(text);
             });
 
         result.new_usertype<BaseTextEditor>(
@@ -255,6 +263,10 @@ void setupTextEditorModule()
             [](const TextEditorPtr &textEditor) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->editorWidget()->suggestionVisible();
+            },
+            "insertText",
+            [](TextEditorPtr editor, const QString &text) {
+                editor->editorWidget()->multiTextCursor().insertText(text);
             });
 
         result.new_usertype<TextSuggestion::Data>(
