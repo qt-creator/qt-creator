@@ -4,7 +4,6 @@
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Revision" : "${QTC_PLUGIN_REVISION}",
-    "Experimental" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
