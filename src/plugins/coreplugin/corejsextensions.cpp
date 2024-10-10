@@ -3,6 +3,7 @@
 
 #include "corejsextensions.h"
 
+#include "icore.h"
 #include "messagemanager.h"
 
 #include <utils/appinfo.h>
@@ -33,6 +34,11 @@ QString UtilsJsExtension::qtCreatorVersion() const
 QString UtilsJsExtension::qtCreatorIdeVersion() const
 {
     return QCoreApplication::applicationVersion();
+}
+
+QString UtilsJsExtension::qtCreatorSettingsPath() const
+{
+    return Core::ICore::userResourcePath().toString();
 }
 
 QString UtilsJsExtension::toNativeSeparators(const QString &in) const
