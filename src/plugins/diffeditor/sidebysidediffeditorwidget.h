@@ -95,8 +95,9 @@ using SideBySideShowResults = std::array<SideBySideShowResult, SideCount>;
 class SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
+
 public:
-    explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
+    SideBySideDiffEditorWidget(QWidget *parent = nullptr);
     ~SideBySideDiffEditorWidget();
 
     void setDocument(DiffEditorDocument *document);
