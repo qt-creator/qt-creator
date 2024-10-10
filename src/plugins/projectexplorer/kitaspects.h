@@ -4,17 +4,15 @@
 #pragma once
 
 #include "abi.h"
-#include "devicesupport/idevicefwd.h"
-#include "kit.h"
+#include "devicesupport/devicekitaspects.h"
 #include "toolchainkitaspect.h"
 
 #include <utils/environment.h>
 
 namespace ProjectExplorer {
+class Kit;
 class Toolchain;
 class ToolchainBundle;
-
-// SysRootKitAspect
 
 class PROJECTEXPLORER_EXPORT SysRootKitAspect
 {
@@ -23,44 +21,6 @@ public:
     static Utils::FilePath sysRoot(const Kit *k);
     static void setSysRoot(Kit *k, const Utils::FilePath &v);
 };
-
-// DeviceTypeKitAspect
-
-class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect
-{
-public:
-    static const Utils::Id id();
-    static const Utils::Id deviceTypeId(const Kit *k);
-    static void setDeviceTypeId(Kit *k, Utils::Id type);
-};
-
-// DeviceKitAspect
-
-class PROJECTEXPLORER_EXPORT DeviceKitAspect
-{
-public:
-    static Utils::Id id();
-    static IDeviceConstPtr device(const Kit *k);
-    static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDeviceConstPtr dev);
-    static void setDeviceId(Kit *k, Utils::Id dataId);
-    static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
-};
-
-
-// BuildDeviceKitAspect
-
-class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect
-{
-public:
-    static Utils::Id id();
-    static IDeviceConstPtr device(const Kit *k);
-    static Utils::Id deviceId(const Kit *k);
-    static void setDevice(Kit *k, IDeviceConstPtr dev);
-    static void setDeviceId(Kit *k, Utils::Id dataId);
-};
-
-// EnvironmentKitAspect
 
 class PROJECTEXPLORER_EXPORT EnvironmentKitAspect
 {

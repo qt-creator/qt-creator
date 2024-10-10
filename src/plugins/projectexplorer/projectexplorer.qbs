@@ -208,6 +208,7 @@ QtcPlugin {
             "desktopdevicefactory.cpp", "desktopdevicefactory.h",
             "devicecheckbuildstep.cpp", "devicecheckbuildstep.h",
             "devicefactoryselectiondialog.cpp", "devicefactoryselectiondialog.h",
+            "devicekitaspects.cpp", "devicekitaspects.h",
             "devicemanager.cpp", "devicemanager.h",
             "devicemanagermodel.cpp", "devicemanagermodel.h",
             "deviceprocessesdialog.cpp", "deviceprocessesdialog.h",

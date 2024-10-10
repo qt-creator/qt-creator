@@ -6,6 +6,7 @@
 #include "buildconfiguration.h"
 #include "devicesupport/idevice.h"
 #include "gnumakeparser.h"
+#include "kit.h"
 #include "kitaspects.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
