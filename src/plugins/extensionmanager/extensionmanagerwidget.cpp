@@ -675,9 +675,10 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     connect(m_extensionBrowser, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
     connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
-        const int intendedBrowserColumnWidth = size.width() - 580;
+        const int intendedBrowserColumnWidth = size.width() / 3;
         m_extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
-        const bool secondaryDescriptionVisible = size.width() > 970;
+        const int availableDescriptionWidth = size.width() - m_extensionBrowser->width();
+        const bool secondaryDescriptionVisible = availableDescriptionWidth > 1000;
         const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
