@@ -29,10 +29,12 @@
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
@@ -743,6 +745,78 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     updateView({});
 }
 
+static QTextDocument *highlightText(const QString &code, const QString &language)
+{
+    auto mimeTypes = mimeTypesForFileName("file." + language);
+
+    QString mimeType = mimeTypes.isEmpty() ? "text/" + language : mimeTypes.first().name();
+
+    auto document = Utils::Text::highlightCode(code, mimeType);
+    if (document.isFinished())
+        return document.result();
+    document.cancel();
+    QTextDocument *doc = new QTextDocument;
+    doc->setPlainText(code);
+    return doc;
+}
+
+static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const QString &language)
+{
+    int startBlockNumner = block.blockNumber();
+
+    // Find the end of the code block ...
+    QTextBlock curBlock = block;
+    while (curBlock.isValid()) {
+        curBlock = curBlock.next();
+        const auto valid = curBlock.isValid();
+        const auto hasProp = curBlock.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage);
+        const auto prop = curBlock.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage);
+        if (!valid || !hasProp || prop != language)
+            break;
+    }
+    // Get the text of the code block and erase it
+    QTextCursor eraseCursor(document);
+    eraseCursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, startBlockNumner);
+    eraseCursor.movePosition(
+        QTextCursor::NextBlock,
+        QTextCursor::KeepAnchor,
+        curBlock.blockNumber() - startBlockNumner - 1);
+    eraseCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+
+    QString code = eraseCursor.selectedText();
+    eraseCursor.deleteChar();
+
+    // Create a new Frame and insert the highlighted code ...
+    block = document->findBlockByNumber(startBlockNumner);
+
+    QTextCursor cursor(block);
+    QTextFrameFormat format;
+    format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
+    format.setBackground(creatorColor(Theme::Token_Background_Muted));
+    format.setPadding(SpacingTokens::ExPaddingGapM);
+    format.setLeftMargin(SpacingTokens::VGapM);
+    format.setRightMargin(SpacingTokens::VGapM);
+
+    QTextFrame *frame = cursor.insertFrame(format);
+    QTextCursor frameCursor(frame);
+
+    std::unique_ptr<QTextDocument> codeDocument(highlightText(code, language));
+    bool first = true;
+
+    for (auto block = codeDocument->begin(); block != codeDocument->end(); block = block.next()) {
+        if (!first)
+            frameCursor.insertBlock();
+        first = false;
+        auto formats = block.layout()->formats();
+        frameCursor.insertText(block.text());
+        frameCursor.block().layout()->setFormats(formats);
+    }
+
+    // Leave the frame
+    QTextCursor next = frame->lastCursorPosition();
+    block = next.block();
+}
+
 static void setMarkdown(QTextDocument *document, const QString &markdown)
 {
     document->setMarkdown(markdown);
@@ -754,12 +828,19 @@ static void setMarkdown(QTextDocument *document, const QString &markdown)
         if (block.text().contains(QChar::ObjectReplacementCharacter))
             continue;
 
-        if (blockFormat.hasProperty(QTextFormat::HeadingLevel))
+        if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
             blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
-        else
+            blockFormat.setBottomMargin(SpacingTokens::VGapL);
+        } else
             blockFormat.setLineHeight(contentTF.lineHeight(), QTextBlockFormat::FixedHeight);
-        blockFormat.setBottomMargin(SpacingTokens::VGapL);
+
         QTextCursor cursor(block);
+        if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
+            QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
+            highlightCodeBlock(document, block, language);
+            continue;
+        }
+
         cursor.mergeBlockFormat(blockFormat);
         const TextFormat headingTf =
                 blockFormat.headingLevel() == 1 ? h5TF
