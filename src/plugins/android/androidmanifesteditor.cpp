@@ -31,6 +31,7 @@
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
+#include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
@@ -1018,7 +1019,7 @@ namespace {
 QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input, const QStringList &keys,
                                                const QStringList &values, const QStringList &remove = QStringList())
 {
-    Q_ASSERT(keys.size() == values.size());
+    QTC_ASSERT(keys.size() == values.size(), return {});
     QXmlStreamAttributes result;
     result.reserve(input.size());
     for (const QXmlStreamAttribute &attribute : input) {
@@ -1043,7 +1044,7 @@ QXmlStreamAttributes modifyXmlStreamAttributes(const QXmlStreamAttributes &input
 
 void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    Q_ASSERT(reader.isStartElement());
+    QTC_ASSERT(reader.isStartElement(), return);
     writer.writeStartElement(reader.name().toString());
 
     QXmlStreamAttributes attributes = reader.attributes();
@@ -1122,7 +1123,7 @@ void AndroidManifestEditorWidget::parseManifest(QXmlStreamReader &reader, QXmlSt
 
 void AndroidManifestEditorWidget::parseApplication(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    Q_ASSERT(reader.isStartElement());
+    QTC_ASSERT(reader.isStartElement(), return);
     writer.writeStartElement(reader.name().toString());
 
     QXmlStreamAttributes attributes = reader.attributes();
@@ -1209,8 +1210,7 @@ void AndroidManifestEditorWidget::parseSplashScreen(QXmlStreamWriter &writer)
 
 void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    Q_ASSERT(reader.isStartElement());
-
+    QTC_ASSERT(reader.isStartElement(), return);
     writer.writeStartElement(reader.name().toString());
     QXmlStreamAttributes attributes = reader.attributes();
     QStringList keys = { QLatin1String("android:label"), QLatin1String("android:screenOrientation") };
@@ -1254,8 +1254,7 @@ void AndroidManifestEditorWidget::parseActivity(QXmlStreamReader &reader, QXmlSt
 
 bool AndroidManifestEditorWidget::parseMetaData(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    Q_ASSERT(reader.isStartElement());
-
+    QTC_ASSERT(reader.isStartElement(), return false);
     bool found = false;
     QXmlStreamAttributes attributes = reader.attributes();
     QXmlStreamAttributes result;
@@ -1345,10 +1344,8 @@ QString AndroidManifestEditorWidget::parseUsesPermission(QXmlStreamReader &reade
                                                          QXmlStreamWriter &writer,
                                                          const QSet<QString> &permissions)
 {
-    Q_ASSERT(reader.isStartElement());
-
-
-    QString permissionName = reader.attributes().value(QLatin1String("android:name")).toString();
+    QTC_ASSERT(reader.isStartElement(), return {});
+    const QString permissionName = reader.attributes().value(QLatin1String("android:name")).toString();
     bool writePermission = permissions.contains(permissionName);
     if (writePermission)
         writer.writeCurrentToken(reader);
@@ -1388,7 +1385,7 @@ QString AndroidManifestEditorWidget::parseComment(QXmlStreamReader &reader, QXml
 
 void AndroidManifestEditorWidget::parseUnknownElement(QXmlStreamReader &reader, QXmlStreamWriter &writer)
 {
-    Q_ASSERT(reader.isStartElement());
+    QTC_ASSERT(reader.isStartElement(), return);
     writer.writeCurrentToken(reader);
     reader.readNext();
 
