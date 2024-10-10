@@ -518,6 +518,25 @@ public:
     SpinnerSolution::Spinner *m_spinner;
 };
 
+static QWidget *extensionViewPlaceHolder()
+{
+    static const TextFormat tF {Theme::Token_Text_Muted, UiElementH4};
+    auto text = tfLabel(tF, false);
+    text->setAlignment(Qt::AlignCenter);
+    text->setText(Tr::tr("No extension found!"));
+    text->setWordWrap(true);
+
+    using namespace Layouting;
+    // clang-format off
+    return Column {
+        Space(SpacingTokens::ExVPaddingGapXl),
+        text,
+        st,
+        noMargin,
+    }.emerge();
+    // clang-format on
+}
+
 ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     : QWidget(parent)
     , d(new ExtensionsBrowserPrivate)
@@ -566,6 +585,8 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     d->extensionsView->setModel(d->sortFilterProxyModel);
     d->extensionsView->setMouseTracking(true);
 
+    QStackedWidget *extensionViewStack;
+
     using namespace Layouting;
     Column {
         Column {
@@ -585,7 +606,14 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             spacing(HGapS),
             customMargins(0, 0, extraListViewWidth() + gapSize, 0),
         },
-        d->extensionsView,
+        Stack {
+            bindTo(&extensionViewStack),
+            d->extensionsView,
+            Row {
+                extensionViewPlaceHolder(),
+                customMargins(0, 0, extraListViewWidth() + gapSize, 0),
+            },
+        },
         noMargin, spacing(0),
     }.attachTo(this);
 
@@ -609,6 +637,10 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
         }
     };
 
+    auto updatePlaceHolderVisibility = [this, extensionViewStack] {
+        extensionViewStack->setCurrentIndex(d->sortFilterProxyModel->rowCount() == 0 ? 1 : 0);
+    };
+
     connect(PluginManager::instance(), &PluginManager::pluginsChanged, this, updateModel);
     connect(d->searchBox, &QLineEdit::textChanged,
             d->searchProxyModel, &QSortFilterProxyModel::setFilterWildcard);
@@ -616,6 +648,10 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
             d->sortFilterProxyModel, &SortFilterProxyModel::setSortOption);
     connect(d->filterChooser, &OptionChooser::currentIndexChanged,
             d->sortFilterProxyModel, &SortFilterProxyModel::setFilterOption);
+    connect(d->sortFilterProxyModel, &SortFilterProxyModel::rowsRemoved,
+            this, updatePlaceHolderVisibility);
+    connect(d->sortFilterProxyModel, &SortFilterProxyModel::rowsInserted,
+            this, updatePlaceHolderVisibility);
     connect(settingsToolButton, &QAbstractButton::clicked, this, []() {
         ICore::showOptionsDialog(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
     });
