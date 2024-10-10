@@ -529,6 +529,8 @@ public:
                 else {
                     m_imageHandler.set(query.reply()->url().toString(), {});
                 }
+
+                markContentsDirty(0, this->characterCount());
             };
 
             // clang-format off
@@ -537,9 +539,6 @@ public:
                     continueOnError,
                     NetworkQueryTask{onQuerySetup, onQueryDone},
                 },
-                onGroupDone([this]() {
-                    markContentsDirty(0, this->characterCount());
-                })
             };
             // clang-format on
 
