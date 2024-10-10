@@ -1867,7 +1867,7 @@ public:
     // Container related methods
 
     SetupResult continueContainer(RuntimeContainer *container);
-    SetupResult startChildren(RuntimeContainer *container);
+    void startChildren(RuntimeContainer *container);
     void childDone(RuntimeIteration *iteration, bool success);
     void stopContainer(RuntimeContainer *container);
     bool invokeDoneHandler(RuntimeContainer *container, DoneWith doneWith);
@@ -2201,12 +2201,12 @@ void RuntimeContainer::deleteFinishedIterations()
 
 SetupResult TaskTreePrivate::continueContainer(RuntimeContainer *container)
 {
-    const SetupResult groupAction = container->m_setupResult == SetupResult::Continue
-                                  ? startChildren(container) : container->m_setupResult;
-    if (groupAction == SetupResult::Continue)
-        return groupAction;
+    if (container->m_setupResult == SetupResult::Continue)
+        startChildren(container);
+    if (container->m_setupResult == SetupResult::Continue)
+        return SetupResult::Continue;
 
-    const bool bit = container->updateSuccessBit(groupAction == SetupResult::StopWithSuccess);
+    const bool bit = container->updateSuccessBit(container->m_setupResult == SetupResult::StopWithSuccess);
     RuntimeIteration *parentIteration = container->parentIteration();
     RuntimeTask *parentTask = container->m_parentTask;
     QT_CHECK(parentTask);
@@ -2223,7 +2223,7 @@ SetupResult TaskTreePrivate::continueContainer(RuntimeContainer *container)
     return toSetupResult(result);
 }
 
-SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
+void TaskTreePrivate::startChildren(RuntimeContainer *container)
 {
     const ContainerNode &containerNode = container->m_containerNode;
     const int childCount = int(containerNode.m_children.size());
@@ -2232,7 +2232,8 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
         if (container->m_shouldIterate && !invokeLoopHandler(container)) {
             if (isProgressive(container))
                 advanceProgress(containerNode.m_taskCount);
-            return toSetupResult(container->m_successBit);
+            container->m_setupResult = toSetupResult(container->m_successBit);
+            return;
         }
         container->m_iterations.emplace_back(
             std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
@@ -2251,9 +2252,10 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
                     std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
                 ++container->m_iterationCount;
             } else if (container->m_iterations.empty()) {
-                return toSetupResult(container->m_successBit);
+                container->m_setupResult = toSetupResult(container->m_successBit);
+                return;
             } else {
-                return SetupResult::Continue;
+                return;
             }
         }
         if (containerNode.m_children.size() == 0) // Empty loop body.
@@ -2272,9 +2274,8 @@ SetupResult TaskTreePrivate::startChildren(RuntimeContainer *container)
 
         childDone(iteration, startAction == SetupResult::StopWithSuccess);
         if (container->m_setupResult != SetupResult::Continue)
-            return container->m_setupResult;
+            return;
     }
-    return SetupResult::Continue;
 }
 
 void TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success)
