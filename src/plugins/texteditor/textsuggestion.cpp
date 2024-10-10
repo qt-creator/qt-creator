@@ -137,22 +137,25 @@ class SuggestionToolTip : public QToolBar
 public:
     SuggestionToolTip(
         QList<TextSuggestion::Data> suggestions, int currentSuggestion, TextEditorWidget *editor)
-        : m_numberLabel(new QLabel)
-        , m_suggestions(suggestions)
+        : m_suggestions(suggestions)
         , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
         , m_editor(editor)
     {
-        m_prev = addAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Suggestion"));
-        addWidget(m_numberLabel);
-        m_next = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Suggestion"));
+        if (m_suggestions.size() > 1) {
+            m_numberLabel = new QLabel;
+            m_prev
+                = addAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Suggestion"));
+            addWidget(m_numberLabel);
+            m_next = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Suggestion"));
+            connect(m_prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
+            connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
+        }
 
         auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
         auto applyWord = addAction(
             Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
         auto applyLine = addAction(Tr::tr("Apply Line"));
 
-        connect(m_prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
-        connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
         connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
         connect(applyWord, &QAction::triggered, this, &SuggestionToolTip::applyWord);
         connect(applyLine, &QAction::triggered, this, &SuggestionToolTip::applyLine);
@@ -173,6 +176,9 @@ private:
 
     void updateSuggestionSelector()
     {
+        if (!m_numberLabel || !m_prev || !m_next)
+            return;
+
         m_numberLabel->setText(
             Tr::tr("%1 of %2").arg(m_currentSuggestion + 1).arg(m_suggestions.count()));
         m_prev->setEnabled(m_suggestions.size() > 1);
@@ -229,9 +235,9 @@ private:
         ToolTip::hide();
     }
 
-    QLabel *m_numberLabel;
-    QAction *m_prev;
-    QAction *m_next;
+    QLabel *m_numberLabel = nullptr;
+    QAction *m_prev = nullptr;
+    QAction *m_next = nullptr;
     QList<TextSuggestion::Data> m_suggestions;
     int m_currentSuggestion = 0;
     TextEditorWidget *m_editor;
