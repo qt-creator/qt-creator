@@ -11,6 +11,8 @@
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "kit.h"
+#include "kitaspect.h"
+#include "kitmanager.h"
 #include "toolchain.h"
 #include "toolchainmanager.h"
 

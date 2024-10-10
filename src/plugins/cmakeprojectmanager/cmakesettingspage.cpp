@@ -11,7 +11,7 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>

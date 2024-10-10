@@ -6,6 +6,7 @@
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/editormanager/ieditorfactory.h>
 
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

@@ -21,6 +21,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>

@@ -5,8 +5,7 @@
 
 #include "mesontools.h"
 
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
+namespace ProjectExplorer { class Kit; }
 
 namespace MesonProjectManager::Internal {
 

@@ -25,6 +25,7 @@
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>

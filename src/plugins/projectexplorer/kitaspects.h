@@ -5,7 +5,6 @@
 
 #include "abi.h"
 #include "devicesupport/idevicefwd.h"
-#include "kitmanager.h"
 #include "kit.h"
 #include "toolchainkitaspect.h"
 

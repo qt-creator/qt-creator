@@ -8,6 +8,8 @@
 #include <extensionsystem/pluginmanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>

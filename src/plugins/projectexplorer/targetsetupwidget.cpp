@@ -7,7 +7,7 @@
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "kitmanager.h"
+#include "kitaspect.h"
 #include "kitoptionspage.h"
 
 #include <coreplugin/icore.h>

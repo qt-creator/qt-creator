@@ -13,7 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>

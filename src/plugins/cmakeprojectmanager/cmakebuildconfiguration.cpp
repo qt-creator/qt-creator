@@ -34,7 +34,9 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>

@@ -8,7 +8,8 @@
 #include "pythontr.h"
 #include "pythonutils.h"
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>

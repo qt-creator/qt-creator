@@ -3,7 +3,11 @@
 
 #pragma once
 
-#include <projectexplorer/kitaspects.h>
+#include <utils/environmentfwd.h>
+#include <utils/namevaluedictionary.h>
+
+namespace ProjectExplorer { class Kit; }
+namespace Utils { class Id; }
 
 namespace McuSupport::Internal {
 

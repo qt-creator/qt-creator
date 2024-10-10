@@ -28,6 +28,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>

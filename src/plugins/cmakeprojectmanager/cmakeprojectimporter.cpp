@@ -18,6 +18,7 @@
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>

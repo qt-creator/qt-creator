@@ -9,7 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>

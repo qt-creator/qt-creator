@@ -19,6 +19,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 

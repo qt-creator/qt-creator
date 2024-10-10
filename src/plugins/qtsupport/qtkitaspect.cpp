@@ -11,6 +11,9 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>

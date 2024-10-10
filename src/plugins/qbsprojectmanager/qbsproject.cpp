@@ -33,6 +33,7 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>

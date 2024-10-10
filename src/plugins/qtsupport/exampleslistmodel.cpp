@@ -4,6 +4,8 @@
 #include "exampleslistmodel.h"
 
 #include "examplesparser.h"
+#include "qtkitaspect.h"
+#include "qtversionmanager.h"
 
 #include <QBuffer>
 #include <QApplication>
@@ -13,13 +15,10 @@
 #include <QUrl>
 
 #include <android/androidconstants.h>
-#include <ios/iosconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionmanager.h>
-
+#include <ios/iosconstants.h>
+#include <projectexplorer/kitmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>

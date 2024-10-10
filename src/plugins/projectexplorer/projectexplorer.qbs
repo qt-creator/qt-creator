@@ -77,6 +77,7 @@ QtcPlugin {
             "ipotentialkit.h",
             "itaskhandler.h",
             "kit.cpp", "kit.h",
+            "kitaspect.cpp", "kitaspect.h",
             "kitaspects.cpp", "kitaspects.h",
             "kitchooser.cpp", "kitchooser.h",
             "kitfeatureprovider.h",

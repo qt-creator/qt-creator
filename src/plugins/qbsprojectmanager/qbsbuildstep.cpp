@@ -12,6 +12,7 @@
 #include "qbssettings.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/target.h>
