@@ -49,8 +49,9 @@
 #include <extensionsystem/iplugin.h>
 
 #include <utils/fancylineedit.h>
-#include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QMenu>
@@ -137,6 +138,8 @@ void TextEditorPlugin::initialize()
     addTestCreator(createCodeAssistTests);
     addTestCreator(createGenericHighlighterTests);
 #endif
+
+    Utils::Text::setCodeHighlighter(HighlighterHelper::highlightCode);
 }
 
 void TextEditorPlugin::extensionsInitialized()
