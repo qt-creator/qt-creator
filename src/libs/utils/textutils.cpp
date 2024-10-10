@@ -293,4 +293,25 @@ QDebug &operator<<(QDebug &stream, const Position &pos)
     return stream;
 }
 
+static HighlightCallback &codeHighlighter()
+{
+    static HighlightCallback s_highlighter;
+    return s_highlighter;
+}
+
+QTextDocument *highlightCode(const QString &code, const QString &mimeType)
+{
+    if (const auto highlighter = codeHighlighter())
+        return highlighter(code, mimeType);
+
+    QTextDocument *doc = new QTextDocument;
+    doc->setPlainText(code);
+    return doc;
+}
+
+void setCodeHighlighter(const HighlightCallback &highlighter)
+{
+    codeHighlighter() = highlighter;
+}
+
 } // namespace Utils::Text

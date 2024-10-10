@@ -678,25 +678,4 @@ QString ansiColoredText(const QString &text, const QColor &color)
     return formatString.arg(color.red()).arg(color.green()).arg(color.blue()).arg(text);
 }
 
-static HighlightCallback &codeHighlighter()
-{
-    static HighlightCallback s_highlighter;
-    return s_highlighter;
-}
-
-QTextDocument *highlightCode(const QString &code, const QString &mimeType)
-{
-    if (const auto highlighter = codeHighlighter())
-        return highlighter(code, mimeType);
-
-    QTextDocument *doc = new QTextDocument;
-    doc->setPlainText(code);
-    return doc;
-}
-
-void setCodeHighlighter(const HighlightCallback &highlighter)
-{
-    codeHighlighter() = highlighter;
-}
-
 } // namespace Utils

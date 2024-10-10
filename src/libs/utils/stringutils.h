@@ -141,8 +141,4 @@ private:
 
 QTCREATOR_UTILS_EXPORT QString ansiColoredText(const QString &text, const QColor &color);
 
-using HighlightCallback = std::function<QTextDocument *(const QString &, const QString &)>;
-QTCREATOR_UTILS_EXPORT QTextDocument *highlightCode(const QString &code, const QString &mimeType);
-QTCREATOR_UTILS_EXPORT void setCodeHighlighter(const HighlightCallback &highlighter);
-
 } // namespace Utils

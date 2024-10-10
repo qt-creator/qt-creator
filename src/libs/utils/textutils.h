@@ -84,6 +84,10 @@ QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8B
 
 QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &stream, const Position &pos);
 
+using HighlightCallback = std::function<QTextDocument *(const QString &, const QString &)>;
+QTCREATOR_UTILS_EXPORT QTextDocument *highlightCode(const QString &code, const QString &mimeType);
+QTCREATOR_UTILS_EXPORT void setCodeHighlighter(const HighlightCallback &highlighter);
+
 } // Text
 } // Utils
 
