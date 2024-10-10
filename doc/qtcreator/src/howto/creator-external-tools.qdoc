@@ -20,10 +20,9 @@
 
     \title Use external tools
 
-    You can use external tools directly from \QC. Qt Linguist, QML preview
-    tools, and the default text editor for your system are preconfigured
-    for use. You can change their default configurations and configure new
-    tools.
+    You can use external tools directly from \QC. You can change the default
+    configurations of the QML preview tools and the default text editor for
+    your system or configure new tools.
 
     To run the tools, select \uicontrol Tools > \uicontrol External, or use the
     \c x filter in the locator.
@@ -33,7 +32,7 @@
     You can change the configuration of preconfigured tools and configure
     additional tools in \QC \preferences.
 
-    \image qtcreator-external-tools.png
+    \image qtcreator-external-tools.webp {External Tools preferences}
 
     \if defined(qtcreator)
     Select the \inlineimage icons/replace.png
@@ -107,7 +106,7 @@
     revert the changes by selecting the \uicontrol Reset button.
 
     The tool configurations that you add and modify are stored in XML format in
-    the user configuration folder. For example,
+    the user's configuration folder. For example,
     \c {~/config/QtProject/qtcreator/externaltools}
     on Linux and \macos and
     \c {C:\Users\username\AppData\Roaming\QtProject\qtcreator\externaltools}
@@ -155,40 +154,11 @@
     \uicontrol Projects or \uicontrol {File System} view and go to
     \uicontrol {Open With} > \uicontrol {Qt Linguist} in the context menu.
 
-    \section1 Use lupdate and lrelease
-
-    Use the Qt Linguist release manager tools, lupdate and lrelease,
-    directly from \QC. The lupdate tool synchronizes source
-    code and translations. The lrelease tool creates run-time
-    translation files for use by the released application.
-
-    \note Running the tools from \QC is supported only when using qmake as the
-    build system. For more information about using the tools with CMake, see
-    \l{https://doc.qt.io/qt-6/cmake-command-reference.html#qt6-linguisttools}
-    {Qt6::LinguistTools}.
-
-    By default, the project .pro file is passed to the tools as an argument. To
-    specify other command-line arguments for the tools, go to \uicontrol Tools >
-    \uicontrol External > \uicontrol Configure.
-
-    \section2 Synchronize TS files
-
-    To synchronize TS files from a translator with the
-    application code, go to \uicontrol Tools > \uicontrol External >
-    \uicontrol Linguist > \uicontrol {Update Translations (lupdate)}.
-
-    \section2 Generate QM files
-
-    To generate from the TS files Qt message (QM) files that can be used by an
-    application, go to \uicontrol Tools > \uicontrol External >
-    \uicontrol Linguist > \uicontrol {Release Translations (lrelease)}.
-
     \if defined(qtcreator)
     \sa {Add translation files}
     \endif
 
-    \sa {Use external tools}, {Internationalization with Qt},
-    {Qt Linguist Manual}
+    \sa {Internationalization with Qt}, {Qt Linguist Manual}
 */
 
 /*!
