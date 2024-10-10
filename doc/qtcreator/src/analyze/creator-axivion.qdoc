@@ -7,7 +7,7 @@
 
     \ingroup creator-how-to-analyze
 
-    \title Prevent code erosion
+    \title View Axivion static code analysis results
 
     Connect to an Axivion dashboard server from \QC to view results of code
     analysis.
@@ -161,5 +161,5 @@
     Select \uicontrol {Highlight marks} to highlight found issues on the
     scrollbar in the editor.
 
-    \sa {Enable and disable plugins}, {Prevent code erosion}
+    \sa {Enable and disable plugins}, {View Axivion static code analysis results}
 */
