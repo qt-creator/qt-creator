@@ -193,12 +193,13 @@ public:
 
     expected_str<Environment> environment();
 
-    CommandLine withDockerExecCmd(const CommandLine &cmd,
-                                  const std::optional<Environment> &env = std::nullopt,
-                                  const std::optional<FilePath> &workDir = std::nullopt,
-                                  bool interactive = false,
-                                  bool withPty = false,
-                                  bool withMarker = true);
+    expected_str<CommandLine> withDockerExecCmd(
+        const CommandLine &cmd,
+        const std::optional<Environment> &env = std::nullopt,
+        const std::optional<FilePath> &workDir = std::nullopt,
+        bool interactive = false,
+        bool withPty = false,
+        bool withMarker = true);
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
@@ -374,15 +375,25 @@ void DockerProcessImpl::start()
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty() || inTerminal;
 
-    const CommandLine fullCommandLine
-        = m_devicePrivate->withDockerExecCmd(m_setup.m_commandLine,
-                                             m_setup.m_environment,
-                                             m_setup.m_workingDirectory,
-                                             interactive,
-                                             inTerminal,
-                                             !m_process.ptyData().has_value());
+    const expected_str<CommandLine> fullCommandLine = m_devicePrivate->withDockerExecCmd(
+        m_setup.m_commandLine,
+        m_setup.m_environment,
+        m_setup.m_workingDirectory,
+        interactive,
+        inTerminal,
+        !m_process.ptyData().has_value());
 
-    m_process.setCommand(fullCommandLine);
+    if (!fullCommandLine) {
+        emit done(ProcessResultData{
+            -1,
+            QProcess::ExitStatus::CrashExit,
+            QProcess::ProcessError::FailedToStart,
+            fullCommandLine.error(),
+        });
+        return;
+    }
+
+    m_process.setCommand(*fullCommandLine);
     m_process.start();
 }
 
@@ -610,8 +621,8 @@ DockerDevice::DockerDevice()
             return fileAccess->get();
         }
 
-        qCWarning(dockerDeviceLog) << "Failed to start CmdBridge:" << fAccess.error()
-                                   << ", falling back to slow direct access";
+        qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
+                                             << ", falling back to slow direct access";
 
         *fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
         return fileAccess->get();
@@ -679,15 +690,16 @@ expected_str<void> DockerDevice::updateContainerAccess() const
     return d->updateContainerAccess();
 }
 
-CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
-                                                   const std::optional<Environment> &env,
-                                                   const std::optional<FilePath> &workDir,
-                                                   bool interactive,
-                                                   bool withPty,
-                                                   bool withMarker)
+expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
+    const CommandLine &cmd,
+    const std::optional<Environment> &env,
+    const std::optional<FilePath> &workDir,
+    bool interactive,
+    bool withPty,
+    bool withMarker)
 {
-    if (!updateContainerAccess())
-        return {};
+    if (const auto result = updateContainerAccess(); !result)
+        return make_unexpected(result.error());
 
     CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
@@ -1101,8 +1113,12 @@ expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
     if (!result)
         return result;
 
+    const expected_str<CommandLine> fullCommandLine = withDockerExecCmd(CommandLine{"env"});
+    if (!fullCommandLine)
+        return make_unexpected(fullCommandLine.error());
+
     Process proc;
-    proc.setCommand(withDockerExecCmd(CommandLine{"env"}));
+    proc.setCommand(*fullCommandLine);
     proc.runBlocking();
     const QString remoteOutput = proc.cleanedStdOut();
 
