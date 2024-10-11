@@ -29,10 +29,7 @@ Rectangle {
             antialiasingMode: SceneEnvironment.MSAA
             antialiasingQuality: SceneEnvironment.High
             backgroundMode: SceneEnvironment.SkyBox
-            lightProbe: Texture {
-                textureData: ProceduralSkyTextureData {
-                }
-            }
+            lightProbe: lightProbeTexture
         }
 
         Node {
@@ -97,6 +94,12 @@ Rectangle {
             id: defaultTexture
             source: "../Generated/images/template_texture.jpg"
             objectName: "Default Material"
+        }
+
+        Texture {
+            id: lightProbeTexture
+            textureData: ProceduralSkyTextureData {
+            }
         }
     }
 

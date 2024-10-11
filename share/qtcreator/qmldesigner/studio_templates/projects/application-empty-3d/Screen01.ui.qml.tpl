@@ -12,60 +12,49 @@ import QtQuick3D.Effects
 import QtQuick3D.Helpers
 import %{ImportModuleName}
 
-Rectangle {
-    width: Constants.width
-    height: Constants.height
+View3D {
+    id: view3D
+    anchors.fill: parent
 
-    color: Constants.backgroundColor
+    environment: sceneEnvironment
 
-    View3D {
-        id: view3D
-        anchors.fill: parent
+    SceneEnvironment {
+        id: sceneEnvironment
+        antialiasingMode: SceneEnvironment.MSAA
+        antialiasingQuality: SceneEnvironment.High
+        backgroundMode: SceneEnvironment.Color
+    }
 
-        environment: sceneEnvironment
-
-        SceneEnvironment {
-            id: sceneEnvironment
-            antialiasingMode: SceneEnvironment.MSAA
-            antialiasingQuality: SceneEnvironment.High
-            backgroundMode: SceneEnvironment.SkyBox
-            lightProbe: Texture {
-                textureData: ProceduralSkyTextureData {
-                }
-            }
+    Node {
+        id: scene
+        DirectionalLight {
+            id: directionalLight
+            y: 400
+            z: 400
+            eulerRotation.x: -40
+            shadowMapQuality: Light.ShadowMapQualityVeryHigh
+            shadowFactor: 100
+            castsShadow: true
         }
 
-        Node {
-            id: scene
-            DirectionalLight {
-                id: directionalLight
-                y: 400
-                z: 400
-                eulerRotation.x: -40
-                shadowMapQuality: Light.ShadowMapQualityVeryHigh
-                shadowFactor: 100
-                castsShadow: true
-            }
+        PerspectiveCamera {
+            id: sceneCamera
+            z: 390
+            y: 300
+            eulerRotation.x: -15
+        }
 
-            PerspectiveCamera {
-                id: sceneCamera
-                z: 390
-                y: 300
-                eulerRotation.x: -15
-            }
-
-            Model {
-                id: groundPlane
-                y: -1
-                source: "#Rectangle"
-                castsShadows: false
-                receivesShadows: true
-                eulerRotation.x: -90
-                scale.y: 900
-                scale.x: 900
-                materials: groundPlaneMaterial
-                readonly property bool _edit3dLocked: true
-            }
+        Model {
+            id: groundPlane
+            y: -1
+            source: "#Rectangle"
+            castsShadows: false
+            receivesShadows: true
+            eulerRotation.x: -90
+            scale.y: 900
+            scale.x: 900
+            materials: groundPlaneMaterial
+            readonly property bool _edit3dLocked: true
         }
     }
 
