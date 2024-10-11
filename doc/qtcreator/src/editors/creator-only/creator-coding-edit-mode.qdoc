@@ -632,7 +632,14 @@
     move between bookmarks, select the \uicontrol {Previous Bookmark} or
     \uicontrol {Next Bookmark} button or use the keyboard shortcuts.
 
-    \image qtcreator-bookmarks-view.png "Listing bookmarks in Bookmarks view"
+    \image qtcreator-bookmarks-view.webp {Listing bookmarks in Bookmarks view}
+
+    To move bookmarks up and down, select \uicontrol {Move Up} or
+    \uicontrol {Move Down} in the context menu or press \key {Ctrl+Alt+,} or
+    \key {Ctrl+Alt+.}.
+
+    To list bookmarks alphabetically by the name of the file where you set them,
+    select \uicontrol {Sort by Filenames}.
 
     \sa {Edit Code}{How To: Edit Code}, {Edit Mode}
 */
