@@ -19,7 +19,12 @@ class QTCREATOR_UTILS_EXPORT Result
 public:
     Result(bool success, const QString &errorString);
     Result(const expected_str<void> &res);
+    Result(const Result &) = default;
+    Result(Result &&) = default;
     ~Result();
+
+    Result &operator=(const Result &) = default;
+    Result &operator=(Result &&) = default;
 
     static const Result Ok;
     static Result Error(const QString &errorString) { return Result(errorString); };
