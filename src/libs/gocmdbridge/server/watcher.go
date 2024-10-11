@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/fxamacker/cbor/v2"
@@ -10,6 +11,7 @@ import (
 
 type WatcherHandler struct {
 	watcher   *fsnotify.Watcher
+	mutex     sync.Mutex
 	watchList map[int]string
 	watchRefs map[string]int
 }
@@ -33,13 +35,16 @@ type watchevent struct {
 	EventType int
 }
 
-func (watchHandler WatcherHandler) start(out chan<- []byte) {
+func (watchHandler *WatcherHandler) start(out chan<- []byte) {
 	for {
 		select {
 		case event, ok := <-watchHandler.watcher.Events:
 			if !ok {
 				return
 			}
+			watchHandler.mutex.Lock()
+			defer watchHandler.mutex.Unlock()
+
 			// Find which watchList entries correspond to the event
 			for id, path := range watchHandler.watchList {
 				// See if the event path is a subpath of the watch path
@@ -79,13 +84,17 @@ type addwatchresult struct {
 	Result bool
 }
 
-func (watchHandler WatcherHandler) processAdd(cmd command, out chan<- []byte) {
+func (watchHandler *WatcherHandler) processAdd(cmd command, out chan<- []byte) {
 	// TODO: Resolve links
 	err := watchHandler.watcher.Add(cmd.Path)
 	if err != nil {
 		sendError(out, cmd, err)
 		return
 	}
+
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
 	watchHandler.watchList[cmd.Id] = cmd.Path
 	watchHandler.watchRefs[cmd.Path]++
 	data, _ := cbor.Marshal(addwatchresult{
@@ -97,7 +106,10 @@ func (watchHandler WatcherHandler) processAdd(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-func (watchHandler WatcherHandler) processStop(cmd command, out chan<- []byte) {
+func (watchHandler *WatcherHandler) processStop(cmd command, out chan<- []byte) {
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
 	path, ok := watchHandler.watchList[cmd.Id]
 	if !ok {
 		sendError(out, cmd, &watchnotfounderror{})
@@ -140,7 +152,10 @@ func (e *watchnotfounderror) Error() string {
 	return "Watch not found"
 }
 
-func (watchHandler WatcherHandler) processRemove(cmd command, out chan<- []byte) {
+func (watchHandler *WatcherHandler) processRemove(cmd command, out chan<- []byte) {
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
 	if _, ok := watchHandler.watchList[cmd.Id]; !ok {
 		sendError(out, cmd, &watchnotfounderror{})
 		return
