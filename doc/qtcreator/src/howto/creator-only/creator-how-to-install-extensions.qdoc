@@ -2,6 +2,30 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
+    \page creator-how-to-manage-extensions.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Manage extensions
+
+    In the experimental \uicontrol Extensions mode, you can install extensions
+    from the computer or the web, as well as load and unload them.
+
+    \image qtcreator-extension-mode.webp {Extensions mode}
+
+    To find extensions, start typing in \uicontrol Search.
+
+    You can sort extensions according to their name, vendor, popularity, or
+    update date.
+
+    To set preferences for loading extension from the web or to install
+    extensions, select \inlineimage icons/settings.png.
+
+    \sa {Enable and disable plugins}, {Install extensions}, {Load extensions}
+*/
+
+/*!
     \page creator-how-to-load-extensions.html
     \previouspage creator-how-tos.html
 
@@ -19,6 +43,7 @@
             \image qtcreator-extension-mode.webp {Extensions mode}
         \li Select an extension.
         \li Select \uicontrol {Load on start}.
+        \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
     \endlist
 
     \section1 Load extensions from the web
@@ -29,11 +54,56 @@
     To load extensions from the web:
 
     \list 1
-        \li Go to \preferences > \uicontrol Environment > \uicontrol Extensions.
+        \li Go to \preferences > \uicontrol Extensions.
             \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
         \li Select \uicontrol {Use external repository}.
-        \li Select \uicontrol OK.
+        \li In \uicontrol {Server URL} enter the URL of the external repository.
+        \li Select \uicontrol {OK}.
     \endlist
 
-    \sa {Enable and disable plugins}, {Install plugins}
+    \sa {Install extensions}, {Manage extensions}
+*/
+
+/*!
+    \page creator-how-to-install-extensions.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Install extensions
+
+    To install extensions to \QC:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Extensions.
+            \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
+        \li Select \uicontrol {Install Extension}.
+        \include creator-how-to-install-plugins.qdoc install-plugins
+    \endlist
+
+    \section1 Security considerations
+
+    \QC does not check extensions from external vendors for security flaws or
+    malicious intent, so be careful when installing them, as it might leave your
+    computer vulnerable to attacks such as hacking, malware, and phishing.
+
+    Before you install an extension from an external vendor:
+
+    \list
+        \li Check that the extension is compatible with your \QC version and
+            other extensions that you install. You can find this information in
+            the description of the extension in the \uicontrol Extensions mode.
+        \li Check what other users are saying about the extension and how they
+            rate it.
+        \li Make sure the vendor is reputable and known for creating high-quality
+            extensions.
+        \li Check that the extension package was recently updated. Outdated
+            extensions present a bigger risk.
+        \li Check that the extension has good documentation and other means of
+            support.
+        \li Check that the extension mostly has features that you need.
+            All extensions that are loaded on start make \QC start a bit slower.
+    \endlist
+
+    \sa {Load extensions}, {Manage extensions}
 */
