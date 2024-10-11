@@ -224,6 +224,51 @@ public:
 
     bool isImageAvailable() const;
 
+    expected_str<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess()
+    {
+        expected_str<FilePath> cmdBridgePath = getCmdBridgePath();
+
+        if (!cmdBridgePath)
+            return make_unexpected(cmdBridgePath.error());
+
+        auto fAccess = std::make_unique<DockerDeviceFileAccess>(this);
+
+        Result initResult = Result::Ok;
+        if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath()))
+            initResult = fAccess->init(q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        else
+            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath());
+
+        if (!initResult)
+            return make_unexpected(initResult.error());
+
+        return fAccess;
+    }
+
+    DeviceFileAccess *createFileAccess()
+    {
+        if (DeviceFileAccess *fileAccess = m_fileAccess.readLocked()->get())
+            return fileAccess;
+
+        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
+            = m_fileAccess.writeLocked();
+        if (*fileAccess)
+            return fileAccess->get();
+
+        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
+
+        if (fAccess) {
+            *fileAccess = std::move(*fAccess);
+            return fileAccess->get();
+        }
+
+        qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
+                                             << ", falling back to slow direct access";
+
+        *fileAccess = std::make_unique<DockerFallbackFileAccess>(q->rootPath());
+        return fileAccess->get();
+    }
+
     DockerDevice *const q;
 
     struct MountPair
@@ -585,48 +630,7 @@ DockerDevice::DockerDevice()
 
     containerStatus.setText(Tr::tr("stopped"));
 
-
-    auto createBridgeFileAccess = [this]() -> expected_str<std::unique_ptr<DeviceFileAccess>> {
-        expected_str<FilePath> cmdBridgePath = d->getCmdBridgePath();
-
-        if (!cmdBridgePath)
-            return make_unexpected(cmdBridgePath.error());
-
-        auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
-        Result initResult = Result::Ok;
-        if (!cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
-            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), rootPath());
-        } else {
-            initResult = fAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
-        }
-        if (!initResult)
-            return make_unexpected(initResult.error());
-
-        return fAccess;
-    };
-
-    setFileAccessFactory([this, createBridgeFileAccess]() -> DeviceFileAccess * {
-        if (DeviceFileAccess *fileAccess = d->m_fileAccess.readLocked()->get())
-            return fileAccess;
-
-        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
-            = d->m_fileAccess.writeLocked();
-        if (*fileAccess)
-            return fileAccess->get();
-
-        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
-
-        if (fAccess) {
-            *fileAccess = std::move(*fAccess);
-            return fileAccess->get();
-        }
-
-        qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
-                                             << ", falling back to slow direct access";
-
-        *fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
-        return fileAccess->get();
-    });
+    allowEmptyCommand.setValue(true);
 
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
@@ -634,7 +638,7 @@ DockerDevice::DockerDevice()
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
-    allowEmptyCommand.setValue(true);
+    setFileAccessFactory([this] { return d->createFileAccess(); });
 
     setOpenTerminal([this](const Environment &env,
                            const FilePath &workingDir) -> expected_str<void> {
