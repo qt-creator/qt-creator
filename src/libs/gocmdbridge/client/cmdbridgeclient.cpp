@@ -323,7 +323,7 @@ expected_str<QFuture<Environment>> Client::start()
             auto stateMachine =
                 [markerOffset = 0, state = int(0), packetSize(0), packetData = QByteArray(), this](
                     QByteArray &buffer) mutable {
-                    static const QByteArrayView MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
+                    static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
                     if (state == 0) {
                         const auto offsetMagicCode = MagicCode.mid(markerOffset);
