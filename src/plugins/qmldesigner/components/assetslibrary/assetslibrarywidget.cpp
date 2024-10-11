@@ -391,11 +391,11 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
     if (destDir.isFile())
         destDir = destDir.parentDir();
 
-    QMessageBox mb;
-    mb.setInformativeText("What would you like to do with the existing asset?");
-    mb.addButton("Keep Both", QMessageBox::AcceptRole);
-    mb.addButton("Replace", QMessageBox::ResetRole);
-    mb.addButton("Cancel", QMessageBox::RejectRole);
+    QMessageBox msgBox;
+    msgBox.setInformativeText("What would you like to do with the existing asset?");
+    msgBox.addButton("Keep Both", QMessageBox::AcceptRole);
+    msgBox.addButton("Replace", QMessageBox::ResetRole);
+    msgBox.addButton("Cancel", QMessageBox::RejectRole);
 
     for (const QUrl &url : urls) {
         Utils::FilePath src = Utils::FilePath::fromUrl(url);
@@ -405,9 +405,9 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             continue;
 
         if (dest.exists()) {
-            mb.setText("An asset named " + dest.fileName() + " already exists.");
-            mb.exec();
-            int userAction = mb.buttonRole(mb.clickedButton());
+            msgBox.setText("An asset named " + dest.fileName() + " already exists.");
+            msgBox.exec();
+            int userAction = msgBox.buttonRole(msgBox.clickedButton());
 
             if (userAction == QMessageBox::AcceptRole) { // "Keep Both"
                 dest = Utils::FilePath::fromString(UniqueName::generatePath(dest.toString()));
@@ -421,8 +421,13 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             }
         }
 
-        if (!src.renameFile(dest))
-            qWarning() << __FUNCTION__ << "Failed to move asset from" << src << "to" << dest;
+        if (!src.renameFile(dest) && src.isDir()) {
+            QMessageBox errBox;
+            QString message = QString("Failed to move folder \"%1\".\nThe folder might contain subfolders or one of its files is in use.")
+                                  .arg(src.fileName());
+            errBox.setInformativeText(message);
+            errBox.exec();
+        }
     }
 
     if (m_assetsView->model())

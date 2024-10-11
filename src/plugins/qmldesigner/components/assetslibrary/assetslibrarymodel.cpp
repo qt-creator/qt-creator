@@ -202,7 +202,7 @@ bool AssetsLibraryModel::isSameOrDescendantPath(const QUrl &source, const QStrin
     Utils::FilePath srcPath = Utils::FilePath::fromUrl(source);
     Utils::FilePath targetPath = Utils::FilePath::fromString(target);
 
-    return targetPath.isChildOf(srcPath);
+    return srcPath == targetPath || targetPath.isChildOf(srcPath);
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
