@@ -425,8 +425,6 @@ public:
         static const QList<SortOption> options = {
             {Tr::tr("Last updated"), RoleDateUpdated, Qt::DescendingOrder},
             {Tr::tr("Name"), RoleName},
-            {Tr::tr("Vendor"), RoleVendor},
-            {Tr::tr("Popularity"), RoleDownloadCount, Qt::DescendingOrder},
         };
         return options;
     }
