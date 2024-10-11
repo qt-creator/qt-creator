@@ -124,7 +124,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
         }
 
         qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
-        const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile, "bs=1"}},
+        const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile}},
                             *cmdBridgeFileData);
 
         qCDebug(faLog) << deco() << "dd run";
