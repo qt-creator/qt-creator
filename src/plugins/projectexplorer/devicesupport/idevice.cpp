@@ -347,7 +347,7 @@ void IDevice::setFileAccess(DeviceFileAccess *fileAccess)
     d->fileAccess = fileAccess;
 }
 
-void IDevice::setFileAccess(std::function<Utils::DeviceFileAccess *()> fileAccessFactory)
+void IDevice::setFileAccessFactory(std::function<DeviceFileAccess *()> fileAccessFactory)
 {
     d->fileAccessFactory = fileAccessFactory;
 }

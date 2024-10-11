@@ -605,7 +605,7 @@ DockerDevice::DockerDevice()
         return fAccess;
     };
 
-    setFileAccess([this, createBridgeFileAccess]() -> DeviceFileAccess * {
+    setFileAccessFactory([this, createBridgeFileAccess]() -> DeviceFileAccess * {
         if (DeviceFileAccess *fileAccess = d->m_fileAccess.readLocked()->get())
             return fileAccess;
 
