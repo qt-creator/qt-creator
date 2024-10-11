@@ -7137,11 +7137,11 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
         auto menu = new QMenu(this);
 
         menu->addAction(Tr::tr("Fold"), this, [&] { fold(block); });
-        menu->addAction(Tr::tr("Fold recursively"), this, [&] { fold(block, true); });
-        menu->addAction(Tr::tr("Fold all"), this, [this] { unfoldAll(/* unfold  = */ false); });
+        menu->addAction(Tr::tr("Fold Recursively"), this, [&] { fold(block, true); });
+        menu->addAction(Tr::tr("Fold All"), this, [this] { unfoldAll(/* unfold  = */ false); });
         menu->addAction(Tr::tr("Unfold"), this, [&] { unfold(block); });
-        menu->addAction(Tr::tr("Unfold recursively"), this, [&] { unfold(block, true); });
-        menu->addAction(Tr::tr("Unfold all"), this, [this] { unfoldAll(/* fold  = */ true); });
+        menu->addAction(Tr::tr("Unfold Recursively"), this, [&] { unfold(block, true); });
+        menu->addAction(Tr::tr("Unfold All"), this, [this] { unfoldAll(/* fold  = */ true); });
         menu->exec(e->globalPos());
 
         delete menu;
