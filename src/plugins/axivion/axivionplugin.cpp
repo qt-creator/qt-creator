@@ -498,7 +498,7 @@ static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
             errorString = Error(NetworkError(reply->url(), error, reply->errorString())).message();
         }
 
-        MessageManager::writeDisrupting(QString("Axivion: %1").arg(errorString));
+        showErrorMessage(errorString);
         return DoneResult::Error;
     };
 
