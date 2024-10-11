@@ -95,6 +95,7 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
                                 imported3dId = Utils::FilePath::fromString(assetPath).baseName();
                                 draggedAsset = assetPath;
                                 draggerEntry = entry;
+                                break;
                             }
                         }
                     }
@@ -141,10 +142,12 @@ bool AssetsLibraryWidget::eventFilter(QObject *obj, QEvent *event)
     return QObject::eventFilter(obj, event);
 }
 
-AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
+AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &mainImageCache,
+                                         AsynchronousImageCache &asynchronousFontImageCache,
                                          SynchronousImageCache &synchronousFontImageCache,
                                          AssetsLibraryView *view)
     : m_itemIconSize{24, 24}
+    , m_mainImageCache{mainImageCache}
     , m_fontImageCache{synchronousFontImageCache}
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
@@ -154,6 +157,47 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
     setMinimumWidth(250);
+
+    connect(m_assetsIconProvider, &AssetsLibraryIconProvider::asyncAssetPreviewRequested,
+            this, [this](const QString &assetId, const QString &assetFile) {
+        Asset asset{assetFile};
+        if (!asset.isImported3D())
+            return;
+
+        auto import3dPath = Utils::FilePath::fromString(
+            QmlDesignerPlugin::instance()->documentManager()
+                .generatedComponentUtils().import3dTypePath());
+        auto projPath = Utils::FilePath::fromString(
+            m_assetsView->externalDependencies().currentProjectDirPath());
+        auto fullPath = projPath.resolvePath(import3dPath)
+                            .pathAppended(assetId + '/' + assetId + ".qml");
+
+        if (fullPath.isEmpty())
+            return;
+
+        m_mainImageCache.requestImage(
+            Utils::PathString{fullPath.toFSPathString()},
+            [this, assetId](const QImage &image) {
+                QMetaObject::invokeMethod(this, [this, assetId, image] {
+                    updateAssetPreview(assetId, QPixmap::fromImage(image), "3d");
+                }, Qt::QueuedConnection);
+            },
+            [&](ImageCache::AbortReason abortReason) {
+                if (abortReason == ImageCache::AbortReason::Abort) {
+                    qWarning() << QLatin1String(
+                        "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                        "failed for path %1, reason: Abort").arg(assetFile);
+                } else if (abortReason == ImageCache::AbortReason::Failed) {
+                    qWarning() << QLatin1String(
+                        "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                        "failed for path %1, reason: Failed").arg(assetFile);
+                } else if (abortReason == ImageCache::AbortReason::NoEntry) {
+                    qWarning() << QLatin1String(
+                        "AssetsLibraryIconProvider::asyncAssetPreviewRequested(): preview generation "
+                        "failed for path %1, reason: NoEntry").arg(assetFile);
+                }
+            });
+    });
 
     m_assetsWidget->quickWidget()->installEventFilter(this);
 
@@ -230,9 +274,9 @@ void AssetsLibraryWidget::deleteSelectedAssets()
     emit deleteSelectedAssetsRequested();
 }
 
-void AssetsLibraryWidget::updateMaterialPreview(const QString &id, const QPixmap &pixmap)
+void AssetsLibraryWidget::updateAssetPreview(const QString &id, const QPixmap &pixmap, const QString &suffix)
 {
-    const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap);
+    const QString thumb = m_assetsIconProvider->setPixmap(id, pixmap, suffix);
     if (!thumb.isEmpty())
         emit m_assetsModel->fileChanged(thumb);
 }

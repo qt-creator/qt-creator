@@ -46,11 +46,15 @@ public:
     TimeStampProvider timeStampProvider;
     AsynchronousImageCache asynchronousFontImageCache{storage, fontGenerator, timeStampProvider};
     SynchronousImageCache synchronousFontImageCache{storage, timeStampProvider, fontCollector};
+    AsynchronousImageCache *mainImageCache = {};
 };
 
-AssetsLibraryView::AssetsLibraryView(ExternalDependenciesInterface &externalDependencies)
+AssetsLibraryView::AssetsLibraryView(AsynchronousImageCache &imageCache,
+                                     ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
 {
+    imageCacheData()->mainImageCache = &imageCache;
+
     m_matSyncTimer.callOnTimeout(this, &AssetsLibraryView::syncMaterialsMetaData);
     m_matSyncTimer.setInterval(500);
     m_matSyncTimer.setSingleShot(true);
@@ -72,6 +76,7 @@ WidgetInfo AssetsLibraryView::widgetInfo()
 {
     if (!m_widget) {
         m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            *imageCacheData()->mainImageCache,
             imageCacheData()->asynchronousFontImageCache,
             imageCacheData()->synchronousFontImageCache,
             this);
@@ -122,7 +127,7 @@ void AssetsLibraryView::modelNodePreviewPixmapChanged(const ModelNode &node,
     // There might be multiple requests for different preview pixmap sizes.
     // Here only the one with the default size is picked.
     if (requestId.isEmpty())
-        m_widget->updateMaterialPreview(node.id(), pixmap);
+        m_widget->updateAssetPreview(node.id(), pixmap, "mat");
 }
 
 void AssetsLibraryView::nodeReparented(const ModelNode &node,
@@ -156,6 +161,7 @@ void AssetsLibraryView::setResourcePath(const QString &resourcePath)
 
     if (!m_widget) {
         m_widget = Utils::makeUniqueObjectPtr<AssetsLibraryWidget>(
+            *imageCacheData()->mainImageCache,
             imageCacheData()->asynchronousFontImageCache,
             imageCacheData()->synchronousFontImageCache,
             this);

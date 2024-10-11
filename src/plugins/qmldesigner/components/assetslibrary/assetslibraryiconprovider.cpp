@@ -77,7 +77,7 @@ QPixmap AssetsLibraryIconProvider::generateFontIcons(const QString &filePath, co
                                                        "Abc"}).pixmap(reqSize);
 }
 
-QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id, const QSize &requestedSize) const
+QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id, const QSize &requestedSize)
 {
     Asset asset(id);
 
@@ -103,15 +103,18 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
         qint64 size = QFileInfo(id).size();
         QString filePath = Utils::StyleHelper::dpiSpecificImageFile(":/AssetsLibrary/images/asset_ktx.png");
         return {QPixmap{filePath}, size};
-    } else if (asset.isMaterial()) {
+    } else if (asset.isMaterial() || asset.isImported3D()) {
         static QPixmap defaultPreview = QPixmap::fromImage(QImage(":/AssetsLibrary/images/asset_material.png"));
         QPixmap pixmap{requestedSize};
-        QString matId = id.mid(id.lastIndexOf('/') + 1);
-        matId.chop(4); // Remove suffix
-        if (m_pixmaps.contains(matId))
-            pixmap = m_pixmaps.value(matId);
-        else
+        QString assetId = id.mid(id.lastIndexOf('/') + 1);
+        assetId.chop(asset.suffix().size() - 1); // Remove suffix
+        if (m_pixmaps.contains(assetId)) {
+            pixmap = m_pixmaps.value(assetId);
+        } else {
             pixmap = defaultPreview;
+            if (asset.isImported3D())
+                emit asyncAssetPreviewRequested(assetId, id);
+        }
         return {pixmap, 0};
     } else {
         QString type;
@@ -121,8 +124,6 @@ QPair<QPixmap, qint64> AssetsLibraryIconProvider::fetchPixmap(const QString &id,
             type = "sound";
         else if (asset.isVideo())
             type = "video";
-        else if (asset.isImported3D())
-            type = "material"; // TODO: Temp until proper preview is supported
         else if (asset.isEffect())
             type = QmlDesigner::ModelNodeOperations::getEffectIcon(id);
 
@@ -158,11 +159,12 @@ qint64 AssetsLibraryIconProvider::fileSize(const QString &id)
     return m_thumbnails.contains(id) ? m_thumbnails[id].fileSize : 0;
 }
 
-QString AssetsLibraryIconProvider::setPixmap(const QString &matId, const QPixmap &pixmap)
+QString AssetsLibraryIconProvider::setPixmap(const QString &matId, const QPixmap &pixmap,
+                                             const QString &suffix)
 {
     m_pixmaps.insert(matId, pixmap);
     const QStringList thumbs = m_thumbnails.keys();
-    const QString checkName = matId + ".mat";
+    const QString checkName = matId + "." + suffix;
     for (const auto &thumb : thumbs) {
         if (thumb.endsWith(checkName))
             return thumb;

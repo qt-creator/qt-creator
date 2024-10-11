@@ -51,7 +51,7 @@ class AssetsLibraryWidget : public QFrame
     Q_PROPERTY(bool isDragging MEMBER m_isDragging NOTIFY isDraggingChanged)
 
 public:
-    AssetsLibraryWidget(AsynchronousImageCache &asynchronousFontImageCache,
+    AssetsLibraryWidget(AsynchronousImageCache &mainImageCache, AsynchronousImageCache &asynchronousFontImageCache,
                         SynchronousImageCache &synchronousFontImageCache, AssetsLibraryView *view);
     ~AssetsLibraryWidget();
 
@@ -68,7 +68,7 @@ public:
     static QPair<QString, QByteArray> getAssetTypeAndData(const QString &assetPath);
 
     void deleteSelectedAssets();
-    void updateMaterialPreview(const QString &id, const QPixmap &pixmap);
+    void updateAssetPreview(const QString &id, const QPixmap &pixmap, const QString &suffix);
 
     Q_INVOKABLE void startDragAsset(const QStringList &assetPaths, const QPointF &mousePos);
     Q_INVOKABLE void handleAddAsset();
@@ -135,6 +135,7 @@ private:
 
     QSize m_itemIconSize;
 
+    AsynchronousImageCache &m_mainImageCache;
     SynchronousImageCache &m_fontImageCache;
 
     AssetsLibraryIconProvider *m_assetsIconProvider = nullptr;

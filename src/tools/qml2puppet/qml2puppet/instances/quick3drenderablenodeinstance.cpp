@@ -60,6 +60,7 @@ QImage Quick3DRenderableNodeInstance::renderImage() const
     QSize size = preview3dBoundingRect.size().toSize();
     nodeInstanceServer()->quickWindow()->resize(size);
     m_dummyRootView->setSize(size);
+    nodeInstanceServer()->setRootItem(m_dummyRootView); // Needed to update view data
 
     // Just render the window once to update spatial nodes
     nodeInstanceServer()->renderWindow();
@@ -90,6 +91,7 @@ QImage Quick3DRenderableNodeInstance::renderPreviewImage(
 
     nodeInstanceServer()->quickWindow()->resize(previewImageSize);
     m_dummyRootView->setSize(previewImageSize);
+    nodeInstanceServer()->setRootItem(m_dummyRootView); // Needed to update view data
 
     // Just render the window once to update spatial nodes
     nodeInstanceServer()->renderWindow();

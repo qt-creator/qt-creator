@@ -4,6 +4,7 @@
 #pragma once
 
 #include <asset.h>
+#include <asynchronousimagecache.h>
 #include <synchronousimagecache.h>
 
 #include <QQuickImageProvider>
@@ -20,6 +21,7 @@ struct Thumbnail
 
 class AssetsLibraryIconProvider : public QQuickImageProvider
 {
+    Q_OBJECT
 public:
     AssetsLibraryIconProvider(SynchronousImageCache &fontImageCache);
 
@@ -28,11 +30,14 @@ public:
     void invalidateThumbnail(const QString &id);
     QSize imageSize(const QString &id);
     qint64 fileSize(const QString &id);
-    QString setPixmap(const QString &matId, const QPixmap &pixmap);
+    QString setPixmap(const QString &assetId, const QPixmap &pixmap, const QString &suffix);
+
+signals:
+    void asyncAssetPreviewRequested(const QString &assetId, const QString &assetFile);
 
 private:
     QPixmap generateFontIcons(const QString &filePath, const QSize &requestedSize) const;
-    QPair<QPixmap, qint64> fetchPixmap(const QString &id, const QSize &requestedSize) const;
+    QPair<QPixmap, qint64> fetchPixmap(const QString &id, const QSize &requestedSize);
     Thumbnail createThumbnail(const QString &id, const QSize &requestedSize);
 
     SynchronousImageCache &m_fontImageCache;
