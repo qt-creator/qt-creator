@@ -454,11 +454,15 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
         if (!info)
             return;
         GuardLocker lock(m_signalBlocker);
-        m_dashboardProjects->clear();
         m_dashboardProjects->addItems(info->projects);
         if (!currentProject.isEmpty() && info->projects.contains(currentProject))
             m_dashboardProjects->setCurrentText(currentProject);
     };
+    {
+        GuardLocker lock(m_signalBlocker);
+        m_dashboardProjects->clear();
+    }
+    updateBasicProjectInfo(std::nullopt);
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
@@ -669,7 +673,11 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_totalRowCount = 0;
         m_addedFilter->setText("0");
         m_removedFilter->setText("0");
+        setFiltersEnabled(false);
         m_issuesModel->clear();
+        m_issuesModel->setHeader({});
+        if (m_overlay)
+            m_overlay->hide();
         return;
     }
 
