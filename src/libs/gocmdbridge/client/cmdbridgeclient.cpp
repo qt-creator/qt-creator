@@ -320,54 +320,64 @@ expected_str<QFuture<Environment>> Client::start()
                 QThread::currentThread()->quit();
             });
 
-            auto stateMachine = [state = int(0), packetSize(0), packetData = QByteArray(), this](
-                                    QByteArray &buffer) mutable {
-                static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
+            auto stateMachine =
+                [markerOffset = 0, state = int(0), packetSize(0), packetData = QByteArray(), this](
+                    QByteArray &buffer) mutable {
+                    static const QByteArrayView MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
-                if (state == 0) {
-                    int start = buffer.indexOf(MagicCode);
-                    if (start == -1) {
-                        // Broken package, search for next magic marker
-                        qCWarning(clientLog) << "Magic marker was not found";
-                        // If we don't find a magic marker, the rest of the buffer is trash.
-                        buffer.clear();
-                    } else {
-                        buffer.remove(0, start + MagicCode.size());
-                        state = 1;
+                    if (state == 0) {
+                        const auto offsetMagicCode = MagicCode.mid(markerOffset);
+                        int start = buffer.indexOf(offsetMagicCode);
+                        if (start == -1) {
+                            if (buffer.size() < offsetMagicCode.size()
+                                && offsetMagicCode.startsWith(buffer)) {
+                                // Partial magic marker?
+                                markerOffset += buffer.size();
+                                buffer.clear();
+                                return;
+                            }
+                            // Broken package, search for next magic marker
+                            qCWarning(clientLog) << "Magic marker was not found";
+                            // If we don't find a magic marker, the rest of the buffer is trash.
+                            buffer.clear();
+                        } else {
+                            buffer.remove(0, start + offsetMagicCode.size());
+                            state = 1;
+                        }
+                        markerOffset = 0;
                     }
-                }
 
-                if (state == 1) {
-                    QDataStream ds(buffer);
-                    ds >> packetSize;
-                    // TODO: Enforce max size in bridge.
-                    if (packetSize > 0 && packetSize < 16384) {
-                        state = 2;
-                        buffer.remove(0, sizeof(packetSize));
-                    } else {
-                        // Broken package, search for next magic marker
-                        qCWarning(clientLog) << "Invalid packet size" << packetSize;
-                        state = 0;
+                    if (state == 1) {
+                        QDataStream ds(buffer);
+                        ds >> packetSize;
+                        // TODO: Enforce max size in bridge.
+                        if (packetSize > 0 && packetSize < 16384) {
+                            state = 2;
+                            buffer.remove(0, sizeof(packetSize));
+                        } else {
+                            // Broken package, search for next magic marker
+                            qCWarning(clientLog) << "Invalid packet size" << packetSize;
+                            state = 0;
+                        }
                     }
-                }
 
-                if (state == 2) {
-                    auto packetDataRemaining = packetSize - packetData.size();
-                    auto dataAvailable = buffer.size();
-                    auto availablePacketData = qMin(packetDataRemaining, dataAvailable);
-                    packetData.append(buffer.left(availablePacketData));
-                    buffer.remove(0, availablePacketData);
+                    if (state == 2) {
+                        auto packetDataRemaining = packetSize - packetData.size();
+                        auto dataAvailable = buffer.size();
+                        auto availablePacketData = qMin(packetDataRemaining, dataAvailable);
+                        packetData.append(buffer.left(availablePacketData));
+                        buffer.remove(0, availablePacketData);
 
-                    if (packetData.size() == packetSize) {
-                        QCborStreamReader reader;
-                        reader.addData(packetData);
-                        packetData.clear();
-                        state = 0;
-                        auto result = d->readPacket(reader);
-                        QTC_CHECK_EXPECTED(result);
+                        if (packetData.size() == packetSize) {
+                            QCborStreamReader reader;
+                            reader.addData(packetData);
+                            packetData.clear();
+                            state = 0;
+                            auto result = d->readPacket(reader);
+                            QTC_CHECK_EXPECTED(result);
+                        }
                     }
-                }
-            };
+                };
 
             connect(
                 d->process,
