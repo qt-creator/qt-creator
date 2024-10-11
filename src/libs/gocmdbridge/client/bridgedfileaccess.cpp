@@ -524,7 +524,7 @@ bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
         f->waitForFinished();
         return true;
     } catch (const std::exception &e) {
-        qCWarning(faLog) << "Error creating directory:" << e.what();
+        qCWarning(faLog) << "Error creating directory" << filePath << ":" << e.what();
         return false;
     }
 }
