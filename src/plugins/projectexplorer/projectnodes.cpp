@@ -359,7 +359,6 @@ FilePath Node::pathOrDirectory(bool dir) const
             location = FileUtils::commonPath(list);
         }
 
-        QTC_CHECK(!location.needsDevice());
         QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot() && (fi.fileName() != fi.absolutePath()))
             fi.setFile(fi.absolutePath());
