@@ -8,6 +8,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if (NOT DEFINED QTCREATORCDBEXT_INSTALL_LLVM)
+  set(QTCREATORCDBEXT_INSTALL_LLVM YES) # default
+endif()
+
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   include(QtCreatorIDEBranding)
@@ -25,7 +29,7 @@ if (NOT QT_CREATOR_API_DEFINED)
 
     string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}")
 
-    macro (setup_library arch)
+    macro (setup_library arch install_llvm)
       ExternalProject_Add(${arch}-bld
         SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
         CMAKE_GENERATOR "${generator}"
@@ -36,6 +40,7 @@ if (NOT QT_CREATOR_API_DEFINED)
           -DPythonTargetArchDll=${PythonTarget${arch}Dll}
           -DPython3_ROOT_DIR=${Python3_ROOT_DIR}
           -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_ALT_SEP}
+          -DQTCREATORCDBEXT_INSTALL_LLVM=${install_llvm}
         BUILD_COMMAND
           ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
         INSTALL_COMMAND
@@ -47,8 +52,10 @@ if (NOT QT_CREATOR_API_DEFINED)
     if (NOT QTCREATORCDBEXT_BUILD_ARCHS)
       set(QTCREATORCDBEXT_BUILD_ARCHS arm64 win32 x64)
     endif()
+    set(install_llvm YES)
     foreach(arch IN LISTS QTCREATORCDBEXT_BUILD_ARCHS)
-      setup_library(${arch})
+      setup_library(${arch} ${install_llvm})
+      set(install_llvm NO)
     endforeach()
 
     list(LENGTH QTCREATORCDBEXT_BUILD_ARCHS build_archs_length)
@@ -60,6 +67,7 @@ if (NOT QT_CREATOR_API_DEFINED)
       )
       install(CODE
         "if (EXISTS \"${CMAKE_BINARY_DIR}/bin\")
+          message(\"Copying ${CMAKE_BINARY_DIR}/bin to ${CMAKE_INSTALL_PREFIX}\")
           file(COPY \"${CMAKE_BINARY_DIR}/bin\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")
          endif()"
         COMPONENT qtcreatorcdbext
@@ -274,22 +282,24 @@ if (_library_enabled)
     VERBATIM
   )
 
-  # Deploy lldb.exe and its Python dependency
-  find_package(Clang QUIET)
-  if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
-    foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
-      if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
-        install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
-                DESTINATION bin/clang/bin
-                COMPONENT qtcreatorcdbext)
-      endif()
-    endforeach()
+  if (QTCREATORCDBEXT_INSTALL_LLVM)
+    # Deploy lldb.exe and its Python dependency
+    find_package(Clang QUIET)
+    if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
+      foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
+        if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
+          install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
+                  DESTINATION bin/clang/bin
+                  COMPONENT qtcreatorcdbext)
+        endif()
+      endforeach()
 
-    if (EXISTS ${LLVM_LIBRARY_DIRS}/site-packages)
-      install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
-              DESTINATION bin/clang/lib
-              COMPONENT qtcreatorcdbext
-              PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+      if (EXISTS ${LLVM_LIBRARY_DIRS}/site-packages)
+        install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
+                DESTINATION bin/clang/lib
+                COMPONENT qtcreatorcdbext
+                PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+      endif()
     endif()
   endif()
 
