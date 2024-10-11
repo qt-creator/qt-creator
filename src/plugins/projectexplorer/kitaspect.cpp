@@ -178,6 +178,10 @@ void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
         m_listAspectSpec->setter(
             *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), IdRole));
     });
+    connect(m_listAspectSpec->model, &QAbstractItemModel::modelAboutToBeReset,
+            this, [this] { m_ignoreChanges.lock(); });
+    connect(m_listAspectSpec->model, &QAbstractItemModel::modelReset,
+            this, [this] { m_ignoreChanges.unlock(); });
 }
 
 void KitAspect::addToLayoutImpl(Layouting::Layout &layout)

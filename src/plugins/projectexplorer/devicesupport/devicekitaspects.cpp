@@ -158,72 +158,25 @@ class DeviceKitAspectImpl final : public KitAspect
 {
 public:
     DeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
-        : KitAspect(workingCopy, factory),
-        m_comboBox(createSubWidget<QComboBox>()),
-        m_model(new DeviceManagerModel(DeviceManager::instance()))
+        : KitAspect(workingCopy, factory)
     {
         setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
-        m_comboBox->setSizePolicy(QSizePolicy::Preferred,
-                                  m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setModel(m_model);
-        m_comboBox->setMinimumContentsLength(16); // Don't stretch too much for Kit Page
-        refresh();
-        m_comboBox->setToolTip(factory->description());
 
-        connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
-                this, &DeviceKitAspectImpl::modelAboutToReset);
-        connect(m_model, &QAbstractItemModel::modelReset,
-                this, &DeviceKitAspectImpl::modelReset);
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &DeviceKitAspectImpl::currentDeviceChanged);
-    }
+        const auto model = new DeviceManagerModel(DeviceManager::instance(), this);
+        auto getter = [](const Kit &k) { return DeviceKitAspect::device(&k)->id().toSetting(); };
+        auto setter = [](Kit &k, const QVariant &id) {
+            DeviceKitAspect::setDeviceId(&k, Id::fromSetting(id));
+        };
+        auto resetModel = [this, model] {
+            model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
+        };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
-    ~DeviceKitAspectImpl() override
-    {
-        delete m_comboBox;
-        delete m_model;
+        connect(model, &QAbstractItemModel::modelReset, this, &DeviceKitAspectImpl::refresh);
     }
 
 private:
-    void addToInnerLayout(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
     Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(kit()); }
-
-    void refresh() override
-    {
-        m_model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
-        m_comboBox->setCurrentIndex(m_model->indexOf(DeviceKitAspect::device(kit())));
-    }
-
-    void modelAboutToReset()
-    {
-        m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
-        m_ignoreChanges.lock();
-    }
-
-    void modelReset()
-    {
-        m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
-        m_ignoreChanges.unlock();
-    }
-
-    void currentDeviceChanged()
-    {
-        if (m_ignoreChanges.isLocked())
-            return;
-        DeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
-    DeviceManagerModel *m_model;
-    Id m_selectedId;
 };
 
 class DeviceKitAspectFactory : public KitAspectFactory
