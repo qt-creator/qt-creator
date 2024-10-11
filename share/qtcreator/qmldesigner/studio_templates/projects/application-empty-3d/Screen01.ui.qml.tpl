@@ -46,7 +46,6 @@ View3D {
 
         Model {
             id: groundPlane
-            y: -1
             source: "#Rectangle"
             castsShadows: false
             receivesShadows: true

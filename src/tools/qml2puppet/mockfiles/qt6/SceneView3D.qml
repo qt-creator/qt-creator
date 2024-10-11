@@ -82,6 +82,11 @@ View3D {
             id: helperGrid
             orthoMode: !sceneView.usePerspective
             distance: sceneView.cameraDistance
+            y: {
+                // Fix flickering grid when there is ground plane at zero by offsetting the grid
+                // a visually insignificant distance
+                sceneView.camera.y / 200
+            }
         }
 
         PointLight {
