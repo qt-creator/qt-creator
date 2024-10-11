@@ -31,13 +31,13 @@ public:
 
     void reset()
     {
-        beginResetModel();
-        if (QAbstractItemModel * const model = sourceModel())
+        if (QAbstractItemModel * const model = sourceModel()) {
+            setSourceModel(nullptr);
             model->deleteLater();
+        }
         ListModel<Interpreter> * const model = createInterpreterModel(this);
         model->setAllData(model->allData() << Interpreter("none", {}, {}));
         setSourceModel(model);
-        endResetModel();
     }
 };
 
