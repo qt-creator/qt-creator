@@ -172,7 +172,8 @@ public:
         };
         setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
-        connect(model, &QAbstractItemModel::modelReset, this, &DeviceKitAspectImpl::refresh);
+        connect(DeviceManager::instance(), &DeviceManager::updated,
+                this, &DeviceKitAspectImpl::refresh);
     }
 
 private:
@@ -395,76 +396,32 @@ class BuildDeviceKitAspectImpl final : public KitAspect
 {
 public:
     BuildDeviceKitAspectImpl(Kit *workingCopy, const KitAspectFactory *factory)
-        : KitAspect(workingCopy, factory),
-        m_comboBox(createSubWidget<QComboBox>()),
-        m_model(new DeviceManagerModel(DeviceManager::instance()))
+        : KitAspect(workingCopy, factory)
     {
         setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setModel(m_model);
-        refresh();
-        m_comboBox->setToolTip(factory->description());
 
-        connect(m_model, &QAbstractItemModel::modelAboutToBeReset,
-                this, &BuildDeviceKitAspectImpl::modelAboutToReset);
-        connect(m_model, &QAbstractItemModel::modelReset,
-                this, &BuildDeviceKitAspectImpl::modelReset);
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &BuildDeviceKitAspectImpl::currentDeviceChanged);
+        const auto model = new DeviceManagerModel(DeviceManager::instance(), this);
+        auto getter = [](const Kit &k) {
+            return BuildDeviceKitAspect::device(&k)->id().toSetting();
+        };
+        auto setter = [](Kit &k, const QVariant &id) {
+            BuildDeviceKitAspect::setDeviceId(&k, Id::fromSetting(id));
+        };
+        auto resetModel = [model] {
+            QList<Id> blackList;
+            const DeviceManager *dm = DeviceManager::instance();
+            for (int i = 0; i < dm->deviceCount(); ++i) {
+                IDevice::ConstPtr device = dm->deviceAt(i);
+                if (!device->usableAsBuildDevice())
+                    blackList.append(device->id());
+            }
+            model->setFilter(blackList);
+        };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+
+        connect(DeviceManager::instance(), &DeviceManager::updated,
+                this, &BuildDeviceKitAspectImpl::refresh);
     }
-
-    ~BuildDeviceKitAspectImpl() override
-    {
-        delete m_comboBox;
-        delete m_model;
-    }
-
-private:
-    void addToInnerLayout(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
-    void refresh() override
-    {
-        QList<Id> blackList;
-        const DeviceManager *dm = DeviceManager::instance();
-        for (int i = 0; i < dm->deviceCount(); ++i) {
-            IDevice::ConstPtr device = dm->deviceAt(i);
-            if (!device->usableAsBuildDevice())
-                blackList.append(device->id());
-        }
-
-        m_model->setFilter(blackList);
-        m_comboBox->setCurrentIndex(m_model->indexOf(BuildDeviceKitAspect::device(kit())));
-    }
-
-    void modelAboutToReset()
-    {
-        m_selectedId = m_model->deviceId(m_comboBox->currentIndex());
-        m_ignoreChanges.lock();
-    }
-
-    void modelReset()
-    {
-        m_comboBox->setCurrentIndex(m_model->indexForId(m_selectedId));
-        m_ignoreChanges.unlock();
-    }
-
-    void currentDeviceChanged()
-    {
-        if (m_ignoreChanges.isLocked())
-            return;
-        BuildDeviceKitAspect::setDeviceId(kit(), m_model->deviceId(m_comboBox->currentIndex()));
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
-    DeviceManagerModel *m_model;
-    Id m_selectedId;
 };
 
 class BuildDeviceKitAspectFactory : public KitAspectFactory

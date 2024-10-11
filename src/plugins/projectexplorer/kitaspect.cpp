@@ -119,7 +119,7 @@ KitAspect::~KitAspect()
 
 void KitAspect::refresh()
 {
-    if (!m_listAspectSpec)
+    if (!m_listAspectSpec || m_ignoreChanges.isLocked())
         return;
     const GuardLocker locker(m_ignoreChanges);
     m_listAspectSpec->resetModel();
