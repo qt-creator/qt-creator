@@ -294,7 +294,7 @@ QDebug &operator<<(QDebug &stream, const Position &pos)
     return stream;
 }
 
-static HighlightCallback &codeHighlighter()
+HighlightCallback &codeHighlighter()
 {
     static HighlightCallback s_highlighter;
     return s_highlighter;

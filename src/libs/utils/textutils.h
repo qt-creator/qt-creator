@@ -89,6 +89,7 @@ using HighlightCallback = std::function<QFuture<QTextDocument *>(const QString &
 QTCREATOR_UTILS_EXPORT QFuture<QTextDocument *> highlightCode(
     const QString &code, const QString &mimeType);
 QTCREATOR_UTILS_EXPORT void setCodeHighlighter(const HighlightCallback &highlighter);
+QTCREATOR_UTILS_EXPORT HighlightCallback &codeHighlighter();
 
 } // Text
 } // Utils
