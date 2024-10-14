@@ -5,6 +5,7 @@
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Revision" : "${QTC_PLUGIN_REVISION}",
     "DisabledByDefault" : true,
+    "SoftLoadable" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
