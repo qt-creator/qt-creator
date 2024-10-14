@@ -893,14 +893,14 @@ void AxivionPerspective::initPerspective()
 
     auto showIssuesAct = new QAction(this);
     showIssuesAct->setIcon(MARKER_ICON.icon());
-    showIssuesAct->setToolTip(Tr::tr("Show inline issues"));
+    showIssuesAct->setToolTip(Tr::tr("Show Inline Issues"));
     showIssuesAct->setCheckable(true);
     showIssuesAct->setChecked(true);
     connect(showIssuesAct, &QAction::toggled,
             this, [](bool checked) {  enableInlineIssues(checked); });
     auto toggleIssuesAct = new QAction(this);
     toggleIssuesAct->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    toggleIssuesAct->setToolTip(Tr::tr("Show issue annotations inline"));
+    toggleIssuesAct->setToolTip(Tr::tr("Show Issue Annotations Inline"));
     toggleIssuesAct->setCheckable(true);
     toggleIssuesAct->setChecked(true);
     connect(toggleIssuesAct, &QAction::toggled, this, [](bool checked) {
@@ -912,7 +912,7 @@ void AxivionPerspective::initPerspective()
 
     m_showFilterHelp = new QAction(this);
     m_showFilterHelp->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    m_showFilterHelp->setToolTip(Tr::tr("Show online filter help"));
+    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
     m_showFilterHelp->setEnabled(false);
     connect(m_showFilterHelp, &QAction::triggered, this, &AxivionPerspective::openFilterHelp);
 
