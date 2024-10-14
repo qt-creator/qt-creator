@@ -8,6 +8,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
@@ -77,6 +78,7 @@ public:
             emit answerClicked(true);
         });
         connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
         // GUI tuning
         setModal(true);
@@ -100,6 +102,10 @@ public:
         m_outputTextEdit->ensureCursorVisible();
     }
     void setProgress(int value) { m_progressBar->setValue(value); }
+    void setDone()
+    {
+        m_dialogButtonBox->setStandardButtons(QDialogButtonBox::Close);
+    }
 
 signals:
     void answerClicked(bool accepted);
@@ -546,12 +552,20 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
     const auto onCancelSetup = [dialogStorage] {
         return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::rejected);
     };
+    const auto onAcceptSetup = [dialogStorage] {
+        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::accepted);
+    };
+    const auto onError = [dialogStorage] { dialogStorage->m_dialog->setDone(); };
     const Group root {
         dialogStorage,
         Group {
-            licensesRecipe,
-            Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
-            continuationRecipe
+            If (!Group {
+                    licensesRecipe,
+                    Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+                    continuationRecipe
+                }) >> Then {
+                Sync(onError).withAccept(onAcceptSetup)
+            }
         }.withCancel(onCancelSetup)
     };
     m_taskTreeRunner.start(root, {}, [this](DoneWith) {
