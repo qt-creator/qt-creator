@@ -204,6 +204,7 @@ public:
     void setHasError(const bool error) const;
 
     Core::IVersionControl::FileState modificationState() const;
+    void resetModificationState();
 
     QIcon icon() const;
     void setIcon(const QIcon icon);
@@ -213,6 +214,7 @@ public:
 
 private:
     FileType m_fileType;
+    mutable std::optional<Core::IVersionControl::FileState> m_modificationState;
     mutable QIcon m_icon;
     mutable bool m_hasError = false;
     bool m_useUnavailableMarker = false;
