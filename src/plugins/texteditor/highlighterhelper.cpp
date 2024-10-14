@@ -105,13 +105,30 @@ static Definition definitionForSetting(const Key &settingsKey, const QString &ma
 
 Definitions definitionsForMimeType(const QString &mimeType)
 {
-    Definitions definitions = highlightRepository()->definitionsForMimeType(mimeType).toList();
-    if (definitions.size() > 1) {
-        const Definition &rememberedDefinition = definitionForSetting(kDefinitionForMimeType,
-                                                                      mimeType);
-        if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
-            definitions = {rememberedDefinition};
+    auto definitionsForMimeTypeName = [mimeType](const QString mimeTypeName) {
+        Definitions definitions
+            = highlightRepository()->definitionsForMimeType(mimeTypeName).toList();
+        if (definitions.size() > 1) {
+            const Definition rememberedDefinition
+                = definitionForSetting(kDefinitionForMimeType, mimeType);
+            if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
+                definitions = {rememberedDefinition};
+        }
+        return definitions;
+    };
+
+    Definitions definitions = definitionsForMimeTypeName(mimeType);
+    if (definitions.isEmpty()) {
+        if (const MimeType mt = Utils::mimeTypeForName(mimeType); mt.isValid()) {
+            const QStringList aliases = mt.aliases();
+            for (const QString &alias : aliases) {
+                definitions = definitionsForMimeTypeName(alias);
+                if (!definitions.isEmpty())
+                    break;
+            }
+        }
     }
+
     return definitions;
 }
 
