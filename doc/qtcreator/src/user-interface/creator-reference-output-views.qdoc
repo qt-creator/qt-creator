@@ -263,8 +263,10 @@
                     \uicontrol {Compile Output}.
             \endlist
             \image qtcreator-preferences-compile-output.webp {Compile Output tab in Preferences}
-        \li Select the \uicontrol {Open Compile Output when building} check box.
-        \li In the \uicontrol {Limit output to} field, you can specify the
+        \li Select \uicontrol {Open Compile Output when building}.
+        \li Select \uicontrol {Discard excessive output} to discard compile
+            output that continuously comes in faster than it can be handled.
+        \li In \uicontrol {Limit output to}, specify the
             maximum amount of build output lines to display.
     \endlist
 
@@ -278,18 +280,18 @@
     To parse compile output:
 
     \list 1
-        \li Select \uicontrol Tools > \uicontrol {Parse Build Output}.
+        \li Go to \uicontrol Tools > \uicontrol {Parse Build Output}.
             \image qtcreator-parse-build-output.png
-        \li Paste the build output in the \uicontrol {Build Output} field, or
+        \li Paste the build output in \uicontrol {Build Output}, or
             select \uicontrol {Load from File} to load it from a file.
-        \li Deselect the \uicontrol {Output went to stderr} check box if the
-            parser expects issues on \c stdout.
-        \li In the \uicontrol {Use parsers from kit} field, select the kit to
+        \li Clear \uicontrol {Output went to stderr} if the parser expects issues
+            on \c stdout.
+        \li In \uicontrol {Use parsers from kit}, select the kit to
             use for parsing the output. Select \uicontrol Manage to view
             and modify kit settings.
         \li The parser displays the parsed output in \l Issues. By default, the
             view is cleared before adding the new output.
-            Deselect the \uicontrol {Clear existing tasks} check box to append
+            Clear \uicontrol {Clear existing tasks} to append
             the new output to the old output.
         \li Select \uicontrol OK to start parsing.
     \endlist
