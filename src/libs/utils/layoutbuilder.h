@@ -527,6 +527,7 @@ QTCREATOR_UTILS_EXPORT void noMargin(Layout *);
 QTCREATOR_UTILS_EXPORT void normalMargin(Layout *);
 QTCREATOR_UTILS_EXPORT void withFormAlignment(Layout *);
 QTCREATOR_UTILS_EXPORT void hr(Layout *);
+QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
 

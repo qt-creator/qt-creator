@@ -1091,6 +1091,12 @@ void addToLayout(Layout *layout, const Stretch &inner)
         lt->addStretch(inner.stretch);
 }
 
+void tight(Layout *layout)
+{
+    layout->setNoMargins();
+    layout->setSpacing(0);
+}
+
 // void createItem(LayoutItem *item, QWidget *t)
 // {
 //     if (auto l = qobject_cast<QLabel *>(t))
