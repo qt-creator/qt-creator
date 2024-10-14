@@ -65,8 +65,16 @@ Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
 constexpr TextFormat contentTF
     {Theme::Token_Text_Default, UiElement::UiElementBody2};
-constexpr TextFormat h5TF
-    {contentTF.themeColor, UiElement::UiElementH5};
+
+constexpr std::array<TextFormat, 6> markdownHeadingFormats{
+    TextFormat{contentTF.themeColor, UiElement::UiElementH4},
+    TextFormat{contentTF.themeColor, UiElement::UiElementH5},
+    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
+    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
+};
+
 constexpr TextFormat h6TF
     {contentTF.themeColor, UiElement::UiElementH6};
 constexpr TextFormat h6CapitalTF
@@ -841,10 +849,9 @@ static void setMarkdown(QTextDocument *document, const QString &markdown)
         }
 
         cursor.mergeBlockFormat(blockFormat);
-        const TextFormat headingTf =
-                blockFormat.headingLevel() == 1 ? h5TF
-                                                : blockFormat.headingLevel() == 2 ? h6TF
-                                                                                  : h6CapitalTF;
+        const TextFormat &headingTf
+            = markdownHeadingFormats[qBound(0, blockFormat.headingLevel() - 1, 5)];
+
         const QFont headingFont = headingTf.font();
         for (auto it = block.begin(); !(it.atEnd()); ++it) {
             QTextFragment fragment = it.fragment();
@@ -853,6 +860,8 @@ static void setMarkdown(QTextDocument *document, const QString &markdown)
                 cursor.setPosition(fragment.position());
                 cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
                 if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
+                    // We don't use font size adjustment for headings
+                    charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
                     charFormat.setFontCapitalization(headingFont.capitalization());
                     charFormat.setFontFamilies(headingFont.families());
                     charFormat.setFontPointSize(headingFont.pointSizeF());
