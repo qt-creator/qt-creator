@@ -3773,6 +3773,66 @@ void tst_Tasking::testTree_data()
         QTest::newRow("BoolItemFalseFalseFalse")
             << TestData{storage, recipe(false, false, false), falseFalseFalse, 2, DoneWith::Error, 1};
     }
+
+    {
+        // withCancel / withAccept
+
+        const Storage<std::unique_ptr<QTimer>> triggerStorage;
+
+        const auto onSetup = [triggerStorage](milliseconds timeout) {
+            return [triggerStorage, timeout] {
+                QTimer *timer = new QTimer;
+                triggerStorage->reset(timer);
+                timer->start(timeout);
+            };
+        };
+
+        const auto onTriggerSetup = [triggerStorage] {
+            return std::make_pair(triggerStorage->get(), &QTimer::timeout);
+        };
+
+        const Group cancelRecipe {
+            storage,
+            triggerStorage,
+            onGroupSetup(onSetup(0ms)),
+            Group {
+                groupSetup(1),
+                createSuccessTask(1, 1ms),
+                groupDone(1)
+            }.withCancel(onTriggerSetup)
+        };
+
+        const Log cancelLog {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {1, Handler::Canceled},
+            {1, Handler::GroupCanceled},
+        };
+
+        QTest::newRow("WithCancel")
+            << TestData{storage, cancelRecipe, cancelLog, 2, DoneWith::Error, 1};
+
+        const Group acceptRecipe {
+            storage,
+            triggerStorage,
+            onGroupSetup(onSetup(1ms)),
+            Group {
+                groupSetup(1),
+                createSuccessTask(1, 0ms).withAccept(onTriggerSetup),
+                groupDone(1)
+            }
+        };
+
+        const Log acceptLog {
+            {1, Handler::GroupSetup},
+            {1, Handler::Setup},
+            {1, Handler::Success},
+            {1, Handler::GroupSuccess},
+        };
+
+        QTest::newRow("WithAccept")
+            << TestData{storage, acceptRecipe, acceptLog, 2, DoneWith::Success, 2};
+    }
 }
 
 static QtMessageHandler s_oldMessageHandler = nullptr;

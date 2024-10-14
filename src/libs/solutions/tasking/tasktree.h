@@ -301,6 +301,8 @@ public:
     Group withLog(const QString &logName) const;
     template <typename SenderSignalPairGetter>
     Group withCancel(SenderSignalPairGetter &&getter) const;
+    template <typename SenderSignalPairGetter>
+    Group withAccept(SenderSignalPairGetter &&getter) const;
 
 protected:
     ExecutableItem() = default;
@@ -316,6 +318,8 @@ private:
     TASKING_EXPORT friend Group operator||(const ExecutableItem &item, DoneResult result);
 
     Group withCancelImpl(
+        const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
+    Group withAcceptImpl(
         const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const;
 };
 
@@ -397,6 +401,18 @@ Group ExecutableItem::withCancel(SenderSignalPairGetter &&getter) const
         }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
     };
     return withCancelImpl(connectWrapper);
+}
+
+template <typename SenderSignalPairGetter>
+Group ExecutableItem::withAccept(SenderSignalPairGetter &&getter) const
+{
+    const auto connectWrapper = [getter](QObject *guard, const std::function<void()> &trigger) {
+        const auto senderSignalPair = getter();
+        QObject::connect(senderSignalPair.first, senderSignalPair.second, guard, [trigger] {
+            trigger();
+        }, static_cast<Qt::ConnectionType>(Qt::QueuedConnection | Qt::SingleShotConnection));
+    };
+    return withAcceptImpl(connectWrapper);
 }
 
 template <typename Handler>
