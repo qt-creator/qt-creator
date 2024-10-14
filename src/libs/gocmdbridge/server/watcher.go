@@ -35,6 +35,36 @@ type watchevent struct {
 	EventType int
 }
 
+func handleEvent(event fsnotify.Event, watchHandler *WatcherHandler, out chan<- []byte) {
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
+	// Find which watchList entries correspond to the event
+	for id, path := range watchHandler.watchList {
+		// See if the event path is a subpath of the watch path
+		if strings.HasPrefix(event.Name, path) {
+			data, _ := cbor.Marshal(watchevent{
+				Type:      "watchEvent",
+				Id:        id,
+				Path:      event.Name,
+				EventType: int(event.Op),
+			})
+			if event.Op == fsnotify.Remove && event.Name == path {
+				// Check if file exists
+				_, err := os.Stat(event.Name)
+				if err == nil {
+					// File exists, so lets add it again
+					err := watchHandler.watcher.Add(event.Name)
+					if err != nil {
+						sendError(out, command{Type: "watchEvent", Id: id}, err)
+					}
+				}
+			}
+			out <- data
+		}
+	}
+}
+
 func (watchHandler *WatcherHandler) start(out chan<- []byte) {
 	for {
 		select {
@@ -42,33 +72,7 @@ func (watchHandler *WatcherHandler) start(out chan<- []byte) {
 			if !ok {
 				return
 			}
-			watchHandler.mutex.Lock()
-			defer watchHandler.mutex.Unlock()
-
-			// Find which watchList entries correspond to the event
-			for id, path := range watchHandler.watchList {
-				// See if the event path is a subpath of the watch path
-				if strings.HasPrefix(event.Name, path) {
-					data, _ := cbor.Marshal(watchevent{
-						Type:      "watchEvent",
-						Id:        id,
-						Path:      event.Name,
-						EventType: int(event.Op),
-					})
-					if event.Op == fsnotify.Remove && event.Name == path {
-						// Check if file exists
-						_, err := os.Stat(event.Name)
-						if err == nil {
-							// File exists, so lets add it again
-							err := watchHandler.watcher.Add(event.Name)
-							if err != nil {
-								sendError(out, command{Type: "watchEvent", Id: id}, err)
-							}
-						}
-					}
-					out <- data
-				}
-			}
+			handleEvent(event, watchHandler, out)
 		case err, ok := <-watchHandler.watcher.Errors:
 			if !ok {
 				return
@@ -150,30 +154,4 @@ type watchnotfounderror struct {
 
 func (e *watchnotfounderror) Error() string {
 	return "Watch not found"
-}
-
-func (watchHandler *WatcherHandler) processRemove(cmd command, out chan<- []byte) {
-	watchHandler.mutex.Lock()
-	defer watchHandler.mutex.Unlock()
-
-	if _, ok := watchHandler.watchList[cmd.Id]; !ok {
-		sendError(out, cmd, &watchnotfounderror{})
-		return
-	}
-	watchHandler.watchRefs[cmd.Path]--
-	if watchHandler.watchRefs[cmd.Path] == 0 {
-		err := watchHandler.watcher.Remove(cmd.Path)
-		if err != nil {
-			sendError(out, cmd, err)
-			return
-		}
-	}
-	delete(watchHandler.watchList, cmd.Id)
-
-	data, _ := cbor.Marshal(removewatchresult{
-		Type:   "removewatchresult",
-		Id:     cmd.Id,
-		Result: true,
-	})
-	out <- data
 }
