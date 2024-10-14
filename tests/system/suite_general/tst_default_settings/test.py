@@ -68,6 +68,8 @@ def __checkKits__():
                       getOutputFromCmdline([qmakePath, "--version"], acceptedError=1)):
         # ignore dysfunctional qmake, e.g. incomplete qtchooser
         qmakePath = None
+    if qmakePath:
+        qmakePath = os.path.dirname(qmakePath)
     foundQt = []
     clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Qt Versions")
     __iterateTree__(":qtdirList_QTreeView", __qtFunc__, foundQt, qmakePath)
@@ -157,7 +159,7 @@ def __qtFunc__(it, foundQt, qmakePath):
                 "Verifying found Qt (%s) is executable." % qtPath)
     # Two Qt versions will be found when using qtchooser: QTCREATORBUG-14697
     # Only add qmake from "which" to list
-    if qtPath == qmakePath:
+    if qtPath.startswith(qmakePath):
         foundQt.append(it)
     try:
         errorLabel = findObject(":QtSupport__Internal__QtVersionManager.errorLabel.QLabel")
