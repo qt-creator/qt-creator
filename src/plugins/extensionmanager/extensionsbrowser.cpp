@@ -574,6 +574,7 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
     auto settingsToolButton = new QPushButton;
     settingsToolButton->setIcon(Icons::SETTINGS.icon());
     settingsToolButton->setFlat(true);
+    settingsToolButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
 
     d->extensionsView = new QListView;
     d->extensionsView->setFrameStyle(QFrame::NoFrame);
@@ -587,31 +588,31 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
 
     QStackedWidget *extensionViewStack;
 
+    const int rightMargin = extraListViewWidth() + gapSize;
     using namespace Layouting;
     Column {
-        Column {
+        Row {
             titleLabel,
-            customMargins(0, VPaddingM, 0, VPaddingM),
+            settingsToolButton,
+            customMargins(0, VPaddingM, rightMargin, VPaddingM),
         },
         Row {
             d->searchBox,
             spacing(gapSize),
-            customMargins(0, VPaddingM, extraListViewWidth() + gapSize, VPaddingM),
+            customMargins(0, VPaddingM, rightMargin, VPaddingM),
         },
         Row {
-            d->sortChooser,
             d->filterChooser,
             st,
-            settingsToolButton,
-            spacing(HGapS),
-            customMargins(0, 0, extraListViewWidth() + gapSize, 0),
+            d->sortChooser,
+            customMargins(0, 0, rightMargin, 0),
         },
         Stack {
             bindTo(&extensionViewStack),
             d->extensionsView,
             Row {
                 extensionViewPlaceHolder(),
-                customMargins(0, 0, extraListViewWidth() + gapSize, 0),
+                customMargins(0, 0, rightMargin, 0),
             },
         },
         noMargin, spacing(0),
