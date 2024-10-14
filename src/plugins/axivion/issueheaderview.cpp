@@ -188,7 +188,7 @@ const QMap<QString, QString> IssueHeaderView::currentFilterMapping() const
     for (int i = 0, end = m_columnInfoList.size(); i < end; ++i) {
         const ColumnInfo ci = m_columnInfoList.at(i);
         if (ci.filter.has_value())
-            filter.insert("filter_" + ci.key, *ci.filter);
+            filter.insert("filter_" + ci.key, QString::fromUtf8(QUrl::toPercentEncoding(*ci.filter)));
     }
     return filter;
 }
