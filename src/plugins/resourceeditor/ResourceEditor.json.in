@@ -1,6 +1,6 @@
 {
     "Id" : "resourceeditor",
-    "Name" : "ResourceEditor",
+    "Name" : "Qt Resource Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

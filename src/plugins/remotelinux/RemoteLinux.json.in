@@ -1,6 +1,6 @@
 {
     "Id" : "remotelinux",
-    "Name" : "RemoteLinux",
+    "Name" : "Remote Linux",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

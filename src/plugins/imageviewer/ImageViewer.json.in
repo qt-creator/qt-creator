@@ -1,6 +1,6 @@
 {
     "Id" : "imageviewer",
-    "Name" : "ImageViewer",
+    "Name" : "Image Viewer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

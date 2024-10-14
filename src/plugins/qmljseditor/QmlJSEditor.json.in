@@ -1,6 +1,6 @@
 {
     "Id" : "qmljseditor",
-    "Name" : "QmlJSEditor",
+    "Name" : "QML JS Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

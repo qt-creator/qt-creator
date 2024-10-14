@@ -1,6 +1,6 @@
 {
     "Id" : "scxmleditor",
-    "Name" : "ScxmlEditor",
+    "Name" : "SCXML Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

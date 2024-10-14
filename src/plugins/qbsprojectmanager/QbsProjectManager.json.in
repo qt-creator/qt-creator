@@ -1,6 +1,6 @@
 {
     "Id" : "qbsprojectmanager",
-    "Name" : "QbsProjectManager",
+    "Name" : "Qbs",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

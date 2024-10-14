@@ -1,6 +1,6 @@
 {
     "Id" : "cmakeprojectmanager",
-    "Name" : "CMakeProjectManager",
+    "Name" : "CMake",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

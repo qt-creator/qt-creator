@@ -1,6 +1,6 @@
 {
     "Id" : "qmldesignerbase",
-    "Name" : "QmlDesignerBase",
+    "Name" : "Qt Quick Designer Base",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",
