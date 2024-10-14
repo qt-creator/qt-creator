@@ -1403,8 +1403,6 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
 // Return name for the image property Image element
 QString EffectComposerModel::getImageElementName(const Uniform &uniform, bool localFiles)
 {
-    if (localFiles && uniform.value().toString().isEmpty())
-        return QStringLiteral("null");
     QString simplifiedName = uniform.name().simplified();
     simplifiedName = simplifiedName.remove(' ');
     return QStringLiteral("imageItem") + simplifiedName;
@@ -1925,11 +1923,7 @@ QString EffectComposerModel::getQmlImagesString(bool localFiles)
     for (Uniform *uniform : uniforms) {
         if (uniform->type() == Uniform::Type::Sampler) {
             QString imagePath = uniform->value().toString();
-            // For preview, generate image element even if path is empty, as changing uniform values
-            // will not trigger qml code regeneration
             if (localFiles) {
-                if (imagePath.isEmpty())
-                    continue;
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
                 imagesString += QString("    property url %1Url: \"%2\"\n")
