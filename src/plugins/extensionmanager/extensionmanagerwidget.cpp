@@ -147,7 +147,7 @@ public:
         static const TextFormat dlTF
             {Theme::Token_Text_Muted, vendorTF.uiElement};
         static const TextFormat detailsTF
-            {Theme::Token_Text_Default, UiElementBody2};
+            {titleTF.themeColor, Utils::StyleHelper::UiElementCaption};
 
         m_title = tfLabel(titleTF);
         m_vendor = new Button({}, Button::SmallLink);
@@ -229,14 +229,8 @@ public:
             m_dlCount->setText(QString::number(dlCount));
         m_dlCountItems->setVisible(showDlCount);
 
-        const QStringList plugins = current.data(RolePlugins).toStringList();
-        if (current.data(RoleItemType).toInt() == ItemTypePack) {
-            const int pluginsCount = plugins.count();
-            const QString details = Tr::tr("Pack contains %n plugins.", nullptr, pluginsCount);
-            m_details->setText(details);
-        } else {
-            m_details->setText({});
-        }
+        const QString description = current.data(RoleDescriptionShort).toString();
+        m_details->setText(description);
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
@@ -907,14 +901,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_currentId = current.data(RoleVendorId).toString() + "." + current.data(RoleId).toString();
 
     {
-        const QStringList description = {
-            "# " + m_currentItemName,
-            current.data(RoleDescriptionShort).toString(),
-            "",
-            current.data(RoleDescriptionLong).toString()
-        };
-        const QString descriptionMarkdown = description.join("\n");
-        setMarkdown(m_description->document(), descriptionMarkdown);
+        const QString description = current.data(RoleDescriptionLong).toString();
+        setMarkdown(m_description->document(), description);
     }
 
     {

@@ -181,8 +181,8 @@ public:
          Qt::AlignVCenter | Qt::TextDontClip};
     constexpr static TextFormat stateTF
         {vendorTF.themeColor, UiElement::UiElementCaption, vendorTF.drawTextFlags};
-    constexpr static TextFormat tagsTF
-        {Theme::Token_Text_Default, UiElement::UiElementCaption};
+    constexpr static TextFormat descriptionTF
+        {itemNameTF.themeColor, UiElement::UiElementCaption};
 
     explicit ExtensionItemDelegate(QObject *parent = nullptr)
         : QItemDelegate(parent)
@@ -203,7 +203,7 @@ public:
         // |               |(50x50)|               +---------------------+--------+--------------+--------+--------+---------+---------+               |         |
         // |               |       |               |                                     (VGapXxs)                                     |               |         |
         // |               |       |               +-----------------------------------------------------------------------------------+               |         |
-        // |               |       |               |                                       <tags>                                      |               |         |
+        // |               |       |               |                                 <shortDescription>                                |               |         |
         // |               |       |               +-----------------------------------------------------------------------------------+               |         |
         // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
         // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
@@ -244,9 +244,9 @@ public:
         QRect vendorR = vendorRowR;
 
         y += vendorRowR.height() + VGapXxs;
-        const QRect tagsR(x, y, middleColumnW, tagsTF.lineHeight());
+        const QRect descriptionR(x, y, middleColumnW, descriptionTF.lineHeight());
 
-        QTC_CHECK(option.rect.height() - 1 == tagsR.bottom() + ExPaddingGapL + gapSize);
+        QTC_CHECK(option.rect.height() - 1 == descriptionR.bottom() + ExPaddingGapL + gapSize);
 
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
@@ -366,13 +366,12 @@ public:
             painter->drawText(vendorR, vendorTF.drawTextFlags, vendorElided);
         }
         {
-            const QStringList tagList = index.data(RoleTags).toStringList();
-            const QString tags = tagList.join(", ");
-            painter->setPen(tagsTF.color());
-            painter->setFont(tagsTF.font());
-            const QString tagsElided
-                = painter->fontMetrics().elidedText(tags, Qt::ElideRight, tagsR.width());
-            painter->drawText(tagsR, tagsTF.drawTextFlags, tagsElided);
+            const QString description = index.data(RoleDescriptionShort).toString();
+            painter->setPen(descriptionTF.color());
+            painter->setFont(descriptionTF.font());
+            const QString descriptionElided = painter->fontMetrics()
+                    .elidedText(description, Qt::ElideRight, descriptionR.width());
+            painter->drawText(descriptionR, descriptionTF.drawTextFlags, descriptionElided);
         }
 
         painter->restore();
@@ -391,7 +390,7 @@ public:
             + VGapXxs
             + vendorRowHeight()
             + VGapXxs
-            + tagsTF.lineHeight();
+            + descriptionTF.lineHeight();
         const int height =
             ExPaddingGapL
             + qMax(iconBgSizeSmall.height(), middleColumnH)
