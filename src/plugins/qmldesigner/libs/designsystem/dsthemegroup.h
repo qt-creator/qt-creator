@@ -49,6 +49,7 @@ public:
     void duplicateValues(ThemeId from, ThemeId to);
     void decorate(ThemeId theme, ModelNode themeNode, bool wrapInGroups = true);
     void decorateComponent(ModelNode node);
+    std::vector<PropertyName> propertyNames() const;
 
 private:
     void addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const;

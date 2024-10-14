@@ -233,6 +233,13 @@ extend_qtc_plugin(QmlDesigner
 )
 
 extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/designsystemview
+  SOURCES
+    collectionmodel.h collectionmodel.cpp
+    designsysteminterface.h designsysteminterface.cpp
+)
+
+extend_qtc_plugin(QmlDesigner
   SOURCES_PREFIX components/edit3d
   SOURCES
   edit3dview.cpp edit3dview.h

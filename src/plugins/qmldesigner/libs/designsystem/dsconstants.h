@@ -11,8 +11,9 @@ namespace QmlDesigner
 {
 
 using ThemeId = ushort;
-
+Q_NAMESPACE
 enum class GroupType { Colors, Flags, Numbers, Strings };
+Q_ENUM_NS(GroupType)
 
 class ThemeProperty
 {

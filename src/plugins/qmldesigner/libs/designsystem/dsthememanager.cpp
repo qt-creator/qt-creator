@@ -32,12 +32,11 @@ std::optional<QmlDesigner::GroupType> typeToGroupType(const QmlDesigner::TypeNam
 
     return {};
 }
-}
+} // namespace
 
 namespace QmlDesigner {
 
-DSThemeManager::DSThemeManager()
-{}
+DSThemeManager::DSThemeManager() {}
 
 DSThemeManager::~DSThemeManager() {}
 
@@ -68,9 +67,45 @@ std::optional<ThemeId> DSThemeManager::themeId(const ThemeName &themeName) const
     return {};
 }
 
+ThemeName DSThemeManager::themeName(ThemeId id) const
+{
+    auto itr = m_themes.find(id);
+    if (itr != m_themes.end())
+        return itr->second;
+
+    return {};
+}
+
+const std::vector<ThemeId> DSThemeManager::allThemeIds() const
+{
+    std::vector<ThemeId> ids;
+    std::transform(m_themes.cbegin(),
+                   m_themes.cend(),
+                   std::back_inserter(ids),
+                   [](const auto &idNamePair) { return idNamePair.first; });
+    return ids;
+}
+
+void DSThemeManager::forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const
+{
+    if (!callback)
+        return;
+
+    for (auto &[gt, themeGroup] : m_groups)
+        callback(gt, themeGroup.get());
+}
+
 size_t DSThemeManager::themeCount() const
 {
     return m_themes.size();
+}
+
+size_t DSThemeManager::propertyCount() const
+{
+    using groupPair = std::pair<const GroupType, std::unique_ptr<DSThemeGroup>>;
+    return std::accumulate(m_groups.cbegin(), m_groups.cend(), 0ull, [](size_t c, const groupPair &g) {
+        return c + g.second->count();
+    });
 }
 
 void DSThemeManager::removeTheme(ThemeId id)
@@ -208,10 +243,10 @@ std::optional<QString> DSThemeManager::load(ModelNode rootModelNode)
 {
     // We need all properties under the theme node and its child nodes.
     // The properties must have a unique name.
-    auto propWithSameName = [](const AbstractProperty &p1, const AbstractProperty &p2) {
-        return p1.name() == p2.name();
+    auto propNameComparator = [](const AbstractProperty &p1, const AbstractProperty &p2) {
+        return p1.name() < p2.name();
     };
-    using PropMap = std::set<AbstractProperty, decltype(propWithSameName)>;
+    using PropMap = std::set<AbstractProperty, decltype(propNameComparator)>;
     using ThemeProps = std::map<ThemeId, PropMap>;
     auto getAllProps = [](const ModelNode &n) -> PropMap {
         PropMap props;
@@ -302,4 +337,4 @@ bool DSThemeManager::findPropertyType(const AbstractProperty &p,
     themeProp->name = pName;
     return true;
 }
-}
+} // namespace QmlDesigner

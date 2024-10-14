@@ -6,6 +6,8 @@
 #include <dsthememanager.h>
 #include <externaldependenciesinterface.h>
 
+#include <QStringList>
+
 namespace QmlDesigner {
 class DSThemeManager;
 class ExternalDependenciesInterface;
@@ -31,9 +33,11 @@ public:
     size_t collectionCount() const { return m_collections.size(); }
 
     DSThemeManager *addCollection(const QString &qmlTypeName);
+    std::optional<DSThemeManager *> collection(const QString &typeName);
     std::optional<QString> typeName(DSThemeManager *collection) const;
 
     std::optional<Utils::FilePath> moduleDirPath() const;
+    QStringList collectionNames() const;
 
 private:
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);

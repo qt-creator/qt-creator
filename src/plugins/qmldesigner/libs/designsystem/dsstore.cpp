@@ -227,6 +227,25 @@ std::optional<Utils::FilePath> DSStore::moduleDirPath() const
     return dsModuleDir(m_ed);
 }
 
+QStringList DSStore::collectionNames() const
+{
+    QStringList names;
+    std::transform(m_collections.begin(),
+                   m_collections.end(),
+                   std::back_inserter(names),
+                   [](const DSCollections::value_type &p) { return p.first; });
+    return names;
+}
+
+std::optional<DSThemeManager *> DSStore::collection(const QString &typeName)
+{
+    auto itr = m_collections.find(typeName);
+    if (itr != m_collections.end())
+        return &itr->second;
+
+    return {};
+}
+
 std::optional<QString> DSStore::loadCollection(const QString &typeName,
                                                const Utils::FilePath &qmlFilePath)
 {

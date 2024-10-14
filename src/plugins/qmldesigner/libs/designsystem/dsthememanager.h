@@ -35,8 +35,14 @@ public:
 
     std::optional<ThemeId> addTheme(const ThemeName &themeName);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
+    ThemeName themeName(ThemeId id) const;
+    const std::vector<ThemeId> allThemeIds() const;
+
+    void forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const;
+
     void removeTheme(ThemeId id);
     size_t themeCount() const;
+    size_t propertyCount() const;
 
     void duplicateTheme(ThemeId from, ThemeId to);
 

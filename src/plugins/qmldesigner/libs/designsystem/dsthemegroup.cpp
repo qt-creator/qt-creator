@@ -202,6 +202,17 @@ void DSThemeGroup::decorateComponent(ModelNode node)
     }
 }
 
+std::vector<PropertyName> DSThemeGroup::propertyNames() const
+{
+    std::vector<PropertyName> names;
+    names.reserve(m_values.size());
+    std::transform(m_values.begin(),
+                   m_values.end(),
+                   std::back_inserter(names),
+                   [](const GroupProperties::value_type &p) { return p.first; });
+    return names;
+}
+
 void DSThemeGroup::addProperty(ModelNode n, PropertyNameView propName, const PropertyData &data) const
 {
     auto metaInfo = n.model()->metaInfo(n.type());
