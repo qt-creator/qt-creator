@@ -767,6 +767,11 @@ static QTextDocument *highlightText(const QString &code, const QString &language
     return doc;
 }
 
+static QStringList defaultCodeFontFamilies()
+{
+    return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
+}
+
 static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const QString &language)
 {
     int startBlockNumner = block.blockNumber();
@@ -813,6 +818,11 @@ static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const
     for (auto block = codeDocument->begin(); block != codeDocument->end(); block = block.next()) {
         if (!first)
             frameCursor.insertBlock();
+
+        QTextCharFormat charFormat = block.charFormat();
+        charFormat.setFontFamilies(defaultCodeFontFamilies());
+        frameCursor.setCharFormat(charFormat);
+
         first = false;
         auto formats = block.layout()->formats();
         frameCursor.insertText(block.text());
