@@ -191,6 +191,8 @@ QtcLibrary {
         "lua.h",
         "macroexpander.cpp",
         "macroexpander.h",
+        "markdownbrowser.cpp",
+        "markdownbrowser.h"
         "mathutils.cpp",
         "mathutils.h",
         "mimeconstants.h",

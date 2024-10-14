@@ -29,30 +29,20 @@
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
-#include <utils/mimeutils.h>
+#include <utils/markdownbrowser.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/textutils.h>
-#include <utils/utilsicons.h>
 
-#include <QAbstractTextDocumentLayout>
 #include <QAction>
 #include <QApplication>
-#include <QBuffer>
-#include <QCache>
 #include <QCheckBox>
 #include <QHBoxLayout>
-#include <QImageReader>
 #include <QMessageBox>
-#include <QMovie>
-#include <QPainter>
 #include <QProgressDialog>
 #include <QScrollArea>
-#include <QTextBlock>
-#include <QTextBrowser>
-#include <QTextDocument>
 
 using namespace Core;
 using namespace Utils;
@@ -65,15 +55,6 @@ Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
 constexpr TextFormat contentTF
     {Theme::Token_Text_Default, UiElement::UiElementBody2};
-
-constexpr std::array<TextFormat, 6> markdownHeadingFormats{
-    TextFormat{contentTF.themeColor, UiElement::UiElementH4},
-    TextFormat{contentTF.themeColor, UiElement::UiElementH5},
-    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
-    TextFormat{contentTF.themeColor, UiElement::UiElementH6Capital},
-};
 
 constexpr TextFormat h6TF
     {contentTF.themeColor, UiElement::UiElementH6};
@@ -384,183 +365,6 @@ private:
     QWidget *m_container = nullptr;
 };
 
-class AnimatedImageHandler : public QObject, public QTextObjectInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QTextObjectInterface)
-
-    class Entry
-    {
-    public:
-        Entry(const QByteArray &data)
-        {
-            if (data.isEmpty())
-                return;
-
-            buffer.setData(data);
-            movie.setDevice(&buffer);
-        }
-
-        QBuffer buffer;
-        QMovie movie;
-    };
-
-public:
-    AnimatedImageHandler(
-        QObject *parent,
-        std::function<void()> redraw,
-        std::function<void(const QString &name)> scheduleLoad)
-        : QObject(parent)
-        , m_redraw(redraw)
-        , m_scheduleLoad(scheduleLoad)
-        , m_entries(1024 * 1024 * 10) // 10 MB max image cache size
-    {}
-
-    virtual QSizeF intrinsicSize(
-        QTextDocument *doc, int posInDocument, const QTextFormat &format) override
-    {
-        Q_UNUSED(doc);
-        Q_UNUSED(posInDocument);
-        QString name = format.toImageFormat().name();
-
-        Entry *entry = m_entries.object(name);
-
-        if (entry && entry->movie.isValid()) {
-            if (!entry->movie.frameRect().isValid())
-                entry->movie.jumpToFrame(0);
-            return entry->movie.frameRect().size();
-        } else if (!entry) {
-            m_scheduleLoad(name);
-        }
-
-        return Utils::Icons::UNKNOWN_FILE.icon().actualSize(QSize(16, 16));
-    }
-
-    void drawObject(
-        QPainter *painter,
-        const QRectF &rect,
-        QTextDocument *document,
-        int posInDocument,
-        const QTextFormat &format) override
-    {
-        Q_UNUSED(document);
-        Q_UNUSED(posInDocument);
-
-        Entry *entry = m_entries.object(format.toImageFormat().name());
-
-        if (entry) {
-            if (entry->movie.isValid())
-                painter->drawImage(rect, entry->movie.currentImage());
-            else
-                painter->drawPixmap(rect.toRect(), m_brokenImage.pixmap(rect.size().toSize()));
-            return;
-        }
-
-        painter->drawPixmap(
-            rect.toRect(), Utils::Icons::UNKNOWN_FILE.icon().pixmap(rect.size().toSize()));
-    }
-
-    void set(const QString &name, QByteArray data)
-    {
-        if (data.size() > m_entries.maxCost())
-            data.clear();
-
-        std::unique_ptr<Entry> entry = std::make_unique<Entry>(data);
-
-        if (entry->movie.frameCount() > 1) {
-            connect(&entry->movie, &QMovie::frameChanged, this, [this]() { m_redraw(); });
-            entry->movie.start();
-        }
-        if (m_entries.insert(name, entry.release(), qMax(1, data.size())))
-            m_redraw();
-    }
-
-private:
-    std::function<void()> m_redraw;
-    std::function<void(const QString &)> m_scheduleLoad;
-    QCache<QString, Entry> m_entries;
-
-    const Icon ErrorCloseIcon = Utils::Icon({{":/utils/images/close.png", Theme::IconsErrorColor}});
-
-    const QIcon m_brokenImage = Icon::combinedIcon(
-        {Utils::Icons::UNKNOWN_FILE.icon(), ErrorCloseIcon.icon()});
-};
-
-class AnimatedDocument : public QTextDocument
-{
-public:
-    AnimatedDocument(QObject *parent = nullptr)
-        : QTextDocument(parent)
-        , m_imageHandler(
-              this,
-              [this]() { documentLayout()->update(); },
-              [this](const QString &name) { scheduleLoad(QUrl(name)); })
-    {
-        connect(this, &QTextDocument::documentLayoutChanged, this, [this]() {
-            documentLayout()->registerHandler(QTextFormat::ImageObject, &m_imageHandler);
-        });
-
-        connect(this, &QTextDocument::contentsChanged, this, [this]() {
-            if (m_urlsToLoad.isEmpty())
-                return;
-
-            if (m_imageLoaderTree.isRunning()) {
-                if (!m_needsToRestartLoading)
-                    return;
-                m_imageLoaderTree.cancel();
-            }
-
-            m_needsToRestartLoading = false;
-
-            using namespace Tasking;
-
-            const LoopList iterator(m_urlsToLoad);
-
-            auto onQuerySetup = [iterator](NetworkQuery &query) {
-                query.setRequest(QNetworkRequest(*iterator));
-                query.setNetworkAccessManager(NetworkAccessManager::instance());
-            };
-
-            auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
-                if (result == DoneWith::Cancel)
-                    return;
-                m_urlsToLoad.removeOne(query.reply()->url());
-
-                if (result == DoneWith::Success)
-                    m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
-                else {
-                    m_imageHandler.set(query.reply()->url().toString(), {});
-                }
-
-                markContentsDirty(0, this->characterCount());
-            };
-
-            // clang-format off
-            Group group {
-                For(iterator) >> Do {
-                    continueOnError,
-                    NetworkQueryTask{onQuerySetup, onQueryDone},
-                },
-            };
-            // clang-format on
-
-            m_imageLoaderTree.start(group);
-        });
-    }
-
-    void scheduleLoad(const QUrl &url)
-    {
-        m_urlsToLoad.append(url);
-        m_needsToRestartLoading = true;
-    }
-
-private:
-    AnimatedImageHandler m_imageHandler;
-    QList<QUrl> m_urlsToLoad;
-    bool m_needsToRestartLoading = false;
-    Tasking::TaskTreeRunner m_imageLoaderTree;
-};
-
 class ExtensionManagerWidget final : public Core::ResizeSignallingWidget
 {
 public:
@@ -578,7 +382,7 @@ private:
     HeadingWidget *m_headingWidget;
     QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
-    QTextBrowser *m_description;
+    MarkdownBrowser *m_description;
     QLabel *m_dateUpdatedTitle;
     QLabel *m_dateUpdated;
     QLabel *m_tagsTitle;
@@ -637,8 +441,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_secondaryDescriptionWidget = new CollapsingWidget;
 
     m_headingWidget = new HeadingWidget;
-    m_description = new QTextBrowser;
-    m_description->setDocument(new AnimatedDocument(m_description));
+    m_description = new MarkdownBrowser;
     m_description->setFrameStyle(QFrame::NoFrame);
     m_description->setOpenExternalLinks(true);
     QPalette browserPal = m_description->palette();
@@ -746,142 +549,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     updateView({});
 }
 
-static QTextDocument *highlightText(const QString &code, const QString &language)
-{
-    auto mimeTypes = mimeTypesForFileName("file." + language);
-
-    QString mimeType = mimeTypes.isEmpty() ? "text/" + language : mimeTypes.first().name();
-
-    auto document = Utils::Text::highlightCode(code, mimeType);
-    if (document.isFinished())
-        return document.result();
-    document.cancel();
-    QTextDocument *doc = new QTextDocument;
-    doc->setPlainText(code);
-    return doc;
-}
-
-static QStringList defaultCodeFontFamilies()
-{
-    return {"Menlo", "Source Code Pro", "Monospace", "Courier"};
-}
-
-static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const QString &language)
-{
-    int startBlockNumner = block.blockNumber();
-
-    // Find the end of the code block ...
-    QTextBlock curBlock = block;
-    while (curBlock.isValid()) {
-        curBlock = curBlock.next();
-        const auto valid = curBlock.isValid();
-        const auto hasProp = curBlock.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage);
-        const auto prop = curBlock.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage);
-        if (!valid || !hasProp || prop != language)
-            break;
-    }
-    // Get the text of the code block and erase it
-    QTextCursor eraseCursor(document);
-    eraseCursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, startBlockNumner);
-    eraseCursor.movePosition(
-        QTextCursor::NextBlock,
-        QTextCursor::KeepAnchor,
-        curBlock.blockNumber() - startBlockNumner - 1);
-    eraseCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
-
-    QString code = eraseCursor.selectedText();
-    eraseCursor.deleteChar();
-
-    // Create a new Frame and insert the highlighted code ...
-    block = document->findBlockByNumber(startBlockNumner);
-
-    QTextCursor cursor(block);
-    QTextFrameFormat format;
-    format.setBorderStyle(QTextFrameFormat::BorderStyle_Solid);
-    format.setBackground(creatorColor(Theme::Token_Background_Muted));
-    format.setPadding(SpacingTokens::ExPaddingGapM);
-    format.setLeftMargin(SpacingTokens::VGapM);
-    format.setRightMargin(SpacingTokens::VGapM);
-
-    QTextFrame *frame = cursor.insertFrame(format);
-    QTextCursor frameCursor(frame);
-
-    std::unique_ptr<QTextDocument> codeDocument(highlightText(code, language));
-    bool first = true;
-
-    for (auto block = codeDocument->begin(); block != codeDocument->end(); block = block.next()) {
-        if (!first)
-            frameCursor.insertBlock();
-
-        QTextCharFormat charFormat = block.charFormat();
-        charFormat.setFontFamilies(defaultCodeFontFamilies());
-        frameCursor.setCharFormat(charFormat);
-
-        first = false;
-        auto formats = block.layout()->formats();
-        frameCursor.insertText(block.text());
-        frameCursor.block().layout()->setFormats(formats);
-    }
-
-    // Leave the frame
-    QTextCursor next = frame->lastCursorPosition();
-    block = next.block();
-}
-
-static void setMarkdown(QTextDocument *document, const QString &markdown)
-{
-    document->setMarkdown(markdown);
-    document->setDefaultFont(contentTF.font());
-
-    for (QTextBlock block = document->begin(); block != document->end(); block = block.next()) {
-        QTextBlockFormat blockFormat = block.blockFormat();
-        // Leave images as they are.
-        if (block.text().contains(QChar::ObjectReplacementCharacter))
-            continue;
-
-        if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-            blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
-            blockFormat.setBottomMargin(SpacingTokens::VGapL);
-        } else
-            blockFormat.setLineHeight(contentTF.lineHeight(), QTextBlockFormat::FixedHeight);
-
-        QTextCursor cursor(block);
-        if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
-            QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
-            highlightCodeBlock(document, block, language);
-            continue;
-        }
-
-        cursor.mergeBlockFormat(blockFormat);
-        const TextFormat &headingTf
-            = markdownHeadingFormats[qBound(0, blockFormat.headingLevel() - 1, 5)];
-
-        const QFont headingFont = headingTf.font();
-        for (auto it = block.begin(); !(it.atEnd()); ++it) {
-            QTextFragment fragment = it.fragment();
-            if (fragment.isValid()) {
-                QTextCharFormat charFormat = fragment.charFormat();
-                cursor.setPosition(fragment.position());
-                cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
-                if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-                    // We don't use font size adjustment for headings
-                    charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
-                    charFormat.setFontCapitalization(headingFont.capitalization());
-                    charFormat.setFontFamilies(headingFont.families());
-                    charFormat.setFontPointSize(headingFont.pointSizeF());
-                    charFormat.setFontWeight(headingFont.weight());
-                    charFormat.setForeground(headingTf.color());
-                } else if (charFormat.isAnchor()) {
-                    charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
-                } else {
-                    charFormat.setForeground(contentTF.color());
-                }
-                cursor.setCharFormat(charFormat);
-            }
-        }
-    }
-}
-
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
     if (current.isValid()) {
@@ -902,7 +569,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
 
     {
         const QString description = current.data(RoleDescriptionLong).toString();
-        setMarkdown(m_description->document(), description);
+        m_description->setMarkdown(description);
     }
 
     {
