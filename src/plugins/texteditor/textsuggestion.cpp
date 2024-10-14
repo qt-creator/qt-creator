@@ -49,6 +49,8 @@ bool TextSuggestion::applyLine(TextEditorWidget *widget)
 
 bool TextSuggestion::filterSuggestions(TextEditorWidget *widget)
 {
+    Q_UNUSED(widget);
+
     QTextCursor c = m_suggestion.range.begin.toTextCursor(sourceDocument());
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
     return m_suggestion.text.startsWith(c.selectedText(), Qt::CaseInsensitive);
