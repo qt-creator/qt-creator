@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "filepath.h"
+
 #include <QTextBrowser>
 
 namespace Utils {
@@ -17,6 +19,7 @@ public:
     MarkdownBrowser(QWidget *parent = nullptr);
 
     void setMarkdown(const QString &markdown);
+    void setBasePath(const FilePath &filePath);
 };
 
 } // namespace Utils

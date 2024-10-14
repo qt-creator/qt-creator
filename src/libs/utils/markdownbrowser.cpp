@@ -3,6 +3,8 @@
 
 #include "markdownbrowser.h"
 
+#include "algorithm.h"
+#include "async.h"
 #include "mimeutils.h"
 #include "networkaccessmanager.h"
 #include "stylehelper.h"
@@ -143,9 +145,12 @@ class AnimatedImageHandler : public QObject, public QTextObjectInterface
     Q_OBJECT
     Q_INTERFACES(QTextObjectInterface)
 
+public:
     class Entry
     {
     public:
+        using Pointer = std::unique_ptr<Entry>;
+
         Entry(const QByteArray &data)
         {
             if (data.isEmpty())
@@ -219,13 +224,17 @@ public:
         if (data.size() > m_entries.maxCost())
             data.clear();
 
-        std::unique_ptr<Entry> entry = std::make_unique<Entry>(data);
+        set(name, std::make_unique<Entry>(data));
+    }
 
+    void set(const QString &name, std::unique_ptr<Entry> entry)
+    {
         if (entry->movie.frameCount() > 1) {
             connect(&entry->movie, &QMovie::frameChanged, this, [this]() { m_redraw(); });
             entry->movie.start();
         }
-        if (m_entries.insert(name, entry.release(), qMax(1, data.size())))
+        const qint64 size = qMax(1, entry->buffer.size());
+        if (m_entries.insert(name, entry.release(), size))
             m_redraw();
     }
 
@@ -268,10 +277,29 @@ public:
 
             using namespace Tasking;
 
-            const LoopList iterator(m_urlsToLoad);
+            const bool isBaseHttp = m_basePath.scheme() == QStringLiteral("http")
+                                    || m_basePath.scheme() == QStringLiteral("https");
 
-            auto onQuerySetup = [iterator](NetworkQuery &query) {
-                query.setRequest(QNetworkRequest(*iterator));
+            const auto isRemoteUrl = [isBaseHttp](const QUrl &url) {
+                return url.scheme() == "http" || url.scheme() == "https"
+                       || (url.isRelative() && isBaseHttp);
+            };
+
+            QList<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
+            QList<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
+
+            if (m_basePath.isEmpty())
+                localUrls.clear();
+
+            const LoopList remoteIterator(remoteUrls);
+            const LoopList localIterator(localUrls);
+
+            auto onQuerySetup = [remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
+                QUrl url = *remoteIterator;
+                if (url.isRelative())
+                    url = base.resolved(url);
+
+                query.setRequest(QNetworkRequest(*remoteIterator));
                 query.setNetworkAccessManager(NetworkAccessManager::instance());
             };
 
@@ -283,16 +311,40 @@ public:
                 if (result == DoneWith::Success)
                     m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
                 else
-                    m_imageHandler.set(query.reply()->url().toString(), {});
+                    m_imageHandler.set(query.reply()->url().toString(), QByteArray{});
 
                 markContentsDirty(0, this->characterCount());
             };
 
+            using EntryPointer = AnimatedImageHandler::Entry::Pointer;
+
+            auto onLocalSetup = [localIterator, basePath = m_basePath](Async<EntryPointer> &async) {
+                const FilePath u = basePath.resolvePath(localIterator->path());
+                async.setConcurrentCallData(
+                    [](FilePath f) -> EntryPointer {
+                        auto data = f.fileContents();
+                        if (!data)
+                            return nullptr;
+
+                        return std::make_unique<AnimatedImageHandler::Entry>(*data);
+                    },
+                    u);
+            };
+
+            auto onLocalDone = [localIterator, this](const Async<EntryPointer> &async) {
+                EntryPointer result = async.takeResult();
+                if (result)
+                    m_imageHandler.set(localIterator->toString(), std::move(result));
+            };
+
             // clang-format off
             Group group {
-                For(iterator) >> Do {
-                    continueOnError,
-                    NetworkQueryTask{onQuerySetup, onQueryDone},
+                parallelLimit(2),
+                For(remoteIterator) >> Do {
+                    NetworkQueryTask{onQuerySetup, onQueryDone} || successItem,
+                },
+                For(localIterator) >> Do {
+                    AsyncTask<EntryPointer>(onLocalSetup, onLocalDone) || successItem,
                 },
             };
             // clang-format on
@@ -307,17 +359,25 @@ public:
         m_needsToRestartLoading = true;
     }
 
+    void setBasePath(const FilePath &filePath) { m_basePath = filePath; }
+
 private:
     AnimatedImageHandler m_imageHandler;
     QList<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
     Tasking::TaskTreeRunner m_imageLoaderTree;
+    FilePath m_basePath;
 };
 
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
 {
     setDocument(new AnimatedDocument(this));
+}
+
+void MarkdownBrowser::setBasePath(const FilePath &filePath)
+{
+    static_cast<AnimatedDocument *>(document())->setBasePath(filePath);
 }
 
 void MarkdownBrowser::setMarkdown(const QString &markdown)
@@ -334,6 +394,21 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
         if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
             blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
             blockFormat.setBottomMargin(SpacingTokens::VGapL);
+
+            // Add anchors to headings. This should actually be done by Qt QTBUG-120518
+            QTextCharFormat cFormat = block.charFormat();
+            QString anchor;
+            const QString text = block.text();
+            for (const QChar &c : text) {
+                if (c == ' ')
+                    anchor.append('-');
+                else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
+                    anchor.append(c.toLower());
+            }
+            cFormat.setAnchor(true);
+            cFormat.setAnchorNames({anchor});
+            QTextCursor cursor(block);
+            cursor.setBlockCharFormat(cFormat);
         } else
             blockFormat.setLineHeight(lineHeight(contentTF), QTextBlockFormat::FixedHeight);
 
