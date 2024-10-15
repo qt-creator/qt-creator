@@ -15,12 +15,15 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -29,6 +32,7 @@
 #include <QListView>
 #include <QPainter>
 #include <QMenu>
+#include <QToolBar>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 
@@ -367,6 +371,22 @@ public:
         }
 
         scanForScripts();
+
+        connect(
+            EditorManager::instance(),
+            &EditorManager::editorOpened,
+            this,
+            &LuaPlugin::onEditorOpened);
+
+        ActionBuilder(this, Id(ACTION_SCRIPTS_BASE).withSuffix("current"))
+            .setText(Tr::tr("Run current Script"))
+            .addOnTriggered([]() {
+                if (auto textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
+                    const FilePath path = textEditor->document()->filePath();
+                    if (path.isChildOf(Core::ICore::userResourcePath("scripts")))
+                        runScript(path);
+                }
+            });
     }
 
     bool delayedInitialize() final
@@ -424,8 +444,8 @@ public:
                 ActionBuilder(this, base)
                     .setText(Tr::tr("%1").arg(script.baseName()))
                     .setToolTip(Tr::tr("Run script '%1'").arg(script.toUserOutput()))
-                    .addOnTriggered([this, script]() { runScript(script); });
-                connect(menu->addAction(Tr::tr("Run")), &QAction::triggered, this, [this, script]() {
+                    .addOnTriggered([script]() { runScript(script); });
+                connect(menu->addAction(Tr::tr("Run")), &QAction::triggered, this, [script]() {
                     runScript(script);
                 });
                 connect(menu->addAction(Tr::tr("Edit")), &QAction::triggered, this, [script]() {
@@ -433,9 +453,22 @@ public:
                 });
             }
         }
-   }
+    }
 
-    void runScript(const FilePath &script)
+    void onEditorOpened(Core::IEditor *editor)
+    {
+        const FilePath path = editor->document()->filePath();
+        if (path.isChildOf(Core::ICore::userResourcePath("scripts"))) {
+            auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+            TextEditor::TextEditorWidget *editorWidget = textEditor->editorWidget();
+            editorWidget->toolBar()
+                ->addAction(Utils::Icons::RUN_SMALL_TOOLBAR.icon(), Tr::tr("Run"), [path]() {
+                    runScript(path);
+                });
+        }
+    }
+
+    static void runScript(const FilePath &script)
     {
         expected_str<QByteArray> content = script.fileContents();
         if (content) {
