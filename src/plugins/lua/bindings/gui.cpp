@@ -107,9 +107,23 @@ HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 HAS_MEM_FUNC(setFlat, hasSetFlat);
 HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
 HAS_MEM_FUNC(setIconSize, hasSetIconSize);
+HAS_MEM_FUNC(setWordWrap, hasSetWordWrap);
+HAS_MEM_FUNC(setTextFormat, hasSetTextFormat);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {
+        const auto wrap = children.get<sol::optional<bool>>("wordWrap");
+        if (wrap)
+            item->setWordWrap(*wrap);
+    }
+
+    if constexpr (hasSetTextFormat<T, void (T::*)(Qt::TextFormat)>::value) {
+        const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat");
+        if (format)
+            item->setTextFormat(*format);
+    }
+
     if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
         const auto flat = children.get<sol::optional<bool>>("flat");
         if (flat)
@@ -415,6 +429,8 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Label>(children, guard);
             }),
+            "text",
+            sol::property(&Label::text),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -439,6 +455,7 @@ void setupGuiModule()
 
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
 
         gui.new_usertype<Stack>(
             "Stack",

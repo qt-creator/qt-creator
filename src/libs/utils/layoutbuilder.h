@@ -260,6 +260,7 @@ public:
     Label(std::initializer_list<I> ps);
     Label(const QString &text);
 
+    QString text() const;
     void setText(const QString &);
     void setTextFormat(Qt::TextFormat);
     void setWordWrap(bool);

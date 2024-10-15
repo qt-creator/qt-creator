@@ -804,6 +804,11 @@ Label::Label(const QString &text)
     setText(text);
 }
 
+QString Label::text() const
+{
+    return access(this)->text();
+}
+
 void Label::setText(const QString &text)
 {
     access(this)->setText(text);

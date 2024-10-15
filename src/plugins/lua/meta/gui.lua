@@ -142,6 +142,9 @@ local pushButton = {}
 function gui.PushButton(options) end
 
 ---@class Label : Widget
+---@field textFormat? TextFormat The text format enum
+---@field wordWrap? bool
+---@field text string Returns the content of the Label as string
 local label = {}
 
 ---@param options WidgetOptions
@@ -211,6 +214,15 @@ function gui.normalMargin() end
 
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
+
+--- Enum representing text format types
+---@enum TextFormat
+gui.TextFormat = {
+    PlainText = 0,
+    RichText = 0,
+    AutoText = 0,
+    MarkdownText = 0
+}
 
 --- Enum representing various window types.
 ---@enum WindowType
