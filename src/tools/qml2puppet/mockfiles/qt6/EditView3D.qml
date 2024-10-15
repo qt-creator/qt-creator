@@ -971,10 +971,6 @@ Item {
                 }
             }
 
-            DropArea {
-                anchors.fill: parent
-            }
-
             Overlay2D {
                 id: gizmoLabel
                 targetNode: activeOverlayView.moveGizmo.visible ? activeOverlayView.moveGizmo
