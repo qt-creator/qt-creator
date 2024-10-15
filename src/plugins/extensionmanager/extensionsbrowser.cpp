@@ -42,6 +42,7 @@
 #include <QLabel>
 #include <QListView>
 #include <QMessageBox>
+#include <QPaintEvent>
 #include <QPainter>
 #include <QPainterPath>
 #include <QPushButton>
@@ -165,7 +166,7 @@ static QString extensionStateDisplayString(ExtensionState state)
     return {};
 }
 
-class ExtensionItemDelegate : public QItemDelegate
+class ExtensionItemWidget final : public QWidget
 {
 public:
     constexpr static QSize dividerS{1, 16};
@@ -184,13 +185,8 @@ public:
     constexpr static TextFormat descriptionTF
         {itemNameTF.themeColor, UiElement::UiElementCaption};
 
-    explicit ExtensionItemDelegate(QObject *parent = nullptr)
-        : QItemDelegate(parent)
-    {
-    }
-
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
-        const override
+    ExtensionItemWidget(QWidget *parent = nullptr)
+        : QWidget(parent)
     {
         // +---------------+-------+---------------+-----------------------------------------------------------------------------------+---------------+---------+
         // |               |       |               |                                  (ExPaddingGapL)                                  |               |         |
@@ -210,70 +206,131 @@ public:
         // |                                                                      (gapSize)                                                                      |
         // +-----------------------------------------------------------------------------------------------------------------------------------------------------+
 
-        const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
-        const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
+        m_iconLabel = new QLabel;
+        m_iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        m_itemNameLabel = tfLabel(itemNameTF);
+        m_itemNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
+        m_releaseStatus = tfLabel(releaseStatusTF, false);
+        m_releaseStatus->setAlignment(Qt::AlignLeft);
+        m_releaseStatus->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        m_installStateLabel = tfLabel(stateTF, false);
+        m_installStateLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
+        m_installStateIcon = new QLabel;
+        m_installStateIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        m_vendorLabel = tfLabel(vendorTF);
+        m_downloadDividerLabel = new QLabel;
+        m_downloadIconLabel = new QLabel;
+        m_downloadCountLabel = tfLabel(countTF);
+        m_shortDescriptionLabel = tfLabel(descriptionTF);
 
-        const int middleColumnW = bgR.width() - ExPaddingGapL - iconBgSizeSmall.width()
-                - ExPaddingGapL - ExPaddingGapL;
+        using namespace Layouting;
+        Row {
+            m_iconLabel,
+            Column {
+                Row {
+                    m_itemNameLabel,
+                    m_releaseStatus,
+                    st,
+                    Widget {
+                        bindTo(&m_installState),
+                        Row {
+                            m_installStateLabel,
+                            m_installStateIcon,
+                            spacing(HGapXxs),
+                            noMargin,
+                        },
+                    },
+                    spacing(HGapXxs),
+                },
+                Row {
+                    m_vendorLabel,
+                    Widget {
+                        bindTo(&m_downloads),
+                        Row {
+                            m_downloadDividerLabel,
+                            Space(HGapXs),
+                            m_downloadIconLabel,
+                            Space(HGapXxs),
+                            m_downloadCountLabel,
+                            tight,
+                        },
+                    },
+                    spacing(HGapXs),
+                },
+                m_shortDescriptionLabel,
+                noMargin,
+                spacing(VGapXxs),
+            },
+            customMargins(ExPaddingGapL, ExPaddingGapL, ExPaddingGapL, ExPaddingGapL),
+            spacing(ExPaddingGapL),
+        }.attachTo(this);
 
-        int x = bgR.x();
-        int y = bgR.y();
-        x += ExPaddingGapL;
-        const QRect iconBgR(x, y + (bgR.height() - iconBgSizeSmall.height()) / 2,
-                            iconBgSizeSmall.width(), iconBgSizeSmall.height());
-        x += iconBgSizeSmall.width() + ExPaddingGapL;
-        y += ExPaddingGapL;
-        const QRect itemNameR(x, y, middleColumnW, itemNameTF.lineHeight());
-        const QString itemName = index.data(RoleName).toString();
+        setFixedWidth(itemWidth);
+        setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
+        setAutoFillBackground(false);
+    }
 
-        const QSize checkmarkS(12, 12);
-        const QRect checkmarkR(x + middleColumnW - checkmarkS.width(), y,
-                               checkmarkS.width(), checkmarkS.height());
+    void setData(const QModelIndex &index)
+    {
+        m_iconLabel->setPixmap(itemIcon(index, SizeSmall));
+        m_itemNameLabel->setText(index.data(RoleName).toString());
+
+        const QString statusString = statusDisplayString(index);
+        m_releaseStatus->setText(statusString);
+        m_releaseStatus->setVisible(!statusString.isEmpty());
+
         const ExtensionState state = index.data(RoleExtensionState).value<ExtensionState>();
         const QString stateString = extensionStateDisplayString(state);
-        const bool showState = (state == InstalledEnabled || state == InstalledDisabled)
-                && !stateString.isEmpty();
-        const QFont stateFont = stateTF.font();
-        const QFontMetrics stateFM(stateFont);
-        const int stateStringWidth = stateFM.horizontalAdvance(stateString);
-        const QRect stateR(checkmarkR.x() - HGapXxs - stateStringWidth, y,
-                           stateStringWidth, stateTF.lineHeight());
+        const bool showState = !stateString.isEmpty();
+        m_installState->setVisible(showState);
+        if (showState) {
+            m_installStateLabel->setText(stateString);
+            const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
+            static const QPixmap enabled = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
+                                                Icon::Tint).pixmap();
+            static const QPixmap disabled = Icon({{checkmarkMask, stateTF.themeColor}},
+                                                 Icon::Tint).pixmap();
+            m_installStateIcon->setPixmap(state == InstalledEnabled ? enabled : disabled);
+        }
 
-        y += itemNameR.height() + VGapXxs;
-        const QRect vendorRowR(x, y, middleColumnW, vendorRowHeight());
-        QRect vendorR = vendorRowR;
+        m_vendorLabel->setText(index.data(RoleVendor).toString());
+        m_shortDescriptionLabel->setText(index.data(RoleDescriptionShort).toString());
+    }
 
-        y += vendorRowR.height() + VGapXxs;
-        const QRect descriptionR(x, y, middleColumnW, descriptionTF.lineHeight());
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+    {
+        setData(index);
 
-        QTC_CHECK(option.rect.height() - 1 == descriptionR.bottom() + ExPaddingGapL + gapSize);
+        const QRect bgRGlobal = option.rect.adjusted(0, 0, -gapSize, -gapSize);
+        const QRect bgR = bgRGlobal.translated(-option.rect.topLeft());
 
         painter->save();
         painter->setRenderHint(QPainter::Antialiasing);
         painter->translate(bgRGlobal.topLeft());
 
-        const bool isPack = index.data(RoleItemType) == ItemTypePack;
         {
             const bool selected = option.state & QStyle::State_Selected;
             const bool hovered = option.state & QStyle::State_MouseOver;
             const QColor fillColor =
                 creatorColor(hovered ? WelcomePageHelpers::cardHoverBackground
-                                              : WelcomePageHelpers::cardDefaultBackground);
+                                     : WelcomePageHelpers::cardDefaultBackground);
             const QColor strokeColor =
                 creatorColor(selected ? Theme::Token_Stroke_Strong
-                                      : hovered ? WelcomePageHelpers::cardHoverStroke
-                                                : WelcomePageHelpers::cardDefaultStroke);
+                             : hovered ? WelcomePageHelpers::cardHoverStroke
+                                       : WelcomePageHelpers::cardDefaultStroke);
             WelcomePageHelpers::drawCardBackground(painter, bgR, fillColor, strokeColor);
         }
-        {
-            const QPixmap icon = itemIcon(index, SizeSmall);
-            painter->drawPixmap(iconBgR.topLeft(), icon);
-        }
+
+        render(painter, bgR.topLeft(), {}, QWidget::DrawChildren);
+
         {
             const QPixmap badge = itemBadge(index, SizeSmall);
             painter->drawPixmap(bgR.topLeft(), badge);
         }
-        if (isPack) {
+
+        if (index.data(RoleItemType) == ItemTypePack) {
+            const QRect iconBgR = m_iconLabel->geometry();
+
             constexpr int circleSize = 18;
             constexpr int circleOverlap = 3; // Protrusion from lower right corner of iconRect
             const QRect smallCircle(iconBgR.right() + 1 + circleOverlap - circleSize,
@@ -288,115 +345,54 @@ public:
             const QStringList plugins = index.data(RolePlugins).toStringList();
             painter->drawText(smallCircle, countTF.drawTextFlags, QString::number(plugins.count()));
         }
-        {
-            QRect effectiveR = itemNameR;
-            if (showState)
-                effectiveR.setRight(stateR.left() - HGapXxs - 1);
-            const QString releaseStatus = statusDisplayString(index);
-            const bool showReleaseStatus = !releaseStatus.isEmpty();
-
-            if (showReleaseStatus) {
-                const QFont releaseStatusF = releaseStatusTF.font();
-                const int releaseStatusAdv =
-                    QFontMetrics(releaseStatusF).horizontalAdvance(releaseStatus)
-                                             + (showState ? ExVPaddingGapXl - HGapXxs
-                                                          : HGapXxs);
-                effectiveR.setWidth(effectiveR.width() - releaseStatusAdv);
-            }
-
-            painter->setPen(itemNameTF.color());
-            painter->setFont(itemNameTF.font());
-            const QString titleElided
-                = painter->fontMetrics().elidedText(itemName, Qt::ElideRight, effectiveR.width());
-            painter->drawText(effectiveR, itemNameTF.drawTextFlags, titleElided);
-
-            if (showReleaseStatus) {
-                const int titleElidedAdv = painter->fontMetrics().horizontalAdvance(titleElided);
-                const QRect releaseStatusR(effectiveR.x() + titleElidedAdv + HGapXxs,
-                                           effectiveR.y(), 1, effectiveR.height() - 1);
-                painter->setPen(releaseStatusTF.color());
-                painter->setFont(releaseStatusTF.font());
-                painter->drawText(releaseStatusR, releaseStatusTF.drawTextFlags, releaseStatus);
-            }
-        }
-        if (showState) {
-            const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
-            static const QIcon enabled = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
-                                                       Icon::Tint).icon();
-            static const QIcon disabled = Icon({{checkmarkMask, stateTF.themeColor}},
-                                                        Icon::Tint).icon();
-            (state == InstalledEnabled ? enabled : disabled).paint(painter, checkmarkR);
-            painter->setPen(stateTF.color());
-            painter->setFont(stateTF.font());
-            painter->drawText(stateR, stateTF.drawTextFlags, stateString);
-        }
-        {
-            const QString vendor = index.data(RoleVendor).toString();
-            const QFontMetrics fm(vendorTF.font());
-            painter->setPen(vendorTF.color());
-            painter->setFont(vendorTF.font());
-
-            if (const int dlCount = index.data(RoleDownloadCount).toInt(); dlCount > 0) {
-                constexpr QSize dlIconS(16, 16);
-                const QString dlCountString = QString::number(dlCount);
-                const int dlCountW = fm.horizontalAdvance(dlCountString);
-                const int dlItemsW = HGapXs + dividerS.width() + HGapXs + dlIconS.width()
-                                     + HGapXxs + dlCountW;
-                const int vendorW = fm.horizontalAdvance(vendor);
-                vendorR.setWidth(qMin(middleColumnW - dlItemsW, vendorW));
-
-                QRect dividerR = vendorRowR;
-                dividerR.setLeft(vendorR.right() + HGapXs);
-                dividerR.setWidth(dividerS.width());
-                painter->fillRect(dividerR, vendorTF.color());
-
-                QRect dlIconR = vendorRowR;
-                dlIconR.setLeft(dividerR.right() + HGapXs);
-                dlIconR.setWidth(dlIconS.width());
-                static const QIcon dlIcon = Icon({{":/extensionmanager/images/download.png",
-                                                   vendorTF.themeColor}}, Icon::Tint).icon();
-                dlIcon.paint(painter, dlIconR);
-
-                QRect dlCountR = vendorRowR;
-                dlCountR.setLeft(dlIconR.right() + HGapXxs);
-                painter->drawText(dlCountR, vendorTF.drawTextFlags, dlCountString);
-            }
-
-            const QString vendorElided = fm.elidedText(vendor, Qt::ElideRight, vendorR.width());
-            painter->drawText(vendorR, vendorTF.drawTextFlags, vendorElided);
-        }
-        {
-            const QString description = index.data(RoleDescriptionShort).toString();
-            painter->setPen(descriptionTF.color());
-            painter->setFont(descriptionTF.font());
-            const QString descriptionElided = painter->fontMetrics()
-                    .elidedText(description, Qt::ElideRight, descriptionR.width());
-            painter->drawText(descriptionR, descriptionTF.drawTextFlags, descriptionElided);
-        }
 
         painter->restore();
     }
 
-    static int vendorRowHeight()
+private:
+    QLabel *m_iconLabel;
+    QLabel *m_itemNameLabel;
+    QLabel *m_releaseStatus;
+    QWidget *m_installState;
+    QLabel *m_installStateLabel;
+    QLabel *m_installStateIcon;
+    QLabel *m_vendorLabel;
+    QWidget *m_downloads;
+    QLabel *m_downloadIconLabel;
+    QLabel *m_downloadDividerLabel;
+    QLabel *m_downloadCountLabel;
+    QLabel *m_shortDescriptionLabel;
+};
+
+class ExtensionItemDelegate : public QItemDelegate
+{
+public:
+    explicit ExtensionItemDelegate(QObject *parent)
+        : QItemDelegate(parent)
     {
-        return qMax(vendorTF.lineHeight(), dividerS.height());
+        m_itemWidget = new ExtensionItemWidget;
+    }
+
+    ~ExtensionItemDelegate()
+    {
+        delete m_itemWidget;
+    }
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
+        const override
+    {
+        m_itemWidget->paint(painter, option, index);
     }
 
     QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
-                   [[maybe_unused]] const QModelIndex &index) const override
+                   const QModelIndex &index) const override
     {
-        const int middleColumnH =
-            itemNameTF.lineHeight()
-            + VGapXxs
-            + vendorRowHeight()
-            + VGapXxs
-            + descriptionTF.lineHeight();
-        const int height =
-            ExPaddingGapL
-            + qMax(iconBgSizeSmall.height(), middleColumnH)
-            + ExPaddingGapL;
-        return {cellWidth, height + gapSize};
+        m_itemWidget->setData(index);
+        return {cellWidth, m_itemWidget->minimumSizeHint().height() + gapSize};
     }
+
+private:
+    ExtensionItemWidget *m_itemWidget;
 };
 
 class SortFilterProxyModel : public QSortFilterProxyModel
