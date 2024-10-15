@@ -193,7 +193,7 @@ void FileSystemAccessTest::testWorkingDirectory()
     proc.start();
     QVERIFY(proc.waitForFinished());
     const QString out = proc.readAllStandardOutput().trimmed();
-    QCOMPARE(out, dir.path());
+    QVERIFY(baseFilePath().withNewPath(out).isSameFile(dir));
     const QString err = proc.readAllStandardOutput();
     QVERIFY(err.isEmpty());
 }
