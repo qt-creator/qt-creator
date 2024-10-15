@@ -7,6 +7,7 @@
 #include "filepath.h"
 #include "icon.h"
 #include "qtcassert.h"
+#include "spinner/spinner.h"
 
 #include <QDebug>
 #include <QFormLayout>
@@ -1147,6 +1148,23 @@ void LineEdit::onReturnPressed(const std::function<void ()> &func)
 void LineEdit::onRightSideIconClicked(const std::function<void ()> &func)
 {
     QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, func);
+}
+
+Spinner::Spinner(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void Spinner::setRunning(bool running)
+{
+    using State = SpinnerSolution::SpinnerState;
+    access(this)->setState(running ? State::Running : State::NotRunning);
+}
+
+void Spinner::setDecorated(bool on)
+{
+    access(this)->setDecorated(on);
 }
 
 // void createItem(LayoutItem *item, QWidget *t)

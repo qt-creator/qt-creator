@@ -577,6 +577,19 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<Spinner>(
+            "Spinner",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Spinner>(children, guard);
+            }),
+            "running",
+            sol::property(&Spinner::setRunning),
+            "decorated",
+            sol::property(&Spinner::setDecorated),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui["br"] = &br;
         gui["st"] = &st;
         gui["empty"] = &empty;

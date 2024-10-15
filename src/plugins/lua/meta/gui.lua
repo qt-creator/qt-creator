@@ -206,6 +206,11 @@ function gui.TabWidget(options) end
 ---@return TabWidget
 function gui.TabWidget(name, child) end
 
+---@class Spinner : Widget
+---@field running bool Set spinner visible and display spinning animation
+---@field decorated bool Display spinner with custom styleSheet defined inside control (default true)
+local spinner = {}
+
 ---A "Line break" in the gui.
 function gui.br() end
 

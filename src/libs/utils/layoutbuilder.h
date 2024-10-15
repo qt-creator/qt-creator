@@ -40,6 +40,12 @@ class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace SpinnerSolution
+{
+class SpinnerWidget;
+enum class SpinnerState;
+}
+
 namespace Utils
 {
 class FancyLineEdit;
@@ -393,6 +399,19 @@ public:
     using I = Building::BuilderItem<ToolBar>;
 
     ToolBar(std::initializer_list<I> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Spinner : public Widget
+{
+public:
+    using Implementation = SpinnerSolution::SpinnerWidget;
+    using I = Building::BuilderItem<Spinner>;
+    using Id = Implementation *;
+
+    Spinner(std::initializer_list<I> ps);
+
+    void setRunning(bool running);
+    void setDecorated(bool on);
 };
 
 // Special
