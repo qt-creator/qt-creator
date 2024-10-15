@@ -63,7 +63,7 @@ public:
     bool event(QEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
-    void paintTab(QPainter *painter, int tabIndex, int visibleIndex) const;
+    void paintTab(QPainter *painter, int tabIndex, int visibleIndex, QIcon::State iconState) const;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void enterEvent(QEnterEvent *event) override;

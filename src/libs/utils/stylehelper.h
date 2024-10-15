@@ -152,7 +152,8 @@ QTCREATOR_UTILS_EXPORT bool usePixmapCache();
 
 QTCREATOR_UTILS_EXPORT QPixmap disabledSideBarIcon(const QPixmap &enabledicon);
 QTCREATOR_UTILS_EXPORT void drawIconWithShadow(const QIcon &icon, const QRect &rect, QPainter *p,
-                                               QIcon::Mode iconMode, int dipRadius = 3,
+                                               QIcon::Mode iconMode, QIcon::State iconState,
+                                               int dipRadius = 3,
                                                const QColor &color = QColor(0, 0, 0, 130),
                                                const QPoint &dipOffset = QPoint(1, -2));
 QTCREATOR_UTILS_EXPORT void drawCornerImage(const QImage &img, QPainter *painter, const QRect &rect,

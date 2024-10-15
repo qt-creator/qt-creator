@@ -542,7 +542,8 @@ QPixmap StyleHelper::disabledSideBarIcon(const QPixmap &enabledicon)
 
 // Draws a cached pixmap with shadow
 void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
-                                     QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
+                                     QPainter *p, QIcon::Mode iconMode, QIcon::State iconState,
+                                     int dipRadius, const QColor &color, const QPoint &dipOffset)
 {
     QPixmap cache;
     const qreal devicePixelRatio = p->device()->devicePixelRatioF();
@@ -555,7 +556,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode);
+        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode, iconState);
         int radius = int(dipRadius * devicePixelRatio);
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));

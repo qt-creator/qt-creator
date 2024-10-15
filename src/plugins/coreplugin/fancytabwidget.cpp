@@ -97,7 +97,7 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
         if (!m_tabs.at(i)->visible)
             continue;
         if (i != currentIndex())
-            paintTab(&p, i, visibleIndex);
+            paintTab(&p, i, visibleIndex, QIcon::Off);
         else
             visibleCurrentIndex = visibleIndex;
         ++visibleIndex;
@@ -105,7 +105,7 @@ void FancyTabBar::paintEvent(QPaintEvent *event)
 
     // paint active tab last, since it overlaps the neighbors
     if (currentIndex() != -1)
-        paintTab(&p, currentIndex(), visibleCurrentIndex);
+        paintTab(&p, currentIndex(), visibleCurrentIndex, QIcon::On);
 }
 
 // Handle hover events for mouse fade ins
@@ -295,7 +295,7 @@ static void paintHighlight(QPainter *painter, const QRect &rect)
 }
 
 static void paintIcon(QPainter *painter, const QRect &rect,
-                      const QIcon &icon,
+                      const QIcon &icon, QIcon::State iconState,
                       bool enabled, bool selected)
 {
     painter->save();
@@ -306,12 +306,12 @@ static void paintIcon(QPainter *painter, const QRect &rect,
     iconRect = iconRect.intersected(rect);
     if (!enabled && !creatorTheme()->flag(Theme::FlatToolBars))
         painter->setOpacity(0.7);
-    StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode);
+    StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode, iconState);
     painter->restore();
 }
 
 static void paintIconAndText(QPainter *painter, const QRect &rect,
-                             const QIcon &icon, const QString &text,
+                             const QIcon &icon, QIcon::State iconState, const QString &text,
                              bool enabled, bool selected)
 {
     painter->save();
@@ -330,7 +330,7 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
         iconRect = iconRect.intersected(tabIconRect);
         if (!enabled && !creatorTheme()->flag(Theme::FlatToolBars))
             painter->setOpacity(0.7);
-        StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode);
+        StyleHelper::drawIconWithShadow(icon, iconRect, painter, iconMode, iconState);
     }
 
     painter->setOpacity(1.0); //FIXME: was 0.7 before?
@@ -353,7 +353,8 @@ static void paintIconAndText(QPainter *painter, const QRect &rect,
     painter->restore();
 }
 
-void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex) const
+void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex,
+                           QIcon::State iconState) const
 {
     if (!validIndex(tabIndex)) {
         qWarning("invalid index");
@@ -387,9 +388,9 @@ void FancyTabBar::paintTab(QPainter *painter, int tabIndex, int visibleIndex) co
     }
 
     if (m_iconsOnly)
-        paintIcon(painter, rect, tab->icon, enabled, selected);
+        paintIcon(painter, rect, tab->icon, iconState, enabled, selected);
     else
-        paintIconAndText(painter, rect, tab->icon, tab->text, enabled, selected);
+        paintIconAndText(painter, rect, tab->icon, iconState, tab->text, enabled, selected);
 
     if (selected && creatorTheme()->flag(Theme::FlatToolBars))
         paintHighlight(painter, rect);

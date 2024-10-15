@@ -561,6 +561,7 @@ public:
     static void setHelpMenu(QMenu *menu);
 
     static expected_str<Color> colorToken(const QString &token, TokenFlags flags = {});
+    static Color highlightFor(Color role);
 
 protected:
     Theme(Theme *originTheme, QObject *parent = nullptr);
