@@ -941,7 +941,7 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
             this, &MemcheckTool::parserError);
     connect(runTool, &MemcheckToolRunner::internalParserError,
             this, &MemcheckTool::internalParserError);
-    connect(runTool, &MemcheckToolRunner::stopped,
+    connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
 
     m_stopAction->disconnect();
