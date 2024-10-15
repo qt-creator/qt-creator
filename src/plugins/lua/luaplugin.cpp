@@ -426,10 +426,17 @@ public:
 
     void scanForScripts()
     {
-        const FilePath scriptsPath = Core::ICore::userResourcePath("scripts");
-        if (!scriptsPath.exists())
-            return;
+        const FilePath userScriptsPath = Core::ICore::userResourcePath("scripts");
+        if (userScriptsPath.exists())
+            scanForScriptsIn(userScriptsPath);
 
+        const FilePath scriptsPath = Core::ICore::resourcePath("lua/scripts");
+        if (scriptsPath.exists())
+            scanForScriptsIn(scriptsPath);
+    }
+
+    void scanForScriptsIn(const FilePath &scriptsPath)
+    {
         ActionContainer *scriptContainer = ActionManager::actionContainer(M_SCRIPT);
 
         const FilePaths scripts = scriptsPath.dirEntries(FileFilter({"*.lua"}, QDir::Files));
