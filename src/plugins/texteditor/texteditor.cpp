@@ -9688,8 +9688,8 @@ void TextEditorWidget::replace(int pos, int length, const QString &string)
 {
     if (length == string.length()) {
         bool different = false;
-        for (int i = 0; !different && pos < length; ++i)
-            different = document()->characterAt(pos) != string.at(i);
+        for (int i = 0; !different && i < length; ++i)
+            different = document()->characterAt(pos + i) != string.at(i);
         if (!different)
             return;
     }
