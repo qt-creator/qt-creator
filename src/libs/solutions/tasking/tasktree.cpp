@@ -1730,10 +1730,7 @@ Group ExecutableItem::withCancelImpl(
     return Group {
         parallel,
         stopOnSuccessOrError,
-        Group {
-            finishAllAndError,
-            BarrierTask(onSetup)
-        },
+        BarrierTask(onSetup) && errorItem,
         *this
     };
 }
