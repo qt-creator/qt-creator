@@ -6,6 +6,7 @@
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "icon.h"
+#include "markdownbrowser.h"
 #include "qtcassert.h"
 #include "spinner/spinner.h"
 
@@ -1046,6 +1047,24 @@ Tab::Tab(const QString &tabName, const Layout &inner)
 void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 {
     access(tabWidget)->addTab(tab.inner.emerge(), tab.tabName);
+}
+
+// MarkdownBrowser
+
+MarkdownBrowser::MarkdownBrowser(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void MarkdownBrowser::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void MarkdownBrowser::setBasePath(const Utils::FilePath &path)
+{
+    access(this)->setBasePath(path);
 }
 
 // Special If

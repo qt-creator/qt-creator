@@ -478,6 +478,15 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<Layouting::MarkdownBrowser>(
+            "MarkdownBrowser",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Layouting::MarkdownBrowser>(children, guard);
+            }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<Widget>(
             "Widget",
             sol::call_constructor,

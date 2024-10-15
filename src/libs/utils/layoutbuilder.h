@@ -41,17 +41,16 @@ class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace SpinnerSolution
-{
+namespace SpinnerSolution {
 class SpinnerWidget;
 enum class SpinnerState;
-}
+} // namespace SpinnerSolution
 
-namespace Utils
-{
+namespace Utils {
 class FancyLineEdit;
 class FilePath;
-} // Utils
+class MarkdownBrowser;
+} // namespace Utils
 
 namespace Layouting {
 
@@ -425,6 +424,18 @@ public:
     void setDecorated(bool on);
 };
 
+class QTCREATOR_UTILS_EXPORT MarkdownBrowser : public Widget
+{
+public:
+    using Implementation = Utils::MarkdownBrowser;
+    using I = Building::BuilderItem<MarkdownBrowser>;
+
+    MarkdownBrowser(std::initializer_list<I> items);
+
+    void setMarkdown(const QString &);
+    void setBasePath(const Utils::FilePath &);
+};
+
 // Special
 
 class QTCREATOR_UTILS_EXPORT If
@@ -509,7 +520,8 @@ QTC_DEFINE_BUILDER_SETTER(windowFlags, setWindowFlags);
 QTC_DEFINE_BUILDER_SETTER(widgetAttribute, setWidgetAttribute);
 QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
-QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown)
+QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
+QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
 
 // Nesting dispatchers
 
