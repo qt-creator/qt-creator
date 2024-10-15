@@ -163,7 +163,10 @@ public:
         setManagingPage(Constants::DEVICE_SETTINGS_PAGE_ID);
 
         const auto model = new DeviceManagerModel(DeviceManager::instance(), this);
-        auto getter = [](const Kit &k) { return DeviceKitAspect::device(&k)->id().toSetting(); };
+        auto getter = [](const Kit &k) {
+            auto device = DeviceKitAspect::device(&k);
+            return device ? device->id().toSetting() : QVariant{};
+        };
         auto setter = [](Kit &k, const QVariant &id) {
             DeviceKitAspect::setDeviceId(&k, Id::fromSetting(id));
         };
