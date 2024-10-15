@@ -826,7 +826,7 @@ CommandLine SshProcessInterfacePrivate::fullLocalCommandLine() const
 
     const Environment &env = q->m_setup.m_environment;
     env.forEachEntry([&](const QString &key, const QString &value, bool enabled) {
-        if (enabled)
+        if (enabled && !key.trimmed().isEmpty())
             inner.addArgs(key + "='" + env.expandVariables(value) + '\'', CommandLine::Raw);
     });
 
