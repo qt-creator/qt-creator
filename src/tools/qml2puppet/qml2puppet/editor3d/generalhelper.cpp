@@ -704,7 +704,16 @@ bool GeneralHelper::isSceneObject(QQuick3DNode *node) const
 
     const QQuick3DObject *sceneObject
         = importSceneManager->m_nodeMap.value(objectPrivate->spatialNode, nullptr);
-    return sceneObject != nullptr;
+    if (!sceneObject)
+        return false;
+
+    QQuick3DNode *parentNode = node->parentNode();
+    while (parentNode) {
+        if (parentNode->inherits("QQuick3DSceneRootNode"))
+            return true;
+        parentNode = parentNode->parentNode();
+    }
+    return false;
 }
 
 // Emitter gizmo model creation is done in C++ as creating dynamic properties and
