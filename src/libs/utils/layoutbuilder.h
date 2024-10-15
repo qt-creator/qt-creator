@@ -29,6 +29,7 @@ class QLabel;
 class QLayout;
 class QObject;
 class QPushButton;
+class QScrollArea;
 class QSize;
 class QSpinBox;
 class QSplitter;
@@ -358,6 +359,16 @@ public:
     void setOrientation(Qt::Orientation);
     void setStretchFactor(int index, int stretch);
     void setChildrenCollapsible(bool collapsible);
+};
+
+class QTCREATOR_UTILS_EXPORT ScrollArea : public Widget
+{
+public:
+    using Implementation = QScrollArea;
+
+    ScrollArea(const Layout &inner);
+
+    void setLayout(const Layout &inner);
 };
 
 class QTCREATOR_UTILS_EXPORT Stack : public Widget

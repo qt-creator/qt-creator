@@ -15,6 +15,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSize>
 #include <QSpacerItem>
 #include <QSpinBox>
@@ -965,6 +966,19 @@ void addToStack(Stack *stack, const Layout &inner)
 void addToStack(Stack *stack, QWidget *inner)
 {
     access(stack)->addWidget(inner);
+}
+
+// ScrollArea
+
+ScrollArea::ScrollArea(const Layout &inner)
+{
+    ptr = new Implementation;
+    access(this)->setWidget(inner.emerge());
+}
+
+void ScrollArea::setLayout(const Layout &inner)
+{
+    access(this)->setWidget(inner.emerge());
 }
 
 // Splitter

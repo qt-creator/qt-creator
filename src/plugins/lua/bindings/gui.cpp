@@ -517,6 +517,20 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<ScrollArea>(
+            "ScrollArea",
+            sol::call_constructor,
+            sol::factories(
+                [](const Layout &inner) {
+                    auto item = std::make_unique<ScrollArea>(inner);
+                    return item;
+                },
+                [guard](const sol::table &children) {
+                    return constructWidgetType<ScrollArea>(children, guard);
+                }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<TextEdit>(
             "TextEdit",
             sol::call_constructor,
