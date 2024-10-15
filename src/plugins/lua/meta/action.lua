@@ -34,6 +34,10 @@ ActionOptions = {}
 ---@return Command command The created command.
 function action.create(id, options) end
 
+---Triggers an Action.
+---@param id string The id of the action.
+function action.trigger(id) end
+
 ---@class Command
 ---@field enabled boolean Whether the command is enabled or not.
 ---@field text string The text of the command. Make sure to specify `commandAttributes = CommandAttribute.CA_UpdateText` in the options.
