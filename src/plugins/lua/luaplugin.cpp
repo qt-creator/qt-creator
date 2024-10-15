@@ -117,7 +117,7 @@ public:
             painter->fillRect(opt.rect, opt.palette.highlight());
             painter->setPen(opt.palette.highlightedText().color());
         } else if (isError) {
-            painter->setPen(creatorColor(Theme::Token_Notification_Danger));
+            painter->setPen(creatorColor(Theme::Token_Notification_Danger_Default));
         } else {
             painter->setPen(opt.palette.text().color());
         }

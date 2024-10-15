@@ -173,7 +173,7 @@ public:
     constexpr static TextFormat itemNameTF
         {Theme::Token_Text_Default, UiElement::UiElementH6};
     constexpr static TextFormat releaseStatusTF
-        {Theme::Token_Notification_Alert, UiElement::UiElementLabelSmall};
+        {Theme::Token_Notification_Alert_Default, UiElement::UiElementLabelSmall};
     constexpr static TextFormat countTF
         {Theme::Token_Text_Default, UiElement::UiElementLabelSmall,
          Qt::AlignCenter | Qt::TextDontClip};
@@ -824,7 +824,7 @@ QPixmap itemBadge(const QModelIndex &index, [[maybe_unused]] Size size)
 
     QPainter p(&pixmap);
     WelcomePageHelpers::drawCardBackground(&p, badgeR,
-                                           creatorColor(Theme::Token_Notification_Neutral),
+                                           creatorColor(Theme::Token_Notification_Neutral_Default),
                                            Qt::NoPen, iconRectRounding);
     p.setFont(font);
     p.setPen(badgeTF.color());
