@@ -421,6 +421,7 @@ private:
     void handleGotInferiorPid(Ios::IosToolHandler *handler, const FilePath &bundlePath,
                               const QString &deviceId, qint64 pid);
     void handleAppOutput(Ios::IosToolHandler *handler, const QString &output);
+    void handleMessage(const QString &msg);
     void handleErrorMsg(Ios::IosToolHandler *handler, const QString &msg);
     void handleToolExited(Ios::IosToolHandler *handler, int code);
     void handleFinished(Ios::IosToolHandler *handler);
@@ -529,8 +530,8 @@ void IosRunner::start()
     m_toolHandler = new IosToolHandler(m_deviceType, this);
     connect(m_toolHandler, &IosToolHandler::appOutput,
             this, &IosRunner::handleAppOutput);
-    connect(m_toolHandler, &IosToolHandler::errorMsg,
-            this, &IosRunner::handleErrorMsg);
+    connect(m_toolHandler, &IosToolHandler::message, this, &IosRunner::handleMessage);
+    connect(m_toolHandler, &IosToolHandler::errorMsg, this, &IosRunner::handleErrorMsg);
     connect(m_toolHandler, &IosToolHandler::gotServerPorts,
             this, &IosRunner::handleGotServerPorts);
     connect(m_toolHandler, &IosToolHandler::gotInferiorPid,
@@ -627,6 +628,16 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
     appendMessage(output, StdOutFormat);
 }
 
+void IosRunner::handleMessage(const QString &msg)
+{
+    QString res(msg);
+    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
+    const QRegularExpressionMatch match = qmlPortRe.match(msg);
+    if (match.hasMatch() && m_qmlServerPort.isValid())
+        res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
+    appendMessage(res, StdOutFormat);
+}
+
 void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
 {
     Q_UNUSED(handler)
@@ -640,11 +651,6 @@ void IosRunner::handleErrorMsg(IosToolHandler *handler, const QString &msg)
         TaskHub::addTask(DeploymentTask(Task::Error, message));
         res.replace(lockedErr, message);
     }
-    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
-    const QRegularExpressionMatch match = qmlPortRe.match(msg);
-    if (match.hasMatch() && m_qmlServerPort.isValid())
-       res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));
-
     appendMessage(res, StdErrFormat);
 }
 

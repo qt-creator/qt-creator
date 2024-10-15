@@ -27,17 +27,17 @@ public:
     virtual ~IosTool();
     void run(const QStringList &args);
     void doExit(int errorCode = 0);
-    void writeMsg(const char *msg);
     void writeMsg(const QString &msg);
     void stopXml(int errorCode);
     void writeTextInElement(const QString &output);
     void stopRelayServers(int errorCode = 0);
     void writeMaybeBin(const QString &extraMsg, const char *msg, quintptr len);
-    void errorMsg(const QString &msg);
+    void writeError(const QString &msg);
     Q_INVOKABLE void stopGdbRunner();
     bool echoRelays() const { return m_echoRelays; }
 
 private:
+    void writeMessageElement(const QString &msg, const QString &element);
     void stopGdbRunner2();
     void isTransferringApp(const QString &bundlePath, const QString &deviceId, int progress,
                            const QString &info);

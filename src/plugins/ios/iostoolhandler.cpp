@@ -93,6 +93,7 @@ signals:
 struct ParserState {
     enum Kind {
         Msg,
+        Error,
         DeviceId,
         Key,
         Value,
@@ -119,6 +120,7 @@ struct ParserState {
     bool collectChars() {
         switch (kind) {
         case Msg:
+        case Error:
         case DeviceId:
         case Key:
         case Value:
@@ -386,6 +388,8 @@ void IosDeviceToolHandlerPrivate::processXml()
             const auto elName = outputParser.name();
             if (elName == QLatin1String("msg")) {
                 stack.append(ParserState(ParserState::Msg));
+            } else if (elName == QLatin1String("error")) {
+                stack.append(ParserState(ParserState::Error));
             } else if (elName == QLatin1String("exit")) {
                 stack.append(ParserState(ParserState::Exit));
                 toolExited(outputParser.attributes().value(QLatin1String("code"))
@@ -459,8 +463,10 @@ void IosDeviceToolHandlerPrivate::processXml()
             stack.removeLast();
             switch (p.kind) {
             case ParserState::Msg:
-                errorMsg(p.chars);
+                emit q->message(p.chars);
                 break;
+            case ParserState::Error:
+                errorMsg(p.chars);
             case ParserState::DeviceId:
                 if (m_deviceId.isEmpty())
                     m_deviceId = p.chars;
