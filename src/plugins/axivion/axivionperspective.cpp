@@ -890,6 +890,7 @@ void AxivionPerspective::initPerspective()
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     reloadDataAct->setToolTip(Tr::tr("Reload"));
     connect(reloadDataAct, &QAction::triggered, this, [this] {
+        switchActiveDashboardId(activeDashboardId()); // reset cached data
         reinitDashboardList({});
     });
 
