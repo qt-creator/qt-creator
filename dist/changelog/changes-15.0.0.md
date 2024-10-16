@@ -88,6 +88,7 @@ Editing
 
 * Added the option to change the server URL
   ([QTCREATORBUG-31261](https://bugreports.qt.io/browse/QTCREATORBUG-31261))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-explore-compiler-code.html))
 
 ### Lua
 
