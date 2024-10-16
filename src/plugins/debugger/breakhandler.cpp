@@ -120,7 +120,10 @@ public:
     void clicked() final
     {
         QTC_ASSERT(m_bp, return);
-        m_bp->deleteGlobalOrThisBreakpoint();
+        if (!m_bp->isEnabled())
+            m_bp->setEnabled(true);
+        else
+            m_bp->deleteGlobalOrThisBreakpoint();
     }
 
 public:
@@ -183,7 +186,10 @@ public:
     void clicked() final
     {
         QTC_ASSERT(m_gbp, return);
-        m_gbp->removeBreakpointFromModel();
+        if (!m_gbp->isEnabled())
+            m_gbp->setEnabled(true);
+        else
+            m_gbp->removeBreakpointFromModel();
     }
 
 public:
