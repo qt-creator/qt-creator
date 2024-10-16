@@ -15,6 +15,7 @@
 
 #include <utils/fileinprojectfinder.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/variablechooser.h>
 
@@ -85,10 +86,8 @@ BuildStep::BuildStep(BuildStepList *bsl, Id id)
     : ProjectConfiguration(bsl->target(), id)
     , m_stepList(bsl)
 {
-    if (auto bc = buildConfiguration())
-        setMacroExpander(bc->macroExpander());
-
     connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
+    macroExpander()->registerSubProvider([bsl] { return bsl->projectConfiguration()->macroExpander(); });
 }
 
 QWidget *BuildStep::doCreateConfigWidget()

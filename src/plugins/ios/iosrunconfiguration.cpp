@@ -64,8 +64,6 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
 {
     executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-    arguments.setMacroExpander(macroExpander());
-
     setUpdater([this, target] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
         const QString devName = dev ? dev->displayName() : IosDevice::name();

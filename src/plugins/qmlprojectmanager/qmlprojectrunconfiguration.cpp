@@ -84,7 +84,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
     qmlViewer.setHistoryCompleter("QmlProjectManager.viewer.history");
 
     arguments.setSettingsKey(Constants::QML_VIEWER_ARGUMENTS_KEY);
-    arguments.setMacroExpander(macroExpander());
 
     setCommandLineGetter([this, target] {
         const FilePath qmlRuntime = qmlRuntimeFilePath();
@@ -168,8 +167,6 @@ QmlProjectRunConfiguration::QmlProjectRunConfiguration(Target *target, Id id)
         Environment environment;
         return envModifier(environment);
     });
-
-    x11Forwarding.setMacroExpander(macroExpander());
 
     setRunnableModifier([this](ProcessRunData &r) {
         const QmlBuildSystem *bs = static_cast<QmlBuildSystem *>(activeBuildSystem());

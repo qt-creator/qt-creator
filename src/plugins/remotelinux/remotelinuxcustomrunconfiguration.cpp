@@ -51,14 +51,9 @@ RemoteLinuxCustomRunConfiguration::RemoteLinuxCustomRunConfiguration(Target *tar
     symbolFile.setSettingsKey("RemoteLinux.CustomRunConfig.LocalExecutable");
     symbolFile.setLabelText(Tr::tr("Local executable:"));
 
-    arguments.setMacroExpander(macroExpander());
-
-    workingDir.setMacroExpander(macroExpander());
     workingDir.setEnvironment(&environment);
 
     terminal.setVisible(HostOsInfo::isAnyUnixHost());
-
-    x11Forwarding.setMacroExpander(macroExpander());
 
     setDefaultDisplayName(runConfigDefaultDisplayName());
     setUsesEmptyBuildKeys();

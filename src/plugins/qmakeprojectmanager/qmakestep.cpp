@@ -69,7 +69,6 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     buildType.addOption(Tr::tr("Debug"));
     buildType.addOption(Tr::tr("Release"));
 
-    userArguments.setMacroExpander(macroExpander());
     userArguments.setSettingsKey(QMAKE_ARGUMENTS_KEY);
     userArguments.setLabelText(Tr::tr("Additional arguments:"));
 

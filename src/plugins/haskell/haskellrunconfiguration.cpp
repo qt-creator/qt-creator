@@ -37,9 +37,6 @@ public:
         executable.setSettingsKey("Haskell.Executable");
         executable.setLabelText(Tr::tr("Executable"));
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setEnvironment(&environment);
         workingDir.setDefaultWorkingDirectory(project()->projectDirectory());
         workingDir.setVisible(false);

@@ -286,8 +286,11 @@ protected:
     }
 
 private:
-    std::unique_ptr<Internal::BaseAspectPrivate> d;
     friend class Internal::CheckableAspectImplementation;
+    friend class AspectContainer;
+    void setContainer(AspectContainer *container);
+
+    std::unique_ptr<Internal::BaseAspectPrivate> d;
 };
 
 QTCREATOR_UTILS_EXPORT void addToLayout(Layouting::Layout *layout, const BaseAspect *aspect);
@@ -998,8 +1001,6 @@ public:
     bool isDirty() override;
     void setUndoStack(QUndoStack *undoStack) override;
     void setEnabled(bool enabled) override;
-
-    void setMacroExpander(MacroExpander *expander);
 
     template <typename T> T *aspect() const
     {

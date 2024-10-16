@@ -320,11 +320,6 @@ ArgumentsAspect::ArgumentsAspect(AspectContainer *container)
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
 }
 
-void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
-{
-    m_macroExpander = expander;
-}
-
 /*!
     Returns the main value of this aspect.
 
@@ -332,12 +327,11 @@ void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
 */
 QString ArgumentsAspect::arguments() const
 {
-    QTC_ASSERT(m_macroExpander, return m_arguments);
     if (m_currentlyExpanding)
         return m_arguments;
 
     m_currentlyExpanding = true;
-    const QString expanded = m_macroExpander->expandProcessArgs(m_arguments);
+    const QString expanded = macroExpander()->expandProcessArgs(m_arguments);
     m_currentlyExpanding = false;
     return expanded;
 }
@@ -969,15 +963,9 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
 
-void X11ForwardingAspect::setMacroExpander(const MacroExpander *expander)
-{
-   m_macroExpander = expander;
-}
-
 QString X11ForwardingAspect::display() const
 {
-    QTC_ASSERT(m_macroExpander, return value());
-    return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
+    return !isChecked() ? QString() : macroExpander()->expandProcessArgs(value());
 }
 
 

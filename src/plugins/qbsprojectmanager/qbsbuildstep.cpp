@@ -518,9 +518,9 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));
 
     auto chooser = new VariableChooser(this);
+    chooser->addMacroExpanderProvider([this] { return m_qbsStep->macroExpander(); });
     chooser->addSupportedWidget(propertyEdit);
     chooser->addSupportedWidget(installDirChooser->lineEdit());
-    chooser->addMacroExpanderProvider([step] { return step->macroExpander(); });
     propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
         return validateProperties(edit, errorMessage);
     });

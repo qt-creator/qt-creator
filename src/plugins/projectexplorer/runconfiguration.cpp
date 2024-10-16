@@ -148,28 +148,27 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
-    setMacroExpander(&m_expander);
-
-    m_expander.setDisplayName(Tr::tr("Run Settings"));
-    m_expander.setAccumulating(true);
-    m_expander.registerSubProvider([target] {
+    MacroExpander &expander = *macroExpander();
+    expander.setDisplayName(Tr::tr("Run Settings"));
+    expander.setAccumulating(true);
+    expander.registerSubProvider([target] {
         BuildConfiguration *bc = target->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target->macroExpander();
     });
-    m_expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
+    expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
                              [this](const QString &var) {
         const auto envAspect = aspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
     });
-    m_expander.registerVariable("RunConfig:WorkingDir",
+    expander.registerVariable("RunConfig:WorkingDir",
                                Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
         return wdAspect ? wdAspect->workingDirectory().toString() : QString();
     });
-    m_expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
+    expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
             [this] { return displayName(); });
-    m_expander.registerFileVariables("RunConfig:Executable",
+    expander.registerFileVariables("RunConfig:Executable",
                                      Tr::tr("The run configuration's executable."),
                                      [this] { return commandLine().executable(); });
 
@@ -222,7 +221,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
     }
     auto widget = form.emerge();
 
-    VariableChooser::addSupportForChildWidgets(widget, &m_expander);
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     auto detailsWidget = new Utils::DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);

@@ -23,7 +23,7 @@ class QTCREATOR_UTILS_EXPORT MacroExpander
     Q_DISABLE_COPY(MacroExpander)
 
 public:
-    explicit MacroExpander();
+    MacroExpander();
     ~MacroExpander();
 
     bool resolveMacro(const QString &name, QString *ret) const;
@@ -69,6 +69,7 @@ public:
     void setDisplayName(const QString &displayName);
 
     void registerSubProvider(const MacroExpanderProvider &provider);
+    void clearSubProviders();
 
     bool isAccumulating() const;
     void setAccumulating(bool on);
