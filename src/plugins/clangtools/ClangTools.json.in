@@ -1,6 +1,6 @@
 {
     "Id" : "clangtools",
-    "Name" : "Clang Tools",
+    "Name" : "ClangTools",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

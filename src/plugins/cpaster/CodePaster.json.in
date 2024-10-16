@@ -1,6 +1,6 @@
 {
     "Id" : "codepaster",
-    "Name" : "Code Paster",
+    "Name" : "CodePaster",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

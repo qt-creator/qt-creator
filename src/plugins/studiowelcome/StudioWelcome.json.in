@@ -1,6 +1,6 @@
 {
     "Id" : "studiowelcome",
-    "Name" : "Qt Design Studio Welcome",
+    "Name" : "StudioWelcome",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,

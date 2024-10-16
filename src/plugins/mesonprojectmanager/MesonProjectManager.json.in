@@ -1,6 +1,6 @@
 {
     "Id" : "mesonprojectmanager",
-    "Name" : "Meson",
+    "Name" : "MesonProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "laboratory of plasma physics",
