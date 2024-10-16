@@ -39,6 +39,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QNetworkAccessManager>
+#include <QNetworkCookieJar>
 #include <QNetworkReply>
 #include <QUrlQuery>
 
@@ -766,6 +767,7 @@ Group dashboardInfoRecipe(const DashboardInfoHandler &handler)
                 handler(*dd->m_dashboardInfo);
             return SetupResult::StopWithSuccess;
         }
+        dd->m_networkAccessManager.setCookieJar(new QNetworkCookieJar); // remove old cookies
         return SetupResult::Continue;
     };
     const auto onDone = [handler](DoneWith result) {
