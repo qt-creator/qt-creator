@@ -1,6 +1,6 @@
 {
     "Id" : "vcsbase",
-    "Name" : "VcsBase",
+    "Name" : "Version Control Systems",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

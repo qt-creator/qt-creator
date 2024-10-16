@@ -275,7 +275,6 @@ public:
         connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
             showHelpDialog(Tr::tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
-        connect(&s.enableCrashReporting, &BaseAspect::changed, this, &SystemSettingsWidget::apply);
 
         const FilePath reportsPath = ICore::crashReportsPath()
                                      / QLatin1String(

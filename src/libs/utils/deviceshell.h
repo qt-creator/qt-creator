@@ -38,7 +38,7 @@ public:
     DeviceShell(bool forceFailScriptInstallation = false);
     virtual ~DeviceShell();
 
-    expected_str<void> start();
+    Result start();
 
     RunResult runInShell(const CommandLine &cmd, const QByteArray &stdInData = {});
 
@@ -58,7 +58,7 @@ private:
     virtual void setupShellProcess(Process *shellProcess);
     virtual CommandLine createFallbackCommand(const CommandLine &cmdLine);
 
-    expected_str<void> installShellScript();
+    Result installShellScript();
     void closeShellProcess();
 
     void onReadyRead();

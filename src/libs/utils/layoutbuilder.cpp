@@ -3,10 +3,11 @@
 
 #include "layoutbuilder.h"
 
+#include "fancylineedit.h"
 #include "filepath.h"
 #include "icon.h"
 #include "qtcassert.h"
-#include "fancylineedit.h"
+#include "spinner/spinner.h"
 
 #include <QDebug>
 #include <QFormLayout>
@@ -805,6 +806,11 @@ Label::Label(const QString &text)
     setText(text);
 }
 
+QString Label::text() const
+{
+    return access(this)->text();
+}
+
 void Label::setText(const QString &text)
 {
     access(this)->setText(text);
@@ -1097,6 +1103,12 @@ void addToLayout(Layout *layout, const Stretch &inner)
         lt->addStretch(inner.stretch);
 }
 
+void tight(Layout *layout)
+{
+    layout->setNoMargins();
+    layout->setSpacing(0);
+}
+
 LineEdit::LineEdit(std::initializer_list<I> ps)
 {
     ptr = new Implementation;
@@ -1141,6 +1153,23 @@ void LineEdit::onReturnPressed(const std::function<void ()> &func)
 void LineEdit::onRightSideIconClicked(const std::function<void ()> &func)
 {
     QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, func);
+}
+
+Spinner::Spinner(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void Spinner::setRunning(bool running)
+{
+    using State = SpinnerSolution::SpinnerState;
+    access(this)->setState(running ? State::Running : State::NotRunning);
+}
+
+void Spinner::setDecorated(bool on)
+{
+    access(this)->setDecorated(on);
 }
 
 // void createItem(LayoutItem *item, QWidget *t)

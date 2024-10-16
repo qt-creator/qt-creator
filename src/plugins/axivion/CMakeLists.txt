@@ -2,6 +2,7 @@ add_qtc_plugin(Axivion
   PLUGIN_DEPENDS
     Core Debugger ProjectExplorer TextEditor
   DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils
+  LONG_DESCRIPTION_MD AxivionDescription.md
   SOURCES
     axivion.qrc
     axivionperspective.cpp axivionperspective.h

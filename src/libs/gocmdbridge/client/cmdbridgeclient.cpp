@@ -320,54 +320,64 @@ expected_str<QFuture<Environment>> Client::start()
                 QThread::currentThread()->quit();
             });
 
-            auto stateMachine = [state = int(0), packetSize(0), packetData = QByteArray(), this](
-                                    QByteArray &buffer) mutable {
-                static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
+            auto stateMachine =
+                [markerOffset = 0, state = int(0), packetSize(0), packetData = QByteArray(), this](
+                    QByteArray &buffer) mutable {
+                    static const QByteArray MagicCode{GOBRIDGE_MAGIC_PACKET_MARKER};
 
-                if (state == 0) {
-                    int start = buffer.indexOf(MagicCode);
-                    if (start == -1) {
-                        // Broken package, search for next magic marker
-                        qCWarning(clientLog) << "Magic marker was not found";
-                        // If we don't find a magic marker, the rest of the buffer is trash.
-                        buffer.clear();
-                    } else {
-                        buffer.remove(0, start + MagicCode.size());
-                        state = 1;
+                    if (state == 0) {
+                        const auto offsetMagicCode = MagicCode.mid(markerOffset);
+                        int start = buffer.indexOf(offsetMagicCode);
+                        if (start == -1) {
+                            if (buffer.size() < offsetMagicCode.size()
+                                && offsetMagicCode.startsWith(buffer)) {
+                                // Partial magic marker?
+                                markerOffset += buffer.size();
+                                buffer.clear();
+                                return;
+                            }
+                            // Broken package, search for next magic marker
+                            qCWarning(clientLog) << "Magic marker was not found";
+                            // If we don't find a magic marker, the rest of the buffer is trash.
+                            buffer.clear();
+                        } else {
+                            buffer.remove(0, start + offsetMagicCode.size());
+                            state = 1;
+                        }
+                        markerOffset = 0;
                     }
-                }
 
-                if (state == 1) {
-                    QDataStream ds(buffer);
-                    ds >> packetSize;
-                    // TODO: Enforce max size in bridge.
-                    if (packetSize > 0 && packetSize < 16384) {
-                        state = 2;
-                        buffer.remove(0, sizeof(packetSize));
-                    } else {
-                        // Broken package, search for next magic marker
-                        qCWarning(clientLog) << "Invalid packet size" << packetSize;
-                        state = 0;
+                    if (state == 1) {
+                        QDataStream ds(buffer);
+                        ds >> packetSize;
+                        // TODO: Enforce max size in bridge.
+                        if (packetSize > 0 && packetSize < 16384) {
+                            state = 2;
+                            buffer.remove(0, sizeof(packetSize));
+                        } else {
+                            // Broken package, search for next magic marker
+                            qCWarning(clientLog) << "Invalid packet size" << packetSize;
+                            state = 0;
+                        }
                     }
-                }
 
-                if (state == 2) {
-                    auto packetDataRemaining = packetSize - packetData.size();
-                    auto dataAvailable = buffer.size();
-                    auto availablePacketData = qMin(packetDataRemaining, dataAvailable);
-                    packetData.append(buffer.left(availablePacketData));
-                    buffer.remove(0, availablePacketData);
+                    if (state == 2) {
+                        auto packetDataRemaining = packetSize - packetData.size();
+                        auto dataAvailable = buffer.size();
+                        auto availablePacketData = qMin(packetDataRemaining, dataAvailable);
+                        packetData.append(buffer.left(availablePacketData));
+                        buffer.remove(0, availablePacketData);
 
-                    if (packetData.size() == packetSize) {
-                        QCborStreamReader reader;
-                        reader.addData(packetData);
-                        packetData.clear();
-                        state = 0;
-                        auto result = d->readPacket(reader);
-                        QTC_CHECK_EXPECTED(result);
+                        if (packetData.size() == packetSize) {
+                            QCborStreamReader reader;
+                            reader.addData(packetData);
+                            packetData.clear();
+                            state = 0;
+                            auto result = d->readPacket(reader);
+                            QTC_CHECK_EXPECTED(result);
+                        }
                     }
-                }
-            };
+                };
 
             connect(
                 d->process,
@@ -708,13 +718,39 @@ Utils::expected_str<QFuture<FilePath>> Client::createTempFile(const QString &pat
         });
 }
 
+/*
+Convert QFileDevice::Permissions to Unix chmod flags.
+The mode is copied from system libraries.
+The logic is copied from qfiledevice_p.h "toMode_t" function.
+*/
+constexpr int toUnixChmod(QFileDevice::Permissions permissions)
+{
+    int mode = 0;
+    if (permissions & (QFileDevice::ReadOwner | QFileDevice::ReadUser))
+        mode |= 0000400; // S_IRUSR
+    if (permissions & (QFileDevice::WriteOwner | QFileDevice::WriteUser))
+        mode |= 0000200; // S_IWUSR
+    if (permissions & (QFileDevice::ExeOwner | QFileDevice::ExeUser))
+        mode |= 0000100; // S_IXUSR
+    if (permissions & QFileDevice::ReadGroup)
+        mode |= 0000040; // S_IRGRP
+    if (permissions & QFileDevice::WriteGroup)
+        mode |= 0000020; // S_IWGRP
+    if (permissions & QFileDevice::ExeGroup)
+        mode |= 0000010; // S_IXGRP
+    if (permissions & QFileDevice::ReadOther)
+        mode |= 0000004; // S_IROTH
+    if (permissions & QFileDevice::WriteOther)
+        mode |= 0000002; // S_IWOTH
+    if (permissions & QFileDevice::ExeOther)
+        mode |= 0000001; // S_IXOTH
+    return mode;
+}
+
 Utils::expected_str<QFuture<void>> Client::setPermissions(
     const QString &path, QFile::Permissions perms)
 {
-    // Convert the QFileDevice::Permissions to unix style permissions
-    uint p = perms.toInt() & 0xF0FF;
-    p = ((p & 0xF000) >> 4 | (p & 0xFF));
-    p = ((p & 0xF00) >> 2) | ((p & 0xF0) >> 1) | (p & 0xF);
+    int p = toUnixChmod(perms);
 
     return createVoidJob(
         d.get(),

@@ -151,6 +151,8 @@ QtcPlugin {
             "sessionmodel.h",
             "sessionview.cpp",
             "sessionview.h",
+            "secretaspect.cpp",
+            "secretaspect.h",
             "settingsdatabase.cpp",
             "settingsdatabase.h",
             "sidebar.cpp",

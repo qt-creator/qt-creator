@@ -608,26 +608,6 @@ void TextDocumentLayout::updateSuggestionFormats(const QTextBlock &block,
     }
 }
 
-bool TextDocumentLayout::updateSuggestion(const QTextBlock &block,
-                                          int position,
-                                          const FontSettings &fontSettings)
-{
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
-        if (position < suggestion->currentPosition())
-            return false;
-        const int positionInBlock = position - block.position();
-        const QString start = block.text().left(positionInBlock);
-        const QString end = block.text().mid(positionInBlock);
-        const QString replacement = suggestion->replacementDocument()->firstBlock().text();
-        if (replacement.startsWith(start) && replacement.indexOf(end, start.size()) >= 0) {
-            suggestion->setCurrentPosition(position);
-            TextDocumentLayout::updateSuggestionFormats(block, fontSettings);
-            return true;
-        }
-    }
-    return false;
-}
-
 void TextDocumentLayout::requestExtraAreaUpdate()
 {
     emit updateExtraArea();

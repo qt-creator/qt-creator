@@ -113,6 +113,12 @@ void FileWizardPage::setPath(const QString &path)
     d->m_pathChooser->setFilePath(FilePath::fromString(path));
 }
 
+void FileWizardPage::setPathVisible(bool visible)
+{
+    d->m_pathLabel->setVisible(visible);
+    d->m_pathChooser->setVisible(visible);
+}
+
 void FileWizardPage::setFileName(const QString &name)
 {
     d->m_nameLineEdit->setText(name);

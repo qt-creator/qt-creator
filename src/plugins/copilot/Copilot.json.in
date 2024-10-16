@@ -16,11 +16,7 @@
                   "Alternatively, this plugin may be used under the terms of the GNU General Public License version 3 as published by the Free Software Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT included in the packaging of this plugin. Please review the following information to ensure the GNU General Public License requirements will be met: https://www.gnu.org/licenses/gpl-3.0.html."
     ],
     "Description" : "View suggestions from GitHub Copilot in code editor.",
-    "LongDescription" : [
-        "You also need:",
-            "- An active GitHub Copilot subscription",
-            "- GitHub Copilot Neovim plugin installed (requires Node.js)"
-    ],
+    "LongDescription" : ${LONG_DESCRIPTION},
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-copilot.html",
     ${IDE_PLUGIN_DEPENDENCIES}

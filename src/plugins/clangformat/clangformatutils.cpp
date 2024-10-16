@@ -139,7 +139,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.PenaltyExcessCharacter = 50;
     style.PenaltyReturnTypeOnItsOwnLine = 300;
     style.PointerAlignment = FormatStyle::PAS_Right;
+#if LLVM_VERSION_MAJOR >= 20
+    style.ReflowComments = FormatStyle::RCS_Never;
+#else
     style.ReflowComments = false;
+#endif
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;

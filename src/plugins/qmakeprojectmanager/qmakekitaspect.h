@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <projectexplorer/kitmanager.h>
+#include <QString>
+
+namespace ProjectExplorer { class Kit; }
+namespace Utils { class Id; }
 
 namespace QmakeProjectManager::Internal {
 

@@ -7,7 +7,9 @@
 
 #include "cmakeconfigitem.h"
 
-#include <projectexplorer/kitmanager.h>
+#include <utils/id.h>
+
+namespace ProjectExplorer { class KitAspect; }
 
 namespace CMakeProjectManager {
 

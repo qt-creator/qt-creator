@@ -161,14 +161,18 @@ void ToolchainConfigWidget::setupCompilerPathChoosers()
         m_commands << std::make_pair(&tc, commandChooser);
         if (tc.language() == Constants::CXX_LANGUAGE_ID
             && bundle().factory()->supportedLanguages().contains(Constants::C_LANGUAGE_ID)) {
-            m_deriveCxxCompilerCheckBox = new QCheckBox(Tr::tr("Derive from C compiler"));
-            m_deriveCxxCompilerCheckBox->setChecked(true);
+            m_manualCxxCompilerCheckBox = new QCheckBox(Tr::tr("Provide manually"));
+            m_manualCxxCompilerCheckBox->setChecked(false);
             const auto commandLayout = new QHBoxLayout;
             commandLayout->addWidget(commandChooser);
-            commandLayout->addWidget(m_deriveCxxCompilerCheckBox);
+            commandLayout->addWidget(m_manualCxxCompilerCheckBox);
             m_mainLayout->addRow(name, commandLayout);
-            if (!tc.compilerCommand().isExecutableFile())
+            const auto handleCheckBoxToggled = [this, commandChooser] {
+                commandChooser->setEnabled(m_manualCxxCompilerCheckBox->isChecked());
                 deriveCxxCompilerCommand();
+            };
+            handleCheckBoxToggled();
+            connect(m_manualCxxCompilerCheckBox, &QCheckBox::toggled, this, handleCheckBoxToggled);
         } else {
             m_mainLayout->addRow(name, commandChooser);
         }
@@ -205,7 +209,7 @@ void ToolchainConfigWidget::setCommandVersionArguments(const QStringList &args)
 
 void ToolchainConfigWidget::deriveCxxCompilerCommand()
 {
-    if (!m_deriveCxxCompilerCheckBox || !m_deriveCxxCompilerCheckBox->isChecked())
+    if (!m_manualCxxCompilerCheckBox || m_manualCxxCompilerCheckBox->isChecked())
         return;
 
     using namespace Constants;

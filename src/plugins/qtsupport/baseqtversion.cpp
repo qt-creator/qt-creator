@@ -21,6 +21,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>

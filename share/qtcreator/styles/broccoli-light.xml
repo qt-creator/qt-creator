@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<style-scheme version="1.0" name="Broccoli Light">
+  <style name="Text" foreground="#0a0a0a" background="#fcfcfc"/>
+  <style name="LineNumber" foreground="#595959" background="#f2f2f2"/>
+</style-scheme>

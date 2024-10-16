@@ -18,6 +18,10 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
+namespace StyleHelper {
+enum class ToolbarStyle;
+}
+
 class ThemePrivate;
 
 class QTCREATOR_UTILS_EXPORT Theme : public QObject
@@ -49,6 +53,7 @@ public:
         FancyTabWidgetEnabledUnselectedTextColor,
         FancyToolButtonHoverColor,
         FancyToolButtonSelectedColor,
+        FancyToolButtonHighlightColor,
         InfoBarBackground,
         InfoBarText,
         MenuBarItemTextColorDisabled,
@@ -215,10 +220,18 @@ public:
         Token_Stroke_Strong,
         Token_Stroke_Muted,
         Token_Stroke_Subtle,
-        Token_Notification_Alert,
-        Token_Notification_Success,
-        Token_Notification_Neutral,
-        Token_Notification_Danger,
+        Token_Notification_Alert_Default,
+        Token_Notification_Alert_Muted,
+        Token_Notification_Alert_Subtle,
+        Token_Notification_Success_Default,
+        Token_Notification_Success_Muted,
+        Token_Notification_Success_Subtle,
+        Token_Notification_Neutral_Default,
+        Token_Notification_Neutral_Muted,
+        Token_Notification_Neutral_Subtle,
+        Token_Notification_Danger_Default,
+        Token_Notification_Danger_Muted,
+        Token_Notification_Danger_Subtle,
         Token_Gradient01_Start,
         Token_Gradient01_End,
         Token_Gradient02_Start,
@@ -529,6 +542,7 @@ public:
     QPalette palette() const;
     QStringList preferredStyles() const;
     QString defaultTextEditorColorScheme() const;
+    StyleHelper::ToolbarStyle defaultToolbarStyle() const;
 
     QString id() const;
     QString filePath() const;

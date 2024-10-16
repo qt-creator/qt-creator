@@ -14,6 +14,7 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>
@@ -29,11 +30,24 @@ using namespace CMakeProjectManager::Internal;
 
 namespace CMakeProjectManager {
 
+static FilePath cmakeListTxtFromFilePath(const FilePath &filepath)
+{
+    if (filepath.endsWith(Constants::CMAKE_CACHE_TXT)) {
+        QString errorMessage;
+        const CMakeConfig config = CMakeConfig::fromFile(filepath, &errorMessage);
+        const FilePath cmakeListsTxt = config.filePathValueOf("CMAKE_HOME_DIRECTORY")
+                                           .pathAppended(Constants::CMAKE_LISTS_TXT);
+        if (cmakeListsTxt.exists())
+            return cmakeListsTxt;
+    }
+    return filepath;
+}
+
 /*!
   \class CMakeProject
 */
 CMakeProject::CMakeProject(const FilePath &fileName)
-    : Project(Utils::Constants::CMAKE_MIMETYPE, fileName)
+    : Project(Utils::Constants::CMAKE_MIMETYPE, cmakeListTxtFromFilePath(fileName))
     , m_settings(this, true)
 {
     setId(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
@@ -47,6 +61,9 @@ CMakeProject::CMakeProject(const FilePath &fileName)
     setHasMakeInstallEquivalent(false);
 
     readPresets();
+
+    if (fileName.endsWith(Constants::CMAKE_CACHE_TXT))
+        m_buildDirToImport = fileName.parentDir();
 }
 
 CMakeProject::~CMakeProject()
@@ -330,6 +347,11 @@ void CMakeProject::readPresets()
         m_presetsData.havePresets = true;
         break;
     }
+}
+
+FilePath CMakeProject::buildDirectoryToImport() const
+{
+    return m_buildDirToImport;
 }
 
 bool CMakeProject::setupTarget(Target *t)

@@ -58,7 +58,7 @@ int AndroidExtraLibraryListModel::columnCount(const QModelIndex &) const
 
 QVariant AndroidExtraLibraryListModel::data(const QModelIndex &index, int role) const
 {
-    Q_ASSERT(index.row() >= 0 && index.row() < m_entries.size());
+    QTC_ASSERT(index.row() >= 0 && index.row() < m_entries.size(), return {});
     if (role == Qt::DisplayRole)
         return QDir::cleanPath(m_entries.at(index.row()));
     return {};

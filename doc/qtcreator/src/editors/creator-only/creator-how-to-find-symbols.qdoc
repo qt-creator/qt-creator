@@ -21,7 +21,7 @@
         \li Go to \uicontrol Tools > \uicontrol {C++} >
             \uicontrol {Find References to Symbol Under Cursor},
             or press \key {Ctrl+Shift+U}.
-            \image qtcreator-find-references-to-symbol-under-cursor.png {Search results for finding references to symbols}
+            \image qtcreator-find-references-to-symbol-under-cursor.webp {Found symbols in the Search Results view}
     \endlist
 
     \section2 Color-code access type
@@ -38,7 +38,7 @@
     from files listed as part of the project or from all files that are used by
     the code, such as include files.
 
-    \image qtcreator-search-cpp-symbols.png
+    \image qtcreator-search-cpp-symbols.webp {Search criteria in the Search Results view}
 
     \QC searches from the following locations:
 
@@ -54,7 +54,7 @@
     \l{Search Results View} shows the location and number of search hits in the
     current project.
 
-    \image qtcreator-refactoring-find.png
+    \image qtcreator-refactoring-find.webp {Found symbols in the Search Results view}
 
     \sa {Search}{How To: Search}, {Search Results View}
 */

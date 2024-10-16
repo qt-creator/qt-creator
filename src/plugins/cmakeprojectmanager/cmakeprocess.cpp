@@ -4,6 +4,7 @@
 #include "cmakeprocess.h"
 
 #include "builddirparameters.h"
+#include "cmakeautogenparser.h"
 #include "cmakeoutputparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
@@ -115,7 +116,7 @@ void CMakeProcess::run(const BuildDirParameters &parameters, const QStringList &
 
     const auto parser = new CMakeOutputParser;
     parser->setSourceDirectory(parameters.sourceDirectory);
-    m_parser.addLineParser(parser);
+    m_parser.addLineParsers({new CMakeAutogenParser, parser});
     m_parser.addLineParsers(parameters.outputParsers());
 
     // Always use the sourceDir: If we are triggered because the build directory is getting deleted

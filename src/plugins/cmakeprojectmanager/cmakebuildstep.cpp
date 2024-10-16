@@ -3,6 +3,7 @@
 
 #include "cmakebuildstep.h"
 
+#include "cmakeautogenparser.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
@@ -337,7 +338,7 @@ void CMakeBuildStep::setupOutputFormatter(Utils::OutputFormatter *formatter)
     });
     formatter->addLineParser(progressParser);
     cmakeOutputParser->setSourceDirectory(project()->projectDirectory());
-    formatter->addLineParsers({cmakeOutputParser, new GnuMakeParser});
+    formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser, new GnuMakeParser});
     Toolchain *tc = ToolchainKitAspect::cxxToolchain(kit());
     OutputTaskParser *xcodeBuildParser = nullptr;
     if (tc && tc->targetAbi().os() == Abi::DarwinOS) {

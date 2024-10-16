@@ -17,6 +17,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>

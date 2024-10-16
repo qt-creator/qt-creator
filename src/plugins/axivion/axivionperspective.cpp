@@ -189,7 +189,8 @@ public:
     const std::optional<Dto::TableInfoDto> currentTableInfo() const { return m_currentTableInfo; }
     IssueListSearch searchFromUi() const;
 
-    void showOverlay(const QString &errorMessage = {});
+    enum OverlayIconType { EmptyIcon, ErrorIcon, SettingsIcon };
+    void showOverlay(const QString &message = {}, OverlayIconType type = EmptyIcon);
 protected:
     void showEvent(QShowEvent *event) override;
 private:
@@ -244,8 +245,15 @@ IssuesWidget::IssuesWidget(QWidget *parent)
         if (data.isValid()) {
             const AxivionServer server = data.value<AxivionServer>();
             switchActiveDashboardId(server.id);
+            reinitProjectList(m_dashboardProjects->currentText());
+        } else {
+            switchActiveDashboardId({});
+            {
+                GuardLocker lock(m_signalBlocker);
+                m_dashboardProjects->clear();
+            }
+            updateBasicProjectInfo(std::nullopt);
         }
-        reinitProjectList(m_dashboardProjects->currentText());
     });
 
     m_dashboardProjects = new QComboBox(this);
@@ -411,28 +419,31 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
                                                               : preferredProject;
     resetDashboard();
     m_dashboardListUninitialized = false;
-    GuardLocker lock(m_signalBlocker);
     const QList<AxivionServer> servers = settings().allAvailableServers();
     if (servers.isEmpty()) {
         switchActiveDashboardId({});
+        showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
         return;
     }
+    hideOverlay();
+
+    GuardLocker lock(m_signalBlocker);
+    m_dashboards->addItem(Tr::tr("None"));
     for (const AxivionServer &server : servers)
         m_dashboards->addItem(server.displayString(), QVariant::fromValue(server));
 
     Id activeId = activeDashboardId();
-    if (!activeId.isValid())
-        activeId = settings().defaultDashboardId();
     if (activeId.isValid()) {
         int index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
         if (index < 0) {
             activeId = settings().defaultDashboardId();
             index = Utils::indexOf(servers, Utils::equal(&AxivionServer::id, activeId));
         }
-        m_dashboards->setCurrentIndex(index);
+        m_dashboards->setCurrentIndex(index + 1);
+        reinitProjectList(currentProject);
+    } else {
+        m_dashboards->setCurrentIndex(0);
     }
-    switchActiveDashboardId(activeId);
-    reinitProjectList(currentProject);
 }
 
 void IssuesWidget::reinitProjectList(const QString &currentProject)
@@ -790,7 +801,7 @@ void IssuesWidget::onFetchRequested(int startRow, int limit)
     fetchIssues(search);
 }
 
-void IssuesWidget::showOverlay(const QString &errorMessage)
+void IssuesWidget::showOverlay(const QString &message, OverlayIconType type)
 {
     if (!m_overlay) {
         QTC_ASSERT(m_issuesView, return);
@@ -798,22 +809,26 @@ void IssuesWidget::showOverlay(const QString &errorMessage)
         m_overlay->attachToWidget(m_issuesView);
     }
 
-    m_overlay->setPaintFunction([errorMessage](QWidget *that, QPainter &p, QPaintEvent *) {
+    m_overlay->setPaintFunction([message, type](QWidget *that, QPainter &p, QPaintEvent *) {
         static const QIcon noData = Icon({{":/axivion/images/nodata.png", Theme::IconsDisabledColor}},
                                          Utils::Icon::Tint).icon();
         static const QIcon error = Icon({{":/axivion/images/error.png", Theme::IconsErrorColor}},
                                         Utils::Icon::Tint).icon();
+        static const QIcon settings = Icon({{":/utils/images/settings.png", Theme::IconsDisabledColor}},
+                                           Utils::Icon::Tint).icon();
         QRect iconRect(0, 0, 32, 32);
         iconRect.moveCenter(that->rect().center());
-        if (errorMessage.isEmpty())
+        if (type == EmptyIcon)
             noData.paint(&p, iconRect);
-        else
+        else if (type == ErrorIcon)
             error.paint(&p, iconRect);
+        else if (type == SettingsIcon)
+            settings.paint(&p, iconRect);
         p.save();
         p.setPen(Utils::creatorColor(Theme::TextColorDisabled));
         const QFontMetrics &fm = p.fontMetrics();
         p.drawText(iconRect.bottomRight() + QPoint{10, fm.height() / 2 - 16 - fm.descent()},
-                   errorMessage.isEmpty() ? Tr::tr("No Data") : errorMessage);
+                   message.isEmpty() ? Tr::tr("No Data") : message);
         p.restore();
     });
 
@@ -878,14 +893,14 @@ void AxivionPerspective::initPerspective()
 
     auto showIssuesAct = new QAction(this);
     showIssuesAct->setIcon(MARKER_ICON.icon());
-    showIssuesAct->setToolTip(Tr::tr("Show inline issues"));
+    showIssuesAct->setToolTip(Tr::tr("Show Inline Issues"));
     showIssuesAct->setCheckable(true);
     showIssuesAct->setChecked(true);
     connect(showIssuesAct, &QAction::toggled,
             this, [](bool checked) {  enableInlineIssues(checked); });
     auto toggleIssuesAct = new QAction(this);
     toggleIssuesAct->setIcon(Utils::Icons::WARNING_TOOLBAR.icon());
-    toggleIssuesAct->setToolTip(Tr::tr("Show issue annotations inline"));
+    toggleIssuesAct->setToolTip(Tr::tr("Show Issue Annotations Inline"));
     toggleIssuesAct->setCheckable(true);
     toggleIssuesAct->setChecked(true);
     connect(toggleIssuesAct, &QAction::toggled, this, [](bool checked) {
@@ -897,7 +912,7 @@ void AxivionPerspective::initPerspective()
 
     m_showFilterHelp = new QAction(this);
     m_showFilterHelp->setIcon(Utils::Icons::INFO_TOOLBAR.icon());
-    m_showFilterHelp->setToolTip(Tr::tr("Show online filter help"));
+    m_showFilterHelp->setToolTip(Tr::tr("Show Online Filter Help"));
     m_showFilterHelp->setEnabled(false);
     connect(m_showFilterHelp, &QAction::triggered, this, &AxivionPerspective::openFilterHelp);
 
@@ -926,7 +941,7 @@ void AxivionPerspective::handleShowIssues(const QString &kind)
 
 void AxivionPerspective::handleShowFilterException(const QString &errorMessage)
 {
-    m_issuesWidget->showOverlay(errorMessage);
+    m_issuesWidget->showOverlay(errorMessage, IssuesWidget::ErrorIcon);
 }
 
 void AxivionPerspective::reinitDashboardList(const QString &preferredProject)

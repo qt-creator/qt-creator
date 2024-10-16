@@ -32,6 +32,7 @@
     \note Usually, \l{Navigate with locator}{searching with the locator}
     is the fastest way to find a particular project, file, class, or function,
     or almost anything else in your project.
+
     \else
     \image projects-view-design.webp {Projects view}
     \endif
@@ -79,6 +80,8 @@
         \li Execute \uicontrol Build menu commands.
         \li Create new files. For more information, see
             \l{Create files}.
+        \li Create a corresponding source or header file for a C++ header or
+            source file.
         \li Rename existing files. If you change the base name of a
             file, \QC displays a list of other files with the same base name
             and offers to rename them as well. If you rename a UI file (.ui),

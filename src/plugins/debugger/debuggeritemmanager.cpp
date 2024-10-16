@@ -9,6 +9,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -131,11 +132,14 @@ QVariant DebuggerTreeItem::data(int column, int role) const
     case Qt::ToolTipRole:
         return m_item.validityMessage();
 
-    case IdRole:
+    case KitAspect::IdRole:
         return m_item.id();
 
-    case ProblemRole:
+    case KitAspect::QualityRole:
         return int(m_item.problem());
+
+    case KitAspect::IsNoneRole:
+        return !m_item.isValid();
     }
     return QVariant();
 }

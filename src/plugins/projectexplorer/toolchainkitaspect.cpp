@@ -5,6 +5,7 @@
 
 #include "devicesupport/idevice.h"
 #include "kit.h"
+#include "kitaspect.h"
 #include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"

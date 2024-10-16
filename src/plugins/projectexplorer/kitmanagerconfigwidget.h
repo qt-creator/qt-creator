@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "kitmanager.h"
+#include <utils/layoutbuilder.h>
 
 #include <QWidget>
 
@@ -17,6 +17,8 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer {
 class Kit;
+class KitAspect;
+class KitAspectFactory;
 
 namespace Internal {
 

@@ -238,7 +238,7 @@ protected:
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
     void setFileAccess(Utils::DeviceFileAccess *fileAccess);
-    void setFileAccess(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
+    void setFileAccessFactory(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
 
 private:
     IDevice(const IDevice &) = delete;

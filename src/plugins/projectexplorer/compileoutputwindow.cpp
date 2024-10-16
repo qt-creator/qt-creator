@@ -266,11 +266,11 @@ CompileOutputSettings::CompileOutputSettings()
     popUp.setLabelText(Tr::tr("Open Compile Output when building"));
 
     discardOutput.setSettingsKey("ProjectExplorer/Settings/DiscardCompilerOutput");
-    discardOutput.setLabelText(Tr::tr("Discard Excessive Output"));
+    discardOutput.setLabelText(Tr::tr("Discard excessive output"));
     discardOutput.setToolTip(
         Tr::tr(
-            "If this option is enabled, compile output will be discarded if it continuously comes "
-            "in faster than it can be handled."));
+            "Discards compile output that continuously comes in faster than "
+            "it can be handled."));
 
     maxCharCount.setSettingsKey("ProjectExplorer/Settings/MaxBuildOutputLines");
     maxCharCount.setRange(1, Core::Constants::DEFAULT_MAX_CHAR_COUNT);

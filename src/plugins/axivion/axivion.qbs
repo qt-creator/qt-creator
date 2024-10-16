@@ -42,4 +42,10 @@ QtcPlugin {
             "error.h",
         ]
     }
+
+    Group {
+        name: "long description"
+        files: "AxivionDescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
 }

@@ -10,7 +10,10 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <coreplugin/secretaspect.h>
+
 using namespace Utils;
+using namespace Core;
 
 namespace Lua::Internal {
 
@@ -315,10 +318,19 @@ void setupSettingsModule()
 {
     registerProvider("Settings", [pool = ObjectPool()](sol::state_view lua) -> sol::object {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        sol::table async = lua.script("return require('async')", "_process_").get<sol::table>();
+        sol::function wrap = async["wrap"];
 
         sol::table settings = lua.create_table();
 
-        settings.new_usertype<BaseAspect>("Aspect", "apply", &BaseAspect::apply);
+        settings.new_usertype<BaseAspect>(
+            "Aspect",
+            "apply",
+            &BaseAspect::apply,
+            "writeSettings",
+            &BaseAspect::writeSettings,
+            "readSettings",
+            &BaseAspect::readSettings);
 
         settings.new_usertype<LuaAspectContainer>(
             "AspectContainer",
@@ -339,6 +351,42 @@ void setupSettingsModule()
         addTypedAspect<ColorAspect>(settings, "ColorAspect");
         addTypedAspect<MultiSelectionAspect>(settings, "MultiSelectionAspect");
         addTypedAspect<StringAspect>(settings, "StringAspect");
+        settings.new_usertype<SecretAspect>(
+            "SecretAspect",
+            "create",
+            [](const sol::table &options) {
+                return createAspectFromTable<SecretAspect>(
+                    options,
+                    [](SecretAspect *aspect, const std::string &key, const sol::object &value) {
+                        if (key == "settingsKey")
+                            aspect->setSettingsKey(keyFromString(value.as<QString>()));
+                        if (key == "labelText")
+                            aspect->setLabelText(value.as<QString>());
+                        if (key == "toolTip")
+                            aspect->setToolTip(value.as<QString>());
+                        else if (key == "displayName")
+                            aspect->setDisplayName(value.as<QString>());
+                    });
+            },
+            "requestValue_cb",
+            [](SecretAspect *aspect, sol::function callback) {
+                aspect->requestValue([callback](const expected_str<QString> &secret) {
+                    if (secret) {
+                        auto res = void_safe_call(callback, true, secret.value());
+                        QTC_CHECK_EXPECTED(res);
+                    } else {
+                        auto res = void_safe_call(callback, false, secret.error());
+                        QTC_CHECK_EXPECTED(res);
+                    }
+                });
+            },
+            "setValue",
+            [](SecretAspect *aspect, const QString &value) { aspect->setValue(value); },
+            sol::base_classes,
+            sol::bases<BaseAspect>());
+
+        settings["SecretAspect"]["requestValue"] = wrap(
+            settings["SecretAspect"]["requestValue_cb"]);
 
         settings.new_usertype<SelectionAspect>(
             "SelectionAspect",

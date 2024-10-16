@@ -98,6 +98,7 @@ add_qtc_library(Utils
     listutils.h
     lua.cpp lua.h
     macroexpander.cpp macroexpander.h
+    markdownbrowser.cpp markdownbrowser.h
     mathutils.cpp mathutils.h
     mimeconstants.h
     mimeutils.h

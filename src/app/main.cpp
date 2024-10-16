@@ -410,8 +410,11 @@ QStringList lastSessionArgument()
 }
 
 #ifdef ENABLE_CRASHPAD
-bool startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
+void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
 {
+    if (!crashReportingEnabled)
+        return;
+
     using namespace crashpad;
 
     // Cache directory that will store crashpad information and minidumps
@@ -445,7 +448,7 @@ bool startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     arguments.push_back("--no-rate-limit");
 
     CrashpadClient *client = new CrashpadClient();
-    bool success = client->StartHandler(
+    client->StartHandler(
         handler,
         database,
         database,
@@ -453,10 +456,7 @@ bool startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
         annotations,
         arguments,
         /* restartable */ true,
-        /* asynchronous_start */ true
-    );
-
-    return success;
+        /* asynchronous_start */ true);
 }
 #endif
 

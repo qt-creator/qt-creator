@@ -2334,7 +2334,20 @@ OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths
     QString errorString;
     for (const FilePath &fileName : filePaths) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
-        const FilePath filePath = fileName.absoluteFilePath();
+        const FilePath filePath = [fileName] {
+            if (!fileName.isDir())
+                return fileName.absoluteFilePath();
+
+            // For the case of directories, try to see if there is a project file in the directory
+            const QStringList existingProjectFilePatterns
+                = Utils::filtered(projectFilePatterns(), [fileName](const QString &pattern) {
+                      return fileName.pathAppended(pattern).exists();
+                  });
+            if (existingProjectFilePatterns.size() == 1)
+                return fileName.pathAppended(existingProjectFilePatterns.first()).absoluteFilePath();
+
+            return fileName.absoluteFilePath();
+        }();
 
         Project *found = Utils::findOrDefault(ProjectManager::projects(),
                                               Utils::equal(&Project::projectFilePath, filePath));
@@ -3243,8 +3256,8 @@ void ProjectExplorerPluginPrivate::updateRecentProjectMenu()
         const QString displayPath =
             filePath.osType() == OsTypeWindows ? filePath.displayName()
                                                : filePath.withTildeHomePath();
-        const QString actionText =
-            ActionManager::withNumberAccelerator(displayPath, acceleratorKey);
+        const QString actionText = ActionManager::withNumberAccelerator(
+             displayPath + " (" + item.displayName + ")", acceleratorKey);
         QAction *action = menu->addAction(actionText);
         connect(action, &QAction::triggered, this, [this, filePath] {
             openRecentProject(filePath);

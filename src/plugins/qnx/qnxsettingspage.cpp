@@ -16,11 +16,12 @@
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
-#include <projectexplorer/kit.h>
-#include <projectexplorer/kitmanager.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtversionmanager.h>

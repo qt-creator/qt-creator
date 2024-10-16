@@ -1,6 +1,6 @@
 {
     "Id" : "classview",
-    "Name" : "ClassView",
+    "Name" : "Class View",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

@@ -739,6 +739,9 @@ class Dumper(DumperBase):
     def nativeParseAndEvaluate(self, exp):
         #self.warn('EVALUATE "%s"' % exp)
         try:
+            if not self.allowInferiorCalls:
+                return None
+
             val = gdb.parse_and_eval(exp)
             return val
         except RuntimeError as error:
@@ -772,6 +775,9 @@ class Dumper(DumperBase):
         #self.warn('PTR: %s -> %s(%s)' % (value, function, addr))
         exp = '((%s*)0x%x)->%s(%s)' % (type_name, addr, function, arg)
         #self.warn('CALL: %s' % exp)
+        if not self.allowInferiorCalls:
+            return None
+
         result = gdb.parse_and_eval(exp)
         #self.warn('  -> %s' % result)
         res = self.fromNativeValue(result)
@@ -1504,6 +1510,12 @@ class CliDumper(Dumper):
 
         args = {}
         args['fancy'] = 1
+        # It enables skipping the execution of gdb.parse_and_eval which prevents the application from being rerun,
+        # which could lead to hitting breakpoints repeatedly in different threads, causing an infinite loop.
+        # Currently, gdb.parse_and_eval is bypassed in several places, resolving the bug QTCREATORBUG-23219.
+        # In the future, a full wrapper for gdb.parse_and_eval might be necessary to avoid this issue entirely.
+        # For now, we leave it as-is to retain as much pretty-printing functionality as possible.
+        args['allowinferiorcalls'] = 1
         args['passexceptions'] = 1
         args['autoderef'] = 1
         args['qobjectnames'] = 1

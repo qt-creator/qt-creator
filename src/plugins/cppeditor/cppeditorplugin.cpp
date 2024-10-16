@@ -74,6 +74,7 @@
 #include <texteditor/snippets/snippetprovider.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditorsettings.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
@@ -192,6 +193,37 @@ private:
     CppEditorPluginPrivate *d = nullptr;
 };
 
+QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
+{
+    QTextDocument *document = new QTextDocument;
+    document->setPlainText(code);
+
+    std::shared_ptr<QPromise<QTextDocument *>> promise
+        = std::make_shared<QPromise<QTextDocument *>>();
+
+    promise->start();
+
+    CppHighlighter *highlighter = new CppHighlighter(document);
+
+    QObject::connect(highlighter, &CppHighlighter::finished, document, [document, promise]() {
+        promise->addResult(document);
+        promise->finish();
+    });
+
+    QFutureWatcher<QTextDocument *> *watcher = new QFutureWatcher<QTextDocument *>(document);
+    QObject::connect(watcher, &QFutureWatcher<QTextDocument *>::canceled, document, [document]() {
+        document->deleteLater();
+    });
+    watcher->setFuture(promise->future());
+
+    highlighter->setParent(document);
+    highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    highlighter->setMimeType(mimeType);
+    highlighter->rehighlight();
+
+    return promise->future();
+}
+
 void CppEditorPlugin::initialize()
 {
     d = new CppEditorPluginPrivate;
@@ -219,6 +251,17 @@ void CppEditorPlugin::initialize()
             d, &CppEditorPluginPrivate::onTaskStarted);
     connect(ProgressManager::instance(), &ProgressManager::allTasksFinished,
             d, &CppEditorPluginPrivate::onAllTasksFinished);
+
+    auto oldHighlighter = Utils::Text::codeHighlighter();
+    Utils::Text::setCodeHighlighter(
+        [oldHighlighter](const QString &code, const QString &mimeType) -> QFuture<QTextDocument *> {
+            if (mimeType == "text/x-c++src" || mimeType == "text/x-c++hdr"
+                || mimeType == "text/x-csrc" || mimeType == "text/x-chdr") {
+                return highlightCode(code, mimeType);
+            }
+
+            return oldHighlighter(code, mimeType);
+        });
 }
 
 void CppEditorPlugin::extensionsInitialized()

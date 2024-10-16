@@ -6,6 +6,9 @@
 #include <cppeditor/cpptoolstestcase.h>
 #include <cppeditor/projectinfo.h>
 
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/toolchainkitaspect.h>
+
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>

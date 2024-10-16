@@ -1,6 +1,6 @@
 {
     "Id" : "effectcomposer",
-    "Name" : "EffectComposer",
+    "Name" : "Effect Composer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

@@ -235,6 +235,10 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
     useDebuggingHelpers.setDefaultValue(true);
     useDebuggingHelpers.setLabelText(Tr::tr("Use Debugging Helpers"));
 
+    allowInferiorCalls.setSettingsKey(debugModeGroup, "AllowInferiorCalls");
+    allowInferiorCalls.setDefaultValue(true);
+    allowInferiorCalls.setLabelText(Tr::tr("Allow inferior calls in debugging helper"));
+
     useCodeModel.setSettingsKey(debugModeGroup, "UseCodeModel");
     useCodeModel.setDefaultValue(true);
     useCodeModel.setLabelText(Tr::tr("Use code model"));
@@ -354,6 +358,7 @@ LocalsAndExpressionsSettings::LocalsAndExpressionsSettings()
 
         return Column {
             useDebuggingHelpers,
+            allowInferiorCalls,
             useHelper,
             Space(10),
             showStdNamespace,

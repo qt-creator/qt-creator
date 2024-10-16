@@ -1,6 +1,6 @@
 {
     "Id" : "compilerexplorer",
-    "Name" : "CompilerExplorer",
+    "Name" : "Compiler Explorer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,

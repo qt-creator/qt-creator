@@ -47,11 +47,13 @@ bool TextSuggestion::applyLine(TextEditorWidget *widget)
     return applyPart(Line, widget);
 }
 
-void TextSuggestion::reset()
+bool TextSuggestion::filterSuggestions(TextEditorWidget *widget)
 {
-    QTextCursor c = m_suggestion.position.toTextCursor(sourceDocument());
+    Q_UNUSED(widget);
+
+    QTextCursor c = m_suggestion.range.begin.toTextCursor(sourceDocument());
     c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
-    c.removeSelectedText();
+    return m_suggestion.text.startsWith(c.selectedText(), Qt::CaseInsensitive);
 }
 
 bool TextSuggestion::applyPart(Part part, TextEditorWidget *widget)
@@ -98,43 +100,89 @@ CyclicSuggestion::CyclicSuggestion(
     , m_currentSuggestion(currentSuggestion)
 {}
 
+bool operator==(const TextSuggestion::Data &lhs, const TextSuggestion::Data &rhs)
+{
+    return lhs.text == rhs.text && lhs.range == rhs.range && lhs.position == rhs.position;
+}
+
+bool CyclicSuggestion::filterSuggestions(TextEditorWidget *widget)
+{
+    QList<Data> newSuggestions;
+    int newIndex = -1;
+    int currentIndex = 0;
+    for (auto suggestion : m_suggestions) {
+        QTextCursor c = suggestion.range.begin.toTextCursor(sourceDocument());
+        c.setPosition(currentPosition(), QTextCursor::KeepAnchor);
+        if (suggestion.text.startsWith(c.selectedText())) {
+            newSuggestions.append(suggestion);
+            if (currentIndex == m_currentSuggestion)
+                newIndex = newSuggestions.size() - 1;
+        } else if (currentIndex == m_currentSuggestion) {
+            newIndex = 0;
+        }
+        ++currentIndex;
+    }
+    if (newSuggestions.isEmpty())
+        return false;
+
+    if (newSuggestions != m_suggestions) {
+        widget->insertSuggestion(
+            std::make_unique<CyclicSuggestion>(newSuggestions, sourceDocument(), newIndex));
+    }
+    return true;
+}
+
 class SuggestionToolTip : public QToolBar
 {
 public:
     SuggestionToolTip(
         QList<TextSuggestion::Data> suggestions, int currentSuggestion, TextEditorWidget *editor)
-        : m_numberLabel(new QLabel)
-        , m_suggestions(suggestions)
+        : m_suggestions(suggestions)
         , m_currentSuggestion(std::max(0, std::min<int>(currentSuggestion, suggestions.size() - 1)))
         , m_editor(editor)
     {
-        auto prev = addAction(
-            Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Suggestion"));
-        prev->setEnabled(m_suggestions.size() > 1);
-        addWidget(m_numberLabel);
-        auto next
-            = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Suggestion"));
-        next->setEnabled(m_suggestions.size() > 1);
+        if (m_suggestions.size() > 1) {
+            m_numberLabel = new QLabel;
+            m_prev
+                = addAction(Utils::Icons::PREV_TOOLBAR.icon(), Tr::tr("Select Previous Suggestion"));
+            addWidget(m_numberLabel);
+            m_next = addAction(Utils::Icons::NEXT_TOOLBAR.icon(), Tr::tr("Select Next Suggestion"));
+            connect(m_prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
+            connect(m_next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
+        }
 
         auto apply = addAction(Tr::tr("Apply (%1)").arg(QKeySequence(Qt::Key_Tab).toString()));
         auto applyWord = addAction(
             Tr::tr("Apply Word (%1)").arg(QKeySequence(QKeySequence::MoveToNextWord).toString()));
         auto applyLine = addAction(Tr::tr("Apply Line"));
 
-        connect(prev, &QAction::triggered, this, &SuggestionToolTip::selectPrevious);
-        connect(next, &QAction::triggered, this, &SuggestionToolTip::selectNext);
         connect(apply, &QAction::triggered, this, &SuggestionToolTip::apply);
         connect(applyWord, &QAction::triggered, this, &SuggestionToolTip::applyWord);
         connect(applyLine, &QAction::triggered, this, &SuggestionToolTip::applyLine);
+        connect(editor->document(), &QTextDocument::contentsChange, this, &SuggestionToolTip::contentsChanged);
 
-        updateLabels();
+        updateSuggestionSelector();
     }
 
 private:
-    void updateLabels()
+    void contentsChanged()
     {
+        if (auto *suggestion = dynamic_cast<CyclicSuggestion *>(m_editor->currentSuggestion())) {
+            m_suggestions = suggestion->suggestions();
+            m_currentSuggestion = suggestion->currentSuggestion();
+            updateSuggestionSelector();
+        }
+    }
+
+    void updateSuggestionSelector()
+    {
+        if (!m_numberLabel || !m_prev || !m_next)
+            return;
+
         m_numberLabel->setText(
             Tr::tr("%1 of %2").arg(m_currentSuggestion + 1).arg(m_suggestions.count()));
+        m_prev->setEnabled(m_suggestions.size() > 1);
+        m_next->setEnabled(m_suggestions.size() > 1);
     }
 
     void selectPrevious()
@@ -155,9 +203,7 @@ private:
 
     void setCurrentSuggestion()
     {
-        updateLabels();
-        if (TextSuggestion *suggestion = m_editor->currentSuggestion())
-            suggestion->reset();
+        updateSuggestionSelector();
         m_editor->insertSuggestion(std::make_unique<CyclicSuggestion>(
             m_suggestions, m_editor->document(), m_currentSuggestion));
     }
@@ -189,7 +235,9 @@ private:
         ToolTip::hide();
     }
 
-    QLabel *m_numberLabel;
+    QLabel *m_numberLabel = nullptr;
+    QAction *m_prev = nullptr;
+    QAction *m_next = nullptr;
     QList<TextSuggestion::Data> m_suggestions;
     int m_currentSuggestion = 0;
     TextEditorWidget *m_editor;

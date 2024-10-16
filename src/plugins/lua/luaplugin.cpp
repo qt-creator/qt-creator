@@ -5,6 +5,8 @@
 #include "luapluginspec.h"
 #include "luatr.h"
 
+#include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
 #include <coreplugin/jsexpander.h>
@@ -13,11 +15,15 @@
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginmanager.h>
 
+#include <texteditor/texteditor.h>
+
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
 #include <utils/theme/theme.h>
+#include <utils/utilsicons.h>
 
 #include <QDebug>
 #include <QKeyEvent>
@@ -25,6 +31,8 @@
 #include <QLineEdit>
 #include <QListView>
 #include <QPainter>
+#include <QMenu>
+#include <QToolBar>
 #include <QStringListModel>
 #include <QStyledItemDelegate>
 
@@ -33,6 +41,11 @@ using namespace Utils;
 using namespace ExtensionSystem;
 
 namespace Lua::Internal {
+
+const char M_SCRIPT[] = "Lua.Script";
+const char G_SCRIPTS[] = "Lua.Scripts";
+const char ACTION_SCRIPTS_BASE[] = "Lua.Scripts.";
+const char ACTION_NEW_SCRIPT[] = "Lua.NewScript";
 
 void setupActionModule();
 void setupCoreModule();
@@ -104,7 +117,7 @@ public:
             painter->fillRect(opt.rect, opt.palette.highlight());
             painter->setPen(opt.palette.highlightedText().color());
         } else if (isError) {
-            painter->setPen(creatorColor(Theme::Token_Notification_Danger));
+            painter->setPen(creatorColor(Theme::Token_Notification_Danger_Default));
         } else {
             painter->setPen(opt.palette.text().color());
         }
@@ -270,6 +283,7 @@ class LuaPlugin : public IPlugin
 
 private:
     LuaPane *m_pane = nullptr;
+    std::unique_ptr<FilePathWatcher> m_userScriptsWatcher;
 
 public:
     LuaPlugin() {}
@@ -319,6 +333,60 @@ public:
         });
 
         m_pane = new LuaPane(this);
+
+        //register actions
+        ActionContainer *toolsContainer = ActionManager::actionContainer(Core::Constants::M_TOOLS);
+
+        ActionContainer *scriptContainer = ActionManager::createMenu(M_SCRIPT);
+
+        Command *newScriptCommand = ActionBuilder(this, ACTION_NEW_SCRIPT)
+                                        .setScriptable(true)
+                                        .setText(tr("New Script..."))
+                                        .addToContainer(M_SCRIPT)
+                                        .addOnTriggered([](){
+                                            auto command = Core::ActionManager::command(Utils::Id("Wizard.Impl.Q.QCreatorScript"));
+                                            if (command && command->action())
+                                                command->action()->trigger();
+                                            else
+                                                qWarning("Failed to get wizard command. UI changed?");
+                                        })
+                                        .command();
+
+        scriptContainer->addAction(newScriptCommand);
+        scriptContainer->addSeparator();
+        scriptContainer->appendGroup(G_SCRIPTS);
+
+        scriptContainer->menu()->setTitle(Tr::tr("Scripting"));
+        toolsContainer->addMenu(scriptContainer);
+
+        const Utils::FilePath userScriptsPath = Core::ICore::userResourcePath("scripts");
+        userScriptsPath.ensureWritableDir();
+        if (auto watch = userScriptsPath.watch()) {
+            m_userScriptsWatcher.swap(*watch);
+            connect(
+                m_userScriptsWatcher.get(),
+                &FilePathWatcher::pathChanged,
+                this,
+                &LuaPlugin::scanForScripts);
+        }
+
+        scanForScripts();
+
+        connect(
+            EditorManager::instance(),
+            &EditorManager::editorOpened,
+            this,
+            &LuaPlugin::onEditorOpened);
+
+        ActionBuilder(this, Id(ACTION_SCRIPTS_BASE).withSuffix("current"))
+            .setText(Tr::tr("Run current Script"))
+            .addOnTriggered([]() {
+                if (auto textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
+                    const FilePath path = textEditor->document()->filePath();
+                    if (path.isChildOf(Core::ICore::userResourcePath("scripts")))
+                        runScript(path);
+                }
+            });
     }
 
     bool delayedInitialize() final
@@ -354,6 +422,62 @@ public:
 
         PluginManager::addPlugins({plugins.begin(), plugins.end()});
         PluginManager::loadPluginsAtRuntime(plugins);
+    }
+
+    void scanForScripts()
+    {
+        const FilePath scriptsPath = Core::ICore::userResourcePath("scripts");
+        if (!scriptsPath.exists())
+            return;
+
+        ActionContainer *scriptContainer = ActionManager::actionContainer(M_SCRIPT);
+
+        const FilePaths scripts = scriptsPath.dirEntries(FileFilter({"*.lua"}, QDir::Files));
+        for (const FilePath &script : scripts) {
+            const Id base = Id(ACTION_SCRIPTS_BASE).withSuffix(script.baseName());
+            const Id menuId = base.withSuffix(".Menu");
+            if (!ActionManager::actionContainer(menuId)) {
+                ActionContainer *container = ActionManager::createMenu(menuId);
+                scriptContainer->addMenu(container);
+                auto menu = container->menu();
+                menu->setTitle(script.baseName());
+                ActionBuilder(this, base)
+                    .setText(Tr::tr("%1").arg(script.baseName()))
+                    .setToolTip(Tr::tr("Run script '%1'").arg(script.toUserOutput()))
+                    .addOnTriggered([script]() { runScript(script); });
+                connect(menu->addAction(Tr::tr("Run")), &QAction::triggered, this, [script]() {
+                    runScript(script);
+                });
+                connect(menu->addAction(Tr::tr("Edit")), &QAction::triggered, this, [script]() {
+                    Core::EditorManager::openEditor(script);
+                });
+            }
+        }
+    }
+
+    void onEditorOpened(Core::IEditor *editor)
+    {
+        const FilePath path = editor->document()->filePath();
+        if (path.isChildOf(Core::ICore::userResourcePath("scripts"))) {
+            auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+            TextEditor::TextEditorWidget *editorWidget = textEditor->editorWidget();
+            editorWidget->toolBar()
+                ->addAction(Utils::Icons::RUN_SMALL_TOOLBAR.icon(), Tr::tr("Run"), [path]() {
+                    runScript(path);
+                });
+        }
+    }
+
+    static void runScript(const FilePath &script)
+    {
+        expected_str<QByteArray> content = script.fileContents();
+        if (content) {
+            Lua::runScript(QString::fromUtf8(*content), script.fileName());
+        } else {
+            MessageManager::writeFlashing(Tr::tr("Failed to read script %1: %2")
+                                              .arg(script.toUserOutput())
+                                              .arg(content.error()));
+        }
     }
 };
 

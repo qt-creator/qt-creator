@@ -105,8 +105,15 @@ FilePath currentCppEditorDocumentFilePath()
 
 DiagnosticTextInfo::DiagnosticTextInfo(const QString &text)
     : m_text(text)
-    , m_squareBracketStartIndex(text.lastIndexOf('['))
 {}
+
+int DiagnosticTextInfo::getSquareBracketStartIndex() const
+{
+    const int offset = m_text.lastIndexOf('[');
+    if (offset < m_text.length() - 1 && m_text.at(offset + 1) == ']')
+        return -1;
+    return offset;
+}
 
 QString DiagnosticTextInfo::textWithoutOption() const
 {

@@ -1,6 +1,6 @@
 {
     "Id" : "texteditor",
-    "Name" : "TextEditor",
+    "Name" : "Text Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

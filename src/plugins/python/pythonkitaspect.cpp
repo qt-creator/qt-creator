@@ -8,20 +8,38 @@
 #include "pythontr.h"
 #include "pythonutils.h"
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 
 #include <QComboBox>
+#include <QSortFilterProxyModel>
 
 using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Python {
+namespace Internal {
 
-using namespace Internal;
+class PythonAspectModel : public QSortFilterProxyModel
+{
+public:
+    using QSortFilterProxyModel::QSortFilterProxyModel;
+
+    void reset()
+    {
+        if (QAbstractItemModel * const model = sourceModel()) {
+            setSourceModel(nullptr);
+            model->deleteLater();
+        }
+        ListModel<Interpreter> * const model = createInterpreterModel(this);
+        model->setAllData(model->allData() << Interpreter("none", {}, {}));
+        setSourceModel(model);
+    }
+};
 
 class PythonKitAspectImpl final : public KitAspect
 {
@@ -31,57 +49,29 @@ public:
     {
         setManagingPage(Constants::C_PYTHONOPTIONS_PAGE_ID);
 
-        m_comboBox = createSubWidget<QComboBox>();
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
+        const auto model = new PythonAspectModel(this);
+        auto getter = [](const Kit &k) -> QVariant {
+            if (const auto interpreter = PythonKitAspect::python(&k))
+                return interpreter->id;
+            return {};
+        };
+        auto setter = [](Kit &k, const QVariant &v) {
+            PythonKitAspect::setPython(&k, v.toString());
+        };
+        auto resetModel = [model] { model->reset(); };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
-        refresh();
-        m_comboBox->setToolTip(kitInfo->description());
-        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
-            if (m_ignoreChanges.isLocked())
-                return;
-
-            PythonKitAspect::setPython(this->kit(), m_comboBox->currentData().toString());
-        });
         connect(PythonSettings::instance(),
                 &PythonSettings::interpretersChanged,
                 this,
                 &PythonKitAspectImpl::refresh);
     }
 
-    void makeReadOnly() override
-    {
-        m_comboBox->setEnabled(false);
-    }
-
     void refresh() override
     {
-        const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
-        m_comboBox->addItem(Tr::tr("None"), QString());
-
-        for (const Interpreter &interpreter : PythonSettings::interpreters())
-            m_comboBox->addItem(interpreter.name, interpreter.id);
-
-        updateComboBox(PythonKitAspect::python(kit()));
+        KitAspect::refresh();
         emit changed(); // we need to emit changed here to update changes in the macro expander
     }
-
-    void updateComboBox(const std::optional<Interpreter> &python)
-    {
-        const int index = python ? std::max(m_comboBox->findData(python->id), 0) : 0;
-        m_comboBox->setCurrentIndex(index);
-    }
-
-protected:
-    void addToInnerLayout(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_comboBox);
-        parent.addItem(m_comboBox);
-    }
-
-private:
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox = nullptr;
 };
 
 class PythonKitAspectFactory : public KitAspectFactory
@@ -174,6 +164,10 @@ public:
                                    });
     }
 };
+
+} // Internal
+
+using namespace Internal;
 
 std::optional<Interpreter> PythonKitAspect::python(const Kit *kit)
 {

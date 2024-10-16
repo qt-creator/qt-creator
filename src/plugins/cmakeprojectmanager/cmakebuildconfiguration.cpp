@@ -34,7 +34,9 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
@@ -1658,16 +1660,18 @@ void CMakeBuildConfiguration::buildTarget(const QString &buildTarget)
         return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
     }));
 
-    QStringList originalBuildTargets;
     if (cmBs) {
-        originalBuildTargets = cmBs->buildTargets();
+        if (m_unrestrictedBuildTargets.isEmpty())
+            m_unrestrictedBuildTargets = cmBs->buildTargets();
         cmBs->setBuildTargets({buildTarget});
     }
 
     BuildManager::buildList(buildSteps());
 
-    if (cmBs)
-        cmBs->setBuildTargets(originalBuildTargets);
+    if (cmBs) {
+        cmBs->setBuildTargets(m_unrestrictedBuildTargets);
+        m_unrestrictedBuildTargets.clear();
+    }
 }
 
 void CMakeBuildConfiguration::reBuildTarget(const QString &cleanTarget, const QString &buildTarget)
@@ -1681,9 +1685,9 @@ void CMakeBuildConfiguration::reBuildTarget(const QString &cleanTarget, const QS
             return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
         }));
 
-    QStringList originalBuildTargets;
     if (cmBs) {
-        originalBuildTargets = cmBs->buildTargets();
+        if (m_unrestrictedBuildTargets.isEmpty())
+            m_unrestrictedBuildTargets = cmBs->buildTargets();
         cmBs->setBuildTargets({buildTarget});
     }
     QString originalCleanTarget;
@@ -1694,8 +1698,10 @@ void CMakeBuildConfiguration::reBuildTarget(const QString &cleanTarget, const QS
 
     BuildManager::buildLists({cleanSteps(), buildSteps()});
 
-    if (cmBs)
-        cmBs->setBuildTargets(originalBuildTargets);
+    if (cmBs) {
+        cmBs->setBuildTargets(m_unrestrictedBuildTargets);
+        m_unrestrictedBuildTargets.clear();
+    }
     if (cmCs)
         cmCs->setBuildTargets({originalCleanTarget});
 }
@@ -2110,6 +2116,33 @@ void CMakeBuildConfiguration::addToEnvironment(Utils::Environment &env) const
     const FilePath ninja = settings(nullptr).ninjaPath();
     if (!ninja.isEmpty())
         env.appendOrSetPath(ninja.isFile() ? ninja.parentDir() : ninja);
+}
+
+void CMakeBuildConfiguration::restrictNextBuild(const ProjectExplorer::RunConfiguration *rc)
+{
+    setRestrictedBuildTarget(rc ? rc->buildKey() : QString());
+}
+
+void CMakeBuildConfiguration::setRestrictedBuildTarget(const QString &buildTarget)
+{
+    auto buildStep = qobject_cast<CMakeBuildStep *>(
+        findOrDefault(buildSteps()->steps(), [](const BuildStep *bs) {
+            return bs->id() == Constants::CMAKE_BUILD_STEP_ID;
+        }));
+    if (!buildStep)
+        return;
+
+    if (!buildTarget.isEmpty()) {
+        if (m_unrestrictedBuildTargets.isEmpty())
+            m_unrestrictedBuildTargets = buildStep->buildTargets();
+        buildStep->setBuildTargets({buildTarget});
+        return;
+    }
+
+    if (!m_unrestrictedBuildTargets.isEmpty()) {
+        buildStep->setBuildTargets(m_unrestrictedBuildTargets);
+        m_unrestrictedBuildTargets.clear();
+    }
 }
 
 Environment CMakeBuildConfiguration::configureEnvironment() const

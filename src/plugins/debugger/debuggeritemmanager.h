@@ -43,8 +43,6 @@ public:
         : m_item(item), m_orig(item), m_added(changed), m_changed(changed)
     {}
 
-    static const inline int IdRole = Qt::UserRole;
-    static const inline int ProblemRole = Qt::UserRole + 1;
     QVariant data(int column, int role) const override;
 
     DebuggerItem m_item; // Displayed, possibly unapplied data.

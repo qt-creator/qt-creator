@@ -16,6 +16,8 @@
 #include <cplusplus/TranslationUnit.h>
 #include <cplusplus/TypeOfExpression.h>
 
+#include <utils/qtcassert.h>
+
 #include <QDebug>
 
 #include <optional>
@@ -684,7 +686,7 @@ void FindUsages::postfixDeclarator(PostfixDeclaratorAST *ast)
 bool FindUsages::visit(ObjCSelectorArgumentAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -700,7 +702,7 @@ void FindUsages::objCSelectorArgument(ObjCSelectorArgumentAST *ast)
 bool FindUsages::visit(GnuAttributeAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -721,7 +723,7 @@ void FindUsages::attribute(GnuAttributeAST *ast)
 bool FindUsages::visit(DeclaratorAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -754,7 +756,7 @@ void FindUsages::declarator(DeclaratorAST *ast, Scope *symbol)
 bool FindUsages::visit(QtPropertyDeclarationItemAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -770,7 +772,7 @@ void FindUsages::qtPropertyDeclarationItem(QtPropertyDeclarationItemAST *ast)
 bool FindUsages::visit(QtInterfaceNameAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -788,7 +790,7 @@ void FindUsages::qtInterfaceName(QtInterfaceNameAST *ast)
 bool FindUsages::visit(BaseSpecifierAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -806,7 +808,7 @@ void FindUsages::baseSpecifier(BaseSpecifierAST *ast)
 bool FindUsages::visit(CtorInitializerAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -825,7 +827,7 @@ void FindUsages::ctorInitializer(CtorInitializerAST *ast)
 bool FindUsages::visit(EnumeratorAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -843,7 +845,7 @@ void FindUsages::enumerator(EnumeratorAST *ast)
 bool FindUsages::visit(DynamicExceptionSpecificationAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -868,7 +870,7 @@ void FindUsages::exceptionSpecification(ExceptionSpecificationAST *ast)
 bool FindUsages::visit(MemInitializerAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -903,7 +905,7 @@ void FindUsages::memInitializer(MemInitializerAST *ast)
 bool FindUsages::visit(NestedNameSpecifierAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -941,7 +943,7 @@ void FindUsages::newPlacement(ExpressionListParenAST *ast)
 bool FindUsages::visit(NewArrayDeclaratorAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -958,7 +960,7 @@ void FindUsages::newArrayDeclarator(NewArrayDeclaratorAST *ast)
 bool FindUsages::visit(NewTypeIdAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -981,7 +983,7 @@ void FindUsages::newTypeId(NewTypeIdAST *ast)
 bool FindUsages::visit(OperatorAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -998,7 +1000,7 @@ void FindUsages::cppOperator(OperatorAST *ast)
 bool FindUsages::visit(ParameterDeclarationClauseAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1016,7 +1018,7 @@ void FindUsages::parameterDeclarationClause(ParameterDeclarationClauseAST *ast)
 bool FindUsages::visit(TranslationUnitAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1035,7 +1037,7 @@ void FindUsages::translationUnit(TranslationUnitAST *ast)
 bool FindUsages::visit(ObjCProtocolRefsAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1054,7 +1056,7 @@ void FindUsages::objCProtocolRefs(ObjCProtocolRefsAST *ast)
 bool FindUsages::visit(ObjCMessageArgumentAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1069,7 +1071,7 @@ void FindUsages::objCMessageArgument(ObjCMessageArgumentAST *ast)
 bool FindUsages::visit(ObjCTypeNameAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1087,7 +1089,7 @@ void FindUsages::objCTypeName(ObjCTypeNameAST *ast)
 bool FindUsages::visit(ObjCInstanceVariablesDeclarationAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1106,7 +1108,7 @@ void FindUsages::objCInstanceVariablesDeclaration(ObjCInstanceVariablesDeclarati
 bool FindUsages::visit(ObjCPropertyAttributeAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1123,7 +1125,7 @@ void FindUsages::objCPropertyAttribute(ObjCPropertyAttributeAST *ast)
 bool FindUsages::visit(ObjCMessageArgumentDeclarationAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1143,7 +1145,7 @@ void FindUsages::objCMessageArgumentDeclaration(ObjCMessageArgumentDeclarationAS
 bool FindUsages::visit(ObjCMethodPrototypeAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1170,7 +1172,7 @@ void FindUsages::objCMethodPrototype(ObjCMethodPrototypeAST *ast)
 bool FindUsages::visit(ObjCSynthesizedPropertyAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1187,7 +1189,7 @@ void FindUsages::objCSynthesizedProperty(ObjCSynthesizedPropertyAST *ast)
 bool FindUsages::visit(LambdaIntroducerAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1204,7 +1206,7 @@ void FindUsages::lambdaIntroducer(LambdaIntroducerAST *ast)
 bool FindUsages::visit(LambdaCaptureAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1222,7 +1224,7 @@ void FindUsages::lambdaCapture(LambdaCaptureAST *ast)
 bool FindUsages::visit(CaptureAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1237,7 +1239,7 @@ void FindUsages::capture(CaptureAST *ast)
 bool FindUsages::visit(LambdaDeclaratorAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -1260,7 +1262,7 @@ void FindUsages::lambdaDeclarator(LambdaDeclaratorAST *ast)
 bool FindUsages::visit(TrailingReturnTypeAST *ast)
 {
     (void) ast;
-    Q_ASSERT(!"unreachable");
+    QTC_CHECK(false);
     return false;
 }
 
@@ -2573,7 +2575,7 @@ void FindUsages::prepareLines(const QByteArray &bytes)
 
 QString FindUsages::fetchLine(unsigned lineNr) const
 {
-    Q_ASSERT(lineNr < _sourceLineEnds.size());
+    QTC_ASSERT(lineNr < _sourceLineEnds.size(), return {});
     if (lineNr == 0)
         return QString();
 

@@ -1,6 +1,6 @@
 {
     "Id" : "ctfvisualizer",
-    "Name" : "CtfVisualizer",
+    "Name" : "CTF Visualizer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Vendor" : "KDAB Group, www.kdab.com",

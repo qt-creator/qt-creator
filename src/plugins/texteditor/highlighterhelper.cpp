@@ -105,13 +105,30 @@ static Definition definitionForSetting(const Key &settingsKey, const QString &ma
 
 Definitions definitionsForMimeType(const QString &mimeType)
 {
-    Definitions definitions = highlightRepository()->definitionsForMimeType(mimeType).toList();
-    if (definitions.size() > 1) {
-        const Definition &rememberedDefinition = definitionForSetting(kDefinitionForMimeType,
-                                                                      mimeType);
-        if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
-            definitions = {rememberedDefinition};
+    auto definitionsForMimeTypeName = [mimeType](const QString mimeTypeName) {
+        Definitions definitions
+            = highlightRepository()->definitionsForMimeType(mimeTypeName).toList();
+        if (definitions.size() > 1) {
+            const Definition rememberedDefinition
+                = definitionForSetting(kDefinitionForMimeType, mimeType);
+            if (rememberedDefinition.isValid() && definitions.contains(rememberedDefinition))
+                definitions = {rememberedDefinition};
+        }
+        return definitions;
+    };
+
+    Definitions definitions = definitionsForMimeTypeName(mimeType);
+    if (definitions.isEmpty()) {
+        if (const MimeType mt = Utils::mimeTypeForName(mimeType); mt.isValid()) {
+            const QStringList aliases = mt.aliases();
+            for (const QString &alias : aliases) {
+                definitions = definitionsForMimeTypeName(alias);
+                if (!definitions.isEmpty())
+                    break;
+            }
+        }
     }
+
     return definitions;
 }
 
@@ -220,6 +237,51 @@ void reload()
 void handleShutdown()
 {
     delete highlightRepository();
+}
+
+QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
+{
+    QTextDocument *document = new QTextDocument;
+    document->setPlainText(code);
+
+    const HighlighterHelper::Definitions definitions = HighlighterHelper::definitionsForMimeType(
+        mimeType);
+
+    std::shared_ptr<QPromise<QTextDocument *>> promise
+        = std::make_shared<QPromise<QTextDocument *>>();
+
+    promise->start();
+
+    if (definitions.isEmpty()) {
+        promise->addResult(document);
+        promise->finish();
+        return promise->future();
+    }
+
+    auto definition = definitions.first();
+
+    const QString definitionFilesPath
+        = TextEditorSettings::highlighterSettings().definitionFilesPath().toString();
+
+    Highlighter *highlighter = new Highlighter(definitionFilesPath);
+    QObject::connect(highlighter, &Highlighter::finished, document, [document, promise]() {
+        promise->addResult(document);
+        promise->finish();
+    });
+
+    QFutureWatcher<QTextDocument *> *watcher = new QFutureWatcher<QTextDocument *>(document);
+    QObject::connect(watcher, &QFutureWatcher<QTextDocument *>::canceled, document, [document]() {
+        document->deleteLater();
+    });
+    watcher->setFuture(promise->future());
+
+    highlighter->setDefinition(definition);
+    highlighter->setParent(document);
+    highlighter->setFontSettings(TextEditorSettings::fontSettings());
+    highlighter->setMimeType(mimeType);
+    highlighter->setDocument(document);
+
+    return promise->future();
 }
 
 } // namespace TextEditor::HighlighterHelper

@@ -73,11 +73,10 @@ namespace SpacingTokens {
     constexpr int ExVPaddingGapXl = 24;
 }
 
-enum ToolbarStyle {
-    ToolbarStyleCompact,
-    ToolbarStyleRelaxed,
+enum class ToolbarStyle {
+    Compact,
+    Relaxed,
 };
-constexpr ToolbarStyle defaultToolbarStyle = ToolbarStyleCompact;
 
 // Keep in sync with:
 // SyleHelper::uiFontMetrics, ICore::uiConfigInformation, tst_manual_widgets_uifonts::main
@@ -105,6 +104,7 @@ enum UiElement {
 QTCREATOR_UTILS_EXPORT int navigationWidgetHeight();
 QTCREATOR_UTILS_EXPORT void setToolbarStyle(ToolbarStyle style);
 QTCREATOR_UTILS_EXPORT ToolbarStyle toolbarStyle();
+QTCREATOR_UTILS_EXPORT ToolbarStyle defaultToolbarStyle();
 QTCREATOR_UTILS_EXPORT QPalette sidebarFontPalette(const QPalette &original);
 
 // This is our color table, all colors derive from baseColor
@@ -116,7 +116,6 @@ QTCREATOR_UTILS_EXPORT QColor highlightColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor shadowColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor borderColor(bool lightColored = false);
 QTCREATOR_UTILS_EXPORT QColor toolBarBorderColor();
-QTCREATOR_UTILS_EXPORT QColor buttonTextColor();
 QTCREATOR_UTILS_EXPORT QColor mergedColors(const QColor &colorA, const QColor &colorB,
                                            int factor = 50);
 QTCREATOR_UTILS_EXPORT QColor alphaBlendedColors(const QColor &colorA, const QColor &colorB);

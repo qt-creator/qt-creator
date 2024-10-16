@@ -334,8 +334,7 @@ public:
 
     void positionShow(const TextEditorWidget *editorWidget);
 
-    void updateTooltip() { QTimer::singleShot(0, [this] { updateTooltip2(); }); }
-    void updateTooltip2();
+    void updateTooltip();
 
     void setState(DebuggerTooltipState newState);
     void destroy() { close(); }
@@ -621,7 +620,7 @@ QDebug operator<<(QDebug d, const DebuggerToolTipContext &c)
 // If we are in "Acquired" or "Released", this is an update
 // after normal WatchModel update.
 
-void DebuggerToolTipWidget::updateTooltip2()
+void DebuggerToolTipWidget::updateTooltip()
 {
     if (!engine) {
         setState(Released);
@@ -633,12 +632,7 @@ void DebuggerToolTipWidget::updateTooltip2()
 
     // FIXME: The engine should decide on whether it likes
     // the context.
-    const bool sameFrame = context.matchesFrame(frame)
-        || context.fileName.endsWith(".py");
-    DEBUG("UPDATE TOOLTIP: STATE " << state << context.iname
-          << "PINNED: " << widget->isPinned
-          << "SHOW NEEDED: " << widget->isPinned
-          << "SAME FRAME: " << sameFrame);
+    const bool sameFrame = context.matchesFrame(frame) || context.fileName.endsWith(".py");
 
     if (state == PendingUnshown) {
         setState(PendingShown);
@@ -716,7 +710,7 @@ void DebuggerToolTipWidget::positionShow(const TextEditorWidget *editorWidget)
     //             << screenPos << te.widget << " visible=" << visible);
 
     if (visible) {
-        move(screenPos);
+        topLevelWidget()->move(screenPos);
         show();
     } else {
         hide();

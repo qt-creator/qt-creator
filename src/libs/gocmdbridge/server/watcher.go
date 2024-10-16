@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strings"
+	"sync"
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/fxamacker/cbor/v2"
@@ -10,6 +11,7 @@ import (
 
 type WatcherHandler struct {
 	watcher   *fsnotify.Watcher
+	mutex     sync.Mutex
 	watchList map[int]string
 	watchRefs map[string]int
 }
@@ -33,37 +35,44 @@ type watchevent struct {
 	EventType int
 }
 
-func (watchHandler WatcherHandler) start(out chan<- []byte) {
+func handleEvent(event fsnotify.Event, watchHandler *WatcherHandler, out chan<- []byte) {
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
+	// Find which watchList entries correspond to the event
+	for id, path := range watchHandler.watchList {
+		// See if the event path is a subpath of the watch path
+		if strings.HasPrefix(event.Name, path) {
+			data, _ := cbor.Marshal(watchevent{
+				Type:      "watchEvent",
+				Id:        id,
+				Path:      event.Name,
+				EventType: int(event.Op),
+			})
+			if event.Op == fsnotify.Remove && event.Name == path {
+				// Check if file exists
+				_, err := os.Stat(event.Name)
+				if err == nil {
+					// File exists, so lets add it again
+					err := watchHandler.watcher.Add(event.Name)
+					if err != nil {
+						sendError(out, command{Type: "watchEvent", Id: id}, err)
+					}
+				}
+			}
+			out <- data
+		}
+	}
+}
+
+func (watchHandler *WatcherHandler) start(out chan<- []byte) {
 	for {
 		select {
 		case event, ok := <-watchHandler.watcher.Events:
 			if !ok {
 				return
 			}
-			// Find which watchList entries correspond to the event
-			for id, path := range watchHandler.watchList {
-				// See if the event path is a subpath of the watch path
-				if strings.HasPrefix(event.Name, path) {
-					data, _ := cbor.Marshal(watchevent{
-						Type:      "watchEvent",
-						Id:        id,
-						Path:      event.Name,
-						EventType: int(event.Op),
-					})
-					if event.Op == fsnotify.Remove && event.Name == path {
-						// Check if file exists
-						_, err := os.Stat(event.Name)
-						if err == nil {
-							// File exists, so lets add it again
-							err := watchHandler.watcher.Add(event.Name)
-							if err != nil {
-								sendError(out, command{Type: "watchEvent", Id: id}, err)
-							}
-						}
-					}
-					out <- data
-				}
-			}
+			handleEvent(event, watchHandler, out)
 		case err, ok := <-watchHandler.watcher.Errors:
 			if !ok {
 				return
@@ -79,13 +88,17 @@ type addwatchresult struct {
 	Result bool
 }
 
-func (watchHandler WatcherHandler) processAdd(cmd command, out chan<- []byte) {
+func (watchHandler *WatcherHandler) processAdd(cmd command, out chan<- []byte) {
 	// TODO: Resolve links
 	err := watchHandler.watcher.Add(cmd.Path)
 	if err != nil {
 		sendError(out, cmd, err)
 		return
 	}
+
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
 	watchHandler.watchList[cmd.Id] = cmd.Path
 	watchHandler.watchRefs[cmd.Path]++
 	data, _ := cbor.Marshal(addwatchresult{
@@ -97,7 +110,10 @@ func (watchHandler WatcherHandler) processAdd(cmd command, out chan<- []byte) {
 	out <- data
 }
 
-func (watchHandler WatcherHandler) processStop(cmd command, out chan<- []byte) {
+func (watchHandler *WatcherHandler) processStop(cmd command, out chan<- []byte) {
+	watchHandler.mutex.Lock()
+	defer watchHandler.mutex.Unlock()
+
 	path, ok := watchHandler.watchList[cmd.Id]
 	if !ok {
 		sendError(out, cmd, &watchnotfounderror{})
@@ -138,27 +154,4 @@ type watchnotfounderror struct {
 
 func (e *watchnotfounderror) Error() string {
 	return "Watch not found"
-}
-
-func (watchHandler WatcherHandler) processRemove(cmd command, out chan<- []byte) {
-	if _, ok := watchHandler.watchList[cmd.Id]; !ok {
-		sendError(out, cmd, &watchnotfounderror{})
-		return
-	}
-	watchHandler.watchRefs[cmd.Path]--
-	if watchHandler.watchRefs[cmd.Path] == 0 {
-		err := watchHandler.watcher.Remove(cmd.Path)
-		if err != nil {
-			sendError(out, cmd, err)
-			return
-		}
-	}
-	delete(watchHandler.watchList, cmd.Id)
-
-	data, _ := cbor.Marshal(removewatchresult{
-		Type:   "removewatchresult",
-		Id:     cmd.Id,
-		Result: true,
-	})
-	out <- data
 }
