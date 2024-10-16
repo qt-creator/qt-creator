@@ -20,6 +20,7 @@ public:
 
     void setMarkdown(const QString &markdown);
     void setBasePath(const FilePath &filePath);
+    void setAllowRemoteImages(bool allow);
 };
 
 } // namespace Utils

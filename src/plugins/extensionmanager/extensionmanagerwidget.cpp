@@ -442,6 +442,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
 
     m_headingWidget = new HeadingWidget;
     m_description = new MarkdownBrowser;
+    m_description->setAllowRemoteImages(true);
     m_description->setFrameStyle(QFrame::NoFrame);
     m_description->setOpenExternalLinks(true);
     QPalette browserPal = m_description->palette();
