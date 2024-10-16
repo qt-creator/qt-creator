@@ -718,13 +718,39 @@ Utils::expected_str<QFuture<FilePath>> Client::createTempFile(const QString &pat
         });
 }
 
+/*
+Convert QFileDevice::Permissions to Unix chmod flags.
+The mode is copied from system libraries.
+The logic is copied from qfiledevice_p.h "toMode_t" function.
+*/
+constexpr int toUnixChmod(QFileDevice::Permissions permissions)
+{
+    int mode = 0;
+    if (permissions & (QFileDevice::ReadOwner | QFileDevice::ReadUser))
+        mode |= 0000400; // S_IRUSR
+    if (permissions & (QFileDevice::WriteOwner | QFileDevice::WriteUser))
+        mode |= 0000200; // S_IWUSR
+    if (permissions & (QFileDevice::ExeOwner | QFileDevice::ExeUser))
+        mode |= 0000100; // S_IXUSR
+    if (permissions & QFileDevice::ReadGroup)
+        mode |= 0000040; // S_IRGRP
+    if (permissions & QFileDevice::WriteGroup)
+        mode |= 0000020; // S_IWGRP
+    if (permissions & QFileDevice::ExeGroup)
+        mode |= 0000010; // S_IXGRP
+    if (permissions & QFileDevice::ReadOther)
+        mode |= 0000004; // S_IROTH
+    if (permissions & QFileDevice::WriteOther)
+        mode |= 0000002; // S_IWOTH
+    if (permissions & QFileDevice::ExeOther)
+        mode |= 0000001; // S_IXOTH
+    return mode;
+}
+
 Utils::expected_str<QFuture<void>> Client::setPermissions(
     const QString &path, QFile::Permissions perms)
 {
-    // Convert the QFileDevice::Permissions to unix style permissions
-    uint p = perms.toInt() & 0xF0FF;
-    p = ((p & 0xF000) >> 4 | (p & 0xFF));
-    p = ((p & 0xF00) >> 2) | ((p & 0xF0) >> 1) | (p & 0xF);
+    int p = toUnixChmod(perms);
 
     return createVoidJob(
         d.get(),
