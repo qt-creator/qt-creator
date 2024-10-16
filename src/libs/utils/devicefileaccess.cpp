@@ -1454,7 +1454,7 @@ bool UnixDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permi
 
     const int flags = toUnixChmod(perms);
     return runInShellSuccess(
-        {"chmod", {QString::number(flags, 16), filePath.path()}, OsType::OsTypeLinux});
+        {"chmod", {"0" + QString::number(flags, 8), filePath.path()}, OsType::OsTypeLinux});
 }
 
 qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const
