@@ -7,6 +7,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -125,8 +126,13 @@ void QmlTaskManager::updateSemanticMessagesNow()
     if (!project)
         return;
 
+    BuildSystem *buildSystem = ProjectManager::startupBuildSystem();
+    if (!buildSystem)
+        return;
+
+    const bool isCMake = buildSystem->name() == "cmake";
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
-    if (QmllsSettingsManager::instance()->useQmlls(project)) {
+    if (isCMake && QmllsSettingsManager::instance()->useQmlls(project)) {
         // abort any update that's going on already, and remove old codemodel warnings
         m_messageCollector.cancel();
         removeAllTasks(true);
