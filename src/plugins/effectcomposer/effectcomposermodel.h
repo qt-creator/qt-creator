@@ -93,6 +93,12 @@ public:
     QString vertexShader() const;
     void setVertexShader(const QString &newVertexShader);
 
+    void setRootFragmentShader(const QString &shader);
+    void resetRootFragmentShader();
+
+    void setRootVertexShader(const QString &shader);
+    void resetRootVertexShader();
+
     Q_INVOKABLE QString qmlComponentString() const;
 
     Q_INVOKABLE void updateQmlComponent();
@@ -172,8 +178,6 @@ private:
     int getTagIndex(const QStringList &code, const QString &tag);
     QString processVertexRootLine(const QString &line);
     QString processFragmentRootLine(const QString &line);
-    QStringList getDefaultRootVertexShader();
-    QStringList getDefaultRootFragmentShader();
     QStringList removeTagsFromCode(const QStringList &codeLines);
     QString removeTagsFromCode(const QString &code);
     QString getCustomShaderVaryings(bool outState);
@@ -212,8 +216,8 @@ private:
     QStringList m_shaderVaryingVariables;
     QString m_fragmentShader;
     QString m_vertexShader;
-    QStringList m_defaultRootVertexShader;
-    QStringList m_defaultRootFragmentShader;
+    QString m_rootVertexShader;
+    QString m_rootFragmentShader;
     // Temp files to store shaders sources and binary data
     QTemporaryDir m_shaderDir;
     QString m_fragmentSourceFilename;

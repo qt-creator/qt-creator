@@ -59,11 +59,12 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
 
 QHash<int, QByteArray> EffectComposerModel::roleNames() const
 {
-    QHash<int, QByteArray> roles;
-    roles[NameRole] = "nodeName";
-    roles[EnabledRole] = "nodeEnabled";
-    roles[UniformsRole] = "nodeUniformsModel";
-    roles[Dependency] = "isDependency";
+    static const QHash<int, QByteArray> roles = {
+        {NameRole, "nodeName"},
+        {EnabledRole, "nodeEnabled"},
+        {UniformsRole, "nodeUniformsModel"},
+        {Dependency, "isDependency"},
+    };
     return roles;
 }
 
@@ -207,6 +208,8 @@ void EffectComposerModel::clear(bool clearName)
     if (clearName) {
         setCurrentComposition("");
         setCompositionPath("");
+        resetRootFragmentShader();
+        resetRootVertexShader();
     }
 
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
@@ -253,8 +256,6 @@ void EffectComposerModel::setFragmentShader(const QString &newFragmentShader)
         return;
 
     m_fragmentShader = newFragmentShader;
-
-    rebakeIfLiveUpdateMode();
 }
 
 QString EffectComposerModel::vertexShader() const
@@ -268,8 +269,40 @@ void EffectComposerModel::setVertexShader(const QString &newVertexShader)
         return;
 
     m_vertexShader = newVertexShader;
+}
 
-    rebakeIfLiveUpdateMode();
+void EffectComposerModel::setRootFragmentShader(const QString &shader)
+{
+    m_rootFragmentShader = shader;
+}
+
+void EffectComposerModel::resetRootFragmentShader()
+{
+    static const QString defaultRootFragmentShader = {
+        "void main() {\n"
+        "    fragColor = texture(iSource, texCoord);\n"
+        "    @nodes\n"
+        "    fragColor = fragColor * qt_Opacity;\n"
+        "}\n"};
+    setRootFragmentShader(defaultRootFragmentShader);
+}
+
+void EffectComposerModel::setRootVertexShader(const QString &shader)
+{
+    m_rootVertexShader = shader;
+}
+
+void EffectComposerModel::resetRootVertexShader()
+{
+    static const QString defaultRootVertexShader = {
+        "void main() {\n"
+        "    texCoord = qt_MultiTexCoord0;\n"
+        "    fragCoord = qt_Vertex.xy;\n"
+        "    vec2 vertCoord = qt_Vertex.xy;\n"
+        "    @nodes\n"
+        "    gl_Position = qt_Matrix * vec4(vertCoord, 0.0, 1.0);\n"
+        "}\n"};
+    setRootVertexShader(defaultRootVertexShader);
 }
 
 QString EffectComposerModel::qmlComponentString() const
@@ -978,8 +1011,18 @@ void EffectComposerModel::saveComposition(const QString &name)
         nodesArray.append(nodeObject);
     }
 
+    auto toJsonArray = [](const QString &code) -> QJsonArray {
+        return QJsonArray::fromStringList(code.split('\n'));
+    };
+
     if (!nodesArray.isEmpty())
         json.insert("nodes", nodesArray);
+
+    if (!m_rootVertexShader.isEmpty())
+        json.insert("vertexCode", toJsonArray(m_rootVertexShader));
+
+    if (!m_rootFragmentShader.isEmpty())
+        json.insert("fragmentCode", toJsonArray(m_rootFragmentShader));
 
     QJsonObject rootJson;
     rootJson.insert("QEP", json);
@@ -1009,25 +1052,20 @@ void EffectComposerModel::openMainShadersCodeEditor()
     if (!m_shadersCodeEditor) {
         m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
             currentComposition());
-        m_shadersCodeEditor->setFragmentValue(generateFragmentShader(true));
-        m_shadersCodeEditor->setVertexValue(generateVertexShader(true));
+        m_shadersCodeEditor->setFragmentValue(m_rootFragmentShader);
+        m_shadersCodeEditor->setVertexValue(m_rootVertexShader);
+
+        connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::vertexValueChanged, this, [this] {
+            setRootVertexShader(m_shadersCodeEditor->vertexValue());
+            setHasUnsavedChanges(true);
+            rebakeIfLiveUpdateMode();
+        });
 
         connect(
-            m_shadersCodeEditor.get(),
-            &EffectShadersCodeEditor::vertexValueChanged,
-            this,
-            [this] {
-                setVertexShader(m_shadersCodeEditor->vertexValue());
+            m_shadersCodeEditor.get(), &EffectShadersCodeEditor::fragmentValueChanged, this, [this] {
+                setRootFragmentShader(m_shadersCodeEditor->fragmentValue());
                 setHasUnsavedChanges(true);
-            });
-
-        connect(
-            m_shadersCodeEditor.get(),
-            &EffectShadersCodeEditor::fragmentValueChanged,
-            this,
-            [this] {
-                setFragmentShader(m_shadersCodeEditor->fragmentValue());
-                setHasUnsavedChanges(true);
+                rebakeIfLiveUpdateMode();
             });
 
         connect(
@@ -1089,6 +1127,23 @@ void EffectComposerModel::openComposition(const QString &path)
         setEffectError(error);
         return;
     }
+
+    auto toCodeBlock = [](const QJsonValue &jsonValue) -> QString {
+        if (!jsonValue.isArray())
+            return {};
+
+        QString code;
+        const QJsonArray array = jsonValue.toArray();
+        for (const QJsonValue &lineValue : array) {
+            if (lineValue.isString())
+                code += lineValue.toString() + '\n';
+        }
+
+        return code;
+    };
+
+    setRootVertexShader(toCodeBlock(json["vertexCode"]));
+    setRootFragmentShader(toCodeBlock(json["fragmentCode"]));
 
     if (json.contains("nodes") && json["nodes"].isArray()) {
         beginResetModel();
@@ -1486,32 +1541,6 @@ QString EffectComposerModel::processFragmentRootLine(const QString &line)
     return output;
 }
 
-QStringList EffectComposerModel::getDefaultRootVertexShader()
-{
-    if (m_defaultRootVertexShader.isEmpty()) {
-        m_defaultRootVertexShader << "void main() {";
-        m_defaultRootVertexShader << "    texCoord = qt_MultiTexCoord0;";
-        m_defaultRootVertexShader << "    fragCoord = qt_Vertex.xy;";
-        m_defaultRootVertexShader << "    vec2 vertCoord = qt_Vertex.xy;";
-        m_defaultRootVertexShader << "    @nodes";
-        m_defaultRootVertexShader << "    gl_Position = qt_Matrix * vec4(vertCoord, 0.0, 1.0);";
-        m_defaultRootVertexShader << "}";
-    }
-    return m_defaultRootVertexShader;
-}
-
-QStringList EffectComposerModel::getDefaultRootFragmentShader()
-{
-    if (m_defaultRootFragmentShader.isEmpty()) {
-        m_defaultRootFragmentShader << "void main() {";
-        m_defaultRootFragmentShader << "    fragColor = texture(iSource, texCoord);";
-        m_defaultRootFragmentShader << "    @nodes";
-        m_defaultRootFragmentShader << "    fragColor = fragColor * qt_Opacity;";
-        m_defaultRootFragmentShader << "}";
-    }
-    return m_defaultRootFragmentShader;
-}
-
 // Remove all post-processing tags ("@tag") from the code.
 // Except "@nodes" tag as that is handled later.
 QStringList EffectComposerModel::removeTagsFromCode(const QStringList &codeLines)
@@ -1574,7 +1603,7 @@ QString EffectComposerModel::generateVertexShader(bool includeUniforms)
     // split to root and main parts
     QString s_root;
     QString s_main;
-    QStringList s_sourceCode;
+    QStringList s_sourceCode = m_rootVertexShader.split('\n');
     m_shaderVaryingVariables.clear();
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->vertexCode().isEmpty() && n->isEnabled()) {
@@ -1589,11 +1618,6 @@ QString EffectComposerModel::generateVertexShader(bool includeUniforms)
                 line++;
             }
         }
-    }
-
-    if (s_sourceCode.isEmpty()) {
-        // If source nodes doesn't contain any code, use default one
-        s_sourceCode << getDefaultRootVertexShader();
     }
 
     if (removeTags) {
@@ -1630,7 +1654,7 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
     // split to root and main parts
     QString s_root;
     QString s_main;
-    QStringList s_sourceCode;
+    QStringList s_sourceCode = m_rootFragmentShader.split('\n');
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->fragmentCode().isEmpty() && n->isEnabled()) {
             const QStringList fragmentCode = n->fragmentCode().split('\n');
@@ -1644,11 +1668,6 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
                 line++;
             }
         }
-    }
-
-    if (s_sourceCode.isEmpty()) {
-        // If source nodes doesn't contain any code, use default one
-        s_sourceCode << getDefaultRootFragmentShader();
     }
 
     if (removeTags) {
