@@ -25,9 +25,9 @@
         { "key": "UiHdrFileName", "value": "%{JS: (value('BuildSystem') === 'cmake' ? (Util.path(value('FormFileName')) + '/') : '') + 'ui_' + Util.completeBaseName(value('FormFileName')) + '.h'}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" }
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
+        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt%{JS: value('BuildSystem') === 'cmake-qt6' ? '.6.5' : ''}" }
     ],
-
     "pages":
     [
         {
@@ -165,7 +165,10 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "data": { "projectFilePath": "%{ProjectFile}" }
+            "data": {
+                "projectFilePath": "%{ProjectFile}",
+                "requiredFeatures": [ "%{FeatureQt}"]
+             }
         },
         {
             "trDisplayName": "Project Management",
