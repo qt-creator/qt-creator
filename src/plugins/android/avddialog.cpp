@@ -29,6 +29,7 @@
 #include <QPushButton>
 #include <QSpinBox>
 #include <QToolTip>
+#include <QSysInfo>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -45,12 +46,24 @@ AvdDialog::AvdDialog(QWidget *parent)
     setWindowTitle(Tr::tr("Create new AVD"));
 
     m_abiComboBox = new QComboBox;
-    m_abiComboBox->addItems({
-        ProjectExplorer::Constants::ANDROID_ABI_X86,
-        ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+    // Put the host architectures on top prioritizing 64 bit
+    const QStringList armAbis = {
+        ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A,
         ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A,
-        ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A
-    });
+    };
+
+    const QStringList x86Abis = {
+        ProjectExplorer::Constants::ANDROID_ABI_X86_64,
+        ProjectExplorer::Constants::ANDROID_ABI_X86
+    };
+
+    QStringList items;
+    if (QSysInfo::currentCpuArchitecture().startsWith("arm"))
+        items << armAbis << x86Abis;
+    else
+        items << x86Abis << armAbis;
+
+    m_abiComboBox->addItems(items);
 
     m_sdcardSizeSpinBox = new QSpinBox;
     m_sdcardSizeSpinBox->setSuffix(Tr::tr(" MiB"));
