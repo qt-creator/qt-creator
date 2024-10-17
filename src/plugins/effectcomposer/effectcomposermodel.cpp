@@ -26,6 +26,8 @@
 #include <QTemporaryDir>
 #include <QVector2D>
 
+using namespace Qt::StringLiterals;
+
 namespace EffectComposer {
 
 enum class FileType
@@ -1003,6 +1005,7 @@ void EffectComposerModel::saveComposition(const QString &name)
     QJsonObject json;
     // File format version
     json.insert("version", 1);
+    json.insert("tool", "EffectComposer");
 
     // Add nodes
     QJsonArray nodesArray;
@@ -1012,17 +1015,16 @@ void EffectComposerModel::saveComposition(const QString &name)
     }
 
     auto toJsonArray = [](const QString &code) -> QJsonArray {
+        if (code.isEmpty())
+            return {};
         return QJsonArray::fromStringList(code.split('\n'));
     };
 
     if (!nodesArray.isEmpty())
         json.insert("nodes", nodesArray);
 
-    if (!m_rootVertexShader.isEmpty())
-        json.insert("vertexCode", toJsonArray(m_rootVertexShader));
-
-    if (!m_rootFragmentShader.isEmpty())
-        json.insert("fragmentCode", toJsonArray(m_rootFragmentShader));
+    json.insert("vertexCode", toJsonArray(m_rootVertexShader));
+    json.insert("fragmentCode", toJsonArray(m_rootFragmentShader));
 
     QJsonObject rootJson;
     rootJson.insert("QEP", json);
@@ -1117,6 +1119,18 @@ void EffectComposerModel::openComposition(const QString &path)
 
     QJsonObject json = rootJson["QEP"].toObject();
 
+    const QString toolName = json.contains("tool")   ? json["tool"].toString()
+                             : json.contains("QQEM") ? "QQEM"_L1
+                                                     : ""_L1;
+
+    if (!toolName.isEmpty() && toolName != "EffectComposer") {
+        const QString error
+            = tr("Error: '%1' effects are not compatible with 'Effect Composer'").arg(toolName);
+        qWarning() << error;
+        setEffectError(error);
+        return;
+    }
+
     int version = -1;
     if (json.contains("version"))
         version = json["version"].toInt(-1);
@@ -1142,8 +1156,15 @@ void EffectComposerModel::openComposition(const QString &path)
         return code;
     };
 
-    setRootVertexShader(toCodeBlock(json["vertexCode"]));
-    setRootFragmentShader(toCodeBlock(json["fragmentCode"]));
+    if (json.contains("vertexCode"))
+        setRootVertexShader(toCodeBlock(json["vertexCode"]));
+    else
+        resetRootVertexShader();
+
+    if (json.contains("fragmentCode"))
+        setRootFragmentShader(toCodeBlock(json["fragmentCode"]));
+    else
+        resetRootFragmentShader();
 
     if (json.contains("nodes") && json["nodes"].isArray()) {
         beginResetModel();
