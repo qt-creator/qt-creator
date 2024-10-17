@@ -93,6 +93,7 @@ BuildStep::BuildStep(BuildStepList *bsl, Id id)
 QWidget *BuildStep::doCreateConfigWidget()
 {
     QWidget *widget = createConfigWidget();
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     const auto recreateSummary = [this] {
         if (m_summaryUpdater)

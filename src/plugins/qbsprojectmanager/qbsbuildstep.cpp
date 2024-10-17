@@ -22,11 +22,9 @@
 #include <utils/algorithm.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
-#include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/variablechooser.h>
 
 #include <QCheckBox>
 #include <QJsonArray>
@@ -486,8 +484,13 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
     setContentsMargins(0, 0, 0, 0);
 
     propertyEdit = new FancyLineEdit(this);
+    propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
+    propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
+        return validateProperties(edit, errorMessage);
+    });
 
     defaultInstallDirCheckBox = new QCheckBox(this);
+    defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));
 
     installDirChooser = new PathChooser(this);
     installDirChooser->setExpectedKind(PathChooser::Directory);
@@ -513,17 +516,6 @@ QbsBuildStepConfigWidget::QbsBuildStepConfigWidget(QbsBuildStep *step)
         step->commandLine, br,
         noMargin,
     }.attachTo(this);
-
-    propertyEdit->setToolTip(QbsProjectManager::Tr::tr("Properties to pass to the project."));
-    defaultInstallDirCheckBox->setText(QbsProjectManager::Tr::tr("Use default location"));
-
-    auto chooser = new VariableChooser(this);
-    chooser->addMacroExpanderProvider([this] { return m_qbsStep->macroExpander(); });
-    chooser->addSupportedWidget(propertyEdit);
-    chooser->addSupportedWidget(installDirChooser->lineEdit());
-    propertyEdit->setValidationFunction([this](FancyLineEdit *edit, QString *errorMessage) {
-        return validateProperties(edit, errorMessage);
-    });
 
     connect(defaultInstallDirCheckBox, &QCheckBox::toggled, this,
             &QbsBuildStepConfigWidget::changeUseDefaultInstallDir);

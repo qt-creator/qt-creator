@@ -28,6 +28,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -39,7 +40,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
-#include <utils/variablechooser.h>
 
 #include <QDir>
 #include <QLabel>
@@ -478,8 +478,6 @@ QWidget *QMakeStep::createConfigWidget()
         abisLabel = nullptr;
         abisListWidget = nullptr;
     });
-
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     return widget;
 }
