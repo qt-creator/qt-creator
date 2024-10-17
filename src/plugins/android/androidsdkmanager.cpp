@@ -8,6 +8,7 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/spinner/spinner.h>
 #include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
@@ -21,6 +22,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QProgressBar>
 #include <QRegularExpression>
 #include <QTextCodec>
@@ -29,6 +31,7 @@ namespace {
 Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
 
+using namespace SpinnerSolution;
 using namespace Tasking;
 using namespace Utils;
 
@@ -349,6 +352,7 @@ public:
     void runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
                          const GroupItem &licenseRecipe, const GroupItem &continuationRecipe);
 
+    QPointer<QWidget> m_spinnerTarget;
     AndroidSdkManager &m_sdkManager;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
@@ -359,6 +363,11 @@ public:
 AndroidSdkManager::AndroidSdkManager() : m_d(new AndroidSdkManagerPrivate(*this)) {}
 
 AndroidSdkManager::~AndroidSdkManager() = default;
+
+void AndroidSdkManager::setSpinnerTarget(QWidget *spinnerTarget)
+{
+    m_d->m_spinnerTarget = spinnerTarget;
+}
 
 SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
@@ -469,7 +478,7 @@ void AndroidSdkManager::refreshPackages()
     if (AndroidConfig::sdkManagerToolPath() != m_d->lastSdkManagerPath)
         reloadPackages();
     else
-        emit packageReloadFinished();
+        emit packagesReloaded();
 }
 
 void AndroidSdkManager::reloadPackages()
@@ -518,7 +527,11 @@ const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 
 void AndroidSdkManagerPrivate::reloadSdkPackages()
 {
-    emit m_sdkManager.packageReloadBegin();
+    std::unique_ptr<Spinner> spinner;
+    if (m_spinnerTarget) {
+        spinner.reset(new Spinner(SpinnerSize::Medium, m_spinnerTarget));
+        spinner->show();
+    }
     qDeleteAll(m_allPackages);
     m_allPackages.clear();
 
@@ -527,7 +540,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     if (AndroidConfig::sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
-        emit m_sdkManager.packageReloadFinished();
+        emit m_sdkManager.packagesReloaded();
         return;
     }
 
@@ -542,7 +555,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         qCWarning(sdkManagerLog) << "Failed parsing packages:" << packageListing;
     }
 
-    emit m_sdkManager.packageReloadFinished();
+    emit m_sdkManager.packagesReloaded();
 }
 
 void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dialogStorage,

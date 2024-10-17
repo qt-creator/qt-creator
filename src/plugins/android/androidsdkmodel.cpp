@@ -22,17 +22,8 @@ AndroidSdkModel::AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent)
       m_sdkManager(sdkManager)
 {
     QTC_CHECK(m_sdkManager);
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this] {
-        clearContainers();
-        beginResetModel();
-    });
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, this, [this] {
-        refreshData();
-        endResetModel();
-    });
-    beginResetModel();
+    connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, &AndroidSdkModel::refreshData);
     refreshData();
-    endResetModel();
 }
 
 QVariant AndroidSdkModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -278,16 +269,12 @@ void AndroidSdkModel::resetSelection()
     endResetModel();
 }
 
-void AndroidSdkModel::clearContainers()
+void AndroidSdkModel::refreshData()
 {
     m_sdkPlatforms.clear();
     m_tools.clear();
     m_changeState.clear();
-}
-
-void AndroidSdkModel::refreshData()
-{
-    clearContainers();
+    beginResetModel();
     for (AndroidSdkPackage *p : m_sdkManager->allSdkPackages()) {
         if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
             m_sdkPlatforms << static_cast<SdkPlatform *>(p);
@@ -304,6 +291,7 @@ void AndroidSdkModel::refreshData()
         else
             return p1->state() < p2->state();
     });
+    endResetModel();
 }
 
 } // namespace Internal

@@ -23,7 +23,6 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/progressindicator.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -188,8 +187,6 @@ private:
     SummaryWidget *m_androidSummary = nullptr;
     SummaryWidget *m_openSslSummary = nullptr;
 
-    ProgressIndicator *m_androidProgress = nullptr;
-
     PathChooser *m_sdkLocationPathChooser;
     QPushButton *m_makeDefaultNdkButton;
     QListWidget *m_ndkListWidget;
@@ -291,6 +288,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                               "be compatible with all registered Qt versions."));
 
     auto androidDetailsWidget = new DetailsWidget;
+    m_sdkManager->setSpinnerTarget(androidDetailsWidget);
 
     m_ndkListWidget = new QListWidget;
     m_ndkListWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -352,10 +350,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     m_androidSummary = new SummaryWidget(androidValidationPoints, Tr::tr("Android settings are OK."),
                                          Tr::tr("Android settings have errors."),
                                          androidDetailsWidget);
-    m_androidProgress = new ProgressIndicator(ProgressIndicatorSize::Medium, this);
-    m_androidProgress->attachToWidget(androidDetailsWidget);
-    m_androidProgress->hide();
-
     const QMap<int, QString> openSslValidationPoints = {
         { OpenSslPathExistsRow, Tr::tr("OpenSSL path exists.") },
         { OpenSslPriPathExists, Tr::tr("QMake include project (openssl.pri) exists.") },
@@ -486,13 +480,9 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
 
     // Validate SDK again after any change in SDK packages.
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished,
-            this, &AndroidSettingsWidget::validateSdk);
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished,
-            m_androidProgress, &ProgressIndicator::hide);
-    connect(m_sdkManager, &AndroidSdkManager::packageReloadBegin, this, [this] {
-        m_androidSummary->setInProgressText("Retrieving packages information");
-        m_androidProgress->show();
+    connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+        m_androidSummary->setInProgressText("Packages reloaded");
+        validateSdk();
     });
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
         executeAndroidSdkManagerDialog(m_sdkManager, this);
@@ -513,7 +503,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
         updateUI();
         apply();
 
-        connect(m_sdkManager, &AndroidSdkManager::packageReloadFinished, this, [this] {
+        connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
             downloadOpenSslRepo(true);
         }, Qt::SingleShotConnection);
     });

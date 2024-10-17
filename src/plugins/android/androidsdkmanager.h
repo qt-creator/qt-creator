@@ -33,6 +33,8 @@ public:
     AndroidSdkManager();
     ~AndroidSdkManager();
 
+    void setSpinnerTarget(QWidget *spinnerTarget);
+
     SdkPlatformList installedSdkPlatforms();
     const AndroidSdkPackageList &allSdkPackages();
     QStringList notFoundEssentialSdkPackages();
@@ -58,8 +60,7 @@ public:
     void runUpdate();
 
 signals:
-    void packageReloadBegin();
-    void packageReloadFinished();
+    void packagesReloaded();
 
 private:
     friend class AndroidSdkManagerPrivate;
