@@ -10,19 +10,12 @@ import collections
 import os
 import shlex
 import shutil
+import sys
 
 import common
 
 def existing_path(path):
     return path if os.path.exists(path) else None
-
-def default_python3():
-    path_system = os.path.join('/usr', 'bin') if not common.is_windows_platform() else None
-    path = os.environ.get('PYTHON3_PATH') or path_system
-    postfix = '.exe' if common.is_windows_platform() else ''
-    return (path if not path
-            else (existing_path(os.path.join(path, 'python3' + postfix)) or
-                  existing_path(os.path.join(path, 'python' + postfix))))
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
@@ -52,7 +45,7 @@ def get_arguments():
                         help='Path to python libraries for use by cdbextension (Windows)')
 
     parser.add_argument('--python3', help='File path to python3 executable for generating translations',
-                        default=default_python3())
+                        default=sys.executable)
 
     parser.add_argument('--no-qtcreator',
                         help='Skip Qt Creator build (only build separate tools)',
@@ -324,7 +317,7 @@ def package_qtcreator(args, paths):
                                                app],
                                             signed_install_path)
         if not args.no_dmg:
-            common.check_print_call(['python', '-u',
+            common.check_print_call([args.python3, '-u',
                                      os.path.join(paths.src, 'scripts', 'makedmg.py'),
                                      'qt-creator' + args.zip_infix + '.dmg',
                                      'Qt Creator',

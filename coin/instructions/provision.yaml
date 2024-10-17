@@ -15,66 +15,55 @@ instructions:
       - type: MakeDirectory
         directory: "{{.BuildDir}}"
   - type: ChangeDirectory
-    directory: "{{.BuildDir}}"
-  - type: ExecuteCommand
-    command: ["git", "clone", "--jobs={{.NumCPU}}", "--depth=50", "-b", "production", "git://{{.Env.QT_COIN_GIT_DAEMON}}/qt-project/qtsdk/tqtc-qtsdk","tqtc-qtsdk"]
-    maxTimeInSeconds: 600
-    maxTimeBetweenOutput: 600
-    userMessageOnFailure: "Failed to install tqtc-qtsdk, check logs"
+    directory: "{{.AgentWorkingDir}}/qt-creator/qt-creator/scripts"
   - type: Group
     instructions:
-    - type: ExecuteCommand
-      command: python tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
-      maxTimeInSeconds: 36000
-      maxTimeBetweenOutput: 3600
-      userMessageOnFailure: "pkg_bootstrap.py failed"
-    enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: Windows
-  - type: Group
-    instructions:
-    - type: ExecuteCommand
-      command: python3 tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
-      maxTimeInSeconds: 36000
-      maxTimeBetweenOutput: 3600
-      userMessageOnFailure: "pkg_bootstrap.py failed"
-    enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          not_equals_value: Windows
-  - type: ChangeDirectory
-    directory: "{{.BuildDir}}/tqtc-qtsdk/packaging_tools"
-  - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z {{.Env.QTC_ICU_URL}} {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                --icu7z {{.Env.QTC_ICU_URL}}
+                {{.Env.QTC_QT_MODULES}}
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
     enable_if:
       condition: property
       property: host.os
       equals_value: Linux
-  - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                {{.Env.QTC_QT_MODULES}}"
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
     enable_if:
       condition: property
       property: host.os
       equals_value: MacOS
-  - type: ExecuteCommand
-    command: "python -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --opengl32sw7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z https://ci-files02-hki.ci.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                {{.Env.QTC_QT_MODULES}}
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
     enable_if:
       condition: and
       conditions:
