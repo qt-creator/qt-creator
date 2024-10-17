@@ -109,6 +109,14 @@ public:
             return Id::toStringList(m_pluginFeatures);
         return {};
     }
+    Q_INVOKABLE bool isPluginRunning(const QString &id) const
+    {
+        return Internal::isAnyPluginRunning({id});
+    }
+    Q_INVOKABLE bool isAnyPluginRunning(const QStringList &ids) const
+    {
+        return Internal::isAnyPluginRunning(ids);
+    }
 
 private:
     Id m_platformId;
@@ -802,6 +810,9 @@ bool JsonWizardFactory::isAvailable(Id platformId) const
                                                                              platformId),
                                                                          pluginFeatures()));
     jsExpander.engine().evaluate("var value = Wizard.value");
+    jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+
     jsExpander.registerForExpander(e);
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
 }
