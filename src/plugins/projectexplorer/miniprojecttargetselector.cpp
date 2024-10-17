@@ -7,6 +7,7 @@
 #include "buildmanager.h"
 #include "deployconfiguration.h"
 #include "kit.h"
+#include "kitaspect.h"
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"

@@ -145,6 +145,8 @@ GdbEngine::GdbEngine()
             this, &GdbEngine::createFullBacktrace);
     connect(&s.useDebuggingHelpers, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
+    connect(&s.allowInferiorCalls, &BaseAspect::changed,
+            this, &GdbEngine::reloadLocals);
     connect(&s.useDynamicType, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
 
@@ -2638,6 +2640,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                 const DebuggerSettings &s = settings();
                 cmd.arg("passexceptions", alwaysVerbose);
                 cmd.arg("fancy", s.useDebuggingHelpers());
+                cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
                 cmd.arg("autoderef", s.autoDerefPointers());
                 cmd.arg("dyntype", s.useDynamicType());
                 cmd.arg("qobjectnames", s.showQObjectNames());
@@ -5164,6 +5167,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("qobjectnames", s.showQObjectNames());

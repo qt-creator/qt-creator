@@ -5,7 +5,8 @@
 #include "mcusupporttr.h"
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
-
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>

@@ -27,7 +27,7 @@ public:
         setId("QnxQmlProfilerSupport");
         appendMessage(Tr::tr("Preparing remote side..."), LogMessageFormat);
 
-        runControl->enablePortsGatherer();
+        runControl->requestQmlChannel();
 
         auto slog2InfoRunner = new Slog2InfoRunner(runControl);
         addStartDependency(slog2InfoRunner);
@@ -36,12 +36,9 @@ public:
         profiler->addStartDependency(this);
         addStopDependency(profiler);
 
-        setStartModifier([this, runControl, profiler] {
-            const QUrl serverUrl = runControl->findEndPoint();
-            profiler->recordData("QmlServerUrl", serverUrl);
-
+        setStartModifier([this] {
             CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, serverUrl));
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlChannel()));
             setCommandLine(cmd);
         });
     }

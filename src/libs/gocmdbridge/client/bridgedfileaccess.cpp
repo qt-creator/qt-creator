@@ -65,7 +65,13 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
     if (!whichDD) // TODO: Support Windows?
         return Result::Error(Tr::tr("Could not find dd on remote host: %1").arg(whichDD.error()));
 
-    qCDebug(faLog) << "Found dd on remote host:" << *whichDD;
+    QElapsedTimer timer;
+    timer.start();
+    auto deco = [&] {
+        return QString("%1  (%2 ms)").arg(remoteRootPath.host()).arg(timer.elapsed());
+    };
+
+    qCDebug(faLog) << deco() << "Found dd on remote host:" << *whichDD;
 
     const expected_str<QString> unameOs = run({remoteRootPath.withNewPath("uname"), {"-s"}});
     if (!unameOs) {
@@ -76,7 +82,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
     if (!osType)
         return Result::Error(osType.error());
 
-    qCDebug(faLog) << "Remote host OS:" << *unameOs;
+    qCDebug(faLog) << deco() << "Remote host OS:" << *unameOs;
 
     const expected_str<QString> unameArch = run({remoteRootPath.withNewPath("uname"), {"-m"}});
     if (!unameArch) {
@@ -88,7 +94,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
     if (!osArch)
         return Result::Error(osArch.error());
 
-    qCDebug(faLog) << "Remote host architecture:" << *unameArch;
+    qCDebug(faLog) << deco() << "Remote host architecture:" << *unameArch;
 
     const Utils::expected_str<Utils::FilePath> cmdBridgePath
         = Client::getCmdBridgePath(*osType, *osArch, libExecPath);
@@ -99,7 +105,7 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
                 .arg(cmdBridgePath.error()));
     }
 
-    qCDebug(faLog) << "Using cmdbridge at:" << *cmdBridgePath;
+    qCDebug(faLog) << deco() << "Using cmdbridge at:" << *cmdBridgePath;
 
     if (remoteRootPath.needsDevice()) {
         const auto cmdBridgeFileData = cmdBridgePath->fileContents();
@@ -117,9 +123,11 @@ Result FileAccess::deployAndInit(const FilePath &libExecPath, const FilePath &re
                 QString("Could not create temporary file: %1").arg(tmpFile.error()));
         }
 
-        qCDebug(faLog) << "Using temporary file:" << *tmpFile;
-        const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile, "bs=1"}},
+        qCDebug(faLog) << deco() << "Using temporary file:" << *tmpFile;
+        const auto dd = run({remoteRootPath.withNewPath("dd"), {"of=" + *tmpFile}},
                             *cmdBridgeFileData);
+
+        qCDebug(faLog) << deco() << "dd run";
 
         const auto makeExecutable = run({remoteRootPath.withNewPath("chmod"), {"+x", *tmpFile}});
 
@@ -524,7 +532,7 @@ bool FileAccess::createDirectory(const Utils::FilePath &filePath) const
         f->waitForFinished();
         return true;
     } catch (const std::exception &e) {
-        qCWarning(faLog) << "Error creating directory:" << e.what();
+        qCWarning(faLog) << "Error creating directory" << filePath << ":" << e.what();
         return false;
     }
 }
@@ -653,7 +661,7 @@ void FileAccess::iterateDirectory(const FilePath &filePath,
     t.start();
 
     while (!result->isFinished()) {
-        if (result->isValid()) {
+        if (result->isValid() && idx < result->resultCount()) {
             result->resultAt(idx);
             // Wait for the next result to become available
             processResults();

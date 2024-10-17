@@ -64,6 +64,8 @@
                         \generatelist creator-how-to-remote-linux
                     \li WebAssembly
                         \generatelist creator-how-to-webassembly
+                    \li VxWorks
+                        \generatelist creator-how-to-vxworks
                 \endlist
             \li Edit Code
                 \generatelist creator-how-to-edit

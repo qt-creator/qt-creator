@@ -1,6 +1,6 @@
 {
     "Id" : "qmlpreview",
-    "Name" : "QmlPreview",
+    "Name" : "QML Preview",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

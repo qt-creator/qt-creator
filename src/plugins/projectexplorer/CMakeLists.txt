@@ -52,6 +52,7 @@ add_qtc_plugin(ProjectExplorer
     devicesupport/desktopprocesssignaloperation.cpp devicesupport/desktopprocesssignaloperation.h
     devicesupport/devicecheckbuildstep.cpp devicesupport/devicecheckbuildstep.h
     devicesupport/devicefactoryselectiondialog.cpp devicesupport/devicefactoryselectiondialog.h
+    devicesupport/devicekitaspects.cpp devicesupport/devicekitaspects.h
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h
@@ -103,6 +104,7 @@ add_qtc_plugin(ProjectExplorer
     jsonwizard/wizarddebug.h
     jsonwizard/jsonwizardscannergenerator.cpp jsonwizard/jsonwizardscannergenerator.h
     kit.cpp kit.h
+    kitaspect.cpp kitaspect.h
     kitaspects.cpp kitaspects.h
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h

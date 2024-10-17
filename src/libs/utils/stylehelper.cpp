@@ -38,7 +38,7 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
-static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::defaultToolbarStyle;
+static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::ToolbarStyle::Compact;
 // Invalid by default, setBaseColor needs to be called at least once
 static QColor s_baseColor;
 static QColor s_requestedBaseColor;
@@ -82,7 +82,7 @@ QColor StyleHelper::toolBarDropShadowColor()
 
 int StyleHelper::navigationWidgetHeight()
 {
-    return s_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+    return s_toolbarStyle == ToolbarStyle::Compact ? 24 : 30;
 }
 
 void StyleHelper::setToolbarStyle(ToolbarStyle style)
@@ -93,6 +93,11 @@ void StyleHelper::setToolbarStyle(ToolbarStyle style)
 StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
 {
     return s_toolbarStyle;
+}
+
+StyleHelper::ToolbarStyle StyleHelper::defaultToolbarStyle()
+{
+    return creatorTheme() ? creatorTheme()->defaultToolbarStyle() : ToolbarStyle::Compact;
 }
 
 QColor StyleHelper::notTooBrightHighlightColor()
@@ -184,11 +189,6 @@ QColor StyleHelper::toolBarBorderColor()
     return QColor::fromHsv(base.hue(),
                            base.saturation() ,
                            clamp(base.value() * 0.80f));
-}
-
-QColor StyleHelper::buttonTextColor()
-{
-    return QColor(0x4c4c4c);
 }
 
 // We try to ensure that the actual color used are within
@@ -483,7 +483,7 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
 
 void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush)
 {
-    if (toolbarStyle() == ToolbarStyleCompact) {
+    if (toolbarStyle() == ToolbarStyle::Compact) {
         painter->fillRect(rect.toRect(), brush);
     } else {
         constexpr int margin = 2;

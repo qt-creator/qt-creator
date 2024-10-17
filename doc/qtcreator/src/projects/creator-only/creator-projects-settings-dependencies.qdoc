@@ -1,4 +1,4 @@
-// Copyright (C) 2018 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -22,22 +22,25 @@
     \note The build order is stored as a property of a session, not a project.
     You must open the session for these settings to take effect.
 
-    \image qtcreator-build-dependencies.png {Dependencies settings in Projects mode}
+    \image qtcreator-projects-build-dependencies.webp {Dependencies settings in Projects mode}
 
     To define the build order of projects within a session:
 
     \list 1
 
-        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
             \uicontrol Dependencies.
 
         \li Select projects that must be built before the current project is
             built.
 
-        \li Select the \uicontrol {Synchronize configuration} check box to
+        \li Select \uicontrol {Synchronize configuration} to
             use the same kit as well as the same build and deploy
             configuration to build and deploy all dependent projects loaded
             in a session.
+
+        \li Select \uicontrol {Deploy dependencies} to deploy the built
+            dependent projects.
 
     \endlist
 

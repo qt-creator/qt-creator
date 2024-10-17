@@ -27,4 +27,10 @@ QtcPlugin {
         "requests/signininitiate.h",
         "requests/signout.h",
     ]
+
+    Group {
+        name: "long description"
+        files: "Description.md"
+        fileTags: "pluginjson.longDescription"
+    }
 }

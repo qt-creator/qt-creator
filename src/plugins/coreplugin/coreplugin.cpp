@@ -54,6 +54,7 @@
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QUuid>
 
 #include <cstdlib>
@@ -174,8 +175,15 @@ static void initTAndCAcceptDialog()
             QDialog dialog(ICore::dialogParent());
             dialog.setWindowTitle(Tr::tr("Terms and Conditions"));
 
-            QDialogButtonBox buttonBox(
-                QDialogButtonBox::StandardButton::Yes | QDialogButtonBox::StandardButton::No);
+            QDialogButtonBox buttonBox;
+            QPushButton *acceptButton
+                = buttonBox.addButton(Tr::tr("Accept"), QDialogButtonBox::ButtonRole::YesRole);
+            QPushButton *decline
+                = buttonBox.addButton(Tr::tr("Decline"), QDialogButtonBox::ButtonRole::NoRole);
+            acceptButton->setAutoDefault(false);
+            acceptButton->setDefault(false);
+            decline->setAutoDefault(true);
+            decline->setDefault(true);
             QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
             QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
 

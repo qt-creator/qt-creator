@@ -4817,6 +4817,35 @@ void tst_Dumpers::dumper_data()
                + Check("deque2.1.a", "2", "int");
 
 
+    QTest::newRow("StdDequeConst")
+            << Data("#include <deque>\n" + fooData,
+
+                    "struct MyItem {\n"
+                    "    MyItem(uint64_t a, uint16_t b) : a{a}, b{b} {}\n"
+                    "    const uint64_t a;\n"
+                    "    const uint16_t b;\n"
+                    "};\n\n"
+
+                    "std::deque<MyItem> deq;\n"
+                    "for (int i = 0; i < 100; ++i)\n"
+                    "    deq.push_back({i, i});\n",
+
+                    "&deq")
+
+               + CoreProfile()
+               + Check("deq.0", "[0]", "", "MyItem")
+               + Check("deq.0.a", "0", "uint64_t")
+               + Check("deq.0.b", "0", "uint16_t")
+
+               + Check("deq.50", "[50]", "", "MyItem")
+               + Check("deq.50.a", "50", "uint64_t")
+               + Check("deq.50.b", "50", "uint16_t")
+
+               + Check("deq.99", "[99]", "", "MyItem")
+               + Check("deq.99.a", "99", "uint64_t")
+               + Check("deq.99.b", "99", "uint16_t");
+
+
     QTest::newRow("StdHashSet")
             << Data("#include <hash_set>\n"
                     "namespace  __gnu_cxx {\n"
@@ -4903,6 +4932,33 @@ void tst_Dumpers::dumper_data()
 
                + Check("l4.@1.0", "[0]", "1", "int")
                + Check("l4.@1.1", "[1]", "2", "int");
+
+
+    QTest::newRow("StdForwardList")
+            << Data("#include <forward_list>\n",
+
+                    "std::forward_list<int> fl0;\n"
+
+                    "std::forward_list<int> fl1;\n"
+                    "for (int i = 0; i < 10000; ++i)\n"
+                    "    fl1.push_front(i);\n"
+
+                    "std::forward_list<bool> fl2 = {true, false};\n",
+
+                    "&fl0, &fl1, &fl2")
+
+               + BigArrayProfile()
+
+               + Check("fl0", "<0 items>", "std::forward_list<int>")
+
+               + Check("fl1", ValuePattern("<.*1000.* items>"), "std::forward_list<int>")
+               + Check("fl1.0", "[0]", "9999", "int")
+               + Check("fl1.1", "[1]", "9998", "int")
+               + Check("fl1.999", "[999]", "9000", "int")
+
+               + Check("fl2", "<2 items>", "std::forward_list<bool>")
+               + Check("fl2.0", "[0]", "1", "bool")
+               + Check("fl2.1", "[1]", "0", "bool");
 
 
     QTest::newRow("StdListQt")

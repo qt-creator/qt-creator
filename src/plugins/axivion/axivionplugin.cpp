@@ -45,7 +45,6 @@
 #include <memory>
 
 constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
-constexpr char s_axivionKeychainService[] = "keychain.axivion.qtcreator";
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -112,17 +111,6 @@ static QString apiTokenDescription()
     if (user.isEmpty())
         user = Utils::qtcEnvironmentVariable("USER");
     return "Automatically created by " + ua + " on " + user + "@" + QSysInfo::machineHostName();
-}
-
-static QString escapeKey(const QString &string)
-{
-    QString escaped = string;
-    return escaped.replace('\\', "\\\\").replace('@', "\\@");
-}
-
-static QString credentialKey(const AxivionServer &server)
-{
-    return escapeKey(server.username) + '@' + escapeKey(server.dashboard);
 }
 
 template <typename DtoType>
@@ -263,7 +251,7 @@ public:
         setActionsProvider([id] {
             auto action = new QAction;
             action->setIcon(Icons::INFO.icon());
-            action->setToolTip(Tr::tr("Show issue properties"));
+            action->setToolTip(Tr::tr("Show Issue Properties"));
             QObject::connect(action, &QAction::triggered, dd, [id] { dd->fetchIssueInfo(id); });
             return QList{action};
         });
@@ -1038,13 +1026,9 @@ void AxivionPluginPrivate::onSessionLoaded(const QString &sessionName)
 
     const QString projectName = SessionManager::sessionValue(SV_PROJECTNAME).toString();
     const Id dashboardId = Id::fromSetting(SessionManager::sessionValue(SV_DASHBOARDID));
-    if (!dashboardId.isValid()) {
+    if (!dashboardId.isValid())
         switchActiveDashboardId({});
-        resetDashboard();
-        return;
-    }
-
-    if (activeDashboardId() != dashboardId)
+    else if (activeDashboardId() != dashboardId)
         switchActiveDashboardId(dashboardId);
     reinitDashboard(projectName);
 }

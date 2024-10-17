@@ -11,6 +11,8 @@ import (
 	"path/filepath"
 	"reflect"
 	"runtime"
+	"slices"
+	"strings"
 	"sync"
 	"syscall"
 
@@ -402,7 +404,12 @@ func processCommand(watcher *WatcherHandler, cmd command, out chan<- []byte) {
 
 
 func sendEnvironment(out chan<- []byte) {
-	env := os.Environ()
+	// Delete all entries without a valid key.
+	env := slices.DeleteFunc(os.Environ(), func(s string) bool {
+		trimmed := strings.TrimSpace(s)
+		return len(trimmed) == 0 || trimmed[0] == '='
+	})
+
 	result, _ := cbor.Marshal(environment{
 		Type: "environment",
 		Id: -1,

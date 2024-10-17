@@ -1,6 +1,6 @@
 {
     "Id" : "todo",
-    "Name" : "Todo",
+    "Name" : "To Do",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,

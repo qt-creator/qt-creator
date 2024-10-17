@@ -188,9 +188,6 @@ public:
     static quint8 attributeState(const QTextBlock &block);
     static void updateSuggestionFormats(const QTextBlock &block,
                                         const FontSettings &fontSettings);
-    static bool updateSuggestion(const QTextBlock &block,
-                                 int position,
-                                 const FontSettings &fontSettings);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {

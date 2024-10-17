@@ -131,15 +131,14 @@ int AvdDialog::exec()
 
         const CreateAvdInfo avdInfo{si->sdkStylePath(), si->apiLevel(), name(), abi(),
                                     deviceDefinition(), sdcardSize()};
-        const auto result = AndroidDeviceManager::createAvd(avdInfo,
-                                                            m_overwriteCheckBox->isChecked());
+        const Result result = createAvd(avdInfo, m_overwriteCheckBox->isChecked());
         if (!result) {
             QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
                                  result.error());
             return QDialog::Rejected;
         }
         m_createdAvdInfo = avdInfo;
-        AndroidDeviceManager::updateAvdList();
+        updateAvdList();
     }
     return execResult;
 }

@@ -11,6 +11,7 @@
 #include "androidrunnerworker.h"
 #include "androidtr.h"
 
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 

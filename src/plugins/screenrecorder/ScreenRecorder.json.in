@@ -1,6 +1,6 @@
 {
     "Id" : "screenrecorder",
-    "Name" : "ScreenRecorder",
+    "Name" : "Screen Recorder",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

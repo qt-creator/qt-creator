@@ -65,8 +65,10 @@ public:
     static QString clazyCheckName(const QString &option);
 
 private:
+    int getSquareBracketStartIndex() const;
+
     const QString m_text;
-    const int m_squareBracketStartIndex;
+    const int m_squareBracketStartIndex = getSquareBracketStartIndex();
 };
 
 class ClangSourceRange

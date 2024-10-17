@@ -1,6 +1,6 @@
 {
     "Id" : "extensionmanager",
-    "Name" : "ExtensionManager",
+    "Name" : "Extension Manager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

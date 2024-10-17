@@ -306,7 +306,7 @@ void GeneralSettingsWidget::apply()
     if (const auto newStyle = m_toolbarStyleBox->currentData().value<StyleHelper::ToolbarStyle>();
         newStyle != StyleHelper::toolbarStyle()) {
         ICore::settings()->setValueWithDefault(settingsKeyToolbarStyle, int(newStyle),
-                                               int(StyleHelper::defaultToolbarStyle));
+                                               int(StyleHelper::defaultToolbarStyle()));
         StyleHelper::setToolbarStyle(newStyle);
         QStyle *applicationStyle = QApplication::style();
         for (QWidget *widget : QApplication::allWidgets())
@@ -383,18 +383,20 @@ void GeneralSettingsWidget::setCodecForLocale(const QByteArray &codec)
 StyleHelper::ToolbarStyle toolbarStylefromSettings()
 {
     if (!ExtensionSystem::PluginManager::instance()) // May happen in tests
-        return StyleHelper::defaultToolbarStyle;
+        return StyleHelper::defaultToolbarStyle();
 
     return StyleHelper::ToolbarStyle(
-        ICore::settings()->value(settingsKeyToolbarStyle,
-                                 StyleHelper::defaultToolbarStyle).toInt());
+                ICore::settings()->value(settingsKeyToolbarStyle,
+                                         int(StyleHelper::defaultToolbarStyle())).toInt());
 }
 
 void GeneralSettingsWidget::fillToolbarStyleBox() const
 {
-    m_toolbarStyleBox->addItem(Tr::tr("Compact"), StyleHelper::ToolbarStyleCompact);
-    m_toolbarStyleBox->addItem(Tr::tr("Relaxed"), StyleHelper::ToolbarStyleRelaxed);
-    const int curId = m_toolbarStyleBox->findData(toolbarStylefromSettings());
+    m_toolbarStyleBox->addItem(Tr::tr("Compact"),
+                               QVariant::fromValue(StyleHelper::ToolbarStyle::Compact));
+    m_toolbarStyleBox->addItem(Tr::tr("Relaxed"),
+                               QVariant::fromValue(StyleHelper::ToolbarStyle::Relaxed));
+    const int curId = m_toolbarStyleBox->findData(QVariant::fromValue(toolbarStylefromSettings()));
     m_toolbarStyleBox->setCurrentIndex(curId);
 }
 

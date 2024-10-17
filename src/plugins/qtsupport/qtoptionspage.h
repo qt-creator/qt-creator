@@ -35,10 +35,9 @@ public:
     void setChanged(bool changed);
     void setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique);
 
-    enum class Quality { Good, Limited, Bad };
+    enum class Quality { Bad, Limited, Good }; // Keep sorted ascending by goodness.
     Quality quality() const;
 
-    static const int IdRole = Qt::UserRole;
 private:
     QVariant data(int column, int role) const final;
 

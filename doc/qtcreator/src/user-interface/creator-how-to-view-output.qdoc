@@ -74,8 +74,16 @@
 
     Some output views do not support finding and filtering.
 
+    \section1 Save output as a file
+
+    To save output as a text file, select \uicontrol {Save Contents} in the
+    context menu.
+
+    To copy output to a temporary file, select
+    \uicontrol {Copy Contents to Scratch Buffer}.
+
     \if defined(qtcreator)
-    \sa {Output Views}
+    \sa {Output Views}, {Write down notes}
     \else
     \section1 Output views
 

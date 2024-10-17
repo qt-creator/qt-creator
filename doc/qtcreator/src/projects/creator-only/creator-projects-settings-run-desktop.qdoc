@@ -62,8 +62,8 @@
 
     \section1 Running as root User
 
-    On Linux and \macos, select \uicontrol {Run as root user} to run the
-    application with root user permissions.
+    On Linux and \macos, select \uicontrol {Run as root user} to build, deploy,
+    and run the application with root user permissions.
 
     \sa {Configure projects for running}, {Specify a custom executable to run},
     {Specify the run environment}

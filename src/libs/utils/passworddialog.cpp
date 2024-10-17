@@ -62,7 +62,7 @@ QSize ShowPasswordButton::sizeHint() const
 {
     QSize s = Utils::Icons::EYE_OPEN_TOOLBAR.icon().actualSize(QSize(32, 16)) + QSize(8, 8);
 
-    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleRelaxed)
+    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Relaxed)
         s += QSize(5, 5);
 
     return s;

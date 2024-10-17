@@ -152,8 +152,8 @@
         \li In \uicontrol Scope, select \uicontrol {All Projects}.
             \image qtcreator-search-all-projects.webp {Search Results view}
         \li In \uicontrol {Search for}, enter the string you are looking for.
-        \li Select options to make the  search case sensitive, search only whole
-            words, or use regular expressions.
+        \li Select options to make the search case sensitive, search only whole
+            words, use regular expressions, or ignore binary files.
         \li In \uicontrol {File pattern}, specify file patterns to
             restrict the search to files that match the pattern. For example, to
             search for a string only in \c {.cpp} and \c {.h} files, enter

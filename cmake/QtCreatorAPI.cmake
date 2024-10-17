@@ -334,11 +334,18 @@ endfunction(add_qtc_library)
 
 function(markdown_to_json resultVarName filepath)
   file(STRINGS ${filepath} markdown)
-  list(TRANSFORM markdown REPLACE "\\\\" "\\\\\\\\") # Replace \ with \\
-  list(TRANSFORM markdown REPLACE "\\\"" "\\\\\"") # Replace " with \"
-  list(TRANSFORM markdown PREPEND "        \"" )
-  list(TRANSFORM markdown APPEND "\"")
-  list(JOIN markdown ",\n" result)
+  set(result "")
+  foreach(line IN LISTS markdown)
+    string(REPLACE "\\" "\\\\" line "${line}") # Replace \ with \\
+    string(REPLACE "\"" "\\\"" line "${line}") # Replace " with \"
+    string(PREPEND line "        \"")
+    string(APPEND line "\"")
+    # We have to escape ; because list(APPEND ...) will split the string at ;
+    # list(JOIN ...) will replace the \; with ; again
+    string(REPLACE ";" "\\;" line "${line}")
+    list(APPEND result "${line}")
+  endforeach()
+  list(JOIN result ",\n" result)
   set(result "[\n${result}\n    ]")
   set("${resultVarName}" ${result} PARENT_SCOPE)
 endfunction()

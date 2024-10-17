@@ -20,6 +20,8 @@ QtcPlugin {
         "cmake_global.h",
         "cmakeabstractprocessstep.cpp",
         "cmakeabstractprocessstep.h",
+        "cmakeautogenparser.cpp",
+        "cmakeautogenparser.h",
         "cmakebuildconfiguration.cpp",
         "cmakebuildconfiguration.h",
         "cmakebuildstep.cpp",

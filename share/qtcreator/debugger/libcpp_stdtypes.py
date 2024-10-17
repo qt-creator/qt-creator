@@ -1,7 +1,7 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx
+from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list
 from utils import DisplayFormat
 from dumper import Children, DumperBase
 
@@ -21,6 +21,10 @@ def qdump__std____1__complex(d, value):
 
 def qdump__std____1__deque(d, value):
     qdumpHelper__std__deque__libcxx(d, value)
+
+
+def qdump__std____1__forward_list(d, value):
+    qdump__std__forward_list(d, value)
 
 
 def qdump__std____1__list(d, value):
@@ -308,7 +312,7 @@ def qform__std____1__unordered_map():
 
 
 def qdump__std____1__unordered_map(d, value):
-    (size, _) = value["__table_"]["__p2_"].split("pp")
+    size = value["__table_"]["__p2_"]["__value_"].integer()
     d.putItemCount(size)
 
     keyType = value.type[0]
@@ -316,7 +320,7 @@ def qdump__std____1__unordered_map(d, value):
     pairType = value.type[4][0]
 
     if d.isExpanded():
-        curr = value["__table_"]["__p1_"].split("pp")[0]
+        curr = value["__table_"]["__p1_"].split("p")[0]
 
         def traverse_list(node):
             while node:
@@ -329,14 +333,18 @@ def qdump__std____1__unordered_map(d, value):
                 d.putPairItem(i, value, 'key', 'value')
 
 
+def qdump__std____1__unordered_multimap(d, value):
+    qdump__std____1__unordered_map(d, value)
+
+
 def qdump__std____1__unordered_set(d, value):
-    (size, _) = value["__table_"]["__p2_"].split("pp")
+    size = value["__table_"]["__p2_"]["__value_"].integer()
     d.putItemCount(size)
 
     valueType = value.type[0]
 
     if d.isExpanded():
-        curr = value["__table_"]["__p1_"].split("pp")[0]
+        curr = value["__table_"]["__p1_"].split("p")[0]
 
         def traverse_list(node):
             while node:

@@ -8,6 +8,7 @@
 #include <QPoint>
 #include <QtQml/qqml.h>
 
+QT_FORWARD_DECLARE_CLASS(QRect)
 QT_FORWARD_DECLARE_CLASS(QWindow)
 
 namespace QmlDesigner {

@@ -455,7 +455,7 @@ private:
 public:
     int m_grabWidgetTimerId = -1;
     WatchHandler *m_handler; // Not owned.
-    DebuggerEngine *m_engine; // Not owned.
+    QPointer<DebuggerEngine> m_engine; // Not owned.
 
     bool m_contentsValid;
 

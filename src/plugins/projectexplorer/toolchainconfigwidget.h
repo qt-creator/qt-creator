@@ -70,7 +70,7 @@ private:
     ToolchainBundle m_bundle;
     QLineEdit *m_nameLineEdit = nullptr;
     QLabel *m_errorLabel = nullptr;
-    QCheckBox *m_deriveCxxCompilerCheckBox = nullptr;
+    QCheckBox *m_manualCxxCompilerCheckBox = nullptr;
     QList<ToolchainChooser> m_commands;
 };
 

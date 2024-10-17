@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
     auto themeSelector = new ManualTest::ThemeSelector;
 
-    StyleHelper::setToolbarStyle(StyleHelper::ToolbarStyleRelaxed);
+    StyleHelper::setToolbarStyle(StyleHelper::ToolbarStyle::Relaxed);
 
     const Icon icon({
         {":/utils/images/zoom.png", Theme::IconsBaseColor},

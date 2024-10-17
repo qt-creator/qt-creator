@@ -1,6 +1,6 @@
 {
     "Id" : "qmldesignerlite",
-    "Name" : "QmlDesignerLite",
+    "Name" : "Qt Quick Designer Lite",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

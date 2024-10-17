@@ -1,6 +1,6 @@
 {
     "Id" : "cppeditor",
-    "Name" : "CppEditor",
+    "Name" : "C++ Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

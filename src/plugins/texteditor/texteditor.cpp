@@ -1836,15 +1836,22 @@ void TextEditorWidgetPrivate::updateSuggestion()
 {
     if (!m_suggestionBlock.isValid())
         return;
-    if (m_cursors.mainCursor().block() != m_suggestionBlock) {
-        clearCurrentSuggestion();
-    } else {
-        if (!TextDocumentLayout::updateSuggestion(m_suggestionBlock,
-                                                  m_cursors.mainCursor().position(),
-                                                  m_document->fontSettings())) {
-            clearCurrentSuggestion();
+    const QTextCursor cursor = m_cursors.mainCursor();
+    if (cursor.block() == m_suggestionBlock) {
+        TextSuggestion *suggestion = TextDocumentLayout::suggestion(m_suggestionBlock);
+        if (QTC_GUARD(suggestion)) {
+            const int pos = cursor.position();
+            if (pos >= suggestion->currentPosition()) {
+                suggestion->setCurrentPosition(pos);
+                if (suggestion->filterSuggestions(q)) {
+                    TextDocumentLayout::updateSuggestionFormats(
+                        m_suggestionBlock, m_document->fontSettings());
+                    return;
+                }
+            }
         }
     }
+    clearCurrentSuggestion();
 }
 
 void TextEditorWidgetPrivate::clearCurrentSuggestion()
@@ -7130,11 +7137,11 @@ void TextEditorWidget::extraAreaContextMenuEvent(QContextMenuEvent *e)
         auto menu = new QMenu(this);
 
         menu->addAction(Tr::tr("Fold"), this, [&] { fold(block); });
-        menu->addAction(Tr::tr("Fold recursively"), this, [&] { fold(block, true); });
-        menu->addAction(Tr::tr("Fold all"), this, [this] { unfoldAll(/* unfold  = */ false); });
+        menu->addAction(Tr::tr("Fold Recursively"), this, [&] { fold(block, true); });
+        menu->addAction(Tr::tr("Fold All"), this, [this] { unfoldAll(/* unfold  = */ false); });
         menu->addAction(Tr::tr("Unfold"), this, [&] { unfold(block); });
-        menu->addAction(Tr::tr("Unfold recursively"), this, [&] { unfold(block, true); });
-        menu->addAction(Tr::tr("Unfold all"), this, [this] { unfoldAll(/* fold  = */ true); });
+        menu->addAction(Tr::tr("Unfold Recursively"), this, [&] { unfold(block, true); });
+        menu->addAction(Tr::tr("Unfold All"), this, [this] { unfoldAll(/* fold  = */ true); });
         menu->exec(e->globalPos());
 
         delete menu;
@@ -9681,8 +9688,8 @@ void TextEditorWidget::replace(int pos, int length, const QString &string)
 {
     if (length == string.length()) {
         bool different = false;
-        for (int i = 0; !different && pos < length; ++i)
-            different = document()->characterAt(pos) != string.at(i);
+        for (int i = 0; !different && i < length; ++i)
+            different = document()->characterAt(pos + i) != string.at(i);
         if (!different)
             return;
     }

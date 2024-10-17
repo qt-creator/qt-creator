@@ -266,12 +266,14 @@ Core::IVersionControl::FileState FileNode::modificationState() const
     if (isGenerated())
         return Core::IVersionControl::FileState::NoModification;
 
-    const FilePath file = filePath();
-    const FilePath dir = file.absolutePath();
-    if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
-        return vc->modificationState(file);
-
-    return Core::IVersionControl::FileState::NoModification;
+    if (!m_modificationState) {
+        const FilePath dir = filePath().absolutePath();
+        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
+            m_modificationState = vc->modificationState(filePath());
+        else
+            m_modificationState = Core::IVersionControl::FileState::NoModification;
+    }
+    return *m_modificationState;
 }
 
 bool FileNode::useUnavailableMarker() const
@@ -282,6 +284,11 @@ bool FileNode::useUnavailableMarker() const
 void FileNode::setUseUnavailableMarker(bool useUnavailableMarker)
 {
     m_useUnavailableMarker = useUnavailableMarker;
+}
+
+void FileNode::resetModificationState()
+{
+    m_modificationState.reset();
 }
 
 /*!
@@ -359,7 +366,6 @@ FilePath Node::pathOrDirectory(bool dir) const
             location = FileUtils::commonPath(list);
         }
 
-        QTC_CHECK(!location.needsDevice());
         QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot() && (fi.fileName() != fi.absolutePath()))
             fi.setFile(fi.absolutePath());

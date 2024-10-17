@@ -227,6 +227,7 @@ class DumperBase():
         self.watchers = args.get('watchers', {})
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
+        self.allowInferiorCalls = int(args.get('allowinferiorcalls', '0'))
         self.forceQtNamespace = int(args.get('forcens', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
         self.isTesting = int(args.get('testing', '0'))

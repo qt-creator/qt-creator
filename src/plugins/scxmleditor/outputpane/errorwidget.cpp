@@ -161,11 +161,11 @@ void ErrorWidget::updateWarnings()
 QColor ErrorWidget::alertColor() const
 {
     if (m_warningModel->count(Warning::ErrorType) > 0)
-        return Utils::creatorColor(Utils::Theme::Token_Notification_Danger);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default);
     else if (m_warningModel->count(Warning::WarningType))
-        return Utils::creatorColor(Utils::Theme::Token_Notification_Alert);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Alert_Default);
     else
-        return Utils::creatorColor(Utils::Theme::Token_Notification_Neutral);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Default);
 }
 
 void ErrorWidget::warningCountChanged(int c)

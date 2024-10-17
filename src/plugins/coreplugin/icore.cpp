@@ -1001,7 +1001,7 @@ QString uiConfigInformation()
     info.append(QString("Theme: %1 \"%2\"\n").arg(creatorTheme()->id())
                            .arg(creatorTheme()->displayName()));
     const QString toolbarStyle =
-        StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? "Compact" : "Relaxed";
+        StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact ? "Compact" : "Relaxed";
     info.append(QString("Toolbar style: Utils::StyleHelper::ToolbarStyle%1\n").arg(toolbarStyle));
     const QString policy =
         QVariant::fromValue(QApplication::highDpiScaleFactorRoundingPolicy()).toString();

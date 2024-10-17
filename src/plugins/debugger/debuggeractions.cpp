@@ -76,6 +76,7 @@ DebuggerSettings::DebuggerSettings() :
 
     // Page 4
     useDebuggingHelpers{localsAndExpressionSettings().useDebuggingHelpers},
+    allowInferiorCalls{localsAndExpressionSettings().allowInferiorCalls},
     useCodeModel{localsAndExpressionSettings().useCodeModel},
     showThreadNames{localsAndExpressionSettings().showThreadNames},
     extraDumperFile{localsAndExpressionSettings().extraDumperFile},   // For loading a file. Recommended.

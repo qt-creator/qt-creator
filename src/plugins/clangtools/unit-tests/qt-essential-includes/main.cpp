@@ -1,3 +1,4 @@
+// clazy:excludeall=no-module-include
 #include <QtCore>
 #include <QtGui>
 #ifdef QT_MULTIMEDIA_LIB

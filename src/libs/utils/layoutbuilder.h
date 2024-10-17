@@ -40,6 +40,12 @@ class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
 
+namespace SpinnerSolution
+{
+class SpinnerWidget;
+enum class SpinnerState;
+}
+
 namespace Utils
 {
 class FancyLineEdit;
@@ -262,6 +268,7 @@ public:
     Label(std::initializer_list<I> ps);
     Label(const QString &text);
 
+    QString text() const;
     void setText(const QString &);
     void setTextFormat(Qt::TextFormat);
     void setWordWrap(bool);
@@ -393,6 +400,19 @@ public:
     using I = Building::BuilderItem<ToolBar>;
 
     ToolBar(std::initializer_list<I> items);
+};
+
+class QTCREATOR_UTILS_EXPORT Spinner : public Widget
+{
+public:
+    using Implementation = SpinnerSolution::SpinnerWidget;
+    using I = Building::BuilderItem<Spinner>;
+    using Id = Implementation *;
+
+    Spinner(std::initializer_list<I> ps);
+
+    void setRunning(bool running);
+    void setDecorated(bool on);
 };
 
 // Special
@@ -548,6 +568,7 @@ QTCREATOR_UTILS_EXPORT void noMargin(Layout *);
 QTCREATOR_UTILS_EXPORT void normalMargin(Layout *);
 QTCREATOR_UTILS_EXPORT void withFormAlignment(Layout *);
 QTCREATOR_UTILS_EXPORT void hr(Layout *);
+QTCREATOR_UTILS_EXPORT void tight(Layout *); // noMargin + spacing(0)
 
 QTCREATOR_UTILS_EXPORT LayoutModifier spacing(int space);
 

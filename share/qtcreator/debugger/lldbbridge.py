@@ -2530,7 +2530,7 @@ def ensure_gdbmiparser():
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
     if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
-        # Let Qt Creator take care of its own dumper
+        debug("Returning early, letting Qt Creator take care of its own dumper", debugger)
         return
 
     debug("Initializing module with", debugger)

@@ -1,6 +1,6 @@
 {
     "Id" : "bineditor",
-    "Name" : "BinEditor",
+    "Name" : "Binary Editor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

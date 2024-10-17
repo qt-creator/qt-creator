@@ -7,7 +7,8 @@
 #include "qbsprofilemanager.h"
 #include "qbsprojectmanagertr.h"
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/elidinglabel.h>
 #include <utils/layoutbuilder.h>

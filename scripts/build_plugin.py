@@ -147,16 +147,19 @@ def package(args, paths):
     if common.is_windows_platform() and args.sign_command:
         command = shlex.split(args.sign_command)
         common.check_print_call(command + [paths.install])
-    common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, os.path.join(paths.result, args.name + '.7z'), '*'],
+    # use -mf=off to avoid usage of the ARM executable compression filter,
+    # which cannot be extracted by p7zip
+    zip = ['7z', 'a', '-mmt' + args.zip_threads, '-mf=off']
+    common.check_print_call(zip + [os.path.join(paths.result, args.name + '.7z'), '*'],
                             paths.install)
     if os.path.exists(paths.dev_install):  # some plugins might not provide anything in Devel
-        common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                 os.path.join(paths.result, args.name + '_dev.7z'), '*'],
+        common.check_print_call(zip
+                                + [os.path.join(paths.result, args.name + '_dev.7z'), '*'],
                                 paths.dev_install)
     # check for existence - the DebugInfo install target doesn't work for telemetry plugin
     if args.with_debug_info and os.path.exists(paths.debug_install):
-        common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                 os.path.join(paths.result, args.name + '-debug.7z'), '*'],
+        common.check_print_call(zip
+                                + [os.path.join(paths.result, args.name + '-debug.7z'), '*'],
                                 paths.debug_install)
     if common.is_mac_platform() and common.codesign_call():
         if args.keychain_unlock_script:
@@ -169,9 +172,9 @@ def package(args, paths):
                 app = apps[0]
                 common.conditional_sign_recursive(os.path.join(signed_install_path, app),
                                                   lambda ff: ff.endswith('.dylib'))
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                         os.path.join(paths.result, args.name + '-signed.7z'),
-                                         app],
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, args.name + '-signed.7z'),
+                                           app],
                                         signed_install_path)
 
 def get_paths(args):

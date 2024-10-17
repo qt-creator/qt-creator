@@ -29,7 +29,6 @@ public:
     void updateErrorFlags();
     bool hasError() const;
 
-    static const inline int IdRole = Qt::UserRole;
     static const int DefaultItemIdRole = Qt::UserRole + 1;
     QVariant data(int column, int role) const override;
 

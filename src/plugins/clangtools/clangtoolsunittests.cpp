@@ -40,19 +40,26 @@ namespace Internal {
 
 void ClangToolsUnitTests::initTestCase()
 {
-    const QList<Kit *> allKits = KitManager::kits();
-    if (allKits.count() == 0)
-        QSKIP("This test requires at least one kit to be present");
+    m_kit = findOr(KitManager::kits(), nullptr, [](Kit *k) {
+        if (!k->isValid())
+            return false;
+        if (!QtSupport::QtKitAspect::qtVersion(k))
+            return false;
+        const Toolchain * const toolchain = ToolchainKitAspect::cxxToolchain(k);
+        if (!toolchain)
+            return false;
 
-    m_kit = findOr(allKits, nullptr, [](Kit *k) {
-            return k->isValid() && QtSupport::QtKitAspect::qtVersion(k) != nullptr;
+        // Wo observe clazy failures with x86/32bit MSVC kits.
+        if (toolchain->typeId() == ProjectExplorer::Constants::MSVC_TOOLCHAIN_TYPEID
+            && toolchain->targetAbi().architecture() == Abi::X86Architecture
+            && toolchain->targetAbi().wordWidth() != Abi::hostAbi().wordWidth()) {
+            return false;
+        }
+
+        return true;
     });
     if (!m_kit)
-        QSKIP("This test requires at least one valid kit with a valid Qt");
-
-    const Toolchain * const toolchain = ToolchainKitAspect::cxxToolchain(m_kit);
-    if (!toolchain)
-        QSKIP("This test requires that there is a kit with a toolchain.");
+        QSKIP("This test requires at least one valid kit with a valid Qt and a suitable toolchain.");
 
     if (!Core::ICore::clangExecutable(CLANG_BINDIR))
         QSKIP("No clang suitable for analyzing found");

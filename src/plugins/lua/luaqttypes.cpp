@@ -70,6 +70,43 @@ int sol_lua_push(sol::types<QRect>, lua_State *L, const QRect &value)
     return sol::stack::push(L, table);
 }
 
+// QMargins
+bool sol_lua_check(
+    sol::types<QMargins>,
+    lua_State *L,
+    int index,
+    std::function<sol::check_handler_type> handler,
+    sol::stack::record &tracking)
+{
+    return sol::stack::check<sol::table>(L, index, handler, tracking);
+}
+QMargins sol_lua_get(sol::types<QMargins>, lua_State *L, int index, sol::stack::record &tracking)
+{
+    const sol::state_view lua(L);
+    const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
+    switch (table.size()) {
+    case 0:
+        return QMargins(
+            table.get<int>("left"),
+            table.get<int>("top"),
+            table.get<int>("right"),
+            table.get<int>("bottom"));
+    case 4:
+        return QMargins(table.get<int>(1), table.get<int>(2), table.get<int>(3), table.get<int>(4));
+    default:
+        throw sol::error(
+            "Expected table to have 'left', 'top', 'right' and 'bottom' or 4 elements");
+    }
+}
+
+int sol_lua_push(sol::types<QMargins>, lua_State *L, const QMargins &value)
+{
+    sol::state_view lua(L);
+    const sol::table table = lua.create_table_with(
+        "left", value.left(), "top", value.top(), "right", value.right(), "bottom", value.bottom());
+    return sol::stack::push(L, table);
+}
+
 // QSize
 bool sol_lua_check(sol::types<QSize>,
                    lua_State *L,
@@ -165,6 +202,44 @@ int sol_lua_push(sol::types<QRectF>, lua_State *L, const QRectF &value)
     sol::state_view lua(L);
     const sol::table table = lua.create_table_with(
         "x", value.x(), "y", value.y(), "width", value.width(), "height", value.height());
+    return sol::stack::push(L, table);
+}
+
+// QMarginsF
+bool sol_lua_check(
+    sol::types<QMarginsF>,
+    lua_State *L,
+    int index,
+    std::function<sol::check_handler_type> handler,
+    sol::stack::record &tracking)
+{
+    return sol::stack::check<sol::table>(L, index, handler, tracking);
+}
+QMarginsF sol_lua_get(sol::types<QMarginsF>, lua_State *L, int index, sol::stack::record &tracking)
+{
+    const sol::state_view lua(L);
+    const sol::table table = sol::stack::get<sol::table>(L, index, tracking);
+    switch (table.size()) {
+    case 0:
+        return QMarginsF(
+            table.get<qreal>("left"),
+            table.get<qreal>("top"),
+            table.get<qreal>("right"),
+            table.get<qreal>("bottom"));
+    case 4:
+        return QMarginsF(
+            table.get<qreal>(1), table.get<qreal>(2), table.get<qreal>(3), table.get<qreal>(4));
+    default:
+        throw sol::error(
+            "Expected table to have 'left', 'top', 'right' and 'bottom' or 4 elements");
+    }
+}
+
+int sol_lua_push(sol::types<QMarginsF>, lua_State *L, const QMarginsF &value)
+{
+    sol::state_view lua(L);
+    const sol::table table = lua.create_table_with(
+        "left", value.left(), "top", value.top(), "right", value.right(), "bottom", value.bottom());
     return sol::stack::push(L, table);
 }
 

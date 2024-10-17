@@ -768,6 +768,9 @@ void CallgrindTool::clearTextMarks()
 
 void CallgrindTool::engineFinished()
 {
+    if (m_flatView == nullptr) // Happens on shutdown when memcheck is still running.
+        return;
+
     m_toolBusy = false;
     updateRunActions();
 

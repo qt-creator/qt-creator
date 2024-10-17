@@ -107,6 +107,8 @@ HAS_MEM_FUNC(setIconPath, hasSetIconPath);
 HAS_MEM_FUNC(setFlat, hasSetFlat);
 HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
 HAS_MEM_FUNC(setIconSize, hasSetIconSize);
+HAS_MEM_FUNC(setWordWrap, hasSetWordWrap);
+HAS_MEM_FUNC(setTextFormat, hasSetTextFormat);
 HAS_MEM_FUNC(setRightSideIconPath, hasSetRightSideIconPath);
 HAS_MEM_FUNC(setPlaceHolderText, hasSetPlaceHolderText);
 HAS_MEM_FUNC(setCompleter, hasSetCompleter);
@@ -114,9 +116,20 @@ HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
 HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
 HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
 
-
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {
+        const auto wrap = children.get<sol::optional<bool>>("wordWrap");
+        if (wrap)
+            item->setWordWrap(*wrap);
+    }
+
+    if constexpr (hasSetTextFormat<T, void (T::*)(Qt::TextFormat)>::value) {
+        const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat");
+        if (format)
+            item->setTextFormat(*format);
+    }
+
     if constexpr (hasSetRightSideIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
         const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath");
         if (path)
@@ -460,6 +473,8 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Label>(children, guard);
             }),
+            "text",
+            sol::property(&Label::text),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -484,6 +499,7 @@ void setupGuiModule()
 
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
 
         gui.new_usertype<Stack>(
             "Stack",
@@ -509,6 +525,17 @@ void setupGuiModule()
             }),
             "markdown",
             sol::property(&TextEdit::markdown),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<LineEdit>(
+            "LineEdit",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<LineEdit>(children, guard);
+            }),
+            "text",
+            sol::property(&LineEdit::text),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -560,6 +587,19 @@ void setupGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Group>(children, guard);
             }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Spinner>(
+            "Spinner",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Spinner>(children, guard);
+            }),
+            "running",
+            sol::property(&Spinner::setRunning),
+            "decorated",
+            sol::property(&Spinner::setDecorated),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

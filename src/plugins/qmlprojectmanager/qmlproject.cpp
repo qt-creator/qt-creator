@@ -3,25 +3,25 @@
 
 #include "qmlproject.h"
 
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtsupportconstants.h>
-
-#include <QTimer>
-
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/projectmanager.h>
-#include <projectexplorer/target.h>
+#include "qmlprojectconstants.h"
+#include "qmlprojectmanagertr.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 
-#include "projectexplorer/devicesupport/idevice.h"
-#include "qmlprojectconstants.h"
-#include "qmlprojectmanagertr.h"
-#include "utils/algorithm.h"
+#include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
+
+#include <qtsupport/baseqtversion.h>
+#include <qtsupport/qtkitaspect.h>
+#include <qtsupport/qtsupportconstants.h>
 
 #include <texteditor/textdocument.h>
 

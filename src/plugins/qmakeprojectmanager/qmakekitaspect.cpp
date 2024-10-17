@@ -6,6 +6,8 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>

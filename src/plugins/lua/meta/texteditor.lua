@@ -38,6 +38,10 @@ function TextCursor:selectedText() end
 ---@return Range selectionRange The range of selected text of the cursor.
 function TextCursor:selectionRange() end
 
+---Inserts the passed text at the cursors position overwriting any selected text.
+---@param text string The text to insert.
+function TextCursor:insertText(text) end
+
 ---@class MultiTextCursor
 local MultiTextCursor = {}
 
@@ -48,6 +52,10 @@ function MultiTextCursor:mainCursor() end
 ---Returns the cursors.
 ---@return TextCursor[] cursors The cursors.
 function MultiTextCursor:cursors() end
+
+---Inserts the passed text at all cursor positions overwriting any selected text.
+---@param text string The text to insert.
+function MultiTextCursor:insertText(text) end
 
 ---@class Suggestion
 local Suggestion = {}
@@ -107,6 +115,10 @@ function TextEditor:addFloatingWidget(widget, position, margins, fillWidth) end
 ---Checks if the current suggestion is locked. The suggestion is locked when the user can use it.
 ---@return boolean True if the suggestion is locked, false otherwise.
 function TextEditor:hasLockedSuggestion() end
+
+---Inserts the passed text at all cursor positions overwriting any selected text.
+---@param text string The text to insert.
+function TextEditor:insertText(text) end
 
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.

@@ -8,11 +8,15 @@
 
 #include <QtGlobal>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 QT_BEGIN_NAMESPACE
 class QJsonObject;
 QT_END_NAMESPACE
 
 namespace Axivion::Internal {
+
+constexpr char s_axivionKeychainService[] = "keychain.axivion.qtcreator";
 
 class AxivionServer
 {
@@ -64,8 +68,11 @@ public:
 private:
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 AxivionSettings &settings();
+
+QString credentialKey(const AxivionServer &server);
 
 } // Axivion::Internal

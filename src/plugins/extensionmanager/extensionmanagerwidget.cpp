@@ -29,25 +29,20 @@
 #include <utils/icon.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
+#include <utils/markdownbrowser.h>
 #include <utils/networkaccessmanager.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
-#include <utils/utilsicons.h>
+#include <utils/textutils.h>
 
 #include <QAction>
 #include <QApplication>
-#include <QBuffer>
 #include <QCheckBox>
 #include <QHBoxLayout>
-#include <QImageReader>
 #include <QMessageBox>
-#include <QMovie>
-#include <QPainter>
 #include <QProgressDialog>
 #include <QScrollArea>
-#include <QTextDocument>
-#include <QTextBlock>
 
 using namespace Core;
 using namespace Utils;
@@ -60,8 +55,7 @@ Q_LOGGING_CATEGORY(widgetLog, "qtc.extensionmanager.widget", QtWarningMsg)
 
 constexpr TextFormat contentTF
     {Theme::Token_Text_Default, UiElement::UiElementBody2};
-constexpr TextFormat h5TF
-    {contentTF.themeColor, UiElement::UiElementH5};
+
 constexpr TextFormat h6TF
     {contentTF.themeColor, UiElement::UiElementH6};
 constexpr TextFormat h6CapitalTF
@@ -134,7 +128,7 @@ public:
         static const TextFormat dlTF
             {Theme::Token_Text_Muted, vendorTF.uiElement};
         static const TextFormat detailsTF
-            {Theme::Token_Text_Default, UiElementBody2};
+            {titleTF.themeColor, Utils::StyleHelper::UiElementCaption};
 
         m_title = tfLabel(titleTF);
         m_vendor = new Button({}, Button::SmallLink);
@@ -216,14 +210,8 @@ public:
             m_dlCount->setText(QString::number(dlCount));
         m_dlCountItems->setVisible(showDlCount);
 
-        const QStringList plugins = current.data(RolePlugins).toStringList();
-        if (current.data(RoleItemType).toInt() == ItemTypePack) {
-            const int pluginsCount = plugins.count();
-            const QString details = Tr::tr("Pack contains %n plugins.", nullptr, pluginsCount);
-            m_details->setText(details);
-        } else {
-            m_details->setText({});
-        }
+        const QString description = current.data(RoleDescriptionShort).toString();
+        m_details->setText(description);
 
         const ItemType itemType = current.data(RoleItemType).value<ItemType>();
         const bool isPack = itemType == ItemTypePack;
@@ -389,11 +377,12 @@ private:
     QString m_currentItemName;
     ExtensionsModel *m_extensionModel;
     ExtensionsBrowser *m_extensionBrowser;
+    QStackedWidget *m_detailsStack;
     CollapsingWidget *m_secondaryDescriptionWidget;
     HeadingWidget *m_headingWidget;
     QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
-    QLabel *m_description;
+    MarkdownBrowser *m_description;
     QLabel *m_dateUpdatedTitle;
     QLabel *m_dateUpdated;
     QLabel *m_tagsTitle;
@@ -410,6 +399,40 @@ private:
     Tasking::TaskTreeRunner m_dlTaskTreeRunner;
 };
 
+static QWidget *descriptionPlaceHolder()
+{
+    auto placeHolder = new QWidget;
+    static const TextFormat tF {
+        Theme::Token_Text_Muted, UiElement::UiElementH4
+    };
+    auto title = tfLabel(tF);
+    title->setAlignment(Qt::AlignCenter);
+    title->setText(Tr::tr("No details to show"));
+    auto text = tfLabel(tF, false);
+    text->setAlignment(Qt::AlignCenter);
+    text->setText(Tr::tr("Select an extension to see more information about it."));
+    text->setFont({});
+    using namespace Layouting;
+    // clang-format off
+    Row {
+        st,
+        Column {
+            Stretch(2),
+            title,
+            WelcomePageHelpers::createRule(Qt::Horizontal),
+            text,
+            Stretch(3),
+            spacing(SpacingTokens::ExPaddingGapL),
+        },
+        st,
+        noMargin,
+    }.attachTo(placeHolder);
+    // clang-format on
+    WelcomePageHelpers::setBackgroundColor(placeHolder, Theme::Token_Background_Muted);
+    placeHolder->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
+    return placeHolder;
+}
+
 ExtensionManagerWidget::ExtensionManagerWidget()
 {
     m_extensionModel = new ExtensionsModel(this);
@@ -418,19 +441,22 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_secondaryDescriptionWidget = new CollapsingWidget;
 
     m_headingWidget = new HeadingWidget;
-    m_description = new QLabel;
-    m_description->setWordWrap(true);
-    m_description->setTextInteractionFlags(Qt::TextBrowserInteraction);
+    m_description = new MarkdownBrowser;
+    m_description->setFrameStyle(QFrame::NoFrame);
     m_description->setOpenExternalLinks(true);
+    QPalette browserPal = m_description->palette();
+    browserPal.setColor(QPalette::Base, creatorColor(Theme::Token_Background_Default));
+    m_description->setPalette(browserPal);
 
     using namespace Layouting;
     auto primary = new QWidget;
     const auto spL = spacing(SpacingTokens::VPaddingL);
+    // clang-format off
     Column {
         m_description,
-        st,
         noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
     }.attachTo(primary);
+    // clang-format on
     m_primaryContent = toScrollableColumn(primary);
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
@@ -472,7 +498,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     }.attachTo(m_secondaryDescriptionWidget);
 
     Row {
-        WelcomePageHelpers::createRule(Qt::Vertical),
         Row {
             Column {
                 Column {
@@ -492,8 +517,12 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         Row {
             Space(SpacingTokens::ExVPaddingGapXl),
             m_extensionBrowser,
-            descriptionColumns,
-            noMargin, spacing(0),
+            WelcomePageHelpers::createRule(Qt::Vertical),
+            Stack {
+                bindTo(&m_detailsStack),
+                descriptionPlaceHolder(),
+                descriptionColumns,
+            },
         },
         noMargin, spacing(0),
     }.attachTo(this);
@@ -503,9 +532,10 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     connect(m_extensionBrowser, &ExtensionsBrowser::itemSelected,
             this, &ExtensionManagerWidget::updateView);
     connect(this, &ResizeSignallingWidget::resized, this, [this](const QSize &size) {
-        const int intendedBrowserColumnWidth = size.width() - 580;
+        const int intendedBrowserColumnWidth = size.width() / 3;
         m_extensionBrowser->adjustToWidth(intendedBrowserColumnWidth);
-        const bool secondaryDescriptionVisible = size.width() > 970;
+        const int availableDescriptionWidth = size.width() - m_extensionBrowser->width();
+        const bool secondaryDescriptionVisible = availableDescriptionWidth > 1000;
         const int secondaryDescriptionWidth = secondaryDescriptionVisible ? 264 : 0;
         m_secondaryDescriptionWidget->setWidth(secondaryDescriptionWidth);
     });
@@ -519,62 +549,16 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     updateView({});
 }
 
-static QString markdownToHtml(const QString &markdown)
-{
-    QTextDocument doc;
-    doc.setMarkdown(markdown);
-    doc.setDefaultFont(contentTF.font());
-
-    for (QTextBlock block = doc.begin(); block != doc.end(); block = block.next()) {
-        QTextBlockFormat blockFormat = block.blockFormat();
-        if (blockFormat.hasProperty(QTextFormat::HeadingLevel))
-            blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
-        else
-            blockFormat.setLineHeight(contentTF.lineHeight(), QTextBlockFormat::FixedHeight);
-        blockFormat.setBottomMargin(SpacingTokens::VGapL);
-        QTextCursor cursor(block);
-        cursor.mergeBlockFormat(blockFormat);
-        const TextFormat headingTf =
-                blockFormat.headingLevel() == 1 ? h5TF
-                                                : blockFormat.headingLevel() == 2 ? h6TF
-                                                                                  : h6CapitalTF;
-        const QFont headingFont = headingTf.font();
-        for (auto it = block.begin(); !(it.atEnd()); ++it) {
-            QTextFragment fragment = it.fragment();
-            if (fragment.isValid()) {
-                QTextCharFormat charFormat = fragment.charFormat();
-                cursor.setPosition(fragment.position());
-                cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
-                if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-                    charFormat.setFontCapitalization(headingFont.capitalization());
-                    charFormat.setFontFamilies(headingFont.families());
-                    charFormat.setFontPointSize(headingFont.pointSizeF());
-                    charFormat.setFontWeight(headingFont.weight());
-                    charFormat.setForeground(headingTf.color());
-                } else if (charFormat.isAnchor()) {
-                    charFormat.setForeground(creatorColor(Theme::Token_Text_Accent));
-                } else {
-                    charFormat.setForeground(contentTF.color());
-                }
-                cursor.setCharFormat(charFormat);
-            }
-        }
-    }
-
-    return doc.toHtml();
-}
-
 void ExtensionManagerWidget::updateView(const QModelIndex &current)
 {
-    m_headingWidget->update(current);
-
-    const bool showContent = current.isValid();
-    m_primaryContent->setVisible(showContent);
-    m_secondaryContent->setVisible(showContent);
-    m_headingWidget->setVisible(showContent);
-    m_pluginStatus->setVisible(showContent);
-    if (!showContent)
+    if (current.isValid()) {
+        m_detailsStack->setCurrentIndex(1);
+    } else {
+        m_detailsStack->setCurrentIndex(0);
         return;
+    }
+
+    m_headingWidget->update(current);
 
     m_currentItemName = current.data(RoleName).toString();
     const bool isPack = current.data(RoleItemType) == ItemTypePack;
@@ -584,14 +568,8 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     m_currentId = current.data(RoleVendorId).toString() + "." + current.data(RoleId).toString();
 
     {
-        const QStringList description = {
-            "# " + m_currentItemName,
-            current.data(RoleDescriptionShort).toString(),
-            "",
-            current.data(RoleDescriptionLong).toString()
-        };
-        const QString descriptionMarkdown = description.join("\n");
-        m_description->setText(markdownToHtml(descriptionMarkdown));
+        const QString description = current.data(RoleDescriptionLong).toString();
+        m_description->setMarkdown(description);
     }
 
     {

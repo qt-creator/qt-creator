@@ -1,6 +1,6 @@
 {
     "Id" : "designer",
-    "Name" : "Designer",
+    "Name" : "Qt Designer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

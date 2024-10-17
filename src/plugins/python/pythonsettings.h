@@ -8,6 +8,7 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/filepath.h>
+#include <utils/listmodel.h>
 
 namespace Python::Internal {
 
@@ -45,6 +46,7 @@ public:
     static QList<Interpreter> detectPythonVenvs(const Utils::FilePath &path);
     static void addKitsForInterpreter(const Interpreter &interpreter, bool force);
     static void removeKitsForInterpreter(const Interpreter &interpreter);
+    static bool interpreterIsValid(const Interpreter &interpreter);
 
 signals:
     void interpretersChanged(const QList<Interpreter> &interpreters, const QString &defaultId);
@@ -77,5 +79,6 @@ private:
 };
 
 void setupPythonSettings(QObject *guard);
+Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *parent);
 
 } // Python::Internal

@@ -96,16 +96,16 @@ struct SubmitEditorWidgetPrivate
     // A pair of position/action to extend context menus
     typedef QPair<int, QPointer<QAction> > AdditionalContextMenuAction;
 
-    MiniSplitter *splitter;
-    QGroupBox *descriptionBox;
-    QVBoxLayout *descriptionLayout;
-    QLabel *descriptionHint;
-    CompletingTextEdit *description;
-    QCheckBox *checkAllCheckBox;
-    QTreeView *fileView;
-    QHBoxLayout *buttonLayout;
-    QLabel *error;
-    QVBoxLayout *vboxLayout;
+    MiniSplitter *splitter = nullptr;
+    QGroupBox *descriptionBox = nullptr;
+    QVBoxLayout *descriptionLayout = nullptr;
+    QLabel *descriptionHint = nullptr;
+    CompletingTextEdit *description = nullptr;
+    QCheckBox *checkAllCheckBox = nullptr;
+    QTreeView *fileView = nullptr;
+    QHBoxLayout *buttonLayout = nullptr;
+    QLabel *error = nullptr;
+    QVBoxLayout *vboxLayout = nullptr;
 
     QList<AdditionalContextMenuAction> descriptionEditContextMenuActions;
     QVBoxLayout *m_fieldLayout = nullptr;

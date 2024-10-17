@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "cmakeautogenparser.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
@@ -71,6 +72,7 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 #ifdef WITH_TESTS
         addTestCreator(createCMakeConfigTest);
         addTestCreator(createCMakeOutputParserTest);
+        addTestCreator(createCMakeAutogenParserTest);
         addTestCreator(createCMakeProjectImporterTest);
 #endif
 

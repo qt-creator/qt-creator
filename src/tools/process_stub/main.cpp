@@ -277,6 +277,7 @@ void onInferiorStarted()
 
 void setupUnixInferior()
 {
+#ifdef Q_OS_UNIX
     if (debugMode) {
         qCInfo(log) << "Debug mode enabled";
 #ifdef Q_OS_DARWIN
@@ -296,6 +297,7 @@ void setupUnixInferior()
         });
 #endif
     }
+#endif
 }
 
 void setupWindowsInferior()

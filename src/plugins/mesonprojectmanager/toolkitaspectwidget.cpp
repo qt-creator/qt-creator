@@ -7,6 +7,8 @@
 #include "mesonprojectmanagertr.h"
 #include "mesontools.h"
 
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 

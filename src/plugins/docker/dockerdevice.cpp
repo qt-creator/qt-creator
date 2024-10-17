@@ -193,12 +193,13 @@ public:
 
     expected_str<Environment> environment();
 
-    CommandLine withDockerExecCmd(const CommandLine &cmd,
-                                  const std::optional<Environment> &env = std::nullopt,
-                                  const std::optional<FilePath> &workDir = std::nullopt,
-                                  bool interactive = false,
-                                  bool withPty = false,
-                                  bool withMarker = true);
+    expected_str<CommandLine> withDockerExecCmd(
+        const CommandLine &cmd,
+        const std::optional<Environment> &env = std::nullopt,
+        const std::optional<FilePath> &workDir = std::nullopt,
+        bool interactive = false,
+        bool withPty = false,
+        bool withMarker = true);
 
     bool prepareForBuild(const Target *target);
     Tasks validateMounts() const;
@@ -222,6 +223,51 @@ public:
     QStringList createMountArgs() const;
 
     bool isImageAvailable() const;
+
+    expected_str<std::unique_ptr<DeviceFileAccess>> createBridgeFileAccess()
+    {
+        expected_str<FilePath> cmdBridgePath = getCmdBridgePath();
+
+        if (!cmdBridgePath)
+            return make_unexpected(cmdBridgePath.error());
+
+        auto fAccess = std::make_unique<DockerDeviceFileAccess>(this);
+
+        Result initResult = Result::Ok;
+        if (cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath()))
+            initResult = fAccess->init(q->rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
+        else
+            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), q->rootPath());
+
+        if (!initResult)
+            return make_unexpected(initResult.error());
+
+        return fAccess;
+    }
+
+    DeviceFileAccess *createFileAccess()
+    {
+        if (DeviceFileAccess *fileAccess = m_fileAccess.readLocked()->get())
+            return fileAccess;
+
+        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
+            = m_fileAccess.writeLocked();
+        if (*fileAccess)
+            return fileAccess->get();
+
+        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
+
+        if (fAccess) {
+            *fileAccess = std::move(*fAccess);
+            return fileAccess->get();
+        }
+
+        qCWarning(dockerDeviceLog).noquote() << "Failed to start CmdBridge:" << fAccess.error()
+                                             << ", falling back to slow direct access";
+
+        *fileAccess = std::make_unique<DockerFallbackFileAccess>(q->rootPath());
+        return fileAccess->get();
+    }
 
     DockerDevice *const q;
 
@@ -374,15 +420,25 @@ void DockerProcessImpl::start()
     const bool interactive = m_setup.m_processMode == ProcessMode::Writer
                              || !m_setup.m_writeData.isEmpty() || inTerminal;
 
-    const CommandLine fullCommandLine
-        = m_devicePrivate->withDockerExecCmd(m_setup.m_commandLine,
-                                             m_setup.m_environment,
-                                             m_setup.m_workingDirectory,
-                                             interactive,
-                                             inTerminal,
-                                             !m_process.ptyData().has_value());
+    const expected_str<CommandLine> fullCommandLine = m_devicePrivate->withDockerExecCmd(
+        m_setup.m_commandLine,
+        m_setup.m_environment,
+        m_setup.m_workingDirectory,
+        interactive,
+        inTerminal,
+        !m_process.ptyData().has_value());
 
-    m_process.setCommand(fullCommandLine);
+    if (!fullCommandLine) {
+        emit done(ProcessResultData{
+            -1,
+            QProcess::ExitStatus::CrashExit,
+            QProcess::ProcessError::FailedToStart,
+            fullCommandLine.error(),
+        });
+        return;
+    }
+
+    m_process.setCommand(*fullCommandLine);
     m_process.start();
 }
 
@@ -574,48 +630,7 @@ DockerDevice::DockerDevice()
 
     containerStatus.setText(Tr::tr("stopped"));
 
-
-    auto createBridgeFileAccess = [this]() -> expected_str<std::unique_ptr<DeviceFileAccess>> {
-        expected_str<FilePath> cmdBridgePath = d->getCmdBridgePath();
-
-        if (!cmdBridgePath)
-            return make_unexpected(cmdBridgePath.error());
-
-        auto fAccess = std::make_unique<DockerDeviceFileAccess>(d);
-        Result initResult = Result::Ok;
-        if (!cmdBridgePath->isSameDevice(Docker::Internal::settings().dockerBinaryPath())) {
-            initResult = fAccess->deployAndInit(Core::ICore::libexecPath(), rootPath());
-        } else {
-            initResult = fAccess->init(rootPath().withNewPath("/tmp/_qtc_cmdbridge"));
-        }
-        if (!initResult)
-            return make_unexpected(initResult.error());
-
-        return fAccess;
-    };
-
-    setFileAccess([this, createBridgeFileAccess]() -> DeviceFileAccess * {
-        if (DeviceFileAccess *fileAccess = d->m_fileAccess.readLocked()->get())
-            return fileAccess;
-
-        SynchronizedValue<std::unique_ptr<DeviceFileAccess>>::unique_lock fileAccess
-            = d->m_fileAccess.writeLocked();
-        if (*fileAccess)
-            return fileAccess->get();
-
-        expected_str<std::unique_ptr<DeviceFileAccess>> fAccess = createBridgeFileAccess();
-
-        if (fAccess) {
-            *fileAccess = std::move(*fAccess);
-            return fileAccess->get();
-        }
-
-        qCWarning(dockerDeviceLog) << "Failed to start CmdBridge:" << fAccess.error()
-                                   << ", falling back to slow direct access";
-
-        *fileAccess = std::make_unique<DockerFallbackFileAccess>(rootPath());
-        return fileAccess->get();
-    });
+    allowEmptyCommand.setValue(true);
 
     setDisplayType(Tr::tr("Docker"));
     setOsType(OsTypeLinux);
@@ -623,7 +638,7 @@ DockerDevice::DockerDevice()
     setType(Constants::DOCKER_DEVICE_TYPE);
     setMachineType(IDevice::Hardware);
 
-    allowEmptyCommand.setValue(true);
+    setFileAccessFactory([this] { return d->createFileAccess(); });
 
     setOpenTerminal([this](const Environment &env,
                            const FilePath &workingDir) -> expected_str<void> {
@@ -679,15 +694,16 @@ expected_str<void> DockerDevice::updateContainerAccess() const
     return d->updateContainerAccess();
 }
 
-CommandLine DockerDevicePrivate::withDockerExecCmd(const CommandLine &cmd,
-                                                   const std::optional<Environment> &env,
-                                                   const std::optional<FilePath> &workDir,
-                                                   bool interactive,
-                                                   bool withPty,
-                                                   bool withMarker)
+expected_str<CommandLine> DockerDevicePrivate::withDockerExecCmd(
+    const CommandLine &cmd,
+    const std::optional<Environment> &env,
+    const std::optional<FilePath> &workDir,
+    bool interactive,
+    bool withPty,
+    bool withMarker)
 {
-    if (!updateContainerAccess())
-        return {};
+    if (const auto result = updateContainerAccess(); !result)
+        return make_unexpected(result.error());
 
     CommandLine dockerCmd{settings().dockerBinaryPath(), {"exec"}};
 
@@ -1101,8 +1117,12 @@ expected_str<void> DockerDevicePrivate::fetchSystemEnviroment()
     if (!result)
         return result;
 
+    const expected_str<CommandLine> fullCommandLine = withDockerExecCmd(CommandLine{"env"});
+    if (!fullCommandLine)
+        return make_unexpected(fullCommandLine.error());
+
     Process proc;
-    proc.setCommand(withDockerExecCmd(CommandLine{"env"}));
+    proc.setCommand(*fullCommandLine);
     proc.runBlocking();
     const QString remoteOutput = proc.cleanedStdOut();
 

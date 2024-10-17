@@ -4,9 +4,12 @@
 #include "axivionsettings.h"
 
 #include "axiviontr.h"
+#include "coreplugin/messagemanager.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/credentialquery.h>
 #include <coreplugin/icore.h>
+#include <solutions/tasking/tasktree.h>
 
 #include <utils/algorithm.h>
 #include <utils/id.h>
@@ -28,6 +31,7 @@
 
 using namespace Core;
 using namespace Utils;
+using namespace Tasking;
 
 namespace Axivion::Internal {
 
@@ -252,15 +256,54 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
     if (selected == oldDefault && m_allServers == other)
         return false;
 
-    m_defaultServerId.setValue(selected.toString());
+
+    // collect dashserver items that have been removed,
+    // so we can delete the api tokens from the credentials store
+    const QStringList previousKeys = Utils::transform(m_allServers, &credentialKey);
+    const QStringList updatedKeys = Utils::transform(other, &credentialKey);
+    const QStringList keysToRemove = Utils::filtered(previousKeys, [updatedKeys](const QString &key) {
+        return !updatedKeys.contains(key);
+    });
+
+    m_defaultServerId.setValue(selected.toString(), BeQuiet);
     m_allServers = other;
     emit changed(); // should we be more detailed? (id)
+
+    const LoopList iterator(keysToRemove);
+
+    const auto onDeleteKeySetup = [iterator](CredentialQuery &query) {
+        MessageManager::writeSilently(Tr::tr("Axivion: Deleting Api token for %1 as respective "
+                                             "dashboard server was removed.").arg(*iterator));
+        query.setOperation(CredentialOperation::Delete);
+        query.setService(s_axivionKeychainService);
+        query.setKey(*iterator);
+    };
+
+    const Group recipe {
+        For (iterator) >> Do {
+            CredentialQueryTask(onDeleteKeySetup)
+        }
+    };
+
+    m_taskTreeRunner.start(recipe);
+
     return true;
 }
 
 const QList<PathMapping> AxivionSettings::validPathMappings() const
 {
     return pathMappingSettings().validPathMappings();
+}
+
+static QString escapeKey(const QString &string)
+{
+    QString escaped = string;
+    return escaped.replace('\\', "\\\\").replace('@', "\\@");
+}
+
+QString credentialKey(const AxivionServer &server)
+{
+    return escapeKey(server.username) + '@' + escapeKey(server.dashboard);
 }
 
 // AxivionSettingsPage
@@ -417,7 +460,9 @@ void AxivionSettingsWidget::apply()
     QList<AxivionServer> servers;
     for (int i = 0, end = m_dashboardServers->count(); i < end; ++i)
         servers.append(m_dashboardServers->itemData(i).value<AxivionServer>());
-    if (settings().updateDashboardServers(servers, servers.at(m_dashboardServers->currentIndex()).id))
+    const Id selected = servers.isEmpty() ? Id{}
+                                          : servers.at(m_dashboardServers->currentIndex()).id;
+    if (settings().updateDashboardServers(servers, selected))
         settings().toSettings();
 }
 

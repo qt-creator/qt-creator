@@ -144,7 +144,7 @@ public:
 protected:
     virtual RunResult runInShell(const CommandLine &cmdLine,
                                  const QByteArray &inputData = {}) const = 0;
-    bool runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+    Result runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
 
     bool isExecutableFile(const FilePath &filePath) const override;
     bool isReadableFile(const FilePath &filePath) const override;

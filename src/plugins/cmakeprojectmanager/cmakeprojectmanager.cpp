@@ -4,6 +4,7 @@
 #include "cmakeprojectmanager.h"
 
 #include "cmakebuildsystem.h"
+#include "cmakebuildconfiguration.h"
 #include "cmakekitaspect.h"
 #include "cmakeprocess.h"
 #include "cmakeproject.h"
@@ -62,7 +63,8 @@ public:
     static void openCMakeUrl(const QUrl &url);
 
 private:
-    void updateCmakeActions(Node *node);
+    void updateCMakeActions(Node *node);
+    void updateCMakeBuildTarget(Node *node);
     void clearCMakeCache(BuildSystem *buildSystem);
     void runCMake(BuildSystem *buildSystem);
     void runCMakeWithProfiling(BuildSystem *buildSystem);
@@ -290,22 +292,24 @@ CMakeManager::CMakeManager()
             CMakeTool::Version version = tool ? tool->version() : CMakeTool::Version();
             m_canDebugCMake = (version.major == 3 && version.minor >= 27) || version.major > 3;
         }
-        updateCmakeActions(ProjectTree::currentNode());
+        updateCMakeActions(ProjectTree::currentNode());
     });
     connect(BuildManager::instance(), &BuildManager::buildStateChanged, this, [this] {
-        updateCmakeActions(ProjectTree::currentNode());
+        updateCMakeActions(ProjectTree::currentNode());
     });
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged, this, [this]() {
         updateBuildFileAction();
         enableBuildSubprojectMenu();
     });
-    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged,
-            this, &CMakeManager::updateCmakeActions);
+    connect(ProjectTree::instance(), &ProjectTree::currentNodeChanged, this, [this](Node *node) {
+        updateCMakeActions(node);
+        updateCMakeBuildTarget(node);
+    });
 
-    updateCmakeActions(ProjectTree::currentNode());
+    updateCMakeActions(ProjectTree::currentNode());
 }
 
-void CMakeManager::updateCmakeActions(Node *node)
+void CMakeManager::updateCMakeActions(Node *node)
 {
     auto project = qobject_cast<CMakeProject *>(ProjectManager::startupProject());
     const bool visible = project && !BuildManager::isBuilding(project);
@@ -330,6 +334,21 @@ void CMakeManager::updateCmakeActions(Node *node)
 
     enableBuildFileMenus(node);
     enableBuildSubprojectContextMenu(node);
+}
+
+void CMakeManager::updateCMakeBuildTarget(Node *node)
+{
+    if (!node)
+        return;
+
+    auto bs = qobject_cast<CMakeBuildSystem *>(ProjectTree::currentBuildSystem());
+    if (!bs)
+        return;
+
+    auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
+
+    bs->cmakeBuildConfiguration()->setRestrictedBuildTarget(
+        targetNode ? targetNode->buildKey() : QString());
 }
 
 void CMakeManager::clearCMakeCache(BuildSystem *buildSystem)

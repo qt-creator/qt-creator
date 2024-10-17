@@ -108,6 +108,18 @@ void setupActionModule()
             return ScriptCommand{b.command(), b.contextAction()};
         };
 
+        result["trigger"] = [](const std::string &actionId) mutable {
+            Command *command = ActionManager::command(
+                Id::fromString(QString::fromStdString(actionId)));
+            if (!command)
+                throw std::runtime_error("Action not found: " + actionId);
+            if (!command->action())
+                throw std::runtime_error("Action not assigned: " + actionId);
+            if (!command->action()->isEnabled())
+                throw std::runtime_error("Action not enabled: " + actionId);
+            command->action()->trigger();
+        };
+
         return result;
     });
 }

@@ -8,6 +8,7 @@ add_qtc_plugin(CMakeProjectManager
     cmake_global.h
     cmakeabstractprocessstep.cpp cmakeabstractprocessstep.h
     cmakeautocompleter.cpp cmakeautocompleter.h
+    cmakeautogenparser.cpp cmakeautogenparser.h
     cmakebuildconfiguration.cpp cmakebuildconfiguration.h
     cmakebuildsystem.cpp cmakebuildsystem.h
     cmakebuildstep.cpp cmakebuildstep.h
