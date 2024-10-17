@@ -84,11 +84,11 @@ AvdDialog::AvdDialog(QWidget *parent)
     Column {
         Form {
             Tr::tr("Name:"), m_nameLineEdit, br,
-            Tr::tr("Device definition:"),
-                Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
             Tr::tr("Architecture (ABI):"), m_abiComboBox, br,
             Tr::tr("Target API:"), m_targetApiComboBox, br,
             QString(), m_warningText, br,
+            Tr::tr("Skin definition:"),
+                Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
             Tr::tr("SD card size:"), m_sdcardSizeSpinBox, br,
             QString(), m_overwriteCheckBox,
         },
