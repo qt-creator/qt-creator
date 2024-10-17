@@ -43,8 +43,7 @@ namespace Utils {
     \class Utils::ProcessArgs
     \inmodule QtCreator
 
-    \brief The ProcessArgs class provides functionality for dealing with
-    shell-quoted process arguments.
+    \brief Handles shell-quoted process arguments.
 */
 
 inline static bool isMetaCharWin(ushort c)
@@ -695,11 +694,27 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
 
 
 // TODO: This documentation is relevant for end-users. Where to put it?
-/**
- * Perform safe macro expansion (substitution) on a string for use
- * in shell commands.
+/*!
+ * Uses the macro expander \a mx to perform in-place macro expansion
+ * (substitution) on the string \a cmd, which is expected to contain a shell
+ * command. \a osType specifies the syntax, which is Bourne Shell compatible
+ * for Unix and \c cmd compatible for Windows.
  *
- * \section Unix notes
+ * Returns \c false if substitution cannot be performed safely, because the
+ * command cannot be parsed -- for example due to quoting errors.
+ *
+ * \note This function is designed to be safe to use with expando objects
+ * that contain shell meta-characters. However, placing expandos in the wrong
+ * place of the command may defeat the expander's efforts to quote their
+ * contents, which will likely result in incorrect command execution.
+ * In particular, expandos that contain untrusted data might expose the
+ * end-user of the application to critical shell code injection
+ * vulnerabilities. To avoid these issues, follow the guidelines in
+ * \l {Unix security considerations} and \l {Windows security considerations}.
+ * Generally, it is a better idea to invoke shell scripts rather than to
+ * assemble complex one-line commands.
+ *
+ * \section1 Unix notes
  *
  * Explicitly supported shell constructs:
  *   \\ '' "" {} () $(()) ${} $() ``
@@ -713,41 +728,45 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
  * \li Bash-style \c{$""} and \c{$''} string quoting syntax.
  * \endlist
  *
- * The rest of the shell (incl. bash) syntax is simply ignored,
- * as it is not expected to cause problems.
+ * The rest of the shell syntax (including bash syntax) should not cause
+ * problems and is ignored.
  *
- * Security considerations:
+ * \section2 Unix security considerations
  * \list
- * \li Backslash-escaping an expando is treated as a quoting error
- * \li Do not put expandos into double quoted substitutions:
+ * \li Backslash-escaping an expando is treated as a quoting error.
+ * \li Do not put expandos into double quoted substitutions as this may
+ *     trigger parser bugs in some shells:
  *     \badcode
  *       "${VAR:-%{macro}}"
  *     \endcode
- * \li Do not put expandos into command line arguments which are nested
- *     shell commands:
+ * \li Do not put expandos into command line arguments that are nested shell
+ *     commands. For example, the following is unsafe:
  *     \badcode
- *       sh -c 'foo \%{file}'
+ *       su %{user} -c 'foo %{file}'
  *     \endcode
- *     \goodcode
- *       file=\%{file} sh -c 'foo "$file"'
+ *     Instead you can assign the macro to an environment variable and pass
+ *     that into the call:
+ *     \badcode
+ *       file=%{file} su %{user} -c 'foo "$file"'
  *     \endcode
  * \endlist
  *
- * \section Windows notes
+ * \section1 Windows notes
  *
- * All quoting syntax supported by splitArgs() is supported here as well.
- * Additionally, command grouping via parentheses is recognized - note
- * however, that the parser is much stricter about unquoted parentheses
- * than cmd itself.
- * The rest of the cmd syntax is simply ignored, as it is not expected
- * to cause problems.
+ * All quoting syntax supported by \c splitArgs() is supported here as well.
+ * Additionally, command grouping via parentheses is recognized -- but
+ * note that the parser is much stricter about unquoted parentheses
+ * than \c cmd itself.
+ * The rest of the \c cmd syntax should not cause problems and is ignored.
  *
- * Security considerations:
+ *
+ * \section2 Windows security considerations
  * \list
- * \li Circumflex-escaping an expando is treated as a quoting error
+ * \li Circumflex-escaping an expando is treated as a quoting error.
  * \li Closing double quotes right before expandos and opening double quotes
- *     right after expandos are treated as quoting errors
- * \li Do not put expandos into nested commands:
+ *     right after expandos are treated as quoting errors.
+ * \li Do not put expandos into nested commands.
+ *     For example, the following is unsafe:
  *     \badcode
  *       for /f "usebackq" \%v in (`foo \%{file}`) do \@echo \%v
  *     \endcode
@@ -755,16 +774,13 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
  *     as an environment variable expansion. A solution is replacing any
  *     percent signs with a fixed string like \c{\%PERCENT_SIGN\%} and
  *     injecting \c{PERCENT_SIGN=\%} into the shell's environment.
- * \li Enabling delayed environment variable expansion (cmd /v:on) should have
- *     no security implications, but may still wreak havoc due to the
- *     need for doubling circumflexes if any exclamation marks are present,
- *     and the need to circumflex-escape the exclamation marks themselves.
+ * \li Enabling delayed environment variable expansion (\c{cmd /v:on}) should
+ *     have no security implications. But it might still cause issues because
+ *     the parser is not prepared for the fact that literal exclamation marks
+ *     in the command need to be \e circumflex-escaped, and pre-existing
+ *     circumflexes need to be doubled.
  * \endlist
  *
- * \param cmd pointer to the string in which macros are expanded in-place
- * \param mx pointer to a macro expander instance
- * \return false if the string could not be parsed and therefore no safe
- *   substitution was possible
  */
 bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType osType)
 {
