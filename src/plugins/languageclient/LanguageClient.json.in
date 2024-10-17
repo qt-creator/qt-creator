@@ -1,6 +1,6 @@
 {
     "Id" : "languageclient",
-    "Name" : "Language Client",
+    "Name" : "LanguageClient",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",
