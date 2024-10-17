@@ -49,6 +49,7 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QSysInfo>
 
 #include <functional>
 #include <memory>
@@ -969,6 +970,50 @@ QStringList allEssentials()
     allPackages.removeDuplicates();
 
     return allPackages;
+}
+
+QString optionalSystemImagePackage(AndroidSdkManager *sdkManager)
+{
+    const QStringList essentialPkgs(allEssentials());
+    QStringList platforms = Utils::filtered(essentialPkgs, [](const QString &item) {
+        return item.startsWith(platformsPackageMarker(), Qt::CaseInsensitive);
+    });
+    if (platforms.isEmpty())
+        return {};
+
+    platforms.sort();
+    const QStringList platformBits = platforms.last().split('-');
+    if (platformBits.isEmpty())
+        return {};
+
+    const int apiLevel = platformBits.last().toInt();
+    if (apiLevel < 1)
+        return {};
+
+    QString hostArch = QSysInfo::currentCpuArchitecture();
+    if (hostArch == "arm64")
+        hostArch = ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A;
+    else if (hostArch == "i386")
+        hostArch = ProjectExplorer::Constants::ANDROID_ABI_X86;
+    else if (hostArch == "arm")
+        hostArch = ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A;
+
+    const auto imageName = QLatin1String("%1;android-%2;google_apis_playstore;%3")
+                               .arg(Constants::systemImagesPackageName).arg(apiLevel).arg(hostArch);
+
+    const SdkPlatformList sdkPlatforms = sdkManager->filteredSdkPlatforms(
+        apiLevel, AndroidSdkPackage::AnyValidState);
+
+    if (sdkPlatforms.isEmpty())
+        return {};
+
+    const SystemImageList images = sdkPlatforms.first()->systemImages(AndroidSdkPackage::Available);
+    for (const SystemImage *img : images) {
+        if (img->sdkStylePath() == imageName)
+            return imageName;
+    }
+
+    return {};
 }
 
 static QStringList packagesWithoutNdks(const QStringList &packages)

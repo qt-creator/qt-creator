@@ -670,7 +670,15 @@ void AndroidSettingsWidget::validateSdk()
                     .arg(QGuiApplication::applicationDisplayName(),
                          notFoundEssentials.join("\", \"")));
         }
-        m_sdkManager.runInstallationChange({m_sdkManager.missingEssentialSdkPackages()},
+        QStringList missingPkgs = m_sdkManager.missingEssentialSdkPackages();
+        // Add the a system image with highest API level only if there are other
+        // essentials needed, so it would practicaly be somewhat optional.
+        if (!missingPkgs.isEmpty()) {
+            const QString sysImage = AndroidConfig::optionalSystemImagePackage(&m_sdkManager);
+            if (!sysImage.isEmpty())
+                missingPkgs.append(sysImage);
+        }
+        m_sdkManager.runInstallationChange({missingPkgs},
             Tr::tr("Android SDK installation is missing necessary packages. "
                    "Do you want to install the missing packages?"));
     }
