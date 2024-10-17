@@ -15,6 +15,7 @@
 #include <QSet>
 #include <QTemporaryDir>
 #include <QTimer>
+#include <QUrl>
 
 namespace ProjectExplorer {
 class Target;
@@ -53,6 +54,8 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool hasValidTarget READ hasValidTarget WRITE setHasValidTarget NOTIFY hasValidTargetChanged)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
+    Q_PROPERTY(QUrl currentPreviewImage READ currentPreviewImage WRITE setCurrentPreviewImage NOTIFY currentPreviewImageChanged)
+    Q_PROPERTY(QUrl customPreviewImage READ customPreviewImage NOTIFY customPreviewImageChanged)
 
 public:
     EffectComposerModel(QObject *parent = nullptr);
@@ -77,6 +80,7 @@ public:
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
     Q_INVOKABLE bool nameExists(const QString &name) const;
+    Q_INVOKABLE void chooseCustomPreviewImage();
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
@@ -116,6 +120,10 @@ public:
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
 
+    QUrl customPreviewImage() const;
+    QUrl currentPreviewImage() const;
+    void setCurrentPreviewImage(const QUrl &path);
+
     Utils::FilePath compositionPath() const;
     void setCompositionPath(const Utils::FilePath &newCompositionPath);
 
@@ -140,6 +148,8 @@ signals:
     void hasUnsavedChangesChanged();
     void assignToSelectedTriggered(const QString &effectPath);
     void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
+    void currentPreviewImageChanged();
+    void customPreviewImageChanged();
 
 private:
     enum Roles {
@@ -242,6 +252,8 @@ private:
     QString m_effectTypePrefix;
     Utils::FilePath m_compositionPath;
     Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
+    QUrl m_currentPreviewImage;
+    QUrl m_customPreviewImage;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

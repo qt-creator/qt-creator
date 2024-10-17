@@ -10,18 +10,24 @@
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
 
+#include <asset.h>
+#include <designdocument.h>
+#include <modelnodeoperations.h>
+#include <qmldesignerplugin.h>
+#include <uniquename.h>
+
+#include <coreplugin/icore.h>
+
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <uniquename.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <modelnodeoperations.h>
-
 #include <QByteArrayView>
+#include <QFileDialog>
 #include <QLibraryInfo>
 #include <QTemporaryDir>
 #include <QVector2D>
@@ -245,6 +251,47 @@ bool EffectComposerModel::nameExists(const QString &name) const
                                                       : effectsDir + '/' + "%1" + ".qep";
 
     return QFile::exists(path.arg(name));
+}
+
+void EffectComposerModel::chooseCustomPreviewImage()
+{
+    QTimer::singleShot(0, this, [&]() {
+        using Utils::FilePath;
+        static FilePath lastDir;
+        const QStringList &suffixes = QmlDesigner::Asset::supportedImageSuffixes();
+        QmlDesigner::DesignDocument *document = QmlDesigner::QmlDesignerPlugin::instance()->currentDesignDocument();
+        const FilePath currentDir = lastDir.isEmpty() ? document->fileName().parentDir()
+                                                             : lastDir;
+        const QStringList fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+                                                  tr("Select custom effect background image"),
+                                                  currentDir.toFSPathString(),
+                                                  tr("Image Files (%1)").arg(suffixes.join(" ")));
+
+        if (!fileNames.isEmpty()) {
+            FilePath imageFile = FilePath::fromString(fileNames.first());
+            lastDir = imageFile.absolutePath();
+            if (imageFile.exists()) {
+                FilePath projDir = QmlDesigner::QmlDesignerPlugin::instance()->documentManager()
+                                              .currentProjectDirPath();
+                if (!imageFile.isChildOf(projDir)) {
+                    FilePath imagesDir = QmlDesigner::ModelNodeOperations::getImagesDefaultDirectory();
+                    FilePath targetFile = imagesDir.pathAppended(imageFile.fileName());
+                    if (!targetFile.exists())
+                        imageFile.copyFile(targetFile);
+                    if (targetFile.exists())
+                        imageFile = targetFile;
+                }
+
+                m_customPreviewImage = QUrl::fromLocalFile(imageFile.toFSPathString());
+                m_currentPreviewImage = m_customPreviewImage;
+
+                setHasUnsavedChanges(true);
+
+                emit currentPreviewImageChanged();
+                emit customPreviewImageChanged();
+            }
+        }
+    });
 }
 
 QString EffectComposerModel::fragmentShader() const
@@ -1000,12 +1047,26 @@ void EffectComposerModel::saveComposition(const QString &name)
         return;
     }
 
+    const Utils::FilePath compositionPath = Utils::FilePath::fromString(path);
+    const Utils::FilePath compositionDir = compositionPath.absolutePath();
+
     updateExtraMargin();
 
     QJsonObject json;
     // File format version
     json.insert("version", 1);
     json.insert("tool", "EffectComposer");
+
+    Utils::FilePath customPreviewPath = Utils::FilePath::fromUrl(m_customPreviewImage);
+    if (m_customPreviewImage.isLocalFile())
+        customPreviewPath = customPreviewPath.relativePathFrom(compositionDir);
+    json.insert("customPreviewImage", customPreviewPath.toUrl().toString());
+
+    QUrl previewUrl = m_currentPreviewImage;
+    if (m_currentPreviewImage == m_customPreviewImage)
+        previewUrl = customPreviewPath.toUrl();
+
+    json.insert("previewImage", previewUrl.toString());
 
     // Add nodes
     QJsonArray nodesArray;
@@ -1034,7 +1095,7 @@ void EffectComposerModel::saveComposition(const QString &name)
     saveFile.close();
 
     setCurrentComposition(name);
-    setCompositionPath(Utils::FilePath::fromString(path));
+    setCompositionPath(compositionPath);
 
     saveResources(name);
     setHasUnsavedChanges(false);
@@ -1083,10 +1144,11 @@ void EffectComposerModel::openComposition(const QString &path)
 {
     clear(true);
 
-    const QString effectName = QFileInfo(path).baseName();
+    Utils::FilePath effectPath = Utils::FilePath::fromString(path);
+    const QString effectName = effectPath.baseName();
 
     setCurrentComposition(effectName);
-    setCompositionPath(Utils::FilePath::fromString(path));
+    setCompositionPath(effectPath);
 
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
@@ -1166,6 +1228,39 @@ void EffectComposerModel::openComposition(const QString &path)
     else
         resetRootFragmentShader();
 
+    m_currentPreviewImage.clear();
+    if (json.contains("previewImage")) {
+        const QString imageStr = json["previewImage"].toString();
+        if (!imageStr.isEmpty()) {
+            const QUrl imageUrl{imageStr};
+            Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
+            if (imageStr.startsWith("images/preview")) { // built-in preview image
+                m_currentPreviewImage = imageUrl;
+            } else if (imagePath.isAbsolutePath()) {
+                if (imagePath.exists())
+                    m_currentPreviewImage = imageUrl;
+            } else {
+                imagePath = effectPath.absolutePath().resolvePath(imagePath);
+                if (imagePath.exists())
+                    m_currentPreviewImage = imagePath.toUrl();
+            }
+        }
+    }
+
+    m_customPreviewImage.clear();
+    if (json.contains("customPreviewImage")) {
+        QUrl imageUrl{json["customPreviewImage"].toString()};
+        Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
+        if (imagePath.isAbsolutePath()) {
+            if (imagePath.exists())
+                m_customPreviewImage = imageUrl;
+        } else {
+            imagePath = effectPath.absolutePath().resolvePath(imagePath);
+            if (imagePath.exists())
+                m_customPreviewImage = imagePath.toUrl();
+        }
+    }
+
     if (json.contains("nodes") && json["nodes"].isArray()) {
         beginResetModel();
         QHash<QString, int> refCounts;
@@ -1194,6 +1289,8 @@ void EffectComposerModel::openComposition(const QString &path)
 
     setHasUnsavedChanges(false);
     emit nodesChanged();
+    emit currentPreviewImageChanged();
+    emit customPreviewImageChanged();
 }
 
 void EffectComposerModel::saveResources(const QString &name)
@@ -2149,6 +2246,28 @@ void EffectComposerModel::setCurrentComposition(const QString &newCurrentComposi
     emit currentCompositionChanged();
 
     m_shadersCodeEditor.reset();
+}
+
+QUrl EffectComposerModel::customPreviewImage() const
+{
+    return m_customPreviewImage;
+}
+
+QUrl EffectComposerModel::currentPreviewImage() const
+{
+    return m_currentPreviewImage;
+}
+
+void EffectComposerModel::setCurrentPreviewImage(const QUrl &path)
+{
+    if (m_currentPreviewImage == path)
+        return;
+
+    if (!m_nodes.isEmpty())
+        setHasUnsavedChanges(true);
+
+    m_currentPreviewImage = path;
+    emit currentPreviewImageChanged();
 }
 
 Utils::FilePath EffectComposerModel::compositionPath() const

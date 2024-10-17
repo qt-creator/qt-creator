@@ -22,12 +22,17 @@ StudioControls.ComboBox {
 
     required property Item mainRoot
 
-    property var images: ["images/preview0.png",
-                          "images/preview1.png",
-                          "images/preview2.png",
-                          "images/preview3.png",
-                          "images/preview4.png"]
-    property string selectedImage: images[0]
+    property var images: [Qt.url(""),
+                          Qt.url("images/preview0.png"),
+                          Qt.url("images/preview1.png"),
+                          Qt.url("images/preview2.png"),
+                          Qt.url("images/preview3.png"),
+                          Qt.url("images/preview4.png")]
+    property url selectedImage: EffectComposerBackend.effectComposerModel.currentPreviewImage != Qt.url("")
+                                ? EffectComposerBackend.effectComposerModel.currentPreviewImage
+                                : images[1]
+
+    Component.onCompleted: EffectComposerBackend.effectComposerModel.currentPreviewImage = images[1]
 
     readonly property int popupHeight: Math.min(800, col.height + 2)
 
@@ -122,45 +127,77 @@ StudioControls.ComboBox {
             border.width: 1
             focus: true
 
-            HelperWidgets.ScrollView {
+            Column {
                 anchors.fill: parent
-                anchors.margins: 1
-                clip: true
 
-                Column {
-                    id: col
+                Item {
+                    id: setCustomItem
+                    width: parent.width
+                    height: 40
 
-                    padding: 10
-                    spacing: 10
+                    HelperWidgets.Button {
+                        anchors.fill: parent
+                        anchors.margins: 2
+                        text: qsTr("Set Custom Image")
+                        onClicked: {
+                            EffectComposerBackend.effectComposerModel.chooseCustomPreviewImage()
+                            root.popup.close()
+                        }
+                    }
+                }
 
-                    Repeater {
-                        model: root.images
 
-                        Rectangle {
-                            required property int index
-                            required property var modelData
+                HelperWidgets.ScrollView {
+                    width: parent.width - 2
+                    height: parent.height - setCustomItem.height
 
-                            color: "transparent"
-                            border.color: root.selectedImage === modelData ? StudioTheme.Values.themeInteraction
-                                                                           : "transparent"
+                    clip: true
 
-                            width: 200
-                            height: 200
+                    Column {
+                        id: col
 
-                            Image {
-                                source: modelData
-                                anchors.fill: parent
-                                fillMode: Image.PreserveAspectFit
-                                smooth: true
-                                anchors.margins: 1
-                            }
+                        padding: 10
+                        spacing: 10
 
-                            MouseArea {
-                                anchors.fill: parent
+                        Repeater {
+                            model: root.images
 
-                                onClicked: {
-                                    root.selectedImage = root.images[index]
-                                    root.popup.close()
+                            Rectangle {
+                                required property int index
+                                required property var modelData
+
+                                color: "transparent"
+                                border.color: root.selectedImage === modelData ? StudioTheme.Values.themeInteraction
+                                                                               : "transparent"
+
+                                width: 200
+                                height: 200
+                                visible: index > 0
+                                         || EffectComposerBackend.effectComposerModel.customPreviewImage !== Qt.url("")
+
+                                Image {
+                                    source: index > 0
+                                            ? parent.modelData
+                                            : EffectComposerBackend.effectComposerModel.customPreviewImage
+                                    anchors.fill: parent
+                                    fillMode: Image.PreserveAspectFit
+                                    smooth: true
+                                    anchors.margins: 1
+                                }
+
+                                MouseArea {
+                                    anchors.fill: parent
+
+                                    onClicked: {
+                                        if (parent.index > 0) {
+                                            EffectComposerBackend.effectComposerModel.currentPreviewImage
+                                                    = root.images[index]
+                                        } else {
+                                            EffectComposerBackend.effectComposerModel.currentPreviewImage
+                                                    = EffectComposerBackend.effectComposerModel.customPreviewImage
+                                        }
+                                        root.popup.close()
+                                    }
                                 }
                             }
                         }
