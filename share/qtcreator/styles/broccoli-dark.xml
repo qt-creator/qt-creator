@@ -2,8 +2,8 @@
 <style-scheme version="1.0" name="Broccoli Dark">
   <style name="Text" foreground="#d6cf9a" background="#1f1f1f"/>
   <style name="Link" foreground="#d6c540"/>
-  <style name="Selection" foreground="#bec0c2" background="#1d545c"/>
-  <style name="LineNumber" foreground="#aeaeae" background="#262626"/>
+  <style name="Selection" background="#3f3f3f"/>
+  <style name="LineNumber" foreground="#aeaeae" background="#262626" bold="true"/>
   <style name="SearchResult" background="#8a7f2c"/>
   <style name="SearchResultAlt1" foreground="#aaaaff" background="#363655"/>
   <style name="SearchResultAlt2" foreground="#ffaaaa" background="#553636"/>
@@ -13,7 +13,7 @@
   <style name="ParenthesesMismatch" background="#ff6aad"/>
   <style name="AutoComplete" foreground="#2c408a" background="#9aa7d6"/>
   <style name="CurrentLine" background="#373737"/>
-  <style name="CurrentLineNumber" foreground="#d6c540" bold="true"/>
+  <style name="CurrentLineNumber" foreground="#1ec974" bold="true"/>
   <style name="Occurrences" background="#8a402c"/>
   <style name="Occurrences.Unused" foreground="#8a7f2c"/>
   <style name="Occurrences.Rename" foreground="#ffaaaa" background="#553636"/>
