@@ -4052,7 +4052,7 @@ typename))
             #self.warn('SEARCHING FOR MEMBER: %s IN %s' % (name, value.type.name))
             members = self.value_members(value, True)
             #self.warn('MEMBERS: %s' % ', '.join(str(m.name) for m in members))
-            base = None
+            bases = []
             for member in members:
                 #self.warn('CHECKING FIELD %s' % member.name)
                 if member.type.code == TypeCode.Typedef:
@@ -4061,9 +4061,9 @@ typename))
                     #self.warn('FOUND MEMBER 1: %s IN %s' % (name, value.type.name))
                     return member
                 if member.isBaseClass:
-                    base = member
+                    bases.append(member)
             if self.isCdb:
-                if base is not None:
+                for base in bases:
                     # self.warn("CHECKING BASE CLASS '%s' for '%s'" % (base.type.name, name))
                     res = self.value_member_by_name(base, name)
                     if res is not None:

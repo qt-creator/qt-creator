@@ -411,6 +411,7 @@ struct Type
             }
         }
         QString actualType = simplifyType(actualType0);
+        actualType.replace(QRegularExpression("\\benum\\b"), "");
         actualType.replace(' ', "");
         actualType.replace("const", "");
         QString expectedType;
@@ -418,6 +419,7 @@ struct Type
             expectedType = type;
         else
             expectedType = aliasName;
+        expectedType.replace(QRegularExpression("\\benum\\b"), "");
         expectedType.replace(' ', "");
         expectedType.replace("const", "");
         expectedType.replace('@', context.nameSpace);
@@ -770,14 +772,16 @@ struct XmlProfile {};
 struct NimProfile {};
 
 struct BigArrayProfile {};
+struct InternalProfile
+{};
 
 class Data
 {
 public:
     Data() {}
 
-    Data(const QString &includes, const QString &code, const QString &unused)
-        : includes(includes), code(code), unused(unused)
+    Data(const QString &preamble, const QString &code, const QString &unused)
+        : preamble(preamble), code(code), unused(unused)
     {}
 
     const Data &operator+(const Check &check) const
@@ -824,7 +828,7 @@ public:
     const Data &operator+(const Profile &profile) const
     {
         profileExtra += QString::fromUtf8(profile.contents);
-        includes += QString::fromUtf8(profile.includes);
+        preamble += QString::fromUtf8(profile.includes);
         return *this;
     }
 
@@ -1059,6 +1063,13 @@ public:
         return *this;
     }
 
+    const Data &operator+(InternalProfile) const
+    {
+        const auto parentDir = Utils::FilePath::fromUserInput(__FILE__).parentDir().path();
+        profileExtra += "INCLUDEPATH += " + parentDir + "/../../../src/libs/3rdparty\n";
+        return *this;
+    }
+
     const Data &operator+(const ForceC &) const
     {
         language = Language::C;
@@ -1108,7 +1119,7 @@ public:
     mutable QString dumperOptions;
     mutable QString profileExtra;
     mutable QString cmakelistsExtra;
-    mutable QString includes;
+    mutable QString preamble;
     mutable QString code;
     mutable QString unused;
 
@@ -1594,7 +1605,7 @@ void tst_Dumpers::dumper()
                 "\n}\n"
             "\n#endif"
             "\n"
-            "\n\n" + data.includes +
+            "\n\n" + data.preamble +
             "\n\n" + (data.useQHash ?
                 "\n#include <QByteArray>"
                 "\n#include <QtGlobal>"
@@ -8563,6 +8574,73 @@ void tst_Dumpers::dumper_data()
                + Check("dir.entryInfoList.1", "[1]", quoted(tempDir + "/.."), "@QFileInfo") % NoCdbEngine
                + Check("dir.entryList.0", "[0]", "\".\"", "@QString") % NoCdbEngine
                + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
+
+    // clang-format off
+    QTest::newRow("tl__expected") << Data{
+        R"(
+            #include <tl_expected/include/tl/expected.hpp>
+
+            #include <cstdint>
+
+            enum class Test {
+                One,
+                Two,
+            };
+
+            enum class ErrCode : std::int8_t {
+                Good,
+                Bad,
+            };
+
+            class MyClass {
+            public:
+                MyClass(int x) : m_x{x} {}
+
+            private:
+                int m_x = 42;
+            };
+
+            static constexpr auto global = 42;
+        )",
+
+        R"(
+            const auto ok_void = tl::expected<void, ErrCode>{};
+            const auto ok_primitive = tl::expected<int, ErrCode>{42};
+            const auto ok_pointer = tl::expected<const int*, ErrCode>{&global};
+            const auto ok_enum = tl::expected<Test, ErrCode>{Test::Two};
+            const auto ok_class = tl::expected<MyClass, ErrCode>{MyClass{10}};
+
+            const auto err_primitive = tl::expected<ErrCode, int>{tl::make_unexpected(42)};
+            const auto err_pointer = tl::expected<ErrCode, const int*>{tl::make_unexpected(&global)};
+            const auto err_enum = tl::expected<ErrCode, ErrCode>{tl::make_unexpected(ErrCode::Bad)};
+            const auto err_class = tl::expected<ErrCode, MyClass>{tl::make_unexpected(MyClass{10})};
+        )",
+
+        "&ok_void, &ok_primitive, &ok_pointer, &ok_enum, &ok_class, &err_primitive, "
+        "&err_pointer, &err_enum, &err_class"
+    }
+        + CoreProfile{}
+        + InternalProfile{}
+        + Check{"ok_void", "Expected", "tl::expected<void, ErrCode>"}
+        + Check{"ok_primitive", "Expected", "tl::expected<int, ErrCode>"}
+        + Check{"ok_primitive.inner", "42", "int"}
+        + Check{"ok_pointer", "Expected", "tl::expected<const int*, ErrCode>"}
+        + Check{"ok_pointer.inner", "42", "int"}
+        + Check{"ok_enum", "Expected", "tl::expected<Test, ErrCode>"}
+        + Check{"ok_enum.inner", "Test::Two (1)", "Test"} % GdbEngine
+        + Check{"ok_enum.inner", "Two (1)", "Test"} % NoGdbEngine
+        + Check{"ok_class", "Expected", "tl::expected<MyClass, ErrCode>"}
+        + Check{"ok_class.inner.m_x", "10", "int"}
+        + Check{"err_primitive", "Unexpected", "tl::expected<ErrCode, int>"}
+        + Check{"err_primitive.inner", "42", "int"}
+        + Check{"err_pointer", "Unexpected", "tl::expected<ErrCode, const int*>"}
+        + Check{"err_pointer.inner", "42", "int"}
+        + Check{"err_enum", "Unexpected", "tl::expected<ErrCode, ErrCode>"}
+        + Check{"err_enum.inner", "ErrCode::Bad (1)", "ErrCode"} % GdbEngine
+        + Check{"err_enum.inner", "Bad (1)", "ErrCode"} % NoGdbEngine
+        + Check{"err_class", "Unexpected", "tl::expected<ErrCode, MyClass>"}
+        + Check{"err_class.inner.m_x", "10", "int"};
+    //clang-format on
 }
 
 int main(int argc, char *argv[])
