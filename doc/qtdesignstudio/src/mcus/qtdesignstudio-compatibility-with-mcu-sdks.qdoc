@@ -16,8 +16,11 @@
         \li \QDS Version
         \li \QMCU SDK Version
     \row
-        \li 4.5 or later
-        \li 2.8 or later
+        \li 4.7 or later
+        \li 2.9 or later
+    \row
+        \li 4.5 up to 4.6
+        \li 2.8
     \row
         \li 4.4
         \li 2.7

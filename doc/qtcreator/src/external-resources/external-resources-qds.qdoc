@@ -106,6 +106,38 @@
     \title Text ID based translations
 */
 /*!
+    \externalpage https://doc.qt.io/qtcreator/creator-developing-mcu.html
+    \title Developing for MCUs
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-tos.html#mcus
+    \title How To: Develop for MCUs
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-setup-development-host.html#prerequisites
+    \title MCU prerequisites for desktop
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-setup-development-host.html#qt-creator-setup
+    \title MCU kit for desktop
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-prerequisites.html
+    \title MCU target device-specific prerequisites
+*/
+/*!
+    \externalpage https://doc.qt.io/qtcreator/creator-how-to-create-mcu-kits.html
+    \title MCU kit for a target device
+*/
+/*!
+    \externalpage https://doc.qt.io/QtForMCUs/qtul-supported-platforms.html
+    \title Supported MCU target devices
+*/
+/*!
+    \externalpage https://wiki.qt.io/QtDesignStudio/MCU_FAQ
+    \title Qt Design Studio/MCU FAQ
+*/
+/*!
     \externalpage https://www.qt.io/blog/qt-design-studio-4.6-released
     \title Qt Design Studio 4.6 released
 */

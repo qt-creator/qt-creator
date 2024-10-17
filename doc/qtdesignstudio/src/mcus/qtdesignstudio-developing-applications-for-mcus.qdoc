@@ -13,16 +13,17 @@
     {prototyping} features of \QDS to simulate and validate interactions and
     their dynamic behavior.
 
-    You can also test, preview, and fine-tune your designs to pixel-perfection
-    live on the desktop or on an actual MCU target device. For more information,
-    see \l {Validating with Target Hardware}.
+    With \QDS, designers and developers can work together on common projects to
+    develop applications. As a designer you can use the views in the \e Design
+    mode to modify UI files (.ui.qml). For more information, see
+    \l {Implementing Applications}.
 
     \image qds-mcu-target-deployment.png
 
-    With \QDS, designers and developers can work together on common projects to
-    develop applications. As a designer you can use the views in the \e Design
-    mode to modify UI files (.ui.qml). As a developer you can use Qt Creator to
-    work on the Qt Quick (.qml) and other files that are needed to implement the
-    application logic and to prepare the application for production. For more
-    information, see \l {Implementing Applications}.
+    With Qt Creator, you can test, preview, and fine-tune your designs directly
+    on the desktop or on an actual MCU target device. As a developer you can use
+    Qt Creator to work on the Qt Quick (.qml) and other files that are needed to
+    implement the application logic and to prepare the application for production.
+    For more information on how to use Qt Creator to develop applications for
+    MCUs, see \l {Developing for MCUs} and \l {How To: Develop for MCUs}.
 */

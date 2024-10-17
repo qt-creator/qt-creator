@@ -48,5 +48,5 @@
         \li \l {Designing a UI for Renesas RH850-D1M1A}
     \endlist
 
-    \sa {Specifying Component Properties}
+    \sa {Specifying Component Properties}, {Qt Design Studio/MCU FAQ}
 */

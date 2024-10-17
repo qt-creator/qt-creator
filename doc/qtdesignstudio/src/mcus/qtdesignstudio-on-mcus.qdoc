@@ -10,7 +10,7 @@
 
     \table
         \row
-            \li \image qds-front-gs.png
+            \li \image icons/platform-and-toolchain.png
             \li With \QDS, you can use subsets of components to create UIs
                 for devices that are powered by microcontroller units (MCU). Use
                 the \uicontrol {\QMCU} preset in the \QDS wizard to set up a new
