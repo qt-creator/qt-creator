@@ -258,17 +258,29 @@
     system libraries or your own libraries. Further, your own libraries might
     link to other libraries. To compile your project and benefit from services
     such as code completion and syntax highlighting, add the libraries to your
-    project. The process of adding a library to a project depends on the build
-    system that you use.
+    project.
 
-    \section1 CMake projects
+    \section1 Create subprojects
 
-    To add CMakeLists.txt files to any project, use the
-    \l{https://cmake.org/cmake/help/latest/command/add_subdirectory.html}
-    {add_subdirectory} command. The files can define complete projects that
-    you include into the top-level project or any other CMake commands.
+    To create subprojects and add them to a project:
 
-    \section1 qmake projects
+    \list 1
+        \li Right-click the project name in the \l Projects view to open the
+            context menu, and select \uicontrol {New Subproject}.
+        \li Follow the instructions of the wizard to create a subproject.
+            \image qtcreator-project-qt-quick.webp {New Project dialog}
+    \endlist
+
+    \section1 Add existing projects as subprojects
+
+    To add an existing project as a subproject:
+
+    \list 1
+        \li Select \uicontrol {Add Existing Projects} in the context menu.
+        \li In the file browser dialog, locate your subproject.
+    \endlist
+
+    \section1 Create SUBDIRS projects for qmake
 
     When you create a new project and select qmake as the build system,
     you can add it to another project as a subproject in the
@@ -292,27 +304,14 @@
     and the subproject that you add as a value of the \l{Variables#subdirs}
     {SUBDIRS variable}. It also adds all the necessary files for the subproject.
 
-    \section2 Add subprojects to the root project
+    \section2 Specify dependencies
 
-    To create more subprojects, right-click the project name in the
-    \l Projects view to open the context menu, and select
-    \uicontrol {New Subproject}. Follow the steps in the
-     \uicontrol {New Subproject} wizard to create a subproject.
-
-    \image qtcreator-project-qt-quick.webp {New Project dialog}
-
-    To add an existing project as a subproject, select
-    \uicontrol {Add Existing Projects} in the context menu.
-    In the file browser dialog, locate your subproject.
+    To specify dependencies, use the \uicontrol{Add Library} wizard.
 
     \section2 Remove subprojects
 
     To remove subprojects, right-click the project name in the \uicontrol Projects
     view, and select \uicontrol {Remove Subproject} in the context menu.
-
-    \section2 Specify dependencies
-
-    To specify dependencies, use the \uicontrol{Add Library} wizard.
 
     \sa {Creating Projects}, {Use project wizards},
     {Add libraries to qmake projects}, {Add libraries to CMake projects}
