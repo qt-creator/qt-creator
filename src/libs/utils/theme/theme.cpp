@@ -453,6 +453,8 @@ QPalette Theme::palette() const
         {PaletteShadowDisabled,            QPalette::Shadow,           QPalette::Disabled, false},
         {PalettePlaceholderText,           QPalette::PlaceholderText,  QPalette::All,      false},
         {PalettePlaceholderTextDisabled,   QPalette::PlaceholderText,  QPalette::Disabled, false},
+        {PaletteAccent,                    QPalette::Accent,           QPalette::All,      false},
+        {PaletteAccentDisabled,            QPalette::Accent,           QPalette::Disabled, false},
     };
 
     for (auto entry: mapping) {

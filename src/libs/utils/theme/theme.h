@@ -128,6 +128,8 @@ public:
 
         PalettePlaceholderText,
         PalettePlaceholderTextDisabled,
+        PaletteAccent,
+        PaletteAccentDisabled,
 
         /* Icons */
 
