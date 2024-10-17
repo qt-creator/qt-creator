@@ -5,6 +5,8 @@
 
 #include "utils_global.h"
 
+#include "hostosinfo.h"
+
 #include <QList>
 
 #include <functional>
@@ -35,7 +37,8 @@ public:
     QByteArray expand(const QByteArray &stringWithVariables) const;
     QVariant expandVariant(const QVariant &v) const;
 
-    QString expandProcessArgs(const QString &argsWithVariables) const;
+    QString expandProcessArgs(
+        const QString &argsWithVariables, Utils::OsType osType = Utils::HostOsInfo::hostOs()) const;
 
     using PrefixFunction = std::function<QString(QString)>;
     using ResolverFunction = std::function<bool(QString, QString *)>;

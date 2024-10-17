@@ -766,7 +766,7 @@ static int quoteArgInternalWin(QString &ret, int bslashes)
  * \return false if the string could not be parsed and therefore no safe
  *   substitution was possible
  */
-bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType osType)
+bool ProcessArgs::expandMacros(QString *cmd, const FindMacro &findMacro, OsType osType)
 {
     QString str = *cmd;
     if (str.isEmpty())
@@ -775,7 +775,7 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
     QString rsts;
     int varLen;
     int varPos = 0;
-    if (!(varLen = mx->findMacro(str, &varPos, &rsts)))
+    if (!(varLen = findMacro(str, &varPos, &rsts)))
         return true;
 
     int pos = 0;
@@ -839,7 +839,7 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
                 str.replace(pos, varLen, rsts);
                 pos += rsts.length();
                 varPos = pos;
-                if (!(varLen = mx->findMacro(str, &varPos, &rsts))) {
+                if (!(varLen = findMacro(str, &varPos, &rsts))) {
                     // Don't leave immediately, as we may be in CrtNeedWord state which could
                     // be still resolved, or we may have inserted trailing backslashes.
                     varPos = INT_MAX;
@@ -954,7 +954,7 @@ bool ProcessArgs::expandMacros(QString *cmd, AbstractMacroExpander *mx, OsType o
                 str.replace(pos, varLen, rsts);
                 pos += rsts.length();
                 varPos = pos;
-                if (!(varLen = mx->findMacro(str, &varPos, &rsts)))
+                if (!(varLen = findMacro(str, &varPos, &rsts)))
                     break;
                 continue;
             }

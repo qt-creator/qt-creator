@@ -10,66 +10,12 @@
 
 using namespace Utils;
 
-class TestMacroExpander : public Utils::AbstractMacroExpander
-{
-public:
-    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
-        override
-    {
-        // loop prevention
-        const int count = seen.count();
-        seen.insert(this);
-        if (seen.count() == count)
-            return false;
-
-        if (name == QLatin1String("foo")) {
-            *ret = QLatin1String("a");
-            return true;
-        }
-        if (name == QLatin1String("a")) {
-            *ret = QLatin1String("hi");
-            return true;
-        }
-        if (name == QLatin1String("hi")) {
-            *ret = QLatin1String("ho");
-            return true;
-        }
-        if (name == QLatin1String("hihi")) {
-            *ret = QLatin1String("bar");
-            return true;
-        }
-        if (name == "slash") {
-            *ret = "foo/bar";
-            return true;
-        }
-        if (name == "sl/sh") {
-            *ret = "slash";
-            return true;
-        }
-        if (name == "JS:foo") {
-            *ret = "bar";
-            return true;
-        }
-        if (name == "JS:with } inside") {
-            *ret = "yay";
-            return true;
-        }
-        if (name == "JS:literal%{") {
-            *ret = "hurray";
-            return true;
-        }
-        return false;
-    }
-};
-
 class tst_StringUtils : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testWithTildeHomePath();
-    void testMacroExpander_data();
-    void testMacroExpander();
     void testStripAccelerator_data();
     void testStripAccelerator();
     void testParseUsedPortFromNetstatOutput_data();
@@ -84,9 +30,6 @@ private slots:
     void testSplitAtFirst();
     void testAsciify_data();
     void testAsciify();
-
-private:
-    TestMacroExpander mx;
 };
 
 void tst_StringUtils::testWithTildeHomePath()
@@ -116,68 +59,6 @@ void tst_StringUtils::testWithTildeHomePath()
     QCOMPARE(homePath.pathAppended("/../foo").withTildeHomePath(),
              homePath.pathAppended("/../foo").withTildeHomePath());
 #endif
-}
-
-void tst_StringUtils::testMacroExpander_data()
-
-{
-    QTest::addColumn<QString>("in");
-    QTest::addColumn<QString>("out");
-
-    static const struct {
-        const char * const in;
-        const char * const out;
-    } vals[] = {
-        {"text", "text"},
-        {"%{a}", "hi"},
-        {"%%{a}", "%hi"},
-        {"%%%{a}", "%%hi"},
-        {"%{b}", "%{b}"},
-        {"pre%{a}", "prehi"},
-        {"%{a}post", "hipost"},
-        {"pre%{a}post", "prehipost"},
-        {"%{a}%{a}", "hihi"},
-        {"%{a}text%{a}", "hitexthi"},
-        {"%{foo}%{a}text%{a}", "ahitexthi"},
-        {"%{}{a}", "%{a}"},
-        {"%{}", "%"},
-        {"test%{}", "test%"},
-        {"%{}test", "%test"},
-        {"%{abc", "%{abc"},
-        {"%{%{a}", "%{hi"},
-        {"%{%{a}}", "ho"},
-        {"%{%{a}}}post", "ho}post"},
-        {"%{hi%{a}}", "bar"},
-        {"%{hi%{%{foo}}}", "bar"},
-        {"%{hihi/b/c}", "car"},
-        {"%{hihi/a/}", "br"}, // empty replacement
-        {"%{hihi/b}", "bar"}, // incomplete substitution
-        {"%{hihi/./c}", "car"},
-        {"%{hihi//./c}", "ccc"},
-        {"%{hihi/(.)(.)r/\\2\\1c}", "abc"}, // no escape for capture groups
-        {"%{hihi/b/c/d}", "c/dar"},
-        {"%{hihi/a/e{\\}e}", "be{}er"},   // escape closing brace
-        {"%{JS:with \\} inside}", "yay"}, // escape closing brace also in JS:
-        {"%{JS:literal%\\{}", "hurray"},
-        {"%{slash/o\\/b/ol's c}", "fool's car"},
-        {"%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash"}, // escape in variable name
-        {"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)
-        {"%{%{a}%{a}/b/c}", "car"},
-        {"%{nonsense:-sense}", "sense"},
-    };
-
-    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
-        QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out);
-}
-
-void tst_StringUtils::testMacroExpander()
-{
-    QFETCH(QString, in);
-    QFETCH(QString, out);
-
-    Utils::expandMacros(&in, &mx);
-    QCOMPARE(in, out);
 }
 
 void tst_StringUtils::testStripAccelerator_data()
