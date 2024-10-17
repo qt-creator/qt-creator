@@ -273,6 +273,11 @@ public:
             QUrl("qthelp://org.qt-project.qtdesignstudio/doc/studio-getting-started.html"));
     }
 
+    Q_INVOKABLE void showLink(const QString &link)
+    {
+        QDesktopServices::openUrl(QUrl::fromUserInput(link));
+    }
+
     Q_INVOKABLE void openExample(const QString &examplePath,
                                  const QString &exampleName,
                                  const QString &formFile,
