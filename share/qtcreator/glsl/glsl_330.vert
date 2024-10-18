@@ -14,20 +14,9 @@ struct gl_PerVertex {
     float gl_PointSize;
     float gl_ClipDistance[];
 };
-
-struct gl_PerVertex {
-    vec4  gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[];
-} gl_in[];
+uniform gl_PerVertex[] gl_in;
 
 int gl_PrimitiveIDIn;
-struct gl_PerVertex {
-    vec4  gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[];
-};
-
 int gl_PrimitiveID;
 int gl_Layer;
 
@@ -38,13 +27,7 @@ struct gl_PerVertex {
     float gl_ClipDistance[];
     vec4  gl_ClipVertex;
 };
-
-struct gl_PerVertex {
-    vec4  gl_Position;
-    float gl_PointSize;
-    float gl_ClipDistance[];
-    vec4  gl_ClipVertex;
-} gl_in[];
+uniform gl_PerVertex[] gl_in;
 
 vec4  gl_Color;
 vec4  gl_SecondaryColor;
@@ -59,3 +42,6 @@ vec4  gl_MultiTexCoord5;
 vec4  gl_MultiTexCoord6;
 vec4  gl_MultiTexCoord7;
 float gl_FogCoord;
+
+void EmitVertex();
+void EndPrimitive();
