@@ -762,6 +762,38 @@ TEST_F(QmlProjectItem, qmlproject_modules)
             "../converter/test-set-mcu-2/testfile.qmlproject"));
 }
 
+TEST_F(QmlProjectItem, set_empty_qmlproject_modules)
+{
+    projectItemSetters->setQmlProjectModules({});
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules, IsEmpty());
+}
+
+TEST_F(QmlProjectItem, set_qmlproject_modules)
+{
+    projectItemSetters->setQmlProjectModules({"testModule.qmlproject", "testModule2.qmlproject"});
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules,
+                UnorderedElementsAre("testModule.qmlproject", "testModule2.qmlproject"));
+}
+
+TEST_F(QmlProjectItem, add_qmlproject_module)
+{
+    auto currentModules = projectItemSetters->qmlProjectModules();
+    projectItemSetters->addQmlProjectModule("test.qmlproject");
+    projectItemSetters->addQmlProjectModule("test2.qmlproject");
+
+    auto qmlProjectModules = projectItemSetters->qmlProjectModules();
+
+    ASSERT_THAT(qmlProjectModules,
+                UnorderedElementsAreArray(currentModules
+                                          + QStringList{"test.qmlproject", "test2.qmlproject"}));
+}
+
 TEST_F(QmlProjectItem, no_qmlproject_modules)
 {
     auto qmlProjectModules = projectItemEmpty->qmlProjectModules();

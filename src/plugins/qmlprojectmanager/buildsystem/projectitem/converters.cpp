@@ -530,6 +530,7 @@ QJsonObject qmlProjectTojson(const Utils::FilePath &projectFile)
     QStringList qmlProjectDependencies;
     qmlProjectDependencies.append(qmlprojectsFromImportPaths(importPaths, projectRootPath));
     qmlProjectDependencies.append(qmlprojectsFromFilesNodes(fileGroupsObject, projectRootPath));
+    qmlProjectDependencies.removeDuplicates();
     qmlProjectDependencies.sort();
     rootObject.insert("qmlprojectDependencies", QJsonArray::fromStringList(qmlProjectDependencies));
 

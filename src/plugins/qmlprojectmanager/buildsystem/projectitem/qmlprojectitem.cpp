@@ -238,6 +238,28 @@ QStringList QmlProjectItem::qmlProjectModules() const
     return m_project["qmlprojectDependencies"].toVariant().toStringList();
 }
 
+void QmlProjectItem::setQmlProjectModules(const QStringList &paths)
+{
+    if (qmlProjectModules() == paths)
+        return;
+
+    auto jsonArray = QJsonArray::fromStringList(paths);
+    updateFileGroup("Module", "files", jsonArray);
+    insertAndUpdateProjectFile("qmlprojectDependencies", jsonArray);
+}
+
+void QmlProjectItem::addQmlProjectModule(const QString &modulePath)
+{
+    QJsonArray qmlModules = m_project["qmlprojectDependencies"].toArray();
+
+    if (qmlModules.contains(modulePath))
+        return;
+
+    qmlModules.append(modulePath);
+    updateFileGroup("Module", "files", qmlModules);
+    insertAndUpdateProjectFile("qmlprojectDependencies", qmlModules);
+}
+
 QStringList QmlProjectItem::fileSelectors() const
 {
     return m_project["runConfig"].toObject()["fileSelectors"].toVariant().toStringList();
@@ -444,8 +466,33 @@ void QmlProjectItem::addShaderToolFile(const QString &file)
 void QmlProjectItem::insertAndUpdateProjectFile(const QString &key, const QJsonValue &value)
 {
     m_project[key] = value;
+
     if (!m_skipRewrite)
         m_projectFile.writeFileContents(Converters::jsonToQmlProject(m_project).toUtf8());
+}
+
+void QmlProjectItem::updateFileGroup(const QString &groupType,
+                                     const QString &property,
+                                     const QJsonValue &value)
+{
+    auto arr = m_project["fileGroups"].toArray();
+    auto found = std::find_if(arr.begin(), arr.end(), [groupType](const QJsonValue &elem) {
+        return elem["type"].toString() == groupType;
+    });
+    if (found == arr.end()) {
+        qWarning() << "fileGroups - unable to find group:" << groupType;
+        return;
+    }
+
+    auto obj = found->toObject();
+    obj[property] = value;
+
+    arr.removeAt(std::distance(arr.begin(), found));
+    arr.append(obj);
+    m_project["fileGroups"] = arr;
+
+    m_content.clear();
+    setupFileFilters();
 }
 
 bool QmlProjectItem::enableCMakeGeneration() const

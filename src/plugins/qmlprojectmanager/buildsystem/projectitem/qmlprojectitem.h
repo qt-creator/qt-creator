@@ -50,6 +50,8 @@ public:
     void setMockImports(const QStringList &paths);
 
     QStringList qmlProjectModules() const;
+    void setQmlProjectModules(const QStringList &paths);
+    void addQmlProjectModule(const QString &modulePath);
 
     QStringList fileSelectors() const;
     void setFileSelectors(const QStringList &selectors);
@@ -121,6 +123,7 @@ private:
 
     // file update functions
     void insertAndUpdateProjectFile(const QString &key, const QJsonValue &value);
+    void updateFileGroup(const QString &groupType, const QString &property, const QJsonValue &value);
 };
 
 } // namespace QmlProjectManager
