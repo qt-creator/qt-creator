@@ -975,6 +975,7 @@ ScrollArea::ScrollArea(const Layout &inner)
 {
     ptr = new Implementation;
     access(this)->setWidget(inner.emerge());
+    access(this)->setWidgetResizable(true);
 }
 
 void ScrollArea::setLayout(const Layout &inner)
