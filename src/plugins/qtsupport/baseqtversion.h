@@ -182,8 +182,6 @@ public:
     QString qtNamespace() const;
 
     Utils::MacroExpander *macroExpander() const; // owned by the Qt version
-    static std::unique_ptr<Utils::MacroExpander>
-    createMacroExpander(const std::function<const QtVersion *()> &qtVersion);
 
     static void populateQmlFileFinder(Utils::FileInProjectFinder *finder,
                                       const ProjectExplorer::BuildConfiguration *bc);

@@ -351,27 +351,14 @@ QList<OutputLineParser *> QtKitAspectFactory::createOutputParsers(const Kit *k) 
     return {};
 }
 
-class QtMacroSubProvider
-{
-public:
-    QtMacroSubProvider(Kit *kit)
-        : expander(QtVersion::createMacroExpander(
-              [kit] { return QtKitAspect::qtVersion(kit); }))
-    {}
-
-    MacroExpander *operator()() const
-    {
-        return expander.get();
-    }
-
-    std::shared_ptr<MacroExpander> expander;
-};
-
 void QtKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expander) const
 {
     QTC_ASSERT(kit, return);
-    expander->registerSubProvider({qApp, QtMacroSubProvider(kit)}); // FIXME: Find better guard
 
+    expander->registerSubProvider({qApp, [kit]() -> MacroExpander * { // FIXME: Find better guard
+        QtVersion *qtVersion = QtKitAspect::qtVersion(kit);
+        return qtVersion ? qtVersion->macroExpander() : nullptr;
+    }});
     expander->registerVariable("Qt:Name", Tr::tr("Name of Qt Version"),
                 [kit]() -> QString {
                    QtVersion *version = QtKitAspect::qtVersion(kit);

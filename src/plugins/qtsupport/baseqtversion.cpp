@@ -225,7 +225,7 @@ public:
     FilePath m_qmlplugindumpPath;
     std::optional<QHash<QString, QStringList>> m_classesPerModule;
 
-    std::unique_ptr<MacroExpander> m_expander;
+    MacroExpander m_expander;
 };
 
 } // Internal
@@ -236,7 +236,149 @@ public:
 
 QtVersion::QtVersion()
     : d(new QtVersionPrivate(this))
-{}
+{
+    MacroExpander &expander = d->m_expander;
+
+    const auto versionProperty = [this](const std::function<QString(const QtVersion *)> &property) {
+        return [property, this] { return property(this);
+        };
+    };
+    const auto pathProperty = [this](const std::function<FilePath(const QtVersion *)> &property) {
+        return [property, this] { return property(this).path(); };
+    };
+
+    expander.setDisplayName(Tr::tr("Qt version"));
+
+    expander.registerVariable(
+        "Qt:Version",
+        Tr::tr("The version string of the current Qt version."),
+        versionProperty(&QtVersion::qtVersionString));
+
+    expander.registerVariable(
+        "Qt:Type",
+        Tr::tr("The type of the current Qt version."),
+        versionProperty(&QtVersion::type));
+
+    expander.registerVariable(
+        "Qt:Mkspec",
+        Tr::tr("The mkspec of the current Qt version."),
+        versionProperty([](const QtVersion *version) {
+            return QDir::toNativeSeparators(version->mkspec());
+        }));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_PREFIX",
+        Tr::tr("The installation prefix of the current Qt version."),
+        pathProperty(&QtVersion::prefix));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_DATA",
+        Tr::tr("The installation location of the current Qt version's data."),
+        pathProperty(&QtVersion::dataPath));
+
+    expander.registerVariable(
+        "Qt:QT_HOST_PREFIX",
+        Tr::tr("The host location of the current Qt version."),
+        pathProperty(&QtVersion::hostPrefixPath));
+
+    expander.registerVariable("Qt:QT_HOST_LIBEXECS",
+        Tr::tr("The installation location of the current Qt "
+               "version's internal host executable files."),
+        pathProperty(&QtVersion::hostLibexecPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_HEADERS",
+        Tr::tr("The installation location of the current Qt version's header files."),
+        pathProperty(&QtVersion::headerPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_LIBS",
+        Tr::tr("The installation location of the current Qt version's library files."),
+        pathProperty(&QtVersion::libraryPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_DOCS",
+        Tr::tr("The installation location of the current Qt version's documentation files."),
+        pathProperty(&QtVersion::docsPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_BINS",
+        Tr::tr("The installation location of the current Qt version's executable files."),
+        pathProperty(&QtVersion::binPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_LIBEXECS",
+        Tr::tr("The installation location of the current Qt version's internal executable files."),
+        pathProperty(&QtVersion::libExecPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_PLUGINS",
+        Tr::tr("The installation location of the current Qt version's plugins."),
+        pathProperty(&QtVersion::pluginPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_QML",
+        Tr::tr("The installation location of the current Qt version's QML files."),
+        pathProperty(&QtVersion::qmlPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_IMPORTS",
+        Tr::tr("The installation location of the current Qt version's imports."),
+        pathProperty(&QtVersion::importsPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_TRANSLATIONS",
+        Tr::tr("The installation location of the current Qt version's translation files."),
+        pathProperty(&QtVersion::translationsPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_CONFIGURATION",
+        Tr::tr("The installation location of the current Qt version's translation files."),
+        pathProperty(&QtVersion::configurationPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_EXAMPLES",
+        Tr::tr("The installation location of the current Qt version's examples."),
+        pathProperty(&QtVersion::examplesPath));
+
+    expander.registerVariable(
+        "Qt:QT_INSTALL_DEMOS",
+        Tr::tr("The installation location of the current Qt version's demos."),
+        pathProperty(&QtVersion::demosPath));
+
+    expander.registerVariable(
+        "Qt:QMAKE_MKSPECS",
+        Tr::tr("The current Qt version's default mkspecs (Qt 4)."),
+        versionProperty([](const QtVersion *version) {
+            return version->d->qmakeProperty("QMAKE_MKSPECS");
+        }));
+
+    expander.registerVariable(
+        "Qt:QMAKE_SPEC",
+        Tr::tr("The current Qt version's default mkspec (Qt 5; host system)."),
+        versionProperty([](const QtVersion *version) {
+            return version->d->qmakeProperty("QMAKE_SPEC");
+        }));
+
+    expander.registerVariable(
+        "Qt:QMAKE_XSPEC",
+        Tr::tr("The current Qt version's default mkspec (Qt 5; target system)."),
+        versionProperty([](const QtVersion *version) {
+            return version->d->qmakeProperty("QMAKE_XSPEC");
+        }));
+
+    expander.registerVariable(
+        "Qt:QMAKE_VERSION",
+        Tr::tr("The current Qt's qmake version."),
+        versionProperty([](const QtVersion *version) {
+        return version->d->qmakeProperty("QMAKE_VERSION");
+    }));
+
+    //    FIXME: Re-enable once we can detect expansion loops.
+    //    expander.registerVariable("Qt:Name",
+    //        Tr::tr("The display name of the current Qt version."),
+    //        versionProperty(&QtVersion::displayName));
+}
 
 QtVersion::~QtVersion()
 {
@@ -1441,163 +1583,7 @@ FilePaths QtVersion::qtSoPaths() const
 
 MacroExpander *QtVersion::macroExpander() const
 {
-    if (!d->m_expander)
-        d->m_expander = QtVersion::createMacroExpander([this] { return this; });
-    return d->m_expander.get();
-}
-
-std::unique_ptr<MacroExpander>
-QtVersion::createMacroExpander(const std::function<const QtVersion *()> &qtVersion)
-{
-    const auto versionProperty =
-        [qtVersion](const std::function<QString(const QtVersion *)> &property) {
-            return [property, qtVersion] {
-                const QtVersion *version = qtVersion();
-                return version ? property(version) : QString();
-            };
-        };
-    const auto pathProperty =
-        [qtVersion](const std::function<FilePath(const QtVersion *)> &property) {
-            return [property, qtVersion] {
-                const QtVersion *version = qtVersion();
-                return version ? property(version).path() : QString();
-            };
-        };
-
-    std::unique_ptr<MacroExpander> expander(new MacroExpander);
-    expander->setDisplayName(Tr::tr("Qt version"));
-
-    expander->registerVariable(
-        "Qt:Version",
-        Tr::tr("The version string of the current Qt version."),
-        versionProperty(&QtVersion::qtVersionString));
-
-    expander->registerVariable(
-        "Qt:Type",
-        Tr::tr("The type of the current Qt version."),
-        versionProperty(&QtVersion::type));
-
-    expander->registerVariable(
-        "Qt:Mkspec",
-        Tr::tr("The mkspec of the current Qt version."),
-        versionProperty([](const QtVersion *version) {
-            return QDir::toNativeSeparators(version->mkspec());
-        }));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_PREFIX",
-        Tr::tr("The installation prefix of the current Qt version."),
-        pathProperty(&QtVersion::prefix));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_DATA",
-        Tr::tr("The installation location of the current Qt version's data."),
-        pathProperty(&QtVersion::dataPath));
-
-    expander->registerVariable(
-        "Qt:QT_HOST_PREFIX",
-        Tr::tr("The host location of the current Qt version."),
-        pathProperty(&QtVersion::hostPrefixPath));
-
-    expander->registerVariable("Qt:QT_HOST_LIBEXECS",
-        Tr::tr("The installation location of the current Qt "
-               "version's internal host executable files."),
-        pathProperty(&QtVersion::hostLibexecPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_HEADERS",
-        Tr::tr("The installation location of the current Qt version's header files."),
-        pathProperty(&QtVersion::headerPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_LIBS",
-        Tr::tr("The installation location of the current Qt version's library files."),
-        pathProperty(&QtVersion::libraryPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_DOCS",
-        Tr::tr("The installation location of the current Qt version's documentation files."),
-        pathProperty(&QtVersion::docsPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_BINS",
-        Tr::tr("The installation location of the current Qt version's executable files."),
-        pathProperty(&QtVersion::binPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_LIBEXECS",
-        Tr::tr("The installation location of the current Qt version's internal executable files."),
-        pathProperty(&QtVersion::libExecPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_PLUGINS",
-        Tr::tr("The installation location of the current Qt version's plugins."),
-        pathProperty(&QtVersion::pluginPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_QML",
-        Tr::tr("The installation location of the current Qt version's QML files."),
-        pathProperty(&QtVersion::qmlPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_IMPORTS",
-        Tr::tr("The installation location of the current Qt version's imports."),
-        pathProperty(&QtVersion::importsPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_TRANSLATIONS",
-        Tr::tr("The installation location of the current Qt version's translation files."),
-        pathProperty(&QtVersion::translationsPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_CONFIGURATION",
-        Tr::tr("The installation location of the current Qt version's translation files."),
-        pathProperty(&QtVersion::configurationPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_EXAMPLES",
-        Tr::tr("The installation location of the current Qt version's examples."),
-        pathProperty(&QtVersion::examplesPath));
-
-    expander->registerVariable(
-        "Qt:QT_INSTALL_DEMOS",
-        Tr::tr("The installation location of the current Qt version's demos."),
-        pathProperty(&QtVersion::demosPath));
-
-    expander->registerVariable(
-        "Qt:QMAKE_MKSPECS",
-        Tr::tr("The current Qt version's default mkspecs (Qt 4)."),
-        versionProperty([](const QtVersion *version) {
-            return version->d->qmakeProperty("QMAKE_MKSPECS");
-        }));
-
-    expander->registerVariable(
-        "Qt:QMAKE_SPEC",
-        Tr::tr("The current Qt version's default mkspec (Qt 5; host system)."),
-        versionProperty([](const QtVersion *version) {
-            return version->d->qmakeProperty("QMAKE_SPEC");
-        }));
-
-    expander->registerVariable(
-        "Qt:QMAKE_XSPEC",
-        Tr::tr("The current Qt version's default mkspec (Qt 5; target system)."),
-        versionProperty([](const QtVersion *version) {
-            return version->d->qmakeProperty("QMAKE_XSPEC");
-        }));
-
-    expander->registerVariable(
-        "Qt:QMAKE_VERSION",
-        Tr::tr("The current Qt's qmake version."),
-        versionProperty([](const QtVersion *version) {
-            return version->d->qmakeProperty("QMAKE_VERSION");
-        }));
-
-    //    FIXME: Re-enable once we can detect expansion loops.
-    //    expander->registerVariable("Qt:Name",
-    //        Tr::tr("The display name of the current Qt version."),
-    //        versionProperty(&QtVersion::displayName));
-
-    return expander;
+    return &d->m_expander;
 }
 
 void QtVersion::populateQmlFileFinder(FileInProjectFinder *finder, const BuildConfiguration *bc)
