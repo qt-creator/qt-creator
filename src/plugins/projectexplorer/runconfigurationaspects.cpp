@@ -248,13 +248,10 @@ FilePath WorkingDirectoryAspect::workingDirectory() const
 {
     const Environment env = m_envAspect ? m_envAspect->environment()
                                         : Environment::systemEnvironment();
-    QString workingDir = m_workingDirectory.path();
-    if (auto expander = macroExpander())
-        workingDir = expander->expandProcessArgs(workingDir);
-
-    QString res = workingDir.isEmpty() ? QString() : QDir::cleanPath(env.expandVariables(workingDir));
-
-    return m_workingDirectory.withNewPath(res);
+    const FilePath workingDir = macroExpander()->expand(m_workingDirectory);
+    if (m_envAspect)
+        return env.expandVariables(workingDir);
+    return workingDir;
 }
 
 FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
