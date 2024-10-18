@@ -1,6 +1,6 @@
 {
     "Id" : "perfprofiler",
-    "Name" : "Perf Profiler",
+    "Name" : "PerfProfiler",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

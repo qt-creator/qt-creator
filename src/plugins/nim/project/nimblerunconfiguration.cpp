@@ -28,10 +28,6 @@ public:
 
         executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
-
         setUpdater([this] {
             BuildTargetInfo bti = buildTargetInfo();
             setDisplayName(bti.displayName);
@@ -74,10 +70,8 @@ public:
         executable.setDeviceSelector(target, ExecutableAspect::BuildDevice);
         executable.setExecutable(Nim::nimblePathFromKit(kit()));
 
-        arguments.setMacroExpander(macroExpander());
         arguments.setArguments("test");
 
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setDefaultWorkingDirectory(project()->projectDirectory());
     }
 

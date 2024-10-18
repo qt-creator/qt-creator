@@ -562,7 +562,6 @@ public:
             &m_localPath,
             noMargin};
         });
-        setMacroExpander(nullptr);
     }
 
     void updateContent(const PathMapping &mapping)

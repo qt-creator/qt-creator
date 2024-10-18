@@ -1,6 +1,6 @@
 {
     "Id" : "silversearcher",
-    "Name" : "Silver Searcher",
+    "Name" : "SilverSearcher",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,

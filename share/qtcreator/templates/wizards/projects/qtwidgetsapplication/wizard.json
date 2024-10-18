@@ -9,7 +9,7 @@
     "icon": "../../global/guiapplication.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0}",
+    "enabled": "%{JS: isAnyPluginRunning(['qmakeprojectmanager', 'qbsprojectmanager', 'cmakeprojectmanager', 'mesonprojectmanager'])}",
 
     "options":
     [
@@ -25,9 +25,9 @@
         { "key": "UiHdrFileName", "value": "%{JS: (value('BuildSystem') === 'cmake' ? (Util.path(value('FormFileName')) + '/') : '') + 'ui_' + Util.completeBaseName(value('FormFileName')) + '.h'}" },
         { "key": "CN", "value": "%{JS: Cpp.className(value('Class'))}" },
         { "key": "HasTranslation", "value": "%{JS: value('TsFileName') !== ''}" },
-        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" }
+        { "key": "GUARD", "value": "%{JS: Cpp.headerGuard(value('HdrFileName'))}" },
+        { "key": "FeatureQt", "value": "QtSupport.Wizards.FeatureQt%{JS: value('BuildSystem') === 'cmake-qt6' ? '.6.5' : ''}" }
     ],
-
     "pages":
     [
         {
@@ -56,27 +56,27 @@
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "CMake for Qt 6.5 and Later",
                                 "value": "cmake-qt6",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "Meson",
                                 "value": "meson",
-                                "condition": "%{JS: value('Plugins').indexOf('MesonProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('mesonprojectmanager')}"
                             },
                             {
                                 "trKey": "Qbs",
                                 "value": "qbs",
-                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qbsprojectmanager')}"
                             }
                         ]
                     }
@@ -165,7 +165,10 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "data": { "projectFilePath": "%{ProjectFile}" }
+            "data": {
+                "projectFilePath": "%{ProjectFile}",
+                "requiredFeatures": [ "%{FeatureQt}"]
+             }
         },
         {
             "trDisplayName": "Project Management",

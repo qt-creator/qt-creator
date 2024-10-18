@@ -32,9 +32,6 @@ protected:
 
         executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setEnvironment(&environment);
 
         connect(&useLibraryPaths, &UseLibraryPathsAspect::changed,

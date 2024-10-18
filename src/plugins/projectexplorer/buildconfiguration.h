@@ -111,8 +111,6 @@ public:
 
     void doInitialize(const BuildInfo &info);
 
-    Utils::MacroExpander *macroExpander() const;
-
     bool createBuildDirectory();
 
 signals:

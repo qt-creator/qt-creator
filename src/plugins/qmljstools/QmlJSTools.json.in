@@ -1,6 +1,6 @@
 {
     "Id" : "qmljstools",
-    "Name" : "QML Tools",
+    "Name" : "QmlJSTools",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

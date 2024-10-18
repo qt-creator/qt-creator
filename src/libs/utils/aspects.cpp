@@ -69,6 +69,24 @@ class Internal::BaseAspectPrivate
 public:
     explicit BaseAspectPrivate(AspectContainer *container) : m_container(container) {}
 
+    MacroExpander *macroExpander()
+    {
+        if (!m_expander) {
+            m_expander = std::make_unique<MacroExpander>();
+            m_expander->setDisplayName("Variables");
+            if (m_container)
+                m_expander->registerSubProvider([this] { return m_container->macroExpander(); });
+        }
+        return m_expander.get();
+    }
+
+    void setContainer(AspectContainer *container)
+    {
+        m_container = container;
+        if (m_expander)
+            m_expander->registerSubProvider([this] { return m_container->macroExpander(); });
+    }
+
     Id m_id;
     std::function<QVariant(const QVariant &)> m_toSettings;
     std::function<QVariant(const QVariant &)> m_fromSettings;
@@ -96,8 +114,10 @@ public:
     BaseAspect::DataCloner m_dataCloner;
     QList<BaseAspect::DataExtractor> m_dataExtractors;
 
-    MacroExpander *m_expander = globalMacroExpander();
     QUndoStack *m_undoStack = nullptr;
+
+private:
+    std::unique_ptr<MacroExpander> m_expander;
 };
 
 /*!
@@ -649,6 +669,11 @@ void BaseAspect::forEachSubWidget(const std::function<void(QWidget *)> &func)
         func(w);
 }
 
+void BaseAspect::setContainer(AspectContainer *container)
+{
+    d->setContainer(container);
+}
+
 void BaseAspect::saveToMap(Store &data, const QVariant &value,
                            const QVariant &defaultValue, const Key &key)
 {
@@ -741,12 +766,14 @@ QVariant BaseAspect::fromSettingsValue(const QVariant &val) const
 
 void BaseAspect::setMacroExpander(MacroExpander *expander)
 {
-    d->m_expander = expander;
+    d->macroExpander()->clearSubProviders();
+    if (expander)
+        d->macroExpander()->registerSubProvider([expander] { return expander; });
 }
 
 MacroExpander *BaseAspect::macroExpander() const
 {
-    return d->m_expander;
+    return d->macroExpander();
 }
 
 void BaseAspect::addOnChanged(QObject *guard, const Callback &callback)
@@ -781,15 +808,11 @@ void BaseAspect::addOnLabelPixmapChanged(QObject *guard, const Callback &callbac
 
 void BaseAspect::addMacroExpansion(QWidget *w)
 {
-    if (!d->m_expander)
-        return;
     const auto chooser = new VariableChooser(w);
     chooser->addSupportedWidget(w);
-    if (d->m_expander == globalMacroExpander()) // default for VariableChooser()
-        return;
-    chooser->addMacroExpanderProvider([this] { return d->m_expander; });
+    chooser->addMacroExpanderProvider([this] { return d->macroExpander(); });
     if (auto pathChooser = qobject_cast<PathChooser *>(w))
-        pathChooser->setMacroExpander(d->m_expander);
+        pathChooser->setMacroExpander(d->macroExpander());
 }
 
 namespace Internal {
@@ -3169,6 +3192,7 @@ void AspectContainer::addToLayoutImpl(Layouting::Layout &parent)
 */
 void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
 {
+    aspect->setContainer(this);
     aspect->setAutoApply(isAutoApply());
     aspect->setEnabled(isEnabled());
     d->m_items.append(aspect);
@@ -3331,14 +3355,6 @@ void AspectContainer::setEnabled(bool enabled)
 
     for (BaseAspect *aspect : std::as_const(d->m_items))
         aspect->setEnabled(enabled);
-}
-
-void AspectContainer::setMacroExpander(MacroExpander *expander)
-{
-    BaseAspect::setMacroExpander(expander);
-
-    for (BaseAspect *aspect : std::as_const(d->m_items))
-        aspect->setMacroExpander(expander);
 }
 
 bool AspectContainer::equals(const AspectContainer &other) const

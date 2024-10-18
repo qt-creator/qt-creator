@@ -2571,3 +2571,4 @@ def __lldb_init_module(debugger, internal_dict):
                            % ("qt.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
+    debugger.HandleCommand("settings set target.process.prefer-dynamic-value no-dynamic-values")

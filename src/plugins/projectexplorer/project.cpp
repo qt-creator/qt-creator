@@ -1084,15 +1084,6 @@ void Project::configureAsExampleProject(Kit * /*kit*/)
 {
 }
 
-void Project::buildTarget(const QString &target)
-{
-    if (!activeTarget() || !activeTarget()->activeBuildConfiguration()
-        || !activeTarget()->activeBuildConfiguration()->buildSystem()) {
-        return;
-    }
-    activeTarget()->activeBuildConfiguration()->buildSystem()->buildNamedTarget(target);
-}
-
 bool Project::hasMakeInstallEquivalent() const
 {
     return d->m_hasMakeInstallEquivalent;

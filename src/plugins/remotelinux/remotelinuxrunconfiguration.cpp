@@ -52,14 +52,9 @@ RemoteLinuxRunConfiguration::RemoteLinuxRunConfiguration(Target *target, Id id)
 
     symbolFile.setLabelText(Tr::tr("Executable on host:"));
 
-    arguments.setMacroExpander(macroExpander());
-
-    workingDir.setMacroExpander(macroExpander());
     workingDir.setEnvironment(&environment);
 
     terminal.setVisible(HostOsInfo::isAnyUnixHost());
-
-    x11Forwarding.setMacroExpander(macroExpander());
 
     connect(&useLibraryPath, &BaseAspect::changed,
             &environment, &EnvironmentAspect::environmentChanged);

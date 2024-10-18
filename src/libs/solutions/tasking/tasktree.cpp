@@ -1730,10 +1730,20 @@ Group ExecutableItem::withCancelImpl(
     return Group {
         parallel,
         stopOnSuccessOrError,
-        Group {
-            finishAllAndError,
-            BarrierTask(onSetup)
-        },
+        BarrierTask(onSetup) && errorItem,
+        *this
+    };
+}
+
+Group ExecutableItem::withAcceptImpl(
+    const std::function<void(QObject *, const std::function<void()> &)> &connectWrapper) const
+{
+    const auto onSetup = [connectWrapper](Barrier &barrier) {
+        connectWrapper(&barrier, [barrierPtr = &barrier] { barrierPtr->advance(); });
+    };
+    return Group {
+        parallel,
+        BarrierTask(onSetup),
         *this
     };
 }

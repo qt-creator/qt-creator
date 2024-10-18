@@ -1,6 +1,6 @@
 {
     "Id" : "ios",
-    "Name" : "iOS",
+    "Name" : "Ios",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Platform" : "OS X.*",

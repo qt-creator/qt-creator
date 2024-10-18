@@ -24,7 +24,6 @@ public:
     NimbleBuildStep(BuildStepList *parentList, Id id)
         : AbstractProcessStep(parentList, id)
     {
-        arguments.setMacroExpander(macroExpander());
         arguments.setSettingsKey(Constants::C_NIMBLEBUILDSTEP_ARGUMENTS);
         arguments.setResetter([this] { return defaultArguments(); });
         arguments.setArguments(defaultArguments());

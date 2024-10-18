@@ -426,40 +426,37 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                 }
 
                 static const QRegularExpression regExpLogcat{
-                    "^[0-9\\-]*" // date
-                    "\\s+"
-                    "[0-9\\-:.]*"// time
+                    "^\\x1B\\[[0-9]+m"   // color
+                    "(\\w/)"             // message type  1. capture
+                    ".*"                 // source
+                    "(\\(\\s*\\d*\\)):"  // pid           2. capture
                     "\\s*"
-                    "(\\d*)"     // pid           1. capture
-                    "\\s+"
-                    "\\d*"       // unknown
-                    "\\s+"
-                    "(\\w)"      // message type  2. capture
-                    "\\s+"
-                    "(.*): "     // source        3. capture
-                    "(.*)"       // message       4. capture
+                    ".*"                 // message
+                    "\\x1B\\[[0-9]+m"    // color
                     "[\\n\\r]*$"
                 };
 
+                static QStringList errorMsgTypes{"F/", "E/", "W/"};
                 const bool onlyError = channel == QProcess::StandardError;
                 const QRegularExpressionMatch match = regExpLogcat.match(line);
                 if (match.hasMatch()) {
-                    // Android M
-                    if (match.captured(1) == pidString) {
-                        const QString msgType = match.captured(2);
-                        const QString output = line.mid(match.capturedStart(2));
-                        if (onlyError || msgType == "F" || msgType == "E" || msgType == "W")
+                    const QString pidMatch = match.captured(2);
+                    const QString cleanPidMatch = pidMatch.mid(1, pidMatch.size() - 2).trimmed();
+                    if (cleanPidMatch == pidString) {
+                        const QString msgType = match.captured(1);
+                        const QString output = QString(line).remove(pidMatch);
+                        if (onlyError || errorMsgTypes.contains(msgType))
                             storagePtr->m_glue->addStdErr(output);
                         else
                             storagePtr->m_glue->addStdOut(output);
                     }
                 } else {
-                    if (onlyError || line.startsWith("F/") || line.startsWith("E/")
-                        || line.startsWith("W/")) {
+                    // Get type excluding the initial color characters
+                    const QString msgType = line.mid(5, 7);
+                    if (onlyError || errorMsgTypes.contains(msgType))
                         storagePtr->m_glue->addStdErr(line);
-                    } else {
+                    else
                         storagePtr->m_glue->addStdOut(line);
-                    }
                 }
             }
         };
@@ -469,7 +466,8 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
         QObject::connect(&process, &Process::readyReadStandardError, &process, [parseLogcat] {
             parseLogcat(QProcess::StandardError);
         });
-        process.setCommand(storage->adbCommand({"logcat", bufferStorage->timeArgs}));
+        process.setCommand(storage->adbCommand({"logcat", "-v", "color", "-v", "brief",
+                                                bufferStorage->timeArgs}));
     };
 
     return Group {

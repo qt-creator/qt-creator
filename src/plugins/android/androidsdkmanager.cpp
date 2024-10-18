@@ -561,6 +561,9 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
 void AndroidSdkManager::runInstallationChange(const InstallationChange &change,
                                               const QString &extraMessage)
 {
+    if (change.count() == 0)
+        return;
+
     QString message = Tr::tr("%n Android SDK packages shall be updated.", "", change.count());
     if (!extraMessage.isEmpty())
         message.prepend(extraMessage + "\n\n");

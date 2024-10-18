@@ -100,7 +100,6 @@ public:
     void setArguments(const QString &arguments);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
-    void setMacroExpander(const Utils::MacroExpander *macroExpander);
 
     struct Data : BaseAspect::Data
     {
@@ -121,7 +120,6 @@ private:
     bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
     std::function<QString()> m_resetter;
-    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
@@ -268,14 +266,9 @@ class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
 public:
     X11ForwardingAspect(Utils::AspectContainer *container = nullptr);
 
-    void setMacroExpander(const Utils::MacroExpander *macroExpander);
-
     struct Data : StringAspect::Data { QString display; };
 
     QString display() const;
-
-private:
-    const Utils::MacroExpander *m_macroExpander;
 };
 
 } // namespace ProjectExplorer

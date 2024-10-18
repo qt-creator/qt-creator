@@ -1,6 +1,6 @@
 {
     "Id" : "saferenderer",
-    "Name" : "Qt Safe Renderer",
+    "Name" : "SafeRenderer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,

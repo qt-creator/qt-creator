@@ -1,6 +1,6 @@
 {
     "Id" : "modeleditor",
-    "Name" : "Model Editor",
+    "Name" : "ModelEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "jochenbecher",

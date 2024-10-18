@@ -47,9 +47,6 @@ public:
 
         environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setEnvironment(&environment);
 
         fullCommand.setLabelText(Tr::tr("Full command line:"));

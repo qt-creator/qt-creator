@@ -291,6 +291,9 @@ public:
             if (m_basePath.isEmpty())
                 localUrls.clear();
 
+            if (!m_loadRemoteImages)
+                remoteUrls.clear();
+
             const LoopList remoteIterator(remoteUrls);
             const LoopList localIterator(localUrls);
 
@@ -360,11 +363,13 @@ public:
     }
 
     void setBasePath(const FilePath &filePath) { m_basePath = filePath; }
+    void setAllowRemoteImages(bool allow) { m_loadRemoteImages = allow; }
 
 private:
     AnimatedImageHandler m_imageHandler;
     QList<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
+    bool m_loadRemoteImages = false;
     Tasking::TaskTreeRunner m_imageLoaderTree;
     FilePath m_basePath;
 };
@@ -373,6 +378,11 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
 {
     setDocument(new AnimatedDocument(this));
+}
+
+void MarkdownBrowser::setAllowRemoteImages(bool allow)
+{
+    static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);
 }
 
 void MarkdownBrowser::setBasePath(const FilePath &filePath)

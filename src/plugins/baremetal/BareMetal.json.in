@@ -1,6 +1,6 @@
 {
     "Id" : "baremetal",
-    "Name" : "Bare Metal",
+    "Name" : "BareMetal",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,

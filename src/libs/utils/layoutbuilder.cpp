@@ -6,6 +6,7 @@
 #include "fancylineedit.h"
 #include "filepath.h"
 #include "icon.h"
+#include "markdownbrowser.h"
 #include "qtcassert.h"
 #include "spinner/spinner.h"
 
@@ -15,6 +16,7 @@
 #include <QGroupBox>
 #include <QLabel>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSize>
 #include <QSpacerItem>
 #include <QSpinBox>
@@ -972,6 +974,19 @@ void addToStack(Stack *stack, QWidget *inner)
     access(stack)->addWidget(inner);
 }
 
+// ScrollArea
+
+ScrollArea::ScrollArea(const Layout &inner)
+{
+    ptr = new Implementation;
+    access(this)->setWidget(inner.emerge());
+}
+
+void ScrollArea::setLayout(const Layout &inner)
+{
+    access(this)->setWidget(inner.emerge());
+}
+
 // Splitter
 
 Splitter::Splitter(std::initializer_list<I> ps)
@@ -1037,6 +1052,24 @@ Tab::Tab(const QString &tabName, const Layout &inner)
 void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
 {
     access(tabWidget)->addTab(tab.inner.emerge(), tab.tabName);
+}
+
+// MarkdownBrowser
+
+MarkdownBrowser::MarkdownBrowser(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void MarkdownBrowser::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void MarkdownBrowser::setBasePath(const Utils::FilePath &path)
+{
+    access(this)->setBasePath(path);
 }
 
 // Special If

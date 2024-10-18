@@ -11,6 +11,7 @@ Project {
         "fakevim/fakevim.qbs",
         "pluginview/pluginview.qbs",
         "proparser/testreader.qbs",
+        "scripts/scripts.qbs",
         "shootout/shootout.qbs",
         "spinner/spinner.qbs",
         "subdirfilecontainer/subdirfilecontainer.qbs",

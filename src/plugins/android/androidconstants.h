@@ -80,5 +80,6 @@ const char cmdlineToolsName[] = "cmdline-tools";
 const char ndkPackageName[] = "ndk";
 const char platformsPackageName[] = "platforms";
 const char buildToolsPackageName[] = "build-tools";
+const char systemImagesPackageName[] = "system-images";
 
 } // Android::Constants

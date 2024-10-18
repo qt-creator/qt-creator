@@ -1,6 +1,6 @@
 {
     "Id" : "mcusupport",
-    "Name" : "Qt for MCUs",
+    "Name" : "McuSupport",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,

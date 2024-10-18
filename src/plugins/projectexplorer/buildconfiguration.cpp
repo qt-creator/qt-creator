@@ -146,7 +146,6 @@ public:
     bool m_configWidgetHasFrame = false;
     QList<Utils::Id> m_initialBuildSteps;
     QList<Utils::Id> m_initialCleanSteps;
-    Utils::MacroExpander m_macroExpander;
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
 
@@ -286,11 +285,6 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
 
     if (d->m_initializer)
         d->m_initializer(info);
-}
-
-MacroExpander *BuildConfiguration::macroExpander() const
-{
-    return &d->m_macroExpander;
 }
 
 bool BuildConfiguration::createBuildDirectory()

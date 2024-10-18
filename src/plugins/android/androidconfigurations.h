@@ -55,6 +55,8 @@ QVersionNumber ndkVersion(const Utils::FilePath &ndkPath);
 QUrl sdkToolsUrl();
 QByteArray getSdkToolsSha256();
 
+QString optionalSystemImagePackage(Internal::AndroidSdkManager *sdkManager);
+
 QStringList allEssentials();
 bool allEssentialsInstalled(Internal::AndroidSdkManager *sdkManager);
 bool sdkToolsOk();

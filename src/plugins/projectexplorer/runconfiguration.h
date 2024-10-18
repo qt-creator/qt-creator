@@ -203,7 +203,6 @@ private:
     CommandLineGetter m_commandLineGetter;
     RunnableModifier m_runnableModifier;
     Updater m_updater;
-    Utils::MacroExpander m_expander;
     Utils::Store m_pristineState;
     bool m_customized = false;
     bool m_usesEmptyBuildKeys = false;

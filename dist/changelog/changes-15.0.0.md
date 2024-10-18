@@ -61,8 +61,6 @@ Editing
   ([QTCREATORBUG-21064](https://bugreports.qt.io/browse/QTCREATORBUG-21064))
 * Fixed the indentation after multi-line comments
   ([QTCREATORBUG-31256](https://bugreports.qt.io/browse/QTCREATORBUG-31256))
-* Fixed the indentation of files created by `Move Component into Separate File`
-  ([QTCREATORBUG-31084](https://bugreports.qt.io/browse/QTCREATORBUG-31084))
 * Fixed the display of annotations with array operators
   ([QTCREATORBUG-31670](https://bugreports.qt.io/browse/QTCREATORBUG-31670))
 * ClangFormat
@@ -74,6 +72,8 @@ Editing
   `Qt Quick Application` to the `Qt Quick UI Prototype` wizard
   ([QTCREATORBUG-31355](https://bugreports.qt.io/browse/QTCREATORBUG-31355),
    [QTCREATORBUG-31657](https://bugreports.qt.io/browse/QTCREATORBUG-31657))
+* Fixed the indentation of files created by `Move Component into Separate File`
+  ([QTCREATORBUG-31084](https://bugreports.qt.io/browse/QTCREATORBUG-31084))
 
 ### Language Server Protocol
 
@@ -88,6 +88,7 @@ Editing
 
 * Added the option to change the server URL
   ([QTCREATORBUG-31261](https://bugreports.qt.io/browse/QTCREATORBUG-31261))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-explore-compiler-code.html))
 
 ### Lua
 

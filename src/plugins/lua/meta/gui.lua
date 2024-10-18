@@ -104,6 +104,13 @@ function gui.Form(children) end
 ---@class Stack : Widget
 local stack = {}
 
+---A ScrollArea widget.
+---@class ScrollArea : Widget
+
+---@param options WidgetOptions
+---@return ScrollArea
+function gui.ScrollArea(options) end
+
 ---@param options WidgetOptions
 ---@return Stack
 function gui.Stack(options) end

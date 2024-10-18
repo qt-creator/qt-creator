@@ -23,9 +23,8 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New Project} >
-            \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}
-            > \uicontrol Choose.
+        \li Go to \uicontrol File > \uicontrol {New Project} >
+            \uicontrol {Application (Qt)} > \uicontrol {Qt Quick Application}.
 
             \image qtcreator-project-qt-quick.webp {New Project dialog}
 
@@ -33,32 +32,35 @@
             or add translations to the application, select
             \uicontrol {Qt Quick Application (compat)}.
 
-        \li In the \uicontrol {Project Location} dialog, \uicontrol Name field,
-            enter a name for the project. Keep in mind that you cannot easily
-            change the project name later.
+        \li Select \uicontrol Choose to open the \uicontrol {Project Location}
+            dialog.
 
-        \li In the \uicontrol {Create in} field, enter the path for the project
-            files. Select the \uicontrol {Use as default project location} check
-            box to create new projects in this folder by default. You can move
-            project folders later without problems.
+        \li In \uicontrol Name, enter a name for the project. Keep in mind that
+            you cannot easily change the project name later.
+
+        \li In \uicontrol {Create in}, enter the path for the project files.
+            Select \uicontrol {Use as default project location} to create new
+            projects in this folder by default. You can move project folders
+            later without problems.
 
         \li Select \uicontrol Next to open the
             \uicontrol {Define Project Details} dialog.
 
             \image qtcreator-project-qt-quick-details.webp {Define Project Details dialog}
 
-        \li Select the Qt version to develop with in the
-            \uicontrol {Minimum required Qt version} field.
-            The Qt version determines the Qt Quick imports
-            that are used in the QML files.
 
-        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
+        \li Select \uicontrol {Use Qt Virtual Keyboard} to add
             support for \l{Qt Virtual Keyboard} to the application.
 
             \note If you have not installed the Qt Virtual Keyboard module when
             you installed Qt, an error message will appear when you try to open
             \e Main.qml for editing. You can use \l{Get and Install Qt}{\QOI}
             to install Qt Virtual Keyboard.
+
+        \li Select the Qt version to develop with in
+            \uicontrol {Minimum required Qt version}.
+            The Qt version determines the Qt Quick imports
+            that are used in the QML files.
 
         \li Select \uicontrol Next to open the \uicontrol {Kit Selection}
             dialog.
@@ -116,29 +118,25 @@
 
     \list 1
 
-        \li Select \uicontrol File > \uicontrol {New Project} >
+        \li Go to \uicontrol File > \uicontrol {New Project} >
             \uicontrol {Other Project} > \uicontrol {Qt Quick UI Prototype}.
 
         \li Select \uicontrol Choose to open the \uicontrol {Project Location}
             dialog.
 
-        \li In the \uicontrol Name field, enter a name for the application.
+        \li In \uicontrol Name, enter a name for the application.
 
-        \li In the \uicontrol {Create in} field, enter the path for the project
-            files. Select the \uicontrol {Use as default project location} check
-            box to create new projects in this folder by default.
+        \li In \uicontrol {Create in}, enter the path for the project files.
+            Select \uicontrol {Use as default project location} to create new
+            projects in this folder by default.
 
         \li Select \uicontrol Next (or \uicontrol Continue on \macos) to open
             the \uicontrol {Define Project Details} dialog.
 
-        \li In the \uicontrol {Minimum required Qt version} field, select the Qt
-            version to develop with. The Qt version determines the Qt Quick
-            imports that are used in the QML files.
+        \li Select \uicontrol {Create a project that you can open in \QDS} to
+            make the project compatible with \QDS.
 
-            You can add imports later to combine Qt Quick basic types with
-            Qt Quick Controls, Qt Quick Dialogs, and Qt Quick Layouts.
-
-        \li Select the \uicontrol {Use Qt Virtual Keyboard} check box to add
+        \li Select \uicontrol {Use Qt Virtual Keyboard} check box to add
             support for \l{Qt Virtual Keyboard} to the application.
 
             \note If you have not installed the Qt Virtual Keyboard module when
@@ -174,9 +172,10 @@
         \li .qml file defines a UI item, such as a component or the
             whole application UI.
 
-        \li ui.qml file defines a form for the application UI. This file is
-            created if you selected the \uicontrol {With .ui.qml file} check
-            box.
+        \li Screen01.ui.qml file defines a custom QML type using instances of a
+            Rectangle type that forms the background, a Button, and a Text
+            component that displays some text. This file is created if you select
+            \uicontrol {Create a project that you can open in \QDS}.
 
     \endlist
 

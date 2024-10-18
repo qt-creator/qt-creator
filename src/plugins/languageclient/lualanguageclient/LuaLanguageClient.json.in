@@ -1,6 +1,6 @@
 {
     "Id" : "lualanguageclient",
-    "Name" : "Lua Language Client",
+    "Name" : "LuaLanguageClient",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "LuaCompatibleVersion" : "15.0.0",

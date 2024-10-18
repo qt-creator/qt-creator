@@ -1,6 +1,6 @@
 {
     "Id" : "clangcodemodel",
-    "Name" : "Clang Code Model",
+    "Name" : "ClangCodeModel",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

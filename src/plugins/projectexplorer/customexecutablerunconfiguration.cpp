@@ -32,9 +32,6 @@ CustomExecutableRunConfiguration::CustomExecutableRunConfiguration(Target *targe
     executable.setExpectedKind(PathChooser::ExistingCommand);
     executable.setEnvironment(environment.environment());
 
-    arguments.setMacroExpander(macroExpander());
-
-    workingDir.setMacroExpander(macroExpander());
     workingDir.setEnvironment(&environment);
 
     connect(&environment, &EnvironmentAspect::environmentChanged, this, [this]  {

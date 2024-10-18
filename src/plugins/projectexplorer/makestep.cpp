@@ -22,7 +22,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
-#include <utils/variablechooser.h>
 
 #include <QThread>
 
@@ -321,8 +320,6 @@ QWidget *MakeStep::createConfigWidget()
     builder.setNoMargins();
 
     auto widget = builder.emerge();
-
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);

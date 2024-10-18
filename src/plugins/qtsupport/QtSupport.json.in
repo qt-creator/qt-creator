@@ -1,6 +1,6 @@
 {
     "Id" : "qtsupport",
-    "Name" : "Qt Support",
+    "Name" : "QtSupport",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

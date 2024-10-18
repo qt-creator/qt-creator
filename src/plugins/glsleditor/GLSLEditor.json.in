@@ -1,6 +1,6 @@
 {
     "Id" : "glsleditor",
-    "Name" : "GLSL Editor",
+    "Name" : "GLSLEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "VendorId" : "theqtcompany",

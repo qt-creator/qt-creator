@@ -7,6 +7,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -112,25 +113,20 @@ void QmlTaskManager::updateMessages()
     m_updateDelay.start();
 }
 
-static void triggerQmllintCMakeTarget()
-{
-    if (ProjectManager::startupProject())
-        ProjectManager::startupProject()->buildTarget(Constants::QMLLINT_BUILD_TARGET);
-}
-
 void QmlTaskManager::updateSemanticMessagesNow()
 {
     // note: this can only be called for the startup project
-    Project *project = ProjectManager::startupProject();
-    if (!project)
+    BuildSystem *buildSystem = ProjectManager::startupBuildSystem();
+    if (!buildSystem)
         return;
 
+    const bool isCMake = buildSystem->name() == "cmake";
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
-    if (QmllsSettingsManager::instance()->useQmlls(project)) {
+    if (isCMake && QmllsSettingsManager::instance()->useQmlls(buildSystem->project())) {
         // abort any update that's going on already, and remove old codemodel warnings
         m_messageCollector.cancel();
         removeAllTasks(true);
-        triggerQmllintCMakeTarget();
+        buildSystem->buildTarget(Constants::QMLLINT_BUILD_TARGET);
         return;
     }
 
