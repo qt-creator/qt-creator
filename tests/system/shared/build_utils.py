@@ -121,7 +121,7 @@ def selectBuildConfig(wantedKit, configName, afterSwitchTo=ViewConstants.EDIT):
     switchViewTo(ViewConstants.PROJECTS)
     if any((switchToBuildOrRunSettingsFor(wantedKit, ProjectSettings.BUILD),
             selectFromCombo(":scrollArea.Edit build configuration:_QComboBox", configName))):
-        waitForProjectParsing(5000, 30000, 0)
+        progressBarWait(30000)
     if afterSwitchTo:
         if ViewConstants.FIRST_AVAILABLE <= afterSwitchTo <= ViewConstants.LAST_AVAILABLE:
             switchViewTo(afterSwitchTo)
@@ -150,6 +150,8 @@ def verifyBuildConfig(currentTarget, configName, shouldBeDebug=False, enableShad
         and buildSystem == "qmake"):
         # Don't rebuild now
         clickButton(waitForObject(":QML Debugging.No_QPushButton", 5000))
+        # Wait for parsing to finish
+        progressBarWait(14000)
     clickButton(waitForObject(":scrollArea.Details_Utils::DetailsButton"))
     switchViewTo(ViewConstants.EDIT)
 
