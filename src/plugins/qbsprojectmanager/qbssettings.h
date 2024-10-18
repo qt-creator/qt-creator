@@ -9,6 +9,8 @@
 
 #include <QVersionNumber>
 
+namespace Utils { class Environment; }
+
 namespace QbsProjectManager::Internal {
 
 class QbsSettingsData
@@ -29,6 +31,7 @@ public:
     static Utils::FilePath qbsExecutableFilePath();
     static Utils::FilePath defaultQbsExecutableFilePath();
     static Utils::FilePath qbsConfigFilePath();
+    static Utils::Environment qbsProcessEnvironment();
     static bool hasQbsExecutable();
     static QString defaultInstallDirTemplate();
     static bool useCreatorSettingsDirForQbs();

@@ -26,6 +26,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     Process proc;
+    proc.setEnvironment(qtChooser.deviceEnvironment());
     proc.setCommand({qtChooser, {"-print-env"}});
     proc.runBlocking(1s);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -107,6 +108,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
         return QString();
 
     Process qmake;
+    qmake.setEnvironment(qmakePath.deviceEnvironment());
     qmake.setCommand({qmakePath, {"--version"}});
     qmake.runBlocking(5s);
     if (qmake.result() != ProcessResult::FinishedWithSuccess) {

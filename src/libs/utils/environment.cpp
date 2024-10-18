@@ -208,6 +208,12 @@ Environment Environment::systemEnvironment()
     return *staticSystemEnvironment();
 }
 
+const Environment &Environment::originalSystemEnvironment()
+{
+    static const Environment env(QProcessEnvironment::systemEnvironment().toStringList());
+    return env;
+}
+
 void Environment::setupEnglishOutput()
 {
     addItem(Item{std::in_place_index_t<SetupEnglishOutput>()});
@@ -238,8 +244,24 @@ FilePaths Environment::path() const
 
 FilePaths Environment::pathListValue(const QString &varName) const
 {
-    const QStringList pathComponents = expandedValueForKey(varName).split(
-        OsSpecificAspects::pathListSeparator(osType()), Qt::SkipEmptyParts);
+    return pathListFromValue(expandedValueForKey(varName), osType());
+}
+
+void Environment::setPathListValue(const QString &varName, const FilePaths &paths)
+{
+    set(varName, valueFromPathList(paths, osType()));
+}
+
+QString Environment::valueFromPathList(const FilePaths &paths, OsType osType)
+{
+    return transform(paths, &FilePath::toUserOutput)
+        .join(OsSpecificAspects::pathListSeparator(osType));
+}
+
+FilePaths Environment::pathListFromValue(const QString &value, OsType osType)
+{
+    const QStringList pathComponents
+        = value.split(OsSpecificAspects::pathListSeparator(osType), Qt::SkipEmptyParts);
     return transform(pathComponents, &FilePath::fromUserInput);
 }
 
