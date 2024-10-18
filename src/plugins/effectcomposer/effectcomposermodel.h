@@ -202,7 +202,7 @@ private:
     void bakeShaders();
     void saveResources(const QString &name);
 
-    QString getQmlImagesString(bool localFiles);
+    QString getQmlImagesString(bool localFiles, QString &outImageFixerStr);
     QString getQmlComponentString(bool localFiles);
     QString getGeneratedMessage() const;
     QString getDesignerSpecifics() const;

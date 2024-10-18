@@ -346,9 +346,27 @@ R"(
 R"(
                 UrlChooser {
                     backendValue: backendValues.%1
+                    enabled: comboBox_%1.currentIndex === 0
+                }
+                ExpandingSpacer {}
+            }
+
+            PropertyLabel {
+                text: "%3"
+                tooltip: "%4"
+            }
+
+            SecondColumnLayout {
+                ItemFilterComboBox {
+                    id: comboBox_%1
+                    backendValue: backendValues.%2
                 }
 )";
-        specs += typeSpec.arg(m_name + "Url");
+        specs += typeSpec.arg(m_name + "Url")
+                     .arg(m_name)
+                     .arg(m_displayName + tr(" Item"))
+                     .arg(tr("Set this to use an item in the scene as %1 instead of the above image.")
+                              .arg(m_displayName));
         break;
     }
     case Type::Define:

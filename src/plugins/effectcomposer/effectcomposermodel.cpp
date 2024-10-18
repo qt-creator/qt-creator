@@ -933,6 +933,7 @@ R"(
         s += "    property int animatedFrame: frameAnimation.currentFrame\n";
     }
 
+    QString imageFixerTag{"___ecImagefixer___"};
     QString parentChanged{
 R"(
     function setupParentLayer()
@@ -960,6 +961,7 @@ R"(
             }
             parent.update()
         }
+%9
     }
 
     onParentChanged: setupParentLayer()
@@ -995,9 +997,12 @@ R"(
                                           m_extraMargin ? QString("\n            connectSource(true)\n") : QString(),
                                           mipmap1,
                                           mipmap2,
-                                          mipmap3);
+                                          mipmap3,
+                                          imageFixerTag);
     } else {
-        parentChanged = parentChanged.arg(QString(), QString(), QString());
+        parentChanged = parentChanged.arg(QString(), QString(), QString(),
+                                          QString(), QString(), QString(),
+                                          QString(), QString(), QString());
     }
     s += parentChanged;
 
@@ -1015,7 +1020,8 @@ R"(
         s += '\n';
     }
 
-    QString customImagesString = getQmlImagesString(true);
+    QString imageFixerStr;
+    QString customImagesString = getQmlImagesString(true, imageFixerStr);
     if (!customImagesString.isEmpty())
         s += customImagesString;
 
@@ -1024,6 +1030,9 @@ R"(
     s += getQmlComponentString(true);
     s += "    }\n";
     s += "}\n";
+
+    s.replace(imageFixerTag, imageFixerStr);
+
     return s;
 }
 
@@ -2053,14 +2062,38 @@ void EffectComposerModel::setHasValidTarget(bool validTarget)
     emit hasValidTargetChanged();
 }
 
-QString EffectComposerModel::getQmlImagesString(bool localFiles)
+QString EffectComposerModel::getQmlImagesString(bool localFiles, QString &outImageFixerStr)
 {
+    const QString imageItemChanged{
+R"(
+    property var old%2: null
+    function %3
+    {
+        if (old%2) {
+            old%2.layer.enabled = false
+            old%2 = null
+        }
+        if (%1 != imageItem%1) {
+            %1.layer.enabled = true
+            old%2 = %1
+        }
+    }
+    on%2Changed: %3
+)"
+    };
+
     QString imagesString;
     const QList<Uniform *> uniforms = allUniforms();
     for (Uniform *uniform : uniforms) {
         if (uniform->type() == Uniform::Type::Sampler) {
             QString imagePath = uniform->value().toString();
             if (localFiles) {
+                QString capitalName = uniform->name();
+                if (!capitalName.isEmpty())
+                    capitalName[0] = capitalName[0].toUpper();
+                QString funcName = "setupLayer_" + uniform->name() + "()";
+                outImageFixerStr += "\n        " + funcName;
+                imagesString += imageItemChanged.arg(uniform->name(), capitalName, funcName);
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
                 imagesString += QString("    property url %1Url: \"%2\"\n")
@@ -2140,7 +2173,8 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
     s += localFiles ? m_exportedEffectPropertiesString : m_previewEffectPropertiesString;
 
     if (!localFiles) {
-        QString customImagesString = getQmlImagesString(false);
+        QString dummyStr;
+        QString customImagesString = getQmlImagesString(false, dummyStr);
         if (!customImagesString.isEmpty())
             s += '\n' + customImagesString;
     }
