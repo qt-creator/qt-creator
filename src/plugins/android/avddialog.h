@@ -31,10 +31,10 @@ class AvdDialog : public QDialog
 public:
     explicit AvdDialog(QWidget *parent = nullptr);
     int exec() override;
-
-    enum DeviceType { Phone, Tablet, Automotive, TV, Wear, Desktop, PhoneOrTablet };
-
     CreateAvdInfo avdInfo() const;
+
+private:
+    enum DeviceType { Phone, Tablet, Automotive, TV, Wear, Desktop, PhoneOrTablet };
 
     const SystemImage *systemImage() const;
     QString name() const;
@@ -43,7 +43,6 @@ public:
     int sdcardSize() const;
     bool isValid() const;
 
-private:
     void parseDeviceDefinitionsList();
     void updateDeviceDefinitionComboBox();
     void updateApiLevelComboBox();
