@@ -16,12 +16,10 @@ instructions:
         directory: "{{.BuildDir}}"
   - type: ChangeDirectory
     directory: "{{.BuildDir}}"
-  - type: InstallSourceArchive
+  - type: ExecuteCommand
+    command: ["git", "clone", "--jobs={{.NumCPU}}", "--depth=50", "-b", "production", "git://{{.Env.QT_COIN_GIT_DAEMON}}/qt-project/qtsdk/tqtc-qtsdk","tqtc-qtsdk"]
     maxTimeInSeconds: 600
     maxTimeBetweenOutput: 600
-    project: qtsdk/tqtc-qtsdk
-    ref: production
-    directory: "build/tqtc-qtsdk"
     userMessageOnFailure: "Failed to install tqtc-qtsdk, check logs"
   - type: Group
     instructions:
