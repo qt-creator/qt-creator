@@ -1,0 +1,16 @@
+import QmlProject 1.3
+
+Project {
+    MCU.Module {
+        uri: "test.module"
+    }
+
+    QmlFiles {
+        files: [
+            "TestSingleton.qml",
+            "File1.qml",
+            "File2.qml",
+            "Internal/File3.qml"
+        ]
+    }
+}

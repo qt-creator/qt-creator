@@ -70,3 +70,13 @@ Some main points for qmlproject files for MCU projects:
 Test data contains an example project folders that file filters will be initialized and tested.
 
 * **filelist.txt**: List of the files need to be found by the file filters.
+
+## Qml to qmlproject test data
+Input data for the McuModuleProjectItem tests. McuModuleProjectItem represents the MCU module and can be generated from a regular QML module (based on qmldir).
+
+* **existing_qmlproject**: read and process valid .qmlproject module
+* **incorrect_module_name_qmldir**: generate .qmlproject based on qmldir (failure - module name is wrong)
+* **invalid_qmlproject**: read and process invalid .qmlproject module
+* **missing_module_name_qmldir**: generate .qmlproject based on qmldir (failure -  missing module name)
+* **missing_qml_files_qmldir**: generate .qmlproject based on qmldir (failure - missing qml files)
+* **missing_qmlproject**: generate .qmlproject based on qmldir (success)
