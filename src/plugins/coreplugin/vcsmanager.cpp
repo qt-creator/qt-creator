@@ -223,7 +223,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     }
 
     // Register Vcs(s) with the cache
-    FilePath tmpDir = directory.absolutePath();
+    FilePath tmpDir = directory.absoluteFilePath();
 #if defined WITH_TESTS
     // Force caching of test directories (even though they do not exist):
     if (directory.startsWith(TEST_PREFIX))
