@@ -5,6 +5,8 @@
 
 #include "androidconfigurations.h"
 
+#include <solutions/tasking/tasktreerunner.h>
+
 #include <QDialog>
 #include <QRegularExpression>
 #include <QTimer>
@@ -30,7 +32,6 @@ class AvdDialog : public QDialog
 {
 public:
     explicit AvdDialog(QWidget *parent = nullptr);
-    int exec() override;
     CreateAvdInfo avdInfo() const;
 
 private:
@@ -49,6 +50,8 @@ private:
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     static AvdDialog::DeviceType tagToDeviceType(const QString &type_tag);
+
+    void createAvd();
 
     struct DeviceDefinitionStruct
     {
@@ -72,6 +75,7 @@ private:
     QComboBox *m_deviceDefinitionTypeComboBox;
     QCheckBox *m_overwriteCheckBox;
     QDialogButtonBox *m_buttonBox;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 } // Internal

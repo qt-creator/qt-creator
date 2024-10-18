@@ -975,52 +975,65 @@ void updateAvdList()
         s_instance->m_avdListRunner.start(s_instance->m_avdListRecipe);
 }
 
-Result createAvd(const CreateAvdInfo &info, bool force)
+Group createAvdRecipe(const Storage<std::optional<QString>> &errorStorage,
+                      const CreateAvdInfo &info, bool force)
 {
-    CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"create", "avd", "-n", info.name});
-    cmd.addArgs({"-k", info.sdkStylePath});
-    if (info.sdcardSize > 0)
-        cmd.addArgs({"-c", QString("%1M").arg(info.sdcardSize)});
+    struct GuardWrapper {
+        GuardLocker locker = GuardLocker(s_instance->m_avdPathGuard);
+        QByteArray buffer;
+    };
 
-    const QString deviceDef = info.deviceDefinition;
-    if (!deviceDef.isEmpty() && deviceDef != "Custom")
-        cmd.addArgs({"-d", deviceDef});
+    const Storage<GuardWrapper> storage;
 
-    if (force)
-        cmd.addArg("-f");
+    const auto onSetup = [storage, info, force](Process &process) {
+        CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"create", "avd", "-n", info.name});
+        cmd.addArgs({"-k", info.sdkStylePath});
+        if (info.sdcardSize > 0)
+            cmd.addArgs({"-c", QString("%1M").arg(info.sdcardSize)});
 
-    Process process;
-    process.setProcessMode(ProcessMode::Writer);
-    process.setEnvironment(AndroidConfig::toolsEnvironment());
-    process.setCommand(cmd);
-    process.setWriteData("yes\n"); // yes to "Do you wish to create a custom hardware profile"
+        const QString deviceDef = info.deviceDefinition;
+        if (!deviceDef.isEmpty() && deviceDef != "Custom")
+            cmd.addArgs({"-d", deviceDef});
 
-    QByteArray buffer;
-    QObject::connect(&process, &Process::readyReadStandardOutput, &process, [&process, &buffer] {
-        // This interaction is needed only if there is no "-d" arg for the avdmanager command.
-        buffer += process.readAllRawStandardOutput();
-        if (buffer.endsWith(QByteArray("]:"))) {
-            // truncate to last line
-            const int index = buffer.lastIndexOf('\n');
-            if (index != -1)
-                buffer = buffer.mid(index);
-            if (buffer.contains("hw.gpu.enabled"))
-                process.write("yes\n");
-            else
-                process.write("\n");
-            buffer.clear();
-        }
-    });
+        if (force)
+            cmd.addArg("-f");
 
-    GuardLocker locker(s_instance->m_avdPathGuard);
-    process.runBlocking();
-    if (process.result() != ProcessResult::FinishedWithSuccess) {
+        process.setProcessMode(ProcessMode::Writer);
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
+        process.setCommand(cmd);
+        process.setWriteData("yes\n"); // yes to "Do you wish to create a custom hardware profile"
+
+        QByteArray *buffer = &storage->buffer;
+        Process *processPtr = &process;
+
+        QObject::connect(processPtr, &Process::readyReadStandardOutput, processPtr, [processPtr, buffer] {
+            // This interaction is needed only if there is no "-d" arg for the avdmanager command.
+            *buffer += processPtr->readAllRawStandardOutput();
+            if (buffer->endsWith(QByteArray("]:"))) {
+                // truncate to last line
+                const int index = buffer->lastIndexOf('\n');
+                if (index != -1)
+                    *buffer = buffer->mid(index);
+                if (buffer->contains("hw.gpu.enabled"))
+                    processPtr->write("yes\n");
+                else
+                    processPtr->write("\n");
+                buffer->clear();
+            }
+        });
+    };
+
+    const auto onDone = [errorStorage](const Process &process) {
         const QString stdErr = process.stdErr();
         const QString errorMessage = stdErr.isEmpty() ? process.exitMessage()
                                                       : process.exitMessage() + "\n\n" + stdErr;
-        return Result::Error(errorMessage);
-    }
-    return Result::Ok;
+        *errorStorage = errorMessage;
+    };
+
+    return {
+        storage,
+        ProcessTask(onSetup, onDone, CallDoneIf::Error)
+    };
 }
 
 // Factory

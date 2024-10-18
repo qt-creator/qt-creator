@@ -26,12 +26,14 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMessageBox>
+#include <QProgressDialog>
 #include <QPushButton>
 #include <QSpinBox>
 #include <QToolTip>
 #include <QSysInfo>
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace Android::Internal {
@@ -114,7 +116,7 @@ AvdDialog::AvdDialog(QWidget *parent)
             this, &AvdDialog::updateDeviceDefinitionComboBox);
     connect(m_abiComboBox, &QComboBox::currentIndexChanged,
             this, &AvdDialog::updateApiLevelComboBox);
-    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+    connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AvdDialog::createAvd);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
     m_deviceTypeToStringMap.insert(AvdDialog::Phone, "Phone");
@@ -129,31 +131,6 @@ AvdDialog::AvdDialog(QWidget *parent)
         m_deviceDefinitionTypeComboBox->addItem(type);
 
     updateApiLevelComboBox();
-}
-
-int AvdDialog::exec()
-{
-    const int execResult = QDialog::exec();
-    if (execResult == QDialog::Accepted) {
-        const SystemImage *si = systemImage();
-        if (!si || !si->isValid() || name().isEmpty()) {
-            QMessageBox::warning(Core::ICore::dialogParent(),
-                Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
-            return QDialog::Rejected;
-        }
-
-        const CreateAvdInfo avdInfo{si->sdkStylePath(), si->apiLevel(), name(), abi(),
-                                    deviceDefinition(), sdcardSize()};
-        const Result result = createAvd(avdInfo, m_overwriteCheckBox->isChecked());
-        if (!result) {
-            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
-                                 result.error());
-            return QDialog::Rejected;
-        }
-        m_createdAvdInfo = avdInfo;
-        updateAvdList();
-    }
-    return execResult;
 }
 
 bool AvdDialog::isValid() const
@@ -177,6 +154,63 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
     else if (type_tag.contains("android-desktop"))
         return AvdDialog::Desktop;
     return AvdDialog::PhoneOrTablet;
+}
+
+void AvdDialog::createAvd()
+{
+    const SystemImage *si = systemImage();
+    if (!si || !si->isValid() || name().isEmpty()) {
+        QMessageBox::warning(Core::ICore::dialogParent(),
+                             Tr::tr("Create new AVD"), Tr::tr("Cannot create AVD. Invalid input."));
+        return;
+    }
+    const CreateAvdInfo avdInfo{si->sdkStylePath(), si->apiLevel(), name(), abi(),
+                                deviceDefinition(), sdcardSize()};
+
+    struct Progress {
+        Progress() {
+            progressDialog.reset(new QProgressDialog(Core::ICore::dialogParent()));
+            progressDialog->setRange(0, 0);
+            progressDialog->setWindowModality(Qt::ApplicationModal);
+            progressDialog->setWindowTitle("Create new AVD");
+            progressDialog->setLabelText(Tr::tr("Creating new AVD device..."));
+            progressDialog->setFixedSize(progressDialog->sizeHint());
+            progressDialog->setAutoClose(false);
+            progressDialog->show(); // TODO: Should not be needed. Investigate possible QT_BUG
+        }
+        std::unique_ptr<QProgressDialog> progressDialog;
+    };
+
+    const Storage<Progress> progressStorage;
+
+    const auto onCancelSetup = [progressStorage] {
+        return std::make_pair(progressStorage->progressDialog.get(), &QProgressDialog::canceled);
+    };
+
+    const Storage<std::optional<QString>> errorStorage;
+
+    const auto onDone = [errorStorage] {
+        if (errorStorage->has_value()) {
+            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
+                                 errorStorage->value());
+        }
+    };
+
+    const Group recipe {
+        progressStorage,
+        errorStorage,
+        createAvdRecipe(errorStorage, avdInfo, m_overwriteCheckBox->isChecked())
+            .withCancel(onCancelSetup),
+        onGroupDone(onDone, CallDoneIf::Error)
+    };
+
+    m_taskTreeRunner.start(recipe, {}, [this, avdInfo](DoneWith result) {
+        if (result == DoneWith::Error)
+            return;
+        m_createdAvdInfo = avdInfo;
+        updateAvdList();
+        accept();
+    });
 }
 
 static bool avdManagerCommand(const QStringList &args, QString *output)
