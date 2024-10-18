@@ -237,3 +237,7 @@
     \externalpage https://www.openssh.com/
     \title OpenSSH
 */
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/jsonschemas/project.json
+    \title project.json
+*/

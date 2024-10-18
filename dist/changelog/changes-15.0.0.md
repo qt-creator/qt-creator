@@ -181,8 +181,10 @@ Projects
 
 ### Workspace
 
-* Added the option to add build configurations
-* Added automatic updating of the project tree
+* Added the option to add build configurations into
+  `Projects > Build & Run > Build > Add`
+  ([Documentation](https://doc.qt.io/qtcreator/creator-project-opening.html))
+* Added automatic updating of the project tree in `Projects`
 * Fixed that cloned run configurations were not editable
 
 ### vcpkg
