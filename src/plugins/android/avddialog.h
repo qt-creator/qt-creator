@@ -44,13 +44,13 @@ private:
     int sdcardSize() const;
     bool isValid() const;
 
-    void parseDeviceDefinitionsList();
     void updateDeviceDefinitionComboBox();
     void updateApiLevelComboBox();
     bool eventFilter(QObject *obj, QEvent *event) override;
 
     static AvdDialog::DeviceType tagToDeviceType(const QString &type_tag);
 
+    void collectInitialData();
     void createAvd();
 
     struct DeviceDefinitionStruct
@@ -66,6 +66,7 @@ private:
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
     QMap<AvdDialog::DeviceType, QString> m_deviceTypeToStringMap;
 
+    QWidget *m_gui;
     QComboBox *m_abiComboBox;
     QSpinBox *m_sdcardSizeSpinBox;
     QLineEdit *m_nameLineEdit;

@@ -11,6 +11,8 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 
+#include <solutions/spinner/spinner.h>
+
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -33,6 +35,7 @@
 #include <QSysInfo>
 
 using namespace ProjectExplorer;
+using namespace SpinnerSolution;
 using namespace Tasking;
 using namespace Utils;
 
@@ -96,8 +99,10 @@ AvdDialog::AvdDialog(QWidget *parent)
 
     using namespace Layouting;
 
+    m_gui = new QWidget;
+
     Column {
-        Form {
+        m_gui = Form {
             Tr::tr("Name:"), m_nameLineEdit, br,
             Tr::tr("Target ABI / API:"),
                 Row { m_abiComboBox, m_targetApiComboBox }, br,
@@ -106,7 +111,8 @@ AvdDialog::AvdDialog(QWidget *parent)
                 Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
             Tr::tr("SD card size:"), m_sdcardSizeSpinBox, br,
             QString(), m_overwriteCheckBox,
-        },
+            noMargin
+        }.emerge(),
         st,
         m_buttonBox
     }.attachTo(this);
@@ -126,11 +132,7 @@ AvdDialog::AvdDialog(QWidget *parent)
     m_deviceTypeToStringMap.insert(AvdDialog::Wear, "Wear");
     m_deviceTypeToStringMap.insert(AvdDialog::Desktop, "Desktop");
 
-    parseDeviceDefinitionsList();
-    for (const QString &type : m_deviceTypeToStringMap)
-        m_deviceDefinitionTypeComboBox->addItem(type);
-
-    updateApiLevelComboBox();
+    collectInitialData();
 }
 
 bool AvdDialog::isValid() const
@@ -154,6 +156,106 @@ AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
     else if (type_tag.contains("android-desktop"))
         return AvdDialog::Desktop;
     return AvdDialog::PhoneOrTablet;
+}
+
+void AvdDialog::collectInitialData()
+{
+    const auto onProcessSetup = [this](Process &process) {
+        m_gui->setEnabled(false);
+        m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
+        const CommandLine cmd(AndroidConfig::avdManagerToolPath(), {"list", "device"});
+        qCDebug(avdDialogLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
+        process.setEnvironment(AndroidConfig::toolsEnvironment());
+        process.setCommand(cmd);
+    };
+    const auto onProcessDone = [this](const Process &process, DoneWith result) {
+        const QString output = process.allOutput();
+        if (result == DoneWith::Error) {
+            QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("Create new AVD"),
+                                 Tr::tr("Avd list command failed. %1 %2")
+                                     .arg(output).arg(AndroidConfig::sdkToolsVersion().toString()));
+            reject();
+            return;
+        }
+
+/* Example output:
+
+Available devices definitions:
+id: 0 or "automotive_1024p_landscape"
+    Name: Automotive (1024p landscape)
+    OEM : Google
+    Tag : android-automotive-playstore
+---------
+id: 1 or "automotive_1080p_landscape"
+    Name: Automotive (1080p landscape)
+    OEM : Google
+    Tag : android-automotive
+---------
+id: 2 or "Galaxy Nexus"
+    Name: Galaxy Nexus
+    OEM : Google
+---------
+id: 3 or "desktop_large"
+    Name: Large Desktop
+    OEM : Google
+    Tag : android-desktop
+...
+*/
+        QStringList avdDeviceInfo;
+
+        const auto lines = output.split('\n');
+        for (const QString &line : lines) {
+            if (line.startsWith("---------") || line.isEmpty()) {
+                DeviceDefinitionStruct deviceDefinition;
+                for (const QString &line : avdDeviceInfo) {
+                    if (line.contains("id:")) {
+                        deviceDefinition.name_id = line.split("or").at(1);
+                        deviceDefinition.name_id = deviceDefinition.name_id.remove(0, 1).remove('"');
+                    } else if (line.contains("Tag :")) {
+                        deviceDefinition.type_str = line.split(':').at(1);
+                        deviceDefinition.type_str = deviceDefinition.type_str.remove(0, 1);
+                    }
+                }
+
+                DeviceType deviceType = tagToDeviceType(deviceDefinition.type_str);
+                if (deviceType == PhoneOrTablet) {
+                    if (deviceDefinition.name_id.contains("Tablet"))
+                        deviceType = Tablet;
+                    else
+                        deviceType = Phone;
+                }
+                deviceDefinition.deviceType = deviceType;
+                m_deviceDefinitionsList.append(deviceDefinition);
+                avdDeviceInfo.clear();
+            } else {
+                avdDeviceInfo << line;
+            }
+        }
+        for (const QString &type : m_deviceTypeToStringMap)
+            m_deviceDefinitionTypeComboBox->addItem(type);
+
+        updateApiLevelComboBox();
+        m_gui->setEnabled(true);
+    };
+
+    struct SpinnerStruct {
+        std::unique_ptr<Spinner> spinner;
+    };
+
+    const Storage<SpinnerStruct> storage;
+
+    const auto onSetup = [this, storage] {
+        storage->spinner.reset(new Spinner(SpinnerSize::Medium, m_gui));
+        storage->spinner->show();
+    };
+
+    const Group recipe {
+        storage,
+        onGroupSetup(onSetup),
+        ProcessTask(onProcessSetup, onProcessDone)
+    };
+
+    m_taskTreeRunner.start(recipe);
 }
 
 void AvdDialog::createAvd()
@@ -211,87 +313,6 @@ void AvdDialog::createAvd()
         updateAvdList();
         accept();
     });
-}
-
-static bool avdManagerCommand(const QStringList &args, QString *output)
-{
-    CommandLine cmd(AndroidConfig::avdManagerToolPath(), args);
-    Process proc;
-    proc.setEnvironment(AndroidConfig::toolsEnvironment());
-    qCDebug(avdDialogLog).noquote() << "Running AVD Manager command:" << cmd.toUserOutput();
-    proc.setCommand(cmd);
-    proc.runBlocking();
-    if (proc.result() == ProcessResult::FinishedWithSuccess) {
-        if (output)
-            *output = proc.allOutput();
-        return true;
-    }
-    return false;
-}
-
-void AvdDialog::parseDeviceDefinitionsList()
-{
-    QString output;
-
-    if (!avdManagerCommand({"list", "device"}, &output)) {
-        qCDebug(avdDialogLog) << "Avd list command failed" << output
-                              << AndroidConfig::sdkToolsVersion();
-        return;
-    }
-
-    /* Example output:
-Available devices definitions:
-id: 0 or "automotive_1024p_landscape"
-    Name: Automotive (1024p landscape)
-    OEM : Google
-    Tag : android-automotive-playstore
----------
-id: 1 or "automotive_1080p_landscape"
-    Name: Automotive (1080p landscape)
-    OEM : Google
-    Tag : android-automotive
----------
-id: 2 or "Galaxy Nexus"
-    Name: Galaxy Nexus
-    OEM : Google
----------
-id: 3 or "desktop_large"
-    Name: Large Desktop
-    OEM : Google
-    Tag : android-desktop
-...
-     */
-
-    QStringList avdDeviceInfo;
-
-    const auto lines = output.split('\n');
-    for (const QString &line : lines) {
-        if (line.startsWith("---------") || line.isEmpty()) {
-            DeviceDefinitionStruct deviceDefinition;
-            for (const QString &line : avdDeviceInfo) {
-                if (line.contains("id:")) {
-                    deviceDefinition.name_id = line.split("or").at(1);
-                    deviceDefinition.name_id = deviceDefinition.name_id.remove(0, 1).remove('"');
-                } else if (line.contains("Tag :")) {
-                    deviceDefinition.type_str = line.split(':').at(1);
-                    deviceDefinition.type_str = deviceDefinition.type_str.remove(0, 1);
-                }
-            }
-
-            DeviceType deviceType = tagToDeviceType(deviceDefinition.type_str);
-            if (deviceType == PhoneOrTablet) {
-                if (deviceDefinition.name_id.contains("Tablet"))
-                    deviceType = Tablet;
-                else
-                    deviceType = Phone;
-            }
-            deviceDefinition.deviceType = deviceType;
-            m_deviceDefinitionsList.append(deviceDefinition);
-            avdDeviceInfo.clear();
-        } else {
-            avdDeviceInfo << line;
-        }
-    }
 }
 
 void AvdDialog::updateDeviceDefinitionComboBox()
