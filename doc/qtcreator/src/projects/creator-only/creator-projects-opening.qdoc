@@ -18,10 +18,10 @@
 
     \title Open projects
 
-    To open a project, open the project file for the project:
-    \e {CMakeLists.txt} (CMake), \e {.pro} (qmake), \e {.qbs} (Qbs),
-    \e {meson.build} (Meson), \e {pyproject} (Python), or \e {Makefile.am}
-    (Autotools, experimental).
+    To open a project, open the configuration file for the project:
+    \e {CMakeLists.txt} or \e {CMakeCache.txt} (CMake), \e {.pro} (qmake),
+    \e {.qbs} (Qbs), \e {meson.build} (Meson), \e {pyproject} (Python), or
+    \e {Makefile.am} (Autotools, experimental).
 
     You can open a project in the following ways:
 
