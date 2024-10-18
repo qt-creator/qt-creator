@@ -235,6 +235,7 @@ private:
 IssuesWidget::IssuesWidget(QWidget *parent)
     : QScrollArea(parent)
 {
+    setFrameStyle(QFrame::NoFrame);
     QWidget *widget = new QWidget(this);
     m_dashboards = new QComboBox(this);
     m_dashboards->setMinimumContentsLength(15);
@@ -874,6 +875,7 @@ void AxivionPerspective::initPerspective()
     m_issuesWidget->setPalette(pal);
 
     m_issueDetails = new QTextBrowser;
+    m_issueDetails->setFrameStyle(QFrame::NoFrame);
     m_issueDetails->setObjectName("AxivionIssuesDetails");
     m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
     const QString text = Tr::tr(
