@@ -8,7 +8,7 @@
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('Subversion') >= 0}",
+    "enabled": "%{JS: isPluginRunning('subversion')}",
 
     "options":
     [

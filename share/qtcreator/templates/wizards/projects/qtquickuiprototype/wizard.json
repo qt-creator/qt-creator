@@ -8,14 +8,14 @@
     "trDisplayCategory": "Other Project",
     "icon": "qtquickuiprototype.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('QmlProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qmlprojectmanager')}",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ],
 
     "options":
     [
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qmlproject')}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName(value('ProjectName'), 'qml')}" },
-        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: isPluginRunning('boot2qt')}" },
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
 

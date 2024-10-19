@@ -9,13 +9,13 @@
     "icon": "icon.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi" ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0 }",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager') }",
 
     "options":
     [
         { "key": "ProjectFile", "value": "%{ProjectDirectory}/CMakeLists.txt" },
         { "key": "MainCppFileName", "value": "%{JS: 'main.' + Util.preferredSuffix('text/x-c++src') }" },
-        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0 }" },
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: isPluginRunning('boot2qt') }" },
         { "key": "TargetName", "value": "%{JS: 'app' + value('ProjectName') }" },
         { "key": "HasQSPSetup", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.2' }"},
         { "key": "HasFailureSignal", "value": "%{JS: value('MinimumSupportedQtVersion') > '6.3' }"},

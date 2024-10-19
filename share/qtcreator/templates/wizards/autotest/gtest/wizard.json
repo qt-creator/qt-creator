@@ -8,7 +8,7 @@
     "trDisplayCategory": "Test Project",
     "icon": "../autotest.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('cppeditor')}",
 
     "options":
     [
@@ -128,17 +128,17 @@
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "Qbs",
                                 "value": "qbs",
-                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qbsprojectmanager')}"
                             }
                         ]
                     }

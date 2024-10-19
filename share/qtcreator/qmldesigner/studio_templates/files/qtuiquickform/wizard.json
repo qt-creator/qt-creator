@@ -9,7 +9,7 @@
     "icon": "file_ui.png",
     "platformIndependent": true,
 
-    "enabled": "%{JS: value('Plugins').indexOf('QmlJSEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qmljseditor')}",
     "options" : [
         { "key": "QmlFile", "value": "%{Class}.%{JS: Util.preferredSuffix('text/x-qml')}" },
         { "key": "UiFile", "value": "%{FormClass}.%{JS: Util.preferredSuffix('application/x-qt.ui+qml')}" },

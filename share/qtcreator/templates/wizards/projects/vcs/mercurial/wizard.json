@@ -8,7 +8,7 @@
     "trDisplayCategory": "Import Project",
     "icon": "icon.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('Mercurial') >= 0}",
+    "enabled": "%{JS: isPluginRunning('mercurial')}",
 
     "options":
     [

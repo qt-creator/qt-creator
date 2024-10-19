@@ -8,7 +8,7 @@
     "trDisplayCategory": "Modeling",
     "iconText": "scxml",
     "platformIndependent": true,
-    "enabled": "%{JS: value('Plugins').indexOf('ScxmlEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('scxmleditor')}",
 
     "options":
     [

@@ -7,7 +7,7 @@
     "trDisplayName": "Squish Test Suite",
     "trDisplayCategory": "Squish",
     "iconText": "STS",
-    "enabled": "%{JS: value('Plugins').indexOf('Squish') >= 0}",
+    "enabled": "%{JS: isPluginRunning('squish')}",
 
     "options":
     [

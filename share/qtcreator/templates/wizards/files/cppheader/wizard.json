@@ -7,7 +7,7 @@
     "trDisplayName": "C/C++ Header File",
     "trDisplayCategory": "C/C++",
     "iconText": "h",
-    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0}",
+    "enabled": "%{JS: isPluginRunning('cppeditor')}",
 
     "options": [
         { "key": "DefaultSuffix", "value": "%{JS: Cpp.cxxHeaderSuffix()}" },

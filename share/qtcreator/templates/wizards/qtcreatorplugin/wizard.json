@@ -9,7 +9,7 @@
     "icon": "qtcreatorplugin.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt", "QtSupport.Wizards.FeatureDesktop" ],
-    "enabled": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('cmakeprojectmanager')}",
 
     "options":
     [

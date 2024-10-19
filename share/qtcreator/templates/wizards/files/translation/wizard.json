@@ -7,7 +7,7 @@
     "trDisplayName": "Qt Translation File",
     "trDisplayCategory": "Qt",
     "iconText": "ts",
-    "enabled": "%{JS: value('Plugins').indexOf('QtSupport') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qtsupport')}",
 
     "options": [
         {

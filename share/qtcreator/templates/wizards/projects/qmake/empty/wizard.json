@@ -9,7 +9,7 @@
     "icon": "../../../global/guiapplication.png",
     "iconKind": "Themed",
     "featuresRequired": [ "QtSupport.Wizards.FeatureQt" ],
-    "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
+    "enabled": "%{JS: isPluginRunning('qmakeprojectmanager')}",
     "options":
     [
         { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" }

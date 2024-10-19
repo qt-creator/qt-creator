@@ -8,7 +8,7 @@
     "trDisplayCategory": "Python",
     "icon": "../../files/python/icon.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('Python') >= 0}",
+    "enabled": "%{JS: isPluginRunning('python')}",
 
     "options":
     [

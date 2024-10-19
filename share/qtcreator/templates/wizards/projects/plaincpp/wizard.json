@@ -8,7 +8,7 @@
     "trDisplayCategory": "Non-Qt Project",
     "icon": "../../global/consoleapplication.png",
     "iconKind": "Themed",
-    "enabled": "%{JS: value('Plugins').indexOf('CppEditor') >= 0 && (value('Plugins').indexOf('QmakeProjectManager') >= 0 || value('Plugins').indexOf('QbsProjectManager') >= 0 || value('Plugins').indexOf('CMakeProjectManager') >= 0 || value('Plugins').indexOf('MesonProjectManager') >= 0)}",
+    "enabled": "%{JS: isPluginRunning('cppeditor') && isAnyPluginRunning(['qmakeprojectmanager', 'qbsprojectmanager', 'cmakeprojectmanager', 'mesonprojectmanager'])}",
 
     "options":
     [
@@ -47,22 +47,22 @@
                             {
                                 "trKey": "qmake",
                                 "value": "qmake",
-                                "condition": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "CMake",
                                 "value": "cmake",
-                                "condition": "%{JS: value('Plugins').indexOf('CMakeProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('cmakeprojectmanager')}"
                             },
                             {
                                 "trKey": "Qbs",
                                 "value": "qbs",
-                                "condition": "%{JS: value('Plugins').indexOf('QbsProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('qbsprojectmanager')}"
                             },
                             {
                                 "trKey": "Meson",
                                 "value": "meson",
-                                "condition": "%{JS: value('Plugins').indexOf('MesonProjectManager') >= 0}"
+                                "condition": "%{JS: isPluginRunning('mesonprojectmanager')}"
                             }
                         ]
                     }
