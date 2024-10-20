@@ -157,9 +157,9 @@ static QString extensionStateDisplayString(ExtensionState state)
 {
     switch (state) {
     case InstalledEnabled:
-        return Tr::tr("Loaded");
+        return Tr::tr("Active");
     case InstalledDisabled:
-        return Tr::tr("Installed");
+        return Tr::tr("Inactive");
     default:
         return {};
     }
