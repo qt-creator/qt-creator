@@ -1623,9 +1623,8 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                              .arg(QLatin1String(isDefault ? "Default " : ""))
                              .arg(targetAbi.wordWidth())
                              .arg(Abi::toString(targetAbi.osFlavor()).toUpper());
-    for (auto language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
-        ClangClToolchain *tc = static_cast<ClangClToolchain *>(
-            Utils::findOrDefault(alreadyKnown, [&](Toolchain *tc) -> bool {
+    for (const Id language : {Id(Constants::C_LANGUAGE_ID), Id(Constants::CXX_LANGUAGE_ID)}) {
+        if (Utils::findOrDefault(alreadyKnown, [&](Toolchain *tc) {
                 if (tc->typeId() != Constants::CLANG_CL_TOOLCHAIN_TYPEID)
                     return false;
                 if (tc->targetAbi() != targetAbi)
@@ -1633,18 +1632,17 @@ static Toolchains detectClangClToolChainInPath(const FilePath &clangClPath,
                 if (tc->language() != language)
                     return false;
                 return tc->compilerCommand().isSameExecutable(clangClPath);
-            }));
-        if (tc) {
-            res << tc;
-        } else {
-            auto cltc = new ClangClToolchain;
-            cltc->setClangPath(clangClPath);
-            cltc->setDisplayName(name);
-            cltc->setDetection(Toolchain::AutoDetection);
-            cltc->setLanguage(language);
-            cltc->setupVarsBat(toolChain->targetAbi(), toolChain->varsBat(), toolChain->varsBatArg());
-            res << cltc;
+            })) {
+            continue;
         }
+
+        auto cltc = new ClangClToolchain;
+        cltc->setClangPath(clangClPath);
+        cltc->setDisplayName(name);
+        cltc->setDetection(Toolchain::AutoDetection);
+        cltc->setLanguage(language);
+        cltc->setupVarsBat(toolChain->targetAbi(), toolChain->varsBat(), toolChain->varsBatArg());
+        res << cltc;
     }
     return res;
 }
