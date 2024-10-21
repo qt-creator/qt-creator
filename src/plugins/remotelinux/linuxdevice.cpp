@@ -431,7 +431,6 @@ public:
     QByteArray m_output;
     QByteArray m_error;
     bool m_pidParsed = false;
-    bool m_useConnectionSharing = false;
 };
 
 SshProcessInterface::SshProcessInterface(const IDevice::ConstPtr &device)
@@ -689,13 +688,17 @@ void SshProcessInterfacePrivate::start()
         return;
     }
 
-    m_useConnectionSharing = SshSettings::connectionSharingEnabled() && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
+    auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
+    QTC_ASSERT(linuxDevice, handleDone(); return);
+    const bool useConnectionSharing = !linuxDevice->isDisconnected()
+            && SshSettings::connectionSharingEnabled()
+            && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
 
     // TODO: Do we really need it for master process?
     m_sshParameters.x11DisplayName
             = q->m_setup.m_extraData.value("Ssh.X11ForwardToDisplay").toString();
 
-    if (m_useConnectionSharing) {
+    if (useConnectionSharing) {
         m_connecting = true;
         m_connectionHandle.reset(new SshConnectionHandle(m_device));
         m_connectionHandle->setParent(this);
@@ -703,16 +706,6 @@ void SshProcessInterfacePrivate::start()
                 this, &SshProcessInterfacePrivate::handleConnected);
         connect(m_connectionHandle.get(), &SshConnectionHandle::disconnected,
                 this, &SshProcessInterfacePrivate::handleDisconnected);
-        auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
-        QTC_ASSERT(linuxDevice, handleDone(); return);
-        if (linuxDevice->isDisconnected()) {
-            emit q->done(
-                {-1,
-                 QProcess::CrashExit,
-                 QProcess::FailedToStart,
-                 Tr::tr("Device \"%1\" is disconnected.").arg(linuxDevice->displayName())});
-            return;
-        }
         linuxDevice->connectionAccess()
             ->attachToSharedConnection(m_connectionHandle.get(), m_sshParameters);
     } else {
