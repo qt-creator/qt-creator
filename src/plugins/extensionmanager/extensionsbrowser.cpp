@@ -180,8 +180,10 @@ public:
     constexpr static TextFormat vendorTF
         {Theme::Token_Text_Muted, UiElement::UiElementLabelSmall,
          Qt::AlignVCenter | Qt::TextDontClip};
-    constexpr static TextFormat stateTF
+    constexpr static TextFormat stateActiveTF
         {vendorTF.themeColor, UiElement::UiElementCaption, vendorTF.drawTextFlags};
+    constexpr static TextFormat stateInactiveTF
+        {Theme::Token_Text_Subtle, stateActiveTF.uiElement, stateActiveTF.drawTextFlags};
     constexpr static TextFormat descriptionTF
         {itemNameTF.themeColor, UiElement::UiElementCaption};
 
@@ -213,7 +215,7 @@ public:
         m_releaseStatus = tfLabel(releaseStatusTF, false);
         m_releaseStatus->setAlignment(Qt::AlignLeft);
         m_releaseStatus->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-        m_installStateLabel = tfLabel(stateTF, false);
+        m_installStateLabel = tfLabel(stateActiveTF, false);
         m_installStateLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         m_installStateIcon = new QLabel;
         m_installStateIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
@@ -284,13 +286,17 @@ public:
         const bool showState = !stateString.isEmpty();
         m_installState->setVisible(showState);
         if (showState) {
+            const bool active = state == InstalledEnabled;
+            QPalette pal = m_installStateLabel->palette();
+            pal.setColor(QPalette::WindowText, (active ? stateActiveTF : stateInactiveTF).color());
+            m_installStateLabel->setPalette(pal);
             m_installStateLabel->setText(stateString);
             const FilePath checkmarkMask = ":/extensionmanager/images/checkmark.png";
-            static const QPixmap enabled = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
-                                                Icon::Tint).pixmap();
-            static const QPixmap disabled = Icon({{checkmarkMask, stateTF.themeColor}},
-                                                 Icon::Tint).pixmap();
-            m_installStateIcon->setPixmap(state == InstalledEnabled ? enabled : disabled);
+            static const QPixmap iconActive = Icon({{checkmarkMask, Theme::Token_Accent_Muted}},
+                                                   Icon::Tint).pixmap();
+            static const QPixmap iconInactive = Icon({{checkmarkMask, stateInactiveTF.themeColor}},
+                                                     Icon::Tint).pixmap();
+            m_installStateIcon->setPixmap(active ? iconActive : iconInactive);
         }
 
         m_vendorLabel->setText(index.data(RoleVendor).toString());
@@ -772,10 +778,8 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     const PluginSpec *ps = pluginSpecForId(index.data(RoleId).toString());
     const bool isEnabled = ps == nullptr || ps->isEffectivelyEnabled();
     const QGradientStops gradientStops = {
-        {0, creatorColor(isEnabled ? Theme::Token_Gradient01_Start
-                                   : Theme::Token_Gradient02_Start)},
-        {1, creatorColor(isEnabled ? Theme::Token_Gradient01_End
-                                   : Theme::Token_Gradient02_End)},
+        {0, creatorColor(Theme::Token_Gradient01_Start)},
+        {1, creatorColor(Theme::Token_Gradient01_End)},
     };
 
     const Theme::Color color = Theme::Token_Basic_White;
@@ -790,14 +794,14 @@ QPixmap itemIcon(const QModelIndex &index, Size size)
     const ItemType itemType = index.data(RoleItemType).value<ItemType>();
     const QIcon &icon = (itemType == ItemTypePack) ? (size == SizeSmall ? packS : packB)
                                                    : (size == SizeSmall ? extensionS : extensionB);
-    const qreal iconOpacityDisabled = 0.6;
+    const qreal iconOpacityDisabled = 0.5;
 
     QPainter p(&pixmap);
     QLinearGradient gradient(iconBgR.topRight(), iconBgR.bottomLeft());
     gradient.setStops(gradientStops);
-    WelcomePageHelpers::drawCardBackground(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
     if (!isEnabled)
         p.setOpacity(iconOpacityDisabled);
+    WelcomePageHelpers::drawCardBackground(&p, iconBgR, gradient, Qt::NoPen, iconRectRounding);
     icon.paint(&p, iconBgR);
 
     return pixmap;
