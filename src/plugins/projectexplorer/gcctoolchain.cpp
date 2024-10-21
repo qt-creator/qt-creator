@@ -1626,7 +1626,7 @@ Toolchains GccToolchainFactory::autoDetectSdkClangToolchain(const Toolchains &kn
 
     for (Toolchain * const existingTc : known) {
         if (existingTc->compilerCommand() == *compilerPath)
-            return {existingTc};
+            return {};
     }
 
     return {autoDetectToolchain({*compilerPath, Constants::C_LANGUAGE_ID}, GccToolchain::Clang)};
