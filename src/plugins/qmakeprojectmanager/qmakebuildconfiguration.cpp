@@ -241,6 +241,7 @@ void QmakeBuildConfiguration::updateProblemLabel()
     bool targetMismatch = false;
     bool incompatibleBuild = false;
     bool allGood = false;
+    bool invalidArguments = false;
     // we only show if we actually have a qmake and makestep
     QString errorString;
     if (qmakeStep() && makeStep()) {
@@ -257,6 +258,9 @@ void QmakeBuildConfiguration::updateProblemLabel()
             break;
         case QmakeBuildConfiguration::MakefileForWrongProject:
             targetMismatch = true;
+            break;
+        case QmakeBuildConfiguration::InvalidArguments:
+            invalidArguments = true;
             break;
         }
     }
@@ -304,6 +308,10 @@ void QmakeBuildConfiguration::updateProblemLabel()
         return;
     } else if (unalignedBuildDir) {
         buildDirectoryAspect()->setProblem(unalignedBuildDirWarning());
+        return;
+    } else if (invalidArguments) {
+        buildDirectoryAspect()->setProblem(
+            Tr::tr("Starting qmake failed with the following error: %1").arg(errorString));
         return;
     }
 
@@ -516,8 +524,16 @@ QmakeBuildConfiguration::MakefileState QmakeBuildConfiguration::compareToImportF
     // and compare that on its own
     FilePath workingDirectory = makefile.parentDir();
     QStringList actualArgs;
-    QString allArgs = macroExpander()->expandProcessArgs(qs->allArguments(
-        QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
+    expected_str<QString> expandResult = macroExpander()->expandProcessArgs(
+        qs->allArguments(QtKitAspect::qtVersion(target()->kit()), QMakeStep::ArgumentFlag::Expand));
+
+    if (!expandResult) {
+        if (errorString)
+            *errorString = expandResult.error();
+        return InvalidArguments;
+    }
+
+    QString allArgs = *expandResult;
     // This copies the settings from allArgs to actualArgs (minus some we
     // are not interested in), splitting them up into individual strings:
     extractSpecFromArguments(&allArgs, workingDirectory, version, &actualArgs);

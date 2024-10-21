@@ -328,9 +328,11 @@ QString ArgumentsAspect::arguments() const
         return m_arguments;
 
     m_currentlyExpanding = true;
-    const QString expanded = macroExpander()->expandProcessArgs(m_arguments);
+    const expected_str<QString> expanded = macroExpander()->expandProcessArgs(m_arguments);
+    QTC_ASSERT_EXPECTED(expanded, return m_arguments);
+
     m_currentlyExpanding = false;
-    return expanded;
+    return *expanded;
 }
 
 /*!
@@ -962,7 +964,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
 
 QString X11ForwardingAspect::display() const
 {
-    return !isChecked() ? QString() : macroExpander()->expandProcessArgs(value());
+    return !isChecked() ? QString() : macroExpander()->expand(value());
 }
 
 

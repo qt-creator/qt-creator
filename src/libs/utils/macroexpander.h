@@ -37,7 +37,7 @@ public:
     QByteArray expand(const QByteArray &stringWithVariables) const;
     QVariant expandVariant(const QVariant &v) const;
 
-    QString expandProcessArgs(
+    expected_str<QString> expandProcessArgs(
         const QString &argsWithVariables, Utils::OsType osType = Utils::HostOsInfo::hostOs()) const;
 
     using PrefixFunction = std::function<QString(QString)>;

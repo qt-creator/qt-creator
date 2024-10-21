@@ -923,7 +923,12 @@ void ExternalToolConfig::addCategory()
 
 void ExternalToolConfig::updateEffectiveArguments()
 {
-    m_arguments->setToolTip(Utils::globalMacroExpander()->expandProcessArgs(m_arguments->text()));
+    const expected_str<QString> result = Utils::globalMacroExpander()->expandProcessArgs(
+        m_arguments->text());
+    if (result)
+        m_arguments->setToolTip(*result);
+    else
+        m_arguments->setToolTip(result.error());
 }
 
 void ExternalToolConfig::editEnvironmentChanges()

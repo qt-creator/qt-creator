@@ -19,8 +19,6 @@
 namespace Utils {
 namespace Internal {
 
-static Q_LOGGING_CATEGORY(expanderLog, "qtc.utils.macroexpander", QtWarningMsg)
-
 const char kFilePathPostfix[] = ":FilePath";
 const char kPathPostfix[] = ":Path";
 const char kNativeFilePathPostfix[] = ":NativeFilePath";
@@ -413,7 +411,8 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     return v;
 }
 
-QString MacroExpander::expandProcessArgs(const QString &argsWithVariables, Utils::OsType osType) const
+expected_str<QString> MacroExpander::expandProcessArgs(
+    const QString &argsWithVariables, Utils::OsType osType) const
 {
     QString result = argsWithVariables;
     const bool ok = ProcessArgs::expandMacros(
@@ -421,7 +420,10 @@ QString MacroExpander::expandProcessArgs(const QString &argsWithVariables, Utils
         [this](const QString &str, int *pos, QString *ret) { return d->findMacro(str, pos, ret); },
         osType);
 
-    QTC_ASSERT(ok, qCDebug(expanderLog) << "Expanding failed: " << argsWithVariables);
+    if (!ok) {
+        return make_unexpected(
+            Tr::tr("Failed to expand macros in process arguments: %1").arg(argsWithVariables));
+    }
     return result;
 }
 
