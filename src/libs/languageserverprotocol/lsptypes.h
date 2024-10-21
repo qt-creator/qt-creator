@@ -154,6 +154,17 @@ enum class DiagnosticSeverity
 
 };
 
+class LANGUAGESERVERPROTOCOL_EXPORT CodeDescription : public JsonObject
+{
+public:
+    using JsonObject::JsonObject;
+
+    QString href() const { return typedValue<QString>(hrefKey); }
+    void setHref(const QString &href) { insert(hrefKey, href); }
+
+    bool isValid() const override { return contains(hrefKey); }
+};
+
 class LANGUAGESERVERPROTOCOL_EXPORT Diagnostic : public JsonObject
 {
 public:
@@ -187,6 +198,12 @@ public:
     QString message() const
     { return typedValue<QString>(messageKey); }
     void setMessage(const QString &message) { insert(messageKey, message); }
+
+    std::optional<CodeDescription> codeDescription() const
+    { return optionalValue<CodeDescription>(codeDescriptionKey); }
+    void setCodeDescription(const CodeDescription &codeDescription)
+    { insert(codeDescriptionKey, codeDescription); }
+    void clearCodeDescription() { remove(codeDescriptionKey); }
 
     bool isValid() const override { return contains(rangeKey) && contains(messageKey); }
 };
