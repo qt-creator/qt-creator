@@ -1606,6 +1606,12 @@ std::unique_ptr<ToolchainConfigWidget> GccToolchainFactory::createConfigurationW
 FilePath GccToolchainFactory::correspondingCompilerCommand(
     const FilePath &srcPath, Id targetLang) const
 {
+    // llvm-mingw
+    if (supportedToolchainType() == Constants::MINGW_TOOLCHAIN_TYPEID
+            && srcPath.fileName().contains("clang")) {
+        return GccToolchain::correspondingCompilerCommand(srcPath, targetLang, "clang", "clang++");
+    }
+
     if (supportedToolchainType() == Constants::GCC_TOOLCHAIN_TYPEID
         || supportedToolchainType() == Constants::MINGW_TOOLCHAIN_TYPEID) {
         return GccToolchain::correspondingCompilerCommand(srcPath, targetLang, "gcc", "g++");
