@@ -354,26 +354,13 @@ void QmlDesignerProjectManager::editorsClosed(const QList<::Core::IEditor *> &) 
 
 namespace {
 
-QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Target *target)
-{
-    if (target)
-        return QtSupport::QtKitAspect::qtVersion(target->kit());
-
-    return {};
-}
-
-[[maybe_unused]] QtSupport::QtVersion *getQtVersion(::ProjectExplorer::Project *project)
-{
-    return getQtVersion(project->activeTarget());
-}
-
-Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
+QString qmlPath(::ProjectExplorer::Target *target)
 {
     auto qt = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (qt)
-        return qt->qmlPath();
+        return qt->qmlPath().path();
 
-    return {};
+    return QLibraryInfo::path(QLibraryInfo::QmlImportsPath);
 }
 
 [[maybe_unused]] void projectQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
@@ -388,7 +375,7 @@ Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
 [[maybe_unused]] void qtQmldirPaths(::ProjectExplorer::Target *target, QStringList &qmldirPaths)
 {
     if constexpr (useProjectStorage()) {
-        auto qmlRootPath = qmlPath(target).toString();
+        auto qmlRootPath = qmlPath(target);
         qmldirPaths.push_back(qmlRootPath + "/QtQml");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick");
         qmldirPaths.push_back(qmlRootPath + "/QtQuick3D");
@@ -443,7 +430,7 @@ Utils::FilePath qmlPath(::ProjectExplorer::Target *target)
     QStringList qmldirPaths;
     qmldirPaths.reserve(2);
 
-    const QString qmlRootPath = qmlPath(target).toString();
+    const QString qmlRootPath = qmlPath(target);
 
     qmldirPaths.append(qmlRootPath + "/builtins.qmltypes");
     qmldirPaths.append(qmlRootPath + "/jsroot.qmltypes");
