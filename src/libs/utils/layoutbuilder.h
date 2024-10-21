@@ -50,6 +50,8 @@ namespace Utils {
 class FancyLineEdit;
 class FilePath;
 class MarkdownBrowser;
+class Icon;
+class IconDisplay;
 } // namespace Utils
 
 namespace Layouting {
@@ -360,6 +362,16 @@ public:
     void setOrientation(Qt::Orientation);
     void setStretchFactor(int index, int stretch);
     void setChildrenCollapsible(bool collapsible);
+};
+
+class QTCREATOR_UTILS_EXPORT IconDisplay : public Widget
+{
+public:
+    using Implementation = Utils::IconDisplay;
+    using I = Building::BuilderItem<IconDisplay>;
+
+    IconDisplay(std::initializer_list<I> ps);
+    void setIcon(const Utils::Icon &icon);
 };
 
 class QTCREATOR_UTILS_EXPORT ScrollArea : public Widget

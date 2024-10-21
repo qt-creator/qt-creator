@@ -224,6 +224,17 @@ function gui.TabWidget(name, child) end
 ---@field decorated bool Display spinner with custom styleSheet defined inside control (default true)
 local spinner = {}
 
+---@class IconDisplay : Widget
+local IconDisplay = {}
+
+---@class (exact) IconDisplayOptions : BaseWidgetOptions
+---@param icon? Utils.Icon|FilePath|string The icon to display
+gui.iconDisplayOptions = {}
+
+---@param options IconDisplayOptions
+---@return IconDisplay
+function gui.IconDisplay(options) end
+
 ---A "Line break" in the gui.
 function gui.br() end
 

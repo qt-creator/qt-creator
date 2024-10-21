@@ -110,6 +110,7 @@ CREATE_HAS_FUNC(onRightSideIconClicked, nullptr, nullptr)
 CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
 CREATE_HAS_FUNC(setFixedSize, QSize())
 CREATE_HAS_FUNC(setVisible, bool())
+CREATE_HAS_FUNC(setIcon, Utils::Icon());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -118,6 +119,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         const auto visible = children.get<sol::optional<bool>>("visible");
         if (visible)
             item->setVisible(*visible);
+    }
+
+    if constexpr (has_setIcon<T>) {
+        const auto icon = children.get<sol::optional<IconFilePathOrString>>("icon");
+        if (icon)
+            item->setIcon(*toIcon(*icon));
     }
 
     if constexpr (has_setTextInteractionFlags<T>) {
@@ -625,6 +632,15 @@ void setupGuiModule()
             sol::property(&Spinner::setRunning),
             "decorated",
             sol::property(&Spinner::setDecorated),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Layouting::IconDisplay>(
+            "IconDisplay",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Layouting::IconDisplay>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
