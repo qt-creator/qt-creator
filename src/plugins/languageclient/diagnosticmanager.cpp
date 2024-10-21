@@ -224,13 +224,19 @@ std::optional<Task> DiagnosticManager::createTask(
         }
     }
 
-    return Task(taskType,
-                taskText(diagnostic),
-                doc->filePath(),
-                diagnostic.range().start().line() + 1,
-                d->m_taskCategory,
-                icon,
-                Task::NoOptions);
+    Task task(
+        taskType,
+        taskText(diagnostic),
+        doc->filePath(),
+        diagnostic.range().start().line() + 1,
+        d->m_taskCategory,
+        icon,
+        Task::NoOptions);
+
+    if (const std::optional<CodeDescription> codeDescription = diagnostic.codeDescription())
+        task.addLinkDetail(codeDescription->href());
+
+    return task;
 }
 
 QString DiagnosticManager::taskText(const LanguageServerProtocol::Diagnostic &diagnostic) const

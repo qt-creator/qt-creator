@@ -163,6 +163,15 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
         .arg(htmlExtraHeading, TextEditor::FontSettings::defaultFixedFontFamily(), text);
 }
 
+void Task::addLinkDetail(const QString &link)
+{
+    details.append(link);
+    QTextCharFormat format;
+    format.setAnchor(true);
+    format.setAnchorHref(link);
+    formats << QTextLayout::FormatRange{0, int(link.length()), format};
+}
+
 //
 // functions
 //
