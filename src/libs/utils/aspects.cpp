@@ -896,7 +896,7 @@ public:
     template<class Widget>
     void updateWidgetFromCheckStatus(BaseAspect *aspect, Widget *w)
     {
-        const bool enabled = !m_checked || m_checked->value();
+        const bool enabled = !m_checked || m_checked->volatileValue();
         if (m_uncheckedSemantics == UncheckedSemantics::Disabled)
             w->setEnabled(enabled && aspect->isEnabled());
         else
