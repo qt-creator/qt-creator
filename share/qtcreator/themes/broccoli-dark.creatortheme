@@ -272,7 +272,6 @@ DStoolbarBackground=midnightGrey
 ;DS controls theme END
 
 DetailsWidgetBackgroundColor=18ffffff
-DockWidgetResizeHandleColor=splitter
 IconsCodeModelKeywordColor=ff777777
 IconsCodeModelClassColor=ffc0b550
 IconsCodeModelStructColor=ff53b053
@@ -285,9 +284,6 @@ IconsCodeModelUniformColor=ff994899
 IconsCodeModelVaryingColor=ffa08833
 IconsCodeModelOverlayBackgroundColor=70000000
 IconsCodeModelOverlayForegroundColor=ffd0d0d0
-InfoBarBackground=ff505000
-MiniProjectTargetSelectorBackgroundColor=shadowBackground
-MiniProjectTargetSelectorBorderColor=shadowBackground
 TextColorHighlightBackground=7a6f1c
 
 OutputPanes_DebugTextColor=text
@@ -305,7 +301,6 @@ OutputPanes_TestSkipTextColor=ff828282
 OutputPanes_TestWarnTextColor=ffc8c800
 OutputPanes_TestFatalTextColor=ffc82828
 OutputPanes_TestDebugTextColor=ff329696
-OutputPaneButtonFlashColor=error
 
 Debugger_LogWindow_LogInput=ff00acac
 Debugger_LogWindow_LogStatus=ff00875a
@@ -334,9 +329,6 @@ VcsBase_FileRenamed_TextColor=ffffa500
 VcsBase_FileUnmerged_TextColor=ffff4040
 
 Bookmarks_TextMarkColor=ff8080ff
-
-CodeModel_Error_TextMarkColor=error
-CodeModel_Warning_TextMarkColor=warning
 
 QmlDesigner_BackgroundColor=qmlDesignerButtonColor
 QmlDesigner_HighlightColor=ff1d545c
