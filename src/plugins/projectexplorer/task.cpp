@@ -125,6 +125,11 @@ QIcon Task::icon() const
     return m_icon;
 }
 
+void Task::setIcon(const QIcon &icon)
+{
+    m_icon = icon;
+}
+
 QString Task::formattedDescription(DescriptionTags tags, const QString &extraHeading) const
 {
     if (isNull())
