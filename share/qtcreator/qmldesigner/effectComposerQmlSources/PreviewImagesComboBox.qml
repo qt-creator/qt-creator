@@ -133,11 +133,14 @@ StudioControls.ComboBox {
                 Item {
                     id: setCustomItem
                     width: parent.width
-                    height: 40
+                    height: 50
 
                     HelperWidgets.Button {
                         anchors.fill: parent
-                        anchors.margins: 2
+                        anchors.bottomMargin: 2
+                        anchors.topMargin: col.padding
+                        anchors.leftMargin: col.padding
+                        anchors.rightMargin: col.padding
                         text: qsTr("Set Custom Image")
                         onClicked: {
                             EffectComposerBackend.effectComposerModel.chooseCustomPreviewImage()
