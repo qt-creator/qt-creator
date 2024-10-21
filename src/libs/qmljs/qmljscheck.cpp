@@ -1045,8 +1045,19 @@ void Check::visitQmlObject(Node *ast, UiQualifiedId *typeId,
     if (checkTypeForDesignerSupport(typeId))
         addMessage(WarnUnsupportedTypeInVisualDesigner, typeErrorLocation, typeName);
 
-    if (typeId->next == nullptr && _doc->fileName().baseName() == typeName)
-        addMessage(ErrTypeIsInstantiatedRecursively, typeErrorLocation, typeName);
+    if (!typeId->next && _doc->fileName().baseName() == typeName) {
+        int foundTypes = 0;
+        const QList<Import> imports = _imports->all();
+        for (const Import &import : imports) {
+            if (import.object->lookupMember(typeName, nullptr))
+                ++foundTypes;
+
+            if (foundTypes == 2)
+                break;
+        }
+        if (foundTypes < 2)
+            addMessage(ErrTypeIsInstantiatedRecursively, typeErrorLocation, typeName);
+    }
 
     if (checkTypeForQmlUiSupport(typeId))
         addMessage(ErrUnsupportedTypeInQmlUi, typeErrorLocation, typeName);
