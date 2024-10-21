@@ -928,13 +928,16 @@ void ModelPrivate::attachView(AbstractView *view)
     if (!view->isEnabled())
         return;
 
-    if (m_viewList.contains(view))
-        return;
+    if (view->isAttached()) {
+        if (view->model() == m_model)
+            return;
+        else
+            view->model()->detachView(view);
+    }
 
     m_viewList.append(view);
 
-    if (!view->isAttached())
-        view->modelAttached(m_model);
+    view->modelAttached(m_model);
 }
 
 void ModelPrivate::detachView(AbstractView *view, bool notifyView)
@@ -1640,6 +1643,9 @@ void ModelPrivate::setNodeInstanceView(AbstractView *nodeInstanceView)
 
     if (nodeInstanceView && nodeInstanceView->kind() != AbstractView::Kind::NodeInstance)
         return;
+
+    if (nodeInstanceView && nodeInstanceView->isAttached())
+        nodeInstanceView->model()->setNodeInstanceView(nullptr);
 
     if (m_nodeInstanceView)
         m_nodeInstanceView->modelAboutToBeDetached(m_model);

@@ -14,7 +14,15 @@ class AbstractViewMock : public QmlDesigner::AbstractView
 public:
     AbstractViewMock(QmlDesigner::ExternalDependenciesInterface *externalDependencies = nullptr)
         : QmlDesigner::AbstractView{*externalDependencies}
-    {}
+    {
+        ON_CALL(*this, modelAttached).WillByDefault([this](QmlDesigner::Model *model) {
+            this->QmlDesigner::AbstractView::modelAttached(model);
+        });
+
+        ON_CALL(*this, modelAboutToBeDetached).WillByDefault([this](QmlDesigner::Model *model) {
+            this->QmlDesigner::AbstractView::modelAboutToBeDetached(model);
+        });
+    }
     MOCK_METHOD(void, nodeOrderChanged, (const QmlDesigner::NodeListProperty &listProperty), (override));
     MOCK_METHOD(void,
                 variantPropertiesChanged,
@@ -57,4 +65,9 @@ public:
                 (override));
     MOCK_METHOD(void, nodeAboutToBeRemoved, (const QmlDesigner::ModelNode &removedNode), (override));
     MOCK_METHOD(void, refreshMetaInfos, (const QmlDesigner::TypeIds &), (override));
+
+    MOCK_METHOD(void, modelAttached, (QmlDesigner::Model *), (override));
+    MOCK_METHOD(void, modelAboutToBeDetached, (QmlDesigner::Model *), (override));
+
+    using AbstractView::setKind;
 };

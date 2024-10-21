@@ -105,10 +105,12 @@ Internal::TextToModelMerger *RewriterView::textToModelMerger() const
 
 void RewriterView::modelAttached(Model *model)
 {
-    QTC_ASSERT(m_textModifier, return);
-    m_modelAttachPending = false;
-
     AbstractView::modelAttached(model);
+
+    if (!m_textModifier)
+        return;
+
+    m_modelAttachPending = false;
 
     ModelAmender differenceHandler(m_textToModelMerger.get());
     const QString qmlSource = m_textModifier->text();

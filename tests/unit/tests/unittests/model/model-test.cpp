@@ -5,24 +5,27 @@
 
 #include <matchers/import-matcher.h>
 #include <mocks/abstractviewmock.h>
+#include <mocks/externaldependenciesmock.h>
 #include <mocks/modelresourcemanagementmock.h>
 #include <mocks/projectstoragemock.h>
 #include <mocks/projectstorageobservermock.h>
 #include <mocks/sourcepathcachemock.h>
 
-#include <designercore/include/bindingproperty.h>
-#include <designercore/include/itemlibraryentry.h>
-#include <designercore/include/model.h>
-#include <designercore/include/modelnode.h>
-#include <designercore/include/nodeabstractproperty.h>
-#include <designercore/include/nodelistproperty.h>
-#include <designercore/include/nodemetainfo.h>
-#include <designercore/include/nodeproperty.h>
-#include <designercore/include/signalhandlerproperty.h>
-#include <designercore/include/variantproperty.h>
+#include <bindingproperty.h>
+#include <itemlibraryentry.h>
+#include <model.h>
+#include <modelnode.h>
+#include <nodeabstractproperty.h>
+#include <nodelistproperty.h>
+#include <nodemetainfo.h>
+#include <nodeproperty.h>
+#include <rewriterview.h>
+#include <signalhandlerproperty.h>
+#include <variantproperty.h>
 
 namespace {
 using QmlDesigner::AbstractProperty;
+using QmlDesigner::AbstractView;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ModelNodes;
 using QmlDesigner::ModelResourceSet;
@@ -119,13 +122,13 @@ protected:
     NiceMock<ProjectStorageMockWithQtQuick> projectStorageMock{pathCacheMock.sourceId, "/path"};
     NiceMock<ModelResourceManagementMock> resourceManagementMock;
     QmlDesigner::Imports imports = {QmlDesigner::Import::createLibraryImport("QtQuick")};
+    NiceMock<AbstractViewMock> viewMock;
     QmlDesigner::Model model{{projectStorageMock, pathCacheMock},
                              "Item",
                              imports,
                              QUrl::fromLocalFile(pathCacheMock.path.toQString()),
                              std::make_unique<ModelResourceManagementMockWrapper>(
                                  resourceManagementMock)};
-    NiceMock<AbstractViewMock> viewMock;
     QmlDesigner::SourceId filePathId = pathCacheMock.sourceId;
     QmlDesigner::ModuleId qtQuickModuleId = projectStorageMock.moduleId("QtQuick",
                                                                         ModuleKind::QmlLibrary);
@@ -1199,6 +1202,123 @@ TEST_F(Model_TypeAnnotation, item_library_entries)
                                        u"/path/to/template",
                                        ElementsAre(IsItemLibraryProperty("x", "double"_L1, QVariant{1})),
                                        ElementsAre(u"/extra/file/path"))));
+}
+
+class Model_ViewManagement : public Model
+{
+protected:
+    NiceMock<AbstractViewMock> viewMock;
+};
+
+TEST_F(Model_ViewManagement, set_rewriter)
+{
+    NiceMock<ExternalDependenciesMock> externalDependenciesMock;
+    QmlDesigner::RewriterView rewriter{externalDependenciesMock};
+
+    model.setRewriterView(&rewriter);
+
+    ASSERT_THAT(model.rewriterView(), Eq(&rewriter));
+}
+
+TEST_F(Model_ViewManagement, attach_rewriter)
+{
+    NiceMock<ExternalDependenciesMock> externalDependenciesMock;
+    QmlDesigner::RewriterView rewriter{externalDependenciesMock};
+
+    model.attachView(&rewriter);
+
+    ASSERT_THAT(model.rewriterView(), Eq(&rewriter));
+}
+
+TEST_F(Model_ViewManagement, set_node_instance_view)
+{
+    viewMock.setKind(AbstractView::Kind::NodeInstance);
+
+    model.setNodeInstanceView(&viewMock);
+
+    ASSERT_THAT(model.nodeInstanceView(), Eq(&viewMock));
+}
+
+TEST_F(Model_ViewManagement, call_modelAttached_if_node_instance_view_is_set)
+{
+    viewMock.setKind(AbstractView::Kind::NodeInstance);
+
+    EXPECT_CALL(viewMock, modelAttached(&model));
+
+    model.setNodeInstanceView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, dont_call_modelAttached_if_node_instance_view_is_already_set)
+{
+    viewMock.setKind(AbstractView::Kind::NodeInstance);
+    model.setNodeInstanceView(&viewMock);
+
+    EXPECT_CALL(viewMock, modelAttached(&model)).Times(0);
+
+    model.setNodeInstanceView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, detach_node_instance_view_from_other_model_before_attach_to_new_model)
+{
+    InSequence s;
+    QmlDesigner::Model otherModel{{projectStorageMock, pathCacheMock},
+                                  "Item",
+                                  imports,
+                                  QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                  std::make_unique<ModelResourceManagementMockWrapper>(
+                                      resourceManagementMock)};
+    viewMock.setKind(AbstractView::Kind::NodeInstance);
+    otherModel.setNodeInstanceView(&viewMock);
+
+    EXPECT_CALL(viewMock, modelAboutToBeDetached(&otherModel));
+    EXPECT_CALL(viewMock, modelAttached(&model));
+
+    model.setNodeInstanceView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, call_modelAboutToBeDetached_for_already_set_node_instance_view)
+{
+    NiceMock<AbstractViewMock> otherViewMock;
+    otherViewMock.setKind(AbstractView::Kind::NodeInstance);
+    viewMock.setKind(AbstractView::Kind::NodeInstance);
+    model.setNodeInstanceView(&otherViewMock);
+
+    EXPECT_CALL(otherViewMock, modelAboutToBeDetached(&model));
+
+    model.setNodeInstanceView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, attach_view_is_calling_modelAttached)
+{
+    EXPECT_CALL(viewMock, modelAttached(&model));
+
+    model.attachView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, attach_view_is_not_calling_modelAttached_if_it_is_already_attached)
+{
+    model.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, modelAttached(&model)).Times(0);
+
+    model.attachView(&viewMock);
+}
+
+TEST_F(Model_ViewManagement, view_is_detached_before_it_is_attached_ot_new_model)
+{
+    InSequence s;
+    QmlDesigner::Model otherModel{{projectStorageMock, pathCacheMock},
+                                  "Item",
+                                  imports,
+                                  QUrl::fromLocalFile(pathCacheMock.path.toQString()),
+                                  std::make_unique<ModelResourceManagementMockWrapper>(
+                                      resourceManagementMock)};
+    otherModel.attachView(&viewMock);
+
+    EXPECT_CALL(viewMock, modelAboutToBeDetached(&otherModel));
+    EXPECT_CALL(viewMock, modelAttached(&model));
+
+    model.attachView(&viewMock);
 }
 
 } // namespace
