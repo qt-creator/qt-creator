@@ -193,7 +193,7 @@ private slots:
         QTest::newRow("with-ticks")
             << QString("echo -n 'foo %{file}'") << QString("echo -n 'foo foo.txt'") << file;
 
-        QTest::newRow("with-ticks-env") << QString("file=\%{file} echo -n 'foo \"$file\"'")
+        QTest::newRow("with-ticks-env") << QString("file=%{file} echo -n 'foo \"$file\"'")
                                         << QString("file=foo.txt echo -n 'foo \"$file\"'") << file;
 
         if (Utils::HostOsInfo::isWindowsHost()) {
