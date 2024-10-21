@@ -231,7 +231,16 @@ void BundleHelper::exportComponent(const ModelNode &node)
     QStringList filesList;
     for (const AssetPath &asset : compDependencies) {
         Utils::FilePath assetAbsPath = asset.absFilPath();
-        m_zipWriter->addFile(asset.relativePath, assetAbsPath.fileContents().value_or(""));
+        QByteArray assetContent = assetAbsPath.fileContents().value_or("");
+
+        // remove imports of sub components
+        for (const QString &import : std::as_const(asset.importsToRemove)) {
+            int removeIdx = assetContent.indexOf(QByteArray("import " + import.toLatin1()));
+            int removeLen = assetContent.indexOf('\n', removeIdx) - removeIdx;
+            assetContent.remove(removeIdx, removeLen);
+        }
+
+        m_zipWriter->addFile(asset.relativePath, assetContent);
 
         if (assetAbsPath.fileName() != compFileName) // skip component file (only collect dependencies)
             filesList.append(asset.relativePath);
@@ -599,15 +608,45 @@ bool BundleHelper::isItemBundle(const QString &bundleId) const
 
 namespace {
 
-// library imported Components won't be detected. TODO: find a feasible solution for detecting them
-// and either add them as dependencies or warn the user
 Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FilePath &compDir)
 {
-    Utils::FilePath compFilePath = compDir.pathAppended(QLatin1String("%1.qml").arg(nodeType));
-    if (compFilePath.exists())
-        return compFilePath;
+    QString compName = nodeType.split('.').last();
 
-    compFilePath = compDir.pathAppended(QLatin1String("%1.ui.qml").arg(nodeType));
+    auto findCompFilePath = [&](const Utils::FilePath &dir) -> Utils::FilePath {
+        Utils::FilePath compFP = dir.pathAppended(QLatin1String("%1.qml").arg(compName));
+        if (compFP.exists())
+            return compFP;
+
+        compFP = dir.pathAppended(QLatin1String("%1.ui.qml").arg(compName));
+        if (compFP.exists())
+            return compFP;
+
+        return {};
+    };
+
+    Utils::FilePath compFilePath;
+
+    // a component in "Generated" folder
+    if (nodeType.startsWith("Generated.")) {
+        Utils::FilePath projectPath = QmlDesignerPlugin::instance()->documentManager().currentProjectDirPath();
+        QString nodeTypeSlashSep = nodeType;
+        nodeTypeSlashSep.replace('.', '/');
+        Utils::FilePath genCompDir = projectPath.pathAppended(nodeTypeSlashSep);
+
+        if (!genCompDir.exists())
+            genCompDir = genCompDir.parentDir();
+
+        compFilePath = findCompFilePath(genCompDir);
+        if (compFilePath.exists())
+            return compFilePath;
+
+
+        qWarning() << __FUNCTION__ << "Couldn't find Generated component path";
+        return {};
+    }
+
+    // for components in the same dir as the main comp., search recursively for the comp. file
+    compFilePath = findCompFilePath(compDir);
     if (compFilePath.exists())
         return compFilePath;
 
@@ -618,6 +657,7 @@ Utils::FilePath getComponentFilePath(const QString &nodeType, const Utils::FileP
             return compFilePath;
     }
 
+    qWarning() << __FUNCTION__ << "Couldn't find component path";
     return {};
 }
 
@@ -627,8 +667,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                                                        const Utils::FilePath &mainCompDir)
 {
     QSet<AssetPath> depList;
-
-    depList.insert({mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()});
+    AssetPath compAssetPath = {mainCompDir, filePath.relativePathFrom(mainCompDir).toFSPathString()};
 
 #ifdef QDS_USE_PROJECTSTORAGE
     // TODO add model with ProjectStorageDependencies
@@ -658,7 +697,16 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
         if (!nodeType.startsWith("QtQuick")) {
             Utils::FilePath compFilPath = getComponentFilePath(nodeType, mainCompDir);
             if (!compFilPath.isEmpty()) {
-                depList.unite(getComponentDependencies(compFilPath, mainCompDir));
+                Utils::FilePath compDir = compFilPath.isChildOf(mainCompDir) ? mainCompDir
+                                                                             : compFilPath.parentDir();
+                depList.unite(getComponentDependencies(compFilPath, compDir));
+
+                // for sub components, mark their imports to be removed from their parent component
+                // as they will be moved to the same folder as the parent
+                QString import = nodeType.left(nodeType.lastIndexOf('.'));
+                if (model->hasImport(import))
+                    compAssetPath.importsToRemove.append(import);
+
                 return;
             }
         }
@@ -687,6 +735,7 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                             assetPathBase = mainCompDir;
                         }
 
+                        QTC_ASSERT(!assetPathRelative.isEmpty(), continue);
                         depList.insert({assetPathBase, assetPathRelative});
                     }
                 }
@@ -700,6 +749,8 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
     };
 
     parseNode(rootNode);
+
+    depList.insert(compAssetPath);
 
     return depList;
 }

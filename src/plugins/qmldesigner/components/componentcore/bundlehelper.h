@@ -25,8 +25,11 @@ class NodeMetaInfo;
 class AssetPath
 {
 public:
-    Utils::FilePath basePath;
-    QString relativePath;
+    AssetPath(const Utils::FilePath &bsPath, const QString &relPath, const QStringList &imports = {})
+        : basePath(bsPath)
+        , relativePath(relPath)
+        , importsToRemove(imports)
+    {}
 
     Utils::FilePath absFilPath() const;
 
@@ -34,6 +37,10 @@ public:
     {
         return basePath == other.basePath && relativePath == other.relativePath;
     }
+
+    Utils::FilePath basePath;
+    QString relativePath;
+    QStringList importsToRemove;
 
 private:
     friend size_t qHash(const AssetPath &asset)
