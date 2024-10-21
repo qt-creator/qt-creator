@@ -32,6 +32,7 @@
 #include <utils/utilsicons.h>
 
 #include <QAbstractTextDocumentLayout>
+#include <QDesktopServices>
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
@@ -695,8 +696,14 @@ void TaskView::mouseReleaseEvent(QMouseEvent *e)
 
     const QString anchor = anchorAt(e->pos());
     if (anchor == m_clickAnchor) {
-        Core::EditorManager::openEditorAt(OutputLineParser::parseLinkTarget(m_clickAnchor), {},
-                                          Core::EditorManager::SwitchSplitIfAlreadyVisible);
+        if (OutputLineParser::isLinkTarget(m_clickAnchor)) {
+            EditorManager::openEditorAt(
+                OutputLineParser::parseLinkTarget(m_clickAnchor),
+                {},
+                EditorManager::SwitchSplitIfAlreadyVisible);
+        } else {
+            QDesktopServices::openUrl(QUrl(m_clickAnchor));
+        }
     }
     m_clickAnchor.clear();
 }
