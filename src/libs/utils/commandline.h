@@ -63,8 +63,7 @@ public:
     using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
 
     //! Safely replace the expandos in a shell command
-    static bool expandMacros(
-        QString *cmd, const FindMacro &findMacro, OsType osType = HostOsInfo::hostOs());
+    static bool expandMacros(QString *cmd, const FindMacro &findMacro, OsType osType);
 
     /*! Iterate over arguments from a command line.
      *  Assumes that the name of the actual command is *not* part of the line.
