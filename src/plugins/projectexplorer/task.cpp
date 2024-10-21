@@ -136,7 +136,7 @@ QString Task::formattedDescription(DescriptionTags tags, const QString &extraHea
         return {};
 
     QString text = description(tags);
-    const int offset = (tags & WithSummary) ? 0 : summary.size() + 1;
+    const int offset = (tags & WithSummary) ? summary.size() + 1 : 0;
     static const QString linkTagStartPlaceholder("__QTC_LINK_TAG_START__");
     static const QString linkTagEndPlaceholder("__QTC_LINK_TAG_END__");
     static const QString linkEndPlaceholder("__QTC_LINK_END__");
