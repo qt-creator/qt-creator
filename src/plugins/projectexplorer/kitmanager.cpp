@@ -254,7 +254,7 @@ void KitManager::restoreKits()
         QHash<Abi, QHash<LanguageCategory, std::optional<ToolchainBundle>>> uniqueToolchains;
 
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            ToolchainBundle::AutoRegister::On);
+            ToolchainBundle::HandleMissing::CreateAndRegister);
         for (const ToolchainBundle &bundle : bundles) {
             auto &bestBundle
                 = uniqueToolchains[bundle.targetAbi()][bundle.factory()->languageCategory()];

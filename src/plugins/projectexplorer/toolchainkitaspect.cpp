@@ -50,7 +50,7 @@ public:
                   return tc->compilerCommand().isSameDevice(device->rootPath());
               });
         const QList<ToolchainBundle> bundlesForBuildDevice = ToolchainBundle::collectBundles(
-            toolchainsForBuildDevice, ToolchainBundle::AutoRegister::On);
+            toolchainsForBuildDevice, ToolchainBundle::HandleMissing::CreateAndRegister);
         for (const ToolchainBundle &b : bundlesForBuildDevice)
             rootItem()->appendChild(new ToolchainTreeItem(b));
         rootItem()->appendChild(new ToolchainTreeItem);
@@ -321,7 +321,7 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
 
     // Get bundles.
     const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-        ToolchainBundle::AutoRegister::On);
+        ToolchainBundle::HandleMissing::CreateAndRegister);
 
     // Set a matching bundle for each LanguageCategory/Abi pair, if possible.
     for (auto it = abisByCategory.cbegin(); it != abisByCategory.cend(); ++it) {

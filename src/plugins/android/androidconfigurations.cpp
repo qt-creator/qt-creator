@@ -1459,7 +1459,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             ToolchainManager::toolchains([](const Toolchain *tc) {
                 return tc->isAutoDetected() && tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID;
             }),
-            ToolchainBundle::AutoRegister::On),
+            ToolchainBundle::HandleMissing::CreateAndRegister),
         [](const ToolchainBundle &b) { return b.isCompletelyValid(); });
 
     QList<Kit *> unhandledKits = existingKits;
