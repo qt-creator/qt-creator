@@ -235,7 +235,7 @@ CMakeBuildStep::CMakeBuildStep(BuildStepList *bsl, Id id) :
     stagingDir.setDefaultValue(initialStagingDir(kit()));
     stagingDir.setExpectedKind(PathChooser::Kind::Directory);
 
-    Kit *kit = buildConfiguration()->kit();
+    Kit *kit = this->kit();
     if (CMakeBuildConfiguration::isIos(kit) && CMakeGeneratorKitAspect::generator(kit) == "Xcode") {
         useiOSAutomaticProvisioningUpdates.setDefaultValue(true);
         useiOSAutomaticProvisioningUpdates.setSettingsKey(
