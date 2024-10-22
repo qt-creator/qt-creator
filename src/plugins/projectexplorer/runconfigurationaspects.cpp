@@ -955,8 +955,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
-                  "RunConfiguration.UseX11Forwarding");
+    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Enable"), "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
