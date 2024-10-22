@@ -48,6 +48,7 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/iplugin.h>
 
+#include <utils/async.h>
 #include <utils/fancylineedit.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -140,6 +141,14 @@ void TextEditorPlugin::initialize()
 #endif
 
     Utils::Text::setCodeHighlighter(HighlighterHelper::highlightCode);
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // warm up the fallback font cache on windows this reduces the startup time of the first
+        // editor by around 300 ms
+        Utils::asyncRun([font = QPlainTextEdit().font()]() {
+            QFontMetrics(font).horizontalAdvance(QChar(0x21B5));
+        });
+    }
 }
 
 void TextEditorPlugin::extensionsInitialized()
