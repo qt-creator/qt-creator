@@ -116,6 +116,7 @@ HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
 HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
 HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
 HAS_MEM_FUNC(setTextInteractionFlags, hasSetTextInteractionFlags);
+HAS_MEM_FUNC(setFixedSize, hasSetFixedSize);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
@@ -124,6 +125,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         if (interactionFlags) {
             item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
         }
+    }
+
+    if constexpr (hasSetFixedSize<T, void (T::*)(int, int)>::value) {
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
+        if (size)
+            item->setFixedSize(size->width(), size->height());
     }
 
     if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {

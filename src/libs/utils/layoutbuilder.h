@@ -248,6 +248,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
+    void setFixedSize(int, int);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
     void setWidgetAttribute(Qt::WidgetAttribute, bool on);
@@ -523,6 +524,7 @@ QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
 QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
+QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 
 // Nesting dispatchers
 
