@@ -3,6 +3,7 @@
 
 #include "deployconfiguration.h"
 
+#include "buildconfiguration.h"
 #include "buildsteplist.h"
 #include "deploymentdataview.h"
 #include "kitaspects.h"
@@ -12,7 +13,9 @@
 #include "target.h"
 
 #include <utils/algorithm.h>
+#include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+#include <utils/variablechooser.h>
 
 #include <QDebug>
 
@@ -31,6 +34,15 @@ DeployConfiguration::DeployConfiguration(Target *target, Id id)
 {
     //: Default DeployConfiguration display name
     setDefaultDisplayName(Tr::tr("Deploy locally"));
+
+    // Allow to use Device::SshPort, KeyFile and so on on the custom deployment steps
+    MacroExpander &expander = *macroExpander();
+    expander.setDisplayName(Tr::tr("Run Settings"));
+    expander.setAccumulating(true);
+    expander.registerSubProvider([target] {
+         BuildConfiguration *bc = target->activeBuildConfiguration();
+         return bc ? bc->macroExpander() : target->macroExpander();
+     });
 }
 
 BuildStepList *DeployConfiguration::stepList()
@@ -47,7 +59,9 @@ QWidget *DeployConfiguration::createConfigWidget()
 {
     if (!m_configWidgetCreator)
         return nullptr;
-    return m_configWidgetCreator(this);
+    QWidget *widget = m_configWidgetCreator(this);
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
+    return widget;
 }
 
 void DeployConfiguration::toMap(Store &map) const
