@@ -115,9 +115,17 @@ HAS_MEM_FUNC(setCompleter, hasSetCompleter);
 HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
 HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
 HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
+HAS_MEM_FUNC(setTextInteractionFlags, hasSetTextInteractionFlags);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetTextInteractionFlags<T, void (T::*)(Qt::TextInteractionFlags)>::value) {
+        const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
+        if (interactionFlags) {
+            item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
+        }
+    }
+
     if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {
         const auto wrap = children.get<sol::optional<bool>>("wordWrap");
         if (wrap)
@@ -509,6 +517,7 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
 
         gui.new_usertype<Stack>(
             "Stack",
