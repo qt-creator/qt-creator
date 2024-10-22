@@ -332,7 +332,7 @@ public:
     LinuxDevice *q = nullptr;
     QThread m_shellThread;
     ShellThreadHandler *m_handler = nullptr;
-    mutable QMutex m_shellMutex;
+    mutable QRecursiveMutex m_shellMutex;
     LinuxDeviceFileAccess m_fileAccess{this};
 
     QReadWriteLock m_environmentCacheLock;
