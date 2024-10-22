@@ -34,6 +34,8 @@ add_feature_info("Meta info tracing" ${ENABLE_METAINFO_TRACING} "")
 
 add_subdirectory(libs)
 
+find_package(Qt6 REQUIRED COMPONENTS WebSockets)
+
 add_qtc_plugin(QmlDesigner
   PLUGIN_RECOMMENDS QmlPreview
   CONDITION TARGET QmlDesignerCore AND TARGET Qt::QuickWidgets AND TARGET Qt::Svg
@@ -726,6 +728,17 @@ extend_qtc_plugin(QmlDesigner
     appoutputmodel.h
     messagemodel.cpp
     messagemodel.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/devicesharing
+  DEPENDS
+    Qt::WebSockets
+  SOURCES
+    device.cpp device.h
+    deviceinfo.cpp deviceinfo.h
+    devicemanager.cpp devicemanager.h
+    devicemanagermodel.cpp devicemanagermodel.h
 )
 
 add_qtc_plugin(assetexporterplugin
