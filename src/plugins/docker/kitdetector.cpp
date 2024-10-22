@@ -264,6 +264,7 @@ Toolchains KitDetectorPrivate::autoDetectToolchains()
                                   .arg(toolchain->compilerCommand().toUserOutput()));
             toolchain->setDetectionSource(m_sharedId);
         }
+        ToolchainManager::registerToolchains(newToolchains);
         const QList<ToolchainBundle> bundles
             = ToolchainBundle::collectBundles(newToolchains, ToolchainBundle::AutoRegister::On);
         alreadyKnown.append(newToolchains);
