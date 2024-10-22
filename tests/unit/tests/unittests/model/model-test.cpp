@@ -203,6 +203,43 @@ TEST_F(Model_Creation, imports)
     ASSERT_THAT(model->imports(), UnorderedElementsAreArray(imports));
 }
 
+class Model_CreationFromOtherModel : public Model
+{};
+
+TEST_F(Model_CreationFromOtherModel, root_node_has_object_type_name)
+{
+    auto newModel = model.createModel("QtObject");
+
+    ASSERT_THAT(newModel->rootModelNode().type(), Eq("QtObject"));
+}
+
+TEST_F(Model_CreationFromOtherModel, root_node_has_object_meta_info)
+{
+    auto newModel = model.createModel("QtObject");
+
+    ASSERT_THAT(newModel->rootModelNode().metaInfo(), newModel->qmlQtObjectMetaInfo());
+}
+
+TEST_F(Model_CreationFromOtherModel, file_url)
+{
+    auto newModel = model.createModel("QtObject");
+
+    ASSERT_THAT(newModel->fileUrl().toLocalFile(), Eq(pathCacheMock.path.toQString()));
+}
+
+TEST_F(Model_CreationFromOtherModel, file_url_source_id)
+{
+    auto newModel = model.createModel("QtObject");
+    ASSERT_THAT(newModel->fileUrlSourceId(), pathCacheMock.sourceId);
+}
+
+TEST_F(Model_CreationFromOtherModel, imports)
+{
+    auto newModel = model.createModel("QtObject");
+
+    ASSERT_THAT(newModel->imports(), UnorderedElementsAreArray(imports));
+}
+
 class Model_ResourceManagment : public Model
 {};
 
