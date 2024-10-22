@@ -602,10 +602,7 @@ void MaterialEditorView::setupQmlBackend()
 
     m_qmlBackEnd = currentQmlBackend;
 
-    if (m_hasMaterialRoot)
-        m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
-    else
-        m_dynamicPropertiesModel->reset();
+    m_dynamicPropertiesModel->setSelectedNode(m_selectedMaterial);
 
     initPreviewData();
 

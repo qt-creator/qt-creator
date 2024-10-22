@@ -485,10 +485,7 @@ void TextureEditorView::setupQmlBackend()
 
     m_qmlBackEnd = currentQmlBackend;
 
-    if (m_hasTextureRoot)
-        m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
-    else
-        m_dynamicPropertiesModel->reset();
+    m_dynamicPropertiesModel->setSelectedNode(m_selectedTexture);
 
     m_stackedWidget->setCurrentWidget(m_qmlBackEnd->widget());
 #endif
