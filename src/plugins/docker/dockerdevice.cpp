@@ -763,8 +763,14 @@ void DockerDevicePrivate::stopCurrentContainer()
         return;
 
     auto fileAccess = m_fileAccess.writeLocked();
-    if (*fileAccess)
-        fileAccess->reset();
+    if (*fileAccess) {
+        if (QThread::currentThread() == thread()) {
+            fileAccess->reset();
+        } else {
+            QMetaObject::invokeMethod(
+                this, [ptr = fileAccess->release()]() { delete ptr; }, Qt::QueuedConnection);
+        }
+    }
 
     Process proc;
     proc.setCommand({settings().dockerBinaryPath(), {"container", "kill", m_container}});
