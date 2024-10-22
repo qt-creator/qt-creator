@@ -511,6 +511,11 @@ const AbstractView *ViewManager::view() const
     return &d->nodeInstanceView;
 }
 
+TextEditorView *ViewManager::textEditorView()
+{
+    return &d->textEditorView;
+}
+
 void ViewManager::emitCustomNotification(const QString &identifier, const QList<ModelNode> &nodeList,
                                          const QList<QVariant> &data)
 {

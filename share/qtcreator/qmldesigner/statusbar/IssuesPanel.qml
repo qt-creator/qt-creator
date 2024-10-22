@@ -77,6 +77,12 @@ ScrollView {
                         hoverEnabled: true
                         cursorShape: mouseArea.containsMouse ? Qt.PointingHandCursor
                                                              : Qt.ArrowCursor
+                        Connections {
+                            target: mouseArea
+                            function onClicked() {
+                                messageModel.jumpToCode(index)
+                            }
+                        }
                     }
                 }
 
@@ -84,11 +90,26 @@ ScrollView {
                     id: labelInfo
                     color: (type == "Warning") ? StudioTheme.Values.themeAmberLight
                                                : StudioTheme.Values.themeRedLight
+
+                    linkColor: StudioTheme.Values.themeInteraction
                     text: message
                     font.pixelSize: StudioTheme.Values.baseFontSize
                     verticalAlignment: Text.AlignTop
                     wrapMode: Text.WordWrap
                     width: row.width - labelIcon.width - labelLocation.width - row.spacing * 2
+
+                    MouseArea {
+                        anchors.fill: parent
+                        acceptedButtons: Qt.NoButton
+                        cursorShape: labelInfo.hoveredLink === "" ?  Qt.ArrowCursor : Qt.PointingHandCursor
+                    }
+
+                    Connections {
+                        target: labelInfo
+                        function onLinkActivated(link) {
+                            messageModel.openLink(link)
+                        }
+                    }
                 }
             }
         }
