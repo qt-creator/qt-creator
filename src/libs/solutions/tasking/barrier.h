@@ -79,7 +79,7 @@ ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
             qWarning("The barrier referenced from WaitForBarrier element "
                      "is not reachable in the running tree. "
                      "It is possible that no barrier was added to the tree, "
-                     "or the storage is not reachable from where it is referenced. "
+                     "or the barrier is not reachable from where it is referenced. "
                      "The WaitForBarrier task finishes with an error. ");
             return SetupResult::StopWithError;
         }
