@@ -7,16 +7,14 @@
 
 #include <projectexplorer/projectexplorer_test.h>
 
-#include <QJsonDocument>
+#include <QCheckBox>
+#include <QComboBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QTest>
-#include <QCheckBox>
 #include <QLineEdit>
-#include <QComboBox>
 #include <QListView>
-
-#include <functional>
+#include <QScopedPointer>
 
 using namespace Utils;
 
@@ -80,9 +78,7 @@ QComboBox *findComboBox(Wizard *wizard, const QString &objectName)
     return wizard->findChild<QComboBox *>(objectName + "ComboBox");
 };
 
-struct FactoryDeleter { void operator()(JsonWizardFactory *f) { f->deleteLater(); } };
-
-using FactoryPtr = std::unique_ptr<JsonWizardFactory, FactoryDeleter>;
+using FactoryPtr = std::unique_ptr<JsonWizardFactory, QScopedPointerDeleteLater>;
 
 void ProjectExplorerTest::testJsonWizardsEmptyWizard()
 {

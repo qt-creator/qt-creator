@@ -5,12 +5,14 @@
 #include "qmltypedevent.h"
 #include "qmlprofilermodelmanager.h"
 
-#include <qmldebug/qmlenginecontrolclient.h>
 #include <qmldebug/qdebugmessageclient.h>
+#include <qmldebug/qmlenginecontrolclient.h>
 #include <qmldebug/qpacketprotocol.h>
+
 #include <utils/qtcassert.h>
 
 #include <QQueue>
+#include <QScopedPointer>
 
 namespace QmlProfiler {
 
@@ -33,8 +35,6 @@ inline bool operator!=(const QmlEventType &type1, const QmlEventType &type2)
 {
     return !(type1 == type2);
 }
-
-struct ObjectDeleteLater { void operator()(QObject *o) { o->deleteLater(); } };
 
 class QmlProfilerTraceClientPrivate {
 public:
@@ -63,13 +63,13 @@ public:
     QmlProfilerTraceClient *q;
     QmlProfilerModelManager *modelManager;
 
-    // Use deleteLater here. The connection will call stateChanged() on all clients that are
+    // Use QScopedPointerDeleteLater here. The connection will call stateChanged() on all clients that are
     // alive when it gets disconnected. One way to notice a disconnection is failing to send the
     // plugin advertisement when a client unregisters. If one of the other clients is
     // half-destructed at that point, we get invalid memory accesses. Therefore, we cannot nest the
     // dtor calls.
-    std::unique_ptr<QmlDebug::QmlEngineControlClient, ObjectDeleteLater> engineControl;
-    std::unique_ptr<QmlDebug::QDebugMessageClient, ObjectDeleteLater> messageClient;
+    std::unique_ptr<QmlDebug::QmlEngineControlClient, QScopedPointerDeleteLater> engineControl;
+    std::unique_ptr<QmlDebug::QDebugMessageClient, QScopedPointerDeleteLater> messageClient;
     qint64 maximumTime;
     bool recording;
     quint64 requestedFeatures;
