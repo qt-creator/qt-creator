@@ -318,33 +318,27 @@ public:
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
         setDisplayCategory(Tr::tr("Python"));
         setCategoryIconPath(":/python/images/settingscategory_python.png");
-        setWidgetCreator([this] { m_widget = new InterpreterOptionsWidget; return m_widget; });
+        setWidgetCreator([] { return new InterpreterOptionsWidget(); });
     }
 
     QList<Interpreter> interpreters()
     {
-        if (m_widget)
-            return m_widget->interpreters();
-        return {};
+        return static_cast<InterpreterOptionsWidget *>(widget())->interpreters();
     }
 
     void addInterpreter(const Interpreter &interpreter)
     {
-        if (m_widget)
-            m_widget->addInterpreter(interpreter);
+        static_cast<InterpreterOptionsWidget *>(widget())->addInterpreter(interpreter);
     }
 
     void removeInterpreterFrom(const QString &detectionSource)
     {
-        if (m_widget)
-            m_widget->removeInterpreterFrom(detectionSource);
+        static_cast<InterpreterOptionsWidget *>(widget())->removeInterpreterFrom(detectionSource);
     }
 
     QList<Interpreter> interpreterFrom(const QString &detectionSource)
     {
-        if (m_widget)
-            return m_widget->interpreterFrom(detectionSource);
-        return {};
+        return static_cast<InterpreterOptionsWidget *>(widget())->interpreterFrom(detectionSource);
     }
 
     QStringList keywords() const final
@@ -358,9 +352,6 @@ public:
             Tr::tr("&Make Default")
         };
     }
-
-private:
-    InterpreterOptionsWidget *m_widget = nullptr;
 };
 
 static InterpreterOptionsPage &interpreterOptionsPage()
