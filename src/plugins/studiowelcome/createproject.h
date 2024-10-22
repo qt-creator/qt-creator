@@ -28,6 +28,11 @@ public:
 
     CreateProject &withStyle(int styleIndex) { m_styleIndex = styleIndex; return *this; }
     CreateProject &useQtVirtualKeyboard(bool value) { m_useVirtualKeyboard = value; return *this; }
+    CreateProject &enableCMakeGeneration(bool value)
+    {
+        m_enableCMakeGeneration = value;
+        return *this;
+    }
     CreateProject &saveAsDefaultLocation(bool value) { m_saveAsDefaultLocation = value; return *this; }
     CreateProject &withTargetQtVersion(int targetQtVersionIndex)
     { m_targetQtVersionIndex = targetQtVersionIndex; return *this; }
@@ -48,6 +53,7 @@ private:
     QString m_customHeight;
     int m_styleIndex = -1;
     bool m_useVirtualKeyboard = false;
+    bool m_enableCMakeGeneration = false;
     bool m_saveAsDefaultLocation = false;
     int m_targetQtVersionIndex = -1;
 };

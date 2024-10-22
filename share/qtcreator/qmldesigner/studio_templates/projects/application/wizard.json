@@ -31,6 +31,7 @@
         { "key": "ScreenWidth", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenWidth : value('CustomScreenWidth')}" },
         { "key": "ScreenHeight", "value": "%{JS: value('UseStandardResolution') === 'true' ? %{ScreenFactor}.ScreenHeight : value('CustomScreenHeight')}" },
         { "key": "UseVirtualKeyboardDefault", "value": "%{JS: false}" },
+        { "key": "EnableCMakeGenerationDefault", "value": "%{JS: true}" },
         { "key": "DefaultStyle", "value": "Basic" }
     ],
 
@@ -205,6 +206,15 @@
                     "data":
                     {
                         "checked": "%{UseVirtualKeyboardDefault}"
+                    }
+                },
+                {
+                    "name": "EnableCMakeGeneration",
+                    "trDisplayName": "Enable CMake Genertion",
+                    "type": "CheckBox",
+                    "data":
+                    {
+                        "checked": "%{EnableCMakeGenerationDefault}"
                     }
                 },
                 {

@@ -147,6 +147,7 @@ struct TypeTraits
         , takesOverRenderingOfChildren{FlagIs::False}
         , visibleInNavigator{FlagIs::False}
         , visibleInLibrary{FlagIs::False}
+        , hideInNavigator{FlagIs::False}
         , dummy2{0U}
     {}
 
@@ -193,7 +194,8 @@ struct TypeTraits
             keyValue("is stacked container", typeTraits.isStackedContainer),
             keyValue("takes over rendering of children", typeTraits.takesOverRenderingOfChildren),
             keyValue("visible in navigator", typeTraits.visibleInNavigator),
-            keyValue("visible in library", typeTraits.visibleInLibrary));
+            keyValue("visible in library", typeTraits.visibleInLibrary),
+            keyValue("hide in navigator", typeTraits.hideInNavigator));
 
         convertToString(string, dict);
     }
@@ -228,7 +230,8 @@ struct TypeTraits
             FlagIs takesOverRenderingOfChildren : 2;
             FlagIs visibleInNavigator : 2;
             FlagIs visibleInLibrary : 2;
-            unsigned int dummy2 : 6;
+            FlagIs hideInNavigator : 2;
+            unsigned int dummy2 : 4;
         };
 
         unsigned int annotation;

@@ -29,6 +29,7 @@ private:
     void updateActions();
 
     AssetExporterView *m_view = nullptr;
+    class QmlDesignerProjectManager &m_projectManager;
 };
 
 } // namespace QmlDesigner

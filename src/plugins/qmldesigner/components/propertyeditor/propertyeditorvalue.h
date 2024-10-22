@@ -200,6 +200,7 @@ signals:
     void isValidChanged();
     void isExplicitChanged();
     void hasActiveDragChanged();
+    void dropCommitted(QString dropData);
 
 private:
     QStringList generateStringList(const QString &string) const;

@@ -7,6 +7,7 @@
 #include "assetslibrarymodel.h"
 #include "assetslibraryview.h"
 
+#include <createtexture.h>
 #include <designeractionmanager.h>
 #include <designerpaths.h>
 #include <designmodewidget.h>
@@ -102,7 +103,6 @@ AssetsLibraryWidget::AssetsLibraryWidget(AsynchronousImageCache &asynchronousFon
     , m_assetsIconProvider{new AssetsLibraryIconProvider(synchronousFontImageCache)}
     , m_assetsModel{new AssetsLibraryModel(this)}
     , m_assetsView{view}
-    , m_createTextures{view}
     , m_assetsWidget{Utils::makeUniqueObjectPtr<StudioQuickWidget>(this)}
 {
     setWindowTitle(tr("Assets Library", "Title of assets library widget"));
@@ -237,18 +237,20 @@ int AssetsLibraryWidget::qtVersion() const
 void AssetsLibraryWidget::addTextures(const QStringList &filePaths)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute(filePaths,
-                                 AddTextureMode::Texture,
-                                 Utils3D::active3DSceneId(m_assetsView->model()));
+        CreateTexture(m_assetsView)
+            .execute(filePaths,
+                     AddTextureMode::Texture,
+                     Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
 void AssetsLibraryWidget::addLightProbe(const QString &filePath)
 {
     m_assetsView->executeInTransaction(__FUNCTION__, [&] {
-        m_createTextures.execute({filePath},
-                                 AddTextureMode::LightProbe,
-                                 Utils3D::active3DSceneId(m_assetsView->model()));
+        CreateTexture(m_assetsView)
+            .execute(filePath,
+                     AddTextureMode::LightProbe,
+                     Utils3D::active3DSceneId(m_assetsView->model()));
     });
 }
 
@@ -257,8 +259,9 @@ void AssetsLibraryWidget::updateContextMenuActionsEnableState()
     setHasMaterialLibrary(Utils3D::materialLibraryNode(m_assetsView).isValid()
                           && m_assetsView->model()->hasImport("QtQuick3D"));
 
-    ModelNode activeSceneEnv = m_createTextures.resolveSceneEnv(
-        Utils3D::active3DSceneId(m_assetsView->model()));
+    ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(m_assetsView,
+                                                        Utils3D::active3DSceneId(
+                                                            m_assetsView->model()));
     setHasSceneEnv(activeSceneEnv.isValid());
 }
 
@@ -394,11 +397,11 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
     if (destDir.isFile())
         destDir = destDir.parentDir();
 
-    QMessageBox mb;
-    mb.setInformativeText("What would you like to do with the existing asset?");
-    mb.addButton("Keep Both", QMessageBox::AcceptRole);
-    mb.addButton("Replace", QMessageBox::ResetRole);
-    mb.addButton("Cancel", QMessageBox::RejectRole);
+    QMessageBox msgBox;
+    msgBox.setInformativeText("What would you like to do with the existing asset?");
+    msgBox.addButton("Keep Both", QMessageBox::AcceptRole);
+    msgBox.addButton("Replace", QMessageBox::ResetRole);
+    msgBox.addButton("Cancel", QMessageBox::RejectRole);
 
     for (const QUrl &url : urls) {
         Utils::FilePath src = Utils::FilePath::fromUrl(url);
@@ -408,9 +411,9 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             continue;
 
         if (dest.exists()) {
-            mb.setText("An asset named " + dest.fileName() + " already exists.");
-            mb.exec();
-            int userAction = mb.buttonRole(mb.clickedButton());
+            msgBox.setText("An asset named " + dest.fileName() + " already exists.");
+            msgBox.exec();
+            int userAction = msgBox.buttonRole(msgBox.clickedButton());
 
             if (userAction == QMessageBox::AcceptRole) { // "Keep Both"
                 dest = Utils::FilePath::fromString(UniqueName::generatePath(dest.toString()));
@@ -424,8 +427,13 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
             }
         }
 
-        if (!src.renameFile(dest))
-            qWarning() << __FUNCTION__ << "Failed to move asset from" << src << "to" << dest;
+        if (!src.renameFile(dest) && src.isDir()) {
+            QMessageBox errBox;
+            QString message = QString("Failed to move folder \"%1\".\nThe folder might contain subfolders or one of its files is in use.")
+                                  .arg(src.fileName());
+            errBox.setInformativeText(message);
+            errBox.exec();
+        }
     }
 
     if (m_assetsView->model())
@@ -439,7 +447,7 @@ QList<QToolButton *> AssetsLibraryWidget::createToolBarWidgets()
 
 void AssetsLibraryWidget::handleSearchFilterChanged(const QString &filterText)
 {
-    if (filterText == m_filterText || (!m_assetsModel->hasFiles()
+    if (filterText == m_filterText || (m_assetsModel->isEmpty()
                                        && filterText.contains(m_filterText, Qt::CaseInsensitive)))
         return;
 

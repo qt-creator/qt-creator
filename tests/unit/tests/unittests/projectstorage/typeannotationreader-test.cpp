@@ -236,6 +236,35 @@ TEST_F(TypeAnnotationReader, parse_false_canBeDroppedInNavigator)
                                              IsEmpty())));
 }
 
+TEST_F(TypeAnnotationReader, parse_true_hideInNavigator)
+{
+    using QmlDesigner::FlagIs;
+    auto content = QString{R"xy(
+    MetaInfo {
+        Type {
+            name: "QtQuick.Controls.Frame"
+            icon: "images/frame-icon16.png"
+
+            Hints {
+                hideInNavigator: true
+            }
+        }
+    })xy"};
+    traits.hideInNavigator = FlagIs::True;
+
+    auto annotations = reader.parseTypeAnnotation(content, "/path", sourceId, directorySourceId);
+
+    ASSERT_THAT(annotations,
+                ElementsAre(IsTypeAnnotation(sourceId,
+                                             directorySourceId,
+                                             "Frame",
+                                             moduleId("QtQuick.Controls"),
+                                             "/path/images/frame-icon16.png",
+                                             traits,
+                                             IsEmpty(),
+                                             IsEmpty())));
+}
+
 TEST_F(TypeAnnotationReader, parse_true_canBeDroppedInView3D)
 {
     using QmlDesigner::FlagIs;

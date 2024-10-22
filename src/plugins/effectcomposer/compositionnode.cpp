@@ -3,8 +3,9 @@
 
 #include "compositionnode.h"
 
-#include "effectutils.h"
 #include "effectcomposeruniformsmodel.h"
+#include "effectshaderscodeeditor.h"
+#include "effectutils.h"
 #include "propertyhandler.h"
 #include "uniform.h"
 
@@ -43,6 +44,8 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
         parse(effectName, "", jsonObject);
     }
 }
+
+CompositionNode::~CompositionNode() = default;
 
 QString CompositionNode::fragmentCode() const
 {
@@ -110,8 +113,8 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
 
     m_name = json.value("name").toString();
     m_description = json.value("description").toString();
-    m_fragmentCode = EffectUtils::codeFromJsonArray(json.value("fragmentCode").toArray());
-    m_vertexCode = EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray());
+    setFragmentCode(EffectUtils::codeFromJsonArray(json.value("fragmentCode").toArray()));
+    setVertexCode(EffectUtils::codeFromJsonArray(json.value("vertexCode").toArray()));
 
     if (json.contains("extraMargin"))
         m_extraMargin = json.value("extraMargin").toInt();
@@ -154,6 +157,36 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     }
 }
 
+void CompositionNode::ensureShadersCodeEditor()
+{
+    if (m_shadersCodeEditor)
+        return;
+
+    m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(name());
+    m_shadersCodeEditor->setFragmentValue(fragmentCode());
+    m_shadersCodeEditor->setVertexValue(vertexCode());
+
+    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::vertexValueChanged, this, [this] {
+        setVertexCode(m_shadersCodeEditor->vertexValue());
+    });
+
+    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::fragmentValueChanged, this, [this] {
+        setFragmentCode(m_shadersCodeEditor->fragmentValue());
+    });
+
+    connect(
+        m_shadersCodeEditor.get(),
+        &EffectShadersCodeEditor::rebakeRequested,
+        this,
+        &CompositionNode::rebakeRequested);
+}
+
+void CompositionNode::requestRebakeIfLiveUpdateMode()
+{
+    if (m_shadersCodeEditor && m_shadersCodeEditor->liveUpdate())
+        emit rebakeRequested();
+}
+
 QList<Uniform *> CompositionNode::uniforms() const
 {
     return m_uniforms;
@@ -187,6 +220,34 @@ void CompositionNode::setRefCount(int count)
 
     if (notifyChange)
         emit isDepencyChanged();
+}
+
+void CompositionNode::setFragmentCode(const QString &fragmentCode)
+{
+    if (m_fragmentCode == fragmentCode)
+        return;
+
+    m_fragmentCode = fragmentCode;
+    emit fragmentCodeChanged();
+
+    requestRebakeIfLiveUpdateMode();
+}
+
+void CompositionNode::setVertexCode(const QString &vertexCode)
+{
+    if (m_vertexCode == vertexCode)
+        return;
+
+    m_vertexCode = vertexCode;
+    emit vertexCodeChanged();
+
+    requestRebakeIfLiveUpdateMode();
+}
+
+void CompositionNode::openShadersCodeEditor()
+{
+    ensureShadersCodeEditor();
+    m_shadersCodeEditor->showWidget();
 }
 
 QString CompositionNode::name() const

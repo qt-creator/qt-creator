@@ -70,9 +70,9 @@ TreeView {
     model: assetsModel
 
     onRowsChanged: {
-        if (root.rows > root.rootPathRow + 1 && !assetsModel.hasFiles ||
-            root.rows <= root.rootPathRow + 1 && assetsModel.hasFiles) {
-            assetsModel.syncHasFiles()
+        if (root.rows > root.rootPathRow + 1 && assetsModel.isEmpty ||
+            root.rows <= root.rootPathRow + 1 && !assetsModel.isEmpty) {
+            assetsModel.syncIsEmpty()
         }
 
         root.updateRows()
@@ -328,7 +328,7 @@ TreeView {
 
     function moveSelection(amount)
     {
-        if (!assetsModel.hasFiles || !amount)
+        if (assetsModel.isEmpty || !amount)
             return
 
         let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)

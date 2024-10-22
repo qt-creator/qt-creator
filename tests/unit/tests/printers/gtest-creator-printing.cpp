@@ -656,6 +656,9 @@ std::ostream &operator<<(std::ostream &out, TypeTraits traits)
     if (traits.visibleInLibrary != QmlDesigner::FlagIs::False)
         out << " | visibleInLibrary(" << traits.visibleInLibrary << ")";
 
+    if (traits.hideInNavigator != QmlDesigner::FlagIs::False)
+        out << " | hideInNavigator(" << traits.hideInNavigator << ")";
+
     return out << ")";
 }
 

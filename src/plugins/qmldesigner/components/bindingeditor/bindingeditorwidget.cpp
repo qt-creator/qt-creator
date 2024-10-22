@@ -20,7 +20,6 @@
 
 #include <qmljstools/qmljsindenter.h>
 
-#include <utils/fancylineedit.h>
 #include <utils/mimeconstants.h>
 #include <utils/transientscroll.h>
 

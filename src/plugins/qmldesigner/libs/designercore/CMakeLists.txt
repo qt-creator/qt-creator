@@ -376,6 +376,11 @@ extend_qtc_library(QmlDesignerCore
 )
 
 extend_qtc_library(QmlDesignerCore
+    CONDITION WITH_TESTS
+    PUBLIC_DEFINES QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
+)
+
+extend_qtc_library(QmlDesignerCore
   SOURCES_PREFIX projectstorage
   PUBLIC_INCLUDES projectstorage
   SOURCES_PROPERTIES SKIP_AUTOGEN ON

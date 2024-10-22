@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -14,8 +14,8 @@
             \li You can use different animation techniques for different
                 purposes. \QDS supports common motion design techniques,
                 such as timeline and keyframe based animation and easing
-                curves, as well as screen-to-screen or state-to-state
-                application flows and data-driven UI logic animation.
+                curves, as well as state-to-state application flows and
+                data-driven UI logic animation.
     \endtable
 
     \list

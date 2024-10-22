@@ -14,9 +14,10 @@
 
 namespace QmlDesigner {
 
-InsightView::InsightView(ExternalDependenciesInterface &externalDependencies)
+InsightView::InsightView(ExternalDependenciesInterface &externalDependencies,
+                         QmlDesignerProjectManager &projectManager)
     : AbstractView(externalDependencies)
-    , m_insightModel(std::make_unique<InsightModel>(this, externalDependencies))
+    , m_insightModel(std::make_unique<InsightModel>(this, externalDependencies, projectManager))
 {
     Q_ASSERT(m_insightModel);
 }

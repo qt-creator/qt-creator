@@ -137,7 +137,7 @@ bool useLayerEffect();
 bool validateEffect(const QString &effectPath);
 bool isEffectComposerActivated();
 
-Utils::FilePath getImagesDefaultDirectory();
+QMLDESIGNERCOMPONENTS_EXPORT Utils::FilePath getImagesDefaultDirectory();
 
 //Item Library and Assets related drop operations
 QMLDESIGNERCOMPONENTS_EXPORT ModelNode handleItemLibraryEffectDrop(const QString &effectPath,
@@ -160,7 +160,6 @@ ModelNode handleItemLibrarySoundDrop(const QString &soundPath,
                                      NodeAbstractProperty targetProperty,
                                      const ModelNode &targetNode);
 ModelNode handleItemLibraryTexture3dDrop(const QString &tex3DPath,
-                                         NodeAbstractProperty targetProperty,
                                          const ModelNode &targetNode,
                                          bool &outMoveNodesAfter);
 

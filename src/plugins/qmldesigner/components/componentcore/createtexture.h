@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <QObject>
+#include <QStringList>
 
 namespace Utils {
 class FilePath;
@@ -16,10 +16,8 @@ class ModelNode;
 
 enum class AddTextureMode { Image, Texture, LightProbe };
 
-class CreateTexture : public QObject
+class CreateTexture
 {
-    Q_OBJECT
-
 public:
     CreateTexture(AbstractView *view);
 
@@ -28,21 +26,13 @@ public:
                       AddTextureMode mode = AddTextureMode::Texture,
                       int sceneId = -1);
     ModelNode execute(const ModelNode &texture);
-    ModelNode resolveSceneEnv(int sceneId);
-    void assignTextureAsLightProbe(const ModelNode &texture, int sceneId);
+    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId = -1);
 
 private:
     bool addFileToProject(const QString &filePath);
     ModelNode createTextureFromImage(const Utils::FilePath &assetPath, AddTextureMode mode);
 
     AbstractView *m_view = nullptr;
-};
-
-class CreateTextures : public CreateTexture
-{
-public:
-    using CreateTexture::CreateTexture;
-    void execute(const QStringList &filePaths, AddTextureMode mode, int sceneId = -1);
 };
 
 } // namespace QmlDesigner

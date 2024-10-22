@@ -6,10 +6,11 @@
 #include <auxiliarydataproperties.h>
 
 namespace QmlDesigner {
-NodeDumper::NodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
-    m_node(node),
-    m_objectNode(node),
-    m_lineage(lineage)
+NodeDumper::NodeDumper(const ModelNode &node)
+    : m_node(node)
+    , m_objectNode(node)
+    , m_metaInfo(node.metaInfo())
+    , m_model{node.model()}
 {
 
 }

@@ -3,12 +3,13 @@
 
 #include "assetexporterplugin.h"
 
-#include "assetexportpluginconstants.h"
 #include "assetexportdialog.h"
 #include "assetexporter.h"
 #include "assetexporterview.h"
-#include "filepathmodel.h"
+#include "assetexportpluginconstants.h"
 #include "componentexporter.h"
+#include "filepathmodel.h"
+#include <qmldesignerprojectmanager.h>
 
 #include "dumpers/itemnodedumper.h"
 #include "dumpers/textnodedumper.h"
@@ -37,6 +38,7 @@
 namespace QmlDesigner {
 
 AssetExporterPlugin::AssetExporterPlugin()
+    : m_projectManager{QmlDesigner::QmlDesignerPlugin::projectManagerForPluginInitializationOnly()}
 {
     ProjectExplorer::TaskHub::addCategory({Constants::TASK_CATEGORY_ASSET_EXPORT,
                                            tr("Asset Export"),
@@ -44,6 +46,7 @@ AssetExporterPlugin::AssetExporterPlugin()
                                            false});
 
     auto *designerPlugin = QmlDesigner::QmlDesignerPlugin::instance();
+
     auto &viewManager = designerPlugin->viewManager();
     m_view = viewManager.registerView(std::make_unique<AssetExporterView>(
         designerPlugin->externalDependenciesForPluginInitializationOnly()));
@@ -79,7 +82,7 @@ void AssetExporterPlugin::onExport()
     if (!exportDir.parentDir().isEmpty())
         exportDir = exportDir.parentDir();
     exportDir = exportDir.pathAppended(startupProject->displayName() + "_export");
-    AssetExporter assetExporter(m_view, startupProject);
+    AssetExporter assetExporter(m_view, startupProject, m_projectManager.projectStorageDependencies());
     AssetExportDialog assetExporterDialog(exportDir, assetExporter, model);
     assetExporterDialog.exec();
 }

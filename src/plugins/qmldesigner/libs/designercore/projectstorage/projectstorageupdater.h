@@ -41,12 +41,10 @@ class QMLDESIGNERCORE_EXPORT ProjectStorageUpdater final
     : public ProjectStoragePathWatcherNotifierInterface
 {
 public:
-    using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
-
     ProjectStorageUpdater(FileSystemInterface &fileSystem,
                           ProjectStorageType &projectStorage,
                           FileStatusCache &fileStatusCache,
-                          PathCache &pathCache,
+                          PathCacheType &pathCache,
                           QmlDocumentParserInterface &qmlDocumentParser,
                           QmlTypesParserInterface &qmlTypesParser,
                           class ProjectStoragePathWatcherInterface &pathWatcher,
@@ -243,7 +241,7 @@ private:
     FileSystemInterface &m_fileSystem;
     ProjectStorageType &m_projectStorage;
     FileStatusCache &m_fileStatusCache;
-    PathCache &m_pathCache;
+    PathCacheType &m_pathCache;
     QmlDocumentParserInterface &m_qmlDocumentParser;
     QmlTypesParserInterface &m_qmlTypesParser;
     ProjectStoragePathWatcherInterface &m_pathWatcher;

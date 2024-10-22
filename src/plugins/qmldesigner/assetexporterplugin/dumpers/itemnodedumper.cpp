@@ -22,16 +22,16 @@ static QString capitalize(const QString &str)
 
 namespace QmlDesigner {
 using namespace Constants;
-ItemNodeDumper::ItemNodeDumper(const QByteArrayList &lineage,
-                               const ModelNode &node) :
-    NodeDumper(lineage, node)
+
+ItemNodeDumper::ItemNodeDumper(const ModelNode &node)
+    : NodeDumper(node)
 {
 
 }
 
 bool QmlDesigner::ItemNodeDumper::isExportable() const
 {
-    return lineage().contains("QtQuick.Item");
+    return metaInfo().isQtQuickItem();
 }
 
 QJsonObject QmlDesigner::ItemNodeDumper::json([[maybe_unused]] QmlDesigner::Component &component) const

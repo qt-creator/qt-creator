@@ -391,6 +391,21 @@ Item {
                             visible: BackendApi.haveVirtualKeyboard
                         }
 
+                        StudioControls.CheckBox {
+                            id: enableCMakeGeneration
+                            actionIndicatorVisible: false
+                            text: qsTr("Enable Cmake Generation")
+                            font.pixelSize: DialogValues.defaultPixelSize
+                            checked: BackendApi.enableCMakeGeneration
+                            visible: BackendApi.hasCMakeGeneration
+                        }
+
+                        Binding {
+                            target: BackendApi
+                            property: "enableCMakeGeneration"
+                            value: enableCMakeGeneration.checked
+                        }
+
                         RowLayout { // Target Qt Version
                             width: parent.width
                             visible: BackendApi.haveTargetQtVersion

@@ -39,7 +39,9 @@ class InsightModel : public QAbstractListModel
     };
 
 public:
-    InsightModel(InsightView *view, class ExternalDependenciesInterface &externalDependencies);
+    InsightModel(InsightView *view,
+                 class ExternalDependenciesInterface &externalDependencies,
+                 class QmlDesignerProjectManager &projectManager);
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
@@ -109,6 +111,7 @@ private:
 private:
     QPointer<InsightView> m_insightView;
     ExternalDependenciesInterface &m_externalDependencies;
+    QmlDesignerProjectManager &m_projectManager;
 
     Utils::FileSystemWatcher *m_fileSystemWatcher;
 

@@ -241,6 +241,9 @@
         "LocalOrientIcon": {
             "iconName": "localOrient_medium"
         },
+        "LiveUpdateIcon": {
+            "iconName": "restartParticles_medium"
+        },
         "MoveToolIcon": {
             "iconName": "move_medium"
         },
@@ -275,6 +278,9 @@
         },
         "SplitViewIcon": {
             "iconName": "splitScreen_medium"
+        },
+        "SyncIcon": {
+            "iconName": "updateContent_medium"
         },
         "ToggleGroupIcon": {
             "Off": {

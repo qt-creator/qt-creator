@@ -15,13 +15,15 @@ namespace QmlDesigner {
 
 class InsightModel;
 class InsightWidget;
+class QmlDesignerProjectManager;
 
 class InsightView : public AbstractView
 {
     Q_OBJECT
 
 public:
-    explicit InsightView(ExternalDependenciesInterface &externalDependencies);
+    explicit InsightView(ExternalDependenciesInterface &externalDependencies,
+                         QmlDesignerProjectManager &projectManager);
     ~InsightView() override;
 
     // AbstractView

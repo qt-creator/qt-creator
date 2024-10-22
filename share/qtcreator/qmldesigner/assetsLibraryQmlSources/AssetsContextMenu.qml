@@ -192,7 +192,7 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
-        visible: root.assetsModel.hasFiles
+        visible: !root.assetsModel.isEmpty
         height: visible ? implicitHeight : 0
 
         NewFolderDialog {

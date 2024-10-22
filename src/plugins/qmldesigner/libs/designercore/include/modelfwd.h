@@ -39,6 +39,8 @@ constexpr bool useProjectStorage()
     return false;
 #endif
 }
+class SourcePathStorage;
+using PathCache = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 
 #ifdef QDS_MODEL_USE_PROJECTSTORAGEINTERFACE
 using ProjectStorageType = ProjectStorageInterface;
@@ -46,7 +48,6 @@ class SourcePathCacheInterface;
 using PathCacheType = SourcePathCacheInterface;
 #else
 using ProjectStorageType = ProjectStorage;
-class SourcePathStorage;
 using PathCacheType = SourcePathCache<SourcePathStorage, NonLockingMutex>;
 #endif
 

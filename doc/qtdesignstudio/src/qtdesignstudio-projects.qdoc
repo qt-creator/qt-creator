@@ -247,11 +247,7 @@
         \li Wizard Template
         \li Purpose
     \row
-        \li {1,5} Qt Quick Files
-        \li Flow Item and Flow View
-        \li Generate components that you can use to design the
-            \l{Designing Application Flows}{application flow}.
-    \row
+        \li {1,4} Qt Quick Files
         \li Qt Quick File
         \li Generates a component with one of the following default components
             or \l{Using Positioners}{positioners} as the root component:

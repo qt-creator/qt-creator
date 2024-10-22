@@ -80,6 +80,7 @@ public:
         LightDirectionalIcon,
         LightPointIcon,
         LightSpotIcon,
+        LiveUpdateIcon,
         LocalOrientIcon,
         MakeComponentIcon,
         MaterialIcon,
@@ -107,6 +108,7 @@ public:
         SnappingIcon,
         SnappingConfIcon,
         SplitViewIcon,
+        SyncIcon,
         TimelineIcon,
         ToggleGroupIcon,
         VisibilityIcon

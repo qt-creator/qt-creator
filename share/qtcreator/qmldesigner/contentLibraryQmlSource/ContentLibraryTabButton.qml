@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Controls
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
@@ -16,7 +17,6 @@ Rectangle {
     property bool selected: false
 
     height: button.height
-    width: button.width + label.width + contentRow.spacing + 6
     color: StudioTheme.Values.themeToolbarBackground
     radius: StudioTheme.Values.smallRadius
 
@@ -43,9 +43,9 @@ Rectangle {
             color: StudioTheme.Values.themeTextColor
             text: qsTr("Materials")
             font.pixelSize: StudioTheme.Values.baseFontSize
-            horizontalAlignment: Text.AlignLeft
             verticalAlignment: Text.AlignVCenter
             elide: Text.ElideRight
+            width: root.width - x
         }
     }
 
@@ -54,6 +54,12 @@ Rectangle {
         anchors.fill: parent
         hoverEnabled: true
         onClicked: root.clicked()
+    }
+
+    StudioControls.ToolTip {
+        visible: mouseArea.containsMouse
+        text: label.text
+        delay: 1000
     }
 
     states: [

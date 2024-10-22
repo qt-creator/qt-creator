@@ -60,6 +60,8 @@ public:
     DesignDocument *currentDesignDocument() const;
     Internal::DesignModeWidget *mainWidget() const;
 
+    static QmlDesignerProjectManager &projectManagerForPluginInitializationOnly();
+
     QWidget *createProjectExplorerWidget(QWidget *parent) const;
 
     void switchToTextModeDeferred();

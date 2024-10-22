@@ -2,11 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import QtQuick.Layouts
 import HelperWidgets 2.0 as HelperWidgets
 import StudioControls 1.0 as StudioControls
 import StudioTheme 1.0 as StudioTheme
 
-Row {
+RowLayout {
     id: root
 
     property int currIndex: 0
@@ -24,6 +25,7 @@ Row {
             icon: modelData.icon
             selected: root.currIndex === index
             onClicked: root.currIndex = index
+            Layout.fillWidth: true
         }
     }
 }

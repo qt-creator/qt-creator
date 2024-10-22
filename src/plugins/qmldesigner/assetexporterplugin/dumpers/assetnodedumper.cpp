@@ -14,18 +14,18 @@
 
 namespace QmlDesigner {
 using namespace Constants;
-AssetNodeDumper::AssetNodeDumper(const QByteArrayList &lineage, const ModelNode &node) :
-    ItemNodeDumper(lineage, node)
+
+AssetNodeDumper::AssetNodeDumper(const ModelNode &node)
+    : ItemNodeDumper(node)
 {
 
 }
 
 bool AssetNodeDumper::isExportable() const
 {
-    auto hasType =  [this](const QByteArray &type) {
-        return lineage().contains(type);
-    };
-    return hasType("QtQuick.Image") || hasType("QtQuick.Rectangle");
+    auto qtQuickImageMetaInfo = model()->qtQuickImageMetaInfo();
+    auto qtQuickRectangleMetaInfo = model()->qtQuickRectangleMetaInfo();
+    return metaInfo().isBasedOn(qtQuickImageMetaInfo, qtQuickRectangleMetaInfo);
 }
 
 QJsonObject AssetNodeDumper::json(Component &component) const

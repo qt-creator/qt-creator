@@ -3061,6 +3061,43 @@ TEST_F(NodeMetaInfo, invalid_is_not_visible_in_library)
     ASSERT_THAT(visibleInLibrary, FlagIs::False);
 }
 
+TEST_F(NodeMetaInfo, object_is_not_hide_in_navigator)
+{
+    auto hideInNavigator = objectMetaInfo.hideInNavigator();
+
+    ASSERT_THAT(hideInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, default_is_not_hide_in_navigator)
+{
+    auto hideInNavigator = QmlDesigner::NodeMetaInfo{}.hideInNavigator();
+
+    ASSERT_THAT(hideInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, invalid_is_not_hide_in_navigator)
+{
+    auto node = model.createModelNode("Foo");
+    auto metaInfo = node.metaInfo();
+
+    auto hideInNavigator = metaInfo.hideInNavigator();
+
+    ASSERT_THAT(hideInNavigator, FlagIs::False);
+}
+
+TEST_F(NodeMetaInfo, component_is_hide_in_navigator)
+{
+    auto moduleId = projectStorageMock.createModule("/path/to/project", ModuleKind::PathLibrary);
+    TypeTraits traits{TypeTraitsKind::Reference};
+    traits.hideInNavigator = FlagIs::True;
+    auto typeId = projectStorageMock.createType(moduleId, "Foo", traits);
+    QmlDesigner::NodeMetaInfo metaInfo{typeId, &projectStorageMock};
+
+    auto hideInNavigator = metaInfo.hideInNavigator();
+
+    ASSERT_THAT(hideInNavigator, FlagIs::True);
+}
+
 TEST_F(NodeMetaInfo, component_is_visible_in_library)
 {
     auto moduleId = projectStorageMock.createModule("/path/to/project", ModuleKind::PathLibrary);

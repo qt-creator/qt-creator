@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Controls.impl
 import HelperWidgets
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme

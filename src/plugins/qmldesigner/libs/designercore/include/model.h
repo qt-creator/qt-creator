@@ -24,13 +24,6 @@
 
 #include <variant>
 
-#ifdef QDS_USE_PROJECTSTORAGE
-#  define DEPRECATED_OLD_CREATE_MODELNODE \
-      [[deprecated("Use unqualified type names and no versions!")]]
-#else
-#  define DEPRECATED_OLD_CREATE_MODELNODE
-#endif
-
 QT_BEGIN_NAMESPACE
 class QPixmap;
 class QUrl;
@@ -91,31 +84,32 @@ public:
           Imports imports,
           const QUrl &fileUrl,
           std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
+#ifndef QDS_USE_PROJECTSTORAGE
     Model(const TypeName &typeName,
           int major = 1,
           int minor = 1,
           Model *metaInfoProxyModel = nullptr,
           std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
-
+#endif
     ~Model();
 
-    DEPRECATED_OLD_CREATE_MODELNODE static ModelPointer create(
-        const TypeName &typeName,
-        int major = 1,
-        int minor = 1,
-        Model *metaInfoProxyModel = nullptr,
-        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
+#ifndef QDS_USE_PROJECTSTORAGE
+    static ModelPointer create(const TypeName &typeName,
+                               int major = 1,
+                               int minor = 1,
+                               Model *metaInfoProxyModel = nullptr,
+                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
         return ModelPointer(
             new Model(typeName, major, minor, metaInfoProxyModel, std::move(resourceManagement)));
     }
+#endif
 
-    static ModelPointer create(
-        ProjectStorageDependencies projectStorageDependencies,
-        Utils::SmallStringView typeName,
-        Imports imports,
-        const QUrl &fileUrl,
-        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
+    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
+                               Utils::SmallStringView typeName,
+                               Imports imports,
+                               const QUrl &fileUrl,
+                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
         return ModelPointer(new Model(projectStorageDependencies,
                                       typeName,
@@ -124,12 +118,12 @@ public:
                                       std::move(resourceManagement)));
     }
 
-    DEPRECATED_OLD_CREATE_MODELNODE static ModelPointer create(
-        ProjectStorageDependencies projectStorageDependencies,
-        const TypeName &typeName,
-        int major = 1,
-        int minor = 1,
-        std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
+#ifndef QDS_USE_PROJECTSTORAGE
+    static ModelPointer create(ProjectStorageDependencies projectStorageDependencies,
+                               const TypeName &typeName,
+                               int major = 1,
+                               int minor = 1,
+                               std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {})
     {
         return ModelPointer(new Model(projectStorageDependencies,
                                       typeName,
@@ -138,6 +132,7 @@ public:
                                       nullptr,
                                       std::move(resourceManagement)));
     }
+#endif
 
     ModelPointer createModel(const TypeName &typeName,
                              std::unique_ptr<ModelResourceManagementInterface> resourceManagement = {});
@@ -188,6 +183,7 @@ public:
     NodeMetaInfo qtQuick3DTextureMetaInfo() const;
     NodeMetaInfo qtQuick3DTextureInputMetaInfo() const;
     NodeMetaInfo qtQuickBorderImageMetaInfo() const;
+    NodeMetaInfo qtQuickControlsLabelMetaInfo() const;
     NodeMetaInfo qtQuickControlsTextAreaMetaInfo() const;
     NodeMetaInfo qtQuickImageMetaInfo() const;
     NodeMetaInfo qtQuickItemMetaInfo() const;

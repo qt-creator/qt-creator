@@ -7,9 +7,10 @@
 #include <auxiliarydataproperties.h>
 #include <externaldependenciesinterface.h>
 #include <plaintexteditmodifier.h>
+#include <qmldesignerplugin.h>
+#include <qmldesignerprojectmanager.h>
 #include <rewriterview.h>
 #include <signalhandlerproperty.h>
-#include <qmldesignerplugin.h>
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
@@ -192,7 +193,9 @@ Qt::CheckState checkState(const std::vector<std::string> &a, const std::vector<s
 
 struct ModelBuilder
 {
-    ModelBuilder(const QString &filePath, ExternalDependenciesInterface &externalDependencies)
+    ModelBuilder(const QString &filePath,
+                 ExternalDependenciesInterface &externalDependencies,
+                 [[maybe_unused]] ProjectStorageDependencies projectStorageDependencies)
     {
         const QString fileContent = fileToString(filePath);
         if (fileContent.isEmpty()) {
@@ -209,7 +212,14 @@ struct ModelBuilder
         rewriter->setCheckLinkErrors(false);
         rewriter->setTextModifier(modifier.get());
 
+#ifdef QDS_USE_PROJECTSTORAGE
+        model = QmlDesigner::Model::create(projectStorageDependencies,
+                                           "Item",
+                                           {Import::createLibraryImport("QtQuick")},
+                                           filePath);
+#else
         model = QmlDesigner::Model::create("QtQuick.Item", 2, 1);
+#endif
         model->setRewriterView(rewriter.get());
     }
 
@@ -221,9 +231,12 @@ struct ModelBuilder
 
 } // namespace
 
-InsightModel::InsightModel(InsightView *view, ExternalDependenciesInterface &externalDependencies)
+InsightModel::InsightModel(InsightView *view,
+                           ExternalDependenciesInterface &externalDependencies,
+                           QmlDesignerProjectManager &projectManager)
     : m_insightView(view)
     , m_externalDependencies(externalDependencies)
+    , m_projectManager(projectManager)
     , m_fileSystemWatcher(new Utils::FileSystemWatcher(this))
 {
     QObject::connect(ProjectExplorer::ProjectManager::instance(),
@@ -446,7 +459,9 @@ void InsightModel::setEnabled(bool value)
         return;
     }
 
-    ModelBuilder builder(m_mainQmlInfo.absoluteFilePath(), m_externalDependencies);
+    ModelBuilder builder(m_mainQmlInfo.absoluteFilePath(),
+                         m_externalDependencies,
+                         m_projectManager.projectStorageDependencies());
 
     if (!builder.model) {
         qWarning() << "Could not create model" << m_mainQmlInfo.absoluteFilePath();
@@ -613,7 +628,9 @@ int InsightModel::devicePixelRatio()
 
 void InsightModel::parseMainQml()
 {
-    ModelBuilder builder(m_mainQmlInfo.absoluteFilePath(), m_externalDependencies);
+    ModelBuilder builder(m_mainQmlInfo.absoluteFilePath(),
+                         m_externalDependencies,
+                         m_projectManager.projectStorageDependencies());
 
     if (!builder.model)
         return;

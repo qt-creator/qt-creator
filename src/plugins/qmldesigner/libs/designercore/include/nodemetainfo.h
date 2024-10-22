@@ -23,22 +23,6 @@ QT_BEGIN_NAMESPACE
 class QDeclarativeContext;
 QT_END_NAMESPACE
 
-#ifdef QDS_USE_PROJECTSTORAGE
-#  define DEPRECATED_TYPENAME [[deprecated("Don't use string based types anymore!")]]
-#  define DEPRECATED_VERSION_NUMBER \
-      [[deprecated( \
-          "In most cases you don't need them anymore because the import is setting them!")]]
-#  define DEPRECATED_COMPONENT_FILE_NAME [[deprecated("Use sourceId() instead.")]]
-#  define DEPRECATED_IMPORT_DIRECTORY_PATH [[deprecated("Use allExportedTypeNames().")]]
-#  define DEPRECATED_REQUIRED_IMPORT_STRING [[deprecated("Use allExportedTypeNames().")]]
-#else
-#  define DEPRECATED_TYPENAME
-#  define DEPRECATED_VERSION_NUMBER
-#  define DEPRECATED_COMPONENT_FILE_NAME
-#  define DEPRECATED_IMPORT_DIRECTORY_PATH
-#  define DEPRECATED_REQUIRED_IMPORT_STRING
-#endif
-
 namespace QmlDesigner {
 
 class MetaInfo;
@@ -54,7 +38,9 @@ class QMLDESIGNERCORE_EXPORT NodeMetaInfo
 
 public:
     NodeMetaInfo();
+#ifndef QDS_USE_PROJECTSTORAGE
     NodeMetaInfo(Model *model, const TypeName &typeName, int majorVersion, int minorVersion);
+#else
     NodeMetaInfo(TypeId typeId, NotNullPointer<const ProjectStorageType> projectStorage)
         : m_typeId{typeId}
         , m_projectStorage{projectStorage}
@@ -62,6 +48,7 @@ public:
     NodeMetaInfo(NotNullPointer<const ProjectStorageType> projectStorage)
         : m_projectStorage{projectStorage}
     {}
+#endif
 
     NodeMetaInfo(const NodeMetaInfo &);
     NodeMetaInfo &operator=(const NodeMetaInfo &);
@@ -69,6 +56,7 @@ public:
     NodeMetaInfo &operator=(NodeMetaInfo &&);
     ~NodeMetaInfo();
 
+#ifdef QDS_USE_PROJECTSTORAGE
     static NodeMetaInfo create(NotNullPointer<const ProjectStorageType> projectStorage, TypeId typeId)
     {
         return {typeId, projectStorage};
@@ -78,6 +66,7 @@ public:
     {
         return std::bind_front(&NodeMetaInfo::create, projectStorage);
     }
+#endif
 
     bool isValid() const;
     explicit operator bool() const { return isValid(); }
@@ -98,6 +87,7 @@ public:
     FlagIs isStackedContainer() const;
     FlagIs takesOverRenderingOfChildren() const;
     FlagIs visibleInNavigator() const;
+    FlagIs hideInNavigator() const;
     FlagIs visibleInLibrary() const;
 
     bool hasProperty(::Utils::SmallStringView propertyName) const;
@@ -118,11 +108,12 @@ public:
     bool defaultPropertyIsComponent() const;
 
     QString displayName() const;
-    DEPRECATED_TYPENAME TypeName typeName() const;
-    DEPRECATED_TYPENAME TypeName simplifiedTypeName() const;
-    DEPRECATED_VERSION_NUMBER int majorVersion() const;
-    DEPRECATED_VERSION_NUMBER int minorVersion() const;
-
+#ifndef QDS_USE_PROJECTSTORAGE
+    TypeName typeName() const;
+    TypeName simplifiedTypeName() const;
+    int majorVersion() const;
+    int minorVersion() const;
+#endif
     Storage::Info::ExportedTypeNames allExportedTypeNames() const;
     Storage::Info::ExportedTypeNames exportedTypeNamesForSourceId(SourceId sourceId) const;
 
@@ -131,7 +122,9 @@ public:
     Storage::Info::ItemLibraryEntries itemLibrariesEntries() const;
 
     SourceId sourceId() const;
-    DEPRECATED_COMPONENT_FILE_NAME QString componentFileName() const;
+#ifndef QDS_USE_PROJECTSTORAGE
+    QString componentFileName() const;
+#endif
 
     bool isBasedOn(const NodeMetaInfo &metaInfo) const;
     bool isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const;
@@ -214,6 +207,7 @@ public:
     bool isQtQuick3DCubeMapTexture() const;
     bool isQtQuick3DView3D() const;
     bool isQtQuickBorderImage() const;
+    bool isQtQuickControlsLabel() const;
     bool isQtQuickControlsSwipeView() const;
     bool isQtQuickControlsTabBar() const;
     bool isQtQuickExtrasPicture() const;
@@ -226,6 +220,7 @@ public:
     bool isQtQuickPositioner() const;
     bool isQtQuickPropertyAnimation() const;
     bool isQtQuickPropertyChanges() const;
+    bool isQtQuickRectangle() const;
     bool isQtQuickRepeater() const;
     bool isQtQuickState() const;
     bool isQtQuickStateOperation() const;
@@ -251,9 +246,10 @@ public:
     bool usesCustomParser() const;
 
     bool isEnumeration() const;
-    DEPRECATED_IMPORT_DIRECTORY_PATH QString importDirectoryPath() const;
-    DEPRECATED_REQUIRED_IMPORT_STRING QString requiredImportString() const;
-
+#ifndef QDS_USE_PROJECTSTORAGE
+    QString importDirectoryPath() const;
+    QString requiredImportString() const;
+#endif
     friend bool operator==(const NodeMetaInfo &first, const NodeMetaInfo &second)
     {
         if constexpr (useProjectStorage())
