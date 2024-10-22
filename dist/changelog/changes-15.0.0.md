@@ -298,6 +298,7 @@ Platforms
 ### VxWorks
 
 * Added support for VxWorks 24.03
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-create-vxworks-kits.html))
 
 Credits for these changes go to:
 --------------------------------
