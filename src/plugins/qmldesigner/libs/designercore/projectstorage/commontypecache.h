@@ -58,6 +58,7 @@ inline constexpr char Item[] = "Item";
 inline constexpr char JsonListModel[] = "JsonListModel";
 inline constexpr char KeyframeGroup[] = "KeyframeGroup";
 inline constexpr char Keyframe[] = "Keyframe";
+inline constexpr char Label[] = "Label";
 inline constexpr char Layout[] = "Layout";
 inline constexpr char Light[] = "Light";
 inline constexpr char ListElement[] = "ListElement";
@@ -236,6 +237,7 @@ class CommonTypeCache
         CacheType<QtQuick3D_Particles3D, ModuleKind::QmlLibrary, SpriteParticle3D>,
         CacheType<QtQuick3D_Particles3D, ModuleKind::CppLibrary, QQuick3DParticleAbstractShape>,
         CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Control>,
+        CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Label>,
         CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, Popup>,
         CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SplitView>,
         CacheType<QtQuick_Controls, ModuleKind::QmlLibrary, SwipeView>,

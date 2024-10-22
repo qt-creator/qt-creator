@@ -1432,8 +1432,13 @@ QmlDesigner::PropertyName TextToModelMerger::syncScriptBinding(ModelNode &modelN
                                                       prefix,
                                                       script->qualifiedId,
                                                       astValue);
+
+#ifndef QDS_USE_PROJECTSTORAGE
     // Can happen if the type was just created and was not fully processed yet
     const bool newlyCreatedTypeCase = !modelNode.metaInfo().properties().size();
+#else
+    const bool newlyCreatedTypeCase = false;
+#endif
 
     if (enumValue.isValid()) { // It is a qualified enum:
         AbstractProperty modelProperty = modelNode.property(astPropertyName.toUtf8());
@@ -1805,6 +1810,7 @@ void ModelValidator::shouldBeVariantProperty([[maybe_unused]] AbstractProperty &
                                              const QVariant & /*qmlVariantValue*/,
                                              const TypeName & /*dynamicTypeName*/)
 {
+    QTC_CHECK(modelProperty.isVariantProperty());
     Q_ASSERT(modelProperty.isVariantProperty());
     Q_ASSERT(0);
 }
@@ -1866,6 +1872,7 @@ void ModelValidator::propertyAbsentFromQml([[maybe_unused]] AbstractProperty &mo
 {
     Q_ASSERT(!modelProperty.isValid());
     Q_ASSERT(0);
+    QTC_CHECK(!modelProperty.isValid());
 }
 
 void ModelValidator::idsDiffer([[maybe_unused]] ModelNode &modelNode,

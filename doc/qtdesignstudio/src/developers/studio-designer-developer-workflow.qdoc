@@ -39,6 +39,9 @@
         \list
             \li Qt Creator 13.0 or above.
             \li \QDS 4.5 or above.
+            \li Git.
+
+            \note Learn more about getting Git \l {https://wiki.qt.io/Git_Installation} {here}.
         \endlist
 
         \list 1

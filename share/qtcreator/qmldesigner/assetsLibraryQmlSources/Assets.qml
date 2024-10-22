@@ -101,7 +101,7 @@ Item {
         anchors.fill: parent
         acceptedButtons: Qt.RightButton
         onClicked: {
-            if (assetsModel.hasFiles) {
+            if (!assetsModel.isEmpty) {
                 function onFolderCreated(path) {
                     assetsView.addCreatedFolder(path)
                 }
@@ -189,13 +189,13 @@ Item {
             leftPadding: 10
             color: StudioTheme.Values.themeTextColor
             font.pixelSize: StudioTheme.Values.baseFont
-            visible: !assetsModel.hasFiles && !root.__searchBoxEmpty
+            visible: assetsModel.isEmpty && !root.__searchBoxEmpty
         }
 
         Item { // placeholder when the assets library is empty
             width: parent.width
             height: parent.height - toolbar.height - column.spacing
-            visible: !assetsModel.hasFiles && root.__searchBoxEmpty
+            visible: assetsModel.isEmpty && root.__searchBoxEmpty
             clip: true
 
             MouseArea { // right clicking the empty area of the view

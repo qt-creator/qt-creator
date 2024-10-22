@@ -58,7 +58,6 @@ TextureEditorView::TextureEditorView(AsynchronousImageCache &imageCache,
     : AbstractView{externalDependencies}
     , m_imageCache(imageCache)
     , m_stackedWidget(new QStackedWidget)
-    , m_createTexture(new CreateTexture(this))
     , m_dynamicPropertiesModel(new DynamicPropertiesModel(true, this))
 {
     m_updateShortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_F12), m_stackedWidget);
@@ -399,7 +398,7 @@ void TextureEditorView::handleToolBarAction(int action)
     case TextureEditorContextObject::AddNewTexture: {
         if (!model())
             break;
-        m_createTexture->execute();
+        CreateTexture(this).execute();
         break;
     }
 
@@ -845,7 +844,7 @@ void TextureEditorView::importsChanged([[maybe_unused]] const Imports &addedImpo
 void TextureEditorView::duplicateTexture(const ModelNode &texture)
 {
     QTC_ASSERT(texture.isValid(), return);
-    m_createTexture->execute(texture);
+    CreateTexture(this).execute(texture);
 }
 
 void TextureEditorView::customNotification([[maybe_unused]] const AbstractView *view,

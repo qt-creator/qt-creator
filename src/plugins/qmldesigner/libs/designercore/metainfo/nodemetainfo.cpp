@@ -614,8 +614,9 @@ public:
     const TypeName &propertyType(const PropertyName &propertyName) const;
 
     void setupPrototypes();
+#ifndef QDS_USE_PROJECTSTORAGE
     QList<TypeDescription> prototypes() const;
-
+#endif
     bool isPropertyWritable(const PropertyName &propertyName) const;
     bool isPropertyPointer(const PropertyName &propertyName) const;
     bool isPropertyList(const PropertyName &propertyName) const;
@@ -1429,10 +1430,12 @@ void NodeMetaInfoPrivate::setupPrototypes()
     }
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QList<TypeDescription> NodeMetaInfoPrivate::prototypes() const
 {
     return m_prototypes;
 }
+#endif
 
 const CppComponentValue *NodeMetaInfoPrivate::getNearestCppComponentValue() const
 {
@@ -1478,10 +1481,13 @@ NodeMetaInfo &NodeMetaInfo::operator=(const NodeMetaInfo &) = default;
 NodeMetaInfo::NodeMetaInfo(NodeMetaInfo &&) = default;
 NodeMetaInfo &NodeMetaInfo::operator=(NodeMetaInfo &&) = default;
 
+#ifndef QDS_USE_PROJECTSTORAGE
+
 NodeMetaInfo::NodeMetaInfo(Model *model, const TypeName &type, int maj, int min)
     : m_privateData(NodeMetaInfoPrivate::create(model, type, maj, min))
 {
 }
+#endif
 
 NodeMetaInfo::~NodeMetaInfo() = default;
 
@@ -1774,6 +1780,18 @@ FlagIs NodeMetaInfo::visibleInNavigator() const
     return FlagIs::Set;
 }
 
+FlagIs NodeMetaInfo::hideInNavigator() const
+{
+    if constexpr (useProjectStorage()) {
+        if (isValid())
+            return typeData().traits.hideInNavigator;
+
+        return FlagIs::False;
+    }
+
+    return FlagIs::Set;
+}
+
 FlagIs NodeMetaInfo::visibleInLibrary() const
 {
     if constexpr (useProjectStorage()) {
@@ -2024,28 +2042,26 @@ std::vector<NodeMetaInfo> NodeMetaInfo::selfAndPrototypes() const
     if (!isValid())
         return {};
 
-    if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get self and prototypes"_t,
-                                   category(),
-                                   keyValue("type id", m_typeId)};
+#ifdef QDS_USE_PROJECTSTORAGE
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get self and prototypes"_t, category(), keyValue("type id", m_typeId)};
 
-        return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeAndSelfIds(m_typeId),
-                                               NodeMetaInfo::bind(m_projectStorage));
-    } else {
-        NodeMetaInfos hierarchy = {*this};
-        Model *model = m_privateData->model();
-        for (const TypeDescription &type : m_privateData->prototypes()) {
-            auto &last = hierarchy.emplace_back(model,
-                                                type.className.toUtf8(),
-                                                type.majorVersion,
-                                                type.minorVersion);
-            if (!last.isValid())
-                hierarchy.pop_back();
-        }
-
-        return hierarchy;
+    return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeAndSelfIds(m_typeId),
+                                           NodeMetaInfo::bind(m_projectStorage));
+#else
+    NodeMetaInfos hierarchy = {*this};
+    Model *model = m_privateData->model();
+    for (const TypeDescription &type : m_privateData->prototypes()) {
+        auto &last = hierarchy.emplace_back(model,
+                                            type.className.toUtf8(),
+                                            type.majorVersion,
+                                            type.minorVersion);
+        if (!last.isValid())
+            hierarchy.pop_back();
     }
+
+    return hierarchy;
+#endif
 }
 
 NodeMetaInfos NodeMetaInfo::prototypes() const
@@ -2053,26 +2069,26 @@ NodeMetaInfos NodeMetaInfo::prototypes() const
     if (!isValid())
         return {};
 
-    if constexpr (useProjectStorage()) {
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get prototypes"_t, category(), keyValue("type id", m_typeId)};
-        return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeIds(m_typeId),
-                                               NodeMetaInfo::bind(m_projectStorage));
+#ifdef QDS_USE_PROJECTSTORAGE
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get prototypes"_t, category(), keyValue("type id", m_typeId)};
+    return Utils::transform<NodeMetaInfos>(m_projectStorage->prototypeIds(m_typeId),
+                                           NodeMetaInfo::bind(m_projectStorage));
 
-    } else {
-        NodeMetaInfos hierarchy;
-        Model *model = m_privateData->model();
-        for (const TypeDescription &type : m_privateData->prototypes()) {
-            auto &last = hierarchy.emplace_back(model,
-                                                type.className.toUtf8(),
-                                                type.majorVersion,
-                                                type.minorVersion);
-            if (!last.isValid())
-                hierarchy.pop_back();
-        }
-
-        return hierarchy;
+#else
+    NodeMetaInfos hierarchy;
+    Model *model = m_privateData->model();
+    for (const TypeDescription &type : m_privateData->prototypes()) {
+        auto &last = hierarchy.emplace_back(model,
+                                            type.className.toUtf8(),
+                                            type.majorVersion,
+                                            type.minorVersion);
+        if (!last.isValid())
+            hierarchy.pop_back();
     }
+
+    return hierarchy;
+#endif
 }
 
 namespace {
@@ -2111,6 +2127,7 @@ QString NodeMetaInfo::displayName() const
     return {};
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 TypeName NodeMetaInfo::typeName() const
 {
     if (isValid())
@@ -2146,6 +2163,7 @@ int NodeMetaInfo::minorVersion() const
 
     return -1;
 }
+#endif
 
 Storage::Info::ExportedTypeNames NodeMetaInfo::allExportedTypeNames() const
 {
@@ -2260,6 +2278,7 @@ SourceId NodeMetaInfo::sourceId() const
     return SourceId{};
 }
 
+#ifndef QDS_USE_PROJECTSTORAGE
 QString NodeMetaInfo::componentFileName() const
 {
     if constexpr (!useProjectStorage()) {
@@ -2295,6 +2314,7 @@ QString NodeMetaInfo::requiredImportString() const
 
     return {};
 }
+#endif
 
 SourceId NodeMetaInfo::propertyEditorPathId() const
 {
@@ -2333,12 +2353,16 @@ PropertyDeclarationId NodeMetaInfo::defaultPropertyDeclarationId() const
     return *m_defaultPropertyId;
 }
 
-bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int minorVersion) const
+bool NodeMetaInfo::isSubclassOf([[maybe_unused]] const TypeName &type,
+                                [[maybe_unused]] int majorVersion,
+                                [[maybe_unused]] int minorVersion) const
 {
     if (!isValid()) {
         qWarning() << "NodeMetaInfo is invalid" << type;
         return false;
     }
+
+#ifndef QDS_USE_PROJECTSTORAGE
 
     if (typeName().isEmpty())
         return false;
@@ -2363,6 +2387,7 @@ bool NodeMetaInfo::isSubclassOf(const TypeName &type, int majorVersion, int mino
         }
     }
     m_privateData->prototypeCacheNegatives().insert(stringIdentifier(type, majorVersion, minorVersion));
+#endif
     return false;
 }
 
@@ -2402,75 +2427,73 @@ bool NodeMetaInfo::isSuitableForMouseAreaFill() const
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t,
-                                   category(),
-                                   keyValue("type id", m_typeId),
-                                   keyValue("meta info type id", metaInfo.m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t,
+                               category(),
+                               keyValue("type id", m_typeId),
+                               keyValue("meta info type id", metaInfo.m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId, metaInfo.m_typeId);
-    } else {
-        if (!isValid())
-            return false;
-        if (majorVersion() == -1 && minorVersion() == -1)
-            return isSubclassOf(metaInfo.typeName());
-        return isSubclassOf(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
-    }
+    return m_projectStorage->isBasedOn(m_typeId, metaInfo.m_typeId);
+#else
+    if (!isValid())
+        return false;
+    if (majorVersion() == -1 && minorVersion() == -1)
+        return isSubclassOf(metaInfo.typeName());
+    return isSubclassOf(metaInfo.typeName(), metaInfo.majorVersion(), metaInfo.minorVersion());
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1, const NodeMetaInfo &metaInfo2) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId);
-    } else {
-        if (!isValid())
-            return false;
-        if (majorVersion() == -1 && minorVersion() == -1)
-            return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName()));
+    return m_projectStorage->isBasedOn(m_typeId, metaInfo1.m_typeId, metaInfo2.m_typeId);
+#else
+    if (!isValid())
+        return false;
+    if (majorVersion() == -1 && minorVersion() == -1)
+        return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName()));
 
-        return (
-            isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+    return (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
             || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion()));
-    }
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo2,
                              const NodeMetaInfo &metaInfo3) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           metaInfo1.m_typeId,
-                                           metaInfo2.m_typeId,
-                                           metaInfo3.m_typeId);
-    } else {
-        if (!isValid())
-            return false;
-        if (majorVersion() == -1 && minorVersion() == -1)
-            return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName())
-                    || isSubclassOf(metaInfo3.typeName()));
+    return m_projectStorage->isBasedOn(m_typeId,
+                                       metaInfo1.m_typeId,
+                                       metaInfo2.m_typeId,
+                                       metaInfo3.m_typeId);
+#else
+    if (!isValid())
+        return false;
+    if (majorVersion() == -1 && minorVersion() == -1)
+        return (isSubclassOf(metaInfo1.typeName()) || isSubclassOf(metaInfo2.typeName())
+                || isSubclassOf(metaInfo3.typeName()));
 
-        return (
-            isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+    return (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
             || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
             || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion()));
-    }
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
@@ -2478,31 +2501,27 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo3,
                              const NodeMetaInfo &metaInfo4) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           metaInfo1.m_typeId,
-                                           metaInfo2.m_typeId,
-                                           metaInfo3.m_typeId,
-                                           metaInfo4.m_typeId);
-    } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion())
-                   || isSubclassOf(metaInfo3.typeName(),
-                                   metaInfo3.majorVersion(),
-                                   metaInfo3.minorVersion())
-                   || isSubclassOf(metaInfo4.typeName(),
-                                   metaInfo4.majorVersion(),
-                                   metaInfo4.minorVersion()));
-    }
+    return m_projectStorage->isBasedOn(m_typeId,
+                                       metaInfo1.m_typeId,
+                                       metaInfo2.m_typeId,
+                                       metaInfo3.m_typeId,
+                                       metaInfo4.m_typeId);
+#else
+    return isValid()
+           && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+               || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
+               || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion())
+               || isSubclassOf(metaInfo4.typeName(),
+                               metaInfo4.majorVersion(),
+                               metaInfo4.minorVersion()));
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
@@ -2511,35 +2530,29 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo4,
                              const NodeMetaInfo &metaInfo5) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           metaInfo1.m_typeId,
-                                           metaInfo2.m_typeId,
-                                           metaInfo3.m_typeId,
-                                           metaInfo4.m_typeId,
-                                           metaInfo5.m_typeId);
-    } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion())
-                   || isSubclassOf(metaInfo3.typeName(),
-                                   metaInfo3.majorVersion(),
-                                   metaInfo3.minorVersion())
-                   || isSubclassOf(metaInfo4.typeName(),
-                                   metaInfo4.majorVersion(),
-                                   metaInfo4.minorVersion())
-                   || isSubclassOf(metaInfo5.typeName(),
-                                   metaInfo5.majorVersion(),
-                                   metaInfo5.minorVersion()));
-    }
+    return m_projectStorage->isBasedOn(m_typeId,
+                                       metaInfo1.m_typeId,
+                                       metaInfo2.m_typeId,
+                                       metaInfo3.m_typeId,
+                                       metaInfo4.m_typeId,
+                                       metaInfo5.m_typeId);
+#else
+    return isValid()
+           && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+               || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
+               || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion())
+               || isSubclassOf(metaInfo4.typeName(), metaInfo4.majorVersion(), metaInfo4.minorVersion())
+               || isSubclassOf(metaInfo5.typeName(),
+                               metaInfo5.majorVersion(),
+                               metaInfo5.minorVersion()));
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
@@ -2549,39 +2562,31 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo5,
                              const NodeMetaInfo &metaInfo6) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           metaInfo1.m_typeId,
-                                           metaInfo2.m_typeId,
-                                           metaInfo3.m_typeId,
-                                           metaInfo4.m_typeId,
-                                           metaInfo5.m_typeId,
-                                           metaInfo6.m_typeId);
-    } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion())
-                   || isSubclassOf(metaInfo3.typeName(),
-                                   metaInfo3.majorVersion(),
-                                   metaInfo3.minorVersion())
-                   || isSubclassOf(metaInfo4.typeName(),
-                                   metaInfo4.majorVersion(),
-                                   metaInfo4.minorVersion())
-                   || isSubclassOf(metaInfo5.typeName(),
-                                   metaInfo5.majorVersion(),
-                                   metaInfo5.minorVersion())
-                   || isSubclassOf(metaInfo6.typeName(),
-                                   metaInfo6.majorVersion(),
-                                   metaInfo6.minorVersion()));
-    }
+    return m_projectStorage->isBasedOn(m_typeId,
+                                       metaInfo1.m_typeId,
+                                       metaInfo2.m_typeId,
+                                       metaInfo3.m_typeId,
+                                       metaInfo4.m_typeId,
+                                       metaInfo5.m_typeId,
+                                       metaInfo6.m_typeId);
+#else
+    return isValid()
+           && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+               || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
+               || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion())
+               || isSubclassOf(metaInfo4.typeName(), metaInfo4.majorVersion(), metaInfo4.minorVersion())
+               || isSubclassOf(metaInfo5.typeName(), metaInfo5.majorVersion(), metaInfo5.minorVersion())
+               || isSubclassOf(metaInfo6.typeName(),
+                               metaInfo6.majorVersion(),
+                               metaInfo6.minorVersion()));
+#endif
 }
 
 bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
@@ -2592,43 +2597,33 @@ bool NodeMetaInfo::isBasedOn(const NodeMetaInfo &metaInfo1,
                              const NodeMetaInfo &metaInfo6,
                              const NodeMetaInfo &metaInfo7) const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is based on"_t, category(), keyValue("type id", m_typeId)};
 
-        return m_projectStorage->isBasedOn(m_typeId,
-                                           metaInfo1.m_typeId,
-                                           metaInfo2.m_typeId,
-                                           metaInfo3.m_typeId,
-                                           metaInfo4.m_typeId,
-                                           metaInfo5.m_typeId,
-                                           metaInfo6.m_typeId,
-                                           metaInfo7.m_typeId);
-    } else {
-        return isValid()
-               && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
-                   || isSubclassOf(metaInfo2.typeName(),
-                                   metaInfo2.majorVersion(),
-                                   metaInfo2.minorVersion())
-                   || isSubclassOf(metaInfo3.typeName(),
-                                   metaInfo3.majorVersion(),
-                                   metaInfo3.minorVersion())
-                   || isSubclassOf(metaInfo4.typeName(),
-                                   metaInfo4.majorVersion(),
-                                   metaInfo4.minorVersion())
-                   || isSubclassOf(metaInfo5.typeName(),
-                                   metaInfo5.majorVersion(),
-                                   metaInfo5.minorVersion())
-                   || isSubclassOf(metaInfo6.typeName(),
-                                   metaInfo6.majorVersion(),
-                                   metaInfo6.minorVersion())
-                   || isSubclassOf(metaInfo7.typeName(),
-                                   metaInfo7.majorVersion(),
-                                   metaInfo7.minorVersion()));
-    }
+    return m_projectStorage->isBasedOn(m_typeId,
+                                       metaInfo1.m_typeId,
+                                       metaInfo2.m_typeId,
+                                       metaInfo3.m_typeId,
+                                       metaInfo4.m_typeId,
+                                       metaInfo5.m_typeId,
+                                       metaInfo6.m_typeId,
+                                       metaInfo7.m_typeId);
+#else
+    return isValid()
+           && (isSubclassOf(metaInfo1.typeName(), metaInfo1.majorVersion(), metaInfo1.minorVersion())
+               || isSubclassOf(metaInfo2.typeName(), metaInfo2.majorVersion(), metaInfo2.minorVersion())
+               || isSubclassOf(metaInfo3.typeName(), metaInfo3.majorVersion(), metaInfo3.minorVersion())
+               || isSubclassOf(metaInfo4.typeName(), metaInfo4.majorVersion(), metaInfo4.minorVersion())
+               || isSubclassOf(metaInfo5.typeName(), metaInfo5.majorVersion(), metaInfo5.minorVersion())
+               || isSubclassOf(metaInfo6.typeName(), metaInfo6.majorVersion(), metaInfo6.minorVersion())
+               || isSubclassOf(metaInfo7.typeName(),
+                               metaInfo7.majorVersion(),
+                               metaInfo7.minorVersion()));
+#endif
 }
 
 bool NodeMetaInfo::isGraphicalItem() const
@@ -2673,20 +2668,18 @@ bool NodeMetaInfo::isQtObject() const
 
 bool NodeMetaInfo::isQtQmlConnections() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is Qt Qml connections"_t,
-                                   category(),
-                                   keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is Qt Qml connections"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
-    } else {
-        return isValid() && simplifiedTypeName() == "Connections";
-    }
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
+#else
+    return isValid() && simplifiedTypeName() == "Connections";
+#endif
 }
 
 bool NodeMetaInfo::isLayoutable() const
@@ -2753,22 +2746,22 @@ bool NodeMetaInfo::isView() const
 
 bool NodeMetaInfo::usesCustomParser() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"uses custom parser"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"uses custom parser"_t, category(), keyValue("type id", m_typeId)};
 
-        return typeData().traits.usesCustomParser;
-    } else {
-        if (!isValid())
-            return false;
+    return typeData().traits.usesCustomParser;
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
-        return type == "VisualItemModel" || type == "VisualDataModel" || type == "ListModel"
-               || type == "XmlListModel";
-    }
+    auto type = simplifiedTypeName();
+    return type == "VisualItemModel" || type == "VisualDataModel" || type == "ListModel"
+           || type == "XmlListModel";
+#endif
 }
 
 namespace {
@@ -3123,6 +3116,23 @@ bool NodeMetaInfo::isQtQuickPropertyAnimation() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickRectangle() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+
+    if (!isValid())
+        return false;
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is QtQuick.Rectange"_t, category(), keyValue("type id", m_typeId)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick, Rectangle>(m_projectStorage, m_typeId);
+#else
+    return isValid() && isSubclassOf("QtQuick.Rectangle");
+#endif
+}
+
 bool NodeMetaInfo::isQtQuickRepeater() const
 {
     if constexpr (useProjectStorage()) {
@@ -3155,6 +3165,24 @@ bool NodeMetaInfo::isQtQuickControlsTabBar() const
     } else {
         return isValid() && isSubclassOf("QtQuick.Controls.TabBar");
     }
+}
+
+bool NodeMetaInfo::isQtQuickControlsLabel() const
+{
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
+
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is QtQuick.Controls.SwipeView"_t,
+                               category(),
+                               keyValue("type id", m_typeId)};
+
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QtQuick_Controls, Label>(m_projectStorage, m_typeId);
+#else
+    return isValid() && isSubclassOf("QtQuick.Controls.Label");
+#endif
 }
 
 bool NodeMetaInfo::isQtQuickControlsSwipeView() const
@@ -3744,189 +3772,189 @@ bool NodeMetaInfo::isQtQuickStudioUtilsJsonListModel() const
 
 bool NodeMetaInfo::isQmlComponent() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is QML.Component"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is QML.Component"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isBasedOnCommonType<QML, Component>(m_projectStorage, m_typeId);
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isBasedOnCommonType<QML, Component>(m_projectStorage, m_typeId);
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "Component" || type == "QQmlComponent";
-    }
+    return type == "Component" || type == "QQmlComponent";
+#endif
 }
 
 bool NodeMetaInfo::isFont() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is font"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is font"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
-    } else {
-        return isValid() && simplifiedTypeName() == "font";
-    }
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->commonTypeId<QtQuick, font>());
+#else
+    return isValid() && simplifiedTypeName() == "font";
+#endif
 }
 
 bool NodeMetaInfo::isColor() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is color"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is color"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QColor>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QColor>());
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "QColor" || type == "color" || type == "color";
-    }
+    return type == "QColor" || type == "color" || type == "color";
+#endif
 }
 
 bool NodeMetaInfo::isBool() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is bool"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is bool"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<bool>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<bool>());
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "bool" || type == "boolean";
-    }
+    return type == "bool" || type == "boolean";
+#endif
 }
 
 bool NodeMetaInfo::isInteger() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is integer"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is integer"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<int>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<int>());
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "int" || type == "integer" || type == "uint";
-    }
+    return type == "int" || type == "integer" || type == "uint";
+#endif
 }
 
 bool NodeMetaInfo::isFloat() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is float"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is float"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        auto floatId = m_projectStorage->builtinTypeId<float>();
-        auto doubleId = m_projectStorage->builtinTypeId<double>();
+    using namespace Storage::Info;
+    auto floatId = m_projectStorage->builtinTypeId<float>();
+    auto doubleId = m_projectStorage->builtinTypeId<double>();
 
-        return isTypeId(m_typeId, floatId, doubleId);
-    } else {
-        if (!isValid())
-            return false;
+    return isTypeId(m_typeId, floatId, doubleId);
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "qreal" || type == "double" || type == "float" || type == "real";
-    }
+    return type == "qreal" || type == "double" || type == "float" || type == "real";
+#endif
 }
 
 bool NodeMetaInfo::isVariant() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is variant"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is variant"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QVariant>());
+#else
+    if (!isValid())
+        return false;
 
-        const auto type = simplifiedTypeName();
+    const auto type = simplifiedTypeName();
 
-        return type == "QVariant" || type == "var" || type == "variant";
-    }
+    return type == "QVariant" || type == "var" || type == "variant";
+#endif
 }
 
 bool NodeMetaInfo::isString() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is string"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is string"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QString>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QString>());
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "string" || type == "QString";
-    }
+    return type == "string" || type == "QString";
+#endif
 }
 
 bool NodeMetaInfo::isUrl() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return false;
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return false;
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"is url"_t, category(), keyValue("type id", m_typeId)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"is url"_t, category(), keyValue("type id", m_typeId)};
 
-        using namespace Storage::Info;
-        return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QUrl>());
-    } else {
-        if (!isValid())
-            return false;
+    using namespace Storage::Info;
+    return isValid() && isTypeId(m_typeId, m_projectStorage->builtinTypeId<QUrl>());
+#else
+    if (!isValid())
+        return false;
 
-        auto type = simplifiedTypeName();
+    auto type = simplifiedTypeName();
 
-        return type == "url" || type == "QUrl";
-    }
+    return type == "url" || type == "QUrl";
+#endif
 }
 
 bool NodeMetaInfo::isQtQuick3DTexture() const
@@ -4249,40 +4277,40 @@ PropertyMetaInfo::~PropertyMetaInfo() = default;
 
 NodeMetaInfo PropertyMetaInfo::propertyType() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return {};
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get property type"_t,
-                                   category(),
-                                   keyValue("property declaration id", m_id)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get property type"_t,
+                               category(),
+                               keyValue("property declaration id", m_id)};
 
-        return {propertyData().propertyTypeId, m_projectStorage};
-    } else {
-        if (isValid())
-            return NodeMetaInfo{nodeMetaInfoPrivateData()->model(),
-                                nodeMetaInfoPrivateData()->propertyType(propertyName()),
-                                -1,
-                                -1};
-    }
+    return {propertyData().propertyTypeId, m_projectStorage};
+#else
+    if (isValid())
+        return NodeMetaInfo{nodeMetaInfoPrivateData()->model(),
+                            nodeMetaInfoPrivateData()->propertyType(propertyName()),
+                            -1,
+                            -1};
+#endif
 
     return {};
 }
 
 NodeMetaInfo PropertyMetaInfo::type() const
 {
-    if constexpr (useProjectStorage()) {
-        if (!isValid())
-            return {};
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (!isValid())
+        return {};
 
-        using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"get property owner type "_t,
-                                   category(),
-                                   keyValue("property declaration id", m_id)};
+    using NanotraceHR::keyValue;
+    NanotraceHR::Tracer tracer{"get property owner type "_t,
+                               category(),
+                               keyValue("property declaration id", m_id)};
 
-        return NodeMetaInfo(propertyData().typeId, m_projectStorage);
-    }
+    return NodeMetaInfo(propertyData().typeId, m_projectStorage);
+#endif
 
     return {};
 }
@@ -4530,7 +4558,11 @@ const Storage::Info::PropertyDeclaration &PropertyMetaInfo::propertyData() const
 
 TypeName PropertyMetaInfo::propertyTypeName() const
 {
+#ifndef QDS_USE_PROJECTSTORAGE
     return propertyType().typeName();
+#else
+    return {};
+#endif
 }
 
 const NodeMetaInfoPrivate *PropertyMetaInfo::nodeMetaInfoPrivateData() const
@@ -4554,37 +4586,36 @@ const PropertyName &PropertyMetaInfo::propertyName() const
 
 NodeMetaInfo NodeMetaInfo::commonBase(const NodeMetaInfo &metaInfo) const
 {
-    if constexpr (useProjectStorage()) {
-        if (isValid() && metaInfo) {
-            const auto firstTypeIds = m_projectStorage->prototypeAndSelfIds(m_typeId);
-            const auto secondTypeIds = m_projectStorage->prototypeAndSelfIds(metaInfo.m_typeId);
-            auto found = std::ranges::find_if(firstTypeIds, [&](TypeId firstTypeId) {
-                return std::ranges::find(secondTypeIds, firstTypeId) != secondTypeIds.end();
-            });
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (isValid() && metaInfo) {
+        const auto firstTypeIds = m_projectStorage->prototypeAndSelfIds(m_typeId);
+        const auto secondTypeIds = m_projectStorage->prototypeAndSelfIds(metaInfo.m_typeId);
+        auto found = std::ranges::find_if(firstTypeIds, [&](TypeId firstTypeId) {
+            return std::ranges::find(secondTypeIds, firstTypeId) != secondTypeIds.end();
+        });
 
-            if (found != firstTypeIds.end()) {
-                return NodeMetaInfo{*found, m_projectStorage};
-            }
-        }
-    } else {
-        for (const NodeMetaInfo &info : metaInfo.selfAndPrototypes()) {
-            if (isBasedOn(info)) {
-                return info;
-            }
+        if (found != firstTypeIds.end())
+            return NodeMetaInfo{*found, m_projectStorage};
+    }
+#else
+    for (const NodeMetaInfo &info : metaInfo.selfAndPrototypes()) {
+        if (isBasedOn(info)) {
+            return info;
         }
     }
+#endif
 
     return {};
 }
 
 NodeMetaInfo::NodeMetaInfos NodeMetaInfo::heirs() const
 {
-    if constexpr (useProjectStorage()) {
-        if (isValid()) {
-            return Utils::transform<NodeMetaInfos>(m_projectStorage->heirIds(m_typeId),
-                                                   NodeMetaInfo::bind(m_projectStorage));
-        }
+#ifdef QDS_USE_PROJECTSTORAGE
+    if (isValid()) {
+        return Utils::transform<NodeMetaInfos>(m_projectStorage->heirIds(m_typeId),
+                                               NodeMetaInfo::bind(m_projectStorage));
     }
+#endif
 
     return {};
 }

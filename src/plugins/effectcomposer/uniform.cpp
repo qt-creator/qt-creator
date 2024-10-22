@@ -57,6 +57,14 @@ Uniform::Uniform(const QString &effectName, const QJsonObject &propObj, const QS
 
     m_backendValue = new QmlDesigner::PropertyEditorValue(this);
     m_backendValue->setValue(value);
+
+    connect(m_backendValue, &QmlDesigner::PropertyEditorValue::dropCommitted,
+        this, [this](const QString &dropData) {
+            m_backendValue->setValue(dropData);
+            auto *model = QmlDesigner::QmlDesignerPlugin::instance()
+                              ->currentDesignDocument()->currentModel();
+            model->endDrag();
+        });
 }
 
 Uniform::Type Uniform::type() const

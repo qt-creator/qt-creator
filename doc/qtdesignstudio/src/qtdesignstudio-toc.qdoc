@@ -29,7 +29,6 @@
                                 \li \l{Effect Composer}
                                 \li \l{File System}
                                 \li \l{Material Editor and Browser}
-                                \li \l{Model Editor}
                                 \li \l{Navigator}
                                 \li \l{Open Documents}
                                 \li \l{Projects}
@@ -53,17 +52,6 @@
             \endlist
         \li \l{Wireframing}
             \list
-                \li \l{Designing Application Flows}
-                    \list
-                        \li \l{Adding Flow Views}
-                        \li \l{Adding Flow Items}
-                        \li \l{Adding Action Areas and Transitions}
-                        \li \l{Applying Effects to Transitions}
-                        \li \l{Simulating Events}
-                        \li \l{Simulating Conditions}
-                        \li \l{Applying States in Flows}
-                        \li \l{Reacting to External Events}
-                    \endlist
                 \li \l {Using Components}
                     \list
                         \li \l{Preset Components}
@@ -134,7 +122,6 @@
                                 \li\l{Connecting Components to Signals}
                                 \li\l{Adding Bindings Between Properties}
                                 \li\l{Specifying Custom Properties}
-                                \li\l{Connecting Properties to JSON Data Source}
                             \endlist
                         \li \l{Working with States}
                     \endlist

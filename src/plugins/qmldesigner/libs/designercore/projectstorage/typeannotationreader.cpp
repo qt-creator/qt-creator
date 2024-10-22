@@ -400,6 +400,8 @@ void setTrait(QStringView name, FlagIs flag, Storage::TypeTraits &traits)
         traits.visibleInNavigator = flag;
     } else if (name == "visibleInLibrary"_L1) {
         traits.visibleInLibrary = flag;
+    } else if (name == "hideInNavigator"_L1) {
+        traits.hideInNavigator = flag;
     }
 }
 

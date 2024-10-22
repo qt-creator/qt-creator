@@ -39,6 +39,8 @@ Item {
         textFormat: Text.RichText
     }
 
+    property Item icons
+
     property int leftPadding: StudioTheme.Values.sectionLeftPadding
     property int rightPadding: 0
     property int topPadding: StudioTheme.Values.sectionHeadSpacerHeight
@@ -212,6 +214,13 @@ Item {
                     section.eyeEnabled = !section.eyeEnabled
                     section.eyeButtonClicked()
                 }
+            }
+
+            Item {
+                id: iconsContent
+                height: header.height
+                children: [ section.icons ]
+                Layout.preferredWidth: childrenRect.width
             }
 
             IconButton {

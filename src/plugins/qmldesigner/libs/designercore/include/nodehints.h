@@ -49,6 +49,7 @@ public:
     QStringList visibleNonDefaultProperties() const;
     bool takesOverRenderingOfChildren() const;
     bool visibleInNavigator() const;
+    bool hideInNavigator() const;
     bool visibleInLibrary() const;
     QString forceNonDefaultProperty() const;
     QPair<QString, QVariant> setParentProperty() const;

@@ -96,44 +96,75 @@
     \endlist
     \image repeater3d-numeric-model.webp
 
-    \section1 Adding a Repeater3D Component with a Model
+    \section1 Adding a Repeater3D Component with a List Model
 
     This section explains how to add a \uicontrol Repeater3D component with
-    a model to your \QDS project:
+    a list model to your \QDS project:
 
     To add a \uicontrol Repeater3D component:
 
     \list 1
       \li Drag a \uicontrol Repeater3D component from \uicontrol Components to
       \e scene in \uicontrol Navigator.
-      \li Go to \uicontrol {Model Editor} and create a new model with the name
-      \e planetModel.
-      \li Add the following columns and data to the model.
-        \raw HTML
-        <table>
-          <tr>
-            <th>name (<i>String</i>)</th>
-            <th>radius (<i>Real</i>)</th>
-          </tr>
-          <tr>
-            <td>Mars</td>
-            <td>3.39</td>
-          </tr>
-          <tr>
-            <td>Earth</td>
-            <td>6.37</td>
-          </tr>
-          <tr>
-            <td>Venus</td>
-            <td>6.05</td>
-          </tr>
-        </table>
-        \endraw
-        \note You can also import a model in JSON or CSV format. See \l {Importing a Data Model}.
-        \image repeater3d-model-editor.webp
-      \li In \uicontrol Navigator, select \e{_3DRepeater}.
-      \li In \uicontrol Properties, set \uicontrol Model to \e {DataStore.planetModel}.
+      \li You need to enter the QML code for the \uicontrol ListModel manually.
+      Go to the \uicontrol {Code} view and enter the following code somewhere
+      inside the root object:
+      \code qml
+        ListModel {
+            id: planetModel
+            ListElement {
+                name: "Mars"
+                radius: 3.39
+            }
+            ListElement {
+                name: "Earth"
+                radius: 6.37
+            }
+            ListElement {
+                name: "Venus"
+                radius: 6.05
+            }
+        }
+        \endcode
+      The default root object for a \QDS project is \uicontrol Rectangle, so
+      you can paste the \uicontrol ListModel code, for example, like this:
+      \code qml
+      Rectangle {
+        width: Constants.width
+        height: Constants.height
+        color: Constants.backgroundColor
+
+        ListModel {
+            id: planetModel
+            ListElement {
+                name: "Mars"
+                radius: 3.39
+            }
+            ListElement {
+                name: "Earth"
+                radius: 6.37
+            }
+            ListElement {
+                name: "Venus"
+                radius: 6.05
+            }
+        }
+        View3D {
+            id: view3D
+            anchors.fill: parent
+            ...
+    \endcode
+    \li In the \uicontrol {Code} view, add \c {model: planetModel} to the
+    \uicontrol Repeater3D object to tell that you want to use your
+    \uicontrol ListModel as the model for the \uicontrol Repeater3D object.
     \endlist
+    \code qml
+    Repeater3D {
+        id: repeater3D
+        model: planetModel
+    }
+    \endcode
+
     Now, you have set up the \uicontrol Repeater3D component to use a
     \uicontrol ListModel to draw the items. Next, you need to add the
     item to draw. In this example, you are using a \uicontrol Sphere.
@@ -147,7 +178,7 @@
       next to \uicontrol Scale > \uicontrol X.
       \li Select \uicontrol {Set binding} to open \uicontrol {Binding Editor}.
       \li In the binding editor, enter \c{radius}. This sets the X
-      scale to the radius value defined in the model for each of the sphere
+      scale to the radius value defined in the list model for each of the sphere
       instances.
       \image repeater3d-radius-binding.png
       \li Select \uicontrol OK.
@@ -170,6 +201,6 @@
       result. You need to zoom out to see all the spheres.
     \endlist
 
-    \image repeater3d-list-model.webp
+    \image repeater3d-list-model.webp "Spheres in Repeater3D with a ListModel"
 
 */

@@ -4,6 +4,7 @@ add_qtc_plugin(StudioWelcome
   PLUGIN_DEPENDS Core ProjectExplorer QtSupport QmlDesigner
   DEFINES STUDIO_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/qml/"
   SOURCES
+    fieldhelper.cpp fieldhelper.h
     studiowelcomeplugin.cpp studiowelcomeplugin.h
     newprojectdialogimageprovider.cpp newprojectdialogimageprovider.h
     presetmodel.cpp presetmodel.h

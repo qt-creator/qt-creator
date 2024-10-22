@@ -1041,7 +1041,7 @@ TEST_F(Model_MetaInfo, get_meta_info_by_module)
     ASSERT_THAT(metaInfo, model.qmlQtObjectMetaInfo());
 }
 
-TEST_F(Model_MetaInfo, get_invalid_meta_info_by_module_for_wrong_name)
+TEST_F(Model_MetaInfo, get_invalid_meta_info_by_module_and_name_for_wrong_name)
 {
     auto module = model.module("QML", ModuleKind::QmlLibrary);
 

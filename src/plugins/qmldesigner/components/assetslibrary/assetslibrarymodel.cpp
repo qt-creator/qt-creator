@@ -41,7 +41,7 @@ void AssetsLibraryModel::createBackendModel()
 
     QObject::connect(m_sourceFsModel, &QFileSystemModel::directoryLoaded, this,
                      [this]([[maybe_unused]] const QString &dir) {
-        syncHasFiles();
+        syncIsEmpty();
     });
 
     m_fileWatcher = new Utils::FileSystemWatcher(parent());
@@ -202,7 +202,7 @@ bool AssetsLibraryModel::isSameOrDescendantPath(const QUrl &source, const QStrin
     Utils::FilePath srcPath = Utils::FilePath::fromUrl(source);
     Utils::FilePath targetPath = Utils::FilePath::fromString(target);
 
-    return targetPath.isChildOf(srcPath);
+    return srcPath == targetPath || targetPath.isChildOf(srcPath);
 }
 
 bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const
@@ -224,41 +224,20 @@ bool AssetsLibraryModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     }
 }
 
-bool AssetsLibraryModel::checkHasFiles(const QModelIndex &parentIdx) const
+void AssetsLibraryModel::setIsEmpty(bool value)
 {
-    if (!parentIdx.isValid())
-        return false;
-
-    const int rowCount = this->rowCount(parentIdx);
-    for (int i = 0; i < rowCount; ++i) {
-        auto newIdx = this->index(i, 0, parentIdx);
-        if (!isDirectory(newIdx))
-            return true;
-
-        if (checkHasFiles(newIdx))
-            return true;
-    }
-
-    return false;
-}
-
-void AssetsLibraryModel::setHasFiles(bool value)
-{
-    if (m_hasFiles != value) {
-        m_hasFiles = value;
-        emit hasFilesChanged();
+    if (m_isEmpty != value) {
+        m_isEmpty = value;
+        emit isEmptyChanged();
     }
 }
 
-bool AssetsLibraryModel::checkHasFiles() const
+void AssetsLibraryModel::syncIsEmpty()
 {
-    auto rootIdx = indexForPath(m_rootPath);
-    return checkHasFiles(rootIdx);
-}
+    QModelIndex rootIdx = indexForPath(m_rootPath);
 
-void AssetsLibraryModel::syncHasFiles()
-{
-    setHasFiles(checkHasFiles());
+    bool hasContent = rowCount(rootIdx);
+    setIsEmpty(!hasContent);
 }
 
 void AssetsLibraryModel::setRootPath(const QString &newPath)

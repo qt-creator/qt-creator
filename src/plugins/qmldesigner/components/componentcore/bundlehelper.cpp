@@ -77,6 +77,7 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
+                    m_view->resetPuppet();
                 });
             }
         });
@@ -104,6 +105,7 @@ void BundleHelper::createImporter()
                         newNode.simplifiedTypeName(), "node"));
                     m_view->clearSelectedModelNodes();
                     m_view->selectModelNode(newNode);
+                    m_view->resetPuppet();
                 });
             }
         });
@@ -135,7 +137,15 @@ void BundleHelper::importBundleToProject()
                                          " of Qt Design Studio"));
         return;
     }
+
     QString bundleId = importedJsonObj.value("id").toString();
+
+    bool hasQuick3DImport = m_view->model()->hasImport("QtQuick3D");
+
+    if (!hasQuick3DImport) {
+        Import import = Import::createLibraryImport("QtQuick3D");
+        m_view->model()->changeImports({import}, {});
+    }
 
     QTemporaryDir tempDir;
     QTC_ASSERT(tempDir.isValid(), return);

@@ -90,7 +90,6 @@ private:
     bool m_bundleMaterialAddToSelected = false;
     bool m_hasQuick3DImport = false;
     qint32 m_sceneId = -1;
-    CreateTexture m_createTexture;
     Utils::FilePath m_iconSavePath;
     QString m_generatedFolderName;
     QString m_bundleId;

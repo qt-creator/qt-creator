@@ -21,19 +21,6 @@
 
 namespace {
 Q_LOGGING_CATEGORY(loggerInfo, "qtc.designer.assetExportPlugin.modelExporter", QtInfoMsg)
-
-static QByteArrayList populateLineage(const QmlDesigner::ModelNode &node)
-{
-    QByteArrayList lineage;
-    if (!node.isValid() || node.type().isEmpty())
-        return {};
-
-    for (auto &info : node.metaInfo().prototypes())
-        lineage.append(info.typeName());
-
-    return lineage;
-}
-
 }
 
 namespace QmlDesigner {
@@ -78,10 +65,9 @@ const QString &Component::name() const
 
 NodeDumper *Component::createNodeDumper(const ModelNode &node) const
 {
-    QByteArrayList lineage = populateLineage(node);
     std::unique_ptr<NodeDumper> reader;
     for (auto &dumperCreator: m_readers) {
-        std::unique_ptr<NodeDumper> r(dumperCreator->instance(lineage, node));
+        std::unique_ptr<NodeDumper> r(dumperCreator->instance(node));
         if (r->isExportable()) {
             if (reader) {
                 if (reader->priority() < r->priority())

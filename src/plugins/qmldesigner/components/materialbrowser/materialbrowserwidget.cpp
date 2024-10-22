@@ -307,10 +307,8 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
     ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
     QTC_ASSERT(mat.isValid(), return);
 
-    auto *creator = new CreateTexture(m_materialBrowserView);
-
     m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
-        ModelNode tex = creator->execute(bundleTexPath.toLocalFile());
+        ModelNode tex = CreateTexture(m_materialBrowserView).execute(bundleTexPath.toLocalFile());
         QTC_ASSERT(tex.isValid(), return);
 
         m_materialBrowserModel->selectMaterial(matIndex);
@@ -319,8 +317,6 @@ void MaterialBrowserWidget::acceptBundleTextureDropOnMaterial(int matIndex, cons
 
     if (m_materialBrowserView->model())
         m_materialBrowserView->model()->endDrag();
-
-    creator->deleteLater();
 }
 
 void MaterialBrowserWidget::acceptAssetsDrop(const QList<QUrl> &urls)
@@ -336,14 +332,12 @@ void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList
     ModelNode mat = m_materialBrowserModel->materialAt(matIndex);
     QTC_ASSERT(mat.isValid(), return);
 
-    auto *creator = new CreateTexture(m_materialBrowserView);
-
-    QString imageSrc = Utils::findOrDefault(urls, [] (const QUrl &url) {
-        return Asset(url.toLocalFile()).isValidTextureSource();
-    }).toLocalFile();
+    QString imageSrc = Utils::findOrDefault(urls, [](const QUrl &url) {
+                           return Asset(url.toLocalFile()).isValidTextureSource();
+                       }).toLocalFile();
 
     m_materialBrowserView->executeInTransaction(__FUNCTION__, [&] {
-        ModelNode tex = creator->execute(imageSrc);
+        ModelNode tex = CreateTexture(m_materialBrowserView).execute(imageSrc);
         QTC_ASSERT(tex.isValid(), return);
 
         m_materialBrowserModel->selectMaterial(matIndex);
@@ -352,8 +346,6 @@ void MaterialBrowserWidget::acceptAssetsDropOnMaterial(int matIndex, const QList
 
     if (m_materialBrowserView->model())
         m_materialBrowserView->model()->endDrag();
-
-    creator->deleteLater();
 }
 
 void MaterialBrowserWidget::acceptTextureDropOnMaterial(int matIndex, const QString &texId)

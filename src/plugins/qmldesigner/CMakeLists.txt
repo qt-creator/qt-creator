@@ -52,13 +52,14 @@ add_qtc_plugin(QmlDesigner
     QmlJS LanguageUtils QmlEditorWidgets AdvancedDockingSystem
     Qt::QuickWidgets Qt::CorePrivate Qt::Xml Qt::Svg Sqlite Zip Qt::GuiPrivate
   PUBLIC_DEPENDS
-    QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore
+    QmlDesignerUtils QmlPuppetCommunication QmlDesignerCore DesignSystem
   DEFINES
     IDE_LIBRARY_BASENAME=\"${IDE_LIBRARY_BASE_PATH}\"
     SHARE_QML_PATH="${CMAKE_CURRENT_SOURCE_DIR}/../../../share/qtcreator/qmldesigner"
-    $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
     $<$<BOOL:${QTC_USE_QML_DESIGNER_LITE}>:QTC_USE_QML_DESIGNER_LITE>
     $<$<BOOL:${DETACH_DISABLED_VIEWS}>:DETACH_DISABLED_VIEWS>
+  PUBLIC_DEFINES
+    $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
   INCLUDES
     ${CMAKE_CURRENT_LIST_DIR}/libs
     ${CMAKE_CURRENT_LIST_DIR}/components
@@ -723,14 +724,6 @@ extend_qtc_plugin(QmlDesigner
     appoutputmodel.h
     messagemodel.cpp
     messagemodel.h
-)
-
-extend_qtc_plugin(QmlDesigner
-  SOURCES_PREFIX components/designsystem
-  SOURCES
-  dsconstants.h
-  dsthememanager.h dsthememanager.cpp
-  dsthemegroup.cpp dsthemegroup.h
 )
 
 add_qtc_plugin(assetexporterplugin

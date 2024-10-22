@@ -20,6 +20,7 @@ struct UserPresetData
     QString screenSize;
 
     bool useQtVirtualKeyboard;
+    bool enableCMakeGeneration;
     QString qtVersion;
     QString styleName;
 
@@ -36,6 +37,7 @@ inline QDebug &operator<<(QDebug &d, const UserPresetData &preset)
     d << "UserPreset{category = " << preset.categoryId;
     d << "; wizardName = " << preset.wizardName;
     d << "; name = " << preset.name;
+    d << "; cmakeGeneration = " << preset.enableCMakeGeneration;
     d << "; screenSize = " << preset.screenSize;
     d << "; keyboard = " << preset.useQtVirtualKeyboard;
     d << "; qt = " << preset.qtVersion;
@@ -48,9 +50,10 @@ inline QDebug &operator<<(QDebug &d, const UserPresetData &preset)
 inline bool operator==(const UserPresetData &lhs, const UserPresetData &rhs)
 {
     return lhs.categoryId == rhs.categoryId && lhs.wizardName == rhs.wizardName
-           && lhs.name == rhs.name && lhs.screenSize == rhs.screenSize
+           && lhs.enableCMakeGeneration == rhs.enableCMakeGeneration && lhs.name == rhs.name
+           && lhs.screenSize == rhs.screenSize
            && lhs.useQtVirtualKeyboard == rhs.useQtVirtualKeyboard && lhs.qtVersion == rhs.qtVersion
-           && lhs.styleName == rhs.styleName;;
+           && lhs.styleName == rhs.styleName;
 }
 
 enum class StorePolicy {UniqueNames, UniqueValues};

@@ -11,7 +11,7 @@ class Component;
 class ItemNodeDumper : public NodeDumper
 {
 public:
-    ItemNodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    ItemNodeDumper(const ModelNode &node);
 
     ~ItemNodeDumper() override = default;
 

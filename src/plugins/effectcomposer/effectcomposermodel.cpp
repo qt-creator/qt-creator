@@ -4,26 +4,35 @@
 #include "effectcomposermodel.h"
 
 #include "compositionnode.h"
+#include "effectshaderscodeeditor.h"
 #include "effectutils.h"
 #include "propertyhandler.h"
 #include "syntaxhighlighterdata.h"
 #include "uniform.h"
+
+#include <asset.h>
+#include <designdocument.h>
+#include <modelnodeoperations.h>
+#include <qmldesignerplugin.h>
+#include <uniquename.h>
+
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/qtkitaspect.h>
 
-#include <uniquename.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 
-#include <modelnodeoperations.h>
-
 #include <QByteArrayView>
+#include <QFileDialog>
 #include <QLibraryInfo>
 #include <QTemporaryDir>
 #include <QVector2D>
+
+using namespace Qt::StringLiterals;
 
 namespace EffectComposer {
 
@@ -58,11 +67,12 @@ EffectComposerModel::EffectComposerModel(QObject *parent)
 
 QHash<int, QByteArray> EffectComposerModel::roleNames() const
 {
-    QHash<int, QByteArray> roles;
-    roles[NameRole] = "nodeName";
-    roles[EnabledRole] = "nodeEnabled";
-    roles[UniformsRole] = "nodeUniformsModel";
-    roles[Dependency] = "isDependency";
+    static const QHash<int, QByteArray> roles = {
+        {NameRole, "nodeName"},
+        {EnabledRole, "nodeEnabled"},
+        {UniformsRole, "nodeUniformsModel"},
+        {Dependency, "isDependency"},
+    };
     return roles;
 }
 
@@ -206,6 +216,8 @@ void EffectComposerModel::clear(bool clearName)
     if (clearName) {
         setCurrentComposition("");
         setCompositionPath("");
+        resetRootFragmentShader();
+        resetRootVertexShader();
     }
 
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
@@ -241,6 +253,47 @@ bool EffectComposerModel::nameExists(const QString &name) const
     return QFile::exists(path.arg(name));
 }
 
+void EffectComposerModel::chooseCustomPreviewImage()
+{
+    QTimer::singleShot(0, this, [&]() {
+        using Utils::FilePath;
+        static FilePath lastDir;
+        const QStringList &suffixes = QmlDesigner::Asset::supportedImageSuffixes();
+        QmlDesigner::DesignDocument *document = QmlDesigner::QmlDesignerPlugin::instance()->currentDesignDocument();
+        const FilePath currentDir = lastDir.isEmpty() ? document->fileName().parentDir()
+                                                             : lastDir;
+        const QStringList fileNames = QFileDialog::getOpenFileNames(Core::ICore::dialogParent(),
+                                                  tr("Select custom effect background image"),
+                                                  currentDir.toFSPathString(),
+                                                  tr("Image Files (%1)").arg(suffixes.join(" ")));
+
+        if (!fileNames.isEmpty()) {
+            FilePath imageFile = FilePath::fromString(fileNames.first());
+            lastDir = imageFile.absolutePath();
+            if (imageFile.exists()) {
+                FilePath projDir = QmlDesigner::QmlDesignerPlugin::instance()->documentManager()
+                                              .currentProjectDirPath();
+                if (!imageFile.isChildOf(projDir)) {
+                    FilePath imagesDir = QmlDesigner::ModelNodeOperations::getImagesDefaultDirectory();
+                    FilePath targetFile = imagesDir.pathAppended(imageFile.fileName());
+                    if (!targetFile.exists())
+                        imageFile.copyFile(targetFile);
+                    if (targetFile.exists())
+                        imageFile = targetFile;
+                }
+
+                m_customPreviewImage = QUrl::fromLocalFile(imageFile.toFSPathString());
+                m_currentPreviewImage = m_customPreviewImage;
+
+                setHasUnsavedChanges(true);
+
+                emit currentPreviewImageChanged();
+                emit customPreviewImageChanged();
+            }
+        }
+    });
+}
+
 QString EffectComposerModel::fragmentShader() const
 {
     return m_fragmentShader;
@@ -265,6 +318,40 @@ void EffectComposerModel::setVertexShader(const QString &newVertexShader)
         return;
 
     m_vertexShader = newVertexShader;
+}
+
+void EffectComposerModel::setRootFragmentShader(const QString &shader)
+{
+    m_rootFragmentShader = shader;
+}
+
+void EffectComposerModel::resetRootFragmentShader()
+{
+    static const QString defaultRootFragmentShader = {
+        "void main() {\n"
+        "    fragColor = texture(iSource, texCoord);\n"
+        "    @nodes\n"
+        "    fragColor = fragColor * qt_Opacity;\n"
+        "}\n"};
+    setRootFragmentShader(defaultRootFragmentShader);
+}
+
+void EffectComposerModel::setRootVertexShader(const QString &shader)
+{
+    m_rootVertexShader = shader;
+}
+
+void EffectComposerModel::resetRootVertexShader()
+{
+    static const QString defaultRootVertexShader = {
+        "void main() {\n"
+        "    texCoord = qt_MultiTexCoord0;\n"
+        "    fragCoord = qt_Vertex.xy;\n"
+        "    vec2 vertCoord = qt_Vertex.xy;\n"
+        "    @nodes\n"
+        "    gl_Position = qt_Matrix * vec4(vertCoord, 0.0, 1.0);\n"
+        "}\n"};
+    setRootVertexShader(defaultRootVertexShader);
 }
 
 QString EffectComposerModel::qmlComponentString() const
@@ -960,11 +1047,26 @@ void EffectComposerModel::saveComposition(const QString &name)
         return;
     }
 
+    const Utils::FilePath compositionPath = Utils::FilePath::fromString(path);
+    const Utils::FilePath compositionDir = compositionPath.absolutePath();
+
     updateExtraMargin();
 
     QJsonObject json;
     // File format version
     json.insert("version", 1);
+    json.insert("tool", "EffectComposer");
+
+    Utils::FilePath customPreviewPath = Utils::FilePath::fromUrl(m_customPreviewImage);
+    if (m_customPreviewImage.isLocalFile())
+        customPreviewPath = customPreviewPath.relativePathFrom(compositionDir);
+    json.insert("customPreviewImage", customPreviewPath.toUrl().toString());
+
+    QUrl previewUrl = m_currentPreviewImage;
+    if (m_currentPreviewImage == m_customPreviewImage)
+        previewUrl = customPreviewPath.toUrl();
+
+    json.insert("previewImage", previewUrl.toString());
 
     // Add nodes
     QJsonArray nodesArray;
@@ -973,8 +1075,17 @@ void EffectComposerModel::saveComposition(const QString &name)
         nodesArray.append(nodeObject);
     }
 
+    auto toJsonArray = [](const QString &code) -> QJsonArray {
+        if (code.isEmpty())
+            return {};
+        return QJsonArray::fromStringList(code.split('\n'));
+    };
+
     if (!nodesArray.isEmpty())
         json.insert("nodes", nodesArray);
+
+    json.insert("vertexCode", toJsonArray(m_rootVertexShader));
+    json.insert("fragmentCode", toJsonArray(m_rootFragmentShader));
 
     QJsonObject rootJson;
     rootJson.insert("QEP", json);
@@ -984,20 +1095,60 @@ void EffectComposerModel::saveComposition(const QString &name)
     saveFile.close();
 
     setCurrentComposition(name);
-    setCompositionPath(Utils::FilePath::fromString(path));
+    setCompositionPath(compositionPath);
 
     saveResources(name);
     setHasUnsavedChanges(false);
+}
+
+void EffectComposerModel::openShadersCodeEditor(int idx)
+{
+    if (m_nodes.size() < idx || idx < 0)
+        return;
+
+    CompositionNode *node = m_nodes.at(idx);
+    node->openShadersCodeEditor();
+}
+
+void EffectComposerModel::openMainShadersCodeEditor()
+{
+    if (!m_shadersCodeEditor) {
+        m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
+            currentComposition());
+        m_shadersCodeEditor->setFragmentValue(m_rootFragmentShader);
+        m_shadersCodeEditor->setVertexValue(m_rootVertexShader);
+
+        connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::vertexValueChanged, this, [this] {
+            setRootVertexShader(m_shadersCodeEditor->vertexValue());
+            setHasUnsavedChanges(true);
+            rebakeIfLiveUpdateMode();
+        });
+
+        connect(
+            m_shadersCodeEditor.get(), &EffectShadersCodeEditor::fragmentValueChanged, this, [this] {
+                setRootFragmentShader(m_shadersCodeEditor->fragmentValue());
+                setHasUnsavedChanges(true);
+                rebakeIfLiveUpdateMode();
+            });
+
+        connect(
+            m_shadersCodeEditor.get(),
+            &EffectShadersCodeEditor::rebakeRequested,
+            this,
+            &EffectComposerModel::startRebakeTimer);
+    }
+    m_shadersCodeEditor->showWidget();
 }
 
 void EffectComposerModel::openComposition(const QString &path)
 {
     clear(true);
 
-    const QString effectName = QFileInfo(path).baseName();
+    Utils::FilePath effectPath = Utils::FilePath::fromString(path);
+    const QString effectName = effectPath.baseName();
 
     setCurrentComposition(effectName);
-    setCompositionPath(Utils::FilePath::fromString(path));
+    setCompositionPath(effectPath);
 
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
@@ -1030,6 +1181,18 @@ void EffectComposerModel::openComposition(const QString &path)
 
     QJsonObject json = rootJson["QEP"].toObject();
 
+    const QString toolName = json.contains("tool")   ? json["tool"].toString()
+                             : json.contains("QQEM") ? "QQEM"_L1
+                                                     : ""_L1;
+
+    if (!toolName.isEmpty() && toolName != "EffectComposer") {
+        const QString error
+            = tr("Error: '%1' effects are not compatible with 'Effect Composer'").arg(toolName);
+        qWarning() << error;
+        setEffectError(error);
+        return;
+    }
+
     int version = -1;
     if (json.contains("version"))
         version = json["version"].toInt(-1);
@@ -1039,6 +1202,63 @@ void EffectComposerModel::openComposition(const QString &path)
         qWarning() << error;
         setEffectError(error);
         return;
+    }
+
+    auto toCodeBlock = [](const QJsonValue &jsonValue) -> QString {
+        if (!jsonValue.isArray())
+            return {};
+
+        QString code;
+        const QJsonArray array = jsonValue.toArray();
+        for (const QJsonValue &lineValue : array) {
+            if (lineValue.isString())
+                code += lineValue.toString() + '\n';
+        }
+
+        return code;
+    };
+
+    if (json.contains("vertexCode"))
+        setRootVertexShader(toCodeBlock(json["vertexCode"]));
+    else
+        resetRootVertexShader();
+
+    if (json.contains("fragmentCode"))
+        setRootFragmentShader(toCodeBlock(json["fragmentCode"]));
+    else
+        resetRootFragmentShader();
+
+    m_currentPreviewImage.clear();
+    if (json.contains("previewImage")) {
+        const QString imageStr = json["previewImage"].toString();
+        if (!imageStr.isEmpty()) {
+            const QUrl imageUrl{imageStr};
+            Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
+            if (imageStr.startsWith("images/preview")) { // built-in preview image
+                m_currentPreviewImage = imageUrl;
+            } else if (imagePath.isAbsolutePath()) {
+                if (imagePath.exists())
+                    m_currentPreviewImage = imageUrl;
+            } else {
+                imagePath = effectPath.absolutePath().resolvePath(imagePath);
+                if (imagePath.exists())
+                    m_currentPreviewImage = imagePath.toUrl();
+            }
+        }
+    }
+
+    m_customPreviewImage.clear();
+    if (json.contains("customPreviewImage")) {
+        QUrl imageUrl{json["customPreviewImage"].toString()};
+        Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
+        if (imagePath.isAbsolutePath()) {
+            if (imagePath.exists())
+                m_customPreviewImage = imageUrl;
+        } else {
+            imagePath = effectPath.absolutePath().resolvePath(imagePath);
+            if (imagePath.exists())
+                m_customPreviewImage = imagePath.toUrl();
+        }
     }
 
     if (json.contains("nodes") && json["nodes"].isArray()) {
@@ -1069,6 +1289,8 @@ void EffectComposerModel::openComposition(const QString &path)
 
     setHasUnsavedChanges(false);
     emit nodesChanged();
+    emit currentPreviewImageChanged();
+    emit customPreviewImageChanged();
 }
 
 void EffectComposerModel::saveResources(const QString &name)
@@ -1354,8 +1576,6 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
 // Return name for the image property Image element
 QString EffectComposerModel::getImageElementName(const Uniform &uniform, bool localFiles)
 {
-    if (localFiles && uniform.value().toString().isEmpty())
-        return QStringLiteral("null");
     QString simplifiedName = uniform.name().simplified();
     simplifiedName = simplifiedName.remove(' ');
     return QStringLiteral("imageItem") + simplifiedName;
@@ -1439,32 +1659,6 @@ QString EffectComposerModel::processFragmentRootLine(const QString &line)
     return output;
 }
 
-QStringList EffectComposerModel::getDefaultRootVertexShader()
-{
-    if (m_defaultRootVertexShader.isEmpty()) {
-        m_defaultRootVertexShader << "void main() {";
-        m_defaultRootVertexShader << "    texCoord = qt_MultiTexCoord0;";
-        m_defaultRootVertexShader << "    fragCoord = qt_Vertex.xy;";
-        m_defaultRootVertexShader << "    vec2 vertCoord = qt_Vertex.xy;";
-        m_defaultRootVertexShader << "    @nodes";
-        m_defaultRootVertexShader << "    gl_Position = qt_Matrix * vec4(vertCoord, 0.0, 1.0);";
-        m_defaultRootVertexShader << "}";
-    }
-    return m_defaultRootVertexShader;
-}
-
-QStringList EffectComposerModel::getDefaultRootFragmentShader()
-{
-    if (m_defaultRootFragmentShader.isEmpty()) {
-        m_defaultRootFragmentShader << "void main() {";
-        m_defaultRootFragmentShader << "    fragColor = texture(iSource, texCoord);";
-        m_defaultRootFragmentShader << "    @nodes";
-        m_defaultRootFragmentShader << "    fragColor = fragColor * qt_Opacity;";
-        m_defaultRootFragmentShader << "}";
-    }
-    return m_defaultRootFragmentShader;
-}
-
 // Remove all post-processing tags ("@tag") from the code.
 // Except "@nodes" tag as that is handled later.
 QStringList EffectComposerModel::removeTagsFromCode(const QStringList &codeLines)
@@ -1527,7 +1721,7 @@ QString EffectComposerModel::generateVertexShader(bool includeUniforms)
     // split to root and main parts
     QString s_root;
     QString s_main;
-    QStringList s_sourceCode;
+    QStringList s_sourceCode = m_rootVertexShader.split('\n');
     m_shaderVaryingVariables.clear();
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->vertexCode().isEmpty() && n->isEnabled()) {
@@ -1542,11 +1736,6 @@ QString EffectComposerModel::generateVertexShader(bool includeUniforms)
                 line++;
             }
         }
-    }
-
-    if (s_sourceCode.isEmpty()) {
-        // If source nodes doesn't contain any code, use default one
-        s_sourceCode << getDefaultRootVertexShader();
     }
 
     if (removeTags) {
@@ -1583,7 +1772,7 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
     // split to root and main parts
     QString s_root;
     QString s_main;
-    QStringList s_sourceCode;
+    QStringList s_sourceCode = m_rootFragmentShader.split('\n');
     for (const CompositionNode *n : std::as_const(m_nodes)) {
         if (!n->fragmentCode().isEmpty() && n->isEnabled()) {
             const QStringList fragmentCode = n->fragmentCode().split('\n');
@@ -1597,11 +1786,6 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
                 line++;
             }
         }
-    }
-
-    if (s_sourceCode.isEmpty()) {
-        // If source nodes doesn't contain any code, use default one
-        s_sourceCode << getDefaultRootFragmentShader();
     }
 
     if (removeTags) {
@@ -1828,7 +2012,6 @@ void EffectComposerModel::bakeShaders()
 
     runQsb(qsbPath, outPaths, false);
     runQsb(qsbPrevPath, outPrevPaths, true);
-
 }
 
 bool EffectComposerModel::shadersUpToDate() const
@@ -1877,11 +2060,7 @@ QString EffectComposerModel::getQmlImagesString(bool localFiles)
     for (Uniform *uniform : uniforms) {
         if (uniform->type() == Uniform::Type::Sampler) {
             QString imagePath = uniform->value().toString();
-            // For preview, generate image element even if path is empty, as changing uniform values
-            // will not trigger qml code regeneration
             if (localFiles) {
-                if (imagePath.isEmpty())
-                    continue;
                 QFileInfo fi(imagePath);
                 imagePath = fi.fileName();
                 imagesString += QString("    property url %1Url: \"%2\"\n")
@@ -2003,14 +2182,16 @@ QString EffectComposerModel::getQmlComponentString(bool localFiles)
 
 void EffectComposerModel::connectCompositionNode(CompositionNode *node)
 {
-    connect(qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
-            &EffectComposerUniformsModel::dataChanged, this, [this] {
-                setHasUnsavedChanges(true);
-            });
-    connect(node, &CompositionNode::rebakeRequested, this, [this] {
-        // This can come multiple times in a row in response to property changes, so let's buffer it
-        m_rebakeTimer.start(200);
-    });
+    auto setUnsaved = std::bind(&EffectComposerModel::setHasUnsavedChanges, this, true);
+    connect(
+        qobject_cast<EffectComposerUniformsModel *>(node->uniformsModel()),
+        &EffectComposerUniformsModel::dataChanged,
+        this,
+        setUnsaved);
+
+    connect(node, &CompositionNode::rebakeRequested, this, &EffectComposerModel::startRebakeTimer);
+    connect(node, &CompositionNode::fragmentCodeChanged, this, setUnsaved);
+    connect(node, &CompositionNode::vertexCodeChanged, this, setUnsaved);
 }
 
 void EffectComposerModel::updateExtraMargin()
@@ -2018,6 +2199,18 @@ void EffectComposerModel::updateExtraMargin()
     m_extraMargin = 0;
     for (CompositionNode *node : std::as_const(m_nodes))
         m_extraMargin = qMax(node->extraMargin(), m_extraMargin);
+}
+
+void EffectComposerModel::startRebakeTimer()
+{
+    // This can come multiple times in a row in response to property changes, so let's buffer it
+    m_rebakeTimer.start(200);
+}
+
+void EffectComposerModel::rebakeIfLiveUpdateMode()
+{
+    if (m_shadersCodeEditor && m_shadersCodeEditor->liveUpdate())
+        startRebakeTimer();
 }
 
 QSet<QByteArray> EffectComposerModel::getExposedProperties(const QByteArray &qmlContent)
@@ -2051,6 +2244,30 @@ void EffectComposerModel::setCurrentComposition(const QString &newCurrentComposi
 
     m_currentComposition = newCurrentComposition;
     emit currentCompositionChanged();
+
+    m_shadersCodeEditor.reset();
+}
+
+QUrl EffectComposerModel::customPreviewImage() const
+{
+    return m_customPreviewImage;
+}
+
+QUrl EffectComposerModel::currentPreviewImage() const
+{
+    return m_currentPreviewImage;
+}
+
+void EffectComposerModel::setCurrentPreviewImage(const QUrl &path)
+{
+    if (m_currentPreviewImage == path)
+        return;
+
+    if (!m_nodes.isEmpty())
+        setHasUnsavedChanges(true);
+
+    m_currentPreviewImage = path;
+    emit currentPreviewImageChanged();
 }
 
 Utils::FilePath EffectComposerModel::compositionPath() const

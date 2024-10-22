@@ -16,7 +16,7 @@
     \uicontrol Skip or \uicontrol Submit, the pop-up survey will not appear for
     the same feature again.
 
-    \image studio-feedback-popup.png "User feedback pop-up survey for Flow Editor"
+    \image studio-feedback-popup-material.png "User feedback pop-up survey for Material Browser"
 
     For the pop-up survey to appear, you must enable collecting statistics, and
     also allow collecting \uicontrol {4 - Detailed usage statistics} in

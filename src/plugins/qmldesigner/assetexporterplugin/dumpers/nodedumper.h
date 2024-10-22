@@ -14,7 +14,7 @@ class ModelNode;
 class NodeDumper
 {
 public:
-    NodeDumper(const QByteArrayList &lineage, const ModelNode &node);
+    NodeDumper(const ModelNode &node);
 
     virtual ~NodeDumper() = default;
 
@@ -22,16 +22,19 @@ public:
     virtual bool isExportable() const = 0;
     virtual QJsonObject json(Component& component) const = 0;
 
-    const QByteArrayList& lineage() const { return m_lineage; }
+    const NodeMetaInfo &metaInfo() const { return m_metaInfo; }
     const QmlObjectNode& objectNode() const { return m_objectNode; }
     QVariant propertyValue(const PropertyName &name) const;
     QString uuid() const;
+
+    Model *model() const { return m_model; }
 
 protected:
     const ModelNode &m_node;
 
 private:
     QmlObjectNode m_objectNode;
-    QByteArrayList m_lineage;
+    NodeMetaInfo m_metaInfo;
+    Model *m_model = nullptr;
 };
 }

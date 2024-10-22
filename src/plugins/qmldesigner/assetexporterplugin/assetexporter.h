@@ -32,8 +32,9 @@ public:
         ExportingDone
     };
 
-    AssetExporter(AssetExporterView *view, ProjectExplorer::Project *project,
-                  QObject *parent = nullptr);
+    AssetExporter(AssetExporterView *view,
+                  ProjectExplorer::Project *project,
+                  ProjectStorageDependencies projectStorageDependencies);
     ~AssetExporter();
 
     void exportQml(const Utils::FilePaths &qmlFiles, const Utils::FilePath &exportPath,
@@ -89,6 +90,7 @@ private:
     QHash<QString, QString> m_componentUuidCache;
     QSet<QByteArray> m_usedHashes;
     QHash<QString, QPixmap> m_assets;
+    ProjectStorageDependencies m_projectStorageDependencies;
     std::unique_ptr<AssetDumper> m_assetDumper;
     bool m_cancelled = false;
 };

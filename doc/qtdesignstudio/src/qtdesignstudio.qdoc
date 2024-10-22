@@ -48,8 +48,8 @@
     click-through mockup. Test, preview, and fine-tune your designs to pixel-perfection,
     live on target devices.
 
-    A single unified framework, one common language, fewer feedback loops, and faster iterations,
-    \QDS closes the gap between designers and developers.
+    With a single unified framework, one common language, fewer feedback loops, and faster
+    iterations, \QDS closes the gap between designers and developers.
 
     \b {LEARN MORE}
 
@@ -87,11 +87,11 @@
                     \endlist
                 \li Online Courses
                     \list
-                        \li \l{https://qurious.qt.io/enrollments/197683855/details}{Getting Started}
-                        \li \l{https://qurious.qt.io/catalog/courses/3910783}{Creating Your First App}
-                        \li \l{https://qurious.qt.io/enrollments/154647839/details}{Introduction to 2D UI Design}
-                        \li \l{https://qurious.qt.io/enrollments/167005403/details}{Introduction to 3D Design}
-                        \li \l{https://qurious.qt.io/catalog/courses/3910791}{Using Qt Bridge for Figma}
+                        \li \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-design-studio}{Getting Started}
+                        \li \l{https://www.qt.io/academy/course-catalog#creating-your-first-app-with-qt-design-studio}{Creating Your First App}
+                        \li \l{https://www.qt.io/academy/course-catalog#2d-with-qt-design-studio}{2D with Qt Design Studio}
+                        \li \l{https://www.qt.io/academy/course-catalog#3d-with-qt-design-studio}{3D with Qt Design Studio}
+                        \li \l{https://www.qt.io/academy/course-catalog#qt-design-studio:-blur-effect}{Creating a Blur Effect}
                     \endlist
     \endtable
     \enddiv

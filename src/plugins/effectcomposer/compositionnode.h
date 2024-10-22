@@ -5,10 +5,14 @@
 
 #include "effectcomposeruniformsmodel.h"
 
+#include <utils/uniqueobjectptr.h>
+
 #include <QJsonObject>
 #include <QObject>
 
 namespace EffectComposer {
+
+class EffectShadersCodeEditor;
 
 class CompositionNode : public QObject
 {
@@ -18,6 +22,12 @@ class CompositionNode : public QObject
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
+    Q_PROPERTY(
+        QString fragmentCode
+        READ fragmentCode
+        WRITE setFragmentCode
+        NOTIFY fragmentCodeChanged)
+    Q_PROPERTY(QString vertexCode READ vertexCode WRITE setVertexCode NOTIFY vertexCodeChanged)
 
 public:
     enum NodeType {
@@ -27,6 +37,7 @@ public:
     };
 
     CompositionNode(const QString &effectName, const QString &qenPath, const QJsonObject &json = {});
+    virtual ~CompositionNode();
 
     QString fragmentCode() const;
     QString vertexCode() const;
@@ -54,14 +65,23 @@ public:
 
     int extraMargin() const { return m_extraMargin; }
 
+    void setFragmentCode(const QString &fragmentCode);
+    void setVertexCode(const QString &vertexCode);
+
+    void openShadersCodeEditor();
+
 signals:
     void uniformsModelChanged();
     void isEnabledChanged();
     void isDepencyChanged();
     void rebakeRequested();
+    void fragmentCodeChanged();
+    void vertexCodeChanged();
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
+    void ensureShadersCodeEditor();
+    void requestRebakeIfLiveUpdateMode();
 
     QString m_name;
     NodeType m_type = CustomNode;
@@ -77,6 +97,7 @@ private:
     QList<Uniform *> m_uniforms;
 
     EffectComposerUniformsModel m_unifomrsModel;
+    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
 };
 
 } // namespace EffectComposer

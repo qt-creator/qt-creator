@@ -195,6 +195,10 @@ Item {
             onAssignToSelectedClicked: {
                 root.backendModel.assignToSelected()
             }
+
+            onOpenShadersCodeEditor: {
+                root.backendModel.openMainShadersCodeEditor()
+            }
         }
 
         SplitView {
@@ -366,6 +370,8 @@ Item {
                                         expanded = wasExpanded
                                         dragAnimation.enabled = true
                                     }
+
+                                    onOpenShadersCodeEditor: (idx) => root.backendModel.openShadersCodeEditor(idx)
                                 }
                             } // Repeater
                         } // Column

@@ -40,9 +40,13 @@ void selectTexture(const ModelNode &texture);
 ModelNode selectedMaterial(AbstractView *view);
 ModelNode selectedTexture(AbstractView *view);
 
+ModelNode resolveSceneEnv(AbstractView *view, int sceneId);
+
 QList<ModelNode> getSelectedModels(AbstractView *view);
 void applyMaterialToModels(AbstractView *view, const ModelNode &material,
                            const QList<ModelNode> &models, bool add = false);
+
+void assignTextureAsLightProbe(AbstractView *view, const ModelNode &texture, int sceneId);
 
 #ifdef QDS_USE_PROJECTSTORAGE
 ModelNode createMaterial(AbstractView *view, const TypeName &typeName);

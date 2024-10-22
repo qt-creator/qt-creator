@@ -687,14 +687,14 @@ NodeMetaInfo ModelNode::metaInfo() const
     if (!isValid())
         return {};
 
-    if constexpr (useProjectStorage()) {
-        return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
-    } else {
-        return NodeMetaInfo(m_model->metaInfoProxyModel(),
-                            m_internalNode->typeName,
-                            m_internalNode->majorVersion,
-                            m_internalNode->minorVersion);
-    }
+#ifdef QDS_USE_PROJECTSTORAGE
+    return NodeMetaInfo(m_internalNode->typeId, m_model->projectStorage());
+#else
+    return NodeMetaInfo(m_model->metaInfoProxyModel(),
+                        m_internalNode->typeName,
+                        m_internalNode->majorVersion,
+                        m_internalNode->minorVersion);
+#endif
 }
 
 bool ModelNode::hasMetaInfo() const

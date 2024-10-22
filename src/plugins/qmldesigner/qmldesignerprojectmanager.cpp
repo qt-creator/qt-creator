@@ -202,7 +202,7 @@ public:
     FileStatusCache fileStatusCache{fileSystem};
     QmlDocumentParser qmlDocumentParser;
     QmlTypesParser qmlTypesParser{storage};
-    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, ProjectStorageUpdater::PathCache> pathWatcher;
+    ProjectStoragePathWatcher<QFileSystemWatcher, QTimer, PathCacheType> pathWatcher;
     ProjectPartId projectPartId;
     ProjectStorageUpdater updater;
 };
@@ -265,7 +265,7 @@ public:
                                         Sqlite::LockingMode::Normal};
     QmlDesigner::SourcePathStorage sourcePathStorage{sourcePathDatabase,
                                                      sourcePathDatabase.isInitialized()};
-    PathCacheType pathCache{sourcePathStorage};
+    PathCache pathCache{sourcePathStorage};
 };
 
 QmlDesignerProjectManager::QmlDesignerProjectManager(ExternalDependenciesInterface &externalDependencies)
@@ -322,12 +322,12 @@ AsynchronousImageCache &QmlDesignerProjectManager::asynchronousImageCache()
 }
 
 namespace {
-[[maybe_unused]] ProjectStorage *dummyProjectStorage()
+[[maybe_unused]] ProjectStorageType *dummyProjectStorage()
 {
     return nullptr;
 }
 
-[[maybe_unused]] ProjectStorageUpdater::PathCache *dummyPathCache()
+[[maybe_unused]] PathCacheType *dummyPathCache()
 {
     return nullptr;
 }

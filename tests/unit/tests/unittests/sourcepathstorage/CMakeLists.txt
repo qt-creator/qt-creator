@@ -7,5 +7,3 @@ extend_qtc_test(unittest
     sourcepathview-test.cpp
     storagecache-test.cpp
 )
-
-unittest_copy_data_folder()

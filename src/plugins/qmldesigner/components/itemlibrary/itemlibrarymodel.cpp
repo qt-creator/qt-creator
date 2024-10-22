@@ -376,10 +376,11 @@ void ItemLibraryModel::update(Model *model)
     for (const ItemLibraryEntry &entry : itemLibEntries) {
         NodeMetaInfo metaInfo;
 
-        if constexpr (useProjectStorage())
-            metaInfo = NodeMetaInfo{entry.typeId(), model->projectStorage()};
-        else
-            metaInfo = model->metaInfo(entry.typeName());
+#ifdef QDS_USE_PROJECTSTORAGE
+        metaInfo = NodeMetaInfo{entry.typeId(), model->projectStorage()};
+#else
+        metaInfo = model->metaInfo(entry.typeName());
+#endif
 
 #ifdef QDS_USE_PROJECTSTORAGE
         bool valid = metaInfo.isValid();

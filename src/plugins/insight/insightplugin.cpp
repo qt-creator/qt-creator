@@ -20,7 +20,8 @@ class InsightPlugin final : public ExtensionSystem::IPlugin
         auto *designerPlugin = QmlDesignerPlugin::instance();
         auto &viewManager = designerPlugin->viewManager();
         viewManager.registerView(std::make_unique<InsightView>(
-            QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly()));
+            QmlDesignerPlugin::externalDependenciesForPluginInitializationOnly(),
+            QmlDesignerPlugin::projectManagerForPluginInitializationOnly()));
 
         return true;
     }

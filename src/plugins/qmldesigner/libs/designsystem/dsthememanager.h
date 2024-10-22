@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "qmldesignercomponents_global.h"
+#include "designsystem_global.h"
 
 #include "dsconstants.h"
 #include "dsthemegroup.h"
@@ -15,7 +15,8 @@ namespace QmlDesigner {
 using ThemeName = PropertyName;
 
 class DSTheme;
-class QMLDESIGNERCOMPONENTS_EXPORT DSThemeManager
+
+class DESIGNSYSTEM_EXPORT DSThemeManager
 {
 
 public:

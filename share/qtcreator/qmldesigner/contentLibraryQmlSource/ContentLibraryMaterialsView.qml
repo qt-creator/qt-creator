@@ -133,6 +133,8 @@ HelperWidgets.ScrollView {
             topPadding: 10
             leftPadding: 10
             visible: root.materialsModel.isEmpty
+            wrapMode: Text.WordWrap
+            width: root.width - x
         }
     }
 }

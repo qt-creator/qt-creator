@@ -23,7 +23,7 @@ public:
     void setRootPath(const QString &newPath);
     void setSearchText(const QString &searchText);
 
-    Q_PROPERTY(bool hasFiles READ hasFiles NOTIFY hasFilesChanged)
+    Q_PROPERTY(bool isEmpty READ isEmpty NOTIFY isEmptyChanged)
 
     Q_INVOKABLE QString rootPath() const;
     Q_INVOKABLE QString filePath(const QModelIndex &index) const;
@@ -36,7 +36,7 @@ public:
     Q_INVOKABLE QModelIndex parentDirIndex(const QString &path) const;
     Q_INVOKABLE QModelIndex parentDirIndex(const QModelIndex &index) const;
     Q_INVOKABLE QString parentDirPath(const QString &path) const;
-    Q_INVOKABLE void syncHasFiles();
+    Q_INVOKABLE void syncIsEmpty();
 
     Q_INVOKABLE QList<QModelIndex> parentIndices(const QModelIndex &index) const;
     Q_INVOKABLE bool indexIsValid(const QModelIndex &index) const;
@@ -58,29 +58,27 @@ public:
         return std::min(result, 1);
     }
 
-    bool hasFiles() const { return m_hasFiles; }
+    bool isEmpty() const { return m_isEmpty; }
 
 signals:
     void directoryLoaded(const QString &path);
     void rootPathChanged();
-    void hasFilesChanged();
+    void isEmptyChanged();
     void fileChanged(const QString &path);
     void effectsDeleted(const QStringList &effectNames);
 
 private:
-    void setHasFiles(bool value);
+    void setIsEmpty(bool value);
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const override;
     void resetModel();
     void createBackendModel();
     void destroyBackendModel();
-    bool checkHasFiles(const QModelIndex &parentIdx) const;
-    bool checkHasFiles() const;
 
     QString m_searchText;
     QString m_rootPath;
     QFileSystemModel *m_sourceFsModel = nullptr;
-    bool m_hasFiles = false;
+    bool m_isEmpty = true;
     Utils::FileSystemWatcher *m_fileWatcher = nullptr;
 };
 

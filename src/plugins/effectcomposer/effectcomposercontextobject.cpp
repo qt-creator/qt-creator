@@ -168,11 +168,11 @@ int EffectComposerContextObject::devicePixelRatio()
 
 QStringList EffectComposerContextObject::allStatesForId(const QString &id)
 {
-      if (m_model && m_model->rewriterView()) {
-          const QmlDesigner::QmlObjectNode node = m_model->rewriterView()->modelNodeForId(id);
-          if (node.isValid())
-              return node.allStateNames();
-      }
+    if (m_model) {
+        const QmlDesigner::QmlObjectNode node = m_model->modelNodeForId(id);
+        if (node.isValid())
+            return node.allStateNames();
+    }
 
       return {};
 }

@@ -17,7 +17,7 @@ namespace QmlDesigner {
 
 class ProjectStorageInterface
 {
-    friend Storage::Info::CommonTypeCache<ProjectStorageInterface>;
+    friend Storage::Info::CommonTypeCache<ProjectStorageType>;
 
 public:
     ProjectStorageInterface(const ProjectStorageInterface &) = delete;

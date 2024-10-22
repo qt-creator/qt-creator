@@ -56,6 +56,8 @@ using namespace Utils;
 namespace Core {
 namespace Internal {
 
+namespace {
+
 bool optionsPageLessThan(const IOptionsPage *p1, const IOptionsPage *p2)
 {
     if (p1->category() != p2->category())
@@ -127,7 +129,7 @@ CategoryModel::~CategoryModel()
 
 int CategoryModel::rowCount(const QModelIndex &parent) const
 {
-    return parent.isValid() ? 0 : m_categories.size();
+    return parent.isValid() ? 0 : static_cast<int>(m_categories.size());
 }
 
 QVariant CategoryModel::data(const QModelIndex &index, int role) const
@@ -249,7 +251,7 @@ protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
 };
 
-static bool categoryVisible(const Id &id)
+static bool categoryVisible([[maybe_unused]] const Id &id)
 {
 #ifdef QT_NO_DEBUG
 
@@ -805,6 +807,8 @@ bool SettingsDialog::execDialog()
 
     return m_applied;
 }
+
+} // namespace
 
 bool executeSettingsDialog(QWidget *parent, Id initialPage)
 {
