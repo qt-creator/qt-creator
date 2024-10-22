@@ -467,6 +467,7 @@ void IosDeviceToolHandlerPrivate::processXml()
                 break;
             case ParserState::Error:
                 errorMsg(p.chars);
+                break;
             case ParserState::DeviceId:
                 if (m_deviceId.isEmpty())
                     m_deviceId = p.chars;
