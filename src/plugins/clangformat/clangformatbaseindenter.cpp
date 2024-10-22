@@ -957,6 +957,7 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 
     if (getCurrentCustomSettings(*m_fileName)) {
         clang::format::FormatStyle style = customSettingsStyle(*m_fileName);
+        addQtcStatementMacros(style);
         m_cachedStyle.setCache(style, cacheTimeout);
         return m_cachedStyle.style;
     }

@@ -399,6 +399,16 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
             == style.StatementMacros.end())
             style.StatementMacros.emplace_back(macro);
     }
+
+    const std::vector<std::string> emitMacros = {"emit", "Q_EMIT"};
+    for (const std::string &emitMacro : emitMacros) {
+        if (std::find(
+                style.StatementAttributeLikeMacros.begin(),
+                style.StatementAttributeLikeMacros.end(),
+                emitMacro)
+            == style.StatementAttributeLikeMacros.end())
+            style.StatementAttributeLikeMacros.push_back(emitMacro);
+    }
 }
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
