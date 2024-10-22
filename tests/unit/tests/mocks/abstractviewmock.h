@@ -69,5 +69,7 @@ public:
     MOCK_METHOD(void, modelAttached, (QmlDesigner::Model *), (override));
     MOCK_METHOD(void, modelAboutToBeDetached, (QmlDesigner::Model *), (override));
 
+    MOCK_METHOD(void, fileUrlChanged, (const QUrl &, const QUrl &), (override));
+
     using AbstractView::setKind;
 };
