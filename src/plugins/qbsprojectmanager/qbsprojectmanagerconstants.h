@@ -54,7 +54,6 @@ const char QBS_TARGETPLATFORM[] = "qbs.targetPlatform";
 const char QBS_SYSROOT[] = "qbs.sysroot";
 const char QBS_ARCHITECTURES[] = "qbs.architectures";
 const char QBS_ARCHITECTURE[] = "qbs.architecture";
-const char QBS_TOOLCHAIN[] = "qbs.toolchain";
 const char CPP_TOOLCHAINPATH[] = "cpp.toolchainInstallPath";
 const char CPP_TOOLCHAINPREFIX[] = "cpp.toolchainPrefix";
 const char CPP_COMPILERNAME[] = "cpp.compilerName";
