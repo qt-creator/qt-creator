@@ -38,9 +38,8 @@ public:
     HooksPrivate()
     {
         auto openTerminal = [](const OpenTerminalParameters &parameters) {
-            DeviceFileHooks::instance().openTerminal(parameters.workingDirectory.value_or(
-                                                         FilePath{}),
-                                                     parameters.environment.value_or(Environment{}));
+            parameters.workingDirectory.value_or(FilePath{})
+                    .openTerminal(parameters.environment.value_or(Environment{}));
         };
         auto createProcessInterface = [] { return new ExternalTerminalProcessImpl; };
 

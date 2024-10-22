@@ -41,11 +41,6 @@ static DeviceFileHooks &deviceFileHooks()
     return theDeviceHooks;
 }
 
-const DeviceFileHooks &DeviceFileHooks::instance()
-{
-    return deviceFileHooks();
-}
-
 void DeviceFileHooks::setupDeviceFileHooks(const DeviceFileHooks &hooks)
 {
     static bool wasAlreadySet = false;
@@ -346,6 +341,11 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 {
     return fileAccess()->watch(*this);
+}
+
+void FilePath::openTerminal(const Environment &env) const
+{
+    deviceFileHooks().openTerminal(*this, env);
 }
 
 /*!
