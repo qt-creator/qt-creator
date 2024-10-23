@@ -798,20 +798,10 @@ Group projectInfoRecipe(const QString &projectName)
             return SetupResult::StopWithError;
         }
 
-        const QString targetProjectName
-            = (projectName.isEmpty() && !dd->m_dashboardInfo->projects.isEmpty())
-                ? dd->m_dashboardInfo->projects.first() : projectName;
-
-        if (targetProjectName.isEmpty()) {
+        if (dd->m_dashboardInfo->projects.isEmpty()) {
+            updatePerspectiveToolbar();
             updateDashboard();
             return SetupResult::StopWithSuccess;
-        }
-
-        const auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
-        if (it == dd->m_dashboardInfo->projectUrls.constEnd()) {
-            MessageManager::writeDisrupting(QString("Axivion: %1")
-                .arg(Tr::tr("The DashboardInfo doesn't contain project \"%1\".").arg(targetProjectName)));
-            return SetupResult::StopWithError;
         }
 
         const auto handler = [](const Dto::ProjectInfoDto &data) {
@@ -822,6 +812,11 @@ Group projectInfoRecipe(const QString &projectName)
             updateDashboard();
         };
 
+        const QString targetProjectName = projectName.isEmpty()
+                ? dd->m_dashboardInfo->projects.first() : projectName;
+        auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
+        if (it == dd->m_dashboardInfo->projectUrls.constEnd())
+            it = dd->m_dashboardInfo->projectUrls.constBegin();
         taskTree.setRecipe(
             fetchDataRecipe<Dto::ProjectInfoDto>(dd->m_dashboardInfo->source.resolved(*it), handler));
         return SetupResult::Continue;

@@ -400,7 +400,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
 
-    DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
+    DeviceFileHooks deviceHooks;
 
     deviceHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
         auto leftDevice = DeviceManager::deviceForPath(left);
@@ -466,6 +466,8 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
             return OsTypeLinux;
         return device->osType();
     };
+
+    DeviceFileHooks::setupDeviceFileHooks(deviceHooks);
 
     DeviceProcessHooks processHooks;
 

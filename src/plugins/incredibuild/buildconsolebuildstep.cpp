@@ -298,12 +298,21 @@ void BuildConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 
 // BuildConsoleStepFactory
 
-BuildConsoleStepFactory::BuildConsoleStepFactory()
+class BuildConsoleStepFactory final : public BuildStepFactory
 {
-    registerStep<BuildConsoleBuildStep>(IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
-    setDisplayName(Tr::tr("IncrediBuild for Windows"));
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
+public:
+    BuildConsoleStepFactory()
+    {
+        registerStep<BuildConsoleBuildStep>(IncrediBuild::Constants::BUILDCONSOLE_BUILDSTEP_ID);
+        setDisplayName(Tr::tr("IncrediBuild for Windows"));
+        setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                               ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
+    }
+};
+
+void setupBuildConsoleStep()
+{
+    static BuildConsoleStepFactory theBuildConsoleStepFactory;
 }
 
 } // IncrediBuild::Internal

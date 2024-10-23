@@ -14,11 +14,10 @@
 #include <QFileInfo>
 #include <QLoggingCategory>
 #include <QMap>
+#include <QRegularExpression>
 
 namespace Utils {
 namespace Internal {
-
-static Q_LOGGING_CATEGORY(expanderLog, "qtc.utils.macroexpander", QtWarningMsg)
 
 const char kFilePathPostfix[] = ":FilePath";
 const char kPathPostfix[] = ":Path";
@@ -27,12 +26,112 @@ const char kNativePathPostfix[] = ":NativePath";
 const char kFileNamePostfix[] = ":FileName";
 const char kFileBaseNamePostfix[] = ":FileBaseName";
 
-class MacroExpanderPrivate : public AbstractMacroExpander
+class MacroExpanderPrivate
 {
 public:
     MacroExpanderPrivate() = default;
 
-    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander *> &seen) override
+    static bool validateVarName(const QString &varName) { return !varName.startsWith("JS:"); }
+
+    bool expandNestedMacros(const QString &str, int *pos, QString *ret)
+    {
+        QString varName;
+        QString pattern, replace;
+        QString defaultValue;
+        QString *currArg = &varName;
+        QChar prev;
+        QChar c;
+        QChar replacementChar;
+        bool replaceAll = false;
+
+        int i = *pos;
+        int strLen = str.length();
+        varName.reserve(strLen - i);
+        for (; i < strLen; prev = c) {
+            c = str.at(i++);
+            if (c == '\\' && i < strLen) {
+                c = str.at(i++);
+                // For the replacement, do not skip the escape sequence when followed by a digit.
+                // This is needed for enabling convenient capture group replacement,
+                // like %{var/(.)(.)/\2\1}, without escaping the placeholders.
+                if (currArg == &replace && c.isDigit())
+                    *currArg += '\\';
+                *currArg += c;
+            } else if (c == '}') {
+                if (varName.isEmpty()) { // replace "%{}" with "%"
+                    *ret = QString('%');
+                    *pos = i;
+                    return true;
+                }
+                QSet<MacroExpanderPrivate *> seen;
+                if (resolveMacro(varName, ret, seen)) {
+                    *pos = i;
+                    if (!pattern.isEmpty() && currArg == &replace) {
+                        const QRegularExpression regexp(pattern);
+                        if (regexp.isValid()) {
+                            if (replaceAll) {
+                                ret->replace(regexp, replace);
+                            } else {
+                                // There isn't an API for replacing once...
+                                const QRegularExpressionMatch match = regexp.match(*ret);
+                                if (match.hasMatch()) {
+                                    *ret = ret->left(match.capturedStart(0))
+                                           + match.captured(0).replace(regexp, replace)
+                                           + ret->mid(match.capturedEnd(0));
+                                }
+                            }
+                        }
+                    }
+                    return true;
+                }
+                if (!defaultValue.isEmpty()) {
+                    *pos = i;
+                    *ret = defaultValue;
+                    return true;
+                }
+                return false;
+            } else if (c == '{' && prev == '%') {
+                if (!expandNestedMacros(str, &i, ret))
+                    return false;
+                varName.chop(1);
+                varName += *ret;
+            } else if (currArg == &varName && c == '-' && prev == ':' && validateVarName(varName)) {
+                varName.chop(1);
+                currArg = &defaultValue;
+            } else if (currArg == &varName && (c == '/' || c == '#') && validateVarName(varName)) {
+                replacementChar = c;
+                currArg = &pattern;
+                if (i < strLen && str.at(i) == replacementChar) {
+                    ++i;
+                    replaceAll = true;
+                }
+            } else if (currArg == &pattern && c == replacementChar) {
+                currArg = &replace;
+            } else {
+                *currArg += c;
+            }
+        }
+        return false;
+    }
+
+    int findMacro(const QString &str, int *pos, QString *ret)
+    {
+        forever {
+            int openPos = str.indexOf("%{", *pos);
+            if (openPos < 0)
+                return 0;
+            int varPos = openPos + 2;
+            if (expandNestedMacros(str, &varPos, ret)) {
+                *pos = openPos;
+                return varPos - openPos;
+            }
+            // An actual expansion may be nested into a "false" one,
+            // so we continue right after the last %{.
+            *pos = openPos + 2;
+        }
+    }
+
+    bool resolveMacro(const QString &name, QString *ret, QSet<MacroExpanderPrivate *> &seen)
     {
         // Prevent loops:
         const int count = seen.count();
@@ -229,7 +328,7 @@ MacroExpander::~MacroExpander()
  */
 bool MacroExpander::resolveMacro(const QString &name, QString *ret) const
 {
-    QSet<AbstractMacroExpander*> seen;
+    QSet<MacroExpanderPrivate *> seen;
     return d->resolveMacro(name, ret, seen);
 }
 
@@ -240,6 +339,16 @@ bool MacroExpander::resolveMacro(const QString &name, QString *ret) const
 QString MacroExpander::value(const QByteArray &variable, bool *found) const
 {
     return d->value(variable, found);
+}
+
+static void expandMacros(QString *str, MacroExpanderPrivate *mx)
+{
+    QString rsts;
+
+    for (int pos = 0; int len = mx->findMacro(*str, &pos, &rsts);) {
+        str->replace(pos, len, rsts);
+        pos += rsts.length();
+    }
 }
 
 /*!
@@ -261,7 +370,7 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
     ++d->m_lockDepth;
 
     QString res = stringWithVariables;
-    Utils::expandMacros(&res, d);
+    expandMacros(&res, d);
 
     --d->m_lockDepth;
 
@@ -302,11 +411,19 @@ QVariant MacroExpander::expandVariant(const QVariant &v) const
     return v;
 }
 
-QString MacroExpander::expandProcessArgs(const QString &argsWithVariables) const
+expected_str<QString> MacroExpander::expandProcessArgs(
+    const QString &argsWithVariables, Utils::OsType osType) const
 {
     QString result = argsWithVariables;
-    const bool ok = ProcessArgs::expandMacros(&result, d);
-    QTC_ASSERT(ok, qCDebug(expanderLog) << "Expanding failed: " << argsWithVariables);
+    const bool ok = ProcessArgs::expandMacros(
+        &result,
+        [this](const QString &str, int *pos, QString *ret) { return d->findMacro(str, pos, ret); },
+        osType);
+
+    if (!ok) {
+        return make_unexpected(
+            Tr::tr("Failed to expand macros in process arguments: %1").arg(argsWithVariables));
+    }
     return result;
 }
 

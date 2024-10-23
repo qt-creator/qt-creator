@@ -921,8 +921,9 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, AutoRegister auto
     // Check pre-conditions.
     QTC_ASSERT(!m_toolchains.isEmpty(), return);
     QTC_ASSERT(m_toolchains.size() <= factory()->supportedLanguages().size(), return);
-    for (const Toolchain * const tc : toolchains)
+    for (const Toolchain * const tc : toolchains) {
         QTC_ASSERT(factory()->supportedLanguages().contains(tc->language()), return);
+    }
     for (int i = 1; i < int(toolchains.size()); ++i) {
         const Toolchain * const tc = toolchains.at(i);
         QTC_ASSERT(tc->typeId() == toolchains.first()->typeId(), return);

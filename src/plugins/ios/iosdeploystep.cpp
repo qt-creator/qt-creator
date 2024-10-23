@@ -54,6 +54,7 @@ public:
                        int progress, int maxProgress, const QString &info) {
             emit progressValueChanged(progress * 100 / maxProgress, info);
         });
+        connect(m_toolHandler.get(), &IosToolHandler::message, this, &IosTransfer::message);
         connect(
             m_toolHandler.get(),
             &IosToolHandler::errorMsg,
@@ -85,6 +86,7 @@ public:
 signals:
     void done(DoneResult result);
     void progressValueChanged(int progress, const QString &info); // progress in %
+    void message(const QString &message);
     void errorMessage(const QString &message);
 
 private:
@@ -253,6 +255,9 @@ GroupItem IosDeployStep::runRecipe()
         transfer.setExpectSuccess(checkProvisioningProfile());
         emit progress(0, transferringMessage);
         connect(&transfer, &IosTransfer::progressValueChanged, this, &IosDeployStep::progress);
+        connect(&transfer, &IosTransfer::message, this, [this](const QString &message) {
+            emit addOutput(message, OutputFormat::NormalMessage);
+        });
         connect(&transfer, &IosTransfer::errorMessage, this, [this](const QString &message) {
             emit addOutput(message, OutputFormat::ErrorMessage);
         });

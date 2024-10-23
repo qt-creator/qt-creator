@@ -235,6 +235,7 @@ private:
 IssuesWidget::IssuesWidget(QWidget *parent)
     : QScrollArea(parent)
 {
+    setFrameStyle(QFrame::NoFrame);
     QWidget *widget = new QWidget(this);
     m_dashboards = new QComboBox(this);
     m_dashboards->setMinimumContentsLength(15);
@@ -253,6 +254,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
                 m_dashboardProjects->clear();
             }
             updateBasicProjectInfo(std::nullopt);
+            m_issuesView->hideProgressIndicator();
         }
     });
 
@@ -450,14 +452,23 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
 {
     const auto onDashboardInfoFetched
             = [this, currentProject] (const expected_str<DashboardInfo> &info) {
-        if (!info)
+        if (!info) {
+            m_issuesView->hideProgressIndicator();
             return;
+        }
         GuardLocker lock(m_signalBlocker);
-        m_dashboardProjects->clear();
         m_dashboardProjects->addItems(info->projects);
         if (!currentProject.isEmpty() && info->projects.contains(currentProject))
             m_dashboardProjects->setCurrentText(currentProject);
     };
+    {
+        GuardLocker lock(m_signalBlocker);
+        m_dashboardProjects->clear();
+    }
+    updateBasicProjectInfo(std::nullopt);
+    if (m_overlay)
+        m_overlay->hide();
+    m_issuesView->showProgressIndicator();
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
 
@@ -668,7 +679,11 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         m_totalRowCount = 0;
         m_addedFilter->setText("0");
         m_removedFilter->setText("0");
+        setFiltersEnabled(false);
         m_issuesModel->clear();
+        m_issuesModel->setHeader({});
+        if (m_overlay)
+            m_overlay->hide();
         return;
     }
 
@@ -874,6 +889,7 @@ void AxivionPerspective::initPerspective()
     m_issuesWidget->setPalette(pal);
 
     m_issueDetails = new QTextBrowser;
+    m_issueDetails->setFrameStyle(QFrame::NoFrame);
     m_issueDetails->setObjectName("AxivionIssuesDetails");
     m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
     const QString text = Tr::tr(
@@ -888,6 +904,7 @@ void AxivionPerspective::initPerspective()
     reloadDataAct->setIcon(Utils::Icons::RELOAD_TOOLBAR.icon());
     reloadDataAct->setToolTip(Tr::tr("Reload"));
     connect(reloadDataAct, &QAction::triggered, this, [this] {
+        switchActiveDashboardId(activeDashboardId()); // reset cached data
         reinitDashboardList({});
     });
 

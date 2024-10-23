@@ -316,7 +316,7 @@ void Theme::readSettings(QSettings &settings)
     for (int i = 0, total = e.keyCount(); i < total; ++i) {
         const QString key = QLatin1String(e.key(i));
         if (!d->unresolvedPalette.contains(key)) {
-            if (i < PaletteWindow || i > PalettePlaceholderTextDisabled)
+            if (i < PaletteWindow || i > PaletteAccentDisabled)
                 qWarning("Theme \"%s\" misses color setting for key \"%s\".",
                          qPrintable(d->fileName),
                          qPrintable(key));

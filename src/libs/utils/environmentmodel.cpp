@@ -419,8 +419,10 @@ bool EnvironmentModel::currentEntryIsPathList(const QModelIndex &current) const
     const QString varName = indexToVariable(current);
     if (varName.compare("PATH", Utils::HostOsInfo::fileNameCaseSensitivity()) == 0)
         return true;
-    if (Utils::HostOsInfo::isMacHost() && varName == "DYLD_LIBRARY_PATH")
+    if (Utils::HostOsInfo::isMacHost()
+        && (varName == "DYLD_LIBRARY_PATH" || varName == "DYLD_FRAMEWORK_PATH")) {
         return true;
+    }
     if (Utils::HostOsInfo::isAnyUnixHost() && varName == "LD_LIBRARY_PATH")
         return true;
     if (varName == "PKG_CONFIG_DIR")

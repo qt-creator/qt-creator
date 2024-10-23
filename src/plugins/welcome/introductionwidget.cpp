@@ -12,6 +12,7 @@
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 
+#include <QDesktopServices>
 #include <QEvent>
 #include <QGuiApplication>
 #include <QImage>
@@ -86,8 +87,12 @@ IntroductionWidget::IntroductionWidget()
     m_stepText->setTextFormat(Qt::RichText);
     // why is palette not inherited???
     m_stepText->setPalette(palette());
-    m_stepText->setOpenExternalLinks(true);
-    m_stepText->installEventFilter(this);
+    connect(m_stepText, &QLabel::linkActivated, this, [this](const QString &link) {
+        // clicking the User Interface link should both open the documentation page
+        // and step forward (=end the tour)
+        step();
+        QDesktopServices::openUrl(link);
+    });
     layout->addWidget(m_stepText);
 
     m_continueLabel = new QLabel(this);
@@ -173,12 +178,8 @@ bool IntroductionWidget::event(QEvent *e)
 
 bool IntroductionWidget::eventFilter(QObject *obj, QEvent *ev)
 {
-    if (obj == parent() && ev->type() == QEvent::Resize) {
+    if (obj == parent() && ev->type() == QEvent::Resize)
         resizeToParent();
-    } else if (obj == m_stepText && ev->type() == QEvent::MouseButtonRelease) {
-        step();
-        return true;
-    }
     return QWidget::eventFilter(obj, ev);
 }
 
