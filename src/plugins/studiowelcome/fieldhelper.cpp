@@ -43,16 +43,14 @@ QString ComboBoxHelper::text(int index) const
     return model->item(index)->text();
 }
 
-int ComboBoxHelper::indexOf(const QString &) const
+int ComboBoxHelper::indexOf(const QString &text) const
 {
     QTC_ASSERT(m_field, return -1);
 
     const QStandardItemModel *model = m_field->model();
     for (int i = 0; i < model->rowCount(); ++i) {
         const QStandardItem *item = model->item(i, 0);
-        const QString text = item->text();
-
-        if (text == text)
+        if (text == item->text())
             return i;
     }
 
