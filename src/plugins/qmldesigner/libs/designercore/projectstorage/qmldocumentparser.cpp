@@ -101,7 +101,7 @@ QualifiedImports createQualifiedImports(const QList<QmlDom::Import> &qmlImports,
                                         Utils::SmallStringView directoryPath,
                                         ProjectStorageType &storage)
 {
-    NanotraceHR::Tracer tracer{"create qualified imports"_t,
+    NanotraceHR::Tracer tracer{"create qualified imports",
                                category(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};
@@ -324,7 +324,7 @@ Storage::Synchronization::Type QmlDocumentParser::parse(const QString &sourceCon
                                                         SourceId sourceId,
                                                         Utils::SmallStringView directoryPath)
 {
-    NanotraceHR::Tracer tracer{"qml document parser parse"_t,
+    NanotraceHR::Tracer tracer{"qml document parser parse",
                                category(),
                                keyValue("sourceId", sourceId),
                                keyValue("directoryPath", directoryPath)};

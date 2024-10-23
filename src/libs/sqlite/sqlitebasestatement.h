@@ -154,7 +154,7 @@ public:
     {
         using NanotraceHR::keyValue;
         NanotraceHR::Tracer tracer{
-            "execute"_t,
+            "execute",
             sqliteHighLevelCategory(),
             keyValue("sqlite statement", BaseStatement::handle()),
         };
@@ -167,7 +167,7 @@ public:
     void bindValues(const ValueType &...values)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"bind"_t,
+        NanotraceHR::Tracer tracer{"bind",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -181,7 +181,7 @@ public:
     void write(const ValueType&... values)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"write"_t,
+        NanotraceHR::Tracer tracer{"write",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -218,7 +218,7 @@ public:
     auto values(const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"values"_t,
+        NanotraceHR::Tracer tracer{"values",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -252,7 +252,7 @@ public:
     auto value(const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"value"_t,
+        NanotraceHR::Tracer tracer{"value",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -271,7 +271,7 @@ public:
     auto optionalValue(const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"optionalValue"_t,
+        NanotraceHR::Tracer tracer{"optionalValue",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -290,7 +290,7 @@ public:
     static auto toValue(Utils::SmallStringView sqlStatement, Database &database)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"toValue"_t, sqliteHighLevelCategory()};
+        NanotraceHR::Tracer tracer{"toValue", sqliteHighLevelCategory()};
 
         StatementImplementation statement(sqlStatement, database);
 
@@ -305,7 +305,7 @@ public:
     void readCallback(Callable &&callable, const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"readCallback"_t,
+        NanotraceHR::Tracer tracer{"readCallback",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -325,7 +325,7 @@ public:
     void readTo(Container &container, const QueryTypes &...queryValues)
     {
         using NanotraceHR::keyValue;
-        NanotraceHR::Tracer tracer{"readTo"_t,
+        NanotraceHR::Tracer tracer{"readTo",
                                    sqliteHighLevelCategory(),
                                    keyValue("sqlite statement", BaseStatement::handle())};
 
@@ -427,7 +427,7 @@ public:
         using TracerCategory = std::decay_t<decltype(sqliteHighLevelCategory())>;
         StatementImplementation &m_statement;
         NanotraceHR::Tracer<TracerCategory, typename TracerCategory::IsActive> tracer{
-            "range"_t,
+            "range",
             sqliteHighLevelCategory(),
             NanotraceHR::keyValue("sqlite statement", m_statement.handle())};
     };

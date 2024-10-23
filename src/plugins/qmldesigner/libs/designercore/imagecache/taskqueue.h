@@ -124,10 +124,10 @@ private:
             return;
 
         auto [threadCreateToken, flowToken] = traceToken.beginDurationWithFlow(
-            "thread is created in the task queue"_t);
+            "thread is created in the task queue");
         m_backgroundThread = std::thread{[this](auto traceToken) {
                                              auto duration = traceToken.beginDuration(
-                                                 "thread is ready"_t);
+                                                 "thread is ready");
 
                                              while (true) {
                                                  auto [lock, abort] = waitForTasks();
@@ -137,7 +137,7 @@ private:
                                                      return;
 
                                                  auto getTaskToken = duration.beginDuration(
-                                                     "get task from queue"_t);
+                                                     "get task from queue");
                                                  if (auto task = getTask(std::move(lock)); task) {
                                                      getTaskToken.end();
                                                      m_dispatchCallback(*task);

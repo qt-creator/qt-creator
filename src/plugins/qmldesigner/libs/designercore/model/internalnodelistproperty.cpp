@@ -41,8 +41,8 @@ void InternalNodeListProperty::add(const InternalNode::Pointer &internalNode)
 {
     Q_ASSERT(!m_nodes.contains(internalNode));
 
-    auto flowToken = traceToken.tickWithFlow("add node"_t);
-    internalNode->traceToken.tick(flowToken, "node added"_t);
+    auto flowToken = traceToken.tickWithFlow("add node");
+    internalNode->traceToken.tick(flowToken, "node added");
 
     m_nodes.append(internalNode);
 }
@@ -51,8 +51,8 @@ void InternalNodeListProperty::remove(const InternalNodePointer &internalNode)
 {
     Q_ASSERT(m_nodes.contains(internalNode));
 
-    auto flowToken = traceToken.tickWithFlow("remove node"_t);
-    internalNode->traceToken.tick(flowToken, "node removed"_t);
+    auto flowToken = traceToken.tickWithFlow("remove node");
+    internalNode->traceToken.tick(flowToken, "node removed");
 
     m_nodes.removeAll(internalNode);
 }
@@ -64,7 +64,7 @@ const InternalNodeListProperty::FewNodes &InternalNodeListProperty::nodeList() c
 
 void InternalNodeListProperty::slide(int from, int to)
 {
-    traceToken.tick("slide"_t, keyValue("from", from), keyValue("to", to));
+    traceToken.tick("slide", keyValue("from", from), keyValue("to", to));
 
     InternalNode::Pointer internalNode = m_nodes.at(from);
     m_nodes.remove(from);

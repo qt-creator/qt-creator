@@ -62,7 +62,6 @@ struct TracerLiteral
         : text{text}
     {}
 
-    friend consteval TracerLiteral operator""_t(const char *text, size_t size);
 
     constexpr operator std::string_view() const { return text; }
 
@@ -74,10 +73,6 @@ private:
     std::string_view text;
 };
 
-consteval TracerLiteral operator""_t(const char *text, size_t size)
-{
-    return {std::string_view{text, size}};
-}
 } // namespace Literals
 
 using namespace Literals;
@@ -333,7 +328,7 @@ template<typename String, typename... Arguments>
 {
     static_assert(
         !std::is_same_v<String, std::string_view>,
-        R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral (""_t).)");
+        R"(The arguments type of the tracing event queue is a string view. You can only provide trace token arguments as TracerLiteral ("").)");
 
     if constexpr (std::is_same_v<String, std::string_view>)
         eventArguments = {};

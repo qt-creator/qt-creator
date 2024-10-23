@@ -69,14 +69,14 @@ TypeName InternalProperty::dynamicTypeName() const
 
 void InternalProperty::setDynamicTypeName(const TypeName &name)
 {
-    traceToken.tick("dynamic type name"_t, keyValue("name", name));
+    traceToken.tick("dynamic type name", keyValue("name", name));
 
     m_dynamicType = name;
 }
 
 void InternalProperty::resetDynamicTypeName()
 {
-    traceToken.tick("reset dynamic type name"_t);
+    traceToken.tick("reset dynamic type name");
 
     m_dynamicType.clear();
 }

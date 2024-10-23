@@ -23,14 +23,14 @@ thread_local NanotraceHR::EventQueue<NanotraceHR::StringViewWithStringArgumentsT
 NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteLowLevelCategory()
 {
     thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteLowLevelCategory_{"sqlite low level"_t, eventQueue, sqliteLowLevelCategory};
+        sqliteLowLevelCategory_{"sqlite low level", eventQueue, sqliteLowLevelCategory};
     return sqliteLowLevelCategory_;
 }
 
 NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()> &sqliteHighLevelCategory()
 {
     thread_local NanotraceHR::StringViewWithStringArgumentsCategory<sqliteTracingStatus()>
-        sqliteHighLevelCategory_{"sqlite high level"_t, eventQueue, sqliteHighLevelCategory};
+        sqliteHighLevelCategory_{"sqlite high level", eventQueue, sqliteHighLevelCategory};
 
     return sqliteHighLevelCategory_;
 }
