@@ -15,6 +15,8 @@
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
 
+#include <utils/fileutils.h>
+
 #include <qmldesignerplugin.h>
 
 #include <utils/fileutils.h>
