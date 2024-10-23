@@ -460,7 +460,7 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
 
     auto isPreferred = [this](const TargetSetupWidget *w) {
         const Tasks tasks = m_tasksGenerator(w->kit());
-        return w->isEnabled() && tasks.isEmpty();
+        return w->isValid() && tasks.isEmpty();
     };
 
     // Use default kit if that is preferred:
@@ -476,14 +476,14 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
     if (!toCheckWidget) {
         // Use default kit if it is enabled:
         toCheckWidget = findOrDefault(m_widgets, [defaultKit](const TargetSetupWidget *w) {
-            return w->isEnabled() && w->kit() == defaultKit;
+            return w->isValid() && w->kit() == defaultKit;
         });
     }
 
     if (!toCheckWidget) {
         // Use the first enabled widget:
         toCheckWidget = findOrDefault(m_widgets,
-                                      [](const TargetSetupWidget *w) { return w->isEnabled(); });
+                                      [](const TargetSetupWidget *w) { return w->isValid(); });
     }
 
     if (toCheckWidget) {
