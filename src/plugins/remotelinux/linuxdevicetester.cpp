@@ -291,8 +291,8 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
 
 using namespace Internal;
 
-GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
-    : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate(this))
+GenericLinuxDeviceTester::GenericLinuxDeviceTester(const IDevice::Ptr &device, QObject *parent)
+    : DeviceTester(device, parent), d(new GenericLinuxDeviceTesterPrivate(this))
 {
     connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
         emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
@@ -311,11 +311,11 @@ void GenericLinuxDeviceTester::setExtraTests(const GroupItems &extraTests)
     d->m_extraTests = extraTests;
 }
 
-void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
+void GenericLinuxDeviceTester::testDevice()
 {
     QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
 
-    d->m_device = std::static_pointer_cast<LinuxDevice>(deviceConfiguration);
+    d->m_device = std::static_pointer_cast<LinuxDevice>(device());
 
     const Group root {
         d->connectionTask(),

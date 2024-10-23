@@ -690,6 +690,8 @@ void SshProcessInterfacePrivate::start()
 
     auto linuxDevice = std::dynamic_pointer_cast<const LinuxDevice>(m_device);
     QTC_ASSERT(linuxDevice, handleDone(); return);
+    if (linuxDevice->isDisconnected() && !linuxDevice->isTesting())
+        return handleDone();
     const bool useConnectionSharing = !linuxDevice->isDisconnected()
             && SshSettings::connectionSharingEnabled()
             && !q->m_setup.m_extraData.value(Constants::DisableSharing).toBool();
@@ -1082,9 +1084,9 @@ IDeviceWidget *LinuxDevice::createWidget()
     return new Internal::GenericLinuxDeviceConfigurationWidget(shared_from_this());
 }
 
-DeviceTester *LinuxDevice::createDeviceTester() const
+DeviceTester *LinuxDevice::createDeviceTester()
 {
-    return new GenericLinuxDeviceTester;
+    return new GenericLinuxDeviceTester(shared_from_this());
 }
 
 DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const

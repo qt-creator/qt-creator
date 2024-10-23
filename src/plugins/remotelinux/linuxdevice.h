@@ -24,7 +24,7 @@ public:
 
     bool canCreateProcessModel() const override { return true; }
     bool hasDeviceTester() const override { return true; }
-    ProjectExplorer::DeviceTester *createDeviceTester() const override;
+    ProjectExplorer::DeviceTester *createDeviceTester() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     bool usableAsBuildDevice() const override;
 

@@ -147,11 +147,23 @@ public:
     Utils::StringAspect displayName;
     Utils::FilePathAspect debugServerPath;
     Utils::FilePathAspect qmlRunCommand;
+
+    bool isTesting = false;
 };
 
 } // namespace Internal
 
-DeviceTester::DeviceTester(QObject *parent) : QObject(parent) { }
+DeviceTester::DeviceTester(const IDevice::Ptr &device, QObject *parent)
+    : QObject(parent)
+    , m_device(device)
+{
+    m_device->setIsTesting(true);
+}
+
+DeviceTester::~DeviceTester()
+{
+    m_device->setIsTesting(false);
+}
 
 IDevice::IDevice()
     : d(new Internal::IDevicePrivate)
@@ -447,10 +459,20 @@ PortsGatheringMethod IDevice::portsGatheringMethod() const
             &Port::parseFromCommandOutput};
 }
 
-DeviceTester *IDevice::createDeviceTester() const
+DeviceTester *IDevice::createDeviceTester()
 {
     QTC_ASSERT(false, qDebug("This should not have been called..."));
     return nullptr;
+}
+
+void IDevice::setIsTesting(bool isTesting)
+{
+    d->isTesting = isTesting;
+}
+
+bool IDevice::isTesting() const
+{
+    return d->isTesting;
 }
 
 bool IDevice::canMount(const Utils::FilePath &) const

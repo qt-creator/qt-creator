@@ -81,7 +81,7 @@ public:
         return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(shared_from_this()));
     }
 
-    DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
+    DeviceTester *createDeviceTester() final { return new QnxDeviceTester(shared_from_this()); }
 };
 
 class QnxDeviceFactory final : public IDeviceFactory
