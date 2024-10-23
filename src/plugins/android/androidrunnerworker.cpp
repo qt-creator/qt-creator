@@ -422,7 +422,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     continue;
 
                 if (storagePtr->m_useCppDebugger) {
-                    if (start->current() == 0 && msg.trimmed().endsWith("Sending WAIT chunk"))
+                    if (start->current() == 0 && msg.indexOf("Sending WAIT chunk") > 0)
                         start->advance();
                     else if (settled->current() == 0 && msg.indexOf("debugger has settled") > 0)
                         settled->advance();
