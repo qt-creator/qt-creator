@@ -52,7 +52,7 @@ using namespace Utils;
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidsettingswidget, "qtc.android.androidsettingswidget", QtWarningMsg);
-constexpr int requiredJavaMajorVersion = 17;
+constexpr int requiredJavaMajorVersion = 21;
 
 class AndroidSettingsWidget final : public Core::IOptionsPageWidget
 {
