@@ -11,8 +11,6 @@
 
 #include <designsystem/dsthememanager.h>
 
-#include <format>
-
 using QmlDesigner::DSThemeManager;
 using QmlDesigner::GroupType;
 using QmlDesigner::Import;
@@ -30,9 +28,7 @@ MATCHER_P3(HasProperty,
            themeId,
            group,
            themeProp,
-           std::format("Collection {} have a property {}",
-                       (negation ? "Does't " : "Does "),
-                       PrintToString(themeProp)))
+           std::string(negation ? "hasn't " : "has ") + PrintToString(themeProp))
 {
     const DSThemeManager &mgr = arg;
     const std::optional<ThemeProperty> prop = mgr.property(themeId, group, themeProp.name);

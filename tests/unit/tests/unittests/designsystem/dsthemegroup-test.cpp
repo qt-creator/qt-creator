@@ -12,19 +12,28 @@ using QmlDesigner::DSThemeGroup;
 using QmlDesigner::ThemeProperty;
 
 namespace {
-constexpr const char testPropertyNameFoo[] = "propFoo";
-constexpr const char testPropertyNameBar[] = "propBar";
+QByteArray testPropertyNameFoo = "propFoo";
+QByteArray testPropertyNameBar = "propBar";
 
 constexpr QmlDesigner::ThemeId themeId1 = 0;
 constexpr QmlDesigner::ThemeId themeId2 = 1;
 
-MATCHER_P3(HasPropertyCount, themeId, themePropCount, totalPropsCount, "")
+MATCHER_P3(HasPropertyCount,
+           themeId,
+           themePropCount,
+           totalPropsCount,
+           std::string(negation ? "hasn't " : "has ") + "total property count "
+               + PrintToString(totalPropsCount) + " and theme property count "
+               + PrintToString(themePropCount))
 {
     const DSThemeGroup &group = arg;
     return group.count() == totalPropsCount && group.count(themeId) == themePropCount;
 }
 
-MATCHER_P2(HasThemeProperty, themeId, themeProp, "")
+MATCHER_P2(HasThemeProperty,
+           themeId,
+           themeProp,
+           std::string(negation ? "hasn't " : "has ") + PrintToString(themeProp))
 {
     const DSThemeGroup &group = arg;
     const std::optional<ThemeProperty> prop = group.propertyValue(themeId, themeProp.name);

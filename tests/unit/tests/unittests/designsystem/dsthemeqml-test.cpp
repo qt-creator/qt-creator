@@ -13,8 +13,9 @@
 #include <designsystem/dsthemegroup.h>
 #include <designsystem/dsthememanager.h>
 
-#include <format>
 #include <functional>
+#include <string>
+#include <string_view>
 
 using QmlDesigner::DSThemeManager;
 using QmlDesigner::GroupType;
@@ -22,40 +23,24 @@ using QmlDesigner::Import;
 using QmlDesigner::ModelNode;
 using QmlDesigner::ThemeProperty;
 
-template<>
-struct std::formatter<QByteArray> : std::formatter<std::string>
-{
-    template<typename FormatContext>
-    auto format(const QByteArray &ba, FormatContext &ctx) const
-    {
-        return std::formatter<std::string>::format(ba.toStdString(), ctx);
-    }
-};
-
 namespace {
-
-static std::string formatedPropStr(const char tag[], const char name[], const QVariant &v)
+std::string formatedPropStr(std::string tag, const QByteArray &name, const QVariant &value)
 {
-    return std::format("{}Property({}, {})", tag, name, v.toString().toStdString());
+    return tag + "Property(" + name.toStdString() + ", " + value.toString().toStdString() + ")";
 }
 
-static auto bindingPropStr = std::bind(&formatedPropStr,
-                                       "Binding",
-                                       std::placeholders::_1,
-                                       std::placeholders::_2);
-static auto variantPropStr = std::bind(&formatedPropStr,
-                                       "Variant",
-                                       std::placeholders::_1,
-                                       std::placeholders::_2);
+auto bindingPropStr = std::bind_front(&formatedPropStr, "Binding");
+auto variantPropStr = std::bind_front(&formatedPropStr, "Variant");
 
-constexpr const char testPropertyName1[] = "prop1";
-constexpr const char darkThemeName[] = "dark";
+QByteArray testPropertyName1 = "prop1";
+QByteArray darkThemeName = "dark";
 constexpr QmlDesigner::ThemeId testThemeId = 1;
 
 MATCHER_P2(HasNodeProperty,
            name,
            typeName,
-           std::format("{} have node {} with type {})", (negation ? "Does't " : "Does "), name, typeName))
+           std::string(negation ? "hasn't node " : "has node ") + name.toStdString()
+               + std::string(" with type ") + typeName)
 {
     ModelNode n = arg;
     return n.hasNodeProperty(name) && n.nodeProperty(name).modelNode().isValid()
@@ -65,7 +50,7 @@ MATCHER_P2(HasNodeProperty,
 MATCHER_P2(HasBindingProperty,
            name,
            value,
-           std::format("{} have {})", (negation ? "Does't " : "Does "), bindingPropStr(name, value)))
+           std::string(negation ? "hasn't " : "has ") + bindingPropStr(name, value))
 {
     ModelNode n = arg;
     return n.hasBindingProperty(name) && n.bindingProperty(name).expression() == value;
@@ -74,7 +59,7 @@ MATCHER_P2(HasBindingProperty,
 MATCHER_P2(HasVariantProperty,
            name,
            value,
-           std::format("{} have {})", (negation ? "Does't " : "Does "), variantPropStr(name, value)))
+           std::string(negation ? "hasn't " : "has ") + variantPropStr(name, value))
 {
     ModelNode n = arg;
     return n.hasVariantProperty(name) && n.variantProperty(name).value() == value;
@@ -83,10 +68,8 @@ MATCHER_P2(HasVariantProperty,
 MATCHER_P2(HasGroupVariantProperty,
            groupName,
            themeProp,
-           std::format("{} have node {} with {})",
-                       (negation ? "Does't " : "Does "),
-                       groupName.constData(),
-                       PrintToString(themeProp)))
+           std::string(negation ? "hasn't node " : "has node ") + groupName.toStdString() + " with "
+               + PrintToString(themeProp))
 {
     ModelNode n = arg;
 
@@ -99,10 +82,8 @@ MATCHER_P2(HasGroupVariantProperty,
 MATCHER_P2(HasGroupBindingProperty,
            groupName,
            themeProp,
-           std::format("{} have node {} with {})",
-                       (negation ? "Does't " : "Does "),
-                       groupName.constData(),
-                       PrintToString(themeProp)))
+           std::string(negation ? "hasn't node " : "has node ") + groupName.toStdString() + " with "
+               + PrintToString(themeProp))
 {
     ModelNode n = arg;
 
