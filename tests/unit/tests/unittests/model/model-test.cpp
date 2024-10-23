@@ -909,6 +909,32 @@ TEST_F(Model_Imports, change_imports_is_synchronizing_imports_with_project_stora
     model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
 }
 
+TEST_F(Model_Imports, change_imports_with_windows_file_url)
+{
+    QmlDesigner::SourcePath windowsFilePath = "c:/path/foo.qml";
+    QUrl windowsFilePathUrl = windowsFilePath.toQString();
+    SourceId windowsSourceId = pathCacheMock.createSourceId(windowsFilePath);
+    model.setFileUrl(windowsFilePathUrl);
+    QmlDesigner::SourceId directoryPathId = QmlDesigner::SourceId::create(2);
+    ON_CALL(pathCacheMock, sourceId(Eq("c:/path/foo/."))).WillByDefault(Return(directoryPathId));
+    auto qtQuickModuleId = projectStorageMock.moduleId("QtQuick", ModuleKind::QmlLibrary);
+    auto qtQmlModelsModuleId = projectStorageMock.moduleId("QtQml.Models", ModuleKind::QmlLibrary);
+    auto localPathModuleId = projectStorageMock.createModule("c:/path",
+                                                             QmlDesigner::Storage::ModuleKind::PathLibrary);
+    auto qtQuickImport = QmlDesigner::Import::createLibraryImport("QtQuick", "2.1");
+    auto qtQmlModelsImport = QmlDesigner::Import::createLibraryImport("QtQml.Models");
+    auto directoryImport = QmlDesigner::Import::createFileImport("foo");
+
+    EXPECT_CALL(projectStorageMock,
+                synchronizeDocumentImports(
+                    UnorderedElementsAre(IsImport(qtQuickModuleId, windowsSourceId, 2, 1),
+                                         IsImport(qtQmlModelsModuleId, windowsSourceId, -1, -1),
+                                         IsImport(localPathModuleId, windowsSourceId, -1, -1)),
+                    windowsSourceId));
+
+    model.changeImports({qtQuickImport, qtQmlModelsImport}, {});
+}
+
 TEST_F(Model_Imports,
        change_imports_is_not_synchronizing_imports_with_project_storage_if_no_new_imports_are_added)
 {
@@ -1366,6 +1392,9 @@ protected:
     QmlDesigner::SourcePath barFilePath = "/path/bar.qml";
     QUrl barFilePathUrl = barFilePath.toQString();
     SourceId barSourceId = pathCacheMock.createSourceId(barFilePath);
+    QmlDesigner::SourcePath windowsFilePath = "c:/path/bar.qml";
+    QUrl windowsFilePathUrl = windowsFilePath.toQString();
+    SourceId windowsSourceId = pathCacheMock.createSourceId(windowsFilePath);
 };
 
 TEST_F(Model_FileUrl, set_file_url)
@@ -1375,11 +1404,25 @@ TEST_F(Model_FileUrl, set_file_url)
     ASSERT_THAT(model.fileUrl(), barFilePathUrl);
 }
 
+TEST_F(Model_FileUrl, set_windows_file_url)
+{
+    model.setFileUrl(windowsFilePathUrl);
+
+    ASSERT_THAT(model.fileUrl(), windowsFilePathUrl);
+}
+
 TEST_F(Model_FileUrl, set_file_url_sets_source_id_too)
 {
     model.setFileUrl(barFilePathUrl);
 
     ASSERT_THAT(model.fileUrlSourceId(), barSourceId);
+}
+
+TEST_F(Model_FileUrl, set_windows_file_url_sets_source_id_too)
+{
+    model.setFileUrl(windowsFilePathUrl);
+
+    ASSERT_THAT(model.fileUrlSourceId(), windowsSourceId);
 }
 
 TEST_F(Model_FileUrl, notifies_change)

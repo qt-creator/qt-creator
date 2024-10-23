@@ -281,7 +281,7 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
     if (oldPath != fileUrl) {
         m_fileUrl = fileUrl;
         if constexpr (useProjectStorage()) {
-            auto path = fileUrl.path();
+            auto path = fileUrl.toString(QUrl::PreferLocalFile);
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
