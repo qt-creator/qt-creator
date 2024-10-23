@@ -1494,7 +1494,7 @@ QString EffectComposerModel::valueAsString(const Uniform &uniform)
         QVector4D v4 = uniform.value().value<QVector4D>();
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(v4.x()).arg(v4.y()).arg(v4.z()).arg(v4.w());
     } else if (uniform.type() == Uniform::Type::Sampler) {
-        return getImageElementName(uniform, true);
+        return getImageElementName(uniform);
     } else if (uniform.type() == Uniform::Type::Color) {
         return QString("\"%1\"").arg(uniform.value().toString());
     } else if (uniform.type() == Uniform::Type::Channel) {
@@ -1537,7 +1537,7 @@ QString EffectComposerModel::valueAsBinding(const Uniform &uniform)
         QString sw = QString("g_propertyData.%1.w").arg(uniform.name());
         return QString("Qt.vector4d(%1, %2, %3, %4)").arg(sx, sy, sz, sw);
     } else if (uniform.type() == Uniform::Type::Sampler) {
-        return getImageElementName(uniform, false);
+        return getImageElementName(uniform);
     } else {
         qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
         return QString();
@@ -1574,7 +1574,7 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
 }
 
 // Return name for the image property Image element
-QString EffectComposerModel::getImageElementName(const Uniform &uniform, bool)
+QString EffectComposerModel::getImageElementName(const Uniform &uniform) const
 {
     QString simplifiedName = uniform.name().simplified();
     simplifiedName = simplifiedName.remove(' ');
@@ -2067,7 +2067,7 @@ QString EffectComposerModel::getQmlImagesString(bool localFiles)
                                     .arg(uniform->name(), imagePath);
             }
             imagesString += "    Image {\n";
-            QString simplifiedName = getImageElementName(*uniform, localFiles);
+            QString simplifiedName = getImageElementName(*uniform);
             imagesString += QString("        id: %1\n").arg(simplifiedName);
             imagesString += "        anchors.fill: parent\n";
             // File paths are absolute, return as local when requested
