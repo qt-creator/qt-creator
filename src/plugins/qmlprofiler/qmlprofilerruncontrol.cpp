@@ -31,8 +31,6 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-const char QmlServerUrl[] = "QmlServerUrl";
-
 //
 // QmlProfilerRunControlPrivate
 //
