@@ -32,6 +32,7 @@ public:
     {}
 
     Utils::FilePath absFilPath() const;
+    QByteArray fileContent() const;
 
     bool operator==(const AssetPath &other) const
     {
@@ -62,6 +63,8 @@ public:
     QString nodeNameToComponentFileName(const QString &name) const;
     QPair<QString, QSet<AssetPath>> modelNodeToQmlString(const ModelNode &node, int depth = 0);
     QString getImportPath() const;
+    QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
+                                             const Utils::FilePath &mainCompDir) const;
 
 private:
     void createImporter();
@@ -71,8 +74,6 @@ private:
     void addIconAndCloseZip(const auto &image);
     Utils::FilePath componentPath(const NodeMetaInfo &metaInfo) const;
     QSet<AssetPath> getBundleComponentDependencies(const ModelNode &node) const;
-    QSet<AssetPath> getComponentDependencies(const Utils::FilePath &filePath,
-                                             const Utils::FilePath &mainCompDir);
     void exportComponent(const ModelNode &node);
     void exportNode(const ModelNode &node, const QPixmap &iconPixmap = QPixmap());
 
@@ -81,7 +82,7 @@ private:
     Utils::UniqueObjectPtr<BundleImporter> m_importer;
     std::unique_ptr<ZipWriter> m_zipWriter;
     std::unique_ptr<QTemporaryDir> m_tempDir;
-    Utils::FilePath m_iconSavePath;
+    QString m_iconPath;
 
     static constexpr char BUNDLE_VERSION[] = "1.0";
 };
