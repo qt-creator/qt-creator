@@ -10,12 +10,13 @@
 
 #include <coreplugin/fileutils.h>
 
+#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/url.h>
@@ -129,14 +130,39 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
+struct DeployToolsAvailability
+{
+    bool rsync;
+    bool sftp;
+};
+
+static DeployToolsAvailability hostDeployTools()
+{
+    auto check = [](const QString &tool) {
+        return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
+    };
+    return {check("rsync"), check("sftp")};
+}
+
 void DesktopDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
 
-    const FilePath rsync = FilePath::fromString("rsync").searchInPath();
-    const FilePath sftp = FilePath::fromString("sftp").searchInPath();
-    setExtraData(Constants::SUPPORTS_RSYNC, rsync.isExecutableFile());
-    setExtraData(Constants::SUPPORTS_SFTP, sftp.isExecutableFile());
+    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
+        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
+        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
+    };
+
+    if (HostOsInfo::isWindowsHost()) {
+        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
+        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
+            updateExtraData(w->result());
+            w->deleteLater();
+        });
+        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
+    } else {
+        updateExtraData(hostDeployTools());
+    }
 }
 
 } // namespace ProjectExplorer
