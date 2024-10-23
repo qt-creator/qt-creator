@@ -5,6 +5,7 @@
 #include "dsthememanager.h"
 
 #include <generatedcomponentutils.h>
+#include <import.h>
 #include <plaintexteditmodifier.h>
 #include <qmljs/parser/qmldirparser_p.h>
 #include <qmljs/qmljsreformatter.h>
@@ -49,17 +50,28 @@ static QByteArray reformatQml(const QString &content)
     return content.toUtf8();
 }
 
-std::optional<QString> modelSerializeHelper(QmlDesigner::ExternalDependenciesInterface &ed,
-                                            std::function<void(QmlDesigner::Model *)> callback,
-                                            const Utils::FilePath &targetDir,
-                                            const QString &typeName,
-                                            bool isSingelton = false)
+std::optional<QString> modelSerializeHelper(
+    QmlDesigner::ProjectStorageDependencies &projectStorageDependencies,
+    QmlDesigner::ExternalDependenciesInterface &ed,
+    std::function<void(QmlDesigner::Model *)> callback,
+    const Utils::FilePath &targetDir,
+    const QString &typeName,
+    bool isSingelton = false)
 {
     QString qmlText{"import QtQuick\nQtObject {}\n"};
     if (isSingelton)
         qmlText.prepend("pragma Singleton\n");
 
-    QmlDesigner::ModelPointer model(QmlDesigner::Model::create("QtObject"));
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = QmlDesigner::Model::create(projectStorageDependencies,
+                                            "QtObject",
+                                            {QmlDesigner::Import::createLibraryImport("QtQtuick")},
+                                            QUrl::fromLocalFile(
+                                                "/path/dummy.qml")); // the dummy file will most probably not work
+#else
+    auto model = QmlDesigner::Model::create("QtObject");
+#endif
+
     QPlainTextEdit editor;
     editor.setPlainText(qmlText);
     QmlDesigner::NotIndentingTextEditModifier modifier(&editor);
@@ -87,8 +99,10 @@ std::optional<QString> modelSerializeHelper(QmlDesigner::ExternalDependenciesInt
 
 namespace QmlDesigner {
 
-DSStore::DSStore(ExternalDependenciesInterface &ed)
+DSStore::DSStore(ExternalDependenciesInterface &ed,
+                 ProjectStorageDependencies projectStorageDependencies)
     : m_ed(ed)
+    , m_projectStorageDependencies(projectStorageDependencies)
 {}
 
 DSStore::~DSStore() {}
@@ -147,7 +161,7 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
     return {};
 }
 
-std::optional<QString> DSStore::save(bool mcuCompatible) const
+std::optional<QString> DSStore::save(bool mcuCompatible)
 {
     if (auto moduleDir = dsModuleDir(m_ed))
         return save(*moduleDir, mcuCompatible);
@@ -155,7 +169,7 @@ std::optional<QString> DSStore::save(bool mcuCompatible) const
     return tr("Can not locate design system module");
 }
 
-std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible) const
+std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool mcuCompatible)
 {
     if (!QDir().mkpath(moduleDirPath.absoluteFilePath().toString()))
         return tr("Can not create design system module directory %1.").arg(moduleDirPath.toString());
@@ -215,8 +229,15 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
     if (!reader.fetch(qmlFilePath, QFile::Text))
         return reader.errorString();
 
-    ModelPointer model(QmlDesigner::Model::create("QtObject"));
-
+#ifdef QDS_USE_PROJECTSTORAGE
+    auto model = QmlDesigner::Model::create(m_projectStorageDependencies,
+                                            "QtObject",
+                                            {QmlDesigner::Import::createLibraryImport("QtQtuick")},
+                                            QUrl::fromLocalFile(
+                                                "/path/dummy.qml")); // the dummy file will most probably not work
+#else
+    auto model = QmlDesigner::Model::create("QtObject");
+#endif
     QPlainTextEdit editor;
     QString qmlContent = QString::fromUtf8(reader.data());
     editor.setPlainText(qmlContent);
@@ -238,7 +259,7 @@ std::optional<QString> DSStore::loadCollection(const QString &typeName,
 std::optional<QString> DSStore::writeQml(const DSThemeManager &mgr,
                                          const QString &typeName,
                                          const Utils::FilePath &targetDir,
-                                         bool mcuCompatible) const
+                                         bool mcuCompatible)
 {
     if (mgr.themeCount() == 0)
         return {};
@@ -249,7 +270,8 @@ std::optional<QString> DSStore::writeQml(const DSThemeManager &mgr,
             mgr.decorateThemeInterface(interfaceModel->rootModelNode());
         };
 
-        if (auto error = modelSerializeHelper(m_ed, decorateInterface, targetDir, themeInterfaceType))
+        if (auto error = modelSerializeHelper(
+                m_projectStorageDependencies, m_ed, decorateInterface, targetDir, themeInterfaceType))
             return tr("Can not write theme interface %1.\n%2").arg(themeInterfaceType, *error);
     }
 
@@ -257,7 +279,8 @@ std::optional<QString> DSStore::writeQml(const DSThemeManager &mgr,
         mgr.decorate(collectionModel->rootModelNode(), themeInterfaceType.toUtf8(), mcuCompatible);
     };
 
-    if (auto error = modelSerializeHelper(m_ed, decorateCollection, targetDir, typeName, true))
+    if (auto error = modelSerializeHelper(
+            m_projectStorageDependencies, m_ed, decorateCollection, targetDir, typeName, true))
         return tr("Can not write collection %1.\n%2").arg(typeName, *error);
 
     return {};

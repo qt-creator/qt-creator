@@ -2,6 +2,8 @@ add_qtc_library(DesignSystem STATIC
   PUBLIC_INCLUDES ${CMAKE_CURRENT_LIST_DIR}
   DEPENDS
     Qt::Core Qt::Widgets QmlDesignerCore TextEditorSupport
+  PUBLIC_DEFINES
+    $<$<BOOL:${USE_PROJECTSTORAGE}>:QDS_USE_PROJECTSTORAGE>
   SOURCES
     dsconstants.h
     dsstore.h dsstore.cpp
