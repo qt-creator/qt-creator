@@ -69,7 +69,7 @@ void Relayer::handleSocketHasData(int socket)
                 m_serverNotifier->setEnabled(true);
                 return;
             }
-            iosTool()->errorMsg(qt_error_string(errno));
+            iosTool()->writeError(qt_error_string(errno));
             close(socket);
             iosTool()->stopRelayServers(-1);
             return;
@@ -86,7 +86,7 @@ void Relayer::handleSocketHasData(int socket)
         while (true) {
             qint64 writtenNow = m_clientSocket->write(buf + int(pos), rRead);
             if (writtenNow == -1) {
-                iosTool()->writeMsg(m_clientSocket->errorString());
+                iosTool()->writeError(m_clientSocket->errorString());
                 iosTool()->stopRelayServers(-1);
                 return;
             }
@@ -110,7 +110,7 @@ void Relayer::handleClientHasData()
             toRead = sizeof(buf)-1;
         qint64 rRead = m_clientSocket->read(buf, toRead);
         if (rRead == -1) {
-            iosTool()->errorMsg(m_clientSocket->errorString());
+            iosTool()->writeError(m_clientSocket->errorString());
             iosTool()->stopRelayServers();
             return;
         }
@@ -137,7 +137,7 @@ void Relayer::handleClientHasData()
                     }
                     continue;
                 }
-                iosTool()->errorMsg(qt_error_string(errno));
+                iosTool()->writeError(qt_error_string(errno));
                 iosTool()->stopRelayServers();
                 return;
             }
@@ -157,7 +157,7 @@ void Relayer::handleClientHasData()
 
 void Relayer::handleClientHasError(QAbstractSocket::SocketError error)
 {
-    iosTool()->errorMsg(tr("iOS Debugging connection to creator failed with error %1").arg(error));
+    iosTool()->writeError(tr("iOS debugging connection failed with error %1").arg(error));
     server()->removeRelayConnection(this);
 }
 
@@ -207,7 +207,7 @@ RemotePortRelayer::RemotePortRelayer(QmlRelayServer *parent, QTcpSocket *clientS
 
 void RemotePortRelayer::tryRemoteConnect()
 {
-    iosTool()->errorMsg(QLatin1String("tryRemoteConnect"));
+    iosTool()->writeMsg(QLatin1String("tryRemoteConnect"));
     if (m_serverFileDescriptor > 0)
         return;
     ServiceSocket ss;
@@ -216,15 +216,16 @@ void RemotePortRelayer::tryRemoteConnect()
         return;
     if (grServer->m_deviceSession->connectToPort(grServer->m_remotePort, &ss)) {
         if (ss > 0) {
-            iosTool()->errorMsg(QString::fromLatin1("tryRemoteConnect *succeeded* on remote port %1")
-                                .arg(grServer->m_remotePort));
+            iosTool()->writeMsg(
+                QString::fromLatin1("tryRemoteConnect *succeeded* on remote port %1")
+                    .arg(grServer->m_remotePort));
             startRelay(ss);
             emit didConnect(grServer);
             return;
         }
     }
-    iosTool()->errorMsg(QString::fromLatin1("tryRemoteConnect *failed* on remote port %1")
-                        .arg(grServer->m_remotePort));
+    iosTool()->writeMsg(QString::fromLatin1("tryRemoteConnect *failed* on remote port %1")
+                            .arg(grServer->m_remotePort));
     m_remoteConnectTimer.start();
 }
 
@@ -277,7 +278,7 @@ IosTool *RelayServer::iosTool() const
 
 void RelayServer::handleNewRelayConnection()
 {
-    iosTool()->errorMsg(QLatin1String("handleNewRelayConnection"));
+    iosTool()->writeMsg(QLatin1String("handleNewRelayConnection"));
     newRelayConnection();
 }
 
@@ -318,7 +319,7 @@ QmlRelayServer::QmlRelayServer(IosTool *parent, int remotePort,
     m_remotePort(remotePort),
     m_deviceSession(deviceSession)
 {
-    parent->errorMsg(QLatin1String("created qml server"));
+    parent->writeMsg(QLatin1String("created qml server"));
 }
 
 
@@ -327,7 +328,7 @@ void QmlRelayServer::newRelayConnection()
     QTcpSocket *clientSocket = m_ipv4Server.hasPendingConnections()
             ? m_ipv4Server.nextPendingConnection() : m_ipv6Server.nextPendingConnection();
     if (clientSocket) {
-        iosTool()->errorMsg(QString::fromLatin1("setting up relayer for new connection"));
+        iosTool()->writeMsg(QString::fromLatin1("setting up relayer for new connection"));
         RemotePortRelayer *newConnection = new RemotePortRelayer(this, clientSocket);
         m_connections.append(newConnection);
         newConnection->tryRemoteConnect();

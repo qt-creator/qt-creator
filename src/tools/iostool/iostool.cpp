@@ -92,7 +92,7 @@ void IosTool::run(const QStringList &args)
         bool ok = false;
         timeout = cmdLineParser.value("timeout").toInt(&ok);
         if (!ok || timeout < 0) {
-            writeMsg("timeout value should be an integer");
+            writeError("timeout value should be an integer");
             printHelp = true;
         }
     }
@@ -118,7 +118,8 @@ void IosTool::run(const QStringList &args)
     connect(manager, &IosDeviceManager::didStartApp, this, &IosTool::didStartApp);
     connect(manager, &IosDeviceManager::deviceInfo, this, &IosTool::deviceInfo);
     connect(manager, &IosDeviceManager::appOutput, this, &IosTool::appOutput);
-    connect(manager, &IosDeviceManager::errorMsg, this, &IosTool::errorMsg);
+    connect(manager, &IosDeviceManager::message, this, &IosTool::writeMsg);
+    connect(manager, &IosDeviceManager::errorMsg, this, &IosTool::writeError);
     manager->watchDevices();
     const QRegularExpression qmlPortRe(QLatin1String("-qmljsdebugger=port:([0-9]+)"));
     for (const QString &arg : extraArgs) {
@@ -233,12 +234,12 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
         return;
     }
     if (gdbFd <= 0) {
-        writeMsg("no gdb connection");
+        writeError("no gdb connection");
         doExit(-2);
         return;
     }
     if (m_requestedOperation != IosDeviceManager::InstallAndRun && m_requestedOperation != IosDeviceManager::Run) {
-        writeMsg(QString::fromLatin1("unexpected appOp value %1").arg(m_requestedOperation));
+        writeError(QString::fromLatin1("unexpected appOp value %1").arg(m_requestedOperation));
         doExit(-3);
         return;
     }
@@ -283,15 +284,15 @@ void IosTool::didStartApp(const QString &bundlePath, const QString &deviceId,
     }
 }
 
-void IosTool::writeMsg(const char *msg)
-{
-    writeMsg(QString::fromLatin1(msg));
-}
-
 void IosTool::writeMsg(const QString &msg)
 {
+    writeMessageElement(msg, "msg");
+}
+
+void IosTool::writeMessageElement(const QString &msg, const QString &element)
+{
     QMutexLocker l(&m_xmlMutex);
-    m_xmlWriter.writeStartElement(QLatin1String("msg"));
+    m_xmlWriter.writeStartElement(element);
     writeTextInElement(msg);
     m_xmlWriter.writeCharacters(QLatin1String("\n"));
     m_xmlWriter.writeEndElement();
@@ -380,15 +381,15 @@ void IosTool::readStdin()
     int c = getchar();
     if (c == 'k') {
         QMetaObject::invokeMethod(this, "stopGdbRunner");
-        errorMsg(QLatin1String("iostool: Killing inferior.\n"));
+        writeError(QLatin1String("iostool: Killing inferior.\n"));
     } else if (c != EOF) {
-        errorMsg(QLatin1String("iostool: Unexpected character in stdin, stop listening.\n"));
+        writeError(QLatin1String("iostool: Unexpected character in stdin, stop listening.\n"));
     }
 }
 
-void IosTool::errorMsg(const QString &msg)
+void IosTool::writeError(const QString &msg)
 {
-    writeMsg(msg);
+    writeMessageElement(msg, "error");
 }
 
 void IosTool::stopGdbRunner()

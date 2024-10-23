@@ -6,6 +6,10 @@
     \title Qt Documentation
 */
 /*!
+    \externalpage https://www.freedesktop.org/software/systemd/man/latest/systemd-coredump.html
+    \title systemd-coredump
+*/
+/*!
     \externalpage https://www.perforce.com/manuals/cmdref/Content/CmdRef/P4CONFIG.html
     \title Perforce: P4CONFIG
 */
@@ -232,4 +236,8 @@
 /*!
     \externalpage https://www.openssh.com/
     \title OpenSSH
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/jsonschemas/project.json
+    \title project.json
 */

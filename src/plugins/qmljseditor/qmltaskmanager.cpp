@@ -126,7 +126,7 @@ void QmlTaskManager::updateSemanticMessagesNow()
         // abort any update that's going on already, and remove old codemodel warnings
         m_messageCollector.cancel();
         removeAllTasks(true);
-        buildSystem->buildTarget(Constants::QMLLINT_BUILD_TARGET);
+        buildSystem->buildNamedTarget(Constants::QMLLINT_BUILD_TARGET);
         return;
     }
 

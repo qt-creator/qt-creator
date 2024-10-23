@@ -95,7 +95,7 @@
         \li Add and remove subprojects.
         \li Find unused functions.
         \li Search in the selected directory.
-
+        \li View version control system log for the current directory.
         \li Open a terminal window in the project directory. To specify the
             terminal to use on Linux and \macos, select \preferences >
             \uicontrol Environment > \uicontrol System.

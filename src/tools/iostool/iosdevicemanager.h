@@ -58,6 +58,7 @@ signals:
                      Ios::DeviceSession *deviceSession);
     void deviceInfo(const QString &deviceId, const Ios::IosDeviceManager::Dict &info);
     void appOutput(const QString &output);
+    void message(const QString &msg);
     void errorMsg(const QString &msg);
 
 private:

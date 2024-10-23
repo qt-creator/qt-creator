@@ -9,6 +9,7 @@
 #include "extensionsmodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwelcomepage.h>
@@ -27,6 +28,7 @@
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
+#include <utils/infobar.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
@@ -239,6 +241,8 @@ private:
     QString m_currentVendor;
 };
 
+const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
+
 class PluginStatusWidget : public QWidget
 {
 public:
@@ -246,9 +250,7 @@ public:
         : QWidget(parent)
     {
         m_label = new InfoLabel;
-        m_switch = new Switch(Tr::tr("Load on start"));
-        m_restartButton = new Button(Tr::tr("Restart Now"), Button::MediumPrimary);
-        m_restartButton->setVisible(false);
+        m_switch = new Switch(Tr::tr("Active"));
         m_pluginView.hide();
         setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum);
 
@@ -256,7 +258,6 @@ public:
         Column {
             m_label,
             m_switch,
-            m_restartButton,
         }.attachTo(this);
 
         connect(m_switch, &QCheckBox::clicked, this, [this](bool checked) {
@@ -265,7 +266,18 @@ public:
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
-                m_restartButton->show();
+                if (!ICore::infoBar()->canInfoBeAdded(kRestartSetting))
+                    return;
+
+                Utils::InfoBarEntry info(
+                    kRestartSetting,
+                    Core::Tr::tr("Plugin changes will take effect after restart."));
+                info.addCustomButton(Tr::tr("Restart Now"), [] {
+                    ICore::infoBar()->removeInfo(kRestartSetting);
+                    QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+                });
+                ICore::infoBar()->addInfo(info);
+
                 ExtensionSystem::PluginManager::writeSettings();
             } else {
                 m_switch->setChecked(!checked);
@@ -274,8 +286,6 @@ public:
 
         connect(ExtensionSystem::PluginManager::instance(),
                 &ExtensionSystem::PluginManager::pluginsChanged, this, &PluginStatusWidget::update);
-        connect(m_restartButton, &QAbstractButton::clicked,
-                ICore::instance(), &ICore::restart, Qt::QueuedConnection);
 
         update();
     }
@@ -311,7 +321,6 @@ private:
 
     InfoLabel *m_label;
     Switch *m_switch;
-    QAbstractButton *m_restartButton;
     QString m_pluginId;
     ExtensionSystem::PluginView m_pluginView{this};
 };
@@ -493,7 +502,6 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         WelcomePageHelpers::createRule(Qt::Vertical),
         Column {
             m_secondaryContent,
-            m_pluginStatus,
         },
         noMargin, spacing(0),
     }.attachTo(m_secondaryDescriptionWidget);
@@ -501,8 +509,9 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     Row {
         Row {
             Column {
-                Column {
+                Row {
                     m_headingWidget,
+                    m_pluginStatus,
                     customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
                                   SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
                 },

@@ -35,9 +35,24 @@
 
 namespace Utils {
 
-static DeviceFileHooks s_deviceHooks;
-inline bool isWindowsDriveLetter(QChar ch);
+static DeviceFileHooks &deviceFileHooks()
+{
+    static DeviceFileHooks theDeviceHooks;
+    return theDeviceHooks;
+}
 
+void DeviceFileHooks::setupDeviceFileHooks(const DeviceFileHooks &hooks)
+{
+    static bool wasAlreadySet = false;
+    QTC_ASSERT(!wasAlreadySet, return);
+    wasAlreadySet = true;
+    deviceFileHooks() = hooks;
+}
+
+static bool isWindowsDriveLetter(QChar ch)
+{
+    return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
+}
 
 /*!
     \class Utils::FilePath
@@ -326,6 +341,11 @@ bool FilePath::equalsCaseSensitive(const FilePath &other) const
 Utils::expected_str<std::unique_ptr<FilePathWatcher>> FilePath::watch() const
 {
     return fileAccess()->watch(*this);
+}
+
+void FilePath::openTerminal(const Environment &env) const
+{
+    deviceFileHooks().openTerminal(*this, env);
 }
 
 /*!
@@ -705,8 +725,8 @@ expected_str<QByteArray> FilePath::fileContents(qint64 maxSize, qint64 offset) c
 bool FilePath::ensureReachable(const FilePath &other) const
 {
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.ensureReachable, return false);
-        return s_deviceHooks.ensureReachable(*this, other);
+        QTC_ASSERT(deviceFileHooks().ensureReachable, return false);
+        return deviceFileHooks().ensureReachable(*this, other);
     } else if (!other.needsDevice()) {
         return true;
     }
@@ -747,8 +767,8 @@ bool FilePath::isSameDevice(const FilePath &other) const
     if (!needsDevice() && !other.needsDevice())
         return true;
 
-    QTC_ASSERT(s_deviceHooks.isSameDevice, return true);
-    return s_deviceHooks.isSameDevice(*this, other);
+    QTC_ASSERT(deviceFileHooks().isSameDevice, return true);
+    return deviceFileHooks().isSameDevice(*this, other);
 }
 
 bool FilePath::isSameFile(const FilePath &other) const
@@ -1116,8 +1136,8 @@ QString FilePath::displayName(const QString &args) const
 {
     QString deviceName;
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.deviceDisplayName, return nativePath());
-        deviceName = s_deviceHooks.deviceDisplayName(*this);
+        QTC_ASSERT(deviceFileHooks().deviceDisplayName, return nativePath());
+        deviceName = deviceFileHooks().deviceDisplayName(*this);
     }
 
     const QString fullPath = nativePath();
@@ -1167,11 +1187,6 @@ FilePath FilePath::fromString(const QString &filepath)
     FilePath fn;
     fn.setFromString(filepath);
     return fn;
-}
-
-bool isWindowsDriveLetter(QChar ch)
-{
-    return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z');
 }
 
 void FilePath::setPath(QStringView path)
@@ -1250,13 +1265,13 @@ static expected_str<DeviceFileAccess *> getFileAccess(const FilePath &filePath)
     if (!filePath.needsDevice())
         return DesktopDeviceFileAccess::instance();
 
-    if (!s_deviceHooks.fileAccess) {
+    if (!deviceFileHooks().fileAccess) {
         // Happens during startup and in tst_fsengine
         QTC_CHECK(false);
         return DesktopDeviceFileAccess::instance();
     }
 
-    return s_deviceHooks.fileAccess(filePath);
+    return deviceFileHooks().fileAccess(filePath);
 }
 
 DeviceFileAccess *FilePath::fileAccess() const
@@ -1863,8 +1878,8 @@ Environment FilePath::deviceEnvironment() const
 expected_str<Environment> FilePath::deviceEnvironmentWithError() const
 {
     if (needsDevice()) {
-        QTC_ASSERT(s_deviceHooks.environment, return {});
-        return s_deviceHooks.environment(*this);
+        QTC_ASSERT(deviceFileHooks().environment, return {});
+        return deviceFileHooks().environment(*this);
     }
     return Environment::systemEnvironment();
 }
@@ -1976,8 +1991,8 @@ OsType FilePath::osType() const
     if (!needsDevice())
         return HostOsInfo::hostOs();
 
-    QTC_ASSERT(s_deviceHooks.osType, return HostOsInfo::hostOs());
-    return s_deviceHooks.osType(*this);
+    QTC_ASSERT(deviceFileHooks().osType, return HostOsInfo::hostOs());
+    return deviceFileHooks().osType(*this);
 }
 
 Result FilePath::removeFile() const
@@ -2295,9 +2310,9 @@ expected_str<FilePath> FilePath::localSource() const
     if (!needsDevice())
         return *this;
 
-    QTC_ASSERT(s_deviceHooks.localSource,
+    QTC_ASSERT(deviceFileHooks().localSource,
                return make_unexpected(Tr::tr("No \"localSource\" device hook set.")));
-    return s_deviceHooks.localSource(*this);
+    return deviceFileHooks().localSource(*this);
 }
 
 /*!
@@ -2434,11 +2449,6 @@ QStringList FileFilter::asFindArguments(const QString &path) const
     }
     arguments << filterOptions;
     return arguments;
-}
-
-DeviceFileHooks &DeviceFileHooks::instance()
-{
-    return s_deviceHooks;
 }
 
 QTCREATOR_UTILS_EXPORT bool operator==(const FilePath &first, const FilePath &second)

@@ -337,7 +337,7 @@ QString Environment::expandVariables(const QString &input) const
 
 FilePath Environment::expandVariables(const FilePath &variables) const
 {
-    return FilePath::fromString(expandVariables(variables.toString()));
+    return FilePath::fromUserInput(expandVariables(variables.toString()));
 }
 
 QStringList Environment::expandVariables(const QStringList &variables) const

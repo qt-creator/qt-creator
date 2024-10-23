@@ -314,6 +314,7 @@ public:
     bool equalsCaseSensitive(const FilePath &other) const;
 
     Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch() const;
+    void openTerminal(const Environment &env) const;
 
 private:
     // These are needed.
@@ -349,8 +350,6 @@ private:
 class QTCREATOR_UTILS_EXPORT DeviceFileHooks
 {
 public:
-    static DeviceFileHooks &instance();
-
     std::function<expected_str<DeviceFileAccess *>(const FilePath &)> fileAccess;
     std::function<QString(const FilePath &)> deviceDisplayName;
     std::function<bool(const FilePath &, const FilePath &)> ensureReachable;
@@ -359,7 +358,11 @@ public:
     std::function<expected_str<FilePath>(const FilePath &)> localSource;
     std::function<void(const FilePath &, const Environment &)> openTerminal;
     std::function<OsType(const FilePath &)> osType;
+
+    // Only call once.
+    static void setupDeviceFileHooks(const DeviceFileHooks &hooks);
 };
+
 
 // For testing
 QTCREATOR_UTILS_EXPORT QString doCleanPath(const QString &input);

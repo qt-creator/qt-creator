@@ -4,6 +4,8 @@
 #include "effectshaderscodeeditor.h"
 #include "effectcodeeditorwidget.h"
 
+#include <utils/fileutils.h>
+
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 

@@ -248,13 +248,10 @@ FilePath WorkingDirectoryAspect::workingDirectory() const
 {
     const Environment env = m_envAspect ? m_envAspect->environment()
                                         : Environment::systemEnvironment();
-    QString workingDir = m_workingDirectory.path();
-    if (auto expander = macroExpander())
-        workingDir = expander->expandProcessArgs(workingDir);
-
-    QString res = workingDir.isEmpty() ? QString() : QDir::cleanPath(env.expandVariables(workingDir));
-
-    return m_workingDirectory.withNewPath(res);
+    const FilePath workingDir = macroExpander()->expand(m_workingDirectory);
+    if (m_envAspect)
+        return env.expandVariables(workingDir);
+    return workingDir;
 }
 
 FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
@@ -331,9 +328,11 @@ QString ArgumentsAspect::arguments() const
         return m_arguments;
 
     m_currentlyExpanding = true;
-    const QString expanded = macroExpander()->expandProcessArgs(m_arguments);
+    const expected_str<QString> expanded = macroExpander()->expandProcessArgs(m_arguments);
+    QTC_ASSERT_EXPECTED(expanded, return m_arguments);
+
     m_currentlyExpanding = false;
-    return expanded;
+    return *expanded;
 }
 
 /*!
@@ -956,8 +955,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
-                  "RunConfiguration.UseX11Forwarding");
+    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Enable"), "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
@@ -965,7 +963,7 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
 
 QString X11ForwardingAspect::display() const
 {
-    return !isChecked() ? QString() : macroExpander()->expandProcessArgs(value());
+    return !isChecked() ? QString() : macroExpander()->expand(value());
 }
 
 
