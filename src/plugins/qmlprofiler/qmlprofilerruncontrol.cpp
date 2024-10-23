@@ -162,15 +162,9 @@ void QmlProfilerRunner::profilerStateChanged()
     }
 }
 
-void QmlProfilerRunner::setServerUrl(const QUrl &serverUrl)
-{
-    recordData(QmlServerUrl, serverUrl);
-}
-
 QUrl QmlProfilerRunner::serverUrl() const
 {
-    QVariant recordedServer = recordedData(QmlServerUrl);
-    return recordedServer.toUrl();
+    return runControl()->qmlChannel();
 }
 
 //
@@ -205,7 +199,6 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     setId("LocalQmlProfilerSupport");
 
     auto profiler = new QmlProfilerRunner(runControl);
-    profiler->setServerUrl(serverUrl);
 
     addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.

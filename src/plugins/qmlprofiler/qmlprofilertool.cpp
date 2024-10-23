@@ -603,8 +603,9 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->copyDataFromRunConfiguration(ProjectManager::startupRunConfiguration());
-    auto profiler = new QmlProfilerRunner(runControl);
-    profiler->setServerUrl(serverUrl);
+    // The object as such is needed, the RunWorker becomes part of the RunControl at construction time,
+    // similar to how QObject children are owned by their parents
+    [[maybe_unused]] auto profiler = new QmlProfilerRunner(runControl);
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);
