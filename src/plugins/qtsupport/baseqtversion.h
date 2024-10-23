@@ -192,6 +192,7 @@ public:
     QSet<Utils::Id> features() const;
 
     virtual bool supportsMultipleQtAbis() const;
+    virtual bool isAndroidQtVersion() const { return false; };
 
 protected:
     QtVersion();
