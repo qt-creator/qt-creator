@@ -212,10 +212,6 @@ private slots:
             << QString("sh -c 'echo %{WithSpace}'") << QString("sh -c 'echo This has spaces'")
             << Utils::OsTypeLinux << withspace;
 
-        // Due to security concerns, backslash-escaping an expando is treated as a quoting error
-        QTest::newRow("backslash-escaping")
-            << QString("echo \\%{file}") << QString("echo \\%{file}") << Utils::OsTypeLinux << file;
-
         QTest::newRow("expando-within-shell-substitution")
             << QString("${VAR:-%{file}}") << QString("${VAR:-foo.txt}") << Utils::OsTypeLinux
             << file;
@@ -286,7 +282,6 @@ private slots:
                Val{"%{x}", "\\", OsTypeWindows},
                Val{"%{y}", "\"\"\\^\"\"\"", OsTypeWindows},
                Val{"%{z}", "\"\"", OsTypeWindows},
-               Val{"^%{z}%{z}", "^%{z}%{z}", OsTypeWindows}, // stupid user check
 
                Val{"quoted", 0, OsTypeWindows},
                Val{"\"%{a}\"", "\"hi\"", OsTypeWindows},
@@ -440,7 +435,6 @@ private slots:
                Val{"%{e}", "'h\"i'", OsTypeLinux},
                Val{"%{f}", "'h'\\''i'", OsTypeLinux},
                Val{"%{z}", "''", OsTypeLinux},
-               Val{"\\%{z}%{z}", "\\%{z}%{z}", OsTypeLinux}, // stupid user check
 
                Val{"single-quoted", 0, OsTypeLinux},
                Val{"'%{a}'", "'hi'", OsTypeLinux},
@@ -495,7 +489,6 @@ private slots:
         MacroExpander expander;
 
         if (os == Utils::OsTypeWindows) {
-            expander.registerVariable("a", "", [] { return "hi"; });
             expander.registerVariable("aa", "", [] { return "hi ho"; });
             expander.registerVariable("b", "", [] { return "h\\i"; });
             expander.registerVariable("c", "", [] { return "\\hi"; });
@@ -512,18 +505,30 @@ private slots:
             expander.registerVariable("k", "", [] { return "&special;"; });
             expander.registerVariable("x", "", [] { return "\\"; });
             expander.registerVariable("y", "", [] { return "\""; });
-            expander.registerVariable("z", "", [] { return ""; });
         } else {
-            expander.registerVariable("a", "", [] { return "hi"; });
             expander.registerVariable("b", "", [] { return "hi ho"; });
             expander.registerVariable("c", "", [] { return "&special;"; });
             expander.registerVariable("d", "", [] { return "h\\i"; });
             expander.registerVariable("e", "", [] { return "h\"i"; });
             expander.registerVariable("f", "", [] { return "h'i"; });
-            expander.registerVariable("z", "", [] { return ""; });
         }
+        expander.registerVariable("a", "", [] { return "hi"; });
+        expander.registerVariable("z", "", [] { return ""; });
 
         QCOMPARE(expander.expandProcessArgs(in, os), out);
+    }
+
+    void testProcessArgsFails()
+    {
+        MacroExpander expander;
+
+        expander.registerVariable("z", "", [] { return ""; });
+        expander.registerVariable("file", "", [] { return "foo.txt"; });
+
+        QVERIFY(!expander.expandProcessArgs("\\%{z}%{z}", OsTypeLinux));
+        QVERIFY(!expander.expandProcessArgs("echo \\%{file}", OsTypeLinux));
+
+        QVERIFY(!expander.expandProcessArgs("^%{z}%{z}", OsTypeWindows));
     }
 
     void testMacroExpander_data()
