@@ -246,12 +246,10 @@ void WorkingDirectoryAspect::toMap(Store &data) const
 */
 FilePath WorkingDirectoryAspect::workingDirectory() const
 {
-    const Environment env = m_envAspect ? m_envAspect->environment()
-                                        : Environment::systemEnvironment();
     const FilePath workingDir = macroExpander()->expand(m_workingDirectory);
     if (m_envAspect)
-        return env.expandVariables(workingDir);
-    return workingDir;
+        return m_envAspect->environment().expandVariables(workingDir);
+    return workingDir.deviceEnvironment().expandVariables(workingDir);
 }
 
 FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
