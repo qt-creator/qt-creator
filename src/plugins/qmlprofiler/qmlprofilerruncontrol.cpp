@@ -163,11 +163,6 @@ void QmlProfilerRunner::profilerStateChanged()
     }
 }
 
-QUrl QmlProfilerRunner::serverUrl() const
-{
-    return runControl()->qmlChannel();
-}
-
 //
 // LocalQmlProfilerSupport
 //
@@ -206,9 +201,9 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     // In the TCP case, it doesn't hurt either to start the profiler before.
     addStartDependency(profiler);
 
-    setStartModifier([this, profiler, serverUrl] {
+    setStartModifier([this, runControl, serverUrl] {
 
-        QUrl serverUrl = profiler->serverUrl();
+        QUrl serverUrl = runControl->qmlChannel();
         QString code;
         if (serverUrl.scheme() == Utils::urlSocketScheme())
             code = QString("file:%1").arg(serverUrl.path());

@@ -24,8 +24,6 @@ public:
     QmlProfilerRunner(ProjectExplorer::RunControl *runControl);
     ~QmlProfilerRunner() override;
 
-    QUrl serverUrl() const;
-
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
 
     void cancelProcess();

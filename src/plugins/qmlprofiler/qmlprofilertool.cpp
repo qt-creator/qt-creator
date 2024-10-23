@@ -429,7 +429,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         infoBox->show();
     }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
 
-    d->m_profilerConnections->connectToServer(runWorker->serverUrl());
+    d->m_profilerConnections->connectToServer(runControl->qmlChannel());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 
