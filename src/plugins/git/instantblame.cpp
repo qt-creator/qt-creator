@@ -113,24 +113,32 @@ QString BlameMark::toolTipText(const CommitInfo &info) const
 {
     const ColorNames colors = GitClient::colorNames();
 
-    QString result = QString(
-                         "<table cellspacing=\"10\"><tr>"
-                         "  <td><a href=\"blame\">Blame %2</a></td>"
-                         "  <td><a href=\"blameParent\">Blame Parent</a></td>"
-                         "  <td><a href=\"showFile\">File at %2</a></td>"
-                         "  <td><a href=\"logLine\">Log for line %4</a></td>"
-                         "</tr></table>"
-                         "<p></p>"
+    QString actions;
+    if (!info.modified) {
+         actions = QString(
+                      "<table cellspacing=\"10\"><tr>"
+                      "  <td><a href=\"blame\">Blame %1</a></td>"
+                      "  <td><a href=\"blameParent\">Blame Parent</a></td>"
+                      "  <td><a href=\"showFile\">File at %1</a></td>"
+                      "  <td><a href=\"logLine\">Log for line %2</a></td>"
+                      "</tr></table>"
+                      "<p></p>")
+                      .arg(info.hash.left(8), QString::number(info.line));
+    }
+
+    const QString header = QString(
                          "<table>"
-                         "  <tr><td>commit</td><td><a style=\"color: %1;\" href=\"show\">%3</a></td></tr>"
-                         "  <tr><td>Author:</td><td style=\"color: %5;\">%6 &lt;%7&gt;</td></tr>"
-                         "  <tr><td>Date:</td><td style=\"color: %8;\">%9</td></tr>"
+                         "  <tr><td>commit</td><td><a style=\"color: %1;\" href=\"show\">%2</a></td></tr>"
+                         "  <tr><td>Author:</td><td style=\"color: %3;\">%4 &lt;%5&gt;</td></tr>"
+                         "  <tr><td>Date:</td><td style=\"color: %6;\">%7</td></tr>"
                          "</table>"
-                         "<p style=\"color: %10;\">%11</p>")
-                         .arg(colors.hash, info.hash.left(8), info.hash, QString::number(info.line),
+                         "<p style=\"color: %8;\">%9</p>")
+                         .arg(colors.hash, info.hash,
                               colors.author, info.author, info.authorMail,
                               colors.date, info.authorDate.toString("yyyy-MM-dd hh:mm:ss"),
                               colors.subject, info.subject);
+
+    QString result = actions + header;
 
     QString diff;
     if (!info.oldLines.isEmpty()) {
@@ -276,12 +284,15 @@ void InstantBlame::setup()
 static CommitInfo parseBlameOutput(const QStringList &blame, const Utils::FilePath &filePath,
                                    int line, const Git::Internal::Author &author)
 {
+    static const QString uncommittedHash(40, '0');
+
     CommitInfo result;
     if (blame.size() <= 12)
         return result;
 
     const QStringList firstLineParts = blame.at(0).split(" ");
     result.hash = firstLineParts.first();
+    result.modified = result.hash == uncommittedHash;
     result.author = blame.at(1).mid(7);
     result.authorMail = blame.at(2).mid(13).chopped(1);
     if (result.author == author.name || result.authorMail == author.email)
@@ -407,8 +418,7 @@ void InstantBlame::perform()
         const CommitInfo info = parseBlameOutput(output.split('\n'), filePath, line, m_author);
         m_blameMark.reset(new BlameMark(filePath, line, info));
 
-        static const QString uncommittedHash(40, '0');
-        if (info.hash == uncommittedHash)
+        if (info.modified)
             return;
 
         // Get line diff: `git log -n 1 -p -L47,47:README.md a5c4c34c9ab4`

@@ -31,6 +31,7 @@ public:
     QString originalFileName; ///< relative file path from project root for the original file
     int line = -1;            ///< current line number in current file
     int originalLine = -1;    ///< original line number in the original file
+    bool modified = false;    ///< line is locally modified (uncommitted)
 };
 
 class BlameMark : public TextEditor::TextMark
