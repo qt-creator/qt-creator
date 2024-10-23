@@ -43,7 +43,7 @@ QString ComboBoxHelper::text(int index) const
     return model->item(index)->text();
 }
 
-int ComboBoxHelper::indexOf(const QString &text) const
+int ComboBoxHelper::indexOf(const QString &) const
 {
     QTC_ASSERT(m_field, return -1);
 

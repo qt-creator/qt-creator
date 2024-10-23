@@ -1574,7 +1574,7 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
 }
 
 // Return name for the image property Image element
-QString EffectComposerModel::getImageElementName(const Uniform &uniform, bool localFiles)
+QString EffectComposerModel::getImageElementName(const Uniform &uniform, bool)
 {
     QString simplifiedName = uniform.name().simplified();
     simplifiedName = simplifiedName.remove(' ');
