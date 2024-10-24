@@ -285,6 +285,8 @@ void ModelPrivate::setFileUrl(const QUrl &fileUrl)
             m_sourceId = pathCache->sourceId(SourcePath{path});
             auto found = std::find(path.rbegin(), path.rend(), u'/').base();
             m_localPath = Utils::PathString{QStringView{path.begin(), std::prev(found)}};
+            auto imports = createStorageImports(m_imports, m_localPath, *projectStorage, m_sourceId);
+            projectStorage->synchronizeDocumentImports(std::move(imports), m_sourceId);
         }
 
         for (const QPointer<AbstractView> &view : std::as_const(m_viewList))

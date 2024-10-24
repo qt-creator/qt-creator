@@ -1438,4 +1438,16 @@ TEST_F(Model_FileUrl, do_not_notify_if_there_is_no_change)
 
     model.setFileUrl(fileUrl);
 }
+
+TEST_F(Model_FileUrl, updated_local_path_module)
+{
+    auto localPathModuleId = projectStorageMock.moduleId("/path", ModuleKind::PathLibrary);
+
+    EXPECT_CALL(projectStorageMock,
+                synchronizeDocumentImports(Contains(IsImport(localPathModuleId, barSourceId, -1, -1)),
+                                           barSourceId));
+
+    model.setFileUrl(barFilePathUrl);
+}
+
 } // namespace
