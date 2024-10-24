@@ -53,10 +53,11 @@ void fillRemainingViewportWidth(QWidget *widget, const QSize &viewportSize, cons
 }
 
 QPoint getPositionOnViewport(const BaseTextEditor * const editor, const QWidget * const widget,
-                             int basePostion, const QSize &viewportSize, const QMargins &margins)
+                             int basePos, int xPos, const QSize &viewportSize,
+                             const QMargins &margins)
 {
     QTextCursor cursor = QTextCursor(editor->textDocument()->document());
-    cursor.setPosition(basePostion);
+    cursor.setPosition(basePos);
 
     const QRect cursorRect = editor->editorWidget()->cursorRect(cursor);
     QPoint widgetPosDefault = cursorRect.bottomLeft();
@@ -83,15 +84,15 @@ QPoint getPositionOnViewport(const BaseTextEditor * const editor, const QWidget 
         maxY = 0;
     }
 
-    int x = widgetPosDefault.x() > maxX ? maxX : widgetPosDefault.x();
+    int x = xPos != -1 ? xPos : std::min(widgetPosDefault.x(), maxX);
     int y = widgetPosDefault.y()  + fontSize;
-    y = y > maxY ? maxY : y;
+    y = std::min(y, maxY);
 
     return {x, y};
 }
 
-void addFloatingWidget(BaseTextEditor *editor, QWidget *widget, int pos, const QRect &margins,
-                       bool fillWidth = false)
+void addFloatingWidget(BaseTextEditor *editor, QWidget *widget, int yPos, int xPos,
+                       const QRect &margins, bool fillWidth = false)
 {
     QMargins widgetMargins{margins.left(), margins.top(), margins.width(), margins.height()};
 
@@ -99,7 +100,7 @@ void addFloatingWidget(BaseTextEditor *editor, QWidget *widget, int pos, const Q
     TextEditorWidget *editorWidget = editor->editorWidget();
     const QSize viewportSize = editorWidget->viewport()->size();
 
-    widget->move(getPositionOnViewport(editor, widget, pos, viewportSize, widgetMargins));
+    widget->move(getPositionOnViewport(editor, widget, yPos, xPos, viewportSize, widgetMargins));
     if (fillWidth)
         fillRemainingViewportWidth(widget, viewportSize, widgetMargins);
 
@@ -286,20 +287,20 @@ void setupTextEditorModule()
             },
             "addFloatingWidget",
             sol::overload(
-                [](const TextEditorPtr &textEditor, QWidget *widget, int position,
+                [](const TextEditorPtr &textEditor, QWidget *widget, int yPos, int xPos,
                    const QRect &margins, bool fillWidth) {
                     QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, widget, position, margins, fillWidth);
+                    addFloatingWidget(textEditor, widget, yPos, xPos, margins, fillWidth);
                 },
-                [](const TextEditorPtr &textEditor, Layouting::Widget *widget, int position,
+                [](const TextEditorPtr &textEditor, Layouting::Widget *widget, int yPos, int xPos,
                    const QRect &margins, bool fillWidth) {
                     QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, widget->emerge(), position, margins, fillWidth);
+                    addFloatingWidget(textEditor, widget->emerge(), yPos, xPos, margins, fillWidth);
                 },
-                [](const TextEditorPtr &textEditor, Layouting::Layout *layout, int position,
+                [](const TextEditorPtr &textEditor, Layouting::Layout *layout, int yPos, int xPos,
                    const QRect &margins, bool fillWidth = false) {
                     QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, layout->emerge(), position, margins, fillWidth);
+                    addFloatingWidget(textEditor, layout->emerge(), yPos, xPos, margins, fillWidth);
                 }),
             "cursor",
             [](const TextEditorPtr &textEditor) {
