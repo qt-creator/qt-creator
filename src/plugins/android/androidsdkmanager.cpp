@@ -338,7 +338,6 @@ public:
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
                                            AndroidSdkPackage::PackageType type)
     {
-        m_sdkManager.refreshPackages();
         return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
             return p->state() & state && p->type() & type;
         });
@@ -469,6 +468,8 @@ void AndroidSdkManager::refreshPackages()
 {
     if (AndroidConfig::sdkManagerToolPath() != m_d->lastSdkManagerPath)
         reloadPackages();
+    else
+        emit packageReloadFinished();
 }
 
 void AndroidSdkManager::reloadPackages()
@@ -512,7 +513,6 @@ AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 
 const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 {
-    m_sdkManager.refreshPackages();
     return m_allPackages;
 }
 
