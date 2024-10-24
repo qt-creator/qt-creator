@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <QObject>
-#include <QTimer>
+#include <QUdpSocket>
 #include <QWebSocketServer>
 
 #include "device.h"
@@ -37,6 +36,7 @@ public:
 private:
     // Devices management
     QList<QSharedPointer<Device>> m_devices;
+    QList<QSharedPointer<QUdpSocket>> m_udpSockets;
 
     // settings
     const QString m_settingsPath;
@@ -44,6 +44,8 @@ private:
 
 private:
     // internal slots
+    void initUdpDiscovery();
+    void incomingDatagram();
     void incomingConnection();
     void readSettings();
     void writeSettings();

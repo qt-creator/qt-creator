@@ -6,9 +6,8 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
-#include <QJsonObject>
-#include <QRegularExpression>
-#include <QUdpSocket>
+#include <QNetworkDatagram>
+#include <QNetworkInterface>
 
 namespace QmlDesigner::DeviceShare {
 
@@ -20,6 +19,71 @@ DeviceManager::DeviceManager(QObject *parent, const QString &settingsPath)
     if (m_uuid.isEmpty()) {
         m_uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
         writeSettings();
+    }
+    initUdpDiscovery();
+}
+
+void DeviceManager::initUdpDiscovery()
+{
+    const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
+    for (const QNetworkInterface &interface : interfaces) {
+        if (interface.flags().testFlag(QNetworkInterface::IsUp)
+            && interface.flags().testFlag(QNetworkInterface::IsRunning)
+            && !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+            for (const QNetworkAddressEntry &entry : interface.addressEntries()) {
+                if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
+                    QSharedPointer<QUdpSocket> udpSocket = QSharedPointer<QUdpSocket>::create();
+                    connect(udpSocket.data(),
+                            &QUdpSocket::readyRead,
+                            this,
+                            &DeviceManager::incomingDatagram);
+
+                    bool retVal = udpSocket->bind(entry.ip(), 53452, QUdpSocket::ShareAddress);
+
+                    if (!retVal) {
+                        qCWarning(deviceSharePluginLog)
+                            << "UDP:: Failed to bind to UDP port 53452 on" << entry.ip().toString()
+                            << "on interface" << interface.name()
+                            << ". Error:" << udpSocket->errorString();
+                        continue;
+                    }
+
+                    qCDebug(deviceSharePluginLog) << "UDP:: Listening on" << entry.ip().toString()
+                                                  << "port" << udpSocket->localPort();
+                    m_udpSockets.append(udpSocket);
+                }
+            }
+        }
+    }
+}
+
+void DeviceManager::incomingDatagram()
+{
+    const auto udpSocket = qobject_cast<QUdpSocket *>(sender());
+    if (!udpSocket)
+        return;
+
+    while (udpSocket->hasPendingDatagrams()) {
+        const QNetworkDatagram datagram = udpSocket->receiveDatagram();
+        const QJsonDocument doc = QJsonDocument::fromJson(datagram.data());
+        const QJsonObject message = doc.object();
+
+        if (message["name"].toString() != "__qtuiviewer__") {
+            continue;
+        }
+
+        const QString id = message["id"].toString();
+        const QString ip = datagram.senderAddress().toString();
+        qCDebug(deviceSharePluginLog) << "Qt UI VIewer found at" << ip << "with id" << id;
+
+        for (const auto &device : m_devices) {
+            if (device->deviceInfo().deviceId() == id) {
+                if (device->deviceSettings().ipAddress() != ip) {
+                    qCDebug(deviceSharePluginLog) << "Updating IP address for device" << id;
+                    setDeviceIP(id, ip);
+                }
+            }
+        }
     }
 }
 
