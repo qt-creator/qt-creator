@@ -340,6 +340,7 @@ public:
     LineEdit(std::initializer_list<I> ps);
 
     QString text() const;
+    void setText(const QString &);
     void setRightSideIconPath(const Utils::FilePath &path);
     void setPlaceHolderText(const QString &text);
     void setCompleter(QCompleter *completer);

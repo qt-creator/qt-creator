@@ -556,7 +556,7 @@ void setupGuiModule()
                 return constructWidgetType<LineEdit>(children, guard);
             }),
             "text",
-            sol::property(&LineEdit::text),
+            sol::property(&LineEdit::text, &LineEdit::setText),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

@@ -1149,6 +1149,11 @@ QString LineEdit::text() const
     return access(this)->text();
 }
 
+void LineEdit::setText(const QString &text)
+{
+    access(this)->setText(text);
+}
+
 void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
 {
     if (!path.isEmpty()) {
