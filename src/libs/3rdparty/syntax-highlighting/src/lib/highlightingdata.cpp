@@ -324,50 +324,6 @@ HighlightingContextData::Rule::~Rule()
     });
 }
 
-HighlightingContextData::ContextSwitch::ContextSwitch(QStringView str)
-{
-    if (str.isEmpty() || str == QStringLiteral("#stay")) {
-        return;
-    }
-
-    while (str.startsWith(QStringLiteral("#pop"))) {
-        ++m_popCount;
-        if (str.size() > 4 && str.at(4) == QLatin1Char('!')) {
-            str = str.mid(5);
-            break;
-        }
-        str = str.mid(4);
-    }
-
-    if (str.isEmpty()) {
-        return;
-    }
-
-    m_contextAndDefName = str.toString();
-    m_defNameIndex = str.indexOf(QStringLiteral("##"));
-}
-
-bool HighlightingContextData::ContextSwitch::isStay() const
-{
-    return m_popCount == -1 && m_contextAndDefName.isEmpty();
-}
-
-QStringView HighlightingContextData::ContextSwitch::contextName() const
-{
-    if (m_defNameIndex == -1) {
-        return m_contextAndDefName;
-    }
-    return QStringView(m_contextAndDefName).left(m_defNameIndex);
-}
-
-QStringView HighlightingContextData::ContextSwitch::defName() const
-{
-    if (m_defNameIndex == -1) {
-        return QStringView();
-    }
-    return QStringView(m_contextAndDefName).mid(m_defNameIndex + 2);
-}
-
 void HighlightingContextData::load(const QString &defName, QXmlStreamReader &reader)
 {
     Q_ASSERT(reader.name() == QLatin1String("context"));

@@ -7,7 +7,6 @@
 
 #include "format.h"
 #include "definition.h"
-#include "definitionref_p.h"
 #include "format_p.h"
 #include "textstyledata_p.h"
 #include "themedata_p.h"
@@ -28,7 +27,7 @@ static Theme::TextStyle stringToDefaultFormat(QStringView str)
     const auto metaEnum = QMetaEnum::fromType<Theme::TextStyle>();
 
     bool ok = false;
-    const auto value = metaEnum.keyToValue(str.mid(2).toLatin1().constData(), &ok);
+    const auto value = metaEnum.keyToValue(str.sliced(2).toLatin1().constData(), &ok);
     if (!ok || value < 0) {
         return Theme::Normal;
     }

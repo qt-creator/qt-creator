@@ -31,14 +31,16 @@ AbstractHighlighterPrivate::~AbstractHighlighterPrivate()
 void AbstractHighlighterPrivate::ensureDefinitionLoaded()
 {
     auto defData = DefinitionData::get(m_definition);
-    if (Q_UNLIKELY(!m_definition.isValid() && defData->repo && !m_definition.name().isEmpty())) {
-        qCDebug(Log) << "Definition became invalid, trying re-lookup.";
-        m_definition = defData->repo->definitionForName(m_definition.name());
-        defData = DefinitionData::get(m_definition);
-    }
+    if (Q_UNLIKELY(!m_definition.isValid())) {
+        if (defData->repo && !defData->name.isEmpty()) {
+            qCDebug(Log) << "Definition became invalid, trying re-lookup.";
+            m_definition = defData->repo->definitionForName(defData->name);
+            defData = DefinitionData::get(m_definition);
+        }
 
-    if (Q_UNLIKELY(!defData->repo && !defData->fileName.isEmpty())) {
-        qCCritical(Log) << "Repository got deleted while a highlighter is still active!";
+        if (Q_UNLIKELY(!defData->repo && !defData->fileName.isEmpty())) {
+            qCCritical(Log) << "Repository got deleted while a highlighter is still active!";
+        }
     }
 
     if (m_definition.isValid()) {

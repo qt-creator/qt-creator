@@ -77,6 +77,9 @@ static inline TextStyleData readThemeData(const QJsonObject &obj)
 
 bool ThemeData::load(const QString &filePath)
 {
+    // flag first as done for the error cases
+    m_completelyLoaded = true;
+
     QFile loadFile(filePath);
     if (!loadFile.open(QIODevice::ReadOnly)) {
         return false;
@@ -93,13 +96,16 @@ bool ThemeData::load(const QString &filePath)
     }
 
     QJsonParseError parseError;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData.mid(start, (end + 1) - start), &parseError);
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonData.sliced(start, (end + 1) - start), &parseError);
     if (parseError.error != QJsonParseError::NoError) {
         qCWarning(Log) << "Failed to parse theme file" << filePath << ":" << parseError.errorString();
         return false;
     }
 
     m_filePath = filePath;
+
+    // we need more data later
+    m_completelyLoaded = false;
 
     // read metadata
     QJsonObject metadata = jsonDoc.object();

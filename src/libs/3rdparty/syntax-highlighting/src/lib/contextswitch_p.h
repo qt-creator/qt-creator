@@ -7,7 +7,7 @@
 #ifndef KSYNTAXHIGHLIGHTING_CONTEXTSWITCH_P_H
 #define KSYNTAXHIGHLIGHTING_CONTEXTSWITCH_P_H
 
-#include <QString>
+#include <QStringView>
 
 namespace KSyntaxHighlighting
 {
@@ -35,7 +35,7 @@ public:
         return m_context;
     }
 
-    void resolve(DefinitionData &def, QStringView contextInstr);
+    void resolve(DefinitionData &def, QStringView context);
 
 private:
     Context *m_context = nullptr;

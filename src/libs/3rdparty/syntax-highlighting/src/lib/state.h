@@ -62,7 +62,7 @@ public:
 
 private:
     friend class StateData;
-    KSYNTAXHIGHLIGHTING_EXPORT friend std::size_t qHash(const State &, std::size_t);
+    friend std::size_t qHash(const State &, std::size_t);
     QExplicitlySharedDataPointer<StateData> d;
 };
 }

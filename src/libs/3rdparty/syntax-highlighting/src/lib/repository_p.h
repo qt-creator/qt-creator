@@ -9,8 +9,9 @@
 
 #include <QHash>
 #include <QList>
-#include <QMap>
 #include <QString>
+
+#include <map>
 
 #include "dynamicregexpcache_p.h"
 
@@ -30,8 +31,9 @@ public:
     void load(Repository *repo);
     void loadSyntaxFolder(Repository *repo, const QString &path);
     bool loadSyntaxFolderFromIndex(Repository *repo, const QString &path);
+    void computeAlternativeDefLists();
 
-    void addDefinition(const Definition &def);
+    void addDefinition(Definition &&def);
 
     void loadThemeFolder(const QString &path);
     void addTheme(const Theme &theme);
@@ -41,8 +43,13 @@ public:
 
     QList<QString> m_customSearchPaths;
 
-    // sorted map to have deterministic iteration order for e.g. definitionsForFileName
-    QMap<QString, Definition> m_defs;
+    // sorted map to have deterministic iteration order
+    std::map<QString, Definition> m_defs;
+    // flat version of m_defs for speed up iterations for e.g. definitionsForFileName
+    QList<Definition> m_flatDefs;
+
+    // map relating all names and alternative names, case insensitively to the correct definition.
+    QHash<QString, Definition> m_fullDefs;
 
     // this vector is sorted by translated sections/names
     QList<Definition> m_sortedDefs;

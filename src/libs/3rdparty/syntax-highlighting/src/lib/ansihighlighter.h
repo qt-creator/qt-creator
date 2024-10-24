@@ -9,6 +9,7 @@
 
 #include "abstracthighlighter.h"
 #include "ksyntaxhighlighting_export.h"
+#include "theme.h"
 
 #include <QFlags>
 #include <QString>
@@ -52,6 +53,8 @@ public:
 
     void setOutputFile(const QString &fileName);
     void setOutputFile(FILE *fileHandle);
+
+    void setBackgroundRole(Theme::EditorColorRole bgRole);
 
 protected:
     void applyFormat(int offset, int length, const Format &format) override;

@@ -57,7 +57,6 @@ Project {
                 "definition_p.h",
                 "definitiondownloader.cpp",
                 "definitiondownloader.h",
-                "definitionref_p.h",
                 "dynamicregexpcache_p.h",
                 "foldingregion.cpp",
                 "foldingregion.h",
