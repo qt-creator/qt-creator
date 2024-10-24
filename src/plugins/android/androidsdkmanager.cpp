@@ -293,21 +293,23 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     };
 
     return Group {
+        continueOnError,
         onGroupSetup(onSetup),
         For (uninstallIterator) >> Do {
-            finishAllAndSuccess,
+            continueOnError,
             ProcessTask(onUninstallSetup, onDone)
         },
         For (installIterator) >> Do {
-            finishAllAndSuccess,
+            continueOnError,
             ProcessTask(onInstallSetup, onDone)
-        }
+        },
+        onGroupDone([dialogStorage] { dialogStorage->m_dialog->setProgress(100); })
     };
 }
 
 static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
 {
-    const auto onUpdateSetup = [dialogStorage](Process &process) {
+    const auto onSetup = [dialogStorage](Process &process) {
         const QStringList args = {"--update", sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, 0, 1);
@@ -318,7 +320,7 @@ static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
         handleSdkProcess(dialogStorage->m_dialog.get(), result);
     };
 
-    return ProcessTask(onUpdateSetup, onDone);
+    return ProcessTask(onSetup, onDone);
 }
 
 class AndroidSdkManagerPrivate
