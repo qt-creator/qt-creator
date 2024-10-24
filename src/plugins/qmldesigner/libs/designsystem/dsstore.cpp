@@ -51,7 +51,7 @@ static QByteArray reformatQml(const QString &content)
 }
 
 std::optional<QString> modelSerializeHelper(
-    QmlDesigner::ProjectStorageDependencies &projectStorageDependencies,
+    [[maybe_unused]] QmlDesigner::ProjectStorageDependencies &projectStorageDependencies,
     QmlDesigner::ExternalDependenciesInterface &ed,
     std::function<void(QmlDesigner::Model *)> callback,
     const Utils::FilePath &targetDir,
