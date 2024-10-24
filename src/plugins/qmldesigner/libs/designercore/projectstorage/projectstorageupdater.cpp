@@ -13,6 +13,7 @@
 #include "sourcepathstorage/sourcepathcache.h"
 #include "typeannotationreader.h"
 
+#include <functional.h>
 #include <sqlitedatabase.h>
 #include <tracing/qmldesignertracing.h>
 #include <utils/algorithm.h>
@@ -1173,16 +1174,7 @@ void removeDuplicates(Storage::Synchronization::ExportedTypes &exportedTypes)
 {
     using Storage::Synchronization::ExportedType;
 
-    auto factory = [](auto... projections) {
-        return [=](auto compare) {
-            return [=](const auto &first, const auto &second) {
-                return compare(std::forward_as_tuple(std::invoke(projections, first)...),
-                               std::forward_as_tuple(std::invoke(projections, second)...));
-            };
-        };
-    };
-
-    auto compare = factory(&ExportedType::name, &ExportedType::version);
+    auto compare = makeCompare(&ExportedType::name, &ExportedType::version);
     auto less = compare(std::ranges::less{});
     auto equal = compare(std::ranges::equal_to{});
 

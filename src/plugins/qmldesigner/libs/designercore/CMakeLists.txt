@@ -30,6 +30,7 @@ extend_qtc_library(QmlDesignerCore
   PUBLIC_INCLUDES designercoreutils
   SOURCES_PREFIX designercoreutils
   SOURCES
+    functional.h
     generatedcomponentutils.cpp
     generatedcomponentutils.h
     modelmerger.cpp
