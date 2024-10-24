@@ -344,8 +344,8 @@ public:
     void setPlaceHolderText(const QString &text);
     void setCompleter(QCompleter *completer);
     void setMinimumHeight(int height);
-    void onReturnPressed(const std::function<void()> &);
-    void onRightSideIconClicked(const std::function<void()> &);
+    void onReturnPressed(const std::function<void()> &, QObject *guard);
+    void onRightSideIconClicked(const std::function<void()> &, QObject *guard);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget

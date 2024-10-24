@@ -1174,14 +1174,14 @@ void LineEdit::setMinimumHeight(int height)
     access(this)->setMinimumHeight(height);
 }
 
-void LineEdit::onReturnPressed(const std::function<void ()> &func)
+void LineEdit::onReturnPressed(const std::function<void()> &func, QObject *guard)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, func);
+    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
 }
 
-void LineEdit::onRightSideIconClicked(const std::function<void ()> &func)
+void LineEdit::onRightSideIconClicked(const std::function<void()> &func, QObject *guard)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, func);
+    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
 }
 
 Spinner::Spinner(std::initializer_list<I> ps)

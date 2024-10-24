@@ -154,18 +154,18 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             item->setMinimumHeight(*minHeight);
     }
 
-    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &)>::value) {
+    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &, QObject *)>::value) {
         const auto callback = children.get<sol::optional<sol::function>>("onReturnPressed");
         if (callback)
         {
-            item->onReturnPressed([func = *callback]() { void_safe_call(func); });
+            item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
         }
     }
 
     if constexpr (hasOnRightSideIconClicked<T, void (T::*)(const std::function<void()> &)>::value) {
         const auto callback = children.get<sol::optional<sol::function>>("onRightSideIconClicked");
         if (callback)
-            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); });
+            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
     }
 
     if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
