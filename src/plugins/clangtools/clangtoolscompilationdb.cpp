@@ -56,7 +56,7 @@ ClangToolsCompilationDb::ClangToolsCompilationDb(ClangToolType toolType)
         d->readyAndUpToDate = success;
         if (success) {
             Core::MessageManager::writeSilently(
-                Tr::tr("Compilation database for %1 successfully generated at %2.")
+                Tr::tr("Compilation database for %1 successfully generated at \"%2\".")
                     .arg(d->toolName(), d->dir.path().toUserOutput()));
         } else {
             Core::MessageManager::writeDisrupting(
@@ -106,7 +106,7 @@ void ClangToolsCompilationDb::Private::generate()
         generatorWatcher.cancel();
 
     Core::MessageManager::writeSilently(
-        Tr::tr("Generating compilation database for %1 at %2 ...")
+        Tr::tr("Generating compilation database for %1 at \"%2\" ...")
             .arg(clangToolName(toolType), dir.path().toUserOutput()));
 
     const auto getCompilerOptionsBuilder = [this](const ProjectPart &pp) {

@@ -998,7 +998,8 @@ QString ToolchainBundle::displayName() const
         name.append(' ').append(Abi::toString(abi.wordWidth()));
     if (!cmd.exists())
         return name;
-    return Tr::tr("%1 at %2").arg(name, cmd.toUserOutput());
+    //: toolchain 'name' at 'path'
+    return Tr::tr("%1 at \"%2\"").arg(name, cmd.toUserOutput());
 }
 
 ToolchainBundle::Valid ToolchainBundle::validity() const

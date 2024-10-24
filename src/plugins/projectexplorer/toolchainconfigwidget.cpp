@@ -151,6 +151,7 @@ void ToolchainConfigWidget::setupCompilerPathChoosers()
     bundle().forEach<Toolchain>([&](const Toolchain &tc) {
         const QString name = !nameLabelString.isEmpty()
                 ? nameLabelString
+                //: %1 = programming language
                 : Tr::tr("%1 compiler path").arg(
                                        ToolchainManager::displayNameOfLanguageId(tc.language()));
         const auto commandChooser = new PathChooser(this);

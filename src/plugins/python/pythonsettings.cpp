@@ -1174,7 +1174,7 @@ Utils::ListModel<ProjectExplorer::Interpreter> *createInterpreterModel(QObject *
     model->setDataAccessor([](const Interpreter &interpreter, int column, int role) -> QVariant {
         if (interpreter.id == "none") {
             if (role == Qt::DisplayRole)
-                return Tr::tr("none");
+                return Tr::tr("None");
             if (role == KitAspect::IsNoneRole)
                 return true;
             return {};

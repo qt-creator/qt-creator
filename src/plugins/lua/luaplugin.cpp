@@ -379,7 +379,7 @@ public:
             &LuaPlugin::onEditorOpened);
 
         ActionBuilder(this, Id(ACTION_SCRIPTS_BASE).withSuffix("current"))
-            .setText(Tr::tr("Run current Script"))
+            .setText(Tr::tr("Run Current Script"))
             .addOnTriggered([]() {
                 if (auto textEditor = TextEditor::BaseTextEditor::currentTextEditor()) {
                     const FilePath path = textEditor->document()->filePath();
@@ -449,8 +449,8 @@ public:
                 auto menu = container->menu();
                 menu->setTitle(script.baseName());
                 ActionBuilder(this, base)
-                    .setText(Tr::tr("%1").arg(script.baseName()))
-                    .setToolTip(Tr::tr("Run script '%1'").arg(script.toUserOutput()))
+                    .setText(script.baseName())
+                    .setToolTip(Tr::tr("Run script \"%1\"").arg(script.toUserOutput()))
                     .addOnTriggered([script]() { runScript(script); });
                 connect(menu->addAction(Tr::tr("Run")), &QAction::triggered, this, [script]() {
                     runScript(script);
@@ -481,7 +481,7 @@ public:
         if (content) {
             Lua::runScript(QString::fromUtf8(*content), script.fileName());
         } else {
-            MessageManager::writeFlashing(Tr::tr("Failed to read script %1: %2")
+            MessageManager::writeFlashing(Tr::tr("Failed to read script \"%1\": %2")
                                               .arg(script.toUserOutput())
                                               .arg(content.error()));
         }

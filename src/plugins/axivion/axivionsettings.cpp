@@ -272,8 +272,9 @@ bool AxivionSettings::updateDashboardServers(const QList<AxivionServer> &other,
     const LoopList iterator(keysToRemove);
 
     const auto onDeleteKeySetup = [iterator](CredentialQuery &query) {
-        MessageManager::writeSilently(Tr::tr("Axivion: Deleting Api token for %1 as respective "
-                                             "dashboard server was removed.").arg(*iterator));
+        MessageManager::writeSilently(Tr::tr("Axivion: Deleting API token for %1 as respective "
+                                             "dashboard server was removed.")
+                                          .arg(*iterator));
         query.setOperation(CredentialOperation::Delete);
         query.setService(s_axivionKeychainService);
         query.setKey(*iterator);

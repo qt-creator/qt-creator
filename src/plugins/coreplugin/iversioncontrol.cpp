@@ -251,15 +251,15 @@ QString IVersionControl::modificationToText(const IVersionControl::FileState &st
     using CIVF = Core::IVersionControl::FileState;
     switch (state) {
     case CIVF::AddedState:
-        return Tr::tr("Version control state: added");
+        return Tr::tr("Version control state: added.");
     case CIVF::ModifiedState:
-        return Tr::tr("Version control state: modified");
+        return Tr::tr("Version control state: modified.");
     case CIVF::DeletedState:
-        return Tr::tr("Version control state: deleted");
+        return Tr::tr("Version control state: deleted.");
     case CIVF::RenamedState:
-        return Tr::tr("Version control state: renamed");
+        return Tr::tr("Version control state: renamed.");
     case CIVF::UnmanagedState:
-        return Tr::tr("Version control state: untracked");
+        return Tr::tr("Version control state: untracked.");
     default:
         return {};
     }

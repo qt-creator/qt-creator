@@ -309,10 +309,12 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", port, adbArg}));
     };
     const auto onForwardPortDone = [storage, port, portType](DoneWith result) {
-        if (result == DoneWith::Success)
+        if (result == DoneWith::Success) {
             storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
-        else
+        } else {
+            //: %1 = QML/JDB/C++
             storage->m_glue->setFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+        }
     };
 
     return Group {

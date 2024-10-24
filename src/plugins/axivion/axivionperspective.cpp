@@ -359,7 +359,7 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     QPalette palette = Utils::creatorTheme()->palette();
     palette.setColor(QPalette::Text, Utils::creatorColor(Theme::TextColorError));
     m_errorEdit->setPalette(palette);
-    QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences"), errorWidget);
+    QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences..."), errorWidget);
     connect(openPref, &QPushButton::clicked,
             this, []{ ICore::showOptionsDialog("Axivion.Settings.General"); });
     using namespace Layouting;
