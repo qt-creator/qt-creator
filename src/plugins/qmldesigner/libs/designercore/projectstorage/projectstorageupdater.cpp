@@ -1167,6 +1167,32 @@ void rangeForTheSameFileName(const ProjectStorageUpdater::Components &components
     }
 }
 
+namespace {
+
+void removeDuplicates(Storage::Synchronization::ExportedTypes &exportedTypes)
+{
+    using Storage::Synchronization::ExportedType;
+
+    auto factory = [](auto... projections) {
+        return [=](auto compare) {
+            return [=](const auto &first, const auto &second) {
+                return compare(std::forward_as_tuple(std::invoke(projections, first)...),
+                               std::forward_as_tuple(std::invoke(projections, second)...));
+            };
+        };
+    };
+
+    auto compare = factory(&ExportedType::name, &ExportedType::version);
+    auto less = compare(std::ranges::less{});
+    auto equal = compare(std::ranges::equal_to{});
+
+    std::ranges::sort(exportedTypes, less);
+
+    auto duplicateExportedTypes = std::ranges::unique(exportedTypes, equal);
+    exportedTypes.erase(duplicateExportedTypes.begin(), duplicateExportedTypes.end());
+}
+} // namespace
+
 Storage::Synchronization::ExportedTypes createExportedTypes(ProjectStorageUpdater::ComponentRange components)
 {
     Storage::Synchronization::ExportedTypes exportedTypes;
@@ -1177,6 +1203,8 @@ Storage::Synchronization::ExportedTypes createExportedTypes(ProjectStorageUpdate
                                    Utils::SmallString{component.typeName},
                                    Storage::Version{component.majorVersion, component.minorVersion});
     }
+
+    removeDuplicates(exportedTypes);
 
     return exportedTypes;
 }
@@ -1197,9 +1225,8 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                                keyValue("directory id", directoryId),
                                keyValue("qmldir state", qmldirState)};
 
-    std::sort(components.begin(), components.end(), [](auto &&first, auto &&second) {
-        return first.fileName < second.fileName;
-    });
+    std::ranges::sort(components,
+                      [](auto &&first, auto &&second) { return first.fileName < second.fileName; });
 
     auto directoryPath = m_pathCache.sourceContextPath(directoryId);
 
