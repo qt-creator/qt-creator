@@ -13,7 +13,7 @@ AutoTypes {
        sourceFile: "IntEditorTemplate.template"
     }
     Type {
-        typeNames: ["real", "double", "qreal"]
+        typeNames: ["real", "double", "qreal", "float"]
         module: "QML"
         sourceFile: "RealEditorTemplate.template"
     }
