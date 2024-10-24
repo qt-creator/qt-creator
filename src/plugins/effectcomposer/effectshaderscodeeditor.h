@@ -33,16 +33,20 @@ public:
     bool liveUpdate() const;
     void setLiveUpdate(bool liveUpdate);
 
+    bool isOpened() const;
+
 signals:
     void liveUpdateChanged(bool);
     void fragmentValueChanged();
     void vertexValueChanged();
     void rebakeRequested();
+    void openedChanged(bool);
 
 protected:
     using QWidget::show;
     EffectCodeEditorWidget *createJSEditor();
     void setupUIComponents();
+    void setOpened(bool value);
 
     void closeEvent(QCloseEvent *event) override;
 
@@ -56,6 +60,7 @@ private:
     QPointer<EffectCodeEditorWidget> m_vertexEditor;
 
     bool m_liveUpdate = false;
+    bool m_opened = false;
 };
 
 } // namespace EffectComposer

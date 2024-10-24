@@ -42,6 +42,9 @@ enum class FileType
     Text
 };
 
+static constexpr int INVALID_CODE_EDITOR_INDEX = -1;
+static constexpr int MAIN_CODE_EDITOR_INDEX = -2;
+
 static bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType)
 {
     QDir().mkpath(QFileInfo(filename).path());
@@ -59,6 +62,7 @@ static bool writeToFile(const QByteArray &buf, const QString &filename, FileType
 
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
+    , m_codeEditorIndex(INVALID_CODE_EDITOR_INDEX)
     , m_shaderDir(QDir::tempPath() + "/qds_ec_XXXXXX")
 {
     m_rebakeTimer.setSingleShot(true);
@@ -184,6 +188,10 @@ void EffectComposerModel::removeNode(int idx)
     m_rebakeTimer.stop();
     CompositionNode *node = m_nodes.takeAt(idx);
 
+    // Invalidate codeEditorIndex only if the index is the same as current index
+    if (m_codeEditorIndex == idx)
+        setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
+
     const QStringList reqNodes = node->requiredNodes();
     for (const QString &reqId : reqNodes) {
         CompositionNode *depNode = findNodeById(reqId);
@@ -221,6 +229,7 @@ void EffectComposerModel::clear(bool clearName)
     }
 
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
+    setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
 
     setIsEmpty(true);
     emit nodesChanged();
@@ -1125,16 +1134,24 @@ void EffectComposerModel::saveComposition(const QString &name)
     setHasUnsavedChanges(false);
 }
 
-void EffectComposerModel::openShadersCodeEditor(int idx)
+void EffectComposerModel::openCodeEditor(int idx)
 {
-    if (m_nodes.size() < idx || idx < 0)
+    if (idx == MAIN_CODE_EDITOR_INDEX)
+        return openMainCodeEditor();
+
+    if (idx < 0 || idx >= m_nodes.size())
         return;
 
+    if (m_codeEditorIndex == MAIN_CODE_EDITOR_INDEX && m_shadersCodeEditor)
+        m_shadersCodeEditor->close();
+    else if (m_codeEditorIndex != idx && m_codeEditorIndex > -1 && m_codeEditorIndex < m_nodes.size())
+        m_nodes.at(m_codeEditorIndex)->closeCodeEditor();
+
     CompositionNode *node = m_nodes.at(idx);
-    node->openShadersCodeEditor();
+    node->openCodeEditor();
 }
 
-void EffectComposerModel::openMainShadersCodeEditor()
+void EffectComposerModel::openMainCodeEditor()
 {
     if (!m_shadersCodeEditor) {
         m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(
@@ -1160,8 +1177,33 @@ void EffectComposerModel::openMainShadersCodeEditor()
             &EffectShadersCodeEditor::rebakeRequested,
             this,
             &EffectComposerModel::startRebakeTimer);
+
+        connect(
+            m_shadersCodeEditor.get(),
+            &EffectShadersCodeEditor::openedChanged,
+            this,
+            [this](bool visible) {
+                if (visible) {
+                    setCodeEditorIndex(MAIN_CODE_EDITOR_INDEX);
+                } else {
+                    // Invalidate codeEditorIndex only if the index is the same as the current index
+                    // It means that if the current code editor index belongs to another node, we
+                    // shouldn't declare it closed.
+                    // This condition prevents marking the new code editor closed, in the case that
+                    // the user opens another editor deliberately while the old editor is opened.
+                    if (m_codeEditorIndex == MAIN_CODE_EDITOR_INDEX)
+                        setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
+                }
+            });
     }
+
+    int oldIndex = m_codeEditorIndex;
+
     m_shadersCodeEditor->showWidget();
+
+    // Close the old editor
+    if (oldIndex > -1 && oldIndex < m_nodes.size())
+        m_nodes.at(oldIndex)->closeCodeEditor();
 }
 
 void EffectComposerModel::openComposition(const QString &path)
@@ -2243,6 +2285,20 @@ void EffectComposerModel::connectCompositionNode(CompositionNode *node)
     connect(node, &CompositionNode::rebakeRequested, this, &EffectComposerModel::startRebakeTimer);
     connect(node, &CompositionNode::fragmentCodeChanged, this, setUnsaved);
     connect(node, &CompositionNode::vertexCodeChanged, this, setUnsaved);
+    connect(node, &CompositionNode::codeEditorVisibilityChanged, this, [this, node](bool visible) {
+        int idx = m_nodes.indexOf(node);
+        if (idx < 0)
+            return;
+        if (visible) {
+            setCodeEditorIndex(idx);
+        } else {
+            // Invalidate codeEditorIndex only if the index is the same as current index
+            // It means that if current code editor index belongs to another node, we
+            // shouldn't declare it closed.
+            if (m_codeEditorIndex == idx)
+                setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
+        }
+    });
 }
 
 void EffectComposerModel::updateExtraMargin()
@@ -2283,6 +2339,15 @@ QSet<QByteArray> EffectComposerModel::getExposedProperties(const QByteArray &qml
     return returnSet;
 }
 
+void EffectComposerModel::setCodeEditorIndex(int index)
+{
+    if (m_codeEditorIndex == index)
+        return;
+
+    m_codeEditorIndex = index;
+    emit codeEditorIndexChanged(m_codeEditorIndex);
+}
+
 QString EffectComposerModel::currentComposition() const
 {
     return m_currentComposition;
@@ -2319,6 +2384,11 @@ void EffectComposerModel::setCurrentPreviewImage(const QUrl &path)
 
     m_currentPreviewImage = path;
     emit currentPreviewImageChanged();
+}
+
+int EffectComposerModel::mainCodeEditorIndex() const
+{
+    return MAIN_CODE_EDITOR_INDEX;
 }
 
 Utils::FilePath EffectComposerModel::compositionPath() const

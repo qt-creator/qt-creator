@@ -19,7 +19,6 @@ Rectangle {
     signal saveClicked
     signal saveAsClicked
     signal assignToSelectedClicked
-    signal openShadersCodeEditor
 
     Row {
         spacing: 5
@@ -57,14 +56,31 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
-            style: StudioTheme.Values.viewBarButtonStyle
+            id: openCodeEditorButton
+
+            property bool codeEditorOpen: root.backendModel
+                                          && (root.backendModel.codeEditorIndex
+                                              === root.backendModel.mainCodeEditorIndex)
+            property color buttonIconColor: openCodeEditorButton.codeEditorOpen
+                                               ? StudioTheme.Values.themeInteraction
+                                               : StudioTheme.Values.themeTextColor
+            style: StudioTheme.ViewBarButtonStyle {
+                icon: StudioTheme.ControlStyle.IconColors {
+                    idle: openCodeEditorButton.buttonIconColor
+                    hover: openCodeEditorButton.buttonIconColor
+                    interaction: openCodeEditorButton.buttonIconColor
+                    disabled: StudioTheme.Values.themeToolbarIcon_blocked
+                }
+            }
+
             buttonIcon: StudioTheme.Constants.codeEditor_medium
-            tooltip: qsTr("Open Code")
+            tooltip: qsTr("Open code editor")
             enabled: root.backendModel ? root.backendModel.isEnabled
                                          && root.backendModel.currentComposition !== ""
                                        : false
 
-            onClicked: root.openShadersCodeEditor()
+            onClicked: root.backendModel.openMainCodeEditor()
+
         }
 
         HelperWidgets.AbstractButton {

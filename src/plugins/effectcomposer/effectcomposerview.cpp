@@ -174,6 +174,8 @@ void EffectComposerView::modelAttached(QmlDesigner::Model *model)
 void EffectComposerView::modelAboutToBeDetached(QmlDesigner::Model *model)
 {
     AbstractView::modelAboutToBeDetached(model);
+    if (m_widget)
+        m_widget->effectComposerModel()->clear(true);
 }
 
 void EffectComposerView::selectedNodesChanged(const QList<QmlDesigner::ModelNode> & selectedNodeList,

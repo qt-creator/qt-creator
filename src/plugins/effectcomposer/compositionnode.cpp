@@ -45,7 +45,10 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
     }
 }
 
-CompositionNode::~CompositionNode() = default;
+CompositionNode::~CompositionNode()
+{
+    closeCodeEditor();
+};
 
 QString CompositionNode::fragmentCode() const
 {
@@ -179,6 +182,12 @@ void CompositionNode::ensureShadersCodeEditor()
         &EffectShadersCodeEditor::rebakeRequested,
         this,
         &CompositionNode::rebakeRequested);
+
+    connect(
+        m_shadersCodeEditor.get(),
+        &EffectShadersCodeEditor::openedChanged,
+        this,
+        &CompositionNode::codeEditorVisibilityChanged);
 }
 
 void CompositionNode::requestRebakeIfLiveUpdateMode()
@@ -244,10 +253,20 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
     requestRebakeIfLiveUpdateMode();
 }
 
-void CompositionNode::openShadersCodeEditor()
+void CompositionNode::openCodeEditor()
 {
     ensureShadersCodeEditor();
+
+    if (m_shadersCodeEditor->isVisible())
+        return;
+
     m_shadersCodeEditor->showWidget();
+}
+
+void CompositionNode::closeCodeEditor()
+{
+    if (m_shadersCodeEditor)
+        m_shadersCodeEditor->close();
 }
 
 QString CompositionNode::name() const

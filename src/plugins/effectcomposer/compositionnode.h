@@ -68,7 +68,8 @@ public:
     void setFragmentCode(const QString &fragmentCode);
     void setVertexCode(const QString &vertexCode);
 
-    void openShadersCodeEditor();
+    void openCodeEditor();
+    void closeCodeEditor();
 
 signals:
     void uniformsModelChanged();
@@ -77,6 +78,7 @@ signals:
     void rebakeRequested();
     void fragmentCodeChanged();
     void vertexCodeChanged();
+    void codeEditorVisibilityChanged(bool);
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);

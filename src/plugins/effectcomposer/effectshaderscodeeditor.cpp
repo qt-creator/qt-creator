@@ -64,6 +64,8 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
 
 EffectShadersCodeEditor::~EffectShadersCodeEditor()
 {
+    if (isOpened())
+        close();
     m_fragmentEditor->deleteLater();
     m_vertexEditor->deleteLater();
 }
@@ -74,6 +76,7 @@ void EffectShadersCodeEditor::showWidget()
     show();
     raise();
     m_vertexEditor->setFocus();
+    setOpened(true);
 }
 
 void EffectShadersCodeEditor::showWidget(int x, int y)
@@ -129,6 +132,11 @@ void EffectShadersCodeEditor::setLiveUpdate(bool liveUpdate)
         emit rebakeRequested();
 }
 
+bool EffectShadersCodeEditor::isOpened() const
+{
+    return m_opened;
+}
+
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
 {
     static EffectCodeEditorFactory f;
@@ -168,12 +176,23 @@ void EffectShadersCodeEditor::setupUIComponents()
     this->resize(660, 240);
 }
 
+void EffectShadersCodeEditor::setOpened(bool value)
+{
+    if (m_opened == value)
+        return;
+
+    m_opened = value;
+    emit openedChanged(m_opened);
+}
+
 void EffectShadersCodeEditor::closeEvent(QCloseEvent *event)
 {
     QWidget::closeEvent(event);
 
     if (!liveUpdate())
         emit rebakeRequested();
+
+    setOpened(false);
 }
 
 void EffectShadersCodeEditor::writeLiveUpdateSettings()

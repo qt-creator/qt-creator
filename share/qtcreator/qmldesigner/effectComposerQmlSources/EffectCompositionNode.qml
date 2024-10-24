@@ -11,6 +11,9 @@ import EffectComposerBackend
 HelperWidgets.Section {
     id: root
 
+    readonly property var backendModel: EffectComposerBackend.effectComposerModel
+    readonly property bool codeEditorOpen: root.backendModel.codeEditorIndex === root.modelIndex
+
     property int modelIndex: 0
 
     caption: nodeName
@@ -23,28 +26,31 @@ HelperWidgets.Section {
     visible: repeater.count > 0 || !isDependency
 
     onCloseButtonClicked: {
-        EffectComposerBackend.effectComposerModel.removeNode(root.modelIndex)
+        root.backendModel.removeNode(root.modelIndex)
     }
 
     showEyeButton: !isDependency
     eyeEnabled: nodeEnabled
     eyeButtonToolTip: qsTr("Enable/Disable Node")
 
-    signal openShadersCodeEditor(index: int)
-
     onEyeButtonClicked: {
         nodeEnabled = root.eyeEnabled
     }
 
     icons: HelperWidgets.IconButton {
+        id: codeButton
+
         icon: StudioTheme.Constants.codeEditor_medium
         transparentBg: true
         buttonSize: 21
         iconSize: StudioTheme.Values.smallIconFontSize
-        iconColor: StudioTheme.Values.themeTextColor
-        iconScale: containsMouse ? 1.2 : 1
+        iconColor: root.codeEditorOpen
+                   ? StudioTheme.Values.themeInteraction
+                   : StudioTheme.Values.themeTextColor
+        iconScale: codeButton.containsMouse ? 1.2 : 1
         implicitWidth: width
-        onClicked: root.openShadersCodeEditor(index)
+        tooltip: qsTr("Open code editor")
+        onClicked: root.backendModel.openCodeEditor(index)
     }
 
     content: Label {

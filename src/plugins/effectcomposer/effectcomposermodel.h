@@ -49,6 +49,7 @@ class EffectComposerModel : public QAbstractListModel
 
     Q_PROPERTY(bool isEmpty MEMBER m_isEmpty NOTIFY isEmptyChanged)
     Q_PROPERTY(int selectedIndex MEMBER m_selectedIndex NOTIFY selectedIndexChanged)
+    Q_PROPERTY(int codeEditorIndex MEMBER m_codeEditorIndex NOTIFY codeEditorIndexChanged)
     Q_PROPERTY(bool hasUnsavedChanges MEMBER m_hasUnsavedChanges WRITE setHasUnsavedChanges NOTIFY hasUnsavedChangesChanged)
     Q_PROPERTY(bool shadersUpToDate READ shadersUpToDate WRITE setShadersUpToDate NOTIFY shadersUpToDateChanged)
     Q_PROPERTY(bool isEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
@@ -56,6 +57,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
     Q_PROPERTY(QUrl currentPreviewImage READ currentPreviewImage WRITE setCurrentPreviewImage NOTIFY currentPreviewImageChanged)
     Q_PROPERTY(QUrl customPreviewImage READ customPreviewImage NOTIFY customPreviewImageChanged)
+    Q_PROPERTY(int mainCodeEditorIndex READ mainCodeEditorIndex CONSTANT)
 
 public:
     EffectComposerModel(QObject *parent = nullptr);
@@ -113,8 +115,8 @@ public:
 
     Q_INVOKABLE void saveComposition(const QString &name);
 
-    Q_INVOKABLE void openShadersCodeEditor(int idx);
-    Q_INVOKABLE void openMainShadersCodeEditor();
+    Q_INVOKABLE void openCodeEditor(int idx);
+    Q_INVOKABLE void openMainCodeEditor();
 
     void openComposition(const QString &path);
 
@@ -124,6 +126,7 @@ public:
     QUrl customPreviewImage() const;
     QUrl currentPreviewImage() const;
     void setCurrentPreviewImage(const QUrl &path);
+    int mainCodeEditorIndex() const;
 
     Utils::FilePath compositionPath() const;
     void setCompositionPath(const Utils::FilePath &newCompositionPath);
@@ -138,6 +141,7 @@ public:
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
+    void codeEditorIndexChanged(int idx);
     void effectErrorChanged();
     void shadersUpToDateChanged();
     void isEnabledChanged();
@@ -214,9 +218,12 @@ private:
     void rebakeIfLiveUpdateMode();
     QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
+    void setCodeEditorIndex(int index);
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
+    int m_codeEditorIndex = -1;
     bool m_isEmpty = false;  // Init to false to force initial bake after setup
     bool m_hasUnsavedChanges = false;
     // True when shaders haven't changed since last baking
