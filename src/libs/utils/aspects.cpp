@@ -3194,7 +3194,7 @@ void AspectContainer::registerAspect(BaseAspect *aspect, bool takeOwnership)
 {
     aspect->setContainer(this);
     aspect->setAutoApply(isAutoApply());
-    aspect->setEnabled(isEnabled());
+    aspect->setEnabled(aspect->isEnabled() && isEnabled());
     d->m_items.append(aspect);
     if (takeOwnership)
         d->m_ownedItems.append(aspect);
