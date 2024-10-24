@@ -222,6 +222,11 @@ std::optional<QString> DSStore::typeName(DSThemeManager *collection) const
     return {};
 }
 
+std::optional<Utils::FilePath> DSStore::moduleDirPath() const
+{
+    return dsModuleDir(m_ed);
+}
+
 std::optional<QString> DSStore::loadCollection(const QString &typeName,
                                                const Utils::FilePath &qmlFilePath)
 {

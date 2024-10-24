@@ -33,6 +33,8 @@ public:
     DSThemeManager *addCollection(const QString &qmlTypeName);
     std::optional<QString> typeName(DSThemeManager *collection) const;
 
+    std::optional<Utils::FilePath> moduleDirPath() const;
+
 private:
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);
     std::optional<QString> writeQml(const DSThemeManager &mgr,
