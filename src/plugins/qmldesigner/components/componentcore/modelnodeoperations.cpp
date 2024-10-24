@@ -1718,7 +1718,7 @@ Utils::FilePath findEffectFile(const ModelNode &effectNode)
                                                                  QDirIterator::Subdirectories});
         if (matches.isEmpty()) {
             QMessageBox msgBox;
-            msgBox.setText(QObject::tr("Effect file %1 not found in the project.").arg(effectFile));
+            msgBox.setText(::QObject::tr("Effect file %1 not found in the project.").arg(effectFile));
             msgBox.setStandardButtons(QMessageBox::Ok);
             msgBox.setDefaultButton(QMessageBox::Ok);
             msgBox.setIcon(QMessageBox::Warning);

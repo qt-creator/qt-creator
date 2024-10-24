@@ -341,9 +341,9 @@ public:
 
         Command *newScriptCommand = ActionBuilder(this, ACTION_NEW_SCRIPT)
                                         .setScriptable(true)
-                                        .setText(tr("New Script..."))
+                                        .setText(Tr::tr("New Script..."))
                                         .addToContainer(M_SCRIPT)
-                                        .addOnTriggered([](){
+                                        .addOnTriggered([]() {
                                             auto command = Core::ActionManager::command(Utils::Id("Wizard.Impl.Q.QCreatorScript"));
                                             if (command && command->action())
                                                 command->action()->trigger();
