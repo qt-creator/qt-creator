@@ -980,17 +980,23 @@ void DebuggerToolTipManagerPrivate::debugModeEntered()
                 this, &DebuggerToolTipManagerPrivate::updateVisibleToolTips);
         connect(em, &EditorManager::editorOpened,
                 this, &DebuggerToolTipManagerPrivate::slotEditorOpened);
-        connect(em, &EditorManager::editorAboutToClose, [this](IEditor *editor) {
+        connect(em, &EditorManager::editorAboutToClose, this, [this](IEditor *editor) {
             if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
                 m_tooltips.erase(textEditor->editorWidget());
         });
-        connect(em, &EditorManager::currentEditorAboutToChange, [this](IEditor *editor) {
-            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-                textEditor->widget()->window()->removeEventFilter(this);
+        connect(em, &EditorManager::currentEditorAboutToChange, this, [this](IEditor *editor) {
+            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+                QWidget *widget = textEditor->widget();
+                QTC_ASSERT(widget, return);
+                widget->removeEventFilter(this);
+            }
         });
-        connect(em, &EditorManager::currentEditorChanged, [this](IEditor *editor) {
-            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-                textEditor->widget()->window()->installEventFilter(this);
+        connect(em, &EditorManager::currentEditorChanged, this, [this](IEditor *editor) {
+            if (auto textEditor = qobject_cast<BaseTextEditor *>(editor)) {
+                QWidget *widget = textEditor->widget();
+                QTC_ASSERT(widget, return);
+                widget->window()->installEventFilter(this);
+            }
         });
         setupEditors();
     }
