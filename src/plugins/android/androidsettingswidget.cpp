@@ -636,9 +636,8 @@ void AndroidSettingsWidget::validateSdk()
     const FilePath sdkPath = m_sdkLocationPathChooser->filePath().cleanPath();
     AndroidConfig::setSdkLocation(sdkPath);
 
-    const FilePath path = AndroidConfig::sdkLocation();
     m_androidSummary->setPointValid(SdkPathExistsAndWritableRow,
-                                    path.exists() && path.isWritableDir());
+                                    sdkPath.exists() && sdkPath.isWritableDir());
     m_androidSummary->setPointValid(SdkToolsInstalledRow,
                                     !AndroidConfig::sdkToolsVersion().isNull());
     m_androidSummary->setPointValid(PlatformToolsInstalledRow,
