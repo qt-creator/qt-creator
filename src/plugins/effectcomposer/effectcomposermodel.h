@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE QString getUniqueEffectName() const;
     Q_INVOKABLE bool nameExists(const QString &name) const;
     Q_INVOKABLE void chooseCustomPreviewImage();
+    Q_INVOKABLE void previewComboAboutToOpen();
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);

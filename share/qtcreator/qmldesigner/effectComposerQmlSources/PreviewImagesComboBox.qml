@@ -69,6 +69,7 @@ StudioControls.ComboBox {
         target: root.popup
 
         function onAboutToShow() {
+            EffectComposerBackend.effectComposerModel.previewComboAboutToOpen()
             root.calculateWindowGeometry()
 
             window.show()
@@ -170,8 +171,10 @@ StudioControls.ComboBox {
                                 required property var modelData
 
                                 color: "transparent"
-                                border.color: root.selectedImage === modelData ? StudioTheme.Values.themeInteraction
-                                                                               : "transparent"
+                                border.color: root.selectedImage === modelData
+                                              || index == 0 && root.selectedImage == EffectComposerBackend.effectComposerModel.customPreviewImage
+                                              ? StudioTheme.Values.themeInteraction
+                                              : "transparent"
 
                                 width: 200
                                 height: 200

@@ -294,6 +294,17 @@ void EffectComposerModel::chooseCustomPreviewImage()
     });
 }
 
+void EffectComposerModel::previewComboAboutToOpen()
+{
+    if (!m_customPreviewImage.isEmpty() && !Utils::FilePath::fromUrl(m_customPreviewImage).exists()) {
+        if (m_currentPreviewImage == m_customPreviewImage) {
+            m_customPreviewImage.clear();
+            emit customPreviewImageChanged();
+            setCurrentPreviewImage({});
+        }
+    }
+}
+
 QString EffectComposerModel::fragmentShader() const
 {
     return m_fragmentShader;
@@ -1067,8 +1078,12 @@ void EffectComposerModel::saveComposition(const QString &name)
     json.insert("tool", "EffectComposer");
 
     Utils::FilePath customPreviewPath = Utils::FilePath::fromUrl(m_customPreviewImage);
-    if (m_customPreviewImage.isLocalFile())
-        customPreviewPath = customPreviewPath.relativePathFrom(compositionDir);
+    if (m_customPreviewImage.isLocalFile()) {
+        if (customPreviewPath.exists())
+            customPreviewPath = customPreviewPath.relativePathFrom(compositionDir);
+        else
+            customPreviewPath = {};
+    }
     json.insert("customPreviewImage", customPreviewPath.toUrl().toString());
 
     QUrl previewUrl = m_currentPreviewImage;
@@ -1259,14 +1274,16 @@ void EffectComposerModel::openComposition(const QString &path)
     m_customPreviewImage.clear();
     if (json.contains("customPreviewImage")) {
         QUrl imageUrl{json["customPreviewImage"].toString()};
-        Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
-        if (imagePath.isAbsolutePath()) {
-            if (imagePath.exists())
-                m_customPreviewImage = imageUrl;
-        } else {
-            imagePath = effectPath.absolutePath().resolvePath(imagePath);
-            if (imagePath.exists())
-                m_customPreviewImage = imagePath.toUrl();
+        if (!imageUrl.isEmpty()) {
+            Utils::FilePath imagePath = Utils::FilePath::fromUrl(imageUrl);
+            if (imagePath.isAbsolutePath()) {
+                if (imagePath.exists())
+                    m_customPreviewImage = imageUrl;
+            } else {
+                imagePath = effectPath.absolutePath().resolvePath(imagePath);
+                if (imagePath.exists())
+                    m_customPreviewImage = imagePath.toUrl();
+            }
         }
     }
 
