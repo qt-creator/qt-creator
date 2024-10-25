@@ -85,7 +85,6 @@ public:
 
     std::optional<Abis> qtAbis;
 
-    DisplayName unexpandedDisplayName;
     QString qtVersionString;
 
     FilePath sourcePath;
@@ -191,6 +190,7 @@ public:
     int m_id = -1;
     bool m_isAutodetected = false;
     QString m_type;
+    DisplayName m_unexpandedDisplayName;
 
     QtVersionData m_data;
 
@@ -626,7 +626,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
         d->m_id = QtVersionManager::getUniqueId();
-    d->m_data.unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
+    d->m_unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
@@ -669,7 +669,7 @@ Store QtVersion::toMap() const
 {
     Store result;
     result.insert(Constants::QTVERSIONID, uniqueId());
-    d->m_data.unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
+    d->m_unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
 
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
     result.insert(QTVERSIONDETECTIONSOURCE, detectionSource());
@@ -817,17 +817,17 @@ QString QtVersion::displayName() const
 
 QString QtVersion::unexpandedDisplayName() const
 {
-    return d->m_data.unexpandedDisplayName.value();
+    return d->m_unexpandedDisplayName.value();
 }
 
 void QtVersion::setUnexpandedDisplayName(const QString &name)
 {
-    d->m_data.unexpandedDisplayName.setValue(name);
+    d->m_unexpandedDisplayName.setValue(name);
 }
 
 void QtVersion::updateDefaultDisplayName()
 {
-    d->m_data.unexpandedDisplayName.setDefaultValue(defaultUnexpandedDisplayName());
+    d->m_unexpandedDisplayName.setDefaultValue(defaultUnexpandedDisplayName());
 }
 
 QString QtVersion::toHtml(bool verbose) const
