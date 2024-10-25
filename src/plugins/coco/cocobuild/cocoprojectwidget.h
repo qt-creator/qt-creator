@@ -3,9 +3,10 @@
 
 #pragma once
 
+#include "../settings/cocoinstallation.h"
 #include "buildsettings.h"
-#include "projectexplorer/buildconfiguration.h"
-#include "settings/cocoinstallation.h"
+
+#include <projectexplorer/buildconfiguration.h>
 #include <utils/aspects.h>
 #include <utils/layoutbuilder.h>
 

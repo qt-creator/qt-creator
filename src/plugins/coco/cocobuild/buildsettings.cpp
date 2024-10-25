@@ -8,6 +8,7 @@
 #include "cocoqmakesettings.h"
 #include "modificationfile.h"
 
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/target.h>
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>

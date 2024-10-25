@@ -3,7 +3,7 @@
 
 #include "cmakemodificationfile.h"
 
-#include "cocopluginconstants.h"
+#include "../cocopluginconstants.h"
 
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>

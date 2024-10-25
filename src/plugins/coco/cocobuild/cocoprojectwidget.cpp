@@ -3,11 +3,11 @@
 
 #include "cocoprojectwidget.h"
 
+#include "../cocopluginconstants.h"
+#include "../cocotr.h"
+#include "../common.h"
+#include "../settings/globalsettingspage.h"
 #include "buildsettings.h"
-#include "cocopluginconstants.h"
-#include "cocotr.h"
-#include "common.h"
-#include "settings/globalsettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsystem.h>

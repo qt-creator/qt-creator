@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "cocobuild/buildsettings.h"
-#include "cocobuild/cmakemodificationfile.h"
+#include "buildsettings.h"
+#include "cmakemodificationfile.h"
 
 #include <QObject>
 #include <QStringList>

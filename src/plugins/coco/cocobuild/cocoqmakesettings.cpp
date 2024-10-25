@@ -3,10 +3,10 @@
 
 #include "cocoqmakesettings.h"
 
-#include "cocobuild/cocoprojectwidget.h"
-#include "cocopluginconstants.h"
-#include "cocotr.h"
-#include "common.h"
+#include "../cocobuild/cocoprojectwidget.h"
+#include "../cocopluginconstants.h"
+#include "../cocotr.h"
+#include "../common.h"
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>

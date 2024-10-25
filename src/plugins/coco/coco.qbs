@@ -25,7 +25,6 @@ QtcPlugin {
         "cocobuild/cococmakesettings.h",
         "cocobuild/cocoprojectwidget.cpp",
         "cocobuild/cocoprojectwidget.h",
-        "cocobuild/cocoprojectwidget.ui",
         "cocobuild/cocoqmakesettings.cpp",
         "cocobuild/cocoqmakesettings.h",
         "cocobuild/modificationfile.cpp",
@@ -55,7 +54,6 @@ QtcPlugin {
         "settings/globalsettings.h",
         "settings/globalsettingspage.cpp",
         "settings/globalsettingspage.h",
-        "settings/globalsettingspage.ui",
     ]
 }
 

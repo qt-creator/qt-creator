@@ -3,9 +3,9 @@
 
 #include "cococmakesettings.h"
 
-#include "cocobuild/cocoprojectwidget.h"
-#include "cocotr.h"
-#include "common.h"
+#include "../cocotr.h"
+#include "../common.h"
+#include "cocoprojectwidget.h"
 
 #include <cmakeprojectmanager/cmakebuildconfiguration.h>
 #include <cmakeprojectmanager/cmakebuildsystem.h>

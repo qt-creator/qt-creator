@@ -3,13 +3,12 @@
 
 #include "cocobuildstep.h"
 
-#include "cocopluginconstants.h"
-#include "cocotr.h"
+#include "../cocopluginconstants.h"
+#include "../cocotr.h"
+#include "../settings/cocoinstallation.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
-#include <settings/cocoinstallation.h>
-#include <settings/globalsettingspage.h>
 #include <solutions/tasking/tasktree.h>
 #include <utils/layoutbuilder.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>

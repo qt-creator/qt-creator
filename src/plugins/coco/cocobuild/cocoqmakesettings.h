@@ -3,9 +3,9 @@
 
 #pragma once
 
+#include "../settings/cocoinstallation.h"
 #include "buildsettings.h"
 #include "qmakefeaturefile.h"
-#include "settings/cocoinstallation.h"
 
 #include <utils/commandline.h>
 #include <utils/environment.h>

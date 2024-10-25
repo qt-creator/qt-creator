@@ -3,8 +3,8 @@
 
 #include "cocoprojectsettingswidget.h"
 
-#include "cocobuild/cocoprojectwidget.h"
-#include "cocopluginconstants.h"
+#include "../cocobuild/cocoprojectwidget.h"
+#include "../cocopluginconstants.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/buildconfiguration.h>

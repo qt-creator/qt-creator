@@ -3,7 +3,7 @@
 
 #include "qmakefeaturefile.h"
 
-#include "cocopluginconstants.h"
+#include "../cocopluginconstants.h"
 
 #include <QFile>
 #include <QRegularExpression>
@@ -13,12 +13,6 @@ namespace Coco::Internal {
 
 static const char assignment[] = "COVERAGE_OPTIONS = \\\n";
 static const char tweaksLine[] = "# User-supplied settings follow here:\n";
-
-static void cutTail(QStringList &list)
-{
-    while (!list.isEmpty() && list.last().trimmed().isEmpty())
-        list.removeLast();
-}
 
 QMakeFeatureFile::QMakeFeatureFile() {}
 
