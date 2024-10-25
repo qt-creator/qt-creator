@@ -682,9 +682,12 @@ void FormEditorWidget::dropEvent(QDropEvent *dropEvent)
         const QStringList addedImages = addedAssets.value(
             ComponentCoreConstants::addImagesDisplayString);
         for (const QString &imgPath : addedImages) {
+            Utils::FilePath fp = Utils::FilePath::fromString(imgPath);
+
             QmlItemNode::createQmlItemNodeFromImage(
                 m_formEditorView,
-                imgPath,
+                ModelNodeOperations::getImagesDefaultDirectory().pathAppended(fp.fileName())
+                    .absoluteFilePath().toFSPathString(),
                 {},
                 m_formEditorView->scene()->rootFormEditorItem()->qmlItemNode(),
                 false);
