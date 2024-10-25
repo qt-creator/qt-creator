@@ -30,6 +30,17 @@ std::optional<TypeName> groupTypeName(GroupType type)
     return {};
 }
 
+QVariant getDefaultValueForGroupType(GroupType type)
+{
+    switch (type) {
+    case QmlDesigner::GroupType::Colors: return QVariant("#000000");
+    case QmlDesigner::GroupType::Flags: return QVariant(false);
+    case QmlDesigner::GroupType::Numbers: return QVariant(0);
+    case QmlDesigner::GroupType::Strings: return QVariant("");
+    }
+    return {};
+}
+
 QDebug &operator<<(QDebug &s, const ThemeProperty &p)
 {
     s << "{Name:" << p.name << ", Value:" << p.value << ", isBinding:" << p.isBinding << "}";
@@ -187,7 +198,7 @@ void DSThemeGroup::decorateComponent(ModelNode node)
     // Add properties with type to the node
     for (auto &[propName, values] : m_values) {
         auto nodeProp = node.variantProperty(propName);
-        nodeProp.setDynamicTypeNameAndValue(*typeName, nodeProp.value());
+        nodeProp.setDynamicTypeNameAndValue(*typeName, getDefaultValueForGroupType(m_type));
     }
 }
 
