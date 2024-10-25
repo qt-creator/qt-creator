@@ -709,12 +709,6 @@
         \li
 
     \row
-        \li M325
-        \li Warning
-        \li Logical value does not depend on actual values
-        \li Removed: This warning is no longer being used since Qt Creator version 12.
-
-    \row
         \li M326
         \li Error
         \li Components are only allowed to have a single child element
@@ -746,6 +740,13 @@
         \li Avoid referencing the root item in a hierarchy
         \li The alias property cannot reference the root component in a
             hierarchy. Create an instance of the component instead.
+
+    \row
+        \li M403
+        \li Error
+        \li A when condition cannot contain an object
+        \li Set the \c when condition to an expression that evaluates to \c true
+            when the condition is met.
 
     \endtable
 
