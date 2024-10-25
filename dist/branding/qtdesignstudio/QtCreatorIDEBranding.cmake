@@ -1,5 +1,5 @@
-set(IDE_VERSION "4.6.1")                              # The IDE version.
-set(IDE_VERSION_COMPAT "4.6.1")                       # The IDE Compatibility version.
+set(IDE_VERSION "4.6.2")                              # The IDE version.
+set(IDE_VERSION_COMPAT "4.6.2")                       # The IDE Compatibility version.
 set(IDE_VERSION_DISPLAY "4.6")                        # The IDE display version.
 set(IDE_COPYRIGHT_YEAR "2024")                        # The IDE current copyright year.
 
