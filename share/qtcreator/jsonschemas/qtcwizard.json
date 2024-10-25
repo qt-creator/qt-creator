@@ -1,0 +1,338 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Qt Creator wizard definition",
+    "description": "A Qt Creator wizard definition",
+    "type": "object",
+
+    "definitions": {
+        "keyValueObject": {
+            "type": "object",
+            "properties": {
+                "key": {
+                    "type": "string",
+                    "description": "Variable name"
+                },
+                "value": {
+                    "anyOf": [
+                        { "type": "integer" },
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to be resolved to a value"
+                },
+                "condition": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to evaluate to 'true' or 'false', if false this variable is not set"
+                },
+                "evaluate": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to evaluate to 'true' or 'false', if true the value is macro expanded before it is set"
+                }
+            },
+            "required": [ "key" ]
+        },
+        "keyValueArray": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/keyValueObject" }
+        },
+        "generatorDataObject": {
+            "type": "object",
+            "properties": {
+                "source": {
+                    "type": "string",
+                    "description": "File path to be used as input source for this generator"
+                },
+                "target": {
+                    "type": "string",
+                    "description": "File name to use for the generated file"
+                },
+                "condition": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to evaluate to 'true' or 'false', if true the generator will process source to target"
+                },
+                "openInEditor": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Open this file inside an editor after generator is done"
+                },
+                "openAsProject": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Open this file as a project file after generator is done"
+                },
+                "isBinary": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Copy the source verbatim instead of macro expanding its contents"
+                },
+                "overwrite": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Overwrite an already existing target without asking"
+                },
+                "temporary": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Mark the generated file as temporary, it is not added to the project"
+                },
+                "skipFormat": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Do not run the code formatter over the generated file"
+                },
+                "options": {
+                    "description": "List of key value pairs holding variables to be usable while processing this file",
+                    "anyOf": [
+                        { "$ref": "#/definitions/keyValueObject" },
+                        { "$ref": "#/definitions/keyValueArray" }
+                    ]
+                },
+                "binaryPattern": {
+                    "type": "string",
+                    "description": "Scanner generator only: regular expression, scanned files with a matching name are treated as binary"
+                },
+                "subdirectoryPatterns": {
+                    "type": "array",
+                    "description": "Scanner generator only: list of regular expressions, only subdirectories with a matching name are scanned",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "generatorDataArray": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/generatorDataObject" }
+        },
+        "localizedString": {
+            "anyOf": [
+                { "type": "string" },
+                {
+                    "type": "object",
+                    "additionalProperties": { "type": "string" },
+                    "description": "Mapping of locale id to the string to use for it"
+                }
+            ]
+        },
+        "pageObject": {
+            "type": "object",
+            "properties": {
+                "trDisplayName": {
+                    "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+                    "description": "Display string to use on the page"
+                },
+                "trSubTitle": {
+                    "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+                    "description": "Display string to use as subtitle for this page"
+                },
+                "trShortTitle": {
+                    "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+                    "description": "Display string to use as short title for this page"
+                },
+                "typeId": {
+                    "type": "string",
+                    "description": "Type for the wizard page"
+                },
+                "defaultValues": {
+                    "type": "string",
+                    "description": "Name of a file (without the '.json' suffix) inside the wizard search paths providing default values for this page"
+                },
+                "index": {
+                    "type": "integer",
+                    "description": "Position of this page among the wizard's pages"
+                },
+                "enabled": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to be resolved to string 'true' or 'false', if true this page will be shown"
+                },
+                "skipForSubprojects": {
+                    "anyOf": [
+                        { "type": "string" },
+                        { "type": "boolean" }
+                    ],
+                    "description": "Expression to be resolved to string 'true' or 'false', if true this page is skipped for subprojects"
+                },
+                "data": {
+                    "anyOf": [
+                        { "type": "array"},
+                        { "type": "object"}
+                    ],
+                    "description": "Extra data to be used by the specific wizard page"
+                }
+            },
+            "anyOf": [
+                { "required": [ "typeId" ] },
+                { "required": [ "defaultValues" ] }
+            ]
+        },
+        "pageArray": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/pageObject" }
+        },
+        "generatorObject": {
+            "type": "object",
+            "properties": {
+                "typeId": {
+                    "type": "string",
+                    "description": "Generator id to be used"
+                },
+                "data": {
+                    "anyOf": [
+                        { "$ref": "#/definitions/generatorDataArray" },
+                        { "$ref": "#/definitions/generatorDataObject" }
+                    ],
+                    "description": "Data to be used by the generator, its shape depends on the generator's typeId"
+                }
+            },
+            "required": [ "typeId" ]
+        },
+        "generatorArray": {
+            "type": "array",
+            "items": { "$ref": "#/definitions/generatorObject" }
+        }
+    },
+    "properties": {
+        "version": {
+            "type": "number",
+            "description": "Version of this content"
+        },
+
+        "supportedProjectTypes": {
+            "type": "array",
+            "description": "List of supported project types",
+            "items": {
+                "type": "string"
+            }
+        },
+        "kind": {
+            "enum": [ "file", "project", "class" ],
+            "description": "Legacy, superseded by supportedProjectTypes. 'file' and 'project' are still accepted, 'class' is deprecated. Must not be combined with supportedProjectTypes unless set to 'project'"
+        },
+        "id": {
+            "type": "string",
+            "description": "Unique id for this wizard"
+        },
+        "category": {
+            "type": "string",
+            "description": "Category id used for this wizard"
+        },
+        "trDisplayName": {
+            "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+            "description": "Display string to use for the wizard"
+        },
+        "trDescription": {
+            "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+            "description": "Description text to be displayed on the wizard"
+        },
+        "trDisplayCategory": {
+            "anyOf": [ { "$ref": "#/definitions/localizedString" } ],
+            "description": "Display string for the category"
+        },
+        "icon": {
+            "type": "string",
+            "description": "Path to an icon file to be displayed for the wizard"
+        },
+        "iconText": {
+            "type": "string",
+            "description": "File suffix to use to generate a file icon for this file type"
+        },
+        "iconKind": {
+            "type": "string",
+            "description": "Set to 'Themed' to look up the icon as a themed icon instead of a file"
+        },
+        "image": {
+            "type": "string",
+            "description": "Path to an image file to be displayed as description image on the wizard"
+        },
+        "featuresRequired": {
+            "type": "array",
+            "description": "List of feature ids that must be available for this wizard to be offered",
+            "items": {
+                "type": "string"
+            }
+        },
+        "featuresSuggested": {
+            "type": "array",
+            "description": "List of feature ids that are preferred, but not required, for this wizard",
+            "items": {
+                "type": "string"
+            }
+        },
+        "platformIndependent": {
+            "type": "boolean",
+            "description": "If true marks the wizard as platform independent"
+        },
+        "enabled": {
+            "anyOf": [
+                { "type": "string" },
+                { "type": "boolean" }
+            ],
+            "description": "Expression to be resolved to string 'true' or 'false', if true this wizard will be available"
+        },
+        "skipForSubprojects": {
+            "anyOf": [
+                { "type": "string" },
+                { "type": "boolean" }
+            ],
+            "description": "Expression to be resolved to string 'true' or 'false', if true this wizard is skipped for subprojects"
+        },
+
+        "options": {
+            "description": "List of key value pairs holding variables to be usable within the wizard",
+            "anyOf": [
+                { "$ref": "#/definitions/keyValueObject" },
+                { "$ref": "#/definitions/keyValueArray" }
+            ]
+        },
+
+        "pages": {
+            "description": "List of pages used for this wizard",
+            "anyOf": [
+                { "$ref": "#/definitions/pageObject" },
+                { "$ref": "#/definitions/pageArray" }
+            ]
+        },
+
+        "generators": {
+            "description": "List of generators used by the wizard",
+            "anyOf": [
+                { "$ref": "#/definitions/generatorObject" },
+                { "$ref": "#/definitions/generatorArray" }
+            ]
+        }
+    },
+    "required": [
+        "version",
+        "id",
+        "category",
+        "trDisplayName",
+        "trDisplayCategory",
+        "trDescription",
+        "generators",
+        "pages"
+    ]
+}
