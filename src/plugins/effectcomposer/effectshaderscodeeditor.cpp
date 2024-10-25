@@ -43,6 +43,7 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
     , m_settings(new QSettings(qApp->organizationName(), qApp->applicationName(), this))
 {
     setWindowFlag(Qt::Tool, true);
+    setWindowFlag(Qt::WindowStaysOnTopHint);
     setWindowTitle(title);
 
     m_fragmentEditor = createJSEditor();
@@ -75,7 +76,6 @@ void EffectShadersCodeEditor::showWidget()
     readAndApplyLiveUpdateSettings();
     show();
     raise();
-    m_vertexEditor->setFocus();
     setOpened(true);
 }
 
@@ -158,6 +158,8 @@ EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
     editorWidget->setParent(this);
     editorWidget->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
+    editorWidget->installEventFilter(this);
+
     return editorWidget;
 }
 
@@ -172,6 +174,19 @@ void EffectShadersCodeEditor::setupUIComponents()
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     verticalLayout->addWidget(createToolbar());
     verticalLayout->addWidget(tabWidget);
+
+    connect(this, &EffectShadersCodeEditor::openedChanged, tabWidget, [this, tabWidget](bool opened) {
+        if (!opened)
+            return;
+
+        QWidget *widgetToSelect = (m_vertexEditor->document()->isEmpty()
+                                   && !m_fragmentEditor->document()->isEmpty())
+                                      ? m_fragmentEditor.get()
+                                      : m_vertexEditor.get();
+        tabWidget->setCurrentWidget(widgetToSelect);
+        widgetToSelect->setFocus();
+        activateWindow();
+    });
 
     this->resize(660, 240);
 }
@@ -193,6 +208,23 @@ void EffectShadersCodeEditor::closeEvent(QCloseEvent *event)
         emit rebakeRequested();
 
     setOpened(false);
+}
+
+bool EffectShadersCodeEditor::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == event->FocusOut) {
+        QFocusEvent *focusEvent = dynamic_cast<QFocusEvent *>(event);
+        if (focusEvent && focusEvent->reason() == Qt::ActiveWindowFocusReason) {
+            connect(
+                qApp,
+                &QApplication::focusWindowChanged,
+                this,
+                &EffectShadersCodeEditor::close,
+                Qt::SingleShotConnection);
+        }
+    }
+
+    return QWidget::eventFilter(watched, event);
 }
 
 void EffectShadersCodeEditor::writeLiveUpdateSettings()
