@@ -3,8 +3,8 @@
 
 #include "cocoinstallation.h"
 
-#include "../cocotr.h"
-#include "../common.h"
+#include "cococommon.h"
+#include "cocotr.h"
 #include "globalsettings.h"
 
 #include <utils/fileutils.h>

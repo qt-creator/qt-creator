@@ -3,8 +3,8 @@
 
 #include "globalsettings.h"
 
-#include "../cocopluginconstants.h"
 #include "cocoinstallation.h"
+#include "cocopluginconstants.h"
 
 #include <coreplugin/icore.h>
 #include <utils/filepath.h>

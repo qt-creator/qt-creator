@@ -3,41 +3,62 @@
 
 #include "cocoqmakesettings.h"
 
-#include "../cocobuild/cocoprojectwidget.h"
-#include "../cocopluginconstants.h"
-#include "../cocotr.h"
-#include "../common.h"
+#include "buildsettings.h"
+#include "cococommon.h"
+#include "cocoinstallation.h"
+#include "cocopluginconstants.h"
+#include "cocoprojectwidget.h"
+#include "cocotr.h"
+#include "qmakefeaturefile.h"
+
+#include <utils/commandline.h>
+#include <utils/environment.h>
 
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
-#include <qmakeprojectmanager/qmakebuildconfiguration.h>
-#include <qmakeprojectmanager/qmakestep.h>
+
+#include <QObject>
+#include <QStringList>
 
 using namespace ProjectExplorer;
 
 namespace Coco::Internal {
 
-CocoQMakeSettings::CocoQMakeSettings(Project *project)
-    : BuildSettings{m_featureFile, project}
-{}
+class CocoQMakeSettings : public BuildSettings
+{
+public:
+    explicit CocoQMakeSettings(BuildConfiguration *buildConfig)
+        : BuildSettings{m_featureFile, buildConfig}
+    {}
 
-CocoQMakeSettings::~CocoQMakeSettings() {}
+    void read() override;
+    bool validSettings() const override;
+    void setCoverage(bool on) override;
+
+    QString saveButtonText() const override;
+    QString configChanges() const override;
+    QString projectDirectory() const override;
+    void write(const QString &options, const QString &tweaks) override;
+
+private:
+    bool environmentSet() const;
+    QString pathAssignment() const;
+    const QStringList userArgumentList() const;
+    Utils::Environment buildEnvironment() const;
+    void setQMakeFeatures() const;
+    bool cocoPathValid() const;
+
+    QMakeFeatureFile m_featureFile;
+    CocoInstallation m_coco;
+};
 
 void CocoQMakeSettings::read()
 {
     setEnabled(false);
-    if (Target *target = activeTarget()) {
-        if ((m_buildConfig = qobject_cast<QmakeProjectManager::QmakeBuildConfiguration*>(target->activeBuildConfiguration()))) {
-            if (BuildStepList *buildSteps = m_buildConfig->buildSteps()) {
-                if ((m_qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>())) {
-                    m_featureFile.setProjectDirectory(m_buildConfig->project()->projectDirectory());
-                    m_featureFile.read();
-                    setEnabled(true);
-                }
-            }
-        }
-    }
+    m_featureFile.setFilePath(buildConfig());
+    m_featureFile.read();
+    setEnabled(true);
 }
 
 QString configAssignment()
@@ -54,15 +75,7 @@ const QStringList CocoQMakeSettings::userArgumentList() const
     if (!enabled())
         return {};
 
-    Utils::ProcessArgs::ConstArgIterator it{m_qmakeStep->userArguments.unexpandedArguments()};
-    QStringList result;
-
-    while (it.next()) {
-        if (it.isSimple())
-            result << it.value();
-    }
-
-    return result;
+    return buildConfig()->initialArgs();
 }
 
 Utils::Environment CocoQMakeSettings::buildEnvironment() const
@@ -70,8 +83,8 @@ Utils::Environment CocoQMakeSettings::buildEnvironment() const
     if (!enabled())
         return Utils::Environment();
 
-    Utils::Environment env = m_buildConfig->environment();
-    env.modify(m_buildConfig->userEnvironmentChanges());
+    Utils::Environment env = buildConfig()->environment();
+    env.modify(buildConfig()->userEnvironmentChanges());
     return env;
 }
 
@@ -82,15 +95,15 @@ void CocoQMakeSettings::setQMakeFeatures() const
 
     Utils::Environment env = buildEnvironment();
 
-    const QString projectDir = m_buildConfig->project()->projectDirectory().nativePath();
+    const QString projectDir = buildConfig()->project()->projectDirectory().nativePath();
     if (env.value(featuresVar) != projectDir) {
         // Bug in prependOrSet(): It does not recognize if QMAKEFEATURES contains a single path
         // without a colon and then appends it twice.
         env.prependOrSet(featuresVar, projectDir);
     }
 
-    Utils::EnvironmentItems diff = m_buildConfig->baseEnvironment().diff(env);
-    m_buildConfig->setUserEnvironmentChanges(diff);
+    Utils::EnvironmentItems diff = buildConfig()->baseEnvironment().diff(env);
+    buildConfig()->setUserEnvironmentChanges(diff);
 }
 
 bool CocoQMakeSettings::environmentSet() const
@@ -99,7 +112,7 @@ bool CocoQMakeSettings::environmentSet() const
         return true;
 
     const Utils::Environment env = buildEnvironment();
-    const Utils::FilePath projectDir = m_buildConfig->project()->projectDirectory();
+    const Utils::FilePath projectDir = buildConfig()->project()->projectDirectory();
     const QString nativeProjectDir = projectDir.nativePath();
     return env.value(featuresVar) == nativeProjectDir
            || env.value(featuresVar).startsWith(nativeProjectDir + projectDir.pathListSeparator());
@@ -114,25 +127,22 @@ bool CocoQMakeSettings::validSettings() const
 
 void CocoQMakeSettings::setCoverage(bool on)
 {
-    QString args = m_qmakeStep->userArguments.unexpandedArguments();
-    Utils::ProcessArgs::ArgIterator it{&args};
+    QStringList args;
 
-    while (it.next()) {
-        if (it.isSimple()) {
-            const QString value = it.value();
-            if (value.startsWith(pathAssignmentPrefix) || value == configAssignment())
-                it.deleteArg();
-        }
+    for (const QString &arg : buildConfig()->initialArgs()) {
+        if (!arg.startsWith(pathAssignmentPrefix) && arg != configAssignment())
+            args.append(arg);
     }
+
     if (on) {
-        it.appendArg(configAssignment());
-        it.appendArg(pathAssignment());
+        args.append(configAssignment());
+        args.append(pathAssignment());
 
         setQMakeFeatures();
         m_featureFile.write();
     }
 
-    m_qmakeStep->userArguments.setArguments(args);
+    buildConfig()->setInitialArgs(args);
 }
 
 QString CocoQMakeSettings::saveButtonText() const
@@ -144,17 +154,18 @@ QString CocoQMakeSettings::configChanges() const
 {
     return "<table><tbody>"
            + tableRow(
-               "Additional qmake arguments: ",
+               Tr::tr("Additional qmake arguments: "),
                maybeQuote(configAssignment()) + " " + maybeQuote(pathAssignment()))
            + tableRow(
-               "Build environment: ", maybeQuote(QString(featuresVar) + "=" + projectDirectory()))
-           + tableRow("Feature File: ", maybeQuote(featureFilePath())) + "</tbody></table>";
+               Tr::tr("Build environment: "),
+               maybeQuote(QString(featuresVar) + "=" + projectDirectory()))
+           + tableRow(Tr::tr("Feature File: "), maybeQuote(featureFilePath())) + "</tbody></table>";
 }
 
 QString CocoQMakeSettings::projectDirectory() const
 {
     if (enabled())
-        return m_buildConfig->project()->projectDirectory().nativePath();
+        return buildConfig()->project()->projectDirectory().nativePath();
     else
         return "";
 }
@@ -173,16 +184,17 @@ QString CocoQMakeSettings::pathAssignment() const
 
 bool CocoQMakeSettings::cocoPathValid() const
 {
-    Utils::ProcessArgs::ConstArgIterator it{m_qmakeStep->userArguments.unexpandedArguments()};
-
-    while (it.next()) {
-        if (it.isSimple()) {
-            const QString value = it.value();
-            if (value.startsWith(pathAssignmentPrefix) && value != pathAssignment())
-                return false;
-        }
+    for (const QString &arg : buildConfig()->initialArgs()) {
+        if (arg.startsWith(pathAssignmentPrefix) && arg != pathAssignment())
+            return false;
     }
+
     return true;
+}
+
+BuildSettings *createCocoQMakeSettings(BuildConfiguration *bc)
+{
+    return new CocoQMakeSettings(bc);
 }
 
 } // namespace Coco::Internal

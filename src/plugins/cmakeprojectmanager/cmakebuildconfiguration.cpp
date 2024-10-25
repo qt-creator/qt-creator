@@ -1854,10 +1854,38 @@ QStringList CMakeBuildConfiguration::initialCMakeOptions() const
     return initialCMakeArguments.allValues();
 }
 
+void CMakeBuildConfiguration::setInitialArgs(const QStringList &args)
+{
+    setInitialCMakeArguments(args);
+}
+
+QStringList CMakeBuildConfiguration::initialArgs() const
+{
+    return initialCMakeOptions();
+}
+
+QStringList CMakeBuildConfiguration::additionalArgs() const
+{
+    return additionalCMakeArguments();
+}
+
+void CMakeBuildConfiguration::reconfigure()
+{
+    cmakeBuildSystem()->clearCMakeCache();
+    updateInitialCMakeArguments();
+    cmakeBuildSystem()->runCMake();
+}
+
+void CMakeBuildConfiguration::stopReconfigure()
+{
+     cmakeBuildSystem()->stopCMakeRun();
+}
+
 CMakeConfig CMakeBuildConfiguration::signingFlags() const
 {
     return {};
 }
+
 
 void CMakeBuildConfiguration::setInitialBuildAndCleanSteps(const Target *target)
 {

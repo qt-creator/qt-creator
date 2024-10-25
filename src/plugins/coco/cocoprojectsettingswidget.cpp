@@ -3,8 +3,8 @@
 
 #include "cocoprojectsettingswidget.h"
 
-#include "../cocobuild/cocoprojectwidget.h"
-#include "../cocopluginconstants.h"
+#include "cocopluginconstants.h"
+#include "cocoprojectwidget.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/buildconfiguration.h>
@@ -27,7 +27,7 @@ CocoProjectSettingsWidget::CocoProjectSettingsWidget(ProjectExplorer::Project *p
 
         if (abc->id() == QmakeProjectManager::Constants::QMAKE_BC_ID
             || abc->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
-            m_layout->addWidget(new CocoProjectWidget(project, *abc));
+            m_layout->addWidget(new CocoProjectWidget(project, abc));
     }
     setLayout(m_layout);
 }

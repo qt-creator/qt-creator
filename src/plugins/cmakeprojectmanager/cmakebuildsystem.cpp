@@ -62,9 +62,8 @@
 using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
-using namespace CMakeProjectManager::Internal;
 
-namespace CMakeProjectManager {
+namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmakeBuildSystemLog, "qtc.cmake.buildsystem", QtWarningMsg);
 
@@ -2524,4 +2523,4 @@ ExtraCompiler *CMakeBuildSystem::findExtraCompiler(const ExtraCompilerFilter &fi
     return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
-} // CMakeProjectManager
+} // CMakeProjectManager::Internal

@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include "../settings/cocoinstallation.h"
 #include "buildsettings.h"
+#include "cocoinstallation.h"
 
 #include <projectexplorer/buildconfiguration.h>
 #include <utils/aspects.h>
@@ -26,8 +26,7 @@ class CocoProjectWidget : public QWidget
 public:
     enum ConfigurationState { configDone, configEdited, configRunning, configStopped };
 
-    explicit CocoProjectWidget(
-        ProjectExplorer::Project *project, const ProjectExplorer::BuildConfiguration &buildConfig);
+    explicit CocoProjectWidget(ProjectExplorer::Project *project, ProjectExplorer::BuildConfiguration *buildConfig);
 
 protected:
     void showEvent(QShowEvent *event) override;

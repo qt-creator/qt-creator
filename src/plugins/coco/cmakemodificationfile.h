@@ -16,14 +16,8 @@ class CMakeModificationFile : public ModificationFile
 public:
     CMakeModificationFile(ProjectExplorer::Project *project);
 
-    void read() override;
-    void write() const override;
-
-    QString fileName() const override;
-    void setProjectDirectory(const Utils::FilePath &projectDirectory) override;
-
-protected:
-    QStringList defaultModificationFile() const override;
+    void read();
+    void write() const;
 
 private:
     ProjectExplorer::Project *m_project;

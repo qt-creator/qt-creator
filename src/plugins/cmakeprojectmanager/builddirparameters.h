@@ -15,15 +15,11 @@ class MacroExpander;
 class OutputLineParser;
 } // namespace Utils
 
-namespace ProjectExplorer {
-class Project;
-}
-
-namespace CMakeProjectManager {
-class CMakeBuildSystem;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace CMakeProjectManager::Internal {
+
+class CMakeBuildSystem;
 
 class BuildDirParameters
 {

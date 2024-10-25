@@ -3,33 +3,64 @@
 
 #include "cococmakesettings.h"
 
-#include "../cocotr.h"
-#include "../common.h"
+#include "buildsettings.h"
+#include "cmakemodificationfile.h"
+#include "cococommon.h"
 #include "cocoprojectwidget.h"
+#include "cocotr.h"
 
-#include <cmakeprojectmanager/cmakebuildconfiguration.h>
-#include <cmakeprojectmanager/cmakebuildsystem.h>
+#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/target.h>
+#include <utils/algorithm.h>
+
+#include <QObject>
+#include <QStringList>
 
 using namespace ProjectExplorer;
-using namespace CMakeProjectManager;
+using namespace Utils;
 
 namespace Coco::Internal {
 
-CocoCMakeSettings::CocoCMakeSettings(Project *project)
-    : BuildSettings{m_featureFile, project}
-    , m_featureFile{project}
-{}
+class CocoCMakeSettings : public BuildSettings
+{
+public:
+    explicit CocoCMakeSettings(BuildConfiguration *bc)
+        : BuildSettings{m_featureFile, bc}
+        , m_featureFile{bc->project()}
+    {}
 
-CocoCMakeSettings::~CocoCMakeSettings() {}
+    void connectToProject(CocoProjectWidget *parent) const override;
+    void read() override;
+    bool validSettings() const override;
+    void setCoverage(bool on) override;
+
+    QString saveButtonText() const override;
+    QString configChanges() const override;
+    bool needsReconfigure() const override { return true; }
+    void reconfigure() override;
+    void stopReconfigure() override;
+
+    QString projectDirectory() const override;
+    void write(const QString &options, const QString &tweaks) override;
+
+private:
+    bool hasInitialCacheOption(const QStringList &args) const;
+    QString initialCacheOption() const;
+    void writeToolchainFile(const QString &internalPath);
+
+    CMakeModificationFile m_featureFile;
+};
 
 void CocoCMakeSettings::connectToProject(CocoProjectWidget *parent) const
 {
     connect(
-        activeTarget(), &Target::buildSystemUpdated, parent, &CocoProjectWidget::buildSystemUpdated);
+        buildConfig()->target(),
+        &Target::buildSystemUpdated,
+        parent,
+        &CocoProjectWidget::buildSystemUpdated);
     connect(
-        qobject_cast<CMakeProjectManager::CMakeBuildSystem *>(activeTarget()->buildSystem()),
-        &CMakeProjectManager::CMakeBuildSystem::errorOccurred,
+        buildConfig()->buildSystem(),
+        &ProjectExplorer::BuildSystem::errorOccurred,
         parent,
         &CocoProjectWidget::configurationErrorOccurred);
 }
@@ -37,14 +68,9 @@ void CocoCMakeSettings::connectToProject(CocoProjectWidget *parent) const
 void CocoCMakeSettings::read()
 {
     setEnabled(false);
-    if (Target *target = activeTarget()) {
-        if ((m_buildConfig = qobject_cast<CMakeBuildConfiguration *>(
-                 target->activeBuildConfiguration()))) {
-            m_featureFile.setProjectDirectory(m_buildConfig->project()->projectDirectory());
-            m_featureFile.read();
-            setEnabled(true);
-        }
-    }
+    m_featureFile.setFilePath(buildConfig());
+    m_featureFile.read();
+    setEnabled(true);
 }
 
 QString CocoCMakeSettings::initialCacheOption() const
@@ -67,8 +93,8 @@ bool CocoCMakeSettings::hasInitialCacheOption(const QStringList &args) const
 
 bool CocoCMakeSettings::validSettings() const
 {
-    return enabled() && m_featureFile.exists()
-           && hasInitialCacheOption(m_buildConfig->additionalCMakeArguments());
+    const QStringList args = buildConfig()->additionalArgs();
+    return enabled() && m_featureFile.exists() && hasInitialCacheOption(args);
 }
 
 void CocoCMakeSettings::setCoverage(bool on)
@@ -76,7 +102,7 @@ void CocoCMakeSettings::setCoverage(bool on)
     if (!enabled())
         return;
 
-    auto values = m_buildConfig->initialCMakeOptions();
+    QStringList values = buildConfig()->initialArgs();
     QStringList args = Utils::filtered(values, [&](const QString &option) {
         return !(option.startsWith("-C") && option.endsWith(featureFilenName()));
     });
@@ -84,7 +110,7 @@ void CocoCMakeSettings::setCoverage(bool on)
     if (on)
         args << QString("-C%1").arg(m_featureFile.nativePath());
 
-    m_buildConfig->setInitialCMakeArguments(args);
+    buildConfig()->setInitialArgs(args);
 }
 
 QString CocoCMakeSettings::saveButtonText() const
@@ -95,30 +121,27 @@ QString CocoCMakeSettings::saveButtonText() const
 QString CocoCMakeSettings::configChanges() const
 {
     return "<table><tbody>"
-           + tableRow("Additional CMake options: ", maybeQuote(initialCacheOption()))
-           + tableRow("Initial cache script: ", maybeQuote(featureFilePath())) + "</tbody></table>";
+           + tableRow(Tr::tr("Additional CMake options: "), maybeQuote(initialCacheOption()))
+           + tableRow(Tr::tr("Initial cache script: "), maybeQuote(featureFilePath()))
+           + "</tbody></table>";
 }
 
 void CocoCMakeSettings::reconfigure()
 {
-    if (!enabled())
-        return;
-
-    m_buildConfig->cmakeBuildSystem()->clearCMakeCache();
-    m_buildConfig->updateInitialCMakeArguments();
-    m_buildConfig->cmakeBuildSystem()->runCMake();
+    if (enabled())
+        buildConfig()->reconfigure();
 }
 
 void Coco::Internal::CocoCMakeSettings::stopReconfigure()
 {
     if (enabled())
-        m_buildConfig->cmakeBuildSystem()->stopCMakeRun();
+        buildConfig()->stopReconfigure();
 }
 
 QString CocoCMakeSettings::projectDirectory() const
 {
     if (enabled())
-        return m_buildConfig->project()->projectDirectory().path();
+        return buildConfig()->project()->projectDirectory().path();
     else
         return "";
 }
@@ -136,7 +159,7 @@ void CocoCMakeSettings::write(const QString &options, const QString &tweaks)
 
 void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
 {
-    const Utils::FilePath projectDirectory = m_buildConfig->project()->projectDirectory();
+    const Utils::FilePath projectDirectory = buildConfig()->project()->projectDirectory();
 
     QFile internalFile{internalPath};
     internalFile.open(QIODeviceBase::ReadOnly);
@@ -162,6 +185,11 @@ void CocoCMakeSettings::writeToolchainFile(const QString &internalPath)
     out.open(QIODeviceBase::WriteOnly);
     out.write(internalContent);
     out.close();
+}
+
+BuildSettings *createCocoCMakeSettings(BuildConfiguration *bc)
+{
+    return new CocoCMakeSettings(bc);
 }
 
 } // namespace Coco::Internal

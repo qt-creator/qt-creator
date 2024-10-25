@@ -113,6 +113,14 @@ public:
 
     bool createBuildDirectory();
 
+    // For tools that need to manipulate the main build command's argument list
+    virtual void setInitialArgs(const QStringList &);
+    virtual QStringList initialArgs() const;
+    virtual QStringList additionalArgs() const;
+
+    virtual void reconfigure() {}
+    virtual void stopReconfigure() {}
+
 signals:
     void environmentChanged();
     void buildDirectoryInitialized();

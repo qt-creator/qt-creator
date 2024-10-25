@@ -3,9 +3,9 @@
 
 #include "cocobuildstep.h"
 
-#include "../cocopluginconstants.h"
-#include "../cocotr.h"
-#include "../settings/cocoinstallation.h"
+#include "cocoinstallation.h"
+#include "cocopluginconstants.h"
+#include "cocotr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -109,7 +109,7 @@ void CocoBuildStep::display(BuildConfiguration *buildConfig)
 {
     Q_ASSERT( m_buildSettings.isNull() );
 
-    m_buildSettings = BuildSettings::createdFor(*buildConfig);
+    m_buildSettings = BuildSettings::createdFor(buildConfig);
     m_buildSettings->read();
     m_buildSettings->connectToBuildStep(this);
 

@@ -294,6 +294,23 @@ bool BuildConfiguration::createBuildDirectory()
     return result;
 }
 
+void BuildConfiguration::setInitialArgs(const QStringList &)
+{
+    QTC_CHECK(false);
+}
+
+QStringList BuildConfiguration::initialArgs() const
+{
+    QTC_CHECK(false);
+    return {};
+}
+
+QStringList BuildConfiguration::additionalArgs() const
+{
+    QTC_CHECK(false);
+    return {};
+}
+
 void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo &)> &initializer)
 {
     d->m_initializer = initializer;

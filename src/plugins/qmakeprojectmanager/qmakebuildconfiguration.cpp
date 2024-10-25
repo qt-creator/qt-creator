@@ -415,6 +415,33 @@ bool QmakeBuildConfiguration::runQmakeSystemFunctions() const
     return settings().runSystemFunction();
 }
 
+void QmakeBuildConfiguration::setInitialArgs(const QStringList &args)
+{
+    if (BuildStepList *buildSteps = this->buildSteps()) {
+        if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>())
+            qmakeStep->userArguments.setArguments(ProcessArgs::joinArgs(args));
+    }
+}
+
+QStringList QmakeBuildConfiguration::initialArgs() const
+{
+    if (BuildStepList *buildSteps = this->buildSteps()) {
+        if (auto qmakeStep = buildSteps->firstOfType<QmakeProjectManager::QMakeStep>()) {
+            QString arg = qmakeStep->userArguments.unexpandedArguments();
+            ProcessArgs::ConstArgIterator it{arg};
+            QStringList result;
+
+            while (it.next()) {
+                if (it.isSimple())
+                    result << it.value();
+            }
+
+            return result;
+        }
+    }
+    return {};
+}
+
 QStringList QmakeBuildConfiguration::configCommandLineArguments() const
 {
     QStringList result;

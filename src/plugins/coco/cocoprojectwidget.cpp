@@ -3,11 +3,11 @@
 
 #include "cocoprojectwidget.h"
 
-#include "../cocopluginconstants.h"
-#include "../cocotr.h"
-#include "../common.h"
-#include "../settings/globalsettingspage.h"
 #include "buildsettings.h"
+#include "cococommon.h"
+#include "cocopluginconstants.h"
+#include "cocotr.h"
+#include "globalsettingspage.h"
 
 #include <coreplugin/icore.h>
 #include <projectexplorer/buildsystem.h>
@@ -20,9 +20,9 @@ using namespace Core;
 
 namespace Coco::Internal {
 
-CocoProjectWidget::CocoProjectWidget(Project *project, const BuildConfiguration &buildConfig)
+CocoProjectWidget::CocoProjectWidget(Project *project, BuildConfiguration *buildConfig)
     : m_project{project}
-    , m_buildConfigurationName{buildConfig.displayName()}
+    , m_buildConfigurationName{buildConfig->displayName()}
 {
     using namespace Layouting;
     using namespace Utils;
@@ -142,7 +142,7 @@ void CocoProjectWidget::configurationErrorOccurred(const QString &error)
         // The variable error seems to contain no usable information.
         setMessageLabel(
             Utils::InfoLabel::Error,
-            Tr::tr("Error when configuring with \"%1\". "
+            Tr::tr("Error when configuring with <i>%1</i>. "
                    "Check General Messages for more information.")
                 .arg(m_buildSettings->featureFilenName()));
         setState(configDone);

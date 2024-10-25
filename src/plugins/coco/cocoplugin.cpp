@@ -1,13 +1,13 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cocobuild/cocobuildstep.h"
+#include "cocobuildstep.h"
 #include "cocolanguageclient.h"
 #include "cocopluginconstants.h"
+#include "cocoprojectsettingswidget.h"
 #include "cocotr.h"
-#include "settings/cocoprojectsettingswidget.h"
-#include "settings/globalsettings.h"
-#include "settings/globalsettingspage.h"
+#include "globalsettings.h"
+#include "globalsettingspage.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

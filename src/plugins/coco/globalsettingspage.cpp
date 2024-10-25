@@ -3,9 +3,9 @@
 
 #include "globalsettingspage.h"
 
-#include "../cocopluginconstants.h"
-#include "../cocotr.h"
 #include "cocoinstallation.h"
+#include "cocopluginconstants.h"
+#include "cocotr.h"
 #include "globalsettings.h"
 
 #include <utils/fancylineedit.h>

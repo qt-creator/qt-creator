@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "modificationfile.h"
+#include "projectexplorer/project.h"
+
+#include <projectexplorer/buildconfiguration.h>
 
 namespace Coco::Internal {
 
@@ -11,7 +14,21 @@ static void cutTail(QStringList &list)
         list.removeLast();
 }
 
-ModificationFile::ModificationFile() {}
+ModificationFile::ModificationFile(const QString &fileName, const Utils::FilePath &defaultModificationFile)
+    : m_fileName{fileName}
+    , m_defaultModificationFile{defaultModificationFile}
+{}
+
+void ModificationFile::setFilePath(ProjectExplorer::BuildConfiguration *buildConfig)
+{
+    Utils::FilePath projectDirectory = buildConfig->project()->projectDirectory();
+    m_filePath = projectDirectory.pathAppended(fileName());
+}
+
+QString ModificationFile::fileName() const
+{
+    return m_fileName;
+}
 
 bool ModificationFile::exists() const
 {
@@ -22,6 +39,11 @@ void ModificationFile::clear()
 {
     m_options.clear();
     m_tweaks.clear();
+}
+
+QStringList ModificationFile::defaultModificationFile() const
+{
+    return contentOf(m_defaultModificationFile);
 }
 
 QStringList ModificationFile::contentOf(const Utils::FilePath &filePath) const

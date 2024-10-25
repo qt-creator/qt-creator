@@ -17,14 +17,8 @@ class QMakeFeatureFile : public ModificationFile
 public:
     QMakeFeatureFile();
 
-    void setProjectDirectory(const Utils::FilePath &projectDirectory) override;
-    void read() override;
-    void write() const override;
-
-    QString fileName() const override;
-
-protected:
-    QStringList defaultModificationFile() const override;
+    void read();
+    void write() const;
 
 private:
     QString fromFileLine(const QString &line) const;

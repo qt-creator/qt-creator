@@ -1,52 +1,46 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "cmakemodificationfile.h"
+#include "qmakefeaturefile.h"
 
-#include "../cocopluginconstants.h"
+#include "cocopluginconstants.h"
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/target.h>
-#include <projectexplorer/buildconfiguration.h>
+#include <QFile>
+#include <QRegularExpression>
+#include <QTextStream>
 
 namespace Coco::Internal {
 
-using namespace ProjectExplorer;
-
-static const char flagsSetting[] = "set(coverage_flags_list\n";
+static const char assignment[] = "COVERAGE_OPTIONS = \\\n";
 static const char tweaksLine[] = "# User-supplied settings follow here:\n";
 
-CMakeModificationFile::CMakeModificationFile(Project *project)
-    : m_project{project}
+QMakeFeatureFile::QMakeFeatureFile()
+    : ModificationFile{QString(Constants::PROFILE_NAME) + ".prf", ":/cocoplugin/files/cocoplugin.prf"}
 {}
 
-QString CMakeModificationFile::fileName() const
+QString QMakeFeatureFile::fromFileLine(const QString &line) const
 {
-    return QString(Constants::PROFILE_NAME) + ".cmake";
+    return line.chopped(2).trimmed().replace("\\\"", "\"");
 }
 
-void CMakeModificationFile::setProjectDirectory(const Utils::FilePath &projectDirectory)
+QString QMakeFeatureFile::toFileLine(const QString &option) const
 {
-    setFilePath(projectDirectory.pathAppended(fileName()));
+    QString line = option.trimmed().replace("\"", "\\\"");
+    return "    " + line + " \\\n";
 }
 
-QStringList CMakeModificationFile::defaultModificationFile() const
-{
-    return contentOf(":/cocoplugin/files/cocoplugin.cmake");
-}
-
-void CMakeModificationFile::read()
+void QMakeFeatureFile::read()
 {
     clear();
     QStringList file = currentModificationFile();
 
     {
         QStringList options;
-        int i = file.indexOf(flagsSetting);
+        int i = file.indexOf(assignment);
         if (i != -1) {
             i++;
-            while (i < file.size() && !file[i].startsWith(')')) {
-                options += file[i].trimmed();
+            while (i < file.size() && file[i].endsWith("\\\n")) {
+                options += fromFileLine(file[i]);
                 i++;
             }
         }
@@ -66,7 +60,7 @@ void CMakeModificationFile::read()
     }
 }
 
-void CMakeModificationFile::write() const
+void QMakeFeatureFile::write() const
 {
     QFile out(nativePath());
     out.open(QIODevice::WriteOnly | QIODevice::Text);
@@ -75,10 +69,11 @@ void CMakeModificationFile::write() const
     for (QString &line : defaultModificationFile()) {
         outStream << line;
 
-        if (line.startsWith(flagsSetting)) {
+        if (line.startsWith(assignment)) {
             for (const QString &option : options()) {
-                QString line = "    " + option + '\n';
-                outStream << line;
+                QString line = toFileLine(option);
+                if (!line.isEmpty())
+                    outStream << line;
             }
         }
     }

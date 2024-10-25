@@ -7,41 +7,42 @@
 
 #include <QStringList>
 
+namespace ProjectExplorer {
+class BuildConfiguration;
+}
+
 namespace Coco::Internal {
 
 class ModificationFile
 {
 public:
-    ModificationFile();
+    ModificationFile(const QString &fileName, const Utils::FilePath &defaultModificationFile);
 
-    virtual void read() = 0;
-    virtual void write() const = 0;
+    void setFilePath(ProjectExplorer::BuildConfiguration *buildConfig);
 
-    virtual void setProjectDirectory(const Utils::FilePath &projectDirectory) = 0;
-
-    virtual QString fileName() const = 0;
+    QString fileName() const;
     QString nativePath() const { return m_filePath.nativePath(); }
     bool exists() const;
 
     const QStringList &options() const { return m_options; }
     void setOptions(const QString &options);
+    void setOptions(const QStringList &options);
 
     const QStringList &tweaks() const { return m_tweaks; }
     void setTweaks(const QString &tweaks);
-
-protected:
-    void clear();
-
-    virtual QStringList defaultModificationFile() const = 0;
-    QStringList contentOf(const Utils::FilePath &filePath) const;
-    QStringList currentModificationFile() const;
-
-    void setFilePath(const Utils::FilePath &path) { m_filePath = path; }
-
-    void setOptions(const QStringList &options);
     void setTweaks(const QStringList &tweaks);
 
+    void clear();
+
+    QStringList defaultModificationFile() const;
+    QStringList currentModificationFile() const;
+
 private:
+    QStringList contentOf(const Utils::FilePath &filePath) const;
+
+    const QString m_fileName;
+    const Utils::FilePath m_defaultModificationFile;
+
     QStringList m_options;
     QStringList m_tweaks;
 

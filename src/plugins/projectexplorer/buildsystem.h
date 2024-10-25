@@ -151,6 +151,8 @@ signals:
     void parsingFinished(bool success);
     void testInformationUpdated();
     void debuggingStarted();
+    void errorOccurred(const QString &message);
+    void warningOccurred(const QString &message);
 
 protected:
     // Helper methods to manage parsing state and signalling

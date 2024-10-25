@@ -13,6 +13,8 @@
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
 
+using namespace ProjectExplorer;
+
 namespace Coco::Internal {
 
 bool BuildSettings::supportsBuildConfig(const ProjectExplorer::BuildConfiguration &config)
@@ -21,19 +23,18 @@ bool BuildSettings::supportsBuildConfig(const ProjectExplorer::BuildConfiguratio
            || config.id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID;
 }
 
-BuildSettings *BuildSettings::createdFor(const ProjectExplorer::BuildConfiguration &config)
+BuildSettings *BuildSettings::createdFor(BuildConfiguration *buildConfig)
 {
-    if (config.id() == QmakeProjectManager::Constants::QMAKE_BC_ID)
-        return new CocoQMakeSettings{config.project()};
-    else if (config.id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
-        return new CocoCMakeSettings{config.project()};
-    else
-        return nullptr;
+    if (buildConfig->id() == QmakeProjectManager::Constants::QMAKE_BC_ID)
+        return createCocoQMakeSettings(buildConfig);
+    if (buildConfig->id() == CMakeProjectManager::Constants::CMAKE_BUILDCONFIGURATION_ID)
+        return createCocoCMakeSettings(buildConfig);
+    return nullptr;
 }
 
-BuildSettings::BuildSettings(ModificationFile &featureFile, ProjectExplorer::Project *project)
+BuildSettings::BuildSettings(ModificationFile &featureFile, BuildConfiguration *buildConfig)
     : m_featureFile{featureFile}
-    , m_project{*project}
+    , m_buildConfig{buildConfig}
 {
     // Do not use m_featureFile in the constructor; it may not yet be valid.
 }
@@ -41,7 +42,7 @@ BuildSettings::BuildSettings(ModificationFile &featureFile, ProjectExplorer::Pro
 void BuildSettings::connectToBuildStep(CocoBuildStep *step) const
 {
     connect(
-        activeTarget(),
+        buildConfig()->target(),
         &ProjectExplorer::Target::buildSystemUpdated,
         step,
         &CocoBuildStep::buildSystemUpdated);
@@ -93,9 +94,9 @@ void BuildSettings::setEnabled(bool enabled)
     m_enabled = enabled;
 }
 
-ProjectExplorer::Target *BuildSettings::activeTarget() const
+BuildConfiguration *BuildSettings::buildConfig() const
 {
-    return m_project.activeTarget();
+    return m_buildConfig;
 }
 
 } // namespace Coco::Internal

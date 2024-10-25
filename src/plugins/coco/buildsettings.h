@@ -23,9 +23,9 @@ class BuildSettings : public QObject
     Q_OBJECT
 public:
     static bool supportsBuildConfig(const ProjectExplorer::BuildConfiguration &config);
-    static BuildSettings *createdFor(const ProjectExplorer::BuildConfiguration &config);
+    static BuildSettings *createdFor(ProjectExplorer::BuildConfiguration *config);
 
-    explicit BuildSettings(ModificationFile &featureFile, ProjectExplorer::Project *project);
+    BuildSettings(ModificationFile &featureFile, ProjectExplorer::BuildConfiguration *buildConfig);
     virtual ~BuildSettings() {}
 
     void connectToBuildStep(CocoBuildStep *step) const;
@@ -56,11 +56,11 @@ public:
 protected:
     QString tableRow(const QString &name, const QString &value) const;
     void setEnabled(bool enabled);
-    ProjectExplorer::Target *activeTarget() const;
+    ProjectExplorer::BuildConfiguration *buildConfig() const;
 
 private:
     ModificationFile &m_featureFile;
-    ProjectExplorer::Project &m_project;
+    ProjectExplorer::BuildConfiguration *m_buildConfig;
     bool m_enabled = false;
 };
 

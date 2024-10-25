@@ -14,10 +14,10 @@
 
 namespace CMakeProjectManager {
 class CMakeProject;
-class CMakeBuildSystem;
 
 namespace Internal {
 
+class CMakeBuildSystem;
 class CMakeBuildSettingsWidget;
 class CMakeProjectImporter;
 
@@ -75,7 +75,7 @@ public:
     void setRestrictedBuildTarget(const QString &buildTarget);
 
     Utils::Environment configureEnvironment() const;
-    CMakeBuildSystem *cmakeBuildSystem() const;
+    Internal::CMakeBuildSystem *cmakeBuildSystem() const;
 
     QStringList additionalCMakeArguments() const;
     void setAdditionalCMakeArguments(const QStringList &args);
@@ -93,6 +93,12 @@ public:
     void updateInitialCMakeArguments();
     QStringList initialCMakeOptions() const;
 
+    void setInitialArgs(const QStringList &args) override;
+    QStringList initialArgs() const override;
+    QStringList additionalArgs() const override;
+    void reconfigure() override;
+    void stopReconfigure() override;
+
 signals:
     void signingFlagsChanged();
     void configureEnvironmentChanged();
@@ -108,12 +114,12 @@ private:
     void setBuildPresetToBuildSteps(const ProjectExplorer::Target *target);
     void filterConfigArgumentsFromAdditionalCMakeArguments();
 
-    CMakeBuildSystem *m_buildSystem = nullptr;
-    Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
+    Internal::CMakeBuildSystem *m_buildSystem = nullptr;
     QStringList m_unrestrictedBuildTargets;
+    Internal::CMakeBuildSettingsWidget *m_configWidget = nullptr;
 
     friend class Internal::CMakeBuildSettingsWidget;
-    friend class CMakeBuildSystem;
+    friend class Internal::CMakeBuildSystem;
 };
 
 class CMAKE_EXPORT CMakeBuildConfigurationFactory
