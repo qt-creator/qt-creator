@@ -78,8 +78,6 @@
                     \endlist
                 \li Best Practices
                     \list
-                        \li \l{Converting Qt 5 Projects into Qt 6 Projects}
-                        \li \l{Converting UI Projects to Applications}
                         \li \l{Creating Glow and Bloom Effects}
                         \li \l{Creating Optimized 3D Scenes}
                         \li \l{Optimizing Designs}

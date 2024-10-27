@@ -10,7 +10,7 @@
 /*!
     \page creator-editor-external.html
     \if defined(qtdesignstudio)
-    \previouspage quick-converting-ui-projects.html
+    \previouspage creator-vcs-git.html
     \nextpage studio-on-mcus.html
     \else
     \previouspage creator-how-tos.html

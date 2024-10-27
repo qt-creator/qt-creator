@@ -21,7 +21,7 @@
             project source files and configuration files. Do not store generated
             files.
 
-        \li \l {Converting UI Projects to Applications}
+        \li \l {Converting Qt Design Studio Projects to Applications}
 
             \QDS projects are useful for creating UIs. To use them
             for application development in Qt Creator, you have to convert them

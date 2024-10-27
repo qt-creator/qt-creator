@@ -34,16 +34,14 @@
 
     \section1 Exporting a \QDS Project for C++ Development
 
-        To export a \QDS project for Qt Creator, you need:
-
+        Before you export a \QDS project for Qt Creator, install the following:
         \list
-            \li Qt Creator 13.0 or above.
-            \li \QDS 4.5 or above.
-            \li Git.
-
-            \note Learn more about getting Git \l {https://wiki.qt.io/Git_Installation} {here}.
+            \li Qt Creator 13.0 or above
+            \li \QDS 4.5 or above
+            \li Git. Learn more about getting Git \l {https://wiki.qt.io/Git_Installation} {here}
         \endlist
 
+        To export a \QDS project for Qt Creator:
         \list 1
             \li \l {Creating a Project} {Create} or open your \QDS project with \QDS 4.5 or above.
 
@@ -93,6 +91,51 @@
         not considered good practice. Since \QDS 4.5, this issue has been solved.
         All the import assets are now bundled in the same folder, so the CMake
         generation works properly.
+
+    \section1 CMake Generator
+        \details {FAQ}
+
+        Learn how the CMake generator works.
+
+        \section2 What does the CMake Generator convert?
+            The CMake Generator converts the contents of the \e .qmlproject file
+            to CMake.
+            \note A \QDS project can run with a missing path or file filter.
+                However, CMake generation can fail due to missing elements in the
+                \e .qmlproject file.
+
+        \section2 Which changes are tracked by the CMake Generator?
+            All the files that are listed in \e .qmlproject are tracked by the
+            CMake Generator. Editing the \e .qmlproject file triggers a CMake
+            generation. Adding, removing, and renaming files are tracked.
+
+        \section2 Why do you need Stubb or Mock QML data for \QDS?
+            \QDS doesn't understand C++ code, so the CMake Generator ignores any
+            components or properties made with C++. If you want a similar
+            representation in \QDS for the components or properties created with
+            C++, add a QML mock file for \QDS. Keep these mock files in a dedicated
+            folder within your project folder. You can later add a \c mockImports
+            variable within the \e .qmlproject file and include the folder path
+            with mock files in the \c mockImports variable. CMake ignores all folders
+            and files included in the \c mockImports variable. So they only stay in the
+            \QDS space and are not converted with CMake Generator.
+
+            Example:
+            \code
+                mockImports: [ "MockDatas" ]
+            \endcode
+            Here, MockDatas is a folder in your project folder with all the files
+            with QML mock data. If you include this code in the \e .qmlproject file,
+            the CMake Generator ignores everything inside the MockDatas folder.
+
+        \section2 Is it possible to manually change the contents of the \e CMakeLists.txt files?
+            Yes, you can make changes to the \e CMakeLists.txt files existing in the
+            App and the Root folders of your project. The \e CMakeLists.txt files
+            in other folders of your project are overwritten as soon as the
+            CMake generator runs next time. Only the \e CMakeLists.txt files in
+            the App and the Root folders of your project are not overwritten.
+
+    \enddetails
 
     \section1 Exporting a \QDS Project for Python Development
 
@@ -161,4 +204,9 @@
         Your \QDS project now runs in Python. Use Python to add more
         functionalities to the project. Go to \l {Qt for Python} to learn more
         about developing Qt projects using Python.
+
+    \section1 Converting Qt Design Studio Projects to Applications
+
+        \include qtquick-converting-ui-projects-to-applications.qdocinc {converting-ui-projects-to-applications} {\QDS}
+
 */

@@ -28,12 +28,7 @@
             the developers can keep up with your changes. Store and edit only
             project source files and configuration files. Do not store
             generated files.
-       \li \l{Converting UI Projects to Applications}
 
-            \QDS projects are useful for creating UIs. To use them for
-            application development in Qt Creator, you have to convert
-            them to Qt Quick Application projects that contain .pro,
-            .cpp, and .qrc files.
         \li \l{Use external tools}
 
             You can use external tools directly from \QDS. Qt Linguist,
