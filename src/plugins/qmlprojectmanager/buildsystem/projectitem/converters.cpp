@@ -60,6 +60,13 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendItem(key, QString::fromStdString(val ? "true" : "false"), false);
     };
 
+    auto appendBoolOpt = [&appendBool](const QString &key, const QJsonObject &source) {
+        if (!source.keys().contains(key)) {
+            return;
+        }
+        appendBool(key, source[key].toBool());
+    };
+
     auto appendStringArray = [&appendItem](const QString &key, const QStringList &vals) {
         if (vals.isEmpty())
             return;
@@ -143,8 +150,8 @@ QString jsonToQmlProject(const QJsonObject &rootObject)
         appendString("mainFile", runConfig["mainFile"].toString());
         appendString("mainUiFile", runConfig["mainUiFile"].toString());
         appendString("targetDirectory", deploymentConfig["targetDirectory"].toString());
-        appendBool("enableCMakeGeneration", deploymentConfig["enableCMakeGeneration"].toBool());
-        appendBool("enablePythonGeneration", deploymentConfig["enablePythonGeneration"].toBool());
+        appendBoolOpt("enableCMakeGeneration", deploymentConfig);
+        appendBoolOpt("enablePythonGeneration", deploymentConfig);
         appendBool("widgetApp", runConfig["widgetApp"].toBool());
         appendStringArray("importPaths", rootObject["importPaths"].toVariant().toStringList());
         appendStringArray("mockImports", rootObject["mockImports"].toVariant().toStringList());

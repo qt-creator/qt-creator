@@ -4,8 +4,6 @@
 import QmlProject
 
 Project {
-    enableCMakeGeneration: false
-    enablePythonGeneration: false
     widgetApp: false
 
     qt6Project: false
