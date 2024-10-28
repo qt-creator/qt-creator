@@ -3168,6 +3168,7 @@ TEST_F(NodeMetaInfo, item_library_entries)
                                                "/icon/path",
                                                "Basic",
                                                "QtQuick",
+                                               ModuleKind::QmlLibrary,
                                                "An object",
                                                "",
                                                ElementsAre(IsItemLibraryProperty("x", "double", 1)),

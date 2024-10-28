@@ -74,7 +74,8 @@ ItemLibraryEntry ItemLibraryEntry::create(const Storage::Info::ItemLibraryEntry 
     m_data->category = entry.category.toQString();
     if (entry.iconPath.size())
         m_data->libraryEntryIconPath = entry.iconPath.toQString();
-    m_data->requiredImport = entry.import.toQString();
+    if (entry.moduleKind == Storage::ModuleKind::QmlLibrary)
+        m_data->requiredImport = entry.import.toQString();
     m_data->toolTip = entry.toolTip.toQString();
     m_data->qmlSource = entry.templatePath.toQString();
     m_data->properties.reserve(Utils::ssize(entry.properties));

@@ -8344,6 +8344,7 @@ TEST_F(ProjectStorage, synchronize_item_library_entries)
                                "/path/icon",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Foo is a Item",
                                "/path/templates/item.qml",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
@@ -8356,6 +8357,7 @@ TEST_F(ProjectStorage, synchronize_item_library_entries)
                                "/path/icon2",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Bar is a Item",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("color", "color", "#blue")),
@@ -8366,6 +8368,7 @@ TEST_F(ProjectStorage, synchronize_item_library_entries)
                                "/path/icon3",
                                "Advanced Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Item is an Object",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 1),
@@ -8407,6 +8410,7 @@ TEST_F(ProjectStorage, synchronize_updates_item_library_entries)
                                        "/path/icon",
                                        "Basic Items",
                                        "QtQuick",
+                                       ModuleKind::QmlLibrary,
                                        "Foo is a Item",
                                        "",
                                        UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
@@ -8486,6 +8490,7 @@ TEST_F(ProjectStorage, get_all_item_library_entries)
                                "/path/icon",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Foo is a Item",
                                "/path/templates/item.qml",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
@@ -8498,6 +8503,7 @@ TEST_F(ProjectStorage, get_all_item_library_entries)
                                "/path/icon2",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Bar is a Item",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("color", "color", "#blue")),
@@ -8508,6 +8514,7 @@ TEST_F(ProjectStorage, get_all_item_library_entries)
                                "/path/icon3",
                                "Advanced Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Item is an Object",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 1),
@@ -8534,6 +8541,7 @@ TEST_F(ProjectStorage, get_all_item_library_entries_handles_no_entries)
                                        "/path/icon3",
                                        "Advanced Items",
                                        "QtQuick",
+                                       ModuleKind::QmlLibrary,
                                        "Item is an Object",
                                        "",
                                        UnorderedElementsAre(IsItemLibraryProperty("x", "double", 1),
@@ -8561,6 +8569,7 @@ TEST_F(ProjectStorage, get_item_library_entries_by_type_id)
                                "/path/icon",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Foo is a Item",
                                "/path/templates/item.qml",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
@@ -8573,6 +8582,7 @@ TEST_F(ProjectStorage, get_item_library_entries_by_type_id)
                                "/path/icon2",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Bar is a Item",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("color", "color", "#blue")),
@@ -8626,6 +8636,7 @@ TEST_F(ProjectStorage, get_item_library_entries_by_source_id)
                                "/path/icon",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Foo is a Item",
                                "/path/templates/item.qml",
                                UnorderedElementsAre(IsItemLibraryProperty("x", "double", 32.1),
@@ -8638,10 +8649,42 @@ TEST_F(ProjectStorage, get_item_library_entries_by_source_id)
                                "/path/icon2",
                                "Basic Items",
                                "QtQuick",
+                               ModuleKind::QmlLibrary,
                                "Bar is a Item",
                                "",
                                UnorderedElementsAre(IsItemLibraryProperty("color", "color", "#blue")),
                                IsEmpty())));
+}
+
+TEST_F(ProjectStorage, get_local_file_item_library_entries_by_source_id)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.types[1].exportedTypes.emplace_back(pathToModuleId, "Object");
+    storage.synchronize(package);
+
+    auto entries = storage.itemLibraryEntries(sourceId2);
+
+    ASSERT_THAT(entries,
+                UnorderedElementsAre(IsItemLibraryEntry(fetchTypeId(sourceId2, "QObject"),
+                                                        "Object",
+                                                        "Object",
+                                                        "My Components",
+                                                        "/path/to",
+                                                        ModuleKind::PathLibrary)));
+}
+
+TEST_F(ProjectStorage,
+       dont_get_local_file_item_library_entries_by_source_id_if_type_name_is_not_capital)
+{
+    auto package{createSimpleSynchronizationPackage()};
+    package.imports.emplace_back(pathToModuleId, Storage::Version{}, sourceId2);
+    package.types[1].exportedTypes.emplace_back(pathToModuleId, "object");
+    storage.synchronize(package);
+
+    auto entries = storage.itemLibraryEntries(sourceId2);
+
+    ASSERT_THAT(entries, IsEmpty());
 }
 
 TEST_F(ProjectStorage, get_no_item_library_entries_by_source_id_for_no_entries)
