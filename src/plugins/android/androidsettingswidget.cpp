@@ -482,6 +482,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     // Validate SDK again after any change in SDK packages.
     connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
         m_androidSummary->setInProgressText("Packages reloaded");
+        m_sdkLocationPathChooser->triggerChanged();
         validateSdk();
     });
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
