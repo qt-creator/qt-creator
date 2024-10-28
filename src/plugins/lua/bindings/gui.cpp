@@ -77,131 +77,123 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     }
 }
 
-#define HAS_MEM_FUNC(func, name) \
-    template<typename T, typename Sign> \
-    struct name \
-    { \
-        typedef char yes[1]; \
-        typedef char no[2]; \
-        template<typename U, U> \
-        struct type_check; \
-        template<typename _1> \
-        static yes &chk(type_check<Sign, &_1::func> *); \
-        template<typename> \
-        static no &chk(...); \
-        static bool const value = sizeof(chk<T>(0)) == sizeof(yes); \
-    }
+// clang-format off
+#define CREATE_HAS_FUNC(name, ...) \
+    template<class T> concept has_##name = requires { \
+        { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
+    };
+// clang-format on
 
-HAS_MEM_FUNC(onTextChanged, hasOnTextChanged);
-HAS_MEM_FUNC(onClicked, hasOnClicked);
-HAS_MEM_FUNC(setText, hasSetText);
-HAS_MEM_FUNC(setMarkdown, hasSetMarkdown);
-HAS_MEM_FUNC(setReadOnly, hasSetReadOnly);
-HAS_MEM_FUNC(setTitle, hasSetTitle);
-HAS_MEM_FUNC(setValue, hasSetValue);
-HAS_MEM_FUNC(setSize, hasSetSize);
-HAS_MEM_FUNC(setWindowFlags, hasSetWindowFlags);
-HAS_MEM_FUNC(setWidgetAttribute, hasSetWidgetAttribute);
-HAS_MEM_FUNC(setAutoFillBackground, hasSetAutoFillBackground);
-HAS_MEM_FUNC(setIconPath, hasSetIconPath);
-HAS_MEM_FUNC(setFlat, hasSetFlat);
-HAS_MEM_FUNC(setOpenExternalLinks, hasSetOpenExternalLinks);
-HAS_MEM_FUNC(setIconSize, hasSetIconSize);
-HAS_MEM_FUNC(setWordWrap, hasSetWordWrap);
-HAS_MEM_FUNC(setTextFormat, hasSetTextFormat);
-HAS_MEM_FUNC(setRightSideIconPath, hasSetRightSideIconPath);
-HAS_MEM_FUNC(setPlaceHolderText, hasSetPlaceHolderText);
-HAS_MEM_FUNC(setCompleter, hasSetCompleter);
-HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
-HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
-HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
-HAS_MEM_FUNC(setTextInteractionFlags, hasSetTextInteractionFlags);
-HAS_MEM_FUNC(setFixedSize, hasSetFixedSize);
+CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
+CREATE_HAS_FUNC(onClicked, nullptr, nullptr)
+CREATE_HAS_FUNC(setText, QString())
+CREATE_HAS_FUNC(setMarkdown, QString())
+CREATE_HAS_FUNC(setReadOnly, bool())
+CREATE_HAS_FUNC(setTitle, QString())
+CREATE_HAS_FUNC(setValue, int())
+CREATE_HAS_FUNC(setSize, int(), int())
+CREATE_HAS_FUNC(setWindowFlags, Qt::WindowFlags())
+CREATE_HAS_FUNC(setWidgetAttribute, Qt::WidgetAttribute(), bool())
+CREATE_HAS_FUNC(setAutoFillBackground, bool())
+CREATE_HAS_FUNC(setIconPath, Utils::FilePath())
+CREATE_HAS_FUNC(setFlat, bool())
+CREATE_HAS_FUNC(setOpenExternalLinks, bool())
+CREATE_HAS_FUNC(setIconSize, QSize())
+CREATE_HAS_FUNC(setWordWrap, bool())
+CREATE_HAS_FUNC(setTextFormat, Qt::TextFormat())
+CREATE_HAS_FUNC(setRightSideIconPath, Utils::FilePath())
+CREATE_HAS_FUNC(setPlaceHolderText, QString())
+CREATE_HAS_FUNC(setCompleter, nullptr)
+CREATE_HAS_FUNC(setMinimumHeight, int())
+CREATE_HAS_FUNC(onReturnPressed, nullptr, nullptr)
+CREATE_HAS_FUNC(onRightSideIconClicked, nullptr, nullptr)
+CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
+CREATE_HAS_FUNC(setFixedSize, QSize())
 
 template<class T>
-void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
-    if constexpr (hasSetTextInteractionFlags<T, void (T::*)(Qt::TextInteractionFlags)>::value) {
+void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
+{
+    if constexpr (has_setTextInteractionFlags<T>) {
         const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
         if (interactionFlags) {
             item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
         }
     }
 
-    if constexpr (hasSetFixedSize<T, void (T::*)(int, int)>::value) {
+    if constexpr (has_setFixedSize<T>) {
         sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
         if (size)
             item->setFixedSize(size->width(), size->height());
     }
 
-    if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {
+    if constexpr (has_setWordWrap<T>) {
         const auto wrap = children.get<sol::optional<bool>>("wordWrap");
         if (wrap)
             item->setWordWrap(*wrap);
     }
 
-    if constexpr (hasSetTextFormat<T, void (T::*)(Qt::TextFormat)>::value) {
+    if constexpr (has_setTextFormat<T>) {
         const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat");
         if (format)
             item->setTextFormat(*format);
     }
 
-    if constexpr (hasSetRightSideIconPath<T, void (T::*)(const Utils::FilePath &)>::value) {
+    if constexpr (has_setRightSideIconPath<T>) {
         const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath");
         if (path)
             item->setRightSideIconPath(*path);
     }
 
-    if constexpr (hasSetPlaceHolderText<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_setPlaceHolderText<T>) {
         const auto text = children.get<sol::optional<QString>>("placeHolderText");
         if (text)
             item->setPlaceHolderText(*text);
     }
 
-    if constexpr (hasSetCompleter<T, void (T::*)(QCompleter *)>::value) {
+    if constexpr (has_setCompleter<T>) {
         const auto completer = children.get<QCompleter *>("completer");
         if (completer)
             item->setCompleter(completer);
     }
 
-    if constexpr (hasSetMinimumHeight<T, void (T::*)(int)>::value) {
+    if constexpr (has_setMinimumHeight<T>) {
         const auto minHeight = children.get<sol::optional<int>>("minimumHeight");
         if (minHeight)
             item->setMinimumHeight(*minHeight);
     }
 
-    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &, QObject *)>::value) {
+    if constexpr (has_onReturnPressed<T>) {
         const auto callback = children.get<sol::optional<sol::function>>("onReturnPressed");
-        if (callback)
-        {
+        if (callback) {
             item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
         }
     }
 
-    if constexpr (hasOnRightSideIconClicked<T, void (T::*)(const std::function<void()> &)>::value) {
+    if constexpr (has_onRightSideIconClicked<T>) {
         const auto callback = children.get<sol::optional<sol::function>>("onRightSideIconClicked");
         if (callback)
             item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
     }
 
-    if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
+    if constexpr (has_setFlat<T>) {
         const auto flat = children.get<sol::optional<bool>>("flat");
         if (flat)
             item->setFlat(*flat);
     }
 
-    if constexpr (hasSetIconPath<T, void (T::*)(const FilePath &)>::value) {
+    if constexpr (has_setIconPath<T>) {
         const auto iconPath = children.get<sol::optional<FilePath>>("iconPath");
         if (iconPath)
             item->setIconPath(*iconPath);
     }
 
-    if constexpr (hasSetIconSize<T, void (T::*)(const QSize &)>::value) {
+    if constexpr (has_setIconSize<T>) {
         const auto iconSize = children.get<sol::optional<QSize>>("iconSize");
         if (iconSize)
             item->setIconSize(*iconSize);
     }
 
-    if constexpr (hasSetWindowFlags<T, void (T::*)(Qt::WindowFlags)>::value) {
+    if constexpr (has_setWindowFlags<T>) {
         sol::optional<sol::table> windowFlags = children.get<sol::optional<sol::table>>(
             "windowFlags");
         if (windowFlags) {
@@ -212,13 +204,13 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
 
-    if constexpr (hasSetSize<T, void (T::*)(int, int)>::value) {
+    if constexpr (has_setSize<T>) {
         sol::optional<QSize> size = children.get<sol::optional<QSize>>("size");
         if (size)
             item->setSize(size->width(), size->height());
     }
 
-    if constexpr (hasSetWidgetAttribute<T, void (T::*)(Qt::WidgetAttribute, bool on)>::value) {
+    if constexpr (has_setWidgetAttribute<T>) {
         sol::optional<sol::table> widgetAttributes = children.get<sol::optional<sol::table>>(
             "widgetAttributes");
         if (widgetAttributes) {
@@ -228,14 +220,14 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
 
-    if constexpr (hasSetAutoFillBackground<T, void (T::*)(bool)>::value) {
+    if constexpr (has_setAutoFillBackground<T>) {
         sol::optional<bool> autoFillBackground = children.get<sol::optional<bool>>(
             "autoFillBackground");
         if (autoFillBackground)
             item->setAutoFillBackground(*autoFillBackground);
     }
 
-    if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_onTextChanged<T>) {
         sol::optional<sol::protected_function> onTextChanged
             = children.get<sol::optional<sol::protected_function>>("onTextChanged");
         if (onTextChanged) {
@@ -247,7 +239,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard);
         }
     }
-    if constexpr (hasOnClicked<T, void (T::*)(const std::function<void()> &, QObject *guard)>::value) {
+    if constexpr (has_onClicked<T>) {
         sol::optional<sol::protected_function> onClicked
             = children.get<sol::optional<sol::protected_function>>("onClicked");
         if (onClicked) {
@@ -259,30 +251,30 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
                 guard);
         }
     }
-    if constexpr (hasSetText<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_setText<T>) {
         auto text = children.get<sol::optional<QString>>("text");
         if (text)
             item->setText(*text);
     }
-    if constexpr (hasSetMarkdown<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_setMarkdown<T>) {
         auto markdown = children.get<sol::optional<QString>>("markdown");
         if (markdown)
             item->setMarkdown(*markdown);
     }
-    if constexpr (hasSetTitle<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_setTitle<T>) {
         item->setTitle(children.get_or<QString>("title", ""));
     }
-    if constexpr (hasSetValue<T, void (T::*)(int)>::value) {
+    if constexpr (has_setValue<T>) {
         sol::optional<int> value = children.get<sol::optional<int>>("value");
         if (value)
             item->setValue(*value);
     }
-    if constexpr (hasSetReadOnly<T, void (T::*)(bool)>::value) {
+    if constexpr (has_setReadOnly<T>) {
         sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly");
         if (readOnly)
             item->setReadOnly(*readOnly);
     }
-    if constexpr (hasSetOpenExternalLinks<T, void (T::*)(bool)>::value) {
+    if constexpr (has_setOpenExternalLinks<T>) {
         sol::optional<bool> openExternalLinks = children.get<sol::optional<bool>>(
             "openExternalLinks");
         if (openExternalLinks)
