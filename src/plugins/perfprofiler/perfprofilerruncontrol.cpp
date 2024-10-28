@@ -125,6 +125,7 @@ public:
 
         m_process->setCommand(cmd);
         m_process->setWorkingDirectory(runControl()->workingDirectory());
+        m_process->setEnvironment(runControl()->environment());
         appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
         m_process->start();
     }
