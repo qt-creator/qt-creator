@@ -122,7 +122,8 @@ T.ComboBox {
         }
 
         Rectangle {
-            anchors.fill: parent
+            width: window.width
+            height: window.height
             color: control.style.popup.background
         }
     }
