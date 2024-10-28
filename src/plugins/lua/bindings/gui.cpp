@@ -562,17 +562,6 @@ void setupGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
-        gui.new_usertype<LineEdit>(
-            "LineEdit",
-            sol::call_constructor,
-            sol::factories([guard](const sol::table &children) {
-                return constructWidgetType<LineEdit>(children, guard);
-            }),
-            "text",
-            sol::property(&LineEdit::text),
-            sol::base_classes,
-            sol::bases<Widget, Object, Thing>());
-
         gui.new_usertype<SpinBox>(
             "SpinBox",
             sol::call_constructor,
