@@ -481,7 +481,10 @@ QVariant ProjectModel::data(const QModelIndex &index, int role) const
     case FilePathRole:
         return data.filePath.toVariant();
     case PrettyFilePathRole:
-        return data.filePath.absolutePath().withTildeHomePath();
+        if (Utils::HostOsInfo::isWindowsHost())
+            return data.filePath.absolutePath().nativePath();
+        else
+            return data.filePath.absolutePath().withTildeHomePath();
     case PreviewUrl:
         return QVariant(
             QStringLiteral("image://project_preview/")
