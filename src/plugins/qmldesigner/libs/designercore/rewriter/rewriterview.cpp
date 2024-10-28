@@ -66,10 +66,8 @@ RewriterView::RewriterView(ExternalDependenciesInterface &externalDependencies,
 
     m_amendTimer.setSingleShot(true);
 
-    if (m_instantQmlTextUpdate == InstantQmlTextUpdate::No) {
-        m_amendTimer.setInterval(800);
-        connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
-    }
+    m_amendTimer.setInterval(800);
+    connect(&m_amendTimer, &QTimer::timeout, this, &RewriterView::amendQmlText);
 
 #ifndef QDS_USE_PROJECTSTORAGE
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
@@ -120,9 +118,7 @@ void RewriterView::modelAttached(Model *model)
     if (!(m_errors.isEmpty() && m_warnings.isEmpty()))
         notifyErrorsAndWarnings(m_errors);
 
-    if (m_instantQmlTextUpdate == InstantQmlTextUpdate::Yes) {
-        restoreAuxiliaryData();
-    } else if (hasIncompleteTypeInformation()) {
+    if (hasIncompleteTypeInformation()) {
         m_modelAttachPending = true;
         QTimer::singleShot(1000, this, [this, model]() {
             modelAttached(model);

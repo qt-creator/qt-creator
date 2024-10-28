@@ -57,7 +57,7 @@ public:
 public:
     RewriterView(ExternalDependenciesInterface &externalDependencies,
                  DifferenceHandling differenceHandling = RewriterView::Amend,
-                 InstantQmlTextUpdate instantQmlTextUpdate = InstantQmlTextUpdate::Yes);
+                 InstantQmlTextUpdate instantQmlTextUpdate = InstantQmlTextUpdate::No);
     ~RewriterView() override;
 
     void modelAttached(Model *model) override;
