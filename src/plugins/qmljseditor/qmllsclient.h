@@ -55,6 +55,7 @@ public:
 
     void startImpl() override;
     static QmllsClient *clientForQmlls(const Utils::FilePath &qmlls);
+    void updateQmllsSemanticHighlightingCapability();
 private:
     static QMap<QString, int> semanticTokenTypesMap();
 };

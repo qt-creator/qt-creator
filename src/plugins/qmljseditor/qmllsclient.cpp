@@ -5,6 +5,7 @@
 
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
+#include "qmljseditorsettings.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -80,6 +81,30 @@ QMap<QString, int> QmllsClient::semanticTokenTypesMap()
     }
 
     return result;
+}
+
+void QmllsClient::updateQmllsSemanticHighlightingCapability()
+{
+    const QString methodName = QStringLiteral("textDocument/semanticTokens");
+    if (!QmlJSEditor::Internal::settings().enableQmllsSemanticHighlighting()) {
+        LanguageServerProtocol::Unregistration unregister;
+        unregister.setMethod(methodName);
+        unregister.setId({});
+        this->unregisterCapabilities({unregister});
+    } else {
+        const LanguageServerProtocol::ServerCapabilities &caps = this->capabilities();
+        const std::optional<LanguageServerProtocol::SemanticTokensOptions> &options
+            = caps.semanticTokensProvider();
+        if (options) {
+            LanguageServerProtocol::Registration registeration;
+            registeration.setMethod(methodName);
+            registeration.setId({});
+            registeration.setRegisterOptions({*options});
+            this->registerCapabilities({registeration});
+        } else {
+            qCWarning(qmllsLog) << "qmlls does not support semantic highlighting";
+        }
+    }
 }
 
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
@@ -162,6 +187,7 @@ QmllsClient::~QmllsClient()
 
 void QmllsClient::startImpl()
 {
+    updateQmllsSemanticHighlightingCapability();
     Client::startImpl();
 }
 
