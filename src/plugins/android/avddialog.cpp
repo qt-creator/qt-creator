@@ -42,6 +42,7 @@ AvdDialog::AvdDialog(QWidget *parent)
     : QDialog(parent)
     , m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
+    AndroidConfigurations::sdkManager()->refreshPackages();
     resize(800, 0);
     setWindowTitle(Tr::tr("Create new AVD"));
 
@@ -302,7 +303,8 @@ int AvdDialog::sdcardSize() const
 
 void AvdDialog::updateApiLevelComboBox()
 {
-    SystemImageList installedSystemImages = m_sdkManager.installedSystemImages();
+    const SystemImageList installedSystemImages
+        = AndroidConfigurations::sdkManager()->installedSystemImages();
     DeviceType curDeviceType = m_deviceTypeToStringMap.key(
         m_deviceDefinitionTypeComboBox->currentText());
 
