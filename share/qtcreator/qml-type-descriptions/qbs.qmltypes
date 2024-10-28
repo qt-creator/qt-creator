@@ -92,6 +92,7 @@ Module {
         name: "ModuleProvider"
         exports: [ "qbs/ModuleProvider 1.0" ]
         prototype: "QQuickItem"
+        Property { name: "condition"; type: "bool" }
         Property { name: "isEager"; type: "bool" }
         Property { name: "moduleName"; type: "string" }
         Property { name: "name"; type: "string" }
