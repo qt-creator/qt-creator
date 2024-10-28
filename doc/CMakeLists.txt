@@ -1,7 +1,5 @@
 # Generate documentation
 
-include(Utils)
-
 option(BUILD_DEVELOPER_DOCS "Include developer documentation" OFF)
 add_feature_info("Include developer documentation" BUILD_DEVELOPER_DOCS "")
 
