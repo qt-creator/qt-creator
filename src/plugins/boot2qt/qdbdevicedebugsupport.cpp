@@ -9,9 +9,8 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qmlprojectmanager/qmlprojectconstants.h>
 
@@ -30,7 +29,7 @@ namespace Qdb::Internal {
 class QdbDeviceInferiorRunner : public RunWorker
 {
 public:
-    QdbDeviceInferiorRunner(RunControl *runControl, QmlDebug::QmlDebugServicesPreset qmlServices)
+    QdbDeviceInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
         : RunWorker(runControl),
           m_qmlServices(qmlServices)
     {
@@ -62,7 +61,7 @@ public:
         if (usesQmlChannel()) {
             cmd.addArg("--debug-qml");
             cmd.addArg("--qml-debug-services");
-            cmd.addArg(QmlDebug::qmlDebugServices(m_qmlServices));
+            cmd.addArg(qmlDebugServices(m_qmlServices));
             lowerPort = upperPort = qmlChannel().port();
         }
         if (usesDebugChannel() && usesQmlChannel()) {
@@ -98,7 +97,7 @@ private:
     friend class QdbDeviceQmlToolingSupport;
     friend class QdbDevicePerfProfilerSupport;
 
-    QmlDebug::QmlDebugServicesPreset m_qmlServices;
+    QmlDebugServicesPreset m_qmlServices;
     Process m_launcher;
 };
 
@@ -144,7 +143,7 @@ QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
     if (isQmlDebugging())
         runControl->requestQmlChannel();
 
-    auto debuggee = new QdbDeviceInferiorRunner(runControl, QmlDebug::QmlDebuggerServices);
+    auto debuggee = new QdbDeviceInferiorRunner(runControl, QmlDebuggerServices);
     addStartDependency(debuggee);
 
     debuggee->addStopDependency(this);
@@ -186,12 +185,12 @@ QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
     setId("QdbDeviceQmlToolingSupport");
 
     runControl->requestQmlChannel();
-    QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
+    QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
     auto runner = new QdbDeviceInferiorRunner(runControl, services);
     addStartDependency(runner);
     addStopDependency(runner);
 
-    auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+    auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
     worker->addStartDependency(this);
     addStopDependency(worker);
 }
@@ -210,7 +209,7 @@ QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runContro
     setId("QdbDevicePerfProfilerSupport");
 
     runControl->requestPerfChannel();
-    auto profilee = new QdbDeviceInferiorRunner(runControl, QmlDebug::NoQmlDebugServices);
+    auto profilee = new QdbDeviceInferiorRunner(runControl, NoQmlDebugServices);
     addStartDependency(profilee);
     addStopDependency(profilee);
 }

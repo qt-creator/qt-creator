@@ -26,6 +26,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
@@ -48,8 +49,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/messagebox.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -459,7 +458,7 @@ void DebuggerRunTool::continueAfterTerminalStart()
             QString mode = QString("port:%1").arg(qmlServerPort);
 
             CommandLine cmd{m_runParameters.inferior.command.executable()};
-            cmd.addArg(qmlDebugCommandLineArguments(QmlDebug::QmlDebuggerServices, mode, true));
+            cmd.addArg(qmlDebugCommandLineArguments(QmlDebuggerServices, mode, true));
             cmd.addArgs(m_runParameters.inferior.command.arguments(), CommandLine::Raw);
 
             m_runParameters.inferior.command = cmd;
@@ -799,20 +798,20 @@ bool DebuggerRunTool::fixupParameters()
     }
 
     if (rp.isQmlDebugging) {
-        QmlDebug::QmlDebugServicesPreset service;
+        QmlDebugServicesPreset service;
         if (rp.isCppDebugging()) {
             if (rp.nativeMixedEnabled) {
-                service = QmlDebug::QmlNativeDebuggerServices;
+                service = QmlNativeDebuggerServices;
             } else {
-                service = QmlDebug::QmlDebuggerServices;
+                service = QmlDebuggerServices;
             }
         } else {
-            service = QmlDebug::QmlDebuggerServices;
+            service = QmlDebuggerServices;
         }
         if (rp.startMode != AttachToLocalProcess && rp.startMode != AttachToCrashedProcess) {
             QString qmlarg = rp.isCppDebugging() && rp.nativeMixedEnabled
-                    ? QmlDebug::qmlDebugNativeArguments(service, false)
-                    : QmlDebug::qmlDebugTcpArguments(service, rp.qmlServer);
+                    ? qmlDebugNativeArguments(service, false)
+                    : qmlDebugTcpArguments(service, rp.qmlServer);
             rp.inferior.command.addArg(qmlarg);
         }
     }
@@ -1056,7 +1055,7 @@ void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
         if (usesQmlChannel() && !usesDebugChannel()) {
             // FIXME: Case should not happen?
             cmd.setExecutable(commandLine.executable());
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, qmlChannel()));
+            cmd.addArg(qmlDebugTcpArguments(QmlDebuggerServices, qmlChannel()));
             cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
             cmd.setExecutable(device()->debugServerPath());

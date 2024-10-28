@@ -7,7 +7,6 @@
 
 #include <projectexplorer/runcontrol.h>
 
-#include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmldebug/qmloutputparser.h>
 
 #include <solutions/tasking/tasktreerunner.h>

@@ -7,11 +7,10 @@
 
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
 #include <debugger/debuggerruncontrol.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace Debugger;
 using namespace ProjectExplorer;
@@ -52,15 +51,15 @@ public:
 
         runControl->requestQmlChannel();
 
-        auto runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+        auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
         runworker->addStartDependency(this);
         addStopDependency(runworker);
 
         setStartModifier([this, runControl] {
-            QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
+            QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
 
             CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(services, qmlChannel()));
+            cmd.addArg(qmlDebugTcpArguments(services, qmlChannel()));
             setCommandLine(cmd);
         });
     }

@@ -24,11 +24,10 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -100,7 +99,7 @@ class AppManInferiorRunner : public SimpleTargetRunner
 public:
     AppManInferiorRunner(RunControl *runControl,
                          bool usePerf, bool useGdbServer, bool useQmlServer,
-                         QmlDebug::QmlDebugServicesPreset qmlServices)
+                         QmlDebugServicesPreset qmlServices)
         : SimpleTargetRunner(runControl),
         m_qmlServices(qmlServices)
     {
@@ -177,7 +176,7 @@ public:
     }
 
 private:
-    QmlDebug::QmlDebugServicesPreset m_qmlServices;
+    QmlDebugServicesPreset m_qmlServices;
 };
 
 
@@ -196,7 +195,7 @@ public:
         setId("ApplicationManagerPlugin.Debug.Support");
 
         m_debuggee = new AppManInferiorRunner(runControl, false, isCppDebugging(), isQmlDebugging(),
-                                              QmlDebug::QmlDebuggerServices);
+                                              QmlDebuggerServices);
 
         addStartDependency(m_debuggee);
         addStopDependency(m_debuggee);
@@ -268,12 +267,12 @@ public:
     {
         setId("AppManagerQmlToolingSupport");
 
-        QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
+        QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
         m_runner = new AppManInferiorRunner(runControl, false, false, true, services);
         addStartDependency(m_runner);
         addStopDependency(m_runner);
 
-        m_worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+        m_worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
         m_worker->addStartDependency(this);
         addStopDependency(m_worker);
 
@@ -303,7 +302,7 @@ public:
         setId("AppManagerPerfProfilerSupport");
 
         m_profilee = new AppManInferiorRunner(runControl, true, false, false,
-                                              QmlDebug::NoQmlDebugServices);
+                                              NoQmlDebugServices);
         addStartDependency(m_profilee);
         addStopDependency(m_profilee);
     }

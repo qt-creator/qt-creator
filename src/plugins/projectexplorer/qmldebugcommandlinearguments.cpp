@@ -1,26 +1,13 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#pragma once
+#include "qmldebugcommandlinearguments.h"
 
 #include <projectexplorer/projectexplorerconstants.h>
 
-#include <utils/id.h>
+namespace ProjectExplorer {
 
-#include <QString>
-#include <QUrl>
-
-namespace QmlDebug {
-
-enum QmlDebugServicesPreset {
-    NoQmlDebugServices,
-    QmlDebuggerServices,
-    QmlProfilerServices,
-    QmlNativeDebuggerServices,
-    QmlPreviewServices
-};
-
-inline QString qmlDebugServices(QmlDebugServicesPreset preset)
+QString qmlDebugServices(QmlDebugServicesPreset preset)
 {
     switch (preset) {
     case NoQmlDebugServices:
@@ -39,8 +26,8 @@ inline QString qmlDebugServices(QmlDebugServicesPreset preset)
     }
 }
 
-inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
-                                                   const QString &connectionMode, bool block)
+QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
+                                     const QString &connectionMode, bool block)
 {
     if (services == NoQmlDebugServices)
         return QString();
@@ -49,25 +36,24 @@ inline QString qmlDebugCommandLineArguments(QmlDebugServicesPreset services,
             .arg(QLatin1String(block ? ",block" : "")).arg(qmlDebugServices(services));
 }
 
-inline QString qmlDebugTcpArguments(QmlDebugServicesPreset services,
-                                    const QUrl &server, bool block = true)
+QString qmlDebugTcpArguments(QmlDebugServicesPreset services, const QUrl &server, bool block)
 {
     //  TODO: Also generate host:<host> if applicable.
     return qmlDebugCommandLineArguments(services, QString("port:%1").arg(server.port()), block);
 }
 
-inline QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block = true)
+QString qmlDebugNativeArguments(QmlDebugServicesPreset services, bool block)
 {
     return qmlDebugCommandLineArguments(services, QLatin1String("native"), block);
 }
 
-inline QString qmlDebugLocalArguments(QmlDebugServicesPreset services, const QString &socket,
-                                      bool block = true)
+QString qmlDebugLocalArguments(QmlDebugServicesPreset services, const QString &socket,
+                                      bool block)
 {
     return qmlDebugCommandLineArguments(services, QLatin1String("file:") + socket, block);
 }
 
-inline Utils::Id runnerIdForRunMode(Utils::Id runMode)
+Utils::Id runnerIdForRunMode(Utils::Id runMode)
 {
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
         return ProjectExplorer::Constants::QML_PROFILER_RUNNER;
@@ -76,15 +62,15 @@ inline Utils::Id runnerIdForRunMode(Utils::Id runMode)
     return {};
 }
 
-inline QmlDebugServicesPreset servicesForRunMode(Utils::Id runMode)
+QmlDebugServicesPreset servicesForRunMode(Utils::Id runMode)
 {
     if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        return QmlDebug::QmlProfilerServices;
+        return QmlProfilerServices;
     if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
-        return QmlDebug::QmlPreviewServices;
+        return QmlPreviewServices;
     if (runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE)
-        return QmlDebug::QmlDebuggerServices;
+        return QmlDebuggerServices;
     return {};
 }
 
-} // namespace QmlDebug
+} // namespace ProjectExplorer

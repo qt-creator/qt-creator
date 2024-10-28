@@ -8,10 +8,10 @@
 #include "slog2inforunner.h"
 
 #include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcprocess.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -38,7 +38,7 @@ public:
 
         setStartModifier([this] {
             CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlProfilerServices, qmlChannel()));
+            cmd.addArg(qmlDebugTcpArguments(QmlProfilerServices, qmlChannel()));
             setCommandLine(cmd);
         });
     }

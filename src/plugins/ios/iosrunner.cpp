@@ -18,12 +18,12 @@
 
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
 
-#include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmldebug/qmloutputparser.h>
 
 #include <utils/fileutils.h>
@@ -399,7 +399,7 @@ public:
     ~IosRunner() override;
 
     void setCppDebugging(bool cppDebug);
-    void setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices);
+    void setQmlDebugging(QmlDebugServicesPreset qmlDebugServices);
 
     void start() override;
     void stop() final;
@@ -431,7 +431,7 @@ private:
     IDeviceConstPtr m_device;
     IosDeviceType m_deviceType;
     bool m_cppDebug = false;
-    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
+    QmlDebugServicesPreset m_qmlDebugServices = NoQmlDebugServices;
 
     bool m_cleanExit = false;
     Port m_qmlServerPort;
@@ -461,7 +461,7 @@ void IosRunner::setCppDebugging(bool cppDebug)
     m_cppDebug = cppDebug;
 }
 
-void IosRunner::setQmlDebugging(QmlDebug::QmlDebugServicesPreset qmlDebugServices)
+void IosRunner::setQmlDebugging(QmlDebugServicesPreset qmlDebugServices)
 {
     m_qmlDebugServices = qmlDebugServices;
 }
@@ -493,7 +493,7 @@ bool IosRunner::cppDebug() const
 
 bool IosRunner::qmlDebug() const
 {
-    return m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
+    return m_qmlDebugServices != NoQmlDebugServices;
 }
 
 void IosRunner::start()
@@ -515,7 +515,7 @@ void IosRunner::start()
             reportFailure();
             return;
         }
-        if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices)
+        if (m_qmlDebugServices != NoQmlDebugServices)
             m_qmlServerPort = iosDevice->nextPort();
     } else {
         IosSimulator::ConstPtr sim = std::dynamic_pointer_cast<const IosSimulator>(m_device);
@@ -523,7 +523,7 @@ void IosRunner::start()
             reportFailure();
             return;
         }
-        if (m_qmlDebugServices != QmlDebug::NoQmlDebugServices)
+        if (m_qmlDebugServices != NoQmlDebugServices)
             m_qmlServerPort = sim->nextPort();
     }
 
@@ -546,7 +546,7 @@ void IosRunner::start()
     if (m_qmlServerPort.isValid()) {
         QUrl qmlServer;
         qmlServer.setPort(m_qmlServerPort.number());
-        args.append(QmlDebug::qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
+        args.append(qmlDebugTcpArguments(m_qmlDebugServices, qmlServer));
     }
 
     m_toolHandler->requestRunApp(bundlePath(), args, runType(), deviceId());
@@ -749,7 +749,7 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
     setId("IosQmlProfilerSupport");
 
     m_runner = new IosRunner(runControl);
-    m_runner->setQmlDebugging(QmlDebug::QmlProfilerServices);
+    m_runner->setQmlDebugging(QmlProfilerServices);
     addStartDependency(m_runner);
 
     m_profiler = runControl->createWorker(ProjectExplorer::Constants::QML_PROFILER_RUNNER);
@@ -798,7 +798,7 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
 
     m_runner = new IosRunner(runControl);
     m_runner->setCppDebugging(isCppDebugging());
-    m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebug::QmlDebuggerServices : QmlDebug::NoQmlDebugServices);
+    m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
 
     addStartDependency(m_runner);
 }

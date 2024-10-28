@@ -11,14 +11,13 @@
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -213,7 +212,7 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
             QTC_CHECK(false);
 
         QString arguments = Utils::ProcessArgs::quoteArg(
-                                QmlDebug::qmlDebugCommandLineArguments(QmlDebug::QmlProfilerServices, code, true));
+                                qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
         Utils::CommandLine cmd = commandLine();
         const QString oldArgs = cmd.arguments();

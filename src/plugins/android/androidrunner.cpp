@@ -12,6 +12,7 @@
 #include "androidtr.h"
 
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>
 

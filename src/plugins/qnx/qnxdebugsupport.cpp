@@ -22,11 +22,10 @@
 #include <projectexplorer/kitchooser.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -90,8 +89,7 @@ public:
                 arguments.append(QString::number(pdebugPort));
             }
             if (usesQmlChannel()) {
-                arguments.append(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                                qmlChannel()));
+                arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, qmlChannel()));
             }
             cmd.setArguments(ProcessArgs::joinArgs(arguments));
             setCommandLine(cmd);

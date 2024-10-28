@@ -151,6 +151,7 @@ add_qtc_plugin(ProjectExplorer
     projectwelcomepage.cpp projectwelcomepage.h
     projectwindow.cpp projectwindow.h
     projectwizardpage.cpp projectwizardpage.h
+    qmldebugcommandlinearguments.cpp qmldebugcommandlinearguments.h
     rawprojectpart.cpp rawprojectpart.h
     removetaskhandler.cpp removetaskhandler.h
     runconfiguration.cpp runconfiguration.h

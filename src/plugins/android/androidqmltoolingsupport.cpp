@@ -6,6 +6,9 @@
 #include "androidconstants.h"
 #include "androidrunner.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
+
 using namespace ProjectExplorer;
 
 namespace Android::Internal {
@@ -20,7 +23,7 @@ public:
         auto runner = new AndroidRunner(runControl);
         addStartDependency(runner);
 
-        auto worker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
+        auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
         worker->addStartDependency(this);
 
         connect(runner, &AndroidRunner::qmlServerReady, this, [this, worker](const QUrl &server) {

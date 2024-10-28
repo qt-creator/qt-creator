@@ -13,10 +13,9 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/environmentaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
-
-#include <qmldebug/qmldebugcommandlinearguments.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -162,7 +161,7 @@ public:
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
     bool m_useLldb = false;
-    QmlDebug::QmlDebugServicesPreset m_qmlDebugServices;
+    QmlDebugServicesPreset m_qmlDebugServices;
     QUrl m_qmlServer;
     QString m_extraAppParams;
     Utils::Environment m_extraEnvVars;
@@ -180,15 +179,15 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     const bool debuggingMode = runMode == ProjectExplorer::Constants::DEBUG_RUN_MODE;
     storage->m_useCppDebugger = debuggingMode && aspect->useCppDebugger;
     if (debuggingMode && aspect->useQmlDebugger)
-        storage->m_qmlDebugServices = QmlDebug::QmlDebuggerServices;
+        storage->m_qmlDebugServices = QmlDebuggerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PROFILER_RUN_MODE)
-        storage->m_qmlDebugServices = QmlDebug::QmlProfilerServices;
+        storage->m_qmlDebugServices = QmlProfilerServices;
     else if (runMode == ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE)
-        storage->m_qmlDebugServices = QmlDebug::QmlPreviewServices;
+        storage->m_qmlDebugServices = QmlPreviewServices;
     else
-        storage->m_qmlDebugServices = QmlDebug::NoQmlDebugServices;
+        storage->m_qmlDebugServices = NoQmlDebugServices;
 
-    if (storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices) {
+    if (storage->m_qmlDebugServices != NoQmlDebugServices) {
         qCDebug(androidRunWorkerLog) << "QML debugging enabled";
         QTcpServer server;
         const bool isListening = server.listen(QHostAddress::LocalHost);
@@ -509,7 +508,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const auto isQmlDebug = [storage] {
-        return storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
+        return storage->m_qmlDebugServices != NoQmlDebugServices;
     };
     const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
         const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
@@ -517,7 +516,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
     };
     const auto onQmlDebugSync = [storage, argsStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
-            .arg(storage->m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(storage->m_qmlDebugServices));
+            .arg(storage->m_qmlServer.port()).arg(qmlDebugServices(storage->m_qmlDebugServices));
 
         if (storage->m_useAppParamsForQmlDebugger) {
             if (!storage->m_extraAppParams.isEmpty())

@@ -10,9 +10,9 @@
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/target.h>
 
-#include <qmldebug/qmldebugcommandlinearguments.h>
 #include <qmlprojectmanager/qmlmultilanguageaspect.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
@@ -225,7 +225,7 @@ public:
                 }
             }
 
-            cmd.addArg(QmlDebug::qmlDebugLocalArguments(QmlDebug::QmlPreviewServices, serverUrl.path()));
+            cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, serverUrl.path()));
             setCommandLine(cmd);
 
             forceRunOnHost();

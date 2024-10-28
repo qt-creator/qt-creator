@@ -17,7 +17,6 @@ QtcLibrary {
         "qmldebugtr.h",
         "qmldebugclient.cpp",
         "qmldebugclient.h",
-        "qmldebugcommandlinearguments.h",
         "qmldebugconnection.cpp",
         "qmldebugconnection.h",
         "qmldebugconnectionmanager.cpp",
