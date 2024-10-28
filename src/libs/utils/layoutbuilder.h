@@ -299,7 +299,7 @@ public:
     SpinBox(std::initializer_list<I> ps);
 
     void setValue(int);
-    void onTextChanged(const std::function<void(QString)> &);
+    void onTextChanged(const std::function<void(QString)> &, QObject *guard);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public Widget

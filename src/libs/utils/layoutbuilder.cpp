@@ -880,9 +880,9 @@ void SpinBox::setValue(int val)
     access(this)->setValue(val);
 }
 
-void SpinBox::onTextChanged(const std::function<void (QString)> &func)
+void SpinBox::onTextChanged(const std::function<void(QString)> &func, QObject *guard)
 {
-    QObject::connect(access(this), &QSpinBox::textChanged, func);
+    QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
 }
 
 // TextEdit
