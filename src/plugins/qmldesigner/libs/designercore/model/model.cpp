@@ -2757,7 +2757,7 @@ QList<ItemLibraryEntry> Model::itemLibraryEntries() const
 {
 #ifdef QDS_USE_PROJECTSTORAGE
     using namespace Storage::Info;
-    return toItemLibraryEntries(d->projectStorage->itemLibraryEntries(d->m_sourceId));
+    return toItemLibraryEntries(*d->pathCache, d->projectStorage->itemLibraryEntries(d->m_sourceId));
 #else
     return d->metaInfo().itemLibraryInfo()->entries();
 #endif

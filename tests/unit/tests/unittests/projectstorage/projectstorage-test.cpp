@@ -8671,7 +8671,8 @@ TEST_F(ProjectStorage, get_local_file_item_library_entries_by_source_id)
                                                         "Object",
                                                         "My Components",
                                                         "/path/to",
-                                                        ModuleKind::PathLibrary)));
+                                                        ModuleKind::PathLibrary,
+                                                        sourceId2)));
 }
 
 TEST_F(ProjectStorage,

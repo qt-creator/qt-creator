@@ -864,11 +864,12 @@ struct ProjectStorage::Statements
         "                   USING(moduleId) "
         "                 WHERE di.sourceId=?)",
         database};
-    mutable Sqlite::ReadStatement<3, 2> selectLocalFileItemLibraryEntriesBySourceIdStatement{
-        "SELECT typeId, etn.name, m.name "
+    mutable Sqlite::ReadStatement<4, 2> selectLocalFileItemLibraryEntriesBySourceIdStatement{
+        "SELECT typeId, etn.name, m.name, t.sourceId "
         "FROM documentImports AS di "
         "  JOIN exportedTypeNames AS etn USING(moduleId) "
         "  JOIN modules AS m USING(moduleId) "
+        "  JOIN types AS t USING(typeId)"
         "WHERE di.sourceId=?1 AND m.kind = ?2",
         database};
     mutable Sqlite::ReadStatement<3, 1> selectItemLibraryPropertiesStatement{
@@ -1883,14 +1884,17 @@ Storage::Info::ItemLibraryEntries ProjectStorage::itemLibraryEntries(SourceId so
     s->selectItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(typeAnnotationCallback,
                                                                                sourceId);
 
-    auto fileComponentCallback =
-        [&](TypeId typeId, Utils::SmallStringView typeName, Utils::SmallStringView import) {
-            if (!isCapitalLetter(typeName.front()))
-                return;
+    auto fileComponentCallback = [&](TypeId typeId,
+                                     Utils::SmallStringView typeName,
+                                     Utils::SmallStringView import,
+                                     SourceId componentSourceId) {
+        if (!isCapitalLetter(typeName.front()))
+            return;
 
-            auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
-            last.moduleKind = Storage::ModuleKind::PathLibrary;
-        };
+        auto &last = entries.emplace_back(typeId, typeName, typeName, "My Components", import);
+        last.moduleKind = Storage::ModuleKind::PathLibrary;
+        last.componentSourceId = componentSourceId;
+    };
 
     s->selectLocalFileItemLibraryEntriesBySourceIdStatement.readCallbackWithTransaction(
         fileComponentCallback, sourceId, Storage::ModuleKind::PathLibrary);

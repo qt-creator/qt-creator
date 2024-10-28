@@ -455,6 +455,7 @@ struct ItemLibraryEntry
     Utils::PathString templatePath;
     ItemLibraryProperties properties;
     std::vector<Utils::PathString> extraFilePaths;
+    SourceId componentSourceId;
 };
 
 using ItemLibraryEntries = QVarLengthArray<ItemLibraryEntry, 1>;

@@ -7,11 +7,14 @@
 
 #include <invalidmetainfoexception.h>
 #include <propertycontainer.h>
+#include <sourcepathcache.h>
 
 #include <QSharedData>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
+
+#include <functional>
 
 namespace QmlDesigner {
 
@@ -64,7 +67,8 @@ ItemLibraryEntry::ItemLibraryEntry()
     : m_data(std::make_shared<Internal::ItemLibraryEntryData>())
 {}
 
-ItemLibraryEntry ItemLibraryEntry::create(const Storage::Info::ItemLibraryEntry &entry)
+ItemLibraryEntry ItemLibraryEntry::create(const PathCacheType &pathCache,
+                                          const Storage::Info::ItemLibraryEntry &entry)
 {
     ItemLibraryEntry itemLibraryEntry;
     auto &m_data = itemLibraryEntry.m_data;
@@ -72,6 +76,8 @@ ItemLibraryEntry ItemLibraryEntry::create(const Storage::Info::ItemLibraryEntry 
     m_data->typeId = entry.typeId;
     m_data->typeName = entry.typeName.toQByteArray();
     m_data->category = entry.category.toQString();
+    if (entry.componentSourceId)
+        m_data->customComponentSource = pathCache.sourcePath(entry.componentSourceId).toQString();
     if (entry.iconPath.size())
         m_data->libraryEntryIconPath = entry.iconPath.toQString();
     if (entry.moduleKind == Storage::ModuleKind::QmlLibrary)
@@ -305,9 +311,11 @@ QDebug operator<<(QDebug debug, const ItemLibraryEntry &itemLibraryEntry)
     return debug.space();
 }
 
-QList<ItemLibraryEntry> toItemLibraryEntries(const Storage::Info::ItemLibraryEntries &entries)
+QList<ItemLibraryEntry> toItemLibraryEntries(const PathCacheType &pathCache,
+                                             const Storage::Info::ItemLibraryEntries &entries)
 {
-    return Utils::transform<QList<ItemLibraryEntry>>(entries, &ItemLibraryEntry::create);
+    auto create = std::bind_front(&ItemLibraryEntry::create, std::ref(pathCache));
+    return Utils::transform<QList<ItemLibraryEntry>>(entries, create);
 }
 
 } // namespace QmlDesigner

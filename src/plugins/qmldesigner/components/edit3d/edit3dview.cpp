@@ -350,7 +350,7 @@ void Edit3DView::handleEntriesChanged()
     auto append = [&](const NodeMetaInfo &metaInfo, ItemLibraryEntryKeys key) {
         auto entries = metaInfo.itemLibrariesEntries();
         if (entries.size())
-            entriesMap[key].entryList.append(toItemLibraryEntries(entries));
+            entriesMap[key].entryList.append(toItemLibraryEntries(model()->pathCache(), entries));
     };
 
     append(model()->qtQuick3DModelMetaInfo(), EK_primitives);

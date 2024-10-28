@@ -50,7 +50,8 @@ inline auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
                                Utils::SmallStringView name,
                                Utils::SmallStringView category,
                                Utils::SmallStringView import,
-                               QmlDesigner::Storage::ModuleKind moduleKind)
+                               QmlDesigner::Storage::ModuleKind moduleKind,
+                               QmlDesigner::SourceId componentSourceId)
 {
     using QmlDesigner::Storage::Info::ItemLibraryEntry;
     return AllOf(Field("typeId", &ItemLibraryEntry::typeId, typeId),
@@ -58,7 +59,8 @@ inline auto IsItemLibraryEntry(QmlDesigner::TypeId typeId,
                  Field("name", &ItemLibraryEntry::name, name),
                  Field("category", &ItemLibraryEntry::category, category),
                  Field("import", &ItemLibraryEntry::import, import),
-                 Field("moduleKind", &ItemLibraryEntry::moduleKind, moduleKind));
+                 Field("moduleKind", &ItemLibraryEntry::moduleKind, moduleKind),
+                 Field("componentSourceId", &ItemLibraryEntry::componentSourceId, componentSourceId));
 }
 
 MATCHER_P3(IsItemLibraryProperty,
