@@ -477,10 +477,14 @@ static IndicesList unmatchedIndices(const IndicesList &indices)
 static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstParam)
 {
     if (isFirstParam) { // drop leading spaces
+        int newlineCount = 0;
         int firstNonSpace = 0;
-        while (firstNonSpace + 1 < text.size() && text.at(firstNonSpace).isSpace())
+        while (firstNonSpace + 1 < text.size() && text.at(firstNonSpace).isSpace()) {
+            if (text.at(firstNonSpace) == QChar::ParagraphSeparator)
+                ++newlineCount;
             ++firstNonSpace;
-        return text.mid(firstNonSpace);
+        }
+        return QString(newlineCount, QChar::ParagraphSeparator) + text.mid(firstNonSpace);
     } else { // ensure one leading space
         if (text.isEmpty() || !text.at(0).isSpace())
             return QLatin1Char(' ') + text;
