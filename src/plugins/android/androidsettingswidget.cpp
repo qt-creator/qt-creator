@@ -402,6 +402,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     using namespace Layouting;
 
     Column {
+        Tr::tr("All changes on this page take effect immediately."),
         Group {
             title(Tr::tr("Android Settings")),
             Grid {
