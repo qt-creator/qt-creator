@@ -43,6 +43,7 @@ public:
 
     bool isKitSelected() const;
     void setKitSelected(bool b);
+    bool isValid() const { return m_isValid; }
 
     void addBuildInfo(const BuildInfo &info, bool isImport);
 
@@ -59,7 +60,7 @@ private:
 
     bool hasSelectableBuildConfigurations() const;
 
-    void toggleEnabled(bool enabled);
+    void setValid(bool valid);
     void checkBoxToggled(QCheckBox *checkBox, bool b);
     void pathChanged(Utils::PathChooser *pathChooser);
     void targetCheckBoxToggled(bool b);
@@ -70,6 +71,7 @@ private:
     void clear();
     void updateDefaultBuildDirectories();
 
+    bool m_isValid = false;
     Kit *m_kit;
     Utils::FilePath m_projectPath;
     bool m_haveImported = false;

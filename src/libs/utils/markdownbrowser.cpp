@@ -80,32 +80,25 @@ static QStringList defaultCodeFontFamilies()
 
 static void highlightCodeBlock(QTextDocument *document, QTextBlock &block, const QString &language)
 {
-    int startBlockNumner = block.blockNumber();
-
+    const int position = block.position();
     // Find the end of the code block ...
-    QTextBlock curBlock = block;
-    while (curBlock.isValid()) {
-        curBlock = curBlock.next();
-        const auto valid = curBlock.isValid();
-        const auto hasProp = curBlock.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage);
-        const auto prop = curBlock.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage);
-        if (!valid || !hasProp || prop != language)
+    for (block = block.next(); block.isValid(); block = block.next()) {
+        if (!block.blockFormat().hasProperty(QTextFormat::BlockCodeLanguage))
+            break;
+        if (language != block.blockFormat().stringProperty(QTextFormat::BlockCodeLanguage))
             break;
     }
+    const int end = (block.isValid() ? block.position() : document->characterCount()) - 1;
     // Get the text of the code block and erase it
     QTextCursor eraseCursor(document);
-    eraseCursor.movePosition(QTextCursor::NextBlock, QTextCursor::MoveAnchor, startBlockNumner);
-    eraseCursor.movePosition(
-        QTextCursor::NextBlock,
-        QTextCursor::KeepAnchor,
-        curBlock.blockNumber() - startBlockNumner - 1);
-    eraseCursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+    eraseCursor.setPosition(position);
+    eraseCursor.setPosition(end, QTextCursor::KeepAnchor);
 
-    QString code = eraseCursor.selectedText();
-    eraseCursor.deleteChar();
+    const QString code = eraseCursor.selectedText();
+    eraseCursor.removeSelectedText();
 
     // Create a new Frame and insert the highlighted code ...
-    block = document->findBlockByNumber(startBlockNumner);
+    block = document->findBlock(position);
 
     QTextCursor cursor(block);
     QTextFrameFormat format;

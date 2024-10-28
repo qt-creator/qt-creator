@@ -54,6 +54,12 @@ static Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager", QtWar
 
 static std::optional<QDomElement> documentElement(const FilePath &fileName)
 {
+    if (!fileName.exists()) {
+        qCDebug(androidManagerLog, "Manifest file %s doesn't exist.",
+                fileName.toUserOutput().toUtf8().data());
+        return {};
+    }
+
     const expected_str<QByteArray> result = fileName.fileContents();
     if (!result) {
         MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".")

@@ -115,9 +115,24 @@ HAS_MEM_FUNC(setCompleter, hasSetCompleter);
 HAS_MEM_FUNC(setMinimumHeight, hasSetMinimumHeight);
 HAS_MEM_FUNC(onReturnPressed, hasOnReturnPressed);
 HAS_MEM_FUNC(onRightSideIconClicked, hasOnRightSideIconClicked);
+HAS_MEM_FUNC(setTextInteractionFlags, hasSetTextInteractionFlags);
+HAS_MEM_FUNC(setFixedSize, hasSetFixedSize);
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard) {
+    if constexpr (hasSetTextInteractionFlags<T, void (T::*)(Qt::TextInteractionFlags)>::value) {
+        const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
+        if (interactionFlags) {
+            item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
+        }
+    }
+
+    if constexpr (hasSetFixedSize<T, void (T::*)(int, int)>::value) {
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
+        if (size)
+            item->setFixedSize(size->width(), size->height());
+    }
+
     if constexpr (hasSetWordWrap<T, void (T::*)(bool)>::value) {
         const auto wrap = children.get<sol::optional<bool>>("wordWrap");
         if (wrap)
@@ -154,18 +169,18 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
             item->setMinimumHeight(*minHeight);
     }
 
-    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &)>::value) {
+    if constexpr (hasOnReturnPressed<T, void (T::*)(const std::function<void()> &, QObject *)>::value) {
         const auto callback = children.get<sol::optional<sol::function>>("onReturnPressed");
         if (callback)
         {
-            item->onReturnPressed([func = *callback]() { void_safe_call(func); });
+            item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
         }
     }
 
     if constexpr (hasOnRightSideIconClicked<T, void (T::*)(const std::function<void()> &)>::value) {
         const auto callback = children.get<sol::optional<sol::function>>("onRightSideIconClicked");
         if (callback)
-            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); });
+            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
     }
 
     if constexpr (hasSetFlat<T, void (T::*)(bool)>::value) {
@@ -509,6 +524,7 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
 
         gui.new_usertype<Stack>(
             "Stack",
@@ -558,7 +574,7 @@ void setupGuiModule()
                 return constructWidgetType<LineEdit>(children, guard);
             }),
             "text",
-            sol::property(&LineEdit::text),
+            sol::property(&LineEdit::text, &LineEdit::setText),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 

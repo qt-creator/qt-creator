@@ -52,8 +52,22 @@ protected:
 
         environment.addModifier([this](Environment &env) {
             BuildTargetInfo bti = buildTargetInfo();
-            if (bti.runEnvModifier)
+            if (bti.runEnvModifier) {
+                Environment old = env;
                 bti.runEnvModifier(env, useLibraryPaths());
+                const EnvironmentItems diff = old.diff(env, true);
+                for (const EnvironmentItem &i : diff) {
+                    switch (i.operation) {
+                    case EnvironmentItem::SetEnabled:
+                    case EnvironmentItem::Prepend:
+                    case EnvironmentItem::Append:
+                        env.addItem(std::make_tuple("_QTC_" + i.name, i.value));
+                        break;
+                    default:
+                        break;
+                    }
+                }
+            }
         });
 
         setUpdater([this] { updateTargetInformation(); });

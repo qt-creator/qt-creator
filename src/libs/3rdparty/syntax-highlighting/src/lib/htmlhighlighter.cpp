@@ -28,6 +28,7 @@ public:
     std::unique_ptr<QFile> file;
     QString currentLine;
     std::vector<QString> htmlStyles;
+    Theme::EditorColorRole bgRole = Theme::BackgroundColor;
 };
 
 HtmlHighlighter::HtmlHighlighter()
@@ -37,6 +38,12 @@ HtmlHighlighter::HtmlHighlighter()
 
 HtmlHighlighter::~HtmlHighlighter()
 {
+}
+
+void HtmlHighlighter::setBackgroundRole(Theme::EditorColorRole bgRole)
+{
+    Q_D(HtmlHighlighter);
+    d->bgRole = bgRole;
 }
 
 void HtmlHighlighter::setOutputFile(const QString &fileName)
@@ -60,7 +67,6 @@ void HtmlHighlighter::setOutputFile(FILE *fileHandle)
 
 void HtmlHighlighter::highlightFile(const QString &fileName, const QString &title)
 {
-    QFileInfo fi(fileName);
     QFile f(fileName);
     if (!f.open(QFile::ReadOnly)) {
         qCWarning(Log) << "Failed to open input file" << fileName << ":" << f.errorString();
@@ -68,38 +74,51 @@ void HtmlHighlighter::highlightFile(const QString &fileName, const QString &titl
     }
 
     if (title.isEmpty()) {
+        QFileInfo fi(fileName);
         highlightData(&f, fi.fileName());
     } else {
         highlightData(&f, title);
     }
 }
 
+namespace
+{
 /**
  * @brief toHtmlRgba
- * Converts QColor -> #RRGGBBAA if there is an alpha channel
+ * Converts QRgb -> #RRGGBBAA if there is an alpha channel
  * otherwise it will just return the hexcode. This is because QColor
  * outputs #AARRGGBB, whereas browser support #RRGGBBAA.
- *
- * @param color
- * @return
  */
-static QString toHtmlRgbaString(const QColor &color)
-{
-    if (color.alpha() == 0xFF) {
-        return color.name();
+struct HtmlColor {
+    HtmlColor(QRgb argb)
+    {
+        static const char16_t *digits = u"0123456789abcdef";
+
+        hexcode[0] = u'#';
+        hexcode[1] = digits[qRed(argb) >> 4];
+        hexcode[2] = digits[qRed(argb) & 0xf];
+        hexcode[3] = digits[qGreen(argb) >> 4];
+        hexcode[4] = digits[qGreen(argb) & 0xf];
+        hexcode[5] = digits[qBlue(argb) >> 4];
+        hexcode[6] = digits[qBlue(argb) & 0xf];
+        if (qAlpha(argb) == 0xff) {
+            len = 7;
+        } else {
+            hexcode[7] = digits[qAlpha(argb) >> 4];
+            hexcode[8] = digits[qAlpha(argb) & 0xf];
+            len = 9;
+        }
     }
-    static const char16_t digits[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+
+    QStringView sv() const
+    {
+        return QStringView(hexcode, len);
+    }
+
+private:
     QChar hexcode[9];
-    hexcode[0] = QLatin1Char('#');
-    hexcode[1] = digits[color.red() >> 4];
-    hexcode[2] = digits[color.red() & 0xf];
-    hexcode[3] = digits[color.green() >> 4];
-    hexcode[4] = digits[color.green() & 0xf];
-    hexcode[5] = digits[color.blue() >> 4];
-    hexcode[6] = digits[color.blue() & 0xf];
-    hexcode[7] = digits[color.alpha() >> 4];
-    hexcode[8] = digits[color.alpha() & 0xf];
-    return QString(hexcode, 9);
+    qsizetype len;
+};
 }
 
 void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
@@ -120,9 +139,21 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
 
     const auto &theme = d->m_theme;
     const auto &definition = d->m_definition;
+    const bool useSelectedText = d->bgRole == Theme::TextSelection;
 
     auto definitions = definition.includedDefinitions();
     definitions.append(definition);
+
+    const auto mainTextColor = [&] {
+        if (useSelectedText) {
+            const auto fg = theme.selectedTextColor(Theme::Normal);
+            if (fg) {
+                return fg;
+            }
+        }
+        return theme.textColor(Theme::Normal);
+    }();
+    const auto mainBgColor = theme.editorColor(d->bgRole);
 
     int maxId = 0;
     for (const auto &definition : std::as_const(definitions)) {
@@ -138,11 +169,14 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     for (const auto &definition : std::as_const(definitions)) {
         for (const auto &format : std::as_const(DefinitionData::get(definition)->formats)) {
             auto &buffer = d->htmlStyles[format.id()];
-            if (format.hasTextColor(theme)) {
-                buffer += QStringLiteral("color:") + toHtmlRgbaString(format.textColor(theme)) + QStringLiteral(";");
+
+            const auto textColor = useSelectedText ? format.selectedTextColor(theme).rgba() : format.textColor(theme).rgba();
+            if (textColor && textColor != mainTextColor) {
+                buffer += QStringLiteral("color:") + HtmlColor(textColor).sv() + u';';
             }
-            if (format.hasBackgroundColor(theme)) {
-                buffer += QStringLiteral("background-color:") + toHtmlRgbaString(format.backgroundColor(theme)) + QStringLiteral(";");
+            const auto bgColor = useSelectedText ? format.selectedBackgroundColor(theme).rgba() : format.backgroundColor(theme).rgba();
+            if (bgColor && bgColor != mainBgColor) {
+                buffer += QStringLiteral("background-color:") + HtmlColor(bgColor).sv() + u';';
             }
             if (format.isBold(theme)) {
                 buffer += QStringLiteral("font-weight:bold;");
@@ -173,10 +207,8 @@ void HtmlHighlighter::highlightData(QIODevice *dev, const QString &title)
     *d->out << "<title>" << htmlTitle << "</title>\n";
     *d->out << "<meta name=\"generator\" content=\"KF5::SyntaxHighlighting - Definition (" << definition.name() << ") - Theme (" << theme.name() << ")\"/>\n";
     *d->out << "</head><body";
-    *d->out << " style=\"background-color:" << toHtmlRgbaString(QColor::fromRgba(theme.editorColor(Theme::BackgroundColor)));
-    if (theme.textColor(Theme::Normal)) {
-        *d->out << ";color:" << toHtmlRgbaString(QColor::fromRgba(theme.textColor(Theme::Normal)));
-    }
+    *d->out << " style=\"background-color:" << HtmlColor(mainBgColor).sv();
+    *d->out << ";color:" << HtmlColor(mainTextColor).sv();
     *d->out << "\"><pre>\n";
 
     QTextStream in(dev);
@@ -206,7 +238,7 @@ void HtmlHighlighter::applyFormat(int offset, int length, const Format &format)
         *d->out << htmlStyle;
     }
 
-    for (QChar ch : QStringView(d->currentLine).mid(offset, length)) {
+    for (QChar ch : QStringView(d->currentLine).sliced(offset, length)) {
         if (ch == u'<')
             *d->out << QStringLiteral("&lt;");
         else if (ch == u'&')

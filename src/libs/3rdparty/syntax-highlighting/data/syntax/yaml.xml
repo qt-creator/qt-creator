@@ -53,8 +53,8 @@
 <!-- Modifications (YAML 1.2), values & support for literal/folded style:
        Nibaldo González S. <nibgonz@gmail.com>
        These modifications are under the MIT license. //-->
-<language name="YAML" version="11" kateversion="5.0" section="Markup"
-          extensions="*.yaml;*.yml" mimetype="text/yaml" priority="9"
+<language name="YAML" alternativeNames="YML" version="13" kateversion="5.0" section="Markup"
+          extensions="*.yaml;*.yml;.clang-format;.clang-tidy" mimetype="text/yaml" priority="9"
           author="Dr Orlovsky MA (dr.orlovsky@gmail.com), Nibaldo González (nibgonz@gmail.com)" license="LGPL">
   <highlighting>
     <contexts>

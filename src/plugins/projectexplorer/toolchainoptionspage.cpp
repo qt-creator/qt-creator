@@ -267,7 +267,7 @@ public:
         m_container->setWidget(m_widgetStack);
 
         const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-            ToolchainBundle::AutoRegister::On);
+            ToolchainBundle::HandleMissing::CreateAndRegister);
         for (const ToolchainBundle &b : bundles)
             insertBundle(b);
 
@@ -400,8 +400,8 @@ void ToolChainOptionsWidget::handleToolchainsRegistered(const Toolchains &toolch
         return;
     }
 
-    const QList<ToolchainBundle> bundles
-        = ToolchainBundle::collectBundles(toolchains, ToolchainBundle::AutoRegister::On);
+    const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+        toolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
     for (const ToolchainBundle &bundle : bundles)
         insertBundle(bundle);
     updateState();
@@ -524,7 +524,7 @@ void ToolChainOptionsWidget::redetectToolchains()
 
     // Step 4: Create new bundles and add items for them.
     const QList<ToolchainBundle> newBundles
-        = ToolchainBundle::collectBundles(toAdd, ToolchainBundle::AutoRegister::Off);
+        = ToolchainBundle::collectBundles(toAdd, ToolchainBundle::HandleMissing::CreateOnly);
     for (const ToolchainBundle &bundle : newBundles)
         m_toAddList << insertBundle(bundle, true);
 }
@@ -611,7 +611,7 @@ void ToolChainOptionsWidget::createToolchains(ToolchainFactory *factory, const Q
         toolchains << tc;
     }
 
-    const ToolchainBundle bundle(toolchains, ToolchainBundle::AutoRegister::Off);
+    const ToolchainBundle bundle(toolchains, ToolchainBundle::HandleMissing::CreateOnly);
     ExtendedToolchainTreeItem * const item = insertBundle(bundle, true);
     m_toAddList << item;
     m_toolChainView->setCurrentIndex(m_sortModel.mapFromSource(m_model.indexForItem(item)));

@@ -552,6 +552,33 @@ int main(int argc, char **argv)
     Options options = parseCommandLine(argc, argv);
     applicationDirPath(argv[0]);
 
+    // Remove entries from environment variables that were set up by Qt Creator to run
+    // the application (in this case, us).
+    // TODO: We should be able to merge at least some of the stuff below with similar intent
+    //       into a more generalized version of this.
+    EnvironmentItems specialItems;
+    EnvironmentItems diff;
+    Environment::systemEnvironment().forEachEntry(
+        [&specialItems](const QString &name, const QString &value, bool enabled) {
+            if (enabled && name.startsWith("_QTC_"))
+                specialItems.emplaceBack(name, value, EnvironmentItem::SetEnabled);
+        });
+    for (const EnvironmentItem &item : std::as_const(specialItems)) {
+        const QString varName = item.name.mid(5);
+        const FilePaths addedPaths
+            = Environment::pathListFromValue(item.value, HostOsInfo::hostOs());
+        FilePaths allPaths = Environment::systemEnvironment().pathListValue(varName);
+        Utils::eraseOne(allPaths, [&addedPaths](const FilePath &p) {
+            return addedPaths.contains(p);
+        });
+        diff.emplaceBack(
+            varName,
+            Environment::valueFromPathList(allPaths, HostOsInfo::hostOs()),
+            EnvironmentItem::SetEnabled);
+        diff.emplaceBack(item.name, "", EnvironmentItem::Unset);
+    }
+    Environment::modifySystemEnvironment(diff);
+
     if (qEnvironmentVariableIsSet("QTC_DO_NOT_PROPAGATE_LD_PRELOAD"))
         Environment::modifySystemEnvironment({{"LD_PRELOAD", "", EnvironmentItem::Unset}});
 

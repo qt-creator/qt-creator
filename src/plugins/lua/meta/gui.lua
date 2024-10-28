@@ -37,6 +37,7 @@ gui.baseWidgetOptions = {}
 ---@field value? integer The value of the widget, if applicable.
 ---@field flat? boolean A boolean, representing whether the widget should be flat, if applicable.
 ---@field [1]? Layout The layout of the widget, if applicable.
+---@field fixedSize? integer[] Two integers representing the width and height
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions
@@ -164,12 +165,17 @@ local pushButton = {}
 function gui.PushButton(options) end
 
 ---@class Label : Widget
----@field textFormat? TextFormat The text format enum
----@field wordWrap? bool
 ---@field text string Returns the content of the Label as string
 local label = {}
 
----@param options WidgetOptions
+---@class (exact) LabelOptions : BaseWidgetOptions
+---@param interactionFlags? TextInteractionFlag[]
+---@param textFormat? TextFormat The text format enum
+---@param wordWrap? bool
+
+gui.labelOptions = {}
+
+---@param options LabelOptions
 ---@return Label
 function gui.Label(options) end
 
@@ -241,6 +247,20 @@ function gui.normalMargin() end
 
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
+
+--- Enum representing Text interaction flags
+---@enum TextInteractionFlag
+gui.TextInteractionFlag {
+    NoTextInteraction = 0,
+    TextSelectableByMouse = 0,
+    TextSelectableByKeyboard = 0,
+    LinksAccessibleByMouse = 0,
+    LinksAccessibleByKeyboard = 0,
+    TextEditable = 0,
+
+    TextEditorInteraction = TextSelectableByMouse | TextSelectableByKeyboard | TextEditable,
+    TextBrowserInteraction = TextSelectableByMouse | LinksAccessibleByMouse | LinksAccessibleByKeyboard
+}
 
 --- Enum representing text format types
 ---@enum TextFormat

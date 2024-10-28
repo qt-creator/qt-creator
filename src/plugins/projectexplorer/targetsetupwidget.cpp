@@ -217,12 +217,12 @@ void TargetSetupWidget::update(const TasksGenerator &generator)
     // Kits that where the taskGenarator reports an error are not selectable, because we cannot
     // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
     if (!errorTask.isNull()) {
-        toggleEnabled(false);
+        setValid(false);
         m_infoStore.clear();
         return;
     }
 
-    toggleEnabled(true);
+    setValid(true);
     updateDefaultBuildDirectories();
 }
 
@@ -241,12 +241,13 @@ bool TargetSetupWidget::hasSelectableBuildConfigurations() const
     return !m_infoStore.empty();
 }
 
-void TargetSetupWidget::toggleEnabled(bool enabled)
+void TargetSetupWidget::setValid(bool valid)
 {
-    m_detailsWidget->widget()->setEnabled(enabled);
-    m_detailsWidget->setCheckable(enabled);
-    m_detailsWidget->setExpandable(enabled && hasSelectableBuildConfigurations());
-    if (!enabled) {
+    m_isValid = valid;
+    m_detailsWidget->widget()->setEnabled(valid);
+    m_detailsWidget->setCheckable(valid);
+    m_detailsWidget->setExpandable(valid && hasSelectableBuildConfigurations());
+    if (!valid) {
         m_detailsWidget->setState(DetailsWidget::Collapsed);
         m_detailsWidget->setChecked(false);
     }

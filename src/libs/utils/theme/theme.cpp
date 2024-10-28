@@ -392,6 +392,15 @@ expected_str<Theme::Color> Theme::colorToken(const QString &tokenName,
     return result;
 }
 
+Theme::Color Theme::highlightFor(Color role)
+{
+    QTC_ASSERT(creatorTheme(), return role);
+    static const QMap<QRgb, Theme::Color> map = {
+        { creatorColor(Theme::Token_Text_Muted).rgba(), Theme::Token_Text_Default},
+    };
+    return map.value(creatorColor(role).rgba(), role);
+}
+
 QPalette Theme::initialPalette()
 {
     if (!m_initialPalette) {

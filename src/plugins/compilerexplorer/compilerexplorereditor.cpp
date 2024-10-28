@@ -1139,7 +1139,7 @@ QWidget *Editor::toolBar()
 
         QAction *setUrlAction = new QAction();
         setUrlAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
-        setUrlAction->setToolTip(Tr::tr("Change backend URL"));
+        setUrlAction->setToolTip(Tr::tr("Change backend URL."));
         connect(setUrlAction, &QAction::triggered, this, [this] {
             bool ok;
             QString text = QInputDialog::getText(

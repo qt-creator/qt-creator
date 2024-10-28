@@ -81,12 +81,12 @@
     the project:
 
             \list
-                \li \l{Specify clangd settings}{Clangd}
                 \li \l{Specify Clang tools settings}{Clang Tools}
+                \li \l{Specify clangd settings}{Clangd}
                 \li \l{Override CMake settings for a project}{CMake}
+                \li \l{Specify code style}{Code Style}
                 \li \l{Turn suggestions on or off for a project}{Copilot}
                 \li \l{Configure C++ code model}{C++ Code Model}
-                \li \l{Specify code style}{C++ Code Style}
                 \li \l{Set C++ file naming preferences}{C++ File Naming}
                 \li \l{Specify dependencies}{Dependencies}
                 \li \l{Document code}{Documentation Comments}
@@ -94,6 +94,7 @@
                 \li \l{Specify the environment for projects}{Environment}
                 \li \l{Link projects with GitLab}{GitLab}
                 \li \l{Configure language server workspace}{Language Server}
+                \li \l{Turn on or off \QMLLS for a project}{Qt Quick}
                 \li \l{Specify settings for quick fixes}{Quick Fixes}
                 \li \l{Apply filters before scanning for tests}{Testing}
                 \li \l{Exclude files from to-do lists}{To-Do} (experimental)

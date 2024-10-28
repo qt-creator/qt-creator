@@ -40,6 +40,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_LLVM_POSTFIX
             variableValue: "-windows-vs2019_64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python"
         enable_if:
           condition: property
           property: target.os
@@ -61,6 +64,17 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_ICU_URL
             variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
+          # RHEL 8.10 comes with Python 3.6, we need explicitly python3.11
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3.11"
+            enable_if:
+              condition: property
+              property: host.osVersion
+              contains_value: "RHEL"
         enable_if:
           condition: and
           conditions:
@@ -87,6 +101,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_ICU_URL
             variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Debian11.6-aarch64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
         enable_if:
           condition: and
           conditions:
@@ -107,6 +124,9 @@ instructions:
           - type: EnvironmentVariable
             variableName: QTC_LLVM_POSTFIX
             variableValue: "-macos-universal.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
         enable_if:
           condition: property
           property: target.os

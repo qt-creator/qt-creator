@@ -12,11 +12,11 @@ using namespace Utils;
 
 namespace Qnx::Internal {
 
-QnxDeviceTester::QnxDeviceTester(QObject *parent)
-    : RemoteLinux::GenericLinuxDeviceTester(parent)
+QnxDeviceTester::QnxDeviceTester(const ProjectExplorer::IDevice::Ptr &device, QObject *parent)
+    : RemoteLinux::GenericLinuxDeviceTester(device, parent)
 {}
 
-void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
+void QnxDeviceTester::testDevice()
 {
     static const QStringList commandsToTest {
         "awk",
@@ -43,7 +43,7 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
 
     using namespace Tasking;
 
-    auto onSetup = [device, this](Process &process) {
+    auto onSetup = [device = device(), this](Process &process) {
         emit progressMessage(Tr::tr("Checking that files can be created in %1...")
                 .arg(Constants::QNX_TMP_DIR));
         const QString pidFile = QString("%1/qtc_xxxx.pid").arg(Constants::QNX_TMP_DIR);
@@ -64,7 +64,7 @@ void QnxDeviceTester::testDevice(const ProjectExplorer::IDevice::Ptr &device)
     };
     setExtraTests({ProcessTask(onSetup, onDone, CallDoneIf::Success)});
 
-    RemoteLinux::GenericLinuxDeviceTester::testDevice(device);
+    RemoteLinux::GenericLinuxDeviceTester::testDevice();
 }
 
 } // Qnx::Internal

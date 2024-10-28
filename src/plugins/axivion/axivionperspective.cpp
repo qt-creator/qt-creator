@@ -45,8 +45,10 @@
 #include <QLabel>
 #include <QMenu>
 #include <QPainter>
+#include <QPlainTextEdit>
 #include <QPushButton>
 #include <QScrollArea>
+#include <QStackedWidget>
 #include <QStandardItemModel>
 #include <QTextBrowser>
 #include <QToolButton>
@@ -191,6 +193,7 @@ public:
 
     enum OverlayIconType { EmptyIcon, ErrorIcon, SettingsIcon };
     void showOverlay(const QString &message = {}, OverlayIconType type = EmptyIcon);
+    void showErrorMessage(const QString &message);
 protected:
     void showEvent(QShowEvent *event) override;
 private:
@@ -204,7 +207,7 @@ private:
     void fetchTable();
     void fetchIssues(const IssueListSearch &search);
     void onFetchRequested(int startRow, int limit);
-    void hideOverlay();
+    void hideOverlays();
 
     QString m_currentPrefix;
     QString m_currentProject;
@@ -222,7 +225,9 @@ private:
     QLineEdit *m_pathGlobFilter = nullptr; // FancyLineEdit instead?
     QLabel *m_totalRows = nullptr;
     BaseTreeView *m_issuesView = nullptr;
+    QStackedWidget *m_stack = nullptr;
     IssueHeaderView *m_headerView = nullptr;
+    QPlainTextEdit *m_errorEdit = nullptr;
     DynamicListModel *m_issuesModel = nullptr;
     int m_totalRowCount = 0;
     QStringList m_userNames;
@@ -348,11 +353,29 @@ IssuesWidget::IssuesWidget(QWidget *parent)
     connect(m_issuesModel, &DynamicListModel::fetchRequested, this, &IssuesWidget::onFetchRequested);
     m_totalRows = new QLabel(Tr::tr("Total rows:"), this);
 
+    QWidget *errorWidget = new QWidget(this);
+    m_errorEdit = new QPlainTextEdit(this);
+    m_errorEdit->setReadOnly(true);
+    QPalette palette = Utils::creatorTheme()->palette();
+    palette.setColor(QPalette::Text, Utils::creatorColor(Theme::TextColorError));
+    m_errorEdit->setPalette(palette);
+    QPushButton *openPref = new QPushButton(Tr::tr("Open Preferences..."), errorWidget);
+    connect(openPref, &QPushButton::clicked,
+            this, []{ ICore::showOptionsDialog("Axivion.Settings.General"); });
     using namespace Layouting;
+    Column {
+        m_errorEdit,
+        Row { openPref, st }
+    }.attachTo(errorWidget);
+
+    m_stack = new QStackedWidget(this);
+    m_stack->addWidget(m_issuesView);
+    m_stack->addWidget(errorWidget);
+
     Column {
         Row { m_dashboards, m_dashboardProjects, empty, m_typesLayout, st, m_versionStart, m_versionEnd, st },
         Row { m_addedFilter, m_removedFilter, Space(1), m_ownerFilter, m_pathGlobFilter },
-        m_issuesView,
+        m_stack,
         Row { st, m_totalRows }
     }.attachTo(widget);
 
@@ -427,7 +450,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
         showOverlay(Tr::tr("Configure dashboards in Preferences > Axivion > General."), SettingsIcon);
         return;
     }
-    hideOverlay();
+    hideOverlays();
 
     GuardLocker lock(m_signalBlocker);
     m_dashboards->addItem(Tr::tr("None"));
@@ -466,8 +489,7 @@ void IssuesWidget::reinitProjectList(const QString &currentProject)
         m_dashboardProjects->clear();
     }
     updateBasicProjectInfo(std::nullopt);
-    if (m_overlay)
-        m_overlay->hide();
+    hideOverlays();
     m_issuesView->showProgressIndicator();
     fetchDashboardAndProjectInfo(onDashboardInfoFetched, currentProject);
 }
@@ -682,8 +704,7 @@ void IssuesWidget::updateBasicProjectInfo(const std::optional<Dto::ProjectInfoDt
         setFiltersEnabled(false);
         m_issuesModel->clear();
         m_issuesModel->setHeader({});
-        if (m_overlay)
-            m_overlay->hide();
+        hideOverlays();
         return;
     }
 
@@ -796,7 +817,7 @@ void IssuesWidget::fetchTable()
 
 void IssuesWidget::fetchIssues(const IssueListSearch &search)
 {
-    hideOverlay();
+    hideOverlays();
     const auto issuesHandler = [this, startRow = search.offset](const Dto::IssueTableDto &dto) {
         addIssues(dto, startRow);
     };
@@ -847,13 +868,21 @@ void IssuesWidget::showOverlay(const QString &message, OverlayIconType type)
         p.restore();
     });
 
+    m_stack->setCurrentIndex(0);
     m_overlay->show();
 }
 
-void IssuesWidget::hideOverlay()
+void IssuesWidget::showErrorMessage(const QString &message)
+{
+    m_errorEdit->setPlainText(message);
+    m_stack->setCurrentIndex(1);
+}
+
+void IssuesWidget::hideOverlays()
 {
     if (m_overlay)
         m_overlay->hide();
+    m_stack->setCurrentIndex(0);
 }
 
 class AxivionPerspective : public Perspective
@@ -864,6 +893,7 @@ public:
 
     void handleShowIssues(const QString &kind);
     void handleShowFilterException(const QString &errorMessage);
+    void handleShowErrorMessage(const QString &errorMessage);
     void reinitDashboardList(const QString &preferredProject);
     void resetDashboard();
     bool handleContextMenu(const QString &issue, const ItemViewEvent &e);
@@ -959,6 +989,11 @@ void AxivionPerspective::handleShowIssues(const QString &kind)
 void AxivionPerspective::handleShowFilterException(const QString &errorMessage)
 {
     m_issuesWidget->showOverlay(errorMessage, IssuesWidget::ErrorIcon);
+}
+
+void AxivionPerspective::handleShowErrorMessage(const QString &errorMessage)
+{
+    m_issuesWidget->showErrorMessage(errorMessage);
 }
 
 void AxivionPerspective::reinitDashboardList(const QString &preferredProject)
@@ -1096,6 +1131,12 @@ void showFilterException(const QString &errorMessage)
 {
     QTC_ASSERT(theAxivionPerspective, return);
     theAxivionPerspective->handleShowFilterException(errorMessage);
+}
+
+void showErrorMessage(const QString &errorMessage)
+{
+    QTC_ASSERT(theAxivionPerspective, return);
+    theAxivionPerspective->handleShowErrorMessage(errorMessage);
 }
 
 void updateIssueDetails(const QString &html)

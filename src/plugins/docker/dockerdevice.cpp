@@ -1040,7 +1040,7 @@ ProcessInterface *DockerDevice::createProcessInterface() const
     return new DockerProcessImpl(shared_from_this(), d);
 }
 
-DeviceTester *DockerDevice::createDeviceTester() const
+DeviceTester *DockerDevice::createDeviceTester()
 {
     return nullptr;
 }

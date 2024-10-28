@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE language>
 <!-- Author: Dominik Holland <dominik.holland@qt.io> -->
-<language name="QFace" version="1" kateversion="5.0" section="Scripts" extensions="*.qface"
+<language name="QFace" version="3" kateversion="5.0" section="Scripts" extensions="*.qface"
           mimetype="text/x-qface;application/x-qface" indenter="cstyle"
           author="Dominik Holland (dominik.holland@qt.io)" license="MIT">
   <highlighting>
@@ -32,8 +32,8 @@
     <contexts>
       <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
         <DetectSpaces/>
-        <WordDetect attribute="Module" context="Module" String="module "/>
-        <WordDetect attribute="Module" context="Module" String="import "/>
+        <WordDetect attribute="Module" context="Module" String="module"/>
+        <WordDetect attribute="Module" context="Module" String="import"/>
         <keyword attribute="Elements" context="Object" String="objects" />
         <keyword attribute="Elements" context="Element" String="elements" />
         <IncludeRules context="Basic" />
@@ -99,7 +99,7 @@
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="Object Context">
         <DetectSpaces />
-        <WordDetect attribute="Signal" context="Signal" String="signal "/>
+        <WordDetect attribute="Signal" context="Signal" String="signal"/>
         <keyword attribute="Keyword" String="other_keywords" />
         <keyword attribute="Property Type" context="Property" String="types" />
         <DetectChar attribute="Normal Text" char="}" endRegion="Brace" context="#pop#pop" />

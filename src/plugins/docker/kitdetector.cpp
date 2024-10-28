@@ -265,8 +265,8 @@ Toolchains KitDetectorPrivate::autoDetectToolchains()
             toolchain->setDetectionSource(m_sharedId);
         }
         ToolchainManager::registerToolchains(newToolchains);
-        const QList<ToolchainBundle> bundles
-            = ToolchainBundle::collectBundles(newToolchains, ToolchainBundle::AutoRegister::On);
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            newToolchains, ToolchainBundle::HandleMissing::CreateAndRegister);
         alreadyKnown.append(newToolchains);
         allNewToolchains.append(newToolchains);
     }
@@ -358,8 +358,8 @@ void KitDetectorPrivate::autoDetect()
 
         const Toolchains toolchainCandidates = ToolchainManager::toolchains(
             [this](const Toolchain *tc) { return tc->detectionSource() == m_sharedId; });
-        const QList<ToolchainBundle> bundles
-            = ToolchainBundle::collectBundles(toolchainCandidates, ToolchainBundle::AutoRegister::On);
+        const QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
+            toolchainCandidates, ToolchainBundle::HandleMissing::CreateAndRegister);
 
         // Try to find a matching Qt/Toolchain pair.
         bool match = false;

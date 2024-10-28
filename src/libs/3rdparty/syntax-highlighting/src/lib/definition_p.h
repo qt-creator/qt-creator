@@ -8,7 +8,7 @@
 #ifndef KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 #define KSYNTAXHIGHLIGHTING_DEFINITION_P_H
 
-#include "definitionref_p.h"
+#include "definition.h"
 #include "highlightingdata_p.hpp"
 #include "state.h"
 #include "worddelimiters_p.h"
@@ -17,6 +17,7 @@
 #include <QList>
 #include <QSet>
 #include <QString>
+#include <QVarLengthArray>
 
 #include <vector>
 
@@ -71,27 +72,38 @@ public:
     Context *initialContext();
     Context *contextByName(QStringView name);
 
-    Format formatByName(const QString &name) const;
+    Format formatByName(QStringView name) const;
 
     quint16 foldingRegionId(const QString &foldName);
 
-    void addImmediateIncludedDefinition(const Definition &def);
+    struct ResolvedContext {
+        DefinitionData *def;
+        Context *context;
+    };
 
-    DefinitionRef q;
+    ResolvedContext resolveIncludedContext(QStringView defName, QStringView contextName);
+
+    enum class FoldingRegionsState : uint8_t {
+        Undetermined,
+        ContainsFoldingRegions,
+        NoFoldingRegions,
+    };
+
+    std::weak_ptr<DefinitionData> q;
     uint64_t id = 0;
 
     Repository *repo = nullptr;
     QHash<QString, KeywordList> keywordLists;
     std::vector<Context> contexts;
-    QHash<QString, Format> formats;
+    QHash<QStringView, Format> formats;
     // data loaded from xml file and emptied after loading contexts
-    QList<HighlightingContextData> contextDatas;
+    std::vector<HighlightingContextData> contextDatas;
     // Definition referenced by IncludeRules and ContextSwitch
-    QList<DefinitionRef> immediateIncludedDefinitions;
+    QVarLengthArray<const DefinitionData *, 4> immediateIncludedDefinitions;
     WordDelimiters wordDelimiters;
     WordDelimiters wordWrapDelimiters;
     bool keywordIsLoaded = false;
-    bool hasFoldingRegions = false;
+    FoldingRegionsState foldingRegionsState = FoldingRegionsState::Undetermined;
     bool indentationBasedFolding = false;
     QStringList foldingIgnoreList;
     QString singleLineCommentMarker;
@@ -102,6 +114,7 @@ public:
 
     QString fileName;
     QString name = QStringLiteral(QT_TRANSLATE_NOOP("Language", "None"));
+    QStringList alternativeNames;
     QByteArray nameUtf8;
     mutable QString translatedName;
     QString section;

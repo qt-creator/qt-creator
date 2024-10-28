@@ -309,10 +309,12 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", port, adbArg}));
     };
     const auto onForwardPortDone = [storage, port, portType](DoneWith result) {
-        if (result == DoneWith::Success)
+        if (result == DoneWith::Success) {
             storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
-        else
+        } else {
+            //: %1 = QML/JDB/C++
             storage->m_glue->setFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+        }
     };
 
     return Group {
@@ -422,7 +424,7 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     continue;
 
                 if (storagePtr->m_useCppDebugger) {
-                    if (start->current() == 0 && msg.trimmed().endsWith("Sending WAIT chunk"))
+                    if (start->current() == 0 && msg.indexOf("Sending WAIT chunk") > 0)
                         start->advance();
                     else if (settled->current() == 0 && msg.indexOf("debugger has settled") > 0)
                         settled->advance();
@@ -506,15 +508,14 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         storage->m_glue->addStdErr(process.cleanedStdErr().trimmed());
     };
 
-    const auto onQmlDebugSetup = [storage] {
-        return storage->m_qmlDebugServices == QmlDebug::NoQmlDebugServices
-                                            ? SetupResult::StopWithSuccess : SetupResult::Continue;
+    const auto isQmlDebug = [storage] {
+        return storage->m_qmlDebugServices != QmlDebug::NoQmlDebugServices;
     };
     const auto onTaskTreeSetup = [storage](TaskTree &taskTree) {
         const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(), port, port, "QML")});
     };
-    const auto onQmlDebugDone = [storage, argsStorage] {
+    const auto onQmlDebugSync = [storage, argsStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
             .arg(storage->m_qmlServer.port()).arg(QmlDebug::qmlDebugServices(storage->m_qmlDebugServices));
 
@@ -558,10 +559,9 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         For (iterator) >> Do {
             ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
         },
-        Group {
-            onGroupSetup(onQmlDebugSetup),
+        If (isQmlDebug) >> Then {
             TaskTreeTask(onTaskTreeSetup),
-            onGroupDone(onQmlDebugDone, CallDoneIf::Success)
+            Sync(onQmlDebugSync)
         },
         ProcessTask(onActivitySetup, onActivityDone, CallDoneIf::Error)
     };

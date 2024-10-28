@@ -184,7 +184,7 @@ void QtKitAspectFactory::fix(Kit *k)
         return;
 
     QList<ToolchainBundle> bundles = ToolchainBundle::collectBundles(
-        ToolchainBundle::AutoRegister::On);
+        ToolchainBundle::HandleMissing::CreateAndRegister);
     using ProjectExplorer::Constants::CXX_LANGUAGE_ID;
     bundles = Utils::filtered(bundles, [version](const ToolchainBundle &b) {
         if (!b.isCompletelyValid() || !b.factory()->languageCategory().contains(CXX_LANGUAGE_ID))

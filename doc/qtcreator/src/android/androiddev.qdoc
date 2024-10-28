@@ -319,15 +319,14 @@
         \li Go to \preferences > \uicontrol Devices.
         \li Select \uicontrol Add > \uicontrol {Android Device} >
             \uicontrol {Start Wizard}.
-            \image qtcreator-android-create-avd.png {Create New AVD dialog}
+            \image qtcreator-android-create-avd.webp {Create New AVD dialog}
         \li In \uicontrol Name, give the AVD a name.
-        \li In \uicontrol {Device definition}, select the AVD type, and then
-            select one of the predefined AVDs or \uicontrol Custom for a custom
-            AVD.
-        \li In \uicontrol {Architecture (ABI)}, select an Android system image
-            that you installed on the computer.
-        \li In \uicontrol {Target API level}, select the \l{What is API Level?}
-            {API level} to use for building the application.
+        \li In \uicontrol {Target ABI / API}, select an Android system image
+            architecture (ABI) and \l{What is API Level?}{API level} that you
+            installed on the computer.
+        \li In \uicontrol {Skin definition}, select the AVD type, and then
+            select one of the predefined AVD skins or \uicontrol Custom for
+            a custom AVD skin.
         \li In \uicontrol {SD card size}, set the size of the SD card for the
             AVD.
         \li Select \uicontrol {Override existing AVD name} to overwrite an

@@ -8,6 +8,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <solutions/spinner/spinner.h>
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
@@ -20,6 +22,7 @@
 #include <QLoggingCategory>
 #include <QMessageBox>
 #include <QPlainTextEdit>
+#include <QPointer>
 #include <QProgressBar>
 #include <QRegularExpression>
 #include <QTextCodec>
@@ -28,6 +31,7 @@ namespace {
 Q_LOGGING_CATEGORY(sdkManagerLog, "qtc.android.sdkManager", QtWarningMsg)
 }
 
+using namespace SpinnerSolution;
 using namespace Tasking;
 using namespace Utils;
 
@@ -77,6 +81,7 @@ public:
             emit answerClicked(true);
         });
         connect(m_dialogButtonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+        connect(m_dialogButtonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 
         // GUI tuning
         setModal(true);
@@ -100,6 +105,10 @@ public:
         m_outputTextEdit->ensureCursorVisible();
     }
     void setProgress(int value) { m_progressBar->setValue(value); }
+    void setDone()
+    {
+        m_dialogButtonBox->setStandardButtons(QDialogButtonBox::Close);
+    }
 
 signals:
     void answerClicked(bool accepted);
@@ -293,21 +302,23 @@ static GroupItem installationRecipe(const Storage<DialogStorage> &dialogStorage,
     };
 
     return Group {
+        continueOnError,
         onGroupSetup(onSetup),
         For (uninstallIterator) >> Do {
-            finishAllAndSuccess,
+            continueOnError,
             ProcessTask(onUninstallSetup, onDone)
         },
         For (installIterator) >> Do {
-            finishAllAndSuccess,
+            continueOnError,
             ProcessTask(onInstallSetup, onDone)
-        }
+        },
+        onGroupDone([dialogStorage] { dialogStorage->m_dialog->setProgress(100); })
     };
 }
 
 static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
 {
-    const auto onUpdateSetup = [dialogStorage](Process &process) {
+    const auto onSetup = [dialogStorage](Process &process) {
         const QStringList args = {"--update", sdkRootArg()};
         QuestionProgressDialog *dialog = dialogStorage->m_dialog.get();
         setupSdkProcess(args, &process, dialog, 0, 1);
@@ -318,7 +329,7 @@ static GroupItem updateRecipe(const Storage<DialogStorage> &dialogStorage)
         handleSdkProcess(dialogStorage->m_dialog.get(), result);
     };
 
-    return ProcessTask(onUpdateSetup, onDone);
+    return ProcessTask(onSetup, onDone);
 }
 
 class AndroidSdkManagerPrivate
@@ -330,7 +341,6 @@ public:
     AndroidSdkPackageList filteredPackages(AndroidSdkPackage::PackageState state,
                                            AndroidSdkPackage::PackageType type)
     {
-        m_sdkManager.refreshPackages();
         return Utils::filtered(m_allPackages, [state, type](const AndroidSdkPackage *p) {
             return p->state() & state && p->type() & type;
         });
@@ -342,6 +352,7 @@ public:
     void runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
                          const GroupItem &licenseRecipe, const GroupItem &continuationRecipe);
 
+    QPointer<QWidget> m_spinnerTarget;
     AndroidSdkManager &m_sdkManager;
     AndroidSdkPackageList m_allPackages;
     FilePath lastSdkManagerPath;
@@ -352,6 +363,11 @@ public:
 AndroidSdkManager::AndroidSdkManager() : m_d(new AndroidSdkManagerPrivate(*this)) {}
 
 AndroidSdkManager::~AndroidSdkManager() = default;
+
+void AndroidSdkManager::setSpinnerTarget(QWidget *spinnerTarget)
+{
+    m_d->m_spinnerTarget = spinnerTarget;
+}
 
 SdkPlatformList AndroidSdkManager::installedSdkPlatforms()
 {
@@ -461,6 +477,8 @@ void AndroidSdkManager::refreshPackages()
 {
     if (AndroidConfig::sdkManagerToolPath() != m_d->lastSdkManagerPath)
         reloadPackages();
+    else
+        emit packagesReloaded();
 }
 
 void AndroidSdkManager::reloadPackages()
@@ -504,13 +522,16 @@ AndroidSdkManagerPrivate::~AndroidSdkManagerPrivate()
 
 const AndroidSdkPackageList &AndroidSdkManagerPrivate::allPackages()
 {
-    m_sdkManager.refreshPackages();
     return m_allPackages;
 }
 
 void AndroidSdkManagerPrivate::reloadSdkPackages()
 {
-    emit m_sdkManager.packageReloadBegin();
+    std::unique_ptr<Spinner> spinner;
+    if (m_spinnerTarget) {
+        spinner.reset(new Spinner(SpinnerSize::Medium, m_spinnerTarget));
+        spinner->show();
+    }
     qDeleteAll(m_allPackages);
     m_allPackages.clear();
 
@@ -519,7 +540,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
 
     if (AndroidConfig::sdkToolsVersion().isNull()) {
         // Configuration has invalid sdk path or corrupt installation.
-        emit m_sdkManager.packageReloadFinished();
+        emit m_sdkManager.packagesReloaded();
         return;
     }
 
@@ -534,7 +555,7 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         qCWarning(sdkManagerLog) << "Failed parsing packages:" << packageListing;
     }
 
-    emit m_sdkManager.packageReloadFinished();
+    emit m_sdkManager.packagesReloaded();
 }
 
 void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dialogStorage,
@@ -544,12 +565,20 @@ void AndroidSdkManagerPrivate::runDialogRecipe(const Storage<DialogStorage> &dia
     const auto onCancelSetup = [dialogStorage] {
         return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::rejected);
     };
+    const auto onAcceptSetup = [dialogStorage] {
+        return std::make_pair(dialogStorage->m_dialog.get(), &QDialog::accepted);
+    };
+    const auto onError = [dialogStorage] { dialogStorage->m_dialog->setDone(); };
     const Group root {
         dialogStorage,
         Group {
-            licensesRecipe,
-            Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
-            continuationRecipe
+            If (!Group {
+                    licensesRecipe,
+                    Sync([dialogStorage] { dialogStorage->m_dialog->setQuestionVisible(false); }),
+                    continuationRecipe
+                }) >> Then {
+                Sync(onError).withAccept(onAcceptSetup)
+            }
         }.withCancel(onCancelSetup)
     };
     m_taskTreeRunner.start(root, {}, [this](DoneWith) {

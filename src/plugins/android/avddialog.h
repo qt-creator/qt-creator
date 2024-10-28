@@ -61,7 +61,6 @@ private:
     QTimer m_hideTipTimer;
     QRegularExpression m_allowedNameChars;
     QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
-    AndroidSdkManager m_sdkManager;
     QMap<AvdDialog::DeviceType, QString> m_deviceTypeToStringMap;
 
     QComboBox *m_abiComboBox;

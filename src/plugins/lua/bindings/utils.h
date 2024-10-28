@@ -49,4 +49,16 @@ inline void mirrorEnum(sol::table &target, QMetaEnum metaEnum, const QString &na
     for (int i = 0; i < metaEnum.keyCount(); ++i)
         widgetAttributes.set(metaEnum.key(i), metaEnum.value(i));
 };
+
+template <typename E>
+inline QFlags<E> tableToFlags(const sol::table &table) noexcept {
+    static_assert(std::is_enum<E>::value, "Enum type required");
+
+    QFlags<E> flags;
+    for (const auto& kv : table)
+        flags.setFlag(static_cast<E>(kv.second.as<int>()));
+
+    return flags;
+}
+
 } // namespace Lua::Internal

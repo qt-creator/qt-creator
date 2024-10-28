@@ -109,8 +109,9 @@ function TextEditor:cursor() end
 ---@param widget Widget|Layout The widget to be added as a floating widget.
 ---@param position integer The position in the document where the widget should appear.
 ---@param margins integer[] Four integers, representing left, top, right, bottom margins
+---@param xPos integer Sets widget to fixed x position if x != -1, otherwise automatic x position calculation is done
 ---@param fillWidth boolean If true, the widget will fill remaining space from its x position to size of the TextEditor viewport
-function TextEditor:addFloatingWidget(widget, position, margins, fillWidth) end
+function TextEditor:addFloatingWidget(widget, position, xPos, margins, fillWidth) end
 
 ---Checks if the current suggestion is locked. The suggestion is locked when the user can use it.
 ---@return boolean True if the suggestion is locked, false otherwise.

@@ -709,6 +709,11 @@ void Widget::setSize(int w, int h)
     access(this)->resize(w, h);
 }
 
+void Widget::setFixedSize(int w, int h)
+{
+    access(this)->setFixedSize(w, h);
+}
+
 void Widget::setAutoFillBackground(bool on)
 {
     access(this)->setAutoFillBackground(on);
@@ -980,6 +985,7 @@ ScrollArea::ScrollArea(const Layout &inner)
 {
     ptr = new Implementation;
     access(this)->setWidget(inner.emerge());
+    access(this)->setWidgetResizable(true);
 }
 
 void ScrollArea::setLayout(const Layout &inner)
@@ -1153,6 +1159,11 @@ QString LineEdit::text() const
     return access(this)->text();
 }
 
+void LineEdit::setText(const QString &text)
+{
+    access(this)->setText(text);
+}
+
 void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
 {
     if (!path.isEmpty()) {
@@ -1178,14 +1189,14 @@ void LineEdit::setMinimumHeight(int height)
     access(this)->setMinimumHeight(height);
 }
 
-void LineEdit::onReturnPressed(const std::function<void ()> &func)
+void LineEdit::onReturnPressed(const std::function<void()> &func, QObject *guard)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, func);
+    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
 }
 
-void LineEdit::onRightSideIconClicked(const std::function<void ()> &func)
+void LineEdit::onRightSideIconClicked(const std::function<void()> &func, QObject *guard)
 {
-    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, func);
+    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
 }
 
 Spinner::Spinner(std::initializer_list<I> ps)

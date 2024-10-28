@@ -145,7 +145,9 @@ public:
     virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }
-    virtual DeviceTester *createDeviceTester() const;
+    virtual DeviceTester *createDeviceTester();
+    void setIsTesting(bool isTesting);
+    bool isTesting() const;
 
     virtual bool canMount(const Utils::FilePath &filePath) const;
 
@@ -257,7 +259,7 @@ class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 public:
     enum TestResult { TestSuccess, TestFailure };
 
-    virtual void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) = 0;
+    virtual void testDevice() = 0;
     virtual void stopTest() = 0;
 
 signals:
@@ -266,7 +268,12 @@ signals:
     void finished(ProjectExplorer::DeviceTester::TestResult result);
 
 protected:
-    explicit DeviceTester(QObject *parent = nullptr);
+    explicit DeviceTester(const IDevice::Ptr &device, QObject *parent = nullptr);
+    ~DeviceTester() override;
+    const IDevice::Ptr &device() const { return m_device; }
+
+private:
+    const IDevice::Ptr m_device;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject

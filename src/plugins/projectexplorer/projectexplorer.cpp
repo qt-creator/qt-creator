@@ -2546,10 +2546,11 @@ FilePairs ProjectExplorerPlugin::renameFiles(
         }
         QString renamedOnlyString;
         if (!renamedOnly.isEmpty()) {
-            renamedOnlyString = Tr::tr(
-                        "<br>The following files were renamed, but their project files could not "
-                        "be updated accordingly: %1")
-                    .arg(pathsAsHtmlList(renamedOnly));
+            renamedOnlyString
+                = "<br>"
+                  + Tr::tr("The following files were renamed, but their project files could not "
+                           "be updated accordingly: %1")
+                        .arg(pathsAsHtmlList(renamedOnly));
         }
         QTimer::singleShot(
                     0, m_instance, [message = QString(failedRenamingsString + renamedOnlyString)] {

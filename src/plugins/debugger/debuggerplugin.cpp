@@ -1655,8 +1655,9 @@ void DebuggerPluginPrivate::attachToLastCore()
     LastCore lastCore = getLastCore();
     QGuiApplication::restoreOverrideCursor();
     if (!lastCore) {
-        AsynchronousMessageBox::warning(Tr::tr("Warning"),
-                                        Tr::tr("coredumpctl did not find any cores created by systemd-coredump"));
+        AsynchronousMessageBox::warning(
+            Tr::tr("Warning"),
+            Tr::tr("coredumpctl did not find any cores created by systemd-coredump."));
         return;
     }
 

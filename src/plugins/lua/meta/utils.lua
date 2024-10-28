@@ -186,4 +186,67 @@ function utils.stringToBase64(text) end
 ---@param text string The base64 encoded string.
 ---@return string The decoded string.
 function utils.base64ToString(text) end
+---@class Icon
+utils.Icon = {}
+
+---@enum IconStyleOption
+utils.IconStyleOption = {
+    None = 0,
+    Tint = 0,
+    DropShadow = 0,
+    PunchEdges = 0,
+    ToolBarStyle = 0,
+    MenuTintedStyle = 0,
+}
+
+---@enum ThemeColor
+utils.ThemeColor = {
+    Token_Basic_Black = 0,
+    Token_Basic_White = 0,
+    Token_Accent_Default = 0,
+    Token_Accent_Muted = 0,
+    Token_Accent_Subtle = 0,
+    Token_Background_Default = 0,
+    Token_Background_Muted = 0,
+    Token_Background_Subtle = 0,
+    Token_Foreground_Default = 0,
+    Token_Foreground_Muted = 0,
+    Token_Foreground_Subtle = 0,
+    Token_Text_Default = 0,
+    Token_Text_Muted = 0,
+    Token_Text_Subtle = 0,
+    Token_Text_Accent = 0,
+    Token_Stroke_Strong = 0,
+    Token_Stroke_Muted = 0,
+    Token_Stroke_Subtle = 0,
+    Token_Notification_Alert_Default = 0,
+    Token_Notification_Alert_Muted = 0,
+    Token_Notification_Alert_Subtle = 0,
+    Token_Notification_Success_Default = 0,
+    Token_Notification_Success_Muted = 0,
+    Token_Notification_Success_Subtle = 0,
+    Token_Notification_Neutral_Default = 0,
+    Token_Notification_Neutral_Muted = 0,
+    Token_Notification_Neutral_Subtle = 0,
+    Token_Notification_Danger_Default = 0,
+    Token_Notification_Danger_Muted = 0,
+    Token_Notification_Danger_Subtle = 0,
+    Token_Gradient01_Start = 0,
+    Token_Gradient01_End = 0,
+    Token_Gradient02_Start = 0,
+    Token_Gradient02_End = 0
+}
+
+---@class MaskAndColor
+---@field mask string|FilePath The mask to use.
+---@field color ThemeColor The color to use.
+utils.MaskAndColor = {}
+
+---Creates an icon from the given file path.
+---@param maskAndColor MaskAndColor[] An array of MaskAndColor.
+---@param style IconStyleOption The style to use.
+---@return Icon icon The created icon.
+---@overload fun(path: FilePath): Icon
+---@overload fun(maskAndColor: [MaskAndColor], style: IconStyleOption)
+function utils.Icon.create(maskAndColor, style) end
 return utils

@@ -178,6 +178,7 @@ void AndroidDebugSupport::start()
     if (isQmlDebugging()) {
         qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
                                         << m_runner->qmlServer().toDisplayString();
+        setQmlServer(m_runner->qmlServer());
         //TODO: Not sure if these are the right paths.
         if (qtVersion)
             addSearchDirectory(qtVersion->qmlPath());

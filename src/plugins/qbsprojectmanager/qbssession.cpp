@@ -201,6 +201,7 @@ void QbsSession::initialize()
         QTimer::singleShot(0, this, [this] { setError(Error::InvalidQbsExecutable); });
         return;
     }
+    d->qbsProcess->setEnvironment(QbsSettings::qbsProcessEnvironment());
     d->qbsProcess->setCommand({qbsExe, {"session"}});
     d->qbsProcess->start();
 }

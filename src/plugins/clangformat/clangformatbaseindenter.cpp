@@ -6,6 +6,7 @@
 #include "llvmfilesystem.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
@@ -944,6 +945,37 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
     return d->styleForFile();
 }
 
+const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
+    const Utils::FilePath *fileName)
+{
+#if LLVM_VERSION_MAJOR >= 19
+    static QString s_cachedError;
+    llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *) {
+        QString errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                               + QString::number(diag.getLineNo()) + ":"
+                               + QString::number(diag.getColumnNo());
+
+        if (s_cachedError == errorMessage)
+            return;
+
+        s_cachedError = errorMessage;
+        Core::MessageManager::writeSilently("ClangFormat file error: " + errorMessage);
+    };
+
+    return clang::format::getStyle(
+        "file",
+        fileName->toFSPathString().toStdString(),
+        "none",
+        "",
+        &llvmFileSystemAdapter,
+        true,
+        diagHandler);
+#else
+    return clang::format::getStyle(
+        "file", fileName->toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter, true);
+#endif
+}
+
 const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
 {
     static const milliseconds cacheTimeout = getCacheTimeout();
@@ -957,12 +989,13 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 
     if (getCurrentCustomSettings(*m_fileName)) {
         clang::format::FormatStyle style = customSettingsStyle(*m_fileName);
+        addQtcStatementMacros(style);
         m_cachedStyle.setCache(style, cacheTimeout);
         return m_cachedStyle.style;
     }
 
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
-        "file", m_fileName->toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter, true);
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = getStyleFromProjectFolder(
+        m_fileName);
 
     if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);

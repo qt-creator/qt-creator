@@ -18,12 +18,13 @@ class REMOTELINUX_EXPORT GenericLinuxDeviceTester : public ProjectExplorer::Devi
     Q_OBJECT
 
 public:
-    explicit GenericLinuxDeviceTester(QObject *parent = nullptr);
+    explicit GenericLinuxDeviceTester(
+        const ProjectExplorer::IDevice::Ptr &device, QObject *parent = nullptr);
     ~GenericLinuxDeviceTester() override;
 
     void setExtraCommandsToTest(const QStringList &extraCommands);
     void setExtraTests(const QList<Tasking::GroupItem> &extraTests);
-    void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) override;
+    void testDevice() override;
     void stopTest() override;
 
 private:

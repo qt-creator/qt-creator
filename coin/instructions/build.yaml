@@ -44,7 +44,7 @@ instructions:
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
         command: >-
-            python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
                 --build-type {{.Env.QTC_BUILD_TYPE}}
                 --src {{.AgentWorkingDir}}/qt-creator/qt-creator
                 --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build
@@ -59,11 +59,9 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
-      - type: ChangeDirectory
-        directory: "{{.AgentWorkingDir}}/build/tqtc-qtsdk/packaging_tools"
       - type: ExecuteCommand
         command: >-
-            python3 -m pipenv run python -u bld_sdktool.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build_sdktool.py
                 --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
                 --qt-build {{.AgentWorkingDir}}/build/sdktool/qt
                 --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool
@@ -97,7 +95,7 @@ instructions:
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
         command: >-
-            python3 -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
                 --build-type {{.Env.QTC_BUILD_TYPE}}
                 --src {{.AgentWorkingDir}}/qt-creator/qt-creator
                 --build {{.AgentWorkingDir}}/qt-creator/qt-creator_build
@@ -112,14 +110,12 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
-      - type: ChangeDirectory
-        directory: "{{.AgentWorkingDir}}/build/tqtc-qtsdk/packaging_tools"
       - type: EnvironmentVariable
         variableName: MACOSX_DEPLOYMENT_TARGET
         variableValue: "{{.Env.SDKTOOL_MACOSX_DEPLOYMENT_TARGET}}"
       - type: ExecuteCommand
         command: >-
-            python3 -m pipenv run python -u bld_sdktool.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build_sdktool.py
                 --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
                 --qt-build {{.AgentWorkingDir}}/build/sdktool/qt
                 --src {{.AgentWorkingDir}}/qt-creator/qt-creator/src/tools/sdktool
@@ -235,7 +231,7 @@ instructions:
         userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
         command: >-
-            python -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\build.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\build.py
                 --build-type {{.Env.QTC_BUILD_TYPE}}
                 --src {{.AgentWorkingDir}}\qt-creator\qt-creator
                 --build {{.AgentWorkingDir}}\qt-creator\qt-creator_build
@@ -254,11 +250,9 @@ instructions:
         maxTimeInSeconds: 36000
         maxTimeBetweenOutput: 3600
         userMessageOnFailure: "Failed to run build.py, check logs."
-      - type: ChangeDirectory
-        directory: "{{.AgentWorkingDir}}\\build\\tqtc-qtsdk\\packaging_tools"
       - type: ExecuteCommand
         command: >-
-            python -m pipenv run python -u bld_sdktool.py
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\build_sdktool.py
                 --qt-url {{.Env.QTC_SDKTOOL_QT_BASE_URL}}{{.Env.QTC_SDKTOOL_QT_EXT}}
                 --qt-build {{.AgentWorkingDir}}\build\sdktool\qt
                 --src {{.AgentWorkingDir}}\qt-creator\qt-creator\src\tools\sdktool

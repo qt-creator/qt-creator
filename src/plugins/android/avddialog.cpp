@@ -42,6 +42,7 @@ AvdDialog::AvdDialog(QWidget *parent)
     : QDialog(parent)
     , m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
+    AndroidConfigurations::sdkManager()->refreshPackages();
     resize(800, 0);
     setWindowTitle(Tr::tr("Create new AVD"));
 
@@ -81,7 +82,7 @@ AvdDialog::AvdDialog(QWidget *parent)
 
     m_warningText = new InfoLabel;
     m_warningText->setType(InfoLabel::Warning);
-    m_warningText->setElideMode(Qt::ElideNone);
+    m_warningText->setElideMode(Qt::ElideRight);
 
     m_deviceDefinitionTypeComboBox = new QComboBox;
 
@@ -97,8 +98,8 @@ AvdDialog::AvdDialog(QWidget *parent)
     Column {
         Form {
             Tr::tr("Name:"), m_nameLineEdit, br,
-            Tr::tr("Architecture (ABI):"), m_abiComboBox, br,
-            Tr::tr("Target API:"), m_targetApiComboBox, br,
+            Tr::tr("Target ABI / API:"),
+                Row { m_abiComboBox, m_targetApiComboBox }, br,
             QString(), m_warningText, br,
             Tr::tr("Skin definition:"),
                 Row { m_deviceDefinitionTypeComboBox, m_deviceDefinitionComboBox }, br,
@@ -302,7 +303,8 @@ int AvdDialog::sdcardSize() const
 
 void AvdDialog::updateApiLevelComboBox()
 {
-    SystemImageList installedSystemImages = m_sdkManager.installedSystemImages();
+    const SystemImageList installedSystemImages
+        = AndroidConfigurations::sdkManager()->installedSystemImages();
     DeviceType curDeviceType = m_deviceTypeToStringMap.key(
         m_deviceDefinitionTypeComboBox->currentText());
 
@@ -332,19 +334,19 @@ void AvdDialog::updateApiLevelComboBox()
                                                        Qt::ToolTipRole);
     }
 
+    const QString installRecommendationMsg = Tr::tr(
+        "Install a system image from the SDK Manager first.");
+
     if (installedSystemImages.isEmpty()) {
         m_targetApiComboBox->setEnabled(false);
         m_warningText->setVisible(true);
-        m_warningText->setText(
-            Tr::tr("Cannot create a new AVD. No suitable Android system image is installed.<br/>"
-                   "Install a system image for the intended Android version from the SDK Manager."));
+        m_warningText->setText(Tr::tr("No system images found.") + " " + installRecommendationMsg);
         m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else if (filteredList.isEmpty()) {
         m_targetApiComboBox->setEnabled(false);
         m_warningText->setVisible(true);
-        m_warningText->setText(Tr::tr("Cannot create an AVD for ABI %1.<br/>Install a system "
-                                            "image for it from the SDK Manager tab first.")
-                                             .arg(abi()));
+        m_warningText->setText(Tr::tr("No system images found for %1.").arg(abi()) + " " +
+                               installRecommendationMsg);
         m_buttonBox->button(QDialogButtonBox::Ok)->setEnabled(false);
     } else {
         m_warningText->setVisible(false);

@@ -7,8 +7,10 @@
 #include "qbsprojectmanagerconstants.h"
 #include "qbsprojectmanagertr.h"
 
+#include <android/androidconstants.h>
 #include <coreplugin/messagemanager.h>
 #include <baremetal/baremetalconstants.h>
+#include <ios/iosconstants.h>
 #include <projectexplorer/abi.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/gcctoolchain.h>
@@ -17,14 +19,11 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/msvctoolchain.h>
-
-#include <utils/hostosinfo.h>
-#include <utils/qtcassert.h>
-
-#include <android/androidconstants.h>
-#include <ios/iosconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
+#include <utils/hostosinfo.h>
+#include <utils/qtcassert.h>
+#include <webassembly/webassemblyconstants.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -59,16 +58,19 @@ static QString extractToolchainPrefix(QString *compilerName)
 
 static QString targetPlatform(const ProjectExplorer::Abi &abi, const ProjectExplorer::Kit *k)
 {
-    const Utils::Id device = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k);
+    if (deviceType == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE)
+        return "wasm-emscripten";
+
     switch (abi.os()) {
     case ProjectExplorer::Abi::WindowsOS:
         return QLatin1String("windows");
    case ProjectExplorer::Abi::DarwinOS:
-        if (device == DESKTOP_DEVICE_TYPE)
+        if (deviceType == DESKTOP_DEVICE_TYPE)
             return QLatin1String("macos");
-        if (device == IOS_DEVICE_TYPE)
+        if (deviceType == IOS_DEVICE_TYPE)
             return QLatin1String("ios");
-        if (device == IOS_SIMULATOR_TYPE)
+        if (deviceType == IOS_SIMULATOR_TYPE)
             return QLatin1String("ios-simulator");
         return QLatin1String("darwin");
     case ProjectExplorer::Abi::LinuxOS:
@@ -126,11 +128,16 @@ static QString toolchainType(const ProjectExplorer::Toolchain *tc)
         return "keil";
     if (type == BareMetal::Constants::SDCC_TOOLCHAIN_TYPEID)
         return "sdcc";
+    if (type == WebAssembly::Constants::WEBASSEMBLY_TOOLCHAIN_TYPEID)
+        return "emscripten";
     return {};
 }
 
 static QString architecture(const ProjectExplorer::Abi &targetAbi)
 {
+    if (targetAbi.architecture() == Abi::AsmJsArchitecture)
+        return "wasm";
+
     if (targetAbi.architecture() != ProjectExplorer::Abi::UnknownArchitecture) {
         QString architecture = ProjectExplorer::Abi::toString(targetAbi.architecture());
 

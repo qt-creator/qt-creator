@@ -1,0 +1,29 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-qt-quick-settings-for-projects.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-projects-configure
+    \ingroup creator-how-to-lsp
+
+    \title Turn on or off \QMLLS for a project
+
+    Since Qt 6.4, \QMLLS offers code completion and issues warnings for QML.
+
+    To turn on or off \QMLLS for the current project:
+
+    \list 1
+        \li Select \uicontrol Projects > \uicontrol {Project Settings} >
+            \uicontrol {Qt Quick}.
+            \image qtcreator-projects-settings-qt-quick.webp {Qt Quick settings for a project}
+        \li Clear \uicontrol {Use global settings}.
+        \li Clear or select \uicontrol {Turn on}.
+    \endlist
+
+    To view and modify the global settings, select the link in
+    \uicontrol {Use global settings}.
+
+    \sa {Configure \QMLLS}, {Configuring Projects}
+*/

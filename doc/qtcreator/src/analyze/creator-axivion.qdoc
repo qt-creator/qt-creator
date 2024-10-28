@@ -12,17 +12,10 @@
     Connect to an Axivion dashboard server from \QC to view results of code
     analysis.
 
-    \note Enable the Axivion plugin to use it.
+    \note Enable the Axivion plugin to use it. To use the plugin, you must be
+    connected to an Axivion dashboard server.
 
-    To use the plugin, you must have access to an Axivion dashboard
-    server.
-    To inspect issues found during the analyses:
-
-    \list
-        \li Go to \uicontrol Analyze > \uicontrol Axivion.
-        \li Switch to the \uicontrol Debug mode, and select \uicontrol Axivion
-            in the debugger toolbar.
-    \endlist
+    \section1 View inline annotations in editor
 
     The editor shows found issues as inline annotations if the project matches
     the currently open one and the respective file is part of the project.
@@ -36,12 +29,34 @@
 
     \image qtcreator-axivion-view-rule.webp {Issue Details view}
 
+    To hide inline annotations, go to \uicontrol Analyze > \uicontrol Axivion
+    and clear \inlineimage icons/warning.png.
+
     \section1 View issues
 
-    To view issues, select a dashboard and a project.
+    To inspect issues found during the analyses:
 
-    The \uicontrol Axivion dashboard displays the following types of
-    issues that Axivion found in the selected project:
+    \list 1
+        \li To go to the \uicontrol Axivion view:
+            \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
+            \list
+                \li Go to \uicontrol Analyze > \uicontrol Axivion.
+                \li In the mode selector, select \uicontrol Debug >
+                    \uicontrol Axivion.
+                \li Switch to the \uicontrol Debug mode, and select
+                    \uicontrol Axivion in the debugger toolbar.
+            \endlist
+        \li Select a dashboard and a project.
+        \li Select the icon of an issue type.
+    \endlist
+
+    To refresh the list, select \inlineimage icons/reload_gray.png.
+
+    To get help, select \inlineimage icons/info.png.
+
+    \section1 Issue types
+
+    Axivion looks for the following types of issues in the selected project:
 
     \table
     \header
@@ -79,8 +94,6 @@
 
     \section1 Filter issues
 
-    \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
-
     To filter issues, select:
 
     \list
@@ -101,6 +114,8 @@
 
     The information you see depends on the issue type. Double-click an issue
     to see more information about it in the \uicontrol {Issue Details} view.
+
+    To show inline issues, select \inlineimage icons/location.png.
 
     \section1 Jump to issues in the editor
 
@@ -133,14 +148,16 @@
 
     \brief Create a connection to an Axivion dashboard server.
 
-    To set preferences for the Axivion static code analysis tool, go to
-    \preferences > \uicontrol Axivion.
+    You can connect to an Axivion dashboard server and map dashboard projects to
+    local projects.
 
-    \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
+    \section1 Connecting to a Dashboard Server
 
     To connect to an Axivion dashboard server:
 
     \list
+        \li Go to \preferences > \uicontrol Axivion > \uicontrol General.
+            \image qtcreator-preferences-axivion-general.webp {General tab in Axivion Preferences}
         \li Select \uicontrol Add to add a new connection to an Axivion
             dashboard server.
         \li Select \uicontrol Edit to modify an existing connection to
@@ -160,6 +177,23 @@
 
     Select \uicontrol {Highlight marks} to highlight found issues on the
     scrollbar in the editor.
+
+    \section1 Mapping Paths
+
+    Projects on the dashboard might have subprojects that also appear on the
+    dashboard because they are analyzed separately.
+
+    To map dashboard projects to local projects:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Axivion > \uicontrol {Path Mapping}.
+            \image qtcreator-preferences-axivion-path-mapping.webp {Path Mapping tab in Axivion Preferences}
+        \li In \uicontrol {Project name}, enter the project name on the dashboard.
+        \li In \uicontrol {Local path}, enter the path to the project on the
+            computer.
+        \li In \uicontrol {Analysis path}, enter the path to the analysis of a
+            subproject. You need this only to map analyses of subprojects.
+    \endlist
 
     \sa {Enable and disable plugins}, {View Axivion static code analysis results}
 */

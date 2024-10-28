@@ -10,9 +10,9 @@ namespace Qnx::Internal {
 class QnxDeviceTester : public RemoteLinux::GenericLinuxDeviceTester
 {
 public:
-    explicit QnxDeviceTester(QObject *parent = nullptr);
+    explicit QnxDeviceTester(const ProjectExplorer::IDevice::Ptr &device, QObject *parent = nullptr);
 
-    void testDevice(const ProjectExplorer::IDevice::Ptr &device) override;
+    void testDevice() override;
 };
 
 } // Qnx::Internal

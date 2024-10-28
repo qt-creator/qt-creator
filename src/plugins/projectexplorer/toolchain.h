@@ -230,13 +230,15 @@ public:
     // Setting up a bundle may necessitate creating additional toolchains.
     // Depending on the context, these should or should not be registered
     // immediately with the ToolchainManager.
-    enum class AutoRegister { On, Off, NotApplicable };
+    // In the case of NotApplicable, the caller promises that no toolchains
+    // will need to be created to ensure a complete bundle.
+    enum class HandleMissing { CreateAndRegister, CreateOnly, NotApplicable };
 
-    ToolchainBundle(const Toolchains &toolchains, AutoRegister autoRegister);
+    ToolchainBundle(const Toolchains &toolchains, HandleMissing handleMissing);
 
-    static QList<ToolchainBundle> collectBundles(AutoRegister autoRegister);
+    static QList<ToolchainBundle> collectBundles(HandleMissing handleMissing);
     static QList<ToolchainBundle> collectBundles(
-        const Toolchains &toolchains, AutoRegister autoRegister);
+        const Toolchains &toolchains, HandleMissing handleMissing);
 
     template<typename R, class T = Toolchain, typename... A>
     R get(R (T:: *getter)(A...) const, A&&... args) const
@@ -315,9 +317,9 @@ public:
     }
 
 private:
-    void addMissingToolchains(AutoRegister autoRegister);
+    void addMissingToolchains(HandleMissing handleMissing);
     static QList<ToolchainBundle> bundleUnbundledToolchains(
-        const Toolchains &unbundled, AutoRegister autoRegister);
+        const Toolchains &unbundled, HandleMissing handleMissing);
 
     Toolchains m_toolchains;
 };

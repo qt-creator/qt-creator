@@ -1161,6 +1161,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
 
+            if (toolbutton->state.testAnyFlags(State_Sunken))
+                label.state.setFlag(State_On);
             drawControl(CE_ToolButtonLabel, &label, painter, widget);
 
             if (toolbutton->subControls & SC_ToolButtonMenu) {

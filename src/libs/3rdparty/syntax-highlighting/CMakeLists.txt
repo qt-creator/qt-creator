@@ -24,7 +24,6 @@ add_qtc_library(KSyntaxHighlighting
     src/lib/contextswitch.cpp src/lib/contextswitch_p.h
     src/lib/definition.cpp src/lib/definition.h
     src/lib/definitiondownloader.cpp src/lib/definitiondownloader.h
-    src/lib/definitionref_p.h
     src/lib/definition_p.h
     src/lib/dynamicregexpcache_p.h
     src/lib/foldingregion.cpp src/lib/foldingregion.h

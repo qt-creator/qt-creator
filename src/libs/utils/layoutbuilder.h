@@ -248,6 +248,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
+    void setFixedSize(int, int);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
     void setWidgetAttribute(Qt::WidgetAttribute, bool on);
@@ -341,12 +342,13 @@ public:
     LineEdit(std::initializer_list<I> ps);
 
     QString text() const;
+    void setText(const QString &);
     void setRightSideIconPath(const Utils::FilePath &path);
     void setPlaceHolderText(const QString &text);
     void setCompleter(QCompleter *completer);
     void setMinimumHeight(int height);
-    void onReturnPressed(const std::function<void()> &);
-    void onRightSideIconClicked(const std::function<void()> &);
+    void onReturnPressed(const std::function<void()> &, QObject *guard);
+    void onRightSideIconClicked(const std::function<void()> &, QObject *guard);
 };
 
 class QTCREATOR_UTILS_EXPORT Splitter : public Widget
@@ -523,6 +525,7 @@ QTC_DEFINE_BUILDER_SETTER(autoFillBackground, setAutoFillBackground);
 QTC_DEFINE_BUILDER_SETTER(readOnly, setReadOnly);
 QTC_DEFINE_BUILDER_SETTER(markdown, setMarkdown);
 QTC_DEFINE_BUILDER_SETTER(basePath, setBasePath);
+QTC_DEFINE_BUILDER_SETTER(fixedSize, setFixedSize);
 
 // Nesting dispatchers
 

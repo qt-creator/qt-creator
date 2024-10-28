@@ -1,12 +1,17 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+from __future__ import annotations
 import argparse
+import asyncio
 import os
 import locale
+from pathlib import Path
 import shutil
 import subprocess
 import sys
+from urllib.parse import urlparse
+import urllib.request
 
 encoding = locale.getdefaultlocale()[1]
 if not encoding:
@@ -27,13 +32,13 @@ def to_posix_path(path):
         return path.replace('\\', '/')
     return path
 
-def check_print_call(command, workdir=None, env=None):
+def check_print_call(command, cwd=None, env=None):
     print('------------------------------------------')
     print('COMMAND:')
     print(' '.join(['"' + c.replace('"', '\\"') + '"' for c in command]))
-    print('PWD:      "' + (workdir if workdir else os.getcwd()) + '"')
+    print('PWD:      "' + (str(cwd) if cwd else os.getcwd()) + '"')
     print('------------------------------------------')
-    subprocess.check_call(command, cwd=workdir, env=env)
+    subprocess.check_call(command, cwd=cwd, shell=is_windows_platform(), env=env)
 
 
 def get_git_SHA(path):
@@ -104,6 +109,57 @@ def copytree(src, dst, symlinks=False, ignore=None):
         errors.extend((src, dst, str(why)))
     if errors:
         raise shutil.Error(errors)
+
+
+def extract_file(archive: Path, target: Path) -> None:
+    cmd_args = []
+    if archive.suffix == '.tar':
+        cmd_args = ['tar', '-xf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.gz'] or archive.suffix == '.tgz':
+        cmd_args = ['tar', '-xzf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.xz']:
+        cmd_args = ['tar', '-xf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.bz2'] or archive.suffix == '.tbz':
+        cmd_args = ['tar', '-xjf', str(archive)]
+    elif archive.suffix in ('.7z', '.zip', '.gz', '.xz', '.bz2', '.qbsp'):
+        cmd_args = ['7z', 'x', str(archive)]
+    else:
+        raise(
+            "Extract fail: %s. Not an archive or appropriate extractor was not found", str(archive)
+        )
+        return
+    target.mkdir(parents=True, exist_ok=True)
+    subprocess.check_call(cmd_args, cwd=target)
+
+
+async def download(url: str, target: Path) -> None:
+    print('- Starting download {} -> {}'.format(url, str(target)))
+    # Since urlretrieve does blocking I/O it would prevent parallel downloads.
+    # Run in default thread pool.
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, urllib.request.urlretrieve, url, str(target))
+    print('+ finished downloading {}'.format(str(target)))
+
+
+def download_and_extract(urls: list[str], target: Path, temp: Path) -> None:
+    temp.mkdir(parents=True, exist_ok=True)
+    target_files = []
+    # TODO make this work with file URLs, which then aren't downloaded
+    #      but just extracted
+    async def impl():
+        tasks : list[asyncio.Task] = []
+        for url in urls:
+            u = urlparse(url)
+            filename = Path(u.path).name
+            target_file = temp / filename
+            target_files.append(target_file)
+            tasks.append(asyncio.create_task(download(url, target_file)))
+        for task in tasks:
+            await task
+    asyncio.run(impl())
+    for file in target_files:
+        extract_file(file, target)
+
 
 def get_qt_install_info(qmake_bin):
     output = subprocess.check_output([qmake_bin, '-query'])
