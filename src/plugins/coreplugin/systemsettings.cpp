@@ -14,6 +14,7 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -234,10 +235,13 @@ public:
                     Row{s.maxRecentFiles, st}});
         grid.addRow({s.askBeforeExit});
 #ifdef ENABLE_CRASHPAD
-        grid.addRow({s.enableCrashReporting,
-                     Row{m_clearCrashReportsButton,
-                         m_crashReportsSizeText,
-                         helpCrashReportingButton, st}});
+        const QString toolTip = Tr::tr("Crash reports are saved in \"%1\".")
+                                    .arg(appInfo().crashReports.toUserOutput());
+        m_clearCrashReportsButton->setToolTip(toolTip);
+        m_crashReportsSizeText->setToolTip(toolTip);
+        grid.addRow(
+            {s.enableCrashReporting,
+             Row{m_clearCrashReportsButton, m_crashReportsSizeText, helpCrashReportingButton, st}});
 #endif
 
         Column {
