@@ -19,6 +19,8 @@ General
   ([QTCREATORBUG-1756](https://bugreports.qt.io/browse/QTCREATORBUG-1756))
 * Added new dark and light themes
   ([Blog Post](https://www.qt.io/blog/review-new-themes-for-qt-creator))
+* Added `Tools > Scripting > New Script` for creating Lua based Qt Creator
+  scripts
 * Plugins
     * Added `DocumentationUrl` and new mandatory fields `Id` and `VendorId`
       to the plugin meta data
@@ -200,6 +202,8 @@ Debugging
   ([QTCREATORBUG-31406](https://bugreports.qt.io/browse/QTCREATORBUG-31406))
 * Fixed the unfolding of items in the debugger tooltip
   ([QTCREATORBUG-31250](https://bugreports.qt.io/browse/QTCREATORBUG-31250))
+* Fixed issues with breakpoints in threads
+  ([QTCREATORBUG-23219](https://bugreports.qt.io/browse/QTCREATORBUG-23219))
 * Pretty printers
     * Added pretty printers for `std:dequeue` and `std::forward_list`
       ([QTCREATORBUG-29994](https://bugreports.qt.io/browse/QTCREATORBUG-29994))
@@ -357,6 +361,7 @@ Teea Poldsam
 Thiago Macieira  
 Thomas Hartmann  
 Tim Jenßen  
+Toni Saario  
 Ulf Hermann  
 Vikas Pachdha  
 Xavier Besson  
