@@ -33,6 +33,7 @@ set(DESIGNSTUDIO_PLUGINS
     FakeVim
     Git
     Help
+    ImageViewer
     Insight
     LanguageClient
     McuSupport
