@@ -251,6 +251,7 @@ void TargetSetupWidget::setValid(bool valid)
         m_detailsWidget->setState(DetailsWidget::Collapsed);
         m_detailsWidget->setChecked(false);
     }
+    emit validToggled();
 }
 
 const QList<BuildInfo> TargetSetupWidget::selectedBuildInfoList() const

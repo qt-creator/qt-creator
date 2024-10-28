@@ -106,6 +106,8 @@ public:
         kitFilterLineEdit->setFiltering(true);
         kitFilterLineEdit->setPlaceholderText(Tr::tr("Type to filter kits by name..."));
 
+        hideUnsuitableKitsCheckBox = new QCheckBox(Tr::tr("Hide unsuitable kits"), setupTargetPage);
+
         m_centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         policy.setHorizontalStretch(0);
@@ -134,6 +136,7 @@ public:
         auto verticalLayout_2 = new QVBoxLayout(setupTargetPage);
         verticalLayout_2->addWidget(headerLabel);
         verticalLayout_2->addLayout(horizontalLayout);
+        verticalLayout_2->addWidget(hideUnsuitableKitsCheckBox);
         verticalLayout_2->addWidget(noValidKitLabel);
         verticalLayout_2->addWidget(m_centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
@@ -154,6 +157,13 @@ public:
 
         QObject::connect(allKitsCheckBox, &QAbstractButton::clicked,
                          q, &TargetSetupPage::changeAllKitsSelections);
+
+        const auto toggleTargetWidgetVisibility = [this] {
+            for (TargetSetupWidget *widget : m_widgets)
+                toggleVisibility(widget);
+        };
+        QObject::connect(hideUnsuitableKitsCheckBox, &QCheckBox::toggled,
+                         this, toggleTargetWidgetVisibility);
 
         QObject::connect(kitFilterLineEdit, &FancyLineEdit::filterChanged,
                          this, &TargetSetupPagePrivate::kitFilterChanged);
@@ -176,6 +186,7 @@ public:
         connect(KitManager::instance(), &KitManager::kitsChanged,
                 this, &TargetSetupPagePrivate::updateVisibility);
 
+        toggleTargetWidgetVisibility();
     }
 
     void doInitializePage();
@@ -194,7 +205,9 @@ public:
     void selectAtLeastOneEnabledKit();
     void removeWidget(Kit *k) { removeWidget(widget(k)); }
     void removeWidget(Internal::TargetSetupWidget *w);
-    Internal::TargetSetupWidget *addWidget(Kit *k);
+    TargetSetupWidget *addWidget(Kit *k);
+    void connectWidget(TargetSetupWidget *w);
+    void toggleVisibility(TargetSetupWidget *w);
     void addAdditionalWidgets();
     void removeAdditionalWidgets(QLayout *layout);
     void removeAdditionalWidgets();
@@ -224,6 +237,7 @@ public:
     QLabel *noValidKitLabel;
     QCheckBox *allKitsCheckBox;
     FancyLineEdit *kitFilterLineEdit;
+    QCheckBox *hideUnsuitableKitsCheckBox;
 
     TasksGenerator m_tasksGenerator;
     QPointer<ProjectImporter> m_importer;
@@ -307,10 +321,6 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
         if (m_importer && !m_importer->filter(k))
             continue;
         const auto widget = new TargetSetupWidget(k, m_projectPath);
-        connect(widget, &TargetSetupWidget::selectedToggled,
-                this, &TargetSetupPagePrivate::kitSelectionChanged);
-        connect(widget, &TargetSetupWidget::selectedToggled,
-                q, &QWizardPage::completeChanged);
         updateWidget(widget);
         m_widgets.push_back(widget);
         m_baseLayout->addWidget(widget);
@@ -322,6 +332,10 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
 
     kitSelectionChanged();
     updateVisibility();
+    for (TargetSetupWidget * const w : m_widgets) {
+        connectWidget(w);
+        toggleVisibility(w);
+    }
 }
 
 void TargetSetupPagePrivate::reset()
@@ -338,6 +352,7 @@ void TargetSetupPagePrivate::reset()
     }
 
     allKitsCheckBox->setChecked(false);
+    hideUnsuitableKitsCheckBox->setChecked(true);
 }
 
 TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId, TargetSetupWidget *fallback) const
@@ -633,11 +648,8 @@ TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
 {
     const auto widget = new TargetSetupWidget(k, m_projectPath);
     updateWidget(widget);
-    connect(widget, &TargetSetupWidget::selectedToggled,
-            this, &TargetSetupPagePrivate::kitSelectionChanged);
-    connect(widget, &TargetSetupWidget::selectedToggled,
-            q, &QWizardPage::completeChanged);
-
+    connectWidget(widget);
+    toggleVisibility(widget);
 
     // Insert widget, sorted.
     const auto insertionPos = std::find_if(m_widgets.begin(), m_widgets.end(),
@@ -655,6 +667,26 @@ TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
     }
 
     return widget;
+}
+
+void TargetSetupPagePrivate::connectWidget(TargetSetupWidget *w)
+{
+    connect(w, &TargetSetupWidget::selectedToggled,
+            this, &TargetSetupPagePrivate::kitSelectionChanged);
+    connect(w, &TargetSetupWidget::selectedToggled,
+            q, &QWizardPage::completeChanged);
+    connect(w, &TargetSetupWidget::validToggled, this, [w, this] { toggleVisibility(w); });
+}
+
+void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
+{
+    const bool shouldBeVisible = w->isValid() || !hideUnsuitableKitsCheckBox->isChecked();
+    if (shouldBeVisible) {
+        if (!w->isVisible()) // Prevent flickering.
+            w->show();
+    } else {
+        w->hide();
+    }
 }
 
 void TargetSetupPagePrivate::addAdditionalWidgets()

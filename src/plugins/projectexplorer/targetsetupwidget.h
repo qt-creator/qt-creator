@@ -54,6 +54,7 @@ public:
 
 signals:
     void selectedToggled() const;
+    void validToggled() const;
 
 private:
     static const QList<BuildInfo> buildInfoList(const Kit *k, const Utils::FilePath &projectPath);
