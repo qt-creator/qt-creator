@@ -747,14 +747,26 @@ TEST_F(ProjectStorageUpdater, parse_qml_documents)
     updater.update({.directories = directories});
 }
 
-TEST_F(ProjectStorageUpdater, parse_qml_documents_with_non_existing_qml_document_throws)
+TEST_F(ProjectStorageUpdater, non_existing_qml_documents_are_ignored)
 {
     QString qmldir{R"(module Example
-                      NonexitingType 1.0 NonexitingType.qml)"};
+                      NonexitingType 1.0 NonexitingType.qml
+                      FirstType 1.0 First.qml
+                      FirstTypeV2 2.2 First2.qml
+                      SecondType 2.2 Second.qml)"};
+    QString qmlDocument1{"First{}"};
+    QString qmlDocument2{"Second{}"};
+    QString qmlDocument3{"Third{}"};
     setContent(u"/path/qmldir", qmldir);
+    setContent(u"/path/First.qml", qmlDocument1);
+    setContent(u"/path/First2.qml", qmlDocument2);
+    setContent(u"/path/Second.qml", qmlDocument3);
 
-    ASSERT_THROW(updater.update({.directories = directories}),
-                 QmlDesigner::CannotParseQmlDocumentFile);
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument1, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument2, _, _, _));
+    EXPECT_CALL(qmlDocumentParserMock, parse(qmlDocument3, _, _, _));
+
+    updater.update({.directories = directories});
 }
 
 TEST_F(ProjectStorageUpdater, synchronize_qml_documents)

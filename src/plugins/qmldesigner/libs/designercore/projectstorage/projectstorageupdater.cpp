@@ -84,7 +84,7 @@ QList<QmlDirParser::Import> joinImports(const QList<QmlDirParser::Import> &first
 }
 
 ProjectStorageUpdater::Components createComponents(
-    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponents,
+    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponentsDict,
     ModuleId moduleId,
     ModuleId pathModuleId,
     FileSystemInterface &fileSystem,
@@ -93,8 +93,10 @@ ProjectStorageUpdater::Components createComponents(
     ProjectStorageUpdater::Components components;
 
     auto qmlFileNames = fileSystem.qmlFileNames(QString{directory});
+    std::ranges::sort(qmlFileNames);
 
-    components.reserve(static_cast<std::size_t>(qmlDirParserComponents.size() + qmlFileNames.size()));
+    components.reserve(
+        static_cast<std::size_t>(qmlDirParserComponentsDict.size() + qmlFileNames.size()));
 
     for (const QString &qmlFileName : qmlFileNames) {
         Utils::PathString fileName{qmlFileName};
@@ -103,15 +105,25 @@ ProjectStorageUpdater::Components createComponents(
             ProjectStorageUpdater::Component{fileName, typeName, pathModuleId, -1, -1});
     }
 
-    for (const QmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
+    auto qmlDirParserComponents = qmlDirParserComponentsDict.values();
+    std::ranges::sort(qmlDirParserComponents, {}, &QmlDirParser::Component::fileName);
+
+    auto addComponent = [&](const QmlDirParser::Component &qmlDirParserComponent) {
         if (qmlDirParserComponent.fileName.contains('/'))
-            continue;
+            return;
         components.push_back(ProjectStorageUpdater::Component{qmlDirParserComponent.fileName,
                                                               qmlDirParserComponent.typeName,
                                                               moduleId,
                                                               qmlDirParserComponent.majorVersion,
                                                               qmlDirParserComponent.minorVersion});
-    }
+    };
+
+    Utils::set_greedy_intersection(qmlDirParserComponents,
+                                   qmlFileNames,
+                                   addComponent,
+                                   {},
+                                   &QmlDirParser::Component::fileName,
+                                   {});
 
     return components;
 }
