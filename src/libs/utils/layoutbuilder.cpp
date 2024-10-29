@@ -709,9 +709,9 @@ void Widget::setSize(int w, int h)
     access(this)->resize(w, h);
 }
 
-void Widget::setFixedSize(int w, int h)
+void Widget::setFixedSize(const QSize &size)
 {
-    access(this)->setFixedSize(w, h);
+    access(this)->setFixedSize(size);
 }
 
 void Widget::setAutoFillBackground(bool on)

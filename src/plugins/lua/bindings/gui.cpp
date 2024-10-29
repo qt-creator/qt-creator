@@ -123,7 +123,7 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     if constexpr (has_setFixedSize<T>) {
         sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
         if (size)
-            item->setFixedSize(size->width(), size->height());
+            item->setFixedSize(*size);
     }
 
     if constexpr (has_setWordWrap<T>) {

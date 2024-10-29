@@ -248,7 +248,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
-    void setFixedSize(int, int);
+    void setFixedSize(const QSize &);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
     void setWidgetAttribute(Qt::WidgetAttribute, bool on);
