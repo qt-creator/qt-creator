@@ -148,12 +148,30 @@ void QtKitAspectFactory::setup(Kit *k)
     });
     const QtVersions &candidates = !exactMatches.empty() ? exactMatches : matches;
 
+    // Prefer higher versions to lower ones.
+    const QVersionNumber maxVersion = [&]() -> QVersionNumber {
+        if (const auto it = std::max_element(
+                candidates.begin(),
+                candidates.end(),
+                [](const QtVersion *v1, const QtVersion *v2) {
+                    return v1->qtVersion() < v2->qtVersion();
+                });
+            it != candidates.end()) {
+            return (*it)->qtVersion();
+        }
+        return {};
+    }();
+    const auto [highestVersions, lowerVersions]
+        = Utils::partition(candidates, [&maxVersion](const QtVersion *v) {
+              return v->qtVersion() == maxVersion;
+          });
+
     QtVersion * const qtFromPath = QtVersionManager::version(
                 equal(&QtVersion::detectionSource, QString("PATH")));
-    if (qtFromPath && candidates.contains(qtFromPath))
+    if (qtFromPath && highestVersions.contains(qtFromPath))
         k->setValue(id(), qtFromPath->uniqueId());
     else
-        k->setValue(id(), candidates.first()->uniqueId());
+        k->setValue(id(), highestVersions.first()->uniqueId());
 }
 
 Tasks QtKitAspectFactory::validate(const Kit *k) const
