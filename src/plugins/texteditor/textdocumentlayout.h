@@ -119,6 +119,10 @@ public:
     { m_additionalAnnotationHeight = annotationHeight; }
     inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
+    inline void setAdditionalLineHeight(int additionalLineHeight)
+    { m_additionalLineHeight = additionalLineHeight; }
+    inline int additionalLineHeight() const { return m_additionalLineHeight; }
+
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
 
@@ -144,6 +148,7 @@ private:
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
     int m_additionalAnnotationHeight = 0;
+    int m_additionalLineHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData;
     KSyntaxHighlighting::State m_syntaxState;
