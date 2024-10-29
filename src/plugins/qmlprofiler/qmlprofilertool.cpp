@@ -378,7 +378,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         d->m_profilerConnections->disconnectFromServer();
     };
 
-    connect(runControl, &RunControl::stopped, this, handleStop);
+    connect(runWorker, &QmlProfilerRunner::stopped, this, handleStop);
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
