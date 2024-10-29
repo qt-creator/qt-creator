@@ -2014,7 +2014,10 @@ void EffectComposerModel::bakeShaders()
     initShaderDir();
 
     resetEffectError(ErrorPreprocessor);
-    if (m_vertexShader == generateVertexShader() && m_fragmentShader == generateFragmentShader()) {
+    if (Utils::FilePath::fromString(m_vertexSourceFilename).exists()
+        && Utils::FilePath::fromString(m_fragmentSourceFilename).exists()
+        && m_vertexShader == generateVertexShader()
+        && m_fragmentShader == generateFragmentShader()) {
         setShadersUpToDate(true);
         return;
     }

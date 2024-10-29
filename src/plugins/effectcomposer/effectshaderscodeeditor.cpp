@@ -205,8 +205,7 @@ void EffectShadersCodeEditor::closeEvent(QCloseEvent *event)
 {
     QWidget::closeEvent(event);
 
-    if (!liveUpdate())
-        emit rebakeRequested();
+    emit rebakeRequested();
 
     setOpened(false);
 }
