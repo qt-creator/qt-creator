@@ -22,7 +22,6 @@ public:
     explicit AndroidRunner(ProjectExplorer::RunControl *runControl);
 
     Utils::Port debugServerPort() const { return m_debugServerPort; } // GDB or LLDB
-    QUrl qmlServer() const { return m_qmlServer; }
     Utils::ProcessHandle pid() const { return m_pid; }
 
     void start() override;
@@ -36,13 +35,12 @@ signals:
 private:
     void qmlServerPortReady(Utils::Port port);
 
-    void remoteStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void remoteStarted(const Utils::Port &debugServerPort, qint64 pid);
     void remoteFinished(const QString &errString);
     void remoteStdOut(const QString &output);
     void remoteStdErr(const QString &output);
 
     Utils::Port m_debugServerPort;
-    QUrl m_qmlServer;
     Utils::ProcessHandle m_pid;
     QmlDebug::QmlOutputParser m_outputParser;
     Tasking::TaskTreeRunner m_taskTreeRunner;

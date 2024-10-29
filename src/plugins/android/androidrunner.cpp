@@ -130,11 +130,10 @@ void AndroidRunner::qmlServerPortReady(Port port)
     emit qmlServerReady(serverUrl);
 }
 
-void AndroidRunner::remoteStarted(const Port &debugServerPort, const QUrl &qmlServer, qint64 pid)
+void AndroidRunner::remoteStarted(const Port &debugServerPort, qint64 pid)
 {
     m_pid = ProcessHandle(pid);
     m_debugServerPort = debugServerPort;
-    m_qmlServer = qmlServer;
     reportStarted();
 }
 
