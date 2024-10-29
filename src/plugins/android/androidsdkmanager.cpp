@@ -532,8 +532,6 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
         spinner.reset(new Spinner(SpinnerSize::Medium, m_spinnerTarget));
         spinner->show();
     }
-    qDeleteAll(m_allPackages);
-    m_allPackages.clear();
 
     lastSdkManagerPath = AndroidConfig::sdkManagerToolPath();
     m_packageListingSuccessful = false;
@@ -548,6 +546,8 @@ void AndroidSdkManagerPrivate::reloadSdkPackages()
     QStringList args({"--list", "--verbose"});
     args << AndroidConfig::sdkManagerToolArgs();
     m_packageListingSuccessful = sdkManagerCommand(args, &packageListing);
+    qDeleteAll(m_allPackages); // Must be done after the blocking command execution. See QTCREATORBUG-31920.
+    m_allPackages.clear();
     if (m_packageListingSuccessful) {
         SdkManagerOutputParser parser(m_allPackages);
         parser.parsePackageListing(packageListing);
