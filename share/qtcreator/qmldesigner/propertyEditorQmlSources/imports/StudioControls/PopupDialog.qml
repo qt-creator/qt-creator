@@ -31,12 +31,14 @@ QtObject {
     //property alias chevronVisible: chevron.visible
 
     property rect __itemGlobal: Qt.rect(0, 0, 100, 100)
+    property bool __movedManually: false
 
     property bool keepOpen: false
 
     signal closing(close: var)
 
     function showGlobal() {
+        root.__movedManually = false
         var pos = WindowManager.globalCursorPosition()
         root.__itemGlobal = Qt.rect(pos.x, pos.y, 300, 20)
         //root.chevronVisible = false
@@ -46,6 +48,7 @@ QtObject {
     }
 
     function show(target: Item): void {
+        root.__movedManually = false
         var originGlobal = target.mapToGlobal(0, 0)
         root.__itemGlobal = Qt.rect(originGlobal.x, originGlobal.y, target.width, target.height)
         //root.chevronVisible = true
@@ -59,6 +62,9 @@ QtObject {
     }
 
     function layout() {
+        if (root.__movedManually)
+            return
+
         let position = Qt.point(root.__itemGlobal.x, root.__itemGlobal.y)
         var screen = WindowManager.getScreenGeometry(position)
 
@@ -423,8 +429,10 @@ QtObject {
                     target: null
                     grabPermissions: PointerHandler.CanTakeOverFromAnything
                     onActiveChanged: {
-                        if (dragHandler.active)
+                        if (dragHandler.active) {
+                            root.__movedManually = true
                             window.startSystemMove() // QTBUG-102488
+                        }
                     }
                 }
 
