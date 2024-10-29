@@ -586,8 +586,10 @@ void TargetSetupPage::changeAllKitsSelections()
     if (d->allKitsCheckBox->checkState() == Qt::PartiallyChecked)
         d->allKitsCheckBox->setCheckState(Qt::Checked);
     bool checked = d->allKitsCheckBox->isChecked();
-    for (TargetSetupWidget *widget : d->m_widgets)
-        widget->setKitSelected(checked);
+    for (TargetSetupWidget *widget : d->m_widgets) {
+        if (!checked || widget->isValid())
+            widget->setKitSelected(checked);
+    }
     emit completeChanged();
 }
 
