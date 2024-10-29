@@ -21,6 +21,7 @@ General
   ([Blog Post](https://www.qt.io/blog/review-new-themes-for-qt-creator))
 * Added `Tools > Scripting > New Script` for creating Lua based Qt Creator
   scripts
+  ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-create-lua-scripts.html))
 * Plugins
     * Added `DocumentationUrl` and new mandatory fields `Id` and `VendorId`
       to the plugin meta data

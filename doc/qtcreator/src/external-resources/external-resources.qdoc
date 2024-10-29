@@ -6,6 +6,10 @@
     \title Qt Documentation
 */
 /*!
+    \externalpage https://www.lua.org/
+    \title Lua
+*/
+/*!
     \externalpage https://www.freedesktop.org/software/systemd/man/latest/systemd-coredump.html
     \title systemd-coredump
 */
