@@ -149,18 +149,10 @@ void QtKitAspectFactory::setup(Kit *k)
     const QtVersions &candidates = !exactMatches.empty() ? exactMatches : matches;
 
     // Prefer higher versions to lower ones.
-    const QVersionNumber maxVersion = [&]() -> QVersionNumber {
-        if (const auto it = std::max_element(
-                candidates.begin(),
-                candidates.end(),
-                [](const QtVersion *v1, const QtVersion *v2) {
-                    return v1->qtVersion() < v2->qtVersion();
-                });
-            it != candidates.end()) {
-            return (*it)->qtVersion();
-        }
-        return {};
-    }();
+    const QVersionNumber maxVersion
+        = Utils::maxElementOrDefault(candidates, [](const QtVersion *v1, const QtVersion *v2) {
+              return v1->qtVersion() < v2->qtVersion();
+          })->qtVersion();
     const auto [highestVersions, lowerVersions]
         = Utils::partition(candidates, [&maxVersion](const QtVersion *v) {
               return v->qtVersion() == maxVersion;

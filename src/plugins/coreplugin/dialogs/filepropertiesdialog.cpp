@@ -4,9 +4,9 @@
 #include "filepropertiesdialog.h"
 
 #include "../coreplugintr.h"
-#include "../editormanager/editormanager.h"
 #include "../editormanager/ieditorfactory.h"
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimeutils.h>
@@ -161,17 +161,16 @@ void FilePropertiesDialog::detectTextFileSettings()
             break;
     }
 
-    const std::map<int, int>::iterator max = std::max_element(
-                indents.begin(), indents.end(),
-                [](const std::pair<int, int> &a, const std::pair<int, int> &b) {
-        return a.second < b.second;
-    });
+    const auto max = Utils::maxElementOrDefault(
+        indents, [](const std::pair<int, int> &a, const std::pair<int, int> &b) {
+            return a.second < b.second;
+        });
 
     if (!indents.empty()) {
         if (tabIndented) {
             m_indentation->setText(Tr::tr("Mixed"));
         } else {
-            m_indentation->setText(Tr::tr("%1 Spaces").arg(max->first));
+            m_indentation->setText(Tr::tr("%1 Spaces").arg(max.first));
         }
     } else if (tabIndented) {
         m_indentation->setText(Tr::tr("Tabs"));

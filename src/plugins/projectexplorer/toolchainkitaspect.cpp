@@ -336,9 +336,9 @@ static void setToolchainsFromAbis(Kit *k, const LanguagesAndAbis &abisByLanguage
             continue;
         }
 
-        const auto bestBundle = std::min_element(
-            matchingBundles.begin(), matchingBundles.end(), &ToolchainManager::isBetterToolchain);
-        ToolchainKitAspect::setBundle(k, *bestBundle);
+        const ToolchainBundle bestBundle = Utils::minElementOr(
+            matchingBundles, &ToolchainManager::isBetterToolchain, matchingBundles.first());
+        ToolchainKitAspect::setBundle(k, bestBundle);
     }
 }
 

@@ -112,10 +112,25 @@ template<typename C, typename F>
 Q_REQUIRED_RESULT int indexOf(const C &container, F function);
 
 /////////////////////////
-// maxElementOr
+// {min,max}ElementOr
 /////////////////////////
-template<typename T>
-typename T::value_type maxElementOr(const T &container, typename T::value_type other);
+template<typename C>
+typename C::value_type maxElementOr(const C &container, typename C::value_type other);
+template<typename C>
+typename C::value_type maxElementOrDefault(const C &container);
+template<typename C, typename Cmp>
+typename C::value_type maxElementOr(const C &container, const Cmp &cmp, typename C::value_type other);
+template<typename C, typename Cmp>
+typename C::value_type maxElementOrDefault(const C &container, const Cmp &cmp);
+
+template<typename C>
+typename C::value_type minElementOr(const C &container, typename C::value_type other);
+template<typename C>
+typename C::value_type minElementOrDefault(const C &container);
+template<typename C, typename Cmp>
+typename C::value_type minElementOr(const C &container, const Cmp &cmp, typename C::value_type other);
+template<typename C, typename Cmp>
+typename C::value_type minElementOrDefault(const C &container, const Cmp &cmp);
 
 /////////////////////////
 // filtered
@@ -569,21 +584,72 @@ int indexOf(const C& container, F function)
 
 
 //////////////////
-// max element
+// min/max element
 //////////////////
 
-template<typename T>
-typename T::value_type maxElementOr(const T &container, typename T::value_type other)
+template<typename C>
+typename C::value_type maxElementOr(const C &container, typename C::value_type other)
 {
-    typename T::const_iterator begin = std::begin(container);
-    typename T::const_iterator end = std::end(container);
-
-    typename T::const_iterator it = std::max_element(begin, end);
-    if (it == end)
-        return other;
-    return *it;
+    const auto begin = std::begin(container);
+    const auto end = std::end(container);
+    if (const auto it = std::max_element(begin, end); it != end)
+        return *it;
+    return other;
 }
 
+template<typename C>
+typename C::value_type maxElementOrDefault(const C &container)
+{
+    return maxElementOr(container, typename C::value_type());
+}
+
+template<typename C, typename Cmp>
+typename C::value_type maxElementOr(const C &container, const Cmp &cmp, typename C::value_type other)
+{
+    const auto begin = std::begin(container);
+    const auto end = std::end(container);
+    if (const auto it = std::max_element(begin, end, cmp); it != end)
+        return *it;
+    return other;
+}
+
+template<typename C, typename Cmp>
+typename C::value_type maxElementOrDefault(const C &container, const Cmp &cmp)
+{
+    return maxElementOr(container, cmp, typename C::value_type());
+}
+
+template<typename C>
+typename C::value_type minElementOr(const C &container, typename C::value_type other)
+{
+    const auto begin = std::begin(container);
+    const auto end = std::end(container);
+    if (const auto it = std::min_element(begin, end); it != end)
+        return *it;
+    return other;
+}
+
+template<typename C>
+typename C::value_type minElementOrDefault(const C &container)
+{
+    return minElementOr(container, typename C::value_type());
+}
+
+template<typename C, typename Cmp>
+typename C::value_type minElementOr(const C &container, const Cmp &cmp, typename C::value_type other)
+{
+    const auto begin = std::begin(container);
+    const auto end = std::end(container);
+    if (const auto it = std::min_element(begin, end, cmp); it != end)
+        return *it;
+    return other;
+}
+
+template<typename C, typename Cmp>
+typename C::value_type minElementOrDefault(const C &container, const Cmp &cmp)
+{
+    return minElementOr(container, cmp, typename C::value_type());
+}
 
 //////////////////
 // transform

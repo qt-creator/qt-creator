@@ -441,11 +441,11 @@ QString PluginManager::systemInformation()
     if (qtDiagProc.result() == ProcessResult::FinishedWithSuccess)
         result += qtDiagProc.allOutput() + "\n";
     result += "Plugin information:\n\n";
-    auto longestSpec = std::max_element(d->pluginSpecs.cbegin(), d->pluginSpecs.cend(),
-                                        [](const PluginSpec *left, const PluginSpec *right) {
-                                            return left->name().size() < right->name().size();
-                                        });
-    int size = (*longestSpec)->name().size();
+    PluginSpec * const longestSpec = Utils::maxElementOrDefault(
+        d->pluginSpecs, [](const PluginSpec *left, const PluginSpec *right) {
+            return left->name().size() < right->name().size();
+        });
+    int size = longestSpec->name().size();
     for (const PluginSpec *spec : plugins()) {
         result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->name(), size) +
                   " " + spec->version() + "\n";

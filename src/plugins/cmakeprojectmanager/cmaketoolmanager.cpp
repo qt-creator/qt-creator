@@ -582,7 +582,7 @@ CMakeToolManagerPrivate::CMakeToolManagerPrivate()
     if (HostOsInfo::isWindowsHost()) {
         const QStringList locations = QStandardPaths::standardLocations(
             QStandardPaths::GenericConfigLocation);
-        m_junctionsDir = FilePath::fromString(*std::min_element(locations.begin(), locations.end()))
+        m_junctionsDir = FilePath::fromString(Utils::minElementOrDefault(locations))
                              .pathAppended("QtCreator/Links");
 
         auto project = ProjectManager::startupProject();
