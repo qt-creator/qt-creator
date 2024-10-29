@@ -84,7 +84,7 @@ QList<QmlDirParser::Import> joinImports(const QList<QmlDirParser::Import> &first
 }
 
 ProjectStorageUpdater::Components createComponents(
-    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponentsDict,
+    const QMultiHash<QString, QmlDirParser::Component> &qmlDirParserComponents,
     ModuleId moduleId,
     ModuleId pathModuleId,
     FileSystemInterface &fileSystem,
@@ -93,10 +93,8 @@ ProjectStorageUpdater::Components createComponents(
     ProjectStorageUpdater::Components components;
 
     auto qmlFileNames = fileSystem.qmlFileNames(QString{directory});
-    std::ranges::sort(qmlFileNames);
 
-    components.reserve(
-        static_cast<std::size_t>(qmlDirParserComponentsDict.size() + qmlFileNames.size()));
+    components.reserve(static_cast<std::size_t>(qmlDirParserComponents.size() + qmlFileNames.size()));
 
     for (const QString &qmlFileName : qmlFileNames) {
         Utils::PathString fileName{qmlFileName};
@@ -105,25 +103,15 @@ ProjectStorageUpdater::Components createComponents(
             ProjectStorageUpdater::Component{fileName, typeName, pathModuleId, -1, -1});
     }
 
-    auto qmlDirParserComponents = qmlDirParserComponentsDict.values();
-    std::ranges::sort(qmlDirParserComponents, {}, &QmlDirParser::Component::fileName);
-
-    auto addComponent = [&](const QmlDirParser::Component &qmlDirParserComponent) {
+    for (const QmlDirParser::Component &qmlDirParserComponent : qmlDirParserComponents) {
         if (qmlDirParserComponent.fileName.contains('/'))
-            return;
+            continue;
         components.push_back(ProjectStorageUpdater::Component{qmlDirParserComponent.fileName,
                                                               qmlDirParserComponent.typeName,
                                                               moduleId,
                                                               qmlDirParserComponent.majorVersion,
                                                               qmlDirParserComponent.minorVersion});
-    };
-
-    Utils::set_greedy_intersection(qmlDirParserComponents,
-                                   qmlFileNames,
-                                   addComponent,
-                                   {},
-                                   &QmlDirParser::Component::fileName,
-                                   {});
+    }
 
     return components;
 }
@@ -1107,8 +1095,10 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
         type.changeLevel = Storage::Synchronization::ChangeLevel::Minimal;
         break;
     case FileState::NotExists:
-        throw CannotParseQmlDocumentFile{};
+        tracer.tick("file does not exits", keyValue("source id", sourceId));
+        break;
     case FileState::Changed:
+        tracer.tick("update from qml document", keyValue("source id", sourceId));
         const auto content = m_fileSystem.contentAsQString(QString{qmlFilePath});
         type = m_qmlDocumentParser.parse(content, package.imports, sourceId, directoryPath);
         break;
