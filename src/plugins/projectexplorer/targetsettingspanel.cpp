@@ -125,7 +125,6 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
     m_setupPageContainer = new QVBoxLayout;
     layout->addLayout(m_setupPageContainer);
     layout->addLayout(hbox);
-    layout->addStretch(10);
     completeChanged();
     connect(m_configureButton, &QAbstractButton::clicked,
             this, &TargetSetupPageWrapper::done);
@@ -134,13 +133,12 @@ TargetSetupPageWrapper::TargetSetupPageWrapper(Project *project)
 void TargetSetupPageWrapper::addTargetSetupPage()
 {
     m_targetSetupPage = new TargetSetupPage(this);
-    m_targetSetupPage->setUseScrollArea(false);
     m_targetSetupPage->setProjectPath(m_project->projectFilePath());
     m_targetSetupPage->setTasksGenerator(
         [this](const Kit *k) { return m_project->projectIssues(k); });
     m_targetSetupPage->setProjectImporter(m_project->projectImporter());
     m_targetSetupPage->initializePage();
-    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    m_targetSetupPage->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
     m_setupPageContainer->addWidget(m_targetSetupPage);
 
     completeChanged();
@@ -288,7 +286,8 @@ void TargetGroupItemPrivate::ensureWidget()
 
     if (!m_configurePage) {
         m_targetSetupPageWrapper = new TargetSetupPageWrapper(m_project);
-        m_configurePage = new PanelsWidget(Tr::tr("Configure Project"), m_targetSetupPageWrapper);
+        m_configurePage
+            = new PanelsWidget(Tr::tr("Configure Project"), m_targetSetupPageWrapper, false);
         m_configurePage->setFocusProxy(m_targetSetupPageWrapper);
     }
     m_targetSetupPageWrapper->ensureSetupPage();

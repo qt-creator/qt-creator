@@ -65,8 +65,8 @@ PanelsWidget::PanelsWidget(QWidget *parent, bool addStretch) : QWidget(parent)
     //layout->addWidget(new FindToolBarPlaceHolder(this));
 }
 
-PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget)
-    : PanelsWidget(nullptr)
+PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget, bool addStretch)
+    : PanelsWidget(nullptr, addStretch)
 {
     addPropertiesPanel(displayName);
     addWidget(widget);

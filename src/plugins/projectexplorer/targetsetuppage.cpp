@@ -81,7 +81,6 @@ public:
     void connectWidget(TargetSetupWidget *w);
     void toggleVisibility(TargetSetupWidget *w);
     void addAdditionalWidgets();
-    void removeAdditionalWidgets(QLayout *layout);
     void removeAdditionalWidgets();
     void updateWidget(Internal::TargetSetupWidget *widget);
     bool isUsable(const Kit *kit) const;
@@ -98,11 +97,8 @@ public:
         return k ? widget(k->id(), fallback) : fallback;
     }
 
-    void setUseScrollArea(bool b);
-
     TargetSetupPage *q;
     QWidget *centralWidget;
-    QWidget *scrollAreaWidget;
     QScrollArea *scrollArea;
     QLabel *headerLabel;
     QLabel *noValidKitLabel;
@@ -112,7 +108,6 @@ public:
 
     TasksGenerator tasksGenerator;
     QPointer<ProjectImporter> importer;
-    QLayout *baseLayout = nullptr;
     FilePath projectPath;
     QString defaultShadowBuildLocation;
     std::vector<Internal::TargetSetupWidget *> widgets;
@@ -193,7 +188,7 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
         const auto widget = new TargetSetupWidget(k, projectPath);
         updateWidget(widget);
         widgets.push_back(widget);
-        baseLayout->addWidget(widget);
+        centralWidget->layout()->addWidget(widget);
     }
     addAdditionalWidgets();
 
@@ -380,10 +375,6 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
 
 void TargetSetupPagePrivate::updateVisibility()
 {
-    // Always show the widgets, the import widget always makes sense to show.
-    scrollAreaWidget->setVisible(baseLayout == scrollArea->widget()->layout());
-    centralWidget->setVisible(baseLayout == centralWidget->layout());
-
     const bool hasUsableKits = KitManager::kit([this](const Kit *k) { return isUsable(k); });
     noValidKitLabel->setVisible(!hasUsableKits);
     allKitsCheckBox->setVisible(hasUsableKits);
@@ -395,9 +386,9 @@ void TargetSetupPagePrivate::reLayout()
 {
     removeAdditionalWidgets();
     for (TargetSetupWidget * const w : std::as_const(widgets))
-        baseLayout->removeWidget(w);
+        centralWidget->layout()->removeWidget(w);
     for (TargetSetupWidget * const w : std::as_const(widgets))
-        baseLayout->addWidget(w);
+        centralWidget->layout()->addWidget(w);
     addAdditionalWidgets();
 }
 
@@ -434,13 +425,11 @@ TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
 
     spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
-    auto setupTargetPage = new QWidget(q);
-
-    headerLabel = new QLabel(setupTargetPage);
+    headerLabel = new QLabel(q);
     headerLabel->setWordWrap(true);
     headerLabel->setVisible(false);
 
-    noValidKitLabel = new QLabel(setupTargetPage);
+    noValidKitLabel = new QLabel(q);
     noValidKitLabel->setWordWrap(true);
     noValidKitLabel->setText("<span style=\" font-weight:600;\">"
                              + Tr::tr("No suitable kits found.") + "</span><br/>"
@@ -450,59 +439,36 @@ TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
     noValidKitLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
     noValidKitLabel->setVisible(false);
 
-    allKitsCheckBox = new QCheckBox(setupTargetPage);
+    allKitsCheckBox = new QCheckBox(q);
     allKitsCheckBox->setTristate(true);
     allKitsCheckBox->setText(Tr::tr("Select all kits"));
 
-    kitFilterLineEdit = new FancyLineEdit(setupTargetPage);
+    kitFilterLineEdit = new FancyLineEdit(q);
     kitFilterLineEdit->setFiltering(true);
     kitFilterLineEdit->setPlaceholderText(Tr::tr("Type to filter kits by name..."));
 
-    hideUnsuitableKitsCheckBox = new QCheckBox(Tr::tr("Hide unsuitable kits"), setupTargetPage);
+    hideUnsuitableKitsCheckBox = new QCheckBox(Tr::tr("Hide unsuitable kits"), q);
 
-    centralWidget = new QWidget(setupTargetPage);
-    QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-    policy.setHorizontalStretch(0);
-    policy.setVerticalStretch(0);
-    policy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
-    centralWidget->setSizePolicy(policy);
-
-    scrollAreaWidget = new QWidget(setupTargetPage);
-    scrollArea = new QScrollArea(scrollAreaWidget);
-    scrollArea->setWidgetResizable(true);
-
-    auto scrollAreaWidgetContents = new QWidget();
-    scrollAreaWidgetContents->setGeometry(QRect(0, 0, 230, 81));
-    scrollArea->setWidget(scrollAreaWidgetContents);
-
-    auto verticalLayout = new QVBoxLayout(scrollAreaWidget);
-    verticalLayout->setSpacing(0);
-    verticalLayout->setContentsMargins(0, 0, 0, 0);
-    verticalLayout->addWidget(scrollArea);
-
-    auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addWidget(allKitsCheckBox);
-    horizontalLayout->addSpacing(10);
-    horizontalLayout->addWidget(kitFilterLineEdit);
-
-    auto verticalLayout_2 = new QVBoxLayout(setupTargetPage);
-    verticalLayout_2->addWidget(headerLabel);
-    verticalLayout_2->addLayout(horizontalLayout);
-    verticalLayout_2->addWidget(hideUnsuitableKitsCheckBox);
-    verticalLayout_2->addWidget(noValidKitLabel);
-    verticalLayout_2->addWidget(centralWidget);
-    verticalLayout_2->addWidget(scrollAreaWidget);
-
-    auto verticalLayout_3 = new QVBoxLayout(q);
-    verticalLayout_3->setContentsMargins(0, 0, 0, -1);
-    verticalLayout_3->addWidget(setupTargetPage);
-
-    auto centralWidget = new QWidget(q);
-    scrollArea->setWidget(centralWidget);
+    centralWidget = new QWidget(q);
     centralWidget->setLayout(new QVBoxLayout);
+    centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
-    this->centralWidget->setLayout(new QVBoxLayout);
-    this->centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
+    scrollArea = new QScrollArea(q);
+    scrollArea->setFrameStyle(QFrame::NoFrame);
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setWidget(centralWidget);
+
+    const auto optionsLayout = new QHBoxLayout;
+    optionsLayout->addWidget(hideUnsuitableKitsCheckBox);
+    optionsLayout->addWidget(allKitsCheckBox);
+    optionsLayout->addSpacing(10);
+    optionsLayout->addWidget(kitFilterLineEdit);
+
+    const auto mainLayout = new QVBoxLayout(q);
+    mainLayout->addWidget(headerLabel);
+    mainLayout->addLayout(optionsLayout);
+    mainLayout->addWidget(noValidKitLabel);
+    mainLayout->addWidget(scrollArea, 255);
 
     QObject::connect(noValidKitLabel, &QLabel::linkActivated,
                      q, &TargetSetupPage::openOptions);
@@ -519,8 +485,6 @@ TargetSetupPagePrivate::TargetSetupPagePrivate(TargetSetupPage *parent)
 
     QObject::connect(kitFilterLineEdit, &FancyLineEdit::filterChanged,
                      this, toggleTargetWidgetVisibility);
-
-    setUseScrollArea(true);
 
     KitManager *km = KitManager::instance();
     // do note that those slots are triggered once *per* targetsetuppage
@@ -636,7 +600,7 @@ TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
     widgets.insert(insertionPos, widget);
     if (addedToEnd) {
         removeAdditionalWidgets();
-        baseLayout->addWidget(widget);
+        centralWidget->layout()->addWidget(widget);
         addAdditionalWidgets();
     } else {
         reLayout();
@@ -673,19 +637,14 @@ void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
 
 void TargetSetupPagePrivate::addAdditionalWidgets()
 {
-    baseLayout->addWidget(importWidget);
-    baseLayout->addItem(spacer);
-}
-
-void TargetSetupPagePrivate::removeAdditionalWidgets(QLayout *layout)
-{
-    layout->removeWidget(importWidget);
-    layout->removeItem(spacer);
+    centralWidget->layout()->addWidget(importWidget);
+    centralWidget->layout()->addItem(spacer);
 }
 
 void TargetSetupPagePrivate::removeAdditionalWidgets()
 {
-    removeAdditionalWidgets(baseLayout);
+    centralWidget->layout()->removeWidget(importWidget);
+    centralWidget->layout()->removeItem(spacer);
 }
 
 void TargetSetupPagePrivate::updateWidget(TargetSetupWidget *widget)
@@ -727,25 +686,6 @@ bool TargetSetupPage::setupProject(Project *project)
         project->setActiveTarget(activeTarget, SetActive::NoCascade);
 
     return true;
-}
-
-void TargetSetupPage::setUseScrollArea(bool b)
-{
-    d->setUseScrollArea(b);
-}
-
-void TargetSetupPagePrivate::setUseScrollArea(bool b)
-{
-    QLayout *oldBaseLayout = baseLayout;
-    baseLayout = b ? scrollArea->widget()->layout() : centralWidget->layout();
-    if (oldBaseLayout == baseLayout)
-        return;
-    scrollAreaWidget->setVisible(b);
-    centralWidget->setVisible(!b);
-
-    if (oldBaseLayout)
-        removeAdditionalWidgets(oldBaseLayout);
-    addAdditionalWidgets();
 }
 
 } // namespace ProjectExplorer

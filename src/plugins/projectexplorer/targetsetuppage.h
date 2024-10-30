@@ -37,11 +37,6 @@ public:
     void setProjectImporter(ProjectImporter *importer);
     bool importLineEditHasFocus() const;
 
-    /// Sets whether the targetsetupage uses a scrollarea
-    /// to host the widgets from the factories
-    /// call this before \sa initializePage()
-    void setUseScrollArea(bool b);
-
     bool isComplete() const override;
     bool setupProject(Project *project);
     QList<Utils::Id> selectedKits() const;
