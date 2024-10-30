@@ -109,10 +109,17 @@ CREATE_HAS_FUNC(onReturnPressed, nullptr, nullptr)
 CREATE_HAS_FUNC(onRightSideIconClicked, nullptr, nullptr)
 CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
 CREATE_HAS_FUNC(setFixedSize, QSize())
+CREATE_HAS_FUNC(setVisible, bool())
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
+    if constexpr (has_setVisible<T>) {
+        const auto visible = children.get<sol::optional<bool>>("visible");
+        if (visible)
+            item->setVisible(*visible);
+    }
+
     if constexpr (has_setTextInteractionFlags<T>) {
         const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
         if (interactionFlags) {
