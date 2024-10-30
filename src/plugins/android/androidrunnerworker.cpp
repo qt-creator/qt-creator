@@ -156,7 +156,7 @@ public:
     QString m_intentName;
     QStringList m_beforeStartAdbCommands;
     QStringList m_afterFinishAdbCommands;
-    QStringList m_amStartExtraArgs;
+    QString m_amStartExtraArgs;
     qint64 m_processPID = -1;
     qint64 m_processUser = -1;
     bool m_useCppDebugger = false;
@@ -216,8 +216,7 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_AM_START_ARGS);
         !sd.isEmpty()) {
         QTC_CHECK(sd.first().typeId() == QMetaType::QString);
-        const QString startArgs = sd.first().toString();
-        storage->m_amStartExtraArgs = ProcessArgs::splitArgs(startArgs, OsTypeOtherUnix);
+        storage->m_amStartExtraArgs = sd.first().toString();
     }
 
     if (const Store sd = glue->runControl()->settingsData(Constants::ANDROID_PRESTARTSHELLCMDLIST);
@@ -488,15 +487,15 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
 
 static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
 {
-    const Storage<QStringList> argsStorage;
+    const Storage<CommandLine> cmdStorage;
     const LoopUntil iterator([storage](int iteration) {
         return iteration < storage->m_beforeStartAdbCommands.size();
     });
 
-    const auto onArgsSetup = [storage, argsStorage] {
-        *argsStorage = {"shell", "am", "start", "-n", storage->m_intentName};
+    const auto onArgsSetup = [storage, cmdStorage] {
+        *cmdStorage = storage->adbCommand({"shell", "am", "start", "-n", storage->m_intentName});
         if (storage->m_useCppDebugger)
-            *argsStorage << "-D";
+            *cmdStorage << "-D";
     };
 
     const auto onPreCommandSetup = [storage, iterator](Process &process) {
@@ -514,7 +513,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         const QString port = "tcp:" + QString::number(storage->m_qmlServer.port());
         taskTree.setRecipe({removeForwardPortRecipe(storage.activeStorage(), port, port, "QML")});
     };
-    const auto onQmlDebugSync = [storage, argsStorage] {
+    const auto onQmlDebugSync = [storage, cmdStorage] {
         const QString qmljsdebugger = QString("port:%1,block,services:%2")
             .arg(storage->m_qmlServer.port()).arg(qmlDebugServices(storage->m_qmlDebugServices));
 
@@ -523,29 +522,25 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
                 storage->m_extraAppParams.prepend(' ');
             storage->m_extraAppParams.prepend("-qmljsdebugger=" + qmljsdebugger);
         } else {
-            *argsStorage << "-e" << "qml_debug" << "true"
+            *cmdStorage << "-e" << "qml_debug" << "true"
                          << "-e" << "qmljsdebugger" << qmljsdebugger;
         }
     };
 
-    const auto onActivitySetup = [storage, argsStorage](Process &process) {
-        QStringList args = *argsStorage;
-        args << storage->m_amStartExtraArgs;
+    const auto onActivitySetup = [storage, cmdStorage](Process &process) {
+        cmdStorage->addArgs(storage->m_amStartExtraArgs, CommandLine::Raw);
 
         if (!storage->m_extraAppParams.isEmpty()) {
-            const QStringList appArgs =
-                ProcessArgs::splitArgs(storage->m_extraAppParams, Utils::OsType::OsTypeLinux);
+            const QByteArray appArgs = storage->m_extraAppParams.toUtf8();
             qCDebug(androidRunWorkerLog).noquote() << "Using application arguments: " << appArgs;
-            args << "-e" << "extraappparams"
-                 << QString::fromLatin1(appArgs.join(' ').toUtf8().toBase64());
+            *cmdStorage << "-e" << "extraappparams" << QString::fromLatin1(appArgs.toBase64());
         }
 
         if (storage->m_extraEnvVars.hasChanges()) {
-            args << "-e" << "extraenvvars"
-                 << QString::fromLatin1(storage->m_extraEnvVars.toStringList().join('\t')
-                                            .toUtf8().toBase64());
+            const QByteArray extraEnv = storage->m_extraEnvVars.toStringList().join('\t').toUtf8();
+            *cmdStorage << "-e" << "extraenvvars" <<  QString::fromLatin1(extraEnv.toBase64());
         }
-        process.setCommand(storage->adbCommand({args}));
+        process.setCommand(*cmdStorage);
     };
     const auto onActivityDone = [storage](const Process &process) {
         storage->m_glue->setFinished(
@@ -553,7 +548,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
     };
 
     return Group {
-        argsStorage,
+        cmdStorage,
         onGroupSetup(onArgsSetup),
         For (iterator) >> Do {
             ProcessTask(onPreCommandSetup, onPreCommandDone, CallDoneIf::Error)
