@@ -415,7 +415,8 @@ void ProjectStorageUpdater::updateDirectoryChanged(std::string_view directoryPat
         package,
         notUpdatedSourceIds,
         watchedSourceIdsIds,
-        qmldirState);
+        qmldirState,
+        qmldirSourceId);
     tracer.tick("append updated project source id", keyValue("module id", moduleId));
     package.updatedDirectoryInfoSourceIds.push_back(directorySourceId);
 }
@@ -1058,7 +1059,8 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
                                               Storage::Synchronization::SynchronizationPackage &package,
                                               NotUpdatedSourceIds &notUpdatedSourceIds,
                                               WatchedSourceIdsIds &watchedSourceIds,
-                                              FileState qmldirState)
+                                              FileState qmldirState,
+                                              SourceId qmldirSourceId)
 {
     NanotraceHR::Tracer tracer{"parse qml component",
                                category(),
@@ -1096,6 +1098,11 @@ void ProjectStorageUpdater::parseQmlComponent(Utils::SmallStringView relativeFil
         break;
     case FileState::NotExists:
         tracer.tick("file does not exits", keyValue("source id", sourceId));
+        for (const auto &exportedType : exportedTypes)
+            m_errorNotifier.qmlDocumentDoesNotExistsForQmldirEntry(exportedType.name,
+                                                                   exportedType.version,
+                                                                   sourceId,
+                                                                   qmldirSourceId);
         break;
     case FileState::Changed:
         tracer.tick("update from qml document", keyValue("source id", sourceId));
@@ -1211,7 +1218,8 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                                                Storage::Synchronization::SynchronizationPackage &package,
                                                NotUpdatedSourceIds &notUpdatedSourceIds,
                                                WatchedSourceIdsIds &watchedSourceIdsIds,
-                                               FileState qmldirState)
+                                               FileState qmldirState,
+                                               SourceId qmldirSourceId)
 {
     NanotraceHR::Tracer tracer{"parse qml components",
                                category(),
@@ -1234,7 +1242,8 @@ void ProjectStorageUpdater::parseQmlComponents(Components components,
                           package,
                           notUpdatedSourceIds,
                           watchedSourceIdsIds,
-                          qmldirState);
+                          qmldirState,
+                          qmldirSourceId);
     };
 
     rangeForTheSameFileName(components, callback);

@@ -9,6 +9,7 @@
 #include <projectstoragepathwatchermock.h>
 #include <qmldocumentparsermock.h>
 #include <qmltypesparsermock.h>
+#include <version-matcher.h>
 
 #include <projectstorage-matcher.h>
 
@@ -337,6 +338,7 @@ protected:
     QmlDesigner::SourcePathCache<QmlDesigner::SourcePathStorage> sourcePathCache{
         staticData->sourcePathStorage};
     NiceMock<ProjectStoragePathWatcherMock> patchWatcherMock;
+    NiceMock<ProjectStorageErrorNotifierMock> errorNotifierMock;
     QmlDesigner::ProjectPartId projectPartId = QmlDesigner::ProjectPartId::create(1);
     QmlDesigner::ProjectPartId otherProjectPartId = QmlDesigner::ProjectPartId::create(0);
     QmlDesigner::ProjectStorageUpdater updater{fileSystemMock,
@@ -346,6 +348,7 @@ protected:
                                                qmlDocumentParserMock,
                                                qmlTypesParserMock,
                                                patchWatcherMock,
+                                               errorNotifierMock,
                                                projectPartId};
     SourceId qmltypesPathSourceId = sourcePathCache.sourceId("/path/example.qmltypes");
     SourceId qmltypes2PathSourceId = sourcePathCache.sourceId("/path/example2.qmltypes");
@@ -2187,6 +2190,25 @@ TEST_F(ProjectStorageUpdater, synchronize_qml_documents_without_qmldir)
                                                        qmlDocumentSourceId3,
                                                        ModuleId{},
                                                        FileType::QmlDocument))))));
+
+    updater.update({.directories = directories});
+}
+
+TEST_F(ProjectStorageUpdater, warn_about_non_existing_qml_document)
+{
+    setFilesDontExists({qmlDocumentSourceId1});
+    setFilesAdded({directoryPathSourceId});
+    QString qmldir{R"(module Example
+                      FirstType 1.0 First.qml
+                      FirstType 2.2 First2.qml)"};
+    setQmlFileNames(u"/path", {"First2.qml"});
+    setContent(u"/path/qmldir", qmldir);
+
+    EXPECT_CALL(errorNotifierMock,
+                qmlDocumentDoesNotExistsForQmldirEntry(Eq("FirstType"),
+                                                       IsVersion(1, 0),
+                                                       qmlDocumentSourceId1,
+                                                       qmlDirPathSourceId));
 
     updater.update({.directories = directories});
 }

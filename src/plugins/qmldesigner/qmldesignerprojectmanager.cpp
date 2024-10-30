@@ -193,6 +193,7 @@ public:
                   qmlDocumentParser,
                   qmlTypesParser,
                   pathWatcher,
+                  errorNotifier,
                   projectPartId}
     {}
     Sqlite::Database database;

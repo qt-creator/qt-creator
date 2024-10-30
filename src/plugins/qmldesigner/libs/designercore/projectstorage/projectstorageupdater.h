@@ -4,6 +4,7 @@
 #pragma once
 
 #include "filestatus.h"
+#include "projectstorageerrornotifier.h"
 #include "projectstorageids.h"
 #include "projectstoragepathwatchernotifierinterface.h"
 #include "projectstoragepathwatchertypes.h"
@@ -48,6 +49,7 @@ public:
                           QmlDocumentParserInterface &qmlDocumentParser,
                           QmlTypesParserInterface &qmlTypesParser,
                           class ProjectStoragePathWatcherInterface &pathWatcher,
+                          ProjectStorageErrorNotifierInterface &errorNotifier,
                           ProjectPartId projectPartId)
         : m_fileSystem{fileSystem}
         , m_projectStorage{projectStorage}
@@ -56,6 +58,7 @@ public:
         , m_qmlDocumentParser{qmlDocumentParser}
         , m_qmlTypesParser{qmlTypesParser}
         , m_pathWatcher{pathWatcher}
+        , m_errorNotifier{errorNotifier}
         , m_projectPartId{projectPartId}
     {}
 
@@ -219,7 +222,8 @@ private:
                             Storage::Synchronization::SynchronizationPackage &package,
                             NotUpdatedSourceIds &notUpdatedSourceIds,
                             WatchedSourceIdsIds &watchedSourceIdsIds,
-                            FileState qmldirState);
+                            FileState qmldirState,
+                            SourceId qmldirSourceId);
     void parseQmlComponent(Utils::SmallStringView fileName,
                            Utils::SmallStringView directory,
                            Storage::Synchronization::ExportedTypes exportedTypes,
@@ -227,7 +231,8 @@ private:
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds,
                            WatchedSourceIdsIds &watchedSourceIdsIds,
-                           FileState qmldirState);
+                           FileState qmldirState,
+                           SourceId qmldirSourceId);
     void parseQmlComponent(SourceId sourceId,
                            Storage::Synchronization::SynchronizationPackage &package,
                            NotUpdatedSourceIds &notUpdatedSourceIds);
@@ -245,6 +250,7 @@ private:
     QmlDocumentParserInterface &m_qmlDocumentParser;
     QmlTypesParserInterface &m_qmlTypesParser;
     ProjectStoragePathWatcherInterface &m_pathWatcher;
+    ProjectStorageErrorNotifierInterface &m_errorNotifier;
     ProjectPartId m_projectPartId;
 };
 

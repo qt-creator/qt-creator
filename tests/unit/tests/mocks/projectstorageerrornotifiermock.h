@@ -24,4 +24,12 @@ public:
                 propertyNameDoesNotExists,
                 (Utils::SmallStringView propertyName, QmlDesigner::SourceId sourceId),
                 (override));
+
+    MOCK_METHOD(void,
+                qmlDocumentDoesNotExistsForQmldirEntry,
+                (Utils::SmallStringView typeName,
+                 QmlDesigner::Storage::Version version,
+                 QmlDesigner::SourceId qmlDocumentSourceId,
+                 QmlDesigner::SourceId qmldirSourceId),
+                (override));
 };
