@@ -191,6 +191,11 @@ bool FileInProjectFinder::findFileOrDirectory(const FilePath &originalPath, File
             directoryHandler(node->children.keys(), origLength);
             qCDebug(finderLog) << "FileInProjectFinder: found virtual directory" << originalPath
                                << "in mapped paths";
+        }
+    }
+
+    if (originalPath == m_projectDir) {
+        if (checkPath(originalPath, originalPath.toFSPathString().length(), fileHandler, directoryHandler)) {
             return true;
         }
     }
