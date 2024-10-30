@@ -332,8 +332,8 @@ public:
     Qt Creator's state relevant to VCS plugins is a tuple of
 
     \list
-    \li Current file and it's version system control/top level
-    \li Current project and it's version system control/top level
+    \li Current file and its version control system top level
+    \li Current project and its version control system top level
     \endlist
 
     \sa VcsBase::VcsBasePlugin
