@@ -75,6 +75,7 @@ public:
 
     bool isUpdating() const;
     void selectAtLeastOneEnabledKit();
+    void ensureSelectedKitIsVisible();
     void removeWidget(Kit *k) { removeWidget(widget(k)); }
     void removeWidget(Internal::TargetSetupWidget *w);
     TargetSetupWidget *addWidget(Kit *k);
@@ -373,6 +374,14 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
     }
 }
 
+void TargetSetupPagePrivate::ensureSelectedKitIsVisible()
+{
+    if (TargetSetupWidget * const w
+        = Utils::findOrDefault(widgets, &TargetSetupWidget::isKitSelected)) {
+        scrollArea->ensureWidgetVisible(w);
+    }
+}
+
 void TargetSetupPagePrivate::updateVisibility()
 {
     const bool hasUsableKits = KitManager::kit([this](const Kit *k) { return isUsable(k); });
@@ -532,6 +541,7 @@ void TargetSetupPage::showEvent(QShowEvent *event)
 {
     WizardPage::showEvent(event);
     d->kitFilterLineEdit->setFocus(); // Ensure "Configure Project" gets triggered on <Return>
+    d->ensureSelectedKitIsVisible();
 }
 
 void TargetSetupPage::changeAllKitsSelections()
