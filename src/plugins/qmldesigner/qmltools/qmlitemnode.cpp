@@ -71,9 +71,9 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         NodeMetaInfo metaInfo = view->model()->metaInfo("QtQuick.Image");
         QList<QPair<PropertyName, QVariant> > propertyPairList;
         if (const int intX = qRound(position.x()))
-            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+            propertyPairList.emplace_back("x", intX);
         if (const int intY = qRound(position.y()))
-            propertyPairList.append({PropertyName("y"), QVariant(intY)});
+            propertyPairList.emplace_back("y", intY);
 
         QString relativeImageName = imageName;
 
@@ -81,7 +81,7 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromImage(AbstractView *view, const QS
         if (QFileInfo::exists(view->model()->fileUrl().toLocalFile())) {
             QDir fileDir(QFileInfo(view->model()->fileUrl().toLocalFile()).absolutePath());
             relativeImageName = fileDir.relativeFilePath(imageName);
-            propertyPairList.append({PropertyName("source"), QVariant(relativeImageName)});
+            propertyPairList.emplace_back("source", relativeImageName);
         }
 
 #ifdef QDS_USE_PROJECTSTORAGE
@@ -147,12 +147,12 @@ QmlItemNode QmlItemNode::createQmlItemNodeFromFont(AbstractView *view,
     auto doCreateQmlItemNodeFromFont = [=, &newQmlItemNode, &parentproperty]() {
         QList<QPair<PropertyName, QVariant>> propertyPairList;
         if (const int intX = qRound(position.x()))
-            propertyPairList.append({PropertyName("x"), QVariant(intX)});
+            propertyPairList.emplace_back("x", intX);
         if (const int intY = qRound(position.y()))
-            propertyPairList.append({PropertyName("y"), QVariant(intY)});
-        propertyPairList.append({PropertyName("font.family"), QVariant(fontFamily)});
-        propertyPairList.append({PropertyName("font.pointSize"), 20});
-        propertyPairList.append({PropertyName("text"), QVariant(fontFamily)});
+            propertyPairList.emplace_back("y", intY);
+        propertyPairList.emplace_back("font.family", fontFamily);
+        propertyPairList.emplace_back("font.pointSize", 20);
+        propertyPairList.emplace_back("text", fontFamily);
 #ifdef QDS_USE_PROJECTSTORAGE
         newQmlItemNode = QmlItemNode(view->createModelNode("Text", propertyPairList));
 #else

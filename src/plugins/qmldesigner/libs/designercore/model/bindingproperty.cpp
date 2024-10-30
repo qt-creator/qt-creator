@@ -175,7 +175,7 @@ QList<ModelNode> BindingProperty::resolveToModelNodeList() const
         const QStringList simplifiedList = commaSeparatedSimplifiedStringList(binding);
         for (const QString &nodeId : simplifiedList) {
             if (auto internalNode = privateModel()->nodeForId(nodeId))
-                returnList.append(ModelNode{internalNode, model(), view()});
+                returnList.emplace_back(internalNode, model(), view());
         }
     }
     return returnList;

@@ -169,8 +169,7 @@ ModelNode StylesheetMerger::createReplacementNode(const ModelNode& styleNode, Mo
             continue;
         if (isTextAlignmentProperty(variantProperty) && !m_options.preserveTextAlignment && !styleNode.hasProperty(variantProperty.name()))
             continue;
-        propertyList.append(QPair<PropertyName, QVariant>(variantProperty.name().toByteArray(),
-                                                          variantProperty.value()));
+        propertyList.emplace_back(variantProperty.name().toByteArray(), variantProperty.value());
     }
 
 #ifdef QDS_USE_PROJECTSTORAGE

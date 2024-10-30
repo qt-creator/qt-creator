@@ -43,8 +43,9 @@ Internal::InternalNodeListPropertyPointer &NodeListProperty::internalNodeListPro
 static QList<ModelNode> internalNodesToModelNodes(const auto &inputList, Model *model, AbstractView *view)
 {
     QList<ModelNode> modelNodeList;
+    modelNodeList.reserve(inputList.size());
     for (const Internal::InternalNode::Pointer &internalNode : inputList)
-        modelNodeList.append(ModelNode(internalNode, model, view));
+        modelNodeList.emplace_back(internalNode, model, view);
 
     return modelNodeList;
 }

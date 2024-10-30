@@ -352,13 +352,13 @@ QmlObjectNode QmlVisualNode::createQmlObjectNode(AbstractView *view,
                 if (property.type() == "binding") {
                     const QString value = QmlObjectNode::convertToCorrectTranslatableFunction(
                         property.value().toString(), view->externalDependencies().designerSettings());
-                    propertyBindingList.append(PropertyBindingEntry(property.name(), value));
+                    propertyBindingList.emplace_back(property.name(), value);
                 } else if (property.type() == "enum") {
-                    propertyEnumList.append(PropertyBindingEntry(property.name(), property.value().toString()));
+                    propertyEnumList.emplace_back(property.name(), property.value().toString());
                 } else if (property.value().toString() == QString::fromLatin1(imagePlaceHolder)) {
-                    propertyPairList.append({property.name(), imagePlaceHolderPath(view)});
+                    propertyPairList.emplace_back(property.name(), imagePlaceHolderPath(view));
                 } else {
-                    propertyPairList.append({property.name(), property.value()});
+                    propertyPairList.emplace_back(property.name(), property.value());
                 }
             }
             // Add position last so it'll override any default position specified in the entry
@@ -611,16 +611,16 @@ QList<QPair<PropertyName, QVariant> > QmlVisualNode::Position::propertyPairList(
 
     if (m_is3D) {
         if (!qFuzzyIsNull(x()))
-            propertyPairList.append({"x", QVariant{x()}});
+            propertyPairList.emplace_back("x", x());
         if (!qFuzzyIsNull(y()))
-            propertyPairList.append({"y", QVariant{y()}});
+            propertyPairList.emplace_back("y", y());
         if (!qFuzzyIsNull(z()))
-            propertyPairList.append({"z", QVariant{z()}});
+            propertyPairList.emplace_back("z", z());
     } else {
         if (const int intX = qRound(x()))
-            propertyPairList.append({"x", QVariant(intX)});
+            propertyPairList.emplace_back("x", intX);
         if (const int intY = qRound(y()))
-            propertyPairList.append({"y", QVariant(intY)});
+            propertyPairList.emplace_back("y", intY);
     }
 
     return propertyPairList;

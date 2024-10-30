@@ -1228,7 +1228,7 @@ QList<ModelNode> ModelPrivate::toModelNodeList(Utils::span<const InternalNodePoi
     QList<ModelNode> modelNodeList;
     modelNodeList.reserve(nodeList.size());
     for (const InternalNodePointer &node : nodeList)
-        modelNodeList.append(ModelNode(node, m_model, view));
+        modelNodeList.emplace_back(node, m_model, view);
 
     return modelNodeList;
 }
@@ -1342,7 +1342,7 @@ static QList<PropertyPair> toPropertyPairList(const QList<InternalProperty *> &p
     propertyPairList.reserve(propertyList.size());
 
     for (const InternalProperty *property : propertyList)
-        propertyPairList.append({property->propertyOwner(), property->name()});
+        propertyPairList.emplace_back(property->propertyOwner(), property->name());
 
     return propertyPairList;
 }
