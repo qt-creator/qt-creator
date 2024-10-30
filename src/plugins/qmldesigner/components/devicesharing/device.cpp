@@ -119,8 +119,10 @@ DeviceSettings Device::deviceSettings() const
 
 void Device::setDeviceSettings(const DeviceSettings &deviceSettings)
 {
+    QString oldIp = m_deviceSettings.ipAddress();
     m_deviceSettings = deviceSettings;
-    reconnect();
+    if (oldIp != m_deviceSettings.ipAddress())
+        reconnect();
 }
 
 bool Device::sendDesignStudioReady(const QString &uuid)
