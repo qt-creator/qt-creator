@@ -87,7 +87,6 @@ add_qtc_plugin(ProjectExplorer
     headerpath.h
     importwidget.cpp importwidget.h
     ioutputparser.cpp ioutputparser.h
-    ipotentialkit.h
     itaskhandler.h
     jsonwizard/jsonfieldpage.cpp jsonwizard/jsonfieldpage.h jsonwizard/jsonfieldpage_p.h
     jsonwizard/jsonfilepage.cpp jsonwizard/jsonfilepage.h
