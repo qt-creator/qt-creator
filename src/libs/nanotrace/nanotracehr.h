@@ -87,6 +87,24 @@ struct IsDictonary
 
 inline constexpr IsDictonary isDictonary;
 
+template<std::size_t size, typename Tuple>
+concept HasTupleSize = requires { std::tuple_size_v<Tuple> == size; };
+
+template<typename Entry>
+concept CanConvert = requires(Entry entry, StaticString<1000> string) {
+    convertToString(string, entry);
+};
+
+namespace Internal {
+template<typename Type>
+concept KeyValueBase = CanConvert<std::tuple_element_t<0, Type>>
+                       && CanConvert<std::tuple_element_t<1, Type>> && HasTupleSize<2, Type>;
+}
+
+template<typename Type>
+concept KeyValue = Internal::KeyValueBase<Type>
+                   && !Internal::KeyValueBase<std::tuple_element_t<1, Type>>;
+
 template<typename String>
 void convertToString(String &string, std::string_view text)
 {
@@ -215,7 +233,7 @@ void convertDictonaryToString(String &string, const IsDictonary &, Entries &...e
     string.append('}');
 }
 
-template<typename String, typename... Arguments>
+template<typename String, KeyValue... Arguments>
 void convertToString(String &string, const std::tuple<IsDictonary, Arguments...> &dictonary)
 {
     std::apply([&](auto &&...entries) { convertDictonaryToString(string, entries...); }, dictonary);
@@ -348,7 +366,7 @@ auto keyValue(const Key &key, Value &&value)
         return std::tuple<const Key &, std::decay_t<Value>>(key, value);
 }
 
-template<typename... Entries>
+template<KeyValue... Entries>
 auto dictonary(Entries &&...entries)
 {
     return std::make_tuple(isDictonary, std::forward<Entries>(entries)...);
@@ -356,6 +374,7 @@ auto dictonary(Entries &&...entries)
 
 template<typename... Entries>
 auto array(Entries &&...entries)
+    requires(!KeyValue<Entries> && ...)
 {
     return std::make_tuple(isArray, std::forward<Entries>(entries)...);
 }
@@ -656,35 +675,26 @@ public:
 
     ~Token() {}
 
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
-        ArgumentType, Arguments &&...)
+        ArgumentType, KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
+    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
 
-    template<typename... Arguments>
     [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType,
-                                                                             Arguments &&...)
+                                                                             KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    void tick(ArgumentType, Arguments &&...)
-    {}
+    void tick(ArgumentType, KeyValue auto &&...) {}
 };
 
 template<typename Category>
@@ -715,7 +725,7 @@ public:
 
     ~Token() {}
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
     {
         if (m_id)
@@ -724,7 +734,7 @@ public:
         return {std::move(name), m_id, m_category};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowTokenType> beginAsynchronousWithFlow(
         ArgumentType name, Arguments &&...arguments)
     {
@@ -741,13 +751,13 @@ public:
                 std::forward_as_tuple(std::move(name), bindId, m_category)};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
     {
         return {traceName, m_category, std::forward<Arguments>(arguments)...};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] std::pair<TracerType, FlowTokenType> beginDurationWithFlow(ArgumentType traceName,
                                                                              Arguments &&...arguments)
     {
@@ -763,7 +773,7 @@ public:
                 std::forward_as_tuple(PrivateTag{}, traceName, bindId, m_category)};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void tick(ArgumentType name, Arguments &&...arguments)
     {
         m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
@@ -804,42 +814,26 @@ public:
 
     [[nodiscard]] TokenType createToken() { return {}; }
 
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousToken begin(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousToken begin(ArgumentType, KeyValue auto &&...) { return {}; }
+
+    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousToken begin(const FlowTokenType &, ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
-
-    template<typename... Arguments>
     [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType,
-                                                                            Arguments &&...)
+                                                                            KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    void tick(ArgumentType, Arguments &&...)
-    {}
+    void tick(ArgumentType, KeyValue auto &&...) {}
 
-    template<typename... Arguments>
-    void tick(const FlowTokenType &, ArgumentType, Arguments &&...)
-    {}
+    void tick(const FlowTokenType &, ArgumentType, KeyValue auto &&...) {}
 
-    template<typename... Arguments>
-    FlowTokenType tickWithFlow(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
+    FlowTokenType tickWithFlow(ArgumentType, KeyValue auto &&...) { return {}; }
 
-    template<typename... Arguments>
-    void end(Arguments &&...)
-    {}
+    void end(KeyValue auto &&...) {}
 
     static constexpr bool categoryIsActive() { return Category::isActive(); }
 };
@@ -903,7 +897,7 @@ public:
 
     [[nodiscard]] TokenType createToken() { return {m_id, m_category}; }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] AsynchronousToken begin(ArgumentType name, Arguments &&...arguments)
     {
         if (m_id)
@@ -912,7 +906,7 @@ public:
         return AsynchronousToken{std::move(name), m_id, m_category};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] AsynchronousToken begin(const FlowTokenType &flowToken,
                                           ArgumentType name,
                                           Arguments &&...arguments)
@@ -928,7 +922,7 @@ public:
         return AsynchronousToken{std::move(name), m_id, m_category};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] std::pair<AsynchronousToken, FlowTokenType> beginWithFlow(ArgumentType name,
                                                                             Arguments &&...arguments)
     {
@@ -945,7 +939,7 @@ public:
                 std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void tick(ArgumentType name, Arguments &&...arguments)
     {
         if (m_id) {
@@ -954,7 +948,7 @@ public:
         }
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void tick(const FlowTokenType &flowToken, ArgumentType name, Arguments &&...arguments)
     {
         if (m_id) {
@@ -967,7 +961,7 @@ public:
         }
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     FlowTokenType tickWithFlow(ArgumentType name, Arguments &&...arguments)
     {
         std::size_t bindId = 0;
@@ -981,7 +975,7 @@ public:
         return {PrivateTag{}, std::move(name), bindId, m_category};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void end(Arguments &&...arguments)
     {
         if (m_id && m_name.size())
@@ -1020,38 +1014,28 @@ public:
 
     ~FlowToken() {}
 
-    template<typename... Arguments>
-    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, Arguments &&...)
+    [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType, KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(ArgumentType,
-                                                                                        Arguments &&...)
+    [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
+        ArgumentType, KeyValue auto &&...)
     {
         return {};
     }
 
-    template<typename... Arguments>
-    void connectTo(const AsynchronousTokenType &, Arguments &&...)
-    {}
+    void connectTo(const AsynchronousTokenType &, KeyValue auto &&...) {}
 
-    template<typename... Arguments>
-    [[nodiscard]] TracerType beginDuration(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
+    [[nodiscard]] TracerType beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
 
-    template<typename... Arguments>
-    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType, Arguments &&...)
+    [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType,
+                                                                         KeyValue auto &&...)
     {
         return std::pair<TracerType, FlowToken>();
     }
 
-    template<typename... Arguments>
-    void tick(ArgumentType, Arguments &&...)
-    {}
+    void tick(ArgumentType, KeyValue auto &&...) {}
 };
 
 template<typename Category>
@@ -1087,7 +1071,7 @@ public:
 
     ~FlowToken() {}
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] AsynchronousTokenType beginAsynchronous(ArgumentType name, Arguments &&...arguments)
     {
         std::size_t id = 0;
@@ -1101,7 +1085,7 @@ public:
         return {std::move(name), id, m_category};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] std::pair<AsynchronousTokenType, FlowToken> beginAsynchronousWithFlow(
         ArgumentType name, Arguments &&...arguments)
     {
@@ -1120,7 +1104,7 @@ public:
                 std::forward_as_tuple(PrivateTag{}, std::move(name), bindId, m_category)};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void connectTo(const AsynchronousTokenType &token, Arguments &&...arguments)
     {
         if (m_bindId && token.m_id) {
@@ -1133,13 +1117,13 @@ public:
         }
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] TracerType beginDuration(ArgumentType traceName, Arguments &&...arguments)
     {
         return {m_bindId, IsFlow::In, traceName, m_category, std::forward<Arguments>(arguments)...};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] std::pair<TracerType, FlowToken> beginDurationWithFlow(ArgumentType traceName,
                                                                          Arguments &&...arguments)
     {
@@ -1153,7 +1137,7 @@ public:
                 std::forward_as_tuple(PrivateTag{}, traceName, m_bindId, m_category)};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void tick(ArgumentType name, Arguments &&...arguments)
     {
         m_category().tick('i', 0, name, m_bindId, IsFlow::In, std::forward<Arguments>(arguments)...);
@@ -1432,9 +1416,7 @@ public:
     friend FlowTokenType;
     friend Category;
 
-    template<typename... Arguments>
-    [[nodiscard]] Tracer(ArgumentType, Category &, Arguments &&...)
-    {}
+    [[nodiscard]] Tracer(ArgumentType, Category &, KeyValue auto &&...) {}
 
     Tracer(const Tracer &) = delete;
     Tracer &operator=(const Tracer &) = delete;
@@ -1443,19 +1425,11 @@ public:
 
     TokenType createToken() { return {}; }
 
-    template<typename... Arguments>
-    Tracer beginDuration(ArgumentType, Arguments &&...)
-    {
-        return {};
-    }
+    Tracer beginDuration(ArgumentType, KeyValue auto &&...) { return {}; }
 
-    template<typename... Arguments>
-    void tick(ArgumentType, Arguments &&...)
-    {}
+    void tick(ArgumentType, KeyValue auto &&...) {}
 
-    template<typename... Arguments>
-    void end(Arguments &&...)
-    {}
+    void end(KeyValue auto &&...) {}
 
     ~Tracer() {}
 };
@@ -1475,7 +1449,7 @@ class Tracer<Category, std::true_type>
     friend TokenType;
     friend Category;
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] Tracer(std::size_t bindId,
                          IsFlow flow,
                          ArgumentType name,
@@ -1491,7 +1465,7 @@ class Tracer<Category, std::true_type>
     }
 
 public:
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] Tracer(PrivateTag,
                          std::size_t bindId,
                          IsFlow flow,
@@ -1501,7 +1475,7 @@ public:
         : Tracer{bindId, flow, std::move(name), category, std::forward<Arguments>(arguments)...}
     {}
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] Tracer(ArgumentType name, CategoryFunctionPointer category, Arguments &&...arguments)
         : m_name{name}
         , m_category{category}
@@ -1510,7 +1484,7 @@ public:
             sendBeginTrace(std::forward<Arguments>(arguments)...);
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     [[nodiscard]] Tracer(ArgumentType name, Category &category, Arguments &&...arguments)
         : Tracer(std::move(name), category.self(), std::forward<Arguments>(arguments)...)
     {}
@@ -1524,19 +1498,19 @@ public:
 
     ~Tracer() { sendEndTrace(); }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     Tracer beginDuration(ArgumentType name, Arguments &&...arguments)
     {
         return {std::move(name), m_category, std::forward<Arguments>(arguments)...};
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void tick(ArgumentType name, Arguments &&...arguments)
     {
         m_category().begin('i', 0, name, 0, IsFlow::No, std::forward<Arguments>(arguments)...);
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void end(Arguments &&...arguments)
     {
         sendEndTrace(std::forward<Arguments>(arguments)...);
@@ -1544,7 +1518,7 @@ public:
     }
 
 private:
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void sendBeginTrace(Arguments &&...arguments)
     {
         auto &category = m_category();
@@ -1561,7 +1535,7 @@ private:
         }
     }
 
-    template<typename... Arguments>
+    template<KeyValue... Arguments>
     void sendEndTrace(Arguments &&...arguments)
     {
         if (m_name.size()) {
@@ -1588,8 +1562,9 @@ private:
     CategoryFunctionPointer m_category;
 };
 
-template<typename Category, typename... Arguments>
-Tracer(typename Category::ArgumentType name, Category &category, Arguments &&...)
-    -> Tracer<Category, typename Category::IsActive>;
+template<typename Category, KeyValue... Arguments>
+Tracer(typename Category::ArgumentType name,
+       Category &category,
+       Arguments &&...) -> Tracer<Category, typename Category::IsActive>;
 
 } // namespace NanotraceHR
