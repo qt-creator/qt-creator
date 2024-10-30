@@ -26,10 +26,10 @@ public:
     void setDeviceSettings(const DeviceSettings &deviceSettings);
 
     // device communication
-    void sendDesignStudioReady(const QString &uuid);
-    void sendProjectNotification();
-    void sendProjectData(const QByteArray &data);
-    void sendProjectStopped();
+    bool sendDesignStudioReady(const QString &uuid);
+    bool sendProjectNotification();
+    bool sendProjectData(const QByteArray &data);
+    bool sendProjectStopped();
 
     // socket
     bool isConnected() const;
@@ -50,8 +50,8 @@ private:
     QTimer m_pongTimer;
 
     void initPingPong();
-    void sendTextMessage(const QLatin1String &dataType, const QJsonValue &data = QJsonValue());
-    void sendBinaryMessage(const QByteArray &data);
+    bool sendTextMessage(const QLatin1String &dataType, const QJsonValue &data = QJsonValue());
+    bool sendBinaryMessage(const QByteArray &data);
 
 signals:
     void connected(const QString &deviceId);

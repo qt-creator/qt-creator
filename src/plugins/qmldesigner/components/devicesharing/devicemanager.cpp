@@ -290,35 +290,35 @@ void DeviceManager::removeDeviceAt(int index)
     emit deviceRemoved(deviceInfo);
 }
 
-void DeviceManager::sendProjectFile(const QString &deviceId, const QString &projectFile)
+bool DeviceManager::sendProjectFile(const QString &deviceId, const QString &projectFile)
 {
     auto device = findDevice(deviceId);
     if (!device)
-        return;
+        return false;
 
     device->sendProjectNotification();
 
     QFile file(projectFile);
     if (!file.open(QIODevice::ReadOnly)) {
         qCWarning(deviceSharePluginLog) << "Failed to open project file" << projectFile;
-        return;
+        return false;
     }
 
     qCDebug(deviceSharePluginLog) << "Sending project file to device" << deviceId;
 
     QByteArray projectData = file.readAll();
-    device->sendProjectData(projectData);
+    return device->sendProjectData(projectData);
 
     qCDebug(deviceSharePluginLog) << "Project file sent to device" << deviceId;
 }
 
-void DeviceManager::stopRunningProject(const QString &deviceId)
+bool DeviceManager::stopRunningProject(const QString &deviceId)
 {
     auto device = findDevice(deviceId);
     if (!device)
-        return;
+        return false;
 
-    device->sendProjectStopped();
+    return device->sendProjectStopped();
 }
 
 } // namespace QmlDesigner::DeviceShare

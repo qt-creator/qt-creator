@@ -18,8 +18,8 @@ public:
     Q_ENUM(DeviceStatus)
 
     enum DeviceColumns {
-        Active,
         Status,
+        Active,
         Alias,
         IPv4Addr,
         OS,

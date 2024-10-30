@@ -123,23 +123,24 @@ void Device::setDeviceSettings(const DeviceSettings &deviceSettings)
     reconnect();
 }
 
-void Device::sendDesignStudioReady(const QString &uuid) {
-    sendTextMessage(PackageToDevice::designStudioReady, uuid);
+bool Device::sendDesignStudioReady(const QString &uuid)
+{
+    return sendTextMessage(PackageToDevice::designStudioReady, uuid);
 }
 
-void Device::sendProjectNotification()
+bool Device::sendProjectNotification()
 {
-    sendTextMessage(PackageToDevice::projectData);
+    return sendTextMessage(PackageToDevice::projectData);
 }
 
-void Device::sendProjectData(const QByteArray &data)
+bool Device::sendProjectData(const QByteArray &data)
 {
-    sendBinaryMessage(data);
+    return sendBinaryMessage(data);
 }
 
-void Device::sendProjectStopped()
+bool Device::sendProjectStopped()
 {
-    sendTextMessage(PackageToDevice::stopRunningProject);
+    return sendTextMessage(PackageToDevice::stopRunningProject);
 }
 
 bool Device::isConnected() const
@@ -147,10 +148,10 @@ bool Device::isConnected() const
     return m_socket ? m_socket->state() == QAbstractSocket::ConnectedState : false;
 }
 
-void Device::sendTextMessage(const QLatin1String &dataType, const QJsonValue &data)
+bool Device::sendTextMessage(const QLatin1String &dataType, const QJsonValue &data)
 {
     if (!isConnected())
-        return;
+        return false;
 
     QJsonObject message;
     message["dataType"] = dataType;
@@ -158,14 +159,17 @@ void Device::sendTextMessage(const QLatin1String &dataType, const QJsonValue &da
     const QString jsonMessage = QString::fromLatin1(
         QJsonDocument(message).toJson(QJsonDocument::Compact));
     m_socket->sendTextMessage(jsonMessage);
+
+    return true;
 }
 
-void Device::sendBinaryMessage(const QByteArray &data)
+bool Device::sendBinaryMessage(const QByteArray &data)
 {
     if (!isConnected())
-        return;
+        return false;
 
     m_socket->sendBinaryMessage(data);
+    return true;
 }
 
 void Device::processTextMessage(const QString &data)

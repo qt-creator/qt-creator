@@ -30,8 +30,8 @@ public:
 
     void removeDevice(const QString &deviceId);
     void removeDeviceAt(int index);
-    void sendProjectFile(const QString &deviceId, const QString &projectFile);
-    void stopRunningProject(const QString &deviceId);
+    bool sendProjectFile(const QString &deviceId, const QString &projectFile);
+    bool stopRunningProject(const QString &deviceId);
 
 private:
     // Devices management
