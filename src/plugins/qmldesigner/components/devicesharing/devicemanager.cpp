@@ -178,6 +178,11 @@ void DeviceManager::setDeviceActive(const QString &deviceId, const bool active)
     deviceSettings.setActive(active);
     device->setDeviceSettings(deviceSettings);
     writeSettings();
+
+    if (active)
+        emit deviceActivated(device->deviceInfo());
+    else
+        emit deviceDeactivated(device->deviceInfo());
 }
 
 void DeviceManager::setDeviceIP(const QString &deviceId, const QString &ip)

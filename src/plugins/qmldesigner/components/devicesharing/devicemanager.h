@@ -63,6 +63,8 @@ signals:
     void deviceRemoved(const DeviceInfo &deviceInfo);
     void deviceOnline(const DeviceInfo &deviceInfo);
     void deviceOffline(const DeviceInfo &deviceInfo);
+    void deviceActivated(const DeviceInfo &deviceInfo);
+    void deviceDeactivated(const DeviceInfo &deviceInfo);
     void projectStarted(const DeviceInfo &deviceInfo);
     void projectStopped(const DeviceInfo &deviceInfo);
     void projectLogsReceived(const DeviceInfo &deviceInfo, const QString &logs);
