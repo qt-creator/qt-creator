@@ -434,11 +434,15 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
                 cursor.setPosition(fragment.position());
                 cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
                 if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-                    // We don't use font size adjustment for headings
-                    charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
+                    // Change font size adjustment to resemble the heading font size
+                    // (We want the font size to be relative to the default font size,
+                    // otherwise the heading size won't respect the font scale factor)
+                    charFormat.setProperty(
+                        QTextFormat::FontSizeAdjustment,
+                        headingFont.pointSizeF() / document()->defaultFont().pointSizeF());
+
                     charFormat.setFontCapitalization(headingFont.capitalization());
                     charFormat.setFontFamilies(headingFont.families());
-                    charFormat.setFontPointSize(headingFont.pointSizeF());
                     charFormat.setFontWeight(headingFont.weight());
                     charFormat.setForeground(color(headingTf));
                 } else if (charFormat.isAnchor()) {
