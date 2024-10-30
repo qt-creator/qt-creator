@@ -166,7 +166,7 @@ public:
                          this, toggleTargetWidgetVisibility);
 
         QObject::connect(kitFilterLineEdit, &FancyLineEdit::filterChanged,
-                         this, &TargetSetupPagePrivate::kitFilterChanged);
+                         this, toggleTargetWidgetVisibility);
 
         for (IPotentialKit *pk : std::as_const(g_potentialKits)) {
             if (pk->isEnabled())
@@ -227,7 +227,6 @@ public:
     }
 
     void setUseScrollArea(bool b);
-    void kitFilterChanged(const QString &filterText);
 
     TargetSetupPage *q;
     QWidget *m_centralWidget;
@@ -572,14 +571,6 @@ void TargetSetupPagePrivate::kitSelectionChanged()
         allKitsCheckBox->setCheckState(Qt::Unchecked);
 }
 
-void TargetSetupPagePrivate::kitFilterChanged(const QString &filterText)
-{
-    for (TargetSetupWidget *widget : m_widgets) {
-        Kit *kit = widget->kit();
-        widget->setVisible(filterText.isEmpty() || kit->displayName().contains(filterText, Qt::CaseInsensitive));
-    }
-}
-
 void TargetSetupPagePrivate::doInitializePage()
 {
     reset();
@@ -680,7 +671,13 @@ void TargetSetupPagePrivate::connectWidget(TargetSetupWidget *w)
 
 void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
 {
-    const bool shouldBeVisible = w->isValid() || !hideUnsuitableKitsCheckBox->isChecked();
+    const bool shouldBeVisible = [w, this] {
+        if (!w->isValid() && hideUnsuitableKitsCheckBox->isChecked())
+            return false;
+        const QString filterText = kitFilterLineEdit->text();
+        return filterText.isEmpty()
+               || w->kit()->displayName().contains(filterText, Qt::CaseInsensitive);
+    }();
     if (shouldBeVisible) {
         if (!w->isVisible()) // Prevent flickering.
             w->show();
