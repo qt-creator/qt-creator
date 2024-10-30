@@ -566,6 +566,8 @@ void QMakeStep::abisChanged()
                     archs << "x86_64";
                 else if (abi.architecture() == Abi::ArmArchitecture)
                     archs << "arm64";
+                else if (abi.architecture() == Abi::LoongArchArchitecture)
+                    archs << "loongarch64";
             }
             if (!archs.isEmpty())
                 args << prefix + '"' + archs.join(' ') + '"';

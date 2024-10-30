@@ -145,6 +145,8 @@ static Abi::Architecture architectureFromQt()
         return Abi::AvrArchitecture;
     if (arch.startsWith("asmjs"))
         return Abi::AsmJsArchitecture;
+    if (arch.startsWith("loongarch"))
+        return Abi::LoongArchArchitecture;
 
     return Abi::UnknownArchitecture;
 }
@@ -376,6 +378,9 @@ static Abis abiOf(const QByteArray &data)
             break;
         case 50: // EM_IA_64
             result.append(Abi(Abi::ItaniumArchitecture, os, flavor, Abi::ElfFormat, 64));
+            break;
+        case 258: // EM_LOONGARCH
+            result.append(Abi(Abi::LoongArchArchitecture, os, flavor, Abi::ElfFormat, 64));
             break;
         default:
             ;
@@ -639,6 +644,9 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
             os = BareMetalOS;
             flavor = GenericFlavor;
             format = ElfFormat;
+        } else if (p == "loongarch64") {
+            arch = LoongArchArchitecture;
+            width = 64;
         }
     }
 
@@ -812,6 +820,8 @@ QString Abi::toString(const Architecture &a)
         return QLatin1String("cr16");
     case RiscVArchitecture:
         return QLatin1String("riscv");
+    case LoongArchArchitecture:
+        return QLatin1String("loongarch");
     case UnknownArchitecture:
         Q_FALLTHROUGH();
     default:
@@ -990,6 +1000,8 @@ Abi::Architecture Abi::architectureFromString(const QString &a)
         return XtensaArchitecture;
     if (a == "asmjs")
         return AsmJsArchitecture;
+    if (a == "loongarch")
+        return LoongArchArchitecture;
 
     return UnknownArchitecture;
 }
@@ -1550,6 +1562,10 @@ void ProjectExplorerTest::testAbiFromTargetTriplet_data()
     QTest::newRow("asmjs-unknown-emscripten") << int(Abi::AsmJsArchitecture)
                                               << int(Abi::UnknownOS) << int(Abi::UnknownFlavor)
                                               << int(Abi::EmscriptenFormat) << 32;
+
+    QTest::newRow("loongarch64-linux-gnuabi") << int(Abi::LoongArchArchitecture)
+                                    << int(Abi::LinuxOS) << int(Abi::GenericFlavor)
+                                    << int(Abi::ElfFormat) << 64;
 }
 
 void ProjectExplorerTest::testAbiFromTargetTriplet()

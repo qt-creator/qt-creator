@@ -153,6 +153,10 @@ static QString architecture(const ProjectExplorer::Abi &targetAbi)
                 else
                     architecture += "v7a";
                 return architecture;
+            case ProjectExplorer::Abi::LoongArchArchitecture:
+                if (targetAbi.wordWidth() == 64)
+                    architecture += "_64";
+                return architecture;
             default:
                 break;
             }
@@ -167,6 +171,7 @@ static QString architecture(const ProjectExplorer::Abi &targetAbi)
             case ProjectExplorer::Abi::ArmArchitecture:
                 // ARM sub-architectures are currently not handled, which is kind of problematic
             case ProjectExplorer::Abi::MipsArchitecture:
+            case ProjectExplorer::Abi::LoongArchArchitecture:
             case ProjectExplorer::Abi::PowerPCArchitecture:
                 architecture.append(QString::number(targetAbi.wordWidth()));
                 break;

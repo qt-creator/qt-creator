@@ -54,6 +54,7 @@ public:
         R32CArchitecture,
         CR16Architecture,
         RiscVArchitecture,
+        LoongArchArchitecture,
         UnknownArchitecture
     };
 
