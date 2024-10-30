@@ -448,7 +448,35 @@ def qdump__std__map__iterator(d, value):
 
 
 def qdump____gnu_debug___Safe_iterator(d, value):
-    d.putItem(value["_M_current"])
+    node = value["_M_node"].dereference()
+    d.putExpandable()
+    d.putEmptyValue()
+    if d.isExpanded():
+        with Children(d):
+            real_iterator_type = value.type[0] # std::_Rb_tree_iterator<T> or std::_Rb_tree_iterator<std::pair<K, V>>
+            inner_type = real_iterator_type[0] # T or std::pair<K, V>
+            is_map = inner_type.name.startswith('std::pair')
+            if is_map:
+                key_type = inner_type[0]
+                value_type = inner_type[1]
+                typecode = f'pppp@{{{key_type.name}}}@{{{value_type.name}}}'
+                (color, parent, left, right, pad1, key, pad2, value) = d.split(typecode, node)
+                d.putSubItem("first", key)
+                d.putSubItem("second", value)
+            else:
+                typecode = f'pppp@{{{inner_type.name}}}'
+                (color, parent, left, right, pad1, key) = d.split(typecode, node)
+                d.putSubItem("value", key)
+            with SubItem(d, "[node]"):
+                d.putExpandable()
+                d.putEmptyValue()
+                d.putType(" ")
+                if d.isExpanded():
+                    with Children(d):
+                        nodeType = node.type.pointer()
+                        d.putSubItem("left", d.createValue(left, nodeType))
+                        d.putSubItem("right", d.createValue(right, nodeType))
+                        d.putSubItem("parent", d.createValue(parent, nodeType))
 
 
 def qdump__std__map__const_iterator(d, value):
