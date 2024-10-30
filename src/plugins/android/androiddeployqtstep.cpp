@@ -362,10 +362,8 @@ GroupItem AndroidDeployQtStep::runRecipe()
 {
     const Storage<QString> serialNumberStorage;
 
-    const auto onSerialNumberGroupSetup = [this] {
-        return m_avdName.isEmpty() ? SetupResult::StopWithSuccess : SetupResult::Continue;
-    };
-    const auto onSerialNumberSync = [this, serialNumberStorage] {
+    const auto isAvdNameEmpty = [this] { return m_avdName.isEmpty(); };
+    const auto onSerialNumberDone = [this, serialNumberStorage] {
         const QString serialNumber = *serialNumberStorage;
         if (serialNumber.isEmpty()) {
             reportWarningOrError(Tr::tr("The deployment AVD \"%1\" cannot be started.")
@@ -411,11 +409,10 @@ GroupItem AndroidDeployQtStep::runRecipe()
     };
 
     return Group {
-        Group {
+        If (!Sync(isAvdNameEmpty)) >> Then {
             serialNumberStorage,
-            onGroupSetup(onSerialNumberGroupSetup),
             AndroidAvdManager::startAvdRecipe(m_avdName, serialNumberStorage),
-            Sync(onSerialNumberSync)
+            onGroupDone(onSerialNumberDone)
         },
         deployRecipe(),
         For (iterator) >> Do {
