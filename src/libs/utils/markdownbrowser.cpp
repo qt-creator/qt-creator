@@ -42,6 +42,8 @@ static constexpr std::array<TextFormat, 6> markdownHeadingFormats{
     TextFormat{contentTF.first, UiElement::UiElementH6Capital},
 };
 
+static constexpr int MinimumSizeBlocks = 5;
+
 static QFont font(TextFormat format, bool underlined = false)
 {
     QFont result = Utils::StyleHelper::uiFont(format.second);
@@ -371,6 +373,24 @@ MarkdownBrowser::MarkdownBrowser(QWidget *parent)
     : QTextBrowser(parent)
 {
     setDocument(new AnimatedDocument(this));
+}
+
+QSize MarkdownBrowser::sizeHint() const
+{
+    return document()->size().toSize();
+}
+QSize MarkdownBrowser::minimumSizeHint() const
+{
+    //Lets use the size of the first few blocks as minimum size hint
+    QTextBlock block = document()->begin();
+    QRectF boundingRect;
+    for (int i = 0; i < MinimumSizeBlocks && block.isValid(); ++i, block = block.next()) {
+        QTextLayout *layout = block.layout();
+        QRectF blockRect = layout->boundingRect();
+        boundingRect.adjust(0, 0, 0, blockRect.height());
+        boundingRect.setWidth(qMax(boundingRect.width(), blockRect.width()));
+    }
+    return boundingRect.size().toSize() + QTextBrowser::minimumSizeHint();
 }
 
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
