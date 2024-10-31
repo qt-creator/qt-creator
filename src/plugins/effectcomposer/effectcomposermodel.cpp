@@ -1281,6 +1281,9 @@ void EffectComposerModel::openComposition(const QString &path)
                 code += lineValue.toString() + '\n';
         }
 
+        if (!code.isEmpty())
+            code.chop(1);
+
         return code;
     };
 
