@@ -34,7 +34,7 @@ public:
     void cancel();
 
     // business logic -> GUI
-    void setStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void setStarted(const Utils::Port &debugServerPort, qint64 pid);
     void setFinished(const QString &errorMessage) { emit finished(errorMessage); }
     void addStdOut(const QString &data) { emit stdOut(data); }
     void addStdErr(const QString &data) { emit stdErr(data); }
@@ -44,7 +44,7 @@ signals:
     void canceled();
 
     // business logic -> GUI
-    void started(const Utils::Port &debugServerPort, const QUrl &qmlServer, qint64 pid);
+    void started(const Utils::Port &debugServerPort, qint64 pid);
     void finished(const QString &errorMessage);
     void stdOut(const QString &data);
     void stdErr(const QString &data);

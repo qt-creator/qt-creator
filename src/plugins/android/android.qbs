@@ -48,8 +48,6 @@ QtcPlugin {
         "androidpackageinstallationstep.cpp",
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",
-        "androidpotentialkit.cpp",
-        "androidpotentialkit.h",
         "androidqmltoolingsupport.cpp",
         "androidqmltoolingsupport.h",
         "androidqtversion.cpp",

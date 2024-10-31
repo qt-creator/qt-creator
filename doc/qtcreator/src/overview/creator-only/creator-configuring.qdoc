@@ -24,7 +24,7 @@
 
     To make \QC behave more like your favorite code editor or IDE, change the
     preferences for generic highlighting, code snippets, and version control
-    systems. Manage plugins to turn on and off \QC features.
+    systems. Manage plugins and extensions to turn on and off \QC features.
 
     To make \QC more accessible, use keyboard navigation or adjust colors and
     zoom levels.
@@ -95,7 +95,7 @@
     For more information about the supported functions, see
     \l{Version Control Systems}.
 
-    \section1 Managing Plugins
+    \section1 Managing Plugins and Extensions
 
     \QC comes with a set of plugins, some of which are disabled by default.
     You can \l{Enable and disable plugins}{enable} disabled plugins if you
@@ -110,6 +110,8 @@
 
     To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
     select \uicontrol {Install Plugins}.
+
+    You can also install and load extensions in the \uicontrol Extensions mode.
 
     \section1 Accessibility
 

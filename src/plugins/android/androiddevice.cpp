@@ -26,6 +26,7 @@
 
 #include <utils/fileutils.h>
 #include <utils/guard.h>
+#include <utils/port.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/url.h>
@@ -622,6 +623,21 @@ IDeviceWidget *AndroidDevice::createWidget()
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
+}
+
+PortsGatheringMethod AndroidDevice::portsGatheringMethod() const
+{
+    return {
+        // Triggered for QmlProfiler
+        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
+            Q_UNUSED(protocol);
+            return {AndroidConfig::adbToolPath(), {
+                        AndroidDeviceInfo::adbSelector(serialNumber()),
+                        "shell" , "netstat", "-a", "-n"
+                   }};
+        },
+        &Port::parseFromCommandOutput
+    };
 }
 
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const

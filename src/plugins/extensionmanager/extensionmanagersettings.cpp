@@ -12,6 +12,9 @@
 #include <coreplugin/plugininstallwizard.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/stylehelper.h>
+
+#include <QGuiApplication>
 
 namespace ExtensionManager::Internal {
 
@@ -39,6 +42,19 @@ ExtensionManagerSettings::ExtensionManagerSettings()
         using namespace Layouting;
         return Column {
             Group {
+                title(Tr::tr("Note")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("%1 does not check extensions from external vendors for security "
+                                    "flaws or malicious intent, so be careful when installing them, "
+                                    "as it might leave your computer vulnerable to attacks such as "
+                                    "hacking, malware, and phishing.")
+                             .arg(QGuiApplication::applicationDisplayName()))
+                    }
+                }
+            },
+            Group {
                 title(Tr::tr("Use External Repository")),
                 groupChecker(useExternalRepo.groupChecker()),
                 Form {
@@ -56,7 +72,8 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                 },
                 st,
             },
-            st
+            st,
+            spacing(Utils::StyleHelper::SpacingTokens::ExVPaddingGapXl),
         };
     });
 

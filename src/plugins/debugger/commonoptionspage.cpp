@@ -142,31 +142,48 @@ CommonSettings::CommonSettings()
     setLayouter([this] {
         using namespace Layouting;
 
-        Column col1 {
-            useAlternatingRowColors,
-            useAnnotationsInMainEditor,
-            useToolTipsInMainEditor,
-            closeSourceBuffersOnExit,
-            closeMemoryBuffersOnExit,
-            raiseOnInterrupt,
-            breakpointsFullPathByDefault,
-            warnOnReleaseBuilds,
-            Row { maximalStackDepth, st }
+        Group behavior {
+            title(Tr::tr("Behavior")),
+            Column {
+                registerForPostMortem,
+                raiseOnInterrupt,
+                warnOnReleaseBuilds,
+                breakpointsFullPathByDefault,
+                forceLoggingToConsole,
+                Row { maximalStackDepth, st },
+                st
+            }
         };
 
-        Column col2 {
-            fontSizeFollowsEditor,
-            switchModeOnExit,
-            showQmlObjectTree,
-            stationaryEditorWhileStepping,
-            showUnsupportedBreakpointWarning,
-            forceLoggingToConsole,
-            registerForPostMortem,
-            st
+        Group userInterface {
+            title(Tr::tr("User Interface")),
+            Column {
+                useAnnotationsInMainEditor,
+                useToolTipsInMainEditor,
+                useAlternatingRowColors,
+                fontSizeFollowsEditor,
+                stationaryEditorWhileStepping,
+                showQmlObjectTree,
+                showUnsupportedBreakpointWarning,
+            }
+        };
+
+        Group afterLife {
+            title(Tr::tr("When Debugging Stops")),
+            Column {
+                closeSourceBuffersOnExit,
+                closeMemoryBuffersOnExit,
+                switchModeOnExit,
+            }
         };
 
         return Column {
-            Group { title(Tr::tr("Behavior")), Row { col1, col2, st } },
+            Grid {
+                Column { behavior, afterLife },
+                Column { userInterface, st },
+                columnStretch(0, 1),
+                columnStretch(1, 1)
+            },
             sourcePathMap,
             st
         };

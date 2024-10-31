@@ -253,6 +253,8 @@ public:
     void requestQmlChannel();
     bool usesQmlChannel() const;
     QUrl qmlChannel() const;
+    // FIXME: Don't use. Convert existing users to portsgatherer.
+    void setQmlChannel(const QUrl &channel);
 
     void requestPerfChannel();
     bool usesPerfChannel() const;

@@ -9,8 +9,6 @@
 
 #include <QFont>
 
-#include <memory>
-
 /*!
     \namespace Core::MessageManager
     \inheaderfile coreplugin/messagemanager.h
@@ -23,7 +21,7 @@
 
 namespace Core::MessageManager {
 
-static std::unique_ptr<Internal::MessageOutputWindow> s_messageOutputWindow;
+static Internal::MessageOutputWindow *s_messageOutputWindow = nullptr;
 
 enum class Flag { Silent, Flash, Disrupt };
 
@@ -52,7 +50,7 @@ static void doWrite(const QString &text, Flag flags)
 static void writeImpl(const QString &text, Flag flags)
 {
     QTC_ASSERT(s_messageOutputWindow, return);
-    QMetaObject::invokeMethod(s_messageOutputWindow.get(), [text, flags] { doWrite(text, flags); });
+    QMetaObject::invokeMethod(s_messageOutputWindow, [text, flags] { doWrite(text, flags); });
 }
 
 /*!
@@ -60,7 +58,7 @@ static void writeImpl(const QString &text, Flag flags)
 */
 void init()
 {
-    s_messageOutputWindow.reset(new Internal::MessageOutputWindow);
+    s_messageOutputWindow = new Internal::MessageOutputWindow;
 }
 
 /*!
@@ -68,7 +66,8 @@ void init()
 */
 void destroy()
 {
-    s_messageOutputWindow.reset();
+    delete s_messageOutputWindow;
+    s_messageOutputWindow = nullptr;
 }
 
 /*!

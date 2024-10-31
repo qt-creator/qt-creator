@@ -688,6 +688,11 @@ QUrl RunControl::qmlChannel() const
     return d->qmlChannel;
 }
 
+void RunControl::setQmlChannel(const QUrl &channel)
+{
+    d->qmlChannel = channel;
+}
+
 void RunControl::requestPerfChannel()
 {
     d->enablePortsGatherer();

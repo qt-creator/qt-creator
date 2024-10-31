@@ -74,7 +74,6 @@ QtcPlugin {
             "headerpath.h",
             "importwidget.cpp", "importwidget.h",
             "ioutputparser.cpp", "ioutputparser.h",
-            "ipotentialkit.h",
             "itaskhandler.h",
             "kit.cpp", "kit.h",
             "kitaspect.cpp", "kitaspect.h",

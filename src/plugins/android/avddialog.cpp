@@ -42,7 +42,6 @@ AvdDialog::AvdDialog(QWidget *parent)
     : QDialog(parent)
     , m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
-    AndroidConfigurations::sdkManager()->refreshPackages();
     resize(800, 0);
     setWindowTitle(Tr::tr("Create new AVD"));
 
