@@ -15,7 +15,7 @@ class MessageOutputWindow : public IOutputPane
     Q_OBJECT
 
 public:
-    MessageOutputWindow();
+    explicit MessageOutputWindow(QObject *parent);
     ~MessageOutputWindow() override;
 
     QWidget *outputWidget(QWidget *parent) override;

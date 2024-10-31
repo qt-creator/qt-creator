@@ -24,7 +24,4 @@ CORE_EXPORT void writeSilently(const QStringList &messages);
 CORE_EXPORT void writeFlashing(const QStringList &messages);
 CORE_EXPORT void writeDisrupting(const QStringList &messages);
 
-void init();
-void destroy();
-
 } // namespace Core::MessageManager

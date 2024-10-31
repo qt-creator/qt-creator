@@ -18,7 +18,8 @@ namespace Internal {
 
 const char zoomSettingsKey[] = "Core/MessageOutput/Zoom";
 
-MessageOutputWindow::MessageOutputWindow()
+MessageOutputWindow::MessageOutputWindow(QObject *parent)
+    : IOutputPane(parent)
 {
     setId("GeneralMessages");
     setDisplayName(Tr::tr("General Messages"));

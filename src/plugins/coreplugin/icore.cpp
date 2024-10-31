@@ -389,7 +389,6 @@ ICore::ICore()
     Utils::setDialogParentGetter(&ICore::dialogParent);
 
     d->m_progressManager->init(); // needs the status bar manager
-    MessageManager::init();
     OutputPaneManager::create();
 }
 
@@ -1431,7 +1430,6 @@ ICorePrivate::~ICorePrivate()
 
     delete m_externalToolManager;
     m_externalToolManager = nullptr;
-    MessageManager::destroy();
     delete m_vcsManager;
     m_vcsManager = nullptr;
     //we need to delete editormanager and statusbarmanager explicitly before the end of the destructor,
