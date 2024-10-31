@@ -26,6 +26,7 @@
 #include <extensionsystem/iplugin.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -107,7 +108,9 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
     void extensionsInitialized() final
     {
         // Delay the restoration to allow the devices to load first.
-        QTimer::singleShot(0, this, [] { CMakeToolManager::restoreCMakeTools(); });
+        connect(DeviceManager::instance(), &DeviceManager::devicesLoaded, this, [] {
+            CMakeToolManager::restoreCMakeTools();
+        });
 
         setupOnlineHelpManager();
     }
