@@ -62,12 +62,12 @@ public:
     explicit TargetSetupPagePrivate(TargetSetupPage *parent)
         : q(parent)
     {
-        m_tasksGenerator = defaultTasksGenerator({});
+        tasksGenerator = defaultTasksGenerator({});
 
-        m_importWidget = new ImportWidget(q);
-        m_importWidget->setVisible(false);
+        importWidget = new ImportWidget(q);
+        importWidget->setVisible(false);
 
-        m_spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
+        spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding);
 
         auto setupTargetPage = new QWidget(q);
 
@@ -95,12 +95,12 @@ public:
 
         hideUnsuitableKitsCheckBox = new QCheckBox(Tr::tr("Hide unsuitable kits"), setupTargetPage);
 
-        m_centralWidget = new QWidget(setupTargetPage);
+        centralWidget = new QWidget(setupTargetPage);
         QSizePolicy policy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         policy.setHorizontalStretch(0);
         policy.setVerticalStretch(0);
-        policy.setHeightForWidth(m_centralWidget->sizePolicy().hasHeightForWidth());
-        m_centralWidget->setSizePolicy(policy);
+        policy.setHeightForWidth(centralWidget->sizePolicy().hasHeightForWidth());
+        centralWidget->setSizePolicy(policy);
 
         scrollAreaWidget = new QWidget(setupTargetPage);
         scrollArea = new QScrollArea(scrollAreaWidget);
@@ -125,7 +125,7 @@ public:
         verticalLayout_2->addLayout(horizontalLayout);
         verticalLayout_2->addWidget(hideUnsuitableKitsCheckBox);
         verticalLayout_2->addWidget(noValidKitLabel);
-        verticalLayout_2->addWidget(m_centralWidget);
+        verticalLayout_2->addWidget(centralWidget);
         verticalLayout_2->addWidget(scrollAreaWidget);
 
         auto verticalLayout_3 = new QVBoxLayout(q);
@@ -136,8 +136,8 @@ public:
         scrollArea->setWidget(centralWidget);
         centralWidget->setLayout(new QVBoxLayout);
 
-        m_centralWidget->setLayout(new QVBoxLayout);
-        m_centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
+        this->centralWidget->setLayout(new QVBoxLayout);
+        this->centralWidget->layout()->setContentsMargins(0, 0, 0, 0);
 
         QObject::connect(noValidKitLabel, &QLabel::linkActivated,
                          q, &TargetSetupPage::openOptions);
@@ -146,7 +146,7 @@ public:
                          q, &TargetSetupPage::changeAllKitsSelections);
 
         const auto toggleTargetWidgetVisibility = [this] {
-            for (TargetSetupWidget *widget : m_widgets)
+            for (TargetSetupWidget *widget : widgets)
                 toggleVisibility(widget);
         };
         QObject::connect(hideUnsuitableKitsCheckBox, &QCheckBox::toggled,
@@ -163,7 +163,7 @@ public:
         connect(km, &KitManager::kitAdded, this, &TargetSetupPagePrivate::handleKitAddition);
         connect(km, &KitManager::kitRemoved, this, &TargetSetupPagePrivate::handleKitRemoval);
         connect(km, &KitManager::kitUpdated, this, &TargetSetupPagePrivate::handleKitUpdate);
-        connect(m_importWidget, &ImportWidget::importFrom,
+        connect(importWidget, &ImportWidget::importFrom,
                 this, [this](const FilePath &dir) { import(dir); });
         connect(KitManager::instance(), &KitManager::kitsChanged,
                 this, &TargetSetupPagePrivate::updateVisibility);
@@ -211,7 +211,7 @@ public:
     void setUseScrollArea(bool b);
 
     TargetSetupPage *q;
-    QWidget *m_centralWidget;
+    QWidget *centralWidget;
     QWidget *scrollAreaWidget;
     QScrollArea *scrollArea;
     QLabel *headerLabel;
@@ -220,17 +220,17 @@ public:
     FancyLineEdit *kitFilterLineEdit;
     QCheckBox *hideUnsuitableKitsCheckBox;
 
-    TasksGenerator m_tasksGenerator;
-    QPointer<ProjectImporter> m_importer;
-    QLayout *m_baseLayout = nullptr;
-    FilePath m_projectPath;
-    QString m_defaultShadowBuildLocation;
-    std::vector<Internal::TargetSetupWidget *> m_widgets;
+    TasksGenerator tasksGenerator;
+    QPointer<ProjectImporter> importer;
+    QLayout *baseLayout = nullptr;
+    FilePath projectPath;
+    QString defaultShadowBuildLocation;
+    std::vector<Internal::TargetSetupWidget *> widgets;
 
-    Internal::ImportWidget *m_importWidget = nullptr;
-    QSpacerItem *m_spacer;
+    Internal::ImportWidget *importWidget = nullptr;
+    QSpacerItem *spacer;
 
-    bool m_widgetsWereSetUp = false;
+    bool widgetsWereSetUp = false;
 };
 
 } // namespace Internal
@@ -265,13 +265,13 @@ void TargetSetupPage::initializePage()
 
 void TargetSetupPage::setTasksGenerator(const TasksGenerator &tasksGenerator)
 {
-    d->m_tasksGenerator = defaultTasksGenerator(tasksGenerator);
+    d->tasksGenerator = defaultTasksGenerator(tasksGenerator);
 }
 
 QList<Id> TargetSetupPage::selectedKits() const
 {
     QList<Id> result;
-    for (TargetSetupWidget *w : d->m_widgets) {
+    for (TargetSetupWidget *w : d->widgets) {
         if (w->isKitSelected())
             result.append(w->kit()->id());
     }
@@ -282,13 +282,13 @@ TargetSetupPage::~TargetSetupPage()
 {
     disconnect();
     d->reset();
-    delete d->m_spacer;
+    delete d->spacer;
     delete d;
 }
 
 bool TargetSetupPage::isComplete() const
 {
-    return anyOf(d->m_widgets, [](const TargetSetupWidget *w) {
+    return anyOf(d->widgets, [](const TargetSetupWidget *w) {
         return w->isKitSelected();
     });
 }
@@ -298,21 +298,21 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
     for (Kit *k : KitManager::sortedKits()) {
         if (!filterText.isEmpty() && !k->displayName().contains(filterText, Qt::CaseInsensitive))
             continue;
-        if (m_importer && !m_importer->filter(k))
+        if (importer && !importer->filter(k))
             continue;
-        const auto widget = new TargetSetupWidget(k, m_projectPath);
+        const auto widget = new TargetSetupWidget(k, projectPath);
         updateWidget(widget);
-        m_widgets.push_back(widget);
-        m_baseLayout->addWidget(widget);
+        widgets.push_back(widget);
+        baseLayout->addWidget(widget);
     }
     addAdditionalWidgets();
 
     // Setup import widget:
-    m_importWidget->setCurrentDirectory(Internal::importDirectory(m_projectPath));
+    importWidget->setCurrentDirectory(Internal::importDirectory(projectPath));
 
     kitSelectionChanged();
     updateVisibility();
-    for (TargetSetupWidget * const w : m_widgets) {
+    for (TargetSetupWidget * const w : widgets) {
         connectWidget(w);
         toggleVisibility(w);
     }
@@ -321,12 +321,12 @@ void TargetSetupPagePrivate::setupWidgets(const QString &filterText)
 void TargetSetupPagePrivate::reset()
 {
     removeAdditionalWidgets();
-    while (m_widgets.size() > 0) {
-        TargetSetupWidget *w = m_widgets.back();
+    while (widgets.size() > 0) {
+        TargetSetupWidget *w = widgets.back();
 
         Kit *k = w->kit();
-        if (k && m_importer)
-            m_importer->removeProject(k);
+        if (k && importer)
+            importer->removeProject(k);
 
         removeWidget(w);
     }
@@ -337,65 +337,65 @@ void TargetSetupPagePrivate::reset()
 
 TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId, TargetSetupWidget *fallback) const
 {
-    return findOr(m_widgets, fallback, [kitId](const TargetSetupWidget *w) {
+    return findOr(widgets, fallback, [kitId](const TargetSetupWidget *w) {
         return w->kit() && w->kit()->id() == kitId;
     });
 }
 
 void TargetSetupPage::setProjectPath(const FilePath &path)
 {
-    d->m_projectPath = path;
-    if (!d->m_projectPath.isEmpty()) {
+    d->projectPath = path;
+    if (!d->projectPath.isEmpty()) {
         QFileInfo fileInfo(QDir::cleanPath(path.toString()));
         QStringList subDirsList = fileInfo.absolutePath().split('/');
         d->headerLabel->setText(Tr::tr("The following kits can be used for project <b>%1</b>:",
                                       "%1: Project name").arg(subDirsList.last()));
     }
-    d->headerLabel->setVisible(!d->m_projectPath.isEmpty());
+    d->headerLabel->setVisible(!d->projectPath.isEmpty());
 
-    if (d->m_widgetsWereSetUp)
+    if (d->widgetsWereSetUp)
         initializePage();
 }
 
 void TargetSetupPage::setProjectImporter(ProjectImporter *importer)
 {
-    if (importer == d->m_importer)
+    if (importer == d->importer)
         return;
 
-    if (d->m_widgetsWereSetUp)
+    if (d->widgetsWereSetUp)
         d->reset(); // Reset before changing the importer!
 
-    if (d->m_importer) {
-        disconnect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+    if (d->importer) {
+        disconnect(d->importer, &ProjectImporter::cmakePresetsUpdated,
                    this, &TargetSetupPage::initializePage);
     }
 
 
-    d->m_importer = importer;
-    d->m_importWidget->setVisible(d->m_importer);
+    d->importer = importer;
+    d->importWidget->setVisible(d->importer);
 
-    if (d->m_importer) {
+    if (d->importer) {
         // FIXME: Needed for the refresh of CMake preset kits created by
         // CMakeProjectImporter
-        connect(d->m_importer, &ProjectImporter::cmakePresetsUpdated,
+        connect(d->importer, &ProjectImporter::cmakePresetsUpdated,
                 this, &TargetSetupPage::initializePage);
     }
 
-    if (d->m_widgetsWereSetUp)
+    if (d->widgetsWereSetUp)
         initializePage();
 }
 
 bool TargetSetupPage::importLineEditHasFocus() const
 {
-    return d->m_importWidget->ownsReturnKey();
+    return d->importWidget->ownsReturnKey();
 }
 
 void TargetSetupPagePrivate::setupImports()
 {
-    if (!m_importer || m_projectPath.isEmpty())
+    if (!importer || projectPath.isEmpty())
         return;
 
-    const FilePaths toImport = m_importer->importCandidates();
+    const FilePaths toImport = importer->importCandidates();
     for (const FilePath &path : toImport)
         import(path, true);
 }
@@ -416,8 +416,8 @@ void TargetSetupPagePrivate::handleKitRemoval(Kit *k)
     if (isUpdating())
         return;
 
-    if (m_importer)
-        m_importer->cleanupKit(k);
+    if (importer)
+        importer->cleanupKit(k);
 
     removeWidget(k);
     kitSelectionChanged();
@@ -429,12 +429,12 @@ void TargetSetupPagePrivate::handleKitUpdate(Kit *k)
     if (isUpdating())
         return;
 
-    if (m_importer)
-        m_importer->makePersistent(k);
+    if (importer)
+        importer->makePersistent(k);
 
     const auto newWidgetList = sortedWidgetList();
-    if (newWidgetList != m_widgets) { // Sorting has changed.
-        m_widgets = newWidgetList;
+    if (newWidgetList != widgets) { // Sorting has changed.
+        widgets = newWidgetList;
         reLayout();
     }
     updateWidget(widget(k));
@@ -444,7 +444,7 @@ void TargetSetupPagePrivate::handleKitUpdate(Kit *k)
 
 void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
 {
-    if (anyOf(m_widgets, [](const TargetSetupWidget *w) { return w->isKitSelected(); })) {
+    if (anyOf(widgets, [](const TargetSetupWidget *w) { return w->isKitSelected(); })) {
         // Something is already selected, we are done.
         return;
     }
@@ -454,30 +454,30 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
     const Kit *defaultKit = KitManager::defaultKit();
 
     auto isPreferred = [this](const TargetSetupWidget *w) {
-        const Tasks tasks = m_tasksGenerator(w->kit());
+        const Tasks tasks = tasksGenerator(w->kit());
         return w->isValid() && tasks.isEmpty();
     };
 
     // Use default kit if that is preferred:
-    toCheckWidget = findOrDefault(m_widgets, [defaultKit, isPreferred](const TargetSetupWidget *w) {
+    toCheckWidget = findOrDefault(widgets, [defaultKit, isPreferred](const TargetSetupWidget *w) {
         return isPreferred(w) && w->kit() == defaultKit;
     });
 
     if (!toCheckWidget) {
         // Use the first preferred widget:
-        toCheckWidget = findOrDefault(m_widgets, isPreferred);
+        toCheckWidget = findOrDefault(widgets, isPreferred);
     }
 
     if (!toCheckWidget) {
         // Use default kit if it is enabled:
-        toCheckWidget = findOrDefault(m_widgets, [defaultKit](const TargetSetupWidget *w) {
+        toCheckWidget = findOrDefault(widgets, [defaultKit](const TargetSetupWidget *w) {
             return w->isValid() && w->kit() == defaultKit;
         });
     }
 
     if (!toCheckWidget) {
         // Use the first enabled widget:
-        toCheckWidget = findOrDefault(m_widgets,
+        toCheckWidget = findOrDefault(widgets,
                                       [](const TargetSetupWidget *w) { return w->isValid(); });
     }
 
@@ -491,8 +491,8 @@ void TargetSetupPagePrivate::selectAtLeastOneEnabledKit()
 void TargetSetupPagePrivate::updateVisibility()
 {
     // Always show the widgets, the import widget always makes sense to show.
-    scrollAreaWidget->setVisible(m_baseLayout == scrollArea->widget()->layout());
-    m_centralWidget->setVisible(m_baseLayout == m_centralWidget->layout());
+    scrollAreaWidget->setVisible(baseLayout == scrollArea->widget()->layout());
+    centralWidget->setVisible(baseLayout == centralWidget->layout());
 
     const bool hasUsableKits = KitManager::kit([this](const Kit *k) { return isUsable(k); });
     noValidKitLabel->setVisible(!hasUsableKits);
@@ -504,10 +504,10 @@ void TargetSetupPagePrivate::updateVisibility()
 void TargetSetupPagePrivate::reLayout()
 {
     removeAdditionalWidgets();
-    for (TargetSetupWidget * const w : std::as_const(m_widgets))
-        m_baseLayout->removeWidget(w);
-    for (TargetSetupWidget * const w : std::as_const(m_widgets))
-        m_baseLayout->addWidget(w);
+    for (TargetSetupWidget * const w : std::as_const(widgets))
+        baseLayout->removeWidget(w);
+    for (TargetSetupWidget * const w : std::as_const(widgets))
+        baseLayout->addWidget(w);
     addAdditionalWidgets();
 }
 
@@ -524,7 +524,7 @@ bool TargetSetupPagePrivate::compareKits(const Kit *k1, const Kit *k2)
 
 std::vector<TargetSetupWidget *> TargetSetupPagePrivate::sortedWidgetList() const
 {
-    return sorted(m_widgets, [](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
+    return sorted(widgets, [](const TargetSetupWidget *w1, const TargetSetupWidget *w2) {
         return compareKits(w1->kit(), w2->kit());
     });
 }
@@ -538,7 +538,7 @@ void TargetSetupPagePrivate::kitSelectionChanged()
 {
     int selected = 0;
     int deselected = 0;
-    for (const TargetSetupWidget *widget : m_widgets) {
+    for (const TargetSetupWidget *widget : widgets) {
         if (widget->isKitSelected())
             ++selected;
         else
@@ -573,7 +573,7 @@ void TargetSetupPage::changeAllKitsSelections()
     if (d->allKitsCheckBox->checkState() == Qt::PartiallyChecked)
         d->allKitsCheckBox->setCheckState(Qt::Checked);
     bool checked = d->allKitsCheckBox->isChecked();
-    for (TargetSetupWidget *widget : d->m_widgets) {
+    for (TargetSetupWidget *widget : d->widgets) {
         if (!checked || widget->isValid())
             widget->setKitSelected(checked);
     }
@@ -582,15 +582,15 @@ void TargetSetupPage::changeAllKitsSelections()
 
 bool TargetSetupPagePrivate::isUpdating() const
 {
-    return m_importer && m_importer->isUpdating();
+    return importer && importer->isUpdating();
 }
 
 void TargetSetupPagePrivate::import(const FilePath &path, bool silent)
 {
-    if (!m_importer)
+    if (!importer)
         return;
 
-    for (const BuildInfo &info : m_importer->import(path, silent)) {
+    for (const BuildInfo &info : importer->import(path, silent)) {
         TargetSetupWidget *w = widget(info.kitId);
         if (!w) {
             Kit *k = KitManager::kit(info.kitId);
@@ -615,26 +615,26 @@ void TargetSetupPagePrivate::removeWidget(TargetSetupWidget *w)
         return;
     w->deleteLater();
     w->clearKit();
-    m_widgets.erase(std::find(m_widgets.begin(), m_widgets.end(), w));
+    widgets.erase(std::find(widgets.begin(), widgets.end(), w));
 }
 
 TargetSetupWidget *TargetSetupPagePrivate::addWidget(Kit *k)
 {
-    const auto widget = new TargetSetupWidget(k, m_projectPath);
+    const auto widget = new TargetSetupWidget(k, projectPath);
     updateWidget(widget);
     connectWidget(widget);
     toggleVisibility(widget);
 
     // Insert widget, sorted.
-    const auto insertionPos = std::find_if(m_widgets.begin(), m_widgets.end(),
+    const auto insertionPos = std::find_if(widgets.begin(), widgets.end(),
                                            [k](const TargetSetupWidget *w) {
         return compareKits(k, w->kit());
     });
-    const bool addedToEnd = insertionPos == m_widgets.end();
-    m_widgets.insert(insertionPos, widget);
+    const bool addedToEnd = insertionPos == widgets.end();
+    widgets.insert(insertionPos, widget);
     if (addedToEnd) {
         removeAdditionalWidgets();
-        m_baseLayout->addWidget(widget);
+        baseLayout->addWidget(widget);
         addAdditionalWidgets();
     } else {
         reLayout();
@@ -671,43 +671,43 @@ void TargetSetupPagePrivate::toggleVisibility(TargetSetupWidget *w)
 
 void TargetSetupPagePrivate::addAdditionalWidgets()
 {
-    m_baseLayout->addWidget(m_importWidget);
-    m_baseLayout->addItem(m_spacer);
+    baseLayout->addWidget(importWidget);
+    baseLayout->addItem(spacer);
 }
 
 void TargetSetupPagePrivate::removeAdditionalWidgets(QLayout *layout)
 {
-    layout->removeWidget(m_importWidget);
-    layout->removeItem(m_spacer);
+    layout->removeWidget(importWidget);
+    layout->removeItem(spacer);
 }
 
 void TargetSetupPagePrivate::removeAdditionalWidgets()
 {
-    removeAdditionalWidgets(m_baseLayout);
+    removeAdditionalWidgets(baseLayout);
 }
 
 void TargetSetupPagePrivate::updateWidget(TargetSetupWidget *widget)
 {
     QTC_ASSERT(widget, return );
-    widget->update(m_tasksGenerator);
+    widget->update(tasksGenerator);
 }
 
 bool TargetSetupPagePrivate::isUsable(const Kit *kit) const
 {
-    return !containsType(m_tasksGenerator(kit), Task::Error);
+    return !containsType(tasksGenerator(kit), Task::Error);
 }
 
 bool TargetSetupPage::setupProject(Project *project)
 {
     QList<BuildInfo> toSetUp;
-    for (TargetSetupWidget *widget : d->m_widgets) {
+    for (TargetSetupWidget *widget : d->widgets) {
         if (!widget->isKitSelected())
             continue;
 
         Kit *k = widget->kit();
 
-        if (k && d->m_importer)
-            d->m_importer->makePersistent(k);
+        if (k && d->importer)
+            d->importer->makePersistent(k);
         toSetUp << widget->selectedBuildInfoList();
         widget->clearKit();
     }
@@ -719,8 +719,8 @@ bool TargetSetupPage::setupProject(Project *project)
     d->reset();
 
     Target *activeTarget = nullptr;
-    if (d->m_importer)
-        activeTarget = d->m_importer->preferredTarget(project->targets());
+    if (d->importer)
+        activeTarget = d->importer->preferredTarget(project->targets());
     if (activeTarget)
         project->setActiveTarget(activeTarget, SetActive::NoCascade);
 
@@ -734,12 +734,12 @@ void TargetSetupPage::setUseScrollArea(bool b)
 
 void TargetSetupPagePrivate::setUseScrollArea(bool b)
 {
-    QLayout *oldBaseLayout = m_baseLayout;
-    m_baseLayout = b ? scrollArea->widget()->layout() : m_centralWidget->layout();
-    if (oldBaseLayout == m_baseLayout)
+    QLayout *oldBaseLayout = baseLayout;
+    baseLayout = b ? scrollArea->widget()->layout() : centralWidget->layout();
+    if (oldBaseLayout == baseLayout)
         return;
     scrollAreaWidget->setVisible(b);
-    m_centralWidget->setVisible(!b);
+    centralWidget->setVisible(!b);
 
     if (oldBaseLayout)
         removeAdditionalWidgets(oldBaseLayout);
