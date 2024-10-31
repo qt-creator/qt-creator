@@ -29,7 +29,6 @@
 #include <QDialogButtonBox>
 #include <QDir>
 #include <QFileInfo>
-#include <QJSEngine>
 #include <QLabel>
 #include <QMessageBox>
 #include <QPushButton>
@@ -145,9 +144,9 @@ JsonWizard::JsonWizard(QWidget *parent)
     });
     // override default JS macro by custom one that adds Wizard specific features
     m_jsExpander.registerObject("Wizard", new Internal::JsonWizardJsExtension(this));
-    m_jsExpander.engine().evaluate("var value = Wizard.value");
-    m_jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
-    m_jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+    m_jsExpander.evaluate("var value = Wizard.value");
+    m_jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    m_jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
 
     m_jsExpander.registerForExpander(&m_expander);
 }

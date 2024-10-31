@@ -28,7 +28,6 @@
 
 #include <QDebug>
 #include <QDir>
-#include <QJSEngine>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -809,9 +808,9 @@ bool JsonWizardFactory::isAvailable(Id platformId) const
                                                                          availableFeatures(
                                                                              platformId),
                                                                          pluginFeatures()));
-    jsExpander.engine().evaluate("var value = Wizard.value");
-    jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
-    jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+    jsExpander.evaluate("var value = Wizard.value");
+    jsExpander.evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    jsExpander.evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
 
     jsExpander.registerForExpander(e);
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);

@@ -64,11 +64,6 @@ QString JsExpander::evaluate(const QString &expression, QString *errorMessage)
     return QString();
 }
 
-QJSEngine &JsExpander::engine()
-{
-    return d->m_engine;
-}
-
 void JsExpander::registerForExpander(Utils::MacroExpander *macroExpander)
 {
     macroExpander->registerPrefix(
