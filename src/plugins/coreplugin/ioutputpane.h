@@ -4,13 +4,13 @@
 #pragma once
 
 #include "core_global.h"
-#include "icontext.h"
 
 #include <utils/fancylineedit.h>
 #include <utils/id.h>
 
 namespace Core {
-class IContext;
+
+class Context;
 class OutputWindow;
 
 class CORE_EXPORT IOutputPane : public QObject
