@@ -12,6 +12,7 @@
 #include <QCompleter>
 #include <QDir>
 #include <QFileDevice>
+#include <QFontMetrics>
 #include <QStandardPaths>
 
 namespace Lua::Internal {
@@ -52,6 +53,15 @@ void setupQtModule()
                 [](QClipboard &, const QString &text) { Utils::setClipboardAndSelection(text); }));
 
         qt["clipboard"] = &QApplication::clipboard;
+
+        qt.new_usertype<QFontMetrics>(
+            "QFontMetrics",
+            "create",
+            [](const QFont &font) -> std::unique_ptr<QFontMetrics> {
+                return std::make_unique<QFontMetrics>(font);
+            },
+            "height",
+            &QFontMetrics::height);
 
         mirrorEnum(qt, QMetaEnum::fromType<QCompleter::CompletionMode>(), "QCompleterCompletionMode");
 
