@@ -3,11 +3,16 @@
 
 #include "messagemanager.h"
 
-#include "messageoutputwindow.h"
+#include "coreconstants.h"
+#include "coreplugintr.h"
+#include "icontext.h"
+#include "ioutputpane.h"
+#include "outputwindow.h"
 
 #include <extensionsystem/shutdownguard.h>
 
 #include <utils/qtcassert.h>
+#include <utils/utilsicons.h>
 
 #include <QFont>
 #include <QPointer>
@@ -25,6 +30,72 @@
 using namespace Core::Internal;
 
 namespace Core::MessageManager {
+
+const char zoomSettingsKey[] = "Core/MessageOutput/Zoom";
+
+class MessageOutputWindow final : public IOutputPane
+{
+public:
+    explicit MessageOutputWindow(QObject *parent)
+        : IOutputPane(parent)
+    {
+        setId("GeneralMessages");
+        setDisplayName(Tr::tr("General Messages"));
+        setPriorityInStatusBar(-100);
+
+        m_widget = new OutputWindow(Context(Constants::C_GENERAL_OUTPUT_PANE), zoomSettingsKey);
+        m_widget->setReadOnly(true);
+
+        connect(this, &IOutputPane::zoomInRequested, m_widget, &Core::OutputWindow::zoomIn);
+        connect(this, &IOutputPane::zoomOutRequested, m_widget, &Core::OutputWindow::zoomOut);
+        connect(this, &IOutputPane::resetZoomRequested, m_widget, &Core::OutputWindow::resetZoom);
+        connect(this, &IOutputPane::fontChanged, m_widget, &OutputWindow::setBaseFont);
+        connect(this, &IOutputPane::wheelZoomEnabledChanged, m_widget, &OutputWindow::setWheelZoomEnabled);
+
+        setupFilterUi("MessageOutputPane.Filter");
+        setFilteringEnabled(true);
+        setupContext(Constants::C_GENERAL_OUTPUT_PANE, m_widget);
+    }
+
+    ~MessageOutputWindow() final
+    {
+        delete m_widget;
+    }
+
+    void append(const QString &text)
+    {
+        m_widget->appendMessage(text, Utils::GeneralMessageFormat);
+    }
+
+private:
+    QWidget *outputWidget(QWidget *parent) final
+    {
+        m_widget->setParent(parent);
+        return m_widget;
+    }
+
+    void clearContents() final { m_widget->clear(); }
+
+    bool canFocus() const final { return true; }
+    bool hasFocus() const final { return m_widget->window()->focusWidget() == m_widget; }
+    void setFocus() final { m_widget->setFocus(); }
+
+    bool canNext() const final { return false; }
+    bool canPrevious() const final { return false; }
+    void goToNext() final {}
+    void goToPrev() final {}
+    bool canNavigate() const final { return false; }
+
+    bool hasFilterContext() const final { return true; }
+
+    void updateFilter() final
+    {
+        m_widget->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp(),
+                                         filterIsInverted(), beforeContext(), afterContext());
+    }
+
+    OutputWindow *m_widget = nullptr;
+};
 
 static MessageOutputWindow *messageOutputWindow()
 {
