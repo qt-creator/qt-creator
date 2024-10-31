@@ -120,12 +120,10 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
 
-    setFilePath(FilePath::fromSettings(map.value(CMAKE_INFORMATION_COMMAND)));
-
     m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
-    if (m_qchFilePath.isEmpty())
-        m_qchFilePath = searchQchFile(m_executable);
+    // setFilePath searches for qchFilePath if not already set
+    setFilePath(FilePath::fromSettings(map.value(CMAKE_INFORMATION_COMMAND)));
 }
 
 CMakeTool::~CMakeTool() = default;
@@ -143,6 +141,9 @@ void CMakeTool::setFilePath(const FilePath &executable)
     m_introspection = std::make_unique<Internal::IntrospectionData>();
 
     m_executable = executable;
+    if (m_qchFilePath.isEmpty())
+        m_qchFilePath = searchQchFile(m_executable);
+
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
@@ -392,8 +393,8 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
 
     const FilePaths files = docDir.dirEntries(QStringList("*.qch"));
     for (const FilePath &docFile : files) {
-        if (docFile.startsWith("cmake")) {
-            return docDir.resolvePath(docFile).absolutePath();
+        if (docFile.fileName().startsWith("cmake", Qt::CaseInsensitive)) {
+            return docFile.absoluteFilePath();
         }
     }
 
