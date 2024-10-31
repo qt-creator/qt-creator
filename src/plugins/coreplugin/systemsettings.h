@@ -33,7 +33,6 @@ public:
 
 #ifdef ENABLE_CRASHPAD
     Utils::BoolAspect enableCrashReporting{this};
-    Utils::BoolAspect showCrashButton{this};
 #endif
 
     Utils::BoolAspect askBeforeExit{this};

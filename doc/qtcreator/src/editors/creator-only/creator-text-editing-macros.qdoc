@@ -56,6 +56,6 @@
     To assign a keyboard shortcut to a text editing macro, go to
     \preferences > \uicontrol Environment > \uicontrol Keyboard.
 
-    \sa {Assign keyboard shortcuts}, {Edit Code}{How To: Edit Code},
-    {Navigate with locator}
+    \sa {Assign keyboard shortcuts}, {Create Lua scripts},
+    {Edit Code}{How To: Edit Code}, {Navigate with locator}
 */

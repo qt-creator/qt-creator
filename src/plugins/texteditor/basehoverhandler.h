@@ -35,7 +35,6 @@ public:
     bool lastHelpItemAppliesTo(const TextEditorWidget *widget) const;
     const QString &toolTip() const;
 
-protected:
     enum {
         Priority_None = 0,
         Priority_Tooltip = 5,
@@ -43,6 +42,8 @@ protected:
         Priority_Diagnostic = 20,
         Priority_Suggestion = 40
     };
+
+protected:
     void setPriority(int priority);
     int priority() const;
 

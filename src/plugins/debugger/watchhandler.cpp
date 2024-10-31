@@ -658,7 +658,7 @@ static QString reformatCharacter(int code, int size, bool isSigned)
 
     QChar c;
     switch (size) {
-        case 1: c = QChar(uchar(code)); break;
+        case 1: c = QChar(char(code)); break;
         case 2: c = QChar(uint16_t(code)); break;
         case 4: c = QChar(uint32_t(code)); break;
         default: c = QChar(uint(code)); break;

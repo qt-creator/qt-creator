@@ -622,8 +622,8 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
     const auto onTempDebugServerPath = [storage, tempDebugServerPathStorage] {
         const bool tempDirOK = !tempDebugServerPathStorage->isEmpty();
         if (tempDirOK) {
-            storage->m_glue->setStarted(s_localDebugServerPort, storage->m_qmlServer,
-                                        storage->m_processPID);
+            storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
+            storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
         } else {
             qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
         }
@@ -825,8 +825,8 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 storage->m_processUser = processUser;
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
-                    storage->m_glue->setStarted(s_localDebugServerPort, storage->m_qmlServer,
-                                                storage->m_processPID);
+                    storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
+                    storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
                 }
                 return DoneResult::Success;
             }
@@ -873,10 +873,9 @@ void RunnerInterface::cancel()
     emit canceled();
 }
 
-void RunnerInterface::setStarted(const Utils::Port &debugServerPort, const QUrl &qmlServer,
-                                 qint64 pid)
+void RunnerInterface::setStarted(const Port &debugServerPort, qint64 pid)
 {
-    emit started(debugServerPort, qmlServer, pid);
+    emit started(debugServerPort, pid);
 }
 
 ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)

@@ -933,5 +933,8 @@ int main(int argc, char **argv)
     // shutdown plugin manager on the exit
     QObject::connect(&app, &QCoreApplication::aboutToQuit, &pluginManager, &PluginManager::shutdown);
 
+    if (Utils::HostOsInfo::isWindowsHost()) // Workaround for QTBUG-130696 and QTCREATORBUG-31890
+        QApplication::setEffectEnabled(Qt::UI_FadeMenu, false);
+
     return restarter.restartOrExit(app.exec());
 }

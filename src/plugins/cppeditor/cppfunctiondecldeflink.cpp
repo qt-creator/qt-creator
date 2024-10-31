@@ -271,7 +271,12 @@ void FunctionDeclDefLink::apply(CppEditorWidget *editor, bool jumpToMatch)
             const int jumpTarget = newTargetFile->position(targetFunction->line(), targetFunction->column());
             newTargetFile->setOpenEditor(true, jumpTarget);
         }
-        newTargetFile->apply(changes(snapshot, targetStart));
+        ChangeSet changeSet = changes(snapshot, targetStart);
+        for (ChangeSet::EditOp &op : changeSet.operationList()) {
+            if (op.type() == ChangeSet::EditOp::Replace)
+                op.setFormat1(true);
+        }
+        newTargetFile->apply(changeSet);
     } else {
         ToolTip::show(editor->toolTipPosition(linkSelection),
                       Tr::tr("Target file was changed, could not apply changes"));
@@ -477,10 +482,14 @@ static IndicesList unmatchedIndices(const IndicesList &indices)
 static QString ensureCorrectParameterSpacing(const QString &text, bool isFirstParam)
 {
     if (isFirstParam) { // drop leading spaces
+        int newlineCount = 0;
         int firstNonSpace = 0;
-        while (firstNonSpace + 1 < text.size() && text.at(firstNonSpace).isSpace())
+        while (firstNonSpace + 1 < text.size() && text.at(firstNonSpace).isSpace()) {
+            if (text.at(firstNonSpace) == QChar::ParagraphSeparator)
+                ++newlineCount;
             ++firstNonSpace;
-        return text.mid(firstNonSpace);
+        }
+        return QString(newlineCount, QChar::ParagraphSeparator) + text.mid(firstNonSpace);
     } else { // ensure one leading space
         if (text.isEmpty() || !text.at(0).isSpace())
             return QLatin1Char(' ') + text;

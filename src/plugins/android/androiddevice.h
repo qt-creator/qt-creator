@@ -59,6 +59,7 @@ private:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
+    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
 
     QSettings *avdSettings() const;
     void initAvdSettings();

@@ -9,7 +9,6 @@
 #include "androiddevice.h"
 #include "androidmanifesteditor.h"
 #include "androidpackageinstallationstep.h"
-#include "androidpotentialkit.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
@@ -87,7 +86,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     {
         setupAndroidConfigurations();
 
-        setupAndroidPotentialKit();
         setupAndroidDevice();
         setupAndroidQtVersion();
         setupAndroidToolchain();

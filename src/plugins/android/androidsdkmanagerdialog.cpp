@@ -187,10 +187,11 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
         buttonBox,
     }.attachTo(this);
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this, buttonBox] {
-        buttonBox->button(QDialogButtonBox::Apply)
-            ->setEnabled(m_sdkModel->installationChange().count());
-    });
+    const auto updateApplyButton = [this, buttonBox] {
+        buttonBox->button(QDialogButtonBox::Apply)->setEnabled(m_sdkModel->installationChange().count());
+    };
+    connect(m_sdkModel, &AndroidSdkModel::modelReset, this, updateApplyButton);
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, updateApplyButton);
 
     connect(expandCheck, &QCheckBox::stateChanged, this, [packagesView](int state) {
         if (state == Qt::Checked)

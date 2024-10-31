@@ -6,6 +6,7 @@ QtcPlugin {
     Depends { name: "Core" }
     Depends { name: "Spinner" }
     Depends { name: "Tasking" }
+    Depends { name: "app_version_header" }
     Depends { name: "Qt.network" }
 
     files: [

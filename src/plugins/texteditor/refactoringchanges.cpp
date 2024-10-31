@@ -357,6 +357,7 @@ void RefactoringFile::doFormatting()
         indenterOwner.reset(factory ? factory->createIndenter(document)
                                     : new PlainTextIndenter(document));
         indenter = indenterOwner.get();
+        indenter->setFileName(filePath());
         tabSettings = TabSettings::settingsForFile(filePath());
     }
     QTC_ASSERT(document, return);

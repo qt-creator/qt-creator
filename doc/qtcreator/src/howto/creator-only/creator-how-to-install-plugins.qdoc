@@ -22,20 +22,25 @@
     To install plugins:
 
     \list 1
-        \li Go to \uicontrol {About Plugins} > \uicontrol {Install Plugins}.
+        \li Go to \uicontrol {About Plugins} > \uicontrol {Install Plugin}.
+//! [install-plugins]
         \li In the \uicontrol Source dialog, enter the path to the archive
             or library that has the plugin.
-            \image qtcreator-install-plugin-source.png
+            \image qtcreator-install-plugin-source.webp {Source dialog}
+        \li In the \uicontrol {Accept Terms and Connections} dialog, select
+            \uicontrol {I accept terms and conditions}.
+            \image qtcreator-install-plugin-accept-terms-and-conditions.webp {Accept Terms and Connections dialog}
         \li In the \uicontrol {Install Location} dialog, select
             \uicontrol {User plugins} to make the plugin available for the
             current user in all compatible \QC instances or
             \uicontrol {\QC installation} to make the plugin available for
             all users of a particular \QC instance.
-            \image qtcreator-install-plugin-location.png
+            \image qtcreator-install-plugin-location.webp {Install Location dialog}
         \li In the \uicontrol Summary dialog, select \uicontrol Finish to
             install the plugin.
-            \image qtcreator-install-plugin-summary.png
+            \image qtcreator-install-plugin-summary.png {Summary dialog}
         \li Select \uicontrol {Restart Now} to restart \QC and load the plugin.
+//! [install-plugins]
     \endlist
 
     \sa {Enable and disable plugins}, {Installation}, {Get and Install Qt}

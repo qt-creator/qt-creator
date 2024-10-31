@@ -478,13 +478,6 @@ AndroidSettingsWidget::AndroidSettingsWidget()
             this, &AndroidSettingsWidget::downloadOpenSslRepo);
     connect(downloadOpenJdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
-
-    // Validate SDK again after any change in SDK packages.
-    connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
-        m_androidSummary->setInProgressText("Packages reloaded");
-        m_sdkLocationPathChooser->triggerChanged();
-        validateSdk();
-    });
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
         executeAndroidSdkManagerDialog(m_sdkManager, this);
     });
@@ -519,7 +512,16 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         validateJdk();
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
-        QTimer::singleShot(0, m_sdkManager, &AndroidSdkManager::refreshPackages);
+        QTimer::singleShot(0, this, [this] {
+            m_sdkManager->refreshPackages();
+            validateSdk();
+            // Validate SDK again after any change in SDK packages.
+            connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+                m_androidSummary->setInProgressText("Packages reloaded");
+                m_sdkLocationPathChooser->triggerChanged();
+                validateSdk();
+            });
+        });
         validateOpenSsl();
         m_isInitialReloadDone = true;
     }

@@ -248,7 +248,7 @@ public:
     void setAutoFillBackground(bool);
     void setLayout(const Layout &layout);
     void setSize(int, int);
-    void setFixedSize(int, int);
+    void setFixedSize(const QSize &);
     void setWindowTitle(const QString &);
     void setWindowFlags(Qt::WindowFlags);
     void setWidgetAttribute(Qt::WidgetAttribute, bool on);
@@ -299,7 +299,7 @@ public:
     SpinBox(std::initializer_list<I> ps);
 
     void setValue(int);
-    void onTextChanged(const std::function<void(QString)> &);
+    void onTextChanged(const std::function<void(QString)> &, QObject *guard);
 };
 
 class QTCREATOR_UTILS_EXPORT PushButton : public Widget

@@ -709,9 +709,9 @@ void Widget::setSize(int w, int h)
     access(this)->resize(w, h);
 }
 
-void Widget::setFixedSize(int w, int h)
+void Widget::setFixedSize(const QSize &size)
 {
-    access(this)->setFixedSize(w, h);
+    access(this)->setFixedSize(size);
 }
 
 void Widget::setAutoFillBackground(bool on)
@@ -880,9 +880,9 @@ void SpinBox::setValue(int val)
     access(this)->setValue(val);
 }
 
-void SpinBox::onTextChanged(const std::function<void (QString)> &func)
+void SpinBox::onTextChanged(const std::function<void(QString)> &func, QObject *guard)
 {
-    QObject::connect(access(this), &QSpinBox::textChanged, func);
+    QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
 }
 
 // TextEdit

@@ -5,7 +5,6 @@
 
 #include "buildmanager.h"
 #include "buildsettingspropertiespage.h"
-#include "ipotentialkit.h"
 #include "kit.h"
 #include "kitmanager.h"
 #include "panelswidget.h"
@@ -669,55 +668,6 @@ public:
 //
 // Also third level:
 //
-class PotentialKitItem : public TypedTreeItem<TreeItem, TargetGroupItem>
-{
-public:
-    PotentialKitItem(Project *project, IPotentialKit *potentialKit)
-        : m_project(project), m_potentialKit(potentialKit)
-    {}
-
-    QVariant data(int column, int role) const override
-    {
-        if (role == Qt::DisplayRole)
-            return m_potentialKit->displayName();
-
-        if (role == Qt::FontRole) {
-            QFont font = parent()->data(column, role).value<QFont>();
-            font.setItalic(true);
-            return font;
-        }
-        return {};
-    }
-
-    bool setData(int column, const QVariant &data, int role) override
-    {
-        Q_UNUSED(column)
-        if (role == ContextMenuItemAdderRole) {
-            auto *menu = data.value<QMenu *>();
-            auto enableAction = menu->addAction(Tr::tr("Enable Kit"));
-            enableAction->setEnabled(!isEnabled());
-            QObject::connect(enableAction, &QAction::triggered, [this] {
-                m_potentialKit->executeFromMenu();
-            });
-            return true;
-        }
-
-        return false;
-    }
-
-    Qt::ItemFlags flags(int column) const override
-    {
-        Q_UNUSED(column)
-        if (isEnabled())
-            return Qt::ItemFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
-        return Qt::ItemIsSelectable;
-    }
-
-    bool isEnabled() const { return m_potentialKit->isEnabled(); }
-
-    Project *m_project;
-    IPotentialKit *m_potentialKit;
-};
 
 TargetGroupItem::TargetGroupItem(const QString &displayName, Project *project)
     : d(std::make_unique<TargetGroupItemPrivate>(this, project))

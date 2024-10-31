@@ -14,6 +14,7 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -144,7 +145,6 @@ SystemSettings::SystemSettings()
         Tr::tr("Allow crashes to be automatically reported. Collected reports are "
            "used for the sole purpose of fixing bugs."));
 
-    showCrashButton.setSettingsKey("ShowCrashButton");
 #endif
     readSettings();
 
@@ -234,10 +234,23 @@ public:
                     Row{s.maxRecentFiles, st}});
         grid.addRow({s.askBeforeExit});
 #ifdef ENABLE_CRASHPAD
-        grid.addRow({s.enableCrashReporting,
-                     Row{m_clearCrashReportsButton,
-                         m_crashReportsSizeText,
-                         helpCrashReportingButton, st}});
+        const QString toolTip = Tr::tr("Crash reports are saved in \"%1\".")
+                                    .arg(appInfo().crashReports.toUserOutput());
+        m_clearCrashReportsButton->setToolTip(toolTip);
+        m_crashReportsSizeText->setToolTip(toolTip);
+        Row crashDetails
+            = Row{m_clearCrashReportsButton, m_crashReportsSizeText, helpCrashReportingButton, st};
+        if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON")) {
+            auto crashButton = new QPushButton("CRASH!!!");
+            connect(crashButton, &QPushButton::clicked, [] {
+                // do a real crash
+                volatile int *a = reinterpret_cast<volatile int *>(NULL);
+                *a = 1;
+            });
+            crashDetails.addItem(crashButton);
+        }
+        grid.addRow({s.enableCrashReporting, crashDetails});
+
 #endif
 
         Column {
@@ -263,15 +276,6 @@ public:
         }
 
 #ifdef ENABLE_CRASHPAD
-        if (s.showCrashButton()) {
-            auto crashButton = new QPushButton("CRASH!!!");
-            crashButton->show();
-            connect(crashButton, &QPushButton::clicked, [] {
-                // do a real crash
-                volatile int* a = reinterpret_cast<volatile int *>(NULL); *a = 1;
-            });
-        }
-
         connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
             showHelpDialog(Tr::tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
