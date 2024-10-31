@@ -6,8 +6,6 @@
 #include "extensionmanagerconstants.h"
 #include "extensionmanagertr.h"
 
-#include <app/app_version.h>
-
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
@@ -15,6 +13,8 @@
 
 #include <utils/layoutbuilder.h>
 #include <utils/stylehelper.h>
+
+#include <QGuiApplication>
 
 namespace ExtensionManager::Internal {
 
@@ -50,7 +50,7 @@ ExtensionManagerSettings::ExtensionManagerSettings()
                                     "flaws or malicious intent, so be careful when installing them, "
                                     "as it might leave your computer vulnerable to attacks such as "
                                     "hacking, malware, and phishing.")
-                             .arg(QLatin1String(Core::Constants::IDE_DISPLAY_NAME)))
+                             .arg(QGuiApplication::applicationDisplayName()))
                     }
                 }
             },
