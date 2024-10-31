@@ -164,6 +164,8 @@ QtcLibrary {
         "icon.h",
         "iconbutton.cpp",
         "iconbutton.h",
+        "icondisplay.cpp",
+        "icondisplay.h",
         "id.cpp",
         "id.h",
         "indexedcontainerproxyconstiterator.h",
