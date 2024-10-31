@@ -18,6 +18,7 @@
 #include <qmldesignerplugin.h>
 
 #include <QPlainTextEdit>
+#include <QApplication>
 #include <QSettings>
 #include <QTabWidget>
 #include <QToolBar>
