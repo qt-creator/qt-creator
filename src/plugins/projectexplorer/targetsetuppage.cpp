@@ -92,11 +92,8 @@ public:
     void setupWidgets(const QString &filterText = QString());
     void reset();
 
-    TargetSetupWidget *widget(const Id kitId, TargetSetupWidget *fallback = nullptr) const;
-    TargetSetupWidget *widget(const Kit *k, TargetSetupWidget *fallback = nullptr) const
-    {
-        return k ? widget(k->id(), fallback) : fallback;
-    }
+    TargetSetupWidget *widget(const Id kitId) const;
+    TargetSetupWidget *widget(const Kit *k) const { return k ? widget(k->id()) : nullptr; }
 
     TargetSetupPage *q;
     QWidget *centralWidget;
@@ -221,9 +218,9 @@ void TargetSetupPagePrivate::reset()
     hideUnsuitableKitsCheckBox->setChecked(true);
 }
 
-TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId, TargetSetupWidget *fallback) const
+TargetSetupWidget *TargetSetupPagePrivate::widget(const Id kitId) const
 {
-    return findOr(widgets, fallback, [kitId](const TargetSetupWidget *w) {
+    return findOrDefault(widgets, [kitId](const TargetSetupWidget *w) {
         return w->kit() && w->kit()->id() == kitId;
     });
 }
