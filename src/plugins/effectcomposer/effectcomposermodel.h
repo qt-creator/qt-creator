@@ -56,7 +56,8 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(bool hasValidTarget READ hasValidTarget WRITE setHasValidTarget NOTIFY hasValidTargetChanged)
     Q_PROPERTY(QString currentComposition READ currentComposition WRITE setCurrentComposition NOTIFY currentCompositionChanged)
     Q_PROPERTY(QUrl currentPreviewImage READ currentPreviewImage WRITE setCurrentPreviewImage NOTIFY currentPreviewImageChanged)
-    Q_PROPERTY(QUrl customPreviewImage READ customPreviewImage NOTIFY customPreviewImageChanged)
+    Q_PROPERTY(QList<QUrl> previewImages READ previewImages NOTIFY previewImagesChanged)
+    Q_PROPERTY(int customPreviewImageCount READ customPreviewImageCount NOTIFY customPreviewImageCountChanged)
     Q_PROPERTY(int mainCodeEditorIndex READ mainCodeEditorIndex CONSTANT)
 
 public:
@@ -84,6 +85,7 @@ public:
     Q_INVOKABLE bool nameExists(const QString &name) const;
     Q_INVOKABLE void chooseCustomPreviewImage();
     Q_INVOKABLE void previewComboAboutToOpen();
+    Q_INVOKABLE void removeCustomPreviewImage(const QUrl &url);
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
@@ -123,9 +125,10 @@ public:
     QString currentComposition() const;
     void setCurrentComposition(const QString &newCurrentComposition);
 
-    QUrl customPreviewImage() const;
+    QList<QUrl> previewImages() const;
     QUrl currentPreviewImage() const;
     void setCurrentPreviewImage(const QUrl &path);
+    int customPreviewImageCount() const;
     int mainCodeEditorIndex() const;
 
     Utils::FilePath compositionPath() const;
@@ -154,7 +157,8 @@ signals:
     void assignToSelectedTriggered(const QString &effectPath);
     void removePropertiesFromScene(QSet<QByteArray> props, const QString &typeName);
     void currentPreviewImageChanged();
-    void customPreviewImageChanged();
+    void previewImagesChanged();
+    void customPreviewImageCountChanged();
 
 private:
     enum Roles {
@@ -219,6 +223,8 @@ private:
     QSet<QByteArray> getExposedProperties(const QByteArray &qmlContent);
 
     void setCodeEditorIndex(int index);
+    Utils::FilePath customPreviewImagesPath() const;
+    QList<QUrl> defaultPreviewImages() const;
 
     QList<CompositionNode *> m_nodes;
 
@@ -261,7 +267,7 @@ private:
     Utils::FilePath m_compositionPath;
     Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
     QUrl m_currentPreviewImage;
-    QUrl m_customPreviewImage;
+    QList<QUrl> m_customPreviewImages;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

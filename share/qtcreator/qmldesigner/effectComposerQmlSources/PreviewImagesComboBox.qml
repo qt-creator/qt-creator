@@ -22,17 +22,8 @@ StudioControls.ComboBox {
 
     required property Item mainRoot
 
-    property var images: [Qt.url(""),
-                          Qt.url("images/preview0.png"),
-                          Qt.url("images/preview1.png"),
-                          Qt.url("images/preview2.png"),
-                          Qt.url("images/preview3.png"),
-                          Qt.url("images/preview4.png")]
-    property url selectedImage: EffectComposerBackend.effectComposerModel.currentPreviewImage != Qt.url("")
-                                ? EffectComposerBackend.effectComposerModel.currentPreviewImage
-                                : images[1]
-
-    Component.onCompleted: EffectComposerBackend.effectComposerModel.currentPreviewImage = images[1]
+    property var images: EffectComposerBackend.effectComposerModel.previewImages
+    property url selectedImage: EffectComposerBackend.effectComposerModel.currentPreviewImage
 
     readonly property int popupHeight: Math.min(800, col.height + 2)
 
@@ -142,7 +133,7 @@ StudioControls.ComboBox {
                         anchors.topMargin: col.padding
                         anchors.leftMargin: col.padding
                         anchors.rightMargin: col.padding
-                        text: qsTr("Set Custom Image")
+                        text: qsTr("Add Custom Image")
                         onClicked: {
                             EffectComposerBackend.effectComposerModel.chooseCustomPreviewImage()
                             root.popup.close()
@@ -172,19 +163,14 @@ StudioControls.ComboBox {
 
                                 color: "transparent"
                                 border.color: root.selectedImage === modelData
-                                              || index == 0 && root.selectedImage == EffectComposerBackend.effectComposerModel.customPreviewImage
                                               ? StudioTheme.Values.themeInteraction
                                               : "transparent"
 
                                 width: 200
                                 height: 200
-                                visible: index > 0
-                                         || EffectComposerBackend.effectComposerModel.customPreviewImage !== Qt.url("")
 
                                 Image {
-                                    source: index > 0
-                                            ? parent.modelData
-                                            : EffectComposerBackend.effectComposerModel.customPreviewImage
+                                    source: parent.modelData
                                     anchors.fill: parent
                                     fillMode: Image.PreserveAspectFit
                                     smooth: true
@@ -192,18 +178,30 @@ StudioControls.ComboBox {
                                 }
 
                                 MouseArea {
+                                    id: imageMouseArea
                                     anchors.fill: parent
+                                    hoverEnabled: true
 
                                     onClicked: {
-                                        if (parent.index > 0) {
-                                            EffectComposerBackend.effectComposerModel.currentPreviewImage
-                                                    = root.images[index]
-                                        } else {
-                                            EffectComposerBackend.effectComposerModel.currentPreviewImage
-                                                    = EffectComposerBackend.effectComposerModel.customPreviewImage
-                                        }
+                                        EffectComposerBackend.effectComposerModel.currentPreviewImage
+                                                = root.images[index]
                                         root.popup.close()
                                     }
+                                }
+
+                                HelperWidgets.IconButton {
+                                    anchors.right: parent.right
+                                    anchors.rightMargin: 5
+                                    anchors.top: parent.top
+                                    anchors.topMargin: 5
+
+                                    tooltip: qsTr("Remove custom image.")
+                                    visible: index < EffectComposerBackend.effectComposerModel.customPreviewImageCount
+                                             && (containsMouse || imageMouseArea.containsMouse)
+                                    icon: StudioTheme.Constants.closeCross
+                                    buttonSize: 21
+
+                                    onClicked: EffectComposerBackend.effectComposerModel.removeCustomPreviewImage(root.images[index])
                                 }
                             }
                         }
