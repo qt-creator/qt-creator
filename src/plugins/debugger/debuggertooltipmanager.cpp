@@ -863,8 +863,10 @@ DebuggerToolTipManagerPrivate::DebuggerToolTipManagerPrivate(DebuggerEngine *eng
 
 DebuggerToolTipManagerPrivate::~DebuggerToolTipManagerPrivate()
 {
-    for (const auto &[editor, tooltips] : m_tooltips)
-        editor->window()->removeEventFilter(this);
+    for (const auto &[editor, tooltips] : m_tooltips) {
+        if (editor && editor->window())
+            editor->window()->removeEventFilter(this);
+    }
 }
 
 void DebuggerToolTipManagerPrivate::slotTooltipOverrideRequested
