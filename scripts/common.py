@@ -142,22 +142,26 @@ async def download(url: str, target: Path) -> None:
 
 
 def download_and_extract(urls: list[str], target: Path, temp: Path) -> None:
+    download_and_extract_tuples([(url, target) for url in urls], temp)
+
+
+def download_and_extract_tuples(urls_and_targets: list[tuple[str, Path]], temp: Path) -> None:
     temp.mkdir(parents=True, exist_ok=True)
-    target_files = []
+    target_tuples : list[tuple[Path, Path]] = []
     # TODO make this work with file URLs, which then aren't downloaded
     #      but just extracted
     async def impl():
         tasks : list[asyncio.Task] = []
-        for url in urls:
+        for (url, target_path) in urls_and_targets:
             u = urlparse(url)
             filename = Path(u.path).name
             target_file = temp / filename
-            target_files.append(target_file)
+            target_tuples.append((target_file, target_path))
             tasks.append(asyncio.create_task(download(url, target_file)))
         for task in tasks:
             await task
     asyncio.run(impl())
-    for file in target_files:
+    for (file, target) in target_tuples:
         extract_file(file, target)
 
 
