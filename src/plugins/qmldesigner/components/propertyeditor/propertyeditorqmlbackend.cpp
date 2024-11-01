@@ -452,6 +452,28 @@ PropertyEditorValue *PropertyEditorQmlBackend::propertyValueForName(const QStrin
      return qobject_cast<PropertyEditorValue*>(variantToQObject(backendValuesPropertyMap().value(propertyName)));
 }
 
+void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const QmlObjectNode &qmlObjectNode, PropertyEditorView *propertyEditor)
+{
+#ifndef QDS_USE_PROJECTSTORAGE
+    for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  propertyEditor);
+    }
+#else
+
+    for (const auto &property : MetaInfoUtils::inflateValueAndReadOnlyProperties(qmlObjectNode.metaInfo().properties())) {
+        auto propertyName = property.name();
+        createPropertyEditorValue(qmlObjectNode,
+                                  propertyName,
+                                  qmlObjectNode.instanceValue(propertyName),
+                                  propertyEditor);
+    }
+#endif
+}
+
 void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const QString &stateName, const QUrl &qmlSpecificsFile, PropertyEditorView *propertyEditor)
 {
     if (qmlObjectNode.isValid()) {
@@ -464,13 +486,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
         if (propertyEditorBenchmark().isInfoEnabled())
             time.start();
 
-        for (const auto &property : PropertyEditorUtils::filteredProperties(qmlObjectNode.metaInfo())) {
-            auto propertyName = property.name();
-            createPropertyEditorValue(qmlObjectNode,
-                                      propertyName,
-                                      qmlObjectNode.instanceValue(propertyName),
-                                      propertyEditor);
-        }
+        createPropertyEditorValues(qmlObjectNode, propertyEditor);
         setupLayoutAttachedProperties(qmlObjectNode, propertyEditor);
         setupInsightAttachedProperties(qmlObjectNode, propertyEditor);
         setupAuxiliaryProperties(qmlObjectNode, propertyEditor);
