@@ -24,6 +24,12 @@ public:
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
+
+protected:
+    void changeEvent(QEvent *event) override;
+
+private:
+    void postProcessDocument(bool firstTime) const;
 };
 
 } // namespace Utils

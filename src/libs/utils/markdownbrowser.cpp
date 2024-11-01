@@ -406,61 +406,84 @@ void MarkdownBrowser::setBasePath(const FilePath &filePath)
 void MarkdownBrowser::setMarkdown(const QString &markdown)
 {
     document()->setMarkdown(markdown);
-    document()->setDefaultFont(Utils::font(contentTF));
+    postProcessDocument(true);
+}
+
+void MarkdownBrowser::postProcessDocument(bool firstTime) const
+{
+    const QFont contentFont = Utils::font(contentTF);
+    const float fontScale = font().pointSizeF() / qApp->font().pointSizeF();
+    const auto scaledFont = [fontScale](QFont f) {
+        f.setPointSizeF(f.pointSizeF() * fontScale);
+        return f;
+    };
+    document()->setDefaultFont(scaledFont(contentFont));
 
     for (QTextBlock block = document()->begin(); block != document()->end(); block = block.next()) {
-        QTextBlockFormat blockFormat = block.blockFormat();
-        // Leave images as they are.
-        if (block.text().contains(QChar::ObjectReplacementCharacter))
-            continue;
+        if (firstTime) {
+            const QTextBlockFormat blockFormat = block.blockFormat();
+            // Leave images as they are.
+            if (block.text().contains(QChar::ObjectReplacementCharacter))
+                continue;
 
-        if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-            blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl);
-            blockFormat.setBottomMargin(SpacingTokens::VGapL);
+            // Convert code blocks to highlighted frames
+            if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
+                const QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
+                highlightCodeBlock(document(), block, language);
+                continue;
+            }
 
             // Add anchors to headings. This should actually be done by Qt QTBUG-120518
-            QTextCharFormat cFormat = block.charFormat();
-            QString anchor;
-            const QString text = block.text();
-            for (const QChar &c : text) {
-                if (c == ' ')
-                    anchor.append('-');
-                else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
-                    anchor.append(c.toLower());
+            if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
+                QTextCharFormat cFormat = block.charFormat();
+                QString anchor;
+                const QString text = block.text();
+                for (const QChar &c : text) {
+                    if (c == ' ')
+                        anchor.append('-');
+                    else if (c == '_' || c == '-' || c.isDigit() || c.isLetter())
+                        anchor.append(c.toLower());
+                }
+                cFormat.setAnchor(true);
+                cFormat.setAnchorNames({anchor});
+                QTextCursor cursor(block);
+                cursor.setBlockCharFormat(cFormat);
             }
-            cFormat.setAnchor(true);
-            cFormat.setAnchorNames({anchor});
-            QTextCursor cursor(block);
-            cursor.setBlockCharFormat(cFormat);
-        } else
-            blockFormat.setLineHeight(lineHeight(contentTF), QTextBlockFormat::FixedHeight);
+        }
 
+        // Update fonts
         QTextCursor cursor(block);
-        if (blockFormat.hasProperty(QTextFormat::BlockCodeLanguage)) {
-            QString language = blockFormat.stringProperty(QTextFormat::BlockCodeLanguage);
-            highlightCodeBlock(document(), block, language);
-            continue;
+        auto blockFormat = block.blockFormat();
+
+        const auto scaledFont = [fontScale](QFont f) {
+            f.setPointSizeF(f.pointSizeF() * fontScale);
+            return f;
+        };
+
+        if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
+            blockFormat.setTopMargin(SpacingTokens::ExVPaddingGapXl * fontScale);
+            blockFormat.setBottomMargin(SpacingTokens::VGapL * fontScale);
+        } else {
+            blockFormat
+                .setLineHeight(lineHeight(contentTF) * fontScale, QTextBlockFormat::FixedHeight);
         }
 
         cursor.mergeBlockFormat(blockFormat);
+
         const TextFormat &headingTf
             = markdownHeadingFormats[qBound(0, blockFormat.headingLevel() - 1, 5)];
 
-        const QFont headingFont = Utils::font(headingTf);
+        const QFont headingFont = scaledFont(Utils::font(headingTf));
         for (auto it = block.begin(); !(it.atEnd()); ++it) {
-            QTextFragment fragment = it.fragment();
+            const QTextFragment fragment = it.fragment();
             if (fragment.isValid()) {
                 QTextCharFormat charFormat = fragment.charFormat();
                 cursor.setPosition(fragment.position());
                 cursor.setPosition(fragment.position() + fragment.length(), QTextCursor::KeepAnchor);
                 if (blockFormat.hasProperty(QTextFormat::HeadingLevel)) {
-                    // Change font size adjustment to resemble the heading font size
-                    // (We want the font size to be relative to the default font size,
-                    // otherwise the heading size won't respect the font scale factor)
-                    charFormat.setProperty(
-                        QTextFormat::FontSizeAdjustment,
-                        headingFont.pointSizeF() / document()->defaultFont().pointSizeF());
-
+                    // We don't use font size adjustment for headings
+                    charFormat.clearProperty(QTextFormat::FontSizeAdjustment);
+                    charFormat.setFontPointSize(headingFont.pointSizeF());
                     charFormat.setFontCapitalization(headingFont.capitalization());
                     charFormat.setFontFamilies(headingFont.families());
                     charFormat.setFontWeight(headingFont.weight());
@@ -474,6 +497,13 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
             }
         }
     }
+}
+
+void MarkdownBrowser::changeEvent(QEvent *event)
+{
+    if (event->type() == QEvent::FontChange)
+        postProcessDocument(false);
+    QTextBrowser::changeEvent(event);
 }
 
 } // namespace Utils
