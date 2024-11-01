@@ -5,8 +5,8 @@
 
 #include <utils/async.h>
 #include <utils/filesearch.h>
-#include <utils/launcherinterface.h>
 #include <utils/scopedtimer.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDirIterator>
@@ -113,10 +113,6 @@ private slots:
     {
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-
-        const QString libExecPath(qApp->applicationDirPath() + '/'
-                                  + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-        LauncherInterface::setPathToLauncher(libExecPath);
 
         qDebug() << "This manual test compares the performance of the SubDirFileContainer with a "
                     "manually written iterator using QDir::entryInfoList() and with QDirIterator.";

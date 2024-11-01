@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include <utils/commandline.h>
-#include <utils/launcherinterface.h>
 #include <utils/temporarydirectory.h>
 
 #include <valgrind/valgrindprocess.h>
@@ -24,9 +23,6 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/QtCreator-XXXXXX");
-    const QString libExecPath(qApp->applicationDirPath() + '/'
-                              + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    Utils::LauncherInterface::setPathToLauncher(libExecPath);
 
     qRegisterMetaType<Error>();
 

@@ -91,8 +91,6 @@ public:
     void setControlEnvironment(const Environment &env); // Possible helper process (ssh on host etc)
     const Environment &controlEnvironment() const;
 
-    void setProcessImpl(ProcessImpl processImpl);
-
     void setPtyData(const std::optional<Pty::Data> &data);
     std::optional<Pty::Data> ptyData() const;
 

@@ -3,7 +3,6 @@
 
 #include "../mesontools.h"
 
-#include <utils/launcherinterface.h>
 #include <utils/processinterface.h>
 #include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
@@ -28,8 +27,6 @@ private slots:
     {
         Utils::TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath()
                                                                + "/mesontest-XXXXXX");
-        Utils::LauncherInterface::setPathToLauncher(qApp->applicationDirPath() + '/'
-                                                    + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
 
         const auto path = findTool(ToolType::Meson);
         if (!path)

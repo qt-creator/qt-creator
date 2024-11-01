@@ -674,7 +674,6 @@ void SshProcessInterfacePrivate::start()
             cmd.addArg(QString("%1:localhost:%1").arg(forwardPort));
         }
 
-        m_process.setProcessImpl(q->m_setup.m_processImpl);
         m_process.setProcessMode(q->m_setup.m_processMode);
         m_process.setTerminalMode(q->m_setup.m_terminalMode);
         m_process.setPtyData(q->m_setup.m_ptyData);
@@ -743,7 +742,6 @@ void SshProcessInterfacePrivate::clearForStart()
 
 void SshProcessInterfacePrivate::doStart()
 {
-    m_process.setProcessImpl(q->m_setup.m_processImpl);
     m_process.setProcessMode(q->m_setup.m_processMode);
     m_process.setTerminalMode(q->m_setup.m_terminalMode);
     m_process.setPtyData(q->m_setup.m_ptyData);

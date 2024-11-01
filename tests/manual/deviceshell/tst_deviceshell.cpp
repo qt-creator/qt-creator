@@ -5,8 +5,8 @@
 
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
-#include <utils/launcherinterface.h>
 #include <utils/qtcprocess.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
@@ -130,10 +130,6 @@ private slots:
     {
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-
-        const QString libExecPath(qApp->applicationDirPath() + '/'
-                                  + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-        LauncherInterface::setPathToLauncher(libExecPath);
 
         if (TestShell::cmdLine().isEmpty()) {
             QSKIP("Skipping deviceshell tests, as no compatible shell could be found");

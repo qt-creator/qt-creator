@@ -6,10 +6,9 @@
 #include <utils/commandline.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/launcherinterface.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcprocess.h>
-#include <utils/processinterface.h>
+#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
@@ -42,10 +41,6 @@ private slots:
     {
         TemporaryDirectory::setMasterTemporaryDirectory(
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-
-        const QString libExecPath(qApp->applicationDirPath() + '/'
-                                  + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-        LauncherInterface::setPathToLauncher(libExecPath);
 
         testEnv.set("TEST_ECHO", "1");
 

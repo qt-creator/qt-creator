@@ -8,7 +8,6 @@
 #include <utils/async.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
-#include <utils/launcherinterface.h>
 #include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
@@ -20,9 +19,6 @@
 #include <QElapsedTimer>
 #include <QRegularExpression>
 #include <QtTest>
-
-#include <iostream>
-#include <fstream>
 
 using namespace Utils;
 
@@ -167,9 +163,6 @@ void tst_Process::initTestCase()
     msgHandler = new MessageHandler;
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                 + Core::Constants::IDE_CASED_ID + "-XXXXXX");
-    const QString libExecPath(qApp->applicationDirPath() + '/'
-                              + QLatin1String(TEST_RELATIVE_LIBEXEC_PATH));
-    LauncherInterface::setPathToLauncher(libExecPath);
     SubProcessConfig::setPathToProcessTestApp(QLatin1String(PROCESS_TESTAPP));
 
     homeStr = QLatin1String("@HOME@");
@@ -1286,29 +1279,20 @@ void tst_Process::stdinToShell()
 
 void tst_Process::eventLoopMode_data()
 {
-    QTest::addColumn<ProcessImpl>("processImpl");
     QTest::addColumn<EventLoopMode>("eventLoopMode");
 
-    QTest::newRow("QProcess, blocking with event loop")
-        << ProcessImpl::QProcess << EventLoopMode::On;
-    QTest::newRow("QProcess, blocking without event loop")
-        << ProcessImpl::QProcess << EventLoopMode::Off;
-    QTest::newRow("ProcessLauncher, blocking with event loop")
-        << ProcessImpl::ProcessLauncher << EventLoopMode::On;
-    QTest::newRow("ProcessLauncher, blocking without event loop")
-        << ProcessImpl::ProcessLauncher << EventLoopMode::Off;
+    QTest::newRow("EventLoopMode::On") << EventLoopMode::On;
+    QTest::newRow("EventLoopMode::Off") << EventLoopMode::Off;
 }
 
 void tst_Process::eventLoopMode()
 {
-    QFETCH(ProcessImpl, processImpl);
     QFETCH(EventLoopMode, eventLoopMode);
 
     {
         SubProcessConfig subConfig(ProcessTestApp::SimpleTest::envVar(), {});
         Process process;
         subConfig.setupSubProcess(&process);
-        process.setProcessImpl(processImpl);
         process.runBlocking(10s, eventLoopMode);
         QCOMPARE(process.result(), ProcessResult::FinishedWithSuccess);
     }
@@ -1317,7 +1301,6 @@ void tst_Process::eventLoopMode()
         Process process;
         process.setCommand(
             CommandLine{"there_is_a_big_chance_that_executable_with_that_name_does_not_exists"});
-        process.setProcessImpl(processImpl);
         process.runBlocking(10s, eventLoopMode);
         QCOMPARE(process.result(), ProcessResult::StartFailed);
     }
