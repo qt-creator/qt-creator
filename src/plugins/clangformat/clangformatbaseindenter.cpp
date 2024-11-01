@@ -433,8 +433,10 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         QString replacementText = QString::fromStdString(replacement.getReplacementText().str());
         replacementText.replace("\r", "");
         auto sameCharAt = [&](int replacementOffset) {
-            if (replacementText.size() <= replacementOffset || replacementOffset < 0)
+            if (utf16Length == 0 || replacementText.size() <= replacementOffset
+                || replacementOffset < 0) {
                 return false;
+            }
             const QChar docChar = doc->characterAt(utf16Offset + replacementOffset);
             const QChar replacementChar = replacementText.at(replacementOffset);
             return docChar == replacementChar
@@ -444,7 +446,7 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         while (sameCharAt(0)) {
             ++utf16Offset;
             --utf16Length;
-            replacementText = replacementText.mid(1);
+            replacementText.removeFirst();
         }
         // remove identical suffix from replacement text
         while (sameCharAt(utf16Length - 1)) {
