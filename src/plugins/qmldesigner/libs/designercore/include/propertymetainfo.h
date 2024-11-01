@@ -107,7 +107,7 @@ private:
 
 using PropertyMetaInfos = std::vector<PropertyMetaInfo>;
 
-struct CompoundPropertyMetaInfo
+struct QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfo
 {
     CompoundPropertyMetaInfo(PropertyMetaInfo &&property)
         : property(std::move(property))
@@ -134,8 +134,8 @@ using CompoundPropertyMetaInfos = std::vector<CompoundPropertyMetaInfo>;
 
 namespace MetaInfoUtils {
 
-CompoundPropertyMetaInfos inflateValueProperties(PropertyMetaInfos properties);
-CompoundPropertyMetaInfos inflateValueAndReadOnlyProperties(PropertyMetaInfos properties);
+QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueProperties(PropertyMetaInfos properties);
+QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueAndReadOnlyProperties(PropertyMetaInfos properties);
 } // namespace MetaInfoUtils
 
 } // namespace QmlDesigner
