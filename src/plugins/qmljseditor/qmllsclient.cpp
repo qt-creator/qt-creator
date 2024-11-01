@@ -99,7 +99,7 @@ void QmllsClient::updateQmllsSemanticHighlightingCapability()
             LanguageServerProtocol::Registration registeration;
             registeration.setMethod(methodName);
             registeration.setId({});
-            registeration.setRegisterOptions({*options});
+            registeration.setRegisterOptions(QJsonObject{*options});
             this->registerCapabilities({registeration});
         } else {
             qCWarning(qmllsLog) << "qmlls does not support semantic highlighting";
