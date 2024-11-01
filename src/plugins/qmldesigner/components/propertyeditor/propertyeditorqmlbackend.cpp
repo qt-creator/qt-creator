@@ -493,7 +493,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // model node
         m_backendModelNode.setup(qmlObjectNode.modelNode());
-        context()->setContextProperty(QLatin1String("modelNodeBackend"), &m_backendModelNode);
+        context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
 
         // className
         auto valueObject = qobject_cast<PropertyEditorValue *>(variantToQObject(
@@ -523,9 +523,6 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // anchors
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
-        context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
-            {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
-            {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
 
         contextObject()->setHasMultiSelection(
             !qmlObjectNode.view()->singleSelectedModelNode().isValid());
@@ -940,6 +937,14 @@ NodeMetaInfo PropertyEditorQmlBackend::findCommonAncestor(const ModelNode &node)
 void PropertyEditorQmlBackend::refreshBackendModel()
 {
     m_backendModelNode.refresh();
+}
+
+void PropertyEditorQmlBackend::setupContextProperties()
+{
+    context()->setContextProperty("modelNodeBackend", &m_backendModelNode);
+    context()->setContextProperties(QVector<QQmlContext::PropertyPair>{
+        {{"anchorBackend"}, QVariant::fromValue(&m_backendAnchorBinding)},
+        {{"transaction"}, QVariant::fromValue(m_propertyEditorTransaction.get())}});
 }
 
 #ifndef QDS_USE_PROJECTSTORAGE

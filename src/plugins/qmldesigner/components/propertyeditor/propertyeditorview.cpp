@@ -551,6 +551,7 @@ PropertyEditorQmlBackend *getQmlBackend(QHash<QString, PropertyEditorQmlBackend 
         stackedWidget->addWidget(currentQmlBackend->widget());
         qmlBackendHash.insert(qmlFileName, currentQmlBackend);
 
+        currentQmlBackend->setupContextProperties();
         currentQmlBackend->setSource(qmlFileUrl);
     }
 

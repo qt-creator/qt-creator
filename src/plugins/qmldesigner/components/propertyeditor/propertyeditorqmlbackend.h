@@ -89,6 +89,8 @@ public:
 
     void refreshBackendModel();
 
+    void setupContextProperties();
+
 private:
     void createPropertyEditorValue(const QmlObjectNode &qmlObjectNode,
                                    PropertyNameView name,
