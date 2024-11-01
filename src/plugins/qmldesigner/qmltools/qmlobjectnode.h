@@ -45,6 +45,7 @@ public:
     QmlItemNode modelParentItem() const;
 
     void setId(const QString &id);
+    void setNameAndId(const QString &newName, const QString &preferredId);
     QString id() const;
     QString validId();
 

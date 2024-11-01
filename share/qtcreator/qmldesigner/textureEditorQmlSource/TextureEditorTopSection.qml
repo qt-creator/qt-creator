@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 import QtQuick
+import HelperWidgets as HelperWidgets
+import StudioTheme as StudioTheme
 
 Column {
     id: root
@@ -40,6 +42,39 @@ Column {
             fillMode: Image.PreserveAspectFit
             anchors.centerIn: parent
             source: "image://qmldesigner_thumbnails/" + resolveResourcePath(backendValues.source.valueToString)
+        }
+    }
+
+    HelperWidgets.Section {
+        id: nameSection
+
+        // Section with hidden header is used so properties are aligned with the other sections' properties
+        hideHeader: true
+        implicitWidth: root.width
+        bottomPadding: StudioTheme.Values.sectionPadding * 2
+        collapsible: false
+
+        HelperWidgets.SectionLayout {
+            HelperWidgets.PropertyLabel { text: qsTr("Name") }
+
+            HelperWidgets.SecondColumnLayout {
+                HelperWidgets.Spacer { implicitWidth: StudioTheme.Values.actionIndicatorWidth }
+
+                HelperWidgets.LineEdit {
+                    implicitWidth: StudioTheme.Values.singleControlColumnWidth
+                    width: StudioTheme.Values.singleControlColumnWidth
+                    backendValue: backendValues.objectName
+                    placeholderText: qsTr("Texture name")
+
+                    showTranslateCheckBox: false
+                    showExtendedFunctionButton: false
+
+                    // allow only alphanumeric characters, underscores, no space at start, and 1 space between words
+                    validator: RegularExpressionValidator { regularExpression: /^(\w+\s)*\w+$/ }
+                }
+
+                HelperWidgets.ExpandingSpacer {}
+            }
         }
     }
 }

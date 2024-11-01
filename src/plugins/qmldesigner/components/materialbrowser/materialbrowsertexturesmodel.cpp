@@ -338,22 +338,7 @@ void MaterialBrowserTexturesModel::setTextureName(int idx, const QString &newNam
     if (!isValidIndex(idx))
         return;
 
-    ModelNode node = m_textureList[idx];
-    if (!node.isValid())
-        return;
-
-    VariantProperty objectNameProperty = node.variantProperty("objectName");
-    QString oldName = objectNameProperty.value().toString();
-
-    if (oldName != newName) {
-        const Model *model = m_view->model();
-        QTC_ASSERT(model, return);
-
-        m_view->executeInTransaction(__FUNCTION__, [&] {
-            node.setIdWithRefactoring(model->generateNewId(newName, "texture"));
-            objectNameProperty.setValue(newName);
-        });
-    }
+    QmlObjectNode(m_textureList[idx]).setNameAndId(newName, "texture");
 }
 
 void MaterialBrowserTexturesModel::applyToSelectedMaterial(qint64 internalId)

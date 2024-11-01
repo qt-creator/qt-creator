@@ -989,17 +989,7 @@ void MaterialEditorView::importsChanged([[maybe_unused]] const Imports &addedImp
 void MaterialEditorView::renameMaterial(ModelNode &material, const QString &newName)
 {
     QTC_ASSERT(material.isValid(), return);
-
-    QVariant objName = material.variantProperty("objectName").value();
-    if (objName.isValid() && objName.toString() == newName)
-        return;
-
-    executeInTransaction(__FUNCTION__, [&] {
-        material.setIdWithRefactoring(model()->generateNewId(newName, "material"));
-
-        VariantProperty objNameProp = material.variantProperty("objectName");
-        objNameProp.setValue(newName);
-    });
+    QmlObjectNode(material).setNameAndId(newName, "material");
 }
 
 void MaterialEditorView::duplicateMaterial(const ModelNode &material)

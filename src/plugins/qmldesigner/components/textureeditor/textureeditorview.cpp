@@ -117,6 +117,12 @@ void TextureEditorView::changeValue(const QString &name)
     if (!value)
         return;
 
+    if (propertyName == "objectName") {
+        QTC_ASSERT(m_selectedTexture.isValid(), return);
+        QmlObjectNode(m_selectedTexture).setNameAndId(value->value().toString(), "texture");
+        return;
+    }
+
     if (propertyName.endsWith("__AUX")) {
         commitAuxValueToModel(propertyName, value->value());
         return;
