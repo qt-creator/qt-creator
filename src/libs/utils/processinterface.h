@@ -119,18 +119,6 @@ enum class ProcessSignalType {
     Done
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessBlockingInterface : public QObject
-{
-private:
-    // Wait for:
-    // - Started is being called only in Starting state.
-    // - ReadyRead is being called in Starting or Running state.
-    // - Done is being called in Starting or Running state.
-    virtual bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout) = 0;
-
-    friend class Internal::ProcessPrivate;
-};
-
 class QTCREATOR_UTILS_EXPORT ProcessInterface : public QObject
 {
     Q_OBJECT

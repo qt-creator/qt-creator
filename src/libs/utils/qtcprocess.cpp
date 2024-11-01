@@ -466,8 +466,6 @@ private:
         }
     }
 
-    // ProcessBlockingInterface *processBlockingInterface() const override { return m_blockingImpl; }
-
     void doDefaultStart(const QString &program, const QStringList &arguments) final
     {
         QTC_ASSERT(QThread::currentThread()->eventDispatcher(),
@@ -572,12 +570,12 @@ private:
     const ProcessResultData m_resultData;
 };
 
-class GeneralProcessBlockingImpl;
+class ProcessBlockingInterface;
 
 class ProcessInterfaceHandler : public QObject
 {
 public:
-    ProcessInterfaceHandler(GeneralProcessBlockingImpl *caller, ProcessInterface *process);
+    ProcessInterfaceHandler(ProcessBlockingInterface *caller, ProcessInterface *process);
 
     // Called from caller's thread exclusively.
     bool waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout);
@@ -594,16 +592,23 @@ private:
     void handleDone(const ProcessResultData &data);
     void appendSignal(ProcessInterfaceSignal *newSignal);
 
-    GeneralProcessBlockingImpl *m_caller = nullptr;
+    ProcessBlockingInterface *m_caller = nullptr;
     QMutex m_mutex;
     QWaitCondition m_waitCondition;
 };
 
-class GeneralProcessBlockingImpl : public ProcessBlockingInterface
+class ProcessBlockingInterface : public QObject
 {
 public:
-    GeneralProcessBlockingImpl(ProcessPrivate *parent);
+    ProcessBlockingInterface(ProcessPrivate *parent);
 
+    // Wait for:
+    // - Started is being called only in Starting state.
+    // - ReadyRead is being called in Starting or Running state.
+    // - Done is being called in Starting or Running state.
+    bool waitForSignal(ProcessSignalType signalType, QDeadlineTimer timeout);
+
+private:
     void flush() { flushSignals(takeAllSignals()); }
     bool flushFor(ProcessSignalType signalType) {
         return flushSignals(takeSignalsFor(signalType), &signalType);
@@ -612,10 +617,6 @@ public:
     bool shouldFlush() const { QMutexLocker locker(&m_mutex); return !m_signals.isEmpty(); }
     // Called from ProcessInterfaceHandler thread exclusively.
     void appendSignal(ProcessInterfaceSignal *launcherSignal);
-
-private:
-    // Called from caller's thread exclusively
-    bool waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout) final;
 
     QList<ProcessInterfaceSignal *> takeAllSignals();
     QList<ProcessInterfaceSignal *> takeSignalsFor(ProcessSignalType signalType);
@@ -626,6 +627,7 @@ private:
     void handleReadyReadSignal(const ReadyReadSignal *launcherSignal);
     void handleDoneSignal(const DoneSignal *launcherSignal);
 
+    friend class ProcessInterfaceHandler;
     ProcessPrivate *m_caller = nullptr;
     std::unique_ptr<ProcessInterfaceHandler> m_processHandler;
     mutable QMutex m_mutex;
@@ -675,7 +677,7 @@ public:
         connect(m_process.get(), &ProcessInterface::done,
                 this, &ProcessPrivate::handleDone);
 
-        m_blockingInterface.reset(new GeneralProcessBlockingImpl(this));
+        m_blockingInterface.reset(new ProcessBlockingInterface(this));
         m_blockingInterface->setParent(this);
     }
 
@@ -718,7 +720,7 @@ public:
     Guard m_guard;
 };
 
-ProcessInterfaceHandler::ProcessInterfaceHandler(GeneralProcessBlockingImpl *caller,
+ProcessInterfaceHandler::ProcessInterfaceHandler(ProcessBlockingInterface *caller,
                                                  ProcessInterface *process)
     : m_caller(caller)
 {
@@ -795,10 +797,10 @@ void ProcessInterfaceHandler::appendSignal(ProcessInterfaceSignal *newSignal)
     }
     m_waitCondition.wakeOne();
     // call in callers thread
-    QMetaObject::invokeMethod(m_caller, &GeneralProcessBlockingImpl::flush);
+    QMetaObject::invokeMethod(m_caller, &ProcessBlockingInterface::flush);
 }
 
-GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(ProcessPrivate *parent)
+ProcessBlockingInterface::ProcessBlockingInterface(ProcessPrivate *parent)
     : m_caller(parent)
     , m_processHandler(new ProcessInterfaceHandler(this, parent->m_process.get()))
 {
@@ -808,14 +810,14 @@ GeneralProcessBlockingImpl::GeneralProcessBlockingImpl(ProcessPrivate *parent)
     // So the hierarchy looks like:
     // ProcessPrivate
     //  |
-    //  +- GeneralProcessBlockingImpl
+    //  +- ProcessBlockingInterface
     //      |
     //      +- ProcessInterfaceHandler
     //          |
     //          +- ProcessInterface
 }
 
-bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
+bool ProcessBlockingInterface::waitForSignal(ProcessSignalType newSignal, QDeadlineTimer timeout)
 {
     QTC_ASSERT(!m_guard.isLocked(), qWarning("Process::waitForSignal() called recursively. "
                                              "The call is being ignored."); return false);
@@ -839,14 +841,14 @@ bool GeneralProcessBlockingImpl::waitForSignal(ProcessSignalType newSignal, QDea
 }
 
 // Called from caller's thread exclusively
-QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeAllSignals()
+QList<ProcessInterfaceSignal *> ProcessBlockingInterface::takeAllSignals()
 {
     QMutexLocker locker(&m_mutex);
     return std::exchange(m_signals, {});
 }
 
 // Called from caller's thread exclusively
-QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeSignalsFor(ProcessSignalType signalType)
+QList<ProcessInterfaceSignal *> ProcessBlockingInterface::takeSignalsFor(ProcessSignalType signalType)
 {
     // If we are flushing for ReadyRead or Done - flush all.
     if (signalType != ProcessSignalType::Started)
@@ -876,8 +878,8 @@ QList<ProcessInterfaceSignal *> GeneralProcessBlockingImpl::takeSignalsFor(Proce
 }
 
 // Called from caller's thread exclusively
-bool GeneralProcessBlockingImpl::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
-                                     ProcessSignalType *signalType)
+bool ProcessBlockingInterface::flushSignals(const QList<ProcessInterfaceSignal *> &signalList,
+                                            ProcessSignalType *signalType)
 {
     bool signalMatched = false;
     for (const ProcessInterfaceSignal *storedSignal : std::as_const(signalList)) {
@@ -902,23 +904,23 @@ bool GeneralProcessBlockingImpl::flushSignals(const QList<ProcessInterfaceSignal
     return signalMatched;
 }
 
-void GeneralProcessBlockingImpl::handleStartedSignal(const StartedSignal *aSignal)
+void ProcessBlockingInterface::handleStartedSignal(const StartedSignal *aSignal)
 {
     m_caller->handleStarted(aSignal->processId(), aSignal->applicationMainThreadId());
 }
 
-void GeneralProcessBlockingImpl::handleReadyReadSignal(const ReadyReadSignal *aSignal)
+void ProcessBlockingInterface::handleReadyReadSignal(const ReadyReadSignal *aSignal)
 {
     m_caller->handleReadyRead(aSignal->stdOut(), aSignal->stdErr());
 }
 
-void GeneralProcessBlockingImpl::handleDoneSignal(const DoneSignal *aSignal)
+void ProcessBlockingInterface::handleDoneSignal(const DoneSignal *aSignal)
 {
     m_caller->handleDone(aSignal->resultData());
 }
 
 // Called from ProcessInterfaceHandler thread exclusively.
-void GeneralProcessBlockingImpl::appendSignal(ProcessInterfaceSignal *newSignal)
+void ProcessBlockingInterface::appendSignal(ProcessInterfaceSignal *newSignal)
 {
     QMutexLocker locker(&m_mutex);
     m_signals.append(newSignal);
