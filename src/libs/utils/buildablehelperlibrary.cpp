@@ -159,13 +159,10 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
     // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
     // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
-    QStringList commands(HostOsInfo::withExecutableSuffix("qmake*"));
-
     // Qt 6 CMake built targets, such as Android, are dependent on the host installation
     // and use a script wrapper around the host qmake executable
-    if (HostOsInfo::isWindowsHost())
-        commands.append("qmake*.bat");
-    return commands;
+    // Remote build configurations (e.g. Windows host + Linux target) must be taken into account too
+    return {"qmake*"};
 }
 
 } // namespace Utils
