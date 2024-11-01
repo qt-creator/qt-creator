@@ -17,6 +17,7 @@
 
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
+#include <extensionsystem/shutdownguard.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
@@ -26,6 +27,7 @@
 #include <utils/store.h>
 #include <utils/stringutils.h>
 #include <utils/stylehelper.h>
+#include <utils/threadutils.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -108,12 +110,17 @@ public:
     QAction *m_sessionManagerAction;
 };
 
-static SessionManager *m_instance = nullptr;
 static SessionManagerPrivate *d = nullptr;
+
+SessionManager *sessionManager()
+{
+    static ExtensionSystem::GuardedObject<SessionManager> theSessionManager;
+    return theSessionManager.get();
+}
 
 SessionManager::SessionManager()
 {
-    m_instance = this;
+    QTC_ASSERT(isMainThread(), return);
     d = new SessionManagerPrivate;
 
     connect(PluginManager::instance(), &PluginManager::initializationDone, this, [] {
@@ -158,7 +165,7 @@ SessionManager::SessionManager()
     cmd->setDefaultKeySequence(QKeySequence());
     connect(d->m_sessionManagerAction,
             &QAction::triggered,
-            SessionManager::instance(),
+            this,
             &SessionManager::showSessionManager);
 
     MacroExpander *expander = Utils::globalMacroExpander();
@@ -177,7 +184,7 @@ SessionManager::SessionManager()
 
 SessionManager::~SessionManager()
 {
-    emit m_instance->aboutToUnloadSession(d->m_sessionName);
+    emit aboutToUnloadSession(d->m_sessionName);
     delete d->m_writer;
     delete d;
     d = nullptr;
@@ -185,7 +192,7 @@ SessionManager::~SessionManager()
 
 SessionManager *SessionManager::instance()
 {
-   return m_instance;
+   return sessionManager();
 }
 
 bool SessionManager::isDefaultVirgin()
@@ -455,7 +462,7 @@ void SessionManagerPrivate::restoreStartupSession()
     ICore::openFiles(Utils::transform(arguments, &FilePath::fromUserInput),
                      ICore::OpenFilesFlags(ICore::CanContainLineAndColumnNumbers
                                            | ICore::SwitchMode));
-    emit m_instance->startupSessionRestored();
+    emit sessionManager()->startupSessionRestored();
 }
 
 void SessionManagerPrivate::saveSettings()

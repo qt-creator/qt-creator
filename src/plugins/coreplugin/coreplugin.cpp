@@ -271,7 +271,6 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     m_editMode = new EditMode;
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
-    m_sessionManager.reset(new SessionManager);
 
     IWizardFactory::initialize();
 
