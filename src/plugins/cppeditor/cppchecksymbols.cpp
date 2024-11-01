@@ -24,12 +24,6 @@ namespace CppEditor {
 
 namespace {
 
-class FriendlyThread: public QThread
-{
-public:
-    using QThread::msleep;
-};
-
 class CollectSymbols: protected SymbolVisitor
 {
     Document::Ptr _doc;
