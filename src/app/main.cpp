@@ -17,8 +17,8 @@
 #include <utils/fileutils.h>
 #include <utils/fsengine/fsengine.h>
 #include <utils/hostosinfo.h>
+#include <utils/processreaper.h>
 #include <utils/qtcsettings.h>
-#include <utils/singleton.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
 #include <utils/terminalcommand.h>
@@ -685,7 +685,7 @@ int main(int argc, char **argv)
     QCoreApplication::setOrganizationName(QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR));
     QGuiApplication::setApplicationDisplayName(Core::Constants::IDE_DISPLAY_NAME);
 
-    const QScopeGuard cleanup([] { Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { ProcessReaper::deleteAll(); });
 
     const QStringList pluginArguments = app.arguments();
 

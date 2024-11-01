@@ -5,8 +5,8 @@
 
 #include <utils/async.h>
 #include <utils/filesearch.h>
+#include <utils/processreaper.h>
 #include <utils/scopedtimer.h>
-#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QDirIterator>
@@ -172,7 +172,7 @@ private slots:
         QCOMPARE(TaskTree::runBlocking(recipe), DoneWith::Success);
 
         m_tempDir.reset();
-        Singleton::deleteAll();
+        ProcessReaper::deleteAll();
     }
 
     void testSubDirFileContainer()

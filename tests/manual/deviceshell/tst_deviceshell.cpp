@@ -5,8 +5,8 @@
 
 #include <utils/deviceshell.h>
 #include <utils/environment.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
-#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
@@ -136,7 +136,7 @@ private slots:
         }
     }
 
-    void cleanupTestCase() { Singleton::deleteAll(); }
+    void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testEncoding_data()
     {

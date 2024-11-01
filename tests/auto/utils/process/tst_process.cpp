@@ -11,8 +11,8 @@
 #include <utils/qtcprocess.h>
 #include <utils/processinfo.h>
 #include <utils/processinterface.h>
+#include <utils/processreaper.h>
 #include <utils/qtcassert.h>
-#include <utils/singleton.h>
 #include <utils/stringutils.h>
 #include <utils/temporarydirectory.h>
 
@@ -176,7 +176,7 @@ void tst_Process::initTestCase()
 
 void tst_Process::cleanupTestCase()
 {
-    Singleton::deleteAll();
+    ProcessReaper::deleteAll();
     const int destroyCount = msgHandler->destroyCount();
     delete msgHandler;
     if (destroyCount)
@@ -200,13 +200,13 @@ static bool deleteRunningProcess()
 
 void tst_Process::processReaperCreatedInNonMainThread()
 {
-    Singleton::deleteAll();
+    ProcessReaper::deleteAll();
 
     auto future = Utils::asyncRun(deleteRunningProcess);
     future.waitForFinished();
     QVERIFY(future.result());
 
-    Singleton::deleteAll();
+    ProcessReaper::deleteAll();
 }
 
 void tst_Process::multiRead_data()
@@ -1101,7 +1101,7 @@ void tst_Process::recursiveBlockingProcess()
     if (HostOsInfo::isWindowsHost())
         QSKIP(s_skipTerminateOnWindows);
 
-    Singleton::deleteAll();
+    ProcessReaper::deleteAll();
     QCOMPARE(runningTestProcessCount(), 0);
     const int recursionDepth = 5; // must be at least 2
     SubProcessConfig subConfig(ProcessTestApp::RecursiveBlockingProcess::envVar(),
@@ -1123,7 +1123,7 @@ void tst_Process::recursiveBlockingProcess()
         QCOMPARE(process.exitStatus(), QProcess::NormalExit);
         QCOMPARE(process.exitCode(), s_crashCode);
     }
-    Singleton::deleteAll();
+    ProcessReaper::deleteAll();
     QCOMPARE(runningTestProcessCount(), 0);
 }
 

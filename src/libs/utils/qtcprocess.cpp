@@ -23,6 +23,7 @@
 #include <QDir>
 #include <QElapsedTimer>
 #include <QLoggingCategory>
+#include <QMutex>
 #include <QScopeGuard>
 #include <QTextCodec>
 #include <QThread>

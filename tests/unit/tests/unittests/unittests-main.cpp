@@ -4,10 +4,10 @@
 #include "../utils/googletest.h"
 
 #include <sqlitedatabase.h>
+#include <sqliteglobal.h>
 #include <sqlitelibraryinitializer.h>
 
-#include <sqliteglobal.h>
-#include <utils/singleton.h>
+#include <utils/processreaper.h>
 #include <utils/temporarydirectory.h>
 
 #include <QGuiApplication>
@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 
     int testsHaveErrors = RUN_ALL_TESTS();
 
-    Utils::Singleton::deleteAll();
+    Utils::ProcessReaper::deleteAll();
 #ifdef WITH_BENCHMARKS
     if (testsHaveErrors == 0  && application.arguments().contains(QStringLiteral("--with-benchmarks")))
         benchmark::RunSpecifiedBenchmarks();

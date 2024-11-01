@@ -10,7 +10,9 @@
 #include <QCoreApplication>
 #include <QDebug>
 #include <QElapsedTimer>
+#include <QMutex>
 #include <QProcess>
+#include <QThread>
 #include <QTimer>
 #include <QWaitCondition>
 
@@ -18,8 +20,7 @@ using namespace Utils;
 
 using namespace std::chrono;
 
-namespace Utils {
-namespace Internal {
+namespace Utils::ProcessReaper {
 
 /*
 
@@ -55,6 +56,22 @@ never ending running process:
 
 */
 
+class ProcessReaperPrivate;
+
+class ProcessReaperImpl final
+{
+public:
+    static void reap(QProcess *process, milliseconds timeout);
+    ProcessReaperImpl();
+    ~ProcessReaperImpl();
+
+private:
+    static ProcessReaperImpl *instance();
+
+    QThread m_thread;
+    ProcessReaperPrivate *m_private;
+};
+
 static const int s_timeoutThreshold = 10000; // 10 seconds
 
 static QString execWithArguments(QProcess *process)
@@ -87,7 +104,7 @@ public:
         terminate();
     }
 
-signals:
+Q_SIGNALS:
     void finished();
 
 private:
@@ -146,7 +163,9 @@ public:
     // Called from non-reaper's thread
     void scheduleReap(const ReaperSetup &reaperSetup)
     {
-        QTC_CHECK(QThread::currentThread() != thread());
+        QTC_ASSERT(QThread::currentThread() != thread(),
+                   qWarning() << "Can't schedule reap from the reaper internal thread.");
+
         QMutexLocker locker(&m_mutex);
         m_reaperSetupList.append(reaperSetup);
         QMetaObject::invokeMethod(this, &ProcessReaperPrivate::flush);
@@ -155,7 +174,9 @@ public:
     // Called from non-reaper's thread
     void waitForFinished()
     {
-        QTC_CHECK(QThread::currentThread() != thread());
+        QTC_ASSERT(QThread::currentThread() != thread(),
+                   qWarning() << "Can't wait for finished from the reaper internal thread.");
+
         QMetaObject::invokeMethod(this, &ProcessReaperPrivate::flush,
                                   Qt::BlockingQueuedConnection);
         QMutexLocker locker(&m_mutex);
@@ -190,7 +211,9 @@ private:
         connect(reaper, &Reaper::finished, this, [this, reaper, process = reaperSetup.m_process] {
             QMutexLocker locker(&m_mutex);
             const bool isRemoved = m_reaperList.removeOne(reaper);
-            QTC_CHECK(isRemoved);
+            QTC_ASSERT(isRemoved,
+                       qWarning() << "Reaper list doesn't contain the finished process.");
+
             delete reaper;
             delete process;
             if (m_reaperList.isEmpty())
@@ -211,14 +234,19 @@ private:
     QList<Reaper *> m_reaperList;
 };
 
-} // namespace Internal
-
-using namespace Utils::Internal;
-
+static ProcessReaperImpl *s_instance = nullptr;
 static QMutex s_instanceMutex;
 
-ProcessReaper::ProcessReaper()
-    : m_private(new ProcessReaperPrivate())
+// Call me with s_instanceMutex locked.
+ProcessReaperImpl *ProcessReaperImpl::instance()
+{
+    if (!s_instance)
+        s_instance = new ProcessReaperImpl;
+    return s_instance;
+}
+
+ProcessReaperImpl::ProcessReaperImpl()
+    : m_private(new ProcessReaperPrivate)
 {
     m_private->moveToThread(&m_thread);
     QObject::connect(&m_thread, &QThread::finished, m_private, &QObject::deleteLater);
@@ -226,25 +254,27 @@ ProcessReaper::ProcessReaper()
     m_thread.moveToThread(qApp->thread());
 }
 
-ProcessReaper::~ProcessReaper()
+ProcessReaperImpl::~ProcessReaperImpl()
 {
-    QTC_CHECK(isMainThread());
-    QMutexLocker locker(&s_instanceMutex);
+    QTC_ASSERT(Utils::isMainThread(),
+               qWarning() << "Destructing process reaper from non-main thread.");
+
     instance()->m_private->waitForFinished();
     m_thread.quit();
     m_thread.wait();
 }
 
-void ProcessReaper::reap(QProcess *process, milliseconds timeout)
+void ProcessReaperImpl::reap(QProcess *process, milliseconds timeout)
 {
     if (!process)
         return;
 
-    QTC_ASSERT(QThread::currentThread() == process->thread(), return);
+    QTC_ASSERT(QThread::currentThread() == process->thread(),
+               qWarning() << "Can't reap process from non-process's thread."; return);
 
     process->disconnect();
     if (process->state() == QProcess::NotRunning) {
-        process->deleteLater();
+        delete process;
         return;
     }
 
@@ -260,6 +290,18 @@ void ProcessReaper::reap(QProcess *process, milliseconds timeout)
     priv->scheduleReap(reaperSetup);
 }
 
-} // namespace Utils
+void deleteAll()
+{
+    QMutexLocker locker(&s_instanceMutex);
+    delete s_instance;
+    s_instance = nullptr;
+}
+
+void reap(QProcess *process, milliseconds timeout)
+{
+    ProcessReaperImpl::reap(process, timeout);
+}
+
+} // namespace Utils::ProcessReaper
 
 #include "processreaper.moc"

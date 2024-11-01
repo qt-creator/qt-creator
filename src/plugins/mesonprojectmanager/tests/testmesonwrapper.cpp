@@ -4,7 +4,7 @@
 #include "../mesontools.h"
 
 #include <utils/processinterface.h>
-#include <utils/singleton.h>
+#include <utils/processreaper.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -93,7 +93,7 @@ private slots:
 
     void cleanupTestCase()
     {
-        Utils::Singleton::deleteAll();
+        Utils::ProcessReaper::deleteAll();
     }
 };
 

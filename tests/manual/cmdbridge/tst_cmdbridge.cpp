@@ -8,8 +8,8 @@
 
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
-#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
@@ -62,7 +62,7 @@ private slots:
             QDir::tempPath() + "/" + Core::Constants::IDE_CASED_ID + "-XXXXXX");
     }
 
-    void cleanupTestCase() { Singleton::deleteAll(); }
+    void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testDeviceEnvironment()
     {

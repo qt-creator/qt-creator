@@ -5,8 +5,8 @@
 
 #include <app/app_version.h>
 
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
-#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QCoreApplication>
@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 #endif
     QCoreApplication app(argc, argv);
 
-    const QScopeGuard cleanup([] { Singleton::deleteAll(); });
+    const QScopeGuard cleanup([] { ProcessReaper::deleteAll(); });
 
     TemporaryDirectory::setMasterTemporaryDirectory(QDir::tempPath() + "/"
                                                     + Core::Constants::IDE_CASED_ID + "-XXXXXX");

@@ -7,8 +7,8 @@
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/macroexpander.h>
+#include <utils/processreaper.h>
 #include <utils/qtcprocess.h>
-#include <utils/singleton.h>
 #include <utils/temporarydirectory.h>
 
 #include <QObject>
@@ -50,7 +50,7 @@ private slots:
             newLine = "\n";
     }
 
-    void cleanupTestCase() { Singleton::deleteAll(); }
+    void cleanupTestCase() { ProcessReaper::deleteAll(); }
 
     void testSpace()
     {
