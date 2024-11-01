@@ -176,6 +176,11 @@ protected:
     // Returns whether actions should be set up further.
     bool enableMenuAction(ActionState as, QAction *in) const;
 
+#if WITH_TESTS
+signals:
+    void slotStateChangedDone();
+#endif
+
 private:
     void slotStateChanged(const Internal::State &s, Core::IVersionControl *vc);
 

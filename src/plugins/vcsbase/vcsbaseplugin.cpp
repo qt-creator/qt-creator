@@ -552,6 +552,9 @@ void VersionControlBase::slotStateChanged(const Internal::State &newInternalStat
         }
         ICore::removeAdditionalContext(m_context);
     }
+#ifdef WITH_TESTS
+    emit slotStateChangedDone();
+#endif
 }
 
 const VcsBasePluginState &VersionControlBase::currentState() const
