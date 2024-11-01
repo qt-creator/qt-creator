@@ -4,6 +4,7 @@
 #include "coreplugin.h"
 #include "coreplugintr.h"
 #include "designmode.h"
+#include "dialogs/ioptionspage.h"
 #include "editmode.h"
 #include "foldernavigationwidget.h"
 #include "icore.h"
