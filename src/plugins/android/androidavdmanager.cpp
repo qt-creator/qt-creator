@@ -188,7 +188,7 @@ static ExecutableItem waitForAvdRecipe(const QString &avdName, const Storage<QSt
             stopOnSuccess,
             serialNumberRecipe(avdName, serialNumberStorage),
             TimeoutTask([](std::chrono::milliseconds &timeout) { timeout = 100ms; }, DoneResult::Error)
-        }.withTimeout(120s),
+        }.withTimeout(30s),
         Forever {
             stopStorage,
             stopOnSuccess,
