@@ -12,14 +12,6 @@
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QMenu;
-QT_END_NAMESPACE
-
-namespace Utils {
-class PathChooser;
-}
-
 namespace Core {
 
 class FolderNavigationWidgetFactory;
@@ -29,7 +21,6 @@ class ICore;
 namespace Internal {
 
 class EditMode;
-class MainWindow;
 class Locator;
 
 class CorePlugin : public ExtensionSystem::IPlugin
@@ -70,7 +61,6 @@ private slots:
 #endif
 
 private:
-    static void addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu);
     void checkSettings();
     void warnAboutCrashReporing();
 

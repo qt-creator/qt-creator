@@ -204,6 +204,40 @@ static void initTAndCAcceptDialog()
         });
 }
 
+static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
+{
+    QList<QAction *> actions = menu->actions();
+    QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
+
+    if (pathChooser->filePath().exists()) {
+        auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
+        QObject::connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
+            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
+        });
+        menu->insertAction(firstAction, showInGraphicalShell);
+
+        auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
+        QObject::connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
+            if (pathChooser->openTerminalHandler())
+                pathChooser->openTerminalHandler()();
+            else
+                FileUtils::openTerminal(pathChooser->filePath(), {});
+        });
+        menu->insertAction(firstAction, showInTerminal);
+
+    } else {
+        auto mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
+        QObject::connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
+            QDir().mkpath(pathChooser->filePath().toString());
+            pathChooser->triggerChanged();
+        });
+        menu->insertAction(firstAction, mkPathAct);
+    }
+
+    if (firstAction)
+        menu->insertSeparator(firstAction);
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
@@ -315,7 +349,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
                              Tr::tr("Convert string to pure ASCII."),
                              [expander](const QString &s) { return asciify(expander->expand(s)); });
 
-    Utils::PathChooser::setAboutToShowContextMenuHandler(&CorePlugin::addToPathChooserContextMenu);
+    Utils::PathChooser::setAboutToShowContextMenuHandler(&addToPathChooserContextMenu);
 
 #ifdef ENABLE_CRASHPAD
     connect(ICore::instance(), &ICore::coreOpened, this, &CorePlugin::warnAboutCrashReporing,
@@ -434,40 +468,6 @@ void CorePlugin::setEnvironmentChanges(const EnvironmentItems &changes)
 void CorePlugin::fileOpenRequest(const QString &f)
 {
     remoteCommand(QStringList(), QString(), QStringList(f));
-}
-
-void CorePlugin::addToPathChooserContextMenu(Utils::PathChooser *pathChooser, QMenu *menu)
-{
-    QList<QAction*> actions = menu->actions();
-    QAction *firstAction = actions.isEmpty() ? nullptr : actions.first();
-
-    if (pathChooser->filePath().exists()) {
-        auto showInGraphicalShell = new QAction(FileUtils::msgGraphicalShellAction(), menu);
-        connect(showInGraphicalShell, &QAction::triggered, pathChooser, [pathChooser] {
-            Core::FileUtils::showInGraphicalShell(pathChooser, pathChooser->filePath());
-        });
-        menu->insertAction(firstAction, showInGraphicalShell);
-
-        auto showInTerminal = new QAction(FileUtils::msgTerminalHereAction(), menu);
-        connect(showInTerminal, &QAction::triggered, pathChooser, [pathChooser] {
-            if (pathChooser->openTerminalHandler())
-                pathChooser->openTerminalHandler()();
-            else
-                FileUtils::openTerminal(pathChooser->filePath(), {});
-        });
-        menu->insertAction(firstAction, showInTerminal);
-
-    } else {
-        auto *mkPathAct = new QAction(Tr::tr("Create Folder"), menu);
-        connect(mkPathAct, &QAction::triggered, pathChooser, [pathChooser] {
-            QDir().mkpath(pathChooser->filePath().toString());
-            pathChooser->triggerChanged();
-        });
-        menu->insertAction(firstAction, mkPathAct);
-    }
-
-    if (firstAction)
-        menu->insertSeparator(firstAction);
 }
 
 void CorePlugin::checkSettings()
