@@ -34,6 +34,7 @@ public:
     Utils::BoolAspect useQmlls{this};
     Utils::BoolAspect useLatestQmlls{this};
     Utils::BoolAspect ignoreMinimumQmllsVersion{this};
+    Utils::BoolAspect enableQmllsSemanticHighlighting{this};
     Utils::BoolAspect disableBuiltinCodemodel{this};
     Utils::BoolAspect generateQmllsIniFiles{this};
     Utils::SelectionAspect uiQmlOpenMode{this};
@@ -67,6 +68,7 @@ private:
     bool m_useLatestQmlls = false;
     bool m_disableBuiltinCodemodel = false;
     bool m_generateQmllsIniFiles = false;
+    bool m_enableQmllsSemanticHighlighting = false;
     Utils::FilePath m_latestQmlls;
 };
 

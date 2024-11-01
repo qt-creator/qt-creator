@@ -145,9 +145,9 @@ public:
         m_hasUniqueName = on;
     }
 
-private:
     void ensureWidget();
 
+private:
     Kit *m_kit = m_kit;
     KitModel *m_model = nullptr;
     KitManagerConfigWidget *m_widget = nullptr;
@@ -343,6 +343,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
 {
     const QString newName = newKitName(baseKit ? baseKit->unexpandedDisplayName() : QString());
     KitNode *node = createNode(nullptr);
+    node->ensureWidget();
     m_manualRoot->appendChild(node);
     Kit *k = node->widget()->workingCopy();
     KitGuard g(k);

@@ -274,6 +274,7 @@ PluginManager::PluginManager()
 {
     m_instance = this;
     d = new PluginManagerPrivate(this);
+    shutdownGuard(); // ensure creation on main thread
 }
 
 /*!

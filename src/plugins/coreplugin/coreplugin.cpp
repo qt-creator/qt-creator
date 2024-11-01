@@ -553,7 +553,7 @@ void CorePlugin::warnAboutCrashReporing()
 // static
 QString CorePlugin::msgCrashpadInformation()
 {
-    return Tr::tr("%1 uses Google Crashpad for collecting crashes and sending them to our backend "
+    return Tr::tr("%1 uses Google Crashpad for collecting crashes and sending them to Sentry "
                   "for processing. Crashpad may capture arbitrary contents from crashed process’ "
                   "memory, including user sensitive information, URLs, and whatever other content "
                   "users have trusted %1 with. The collected crash reports are however only used "

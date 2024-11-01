@@ -9,6 +9,21 @@
         <file>images/icons/playoverlay@2x.png</file>
         <file>images/icons/tutorialicon.png</file>
         <file>images/icons/tutorialicon@2x.png</file>
+        <file>images/icons/learn-qtc.webp</file>
+        <file>images/icons/learn-qtmcu.webp</file>
+        <file>images/icons/learn-boot2.webp</file>
+        <file>images/icons/learn-qtand.webp</file>
+        <file>images/icons/learn-qtios.webp</file>
+        <file>images/icons/learn-qtqui.webp</file>
+        <file>images/icons/learn-qtqco.webp</file>
+        <file>images/icons/learn-qtwi1.webp</file>
+        <file>images/icons/learn-qtwi2.webp</file>
+        <file>images/icons/learn-qtwi3.webp</file>
+        <file>images/icons/learn-qtwi4.webp</file>
+        <file>images/icons/learn-cmake.webp</file>
+        <file>images/icons/learn-expcq.webp</file>
+        <file>images/icons/learn-inqml.webp</file>
+        <file>images/icons/learn-inq3d.webp</file>
         <file>images/icons/youtube1w0ak9RNNWY.webp</file>
         <file>images/icons/youtube3o2Wo4YzlII.webp</file>
         <file>images/icons/youtube9xqhq9nDiOg.webp</file>
@@ -33,6 +48,5 @@
         <file>images/icons/youtubev4glCQt2jE0.webp</file>
         <file>images/icons/youtubev_ynSET9FHU.webp</file>
         <file>images/icons/youtubexNIz78IPBu0.webp</file>
-        <file>images/icons/gs-qtc-14.png</file>
     </qresource>
 </RCC>

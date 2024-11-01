@@ -70,8 +70,9 @@
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-#include <QTest>
 #include <coreplugin/vcsmanager.h>
+#include <QSignalSpy>
+#include <QTest>
 #endif
 
 using namespace Core;
@@ -2673,10 +2674,12 @@ void ClearCaseTest::testStatusActions()
     QFETCH(int, status);
     auto tempStatus = static_cast<FileStatus::Status>(status);
 
+    QSignalSpy spy(dd, &VcsBase::VersionControlBase::slotStateChangedDone);
     // special case: file should appear as "Unknown" since there is no entry in the index
     // and we don't want to explicitly set the status for this test case
     if (tempStatus != FileStatus::Unknown)
         dd->setStatus(fileName, tempStatus, true);
+    QVERIFY(spy.wait(1000));
 
     QFETCH(bool, checkOutAction);
     QFETCH(bool, undoCheckOutAction);
@@ -2712,7 +2715,6 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 
     dd->m_viewData = testCase.dummyViewData();
     dd->m_viewData.isDynamic = true;
-
     QCOMPARE(dd->vcsStatus(fileName).status, FileStatus::NotManaged);
 
 }

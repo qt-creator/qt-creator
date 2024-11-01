@@ -778,7 +778,9 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
     }
 
     if (TextBlockUserData *userData = textUserData(block))
-        boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight());
+        boundingRect.adjust(
+            0, 0, 0, userData->additionalAnnotationHeight() + userData->additionalLineHeight());
+
     return boundingRect;
 }
 

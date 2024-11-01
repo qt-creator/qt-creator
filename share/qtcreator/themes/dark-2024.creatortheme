@@ -1,8 +1,8 @@
 [General]
-Includes=dark.figmatokens, broccoli.tokenmapping
-ThemeName=Broccoli Dark
+Includes=dark.figmatokens, 2024.tokenmapping
+ThemeName=Dark (2024)
 PreferredStyles=
-DefaultTextEditorColorScheme=broccoli-dark.xml
+DefaultTextEditorColorScheme=dark-2024.xml
 DefaultToolbarStyle=Relaxed
 
 [Palette]

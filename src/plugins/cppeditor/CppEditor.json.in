@@ -34,7 +34,7 @@
         "    <mime-type type='text/vnd.nvidia.cuda.csrc'>",
         "        <sub-class-of type='text/x-csrc'/>",
         "        <comment>NVIDIA CUDA C source code</comment>",
-        "        <glob pattern='*.cu'/>",
+        "        <glob pattern='*.cu' weight='70'/>",
         "    </mime-type>",
 
         "    <mime-type type='text/x-chdr'>",

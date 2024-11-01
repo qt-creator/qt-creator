@@ -332,8 +332,8 @@ public:
     Qt Creator's state relevant to VCS plugins is a tuple of
 
     \list
-    \li Current file and it's version system control/top level
-    \li Current project and it's version system control/top level
+    \li Current file and its version control system top level
+    \li Current project and its version control system top level
     \endlist
 
     \sa VcsBase::VcsBasePlugin
@@ -552,6 +552,9 @@ void VersionControlBase::slotStateChanged(const Internal::State &newInternalStat
         }
         ICore::removeAdditionalContext(m_context);
     }
+#ifdef WITH_TESTS
+    emit slotStateChangedDone();
+#endif
 }
 
 const VcsBasePluginState &VersionControlBase::currentState() const

@@ -34,6 +34,18 @@ qt.QClipboard = {}
 ---@return QClipboard globalClipboard The global clipboard object.
 function qt.clipboard() end
 
+---@class QFontMetrics A Lua wrapper for the Qt `QFontMetrics` class.
+qt.QFontMetrics = {}
+
+---Returns current font height.
+---@return int
+function qt.QFontMetrics:height() end
+
+---Creates a new QFontMetrics.
+---@param font QFont
+---@return QFontMetrics fontMetrics The new QFontMetrics.
+function qt.QFontMetrics.create(params) end
+
 ---@enum TextElideMode
 qt.TextElideMode = {
     ElideLeft = 0,

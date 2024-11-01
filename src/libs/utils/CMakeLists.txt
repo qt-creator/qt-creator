@@ -83,6 +83,7 @@ add_qtc_library(Utils
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
     iconbutton.cpp iconbutton.h
+    icondisplay.h icondisplay.cpp
     id.cpp id.h
     indexedcontainerproxyconstiterator.h
     infobar.cpp infobar.h

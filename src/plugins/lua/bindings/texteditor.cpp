@@ -353,6 +353,11 @@ void setupTextEditorModule()
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
                 return document->filePath();
             },
+            "font",
+            [](const TextDocumentPtr &document) {
+                QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));
+                return document->fontSettings().font();
+            },
             "blockAndColumn",
             [](const TextDocumentPtr &document, int position) -> std::optional<std::pair<int, int>> {
                 QTC_ASSERT(document, throw sol::error("TextDocument is not valid"));

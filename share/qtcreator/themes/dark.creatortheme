@@ -1,6 +1,6 @@
 [General]
 Includes=dark.figmatokens
-ThemeName=Dark
+ThemeName=Contrast Dark (2016)
 PreferredStyles=
 DefaultTextEditorColorScheme=dark.xml
 EnforceAccentColorOnMacOS=selectedBackground

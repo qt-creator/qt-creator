@@ -375,30 +375,23 @@ class ExtensionItemDelegate : public QItemDelegate
 public:
     explicit ExtensionItemDelegate(QObject *parent)
         : QItemDelegate(parent)
-    {
-        m_itemWidget = new ExtensionItemWidget;
-    }
-
-    ~ExtensionItemDelegate()
-    {
-        delete m_itemWidget;
-    }
+    {}
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index)
         const override
     {
-        m_itemWidget->paint(painter, option, index);
+        m_itemWidget.paint(painter, option, index);
     }
 
     QSize sizeHint([[maybe_unused]] const QStyleOptionViewItem &option,
                    const QModelIndex &index) const override
     {
-        m_itemWidget->setData(index);
-        return {cellWidth, m_itemWidget->minimumSizeHint().height() + gapSize};
+        m_itemWidget.setData(index);
+        return {cellWidth, m_itemWidget.minimumSizeHint().height() + gapSize};
     }
 
 private:
-    ExtensionItemWidget *m_itemWidget;
+    mutable ExtensionItemWidget m_itemWidget;
 };
 
 class SortFilterProxyModel : public QSortFilterProxyModel

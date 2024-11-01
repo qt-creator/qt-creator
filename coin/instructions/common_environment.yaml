@@ -2,6 +2,12 @@ type: Group
 instructions:
   - type: Group
     instructions:
+      - type: Group
+        instructions:
+          - type: SetBuildDirectory
+            directory: "{{.AgentWorkingDir}}/build"
+          - type: MakeDirectory
+            directory: "{{.BuildDir}}"
       - type: EnvironmentVariable
         variableName: QTC_BUILD_TYPE
         variableValue: "RelWithDebInfo"
@@ -146,6 +152,15 @@ instructions:
           condition: property
           property: features
           contains_value: Sccache
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_TEST_OPTION
+            variableValue: "--with-tests"
+        enable_if:
+          condition: property
+          property: features
+          not_contains_value: DisableTests
 
   - type: Group
     instructions:
@@ -184,8 +199,3 @@ instructions:
       condition: property
       property: host.os
       equals_value: Linux
-
-enable_if:
-  condition: property
-  property: features
-  not_contains_value: "Qt5"

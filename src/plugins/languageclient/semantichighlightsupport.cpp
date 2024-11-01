@@ -418,6 +418,8 @@ void SemanticTokenSupport::highlight(const Utils::FilePath &filePath, bool force
     TextDocument *doc = TextDocument::textDocumentForFilePath(filePath);
     if (!doc || LanguageClientManager::clientForDocument(doc) != m_client)
         return;
+    if (supportedSemanticRequests(doc).testFlag(SemanticRequestType::None))
+        return;
     SyntaxHighlighter *highlighter = doc->syntaxHighlighter();
     if (!highlighter)
         return;

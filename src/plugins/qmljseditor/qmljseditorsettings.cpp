@@ -61,6 +61,7 @@ const char USE_GLOBAL_SETTINGS[] = "QmlJSEditor.UseGlobalSettings";
 const char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
 const char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
 const char IGNORE_MINIMUM_QMLLS_VERSION[] = "QmlJSEditor.IgnoreMinimumQmllsVersion";
+const char USE_QMLLS_SEMANTIC_HIGHLIGHTING[] = "QmlJSEditor.EnableQmllsSemanticHighlighting";
 const char DISABLE_BUILTIN_CODEMODEL[] = "QmlJSEditor.DisableBuiltinCodemodel";
 const char GENERATE_QMLLS_INI_FILES[] = "QmlJSEditor.GenerateQmllsIniFiles";
 const char UIQML_OPEN_MODE[] = "QmlJSEditor.openUiQmlMode";
@@ -150,6 +151,7 @@ void QmllsSettingsManager::checkForChanges()
         && m_useLatestQmlls == newSettings.useLatestQmlls()
         && m_disableBuiltinCodemodel == newSettings.disableBuiltinCodemodel()
         && m_generateQmllsIniFiles == newSettings.generateQmllsIniFiles()
+        && m_enableQmllsSemanticHighlighting == newSettings.enableQmllsSemanticHighlighting()
         && newLatest == m_latestQmlls)
         return;
     qCDebug(qmllsLog) << "qmlls settings changed:" << newSettings.useQmlls()
@@ -160,6 +162,7 @@ void QmllsSettingsManager::checkForChanges()
         m_useQmlls = newSettings.useQmlls();
         m_useLatestQmlls = newSettings.useLatestQmlls();
         m_disableBuiltinCodemodel = newSettings.disableBuiltinCodemodel();
+        m_enableQmllsSemanticHighlighting = newSettings.enableQmllsSemanticHighlighting();
         m_generateQmllsIniFiles = newSettings.generateQmllsIniFiles();
     }
     emit settingsChanged();
@@ -263,6 +266,10 @@ QmlJsEditingSettings::QmlJsEditingSettings()
         Tr::tr("Allow versions below Qt %1")
             .arg(QmlJsEditingSettings::mininumQmllsVersion.toString()));
 
+    enableQmllsSemanticHighlighting.setSettingsKey(group, USE_QMLLS_SEMANTIC_HIGHLIGHTING);
+    enableQmllsSemanticHighlighting.setLabelText(
+        Tr::tr("Enable semantic highlighting (experimental)"));
+
     useCustomFormatCommand.setSettingsKey(group, CUSTOM_COMMAND);
     useCustomFormatCommand.setLabelText(
         Tr::tr("Use custom command instead of built-in formatter"));
@@ -296,6 +303,7 @@ QmlJsEditingSettings::QmlJsEditingSettings()
     disableBuiltinCodemodel.setEnabler(&useQmlls);
     generateQmllsIniFiles.setEnabler(&useQmlls);
     ignoreMinimumQmllsVersion.setEnabler(&useQmlls);
+    enableQmllsSemanticHighlighting.setEnabler(&useQmlls);
     formatCommand.setEnabler(&useCustomFormatCommand);
     formatCommandOptions.setEnabler(&useCustomFormatCommand);
 }
@@ -422,6 +430,7 @@ public:
                     s.useQmlls,
                     s.ignoreMinimumQmllsVersion,
                     s.disableBuiltinCodemodel,
+                    s.enableQmllsSemanticHighlighting,
                     s.useLatestQmlls,
                     s.generateQmllsIniFiles
                 },

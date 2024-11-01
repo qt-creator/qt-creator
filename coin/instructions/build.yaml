@@ -1,47 +1,7 @@
 type: Group
 instructions:
-  - type: MakeDirectory
-    directory: "{{.AgentWorkingDir}}/build/qt_temp"
   - type: Group
     instructions:
-      - type: EnvironmentVariable
-        variableName: QTC_TEST_OPTION
-        variableValue: "--with-tests"
-    enable_if:
-      condition: property
-      property: features
-      not_contains_value: DisableTests
-
-  - type: Group
-    instructions:
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}/build/qt_temp/elfutils.7z
-                {{.Env.QTC_ELFUTILS_URL}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils.7z
-                -o{{.AgentWorkingDir}}/build/qt_temp/elfutils
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
-                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download LLVM package, check logs."
-      - type: ExecuteCommand
-        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
         command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
@@ -82,19 +42,6 @@ instructions:
     instructions:
       - type: ExecuteCommand
         command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
-                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download LLVM package, check logs."
-      - type: ExecuteCommand
-        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract LLVM package, check logs."
-      - type: ExecuteCommand
-        command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/build.py
                 --build-type {{.Env.QTC_BUILD_TYPE}}
                 --src {{.AgentWorkingDir}}/qt-creator/qt-creator
@@ -133,102 +80,6 @@ instructions:
 
   - type: Group
     instructions:
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
-                {{.Env.QTC_ELFUTILS_URL}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
-                -o{{.AgentWorkingDir}}\build\qt_temp\elfutils
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract elfutils package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
-                https://master.qt.io/development_releases/prebuilt/python/Python311-win-x64.7z
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
-                -o{{.AgentWorkingDir}}\build\qt_temp\python
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-amd64.zip
-                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-amd64.zip
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-amd64.zip
-                -o{{.AgentWorkingDir}}\build\qt_temp\python-amd64
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-arm64.zip
-                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-arm64.zip
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-arm64.zip
-                -o{{.AgentWorkingDir}}\build\qt_temp\python-arm64
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-win32.zip
-                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-win32.zip
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-win32.zip
-                -o{{.AgentWorkingDir}}\build\qt_temp\python-win32
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract python package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            curl --fail -L --retry 5 --retry-delay 5
-                -o {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
-                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to download LLVM package, check logs."
-      - type: ExecuteCommand
-        command: >-
-            7z.exe x -y
-                {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
-                -o{{.AgentWorkingDir}}\build\qt_temp
-        maxTimeInSeconds: 3600
-        maxTimeBetweenOutput: 360
-        userMessageOnFailure: "Failed to extract LLVM package, check logs."
       - type: ExecuteCommand
         command: >-
             {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\build.py
@@ -272,8 +123,3 @@ instructions:
     transferType: UploadModuleBuildArtifact
     maxTimeInSeconds: 1800
     maxTimeBetweenOutput: 1800
-
-enable_if:
-  condition: property
-  property: features
-  not_contains_value: "Qt5"

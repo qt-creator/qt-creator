@@ -32,6 +32,7 @@ General
 * Prebuilt binaries
     * Added opt-in crash reporting to
       `Edit > Preferences > Environment > System`
+      ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-turn-on-crash-reports.html))
 
 Editing
 -------

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<style-scheme version="1.0" name="Broccoli Dark">
+<style-scheme version="1.0" name="Dark (2024)">
   <style name="Text" foreground="#d6cf9a" background="#1f1f1f"/>
   <style name="Link" foreground="#d6c540"/>
   <style name="Selection" background="#3f3f3f"/>

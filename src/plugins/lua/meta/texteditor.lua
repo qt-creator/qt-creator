@@ -78,6 +78,10 @@ local TextDocument = {}
 ---@return FilePath filePath The file path of the document.
 function TextDocument:file() end
 
+---Returns the font of the document.
+---@return QFont
+function TextDocument:font() end
+
 ---Returns the block (line) and column for the given position.
 ---@param position integer The position to convert.
 ---@return integer block The block (line) of the position.

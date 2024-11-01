@@ -734,7 +734,7 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
         setSemanticWarningSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-    if (cap.semanticTokensProvider())
+    if (cap.semanticTokensProvider() && settings().enableQmllsSemanticHighlighting())
         setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
@@ -765,8 +765,14 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
         return;
 
     FilePath newQmlls = qmllsForFile(q->filePath(), ModelManagerInterface::instance());
-    if (m_qmllsStatus.qmllsPath == newQmlls)
+    if (m_qmllsStatus.qmllsPath == newQmlls) {
+        if (QmllsClient *client = QmllsClient::clientForQmlls(newQmlls)) {
+            client->updateQmllsSemanticHighlightingCapability();
+            setSourcesWithCapabilities(client->capabilities());
+            client->activateDocument(q);
+        }
         return;
+    }
 
     using namespace LanguageClient;
     m_qmllsStatus.qmllsPath = newQmlls;
@@ -788,6 +794,7 @@ void QmlJSEditorDocumentPrivate::settingsChanged()
             if (client == oldClient)
                 shouldActivate = true;
         }
+        client->updateQmllsSemanticHighlightingCapability();
         switch (client->state()) {
         case Client::State::Uninitialized:
         case Client::State::InitializeRequested:

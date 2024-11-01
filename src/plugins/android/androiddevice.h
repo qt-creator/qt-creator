@@ -70,7 +70,8 @@ private:
 
 void setupDevicesWatcher();
 void updateAvdList();
-Utils::Result createAvd(const CreateAvdInfo &info, bool force);
+Tasking::Group createAvdRecipe(const Tasking::Storage<std::optional<QString>> &errorStorage,
+                               const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);
