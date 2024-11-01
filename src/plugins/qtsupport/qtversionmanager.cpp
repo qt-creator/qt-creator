@@ -21,8 +21,8 @@
 #include <utils/filesystemwatcher.h>
 #include <utils/hostosinfo.h>
 #include <utils/persistentsettings.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 
 #include <nanotrace/nanotrace.h>
 
@@ -33,6 +33,7 @@
 #include <QStringList>
 #include <QTextStream>
 #include <QTimer>
+#include <QtConcurrentMap>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -514,11 +515,10 @@ using DocumentationFile = std::pair<Path, FileName>;
 using DocumentationFiles = QList<DocumentationFile>;
 using AllDocumentationFiles = QHash<QtVersion *, DocumentationFiles>;
 
-static DocumentationFiles allDocumentationFiles(QtVersion *v)
+static DocumentationFiles allDocumentationFiles(const QString &docsPath)
 {
     DocumentationFiles files;
-    const QStringList docPaths = QStringList(
-        {v->docsPath().toString() + QChar('/'), v->docsPath().toString() + "/qch/"});
+    const QStringList docPaths{docsPath + QChar('/'), docsPath + "/qch/"};
     for (const QString &docPath : docPaths) {
         const QDir versionHelpDir(docPath);
         for (const QString &helpFile : versionHelpDir.entryList(QStringList("q*.qch"), QDir::Files))
@@ -529,10 +529,18 @@ static DocumentationFiles allDocumentationFiles(QtVersion *v)
 
 static AllDocumentationFiles allDocumentationFiles(const QtVersions &versions)
 {
-    AllDocumentationFiles result;
-    for (QtVersion *v : versions)
-        result.insert(v, allDocumentationFiles(v));
-    return result;
+    QList<QPair<QtVersion *, QString>> versionsWithDocPath;
+    for (QtVersion *v : versions) {
+        if (v->hasDocs() && !v->docsPath().needsDevice())
+            versionsWithDocPath << qMakePair(v, v->docsPath().path());
+    }
+    QFuture<QPair<QtVersion *, DocumentationFiles>> future = QtConcurrent::mapped(
+        versionsWithDocPath, [](const QPair<QtVersion *, QString> &versionWithDoc) {
+            return qMakePair(versionWithDoc.first, allDocumentationFiles(versionWithDoc.second));
+        });
+    future.waitForFinished();
+    return Utils::transform<AllDocumentationFiles>(
+        future.results(), [](const QPair<QtVersion *, DocumentationFiles> &r) { return r; });
 }
 
 static QStringList documentationFiles(const QtVersions &vs,
