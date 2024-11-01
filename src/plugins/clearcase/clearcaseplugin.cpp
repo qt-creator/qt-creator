@@ -65,14 +65,14 @@
 #include <QMetaObject>
 #include <QMutex>
 #include <QRegularExpression>
-#include <QSignalSpy>
 #include <QTextCodec>
 #include <QUuid>
 #include <QVBoxLayout>
 
 #ifdef WITH_TESTS
-#include <QTest>
 #include <coreplugin/vcsmanager.h>
+#include <QSignalSpy>
+#include <QTest>
 #endif
 
 using namespace Core;
