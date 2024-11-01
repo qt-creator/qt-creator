@@ -83,8 +83,8 @@ public:
         RestoreData(const Issue &issue) : issue{issue} { }
 
         bool hasIssue() const { return bool(issue); }
-        bool hasError() const { return hasIssue() && issue.value().type == Issue::Type::ERROR; }
-        bool hasWarning() const { return hasIssue() && issue.value().type == Issue::Type::WARNING; }
+        bool hasError() const { return hasIssue() && issue->type == Issue::Type::ERROR; }
+        bool hasWarning() const { return hasIssue() && issue->type == Issue::Type::WARNING; }
 
         FilePath path;
         Store data;

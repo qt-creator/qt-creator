@@ -616,7 +616,7 @@ Toolchain::MacroInspectionRunner GccToolchain::createMacroInspectionRunner() con
         arguments = reinterpretOptions(arguments);
         const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(arguments);
         if (cachedMacros)
-            return cachedMacros.value();
+            return *cachedMacros;
 
         const expected_str<Macros> macroResult
             = gccPredefinedMacros(findLocalCompiler(compilerCommand, env), arguments, env);
@@ -795,7 +795,7 @@ static HeaderPaths builtInHeaderPaths(const Environment &env,
 
     const std::optional<HeaderPaths> cachedPaths = headerCache->check({env, arguments});
     if (cachedPaths)
-        return cachedPaths.value();
+        return *cachedPaths;
 
     HeaderPaths paths = gccHeaderPaths(findLocalCompiler(compilerCommand, env),
                                        arguments,

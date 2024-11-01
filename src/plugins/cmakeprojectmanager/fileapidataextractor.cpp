@@ -271,19 +271,17 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
     if (ct.targetType == ExecutableType) {
         FilePaths librarySeachPaths;
         // Is this a GUI application?
-        ct.linksToQtGui = Utils::contains(t.link.value().fragments,
-                                          [](const FragmentInfo &f) {
-                                              return f.role == "libraries"
-                                                     && (f.fragment.contains("QtGui")
-                                                         || f.fragment.contains("Qt5Gui")
-                                                         || f.fragment.contains("Qt6Gui"));
-                                          });
+        ct.linksToQtGui = Utils::contains(t.link->fragments, [](const FragmentInfo &f) {
+            return f.role == "libraries"
+                   && (f.fragment.contains("QtGui") || f.fragment.contains("Qt5Gui")
+                       || f.fragment.contains("Qt6Gui"));
+        });
 
         // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
         ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
 
         // Extract library directories for executables:
-        for (const FragmentInfo &f : t.link.value().fragments) {
+        for (const FragmentInfo &f : t.link->fragments) {
             if (f.role == "flags") // ignore all flags fragments
                 continue;
 

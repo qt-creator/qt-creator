@@ -188,8 +188,7 @@ QIcon Icon::icon() const
         if (const OptMasksAndColors activeMasks =
             highlightMasksAndColors(masks, m_iconSourceList);
             activeMasks.has_value()) {
-            const QPixmap activePixmap = masksToIcon(activeMasks.value(),
-                                                     combinedMask, m_style);
+            const QPixmap activePixmap = masksToIcon(*activeMasks, combinedMask, m_style);
             m_lastIcon.addPixmap(activePixmap, QIcon::Active, QIcon::On);
             m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::On);
             m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::Off);

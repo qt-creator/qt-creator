@@ -980,7 +980,7 @@ MessageId ClangdClient::requestSymbolInfo(const Utils::FilePath &filePath, const
         // According to the documentation, we should receive a single
         // object here, but it's a list. No idea what it means if there's
         // more than one entry. We choose the first one.
-        const auto list = std::get_if<QList<SymbolDetails>>(&result.value());
+        const auto list = std::get_if<QList<SymbolDetails>>(&(*result));
         if (!list || list->isEmpty()) {
             handler({}, {}, reqId);
             return;

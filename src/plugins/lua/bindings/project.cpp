@@ -122,7 +122,7 @@ void setupProjectModule()
                     if (rc && rc->displayName() == displayName) {
                         stoppedCount++;
 
-                        if (force.has_value() && force.value()) {
+                        if (force.has_value() && *force) {
                             rc->forceStop();
                         } else {
                             rc->initiateStop();

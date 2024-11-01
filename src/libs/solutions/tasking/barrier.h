@@ -86,8 +86,8 @@ ExecutableItem waitForBarrierTask(const MultiBarrier<Limit> &sharedBarrier)
         Barrier *activeSharedBarrier = activeBarrier->barrier();
         const std::optional<DoneResult> result = activeSharedBarrier->result();
         if (result.has_value()) {
-            return result.value() == DoneResult::Success ? SetupResult::StopWithSuccess
-                                                         : SetupResult::StopWithError;
+            return *result == DoneResult::Success ? SetupResult::StopWithSuccess
+                                                  : SetupResult::StopWithError;
         }
         QObject::connect(activeSharedBarrier, &Barrier::done, &barrier, &Barrier::stopWithResult);
         return SetupResult::Continue;

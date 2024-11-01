@@ -44,7 +44,7 @@ static void expandAllButEnv(const PresetsDetails::ConfigurePreset &preset,
     value.replace("${presetName}", preset.name);
     value.replace("${fileDir}", preset.fileDir.path());
     if (preset.generator)
-        value.replace("${generator}", preset.generator.value());
+        value.replace("${generator}", *preset.generator);
 
     value.replace("${hostSystemName}", getHostSystemName(sourceDirectory.osType()));
     value.replace("${pathListSep}",

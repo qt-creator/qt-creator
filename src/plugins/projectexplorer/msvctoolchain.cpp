@@ -1055,7 +1055,7 @@ Toolchain::MacroInspectionRunner MsvcToolchain::createMacroInspectionRunner() co
 
         const std::optional<MacroInspectionReport> cachedMacros = macroCache->check(filteredFlags);
         if (cachedMacros)
-            return cachedMacros.value();
+            return *cachedMacros;
 
         const Macros macros = msvcPredefinedMacros(filteredFlags, env);
 

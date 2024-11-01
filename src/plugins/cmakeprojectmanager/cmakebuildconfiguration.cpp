@@ -1957,7 +1957,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
             getEnvironmentItemsFromCMakeBuildPreset(project, target->kit(), buildPresets[i].name));
 
         if (buildPresets[i].targets) {
-            QString targets = buildPresets[i].targets.value().join(" ");
+            QString targets = buildPresets[i].targets->join(" ");
 
             CMakePresets::Macros::expand(buildPresets[i],
                                          cbs->environment(),
@@ -1969,16 +1969,16 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
 
         QStringList cmakeArguments;
         if (buildPresets[i].jobs)
-            cmakeArguments.append(QString("-j %1").arg(buildPresets[i].jobs.value()));
-        if (buildPresets[i].verbose && buildPresets[i].verbose.value())
+            cmakeArguments.append(QString("-j %1").arg(*buildPresets[i].jobs));
+        if (buildPresets[i].verbose && *buildPresets[i].verbose)
             cmakeArguments.append("--verbose");
-        if (buildPresets[i].cleanFirst && buildPresets[i].cleanFirst.value())
+        if (buildPresets[i].cleanFirst && *buildPresets[i].cleanFirst)
             cmakeArguments.append("--clean-first");
         if (!cmakeArguments.isEmpty())
             cbs->setCMakeArguments(cmakeArguments);
 
         if (buildPresets[i].nativeToolOptions) {
-            QString nativeToolOptions = buildPresets[i].nativeToolOptions.value().join(" ");
+            QString nativeToolOptions = buildPresets[i].nativeToolOptions->join(" ");
 
             CMakePresets::Macros::expand(buildPresets[i],
                                          cbs->environment(),
@@ -1989,7 +1989,7 @@ void CMakeBuildConfiguration::setBuildPresetToBuildSteps(const ProjectExplorer::
         }
 
         if (buildPresets[i].configuration)
-            cbs->setConfiguration(buildPresets[i].configuration.value());
+            cbs->setConfiguration(*buildPresets[i].configuration);
 
         // Leave only the first build step enabled
         if (i > 0)

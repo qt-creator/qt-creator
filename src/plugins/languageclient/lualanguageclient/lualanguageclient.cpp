@@ -689,7 +689,7 @@ static void registerLuaApi()
                 [](const LuaClientWrapper *c) -> sol::function {
                     if (!c->m_onInstanceStart)
                         return sol::lua_nil;
-                    return c->m_onInstanceStart.value();
+                    return *c->m_onInstanceStart;
                 },
                 [](LuaClientWrapper *c, const sol::function &f) { c->m_onInstanceStart = f; }),
             "registerMessage",

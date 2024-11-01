@@ -216,7 +216,7 @@ FilePaths CMakeProjectImporter::presetCandidates()
             Environment env = projectDirectory().deviceEnvironment();
             CMakePresets::Macros::expand(configPreset, env, projectDirectory());
 
-            QString binaryDir = configPreset.binaryDir.value();
+            QString binaryDir = *configPreset.binaryDir;
             CMakePresets::Macros::expand(configPreset, env, projectDirectory(), binaryDir);
 
             const FilePath binaryFilePath = FilePath::fromString(binaryDir);
@@ -263,10 +263,10 @@ static QVariant findOrRegisterDebugger(
     Environment &env, const PresetsDetails::ConfigurePreset &preset, const DebuggerCMakeExpander& expander)
 {
     const QString debuggerKey("debugger");
-    if (!preset.vendor || !preset.vendor.value().contains(debuggerKey))
+    if (!preset.vendor || !preset.vendor->contains(debuggerKey))
         return {};
 
-    const QVariant debuggerVariant = preset.vendor.value().value(debuggerKey);
+    const QVariant debuggerVariant = preset.vendor->value(debuggerKey);
     FilePath debuggerPath = FilePath::fromUserInput(expander.expand(debuggerVariant.toString()));
     if (!debuggerPath.isEmpty()) {
         if (debuggerPath.isRelativePath())
@@ -373,7 +373,7 @@ static CMakeConfig configurationFromPresetProbe(
     Process cmake;
     cmake.setDisableUnixTerminal();
 
-    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
+    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value_or(FilePath());
 
     Environment env = cmakeExecutable.deviceEnvironment();
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
@@ -389,29 +389,28 @@ static CMakeConfig configurationFromPresetProbe(
 
     if (configurePreset.generator) {
         args.emplace_back("-G");
-        args.emplace_back(configurePreset.generator.value());
+        args.emplace_back(*configurePreset.generator);
     }
-    if (configurePreset.architecture && configurePreset.architecture.value().value) {
+    if (configurePreset.architecture && configurePreset.architecture->value) {
         if (!configurePreset.architecture->strategy
             || configurePreset.architecture->strategy
                    != PresetsDetails::ValueStrategyPair::Strategy::external) {
             args.emplace_back("-A");
-            args.emplace_back(configurePreset.architecture.value().value.value());
+            args.emplace_back(*configurePreset.architecture->value);
         }
     }
-    if (configurePreset.toolset && configurePreset.toolset.value().value) {
+    if (configurePreset.toolset && configurePreset.toolset->value) {
         if (!configurePreset.toolset->strategy
             || configurePreset.toolset->strategy
                    != PresetsDetails::ValueStrategyPair::Strategy::external) {
             args.emplace_back("-T");
-            args.emplace_back(configurePreset.toolset.value().value.value());
+            args.emplace_back(*configurePreset.toolset->value);
         }
     }
 
     if (configurePreset.cacheVariables) {
-        const CMakeConfig cache = configurePreset.cacheVariables
-                                      ? configurePreset.cacheVariables.value()
-                                      : CMakeConfig();
+        const CMakeConfig cache = configurePreset.cacheVariables ? *configurePreset.cacheVariables
+                                                                 : CMakeConfig();
 
         const QString cmakeMakeProgram = cache.stringValueOf("CMAKE_MAKE_PROGRAM");
         const QString toolchainFile = cache.stringValueOf("CMAKE_TOOLCHAIN_FILE");

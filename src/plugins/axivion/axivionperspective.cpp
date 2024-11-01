@@ -593,14 +593,14 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
 {
     QTC_ASSERT(m_currentTableInfo.has_value(), return);
     if (dto.totalRowCount.has_value()) {
-        m_totalRowCount = dto.totalRowCount.value();
+        m_totalRowCount = *dto.totalRowCount;
         m_issuesModel->setExpectedRowCount(m_totalRowCount);
         m_totalRows->setText(Tr::tr("Total rows:") + ' ' + QString::number(m_totalRowCount));
     }
     if (dto.totalAddedCount.has_value())
-        m_addedFilter->setText(QString::number(dto.totalAddedCount.value()));
+        m_addedFilter->setText(QString::number(*dto.totalAddedCount));
     if (dto.totalRemovedCount.has_value())
-        m_removedFilter->setText(QString::number(dto.totalRemovedCount.value()));
+        m_removedFilter->setText(QString::number(*dto.totalRemovedCount));
 
     const std::vector<Dto::ColumnInfoDto> &tableColumns = m_currentTableInfo->columns;
     const std::vector<std::map<QString, Dto::Any>> &rows = dto.rows;

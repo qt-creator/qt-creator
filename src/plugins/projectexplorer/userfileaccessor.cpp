@@ -240,9 +240,8 @@ static FilePath externalUserFilePath(const Utils::FilePath &projectFilePath, con
     if (externalUserFileDir) {
         // Recreate the relative project file hierarchy under the shared directory.
         // PersistentSettingsWriter::write() takes care of creating the path.
-        return FilePath::fromString(externalUserFileDir.value()
-                                    + '/' + makeRelative(projectFilePath.toString())
-                                    + suffix);
+        return FilePath::fromString(
+            *externalUserFileDir + '/' + makeRelative(projectFilePath.toString()) + suffix);
     }
     return {};
 }

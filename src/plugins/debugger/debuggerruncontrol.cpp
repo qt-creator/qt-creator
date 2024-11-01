@@ -715,9 +715,10 @@ void DebuggerRunTool::handleEngineFinished(DebuggerEngine *engine)
     if (--d->engineStopsNeeded == 0) {
         QString cmd = m_runParameters.inferior.command.toUserOutput();
         QString msg = engine->runParameters().exitCode // Main engine.
-            ? Tr::tr("Debugging of %1 has finished with exit code %2.")
-                .arg(cmd).arg(engine->runParameters().exitCode.value())
-            : Tr::tr("Debugging of %1 has finished.").arg(cmd);
+                          ? Tr::tr("Debugging of %1 has finished with exit code %2.")
+                                .arg(cmd)
+                                .arg(*engine->runParameters().exitCode)
+                          : Tr::tr("Debugging of %1 has finished.").arg(cmd);
         appendMessage(msg, NormalMessageFormat);
         reportStopped();
     }

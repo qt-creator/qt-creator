@@ -320,7 +320,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     }
 
     if (res.newContent) {
-        append(res.newContent.value(), charFmt);
+        append(*res.newContent, charFmt);
         return;
     }
 

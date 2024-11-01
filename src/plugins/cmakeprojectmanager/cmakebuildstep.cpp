@@ -491,7 +491,7 @@ CommandLine CMakeBuildStep::cmakeCommand() const
     if (bs && bs->isMultiConfigReader()) {
         cmd.addArg("--config");
         if (m_configuration)
-            cmd.addArg(m_configuration.value());
+            cmd.addArg(*m_configuration);
         else
             cmd.addArg(bs->cmakeBuildType());
     }
@@ -586,7 +586,7 @@ QWidget *CMakeBuildStep::createConfigWidget()
                       return bp.name == m_buildPreset;
                   });
 
-            const QString presetDisplayName = preset.displayName ? preset.displayName.value()
+            const QString presetDisplayName = preset.displayName ? *preset.displayName
                                                                  : preset.name;
             if (!presetDisplayName.isEmpty())
                 summaryText.append(QString("<br><b>Preset</b>: %1").arg(presetDisplayName));

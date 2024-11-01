@@ -2044,7 +2044,7 @@ int FakeVimPlugin::currentFile() const
     if (editor) {
         const std::optional<int> index = DocumentModel::indexOfDocument(editor->document());
         if (QTC_GUARD(index))
-            return index.value();
+            return *index;
     }
     return -1;
 }

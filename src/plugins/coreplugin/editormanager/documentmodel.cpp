@@ -322,7 +322,7 @@ void DocumentModelPrivate::itemChanged(IDocument *document)
         return;
     const FilePath fixedPath = DocumentManager::filePathKey(document->filePath(),
                                                             DocumentManager::ResolveLinks);
-    DocumentModel::Entry *entry = m_entries.at(idx.value());
+    DocumentModel::Entry *entry = m_entries.at(*idx);
     bool found = false;
     // The entry's fileName might have changed, so find the previous fileName that was associated
     // with it and remove it, then add the new fileName.
@@ -340,8 +340,8 @@ void DocumentModelPrivate::itemChanged(IDocument *document)
     if (!found && !fixedPath.isEmpty())
         m_entryByFixedPath[fixedPath] = entry;
 
-    if (!disambiguateDisplayNames(m_entries.at(idx.value()))) {
-        QModelIndex mindex = index(idx.value() + 1/*<no document>*/, 0);
+    if (!disambiguateDisplayNames(m_entries.at(*idx))) {
+        QModelIndex mindex = index(*idx + 1 /*<no document>*/, 0);
         emit dataChanged(mindex, mindex);
     }
 

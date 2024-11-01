@@ -183,8 +183,7 @@ Store CMakeTool::toMap() const
     data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toSettings());
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
-        data.insert(CMAKE_INFORMATION_READERTYPE,
-                    Internal::readerTypeToString(m_readerType.value()));
+        data.insert(CMAKE_INFORMATION_READERTYPE, Internal::readerTypeToString(*m_readerType));
     data.insert(CMAKE_INFORMATION_AUTODETECTED, m_isAutoDetected);
     data.insert(CMAKE_INFORMATION_DETECTIONSOURCE, m_detectionSource);
     return data;
