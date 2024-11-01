@@ -279,8 +279,6 @@ QtcLibrary {
         "settingsaccessor.h",
         "settingsselector.cpp",
         "settingsselector.h",
-        "singleton.cpp",
-        "singleton.h",
         "sizedarray.h",
         "smallstring.h",
         "smallstringiterator.h",
