@@ -11,4 +11,24 @@ namespace ExtensionSystem {
 
 EXTENSIONSYSTEM_EXPORT QObject *shutdownGuard();
 
+template <class T>
+class GuardedObject
+{
+public:
+    GuardedObject()
+        : m_object(new T)
+    {
+        QObject::connect(shutdownGuard(), &QObject::destroyed, shutdownGuard(), [this] {
+            delete m_object;
+            m_object = nullptr;
+        });
+    }
+    ~GuardedObject() = default;
+
+    T *get() const { return m_object; }
+
+private:
+    T *m_object;
+};
+
 } // namespace ExtensionSystem
