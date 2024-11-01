@@ -4,13 +4,11 @@
 #include "systemsettings.h"
 
 #include "coreconstants.h"
-#include "coreplugin.h"
 #include "coreplugintr.h"
 #include "editormanager/editormanager_p.h"
 #include "dialogs/ioptionspage.h"
 #include "fileutils.h"
 #include "icore.h"
-#include "iversioncontrol.h"
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
@@ -61,7 +59,12 @@ SystemSettings &systemSettings()
 }
 
 SystemSettings::SystemSettings()
+    : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
+    const EnvironmentItems changes = EnvironmentItem::fromStringList(
+        ICore::settings()->value(kEnvironmentChanges).toStringList());
+    setEnvironmentChanges(changes);
+
     setAutoApply(false);
 
     patchCommand.setSettingsKey("General/PatchCommand");
@@ -348,7 +351,7 @@ public:
         updatePath();
 
         m_environmentChangesLabel->setElideMode(Qt::ElideRight);
-        m_environmentChanges = CorePlugin::environmentChanges();
+        m_environmentChanges = systemSettings().environmentChanges();
         updateEnvironmentChangesLabel();
         connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
             std::optional<EnvironmentItems> changes
@@ -418,7 +421,7 @@ void SystemSettingsWidget::apply()
         }
     }
 
-    CorePlugin::setEnvironmentChanges(m_environmentChanges);
+    systemSettings().setEnvironmentChanges(m_environmentChanges);
 }
 
 void SystemSettingsWidget::resetTerminal()
@@ -478,6 +481,25 @@ void SystemSettingsWidget::showHelpForFileBrowser()
 {
     if (HostOsInfo::isAnyUnixHost() && !HostOsInfo::isMacHost())
         showHelpDialog(Tr::tr("Variables"), UnixUtils::fileBrowserHelpText());
+}
+
+EnvironmentItems SystemSettings::environmentChanges() const
+{
+    return m_environmentChanges;
+}
+
+void SystemSettings::setEnvironmentChanges(const EnvironmentItems &changes)
+{
+    if (m_environmentChanges == changes)
+        return;
+    m_environmentChanges = changes;
+    Environment systemEnv = m_startupSystemEnvironment;
+    systemEnv.modify(changes);
+    Environment::setSystemEnvironment(systemEnv);
+    ICore::settings()->setValueWithDefault(kEnvironmentChanges,
+                                           EnvironmentItem::toStringList(changes));
+    if (ICore::instance())
+        emit ICore::instance()->systemEnvironmentChanged();
 }
 
 // SystemSettingsPage

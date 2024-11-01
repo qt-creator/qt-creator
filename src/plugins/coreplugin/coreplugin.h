@@ -8,7 +8,6 @@
 
 #include <extensionsystem/iplugin.h>
 #include <extensionsystem/pluginspec.h>
-#include <utils/environment.h>
 
 namespace Core {
 
@@ -39,8 +38,6 @@ public:
                            const QString &workingDirectory,
                            const QStringList &args) override;
 
-    static Utils::EnvironmentItems environmentChanges();
-    static void setEnvironmentChanges(const Utils::EnvironmentItems &changes);
     static QString msgCrashpadInformation();
 
     static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin);
@@ -65,8 +62,6 @@ private:
     EditMode *m_editMode = nullptr;
     Locator *m_locator = nullptr;
     FolderNavigationWidgetFactory *m_folderNavigationWidgetFactory = nullptr;
-    const Utils::Environment m_startupSystemEnvironment;
-    Utils::EnvironmentItems m_environmentChanges;
 };
 
 } // namespace Internal

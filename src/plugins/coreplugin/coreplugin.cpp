@@ -14,6 +14,7 @@
 #include "modemanager.h"
 #include "session.h"
 #include "settingsdatabase.h"
+#include "systemsettings.h"
 #include "themechooser.h"
 #include "vcsmanager.h"
 
@@ -31,6 +32,7 @@
 #include <utils/algorithm.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
+#include <utils/environment.h>
 #include <utils/infobar.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
@@ -67,11 +69,13 @@ using namespace Utils;
 static CorePlugin *m_instance = nullptr;
 
 const char kWarnCrashReportingSetting[] = "WarnCrashReporting";
-const char kEnvironmentChanges[] = "Core/EnvironmentChanges";
 
 CorePlugin::CorePlugin()
-    : m_startupSystemEnvironment(Environment::systemEnvironment())
 {
+    // Trigger creation as early as possible before anyone else could
+    // mess with the systemEnvironment before it is "backed up".
+    (void) systemSettings();
+
     qRegisterMetaType<Id>();
     qRegisterMetaType<Utils::Text::Position>();
     qRegisterMetaType<Utils::CommandLine>();
@@ -82,10 +86,6 @@ CorePlugin::CorePlugin()
     qRegisterMetaType<Utils::KeyList>();
     qRegisterMetaType<Utils::OldStore>();
     m_instance = this;
-
-    const EnvironmentItems changes = EnvironmentItem::fromStringList(
-        ICore::settings()->value(kEnvironmentChanges).toStringList());
-    setEnvironmentChanges(changes);
 }
 
 CorePlugin::~CorePlugin()
@@ -453,25 +453,6 @@ QObject *CorePlugin::remoteCommand(const QStringList & /* options */,
                 FilePath::fromString(workingDirectory));
     ICore::raiseMainWindow();
     return res;
-}
-
-EnvironmentItems CorePlugin::environmentChanges()
-{
-    return m_instance->m_environmentChanges;
-}
-
-void CorePlugin::setEnvironmentChanges(const EnvironmentItems &changes)
-{
-    if (m_instance->m_environmentChanges == changes)
-        return;
-    m_instance->m_environmentChanges = changes;
-    Environment systemEnv = m_instance->m_startupSystemEnvironment;
-    systemEnv.modify(changes);
-    Environment::setSystemEnvironment(systemEnv);
-    ICore::settings()->setValueWithDefault(kEnvironmentChanges,
-                                           EnvironmentItem::toStringList(changes));
-    if (ICore::instance())
-        emit ICore::instance()->systemEnvironmentChanged();
 }
 
 void CorePlugin::fileOpenRequest(const QString &f)
