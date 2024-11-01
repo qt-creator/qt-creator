@@ -575,7 +575,8 @@ void setupWidget(PropertyEditorQmlBackend *currentQmlBackend,
 void PropertyEditorView::setupQmlBackend()
 {
 #ifdef QDS_USE_PROJECTSTORAGE
-    auto selfAndPrototypes = m_selectedNode.metaInfo().selfAndPrototypes();
+    const NodeMetaInfo commonAncestor = PropertyEditorQmlBackend::findCommonAncestor(m_selectedNode);
+    auto selfAndPrototypes = commonAncestor.selfAndPrototypes();
     bool isEditableComponent = m_selectedNode.isComponent()
                                && !QmlItemNode(m_selectedNode).isEffectItem();
     auto specificQmlData = m_propertyEditorComponentGenerator.create(selfAndPrototypes,
