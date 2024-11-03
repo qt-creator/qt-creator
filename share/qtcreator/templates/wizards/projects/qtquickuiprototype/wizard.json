@@ -15,7 +15,8 @@
     [
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qmlproject')}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName(value('ProjectName'), 'qml')}" },
-        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" }
+        { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
+        { "key": "EnableCMakeGeneration", "value": "%{JS: false}" }
     ],
 
     "pages":

@@ -25,6 +25,7 @@
         { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
         { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
 
+        { "key": "EnableCMakeGeneration", "value": "%{JS: false}" },
         { "key": "ImportModuleName", "value": "%{ProjectName}" },
         { "key": "ImportModuleVersion", "value": "" },
         { "key": "IsQt6Project", "value": true },
