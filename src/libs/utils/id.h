@@ -34,9 +34,9 @@ public:
 #if QT_POINTER_SIZE != 4
     Id withSuffix(int suffix) const;
 #endif
-    Id withSuffix(const char suffix) const;
+    Id withSuffix(char suffix) const;
     Id withSuffix(const char *suffix) const;
-    Id withSuffix(const QStringView suffix) const;
+    Id withSuffix(QStringView suffix) const;
     Id withPrefix(const char *prefix) const;
 
     QByteArrayView name() const;
@@ -54,8 +54,8 @@ public:
     bool operator>(Id id) const { return m_id > id.m_id; }
     bool alphabeticallyBefore(Id other) const;
 
-    static Id fromString(const QStringView str); // FIXME: avoid.
-    static Id fromName(const QByteArrayView ba); // FIXME: avoid.
+    static Id fromString(QStringView str); // FIXME: avoid.
+    static Id fromName(QByteArrayView ba); // FIXME: avoid.
     static Id fromSetting(const QVariant &variant); // Good to use.
 
     static QSet<Id> fromStringList(const QStringList &list);

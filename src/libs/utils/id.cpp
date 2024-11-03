@@ -183,7 +183,7 @@ Key Id::toKey() const
   \sa toString(), fromSetting()
 */
 
-Id Id::fromString(const QStringView name)
+Id Id::fromString(QStringView name)
 {
     if (name.isEmpty())
         return Id();
@@ -202,7 +202,7 @@ Id Id::fromString(const QStringView name)
   \sa toString(), fromSetting()
 */
 
-Id Id::fromName(const QByteArrayView name)
+Id Id::fromName(QByteArrayView name)
 {
     return Id(theId(name.data(), name.size()));
 }
@@ -273,7 +273,7 @@ Id Id::withSuffix(int suffix) const
 /*!
   \overload
 */
-Id Id::withSuffix(const char suffix) const
+Id Id::withSuffix(char suffix) const
 {
     const QByteArray ba = name() + suffix;
     return Id(theId(ba.data(), ba.size()));
@@ -293,7 +293,7 @@ Id Id::withSuffix(const char *suffix) const
   \overload
 */
 
-Id Id::withSuffix(const QStringView suffix) const
+Id Id::withSuffix(QStringView suffix) const
 {
     const QByteArray ba = name() + suffix.toUtf8();
     return Id(theId(ba.data(), ba.size()));
