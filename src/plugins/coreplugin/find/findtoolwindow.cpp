@@ -101,7 +101,7 @@ FindToolWindow::FindToolWindow(QWidget *parent)
     sizePolicy2.setHorizontalStretch(0);
     sizePolicy2.setVerticalStretch(10);
     m_uiConfigWidget->setSizePolicy(sizePolicy2);
-    m_uiConfigWidget->setMinimumSize(QSize(680, 0));
+    m_uiConfigWidget->setMinimumSize(QSize(800, 0));
 
     setFocusProxy(m_searchTerm);
 
