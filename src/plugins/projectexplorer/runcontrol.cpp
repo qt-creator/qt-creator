@@ -1002,7 +1002,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
 void RunControlPrivate::showError(const QString &msg)
 {
-    if (!msg.isEmpty())
+    if (q && !msg.isEmpty())
         q->postMessage(msg + '\n', ErrorMessageFormat);
 }
 
@@ -1247,6 +1247,9 @@ void RunControlPrivate::startTaskTree()
 
 void RunControlPrivate::checkAutoDeleteAndEmitStopped()
 {
+    if (!q)
+        return;
+
     if (autoDelete) {
         debugMessage("All finished. Deleting myself");
         q->deleteLater();
@@ -1356,7 +1359,8 @@ void RunControlPrivate::setState(RunControlState newState)
     // Extra reporting.
     switch (state) {
     case RunControlState::Running:
-        emit q->started();
+        if (q)
+            emit q->started();
         break;
     case RunControlState::Stopped:
         checkAutoDeleteAndEmitStopped();
