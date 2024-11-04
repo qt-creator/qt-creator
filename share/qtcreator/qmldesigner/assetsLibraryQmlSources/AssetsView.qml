@@ -316,9 +316,6 @@ TreeView {
     function __selectRow(row: int)
     {
         let index = root.__modelIndex(row)
-        if (assetsModel.isDirectory(index))
-            return
-
         let filePath = assetsModel.filePath(index)
 
         root.clearSelectedAssets()
@@ -334,15 +331,10 @@ TreeView {
         let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
                                          : root.__modelIndex(root.firstRow)
         let row = root.rowAtIndex(index)
-        let nextRow = row
-        let nextIndex = index
+        let nextRow = row + amount
 
-        do {
-            nextRow = nextRow + amount
-            if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
-                return
-            nextIndex = root.__modelIndex(nextRow)
-        } while (assetsModel.isDirectory(nextIndex))
+        if ((amount < 0 && nextRow < root.firstRow) || (amount > 0 && nextRow > root.lastRow))
+            return
 
         root.__selectRow(nextRow)
         root.positionViewAtRow(nextRow, TableView.Contain)
@@ -356,6 +348,30 @@ TreeView {
 
     Keys.onDownPressed: {
         moveSelection(1)
+    }
+
+    Keys.onRightPressed: {
+        root.toggleDirectoryState("expand")
+    }
+
+    Keys.onLeftPressed: {
+        root.toggleDirectoryState("collapse")
+    }
+
+    function toggleDirectoryState(action) {
+
+        let index = root.currentFilePath ? assetsModel.indexForPath(root.currentFilePath)
+                                         : root.__modelIndex(root.firstRow)
+
+        if (!assetsModel.isDirectory(index))
+            return
+
+        let row = root.rowAtIndex(index)
+
+        if (action === "expand")
+            root.expand(row)
+        else if (action === "collapse")
+            root.collapse(row)
     }
 
     ConfirmDeleteFilesDialog {

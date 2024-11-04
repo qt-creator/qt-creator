@@ -184,8 +184,6 @@ TreeViewDelegate {
                     root.assetsView.selectedAssets = {}
                 root.assetsView.selectedAssets[root.__itemPath] = root.currFileSelected
                 root.assetsView.selectedAssetsChanged()
-
-                root.assetsView.currentFilePath = root.__itemPath
             }
         }
 
@@ -244,10 +242,12 @@ TreeViewDelegate {
         }
 
         onClicked: (mouse) => {
-            if (mouse.button === Qt.LeftButton)
+            if (mouse.button === Qt.LeftButton) {
                 root.__toggleExpandCurrentRow()
-            else
+                root.assetsView.currentFilePath = root.__itemPath
+            } else {
                 root.__openContextMenuForCurrentRow()
+            }
         }
     }
 
