@@ -189,7 +189,7 @@ void Device::processTextMessage(const QString &data)
     if (dataType == PackageFromDevice::deviceInfo) {
         QJsonObject deviceInfo = jsonObj.value("data").toObject();
         m_deviceInfo.setJsonObject(deviceInfo);
-        emit deviceInfoReady(m_deviceInfo.deviceId(), m_deviceInfo);
+        emit deviceInfoReady(m_deviceSettings.ipAddress(), m_deviceInfo.deviceId(), m_deviceInfo);
     } else if (dataType == PackageFromDevice::projectRunning) {
         emit projectStarted(m_deviceInfo.deviceId());
     } else if (dataType == PackageFromDevice::projectStopped) {

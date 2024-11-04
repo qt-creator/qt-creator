@@ -56,7 +56,7 @@ private:
 signals:
     void connected(const QString &deviceId);
     void disconnected(const QString &deviceId);
-    void deviceInfoReady(const QString &deviceId, const DeviceInfo &deviceInfo);
+    void deviceInfoReady(const QString &deviceIp, const QString &deviceId, const DeviceInfo &deviceInfo);
     void projectStarted(const QString &deviceId);
     void projectStopped(const QString &deviceId);
     void projectLogsReceived(const QString &deviceId, const QString &logs);

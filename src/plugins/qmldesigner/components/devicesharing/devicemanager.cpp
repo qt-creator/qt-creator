@@ -255,8 +255,33 @@ QSharedPointer<Device> DeviceManager::initDevice(const DeviceInfo &deviceInfo,
     return device;
 }
 
-void DeviceManager::deviceInfoReceived(const QString &deviceId, const DeviceInfo &deviceInfo)
+void DeviceManager::deviceInfoReceived(const QString &deviceIp,
+                                       const QString &deviceId,
+                                       const DeviceInfo &deviceInfo)
 {
+    auto newDevIt = std::find_if(m_devices.begin(),
+                                 m_devices.end(),
+                                 [deviceId, deviceIp](const auto &device) {
+                                     return device->deviceInfo().deviceId() == deviceId
+                                            && device->deviceSettings().ipAddress() == deviceIp;
+                                 });
+    auto oldDevIt = std::find_if(m_devices.begin(),
+                                 m_devices.end(),
+                                 [deviceId, deviceIp](const auto &device) {
+                                     return device->deviceInfo().deviceId() == deviceId
+                                            && device->deviceSettings().ipAddress() != deviceIp;
+                                 });
+
+    if (oldDevIt != m_devices.end()) {
+        QSharedPointer<Device> oldDevice;
+        QSharedPointer<Device> newDevice;
+        std::tie(oldDevice, newDevice) = std::make_tuple(*oldDevIt, *newDevIt);
+        DeviceSettings deviceSettings = oldDevice->deviceSettings();
+        deviceSettings.setIpAddress(newDevice->deviceSettings().ipAddress());
+        newDevice->setDeviceSettings(deviceSettings);
+        m_devices.removeOne(oldDevice);
+    }
+
     writeSettings();
     qCDebug(deviceSharePluginLog) << "Device" << deviceId << "is online";
     emit deviceOnline(deviceInfo);

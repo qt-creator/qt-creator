@@ -53,7 +53,9 @@ private:
                                       const DeviceSettings &deviceSettings = DeviceSettings());
 
     // device signals
-    void deviceInfoReceived(const QString &deviceId, const DeviceInfo &deviceInfo);
+    void deviceInfoReceived(const QString &deviceIp,
+                            const QString &deviceId,
+                            const DeviceInfo &deviceInfo);
     void deviceDisconnected(const QString &deviceId);
 
     QSharedPointer<Device> findDevice(const QString &deviceId) const;
