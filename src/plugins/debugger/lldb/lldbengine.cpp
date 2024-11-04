@@ -184,9 +184,9 @@ void LldbEngine::setupEngine()
     Environment environment = runParameters().debugger.environment;
     environment.set("QT_CREATOR_LLDB_PROCESS", "1");
     environment.set("PYTHONUNBUFFERED", "1"); // avoid flushing problem on macOS
-    DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
+    const bool ndkPythonEnvTweaked = DebuggerItem::addAndroidLldbPythonEnv(lldbCmd, environment);
 
-    if (lldbCmd.osType() == OsTypeLinux) {
+    if (!ndkPythonEnvTweaked && lldbCmd.osType() == OsTypeLinux) {
         // LLDB 14 installation on Ubuntu 22.04 is broken:
         // https://bugs.launchpad.net/ubuntu/+source/llvm-defaults/+bug/1972855
         // Brush over it:
