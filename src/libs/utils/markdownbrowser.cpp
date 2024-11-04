@@ -18,6 +18,7 @@
 
 #include <QBuffer>
 #include <QCache>
+#include <QGuiApplication>
 #include <QMovie>
 #include <QPainter>
 #include <QTextBlock>
@@ -412,7 +413,7 @@ void MarkdownBrowser::setMarkdown(const QString &markdown)
 void MarkdownBrowser::postProcessDocument(bool firstTime) const
 {
     const QFont contentFont = Utils::font(contentTF);
-    const float fontScale = font().pointSizeF() / qApp->font().pointSizeF();
+    const float fontScale = font().pointSizeF() / qGuiApp->font().pointSizeF();
     const auto scaledFont = [fontScale](QFont f) {
         f.setPointSizeF(f.pointSizeF() * fontScale);
         return f;
