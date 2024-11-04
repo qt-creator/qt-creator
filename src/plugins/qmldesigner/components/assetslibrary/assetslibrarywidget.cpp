@@ -422,11 +422,10 @@ void AssetsLibraryWidget::handleAssetsDrop(const QList<QUrl> &urls, const QStrin
         }
 
         if (!src.renameFile(dest) && src.isDir()) {
-            QMessageBox errBox;
-            QString message = QString("Failed to move folder \"%1\".\nThe folder might contain subfolders or one of its files is in use.")
+            QString message = tr("Failed to move folder \"%1\". "
+                                 "The folder might contain subfolders or one of its files is in use.")
                                   .arg(src.fileName());
-            errBox.setInformativeText(message);
-            errBox.exec();
+            Core::AsynchronousMessageBox::warning(tr("Folder move failure"), message);
         }
     }
 
