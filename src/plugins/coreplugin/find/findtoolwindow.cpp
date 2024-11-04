@@ -48,55 +48,55 @@ static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
 }
 
 FindToolWindow::FindToolWindow(QWidget *parent)
-    : QWidget(parent),
-    m_findCompleter(new QCompleter(this)),
-    m_currentFilter(nullptr),
-    m_configWidget(nullptr)
+    : QWidget(parent)
+    , m_findCompleter(new QCompleter(this))
+    , m_currentFilter(nullptr)
+    , m_configWidget(nullptr)
 {
     m_instance = this;
 
-    m_searchButton = new QPushButton(this);
+    m_searchButton = new QPushButton;
     m_searchButton->setText(Tr::tr("&Search", nullptr));
     m_searchButton->setDefault(true);
 
-    m_replaceButton = new QPushButton(this);
+    m_replaceButton = new QPushButton;
     m_replaceButton->setText(Tr::tr("Search && &Replace", nullptr));
 
-    m_searchTerm = new FancyLineEdit(this);
+    m_searchTerm = new FancyLineEdit;
     m_searchTerm->setFiltering(true);
     m_searchTerm->setPlaceholderText({});
 
-    m_searchLabel = new QLabel(this);
+    m_searchLabel = new QLabel;
     m_searchLabel->setText(Tr::tr("Search f&or:", nullptr));
-    m_searchLabel->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    m_searchLabel->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
     m_searchLabel->setBuddy(m_searchTerm);
 
     m_filterList = new QComboBox;
     m_filterList->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
     m_filterList->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 
-    m_optionsWidget = new QWidget(this);
+    m_optionsWidget = new QWidget;
 
-    m_matchCase = new QCheckBox(m_optionsWidget);
+    m_matchCase = new QCheckBox;
     m_matchCase->setText(Tr::tr("&Case sensitive", nullptr));
 
-    m_wholeWords = new QCheckBox(m_optionsWidget);
+    m_wholeWords = new QCheckBox;
     m_wholeWords->setText(Tr::tr("Whole words o&nly", nullptr));
 
-    m_ignoreBinaryFiles = new QCheckBox(m_optionsWidget);
+    m_ignoreBinaryFiles = new QCheckBox;
     m_ignoreBinaryFiles->setText(Tr::tr("Ignore binary files", nullptr));
 
-    m_regExp = new QCheckBox(m_optionsWidget);
+    m_regExp = new QCheckBox;
     m_regExp->setText(Tr::tr("Use re&gular expressions", nullptr));
 
-    auto label = new QLabel(this);
+    auto label = new QLabel;
     label->setText(Tr::tr("Sco&pe:", nullptr));
     label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Preferred);
     label->setMinimumSize(QSize(80, 0));
-    label->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
+    label->setAlignment(Qt::AlignRight | Qt::AlignTrailing | Qt::AlignVCenter);
     label->setBuddy(m_filterList);
 
-    m_uiConfigWidget = new QWidget(this);
+    m_uiConfigWidget = new QWidget;
     QSizePolicy sizePolicy2(QSizePolicy::Preferred, QSizePolicy::Fixed);
     sizePolicy2.setHorizontalStretch(0);
     sizePolicy2.setVerticalStretch(10);
