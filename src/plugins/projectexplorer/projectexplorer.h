@@ -99,8 +99,8 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    static OpenProjectResult openProject(const Utils::FilePath &filePath);
-    static OpenProjectResult openProjects(const Utils::FilePaths &filePaths);
+    static OpenProjectResult openProject(const Utils::FilePath &filePath, bool searchInDir = true);
+    static OpenProjectResult openProjects(const Utils::FilePaths &filePaths, bool searchInDir = true);
     static void showOpenProjectError(const OpenProjectResult &result);
     static void openProjectWelcomePage(const Utils::FilePath &filePath);
     static void unloadProject(Project *project);
