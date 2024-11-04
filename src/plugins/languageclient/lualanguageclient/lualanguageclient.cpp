@@ -34,7 +34,7 @@ namespace {
 
 class RequestWithResponse : public LanguageServerProtocol::JsonRpcMessage
 {
-    sol::function m_callback;
+    sol::main_function m_callback;
     LanguageServerProtocol::MessageId m_id;
 
 public:
@@ -210,7 +210,7 @@ public:
     TransportType m_transportType{TransportType::StdIO};
     std::function<expected_str<void>(CommandLine &)> m_cmdLineCallback;
     std::function<expected_str<void>(QString &)> m_initOptionsCallback;
-    sol::function m_asyncInitOptions;
+    sol::main_function m_asyncInitOptions;
     bool m_isUpdatingAsyncOptions{false};
     AspectContainer *m_aspects{nullptr};
     QString m_name;
@@ -330,7 +330,7 @@ public:
             this,
             &LuaClientWrapper::onClientRemoved);
 
-        if (auto asyncInit = options.get<sol::optional<sol::function>>(
+        if (auto asyncInit = options.get<sol::optional<sol::main_function>>(
                 "initializationOptionsAsync")) {
             m_asyncInitOptions = *asyncInit;
             QMetaObject::invokeMethod(
@@ -379,7 +379,7 @@ public:
         return {};
     }
 
-    void registerMessageCallback(const QString &msg, const sol::function &callback)
+    void registerMessageCallback(const QString &msg, const sol::main_function &callback)
     {
         m_messageCallbacks.insert(msg, callback);
         updateMessageCallbacks();
@@ -454,7 +454,7 @@ public:
     }
 
     void sendMessageWithIdForDocument_cb(
-        TextEditor::TextDocument *document, const sol::table &message, const sol::function callback)
+        TextEditor::TextDocument *document, const sol::table &message, const sol::main_function callback)
     {
         const QJsonValue messageValue = ::Lua::toJson(message);
         if (!messageValue.isObject())
@@ -691,7 +691,7 @@ static void registerLuaApi()
                         return sol::lua_nil;
                     return c->m_onInstanceStart.value();
                 },
-                [](LuaClientWrapper *c, const sol::function &f) { c->m_onInstanceStart = f; }),
+                [](LuaClientWrapper *c, const sol::main_function &f) { c->m_onInstanceStart = f; }),
             "registerMessage",
             &LuaClientWrapper::registerMessageCallback,
             "sendMessage",
