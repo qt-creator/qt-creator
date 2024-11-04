@@ -16,9 +16,6 @@ class DeviceManager : public QObject
 public:
     explicit DeviceManager(QObject *parent = nullptr, const QString &settingsPath = "settings.json");
 
-    // internal init functions
-    void addDevice(const QString &ip);
-
     // Getters
     QList<QSharedPointer<Device>> devices() const;
     std::optional<DeviceInfo> deviceInfo(const QString &deviceId) const;
@@ -28,6 +25,7 @@ public:
     void setDeviceActive(const QString &deviceId, const bool active);
     void setDeviceIP(const QString &deviceId, const QString &ip);
 
+    void addDevice(const QString &ip);
     void removeDevice(const QString &deviceId);
     void removeDeviceAt(int index);
     bool sendProjectFile(const QString &deviceId, const QString &projectFile);
@@ -59,6 +57,7 @@ private:
     void deviceDisconnected(const QString &deviceId);
 
     QSharedPointer<Device> findDevice(const QString &deviceId) const;
+    QString generateDeviceAlias() const;
 
 signals:
     void deviceAdded(const DeviceInfo &deviceInfo);

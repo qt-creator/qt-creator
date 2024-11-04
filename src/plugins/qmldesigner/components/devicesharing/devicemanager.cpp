@@ -197,6 +197,24 @@ void DeviceManager::setDeviceIP(const QString &deviceId, const QString &ip)
     writeSettings();
 }
 
+QString DeviceManager::generateDeviceAlias() const
+{
+    QStringList m_currentAliases;
+
+    for (const auto &device : m_devices) {
+        m_currentAliases.append(device->deviceSettings().alias());
+    }
+
+    for (int i = 0; i < m_devices.size(); ++i) {
+        QString alias = QString("Device %1").arg(i);
+        if (!m_currentAliases.contains(alias)) {
+            return alias;
+        }
+    }
+
+    return QString("Device %1").arg(m_devices.size() + 1);
+}
+
 void DeviceManager::addDevice(const QString &ip)
 {
     if (ip.isEmpty())
@@ -220,6 +238,7 @@ void DeviceManager::addDevice(const QString &ip)
 
     DeviceSettings deviceSettings;
     deviceSettings.setIpAddress(trimmedIp);
+    deviceSettings.setAlias(generateDeviceAlias());
     auto device = initDevice({}, deviceSettings);
     m_devices.append(device);
     writeSettings();
