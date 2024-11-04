@@ -44,6 +44,8 @@ namespace Utils {
 
 // DeviceFileAccess
 
+DeviceFileAccess::DeviceFileAccess() = default;
+
 DeviceFileAccess::~DeviceFileAccess() = default;
 
 // This takes a \a hostPath, typically the same as used with QFileInfo
@@ -394,6 +396,235 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
 {
     Q_UNUSED(path);
     return make_unexpected(Tr::tr("watch is not implemented."));
+}
+
+// UnavailableDeviceFileAccess
+
+UnavailableDeviceFileAccess::UnavailableDeviceFileAccess() = default;
+
+UnavailableDeviceFileAccess::~UnavailableDeviceFileAccess() = default;
+
+static QString unavailableMessage()
+{
+    return Tr::tr("Device is unavailable.");
+}
+
+QString UnavailableDeviceFileAccess::mapToDevicePath(const QString &hostPath) const
+{
+    return hostPath;
+}
+
+bool UnavailableDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isReadableFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isWritableFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isReadableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isWritableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::isSymLink(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+Result UnavailableDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath);
+    return Result::Error(unavailableMessage());
+}
+
+bool UnavailableDeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::createDirectory(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+bool UnavailableDeviceFileAccess::exists(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+Result UnavailableDeviceFileAccess::removeFile(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return Result::Error(unavailableMessage());
+}
+
+bool UnavailableDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(error)
+    return false;
+}
+
+Result UnavailableDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(target)
+    return Result::Error(unavailableMessage());
+}
+
+Result UnavailableDeviceFileAccess::copyRecursively(const FilePath &src, const FilePath &target) const
+{
+    Q_UNUSED(src)
+    Q_UNUSED(target)
+    return Result::Error(unavailableMessage());
+}
+
+Result UnavailableDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(target)
+    return Result::Error(unavailableMessage());
+}
+
+FilePath UnavailableDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+void UnavailableDeviceFileAccess::iterateDirectory(const FilePath &filePath,
+                                                   const FilePath::IterateDirCallback &callBack,
+                                                   const FileFilter &filter) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(callBack)
+    Q_UNUSED(filter)
+}
+
+Environment UnavailableDeviceFileAccess::deviceEnvironment() const
+{
+    return {};
+}
+
+expected_str<QByteArray> UnavailableDeviceFileAccess::fileContents(const FilePath &filePath,
+                                                                   qint64 limit,
+                                                                   qint64 offset) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(limit)
+    Q_UNUSED(offset)
+    return make_unexpected(unavailableMessage());
+}
+
+expected_str<qint64> UnavailableDeviceFileAccess::writeFileContents(const FilePath &filePath,
+                                                                    const QByteArray &data) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(data)
+    return make_unexpected(unavailableMessage());
+}
+
+FilePathInfo UnavailableDeviceFileAccess::filePathInfo(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+QDateTime UnavailableDeviceFileAccess::lastModified(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+QFile::Permissions UnavailableDeviceFileAccess::permissions(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+bool UnavailableDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permissions) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+qint64 UnavailableDeviceFileAccess::fileSize(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return false;
+}
+
+qint64 UnavailableDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return -1;
+}
+
+QByteArray UnavailableDeviceFileAccess::fileId(const FilePath &filePath) const
+{
+    Q_UNUSED(filePath)
+    return {};
+}
+
+std::optional<FilePath> UnavailableDeviceFileAccess::refersToExecutableFile(
+    const FilePath &filePath, FilePath::MatchScope matchScope) const
+{
+    Q_UNUSED(filePath)
+    Q_UNUSED(matchScope)
+    return {};
+}
+
+expected_str<FilePath> UnavailableDeviceFileAccess::createTempFile(const FilePath &filePath)
+{
+    Q_UNUSED(filePath)
+    return make_unexpected(unavailableMessage());
+}
+
+expected_str<std::unique_ptr<FilePathWatcher>>
+    UnavailableDeviceFileAccess::watch(const FilePath &path) const
+{
+    Q_UNUSED(path);
+    return make_unexpected(unavailableMessage());
 }
 
 // DesktopDeviceFileAccess

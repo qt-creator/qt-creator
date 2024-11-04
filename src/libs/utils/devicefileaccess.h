@@ -19,6 +19,7 @@ class RunResult;
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess
 {
 public:
+    DeviceFileAccess();
     virtual ~DeviceFileAccess();
 
     virtual Environment deviceEnvironment() const;
@@ -76,6 +77,65 @@ protected:
     virtual expected_str<FilePath> createTempFile(const FilePath &filePath);
 
     virtual Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const;
+};
+
+class QTCREATOR_UTILS_EXPORT UnavailableDeviceFileAccess : public DeviceFileAccess
+{
+public:
+    UnavailableDeviceFileAccess();
+    ~UnavailableDeviceFileAccess() override;
+
+protected:
+    QString mapToDevicePath(const QString &hostPath) const override;
+
+    Environment deviceEnvironment() const override;
+    bool isExecutableFile(const FilePath &filePath) const override;
+    bool isReadableFile(const FilePath &filePath) const override;
+    bool isWritableFile(const FilePath &filePath) const override;
+    bool isReadableDirectory(const FilePath &filePath) const override;
+    bool isWritableDirectory(const FilePath &filePath) const override;
+    bool isFile(const FilePath &filePath) const override;
+    bool isDirectory(const FilePath &filePath) const override;
+    bool isSymLink(const FilePath &filePath) const override;
+    bool hasHardLinks(const FilePath &filePath) const override;
+    Result ensureWritableDirectory(const FilePath &filePath) const override;
+    bool ensureExistingFile(const FilePath &filePath) const override;
+    bool createDirectory(const FilePath &filePath) const override;
+    bool exists(const FilePath &filePath) const override;
+    Result removeFile(const FilePath &filePath) const override;
+    bool removeRecursively(const FilePath &filePath, QString *error) const override;
+    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result copyRecursively(const FilePath &filePath, const FilePath &target) const override;
+    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
+
+    FilePath symLinkTarget(const FilePath &filePath) const override;
+    FilePathInfo filePathInfo(const FilePath &filePath) const override;
+    QDateTime lastModified(const FilePath &filePath) const override;
+    QFile::Permissions permissions(const FilePath &filePath) const override;
+    bool setPermissions(const FilePath &filePath, QFile::Permissions) const override;
+    qint64 fileSize(const FilePath &filePath) const override;
+    qint64 bytesAvailable(const FilePath &filePath) const override;
+    QByteArray fileId(const FilePath &filePath) const override;
+
+    std::optional<FilePath> refersToExecutableFile(
+            const FilePath &filePath,
+            FilePath::MatchScope matchScope) const override;
+
+    void iterateDirectory(
+            const FilePath &filePath,
+            const FilePath::IterateDirCallback &callBack,
+            const FileFilter &filter) const override;
+
+    expected_str<QByteArray> fileContents(const FilePath &filePath,
+                                          qint64 limit,
+                                          qint64 offset) const override;
+
+    expected_str<qint64> writeFileContents(const FilePath &filePath,
+                                           const QByteArray &data) const override;
+
+    expected_str<FilePath> createTempFile(const FilePath &filePath) override;
+
+    Utils::expected_str<std::unique_ptr<FilePathWatcher>> watch(const FilePath &path) const override;
 };
 
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
