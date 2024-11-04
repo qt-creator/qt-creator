@@ -184,7 +184,6 @@ SessionManager::SessionManager()
 
 SessionManager::~SessionManager()
 {
-    emit aboutToUnloadSession(d->m_sessionName);
     delete d;
     d = nullptr;
 }
