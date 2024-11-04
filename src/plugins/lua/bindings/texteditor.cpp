@@ -392,7 +392,7 @@ void setupTextEditorModule()
         return result;
     });
 
-    registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.currentChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentEditorChanged,
@@ -403,7 +403,7 @@ void setupTextEditorModule()
             });
     });
 
-    registerHook("editors.text.contentsChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.contentsChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::documentContentsChanged,
@@ -415,7 +415,7 @@ void setupTextEditorModule()
             });
     });
 
-    registerHook("editors.text.cursorChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.cursorChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentCursorChanged,

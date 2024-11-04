@@ -20,9 +20,7 @@ namespace Lua::Internal {
 class LuaAspectContainer : public AspectContainer
 {
 public:
-    LuaAspectContainer(sol::state_view lua)
-        : m_mainThreadState(lua)
-    {}
+    LuaAspectContainer() {}
 
     sol::object dynamic_get(const std::string &key)
     {
@@ -33,17 +31,8 @@ public:
         return it->second;
     }
 
-    void dynamic_set(const std::string &key, sol::stack_object value)
+    void dynamic_set(const std::string &key, sol::main_object value)
     {
-        if (value.lua_state() != m_mainThreadState.lua_state()) {
-            // This pushes the reference onto the other Lua State and returns a stack reference
-            // to it. We need to do this so a stack_object from some coroutine does not die
-            // while we store it.
-            sol::stack_reference newRef = sol::stack_reference(m_mainThreadState, value);
-            dynamic_set(key, newRef);
-            return;
-        }
-
         if (!value.is<BaseAspect>())
             throw std::runtime_error("AspectContainer can only contain BaseAspect instances");
 
@@ -63,14 +52,11 @@ public:
 
 public:
     std::unordered_map<std::string, sol::object> m_entries;
-    // This is the Lua state of the main thread.
-    sol::state_view m_mainThreadState;
 };
 
-std::unique_ptr<LuaAspectContainer> aspectContainerCreate(
-    sol::state_view mainThreadState, const sol::table &options)
+std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::main_table &options)
 {
-    auto container = std::make_unique<LuaAspectContainer>(mainThreadState);
+    auto container = std::make_unique<LuaAspectContainer>();
 
     for (const auto &[k, v] : options) {
         if (k.is<std::string>()) {
@@ -80,7 +66,7 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(
             } else if (key == "layouter") {
                 if (v.is<sol::function>())
                     container->setLayouter(
-                        [func = v.as<sol::function>()]() -> Layouting::Layout {
+                        [func = v.as<sol::main_function>()]() -> Layouting::Layout {
                             auto res = safe_call<Layouting::Layout>(func);
                             QTC_ASSERT_EXPECTED(res, return {});
                             return *res;
@@ -90,19 +76,12 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(
                     container.get(),
                     &AspectContainer::applied,
                     container.get(),
-                    [func = v.as<sol::function>()] { void_safe_call(func); });
+                    [func = v.as<sol::main_function>()] { void_safe_call(func); });
             } else if (key == "settingsGroup") {
                 container->setSettingsGroup(v.as<QString>());
             } else {
                 if (v.is<BaseAspect>()) {
-                    // Dynamic_set needs a stack reference, so we push the object back on the stack ...
-                    v.push();
-                    // Take a reference to the head of the stack ...
-                    sol::stack_reference so(v.lua_state(), -1);
-                    // call dynamic_set with the reference ...
-                    container->dynamic_set(key, so);
-                    // and lastly pop the object from the stack again.
-                    v.pop();
+                    container->dynamic_set(key, v);
                 } else {
                     qWarning() << "Unknown key:" << key.c_str();
                 }
@@ -126,14 +105,16 @@ void baseAspectCreate(BaseAspect *aspect, const std::string &key, const sol::obj
     else if (key == "toolTip")
         aspect->setToolTip(value.as<QString>());
     else if (key == "onValueChanged") {
-        QObject::connect(aspect, &BaseAspect::changed, aspect, [func = value.as<sol::function>()]() {
-            void_safe_call(func);
-        });
+        QObject::connect(
+            aspect, &BaseAspect::changed, aspect, [func = value.as<sol::main_function>()]() {
+                void_safe_call(func);
+            });
     } else if (key == "onVolatileValueChanged") {
-        QObject::connect(aspect,
-                         &BaseAspect::volatileValueChanged,
-                         aspect,
-                         [func = value.as<sol::function>()] { void_safe_call(func); });
+        QObject::connect(
+            aspect,
+            &BaseAspect::volatileValueChanged,
+            aspect,
+            [func = value.as<sol::main_function>()] { void_safe_call(func); });
     } else if (key == "enabler")
         aspect->setEnabler(value.as<BoolAspect *>());
     else if (key == "macroExpander") {
@@ -164,17 +145,17 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
     else if (key == "historyId")
         aspect->setHistoryCompleter(value.as<QString>().toLocal8Bit());
     else if (key == "valueAcceptor")
-        aspect->setValueAcceptor([func = value.as<sol::function>()](const QString &oldValue,
-                                                                    const QString &newValue)
-                                     -> std::optional<QString> {
-            auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
-            QTC_ASSERT_EXPECTED(res, return std::nullopt);
-            return *res;
-        });
+        aspect->setValueAcceptor(
+            [func = value.as<sol::main_function>()](const QString &oldValue, const QString &newValue)
+                -> std::optional<QString> {
+                auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
+                QTC_ASSERT_EXPECTED(res, return std::nullopt);
+                return *res;
+            });
     else if (key == "showToolTipOnLabel")
         aspect->setShowToolTipOnLabel(value.as<bool>());
     else if (key == "displayFilter")
-        aspect->setDisplayFilter([func = value.as<sol::function>()](const QString &value) {
+        aspect->setDisplayFilter([func = value.as<sol::main_function>()](const QString &value) {
             auto res = safe_call<QString>(func, value);
             QTC_ASSERT_EXPECTED(res, return value);
             return *res;
@@ -194,7 +175,7 @@ void typedAspectCreate(StringAspect *aspect, const std::string &key, const sol::
     else if (key == "completer")
         aspect->setCompleter(value.as<QCompleter*>());
     else if (key == "addOnRightSideIconClicked") {
-        aspect->addOnRightSideIconClicked(aspect, [func = value.as<sol::function>()]() {
+        aspect->addOnRightSideIconClicked(aspect, [func = value.as<sol::main_function>()]() {
             void_safe_call(func);
         });
     }
@@ -220,7 +201,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     else if (key == "validatePlaceHolder")
         aspect->setValidatePlaceHolder(value.as<bool>());
     else if (key == "openTerminalHandler")
-        aspect->setOpenTerminalHandler([func = value.as<sol::function>()]() {
+        aspect->setOpenTerminalHandler([func = value.as<sol::main_function>()]() {
             auto res = void_safe_call(func);
             QTC_CHECK_EXPECTED(res);
         });
@@ -231,13 +212,13 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
     else if (key == "baseFileName")
         aspect->setBaseFileName(value.as<FilePath>());
     else if (key == "valueAcceptor")
-        aspect->setValueAcceptor([func = value.as<sol::function>()](const QString &oldValue,
-                                                                    const QString &newValue)
-                                     -> std::optional<QString> {
-            auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
-            QTC_ASSERT_EXPECTED(res, return std::nullopt);
-            return *res;
-        });
+        aspect->setValueAcceptor(
+            [func = value.as<sol::main_function>()](const QString &oldValue, const QString &newValue)
+                -> std::optional<QString> {
+                auto res = safe_call<std::optional<QString>>(func, oldValue, newValue);
+                QTC_ASSERT_EXPECTED(res, return std::nullopt);
+                return *res;
+            });
     else if (key == "showToolTipOnLabel")
         aspect->setShowToolTipOnLabel(value.as<bool>());
     else if (key == "autoApplyOnEditingFinished")
@@ -249,7 +230,7 @@ void typedAspectCreate(FilePathAspect *aspect, const std::string &key, const sol
             });
     */
     else if (key == "displayFilter")
-        aspect->setDisplayFilter([func = value.as<sol::function>()](const QString &path) {
+        aspect->setDisplayFilter([func = value.as<sol::main_function>()](const QString &path) {
             auto res = safe_call<QString>(func, path);
             QTC_ASSERT_EXPECTED(res, return path);
             return *res;
@@ -355,7 +336,7 @@ void setupSettingsModule()
         settings.new_usertype<LuaAspectContainer>(
             "AspectContainer",
             "create",
-            [lua](const sol::table &options) { return aspectContainerCreate(lua, options); },
+            &aspectContainerCreate,
             "apply",
             &LuaAspectContainer::apply,
             sol::meta_function::index,
@@ -612,19 +593,20 @@ void setupSettingsModule()
                     [](AspectList *aspect, const std::string &key, const sol::object &value) {
                         if (key == "createItemFunction") {
                             aspect->setCreateItemFunction(
-                                [func = value.as<sol::function>()]() -> std::shared_ptr<BaseAspect> {
+                                [func = value.as<sol::main_function>()]()
+                                    -> std::shared_ptr<BaseAspect> {
                                     auto res = safe_call<std::shared_ptr<BaseAspect>>(func);
                                     QTC_ASSERT_EXPECTED(res, return nullptr);
                                     return *res;
                                 });
                         } else if (key == "onItemAdded") {
-                            aspect->setItemAddedCallback([func = value.as<sol::function>()](
+                            aspect->setItemAddedCallback([func = value.as<sol::main_function>()](
                                                              std::shared_ptr<BaseAspect> item) {
                                 auto res = void_safe_call(func, item);
                                 QTC_CHECK_EXPECTED(res);
                             });
                         } else if (key == "onItemRemoved") {
-                            aspect->setItemRemovedCallback([func = value.as<sol::function>()](
+                            aspect->setItemRemovedCallback([func = value.as<sol::main_function>()](
                                                                std::shared_ptr<BaseAspect> item) {
                                 auto res = void_safe_call(func, item);
                                 QTC_CHECK_EXPECTED(res);
