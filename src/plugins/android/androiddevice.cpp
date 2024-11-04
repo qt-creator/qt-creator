@@ -295,16 +295,14 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
     setLayout(formLayout);
     formLayout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 
-    if (!dev->isValid())
+    if (dev->avdName().isEmpty())
         return;
 
     formLayout->addRow(Tr::tr("Device name:"), new QLabel(dev->displayName()));
     formLayout->addRow(Tr::tr("Device type:"), new QLabel(dev->deviceTypeName()));
 
-    const QString serialNumber = dev->serialNumber();
-    const QString printableSerialNumber = serialNumber.isEmpty() ? Tr::tr("Unknown")
-                                                                 : serialNumber;
-    formLayout->addRow(Tr::tr("Serial number:"), new QLabel(printableSerialNumber));
+    QLabel *serialNumberLabel = new QLabel;
+    formLayout->addRow(Tr::tr("Serial number:"), serialNumberLabel);
 
     const QString abis = dev->supportedAbis().join(", ");
     formLayout->addRow(Tr::tr("CPU architecture:"), new QLabel(abis));
@@ -327,6 +325,14 @@ AndroidDeviceWidget::AndroidDeviceWidget(const IDevice::Ptr &device)
         const QString openGlStatus = dev->openGLStatus();
         formLayout->addRow(Tr::tr("OpenGL status:"), new QLabel(openGlStatus));
     }
+
+    // See QTCREATORBUG-31912 why this needs to be delayed.
+    QTimer::singleShot(0, this, [serialNumberLabel, dev] {
+        const QString serialNumber = dev->serialNumber(); // This executes a blocking process.
+        const QString printableSerialNumber = serialNumber.isEmpty() ? Tr::tr("Unknown")
+                                                                     : serialNumber;
+        serialNumberLabel->setText(printableSerialNumber);
+    });
 }
 
 QString AndroidDeviceWidget::dialogTitle()
@@ -520,11 +526,6 @@ bool AndroidDevice::canHandleDeployments() const
     if (machineType() == Hardware && deviceState() == DeviceDisconnected)
         return false;
     return true;
-}
-
-bool AndroidDevice::isValid() const
-{
-    return !serialNumber().isEmpty() || !avdName().isEmpty();
 }
 
 QString AndroidDevice::serialNumber() const
