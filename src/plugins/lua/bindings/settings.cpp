@@ -20,7 +20,9 @@ namespace Lua::Internal {
 class LuaAspectContainer : public AspectContainer
 {
 public:
-    using AspectContainer::AspectContainer;
+    LuaAspectContainer(sol::state_view lua)
+        : m_mainThreadState(lua)
+    {}
 
     sol::object dynamic_get(const std::string &key)
     {
@@ -31,8 +33,17 @@ public:
         return it->second;
     }
 
-    void dynamic_set(const std::string &key, const sol::stack_object &value)
+    void dynamic_set(const std::string &key, sol::stack_object value)
     {
+        if (value.lua_state() != m_mainThreadState.lua_state()) {
+            // This pushes the reference onto the other Lua State and returns a stack reference
+            // to it. We need to do this so a stack_object from some coroutine does not die
+            // while we store it.
+            sol::stack_reference newRef = sol::stack_reference(m_mainThreadState, value);
+            dynamic_set(key, newRef);
+            return;
+        }
+
         if (!value.is<BaseAspect>())
             throw std::runtime_error("AspectContainer can only contain BaseAspect instances");
 
@@ -52,11 +63,14 @@ public:
 
 public:
     std::unordered_map<std::string, sol::object> m_entries;
+    // This is the Lua state of the main thread.
+    sol::state_view m_mainThreadState;
 };
 
-std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &options)
+std::unique_ptr<LuaAspectContainer> aspectContainerCreate(
+    sol::state_view mainThreadState, const sol::table &options)
 {
-    auto container = std::make_unique<LuaAspectContainer>();
+    auto container = std::make_unique<LuaAspectContainer>(mainThreadState);
 
     for (const auto &[k, v] : options) {
         if (k.is<std::string>()) {
@@ -80,9 +94,15 @@ std::unique_ptr<LuaAspectContainer> aspectContainerCreate(const sol::table &opti
             } else if (key == "settingsGroup") {
                 container->setSettingsGroup(v.as<QString>());
             } else {
-                container->m_entries[key] = v;
                 if (v.is<BaseAspect>()) {
-                    container->registerAspect(v.as<BaseAspect *>());
+                    // Dynamic_set needs a stack reference, so we push the object back on the stack ...
+                    v.push();
+                    // Take a reference to the head of the stack ...
+                    sol::stack_reference so(v.lua_state(), -1);
+                    // call dynamic_set with the reference ...
+                    container->dynamic_set(key, so);
+                    // and lastly pop the object from the stack again.
+                    v.pop();
                 } else {
                     qWarning() << "Unknown key:" << key.c_str();
                 }
@@ -335,7 +355,7 @@ void setupSettingsModule()
         settings.new_usertype<LuaAspectContainer>(
             "AspectContainer",
             "create",
-            &aspectContainerCreate,
+            [lua](const sol::table &options) { return aspectContainerCreate(lua, options); },
             "apply",
             &LuaAspectContainer::apply,
             sol::meta_function::index,
