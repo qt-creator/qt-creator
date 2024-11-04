@@ -203,9 +203,6 @@ protected:
 
     virtual ProjectExplorer::Abis detectQtAbis() const;
 
-    // helper function for desktop and simulator to figure out the supported abis based on the libraries
-    static ProjectExplorer::Abis qtAbisFromLibrary(const Utils::FilePaths &coreLibraries);
-
     void resetCache() const;
 
     void ensureMkSpecParsed() const;
@@ -213,12 +210,12 @@ protected:
     virtual void setupQmakeRunEnvironment(Utils::Environment &env) const;
 
 private:
-    void updateDefaultDisplayName();
-
     friend class QtVersionFactory;
     friend class QtVersionManager;
     friend class Internal::QtVersionPrivate;
     friend class Internal::QtSettingsPageWidget;
+
+    void updateDefaultDisplayName();
 
     void setId(int id);
     QtVersion *clone() const;

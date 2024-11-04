@@ -14,6 +14,7 @@
 #include <android/androidconstants.h>
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <proparser/qmakevfs.h>
@@ -46,9 +47,14 @@
 #include <QCoreApplication>
 #include <QDir>
 #include <QFileInfo>
+#include <QLoggingCategory>
 #include <QProcess>
 #include <QRegularExpression>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QUrl>
+#include <QVersionNumber>
 #include <QtConcurrent>
 
 #include <algorithm>
@@ -70,6 +76,8 @@ const char QTVERSION_ABIS[] = "Abis";
 
 const char MKSPEC_VALUE_LIBINFIX[] = "QT_LIBINFIX";
 const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
+
+Q_LOGGING_CATEGORY(abiDetect, "qtc.qtsupport.detectAbis", QtWarningMsg)
 
 // --------------------------------------------------------------------
 // QtVersionData:
@@ -95,6 +103,7 @@ public:
     Utils::FilePath libExecPath;
     Utils::FilePath configurationPath;
     Utils::FilePath dataPath;
+    FilePath archDataPath;
     Utils::FilePath demosPath;
     Utils::FilePath docsPath;
     Utils::FilePath examplesPath;
@@ -184,6 +193,8 @@ public:
                         // and by the qtoptionspage to replace Qt versions
 
     FilePaths qtCorePaths();
+    ProjectExplorer::Abis qtAbisFromLibrary();
+    ProjectExplorer::Abis qtAbisFromJson();
 
 public:
     QtVersion *q;
@@ -757,7 +768,11 @@ void QtVersion::setQtAbis(const Abis &abis)
 
 Abis QtVersion::detectQtAbis() const
 {
-    return qtAbisFromLibrary(d->qtCorePaths());
+    qCDebug(abiDetect) << "Detecting ABIs for" << qmakeFilePath();
+    if (const Abis abis = d->qtAbisFromJson(); !abis.isEmpty())
+        return abis;
+    qCDebug(abiDetect) << "Got no ABI from JSON file, falling back to inspecting binaries";
+    return d->qtAbisFromLibrary();
 }
 
 bool QtVersion::hasAbi(ProjectExplorer::Abi::OS os, ProjectExplorer::Abi::OSFlavor flavor) const
@@ -1252,6 +1267,7 @@ void QtVersionPrivate::updateVersionInfo()
     m_data.libExecPath = fileProperty("QT_INSTALL_LIBEXECS");
     m_data.configurationPath = fileProperty("QT_INSTALL_CONFIGURATION");
     m_data.dataPath = fileProperty("QT_INSTALL_DATA");
+    m_data.archDataPath = fileProperty("QT_INSTALL_ARCHDATA");
     m_data.demosPath = fileProperty("QT_INSTALL_DEMOS");
     m_data.docsPath = fileProperty("QT_INSTALL_DOCS");
     m_data.examplesPath = fileProperty("QT_INSTALL_EXAMPLES");
@@ -2213,7 +2229,7 @@ static Abi scanQtBinaryForBuildStringAndRefineAbi(const FilePath &library,
     return results.value(library);
 }
 
-Abis QtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
+Abis QtVersionPrivate::qtAbisFromLibrary()
 {
     auto filePathToAbiList = [](const FilePath &library) { // Fetch all abis from all libraries ...
         Abis abis = Abi::abisOfBinary(library);
@@ -2231,7 +2247,161 @@ Abis QtVersion::qtAbisFromLibrary(const FilePaths &coreLibraries)
         }
     };
 
-    return QtConcurrent::blockingMappedReduced<Abis>(coreLibraries, filePathToAbiList, uniqueAbis);
+    return QtConcurrent::blockingMappedReduced<Abis>(qtCorePaths(), filePathToAbiList, uniqueAbis);
+}
+
+Abis QtVersionPrivate::qtAbisFromJson()
+{
+    updateVersionInfo();
+
+    if (q->qtVersion().majorVersion() < 6) {
+        qCDebug(abiDetect) << "Not attempting to read JSON file for Qt < 6";
+        return {};
+    }
+
+    FilePath jsonFile;
+    for (const FilePath &baseDir : FilePaths{m_data.archDataPath, m_data.dataPath}) {
+        const FilePath candidate = baseDir.pathAppended("modules/Core.json");
+        qCDebug(abiDetect) << "Checking JSON file location" << candidate;
+        if (candidate.exists()) {
+            jsonFile = candidate;
+            break;
+        }
+    }
+    if (jsonFile.isEmpty()) {
+        Core::MessageManager::writeSilently(
+            Tr::tr("Core.json not found for Qt at \"%1\"").arg(m_qmakeCommand.toUserOutput()));
+        return {};
+    }
+
+    const auto printErrorAndReturn = [&jsonFile](const QString &detail) {
+        Core::MessageManager::writeSilently(
+            Tr::tr("Error reading \"%1\": %2").arg(jsonFile.toUserOutput(), detail));
+        return Abis();
+    };
+    const auto content = jsonFile.fileContents();
+    if (!content)
+        return printErrorAndReturn(content.error());
+
+    QJsonParseError parseError;
+    const QJsonDocument jsonDoc = QJsonDocument::fromJson(content.value(), &parseError);
+    if (parseError.error != QJsonParseError::NoError)
+        return printErrorAndReturn(parseError.errorString());
+
+    const QJsonObject obj = jsonDoc.object().value("built_with").toObject();
+    const QString osString = obj.value("target_system").toString();
+    const Abi::OS os = [&osString] {
+        if (osString == "Linux" || osString == "Android")
+            return Abi::LinuxOS;
+        if (osString == "Darwin" || osString == "iOS")
+            return Abi::DarwinOS;
+        if (osString == "Windows")
+            return Abi::WindowsOS;
+        if (osString.endsWith("BSD"))
+            return Abi::BsdOS;
+        return Abi::UnknownOS;
+    }();
+
+    if (os == Abi::DarwinOS)
+        return {}; // QTBUG-129996
+
+    const auto [arch, width] = [](const QString &arch) {
+        if (arch == "x86")
+            return std::make_pair(Abi::X86Architecture, 32);
+        if (arch == "x86_64")
+            return std::make_pair(Abi::X86Architecture, 64);
+        if (arch == "arm")
+            return std::make_pair(Abi::ArmArchitecture, 32);
+        if (arch == "arm64")
+            return std::make_pair(Abi::ArmArchitecture, 64);
+        if (arch == "riscv64")
+            return std::make_pair(Abi::RiscVArchitecture, 64);
+        if (arch == "wasm")
+            return std::make_pair(Abi::AsmJsArchitecture, 32);
+        return std::make_pair(Abi::UnknownArchitecture, 0);
+    }(obj.value("architecture").toString());
+    if (os == Abi::UnknownOS && arch != Abi::AsmJsArchitecture)
+        return printErrorAndReturn(Tr::tr("Could not determine target OS"));
+    if (arch == Abi::UnknownArchitecture)
+        return printErrorAndReturn(Tr::tr("Could not determine target architecture"));
+
+    const Abi::OSFlavor flavor = [&](const QString &compilerId, const QString &compilerVersion) {
+        if (osString == "Android")
+            return Abi::AndroidLinuxFlavor;
+        switch (os) {
+        case Abi::LinuxOS:
+        case Abi::DarwinOS:
+        case Abi::BareMetalOS:
+        case Abi::QnxOS:
+            return Abi::GenericFlavor;
+        case Abi::BsdOS:
+            if (osString == "FreeBSD")
+                return Abi::FreeBsdFlavor;
+            if (osString == "NetBSD")
+                return Abi::NetBsdFlavor;
+            if (osString == "OpenBSD")
+                return Abi::OpenBsdFlavor;
+            break;
+        case Abi::WindowsOS: {
+            if (compilerId == "GNU" || compilerId == "Clang")
+                return Abi::WindowsMSysFlavor;
+
+            // https://learn.microsoft.com/en-us/cpp/overview/compiler-versions
+            const QVersionNumber rawVersion = QVersionNumber::fromString(compilerVersion);
+            switch (rawVersion.majorVersion()) {
+            case 19:
+                if (rawVersion.minorVersion() >= 30)
+                    return Abi::WindowsMsvc2022Flavor;
+                if (rawVersion.minorVersion() >= 20)
+                    return Abi::WindowsMsvc2019Flavor;
+                if (rawVersion.minorVersion() >= 10)
+                    return Abi::WindowsMsvc2017Flavor;
+                return Abi::WindowsMsvc2015Flavor;
+            case 18:
+                return Abi::WindowsMsvc2013Flavor;
+            case 17:
+                return Abi::WindowsMsvc2012Flavor;
+            case 16:
+                return Abi::WindowsMsvc2010Flavor;
+            case 15:
+                return Abi::WindowsMsvc2008Flavor;
+            case 14:
+                return Abi::WindowsMsvc2005Flavor;
+            }
+            break;
+        }
+        case Abi::UnixOS:
+        case Abi::VxWorks:
+        case Abi::UnknownOS:
+            break;
+        }
+        return Abi::UnknownFlavor;
+    }(obj.value("compiler_id").toString(), obj.value("compiler_version").toString());
+    if (flavor == Abi::UnknownFlavor && arch != Abi::AsmJsArchitecture)
+        return printErrorAndReturn(Tr::tr("Could not determine OS sub-type"));
+
+    const Abi::BinaryFormat format = [&] {
+        if (arch == Abi::AsmJsArchitecture)
+            return Abi::EmscriptenFormat;
+        switch (os) {
+        case Abi::BareMetalOS:
+        case Abi::BsdOS:
+        case Abi::LinuxOS:
+        case Abi::QnxOS:
+        case Abi::UnixOS:
+        case Abi::VxWorks:
+            return Abi::ElfFormat;
+        case Abi::DarwinOS:
+            return Abi::MachOFormat;
+        case Abi::WindowsOS:
+            return Abi::PEFormat;
+        case Abi::UnknownOS:
+            break;
+        }
+        return Abi::UnknownFormat;
+    }();
+
+    return {Abi(arch, os, flavor, format, width)};
 }
 
 void QtVersion::resetCache() const
