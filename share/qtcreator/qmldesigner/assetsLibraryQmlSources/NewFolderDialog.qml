@@ -87,7 +87,7 @@ StudioControls.Dialog {
                 enabled: folderName.text !== "" && root.createdDirPath.length <= root.__maxPath
                 onClicked: {
                     let dirPathToCreate = root.dirPath + '/' + folderName.text
-                    root.createdDirPath = AssetsLibraryBackend.assetsModel.addNewFolder(root.createdDirPath)
+                    root.createdDirPath = AssetsLibraryBackend.assetsModel.addNewFolder(dirPathToCreate)
 
                     if (root.createdDirPath)
                         root.accept()
