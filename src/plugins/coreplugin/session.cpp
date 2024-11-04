@@ -104,7 +104,7 @@ public:
     QMap<Utils::Key, QVariant> m_values;
     QMap<Utils::Key, QVariant> m_sessionValues;
     QFutureInterface<void> m_future;
-    PersistentSettingsWriter *m_writer = nullptr;
+    std::unique_ptr<PersistentSettingsWriter> m_writer;
 
     QMenu *m_sessionMenu;
     QAction *m_sessionManagerAction;
@@ -185,7 +185,6 @@ SessionManager::SessionManager()
 SessionManager::~SessionManager()
 {
     emit aboutToUnloadSession(d->m_sessionName);
-    delete d->m_writer;
     delete d;
     d = nullptr;
 }
@@ -696,8 +695,7 @@ bool SessionManager::loadSession(const QString &session, bool initial)
     d->m_sessionValues.clear();
 
     d->m_sessionName = session;
-    delete d->m_writer;
-    d->m_writer = nullptr;
+    d->m_writer.reset();
     EditorManager::updateWindowTitles();
 
     d->m_virginSession = false;
@@ -781,10 +779,9 @@ bool SessionManager::saveSession()
     }
     data.insert("valueKeys", stringsFromKeys(keys));
 
-    if (!d->m_writer || d->m_writer->fileName() != filePath) {
-        delete d->m_writer;
-        d->m_writer = new PersistentSettingsWriter(filePath, "QtCreatorSession");
-    }
+    if (!d->m_writer || d->m_writer->fileName() != filePath)
+        d->m_writer.reset(new PersistentSettingsWriter(filePath, "QtCreatorSession"));
+
     const bool result = d->m_writer->save(data, ICore::dialogParent());
     if (result) {
         if (!SessionManager::isDefaultVirgin())
