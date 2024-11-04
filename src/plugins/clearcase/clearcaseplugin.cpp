@@ -195,6 +195,11 @@ public:
     bool newActivity();
     void updateStreamAndView();
 
+#ifdef WITH_TESTS
+signals:
+    void reindexedDynamicFile();
+    void statusActionsUpdated();
+#endif
 protected:
     void updateActions(VcsBase::VersionControlBase::ActionState) override;
     bool activateCommit() override;
@@ -848,8 +853,12 @@ void ClearCasePluginPrivate::checkAndReIndexUnknownFile(const FilePath &file)
     if (isDynamic()) {
         // reindex unknown files
         if (m_statusMap->value(file.path(), FileStatus(FileStatus::Unknown)).status
-            == FileStatus::Unknown)
+            == FileStatus::Unknown) {
             updateStatusForFile(file);
+#ifdef WITH_TESTS
+            emit reindexedDynamicFile();
+#endif
+        }
     }
 }
 
@@ -925,6 +934,10 @@ void ClearCasePluginPrivate::updateStatusActions()
 
     m_checkInActivityAction->setEnabled(m_viewData.isUcm);
     m_diffActivityAction->setEnabled(m_viewData.isUcm);
+
+#ifdef WITH_TESTS
+    emit statusActionsUpdated();
+#endif
 }
 
 void ClearCasePluginPrivate::updateActions(VersionControlBase::ActionState as)
@@ -2674,12 +2687,13 @@ void ClearCaseTest::testStatusActions()
     QFETCH(int, status);
     auto tempStatus = static_cast<FileStatus::Status>(status);
 
-    QSignalSpy spy(dd, &VcsBase::VersionControlBase::slotStateChangedDone);
+    QSignalSpy spy(dd, &ClearCasePluginPrivate::statusActionsUpdated);
     // special case: file should appear as "Unknown" since there is no entry in the index
     // and we don't want to explicitly set the status for this test case
-    if (tempStatus != FileStatus::Unknown)
+    if (tempStatus != FileStatus::Unknown) {
         dd->setStatus(fileName, tempStatus, true);
-    QVERIFY(spy.wait(1000));
+        QVERIFY(spy.wait(1000));
+    }
 
     QFETCH(bool, checkOutAction);
     QFETCH(bool, undoCheckOutAction);
@@ -2702,6 +2716,7 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 {
     // File is not in map, and is read-only
     ClearCasePluginPrivate::instance();
+    QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
     dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const auto fileName = FilePath::currentWorkingPath().pathAppended(
@@ -2715,6 +2730,7 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 
     dd->m_viewData = testCase.dummyViewData();
     dd->m_viewData.isDynamic = true;
+    QVERIFY(spy.wait(1500));
     QCOMPARE(dd->vcsStatus(fileName).status, FileStatus::NotManaged);
 
 }
@@ -2722,6 +2738,7 @@ void ClearCaseTest::testVcsStatusDynamicReadonlyNotManaged()
 void ClearCaseTest::testVcsStatusDynamicNotManaged()
 {
     ClearCasePluginPrivate::instance();
+    QSignalSpy spy(dd, &ClearCasePluginPrivate::reindexedDynamicFile);
     dd->m_statusMap = std::shared_ptr<StatusMap>(new StatusMap);
 
     const auto fileName = FilePath::currentWorkingPath().pathAppended("notmanaged_file.cpp");
@@ -2732,6 +2749,7 @@ void ClearCaseTest::testVcsStatusDynamicNotManaged()
     dd->m_viewData = testCase.dummyViewData();
     dd->m_viewData.isDynamic = true;
 
+    QVERIFY(spy.wait(1500));
     QCOMPARE(dd->vcsStatus(fileName).status, FileStatus::NotManaged);
 }
 #endif
