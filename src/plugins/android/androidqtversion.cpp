@@ -82,8 +82,12 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 
 Abis AndroidQtVersion::detectQtAbis() const
 {
-    const bool conf = AndroidConfig::sdkFullyConfigured();
-    return conf ? Utils::transform<Abis>(androidAbis(), &androidAbi2Abi) : Abis();
+    Abis result = qtAbisFromJson();
+    if (result.isEmpty() && AndroidConfig::sdkFullyConfigured()) {
+        ensureMkSpecParsed();
+        result = Utils::transform<Abis>(m_androidAbis, &androidAbi2Abi);
+    }
+    return result;
 }
 
 void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
@@ -109,10 +113,9 @@ QString AndroidQtVersion::description() const
     return Tr::tr("Android");
 }
 
-const QStringList &AndroidQtVersion::androidAbis() const
+const QStringList AndroidQtVersion::androidAbis() const
 {
-    ensureMkSpecParsed();
-    return m_androidAbis;
+    return Utils::transform(detectQtAbis(), &Abi::toAndroidAbi);
 }
 
 int AndroidQtVersion::minimumNDK() const

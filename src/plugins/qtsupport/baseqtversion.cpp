@@ -751,12 +751,15 @@ void QtVersion::setQtAbis(const Abis &abis)
 Abis QtVersion::detectQtAbis() const
 {
     qCDebug(abiDetect) << "Detecting ABIs for" << qmakeFilePath();
-    if (const Abis abis = qtAbisFromJson(*this, {d->data().archDataPath, d->data().dataPath});
-        !abis.isEmpty()) {
+    if (const Abis abis = qtAbisFromJson(); !abis.isEmpty())
         return abis;
-    }
     qCDebug(abiDetect) << "Got no ABI from JSON file, falling back to inspecting binaries";
     return d->qtAbisFromLibrary();
+}
+
+Abis QtVersion::qtAbisFromJson() const
+{
+    return QtSupport::Internal::qtAbisFromJson(*this, {d->data().archDataPath, d->data().dataPath});
 }
 
 bool QtVersion::hasAbi(ProjectExplorer::Abi::OS os, ProjectExplorer::Abi::OSFlavor flavor) const

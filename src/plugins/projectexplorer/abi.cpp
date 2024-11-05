@@ -443,18 +443,6 @@ static Abis abiOf(const QByteArray &data)
     return result;
 }
 
-static QString androidAbiFromAbi(const Abi &abi)
-{
-    QString androidAbi;
-    if (abi.architecture() == Abi::Architecture::ArmArchitecture)
-        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_ARM64_V8A
-                                                         : Constants::ANDROID_ABI_ARMEABI_V7A);
-    else
-        androidAbi = QLatin1String(abi.wordWidth() == 64 ? Constants::ANDROID_ABI_X86_64
-                                                         : Constants::ANDROID_ABI_X86);
-    return androidAbi;
-}
-
 // --------------------------------------------------------------------------
 // Abi
 // --------------------------------------------------------------------------
@@ -687,6 +675,22 @@ QString Abi::param() const
     if (m_param.isEmpty())
         return toString();
     return m_param;
+}
+
+QString Abi::toAndroidAbi() const
+{
+    if (architecture() == Abi::Architecture::ArmArchitecture) {
+        if (wordWidth() == 32)
+            return Constants::ANDROID_ABI_ARMEABI_V7A;
+        if (wordWidth() == 64)
+            return Constants::ANDROID_ABI_ARM64_V8A;
+    } else if (architecture() == Abi::Architecture::X86Architecture) {
+        if (wordWidth() == 32)
+            return Constants::ANDROID_ABI_X86;
+        if (wordWidth() == 64)
+            return Constants::ANDROID_ABI_X86_64;
+    }
+    return {};
 }
 
 bool Abi::operator != (const Abi &other) const
@@ -936,7 +940,7 @@ Abi Abi::fromString(const QString &abiString)
 
     Abi abi(architecture, os, flavor, format, wordWidth);
     if (abi.os() == LinuxOS && abi.osFlavor() == AndroidLinuxFlavor)
-        abi.m_param = androidAbiFromAbi(abi);
+        abi.m_param = abi.toAndroidAbi();
 
     return abi;
 }

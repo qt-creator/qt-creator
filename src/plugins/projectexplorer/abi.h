@@ -144,6 +144,8 @@ public:
     QString toString() const;
     QString param() const;
 
+    QString toAndroidAbi() const;
+
     static QString toString(const Architecture &a);
     static QString toString(const OS &o);
     static QString toString(const OSFlavor &of);

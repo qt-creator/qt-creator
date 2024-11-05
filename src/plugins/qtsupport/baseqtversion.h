@@ -203,6 +203,7 @@ protected:
                                                     const Utils::FilePath &buildDir) const;
 
     virtual ProjectExplorer::Abis detectQtAbis() const;
+    ProjectExplorer::Abis qtAbisFromJson() const;
 
     void resetCache() const;
 

@@ -25,7 +25,7 @@ public:
     QSet<Utils::Id> targetDeviceTypes() const override;
 
     QString description() const override;
-    const QStringList &androidAbis() const;
+    const QStringList androidAbis() const;
     int minimumNDK() const;
 
     static QString androidDeploymentSettingsFileName(const ProjectExplorer::Target *target);
