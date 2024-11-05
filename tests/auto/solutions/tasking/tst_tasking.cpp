@@ -347,6 +347,17 @@ void tst_Tasking::runtimeCheck()
     }
 }
 
+class Tick : public QObject
+{
+    Q_OBJECT
+
+public:
+    Tick(const milliseconds &interval) { QTimer::singleShot(interval, this, &Tick::tick); }
+
+signals:
+    void tick();
+};
+
 class TickAndDone : public QObject
 {
     Q_OBJECT
@@ -3779,35 +3790,31 @@ void tst_Tasking::testTree_data()
     {
         // withCancel / withAccept
 
-        const Storage<std::unique_ptr<QTimer>> triggerStorage;
+        const Storage<std::unique_ptr<Tick>> tickStorage;
 
-        const auto onSetup = [triggerStorage](milliseconds timeout) {
-            return [triggerStorage, timeout] {
-                QTimer *timer = new QTimer;
-                triggerStorage->reset(timer);
-                timer->start(timeout);
-            };
+        const auto onSetup = [tickStorage](milliseconds timeout) {
+            return [tickStorage, timeout] { tickStorage->reset(new Tick(timeout)); };
         };
 
-        const auto onTriggerSetup = [triggerStorage] {
-            return std::make_pair(triggerStorage->get(), &QTimer::timeout);
+        const auto onTickSetup = [tickStorage] {
+            return std::make_pair(tickStorage->get(), &Tick::tick);
         };
 
         const Group cancelRecipe {
             storage,
-            triggerStorage,
+            tickStorage,
             onGroupSetup(onSetup(0ms)),
             Group {
                 groupSetup(1),
-                createSuccessTask(1, 1ms),
+                createSuccessTask(2, 1ms),
                 groupDone(1)
-            }.withCancel(onTriggerSetup)
+            }.withCancel(onTickSetup)
         };
 
         const Log cancelLog {
             {1, Handler::GroupSetup},
-            {1, Handler::Setup},
-            {1, Handler::Canceled},
+            {2, Handler::Setup},
+            {2, Handler::Canceled},
             {1, Handler::GroupCanceled},
         };
 
@@ -3816,19 +3823,19 @@ void tst_Tasking::testTree_data()
 
         const Group acceptRecipe {
             storage,
-            triggerStorage,
+            tickStorage,
             onGroupSetup(onSetup(1ms)),
             Group {
                 groupSetup(1),
-                createSuccessTask(1, 0ms).withAccept(onTriggerSetup),
+                createSuccessTask(2, 0ms).withAccept(onTickSetup),
                 groupDone(1)
             }
         };
 
         const Log acceptLog {
             {1, Handler::GroupSetup},
-            {1, Handler::Setup},
-            {1, Handler::Success},
+            {2, Handler::Setup},
+            {2, Handler::Success},
             {1, Handler::GroupSuccess},
         };
 
