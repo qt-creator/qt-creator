@@ -66,12 +66,9 @@ public:
     {
         query->setNetworkAccessManager(m_manager);
         clearProgress(progressText);
-        QObject::connect(query, &NetworkQuery::started, query, [this, query] {
-            QNetworkReply *reply = query->reply();
-            QObject::connect(reply, &QNetworkReply::downloadProgress,
-                             query, [this](qint64 bytesReceived, qint64 totalBytes) {
-                updateProgress((totalBytes > 0) ? 100.0 * bytesReceived / totalBytes : 0, 100);
-            });
+        QObject::connect(query, &NetworkQuery::downloadProgress,
+                         query, [this](qint64 bytesReceived, qint64 totalBytes) {
+            updateProgress((totalBytes > 0) ? 100.0 * bytesReceived / totalBytes : 0, 100);
         });
     }
 };
