@@ -25,7 +25,8 @@ public:
         MinValueRole,
         TypeRole,
         ControlTypeRole,
-        UseCustomValueRole
+        UseCustomValueRole,
+        UserAdded
     };
 
     EffectComposerUniformsModel(QObject *parent = nullptr);
@@ -35,10 +36,13 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role) override;
     Q_INVOKABLE bool resetData(int row);
+    Q_INVOKABLE bool remove(int row);
+    Q_INVOKABLE QStringList displayNames() const;
 
     void resetModel();
 
     void addUniform(Uniform *uniform);
+    void updateUniform(int uniformIndex, Uniform *uniform);
 
     QList<Uniform *> uniforms() const;
 

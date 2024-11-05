@@ -18,17 +18,18 @@ class Uniform : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString uniformName MEMBER m_name CONSTANT)
-    Q_PROPERTY(QString uniformDisplayName MEMBER m_displayName CONSTANT)
+    Q_PROPERTY(QString uniformName READ name CONSTANT)
+    Q_PROPERTY(QString uniformDisplayName READ displayName CONSTANT)
     Q_PROPERTY(QString uniformType READ typeName CONSTANT)
     Q_PROPERTY(QString uniformControlType READ controlTypeName CONSTANT)
     Q_PROPERTY(QString uniformDescription READ description CONSTANT)
     Q_PROPERTY(QVariant uniformValue READ value WRITE setValue NOTIFY uniformValueChanged)
     Q_PROPERTY(QVariant uniformBackendValue READ backendValue NOTIFY uniformBackendValueChanged)
-    Q_PROPERTY(QVariant uniformMinValue MEMBER m_minValue CONSTANT)
-    Q_PROPERTY(QVariant uniformMaxValue MEMBER m_maxValue CONSTANT)
-    Q_PROPERTY(QVariant uniformDefaultValue MEMBER m_defaultValue NOTIFY uniformDefaultValueChanged)
-    Q_PROPERTY(QVariant uniformUseCustomValue MEMBER m_useCustomValue CONSTANT)
+    Q_PROPERTY(QVariant uniformMinValue READ minValue CONSTANT)
+    Q_PROPERTY(QVariant uniformMaxValue READ maxValue CONSTANT)
+    Q_PROPERTY(QVariant uniformDefaultValue READ defaultValue NOTIFY uniformDefaultValueChanged)
+    Q_PROPERTY(QVariant uniformUseCustomValue READ useCustomValue CONSTANT)
+    Q_PROPERTY(bool uniformUserAdded READ userAdded CONSTANT)
 
 public:
     enum class Type
@@ -66,6 +67,7 @@ public:
     QString name() const;
     QString description() const;
     QString displayName() const;
+    bool userAdded() const;
 
     QString customValue() const;
     void setCustomValue(const QString &newCustomValue);
@@ -107,6 +109,7 @@ private:
     QString m_displayName;
     QString m_description;
     QString m_customValue;
+    bool m_userAdded = false;
     bool m_useCustomValue = false;
     bool m_enabled = true;
     bool m_enableMipmap = false;

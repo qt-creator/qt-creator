@@ -43,6 +43,13 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
     else {
         parse(effectName, "", jsonObject);
     }
+
+    connect(&m_uniformsModel, &QAbstractItemModel::rowsAboutToBeRemoved, this,
+            [this](const QModelIndex &, int row, int) {
+        QTC_ASSERT(m_uniforms.size() > row, return);
+        m_uniforms.removeAt(row);
+        emit rebakeRequested();
+    });
 }
 
 CompositionNode::~CompositionNode()
@@ -72,7 +79,7 @@ QString CompositionNode::id() const
 
 QObject *CompositionNode::uniformsModel()
 {
-    return &m_unifomrsModel;
+    return &m_uniformsModel;
 }
 
 QStringList CompositionNode::requiredNodes() const
@@ -96,6 +103,11 @@ void CompositionNode::setIsEnabled(bool newIsEnabled)
 bool CompositionNode::isDependency() const
 {
     return m_refCount > 0;
+}
+
+bool CompositionNode::isCustom() const
+{
+    return m_isCustom;
 }
 
 CompositionNode::NodeType CompositionNode::type() const
@@ -125,6 +137,9 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     if (json.contains("enabled"))
         m_isEnabled = json["enabled"].toBool();
 
+    if (json.contains("custom"))
+        m_isCustom = json["custom"].toBool();
+
     m_id = json.value("id").toString();
     if (m_id.isEmpty() && !qenPath.isEmpty()) {
         QString fileName = qenPath.split('/').last();
@@ -136,7 +151,7 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     QJsonArray jsonProps = json.value("properties").toArray();
     for (const QJsonValueConstRef &prop : jsonProps) {
         const auto uniform = new Uniform(effectName, prop.toObject(), qenPath);
-        m_unifomrsModel.addUniform(uniform);
+        m_uniformsModel.addUniform(uniform);
         m_uniforms.append(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
         if (uniform->type() == Uniform::Type::Define) {
@@ -166,7 +181,7 @@ void CompositionNode::ensureShadersCodeEditor()
         return;
 
     m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(name());
-    m_shadersCodeEditor->setUniformsModel(&m_unifomrsModel);
+    m_shadersCodeEditor->setUniformsModel(&m_uniformsModel);
     m_shadersCodeEditor->setFragmentValue(fragmentCode());
     m_shadersCodeEditor->setVertexValue(vertexCode());
 
@@ -270,9 +285,37 @@ void CompositionNode::closeCodeEditor()
         m_shadersCodeEditor->close();
 }
 
+void CompositionNode::addUniform(const QVariantMap &data)
+{
+    const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
+    m_uniforms.append(uniform);
+    g_propertyData.insert(uniform->name(), uniform->value());
+    m_uniformsModel.addUniform(uniform);
+}
+
+void CompositionNode::updateUniform(int index, const QVariantMap &data)
+{
+    QTC_ASSERT(index < m_uniforms.size() && index >= 0, return);
+
+    const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
+
+    m_uniforms[index] = uniform;
+    g_propertyData.insert(uniform->name(), uniform->value());
+    m_uniformsModel.updateUniform(index, uniform);
+}
+
 QString CompositionNode::name() const
 {
     return m_name;
+}
+
+void CompositionNode::setName(const QString &name)
+{
+    if (m_name == name)
+        return;
+
+    m_name = name;
+    emit nameChanged();
 }
 
 } // namespace EffectComposer

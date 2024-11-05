@@ -29,6 +29,7 @@ QHash<int, QByteArray> EffectComposerUniformsModel::roleNames() const
     roles[TypeRole] = "uniformType";
     roles[ControlTypeRole] = "uniformControlType";
     roles[UseCustomValueRole] = "uniformUseCustomValue";
+    roles[UserAdded] = "uniformUserAdded";
     return roles;
 }
 
@@ -83,6 +84,26 @@ bool EffectComposerUniformsModel::resetData(int row)
     return setData(idx, idx.data(DefaultValueRole), ValueRole);
 }
 
+bool EffectComposerUniformsModel::remove(int row)
+{
+    QModelIndex idx = index(row, 0);
+    QTC_ASSERT(idx.isValid(), return false);
+
+    beginRemoveRows({}, row, row);
+    m_uniforms.removeAt(row);
+    endRemoveRows();
+
+    return true;
+}
+
+QStringList EffectComposerUniformsModel::displayNames() const
+{
+    QStringList displayNames;
+    for (Uniform *u : std::as_const(m_uniforms))
+        displayNames.append(u->displayName());
+    return displayNames;
+}
+
 void EffectComposerUniformsModel::resetModel()
 {
     beginResetModel();
@@ -94,6 +115,17 @@ void EffectComposerUniformsModel::addUniform(Uniform *uniform)
     beginInsertRows({}, m_uniforms.size(), m_uniforms.size());
     m_uniforms.append(uniform);
     endInsertRows();
+}
+
+void EffectComposerUniformsModel::updateUniform(int uniformIndex, Uniform *uniform)
+{
+    QTC_ASSERT(uniformIndex < m_uniforms.size() && uniformIndex >= 0, return);
+    QModelIndex idx = index(uniformIndex, 0);
+
+    beginResetModel();
+    delete m_uniforms[uniformIndex];
+    m_uniforms[uniformIndex] = uniform;
+    endResetModel();
 }
 
 QList<Uniform *> EffectComposerUniformsModel::uniforms() const

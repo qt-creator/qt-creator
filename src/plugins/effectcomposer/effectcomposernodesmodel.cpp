@@ -79,8 +79,13 @@ void EffectComposerNodesModel::loadModel()
         m_categories.push_back(category);
     }
 
+    const QString customCatName = "Custom";
     std::sort(m_categories.begin(), m_categories.end(),
-              [](EffectNodesCategory *a, EffectNodesCategory *b) {
+              [&customCatName](EffectNodesCategory *a, EffectNodesCategory *b) {
+        if (a->name() == customCatName)
+            return false;
+        if (b->name() == customCatName)
+            return true;
         return a->name() < b->name();
     });
 
@@ -95,7 +100,7 @@ void EffectComposerNodesModel::resetModel()
     endResetModel();
 }
 
-void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms)
+void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms, bool hasCustom)
 {
     for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
         const QList<EffectNode *> nodes = cat->nodes();
@@ -106,6 +111,10 @@ void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms)
                 if (match)
                     break;
             }
+            // For now we limit custom nodes to one as renaming nodes is not yet properly supported
+            if (!match)
+                match = hasCustom && node->isCustom();
+
             node->setCanBeAdded(!match);
         }
     }

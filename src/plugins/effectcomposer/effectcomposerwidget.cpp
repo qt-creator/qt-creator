@@ -105,7 +105,8 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
                         {"rootView", QVariant::fromValue(this)}});
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::nodesChanged, this, [this]() {
-        m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames());
+        m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
+                                                     m_effectComposerModel->hasCustomNode());
     });
 
     connect(m_effectComposerModel.data(), &EffectComposerModel::resourcesSaved,

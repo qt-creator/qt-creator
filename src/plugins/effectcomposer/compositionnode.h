@@ -18,9 +18,10 @@ class CompositionNode : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString nodeName MEMBER m_name CONSTANT)
+    Q_PROPERTY(QString nodeName READ name WRITE setName NOTIFY nameChanged CONSTANT)
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
+    Q_PROPERTY(bool isCustom READ isCustom CONSTANT)
     Q_PROPERTY(QObject *nodeUniformsModel READ uniformsModel NOTIFY uniformsModelChanged)
     Q_PROPERTY(
         QString fragmentCode
@@ -54,8 +55,10 @@ public:
     void setIsEnabled(bool newIsEnabled);
 
     bool isDependency() const;
+    bool isCustom() const;
 
     QString name() const;
+    void setName(const QString &name);
 
     QList<Uniform *> uniforms() const;
 
@@ -70,6 +73,8 @@ public:
 
     void openCodeEditor();
     void closeCodeEditor();
+    void addUniform(const QVariantMap &data);
+    void updateUniform(int index, const QVariantMap &data);
 
 signals:
     void uniformsModelChanged();
@@ -79,6 +84,7 @@ signals:
     void fragmentCodeChanged();
     void vertexCodeChanged();
     void codeEditorVisibilityChanged(bool);
+    void nameChanged();
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
@@ -93,12 +99,13 @@ private:
     QStringList m_requiredNodes;
     QString m_id;
     bool m_isEnabled = true;
+    bool m_isCustom = false;
     int m_refCount = 0;
     int m_extraMargin = 0;
 
     QList<Uniform *> m_uniforms;
 
-    EffectComposerUniformsModel m_unifomrsModel;
+    EffectComposerUniformsModel m_uniformsModel;
     Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
 };
 

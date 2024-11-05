@@ -30,7 +30,7 @@ public:
 
     QList<EffectNodesCategory *> categories() const { return  m_categories; }
 
-    void updateCanBeAdded(const QStringList &uniforms);
+    void updateCanBeAdded(const QStringList &uniforms, bool hasCustom);
 
     QHash<QString, QString> defaultImagesForNode(const QString &name) const;
 

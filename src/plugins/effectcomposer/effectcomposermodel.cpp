@@ -78,6 +78,7 @@ QHash<int, QByteArray> EffectComposerModel::roleNames() const
         {EnabledRole, "nodeEnabled"},
         {UniformsRole, "nodeUniformsModel"},
         {Dependency, "isDependency"},
+        {Custom, "isCustom"}
     };
     return roles;
 }
@@ -252,6 +253,13 @@ QString EffectComposerModel::getUniqueEffectName() const
 
     return QmlDesigner::UniqueName::generate("Effect01", [&] (const QString &effectName) {
         return QFile::exists(path.arg(effectName));
+    });
+}
+
+QString EffectComposerModel::getUniqueDisplayName(const QStringList reservedNames) const
+{
+    return QmlDesigner::UniqueName::generate(tr("New Property"), [&reservedNames] (const QString &name) {
+        return reservedNames.contains(name);
     });
 }
 
@@ -641,6 +649,7 @@ QJsonObject nodeToJson(const CompositionNode &node)
     nodeObject.insert("enabled", node.isEnabled());
     nodeObject.insert("version", 1);
     nodeObject.insert("id", node.id());
+    nodeObject.insert("custom", node.isCustom());
     if (node.extraMargin())
         nodeObject.insert("extraMargin", node.extraMargin());
 
@@ -653,6 +662,8 @@ QJsonObject nodeToJson(const CompositionNode &node)
         QString type = Uniform::stringFromType(uniform->type());
 
         uniformObject.insert("type", type);
+        if (uniform->userAdded())
+            uniformObject.insert("userAdded", true);
 
         QString controlType = Uniform::stringFromType(uniform->controlType());
         if (controlType != type)
@@ -1224,6 +1235,23 @@ void EffectComposerModel::openMainCodeEditor()
     // Close the old editor
     if (oldIndex > -1 && oldIndex < m_nodes.size())
         m_nodes.at(oldIndex)->closeCodeEditor();
+}
+
+QVariant EffectComposerModel::valueLimit(const QString &type, bool max) const
+{
+    static const int intMin = std::numeric_limits<int>::lowest();
+    static const int intMax = std::numeric_limits<int>::max();
+    static const float floatMin = std::numeric_limits<float>::lowest();
+    static const float floatMax = std::numeric_limits<float>::max();
+
+    if (type == "float")
+        return max ? floatMax : floatMin;
+    if (type == "int")
+        return max ? intMax : intMin;
+
+    qWarning() << __FUNCTION__ << "Invalid type for limit:" << type;
+
+    return {};
 }
 
 void EffectComposerModel::openComposition(const QString &path)
@@ -2461,10 +2489,36 @@ QStringList EffectComposerModel::uniformNames() const
     return usedList;
 }
 
+QString EffectComposerModel::generateUniformName(const QString &nodeName,
+                                                 const QString &propertyName,
+                                                 const QString &oldName) const
+{
+    const QStringList allNames = uniformNames();
+    QString uniformName = nodeName;
+    if (!propertyName.isEmpty()) {
+        QString fixedPropName = propertyName;
+        fixedPropName[0] = fixedPropName[0].toUpper();
+        uniformName.append(fixedPropName);
+    }
+
+    return QmlDesigner::UniqueName::generateId(uniformName, [&] (const QString &name) {
+        return allNames.contains(name) && name != oldName;
+    });
+}
+
 bool EffectComposerModel::isDependencyNode(int index) const
 {
     if (m_nodes.size() > index)
         return m_nodes[index]->isDependency();
+    return false;
+}
+
+bool EffectComposerModel::hasCustomNode() const
+{
+    for (const auto *node : std::as_const(m_nodes)) {
+        if (node->isCustom())
+            return true;
+    }
     return false;
 }
 
@@ -2482,6 +2536,27 @@ QString EffectComposerModel::stripFileFromURL(const QString &urlString) const
     QUrl url(urlString);
     QString filePath = (url.scheme() == QStringLiteral("file")) ? url.toLocalFile() : url.toString();
     return filePath;
+}
+
+void EffectComposerModel::addOrUpdateNodeUniform(int idx, const QVariantMap &data, int updateIndex)
+{
+    QTC_ASSERT(m_nodes.size() > idx && idx >= 0, return);
+
+    // Convert values to Uniform digestible strings
+    auto fixedData = data;
+    auto type = Uniform::typeFromString(data["type"].toString());
+    auto controlType = Uniform::typeFromString(data["controlType"].toString());
+    fixedData["defaultValue"] = variantAsDataString(type, controlType, data["defaultValue"]);
+    fixedData["minValue"] = variantAsDataString(type, controlType, data["minValue"]);
+    fixedData["maxValue"] = variantAsDataString(type, controlType, data["maxValue"]);
+
+    if (updateIndex >= 0)
+        m_nodes[idx]->updateUniform(updateIndex, fixedData);
+    else
+        m_nodes[idx]->addUniform(fixedData);
+
+    setHasUnsavedChanges(true);
+    startRebakeTimer();
 }
 
 } // namespace EffectComposer

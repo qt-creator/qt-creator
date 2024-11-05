@@ -3,14 +3,20 @@
 
 import QtQuick
 import StudioControls as StudioControls
-import StudioTheme as StudioTheme
-import EffectComposerBackend
 
 Item { // The wrapper Item is used to limit hovering and clicking the CheckBox to its area
+    id: root
+    height: 30
+
+    signal valueChanged()
+
     StudioControls.CheckBox {
         actionIndicatorVisible: false
         checked: uniformValue
-        onToggled: uniformValue = checked
+        onToggled: {
+            uniformValue = checked
+            root.valueChanged()
+        }
         anchors.verticalCenter: parent.verticalCenter
     }
 }

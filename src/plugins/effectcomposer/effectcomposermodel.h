@@ -82,10 +82,12 @@ public:
     Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
+    Q_INVOKABLE QString getUniqueDisplayName(const QStringList reservedNames) const;
     Q_INVOKABLE bool nameExists(const QString &name) const;
     Q_INVOKABLE void chooseCustomPreviewImage();
     Q_INVOKABLE void previewComboAboutToOpen();
     Q_INVOKABLE void removeCustomPreviewImage(const QUrl &url);
+    Q_INVOKABLE void addOrUpdateNodeUniform(int idx, const QVariantMap &data, int updateIndex);
 
     bool shadersUpToDate() const;
     void setShadersUpToDate(bool newShadersUpToDate);
@@ -120,6 +122,8 @@ public:
     Q_INVOKABLE void openCodeEditor(int idx);
     Q_INVOKABLE void openMainCodeEditor();
 
+    Q_INVOKABLE QVariant valueLimit(const QString &type, bool max) const;
+
     void openComposition(const QString &path);
 
     QString currentComposition() const;
@@ -137,9 +141,13 @@ public:
     bool hasUnsavedChanges() const;
     void setHasUnsavedChanges(bool val);
 
-    QStringList uniformNames() const;
+    Q_INVOKABLE QStringList uniformNames() const;
+    Q_INVOKABLE QString generateUniformName(const QString &nodeName, const QString &propertyName,
+                                            const QString &oldName) const;
 
     Q_INVOKABLE bool isDependencyNode(int index) const;
+
+    bool hasCustomNode() const;
 
 signals:
     void isEmptyChanged();
@@ -165,7 +173,8 @@ private:
         NameRole = Qt::UserRole + 1,
         EnabledRole,
         UniformsRole,
-        Dependency
+        Dependency,
+        Custom
     };
 
     enum ErrorTypes {
