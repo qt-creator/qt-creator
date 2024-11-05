@@ -42,12 +42,17 @@ protected:
 class CPLUSPLUS_EXPORT VoidType final : public Type
 {
 public:
+    static VoidType instance;
+
     const VoidType *asVoidType() const override { return this; }
     VoidType *asVoidType() override { return this; }
 
 protected:
     void accept0(TypeVisitor *visitor) override;
     bool match0(const Type *otherType, Matcher *matcher) const override;
+
+private:
+    VoidType() = default;
 };
 
 class CPLUSPLUS_EXPORT IntegerType final : public Type

@@ -22,8 +22,6 @@
 #include "TypeVisitor.h"
 #include "Matcher.h"
 
-#include <algorithm>
-
 namespace CPlusPlus {
 
 UndefinedType UndefinedType::instance;
@@ -38,6 +36,8 @@ bool UndefinedType::match0(const Type *otherType, Matcher *matcher) const
 
     return false;
 }
+
+VoidType VoidType::instance;
 
 void VoidType::accept0(TypeVisitor *visitor)
 { visitor->visit(this); }
