@@ -841,13 +841,27 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
     };
 
     const auto onArtSetup = [storage](Process &process) {
-        process.setCommand(storage->adbCommand({"shell", "pm", "art", "clear-app-profiles",
-                                                storage->m_packageName}));
+        process.setCommand(storage->adbCommand(
+            {"shell", "pm", "art", "clear-app-profiles", storage->m_packageName}));
+    };
+    const auto onArtDone = [storage](const Process &process) {
+        if (process.result() == ProcessResult::FinishedWithSuccess)
+            emit storage->m_glue->stdOut(Tr::tr("Art: Cleared App Profiles."));
+        else
+            emit storage->m_glue->stdOut(Tr::tr("Art: Clearing App Profiles failed."));
+        return DoneResult::Success;
     };
 
     const auto onCompileSetup = [storage](Process &process) {
-        process.setCommand(storage->adbCommand({"shell", "pm", "compile", "-m", "verify", "-f",
-                                                storage->m_packageName}));
+        process.setCommand(storage->adbCommand(
+            {"shell", "pm", "compile", "-m", "verify", "-f", storage->m_packageName}));
+    };
+    const auto onCompileDone = [storage](const Process &process) {
+        if (process.result() == ProcessResult::FinishedWithSuccess)
+            emit storage->m_glue->stdOut(Tr::tr("Art: Compiled App Profiles."));
+        else
+            emit storage->m_glue->stdOut(Tr::tr("Art: Compiling App Profiles failed."));
+        return DoneResult::Success;
     };
 
     const auto onIsAliveSetup = [storage](Process &process) {
@@ -855,6 +869,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
         process.setCommand(storage->adbCommand({"shell", pidPollingScript.arg(storage->m_processPID)}));
     };
 
+    // clang-format off
     return Group {
         Forever {
             stopOnSuccess,
@@ -863,14 +878,15 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                         DoneResult::Error)
         }.withTimeout(45s),
         ProcessTask(onUserSetup, onUserDone, CallDoneIf::Success),
-        ProcessTask(onArtSetup, DoneResult::Success),
-        ProcessTask(onCompileSetup, DoneResult::Success),
+        ProcessTask(onArtSetup, onArtDone),
+        ProcessTask(onCompileSetup, onCompileDone),
         Group {
             parallel,
             startNativeDebuggingRecipe(storage),
             ProcessTask(onIsAliveSetup)
         }
     };
+    // clang-format on
 }
 
 void RunnerInterface::cancel()
