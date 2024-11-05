@@ -11,6 +11,7 @@ QMLPROJECTMANAGER_EXPORT QStringList imageFiles(
     const std::function<QString(QString)> &transformer = nullptr);
 
 QMLPROJECTMANAGER_EXPORT bool isQmlFile(const Utils::FilePath &path);
+QMLPROJECTMANAGER_EXPORT bool isImageFile(const Utils::FilePath &path);
 QMLPROJECTMANAGER_EXPORT bool isAssetFile(const Utils::FilePath &path);
 QMLPROJECTMANAGER_EXPORT bool isResource(const Utils::FilePath &path);
 

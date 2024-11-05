@@ -355,8 +355,10 @@ bool CMakeGenerator::findFile(const NodePtr &node, const Utils::FilePath &file) 
 void CMakeGenerator::insertFile(NodePtr &node, const Utils::FilePath &path) const
 {
     QString error;
-    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error))
-        logIssue(ProjectExplorer::Task::Error, error, path);
+    if (!Utils::FileNameValidatingLineEdit::validateFileName(path.fileName(), false, &error)) {
+        if (!isImageFile(path))
+            logIssue(ProjectExplorer::Task::Error, error, path);
+    }
 
     if (path.fileName() == "qmldir") {
         readQmlDir(path, node);
