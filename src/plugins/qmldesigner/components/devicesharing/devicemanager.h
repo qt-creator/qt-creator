@@ -25,7 +25,7 @@ public:
     void setDeviceActive(const QString &deviceId, const bool active);
     void setDeviceIP(const QString &deviceId, const QString &ip);
 
-    void addDevice(const QString &ip);
+    bool addDevice(const QString &ip);
     void removeDevice(const QString &deviceId);
     void removeDeviceAt(int index);
     bool sendProjectFile(const QString &deviceId, const QString &projectFile);

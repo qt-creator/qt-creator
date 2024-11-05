@@ -215,10 +215,10 @@ QString DeviceManager::generateDeviceAlias() const
     return QString("Device %1").arg(m_devices.size() + 1);
 }
 
-void DeviceManager::addDevice(const QString &ip)
+bool DeviceManager::addDevice(const QString &ip)
 {
     if (ip.isEmpty())
-        return;
+        return false;
 
     const auto trimmedIp = ip.trimmed();
 
@@ -226,13 +226,13 @@ void DeviceManager::addDevice(const QString &ip)
     QRegularExpression ipRegex(R"(^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$)");
     if (!ipRegex.match(trimmedIp).hasMatch()) {
         qCWarning(deviceSharePluginLog) << "Invalid IP address" << ip;
-        return;
+        return false;
     }
 
     for (const auto &device : m_devices) {
         if (device->deviceSettings().ipAddress() == trimmedIp) {
             qCWarning(deviceSharePluginLog) << "Device" << trimmedIp << "already exists";
-            return;
+            return false;
         }
     }
 
@@ -243,6 +243,8 @@ void DeviceManager::addDevice(const QString &ip)
     m_devices.append(device);
     writeSettings();
     emit deviceAdded(device->deviceInfo());
+
+    return true;
 }
 
 QSharedPointer<Device> DeviceManager::initDevice(const DeviceInfo &deviceInfo,
@@ -354,11 +356,7 @@ bool DeviceManager::sendProjectFile(const QString &deviceId, const QString &proj
     }
 
     qCDebug(deviceSharePluginLog) << "Sending project file to device" << deviceId;
-
-    QByteArray projectData = file.readAll();
-    return device->sendProjectData(projectData);
-
-    qCDebug(deviceSharePluginLog) << "Project file sent to device" << deviceId;
+    return device->sendProjectData(file.readAll());
 }
 
 bool DeviceManager::stopRunningProject(const QString &deviceId)
