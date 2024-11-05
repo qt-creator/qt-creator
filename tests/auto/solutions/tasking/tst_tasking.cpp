@@ -4,6 +4,7 @@
 #include <tasking/barrier.h>
 #include <tasking/concurrentcall.h>
 #include <tasking/conditional.h>
+#include <tasking/tasktreerunner.h>
 
 #include <QtTest>
 #include <QHash>
@@ -124,6 +125,7 @@ private slots:
     void nestedBrokenStorage();
     void restart();
     void destructorOfTaskEmittingDone();
+    void restartTaskTreeRunnerFromDoneHandler();
     void validConditionalConstructs();
 };
 
@@ -4249,6 +4251,21 @@ void tst_Tasking::destructorOfTaskEmittingDone()
 {
     TaskTree taskTree({BrokenTask()});
     taskTree.start();
+}
+
+void tst_Tasking::restartTaskTreeRunnerFromDoneHandler()
+{
+    TaskTreeRunner runner;
+    QStringList log;
+    QStringList expectedLog{"1", "2"};
+
+    const auto onFirstDone = [&runner, &log](DoneWith) {
+        log.append("1");
+        runner.start({TestTask()}, {}, [&log](DoneWith) { log.append("2"); });
+    };
+    runner.start({TestTask()}, {}, onFirstDone);
+    QTRY_VERIFY(!runner.isRunning());
+    QCOMPARE(log, expectedLog);
 }
 
 void tst_Tasking::validConditionalConstructs()
