@@ -37,6 +37,7 @@ public:
     bool isRootNode(const NodePtr &node) const;
     bool hasChildModule(const NodePtr &node) const;
 
+    void updateModifiedFile(const QString &file);
     void update(const QSet<QString> &added, const QSet<QString> &removed);
 
 private:

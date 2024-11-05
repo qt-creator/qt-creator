@@ -102,6 +102,7 @@ public:
     void setEnablePythonGeneration(bool enable);
 
 signals:
+    void fileModified(const QString &filePath);
     void filesChanged(const QSet<QString> &, const QSet<QString> &);
 
 private:

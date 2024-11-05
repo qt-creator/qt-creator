@@ -40,6 +40,8 @@ Utils::FileSystemWatcher *FileFilterItem::dirWatcher()
         m_dirWatcher->setObjectName(QLatin1String("FileFilterBaseItemWatcher"));
         connect(m_dirWatcher, &Utils::FileSystemWatcher::directoryChanged,
                 this, &FileFilterItem::updateFileList);
+        connect(m_dirWatcher, &Utils::FileSystemWatcher::fileChanged,
+                [this](const QString& path) { emit fileModified(path); });
     }
     return m_dirWatcher;
 }
@@ -203,6 +205,31 @@ void FileFilterItem::updateFileList()
 #endif
 }
 
+void FileFilterItem::watchFiles(QSet<QString> filters, const QSet<QString> &add, const QSet<QString> &remove)
+{
+    const QSet<QString> mFilterSet = QSet<QString>(m_filter.begin(), m_filter.end());
+    if (!filters.intersects(mFilterSet))
+        return;
+
+    filters = Utils::transform<QSet<QString>>(filters, [](QString filter) {
+        if (filter.startsWith("*."))
+            filter = filter.mid(2);
+        return filter;
+    });
+
+    for (const auto& fileString : add) {
+        Utils::FilePath filePath = Utils::FilePath::fromString(fileString);
+        bool hasName = filters.contains(filePath.fileName()) || filters.contains(filePath.suffix());
+        if (hasName && !dirWatcher()->watchesFile(fileString))
+            dirWatcher()->addFile(fileString, Utils::FileSystemWatcher::WatchModifiedDate);
+    }
+    for (const auto& fileString : remove) {
+        Utils::FilePath filePath = Utils::FilePath::fromString(fileString);
+        if (filters.contains(filePath.fileName()) || filters.contains(filePath.suffix()))
+            dirWatcher()->removeFile(fileString);
+    }
+}
+
 void FileFilterItem::updateFileListNow()
 {
     if (m_updateFileListTimer.isActive())
@@ -227,6 +254,8 @@ void FileFilterItem::updateFileListNow()
         unchanged.intersect(m_files);
         addedFiles.subtract(unchanged);
         removedFiles.subtract(unchanged);
+
+        watchFiles({"qmldir", "*.bla"}, addedFiles, removedFiles);
 
         m_files = newFiles;
         emit filesChanged(addedFiles, removedFiles);

@@ -52,11 +52,13 @@ signals:
     void directoryChanged();
     void recursiveChanged();
     void pathsChanged();
+    void fileModified(const QString &filePath);
     void filesChanged(const QSet<QString> &added, const QSet<QString> &removed);
 
 private:
     void updateFileList();
     void updateFileListNow();
+    void watchFiles(QSet<QString> filters, const QSet<QString> &add, const QSet<QString> &remove);
 
     QString absolutePath(const QString &path) const;
     QString absoluteDir() const;

@@ -107,6 +107,22 @@ bool CMakeGenerator::hasChildModule(const NodePtr &node) const
     return false;
 }
 
+void CMakeGenerator::updateModifiedFile(const QString &fileString)
+{
+    if (!isEnabled() || !m_writer)
+        return;
+
+    const Utils::FilePath path = Utils::FilePath::fromString(fileString);
+    if (path.fileName() != "qmldir")
+        return;
+
+    if (auto node = findOrCreateNode(m_root, path.parentDir()))
+        insertFile(node, path);
+
+    createCMakeFiles(m_root);
+    createSourceFiles();
+}
+
 void CMakeGenerator::update(const QSet<QString> &added, const QSet<QString> &removed)
 {
     if (!isEnabled() || !m_writer)
@@ -234,6 +250,10 @@ bool CMakeGenerator::isMockModule(const NodePtr &node) const
 
 void CMakeGenerator::readQmlDir(const Utils::FilePath &filePath, NodePtr &node) const
 {
+    node->uri = "";
+    node->name = "";
+    node->singletons.clear();
+
     if (isMockModule(node))
         node->type = Node::Type::MockModule;
     else
