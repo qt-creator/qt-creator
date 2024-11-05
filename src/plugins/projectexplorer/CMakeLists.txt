@@ -185,6 +185,8 @@ add_qtc_plugin(ProjectExplorer
     windebuginterface.cpp windebuginterface.h
     workspaceproject.h workspaceproject.cpp
     xcodebuildparser.cpp xcodebuildparser.h
+    windowsconfigurations.cpp windowsconfigurations.h
+    windowssettingswidget.cpp windowssettingswidget.h
 )
 
 if (TARGET clangd)

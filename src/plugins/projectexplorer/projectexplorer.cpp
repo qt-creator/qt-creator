@@ -80,6 +80,8 @@
 #include "toolchainmanager.h"
 #include "toolchainoptionspage.h"
 #include "vcsannotatetaskhandler.h"
+#include "windowsconfigurations.h"
+#include "windowssettingswidget.h"
 #include "workspaceproject.h"
 
 #ifdef Q_OS_WIN
@@ -815,6 +817,9 @@ bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *er
     setupMsvcToolchain();
     setupClangClToolchain();
     setupCustomToolchain();
+    setupWindowsConfigurations();
+    if (HostOsInfo::isWindowsHost())
+        setupWindowsSettingsPage();
 
     setupProjectTreeWidgetFactory();
 

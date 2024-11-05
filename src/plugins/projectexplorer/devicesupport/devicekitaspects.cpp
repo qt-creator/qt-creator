@@ -12,7 +12,10 @@
 #include "../kitmanager.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
+#include "../toolchainkitaspect.h"
+#include "../windowsconfigurations.h"
 
+#include <utils/environment.h>
 #include <utils/id.h>
 #include <utils/layoutbuilder.h>
 #include <utils/listmodel.h>
@@ -443,6 +446,7 @@ private:
     ItemList toUserOutput(const Kit *k) const override;
 
     void addToMacroExpander(Kit *kit, MacroExpander *expander) const override;
+    void addToBuildEnvironment(const Kit *k, Utils::Environment &env) const override;
 
     void onKitsLoaded() override;
     void deviceUpdated(Id dataId);
@@ -530,6 +534,18 @@ void BuildDeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *ex
             const IDevice::ConstPtr device = BuildDeviceKitAspect::device(kit);
             return device ? device->rootPath() : FilePath{};
         });
+}
+
+void BuildDeviceKitAspectFactory::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
+{
+    IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
+    if (dev->osType() == Utils::OsType::OsTypeWindows
+        && dev->type() == Constants::DESKTOP_DEVICE_TYPE) {
+        if (const FilePath appSdkLocation = WindowsConfigurations::windowsAppSdkLocation();
+            !appSdkLocation.isEmpty()) {
+            env.set(Constants::WINDOWS_WINAPPSDK_ROOT_ENV_KEY, appSdkLocation.path());
+        }
+    }
 }
 
 void BuildDeviceKitAspectFactory::onKitsLoaded()

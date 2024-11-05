@@ -157,7 +157,9 @@ QtcPlugin {
             "waitforstopdialog.cpp", "waitforstopdialog.h",
             "windebuginterface.cpp", "windebuginterface.h",
             "workspaceproject.cpp", "workspaceproject.h",
-            "xcodebuildparser.cpp", "xcodebuildparser.h"
+            "xcodebuildparser.cpp", "xcodebuildparser.h",
+            "windowsconfigurations.cpp", "windowsconfigurations.h",
+            "windowssettingswidget.cpp", "windowssettingswidget.h",
         ]
     }
 
