@@ -1462,6 +1462,11 @@ bool Bind::visit(RangeBasedForStatementAST *ast)
 
     Scope *previousScope = switchScope(block);
 
+    if (ast->initDecl)
+        declaration(ast->initDecl);
+    else if (ast->initStmt)
+        statement(ast->initStmt);
+
     FullySpecifiedType type;
     for (SpecifierListAST *it = ast->type_specifier_list; it; it = it->next) {
         type = this->specifier(it->value, type);

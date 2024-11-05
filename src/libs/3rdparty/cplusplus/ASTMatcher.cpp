@@ -1244,6 +1244,15 @@ bool ASTMatcher::match(RangeBasedForStatementAST *node, RangeBasedForStatementAS
 
     pattern->lparen_token = node->lparen_token;
 
+    if (!pattern->initDecl)
+        pattern->initDecl = node->initDecl;
+    else if (!AST::match(node->initDecl, pattern->initDecl, this))
+        return false;
+    if (!pattern->initStmt)
+        pattern->initStmt = node->initStmt;
+    else if (!AST::match(node->initStmt, pattern->initStmt, this))
+        return false;
+
     if (! pattern->type_specifier_list)
         pattern->type_specifier_list = node->type_specifier_list;
     else if (! AST::match(node->type_specifier_list, pattern->type_specifier_list, this))

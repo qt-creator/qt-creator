@@ -1720,6 +1720,11 @@ class CPLUSPLUS_EXPORT RangeBasedForStatementAST : public StatementAST
 public:
     int for_token = 0;
     int lparen_token = 0;
+
+    // init-statement (C++20)
+    DeclarationAST *initDecl = nullptr;
+    StatementAST *initStmt = nullptr;
+
     // declaration
     SpecifierListAST *type_specifier_list = nullptr;
     DeclaratorAST *declarator = nullptr;

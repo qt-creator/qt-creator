@@ -3984,6 +3984,18 @@ bool Parser::parseForStatement(StatementAST *&node)
         ast->for_token = for_token;
         ast->lparen_token = lparen_token;
 
+        // C++20: init-statement
+        if (_languageFeatures.cxx20Enabled) {
+            const int savedCursor = cursor();
+            const bool savedBlockErrors = _translationUnit->blockErrors(true);
+            if (!parseSimpleDeclaration(ast->initDecl)) {
+                rewind(savedCursor);
+                if (!parseExpressionStatement(ast->initStmt))
+                    rewind(savedCursor);
+            }
+            _translationUnit->blockErrors(savedBlockErrors);
+        }
+
         if (parseTypeSpecifier(ast->type_specifier_list))
             parseDeclarator(ast->declarator, ast->type_specifier_list);
 
