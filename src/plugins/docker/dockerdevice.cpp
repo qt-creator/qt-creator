@@ -279,6 +279,8 @@ public:
 
     QString m_container;
 
+    std::unique_ptr<Process> m_startProcess;
+
     std::optional<Environment> m_cachedEnviroment;
     bool m_isShutdown = false;
     SynchronizedValue<std::unique_ptr<DeviceFileAccess>> m_fileAccess;
@@ -772,12 +774,10 @@ void DockerDevicePrivate::stopCurrentContainer()
         }
     }
 
-    Process proc;
-    proc.setCommand({settings().dockerBinaryPath(), {"container", "kill", m_container}});
+    if (m_startProcess && m_startProcess->isRunning())
+        m_startProcess->kill(); // Kill instead of stop so we don't wait for the process to finish.
 
     m_container.clear();
-
-    proc.runBlocking();
 
     m_cachedEnviroment.reset();
 }
@@ -973,18 +973,45 @@ expected_str<QString> DockerDevicePrivate::createContainer()
 
 expected_str<void> DockerDevicePrivate::startContainer()
 {
+    using namespace std::chrono_literals;
+
     auto createResult = createContainer();
     if (!createResult)
         return make_unexpected(createResult.error());
 
-    Process startProcess;
-    startProcess.setCommand({settings().dockerBinaryPath(), {"container", "start", m_container}});
-    startProcess.runBlocking();
-    if (startProcess.result() != ProcessResult::FinishedWithSuccess) {
-        return make_unexpected(Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
-                                   .arg(startProcess.exitCode())
-                                   .arg(startProcess.allOutput()));
+    if (m_startProcess)
+        m_startProcess->stop();
+
+    m_startProcess = std::make_unique<Process>();
+
+    m_startProcess->setCommand(
+        {settings().dockerBinaryPath(), {"container", "start", "-a", "-i", m_container}});
+    m_startProcess->setProcessMode(ProcessMode::Writer);
+    m_startProcess->start();
+    if (!m_startProcess->waitForStarted(5s)) {
+        if (m_startProcess->state() == QProcess::NotRunning) {
+            return make_unexpected(
+                Tr::tr("Failed starting Docker container. Exit code: %1, output: %2")
+                    .arg(m_startProcess->exitCode())
+                    .arg(m_startProcess->allOutput()));
+        }
+        // Lets assume it will start soon
+        qCWarning(dockerDeviceLog)
+            << "Docker container start process took more than 5 seconds to start.";
     }
+
+    QDeadlineTimer deadline(5s);
+    while (!DockerApi::instance()->isContainerRunning(m_container) && !deadline.hasExpired()) {
+        QThread::sleep(100ms);
+    }
+
+    if (deadline.hasExpired() && !DockerApi::instance()->isContainerRunning(m_container)) {
+        m_startProcess->stop();
+        return make_unexpected(Tr::tr("Failed to start container: %1").arg(m_container));
+    }
+
+    qCDebug(dockerDeviceLog) << "Started container: " << m_startProcess->commandLine();
+
     return {};
 }
 
