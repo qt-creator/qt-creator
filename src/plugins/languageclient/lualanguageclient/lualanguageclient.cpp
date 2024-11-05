@@ -189,7 +189,7 @@ public:
 
     bool applyFromSettingsWidget(QWidget *widget) override;
 
-    Utils::Store toMap() const override;
+    void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
 
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
@@ -632,15 +632,14 @@ bool LuaClientSettings::applyFromSettingsWidget(QWidget *widget)
     return true;
 }
 
-Utils::Store LuaClientSettings::toMap() const
+void LuaClientSettings::toMap(Store &store) const
 {
-    auto store = BaseSettings::toMap();
+    BaseSettings::toMap(store);
     if (auto w = m_wrapper.lock())
         w->toMap(store);
-    return store;
 }
 
-void LuaClientSettings::fromMap(const Utils::Store &map)
+void LuaClientSettings::fromMap(const Store &map)
 {
     BaseSettings::fromMap(map);
     if (auto w = m_wrapper.lock()) {

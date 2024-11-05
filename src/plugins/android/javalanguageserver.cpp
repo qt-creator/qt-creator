@@ -137,11 +137,10 @@ bool JLSSettings::isValid() const
     return StdIOSettings::isValid() && !m_languageServer.isEmpty();
 }
 
-Store JLSSettings::toMap() const
+void JLSSettings::toMap(Store &map) const
 {
-    Store map = StdIOSettings::toMap();
+    StdIOSettings::toMap(map);
     map.insert(languageServerKey, m_languageServer.toSettings());
-    return map;
 }
 
 void JLSSettings::fromMap(const Store &map)

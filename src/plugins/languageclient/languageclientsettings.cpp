@@ -615,9 +615,8 @@ Client *BaseSettings::createClient(BaseClientInterface *interface) const
     return new Client(interface);
 }
 
-Store BaseSettings::toMap() const
+void BaseSettings::toMap(Store &map) const
 {
-    Store map;
     map.insert(typeIdKey, m_settingsTypeId.toSetting());
     map.insert(nameKey, m_name);
     map.insert(idKey, m_id);
@@ -627,7 +626,6 @@ Store BaseSettings::toMap() const
     map.insert(filePatternKey, m_languageFilter.filePattern);
     map.insert(initializationOptionsKey, m_initializationOptions);
     map.insert(configurationKey, m_configuration);
-    return map;
 }
 
 void BaseSettings::fromMap(const Store &map)
@@ -732,7 +730,9 @@ void LanguageClientSettings::toSettings(QtcSettings *settings,
     settings->beginGroup(settingsGroupKey);
     auto transform = [](const QList<BaseSettings *> &settings) {
         return Utils::transform(settings, [](const BaseSettings *setting) {
-            return variantFromStore(setting->toMap());
+            Store store;
+            setting->toMap(store);
+            return variantFromStore(store);
         });
     };
     auto isStdioSetting = Utils::equal(&BaseSettings::m_settingsTypeId,
@@ -800,12 +800,11 @@ bool StdIOSettings::isValid() const
     return BaseSettings::isValid() && !m_executable.isEmpty();
 }
 
-Store StdIOSettings::toMap() const
+void StdIOSettings::toMap(Store &map) const
 {
-    Store map = BaseSettings::toMap();
+    BaseSettings::toMap(map);
     map.insert(executableKey, m_executable.toSettings());
     map.insert(argumentsKey, m_arguments);
-    return map;
 }
 
 void StdIOSettings::fromMap(const Store &map)

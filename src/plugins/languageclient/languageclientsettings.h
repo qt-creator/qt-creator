@@ -82,7 +82,8 @@ public:
     virtual bool isValid() const;
     Client *createClient() const;
     Client *createClient(ProjectExplorer::Project *project) const;
-    virtual Utils::Store toMap() const;
+
+    virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);
 
 protected:
@@ -108,7 +109,7 @@ public:
     QWidget *createSettingsWidget(QWidget *parent = nullptr) const override;
     BaseSettings *copy() const override { return new StdIOSettings(*this); }
     bool isValid() const override;
-    Utils::Store toMap() const override;
+    void toMap(Utils::Store &map) const override;
     void fromMap(const Utils::Store &map) override;
     QString arguments() const;
     Utils::CommandLine command() const;
