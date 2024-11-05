@@ -246,7 +246,8 @@ void EffectComposerView::highlightSupportedProperties(bool highlight, const QStr
 
 void EffectComposerView::dragStarted(QMimeData *mimeData)
 {
-    if (mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_ASSETS)) {
+    if (mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_ASSETS)
+        || mimeData->hasFormat(QmlDesigner::Constants::MIME_TYPE_BUNDLE_TEXTURE)) {
         QString format = mimeData->formats()[0];
         const QString assetPath = QString::fromUtf8(mimeData->data(format)).split(',')[0];
         const QString suffix = "*." + assetPath.split('.').last().toLower();
