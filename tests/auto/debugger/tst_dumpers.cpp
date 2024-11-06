@@ -4838,7 +4838,7 @@ void tst_Dumpers::dumper_data()
                     "};\n\n"
 
                     "std::deque<MyItem> deq;\n"
-                    "for (int i = 0; i < 100; ++i)\n"
+                    "for (uint16_t i = 0; i < 100; ++i)\n"
                     "    deq.push_back({i, i});\n",
 
                     "&deq")
@@ -8683,6 +8683,96 @@ void tst_Dumpers::dumper_data()
         + Check{"err_enum.inner", "Bad (1)", "ErrCode"} % NoGdbEngine
         + Check{"err_class", "Unexpected", "tl::expected<ErrCode, MyClass>"}
         + Check{"err_class.inner.m_x", "10", "int"};
+    // clang-format on
+
+    // clang-format off
+    QTest::newRow("QTCREATORBUG-30224-StdLibPmrContainers") << Data{
+        R"(
+            #include <array>
+            #include <deque>
+            #include <forward_list>
+            #include <list>
+            #include <map>
+            #include <set>
+            #include <unordered_map>
+            #include <unordered_set>
+            #include <vector>
+        )",
+        R"(
+            std::pmr::deque<int> d;
+            std::pmr::forward_list<int> fl;
+            std::pmr::list<int> l;
+            std::pmr::set<int> s;
+            std::pmr::multiset<int> ms;
+            std::pmr::unordered_set<int> us;
+            std::pmr::unordered_multiset<int> ums;
+            std::pmr::map<int, int> m;
+            std::pmr::multimap<int, int> mm;
+            std::pmr::unordered_map<int, int> um;
+            std::pmr::unordered_multimap<int, int> umm;
+            std::pmr::vector<int> v;
+
+            constexpr auto count = 10;
+            for (auto i = 0; i < count; ++i)
+            {
+                if (i < count / 2) {
+                    d.push_back(i);
+                }
+                else {
+                    d.push_front(i);
+                }
+
+                fl.push_front(i);
+
+                l.push_back(i);
+
+                s.insert(i);
+                ms.insert(i);
+                us.insert(i);
+                ums.insert(i);
+
+                m.emplace(i, i);
+                mm.emplace(i, i);
+                um.emplace(i, i);
+                umm.emplace(i, i);
+
+                v.push_back(i);
+            }
+        )",
+        "&d, &fl, &l, &s, &ms, &us, &ums, &m, &mm, &um, &umm, &v"
+    }
+        + Check{"d", "<10 items>", "std::pmr::deque<int>"} % NoGdbEngine
+        + Check{"d", "<10 items>", "std::pmr::deque"} % GdbEngine
+        + Check{"d.1", "[1]", "8", "int"}
+        + Check{"fl", "<10 items>", "std::pmr::forward_list<int>"} % NoGdbEngine
+        + Check{"fl", "<10 items>", "std::pmr::forward_list"} % GdbEngine
+        + Check{"fl.2", "[2]", "7", "int"}
+        + Check{"l", "<10 items>", "std::pmr::list<int>"} % NoGdbEngine
+        + Check{"l", "<10 items>", "std::pmr::list"} % GdbEngine
+        + Check{"l.3", "[3]", "3", "int"}
+        + Check{"s", "<10 items>", "std::pmr::set<int>"} % NoGdbEngine
+        + Check{"s", "<10 items>", "std::pmr::set"} % GdbEngine
+        + Check{"s.4", "[4]", "4", "int"}
+        + Check{"ms", "<10 items>", "std::pmr::multiset<int>"} % NoGdbEngine
+        + Check{"ms", "<10 items>", "std::pmr::multiset"} % GdbEngine
+        + Check{"ms.4", "[4]", "4", "int"}
+        + Check{"us", "<10 items>", "std::pmr::unordered_set<int>"} % NoGdbEngine
+        + Check{"us", "<10 items>", "std::pmr::unordered_set"} % GdbEngine
+        + Check{"ums", "<10 items>", "std::pmr::unordered_multiset<int>"} % NoGdbEngine
+        + Check{"ums", "<10 items>", "std::pmr::unordered_multiset"} % GdbEngine
+        + Check{"m", "<10 items>", "std::pmr::map<int, int>"} % NoGdbEngine
+        + Check{"m", "<10 items>", "std::pmr::map"} % GdbEngine
+        + Check{"m.5", "[5] 5", "5", ""}
+        + Check{"mm", "<10 items>", "std::pmr::multimap<int, int>"} % NoGdbEngine
+        + Check{"mm", "<10 items>", "std::pmr::multimap"} % GdbEngine
+        + Check{"mm.5", "[5] 5", "5", ""}
+        + Check{"um", "<10 items>", "std::pmr::unordered_map<int, int>"} % NoGdbEngine
+        + Check{"um", "<10 items>", "std::pmr::unordered_map"} % GdbEngine
+        + Check{"umm", "<10 items>", "std::pmr::unordered_multimap<int, int>"} % NoGdbEngine
+        + Check{"umm", "<10 items>", "std::pmr::unordered_multimap"} % GdbEngine
+        + Check{"v", "<10 items>", "std::pmr::vector<int>"} % NoGdbEngine
+        + Check{"v", "<10 items>", "std::pmr::vector"} % GdbEngine
+        + Check{"v.6", "[6]", "6", "int"};
     // clang-format on
 }
 

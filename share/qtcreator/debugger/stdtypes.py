@@ -1,6 +1,25 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+# Disclaimers:
+#   1. Looking up the allocator template type is potentially an expensive operation.
+#      A better alternative would be finding out the allocator type
+#      through accessing a class member.
+#      However due to different implementations doing things very differently
+#      it is deemed acceptable.
+#      Specifically:
+#        * GCC's `_Rb_tree_impl` basically inherits from the allocator, the comparator
+#          and the sentinel node
+#        * Clang packs the allocator and the sentinel node into a compressed pair,
+#          so depending on whether the allocator is sized or not,
+#          there may or may not be a member to access
+#        * MSVC goes even one step further and stores the allocator and the sentinel node together
+#          in a compressed pair, which in turn is stored together with the comparator inside
+#          another compressed pair
+#   2. `size` on an empty type, which the majority of the allocators are of,
+#      for whatever reason reports 1. In theory there can be allocators whose type is truly 1 byte,
+#      in which case we will have issues, but in practice they should be rather rare.
+
 from utils import DisplayFormat
 from dumper import Children, SubItem, DumperBase
 
@@ -94,7 +113,13 @@ def qdumpHelper__std__deque__libstdcxx(d, value):
                     pcur = pfirst
 
 def qdumpHelper__std__deque__libcxx(d, value):
-    mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
+    alloc_type = value.type[1] # see disclaimer #1
+    alloc_size = alloc_type.size()
+    # see disclaimer #2
+    if alloc_size > 1:
+        mptr, mfirst, mbegin, mend, alloc, start, size = value.split(f'pppp{{{alloc_type.name}}}tt')
+    else:
+        mptr, mfirst, mbegin, mend, start, size = value.split("pppptt")
     d.check(0 <= size and size <= 1000 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -160,7 +185,11 @@ def qdumpHelper__std__deque__msvc(d, value):
     else:
         bufsize = 1
 
-    (proxy, map, mapsize, myoff, mysize) = value.split("ppppp")
+    alloc_size = value.type[1].size() # see disclaimer #1
+    # see disclaimer #2
+    offset = alloc_size if alloc_size > 1 else 0
+    core = d.createValue(value.address() + offset, value.type)
+    (proxy, map, mapsize, myoff, mysize) = core.split("ppppp")
 
     d.check(0 <= mapsize and mapsize <= 1000 * 1000 * 1000)
     d.putItemCount(mysize)
@@ -221,10 +250,14 @@ def qdump__std__list__QNX(d, value):
             d.isDebugBuild = True
         except Exception:
             d.isDebugBuild = False
+
+    alloc_size = value.type[1].size() # see disclaimer #1
+    # see disclaimer #2
+    offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
-        (proxy, head, size) = value.split("ppp")
-    else:
-        (head, size) = value.split("pp")
+        offset += d.ptrSize() # _Myval2.Myproxy
+    core = d.createValue(value.address() + offset, value.type)
+    (head, size) = core.split("pp")
 
     d.putItemCount(size, 1000)
 
@@ -331,10 +364,13 @@ def qdump_std__map__helper(d, value):
             d.isDebugBuild = True
         except Exception:
             d.isDebugBuild = False
+    alloc_size = value.type[3].size() # see disclaimer #1
+    # see disclaimer #2
+    offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
-        (proxy, head, size) = value.split("ppp")
-    else:
-        (head, size) = value.split("pp")
+        offset += d.ptrSize() # _Myval2.Myproxy
+    core = d.createValue(value.address() + offset, value.type)
+    (head, size) = core.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -559,10 +595,14 @@ def qdump__std__set__QNX(d, value):
             d.isDebugBuild = True
         except Exception:
             d.isDebugBuild = False
+
+    alloc_size = value.type[2].size() # see disclaimer #1
+    # see disclaimer #2
+    offset = alloc_size if alloc_size > 1 else 0
     if d.isDebugBuild:
-        (proxy, head, size) = value.split("ppp")
-    else:
-        (head, size) = value.split("pp")
+        offset += d.ptrSize() # _Myval2.Myproxy
+    core = d.createValue(value.address() + offset, value.type)
+    (head, size) = core.split("pp")
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
     if d.isExpanded():
@@ -840,10 +880,14 @@ def qdump__std__unordered_map(d, value):
                 d.isDebugBuild = True
             except Exception:
                 d.isDebugBuild = False
+
+        alloc_size = value.type[4].size() # see disclaimer #1
+        # see disclaimer #2
+        offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
-            (_, start, size) = _list.split("ppp")
-        else:
-            (start, size) = _list.split("pp")
+            offset += d.ptrSize() # _Myval2.Myproxy
+        core = d.createValue(_list.address() + offset, _list.type)
+        (start, size) = core.split("pp")
     else:
         try:
             # gcc ~= 4.7
@@ -1083,12 +1127,16 @@ def qdumpHelper__std__vector__msvc(d, value):
                 d.isDebugBuild = True
             except RuntimeError:
                 d.isDebugBuild = False
+
+        alloc_size = value.type[1].size() # see disclaimer #1
+        # see disclaimer #2
+        offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
-            proxy1, proxy2, start, finish, alloc, size = value.split("pppppi")
-        else:
-            start, finish, alloc, size = value.split("pppi")
+            offset += 2 * d.ptrSize() # _Myproxy and _MyVal2._Myproxy
+        core = d.createValue(value.address() + offset, value.type)
+        first, last, end, size = core.split("pppi")
         d.check(0 <= size and size <= 1000 * 1000 * 1000)
-        qdumpHelper__std__vector__bool(d, start, size, inner_type)
+        qdumpHelper__std__vector__bool(d, first, size, inner_type)
     else:
         if d.isDebugBuild is None:
             try:
@@ -1096,13 +1144,17 @@ def qdumpHelper__std__vector__msvc(d, value):
                 d.isDebugBuild = True
             except RuntimeError:
                 d.isDebugBuild = False
+
+        alloc_size = value.type[1].size() # see disclaimer #1
+        # see disclaimer #2
+        offset = alloc_size if alloc_size > 1 else 0
         if d.isDebugBuild:
-            proxy, start, finish, alloc = value.split("pppp")
-        else:
-            start, finish, alloc = value.split("ppp")
-        size = (finish - start) // inner_type.size()
+            offset += d.ptrSize() # _MyVal2._Myproxy
+        core = d.createValue(value.address() + offset, value.type)
+        first, last, end = core.split(f'ppp')
+        size = (last - first) // inner_type.size()
         d.check(0 <= size and size <= 1000 * 1000 * 1000)
-        qdumpHelper__std__vector__nonbool(d, start, finish, alloc, inner_type)
+        qdumpHelper__std__vector__nonbool(d, first, last, end, inner_type)
 
 
 def qform__std____debug__vector():

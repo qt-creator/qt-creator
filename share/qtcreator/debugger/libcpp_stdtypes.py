@@ -53,7 +53,28 @@ def qdump__std____1__list(d, value):
 
 
 def qdump__std____1__set(d, value):
-    (proxy, head, size) = value.split("ppp")
+    # Looking up the allocator template type is potentially an expensive operation.
+    # A better alternative would be finding out the allocator type through accessing a class member.
+    # However due to different implementations doing things very differently
+    # it is deemed acceptable.
+    # Specifically:
+    #   * GCC's `_Rb_tree_impl` basically inherits from the allocator, the comparator
+    #     and the sentinel node
+    #   * Clang packs the allocator and the sentinel node into a compressed pair,
+    #     so depending on whether the allocator is sized or not,
+    #     there may or may not be a member to access
+    #   * MSVC goes even one step further and stores the allocator and the sentinel node together
+    #     in a compressed pair, which in turn is stored together with the comparator inside
+    #     another compressed pair
+    alloc_type = value.type[2]
+    alloc_size = alloc_type.size()
+    # size of empty allocators (which are the majority) is reported as 1
+    # in theory there can be allocators whose size is truly 1 byte,
+    # in which case this will cause issues, but in practice they should be rather rare
+    if alloc_size > 1:
+        (proxy, head, alloc, size) = value.split(f'pp{{{alloc_type.name}}}p')
+    else:
+        (proxy, head, size) = value.split("ppp")
 
     d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
