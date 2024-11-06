@@ -158,8 +158,6 @@ void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
     m_listAspectSpec = std::move(listAspectSpec);
 
     m_comboBox = createSubWidget<QComboBox>();
-    m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-    m_comboBox->setEnabled(true);
     const auto sortModel = new KitAspectSortModel(this);
     sortModel->setSourceModel(m_listAspectSpec->model);
     m_comboBox->setModel(sortModel);
