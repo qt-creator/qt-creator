@@ -25,7 +25,8 @@ Q_LOGGING_CATEGORY(abiDetect, "qtc.qtsupport.detectAbis", QtWarningMsg)
 class QtAbiExtractor
 {
 public:
-    QtAbiExtractor(const FilePath &jsonFile) : m_jsonFile(jsonFile) {}
+    QtAbiExtractor(const QVersionNumber &qtVersion, const FilePath &jsonFile)
+        : m_qtVersion(qtVersion), m_jsonFile(jsonFile) {}
 
     Abis getAbis()
     {
@@ -42,31 +43,65 @@ public:
         if (parseError.error != QJsonParseError::NoError)
             return printErrorAndReturn(parseError.errorString());
 
-        const QJsonObject obj = jsonDoc.object().value("built_with").toObject();
+        m_mainObject = jsonDoc.object();
+        if (m_qtVersion < QVersionNumber(6, 9))
+            extractAbisV1();
+        else
+            extractAbisV2();
+        return m_abis;
+    }
+
+private:
+    void extractAbisV1()
+    {
+        const QJsonObject obj = m_mainObject.value("built_with").toObject();
         const QString osString = obj.value("target_system").toString();
         const Abi::OS os = getOs(osString);
 
         if (os == Abi::DarwinOS)
-            return {}; // QTBUG-129996
+            return; // QTBUG-129996
 
         const auto [arch, width] = getArch(obj.value("architecture").toString());
         if (os == Abi::UnknownOS && arch != Abi::AsmJsArchitecture)
-            return printErrorAndReturn(Tr::tr("Could not determine target OS"));
+            return printError(Tr::tr("Could not determine target OS"));
         if (arch == Abi::UnknownArchitecture)
-            return printErrorAndReturn(Tr::tr("Could not determine target architecture"));
+            return printError(Tr::tr("Could not determine target architecture"));
 
-        const Abi::OSFlavor flavor = getFlavor(
-            os,
-            osString,
-            obj.value("compiler_id").toString(),
-            obj.value("compiler_version").toString());
+        const Abi::OSFlavor flavor
+            = getFlavor(os, osString, getCompilerId(obj), getCompilerVersion(obj));
         if (flavor == Abi::UnknownFlavor && arch != Abi::AsmJsArchitecture)
-            return printErrorAndReturn(Tr::tr("Could not determine OS sub-type"));
+            return printError(Tr::tr("Could not determine OS sub-type"));
 
-        return {Abi(arch, os, flavor, getFormat(os, arch), width)};
+        m_abis.emplaceBack(arch, os, flavor, getFormat(os, arch), width);
     }
 
-private:
+    void extractAbisV2()
+    {
+        for (const QJsonArray platforms = m_mainObject.value("platforms").toArray();
+             const QJsonValue &p : platforms) {
+            const QJsonObject platform = p.toObject();
+            const QString osString = platform.value("name").toString();
+            const Abi::OS os = getOs(osString);
+            const QString compilerId = getCompilerId(platform);
+            const QString compilerVersion = getCompilerVersion(platform);
+            for (const QJsonArray &targets = platform.value("targets").toArray();
+                 const QJsonValue &t : targets) {
+                const QJsonObject target = t.toObject();
+                const auto [arch, width] = getArch(target.value("architecture").toString());
+                if (os == Abi::UnknownOS && arch != Abi::AsmJsArchitecture)
+                    return printError(Tr::tr("Could not determine target OS"));
+                if (arch == Abi::UnknownArchitecture)
+                    return printError(Tr::tr("Could not determine target architecture"));
+
+                const Abi::OSFlavor flavor = getFlavor(os, osString, compilerId, compilerVersion);
+                if (flavor == Abi::UnknownFlavor && arch != Abi::AsmJsArchitecture)
+                    return printError(Tr::tr("Could not determine OS sub-type"));
+
+                m_abis.emplaceBack(arch, os, flavor, getFormat(os, arch), width);
+            }
+        }
+    }
+
     void printError(const QString &detail) {
         Core::MessageManager::writeSilently(
             Tr::tr("Error reading \"%1\": %2").arg(m_jsonFile.toUserOutput(), detail));
@@ -182,7 +217,20 @@ private:
         return Abi::UnknownFormat;
     }
 
+    QString getCompilerId(const QJsonObject &obj) const
+    {
+        return obj.value("compiler_id").toString();
+    }
+
+    QString getCompilerVersion(const QJsonObject &obj) const
+    {
+        return obj.value("compiler_version").toString();
+    }
+
+    const QVersionNumber m_qtVersion;
     const FilePath m_jsonFile;
+    QJsonObject m_mainObject;
+    Abis m_abis;
 };
 
 Abis qtAbisFromJson(const QtVersion &qtVersion, const Utils::FilePaths &possibleLocations)
@@ -208,7 +256,7 @@ Abis qtAbisFromJson(const QtVersion &qtVersion, const Utils::FilePaths &possible
         return {};
     }
 
-    return QtAbiExtractor(jsonFile).getAbis();
+    return QtAbiExtractor(qtVersion.qtVersion(), jsonFile).getAbis();
 }
 
 } // namespace QtSupport::Internal
