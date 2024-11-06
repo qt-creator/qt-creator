@@ -3563,6 +3563,23 @@ bool NodeMetaInfo::isQtQuickState() const
     }
 }
 
+bool NodeMetaInfo::isQtQuickStateGroup() const
+{
+    if constexpr (useProjectStorage()) {
+        if (!isValid())
+            return false;
+
+        using NanotraceHR::keyValue;
+        NanotraceHR::Tracer tracer{"is QtQuick.StateGroup", category(), keyValue("type id", m_typeId)};
+
+        using namespace Storage::Info;
+        return isBasedOnCommonType<QtQuick, StateGroup>(m_projectStorage, m_typeId);
+    } else {
+        return isValid() && isSubclassOf("QtQuick.StateGroup");
+    }
+}
+
+
 bool NodeMetaInfo::isQtQuickStateOperation() const
 {
     if constexpr (useProjectStorage()) {
