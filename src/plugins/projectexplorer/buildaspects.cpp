@@ -150,7 +150,7 @@ void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
         });
     }
 
-    const auto buildDevice = DeviceKitAspect::device(d->target->kit());
+    const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
     if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         pathChooser()->setAllowPathFromDevice(true);
     else
