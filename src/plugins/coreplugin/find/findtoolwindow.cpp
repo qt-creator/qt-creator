@@ -47,6 +47,41 @@ static bool validateRegExp(Utils::FancyLineEdit *edit, QString *errorMessage)
     return true;
 }
 
+static bool isChildOf(QWidget *parent, QWidget *child)
+{
+    QWidget *w = child;
+    while (w) {
+        if (w == parent)
+            return true;
+        w = w->parentWidget();
+    }
+    return false;
+}
+
+static QList<QWidget *> tabChain(QWidget *parent, QWidget *start, int limit = 50)
+{
+    int guard = 0;
+    QWidget *w = start;
+    QList<QWidget *> result;
+    QSet<QWidget *> seen;
+    while (w && isChildOf(parent, w) && guard < limit) {
+        if (!Utils::insert(seen, w))
+            break;
+        // setTabOrder does nothing if any widget has NoFocus, so filter out
+        if (w->focusPolicy() != Qt::NoFocus)
+            result.append(w);
+        w = w->nextInFocusChain();
+        ++guard;
+    }
+    return result;
+}
+
+static QWidget *lastInTabChain(QWidget *parent, int limit = 50)
+{
+    const QList<QWidget *> chain = tabChain(parent, parent, limit);
+    return chain.isEmpty() ? nullptr : chain.constLast();
+}
+
 FindToolWindow::FindToolWindow(QWidget *parent)
     : QWidget(parent)
     , m_findCompleter(new QCompleter(this))
@@ -323,6 +358,16 @@ void FindToolWindow::setCurrentFilterIndex(int index)
     for (w = m_configWidget ? m_configWidget : m_uiConfigWidget; w; w = w->parentWidget()) {
         if (w->layout())
             w->layout()->activate();
+    }
+    // fix tab order
+    if (m_configWidget) {
+        const QList<QWidget *> configWidgetChain = tabChain(m_configWidget, m_configWidget);
+        if (!configWidgetChain.isEmpty()) {
+            QWidget::setTabOrder(lastInTabChain(m_optionsWidget), configWidgetChain.first());
+            for (int i = 0; i < configWidgetChain.size() - 1; ++i)
+                QWidget::setTabOrder(configWidgetChain.at(i), configWidgetChain.at(i + 1));
+            QWidget::setTabOrder(lastInTabChain(m_configWidget), m_searchButton);
+        }
     }
 }
 
