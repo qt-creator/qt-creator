@@ -935,8 +935,9 @@ ToolchainBundle::ToolchainBundle(const Toolchains &toolchains, HandleMissing han
     // Check post-conditions.
     QTC_ASSERT(m_toolchains.size() == m_toolchains.first()->factory()->supportedLanguages().size(),
                return);
-    for (auto i = toolchains.size(); i < m_toolchains.size(); ++i)
+    for (auto i = toolchains.size(); i < m_toolchains.size(); ++i) {
         QTC_ASSERT(m_toolchains.at(i)->typeId() == m_toolchains.first()->typeId(), return);
+    }
 
     Utils::sort(m_toolchains, [](const Toolchain *tc1, const Toolchain *tc2) {
         return tc1 != tc2 && tc1->language() == Constants::C_LANGUAGE_ID;
