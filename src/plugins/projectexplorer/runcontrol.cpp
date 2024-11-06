@@ -433,10 +433,12 @@ void RunControl::setKit(Kit *kit)
     d->kit = kit;
     d->macroExpander = kit->macroExpander();
 
-    if (!d->runnable.command.isEmpty())
+    if (!d->runnable.command.isEmpty()) {
         setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
-    else
+        QTC_ASSERT(device(), setDevice(DeviceKitAspect::device(kit))); // FIXME: QTCREATORBUG-31259
+    } else {
         setDevice(DeviceKitAspect::device(kit));
+    }
 }
 
 void RunControl::setDevice(const IDevice::ConstPtr &device)
