@@ -446,7 +446,8 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         while (sameCharAt(0)) {
             ++utf16Offset;
             --utf16Length;
-            replacementText.removeFirst();
+            if (!replacementText.isEmpty())
+                replacementText.remove(0, 1);
         }
         // remove identical suffix from replacement text
         while (sameCharAt(utf16Length - 1)) {
