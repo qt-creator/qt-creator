@@ -293,7 +293,7 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
 
     if (m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget)) {
         auto index = m_settings.indexForSetting(m_currentSettings.setting);
-        emit m_settings.dataChanged(index, index);
+        emit m_settings.sourceModel()->dataChanged(index, index);
     }
 }
 
