@@ -620,15 +620,12 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
             *tempDebugServerPathStorage = tempDebugServerPath(iterator.iteration());
         return true;
     };
-    const auto onTempDebugServerPath = [storage, tempDebugServerPathStorage] {
-        const bool tempDirOK = !tempDebugServerPathStorage->isEmpty();
-        if (tempDirOK) {
-            storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-            storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
-        } else {
+    const auto onTempDebugServerPath = [tempDebugServerPathStorage] {
+        if (tempDebugServerPathStorage->isEmpty()) {
             qCDebug(androidRunWorkerLog) << "Can not get temporary file name";
+            return false;
         }
-        return tempDirOK;
+        return true;
     };
 
     const auto onCleanupSetup = [storage, tempDebugServerPathStorage](Process &process) {
@@ -652,6 +649,11 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
         process.setCommand(storage->adbCommand({storage->packageArgs(), "chmod", "777", debugServerFileName}));
     };
 
+    const auto onDebugSetupFinished = [storage] {
+        storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
+        storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
+    };
+
     return Group {
         tempDebugServerPathStorage,
         For (iterator) >> Do {
@@ -666,8 +668,12 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
             Sync([] { qCDebug(androidRunWorkerLog) << "Debug server copy from temp directory failed"; }),
             ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
         },
-        ProcessTask(onServerChmodSetup),
-        ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) || successItem
+        If (!ProcessTask(onServerChmodSetup)) >> Then {
+            Sync([] { qCDebug(androidRunWorkerLog) << "Debug server chmod failed"; }),
+            ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) && errorItem
+        },
+        ProcessTask(onCleanupSetup, onCleanupDone, CallDoneIf::Error) || successItem,
+        Sync(onDebugSetupFinished)
     };
 }
 
