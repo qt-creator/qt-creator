@@ -1353,17 +1353,23 @@ FilePath QtVersion::examplesPath() const // QT_INSTALL_EXAMPLES
     return d->m_data.examplesPath;
 }
 
+/*!
+    \internal
+    Returns a list of directories containing Qt related shared objects
+*/
 FilePaths QtVersion::qtSoPaths() const
 {
     FilePaths paths;
-    const FilePaths qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
+    const FilePath qtPaths[] = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
     for (const FilePath &qtPath : qtPaths) {
         if (qtPath.isEmpty())
             continue;
 
+        // FIXME: Could be sped up, we need just the info whether there is one such entry
         const FilePaths soPaths =
                 qtPath.dirEntries({{"*.so"}, QDir::Files, QDirIterator::Subdirectories});
-        paths.append(soPaths);
+        for (const FilePath &soPath : soPaths)
+            paths.append(soPath.parentDir());
     }
     FilePath::removeDuplicates(paths);
     return paths;
