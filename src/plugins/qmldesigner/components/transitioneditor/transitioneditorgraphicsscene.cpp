@@ -286,7 +286,7 @@ QRectF TransitionEditorGraphicsScene::selectionBounds() const
 
 void TransitionEditorGraphicsScene::clearSelection()
 {
-    if (m_selectedProperty)
+    if (m_selectedProperty && items().contains(m_selectedProperty))
         m_selectedProperty->update();
 
     m_selectedProperty = nullptr;
@@ -458,7 +458,7 @@ TransitionEditorPropertyItem *TransitionEditorGraphicsScene::selectedPropertyIte
 
 void TransitionEditorGraphicsScene::setSelectedPropertyItem(TransitionEditorPropertyItem *item)
 {
-    if (m_selectedProperty)
+    if (m_selectedProperty && items().contains(m_selectedProperty))
         m_selectedProperty->update();
     m_selectedProperty = item;
     emit selectionChanged();
