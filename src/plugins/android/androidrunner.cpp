@@ -9,7 +9,6 @@
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidrunnerworker.h"
-#include "androidtr.h"
 
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorersettings.h>
