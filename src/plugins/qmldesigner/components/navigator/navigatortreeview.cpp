@@ -249,7 +249,7 @@ bool NavigatorTreeView::viewportEvent(QEvent *event)
                 m_previewToolTip->hide();
                 m_previewToolTipNodeId = -1;
             } else {
-                m_previewToolTip->move(mapToGlobal(he->pos()) + offset);
+                m_previewToolTip->move(mapToGlobal(he->position().toPoint()) + offset);
             }
         }
     }
