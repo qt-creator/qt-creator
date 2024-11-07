@@ -124,6 +124,8 @@ private slots:
 
     void makeTemporaryFile();
 
+    void dontBreakPathOnWierdWindowsPaths();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -1806,6 +1808,17 @@ void tst_filepath::makeTemporaryFile()
         auto tmpFile = TemporaryFilePath::create(tmplate);
         QVERIFY(!tmpFile);
     }
+}
+
+void tst_filepath::dontBreakPathOnWierdWindowsPaths()
+{
+    FilePath path = FilePath::fromString(
+        "device://host/./C:/Users/ckandeler/Documents/"
+        "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
+    QCOMPARE(
+        path.toString(),
+        "device://host/./C:/Users/ckandeler/Documents/"
+        "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
 }
 
 } // Utils

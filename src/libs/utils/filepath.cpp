@@ -544,8 +544,10 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 {
     QTC_CHECK(!scheme.contains('/'));
 
-    if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
-        path = path.mid(3);
+    if (scheme.isEmpty() && host.isEmpty()) {
+        if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
+            path = path.mid(3);
+    }
 
     m_hash = 0;
 
