@@ -145,6 +145,11 @@ const SamplerType *Engine::samplerType(int kind)
     return _samplerTypes.intern(SamplerType(kind));
 }
 
+const ImageType *Engine::imageType(int kind)
+{
+    return _imageTypes.intern(ImageType(kind));
+}
+
 const VectorType *Engine::vectorType(const Type *elementType, int dimension)
 {
     VectorType *type = const_cast<VectorType *>

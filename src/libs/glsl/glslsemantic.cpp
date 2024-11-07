@@ -499,6 +499,7 @@ bool Semantic::visit(BasicTypeAST *ast)
         break;
 
     case Parser::T_UINT:
+    case Parser::T_ATOMIC_UINT:
         _type = _engine->uintType();
         break;
 
@@ -702,6 +703,43 @@ bool Semantic::visit(BasicTypeAST *ast)
     case Parser::T_USAMPLER2DMS:
     case Parser::T_USAMPLER2DMSARRAY:
         _type = _engine->samplerType(ast->token);
+        break;
+
+    // images
+    case Parser::T_IIMAGE1D:
+    case Parser::T_IIMAGE1DARRAY:
+    case Parser::T_IIMAGE2D:
+    case Parser::T_IIMAGE2DARRAY:
+    case Parser::T_IIMAGE2DMS:
+    case Parser::T_IIMAGE2DMSARRAY:
+    case Parser::T_IIMAGE2DRECT:
+    case Parser::T_IIMAGE3D:
+    case Parser::T_IIMAGEBUFFER:
+    case Parser::T_IIMAGECUBE:
+    case Parser::T_IIMAGECUBEARRAY:
+    case Parser::T_IMAGE1D:
+    case Parser::T_IMAGE1DARRAY:
+    case Parser::T_IMAGE2D:
+    case Parser::T_IMAGE2DARRAY:
+    case Parser::T_IMAGE2DMS:
+    case Parser::T_IMAGE2DMSARRAY:
+    case Parser::T_IMAGE2DRECT:
+    case Parser::T_IMAGE3D:
+    case Parser::T_IMAGEBUFFER:
+    case Parser::T_IMAGECUBE:
+    case Parser::T_IMAGECUBEARRAY:
+    case Parser::T_UIMAGE1D:
+    case Parser::T_UIMAGE1DARRAY:
+    case Parser::T_UIMAGE2D:
+    case Parser::T_UIMAGE2DARRAY:
+    case Parser::T_UIMAGE2DMS:
+    case Parser::T_UIMAGE2DMSARRAY:
+    case Parser::T_UIMAGE2DRECT:
+    case Parser::T_UIMAGE3D:
+    case Parser::T_UIMAGEBUFFER:
+    case Parser::T_UIMAGECUBE:
+    case Parser::T_UIMAGECUBEARRAY:
+        _type = _engine->imageType(ast->token);
         break;
 
     default:

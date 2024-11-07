@@ -449,6 +449,28 @@ bool SamplerType::isLessThan(const Type *other) const
     return _kind < samp->kind();
 }
 
+QString ImageType::toString() const
+{
+    return QLatin1String(Parser::spell[_kind]);
+}
+
+bool ImageType::isEqualTo(const Type *other) const
+{
+    if (other) {
+        if (const ImageType *img = other->asImageType())
+            return _kind == img->kind();
+    }
+    return false;
+}
+
+bool ImageType::isLessThan(const Type *other) const
+{
+    Q_ASSERT(other != nullptr);
+    const ImageType *img = other->asImageType();
+    Q_ASSERT(img != nullptr);
+    return _kind < img->kind();
+}
+
 OverloadSet::OverloadSet(Scope *enclosingScope)
     : Scope(enclosingScope)
 {

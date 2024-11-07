@@ -14,6 +14,7 @@
 %token AMPERSAND "&"
 %token AND_ASSIGN "&="
 %token AND_OP "&&"
+%token ATOMIC_UINT "atomic_uint"
 %token ATTRIBUTE "attribute"
 %token BANG "!"
 %token BOOL "bool"
@@ -61,6 +62,28 @@
 %token HIGHP "highp"
 %token IDENTIFIER "identifier"
 %token IF "if"
+%token IIMAGE1D "iimage1D"
+%token IIMAGE1DARRAY "iimage1DArray"
+%token IIMAGE2D "iimage2D"
+%token IIMAGE2DARRAY "iimage2DArray"
+%token IIMAGE2DMS "iimage2DMS"
+%token IIMAGE2DMSARRAY "iimage2DMSArray"
+%token IIMAGE2DRECT "iimage2DRect"
+%token IIMAGE3D "iimage3D"
+%token IIMAGEBUFFER "iimageBuffer"
+%token IIMAGECUBE "iimageCube"
+%token IIMAGECUBEARRAY "iimageCubeArray"
+%token IMAGE1D "image1D"
+%token IMAGE1DARRAY "image1DArray"
+%token IMAGE2D "image2D"
+%token IMAGE2DARRAY "image2DArray"
+%token IMAGE2DMS "image2DMS"
+%token IMAGE2DMSARRAY "image2DMSArray"
+%token IMAGE2DRECT "image2DRect"
+%token IMAGE3D "image3D"
+%token IMAGEBUFFER "imageBuffer"
+%token IMAGECUBE "imageCube"
+%token IMAGECUBEARRAY "imageCubeArray"
 %token IN "in"
 %token INC_OP "++"
 %token INOUT "inout"
@@ -151,6 +174,17 @@
 %token SWITCH "switch"
 %token TILDE "~"
 %token TYPE_NAME "type_name"
+%token UIMAGE1D "uimage1D"
+%token UIMAGE1DARRAY "uimage1DArray"
+%token UIMAGE2D "uimage2D"
+%token UIMAGE2DARRAY "uimage2DArray"
+%token UIMAGE2DMS "uimage2DMS"
+%token UIMAGE2DMSARRAY "uimage2DMSArray"
+%token UIMAGE2DRECT "uimage2DRect"
+%token UIMAGE3D "uimage3D"
+%token UIMAGEBUFFER "uimageBuffer"
+%token UIMAGECUBE "uimageCube"
+%token UIMAGECUBEARRAY "uimageCubeArray"
 %token UINT "uint"
 %token UNIFORM "uniform"
 %token USAMPLER1D "usampler1D"
@@ -1850,6 +1884,13 @@ case $rule_number: {
 }   break;
 ./
 
+type_specifier_nonarray ::= ATOMIC_UINT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_ATOMIC_UINT);
+} break;
+./
+
 type_specifier_nonarray ::= BOOL ;
 /.
 case $rule_number: {
@@ -2408,6 +2449,237 @@ type_specifier_nonarray ::= USAMPLER2DMSARRAY ;
 case $rule_number: {
     ast(1) = makeBasicType(T_USAMPLER2DMSARRAY);
 }   break;
+./
+
+type_specifier_nonarray ::= IIMAGE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE1D);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE1DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE2D);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE2DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE2DMS);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE2DMSARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE2DRECT);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGE3D);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGEBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGEBUFFER);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGECUBE);
+} break;
+./
+
+type_specifier_nonarray ::= IIMAGECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IIMAGECUBEARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE1D);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE1DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE2D);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE2DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE2DMS);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE2DMSARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE2DRECT);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGE3D);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGEBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGEBUFFER);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGECUBE);
+} break;
+./
+
+type_specifier_nonarray ::= IMAGECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_IMAGECUBEARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE1D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE1D);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE1DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE1DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE2D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE2D);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE2DARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE2DARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE2DMS ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE2DMS);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE2DMSARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE2DMSARRAY);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE2DRECT ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE2DRECT);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGE3D ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGE3D);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGEBUFFER ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGEBUFFER);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGECUBE ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGECUBE);
+} break;
+./
+
+type_specifier_nonarray ::= UIMAGECUBEARRAY ;
+/.
+case $rule_number: {
+    ast(1) = makeBasicType(T_UIMAGECUBEARRAY);
+} break;
 ./
 
 type_specifier_nonarray ::= struct_specifier ;

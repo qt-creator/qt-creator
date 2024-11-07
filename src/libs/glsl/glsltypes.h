@@ -242,6 +242,23 @@ private:
     int _kind;
 };
 
+class GLSL_EXPORT ImageType : public Type
+{
+public:
+    explicit ImageType(int kind) : _kind(kind) {}
+
+    // kind of image as a token code; e.g. T_IMAGE2D
+    int kind() const { return _kind; }
+
+    QString toString() const override;
+    const ImageType *asImageType() const override { return this; }
+    bool isEqualTo(const Type *other) const override;
+    bool isLessThan(const Type *other) const override;
+
+private:
+    int _kind;
+};
+
 class GLSL_EXPORT OverloadSet: public Type, public Scope
 {
 public:

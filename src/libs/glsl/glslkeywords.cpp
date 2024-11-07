@@ -530,6 +530,31 @@ static inline int classify7(const char *s) {
       }
     }
   }
+  else if (s[0] == 'i') {
+    if (s[1] == 'm') {
+      if (s[2] == 'a') {
+        if (s[3] == 'g') {
+          if (s[4] == 'e') {
+            if (s[5] == '1') {
+              if (s[6] == 'D') {
+                return Parser::T_IMAGE1D | Lexer::Variant_GLSL_400; // 420
+              }
+            }
+            else if (s[5] == '2') {
+              if (s[6] == 'D') {
+                return Parser::T_IMAGE2D | Lexer::Variant_GLSL_400; // 420
+              }
+            }
+            else if (s[5] == '3') {
+              if (s[6] == 'D') {
+                return Parser::T_IMAGE3D | Lexer::Variant_GLSL_400; // 420
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   else if (s[0] == 'm') {
     if (s[1] == 'e') {
       if (s[2] == 'd') {
@@ -611,6 +636,60 @@ static inline int classify8(const char *s) {
       }
     }
   }
+  else if (s[0] == 'i') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '1') {
+                if (s[7] == 'D') {
+                  return Parser::T_IIMAGE1D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+              else if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  return Parser::T_IIMAGE2D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+              else if (s[6] == '3') {
+                if (s[7] == 'D') {
+                  return Parser::T_IIMAGE3D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'u') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '1') {
+                if (s[7] == 'D') {
+                  return Parser::T_UIMAGE1D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+              else if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  return Parser::T_UIMAGE2D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+              else if (s[6] == '3') {
+                if (s[7] == 'D') {
+                  return Parser::T_UIMAGE3D | Lexer::Variant_GLSL_400; // 420
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return Parser::T_IDENTIFIER;
 }
 
@@ -635,7 +714,33 @@ static inline int classify9(const char *s) {
     }
   }
   else if (s[0] == 'i') {
-    if (s[1] == 'n') {
+    if (s[1] == 'm') {
+      if (s[2] == 'a') {
+        if (s[3] == 'g') {
+          if (s[4] == 'e') {
+            if (s[5] == '2') {
+              if (s[6] == 'D') {
+                if (s[7] == 'M') {
+                  if (s[8] == 'S') {
+                    return Parser::T_IMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                  }
+                }
+              }
+            }
+            else if (s[5] == 'C') {
+              if (s[6] == 'u') {
+                if (s[7] == 'b') {
+                  if (s[8] == 'e') {
+                    return Parser::T_IMAGECUBE | Lexer::Variant_GLSL_400; // 420
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 'n') {
       if (s[2] == 'v') {
         if (s[3] == 'a') {
           if (s[4] == 'r') {
@@ -706,7 +811,35 @@ static inline int classify9(const char *s) {
 
 static inline int classify10(const char *s) {
   if (s[0] == 'i') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'M') {
+                    if (s[9] == 'S') {
+                      return Parser::T_IIMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'C') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'b') {
+                    if (s[9] == 'e') {
+                      return Parser::T_IIMAGECUBE | Lexer::Variant_GLSL_400; // 420
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -758,7 +891,35 @@ static inline int classify10(const char *s) {
     }
   }
   else if (s[0] == 'u') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'M') {
+                    if (s[9] == 'S') {
+                      return Parser::T_UIMAGE2DMS | Lexer::Variant_GLSL_400; // 420
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'C') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'b') {
+                    if (s[9] == 'e') {
+                      return Parser::T_UIMAGECUBE | Lexer::Variant_GLSL_400; //420
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -792,7 +953,66 @@ static inline int classify10(const char *s) {
 }
 
 static inline int classify11(const char *s) {
-  if (s[0] == 's') {
+  if (s[0] == 'a') {
+    if (s[1] == 't') {
+      if (s[2] == 'o') {
+        if (s[3] == 'm') {
+          if (s[4] == 'i') {
+            if (s[5] == 'c') {
+              if (s[6] == '_') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'i') {
+                    if (s[9] == 'n') {
+                      if (s[10] == 't') {
+                        return Parser::T_ATOMIC_UINT | Lexer::Variant_GLSL_400; // 420
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'i') {
+    if (s[1] == 'm') {
+      if (s[2] == 'a') {
+        if (s[3] == 'g') {
+          if (s[4] == 'e') {
+            if (s[5] == '2') {
+              if (s[6] == 'D') {
+                if (s[7] == 'R') {
+                  if (s[8] == 'e') {
+                    if (s[9] == 'c') {
+                      if (s[10] == 't') {
+                        return Parser::T_IMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else if (s[5] == 'B') {
+              if (s[6] == 'u') {
+                if (s[7] == 'f') {
+                  if (s[8] == 'f') {
+                    if (s[9] == 'e') {
+                      if (s[10] == 'r') {
+                        return Parser::T_IMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 's') {
     if (s[1] == 'a') {
       if (s[2] == 'm') {
         if (s[3] == 'p') {
@@ -829,7 +1049,81 @@ static inline int classify11(const char *s) {
 
 static inline int classify12(const char *s) {
   if (s[0] == 'i') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'R') {
+                    if (s[9] == 'e') {
+                      if (s[10] == 'c') {
+                        if (s[11] == 't') {
+                          return Parser::T_IIMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'B') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'f') {
+                    if (s[9] == 'f') {
+                      if (s[10] == 'e') {
+                        if (s[11] == 'r') {
+                          return Parser::T_IIMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 'm') {
+      if (s[2] == 'a') {
+        if (s[3] == 'g') {
+          if (s[4] == 'e') {
+            if (s[5] == '1') {
+              if (s[6] == 'D') {
+                if (s[7] == 'A') {
+                  if (s[8] == 'r') {
+                    if (s[9] == 'r') {
+                      if (s[10] == 'a') {
+                        if (s[11] == 'y') {
+                          return Parser::T_IMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else if (s[5] == '2') {
+              if (s[6] == 'D') {
+                if (s[7] == 'A') {
+                  if (s[8] == 'r') {
+                    if (s[9] == 'r') {
+                      if (s[10] == 'a') {
+                        if (s[11] == 'y') {
+                          return Parser::T_IMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -863,7 +1157,43 @@ static inline int classify12(const char *s) {
     }
   }
   else if (s[0] == 'u') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'R') {
+                    if (s[9] == 'e') {
+                      if (s[10] == 'c') {
+                        if (s[11] == 't') {
+                          return Parser::T_UIMAGE2DRECT | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'B') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'f') {
+                    if (s[9] == 'f') {
+                      if (s[10] == 'e') {
+                        if (s[11] == 'r') {
+                          return Parser::T_UIMAGEBUFFER | Lexer::Variant_GLSL_400; // 420
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -900,7 +1230,49 @@ static inline int classify12(const char *s) {
 }
 
 static inline int classify13(const char *s) {
-  if (s[0] == 'n') {
+  if (s[0] == 'i') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '1') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'A') {
+                    if (s[9] == 'r') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'a') {
+                          if (s[12] == 'y') {
+                            return Parser::T_IIMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'A') {
+                    if (s[9] == 'r') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'a') {
+                          if (s[12] == 'y') {
+                            return Parser::T_IIMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  else if (s[0] == 'n') {
     if (s[1] == 'o') {
       if (s[2] == 'p') {
         if (s[3] == 'e') {
@@ -967,12 +1339,100 @@ static inline int classify13(const char *s) {
       }
     }
   }
+  else if (s[0] == 'u') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '1') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'A') {
+                    if (s[9] == 'r') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'a') {
+                          if (s[12] == 'y') {
+                              return Parser::T_UIMAGE1DARRAY | Lexer::Variant_GLSL_400; // 420
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'A') {
+                      if (s[9] == 'r') {
+                        if (s[10] == 'r') {
+                          if (s[11] == 'a') {
+                            if (s[12] == 'y') {
+                              return Parser::T_UIMAGE2DARRAY | Lexer::Variant_GLSL_400; // 420
+                            }
+                          }
+                        }
+                      }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
   return Parser::T_IDENTIFIER;
 }
 
 static inline int classify14(const char *s) {
   if (s[0] == 'i') {
-    if (s[1] == 's') {
+    if (s[1] == 'm') {
+      if (s[2] == 'a') {
+        if (s[3] == 'g') {
+          if (s[4] == 'e') {
+            if (s[5] == '2') {
+              if (s[6] == 'D') {
+                if (s[7] == 'M') {
+                  if (s[8] == 'S') {
+                    if (s[9] == 'A') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'a') {
+                            if (s[13] == 'y') {
+                              return Parser::T_IMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            else if (s[5] == 'C') {
+              if (s[6] == 'u') {
+                if (s[7] == 'b') {
+                  if (s[8] == 'e') {
+                    if (s[9] == 'A') {
+                      if (s[10] == 'r') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'a') {
+                            if (s[13] == 'y') {
+                              return Parser::T_IMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -1104,7 +1564,55 @@ static inline int classify14(const char *s) {
 
 static inline int classify15(const char *s) {
   if (s[0] == 'i') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'M') {
+                    if (s[9] == 'S') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_IIMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'C') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'b') {
+                    if (s[9] == 'e') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_IIMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -1198,7 +1706,55 @@ static inline int classify15(const char *s) {
     }
   }
   else if (s[0] == 'u') {
-    if (s[1] == 's') {
+    if (s[1] == 'i') {
+      if (s[2] == 'm') {
+        if (s[3] == 'a') {
+          if (s[4] == 'g') {
+            if (s[5] == 'e') {
+              if (s[6] == '2') {
+                if (s[7] == 'D') {
+                  if (s[8] == 'M') {
+                    if (s[9] == 'S') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_UIMAGE2DMSARRAY | Lexer::Variant_GLSL_400; // 420
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+              else if (s[6] == 'C') {
+                if (s[7] == 'u') {
+                  if (s[8] == 'b') {
+                    if (s[9] == 'e') {
+                      if (s[10] == 'A') {
+                        if (s[11] == 'r') {
+                          if (s[12] == 'r') {
+                            if (s[13] == 'a') {
+                              if (s[14] == 'y') {
+                                return Parser::T_UIMAGECUBEARRAY | Lexer::Variant_GLSL_400; // 420
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+    else if (s[1] == 's') {
       if (s[2] == 'a') {
         if (s[3] == 'm') {
           if (s[4] == 'p') {
@@ -1842,6 +2398,74 @@ QStringList Lexer::keywords(int variant) {
     list += QLatin1String("sampler2DArrayShadow");
   if (variant & (Lexer::Variant_GLSL_400))
     list += QLatin1String("samplerCubeArrayShadow");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("atomic_uint");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage1D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage1DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage2D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage2DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage2DMS");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage2DMSArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage2DRect");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimage3D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimageBuffer");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimageCube");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("iimageCubeArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image1D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image1DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image2D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image2DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image2DMS");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image2DMSArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image2DRect");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("image3D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("imageBuffer");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("imageCube");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("imageCubeArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage1D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage1DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage2D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage2DArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage2DMS");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage2DMSArray");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage2DRect");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimage3D");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimageBuffer");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimageCube");
+  if (variant & (Lexer::Variant_GLSL_400))
+      list += QLatin1String("uimageCubeArray");
   return list;
 }
 
