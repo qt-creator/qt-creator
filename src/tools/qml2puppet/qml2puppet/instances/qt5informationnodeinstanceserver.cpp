@@ -248,7 +248,8 @@ void Qt5InformationNodeInstanceServer::handleInputEvents()
                         continue;
                     }
                 }
-                QMouseEvent me(command.type(), command.pos(), command.button(), command.buttons(),
+                QPoint globalPos = m_editView3DData.window->mapToGlobal(command.pos());
+                QMouseEvent me(command.type(), command.pos(), globalPos, command.button(), command.buttons(),
                                command.modifiers());
                 // We must use sendEvent in Qt 6, as using postEvent allows the associated position
                 // data stored internally in QMutableEventPoint to potentially be updated by system
