@@ -169,7 +169,7 @@ public:
             CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectImpl::refresh);

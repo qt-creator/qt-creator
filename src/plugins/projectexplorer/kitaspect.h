@@ -151,7 +151,7 @@ protected:
         Setter setter;
         ResetModel resetModel;
     };
-    void setListAspectSpec(ListAspectSpec &&listAspectSpec);
+    void addListAspectSpec(const ListAspectSpec &listAspectSpec);
 
 private:
     class Private;

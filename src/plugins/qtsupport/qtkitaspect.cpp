@@ -71,7 +71,7 @@ public:
             QtKitAspect::setQtVersionId(&k, versionId.toInt());
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(KitManager::instance(), &KitManager::kitUpdated, this, [this](Kit *k) {
             if (k == kit())

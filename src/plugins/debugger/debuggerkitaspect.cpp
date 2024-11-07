@@ -82,7 +82,7 @@ public:
         };
         auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
 };
 } // namespace Internal

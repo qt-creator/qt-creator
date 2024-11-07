@@ -110,9 +110,18 @@ public:
     QAction *mutableAction = nullptr;
     Utils::Id managingPageId;
     QPushButton *manageButton = nullptr;
-    QComboBox *comboBox = nullptr;
-    std::optional<ListAspectSpec> listAspectSpec;
     Utils::Guard ignoreChanges;
+
+    struct ListAspect
+    {
+        ListAspect(const ListAspectSpec &spec, QComboBox *comboBox)
+            : spec(spec)
+            , comboBox(comboBox)
+        {}
+        ListAspectSpec spec;
+        QComboBox *comboBox;
+    };
+    QList<ListAspect> listAspects;
 };
 
 KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
@@ -136,13 +145,15 @@ KitAspect::~KitAspect()
 
 void KitAspect::refresh()
 {
-    if (!d->listAspectSpec || d->ignoreChanges.isLocked())
+    if (d->listAspects.isEmpty() || d->ignoreChanges.isLocked())
         return;
     const GuardLocker locker(d->ignoreChanges);
-    d->listAspectSpec->resetModel();
-    d->comboBox->model()->sort(0);
-    const QVariant itemId = d->listAspectSpec->getter(*kit());
-    d->comboBox->setCurrentIndex(d->comboBox->findData(itemId, IdRole));
+    for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        la.spec.resetModel();
+        la.comboBox->model()->sort(0);
+        const QVariant itemId = la.spec.getter(*kit());
+        la.comboBox->setCurrentIndex(la.comboBox->findData(itemId, IdRole));
+    }
 }
 
 void KitAspect::makeStickySubWidgetsReadOnly()
@@ -158,46 +169,45 @@ void KitAspect::makeStickySubWidgetsReadOnly()
 
 void KitAspect::makeReadOnly()
 {
-    if (d->comboBox)
-        d->comboBox->setEnabled(false);
+    for (const Private::ListAspect &la : std::as_const(d->listAspects))
+        la.comboBox->setEnabled(false);
 }
 
 void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
 {
-    if (d->comboBox) {
-        addMutableAction(d->comboBox);
-        parentItem.addItem(d->comboBox);
+    for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        addMutableAction(la.comboBox);
+        parentItem.addItem(la.comboBox);
     }
 }
 
-void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
+void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
 {
-    d->listAspectSpec = std::move(listAspectSpec);
-
-    d->comboBox = createSubWidget<QComboBox>();
-    d->comboBox->setSizePolicy(QSizePolicy::Ignored, d->comboBox->sizePolicy().verticalPolicy());
-    d->comboBox->setEnabled(true);
+    const auto comboBox = createSubWidget<QComboBox>();
+    comboBox->setSizePolicy(QSizePolicy::Ignored, comboBox->sizePolicy().verticalPolicy());
+    comboBox->setEnabled(true);
     const auto sortModel = new KitAspectSortModel(this);
-    sortModel->setSourceModel(d->listAspectSpec->model);
-    d->comboBox->setModel(sortModel);
+    sortModel->setSourceModel(listAspectSpec.model);
+    comboBox->setModel(sortModel);
+    d->listAspects.emplaceBack(listAspectSpec, comboBox);
 
     refresh();
 
-    const auto updateTooltip = [this] {
-        d->comboBox->setToolTip(
-            d->comboBox->itemData(d->comboBox->currentIndex(), Qt::ToolTipRole).toString());
+    const auto updateTooltip = [comboBox] {
+        comboBox->setToolTip(
+            comboBox->itemData(comboBox->currentIndex(), Qt::ToolTipRole).toString());
     };
     updateTooltip();
-    connect(d->comboBox, &QComboBox::currentIndexChanged, this, [this, updateTooltip] {
-        if (d->ignoreChanges.isLocked())
-            return;
-        updateTooltip();
-        d->listAspectSpec->setter(
-            *kit(), d->comboBox->itemData(d->comboBox->currentIndex(), IdRole));
-    });
-    connect(d->listAspectSpec->model, &QAbstractItemModel::modelAboutToBeReset,
+    connect(comboBox, &QComboBox::currentIndexChanged,
+        this, [this, listAspectSpec, comboBox, updateTooltip] {
+            if (d->ignoreChanges.isLocked())
+                return;
+            updateTooltip();
+            listAspectSpec.setter(*kit(), comboBox->itemData(comboBox->currentIndex(), IdRole));
+        });
+    connect(listAspectSpec.model, &QAbstractItemModel::modelAboutToBeReset,
             this, [this] { d->ignoreChanges.lock(); });
-    connect(d->listAspectSpec->model, &QAbstractItemModel::modelReset,
+    connect(listAspectSpec.model, &QAbstractItemModel::modelReset,
             this, [this] { d->ignoreChanges.unlock(); });
 }
 

@@ -60,7 +60,7 @@ public:
                     std::make_tuple(factory->displayName(), factory->deviceType(), factory->icon()));
             }
         };
-        setListAspectSpec(
+        addListAspectSpec(
             {model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
 };
@@ -173,7 +173,7 @@ public:
         auto resetModel = [this, model] {
             model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
         };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(DeviceManager::instance(), &DeviceManager::updated,
                 this, &DeviceKitAspectImpl::refresh);
@@ -420,7 +420,7 @@ public:
             }
             model->setFilter(blackList);
         };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(DeviceManager::instance(), &DeviceManager::updated,
                 this, &BuildDeviceKitAspectImpl::refresh);

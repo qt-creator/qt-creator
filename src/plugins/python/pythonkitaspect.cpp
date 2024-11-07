@@ -59,7 +59,7 @@ public:
             PythonKitAspect::setPython(&k, v.toString());
         };
         auto resetModel = [model] { model->reset(); };
-        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
+        addListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         connect(PythonSettings::instance(),
                 &PythonSettings::interpretersChanged,
