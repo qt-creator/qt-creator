@@ -29,7 +29,7 @@ IDeviceData::operator QString() const
 
 bool DeviceSettings::active() const
 {
-    return m_data.value(keyActive).toBool();
+    return m_data.value(keyActive).toBool(true);
 }
 
 QString DeviceSettings::alias() const

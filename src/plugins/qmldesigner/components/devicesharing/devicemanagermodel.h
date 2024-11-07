@@ -28,7 +28,6 @@ public:
         ScreenSize,
         AppVersion,
         DeviceId,
-        Remove,
         COLUMN_COUNT
     };
     Q_ENUM(DeviceColumns)
@@ -39,6 +38,9 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+
+    Q_INVOKABLE bool addDevice(const QString &ip);
+    Q_INVOKABLE void removeDevice(const QString &deviceId);
 
 private:
     DeviceManager &m_deviceManager;

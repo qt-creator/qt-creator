@@ -18,7 +18,11 @@ public:
 
     // Getters
     QList<QSharedPointer<Device>> devices() const;
+
     std::optional<DeviceInfo> deviceInfo(const QString &deviceId) const;
+    std::optional<DeviceSettings> deviceSettings(const QString &deviceId) const;
+
+    std::optional<bool> deviceIsConnected(const QString &deviceId) const;
 
     // Device management functions
     void setDeviceAlias(const QString &deviceId, const QString &alias);
@@ -66,6 +70,7 @@ signals:
     void deviceOffline(const DeviceInfo &deviceInfo);
     void deviceActivated(const DeviceInfo &deviceInfo);
     void deviceDeactivated(const DeviceInfo &deviceInfo);
+    void deviceAliasChanged(const DeviceInfo &deviceInfo);
     void projectStarted(const DeviceInfo &deviceInfo);
     void projectStopped(const DeviceInfo &deviceInfo);
     void projectLogsReceived(const DeviceInfo &deviceInfo, const QString &logs);

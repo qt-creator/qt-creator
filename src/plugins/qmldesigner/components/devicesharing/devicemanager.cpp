@@ -156,6 +156,24 @@ std::optional<DeviceInfo> DeviceManager::deviceInfo(const QString &deviceId) con
     return device->deviceInfo();
 }
 
+std::optional<DeviceSettings> DeviceManager::deviceSettings(const QString &deviceId) const
+{
+    auto device = findDevice(deviceId);
+    if (!device)
+        return {};
+
+    return device->deviceSettings();
+}
+
+std::optional<bool> DeviceManager::deviceIsConnected(const QString &deviceId) const
+{
+    auto device = findDevice(deviceId);
+    if (!device)
+        return {};
+
+    return device->isConnected();
+}
+
 void DeviceManager::setDeviceAlias(const QString &deviceId, const QString &alias)
 {
     auto device = findDevice(deviceId);
@@ -163,9 +181,15 @@ void DeviceManager::setDeviceAlias(const QString &deviceId, const QString &alias
         return;
 
     auto deviceSettings = device->deviceSettings();
+
+    if (deviceSettings.alias() == alias)
+        return;
+
     deviceSettings.setAlias(alias);
     device->setDeviceSettings(deviceSettings);
     writeSettings();
+
+    emit deviceAliasChanged(device->deviceInfo());
 }
 
 void DeviceManager::setDeviceActive(const QString &deviceId, const bool active)

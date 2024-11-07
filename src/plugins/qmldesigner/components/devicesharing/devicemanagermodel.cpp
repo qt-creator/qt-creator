@@ -11,17 +11,21 @@ DeviceManagerModel::DeviceManagerModel(DeviceManager &deviceManager, QObject *pa
     , m_deviceManager(deviceManager)
 {
     connect(&m_deviceManager, &DeviceManager::deviceAdded, this, [this](const DeviceInfo &) {
+        beginResetModel();
         endResetModel();
     });
     connect(&m_deviceManager, &DeviceManager::deviceRemoved, this, [this](const DeviceInfo &) {
+        beginResetModel();
         endResetModel();
     });
 
     connect(&m_deviceManager, &DeviceManager::deviceOnline, this, [this](const DeviceInfo &) {
+        beginResetModel();
         endResetModel();
     });
 
     connect(&m_deviceManager, &DeviceManager::deviceOffline, this, [this](const DeviceInfo &) {
+        beginResetModel();
         endResetModel();
     });
 }
@@ -96,27 +100,25 @@ QVariant DeviceManagerModel::headerData(int section, Qt::Orientation orientation
     if (orientation == Qt::Horizontal) {
         switch (section) {
         case DeviceColumns::Active:
-            return "Active";
+            return tr("Active");
         case DeviceColumns::Status:
-            return "Status";
+            return tr("Status");
         case DeviceColumns::Alias:
-            return "Alias";
+            return tr("Alias");
         case DeviceColumns::IPv4Addr:
-            return "IPv4 Address";
+            return tr("IPv4 Address");
         case DeviceColumns::OS:
-            return "OS";
+            return tr("OS");
         case DeviceColumns::OSVersion:
-            return "OS Version";
+            return tr("OS Version");
         case DeviceColumns::Architecture:
-            return "Architecture";
+            return tr("Architecture");
         case DeviceColumns::ScreenSize:
-            return "Screen Size";
+            return tr("Screen Size");
         case DeviceColumns::AppVersion:
-            return "App Version";
+            return tr("App Version");
         case DeviceColumns::DeviceId:
-            return "Device ID";
-        case DeviceColumns::Remove:
-            return "Remove";
+            return tr("Device ID");
         }
     }
 
@@ -142,7 +144,7 @@ bool DeviceManagerModel::setData(const QModelIndex &index, const QVariant &value
         m_deviceManager.setDeviceIP(deviceInfo.deviceId(), value.toString());
         break;
     }
-    emit dataChanged(index, index, {role});
+    emit dataChanged(index, index);
     return true;
 }
 
@@ -157,6 +159,16 @@ Qt::ItemFlags DeviceManagerModel::flags(const QModelIndex &index) const
         flags |= Qt::ItemIsEditable;
 
     return flags;
+}
+
+bool DeviceManagerModel::addDevice(const QString &ip)
+{
+    return m_deviceManager.addDevice(ip);
+}
+
+void DeviceManagerModel::removeDevice(const QString &deviceId)
+{
+    m_deviceManager.removeDevice(deviceId);
 }
 
 } // namespace QmlDesigner::DeviceShare
