@@ -750,6 +750,7 @@ public:
     qreal charWidth() const;
 
     std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    void forceUpdateScrollbarSize();
 
     // actions
     void registerActions();
@@ -1839,6 +1840,7 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
     auto options = suggestion->replacementDocument()->defaultTextOption();
     m_suggestionBlock = cursor.block();
     m_document->insertSuggestion(std::move(suggestion));
+    forceUpdateScrollbarSize();
 }
 
 void TextEditorWidgetPrivate::updateSuggestion()
@@ -3964,6 +3966,15 @@ void EmbeddedWidgetInterface::close()
     emit closed();
 }
 
+void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
+{
+    // We use resizeEvent here as a workaround as we can't get access to the
+    // scrollarea which is a private part of the QPlainTextEdit.
+    // During the resizeEvent the plain text edit will resize its scrollbars.
+    // The TextEditorWidget will also update its scrollbar overlays.
+    q->resizeEvent(new QResizeEvent(q->size(), q->size()));
+}
+
 std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
     QWidget *widget, int line)
 {
@@ -4032,9 +4043,13 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         QTextBlock block = pState->cursor.block();
         auto userData = TextDocumentLayout::userData(block);
         userData->removeEmbeddedWidget(carrier);
+        forceUpdateScrollbarSize();
     });
     connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
-    connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, position);
+    connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, [position, this]() {
+        position();
+        forceUpdateScrollbarSize();
+    });
     connect(result.get(), &EmbeddedWidgetInterface::closed, this, [this, carrier] {
         if (carrier)
             carrier->deleteLater();
@@ -4043,6 +4058,8 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
     });
 
     carrier->show();
+
+    forceUpdateScrollbarSize();
     return result;
 }
 
