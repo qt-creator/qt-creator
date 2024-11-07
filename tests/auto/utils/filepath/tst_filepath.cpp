@@ -1819,6 +1819,18 @@ void tst_filepath::dontBreakPathOnWierdWindowsPaths()
         path.toString(),
         "device://host/C:/Users/ckandeler/Documents/"
         "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
+
+    // Make sure the optimization still works
+    FilePath path2 = FilePath::fromString("/./");
+    QCOMPARE(path2.toString(), "");
+
+    // Make sure unix paths are not affected
+    FilePath path3 = FilePath::fromString("/./foo/bar");
+    QCOMPARE(path3.toString(), "foo/bar");
+
+    // Make sure unix paths with device also work
+    FilePath path4 = FilePath::fromString("device://host/./foo/bar");
+    QCOMPARE(path4.toString(), "device://host/./foo/bar");
 }
 
 } // Utils
