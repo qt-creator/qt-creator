@@ -58,6 +58,22 @@
 #   include <QTest>
 #endif // WITH_TESTS
 
+/*
+Suggested NDK and Debugger version per Qt version:
+
+| Qt5              | Qt6       | NDK           | GDB    | LLDB   |
+| ---------------- | --------- | ------------- | ------ | ------ |
+| 5.12.0 - 5.13.1  |           | 19.2.5345600  | 7.11.0 |        |
+| 5.13.2 - 5.15.8  | 6.0 - 6.1 | 21.3.6528147  | 8.3.0  |        |
+| 5.15.9 - 5.15.16 | 6.2 - 6.3 | 22.1.7171670  | 8.3.0  | 11.0.5 |
+|                  | 6.4       | 23.1.7779620  | 8.3.0  | 12.0.8 |
+|                  | 6.5 - 6.6 | 25.1.8937393  |        | 14.0.6 |
+|                  | 6.7 - 6.8 | 26.1.10909125 |        | 17.0.2 |
+
+< Qt 6.5: Mapping read from sdk_definitions.json
+>= Qt 6.5: Mapping read from <QtDir>/modules/Core.json
+*/
+
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Tasking;
