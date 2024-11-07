@@ -39,6 +39,8 @@ public:
     static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;
 
+    bool isAndroidQtVersion() const override { return true; };
+
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;
 

@@ -118,6 +118,7 @@ private slots:
     void testIndentationInTheBegginingOfLine();
     void testIndentationReturnAfterIf();
     void testIndentationReturnAfterIfSomthingFunction();
+    void testReformatQualifier();
 
 private:
     void insertLines(const std::vector<QString> &lines);
@@ -997,6 +998,25 @@ void ClangFormatTest::testIndentationReturnAfterIfSomthingFunction()
                                    "    if_somthing()",
                                    "    return 0;",
                                    "}"}));
+}
+
+void ClangFormatTest::testReformatQualifier()
+{
+    insertLines({
+        "struct S",
+        "{",
+        "    S &operator=(S const &s);",
+        "};",
+        "S &S::operator=(const S &s) {}"
+    });
+    m_extendedIndenter->autoIndent(*m_cursor, TextEditor::TabSettings());
+    const std::vector<QString> expected{
+        "struct S",
+        "{",
+        "    S &operator=(S const &s);",
+        "};",
+        "S &S::operator=(S const &s) {}"};
+    QCOMPARE(documentLines(), expected);
 }
 
 QObject *createClangFormatTest()

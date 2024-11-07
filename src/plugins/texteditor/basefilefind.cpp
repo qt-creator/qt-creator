@@ -489,8 +489,7 @@ void BaseFileFind::readCommonSettings(
     const QStringList filters = filterSetting.isEmpty() ? QStringList(defaultFilter)
                                                         : filterSetting;
     const QVariant currentFilter = s.value("currentFilter");
-    d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString()
-                                                 : filters.first();
+    d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString() : defaultFilter;
     d->m_filterStrings.setStringList(toNativeSeparators(filters));
     if (d->m_filterCombo)
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);

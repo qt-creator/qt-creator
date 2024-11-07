@@ -46,65 +46,14 @@ TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDoc
     return widget;
 }
 
-void fillRemainingViewportWidth(QWidget *widget, const QSize &viewportSize, const QMargins &margins)
+std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
+    BaseTextEditor *editor, QWidget *widget, int cursorPosition)
 {
-    int maxWidth = viewportSize.width() - margins.right() - widget->x();
-    widget->setFixedWidth(maxWidth);
-}
-
-QPoint getPositionOnViewport(const BaseTextEditor * const editor, const QWidget * const widget,
-                             int basePos, int xPos, const QSize &viewportSize,
-                             const QMargins &margins)
-{
-    QTextCursor cursor = QTextCursor(editor->textDocument()->document());
-    cursor.setPosition(basePos);
-
-    const QRect cursorRect = editor->editorWidget()->cursorRect(cursor);
-    QPoint widgetPosDefault = cursorRect.bottomLeft();
-
-    widgetPosDefault.ry() += (cursorRect.top() - cursorRect.bottom()) / 2;
-
-    int fontSize = editor->textDocument()->fontSettings().fontSize();
-    int maxX = viewportSize.width() - margins.right() - widget->width();
-    int maxY = viewportSize.height() - widget->height() - fontSize;
-
-    if (maxX < 0) {
-        qWarning() << QStringLiteral("Floating Widget positioning: x (%1) < 0. Widget will not "
-                                     "fit in the viewport. Viewport.width (%2), widget.width (%3), "
-                                     "widget margin.right (%4). Setting x to 0.")
-                    .arg(maxX).arg(viewportSize.width()).arg(widget->width()).arg(margins.right());
-        maxX = 0;
-    }
-
-    if (maxY < 0) {
-        qWarning() << QStringLiteral("Floating Widget positioning: y (%1) < 0. Widget is too big"
-                                     "for the viewport. Viewport.height (%2), widget.height (%3)."
-                                     "Setting y to 0.")
-                          .arg(maxY).arg(viewportSize.height()).arg(widget->height());
-        maxY = 0;
-    }
-
-    int x = xPos != -1 ? xPos : std::min(widgetPosDefault.x(), maxX);
-    int y = widgetPosDefault.y()  + fontSize;
-    y = std::min(y, maxY);
-
-    return {x, y};
-}
-
-void addFloatingWidget(BaseTextEditor *editor, QWidget *widget, int yPos, int xPos,
-                       const QRect &margins, bool fillWidth = false)
-{
-    QMargins widgetMargins{margins.left(), margins.top(), margins.width(), margins.height()};
-
     widget->setParent(editor->editorWidget()->viewport());
     TextEditorWidget *editorWidget = editor->editorWidget();
-    const QSize viewportSize = editorWidget->viewport()->size();
-
-    widget->move(getPositionOnViewport(editor, widget, yPos, xPos, viewportSize, widgetMargins));
-    if (fillWidth)
-        fillRemainingViewportWidth(widget, viewportSize, widgetMargins);
-
-    widget->show();
+    std::unique_ptr<EmbeddedWidgetInterface> embed
+        = editorWidget->insertWidget(widget, cursorPosition);
+    return embed;
 }
 } // namespace
 
@@ -213,9 +162,7 @@ void setupTextEditorModule()
             "cursors",
             [](MultiTextCursor *self) { return sol::as_table(self->cursors()); },
             "insertText",
-            [](MultiTextCursor *self, const QString &text) {
-                self->insertText(text);
-            });
+            [](MultiTextCursor *self, const QString &text) { self->insertText(text); });
 
         result.new_usertype<Position>(
             "Position",
@@ -273,9 +220,33 @@ void setupTextEditorModule()
                 return ret;
             },
             "insertText",
-            [](QTextCursor *textCursor, const QString &text) {
-                textCursor->insertText(text);
-            });
+            [](QTextCursor *textCursor, const QString &text) { textCursor->insertText(text); });
+
+        using LayoutOrWidget = std::variant<Layouting::Layout *, Layouting::Widget *, QWidget *>;
+
+        static auto toWidget = [](LayoutOrWidget &arg) {
+            return std::visit(
+                [](auto &&arg) -> QWidget * {
+                    using T = std::decay_t<decltype(arg)>;
+                    if constexpr (std::is_same_v<T, Layouting::Widget *>)
+                        return arg->emerge();
+                    else if constexpr (std::is_same_v<T, QWidget *>)
+                        return arg;
+                    else if constexpr (std::is_same_v<T, Layouting::Layout *>)
+                        return arg->emerge();
+                    else
+                        return nullptr;
+                },
+                arg);
+        };
+
+        result.new_usertype<EmbeddedWidgetInterface>(
+            "EmbeddedWidgetInterface",
+            sol::no_constructor,
+            "resize",
+            &EmbeddedWidgetInterface::resize,
+            "close",
+            &EmbeddedWidgetInterface::close);
 
         result.new_usertype<BaseTextEditor>(
             "TextEditor",
@@ -285,23 +256,11 @@ void setupTextEditorModule()
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return textEditor->textDocument();
             },
-            "addFloatingWidget",
-            sol::overload(
-                [](const TextEditorPtr &textEditor, QWidget *widget, int yPos, int xPos,
-                   const QRect &margins, bool fillWidth) {
-                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, widget, yPos, xPos, margins, fillWidth);
-                },
-                [](const TextEditorPtr &textEditor, Layouting::Widget *widget, int yPos, int xPos,
-                   const QRect &margins, bool fillWidth) {
-                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, widget->emerge(), yPos, xPos, margins, fillWidth);
-                },
-                [](const TextEditorPtr &textEditor, Layouting::Layout *layout, int yPos, int xPos,
-                   const QRect &margins, bool fillWidth = false) {
-                    QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
-                    addFloatingWidget(textEditor, layout->emerge(), yPos, xPos, margins, fillWidth);
-                }),
+            "addEmbeddedWidget",
+            [](const TextEditorPtr &textEditor, LayoutOrWidget widget, int position) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                return addEmbeddedWidget(textEditor, toWidget(widget), position);
+            },
             "cursor",
             [](const TextEditorPtr &textEditor) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
@@ -392,7 +351,7 @@ void setupTextEditorModule()
         return result;
     });
 
-    registerHook("editors.text.currentChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.currentChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentEditorChanged,
@@ -403,7 +362,7 @@ void setupTextEditorModule()
             });
     });
 
-    registerHook("editors.text.contentsChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.contentsChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::documentContentsChanged,
@@ -415,7 +374,7 @@ void setupTextEditorModule()
             });
     });
 
-    registerHook("editors.text.cursorChanged", [](sol::function func, QObject *guard) {
+    registerHook("editors.text.cursorChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             TextEditorRegistry::instance(),
             &TextEditorRegistry::currentCursorChanged,

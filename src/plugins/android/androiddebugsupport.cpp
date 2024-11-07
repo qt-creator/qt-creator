@@ -3,6 +3,7 @@
 
 #include "androiddebugsupport.h"
 
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidrunner.h"
 #include "androidmanager.h"

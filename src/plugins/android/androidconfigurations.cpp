@@ -959,10 +959,7 @@ static QStringList essentialsFromQtVersion(const QtVersion &version)
 
 QStringList allEssentials()
 {
-    QtVersions installedVersions = QtVersionManager::versions(
-        [](const QtVersion *v) {
-            return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
-        });
+    const QtVersions installedVersions = QtVersionManager::versions(&QtVersion::isAndroidQtVersion);
 
     QStringList allPackages(commonEssentials());
     for (const QtVersion *version : installedVersions)

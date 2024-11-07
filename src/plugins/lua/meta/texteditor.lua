@@ -60,7 +60,7 @@ function MultiTextCursor:insertText(text) end
 ---@class Suggestion
 local Suggestion = {}
 
----@class SuggestionParams 
+---@class SuggestionParams
 ---@field text string The text of the suggestion.
 ---@field position Position The cursor position where the suggestion should be inserted.
 ---@field range Range The range of the text preceding the suggestion.
@@ -107,15 +107,20 @@ function TextEditor:document() end
 ---@return MultiTextCursor cursor The cursor of the editor.
 function TextEditor:cursor() end
 
----Adds a floating widget at the specified position in the text editor.
----The widget will be positioned at the location corresponding to the given position in the
----text document and will be automatically managed to stay pined to that position.
+---@class EmbeddedWidget
+local EmbeddedWidget = {}
+
+---Closes the floating widget.
+function EmbeddedWidget:close() end
+
+---Resizes the floating widget according to its layout.
+function EmbeddedWidget:resize() end
+
+---Embeds a widget at the specified cursor position in the text editor.
 ---@param widget Widget|Layout The widget to be added as a floating widget.
 ---@param position integer The position in the document where the widget should appear.
----@param margins integer[] Four integers, representing left, top, right, bottom margins
----@param xPos integer Sets widget to fixed x position if x != -1, otherwise automatic x position calculation is done
----@param fillWidth boolean If true, the widget will fill remaining space from its x position to size of the TextEditor viewport
-function TextEditor:addFloatingWidget(widget, position, xPos, margins, fillWidth) end
+---@return EmbeddedWidget interface An interface to control the floating widget.
+function TextEditor:addEmbeddedWidget(widget, position) end
 
 ---Checks if the current suggestion is locked. The suggestion is locked when the user can use it.
 ---@return boolean True if the suggestion is locked, false otherwise.
@@ -128,6 +133,5 @@ function TextEditor:insertText(text) end
 ---Returns the current editor or nil.
 ---@return TextEditor|nil editor The currently active editor or nil if there is none.
 function textEditor.currentEditor() end
-
 
 return textEditor

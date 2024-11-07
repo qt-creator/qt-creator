@@ -433,10 +433,12 @@ void RunControl::setKit(Kit *kit)
     d->kit = kit;
     d->macroExpander = kit->macroExpander();
 
-    if (!d->runnable.command.isEmpty())
+    if (!d->runnable.command.isEmpty()) {
         setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
-    else
+        QTC_ASSERT(device(), setDevice(DeviceKitAspect::device(kit))); // FIXME: QTCREATORBUG-31259
+    } else {
         setDevice(DeviceKitAspect::device(kit));
+    }
 }
 
 void RunControl::setDevice(const IDevice::ConstPtr &device)
@@ -1002,7 +1004,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
 void RunControlPrivate::showError(const QString &msg)
 {
-    if (!msg.isEmpty())
+    if (q && !msg.isEmpty())
         q->postMessage(msg + '\n', ErrorMessageFormat);
 }
 
@@ -1247,6 +1249,9 @@ void RunControlPrivate::startTaskTree()
 
 void RunControlPrivate::checkAutoDeleteAndEmitStopped()
 {
+    if (!q)
+        return;
+
     if (autoDelete) {
         debugMessage("All finished. Deleting myself");
         q->deleteLater();
@@ -1356,7 +1361,8 @@ void RunControlPrivate::setState(RunControlState newState)
     // Extra reporting.
     switch (state) {
     case RunControlState::Running:
-        emit q->started();
+        if (q)
+            emit q->started();
         break;
     case RunControlState::Stopped:
         checkAutoDeleteAndEmitStopped();

@@ -150,9 +150,8 @@
 
     \endtable
 
-    The following video shows how to create a Qt Widgets application project:
-
-    \youtube FTSvDmcAgPI
+    To learn how to create a Qt Widgets application project, take the
+    \l{Qt Academy: Getting Started with \QC} course.
 
     For examples of creating different types of projects, see
     \l{Tutorials}.

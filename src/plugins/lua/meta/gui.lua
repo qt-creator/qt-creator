@@ -12,8 +12,8 @@ gui.layout = {}
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object
----@field visible bool Whether the widget is visible or not.
----@field enabled bool Whether the widget is enabled or not.
+---@field visible boolean Whether the widget is visible or not.
+---@field enabled boolean Whether the widget is enabled or not.
 gui.widget = {}
 
 ---@alias LayoutChild string|BaseAspect|Layout|Widget|function
@@ -171,7 +171,7 @@ local label = {}
 ---@class (exact) LabelOptions : BaseWidgetOptions
 ---@param interactionFlags? TextInteractionFlag[]
 ---@param textFormat? TextFormat The text format enum
----@param wordWrap? bool
+---@param wordWrap? boolean
 
 gui.labelOptions = {}
 
@@ -223,8 +223,8 @@ function gui.TabWidget(options) end
 function gui.TabWidget(name, child) end
 
 ---@class Spinner : Widget
----@field running bool Set spinner visible and display spinning animation
----@field decorated bool Display spinner with custom styleSheet defined inside control (default true)
+---@field running boolean Set spinner visible and display spinning animation
+---@field decorated boolean Display spinner with custom styleSheet defined inside control (default true)
 local spinner = {}
 
 ---@class IconDisplay : Widget

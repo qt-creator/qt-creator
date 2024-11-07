@@ -143,7 +143,7 @@ void setupProjectModule()
     });
 
     // startupProjectChanged
-    registerHook("projects.startupProjectChanged", [](sol::function func, QObject *guard) {
+    registerHook("projects.startupProjectChanged", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             ProjectManager::instance(),
             &ProjectManager::startupProjectChanged,
@@ -155,7 +155,7 @@ void setupProjectModule()
     });
 
     // projectAdded
-    registerHook("projects.projectAdded", [](sol::function func, QObject *guard) {
+    registerHook("projects.projectAdded", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             ProjectManager::instance(),
             &ProjectManager::projectAdded,
@@ -167,7 +167,7 @@ void setupProjectModule()
     });
 
     // projectRemoved
-    registerHook("projects.projectRemoved", [](sol::function func, QObject *guard) {
+    registerHook("projects.projectRemoved", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             ProjectManager::instance(),
             &ProjectManager::projectRemoved,
@@ -179,7 +179,7 @@ void setupProjectModule()
     });
 
     // aboutToRemoveProject
-    registerHook("projects.aboutToRemoveProject", [](sol::function func, QObject *guard) {
+    registerHook("projects.aboutToRemoveProject", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             ProjectManager::instance(),
             &ProjectManager::aboutToRemoveProject,
@@ -191,7 +191,7 @@ void setupProjectModule()
     });
 
     // runActionsUpdated
-    registerHook("projects.runActionsUpdated", [](sol::function func, QObject *guard) {
+    registerHook("projects.runActionsUpdated", [](sol::main_function func, QObject *guard) {
         QObject::connect(
             ProjectExplorerPlugin::instance(),
             &ProjectExplorerPlugin::runActionsUpdated,

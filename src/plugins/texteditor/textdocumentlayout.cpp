@@ -777,9 +777,14 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         boundingRect.setHeight(TextEditorSettings::fontSettings().lineSpacing());
     }
 
-    if (TextBlockUserData *userData = textUserData(block))
-        boundingRect.adjust(
-            0, 0, 0, userData->additionalAnnotationHeight() + userData->additionalLineHeight());
+    if (TextBlockUserData *userData = textUserData(block)) {
+        int additionalHeight = 0;
+        for (const QPointer<QWidget> &wdgt : userData->embeddedWidgets()) {
+            if (wdgt && wdgt->isVisible())
+                additionalHeight += wdgt->height();
+        }
+        boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight() + additionalHeight);
+    }
 
     return boundingRect;
 }

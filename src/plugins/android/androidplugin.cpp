@@ -126,10 +126,9 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
     void kitsRestored()
     {
-        const bool qtForAndroidInstalled
-            = !QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *v) {
-                   return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
-               }).isEmpty();
+        const bool qtForAndroidInstalled = !QtSupport::QtVersionManager::versions(
+                                                &QtSupport::QtVersion::isAndroidQtVersion)
+                                                .isEmpty();
 
         if (!AndroidConfig::sdkFullyConfigured() && qtForAndroidInstalled)
             askUserAboutAndroidSetup();

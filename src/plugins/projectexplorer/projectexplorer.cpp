@@ -1986,7 +1986,7 @@ void ProjectExplorerPluginPrivate::openWorkspaceAction()
     if (filePath.isEmpty())
         return;
 
-    OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath);
+    OpenProjectResult result = ProjectExplorerPlugin::openProject(filePath, /*searchInDir=*/false);
     if (!result)
         ProjectExplorerPlugin::showOpenProjectError(result);
 
@@ -2277,9 +2277,9 @@ void ProjectExplorerPlugin::openProjectWelcomePage(const FilePath &filePath)
         showOpenProjectError(result);
 }
 
-OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath)
+OpenProjectResult ProjectExplorerPlugin::openProject(const FilePath &filePath, bool searchInDir)
 {
-    OpenProjectResult result = openProjects({filePath});
+    OpenProjectResult result = openProjects({filePath}, searchInDir);
     Project *project = result.project();
     if (!project)
         return result;
@@ -2327,15 +2327,15 @@ static void appendError(QString &errorString, const QString &error)
     errorString.append(error);
 }
 
-OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths)
+OpenProjectResult ProjectExplorerPlugin::openProjects(const FilePaths &filePaths, bool searchInDir)
 {
     QList<Project*> openedPro;
     QList<Project *> alreadyOpen;
     QString errorString;
     for (const FilePath &fileName : filePaths) {
         QTC_ASSERT(!fileName.isEmpty(), continue);
-        const FilePath filePath = [fileName] {
-            if (!fileName.isDir())
+        const FilePath filePath = [fileName, searchInDir] {
+            if (!fileName.isDir() || !searchInDir)
                 return fileName.absoluteFilePath();
 
             // For the case of directories, try to see if there is a project file in the directory

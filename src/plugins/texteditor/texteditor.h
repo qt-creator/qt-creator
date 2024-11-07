@@ -102,6 +102,19 @@ enum Mask {
 };
 } // namespace OptionalActions
 
+class TEXTEDITOR_EXPORT EmbeddedWidgetInterface : public QObject
+{
+    Q_OBJECT
+public:
+    ~EmbeddedWidgetInterface() override;
+    void resize();
+    void close();
+
+signals:
+    void resized();
+    void closed();
+};
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -520,6 +533,8 @@ public:
     // Returns an object that blocks suggestions until it is destroyed.
     SuggestionBlocker blockSuggestions();
 
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+
     QList<QTextCursor> autoCompleteHighlightPositions() const;
 
 #ifdef WITH_TESTS
@@ -544,6 +559,8 @@ signals:
     void saveCurrentStateForNavigationHistory();
     void addSavedStateToNavigationHistory();
     void addCurrentStateToNavigationHistory();
+
+    void resized();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;

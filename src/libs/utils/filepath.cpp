@@ -305,6 +305,8 @@ QString FilePath::toString() const
 
     if (isRelativePath())
         return scheme() + "://" + encodedHost() + "/./" + pathView();
+    if (isWindowsDriveLetter(pathView().at(0)))
+        return scheme() + "://" + encodedHost() + "/" + pathView();
     return scheme() + "://" + encodedHost() + pathView();
 }
 

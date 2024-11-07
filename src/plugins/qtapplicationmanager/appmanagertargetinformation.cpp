@@ -104,7 +104,7 @@ TargetInformation::TargetInformation(const Target *target)
 {
     if (!target)
         return;
-    if (target->buildSystem()->isParsing())
+    if (target->buildSystem() && target->buildSystem()->isParsing())
         return;
     auto project = target->project();
     if (!project)

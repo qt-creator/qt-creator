@@ -177,14 +177,15 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_onReturnPressed<T>) {
-        const auto callback = children.get<sol::optional<sol::function>>("onReturnPressed");
+        const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed");
         if (callback) {
             item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
         }
     }
 
     if constexpr (has_onRightSideIconClicked<T>) {
-        const auto callback = children.get<sol::optional<sol::function>>("onRightSideIconClicked");
+        const auto callback = children.get<sol::optional<sol::main_function>>(
+            "onRightSideIconClicked");
         if (callback)
             item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
     }

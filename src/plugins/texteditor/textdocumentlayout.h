@@ -119,9 +119,9 @@ public:
     { m_additionalAnnotationHeight = annotationHeight; }
     inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
-    inline void setAdditionalLineHeight(int additionalLineHeight)
-    { m_additionalLineHeight = additionalLineHeight; }
-    inline int additionalLineHeight() const { return m_additionalLineHeight; }
+    inline void addEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.append(widget); }
+    inline void removeEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.removeAll(widget); }
+    inline QList<QPointer<QWidget>> embeddedWidgets() const { return m_embeddedWidgets; }
 
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
@@ -148,13 +148,13 @@ private:
     uint m_foldingStartIncluded : 1;
     uint m_foldingEndIncluded : 1;
     int m_additionalAnnotationHeight = 0;
-    int m_additionalLineHeight = 0;
     Parentheses m_parentheses;
     CodeFormatterData *m_codeFormatterData;
     KSyntaxHighlighting::State m_syntaxState;
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
     std::unique_ptr<TextSuggestion> m_suggestion;
+    QList<QPointer<QWidget>> m_embeddedWidgets;
     quint8 m_attrState = 0;
 };
 

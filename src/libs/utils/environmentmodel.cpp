@@ -38,29 +38,42 @@ public:
 
     int findInChanges(const QString &name) const
     {
-        for (int i = 0; i < m_items.size(); ++i) {
-            if (m_items.at(i).name.compare(name, m_baseNameValueDictionary.nameCaseSensitivity())
-                == 0) {
-                return i;
-            }
-        }
-        return -1;
+        const Qt::CaseSensitivity cs = m_baseNameValueDictionary.nameCaseSensitivity();
+
+        const auto compare = [&name, &cs](const EnvironmentItem &item) {
+            return item.name.compare(name, cs) == 0;
+        };
+
+        return Utils::indexOf(m_items, compare);
     }
 
-    int findInResultInsertPosition(const QString &name) const
+    // Compares each key in dictionary against `key` and checks the result with `compare`.
+    // Returns the index of the first key where the result of QString::compare() satisfies the
+    // `compare` function.
+    // Returns -1 if no such key is found.
+    static int findIndex(
+        const NameValueDictionary &dictionary, const QString &key, std::function<bool(int)> compare)
     {
-        const auto it = m_resultNameValueDictionary.find(name);
-        if (it == m_resultNameValueDictionary.end())
-            return m_resultNameValueDictionary.size();
-        return std::distance(m_resultNameValueDictionary.begin(), it);
+        const Qt::CaseSensitivity cs = dictionary.nameCaseSensitivity();
+
+        const auto compareFunc =
+            [&key, cs, compare](const std::tuple<QString, QString, bool> &item) {
+                return compare(std::get<0>(item).compare(key, cs));
+            };
+
+        return Utils::indexOf(dictionary, compareFunc);
     }
 
-    int findInResult(const QString &name) const
+    int findInResultInsertPosition(const QString &key) const
     {
-        const auto it = m_resultNameValueDictionary.find(name);
-        if (it == m_resultNameValueDictionary.end())
-            return -1;
-        return std::distance(m_resultNameValueDictionary.begin(), it);
+        const auto compare = [](int compareResult) { return compareResult > 0; };
+        return findIndex(m_resultNameValueDictionary, key, compare);
+    }
+
+    int findInResult(const QString &key) const
+    {
+        const auto compare = [](int compareResult) { return compareResult == 0; };
+        return findIndex(m_resultNameValueDictionary, key, compare);
     }
 
     NameValueDictionary m_baseNameValueDictionary;

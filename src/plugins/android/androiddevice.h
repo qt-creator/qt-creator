@@ -31,7 +31,6 @@ public:
 
     bool canHandleDeployments() const;
 
-    bool isValid() const;
     QString serialNumber() const;
     QString avdName() const;
     int sdkLevel() const;

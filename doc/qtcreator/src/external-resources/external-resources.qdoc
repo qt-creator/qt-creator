@@ -10,6 +10,10 @@
     \title Lua
 */
 /*!
+    \externalpage https://www.qt.io/academy/course-catalog#getting-started-with-qt-creator
+    \title Qt Academy: Getting Started with \QC
+*/
+/*!
     \externalpage https://www.freedesktop.org/software/systemd/man/latest/systemd-coredump.html
     \title systemd-coredump
 */

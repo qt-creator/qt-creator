@@ -749,6 +749,8 @@ public:
     void openTypeUnderCursor(bool openInNextSplit);
     qreal charWidth() const;
 
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+
     // actions
     void registerActions();
     void updateActions();
@@ -3919,6 +3921,131 @@ qreal TextEditorWidgetPrivate::charWidth() const
     return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
 }
 
+class CarrierWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    CarrierWidget(TextEditorWidget *textEditorWidget, QWidget *embed)
+        : QWidget(textEditorWidget->viewport())
+        , m_embed(embed)
+        , m_textEditorWidget(textEditorWidget)
+    {
+        QVBoxLayout *layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
+        layout->addWidget(m_embed);
+
+        setFixedWidth(m_textEditorWidget->width() - m_textEditorWidget->extraAreaWidth());
+        setFixedHeight(m_embed->minimumSizeHint().height());
+
+        connect(m_textEditorWidget, &TextEditorWidget::resized, this, [this] {
+            setFixedWidth(m_textEditorWidget->width() - m_textEditorWidget->extraAreaWidth());
+        });
+    }
+
+    int embedHeight() { return m_embed->minimumSizeHint().height(); }
+
+private:
+    QWidget *m_embed;
+    TextEditorWidget *m_textEditorWidget;
+};
+
+EmbeddedWidgetInterface::~EmbeddedWidgetInterface()
+{
+    close();
+}
+
+void EmbeddedWidgetInterface::resize()
+{
+    emit resized();
+}
+
+void EmbeddedWidgetInterface::close()
+{
+    emit closed();
+}
+
+std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
+    QWidget *widget, int line)
+{
+    QPointer<CarrierWidget> carrier = new CarrierWidget(q, widget);
+    std::unique_ptr<EmbeddedWidgetInterface> result(new EmbeddedWidgetInterface());
+
+    struct State
+    {
+        int height = 0;
+        QTextCursor cursor;
+        QTextBlock block;
+    };
+
+    std::shared_ptr<State> pState = std::make_shared<State>();
+    pState->cursor = QTextCursor(q->document());
+    pState->cursor.setPosition(line);
+    pState->cursor.movePosition(QTextCursor::StartOfBlock);
+
+    auto position = [this, pState, carrier] {
+        QTextBlock block = pState->cursor.block();
+        QTC_ASSERT(block.isValid(), return);
+
+        TextBlockUserData *userData = TextDocumentLayout::userData(block);
+        if (block != pState->block) {
+            TextBlockUserData *previousUserData = TextDocumentLayout::userData(pState->block);
+            if (previousUserData && userData != previousUserData) {
+                // We have swapped into a different block, remove it from the previous block
+                previousUserData->removeEmbeddedWidget(carrier);
+            }
+            userData->addEmbeddedWidget(carrier);
+            pState->block = block;
+            pState->height = 0;
+        }
+
+        QRectF r = cursorBlockRect(m_document->document(), block, block.position());
+
+        int y = 0;
+        for (const auto &wdgt : userData->embeddedWidgets()) {
+            if (wdgt == carrier)
+                break;
+            y += wdgt->height();
+        }
+
+        QPoint pos = r.topLeft().toPoint()
+                     + QPoint(0, TextEditorSettings::fontSettings().lineSpacing() + y);
+
+        int h = carrier->embedHeight();
+        if (h == pState->height && pos == carrier->pos())
+            return;
+
+        carrier->move(pos);
+        carrier->setFixedHeight(h);
+
+        pState->height = h;
+
+        qobject_cast<TextDocumentLayout *>(q->document()->documentLayout())->scheduleUpdate();
+    };
+
+    position();
+
+    connect(widget, &QWidget::destroyed, this, [pState, carrier, this] {
+        if (carrier)
+            carrier->deleteLater();
+        if (!q->document())
+            return;
+        QTextBlock block = pState->cursor.block();
+        auto userData = TextDocumentLayout::userData(block);
+        userData->removeEmbeddedWidget(carrier);
+    });
+    connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
+    connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, position);
+    connect(result.get(), &EmbeddedWidgetInterface::closed, this, [this, carrier] {
+        if (carrier)
+            carrier->deleteLater();
+        QAbstractTextDocumentLayout *layout = q->document()->documentLayout();
+        QTimer::singleShot(0, layout, [layout] { layout->update(); });
+    });
+
+    carrier->show();
+    return result;
+}
+
 void TextEditorWidgetPrivate::registerActions()
 {
     using namespace Core::Constants;
@@ -4696,6 +4823,7 @@ void TextEditorWidget::resizeEvent(QResizeEvent *e)
                                  extraAreaWidth(), cr.height() - 2 * frameWidth())));
     d->adjustScrollBarRanges();
     d->updateCurrentLineInScrollbar();
+    emit resized();
 }
 
 QRect TextEditorWidgetPrivate::foldBox()
@@ -5459,7 +5587,10 @@ QRectF TextEditorWidgetPrivate::cursorBlockRect(const QTextDocument *doc,
 {
     const qreal space = charWidth();
     int relativePos = cursorPosition - block.position();
+    qobject_cast<TextDocumentLayout *>(m_document->document()->documentLayout())
+        ->ensureBlockLayout(block);
     QTextLine line = block.layout()->lineForTextPosition(relativePos);
+    QTC_ASSERT(line.isValid(), return {});
     qreal x = line.cursorToX(relativePos);
     qreal w = 0;
     if (relativePos < line.textLength() - line.textStart()) {
@@ -7098,6 +7229,11 @@ TextEditorWidget::SuggestionBlocker TextEditorWidget::blockSuggestions()
     if (!suggestionsBlocked())
         clearSuggestion();
     return d->m_suggestionBlocker;
+}
+
+std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidget::insertWidget(QWidget *widget, int line)
+{
+    return d->insertWidget(widget, line);
 }
 
 QList<QTextCursor> TextEditorWidget::autoCompleteHighlightPositions() const
