@@ -237,8 +237,10 @@ Result DeviceFileAccess::copyRecursively(const FilePath &src, const FilePath &ta
                          targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
                      });
 
-    srcProcess.setCommand({sourceTar, {"-C", src.path(), "-cf", "-", "."}});
-    targetProcess.setCommand({targetTar, {"xf", "-", "-C", target.path()}});
+    srcProcess.setCommand({sourceTar, {"-cf", "-", "."}});
+    srcProcess.setWorkingDirectory(src);
+    targetProcess.setCommand({targetTar, {"xf", "-"}});
+    targetProcess.setWorkingDirectory(target);
 
     targetProcess.start();
     targetProcess.waitForStarted();
