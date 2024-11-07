@@ -7106,6 +7106,15 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
     if (!HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
 
+    // If the refactor marker was pressed then don't propagate release event to editor
+    RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+    if (refactorMarker.isValid()) {
+        if (refactorMarker.callback) {
+            e->accept();
+            return;
+        }
+    }
+
     QPlainTextEdit::mouseReleaseEvent(e);
 
     d->setClipboardSelection();

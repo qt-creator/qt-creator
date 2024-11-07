@@ -4,8 +4,11 @@
 #include "../luaengine.h"
 #include "../luatr.h"
 
+#include "utils.h"
+
 #include <texteditor/basehoverhandler.h>
 #include <texteditor/fontsettings.h>
+#include <texteditor/refactoroverlay.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>
 #include <texteditor/texteditor.h>
@@ -62,6 +65,45 @@ std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
 
     std::unique_ptr<EmbeddedWidgetInterface> embed = editorWidget->insertWidget(widget, pos);
     return embed;
+}
+
+void clearRefactorMarkers(BaseTextEditor *editor, const Utils::Id &id)
+{
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    QTC_ASSERT(editorWidget, throw sol::error("TextEditorWidget is not valid"));
+
+    editorWidget->clearRefactorMarkers(id);
+}
+
+void setRefactorMarker(
+    BaseTextEditor *editor,
+    const Utils::Icon &icon,
+    int position,
+    const Utils::Id &id,
+    bool anchorLeft,
+    sol::main_function callback)
+{
+    TextEditorWidget *editorWidget = editor->editorWidget();
+    QTC_ASSERT(editorWidget, throw sol::error("TextEditorWidget is not valid"));
+
+    TextDocument *textDocument = editor->textDocument();
+    QTextCursor cursor = QTextCursor(textDocument->document());
+    cursor.setPosition(position);
+
+    // Move cursor to start of line
+    if (anchorLeft)
+        cursor.movePosition(QTextCursor::MoveOperation::StartOfBlock);
+
+    TextEditor::RefactorMarker marker;
+    marker.cursor = cursor;
+    marker.icon = icon.icon();
+    marker.callback = [callback](TextEditorWidget *) {
+        expected_str<void> res = Lua::void_safe_call(callback);
+        QTC_CHECK_EXPECTED(res);
+    };
+    marker.type = id;
+
+    editorWidget->setRefactorMarkers({std::move(marker)}, id);
 }
 } // namespace
 
@@ -156,9 +198,10 @@ void setupTextEditorModule()
     TextEditorRegistry::instance();
 
     registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
-        sol::table result = lua.create_table();
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
         QObject *guard = pluginSpec->connectionGuard.get();
+
+        sol::table result = lua.create_table();
 
         result["currentEditor"] = []() -> TextEditorPtr {
             return BaseTextEditor::currentTextEditor();
@@ -265,6 +308,18 @@ void setupTextEditorModule()
                 });
             });
 
+        std::shared_ptr<QMap<TextEditorPtr, QSet<Utils::Id>>> activeMarkers
+            = std::make_shared<QMap<TextEditorPtr, QSet<Utils::Id>>>();
+
+        QObject::connect(guard, &QObject::destroyed, [activeMarkers] {
+            for (const auto &[k, v] : activeMarkers->asKeyValueRange()) {
+                if (k) {
+                    for (const auto &id : v)
+                        k->editorWidget()->clearRefactorMarkers(id);
+                }
+            }
+        });
+
         result.new_usertype<BaseTextEditor>(
             "TextEditor",
             sol::no_constructor,
@@ -279,6 +334,33 @@ void setupTextEditorModule()
                std::variant<int, Position> position) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
+            },
+            "setRefactorMarker",
+            [pluginSpec, activeMarkers](
+                const TextEditorPtr &textEditor,
+                const IconFilePathOrString &icon,
+                int position,
+                const QString &id,
+                bool anchorLeft,
+                sol::main_function callback) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                QTC_ASSERT(!id.isEmpty(), throw sol::error("Id is empty"));
+                QTC_ASSERT(!icon.valueless_by_exception(), throw sol::error("Icon is invalid"));
+
+                Id finalId = Utils::Id::fromString(QString(pluginSpec->id + "." + id));
+                (*activeMarkers)[textEditor].insert(finalId);
+
+                setRefactorMarker(textEditor, *toIcon(icon), position, finalId, anchorLeft, callback);
+            },
+            "clearRefactorMarkers",
+            [pluginSpec, activeMarkers](const TextEditorPtr &textEditor, const QString &id) {
+                QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
+                QTC_ASSERT(!id.isEmpty(), throw sol::error("Id is empty"));
+
+                Id finalId = Utils::Id::fromString(QString(pluginSpec->id + "." + id));
+                (*activeMarkers)[textEditor].remove(finalId);
+
+                clearRefactorMarkers(textEditor, finalId);
             },
             "cursor",
             [](const TextEditorPtr &textEditor) {
