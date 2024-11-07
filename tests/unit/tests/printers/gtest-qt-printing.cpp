@@ -58,7 +58,7 @@ std::ostream &operator<<(std::ostream &out, const QVariant &variant)
 std::ostream &operator<<(std::ostream &out, const QTextCharFormat &format)
 {
     out << "("
-        << format.fontFamily();
+        << format.fontFamilies();
 
     if (format.fontItalic())
         out << ", italic";
