@@ -10875,7 +10875,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>All changes on this page take effect immediately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen auf dieser Seite werden sofort wirksam.</translation>
     </message>
     <message>
         <source>Failed to create the SDK Tools path %1.</source>
@@ -11295,31 +11295,31 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Target ABI / API:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziel-ABI / API:</translation>
     </message>
     <message>
         <source>Skin definition:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skin-Definition:</translation>
     </message>
     <message>
         <source>Avd list command failed. %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Avd List-Kommando ist fehlgeschlagen. %1 %2</translation>
     </message>
     <message>
         <source>Creating new AVD device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge neues AVD-Gerät...</translation>
     </message>
     <message>
         <source>Install a system image from the SDK Manager first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie erst ein System-Image vom SDK Manager.</translation>
     </message>
     <message>
         <source>No system images found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine System-Images gefunden.</translation>
     </message>
     <message>
         <source>No system images found for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine System-Images für %1 gefunden.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -11493,11 +11493,11 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
     </message>
     <message>
         <source>Android package installation finished with success.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Paketinstallation wurde erfolgreich abgeschlossen.</translation>
     </message>
     <message>
         <source>Android package installation failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Paketinstallation ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy to Android device</source>
@@ -11636,19 +11636,19 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>Failed to forward %1 debugging ports.</source>
         <extracomment>%1 = QML/JDB/C++</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Die Debugging-Ports für %1 konnten nicht weitergeleitet werden.</translation>
     </message>
     <message>
         <source>Activity Manager error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler des Activity Manager: %1</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; terminated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; died.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beended.</translation>
     </message>
     <message>
         <source>Failed to find application directory.</source>
@@ -11997,37 +11997,39 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>No application build targets found in this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt wurden keine Build-Ziele für Anwendungen gefunden.</translation>
     </message>
     <message>
         <source>No Application Build Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Build-Ziel für eine Anwendung</translation>
     </message>
     <message>
         <source>Select the build target for which to create the Android templates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Build-Ziel, für das die Android-Vorlagen erstellt werden sollen.</translation>
     </message>
     <message>
         <source>Build target:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ziel:</translation>
     </message>
     <message>
         <source>Select a build target</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Build-Ziel</translation>
     </message>
     <message>
         <source>It is highly recommended if you are planning to extend the Java side of your Qt application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
     </message>
     <message>
         <source>Select the Android package source directory.
 
 The files in the Android package source directory will be copied to the Android build directory and the default templates will be overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Quellverzeichnis des Android-Pakets aus.
+
+Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Android-Build-Verzeichnis kopiert und die Vorlagen überschrieben.</translation>
     </message>
     <message>
         <source>The Android template files will be created under the %1 path that is set in the project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Vorlage-Dateien für Android werden in dem Verzeichnis erstellt, das als %1 in der Projektdatei angegeben ist.</translation>
     </message>
     <message>
         <source>Create Android Template Files Wizard</source>
