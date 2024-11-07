@@ -254,6 +254,9 @@ QtObject {
     readonly property int flowPillHeight: 20
     readonly property int flowPillRadius: 4
 
+    readonly property int cellWidth: 200
+    readonly property int cellHeight: 40
+
     // Theme Colors
 
     property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue

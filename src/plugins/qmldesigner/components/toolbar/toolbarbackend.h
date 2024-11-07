@@ -40,6 +40,28 @@ public:
     QVariant data(const QModelIndex &index, int role = DisplayNameRole) const override;
 };
 
+class RunManagerModel : public QAbstractListModel
+{
+    Q_OBJECT
+
+public:
+    enum RunManagerRoles {
+        DisplayNameRole = Qt::DisplayRole,
+        TargetNameRole = Qt::UserRole,
+        Enabled
+    };
+    Q_ENUM(RunManagerRoles)
+
+    explicit RunManagerModel(QObject *parent = nullptr);
+
+    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QHash<int, QByteArray> roleNames() const override;
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+
+private:
+    void reset();
+};
+
 class ActionSubscriber : public QObject
 {
     Q_OBJECT
@@ -101,6 +123,9 @@ class ToolBarBackend : public QObject
 
     Q_PROPERTY(bool isLiteModeEnabled READ isLiteModeEnabled CONSTANT)
 
+    Q_PROPERTY(int runTargetIndex READ runTargetIndex NOTIFY runTargetIndexChanged)
+    Q_PROPERTY(int runManagerState READ runManagerState NOTIFY runManagerStateChanged)
+
 public:
     ToolBarBackend(QObject *parent  = nullptr);
     static void registerDeclarativeType();
@@ -119,6 +144,10 @@ public:
     Q_INVOKABLE void showZoomMenu(int x, int y);
     Q_INVOKABLE void setCurrentStyle(int index);
     Q_INVOKABLE void setCurrentKit(int index);
+
+    Q_INVOKABLE void openDeviceManager();
+    Q_INVOKABLE void selectRunTarget(const QString &targetName);
+    Q_INVOKABLE void toggleRunning();
 
     bool canGoBack() const;
     bool canGoForward() const;
@@ -154,6 +183,9 @@ public:
 
     bool isLiteModeEnabled() const;
 
+    int runTargetIndex() const;
+    int runManagerState() const;
+
     static void launchGlobalAnnotations();
 
 signals:
@@ -175,6 +207,9 @@ signals:
     void projectOpenedChanged();
     void isSharingEnabledChanged();
     void isDocumentDirtyChanged();
+
+    void runTargetIndexChanged();
+    void runManagerStateChanged();
 
 private:
     void setupWorkspaces();

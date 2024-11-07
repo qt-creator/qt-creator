@@ -3,11 +3,15 @@
 
 #include "devicemanager.h"
 
+#include "devicemanagerwidget.h"
+
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QNetworkDatagram>
 #include <QNetworkInterface>
+
+#include <coreplugin/icore.h>
 
 namespace QmlDesigner::DeviceShare {
 
@@ -22,6 +26,8 @@ DeviceManager::DeviceManager(QObject *parent, const QString &settingsPath)
     }
     initUdpDiscovery();
 }
+
+DeviceManager::~DeviceManager() = default;
 
 void DeviceManager::initUdpDiscovery()
 {
@@ -390,6 +396,14 @@ bool DeviceManager::stopRunningProject(const QString &deviceId)
         return false;
 
     return device->sendProjectStopped();
+}
+
+DeviceManagerWidget *DeviceManager::widget()
+{
+    if (!m_widget)
+        m_widget = new DeviceManagerWidget(*this, Core::ICore::instance()->dialogParent());
+
+    return m_widget.get();
 }
 
 } // namespace QmlDesigner::DeviceShare

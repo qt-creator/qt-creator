@@ -30,14 +30,16 @@
 #ifndef QDS_USE_PROJECTSTORAGE
 #  include <metainfo.h>
 #endif
+#include <devicesharing/devicemanager.h>
 #include <pathtool/pathtool.h>
+#include <qmljseditor/qmljseditor.h>
+#include <qmljseditor/qmljseditorconstants.h>
+#include <qmljseditor/qmljseditordocument.h>
+#include <runmanager/runmanager.h>
 #include <sourcetool/sourcetool.h>
 #include <texttool/texttool.h>
 #include <timelineeditor/timelineview.h>
 #include <transitioneditor/transitioneditorview.h>
-#include <qmljseditor/qmljseditor.h>
-#include <qmljseditor/qmljseditorconstants.h>
-#include <qmljseditor/qmljseditordocument.h>
 
 #include <qmljstools/qmljstoolsconstants.h>
 
@@ -174,6 +176,8 @@ public:
     ViewManager viewManager{projectManager.asynchronousImageCache(), externalDependencies};
     DocumentManager documentManager{projectManager, externalDependencies};
     ShortCutManager shortCutManager;
+    DeviceShare::DeviceManager deviceManager;
+    RunManager runManager{deviceManager};
     SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
@@ -913,6 +917,16 @@ const DocumentManager &QmlDesignerPlugin::documentManager() const
 ViewManager &QmlDesignerPlugin::viewManager()
 {
     return instance()->d->viewManager;
+}
+
+DeviceShare::DeviceManager &QmlDesignerPlugin::deviceManager()
+{
+    return instance()->d->deviceManager;
+}
+
+RunManager &QmlDesignerPlugin::runManager()
+{
+    return instance()->d->runManager;
 }
 
 DesignerActionManager &QmlDesignerPlugin::designerActionManager()

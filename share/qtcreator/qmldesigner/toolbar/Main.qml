@@ -3,6 +3,7 @@
 
 import QtQuick
 import QtQuick.Controls
+
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 import ToolBar
@@ -15,9 +16,7 @@ Rectangle {
     readonly property int largeBreakpoint: 1200
     readonly property bool flyoutEnabled: root.width < root.largeBreakpoint
 
-    ToolBarBackend {
-        id: backend
-    }
+    ToolBarBackend { id: backend }
 
     Item {
         id: topToolbarOtherMode
@@ -64,11 +63,11 @@ Rectangle {
                 }
             }
 
-            MouseArea{
+            MouseArea {
                 id: mouseArea
                 anchors.fill: parent
                 hoverEnabled: true
-                onClicked: homeOther.onClicked()
+                onClicked: homeOther.clicked()
             }
 
             states: [
@@ -111,69 +110,20 @@ Rectangle {
             tooltip: qsTr("Switch to Welcome Mode.")
         }
 
-        ToolbarButton {
-            id: runProject
+        SplitButton {
+            id: splitButton
+            style: StudioTheme.Values.toolbarButtonStyle
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: home.right
             anchors.leftMargin: 10
-            buttonIcon: StudioTheme.Constants.runProjOutline_large
-            style: StudioTheme.ToolbarStyle {
-                radius: StudioTheme.Values.smallRadius
+            width: 160
 
-                icon: StudioTheme.ControlStyle.IconColors {
-                    idle: StudioTheme.Values.themeIdleGreen
-                    hover: StudioTheme.Values.themeRunningGreen
-                    interaction: "#ffffff"
-                    disabled: "#636363"
-                }
+            runTarget: backend?.runTargetIndex
+            runManagerState: backend?.runManagerState
 
-                background: StudioTheme.ControlStyle.BackgroundColors {
-                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
-                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
-                    interaction: StudioTheme.Values.themeInteraction
-                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
-                }
-
-                border: StudioTheme.ControlStyle.BorderColors {
-                    idle: StudioTheme.Values.themeControlBackground_toolbarIdle
-                    hover: StudioTheme.Values.themeControlBackground_topToolbarHover
-                    interaction: StudioTheme.Values.themeInteraction
-                    disabled: StudioTheme.Values.themeControlBackground_toolbarIdle
-                }
-            }
-
-            onClicked: backend.runProject()
-            tooltip: qsTr("Run Project")
-        }
-
-        ToolbarButton {
-            id: livePreviewButton
-            style: StudioTheme.Values.primaryToolbarStyle
-            width: 96
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: runProject.right
-            anchors.leftMargin: 10
-            iconFontFamily: StudioTheme.Constants.font.family
-            buttonIcon: qsTr("Live Preview")
-
-            onClicked: {
-                livePreview.trigger()
-            }
-
-            MouseArea {
-                acceptedButtons: Qt.RightButton
-                anchors.fill: parent
-
-                onClicked: {
-                    var p = livePreviewButton.mapToGlobal(0, 0)
-                    backend.showZoomMenu(p.x, p.y)
-                }
-            }
-
-            ActionSubscriber {
-                id: livePreview
-                actionId: "LivePreview"
-            }
+            onClicked: backend.toggleRunning()
+            onRunTargetSelected: function(targetName) { backend.selectRunTarget(targetName) }
+            onOpenRunTargets: backend.openDeviceManager()
         }
 
         StudioControls.TopLevelComboBox {
@@ -181,7 +131,7 @@ Rectangle {
             style: StudioTheme.Values.toolbarStyle
             width: 320 - ((root.width > root.mediumBreakpoint) ? 0 : (root.mediumBreakpoint - root.width))
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: livePreviewButton.right
+            anchors.left: splitButton.right
             anchors.leftMargin: 10
             model: backend.documentModel
 
@@ -191,7 +141,7 @@ Rectangle {
         }
 
         Text {
-            parent:currentFile.contentItem
+            parent: currentFile.contentItem
             visible: backend.isDocumentDirty
 
             anchors.right: parent.right

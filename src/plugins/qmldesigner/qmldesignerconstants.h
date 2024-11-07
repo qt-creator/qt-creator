@@ -128,6 +128,7 @@ inline constexpr char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 inline constexpr char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";
 inline constexpr char EVENT_INSIGHT_TIME[] = "insight";
 inline constexpr char EVENT_MODELEDITOR_TIME[] = "modelEditor";
+inline constexpr char EVENT_DEVICEMANAGER_TIME[] = "deviceManager";
 inline constexpr char EVENT_TOOLBAR_MODE_CHANGE[] = "ToolBarTriggerModeChange";
 inline constexpr char EVENT_TOOLBAR_PROJECT_SETTINGS[] = "ToolBarTriggerProjectSettings";
 inline constexpr char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";
@@ -175,6 +176,7 @@ inline constexpr char OBJECT_NAME_NEW_DIALOG[] = "QQuickWidgetQDSNewDialog";
 inline constexpr char OBJECT_NAME_SPLASH_SCREEN[] = "QQuickWidgetSplashScreen";
 inline constexpr char OBJECT_NAME_WELCOME_PAGE[] = "QQuickWidgetQDSWelcomePage";
 inline constexpr char OBJECT_NAME_CONNECTION_EDITOR[] = "QQuickWidgetConnectionEditor";
+inline constexpr char OBJECT_NAME_DEVICE_MANAGER[] = "QQuickWidgetDeviceManager";
 
 inline constexpr char ENVIRONMENT_SHOW_QML_ERRORS[] = "QMLDESIGNER_SHOW_QML_ERRORS";
 

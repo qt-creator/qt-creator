@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QPointer>
 #include <QUdpSocket>
 #include <QWebSocketServer>
 
@@ -10,11 +11,14 @@
 
 namespace QmlDesigner::DeviceShare {
 
+class DeviceManagerWidget;
+
 class DeviceManager : public QObject
 {
     Q_OBJECT
 public:
     explicit DeviceManager(QObject *parent = nullptr, const QString &settingsPath = "settings.json");
+    ~DeviceManager();
 
     // Getters
     QList<QSharedPointer<Device>> devices() const;
@@ -35,6 +39,8 @@ public:
     bool sendProjectFile(const QString &deviceId, const QString &projectFile);
     bool stopRunningProject(const QString &deviceId);
 
+    DeviceManagerWidget *widget();
+
 private:
     // Devices management
     QList<QSharedPointer<Device>> m_devices;
@@ -43,6 +49,8 @@ private:
     // settings
     const QString m_settingsPath;
     QString m_uuid;
+
+    QPointer<DeviceManagerWidget> m_widget;
 
 private:
     // internal slots
