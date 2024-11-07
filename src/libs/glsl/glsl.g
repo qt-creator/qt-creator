@@ -186,30 +186,10 @@
 %start toplevel
 
 /:
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
+#pragma once
 
 #include "$header"
 #include "glsllexer.h"
@@ -274,13 +254,13 @@ public:
     TranslationUnitAST *parse() {
         if (AST *u = parse(T_FEED_GLSL))
             return u->asTranslationUnit();
-        return 0;
+        return nullptr;
     }
 
     ExpressionAST *parseExpression() {
         if (AST *u = parse(T_FEED_EXPRESSION))
             return u->asExpression();
-        return 0;
+        return nullptr;
     }
 
     AST *parse(int startToken);
@@ -389,30 +369,8 @@ private:
 :/
 
 /.
-/****************************************************************************
-**
-** Copyright (C) 2016 The Qt Company Ltd.
-** Contact: https://www.qt.io/licensing/
-**
-** This file is part of Qt Creator.
-**
-** Commercial License Usage
-** Licensees holding valid commercial Qt licenses may use this file in
-** accordance with the commercial license agreement provided with the
-** Software or, alternatively, in accordance with the terms contained in
-** a written agreement between you and The Qt Company. For licensing terms
-** and conditions see https://www.qt.io/terms-conditions. For further
-** information use the contact form at https://www.qt.io/contact-us.
-**
-** GNU General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 3 as published by the Free Software
-** Foundation with exceptions as appearing in the file LICENSE.GPL3-EXCEPT
-** included in the packaging of this file. Please review the following
-** information to ensure the GNU General Public License requirements will
-** be met: https://www.gnu.org/licenses/gpl-3.0.html.
-**
-****************************************************************************/
+// Copyright (C) 2016 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "glslparser.h"
 #include "glslengine.h"
@@ -492,7 +450,7 @@ AST *Parser::parse(int startToken)
     int action = 0;
     yytoken = -1;
     yyloc = -1;
-    void *yyval = 0; // value of the current token.
+    void *yyval = nullptr; // value of the current token.
 
     _recovered = false;
     _tos = -1;
@@ -594,7 +552,7 @@ AST *Parser::parse(int startToken)
                         else if (*tptr == T_NUMBER || *tptr == T_TYPE_NAME)
                             yyval = (void *) _engine->identifier(QLatin1String("$0"));
                         else
-                            yyval = 0;
+                            yyval = nullptr;
 
                         _symStack[_tos].ptr = yyval;
                         _locationStack[_tos] = yyloc;
@@ -614,7 +572,7 @@ AST *Parser::parse(int startToken)
 
     } while (action);
 
-    return 0;
+    return nullptr;
 }
 ./
 
@@ -760,7 +718,7 @@ function_call_header_no_parameters ::= function_call_header VOID ;
 /.
 case $rule_number: {
     sym(1).function.id = sym(1).function_identifier;
-    sym(1).function.arguments = 0;
+    sym(1).function.arguments = nullptr;
 }   break;
 ./
 
@@ -768,7 +726,7 @@ function_call_header_no_parameters ::= function_call_header ;
 /.
 case $rule_number: {
     sym(1).function.id = sym(1).function_identifier;
-    sym(1).function.arguments = 0;
+    sym(1).function.arguments = nullptr;
 }   break;
 ./
 
@@ -1298,7 +1256,7 @@ declaration ::= type_qualifier SEMICOLON ;
 /.
 case $rule_number: {
     TypeAST *type = makeAstNode<QualifiedTypeAST>
-        (sym(1).type_qualifier.qualifier, (TypeAST *)0,
+        (sym(1).type_qualifier.qualifier, (TypeAST *)nullptr,
          sym(1).type_qualifier.layout_list);
     ast(1) = makeAstNode<TypeDeclarationAST>(type);
 }   break;
@@ -1370,7 +1328,7 @@ case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
             (sym(1).qualifier, sym(3).param_declarator.type,
-             (List<LayoutQualifierAST *> *)0),
+             (List<LayoutQualifierAST *> *)nullptr),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
          sym(3).param_declarator.name);
 }   break;
@@ -1391,9 +1349,9 @@ parameter_declaration ::= parameter_type_qualifier parameter_qualifier parameter
 case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (makeAstNode<QualifiedTypeAST>
-            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)0),
+            (sym(1).qualifier, type(3), (List<LayoutQualifierAST *> *)nullptr),
          ParameterDeclarationAST::Qualifier(sym(2).qualifier),
-         (const QString *)0);
+         (const QString *)nullptr);
 }   break;
 ./
 
@@ -1402,7 +1360,7 @@ parameter_declaration ::= parameter_qualifier parameter_type_specifier ;
 case $rule_number: {
     ast(1) = makeAstNode<ParameterDeclarationAST>
         (type(2), ParameterDeclarationAST::Qualifier(sym(1).qualifier),
-         (const QString *)0);
+         (const QString *)nullptr);
 }   break;
 ./
 
@@ -1581,7 +1539,7 @@ case $rule_number: {
 fully_specified_type ::= type_specifier ;
 /.
 case $rule_number: {
-    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)0);
+    ast(1) = makeAstNode<QualifiedTypeAST>(0, type(1), (List<LayoutQualifierAST *> *)nullptr);
 }   break;
 ./
 
@@ -1646,7 +1604,7 @@ case $rule_number: {
 layout_qualifier_id ::= IDENTIFIER ;
 /.
 case $rule_number: {
-    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)0);
+    sym(1).layout = makeAstNode<LayoutQualifierAST>(string(1), (const QString *)nullptr);
 }   break;
 ./
 
@@ -1668,7 +1626,7 @@ type_qualifier ::= storage_qualifier ;
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -1692,7 +1650,7 @@ type_qualifier ::= interpolation_qualifier storage_qualifier ;
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -1700,7 +1658,7 @@ type_qualifier ::= interpolation_qualifier ;
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -1708,7 +1666,7 @@ type_qualifier ::= invariant_qualifier storage_qualifier ;
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -1716,7 +1674,7 @@ type_qualifier ::= invariant_qualifier interpolation_qualifier storage_qualifier
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = sym(1).qualifier | sym(2).qualifier | sym(3).qualifier;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -1724,7 +1682,7 @@ type_qualifier ::= INVARIANT ;
 /.
 case $rule_number: {
     sym(1).type_qualifier.qualifier = QualifiedTypeAST::Invariant;
-    sym(1).type_qualifier.layout_list = 0;
+    sym(1).type_qualifier.layout_list = nullptr;
 }   break;
 ./
 
@@ -2558,7 +2516,7 @@ struct_declarator ::= IDENTIFIER LEFT_BRACKET RIGHT_BRACKET ;
 /.
 case $rule_number: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)0));
+        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr));
 }   break;
 ./
 
@@ -2566,7 +2524,7 @@ struct_declarator ::= IDENTIFIER LEFT_BRACKET constant_expression RIGHT_BRACKET 
 /.
 case $rule_number: {
     sym(1).field = makeAstNode<StructTypeAST::Field>
-        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)0, expression(3)));
+        (string(1), makeAstNode<ArrayTypeAST>((TypeAST *)nullptr, expression(3)));
 }   break;
 ./
 
@@ -2748,7 +2706,7 @@ selection_rest_statement ::= statement ;
 /.
 case $rule_number: {
     sym(1).ifstmt.thenClause = statement(1);
-    sym(1).ifstmt.elseClause = 0;
+    sym(1).ifstmt.elseClause = nullptr;
 }   break;
 ./
 
@@ -2855,7 +2813,7 @@ for_rest_statement ::= conditionopt SEMICOLON ;
 /.
 case $rule_number: {
     sym(1).forstmt.condition = expression(1);
-    sym(1).forstmt.increment = 0;
+    sym(1).forstmt.increment = nullptr;
 }   break;
 ./
 
@@ -2916,7 +2874,7 @@ case $rule_number: {
         sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
             (sym(1).declaration);
     } else {
-        sym(1).declaration_list = 0;
+        sym(1).declaration_list = nullptr;
     }
 }   break;
 ./
@@ -2932,7 +2890,7 @@ case $rule_number: {
             sym(1).declaration_list = makeAstNode< List<DeclarationAST *> >
                 (sym(2).declaration);
         } else {
-            sym(1).declaration_list = 0;
+            sym(1).declaration_list = nullptr;
         }
     }
 }   break;
@@ -2955,7 +2913,7 @@ case $rule_number: {
 external_declaration ::= SEMICOLON ;
 /.
 case $rule_number: {
-    ast(1) = 0;
+    ast(1) = nullptr;
 }   break;
 ./
 
@@ -2969,7 +2927,7 @@ case $rule_number: {
 empty ::= ;
 /.
 case $rule_number: {
-    ast(1) = 0;
+    ast(1) = nullptr;
 }   break;
 ./
 

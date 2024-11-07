@@ -1,4 +1,4 @@
-import qbs 1.0
+import qbs
 import qbs.Environment
 import qbs.File
 import qbs.FileInfo
@@ -81,7 +81,10 @@ QtcLibrary {
         Artifact { filePath: "glslparser.cpp"; fileTags: ["cpp"]}
         prepare: {
             var inputFile = "./" + input.fileName;
-            var qlalr = FileInfo.joinPaths(product.Qt.core.binPath, "qlalr")
+            var qlalrPath = product.Qt.core.binPath;
+            if (!product.qbs.targetOS.contains("windows") && product.Qt.core.versionMajor > 5)
+                qlalrPath = FileInfo.joinPaths(qlalrPath, "../libexec")
+            var qlalr = FileInfo.joinPaths(qlalrPath, "qlalr")
             var generateCmd = new Command(qlalr, ["--qt", "--no-debug", inputFile]);
             generateCmd.workingDirectory = product.buildDirectory;
             generateCmd.description = "generating glsl parser";
