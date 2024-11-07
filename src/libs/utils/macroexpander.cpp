@@ -382,7 +382,13 @@ QString MacroExpander::expand(const QString &stringWithVariables) const
 
 FilePath MacroExpander::expand(const FilePath &fileNameWithVariables) const
 {
-    // We want single variables to expand to fully qualified strings.
+    // This is intentionally unsymmetric: We have already sanitized content
+    // in fileNameWithVariables, so using .toString() is fine.
+    // The macro expansion may introduce arbitrary new contents, so
+    // sanitization using fromUserInput() needs to repeated.
+    // We also cannot just operate on the scheme, host and path component
+    // individually as we want to allow single variables to expand to fully
+    // remote-qualified paths.
     return FilePath::fromUserInput(expand(fileNameWithVariables.toString()));
 }
 
