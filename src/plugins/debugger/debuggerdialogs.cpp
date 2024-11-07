@@ -402,6 +402,7 @@ void StartApplicationDialog::run(bool attachRemote)
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    QTC_ASSERT(dev, return);
     ProcessRunData inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
