@@ -61,6 +61,19 @@ def get_commit_SHA(path):
                 git_sha = f.read().strip()
     return git_sha
 
+
+def sevenzip_command(threads=None):
+    # use -mf=off to avoid usage of the ARM executable compression filter,
+    # which cannot be extracted by p7zip
+    # use -snl to preserve symlinks even if their target doesn't exist
+    # which is important for the _dev package on Linux
+    # (only works with official/upstream 7zip)
+    command = ['7z', 'a', '-mf=off', '-snl']
+    if threads:
+        command.extend(['-mmt' + threads])
+    return command
+
+
 # copy of shutil.copytree that does not bail out if the target directory already exists
 # and that does not create empty directories
 def copytree(src, dst, symlinks=False, ignore=None):

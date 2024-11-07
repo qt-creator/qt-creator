@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import NamedTuple
 
 from common import (is_linux_platform, is_mac_platform, is_windows_platform,
-                    download_and_extract, check_print_call)
+                    download_and_extract, check_print_call, sevenzip_command)
 
 
 class BuildParams(NamedTuple):
@@ -150,7 +150,7 @@ def zip_sdktool(
 ) -> None:
     glob = "*.exe" if is_windows_platform() else "*"
     check_print_call(
-        cmd=["7z", "a", str(out_7zip), glob],
+        cmd=sevenzip_command() + [str(out_7zip), glob],
         cwd=sdktool_target_path
     )
 
