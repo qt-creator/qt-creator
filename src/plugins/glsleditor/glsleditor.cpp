@@ -318,6 +318,7 @@ void GlslEditorWidget::updateDocumentNow()
     const QByteArray preprocessedCode = contents.toLatin1(); // ### use the QtCreator C++ preprocessor.
 
     Document::Ptr doc(new Document());
+    doc->_currentGlslVersion = version;
     doc->_engine = new Engine();
     Parser parser(doc->_engine, preprocessedCode.constData(), preprocessedCode.size(), variant);
 

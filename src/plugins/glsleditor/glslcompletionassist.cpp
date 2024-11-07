@@ -426,7 +426,10 @@ IAssistProposal *GlslCompletionAssistProcessor::performAsync()
         }
 
  //       if (m_keywordVariant != languageVariant(interface->mimeType())) {
-            QStringList keywords = GLSL::Lexer::keywords(languageVariant(interface->mimeType()));
+            int langVar = languageVariant(interface->mimeType());
+            if (interface->glslDocument()->currentGlslVersion() >= 330)
+                langVar |= GLSL::Lexer::Variant_GLSL_400;
+            QStringList keywords = GLSL::Lexer::keywords(langVar);
 //            m_keywordCompletions.clear();
             for (int index = 0; index < keywords.size(); ++index)
                 m_completions << createCompletionItem(keywords.at(index), glslIcon(IconTypeKeyword));

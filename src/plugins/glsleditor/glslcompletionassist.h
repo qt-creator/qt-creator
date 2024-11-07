@@ -36,6 +36,7 @@ public:
     GLSL::Scope *scopeAt(int position) const;
     void addRange(const QTextCursor &cursor, GLSL::Scope *scope);
 
+    int currentGlslVersion() const { return _currentGlslVersion; }
 private:
     struct Range {
         QTextCursor cursor;
@@ -46,6 +47,8 @@ private:
     GLSL::TranslationUnitAST *_ast = nullptr;
     GLSL::Scope *_globalScope = nullptr;
     QList<Range> _cursors;
+
+    int _currentGlslVersion = -1;
 
     friend class GlslEditorWidget;
 };
