@@ -41,14 +41,22 @@ private:
         if (getValue(source_right, KitAspect::IsNoneRole).toBool())
             return true;
 
-        // Criterion 2: "Quality", i.e. how likely is the respective entry to be usable.
+        // Criterion 2: "Type", which is is the name of some category by which the entries
+        //              are supposed to get grouped together.
+        if (const QString type1 = getValue(source_left, KitAspect::TypeRole).toString(),
+            type2 = getValue(source_right, KitAspect::TypeRole).toString();
+            type1 != type2) {
+            return type1 < type2;
+        }
+
+        // Criterion 3: "Quality", i.e. how likely is the respective entry to be usable.
         if (const int qual1 = getValue(source_left, KitAspect::QualityRole).toInt(),
             qual2 = getValue(source_right, KitAspect::QualityRole).toInt();
             qual1 != qual2) {
             return qual1 > qual2;
         }
 
-        // Criterion 3: Name.
+        // Criterion 4: Name.
         return SortModel::lessThan(source_left, source_right);
     }
 };
@@ -209,6 +217,11 @@ void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
             this, [this] { d->ignoreChanges.lock(); });
     connect(listAspectSpec.model, &QAbstractItemModel::modelReset,
             this, [this] { d->ignoreChanges.unlock(); });
+}
+
+QList<QComboBox *> KitAspect::comboBoxes() const
+{
+    return Utils::transform(d->listAspects, &Private::ListAspect::comboBox);
 }
 
 void KitAspect::addToLayoutImpl(Layouting::Layout &layout)

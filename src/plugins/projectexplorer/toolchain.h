@@ -294,7 +294,7 @@ public:
         return get(&Toolchain::makeCommand, env);
     }
 
-    enum class Valid { All, Some, None };
+    enum class Valid { None, Some, All }; // Keep ordered from worst to best.
     Valid validity() const;
     bool isCompletelyValid() const { return validity() == Valid::All; }
 

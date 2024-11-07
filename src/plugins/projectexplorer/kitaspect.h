@@ -15,6 +15,7 @@
 
 QT_BEGIN_NAMESPACE
 class QAction;
+class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -103,7 +104,7 @@ class PROJECTEXPLORER_EXPORT KitAspect : public Utils::BaseAspect
     Q_OBJECT
 
 public:
-    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, QualityRole };
+    enum ItemRole { IdRole = Qt::UserRole + 100, IsNoneRole, TypeRole, QualityRole };
 
     KitAspect(Kit *kit, const KitAspectFactory *factory);
     ~KitAspect();
@@ -152,6 +153,9 @@ protected:
         ResetModel resetModel;
     };
     void addListAspectSpec(const ListAspectSpec &listAspectSpec);
+
+    // For layouting purposes only.
+    QList<QComboBox *> comboBoxes() const;
 
 private:
     class Private;

@@ -5,6 +5,7 @@
 
 #include "abi.h"
 #include "devicesupport/devicemanager.h"
+#include "kitaspect.h"
 #include "kitoptionspage.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
@@ -81,8 +82,14 @@ QVariant ToolchainTreeItem::data(int column, int role) const
             }
         }
         return QVariant();
-    case BundleIdRole:
+    case KitAspect::IdRole:
         return bundle ? bundle->bundleId().toSetting() : QVariant();
+    case KitAspect::IsNoneRole:
+        return !bundle;
+    case KitAspect::TypeRole:
+        return bundle ? bundle->typeDisplayName() : QString();
+    case KitAspect::QualityRole:
+        return bundle ? int(bundle->validity()) : -1;
     }
     return {};
 }
