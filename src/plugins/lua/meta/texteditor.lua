@@ -116,6 +116,10 @@ function EmbeddedWidget:close() end
 ---Resizes the floating widget according to its layout.
 function EmbeddedWidget:resize() end
 
+---Set the callback to be called when the widget should close. (E.g. if the user presses the escape key)
+---@param fn function The function to be called when the embed should close.
+function EmbeddedWidget:onShouldClose(fn) end
+
 ---Embeds a widget at the specified cursor position in the text editor.
 ---@param widget Widget|Layout The widget to be added as a floating widget.
 ---@param position integer The position in the document where the widget should appear.

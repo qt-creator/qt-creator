@@ -149,6 +149,8 @@ void setupTextEditorModule()
 
     registerProvider("TextEditor", [](sol::state_view lua) -> sol::object {
         sol::table result = lua.create_table();
+        const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
+        QObject *guard = pluginSpec->connectionGuard.get();
 
         result["currentEditor"] = []() -> TextEditorPtr {
             return BaseTextEditor::currentTextEditor();
@@ -246,7 +248,14 @@ void setupTextEditorModule()
             "resize",
             &EmbeddedWidgetInterface::resize,
             "close",
-            &EmbeddedWidgetInterface::close);
+            &EmbeddedWidgetInterface::close,
+            "onShouldClose",
+            [guard](EmbeddedWidgetInterface *widget, sol::main_function func) {
+                QObject::connect(widget, &EmbeddedWidgetInterface::shouldClose, guard, [func]() {
+                    expected_str<void> res = void_safe_call(func);
+                    QTC_CHECK_EXPECTED(res);
+                });
+            });
 
         result.new_usertype<BaseTextEditor>(
             "TextEditor",

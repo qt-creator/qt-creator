@@ -948,6 +948,7 @@ public:
     void updateSuggestion();
     void clearCurrentSuggestion();
     QTextBlock m_suggestionBlock;
+    int m_numEmbeddedWidgets = 0;
 
     Context m_editorContext;
     QAction *m_undoAction = nullptr;
@@ -3502,7 +3503,10 @@ bool TextEditorWidget::event(QEvent *e)
         if (ke->key() == Qt::Key_Escape
             && (d->m_snippetOverlay->isVisible()
                 || multiTextCursor().hasMultipleCursors()
-                || d->m_suggestionBlock.isValid())) {
+                || d->m_suggestionBlock.isValid()
+                || d->m_numEmbeddedWidgets > 0)) {
+            if (d->m_numEmbeddedWidgets > 0)
+                emit embeddedWidgetsShouldClose();
             e->accept();
         } else {
             // hack copied from QInputControl::isCommonTextEditShortcut
@@ -3922,10 +3926,8 @@ qreal TextEditorWidgetPrivate::charWidth() const
 {
     return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
 }
-
 class CarrierWidget : public QWidget
 {
-    Q_OBJECT
 public:
     CarrierWidget(TextEditorWidget *textEditorWidget, QWidget *embed)
         : QWidget(textEditorWidget->viewport())
@@ -3980,6 +3982,12 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
 {
     QPointer<CarrierWidget> carrier = new CarrierWidget(q, widget);
     std::unique_ptr<EmbeddedWidgetInterface> result(new EmbeddedWidgetInterface());
+
+    connect(
+        q,
+        &TextEditorWidget::embeddedWidgetsShouldClose,
+        result.get(),
+        &EmbeddedWidgetInterface::shouldClose);
 
     struct State
     {
@@ -4043,6 +4051,7 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         QTextBlock block = pState->cursor.block();
         auto userData = TextDocumentLayout::userData(block);
         userData->removeEmbeddedWidget(carrier);
+        m_numEmbeddedWidgets--;
         forceUpdateScrollbarSize();
     });
     connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
@@ -4056,6 +4065,8 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         QAbstractTextDocumentLayout *layout = q->document()->documentLayout();
         QTimer::singleShot(0, layout, [layout] { layout->update(); });
     });
+
+    m_numEmbeddedWidgets++;
 
     carrier->show();
 

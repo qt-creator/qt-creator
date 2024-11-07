@@ -113,6 +113,7 @@ public:
 signals:
     void resized();
     void closed();
+    void shouldClose();
 };
 
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
@@ -561,6 +562,7 @@ signals:
     void addCurrentStateToNavigationHistory();
 
     void resized();
+    void embeddedWidgetsShouldClose();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
