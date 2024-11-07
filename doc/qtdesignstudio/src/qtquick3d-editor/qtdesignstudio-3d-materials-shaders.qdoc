@@ -28,7 +28,7 @@
     \list
         \li Default material
         \li Principled material
-        \li \l{Custom Effects and Materials}{Custom material}
+        \li \l{Custom Effects and Materials in Qt 5}{Custom material}
         \li Texture
     \endlist
 

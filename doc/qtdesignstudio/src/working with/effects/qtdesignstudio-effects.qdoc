@@ -9,8 +9,9 @@
     \title Effects
 
     \QDS includes various ready-made effects that you can use in your applications. These effects
-    are customizable to meet your specific requirements. Alternatively, you can use your own shader
-    files to create a custom effect.
+    are customizable to meet your specific requirements. In projects created with
+    \uicontrol {Qt 5} as the \uicontrol {Target Qt Version}, you can use your own shader files
+    and \QDS custom shader utilities to create custom effects.
 
     The following table summarizes the available effects and their corresponding use cases.
 
@@ -48,8 +49,12 @@
         \li \l {Using Qt Quick Effect Maker Effects}{Qt Quick Effect Maker}
         \li Import effects made with \QQEM to \QDS.
     \row
-        \li \l {Custom Effects and Materials}{Custom Effects}
-        \li Use your own shader files to create a custom effect.
+        \li \l {Creating Custom Effects}{Custom Effects in Qt 5}
+        \li Use your own shader files and \QDS custom shader utilities to create
+            custom effects.
+    \row
+        \li \l {Applying Post-Processing Effects in the Extended Scene Environment}{Post-Processing Effects}
+        \li Use the extended scene environment to apply built-in post-processing effects.
     \endtable
 
 */

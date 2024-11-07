@@ -339,12 +339,12 @@
     These settings are not relevant at other times, such as when using already
     generated lightmaps to render a scene.
 
-    \section1 Setting the Extended Scene Environment
+    \section1 Applying Post-Processing Effects in the Extended Scene Environment
 
     In addition to properties described above, in the extended scene environment
     you can apply effects to your scene by defining them as properties. When enabling
     one or more of these effects, the result is similar to manually adding
-    \l {3D Effects}{effects} to \uicontrol {Scene Environment}.
+    \l {Creating Post-Processing Effects}{custom effects} to \uicontrol {Scene Environment}.
 
     Use \uicontrol {Extended Scene Environment} instead of \uicontrol {Scene Environment}
     to add multiple and complex effects to your scene. Because the \uicontrol

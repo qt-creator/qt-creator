@@ -47,7 +47,7 @@
     You can use the \l {CustomMaterial}{Custom Material} component available in
     \uicontrol {Qt Quick 3D Effects} > \uicontrol {Custom Shader Utils} as
     the base component for creating custom materials used to shade models. For
-    more information, see \l {Custom Effects and Materials} and
+    more information, see \l {Custom Effects and Materials in Qt 5} and
     \l {Custom Shaders}.
 
     \section1 Metal Materials

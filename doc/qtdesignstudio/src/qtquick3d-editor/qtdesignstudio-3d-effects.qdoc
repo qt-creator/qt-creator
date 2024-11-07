@@ -17,7 +17,7 @@
     You can use the \l Effect component available in \uicontrol Components >
     \uicontrol {Qt Quick 3D} > \uicontrol {Qt Quick 3D} as the base
     component for creating custom post-processing effects. For more information,
-    see \l {Custom Effects and Materials} and \l {Custom Shaders}.
+    see \l {Custom Effects and Materials in Qt 5} and \l {Custom Shaders}.
     \note In \uicontrol {Qt 5}, the \uicontrol Effect component is located
     in \uicontrol {Qt Quick 3D Effects} >
     \uicontrol {Qt Quick 3D Custom Shader Utilities}.
