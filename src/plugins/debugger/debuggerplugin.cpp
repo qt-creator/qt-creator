@@ -1741,7 +1741,7 @@ void DebuggerPluginPrivate::attachToRunningApplication()
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     Kit *kit = kitChooser->currentKit();
     QTC_ASSERT(kit, return);
-    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
     const ProcessInfo processInfo = dlg->currentProcess();
@@ -1781,7 +1781,7 @@ RunControl *DebuggerPluginPrivate::attachToRunningProcess(Kit *kit,
     const ProcessInfo &processInfo, bool contAfterAttach)
 {
     QTC_ASSERT(kit, return nullptr);
-    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
     QTC_ASSERT(device, return nullptr);
     if (processInfo.processId == 0) {
         AsynchronousMessageBox::warning(Tr::tr("Warning"), Tr::tr("Cannot attach to process with PID 0"));
@@ -1844,7 +1844,7 @@ void DebuggerPluginPrivate::attachToQmlPort()
     setConfigValue("LastQmlServerPort", dlg.port());
     setConfigValue("LastProfile", kit->id().toSetting());
 
-    IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
     QTC_ASSERT(device, return);
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);

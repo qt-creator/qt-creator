@@ -1547,7 +1547,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
             }
         }
 
-        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
         if (CMakeBuildConfiguration::isIos(k)) {
             if (qt && qt->qtVersion().majorVersion() >= 6) {
                 // TODO it would be better if we could set

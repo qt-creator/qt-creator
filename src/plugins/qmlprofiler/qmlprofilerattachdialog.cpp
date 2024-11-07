@@ -33,7 +33,7 @@ QmlProfilerAttachDialog::QmlProfilerAttachDialog(QWidget *parent) :
 
     d->kitChooser = new KitChooser(this);
     d->kitChooser->setKitPredicate([](const Kit *kit) {
-        return DeviceKitAspect::device(kit) != nullptr;
+        return RunDeviceKitAspect::device(kit) != nullptr;
     });
     d->kitChooser->populate();
 

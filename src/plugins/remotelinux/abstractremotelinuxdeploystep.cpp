@@ -47,7 +47,7 @@ AbstractRemoteLinuxDeployStep::~AbstractRemoteLinuxDeployStep()
 
 IDevice::ConstPtr AbstractRemoteLinuxDeployStep::deviceConfiguration() const
 {
-    return DeviceKitAspect::device(kit());
+    return RunDeviceKitAspect::device(kit());
 }
 
 void AbstractRemoteLinuxDeployStep::saveDeploymentTimeStamp(const DeployableFile &deployableFile,

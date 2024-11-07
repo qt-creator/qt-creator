@@ -42,7 +42,7 @@ public:
             const TargetInformation targetInformation = tis.at(0);
 
             controller.setValue(getToolFilePath(Constants::APPMAN_CONTROLLER, kit(),
-                                                DeviceKitAspect::device(kit())));
+                                                RunDeviceKitAspect::device(kit())));
 
             appId.setValue(targetInformation.manifest.id);
             appId.setReadOnly(true);
@@ -94,7 +94,7 @@ public:
     virtual bool filterTarget(Target *target, const TargetInformation &ti) const
     {
         return !ti.manifest.supportsDebugging() ||
-               DeviceKitAspect::device(target->kit())->osType() != OsType::OsTypeLinux;
+               RunDeviceKitAspect::device(target->kit())->osType() != OsType::OsTypeLinux;
     }
 
     QList<RunConfigurationCreationInfo> availableCreators(Target *target) const

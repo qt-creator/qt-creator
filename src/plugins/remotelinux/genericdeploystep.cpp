@@ -55,7 +55,7 @@ public:
         method.addOption(Tr::tr("Use default transfer. This might be slow."));
 
         setInternalInitializer([this]() -> expected_str<void> {
-            if (BuildDeviceKitAspect::device(kit()) == DeviceKitAspect::device(kit())) {
+            if (BuildDeviceKitAspect::device(kit()) == RunDeviceKitAspect::device(kit())) {
                 // rsync transfer on the same device currently not implemented
                 // and typically not wanted.
                 return make_unexpected(

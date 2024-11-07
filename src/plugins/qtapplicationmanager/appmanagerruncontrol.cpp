@@ -209,7 +209,7 @@ public:
         if (targetInformation.manifest.isQmlRuntime()) {
             m_symbolFile = getToolFilePath(Constants::APPMAN_LAUNCHER_QML,
                                            target->kit(),
-                                           DeviceKitAspect::device(target->kit()));
+                                           RunDeviceKitAspect::device(target->kit()));
         } else if (targetInformation.manifest.isNativeRuntime()) {
             m_symbolFile = Utils::findOrDefault(target->buildSystem()->applicationTargets(), [&](const BuildTargetInfo &ti) {
                                return ti.buildKey == targetInformation.manifest.code || ti.projectFilePath.toString() == targetInformation.manifest.code;

@@ -204,7 +204,7 @@ FilePath QmlProjectRunConfiguration::qmlRuntimeFilePath() const
 
     // We might not have a full Qt version for building, but the device
     // might know what is good for running.
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit);
     if (dev) {
         const FilePath qmlRuntime = dev->qmlRunCommand();
         if (!qmlRuntime.isEmpty())

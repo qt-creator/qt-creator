@@ -21,7 +21,7 @@ public:
     static void setDeviceTypeId(Kit *k, Utils::Id type);
 };
 
-class PROJECTEXPLORER_EXPORT DeviceKitAspect
+class PROJECTEXPLORER_EXPORT RunDeviceKitAspect
 {
 public:
     static Utils::Id id();

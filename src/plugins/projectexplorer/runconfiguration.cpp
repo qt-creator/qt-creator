@@ -506,7 +506,7 @@ QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, 
     QString displayName = targetName;
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
-        if (IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit())) {
+        if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
                 //: Shown in Run configuration if no executable is given, %1 is device name
                 displayName = Tr::tr("Run on %{Device:Name}");

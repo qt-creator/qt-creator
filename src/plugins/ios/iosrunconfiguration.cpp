@@ -65,7 +65,7 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
     setUpdater([this, target] {
-        IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
+        IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit());
         const QString devName = dev ? dev->displayName() : IosDevice::name();
         setDefaultDisplayName(Tr::tr("Run on %1").arg(devName));
         setDisplayName(Tr::tr("Run %1 on %2").arg(applicationName()).arg(devName));
@@ -97,7 +97,7 @@ bool IosRunConfiguration::isEnabled(Id runMode) const
     if (devType == Constants::IOS_SIMULATOR_TYPE)
         return true;
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     if (!dev || dev->deviceState() != IDevice::DeviceReadyToUse)
         return false;
 
@@ -236,7 +236,7 @@ QString IosRunConfiguration::disabledReason(Id runMode) const
     Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return Tr::tr("Kit has incorrect device type for running on iOS devices.");
-    IDevice::ConstPtr dev = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());
     QString validDevName;
     bool hasConncetedDev = false;
     if (devType == Constants::IOS_DEVICE_TYPE) {

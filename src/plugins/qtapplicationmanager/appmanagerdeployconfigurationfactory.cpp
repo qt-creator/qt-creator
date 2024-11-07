@@ -24,7 +24,7 @@ namespace AppManager::Internal {
 
 static bool isNecessaryToDeploy(const Target *target)
 {
-    auto device = DeviceKitAspect::device(target->kit());
+    auto device = RunDeviceKitAspect::device(target->kit());
     return device && device->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 

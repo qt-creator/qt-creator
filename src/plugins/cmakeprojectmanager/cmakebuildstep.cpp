@@ -201,7 +201,7 @@ static QString initialStagingDir(Kit *kit)
 
 static bool supportsStageForInstallation(const Kit *kit)
 {
-    IDeviceConstPtr runDevice = DeviceKitAspect::device(kit);
+    IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit);
     Id runDeviceType = DeviceTypeKitAspect::deviceTypeId(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
     QTC_ASSERT(runDeviceType.isValid(), return false);
@@ -821,7 +821,7 @@ void CMakeBuildStep::updateDeploymentData()
     DeploymentData deploymentData;
     deploymentData.setLocalInstallRoot(rootDir);
 
-    IDeviceConstPtr runDevice = DeviceKitAspect::device(buildSystem()->kit());
+    IDeviceConstPtr runDevice = RunDeviceKitAspect::device(buildSystem()->kit());
 
     if (!runDevice)
         return;

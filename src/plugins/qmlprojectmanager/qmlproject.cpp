@@ -184,7 +184,7 @@ Tasks QmlProject::projectIssues(const Kit *k) const
     if (!version)
         result.append(createProjectTask(Task::TaskType::Warning, Tr::tr("No Qt version set in kit.")));
 
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     if (!dev)
         result.append(createProjectTask(Task::TaskType::Error, Tr::tr("Kit has no device.")));
 

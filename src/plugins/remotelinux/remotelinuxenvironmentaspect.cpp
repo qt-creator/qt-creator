@@ -43,7 +43,7 @@ public:
         });
 
         connect(fetchButton, &QPushButton::clicked, this, [aspect] {
-            if (IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit())) {
+            if (IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->target()->kit())) {
                 DeviceFileAccess *access = device->fileAccess();
                 QTC_ASSERT(access, return);
                 aspect->setRemoteEnvironment(access->deviceEnvironment());
@@ -51,7 +51,7 @@ public:
         });
 
         envWidget()->setOpenTerminalFunc([aspect](const Environment &env) {
-            IDevice::ConstPtr device = DeviceKitAspect::device(aspect->target()->kit());
+            IDevice::ConstPtr device = RunDeviceKitAspect::device(aspect->target()->kit());
             if (!device) {
                 QMessageBox::critical(Core::ICore::dialogParent(),
                                       Tr::tr("Cannot Open Terminal"),

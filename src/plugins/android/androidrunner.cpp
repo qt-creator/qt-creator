@@ -63,7 +63,7 @@ void AndroidRunner::start()
     if (!projectExplorerSettings().deployBeforeRun && target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
 
-        const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(target->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
         AndroidManager::setDeviceSerialNumber(target, info.serialNumber);
         deviceSerialNumber = info.serialNumber;

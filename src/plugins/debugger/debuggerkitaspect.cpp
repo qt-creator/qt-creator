@@ -112,7 +112,7 @@ DebuggerKitAspect::ConfigurationErrors DebuggerKitAspect::configurationErrors(co
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (item->matchTarget(tcAbi) == DebuggerItem::DoesNotMatch) {
         // currently restricting the check to desktop devices, may be extended to all device types
-        const IDevice::ConstPtr device = DeviceKitAspect::device(k);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(k);
         if (device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
             result |= DebuggerDoesNotMatch;
     }

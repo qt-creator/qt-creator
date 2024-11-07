@@ -164,11 +164,11 @@ public:
 
         const auto model = new DeviceManagerModel(DeviceManager::instance(), this);
         auto getter = [](const Kit &k) {
-            auto device = DeviceKitAspect::device(&k);
+            auto device = RunDeviceKitAspect::device(&k);
             return device ? device->id().toSetting() : QVariant{};
         };
         auto setter = [](Kit &k, const QVariant &id) {
-            DeviceKitAspect::setDeviceId(&k, Id::fromSetting(id));
+            RunDeviceKitAspect::setDeviceId(&k, Id::fromSetting(id));
         };
         auto resetModel = [this, model] {
             model->setTypeFilter(DeviceTypeKitAspect::deviceTypeId(kit()));
@@ -180,7 +180,7 @@ public:
     }
 
 private:
-    Id settingsPageItemToPreselect() const override { return DeviceKitAspect::deviceId(kit()); }
+    Id settingsPageItemToPreselect() const override { return RunDeviceKitAspect::deviceId(kit()); }
 };
 
 class DeviceKitAspectFactory : public KitAspectFactory
@@ -211,7 +211,7 @@ private:
 
 DeviceKitAspectFactory::DeviceKitAspectFactory()
 {
-    setId(DeviceKitAspect::id());
+    setId(RunDeviceKitAspect::id());
     setDisplayName(Tr::tr("Run device"));
     setDescription(Tr::tr("The device to run the applications on."));
     setPriority(32000);
@@ -236,7 +236,7 @@ QVariant DeviceKitAspectFactory::defaultValue(const Kit *k) const
 
 Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     Tasks result;
     if (!dev)
         result.append(BuildSystemTask(Task::Warning, Tr::tr("No device set.")));
@@ -251,22 +251,22 @@ Tasks DeviceKitAspectFactory::validate(const Kit *k) const
 
 void DeviceKitAspectFactory::fix(Kit *k)
 {
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     if (dev && !dev->isCompatibleWith(k)) {
         qWarning("Device is no longer compatible with kit \"%s\", removing it.",
                  qPrintable(k->displayName()));
-        DeviceKitAspect::setDeviceId(k, Id());
+        RunDeviceKitAspect::setDeviceId(k, Id());
     }
 }
 
 void DeviceKitAspectFactory::setup(Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return);
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     if (dev && dev->isCompatibleWith(k))
         return;
 
-    DeviceKitAspect::setDeviceId(k, Id::fromSetting(defaultValue(k)));
+    RunDeviceKitAspect::setDeviceId(k, Id::fromSetting(defaultValue(k)));
 }
 
 KitAspect *DeviceKitAspectFactory::createKitAspect(Kit *k) const
@@ -277,13 +277,13 @@ KitAspect *DeviceKitAspectFactory::createKitAspect(Kit *k) const
 
 QString DeviceKitAspectFactory::displayNamePostfix(const Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     return dev ? dev->displayName() : QString();
 }
 
 KitAspectFactory::ItemList DeviceKitAspectFactory::toUserOutput(const Kit *k) const
 {
-    IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    IDevice::ConstPtr dev = RunDeviceKitAspect::device(k);
     return {{Tr::tr("Device"), dev ? dev->displayName() : Tr::tr("Unconfigured") }};
 }
 
@@ -291,27 +291,27 @@ void DeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *expande
 {
     QTC_ASSERT(kit, return);
     expander->registerVariable("Device:HostAddress", Tr::tr("Host address"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? device->sshParameters().host() : QString();
     });
     expander->registerVariable("Device:SshPort", Tr::tr("SSH port"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? QString::number(device->sshParameters().port()) : QString();
     });
     expander->registerVariable("Device:UserName", Tr::tr("User name"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? device->sshParameters().userName() : QString();
     });
     expander->registerVariable("Device:KeyFile", Tr::tr("Private key file"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? device->sshParameters().privateKeyFile.toString() : QString();
     });
     expander->registerVariable("Device:Name", Tr::tr("Device name"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? device->displayName() : QString();
     });
     expander->registerFileVariables("Device::Root", Tr::tr("Device root directory"), [kit] {
-        const IDevice::ConstPtr device = DeviceKitAspect::device(kit);
+        const IDevice::ConstPtr device = RunDeviceKitAspect::device(kit);
         return device ? device->rootPath() : FilePath{};
     });
 }
@@ -336,7 +336,7 @@ void DeviceKitAspectFactory::onKitsLoaded()
 void DeviceKitAspectFactory::deviceUpdated(Id id)
 {
     for (Kit *k : KitManager::kits()) {
-        if (DeviceKitAspect::deviceId(k) == id)
+        if (RunDeviceKitAspect::deviceId(k) == id)
             notifyAboutUpdate(k);
     }
 }
@@ -357,34 +357,34 @@ const DeviceKitAspectFactory theDeviceKitAspectFactory;
 } // namespace Internal
 
 
-Id DeviceKitAspect::id()
+Id RunDeviceKitAspect::id()
 {
     return "PE.Profile.Device";
 }
 
-IDevice::ConstPtr DeviceKitAspect::device(const Kit *k)
+IDevice::ConstPtr RunDeviceKitAspect::device(const Kit *k)
 {
     QTC_ASSERT(DeviceManager::instance()->isLoaded(), return IDevice::ConstPtr());
     return DeviceManager::instance()->find(deviceId(k));
 }
 
-Id DeviceKitAspect::deviceId(const Kit *k)
+Id RunDeviceKitAspect::deviceId(const Kit *k)
 {
-    return k ? Id::fromSetting(k->value(DeviceKitAspect::id())) : Id();
+    return k ? Id::fromSetting(k->value(RunDeviceKitAspect::id())) : Id();
 }
 
-void DeviceKitAspect::setDevice(Kit *k, IDevice::ConstPtr dev)
+void RunDeviceKitAspect::setDevice(Kit *k, IDevice::ConstPtr dev)
 {
     setDeviceId(k, dev ? dev->id() : Id());
 }
 
-void DeviceKitAspect::setDeviceId(Kit *k, Id id)
+void RunDeviceKitAspect::setDeviceId(Kit *k, Id id)
 {
     QTC_ASSERT(k, return);
-    k->setValue(DeviceKitAspect::id(), id.toSetting());
+    k->setValue(RunDeviceKitAspect::id(), id.toSetting());
 }
 
-FilePath DeviceKitAspect::deviceFilePath(const Kit *k, const QString &pathOnDevice)
+FilePath RunDeviceKitAspect::deviceFilePath(const Kit *k, const QString &pathOnDevice)
 {
     if (IDevice::ConstPtr dev = device(k))
         return dev->filePath(pathOnDevice);

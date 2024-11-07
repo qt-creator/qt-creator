@@ -705,7 +705,7 @@ QStringList ToolBarBackend::kits() const
 {
     auto kits = Utils::filtered(ProjectExplorer::KitManager::kits(), [](ProjectExplorer::Kit *kit) {
         const auto qtVersion = QtSupport::QtKitAspect::qtVersion(kit);
-        const auto dev = ProjectExplorer::DeviceKitAspect::device(kit);
+        const auto dev = ProjectExplorer::RunDeviceKitAspect::device(kit);
 
         return kit->isValid() && !kit->isReplacementKit() && qtVersion && qtVersion->isValid()
                && dev

@@ -563,7 +563,7 @@ Environment Kit::buildEnvironment() const
 
 Environment Kit::runEnvironment() const
 {
-    IDevice::ConstPtr device = DeviceKitAspect::device(this);
+    IDevice::ConstPtr device = RunDeviceKitAspect::device(this);
     Environment env = device ? device->systemEnvironment() : Environment::systemEnvironment();
     addToRunEnvironment(env);
     return env;
@@ -678,7 +678,7 @@ void Kit::setMutable(Id id, bool b)
 
 bool Kit::isMutable(Id id) const
 {
-    if (id == DeviceKitAspect::id())
+    if (id == RunDeviceKitAspect::id())
         return DeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
     return d->m_mutable.contains(id);
 }

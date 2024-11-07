@@ -125,7 +125,7 @@ PerfConfigWidget::PerfConfigWidget(PerfSettings *settings, Target *target)
 
     IDevice::ConstPtr device;
     if (target)
-        device = DeviceKitAspect::device(target->kit());
+        device = RunDeviceKitAspect::device(target->kit());
 
     if (!device) {
         useTracePointsButton->setEnabled(false);

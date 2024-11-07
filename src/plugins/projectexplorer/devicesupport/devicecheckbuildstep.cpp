@@ -28,7 +28,7 @@ public:
 
     bool init() final
     {
-        IDevice::ConstPtr device = DeviceKitAspect::device(kit());
+        IDevice::ConstPtr device = RunDeviceKitAspect::device(kit());
         if (device)
             return true;
 
@@ -56,7 +56,7 @@ public:
 
         DeviceManager *dm = DeviceManager::instance();
         dm->addDevice(newDevice);
-        DeviceKitAspect::setDevice(kit(), newDevice);
+        RunDeviceKitAspect::setDevice(kit(), newDevice);
         return true;
     }
 

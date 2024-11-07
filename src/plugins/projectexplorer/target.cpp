@@ -578,7 +578,7 @@ void Target::setOverlayIcon(const QIcon &icon)
 
 QString Target::overlayIconToolTip()
 {
-    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
     return current ? formatDeviceInfo(current->deviceInformation()) : QString();
 }
 
@@ -854,7 +854,7 @@ ProjectConfigurationModel *Target::runConfigurationModel() const
 
 void Target::updateDeviceState()
 {
-    IDevice::ConstPtr current = DeviceKitAspect::device(kit());
+    IDevice::ConstPtr current = RunDeviceKitAspect::device(kit());
 
     QIcon overlay;
     static const QIcon disconnected = Icons::DEVICE_DISCONNECTED_INDICATOR_OVERLAY.icon();

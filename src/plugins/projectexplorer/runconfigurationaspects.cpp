@@ -521,7 +521,7 @@ static IDevice::ConstPtr executionDevice(Target *target,
 {
     if (target) {
         if (selector == ExecutableAspect::RunDevice)
-            return DeviceKitAspect::device(target->kit());
+            return RunDeviceKitAspect::device(target->kit());
         if (selector == ExecutableAspect::BuildDevice)
             return BuildDeviceKitAspect::device(target->kit());
     }

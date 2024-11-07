@@ -60,7 +60,7 @@ public:
 
         if (kit) {
             systemRoot = SysRootKitAspect::sysRoot(kit).toString();
-            const IDevice::ConstPtr deviceConfiguration = DeviceKitAspect::device(kit);
+            const IDevice::ConstPtr deviceConfiguration = RunDeviceKitAspect::device(kit);
             host = deviceConfiguration->sshParameters().host();
         }
 

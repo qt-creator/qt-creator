@@ -44,7 +44,7 @@ ValgrindToolRunner::ValgrindToolRunner(RunControl *runControl)
 void ValgrindToolRunner::start()
 {
     FilePath valgrindExecutable = m_settings.valgrindExecutable();
-    if (IDevice::ConstPtr dev = DeviceKitAspect::device(runControl()->kit()))
+    if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(runControl()->kit()))
         valgrindExecutable = dev->filePath(valgrindExecutable.path());
 
     const FilePath found = valgrindExecutable.searchInPath();

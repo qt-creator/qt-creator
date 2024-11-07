@@ -266,7 +266,7 @@ static int queue(
                         IDevice::ConstPtr device = DeviceManager::deviceForPath(executable);
                         for (const Target *const t : targetsForSelection(p.first, configSelection)) {
                             if (!device)
-                                device = DeviceKitAspect::device(t->kit());
+                                device = RunDeviceKitAspect::device(t->kit());
                             if (!device || device->type() != Constants::DESKTOP_DEVICE_TYPE)
                                 continue;
                             for (const BuildConfiguration *const bc :

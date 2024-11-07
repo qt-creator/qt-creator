@@ -74,7 +74,7 @@ static void stopRunningRunControl(RunControl *runControl)
     Utils::erase(activeRunControls, [](const QPointer<RunControl> &rc) { return !rc; });
 
     Target *target = runControl->target();
-    const Id devId = DeviceKitAspect::deviceId(target->kit());
+    const Id devId = RunDeviceKitAspect::deviceId(target->kit());
     const QString identifier = identifierForRunControl(runControl);
 
     // The device can only run an application at a time, if an app is running stop it.
@@ -129,7 +129,7 @@ DeviceCtlRunner::DeviceCtlRunner(RunControl *runControl)
     QTC_ASSERT(data, return);
     m_bundlePath = data->bundleDirectory;
     m_arguments = ProcessArgs::splitArgs(runControl->commandLine().arguments(), OsTypeMac);
-    m_device = std::dynamic_pointer_cast<const IosDevice>(DeviceKitAspect::device(runControl->kit()));
+    m_device = std::dynamic_pointer_cast<const IosDevice>(RunDeviceKitAspect::device(runControl->kit()));
 
     using namespace std::chrono_literals;
     m_pollTimer.setInterval(500ms); // not too often since running devicectl takes time
@@ -447,7 +447,7 @@ IosRunner::IosRunner(RunControl *runControl)
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
     QTC_ASSERT(data, return);
     m_bundleDir = data->bundleDirectory;
-    m_device = DeviceKitAspect::device(runControl->kit());
+    m_device = RunDeviceKitAspect::device(runControl->kit());
     m_deviceType = data->deviceType;
 }
 

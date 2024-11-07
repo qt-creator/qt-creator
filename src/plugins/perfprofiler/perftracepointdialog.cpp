@@ -55,7 +55,7 @@ PerfTracePointDialog::PerfTracePointDialog()
         const Kit *kit = target->kit();
         QTC_ASSERT(kit, return);
 
-        m_device = DeviceKitAspect::device(kit);
+        m_device = RunDeviceKitAspect::device(kit);
         if (!m_device) {
             m_textEdit->setPlainText(Tr::tr("Error: No device available for active target."));
             return;

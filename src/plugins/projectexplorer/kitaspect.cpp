@@ -224,7 +224,7 @@ void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
 void KitAspect::addMutableAction(QWidget *child)
 {
     QTC_ASSERT(child, return);
-    if (factory()->id() == DeviceKitAspect::id())
+    if (factory()->id() == RunDeviceKitAspect::id())
         return;
     child->addAction(d->mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);

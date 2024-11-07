@@ -321,7 +321,7 @@ static bool canOpenTerminalWithRunEnv(const Project *project, const ProjectNode 
     IDevice::ConstPtr device
         = DeviceManager::deviceForPath(runConfig->runnable().command.executable());
     if (!device)
-        device = DeviceKitAspect::device(target->kit());
+        device = RunDeviceKitAspect::device(target->kit());
     return device && device->canOpenTerminal();
 }
 
@@ -3843,7 +3843,7 @@ void ProjectExplorerPluginPrivate::openTerminalHereWithRunEnv()
     const ProcessRunData runnable = runConfig->runnable();
     IDevice::ConstPtr device = DeviceManager::deviceForPath(runnable.command.executable());
     if (!device)
-        device = DeviceKitAspect::device(target->kit());
+        device = RunDeviceKitAspect::device(target->kit());
     QTC_ASSERT(device && device->canOpenTerminal(), return);
 
     FilePath workingDir = device->type() == Constants::DESKTOP_DEVICE_TYPE

@@ -435,9 +435,9 @@ void RunControl::setKit(Kit *kit)
 
     if (!d->runnable.command.isEmpty()) {
         setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
-        QTC_ASSERT(device(), setDevice(DeviceKitAspect::device(kit))); // FIXME: QTCREATORBUG-31259
+        QTC_ASSERT(device(), setDevice(RunDeviceKitAspect::device(kit)));
     } else {
-        setDevice(DeviceKitAspect::device(kit));
+        setDevice(RunDeviceKitAspect::device(kit));
     }
 }
 
