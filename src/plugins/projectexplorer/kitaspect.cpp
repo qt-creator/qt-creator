@@ -9,6 +9,7 @@
 
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
+#include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/treemodel.h>
 
@@ -99,107 +100,123 @@ static KitAspectFactories &kitAspectFactoriesStorage()
 
 } // namespace
 
+class KitAspect::Private
+{
+public:
+    Private(Kit *k, const KitAspectFactory *f) : kit(k), factory(f) {}
+
+    Kit * const kit;
+    const KitAspectFactory * const factory;
+    QAction *mutableAction = nullptr;
+    Utils::Id managingPageId;
+    QPushButton *manageButton = nullptr;
+    QComboBox *comboBox = nullptr;
+    std::optional<ListAspectSpec> listAspectSpec;
+    Utils::Guard ignoreChanges;
+};
+
 KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
-    : m_kit(kit), m_factory(factory)
+    : d(new Private(kit, factory))
 {
     const Id id = factory->id();
-    m_mutableAction = new QAction(Tr::tr("Mark as Mutable"));
-    m_mutableAction->setCheckable(true);
-    m_mutableAction->setChecked(m_kit->isMutable(id));
-    m_mutableAction->setEnabled(!m_kit->isSticky(id));
-    connect(m_mutableAction, &QAction::toggled, this, [this, id] {
-        m_kit->setMutable(id, m_mutableAction->isChecked());
+    d->mutableAction = new QAction(Tr::tr("Mark as Mutable"));
+    d->mutableAction->setCheckable(true);
+    d->mutableAction->setChecked(d->kit->isMutable(id));
+    d->mutableAction->setEnabled(!d->kit->isSticky(id));
+    connect(d->mutableAction, &QAction::toggled, this, [this, id] {
+        d->kit->setMutable(id, d->mutableAction->isChecked());
     });
 }
 
 KitAspect::~KitAspect()
 {
-    delete m_mutableAction;
+    delete d->mutableAction;
+    delete d;
 }
 
 void KitAspect::refresh()
 {
-    if (!m_listAspectSpec || m_ignoreChanges.isLocked())
+    if (!d->listAspectSpec || d->ignoreChanges.isLocked())
         return;
-    const GuardLocker locker(m_ignoreChanges);
-    m_listAspectSpec->resetModel();
-    m_comboBox->model()->sort(0);
-    const QVariant itemId = m_listAspectSpec->getter(*kit());
-    m_comboBox->setCurrentIndex(m_comboBox->findData(itemId, IdRole));
+    const GuardLocker locker(d->ignoreChanges);
+    d->listAspectSpec->resetModel();
+    d->comboBox->model()->sort(0);
+    const QVariant itemId = d->listAspectSpec->getter(*kit());
+    d->comboBox->setCurrentIndex(d->comboBox->findData(itemId, IdRole));
 }
 
 void KitAspect::makeStickySubWidgetsReadOnly()
 {
-    if (!m_kit->isSticky(m_factory->id()))
+    if (!d->kit->isSticky(d->factory->id()))
         return;
 
-    if (m_manageButton)
-        m_manageButton->setEnabled(false);
+    if (d->manageButton)
+        d->manageButton->setEnabled(false);
 
     makeReadOnly();
 }
 
 void KitAspect::makeReadOnly()
 {
-    if (m_comboBox)
-        m_comboBox->setEnabled(false);
+    if (d->comboBox)
+        d->comboBox->setEnabled(false);
 }
 
 void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
 {
-    if (m_comboBox) {
-        addMutableAction(m_comboBox);
-        parentItem.addItem(m_comboBox);
+    if (d->comboBox) {
+        addMutableAction(d->comboBox);
+        parentItem.addItem(d->comboBox);
     }
 }
 
 void KitAspect::setListAspectSpec(ListAspectSpec &&listAspectSpec)
 {
-    m_listAspectSpec = std::move(listAspectSpec);
+    d->listAspectSpec = std::move(listAspectSpec);
 
-    m_comboBox = createSubWidget<QComboBox>();
-    m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-    m_comboBox->setEnabled(true);
+    d->comboBox = createSubWidget<QComboBox>();
+    d->comboBox->setSizePolicy(QSizePolicy::Ignored, d->comboBox->sizePolicy().verticalPolicy());
+    d->comboBox->setEnabled(true);
     const auto sortModel = new KitAspectSortModel(this);
-    sortModel->setSourceModel(m_listAspectSpec->model);
-    m_comboBox->setModel(sortModel);
+    sortModel->setSourceModel(d->listAspectSpec->model);
+    d->comboBox->setModel(sortModel);
 
     refresh();
 
     const auto updateTooltip = [this] {
-        m_comboBox->setToolTip(
-            m_comboBox->itemData(m_comboBox->currentIndex(), Qt::ToolTipRole).toString());
+        d->comboBox->setToolTip(
+            d->comboBox->itemData(d->comboBox->currentIndex(), Qt::ToolTipRole).toString());
     };
     updateTooltip();
-    connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this, updateTooltip] {
-        if (m_ignoreChanges.isLocked())
+    connect(d->comboBox, &QComboBox::currentIndexChanged, this, [this, updateTooltip] {
+        if (d->ignoreChanges.isLocked())
             return;
         updateTooltip();
-        m_listAspectSpec->setter(
-            *kit(), m_comboBox->itemData(m_comboBox->currentIndex(), IdRole));
+        d->listAspectSpec->setter(
+            *kit(), d->comboBox->itemData(d->comboBox->currentIndex(), IdRole));
     });
-    connect(m_listAspectSpec->model, &QAbstractItemModel::modelAboutToBeReset,
-            this, [this] { m_ignoreChanges.lock(); });
-    connect(m_listAspectSpec->model, &QAbstractItemModel::modelReset,
-            this, [this] { m_ignoreChanges.unlock(); });
+    connect(d->listAspectSpec->model, &QAbstractItemModel::modelAboutToBeReset,
+            this, [this] { d->ignoreChanges.lock(); });
+    connect(d->listAspectSpec->model, &QAbstractItemModel::modelReset,
+            this, [this] { d->ignoreChanges.unlock(); });
 }
 
 void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
 {
-    auto label = createSubWidget<QLabel>(m_factory->displayName() + ':');
-    label->setToolTip(m_factory->description());
+    auto label = createSubWidget<QLabel>(d->factory->displayName() + ':');
+    label->setToolTip(d->factory->description());
     connect(label, &QLabel::linkActivated, this, [this](const QString &link) {
         emit labelLinkActivated(link);
     });
 
     layout.addItem(label);
     addToInnerLayout(layout);
-    if (m_managingPageId.isValid()) {
-        m_manageButton = createSubWidget<QPushButton>(msgManage());
-        connect(m_manageButton, &QPushButton::clicked, [this] {
-            Core::ICore::showOptionsDialog(m_managingPageId, settingsPageItemToPreselect());
+    if (d->managingPageId.isValid()) {
+        d->manageButton = createSubWidget<QPushButton>(msgManage());
+        connect(d->manageButton, &QPushButton::clicked, [this] {
+            Core::ICore::showOptionsDialog(d->managingPageId, settingsPageItemToPreselect());
         });
-        layout.addItem(m_manageButton);
+        layout.addItem(d->manageButton);
     }
     layout.addItem(Layouting::br);
 }
@@ -209,14 +226,16 @@ void KitAspect::addMutableAction(QWidget *child)
     QTC_ASSERT(child, return);
     if (factory()->id() == DeviceKitAspect::id())
         return;
-    child->addAction(m_mutableAction);
+    child->addAction(d->mutableAction);
     child->setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
-QString KitAspect::msgManage()
-{
-    return Tr::tr("Manage...");
-}
+void KitAspect::setManagingPage(Utils::Id pageId) { d->managingPageId = pageId; }
+
+QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
+Kit *KitAspect::kit() const { return d->kit; }
+const KitAspectFactory *KitAspect::factory() const { return d->factory; }
+QAction *KitAspect::mutableAction() const { return d->mutableAction; }
 
 KitAspectFactory::KitAspectFactory()
 {

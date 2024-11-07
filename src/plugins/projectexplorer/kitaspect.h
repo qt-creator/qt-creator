@@ -7,18 +7,14 @@
 #include "task.h"
 
 #include <utils/aspects.h>
-#include <utils/guard.h>
 
 #include <QPair>
-#include <QPushButton>
 #include <QSet>
 
 #include <functional>
 
 QT_BEGIN_NAMESPACE
-class QAbstractItemModel;
 class QAction;
-class QComboBox;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -117,11 +113,11 @@ public:
     void addToLayoutImpl(Layouting::Layout &layout) override;
     static QString msgManage();
 
-    Kit *kit() const { return m_kit; }
-    const KitAspectFactory *factory() const { return m_factory; }
-    QAction *mutableAction() const { return m_mutableAction; }
+    Kit *kit() const;
+    const KitAspectFactory *factory() const;
+    QAction *mutableAction() const;
     void addMutableAction(QWidget *child);
-    void setManagingPage(Utils::Id pageId) { m_managingPageId = pageId; }
+    void setManagingPage(Utils::Id pageId);
 
     void makeStickySubWidgetsReadOnly();
 
@@ -158,14 +154,8 @@ protected:
     void setListAspectSpec(ListAspectSpec &&listAspectSpec);
 
 private:
-    Kit *m_kit;
-    const KitAspectFactory *m_factory;
-    QAction *m_mutableAction = nullptr;
-    Utils::Id m_managingPageId;
-    QPushButton *m_manageButton = nullptr;
-    QComboBox *m_comboBox = nullptr;
-    std::optional<ListAspectSpec> m_listAspectSpec;
-    Utils::Guard m_ignoreChanges;
+    class Private;
+    Private * const d;
 };
 
 } // namespace ProjectExplorer
