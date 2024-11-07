@@ -19,12 +19,15 @@ namespace Core::Internal {
 class ActionFilterEntryData
 {
 public:
+    ActionFilterEntryData() = default;
+    ActionFilterEntryData(const QPointer<QAction> &action, const Utils::Id &commandId);
+    explicit ActionFilterEntryData(const Utils::Id &optionsPageId);
+
     QPointer<QAction> action;
     Utils::Id commandId;
-    friend bool operator==(const ActionFilterEntryData &a, const ActionFilterEntryData &b)
-    {
-        return a.action == b.action && a.commandId == b.commandId;
-    }
+    Utils::Id optionsPageId;
+
+    friend bool operator==(const ActionFilterEntryData &a, const ActionFilterEntryData &b);
 };
 
 class ActionsFilter : public ILocatorFilter
@@ -42,6 +45,7 @@ private:
                                  QList<const QMenu *> &processedMenus);
     void collectEntriesForCommands();
     void collectEntriesForLastTriggered();
+    void collectEntriesForPreferences();
     void updateEntry(const QPointer<QAction> action, const LocatorFilterEntry &entry);
     void updateEnabledActionCache();
 

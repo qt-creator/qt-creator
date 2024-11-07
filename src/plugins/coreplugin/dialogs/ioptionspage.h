@@ -55,6 +55,7 @@ public:
     Utils::Id category() const;
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
+    std::optional<Utils::AspectContainer *> aspects() const;
 
     using WidgetCreator = std::function<QWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);

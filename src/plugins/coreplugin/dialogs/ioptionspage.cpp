@@ -153,6 +153,11 @@ FilePath IOptionsPage::categoryIconPath() const
     return d->m_categoryIconPath;
 }
 
+std::optional<AspectContainer *> IOptionsPage::aspects() const
+{
+    return d->m_settingsProvider ? std::make_optional(d->m_settingsProvider()) : std::nullopt;
+}
+
 /*!
     Sets the \a widgetCreator callback to create page widgets on demand. The
     widget will be destroyed on finish().
