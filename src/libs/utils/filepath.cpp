@@ -305,6 +305,8 @@ QString FilePath::toString() const
 
     if (isRelativePath())
         return scheme() + "://" + encodedHost() + "/./" + pathView();
+    if (isWindowsDriveLetter(pathView().at(0)))
+        return scheme() + "://" + encodedHost() + "/" + pathView();
     return scheme() + "://" + encodedHost() + pathView();
 }
 
@@ -544,10 +546,8 @@ void FilePath::setParts(const QStringView scheme, const QStringView host, QStrin
 {
     QTC_CHECK(!scheme.contains('/'));
 
-    if (scheme.isEmpty() && host.isEmpty()) {
-        if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
-            path = path.mid(3);
-    }
+    if (path.length() >= 3 && path[0] == '/' && path[1] == '.' && path[2] == '/')
+        path = path.mid(3);
 
     m_hash = 0;
 
