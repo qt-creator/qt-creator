@@ -3942,7 +3942,7 @@ public:
         });
     }
 
-    int embedHeight() { return m_embed->minimumSizeHint().height(); }
+    int embedHeight() { return m_embed->sizeHint().height(); }
 
 private:
     QWidget *m_embed;
