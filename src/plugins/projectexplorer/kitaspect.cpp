@@ -131,6 +131,8 @@ public:
         QComboBox *comboBox;
     };
     QList<ListAspect> listAspects;
+
+    bool readOnly = false;
 };
 
 KitAspect::KitAspect(Kit *kit, const KitAspectFactory *factory)
@@ -162,6 +164,7 @@ void KitAspect::refresh()
         la.comboBox->model()->sort(0);
         const QVariant itemId = la.spec.getter(*kit());
         la.comboBox->setCurrentIndex(la.comboBox->findData(itemId, IdRole));
+        la.comboBox->setEnabled(!d->readOnly && la.comboBox->count() > 1);
     }
 }
 
@@ -173,6 +176,7 @@ void KitAspect::makeStickySubWidgetsReadOnly()
     if (d->manageButton)
         d->manageButton->setEnabled(false);
 
+    d->readOnly = true;
     makeReadOnly();
 }
 
