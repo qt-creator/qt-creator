@@ -276,7 +276,7 @@ Item {
                                     rightPadding: 0
                                     addTopPadding: categoryModel.rowCount() > 1
                                     addBottomPadding: index !== categoryModel.rowCount() - 1
-                                    caption: categoryName + " (" + itemModel.rowCount() + ")"
+                                    caption: displayNMame + " (" + itemModel.rowCount() + ")"
                                     visible: categoryVisible
                                     expanded: categoryExpanded
                                     expandOnClick: false
