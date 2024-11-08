@@ -340,6 +340,10 @@
                     "target": "%{ProjectDirectory}/%{ContentDir}/fonts/fonts.txt"
                 },
                 {
+                    "source": "../common/images.txt",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/images/images.txt"
+                },
+                {
                     "source": "../common/asset_imports.txt",
                     "target": "%{ProjectDirectory}/%{AssetDir}/Quick3DAssets.txt"
                 },
