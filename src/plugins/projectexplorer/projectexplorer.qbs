@@ -158,7 +158,6 @@ QtcPlugin {
             "windebuginterface.cpp", "windebuginterface.h",
             "workspaceproject.cpp", "workspaceproject.h",
             "xcodebuildparser.cpp", "xcodebuildparser.h",
-            "windowsconfigurations.cpp", "windowsconfigurations.h",
             "windowsappsdksettings.cpp", "windowsappsdksettings.h",
         ]
     }

@@ -13,7 +13,7 @@
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "../toolchainkitaspect.h"
-#include "../windowsconfigurations.h"
+#include "../windowsappsdksettings.h"
 
 #include <utils/environment.h>
 #include <utils/id.h>
@@ -540,7 +540,7 @@ void BuildDeviceKitAspectFactory::addToBuildEnvironment(const Kit *k, Environmen
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
     if (dev->osType() == OsType::OsTypeWindows && dev->type() == Constants::DESKTOP_DEVICE_TYPE) {
-        if (const FilePath appSdkLocation = windowsConfigurations().windowsAppSdkLocation();
+        if (const FilePath appSdkLocation = windowsAppSdkSettings().windowsAppSdkLocation();
             !appSdkLocation.isEmpty()) {
             env.set(Constants::WINDOWS_WINAPPSDK_ROOT_ENV_KEY, appSdkLocation.path());
         }

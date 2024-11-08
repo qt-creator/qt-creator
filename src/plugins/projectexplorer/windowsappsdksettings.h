@@ -3,8 +3,23 @@
 
 #pragma once
 
+#include <utils/aspects.h>
+
 namespace ProjectExplorer::Internal {
 
-void setupWindowsAppSdkSettingsPage();
+class WindowsAppSdkSettings : public Utils::AspectContainer
+{
+    WindowsAppSdkSettings();
+    friend WindowsAppSdkSettings &windowsAppSdkSettings();
+
+public:
+    Utils::FilePathAspect downloadLocation{this};
+    Utils::FilePathAspect nugetLocation{this};
+    Utils::FilePathAspect windowsAppSdkLocation{this};
+};
+
+WindowsAppSdkSettings &windowsAppSdkSettings();
+
+void setupWindowsAppSdkSettings();
 
 } // namespace ProjectExplorer::Internal

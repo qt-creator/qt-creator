@@ -183,10 +183,9 @@ add_qtc_plugin(ProjectExplorer
     vcsannotatetaskhandler.cpp vcsannotatetaskhandler.h
     waitforstopdialog.cpp waitforstopdialog.h
     windebuginterface.cpp windebuginterface.h
+    windowsappsdksettings.cpp windowsappsdksettings.h
     workspaceproject.h workspaceproject.cpp
     xcodebuildparser.cpp xcodebuildparser.h
-    windowsconfigurations.cpp windowsconfigurations.h
-    windowsappsdksettings.cpp windowsappsdksettings.h
 )
 
 if (TARGET clangd)
