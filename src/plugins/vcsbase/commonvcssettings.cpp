@@ -122,9 +122,6 @@ public:
         setId(Constants::VCS_COMMON_SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::VCS_SETTINGS_CATEGORY);
-        // The following act as blueprint for other pages in the same category:
-        setDisplayCategory(Tr::tr("Version Control"));
-        setCategoryIconPath(":/vcsbase/images/settingscategory_vcs.png");
         setSettingsProvider([] { return &commonSettings(); });
     }
 };

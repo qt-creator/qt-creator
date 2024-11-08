@@ -9,9 +9,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
@@ -424,8 +421,6 @@ public:
         setId(ANALYZER_VALGRIND_SETTINGS);
         setDisplayName(Tr::tr("Valgrind"));
         setCategory("T.Analyzer");
-        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setSettingsProvider([] { return &globalSettings(); });
     }
 };

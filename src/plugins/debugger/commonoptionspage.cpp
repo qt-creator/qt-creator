@@ -225,8 +225,6 @@ public:
         setId(DEBUGGER_COMMON_SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(DEBUGGER_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Debugger"));
-        setCategoryIconPath(":/debugger/images/settingscategory_debugger.png");
         setSettingsProvider([] { return &commonSettings(); });
     }
 };

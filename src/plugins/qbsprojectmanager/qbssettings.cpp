@@ -224,8 +224,6 @@ QbsSettingsPage::QbsSettingsPage()
     setId("A.QbsProjectManager.QbsSettings");
     setDisplayName(Tr::tr("General"));
     setCategory(Constants::QBS_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr(Constants::QBS_SETTINGS_TR_CATEGORY));
-    setCategoryIconPath(":/qbsprojectmanager/images/settingscategory_qbsprojectmanager.png");
     setWidgetCreator([] { return new QbsSettingsPageWidget; });
 }
 

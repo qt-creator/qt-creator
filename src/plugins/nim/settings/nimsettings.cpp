@@ -54,8 +54,6 @@ public:
         setId(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Tools"));
         setCategory(Nim::Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY);
-        setDisplayCategory(Tr::tr("Nim"));
-        setCategoryIconPath(":/nim/images/settingscategory_nim.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

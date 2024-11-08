@@ -651,6 +651,9 @@ private:
     void initialize() final
     {
         dd = new HelpPluginPrivate;
+
+        IOptionsPage::registerCategory(
+            Constants::HELP_CATEGORY, Tr::tr("Help"), ":/help/images/settingscategory_help.png");
     }
 
     void extensionsInitialized() final

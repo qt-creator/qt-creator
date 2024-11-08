@@ -657,19 +657,18 @@ void setupSettingsModule()
         public:
             OptionsPage(const ScriptPluginSpec *spec, const sol::table &options)
             {
-                setId(
-                    Id::fromString(QString("%1.%2").arg(spec->id).arg(options.get<QString>("id"))));
                 setCategory(Id::fromString(
                     QString("%1.%2").arg(spec->id).arg(options.get<QString>("categoryId"))));
-
-                setDisplayName(options.get<QString>("displayName"));
-                setDisplayCategory(options.get<QString>("displayCategory"));
-
+                const QString catName = options.get<QString>("displayCategory");
                 const FilePath catIcon = options.get<std::optional<FilePath>>("categoryIconPath")
                                              .value_or(FilePath::fromUserInput(
                                                  options.get_or<QString>("categoryIconPath", {})));
+                if (!catName.isEmpty() || !catIcon.isEmpty())
+                    IOptionsPage::registerCategory(category(), catName, catIcon);
 
-                setCategoryIconPath(catIcon);
+                setId(
+                    Id::fromString(QString("%1.%2").arg(spec->id).arg(options.get<QString>("id"))));
+                setDisplayName(options.get<QString>("displayName"));
 
                 AspectContainer *container = options.get<AspectContainer *>("aspectContainer");
                 if (container->isAutoApply())

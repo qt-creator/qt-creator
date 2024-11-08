@@ -28,6 +28,7 @@
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
@@ -519,6 +520,11 @@ public:
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::AUTOTEST_SETTINGS_CATEGORY,
+            Tr::tr("Testing"),
+            ":/autotest/images/settingscategory_autotest.png");
+
         setupTestSettingsPage();
 
         dd = new AutotestPluginPrivate;

@@ -13,6 +13,7 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
@@ -57,6 +58,11 @@ public:
     void initialize() final
     {
         m_mode = new ExtensionManagerMode;
+
+        IOptionsPage::registerCategory(
+            Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY,
+            Tr::tr("Extensions"),
+            ":/extensionmanager/images/settingscategory_extensionmanager.png");
 
 #ifdef WITH_TESTS
         addTestCreator(createExtensionsModelTest);

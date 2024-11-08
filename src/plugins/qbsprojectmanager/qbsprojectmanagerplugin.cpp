@@ -143,6 +143,11 @@ void QbsProjectManagerPlugin::initialize()
 {
     d = new QbsProjectManagerPluginPrivate;
 
+    Core::IOptionsPage::registerCategory(
+        Constants::QBS_SETTINGS_CATEGORY,
+        Tr::tr(Constants::QBS_SETTINGS_TR_CATEGORY),
+        ":/qbsprojectmanager/images/settingscategory_qbsprojectmanager.png");
+
     const Core::Context projectContext(::QbsProjectManager::Constants::PROJECT_ID);
 
     Utils::FileIconProvider::registerIconOverlayForSuffix(ProjectExplorer::Constants::FILEOVERLAY_QT, "qbs");

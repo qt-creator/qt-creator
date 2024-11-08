@@ -745,8 +745,6 @@ QnxSettingsPage::QnxSettingsPage(QObject *guard)
     setId("DD.Qnx Configuration");
     setDisplayName(Tr::tr("QNX"));
     setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("SDKs"));
-    setCategoryIconPath(":/projectexplorer/images/sdk.png");
     setWidgetCreator([] { return new QnxSettingsWidget; });
 
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,

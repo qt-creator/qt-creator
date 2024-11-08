@@ -133,8 +133,6 @@ public:
         setId("A.Squish.General");
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::SQUISH_SETTINGS_CATEGORY);
-        setDisplayCategory("Squish");
-        setCategoryIconPath(":/squish/images/settingscategory_squish.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

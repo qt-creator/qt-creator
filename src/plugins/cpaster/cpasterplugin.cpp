@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "codepasterservice.h"
+#include "cpasterconstants.h"
 #include "cpastertr.h"
 #include "dpastedotcomprotocol.h"
 #include "fileshareprotocol.h"
@@ -16,6 +17,7 @@
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
@@ -394,6 +396,11 @@ public:
 private:
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            CodePaster::Constants::CPASTER_SETTINGS_CATEGORY,
+            Tr::tr("Code Pasting"),
+            ":/cpaster/images/settingscategory_cpaster.png");
+
         d = new CodePasterPluginPrivate;
     }
 

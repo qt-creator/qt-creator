@@ -4,11 +4,13 @@
 #include "terminalpane.h"
 #include "terminalprocessimpl.h"
 #include "terminalsettings.h"
+#include "terminaltr.h"
 #include "terminalwidget.h"
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/imode.h>
 #include <coreplugin/modemanager.h>
@@ -35,6 +37,9 @@ public:
     void extensionsInitialized() final
     {
         m_terminalPane = new TerminalPane(this);
+
+        Core::IOptionsPage::registerCategory(
+            "ZY.Terminal", Tr::tr("Terminal"), ":/terminal/images/settingscategory_terminal.png");
 
         TerminalWidget::initActions(this);
 

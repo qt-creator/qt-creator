@@ -125,8 +125,6 @@ NimCodeStyleSettingsPage::NimCodeStyleSettingsPage()
     setId(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_ID);
     setDisplayName(Tr::tr("Code Style"));
     setCategory(Nim::Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY);
-    setDisplayCategory(Tr::tr("Nim"));
-    setCategoryIconPath(":/nim/images/settingscategory_nim.png");
     setWidgetCreator([] { return new NimCodeStyleSettingsWidget; });
 
     createGlobalCodeStyle();

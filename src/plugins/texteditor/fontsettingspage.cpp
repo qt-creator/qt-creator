@@ -775,8 +775,6 @@ FontSettingsPage::FontSettingsPage(FontSettings *fontSettings, const FormatDescr
     setId(Constants::TEXT_EDITOR_FONT_SETTINGS);
     setDisplayName(Tr::tr("Font && Colors"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([this, fontSettings, fd] { return new FontSettingsPageWidget(this, fd, fontSettings); });
 }
 

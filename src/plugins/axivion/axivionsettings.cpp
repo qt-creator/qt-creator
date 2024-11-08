@@ -784,8 +784,6 @@ public:
         setId("Axivion.Settings.General");
         setDisplayName(Tr::tr("General"));
         setCategory("XY.Axivion");
-        setDisplayCategory(Tr::tr("Axivion"));
-        setCategoryIconPath(":/axivion/images/axivion.png");
         setWidgetCreator([] { return new AxivionSettingsWidget; });
     }
 };

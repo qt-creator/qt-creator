@@ -75,6 +75,11 @@ class PythonPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        Core::IOptionsPage::registerCategory(
+            Constants::C_PYTHON_SETTINGS_CATEGORY,
+            Tr::tr("Python"),
+            ":/python/images/settingscategory_python.png");
+
         setupPythonEditorFactory(this);
 
         setupPySideBuildStep();

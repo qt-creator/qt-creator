@@ -640,9 +640,7 @@ public:
         setId(Constants::WINDOWS_SETTINGS_ID);
         setDisplayName(Tr::tr("Windows App SDK"));
         setCategory(Constants::SDK_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("SDKs"));
         setWidgetCreator([] { return new WindowsSettingsWidget; });
-        setCategoryIconPath(":/projectexplorer/images/sdk.png");
     }
 };
 

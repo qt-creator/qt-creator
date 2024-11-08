@@ -119,6 +119,8 @@
 #include <coreplugin/session.h>
 #include <coreplugin/vcsmanager.h>
 
+#include <cppeditor/cppeditorconstants.h>
+
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/pluginspec.h>
 
@@ -806,6 +808,27 @@ static void restoreRecentProjects(QtcSettings *s)
 bool ProjectExplorerPlugin::initialize(const QStringList &arguments, QString *error)
 {
     Q_UNUSED(error)
+
+    IOptionsPage::registerCategory(
+                Constants::KITS_SETTINGS_CATEGORY,
+                Tr::tr("Kits"),
+                ":/projectexplorer/images/settingscategory_kits.png");
+    IOptionsPage::registerCategory(
+                Constants::DEVICE_SETTINGS_CATEGORY,
+                Tr::tr("Devices"),
+                ":/projectexplorer/images/settingscategory_devices.png");
+    IOptionsPage::registerCategory(
+                Constants::BUILD_AND_RUN_SETTINGS_CATEGORY,
+                Tr::tr("Build & Run"),
+                ":/projectexplorer/images/settingscategory_buildrun.png");
+    IOptionsPage::registerCategory(
+                Constants::SDK_SETTINGS_CATEGORY, Tr::tr("SDKs"), ":/projectexplorer/images/sdk.png");
+
+    // QtSupport piggybacks on C++ settings, but has no dependency on CppEditor.
+    IOptionsPage::registerCategory(
+        CppEditor::Constants::CPP_SETTINGS_CATEGORY,
+        Tr::tr("C++"),
+        ":/projectexplorer/images/settingscategory_cpp.png");
 
 #ifdef WITH_TESTS
     addTest<ProjectExplorerTest>();

@@ -19,10 +19,13 @@
 #include <QPushButton>
 #include <QRegularExpression>
 
+#include <utility>
+
 using namespace Utils;
 
-namespace Core {
+static QHash<Id, std::pair<QString, FilePath>> g_categories;
 
+namespace Core {
 namespace Internal {
 
 class IOptionsPageWidgetPrivate
@@ -39,8 +42,6 @@ public:
     Id m_id;
     Id m_category;
     QString m_displayName;
-    QString m_displayCategory;
-    FilePath m_categoryIconPath;
     IOptionsPage::WidgetCreator m_widgetCreator;
     QPointer<QWidget> m_widget; // Used in conjunction with m_widgetCreator
 
@@ -150,7 +151,7 @@ void IOptionsPageWidget::finish()
 */
 FilePath IOptionsPage::categoryIconPath() const
 {
-    return d->m_categoryIconPath;
+    return g_categories.value(category()).second;
 }
 
 std::optional<AspectContainer *> IOptionsPage::aspects() const
@@ -208,11 +209,6 @@ void IOptionsPage::setDisplayName(const QString &displayName)
 void IOptionsPage::setCategory(Id category)
 {
     d->m_category = category;
-}
-
-void IOptionsPage::setDisplayCategory(const QString &displayCategory)
-{
-    d->m_displayCategory = displayCategory;
 }
 
 /*!
@@ -312,15 +308,6 @@ void IOptionsPage::finish()
     delete d->m_widget;
 }
 
-/*!
-    Sets \a categoryIconPath as the path to the category icon of the options
-    page.
-*/
-void IOptionsPage::setCategoryIconPath(const FilePath &categoryIconPath)
-{
-    d->m_categoryIconPath = categoryIconPath;
-}
-
 void IOptionsPage::setSettingsProvider(const std::function<AspectContainer *()> &provider)
 {
     d->m_settingsProvider = provider;
@@ -349,6 +336,15 @@ IOptionsPage::IOptionsPage(bool registerGlobally)
 IOptionsPage::~IOptionsPage()
 {
     optionsPages().removeOne(this);
+}
+
+/*!
+    Registers a category with user-visible name and icon.
+ */
+void IOptionsPage::registerCategory(
+    Utils::Id id, const QString &displayName, const Utils::FilePath &iconPath)
+{
+    g_categories.insert(id, std::make_pair(displayName, iconPath));
 }
 
 /*!
@@ -390,7 +386,7 @@ Id IOptionsPage::category() const
 */
 QString IOptionsPage::displayCategory() const
 {
-    return d->m_displayCategory;
+    return g_categories.value(category()).first;
 }
 
 /*!

@@ -84,8 +84,6 @@ GlobalSettingsPage::GlobalSettingsPage()
     setId(Constants::COCO_SETTINGS_PAGE_ID);
     setDisplayName(QCoreApplication::translate("Coco", "Coco"));
     setCategory("I.Coco"); // Category I contains also the C++ settings.
-    setDisplayCategory(QCoreApplication::translate("Coco", "Coco"));
-    setCategoryIconPath(":/cocoplugin/images/SquishCoco_48x48.png");
 }
 
 GlobalSettingsPage &GlobalSettingsPage::instance()

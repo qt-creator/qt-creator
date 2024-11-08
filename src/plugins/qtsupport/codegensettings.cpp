@@ -7,10 +7,7 @@
 #include "qtsupporttr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
-
 #include <cppeditor/cppeditorconstants.h>
-#include <cppeditor/cppeditortr.h>
-
 #include <utils/layoutbuilder.h>
 
 using namespace Utils;
@@ -77,8 +74,6 @@ public:
         setId(Constants::CODEGEN_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("Qt Class Generation"));
         setCategory(CppEditor::Constants::CPP_SETTINGS_CATEGORY);
-        setDisplayCategory(::CppEditor::Tr::tr(CppEditor::Constants::CPP_SETTINGS_NAME));
-        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
         setSettingsProvider([] { return &codeGenSettings(); });
     }
 };

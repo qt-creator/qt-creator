@@ -12,6 +12,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <coreplugin/dialogs/ioptionspage.h>
+
 #include <projectexplorer/jsonwizard/jsonwizardfactory.h>
 
 #include <texteditor/snippets/snippetprovider.h>
@@ -26,6 +28,9 @@ class HaskellPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
+        Core::IOptionsPage::registerCategory(
+            "J.Z.Haskell", Tr::tr("Haskell"), ":/haskell/images/settingscategory_haskell.png");
+
         setupHaskellStackBuildStep();
         setupHaskellBuildConfiguration();
 

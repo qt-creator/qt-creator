@@ -703,8 +703,6 @@ public:
         setId("Terminal.General");
         setDisplayName("Terminal");
         setCategory("ZY.Terminal");
-        setDisplayCategory("Terminal");
-        setCategoryIconPath(":/terminal/images/settingscategory_terminal.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

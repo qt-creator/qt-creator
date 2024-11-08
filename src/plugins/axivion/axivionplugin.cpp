@@ -10,6 +10,7 @@
 #include "dashboard/error.h"
 
 #include <coreplugin/credentialquery.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
@@ -1054,6 +1055,9 @@ class AxivionPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            "XY.Axivion", Tr::tr("Axivion"), ":/axivion/images/axivion.png");
+
         setupAxivionPerspective();
 
         dd = new AxivionPluginPrivate;

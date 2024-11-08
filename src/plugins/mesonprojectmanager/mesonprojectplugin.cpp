@@ -6,10 +6,13 @@
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonproject.h"
+#include "mesonprojectmanagertr.h"
 #include "mesonrunconfiguration.h"
 #include "ninjabuildstep.h"
 #include "toolssettingsaccessor.h"
 #include "toolssettingspage.h"
+
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -27,6 +30,9 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        Core::IOptionsPage::registerCategory(
+            Constants::SettingsPage::CATEGORY, Tr::tr("Meson"), Constants::Icons::MESON_BW);
+
         setupToolsSettingsPage();
         setupToolsSettingsAccessor();
 

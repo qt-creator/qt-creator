@@ -413,8 +413,6 @@ DeviceSettingsPage::DeviceSettingsPage()
     setId(Constants::DEVICE_SETTINGS_PAGE_ID);
     setDisplayName(Tr::tr("Devices"));
     setCategory(Constants::DEVICE_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Devices"));
-    setCategoryIconPath(":/projectexplorer/images/settingscategory_devices.png");
     setWidgetCreator([] { return new DeviceSettingsWidget; });
 }
 

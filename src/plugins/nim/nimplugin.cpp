@@ -77,6 +77,17 @@ class NimPlugin final : public ExtensionSystem::IPlugin
     {
         d = new NimPluginPrivate;
 
+        Core::IOptionsPage::registerCategory(
+            Constants::C_NIMTOOLSSETTINGSPAGE_CATEGORY,
+            Tr::tr("Nim"),
+            ":/nim/images/settingscategory_nim.png");
+
+        // ???
+        Core::IOptionsPage::registerCategory(
+            Constants::C_NIMCODESTYLESETTINGSPAGE_CATEGORY,
+            Tr::tr("Nim"),
+            ":/nim/images/settingscategory_nim.png");
+
         setupNimProject();
         setupNimbleProject();
 

@@ -169,8 +169,6 @@ QmlJSCodeStyleSettingsPage::QmlJSCodeStyleSettingsPage()
     setId(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
     setDisplayName(Tr::tr(Constants::QML_JS_CODE_STYLE_SETTINGS_NAME));
     setCategory(QmlJSEditor::Constants::SETTINGS_CATEGORY_QML);
-    setDisplayCategory(Tr::tr("Qt Quick"));
-    setCategoryIconPath(":/qmljstools/images/settingscategory_qml.png");
     setWidgetCreator([] { return new QmlJSCodeStyleSettingsPageWidget; });
 }
 

@@ -1073,6 +1073,9 @@ FakeVimPlugin::FakeVimPlugin()
 
 void FakeVimPlugin::initialize()
 {
+    IOptionsPage::registerCategory(
+        "D.FakeVim", Tr::tr("FakeVim"), ":/fakevim/images/settingscategory_fakevim.png");
+
 /*
     // Set completion settings and keep them up to date.
     TextEditorSettings *textEditorSettings = TextEditorSettings::instance();

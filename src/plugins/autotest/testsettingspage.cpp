@@ -263,8 +263,6 @@ public:
         setId(Constants::AUTOTEST_SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::AUTOTEST_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Testing"));
-        setCategoryIconPath(":/autotest/images/settingscategory_autotest.png");
         setWidgetCreator([] { return new TestSettingsWidget; });
     }
 };

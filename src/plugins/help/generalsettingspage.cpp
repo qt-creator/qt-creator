@@ -501,8 +501,6 @@ GeneralSettingsPage::GeneralSettingsPage()
     setId("A.General settings");
     setDisplayName(Tr::tr("General"));
     setCategory(Help::Constants::HELP_CATEGORY);
-    setDisplayCategory(Tr::tr("Help"));
-    setCategoryIconPath(":/help/images/settingscategory_help.png");
     setWidgetCreator([] { return new GeneralSettingsPageWidget; });
 }
 

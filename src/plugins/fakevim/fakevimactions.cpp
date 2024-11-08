@@ -305,8 +305,6 @@ public:
         setId(SETTINGS_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("FakeVim"));
-        setCategoryIconPath(":/fakevim/images/settingscategory_fakevim.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

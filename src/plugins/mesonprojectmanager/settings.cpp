@@ -50,9 +50,7 @@ public:
     {
         setId("A.MesonProjectManager.SettingsPage.General");
         setDisplayName(Tr::tr("General"));
-        setDisplayCategory("Meson");
         setCategory(Constants::SettingsPage::CATEGORY);
-        setCategoryIconPath(Constants::Icons::MESON_BW);
         setSettingsProvider([] { return &settings(); });
     }
 };

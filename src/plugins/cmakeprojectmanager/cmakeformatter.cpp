@@ -264,7 +264,6 @@ public:
     {
         setId(Constants::Settings::FORMATTER_ID);
         setDisplayName(Tr::tr("Formatter"));
-        setDisplayCategory("CMake");
         setCategory(Constants::Settings::CATEGORY);
         setSettingsProvider([] { return &formatterSettings(); });
     }

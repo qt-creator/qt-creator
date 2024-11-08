@@ -547,8 +547,6 @@ public:
         setId(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("General"));
         setCategory(ProjectExplorer::Constants::BUILD_AND_RUN_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Build & Run"));
-        setCategoryIconPath(":/projectexplorer/images/settingscategory_buildrun.png");
         setWidgetCreator([] { return new ProjectExplorerSettingsWidget; });
     }
 };

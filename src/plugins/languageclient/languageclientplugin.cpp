@@ -44,6 +44,11 @@ void LanguageClientPlugin::initialize()
 {
     using namespace Core;
 
+    IOptionsPage::registerCategory(
+        Constants::LANGUAGECLIENT_SETTINGS_CATEGORY,
+        Constants::LANGUAGECLIENT_SETTINGS_TR,
+        ":/languageclient/images/settingscategory_languageclient.png");
+
     setupCallHierarchyFactory();
     setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();

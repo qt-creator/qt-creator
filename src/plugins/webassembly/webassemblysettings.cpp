@@ -208,8 +208,6 @@ public:
         setId(Id(Constants::SETTINGS_ID));
         setDisplayName(Tr::tr("WebAssembly"));
         setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("SDKs"));
-        setCategoryIconPath(":/projectexplorer/images/sdk.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

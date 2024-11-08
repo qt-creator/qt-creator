@@ -58,6 +58,11 @@ class CopilotPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::COPILOT_GENERAL_OPTIONS_CATEGORY,
+            Constants::COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY,
+            ":/copilot/images/settingscategory_copilot.png");
+
         ActionBuilder requestAction(this,  Constants::COPILOT_REQUEST_SUGGESTION);
         requestAction.setText(Tr::tr("Request Copilot Suggestion"));
         requestAction.setToolTip(Tr::tr(

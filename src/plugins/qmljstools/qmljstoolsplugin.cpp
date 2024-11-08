@@ -20,6 +20,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <qmljseditor/qmljseditorconstants.h>
+
 #include <QMenu>
 
 using namespace Core;
@@ -96,6 +98,11 @@ public:
 private:
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            QmlJSEditor::Constants::SETTINGS_CATEGORY_QML,
+            Tr::tr("Qt Quick"),
+            ":/qmljstools/images/settingscategory_qml.png");
+
 #ifdef WITH_TESTS
         addTestCreator(createQmlJSToolsTest);
 #endif

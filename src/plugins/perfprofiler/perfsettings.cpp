@@ -11,9 +11,6 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
-#include <debugger/analyzer/analyzericons.h>
-#include <debugger/debuggertr.h>
-
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspects.h>
@@ -495,8 +492,6 @@ public:
         setId(Constants::PerfSettingsId);
         setDisplayName(Tr::tr("CPU Usage"));
         setCategory("T.Analyzer");
-        setDisplayCategory(::Debugger::Tr::tr("Analyzer"));
-        setCategoryIconPath(Analyzer::Icons::SETTINGSCATEGORY_ANALYZER);
         setSettingsProvider([] { return &globalSettings(); });
     }
 };

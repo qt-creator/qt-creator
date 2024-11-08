@@ -88,8 +88,6 @@ public:
         setId(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Browser"));
         setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
-        setDisplayCategory(Tr::tr("Extensions"));
-        setCategoryIconPath(":/extensionmanager/images/settingscategory_extensionmanager.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

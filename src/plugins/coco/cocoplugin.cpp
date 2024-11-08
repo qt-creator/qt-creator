@@ -135,6 +135,11 @@ bool CocoPlugin::initialize(const QStringList &arguments, QString *errorString)
     Q_UNUSED(arguments)
     Q_UNUSED(errorString)
 
+    IOptionsPage::registerCategory(
+        "I.Coco",
+        QCoreApplication::translate("Coco", "Coco"),
+        ":/cocoplugin/images/SquishCoco_48x48.png");
+
     GlobalSettings::read();
     GlobalSettingsPage::instance().widget();
     addEntryToProjectSettings();

@@ -286,8 +286,6 @@ public:
         setId(Constants::COPILOT_GENERAL_OPTIONS_ID);
         setDisplayName("Copilot");
         setCategory(Constants::COPILOT_GENERAL_OPTIONS_CATEGORY);
-        setDisplayCategory(Constants::COPILOT_GENERAL_OPTIONS_DISPLAY_CATEGORY);
-        setCategoryIconPath(":/copilot/images/settingscategory_copilot.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

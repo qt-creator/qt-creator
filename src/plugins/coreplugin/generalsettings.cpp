@@ -430,8 +430,6 @@ public:
         setId(Constants::SETTINGS_ID_INTERFACE);
         setDisplayName(Tr::tr("Interface"));
         setCategory(Constants::SETTINGS_CATEGORY_CORE);
-        setDisplayCategory(Tr::tr("Environment"));
-        setCategoryIconPath(":/core/images/settingscategory_core.png");
         setWidgetCreator([] { return new GeneralSettingsWidget; });
     }
 };

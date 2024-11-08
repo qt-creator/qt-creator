@@ -63,8 +63,6 @@ void setupFetchModule()
                 setId("BB.Lua.Fetch");
                 setDisplayName(Tr::tr("Network Access"));
                 setCategory("ZY.Lua");
-                setDisplayCategory("Lua");
-                setCategoryIconPath(":/lua/images/settingscategory_lua.png");
                 setSettingsProvider(
                     [module] { return static_cast<AspectContainer *>(module); });
             }

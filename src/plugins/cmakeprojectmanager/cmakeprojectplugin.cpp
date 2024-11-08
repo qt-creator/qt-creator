@@ -22,6 +22,7 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 
 #include <extensionsystem/iplugin.h>
 
@@ -54,6 +55,9 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            Constants::Settings::CATEGORY, Tr::tr("CMake"), Constants::Icons::SETTINGS_CATEGORY);
+
         setupCMakeToolManager(this);
 
         setupCMakeSettingsPage();

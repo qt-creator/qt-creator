@@ -316,8 +316,6 @@ public:
         setId(Constants::C_PYTHONOPTIONS_PAGE_ID);
         setDisplayName(Tr::tr("Interpreters"));
         setCategory(Constants::C_PYTHON_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Python"));
-        setCategoryIconPath(":/python/images/settingscategory_python.png");
         setWidgetCreator([] { return new InterpreterOptionsWidget(); });
     }
 

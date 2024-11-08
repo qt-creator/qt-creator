@@ -6,6 +6,7 @@
 #include "luatr.h"
 
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/ioutputpane.h>
@@ -290,6 +291,9 @@ public:
 
     void initialize() final
     {
+        IOptionsPage::registerCategory(
+            "ZY.Lua", Tr::tr("Lua"), ":/lua/images/settingscategory_lua.png");
+
         setupLuaEngine(this);
 
         registerProvider("async", ":/lua/scripts/async.lua");

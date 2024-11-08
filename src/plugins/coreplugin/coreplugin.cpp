@@ -273,6 +273,11 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
     ModeManager::activateMode(m_editMode->id());
     m_folderNavigationWidgetFactory = new FolderNavigationWidgetFactory;
 
+    IOptionsPage::registerCategory(
+        Constants::SETTINGS_CATEGORY_CORE,
+        Tr::tr("Environment"),
+        ":/core/images/settingscategory_core.png");
+
     IWizardFactory::initialize();
 
     // Make sure we respect the process's umask when creating new files

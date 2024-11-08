@@ -99,6 +99,10 @@ void TextEditorPlugin::initialize()
     addTestCreator(createSnippetParserTest);
 #endif
 
+    IOptionsPage::registerCategory(
+        Constants::TEXT_EDITOR_SETTINGS_CATEGORY,
+        Tr::tr("Text Editor"),
+        Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setupBehaviorSettings();
     setupExtraEncodingSettings();
     setupStorageSettings();

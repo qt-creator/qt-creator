@@ -538,9 +538,7 @@ SnippetsSettingsPage::SnippetsSettingsPage()
 {
     setId(Constants::TEXT_EDITOR_SNIPPETS_SETTINGS);
     setDisplayName(Tr::tr("Snippets"));
-    setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
+    setCategory(Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
     setWidgetCreator([] { return new SnippetsSettingsWidget; });
 }
 

@@ -728,8 +728,6 @@ public:
         setId(Constants::KITS_SETTINGS_PAGE_ID);
         setDisplayName(Tr::tr("Kits"));
         setCategory(Constants::KITS_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Kits"));
-        setCategoryIconPath(":/projectexplorer/images/settingscategory_kits.png");
         setWidgetCreator([] { return new Internal::KitOptionsPageWidget; });
     }
 };

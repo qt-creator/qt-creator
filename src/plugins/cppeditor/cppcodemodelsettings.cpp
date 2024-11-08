@@ -398,8 +398,6 @@ public:
         setId(Constants::CPP_CODE_MODEL_SETTINGS_ID);
         setDisplayName(Tr::tr("Code Model"));
         setCategory(Constants::CPP_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("C++"));
-        setCategoryIconPath(":/projectexplorer/images/settingscategory_cpp.png");
         setWidgetCreator(
             [] { return new CppCodeModelSettingsWidget(CppCodeModelSettings::global()); });
     }

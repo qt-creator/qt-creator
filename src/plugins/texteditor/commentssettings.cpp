@@ -169,8 +169,6 @@ CommentsSettingsPage::CommentsSettingsPage()
     setId(Constants::TEXT_EDITOR_COMMENTS_SETTINGS);
     setDisplayName(Tr::tr("Documentation Comments"));
     setCategory(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY);
-    setDisplayCategory(Tr::tr("Text Editor"));
-    setCategoryIconPath(TextEditor::Constants::TEXT_EDITOR_SETTINGS_CATEGORY_ICON_PATH);
     setWidgetCreator([] { return new CommentsSettingsWidget(CommentsSettings::data()); });
 }
 

@@ -75,8 +75,6 @@ public:
         setId("A.CodePaster.General");
         setDisplayName(Tr::tr("General"));
         setCategory(Constants::CPASTER_SETTINGS_CATEGORY);
-        setDisplayCategory(Tr::tr("Code Pasting"));
-        setCategoryIconPath(":/cpaster/images/settingscategory_cpaster.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

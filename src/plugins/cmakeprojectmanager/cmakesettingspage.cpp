@@ -663,7 +663,6 @@ public:
     {
         setId(Constants::Settings::TOOLS_ID);
         setDisplayName(Tr::tr("Tools"));
-        setDisplayCategory("CMake");
         setCategory(Constants::Settings::CATEGORY);
         setWidgetCreator([] { return new CMakeToolConfigWidget; });
     }
