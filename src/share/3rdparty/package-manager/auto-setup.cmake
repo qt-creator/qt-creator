@@ -260,7 +260,9 @@ macro(qtc_auto_setup_vcpkg)
               message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
           endif()
           # Needed by vcpkg/scripts/toolchains/android.cmake
-          set(ENV{ANDROID_NDK_HOME} "${ANDROID_NDK}")
+          file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" "
+            set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
+          ")
         elseif (WIN32)
           set(vcpkg_triplet x64-mingw-static)
           if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
