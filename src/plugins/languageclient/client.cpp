@@ -1829,6 +1829,7 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     const ShowMessageRequestParams &message)
 {
     QMessageBox box;
+    box.setWindowTitle(q->name());
     box.setText(message.toString());
     switch (message.type()) {
     case Error:
