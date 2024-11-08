@@ -3013,7 +3013,7 @@ public:
     ExpressionAST *type_id = nullptr;
 
 public:
-    TypenameArgument *symbol = nullptr;
+    TemplateTypeArgument *symbol = nullptr;
 
 public:
     TemplateTypeParameterAST *asTemplateTypeParameter() override { return this; }

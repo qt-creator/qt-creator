@@ -162,6 +162,11 @@ bool SearchSymbols::visit(TypenameArgument *)
     return false;
 }
 
+bool SearchSymbols::visit(TemplateTypeArgument *)
+{
+    return false;
+}
+
 bool SearchSymbols::visit(BaseClass *)
 {
     return false;

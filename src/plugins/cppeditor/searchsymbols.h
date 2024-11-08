@@ -44,6 +44,7 @@ protected:
     bool visit(CPlusPlus::Declaration *) override;
     bool visit(CPlusPlus::Argument *) override;
     bool visit(CPlusPlus::TypenameArgument *) override;
+    bool visit(CPlusPlus::TemplateTypeArgument *) override;
     bool visit(CPlusPlus::BaseClass *) override;
     bool visit(CPlusPlus::Enum *) override;
     bool visit(CPlusPlus::Function *) override;

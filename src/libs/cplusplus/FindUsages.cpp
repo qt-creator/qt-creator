@@ -552,7 +552,7 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
         const LookupItem &r = candidates.at(i);
 
         if (Symbol *s = r.declaration()) {
-            if (_declSymbol->asTypenameArgument()) {
+            if (_declSymbol->asTypenameArgument() || _declSymbol->asTemplateTypeArgument()) {
                 if (s != _declSymbol)
                     return false;
             }
@@ -585,7 +585,8 @@ bool FindUsages::checkCandidates(const QList<LookupItem> &candidates) const
 
                     if (scopeOfTemplEnclosingCandidateSymbol !=  scopeOfTemplEnclosingDeclSymbol)
                         return false;
-                } else if (enclosingScope->asTemplate() && ! _declSymbol->asTypenameArgument()) {
+                } else if (enclosingScope->asTemplate() &&
+                           ! (_declSymbol->asTypenameArgument() || _declSymbol->asTemplateTypeArgument())) {
                     if (declEnclosingScope->asTemplate()) {
                         if (enclosingScope->enclosingScope() != declEnclosingScope->enclosingScope())
                             return false;

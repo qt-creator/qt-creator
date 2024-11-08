@@ -107,6 +107,7 @@ class UsingDeclaration;
 class Declaration;
 class Argument;
 class TypenameArgument;
+class TemplateTypeArgument;
 class Function;
 class Namespace;
 class NamespaceAlias;

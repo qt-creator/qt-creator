@@ -110,6 +110,9 @@ public:
     /// Creates a new Argument symbol.
     TypenameArgument *newTypenameArgument(int sourceLocation, const Name *name = nullptr);
 
+    /// Creates a new Argument symbol.
+    TemplateTypeArgument *newTemplateTypeArgument(int sourceLocation, const Name *name = nullptr);
+
     /// Creates a new Function symbol.
     Function *newFunction(int sourceLocation, const Name *name = nullptr);
 

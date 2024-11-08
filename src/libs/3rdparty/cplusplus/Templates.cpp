@@ -254,6 +254,15 @@ bool CloneSymbol::visit(TypenameArgument *symbol)
     return false;
 }
 
+bool CloneSymbol::visit(TemplateTypeArgument *symbol)
+{
+    TemplateTypeArgument *arg = new TemplateTypeArgument(_clone, _subst, symbol);
+    _symbol = arg;
+    _control->addSymbol(arg);
+    return false;
+}
+
+
 bool CloneSymbol::visit(BaseClass *symbol)
 {
     BaseClass *bc = new BaseClass(_clone, _subst, symbol);
@@ -532,8 +541,8 @@ Symbol *Clone::instantiate(Template *templ, const FullySpecifiedType *const args
     if (argc < templ->templateParameterCount()) {
         for (int i = argc; i < templ->templateParameterCount(); ++i) {
             Symbol *formal = templ->templateParameterAt(i);
-            if (TypenameArgument *tn = formal->asTypenameArgument())
-                subst.bind(name(formal->name(), &subst), type(tn->type(), &subst));
+            if (formal->asTypenameArgument() || formal->asTemplateTypeArgument())
+                subst.bind(name(formal->name(), &subst), type(formal->type(), &subst));
         }
     }
     if (Symbol *inst = symbol(templ->declaration(), &subst)) {

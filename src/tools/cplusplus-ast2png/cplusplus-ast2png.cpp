@@ -306,6 +306,7 @@ protected:
 
     virtual bool visit(Argument *symbol) { simpleNode(symbol); return true; }
     virtual bool visit(TypenameArgument *symbol) { simpleNode(symbol); return true; }
+    virtual bool visit(TemplateTypeArgument *symbol) { simpleNode(symbol); return true; }
 
     virtual bool visit(BaseClass *symbol) {
         out << _id[symbol].constData() << " [label=\"BaseClass\\n";

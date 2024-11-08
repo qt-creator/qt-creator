@@ -178,6 +178,12 @@ protected:
         return true;
     }
 
+    bool visit(TemplateTypeArgument *symbol) override
+    {
+        addType(symbol->name());
+        return true;
+    }
+
     bool visit(Enum *symbol) override
     {
         addType(symbol->name());
@@ -1250,7 +1256,8 @@ bool CheckSymbols::maybeAddTypeOrStatic(const QList<LookupItem> &candidates, Nam
         if (c->isTypedef() || c->asNamespace() ||
                 c->isStatic() || //consider also static variable
                 c->asClass() || c->asEnum() || isTemplateClass(c) ||
-                c->asForwardClassDeclaration() || c->asTypenameArgument() || c->enclosingEnum()) {
+                c->asForwardClassDeclaration() || c->asTypenameArgument() ||
+                c->asTemplateTypeArgument() || c->enclosingEnum()) {
             int line, column;
             getTokenStartPosition(startToken, &line, &column);
             const unsigned length = tok.utf16chars();
