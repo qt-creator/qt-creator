@@ -15,7 +15,7 @@ if (NOT QT_CREATOR_API_DEFINED)
   qtc_handle_compiler_cache_support()
 endif()
 
-if (NOT WIN32 OR NOT MSVC)
+if (NOT WIN32 OR NOT MSVC OR BUILD_DESIGNSTUDIO)
   return()
 endif()
 
