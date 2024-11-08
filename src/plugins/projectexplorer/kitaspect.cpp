@@ -18,6 +18,8 @@
 #include <QLabel>
 #include <QPushButton>
 
+#include <utility>
+
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -34,6 +36,11 @@ private:
         const auto getValue = [&](const QModelIndex &index, KitAspect::ItemRole role) {
             return sourceModel()->data(index, role);
         };
+        const auto getValues = [&]<typename T>(KitAspect::ItemRole role, const T & /* dummy */) {
+            return std::make_pair(
+                sourceModel()->data(source_left, role).value<T>(),
+                sourceModel()->data(source_right, role).value<T>());
+        };
 
         // Criterion 1: "None" comes last.
         if (getValue(source_left, KitAspect::IsNoneRole).toBool())
@@ -43,18 +50,12 @@ private:
 
         // Criterion 2: "Type", which is is the name of some category by which the entries
         //              are supposed to get grouped together.
-        if (const QString type1 = getValue(source_left, KitAspect::TypeRole).toString(),
-            type2 = getValue(source_right, KitAspect::TypeRole).toString();
-            type1 != type2) {
+        if (const auto [type1, type2] = getValues(KitAspect::TypeRole, QString()); type1 != type2)
             return type1 < type2;
-        }
 
         // Criterion 3: "Quality", i.e. how likely is the respective entry to be usable.
-        if (const int qual1 = getValue(source_left, KitAspect::QualityRole).toInt(),
-            qual2 = getValue(source_right, KitAspect::QualityRole).toInt();
-            qual1 != qual2) {
+        if (const auto [qual1, qual2] = getValues(KitAspect::QualityRole, int()); qual1 != qual2)
             return qual1 > qual2;
-        }
 
         // Criterion 4: Name.
         return SortModel::lessThan(source_left, source_right);
