@@ -108,7 +108,7 @@
     To configure a connection between \QC and your MCU board:
 
     \list 1
-        \li Go to \preferences > \uicontrol Devices > \uicontrol MCU.
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol MCU.
         \li In \uicontrol {\QMCU SDK}, specify the path to the directory where
             you installed \QMCU SDK.
             \image qtcreator-preferences-mcu.webp {MCU preferences}
@@ -189,7 +189,7 @@
 
     \QC automatically adds kits for all the available MCU targets if you select
     \uicontrol {Automatically create kits for all available targets on start}
-    in \preferences > \uicontrol Devices > \uicontrol MCU.
+    in \preferences > \uicontrol SDKs > \uicontrol MCU.
 
     \image qtcreator-preferences-kits-mcu.webp {MCU kit}
 
@@ -197,7 +197,7 @@
     the existing kits or create additional kits. To do this manually for each
     target, select \uicontrol {Update Kit} or \uicontrol {Create Kit}.
 
-    To add new kits, go to \preferences > \uicontrol Devices > \uicontrol MCU,
+    To add new kits, go to \preferences > \uicontrol SDKs > \uicontrol MCU,
     and select \uicontrol {Create Kit}. This adds the paths to the kit's toolkits
     and SDKs, and keeps them synchronized when you select \uicontrol Apply or
     \uicontrol OK.

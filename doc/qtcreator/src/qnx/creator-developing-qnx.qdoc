@@ -40,7 +40,7 @@
             \uicontrol {Start Wizard} to add a QNX Neutrino device.
         \li Select \uicontrol Apply to fetch the information needed for
             creating kits.
-        \li Go to \preferences > \uicontrol Devices > \uicontrol QNX.
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol QNX.
         \li Select \uicontrol {Create Kit} to create a kit for a particular
             platform.
             \image qtcreator-preferences-qnx.webp {QNX Preferences}

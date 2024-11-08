@@ -845,7 +845,9 @@ public:
     {
         setId(Constants::ANDROID_SETTINGS_ID);
         setDisplayName(Tr::tr("Android"));
-        setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+        setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
+        setDisplayCategory(Tr::tr("SDKs"));
+        setCategoryIconPath(":/projectexplorer/images/sdk.png");
         setWidgetCreator([] { return new AndroidSettingsWidget; });
     }
 };

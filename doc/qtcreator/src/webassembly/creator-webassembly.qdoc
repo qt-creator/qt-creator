@@ -28,7 +28,7 @@
     To set up the development environment for WebAssembly:
 
     \list 1
-        \li Go to \preferences > \uicontrol Devices > \uicontrol WebAssembly.
+        \li Go to \preferences > \uicontrol SDKs > \uicontrol WebAssembly.
         \li In \uicontrol {Emscripten SDK path}, enter the root directory where
             you installed \c emsdk.
         \li \QC configures the \uicontrol {Emscripten SDK environment} for you

@@ -371,7 +371,9 @@ McuSupportOptionsPage::McuSupportOptionsPage(McuSupportOptions &options,
 {
     setId(Utils::Id(Constants::SETTINGS_ID));
     setDisplayName(Tr::tr("MCU"));
-    setCategory(ProjectExplorer::Constants::DEVICE_SETTINGS_CATEGORY);
+    setCategory(ProjectExplorer::Constants::SDK_SETTINGS_CATEGORY);
+    setDisplayCategory(Tr::tr("SDKs"));
+    setCategoryIconPath(":/projectexplorer/images/sdk.png");
     setWidgetCreator([&options, &settingsHandler] {
         return new McuSupportOptionsWidget(options, settingsHandler);
     });
