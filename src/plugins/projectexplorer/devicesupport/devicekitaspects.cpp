@@ -536,12 +536,11 @@ void BuildDeviceKitAspectFactory::addToMacroExpander(Kit *kit, MacroExpander *ex
         });
 }
 
-void BuildDeviceKitAspectFactory::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
+void BuildDeviceKitAspectFactory::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     IDevice::ConstPtr dev = BuildDeviceKitAspect::device(k);
-    if (dev->osType() == Utils::OsType::OsTypeWindows
-        && dev->type() == Constants::DESKTOP_DEVICE_TYPE) {
-        if (const FilePath appSdkLocation = WindowsConfigurations::windowsAppSdkLocation();
+    if (dev->osType() == OsType::OsTypeWindows && dev->type() == Constants::DESKTOP_DEVICE_TYPE) {
+        if (const FilePath appSdkLocation = windowsConfigurations().windowsAppSdkLocation();
             !appSdkLocation.isEmpty()) {
             env.set(Constants::WINDOWS_WINAPPSDK_ROOT_ENV_KEY, appSdkLocation.path());
         }

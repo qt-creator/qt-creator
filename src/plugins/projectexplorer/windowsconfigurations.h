@@ -3,48 +3,30 @@
 
 #pragma once
 
-#include <qtsupport/qtversionmanager.h>
-
-#include <solutions/tasking/tasktree.h>
-
-#include <utils/filepath.h>
-
-#include <QStringList>
-#include <QVersionNumber>
-
-using namespace Tasking;
-using namespace Utils;
+#include <utils/aspects.h>
 
 namespace ProjectExplorer::Internal {
 
-class WindowsConfigurations : public QObject
+class WindowsConfigurations : public Utils::AspectContainer
 {
     Q_OBJECT
 
+    WindowsConfigurations();
+    friend WindowsConfigurations &windowsConfigurations();
+
 public:
-    static void applyConfig();
-    static WindowsConfigurations *instance();
+    Utils::FilePathAspect downloadLocation{this};
+    Utils::FilePathAspect nugetLocation{this};
+    Utils::FilePathAspect windowsAppSdkLocation{this};
 
-    static FilePath downloadLocation();
-    static void setDownloadLocation(const FilePath &downloadLocation);
-
-    static FilePath nugetLocation();
-    static void setNugetLocation(const FilePath &nugetLocation);
-
-    static FilePath windowsAppSdkLocation();
-    static void setWindowsAppSdkLocation(const FilePath &windowsAppSdkLocation);
+    void applyConfig();
 
 signals:
     void aboutToUpdate();
     void updated();
-
-private:
-    friend void setupWindowsConfigurations();
-    WindowsConfigurations();
-
-    void load();
-    void save();
 };
+
+WindowsConfigurations &windowsConfigurations();
 
 void setupWindowsConfigurations();
 
