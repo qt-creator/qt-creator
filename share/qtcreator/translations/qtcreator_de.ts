@@ -18338,83 +18338,83 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::CmdBridge</name>
     <message>
         <source>Command failed with exit code %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando ist mit Rückgabewert %1 fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Error starting cmdbridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten von cmdbridge: %1</translation>
     </message>
     <message>
         <source>Remote root path is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist leer</translation>
     </message>
     <message>
         <source>Remote root path is not absolute</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist nicht absolut</translation>
     </message>
     <message>
         <source>Could not find dd on remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>dd konnte auf dem entfernten Host nicht gefunden werden: %1</translation>
     </message>
     <message>
         <source>Error reading file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen der Datei: %1</translation>
     </message>
     <message>
         <source>Error writing file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Schreiben der Datei: %1</translation>
     </message>
     <message>
         <source>File does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei existiert nicht</translation>
     </message>
     <message>
         <source>Error removing file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei: %1</translation>
     </message>
     <message>
         <source>Error copying file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Kopieren der Datei: %1</translation>
     </message>
     <message>
         <source>Error renaming file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Umbenennen der Datei: %1</translation>
     </message>
     <message>
         <source>Error killing process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Beenden des Prozesses: %1</translation>
     </message>
     <message>
         <source>Error creating temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der temporären Datei: %1</translation>
     </message>
     <message>
         <source>Failed starting bridge process</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des Bridge-Prozesses ist fehlgeschlagen</translation>
     </message>
     <message>
         <source>Failed starting bridge process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des Bridge-Prozesses ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Bridge process not running</source>
-        <translation type="unfinished"></translation>
+        <translation>Bridge-Prozess läuft nicht</translation>
     </message>
     <message>
         <source>FollowSymlinks is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>FollowSymlinks wird nicht unterstützt</translation>
     </message>
     <message>
         <source>Kickoff signal is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Kickoff-Signal wird nicht unterstützt</translation>
     </message>
     <message>
         <source>CloseWriteChannel signal is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>CloseWriteChannel-Signal wird nicht unterstützt</translation>
     </message>
     <message>
         <source>No command bridge found for architecture %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Command-Bridge für die Architektur %1-%2 gefunden</translation>
     </message>
 </context>
 <context>
