@@ -126,6 +126,9 @@ private slots:
 
     void dontBreakPathOnWierdWindowsPaths();
 
+    void isRelativePath();
+    void isRelativePath_data();
+
 private:
     QTemporaryDir tempDir;
     QString rootPath;
@@ -506,6 +509,10 @@ void tst_filepath::rootLength_data()
     QTest::newRow("unc-localhost-drive") << "//localhost/c$" << 12;
     QTest::newRow("unc-localhost-drive-slash") << "//localhost//c$/" << 12;
     QTest::newRow("unc-localhost-drive-slash-rest") << "//localhost//c$/x" << 12;
+
+    QTest::newRow("windows-1") << "C:" << 2;
+    QTest::newRow("windows-2") << "C:/" << 3;
+    QTest::newRow("windows-3") << "C:/foor" << 3;
 }
 
 void tst_filepath::rootLength()
@@ -1323,7 +1330,7 @@ void tst_filepath::startsWithDriveLetter_data()
     QTest::newRow("remote-slash") << FilePath::fromString("docker://1234/") << false;
     QTest::newRow("remote-single-letter") << FilePath::fromString("docker://1234/c") << false;
     QTest::newRow("remote-drive") << FilePath::fromString("docker://1234/c:") << true;
-    QTest::newRow("remote-invalid-drive") << FilePath::fromString("docker://1234/c:a") << true;
+    QTest::newRow("remote-invalid-drive") << FilePath::fromString("docker://1234/c:a") << false;
     QTest::newRow("remote-with-path") << FilePath::fromString("docker://1234/c:/a") << true;
     QTest::newRow("remote-z") << FilePath::fromString("docker://1234/z:") << true;
     QTest::newRow("remote-1") << FilePath::fromString("docker://1234/1:") << false;
@@ -1810,15 +1817,54 @@ void tst_filepath::makeTemporaryFile()
     }
 }
 
+void tst_filepath::isRelativePath_data()
+{
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<bool>("expected");
+
+    QTest::newRow("empty") << "" << true;
+    QTest::newRow("root") << "/" << false;
+    QTest::newRow("relative") << "foo" << true;
+    QTest::newRow("relative-path") << "foo/bar" << true;
+    QTest::newRow("absolute") << "/foo" << false;
+    QTest::newRow("absolute-path") << "/foo/bar" << false;
+    QTest::newRow("remote") << "device://host/foo" << false;
+    QTest::newRow("remote-path") << "device://host/foo/bar" << false;
+
+    QTest::newRow("windows-current-dir") << "c:" << true;
+    QTest::newRow("windows-path") << "c:/" << false;
+    QTest::newRow("windows-path-with-dir") << "c:/foo" << false;
+
+    QTest::newRow("windows-remote-current-dir") << "device://host/C:" << true;
+    QTest::newRow("windows-remote-path") << "device://host/C:/" << false;
+    QTest::newRow("windows-remote-path-with-dir") << "device://host/C:/foo" << false;
+}
+
+void tst_filepath::isRelativePath()
+{
+    QFETCH(QString, path);
+    QFETCH(bool, expected);
+
+    QCOMPARE(FilePath::fromUserInput(path).isRelativePath(), expected);
+}
+
 void tst_filepath::dontBreakPathOnWierdWindowsPaths()
 {
     FilePath path = FilePath::fromString(
-        "device://host/./C:/Users/ckandeler/Documents/"
+        "device://host/./C:/Users/johndoe/Documents/"
         "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
     QCOMPARE(
         path.toString(),
-        "device://host/C:/Users/ckandeler/Documents/"
+        "device://host/C:/Users/johndoe/Documents/"
         "build-iartest-IAR-Debugx/Debug_IAR_55df6f02d5b3d06d/iartest.a152245e/iartest.out");
+
+    FilePath pathWithBackslash = FilePath::fromUserInput(
+        "device://host/C:\\Users\\johndoe\\Documents\\test.elf");
+    QCOMPARE(pathWithBackslash.toString(), "device://host/C:/Users/johndoe/Documents/test.elf");
+    QCOMPARE(pathWithBackslash.path(), "C:/Users/johndoe/Documents/test.elf");
+
+    const FilePath bin = FilePath::fromString(pathWithBackslash.path());
+    QCOMPARE(bin.toString(), "C:/Users/johndoe/Documents/test.elf");
 
     // Make sure the optimization still works
     FilePath path2 = FilePath::fromString("/./");

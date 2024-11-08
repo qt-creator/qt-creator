@@ -869,6 +869,13 @@ static bool startsWithWindowsDriveLetterAndSlash(QStringView path)
     return path.size() > 2 && path[1] == ':' && path[2] == '/' && isWindowsDriveLetter(path[0]);
 }
 
+static bool startsWithWindowsDriveLetter(QStringView path)
+{
+    if (path.size() > 2 && startsWithWindowsDriveLetterAndSlash(path))
+        return true;
+    return path.size() == 2 && path[1] == ':' && isWindowsDriveLetter(path[0]);
+}
+
 int FilePath::rootLength(const QStringView path)
 {
     if (path.size() == 0)
@@ -888,6 +895,8 @@ int FilePath::rootLength(const QStringView path)
 
     if (startsWithWindowsDriveLetterAndSlash(path))
         return 3; // FIXME-ish: same assumption as elsewhere: we assume "x:/" only ever appears as root
+    if (path.size() == 2 && startsWithWindowsDriveLetter(path))
+        return 2;
 
     if (path[0] == '/')
         return 1;
@@ -1252,9 +1261,14 @@ void FilePath::setFromString(QStringView fileNameView)
     if (schemeEnd != -1 && schemeEnd < firstSlash) {
         // This is a pseudo Url, we can't use QUrl here sadly.
         const QStringView scheme = fileNameView.left(schemeEnd);
-        const int hostEnd = fileNameView.indexOf(slash, schemeEnd + 3);
+        int hostEnd = fileNameView.indexOf(slash, schemeEnd + 3);
         const QString host = decodeHost(
                     fileNameView.mid(schemeEnd + 3, hostEnd - schemeEnd - 3).toString());
+
+        QStringView path = fileNameView.mid(hostEnd);
+        if (!path.isEmpty() && path[0] == '/' && startsWithWindowsDriveLetter(path.mid(1)))
+            hostEnd++;
+
         setParts(scheme, host, hostEnd != -1 ? fileNameView.mid(hostEnd) : QStringView());
         return;
     }
@@ -1553,9 +1567,6 @@ bool FilePath::contains(const QString &s) const
 bool FilePath::startsWithDriveLetter() const
 {
     QStringView p = pathView();
-    if (needsDevice() && !p.isEmpty())
-        p = p.mid(1);
-
     return p.size() >= 2 && isWindowsDriveLetter(p[0]) && p.at(1) == ':';
 }
 
