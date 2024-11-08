@@ -159,7 +159,7 @@ QtcPlugin {
             "workspaceproject.cpp", "workspaceproject.h",
             "xcodebuildparser.cpp", "xcodebuildparser.h",
             "windowsconfigurations.cpp", "windowsconfigurations.h",
-            "windowssettingswidget.cpp", "windowssettingswidget.h",
+            "windowsappsdksettings.cpp", "windowsappsdksettings.h",
         ]
     }
 

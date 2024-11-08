@@ -5,6 +5,6 @@
 
 namespace ProjectExplorer::Internal {
 
-void setupWindowsSettingsPage();
+void setupWindowsAppSdkSettingsPage();
 
 } // namespace ProjectExplorer::Internal
