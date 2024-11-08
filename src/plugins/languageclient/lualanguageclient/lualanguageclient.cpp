@@ -425,15 +425,18 @@ public:
 
     QList<Client *> clientsForDocument(Core::IDocument *document)
     {
+        QList<Client *> result;
         if (m_startBehavior == BaseSettings::RequiresProject) {
             Project *project = ProjectManager::projectForFile(document->filePath());
             const auto clients = LanguageClientManager::clientsForSettingId(m_clientSettingsId);
-            return Utils::filtered(clients, [project](Client *c) {
+            result = Utils::filtered(clients, [project](Client *c) {
                 return c && c->project() == project;
             });
         }
+        else
+            result = LanguageClientManager::clientsForSettingId(m_clientSettingsId);
 
-        return LanguageClientManager::clientsForSettingId(m_clientSettingsId);
+        return Utils::filtered(result, [](Client *c) { return c->reachable(); });
     }
 
     void sendMessageForDocument(Core::IDocument *document, const sol::table &message)
