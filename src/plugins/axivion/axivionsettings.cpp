@@ -92,13 +92,13 @@ static bool analysisPathValid(const FilePath &analysisPath, QString *error)
         return true;
     if (!analysisPath.isLocal() || analysisPath.isAbsolutePath()) {
         if (error)
-            *error = QString("Path must be relative.");
+            *error = Tr::tr("Path must be relative.");
         return false;
     }
     static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
     if (invalid.match(analysisPath.path()).hasMatch()) {
         if (error)
-            *error = QString("Invalid path elements (. or ..)");
+            *error = Tr::tr("Invalid path elements (. or ..)");
         return false;
     }
     return true;
@@ -443,7 +443,7 @@ public:
             if (!edit->text().isEmpty())
                 return true;
             if (error)
-                *error = QString("Project name must be non-empty.");
+                *error = Tr::tr("Project name must be non-empty.");
             return false;
         });
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
