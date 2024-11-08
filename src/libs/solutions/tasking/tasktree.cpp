@@ -2005,7 +2005,7 @@ public:
 
     const TaskNode &m_taskNode; // Not owning.
     RuntimeIteration *m_parentIteration = nullptr; // Not owning.
-    std::shared_ptr<RuntimeContainer> m_container = {}; // Owning.
+    std::optional<RuntimeContainer> m_container = {}; // Owning.
     std::unique_ptr<TaskInterface> m_task = {}; // Owning.
     SetupResult m_setupResult = SetupResult::Continue;
 };
@@ -2356,18 +2356,18 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
 {
     if (!node->m_taskNode.isTask()) {
         const ContainerNode &containerNode = node->m_taskNode.m_container;
-        node->m_container.reset(new RuntimeContainer(containerNode, node.get()));
-        auto container = node->m_container;
+        node->m_container.emplace(containerNode, node.get());
+        RuntimeContainer *container = &*node->m_container;
         if (containerNode.m_groupHandler.m_setupHandler) {
-            container->m_setupResult = invokeHandler(container.get(), containerNode.m_groupHandler.m_setupHandler);
+            container->m_setupResult = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
             if (container->m_setupResult != SetupResult::Continue) {
-                if (isProgressive(container.get()))
+                if (isProgressive(container))
                     advanceProgress(containerNode.m_taskCount);
                 // Non-Continue SetupResult takes precedence over the workflow policy.
                 container->m_successBit = container->m_setupResult == SetupResult::StopWithSuccess;
             }
         }
-        continueContainer(container.get());
+        continueContainer(container);
         return;
     }
 
