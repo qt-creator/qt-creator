@@ -294,7 +294,7 @@ sol::usertype<T> addTypedAspect(sol::table &lua, const QString &name)
     return lua.new_usertype<T>(
         name,
         "create",
-        [](const sol::table &options) {
+        [](const sol::main_table &options) {
             return createAspectFromTable<T>(options, &typedAspectCreate<T>);
         },
         sol::base_classes,
@@ -355,7 +355,7 @@ void setupSettingsModule()
         settings.new_usertype<SecretAspect>(
             "SecretAspect",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<SecretAspect>(
                     options,
                     [](SecretAspect *aspect, const std::string &key, const sol::object &value) {
@@ -392,7 +392,7 @@ void setupSettingsModule()
         settings.new_usertype<SelectionAspect>(
             "SelectionAspect",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<SelectionAspect>(
                     options,
                     [](SelectionAspect *aspect, const std::string &key, const sol::object &value) {
@@ -473,7 +473,7 @@ void setupSettingsModule()
         settings.new_usertype<ToggleAspect>(
             "ToggleAspect",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<ToggleAspect>(
                     options,
                     [](ToggleAspect *aspect, const std::string &key, const sol::object &value) {
@@ -521,7 +521,7 @@ void setupSettingsModule()
         settings.new_usertype<TriStateAspect>(
             "TriStateAspect",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<TriStateAspect>(
                     options,
                     [](TriStateAspect *aspect, const std::string &key, const sol::object &value) {
@@ -553,7 +553,7 @@ void setupSettingsModule()
         settings.new_usertype<TextDisplay>(
             "TextDisplay",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<TextDisplay>(
                     options,
                     [](TextDisplay *aspect, const std::string &key, const sol::object &value) {
@@ -587,7 +587,7 @@ void setupSettingsModule()
         settings.new_usertype<AspectList>(
             "AspectList",
             "create",
-            [](const sol::table &options) {
+            [](const sol::main_table &options) {
                 return createAspectFromTable<AspectList>(
                     options,
                     [](AspectList *aspect, const std::string &key, const sol::object &value) {
@@ -682,7 +682,7 @@ void setupSettingsModule()
         settings.new_usertype<OptionsPage>(
             "OptionsPage",
             "create",
-            [&pool, pluginSpec](const sol::table &options) {
+            [&pool, pluginSpec](const sol::main_table &options) {
                 return pool.makePage<OptionsPage>(pluginSpec, options);
             },
             "show",
