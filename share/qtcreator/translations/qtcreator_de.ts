@@ -15806,19 +15806,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Build &amp;Subproject &quot;%1&quot;</source>
-        <translation type="unfinished">&amp;Unterprojekt &quot;%1&quot; erstellen</translation>
+        <translation>&amp;Unterprojekt &quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Build &amp;Subproject</source>
-        <translation type="unfinished">&amp;Unterprojekt erstellen</translation>
+        <translation>&amp;Unterprojekt erstellen</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
         <source>Clean</source>
-        <translation type="unfinished">Bereinigen</translation>
+        <translation>Bereinigen</translation>
     </message>
     <message>
         <source>Re-generates the kits that were created for CMake presets. All manual modifications to the CMake project settings will be lost.</source>
@@ -15902,7 +15902,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>CMake executable path does not exist.</source>
@@ -16073,7 +16073,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Expands to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird expandiert zu:</translation>
     </message>
     <message>
         <source>Current Configuration:</source>
@@ -17201,27 +17201,27 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Import Code Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Format importieren</translation>
     </message>
     <message>
         <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation type="unfinished">Coding Style importieren</translation>
+        <translation>Coding Style importieren</translation>
     </message>
     <message>
         <source>Enter a name for the imported code style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation type="unfinished">Der Coding-Stil kann nicht von &quot;%1&quot; importiert werden.</translation>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Format exportieren</translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -17832,15 +17832,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Compilation database for %1 successfully generated at &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilierungsdatenbank für %1 wurde erfolgreich in &quot;%2&quot; erzeugt.</translation>
     </message>
     <message>
         <source>Generating compilation database for %1 failed: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen der Kompilierungsdatenbank für %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Generating compilation database for %1 at &quot;%2&quot; ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge Kompilierungsdatenbank für %1 in &quot;%2&quot; ...</translation>
     </message>
 </context>
 <context>
@@ -18698,15 +18698,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Change backend URL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Backend-URL ändern.</translation>
     </message>
     <message>
         <source>Set Compiler Explorer URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer-URL festlegen</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation>URL:</translation>
     </message>
     <message>
         <source>Compiler Explorer Editor</source>
