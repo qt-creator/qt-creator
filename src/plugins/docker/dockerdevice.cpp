@@ -1002,7 +1002,7 @@ expected_str<void> DockerDevicePrivate::startContainer()
 
     QDeadlineTimer deadline(5s);
     while (!DockerApi::instance()->isContainerRunning(m_container) && !deadline.hasExpired()) {
-        QThread::sleep(100ms);
+        QThread::msleep(100);
     }
 
     if (deadline.hasExpired() && !DockerApi::instance()->isContainerRunning(m_container)) {
