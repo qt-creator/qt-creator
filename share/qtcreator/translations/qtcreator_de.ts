@@ -13774,15 +13774,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Open Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen öffnen...</translation>
     </message>
     <message>
         <source>Configure dashboards in Preferences &gt; Axivion &gt; General.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie Dashboards in Einstellungen &gt; Axivion &gt; Allgemein.</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>No Data</source>
@@ -13794,27 +13794,27 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Issues</source>
-        <translation type="unfinished">Probleme</translation>
+        <translation>Probleme</translation>
     </message>
     <message>
         <source>Issue Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemdetails</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Show Inline Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem im Code anzeigen</translation>
     </message>
     <message>
         <source>Show Issue Annotations Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Annotationen für Probleme anzeigen</translation>
     </message>
     <message>
         <source>Show Online Filter Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Online-Filterhilfe anzeigen</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
@@ -13830,7 +13830,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Show Issue Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemeigenschaften anzeigen</translation>
     </message>
     <message>
         <source>Certificate Error</source>
@@ -13912,7 +13912,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Axivion: Deleting API token for %1 as respective dashboard server was removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion: Lösche API-Token für %1, da das entsprechende Dashboard entfernt wurde.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
@@ -13964,43 +13964,43 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Project name:</source>
-        <translation type="unfinished">Projektname:</translation>
+        <translation>Projektname:</translation>
     </message>
     <message>
         <source>Analysis path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad:</translation>
     </message>
     <message>
         <source>Local path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad:</translation>
     </message>
     <message>
         <source>Project Name</source>
-        <translation type="unfinished">Projektname</translation>
+        <translation>Projektname</translation>
     </message>
     <message>
         <source>Analysis Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad</translation>
     </message>
     <message>
         <source>Local Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished">Nach oben</translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished">Nach unten</translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <source>General</source>
@@ -14008,7 +14008,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Path Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfadzuordnung</translation>
     </message>
     <message>
         <source>Fetching...</source>
@@ -14024,11 +14024,19 @@ a matches issues where the value contains the letter &apos;a&apos;
 (ab | cd) &amp; !ef matches issues with values containing &apos;ab&apos; or &apos;cd&apos; but not &apos;ef&apos;
 &quot;&quot; matches issues having an empty value in this column
 !&quot;&quot; matches issues having any non-empty value in this column</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter können mit &amp; als logischem Und, | als logischem Oder und ! als logischem Nicht kombiniert werden. Die Filter können * als Platzhalter für Sequenzen beliebiger Zeichen enthalten. Wenn ein einzelner Filter mit doppelten Anführungszeichen eingeschlossen ist, wird er mit der gesamten Zeichenkette verglichen. Einige Filterzeichen erfordern, dass der Filterausdruck mit doppelten Anführungszeichen eingeschlossen ist. Innerhalb doppelter Anführungszeichen müssen &quot; und \ mit einem Backslash maskiert werden.
+Einige Beispiele:
+
+a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
+&quot;abc&quot; entspricht Problemen, deren Wert exakt &apos;abc&apos; ist
+!abs entspricht Problemen, deren Wert nicht &apos;abc&apos; enthält
+(ab | cd) &amp; !ef entspricht Problemen, deren Wert &apos;ab&apos; oder &apos;cd&apos; enthält, aber nicht &apos;ef&apos;
+&quot;&quot; entspricht Problemen, die in dieser Spalte einen leeren Wert haben
+!&quot;&quot; entspricht Problemen, die in dieser Spalte einen Wert haben, der nicht leer ist</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Anwenden</translation>
+        <translation>Anwenden</translation>
     </message>
 </context>
 <context>
