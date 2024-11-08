@@ -43,7 +43,11 @@ QString LanguageClientCompletionItem::text() const
 { return m_item.label(); }
 
 bool LanguageClientCompletionItem::implicitlyApplies() const
-{ return false; }
+{
+    // only implicitly apply this item if there is no textEdit otherwise the user has to confirm
+    // the completion
+    return !m_item.textEdit();
+}
 
 bool LanguageClientCompletionItem::prematurelyApplies(const QChar &typedCharacter) const
 {
