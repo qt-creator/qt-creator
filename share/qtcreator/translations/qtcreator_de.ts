@@ -19448,15 +19448,15 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Could not find %1 executable in %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei %1 konnte in %2 nicht gefunden werden</translation>
     </message>
     <message>
         <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
@@ -19492,11 +19492,11 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbergen</translation>
     </message>
     <message>
         <source>Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Modi</translation>
     </message>
     <message>
         <source>Icons and Text</source>
@@ -19513,7 +19513,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     <message>
         <source>Show %1</source>
         <extracomment>%1 = name of a mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 anzeigen</translation>
     </message>
     <message>
         <source>Ctrl+0</source>
@@ -20134,9 +20134,13 @@ unter Versionsverwaltung (%2) stellen?</translation>
 %2
 ... and %n more.</source>
         <extracomment>%1 = name of VCS system, %2 = lines with file paths</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die folgenden Dateien konnten nicht zur Versionsverwaltung (%1) hinzugefügt werden
+%2
+... und eine weitere.</numerusform>
+            <numerusform>Die folgenden Dateien konnten nicht zur Versionsverwaltung (%1) hinzugefügt werden
+%2
+... und %n weitere.</numerusform>
         </translation>
     </message>
     <message>
@@ -20341,7 +20345,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME Magic Data wird interpretiert wie in der Shared MIME-Info Datenbank-Spezifikation von &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt; festgelegt.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Host16</source>
@@ -20414,11 +20418,11 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Copy Contents to Scratch Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt in Notizbereich kopieren</translation>
     </message>
     <message>
         <source>Failed to open editor for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte kein Editor für die Datei &quot;%1&quot; geöffnet werden.</translation>
     </message>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
@@ -20549,7 +20553,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Failed to set permissions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateizugriffsrechte konnten nicht gesetzt werden.</translation>
     </message>
     <message>
         <source>Unable to create the directory %1.</source>
@@ -20642,7 +20646,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht implementiert</translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -20654,23 +20658,23 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Version control state: added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: hinzugefügt.</translation>
     </message>
     <message>
         <source>Version control state: modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: verändert.</translation>
     </message>
     <message>
         <source>Version control state: deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: gelöscht.</translation>
     </message>
     <message>
         <source>Version control state: renamed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: umbenannt.</translation>
     </message>
     <message>
         <source>Version control state: untracked.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: nicht enthalten.</translation>
     </message>
     <message>
         <source>Toggle Progress Details</source>
@@ -20706,7 +20710,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Ignore binary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Binärdateien ignorieren</translation>
     </message>
     <message>
         <source>Use re&amp;gular expressions</source>
@@ -21206,23 +21210,23 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Terms and Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen und Konditionen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>Annehmen</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin %1 erfordert, dass Sie folgende Bedingungen und Konditionen annehmen:</translation>
     </message>
     <message>
         <source>Do you wish to accept?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie diese annehmen?</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -21362,7 +21366,7 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
     </message>
     <message>
         <source>%1 uses Google Crashpad for collecting crashes and sending them to Sentry for processing. Crashpad may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Benutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>More information:</source>
@@ -21534,11 +21538,11 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Open Previous Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhergehendes Dokument öffnen</translation>
     </message>
     <message>
         <source>Open Next Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Dokument öffnen</translation>
     </message>
     <message>
         <source>Reopen Last Closed Document</source>
@@ -21864,7 +21868,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Crash reports are saved in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Absturzberichte werden in &quot;%1&quot; gespeichert.</translation>
     </message>
     <message>
         <source>Crash Reporting</source>
@@ -22188,15 +22192,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Plugins gefunden.</translation>
     </message>
     <message>
         <source>More than one plugin found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein Plugin gefunden.</translation>
     </message>
     <message>
         <source>Plugin failed to resolve dependencies:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin konnte Abhängigkeiten nicht auflösen:</translation>
     </message>
     <message>
         <source>Check Archive</source>
@@ -22208,19 +22212,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Load plugin immediately</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin sofort laden</translation>
     </message>
     <message>
         <source>%1 will be installed into %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wird in %2 installiert.</translation>
     </message>
     <message>
         <source>Accept Terms and Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen und Konditionen annehmen</translation>
     </message>
     <message>
         <source>I accept the terms and conditions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ich nehme die Bedingungen und Konditionen an.</translation>
     </message>
     <message>
         <source>Canceled.</source>
@@ -22667,11 +22671,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Secret storage is not available! Your values will be stored as plaintext in the settings!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicheres Speichern ist nicht verfügbar! Ihre Werte werden in den Einstellungen als Klartext gespeichert!</translation>
     </message>
     <message>
         <source>You can install libsecret or KWallet to enable secret storage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können libsecret oder KWallet installieren, um sicheres Speichern zu aktivieren.</translation>
     </message>
 </context>
 <context>
