@@ -1989,7 +1989,6 @@ public:
     int m_runningChildren = 0;
     bool m_shouldIterate = true;
     std::vector<std::unique_ptr<RuntimeIteration>> m_iterations; // Owning.
-    SetupResult m_setupResult = SetupResult::Continue;
 };
 
 class RuntimeTask
@@ -2201,18 +2200,17 @@ void RuntimeContainer::deleteFinishedIterations()
 
 void TaskTreePrivate::continueContainer(RuntimeContainer *container)
 {
-    if (container->m_setupResult == SetupResult::Continue)
+    if (container->m_parentTask->m_setupResult == SetupResult::Continue)
         startChildren(container);
-    if (container->m_setupResult == SetupResult::Continue)
+    if (container->m_parentTask->m_setupResult == SetupResult::Continue)
         return;
 
-    const bool bit = container->updateSuccessBit(container->m_setupResult == SetupResult::StopWithSuccess);
+    const bool bit = container->updateSuccessBit(container->m_parentTask->m_setupResult == SetupResult::StopWithSuccess);
     RuntimeIteration *parentIteration = container->parentIteration();
     RuntimeTask *parentTask = container->m_parentTask;
     QT_CHECK(parentTask);
     const bool result = invokeDoneHandler(container, bit ? DoneWith::Success : DoneWith::Error);
-    container->m_setupResult = toSetupResult(result);
-    container->m_parentTask->m_setupResult = container->m_setupResult;
+    container->m_parentTask->m_setupResult = toSetupResult(result);
     if (parentIteration) {
         parentIteration->deleteChild(parentTask);
         if (!parentIteration->m_container->isStarting())
@@ -2233,7 +2231,7 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
         if (container->m_shouldIterate && !invokeLoopHandler(container)) {
             if (isProgressive(container))
                 advanceProgress(containerNode.m_taskCount);
-            container->m_setupResult = toSetupResult(container->m_successBit);
+            container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
             return;
         }
         container->m_iterations.emplace_back(
@@ -2253,7 +2251,7 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
                     std::make_unique<RuntimeIteration>(container->m_iterationCount, container));
                 ++container->m_iterationCount;
             } else if (container->m_iterations.empty()) {
-                container->m_setupResult = toSetupResult(container->m_successBit);
+                container->m_parentTask->m_setupResult = toSetupResult(container->m_successBit);
                 return;
             } else {
                 return;
@@ -2274,7 +2272,7 @@ void TaskTreePrivate::startChildren(RuntimeContainer *container)
             continue;
 
         childDone(iteration, task->m_setupResult == SetupResult::StopWithSuccess);
-        if (container->m_setupResult != SetupResult::Continue)
+        if (container->m_parentTask->m_setupResult != SetupResult::Continue)
             return;
     }
 }
@@ -2289,7 +2287,7 @@ void TaskTreePrivate::childDone(RuntimeIteration *iteration, bool success)
     ++iteration->m_doneCount;
     --container->m_runningChildren;
     const bool updatedSuccess = container->updateSuccessBit(success);
-    container->m_setupResult = shouldStop ? toSetupResult(updatedSuccess) : SetupResult::Continue;
+    container->m_parentTask->m_setupResult = shouldStop ? toSetupResult(updatedSuccess) : SetupResult::Continue;
     if (shouldStop)
         stopContainer(container);
 
@@ -2359,12 +2357,12 @@ void TaskTreePrivate::startTask(const std::shared_ptr<RuntimeTask> &node)
         node->m_container.emplace(containerNode, node.get());
         RuntimeContainer *container = &*node->m_container;
         if (containerNode.m_groupHandler.m_setupHandler) {
-            container->m_setupResult = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
-            if (container->m_setupResult != SetupResult::Continue) {
+            container->m_parentTask->m_setupResult = invokeHandler(container, containerNode.m_groupHandler.m_setupHandler);
+            if (container->m_parentTask->m_setupResult != SetupResult::Continue) {
                 if (isProgressive(container))
                     advanceProgress(containerNode.m_taskCount);
                 // Non-Continue SetupResult takes precedence over the workflow policy.
-                container->m_successBit = container->m_setupResult == SetupResult::StopWithSuccess;
+                container->m_successBit = container->m_parentTask->m_setupResult == SetupResult::StopWithSuccess;
             }
         }
         continueContainer(container);
