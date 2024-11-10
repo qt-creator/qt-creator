@@ -996,7 +996,7 @@ QStringList GitPluginPrivate::lineRange(int &firstLine, bool allowSingleLine) co
             const int startBlock = cursor.blockNumber();
             cursor.setPosition(selectionEnd);
             int endBlock = cursor.blockNumber();
-            if (startBlock != endBlock) {
+            if (startBlock != endBlock || allowSingleLine) {
                 firstLine = startBlock + 1;
                 if (cursor.atBlockStart())
                     --endBlock;
