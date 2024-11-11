@@ -355,8 +355,8 @@ QList<Snippet> SnippetsCollection::readXML(const FilePath &fileName, const QStri
                             Snippet snippet(groupId, id);
                             snippet.setTrigger(trigger);
                             snippet.setComplement(Tr::tr(
-                                                      atts.value(kComplement).toString().toLatin1(),
-                                                      atts.value(kId).toString().toLatin1()));
+                                                      atts.value(kComplement).toString().toUtf8(),
+                                                      atts.value(kId).toString().toUtf8()));
                             snippet.setIsRemoved(toBool(atts.value(kRemoved).toString()));
                             snippet.setIsModified(toBool(atts.value(kModified).toString()));
 
