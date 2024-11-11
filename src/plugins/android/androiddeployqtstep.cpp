@@ -160,7 +160,6 @@ private:
     FilePath m_command;
     FilePath m_workingDirectory;
     Environment m_environment;
-    AndroidDeviceInfo m_deviceInfo;
 };
 
 AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
@@ -209,17 +208,7 @@ bool AndroidDeployQtStep::init()
     qCDebug(deployStepLog) << "Target architecture:" << androidABIs
                            << "Min target API" << minTargetApi;
 
-    // Try to re-use user-provided information from an earlier step of the same type.
-    BuildStepList *bsl = stepList();
-    QTC_ASSERT(bsl, reportWarningOrError(Tr::tr("The kit's build steps list is invalid."), Task::Error);
-            return false);
-    auto androidDeployQtStep = bsl->firstOfType<AndroidDeployQtStep>();
-    QTC_ASSERT(androidDeployQtStep,
-               reportWarningOrError(Tr::tr("The kit's deploy configuration is invalid."), Task::Error);
-            return false);
     AndroidDeviceInfo info;
-    if (androidDeployQtStep != this)
-        info = androidDeployQtStep->m_deviceInfo;
 
     const BuildSystem *bs = buildSystem();
     auto selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
@@ -231,7 +220,7 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
-    if (!info.isValid()) {
+    if (true) { // FIXME: Simplify
         const auto dev =
                 static_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
         if (!dev) {
@@ -241,7 +230,6 @@ bool AndroidDeployQtStep::init()
 
         // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
         info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
-        m_deviceInfo = info; // Keep around for later steps
 
         if (!info.isValid()) {
             reportWarningOrError(Tr::tr("The deployment device \"%1\" is invalid.")
@@ -361,7 +349,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
         return true;
     };
 
-    const LoopList iterator(m_deviceInfo.isValid() ? filesToPull(target()) : QList<FileToPull>());
+    const LoopList iterator(filesToPull(target()));
     const auto onRemoveFileSetup = [iterator](Async<void> &async) {
         async.setConcurrentCallData(removeFile, iterator->to);
     };
