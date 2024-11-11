@@ -1,9 +1,11 @@
 // Copyright (C) 2017 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidmanager.h"
-#include "androidsdkmanager.h"
 #include "androidsdkmodel.h"
+
+#include "androidmanager.h"
+#include "androidconfigurations.h"
+#include "androidsdkmanager.h"
 #include "androidtr.h"
 
 #include <utils/algorithm.h>
@@ -12,8 +14,7 @@
 
 #include <QIcon>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 const int packageColCount = 3;
 
@@ -293,5 +294,4 @@ void AndroidSdkModel::refreshData()
     endResetModel();
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

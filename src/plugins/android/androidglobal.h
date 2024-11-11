@@ -11,7 +11,7 @@
 #define ASSERT_STATE_GENERIC(State, expected, actual)                         \
     AndroidGlobal::assertState<State>(expected, actual, Q_FUNC_INFO)
 
-namespace Android {
+namespace Android::Internal {
 
 class AndroidGlobal
 {
@@ -32,4 +32,4 @@ public:
     }
 };
 
-} // namespace Android
+} // namespace Android::Internal

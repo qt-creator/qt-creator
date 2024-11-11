@@ -8,8 +8,7 @@
 #include <QList>
 #include <QPair>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class CertificatesModel: public QAbstractListModel
 {
@@ -25,5 +24,4 @@ private:
     QList<QPair<QString, QString>> m_certs;
 };
 
-}
-}
+} // namespace Android::Internal

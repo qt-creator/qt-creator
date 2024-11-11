@@ -18,8 +18,9 @@ namespace Android::Internal {
 
 class AndroidSdkManagerPrivate;
 
-struct InstallationChange
+class InstallationChange
 {
+public:
     QStringList toInstall;
     QStringList toUninstall = {};
     int count() const { return toInstall.count() + toUninstall.count(); }

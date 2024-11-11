@@ -33,8 +33,7 @@ using namespace Utils;
 
 constexpr char languageServerKey[] = "languageServer";
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class JLSSettingsWidget : public QWidget
 {
@@ -338,5 +337,4 @@ LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInte
     return new JLSClient(interface);
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

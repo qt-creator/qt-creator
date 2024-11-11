@@ -12,8 +12,7 @@
 
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 const char extraExtraExtraHighDpiIconPath[] = "/res/drawable-xxxhdpi/";
 const char extraExtraHighDpiIconPath[] = "/res/drawable-xxhdpi/";
@@ -170,5 +169,4 @@ bool AndroidManifestEditorIconContainerWidget::hasIcons() const
     return false;
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

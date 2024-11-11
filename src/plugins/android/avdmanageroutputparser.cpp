@@ -26,8 +26,7 @@ const char avdInfoAbiKey[] = "abi.type";
 const char avdInfoTargetKey[] = "target";
 const char avdInfoErrorKey[] = "Error:";
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 /*!
     Parses the \a line for a [spaces]key[spaces]value[spaces] pattern and returns
@@ -164,5 +163,4 @@ QString convertNameToExtension(const QString &name)
     return {};
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

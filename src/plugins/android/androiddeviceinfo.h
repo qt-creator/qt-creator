@@ -12,7 +12,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Android {
+namespace Android::Internal {
 
 class AndroidDeviceInfo
 {
@@ -36,6 +36,6 @@ using AndroidDeviceInfoList = QList<AndroidDeviceInfo>;
 
 QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device);
 
-} // namespace Android
+} // namespace Android::Internal
 
-Q_DECLARE_METATYPE(Android::AndroidDeviceInfo)
+Q_DECLARE_METATYPE(Android::Internal::AndroidDeviceInfo)

@@ -23,7 +23,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
+namespace Android::Internal {
 
 class BaseStringListAspect final : public Utils::StringAspect
 {
@@ -109,4 +109,4 @@ void setupAndroidRunConfiguration()
     static AndroidRunConfigurationFactory theAndroidRunConfigurationFactory;
 }
 
-} // namespace Android
+} // namespace Android::Internal

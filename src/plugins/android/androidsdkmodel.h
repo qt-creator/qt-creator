@@ -2,12 +2,13 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
-// TODO: remove
-#include "androidconfigurations.h"
-
 #include <QAbstractItemModel>
 
 namespace Android::Internal {
+
+class AndroidSdkPackage;
+class InstallationChange;
+class SdkPlatform;
 
 class AndroidSdkModel : public QAbstractItemModel
 {

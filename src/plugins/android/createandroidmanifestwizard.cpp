@@ -34,8 +34,7 @@
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 //
 // NoApplicationTargetPage
@@ -333,5 +332,4 @@ void CreateAndroidManifestWizard::accept()
     Wizard::accept();
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

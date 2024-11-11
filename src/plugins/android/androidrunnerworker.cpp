@@ -1,10 +1,12 @@
 // Copyright (C) 2018 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidrunnerworker.h"
+
 #include "androidconfigurations.h"
 #include "androidconstants.h"
+#include "androiddeviceinfo.h"
 #include "androidmanager.h"
-#include "androidrunnerworker.h"
 #include "androidtr.h"
 
 #include <debugger/debuggerkitaspect.h>

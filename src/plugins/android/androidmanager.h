@@ -16,8 +16,7 @@ class FilePath;
 class Process;
 }
 
-namespace Android {
-namespace AndroidManager {
+namespace Android::AndroidManager {
 
 QString packageName(const ProjectExplorer::Target *target);
 QString activityName(const ProjectExplorer::Target *target);
@@ -56,5 +55,4 @@ QString androidNameForApiLevel(int x);
 QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
-} // namespace AndroidManager
-} // namespace Android
+} // namespace Android::AndroidManager

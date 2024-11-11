@@ -10,18 +10,16 @@
 
 #pragma once
 
-namespace Android {
+namespace Android::Internal {
 
 class AndroidSdkPackage;
-
-namespace Internal {
-    class SdkManagerOutputParser;
-    class AndroidToolOutputParser;
-    template <typename T>
-    AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
-}
+class AndroidToolOutputParser;
+class SdkManagerOutputParser;
 class SdkPlatform;
 class SystemImage;
+
+template <typename T>
+AndroidSdkPackage *parsePackage(const QStringList &, int, const QString &);
 
 class AndroidSdkPackage : public QObject
 {
@@ -208,6 +206,7 @@ public:
     bool isValid() const override { return installedLocation().exists(); }
     PackageType type() const override { return AndroidSdkPackage::GenericSdkPackage; }
 };
-} // namespace Android
+
+} // namespace Android::Internal
 
 

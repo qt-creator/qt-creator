@@ -4,16 +4,14 @@
 
 #include <utils/algorithm.h>
 
-namespace Android {
+namespace Android::Internal {
 
 AndroidSdkPackage::AndroidSdkPackage(const QVersionNumber &version, const QString &sdkStylePathStr,
-                                     QObject *parent) :
-    QObject(parent),
-    m_revision(version),
-    m_sdkStylePath(sdkStylePathStr)
-{
-
-}
+                                     QObject *parent)
+    : QObject(parent)
+    , m_revision(version)
+    , m_sdkStylePath(sdkStylePathStr)
+{}
 
 bool AndroidSdkPackage::operator <(const AndroidSdkPackage &other) const
 {
@@ -183,4 +181,4 @@ SystemImageList SdkPlatform::systemImages(PackageState state) const
     });
 }
 
-} // namespace Android
+} // namespace Android::Internal

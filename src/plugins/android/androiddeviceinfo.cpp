@@ -3,7 +3,7 @@
 
 #include "androiddeviceinfo.h"
 
-namespace Android {
+namespace Android::Internal {
 
 /**
  * Workaround for '????????????' serial numbers
@@ -47,4 +47,4 @@ QDebug &operator<<(QDebug &stream, const AndroidDeviceInfo &device)
     return stream;
 }
 
-} // namespace Android
+} // namespace Android::Internal

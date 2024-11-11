@@ -19,8 +19,7 @@
 
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.manifestEditor", QtWarningMsg)
 
@@ -31,9 +30,7 @@ static FilePath manifestDir(TextEditor::TextEditorWidget *textEditorWidget)
 }
 
 AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(QWidget *parent) : QWidget(parent)
-{
-
-}
+{}
 
 AndroidManifestEditorIconWidget::AndroidManifestEditorIconWidget(
         QWidget *parent, const QSize &iconSize, const QSize &buttonSize, const QString &title,
@@ -284,5 +281,4 @@ void AndroidManifestEditorIconWidget::copyIcon()
     }
 }
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

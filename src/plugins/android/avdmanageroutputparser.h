@@ -5,8 +5,7 @@
 
 #include "androiddeviceinfo.h"
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 const char avdManufacturerError[] = "no longer exists as a device";
 
@@ -20,5 +19,4 @@ ParsedAvdList parseAvdList(const QString &output);
 int platformNameToApiLevel(const QString &platformName);
 QString convertNameToExtension(const QString &name);
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

@@ -9,7 +9,7 @@
 
 namespace ProjectExplorer { class BuildSystem; }
 
-namespace Android {
+namespace Android::Internal {
 
 class AndroidExtraLibraryListModel : public QAbstractItemModel
 {
@@ -37,4 +37,4 @@ private:
     QStringList m_entries;
 };
 
-} // namespace Android
+} // namespace Android::Internal

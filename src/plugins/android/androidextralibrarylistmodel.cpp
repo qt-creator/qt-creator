@@ -17,7 +17,7 @@
 
 using namespace ProjectExplorer;
 
-namespace Android {
+namespace Android::Internal {
 
 AndroidExtraLibraryListModel::AndroidExtraLibraryListModel(BuildSystem *buildSystem,
                                                            QObject *parent)
@@ -137,4 +137,4 @@ void AndroidExtraLibraryListModel::removeEntries(QModelIndexList list)
     m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
 }
 
-} // Android
+} // Android::Internal

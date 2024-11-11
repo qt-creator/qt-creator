@@ -5,8 +5,7 @@
 
 #include <languageclient/languageclientsettings.h>
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class JLSSettings final : public LanguageClient::StdIOSettings
 {
@@ -29,5 +28,4 @@ private:
     JLSSettings(const JLSSettings &other) = default;
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

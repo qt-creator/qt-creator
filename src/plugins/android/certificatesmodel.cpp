@@ -6,13 +6,10 @@
 
 #include <QComboBox>
 
-using namespace Android;
-using namespace Android::Internal;
+namespace Android::Internal {
 
-namespace {
 const QLatin1String AliasString("Alias name:");
 const QLatin1String CertificateSeparator("*******************************************");
-}
 
 CertificatesModel::CertificatesModel(const QString &rowCertificates, QObject *parent)
     : QAbstractListModel(parent)
@@ -45,3 +42,5 @@ QVariant CertificatesModel::data(const QModelIndex &index, int role) const
         return m_certs[index.row()].first;
     return m_certs[index.row()].second;
 }
+
+} // namespace Android::Internal

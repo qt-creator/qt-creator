@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "androiddeviceinfo.h"
 #include "androidsdkmanager.h"
 #include "androidsdkpackage.h"
 
@@ -21,9 +20,9 @@
 
 namespace ProjectExplorer { class Abi; }
 
-namespace Android {
+namespace Android::Internal {
 
-namespace Internal { class AndroidSdkManager; }
+class AndroidSdkManager;
 
 class CreateAvdInfo
 {
@@ -157,7 +156,7 @@ QObject *createAndroidConfigurationsTest();
 
 void setupAndroidConfigurations();
 
-} // namespace Android
+} // namespace Android::Internal
 
 Q_DECLARE_METATYPE(ProjectExplorer::Abis)
 Q_DECLARE_METATYPE(Utils::OsType)

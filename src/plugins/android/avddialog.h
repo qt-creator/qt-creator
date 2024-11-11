@@ -21,10 +21,9 @@ QT_END_NAMESPACE
 
 namespace Utils { class InfoLabel; }
 
-namespace Android {
-class SdkPlatform;
+namespace Android::Internal {
 
-namespace Internal {
+class SdkPlatform;
 
 class AvdDialog : public QDialog
 {
@@ -77,5 +76,4 @@ private:
     Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
-} // Internal
-} // Android
+} // Android::Internal

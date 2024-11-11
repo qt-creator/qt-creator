@@ -14,8 +14,7 @@ class QLabel;
 class QToolButton;
 QT_END_NAMESPACE
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidManifestEditorIconWidget : public QWidget
 {
@@ -66,5 +65,4 @@ private:
     bool m_scaledWithoutStretching = false;
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

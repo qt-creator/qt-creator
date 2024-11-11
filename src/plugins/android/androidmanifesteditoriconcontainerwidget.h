@@ -13,8 +13,7 @@ namespace TextEditor {
     class TextEditorWidget;
 }
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
 class AndroidManifestEditorIconWidget;
 
@@ -37,5 +36,4 @@ signals:
     void iconsModified();
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal

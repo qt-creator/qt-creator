@@ -84,8 +84,7 @@ std::optional<FilePath> tryGetFirstDirectory(const FilePath &path, const QString
 }
 }
 
-namespace Android {
-using namespace Internal;
+namespace Android::Internal {
 
 #ifdef Q_OS_WIN32
 #define ANDROID_BAT_SUFFIX ".bat"
@@ -1626,6 +1625,6 @@ void setupAndroidConfigurations()
     static AndroidConfigurations theAndroidConfigurations;
 }
 
-} // namespace Android
+} // namespace Android::Internal
 
 #include "androidconfigurations.moc"
