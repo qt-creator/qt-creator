@@ -155,7 +155,6 @@ private:
 
     BoolAspect m_uninstallPreviousPackage{this};
     bool m_uninstallPreviousPackageRun = false;
-    bool m_useAndroiddeployqt = false;
     CommandLine m_androiddeployqtArgs;
     FilePath m_adbPath;
     FilePath m_command;
@@ -174,13 +173,6 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
     m_uninstallPreviousPackage.setLabel(Tr::tr("Uninstall the existing app before deployment"),
                                          BoolAspect::LabelPlacement::AtCheckBox);
     m_uninstallPreviousPackage.setValue(false);
-
-    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    const bool forced = qt && qt->qtVersion() < AndroidManager::firstQtWithAndroidDeployQt;
-    if (forced) {
-        m_uninstallPreviousPackage.setValue(true);
-        m_uninstallPreviousPackage.setEnabled(false);
-    }
 }
 
 bool AndroidDeployQtStep::init()
@@ -295,8 +287,7 @@ bool AndroidDeployQtStep::init()
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage();
-    m_useAndroiddeployqt = version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
-    if (m_useAndroiddeployqt) {
+    if (true) {
         const QString buildKey = target()->activeBuildKey();
         const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
         if (!node) {
@@ -344,11 +335,6 @@ bool AndroidDeployQtStep::init()
                 m_androiddeployqtArgs.addArgs({"--sign", "foo", "bar"});
             }
         }
-    } else {
-        m_uninstallPreviousPackageRun = true;
-        m_command = AndroidConfig::adbToolPath();
-        m_apkPath = AndroidManager::packagePath(target());
-        m_workingDirectory = bc ? AndroidManager::buildDirectory(target()): FilePath();
     }
     m_environment = bc ? bc->environment() : Environment();
 
@@ -430,7 +416,7 @@ Group AndroidDeployQtStep::deployRecipe()
     const Storage<DeployErrorFlags> storage;
 
     const auto onUninstallSetup = [this](Process &process) {
-        if (m_useAndroiddeployqt && m_apkPath.isEmpty())
+        if (m_apkPath.isEmpty())
             return SetupResult::StopWithSuccess;
         if (!m_uninstallPreviousPackageRun)
             return SetupResult::StopWithSuccess;
@@ -462,7 +448,7 @@ Group AndroidDeployQtStep::deployRecipe()
 
     const auto onInstallSetup = [this, storage](Process &process) {
         CommandLine cmd(m_command);
-        if (m_useAndroiddeployqt && m_apkPath.isEmpty()) {
+        if (m_apkPath.isEmpty()) {
             cmd.addArgs(m_androiddeployqtArgs.arguments(), CommandLine::Raw);
             if (m_uninstallPreviousPackageRun)
                 cmd.addArg("--install");

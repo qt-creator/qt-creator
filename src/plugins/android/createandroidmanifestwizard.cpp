@@ -233,9 +233,7 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
     setWindowTitle(Tr::tr("Create Android Template Files Wizard"));
 
     const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
-    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(buildSystem->kit());
-    m_allowGradleTemplates = version &&
-                             version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
+    m_allowGradleTemplates = bool(QtSupport::QtKitAspect::qtVersion(buildSystem->kit()));
 
     if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
@@ -289,22 +287,15 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!version)
         return;
-    if (version->qtVersion() < AndroidManager::firstQtWithAndroidDeployQt) {
-        FileUtils::copyRecursively(version->prefix() / "src/android/java/AndroidManifest.xml",
-                                   m_directory / "AndroidManifest.xml",
-                                   nullptr,
-                                   copy());
-    } else {
-        FileUtils::copyRecursively(version->prefix() / "src/android/templates",
-                                   m_directory,
-                                   nullptr,
-                                   copy());
+    FileUtils::copyRecursively(version->prefix() / "src/android/templates",
+                               m_directory,
+                               nullptr,
+                               copy());
 
-        if (copyGradleTemplates()) {
-            FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
-            QTC_ASSERT(gradlePath.exists(), return);
-            FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
-        }
+    if (copyGradleTemplates()) {
+        FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
+        QTC_ASSERT(gradlePath.exists(), return);
+        FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
     }
 
     QString androidPackageDir;

@@ -535,14 +535,6 @@ bool AndroidBuildApkStep::init()
         return false;
     }
 
-    if (version->qtVersion() < AndroidManager::firstQtWithAndroidDeployQt) {
-        const QString error = Tr::tr("The minimum Qt version required for Gradle build to work is %1. "
-                                     "It is recommended to install the latest Qt version.")
-                .arg("5.4.0");
-        reportWarningOrError(error, Task::Error);
-        return false;
-    }
-
     const int minSDKForKit = AndroidManager::minimumSDK(kit());
     if (AndroidManager::minimumSDK(target()) < minSDKForKit) {
         const QString error

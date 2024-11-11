@@ -17,12 +17,7 @@ class Process;
 }
 
 namespace Android {
-
-namespace AndroidManager
-{
-
-// With Qt 5.4, a couple of android tooling features moved over from Qt Creator to Qt.
-constexpr auto firstQtWithAndroidDeployQt = {5, 4, 0};
+namespace AndroidManager {
 
 QString packageName(const ProjectExplorer::Target *target);
 QString activityName(const ProjectExplorer::Target *target);
