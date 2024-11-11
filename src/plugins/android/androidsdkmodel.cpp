@@ -17,12 +17,11 @@ namespace Internal {
 
 const int packageColCount = 3;
 
-AndroidSdkModel::AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent)
-    : QAbstractItemModel(parent),
-      m_sdkManager(sdkManager)
+AndroidSdkModel::AndroidSdkModel(QObject *parent)
+    : QAbstractItemModel(parent)
 {
-    QTC_CHECK(m_sdkManager);
-    connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, &AndroidSdkModel::refreshData);
+    connect(AndroidConfigurations::sdkManager(), &AndroidSdkManager::packagesReloaded,
+            this, &AndroidSdkModel::refreshData);
     refreshData();
 }
 
@@ -275,7 +274,7 @@ void AndroidSdkModel::refreshData()
     m_tools.clear();
     m_changeState.clear();
     beginResetModel();
-    for (AndroidSdkPackage *p : m_sdkManager->allSdkPackages()) {
+    for (AndroidSdkPackage *p : AndroidConfigurations::sdkManager()->allSdkPackages()) {
         if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
             m_sdkPlatforms << static_cast<SdkPlatform *>(p);
         else

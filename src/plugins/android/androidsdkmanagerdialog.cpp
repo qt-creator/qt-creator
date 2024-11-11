@@ -30,10 +30,9 @@ namespace Android::Internal {
 class OptionsDialog : public QDialog
 {
 public:
-    OptionsDialog(AndroidSdkManager *sdkManager, QWidget *parent)
+    OptionsDialog(QWidget *parent)
         : QDialog(parent)
     {
-        QTC_CHECK(sdkManager);
         resize(800, 480);
         setWindowTitle(Tr::tr("SDK Manager Arguments"));
 
@@ -106,20 +105,17 @@ private:
 class AndroidSdkManagerDialog : public QDialog
 {
 public:
-    AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent);
+    AndroidSdkManagerDialog(QWidget *parent);
 
 private:
     AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
 };
 
-AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent)
+AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
     : QDialog(parent)
-    , m_sdkManager(sdkManager)
-    , m_sdkModel(new AndroidSdkModel(m_sdkManager, this))
+    , m_sdkModel(new AndroidSdkModel(this))
 {
-    QTC_CHECK(sdkManager);
-
     setWindowTitle(Tr::tr("Android SDK Manager"));
     resize(664, 396);
     setModal(true);
@@ -234,7 +230,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
     connect(buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
     connect(optionsButton, &QPushButton::clicked, this, [this] {
-        OptionsDialog dlg(m_sdkManager, this);
+        OptionsDialog dlg(this);
         if (dlg.exec() == QDialog::Accepted) {
             QStringList arguments = dlg.sdkManagerArguments();
             if (arguments != AndroidConfig::sdkManagerToolArgs()) {
@@ -335,9 +331,9 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
 }
 
-void executeAndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent)
+void executeAndroidSdkManagerDialog(QWidget *parent)
 {
-    AndroidSdkManagerDialog dialog(sdkManager, parent);
+    AndroidSdkManagerDialog dialog(parent);
     dialog.exec();
 }
 

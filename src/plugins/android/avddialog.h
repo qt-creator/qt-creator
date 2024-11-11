@@ -26,8 +26,6 @@ class SdkPlatform;
 
 namespace Internal {
 
-class AndroidSdkManager;
-
 class AvdDialog : public QDialog
 {
 public:

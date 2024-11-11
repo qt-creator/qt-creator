@@ -969,7 +969,7 @@ QStringList allEssentials()
     return allPackages;
 }
 
-QString optionalSystemImagePackage(AndroidSdkManager *sdkManager)
+QString optionalSystemImagePackage()
 {
     const QStringList essentialPkgs(allEssentials());
     QStringList platforms = Utils::filtered(essentialPkgs, [](const QString &item) {
@@ -998,7 +998,7 @@ QString optionalSystemImagePackage(AndroidSdkManager *sdkManager)
     const auto imageName = QLatin1String("%1;android-%2;google_apis_playstore;%3")
                                .arg(Constants::systemImagesPackageName).arg(apiLevel).arg(hostArch);
 
-    const SdkPlatformList sdkPlatforms = sdkManager->filteredSdkPlatforms(
+    const SdkPlatformList sdkPlatforms = AndroidConfigurations::sdkManager()->filteredSdkPlatforms(
         apiLevel, AndroidSdkPackage::AnyValidState);
 
     if (sdkPlatforms.isEmpty())
@@ -1020,10 +1020,10 @@ static QStringList packagesWithoutNdks(const QStringList &packages)
     });
 }
 
-bool allEssentialsInstalled(AndroidSdkManager *sdkManager)
+bool allEssentialsInstalled()
 {
     QStringList essentialPkgs(allEssentials());
-    const auto installedPkgs = sdkManager->installedSdkPackages();
+    const auto installedPkgs = AndroidConfigurations::sdkManager()->installedSdkPackages();
     for (const AndroidSdkPackage *pkg : installedPkgs) {
         if (essentialPkgs.contains(pkg->sdkStylePath()))
             essentialPkgs.removeOne(pkg->sdkStylePath());

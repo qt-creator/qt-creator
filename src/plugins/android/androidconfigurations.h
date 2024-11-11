@@ -55,10 +55,10 @@ QVersionNumber ndkVersion(const Utils::FilePath &ndkPath);
 QUrl sdkToolsUrl();
 QByteArray getSdkToolsSha256();
 
-QString optionalSystemImagePackage(Internal::AndroidSdkManager *sdkManager);
+QString optionalSystemImagePackage();
 
 QStringList allEssentials();
-bool allEssentialsInstalled(Internal::AndroidSdkManager *sdkManager);
+bool allEssentialsInstalled();
 bool sdkToolsOk();
 
 Utils::FilePath openJDKLocation();

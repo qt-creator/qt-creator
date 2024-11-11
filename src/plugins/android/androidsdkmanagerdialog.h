@@ -6,8 +6,6 @@
 
 namespace Android::Internal {
 
-class AndroidSdkManager;
-
-void executeAndroidSdkManagerDialog(AndroidSdkManager *sdkManager, QWidget *parent);
+void executeAndroidSdkManagerDialog(QWidget *parent);
 
 } // Android::Internal

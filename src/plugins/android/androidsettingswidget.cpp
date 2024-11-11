@@ -262,8 +262,8 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 }
 
 AndroidSettingsWidget::AndroidSettingsWidget()
+    : m_sdkManager(AndroidConfigurations::sdkManager())
 {
-    m_sdkManager = AndroidConfigurations::sdkManager();
     setWindowTitle(Tr::tr("Android Configuration"));
 
     const QIcon downloadIcon = Icons::ONLINE.icon();
@@ -479,7 +479,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
     connect(downloadOpenJdkToolButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::openOpenJDKDownloadUrl);
     connect(sdkManagerToolButton, &QAbstractButton::clicked, this, [this] {
-        executeAndroidSdkManagerDialog(m_sdkManager, this);
+        executeAndroidSdkManagerDialog(this);
     });
     connect(sdkToolsAutoDownloadButton, &QAbstractButton::clicked,
             this, &AndroidSettingsWidget::downloadSdk);
@@ -637,7 +637,7 @@ void AndroidSettingsWidget::validateSdk()
     m_androidSummary->setPointValid(PlatformToolsInstalledRow, // TODO: track me
                                     AndroidConfig::adbToolPath().exists());
     m_androidSummary->setPointValid(AllEssentialsInstalledRow,
-                                    AndroidConfig::allEssentialsInstalled(m_sdkManager));
+                                    AndroidConfig::allEssentialsInstalled());
     m_androidSummary->setPointValid(BuildToolsInstalledRow,
                                     !AndroidConfig::buildToolsVersion().isNull());
     // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
@@ -667,7 +667,7 @@ void AndroidSettingsWidget::validateSdk()
         // Add the a system image with highest API level only if there are other
         // essentials needed, so it would practicaly be somewhat optional.
         if (!missingPkgs.isEmpty()) {
-            const QString sysImage = AndroidConfig::optionalSystemImagePackage(m_sdkManager);
+            const QString sysImage = AndroidConfig::optionalSystemImagePackage();
             if (!sysImage.isEmpty())
                 missingPkgs.append(sysImage);
         }

@@ -2,16 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 #pragma once
 
+// TODO: remove
 #include "androidconfigurations.h"
 
 #include <QAbstractItemModel>
 
-#include <memory>
-
-namespace Android {
-namespace Internal {
-
-class AndroidSdkManager;
+namespace Android::Internal {
 
 class AndroidSdkModel : public QAbstractItemModel
 {
@@ -27,7 +23,7 @@ public:
         PackageStateRole
     };
 
-    explicit AndroidSdkModel(AndroidSdkManager *sdkManager, QObject *parent = nullptr);
+    explicit AndroidSdkModel(QObject *parent = nullptr);
 
     // QAbstractItemModel overrides.
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -47,11 +43,9 @@ public:
 private:
     void refreshData();
 
-    AndroidSdkManager *m_sdkManager;
     QList<const SdkPlatform *> m_sdkPlatforms;
     QList<const AndroidSdkPackage *> m_tools;
     QSet<const AndroidSdkPackage *> m_changeState;
 };
 
-} // namespace Internal
-} // namespace Android
+} // namespace Android::Internal
