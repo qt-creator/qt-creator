@@ -33,7 +33,6 @@ private:
     ProjectExplorer::BuildSystem *m_buildSystem;
     QString m_buildKey;
     Utils::FilePath m_directory;
-    bool m_allowGradleTemplates;
     bool m_copyGradleTemplates;
 };
 

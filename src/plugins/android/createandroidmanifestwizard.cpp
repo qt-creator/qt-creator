@@ -233,7 +233,6 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
     setWindowTitle(Tr::tr("Create Android Template Files Wizard"));
 
     const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
-    m_allowGradleTemplates = bool(QtSupport::QtKitAspect::qtVersion(buildSystem->kit()));
 
     if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
@@ -269,7 +268,7 @@ bool CreateAndroidManifestWizard::copyGradleTemplates() const
 
 bool CreateAndroidManifestWizard::allowGradleTemplates() const
 {
-    return m_allowGradleTemplates;
+    return bool(QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit()));
 }
 
 void CreateAndroidManifestWizard::setCopyGradleTemplates(bool copy)
