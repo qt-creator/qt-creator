@@ -6,6 +6,7 @@
 #include "coreplugintr.h"
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/icon.h>
 #include <utils/layoutbuilder.h>
@@ -85,6 +86,22 @@ QWidget *createRule(Qt::Orientation orientation, QWidget *parent)
         rule->setFixedWidth(1);
     setBackgroundColor(rule, Theme::Token_Stroke_Subtle);
     return rule;
+}
+
+QLabel *tfLabel(const TextFormat &tf, bool singleLine)
+{
+    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
+    if (singleLine)
+        label->setFixedHeight(tf.lineHeight());
+    label->setFont(tf.font());
+    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
+    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
+
+    QPalette pal = label->palette();
+    pal.setColor(QPalette::WindowText, tf.color());
+    label->setPalette(pal);
+
+    return label;
 }
 
 } // namespace WelcomePageHelpers

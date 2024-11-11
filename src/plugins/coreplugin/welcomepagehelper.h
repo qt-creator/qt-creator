@@ -67,6 +67,7 @@ CORE_EXPORT void drawCardBackground(QPainter *painter, const QRectF &rect,
                                     const QBrush &fill, const QPen &pen = QPen(Qt::NoPen),
                                     qreal rounding = defaultCardBackgroundRounding);
 CORE_EXPORT QWidget *createRule(Qt::Orientation orientation, QWidget *parent = nullptr);
+CORE_EXPORT QLabel *tfLabel(const TextFormat &tf, bool singleLine = true);
 
 } // namespace WelcomePageHelpers
 

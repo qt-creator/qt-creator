@@ -28,7 +28,6 @@
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
-#include <utils/elidinglabel.h>
 #include <utils/fancylineedit.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -739,22 +738,6 @@ void ExtensionsBrowser::fetchExtensions()
     };
 
     d->taskTreeRunner.start(group);
-}
-
-QLabel *tfLabel(const TextFormat &tf, bool singleLine)
-{
-    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
-    if (singleLine)
-        label->setFixedHeight(tf.lineHeight());
-    label->setFont(tf.font());
-    label->setAlignment(Qt::Alignment(tf.drawTextFlags));
-    label->setTextInteractionFlags(Qt::TextSelectableByMouse);
-
-    QPalette pal = label->palette();
-    pal.setColor(QPalette::WindowText, tf.color());
-    label->setPalette(pal);
-
-    return label;
 }
 
 const int iconRectRounding = 4;
