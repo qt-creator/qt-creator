@@ -227,7 +227,7 @@ const char SUPPORTS_SFTP[] = "RemoteLinux.SupportsSftp";
 const char SSH_FORWARD_DEBUGSERVER_PORT[] = "RemoteLinux.SshForwardDebugServerPort";
 
 // SDKs related ids:
-const char SDK_SETTINGS_CATEGORY[] = "SDKs";
+const char SDK_SETTINGS_CATEGORY[] = "AN.SDKs";
 const char WINDOWS_SETTINGS_ID[] = "Windows Configurations";
 const char WINDOWS_WINAPPSDK_ROOT_ENV_KEY[] = "WIN_APP_SDK_ROOT";
 
