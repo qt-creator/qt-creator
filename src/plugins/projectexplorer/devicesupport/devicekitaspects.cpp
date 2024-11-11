@@ -22,6 +22,7 @@
 #include <utils/macroexpander.h>
 
 #include <QComboBox>
+#include <QHBoxLayout>
 
 #include <tuple>
 
@@ -184,6 +185,22 @@ public:
 
 private:
     Id settingsPageItemToPreselect() const override { return RunDeviceKitAspect::deviceId(kit()); }
+
+    void addToInnerLayout(Layouting::Layout &parentItem) override
+    {
+        Layouting::Layout layout = parentItem;
+        if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
+            layout = Layouting::Layout(new QHBoxLayout);
+            parentItem.addItem(layout);
+            layout.addItem(Tr::tr("Type:"));
+            embedded.first()->addToInnerLayout(layout);
+            layout.addItem(Tr::tr("Device:"));
+            KitAspect::addToInnerLayout(layout);
+            layout.addItem(Layouting::Stretch(1));
+        } else {
+            KitAspect::addToInnerLayout(layout);
+        }
+    }
 };
 
 class DeviceKitAspectFactory : public KitAspectFactory
@@ -218,6 +235,7 @@ DeviceKitAspectFactory::DeviceKitAspectFactory()
     setDisplayName(Tr::tr("Run device"));
     setDescription(Tr::tr("The device to run the applications on."));
     setPriority(32000);
+    setEmbeddableAspects({DeviceTypeKitAspect::id()});
 }
 
 QVariant DeviceKitAspectFactory::defaultValue(const Kit *k) const

@@ -120,6 +120,7 @@ public:
     Utils::Id managingPageId;
     QPushButton *manageButton = nullptr;
     Utils::Guard ignoreChanges;
+    QList<KitAspect *> aspectsToEmbed;
 
     struct ListAspect
     {
@@ -197,7 +198,7 @@ void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
 void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
 {
     const auto comboBox = createSubWidget<QComboBox>();
-    comboBox->setSizePolicy(QSizePolicy::Ignored, comboBox->sizePolicy().verticalPolicy());
+    comboBox->setSizePolicy(QSizePolicy::Preferred, comboBox->sizePolicy().verticalPolicy());
     comboBox->setEnabled(true);
     const auto sortModel = new KitAspectSortModel(this);
     sortModel->setSourceModel(listAspectSpec.model);
@@ -259,6 +260,16 @@ void KitAspect::addMutableAction(QWidget *child)
 }
 
 void KitAspect::setManagingPage(Utils::Id pageId) { d->managingPageId = pageId; }
+
+void KitAspect::setAspectsToEmbed(const QList<KitAspect *> &aspects)
+{
+    d->aspectsToEmbed = aspects;
+}
+
+QList<KitAspect *> KitAspect::aspectsToEmbed() const
+{
+    return d->aspectsToEmbed;
+}
 
 QString KitAspect::msgManage() { return Tr::tr("Manage..."); }
 Kit *KitAspect::kit() const { return d->kit; }

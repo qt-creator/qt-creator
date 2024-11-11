@@ -73,6 +73,8 @@ public:
     virtual QSet<Utils::Id> supportedPlatforms(const Kit *k) const;
     virtual QSet<Utils::Id> availableFeatures(const Kit *k) const;
 
+    QList<Utils::Id> embeddableAspects() const { return m_embeddableAspects; }
+
     virtual void addToMacroExpander(ProjectExplorer::Kit *kit, Utils::MacroExpander *expander) const;
 
     virtual void onKitsLoaded() {}
@@ -89,12 +91,14 @@ protected:
     void setDescription(const QString &desc) { m_description = desc; }
     void makeEssential() { m_essential = true; }
     void setPriority(int priority) { m_priority = priority; }
+    void setEmbeddableAspects(const QList<Utils::Id> &aspects) { m_embeddableAspects = aspects; }
     void notifyAboutUpdate(Kit *k);
 
 private:
     QString m_displayName;
     QString m_description;
     Utils::Id m_id;
+    QList<Utils::Id> m_embeddableAspects;
     int m_priority = 0; // The higher the closer to the top.
     bool m_essential = false;
 };
@@ -120,11 +124,18 @@ public:
     void addMutableAction(QWidget *child);
     void setManagingPage(Utils::Id pageId);
 
+    void setAspectsToEmbed(const QList<KitAspect *> &aspects);
+    QList<KitAspect *> aspectsToEmbed() const;
+
     void makeStickySubWidgetsReadOnly();
+
+    // For layouting purposes only.
+    QList<QComboBox *> comboBoxes() const;
+
+    virtual void addToInnerLayout(Layouting::Layout &parentItem);
 
 protected:
     virtual void makeReadOnly();
-    virtual void addToInnerLayout(Layouting::Layout &parentItem);
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
 
     // Convenience for aspects that provide a list model from which one value can be chosen.
@@ -153,9 +164,6 @@ protected:
         ResetModel resetModel;
     };
     void addListAspectSpec(const ListAspectSpec &listAspectSpec);
-
-    // For layouting purposes only.
-    QList<QComboBox *> comboBoxes() const;
 
 private:
     class Private;

@@ -38,7 +38,7 @@ public:
     void discard();
     bool isDirty() const;
     QString validityMessage() const;
-    void addAspectToWorkingCopy(Layouting::Layout &parent, KitAspectFactory *factory);
+    void addAspectsToWorkingCopy(Layouting::Layout &parent);
     void makeStickySubWidgetsReadOnly();
 
     Kit *workingCopy() const;

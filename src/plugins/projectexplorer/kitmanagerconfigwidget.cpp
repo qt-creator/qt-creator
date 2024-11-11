@@ -22,6 +22,7 @@
 #include <utils/variablechooser.h>
 
 #include <QAction>
+#include <QHash>
 #include <QRegularExpression>
 #include <QRegularExpressionValidator>
 #include <QFileDialog>
@@ -29,6 +30,7 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
+#include <QSet>
 #include <QToolButton>
 #include <QSizePolicy>
 
@@ -103,8 +105,7 @@ KitManagerConfigWidget::KitManagerConfigWidget(Kit *k, bool &isDefaultKit, bool 
     chooser->addSupportedWidget(m_nameEdit);
     chooser->addMacroExpanderProvider([this] { return m_modifiedKit->macroExpander(); });
 
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
-        addAspectToWorkingCopy(page, factory);
+    addAspectsToWorkingCopy(page);
 
     page.attachTo(this);
 
@@ -202,18 +203,40 @@ QString KitManagerConfigWidget::validityMessage() const
     return m_modifiedKit->toHtml(tmp);
 }
 
-void KitManagerConfigWidget::addAspectToWorkingCopy(Layouting::Layout &parent, KitAspectFactory *factory)
+void KitManagerConfigWidget::addAspectsToWorkingCopy(Layouting::Layout &parent)
 {
-    QTC_ASSERT(factory, return);
-    KitAspect *aspect = factory->createKitAspect(workingCopy());
-    QTC_ASSERT(aspect, return);
-    QTC_ASSERT(!m_kitAspects.contains(aspect), return);
+    QHash<Id, KitAspect *> aspectsById;
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        QTC_ASSERT(factory, continue);
 
-    aspect->addToLayout(parent);
-    m_kitAspects.append(aspect);
+        KitAspect *aspect = factory->createKitAspect(workingCopy());
+        QTC_ASSERT(aspect, continue);
+        QTC_ASSERT(!m_kitAspects.contains(aspect), continue);
 
-    connect(aspect->mutableAction(), &QAction::toggled,
+        m_kitAspects.append(aspect);
+        aspectsById.insert(factory->id(), aspect);
+
+        connect(aspect->mutableAction(), &QAction::toggled,
             this, &KitManagerConfigWidget::dirty);
+    }
+
+    QSet<KitAspect *> embedded;
+    for (KitAspect * const aspect : std::as_const(m_kitAspects)) {
+        QList<KitAspect *> embeddables;
+        for (const QList<Id> embeddableIds = aspect->factory()->embeddableAspects();
+             const Id &embeddableId : embeddableIds) {
+            if (KitAspect * const embeddable = aspectsById.value(embeddableId)) {
+                embeddables << embeddable;
+                embedded << embeddable;
+            }
+        }
+        aspect->setAspectsToEmbed(embeddables);
+    }
+
+    for (KitAspect * const aspect : std::as_const(m_kitAspects)) {
+        if (!embedded.contains(aspect))
+            aspect->addToLayout(parent);
+    }
 }
 
 void KitManagerConfigWidget::updateVisibility()
