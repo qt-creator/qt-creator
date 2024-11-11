@@ -287,55 +287,54 @@ bool AndroidDeployQtStep::init()
     emit addOutput(Tr::tr("Deploying to %1").arg(m_serialNumber), OutputFormat::NormalMessage);
 
     m_uninstallPreviousPackageRun = m_uninstallPreviousPackage();
-    if (true) {
-        const QString buildKey = target()->activeBuildKey();
-        const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
-        if (!node) {
-            reportWarningOrError(Tr::tr("The deployment step's project node is invalid."), Task::Error);
+
+    const ProjectNode *node = target()->project()->findNodeForBuildKey(buildKey);
+    if (!node) {
+        reportWarningOrError(Tr::tr("The deployment step's project node is invalid."), Task::Error);
+        return false;
+    }
+    m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
+    if (!m_apkPath.isEmpty()) {
+        m_command = AndroidConfig::adbToolPath();
+        AndroidManager::setManifestPath(target(),
+            FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
+    } else {
+        FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(target());
+        if (jsonFile.isEmpty()) {
+            reportWarningOrError(Tr::tr("Cannot find the androiddeployqt input JSON file."),
+                                 Task::Error);
             return false;
         }
-        m_apkPath = FilePath::fromString(node->data(Constants::AndroidApk).toString());
-        if (!m_apkPath.isEmpty()) {
-            m_command = AndroidConfig::adbToolPath();
-            AndroidManager::setManifestPath(target(),
-                FilePath::fromString(node->data(Constants::AndroidManifest).toString()));
-        } else {
-            FilePath jsonFile = AndroidQtVersion::androidDeploymentSettings(target());
-            if (jsonFile.isEmpty()) {
-                reportWarningOrError(Tr::tr("Cannot find the androiddeployqt input JSON file."),
-                                     Task::Error);
-                return false;
-            }
-            m_command = version->hostBinPath();
-            if (m_command.isEmpty()) {
-                reportWarningOrError(Tr::tr("Cannot find the androiddeployqt tool."), Task::Error);
-                return false;
-            }
-            m_command = m_command.pathAppended("androiddeployqt").withExecutableSuffix();
+        m_command = version->hostBinPath();
+        if (m_command.isEmpty()) {
+            reportWarningOrError(Tr::tr("Cannot find the androiddeployqt tool."), Task::Error);
+            return false;
+        }
+        m_command = m_command.pathAppended("androiddeployqt").withExecutableSuffix();
 
-            m_workingDirectory = AndroidManager::androidBuildDirectory(target());
+        m_workingDirectory = AndroidManager::androidBuildDirectory(target());
 
-            // clang-format off
-            m_androiddeployqtArgs.addArgs({"--verbose",
-                                           "--output", m_workingDirectory.path(),
-                                           "--no-build",
-                                           "--input", jsonFile.path()});
-            // clang-format on
+        // clang-format off
+        m_androiddeployqtArgs.addArgs({"--verbose",
+                                       "--output", m_workingDirectory.path(),
+                                       "--no-build",
+                                       "--input", jsonFile.path()});
+        // clang-format on
 
-            m_androiddeployqtArgs.addArg("--gradle");
+        m_androiddeployqtArgs.addArg("--gradle");
 
-            if (buildType() == BuildConfiguration::Release)
-                m_androiddeployqtArgs.addArgs({"--release"});
+        if (buildType() == BuildConfiguration::Release)
+            m_androiddeployqtArgs.addArgs({"--release"});
 
-            if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
-                // The androiddeployqt tool is not really written to do stand-alone installations.
-                // This hack forces it to use the correct filename for the apk file when installing
-                // as a temporary fix until androiddeployqt gets the support. Since the --sign is
-                // only used to get the correct file name of the apk, its parameters are ignored.
-                m_androiddeployqtArgs.addArgs({"--sign", "foo", "bar"});
-            }
+        if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
+            // The androiddeployqt tool is not really written to do stand-alone installations.
+            // This hack forces it to use the correct filename for the apk file when installing
+            // as a temporary fix until androiddeployqt gets the support. Since the --sign is
+            // only used to get the correct file name of the apk, its parameters are ignored.
+            m_androiddeployqtArgs.addArgs({"--sign", "foo", "bar"});
         }
     }
+
     m_environment = bc ? bc->environment() : Environment();
 
     m_adbPath = AndroidConfig::adbToolPath();
