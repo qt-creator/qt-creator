@@ -240,8 +240,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(m_step->target()->kit());
     const int minApiSupported = AndroidManager::defaultMinimumSDK(qt);
-    QStringList targets = AndroidConfig::apiLevelNamesFor(AndroidConfigurations::sdkManager()->
-                                                          filteredSdkPlatforms(minApiSupported));
+    QStringList targets = AndroidConfig::apiLevelNamesFor(
+        sdkManager().filteredSdkPlatforms(minApiSupported));
     targets.removeDuplicates();
 
     auto targetSDKComboBox = new QComboBox();
@@ -254,8 +254,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
    });
     targetSDKComboBox->setCurrentIndex(targets.indexOf(m_step->buildTargetSdk()));
 
-    const QList<QVersionNumber> buildToolsVersions = Utils::transform(
-                AndroidConfigurations::sdkManager()->filteredBuildTools(minApiSupported),
+    const QList<QVersionNumber> buildToolsVersions
+        = Utils::transform(sdkManager().filteredBuildTools(minApiSupported),
                 [](const BuildTools *pkg) {
         return pkg->revision();
     });
@@ -483,8 +483,7 @@ void AndroidBuildApkWidget::updateSigningWarning()
 
 AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
     : AbstractProcessStep(parent, id),
-      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(AndroidConfigurations::
-                                         sdkManager()->latestAndroidSdkPlatform()))
+      m_buildTargetSdk(AndroidConfig::apiLevelNameFor(sdkManager().latestAndroidSdkPlatform()))
 {
     setImmutable(true);
     setDisplayName(Tr::tr("Build Android APK"));
@@ -913,8 +912,7 @@ void AndroidBuildApkStep::fromMap(const Store &map)
     m_buildTargetSdk = map.value(BuildTargetSdkKey).toString();
     m_buildToolsVersion = QVersionNumber::fromString(map.value(BuildToolsVersionKey).toString());
     if (m_buildTargetSdk.isEmpty()) {
-        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(AndroidConfigurations::
-                                                          sdkManager()->latestAndroidSdkPlatform());
+        m_buildTargetSdk = AndroidConfig::apiLevelNameFor(sdkManager().latestAndroidSdkPlatform());
     }
     ProjectExplorer::BuildStep::fromMap(map);
 }

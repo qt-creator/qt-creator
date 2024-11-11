@@ -630,6 +630,12 @@ void AndroidSdkManager::runUpdate()
     m_d->runDialogRecipe(dialogStorage, licensesRecipe(dialogStorage), updateRecipe(dialogStorage));
 }
 
+AndroidSdkManager &sdkManager()
+{
+    static AndroidSdkManager theAndroidSdkManager;
+    return theAndroidSdkManager;
+}
+
 } // namespace Android::Internal
 
 #include "androidsdkmanager.moc"

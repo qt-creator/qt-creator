@@ -180,7 +180,6 @@ private:
     bool isDefaultNdkSelected() const;
     void validateOpenSsl();
 
-    AndroidSdkManager *m_sdkManager;
     Tasking::TaskTreeRunner m_sdkDownloader;
     bool m_isInitialReloadDone = false;
 
@@ -262,7 +261,6 @@ static expected_str<void> testJavaC(const FilePath &jdkPath)
 }
 
 AndroidSettingsWidget::AndroidSettingsWidget()
-    : m_sdkManager(AndroidConfigurations::sdkManager())
 {
     setWindowTitle(Tr::tr("Android Configuration"));
 
@@ -288,7 +286,7 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                               "be compatible with all registered Qt versions."));
 
     auto androidDetailsWidget = new DetailsWidget;
-    m_sdkManager->setSpinnerTarget(androidDetailsWidget);
+    sdkManager().setSpinnerTarget(androidDetailsWidget);
 
     m_ndkListWidget = new QListWidget;
     m_ndkListWidget->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
@@ -493,11 +491,11 @@ AndroidSettingsWidget::AndroidSettingsWidget()
                                  Tr::tr("Failed to create the SDK Tools path %1.")
                                  .arg("\n\"" + sdkPath.toUserOutput() + "\""));
         }
-        m_sdkManager->reloadPackages();
+        sdkManager().reloadPackages();
         updateUI();
         apply();
 
-        connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+        connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
             downloadOpenSslRepo(true);
         }, Qt::SingleShotConnection);
     });
@@ -513,10 +511,10 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
         // Reloading SDK packages (force) is still synchronous. Use zero timer
         // to let settings dialog open first.
         QTimer::singleShot(0, this, [this] {
-            m_sdkManager->refreshPackages();
+            sdkManager().refreshPackages();
             validateSdk();
             // Validate SDK again after any change in SDK packages.
-            connect(m_sdkManager, &AndroidSdkManager::packagesReloaded, this, [this] {
+            connect(&sdkManager(), &AndroidSdkManager::packagesReloaded, this, [this] {
                 m_androidSummary->setInProgressText("Packages reloaded");
                 m_sdkLocationPathChooser->triggerChanged();
                 validateSdk();
@@ -530,7 +528,7 @@ void AndroidSettingsWidget::showEvent(QShowEvent *event)
 void AndroidSettingsWidget::updateNdkList()
 {
     m_ndkListWidget->clear();
-    const auto installedPkgs = m_sdkManager->installedNdkPackages();
+    const auto installedPkgs = sdkManager().installedNdkPackages();
     for (const Ndk *ndk : installedPkgs) {
         m_ndkListWidget->addItem(new QListWidgetItem(Icons::LOCKED.icon(),
                                                         ndk->installedLocation().toUserOutput()));
@@ -593,7 +591,7 @@ void AndroidSettingsWidget::validateJdk()
     updateUI();
 
     if (m_isInitialReloadDone)
-        m_sdkManager->reloadPackages();
+        sdkManager().reloadPackages();
 }
 
 void AndroidSettingsWidget::validateOpenSsl()
@@ -620,7 +618,7 @@ void AndroidSettingsWidget::onSdkPathChanged()
         currentOpenSslPath = sdkPath.pathAppended("android_openssl");
     m_openSslPathChooser->setFilePath(currentOpenSslPath);
     // Package reload will trigger validateSdk.
-    m_sdkManager->refreshPackages();
+    sdkManager().refreshPackages();
 }
 
 void AndroidSettingsWidget::validateSdk()
@@ -633,7 +631,7 @@ void AndroidSettingsWidget::validateSdk()
     m_androidSummary->setPointValid(SdkToolsInstalledRow,
                                     !AndroidConfig::sdkToolsVersion().isNull());
     m_androidSummary->setPointValid(SdkManagerSuccessfulRow, // TODO: track me
-                                    m_sdkManager->packageListingSuccessful());
+                                    sdkManager().packageListingSuccessful());
     m_androidSummary->setPointValid(PlatformToolsInstalledRow, // TODO: track me
                                     AndroidConfig::adbToolPath().exists());
     m_androidSummary->setPointValid(AllEssentialsInstalledRow,
@@ -643,7 +641,7 @@ void AndroidSettingsWidget::validateSdk()
     // installedSdkPlatforms should not trigger a package reload as validate SDK is only called
     // after AndroidSdkManager::packageReloadFinished.
     m_androidSummary->setPointValid(PlatformSdkInstalledRow,
-                                    !m_sdkManager->installedSdkPlatforms().isEmpty());
+                                    !sdkManager().installedSdkPlatforms().isEmpty());
 
     const bool sdkToolsOk = m_androidSummary->rowsOk({SdkPathExistsAndWritableRow,
                                                       SdkToolsInstalledRow,
@@ -654,7 +652,7 @@ void AndroidSettingsWidget::validateSdk()
                                                         AllEssentialsInstalledRow});
     AndroidConfig::setSdkFullyConfigured(sdkToolsOk && componentsOk);
     if (sdkToolsOk && !componentsOk) {
-        const QStringList notFoundEssentials = m_sdkManager->notFoundEssentialSdkPackages();
+        const QStringList notFoundEssentials = sdkManager().notFoundEssentialSdkPackages();
         if (!notFoundEssentials.isEmpty()) {
             QMessageBox::warning(Core::ICore::dialogParent(),
                 Tr::tr("Android SDK Changes"),
@@ -663,7 +661,7 @@ void AndroidSettingsWidget::validateSdk()
                     .arg(QGuiApplication::applicationDisplayName(),
                          notFoundEssentials.join("\", \"")));
         }
-        QStringList missingPkgs = m_sdkManager->missingEssentialSdkPackages();
+        QStringList missingPkgs = sdkManager().missingEssentialSdkPackages();
         // Add the a system image with highest API level only if there are other
         // essentials needed, so it would practicaly be somewhat optional.
         if (!missingPkgs.isEmpty()) {
@@ -671,7 +669,7 @@ void AndroidSettingsWidget::validateSdk()
             if (!sysImage.isEmpty())
                 missingPkgs.append(sysImage);
         }
-        m_sdkManager->runInstallationChange({missingPkgs},
+        sdkManager().runInstallationChange({missingPkgs},
             Tr::tr("Android SDK installation is missing necessary packages. "
                    "Do you want to install the missing packages?"));
     }

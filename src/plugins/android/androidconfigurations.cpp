@@ -7,6 +7,7 @@
 #include "androiddevice.h"
 #include "androidmanager.h"
 #include "androidqtversion.h"
+#include "androidsdkmanager.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
 
@@ -52,7 +53,6 @@
 #include <QSysInfo>
 
 #include <functional>
-#include <memory>
 
 #ifdef WITH_TESTS
 #   include <QTest>
@@ -906,8 +906,7 @@ static QString essentialBuiltWithBuildToolsPackage(int builtWithApiVersion)
     // invalidated whenever a new minor version is released, check if any version with major
     // version matching builtWith apiVersion and use it as essential, otherwise use the any
     // other one that has an minimum major version of builtWith apiVersion.
-    const BuildToolsList buildTools =
-        AndroidConfigurations::sdkManager()->filteredBuildTools(builtWithApiVersion);
+    const BuildToolsList buildTools = sdkManager().filteredBuildTools(builtWithApiVersion);
     const BuildToolsList apiBuildTools
         = Utils::filtered(buildTools, [builtWithApiVersion] (const BuildTools *pkg) {
               return pkg->revision().majorVersion() == builtWithApiVersion; });
@@ -997,7 +996,7 @@ QString optionalSystemImagePackage()
     const auto imageName = QLatin1String("%1;android-%2;google_apis_playstore;%3")
                                .arg(Constants::systemImagesPackageName).arg(apiLevel).arg(hostArch);
 
-    const SdkPlatformList sdkPlatforms = AndroidConfigurations::sdkManager()->filteredSdkPlatforms(
+    const SdkPlatformList sdkPlatforms = sdkManager().filteredSdkPlatforms(
         apiLevel, AndroidSdkPackage::AnyValidState);
 
     if (sdkPlatforms.isEmpty())
@@ -1022,7 +1021,7 @@ static QStringList packagesWithoutNdks(const QStringList &packages)
 bool allEssentialsInstalled()
 {
     QStringList essentialPkgs(allEssentials());
-    const auto installedPkgs = AndroidConfigurations::sdkManager()->installedSdkPackages();
+    const auto installedPkgs = sdkManager().installedSdkPackages();
     for (const AndroidSdkPackage *pkg : installedPkgs) {
         if (essentialPkgs.contains(pkg->sdkStylePath()))
             essentialPkgs.removeOne(pkg->sdkStylePath());
@@ -1210,7 +1209,6 @@ FilePath getJdkPath()
 AndroidConfigurations *m_instance = nullptr;
 
 AndroidConfigurations::AndroidConfigurations()
-    : m_sdkManager(new AndroidSdkManager)
 {
     load();
     connect(DeviceManager::instance(), &DeviceManager::devicesLoaded,
@@ -1508,11 +1506,6 @@ void AndroidConfigurations::updateAutomaticKitList()
     // cleanup any mess that might have existed before, by removing all Android kits that
     // existed before, but weren't re-used
     KitManager::deregisterKits(unhandledKits);
-}
-
-AndroidSdkManager *AndroidConfigurations::sdkManager()
-{
-    return m_instance->m_sdkManager.get();
 }
 
 AndroidConfigurations *AndroidConfigurations::instance()

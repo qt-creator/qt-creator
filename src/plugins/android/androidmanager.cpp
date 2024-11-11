@@ -7,6 +7,7 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidqtversion.h"
+#include "androidsdkmanager.h"
 #include "androidtr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
@@ -209,8 +210,7 @@ QString buildTargetSDK(const Target *target)
             return androidBuildApkStep->buildTargetSdk();
     }
 
-    QString fallback = AndroidConfig::apiLevelNameFor(
-                AndroidConfigurations::sdkManager()->latestAndroidSdkPlatform());
+    QString fallback = AndroidConfig::apiLevelNameFor(sdkManager().latestAndroidSdkPlatform());
     return fallback;
 }
 

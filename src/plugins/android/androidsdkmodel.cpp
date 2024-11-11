@@ -21,7 +21,7 @@ const int packageColCount = 3;
 AndroidSdkModel::AndroidSdkModel(QObject *parent)
     : QAbstractItemModel(parent)
 {
-    connect(AndroidConfigurations::sdkManager(), &AndroidSdkManager::packagesReloaded,
+    connect(&sdkManager(), &AndroidSdkManager::packagesReloaded,
             this, &AndroidSdkModel::refreshData);
     refreshData();
 }
@@ -275,7 +275,7 @@ void AndroidSdkModel::refreshData()
     m_tools.clear();
     m_changeState.clear();
     beginResetModel();
-    for (AndroidSdkPackage *p : AndroidConfigurations::sdkManager()->allSdkPackages()) {
+    for (AndroidSdkPackage *p : sdkManager().allSdkPackages()) {
         if (p->type() == AndroidSdkPackage::SdkPlatformPackage)
             m_sdkPlatforms << static_cast<SdkPlatform *>(p);
         else

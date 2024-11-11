@@ -108,7 +108,6 @@ public:
     AndroidSdkManagerDialog(QWidget *parent);
 
 private:
-    AndroidSdkManager *m_sdkManager = nullptr;
     AndroidSdkModel *m_sdkModel = nullptr;
 };
 
@@ -196,7 +195,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
             packagesView->collapseAll();
     });
     connect(updateInstalledButton, &QPushButton::clicked,
-            m_sdkManager, &AndroidSdkManager::runUpdate);
+            &sdkManager(), &AndroidSdkManager::runUpdate);
     connect(showAllRadio, &QRadioButton::toggled, this, [this, proxyModel](bool checked) {
         if (checked) {
             proxyModel->setAcceptedPackageState(AndroidSdkPackage::AnyValidState);
@@ -225,7 +224,7 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
     });
 
     connect(buttonBox->button(QDialogButtonBox::Apply), &QAbstractButton::clicked, this, [this] {
-        m_sdkManager->runInstallationChange(m_sdkModel->installationChange());
+        sdkManager().runInstallationChange(m_sdkModel->installationChange());
     });
     connect(buttonBox, &QDialogButtonBox::rejected, this, &AndroidSdkManagerDialog::reject);
 
@@ -235,25 +234,25 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
             QStringList arguments = dlg.sdkManagerArguments();
             if (arguments != AndroidConfig::sdkManagerToolArgs()) {
                 AndroidConfig::setSdkManagerToolArgs(arguments);
-                m_sdkManager->reloadPackages();
+                sdkManager().reloadPackages();
             }
         }
     });
 
-    connect(obsoleteCheckBox, &QCheckBox::stateChanged, this, [this](int state) {
+    connect(obsoleteCheckBox, &QCheckBox::stateChanged, this, [](int state) {
         const QString obsoleteArg = "--include_obsolete";
         QStringList args = AndroidConfig::sdkManagerToolArgs();
         if (state == Qt::Checked && !args.contains(obsoleteArg)) {
             args.append(obsoleteArg);
             AndroidConfig::setSdkManagerToolArgs(args);
-       } else if (state == Qt::Unchecked && args.contains(obsoleteArg)) {
+        } else if (state == Qt::Unchecked && args.contains(obsoleteArg)) {
             args.removeAll(obsoleteArg);
             AndroidConfig::setSdkManagerToolArgs(args);
-       }
-        m_sdkManager->reloadPackages();
+        }
+        sdkManager().reloadPackages();
     });
 
-    connect(channelCheckbox, &QComboBox::currentIndexChanged, this, [this](int index) {
+    connect(channelCheckbox, &QComboBox::currentIndexChanged, this, [](int index) {
         QStringList args = AndroidConfig::sdkManagerToolArgs();
         QString existingArg;
         for (int i = 0; i < 4; ++i) {
@@ -278,8 +277,8 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
                 args.append(channelArg);
                 AndroidConfig::setSdkManagerToolArgs(args);
             }
-       }
-        m_sdkManager->reloadPackages();
+        }
+        sdkManager().reloadPackages();
     });
 }
 

@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include "androidsdkmanager.h"
 #include "androidsdkpackage.h"
 
 #include <projectexplorer/toolchain.h>
@@ -21,8 +20,6 @@
 namespace ProjectExplorer { class Abi; }
 
 namespace Android::Internal {
-
-class AndroidSdkManager;
 
 class CreateAvdInfo
 {
@@ -124,7 +121,6 @@ class AndroidConfigurations : public QObject
     Q_OBJECT
 
 public:
-    static Internal::AndroidSdkManager *sdkManager();
     static void applyConfig();
     static AndroidConfigurations *instance();
 
@@ -147,7 +143,6 @@ private:
     void save();
 
     static void updateAndroidDevice();
-    std::unique_ptr<Internal::AndroidSdkManager> m_sdkManager;
 };
 
 #ifdef WITH_TESTS

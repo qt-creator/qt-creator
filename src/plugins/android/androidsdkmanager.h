@@ -69,5 +69,6 @@ private:
 };
 
 const QRegularExpression &assertionRegExp();
+AndroidSdkManager &sdkManager();
 
 } // namespace Android::Internal

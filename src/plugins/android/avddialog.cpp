@@ -357,8 +357,7 @@ int AvdDialog::sdcardSize() const
 
 void AvdDialog::updateApiLevelComboBox()
 {
-    const SystemImageList installedSystemImages
-        = AndroidConfigurations::sdkManager()->installedSystemImages();
+    const SystemImageList installedSystemImages = sdkManager().installedSystemImages();
     DeviceType curDeviceType = m_deviceTypeToStringMap.key(
         m_deviceDefinitionTypeComboBox->currentText());
 
