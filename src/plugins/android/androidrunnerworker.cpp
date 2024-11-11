@@ -299,7 +299,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
         process.setCommand(storage->adbCommand({"forward", "--remove", port}));
     };
     const auto onForwardRemoveDone = [storage](const Process &process) {
-        storage->m_glue->addStdErr(process.cleanedStdErr().trimmed());
+        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
         return true;
     };
 
@@ -311,7 +311,7 @@ static ExecutableItem removeForwardPortRecipe(RunnerStorage *storage, const QStr
             storage->m_afterFinishAdbCommands.push_back("forward --remove " + port);
         } else {
             //: %1 = QML/JDB/C++
-            storage->m_glue->setFinished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
+            emit storage->m_glue->finished(Tr::tr("Failed to forward %1 debugging ports.").arg(portType));
         }
     };
 
@@ -447,18 +447,18 @@ static ExecutableItem logcatRecipe(const Storage<RunnerStorage> &storage)
                     const QString cleanPidMatch = pidMatch.mid(1, pidMatch.size() - 2).trimmed();
                     const QString output = QString(line).remove(pidMatch);
                     if (isFatal) {
-                        storagePtr->m_glue->addStdErr(output);
+                        emit storagePtr->m_glue->stdErr(output);
                     } else if (cleanPidMatch == pidString) {
                         if (onlyError || errorMsgTypes.contains(msgType))
-                            storagePtr->m_glue->addStdErr(output);
+                            emit storagePtr->m_glue->stdErr(output);
                         else
-                            storagePtr->m_glue->addStdOut(output);
+                            emit storagePtr->m_glue->stdOut(output);
                     }
                 } else {
                     if (onlyError || errorMsgTypes.contains(msgType))
-                        storagePtr->m_glue->addStdErr(line);
+                        emit storagePtr->m_glue->stdErr(line);
                     else
-                        storagePtr->m_glue->addStdOut(line);
+                        emit storagePtr->m_glue->stdOut(line);
                 }
             }
         };
@@ -503,7 +503,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
             {storage->m_beforeStartAdbCommands.at(iterator.iteration()).split(' ', Qt::SkipEmptyParts)}));
     };
     const auto onPreCommandDone = [storage](const Process &process) {
-        storage->m_glue->addStdErr(process.cleanedStdErr().trimmed());
+        emit storage->m_glue->stdErr(process.cleanedStdErr().trimmed());
     };
 
     const auto isQmlDebug = [storage] {
@@ -543,7 +543,7 @@ static ExecutableItem preStartRecipe(const Storage<RunnerStorage> &storage)
         process.setCommand(*cmdStorage);
     };
     const auto onActivityDone = [storage](const Process &process) {
-        storage->m_glue->setFinished(
+        emit storage->m_glue->finished(
             Tr::tr("Activity Manager error: %1").arg(process.cleanedStdErr().trimmed()));
     };
 
@@ -579,7 +579,7 @@ static ExecutableItem postDoneRecipe(const Storage<RunnerStorage> &storage)
         const QString message = storage->m_glue->wasCancelled()
                                     ? Tr::tr("Android target \"%1\" terminated.").arg(package)
                                     : Tr::tr("Android target \"%1\" died.").arg(package);
-        storage->m_glue->setFinished(message);
+        emit storage->m_glue->finished(message);
     };
 
     return Group {
@@ -645,7 +645,7 @@ static ExecutableItem uploadDebugServerRecipe(const Storage<RunnerStorage> &stor
 
     const auto onDebugSetupFinished = [storage] {
         storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-        storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
+        emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
     };
 
     return Group {
@@ -687,7 +687,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         if (result == DoneWith::Success)
             *packageDirStorage = process.stdOut();
         else
-            storage->m_glue->setFinished(Tr::tr("Failed to find application directory."));
+            emit storage->m_glue->finished(Tr::tr("Failed to find application directory."));
     };
 
     // Add executable flag to package dir. Gdb can't connect to running server on device on
@@ -701,7 +701,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
         QString msg = Tr::tr("Cannot find C++ debug server in NDK installation.");
         if (storage->m_useLldb)
             msg += "\n" + Tr::tr("The lldb-server binary has not been found.");
-        storage->m_glue->setFinished(msg);
+        emit storage->m_glue->finished(msg);
         return false;
     };
 
@@ -720,7 +720,7 @@ static ExecutableItem startNativeDebuggingRecipe(const Storage<RunnerStorage> &s
             setDebugServer(debugServerFileName)
         } >> Else {
             Sync([storage] {
-                storage->m_glue->setFinished(Tr::tr("Cannot copy C++ debug server."));
+                emit storage->m_glue->finished(Tr::tr("Cannot copy C++ debug server."));
                 return false;
             })
         };
@@ -827,7 +827,7 @@ static ExecutableItem pidRecipe(const Storage<RunnerStorage> &storage)
                 qCDebug(androidRunWorkerLog) << "Process ID changed to:" << storage->m_processPID;
                 if (!storage->m_useCppDebugger) {
                     storage->m_glue->runControl()->setQmlChannel(storage->m_qmlServer);
-                    storage->m_glue->setStarted(s_localDebugServerPort, storage->m_processPID);
+                    emit storage->m_glue->started(s_localDebugServerPort, storage->m_processPID);
                 }
                 return DoneResult::Success;
             }
@@ -872,11 +872,6 @@ void RunnerInterface::cancel()
 {
     m_wasCancelled = true;
     emit canceled();
-}
-
-void RunnerInterface::setStarted(const Port &debugServerPort, qint64 pid)
-{
-    emit started(debugServerPort, pid);
 }
 
 ExecutableItem runnerRecipe(const Storage<RunnerInterface> &glueStorage)

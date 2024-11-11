@@ -33,12 +33,6 @@ public:
     // GUI -> business logic
     void cancel();
 
-    // business logic -> GUI
-    void setStarted(const Utils::Port &debugServerPort, qint64 pid);
-    void setFinished(const QString &errorMessage) { emit finished(errorMessage); }
-    void addStdOut(const QString &data) { emit stdOut(data); }
-    void addStdErr(const QString &data) { emit stdErr(data); }
-
 signals:
     // GUI -> business logic
     void canceled();
