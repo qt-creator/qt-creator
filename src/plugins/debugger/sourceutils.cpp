@@ -341,6 +341,7 @@ public:
         setPriority(TextEditor::TextMark::HighPriority);
         setToolTipProvider([] { return QString(); });
         setLineAnnotation(value);
+        setAnnotationTextFormat(Qt::PlainText);
     }
 };
 
