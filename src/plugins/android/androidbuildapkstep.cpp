@@ -79,11 +79,10 @@ public:
     };
 
     PasswordInputDialog(Context context, std::function<bool (const QString &)> callback,
-                        const QString &extraContextStr, QWidget *parent = nullptr);
+                        const QString &extraContextStr);
 
     static QString getPassword(Context context, std::function<bool (const QString &)> callback,
-                               const QString &extraContextStr, bool *ok = nullptr,
-                               QWidget *parent = nullptr);
+                               const QString &extraContextStr, bool *ok = nullptr);
 
 private:
     std::function<bool (const QString &)> verifyCallback = [](const QString &) { return true; };
@@ -1023,9 +1022,8 @@ QAbstractItemModel *AndroidBuildApkStep::keystoreCertificates()
 
 PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
                                          std::function<bool (const QString &)> callback,
-                                         const QString &extraContextStr,
-                                         QWidget *parent) :
-    QDialog(parent, Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
+                                         const QString &extraContextStr) :
+    QDialog(Core::ICore::dialogParent(), Qt::Dialog | Qt::CustomizeWindowHint | Qt::WindowTitleHint),
     verifyCallback(callback)
 
 {
@@ -1069,14 +1067,13 @@ PasswordInputDialog::PasswordInputDialog(PasswordInputDialog::Context context,
 }
 
 QString PasswordInputDialog::getPassword(Context context, std::function<bool (const QString &)> callback,
-                                         const QString &extraContextStr, bool *ok, QWidget *parent)
+                                         const QString &extraContextStr, bool *ok)
 {
-    std::unique_ptr<PasswordInputDialog> dlg(new PasswordInputDialog(context, callback,
-                                                                     extraContextStr, parent));
-    bool isAccepted = dlg->exec() == QDialog::Accepted;
+    PasswordInputDialog dlg(context, callback, extraContextStr);
+    bool isAccepted = dlg.exec() == QDialog::Accepted;
     if (ok)
         *ok = isAccepted;
-    return isAccepted ? dlg->inputEdit->text() : "";
+    return isAccepted ? dlg.inputEdit->text() : QString();
 }
 
 
