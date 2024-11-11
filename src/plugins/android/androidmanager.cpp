@@ -38,8 +38,6 @@ using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-using namespace std::chrono_literals;
-
 namespace Android::AndroidManager {
 
 const char AndroidManifestName[] = "AndroidManifest.xml";
@@ -589,49 +587,6 @@ QString androidNameForApiLevel(int x)
     default:
         return Tr::tr("Unknown Android version. API Level: %1").arg(x);
     }
-}
-
-bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
-{
-    if (keystorePasswd.isEmpty())
-        return false;
-    const CommandLine cmd(AndroidConfig::keytoolPath(),
-                          {"-list", "-keystore", keystorePath.toUserOutput(),
-                           "--storepass", keystorePasswd});
-    Process proc;
-    proc.setCommand(cmd);
-    proc.runBlocking(10s);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
-bool checkCertificatePassword(const FilePath &keystorePath, const QString &keystorePasswd,
-                              const QString &alias, const QString &certificatePasswd)
-{
-    // assumes that the keystore password is correct
-    QStringList arguments = {"-certreq", "-keystore", keystorePath.toUserOutput(),
-                             "--storepass", keystorePasswd, "-alias", alias, "-keypass"};
-    if (certificatePasswd.isEmpty())
-        arguments << keystorePasswd;
-    else
-        arguments << certificatePasswd;
-
-    Process proc;
-    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
-    proc.runBlocking(10s);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
-bool checkCertificateExists(const FilePath &keystorePath, const QString &keystorePasswd,
-                            const QString &alias)
-{
-    // assumes that the keystore password is correct
-    const QStringList arguments = {"-list", "-keystore", keystorePath.toUserOutput(),
-                                   "--storepass", keystorePasswd, "-alias", alias};
-
-    Process proc;
-    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
-    proc.runBlocking(10s);
-    return proc.result() == ProcessResult::FinishedWithSuccess;
 }
 
 } // namespace Android::AndroidManager

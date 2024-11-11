@@ -56,11 +56,11 @@
 #include <QPushButton>
 #include <QTimer>
 
-#include <memory>
-
 using namespace ProjectExplorer;
 using namespace QtSupport;
 using namespace Utils;
+
+using namespace std::chrono_literals;
 
 namespace Android::Internal {
 
@@ -93,6 +93,49 @@ private:
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel,
                                                        this);
 };
+
+static bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
+{
+    if (keystorePasswd.isEmpty())
+        return false;
+    const CommandLine cmd(AndroidConfig::keytoolPath(),
+                          {"-list", "-keystore", keystorePath.toUserOutput(),
+                           "--storepass", keystorePasswd});
+    Process proc;
+    proc.setCommand(cmd);
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
+
+static bool checkCertificatePassword(const FilePath &keystorePath, const QString &keystorePasswd,
+                                     const QString &alias, const QString &certificatePasswd)
+{
+    // assumes that the keystore password is correct
+    QStringList arguments = {"-certreq", "-keystore", keystorePath.toUserOutput(),
+                             "--storepass", keystorePasswd, "-alias", alias, "-keypass"};
+    if (certificatePasswd.isEmpty())
+        arguments << keystorePasswd;
+    else
+        arguments << certificatePasswd;
+
+    Process proc;
+    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
+
+static bool checkCertificateExists(const FilePath &keystorePath, const QString &keystorePasswd,
+                                   const QString &alias)
+{
+    // assumes that the keystore password is correct
+    const QStringList arguments = {"-list", "-keystore", keystorePath.toUserOutput(),
+                                   "--storepass", keystorePasswd, "-alias", alias};
+
+    Process proc;
+    proc.setCommand({AndroidConfig::keytoolPath(), arguments});
+    proc.runBlocking(10s);
+    return proc.result() == ProcessResult::FinishedWithSuccess;
+}
 
 // AndroidBuildApkWidget
 
@@ -627,11 +670,11 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
         return false;
     }
 
-    if (AndroidManager::checkKeystorePassword(m_keystorePath, m_keystorePasswd))
+    if (checkKeystorePassword(m_keystorePath, m_keystorePasswd))
         return true;
 
     bool success = false;
-    auto verifyCallback = std::bind(&AndroidManager::checkKeystorePassword,
+    auto verifyCallback = std::bind(&checkKeystorePassword,
                                     m_keystorePath, std::placeholders::_1);
     m_keystorePasswd = PasswordInputDialog::getPassword(PasswordInputDialog::KeystorePassword,
                                                         verifyCallback, "", &success);
@@ -640,20 +683,19 @@ bool AndroidBuildApkStep::verifyKeystorePassword()
 
 bool AndroidBuildApkStep::verifyCertificatePassword()
 {
-    if (!AndroidManager::checkCertificateExists(m_keystorePath, m_keystorePasswd,
-                                                m_certificateAlias)) {
+    if (!checkCertificateExists(m_keystorePath, m_keystorePasswd, m_certificateAlias)) {
         reportWarningOrError(Tr::tr("Cannot sign the package. Certificate alias %1 does not exist.")
                              .arg(m_certificateAlias), Task::Error);
         return false;
     }
 
-    if (AndroidManager::checkCertificatePassword(m_keystorePath, m_keystorePasswd,
-                                                 m_certificateAlias, m_certificatePasswd)) {
+    if (checkCertificatePassword(m_keystorePath, m_keystorePasswd,
+                                 m_certificateAlias, m_certificatePasswd)) {
         return true;
     }
 
     bool success = false;
-    auto verifyCallback = std::bind(&AndroidManager::checkCertificatePassword,
+    auto verifyCallback = std::bind(&checkCertificatePassword,
                                     m_keystorePath, m_keystorePasswd,
                                     m_certificateAlias, std::placeholders::_1);
 
@@ -664,8 +706,7 @@ bool AndroidBuildApkStep::verifyCertificatePassword()
 }
 
 
-static bool copyFileIfNewer(const FilePath &sourceFilePath,
-                            const FilePath &destinationFilePath)
+static bool copyFileIfNewer(const FilePath &sourceFilePath, const FilePath &destinationFilePath)
 {
     if (sourceFilePath == destinationFilePath)
         return true;

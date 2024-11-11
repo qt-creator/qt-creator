@@ -58,14 +58,6 @@ bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
 QString androidNameForApiLevel(int x);
 
-bool checkKeystorePassword(const Utils::FilePath &keystorePath,
-                           const QString &keystorePasswd);
-bool checkCertificatePassword(const Utils::FilePath &keystorePath,
-                              const QString &keystorePasswd,
-                              const QString &alias, const QString &certificatePasswd);
-bool checkCertificateExists(const Utils::FilePath &keystorePath,
-                            const QString &keystorePasswd, const QString &alias);
-
 QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
