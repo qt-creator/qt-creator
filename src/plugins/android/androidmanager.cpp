@@ -3,10 +3,9 @@
 
 #include "androidmanager.h"
 
-#include "androidavdmanager.h"
 #include "androidbuildapkstep.h"
+#include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androiddevice.h"
 #include "androidqtversion.h"
 #include "androidtr.h"
 
