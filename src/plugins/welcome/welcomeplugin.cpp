@@ -75,14 +75,10 @@ public:
             ideIconLabel->setFixedHeight(lineHeight);
         }
 
-        auto welcomeLabel = new QLabel(Tr::tr("Welcome to %1")
-                                           .arg(QGuiApplication::applicationDisplayName()));
-        {
-            welcomeLabel->setFont(welcomeTF.font());
-            QPalette pal = palette();
-            pal.setColor(QPalette::WindowText, welcomeTF.color());
-            welcomeLabel->setPalette(pal);
-        }
+        auto welcomeLabel = tfLabel(welcomeTF);
+        welcomeLabel->setText(Tr::tr("Welcome to %1")
+                              .arg(QGuiApplication::applicationDisplayName()));
+        welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
         using namespace Layouting;
 

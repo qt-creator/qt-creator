@@ -1268,15 +1268,13 @@ void SectionedGridView::setSearchString(const QString &searchString)
     filterModel->setSearchString(searchString);
 }
 
-static QLabel *createTitleLabel(const QString &text, QWidget *parent = nullptr)
+static QLabel *createTitleLabel(const QString &text)
 {
     constexpr TextFormat headerTitleTF {Theme::Token_Text_Muted, StyleHelper::UiElementH4};
-    auto link = new QLabel(text, parent);
-    link->setFont(headerTitleTF.font());
-    QPalette pal = link->palette();
-    pal.setColor(QPalette::WindowText, headerTitleTF.color());
-    link->setPalette(pal);
-    return link;
+    auto label = tfLabel(headerTitleTF);
+    label->setText(text);
+    label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
+    return label;
 }
 
 static QLabel *createLinkLabel(const QString &text, QWidget *parent)
@@ -1308,6 +1306,10 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
 
     m_sectionModels.insert(section, model);
     const auto it = m_gridViews.insert(section, gridView);
+
+    constexpr TextFormat headerTitleTF {Theme::Token_Text_Muted, StyleHelper::UiElementH4};
+    auto sectionNameLabel = WelcomePageHelpers::tfLabel(headerTitleTF);
+    sectionNameLabel->setText(section.name);
 
     QLabel *seeAllLink = createLinkLabel(Tr::tr("Show All") + " &gt;", this);
     if (gridView->maxRows().has_value()) {
