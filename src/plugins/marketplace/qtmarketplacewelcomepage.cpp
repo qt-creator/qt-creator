@@ -50,7 +50,7 @@ public:
                 customMargins(0, 0, ExVPaddingGapXl, 0),
             },
             m_sectionedProducts,
-            spacing(VPaddingL),
+            spacing(ExVPaddingGapXl),
             customMargins(ExVPaddingGapXl, ExVPaddingGapXl, 0, 0),
         }.attachTo(this);
 

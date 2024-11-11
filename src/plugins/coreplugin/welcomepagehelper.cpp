@@ -1327,7 +1327,7 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
         st,
         seeAllLink,
         Space(ExVPaddingGapXl),
-        customMargins(0, ExPaddingGapL, 0, VPaddingL),
+        customMargins(0, ExPaddingGapM, 0, ExPaddingGapM),
     }.emerge();
     m_sectionLabels.append(sectionLabel);
     auto scrollArea = qobject_cast<QScrollArea *>(widget(0));
@@ -1398,7 +1398,7 @@ void SectionedGridView::zoomInSection(const Section &section)
         st,
         backLink,
         Space(ExVPaddingGapXl),
-        customMargins(0, ExPaddingGapL, 0, VPaddingL),
+        customMargins(0, ExPaddingGapM, 0, ExPaddingGapM),
     }.emerge();
 
     auto gridView = new GridView(zoomedInWidget);
