@@ -20,6 +20,7 @@ stop_error=ffec7373
 run_success=ff52c23b
 error=ffdf4f4f
 warning=ffecbc1c
+info=ff4f9df8
 splitter=ffbdbebf
 qmlDesignerButtonColor=fff8f8f8
 textColorLink=ff007af4
@@ -410,6 +411,7 @@ ProjectExplorer_TaskWarn_TextMarkColor=warning
 
 CodeModel_Error_TextMarkColor=error
 CodeModel_Warning_TextMarkColor=warning
+CodeModel_Info_TextMarkColor=info
 
 ;new colors
 QmlDesigner_BackgroundColor=qmlDesignerButtonColor

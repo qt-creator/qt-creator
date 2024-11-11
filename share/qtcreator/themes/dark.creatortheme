@@ -16,6 +16,7 @@ normalBackground=ff333333
 alternateBackground=ff515151
 error=ffd84044
 warning=ffe0b716
+info=ff1f75cc
 splitterColor=ff313131
 textColorLink=ff8ab4f8
 textColorLinkVisited=ffc58af9
@@ -406,6 +407,7 @@ ProjectExplorer_TaskWarn_TextMarkColor=warning
 
 CodeModel_Error_TextMarkColor=error
 CodeModel_Warning_TextMarkColor=warning
+CodeModel_Info_TextMarkColor=info
 
 PaletteWindow=normalBackground
 PaletteWindowText=text

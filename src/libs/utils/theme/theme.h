@@ -171,6 +171,7 @@ public:
 
         CodeModel_Error_TextMarkColor,
         CodeModel_Warning_TextMarkColor,
+        CodeModel_Info_TextMarkColor,
 
         /* Output panes */
 
