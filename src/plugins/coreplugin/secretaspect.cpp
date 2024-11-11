@@ -207,7 +207,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
         d->wasEdited = true;
     });
 
-    addLabeledItem(parent, Layouting::Row{edit, warningLabel, showPasswordButton}.emerge());
+    addLabeledItem(parent, Layouting::Row{Layouting::noMargin, edit, warningLabel, showPasswordButton}.emerge());
 }
 
 void SecretAspect::requestValue(
