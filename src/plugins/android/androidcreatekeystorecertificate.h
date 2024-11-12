@@ -19,7 +19,6 @@ namespace Android::Internal {
 
 class AndroidCreateKeystoreCertificate : public QDialog
 {
-    Q_OBJECT
     enum PasswordStatus
     {
         Invalid,
