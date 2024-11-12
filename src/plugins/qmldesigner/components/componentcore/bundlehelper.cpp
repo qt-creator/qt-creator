@@ -733,6 +733,18 @@ QSet<AssetPath> BundleHelper::getComponentDependencies(const Utils::FilePath &fi
                         depList.insert({assetPathBase, assetPathRelative});
                     }
                 }
+            } else if (p.isBindingProperty()) {
+                // check if the property value is in this format: Qt.resolvedUrl("path")
+                static const QRegularExpression regex(R"(Qt\.resolvedUrl\(\"([^\"]+)\"\))");
+                QRegularExpressionMatch match = regex.match(p.toBindingProperty().expression());
+
+                if (match.hasMatch()) {
+                    Utils::FilePath assetPath = filePath.parentDir().resolvePath(match.captured(1));
+                    QString assetPathRelative = assetPath.relativePathFrom(mainCompDir).toFSPathString();
+
+                    QTC_ASSERT(assetPath.exists(), continue);
+                    depList.insert({mainCompDir, assetPathRelative});
+                }
             }
         }
 
