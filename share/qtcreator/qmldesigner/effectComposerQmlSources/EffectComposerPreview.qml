@@ -68,12 +68,14 @@ Column {
 
             PreviewImagesComboBox {
                 id: imagesComboBox
+                objectName: "comboPreviewImages"
 
                 mainRoot: root.mainRoot
             }
 
             StudioControls.ColorEditor {
                 id: colorEditor
+                objectName: "colorEditPreviewImage"
 
                 actionIndicatorVisible: false
                 showHexTextField: false
@@ -87,6 +89,8 @@ Column {
             anchors.verticalCenter: parent.verticalCenter
 
             HelperWidgets.AbstractButton {
+                objectName: "btnZoomIn"
+
                 enabled: root.previewScale < 3
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomIn_medium
@@ -101,6 +105,8 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
+                objectName: "btnZoomOut"
+
                 enabled: root.previewScale > .4
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.zoomOut_medium
@@ -115,6 +121,8 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
+                objectName: "btnResetView"
+
                 enabled: root.previewScale !== 1 || imageScaler.x !== root.previewMargin
                                                  || imageScaler.y !== root.previewMargin
                 style: StudioTheme.Values.viewBarButtonStyle
@@ -149,6 +157,8 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
+                objectName: "btnRestartAnimation"
+
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: StudioTheme.Constants.toStartFrame_medium
                 tooltip: qsTr("Restart Animation")
@@ -159,6 +169,8 @@ Column {
             }
 
             HelperWidgets.AbstractButton {
+                objectName: "btnPlayAnimation"
+
                 style: StudioTheme.Values.viewBarButtonStyle
                 buttonIcon: previewAnimationRunning ? StudioTheme.Constants.pause_medium
                                                     : StudioTheme.Constants.playOutline_medium

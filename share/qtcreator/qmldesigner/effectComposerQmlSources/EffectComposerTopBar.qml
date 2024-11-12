@@ -25,6 +25,7 @@ Rectangle {
         anchors.verticalCenter: parent.verticalCenter
 
         HelperWidgets.AbstractButton {
+            objectName: "btnAddComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.add_medium
             tooltip: qsTr("Add new composition")
@@ -33,6 +34,7 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
+            objectName: "btnSaveComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.save_medium
             tooltip: qsTr("Save current composition")
@@ -45,6 +47,7 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
+            objectName: "btnSaveAsComposition"
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.saveAs_medium
             tooltip: qsTr("Save current composition with a new name")
@@ -57,6 +60,7 @@ Rectangle {
 
         HelperWidgets.AbstractButton {
             id: openCodeEditorButton
+            objectName: "btnOpenCodeEditor"
 
             property bool codeEditorOpen: root.backendModel
                                           && (root.backendModel.codeEditorIndex
@@ -84,6 +88,8 @@ Rectangle {
         }
 
         HelperWidgets.AbstractButton {
+            objectName: "btnAssignCompositionToItem"
+
             style: StudioTheme.Values.viewBarButtonStyle
             buttonIcon: StudioTheme.Constants.assignTo_medium
             tooltip: qsTr("Assign current composition to selected item")
@@ -95,7 +101,6 @@ Rectangle {
             onClicked: root.assignToSelectedClicked()
         }
     }
-
 
     Text {
         readonly property string compName: root.backendModel ? root.backendModel.currentComposition
