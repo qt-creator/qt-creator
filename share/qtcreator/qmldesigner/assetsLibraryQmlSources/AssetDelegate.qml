@@ -4,6 +4,7 @@
 import QtQuick
 import QtQuick.Controls
 import StudioTheme as StudioTheme
+import StudioControls as StudioControls
 import AssetsLibraryBackend
 
 TreeViewDelegate {
@@ -195,7 +196,7 @@ TreeViewDelegate {
                 AssetsLibraryBackend.rootView.openEffectComposer(filePath)
         }
 
-        ToolTip {
+        StudioControls.ToolTip {
             id: assetTooltip
             visible: !root.isFont && mouseArea.containsMouse && !root.assetsView.contextMenu.visible
             text: assetTooltip.__computeText()
