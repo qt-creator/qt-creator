@@ -25,8 +25,6 @@ public:
     IDevice::MachineType type = IDevice::Emulator;
     Utils::FilePath avdPath;
 
-    static QStringList adbSelector(const QString &serialNumber);
-
     bool isValid() const { return !serialNumber.isEmpty() || !avdName.isEmpty(); }
     bool operator<(const AndroidDeviceInfo &other) const;
     bool operator==(const AndroidDeviceInfo &other) const; // should be = default with C++20

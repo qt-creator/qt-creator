@@ -361,7 +361,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
                                       .arg(parentDir.nativePath());
             reportWarningOrError(error, Task::Error);
         }
-        const CommandLine cmd{m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber),
+        const CommandLine cmd{m_adbPath, {adbSelector(m_serialNumber),
                                           "pull", file.from, file.to.nativePath()}};
         emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(cmd.toUserOutput()),
                        OutputFormat::NormalMessage);
@@ -421,8 +421,7 @@ Group AndroidDeployQtStep::deployRecipe()
         const QString msg = Tr::tr("Uninstalling the previous package \"%1\".").arg(packageName);
         qCDebug(deployStepLog) << msg;
         emit addOutput(msg, OutputFormat::NormalMessage);
-        const CommandLine cmd{m_adbPath, {AndroidDeviceInfo::adbSelector(m_serialNumber),
-                                          "uninstall", packageName}};
+        const CommandLine cmd{m_adbPath, {adbSelector(m_serialNumber), "uninstall", packageName}};
         emit addOutput(Tr::tr("Package deploy: Running command \"%1\".").arg(cmd.toUserOutput()),
                        OutputFormat::NormalMessage);
         process.setCommand(cmd);
@@ -445,7 +444,7 @@ Group AndroidDeployQtStep::deployRecipe()
                 cmd.addArgs({"--device", m_serialNumber});
         } else {
             QTC_ASSERT(target()->activeRunConfiguration(), return SetupResult::StopWithError);
-            cmd.addArgs(AndroidDeviceInfo::adbSelector(m_serialNumber));
+            cmd.addArgs(adbSelector(m_serialNumber));
             cmd.addArgs({"install", "-r", m_apkPath.nativePath()});
         }
 
@@ -587,7 +586,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
 
         const auto onAdbSetup = [serialNumberStorage, packagePath](Process &process) {
             const CommandLine cmd{AndroidConfig::adbToolPath(),
-                                  {AndroidDeviceInfo::adbSelector(*serialNumberStorage),
+                                  {adbSelector(*serialNumberStorage),
                                    "install", "-r", packagePath.path()}};
             process.setCommand(cmd);
         };

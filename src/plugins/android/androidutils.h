@@ -55,4 +55,6 @@ QString androidNameForApiLevel(int x);
 QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
+QStringList adbSelector(const QString &serialNumber);
+
 } // namespace Android::Internal

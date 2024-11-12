@@ -114,7 +114,7 @@ static QString displayNameFromInfo(const AndroidDeviceInfo &info)
 
 static IDevice::DeviceState getDeviceState(const QString &serial, IDevice::MachineType type)
 {
-    const QStringList args = AndroidDeviceInfo::adbSelector(serial) << "shell" << "echo 1";
+    const QStringList args = adbSelector(serial) << "shell" << "echo 1";
     const SdkToolResult result = runAdbCommand(args);
     if (result.success)
         return IDevice::DeviceReadyToUse;
@@ -158,7 +158,7 @@ static void setEmulatorArguments(QWidget *parent)
 
 static QString emulatorName(const QString &serialNumber)
 {
-    const QStringList args = AndroidDeviceInfo::adbSelector(serialNumber) << "emu" << "avd" << "name";
+    const QStringList args = adbSelector(serialNumber) << "emu" << "avd" << "name";
     return runAdbCommand(args).stdOut;
 }
 
@@ -238,7 +238,7 @@ static void setupWifiForDevice(const IDevice::Ptr &device, QWidget *parent)
     }
 
     const auto androidDev = static_cast<const AndroidDevice *>(device.get());
-    const QStringList adbSelector = AndroidDeviceInfo::adbSelector(androidDev->serialNumber());
+    const QStringList adbSelector = Internal::adbSelector(androidDev->serialNumber());
     // prepare port
     QStringList args = adbSelector;
     args.append({"tcpip", wifiDevicePort});
@@ -633,8 +633,7 @@ PortsGatheringMethod AndroidDevice::portsGatheringMethod() const
         [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
             Q_UNUSED(protocol);
             return {AndroidConfig::adbToolPath(), {
-                        AndroidDeviceInfo::adbSelector(serialNumber()),
-                        "shell" , "netstat", "-a", "-n"
+                        adbSelector(serialNumber()), "shell" , "netstat", "-a", "-n"
                    }};
         },
         &Port::parseFromCommandOutput

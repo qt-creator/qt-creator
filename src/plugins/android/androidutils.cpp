@@ -588,4 +588,15 @@ QString androidNameForApiLevel(int x)
     }
 }
 
+/**
+ * Workaround for '????????????' serial numbers
+ * @return ("-d") for buggy devices, ("-s", <serial no>) for normal
+ */
+QStringList adbSelector(const QString &serialNumber)
+{
+    if (serialNumber.startsWith(QLatin1String("????")))
+        return {"-d"};
+    return {"-s", serialNumber};
+}
+
 } // namespace Android::Internal

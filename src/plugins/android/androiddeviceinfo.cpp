@@ -5,17 +5,6 @@
 
 namespace Android::Internal {
 
-/**
- * Workaround for '????????????' serial numbers
- * @return ("-d") for buggy devices, ("-s", <serial no>) for normal
- */
-QStringList AndroidDeviceInfo::adbSelector(const QString &serialNumber)
-{
-    if (serialNumber.startsWith(QLatin1String("????")))
-        return {"-d"};
-    return {"-s", serialNumber};
-}
-
 bool AndroidDeviceInfo::operator<(const AndroidDeviceInfo &other) const
 {
     if (serialNumber.contains("????") != other.serialNumber.contains("????"))

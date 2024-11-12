@@ -162,7 +162,7 @@ static QString getDeviceProperty(const QString &device, const QString &property)
     // workaround for '????????????' serial numbers
     Process adbProc;
     adbProc.setCommand({AndroidConfig::adbToolPath(),
-                        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", property}});
+                        {adbSelector(device), "shell", "getprop", property}});
     adbProc.runBlocking();
     if (adbProc.result() == ProcessResult::FinishedWithSuccess)
         return adbProc.allOutput();
@@ -722,7 +722,7 @@ QStringList getAbis(const QString &device)
     // First try via ro.product.cpu.abilist
     Process adbProc;
     adbProc.setCommand({adbTool,
-        {AndroidDeviceInfo::adbSelector(device), "shell", "getprop", "ro.product.cpu.abilist"}});
+                        {adbSelector(device), "shell", "getprop", "ro.product.cpu.abilist"}});
     adbProc.runBlocking();
     if (adbProc.result() != ProcessResult::FinishedWithSuccess)
         return result;
@@ -736,7 +736,7 @@ QStringList getAbis(const QString &device)
 
     // Fall back to ro.product.cpu.abi, ro.product.cpu.abi2 ...
     for (int i = 1; i < 6; ++i) {
-        CommandLine cmd{adbTool, {AndroidDeviceInfo::adbSelector(device), "shell", "getprop"}};
+        CommandLine cmd{adbTool, {adbSelector(device), "shell", "getprop"}};
         if (i == 1)
             cmd.addArg("ro.product.cpu.abi");
         else

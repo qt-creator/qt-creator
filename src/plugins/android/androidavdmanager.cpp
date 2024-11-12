@@ -4,8 +4,8 @@
 #include "androidavdmanager.h"
 
 #include "androidconfigurations.h"
-#include "androiddeviceinfo.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <coreplugin/icore.h>
 
@@ -155,7 +155,7 @@ static ExecutableItem isAvdBootedRecipe(const Storage<QString> &serialNumberStor
 {
     const auto onSetup = [serialNumberStorage](Process &process) {
         const CommandLine cmd{AndroidConfig::adbToolPath(),
-                              {AndroidDeviceInfo::adbSelector(*serialNumberStorage),
+                              {adbSelector(*serialNumberStorage),
                                "shell", "getprop", "init.svc.bootanim"}};
         qCDebug(avdManagerLog).noquote() << "Running command (isAvdBooted):" << cmd.toUserOutput();
         process.setCommand(cmd);

@@ -136,16 +136,19 @@ class RunnerStorage
 {
 public:
     bool isPreNougat() const { return m_glue->apiLevel() > 0 && m_glue->apiLevel() <= 23; }
-    Utils::CommandLine adbCommand(std::initializer_list<Utils::CommandLine::ArgRef> args) const
+
+    CommandLine adbCommand(std::initializer_list<CommandLine::ArgRef> args) const
     {
         CommandLine cmd{AndroidConfig::adbToolPath(), args};
-        cmd.prependArgs(AndroidDeviceInfo::adbSelector(m_glue->deviceSerialNumber()));
+        cmd.prependArgs(adbSelector(m_glue->deviceSerialNumber()));
         return cmd;
     }
+
     QStringList userArgs() const
     {
         return m_processUser > 0 ? QStringList{"--user", QString::number(m_processUser)} : QStringList{};
     }
+
     QStringList packageArgs() const
     {
         // run-as <package-name> pwd fails on API 22 so route the pwd through shell.
