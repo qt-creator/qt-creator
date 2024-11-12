@@ -9,6 +9,7 @@
 #include "extensionsmodel.h"
 
 #include <coreplugin/coreconstants.h>
+#include <coreplugin/coreplugin.h>
 #include <coreplugin/coreplugintr.h>
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
@@ -266,17 +267,19 @@ public:
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
-                if (!ICore::infoBar()->canInfoBeAdded(kRestartSetting))
-                    return;
-
-                Utils::InfoBarEntry info(
-                    kRestartSetting,
-                    Core::Tr::tr("Plugin changes will take effect after restart."));
-                info.addCustomButton(Tr::tr("Restart Now"), [] {
-                    ICore::infoBar()->removeInfo(kRestartSetting);
-                    QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-                });
-                ICore::infoBar()->addInfo(info);
+                if (checked && spec->isEffectivelySoftloadable()) {
+                    ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
+                    Core::Internal::CorePlugin::loadMimeFromPlugin(spec);
+                } else if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+                    Utils::InfoBarEntry info(
+                        kRestartSetting,
+                        Core::Tr::tr("Plugin changes will take effect after restart."));
+                    info.addCustomButton(Tr::tr("Restart Now"), [] {
+                        ICore::infoBar()->removeInfo(kRestartSetting);
+                        QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+                    });
+                    ICore::infoBar()->addInfo(info);
+                }
 
                 ExtensionSystem::PluginManager::writeSettings();
             } else {
