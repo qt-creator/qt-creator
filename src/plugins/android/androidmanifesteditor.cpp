@@ -5,7 +5,6 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanifesteditoriconwidget.h"
 #include "androidtr.h"
 #include "androidutils.h"
 #include "splashscreencontainerwidget.h"
@@ -48,6 +47,8 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QListView>
+#include <QLoggingCategory>
+#include <QPainter>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -65,7 +66,269 @@ using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
+static Q_LOGGING_CATEGORY(androidManifestEditorLog, "qtc.android.manifestEditor", QtWarningMsg)
+
 namespace Android::Internal {
+
+static FilePath manifestDir(TextEditorWidget *textEditorWidget)
+{
+    // Get the manifest file's directory from its filepath.
+    return textEditorWidget->textDocument()->filePath().absolutePath();
+}
+
+class IconWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    IconWidget(QWidget *parent,
+               const QSize &iconSize,
+               const QSize &buttonSize,
+               const QString &title,
+               const QString &tooltip,
+               TextEditorWidget *textEditorWidget = nullptr,
+               const QString &targetIconPath = {},
+               const QString &targetIconFileName = {});
+    void setIcon(const QIcon &icon) { m_button->setIcon(icon); }
+    void clearIcon()
+    {
+        removeIcon();
+        emit iconRemoved();
+    }
+
+    void loadIcon()
+    {
+        const FilePath baseDir = manifestDir(m_textEditorWidget);
+        setIconFromPath(baseDir / m_targetIconPath / m_targetIconFileName);
+    }
+    void setIconFromPath(const FilePath &iconPath);
+    bool hasIcon() const { return !m_iconPath.isEmpty(); }
+    void setScaledToOriginalAspectRatio(bool scaled) { m_scaledToOriginalAspectRatio = scaled; }
+    void setScaledWithoutStretching(bool scaled) { m_scaledWithoutStretching = scaled; }
+    void setTargetIconFileName(const QString &fileName) { m_targetIconFileName = fileName; }
+    void setTargetIconPath(const QString &targetIconPath) { m_targetIconPath = targetIconPath; }
+    QString targetIconFileName() const { return m_targetIconFileName; }
+    QString targetIconPath() const { return m_targetIconPath; }
+
+signals:
+    void iconSelected(const FilePath &path);
+    void iconRemoved();
+
+private:
+    void selectIcon();
+    void removeIcon();
+    void copyIcon();
+    void setScaleWarningLabelVisible(bool visible)
+    {
+        if (m_scaleWarningLabel)
+            m_scaleWarningLabel->setVisible(visible);
+    }
+    QToolButton *m_button = nullptr;
+    QSize m_iconSize;
+    QSize m_buttonSize;
+    QLabel *m_scaleWarningLabel = nullptr;
+    TextEditorWidget *m_textEditorWidget = nullptr;
+    FilePath m_iconPath;
+    QString m_targetIconPath;
+    QString m_targetIconFileName;
+    QString m_iconSelectionText;
+    bool m_scaledToOriginalAspectRatio = false;
+    bool m_scaledWithoutStretching = false;
+};
+
+IconWidget::IconWidget(QWidget *parent,
+                       const QSize &iconSize,
+                       const QSize &buttonSize,
+                       const QString &title,
+                       const QString &tooltip,
+                       TextEditorWidget *textEditorWidget,
+                       const QString &targetIconPath,
+                       const QString &targetIconFileName)
+    : QWidget(parent)
+    , m_iconSize(iconSize)
+    , m_buttonSize(buttonSize)
+    , m_textEditorWidget(textEditorWidget)
+    , m_targetIconPath(targetIconPath)
+    , m_targetIconFileName(targetIconFileName)
+{
+    auto iconLayout = new QVBoxLayout(this);
+    auto iconTitle = new QLabel(title, this);
+    auto iconButtonLayout = new QGridLayout();
+    m_button = new QToolButton(this);
+    m_button->setMinimumSize(buttonSize);
+    m_button->setMaximumSize(buttonSize);
+    m_button->setToolTip(tooltip);
+    m_button->setIconSize(buttonSize);
+    QSize clearAndWarningSize(16, 16);
+    QToolButton *clearButton = nullptr;
+    if (textEditorWidget) {
+        clearButton = new QToolButton(this);
+        clearButton->setMinimumSize(clearAndWarningSize);
+        clearButton->setMaximumSize(clearAndWarningSize);
+        clearButton->setIcon(Utils::Icons::CLOSE_FOREGROUND.icon());
+    }
+    if (textEditorWidget) {
+        m_scaleWarningLabel = new QLabel(this);
+        m_scaleWarningLabel->setMinimumSize(clearAndWarningSize);
+        m_scaleWarningLabel->setMaximumSize(clearAndWarningSize);
+        m_scaleWarningLabel->setPixmap(Utils::Icons::WARNING.icon().pixmap(clearAndWarningSize));
+        m_scaleWarningLabel->setToolTip(Tr::tr("Icon scaled up."));
+        m_scaleWarningLabel->setVisible(false);
+    }
+    auto label = new QLabel(Tr::tr("Click to select..."), parent);
+    iconLayout->addWidget(iconTitle);
+    iconLayout->setAlignment(iconTitle, Qt::AlignHCenter);
+    iconLayout->addStretch(50);
+    iconButtonLayout->setColumnMinimumWidth(0, 16);
+    iconButtonLayout->addWidget(m_button, 0, 1, 1, 3);
+    iconButtonLayout->setAlignment(m_button, Qt::AlignVCenter);
+    if (textEditorWidget) {
+        iconButtonLayout->addWidget(clearButton, 0, 4, 1, 1);
+        iconButtonLayout->setAlignment(clearButton, Qt::AlignTop);
+    }
+    if (textEditorWidget) {
+        iconButtonLayout->addWidget(m_scaleWarningLabel, 0, 0, 1, 1);
+        iconButtonLayout->setAlignment(m_scaleWarningLabel, Qt::AlignTop);
+    }
+    iconLayout->addLayout(iconButtonLayout);
+    iconLayout->setAlignment(iconButtonLayout, Qt::AlignHCenter);
+    iconLayout->addStretch(50);
+    iconLayout->addWidget(label);
+    iconLayout->setAlignment(label, Qt::AlignHCenter);
+    this->setLayout(iconLayout);
+    connect(m_button, &QAbstractButton::clicked, this, &IconWidget::selectIcon);
+    if (clearButton)
+        connect(clearButton, &QAbstractButton::clicked, this, &IconWidget::clearIcon);
+    m_iconSelectionText = tooltip;
+}
+
+void IconWidget::setIconFromPath(const FilePath &iconPath)
+{
+    if (!m_textEditorWidget)
+        return;
+    m_iconPath = iconPath;
+    FilePath baseDir = manifestDir(m_textEditorWidget);
+    QImage original(iconPath.toFSPathString());
+    if (!original.isNull() && m_scaledToOriginalAspectRatio) {
+        if ((original.width() > original.height() && m_buttonSize.height() > m_buttonSize.width())
+            || (original.height() > original.width() && m_buttonSize.width() > m_buttonSize.height())) {
+            auto width = m_buttonSize.height();
+            auto height = m_buttonSize.width();
+            m_buttonSize = QSize(width, height);
+            m_button->setMinimumSize(m_buttonSize);
+            m_button->setMaximumSize(m_buttonSize);
+            m_button->setIconSize(m_buttonSize);
+            auto targetWidth = m_iconSize.height();
+            auto targetHeight = m_iconSize.width();
+            m_iconSize = QSize(targetWidth, targetHeight);
+        }
+    }
+    copyIcon();
+    FilePath iconFile = baseDir / m_targetIconPath / m_targetIconFileName;
+    m_button->setIcon(QIcon(iconFile.toFSPathString()));
+}
+
+void IconWidget::selectIcon()
+{
+    FilePath file = FileUtils::getOpenFilePath(
+        this,
+        m_iconSelectionText,
+        FileUtils::homePath(),
+        //: %1 expands to wildcard list for file dialog, do not change order
+        Tr::tr("Images %1")
+            .arg("(*.png *.jpg *.jpeg *.webp *.svg)")); // TODO: See SplashContainterWidget
+    if (file.isEmpty())
+        return;
+    setIconFromPath(file);
+    emit iconSelected(file);
+}
+
+void IconWidget::removeIcon()
+{
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_targetIconPath / m_targetIconFileName;
+    if (targetPath.isEmpty()) {
+        qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot remove icon.";
+        return;
+    }
+    targetPath.removeFile();
+    m_iconPath.clear();
+    setScaleWarningLabelVisible(false);
+    m_button->setIcon(QIcon());
+}
+
+static QImage scaleWithoutStretching(const QImage& original, const QSize& targetSize)
+{
+    QImage ret(targetSize, QImage::Format_ARGB32);
+    ret.fill(Qt::white);
+    if (targetSize.height() > targetSize.width()) {
+        // portrait target, scale to width and paint in the vertical middle
+        QImage scaled = original.scaledToWidth(targetSize.width());
+        int heightDiffHalf = (targetSize.height() - scaled.height()) / 2;
+        QPainter painter(&ret);
+        QRect targetRect(0, heightDiffHalf, targetSize.width(), scaled.height());
+        QRect sourceRect(0, 0, scaled.width(), scaled.height());
+        painter.drawImage(targetRect, scaled, sourceRect);
+    } else if (targetSize.width() > targetSize.height()) {
+        // landscape target, scale to height and paint in the horizontal middle
+        QImage scaled = original.scaledToHeight(targetSize.height());
+        int widthDiffHalf = (targetSize.width() - scaled.width()) / 2;
+        QPainter painter(&ret);
+        QRect targetRect(widthDiffHalf, 0, scaled.width(), targetSize.height());
+        QRect sourceRect(0, 0, scaled.width(), scaled.height());
+        painter.drawImage(targetRect, scaled, sourceRect);
+    } else
+        ret = original.scaled(targetSize.width(), targetSize.height(),
+                              Qt::KeepAspectRatio, Qt::SmoothTransformation);
+    return ret;
+}
+
+static bool similarFilesExist(const FilePath &path)
+{
+    const FilePaths entries = path.parentDir().dirEntries({{path.completeBaseName() + ".*"}});
+    return !entries.empty();
+}
+
+void IconWidget::copyIcon()
+{
+    if (m_targetIconPath.isEmpty())
+        return;
+
+    const FilePath baseDir = manifestDir(m_textEditorWidget);
+    const FilePath targetPath = baseDir / m_targetIconPath / m_targetIconFileName;
+    if (targetPath.isEmpty()) {
+        qCDebug(androidManifestEditorLog) << "Icon target path empty, cannot copy icon.";
+        return;
+    }
+    QImage original(m_iconPath.toFSPathString());
+    if (m_iconPath != targetPath)
+        removeIcon();
+    if (original.isNull()) {
+        if (!similarFilesExist(m_iconPath))
+            m_iconPath.clear();
+        return;
+    }
+    if (m_iconPath == targetPath)
+        return;
+    if (!targetPath.isEmpty() && !original.isNull()) {
+        if (!targetPath.absolutePath().ensureWritableDir()) {
+            qCDebug(androidManifestEditorLog) << "Cannot create icon target path.";
+            m_iconPath.clear();
+            return;
+        }
+        QImage scaled;
+        if (!m_scaledWithoutStretching)
+            scaled = original.scaled(m_iconSize.width(), m_iconSize.height(),
+                                     Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        else
+            scaled = scaleWithoutStretching(original, m_iconSize);
+        setScaleWarningLabelVisible(scaled.width() > original.width() || scaled.height() > original.height());
+        scaled.save(targetPath.toFSPathString());
+        m_iconPath = targetPath;
+    } else {
+        m_iconPath.clear();
+    }
+}
 
 const char extraExtraExtraHighDpiIconPath[] = "/res/drawable-xxxhdpi/";
 const char extraExtraHighDpiIconPath[] = "/res/drawable-xxhdpi/";
@@ -87,27 +350,29 @@ class IconContainerWidget : public QWidget
 
 public:
     explicit IconContainerWidget(QWidget *parent, TextEditorWidget *textEditorWidget);
-    void setIconFileName(const QString &name);
-    QString iconFileName() const;
+    void setIconFileName(const QString &name) { m_iconFileName = name; }
+    QString iconFileName() const { return m_iconFileName; }
     void loadIcons();
     bool hasIcons() const;
-private:
-    QList<AndroidManifestEditorIconWidget *> m_iconButtons;
-    QString m_iconFileName = QLatin1String("icon");
-    bool m_hasIcons = false;
+
 signals:
     void iconsModified();
+
+private:
+    QList<IconWidget *> m_iconButtons;
+    QString m_iconFileName = QLatin1String("icon");
+    bool m_hasIcons = false;
 };
 
 IconContainerWidget::IconContainerWidget(QWidget *parent, TextEditorWidget *textEditorWidget)
     : QWidget(parent)
 {
     auto iconLayout = new QHBoxLayout(this);
-    auto masterIconButton = new AndroidManifestEditorIconWidget(this,
-                                                                lowDpiIconSize,
-                                                                lowDpiIconSize,
-                                                                Tr::tr("Master icon"),
-                                                                Tr::tr("Select master icon."));
+    auto masterIconButton = new IconWidget(this,
+                                           lowDpiIconSize,
+                                           lowDpiIconSize,
+                                           Tr::tr("Master icon"),
+                                           Tr::tr("Select master icon."));
     masterIconButton->setIcon(Icon::fromTheme("document-open"));
     iconLayout->addWidget(masterIconButton);
     iconLayout->addStretch(1);
@@ -120,74 +385,74 @@ IconContainerWidget::IconContainerWidget(QWidget *parent, TextEditorWidget *text
 
     QString iconFileName = m_iconFileName + imageSuffix;
 
-    auto lIconButton = new AndroidManifestEditorIconWidget(this,
-                                                           lowDpiIconSize,
-                                                           lowDpiIconSize,
-                                                           Tr::tr("LDPI icon"),
-                                                           Tr::tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
-                                                           textEditorWidget,
-                                                           lowDpiIconPath,
-                                                           iconFileName);
+    auto lIconButton = new IconWidget(this,
+                                      lowDpiIconSize,
+                                      lowDpiIconSize,
+                                      Tr::tr("LDPI icon"),
+                                      Tr::tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
+                                      textEditorWidget,
+                                      lowDpiIconPath,
+                                      iconFileName);
     iconLayout->addWidget(lIconButton);
     m_iconButtons.push_back(lIconButton);
     iconLayout->addStretch(1);
 
-    auto mIconButton = new AndroidManifestEditorIconWidget(this,
-                                                           mediumDpiIconSize,
-                                                           mediumDpiIconSize,
-                                                           Tr::tr("MDPI icon"),
-                                                           Tr::tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
-                                                           textEditorWidget,
-                                                           mediumDpiIconPath,
-                                                           iconFileName);
+    auto mIconButton = new IconWidget(this,
+                                      mediumDpiIconSize,
+                                      mediumDpiIconSize,
+                                      Tr::tr("MDPI icon"),
+                                      Tr::tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
+                                      textEditorWidget,
+                                      mediumDpiIconPath,
+                                      iconFileName);
     iconLayout->addWidget(mIconButton);
     m_iconButtons.push_back(mIconButton);
     iconLayout->addStretch(1);
 
-    auto hIconButton =  new AndroidManifestEditorIconWidget(this,
-                                                           highDpiIconSize,
-                                                           highDpiIconSize,
-                                                           Tr::tr("HDPI icon"),
-                                                           Tr::tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
-                                                           textEditorWidget,
-                                                           highDpiIconPath,
-                                                           iconFileName);
+    auto hIconButton =  new IconWidget(this,
+                                       highDpiIconSize,
+                                       highDpiIconSize,
+                                       Tr::tr("HDPI icon"),
+                                       Tr::tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
+                                       textEditorWidget,
+                                       highDpiIconPath,
+                                       iconFileName);
     iconLayout->addWidget(hIconButton);
     m_iconButtons.push_back(hIconButton);
     iconLayout->addStretch(1);
 
-    auto xhIconButton =  new AndroidManifestEditorIconWidget(this,
-                                                            extraHighDpiIconSize,
-                                                            extraHighDpiIconSize,
-                                                            Tr::tr("XHDPI icon"),
-                                                            Tr::tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
-                                                            textEditorWidget,
-                                                            extraHighDpiIconPath,
-                                                            iconFileName);
+    auto xhIconButton =  new IconWidget(this,
+                                        extraHighDpiIconSize,
+                                        extraHighDpiIconSize,
+                                        Tr::tr("XHDPI icon"),
+                                        Tr::tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
+                                        textEditorWidget,
+                                        extraHighDpiIconPath,
+                                        iconFileName);
     iconLayout->addWidget(xhIconButton);
     m_iconButtons.push_back(xhIconButton);
     iconLayout->addStretch(1);
 
-    auto xxhIconButton =  new AndroidManifestEditorIconWidget(this,
-                                                             extraExtraHighDpiIconSize,
-                                                             extraExtraHighDpiIconSize,
-                                                             Tr::tr("XXHDPI icon"),
-                                                             Tr::tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
-                                                             textEditorWidget,
-                                                             extraExtraHighDpiIconPath,
-                                                             iconFileName);
+    auto xxhIconButton =  new IconWidget(this,
+                                         extraExtraHighDpiIconSize,
+                                         extraExtraHighDpiIconSize,
+                                         Tr::tr("XXHDPI icon"),
+                                         Tr::tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
+                                         textEditorWidget,
+                                         extraExtraHighDpiIconPath,
+                                         iconFileName);
     iconLayout->addWidget(xxhIconButton);
     m_iconButtons.push_back(xxhIconButton);
     iconLayout->addStretch(1);
 
-    auto xxxhIconButton =  new AndroidManifestEditorIconWidget(this,
-                                                              extraExtraExtraHighDpiIconSize,
-                                                              extraExtraExtraHighDpiIconSize,
-                                                              Tr::tr("XXXHDPI icon"),
-                                                              Tr::tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
-                                                              textEditorWidget,
-                                                              extraExtraExtraHighDpiIconPath,
-                                                              iconFileName);
+    auto xxxhIconButton =  new IconWidget(this,
+                                          extraExtraExtraHighDpiIconSize,
+                                          extraExtraExtraHighDpiIconSize,
+                                          Tr::tr("XXXHDPI icon"),
+                                          Tr::tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
+                                          textEditorWidget,
+                                          extraExtraExtraHighDpiIconPath,
+                                          iconFileName);
     iconLayout->addWidget(xxxhIconButton);
     m_iconButtons.push_back(xxxhIconButton);
     iconLayout->addStretch(3);
@@ -199,25 +464,11 @@ IconContainerWidget::IconContainerWidget(QWidget *parent, TextEditorWidget *text
         m_hasIcons = iconsMaybeChanged;
     };
     for (auto &&iconButton : m_iconButtons) {
-        connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
-                iconButton, &AndroidManifestEditorIconWidget::setIconFromPath);
-        connect(iconButton, &AndroidManifestEditorIconWidget::iconRemoved,
-                this, handleIconModification);
-        connect(iconButton, &AndroidManifestEditorIconWidget::iconSelected,
-                this, handleIconModification);
+        connect(masterIconButton, &IconWidget::iconSelected, iconButton, &IconWidget::setIconFromPath);
+        connect(iconButton, &IconWidget::iconRemoved, this, handleIconModification);
+        connect(iconButton, &IconWidget::iconSelected, this, handleIconModification);
     }
-    connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
-            this, handleIconModification);
-}
-
-void IconContainerWidget::setIconFileName(const QString &name)
-{
-    m_iconFileName = name;
-}
-
-QString IconContainerWidget::iconFileName() const
-{
-    return m_iconFileName;
+    connect(masterIconButton, &IconWidget::iconSelected, this, handleIconModification);
 }
 
 void IconContainerWidget::loadIcons()

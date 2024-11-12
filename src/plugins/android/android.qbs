@@ -34,8 +34,6 @@ QtcPlugin {
         "androiddeviceinfo.h",
         "androidextralibrarylistmodel.cpp",
         "androidextralibrarylistmodel.h",
-        "androidmanifesteditoriconwidget.cpp",
-        "androidmanifesteditoriconwidget.h",
         "androidmanifesteditor.cpp",
         "androidmanifesteditor.h",
         "androidpackageinstallationstep.cpp",

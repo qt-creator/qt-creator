@@ -16,7 +16,6 @@ add_qtc_plugin(Android
     androiddeviceinfo.cpp androiddeviceinfo.h
     androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
     androidmanifesteditor.cpp androidmanifesteditor.h
-    androidmanifesteditoriconwidget.cpp androidmanifesteditoriconwidget.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
