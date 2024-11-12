@@ -14,6 +14,20 @@ class EffectComposerUniformsModel : public QAbstractListModel
     Q_OBJECT
 
 public:
+    enum Roles {
+        NameRole = Qt::UserRole + 1,
+        DisplayNameRole,
+        DescriptionRole,
+        ValueRole,
+        BackendValueRole,
+        DefaultValueRole,
+        MaxValueRole,
+        MinValueRole,
+        TypeRole,
+        ControlTypeRole,
+        UseCustomValueRole
+    };
+
     EffectComposerUniformsModel(QObject *parent = nullptr);
 
     QHash<int, QByteArray> roleNames() const override;
@@ -29,20 +43,6 @@ public:
     QList<Uniform *> uniforms() const;
 
 private:
-    enum Roles {
-        NameRole = Qt::UserRole + 1,
-        DisplayNameRole,
-        DescriptionRole,
-        ValueRole,
-        BackendValueRole,
-        DefaultValueRole,
-        MaxValueRole,
-        MinValueRole,
-        TypeRole,
-        ControlTypeRole,
-        UseCustomValueRole
-    };
-
     QList<Uniform *> m_uniforms;
 };
 

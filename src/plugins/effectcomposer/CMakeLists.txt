@@ -13,6 +13,7 @@ add_qtc_plugin(EffectComposer
     effectcomposermodel.cpp effectcomposermodel.h
     effectcomposernodesmodel.cpp effectcomposernodesmodel.h
     effectcomposeruniformsmodel.cpp effectcomposeruniformsmodel.h
+    effectsautocomplete.cpp effectsautocomplete.h
     effectshaderscodeeditor.cpp effectshaderscodeeditor.h
     effectnode.cpp effectnode.h
     effectnodescategory.cpp effectnodescategory.h

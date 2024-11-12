@@ -166,6 +166,7 @@ void CompositionNode::ensureShadersCodeEditor()
         return;
 
     m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(name());
+    m_shadersCodeEditor->setUniformsModel(&m_unifomrsModel);
     m_shadersCodeEditor->setFragmentValue(fragmentCode());
     m_shadersCodeEditor->setVertexValue(vertexCode());
 

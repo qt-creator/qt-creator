@@ -3,6 +3,7 @@
 
 #include "effectshaderscodeeditor.h"
 #include "effectcodeeditorwidget.h"
+#include "effectcomposeruniformsmodel.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -136,6 +137,23 @@ void EffectShadersCodeEditor::setLiveUpdate(bool liveUpdate)
 bool EffectShadersCodeEditor::isOpened() const
 {
     return m_opened;
+}
+
+void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsModel *uniforms)
+{
+    std::function<QStringList()> uniformNames = [uniforms]() -> QStringList {
+        if (!uniforms)
+            return {};
+        int count = uniforms->rowCount();
+        QStringList result;
+        for (int i = 0; i < count; ++i) {
+            const QModelIndex mIndex = uniforms->index(i, 0);
+            result.append(mIndex.data(EffectComposerUniformsModel::NameRole).toString());
+        }
+        return result;
+    };
+    m_fragmentEditor->setUniformsCallback(uniformNames);
+    m_vertexEditor->setUniformsCallback(uniformNames);
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()

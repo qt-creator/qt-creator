@@ -11,6 +11,7 @@ QT_FORWARD_DECLARE_CLASS(QToolBar)
 namespace EffectComposer {
 
 class EffectCodeEditorWidget;
+class EffectComposerUniformsModel;
 
 class EffectShadersCodeEditor : public QWidget
 {
@@ -34,6 +35,7 @@ public:
     void setLiveUpdate(bool liveUpdate);
 
     bool isOpened() const;
+    void setUniformsModel(EffectComposerUniformsModel *uniforms);
 
 signals:
     void liveUpdateChanged(bool);
