@@ -42,6 +42,8 @@ class DVConnector : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(ConnectorStatus connectorStatus READ connectorStatus NOTIFY connectorStatusUpdated)
+    Q_PROPERTY(QByteArray userInfo READ userInfo NOTIFY userInfoReceived)
+    Q_PROPERTY(bool isWebViewerVisible READ isWebViewerVisible NOTIFY webViewerVisibleChanged)
 public:
     explicit DVConnector(QObject *parent = nullptr);
 
@@ -49,7 +51,10 @@ public:
     Q_ENUM(ConnectorStatus)
 
 public:
+    // getters for UI
     ConnectorStatus connectorStatus() const;
+    QByteArray userInfo() const;
+    bool isWebViewerVisible() const;
 
     void projectList();
     void uploadProject(const QString &projectId, const QString &filePath);
@@ -72,7 +77,7 @@ public:
 
     void login();
     void logout();
-    void userInfo();
+    void fetchUserInfo();
 
 private:
     // network
@@ -83,9 +88,11 @@ private:
     QScopedPointer<QWebEngineProfile> m_webEngineProfile;
     QScopedPointer<QWebEnginePage> m_webEnginePage;
     QScopedPointer<QWebEngineView> m_webEngineView;
+    bool m_isWebViewerVisible;
 
     // status
     ConnectorStatus m_connectorStatus;
+    QByteArray m_userInfo;
 
     struct ReplyEvaluatorData
     {
@@ -107,9 +114,10 @@ private:
 
 private:
     void evaluateReply(const ReplyEvaluatorData &evaluator);
+    bool eventFilter(QObject *obj, QEvent *e) override;
 
 signals:
-    // backend integration - project related signals
+    // service integration - project related signals
     void projectListReceived(const QByteArray &reply);
     void projectUploaded();
     void projectUploadError(const int errorCode, const QString &message);
@@ -119,7 +127,7 @@ signals:
     void projectDownloaded();
     void projectDownloadError(const int errorCode, const QString &message);
 
-    // backend integration - project thumbnail related signals
+    // service integration - project thumbnail related signals
     void thumbnailUploaded();
     void thumbnailUploadError(const int errorCode, const QString &message);
     void thumbnailUploadProgress(const double progress);
@@ -128,7 +136,7 @@ signals:
     void thumbnailDownloaded();
     void thumbnailDownloadError(const int errorCode, const QString &message);
 
-    // backend integration - shared project related signals
+    // service integration - shared project related signals
     void sharedProjectListReceived(const QByteArray &reply);
     void projectShared(const QString &projectId, const QString &shareUUID);
     void projectShareError(const int errorCode, const QString &message);
@@ -141,8 +149,9 @@ signals:
     void sharedProjectThumbnailDownloaded();
     void sharedProjectThumbnailDownloadError(const int errorCode, const QString &message);
 
-    // backend integration - login/user related signals
+    // UI integration - login/user related signals
     void userInfoReceived(const QByteArray &reply);
+    void webViewerVisibleChanged();
 
     // internal signals
     void connectorStatusUpdated(const ConnectorStatus status);

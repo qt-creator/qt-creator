@@ -104,6 +104,7 @@ void CustomCookieJar::clearCookies()
 
 DVConnector::DVConnector(QObject *parent)
     : QObject{parent}
+    , m_isWebViewerVisible(false)
     , m_connectorStatus(ConnectorStatus::FetchingUserInfo)
 {
     QLoggingCategory::setFilterRules("qtc.designer.deploymentPlugin.debug=true");
@@ -113,6 +114,7 @@ DVConnector::DVConnector(QObject *parent)
     m_webEngineView.reset(new QWebEngineView);
     m_webEngineView->setPage(m_webEnginePage.data());
     m_webEngineView->resize(1024, 750);
+    m_webEngineView->installEventFilter(this);
 
     m_networkCookieJar.reset(
         new CustomCookieJar(this, m_webEngineProfile->persistentStoragePath() + "/dv_cookies.txt"));
@@ -135,16 +137,38 @@ DVConnector::DVConnector(QObject *parent)
                 if (cookieName == "jwt") {
                     qCDebug(deploymentPluginLog) << "Got JWT";
                     m_webEngineView->hide();
-                    userInfo();
+                    fetchUserInfo();
                 }
             });
 
-    userInfo();
+    fetchUserInfo();
 }
 
 DVConnector::ConnectorStatus DVConnector::connectorStatus() const
 {
     return m_connectorStatus;
+}
+
+QByteArray DVConnector::userInfo() const
+{
+    return m_userInfo;
+}
+
+bool DVConnector::isWebViewerVisible() const
+{
+    return m_isWebViewerVisible;
+}
+
+bool DVConnector::eventFilter(QObject *obj, QEvent *e)
+{
+    if (obj == m_webEngineView.data()) {
+        if (m_isWebViewerVisible != m_webEngineView->isVisible()) {
+            m_isWebViewerVisible = m_webEngineView->isVisible();
+            emit webViewerVisibleChanged();
+        }
+        return true;
+    }
+    return QObject::eventFilter(obj, e);
 }
 
 void DVConnector::projectList()
@@ -222,7 +246,7 @@ void DVConnector::uploadProject(const QString &projectId, const QString &filePat
     evaluatorData.successCallback = [this](const QByteArray &) {
         emit projectUploaded();
         // call userInfo to update storage info in the UI
-        userInfo();
+        fetchUserInfo();
     };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit projectUploadError(errorCode, errorString);
@@ -276,7 +300,7 @@ void DVConnector::uploadProjectThumbnail(const QString &projectId, const QString
     evaluatorData.successCallback = [this](const QByteArray &) {
         emit thumbnailUploaded();
         // call userInfo to update storage info in the UI
-        userInfo();
+        fetchUserInfo();
     };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit thumbnailUploadError(errorCode, errorString);
@@ -308,7 +332,7 @@ void DVConnector::deleteProject(const QString &projectId)
     evaluatorData.successCallback = [this](const QByteArray &) {
         emit projectDeleted();
         // call userInfo to update storage info in the UI
-        userInfo();
+        fetchUserInfo();
     };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit projectDeleteError(errorCode, errorString);
@@ -331,7 +355,7 @@ void DVConnector::deleteProjectThumbnail(const QString &projectId)
     evaluatorData.successCallback = [this](const QByteArray &) {
         emit thumbnailDeleted();
         // call userInfo to update storage info in the UI
-        userInfo();
+        fetchUserInfo();
     };
     evaluatorData.errorPreCallback = [this](const int errorCode, const QString &errorString) {
         emit thumbnailDeleteError(errorCode, errorString);
@@ -568,7 +592,7 @@ void DVConnector::logout()
     evaluatorData.connectCallbacks(this);
 }
 
-void DVConnector::userInfo()
+void DVConnector::fetchUserInfo()
 {
     qCDebug(deploymentPluginLog) << "Fetching user info";
     QUrl url(DVEndpoints::serviceUrl + DVEndpoints::userInfo);
@@ -580,10 +604,11 @@ void DVConnector::userInfo()
     evaluatorData.successCallback = [this](const QByteArray &reply) {
         m_connectorStatus = ConnectorStatus::LoggedIn;
         emit connectorStatusUpdated(m_connectorStatus);
+        m_userInfo = reply;
         emit userInfoReceived(reply);
     };
     evaluatorData.errorCodeOtherCallback = [this](const int, const QString &) {
-        QTimer::singleShot(1000, this, &DVConnector::userInfo);
+        QTimer::singleShot(1000, this, &DVConnector::fetchUserInfo);
     };
 
     evaluatorData.connectCallbacks(this);
