@@ -133,7 +133,6 @@ public:
 
 signals:
     void aboutToUpdate();
-    void updated();
 
 private:
     friend void setupAndroidConfigurations();

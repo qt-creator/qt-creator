@@ -1225,7 +1225,6 @@ void AndroidConfigurations::applyConfig()
     registerNewToolchains();
     updateAutomaticKitList();
     removeOldToolchains();
-    emit m_instance->updated();
 }
 
 static bool matchKit(const ToolchainBundle &bundle, const Kit &kit)
