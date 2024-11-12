@@ -1,10 +1,10 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "createandroidmanifestwizard.h"
+#include "manifestwizard.h"
 
-#include "androidtr.h"
 #include "androidconstants.h"
+#include "androidtr.h"
 #include "androidutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
@@ -22,6 +22,7 @@
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
+#include <utils/wizard.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -36,9 +37,35 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-//
-// NoApplicationTargetPage
-//
+class CreateAndroidManifestWizard : public Wizard
+{
+public:
+    CreateAndroidManifestWizard(BuildSystem *buildSystem);
+
+    QString buildKey() const { return m_buildKey; }
+    void setBuildKey(const QString &buildKey) { m_buildKey = buildKey; }
+
+    void accept() override
+    {
+        createAndroidTemplateFiles();
+        Wizard::accept();
+    }
+    bool copyGradleTemplates() const { return m_copyGradleTemplates; }
+    bool allowGradleTemplates() const
+    { return bool(QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit())); }
+    void setDirectory(const FilePath &directory) { m_directory = directory; }
+    void setCopyGradleTemplates(bool copy) { m_copyGradleTemplates = copy; }
+
+    BuildSystem *buildSystem() const { return m_buildSystem; }
+
+private:
+    void createAndroidManifestFile();
+    void createAndroidTemplateFiles();
+    BuildSystem *m_buildSystem;
+    QString m_buildKey;
+    FilePath m_directory;
+    bool m_copyGradleTemplates;
+};
 
 class NoApplicationTargetPage : public QWizardPage
 {
@@ -56,18 +83,14 @@ NoApplicationTargetPage::NoApplicationTargetPage(CreateAndroidManifestWizard *)
     setTitle(Tr::tr("No Application Build Target"));
 }
 
-
-//
-// ChooseProFilePage
-//
-
 class ChooseProFilePage : public QWizardPage
 {
 public:
     explicit ChooseProFilePage(CreateAndroidManifestWizard *wizard);
 
 private:
-    void nodeSelected(int index);
+    void nodeSelected()
+    { m_wizard->setBuildKey(m_comboBox->itemData(m_comboBox->currentIndex()).toString()); }
 
     CreateAndroidManifestWizard *m_wizard;
     QComboBox *m_comboBox;
@@ -93,23 +116,12 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
             m_comboBox->setCurrentIndex(m_comboBox->count() - 1);
     }
 
-    nodeSelected(m_comboBox->currentIndex());
+    nodeSelected();
     connect(m_comboBox, &QComboBox::currentIndexChanged, this, &ChooseProFilePage::nodeSelected);
 
     fl->addRow(Tr::tr("Build target:"), m_comboBox);
     setTitle(Tr::tr("Select a build target"));
 }
-
-void ChooseProFilePage::nodeSelected(int index)
-{
-    Q_UNUSED(index)
-    m_wizard->setBuildKey(m_comboBox->itemData(m_comboBox->currentIndex()).toString());
-}
-
-
-//
-// ChooseDirectoryPage
-//
 
 class ChooseDirectoryPage : public QWizardPage
 {
@@ -118,7 +130,7 @@ public:
 
 private:
     void initializePage() final;
-    bool isComplete() const final;
+    bool isComplete() const final { return m_complete; }
     void checkPackageSourceDir();
 
     CreateAndroidManifestWizard *m_wizard;
@@ -184,11 +196,6 @@ void ChooseDirectoryPage::checkPackageSourceDir()
     }
 }
 
-bool ChooseDirectoryPage::isComplete() const
-{
-    return m_complete;
-}
-
 void ChooseDirectoryPage::initializePage()
 {
     const Target *target = m_wizard->buildSystem()->target();
@@ -223,9 +230,6 @@ void ChooseDirectoryPage::initializePage()
     m_wizard->setDirectory(m_androidPackageSourceDir->filePath());
 }
 
-//
-// CreateAndroidManifestWizard
-//
 CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSystem)
     : Wizard(Core::ICore::dialogParent())
     , m_buildSystem(buildSystem)
@@ -244,36 +248,6 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
         addPage(new ChooseProFilePage(this));
         addPage(new ChooseDirectoryPage(this));
     }
-}
-
-QString CreateAndroidManifestWizard::buildKey() const
-{
-    return m_buildKey;
-}
-
-void CreateAndroidManifestWizard::setBuildKey(const QString &buildKey)
-{
-    m_buildKey = buildKey;
-}
-
-void CreateAndroidManifestWizard::setDirectory(const FilePath &directory)
-{
-    m_directory = directory;
-}
-
-bool CreateAndroidManifestWizard::copyGradleTemplates() const
-{
-    return m_copyGradleTemplates;
-}
-
-bool CreateAndroidManifestWizard::allowGradleTemplates() const
-{
-    return bool(QtSupport::QtKitAspect::qtVersion(m_buildSystem->kit()));
-}
-
-void CreateAndroidManifestWizard::setCopyGradleTemplates(bool copy)
-{
-    m_copyGradleTemplates = copy;
 }
 
 void CreateAndroidManifestWizard::createAndroidTemplateFiles()
@@ -322,15 +296,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
     Core::EditorManager::openEditor(m_directory / "AndroidManifest.xml");
 }
 
-BuildSystem *CreateAndroidManifestWizard::buildSystem() const
+void executeManifestWizard(BuildSystem *buildSystem)
 {
-    return m_buildSystem;
-}
-
-void CreateAndroidManifestWizard::accept()
-{
-    createAndroidTemplateFiles();
-    Wizard::accept();
+    CreateAndroidManifestWizard(buildSystem).exec();
 }
 
 } // namespace Android::Internal

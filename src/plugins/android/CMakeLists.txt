@@ -33,11 +33,11 @@ add_qtc_plugin(Android
     androidutils.cpp androidutils.h
     avddialog.cpp avddialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
-    createandroidmanifestwizard.cpp createandroidmanifestwizard.h
     javaeditor.cpp javaeditor.h
     javaindenter.cpp javaindenter.h
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
+    manifestwizard.cpp manifestwizard.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )

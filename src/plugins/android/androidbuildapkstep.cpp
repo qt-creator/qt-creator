@@ -10,7 +10,7 @@
 #include "androidsdkmanager.h"
 #include "androidtr.h"
 #include "androidutils.h"
-#include "createandroidmanifestwizard.h"
+#include "manifestwizard.h"
 #include "javaparser.h"
 
 #include <coreplugin/fileutils.h>
@@ -442,8 +442,7 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     createAndroidTemplatesButton->setToolTip(
         Tr::tr("Create an Android package for Custom Java code, assets, and Gradle configurations."));
     connect(createAndroidTemplatesButton, &QAbstractButton::clicked, this, [this] {
-        CreateAndroidManifestWizard wizard(m_step->buildSystem());
-        wizard.exec();
+        executeManifestWizard(m_step->buildSystem());
     });
 
     Group applicationGroup {
