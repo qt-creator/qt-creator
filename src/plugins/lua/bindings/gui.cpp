@@ -112,6 +112,7 @@ CREATE_HAS_FUNC(setFixedSize, QSize())
 CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
 CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
+CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
@@ -120,6 +121,12 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins");
         if (margins)
             item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
+    }
+
+    if constexpr (has_setCursor<T>) {
+        const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
+        if (cursor)
+            item->setCursor(*cursor);
     }
 
     if constexpr (has_setVisible<T>) {
@@ -543,6 +550,7 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
 
         gui.new_usertype<Stack>(
             "Stack",

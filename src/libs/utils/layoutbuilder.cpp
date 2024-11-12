@@ -786,6 +786,11 @@ void Widget::setContentsMargins(int left, int top, int right, int bottom)
     access(this)->setContentsMargins(left, top, right, bottom);
 }
 
+void Widget::setCursor(Qt::CursorShape shape)
+{
+    access(this)->setCursor(shape);
+}
+
 void Widget::activateWindow()
 {
     access(this)->activateWindow();
