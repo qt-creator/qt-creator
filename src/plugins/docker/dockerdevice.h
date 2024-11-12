@@ -35,7 +35,6 @@ public:
     bool canCreateProcessModel() const override { return true; }
     bool hasDeviceTester() const override { return false; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
-    bool usableAsBuildDevice() const override;
 
     Utils::FilePath rootPath() const override;
     Utils::FilePath filePath(const QString &pathOnDevice) const override;

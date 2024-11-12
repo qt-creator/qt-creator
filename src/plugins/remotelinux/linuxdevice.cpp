@@ -1099,11 +1099,6 @@ DeviceProcessSignalOperation::Ptr LinuxDevice::signalOperation() const
     return DeviceProcessSignalOperation::Ptr(new RemoteLinuxSignalOperation(shared_from_this()));
 }
 
-bool LinuxDevice::usableAsBuildDevice() const
-{
-    return true;
-}
-
 QString LinuxDevice::userAtHost() const
 {
     return sshParameters().userAtHost();

@@ -32,6 +32,14 @@ public:
     static Utils::FilePath deviceFilePath(const Kit *k, const QString &pathOnDevice);
 };
 
+class PROJECTEXPLORER_EXPORT BuildDeviceTypeKitAspect
+{
+public:
+    static Utils::Id id();
+    static Utils::Id deviceTypeId(const Kit *k);
+    static void setDeviceTypeId(Kit *k, Utils::Id type);
+};
+
 class PROJECTEXPLORER_EXPORT BuildDeviceKitAspect
 {
 public:

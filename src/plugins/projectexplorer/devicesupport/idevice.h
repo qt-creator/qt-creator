@@ -128,8 +128,6 @@ public:
     virtual bool isCompatibleWith(const Kit *k) const;
     virtual QList<Task> validate() const;
 
-    virtual bool usableAsBuildDevice() const { return false; }
-
     QString displayType() const;
     Utils::OsType osType() const;
 

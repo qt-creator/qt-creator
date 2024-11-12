@@ -103,11 +103,6 @@ QUrl DesktopDevice::toolControlChannel(const ControlChannelHint &) const
     return url;
 }
 
-bool DesktopDevice::usableAsBuildDevice() const
-{
-    return true;
-}
-
 bool DesktopDevice::handlesFile(const FilePath &filePath) const
 {
     return !filePath.needsDevice();

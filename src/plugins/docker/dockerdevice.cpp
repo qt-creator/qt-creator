@@ -1071,11 +1071,6 @@ DeviceTester *DockerDevice::createDeviceTester()
     return nullptr;
 }
 
-bool DockerDevice::usableAsBuildDevice() const
-{
-    return true;
-}
-
 FilePath DockerDevice::filePath(const QString &pathOnDevice) const
 {
     return FilePath::fromParts(Constants::DOCKER_DEVICE_SCHEME,

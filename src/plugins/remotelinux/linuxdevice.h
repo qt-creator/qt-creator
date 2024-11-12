@@ -26,7 +26,6 @@ public:
     bool hasDeviceTester() const override { return true; }
     ProjectExplorer::DeviceTester *createDeviceTester() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
-    bool usableAsBuildDevice() const override;
 
     QString userAtHost() const;
     QString userAtHostAndPort() const;
