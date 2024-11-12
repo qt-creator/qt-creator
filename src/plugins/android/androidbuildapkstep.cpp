@@ -5,11 +5,11 @@
 #include "androidbuildapkstep.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidcreatekeystorecertificate.h"
 #include "androidqtversion.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
 #include "androidutils.h"
+#include "keystorecertificatedialog.h"
 #include "manifestwizard.h"
 #include "javaparser.h"
 
@@ -352,15 +352,14 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
 
     auto keystoreCreateButton = new QPushButton(Tr::tr("Create..."));
     connect(keystoreCreateButton, &QAbstractButton::clicked, this, [this, keystoreLocationChooser] {
-        AndroidCreateKeystoreCertificate d;
-        if (d.exec() != QDialog::Accepted)
+        const auto data = executeKeystoreCertificateDialog();
+        if (!data)
             return;
-        const KeystoreData data = d.keystoreData();
-        keystoreLocationChooser->setFilePath(data.keystoreFilePath);
-        m_step->setKeystorePath(data.keystoreFilePath);
-        m_step->setKeystorePassword(data.keystorePassword);
-        m_step->setCertificateAlias(data.certificateAlias);
-        m_step->setCertificatePassword(data.certificatePassword);
+        keystoreLocationChooser->setFilePath(data->keystoreFilePath);
+        m_step->setKeystorePath(data->keystoreFilePath);
+        m_step->setKeystorePassword(data->keystorePassword);
+        m_step->setCertificateAlias(data->certificateAlias);
+        m_step->setCertificatePassword(data->certificatePassword);
         setCertificates();
     });
 

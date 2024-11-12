@@ -9,7 +9,6 @@ add_qtc_plugin(Android
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h
     androidconstants.h
-    androidcreatekeystorecertificate.cpp androidcreatekeystorecertificate.h
     androiddebugsupport.cpp androiddebugsupport.h
     androiddeployqtstep.cpp androiddeployqtstep.h
     androiddevice.cpp androiddevice.h
@@ -37,6 +36,7 @@ add_qtc_plugin(Android
     javaindenter.cpp javaindenter.h
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
+    keystorecertificatedialog.cpp keystorecertificatedialog.h
     manifestwizard.cpp manifestwizard.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
     sdkmanageroutputparser.cpp sdkmanageroutputparser.h

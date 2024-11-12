@@ -1,7 +1,7 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidcreatekeystorecertificate.h"
+#include "keystorecertificatedialog.h"
 
 #include "androidconfigurations.h"
 #include "androidtr.h"
@@ -23,6 +23,53 @@
 using namespace Utils;
 
 namespace Android::Internal {
+
+class AndroidCreateKeystoreCertificate : public QDialog
+{
+    enum PasswordStatus
+    {
+        Invalid,
+        NoMatch,
+        Match
+    };
+
+public:
+    explicit AndroidCreateKeystoreCertificate();
+
+    KeystoreData keystoreData() const;
+
+private:
+    PasswordStatus checkKeystorePassword();
+    PasswordStatus checkCertificatePassword();
+    bool checkCertificateAlias();
+    bool checkCountryCode();
+
+    void keystoreShowPassStateChanged(int state);
+    void certificateShowPassStateChanged(int state);
+    void buttonBoxAccepted();
+    void samePasswordStateChanged(int state);
+
+    bool validateUserInput();
+
+    Utils::FilePath m_keystoreFilePath;
+
+    QLineEdit *m_commonNameLineEdit;
+    QLineEdit *m_organizationUnitLineEdit;
+    QLineEdit *m_organizationNameLineEdit;
+    QLineEdit *m_localityNameLineEdit;
+    QLineEdit *m_stateNameLineEdit;
+    QLineEdit *m_countryLineEdit;
+    QLineEdit *m_certificateRetypePassLineEdit;
+    QCheckBox *m_certificateShowPassCheckBox;
+    QSpinBox *m_validitySpinBox;
+    QLineEdit *m_certificateAliasLineEdit;
+    QLineEdit *m_certificatePassLineEdit;
+    QSpinBox *m_keySizeSpinBox;
+    QCheckBox *m_samePasswordCheckBox;
+    QLineEdit *m_keystorePassLineEdit;
+    QLineEdit *m_keystoreRetypePassLineEdit;
+    Utils::InfoLabel *m_infoLabel;
+};
 
 AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate()
     : QDialog(Core::ICore::dialogParent())
@@ -327,6 +374,14 @@ bool AndroidCreateKeystoreCertificate::validateUserInput()
     }
 
     return true;
+}
+
+std::optional<KeystoreData> executeKeystoreCertificateDialog()
+{
+    AndroidCreateKeystoreCertificate dialog;
+    if (dialog.exec() != QDialog::Accepted)
+        return {};
+    return dialog.keystoreData();
 }
 
 } // Android::Internal
