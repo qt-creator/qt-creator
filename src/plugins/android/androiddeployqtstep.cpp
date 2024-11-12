@@ -4,7 +4,6 @@
 
 #include "androiddeployqtstep.h"
 
-#include "androidavdmanager.h"
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
@@ -370,7 +369,7 @@ GroupItem AndroidDeployQtStep::runRecipe()
     return Group {
         If (!Sync(isAvdNameEmpty)) >> Then {
             serialNumberStorage,
-            AndroidAvdManager::startAvdRecipe(m_avdName, serialNumberStorage),
+            startAvdRecipe(m_avdName, serialNumberStorage),
             onGroupDone(onSerialNumberDone)
         },
         deployRecipe(),
@@ -591,7 +590,7 @@ QWidget *AndroidDeployQtStep::createConfigWidget()
             serialNumberStorage,
             Group {
                 onGroupSetup(onSetup),
-                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage),
+                startAvdRecipe(info.avdName, serialNumberStorage),
                 onGroupDone(onDone)
             },
             ProcessTask(onAdbSetup, onAdbDone)

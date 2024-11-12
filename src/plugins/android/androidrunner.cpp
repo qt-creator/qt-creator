@@ -4,7 +4,6 @@
 
 #include "androidrunner.h"
 
-#include "androidavdmanager.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
 #include "androidrunnerworker.h"
@@ -76,7 +75,7 @@ void AndroidRunner::start()
 
             avdRecipe = Group {
                 serialNumberStorage,
-                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
+                startAvdRecipe(info.avdName, serialNumberStorage)
             }.withCancel([glueStorage] {
                 return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
             });

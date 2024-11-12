@@ -6,7 +6,6 @@ add_qtc_plugin(Android
   SOURCES
     android.qrc
     androidtr.h
-    androidavdmanager.cpp androidavdmanager.h
     androidbuildapkstep.cpp androidbuildapkstep.h
     androidconfigurations.cpp androidconfigurations.h
     androidconstants.h

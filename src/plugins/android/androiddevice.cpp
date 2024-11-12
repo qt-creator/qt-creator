@@ -4,7 +4,6 @@
 
 #include "androiddevice.h"
 
-#include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidsignaloperation.h"
@@ -604,7 +603,7 @@ void AndroidDevice::startAvd()
 
     const Group root {
         serialNumberStorage,
-        AndroidAvdManager::startAvdRecipe(avdName(), serialNumberStorage),
+        startAvdRecipe(avdName(), serialNumberStorage),
         onGroupDone(onDone, CallDoneIf::Success)
     };
 

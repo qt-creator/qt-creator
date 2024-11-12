@@ -17,8 +17,6 @@ QtcPlugin {
     files: [
         "androidtr.h",
         "android.qrc",
-        "androidavdmanager.cpp",
-        "androidavdmanager.h",
         "androidconfigurations.cpp",
         "androidconfigurations.h",
         "androidconstants.h",

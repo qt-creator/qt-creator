@@ -3,8 +3,11 @@
 
 #pragma once
 
-#include <qtsupport/baseqtversion.h>
 #include <projectexplorer/abi.h>
+
+#include <qtsupport/baseqtversion.h>
+
+#include <solutions/tasking/tasktree.h>
 
 namespace ProjectExplorer {
 class Kit;
@@ -56,5 +59,8 @@ QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
 QStringList adbSelector(const QString &serialNumber);
+
+Tasking::ExecutableItem startAvdRecipe(
+    const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
 
 } // namespace Android::Internal
