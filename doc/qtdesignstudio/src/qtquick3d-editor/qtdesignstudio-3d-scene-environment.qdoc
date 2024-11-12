@@ -16,20 +16,31 @@
     you select when \l {Creating Projects}{creating your project}.
 
     \note \uicontrol {Extended Scene Environment} is available in projects created with
-    Qt 6.5 or higher as the \uicontrol {Target Qt Version}.
+    Qt 6.5 or higher as \uicontrol {Target Qt Version}.
 
-    \section1 Adding Scene Environments to Projects
+    \section1 Creating a New Project with a Scene Environment
 
-    Add the scene environment components to projects by selecting a suitable preset when
-    \l{Creating Projects}{creating your project}.
+    To include a scene environment component in your project, select a suitable preset when
+    \l{Creating Projects}{creating your project}:
+    \list
+        \li Choose the \uicontrol {3D} preset to create a project with a \uicontrol View3D
+            component that includes a \uicontrol {Scene Environment}.
+        \li Choose the \uicontrol {3D Extended} preset to create a project with an
+            \uicontrol {Extended View3D} component that includes an
+            \uicontrol {Extended Scene Environment}.
+    \endlist
 
-    Use the \uicontrol {3D} preset to create a project with a \uicontrol View3D
-    component that includes a scene environment. If you need to add it manually, it is
-    available in \uicontrol Components > \uicontrol {Qt Quick 3D}.
+    \section1 Adding a Scene Environment to an Existing Project
 
-    Use the \uicontrol {Extended 3D} preset to create a project with a 3D view
-    component that includes an extended scene environment. It is also
-    available in \uicontrol Components > \uicontrol {Qt Quick 3D Helpers}.
+    To add a 3D view component, which includes a scene environment, drag it from
+    \uicontrol Components > \uicontrol {Qt Quick 3D} > \uicontrol Items to
+    \uicontrol Navigator or the \uicontrol {2D} view.
+
+    To add a scene environment component separately to your project, drag it
+    from \uicontrol Components to a 3D view component in \uicontrol Navigator.
+    The \uicontrol {Scene Environment} component is available in \uicontrol {Qt Quick 3D} >
+    \uicontrol Components and the \uicontrol {Extended Scene Environment} in
+    \uicontrol {Qt Quick 3D Helpers}.
 
     \section1 Setting the Scene Environment
 
