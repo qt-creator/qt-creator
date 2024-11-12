@@ -159,8 +159,6 @@ EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
     editorWidget->setParent(this);
     editorWidget->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
 
-    editorWidget->installEventFilter(this);
-
     return editorWidget;
 }
 
@@ -186,7 +184,6 @@ void EffectShadersCodeEditor::setupUIComponents()
                                       : m_vertexEditor.get();
         tabWidget->setCurrentWidget(widgetToSelect);
         widgetToSelect->setFocus();
-        activateWindow();
     });
 
     this->resize(660, 240);
@@ -208,23 +205,6 @@ void EffectShadersCodeEditor::closeEvent(QCloseEvent *event)
     emit rebakeRequested();
 
     setOpened(false);
-}
-
-bool EffectShadersCodeEditor::eventFilter(QObject *watched, QEvent *event)
-{
-    if (event->type() == event->FocusOut) {
-        QFocusEvent *focusEvent = dynamic_cast<QFocusEvent *>(event);
-        if (focusEvent && focusEvent->reason() == Qt::ActiveWindowFocusReason) {
-            connect(
-                qApp,
-                &QApplication::focusWindowChanged,
-                this,
-                &EffectShadersCodeEditor::close,
-                Qt::SingleShotConnection);
-        }
-    }
-
-    return QWidget::eventFilter(watched, event);
 }
 
 void EffectShadersCodeEditor::writeLiveUpdateSettings()
