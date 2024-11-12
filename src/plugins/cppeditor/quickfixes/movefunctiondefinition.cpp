@@ -1370,6 +1370,23 @@ auto Derived::func() const && noexcept -> void {}
         QuickFixOperationTest(testDocuments, &factory);
     }
 
+    void testUnimplementedOverload()
+    {
+        const QByteArray original =
+            "struct S {\n"
+            "  S();\n"
+            "  @S(const S &) {}\n"
+            "};\n";
+        const QByteArray expected =
+            "struct S {\n"
+            "  S();\n"
+            "  S(const S &);\n"
+            "};\n\n"
+            "S::S(const S &) {}\n";
+
+        MoveFuncDefOutside factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class MoveAllFuncDefOutsideTest : public QObject
