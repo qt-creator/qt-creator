@@ -586,10 +586,11 @@ bool NavigatorTreeModel::dropMimeData(const QMimeData *mimeData,
                     bool moveNodesAfter = false;
 
                     m_view->executeInTransaction(__FUNCTION__, [&] {
-                        ModelNodeOperations::handleItemLibraryTexture3dDrop(texturePath,
-                                                                            modelNodeForIndex(
-                                                                                rowModelIndex),
-                                                                            moveNodesAfter);
+                        ModelNodeOperations::handleItemLibraryImageDrop(texturePath,
+                                                                        targetProperty,
+                                                                        modelNodeForIndex(
+                                                                            rowModelIndex),
+                                                                        moveNodesAfter);
                     });
                 }
             }
