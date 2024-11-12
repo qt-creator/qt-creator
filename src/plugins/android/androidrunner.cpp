@@ -7,8 +7,8 @@
 #include "androidavdmanager.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
-#include "androidmanager.h"
 #include "androidrunnerworker.h"
+#include "androidutils.h"
 
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>

@@ -4,8 +4,8 @@
 
 #include "androidextralibrarylistmodel.h"
 
-#include <android/androidconstants.h>
-#include <android/androidmanager.h>
+#include "androidconstants.h"
+#include "androidutils.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>

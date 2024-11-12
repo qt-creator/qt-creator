@@ -5,9 +5,9 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidmanifesteditoriconcontainerwidget.h"
 #include "androidtr.h"
+#include "androidutils.h"
 #include "splashscreencontainerwidget.h"
 
 #include <coreplugin/icore.h>

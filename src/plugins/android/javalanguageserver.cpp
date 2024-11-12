@@ -3,8 +3,8 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidtr.h"
+#include "androidutils.h"
 #include "javalanguageserver.h"
 
 #include <languageclient/client.h>

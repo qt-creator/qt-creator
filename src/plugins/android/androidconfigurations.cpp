@@ -5,11 +5,11 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidsdkmanager.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>

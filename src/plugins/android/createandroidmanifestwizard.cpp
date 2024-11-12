@@ -1,12 +1,11 @@
 // Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "androidtr.h"
 #include "createandroidmanifestwizard.h"
 
-#include <android/androidconfigurations.h>
-#include <android/androidconstants.h>
-#include <android/androidmanager.h>
+#include "androidtr.h"
+#include "androidconstants.h"
+#include "androidutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
 

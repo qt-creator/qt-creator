@@ -6,8 +6,8 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidrunner.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
+#include "androidutils.h"
 
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerrunconfigurationaspect.h>

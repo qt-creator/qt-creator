@@ -3,9 +3,9 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <utils/algorithm.h>
 #include <utils/environment.h>

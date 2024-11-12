@@ -8,10 +8,9 @@
 #include "androidbuildapkstep.h"
 #include "androidconstants.h"
 #include "androiddevice.h"
-#include "androidmanager.h"
 #include "androidqtversion.h"
 #include "androidtr.h"
-#include "androidtr.h"
+#include "androidutils.h"
 
 #include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>

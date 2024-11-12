@@ -7,9 +7,9 @@
 #include "androidavdmanager.h"
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanager.h"
 #include "androidsignaloperation.h"
 #include "androidtr.h"
+#include "androidutils.h"
 #include "avddialog.h"
 #include "avdmanageroutputparser.h"
 

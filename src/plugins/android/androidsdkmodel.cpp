@@ -3,10 +3,9 @@
 
 #include "androidsdkmodel.h"
 
-#include "androidmanager.h"
-#include "androidconfigurations.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
+#include "androidutils.h"
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
