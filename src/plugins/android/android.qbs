@@ -69,8 +69,6 @@ QtcPlugin {
         "avddialog.h",
         "avdmanageroutputparser.cpp",
         "avdmanageroutputparser.h",
-        "certificatesmodel.cpp",
-        "certificatesmodel.h",
         "createandroidmanifestwizard.h",
         "createandroidmanifestwizard.cpp",
         "javaeditor.cpp",

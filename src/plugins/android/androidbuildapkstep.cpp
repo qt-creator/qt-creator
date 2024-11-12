@@ -10,7 +10,6 @@
 #include "androidsdkmanager.h"
 #include "androidtr.h"
 #include "androidutils.h"
-#include "certificatesmodel.h"
 #include "createandroidmanifestwizard.h"
 #include "javaparser.h"
 
@@ -64,6 +63,49 @@ using namespace std::chrono_literals;
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
+
+const QLatin1String AliasString("Alias name:");
+const QLatin1String CertificateSeparator("*******************************************");
+
+class CertificatesModel : public QAbstractListModel
+{
+public:
+    CertificatesModel(const QString &rowCertificates, QObject *parent)
+        : QAbstractListModel(parent)
+    {
+        int from = rowCertificates.indexOf(AliasString);
+        QPair<QString, QString> item;
+        while (from > -1) {
+            from += 11;// strlen(AliasString);
+            const int eol = rowCertificates.indexOf(QLatin1Char('\n'), from);
+            item.first = rowCertificates.mid(from, eol - from).trimmed();
+            const int eoc = rowCertificates.indexOf(CertificateSeparator, eol);
+            item.second = rowCertificates.mid(eol + 1, eoc - eol - 2).trimmed();
+            from = rowCertificates.indexOf(AliasString, eoc);
+            m_certs.push_back(item);
+        }
+    }
+
+protected:
+    int rowCount(const QModelIndex &parent = {}) const override
+    {
+        if (parent.isValid())
+            return 0;
+        return m_certs.size();
+    }
+
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override
+    {
+        if (!index.isValid() || (role != Qt::DisplayRole && role != Qt::ToolTipRole))
+            return {};
+        if (role == Qt::DisplayRole)
+            return m_certs[index.row()].first;
+        return m_certs[index.row()].second;
+    }
+
+private:
+    QList<QPair<QString, QString>> m_certs;
+};
 
 class LibraryListModel : public QAbstractItemModel
 {
