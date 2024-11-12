@@ -4,13 +4,13 @@
 
 from __future__ import annotations
 import argparse
-from itertools import islice
 import os
 from pathlib import Path
 from typing import NamedTuple
 
 from common import (is_linux_platform, is_mac_platform, is_windows_platform,
-                    download_and_extract, check_print_call, sevenzip_command)
+                    download_and_extract, check_print_call, sevenzip_command,
+                    get_single_subdir)
 
 
 class BuildParams(NamedTuple):
@@ -103,13 +103,6 @@ def sign_sdktool(params: BuildParams,
              '-v', 'sdktool'],
             cwd=params.target_path,
             env=environment)
-
-
-def get_single_subdir(path: Path):
-    entries = list(islice(path.iterdir(), 2))
-    if len(entries) == 1:
-        return path / entries[0]
-    return path
 
 
 def build_sdktool(

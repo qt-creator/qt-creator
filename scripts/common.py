@@ -4,6 +4,7 @@
 from __future__ import annotations
 import argparse
 import asyncio
+from itertools import islice
 import os
 import locale
 from pathlib import Path
@@ -60,6 +61,13 @@ def get_commit_SHA(path):
             with open(tagfile, 'r') as f:
                 git_sha = f.read().strip()
     return git_sha
+
+
+def get_single_subdir(path: Path):
+    entries = list(islice(path.iterdir(), 2))
+    if len(entries) == 1:
+        return path / entries[0]
+    return path
 
 
 def sevenzip_command(threads=None):
