@@ -99,7 +99,7 @@ static QString lldbServerArch2(const QString &androidAbi)
 static FilePath debugServer(bool useLldb, const Target *target)
 {
     QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(target->kit());
-    QString preferredAbi = AndroidManager::apkDevicePreferredAbi(target);
+    QString preferredAbi = apkDevicePreferredAbi(target);
 
     if (useLldb) {
         // Search suitable lldb-server binary.
@@ -202,8 +202,8 @@ static void setupStorage(RunnerStorage *storage, RunnerInterface *glue)
     }
 
     auto target = glue->runControl()->target();
-    storage->m_packageName = AndroidManager::packageName(target);
-    storage->m_intentName = storage->m_packageName + '/' + AndroidManager::activityName(target);
+    storage->m_packageName = packageName(target);
+    storage->m_intentName = storage->m_packageName + '/' + activityName(target);
     qCDebug(androidRunWorkerLog) << "Intent name:" << storage->m_intentName
                                  << "Package name:" << storage->m_packageName;
     qCDebug(androidRunWorkerLog) << "Device API:" << glue->apiLevel();

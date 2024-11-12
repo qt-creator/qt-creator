@@ -80,7 +80,7 @@ bool AndroidQtVersion::supportsMultipleQtAbis() const
 Abis AndroidQtVersion::detectQtAbis() const
 {
     const bool conf = AndroidConfig::sdkFullyConfigured();
-    return conf ? Utils::transform<Abis>(androidAbis(), &AndroidManager::androidAbi2Abi) : Abis();
+    return conf ? Utils::transform<Abis>(androidAbis(), &androidAbi2Abi) : Abis();
 }
 
 void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &env) const
@@ -91,7 +91,7 @@ void AndroidQtVersion::addToBuildEnvironment(const Kit *k, Utils::Environment &e
     env.set(QLatin1String("ANDROID_NDK_HOST"), AndroidConfig::toolchainHost(this));
     env.set(QLatin1String("ANDROID_NDK_ROOT"), AndroidConfig::ndkLocation(this).toUserOutput());
     env.set(QLatin1String("ANDROID_NDK_PLATFORM"),
-        AndroidConfig::bestNdkPlatformMatch(qMax(minimumNDK(), AndroidManager::minimumSDK(k)), this));
+        AndroidConfig::bestNdkPlatformMatch(qMax(minimumNDK(), minimumSDK(k)), this));
 }
 
 void AndroidQtVersion::setupQmakeRunEnvironment(Utils::Environment &env) const
@@ -125,7 +125,7 @@ QString AndroidQtVersion::androidDeploymentSettingsFileName(const Target *target
         return {};
     const QString buildKey = target->activeBuildKey();
     const QString displayName = bs->buildTarget(buildKey).displayName;
-    const QString fileName = AndroidManager::isQt5CmakeProject(target)
+    const QString fileName = isQt5CmakeProject(target)
                                  ? QLatin1String("android_deployment_settings.json")
                                  : QString::fromLatin1("android-%1-deployment-settings.json")
                                        .arg(displayName);
@@ -145,7 +145,7 @@ Utils::FilePath AndroidQtVersion::androidDeploymentSettings(const Target *target
 
     // If unavailable, construct the name by ourselves (CMake)
     const QString fileName = androidDeploymentSettingsFileName(target);
-    return AndroidManager::buildDirectory(target) / fileName;
+    return buildDirectory(target) / fileName;
 }
 
 AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const

@@ -775,13 +775,13 @@ bool isValidNdk(const QString &ndkLocation)
 
 QString bestNdkPlatformMatch(int target, const QtVersion *qtVersion)
 {
-    target = std::max(AndroidManager::defaultMinimumSDK(qtVersion), target);
+    target = std::max(defaultMinimumSDK(qtVersion), target);
     const QList<int> platforms = availableNdkPlatforms(qtVersion);
     for (const int apiLevel : platforms) {
         if (apiLevel <= target)
             return QString::fromLatin1("android-%1").arg(apiLevel);
     }
-    return QString("android-%1").arg(AndroidManager::defaultMinimumSDK(qtVersion));
+    return QString("android-%1").arg(defaultMinimumSDK(qtVersion));
 }
 
 FilePath sdkLocation()
@@ -1568,29 +1568,25 @@ void AndroidConfigurationsTest::testAndroidConfigAvailableNdkPlatforms_data()
     const QList<int> abis64Bit = {31, 30, 29, 28, 27, 26, 24, 23, 22, 21};
     QTest::newRow("ndkV21Plus armeabi-v7a OsTypeWindows")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_ARMEABI_V7A)}
                 << OsTypeWindows
                 << abis32Bit;
 
     QTest::newRow("ndkV21Plus arm64-v8a OsTypeLinux")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A)}
                 << OsTypeLinux
                 << abis64Bit;
 
     QTest::newRow("ndkV21Plus x86 OsTypeMac")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_X86)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_X86)}
                 << OsTypeMac
                 << abis32Bit;
 
     QTest::newRow("ndkV21Plus x86_64 OsTypeWindows")
                 << ndkV21Plus
-                << Abis{AndroidManager::androidAbi2Abi(
-                       ProjectExplorer::Constants::ANDROID_ABI_X86_64)}
+                << Abis{androidAbi2Abi(ProjectExplorer::Constants::ANDROID_ABI_X86_64)}
                 << OsTypeWindows
                 << abis64Bit;
 }

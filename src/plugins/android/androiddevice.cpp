@@ -559,7 +559,7 @@ void AndroidDevice::setAvdPath(const FilePath &path)
 
 QString AndroidDevice::androidVersion() const
 {
-    return AndroidManager::androidNameForApiLevel(sdkLevel());
+    return androidNameForApiLevel(sdkLevel());
 }
 
 QString AndroidDevice::deviceTypeName() const

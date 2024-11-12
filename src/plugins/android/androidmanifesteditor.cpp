@@ -698,7 +698,7 @@ void AndroidManifestEditorWidget::postSave()
     if (Target *target = androidTarget(docPath)) {
         if (BuildConfiguration *bc = target->activeBuildConfiguration()) {
             QString androidNdkPlatform = AndroidConfig::bestNdkPlatformMatch(
-                AndroidManager::minimumSDK(target),
+                minimumSDK(target),
                 QtSupport::QtKitAspect::qtVersion(
                     androidTarget(m_textEditorWidget->textDocument()->filePath())->kit()));
             if (m_androidNdkPlatform != androidNdkPlatform) {
@@ -788,12 +788,12 @@ void AndroidManifestEditorWidget::updateSdkVersions()
     const Target *target = androidTarget(m_textEditorWidget->textDocument()->filePath());
     if (target) {
         const QtSupport::QtVersion *qt = QtSupport::QtKitAspect::qtVersion(target->kit());
-        minSdk = AndroidManager::defaultMinimumSDK(qt);
+        minSdk = defaultMinimumSDK(qt);
     }
 
     for (int i = minSdk; i <= targetSdk; ++i) {
         const QString apiStr = ::Android::Tr::tr("API %1: %2").arg(i)
-                .arg(AndroidManager::androidNameForApiLevel(i));
+                .arg(androidNameForApiLevel(i));
         m_androidMinSdkVersion->addItem(apiStr, i);
         m_androidTargetSdkVersion->addItem(apiStr, i);
     }

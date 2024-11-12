@@ -104,7 +104,7 @@ void AndroidDebugSupport::start()
     Kit *kit = target->kit();
 
     setStartMode(AttachToRemoteServer);
-    const QString packageName = AndroidManager::packageName(target);
+    const QString packageName = Internal::packageName(target);
     setRunControlName(packageName);
     setUseContinueInsteadOfRun(true);
     setAttachPid(m_runner->pid());
@@ -125,26 +125,26 @@ void AndroidDebugSupport::start()
         const FilePaths extraLibs = getExtraLibs(node);
         solibSearchPath.append(extraLibs);
 
-        FilePath buildDir = AndroidManager::buildDirectory(target);
+        FilePath buildDir = Internal::buildDirectory(target);
         const RunConfiguration *activeRunConfig = target->activeRunConfiguration();
         if (activeRunConfig)
             solibSearchPath.append(activeRunConfig->buildTargetInfo().workingDirectory);
         solibSearchPath.append(buildDir);
-        const FilePath androidLibsPath = AndroidManager::androidBuildDirectory(target)
+        const FilePath androidLibsPath = androidBuildDirectory(target)
                                          .pathAppended("libs")
-                                         .pathAppended(AndroidManager::apkDevicePreferredAbi(target));
+                                         .pathAppended(apkDevicePreferredAbi(target));
         solibSearchPath.append(androidLibsPath);
         FilePath::removeDuplicates(solibSearchPath);
         setSolibSearchPath(solibSearchPath);
         qCDebug(androidDebugSupportLog).noquote() << "SoLibSearchPath: " << solibSearchPath;
-        setSymbolFile(AndroidManager::androidAppProcessDir(target).pathAppended("app_process"));
+        setSymbolFile(androidAppProcessDir(target).pathAppended("app_process"));
         setSkipExecutableValidation(true);
         setUseExtendedRemote(true);
-        QString devicePreferredAbi = AndroidManager::apkDevicePreferredAbi(target);
-        setAbi(AndroidManager::androidAbi2Abi(devicePreferredAbi));
+        QString devicePreferredAbi = apkDevicePreferredAbi(target);
+        setAbi(androidAbi2Abi(devicePreferredAbi));
 
         if (cppEngineType() == LldbEngineType) {
-            QString deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+            QString deviceSerialNumber = Internal::deviceSerialNumber(target);
             const int colonPos = deviceSerialNumber.indexOf(QLatin1Char(':'));
             if (colonPos > 0) {
                 // When wireless debugging is used then the device serial number will include a port number
@@ -163,7 +163,7 @@ void AndroidDebugSupport::start()
         auto qt = static_cast<AndroidQtVersion *>(qtVersion);
         const int minimumNdk = qt ? qt->minimumNDK() : 0;
 
-        int sdkVersion = qMax(AndroidManager::minimumSDK(kit), minimumNdk);
+        int sdkVersion = qMax(Internal::minimumSDK(kit), minimumNdk);
         if (qtVersion) {
             const FilePath ndkLocation = AndroidConfig::ndkLocation(qtVersion);
             FilePath sysRoot = ndkLocation

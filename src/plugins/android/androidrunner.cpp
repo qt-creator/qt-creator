@@ -65,7 +65,7 @@ void AndroidRunner::start()
 
         const IDevice::ConstPtr device = RunDeviceKitAspect::device(target->kit());
         AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-        AndroidManager::setDeviceSerialNumber(target, info.serialNumber);
+        setDeviceSerialNumber(target, info.serialNumber);
         deviceSerialNumber = info.serialNumber;
         apiLevel = info.sdk;
         qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
@@ -82,8 +82,8 @@ void AndroidRunner::start()
             });
         }
     } else {
-        deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
-        apiLevel = AndroidManager::deviceApiLevel(target);
+        deviceSerialNumber = Internal::deviceSerialNumber(target);
+        apiLevel = Internal::deviceApiLevel(target);
     }
 
     const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {

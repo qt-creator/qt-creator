@@ -91,7 +91,7 @@ bool AndroidPackageInstallationStep::init()
 
     processParameters()->setCommandLine(cmd);
     // This is useful when running an example target from a Qt module project.
-    processParameters()->setWorkingDirectory(AndroidManager::buildDirectory(target()));
+    processParameters()->setWorkingDirectory(Internal::buildDirectory(target()));
 
     m_androidDirsToClean.clear();
     // don't remove gradle's cache, it takes ages to rebuild it.
@@ -103,7 +103,7 @@ bool AndroidPackageInstallationStep::init()
 
 QString AndroidPackageInstallationStep::nativeAndroidBuildPath() const
 {
-    QString buildPath = AndroidManager::androidBuildDirectory(target()).toFSPathString();
+    QString buildPath = androidBuildDirectory(target()).toFSPathString();
     if (HostOsInfo::isWindowsHost())
         if (buildEnvironment().searchInPath("sh.exe").isEmpty())
             buildPath = QDir::toNativeSeparators(buildPath);
@@ -124,7 +124,7 @@ Tasking::GroupItem AndroidPackageInstallationStep::runRecipe()
     using namespace Tasking;
 
     const auto onSetup = [this] {
-        if (AndroidManager::skipInstallationAndPackageSteps(target())) {
+        if (skipInstallationAndPackageSteps(target())) {
             reportWarningOrError(Tr::tr("Product type is not an application, not running the "
                                         "Make install step."), Task::Warning);
             return SetupResult::StopWithSuccess;
