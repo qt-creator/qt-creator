@@ -38,6 +38,7 @@ gui.baseWidgetOptions = {}
 ---@field flat? boolean A boolean, representing whether the widget should be flat, if applicable.
 ---@field [1]? Layout The layout of the widget, if applicable.
 ---@field fixedSize? integer[] Two integers representing the width and height
+---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions

@@ -111,10 +111,17 @@ CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
 CREATE_HAS_FUNC(setFixedSize, QSize())
 CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
+CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
+    if constexpr (has_setContentsMargins<T>) {
+        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins");
+        if (margins)
+            item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
+    }
+
     if constexpr (has_setVisible<T>) {
         const auto visible = children.get<sol::optional<bool>>("visible");
         if (visible)
