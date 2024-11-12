@@ -2,11 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidconstants.h"
-#include "androidglobal.h"
 #include "androidrunconfiguration.h"
-#include "androidtoolchain.h"
 #include "androidtr.h"
 
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>

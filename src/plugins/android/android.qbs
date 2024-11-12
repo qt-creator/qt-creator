@@ -36,7 +36,6 @@ QtcPlugin {
         "androiddeviceinfo.h",
         "androidextralibrarylistmodel.cpp",
         "androidextralibrarylistmodel.h",
-        "androidglobal.h",
         "androidmanager.cpp",
         "androidmanager.h",
         "androidmanifesteditoriconwidget.cpp",
