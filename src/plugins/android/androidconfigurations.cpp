@@ -1413,7 +1413,7 @@ void AndroidConfigurations::registerCustomToolchainsAndDebuggers()
 void AndroidConfigurations::updateAutomaticKitList()
 {
     for (Kit *k : KitManager::kits()) {
-        if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::ANDROID_DEVICE_TYPE) {
             if (k->value(Constants::ANDROID_KIT_NDK).isNull() || k->value(Constants::ANDROID_KIT_SDK).isNull()) {
                 if (QtVersion *qt = QtKitAspect::qtVersion(k)) {
                     k->setValueSilently(
@@ -1425,7 +1425,7 @@ void AndroidConfigurations::updateAutomaticKitList()
     }
 
     const QList<Kit *> existingKits = Utils::filtered(KitManager::kits(), [](Kit *k) {
-        Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(k);
+        Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(k);
         if (k->isAutoDetected() && !k->isSdkProvided()
                 && deviceTypeId == Constants::ANDROID_DEVICE_TYPE) {
             return true;
@@ -1472,7 +1472,7 @@ void AndroidConfigurations::updateAutomaticKitList()
             const auto initializeKit = [&bundle, qt](Kit *k) {
                 k->setAutoDetected(true);
                 k->setAutoDetectionSource("AndroidConfiguration");
-                DeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
+                RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::ANDROID_DEVICE_TYPE);
                 ToolchainKitAspect::setBundle(k, bundle);
                 QtKitAspect::setQtVersion(k, qt);
                 QStringList abis = static_cast<const AndroidQtVersion *>(qt)->androidAbis();
@@ -1481,7 +1481,7 @@ void AndroidConfigurations::updateAutomaticKitList()
 
                 BuildDeviceKitAspect::setDeviceId(k, DeviceManager::defaultDesktopDevice()->id());
                 k->setSticky(QtKitAspect::id(), true);
-                k->setSticky(DeviceTypeKitAspect::id(), true);
+                k->setSticky(RunDeviceTypeKitAspect::id(), true);
 
                 QString versionStr = QLatin1String("Qt %{Qt:Version}");
                 if (!qt->isAutodetected())

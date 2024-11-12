@@ -1134,17 +1134,17 @@ bool CMakeBuildSettingsWidget::eventFilter(QObject *target, QEvent *event)
 
 static bool isWebAssembly(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE;
 }
 
 static bool isVxWorks(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == VXWORKS_DEVICE_TYPE;
 }
 
 static bool isQnx(const Kit *k)
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == Qnx::Constants::QNX_QNX_OS_TYPE;
 }
 
 static bool isWindowsARM64(const Kit *k)
@@ -1496,7 +1496,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
         m_buildSystem->setIsMultiConfig(CMakeGeneratorKitAspect::isMultiConfigGenerator(k));
 
         // Android magic:
-        if (DeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(k) == Android::Constants::ANDROID_DEVICE_TYPE) {
             auto addUniqueKeyToCmd = [&cmd] (const QString &prefix, const QString &value) -> bool {
                 const bool isUnique =
                     !Utils::contains(cmd.splitArguments(), [&prefix] (const QString &arg) {
@@ -1555,7 +1555,7 @@ CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
                 // and build with "cmake --build . -- -arch <arch>" instead of setting the architecture
                 // and sysroot in the CMake configuration, but that currently doesn't work with Qt/CMake
                 // https://gitlab.kitware.com/cmake/cmake/-/issues/21276
-                const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+                const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
                 const QString sysroot = deviceType == Ios::Constants::IOS_DEVICE_TYPE
                                             ? QLatin1String("iphoneos")
                                             : QLatin1String("iphonesimulator");
@@ -1638,7 +1638,7 @@ FilePath CMakeBuildConfiguration::shadowBuildDirectory(const FilePath &projectFi
 
 bool CMakeBuildConfiguration::isIos(const Kit *k)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }

@@ -504,7 +504,7 @@ RunConfigurationFactory::~RunConfigurationFactory()
 QString RunConfigurationFactory::decoratedTargetName(const QString &targetName, Target *target)
 {
     QString displayName = targetName;
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(target->kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(target->kit());
     if (devType != Constants::DESKTOP_DEVICE_TYPE) {
         if (IDevice::ConstPtr dev = RunDeviceKitAspect::device(target->kit())) {
             if (displayName.isEmpty()) {
@@ -608,7 +608,7 @@ bool RunConfigurationFactory::canHandle(Target *target) const
 
     if (!m_supportedTargetDeviceTypes.isEmpty())
         if (!m_supportedTargetDeviceTypes.contains(
-                    DeviceTypeKitAspect::deviceTypeId(kit)))
+                    RunDeviceTypeKitAspect::deviceTypeId(kit)))
             return false;
 
     return true;

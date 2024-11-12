@@ -13,7 +13,7 @@ namespace Utils { class FilePath; }
 namespace ProjectExplorer {
 class Kit;
 
-class PROJECTEXPLORER_EXPORT DeviceTypeKitAspect
+class PROJECTEXPLORER_EXPORT RunDeviceTypeKitAspect
 {
 public:
     static const Utils::Id id();

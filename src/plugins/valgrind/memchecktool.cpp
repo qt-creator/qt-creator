@@ -689,7 +689,7 @@ void MemcheckTool::heobAction()
                         = DeviceManager::deviceForPath(sr.command.executable());
                 hasLocalRc = device && device->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
                 if (!hasLocalRc)
-                    hasLocalRc = DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+                    hasLocalRc = RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
             }
         }
     }

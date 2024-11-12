@@ -204,7 +204,7 @@ void showAttachToProcessDialog()
 {
     auto kitChooser = new KitChooser;
     kitChooser->setKitPredicate([](const Kit *k) {
-        return k->isValid() && DeviceTypeKitAspect::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
+        return k->isValid() && RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::QNX_QNX_OS_TYPE;
     });
 
     QnxAttachDebugDialog dlg(kitChooser);

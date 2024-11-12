@@ -760,7 +760,7 @@ bool BuildConfigurationFactory::supportsTargetDeviceType(Utils::Id id) const
 BuildConfigurationFactory *BuildConfigurationFactory::find(const Kit *k, const FilePath &projectPath)
 {
     QTC_ASSERT(k, return nullptr);
-    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     for (BuildConfigurationFactory *factory : std::as_const(g_buildConfigurationFactories)) {
         if (Utils::mimeTypeForFile(projectPath).matchesName(factory->m_supportedProjectMimeTypeName)
             && factory->supportsTargetDeviceType(deviceType))
@@ -802,7 +802,7 @@ bool BuildConfigurationFactory::canHandle(const Target *target) const
     if (containsType(target->project()->projectIssues(target->kit()), Task::TaskType::Error))
         return false;
 
-    if (!supportsTargetDeviceType(DeviceTypeKitAspect::deviceTypeId(target->kit())))
+    if (!supportsTargetDeviceType(RunDeviceTypeKitAspect::deviceTypeId(target->kit())))
         return false;
 
     return true;

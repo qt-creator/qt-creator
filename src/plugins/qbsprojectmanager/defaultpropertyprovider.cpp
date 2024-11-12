@@ -58,7 +58,7 @@ static QString extractToolchainPrefix(QString *compilerName)
 
 static QString targetPlatform(const ProjectExplorer::Abi &abi, const ProjectExplorer::Kit *k)
 {
-    const Utils::Id deviceType = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k);
+    const Utils::Id deviceType = ProjectExplorer::RunDeviceTypeKitAspect::deviceTypeId(k);
     if (deviceType == WebAssembly::Constants::WEBASSEMBLY_DEVICE_TYPE)
         return "wasm-emscripten";
 

@@ -115,7 +115,7 @@ class QnxPlugin final : public ExtensionSystem::IPlugin
         connect(KitManager::instance(), &KitManager::kitsChanged, this,
                 [attachToQnxApplication, debugSeparator] {
             auto isQnxKit = [](const Kit *kit) {
-                return DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                return RunDeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
                        && RunDeviceKitAspect::device(kit) && kit->isValid();
             };
 

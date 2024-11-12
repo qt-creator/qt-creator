@@ -40,7 +40,7 @@ static void handleAction(const SelectionContext &context)
                 const Kit *kit = startupTarget->kit();
                 if (kit
                     && (kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
-                        || DeviceTypeKitAspect::deviceTypeId(kit)
+                        || RunDeviceTypeKitAspect::deviceTypeId(kit)
                                == Android::Constants::ANDROID_DEVICE_TYPE)) {
                     skipDeploy = true;
                     // In case of an android kit we don't want the live preview button to be toggled

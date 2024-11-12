@@ -32,7 +32,7 @@ public:
         if (device)
             return true;
 
-        Utils::Id deviceTypeId = DeviceTypeKitAspect::deviceTypeId(kit());
+        Utils::Id deviceTypeId = RunDeviceTypeKitAspect::deviceTypeId(kit());
         IDeviceFactory *factory = IDeviceFactory::find(deviceTypeId);
         if (!factory || !factory->canCreate()) {
             emit addOutput(Tr::tr("No device configured."), OutputFormat::ErrorMessage);

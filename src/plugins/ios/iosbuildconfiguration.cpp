@@ -87,7 +87,7 @@ IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConf
     : NamedWidget(Tr::tr("iOS Settings"))
     , m_autoManagedSigning(autoManagedSigning)
     , m_signingIdentifier(signingIdentifier)
-    , m_isDevice(DeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
+    , m_isDevice(RunDeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
                  == Constants::IOS_DEVICE_TYPE)
 {
     auto detailsWidget = new Utils::DetailsWidget(this);
@@ -455,7 +455,7 @@ void IosQmakeBuildConfiguration::updateQmakeCommand()
         if (signingIdentifier.isEmpty() )
             extraArgs << forceOverrideArg;
 
-        Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+        Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
         if (devType == Constants::IOS_DEVICE_TYPE && !signingIdentifier.isEmpty()) {
             if (m_autoManagedSigning()) {
                 extraArgs << qmakeIosTeamSettings + signingIdentifier;
@@ -533,7 +533,7 @@ QList<NamedWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
 
 CMakeConfig IosCMakeBuildConfiguration::signingFlags() const
 {
-    if (DeviceTypeKitAspect::deviceTypeId(kit()) != Constants::IOS_DEVICE_TYPE)
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit()) != Constants::IOS_DEVICE_TYPE)
         return {};
     const QString signingIdentifier = m_signingIdentifier();
     if (m_autoManagedSigning()) {

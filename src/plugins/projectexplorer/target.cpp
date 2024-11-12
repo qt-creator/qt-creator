@@ -589,7 +589,7 @@ Store Target::toMap() const
 
     Store map;
     map.insert(displayNameKey(), displayName());
-    map.insert(deviceTypeKey(), DeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
+    map.insert(deviceTypeKey(), RunDeviceTypeKitAspect::deviceTypeId(kit()).toSetting());
 
     {
         // FIXME: For compatibility within the 4.11 cycle, remove this block later.

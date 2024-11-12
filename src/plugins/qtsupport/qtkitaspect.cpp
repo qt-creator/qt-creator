@@ -130,7 +130,7 @@ void QtKitAspectFactory::setup(Kit *k)
     if (!k || k->hasValue(id()))
         return;
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
 
     const QtVersions matches
             = QtVersionManager::versions([&tcAbi, &deviceType](const QtVersion *qt) {
@@ -436,7 +436,7 @@ int QtKitAspectFactory::weight(const Kit *k) const
     const QtVersion * const qt = QtKitAspect::qtVersion(k);
     if (!qt)
         return 0;
-    if (!qt->targetDeviceTypes().contains(DeviceTypeKitAspect::deviceTypeId(k)))
+    if (!qt->targetDeviceTypes().contains(RunDeviceTypeKitAspect::deviceTypeId(k)))
         return 0;
     const Abi tcAbi = ToolchainKitAspect::targetAbi(k);
     if (qt->qtAbis().contains(tcAbi))

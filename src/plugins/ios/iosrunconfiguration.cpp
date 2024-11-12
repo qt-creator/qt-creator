@@ -82,7 +82,7 @@ void IosDeviceTypeAspect::deviceChanges()
 
 void IosDeviceTypeAspect::updateDeviceType()
 {
-    if (DeviceTypeKitAspect::deviceTypeId(m_runConfiguration->kit())
+    if (RunDeviceTypeKitAspect::deviceTypeId(m_runConfiguration->kit())
             == Constants::IOS_DEVICE_TYPE)
         m_deviceType = IosDeviceType(IosDeviceType::IosDevice);
     else if (m_deviceType.type == IosDeviceType::IosDevice)
@@ -91,7 +91,7 @@ void IosDeviceTypeAspect::updateDeviceType()
 
 bool IosRunConfiguration::isEnabled(Id runMode) const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return false;
     if (devType == Constants::IOS_SIMULATOR_TYPE)
@@ -120,7 +120,7 @@ QString IosRunConfiguration::applicationName() const
 
 FilePath IosRunConfiguration::bundleDirectory() const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     bool isDevice = (devType == Constants::IOS_DEVICE_TYPE);
     if (!isDevice && devType != Constants::IOS_SIMULATOR_TYPE) {
         qCWarning(iosLog) << "unexpected device type in bundleDirForTarget: " << devType.toString();
@@ -233,7 +233,7 @@ void IosDeviceTypeAspect::toMap(Store &map) const
 
 QString IosRunConfiguration::disabledReason(Id runMode) const
 {
-    Utils::Id devType = DeviceTypeKitAspect::deviceTypeId(kit());
+    Utils::Id devType = RunDeviceTypeKitAspect::deviceTypeId(kit());
     if (devType != Constants::IOS_DEVICE_TYPE && devType != Constants::IOS_SIMULATOR_TYPE)
         return Tr::tr("Kit has incorrect device type for running on iOS devices.");
     IDevice::ConstPtr dev = RunDeviceKitAspect::device(kit());

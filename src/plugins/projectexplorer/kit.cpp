@@ -375,7 +375,7 @@ QIcon Kit::icon() const
     }
 
     const Utils::Id deviceType = d->m_deviceTypeForIcon.isValid()
-            ? d->m_deviceTypeForIcon : DeviceTypeKitAspect::deviceTypeId(this);
+            ? d->m_deviceTypeForIcon : RunDeviceTypeKitAspect::deviceTypeId(this);
     const QIcon deviceTypeIcon = iconForDeviceType(deviceType);
     if (!deviceTypeIcon.isNull()) {
         d->m_cachedIcon = deviceTypeIcon;
@@ -679,7 +679,7 @@ void Kit::setMutable(Id id, bool b)
 bool Kit::isMutable(Id id) const
 {
     if (id == RunDeviceKitAspect::id())
-        return DeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
+        return RunDeviceTypeKitAspect::deviceTypeId(this) != Constants::DESKTOP_DEVICE_TYPE;
     return d->m_mutable.contains(id);
 }
 

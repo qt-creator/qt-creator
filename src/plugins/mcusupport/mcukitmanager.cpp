@@ -175,7 +175,7 @@ public:
         if (mcuTarget->toolChainPackage()->isDesktopToolchain())
             return;
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::DEVICE_TYPE);
     }
 
     static void setKitDependencies(Kit *k,

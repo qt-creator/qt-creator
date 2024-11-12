@@ -426,7 +426,7 @@ Tasks QtVersion::validateKit(const Kit *k)
     if (qtAbis.isEmpty()) // No need to test if Qt does not know anyway...
         return result;
 
-    const Id dt = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id dt = RunDeviceTypeKitAspect::deviceTypeId(k);
     if (dt != "DockerDeviceType") {
         const QSet<Id> tdt = targetDeviceTypes();
         if (!tdt.isEmpty() && !tdt.contains(dt))

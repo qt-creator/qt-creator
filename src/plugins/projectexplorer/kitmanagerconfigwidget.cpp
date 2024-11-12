@@ -263,7 +263,7 @@ bool KitManagerConfigWidget::isDefaultKit() const
 
 void KitManagerConfigWidget::setIcon()
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(m_modifiedKit.get());
     QList<IDeviceFactory *> allDeviceFactories = IDeviceFactory::allDeviceFactories();
     if (deviceType.isValid()) {
         const auto less = [deviceType](const IDeviceFactory *f1, const IDeviceFactory *f2) {

@@ -76,7 +76,7 @@ QString QmlPreviewFileOnTargetFinder::findPath(const QString &filePath, bool *su
 
     if (success) {
         // On desktop, if there is no "remote" path, then the application will load the local path.
-        *success = ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(m_target->kit())
+        *success = ProjectExplorer::RunDeviceTypeKitAspect::deviceTypeId(m_target->kit())
                     == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     }
     return filePath;

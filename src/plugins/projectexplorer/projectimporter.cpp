@@ -173,7 +173,7 @@ Target *ProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
             return t;
         if (pickedFallback)
             continue;
-        if (DeviceTypeKitAspect::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
+        if (RunDeviceTypeKitAspect::deviceTypeId(t->kit()) == Constants::DESKTOP_DEVICE_TYPE) {
             activeTarget = t;
             pickedFallback = true;
         }

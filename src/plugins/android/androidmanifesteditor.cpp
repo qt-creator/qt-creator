@@ -79,7 +79,7 @@ static Target *androidTarget(const FilePath &fileName)
     for (Project *project : ProjectManager::projects()) {
         if (Target *target = project->activeTarget()) {
             Kit *kit = target->kit();
-            if (DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
+            if (RunDeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE
                     && fileName.isChildOf(project->projectDirectory()))
                 return target;
         }

@@ -154,7 +154,7 @@ static QHash<XcodePlatform::ToolchainTarget, ToolchainPair> findToolchains(const
 static QSet<Kit *> existingAutoDetectedIosKits()
 {
     return toSet(filtered(KitManager::kits(), [](Kit *kit) -> bool {
-        Id deviceKind = DeviceTypeKitAspect::deviceTypeId(kit);
+        Id deviceKind = RunDeviceTypeKitAspect::deviceTypeId(kit);
         return kit->isAutoDetected() && (deviceKind == Constants::IOS_DEVICE_TYPE
                                          || deviceKind == Constants::IOS_SIMULATOR_TYPE);
     }));
@@ -169,7 +169,7 @@ static void printKits(const QSet<Kit *> &kits)
 static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
                      const QVariant &debuggerId, const FilePath &sdkPath, QtVersion *qtVersion)
 {
-    DeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
+    RunDeviceTypeKitAspect::setDeviceTypeId(kit, pDeviceType);
     if (toolchains.first)
         ToolchainKitAspect::setToolchain(kit, toolchains.first);
     else
@@ -190,7 +190,7 @@ static void setupKit(Kit *kit, Id pDeviceType, const ToolchainPair& toolchains,
 
     kit->setSticky(QtKitAspect::id(), true);
     kit->setSticky(ToolchainKitAspect::id(), true);
-    kit->setSticky(DeviceTypeKitAspect::id(), true);
+    kit->setSticky(RunDeviceTypeKitAspect::id(), true);
     kit->setSticky(SysRootKitAspect::id(), true);
     kit->setSticky(DebuggerKitAspect::id(), false);
 
@@ -272,7 +272,7 @@ void IosConfigurations::updateAutomaticKitList()
                 Kit *kit = findOrDefault(existingKits, [&pDeviceType, &platformToolchains, &qtVersion](const Kit *kit) {
                     // we do not compare the sdk (thus automatically upgrading it in place if a
                     // new Xcode is used). Change?
-                    return DeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
+                    return RunDeviceTypeKitAspect::deviceTypeId(kit) == pDeviceType
                             && ToolchainKitAspect::cxxToolchain(kit) == platformToolchains.second
                             && ToolchainKitAspect::cToolchain(kit) == platformToolchains.first
                             && QtKitAspect::qtVersion(kit) == qtVersion;

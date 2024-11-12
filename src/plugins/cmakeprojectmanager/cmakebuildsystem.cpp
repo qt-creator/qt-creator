@@ -2067,7 +2067,7 @@ const QList<BuildTargetInfo> CMakeBuildSystem::appTargets() const
     QString emulator = cm.stringValueOf("CMAKE_CROSSCOMPILING_EMULATOR");
 
     QList<BuildTargetInfo> appTargetList;
-    const bool forAndroid = DeviceTypeKitAspect::deviceTypeId(kit())
+    const bool forAndroid = RunDeviceTypeKitAspect::deviceTypeId(kit())
                             == Android::Constants::ANDROID_DEVICE_TYPE;
     for (const CMakeBuildTarget &ct : m_buildTargets) {
         if (CMakeBuildSystem::filteredOutTarget(ct))

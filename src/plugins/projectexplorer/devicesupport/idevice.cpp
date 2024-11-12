@@ -420,7 +420,7 @@ Id IDevice::id() const
 */
 bool IDevice::isCompatibleWith(const Kit *k) const
 {
-    return DeviceTypeKitAspect::deviceTypeId(k) == type();
+    return RunDeviceTypeKitAspect::deviceTypeId(k) == type();
 }
 
 QList<Task> IDevice::validate() const

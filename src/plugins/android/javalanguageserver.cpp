@@ -278,7 +278,7 @@ void JLSClient::updateProjectFiles()
         return;
     if (Target *target = m_currentTarget) {
         Kit *kit = m_currentTarget->kit();
-        if (DeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
+        if (RunDeviceTypeKitAspect::deviceTypeId(kit) != Android::Constants::ANDROID_DEVICE_TYPE)
             return;
         if (ProjectNode *node = project()->findNodeForBuildKey(target->activeBuildKey())) {
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);

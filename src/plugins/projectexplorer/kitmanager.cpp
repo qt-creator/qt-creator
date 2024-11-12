@@ -285,7 +285,7 @@ void KitManager::restoreKits()
                 kit->setUnexpandedDisplayName(Tr::tr("Desktop (%1)").arg(it.key().toString()));
             else
                 kit->setUnexpandedDisplayName(it.key().toString());
-            DeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
+            RunDeviceTypeKitAspect::setDeviceTypeId(kit.get(), deviceTypeForKit(kit.get()));
             kit->setup();
             tempList.emplace_back(std::move(kit));
         }

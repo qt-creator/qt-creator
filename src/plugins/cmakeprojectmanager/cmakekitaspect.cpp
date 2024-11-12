@@ -56,7 +56,7 @@ namespace Internal {
 
 static bool isIos(const Kit *k)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(k);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(k);
     return deviceType == Ios::Constants::IOS_DEVICE_TYPE
            || deviceType == Ios::Constants::IOS_SIMULATOR_TYPE;
 }

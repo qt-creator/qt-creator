@@ -526,7 +526,7 @@ void RunControl::forceStop()
 
 RunWorker *RunControl::createWorker(Id runMode)
 {
-    const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
+    const Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
         if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
             return factory->create(this);
@@ -539,7 +539,7 @@ bool RunControl::createMainWorker()
     const QList<RunWorkerFactory *> candidates
         = filtered(g_runWorkerFactories, [this](RunWorkerFactory *factory) {
               return factory->canCreate(d->runMode,
-                                        DeviceTypeKitAspect::deviceTypeId(d->kit),
+                                        RunDeviceTypeKitAspect::deviceTypeId(d->kit),
                                         d->runConfigId.toString());
           });
 

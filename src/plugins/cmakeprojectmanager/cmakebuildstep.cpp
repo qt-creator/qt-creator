@@ -202,7 +202,7 @@ static QString initialStagingDir(Kit *kit)
 static bool supportsStageForInstallation(const Kit *kit)
 {
     IDeviceConstPtr runDevice = RunDeviceKitAspect::device(kit);
-    Id runDeviceType = DeviceTypeKitAspect::deviceTypeId(kit);
+    Id runDeviceType = RunDeviceTypeKitAspect::deviceTypeId(kit);
     IDeviceConstPtr buildDevice = BuildDeviceKitAspect::device(kit);
     QTC_ASSERT(runDeviceType.isValid(), return false);
     QTC_ASSERT(buildDevice, return false);

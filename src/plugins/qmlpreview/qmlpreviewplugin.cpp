@@ -151,7 +151,7 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
         const Kit *kit = ProjectManager::startupTarget()->kit();
         if (ProjectManager::startupTarget() && kit)
             skipDeploy = kit->supportedPlatforms().contains(Android::Constants::ANDROID_DEVICE_TYPE)
-                || DeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
+                || RunDeviceTypeKitAspect::deviceTypeId(kit) == Android::Constants::ANDROID_DEVICE_TYPE;
         ProjectExplorerPlugin::runStartupProject(Constants::QML_PREVIEW_RUN_MODE, skipDeploy);
     });
     menu->addAction(

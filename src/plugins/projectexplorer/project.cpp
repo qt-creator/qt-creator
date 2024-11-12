@@ -474,7 +474,7 @@ Target *Project::createKitAndTargetFromStore(const Utils::Store &store)
                                                          transform(KitManager::kits(),
                                                                    &Kit::unexpandedDisplayName));
             kit->setUnexpandedDisplayName(kitName);
-            DeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
+            RunDeviceTypeKitAspect::setDeviceTypeId(kit, deviceTypeId);
             kit->setup();
         });
     QTC_ASSERT(k, return nullptr);

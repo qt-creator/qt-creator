@@ -183,7 +183,7 @@ void QnxConfiguration::deactivate()
     const QList<Kit *> kits = KitManager::kits();
     for (Kit *kit : kits) {
         if (kit->isAutoDetected()
-                && DeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
+                && RunDeviceTypeKitAspect::deviceTypeId(kit) == Constants::QNX_QNX_OS_TYPE
                 && toolChainsToRemove.contains(ToolchainKitAspect::cxxToolchain(kit))) {
             KitManager::deregisterKit(kit);
         }
@@ -264,7 +264,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
         if (debugger.isValid())
             DebuggerKitAspect::setDebugger(k, debugger);
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, Constants::QNX_QNX_OS_TYPE);
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, Constants::QNX_QNX_OS_TYPE);
         // TODO: Add sysroot?
 
         k->setUnexpandedDisplayName(Tr::tr("Kit for %1 (%2)")
@@ -275,7 +275,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
         k->setAutoDetectionSource(m_envFile.toString());
 
         k->setSticky(ToolchainKitAspect::id(), true);
-        k->setSticky(DeviceTypeKitAspect::id(), true);
+        k->setSticky(RunDeviceTypeKitAspect::id(), true);
         k->setSticky(SysRootKitAspect::id(), true);
         k->setSticky(DebuggerKitAspect::id(), true);
         k->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);

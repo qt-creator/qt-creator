@@ -66,7 +66,7 @@ ParseIssuesDialog::ParseIssuesDialog(QWidget *parent) : QDialog(parent), d(new P
     d->kitChooser.populate();
     if (!d->kitChooser.hasStartupKit()) {
         for (const Kit * const k : KitManager::kits()) {
-            if (DeviceTypeKitAspect::deviceTypeId(k) == Constants::DESKTOP_DEVICE_TYPE) {
+            if (RunDeviceTypeKitAspect::deviceTypeId(k) == Constants::DESKTOP_DEVICE_TYPE) {
                 d->kitChooser.setCurrentKitId(k->id());
                 break;
             }

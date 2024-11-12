@@ -208,7 +208,7 @@ ProjectUpdateInfo::ProjectUpdateInfo(Project *project,
 void addTargetFlagForIos(QStringList &cFlags, QStringList &cxxFlags, const BuildSystem *bs,
                          const std::function<QString ()> &getDeploymentTarget)
 {
-    const Utils::Id deviceType = DeviceTypeKitAspect::deviceTypeId(bs->target()->kit());
+    const Utils::Id deviceType = RunDeviceTypeKitAspect::deviceTypeId(bs->target()->kit());
     if (deviceType != Ios::Constants::IOS_DEVICE_TYPE
             && deviceType != Ios::Constants::IOS_SIMULATOR_TYPE) {
         return;

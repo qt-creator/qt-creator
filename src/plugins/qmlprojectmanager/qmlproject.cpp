@@ -108,7 +108,7 @@ Project::RestoreResult QmlProject::fromMap(const Store &map, QString *errorMessa
     // find a kit that matches prerequisites (prefer default one)
     const QList<Kit *> kits = Utils::filtered(KitManager::kits(), [this](const Kit *k) {
         return !containsType(projectIssues(k), Task::TaskType::Error)
-               && DeviceTypeKitAspect::deviceTypeId(k)
+               && RunDeviceTypeKitAspect::deviceTypeId(k)
                       == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     });
 

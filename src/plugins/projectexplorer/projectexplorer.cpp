@@ -3193,7 +3193,7 @@ expected_str<void> ProjectExplorerPlugin::canRunStartupProject(Utils::Id runMode
     }
 
     // shouldn't actually be shown to the user...
-    if (!RunControl::canRun(runMode, DeviceTypeKitAspect::deviceTypeId(target->kit()),
+    if (!RunControl::canRun(runMode, RunDeviceTypeKitAspect::deviceTypeId(target->kit()),
                             activeRC->id())) {
         return make_unexpected(Tr::tr("Cannot run \"%1\".").arg(activeRC->displayName()));
     }

@@ -352,7 +352,7 @@ void KitDetectorPrivate::autoDetect()
         if (cmakeId.isValid())
             k->setValue(CMakeProjectManager::Constants::TOOL_ID, cmakeId.toSetting());
 
-        DeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
+        RunDeviceTypeKitAspect::setDeviceTypeId(k, m_device->type());
         RunDeviceKitAspect::setDevice(k, m_device);
         BuildDeviceKitAspect::setDevice(k, m_device);
 
@@ -388,7 +388,7 @@ void KitDetectorPrivate::autoDetect()
         k->setSticky(ToolchainKitAspect::id(), true);
         k->setSticky(QtSupport::QtKitAspect::id(), true);
         k->setSticky(RunDeviceKitAspect::id(), true);
-        k->setSticky(DeviceTypeKitAspect::id(), true);
+        k->setSticky(RunDeviceTypeKitAspect::id(), true);
         k->setSticky(BuildDeviceKitAspect::id(), true);
     };
 

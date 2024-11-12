@@ -110,7 +110,7 @@ void QmlBuildSystem::updateDeploymentData()
     if (!m_projectItem)
         return;
 
-    if (DeviceTypeKitAspect::deviceTypeId(kit())
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit())
         == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         return;
     }
@@ -511,7 +511,7 @@ bool QmlBuildSystem::setMainUiFileInMainFile(const Utils::FilePath &newMainUiFil
 Utils::FilePath QmlBuildSystem::targetDirectory() const
 {
     Utils::FilePath result;
-    if (DeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+    if (RunDeviceTypeKitAspect::deviceTypeId(kit()) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
         result = canonicalProjectDir();
     } else if (IDevice::ConstPtr device = RunDeviceKitAspect::device(kit())) {
         if (m_projectItem)

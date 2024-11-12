@@ -84,7 +84,7 @@ TestConfiguration::~TestConfiguration()
 static bool isLocal(Target *target)
 {
     Kit *kit = target ? target->kit() : nullptr;
-    return DeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
+    return RunDeviceTypeKitAspect::deviceTypeId(kit) == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
 }
 
 static FilePath ensureExeEnding(const FilePath &file)
@@ -184,7 +184,7 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
                                                      : BuildTargetInfo();
 
-    if (DeviceTypeKitAspect::deviceTypeId(target->kit()) == ANDROID_DEVICE_TYPE) {
+    if (RunDeviceTypeKitAspect::deviceTypeId(target->kit()) == ANDROID_DEVICE_TYPE) {
         // Android can have test runner scripts named as displayName(.bat)
         const FilePath script = ensureBatEnding(
             targetInfo.targetFilePath.parentDir() / targetInfo.displayName);

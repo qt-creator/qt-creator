@@ -708,7 +708,7 @@ bool StudioWelcomePlugin::delayedInitialize()
             const bool autoDetected = valid && version->isAutodetected();
 
             return isQt6 && autoDetected
-                   && ProjectExplorer::DeviceTypeKitAspect::deviceTypeId(k)
+                   && RunDeviceTypeKitAspect::deviceTypeId(k)
                           == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
         });
 
