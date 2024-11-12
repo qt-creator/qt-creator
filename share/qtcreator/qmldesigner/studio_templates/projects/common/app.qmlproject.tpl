@@ -107,7 +107,7 @@ Project {
     enableCMakeGeneration: true
 @endif
 
-    qdsVersion: "4.6"
+    qdsVersion: "4.7"
 
     quickVersion: "%{QtQuickVersion}"
 
