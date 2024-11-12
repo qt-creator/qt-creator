@@ -355,11 +355,12 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
         AndroidCreateKeystoreCertificate d;
         if (d.exec() != QDialog::Accepted)
             return;
-        keystoreLocationChooser->setFilePath(d.keystoreFilePath());
-        m_step->setKeystorePath(d.keystoreFilePath());
-        m_step->setKeystorePassword(d.keystorePassword());
-        m_step->setCertificateAlias(d.certificateAlias());
-        m_step->setCertificatePassword(d.certificatePassword());
+        const KeystoreData data = d.keystoreData();
+        keystoreLocationChooser->setFilePath(data.keystoreFilePath);
+        m_step->setKeystorePath(data.keystoreFilePath);
+        m_step->setKeystorePassword(data.keystorePassword);
+        m_step->setCertificateAlias(data.certificateAlias);
+        m_step->setCertificatePassword(data.certificatePassword);
         setCertificates();
     });
 

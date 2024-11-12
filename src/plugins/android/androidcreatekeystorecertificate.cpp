@@ -145,26 +145,12 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
 
 AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate() = default;
 
-FilePath AndroidCreateKeystoreCertificate::keystoreFilePath() const
+KeystoreData AndroidCreateKeystoreCertificate::keystoreData() const
 {
-    return m_keystoreFilePath;
-}
-
-QString AndroidCreateKeystoreCertificate::keystorePassword() const
-{
-    return m_keystorePassLineEdit->text();
-}
-
-QString AndroidCreateKeystoreCertificate::certificateAlias() const
-{
-    return m_certificateAliasLineEdit->text();
-}
-
-QString AndroidCreateKeystoreCertificate::certificatePassword() const
-{
-    return (m_samePasswordCheckBox->checkState() == Qt::Checked)
-            ? keystorePassword()
-            : m_certificatePassLineEdit->text();
+    const QString certPassword = m_samePasswordCheckBox->checkState() == Qt::Checked
+                               ? m_keystorePassLineEdit->text() : m_certificatePassLineEdit->text();
+    return {m_keystoreFilePath, m_keystorePassLineEdit->text(), m_certificateAliasLineEdit->text(),
+            certPassword};
 }
 
 AndroidCreateKeystoreCertificate::PasswordStatus AndroidCreateKeystoreCertificate::checkKeystorePassword()
@@ -263,15 +249,16 @@ void AndroidCreateKeystoreCertificate::buttonBoxAccepted()
     if (!m_stateNameLineEdit->text().isEmpty())
         distinguishedNames += QLatin1String(", S=") + m_stateNameLineEdit->text().replace(',', QLatin1String("\\,"));
 
+    const KeystoreData data = keystoreData();
     // clang-format off
     const CommandLine command(AndroidConfig::keytoolPath(),
                              {"-genkey", "-keyalg", "RSA",
                               "-keystore",  m_keystoreFilePath.path(),
-                              "-storepass", keystorePassword(),
-                              "-alias", certificateAlias(),
+                              "-storepass", data.keystorePassword,
+                              "-alias", data.certificateAlias,
                               "-keysize", m_keySizeSpinBox->text(),
                               "-validity", m_validitySpinBox->text(),
-                              "-keypass", certificatePassword(),
+                              "-keypass", data.certificatePassword,
                               "-dname", distinguishedNames});
     // clang-format off
 

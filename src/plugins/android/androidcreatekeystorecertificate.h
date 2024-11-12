@@ -17,6 +17,15 @@ namespace Utils { class InfoLabel; }
 
 namespace Android::Internal {
 
+class KeystoreData
+{
+public:
+    Utils::FilePath keystoreFilePath;
+    QString keystorePassword;
+    QString certificateAlias;
+    QString certificatePassword;
+};
+
 class AndroidCreateKeystoreCertificate : public QDialog
 {
     enum PasswordStatus
@@ -30,10 +39,7 @@ public:
     explicit AndroidCreateKeystoreCertificate(QWidget *parent = nullptr);
     ~AndroidCreateKeystoreCertificate() override;
 
-    Utils::FilePath keystoreFilePath() const;
-    QString keystorePassword() const;
-    QString certificateAlias() const;
-    QString certificatePassword() const;
+    KeystoreData keystoreData() const;
 
 private:
     PasswordStatus checkKeystorePassword();
