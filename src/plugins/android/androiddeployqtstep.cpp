@@ -207,8 +207,6 @@ bool AndroidDeployQtStep::init()
     qCDebug(deployStepLog) << "Target architecture:" << androidABIs
                            << "Min target API" << minTargetApi;
 
-    AndroidDeviceInfo info;
-
     const BuildSystem *bs = buildSystem();
     auto selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
 
@@ -219,38 +217,36 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
-    if (true) { // FIXME: Simplify
-        const auto dev =
-                static_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
-        if (!dev) {
-            reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
-            return false;
-        }
+    const auto dev =
+            static_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
+    if (!dev) {
+        reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
+        return false;
+    }
 
-        // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
-        info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
+    // TODO: use AndroidDevice directly instead of AndroidDeviceInfo.
+    const AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(dev);
 
-        if (!info.isValid()) {
-            reportWarningOrError(Tr::tr("The deployment device \"%1\" is invalid.")
-                                 .arg(dev->displayName()), Task::Error);
-            return false;
-        }
+    if (!info.isValid()) {
+        reportWarningOrError(Tr::tr("The deployment device \"%1\" is invalid.")
+                             .arg(dev->displayName()), Task::Error);
+        return false;
+    }
 
-        if (!dev->canSupportAbis(selectedAbis)) {
-            const QString error = Tr::tr("The deployment device \"%1\" does not support the "
-                                         "architectures used by the kit.\n"
-                                         "The kit supports \"%2\", but the device uses \"%3\".")
-                    .arg(dev->displayName()).arg(selectedAbis.join(", "))
-                    .arg(dev->supportedAbis().join(", "));
-            reportWarningOrError(error, Task::Error);
-            return false;
-        }
+    if (!dev->canSupportAbis(selectedAbis)) {
+        const QString error = Tr::tr("The deployment device \"%1\" does not support the "
+                                     "architectures used by the kit.\n"
+                                     "The kit supports \"%2\", but the device uses \"%3\".")
+                .arg(dev->displayName()).arg(selectedAbis.join(", "))
+                .arg(dev->supportedAbis().join(", "));
+        reportWarningOrError(error, Task::Error);
+        return false;
+    }
 
-        if (!dev->canHandleDeployments()) {
-            reportWarningOrError(Tr::tr("The deployment device \"%1\" is disconnected.")
-                                 .arg(dev->displayName()), Task::Error);
-            return false;
-        }
+    if (!dev->canHandleDeployments()) {
+        reportWarningOrError(Tr::tr("The deployment device \"%1\" is disconnected.")
+                             .arg(dev->displayName()), Task::Error);
+        return false;
     }
 
     const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
