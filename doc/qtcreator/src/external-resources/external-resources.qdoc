@@ -253,3 +253,19 @@
     \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/jsonschemas/project.json
     \title project.json
 */
+/*!
+    \externalpage https://clang.llvm.org/docs/ClangFormat.html
+    \title ClangFormat: Documentation
+*/
+/*!
+    \externalpage https://llvm.org/releases/download.html
+    \title ClangFormat: Download
+*/
+/*!
+    \externalpage https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+    \title ClangFormat Style Options
+*/
+/*!
+    \externalpage https://clang.llvm.org/docs/LibFormat.html
+    \title LibFormat: Documentation
+*/
