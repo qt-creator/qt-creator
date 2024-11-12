@@ -15,7 +15,7 @@ class ResourceGeneratorProxy : public QObject
 public:
     ~ResourceGeneratorProxy();
     Q_INVOKABLE void createResourceFileAsync();
-    Q_INVOKABLE QString createResourceFileSync();
+    Q_INVOKABLE QString createResourceFileSync(const QString &projectName = "share");
 
 private:
     QFuture<void> m_future;

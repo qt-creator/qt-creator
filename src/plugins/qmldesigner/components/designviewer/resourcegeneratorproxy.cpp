@@ -45,10 +45,11 @@ void ResourceGeneratorProxy::createResourceFileAsync()
     });
 }
 
-QString ResourceGeneratorProxy::createResourceFileSync()
+QString ResourceGeneratorProxy::createResourceFileSync(const QString &projectName)
 {
     const auto project = ProjectExplorer::ProjectManager::startupProject();
-    const Utils::FilePath tempFilePath = project->projectDirectory().pathAppended("share.qmlrc");
+    const Utils::FilePath tempFilePath = project->projectDirectory().pathAppended(projectName
+                                                                                  + ".qmlrc");
 
     const bool retVal = ResourceGenerator::createQmlrcFile(tempFilePath);
 

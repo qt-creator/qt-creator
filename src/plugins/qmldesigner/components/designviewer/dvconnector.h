@@ -57,6 +57,7 @@ public:
     bool isWebViewerVisible() const;
 
     void projectList();
+    void uploadCurrentProject();
     void uploadProject(const QString &projectId, const QString &filePath);
     void deleteProject(const QString &projectId);
     void downloadProject(const QString &projectId, const QString &filePath);

@@ -3,6 +3,9 @@
 
 #include "dvconnector.h"
 
+#include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 
@@ -11,6 +14,8 @@
 #include <QJsonObject>
 #include <QNetworkRequest>
 #include <QWebEngineCookieStore>
+
+#include "resourcegeneratorproxy.h"
 
 namespace QmlDesigner::DesignViewer {
 Q_LOGGING_CATEGORY(deploymentPluginLog, "qtc.designer.deploymentPlugin", QtWarningMsg)
@@ -166,7 +171,6 @@ bool DVConnector::eventFilter(QObject *obj, QEvent *e)
             m_isWebViewerVisible = m_webEngineView->isVisible();
             emit webViewerVisibleChanged();
         }
-        return true;
     }
     return QObject::eventFilter(obj, e);
 }
@@ -185,6 +189,20 @@ void DVConnector::projectList()
     evaluatorData.connectCallbacks(this);
 }
 
+void DVConnector::uploadCurrentProject()
+{
+    ResourceGeneratorProxy resourceGenerator;
+    QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
+    QString resourcePath = resourceGenerator.createResourceFileSync(projectName);
+
+    if (resourcePath.isEmpty()) {
+        qCWarning(deploymentPluginLog) << "Failed to create resource file";
+        return;
+    }
+
+    uploadProject(projectName, resourcePath);
+}
+
 void DVConnector::uploadProject(const QString &projectId, const QString &filePath)
 {
     QmlDesigner::QmlDesignerPlugin::emitUsageStatistics(
@@ -199,7 +217,7 @@ void DVConnector::uploadProject(const QString &projectId, const QString &filePat
 
     const QString newProjectId = projectId.endsWith(".qmlrc") ? projectId : projectId + ".qmlrc";
     qCDebug(deploymentPluginLog) << "Uploading project:" << fileInfo.fileName()
-                                 << " with projectId: " << newProjectId;
+                                 << "with projectId:" << newProjectId;
 
     QHttpMultiPart *multiPart = new QHttpMultiPart(QHttpMultiPart::FormDataType);
     file->setParent(multiPart);
