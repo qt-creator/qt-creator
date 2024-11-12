@@ -36,8 +36,7 @@ class AndroidCreateKeystoreCertificate : public QDialog
     };
 
 public:
-    explicit AndroidCreateKeystoreCertificate(QWidget *parent = nullptr);
-    ~AndroidCreateKeystoreCertificate() override;
+    explicit AndroidCreateKeystoreCertificate();
 
     KeystoreData keystoreData() const;
 
@@ -73,5 +72,7 @@ private:
     QLineEdit *m_keystoreRetypePassLineEdit;
     Utils::InfoLabel *m_infoLabel;
 };
+
+KeystoreData executeKeystoreCertificateDialog();
 
 } // Android::Internal

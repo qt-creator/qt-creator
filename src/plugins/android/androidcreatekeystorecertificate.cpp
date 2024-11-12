@@ -6,6 +6,8 @@
 #include "androidconfigurations.h"
 #include "androidtr.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
@@ -22,8 +24,8 @@ using namespace Utils;
 
 namespace Android::Internal {
 
-AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *parent)
-    : QDialog(parent)
+AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate()
+    : QDialog(Core::ICore::dialogParent())
 {
     resize(638, 473);
     setWindowTitle(Tr::tr("Create a keystore and a certificate"));
@@ -142,8 +144,6 @@ AndroidCreateKeystoreCertificate::AndroidCreateKeystoreCertificate(QWidget *pare
     connect(m_keystorePassLineEdit, &QLineEdit::editingFinished,
             m_keystoreRetypePassLineEdit, QOverload<>::of(&QWidget::setFocus));
 }
-
-AndroidCreateKeystoreCertificate::~AndroidCreateKeystoreCertificate() = default;
 
 KeystoreData AndroidCreateKeystoreCertificate::keystoreData() const
 {
