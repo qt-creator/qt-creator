@@ -565,8 +565,8 @@ void setupCurrentQmlBackend(PropertyEditorQmlBackend *currentQmlBackend,
                             PropertyEditorView *propertyEditorView,
                             const QString &specificQmlData)
 {
-    QString currentStateName = currentState.isBaseState() ? currentState.name()
-                                                          : QStringLiteral("invalid state");
+    QString currentStateName = currentState.isBaseState() ? QStringLiteral("invalid state")
+                                                          : currentState.name();
 
     QmlObjectNode qmlObjectNode{selectedNode};
     if (specificQmlData.isEmpty())
