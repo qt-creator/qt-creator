@@ -8,6 +8,7 @@
 #include "androidutils.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/icore.h>
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
@@ -226,7 +227,8 @@ void ChooseDirectoryPage::initializePage()
 // CreateAndroidManifestWizard
 //
 CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSystem)
-    : m_buildSystem(buildSystem)
+    : Wizard(Core::ICore::dialogParent())
+    , m_buildSystem(buildSystem)
 {
     setWindowTitle(Tr::tr("Create Android Template Files Wizard"));
 
