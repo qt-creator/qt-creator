@@ -36,8 +36,6 @@ public:
     SdkManagerOutputParser(AndroidSdkPackageList &container) : m_packages(container) {}
     void parsePackageListing(const QString &output);
 
-    AndroidSdkPackageList &m_packages;
-
 private:
     void compilePackageAssociations();
     void parsePackageData(MarkerTag packageMarker, const QStringList &data);
@@ -52,6 +50,7 @@ private:
     AndroidSdkPackage *parseGenericTools(const QStringList &data) const;
     MarkerTag parseMarkers(const QString &line);
 
+    AndroidSdkPackageList &m_packages;
     MarkerTag m_currentSection = MarkerTag::None;
     QHash<AndroidSdkPackage *, int> m_systemImages;
     friend class SdkManagerOutputParserTest;
