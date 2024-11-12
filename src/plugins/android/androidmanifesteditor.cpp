@@ -5,7 +5,7 @@
 
 #include "androidconfigurations.h"
 #include "androidconstants.h"
-#include "androidmanifesteditoriconcontainerwidget.h"
+#include "androidmanifesteditoriconwidget.h"
 #include "androidtr.h"
 #include "androidutils.h"
 #include "splashscreencontainerwidget.h"
@@ -62,9 +62,181 @@
 #include <algorithm>
 
 using namespace ProjectExplorer;
+using namespace TextEditor;
 using namespace Utils;
 
 namespace Android::Internal {
+
+const char extraExtraExtraHighDpiIconPath[] = "/res/drawable-xxxhdpi/";
+const char extraExtraHighDpiIconPath[] = "/res/drawable-xxhdpi/";
+const char extraHighDpiIconPath[] = "/res/drawable-xhdpi/";
+const char highDpiIconPath[] = "/res/drawable-hdpi/";
+const char mediumDpiIconPath[] = "/res/drawable-mdpi/";
+const char lowDpiIconPath[] = "/res/drawable-ldpi/";
+const char imageSuffix[] = ".png";
+const QSize lowDpiIconSize{32, 32};
+const QSize mediumDpiIconSize{48, 48};
+const QSize highDpiIconSize{72, 72};
+const QSize extraHighDpiIconSize{96, 96};
+const QSize extraExtraHighDpiIconSize{144, 144};
+const QSize extraExtraExtraHighDpiIconSize{192, 192};
+
+class IconContainerWidget : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit IconContainerWidget(QWidget *parent, TextEditorWidget *textEditorWidget);
+    void setIconFileName(const QString &name);
+    QString iconFileName() const;
+    void loadIcons();
+    bool hasIcons() const;
+private:
+    QList<AndroidManifestEditorIconWidget *> m_iconButtons;
+    QString m_iconFileName = QLatin1String("icon");
+    bool m_hasIcons = false;
+signals:
+    void iconsModified();
+};
+
+IconContainerWidget::IconContainerWidget(QWidget *parent, TextEditorWidget *textEditorWidget)
+    : QWidget(parent)
+{
+    auto iconLayout = new QHBoxLayout(this);
+    auto masterIconButton = new AndroidManifestEditorIconWidget(this,
+                                                                lowDpiIconSize,
+                                                                lowDpiIconSize,
+                                                                Tr::tr("Master icon"),
+                                                                Tr::tr("Select master icon."));
+    masterIconButton->setIcon(Icon::fromTheme("document-open"));
+    iconLayout->addWidget(masterIconButton);
+    iconLayout->addStretch(1);
+
+    QFrame *line = new QFrame(this);
+    line->setFrameShape(QFrame::VLine);
+    line->setFrameShadow(QFrame::Sunken);
+    iconLayout->addWidget(line);
+    iconLayout->addStretch(1);
+
+    QString iconFileName = m_iconFileName + imageSuffix;
+
+    auto lIconButton = new AndroidManifestEditorIconWidget(this,
+                                                           lowDpiIconSize,
+                                                           lowDpiIconSize,
+                                                           Tr::tr("LDPI icon"),
+                                                           Tr::tr("Select an icon suitable for low-density (ldpi) screens (~120dpi)."),
+                                                           textEditorWidget,
+                                                           lowDpiIconPath,
+                                                           iconFileName);
+    iconLayout->addWidget(lIconButton);
+    m_iconButtons.push_back(lIconButton);
+    iconLayout->addStretch(1);
+
+    auto mIconButton = new AndroidManifestEditorIconWidget(this,
+                                                           mediumDpiIconSize,
+                                                           mediumDpiIconSize,
+                                                           Tr::tr("MDPI icon"),
+                                                           Tr::tr("Select an icon for medium-density (mdpi) screens (~160dpi)."),
+                                                           textEditorWidget,
+                                                           mediumDpiIconPath,
+                                                           iconFileName);
+    iconLayout->addWidget(mIconButton);
+    m_iconButtons.push_back(mIconButton);
+    iconLayout->addStretch(1);
+
+    auto hIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                           highDpiIconSize,
+                                                           highDpiIconSize,
+                                                           Tr::tr("HDPI icon"),
+                                                           Tr::tr("Select an icon for high-density (hdpi) screens (~240dpi)."),
+                                                           textEditorWidget,
+                                                           highDpiIconPath,
+                                                           iconFileName);
+    iconLayout->addWidget(hIconButton);
+    m_iconButtons.push_back(hIconButton);
+    iconLayout->addStretch(1);
+
+    auto xhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                            extraHighDpiIconSize,
+                                                            extraHighDpiIconSize,
+                                                            Tr::tr("XHDPI icon"),
+                                                            Tr::tr("Select an icon for extra-high-density (xhdpi) screens (~320dpi)."),
+                                                            textEditorWidget,
+                                                            extraHighDpiIconPath,
+                                                            iconFileName);
+    iconLayout->addWidget(xhIconButton);
+    m_iconButtons.push_back(xhIconButton);
+    iconLayout->addStretch(1);
+
+    auto xxhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                             extraExtraHighDpiIconSize,
+                                                             extraExtraHighDpiIconSize,
+                                                             Tr::tr("XXHDPI icon"),
+                                                             Tr::tr("Select an icon for extra-extra-high-density (xxhdpi) screens (~480dpi)."),
+                                                             textEditorWidget,
+                                                             extraExtraHighDpiIconPath,
+                                                             iconFileName);
+    iconLayout->addWidget(xxhIconButton);
+    m_iconButtons.push_back(xxhIconButton);
+    iconLayout->addStretch(1);
+
+    auto xxxhIconButton =  new AndroidManifestEditorIconWidget(this,
+                                                              extraExtraExtraHighDpiIconSize,
+                                                              extraExtraExtraHighDpiIconSize,
+                                                              Tr::tr("XXXHDPI icon"),
+                                                              Tr::tr("Select an icon for extra-extra-extra-high-density (xxxhdpi) screens (~640dpi)."),
+                                                              textEditorWidget,
+                                                              extraExtraExtraHighDpiIconPath,
+                                                              iconFileName);
+    iconLayout->addWidget(xxxhIconButton);
+    m_iconButtons.push_back(xxxhIconButton);
+    iconLayout->addStretch(3);
+
+    auto handleIconModification = [this] {
+        bool iconsMaybeChanged = hasIcons();
+        if (m_hasIcons != iconsMaybeChanged)
+            emit iconsModified();
+        m_hasIcons = iconsMaybeChanged;
+    };
+    for (auto &&iconButton : m_iconButtons) {
+        connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
+                iconButton, &AndroidManifestEditorIconWidget::setIconFromPath);
+        connect(iconButton, &AndroidManifestEditorIconWidget::iconRemoved,
+                this, handleIconModification);
+        connect(iconButton, &AndroidManifestEditorIconWidget::iconSelected,
+                this, handleIconModification);
+    }
+    connect(masterIconButton, &AndroidManifestEditorIconWidget::iconSelected,
+            this, handleIconModification);
+}
+
+void IconContainerWidget::setIconFileName(const QString &name)
+{
+    m_iconFileName = name;
+}
+
+QString IconContainerWidget::iconFileName() const
+{
+    return m_iconFileName;
+}
+
+void IconContainerWidget::loadIcons()
+{
+    for (auto &&iconButton : m_iconButtons) {
+        iconButton->setTargetIconFileName(m_iconFileName + imageSuffix);
+        iconButton->loadIcon();
+    }
+    m_hasIcons = hasIcons();
+}
+
+bool IconContainerWidget::hasIcons() const
+{
+    for (auto &&iconButton : m_iconButtons) {
+        if (iconButton->hasIcon())
+            return true;
+    }
+    return false;
+}
 
 const char infoBarId[] = "Android.AndroidManifestEditor.InfoBar";
 
@@ -124,7 +296,7 @@ public:
     void preSave();
     void postSave();
 
-    TextEditor::TextEditorWidget *textEditorWidget() const;
+    TextEditorWidget *textEditorWidget() const;
 
     void setDirty(bool dirty = true);
 
@@ -190,7 +362,7 @@ private:
     QLineEdit *m_activityNameLineEdit;
     QComboBox *m_styleExtractMethod;
     QComboBox *m_screenOrientation;
-    AndroidManifestEditorIconContainerWidget *m_iconButtons;
+    IconContainerWidget *m_iconButtons;
     SplashScreenContainerWidget *m_splashButtons;
 
     // Permissions
@@ -203,12 +375,12 @@ private:
     QComboBox *m_permissionsComboBox;
 
     QTimer m_timerParseCheck;
-    TextEditor::TextEditorWidget *m_textEditorWidget;
+    TextEditorWidget *m_textEditorWidget;
     QString m_androidNdkPlatform;
     QTabWidget *m_advanvedTabWidget = nullptr;
 };
 
-class AndroidManifestTextEditorWidget : public TextEditor::TextEditorWidget
+class AndroidManifestTextEditorWidget : public TextEditorWidget
 {
 public:
     explicit AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent);
@@ -220,7 +392,7 @@ private:
 AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 {
     m_textEditorWidget = new AndroidManifestTextEditorWidget(this);
-    m_textEditorWidget->setOptionalActions(TextEditor::OptionalActions::UnCommentSelection);
+    m_textEditorWidget->setOptionalActions(OptionalActions::UnCommentSelection);
 
     initializePage();
 
@@ -232,9 +404,9 @@ AndroidManifestEditorWidget::AndroidManifestEditorWidget()
 
     connect(m_textEditorWidget->document(), &QTextDocument::contentsChanged,
             this, &AndroidManifestEditorWidget::startParseCheck);
-    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::reloadFinished,
+    connect(m_textEditorWidget->textDocument(), &TextDocument::reloadFinished,
             this, [this](bool success) { if (success) updateAfterFileLoad(); });
-    connect(m_textEditorWidget->textDocument(), &TextEditor::TextDocument::openFinishedSuccessfully,
+    connect(m_textEditorWidget->textDocument(), &TextDocument::openFinishedSuccessfully,
             this, &AndroidManifestEditorWidget::updateAfterFileLoad);
 }
 
@@ -572,7 +744,7 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
     m_advanvedTabWidget = new QTabWidget(otherGroupBox);
     auto formLayout = new QFormLayout();
 
-    m_iconButtons = new AndroidManifestEditorIconContainerWidget(otherGroupBox, m_textEditorWidget);
+    m_iconButtons = new IconContainerWidget(otherGroupBox, m_textEditorWidget);
     m_advanvedTabWidget->addTab(m_iconButtons, ::Android::Tr::tr("Application icon"));
 
     m_splashButtons = new SplashScreenContainerWidget(otherGroupBox,
@@ -581,7 +753,7 @@ QGroupBox *AndroidManifestEditorWidget::createAdvancedGroupBox(QWidget *parent)
 
     connect(m_splashButtons, &SplashScreenContainerWidget::splashScreensModified,
             this, [this] { setDirty(); });
-    connect(m_iconButtons, &AndroidManifestEditorIconContainerWidget::iconsModified,
+    connect(m_iconButtons, &IconContainerWidget::iconsModified,
             this, [this] { setDirty(); });
 
     formLayout->addRow(m_advanvedTabWidget);
@@ -710,7 +882,7 @@ void AndroidManifestEditorWidget::postSave()
     }
 }
 
-TextEditor::TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
+TextEditorWidget *AndroidManifestEditorWidget::textEditorWidget() const
 {
     return m_textEditorWidget;
 }
@@ -1495,7 +1667,7 @@ int PermissionsModel::rowCount(const QModelIndex &parent) const
 
 // AndroidManifestDocument
 
-class AndroidManifestDocument : public TextEditor::TextDocument
+class AndroidManifestDocument : public TextDocument
 {
 public:
     explicit AndroidManifestDocument(AndroidManifestEditorWidget *editorWidget)
@@ -1528,9 +1700,9 @@ private:
 // AndroidManifestEditorWidget
 
 AndroidManifestTextEditorWidget::AndroidManifestTextEditorWidget(AndroidManifestEditorWidget *parent)
-    : TextEditor::TextEditorWidget(parent)
+    : TextEditorWidget(parent)
 {
-    setTextDocument(TextEditor::TextDocumentPtr(new AndroidManifestDocument(parent)));
+    setTextDocument(TextDocumentPtr(new AndroidManifestDocument(parent)));
     textDocument()->setMimeType(QLatin1String(Constants::ANDROID_MANIFEST_MIME_TYPE));
     setupGenericHighlighter();
     setMarksVisible(false);
@@ -1553,7 +1725,7 @@ public:
 
     QWidget *toolBar() override;
     Core::IDocument *document() const override;
-    TextEditor::TextEditorWidget *textEditor() const;
+    TextEditorWidget *textEditor() const;
 
     int currentLine() const override;
     int currentColumn() const override;
@@ -1606,7 +1778,7 @@ Core::IDocument *AndroidManifestEditor::document() const
     return textEditor()->textDocument();
 }
 
-TextEditor::TextEditorWidget *AndroidManifestEditor::textEditor() const
+TextEditorWidget *AndroidManifestEditor::textEditor() const
 {
     return ownWidget()->textEditorWidget();
 }
@@ -1664,3 +1836,5 @@ void setupAndroidManifestEditor()
 }
 
 } // Android::Internal
+
+#include "androidmanifesteditor.moc"
