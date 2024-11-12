@@ -1013,7 +1013,7 @@ void AxivionPluginPrivate::enableInlineIssues(bool enable)
         return;
     m_inlineIssuesEnabled = enable;
 
-    if (enable)
+    if (enable && m_dashboardServerId.isValid())
         handleOpenedDocs();
     else
         clearAllMarks();
@@ -1087,6 +1087,8 @@ void switchActiveDashboardId(const Id &toDashboardId)
     dd->m_serverAccess = ServerAccess::Unknown;
     dd->m_apiToken.reset();
     dd->m_dashboardInfo.reset();
+    dd->m_currentProjectInfo.reset();
+    updatePerspectiveToolbar();
 }
 
 const std::optional<DashboardInfo> currentDashboardInfo()
