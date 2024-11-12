@@ -12,18 +12,15 @@
 #include "androidtr.h"
 #include "androidutils.h"
 
-#include <coreplugin/fileutils.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
-#include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -127,23 +124,19 @@ static QList<FileToPull> filesToPull(Target *target)
     return fileList;
 }
 
-class AndroidDeployQtStep : public BuildStep
+class AndroidDeployQtStep final : public BuildStep
 {
-    Q_OBJECT
-
 public:
     AndroidDeployQtStep(BuildStepList *bc, Id id);
 
 private:
-    bool init() override;
+    bool init() final;
     GroupItem runRecipe() final;
     Group deployRecipe();
 
-    QWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() final;
 
-    void processReadyReadStdOutput(DeployErrorFlags &errorCode);
     void stdOutput(const QString &line);
-    void processReadyReadStdError(DeployErrorFlags &errorCode);
     void stdError(const QString &line);
 
     void reportWarningOrError(const QString &message, Task::TaskType type);
@@ -175,8 +168,8 @@ AndroidDeployQtStep::AndroidDeployQtStep(BuildStepList *parent, Id id)
 
 bool AndroidDeployQtStep::init()
 {
-    QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit());
-    if (!version) {
+    QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(kit());
+    if (!qtVersion) {
         reportWarningOrError(Tr::tr("The Qt version for kit %1 is invalid.").arg(kit()->displayName()),
                              Task::Error);
         return false;
@@ -202,13 +195,12 @@ bool AndroidDeployQtStep::init()
                                         Task::Error);
             return false);
 
-    auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
     const int minTargetApi = minimumSDK(target());
     qCDebug(deployStepLog) << "Target architecture:" << androidABIs
                            << "Min target API" << minTargetApi;
 
     const BuildSystem *bs = buildSystem();
-    auto selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
+    QStringList selectedAbis = bs->property(Constants::AndroidAbis).toStringList();
 
     const QString buildKey = target()->activeBuildKey();
     if (selectedAbis.isEmpty())
@@ -217,8 +209,7 @@ bool AndroidDeployQtStep::init()
     if (selectedAbis.isEmpty())
         selectedAbis.append(bs->extraData(buildKey, Constants::AndroidAbi).toString());
 
-    const auto dev =
-            static_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
+    const auto dev = dynamic_cast<const AndroidDevice *>(RunDeviceKitAspect::device(kit()).get());
     if (!dev) {
         reportWarningOrError(Tr::tr("No valid deployment device is set."), Task::Error);
         return false;
@@ -249,9 +240,8 @@ bool AndroidDeployQtStep::init()
         return false;
     }
 
-    const QtSupport::QtVersion * const qt = QtSupport::QtKitAspect::qtVersion(kit());
-    if (qt && qt->supportsMultipleQtAbis() && !info.cpuAbi.isEmpty() &&
-            !selectedAbis.contains(info.cpuAbi.first())) {
+    if (qtVersion->supportsMultipleQtAbis() && !info.cpuAbi.isEmpty()
+            && !selectedAbis.contains(info.cpuAbi.first())) {
         TaskHub::addTask(DeploymentTask(Task::Warning,
             Tr::tr("Android: The main ABI of the deployment device (%1) is not selected. The app "
                    "execution or debugging might not work properly. Add it from Projects > Build > "
@@ -288,7 +278,7 @@ bool AndroidDeployQtStep::init()
                                  Task::Error);
             return false;
         }
-        m_command = version->hostBinPath();
+        m_command = qtVersion->hostBinPath();
         if (m_command.isEmpty()) {
             reportWarningOrError(Tr::tr("Cannot find the androiddeployqt tool."), Task::Error);
             return false;
@@ -309,6 +299,7 @@ bool AndroidDeployQtStep::init()
         if (buildType() == BuildConfiguration::Release)
             m_androiddeployqtArgs.addArgs({"--release"});
 
+        auto androidBuildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
         if (androidBuildApkStep && androidBuildApkStep->signPackage()) {
             // The androiddeployqt tool is not really written to do stand-alone installations.
             // This hack forces it to use the correct filename for the apk file when installing
@@ -318,7 +309,7 @@ bool AndroidDeployQtStep::init()
         }
     }
 
-    m_environment = bc ? bc->environment() : Environment();
+    m_environment = bc->environment();
 
     m_adbPath = AndroidConfig::adbToolPath();
     return true;
@@ -675,5 +666,3 @@ void setupAndroidDeployQtStep()
 }
 
 } // Android::Internal
-
-#include "androiddeployqtstep.moc"
