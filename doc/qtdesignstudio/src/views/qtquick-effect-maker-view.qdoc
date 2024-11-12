@@ -13,8 +13,8 @@
     \brief Compose custom effects.
 
     Use \uicontrol {Effect Composer} to create post-processing effects that
-    can be applied to 2D or 3D components. The effects created with \uicontrol {Effect Composer}
-    are shader effects, which can be used in any \QDS projects.
+    can be applied to 2D components or 3D views. The effects created with
+    \uicontrol {Effect Composer} are shader effects, which can be used in any \QDS projects.
 
     \image studio-effect-composer.webp "The Effect Composer view in Qt Design Studio."
 
@@ -24,8 +24,8 @@
         \li To create a new custom effect, do one of the following:
             \list
                 \li Right-click anywhere in the \uicontrol Assets view (1) and select
-                    \uicontrol {New Effect} in the dialog. Give your new custom
-                    effect a name and select \uicontrol Create.
+                    \uicontrol {New Effect} in the dialog. Name your new custom
+                    effect and select \uicontrol Create.
                 \li Open the \uicontrol {Effect Composer} view (2), select \uicontrol {Add Effect},
                     and then select the effects you wish to use from the dropdown menu.
                     The added effects appear in the effect stack (3). You cannot add some of the
@@ -49,13 +49,12 @@
 
     \section1 Assigning a Custom Effect to a Component
 
-    To assign your newly created custom effect to a 2D or 3D component,
-    do one of the following:
+    To assign your newly created custom effect to a component, do one of the following:
 
     \list
-        \li Select a component in the \uicontrol Navigator, \uicontrol 2D, or
-            \uicontrol 3D view, and then select \inlineimage icons/assign-effect-composer.png
-            in \uicontrol {Effect Composer}.
+        \li Select a component in \uicontrol Navigator or the \uicontrol 2D view,
+            and then select \inlineimage icons/assign-effect-composer.png in
+            \uicontrol {Effect Composer}.
         \li Drag the custom effect from \uicontrol Assets to the component in
             \uicontrol Navigator or the \uicontrol {2D} view.
     \endlist
@@ -101,4 +100,6 @@
     \uicontrol Navigator, and in \uicontrol Properties >
     \uicontrol {Exposed Custom Properties}, select or clear the
     \uicontrol timeRunning checkbox.
+
+    \sa {Effect Composer Example}
 */

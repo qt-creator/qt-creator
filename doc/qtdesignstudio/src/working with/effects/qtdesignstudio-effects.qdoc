@@ -20,12 +20,12 @@
         \li Description
     \row
         \li \l {Effect Composer}
-        \li A set of ready-made 2D, 3D, and particle effects that you can combine and customize.
-            Includes effects like \uicontrol {Color Overlay}, \uicontrol Rain, and \uicontrol
-            Swirl.
+        \li Compose new effects using a set of ready-made 2D effects that you can combine and
+            customize. Includes effects like \uicontrol {Color Overlay}, \uicontrol Rain, and
+            \uicontrol Swirl.
     \row
         \li \l {Adding an Effect to Your Project}{Content Library Effects}
-        \li A set of ready-made particle effects. Includes customizable effects like \uicontrol
+        \li A set of ready-made 3D particle effects. Includes customizable effects like \uicontrol
             Bubbles, \uicontrol Explosion, and \uicontrol Shockwave.
     \row
         \li \l {Design Effects}
