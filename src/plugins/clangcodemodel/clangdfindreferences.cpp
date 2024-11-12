@@ -47,7 +47,15 @@ namespace ClangCodeModel::Internal {
 
 class ReferencesFileData {
 public:
-    QList<QPair<Range, QString>> rangesAndLineText;
+    struct ItemData {
+        ItemData(const Range &r, const QString &c, const QString &l)
+            : range(r), container(c), lineText(l) {}
+        Range range;
+        QString container;
+        QString lineText;
+    };
+
+    QList<ItemData> itemData;
     QString fileContent;
     ClangdAstNode ast;
 };
@@ -290,8 +298,10 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
         finishSearch();
     });
 
-    for (const Location &loc : locations)
-        fileData[loc.uri()].rangesAndLineText.push_back({loc.range(), {}});
+    for (const Location &loc : locations) {
+        fileData[loc.uri()].itemData.emplaceBack(
+            loc.range(), QJsonObject(loc).value("containerName").toString(), QString());
+    }
     QSet<FilePath> canonicalFilePaths;
     for (auto it = fileData.begin(); it != fileData.end();) {
         const Utils::FilePath filePath = client()->serverUriToHostPath(it.key());
@@ -305,10 +315,10 @@ void ClangdFindReferences::Private::handleFindUsagesResult(const QList<Location>
         }
         const QStringList lines = SymbolSupport::getFileContents(filePath);
         it->fileContent = lines.join('\n');
-        for (auto &rangeWithText : it.value().rangesAndLineText) {
-            const int lineNo = rangeWithText.first.start().line();
+        for (ReferencesFileData::ItemData &itemData : it.value().itemData) {
+            const int lineNo = itemData.range.start().line();
             if (lineNo >= 0 && lineNo < lines.size())
-                rangeWithText.second = lines.at(lineNo);
+                itemData.lineText = lines.at(lineNo);
         }
         ++it;
     }
@@ -406,8 +416,8 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
             return {"Function", "CXXMethod"};
         return {};
     }();
-    for (const auto &rangeWithText : fileData.rangesAndLineText) {
-        const Range &range = rangeWithText.first;
+    for (const ReferencesFileData::ItemData &itemData : fileData.itemData) {
+        const Range &range = itemData.range;
         const ClangdAstPath astPath = getAstPath(fileData.ast, range);
         const Usage::Tags usageType = fileData.ast.isValid()
                 ? getUsageType(astPath, searchTerm, expectedDeclTypes)
@@ -433,7 +443,7 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
                 isProperUsage = !isRecursiveCall;
             }
             if (isProperUsage) {
-                qCDebug(clangdLog) << "proper usage at" << rangeWithText.second;
+                qCDebug(clangdLog) << "proper usage at" << itemData.lineText;
                 canceled = true;
                 finishSearch();
                 return;
@@ -445,19 +455,19 @@ void ClangdFindReferences::Private::addSearchResultsForFile(const FilePath &file
         item.setFilePath(file);
         item.setMainRange(SymbolSupport::convertRange(range));
         item.setUseTextEditorFont(true);
-        item.setLineText(rangeWithText.second);
+        item.setLineText(itemData.lineText);
         if (checkUnusedData) {
-            if (rangeWithText.second.contains("template<>")) {
+            if (itemData.lineText.contains("template<>")) {
                 // Hack: Function specializations are not detectable in the AST.
                 canceled = true;
                 finishSearch();
                 return;
             }
-            qCDebug(clangdLog) << "collecting decl/def" << rangeWithText.second;
+            qCDebug(clangdLog) << "collecting decl/def" << itemData.lineText;
             checkUnusedData->declDefItems << item;
             continue;
         }
-        item.setContainingFunctionName(getContainingFunction(astPath, range).detail());
+        item.setContainingFunctionName(itemData.container);
 
         if (search->supportsReplace()) {
             const Node * const node = ProjectTree::nodeForFile(file);

@@ -453,6 +453,14 @@ ClangdClient::ClangdClient(Project *project, const Utils::FilePath &jsonDbDir, c
                 = textCaps->completion();
         if (completionCaps)
             clangdTextCaps.setCompletion(ClangdCompletionCapabilities(*completionCaps));
+
+        // https://clangd.llvm.org/extensions#reference-container
+        if (const auto references = textCaps->references()) {
+            QJsonObject obj = *references;
+            obj.insert("container", true);
+            clangdTextCaps.setReferences(DynamicRegistrationCapabilities(obj));
+        }
+
         caps.setTextDocument(clangdTextCaps);
     }
     caps.clearExperimental();
