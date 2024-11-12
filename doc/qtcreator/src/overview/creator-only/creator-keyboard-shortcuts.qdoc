@@ -1,4 +1,4 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 // **********************************************************************
@@ -17,11 +17,16 @@
 
     \brief Default keyboard shortcuts.
 
-    \QC has various keyboard shortcuts that speed up your development process.
+    Keyboard shortcuts make application development faster.
     To view all \QC functions and their keyboard shortcuts, select
     \preferences > \uicontrol Environment > \uicontrol Keyboard.
 
     \image qtcreator-keyboard-shortcuts.png
+
+    The tables in this topic list the default keyboard shortcuts. They are
+    categorized by actions.
+
+    \section1 Conflicting Shortcuts
 
     Shortcuts that are displayed in red are associated with several functions.
     \QC executes the function that is available in the current context.
@@ -38,6 +43,8 @@
     and therefore the default \QC keyboard shortcut \key F10 (Step Over) will not work on
     that system.
 
+    \section1 Showing Shortcuts in Menus
+
     To override the platform default value that determines whether
     keyboard shortcuts are shown in the labels of context menu items,
     select \preferences > \uicontrol Environment >
@@ -47,386 +54,1237 @@
 
     \image qtcreator-preferences-environment-interface.webp {Interface tab in Environment preferences}
 
-    The following tables list the default keyboard shortcuts. They are
-    categorized by actions.
+    \section1 Top 5 General Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Return to the editor
+            \li Esc
+            \li Esc
+        \row
+            \li Go to previous open document in history
+            \li Ctrl+Tab
+            \li Opt+Tab
+        \row
+            \li Build project
+            \li Ctrl+B
+            \li Cmd+B
+        \row
+            \li Run
+            \li Ctrl+R
+            \li Cmd+R
+        \row
+            \li Toggle output views
+            \li Alt+<number>
+
+            Where the number is the number of the view.
+            \li Cmd+<number>
+    \endtable
+
+    \section1 Top 5 Locator Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Activate \uicontrol Locator
+            \li Ctrl+K
+            \li Cmd+K
+        \row
+            \li Find a file
+            \li Ctrl+K, <text>
+            \li Cmd+K, <text>
+        \row
+            \li Start debugging a run configuration of the active project
+            \li Ctrl+K, dr
+            \li Cmd+K, dr
+        \row
+            \li Run a run configuration of the active project
+            \li Ctrl+K, rr
+            \li Cmd+K, rr
+        \row
+            \li Trigger a menu item
+            \li Ctrl+Shift+K, <menu item name>
+            \li Cmd+Shift+K, <menu item name>
+    \endtable
+
+    \section1 Top 10 Editor Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Auto-indent selection
+            \li Ctrl+I
+            \li Cmd+I
+        \row
+            \li Find references to symbol under cursor
+            \li Ctrl+Shift+U
+            \li Cmd+Shift+U
+        \row
+            \li Follow symbol under cursor
+            \li F2
+            \li F2
+        \row
+            \li Go to advanced find
+            \li Ctrl+Shift+F
+            \li Cmd+Shift+F
+        \row
+            \li Go to previous bookmark
+            \li Ctrl+,
+            \li Ctr+,
+        \row
+            \li Open type hierarchy
+            \li Ctrl+Shift+T
+            \li Ctrl+Shift+T
+        \row
+            \li Paste from the clipboard history
+            \li Ctrl+Shift+V
+            \li Cmd+Shift+V
+        \row
+            \li Sort selected lines alphabetically
+            \li Alt+Shift+S
+            \li Ctrl+Shift+S
+        \row
+            \li Switch between header and source file
+            \li F4
+            \li F4
+        \row
+            \li Trigger a code completion in the current scope
+            \li Ctrl+Space
+            \li Ctrl+Space
+    \endtable
+
+    \section1 Top 5 Debugger Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Start or continue debugging
+            \li F5
+            \li Cmd+Y
+        \row
+            \li Exit debugger
+            \li Shift+F5
+            \li Cmd+Shift+Y
+        \row
+            \li Step over
+            \li F10
+            \li Cmd+Shift+0
+        \row
+            \li Step into
+            \li F11
+            \li Cmd+Shift+I
+        \row
+            \li Step out
+            \li Shift+F11
+            \li Cmd+Shift+T
+    \endtable
+
+    \section1 Top 5 Git Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Diff
+            \li Alt+G, Alt+D
+            \li Ctrl+G, Ctrl+D
+        \row
+            \li Diff project or repository
+            \li Alt+G, Alt+Shift+D
+            \li Ctrl+G, Ctrl+Shift+D
+        \row
+            \li Diff of current modified editor
+            \li Alt+H
+            \li Ctrl+H
+        \row
+            \li Git blame
+            \li Alt+G, Alt+B
+            \li Ctrl+G, Ctrl+B
+        \row
+            \li Git log repository
+            \li Alt+G, Alt+K
+            \li Ctrl+G, Ctrl+K
+    \endtable
 
     \section1 General Keyboard Shortcuts
 
+    \section2 Document Navigation Shortcuts
+
     \table
         \header
-            \li  Action
-            \li  Keyboard shortcut
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Open file or project
-            \li  Ctrl+O
+            \li Go back
+            \li Alt+Left
+            \li Cmd+Opt+Left
         \row
-            \li  New project
-            \li  Ctrl+Shift+N
+            \li Go forward
+            \li Alt+Right
+            \li Cmd+Opt+Right
         \row
-            \li  New file
-            \li  Ctrl+N
+            \li Go to line
+            \li Ctrl+L
+            \li Cmd+L
         \row
-            \li  Open in external editor
-            \li  Alt+V, Alt+I
+            \li Go to next open document in history
+            \li Ctrl+Shift+Tab
+            \li Opt+Shift+Tab
         \row
-            \li  Select all
-            \li  Ctrl+A
+            \li Go to previous open document in history
+            \li Ctrl+Tab
+            \li Opt+Tab
         \row
-            \li  Delete
-            \li  Del
-        \row
-            \li  Cut
-            \li  Ctrl+X
-        \row
-            \li  Copy
-            \li  Ctrl+C
-        \row
-            \li  Paste
-            \li  Ctrl+V
-        \row
-            \li  Redo
-            \li  Ctrl+Y
-        \row
-            \li  Print
-            \li  Ctrl+P
-        \row
-            \li  Save
-            \li  Ctrl+S
-        \row
-            \li  Save all
-            \li  Ctrl+Shift+S
-        \row
-            \li  Close window
-            \li  Ctrl+W
-        \row
-            \li  Close all
-            \li  Ctrl+Shift+W
-        \row
-            \li  Close current file
-            \li  Ctrl+F4
-        \row
-            \li  Go back
-            \li  Alt+Left
-        \row
-            \li  Go forward
-            \li  Alt+Right
-        \row
-            \li  Go to line
-            \li  Ctrl+L
-        \row
-            \li  Next open document in history
-            \li  Ctrl+Shift+Tab
-        \row
-            \li  Go to other split
-            \li  Ctrl+E, O
-        \row
-            \li  Previous open document in history
-            \li  Ctrl+Tab
-        \row
-            \li  Activate \uicontrol Locator
-            \li  Ctrl+K
-        \row
-            \li  Switch to \uicontrol Welcome mode
-            \li  Ctrl+1
-        \row
-            \li  Switch to \uicontrol Edit mode
-            \li  Ctrl+2
-        \row
-            \li  Switch to \uicontrol Design mode
-            \li  Ctrl+3
-        \row
-            \li  Switch to \uicontrol Debug mode
-            \li  Ctrl+4
-        \row
-            \li  Switch to \uicontrol Projects mode
-            \li  Ctrl+5
-        \row
-            \li  Switch to \uicontrol Extensions mode
-            \li  Ctrl+6
-        \row
-            \li  Switch to \uicontrol Help mode
-            \li  Ctrl+7
-        \row
-            \li  Toggle \uicontrol{Issues}
-            \li  Alt+1 (Cmd+1 on \macos)
-        \row
-            \li  Toggle \uicontrol{Search Results}
-            \li  Alt+2 (Cmd+2 on \macos)
-        \row
-            \li  Toggle \uicontrol{Application Output}
-            \li  Alt+3 (Cmd+3 on \macos)
-        \row
-            \li  Toggle \uicontrol{Compile Output}
-            \li  Alt+4 (Cmd+4 on \macos)
-        \row
-            \li  Toggle other output views
-            \li  Alt+number (Cmd+number on \macos)
+            \li Go to next split or window
+            \li Ctrl+E, O
+            \li Ctrl+E, O
+    \endtable
 
-            Where the number is the number of the view.
+    \section2 Exit \QC
+
+    By default, \QC exits without asking for confirmation, unless there are
+    unsaved changes in open files. To always be asked, go to \preferences >
+    \uicontrol Environment > \uicontrol System and then select
+    \uicontrol {Ask for confirmation before exiting}.
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Activate \uicontrol Bookmarks view
-            \li  Alt+M
+            \li Exit \QC
+            \li Ctrl+Q
+            \li Cmd+Q
+    \endtable
+
+    \section2 File Management Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Activate \uicontrol{File System} view
-            \li  Alt+Y
+            \li Open file or project
+            \li Ctrl+O
+            \li Cmd+O
         \row
-            \li  Activate \uicontrol{Open Documents} view
-            \li  Alt+O
+            \li Open in a new window
+            \li Ctrl+E, 4
+            \li Ctrl+E, 4
         \row
-            \li  Maximize output views
-            \li  Alt+Shift+9
+            \li New project
+            \li Ctrl+Shift+N
+            \li Cmd+Shift+N
         \row
-            \li  Move to next item in output
-            \li  F6
+            \li New file
+            \li Ctrl+N
+            \li Cmd+N
         \row
-            \li  Move to previous item in output
-            \li  Shift+F6
+            \li Save current document
+            \li Ctrl+S
+            \li Cmd+S
         \row
-            \li  Activate \uicontrol Projects view
-            \li  Alt+X
+            \li Save all documents
+            \li Ctrl+Shift+S
+            \li Not assigned
         \row
-            \li  Full screen
-            \li  Ctrl+Shift+F11
+            \li Close current editor
+            \li Ctrl+W
+            \li Cmd+W
         \row
-            \li  Toggle the sidebar
-            \li  Alt+0 (Cmd+0 on \macos)
+            \li Close all editors
+            \li Ctrl+Shift+W
+            \li Cmd+Shift+W
+    \endtable
+
+    \section2 Find-and-Replace Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Undo
-            \li  Ctrl+Z
+            \li Activate \uicontrol Locator
+            \li Ctrl+K
+            \li Cmd+K
         \row
-            \li  Move to \uicontrol Edit mode
+            \li Find and replace
+            \li Ctrl+F
+            \li Cmd+F
+        \row
+            \li Find next
+            \li F3
+            \li Cmd+G
+        \row
+            \li Find previous
+            \li Shift+F3
+            \li Ctrl+Shift+G
+        \row
+            \li Find next occurrence of selected text
+            \li Ctrl+F3
+            \li Cmd+F3
+        \row
+            \li Find previous occurrence of selected text
+            \li Cmd+Shift+F3
+            \li
+        \row
+            \li Replace next
+            \li Ctrl+=
+            \li Cmd+=
+        \row
+            \li Open advanced find
+            \li Ctrl+Shift+F
+            \li Cmd+Shift+F
+    \endtable
+
+    \section2 Text Editing Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Select all
+            \li Ctrl+A
+            \li Cmd+A
+        \row
+            \li Cut
+            \li Ctrl+X
+            \li Cmd+X
+        \row
+            \li Copy
+            \li Ctrl+C
+            \li Cmd+C
+        \row
+            \li Paste
+            \li Ctrl+V
+            \li Cmd+V
+        \row
+            \li Paste from the clipboard history
+            \li Ctrl+Shift+V
+            \li Cmd+Shift+V
+        \row
+            \li Print
+            \li Ctrl+P
+            \li Cmd+P
+        \row
+            \li Undo
+            \li Ctrl+Z
+            \li Cmd+Z
+        \row
+            \li Redo
+            \li Ctrl+Shift+Z
+            \li Cmd+Shift+Z
+    \endtable
+
+    \section1 UI Navigation Shortcuts
+
+    \section2 Mode Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Switch to \uicontrol Welcome mode
+            \li Ctrl+1
+            \li Ctrl+1
+        \row
+            \li Switch to \uicontrol Edit mode
+            \li Ctrl+2
+            \li Ctrl+2
+        \row
+            \li Switch to \uicontrol Design mode
+            \li Ctrl+3
+            \li Ctrl+3
+        \row
+            \li Switch to \uicontrol Debug mode
+            \li Ctrl+4
+            \li Ctrl+4
+        \row
+            \li Switch to \uicontrol Projects mode
+            \li Ctrl+5
+            \li Ctrl+5
+        \row
+            \li Switch to \uicontrol Extensions mode
+            \li Ctrl+6
+            \li Ctrl+6
+        \row
+            \li Switch to \uicontrol Help mode
+            \li Ctrl+7
+            \li Ctrl+7
+        \row
+            \li Go to \uicontrol Edit mode
 
                In \uicontrol Edit mode:
                \list
-                \li  The first press moves focus to the editor
-                \li  The second press closes secondary windows
+                \li The first press moves focus to the editor
+                \li The second press closes secondary windows
                \endlist
-            \li  Esc
-        \row
-            \li  Exit \QC
-
-                 By default, \QC exits without asking for confirmation, unless
-                 there are unsaved changes in open files. To always be asked,
-                 select the \uicontrol {Ask for confirmation before exiting}
-                 check box in \preferences > \uicontrol Environment >
-                 \uicontrol System.
-            \li  Ctrl+Q
+            \li Esc
+            \li Esc
     \endtable
 
-    \section1 Editing Keyboard Shortcuts
+    \section2 Output View Shortcuts
 
     \table
         \header
-            \li  Action
-            \li  Keyboard shortcut
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Auto-indent selection
-            \li  Ctrl+I
+            \li Toggle \uicontrol{Issues}
+            \li Alt+1
+            \li Cmd+1
         \row
-            \li  Collapse
-            \li  Ctrl+<
+            \li Toggle \uicontrol{Search Results}
+            \li Alt+2
+            \li Cmd+2
         \row
-            \li  Expand
-            \li  Ctrl+>
+            \li Toggle \uicontrol{Application Output}
+            \li Alt+3
+            \li Cmd+3
         \row
-            \li  Trigger a completion in this scope
-            \li  Ctrl+Space
+            \li Toggle \uicontrol{Compile Output}
+            \li Alt+4
+            \li Cmd+4
         \row
-            \li  Display tooltips for function signatures regardless of the
-                 cursor position in the function call
-            \li  Ctrl+Shift+D
-        \row
-            \li  Copy line
-            \li  Ctrl+Ins
-        \row
-            \li  Copy line down
-            \li  Ctrl+Alt+Down
-        \row
-            \li  Copy line up
-            \li  Ctrl+Alt+Up
-        \row
-            \li  Paste from the clipboard history
-            \li  Ctrl+Shift+V
+            \li Toggle other output views
+            \li Alt+<number>
 
-               Subsequent presses move you back in the history
+            Where the number is the number of the view.
+            \li Cmd+<number>
         \row
-            \li  Cut line
-            \li  Shift+Del
+            \li Maximize output views
+            \li Alt+Shift+9
+            \li Cmd+Shift+9
         \row
-            \li  Join lines
-            \li  Ctrl+J
+            \li Move to next item in output
+            \li F6
+            \li F6
         \row
-            \li  Insert line above current line
-            \li  Ctrl+Shift+Enter
-        \row
-            \li  Insert line below current line
-            \li  Ctrl+Enter
-        \row
-            \li  Decrease font size
-            \li  Ctrl+- (Ctrl+Roll mouse wheel down)
-        \row
-            \li  Increase font size
-            \li  Ctrl++ (Ctrl+Roll mouse wheel up)
-        \row
-            \li  Reset font size
-            \li  Ctrl+0
-        \row
-            \li  Toggle Vim-style editing
-            \li  Alt+Y, Alt+Y
-        \row
-            \li  Split
-            \li  Ctrl+E, 2
-        \row
-            \li  Split side by side
-            \li  Ctrl+E, 3
-        \row
-            \li  Remove all splits
-            \li  Ctrl+E, 1
-        \row
-            \li  Remove current split
-            \li  Ctrl+E, 0
-        \row
-            \li  Select all
-            \li  Ctrl+A
-        \row
-            \li  Go to block end
-            \li  Ctrl+]
-        \row
-            \li  Go to block start
-            \li  Ctrl+[
-        \row
-            \li  Go to block end and select the lines between the current cursor
-                 position and the end of the block
-            \li  Ctrl+Shift+]
-        \row
-            \li  Go to block start and select the lines between the current
-                 cursor position and the beginning of the block
-            \li  Ctrl+Shift+[
-        \row
-            \li  Select the current block
+            \li Move to previous item in output
+            \li Shift+F6
+            \li Shift+F6
+    \endtable
 
-                 The second press extends the selection to the parent block. To
-                 enable this behavior, select \preferences >
-                 \uicontrol {Text Editor} > \uicontrol Behavior >
-                 \uicontrol {Enable smart selection changing}.
-            \li  Ctrl+U
-        \row
-            \li  Undo the latest smart block selection
-            \li  Ctrl+Alt+Shift+U
-        \row
-            \li  Move current line down
-            \li  Ctrl+Shift+Down
-        \row
-            \li  Move current line up
-            \li  Ctrl+Shift+Up
-        \row
-            \li  Trigger a refactoring action in this scope
-            \li  Alt+Enter
-        \row
-            \li  Rewrap paragraph
-            \li  Ctrl+E, R
-        \row
-            \li  Enable text wrapping
-            \li  Ctrl+E, Ctrl+W
-        \row
-            \li  Toggle comment for selection
-            \li  Ctrl+/
-        \row
-            \li  Visualize whitespace
-            \li  Ctrl+E, Ctrl+V
-        \row
-            \li  Toggle bookmark
-            \li  Ctrl+M
-        \row
-            \li  Go to next bookmark
-            \li  Ctrl+.
-        \row
-            \li  Go to previous bookmark
-            \li  Ctrl+,
-        \row
-            \li  Fetch snippet
-            \li  Alt+C, Alt+F
-        \row
-            \li  Paste snippet
-            \li  Alt+C, Alt+P
-        \row
-            \li  Find references to symbol under cursor
-            \li  Ctrl+Shift+U
-                 \note If this keyboard shortcut does not work on Linux, see
-                 \l {Editing Issues}.
-        \row
-            \li  Follow symbol under cursor
+    \section2 Sidebar View Shortcuts
 
-               Works with namespaces, classes, functions, variables, include
-               statements, and macros, as well as CMake functions, macros,
-               targets, and packages. Also, opens URLs in the default browser
-               and Qt resource files (.qrc) in the \l{Create resource files}
-               {resource editor}
-            \li  F2
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Rename symbol under cursor
-            \li  Ctrl+Shift+R
+            \li Activate \uicontrol Bookmarks view
+            \li Alt+M
+            \li Ctrl+Opt+M
         \row
-            \li  Switch between function declaration and definition
-            \li  Shift+F2
+            \li Activate \uicontrol{File System} view
+            \li Alt+Y, Alt+F
+            \li Ctrl+Y, Ctrl+F
         \row
-            \li  Open type hierarchy
-            \li  Ctrl+Shift+T
+            \li Activate \uicontrol{Open Documents} view
+            \li Alt+O
+            \li Ctrl+O
         \row
-            \li  Switch between header and source file
-            \li  F4
+            \li Activate \uicontrol Projects view
+            \li Alt+X
+            \li Ctrl+X
+        \row
+            \li Full screen
+            \li Ctrl+Shift+F11
+            \li Cmd+Ctrl+F
+        \row
+            \li Toggle the left sidebar
+            \li Alt+0
+            \li Cmd+0
+        \row
+            \li Toggle the right sidebar
+            \li Alt+Shift+0
+            \li Cmd+Shift+0
+    \endtable
+
+    \section1 Editor Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Auto-indent selection
+            \li Ctrl+I
+            \li Cmd+I
+        \row
+            \li Rewrap paragraph
+            \li Ctrl+E, R
+            \li Ctrl+E, R
+        \row
+            \li Enable text wrapping
+            \li Ctrl+E, Ctrl+W
+            \li Ctrl+E, Ctrl+W
+        \row
+            \li Toggle comment for selection
+            \li Ctrl+/
+            \li Cmd+/
+        \row
+            \li Visualize whitespace
+            \li Ctrl+E, Ctrl+V
+            \li Ctrl+E, Ctrl+V
+        \row
+            \li Trigger a code completion in the current scope
+            \li Ctrl+Space
+            \li Ctrl+Space
+        \row
+            \li Trigger a refactoring action in this scope
+            \li Alt+Enter
+            \li Opt+Return
+        \row
+            \li Display tooltips for function signatures regardless of the
+                cursor position in the function call
+            \li Ctrl+Shift+D
+            \li Ctrl+Shift+D
+    \endtable
+
+    \section2 Bookmark Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Toggle bookmark
+            \li Ctrl+M
+            \li Ctrl+M
+        \row
+            \li Go to next bookmark
+            \li Ctrl+.
+            \li Ctrl+.
+        \row
+            \li Go to previous bookmark
+            \li Ctrl+,
+            \li Ctrl+,
+    \endtable
+
+    \section2 Code Block Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Collapse block
+            \li Ctrl+<
+            \li Cmd+<
+        \row
+            \li Expand block
+            \li Ctrl+>
+            \li Cmd+>
+        \row
+            \li Go to block end
+            \li Ctrl+]
+            \li Cmd+]
+        \row
+            \li Go to block start
+            \li Ctrl+[
+            \li Cmd+[
+        \row
+            \li Go to block end and select the lines between the current cursor
+                position and the end of the block
+            \li Ctrl+Shift+]
+            \li Cmd+}
+        \row
+            \li Go to block start and select the lines between the current
+                cursor position and the beginning of the block
+            \li Ctrl+Shift+[
+            \li Cmd+{
+        \row
+            \li Select the current block
+
+                The second press extends the selection to the parent block. To
+                enable this behavior, select \preferences >
+                \uicontrol {Text Editor} > \uicontrol Behavior >
+                \uicontrol {Enable smart selection changing}.
+            \li Ctrl+U
+            \li Cmd+U
+        \row
+            \li Undo the latest smart block selection
+            \li Ctrl+Alt+Shift+U
+            \li Cmd+Opt+Shift+U
+    \endtable
+
+    \section2 Code Line Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Copy line
+            \li Ctrl+Ins
+            \li Cmd+Ins
+        \row
+            \li Copy line down
+            \li Ctrl+Alt+Down
+            \li Cmd+Opt+Down
+        \row
+            \li Copy line up
+            \li Ctrl+Alt+Up
+            \li Cmd+Opt+Up
+        \row
+            \li Cut line
+            \li Shift+Del
+            \li Shift+Del
+        \row
+            \li Join lines
+            \li Ctrl+J
+            \li Cmd+J
+        \row
+            \li Insert line above current line
+            \li Ctrl+Shift+Enter
+            \li Cmd+Shift+Return
+        \row
+            \li Insert line below current line
+            \li Ctrl+Enter
+            \li Cmd+Return
+        \row
+            \li Move current line down
+            \li Ctrl+Shift+Down
+            \li Cmd+Shift+Down
+        \row
+            \li Move current line up
+            \li Ctrl+Shift+Up
+            \li Cmd+Shift+Up
+    \endtable
+
+    \section2 Code Navigation Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Find references to symbol under cursor
+            \li Ctrl+Shift+U
+                \note If this keyboard shortcut does not work on Linux, see
+                \l {Editing Issues}.
+            \li Cmd+Shift+U
+        \row
+            \li Follow symbol under cursor
+
+                Works with namespaces, classes, functions, variables, include
+                statements, and macros, as well as CMake functions, macros,
+                targets, and packages. Also, opens URLs in the default browser
+                and Qt resource files (.qrc) in the \l{Create resource files}
+                {resource editor}
+            \li F2
+            \li F2
+        \row
+            \li Switch between function declaration and definition
+            \li Shift+F2
+            \li Shift+F2
+    \endtable
+
+    \section2 C++ Editing Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Open type hierarchy
+            \li Ctrl+Shift+T
+            \li Ctrl+Shift+T
+        \row
+            \li Open include hierarchy
+            \li Ctrl+Shift+I
+            \li Ctrl+Shift+I
+        \row
+            \li Rename symbol under cursor
+            \li Ctrl+Shift+R
+            \li Cmd+Shift+R
+        \row
+            \li Switch between header and source file
+            \li F4
+            \li F4
         \row
             \li Add a cursor at the next occurrence of selected text for
                 multi-cursor editing
-            \li  Ctrl+D
+            \li Ctrl+D
+            \li Cmd+D
         \row
-            \li  Turn selected text into lowercase
-            \li  Alt+U
+            \li Turn selected text into lowercase
+            \li Alt+U
+            \li Ctrl+U
         \row
-            \li  Turn selected text into uppercase
-            \li  Alt+Shift+U
+            \li Turn selected text into uppercase
+            \li Alt+Shift+U
+            \li Ctrl+Shift+U
         \row
-            \li  Sort selected lines alphabetically
-            \li  Alt+Shift+S
+            \li Sort selected lines alphabetically
+            \li Alt+Shift+S
+            \li Ctrl+Shift+S
+    \endtable
+
+    \section2 FakeVim Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Run static checks on JavaScript code to find common problems
-            \li  Ctrl+Shift+C
+            \li Toggle Vim-style editing
+            \li Alt+Y, Alt+Y
+            \li Ctrl+Shift+Y, Ctrl+Shift+Y
         \row
-            \li  Find and replace
-            \li  Ctrl+F
+            \li Execute user actions in FakeVim mode
+            \li Alt+Y, n, where n is the number of the user action, from 1 to 9
+            \li Ctrl+Shift+Y, n
+    \endtable
+
+    \section2 Font Size Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Find next
-            \li  F3
+            \li Decrease font size
+            \li Ctrl+- (Ctrl+Roll mouse wheel down)
+            \li Cmd+- (Cmd+Roll mouse wheel down)
         \row
-            \li  Find previous
-            \li  Shift+F3
+            \li Increase font size
+            \li Ctrl++ (Ctrl+Roll mouse wheel up)
+            \li Cmd++ (Cmd+Roll mouse wheel up)
         \row
-            \li  Find next occurrence of selected text
-            \li  Ctrl+F3
+            \li Reset font size
+            \li Ctrl+0
+            \li Ctrl+0
+    \endtable
+
+    \section2 Snippet Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Find previous occurrence of selected text
-            \li  Ctrl+Shift+F3
+            \li Fetch snippet
+            \li Alt+C, Alt+F
+            \li Ctrl+C, Ctrl+F
         \row
-            \li  Replace next
-            \li  Ctrl+=
+            \li Paste snippet
+            \li Alt+C, Alt+P
+            \li Ctrl+C, Ctrl+P
+    \endtable
+
+    \section2 Split View Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Open advanced find
-            \li  Ctrl+Shift+F
+            \li Split view
+            \li Ctrl+E, 2
+            \li Ctrl+E, 2
         \row
-            \li  Record a text-editing macro
-            \li  Alt+[
+            \li Split side by side
+            \li Ctrl+E, 3
+            \li Ctrl+E, 3
         \row
-            \li  Stop recording a macro
-            \li  Alt+]
+            \li Remove all splits
+            \li Ctrl+E, 1
+            \li Ctrl+E, 1
         \row
-            \li  Play last macro
-            \li  Alt+R
+            \li Remove current split
+            \li Ctrl+E, 0
+            \li Ctrl+E, 0
+    \endtable
+
+    \section2 Text Editing Macro Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
         \row
-            \li  Show Qt Quick toolbars
-            \li  Ctrl+Alt+Space
+            \li Record a text-editing macro
+            \li Alt+[
+            \li Cmd+[
         \row
-            \li  Execute user actions in FakeVim mode
-            \li  Alt+Y, n, where n is the number of the user action, from 1 to 9
+            \li Stop recording a macro
+            \li Alt+]
+            \li Cmd+]
+        \row
+            \li Play last macro
+            \li Alt+R
+            \li Ctrl+R
+    \endtable
+
+    \section1 Build-and-Run Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Build project
+            \li Ctrl+B
+            \li Cmd+B
+        \row
+            \li Build current file
+            \li Ctrl+Alt+B
+            \li Cmd+Opt+B
+        \row
+            \li Build all
+            \li Ctrl+Shift+B
+            \li Cmd+Shift+B
+        \row
+            \li Select the \l{Kits}{kit} to build and run your project with
+            \li Ctrl+T
+            \li Cmd+T
+        \row
+            \li Run
+            \li Ctrl+R
+            \li Cmd+R
+    \endtable
+
+    \section1 Debugger Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Start or continue debugging
+            \li F5
+            \li Cmd+Y
+        \row
+            \li Exit debugger
+            \li Shift+F5
+            \li Cmd+Shift+Y
+        \row
+            \li Step over
+            \li F10
+            \li Cmd+Shift+O
+        \row
+            \li Step into
+            \li F11
+            \li Cmd+Shift+I
+        \row
+            \li Step out
+            \li Shift+F11
+            \li Cmd+Shift+T
+        \row
+            \li Set or remove breakpoint
+            \li F9
+            \li F8
+        \row
+            \li Enable or disable breakpoint
+            \li Ctrl+F9
+            \li Cmd+F8
+        \row
+            \li Run to selected function
+            \li Ctrl+F6
+            \li Cmd+F6
+        \row
+            \li Run to line
+            \li Ctrl+F10
+            \li Shift+F8
+        \row
+            \li Reverse direction
+            \li F12
+            \li
+    \endtable
+
+    \section1 Help Mode Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li View context-sensitive help
+            \li F1
+            \li F1
+        \row
+            \li Go to \uicontrol Contents in the \uicontrol Help mode
+            \li Ctrl+Shift+C
+            \li
+        \row
+            \li Add a bookmark
+            \li Ctrl+M
+            \li Ctrl+M
+        \row
+            \li Go to \uicontrol Index in the \uicontrol Help mode
+            \li Ctrl+Shift+I
+            \li Ctrl+I
+        \row
+            \li Reset font size
+            \li Ctrl+0
+            \li Ctrl+0
+        \row
+            \li Go to \uicontrol Search in the \uicontrol Help mode
+            \li Ctrl+Shift+/
+            \li Ctrl+/
+    \endtable
+
+    \section1 Image Viewer Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Switch to background
+            \li Ctrl+[
+            \li Cmd+[
+        \row
+            \li Switch to outline
+            \li Ctrl+]
+            \li Cmd+]
+        \row
+            \li Zoom in
+            \li Ctrl++
+            \li Cmd++
+        \row
+            \li Zoom out
+            \li Ctrl+-
+            \li Cmd+-
+        \row
+            \li Fit to screen
+            \li Ctrl+=
+            \li Cmd+=
+        \row
+            \li Original size
+            \li Ctrl+0
+            \li Ctrl+0
+    \endtable
+
+    \section1 Project Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li New project
+            \li Ctrl+Shift+N
+            \li Cmd+Shift+N
+        \row
+            \li Open project
+            \li Ctrl+Shift+O
+            \li Not assigned
+    \endtable
+
+    \section1 Qt Quick Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Show Qt Quick toolbars
+            \li Ctrl+Alt+Space
+            \li Ctrl+Opt+Space
+        \row
+            \li Run static checks on JavaScript code to find common problems
+            \li Ctrl+Shift+C
+            \li Cmd+Shift+C
+    \endtable
+
+    \section1 \QD Shortcuts
+
+    \table
+        \header
+            \li Action
+            \li Windows and Linux
+            \li \macos
+        \row
+            \li Adjust size
+            \li Ctrl+J
+            \li Ctrl+J
+        \row
+            \li Lay out in a grid
+            \li Ctrl+G
+            \li Ctrl+Shift+G
+        \row
+            \li Lay out horizontally
+            \li Ctrl+H
+            \li Ctrl+Shift+H
+        \row
+            \li Lay out vertically
+            \li Ctrl+L
+            \li Ctrl+L
+        \row
+            \li Preview
+            \li Alt+Shift+R
+            \li Opt+Shift+R
+        \row
+            \li Edit signals and slots
+            \li F4
+            \li F4
+    \endtable
+
+    \section1 Version Control Shortcuts
+
+    \table
+        \header
+            \li {1,2} Action
+            \li {6,1} Version control system
+        \header
+            \li Bazaar
+            \li CVS
+            \li Git
+            \li Mercurial
+            \li Perforce
+            \li Subversion
+        \row
+            \li Add
+            \li
+            \li Alt+C, Alt+A
+            \li Alt+G, Alt+A
+            \li
+            \li Alt+P, Alt+A
+            \li Alt+S, Alt+A
+        \row
+            \li Commit/Submit
+            \li Alt+Z, Alt+C
+            \li Alt+C, Alt+C
+            \li Alt+G, Alt+C
+            \li Alt+G, Alt+C
+            \li Alt+P, Alt+S
+            \li Alt+S, Alt+C
+        \row
+            \li Diff
+            \li Alt+Z, Alt+D
+            \li Alt+C, Alt+D
+            \li Alt+G, Alt+D
+            \li Alt+G, Alt+D
+            \li
+            \li Alt+S, Alt+D
+        \row
+            \li Diff of project or repository
+            \li
+            \li
+            \li Alt+G, Alt+Shift+D
+            \li
+            \li Alt+P, Alt+D
+            \li
+        \row
+            \li Diff of current modified editor
+            \li
+            \li
+            \li Alt+H
+            \li
+            \li
+            \li
+        \row
+            \li Blame/Annotate
+            \li
+            \li
+            \li Alt+G, Alt+B
+            \li
+            \li
+            \li
+        \row
+            \li Log/Filelog
+            \li Alt+Z, Alt+L
+            \li
+            \li Alt+G, Alt+L
+            \li Alt+G, Alt+L
+            \li Alt+P, Alt+F
+            \li
+        \row
+            \li Log repository
+            \li
+            \li
+            \li Alt+G, Alt+K
+            \li
+            \li
+            \li
+        \row
+            \li Status
+            \li Alt+Z, Alt+S
+            \li
+            \li
+            \li Alt+G, Alt+S
+            \li
+            \li
+        \row
+            \li Undo changes/Revert
+            \li
+            \li
+            \li Alt+G, Alt+U
+            \li
+            \li Alt+P, Alt+R
+            \li
+        \row
+            \li Edit
+            \li
+            \li
+            \li
+            \li
+            \li Alt+P, Alt+E
+            \li
+        \row
+            \li Opened
+            \li
+            \li
+            \li
+            \li
+            \li Alt+P, Alt+O
+            \li
+    \endtable
+
+    \section2 VCS Shortcuts on \macos
+
+    \table
+        \header
+            \li {1,2} Action
+            \li {6,1} Version control system
+        \header
+            \li Bazaar
+            \li CVS
+            \li Git
+            \li Mercurial
+            \li Perforce
+            \li Subversion
+        \row
+            \li Add
+            \li
+            \li Ctrl+C, Ctrl+A
+            \li Ctrl+G, Ctrl+A
+            \li
+            \li Ctrl+P, Ctrl+A
+            \li Ctrl+S, Ctrl+A
+        \row
+            \li Commit/Submit
+            \li Ctrl+Z, Ctrl+C
+            \li Ctrl+C, Ctrl+C
+            \li Ctrl+G, Ctrl+C
+            \li Ctrl+H, Ctrl+C
+            \li Ctrl+P, Ctrl+S
+            \li Ctrl+S, Ctrl+C
+        \row
+            \li Diff
+            \li Ctrl+Z, Ctrl+D
+            \li Ctrl+C, Ctrl+D
+            \li Ctrl+G, Ctrl+D
+            \li Ctrl+H, Ctrl+D
+            \li
+            \li Ctrl+S, Ctrl+D
+        \row
+            \li Diff of project or repository
+            \li
+            \li
+            \li Ctrl+G, Ctrl+Shift+D
+            \li
+            \li Ctrl+P, Ctrl+D
+            \li
+        \row
+            \li Diff of current modified editor
+            \li
+            \li
+            \li Ctrl+H
+            \li
+            \li
+            \li
+        \row
+            \li Blame/Annotate
+            \li
+            \li
+            \li Ctrl+G, Ctrl+B
+            \li
+            \li
+            \li
+        \row
+            \li Log/Filelog
+            \li Ctrl+Z, Ctrl+L
+            \li
+            \li Ctrl+G, Ctrl+L
+            \li Ctrl+H, Ctrl+L
+            \li Ctrl+P, Ctrl+F
+            \li
+        \row
+            \li Log repository
+            \li
+            \li
+            \li Ctrl+G, Ctrl+K
+            \li
+            \li
+            \li
+        \row
+            \li Status
+            \li Ctrl+Z, Ctrl+S
+            \li
+            \li
+            \li Ctrl+H, Ctrl+S
+            \li
+            \li
+        \row
+            \li Undo changes/Revert
+            \li
+            \li
+            \li Ctrl+G, Ctrl+U
+            \li
+            \li Ctrl+P, Ctrl+R
+            \li
+        \row
+            \li Edit
+            \li
+            \li
+            \li
+            \li
+            \li Ctrl+P, Ctrl+E
+            \li
+        \row
+            \li Opened
+            \li
+            \li
+            \li
+            \li
+            \li Ctrl+P, Ctrl+O
+            \li
     \endtable
 
     \section1 Emacs Shortcuts
@@ -463,251 +1321,6 @@
         \li Scroll Half Screen Up
         \li Yank
     \endlist
-
-    \section1 \QD Shortcuts
-
-    \table
-        \header
-            \li Action
-            \li Keyboard shortcut
-        \row
-            \li Adjust size
-            \li Ctrl+J
-        \row
-            \li Lay out in a grid
-            \li Ctrl+G
-        \row
-            \li Lay out horizontally
-            \li Ctrl+H
-        \row
-            \li Lay out vertically
-            \li Ctrl+L
-        \row
-            \li Preview
-            \li Alt+Shift+R
-        \row
-            \li Edit signals and slots
-            \li F4
-    \endtable
-
-    \section1 Image Viewer Shortcuts
-
-    \table
-        \header
-            \li  Action
-            \li  Keyboard shortcut
-        \row
-            \li  Switch to background
-            \li  Ctrl+[
-        \row
-            \li  Switch to outline
-            \li  Ctrl+]
-        \row
-            \li  Zoom in
-            \li  Ctrl++
-        \row
-            \li  Zoom out
-            \li  Ctrl+-
-        \row
-            \li  Fit to screen
-            \li  Ctrl+=
-        \row
-            \li  Original size
-            \li  Ctrl+0
-    \endtable
-
-    \section1 Debugging Keyboard Shortcuts
-
-    \table
-        \header
-            \li  Action
-            \li  Keyboard shortcut
-        \row
-            \li  Start or continue debugging
-            \li  F5
-        \row
-            \li  Exit debugger
-            \li  Shift+F5
-        \row
-            \li  Step over
-            \li  F10
-        \row
-            \li  Step into
-            \li  F11
-        \row
-            \li  Step out
-            \li  Shift+F11
-        \row
-            \li  Set or remove breakpoint
-            \li  F9 (F8 on \macos)
-        \row
-            \li  Enable or disable breakpoint
-            \li  Ctrl+F9 (Ctrl+F8 on \macos)
-        \row
-            \li  Run to selected function
-            \li  Ctrl+F6
-        \row
-            \li  Run to line
-            \li  Ctrl+F10
-        \row
-            \li  Reverse direction
-            \li  F12
-    \endtable
-
-    \section1 Project Keyboard Shortcuts
-
-    \table
-        \header
-            \li  Action
-            \li  Keyboard shortcut
-        \row
-            \li  Build project
-            \li  Ctrl+B
-        \row
-            \li  Build all
-            \li  Ctrl+Shift+B
-        \row
-            \li  New project
-            \li  Ctrl+Shift+N
-        \row
-            \li  Open project
-            \li  Ctrl+Shift+O
-        \row
-            \li  Select the \l{Kits}{kit} to build and run your project with
-            \li  Ctrl+T
-        \row
-            \li  Run
-            \li  Ctrl+R
-    \endtable
-
-    \section1 Help Keyboard Shortcuts
-
-    \table
-        \header
-            \li  Action
-            \li  Keyboard shortcut
-        \row
-            \li  View context-sensitive help
-            \li  F1
-        \row
-            \li  Activate contents in \uicontrol Help mode
-            \li  Ctrl+T
-        \row
-            \li  Add bookmark in \uicontrol Help mode
-            \li  Ctrl+M
-        \row
-            \li  Activate index in \uicontrol Help mode
-            \li  Ctrl+I
-        \row
-            \li  Reset font size
-            \li  Ctrl+0
-        \row
-            \li  Activate search in \uicontrol Help mode
-            \li  Ctrl+S
-    \endtable
-
-    \section1 Version Control Keyboard Shortcuts
-
-    \table
-        \header
-            \li  {1,2} Action
-            \li  {6,1} Version control system
-        \header
-            \li  Bazaar
-            \li  CVS
-            \li  Git
-            \li  Mercurial
-            \li  Perforce
-            \li  Subversion
-        \row
-            \li  Add
-            \li
-            \li  Alt+C, Alt+A
-            \li  Alt+G, Alt+A
-            \li
-            \li  Alt+P, Alt+A
-            \li  Alt+S, Alt+A
-        \row
-            \li  Commit/Submit
-            \li  Alt+Z, Alt+C
-            \li  Alt+C, Alt+C
-            \li  Alt+G, Alt+C
-            \li  Alt+G, Alt+C
-            \li  Alt+P, Alt+S
-            \li  Alt+S, Alt+C
-        \row
-            \li  Diff
-            \li  Alt+Z, Alt+D
-            \li  Alt+C, Alt+D
-            \li  Alt+G, Alt+D
-            \li  Alt+G, Alt+D
-            \li
-            \li  Alt+S, Alt+D
-        \row
-            \li  Diff project or repository
-            \li
-            \li
-            \li  Alt+G, Alt+Shift+D
-            \li
-            \li  Alt+P, Alt+D
-            \li
-        \row
-            \li  Blame/Annotate
-            \li
-            \li
-            \li  Alt+G, Alt+B
-            \li
-            \li
-            \li
-        \row
-            \li  Log/Filelog
-            \li  Alt+Z, Alt+L
-            \li
-            \li  Alt+G, Alt+L
-            \li  Alt+G, Alt+L
-            \li  Alt+P, Alt+F
-            \li
-        \row
-            \li  Log repository
-            \li
-            \li
-            \li  Alt+G, Alt+K
-            \li
-            \li
-            \li
-        \row
-            \li  Status
-            \li  Alt+Z, Alt+S
-            \li
-            \li
-            \li  Alt+G, Alt+S
-            \li
-            \li
-        \row
-            \li  Undo changes/Revert
-            \li
-            \li
-            \li  Alt+G, Alt+U
-            \li
-            \li  Alt+P, Alt+R
-            \li
-        \row
-            \li  Edit
-            \li
-            \li
-            \li
-            \li
-            \li  Alt+P, Alt+E
-            \li
-        \row
-            \li  Opened
-            \li
-            \li
-            \li
-            \li
-            \li  Alt+P, Alt+O
-            \li
-    \endtable
 
     \sa {Assign keyboard shortcuts}, {Find keyboard shortcuts},
     {Import and export keyboard shortcuts}, {Enable and disable plugins}
