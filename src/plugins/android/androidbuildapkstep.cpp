@@ -6,7 +6,6 @@
 #include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidcreatekeystorecertificate.h"
-#include "androidextralibrarylistmodel.h"
 #include "androidqtversion.h"
 #include "androidsdkmanager.h"
 #include "androidtr.h"
@@ -65,6 +64,128 @@ using namespace std::chrono_literals;
 namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(buildapkstepLog, "qtc.android.build.androidbuildapkstep", QtWarningMsg)
+
+class LibraryListModel : public QAbstractItemModel
+{
+    Q_OBJECT
+
+public:
+    LibraryListModel(ProjectExplorer::BuildSystem *buildSystem, QObject *parent);
+
+    QModelIndex index(int row, int column, const QModelIndex &) const override
+    { return createIndex(row, column); }
+    QModelIndex parent(const QModelIndex &) const override { return {};  }
+    int rowCount(const QModelIndex &) const override { return m_entries.size(); }
+    int columnCount(const QModelIndex &) const override { return 1; }
+    QVariant data(const QModelIndex &index, int role) const override;
+
+    void removeEntries(QModelIndexList list);
+    void addEntries(const QStringList &list);
+
+signals:
+    void enabledChanged(bool);
+
+private:
+    void updateModel();
+
+    ProjectExplorer::BuildSystem *m_buildSystem;
+    QStringList m_entries;
+};
+
+LibraryListModel::LibraryListModel(BuildSystem *buildSystem, QObject *parent)
+    : QAbstractItemModel(parent)
+    , m_buildSystem(buildSystem)
+{
+    updateModel();
+
+    connect(buildSystem, &BuildSystem::parsingStarted, this, &LibraryListModel::updateModel);
+    connect(buildSystem, &BuildSystem::parsingFinished, this, &LibraryListModel::updateModel);
+    // Causes target()->activeBuildKey() result and consequently the node data
+    // extracted below to change.
+    connect(buildSystem->target(), &Target::activeRunConfigurationChanged,
+            this, &LibraryListModel::updateModel);
+}
+
+QVariant LibraryListModel::data(const QModelIndex &index, int role) const
+{
+    QTC_ASSERT(index.row() >= 0 && index.row() < m_entries.size(), return {});
+    if (role == Qt::DisplayRole)
+        return QDir::cleanPath(m_entries.at(index.row()));
+    return {};
+}
+
+void LibraryListModel::addEntries(const QStringList &list)
+{
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    QTC_ASSERT(node, return);
+
+    beginInsertRows(QModelIndex(), m_entries.size(), m_entries.size() + list.size());
+
+    const QDir dir = node->filePath().toFileInfo().absoluteDir();
+    for (const QString &path : list)
+        m_entries += "$$PWD/" + dir.relativeFilePath(path);
+
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+    endInsertRows();
+}
+
+static bool greaterModelIndexByRow(const QModelIndex &a, const QModelIndex &b)
+{
+    return a.row() > b.row();
+}
+
+void LibraryListModel::removeEntries(QModelIndexList list)
+{
+    if (list.isEmpty())
+        return;
+
+    std::sort(list.begin(), list.end(), greaterModelIndexByRow);
+
+    int i = 0;
+    while (i < list.size()) {
+        int lastRow = list.at(i++).row();
+        int firstRow = lastRow;
+        while (i < list.size() && firstRow - list.at(i).row()  <= 1)
+            firstRow = list.at(i++).row();
+
+        beginRemoveRows(QModelIndex(), firstRow, lastRow);
+        int count = lastRow - firstRow + 1;
+        while (count-- > 0)
+            m_entries.removeAt(firstRow);
+        endRemoveRows();
+    }
+
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    m_buildSystem->setExtraData(buildKey, Constants::AndroidExtraLibs, m_entries);
+}
+
+void LibraryListModel::updateModel()
+{
+    const QString buildKey = m_buildSystem->target()->activeBuildKey();
+    const ProjectNode *node = m_buildSystem->target()->project()->findNodeForBuildKey(buildKey);
+    if (!node)
+        return;
+
+    if (node->parseInProgress()) {
+        emit enabledChanged(false);
+        return;
+    }
+
+    bool enabled;
+    beginResetModel();
+    if (node->validParse()) {
+        m_entries = node->data(Constants::AndroidExtraLibs).toStringList();
+        enabled = true;
+    } else {
+        // parsing error
+        m_entries.clear();
+        enabled = false;
+    }
+    endResetModel();
+
+    emit enabledChanged(enabled);
+}
 
 const char KeystoreLocationKey[] = "KeystoreLocation";
 const char BuildTargetSdkKey[] = "BuildTargetSdk";
@@ -319,8 +440,8 @@ AndroidBuildApkWidget::AndroidBuildApkWidget(AndroidBuildApkStep *step)
     auto additionalLibrariesGroup = new QGroupBox(Tr::tr("Additional Libraries"));
     additionalLibrariesGroup->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
 
-    auto libsModel = new AndroidExtraLibraryListModel(m_step->buildSystem(), this);
-    connect(libsModel, &AndroidExtraLibraryListModel::enabledChanged, this,
+    auto libsModel = new LibraryListModel(m_step->buildSystem(), this);
+    connect(libsModel, &LibraryListModel::enabledChanged, this,
             [this, additionalLibrariesGroup](const bool enabled) {
                 additionalLibrariesGroup->setEnabled(enabled);
                 m_openSslCheckBox->setChecked(isOpenSslLibsIncluded());
@@ -1107,7 +1228,6 @@ QString PasswordInputDialog::getPassword(Context context, std::function<bool (co
     return isAccepted ? dlg.inputEdit->text() : QString();
 }
 
-
 // AndroidBuildApkStepFactory
 
 class AndroidBuildApkStepFactory final : public BuildStepFactory
@@ -1129,3 +1249,5 @@ void setupAndroidBuildApkStep()
 }
 
 } // Android::Internal
+
+#include "androidbuildapkstep.moc"
