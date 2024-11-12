@@ -7,8 +7,6 @@
 
 namespace Android::Internal {
 
-const char avdManufacturerError[] = "no longer exists as a device";
-
 struct ParsedAvdList
 {
     AndroidDeviceInfoList avdList;
