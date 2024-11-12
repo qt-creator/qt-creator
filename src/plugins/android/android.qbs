@@ -51,8 +51,6 @@ QtcPlugin {
         "androidsdkmanager.h",
         "androidsdkmanagerdialog.cpp",
         "androidsdkmanagerdialog.h",
-        "androidsdkmodel.cpp",
-        "androidsdkmodel.h",
         "androidsdkpackage.cpp",
         "androidsdkpackage.h",
         "androidsettingswidget.cpp",
