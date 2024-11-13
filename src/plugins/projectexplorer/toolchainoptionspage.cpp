@@ -571,6 +571,7 @@ void ToolChainOptionsWidget::apply()
         removedTcs << Utils::transform(notRegistered, &Toolchain::displayName);
     }
     for (ExtendedToolchainTreeItem * const item : std::as_const(m_toAddList)) {
+        m_model.takeItem(item);
         item->bundle->deleteToolchains();
         delete item;
     }
