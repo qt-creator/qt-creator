@@ -141,6 +141,12 @@
 
     \generatelist creator-how-to-remote-linux
 
+    \section2 SDKs
+
+    Manage SDKs for application development for different platforms.
+
+    \generatelist creator-how-to-sdks
+
     \section2 VxWorks
 
     Build \l {Qt for VxWorks}, and create VxWorks build and run kits.

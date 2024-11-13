@@ -130,6 +130,14 @@
     \title Android Application Fundamentals
 */
 /*!
+    \externalpage https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/downloads
+    \title Latest Windows App SDK downloads
+*/
+/*!
+    \externalpage https://www.nuget.org/downloads
+    \title Available NuGet Distribution Versions
+*/
+/*!
     \externalpage https://doc.qt.io/qt/qtquicktest-index.html#executing-c-before-qml-tests
     \title Executing C++ Before QML Tests
 */
