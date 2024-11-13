@@ -39,7 +39,7 @@ public:
     ProjectExplorer::FileTransferInterface *createFileTransferInterface(
             const ProjectExplorer::FileTransferSetupData &setup) const override;
 
-    class LinuxDevicePrivate *connectionAccess() const;
+    class LinuxDeviceAccess *connectionAccess() const;
     void checkOsType() override;
 
     DeviceState deviceState() const override;
@@ -50,10 +50,6 @@ public:
 
 protected:
     LinuxDevice();
-
-    Utils::BoolAspect disconnected{this};
-
-    void _setOsType(Utils::OsType osType);
 
     class LinuxDevicePrivate *d;
     friend class LinuxDevicePrivate;
