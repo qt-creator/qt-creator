@@ -122,7 +122,7 @@ function EmbeddedWidget:onShouldClose(fn) end
 
 ---Embeds a widget at the specified cursor position in the text editor.
 ---@param widget Widget|Layout The widget to be added as a floating widget.
----@param position integer The position in the document where the widget should appear.
+---@param position integer|Position The position in the document where the widget should appear.
 ---@return EmbeddedWidget interface An interface to control the floating widget.
 function TextEditor:addEmbeddedWidget(widget, position) end
 

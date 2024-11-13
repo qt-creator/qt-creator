@@ -47,12 +47,20 @@ TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDoc
 }
 
 std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
-    BaseTextEditor *editor, QWidget *widget, int cursorPosition)
+    BaseTextEditor *editor, QWidget *widget, std::variant<int, Position> cursorPosition)
 {
+    if (!editor->textDocument() || !editor->textDocument()->document())
+        throw sol::error("No text document set");
+
     widget->setParent(editor->editorWidget()->viewport());
     TextEditorWidget *editorWidget = editor->editorWidget();
-    std::unique_ptr<EmbeddedWidgetInterface> embed
-        = editorWidget->insertWidget(widget, cursorPosition);
+
+    int pos = cursorPosition.index() == 0
+                  ? std::get<int>(cursorPosition)
+                  : std::get<Position>(cursorPosition)
+                        .positionInDocument(editor->textDocument()->document());
+
+    std::unique_ptr<EmbeddedWidgetInterface> embed = editorWidget->insertWidget(widget, pos);
     return embed;
 }
 } // namespace
@@ -266,7 +274,9 @@ void setupTextEditorModule()
                 return textEditor->textDocument();
             },
             "addEmbeddedWidget",
-            [](const TextEditorPtr &textEditor, LayoutOrWidget widget, int position) {
+            [](const TextEditorPtr &textEditor,
+               LayoutOrWidget widget,
+               std::variant<int, Position> position) {
                 QTC_ASSERT(textEditor, throw sol::error("TextEditor is not valid"));
                 return addEmbeddedWidget(textEditor, toWidget(widget), position);
             },
