@@ -9,6 +9,7 @@
 
 #include <languageclient/client.h>
 #include <languageclient/languageclientinterface.h>
+#include <languageclient/languageclientsettings.h>
 #include <languageclient/languageclientutils.h>
 
 #include <projectexplorer/kitaspects.h>
@@ -34,6 +35,26 @@ using namespace Utils;
 constexpr char languageServerKey[] = "languageServer";
 
 namespace Android::Internal {
+
+class JLSSettings final : public LanguageClient::StdIOSettings
+{
+public:
+    JLSSettings();
+
+    bool applyFromSettingsWidget(QWidget *widget) final;
+    QWidget *createSettingsWidget(QWidget *parent) const final;
+    bool isValid() const final;
+    void toMap(Store &map) const final;
+    void fromMap(const Store &map) final;
+    LanguageClient::BaseSettings *copy() const final;
+    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
+    LanguageClient::BaseClientInterface *createInterface(Project *project) const final;
+
+    FilePath m_languageServer;
+
+private:
+    JLSSettings(const JLSSettings &other) = default;
+};
 
 class JLSSettingsWidget : public QWidget
 {
@@ -164,7 +185,7 @@ private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
 };
 
-LanguageClient::BaseClientInterface *JLSSettings::createInterface(ProjectExplorer::Project *) const
+LanguageClient::BaseClientInterface *JLSSettings::createInterface(Project *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
@@ -335,6 +356,13 @@ void JLSClient::updateTarget(Target *target)
 LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInterface *interface) const
 {
     return new JLSClient(interface);
+}
+
+void setupJavaLanguageServer()
+{
+    LanguageClient::LanguageClientSettings::registerClientType(
+        {Android::Constants::JLS_SETTINGS_ID, Tr::tr("Java Language Server"),
+         [] { return new JLSSettings; }});
 }
 
 } // namespace Android::Internal

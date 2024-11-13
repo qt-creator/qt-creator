@@ -3,29 +3,8 @@
 
 #pragma once
 
-#include <languageclient/languageclientsettings.h>
-
 namespace Android::Internal {
 
-class JLSSettings final : public LanguageClient::StdIOSettings
-{
-public:
-    JLSSettings();
-
-    bool applyFromSettingsWidget(QWidget *widget) final;
-    QWidget *createSettingsWidget(QWidget *parent) const final;
-    bool isValid() const final;
-    void toMap(Utils::Store &map) const final;
-    void fromMap(const Utils::Store &map) final;
-    LanguageClient::BaseSettings *copy() const final;
-    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
-    LanguageClient::BaseClientInterface *createInterface(
-        ProjectExplorer::Project *project) const final;
-
-    Utils::FilePath m_languageServer;
-
-private:
-    JLSSettings(const JLSSettings &other) = default;
-};
+void setupJavaLanguageServer();
 
 } // namespace Android::Internal

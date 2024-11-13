@@ -33,8 +33,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <languageclient/languageclientsettings.h>
-
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -111,10 +109,7 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         connect(KitManager::instance(), &KitManager::kitsLoaded, this, &AndroidPlugin::kitsRestored,
                 Qt::SingleShotConnection);
 
-        LanguageClient::LanguageClientSettings::registerClientType(
-            {Android::Constants::JLS_SETTINGS_ID,
-             Tr::tr("Java Language Server"),
-             [] { return new JLSSettings; }});
+        setupJavaLanguageServer();
 
 #ifdef WITH_TESTS
         addTestCreator(createAndroidSdkManagerTest);
