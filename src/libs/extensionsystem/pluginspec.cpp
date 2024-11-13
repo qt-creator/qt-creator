@@ -497,6 +497,22 @@ bool PluginSpec::isForceDisabled() const
     return d->forceDisabled;
 }
 
+bool PluginSpec::isEffectivelySoftloadable() const
+{
+    if (state() == Running)
+        return true;
+
+    if (!d->softLoadable)
+        return false;
+
+    if (state() < PluginSpec::Resolved)
+        return false; // We won't know yet.
+
+    return !Utils::anyOf(dependencySpecs(), [](PluginSpec *dependency) {
+        return !dependency->isEffectivelySoftloadable();
+    });
+}
+
 /*!
     Returns whether the plugin is allowed to be loaded during runtime
     without a restart.

@@ -84,7 +84,7 @@ PluginDialog::PluginDialog()
     connect(m_view, &ExtensionSystem::PluginView::pluginsChanged,
             this, [this](const QSet<PluginSpec *> &plugins, bool enable) {
         for (PluginSpec *plugin : plugins) {
-            if (enable && plugin->isSoftLoadable()) {
+            if (enable && plugin->isEffectivelySoftloadable()) {
                 m_softLoad.insert(plugin);
             } else {
                 m_softLoad.remove(plugin); // In case it was added, harmless otherwise.
