@@ -532,6 +532,10 @@ void setupGuiModule()
             sol::property(&Widget::isVisible, &Widget::setVisible),
             "enabled",
             sol::property(&Widget::isEnabled, &Widget::setEnabled),
+            "focus",
+            sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
+            "setFocus",
+            [](Widget *self) { self->emerge()->setFocus(); },
             sol::base_classes,
             sol::bases<Object, Thing>());
 
