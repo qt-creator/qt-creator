@@ -166,6 +166,7 @@ void LspCapabilitiesWidget::setCapabilities(const Capabilities &serverCapabiliti
 {
     m_capabilitiesView->setModel(
         createJsonModel(Tr::tr("Server Capabilities"), QJsonObject(serverCapabilities.capabilities)));
+
     m_dynamicCapabilities = serverCapabilities.dynamicCapabilities;
     const QStringList &methods = m_dynamicCapabilities.registeredMethods();
     if (methods.isEmpty()) {
@@ -502,7 +503,7 @@ LspInspectorWidget::LspInspectorWidget(LspInspector *inspector)
         TabWidget {
             bindTo(&m_tabWidget),
             Tab(Tr::tr("Log"), Column { m_logWidget }),
-            Tab(Tr::tr("Capabilities"), Column {new LspCapabilitiesWidget}),
+            Tab(Tr::tr("Capabilities"), Column { m_capWidget }),
         },
         buttonBox,
     }.attachTo(this);
