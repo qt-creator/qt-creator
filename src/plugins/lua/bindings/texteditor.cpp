@@ -178,18 +178,18 @@ void setupTextEditorModule()
             "Position",
             sol::no_constructor,
             "line",
-            sol::property([](Position &pos) { return pos.line; }),
+            sol::property(&Position::line, &Position::line),
             "column",
-            sol::property([](Position &pos) { return pos.column; }));
+            sol::property(&Position::column, &Position::column));
 
         // In range can't use begin/end as "end" is a reserved word for LUA scripts
         result.new_usertype<Range>(
             "Range",
             sol::no_constructor,
             "from",
-            sol::property([](Range &range) { return range.begin; }),
+            sol::property(&Range::begin, &Range::begin),
             "to",
-            sol::property([](Range &range) { return range.end; }));
+            sol::property(&Range::end, &Range::end));
 
         result.new_usertype<QTextCursor>(
             "TextCursor",
