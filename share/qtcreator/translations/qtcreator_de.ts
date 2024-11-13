@@ -12373,11 +12373,11 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Restart if running:</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufende Anwendung neu starten:</translation>
     </message>
     <message>
         <source>Restarts the application in case it is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Startet die Anwendung neu, falls sie bereits läuft.</translation>
     </message>
     <message>
         <source>Controller:</source>
@@ -12718,7 +12718,7 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Show Durations</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufzeiten anzeigen</translation>
     </message>
     <message>
         <source>Pass</source>
@@ -32134,11 +32134,11 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show log for all local branches.</source>
-        <translation type="unfinished"></translation>
+        <translation>Log für alle lokalen Branches anzeigen</translation>
     </message>
     <message>
         <source>Git Diff &quot;%1&quot;</source>
@@ -32735,11 +32735,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Show commit subject</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel des Commits anzeigen</translation>
     </message>
     <message>
         <source>Adds the commit subject directly to the annotation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt den Titel des Commits direkt zur Annotation hinzu.</translation>
     </message>
     <message>
         <source>Ignore whitespace changes</source>
@@ -32975,7 +32975,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Change #, hash, tr:id, owner:email or reviewer:email</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungs-#, Hash, tr:id, owner:email oder reviewer:email</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -33404,7 +33404,7 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash</translation>
     </message>
     <message>
         <source>Soft</source>
@@ -33692,20 +33692,20 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current Selection</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log der aktuellen Auswahl</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot; Selection</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log der Auswahl in &quot;%1</translation>
     </message>
     <message>
         <source>Meta+G,Meta+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+G,Meta+S</translation>
     </message>
     <message>
         <source>Alt+G,Alt+S</source>
-        <translation type="unfinished">Alt+G,Alt+S</translation>
+        <translation>Alt+G,Alt+S</translation>
     </message>
     <message>
         <source>Meta+G,Meta+B</source>
@@ -33785,37 +33785,37 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Current &amp;Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles &amp;Projektverzeichnis</translation>
     </message>
     <message>
         <source>Diff Project Directory</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project  Directory...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Clean des Projektverzeichnisses...</translation>
     </message>
     <message>
         <source>Clean Directory of Project &quot;%1&quot;...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Meta+G,Meta+C</source>
@@ -36336,7 +36336,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>No client selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Client ausgewählt</translation>
     </message>
     <message>
         <source>Language Client Inspector</source>
@@ -36352,7 +36352,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht senden</translation>
     </message>
     <message>
         <source>Log</source>
@@ -36553,19 +36553,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Lua</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua</translation>
     </message>
     <message>
         <source>New Script...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Skript...</translation>
     </message>
     <message>
         <source>Scripting</source>
-        <translation type="unfinished"></translation>
+        <translation>Skripten</translation>
     </message>
     <message>
         <source>Run Current Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles Skript ausführen</translation>
     </message>
     <message>
         <source>Failed to load plugin %1: %2</source>
@@ -36573,19 +36573,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Run script &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript &quot;%1&quot; ausführen</translation>
     </message>
     <message>
         <source>Run</source>
-        <translation type="unfinished">Ausführen</translation>
+        <translation>Ausführen</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Failed to read script &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Lesen des Skripts &quot;%1&quot; ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Cannot prepare extension setup: %1</source>
@@ -36601,11 +36601,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Evaluate simple Lua statements.&lt;br&gt;Literal &apos;}&apos; characters must be escaped as &quot;\}&quot;, &apos;\&apos; characters must be escaped as &quot;\\&quot;, &apos;#&apos; characters must be escaped as &quot;\#&quot;, and &quot;%{&quot; must be escaped as &quot;%\{&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfache Lua-Ausdrücke auswerten.&lt;br&gt;&apos;}&apos;-Zeichen müssen als &quot;\}&quot; maskiert werden, &apos;\&apos;-Zeichen müssen als &quot;\\&quot; maskiert werden, &apos;#&apos;-Zeichen müssen als &quot;\#&quot; maskiert werden, und &quot;%{&quot; muss als &quot;%\{&quot; maskiert werden.</translation>
     </message>
     <message>
         <source>No Lua statement to evaluate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein auszuwertender Lua-Ausdruck</translation>
     </message>
 </context>
 <context>
