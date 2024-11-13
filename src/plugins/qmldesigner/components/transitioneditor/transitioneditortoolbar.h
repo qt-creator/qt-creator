@@ -41,12 +41,14 @@ public:
 
     void setBlockReflection(bool block);
     void setCurrentTransition(const ModelNode &transition);
+    void setTransitions(const QList<ModelNode> &transitions);
     void setDuration(qreal frame);
     void setScaleFactor(int factor);
 
     void setActionEnabled(const QString &name, bool enabled);
 
-    void updateComboBox(const ModelNode &root);
+    void updateComboBox(const QList<ModelNode> &transitions);
+
 protected:
     void resizeEvent(QResizeEvent *event) override;
 

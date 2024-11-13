@@ -16,6 +16,8 @@ class TransitionEditorView : public AbstractView
     Q_OBJECT
 
 public:
+    enum ShowWarning { showWarning, dotnotShowWarning };
+
     explicit TransitionEditorView(ExternalDependenciesInterface &externalDependencies);
     ~TransitionEditorView() override;
     //Abstract View
@@ -59,6 +61,9 @@ public:
 
     ModelNode addNewTransition();
 
+    ModelNode addNewTransition(const ModelNode &stateGroup, ShowWarning warning = showWarning);
+    void resetTransitionToStateGroup(const ModelNode &transition, const ModelNode &stateGroup);
+
     void openSettingsDialog();
 
     QList<ModelNode> allTransitions() const;
@@ -67,6 +72,8 @@ public:
 
 private:
     TransitionEditorWidget *createWidget();
+    void showWarningNoStates();
+    void showWarningNoProperties();
 
     TransitionEditorWidget *m_transitionEditorWidget = nullptr;
 };
