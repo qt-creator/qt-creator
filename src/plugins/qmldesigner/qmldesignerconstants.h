@@ -129,6 +129,7 @@ inline constexpr char EVENT_MATERIALBROWSER_TIME[] = "materialBrowser";
 inline constexpr char EVENT_CONTENTLIBRARY_TIME[] = "contentLibrary";
 inline constexpr char EVENT_INSIGHT_TIME[] = "insight";
 inline constexpr char EVENT_MODELEDITOR_TIME[] = "modelEditor";
+inline constexpr char EVENT_NODEGRAPHEDITOR_TIME[] = "nodeGraphEditor";
 inline constexpr char EVENT_TOOLBAR_MODE_CHANGE[] = "ToolBarTriggerModeChange";
 inline constexpr char EVENT_TOOLBAR_PROJECT_SETTINGS[] = "ToolBarTriggerProjectSettings";
 inline constexpr char EVENT_TOOLBAR_RUN_PROJECT[] = "ToolBarRunProject";

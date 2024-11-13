@@ -23,6 +23,7 @@
 #include <materialeditorview.h>
 #include <model/auxiliarypropertystorageview.h>
 #include <navigatorview.h>
+#include <nodegrapheditorview.h>
 #include <nodeinstanceview.h>
 #include <propertyeditorview.h>
 #include <qmldesignerplugin.h>
@@ -71,6 +72,7 @@ public:
         , assetsLibraryView{imageCache, externalDependencies}
         // , itemLibraryView(imageCache, externalDependencies)
         , navigatorView{externalDependencies}
+        , nodeGraphEditorView{externalDependencies}
         , propertyEditorView(imageCache, externalDependencies)
 #ifndef QTC_USE_QML_DESIGNER_LITE
         , materialEditorView{imageCache, externalDependencies}
@@ -102,6 +104,7 @@ public:
     AssetsLibraryView assetsLibraryView;
     // ItemLibraryView itemLibraryView;
     NavigatorView navigatorView;
+    NodeGraphEditorView nodeGraphEditorView;
     PropertyEditorView propertyEditorView;
 #ifndef QTC_USE_QML_DESIGNER_LITE
     MaterialEditorView materialEditorView;
@@ -234,6 +237,7 @@ QList<AbstractView *> ViewManager::standardViews() const
                                   &d->assetsLibraryView,
                                   // &d->itemLibraryView,
                                   &d->navigatorView,
+                                  &d->nodeGraphEditorView,
                                   &d->propertyEditorView,
                                   &d->materialEditorView,
                                   &d->materialBrowserView,
@@ -463,6 +467,7 @@ QList<WidgetInfo> ViewManager::widgetInfos() const
     widgetInfoList.append(d->navigatorView.widgetInfo());
     widgetInfoList.append(d->propertyEditorView.widgetInfo());
 #ifndef QTC_USE_QML_DESIGNER_LITE
+    widgetInfoList.append(d->nodeGraphEditorView.widgetInfo());
     widgetInfoList.append(d->materialEditorView.widgetInfo());
     widgetInfoList.append(d->materialBrowserView.widgetInfo());
     widgetInfoList.append(d->textureEditorView.widgetInfo());

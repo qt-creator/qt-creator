@@ -73,6 +73,7 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}/components/materialeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/textureeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/navigator
+    ${CMAKE_CURRENT_LIST_DIR}/components/nodegrapheditor
     ${CMAKE_CURRENT_LIST_DIR}/components/propertyeditor
     ${CMAKE_CURRENT_LIST_DIR}/components/stateseditor
     ${CMAKE_CURRENT_LIST_DIR}/components/texteditor
@@ -364,6 +365,15 @@ extend_qtc_plugin(QmlDesigner
     assetslibrarywidget.cpp assetslibrarywidget.h
     assetslibrarymodel.cpp assetslibrarymodel.h
     assetslibraryiconprovider.cpp assetslibraryiconprovider.h
+)
+
+extend_qtc_plugin(QmlDesigner
+  SOURCES_PREFIX components/nodegrapheditor
+  SOURCES
+    nodegrapheditorimageprovider.cpp nodegrapheditorimageprovider.h
+    nodegrapheditormodel.cpp nodegrapheditormodel.h
+    nodegrapheditorview.cpp nodegrapheditorview.h
+    nodegrapheditorwidget.cpp nodegrapheditorwidget.h
 )
 
 extend_qtc_plugin(QmlDesigner
