@@ -406,6 +406,7 @@ private:
                                     QString msgBoxText, const QString &buttonName,
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
+    void setupTimer();
     mutable Utils::FilePath m_gitVersionForBinary;
     mutable QVersionNumber m_cachedGitVersion;
     mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
