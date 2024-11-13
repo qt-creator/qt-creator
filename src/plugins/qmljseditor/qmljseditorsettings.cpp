@@ -13,6 +13,7 @@
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/languageclientsettings.h>
 
+#include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/projectsettingswidget.h>
@@ -41,6 +42,7 @@
 #include <QLineEdit>
 #include <QLoggingCategory>
 #include <QMenu>
+#include <QPushButton>
 #include <QTextStream>
 #include <QTreeView>
 
@@ -259,6 +261,7 @@ public:
         analyzerMessagesView->setContextMenuPolicy(Qt::CustomContextMenu);
         connect(analyzerMessagesView, &QTreeView::customContextMenuRequested,
                 this, &QmlJsEditingSettingsPageWidget::showContextMenu);
+
         using namespace Layouting;
         // clang-format off
         QWidget *formattingGroup = nullptr;
@@ -290,9 +293,15 @@ public:
                     Row { s.uiQmlOpenMode, st }
                 },
             },
-            Group{
+            Group {
                 title(Tr::tr("QML Language Server")),
-                // TODO: link to new settings
+                Row {
+                    PushButton {
+                        text(Tr::tr("Open Language Server preferences...")),
+                        onClicked(this, [] { Core::ICore::showOptionsDialog(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PAGE); })
+                    },
+                    st
+                },
             },
             Group {
                 title(Tr::tr("Static Analyzer")),
@@ -375,77 +384,33 @@ QmlJsEditingSettingsPage::QmlJsEditingSettingsPage()
     setSettingsProvider([] { return &settings(); });
 }
 
-ProjectSettings::ProjectSettings(Project *project)
-{
-    setAutoApply(true);
-
-    const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
-
-    useQmlls.setSettingsKey(group, USE_QMLLS);
-    useQmlls.setDefaultValue(true);
-    useQmlls.setLabelText(Tr::tr("Turn on"));
-    useQmlls.setToolTip(Tr::tr("Enable QML Language Server on this project."));
-
-    useGlobalSettings.setSettingsKey(group, USE_GLOBAL_SETTINGS);
-    useGlobalSettings.setDefaultValue(true);
-
-    Store map = storeFromVariant(project->namedSettings(SETTINGS_KEY_MAIN));
-    fromMap(map);
-
-    useQmlls.addOnChanged(this, [this, project] { save(project); });
-    useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
-}
-
-void ProjectSettings::save(Project *project)
-{
-    Store map;
-    toMap(map);
-    project->setNamedSettings(SETTINGS_KEY_MAIN, variantFromStore(map));
-
-    // TODO: this does not do anything for now. Either force re-apply when the functionality
-    // is available in LanguageClient (tracked in QTCREATORBUG-32015) or remove ProjectSettings
-    // class completely in favor of the LanguageClient project specific settings implementation
-    // (tracked in QTCREATORBUG-31987).
-    LanguageClientManager::applySettings();
-}
-
 class QmlJsEditingProjectSettingsWidget final : public ProjectSettingsWidget
 {
 public:
-    explicit QmlJsEditingProjectSettingsWidget(Project *project)
-        : m_settings{project}
+    explicit QmlJsEditingProjectSettingsWidget(Project *)
     {
-        setUseGlobalSettingsCheckBoxVisible(true);
+        setUseGlobalSettingsCheckBoxVisible(false);
         setGlobalSettingsId(SETTINGS_PAGE);
         setExpanding(true);
-
-        setUseGlobalSettings(m_settings.useGlobalSettings());
-
-        setEnabled(!m_settings.useGlobalSettings());
 
         using namespace Layouting;
         // clang-format off
         Column {
             Group {
                 title(Tr::tr("QML Language Server")),
-                Column {
-                    &m_settings.useQmlls,
+                Row {
+                    PushButton {
+                        text(Tr::tr("Open Language Server preferences...")),
+                        onClicked(this, [] { ProjectExplorerPlugin::activateProjectPanel(LanguageClient::Constants::LANGUAGECLIENT_SETTINGS_PANEL); })
+                    },
+                    st,
                 },
             },
             tight,
             st,
         }.attachTo(this);
         // clang-format on
-
-        connect(
-            this, &ProjectSettingsWidget::useGlobalSettingsChanged, this, [this](bool newUseGlobal) {
-                setEnabled(!newUseGlobal);
-                m_settings.useGlobalSettings.setValue(newUseGlobal);
-            });
     }
-
-private:
-    ProjectSettings m_settings;
 };
 
 class QmlJsEditingProjectPanelFactory : public ProjectPanelFactory

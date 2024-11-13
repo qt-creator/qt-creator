@@ -1344,6 +1344,7 @@ public:
     {
         setPriority(35);
         setDisplayName(Tr::tr("Language Server"));
+        setId(Constants::LANGUAGECLIENT_SETTINGS_PANEL);
         setCreateWidgetFunction([](Project *project) {
             return new LanguageClientProjectSettingsWidget(project);
         });

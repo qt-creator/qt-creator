@@ -44,17 +44,6 @@ public:
     QmlJsEditingSettingsPage();
 };
 
-class ProjectSettings : public Utils::AspectContainer
-{
-public:
-    ProjectSettings(ProjectExplorer::Project *project);
-
-    Utils::BoolAspect useQmlls{this};
-    Utils::BoolAspect useGlobalSettings{this};
-
-    void save(ProjectExplorer::Project *project);
-};
-
 void setupQmlJsEditingProjectPanel();
 
 } // QmlJSEditor::Internal
