@@ -591,7 +591,7 @@ bool UnavailableDeviceFileAccess::setPermissions(const FilePath &filePath, QFile
 qint64 UnavailableDeviceFileAccess::fileSize(const FilePath &filePath) const
 {
     Q_UNUSED(filePath)
-    return false;
+    return -1;
 }
 
 qint64 UnavailableDeviceFileAccess::bytesAvailable(const FilePath &filePath) const
