@@ -2,25 +2,32 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "effectshaderscodeeditor.h"
+
 #include "effectcodeeditorwidget.h"
 #include "effectcomposeruniformsmodel.h"
+#include "effectcomposeruniformstablemodel.h"
+#include "effectcomposerwidget.h"
+#include "effectutils.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
+
+#include <coreplugin/icore.h>
 
 #include <componentcore/designeractionmanager.h>
 #include <componentcore/designericons.h>
 #include <componentcore/theme.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
+#include <qmldesignerbase/studio/studioquickwidget.h>
+
 #include <qmljseditor/qmljseditor.h>
 #include <qmljseditor/qmljseditordocument.h>
 
-#include <qmldesignerplugin.h>
-
-#include <QPlainTextEdit>
 #include <QApplication>
+#include <QPlainTextEdit>
 #include <QSettings>
+#include <QSplitter>
 #include <QTabWidget>
 #include <QToolBar>
 #include <QVBoxLayout>
@@ -30,11 +37,22 @@ namespace {
 using IconId = QmlDesigner::DesignerIcons::IconId;
 
 inline constexpr char EFFECTCOMPOSER_LIVE_UPDATE_KEY[] = "EffectComposer/CodeEditor/LiveUpdate";
+inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER[]
+    = "QQuickWidgetEffectComposerCodeEditorHeader";
 
 QIcon toolbarIcon(IconId iconId)
 {
     return QmlDesigner::DesignerActionManager::instance().toolbarIcon(iconId);
 };
+
+QString propertyEditorResourcesPath()
+{
+#ifdef SHARE_QML_PATH
+    if (Utils::qtcEnvironmentVariableIsSet("LOAD_QML_FROM_SOURCE"))
+        return QLatin1String(SHARE_QML_PATH) + "/propertyEditorQmlSources";
+#endif
+    return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
+}
 
 } // namespace
 
@@ -76,6 +94,7 @@ EffectShadersCodeEditor::~EffectShadersCodeEditor()
 void EffectShadersCodeEditor::showWidget()
 {
     readAndApplyLiveUpdateSettings();
+    reloadQml();
     show();
     raise();
     setOpened(true);
@@ -154,6 +173,15 @@ void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsModel *unif
     };
     m_fragmentEditor->setUniformsCallback(uniformNames);
     m_vertexEditor->setUniformsCallback(uniformNames);
+
+    if (m_headerWidget && uniforms) {
+        m_uniformsTableModel
+            = Utils::makeUniqueObjectLatePtr<EffectComposerUniformsTableModel>(uniforms, this);
+        EffectComposerUniformsTableModel *uniformsTable = m_uniformsTableModel.get();
+
+        m_headerWidget->rootContext()
+            ->setContextProperty("uniformsTableModel", QVariant::fromValue(uniformsTable));
+    }
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
@@ -183,14 +211,24 @@ EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
 void EffectShadersCodeEditor::setupUIComponents()
 {
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
+    QSplitter *splitter = new QSplitter(this);
     QTabWidget *tabWidget = new QTabWidget(this);
+
+    splitter->setOrientation(Qt::Vertical);
+
+    createHeader();
 
     tabWidget->addTab(m_fragmentEditor, tr("Fragment Shader"));
     tabWidget->addTab(m_vertexEditor, tr("Vertex Shader"));
 
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     verticalLayout->addWidget(createToolbar());
-    verticalLayout->addWidget(tabWidget);
+    verticalLayout->addWidget(splitter);
+    splitter->addWidget(m_headerWidget.get());
+    splitter->addWidget(tabWidget);
+
+    splitter->setCollapsible(0, false);
+    splitter->setCollapsible(1, false);
 
     connect(this, &EffectShadersCodeEditor::openedChanged, tabWidget, [this, tabWidget](bool opened) {
         if (!opened)
@@ -270,6 +308,25 @@ QToolBar *EffectShadersCodeEditor::createToolbar()
     toolbar->addAction(applyAction);
 
     return toolbar;
+}
+
+void EffectShadersCodeEditor::createHeader()
+{
+    m_headerWidget = new StudioQuickWidget(this);
+    m_headerWidget->quickWidget()->setObjectName(OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER);
+    m_headerWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_headerWidget->engine());
+    m_headerWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_headerWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
+    m_headerWidget->setClearColor(QmlDesigner::Theme::getColor(
+        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+}
+
+void EffectShadersCodeEditor::reloadQml()
+{
+    const QString headerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorHeader.qml";
+    QTC_ASSERT(QFileInfo::exists(headerQmlPath), return);
+    m_headerWidget->setSource(QUrl::fromLocalFile(headerQmlPath));
 }
 
 } // namespace EffectComposer

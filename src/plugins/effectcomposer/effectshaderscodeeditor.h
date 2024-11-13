@@ -5,13 +5,18 @@
 
 #include <texteditor/texteditor.h>
 
+#include <utils/uniqueobjectptr.h>
+
 QT_FORWARD_DECLARE_CLASS(QSettings)
 QT_FORWARD_DECLARE_CLASS(QToolBar)
+
+class StudioQuickWidget;
 
 namespace EffectComposer {
 
 class EffectCodeEditorWidget;
 class EffectComposerUniformsModel;
+class EffectComposerUniformsTableModel;
 
 class EffectShadersCodeEditor : public QWidget
 {
@@ -56,10 +61,14 @@ private:
     void writeLiveUpdateSettings();
     void readAndApplyLiveUpdateSettings();
     QToolBar *createToolbar();
+    void createHeader();
+    void reloadQml();
 
     QSettings *m_settings = nullptr;
     QPointer<EffectCodeEditorWidget> m_fragmentEditor;
     QPointer<EffectCodeEditorWidget> m_vertexEditor;
+    QPointer<StudioQuickWidget> m_headerWidget;
+    Utils::UniqueObjectLatePtr<EffectComposerUniformsTableModel> m_uniformsTableModel;
 
     bool m_liveUpdate = false;
     bool m_opened = false;
