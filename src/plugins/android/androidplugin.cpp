@@ -25,10 +25,6 @@
 #include "javaeditor.h"
 #include "javalanguageserver.h"
 
-#ifdef HAVE_QBS
-#  include "androidqbspropertyprovider.h"
-#endif
-
 #include <coreplugin/icore.h>
 
 #include <extensionsystem/iplugin.h>
