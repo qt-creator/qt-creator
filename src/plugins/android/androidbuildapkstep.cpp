@@ -668,31 +668,23 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
     });
 }
 
-enum PackageFormat { Apk, Aab };
-
-static QString packageSubPath(PackageFormat format, BuildConfiguration::BuildType buildType,
-                              bool sig)
+static QString packageSubPath(const AndroidBuildApkStep *step)
 {
-    const bool deb = (buildType == BuildConfiguration::Debug);
-
-    if (format == Apk) {
-        if (deb) {
-            return sig ? packageSubPath(Apk, BuildConfiguration::Release, true) // Intentional
-                       : "apk/debug/android-build-debug.apk";
-        }
-        return QLatin1String(sig ? "apk/release/android-build-release-signed.apk"
-                                 : "apk/release/android-build-release-unsigned.apk");
+    const bool deb = (step->buildConfiguration()->buildType() == BuildConfiguration::Debug);
+    const bool sign = step->signPackage();
+    if (!step->buildAAB()) { // APK build
+        if (deb && !sign)
+            return "apk/debug/android-build-debug.apk";
+        return QLatin1String(sign ? "apk/release/android-build-release-signed.apk"
+                                  : "apk/release/android-build-release-unsigned.apk");
     }
     return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
                              : "bundle/release/android-build-release.aab");
 }
 
-static FilePath packagePath(const AndroidBuildApkStep *buildApkStep)
+static FilePath packagePath(const AndroidBuildApkStep *step)
 {
-    const QString subPath = packageSubPath(buildApkStep->buildAAB() ? Aab : Apk,
-                                           buildApkStep->buildConfiguration()->buildType(),
-                                           buildApkStep->signPackage());
-    return androidBuildDirectory(buildApkStep->target()) / "build/outputs" / subPath;
+    return androidBuildDirectory(step->target()) / "build/outputs" / packageSubPath(step);
 }
 
 bool AndroidBuildApkStep::init()
