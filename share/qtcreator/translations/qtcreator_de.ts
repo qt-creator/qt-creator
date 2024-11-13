@@ -45873,12 +45873,13 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Qbs Profile Additions</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergänzungen zum Qbs-Profil</translation>
     </message>
     <message>
         <source>Additional module properties to set in the Qbs profile corresponding to this kit.
 You will rarely need to do this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Moduleigenschaften, die im Qbs-Profil des entsprechenden Kits gesetzt werden sollen.
+Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Qbs files</source>
@@ -46719,7 +46720,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Starting qmake failed with the following error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten von qmake ist mit folgendem Fehler fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>The build directory should be at the same level as the source directory.</source>
@@ -47651,7 +47652,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>A when condition cannot contain an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine &quot;when&quot;-Bedingung kann kein Objekt enthalten.</translation>
     </message>
     <message>
         <source>JavaScript blocks are not supported in a UI file (.ui.qml).</source>
@@ -47703,7 +47704,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Arbitrary functions and function calls outside of a Connections object are not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Beliebige Funktionen und Funktionsaufrufe außerhalb des Connections-Objektes werden in einer UI-Datei (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -48116,7 +48117,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Enable semantic highlighting (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Semantische Hervorhebung aktivieren (experimentell)</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -48140,11 +48141,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Enable QML Language Server on this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviere QML Language Server für dieses Projekt.</translation>
     </message>
     <message>
         <source>Qt Quick</source>
-        <translation type="unfinished">Qt Quick</translation>
+        <translation>Qt Quick</translation>
     </message>
     <message>
         <source>Open .ui.qml files with:</source>
@@ -49438,7 +49439,7 @@ Sind Sie sicher?</translation>
     </message>
     <message>
         <source>Enable CMake Generator</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Generator aktivieren</translation>
     </message>
 </context>
 <context>
@@ -49884,11 +49885,11 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Not all possible target environments can be supported due to missing compilers.</source>
@@ -50895,7 +50896,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The process crashed.</source>
-        <translation type="unfinished">Der Prozess ist abgestürzt.</translation>
+        <translation>Der Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
@@ -53104,43 +53105,43 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Diff Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Project Directory Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Status of Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverzeichnis aktualisieren</translation>
     </message>
     <message>
         <source>Update Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverzeichnis von &quot;%1&quot; aktualisieren</translation>
     </message>
     <message>
         <source>Commit Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Commit Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Describe...</source>
