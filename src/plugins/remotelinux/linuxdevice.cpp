@@ -443,7 +443,6 @@ public:
     void handleReadyReadStandardOutput();
     void handleReadyReadStandardError();
 
-    void clearForStart();
     void doStart();
     CommandLine fullLocalCommandLine() const;
 
@@ -461,8 +460,6 @@ public:
 
     bool m_connecting = false;
     bool m_killed = false;
-
-    ProcessResultData m_result;
 
     QByteArray m_output;
     QByteArray m_error;
@@ -673,7 +670,6 @@ SshProcessInterfacePrivate::SshProcessInterfacePrivate(SshProcessInterface *sshI
 
 void SshProcessInterfacePrivate::start()
 {
-    clearForStart();
     m_sshParameters = m_device->sshParameters();
 
     const Id linkDeviceId = Id::fromSetting(m_device->extraData(Constants::LinkDevice));
@@ -769,11 +765,6 @@ void SshProcessInterfacePrivate::handleDisconnected(const ProcessResultData &res
 
     if (resultData.m_error != QProcess::UnknownError || m_process.state() != QProcess::NotRunning)
         emit q->done(resultData); // TODO: don't emit done() on process finished afterwards
-}
-
-void SshProcessInterfacePrivate::clearForStart()
-{
-    m_result = {};
 }
 
 void SshProcessInterfacePrivate::doStart()
