@@ -32,7 +32,6 @@ add_qtc_plugin(Android
     avddialog.cpp avddialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
     javaeditor.cpp javaeditor.h
-    javaindenter.cpp javaindenter.h
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
     keystorecertificatedialog.cpp keystorecertificatedialog.h

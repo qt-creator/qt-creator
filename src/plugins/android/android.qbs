@@ -67,8 +67,6 @@ QtcPlugin {
         "avdmanageroutputparser.h",
         "javaeditor.cpp",
         "javaeditor.h",
-        "javaindenter.cpp",
-        "javaindenter.h",
         "javalanguageserver.cpp",
         "javalanguageserver.h",
         "javaparser.cpp",
