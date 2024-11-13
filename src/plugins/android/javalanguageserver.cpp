@@ -29,6 +29,7 @@
 #include <QLineEdit>
 #include <QXmlStreamWriter>
 
+using namespace LanguageClient;
 using namespace ProjectExplorer;
 using namespace Utils;
 
@@ -36,7 +37,7 @@ constexpr char languageServerKey[] = "languageServer";
 
 namespace Android::Internal {
 
-class JLSSettings final : public LanguageClient::StdIOSettings
+class JLSSettings final : public StdIOSettings
 {
 public:
     JLSSettings();
@@ -46,9 +47,9 @@ public:
     bool isValid() const final;
     void toMap(Store &map) const final;
     void fromMap(const Store &map) final;
-    LanguageClient::BaseSettings *copy() const final;
-    LanguageClient::Client *createClient(LanguageClient::BaseClientInterface *interface) const final;
-    LanguageClient::BaseClientInterface *createInterface(Project *project) const final;
+    BaseSettings *copy() const final;
+    Client *createClient(BaseClientInterface *interface) const final;
+    BaseClientInterface *createInterface(Project *project) const final;
 
     FilePath m_languageServer;
 
@@ -169,23 +170,21 @@ void JLSSettings::fromMap(const Store &map)
     m_languageServer = FilePath::fromSettings(map[languageServerKey]);
 }
 
-LanguageClient::BaseSettings *JLSSettings::copy() const
+BaseSettings *JLSSettings::copy() const
 {
     return new JLSSettings(*this);
 }
 
-class JLSInterface : public LanguageClient::StdIOClientInterface
+class JLSInterface : public StdIOClientInterface
 {
 public:
-    JLSInterface() = default;
-
     QString workspaceDir() const { return m_workspaceDir.path().path(); }
 
 private:
     TemporaryDirectory m_workspaceDir = TemporaryDirectory("QtCreator-jls-XXXXXX");
 };
 
-LanguageClient::BaseClientInterface *JLSSettings::createInterface(Project *) const
+BaseClientInterface *JLSSettings::createInterface(Project *) const
 {
     auto interface = new JLSInterface();
     CommandLine cmd{m_executable, arguments(), CommandLine::Raw};
@@ -194,7 +193,7 @@ LanguageClient::BaseClientInterface *JLSSettings::createInterface(Project *) con
     return interface;
 }
 
-class JLSClient : public LanguageClient::Client
+class JLSClient : public Client
 {
 public:
     using Client::Client;
@@ -353,14 +352,14 @@ void JLSClient::updateTarget(Target *target)
     updateProjectFiles();
 }
 
-LanguageClient::Client *JLSSettings::createClient(LanguageClient::BaseClientInterface *interface) const
+Client *JLSSettings::createClient(BaseClientInterface *interface) const
 {
     return new JLSClient(interface);
 }
 
 void setupJavaLanguageServer()
 {
-    LanguageClient::LanguageClientSettings::registerClientType(
+    LanguageClientSettings::registerClientType(
         {Android::Constants::JLS_SETTINGS_ID, Tr::tr("Java Language Server"),
          [] { return new JLSSettings; }});
 }
