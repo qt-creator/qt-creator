@@ -346,42 +346,6 @@ FilePath buildDirectory(const Target *target)
     return {};
 }
 
-enum PackageFormat { Apk, Aab };
-
-static QString packageSubPath(PackageFormat format, BuildConfiguration::BuildType buildType,
-                              bool sig)
-{
-    const bool deb = (buildType == BuildConfiguration::Debug);
-
-    if (format == Apk) {
-        if (deb) {
-            return sig ? packageSubPath(Apk, BuildConfiguration::Release, true) // Intentional
-                       : QLatin1String("apk/debug/android-build-debug.apk");
-        }
-        return QLatin1String(sig ? "apk/release/android-build-release-signed.apk"
-                                 : "apk/release/android-build-release-unsigned.apk");
-    }
-    return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
-                             : "bundle/release/android-build-release.aab");
-}
-
-FilePath packagePath(const Target *target)
-{
-    QTC_ASSERT(target, return {});
-
-    auto bc = target->activeBuildConfiguration();
-    if (!bc)
-        return {};
-    auto buildApkStep = bc->buildSteps()->firstOfType<AndroidBuildApkStep>();
-    if (!buildApkStep)
-        return {};
-
-    const QString subPath = packageSubPath(buildApkStep->buildAAB() ? Aab : Apk,
-                                           bc->buildType(), buildApkStep->signPackage());
-
-    return androidBuildDirectory(target) / "build/outputs" / subPath;
-}
-
 Abi androidAbi2Abi(const QString &androidAbi)
 {
     if (androidAbi == ProjectExplorer::Constants::ANDROID_ABI_ARM64_V8A) {

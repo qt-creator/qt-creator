@@ -668,6 +668,33 @@ AndroidBuildApkStep::AndroidBuildApkStep(BuildStepList *parent, Utils::Id id)
     });
 }
 
+enum PackageFormat { Apk, Aab };
+
+static QString packageSubPath(PackageFormat format, BuildConfiguration::BuildType buildType,
+                              bool sig)
+{
+    const bool deb = (buildType == BuildConfiguration::Debug);
+
+    if (format == Apk) {
+        if (deb) {
+            return sig ? packageSubPath(Apk, BuildConfiguration::Release, true) // Intentional
+                       : "apk/debug/android-build-debug.apk";
+        }
+        return QLatin1String(sig ? "apk/release/android-build-release-signed.apk"
+                                 : "apk/release/android-build-release-unsigned.apk");
+    }
+    return QLatin1String(deb ? "bundle/debug/android-build-debug.aab"
+                             : "bundle/release/android-build-release.aab");
+}
+
+static FilePath packagePath(const AndroidBuildApkStep *buildApkStep)
+{
+    const QString subPath = packageSubPath(buildApkStep->buildAAB() ? Aab : Apk,
+                                           buildApkStep->buildConfiguration()->buildType(),
+                                           buildApkStep->signPackage());
+    return androidBuildDirectory(buildApkStep->target()) / "build/outputs" / subPath;
+}
+
 bool AndroidBuildApkStep::init()
 {
     if (!AbstractProcessStep::init()) {
@@ -708,7 +735,7 @@ bool AndroidBuildApkStep::init()
 
     m_openPackageLocationForRun = openPackageLocation();
     const FilePath outputDir = androidBuildDirectory(target());
-    m_packagePath = packagePath(target());
+    m_packagePath = packagePath(this);
 
     qCDebug(buildapkstepLog).noquote() << "APK or AAB path:" << m_packagePath.toUserOutput();
 

@@ -49,7 +49,6 @@ Utils::FilePath androidAppProcessDir(const ProjectExplorer::Target *target);
 Utils::FilePath buildDirectory(const ProjectExplorer::Target *target);
 Utils::FilePath manifestPath(const ProjectExplorer::Target *target);
 void setManifestPath(ProjectExplorer::Target *target, const Utils::FilePath &path);
-Utils::FilePath packagePath(const ProjectExplorer::Target *target);
 ProjectExplorer::Abi androidAbi2Abi(const QString &androidAbi);
 bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
