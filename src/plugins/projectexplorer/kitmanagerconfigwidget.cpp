@@ -143,6 +143,11 @@ QIcon KitManagerConfigWidget::displayIcon() const
     return m_modifiedKit->displayIcon();
 }
 
+void KitManagerConfigWidget::clearCachedDisplayName()
+{
+    m_cachedDisplayName.clear();
+}
+
 void KitManagerConfigWidget::setFocusToName()
 {
     m_nameEdit->selectAll();
