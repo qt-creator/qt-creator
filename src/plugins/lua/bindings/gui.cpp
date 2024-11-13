@@ -250,8 +250,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_onTextChanged<T>) {
-        sol::optional<sol::protected_function> onTextChanged
-            = children.get<sol::optional<sol::protected_function>>("onTextChanged");
+        sol::optional<sol::main_function> onTextChanged
+            = children.get<sol::optional<sol::main_function>>("onTextChanged");
         if (onTextChanged) {
             item->onTextChanged(
                 [f = *onTextChanged](const QString &text) {
@@ -262,8 +262,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
     if constexpr (has_onClicked<T>) {
-        sol::optional<sol::protected_function> onClicked
-            = children.get<sol::optional<sol::protected_function>>("onClicked");
+        sol::optional<sol::main_function> onClicked
+            = children.get<sol::optional<sol::main_function>>("onClicked");
         if (onClicked) {
             item->onClicked(
                 [f = *onClicked]() {
