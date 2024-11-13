@@ -39213,11 +39213,11 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Deploy dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment für Abhängigkeiten durchführen</translation>
     </message>
     <message>
         <source>Do not just build dependencies, but deploy them as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängigkeiten nicht nur bauen, sondern auch Deployment für sie durchführen.</translation>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
@@ -39523,11 +39523,11 @@ Außer: %2
     </message>
     <message>
         <source>Discarded excessive compile output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Übermäßige Ausgaben der Kompilierung wurden verworfen.</translation>
     </message>
     <message>
         <source>Discards compile output that continuously comes in faster than it can be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwirft Ausgaben der Kompilierung, die beständig schneller angefordert werden als sie behandelt werden können.</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
@@ -39884,7 +39884,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>VCS Log Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>VCS Log-Verzeichnis</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -40178,11 +40178,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Create Header File</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Datei erstellen</translation>
     </message>
     <message>
         <source>Create Source File</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelldatei erstellen</translation>
     </message>
     <message>
         <source>Expand</source>
@@ -40244,15 +40244,15 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The following files could not be renamed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien konnten nicht umbenannt werden: %1</translation>
     </message>
     <message>
         <source>The following files were renamed, but their project files could not be updated accordingly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien wurden umbenannt, aber ihre Projektdateien konnten nicht entsprechend aktualisiert werden: %1</translation>
     </message>
     <message>
         <source>Renaming Did Not Fully Succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Umbennenen war nicht vollständig erfolgreich</translation>
     </message>
     <message>
         <source>Open Project in &quot;%1&quot;</source>
@@ -40314,7 +40314,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>%1 Log Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Log des Verzeichnisses</translation>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
@@ -41056,7 +41056,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Not all compilers are set up correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht alle Compiler sind richtig konfiguriert.</translation>
     </message>
     <message>
         <source>This toolchain is invalid.</source>
@@ -41753,15 +41753,15 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 existiert nicht. Wenn Sie %2 selbst gebaut haben, checken Sie https://code.qt.io/cgit/qt-creator/binary-artifacts.git/ aus.</translation>
     </message>
     <message>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht gestartet werden. Weitere Informationen finden Sie in src\tools\win64interrupt\win64interrupt.c.</translation>
     </message>
     <message>
         <source>could not break the process.</source>
-        <translation type="unfinished"></translation>
+        <translation>konnte den Prozess nicht unterbrechen.</translation>
     </message>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
@@ -42222,7 +42222,7 @@ Für vollständige Anwendungen erstellen Sie stattdessen eine Qt Quick-Anwendung
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick-Anwendung, die sowohl QML-Code als auch C++-Code enthalten kann. Sie können die Anwendung bauen und auf dem Desktop, Embedded Plattformen und Mobilplattformen bereitstellen.</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick&quot;.</source>
@@ -42768,7 +42768,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Qt Creator C++ Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator C++-Plugin</translation>
     </message>
     <message>
         <source>Include QQuickItem</source>
@@ -42776,7 +42776,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>CMake for Qt 6.5 and Later</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake für Qt 6.5 und neuer</translation>
     </message>
     <message>
         <source>Qt 6.2</source>
@@ -42792,11 +42792,11 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Projekt erstellen, das in Qt Design Studio geöffnet werden kann</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthalt ein .ui.qml-Formular, dass Sie in Qt Design Studio visuell bearbeiten können.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -43480,7 +43480,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Subproject &quot;%1&quot; outside of &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterprojekt &quot;%1&quot; befindet sich außerhalb von &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Generator is not a object.</source>
@@ -43804,7 +43804,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is inside the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei befindet sich innerhalb des Build-Verzeichnisses.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
@@ -44026,19 +44026,19 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Requesting process to stop ....</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordere den Prozess zum Anhalten auf ....</translation>
     </message>
     <message>
         <source>Stopping process forcefully ....</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwinge den Stopp des Prozesses ....</translation>
     </message>
     <message>
         <source>Process unexpectedly did not finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess hat sich unerwarteterweise nicht beendet.</translation>
     </message>
     <message>
         <source>Connectivity lost?</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung verloren?</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -44401,11 +44401,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Discard excessive output</source>
-        <translation type="unfinished"></translation>
+        <translation>Übermäßige Ausgaben verwerfen</translation>
     </message>
     <message>
         <source>If this option is enabled, application output will be discarded if it continuously comes in faster than it can be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Einstellung aktiviert ist, werden Ausgaben der Anwendung verworfen, die beständig schneller angefordert werden als sie behandelt werden können.</translation>
     </message>
     <message>
         <source>Clear old output on a new run</source>
@@ -45183,11 +45183,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Clone the configuration to change it. Or, make the changes in the .qtcreator/project.json file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klonen Sie die Konfiguration, um sie zu ändern. Oder führen Sie die Änderungen in der .qtcreator/project.json-Datei durch.</translation>
     </message>
     <message>
         <source>Workspace Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace-Manager</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
@@ -45199,37 +45199,37 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>You will need at least one port for QML debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie werden mindestens einen Port für das QML-Debuggen benötigen.</translation>
     </message>
     <message>
         <source>Machine type:</source>
-        <translation type="unfinished">Gerätetyp:</translation>
+        <translation>Gerätetyp:</translation>
     </message>
     <message>
         <source>Physical Device</source>
-        <translation type="unfinished">Physisches Gerät</translation>
+        <translation>Physisches Gerät</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation type="unfinished">Freie Ports:</translation>
+        <translation>Freie Ports:</translation>
     </message>
     <message>
         <source>%1 at &quot;%2&quot;</source>
         <extracomment>toolchain &apos;name&apos; at &apos;path&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 in &quot;%2&quot;</translation>
     </message>
     <message>
         <source>&amp;Compiler path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Compiler-Pfad</translation>
     </message>
     <message>
         <source>%1 compiler path</source>
         <extracomment>%1 = programming language</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Compiler-Pfad</translation>
     </message>
     <message>
         <source>Provide manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuell bestimmen</translation>
     </message>
 </context>
 <context>
