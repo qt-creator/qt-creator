@@ -1977,6 +1977,9 @@ ModelNode Model::currentStateNode(AbstractView *view)
 
 void Model::setCurrentTimelineNode(const ModelNode &timeline)
 {
+    if (timeline.internalNode() == d->m_currentTimelineNode)
+        return;
+
     Internal::WriteLocker locker(this); // unsure about this locker
 
     d->m_currentTimelineNode = timeline.internalNode();
