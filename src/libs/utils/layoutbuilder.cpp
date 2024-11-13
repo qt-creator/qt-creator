@@ -15,6 +15,7 @@
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
 #include <QScrollArea>
@@ -1144,9 +1145,24 @@ void tight(Layout *layout)
     layout->setSpacing(0);
 }
 
+class LineEditImpl : public Utils::FancyLineEdit
+{
+public:
+    using FancyLineEdit::FancyLineEdit;
+
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        FancyLineEdit::keyPressEvent(event);
+        if (acceptReturnKeys && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return))
+            event->accept();
+    }
+
+    bool acceptReturnKeys = false;
+};
+
 LineEdit::LineEdit(std::initializer_list<I> ps)
 {
-    ptr = new Implementation;
+    ptr = new LineEditImpl;
     apply(this, ps);
 }
 
@@ -1187,6 +1203,7 @@ void LineEdit::setMinimumHeight(int height)
 
 void LineEdit::onReturnPressed(const std::function<void()> &func, QObject *guard)
 {
+    static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
     QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
 }
 
