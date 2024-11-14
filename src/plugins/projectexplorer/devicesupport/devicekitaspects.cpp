@@ -188,10 +188,8 @@ private:
 
     void addToInnerLayout(Layouting::Layout &parentItem) override
     {
-        Layouting::Layout &layout = parentItem;
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
-            layout = Layouting::Layout(new QHBoxLayout);
-            parentItem.addItem(layout);
+            Layouting::Layout layout(new QHBoxLayout);
             layout.addItem(Tr::tr("Type:"));
             embedded.first()->addToInnerLayout(layout);
             layout.addItem(Tr::tr("Device:"));
@@ -199,8 +197,9 @@ private:
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(1);
             comboBoxes().first()->setSizePolicy(p);
+            parentItem.addItem(layout);
         } else {
-            KitAspect::addToInnerLayout(layout);
+            KitAspect::addToInnerLayout(parentItem);
         }
     }
 };
