@@ -717,10 +717,13 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath,
   Returns whether the operation succeeded.
 */
 
-bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
+Result copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
-    QTC_ASSERT(srcFilePath.exists(), qDebug() << srcFilePath.toUserOutput(); return false);
-    QTC_ASSERT(srcFilePath.isSameDevice(tgtFilePath), return false);
+    if (!srcFilePath.exists())
+        return Result::Error(Tr::tr("File %1 does not exist.").arg(srcFilePath.toUserOutput()));
+
+    if (srcFilePath.needsDevice() || tgtFilePath.needsDevice())
+        return srcFilePath.copyFile(tgtFilePath);
 
     if (tgtFilePath.exists()) {
         const QDateTime srcModified = srcFilePath.lastModified();
@@ -730,16 +733,14 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
             const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
             const expected_str<QByteArray> tgtContents = srcFilePath.fileContents();
             if (srcContents && srcContents == tgtContents)
-                return true;
+                return Result::Ok;
         }
-        tgtFilePath.removeFile();
+
+        if (Result res = tgtFilePath.removeFile(); !res)
+            return res;
     }
 
-    const Result copyResult = srcFilePath.copyFile(tgtFilePath);
-
-    // TODO forward error to caller instead of assert, since IO errors can always be expected
-    QTC_ASSERT_EXPECTED(copyResult, return false);
-    return true;
+    return srcFilePath.copyFile(tgtFilePath);
 }
 
 QString FileUtils::fileSystemFriendlyName(const QString &name)

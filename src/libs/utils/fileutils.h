@@ -62,7 +62,7 @@ public:
         QString *error,
         CopyHelper helper);
 
-    static bool copyIfDifferent(const FilePath &srcFilePath,
+    static Result copyIfDifferent(const FilePath &srcFilePath,
                                 const FilePath &tgtFilePath);
     static QString fileSystemFriendlyName(const QString &name);
     static int indexOfQmakeUnfriendly(const QString &name, int startpos = 0);
