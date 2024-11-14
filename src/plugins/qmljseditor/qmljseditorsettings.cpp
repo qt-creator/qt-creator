@@ -5,7 +5,6 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
 #include "qmllsclient.h"
-#include "qmllsclientsettings.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>

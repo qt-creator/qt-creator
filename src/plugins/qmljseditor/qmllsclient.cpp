@@ -4,6 +4,7 @@
 #include "qmllsclient.h"
 
 #include "qmljseditorconstants.h"
+#include "qmljseditordocument.h"
 #include "qmljsquickfix.h"
 #include "qmllsclientsettings.h"
 
@@ -113,6 +114,22 @@ public:
         return new QmllsQuickFixAssistProcessor(client());
     }
 };
+
+void QmllsClient::activateDocument(TextEditor::TextDocument *document)
+{
+    Client::activateDocument(document);
+
+    if (auto qmljseditor = qobject_cast<QmlJSEditorDocument *>(document))
+        qmljseditor->setSourcesWithCapabilities(capabilities());
+}
+
+void QmllsClient::deactivateDocument(TextEditor::TextDocument *document)
+{
+    Client::deactivateDocument(document);
+
+    if (auto qmljseditor = qobject_cast<QmlJSEditorDocument *>(document))
+        qmljseditor->setSourcesWithCapabilities(LanguageServerProtocol::ServerCapabilities{});
+}
 
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)

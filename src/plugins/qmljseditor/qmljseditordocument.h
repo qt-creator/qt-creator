@@ -5,8 +5,9 @@
 
 #include "qmljseditor_global.h"
 
-#include <qmljstools/qmljssemanticinfo.h>
+#include <languageserverprotocol/servercapabilities.h>
 #include <texteditor/textdocument.h>
+#include <qmljstools/qmljssemanticinfo.h>
 
 #include <QTextLayout>
 
@@ -36,6 +37,8 @@ public:
 
     void setIsDesignModePreferred(bool value);
     bool isDesignModePreferred() const;
+
+    void setSourcesWithCapabilities(const LanguageServerProtocol::ServerCapabilities &cap);
 
 signals:
     void updateCodeWarnings(QmlJS::Document::Ptr doc);

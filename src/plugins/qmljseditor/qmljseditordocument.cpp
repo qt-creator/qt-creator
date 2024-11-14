@@ -831,4 +831,11 @@ void QmlJSEditorDocument::triggerPendingUpdates()
     }
 }
 
+void QmlJSEditorDocument::setSourcesWithCapabilities(
+    const LanguageServerProtocol::ServerCapabilities &cap)
+{
+    d->setSourcesWithCapabilities(cap);
+}
+
+
 } // QmlJSEditor
