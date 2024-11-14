@@ -137,6 +137,10 @@ void AddPropertyVisitor::addInMembers(QmlJS::AST::UiObjectInitializer *initializ
         newPropertyTemplate = QStringLiteral("%1: %2");
         break;
 
+    case QmlRefactoring::SignalHandler:
+        newPropertyTemplate = QStringLiteral("function %1() %2");
+        break;
+
     default:
         Q_ASSERT(!"unknown property type");
     }

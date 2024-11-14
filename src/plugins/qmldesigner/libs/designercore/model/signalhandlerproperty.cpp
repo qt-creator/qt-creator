@@ -6,6 +6,9 @@
 #include "internalnode_p.h"
 #include "model.h"
 #include "model_p.h"
+
+#include <QRegularExpression>
+
 namespace QmlDesigner {
 
 SignalHandlerProperty::SignalHandlerProperty() = default;
@@ -51,6 +54,11 @@ QString SignalHandlerProperty::source() const
     return QString();
 }
 
+QString SignalHandlerProperty::sourceNormalizedWithBraces() const
+{
+    return normalizedSourceWithBraces(source());
+}
+
 PropertyName SignalHandlerProperty::prefixAdded(PropertyNameView propertyName)
 {
     QString nameAsString = QString::fromUtf8(propertyName);
@@ -75,6 +83,21 @@ PropertyName SignalHandlerProperty::prefixRemoved(PropertyNameView propertyName)
     nameAsString[0] = firstChar;
 
     return nameAsString.toLatin1();
+}
+
+QString SignalHandlerProperty::normalizedSourceWithBraces(const QString &source)
+{
+    static const QRegularExpression reg("\\{(\\s*?.*?)*?\\}");
+
+    auto match = reg.match(source);
+
+    if (match.hasMatch())
+        return source;
+
+    if (source.contains('\n'))
+        return "{\n" + source + "\n}";
+
+    return "{ " + source + " }";
 }
 
 SignalDeclarationProperty::SignalDeclarationProperty() = default;
