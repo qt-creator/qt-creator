@@ -84,7 +84,7 @@ Item {
     onIsHorizontalViewChanged: closeContextMenu()
     Item {
         id: styleConstants
-        property int textWidth: 58
+        property int textWidth: 72
         property int textHeight: Theme.smallFontPixelSize() * 2
         property int cellHorizontalMargin: 1
         property int cellVerticalSpacing: 2
@@ -296,15 +296,20 @@ Item {
                                         property real actualWidth: parent.width - itemGrid.leftPadding - itemGrid.rightPadding
                                         leftPadding: 6
                                         rightPadding: 6
-                                        columns: itemGrid.actualWidth / styleConstants.cellWidth
+                                        columns: itemGrid.columnNumber
                                         rowSpacing: 7
+
+                                        property int columnNumber: Math.floor(itemGrid.actualWidth / (styleConstants.cellWidth + 7))
+
+                                        property int realWidth: itemGrid.actualWidth / itemGrid.columnNumber - 7
+
                                         Repeater {
                                             model: itemModel
                                             delegate: ItemDelegate {
                                                 visible: itemVisible
                                                 textColor: importUnimported ? StudioTheme.Values.themeUnimportedModuleColor
                                                                             : StudioTheme.Values.themeTextColor
-                                                width: styleConstants.cellWidth
+                                                width: itemGrid.realWidth
                                                 height: styleConstants.cellHeight
                                                 onShowContextMenu: {
                                                     if (!itemUsable || itemComponentSource) {
@@ -443,7 +448,12 @@ Item {
                     leftPadding: 9
                     rightPadding: 9
                     bottomPadding: 15
-                    columns: hItemGrid.actualWidth / styleConstants.cellWidth
+                    columns: hItemGrid.columnNumber
+
+                    property int columnNumber: Math.floor(hItemGrid.actualWidth / (styleConstants.cellWidth + 7))
+
+                    property int realWidth: hItemGrid.actualWidth / hItemGrid.columnNumber - 7
+
                     rowSpacing: 7
                     Repeater {
                         model: ItemLibraryBackend.itemLibraryModel.itemsModel
@@ -451,7 +461,7 @@ Item {
                             visible: itemVisible
                             textColor: ItemLibraryBackend.itemLibraryModel.importUnimportedSelected
                                        ? StudioTheme.Values.themeUnimportedModuleColor : StudioTheme.Values.themeTextColor
-                            width: styleConstants.cellWidth
+                            width: hItemGrid.realWidth
                             height: styleConstants.cellHeight
                             onShowContextMenu: {
                                 if (!itemUsable || itemComponentSource) {
