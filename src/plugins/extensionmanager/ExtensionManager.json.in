@@ -1,5 +1,6 @@
 {
     "Id" : "extensionmanager",
+    "DisplayName" : "Extension Manager",
     "Name" : "ExtensionManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -1,5 +1,6 @@
 {
     "Id" : "resourceeditor",
+    "DisplayName" : "Resource Editor",
     "Name" : "ResourceEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

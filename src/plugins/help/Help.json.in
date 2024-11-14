@@ -1,5 +1,6 @@
 {
     "Id" : "help",
+    "DisplayName" : "Help",
     "Name" : "Help",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

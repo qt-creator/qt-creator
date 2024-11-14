@@ -1,5 +1,6 @@
 {
     "Id" : "docker",
+    "DisplayName" : "Docker",
     "Name" : "Docker",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

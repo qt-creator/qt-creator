@@ -1,5 +1,6 @@
 {
     "Id" : "autotest",
+    "DisplayName" : "Tests",
     "Name" : "AutoTest",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

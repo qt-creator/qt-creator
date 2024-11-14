@@ -1,5 +1,6 @@
 {
     "Id" : "codepaster",
+    "DisplayName" : "Code Paster",
     "Name" : "CodePaster",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

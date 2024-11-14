@@ -1,5 +1,6 @@
 {
     "Id" : "perfprofiler",
+    "DisplayName" : "Perf Profiler",
     "Name" : "PerfProfiler",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

@@ -1,5 +1,6 @@
 {
     "Id" : "fakevim",
+    "DisplayName" : "FakeVim",
     "Name" : "FakeVim",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

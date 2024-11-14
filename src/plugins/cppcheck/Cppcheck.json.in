@@ -1,5 +1,6 @@
 {
     "Id" : "cppcheck",
+    "DisplayName" : "Cppcheck",
     "Name" : "Cppcheck",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

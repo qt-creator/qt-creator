@@ -1,5 +1,6 @@
 {
     "Id" : "lua",
+    "DisplayName" : "Lua",
     "Name" : "Lua",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

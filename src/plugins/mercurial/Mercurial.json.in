@@ -1,5 +1,6 @@
 {
     "Id" : "mercurial",
+    "DisplayName" : "Mercurial",
     "Name" : "Mercurial",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

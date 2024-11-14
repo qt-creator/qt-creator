@@ -1,5 +1,6 @@
 {
     "Id" : "vcsbase",
+    "DisplayName" : "Version Control Systems",
     "Name" : "VcsBase",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

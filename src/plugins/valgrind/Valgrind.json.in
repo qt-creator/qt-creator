@@ -1,5 +1,6 @@
 {
     "Id" : "valgrind",
+    "DisplayName" : "Valgrind",
     "Name" : "Valgrind",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

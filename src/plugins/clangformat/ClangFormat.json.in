@@ -1,5 +1,6 @@
 {
     "Id" : "clangformat",
+    "DisplayName" : "ClangFormat",
     "Name" : "ClangFormat",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

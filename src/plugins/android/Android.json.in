@@ -1,5 +1,6 @@
 {
     "Id" : "android",
+    "DisplayName" : "Android",
     "Name" : "Android",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

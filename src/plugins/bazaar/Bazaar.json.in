@@ -1,5 +1,6 @@
 {
     "Id" : "bazaar",
+    "DisplayName" : "Bazaar",
     "Name" : "Bazaar",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

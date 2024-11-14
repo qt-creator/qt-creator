@@ -2,7 +2,8 @@
 -- SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 return {
     Id = "luatests",
-    Name = "Lua Tests",
+    DisplayName = "Lua Tests",
+    Name = "LuaTests",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
     VendorId = "theqtcompany",

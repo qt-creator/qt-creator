@@ -1,5 +1,6 @@
 {
     "Id" : "axivion",
+    "DisplayName" : "Axivion",
     "Name" : "Axivion",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

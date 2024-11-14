@@ -1,5 +1,6 @@
 {
     "Id" : "qmlprojectmanager",
+    "DisplayName" : "QML Project Manager",
     "Name" : "QmlProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

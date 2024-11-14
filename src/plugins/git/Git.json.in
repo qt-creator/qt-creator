@@ -1,5 +1,6 @@
 {
     "Id" : "git",
+    "DisplayName" : "Git",
     "Name" : "Git",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

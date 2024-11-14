@@ -1,5 +1,6 @@
 {
     "Id" : "updateinfo",
+    "DisplayName" : "Update Info",
     "Name" : "UpdateInfo",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

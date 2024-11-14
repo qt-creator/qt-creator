@@ -1,5 +1,6 @@
 {
     "Id" : "qmakeprojectmanager",
+    "DisplayName" : "qmake",
     "Name" : "QmakeProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

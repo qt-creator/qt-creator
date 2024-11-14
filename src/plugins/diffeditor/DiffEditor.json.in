@@ -1,5 +1,6 @@
 {
     "Id" : "diffeditor",
+    "DisplayName" : "Diff Viewer",
     "Name" : "DiffEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

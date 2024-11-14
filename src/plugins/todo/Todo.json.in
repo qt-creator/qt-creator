@@ -1,5 +1,6 @@
 {
     "Id" : "todo",
+    "DisplayName" : "To Do",
     "Name" : "Todo",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

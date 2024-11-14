@@ -1,5 +1,6 @@
 {
     "Id" : "genericprojectmanager",
+    "DisplayName" : "Generic Project Manager",
     "Name" : "GenericProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

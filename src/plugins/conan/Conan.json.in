@@ -1,5 +1,6 @@
 {
     "Id" : "conan",
+    "DisplayName" : "Conan",
     "Name" : "Conan",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

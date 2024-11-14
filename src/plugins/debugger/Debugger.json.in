@@ -1,5 +1,6 @@
 {
     "Id" : "debugger",
+    "DisplayName" : "Debugger",
     "Name" : "Debugger",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

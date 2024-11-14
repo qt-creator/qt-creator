@@ -1,5 +1,6 @@
 {
     "Id" : "compilationdatabaseprojectmanager",
+    "DisplayName" : "Compilation Databases",
     "Name" : "CompilationDatabaseProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

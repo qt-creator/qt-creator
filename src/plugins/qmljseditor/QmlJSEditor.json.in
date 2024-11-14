@@ -1,5 +1,6 @@
 {
     "Id" : "qmljseditor",
+    "DisplayName" : "QML/JS Editor",
     "Name" : "QmlJSEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

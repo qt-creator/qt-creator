@@ -1,5 +1,6 @@
 {
     "Id" : "fossil",
+    "DisplayName" : "Fossil",
     "Name" : "Fossil",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",

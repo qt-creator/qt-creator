@@ -1,5 +1,6 @@
 {
     "Id" : "projectexplorer",
+    "DisplayName" : "Project Explorer",
     "Name" : "ProjectExplorer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
