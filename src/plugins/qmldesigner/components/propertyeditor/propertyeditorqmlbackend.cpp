@@ -464,7 +464,7 @@ void QmlDesigner::PropertyEditorQmlBackend::createPropertyEditorValues(const Qml
     }
 #else
 
-    for (const auto &property : MetaInfoUtils::inflateValueAndReadOnlyProperties(qmlObjectNode.metaInfo().properties())) {
+    for (const auto &property : MetaInfoUtils::addInflatedValueAndReadOnlyProperties(qmlObjectNode.metaInfo().properties())) {
         auto propertyName = property.name();
         createPropertyEditorValue(qmlObjectNode,
                                   propertyName,

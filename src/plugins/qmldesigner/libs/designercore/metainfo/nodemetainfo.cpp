@@ -4711,6 +4711,25 @@ CompoundPropertyMetaInfos MetaInfoUtils::inflateValueAndReadOnlyProperties(Prope
     return inflatedProperties;
 }
 
+CompoundPropertyMetaInfos MetaInfoUtils::addInflatedValueAndReadOnlyProperties(PropertyMetaInfos properties)
+{
+    CompoundPropertyMetaInfos inflatedProperties;
+    inflatedProperties.reserve(properties.size() * 2);
+
+    for (auto &property : properties) {
+        if (auto propertyType = property.propertyType();
+            propertyType.type() == MetaInfoType::Value || property.isReadOnly()) {
+            addSubProperties(inflatedProperties, property, propertyType);
+            if (!property.isReadOnly())
+                inflatedProperties.emplace_back(std::move(property));
+        } else {
+            inflatedProperties.emplace_back(std::move(property));
+        }
+    }
+
+    return inflatedProperties;
+}
+
 } // namespace QmlDesigner
 
 QT_WARNING_POP

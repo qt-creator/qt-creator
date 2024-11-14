@@ -136,6 +136,7 @@ namespace MetaInfoUtils {
 
 QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueProperties(PropertyMetaInfos properties);
 QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos inflateValueAndReadOnlyProperties(PropertyMetaInfos properties);
+QMLDESIGNERCORE_EXPORT CompoundPropertyMetaInfos addInflatedValueAndReadOnlyProperties(PropertyMetaInfos properties);
 } // namespace MetaInfoUtils
 
 } // namespace QmlDesigner
