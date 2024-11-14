@@ -166,10 +166,13 @@ QString CMakeWriter::getEnvironmentVariable(const QString &key) const
     return value;
 }
 
-QString CMakeWriter::makeFindPackageBlock(const QmlBuildSystem* buildSystem) const
+QString CMakeWriter::makeFindPackageBlock(const NodePtr &node, const QmlBuildSystem *buildSystem) const
 {
     QString head = "find_package(Qt" + buildSystem->versionQt();
-    const QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick)\n";
+    QString tail = " REQUIRED COMPONENTS Core Gui Qml Quick QuickTimeline ShaderTools";
+    if (hasMesh(node) || hasQuick3dImport(buildSystem->mainUiFilePath()))
+        tail.append(" Quick3D");
+    tail.append(")\n");
 
     const QStringList versions = buildSystem->versionQtQuick().split('.', Qt::SkipEmptyParts);
     if (versions.size() < 2)
@@ -335,6 +338,38 @@ void CMakeWriter::collectResources(const NodePtr &node, QStringList &res, QStrin
             res.append(makeRelative(node, path));
         }
     }
+}
+
+bool CMakeWriter::hasMesh(const NodePtr &node) const
+{
+    for (const auto &path : node->assets) {
+        if (path.suffix()=="mesh")
+            return true;
+    }
+
+    for (const auto &child : node->subdirs) {
+        if (hasMesh(child))
+            return true;
+    }
+
+    return false;
+}
+
+bool CMakeWriter::hasQuick3dImport(const Utils::FilePath &filePath) const
+{
+    QFile f(filePath.toString());
+    if (!f.open(QIODevice::ReadOnly))
+        return false;
+
+    QTextStream stream(&f);
+    while (!stream.atEnd()) {
+        QString line = stream.readLine();
+        if (line.contains("{"))
+            break;
+        if (line.contains("import") && line.contains("QtQuick3D"))
+            return true;
+    }
+    return false;
 }
 
 } // End namespace QmlProjectExporter.

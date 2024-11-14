@@ -69,7 +69,6 @@ private:
 
     QString m_projectName = {};
     NodePtr m_root = {};
-    QStringList m_moduleNames = {};
 };
 
 } // namespace QmlProjectExporter

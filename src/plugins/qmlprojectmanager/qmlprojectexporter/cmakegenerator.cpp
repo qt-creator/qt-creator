@@ -60,7 +60,6 @@ void CMakeGenerator::updateProject(QmlProject *project)
     if (!isEnabled())
         return;
 
-    m_moduleNames.clear();
     m_writer = CMakeWriter::create(this);
 
     m_root = std::make_shared<Node>();
@@ -484,9 +483,6 @@ void CMakeGenerator::parseNodeTree(NodePtr &generatorNode,
 
     if (m_writer)
         m_writer->transformNode(generatorNode);
-
-    if (generatorNode->type == Node::Type::Module)
-        m_moduleNames.push_back(generatorNode->name);
 }
 
 void CMakeGenerator::parseSourceTree()

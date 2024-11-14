@@ -67,7 +67,7 @@ void CMakeWriterV1::writeRootCMakeFile(const NodePtr &node) const
     const Utils::FilePath file = node->dir.pathAppended("CMakeLists.txt");
     if (!file.exists()) {
         const QString appName = parent()->projectName() + "App";
-        const QString findPackage = makeFindPackageBlock(parent()->buildSystem());
+        const QString findPackage = makeFindPackageBlock(node, parent()->buildSystem());
 
         QString fileSection = "";
         const QString configFile = getEnvironmentVariable(ENV_VARIABLE_CONTROLCONF);
