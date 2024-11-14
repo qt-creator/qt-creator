@@ -4,9 +4,8 @@
 #include "qmllsclient.h"
 
 #include "qmljseditorconstants.h"
-#include "qmljseditortr.h"
-#include "qmljseditorsettings.h"
 #include "qmljsquickfix.h"
+#include "qmllsclientsettings.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
@@ -43,37 +42,6 @@ static QHash<FilePath, QmllsClient *> &qmllsClients()
     return clients;
 }
 
-QmllsClient *QmllsClient::clientForQmlls(const FilePath &qmlls)
-{
-    if (auto client = qmllsClients()[qmlls]) {
-        switch (client->state()) {
-        case Client::State::Uninitialized:
-        case Client::State::InitializeRequested:
-        case Client::State::Initialized:
-            return client;
-        case Client::State::FailedToInitialize:
-        case Client::State::ShutdownRequested:
-        case Client::State::Shutdown:
-        case Client::State::Error:
-            qCDebug(qmllsLog) << "client was stopping or failed, restarting";
-            break;
-        }
-    }
-    auto interface = new StdIOClientInterface;
-    interface->setCommandLine(CommandLine(qmlls));
-    auto client = new QmllsClient(interface);
-    client->setName(Tr::tr("Qmlls (%1)").arg(qmlls.toUserOutput()));
-    client->setActivateDocumentAutomatically(true);
-    LanguageFilter filter;
-    using namespace Utils::Constants;
-    filter.mimeTypes = {QML_MIMETYPE, QMLUI_MIMETYPE, QBS_MIMETYPE, QMLPROJECT_MIMETYPE,
-                        QMLTYPES_MIMETYPE, JS_MIMETYPE, JSON_MIMETYPE};
-    client->setSupportedLanguage(filter);
-    client->start();
-    qmllsClients()[qmlls] = client;
-    return client;
-}
-
 QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 {
     QMap<QString, int> result;
@@ -90,7 +58,7 @@ QMap<QString, int> QmllsClient::semanticTokenTypesMap()
 void QmllsClient::updateQmllsSemanticHighlightingCapability()
 {
     const QString methodName = QStringLiteral("textDocument/semanticTokens");
-    if (!QmlJSEditor::Internal::settings().enableQmllsSemanticHighlighting()) {
+    if (!qmllsSettings()->m_useQmllsSemanticHighlighting) {
         LanguageServerProtocol::Unregistration unregister;
         unregister.setMethod(methodName);
         unregister.setId({});

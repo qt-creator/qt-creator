@@ -6,13 +6,12 @@
 #include "qmljseditordocument_p.h"
 #include "qmljseditorplugin.h"
 #include "qmljseditortr.h"
-#include "qmljseditorsettings.h"
 #include "qmljshighlighter.h"
 #include "qmljsquickfixassist.h"
 #include "qmljssemantichighlighter.h"
 #include "qmljssemanticinfoupdater.h"
 #include "qmljstextmark.h"
-#include "qmllsclient.h"
+#include "qmllsclientsettings.h"
 #include "qmloutlinemodel.h"
 
 #include <coreplugin/coreconstants.h>
@@ -42,8 +41,6 @@ using namespace QmlJSTools;
 using namespace Utils;
 
 namespace {
-
-Q_LOGGING_CATEGORY(qmllsLog, "qtc.qmlls.editor", QtWarningMsg);
 
 enum {
     UPDATE_DOCUMENT_DEFAULT_INTERVAL = 100,
@@ -480,13 +477,6 @@ QmlJSEditorDocumentPrivate::QmlJSEditorDocumentPrivate(QmlJSEditorDocument *pare
             this, &QmlJSEditorDocumentPrivate::reparseDocument);
     connect(modelManager, &ModelManagerInterface::documentUpdated,
             this, &QmlJSEditorDocumentPrivate::onDocumentUpdated);
-    connect(QmllsSettingsManager::instance(), &QmllsSettingsManager::settingsChanged,
-            this, &QmlJSEditorDocumentPrivate::settingsChanged);
-    connect(
-        modelManager,
-        &ModelManagerInterface::projectInfoUpdated,
-        this,
-        &QmlJSEditorDocumentPrivate::settingsChanged);
 
     // semantic info
     m_semanticInfoUpdater = new SemanticInfoUpdater();
@@ -734,102 +724,10 @@ void QmlJSEditorDocumentPrivate::setSourcesWithCapabilities(
         setSemanticWarningSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-    if (cap.semanticTokensProvider() && settings().enableQmllsSemanticHighlighting())
+    if (cap.semanticTokensProvider() && qmllsSettings()->m_useQmllsSemanticHighlighting)
         setSemanticHighlightSource(QmllsStatus::Source::Qmlls);
     else
         setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
-}
-
-static FilePath qmllsForFile(const FilePath &file, QmlJS::ModelManagerInterface *modelManager)
-{
-    QmllsSettingsManager *settingsManager = QmllsSettingsManager::instance();
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(file);
-    const bool enabled = settingsManager->useQmlls(project);
-    if (!enabled)
-        return {};
-    if (settingsManager->useLatestQmlls())
-        return settingsManager->latestQmlls();
-    QmlJS::ModelManagerInterface::ProjectInfo pInfo = modelManager->projectInfoForPath(file);
-
-    if (!settings().ignoreMinimumQmllsVersion()
-        && QVersionNumber::fromString(pInfo.qtVersionString)
-               < QmlJsEditingSettings::mininumQmllsVersion) {
-        return {};
-    }
-    return pInfo.qmllsPath.exists() ? pInfo.qmllsPath : Utils::FilePath();
-}
-
-void QmlJSEditorDocumentPrivate::settingsChanged()
-{
-    if (q->isTemporary())
-        return;
-
-    FilePath newQmlls = qmllsForFile(q->filePath(), ModelManagerInterface::instance());
-    if (m_qmllsStatus.qmllsPath == newQmlls) {
-        if (QmllsClient *client = QmllsClient::clientForQmlls(newQmlls)) {
-            client->updateQmllsSemanticHighlightingCapability();
-            setSourcesWithCapabilities(client->capabilities());
-            client->activateDocument(q);
-        }
-        return;
-    }
-
-    using namespace LanguageClient;
-    m_qmllsStatus.qmllsPath = newQmlls;
-    if (newQmlls.isEmpty()) {
-        qCDebug(qmllsLog) << "disabling qmlls for" << q->filePath();
-        if (LanguageClientManager::clientForDocument(q) != nullptr) {
-            qCDebug(qmllsLog) << "deactivating " << q->filePath() << "in qmlls" << newQmlls;
-            LanguageClientManager::openDocumentWithClient(q, nullptr);
-        } else
-            qCWarning(qmllsLog) << "Could not find client to disable for document " << q->filePath()
-                                << " in LanguageClient::LanguageClientManager";
-        setCompletionSource(QmllsStatus::Source::EmbeddedCodeModel);
-        setSemanticWarningSource(QmllsStatus::Source::EmbeddedCodeModel);
-        setSemanticHighlightSource(QmllsStatus::Source::EmbeddedCodeModel);
-    } else if (QmllsClient *client = QmllsClient::clientForQmlls(newQmlls)) {
-        bool shouldActivate = false;
-        if (auto oldClient = LanguageClientManager::clientForDocument(q)) {
-            // check if it was disabled
-            if (client == oldClient)
-                shouldActivate = true;
-        }
-        client->updateQmllsSemanticHighlightingCapability();
-        switch (client->state()) {
-        case Client::State::Uninitialized:
-        case Client::State::InitializeRequested:
-            connect(client,
-                    &Client::initialized,
-                    this,
-                    &QmlJSEditorDocumentPrivate::setSourcesWithCapabilities);
-            break;
-        case Client::State::Initialized:
-            setSourcesWithCapabilities(client->capabilities());
-            break;
-        case Client::State::FailedToInitialize:
-        case Client::State::Error:
-            qCWarning(qmllsLog) << "qmlls" << newQmlls << "requested for document" << q->filePath()
-                                << "had errors, skipping setSourcesWithCababilities";
-            break;
-        case Client::State::Shutdown:
-            qCWarning(qmllsLog) << "qmlls" << newQmlls << "requested for document" << q->filePath()
-                                << "did stop, skipping setSourcesWithCababilities";
-            break;
-        case Client::State::ShutdownRequested:
-            qCWarning(qmllsLog) << "qmlls" << newQmlls << "requested for document" << q->filePath()
-                                << "is stopping, skipping setSourcesWithCababilities";
-            break;
-        }
-        if (shouldActivate) {
-            qCDebug(qmllsLog) << "reactivating " << q->filePath() << "in qmlls" << newQmlls;
-            client->activateDocument(q);
-        } else {
-            qCDebug(qmllsLog) << "opening " << q->filePath() << "in qmlls" << newQmlls;
-            LanguageClientManager::openDocumentWithClient(q, client);
-        }
-    } else {
-        qCWarning(qmllsLog) << "could not start qmlls " << newQmlls << "for" << q->filePath();
-    }
 }
 
 } // Internal
@@ -840,8 +738,6 @@ QmlJSEditorDocument::QmlJSEditorDocument(Utils::Id id)
     setId(id);
     connect(this, &TextEditor::TextDocument::tabSettingsChanged,
             d, &Internal::QmlJSEditorDocumentPrivate::invalidateFormatterCache);
-    connect(this, &TextEditor::TextDocument::openFinishedSuccessfully,
-            d, &Internal::QmlJSEditorDocumentPrivate::settingsChanged);
     resetSyntaxHighlighter([] { return new QmlJSHighlighter(); });
     setCodec(QTextCodec::codecForName("UTF-8")); // qml files are defined to be utf-8
     setIndenter(createQmlJsIndenter(document()));

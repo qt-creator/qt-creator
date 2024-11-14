@@ -3,7 +3,7 @@
 
 #include "qmltaskmanager.h"
 #include "qmljseditorconstants.h"
-#include "qmljseditorsettings.h"
+#include "qmllsclientsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
@@ -122,7 +122,7 @@ void QmlTaskManager::updateSemanticMessagesNow()
 
     const bool isCMake = buildSystem->name() == "cmake";
     // heuristic: qmllint will output meaningful warnings if qmlls is enabled
-    if (isCMake && QmllsSettingsManager::instance()->useQmlls(buildSystem->project())) {
+    if (isCMake && qmllsSettings()->isEnabledOnProject(buildSystem->project())) {
         // abort any update that's going on already, and remove old codemodel warnings
         m_messageCollector.cancel();
         removeAllTasks(true);

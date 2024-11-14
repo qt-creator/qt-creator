@@ -5,15 +5,16 @@
 
 #include "qmljsautocompleter.h"
 #include "qmljscompletionassist.h"
-#include "qmljseditorsettings.h"
 #include "qmljseditorconstants.h"
 #include "qmljseditordocument.h"
 #include "qmljseditorplugin.h"
+#include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
 #include "qmljsfindreferences.h"
 #include "qmljshighlighter.h"
 #include "qmljshoverhandler.h"
 #include "qmljsquickfixassist.h"
+#include "qmllsclientsettings.h"
 #include "qmloutlinemodel.h"
 #include "quicktoolbar.h"
 
@@ -98,14 +99,12 @@ namespace QmlJSEditor {
 
 static LanguageClient::Client *getQmllsClient(const Utils::FilePath &fileName)
 {
-    // the value in disableBuiltinCodemodel is only valid when useQmlls is enabled
-    if (settings().useQmlls() && !settings().disableBuiltinCodemodel())
+    if (qmllsSettings()->useQmllsWithBuiltinCodemodelOnProject(fileName))
         return nullptr;
 
     auto client = LanguageClient::LanguageClientManager::clientForFilePath(fileName);
     return client;
 }
-
 
 //
 // QmlJSEditorWidget

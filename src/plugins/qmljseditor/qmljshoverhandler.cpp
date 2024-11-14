@@ -5,8 +5,8 @@
 
 #include "qmljseditor.h"
 #include "qmljseditordocument.h"
-#include "qmljseditorsettings.h"
 #include "qmljseditortr.h"
+#include "qmllsclientsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/editormanager/ieditor.h>
@@ -382,7 +382,8 @@ void QmlJSHoverHandler::reset()
 void QmlJSHoverHandler::operateTooltip(TextEditorWidget *editorWidget, const QPoint &point)
 {
     // disable hoverhandling in case qmlls is enabled
-    if (settings().useQmlls()) {
+    if (editorWidget->textDocument()
+        && qmllsSettings()->isEnabledOnProjectFile(editorWidget->textDocument()->filePath())) {
         BaseHoverHandler::operateTooltip(editorWidget, point);
         return;
     }

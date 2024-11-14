@@ -9,6 +9,7 @@
 #include "qmljseditortr.h"
 #include "qmljsoutline.h"
 #include "qmljsquickfixassist.h"
+#include "qmllsclientsettings.h"
 #include "qmltaskmanager.h"
 
 #include <qmljs/jsoncheck.h>
@@ -89,7 +90,7 @@ static QmlJSEditorPluginPrivate *dd = nullptr;
 QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
 {
     QmlJS::ModelManagerInterface *modelManager = QmlJS::ModelManagerInterface::instance();
-    QmllsSettingsManager::instance();
+    setupQmllsClientSettings();
 
     // QML task updating manager
     connect(modelManager, &QmlJS::ModelManagerInterface::documentChangedOnDisk,
@@ -346,7 +347,6 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
                               Tr::tr("QML Analysis"),
                               Tr::tr("Issues that the QML static analyzer found."),
                               false});
-        QmllsSettingsManager::instance()->setupAutoupdate();
     }
 };
 
