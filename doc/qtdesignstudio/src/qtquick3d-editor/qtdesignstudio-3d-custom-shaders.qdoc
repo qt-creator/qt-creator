@@ -10,15 +10,9 @@
 
     In \QDS projects created with \uicontrol {Qt 6} as \uicontrol {Target Qt Version},
     you create custom shaders in code and use custom shader utilities to create post-
-    processing effects. In project created with \uicontrol {Qt 5} as \uicontrol
+    processing effects. In projects created with \uicontrol {Qt 5} as \uicontrol
     {Target Qt Version}, you can use custom shader utilities to to create custom
     materials and effects.
-
-    This topic details the creation of custom shaders in code in \QDS projects created with
-    \uicontrol {Qt 6} as \uicontrol {Target Qt Version}, the use of custom shader utilities
-    \l{Custom Effects and Materials in Qt 5}{to create custom materials and effects}
-    and the creation of custom shaders in code in \QDS projects created with \uicontrol
-    {Qt 6} as \uicontrol {Target Qt Version}.
 
     \note Creating custom effects and materials as described here is not supported
     in the \QDS \l{Creating Projects} {projects} created with \uicontrol {Qt 6} as
