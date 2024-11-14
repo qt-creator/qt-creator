@@ -126,8 +126,8 @@
     \table
         \header
             \li Action
-            \li 1st Property
-            \li 2nd Property
+            \li 1st property
+            \li 2nd property
         \row
             \li \uicontrol {Call Function}
             \li \uicontrol {Item}: [Sets the component that is affected by the action of the

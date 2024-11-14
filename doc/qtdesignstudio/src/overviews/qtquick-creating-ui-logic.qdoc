@@ -77,8 +77,8 @@
 
     \table
     \header
-        \li To Learn About
-        \li Go To
+        \li To learn about
+        \li Go to
     \row
         \li Responding to application events
         \li \l{Connecting Components to Signals}

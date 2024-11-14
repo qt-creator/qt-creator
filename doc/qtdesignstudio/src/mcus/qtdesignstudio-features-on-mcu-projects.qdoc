@@ -14,63 +14,63 @@
     \table
     \header
         \li View
-        \li Fully Supported
-        \li Partially Supported
-        \li Not Supported
+        \li Fully supported
+        \li Partially supported
+        \li Not supported
         \li Comments
     \row
         \li \l 2D
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li A scene in the \uicontrol 2D view is rendered by the regular Qt Quick
         and QML, and not as \QUL and \QMCU, so some imperfections or inaccuracies
         can occur. Note that the default font used in \QDS preview and \QUL are 
         different, and the developer must confirm both fonts are the same.
     \row
         \li \l 3D
-        \li \b -
-        \li \b -
-        \li \b X
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li Yes
         \li The \uicontrol 3D view is not a part of \QUL or \QMCU.
     \row
         \li \l {Material Editor and Browser}
-        \li \b -
-        \li \b -
-        \li \b X
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li Yes
         \li The \uicontrol {Material Editor} and \uicontrol {Material Browser} views
         are not a part of \QUL or \QMCU.
     \row
         \li \l {Components}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li Shows only the components and modules available for MCU projects.
     \row
         \li \l {Assets}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li Shows all the listed assets in the \c QmlProject file.
     \row
         \li \l {Navigator}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li Displays the composition of the current component file as a tree
         structure.
     \row
         \li \l {Properties}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li Shows only the preset properties available for MCU projects (such as
         by Qt Quick and its modules).
     \row
         \li \l {Connections}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li The \uicontrol Connections view displays all signal handlers in the
         current file, but it doesn't filter available signals, so you can still
         see and select signals available in Qt Quick, but not in \QUL.
@@ -79,56 +79,56 @@
         to filter available signal/function.
     \row
         \li \l {States}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li The feature is fully supported, but there are some limitations listed
         in \l {\QMCU Known Issues or Limitations}.
         In addition, StateGroup is disabled.
     \row
         \li \l {Transitions}
-        \li \b X
-        \li \b -
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li \e {None}
     \row
         \li \l {Translations}
-        \li \b -
-        \li \b X
-        \li \b -
+        \li \e {Not applicable}
+        \li Yes
+        \li \e {Not applicable}
         \li The \uicontrol Translations view previews with regular Qt Quick instead
         of \QUL, and it can be inaccurate in calculating the text overflow in some translations.
     \row
         \li \l {Timeline}
-        \li \b X
-        \li \b -
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li \e {None}
     \row
         \li \l {Curves}
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li Linear interpolation works, and \QMCU supports the \c easing.bezierCurve property
         of a keyframe in \QMCU 2.6 or higher.
     \row
         \li \l Code
-        \li \b X
-        \li \b -
-        \li \b -
+        \li Yes
+        \li \e {Not applicable}
+        \li \e {Not applicable}
         \li The \uicontrol Code view uses regular Qt Quick instead of \QUL, so it may
         not show an error if you are using or assigning an unsupported property.
     \row
         \li \l {Content Library}
-        \li \b -
-        \li \b -
-        \li \b X
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li Yes
         \li The \uicontrol {Content Library} view is not a part of \QUL or \QMCU.
     \row
         \li \l {Texture Editor}
-        \li \b -
-        \li \b -
-        \li \b X
+        \li \e {Not applicable}
+        \li \e {Not applicable}
+        \li Yes
         \li The \uicontrol {Texture Editor} view is not a part of \QUL or \QMCU.
     \endtable
 

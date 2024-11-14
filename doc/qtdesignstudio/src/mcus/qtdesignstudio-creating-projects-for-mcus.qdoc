@@ -92,7 +92,7 @@
     \table
     \header
         \li Category
-        \li Wizard Template
+        \li Wizard template
         \li Purpose
     \row
         \li {1,5} Qt Quick Files

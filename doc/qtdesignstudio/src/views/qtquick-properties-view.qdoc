@@ -34,7 +34,7 @@
 
     \table
       \header
-        \li Custom Property Type
+        \li Custom property type
         \li Description
       \row
         \li Local Custom Property

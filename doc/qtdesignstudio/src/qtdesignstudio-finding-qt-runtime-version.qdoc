@@ -15,7 +15,7 @@
     \table
         \header
             \li \QDS
-            \li Qt Runtime Version
+            \li Qt runtime version
         \row
             \li 4.0
             \li 6.4.1 and 5.15.5

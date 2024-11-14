@@ -65,7 +65,7 @@
     Use the dropdown menu to select one of the available modes:
         \table
             \header
-                \li Background Mode
+                \li Background mode
                 \li Description
             \row
                 \li Transparent
@@ -135,7 +135,7 @@
     modes using the dropdown menu:
         \table
             \header
-                \li Mode of Antialiasing
+                \li Mode of antialiasing
                 \li Description
             \row
                 \li MSAA
@@ -169,8 +169,8 @@
     final image.
         \table
             \header
-                \li Level of Antialiasing
-                \li Supersampling Resolution used in SSAA
+                \li Level of antialiasing
+                \li Supersampling resolution used in SSAA
                 \li Number of samples per pixel in MSAA
                 \li Number of frames for final image in ProgressiveAA
             \row

@@ -169,7 +169,7 @@
 
     The following table lists the components that you can use to add data models
     to UIs. The \e Location column indicates the location of the component in
-    \uicontrol Components. The \e MCU column indicates which
+    \uicontrol Components. The \e {MCU support} column indicates which
     components are supported on MCUs.
 
     \table
@@ -177,57 +177,57 @@
         \li Icon
         \li Name
         \li Location
-        \li MCU
+        \li MCU support
         \li Purpose
     \row
         \li \inlineimage gridview-icon16.png
         \li \l{GridView}{Grid View}
         \li Default Components - Views
-        \li
+        \li No
         \li A grid vizualization of a model.
     \row
         \li \inlineimage icons/itemdelegate-icon16.png
         \li \l{ItemDelegate}{Item Delegate}
         \li Qt Quick Controls
-        \li
+        \li No
         \li A standard view item that can be used as a delegate in various
             views and controls, such as \l ListView and \l ComboBox.
     \row
         \li \inlineimage listview-icon16.png
         \li \l{ListView}{List View}
         \li Default Components - Views
-        \li \inlineimage ok.png
+        \li Yes
         \li A list vizualization of a model.
     \row
         \li \inlineimage pathview-icon16.png
         \li \l{Path View}
         \li Default Components - Views
-        \li
+        \li No
         \li Vizualizes the contents of a model along a path.
     \row
         \li \inlineimage icons/scrollview-icon16.png
         \li \l [QtQuickControls] {ScrollView}{Scroll View}
         \li Qt Quick Controls
-        \li
+        \li No
         \li Provides scrolling for user-defined content. It can be used instead
             of a \l Flickable component.
     \row
         \li \inlineimage icons/stackview-icon16.png
         \li \l [QtQuickControls] {StackView}{Stack View}
         \li Qt Quick Controls
-        \li
+        \li No
         \li A stack-based navigation model.
     \row
         \li \inlineimage icons/item-svg-16px.png
         \li \l{SVG Path Item}
         \li Qt Quick Studio Components
-        \li
+        \li No
         \li An SVG path data string that is used to draw a path as a line.
     \row
         \li \inlineimage icons/itemdelegate-icon16.png
         \li \l{SwipeDelegate}{Swipe Delegate}
         \li Qt Quick Controls
-        \li
+        \li No
         \li A view item that can be swiped left or right to expose more
             options or information. It is used as a delegate in views such
             as \l ListView.
@@ -235,7 +235,7 @@
         \li \inlineimage icons/swipeview-icon16.png
         \li \l[QtQuickControls] {SwipeView}{Swipe View}
         \li Qt Quick Controls
-        \li \inlineimage ok.png
+        \li Yes
         \li Enables users to navigate pages by swiping sideways.
     \endtable
 */

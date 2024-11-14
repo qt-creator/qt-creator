@@ -392,7 +392,7 @@
 
     The following table lists the components that you can use to add text to
     UIs. The \e Location column contains the tab name where you can find the
-    component in \uicontrol Components. The \e MCU column
+    component in \uicontrol Components. The \e {MCU support} column
     indicates which components are supported on MCUs.
 
     \table
@@ -400,43 +400,43 @@
         \li Icon
         \li Name
         \li Location
-        \li MCU
+        \li MCU support
         \li Purpose
     \row
         \li \inlineimage icons/label-icon16.png
         \li \l [QtQuickControls]{Label}
         \li Qt Quick Controls
-        \li
+        \li No
         \li A text label with inherited styling and font.
     \row
         \li \inlineimage text-icon16.png
         \li \l [QtQuick]{Text}
         \li Default Components - Basic
-        \li \inlineimage ok.png
+        \li Yes
         \li Formatted read-only text.
     \row
         \li \inlineimage icons/textarea-icon16.png
         \li \l [QtQuickControls]{TextArea}{Text Area}
         \li Qt Quick Controls
-        \li
+        \li No
         \li Multiple lines of editable formatted text.
     \row
         \li \inlineimage text-edit-icon16.png
         \li \l [QtQuick]{TextEdit}{Text Edit}
         \li Default Components - Basic
-        \li
+        \li No
         \li A single line of editable formatted text that can be validated.
     \row
         \li \inlineimage icons/textfield-icon16.png
         \li \l [QtQuickControls]{TextField}{Text Field}
         \li Qt Quick Controls
-        \li
+        \li No
         \li A single line of editable plain text.
     \row
         \li \inlineimage text-input-icon16.png
         \li \l [QtQuick]{TextInput}{Text Input}
         \li Default Components - Basic
-        \li
+        \li No
         \li A single line of editable plain text that can be validated.
     \endtable
 */

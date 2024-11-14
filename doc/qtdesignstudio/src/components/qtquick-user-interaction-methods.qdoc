@@ -292,30 +292,30 @@
     The following table lists the components that you can use to add basic
     interaction methods to UIs with links to their developer documentation.
     They are availabe in \uicontrol Components >
-    \uicontrol {Default Components} > \uicontrol Basic. The \e MCU column
+    \uicontrol {Default Components} > \uicontrol Basic. The \e {MCU support} column
     indicates which components are supported on MCUs.
 
     \table
     \header
         \li Icon
         \li Name
-        \li MCU
+        \li MCU support
         \li Purpose
     \row
         \li \inlineimage flickable-icon16.png
         \li \l [QML]{Flickable}
-        \li \inlineimage ok.png
+        \li Yes
         \li Enables flicking components horizontally or vertically.
     \row
         \li \inlineimage focusscope-icon16.png
         \li \l{FocusScope}{Focus Scope}
-        \li
+        \li No
         \li Assists in keyboard focus handling when building reusable
             components.
     \row
         \li \inlineimage mouse-area-icon16.png
         \li \l [QtQuick]{MouseArea}{Mouse Area}
-        \li \inlineimage ok.png
+        \li Yes
         \li Enables simple mouse handling.
     \endtable
 */

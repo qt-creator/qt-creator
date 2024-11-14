@@ -13,8 +13,8 @@
 
     \table
     \header
-        \li \QDS Version
-        \li \QMCU SDK Version
+        \li \QDS version
+        \li \QMCU SDK version
     \row
         \li 4.7 or later
         \li 2.9 or later

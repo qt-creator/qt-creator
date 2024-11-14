@@ -79,7 +79,7 @@
     \row
         \li \inlineimage icons/blend-mode-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-blend.html}{Blend}
-        \li
+        \li No
         \li Merges two source components by using a blend mode.
 
             The default \uicontrol Mode is \c subtract, where the pixel value
@@ -95,13 +95,13 @@
         \li \inlineimage icons/brightness-contrast-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-brightnesscontrast.html}
             {Brightness Contrast}
-        \li \inlineimage ok.png
+        \li Yes
         \li Adjusts \uicontrol Brightness and \uicontrol Contrast.
     \row
         \li \inlineimage icons/colourize-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-coloroverlay.html}
             {Color Overlay}
-        \li \inlineimage ok.png
+        \li Yes
         \li Alters the colors of the source component by applying an
             \uicontrol {Overlay color}. You can use the color picker
             to \l{Picking Colors}{select the color}.
@@ -109,14 +109,14 @@
         \li \inlineimage icons/colourize-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-colorize.html}
             {Colorize}
-        \li \inlineimage ok.png
+        \li Yes
         \li Sets the color in the HSL color space by specifying \uicontrol Hue,
             \uicontrol Lightness, and \uicontrol Saturation values.
     \row
         \li \inlineimage icons/desaturation-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-desaturate.html}
             {Desaturation}
-        \li \inlineimage ok.png
+        \li Yes
         \li Reduces the saturation of the colors by the value set in the
             \uicontrol Desaturation field. The value ranges from \c 0.0
             (no change) to \c 1.0 (desaturated). Desaturated pixel values are
@@ -126,7 +126,7 @@
         \li \inlineimage icons/directional-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-directionalblur.html}
             {Directional Blur}
-        \li \inlineimage ok.png
+        \li Yes
         \li Applies a blur effect to the specified direction. The value of the
             \uicontrol Angle field defines the direction of the blur. This
             effect makes the source component appear to be moving in the direction of
@@ -144,7 +144,7 @@
         \li \inlineimage icons/displace-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-displace.html}
             {Displace}
-        \li \inlineimage ok.png
+        \li Yes
         \li Moves the pixels of the source component according to the displacement
             map specified in the \uicontrol {Displacement source} field.
 
@@ -158,7 +158,7 @@
         \li \inlineimage icons/drop-shadow-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-dropshadow.html}
             {Drop Shadow}
-        \li \inlineimage ok.png
+        \li Yes
         \li Generates a soft shadow behind the source component using a
             gaussian blur. This effect blurs the alpha channel of the input and
             colorizes the result, which it then places behind the source component
@@ -181,7 +181,7 @@
         \li \inlineimage icons/fast-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-fastblur.html}
             {Fast Blur}
-        \li \inlineimage ok.png
+        \li Yes
         \li Applies a fast blur effect to one or more source components.
             \uicontrol {Fast Blur} offers lower blur quality than
             \uicontrol {Gaussian Blur}, but it is faster to render.
@@ -200,7 +200,7 @@
         \li \inlineimage icons/gamma-adjust-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-gammaadjust.html}
             {Gamma Adjust}
-        \li \inlineimage ok.png
+        \li Yes
         \li Alters the luminance of the source component. This effect is applied
             to each pixel according to the curve that is pre-defined as a
             power-law expression, where the value of the \uicontrol Gamma
@@ -209,7 +209,7 @@
         \li \inlineimage icons/gaussian-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-gaussianblur.html}
             {Gaussian Blur}
-        \li
+        \li No
         \li Applies a gaussian blur effect to one or more source components.
             The effect softens the image by blurring it with an algorithm that
             uses the gaussian function to calculate the effect. The effect
@@ -231,7 +231,7 @@
     \row
         \li \inlineimage icons/glow-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-glow.html}{Glow}
-        \li \inlineimage ok.png
+        \li Yes
         \li Generates a halo-like glow around the source component. This effect
             blurs the alpha channel of the source and colorizes it with
             \uicontrol {Glow color}. It then places the alpha channel behind the
@@ -243,7 +243,7 @@
         \li \inlineimage icons/hue-saturation-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-huesaturation.html}
             {Hue Saturation}
-        \li \inlineimage ok.png
+        \li Yes
         \li Alters the source component colors in the HSL color space.
             This effect is similar to the \uicontrol Colorize effect, but
             the \uicontrol Hue and \uicontrol Saturation values are handled
@@ -254,7 +254,7 @@
         \li \inlineimage icons/inner-shadow-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-innershadow.html}
             {Inner Shadow}
-        \li
+        \li No
         \li Generates a colorized and blurred shadow inside the source using
             the color that you specify in the \uicontrol {Inner shadow color}
             field.
@@ -277,7 +277,7 @@
         \li \inlineimage icons/levels-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-leveladjust.html}
             {Level Adjust}
-        \li \inlineimage ok.png
+        \li Yes
         \li Adjusts color levels in the RGBA color space. This effect adjusts
             the source component colors separately for each color channel. Source
             component contrast can be adjusted and color balance altered.
@@ -308,7 +308,7 @@
         \li \inlineimage icons/mask-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-maskedblur.html}
             {Masked Blur}
-        \li
+        \li No
         \li Softens the image by blurring it. The intensity of the blur can be
             controlled for each pixel by specifying a \uicontrol {Mask source},
             so that some parts of the source are blurred more than others.
@@ -324,7 +324,7 @@
         \li \inlineimage icons/opacity-mask-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-opacitymask.html}
             {Opacity Mask}
-        \li \inlineimage ok.png
+        \li Yes
         \li Masks the source component with another component specified in the
             \uicontrol {Mask source} field. The mask component gets rendered into an
             intermediate pixel buffer and the alpha values from the result are
@@ -340,7 +340,7 @@
         \li \inlineimage icons/radial-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-radialblur.html}
             {Radial Blur}
-        \li
+        \li No
         \li Applies a directional blur effect in a circular direction around the
             component's center point. This effect makes the source component appear
             to be rotating into the direction of the blur. Other available
@@ -356,7 +356,7 @@
         \li \inlineimage icons/recursive-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-recursiveblur.html}
             {Recursive Blur}
-        \li
+        \li No
         \li Blurs repeatedly, providing a strong blur effect. This effect
             softens the image by blurring it with an algorithm that uses a
             recursive feedback loop to blur the source as many times as
@@ -373,7 +373,7 @@
         \li \inlineimage icons/threshold-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-thresholdmask.html}
             {Threshold Mask}
-        \li \inlineimage ok.png
+        \li Yes
         \li Masks the source component with another component specified by
             \uicontrol {Mask source}. The value of the \uicontrol Spread
             field determines the smoothness of the mask edges near the
@@ -385,7 +385,7 @@
         \li \inlineimage icons/zoom-blur-16px.png
         \li \l {https://doc.qt.io/qt-5/qml-qtgraphicaleffects-zoomblur.html}
             {Zoom Blur}
-        \li
+        \li No
         \li Applies a directional blur effect towards source component's
             center point. This effect makes the source component appear to be
             moving towards the center point in Z-direction or the camera

@@ -386,7 +386,7 @@
         \header
             \li Action
             \li Description
-            \li Keyboard Shortcut
+            \li Keyboard shortcut
         \row
             \li Show Grid
             \li Toggles the visibility of the helper grid.

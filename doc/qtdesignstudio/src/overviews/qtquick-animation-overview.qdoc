@@ -27,7 +27,7 @@
     \table
     \header
         \li Technique
-        \li Use Case
+        \li Use case
     \row
         \li \l{Timeline}{Timeline animation}
         \li Linear interpolation through intermediate values at specified
@@ -129,7 +129,7 @@
     \table
     \header
         \li Technique
-        \li Use Case
+        \li Use case
     \row
         \li Data-driven timeline animation
         \li Using real or mock data from a backend to control motion.
@@ -180,7 +180,7 @@
     \table
     \header
         \li Component
-        \li Use Case
+        \li Use case
     \row
         \li \uicontrol {Property Animation}
         \li Applying animation when the value of a property changes. Color

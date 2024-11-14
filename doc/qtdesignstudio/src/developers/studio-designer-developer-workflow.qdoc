@@ -167,8 +167,8 @@
 
         \table
             \row
-                \li {2,1} \image studio-project-export-python-folder.webp "The generated Python folder in the Qt Design Studio project"
-                \li {2,2} \image studio-project-export-python-file.webp "The generated Python file in the Qt Design Studio project"
+                \li \image studio-project-export-python-folder.webp "The generated Python folder in the Qt Design Studio project"
+                \li \image studio-project-export-python-file.webp "The generated Python file in the Qt Design Studio project"
         \endtable
         \list 1
             \li If you don't have Python installed on your computer, install it.

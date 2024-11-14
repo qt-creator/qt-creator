@@ -33,7 +33,7 @@
 
     \table
     \header
-        \li Effect Name
+        \li Effect name
         \li Description
     \row
         \li \uicontrol {Displace}

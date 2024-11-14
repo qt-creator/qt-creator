@@ -129,12 +129,12 @@
     \table
     \header
         \li Component
-        \li Qt 5 Only
+        \li Qt 5 only
         \li Description
 
     \row
         \li \l Buffer
-        \li
+        \li No
         \li A buffer to be used for a pass of \uicontrol {Custom Material}
             or \uicontrol Effect instances.
 
@@ -168,7 +168,7 @@
 
     \row
         \li \l {CustomMaterial} {Custom Material}
-        \li
+        \li No
         \li The base component for creating custom materials used to shade
             model instances.
 
@@ -203,7 +203,7 @@
 
     \row
         \li \l Effect
-        \li
+        \li No
         \li A base component for creating post-processing effects.
 
             The \uicontrol Passes property contains a list of render passes
@@ -213,7 +213,7 @@
 
     \row
         \li \l Pass
-        \li
+        \li No
         \li A render pass of an \uicontrol Effect instance. In Qt 5 you can also
             use render passes for \uicontrol {Custom Materials}.
 
@@ -227,7 +227,7 @@
             \uicontrol Pass instance.
     \row
         \li \l Shader
-        \li
+        \li No
         \li A container component for defining shader code used by
             \uicontrol Effect instances.
 
@@ -240,7 +240,7 @@
 
     \row
         \li \l {ShaderInfo} {Shader Info}
-        \li \inlineimage ok.png
+        \li Yes
         \li Basic information about custom shader code for Custom Materials.
 
             The \uicontrol Version property specifies the shader code version,
@@ -273,7 +273,7 @@
             \endlist
     \row
         \li \l {TextureInput} {Texture Input}
-        \li
+        \li No
         \li A texture channel for \uicontrol {Custom Material} and Effect
             instances.
 
@@ -289,12 +289,12 @@
     \table
     \header
         \li Command
-        \li Qt 5 Only
+        \li Qt 5 only
         \li Description
 
     \row
         \li \l Blending
-        \li \inlineimage ok.png
+        \li Yes
         \li A pass command that specifies the source blending function.
 
             The \uicontrol Source property specifies the source blending
@@ -302,7 +302,7 @@
             destination for it.
     \row
         \li \l {BufferBlit} {Buffer Blit}
-        \li \inlineimage ok.png
+        \li Yes
         \li A copy operation between two buffers in a pass of a Custom Material
             or an Effect.
 
@@ -310,7 +310,7 @@
             and the destination buffers for the copy-operation.
     \row
         \li \l {BufferInput} {Buffer Input}
-        \li
+        \li No
         \li An input buffer to be used for a pass of a Custom Material or an
             Effect.
 
@@ -320,7 +320,7 @@
 
     \row
         \li \l {CullMode} {Cull Mode}
-        \li \inlineimage ok.png
+        \li Yes
         \li A culling mode for a render pass.
 
             The \uicontrol Mode property specifies the culling mode in a pass
@@ -331,7 +331,7 @@
 
     \row
         \li \l {DepthInput} {Depth Input}
-        \li \inlineimage ok.png
+        \li Yes
         \li An output texture for the depth buffer.
 
             The \uicontrol Parameter property specifies the name of the texture
@@ -339,7 +339,7 @@
 
     \row
         \li \l {RenderState} {Render State}
-        \li \inlineimage ok.png
+        \li Yes
         \li The render state to be enabled or disabled in a pass of a
             \uicontrol {Custom Material} or an \uicontrol Effect instance.
 
@@ -355,7 +355,7 @@
 
     \row
         \li \l {SetUniformValue} {Set Uniform Value}
-        \li
+        \li No
         \li A value to be set during a single pass.
 
             The \uicontrol Target property specifies the name of the uniform

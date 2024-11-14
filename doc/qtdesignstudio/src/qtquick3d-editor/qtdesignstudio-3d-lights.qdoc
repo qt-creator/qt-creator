@@ -37,31 +37,31 @@
     \header
         \li Icon
         \li Name
-        \li Qt 5 Only
-        \li More Information
+        \li Qt 5 only
+        \li More information
 
     \row
         \li \inlineimage icons/directional.png
         \li Directional Light
-        \li
+        \li No
         \li \l{DirectionalLight}{Light Directional}
 
     \row
         \li \inlineimage icons/point.png
         \li Point Light
-        \li
+        \li No
         \li \l{PointLight}{Light Point}
 
     \row
         \li \inlineimage icons/spot.png
         \li Spot Light
-        \li
+        \li No
         \li \l{SpotLight}{Light Spot}
 
     \row
         \li \inlineimage icons/area.png
         \li Area Light
-        \li \inlineimage ok.png
+        \li Yes
         \li \l{AreaLight}{Light Area}
     \endtable
 

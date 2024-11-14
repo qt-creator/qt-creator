@@ -186,7 +186,7 @@
     \table
     \header
         \li Component
-        \li Use Case
+        \li Use case
     \row
         \li \uicontrol {Property Animation}
         \li Applying animation when the value of a property changes. Color
