@@ -178,7 +178,6 @@ class EffectsAssistProposalModel : public TextEditor::GenericProposalModel
 {
     using AssistProposalItemInterface = TextEditor::AssistProposalItemInterface;
     using AssistReason = TextEditor::AssistReason;
-    using enum TextEditor::AssistReason;
 
 public:
     EffectsAssistProposalModel(const QList<TextEditor::AssistProposalItemInterface *> &items)
@@ -212,7 +211,7 @@ void EffectsAssistProposalModel::sort(const QString &prefix)
 
 bool EffectsAssistProposalModel::keepPerfectMatch(AssistReason reason) const
 {
-    return reason == ExplicitlyInvoked;
+    return reason == TextEditor::ExplicitlyInvoked;
 }
 
 void addCompletion(
