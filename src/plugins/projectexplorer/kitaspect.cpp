@@ -198,8 +198,6 @@ void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
 void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
 {
     const auto comboBox = createSubWidget<QComboBox>();
-    comboBox->setSizePolicy(QSizePolicy::Preferred, comboBox->sizePolicy().verticalPolicy());
-    comboBox->setEnabled(true);
     const auto sortModel = new KitAspectSortModel(this);
     sortModel->setSourceModel(listAspectSpec.model);
     comboBox->setModel(sortModel);

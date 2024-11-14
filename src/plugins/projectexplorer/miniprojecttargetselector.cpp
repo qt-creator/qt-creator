@@ -865,7 +865,10 @@ void MiniProjectTargetSelector::doLayout()
 
     m_kitAreaWidget->move(0, 0);
 
-    int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this) ? m_kitAreaWidget->sizeHint().height() : 0;
+    const int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this)
+        ? m_kitAreaWidget->sizeHint().height() : 0;
+    const int kitAreaWidth = m_kitAreaWidget->isVisibleTo(this)
+        ? m_kitAreaWidget->sizeHint().width() : 0;
 
     // 1. Calculate the summary label height
     int summaryLabelY = 1 + kitAreaHeight;
@@ -900,6 +903,7 @@ void MiniProjectTargetSelector::doLayout()
 
     QRect newGeometry;
 
+    const int minWidth = std::max({m_summaryLabel->sizeHint().width(), kitAreaWidth, 250});
     if (!onlySummary) {
         // list widget height
         int maxItemCount = m_projectListWidget->maxCount();
@@ -920,8 +924,6 @@ void MiniProjectTargetSelector::doLayout()
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
         // list widget widths
-        int minWidth = qMax(m_summaryLabel->sizeHint().width(), 250);
-        minWidth = qMax(minWidth, m_kitAreaWidget->sizeHint().width());
         QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
@@ -952,7 +954,7 @@ void MiniProjectTargetSelector::doLayout()
         heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
         m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
         m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
-        newGeometry.setSize({m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight});
+        newGeometry.setSize({minWidth + 1, heightWithoutKitArea + kitAreaHeight});
     }
 
     newGeometry.translate(statusBar->mapToGlobal(QPoint{0, 0}));

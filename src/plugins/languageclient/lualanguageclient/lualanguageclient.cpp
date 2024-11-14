@@ -490,6 +490,7 @@ public:
                 m_initializationOptions = options.as<QString>();
 
             emit optionsChanged();
+            LanguageClientManager::applySettings();
             m_isUpdatingAsyncOptions = false;
         });
 
@@ -703,7 +704,7 @@ static void registerLuaApi()
             "sendMessageWithIdForDocument_cb",
             &LuaClientWrapper::sendMessageWithIdForDocument_cb,
             "create",
-            [](const sol::table &options) -> std::shared_ptr<LuaClientWrapper> {
+            [](const sol::main_table &options) -> std::shared_ptr<LuaClientWrapper> {
                 auto luaClientWrapper = std::make_shared<LuaClientWrapper>(options);
                 auto clientSettings = new LuaClientSettings(luaClientWrapper);
 

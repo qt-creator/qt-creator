@@ -4,6 +4,7 @@
 from __future__ import annotations
 import argparse
 import asyncio
+from itertools import islice
 import os
 import locale
 from pathlib import Path
@@ -60,6 +61,26 @@ def get_commit_SHA(path):
             with open(tagfile, 'r') as f:
                 git_sha = f.read().strip()
     return git_sha
+
+
+def get_single_subdir(path: Path):
+    entries = list(islice(path.iterdir(), 2))
+    if len(entries) == 1:
+        return path / entries[0]
+    return path
+
+
+def sevenzip_command(threads=None):
+    # use -mf=off to avoid usage of the ARM executable compression filter,
+    # which cannot be extracted by p7zip
+    # use -snl to preserve symlinks even if their target doesn't exist
+    # which is important for the _dev package on Linux
+    # (only works with official/upstream 7zip)
+    command = ['7z', 'a', '-mf=off', '-snl']
+    if threads:
+        command.extend(['-mmt' + threads])
+    return command
+
 
 # copy of shutil.copytree that does not bail out if the target directory already exists
 # and that does not create empty directories
@@ -142,22 +163,26 @@ async def download(url: str, target: Path) -> None:
 
 
 def download_and_extract(urls: list[str], target: Path, temp: Path) -> None:
+    download_and_extract_tuples([(url, target) for url in urls], temp)
+
+
+def download_and_extract_tuples(urls_and_targets: list[tuple[str, Path]], temp: Path) -> None:
     temp.mkdir(parents=True, exist_ok=True)
-    target_files = []
+    target_tuples : list[tuple[Path, Path]] = []
     # TODO make this work with file URLs, which then aren't downloaded
     #      but just extracted
     async def impl():
         tasks : list[asyncio.Task] = []
-        for url in urls:
+        for (url, target_path) in urls_and_targets:
             u = urlparse(url)
             filename = Path(u.path).name
             target_file = temp / filename
-            target_files.append(target_file)
+            target_tuples.append((target_file, target_path))
             tasks.append(asyncio.create_task(download(url, target_file)))
         for task in tasks:
             await task
     asyncio.run(impl())
-    for file in target_files:
+    for (file, target) in target_tuples:
         extract_file(file, target)
 
 

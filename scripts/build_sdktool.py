@@ -4,13 +4,13 @@
 
 from __future__ import annotations
 import argparse
-from itertools import islice
 import os
 from pathlib import Path
 from typing import NamedTuple
 
 from common import (is_linux_platform, is_mac_platform, is_windows_platform,
-                    download_and_extract, check_print_call)
+                    download_and_extract, check_print_call, sevenzip_command,
+                    get_single_subdir)
 
 
 class BuildParams(NamedTuple):
@@ -105,13 +105,6 @@ def sign_sdktool(params: BuildParams,
             env=environment)
 
 
-def get_single_subdir(path: Path):
-    entries = list(islice(path.iterdir(), 2))
-    if len(entries) == 1:
-        return path / entries[0]
-    return path
-
-
 def build_sdktool(
     qt_src_url: str,
     qt_build_base: Path,
@@ -150,7 +143,7 @@ def zip_sdktool(
 ) -> None:
     glob = "*.exe" if is_windows_platform() else "*"
     check_print_call(
-        cmd=["7z", "a", str(out_7zip), glob],
+        cmd=sevenzip_command() + [str(out_7zip), glob],
         cwd=sdktool_target_path
     )
 

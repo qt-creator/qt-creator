@@ -86,6 +86,31 @@ bool PathMapping::operator!=(const PathMapping &other) const
     return !(*this == other);
 }
 
+static bool analysisPathValid(const FilePath &analysisPath, QString *error)
+{
+    if (analysisPath.isEmpty())
+        return true;
+    if (analysisPath.needsDevice() || analysisPath.isAbsolutePath()) {
+        if (error)
+            *error = QString("Path must be relative.");
+        return false;
+    }
+    static const QRegularExpression invalid("^(.*/)?\\.\\.?(/.*)?$");
+    if (invalid.match(analysisPath.path()).hasMatch()) {
+        if (error)
+            *error = QString("Invalid path elements (. or ..)");
+        return false;
+    }
+    return true;
+}
+
+bool PathMapping::isValid() const
+ {
+    return !projectName.isEmpty() && !localPath.isEmpty()
+            && !localPath.needsDevice() && localPath.isAbsolutePath()
+            && analysisPathValid(analysisPath, nullptr);
+}
+
 static FilePath axivionJsonFilePath()
 {
     return FilePath::fromString(ICore::settings()->fileName()).parentDir()
@@ -549,8 +574,22 @@ public:
     {
         m_projectName.setLabelText(Tr::tr("Project name:"));
         m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_projectName.setValidationFunction([](FancyLineEdit *edit, QString *error) {
+            QTC_ASSERT(edit, return false);
+            if (!edit->text().isEmpty())
+                return true;
+            if (error)
+                *error = QString("Project name must be non-empty.");
+            return false;
+        });
         m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
         m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_analysisPath.setValidationFunction([](FancyLineEdit *edit, QString *error) {
+            QTC_ASSERT(edit, return false);
+            // do NOT use fromUserInput() as this also cleans the path
+            const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
+            return analysisPathValid(fp, error);
+        });
         m_localPath.setLabelText(Tr::tr("Local path:"));
         m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
         m_localPath.setAllowPathFromDevice(false);

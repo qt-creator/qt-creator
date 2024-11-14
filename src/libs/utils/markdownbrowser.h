@@ -25,6 +25,8 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
 
+    void setMargins(const QMargins &margins);
+
 protected:
     void changeEvent(QEvent *event) override;
 

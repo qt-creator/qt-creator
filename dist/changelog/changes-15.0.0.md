@@ -47,6 +47,8 @@ Editing
 * Added `Fold Recursively` and `Unfold Recursively`
 * Fixed the display of multi-line annotations
   ([QTCREATORBUG-29951](https://bugreports.qt.io/browse/QTCREATORBUG-29951))
+* Fixed the tab order in `Advanced Search`
+  ([QTCREATORBUG-31771](https://bugreports.qt.io/browse/QTCREATORBUG-31771))
 
 ### C++
 
@@ -67,6 +69,8 @@ Editing
   ([QTCREATORBUG-31256](https://bugreports.qt.io/browse/QTCREATORBUG-31256))
 * Fixed the display of annotations with array operators
   ([QTCREATORBUG-31670](https://bugreports.qt.io/browse/QTCREATORBUG-31670))
+* Fixed code formatting after `Apply Changes to Declaration / Definition`
+  ([QTCREATORBUG-31293](https://bugreports.qt.io/browse/QTCREATORBUG-31293))
 * ClangFormat
     * Implemented `Export` and `Import` for the settings
 
@@ -182,6 +186,8 @@ Projects
 * Fixed the option `Build Only the Application to Be Run` for the
   `Build before deploying` preferences
   ([QTCREATORBUG-31416](https://bugreports.qt.io/browse/QTCREATORBUG-31416))
+* Fixed the `vcpkg` support for Android
+  ([QTCREATORBUG-31883](https://bugreports.qt.io/browse/QTCREATORBUG-31883))
 
 ### Workspace
 
@@ -274,6 +280,11 @@ Extension Manager
 Platforms
 ---------
 
+### Windows
+
+* Fixed that it wasn't possible to select a remote `qmake` executable
+  ([QTCREATORBUG-31939](https://bugreports.qt.io/browse/QTCREATORBUG-31939))
+
 ### macOS
 
 * Added support for back and forward gestures
@@ -284,6 +295,8 @@ Platforms
 * Improved the responsiveness of Qt Creator during Android related operations
 * Fixed that the setup wizard could use the wrong NDK and build tools version
   ([QTCREATORBUG-31311](https://bugreports.qt.io/browse/QTCREATORBUG-31311))
+* Fixed a freeze in the preferences while an emulator is running
+  ([QTCREATORBUG-31912](https://bugreports.qt.io/browse/QTCREATORBUG-31912))
 
 ### iOS
 
@@ -314,11 +327,13 @@ Alexandru Croitor
 Ali Kianian  
 Andre Hartmann  
 André Pönitz  
+Andrii Batyiev  
 Andrii Semkiv  
 Artem Sokolovskii  
 Artur Twardy  
 Assam Boudjelthia  
 Audun Sutterud  
+BogDan Vatra  
 Burak Hancerli  
 Christian Kandeler  
 Christian Stenger  
@@ -332,6 +347,7 @@ Henning Gruendl
 Jaroslaw Kobus  
 Jussi Witick  
 Justyna Hudziak  
+Kai Köhne  
 Karim Pinter  
 Knud Dollereder  
 Kwangsub Kim  
@@ -346,6 +362,7 @@ Mariusz Szczepanik
 Mathias Hasselmann  
 Mats Honkamaa  
 Mehdi Salem  
+Michael Weghorn  
 Miikka Heikkinen  
 Orgad Shaneh  
 Pino Toscano  
@@ -366,5 +383,6 @@ Tim Jenßen
 Toni Saario  
 Ulf Hermann  
 Vikas Pachdha  
+Ville Lavonius  
 Xavier Besson  
 Zoltan Gera  

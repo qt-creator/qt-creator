@@ -484,9 +484,11 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
     case QStyle::PE_FrameGroupBox: {
         QRect groupBoxFrame = option->rect;
         int topMargin = 0;
-        if (widget) {
+        if (auto control = dynamic_cast<const QGroupBox *>(widget)) {
+            const bool emptyTitle = !control->isCheckable() && control->title().isEmpty();
             // Before Qt 6.6.3, QStyle::subControlRect() returned wrong QRect for SC_GroupBoxFrame
-            static const bool validSCRect = QLibraryInfo::version() >= QVersionNumber(6, 6, 3);
+            const bool validSCRect = QLibraryInfo::version() >= QVersionNumber(6, 6, 3)
+                                     && !emptyTitle; // QTCREATORBUG-31960
             if (validSCRect) {
                 QStyleOptionGroupBox opt;
                 opt.initFrom(widget);
@@ -497,8 +499,7 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
             } else {
                 // Snippet from pre-6.6.3 FusionStyle::drawPrimitive - BEGIN
                 static const int groupBoxTopMargin =  3;
-                auto control = dynamic_cast<const QGroupBox *>(widget);
-                if (!control->isCheckable() && control->title().isEmpty()) {
+                if (emptyTitle) {
                     // Shrinking the topMargin if Not checkable AND title is empty
                     topMargin = groupBoxTopMargin;
                 } else {
@@ -630,8 +631,10 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (!enabled)
                     painter->setOpacity(0.75);
                 QBrush baseBrush = option->palette.base();
-                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
+                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget())
+                    && StyleHelper::isQDSTheme()) {
                     baseBrush = creatorColor(Theme::DScontrolBackgroundDisabled);
+                }
                 painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {

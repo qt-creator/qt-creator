@@ -15,7 +15,7 @@
     \uicontrol Debugger. In the \uicontrol General tab, you can specify settings
     that are common to all debuggers.
 
-    \image qtcreator-debugger-general-options.png "Debugger General preferences"
+    \image qtcreator-preferences-debugger-general.webp {Debugger General preferences}
 
     You can customize the appearance and behavior of the debug views and
     setting breakpoints, as well as map source paths to target paths.

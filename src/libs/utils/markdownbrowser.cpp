@@ -394,6 +394,11 @@ QSize MarkdownBrowser::minimumSizeHint() const
     return boundingRect.size().toSize() + QTextBrowser::minimumSizeHint();
 }
 
+void MarkdownBrowser::setMargins(const QMargins &margins)
+{
+    setViewportMargins(margins);
+}
+
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
 {
     static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);

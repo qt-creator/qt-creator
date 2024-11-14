@@ -4,7 +4,7 @@
 
 from __future__ import annotations
 import argparse
-from common import download_and_extract
+from common import download_and_extract_tuples
 from pathlib import Path
 import subprocess
 import sys
@@ -73,10 +73,10 @@ def install_qt(
 
     with TemporaryDirectory() as temporary_dir:
         if need_to_install_qt:
-            urls = qt_modules
+            url_target_tuples = [(url, qt_path) for url in qt_modules]
             if icu_url:
-                qt_modules.append(icu_url)
-            download_and_extract(urls, qt_path, Path(temporary_dir))
+                url_target_tuples.append((icu_url, qt_path / 'lib'))
+            download_and_extract_tuples(url_target_tuples, Path(temporary_dir))
             patch_qt(qt_path)
 
 

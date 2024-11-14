@@ -46,6 +46,9 @@ local function tst_embedWidget()
     }
 
     embed = editor:addEmbeddedWidget(layout, cursor:mainCursor():position())
+    embed:onShouldClose(function()
+        embed:close()
+    end)
 end
 
 local function setup()

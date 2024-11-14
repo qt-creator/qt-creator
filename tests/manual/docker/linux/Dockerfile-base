@@ -1,0 +1,20 @@
+FROM ubuntu:22.04
+
+RUN apt-get update && \
+    apt-get install -y \
+    build-essential curl cmake libssl-dev python3 nano ninja-build \
+    libglu1-mesa-dev libgl1-mesa-dev libopengl-dev libgl-dev libfontconfig1-dev libfreetype6-dev libx11-dev libx11-xcb-dev libxext-dev libxfixes-dev libxi-dev libxrender-dev libxcb1-dev libxcb-glx0-dev libxcb-keysyms1-dev libxcb-image0-dev libxcb-shm0-dev libxcb-icccm4-dev libxcb-sync-dev libxcb-xfixes0-dev libxcb-shape0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-util-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN curl -L https://download.qt.io/official_releases/qt/6.4/6.4.2/single/qt-everywhere-src-6.4.2.tar.xz -o /tmp/qt.tar.xz && \
+    cd /tmp && tar -xf qt.tar.xz && \
+    cd /tmp/qt-everywhere-src-6.4.2 && \
+    ./configure -nomake tests -debug -skip qtlocation -skip qtpositioning -no-warnings-are-errors && \
+    cmake --build . --parallel 4 && \
+    cmake --install . && \
+    rm -rf /tmp/*
+
+ENV PATH="/usr/local/Qt-6.4.2/bin:$PATH"
+
+
+

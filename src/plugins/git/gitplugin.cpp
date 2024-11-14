@@ -986,17 +986,21 @@ void GitPluginPrivate::logFile()
  */
 QStringList GitPluginPrivate::lineRange(int &firstLine, bool allowSingleLine) const
 {
+    auto buildLineRange = [](int firstLine, int lastLine = -1) {
+        int stop = (lastLine == -1) ? firstLine : lastLine;
+        return QStringList{"-L " + QString::number(firstLine) + ',' + QString::number(stop)};
+    };
+
     if (BaseTextEditor *textEditor = BaseTextEditor::currentTextEditor()) {
         QTextCursor cursor = textEditor->textCursor();
         if (cursor.hasSelection()) {
-            QString argument = "-L ";
             int selectionStart = cursor.selectionStart();
             int selectionEnd = cursor.selectionEnd();
             cursor.setPosition(selectionStart);
             const int startBlock = cursor.blockNumber();
             cursor.setPosition(selectionEnd);
             int endBlock = cursor.blockNumber();
-            if (startBlock != endBlock) {
+            if (startBlock != endBlock || allowSingleLine) {
                 firstLine = startBlock + 1;
                 if (cursor.atBlockStart())
                     --endBlock;
@@ -1005,13 +1009,18 @@ QStringList GitPluginPrivate::lineRange(int &firstLine, bool allowSingleLine) co
                     if (previousFirstLine > 0)
                         firstLine = previousFirstLine;
                 }
-                argument += QString::number(firstLine) + ',';
-                argument += QString::number(endBlock + firstLine - startBlock);
-                return {argument};
+                return buildLineRange(firstLine, firstLine + endBlock - startBlock);
+            } else if (startBlock == endBlock) {
+                QTextCursor lineCursor = textEditor->textCursor();
+                lineCursor.movePosition(QTextCursor::StartOfLine);
+                const bool startsAtLineStart = (lineCursor.position() == selectionStart);
+                lineCursor.movePosition(QTextCursor::EndOfLine);
+                const bool endsAtLineEnd = (lineCursor.position() == selectionEnd);
+                if (startsAtLineStart && endsAtLineEnd)
+                    return buildLineRange(lineCursor.blockNumber() + 1);
             }
         } else if (allowSingleLine) {
-            firstLine = cursor.blockNumber() + 1;
-            return {"-L " + QString::number(firstLine) + ',' + QString::number(firstLine)};
+            return buildLineRange(cursor.blockNumber() + 1);
         }
     }
     return {};

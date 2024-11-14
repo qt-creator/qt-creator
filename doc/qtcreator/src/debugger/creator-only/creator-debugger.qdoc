@@ -838,7 +838,7 @@
     To change the appearance and behavior of the debug views, set preferences
     in \preferences > \uicontrol Debugger > \uicontrol General.
 
-    \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
+    \image qtcreator-preferences-debugger-general.webp {General tab in Debugger preferences}
 
     For example, you can:
 
@@ -1270,7 +1270,7 @@
     at which the libraries were built, you can map source paths to target
     paths in \preferences > \uicontrol Debugger > \uicontrol General.
 
-    \image qtcreator-debugger-general-options.png {General tab in Debugger preferences}
+    \image qtcreator-preferences-debugger-general.webp {General tab in Debugger preferences}
 
     For more information, see \l{Source Paths Mapping}.
 

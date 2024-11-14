@@ -207,7 +207,7 @@ macro(qtc_auto_setup_vcpkg)
     option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
 
     find_program(vcpkg_program vcpkg
-      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg
+      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg
       NO_DEFAULT_PATH
     )
     if (NOT vcpkg_program)
@@ -247,7 +247,23 @@ macro(qtc_auto_setup_vcpkg)
       if (VCPKG_TARGET_TRIPLET)
         set(vcpkg_triplet ${VCPKG_TARGET_TRIPLET})
       else()
-        if (WIN32)
+        if (ANDROID_ABI)
+          if (ANDROID_ABI STREQUAL "armeabi-v7a")
+            set(vcpkg_triplet arm-neon-android)
+          elseif (ANDROID_ABI STREQUAL "arm64-v8a")
+            set(vcpkg_triplet arm64-android)
+          elseif (ANDROID_ABI STREQUAL "x86")
+              set(vcpkg_triplet x86-android)
+          elseif (ANDROID_ABI STREQUAL "x86_64")
+              set(vcpkg_triplet x64-android)
+          else()
+              message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
+          endif()
+          # Needed by vcpkg/scripts/toolchains/android.cmake
+          file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" "
+            set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
+          ")
+        elseif (WIN32)
           set(vcpkg_triplet x64-mingw-static)
           if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
             set(vcpkg_triplet ${CMAKE_MATCH_1}-windows)

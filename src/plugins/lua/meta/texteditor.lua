@@ -1,6 +1,10 @@
 ---@meta TextEditor
 local textEditor = {}
 
+---@module 'Utils'
+local Utils
+
+
 ---@class Position
 ---@field line integer The line number.
 ---@field column integer The column number.
@@ -116,11 +120,27 @@ function EmbeddedWidget:close() end
 ---Resizes the floating widget according to its layout.
 function EmbeddedWidget:resize() end
 
+---Set the callback to be called when the widget should close. (E.g. if the user presses the escape key)
+---@param fn function The function to be called when the embed should close.
+function EmbeddedWidget:onShouldClose(fn) end
+
 ---Embeds a widget at the specified cursor position in the text editor.
 ---@param widget Widget|Layout The widget to be added as a floating widget.
----@param position integer The position in the document where the widget should appear.
+---@param position integer|Position The position in the document where the widget should appear.
 ---@return EmbeddedWidget interface An interface to control the floating widget.
 function TextEditor:addEmbeddedWidget(widget, position) end
+
+---Adds an refactor marker in the text editor at given cursor position.
+---@param icon Utils.Icon|FilePath|string Icon to be used. If specified icon is invalid the default QtCreator for markers is used.
+---@param position integer The position in the document where the marker should appear.
+---@param id string The identifier of the marker.
+---@param anchorLeft boolean Specifies if the marker should appear at the beginning of the TextCursor block.
+---@param callback function A function to be called once the marker is pressed.
+function TextEditor:setRefactorMarker(icon, position, id, anchorLeft, callback) end
+
+---Removes the refactor markers with given id.
+---param id string The identifier of the marker.
+function TextEditor:clearRefactorMarkers(icon, position, id, anchorLeft, callback) end
 
 ---Checks if the current suggestion is locked. The suggestion is locked when the user can use it.
 ---@return boolean True if the suggestion is locked, false otherwise.

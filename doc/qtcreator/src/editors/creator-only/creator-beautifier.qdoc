@@ -23,7 +23,7 @@
 
         \li \l{http://astyle.sourceforge.net}{Artistic Style}
 
-        \li \l{http://clang.llvm.org/docs/ClangFormat.html}{ClangFormat}
+        \li \l{ClangFormat: Documentation}{ClangFormat}
 
         \li \l{http://uncrustify.sourceforge.net}{Uncrustify}
 
@@ -41,7 +41,7 @@
             \list
                 \li \l{http://sourceforge.net/projects/astyle/files/astyle}
                     {Artistic Style}
-                \li \l{http://llvm.org/releases/download.html}{ClangFormat}
+                \li \l{ClangFormat: Download}{ClangFormat}
                 \li \l{http://sourceforge.net/projects/uncrustify/files/uncrustify}
                     {Uncrustify}
             \endlist

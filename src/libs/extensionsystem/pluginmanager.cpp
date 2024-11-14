@@ -1451,10 +1451,10 @@ void PluginManagerPrivate::loadPlugins()
 
 void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugins)
 {
-    const bool allSoftloadable = allOf(plugins, &PluginSpec::isSoftLoadable);
+    const bool allSoftloadable = allOf(plugins, &PluginSpec::isEffectivelySoftloadable);
     if (!allSoftloadable) {
         const QStringList notSoftLoadablePlugins = Utils::transform<QStringList>(
-            Utils::filtered(plugins, std::not_fn(&PluginSpec::isSoftLoadable)),
+            Utils::filtered(plugins, std::not_fn(&PluginSpec::isEffectivelySoftloadable)),
             &PluginSpec::displayName);
         qWarning().noquote()
             << "PluginManagerPrivate::loadPluginsAtRuntime(): trying to load non-softloadable"
@@ -1464,7 +1464,7 @@ void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugin
     // load the plugins and their dependencies (if possible) ordered by dependency
     const QList<PluginSpec *> queue = filtered(loadQueue(), [&plugins](PluginSpec *spec) {
         // Is the current plugin already running, or not soft loadable?
-        if (spec->state() == PluginSpec::State::Running || !spec->isSoftLoadable())
+        if (spec->state() == PluginSpec::State::Running || !spec->isEffectivelySoftloadable())
             return false;
 
         // Is the current plugin in the list of plugins to load?

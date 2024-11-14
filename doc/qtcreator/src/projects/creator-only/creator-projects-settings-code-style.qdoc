@@ -53,9 +53,9 @@
             project.
     \endlist
 
-    In rare cases, ClangFormat can trip over a code construct and
-    trigger a \QC crash. If that happens for your project, select
-    \uicontrol {Use Built-In Indenter} in \uicontrol {Formatting mode} to
+    In rare cases, \l{ClangFormat: Documentation}{ClangFormat} can trip over a
+    code construct and trigger a \QC crash. If that happens for your project,
+    select \uicontrol {Use Built-In Indenter} in \uicontrol {Formatting mode} to
     turn off ClangFormat for the project. If you can reproduce the crash,
     go to \uicontrol Help > \uicontrol {Report Bug} to report
     the bug and attach the code that triggers the crash to the bug report.

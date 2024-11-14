@@ -17,6 +17,8 @@ using namespace std::chrono_literals;
 using TaskObject = milliseconds;
 using TestTask = TimeoutTask;
 
+constexpr milliseconds s_endlessTime = 1000000s;
+
 namespace PrintableEnums {
 
 Q_NAMESPACE
@@ -346,17 +348,6 @@ void tst_Tasking::runtimeCheck()
         };
     }
 }
-
-class Tick : public QObject
-{
-    Q_OBJECT
-
-public:
-    Tick(const milliseconds &interval) { QTimer::singleShot(interval, this, &Tick::tick); }
-
-signals:
-    void tick();
-};
 
 class TickAndDone : public QObject
 {
@@ -3171,7 +3162,7 @@ void tst_Tasking::testTree_data()
         // This test ensures the task done handlers are invoked in a different order
         // than the corresponding setup handlers.
 
-        const QList<milliseconds> tasks { 1000000ms, 0ms };
+        const QList<milliseconds> tasks { s_endlessTime, 0ms };
         const LoopList iterator(tasks);
 
         const auto onSetup = [storage, iterator](TaskObject &taskObject) {
@@ -3790,25 +3781,28 @@ void tst_Tasking::testTree_data()
     {
         // withCancel / withAccept
 
-        const Storage<std::unique_ptr<Tick>> tickStorage;
+        const Storage<std::unique_ptr<QTimer>> tickStorage;
 
         const auto onSetup = [tickStorage](milliseconds timeout) {
-            return [tickStorage, timeout] { tickStorage->reset(new Tick(timeout)); };
+            return [tickStorage, timeout] {
+                tickStorage->reset(new QTimer);
+                tickStorage->get()->start(timeout);
+            };
         };
 
         const auto onTickSetup = [tickStorage] {
-            return std::make_pair(tickStorage->get(), &Tick::tick);
+            return std::make_pair(tickStorage->get(), &QTimer::timeout);
         };
 
         const Group cancelRecipe {
             storage,
             tickStorage,
-            onGroupSetup(onSetup(0ms)),
+            onGroupSetup(onSetup(0ms)), // 1st queued call
             Group {
                 groupSetup(1),
-                createSuccessTask(2, 1ms),
+                createSuccessTask(2, s_endlessTime),
                 groupDone(1)
-            }.withCancel(onTickSetup)
+            }.withCancel(onTickSetup) // 2nd queued call
         };
 
         const Log cancelLog {

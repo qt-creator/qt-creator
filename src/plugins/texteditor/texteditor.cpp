@@ -750,6 +750,7 @@ public:
     qreal charWidth() const;
 
     std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+    void forceUpdateScrollbarSize();
 
     // actions
     void registerActions();
@@ -947,6 +948,7 @@ public:
     void updateSuggestion();
     void clearCurrentSuggestion();
     QTextBlock m_suggestionBlock;
+    int m_numEmbeddedWidgets = 0;
 
     Context m_editorContext;
     QAction *m_undoAction = nullptr;
@@ -1839,6 +1841,7 @@ void TextEditorWidgetPrivate::insertSuggestion(std::unique_ptr<TextSuggestion> &
     auto options = suggestion->replacementDocument()->defaultTextOption();
     m_suggestionBlock = cursor.block();
     m_document->insertSuggestion(std::move(suggestion));
+    forceUpdateScrollbarSize();
 }
 
 void TextEditorWidgetPrivate::updateSuggestion()
@@ -3500,7 +3503,10 @@ bool TextEditorWidget::event(QEvent *e)
         if (ke->key() == Qt::Key_Escape
             && (d->m_snippetOverlay->isVisible()
                 || multiTextCursor().hasMultipleCursors()
-                || d->m_suggestionBlock.isValid())) {
+                || d->m_suggestionBlock.isValid()
+                || d->m_numEmbeddedWidgets > 0)) {
+            if (d->m_numEmbeddedWidgets > 0)
+                emit embeddedWidgetsShouldClose();
             e->accept();
         } else {
             // hack copied from QInputControl::isCommonTextEditShortcut
@@ -3920,10 +3926,8 @@ qreal TextEditorWidgetPrivate::charWidth() const
 {
     return QFontMetricsF(q->font()).horizontalAdvance(QLatin1Char('x'));
 }
-
 class CarrierWidget : public QWidget
 {
-    Q_OBJECT
 public:
     CarrierWidget(TextEditorWidget *textEditorWidget, QWidget *embed)
         : QWidget(textEditorWidget->viewport())
@@ -3942,7 +3946,7 @@ public:
         });
     }
 
-    int embedHeight() { return m_embed->minimumSizeHint().height(); }
+    int embedHeight() { return m_embed->sizeHint().height(); }
 
 private:
     QWidget *m_embed;
@@ -3964,11 +3968,26 @@ void EmbeddedWidgetInterface::close()
     emit closed();
 }
 
+void TextEditorWidgetPrivate::forceUpdateScrollbarSize()
+{
+    // We use resizeEvent here as a workaround as we can't get access to the
+    // scrollarea which is a private part of the QPlainTextEdit.
+    // During the resizeEvent the plain text edit will resize its scrollbars.
+    // The TextEditorWidget will also update its scrollbar overlays.
+    q->resizeEvent(new QResizeEvent(q->size(), q->size()));
+}
+
 std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
     QWidget *widget, int line)
 {
     QPointer<CarrierWidget> carrier = new CarrierWidget(q, widget);
     std::unique_ptr<EmbeddedWidgetInterface> result(new EmbeddedWidgetInterface());
+
+    connect(
+        q,
+        &TextEditorWidget::embeddedWidgetsShouldClose,
+        result.get(),
+        &EmbeddedWidgetInterface::shouldClose);
 
     struct State
     {
@@ -4032,9 +4051,14 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         QTextBlock block = pState->cursor.block();
         auto userData = TextDocumentLayout::userData(block);
         userData->removeEmbeddedWidget(carrier);
+        m_numEmbeddedWidgets--;
+        forceUpdateScrollbarSize();
     });
     connect(q->document()->documentLayout(), &QAbstractTextDocumentLayout::update, carrier, position);
-    connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, position);
+    connect(result.get(), &EmbeddedWidgetInterface::resized, carrier, [position, this]() {
+        position();
+        forceUpdateScrollbarSize();
+    });
     connect(result.get(), &EmbeddedWidgetInterface::closed, this, [this, carrier] {
         if (carrier)
             carrier->deleteLater();
@@ -4042,7 +4066,11 @@ std::unique_ptr<EmbeddedWidgetInterface> TextEditorWidgetPrivate::insertWidget(
         QTimer::singleShot(0, layout, [layout] { layout->update(); });
     });
 
+    m_numEmbeddedWidgets++;
+
     carrier->show();
+
+    forceUpdateScrollbarSize();
     return result;
 }
 
@@ -7077,6 +7105,15 @@ void TextEditorWidget::mouseReleaseEvent(QMouseEvent *e)
 
     if (!HostOsInfo::isLinuxHost() && handleForwardBackwardMouseButtons(e))
         return;
+
+    // If the refactor marker was pressed then don't propagate release event to editor
+    RefactorMarker refactorMarker = d->m_refactorOverlay->markerAt(e->pos());
+    if (refactorMarker.isValid()) {
+        if (refactorMarker.callback) {
+            e->accept();
+            return;
+        }
+    }
 
     QPlainTextEdit::mouseReleaseEvent(e);
 

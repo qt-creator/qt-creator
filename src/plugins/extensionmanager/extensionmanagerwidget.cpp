@@ -389,7 +389,6 @@ private:
     QStackedWidget *m_detailsStack;
     CollapsingWidget *m_secondaryDescriptionWidget;
     HeadingWidget *m_headingWidget;
-    QWidget *m_primaryContent;
     QWidget *m_secondaryContent;
     MarkdownBrowser *m_description;
     QLabel *m_dateUpdatedTitle;
@@ -457,17 +456,8 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     QPalette browserPal = m_description->palette();
     browserPal.setColor(QPalette::Base, creatorColor(Theme::Token_Background_Default));
     m_description->setPalette(browserPal);
-
-    using namespace Layouting;
-    auto primary = new QWidget;
-    const auto spL = spacing(SpacingTokens::VPaddingL);
-    // clang-format off
-    Column {
-        m_description,
-        noMargin, spacing(SpacingTokens::ExVPaddingGapXl),
-    }.attachTo(primary);
-    // clang-format on
-    m_primaryContent = toScrollableColumn(primary);
+    const int verticalPadding = SpacingTokens::ExVPaddingGapXl - SpacingTokens::VPaddingM;
+    m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
     m_dateUpdated = tfLabel(contentTF, false);
@@ -482,7 +472,11 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_pluginStatus = new PluginStatusWidget;
 
     auto secondary = new QWidget;
+
+    using namespace Layouting;
+    const auto spL = spacing(SpacingTokens::VPaddingL);
     const auto spXxs = spacing(SpacingTokens::VPaddingXxs);
+    // clang-format off
     Column {
         sectionTitle(h6CapitalTF, Tr::tr("Extension details")),
         Column {
@@ -515,7 +509,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
                     customMargins(SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl,
                                   SpacingTokens::ExVPaddingGapXl, SpacingTokens::ExVPaddingGapXl),
                 },
-                m_primaryContent,
+                m_description,
             },
         },
         m_secondaryDescriptionWidget,
@@ -536,6 +530,7 @@ ExtensionManagerWidget::ExtensionManagerWidget()
         },
         noMargin, spacing(0),
     }.attachTo(this);
+    // clang-format on
 
     WelcomePageHelpers::setBackgroundColor(this, Theme::Token_Background_Default);
 
@@ -580,6 +575,7 @@ void ExtensionManagerWidget::updateView(const QModelIndex &current)
     {
         const QString description = current.data(RoleDescriptionLong).toString();
         m_description->setMarkdown(description);
+        m_description->document()->setDocumentMargin(SpacingTokens::VPaddingM);
     }
 
     {

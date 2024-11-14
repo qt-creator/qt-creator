@@ -131,6 +131,7 @@ public:
     virtual bool isForceEnabled() const;
     virtual bool isForceDisabled() const;
     virtual bool isSoftLoadable() const;
+    virtual bool isEffectivelySoftloadable() const;
 
     virtual QVector<PluginDependency> dependencies() const;
     virtual QJsonObject metaData() const;

@@ -111,10 +111,24 @@ CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
 CREATE_HAS_FUNC(setFixedSize, QSize())
 CREATE_HAS_FUNC(setVisible, bool())
 CREATE_HAS_FUNC(setIcon, Utils::Icon());
+CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
+CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
+    if constexpr (has_setContentsMargins<T>) {
+        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins");
+        if (margins)
+            item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
+    }
+
+    if constexpr (has_setCursor<T>) {
+        const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
+        if (cursor)
+            item->setCursor(*cursor);
+    }
+
     if constexpr (has_setVisible<T>) {
         const auto visible = children.get<sol::optional<bool>>("visible");
         if (visible)
@@ -243,8 +257,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
     }
 
     if constexpr (has_onTextChanged<T>) {
-        sol::optional<sol::protected_function> onTextChanged
-            = children.get<sol::optional<sol::protected_function>>("onTextChanged");
+        sol::optional<sol::main_function> onTextChanged
+            = children.get<sol::optional<sol::main_function>>("onTextChanged");
         if (onTextChanged) {
             item->onTextChanged(
                 [f = *onTextChanged](const QString &text) {
@@ -255,8 +269,8 @@ void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject
         }
     }
     if constexpr (has_onClicked<T>) {
-        sol::optional<sol::protected_function> onClicked
-            = children.get<sol::optional<sol::protected_function>>("onClicked");
+        sol::optional<sol::main_function> onClicked
+            = children.get<sol::optional<sol::main_function>>("onClicked");
         if (onClicked) {
             item->onClicked(
                 [f = *onClicked]() {
@@ -525,6 +539,10 @@ void setupGuiModule()
             sol::property(&Widget::isVisible, &Widget::setVisible),
             "enabled",
             sol::property(&Widget::isEnabled, &Widget::setEnabled),
+            "focus",
+            sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
+            "setFocus",
+            [](Widget *self) { self->emerge()->setFocus(); },
             sol::base_classes,
             sol::bases<Object, Thing>());
 
@@ -532,6 +550,7 @@ void setupGuiModule()
         mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
         mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
 
         gui.new_usertype<Stack>(
             "Stack",

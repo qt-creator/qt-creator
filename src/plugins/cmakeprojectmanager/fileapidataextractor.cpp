@@ -720,7 +720,9 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                                              targetRoot);
         if (showSourceFolders) {
             FilePath baseDir = sourceDirectory.pathAppended(td.sourceGroups[i]);
-            if (!baseDir.exists())
+            const bool caseSensitiveMatch = baseDir.nativePath()
+                                            == baseDir.canonicalPath().nativePath();
+            if (!baseDir.exists() || !caseSensitiveMatch)
                 baseDir = sourceDirectory;
             insertNode->addNestedNodes(std::move(current), baseDir);
         } else {

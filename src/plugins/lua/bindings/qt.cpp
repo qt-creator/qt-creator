@@ -36,7 +36,7 @@ void setupQtModule()
                 &QCompleter::completionMode,
                 [](QCompleter *c, QCompleter::CompletionMode mode) { c->setCompletionMode(mode); }),
             "onActivated",
-            sol::property([guard = pluginSpec](QCompleter &obj, sol::function callback) {
+            sol::property([guard = pluginSpec](QCompleter &obj, sol::main_function callback) {
                 QObject::connect(
                     &obj,
                     QOverload<const QString &>::of(&QCompleter::activated),

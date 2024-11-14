@@ -251,7 +251,7 @@ void setupUtilsModule()
             utils.new_usertype<QTimer>(
                 "Timer",
                 "create",
-                [guard = pluginSpec](int timeout, bool singleShort, sol::function callback)
+                [guard = pluginSpec](int timeout, bool singleShort, sol::main_function callback)
                     -> std::unique_ptr<QTimer> {
                     auto timer = std::make_unique<QTimer>();
                     timer->setInterval(timeout);

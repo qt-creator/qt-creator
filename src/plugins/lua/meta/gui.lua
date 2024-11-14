@@ -38,6 +38,8 @@ gui.baseWidgetOptions = {}
 ---@field flat? boolean A boolean, representing whether the widget should be flat, if applicable.
 ---@field [1]? Layout The layout of the widget, if applicable.
 ---@field fixedSize? integer[] Two integers representing the width and height
+---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
+---@field cursor? CursorShape The cursor shape for the widget.
 gui.widgetOptions = {}
 
 ---@param options WidgetOptions
@@ -430,6 +432,37 @@ gui.WidgetAttribute = {
     WA_ContentsMarginsRespectsSafeArea = 0,
     WA_StyleSheetTarget = 0
 }
+
+--- Enum representing cursor shape for the widget
+---@enum CursorShape
+gui.CursorShape = {
+    ArrowCursor = 0 = 0,
+    UpArrowCursor = 0,
+    CrossCursor = 0,
+    WaitCursor = 0,
+    IBeamCursor = 0,
+    SizeVerCursor = 0,
+    SizeHorCursor = 0,
+    SizeBDiagCursor = 0,
+    SizeFDiagCursor = 0,
+    SizeAllCursor = 0,
+    BlankCursor = 0,
+    SplitVCursor = 0,
+    SplitHCursor = 0,
+    PointingHandCursor = 0,
+    ForbiddenCursor = 0,
+    WhatsThisCursor = 0,
+    BusyCursor = 0,
+    OpenHandCursor = 0,
+    ClosedHandCursor = 0,
+    DragCopyCursor = 0,
+    DragMoveCursor = 0,
+    DragLinkCursor = 0,
+    LastCursor = DragLinkCursor,
+    BitmapCursor = 0,
+    CustomCursor = 0
+}
+
 ---@class Space : Layout
 gui.space = {}
 

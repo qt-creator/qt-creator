@@ -1,6 +1,8 @@
 ---@meta Action
-
 local action = {}
+
+---@module 'Utils'
+local Utils
 
 ---@enum CommandAttributes
 action.CommandAttribute = {
@@ -17,7 +19,7 @@ action.CommandAttribute = {
 ---@class ActionOptions
 ---@field context? string The context in which the action is available.
 ---@field text? string The text to display for the action.
----@field icon? FilePath|string The icon to display for the action.
+---@field icon? Utils.Icon|FilePath|string The icon to display for the action.
 ---@field iconText? string The icon text to display for the action.
 ---@field toolTip? string The toolTip to display for the action.
 ---@field onTrigger? function The callback to call when the action is triggered.

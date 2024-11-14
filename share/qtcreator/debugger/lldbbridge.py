@@ -988,7 +988,7 @@ class Dumper(DumperBase):
             connect_options = lldb.SBPlatformConnectOptions(self.remoteChannel_)
             res = self.target.GetPlatform().ConnectRemote(connect_options)
 
-            DumperBase.warn("CONNECT: %s %s platform: %s %s" % (res,
+            DumperBase.warn("CONNECT: %s %s platform: %s connected: %s" % (res,
                         self.remoteChannel_,
                         self.target.GetPlatform().GetName(),
                         self.target.GetPlatform().IsConnected()))

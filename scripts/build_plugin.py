@@ -147,12 +147,7 @@ def package(args, paths):
     if common.is_windows_platform() and args.sign_command:
         command = shlex.split(args.sign_command)
         common.check_print_call(command + [paths.install])
-    # use -mf=off to avoid usage of the ARM executable compression filter,
-    # which cannot be extracted by p7zip
-    # use -snl to preserve symlinks even if their target doesn't exist
-    # which is important for the _dev package on Linux
-    # (only works with official/upstream 7zip)
-    zip = ['7z', 'a', '-mmt' + args.zip_threads, '-mf=off', '-snl']
+    zip = common.sevenzip_command(args.zip_threads)
     common.check_print_call(zip + [os.path.join(paths.result, args.name + '.7z'), '*'],
                             paths.install)
     if os.path.exists(paths.dev_install):  # some plugins might not provide anything in Devel

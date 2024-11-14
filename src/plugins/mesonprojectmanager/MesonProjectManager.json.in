@@ -26,5 +26,18 @@
     ],
     "Url" : "https://www.mesonbuild.com",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-meson.html",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-meson'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Meson build description</comment>",
+        "        <glob pattern='meson.build'/>",
+        "        <glob pattern='meson.options'/>",
+        "        <glob pattern='meson_options.txt'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

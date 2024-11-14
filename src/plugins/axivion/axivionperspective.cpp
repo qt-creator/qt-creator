@@ -92,10 +92,6 @@ static std::optional<PathMapping> findPathMappingMatch(const QString &projectNam
     for (const PathMapping &mapping : settings().validPathMappings()) {
         if (mapping.projectName != projectName)
             continue;
-        if (mapping.localPath.isRelativePath())    // TODO mark inside settings
-            continue;
-        if (mapping.analysisPath.isAbsolutePath()) // TODO mark inside settings
-            continue;
 
         if (mapping.analysisPath.isEmpty())
             return mapping;
