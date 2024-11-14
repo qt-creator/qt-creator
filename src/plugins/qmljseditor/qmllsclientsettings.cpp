@@ -233,7 +233,6 @@ void QmllsClientSettings::fromMap(const Store &map)
     m_generateQmllsIniFiles = map[generateQmllsIniFilesKey].toBool();
     m_ignoreMinimumQmllsVersion = map[ignoreMinimumQmllsVersionKey].toBool();
     m_useQmllsSemanticHighlighting = map[useQmllsSemanticHighlightingKey].toBool();
-    return;
 }
 
 bool QmllsClientSettings::isEnabledOnProjectFile(const Utils::FilePath &file) const
@@ -252,6 +251,34 @@ bool QmllsClientSettings::useQmllsWithBuiltinCodemodelOnProject(const Utils::Fil
     return isEnabledOnProject(project);
 }
 
+// first time initialization: port old settings from the QmlJsEditingSettings AspectContainer
+static void portFromOldSettings(QmllsClientSettings* qmllsClientSettings)
+{
+    QtcSettings *settings = BaseAspect::qtcSettings();
+
+    const Key baseKey = Key{QmlJSEditor::Constants::SETTINGS_CATEGORY_QML} + "/";
+
+    auto portSetting = [&settings](const Key &key, bool *output) {
+        if (settings->contains(key))
+            *output = settings->value(key).toBool();
+    };
+
+    constexpr char USE_QMLLS[] = "QmlJSEditor.UseQmlls";
+    constexpr char USE_LATEST_QMLLS[] = "QmlJSEditor.UseLatestQmlls";
+    constexpr char DISABLE_BUILTIN_CODEMODEL[] = "QmlJSEditor.DisableBuiltinCodemodel";
+    constexpr char GENERATE_QMLLS_INI_FILES[] = "QmlJSEditor.GenerateQmllsIniFiles";
+    constexpr char IGNORE_MINIMUM_QMLLS_VERSION[] = "QmlJSEditor.IgnoreMinimumQmllsVersion";
+    constexpr char USE_QMLLS_SEMANTIC_HIGHLIGHTING[]
+        = "QmlJSEditor.EnableQmllsSemanticHighlighting";
+
+    portSetting(baseKey + USE_QMLLS, &qmllsClientSettings->m_enabled);
+    portSetting(baseKey + USE_LATEST_QMLLS, &qmllsClientSettings->m_useLatestQmlls);
+    portSetting(baseKey + DISABLE_BUILTIN_CODEMODEL, &qmllsClientSettings->m_disableBuiltinCodemodel);
+    portSetting(baseKey + GENERATE_QMLLS_INI_FILES, &qmllsClientSettings->m_generateQmllsIniFiles);
+    portSetting(baseKey + IGNORE_MINIMUM_QMLLS_VERSION, &qmllsClientSettings->m_ignoreMinimumQmllsVersion);
+    portSetting(baseKey + USE_QMLLS_SEMANTIC_HIGHLIGHTING, &qmllsClientSettings->m_useQmllsSemanticHighlighting);
+}
+
 void setupQmllsClientSettings()
 {
     using namespace LanguageClient;
@@ -267,6 +294,8 @@ void setupQmllsClientSettings()
 
     if (!savedSettings.isEmpty())
         clientSettings->fromMap(savedSettings.first());
+    else
+        portFromOldSettings(clientSettings);
 
     LanguageClientManager::registerClientSettings(clientSettings);
     LanguageClientSettings::registerClientType(type);
