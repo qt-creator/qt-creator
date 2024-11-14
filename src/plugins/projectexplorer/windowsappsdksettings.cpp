@@ -68,6 +68,13 @@ WindowsAppSdkSettings::WindowsAppSdkSettings()
 
     AspectContainer::readSettings();
 
+    if (downloadLocation().isEmpty()) {
+        QString path = QStandardPaths::writableLocation(QStandardPaths::DownloadLocation)
+                       + QStringLiteral("/WindowsAppSDK");
+        QDir().mkpath(path);
+        downloadLocation.setValue(path);
+    }
+
     if (windowsAppSdkLocation().isEmpty()) {
         windowsAppSdkLocation.setValue(FilePath::fromUserInput(
             Environment::systemEnvironment().value(Constants::WINDOWS_WINAPPSDK_ROOT_ENV_KEY)));
@@ -238,34 +245,34 @@ WindowsSettingsWidget::WindowsSettingsWidget()
     auto winAppSdkDetailsWidget = new DetailsWidget;
 
     m_downloadPathChooser = new PathChooser;
-    m_downloadPathChooser->setToolTip(Tr::tr("Select the path of downloads."));
+    m_downloadPathChooser->setToolTip(Tr::tr("Select the download path of NuGet and Windows App SDK."));
     m_downloadPathChooser->setPromptDialogTitle(Tr::tr("Select download path"));
     m_downloadPathChooser->setExpectedKind(PathChooser::ExistingDirectory);
     m_downloadPathChooser->setFilePath(windowsAppSdkSettings().downloadLocation());
 
     m_nugetPathChooser = new PathChooser;
-    m_nugetPathChooser->setToolTip(Tr::tr("Select the path of the Nuget."));
+    m_nugetPathChooser->setToolTip(Tr::tr("Select the path of the NuGet."));
     m_nugetPathChooser->setPromptDialogTitle(Tr::tr("Select nuget.exe file"));
     m_nugetPathChooser->setExpectedKind(PathChooser::Any);
     m_nugetPathChooser->setFilePath(windowsAppSdkSettings().nugetLocation());
 
-    auto downloadNuget = new QPushButton(Tr::tr("Download Nuget"));
+    auto downloadNuget = new QPushButton(Tr::tr("Download NuGet"));
     downloadNuget->setToolTip(
-        Tr::tr("Automatically download Nuget.\n\n"
-               "Nuget is needed for downloading Windows App SDK."));
+        Tr::tr("Automatically download NuGet.\n\n"
+               "NuGet is needed for downloading Windows App SDK."));
 
     m_winAppSdkPathChooser = new PathChooser;
     m_winAppSdkPathChooser->setToolTip(Tr::tr("Select the path of the Windows App SDK."));
 
     auto downloadWindowsAppSdk = new QPushButton(Tr::tr("Download WindowsAppSDK"));
     downloadWindowsAppSdk->setToolTip(
-        Tr::tr("Automatically download Windows App Sdk with Nuget.\n\n"
+        Tr::tr("Automatically download Windows App Sdk with NuGet.\n\n"
                "If the automatic download fails, Qt Creator proposes to open the download URL\n"
                "in the system's browser for manual download."));
 
     const QMap<int, QString> winAppSdkValidationPoints = {
         { DownloadPathExistsRow, Tr::tr("Download path exists.") },
-        { NugetPathExistsRow, Tr::tr("Nuget path exists.") },
+        { NugetPathExistsRow, Tr::tr("NuGet path exists.") },
         { WindowsAppSdkPathExists, Tr::tr("WindowsAppSDK path exists.") }
     };
     m_winAppSdkSummary = new SummaryWidget(winAppSdkValidationPoints,
@@ -293,9 +300,9 @@ WindowsSettingsWidget::WindowsSettingsWidget()
             }
         },
         Layouting::Group {
-            title(Tr::tr("Nuget")),
+            title(Tr::tr("NuGet")),
             Grid {
-                Tr::tr("Nuget location:"),
+                Tr::tr("NuGet location:"),
                 m_nugetPathChooser,
                 downloadNuget,
                 br,
@@ -391,10 +398,10 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
 
     const auto failDialog = [=](const QString &msgSuffix = {}) {
         QStringList sl;
-        sl << Tr::tr("Nuget downloading failed.");
+        sl << Tr::tr("NuGet downloading failed.");
         if (!msgSuffix.isEmpty())
             sl << msgSuffix;
-        sl << Tr::tr("Opening Nuget URL for manual download.");
+        sl << Tr::tr("Opening NuGet URL for manual download.");
         QMessageBox msgBox;
         msgBox.setText(sl.join(" "));
         msgBox.addButton(Tr::tr("Cancel"), QMessageBox::RejectRole);
@@ -410,7 +417,7 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
     struct StorageStruct
     {
         StorageStruct() {
-            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading Nuget..."),
+            progressDialog.reset(new QProgressDialog(Tr::tr("Downloading NuGet..."),
                                                      Tr::tr("Cancel"), 0, 100,
                                                      Core::ICore::dialogParent()));
             progressDialog->setWindowModality(Qt::ApplicationModal);
@@ -464,7 +471,7 @@ GroupItem WindowsSettingsWidget::downloadNugetRecipe()
         QTC_ASSERT(reply, return);
         const QUrl url = reply->url();
         if (result != DoneWith::Success) {
-            failDialog(Tr::tr("Downloading Nuget from URL %1 has failed: %2.")
+            failDialog(Tr::tr("Downloading NuGet from URL %1 has failed: %2.")
                          .arg(url.toString(), reply->errorString()));
             return;
         }
@@ -506,7 +513,7 @@ void WindowsSettingsWidget::downloadNuget()
             this,
             nugetDownloadingTitle,
             Tr::tr(
-                "The selected download path (%1) for Nuget already exists.\n"
+                "The selected download path (%1) for NuGet already exists.\n"
                 "Select a different path.")
                 .arg(nugetPath.toUserOutput()));
         return;
