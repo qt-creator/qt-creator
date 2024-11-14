@@ -193,6 +193,8 @@ bool createQmlrcFile(const FilePath &qmlrcFilePath)
     const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     const QtSupport::QtVersion *qtVersion = QtSupport::QtKitAspect::qtVersion(
         project->activeTarget()->kit());
+    QTC_ASSERT(qtVersion, return false);
+
     const FilePath rccBinary = qtVersion->rccFilePath();
 
     Utils::Process rccProcess;
