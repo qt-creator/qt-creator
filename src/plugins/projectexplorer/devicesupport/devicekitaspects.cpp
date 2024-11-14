@@ -196,7 +196,9 @@ private:
             embedded.first()->addToInnerLayout(layout);
             layout.addItem(Tr::tr("Device:"));
             KitAspect::addToInnerLayout(layout);
-            layout.addItem(Layouting::Stretch(1));
+            QSizePolicy p = comboBoxes().first()->sizePolicy();
+            p.setHorizontalStretch(1);
+            comboBoxes().first()->setSizePolicy(p);
         } else {
             KitAspect::addToInnerLayout(layout);
         }
