@@ -188,7 +188,7 @@ private:
 
     void addToInnerLayout(Layouting::Layout &parentItem) override
     {
-        Layouting::Layout layout = parentItem;
+        Layouting::Layout &layout = parentItem;
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
             layout = Layouting::Layout(new QHBoxLayout);
             parentItem.addItem(layout);
