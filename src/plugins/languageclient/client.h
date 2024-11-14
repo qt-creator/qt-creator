@@ -171,6 +171,7 @@ public:
     bool hasDiagnostic(const Utils::FilePath &filePath,
                        const LanguageServerProtocol::Diagnostic &diag) const;
     bool hasDiagnostics(const TextEditor::TextDocument *document) const;
+    void hideDiagnostics(const Utils::FilePath &documentPath);
     void setSemanticTokensHandler(const SemanticTokensHandler &handler);
     void setSnippetsGroup(const QString &group);
     void setCompletionAssistProvider(LanguageClientCompletionAssistProvider *provider);

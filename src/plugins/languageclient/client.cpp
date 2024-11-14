@@ -1622,6 +1622,12 @@ bool Client::hasDiagnostics(const TextEditor::TextDocument *document) const
     return false;
 }
 
+void Client::hideDiagnostics(const Utils::FilePath &documentPath)
+{
+    if (d->m_diagnosticManager)
+        d->m_diagnosticManager->hideDiagnostics(documentPath);
+}
+
 DiagnosticManager *Client::createDiagnosticManager()
 {
     return new DiagnosticManager(this);

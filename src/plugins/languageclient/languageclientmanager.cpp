@@ -462,7 +462,14 @@ void LanguageClientManager::openDocumentWithClient(TextEditor::TextDocument *doc
     Client *currentClient = clientForDocument(document);
     if (client == currentClient)
         return;
-    managerInstance->m_clientForDocument.remove(document);
+    const bool firstOpen = !managerInstance->m_clientForDocument.remove(document);
+    if (firstOpen) {
+        connect(
+            document, &QObject::destroyed, managerInstance, [document, path = document->filePath()] {
+                const QPointer<Client> client = managerInstance->m_clientForDocument.take(document);
+                QTC_ASSERT(!client, client->hideDiagnostics(path));
+            });
+    }
     if (currentClient)
         currentClient->deactivateDocument(document);
     managerInstance->m_clientForDocument[document] = client;
