@@ -78,8 +78,13 @@ QString anyToSimpleString(const Dto::Any &any)
         return any.getString();
     if (any.isBool())
         return QString("%1").arg(any.getBool());
-    if (any.isDouble())
-        return QString::number(any.getDouble());
+    if (any.isDouble()) {
+        double value = any.getDouble();
+        qint64 intValue = static_cast<qint64>(value);
+        if (value == static_cast<double>(intValue))
+            return QString::number(intValue);
+        return QString::number(value);
+    }
     if (any.isNull())
         return QString(); // or NULL??
     if (any.isList()) {
