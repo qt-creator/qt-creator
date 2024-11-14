@@ -728,7 +728,7 @@ bool FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgt
         if (srcModified == tgtModified) {
             // TODO: Create FilePath::hashFromContents() and compare hashes.
             const expected_str<QByteArray> srcContents = srcFilePath.fileContents();
-            const expected_str<QByteArray> tgtContents = srcFilePath.fileContents();
+            const expected_str<QByteArray> tgtContents = tgtFilePath.fileContents();
             if (srcContents && srcContents == tgtContents)
                 return true;
         }
