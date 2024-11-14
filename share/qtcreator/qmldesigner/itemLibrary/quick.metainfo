@@ -386,7 +386,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Property Animation"
+            name: "Property"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
@@ -406,7 +406,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Pause Animation"
+            name: "Pause"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
@@ -425,7 +425,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Sequential Animation"
+            name: "Sequential"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
@@ -444,7 +444,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Parallel Animation"
+            name: "Parallel"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
@@ -504,7 +504,7 @@ MetaInfo {
        }
 
         ItemLibraryEntry {
-            name: "Color Animation"
+            name: "Color"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
@@ -524,7 +524,7 @@ MetaInfo {
         }
 
         ItemLibraryEntry {
-            name: "Number Animation"
+            name: "Number"
             category: "d.Qt Quick - Animation"
             libraryIcon: "images/item-icon.png"
             version: "2.0"
