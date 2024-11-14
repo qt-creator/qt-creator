@@ -140,7 +140,7 @@ void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
     const QJsonValue mimetypes = metaData.value("Mimetypes");
     QString mimetypeString;
     if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+        Utils::addMimeTypes(plugin->id() + ".mimetypes", mimetypeString.trimmed().toUtf8());
 }
 
 static void initProxyAuthDialog()

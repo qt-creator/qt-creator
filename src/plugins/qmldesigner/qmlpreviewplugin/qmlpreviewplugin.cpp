@@ -170,7 +170,7 @@ QObject *QmlPreviewWidgetPlugin::getPreviewPlugin()
     const ExtensionSystem::PluginSpecs &specs = ExtensionSystem::PluginManager::plugins();
     const auto pluginIt = std::find_if(specs.cbegin(), specs.cend(),
                                  [](const ExtensionSystem::PluginSpec *p) {
-        return p->name() == "QmlPreview";
+        return p->id() == "qmlpreview";
     });
 
     if (pluginIt != specs.cend())

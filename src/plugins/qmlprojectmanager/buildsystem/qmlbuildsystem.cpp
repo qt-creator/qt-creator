@@ -55,7 +55,7 @@ ExtensionSystem::IPlugin *findMcuSupportPlugin()
 {
     const ExtensionSystem::PluginSpec *pluginSpec = Utils::findOrDefault(
         ExtensionSystem::PluginManager::plugins(),
-        Utils::equal(&ExtensionSystem::PluginSpec::name, QString("McuSupport")));
+        Utils::equal(&ExtensionSystem::PluginSpec::id, QString("mcusupport")));
 
     if (pluginSpec)
         return pluginSpec->plugin();

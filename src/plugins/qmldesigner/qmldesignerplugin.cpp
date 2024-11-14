@@ -324,7 +324,7 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * 
 
         // uses simplified Telemetry settings page in case of Qt Design Studio
         ExtensionSystem::PluginSpec *usageStatistic = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(), [](ExtensionSystem::PluginSpec *p) {
-            return p->name() == "UsageStatistic";
+            return p->id() == "usagestatistic";
         });
 
         if (usageStatistic && usageStatistic->plugin())

@@ -46,7 +46,7 @@ bool isClangFormatPresent()
 {
     using namespace ExtensionSystem;
     return Utils::contains(PluginManager::plugins(), [](const PluginSpec *plugin) {
-        return plugin->name() == "ClangFormat" && plugin->isEffectivelyEnabled();
+        return plugin->id() == "clangformat" && plugin->isEffectivelyEnabled();
     });
 };
 

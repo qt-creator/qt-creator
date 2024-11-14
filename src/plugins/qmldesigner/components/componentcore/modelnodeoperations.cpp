@@ -1761,7 +1761,7 @@ bool isEffectComposerActivated()
 {
     using namespace ExtensionSystem;
     return Utils::anyOf(PluginManager::plugins(), [](PluginSpec *spec) {
-        return spec->name() == "EffectComposer" && spec->isEffectivelyEnabled();
+        return spec->id() == "effectcomposer" && spec->isEffectivelyEnabled();
     });
 }
 

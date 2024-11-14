@@ -374,7 +374,7 @@ const QStringList PluginManager::allErrors()
     return Utils::transform<QStringList>(Utils::filtered(plugins(), [](const PluginSpec *spec) {
         return spec->hasError() && spec->isEffectivelyEnabled();
     }), [](const PluginSpec *spec) {
-        return spec->name().append(": ").append(spec->errorString());
+        return spec->id().append(": ").append(spec->errorString());
     });
 }
 
@@ -444,11 +444,11 @@ QString PluginManager::systemInformation()
     result += "Plugin information:\n\n";
     PluginSpec * const longestSpec = Utils::maxElementOrDefault(
         d->pluginSpecs, [](const PluginSpec *left, const PluginSpec *right) {
-            return left->name().size() < right->name().size();
+            return left->id().size() < right->id().size();
         });
-    int size = longestSpec->name().size();
+    int size = longestSpec->id().size();
     for (const PluginSpec *spec : plugins()) {
-        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->name(), size) +
+        result += QLatin1String(spec->isEffectivelyEnabled() ? "+ " : "  ") + filled(spec->id(), size) +
                   " " + spec->version() + "\n";
     }
     QString settingspath = QFileInfo(settings()->fileName()).path();
@@ -606,7 +606,7 @@ QString PluginManager::serializedArguments()
             if (!rc.isEmpty())
                 rc += separator;
             rc += QLatin1Char(':');
-            rc += ps->name();
+            rc += ps->id();
             rc += separator;
             rc +=  ps->arguments().join(separator);
         }
@@ -660,7 +660,7 @@ void PluginManager::remoteArguments(const QString &serializedArgument, QObject *
     const QStringList arguments = subList(serializedArguments, QLatin1String(argumentKeywordC));
     for (const PluginSpec *ps : plugins()) {
         if (ps->state() == PluginSpec::Running) {
-            const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->name());
+            const QStringList pluginOptions = subList(serializedArguments, QLatin1Char(':') + ps->id());
             if (IPlugin *plugin = ps->plugin()) {
                 QObject *socketParent
                     = plugin->remoteCommand(pluginOptions, workingDirectory, arguments);
@@ -815,7 +815,7 @@ void PluginManager::formatPluginOptions(QTextStream &str, int optionIndentation,
 void PluginManager::formatPluginVersions(QTextStream &str)
 {
     for (PluginSpec *ps : std::as_const(d->pluginSpecs))
-        str << "  " << ps->name() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
+        str << "  " << ps->id() << ' ' << ps->version() << ' ' << ps->description() <<  '\n';
 }
 
 /*!
@@ -969,7 +969,7 @@ void PluginManagerPrivate::startDelayedInitialize()
         NANOTRACE_SCOPE("ExtensionSystem", "DelayedInitialize");
         while (!delayedInitializeQueue.empty()) {
             PluginSpec *spec = delayedInitializeQueue.front();
-            const std::string specName = spec->name().toStdString();
+            const std::string specName = spec->id().toStdString();
             delayedInitializeQueue.pop();
             NANOTRACE_SCOPE(specName, specName + "::delayedInitialized");
             profilingReport(">delayedInitialize", spec);
@@ -1622,7 +1622,7 @@ public:
         QDir().mkpath(QFileInfo(m_filePath).absolutePath());
         QFile f(m_filePath);
         if (f.open(QIODevice::WriteOnly)) {
-            f.write(spec->name().toUtf8());
+            f.write(spec->id().toUtf8());
             f.write("\n");
             f.close();
         } else {
@@ -1744,11 +1744,11 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     if (enableCrashCheck && destState < PluginSpec::Stopped)
         lockFile.reset(new LockFile(this, spec));
 
-    const std::string specName = spec->name().toStdString();
+    const std::string specId = spec->id().toStdString();
 
     switch (destState) {
     case PluginSpec::Running: {
-        NANOTRACE_SCOPE(specName, specName + "::extensionsInitialized");
+        NANOTRACE_SCOPE(specId, specId + "::extensionsInitialized");
         profilingReport(">initializeExtensions", spec);
         spec->initializeExtensions();
         profilingReport("<initializeExtensions",
@@ -1782,14 +1782,14 @@ void PluginManagerPrivate::loadPlugin(PluginSpec *spec, PluginSpec::State destSt
     }
     switch (destState) {
     case PluginSpec::Loaded: {
-        NANOTRACE_SCOPE(specName, specName + "::load");
+        NANOTRACE_SCOPE(specId, specId + "::load");
         profilingReport(">loadLibrary", spec);
         spec->loadLibrary();
         profilingReport("<loadLibrary", spec, &spec->performanceData().load);
         break;
     }
     case PluginSpec::Initialized: {
-        NANOTRACE_SCOPE(specName, specName + "::initialize");
+        NANOTRACE_SCOPE(specId, specId + "::initialize");
         profilingReport(">initializePlugin", spec);
         spec->initializePlugin();
         profilingReport("<initializePlugin", spec, &spec->performanceData().initialize);
@@ -1865,7 +1865,7 @@ void PluginManagerPrivate::addPlugins(const PluginSpecs &specs)
     enableDependenciesIndirectly();
     checkForDuplicatePlugins();
     // ensure deterministic plugin load order by sorting
-    Utils::sort(pluginSpecs, &PluginSpec::name);
+    Utils::sort(pluginSpecs, &PluginSpec::id);
     emit q->pluginsChanged();
 }
 
@@ -1966,14 +1966,14 @@ void PluginManagerPrivate::profilingReport(const char *what, const PluginSpec *s
         if (m_profilingVerbosity > 0) {
             qDebug("%-22s %-40s %8lldms (%8lldms)",
                    what,
-                   qPrintable(spec->name()),
+                   qPrintable(spec->id()),
                    absoluteElapsedMS,
                    elapsedMS);
         }
         if (target) {
             QString tc;
             *target = elapsedMS;
-            tc = spec->name() + '_';
+            tc = spec->id() + '_';
             tc += QString::fromUtf8(QByteArray(what + 1));
             Utils::Benchmarker::report("loadPlugins", tc, elapsedMS);
         }
@@ -1997,7 +1997,7 @@ QString PluginManagerPrivate::profilingSummary(qint64 *totalOut) const
             continue;
         const qint64 t = s->performanceData().total();
         summary += QString("%1 %2ms   ( %3% ) (%4)\n")
-                       .arg(s->name(), -34)
+                       .arg(s->id(), -34)
                        .arg(t, 8)
                        .arg(100.0 * t / total, 5, 'f', 2)
                        .arg(s->performanceData().summary());

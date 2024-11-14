@@ -74,7 +74,7 @@ static bool isQmlDesigner(const ExtensionSystem::PluginSpec *spec)
     if (!spec)
         return false;
 
-    return spec->name().contains("QmlDesigner");
+    return spec->id().contains("qmldesigner");
 }
 
 static bool qmlDesignerEnabled()

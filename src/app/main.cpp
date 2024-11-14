@@ -404,8 +404,8 @@ QStringList lastSessionArgument()
 {
     // using insider information here is not particularly beautiful, anyhow
     const bool hasProjectExplorer = Utils::anyOf(PluginManager::plugins(),
-                                                 Utils::equal(&PluginSpec::name,
-                                                              QString("ProjectExplorer")));
+                                                 Utils::equal(&PluginSpec::id,
+                                                              QString("projectexplorer")));
     return hasProjectExplorer ? QStringList({"-lastsession"}) : QStringList();
 }
 

@@ -92,8 +92,8 @@ DataModelDownloader::DataModelDownloader(QObject * /* parent */)
 
     const ExtensionSystem::PluginSpec *pluginSpec
         = Utils::findOrDefault(ExtensionSystem::PluginManager::plugins(),
-                               Utils::equal(&ExtensionSystem::PluginSpec::name,
-                                            QString("StudioWelcome")));
+                               Utils::equal(&ExtensionSystem::PluginSpec::id,
+                                            QString("studiowelcome")));
 
     if (!pluginSpec)
         return;

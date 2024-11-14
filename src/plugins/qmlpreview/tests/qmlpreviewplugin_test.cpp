@@ -31,7 +31,7 @@ static ExtensionSystem::IPlugin *getPlugin()
 {
     const ExtensionSystem::PluginSpecs plugins = ExtensionSystem::PluginManager::plugins();
     auto it = std::find_if(plugins.begin(), plugins.end(), [](ExtensionSystem::PluginSpec *spec) {
-        return spec->name() == "QmlPreview";
+        return spec->id() == "qmlpreview";
     });
 
     return (it == plugins.end()) ? nullptr : (*it)->plugin();
