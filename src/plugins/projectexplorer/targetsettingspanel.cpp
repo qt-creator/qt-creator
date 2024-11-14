@@ -736,6 +736,7 @@ bool TargetGroupItem::setData(int column, const QVariant &data, int role)
     Q_UNUSED(data)
     if (role == ItemActivatedFromBelowRole || role == ItemUpdatedFromBelowRole) {
         // Bubble up to trigger setting the active project.
+        QTC_ASSERT(parent(), return false);
         parent()->setData(column, QVariant::fromValue(static_cast<TreeItem *>(this)), role);
         return true;
     }
