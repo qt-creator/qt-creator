@@ -157,6 +157,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-android
+    \ingroup creator-how-to-sdks
 
     \title Manage Android NDK packages
 
@@ -195,6 +196,7 @@
     \previouspage creator-how-tos.html
 
     \ingroup creator-how-to-android
+    \ingroup creator-how-to-sdks
 
     \title Manage Android SDK packages
 
