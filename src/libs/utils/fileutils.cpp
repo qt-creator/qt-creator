@@ -717,7 +717,7 @@ bool FileUtils::copyRecursively(const FilePath &srcFilePath,
   Returns whether the operation succeeded.
 */
 
-Result copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
+Result FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &tgtFilePath)
 {
     if (!srcFilePath.exists())
         return Result::Error(Tr::tr("File %1 does not exist.").arg(srcFilePath.toUserOutput()));
