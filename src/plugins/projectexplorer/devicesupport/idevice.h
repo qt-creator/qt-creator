@@ -76,13 +76,6 @@ protected:
     QString m_errorMessage;
 };
 
-class PROJECTEXPLORER_EXPORT PortsGatheringMethod final
-{
-public:
-    std::function<Utils::CommandLine(QAbstractSocket::NetworkLayerProtocol protocol)> commandLine;
-    std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
-};
-
 // See cpp file for documentation.
 class PROJECTEXPLORER_EXPORT IDevice
         : public Utils::AspectContainer, public std::enable_shared_from_this<IDevice>
@@ -143,7 +136,6 @@ public:
 
     virtual Tasking::ExecutableItem portsGatheringRecipe(
         const Tasking::Storage<Utils::PortsOutputData> &output) const;
-    virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }
     virtual DeviceTester *createDeviceTester();

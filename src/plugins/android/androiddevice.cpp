@@ -655,20 +655,6 @@ ExecutableItem AndroidDevice::portsGatheringRecipe(const Storage<PortsOutputData
     };
 }
 
-PortsGatheringMethod AndroidDevice::portsGatheringMethod() const
-{
-    return {
-        // Triggered for QmlProfiler
-        [this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
-            Q_UNUSED(protocol);
-            return {AndroidConfig::adbToolPath(), {
-                        adbSelector(serialNumber()), "shell" , "netstat", "-a", "-n"
-                   }};
-        },
-        &Port::parseFromCommandOutput
-    };
-}
-
 QUrl AndroidDevice::toolControlChannel(const ControlChannelHint &) const
 {
     QUrl url;
