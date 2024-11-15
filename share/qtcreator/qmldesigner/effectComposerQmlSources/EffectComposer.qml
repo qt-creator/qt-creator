@@ -254,6 +254,8 @@ Item {
                     }
 
                     HelperWidgets.AbstractButton {
+                        objectName: "btnRemoveAllEffects"
+
                         anchors.right: parent.right
                         anchors.rightMargin: 5
                         anchors.verticalCenter: parent.verticalCenter
@@ -272,6 +274,8 @@ Item {
                     }
 
                     HelperWidgets.AbstractButton {
+                        objectName: "btnOpenShaderInCodeEditor"
+
                         anchors.right: parent.right
                         anchors.rightMargin: 5
                         anchors.verticalCenter: parent.verticalCenter

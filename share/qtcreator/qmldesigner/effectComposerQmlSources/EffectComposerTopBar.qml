@@ -112,6 +112,8 @@ Rectangle {
     }
 
     HelperWidgets.AbstractButton {
+        objectName: "btnEffectComposerHelp"
+
         anchors.verticalCenter: parent.verticalCenter
         anchors.rightMargin: 5
         anchors.right: parent.right
