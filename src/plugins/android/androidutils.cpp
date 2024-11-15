@@ -16,12 +16,14 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/abi.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchainkitaspect.h>
 
+#include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
 #include <solutions/tasking/conditional.h>

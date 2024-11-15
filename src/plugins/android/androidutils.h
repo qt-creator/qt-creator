@@ -3,21 +3,30 @@
 
 #pragma once
 
-#include <projectexplorer/abi.h>
-
-#include <qtsupport/baseqtversion.h>
-
-#include <solutions/tasking/tasktree.h>
+#include <QStringList>
 
 namespace ProjectExplorer {
+class Abi;
 class Kit;
 class Target;
+}
+
+namespace QtSupport { class QtVersion; }
+
+namespace Tasking {
+class ExecutableItem;
+template <typename StorageStruct>
+class Storage;
 }
 
 namespace Utils {
 class FilePath;
 class Process;
 }
+
+QT_BEGIN_NAMESPACE
+class QJsonObject;
+QT_END_NAMESPACE
 
 namespace Android::Internal {
 
