@@ -9444,6 +9444,7 @@ BaseTextEditor::~BaseTextEditor()
 TextDocument *BaseTextEditor::textDocument() const
 {
     TextEditorWidget *widget = editorWidget();
+    QTC_CHECK(widget);
     QTC_CHECK(!widget->d->m_document.isNull());
     return widget->d->m_document.data();
 }
