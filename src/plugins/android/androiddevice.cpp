@@ -9,7 +9,7 @@
 #include "androidsignaloperation.h"
 #include "androidtr.h"
 #include "androidutils.h"
-#include "avddialog.h"
+#include "avdcreatordialog.h"
 #include "avdmanageroutputparser.h"
 
 #include <coreplugin/icore.h>
@@ -1053,11 +1053,11 @@ public:
                 return IDevice::Ptr();
             }
 
-            AvdDialog dialog = AvdDialog(Core::ICore::dialogParent());
-            if (dialog.exec() != QDialog::Accepted)
+            const auto info = executeAvdCreatorDialog();
+            if (!info)
                 return IDevice::Ptr();
 
-            const IDevice::Ptr dev = createDeviceFromInfo(dialog.avdInfo());
+            const IDevice::Ptr dev = createDeviceFromInfo(*info);
             if (const auto androidDev = static_cast<AndroidDevice *>(dev.get())) {
                 qCDebug(androidDeviceLog, "Created new Android AVD id \"%s\".",
                         qPrintable(androidDev->avdName()));

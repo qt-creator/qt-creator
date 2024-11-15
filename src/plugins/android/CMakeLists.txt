@@ -29,7 +29,7 @@ add_qtc_plugin(Android
     androidsignaloperation.cpp androidsignaloperation.h
     androidtoolchain.cpp androidtoolchain.h
     androidutils.cpp androidutils.h
-    avddialog.cpp avddialog.h
+    avdcreatordialog.cpp avdcreatordialog.h
     avdmanageroutputparser.cpp avdmanageroutputparser.h
     javaeditor.cpp javaeditor.h
     javalanguageserver.cpp javalanguageserver.h

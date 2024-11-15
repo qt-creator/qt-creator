@@ -1,17 +1,19 @@
 // Copyright (C) 2016 BogDan Vatra <bog_dan_ro@yahoo.com>
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "avddialog.h"
-#include "androidtr.h"
+#include "avdcreatordialog.h"
+
 #include "androidconfigurations.h"
 #include "androiddevice.h"
 #include "androidsdkmanager.h"
+#include "androidtr.h"
 
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <solutions/spinner/spinner.h>
+#include <solutions/tasking/tasktreerunner.h>
 
 #include <utils/algorithm.h>
 #include <utils/infolabel.h>
@@ -23,6 +25,7 @@
 
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QKeyEvent>
 #include <QLineEdit>
@@ -30,9 +33,11 @@
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QPushButton>
+#include <QRegularExpression>
 #include <QSpinBox>
-#include <QToolTip>
 #include <QSysInfo>
+#include <QTimer>
+#include <QToolTip>
 
 using namespace ProjectExplorer;
 using namespace SpinnerSolution;
@@ -43,8 +48,71 @@ namespace Android::Internal {
 
 static Q_LOGGING_CATEGORY(avdDialogLog, "qtc.android.avdDialog", QtWarningMsg)
 
-AvdDialog::AvdDialog(QWidget *parent)
-    : QDialog(parent)
+enum class DeviceType { Phone, Tablet, Automotive, TV, Wear, Desktop, PhoneOrTablet };
+
+static DeviceType tagToDeviceType(const QString &type_tag)
+{
+    if (type_tag.contains("android-wear"))
+        return DeviceType::Wear;
+    else if (type_tag.contains("android-tv"))
+        return DeviceType::TV;
+    else if (type_tag.contains("android-automotive"))
+        return DeviceType::Automotive;
+    else if (type_tag.contains("android-desktop"))
+        return DeviceType::Desktop;
+    return DeviceType::PhoneOrTablet;
+}
+
+class AvdDialog : public QDialog
+{
+public:
+    explicit AvdDialog();
+    CreateAvdInfo avdInfo() const { return m_createdAvdInfo; }
+
+private:
+    const SystemImage *systemImage() const
+    { return m_targetApiComboBox->currentData().value<SystemImage*>(); }
+    QString name() const { return m_nameLineEdit->text(); }
+    QString abi() const { return m_abiComboBox->currentText(); }
+    QString deviceDefinition() const { return m_deviceDefinitionComboBox->currentText(); }
+    int sdcardSize() const { return m_sdcardSizeSpinBox->value(); }
+    bool isValid() const
+    { return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty(); }
+
+    bool eventFilter(QObject *obj, QEvent *event) override;
+    void updateDeviceDefinitionComboBox();
+    void updateApiLevelComboBox();
+    void collectInitialData();
+    void createAvd();
+
+    struct DeviceDefinitionStruct
+    {
+        QString name_id;
+        QString type_str;
+        DeviceType deviceType;
+    };
+
+    CreateAvdInfo m_createdAvdInfo;
+    QTimer m_hideTipTimer;
+    QRegularExpression m_allowedNameChars;
+    QList<DeviceDefinitionStruct> m_deviceDefinitionsList;
+    QMap<DeviceType, QString> m_deviceTypeToStringMap;
+
+    QWidget *m_gui;
+    QComboBox *m_abiComboBox;
+    QSpinBox *m_sdcardSizeSpinBox;
+    QLineEdit *m_nameLineEdit;
+    QComboBox *m_targetApiComboBox;
+    QComboBox *m_deviceDefinitionComboBox;
+    Utils::InfoLabel *m_warningText;
+    QComboBox *m_deviceDefinitionTypeComboBox;
+    QCheckBox *m_overwriteCheckBox;
+    QDialogButtonBox *m_buttonBox;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
+};
+
+AvdDialog::AvdDialog()
+    : QDialog(Core::ICore::dialogParent())
     , m_allowedNameChars(QLatin1String("[a-z|A-Z|0-9|._-]*"))
 {
     resize(800, 0);
@@ -125,37 +193,14 @@ AvdDialog::AvdDialog(QWidget *parent)
     connect(m_buttonBox, &QDialogButtonBox::accepted, this, &AvdDialog::createAvd);
     connect(m_buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    m_deviceTypeToStringMap.insert(AvdDialog::Phone, "Phone");
-    m_deviceTypeToStringMap.insert(AvdDialog::Tablet, "Tablet");
-    m_deviceTypeToStringMap.insert(AvdDialog::Automotive, "Automotive");
-    m_deviceTypeToStringMap.insert(AvdDialog::TV, "TV");
-    m_deviceTypeToStringMap.insert(AvdDialog::Wear, "Wear");
-    m_deviceTypeToStringMap.insert(AvdDialog::Desktop, "Desktop");
+    m_deviceTypeToStringMap.insert(DeviceType::Phone, "Phone");
+    m_deviceTypeToStringMap.insert(DeviceType::Tablet, "Tablet");
+    m_deviceTypeToStringMap.insert(DeviceType::Automotive, "Automotive");
+    m_deviceTypeToStringMap.insert(DeviceType::TV, "TV");
+    m_deviceTypeToStringMap.insert(DeviceType::Wear, "Wear");
+    m_deviceTypeToStringMap.insert(DeviceType::Desktop, "Desktop");
 
     collectInitialData();
-}
-
-bool AvdDialog::isValid() const
-{
-    return !name().isEmpty() && systemImage() && systemImage()->isValid() && !abi().isEmpty();
-}
-
-CreateAvdInfo AvdDialog::avdInfo() const
-{
-    return m_createdAvdInfo;
-}
-
-AvdDialog::DeviceType AvdDialog::tagToDeviceType(const QString &type_tag)
-{
-    if (type_tag.contains("android-wear"))
-        return AvdDialog::Wear;
-    else if (type_tag.contains("android-tv"))
-        return AvdDialog::TV;
-    else if (type_tag.contains("android-automotive"))
-        return AvdDialog::Automotive;
-    else if (type_tag.contains("android-desktop"))
-        return AvdDialog::Desktop;
-    return AvdDialog::PhoneOrTablet;
 }
 
 void AvdDialog::collectInitialData()
@@ -218,11 +263,11 @@ id: 3 or "desktop_large"
                 }
 
                 DeviceType deviceType = tagToDeviceType(deviceDefinition.type_str);
-                if (deviceType == PhoneOrTablet) {
+                if (deviceType == DeviceType::PhoneOrTablet) {
                     if (deviceDefinition.name_id.contains("Tablet"))
-                        deviceType = Tablet;
+                        deviceType = DeviceType::Tablet;
                     else
-                        deviceType = Phone;
+                        deviceType = DeviceType::Phone;
                 }
                 deviceDefinition.deviceType = deviceType;
                 m_deviceDefinitionsList.append(deviceDefinition);
@@ -330,31 +375,6 @@ void AvdDialog::updateDeviceDefinitionComboBox()
     updateApiLevelComboBox();
 }
 
-const SystemImage* AvdDialog::systemImage() const
-{
-    return m_targetApiComboBox->currentData().value<SystemImage*>();
-}
-
-QString AvdDialog::name() const
-{
-    return m_nameLineEdit->text();
-}
-
-QString AvdDialog::abi() const
-{
-    return m_abiComboBox->currentText();
-}
-
-QString AvdDialog::deviceDefinition() const
-{
-    return m_deviceDefinitionComboBox->currentText();
-}
-
-int AvdDialog::sdcardSize() const
-{
-    return m_sdcardSizeSpinBox->value();
-}
-
 void AvdDialog::updateApiLevelComboBox()
 {
     const SystemImageList installedSystemImages = sdkManager().installedSystemImages();
@@ -366,11 +386,13 @@ void AvdDialog::updateApiLevelComboBox()
         return image && image->isValid() && (image->abiName() == selectedAbi);
     };
 
-    SystemImageList filteredList;
-    filteredList = Utils::filtered(installedSystemImages, [hasAbi, &curDeviceType](const SystemImage *image) {
+    const SystemImageList filteredList = Utils::filtered(
+        installedSystemImages, [hasAbi, &curDeviceType](const SystemImage *image) {
         DeviceType deviceType = tagToDeviceType(image->sdkStylePath().split(';').at(2));
-        if (deviceType == PhoneOrTablet && (curDeviceType == Phone || curDeviceType == Tablet))
-            curDeviceType = PhoneOrTablet;
+        if (deviceType == DeviceType::PhoneOrTablet
+            && (curDeviceType == DeviceType::Phone || curDeviceType == DeviceType::Tablet)) {
+            curDeviceType = DeviceType::PhoneOrTablet;
+        }
         return image && deviceType == curDeviceType && hasAbi(image);
     });
 
@@ -424,6 +446,14 @@ bool AvdDialog::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QDialog::eventFilter(obj, event);
+}
+
+std::optional<CreateAvdInfo> executeAvdCreatorDialog()
+{
+    AvdDialog dialog;
+    if (dialog.exec() != QDialog::Accepted)
+        return {};
+    return dialog.avdInfo();
 }
 
 } // Android::Internal
