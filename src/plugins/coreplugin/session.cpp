@@ -315,7 +315,7 @@ bool SessionManager::renameSession(const QString &original, const QString &newNa
 void SessionManager::showSessionManager()
 {
     saveSession();
-    Internal::SessionDialog sessionDialog(ICore::dialogParent());
+    Internal::SessionDialog sessionDialog;
     sessionDialog.setAutoLoadSession(d->isAutoRestoreLastSession());
     sessionDialog.exec();
     d->setAutoRestoreLastSession(sessionDialog.autoLoadSession());

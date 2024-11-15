@@ -607,9 +607,9 @@ public:
                 if (m_activeSwitchToRect.contains(pos))
                     sessionModel->switchToSession(sessionName);
                 else if (m_activeActionRects[0].contains(pos))
-                    sessionModel->cloneSession(ICore::dialogParent(), sessionName);
+                    sessionModel->cloneSession(sessionName);
                 else if (m_activeActionRects[1].contains(pos))
-                    sessionModel->renameSession(ICore::dialogParent(), sessionName);
+                    sessionModel->renameSession(sessionName);
                 else if (m_activeActionRects[2].contains(pos))
                     sessionModel->deleteSessions(QStringList(sessionName));
                 return true;

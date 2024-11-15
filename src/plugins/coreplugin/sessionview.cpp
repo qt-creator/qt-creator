@@ -72,7 +72,7 @@ SessionView::SessionView(QWidget *parent)
 
 void SessionView::createNewSession()
 {
-    m_sessionModel.newSession(this);
+    m_sessionModel.newSession();
 }
 
 void SessionView::deleteSelectedSessions()
@@ -87,12 +87,12 @@ void SessionView::deleteSessions(const QStringList &sessions)
 
 void SessionView::cloneCurrentSession()
 {
-    m_sessionModel.cloneSession(this, currentSession());
+    m_sessionModel.cloneSession(currentSession());
 }
 
 void SessionView::renameCurrentSession()
 {
-    m_sessionModel.renameSession(this, currentSession());
+    m_sessionModel.renameSession(currentSession());
 }
 
 void SessionView::switchToCurrentSession()

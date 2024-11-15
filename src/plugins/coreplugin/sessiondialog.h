@@ -16,10 +16,8 @@ namespace Core::Internal {
 
 class SessionDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
-    explicit SessionDialog(QWidget *parent = nullptr);
+    SessionDialog();
 
     void setAutoLoadSession(bool);
     bool autoLoadSession() const;
@@ -36,10 +34,8 @@ private:
 
 class SessionNameInputDialog : public QDialog
 {
-    Q_OBJECT
-
 public:
-    explicit SessionNameInputDialog(QWidget *parent);
+    SessionNameInputDialog();
 
     void setActionText(const QString &actionText, const QString &openActionText);
     void setValue(const QString &value);
