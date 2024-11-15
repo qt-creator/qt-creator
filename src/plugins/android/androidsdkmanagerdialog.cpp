@@ -7,6 +7,8 @@
 #include "androidtr.h"
 #include "androidutils.h"
 
+#include <coreplugin/icore.h>
+
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
@@ -406,14 +408,14 @@ private:
 class AndroidSdkManagerDialog : public QDialog
 {
 public:
-    AndroidSdkManagerDialog(QWidget *parent);
+    AndroidSdkManagerDialog();
 
 private:
     AndroidSdkModel *m_sdkModel = nullptr;
 };
 
-AndroidSdkManagerDialog::AndroidSdkManagerDialog(QWidget *parent)
-    : QDialog(parent)
+AndroidSdkManagerDialog::AndroidSdkManagerDialog()
+    : QDialog(Core::ICore::dialogParent())
     , m_sdkModel(new AndroidSdkModel(this))
 {
     setWindowTitle(Tr::tr("Android SDK Manager"));
@@ -631,10 +633,9 @@ bool PackageFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sour
     return showTopLevel || ((packageState(srcIndex) & m_packageState) && packageFound(srcIndex));
 }
 
-void executeAndroidSdkManagerDialog(QWidget *parent)
+void executeAndroidSdkManagerDialog()
 {
-    AndroidSdkManagerDialog dialog(parent);
-    dialog.exec();
+    AndroidSdkManagerDialog().exec();
 }
 
 } // Android::Internal
