@@ -116,8 +116,12 @@ void CMakeGenerator::updateModifiedFile(const QString &fileString)
     if (path.fileName() != "qmldir")
         return;
 
-    if (auto node = findOrCreateNode(m_root, path.parentDir()))
+    if (path.fileSize() == 0) {
+        if (auto node = findNode(m_root, path.parentDir()))
+            removeFile(node, path);
+    } else if (auto node = findOrCreateNode(m_root, path.parentDir())) {
         insertFile(node, path);
+    }
 
     createCMakeFiles(m_root);
     createSourceFiles();
