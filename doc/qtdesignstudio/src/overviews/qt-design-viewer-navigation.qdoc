@@ -26,7 +26,7 @@
           \li \uicontrol {Target Version} to 6.2.
         \endlist
       \li In \uicontrol Navigator:
-        \list
+        \list 1
           \li Select and delete \e Text.
           \li Select \e Rectangle and in \uicontrol Properties, set
           \uicontrol {Fill color} to #ffffff.
@@ -46,8 +46,8 @@
     \endlist
 
     To add the structure for the web application,
-    drag and drop the following components from \uicontrol Components
-    to \e rectangle in \uicontrol Navigator.
+    drag the following components from \uicontrol Components
+    to \e rectangle in \uicontrol Navigator:
     \list
       \li \uicontrol Rectangle
         \list
@@ -181,7 +181,7 @@ code inside the \e Flickable component:
 \endcode
 
 To align the scrollbar to the right and bottom side of the window, set the height and width of the
-main rectangle so that it adapts to the window size.
+main rectangle so that it adapts to the window size:
 
 \list 1
   \li In \uicontrol Navigator, select \e Rectangle.
@@ -213,7 +213,7 @@ First, create an animation to use when scrolling between the different pages:
 \endlist
 
 Next, connect the buttons to the number animation to scroll the content
-vertically to the correct place.
+vertically to the correct place:
 
 \list 1
   \li In \uicontrol Navigator, select \e rectangle and in \uicontrol Properties

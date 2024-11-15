@@ -238,7 +238,7 @@
         \li Ensure that a sensible default option is checked.
         \li List radio button options vertically.
         \li Keep the list short.
-        \li In order to avoid confusion, do not put two groups of radio buttons
+        \li To avoid confusion, do not put two groups of radio buttons
             next to each other.
     \endlist
 
@@ -360,9 +360,9 @@
     Typical places for a busy indicator are:
 
     \list
-        \li In the corner of a \uicontrol {Tool Bar}
-        \li As an overlay on top of a \uicontrol Page
-        \li On the side of an \uicontrol {Item Delegate}
+        \li In the corner of a \uicontrol {Tool Bar}.
+        \li As an overlay on top of a \uicontrol {Page}.
+        \li On the side of an \uicontrol {Item Delegate}.
     \endlist
 
     \section2 Page Indicator
@@ -410,10 +410,10 @@
     Typical places for an indeterminate progress bar are:
 
     \list
-        \li At the bottom of a \uicontrol {Tool Bar}
-        \li Inline within the content of a \uicontrol Page
+        \li At the bottom of a \uicontrol {Tool Bar}.
+        \li Inline within the content of a \uicontrol {Page}.
         \li In an \uicontrol {Item Delegate} to show the progress
-            of a particular item
+            of a particular item.
     \endlist
 
     \section1 Selectors

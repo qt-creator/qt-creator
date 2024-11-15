@@ -81,7 +81,7 @@
 
     To copy material properties from one material to another:
 
-    \list
+    \list 1
       \li In \uicontrol {Material Browser}, right-click the material that you
       want to copy properties from.
       \li Select \uicontrol {Copy properties} and then

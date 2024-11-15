@@ -26,7 +26,7 @@
     \section1 Applying Layer Blur on a Component
 
         Use \uicontrol {Layer Blur} to make a component blurry. To apply \uicontrol {Layer Blur}
-        to a component, follow these steps:
+        to a component:
         \list 1
             \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
             \li Go to the \uicontrol {Properties} view > \uicontrol Effects
@@ -45,7 +45,7 @@
     \section1 Applying Background Blur on a Component
 
         Apply \uicontrol {Background Blur} to a component when you want to blur a selected
-        component behind it. There are a few essential conditions you should consider.
+        component behind it. Consider the following:
         \list
             \li Make the component partially transparent. With solid color,
                 the background component is not visible.
@@ -56,8 +56,8 @@
                 background component. All the other components ignore the blurring.
         \endlist
 
-        After fulfilling the above conditions, follow the next steps to apply the
-        \uicontrol {Background Blur} on a component.
+        After fulfilling the above conditions, apply the
+        \uicontrol {Background Blur} to a component:
 
         \list 1
             \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
@@ -78,7 +78,7 @@
 
         Shadows can either fall outside or inside the component.
         The shadow that falls outside is a drop shadow. To apply
-        a \uicontrol {Drop Shadow} to a component, follow the instructions below.
+        a \uicontrol {Drop Shadow} to a component:
 
         \list 1
             \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.
@@ -86,8 +86,7 @@
                 and select \uicontrol {Add Effects}.
         \endlist
 
-       This adds the default drop shadow to the component. To adjust this shadow,
-       follow these instructions.
+       This adds the default drop shadow to the component. To adjust this shadow:
 
         \list 1
             \li Select the component and go to the \uicontrol Properties view > \uicontrol Effects.
@@ -118,8 +117,7 @@
 
     \section1 Applying Inner Shadow on a Component
 
-        \uicontrol {Inner shadow} works inside a component. To apply \uicontrol {Inner Shadow},
-        do the following:
+        \uicontrol {Inner shadow} works inside a component. To apply \uicontrol {Inner Shadow}:
 
         \list 1
             \li Select the component in the \uicontrol 2D or \uicontrol Navigator view.

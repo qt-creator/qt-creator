@@ -102,7 +102,7 @@
 
     \section2 Creating JavaScript Expressions
 
-    There are two ways to create JavaScript expressions for actions:
+    To create JavaScript expressions for actions, do one of the following:
 
     \list
       \li Follow the steps described above in Connect component \uicontrol Signal to

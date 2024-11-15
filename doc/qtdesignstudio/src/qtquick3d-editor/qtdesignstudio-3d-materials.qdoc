@@ -69,9 +69,7 @@
     \section2 Reflection
 
     Use the properties under the \uicontrol Reflection tab to specify the
-    reflective qualities of the material. For more information on the various
-    material properties related to reflection, see \l {Using Highlights and
-    Reflections}.
+    reflective qualities of the material:
 
     \list
         \target tiling_metal
@@ -89,24 +87,27 @@
             reflections seen at grazing angles.
         \endlist
 
+    For more information on the various material properties related to
+    reflection, see \l {Using Highlights and Reflections}.
+
     \section2 Roughness
     Use the \uicontrol Roughness properties to determine how light behaves when
-    it comes in contact with material. With zero roughness, light bounces off a
-    material, which makes it appear glossy. Increased roughness causes the light
-    reflected off the material to scatter, which results in a matte appearance.
+    it comes in contact with material:
 
     \list
         \li The \uicontrol {Map Offset} \uicontrol {Map Scale} and \uicontrol
             Texture specify the quality of roughness applied to the material.
         \li Use the numerical \uicontrol Roughness property to define how
-            glossy or matte the material appears.
+            glossy or matte the material appears. With zero roughness, light
+            bounces off a material, which makes it appear glossy. Increased
+            roughness causes the light reflected off the material to scatter,
+            which results in a matte appearance.
     \endlist
 
     \target emission_metal
     \section2 Emission
     Use the properties under the \uicontrol Emission tab to specify the
-    emissive qualities of the material. For more information on properties
-    related to emission, see \l {Self-Illuminating Materials}.
+    emissive qualities of the material:
     \list
         \li The \uicontrol Intensity property determines the quantity of light
             the surface of material emits.
@@ -115,6 +116,9 @@
             texture for emissive mask. Use the \uicontrol {Mask Offset}
             to set the mask offset for the emissive map.
     \endlist
+
+    For more information on properties related to emission,
+    see \l {Self-Illuminating Materials}.
 
     \target bump_metal
     \section2 Bump
@@ -253,15 +257,16 @@
 
     \section2 General
 
-    Plastic materials share some of the properties with glass materials. For
-    descriptions of \uicontrol Roughness and \uicontrol {Index of Refraction}
-    properties, see \l{general_glass} {general properties for glass materials}.
+    Plastic materials share some of the properties with glass materials:
     \list
         \li The \uicontrol {Texture scaling} property determines how fast a
             material is repeated on a surface.
         \li The \uicontrol {Bump Factor} property sets the strength of bumpiness
             for glass materials.
     \endlist
+
+    For descriptions of \uicontrol Roughness and \uicontrol {Index of Refraction}
+    properties, see \l{general_glass} {general properties for glass materials}.
 
     \section2 Random Gradient Mapping
 

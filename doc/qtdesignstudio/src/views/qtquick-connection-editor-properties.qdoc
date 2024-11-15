@@ -48,7 +48,7 @@
     \section1 Binding a Property Value
 
     To bind the value of the property to that of another one or to data
-    accessible in the application.
+    accessible in the application:
 
     \list 1
       \li In the \uicontrol Properties view, select
@@ -62,8 +62,7 @@
 
     \section1 Adding a Custom Property to a Component from the Connections View
 
-    You can add a custom property to a component from the \uicontrol {Connections} view.
-    Follow the process:
+    To add a custom property to a component from the \uicontrol {Connections} view:
 
     \list 1
         \li Select the component you want to add a Custom property to in the

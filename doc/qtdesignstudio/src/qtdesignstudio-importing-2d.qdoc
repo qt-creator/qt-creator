@@ -105,7 +105,8 @@
     The QML item changes in the existing QML component are copied to the corresponding
     QML item in the new component.
 
-    The following rules are observed while merging QML components.
+    \QDS follows a set of rules while merging QML components:
+
     \list
         \li While importing, a unique identifier (UUID) is added for each QML item in the
             component. The UUID is used to find the corresponding QML item in the existing

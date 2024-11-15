@@ -41,14 +41,14 @@
     In the rich text editor, you can:
 
     \list
-        \li Emphasize text
-        \li Create hyperlinks
-        \li Align text
-        \li Create bulleted and numbered lists
-        \li Specify text color
-        \li Select text font
-        \li Set font size
-        \li Create tables
+        \li Emphasize text.
+        \li Create hyperlinks.
+        \li Align text.
+        \li Create bulleted and numbered lists.
+        \li Specify text color.
+        \li Select text font.
+        \li Set font size.
+        \li Create tables.
     \endlist
 
     \image qtquick-rtf-editor.png "Text formatted as rich text in the editor"

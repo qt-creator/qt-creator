@@ -39,7 +39,7 @@
         \li Text
     \endlist
 
-    The following design elements might not be exported as expected.
+    The following design elements might not be exported as expected:
     \list
         \li Component states
         \li Component overrides
@@ -65,19 +65,15 @@
     \section2 Annotate Layers for Export
 
     With \QBXD, layers can be annotated to hint how each layer or group must be
-    exported. \uicontrol The {Home} panel displays and allows layer annotation for
-    export:
+    exported. The \uicontrol {Home} panel displays and allows layer annotation for
+    export.
 
     \image qt-bridge-xd-home.png
 
     \list 1
-        \li \QBXD automatically proposes identifiers for all groups and layers
-            that you can change in the \uicontrol {ID} field. Use unique and
-            descriptive IDs to avoid duplicate IDs when the layer and the
-            respective artwork is imported into \QDS. Even though the importer
-            in \QDS is capable of fixing duplicate IDs, doing so will generate
-            warnings. It is recommend that you should manually check all the
-            IDs to make them unique and descriptive.
+        \li In the \uicontrol ID field, enter a unique and descriptive name.
+        Although the importer can resolve duplicate IDs, this generates warnings.
+        Always manually verify and adjust IDs to maintain their uniqueness and clarity.
 
         \li In the \uicontrol {Export As} field, select the export type for the
             group or layer:
@@ -161,10 +157,9 @@
 
     \QBXD assigns the following defaults to the layers:
 
-    By default:
     \list
         \li Artboards and XD Components are exported as \e components.
-        \li Component instances, Text layers and immediate children of an Artboard
+        \li Components, Text layers, and immediate children of an Artboard
             are exported as \e child.
         \li Any layer not falling under the aforementioned criteria is exported
             as \e merged.
@@ -180,24 +175,26 @@
 
     \section1 \QBXD Settings
 
-    Select \uicontrol Settings to change the export settings.
-
-    \image qt-bridge-xd-menu.png
-
-    \image qt-bridge-xd-settings.png
-
+    To edit export settings:
 
     \list 1
-        \li Select \uicontrol {Reset All} to remove all of the \QB data
-            stored in the document. Use \uicontrol {Edit} > \uicontrol {Undo}
-            to restore the data if you accidentally removed it.
-        \li You can export images into PNG, JPG or SVG format. In the section
-            \uicontrol {Export Formats}, select the image format to
-            export.
-        \li Depending on the image format selected for export, the
-            \uicontrol {Format Options} allows fine tuning the exported
-            image.
-            \list
+      \li Select \uicontrol Settings.
+
+          \image qt-bridge-xd-menu.png
+          \image qt-bridge-xd-settings.png
+      \li You can now edit the following settings:
+
+        \list
+          \li Select \uicontrol {Reset All} to remove all of the \QB data
+              stored in the document. Use \uicontrol {Edit} > \uicontrol {Undo}
+              to restore the data if you accidentally removed it.
+          \li You can export images into PNG, JPG or SVG format. In the section
+              \uicontrol {Export Formats}, select the image format to
+              export.
+          \li Depending on the image format selected for export, the
+              \uicontrol {Format Options} allows fine tuning the exported
+              image.
+              \list
                 \li Select \uicontrol {Hi-DPI Assets} to generate Hi-DPI
                     images alongside normal scale images. Being a vector format,
                     this option is not available for SVG format.
@@ -209,17 +206,16 @@
 
     \section1 Suggestions and Tips
 
-    You can export assets using the default settings and make all the changes
-    later in \QDS. If you are familiar with the \l{QML Syntax Basics}
-    {QML syntax}, you can modify the settings to tailor the generated code to
-    a certain degree. For example, you can specify the component or
-    \l {Shapes}{Qt Quick Studio Component} to use for a component or
-    layer. If you have drawn an arc that you mean to animate, you can export it
-    as an \l Arc component to avoid having to replace the arc image with an Arc
-    component in \QDS. Or you could export a button as a Qt Quick Controls
-    \l Button component.
-
     \list
+        \li You can export assets with the default settings and later adjust these in \QDS.
+        \li If you are familiar with the \l{QML Syntax Basics} {QML syntax},
+            you can modify the settings to tailor the generated code to
+            a certain degree. For example, you can specify the component or
+            \l {Shapes}{Qt Quick Studio Component} to use for a component or
+            layer. If you have drawn an arc that you mean to animate, you can
+            export it as an \l Arc component to avoid having to replace the arc
+            image with an Arc component in \QDS. Or you could export a button as
+            a Qt Quick Controls \l Button component.
         \li Name the layers in exactly the same way as your IDs, to be able to
             find artwork later, especially as the export files can grow very
             large and complicated as they approach the level of a complete UI

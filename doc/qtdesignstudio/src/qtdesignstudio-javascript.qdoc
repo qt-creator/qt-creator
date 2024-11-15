@@ -11,7 +11,7 @@
     You can use JavaScript to simulate application logic that brings your UI to
     life.
 
-    You will need the following files:
+    You need the following files:
 
     \list
         \li Component file (.qml) that will specify the API of the UI

@@ -307,7 +307,8 @@
     to select its size in respect to its non-layout parent component. However,
     do not anchor the child components within layouts.
 
-    Follow the process to put components in the \uicontrol {Grid Layout}.
+    To put components in the \uicontrol {Grid Layout}:
+
     \list 1
         \li Select all the components and right-click on one of them.
         \li From the context menu, select \uicontrol Layout > \uicontrol {Grid Layout}.
@@ -360,7 +361,6 @@
             \note Alternatively, select the \uicontrol {Stack Layout} component, then
             go to the \uicontrol Properties view > \uicontrol {Stack Layout}, and
             update the \uicontrol {Current index}. The index starts from "0" (zero).
-
     \endlist
 
     Follow the example below to understand how the \uicontrol {Stack Layout} works:
@@ -404,7 +404,6 @@
         \li Drag the slider to change the color in the rectangle.
 
             \image studio-stack-layout-example-output.webp "Stack Layout example output"
-
     \endlist
 
     \section2 Organizing Components

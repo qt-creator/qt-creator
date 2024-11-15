@@ -36,9 +36,10 @@
 
         Before you export a \QDS project for Qt Creator, install the following:
         \list
-            \li Qt Creator 13.0 or above
-            \li \QDS 4.5 or above
-            \li Git. Learn more about getting Git \l {https://wiki.qt.io/Git_Installation} {here}
+            \li Qt Creator 13.0 or above.
+            \li \QDS 4.5 or above.
+            \li Git. To learn more about installing Git,
+            see \l {https://wiki.qt.io/Git_Installation}.
         \endlist
 
         To export a \QDS project for Qt Creator:
@@ -62,7 +63,7 @@
 
     \section1 Opening the \QDS Project in Qt Creator
 
-        Open the \e {CMakeLists.txt} file in Qt Creator. To open:
+        Open the \e {CMakeLists.txt} file in Qt Creator:
 
         \list 1
             \li In Qt Creator, select \uicontrol File > \uicontrol {Open File or Project}.
@@ -171,18 +172,18 @@
                 \li \image studio-project-export-python-file.webp "The generated Python file in the Qt Design Studio project"
         \endtable
         \list 1
-            \li If you don't have Python installed on your computer, install it.
+            \li Install Python.
                 The latest version of Python is available
                 \l {https://www.python.org/downloads/} {here}.
 
-            \li Next, follow the steps from this document to
+            \li Follow the steps from this document to
                 \l {https://doc.qt.io/qtforpython-6/quickstart.html} {install PySide6}.
                 You need this for working with Qt in Python.
 
                 \note You need Python version between 3.8 and 3.13 to install
                     PySide6.
 
-            \li After installing PySide6, install \QDS packages for PySide6. Stay
+            \li Install the \QDS packages for PySide6. Stay
                 in the virtual environment that was accessed for installing
                 PySide6. From there, execute the command in the command prompt.
                 \code
@@ -191,10 +192,10 @@
 
             \li Go to your project folder in the command prompt.
                 \code
-                    cd path/to/your/project/folder
+                    cd <path/to/your/project/folder>
                 \endcode
 
-            \li Finally, run the command below in the command prompt to open the
+            \li Run the command below in the command prompt to open the
                 \e {main.py} file from your project.
                 \code
                     python Python\main.py

@@ -212,7 +212,7 @@
     You can copy the keyframes from the keyframe track for a component and
     paste them to the keyframe track of another component.
 
-    To copy all keyframes from one track to another one:
+    To copy all keyframes from one track to another:
     \list 1
       \li Right-click the component ID and select
       \uicontrol {Copy All Keyframes} in the context menu.

@@ -34,9 +34,7 @@
 
     \section1 Connecting a \QDS ID with \QUV
 
-    Connect your \QDS ID to \QUV to access all your shared \QDS projects in \QUV.
-
-    To do that:
+    Connect your \QDS ID to \QUV to access all your shared \QDS projects in \QUV:
     \list 1
       \li Open \QDS on your computer.
       \li Open or create a project in \QDS.

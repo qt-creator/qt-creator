@@ -78,7 +78,7 @@
     \endlist
     Now, you have set up the \uicontrol Repeater3D component to use a numeric
     model that draws four instances of the same item. Next, you need to add the
-    item to draw. In this example we are using a \uicontrol Cube.
+    item to draw. In this example we are using a \uicontrol Cube:
     \list 1
       \li From \uicontrol Components, drag a \uicontrol Cube to \e repeater3D in
       \uicontrol Navigator.
@@ -167,7 +167,7 @@
 
     Now, you have set up the \uicontrol Repeater3D component to use a
     \uicontrol ListModel to draw the items. Next, you need to add the
-    item to draw. In this example, you are using a \uicontrol Sphere.
+    item to draw. In this example, you are using a \uicontrol Sphere:
 
     \list 1
       \li From \uicontrol Components, drag a \uicontrol Sphere to \e _3DRepeater
@@ -187,7 +187,7 @@
     \endlist
 
     Now, three spheres of different size are drawn but they are drawn in the same
-    position so you need to change the position to see all spheres.
+    position so you need to change the position to see all the spheres:
 
     \list 1
       \li Select \e sphere in \uicontrol Navigator and in the \uicontrol Properties view, select

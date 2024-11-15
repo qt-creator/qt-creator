@@ -21,6 +21,8 @@
     Download \QOI from your Qt Account. If you don't have a Qt Account,
     create one \l {Qt Account}{here}.
 
+    To install \QDS with \QOI:
+
     \list 1
         \li Open \QOI.
         \li Select \uicontrol {\QDS}.
@@ -35,6 +37,8 @@
     \section1 Using \QMT
 
     \QMT is included in each Qt installation. If you already have Qt, use \QMT to install \QDS.
+
+    To install \QDS with \QMT:
 
     \list 1
         \li Open \QMT.

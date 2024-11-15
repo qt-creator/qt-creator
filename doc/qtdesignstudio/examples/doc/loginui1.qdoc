@@ -256,7 +256,7 @@
 
     \section1 Adding Entry Fields to the UI
 
-    You will now add EntryField instances to the UI and modify their properties.
+    You will now add two entry fields to the UI and modify their properties:
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects
@@ -339,7 +339,7 @@
 
     \section1 Adding Push Buttons to the UI
 
-    You will now add PushButton instances to the UI and modify their properties.
+    You will now add two buttons to the UI and modify their properties:
 
     \list 1
         \li Double-click \e Screen01.ui.qml in \uicontrol Projects

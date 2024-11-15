@@ -36,7 +36,7 @@
 
     \section2 Custom Materials
     Custom materials (\e something.shader files in \Q3DS) are not imported
-    correctly, and have to be fixed manually.
+    correctly and have to be fixed manually:
     \list
     \li They are imported as \c {CustomMaterial { id: something; source:
     "something" }} that neither works nor does anything.
@@ -59,7 +59,7 @@
     \endlist
 
     \section2 Standard Materials
-    Some properties of standard materials may not be imported correctly.
+    Some properties of standard materials may not be imported correctly:
     \list
     \li The sensible value ranges of some properties may have changed between
         \Q3DS and \QDS and need to be redefined manually.
@@ -79,15 +79,14 @@
 
     \section2 Creating a New Project in \QDS
 
+    To create a new project in \QDS:
+
     \list 1
-    \li To create a new project in \QDS, select \uicontrol {File > New File or
+    \li Select \uicontrol {File > New File or
         Project}, or select \uicontrol {New Project} in the Welcome mode.
         \image exporting-from-qt3ds/01-welcome-screen.png "Welcome mode in Qt Design Studio"
 
-    \li Creating a new project in \QDS is aided by a wizard that contains
-        templates for creating different types of projects. Choose the
-        \uicontrol {Qt Quick 3D Application} template to get started with your
-        new 3D project.
+    \li Choose the \uicontrol {Qt Quick 3D Application} template.
         \image exporting-from-qt3ds/02-create-new-project.png "Create a new Project in Qt Design Studio"
 
     \li In the \uicontrol Name field, enter a name for the project.

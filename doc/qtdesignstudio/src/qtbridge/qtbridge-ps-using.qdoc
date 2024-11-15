@@ -280,7 +280,7 @@
     specific functions in the script that are called by \QBPS with useful parameters.
 
     \section2 Overridable JSX Functions
-    You can define the following functions in the override JSX.
+    Define the following functions in the override JSX:
     \list
         \li preExport(document)
             This function is called before the document is exported. The parameter \a document is

@@ -29,7 +29,7 @@
 
     \section2 Creating the User Interface
 
-    First, the designer creates the user interface in \QDS.
+    First, the designer creates the user interface in \QDS:
 
     \list 1
       \li Create a new 3D project.

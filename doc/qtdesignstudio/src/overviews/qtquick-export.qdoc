@@ -40,6 +40,8 @@
 
     \image qtquick-qml-export-dialog.png "Export Components dialog"
 
+    To configure the export:
+
     \list 1
         \li In the \uicontrol {Export path} field, specify the path where
             the metadata file and assets are exported.

@@ -13,11 +13,11 @@
     typically need to optimize the graphical assets used in the UI, such as
     images, effects, or 3D scenes.
 
-    How to optimize UIs for different target devices:
+    To optimize UIs for different target devices:
 
     \list
-        \li Minimize image size
-        \li Use transparency sparingly
+        \li Minimize image size.
+        \li Use transparency sparingly.
     \endlist
 
     For more useful information for application developers, see

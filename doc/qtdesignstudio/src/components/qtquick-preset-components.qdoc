@@ -44,7 +44,7 @@
     can \l{Importing 3D Assets}{import} the assets you need and work with them
     to create scenes and states, as well as the transitions between them.
 
-        \list
+    \list
         \li \l {3D Views}
         \li \l {Node}
         \li \l {Group}
@@ -64,7 +64,7 @@
         \li \l {Repeater3D}
         \li \l {Loader3D}
         \li \l {Particles}
-     \endlist
+    \endlist
 
     When you import 3D scenes from files that you exported from 3D graphics
     tools, you also import the camera, light, model, and materials as 3D

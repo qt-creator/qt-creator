@@ -45,7 +45,7 @@
 
     \section1 Adding Materials to the 3D Models
 
-    First, use materials from the \uicontrol {Content Library} view on the ball bearing.
+    First, use materials from the \uicontrol {Content Library} view on the ball bearing:
 
     \list 1
       \li In the \uicontrol 3D view, right-click the ball bearing and select
@@ -74,6 +74,8 @@
 
     Environmental lighting is a good way to create a realistic light for your scene.
 
+    To add environmental lighting:
+
     \list 1
       \li In the \uicontrol {Content Library} view, go to the \uicontrol Environments tab.
       \li Right-click the image \e BasicLights3_4k.hdr and select \uicontrol {Add Light Probe}.
@@ -85,8 +87,8 @@
 
     When you run the application, notice an improvement in the scene lighting.
 
-    Next, adjust the environmental light. As you will add a background image to the scene later,
-    you don't want to use the skybox.
+    As you will add a background image to the scene later, you need to disable the use of skybox:
+
     \list 1
       \li In the \uicontrol Navigator view, select \e sceneEnvironment.
       \li Go to the \uicontrol {Scene Environment} tab in \uicontrol Properties and set \uicontrol
@@ -98,7 +100,7 @@
 
     \section2 Adding a Background Image to the Scene
 
-    In the final step of this tutorial, you add a background image to your scene.
+    In the final step of this tutorial, you add a background image to your scene:
 
     \list 1
       \li Go to the \uicontrol Textures tab in the \uicontrol {Content Library} view.

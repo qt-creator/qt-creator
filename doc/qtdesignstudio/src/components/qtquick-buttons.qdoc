@@ -42,7 +42,7 @@
         \li In the \uicontrol Properties view, modify the appearance of the
             rectangle:
 
-        \list a
+        \list
 
             \li In the \uicontrol Color field, select the button color.
 
@@ -61,9 +61,9 @@
             \uicontrol Navigator.
 
         \li In the \uicontrol Properties view, edit the properties of the
-            \uicontrol Text component
+            \uicontrol Text component:
 
-        \list a
+        \list
 
             \li In the \uicontrol Text field, enter \e Button.
 
@@ -156,7 +156,7 @@
         \li Drag-and-drop a \uicontrol Text component to the root component.
         \li Drag-and-drop a \uicontrol {Mouse Area} to the root component.
         \li Select a border image to edit the values of its properties:
-            \list a
+            \list 1
                 \li In the \uicontrol Id field, enter an ID for the border
                     image. In this example, we use the ID \e inactiveButton.
                 \li In the \uicontrol Source field, select the image file for
@@ -170,7 +170,7 @@
             \endlist
         \li Select the other border image to edit the values of its properties
             similarly:
-            \list a
+            \list 1
                 \li In the \uicontrol Id field, enter \e activeButton.
                 \li In the \uicontrol Source field, select the image file
                     for the button when it is clicked. For example,
@@ -181,7 +181,7 @@
             \endlist
         \li Select the text component to specify font size and color in
             \uicontrol Properties:
-            \list a
+            \list 1
                 \li In the \uicontrol Color field, use the \l{Picking Colors}
                     {color picker} to select the font color, or enter a value
                     in the field.
