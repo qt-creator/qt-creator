@@ -2689,7 +2689,7 @@ NodeMetaInfo Model::qtQmlConnectionsMetaInfo() const
 {
     if constexpr (useProjectStorage()) {
         using namespace Storage::Info;
-        return createNodeMetaInfo<QtQml, Connections>();
+        return createNodeMetaInfo<QtQml_Base, Connections>();
     } else {
         return metaInfo("QtQml.Connections");
     }

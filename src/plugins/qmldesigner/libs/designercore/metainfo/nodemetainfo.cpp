@@ -2676,7 +2676,7 @@ bool NodeMetaInfo::isQtQmlConnections() const
     NanotraceHR::Tracer tracer{"is Qt Qml connections", category(), keyValue("type id", m_typeId)};
 
     using namespace Storage::Info;
-    return isBasedOnCommonType<QtQml, Connections>(m_projectStorage, m_typeId);
+    return isBasedOnCommonType<QtQml_Base, Connections>(m_projectStorage, m_typeId);
 #else
     return isValid() && simplifiedTypeName() == "Connections";
 #endif
