@@ -623,7 +623,7 @@ public:
     bool isPropertyEnum(const PropertyName &propertyName) const;
     QStringList keysForEnum(const QString &enumName) const;
     bool cleverCheckType(const TypeName &otherType) const;
-    QVariant::Type variantTypeId(const PropertyName &properyName) const;
+    QMetaType::Type variantTypeId(const PropertyName &properyName) const;
 
     int majorVersion() const;
     int minorVersion() const;
@@ -1137,50 +1137,50 @@ static TypeName toSimplifiedTypeName(const TypeName &typeName)
     return typeName.split('.').constLast();
 }
 
-QVariant::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyName) const
+QMetaType::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyName) const
 {
     TypeName typeName = toSimplifiedTypeName(propertyType(propertyName));
 
     if (typeName == "string")
-        return QVariant::String;
+        return QMetaType::QString;
 
     if (typeName == "color")
-        return QVariant::Color;
+        return QMetaType::QColor;
 
     if (typeName == "int")
-        return QVariant::Int;
+        return QMetaType::Int;
 
     if (typeName == "url")
-        return QVariant::Url;
+        return QMetaType::QUrl;
 
     if (typeName == "real")
-        return QVariant::Double;
+        return QMetaType::Double;
 
     if (typeName == "bool")
-        return QVariant::Bool;
+        return QMetaType::Bool;
 
     if (typeName == "boolean")
-        return QVariant::Bool;
+        return QMetaType::Bool;
 
     if (typeName == "date")
-        return QVariant::Date;
+        return QMetaType::QDate;
 
     if (typeName == "alias")
-        return QVariant::UserType;
+        return QMetaType::User;
 
     if (typeName == "var")
-        return QVariant::UserType;
+        return QMetaType::User;
 
     if (typeName == "vector2d")
-        return QVariant::Vector2D;
+        return QMetaType::QVector2D;
 
     if (typeName == "vector3d")
-        return QVariant::Vector3D;
+        return QMetaType::QVector3D;
 
     if (typeName == "vector4d")
-        return QVariant::Vector4D;
+        return QMetaType::QVector4D;
 
-    return QVariant::nameToType(typeName.data()); // This is deprecated
+    return QMetaType::UnknownType;
 }
 
 int NodeMetaInfoPrivate::majorVersion() const
@@ -4477,15 +4477,15 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         if (isEnumType() || variant.canConvert<Enumeration>() || typeName.endsWith("Flags"))
             return variant;
 
-        QVariant::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
+        QMetaType::Type typeId = nodeMetaInfoPrivateData()->variantTypeId(propertyName());
 
         if (variant.typeId() == ModelNode::variantTypeId()) {
             return variant;
-        } else if (typeId == QVariant::UserType && typeName == "QVariant") {
+        } else if (typeId == QMetaType::User && typeName == "QVariant") {
             return variant;
-        } else if (typeId == QVariant::UserType && typeName == "variant") {
+        } else if (typeId == QMetaType::User && typeName == "variant") {
             return variant;
-        } else if (typeId == QVariant::UserType && typeName == "var") {
+        } else if (typeId == QMetaType::User && typeName == "var") {
             return variant;
         } else if (variant.typeId() == QMetaType::QVariantList) {
             // TODO: check the contents of the list
@@ -4523,7 +4523,7 @@ QVariant PropertyMetaInfo::castedValue(const QVariant &value) const
         static constexpr auto qUrlType = QMetaType::fromType<QUrl>();
         static constexpr auto qColorType = QMetaType::fromType<QColor>();
 
-        if (value.typeId() == QVariant::UserType && value.typeId() == ModelNode::variantTypeId()) {
+        if (value.typeId() == QMetaType::User && value.typeId() == ModelNode::variantTypeId()) {
             return value;
         } else if (typeId == m_projectStorage->builtinTypeId<QVariant>()) {
             return value;
