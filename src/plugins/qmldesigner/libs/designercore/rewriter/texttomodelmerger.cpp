@@ -269,7 +269,7 @@ QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
     const QString cleanedValue = fixEscapedUnicodeChar(deEscape(stripQuotes(astValue.trimmed())));
 
     if (astType.isEmpty())
-        return QString();
+        return QVariant(QString());
 
     const QMetaType type = static_cast<QMetaType>(propertyType(astType));
     if (type == QMetaType::fromType<QVariant>()) {
@@ -382,7 +382,7 @@ bool smartVeryFuzzyCompare(const QVariant &value1, const QVariant &value2)
     }
 bool smartColorCompare(const QVariant &value1, const QVariant &value2)
 {
-    if ((value1.typeId() == QVariant::Color) || (value2.typeId() == QVariant::Color))
+    if ((value1.typeId() == QMetaType::QColor) || (value2.typeId() == QMetaType::QColor))
         return value1.value<QColor>().rgba() == value2.value<QColor>().rgba();
     return false;
 }
