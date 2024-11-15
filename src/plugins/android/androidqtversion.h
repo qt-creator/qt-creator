@@ -4,7 +4,6 @@
 #pragma once
 
 #include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtversionfactory.h>
 
 namespace Android::Internal {
 

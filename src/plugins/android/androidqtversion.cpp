@@ -27,6 +27,8 @@
 
 #include <proparser/profileevaluator.h>
 
+#include <qtsupport/qtversionfactory.h>
+
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
