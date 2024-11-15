@@ -23,6 +23,8 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <solutions/tasking/conditional.h>
+
 #include <utils/fileutils.h>
 #include <utils/guard.h>
 #include <utils/port.h>
@@ -623,6 +625,34 @@ IDeviceWidget *AndroidDevice::createWidget()
 DeviceProcessSignalOperation::Ptr AndroidDevice::signalOperation() const
 {
     return DeviceProcessSignalOperation::Ptr(new AndroidSignalOperation());
+}
+
+ExecutableItem AndroidDevice::portsGatheringRecipe(const Storage<PortsOutputData> &output) const
+{
+    const Storage<QString> serialNumberStorage;
+    const Storage<PortsInputData> input;
+
+    const auto hasSerialNumber = [this, serialNumberStorage] {
+        if (machineType() == Hardware)
+            *serialNumberStorage = extraData(Constants::AndroidSerialNumber).toString();
+        return machineType() == Hardware;
+    };
+
+    const auto onSerialNumberSetup = [this, input, serialNumberStorage] {
+        const CommandLine cmd{AndroidConfig::adbToolPath(),
+                              {adbSelector(*serialNumberStorage), "shell" , "netstat", "-a", "-n" }};
+        *input = {freePorts(), cmd};
+    };
+
+    return Group {
+        serialNumberStorage,
+        input,
+        If (!Sync(hasSerialNumber)) >> Then {
+            serialNumberRecipe(avdName(), serialNumberStorage),
+        },
+        Sync(onSerialNumberSetup),
+        portsFromProcessRecipe(input, output)
+    };
 }
 
 PortsGatheringMethod AndroidDevice::portsGatheringMethod() const

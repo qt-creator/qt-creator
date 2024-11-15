@@ -13,6 +13,7 @@
 #include <utils/filepath.h>
 #include <utils/hostosinfo.h>
 #include <utils/id.h>
+#include <utils/portlist.h>
 #include <utils/store.h>
 
 #include <QAbstractSocket>
@@ -140,6 +141,8 @@ public:
     void addDeviceAction(const DeviceAction &deviceAction);
     const QList<DeviceAction> deviceActions() const;
 
+    virtual Tasking::ExecutableItem portsGatheringRecipe(
+        const Tasking::Storage<Utils::PortsOutputData> &output) const;
     virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }

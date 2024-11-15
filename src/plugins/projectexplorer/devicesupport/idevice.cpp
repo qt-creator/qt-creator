@@ -83,6 +83,7 @@
  * Creates an identical copy of a device object.
  */
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace ProjectExplorer {
@@ -439,6 +440,24 @@ const QList<IDevice::DeviceAction> IDevice::deviceActions() const
     return d->deviceActions;
 }
 
+ExecutableItem IDevice::portsGatheringRecipe(const Storage<PortsOutputData> &output) const
+{
+    const Storage<PortsInputData> input;
+
+    const auto onSetup = [this, input] {
+        const CommandLine cmd = filePath("/proc/net").isReadableDir()
+                              ? CommandLine{filePath("/bin/sh"), {"-c", "cat /proc/net/tcp*"}}
+                              : CommandLine{filePath("netstat"), {"-a", "-n"}};
+        *input = {freePorts(), cmd};
+    };
+
+    return Group {
+        input,
+        onGroupSetup(onSetup),
+        portsFromProcessRecipe(input, output)
+    };
+}
+
 PortsGatheringMethod IDevice::portsGatheringMethod() const
 {
     return {[this](QAbstractSocket::NetworkLayerProtocol protocol) -> CommandLine {
@@ -756,8 +775,6 @@ void DeviceProcessSignalOperation::setDebuggerCommand(const FilePath &cmd)
 }
 
 DeviceProcessSignalOperation::DeviceProcessSignalOperation() = default;
-
-using namespace Tasking;
 
 void DeviceProcessKiller::start()
 {
