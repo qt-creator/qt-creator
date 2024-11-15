@@ -271,15 +271,15 @@ QVariant convertDynamicPropertyValueToVariant(const QString &astValue,
     if (astType.isEmpty())
         return QString();
 
-    const int type = propertyType(astType);
-    if (type == QMetaType::fromName("QVariant").id()) {
+    const QMetaType type = static_cast<QMetaType>(propertyType(astType));
+    if (type == QMetaType::fromType<QVariant>()) {
         if (cleanedValue.isNull()) // Explicitly isNull, NOT isEmpty!
-            return QVariant(static_cast<QVariant::Type>(type));
+            return QVariant(type);
         else
             return QVariant(cleanedValue);
     } else {
         QVariant value = QVariant(cleanedValue);
-        value.convert(static_cast<QVariant::Type>(type));
+        value.convert(type);
         return value;
     }
 }
