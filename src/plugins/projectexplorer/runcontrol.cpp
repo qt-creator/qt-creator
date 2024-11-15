@@ -358,14 +358,13 @@ public:
     void checkAutoDeleteAndEmitStopped();
 
     void enablePortsGatherer();
-    QUrl getNextChannel(const QList<Port> &usedPorts);
+    QUrl getNextChannel(PortList *portList, const QList<Port> &usedPorts);
 
     RunControl *q;
     Id runMode;
     TaskTreeRunner m_taskTreeRunner;
 
     std::unique_ptr<DeviceUsedPortsGatherer> portsGatherer;
-    PortList portList;
 };
 
 } // Internal
@@ -600,18 +599,18 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
 
     connect(portsGatherer.get(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
         if (success) {
-            portList = device->freePorts();
+            PortList portList = device->freePorts();
             const QList<Port> usedPorts = portsGatherer->usedPorts();
             q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
                              NormalMessageFormat);
             if (useDebugChannel)
-                debugChannel = getNextChannel(usedPorts);
+                debugChannel = getNextChannel(&portList, usedPorts);
             if (useQmlChannel)
-                qmlChannel = getNextChannel(usedPorts);
+                qmlChannel = getNextChannel(&portList, usedPorts);
             if (usePerfChannel)
-                perfChannel = getNextChannel(usedPorts);
+                perfChannel = getNextChannel(&portList, usedPorts);
             if (useWorkerChannel)
-                workerChannel = getNextChannel(usedPorts);
+                workerChannel = getNextChannel(&portList, usedPorts);
 
             continueStart();
         } else {
@@ -635,7 +634,7 @@ void RunControlPrivate::enablePortsGatherer()
         portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
 }
 
-QUrl RunControlPrivate::getNextChannel(const QList<Port> &usedPorts)
+QUrl RunControlPrivate::getNextChannel(PortList *portList, const QList<Port> &usedPorts)
 {
     QUrl result;
     result.setScheme(urlTcpScheme());
@@ -643,7 +642,7 @@ QUrl RunControlPrivate::getNextChannel(const QList<Port> &usedPorts)
         result.setHost("localhost");
     else
         result.setHost(q->device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-    result.setPort(portList.getNextFreePort(usedPorts).number());
+    result.setPort(portList->getNextFreePort(usedPorts).number());
     return result;
 }
 
