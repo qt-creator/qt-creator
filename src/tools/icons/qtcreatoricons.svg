@@ -2668,7 +2668,7 @@
          inkscape:connector-curvature="0" />
     </g>
     <g
-       id="src/plugins/help/images/settingscategory_help"
+       id="src/plugins/coreplugin/images/settingscategory_help"
        transform="translate(-337,-84)">
       <use
          style="display:inline"

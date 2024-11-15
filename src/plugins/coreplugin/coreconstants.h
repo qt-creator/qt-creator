@@ -230,5 +230,7 @@ const int DEFAULT_MAX_CHAR_COUNT = 10000000;
 
 const char SETTINGS_MENU_HIDE_TOOLS[] = "Menu/HideTools";
 
+const char HELP_CATEGORY[] = "H.Help";
+
 } // namespace Constants
 } // namespace Core

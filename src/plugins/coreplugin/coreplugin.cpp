@@ -278,6 +278,10 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
         Tr::tr("Environment"),
         ":/core/images/settingscategory_core.png");
 
+    // Shared by Help and ScreenRecorder
+    IOptionsPage::registerCategory(
+        Constants::HELP_CATEGORY, Tr::tr("Help"), ":/core/images/settingscategory_help.png");
+
     IWizardFactory::initialize();
 
     // Make sure we respect the process's umask when creating new files

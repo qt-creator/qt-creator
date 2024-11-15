@@ -13,7 +13,6 @@ const QLatin1String AboutBlank("about:blank");
 
 const int  P_MODE_HELP    = 70;
 const char ID_MODE_HELP  [] = "Help";
-const char HELP_CATEGORY[] = "H.Help";
 
 const char C_MODE_HELP   [] = "Help Mode";
 const char C_HELP_SIDEBAR[] = "Help Sidebar";

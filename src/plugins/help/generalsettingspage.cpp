@@ -500,7 +500,7 @@ GeneralSettingsPage::GeneralSettingsPage()
 {
     setId("A.General settings");
     setDisplayName(Tr::tr("General"));
-    setCategory(Help::Constants::HELP_CATEGORY);
+    setCategory(Core::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new GeneralSettingsPageWidget; });
 }
 

@@ -3,10 +3,10 @@
 
 #include "docsettingspage.h"
 
-#include "helpconstants.h"
 #include "helpmanager.h"
 #include "helptr.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/icore.h>
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
@@ -356,7 +356,7 @@ DocSettingsPage::DocSettingsPage()
 {
     setId("B.Documentation");
     setDisplayName(Tr::tr("Documentation"));
-    setCategory(Help::Constants::HELP_CATEGORY);
+    setCategory(Core::Constants::HELP_CATEGORY);
     setWidgetCreator([] { return new DocSettingsPageWidget; });
 }
 

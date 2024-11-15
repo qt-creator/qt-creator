@@ -6,10 +6,9 @@
 #include "screenrecorderconstants.h"
 #include "screenrecordertr.h"
 
+#include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
-
-#include <help/helpconstants.h>
 
 #include <utils/fileutils.h>
 #include <utils/environment.h>
@@ -263,7 +262,7 @@ public:
     {
         setId(Constants::TOOLSSETTINGSPAGE_ID);
         setDisplayName(Tr::tr("Screen Recording"));
-        setCategory(Help::Constants::HELP_CATEGORY);
+        setCategory(Core::Constants::HELP_CATEGORY);
         setSettingsProvider([] { return &settings(); });
     }
 };
