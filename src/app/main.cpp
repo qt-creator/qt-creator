@@ -443,6 +443,12 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
     annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
 #endif
 
+    if (HostOsInfo::isWindowsHost()) {
+        // reduces the size of crash reports, which can be large on Windows
+        CrashpadInfo::GetCrashpadInfo()
+            ->set_gather_indirectly_referenced_memory(crashpad::TriState::kEnabled, 0);
+    }
+
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;
     arguments.push_back("--no-rate-limit");
