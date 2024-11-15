@@ -623,11 +623,6 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
     portsGatherer->start();
 }
 
-void RunControl::enablePortsGatherer()
-{
-    d->enablePortsGatherer();
-}
-
 void RunControlPrivate::enablePortsGatherer()
 {
     if (!portsGatherer)

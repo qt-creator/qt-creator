@@ -240,8 +240,6 @@ public:
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
-    void enablePortsGatherer();
-
     void requestDebugChannel();
     bool usesDebugChannel() const;
     QUrl debugChannel() const;
