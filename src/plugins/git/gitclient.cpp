@@ -986,7 +986,8 @@ void GitClient::updateModificationInfos()
 
             emitFileStatusChanged(info.rootPath, statusChangedFiles);
         };
-        vcsExecWithHandler(path, {"status", "-s", "--porcelain"}, this, command, RunFlags::NoOutput);
+        vcsExecWithHandler(path, {"status", "-s", "--porcelain", "--ignore-submodules"},
+                           this, command, RunFlags::NoOutput);
     }
 }
 
