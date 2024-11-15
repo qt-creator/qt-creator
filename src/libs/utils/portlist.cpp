@@ -3,10 +3,18 @@
 
 #include "portlist.h"
 
+#include "qtcprocess.h"
+#include "stringutils.h"
+#include "utilstr.h"
+
+#include <solutions/tasking/tasktree.h>
+
 #include <QPair>
 #include <QString>
 
 #include <cctype>
+
+using namespace Tasking;
 
 namespace Utils {
 namespace Internal {
@@ -197,6 +205,32 @@ QString PortList::regularExpression()
     const QLatin1String portExpr("(\\d)+");
     const QString listElemExpr = QString::fromLatin1("%1(-%1)?").arg(portExpr);
     return QString::fromLatin1("((%1)(,%1)*)?").arg(listElemExpr);
+}
+
+ExecutableItem portsFromProcessRecipe(const Storage<PortsInputData> &input,
+                                      const Storage<PortsOutputData> &output)
+{
+    const auto onSetup = [input](Process &process) {
+        process.setCommand(input->commandLine);
+    };
+    const auto onDone = [input, output](const Process &process, DoneWith result) {
+        if (result == DoneWith::Success) {
+            QList<Port> portList;
+            const QList<Port> usedPorts = input->portsParser(process.rawStdOut());
+            for (const Port port : usedPorts) {
+                if (input->freePorts.contains(port))
+                    portList.append(port);
+            }
+            *output = portList;
+        } else {
+            const QString errorString = process.errorString();
+            const QString stdErr = process.stdErr();
+            const QString outputString
+                = stdErr.isEmpty() ? stdErr : Tr::tr("Remote error output was: %1").arg(stdErr);
+            *output = make_unexpected(Utils::joinStrings({errorString, outputString}, '\n'));
+        }
+    };
+    return ProcessTask(onSetup, onDone);
 }
 
 } // namespace Utils
