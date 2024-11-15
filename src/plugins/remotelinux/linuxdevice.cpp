@@ -354,8 +354,8 @@ public:
     void unannounceConnectionAttempt();
     Id announceId() const { return q->id().withPrefix("announce_"); }
 
-    void checkOsType();
-    void queryOsType(std::function<RunResult(const CommandLine &)> run);
+    CommandLine unameCommand() const { return {"uname", {"-s"}, OsType::OsTypeLinux}; }
+    void setOsTypeFromUnameResult(const RunResult &result);
 
     Environment getEnvironment();
     void invalidateEnvironmentCache();
@@ -1156,9 +1156,8 @@ LinuxDeviceAccess::~LinuxDeviceAccess()
         QMetaObject::invokeMethod(&m_shellThread, closeShell, Qt::BlockingQueuedConnection);
 }
 
-void LinuxDevicePrivate::queryOsType(std::function<RunResult(const CommandLine &)> runInShell)
+void LinuxDevicePrivate::setOsTypeFromUnameResult(const RunResult &result)
 {
-    const RunResult result = runInShell({"uname", {"-s"}, OsType::OsTypeLinux});
     if (result.exitCode != 0)
         setOsType(OsTypeOtherUnix);
     const QString osName = QString::fromUtf8(result.stdOut).trimmed();
@@ -1166,11 +1165,6 @@ void LinuxDevicePrivate::queryOsType(std::function<RunResult(const CommandLine &
         setOsType(OsTypeMac);
     if (osName == "Linux")
         setOsType(OsTypeLinux);
-}
-
-void LinuxDevicePrivate::checkOsType()
-{
-    queryOsType([this](const CommandLine &cmd) { return runInShell(cmd); });
 }
 
 void LinuxDevicePrivate::setupDisconnectedAccess()
@@ -1203,7 +1197,7 @@ Result LinuxDevicePrivate::setupShell(const SshParameters &sshParameters, bool a
 
     if (result) {
         setupConnectedAccess();
-        queryOsType([this](const CommandLine &cmd) { return m_scriptAccess.m_handler->runInShell(cmd); });
+        setOsTypeFromUnameResult(m_scriptAccess.m_handler->runInShell(unameCommand()));
     } else {
         setupDisconnectedAccess();
     }
@@ -1687,7 +1681,7 @@ LinuxDeviceAccess *LinuxDevice::connectionAccess() const
 
 void LinuxDevice::checkOsType()
 {
-    d->checkOsType();
+    d->setOsTypeFromUnameResult(d->runInShell(d->unameCommand()));
 }
 
 IDevice::DeviceState LinuxDevice::deviceState() const
