@@ -9,6 +9,7 @@ public:
     Something() {
         int i = 0;
         ++i;
+        Q_UNUSED(i)
         return;
     }
 };
