@@ -23,6 +23,7 @@
 #include <QCursor>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMimeData>
 #include <QPair>
@@ -47,8 +48,9 @@ const int minChunkSize = 1000;
 const auto defaultInterval = 10ms;
 const auto maxInterval = 1000ms;
 
-namespace Core {
+static Q_LOGGING_CATEGORY(chunkLog, "qtc.core.outputChunking", QtWarningMsg)
 
+namespace Core {
 namespace Internal {
 
 class OutputWindowPrivate
@@ -515,10 +517,13 @@ void OutputWindow::handleNextOutputChunk()
         }
     }
 
+    qCDebug(chunkLog) << "next queued chunk has" << chunk.first.size() << "bytes";
     if (actualChunkSize == chunk.first.size()) {
+        qCDebug(chunkLog) << "chunk can be written in one go";
         handleOutputChunk(chunk.first, chunk.second);
         d->queuedOutput.removeFirst();
     } else {
+        qCDebug(chunkLog) << "chunk needs to be split";
         handleOutputChunk(chunk.first.left(actualChunkSize), chunk.second);
         chunk.first.remove(0, actualChunkSize);
     }
@@ -565,6 +570,9 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
     if (formatterTimer.elapsed() > d->queueTimer.interval()) {
         d->queueTimer.setInterval(std::min(maxInterval, d->queueTimer.intervalAsDuration() * 2));
         d->chunkSize = std::max(minChunkSize, d->chunkSize / 2);
+        qCDebug(chunkLog) << "formatter took" << formatterTimer.elapsed() << "ms";
+        qCDebug(chunkLog) << "increasing interval to" << d->queueTimer.interval()
+                          << "ms and lowering chunk size to" << d->chunkSize << "bytes";
     }
 
     if (d->scrollToBottom) {
@@ -594,6 +602,8 @@ void OutputWindow::discardExcessiveOutput()
         d->queuedSizeHistory.clear();
     d->queuedSizeHistory << queuedSize;
     bool discard = d->queuedSizeHistory.size() > int(10) && queuedSize > 5 * d->chunkSize;
+    if (discard)
+        qCDebug(chunkLog) << "discarding output due to size";
 
     // Criterion 2: Are we too slow?
     // If it would take longer than a minute to print the pending output and we have
@@ -601,6 +611,8 @@ void OutputWindow::discardExcessiveOutput()
     if (!discard) {
         discard = d->formatterCalls >= 10
                   && (queuedSize / d->chunkSize) * d->queueTimer.intervalAsDuration() > 60s;
+        if (discard)
+            qCDebug(chunkLog) << "discarding output due to time";
     }
 
     if (discard) {
