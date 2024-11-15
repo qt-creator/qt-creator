@@ -648,16 +648,6 @@ QUrl RunControlPrivate::getNextChannel()
     return result;
 }
 
-QUrl RunControl::findEndPoint()
-{
-    QTC_ASSERT(d->portsGatherer, return {});
-    QUrl result;
-    result.setScheme(urlTcpScheme());
-    result.setHost(device()->sshParameters().host());
-    result.setPort(d->portList.getNextFreePort(d->portsGatherer->usedPorts()).number());
-    return result;
-}
-
 void RunControl::requestDebugChannel()
 {
     d->enablePortsGatherer();

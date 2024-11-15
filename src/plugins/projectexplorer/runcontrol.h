@@ -244,7 +244,6 @@ public:
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
 
     void enablePortsGatherer();
-    QUrl findEndPoint();
 
     void requestDebugChannel();
     bool usesDebugChannel() const;
