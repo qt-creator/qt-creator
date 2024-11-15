@@ -709,7 +709,7 @@ public:
                 m_errorString = data.m_internalError;
         });
         QObject::connect(m_watcher.get(), &QFutureWatcherBase::finished, q, [this] {
-            emit q->done(toDoneResult(!m_errorString), m_errorString.value_or(QString()));
+            emit q->done({!m_errorString, m_errorString.value_or(QString())});
             m_watcher.release()->deleteLater();
             m_thread.reset();
             m_socket.reset();
@@ -780,13 +780,13 @@ bool Parser::isRunning() const
     return d->m_watcher.get();
 }
 
-bool Parser::runBlocking()
+Result Parser::runBlocking()
 {
-    bool ok = false;
+    Result ok(Result::Ok);
     QEventLoop loop;
 
-    const auto finalize = [&loop, &ok](DoneResult result) {
-        ok = result == DoneResult::Success;
+    const auto finalize = [&loop, &ok](const Result &result) {
+        ok = result;
         // Refer to the QObject::deleteLater() docs.
         QMetaObject::invokeMethod(&loop, [&loop] { loop.quit(); }, Qt::QueuedConnection);
     };

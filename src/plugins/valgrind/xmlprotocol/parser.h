@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <utils/result.h>
+
 #include <solutions/tasking/tasktree.h>
 
 #include <QObject>
@@ -37,7 +39,7 @@ public:
 
     void start();
     bool isRunning() const;
-    bool runBlocking();
+    Utils::Result runBlocking();
 
 signals:
     void status(const Status &status);
@@ -45,8 +47,7 @@ signals:
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
     void announceThread(const AnnounceThread &announceThread);
-    // TODO: Replace with Utils::Result
-    void done(Tasking::DoneResult result, const QString &errorString);
+    void done(const Utils::Result &result);
 
 private:
     std::unique_ptr<ParserPrivate> d;
@@ -55,7 +56,12 @@ private:
 class ParserTaskAdapter final : public Tasking::TaskAdapter<Parser>
 {
 public:
-    ParserTaskAdapter() { connect(task(), &Parser::done, this, &Tasking::TaskInterface::done); }
+    ParserTaskAdapter()
+    {
+        connect(task(), &Parser::done, this, [this](const Utils::Result &result) {
+            emit done(Tasking::toDoneResult(result == Utils::Result::Ok));
+        });
+    }
     void start() final { task()->start(); }
 };
 
