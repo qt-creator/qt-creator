@@ -198,8 +198,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
         }));
 
     connect(showPasswordButton, &ShowPasswordButton::toggled, edit, [showPasswordButton, edit] {
-        edit->setEchoMode(
-            showPasswordButton->isChecked() ? QLineEdit::Normal : QLineEdit::PasswordEchoOnEdit);
+        edit->setEchoMode(showPasswordButton->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
     });
 
     connect(edit, &FancyLineEdit::textChanged, this, [this](const QString &text) {
