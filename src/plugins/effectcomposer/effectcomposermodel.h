@@ -59,6 +59,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(QList<QUrl> previewImages READ previewImages NOTIFY previewImagesChanged)
     Q_PROPERTY(int customPreviewImageCount READ customPreviewImageCount NOTIFY customPreviewImageCountChanged)
     Q_PROPERTY(int mainCodeEditorIndex READ mainCodeEditorIndex CONSTANT)
+    Q_PROPERTY(QString effectErrors READ effectErrors NOTIFY effectErrorsChanged)
 
 public:
     EffectComposerModel(QObject *parent = nullptr);
@@ -114,8 +115,10 @@ public:
 
     Q_INVOKABLE void updateQmlComponent();
 
-    Q_INVOKABLE void resetEffectError(int type);
-    Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = -1, int lineNumber = -1);
+    Q_INVOKABLE void resetEffectError(int type = -1, bool notify = true);
+    Q_INVOKABLE void setEffectError(const QString &errorMessage, int type = 0,
+                                    bool notify = true, int lineNumber = -1);
+    QString effectErrors() const;
 
     Q_INVOKABLE void saveComposition(const QString &name);
 
@@ -153,7 +156,7 @@ signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
     void codeEditorIndexChanged(int idx);
-    void effectErrorChanged();
+    void effectErrorsChanged();
     void shadersUpToDateChanged();
     void isEnabledChanged();
     void hasValidTargetChanged();
@@ -178,11 +181,9 @@ private:
     };
 
     enum ErrorTypes {
-        ErrorCommon = -1,
+        ErrorCommon,
         ErrorQMLParsing,
-        ErrorVert,
-        ErrorFrag,
-        ErrorQMLRuntime,
+        ErrorShader,
         ErrorPreprocessor
     };
 
@@ -195,7 +196,6 @@ private:
     const QString getFSUniforms();
 
     QString detectErrorMessage(const QString &errorMessage);
-    EffectError effectError() const;
 
     QString valueAsString(const Uniform &uniform);
     QString valueAsBinding(const Uniform &uniform);
@@ -211,7 +211,8 @@ private:
     QString getCustomShaderVaryings(bool outState);
     QString generateVertexShader(bool includeUniforms = true);
     QString generateFragmentShader(bool includeUniforms = true);
-    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview);
+    void handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview,
+                              int bakeCounter);
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
@@ -235,6 +236,13 @@ private:
     Utils::FilePath customPreviewImagesPath() const;
     QList<QUrl> defaultPreviewImages() const;
 
+    enum class FileType
+    {
+        Binary,
+        Text
+    };
+    bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType);
+
     QList<CompositionNode *> m_nodes;
 
     int m_selectedIndex = -1;
@@ -244,7 +252,7 @@ private:
     // True when shaders haven't changed since last baking
     bool m_shadersUpToDate = true;
     int m_remainingQsbTargets = 0;
-    QMap<int, EffectError> m_effectErrors;
+    QMap<int, QList<EffectError>> m_effectErrors;
     ShaderFeatures m_shaderFeatures;
     QStringList m_shaderVaryingVariables;
     QString m_fragmentShader;
@@ -277,6 +285,7 @@ private:
     Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
     QUrl m_currentPreviewImage;
     QList<QUrl> m_customPreviewImages;
+    int m_currentBakeCounter = 0;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

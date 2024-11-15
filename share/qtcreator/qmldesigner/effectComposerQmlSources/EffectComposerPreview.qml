@@ -42,15 +42,14 @@ Column {
             );
             effectComposerModel.resetEffectError(0);
         } catch (error) {
-            let errorString = "QML: ERROR: ";
+            let errorString = "";
             let errorLine = -1;
-            if (error.qmlErrors.length > 0) {
-                // Show the first QML error
-                let e = error.qmlErrors[0];
-                errorString += e.lineNumber + ": " + e.message;
+            for (var i = 0; i < error.qmlErrors.length; ++i) {
+                let e = error.qmlErrors[i];
+                errorString += "\n" + e.lineNumber + ": " + e.message;
                 errorLine = e.lineNumber;
             }
-            effectComposerModel.setEffectError(errorString, 0, errorLine);
+            effectComposerModel.setEffectError(errorString, 1, true, errorLine);
             placeHolder.visible = true;
         }
     }
@@ -183,228 +182,266 @@ Column {
         }
     }
 
-    Rectangle { // preview image
-        id: preview
-
-        color: colorEditor.color
+    Item {
         width: parent.width
         height: root.height - y
-        clip: true
 
-        MouseArea {
-            id: mouseArea
+        // error message
+        Rectangle {
+            id: rect
 
             anchors.fill: parent
-            acceptedButtons: Qt.LeftButton
+            color: StudioTheme.Values.themePanelBackground
+            border.color: StudioTheme.Values.themeControlOutline
+            border.width: StudioTheme.Values.border
+            visible: !preview.visible
 
-            property real pressX: 0
-            property real pressY: 0
-            property bool panning: false
+            HelperWidgets.ScrollView {
+                id: scrollView
 
-            onPressed:  {
-                pressX = mouseX - imageScaler.x
-                pressY = mouseY - imageScaler.y
-                panning = true
+                anchors.fill: parent
+                anchors.margins: 4
+
+                clip: true
+
+                TextEdit {
+                    id: errorText
+                    width: scrollView.width
+                    font.pixelSize: StudioTheme.Values.myFontSize
+                    color: StudioTheme.Values.themeTextColor
+                    readOnly: true
+                    selectByMouse: true
+                    selectByKeyboard: true
+                    wrapMode: TextEdit.WordWrap
+                    text: root.effectComposerModel ? root.effectComposerModel.effectErrors : ""
+                }
             }
+        }
 
-            onReleased: {
-                panning = false
-            }
+        Rectangle { // preview image
+            id: preview
 
-            onWheel: (wheel) => {
-                let oldPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
+            anchors.fill: parent
+            color: colorEditor.color
+            clip: true
+            visible: !root.effectComposerModel || root.effectComposerModel.effectErrors === ""
 
-                if (wheel.angleDelta.y > 0) {
-                    if (root.previewScale < 3)
-                        root.previewScale += .2
-                } else {
-                    if (root.previewScale > .4)
-                        root.previewScale -= .2
+            MouseArea {
+                id: mouseArea
+
+                anchors.fill: parent
+                acceptedButtons: Qt.LeftButton
+
+                property real pressX: 0
+                property real pressY: 0
+                property bool panning: false
+
+                onPressed:  {
+                    pressX = mouseX - imageScaler.x
+                    pressY = mouseY - imageScaler.y
+                    panning = true
                 }
 
-                let newPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
-                imageScaler.x -= (oldPoint.x - newPoint.x) * imageScaler.scale
-                imageScaler.y -= (oldPoint.y - newPoint.y) * imageScaler.scale
+                onReleased: {
+                    panning = false
+                }
 
-                imageScaler.checkBounds()
-                zoomIndicator.show()
-            }
+                onWheel: (wheel) => {
+                    let oldPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
 
-            Timer { // pan timer
-                running: parent.panning
-                interval: 16
-                repeat: true
+                    if (wheel.angleDelta.y > 0) {
+                        if (root.previewScale < 3)
+                            root.previewScale += .2
+                    } else {
+                        if (root.previewScale > .4)
+                            root.previewScale -= .2
+                    }
 
-                onTriggered: {
-                    imageScaler.x = mouseArea.mouseX - mouseArea.pressX
-                    imageScaler.y = mouseArea.mouseY - mouseArea.pressY
+                    let newPoint = imageScaler.mapFromItem(mouseArea, Qt.point(wheel.x, wheel.y))
+                    imageScaler.x -= (oldPoint.x - newPoint.x) * imageScaler.scale
+                    imageScaler.y -= (oldPoint.y - newPoint.y) * imageScaler.scale
+
                     imageScaler.checkBounds()
+                    zoomIndicator.show()
+                }
+
+                Timer { // pan timer
+                    running: parent.panning
+                    interval: 16
+                    repeat: true
+
+                    onTriggered: {
+                        imageScaler.x = mouseArea.mouseX - mouseArea.pressX
+                        imageScaler.y = mouseArea.mouseY - mouseArea.pressY
+                        imageScaler.checkBounds()
+                    }
                 }
             }
-        }
-
-        Image {
-            id: placeHolder
-            anchors.fill: parent
-            anchors.margins: root.previewMargin
-            fillMode: Image.PreserveAspectFit
-            source: imagesComboBox.selectedImage
-            smooth: true
-        }
-
-        Item { // Source item as a canvas (render target) for effect
-            id: source
-            width: sourceImage.sourceSize.width
-            height: sourceImage.sourceSize.height
-            layer.enabled: true
-            layer.mipmap: true
-            layer.smooth: true
-            layer.sourceRect: Qt.rect(-root.extraMargin, -root.extraMargin,
-                                      width + root.extraMargin * 2, height + root.extraMargin * 2)
-            visible: false
 
             Image {
-                id: sourceImage
-
-                onSourceChanged: imageScaler.resetTransforms()
-
-                fillMode: Image.Pad
-
+                id: placeHolder
+                anchors.fill: parent
+                anchors.margins: root.previewMargin
+                fillMode: Image.PreserveAspectFit
                 source: imagesComboBox.selectedImage
                 smooth: true
             }
-        }
 
-        BlurHelper {
-            id: blurHelper
-            source: source
-            property int blurMax: g_propertyData.blur_helper_max_level ? g_propertyData.blur_helper_max_level : 64
-            property real blurMultiplier: g_propertyData.blurMultiplier ? g_propertyData.blurMultiplier : 0
-        }
+            Item { // Source item as a canvas (render target) for effect
+                id: source
+                width: sourceImage.sourceSize.width
+                height: sourceImage.sourceSize.height
+                layer.enabled: true
+                layer.mipmap: true
+                layer.smooth: true
+                layer.sourceRect: Qt.rect(-root.extraMargin, -root.extraMargin,
+                                          width + root.extraMargin * 2, height + root.extraMargin * 2)
+                visible: false
 
-        Item {
-            id: imageScaler
-            x: root.previewMargin
-            y: root.previewMargin
-            width: parent.width - root.previewMargin * 2
-            height: parent.height - root.previewMargin * 2
+                Image {
+                    id: sourceImage
 
-            scale: root.previewScale * (width > height ? height / sourceImage.sourceSize.height
-                                                       : width / sourceImage.sourceSize.width)
+                    onSourceChanged: imageScaler.resetTransforms()
 
-            Behavior on x {
-                id: xBehavior
+                    fillMode: Image.Pad
 
-                enabled: false
-                NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
+                    source: imagesComboBox.selectedImage
+                    smooth: true
                 }
             }
 
-            Behavior on y {
-                id: yBehavior
-
-                enabled: false
-                NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
-                }
-            }
-
-            Behavior on scale {
-                id: scaleBehavior
-
-                enabled: false
-                NumberAnimation {
-                    duration: 200
-                    easing.type: Easing.OutQuad
-                }
-            }
-
-            function checkBounds() {
-                let edgeMargin = 10
-                // correction factor to account for an observation that edgeMargin decreases
-                // with increased zoom
-                let corrFactor = 10 * imageScaler.scale
-                let imgW2 = sourceImage.paintedWidth * imageScaler.scale * .5
-                let imgH2 = sourceImage.paintedHeight * imageScaler.scale * .5
-                let srcW2 = width * .5
-                let srcH2 = height * .5
-
-                if (imageScaler.x < -srcW2 - imgW2 + edgeMargin + corrFactor)
-                    imageScaler.x = -srcW2 - imgW2 + edgeMargin + corrFactor
-                else if (x > srcW2 + imgW2 - edgeMargin - corrFactor)
-                    imageScaler.x = srcW2 + imgW2 - edgeMargin - corrFactor
-
-                if (imageScaler.y < -srcH2 - imgH2 + edgeMargin + corrFactor)
-                    imageScaler.y = -srcH2 - imgH2 + edgeMargin + corrFactor
-                else if (y > srcH2 + imgH2 - edgeMargin - corrFactor)
-                    imageScaler.y = srcH2 + imgH2 - edgeMargin - corrFactor
-            }
-
-            function resetTransforms() {
-                imageScaler.enableAnim(true)
-                root.previewScale = 1
-                imageScaler.x = root.previewMargin
-                imageScaler.y = root.previewMargin
-                imageScaler.enableAnim(false)
-            }
-
-            function enableAnim(flag) {
-                xBehavior.enabled = flag
-                yBehavior.enabled = flag
-                scaleBehavior.enabled = flag
+            BlurHelper {
+                id: blurHelper
+                source: source
+                property int blurMax: g_propertyData.blur_helper_max_level ? g_propertyData.blur_helper_max_level : 64
+                property real blurMultiplier: g_propertyData.blurMultiplier ? g_propertyData.blurMultiplier : 0
             }
 
             Item {
-                id: componentParent
-                width: source.width
-                height: source.height
-                anchors.centerIn: parent
+                id: imageScaler
+                x: root.previewMargin
+                y: root.previewMargin
+                width: parent.width - root.previewMargin * 2
+                height: parent.height - root.previewMargin * 2
+
+                scale: root.previewScale * (width > height ? height / sourceImage.sourceSize.height
+                                                           : width / sourceImage.sourceSize.width)
+
+                Behavior on x {
+                    id: xBehavior
+
+                    enabled: false
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
+
+                Behavior on y {
+                    id: yBehavior
+
+                    enabled: false
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
+
+                Behavior on scale {
+                    id: scaleBehavior
+
+                    enabled: false
+                    NumberAnimation {
+                        duration: 200
+                        easing.type: Easing.OutQuad
+                    }
+                }
+
+                function checkBounds() {
+                    let edgeMargin = 10
+                    // correction factor to account for an observation that edgeMargin decreases
+                    // with increased zoom
+                    let corrFactor = 10 * imageScaler.scale
+                    let imgW2 = sourceImage.paintedWidth * imageScaler.scale * .5
+                    let imgH2 = sourceImage.paintedHeight * imageScaler.scale * .5
+                    let srcW2 = width * .5
+                    let srcH2 = height * .5
+
+                    if (imageScaler.x < -srcW2 - imgW2 + edgeMargin + corrFactor)
+                        imageScaler.x = -srcW2 - imgW2 + edgeMargin + corrFactor
+                    else if (x > srcW2 + imgW2 - edgeMargin - corrFactor)
+                        imageScaler.x = srcW2 + imgW2 - edgeMargin - corrFactor
+
+                    if (imageScaler.y < -srcH2 - imgH2 + edgeMargin + corrFactor)
+                        imageScaler.y = -srcH2 - imgH2 + edgeMargin + corrFactor
+                    else if (y > srcH2 + imgH2 - edgeMargin - corrFactor)
+                        imageScaler.y = srcH2 + imgH2 - edgeMargin - corrFactor
+                }
+
+                function resetTransforms() {
+                    imageScaler.enableAnim(true)
+                    root.previewScale = 1
+                    imageScaler.x = root.previewMargin
+                    imageScaler.y = root.previewMargin
+                    imageScaler.enableAnim(false)
+                }
+
+                function enableAnim(flag) {
+                    xBehavior.enabled = flag
+                    yBehavior.enabled = flag
+                    scaleBehavior.enabled = flag
+                }
+
+                Item {
+                    id: componentParent
+                    width: source.width
+                    height: source.height
+                    anchors.centerIn: parent
+                }
             }
-        }
 
-        Rectangle {
-            id: zoomIndicator
+            Rectangle {
+                id: zoomIndicator
 
-            width: 40
-            height: 20
-            color: StudioTheme.Values.themeDialogBackground
-            visible: false
+                width: 40
+                height: 20
+                color: StudioTheme.Values.themeDialogBackground
+                visible: false
 
-            function show() {
-                zoomIndicator.visible = true
-                zoomIndicatorTimer.start()
+                function show() {
+                    zoomIndicator.visible = true
+                    zoomIndicatorTimer.start()
+                }
+
+                Text {
+                    text: Math.round(root.previewScale * 100) + "%"
+                    color: StudioTheme.Values.themeTextColor
+                    anchors.centerIn: parent
+                }
+
+                Timer {
+                    id: zoomIndicatorTimer
+                    interval: 1000
+                    onTriggered: zoomIndicator.visible = false
+                }
             }
 
-            Text {
-                text: Math.round(root.previewScale * 100) + "%"
-                color: StudioTheme.Values.themeTextColor
-                anchors.centerIn: parent
+            Connections {
+                target: effectComposerModel
+                function onShadersBaked() {
+                    updateTimer.restart()
+                }
             }
 
             Timer {
-                id: zoomIndicatorTimer
-                interval: 1000
-                onTriggered: zoomIndicator.visible = false
-            }
-        }
-
-        Connections {
-            target: effectComposerModel
-            function onShadersBaked() {
-                updateTimer.restart()
-            }
-        }
-
-        Timer {
-            id: updateTimer
-            interval: updateDelay
-            onTriggered: {
-                effectComposerModel.updateQmlComponent()
-                createNewComponent()
+                id: updateTimer
+                interval: updateDelay
+                onTriggered: {
+                    effectComposerModel.updateQmlComponent()
+                    createNewComponent()
+                }
             }
         }
     }
 }
+

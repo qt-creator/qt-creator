@@ -37,29 +37,8 @@ using namespace Qt::StringLiterals;
 
 namespace EffectComposer {
 
-enum class FileType
-{
-    Binary,
-    Text
-};
-
 static constexpr int INVALID_CODE_EDITOR_INDEX = -1;
 static constexpr int MAIN_CODE_EDITOR_INDEX = -2;
-
-static bool writeToFile(const QByteArray &buf, const QString &filename, FileType fileType)
-{
-    QDir().mkpath(QFileInfo(filename).path());
-    QFile f(filename);
-    QIODevice::OpenMode flags = QIODevice::WriteOnly | QIODevice::Truncate;
-    if (fileType == FileType::Text)
-        flags |= QIODevice::Text;
-    if (!f.open(flags)) {
-        qWarning() << "Failed to open file for writing:" << filename;
-        return false;
-    }
-    f.write(buf);
-    return true;
-}
 
 EffectComposerModel::EffectComposerModel(QObject *parent)
     : QAbstractListModel{parent}
@@ -231,6 +210,7 @@ void EffectComposerModel::clear(bool clearName)
         resetRootVertexShader();
     }
 
+    resetEffectError();
     setHasUnsavedChanges(!m_currentComposition.isEmpty());
     setCodeEditorIndex(INVALID_CODE_EDITOR_INDEX);
 
@@ -533,24 +513,27 @@ QString EffectComposerModel::detectErrorMessage(const QString &errorMessage)
     return QString();
 }
 
-// Return first error message (if any)
-EffectError EffectComposerModel::effectError() const
+void EffectComposerModel::resetEffectError(int type, bool notify)
 {
-    for (const EffectError &e : std::as_const(m_effectErrors)) {
-        if (!e.m_message.isEmpty())
-            return e;
+    if (type < 0 && !m_effectErrors.isEmpty()) {
+        m_effectErrors.clear();
+        if (notify)
+            Q_EMIT effectErrorsChanged();
+    } else if (m_effectErrors.contains(type)) {
+        m_effectErrors.remove(type);
+        if (notify)
+            Q_EMIT effectErrorsChanged();
     }
-    return {};
 }
 
 // Set the effect error message with optional type and lineNumber.
 // Type comes from ErrorTypes, defaulting to common errors (-1).
-// Note that type must match with UI editor tab index.
-void EffectComposerModel::setEffectError(const QString &errorMessage, int type, int lineNumber)
+void EffectComposerModel::setEffectError(const QString &errorMessage, int type,
+                                         bool notify, int lineNumber)
 {
     EffectError error;
     error.m_type = type;
-    if (type == 1 || type == 2) {
+    if (type == 2) {
         // For shaders, get the line number from baker output.
         // Which is something like "ERROR: :15: message"
         int glslErrorLineNumber = -1;
@@ -570,9 +553,41 @@ void EffectComposerModel::setEffectError(const QString &errorMessage, int type, 
 
     QString additionalErrorInfo = detectErrorMessage(errorMessage);
     error.m_message = additionalErrorInfo + errorMessage;
-    m_effectErrors.insert(type, error);
+    QList<EffectError> &errors = m_effectErrors[type];
+    errors.append(error);
+
     qWarning() << QString("Effect error (line: %2): %1").arg(error.m_message).arg(error.m_line);
-    Q_EMIT effectErrorChanged();
+
+    if (notify)
+        Q_EMIT effectErrorsChanged();
+}
+
+QString EffectComposerModel::effectErrors() const
+{
+    static const QStringList errorTypeStrings {
+        "Common",
+        "QML parsing",
+        "Shader",
+        "Preprocessor"
+    };
+    static const QString messageTemplate = tr("%1 error: %2\n");
+    QString retval;
+
+    for (const QList<EffectError> &errors : std::as_const(m_effectErrors)) {
+        for (const EffectError &e : errors) {
+            if (!e.m_message.isEmpty()) {
+                int index = e.m_type;
+                if (index < 0 || index >= errorTypeStrings.size())
+                    index = 0;
+                retval.append(messageTemplate.arg(errorTypeStrings[index], e.m_message));
+            }
+        }
+    }
+
+    if (!retval.isEmpty())
+        retval.chop(1); // Remove last newline
+
+    return retval;
 }
 
 QString variantAsDataString(const Uniform::Type type, const Uniform::Type controlType, const QVariant &variant)
@@ -1096,9 +1111,11 @@ R"(
 
 void EffectComposerModel::saveComposition(const QString &name)
 {
+    resetEffectError(ErrorCommon);
+    resetEffectError(ErrorQMLParsing);
+
     if (name.isEmpty() || name.size() < 3 || name[0].isLower()) {
-        QString error = QString("Error: Couldn't save composition '%1', name is invalid").arg(name);
-        qWarning() << error;
+        setEffectError(QString("Failed to save composition '%1', name is invalid").arg(name));
         return;
     }
 
@@ -1109,8 +1126,7 @@ void EffectComposerModel::saveComposition(const QString &name)
 
     auto saveFile = QFile(path);
     if (!saveFile.open(QIODevice::WriteOnly)) {
-        QString error = QString("Error: Couldn't save composition file: '%1'").arg(path);
-        qWarning() << error;
+        setEffectError(QString("Failed to save composition file: '%1'").arg(path));
         return;
     }
 
@@ -1266,9 +1282,7 @@ void EffectComposerModel::openComposition(const QString &path)
 
     QFile compFile(path);
     if (!compFile.open(QIODevice::ReadOnly)) {
-        QString error = QString("Couldn't open composition file: '%1'").arg(path);
-        qWarning() << qPrintable(error);
-        setEffectError(error);
+        setEffectError(QString("Failed to open composition file: '%1'").arg(path));
         return;
     }
 
@@ -1280,16 +1294,12 @@ void EffectComposerModel::openComposition(const QString &path)
     QJsonParseError parseError;
     QJsonDocument jsonDoc(QJsonDocument::fromJson(data, &parseError));
     if (parseError.error != QJsonParseError::NoError) {
-        QString error = QString("Error parsing the project file: %1").arg(parseError.errorString());
-        qWarning() << error;
-        setEffectError(error);
+        setEffectError(QString("Failed to parse the project file: %1").arg(parseError.errorString()));
         return;
     }
     QJsonObject rootJson = jsonDoc.object();
     if (!rootJson.contains("QEP")) {
-        QString error = QStringLiteral("Error: Invalid project file");
-        qWarning() << error;
-        setEffectError(error);
+        setEffectError(QStringLiteral("Invalid project file"));
         return;
     }
 
@@ -1300,10 +1310,7 @@ void EffectComposerModel::openComposition(const QString &path)
                                                      : ""_L1;
 
     if (!toolName.isEmpty() && toolName != "EffectComposer") {
-        const QString error
-            = tr("Error: '%1' effects are not compatible with 'Effect Composer'").arg(toolName);
-        qWarning() << error;
-        setEffectError(error);
+        setEffectError(QString("'%1' effects are not compatible with 'Effect Composer'").arg(toolName));
         return;
     }
 
@@ -1312,9 +1319,7 @@ void EffectComposerModel::openComposition(const QString &path)
         version = json["version"].toInt(-1);
 
     if (version != 1) {
-        QString error = QString("Error: Unknown project version (%1)").arg(version);
-        qWarning() << error;
-        setEffectError(error);
+        setEffectError(QString("Unknown project version (%1)").arg(version));
         return;
     }
 
@@ -1537,8 +1542,8 @@ void EffectComposerModel::saveResources(const QString &name)
         newFileNames.append(target.fileName());
         if (target.exists() && source.fileName() != target.fileName())
             target.removeFile(); // Remove existing file for update
-        if (!source.copyFile(target))
-            qWarning() << __FUNCTION__ << " Failed to copy file: " << source;
+        if (!source.copyFile(target) && !target.exists())
+            setEffectError(QString("Failed to copy file: %1").arg(source.toFSPathString()));
 
         if (fileNameToUniformHash.contains(dests[i])) {
             Uniform *uniform = fileNameToUniformHash[dests[i]];
@@ -1562,14 +1567,6 @@ void EffectComposerModel::saveResources(const QString &name)
     }
 
     emit resourcesSaved(QString("%1.%2.%2").arg(m_effectTypePrefix, name).toUtf8(), effectPath);
-}
-
-void EffectComposerModel::resetEffectError(int type)
-{
-    if (m_effectErrors.contains(type)) {
-        m_effectErrors.remove(type);
-        Q_EMIT effectErrorChanged();
-    }
 }
 
 // Get value in QML format that used for exports
@@ -1603,7 +1600,8 @@ QString EffectComposerModel::valueAsString(const Uniform &uniform)
             return uniform.value().toBool() ? QString("1") : QString("0");
         return uniform.value().toString();
     } else {
-        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        setEffectError(QString("Unhandled const variable type: %1").arg(int(uniform.type())),
+                       ErrorQMLParsing);
         return QString();
     }
 }
@@ -1636,7 +1634,8 @@ QString EffectComposerModel::valueAsBinding(const Uniform &uniform)
     } else if (uniform.type() == Uniform::Type::Sampler) {
         return getImageElementName(uniform);
     } else {
-        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        setEffectError(QString("Unhandled const variable type: %1").arg(int(uniform.type())),
+                       ErrorQMLParsing);
         return QString();
     }
 }
@@ -1665,7 +1664,8 @@ QString EffectComposerModel::valueAsVariable(const Uniform &uniform)
     } else if (uniform.type() == Uniform::Type::Channel) {
         return QString::number(uniform.value().toInt());
     } else {
-        qWarning() << QString("Unhandled const variable type: %1").arg(int(uniform.type())).toLatin1();
+        setEffectError(QString("Unhandled const variable type: %1").arg(int(uniform.type())),
+                       ErrorQMLParsing);
         return QString();
     }
 }
@@ -1902,31 +1902,38 @@ QString EffectComposerModel::generateFragmentShader(bool includeUniforms)
     return s;
 }
 
-void EffectComposerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader, bool preview)
+void EffectComposerModel::handleQsbProcessExit(Utils::Process *qsbProcess, const QString &shader,
+                                               bool preview, int bakeCounter)
 {
-    --m_remainingQsbTargets;
+    if (bakeCounter == m_currentBakeCounter) {
+        if (m_remainingQsbTargets == 2)
+            resetEffectError(ErrorShader, false);
 
-    const QString errStr = qsbProcess->errorString();
-    const QByteArray errStd = qsbProcess->readAllRawStandardError();
-    QString previewStr;
-    if (preview)
-        previewStr = QStringLiteral("preview");
+        --m_remainingQsbTargets;
 
-    if (!errStr.isEmpty()) {
-        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
-                          .arg(shader, errStr, previewStr);
-    }
+        const QString errStr = qsbProcess->errorString();
+        const QByteArray errStd = qsbProcess->readAllRawStandardError();
+        QString previewStr;
+        if (preview)
+            previewStr = QStringLiteral("preview");
 
-    if (!errStd.isEmpty()) {
-        qWarning() << QString("Failed to generate %3 QSB file for: %1 %2")
-                          .arg(shader, QString::fromUtf8(errStd), previewStr);
-    }
+        if (!errStr.isEmpty() || !errStd.isEmpty()) {
+            const QString failMessage = "Failed to generate %3 QSB file for: %1\n%2";
+            QString error;
+            if (!errStr.isEmpty())
+                error = failMessage.arg(shader, errStr, previewStr);
+            if (!errStd.isEmpty())
+                error = failMessage.arg(shader, QString::fromUtf8(errStd), previewStr);
+            setEffectError(error, ErrorShader, false);
+        }
 
-    if (m_remainingQsbTargets <= 0) {
-        Q_EMIT shadersBaked();
-        setShadersUpToDate(true);
+        if (m_remainingQsbTargets <= 0) {
+            Q_EMIT shadersBaked();
+            setShadersUpToDate(true);
+            Q_EMIT effectErrorsChanged();
 
-        // TODO: Mark shaders as baked, required by export later
+            // TODO: Mark shaders as baked, required by export later
+        }
     }
 
     qsbProcess->deleteLater();
@@ -2002,9 +2009,8 @@ void EffectComposerModel::updateCustomUniforms()
 
 void EffectComposerModel::initShaderDir()
 {
-    static int count = 0;
     static const QString fileNameTemplate = "%1_%2.%3";
-    const QString countStr = QString::number(count);
+    const QString countStr = QString::number(m_currentBakeCounter);
 
     auto resetFile = [&countStr, this](QString &fileName, const QString prefix, const QString suffix) {
         // qsb generation is done in separate process, so it is not guaranteed all of the old files
@@ -2026,27 +2032,30 @@ void EffectComposerModel::initShaderDir()
     resetFile(m_vertexShaderPreviewFilename, "compiled_prev", "vert.qsb");
     resetFile(m_fragmentShaderPreviewFilename, "compiled_prev", "frag.qsb");
 
-    ++count;
+    ++m_currentBakeCounter;
 }
 
 void EffectComposerModel::bakeShaders()
 {
-    const QString failMessage = "Shader baking failed: ";
-
-    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
-    if (!target) {
-        qWarning() << failMessage << "Target not found";
-        return;
-    }
-
     initShaderDir();
 
-    resetEffectError(ErrorPreprocessor);
     if (Utils::FilePath::fromString(m_vertexSourceFilename).exists()
         && Utils::FilePath::fromString(m_fragmentSourceFilename).exists()
         && m_vertexShader == generateVertexShader()
         && m_fragmentShader == generateFragmentShader()) {
         setShadersUpToDate(true);
+        return;
+    }
+
+    const QString failMessage = "Shader baking failed: %1";
+    // Don't reset shader errors yet to avoid UI flicker
+    resetEffectError(ErrorCommon);
+    resetEffectError(ErrorQMLParsing);
+    resetEffectError(ErrorPreprocessor);
+
+    const ProjectExplorer::Target *target = ProjectExplorer::ProjectTree::currentTarget();
+    if (!target) {
+        setEffectError(failMessage.arg("Target not found"));
         return;
     }
 
@@ -2069,13 +2078,13 @@ void EffectComposerModel::bakeShaders()
 
     QtSupport::QtVersion *qtVer = QtSupport::QtKitAspect::qtVersion(target->kit());
     if (!qtVer) {
-        qWarning() << failMessage << "Qt version not found";
+        setEffectError(failMessage.arg("Qt version not found"));
         return;
     }
 
     Utils::FilePath qsbPath = qtVer->binPath().pathAppended("qsb").withExecutableSuffix();
     if (!qsbPath.exists()) {
-        qWarning() << failMessage << "QSB tool for target kit not found";
+        setEffectError(failMessage.arg("QSB tool for target kit not found"));
         return;
     }
 
@@ -2083,7 +2092,7 @@ void EffectComposerModel::bakeShaders()
         QLibraryInfo::path(QLibraryInfo::BinariesPath));
     Utils::FilePath qsbPrevPath = binPath.pathAppended("qsb").withExecutableSuffix();
     if (!qsbPrevPath.exists()) {
-        qWarning() << failMessage << "QSB tool for preview shaders not found";
+        setEffectError(failMessage.arg("QSB tool for preview shaders not found"));
         return;
     }
 
@@ -2101,8 +2110,8 @@ void EffectComposerModel::bakeShaders()
 
             auto qsbProcess = new Utils::Process(this);
             connect(qsbProcess, &Utils::Process::done, this,
-                    [this, qsbProcess, path = srcPaths[i], preview] {
-                handleQsbProcessExit(qsbProcess, path, preview);
+                    [this, qsbProcess, path = srcPaths[i], bakeCounter = m_currentBakeCounter, preview] {
+                handleQsbProcessExit(qsbProcess, path, preview, bakeCounter);
             });
             qsbProcess->setWorkingDirectory(workDir.absolutePath());
             qsbProcess->setCommand({qsbPath, args});
@@ -2524,8 +2533,6 @@ bool EffectComposerModel::hasCustomNode() const
 
 void EffectComposerModel::updateQmlComponent()
 {
-    // Clear possible QML runtime errors
-    resetEffectError(ErrorQMLRuntime);
     m_qmlComponentString = getQmlComponentString(false);
 }
 
@@ -2557,6 +2564,18 @@ void EffectComposerModel::addOrUpdateNodeUniform(int idx, const QVariantMap &dat
 
     setHasUnsavedChanges(true);
     startRebakeTimer();
+}
+
+bool EffectComposerModel::writeToFile(const QByteArray &buf, const QString &fileName,
+                                      FileType fileType)
+{
+    Utils::FilePath fp = Utils::FilePath::fromString(fileName);
+    fp.absolutePath().createDir();
+    if (!fp.writeFileContents(buf)) {
+        setEffectError(QString("Failed to open file for writing: %1").arg(fileName));
+        return false;
+    }
+    return true;
 }
 
 } // namespace EffectComposer
