@@ -36,6 +36,7 @@
 #endif
 #include <qt_windows.h>
 #include <shlobj.h>
+#include <winioctl.h>
 #endif
 
 #ifdef Q_OS_MACOS
@@ -172,6 +173,40 @@ bool FileSaverBase::setResult(QXmlStreamWriter *stream)
 
 // FileSaver
 
+static bool saveFileSupportedFileSystem(const FilePath &path)
+{
+#ifdef Q_OS_WIN
+    const HANDLE handle = CreateFile((wchar_t *) path.toUserOutput().utf16(),
+                                     0,
+                                     FILE_SHARE_READ,
+                                     NULL,
+                                     OPEN_EXISTING,
+                                     FILE_FLAG_BACKUP_SEMANTICS,
+                                     NULL);
+    if (handle != INVALID_HANDLE_VALUE) {
+        FILESYSTEM_STATISTICS stats;
+        DWORD bytesReturned;
+        bool success = DeviceIoControl(
+            handle,
+            FSCTL_FILESYSTEM_GET_STATISTICS,
+            NULL,
+            0,
+            &stats,
+            sizeof(stats),
+            &bytesReturned,
+            NULL);
+        CloseHandle(handle);
+        if (success || GetLastError() == ERROR_MORE_DATA) {
+            return stats.FileSystemType != FILESYSTEM_STATISTICS_TYPE_FAT
+                   && stats.FileSystemType != FILESYSTEM_STATISTICS_TYPE_EXFAT;
+        }
+    }
+#else
+    Q_UNUSED(path);
+#endif
+    return true;
+}
+
 FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
 {
     m_filePath = filePath;
@@ -193,7 +228,8 @@ FileSaver::FileSaver(const FilePath &filePath, QIODevice::OpenMode mode)
 
     const bool readOnlyOrAppend = mode & (QIODevice::ReadOnly | QIODevice::Append);
     m_isSafe = !readOnlyOrAppend && !filePath.hasHardLinks()
-               && !qtcEnvironmentVariableIsSet("QTC_DISABLE_ATOMICSAVE");
+               && !qtcEnvironmentVariableIsSet("QTC_DISABLE_ATOMICSAVE")
+               && saveFileSupportedFileSystem(filePath);
     if (m_isSafe)
         m_file.reset(new SaveFile(filePath));
     else
