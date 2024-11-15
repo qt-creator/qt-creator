@@ -45,6 +45,7 @@ signals:
     void errorCount(qint64 unique, qint64 count);
     void suppressionCount(const QString &name, qint64 count);
     void announceThread(const AnnounceThread &announceThread);
+    // TODO: Replace with Utils::Result
     void done(Tasking::DoneResult result, const QString &errorString);
 
 private:

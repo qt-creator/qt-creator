@@ -7,7 +7,6 @@
 #include "qnxtr.h"
 #include "slog2inforunner.h"
 
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 

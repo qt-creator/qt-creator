@@ -1021,8 +1021,8 @@ void MemcheckTool::loadXmlLogFile(const QString &filePath)
 
     m_logParser.reset(new Parser);
     connect(m_logParser.get(), &Parser::error, this, &MemcheckTool::parserError);
-    connect(m_logParser.get(), &Parser::done, this, [this](DoneResult result, const QString &err) {
-        if (result == DoneResult::Error)
+    connect(m_logParser.get(), &Parser::done, this, [this](Tasking::DoneResult result, const QString &err) {
+        if (result == Tasking::DoneResult::Error)
             internalParserError(err);
         loadingExternalXmlLogFileFinished();
         m_logParser.release()->deleteLater();

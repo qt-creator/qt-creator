@@ -9,7 +9,7 @@
 
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>
-#include <projectexplorer/devicesupport/deviceusedportsgatherer.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <utils/environmentfwd.h>
 
