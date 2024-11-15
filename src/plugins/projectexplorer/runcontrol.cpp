@@ -358,7 +358,7 @@ public:
     void checkAutoDeleteAndEmitStopped();
 
     void enablePortsGatherer();
-    QUrl getNextChannel();
+    QUrl getNextChannel(const QList<Port> &usedPorts);
 
     RunControl *q;
     Id runMode;
@@ -601,16 +601,17 @@ void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
     connect(portsGatherer.get(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
         if (success) {
             portList = device->freePorts();
+            const QList<Port> usedPorts = portsGatherer->usedPorts();
             q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
                              NormalMessageFormat);
             if (useDebugChannel)
-                debugChannel = getNextChannel();
+                debugChannel = getNextChannel(usedPorts);
             if (useQmlChannel)
-                qmlChannel = getNextChannel();
+                qmlChannel = getNextChannel(usedPorts);
             if (usePerfChannel)
-                perfChannel = getNextChannel();
+                perfChannel = getNextChannel(usedPorts);
             if (useWorkerChannel)
-                workerChannel = getNextChannel();
+                workerChannel = getNextChannel(usedPorts);
 
             continueStart();
         } else {
@@ -634,16 +635,15 @@ void RunControlPrivate::enablePortsGatherer()
         portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
 }
 
-QUrl RunControlPrivate::getNextChannel()
+QUrl RunControlPrivate::getNextChannel(const QList<Port> &usedPorts)
 {
-    QTC_ASSERT(portsGatherer, return {});
     QUrl result;
     result.setScheme(urlTcpScheme());
     if (q->device()->extraData(Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool())
         result.setHost("localhost");
     else
         result.setHost(q->device()->toolControlChannel(IDevice::ControlChannelHint()).host());
-    result.setPort(portList.getNextFreePort(portsGatherer->usedPorts()).number());
+    result.setPort(portList.getNextFreePort(usedPorts).number());
     return result;
 }
 
