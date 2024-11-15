@@ -68,6 +68,8 @@ bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);
 
 QStringList adbSelector(const QString &serialNumber);
 
+Tasking::ExecutableItem serialNumberRecipe(const QString &avdName,
+                                           const Tasking::Storage<QString> &serialNumberStorage);
 Tasking::ExecutableItem startAvdRecipe(
     const QString &avdName, const Tasking::Storage<QString> &serialNumberStorage);
 

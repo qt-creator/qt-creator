@@ -636,7 +636,7 @@ static ExecutableItem startAvdAsyncRecipe(const QString &avdName)
     };
 }
 
-static ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
+ExecutableItem serialNumberRecipe(const QString &avdName, const Storage<QString> &serialNumberStorage)
 {
     const Storage<QStringList> outputStorage;
     const Storage<QString> currentSerialNumberStorage;
