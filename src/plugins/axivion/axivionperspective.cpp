@@ -661,16 +661,12 @@ void IssuesWidget::addIssues(const Dto::IssueTableDto &dto, int startRow)
         for (const auto &column : tableColumns) {
             const auto it = row.find(column.key);
             if (it != row.end()) {
-                QString value = anyToSimpleString(it->second);
+                QString value = anyToSimpleString(it->second, column.type, column.typeOptions);
                 if (column.key == "id") {
                     value.prepend(m_currentPrefix);
                     id = value;
                 }
                 toolTips << value;
-                if (column.key.toLower().endsWith("path")) {
-                    const FilePath fp = FilePath::fromUserInput(value);
-                    value = QString("%1 [%2]").arg(fp.fileName(), fp.path());
-                }
                 data << value;
             }
         }
