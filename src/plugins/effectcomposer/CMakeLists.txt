@@ -19,6 +19,7 @@ add_qtc_plugin(EffectComposer
     effectnode.cpp effectnode.h
     effectnodescategory.cpp effectnodescategory.h
     compositionnode.cpp compositionnode.h
+    tableheaderlengthmodel.cpp tableheaderlengthmodel.h
     uniform.cpp uniform.h
     effectutils.cpp effectutils.h
     effectcomposercontextobject.cpp effectcomposercontextobject.h

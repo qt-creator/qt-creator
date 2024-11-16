@@ -7,6 +7,7 @@
 #include "effectcomposernodesmodel.h"
 #include "effectcomposerwidget.h"
 #include "studioquickwidget.h"
+#include "tableheaderlengthmodel.h"
 
 #include <designermcumanager.h>
 #include <documentmanager.h>
@@ -19,6 +20,7 @@
 #include <coreplugin/icore.h>
 
 #include <QTimer>
+#include <QtQml>
 
 namespace EffectComposer {
 
@@ -259,6 +261,11 @@ void EffectComposerView::dragStarted(QMimeData *mimeData)
 void EffectComposerView::dragEnded()
 {
     highlightSupportedProperties(false);
+}
+
+void EffectComposer::EffectComposerView::registerDeclarativeTypes()
+{
+    qmlRegisterType<TableHeaderLengthModel>("TableModules", 1, 0, "TableHeaderLengthModel");
 }
 
 } // namespace EffectComposer

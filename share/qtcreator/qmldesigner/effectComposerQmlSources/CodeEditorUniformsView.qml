@@ -6,9 +6,11 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import StudioControls as StudioControls
 import StudioTheme as StudioTheme
+import TableModules as TableModules
 
 ColumnLayout {
     property alias model: tableView.model
+    readonly property alias tableView: tableView
 
     spacing: -1
 
