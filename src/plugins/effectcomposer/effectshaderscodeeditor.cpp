@@ -23,6 +23,7 @@
 #include <qmljseditor/qmljseditordocument.h>
 
 #include <QApplication>
+#include <QClipboard>
 #include <QPlainTextEdit>
 #include <QSettings>
 #include <QSplitter>
@@ -172,6 +173,11 @@ void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsModel *unif
         m_headerWidget->rootContext()
             ->setContextProperty("uniformsTableModel", QVariant::fromValue(uniformsTable));
     }
+}
+
+void EffectShadersCodeEditor::copyText(const QString &text)
+{
+    qApp->clipboard()->setText(text);
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()

@@ -88,6 +88,38 @@ ColumnLayout {
                             text: labelView.text
                             enabled: labelView.truncated
                         }
+
+                        Loader {
+                            active: dataScope.canCopy
+
+                            anchors.right: parent.right
+                            anchors.top: parent.top
+                            anchors.bottom: parent.bottom
+
+                            sourceComponent: MouseArea {
+                                id: hoverArea
+
+                                width: 15
+                                hoverEnabled: true
+                                enabled: true
+
+                                Row {
+                                    anchors.fill: parent
+                                    visible: hoverArea.containsMouse
+
+                                    StudioControls.AbstractButton {
+                                        width: iconSize
+                                        height: iconSize
+                                        anchors.verticalCenter: parent.verticalCenter
+                                        buttonIcon: StudioTheme.Constants.copy_small
+                                        backgroundVisible: false
+                                        onClicked: rootView.copyText(dataScope.display)
+                                    }
+
+                                    // ToDo: Add a button for placing the value to the editor
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -140,6 +172,7 @@ ColumnLayout {
         required property bool editing
         required property bool selected
         required property bool current
+        required property bool canCopy
 
         color: tableView.currentRow === row ? StudioTheme.Values.themeTableCellCurrent : StudioTheme.Values.themePanelBackground
         implicitWidth: StudioTheme.Values.cellWidth

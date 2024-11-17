@@ -41,6 +41,8 @@ public:
     bool isOpened() const;
     void setUniformsModel(EffectComposerUniformsModel *uniforms);
 
+    Q_INVOKABLE void copyText(const QString &text);
+
 signals:
     void liveUpdateChanged(bool);
     void fragmentValueChanged();

@@ -179,6 +179,7 @@ QHash<int, QByteArray> EffectComposerUniformsTableModel::roleNames() const
         {Qt::DisplayRole, "display"},
         {Role::ValueRole, "value"},
         {Role::ValueTypeRole, "valueType"},
+        {Role::CanCopyRole, "canCopy"},
     };
 }
 
@@ -205,6 +206,9 @@ QVariant EffectComposerUniformsTableModel::data(const QModelIndex &index, int ro
 
     if (role == Role::ValueTypeRole)
         return mapToSource(index).valueTypeString();
+
+    if (role == Role::CanCopyRole)
+        return mapToSource(index).role == UniformRole::NameRole;
 
     return {};
 }
