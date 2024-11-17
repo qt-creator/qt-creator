@@ -3,9 +3,14 @@
 
 import QtQuick
 import QtQuick.Layouts
+import StudioControls as StudioControls
 import StudioTheme as StudioTheme
 
 Rectangle {
+    id: root
+
+    property var rootView: shaderEditor
+
     color: StudioTheme.Values.themeToolbarBackground
 
     ColumnLayout {
@@ -19,9 +24,18 @@ Rectangle {
 
             ColumnChooser {
                 table: uniformsView.tableView
-                text: "Columns"
+                text: qsTr("Columns")
                 style: StudioTheme.Values.viewBarControlStyle
                 Layout.topMargin: StudioTheme.Values.marginTopBottom
+            }
+
+            StudioControls.CheckBox {
+                text: qsTr("Live Update")
+                actionIndicatorVisible: false
+                style: StudioTheme.Values.viewBarControlStyle
+                Layout.topMargin: StudioTheme.Values.marginTopBottom
+                checked: root.rootView ? root.rootView.liveUpdate : false
+                onToggled: root.rootView.liveUpdate = checked
             }
         }
 

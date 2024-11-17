@@ -8,7 +8,6 @@
 #include <utils/uniqueobjectptr.h>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
-QT_FORWARD_DECLARE_CLASS(QToolBar)
 
 class StudioQuickWidget;
 
@@ -60,7 +59,6 @@ protected:
 private:
     void writeLiveUpdateSettings();
     void readAndApplyLiveUpdateSettings();
-    QToolBar *createToolbar();
     void createHeader();
     void reloadQml();
 

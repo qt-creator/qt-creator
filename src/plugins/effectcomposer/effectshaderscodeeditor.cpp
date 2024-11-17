@@ -14,8 +14,6 @@
 
 #include <coreplugin/icore.h>
 
-#include <componentcore/designeractionmanager.h>
-#include <componentcore/designericons.h>
 #include <componentcore/theme.h>
 
 #include <qmldesigner/qmldesignerplugin.h>
@@ -29,21 +27,13 @@
 #include <QSettings>
 #include <QSplitter>
 #include <QTabWidget>
-#include <QToolBar>
 #include <QVBoxLayout>
 
 namespace {
 
-using IconId = QmlDesigner::DesignerIcons::IconId;
-
 inline constexpr char EFFECTCOMPOSER_LIVE_UPDATE_KEY[] = "EffectComposer/CodeEditor/LiveUpdate";
 inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER[]
     = "QQuickWidgetEffectComposerCodeEditorHeader";
-
-QIcon toolbarIcon(IconId iconId)
-{
-    return QmlDesigner::DesignerActionManager::instance().toolbarIcon(iconId);
-};
 
 QString propertyEditorResourcesPath()
 {
@@ -222,7 +212,6 @@ void EffectShadersCodeEditor::setupUIComponents()
     tabWidget->addTab(m_vertexEditor, tr("Vertex Shader"));
 
     verticalLayout->setContentsMargins(0, 0, 0, 0);
-    verticalLayout->addWidget(createToolbar());
     verticalLayout->addWidget(splitter);
     splitter->addWidget(m_headerWidget.get());
     splitter->addWidget(tabWidget);
@@ -275,41 +264,6 @@ void EffectShadersCodeEditor::readAndApplyLiveUpdateSettings()
     setLiveUpdate(liveUpdateStatus);
 }
 
-QToolBar *EffectShadersCodeEditor::createToolbar()
-{
-    using QmlDesigner::Theme;
-
-    QToolBar *toolbar = new QToolBar(this);
-
-    toolbar->setFixedHeight(Theme::toolbarSize());
-    toolbar->setFloatable(false);
-    toolbar->setContentsMargins(0, 0, 0, 0);
-
-    toolbar->setStyleSheet(Theme::replaceCssColors(
-        QString::fromUtf8(Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css"))));
-
-    QAction *liveUpdateButton
-        = toolbar->addAction(toolbarIcon(IconId::LiveUpdateIcon), tr("Live Update"));
-    liveUpdateButton->setCheckable(true);
-    connect(liveUpdateButton, &QAction::toggled, this, &EffectShadersCodeEditor::setLiveUpdate);
-
-    QAction *applyAction = toolbar->addAction(toolbarIcon(IconId::SyncIcon), tr("Apply"));
-    connect(applyAction, &QAction::triggered, this, &EffectShadersCodeEditor::rebakeRequested);
-
-    auto syncLive = [liveUpdateButton, applyAction](bool liveState) {
-        liveUpdateButton->setChecked(liveState);
-        applyAction->setDisabled(liveState);
-    };
-
-    connect(this, &EffectShadersCodeEditor::liveUpdateChanged, this, syncLive);
-    syncLive(liveUpdate());
-
-    toolbar->addAction(liveUpdateButton);
-    toolbar->addAction(applyAction);
-
-    return toolbar;
-}
-
 void EffectShadersCodeEditor::createHeader()
 {
     m_headerWidget = new StudioQuickWidget(this);
@@ -320,6 +274,7 @@ void EffectShadersCodeEditor::createHeader()
     m_headerWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
     m_headerWidget->setClearColor(QmlDesigner::Theme::getColor(
         QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_headerWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
 }
 
 void EffectShadersCodeEditor::reloadQml()
