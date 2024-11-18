@@ -76,8 +76,9 @@ void SecretAspect::readSecret(const std::function<void(Utils::expected_str<QStri
         qWarning() << "No Keychain available, reading from plaintext";
         qtcSettings()->beginGroup("Secrets");
         auto value = qtcSettings()->value(settingsKey());
-        d->callReadCallbacks(fromSettingsValue(value).toString());
         qtcSettings()->endGroup();
+
+        d->callReadCallbacks(fromSettingsValue(value).toString());
         return;
     }
 
@@ -126,7 +127,7 @@ void SecretAspect::writeSettings() const
 
     if (!QKeychain::isAvailable()) {
         qtcSettings()->beginGroup("Secrets");
-        qtcSettings()->setValue(settingsKey(), toSettingsValue(variantValue()));
+        qtcSettings()->setValue(settingsKey(), toSettingsValue(d->value));
         qtcSettings()->endGroup();
         d->wasEdited = false;
         return;
