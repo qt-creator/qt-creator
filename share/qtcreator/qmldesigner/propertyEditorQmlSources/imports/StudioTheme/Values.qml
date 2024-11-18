@@ -474,6 +474,8 @@ QtObject {
     property color themePillTextSelected: Theme.color(Theme.DSpillTextSelected)
     property color themePillTextEdit: Theme.color(Theme.DspillTextEdit)
 
+    property color themeTableCellCurrent: Theme.color(Theme.DStableCellCurrent)
+
     // Control Style Mapping
     property ControlStyle controlStyle: DefaultStyle {}
     property ControlStyle connectionPopupControlStyle: ConnectionPopupControlStyle {}

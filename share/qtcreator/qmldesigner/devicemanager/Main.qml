@@ -31,7 +31,7 @@ Rectangle {
         required property bool selected
         required property bool current
 
-        color: tableView.currentRow === row ? "#08475B" : StudioTheme.Values.themePanelBackground
+        color: tableView.currentRow === row ? StudioTheme.Values.themeTableCellCurrent : StudioTheme.Values.themePanelBackground
         implicitWidth: StudioTheme.Values.cellWidth
         implicitHeight: StudioTheme.Values.cellHeight
         border {
