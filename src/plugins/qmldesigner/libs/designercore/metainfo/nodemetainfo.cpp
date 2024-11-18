@@ -1180,7 +1180,7 @@ QMetaType::Type NodeMetaInfoPrivate::variantTypeId(const PropertyName &propertyN
     if (typeName == "vector4d")
         return QMetaType::QVector4D;
 
-    return QMetaType::UnknownType;
+    return static_cast<QMetaType::Type>(QMetaType::fromName(typeName.data()).id());
 }
 
 int NodeMetaInfoPrivate::majorVersion() const
