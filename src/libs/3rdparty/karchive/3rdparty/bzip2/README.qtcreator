@@ -1,0 +1,4 @@
+This directory contains a stripped down version of `git://sourceware.org/git/bzip2.git` with the following modifications:
+
+* Branch bzip2-1.0.8 was checked out (6a8690fc8d26c815e798c588f796eabe9d684cf0)
+* All unnecessary files have been removed.
