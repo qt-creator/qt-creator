@@ -348,11 +348,11 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_label);
-        parent.addItem(m_label);
-        parent.addItem(m_changeButton);
+        layout.addItem(m_label);
+        layout.addItem(m_changeButton);
     }
 
     void refresh() override
@@ -859,11 +859,11 @@ public:
 
 private:
     // KitAspectWidget interface
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_summaryLabel);
-        parent.addItem(m_summaryLabel);
-        parent.addItem(m_manageButton);
+        layout.addItem(m_summaryLabel);
+        layout.addItem(m_manageButton);
     }
 
     void makeReadOnly() override

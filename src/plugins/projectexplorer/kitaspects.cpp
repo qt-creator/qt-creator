@@ -53,10 +53,10 @@ public:
 private:
     void makeReadOnly() override { m_chooser->setReadOnly(true); }
 
-    void addToInnerLayout(Layouting::Layout &builder) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_chooser);
-        builder.addItem(Layouting::Span(2, m_chooser));
+        layout.addItem(Layouting::Span(2, m_chooser));
     }
 
     void refresh() override
@@ -218,11 +218,11 @@ public:
     }
 
 private:
-    void addToInnerLayout(Layouting::Layout &builder) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_mainWidget);
-        builder.addItem(m_mainWidget);
-        builder.addItem(m_manageButton);
+        layout.addItem(m_mainWidget);
+        layout.addItem(m_manageButton);
     }
 
     void makeReadOnly() override { m_manageButton->setEnabled(false); }

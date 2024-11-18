@@ -95,20 +95,20 @@ public:
 private:
     Id settingsPageItemToPreselect() const override { return DeviceAspect::deviceId(kit()); }
 
-    void addToInnerLayout(Layouting::Layout &parentItem) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
-            Layouting::Layout layout(new QHBoxLayout);
-            layout.addItem(Tr::tr("Type:"));
-            embedded.first()->addToInnerLayout(layout);
-            layout.addItem(Tr::tr("Device:"));
-            KitAspect::addToInnerLayout(layout);
+            Layouting::Layout box(new QHBoxLayout);
+            box.addItem(Tr::tr("Type:"));
+            embedded.first()->addToInnerLayout(box);
+            box.addItem(Tr::tr("Device:"));
+            KitAspect::addToInnerLayout(box);
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(1);
             comboBoxes().first()->setSizePolicy(p);
-            parentItem.addItem(layout);
+            layout.addItem(box);
         } else {
-            KitAspect::addToInnerLayout(parentItem);
+            KitAspect::addToInnerLayout(layout);
         }
     }
 };

@@ -41,10 +41,10 @@ private:
 
     void makeReadOnly() final { m_toolsComboBox->setEnabled(false); }
 
-    void addToInnerLayout(Layouting::Layout &parent) final
+    void addToInnerLayout(Layouting::Layout &layout) final
     {
         addMutableAction(m_toolsComboBox);
-        parent.addItem(m_toolsComboBox);
+        layout.addItem(m_toolsComboBox);
     }
 
     void refresh() final

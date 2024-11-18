@@ -84,19 +84,19 @@ public:
     }
 
 private:
-    void addToInnerLayout(Layouting::Layout &parentItem) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
-            Layouting::Layout layout(new QHBoxLayout);
-            KitAspect::addToInnerLayout(layout);
+            Layouting::Layout box(new QHBoxLayout);
+            KitAspect::addToInnerLayout(box);
             QSizePolicy p = comboBoxes().first()->sizePolicy();
             p.setHorizontalStretch(2);
             comboBoxes().first()->setSizePolicy(p);
-            layout.addItem(Tr::tr("Mkspec:"));
-            embedded.first()->addToInnerLayout(layout);
-            parentItem.addItem(layout);
+            box.addItem(Tr::tr("Mkspec:"));
+            embedded.first()->addToInnerLayout(box);
+            layout.addItem(box);
         } else {
-            KitAspect::addToInnerLayout(parentItem);
+            KitAspect::addToInnerLayout(layout);
         }
     }
 };

@@ -44,10 +44,10 @@ public:
     ~QmakeKitAspectImpl() override { delete m_lineEdit; }
 
 private:
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_lineEdit);
-        parent.addItem(m_lineEdit);
+        layout.addItem(m_lineEdit);
     }
 
     void makeReadOnly() override { m_lineEdit->setEnabled(false); }

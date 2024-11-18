@@ -107,26 +107,26 @@ public:
     }
 
 private:
-    void addToInnerLayout(Layouting::Layout &builder) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         const auto mainWidget = createSubWidget<QWidget>();
         mainWidget->setContentsMargins(0, 0, 0, 0);
 
-        const auto layout = new QGridLayout(mainWidget);
-        layout->setContentsMargins(0, 0, 0, 0);
-        layout->setColumnStretch(1, 2);
+        const auto grid = new QGridLayout(mainWidget);
+        grid->setContentsMargins(0, 0, 0, 0);
+        grid->setColumnStretch(1, 2);
 
         int row = 0;
         const QList<QComboBox *> cbList = comboBoxes();
         QTC_ASSERT(cbList.size() == m_sortedLanguageCategories.size(), return);
         for (const LanguageCategory &lc : std::as_const(m_sortedLanguageCategories)) {
-            layout->addWidget(
+            grid->addWidget(
                 new QLabel(ToolchainManager::displayNameOfLanguageCategory(lc) + ':'), row, 0);
-            layout->addWidget(cbList.at(row), row, 1);
+            grid->addWidget(cbList.at(row), row, 1);
             ++row;
         }
         addMutableAction(mainWidget);
-        builder.addItem(mainWidget);
+        layout.addItem(mainWidget);
     }
 
     QList<LanguageCategory> m_sortedLanguageCategories;

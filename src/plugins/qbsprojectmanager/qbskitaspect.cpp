@@ -35,11 +35,11 @@ private:
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
 
-    void addToInnerLayout(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &layout) override
     {
         addMutableAction(m_contentLabel);
-        parent.addItem(m_contentLabel);
-        parent.addItem(m_changeButton);
+        layout.addItem(m_contentLabel);
+        layout.addItem(m_changeButton);
     }
 
     void changeProperties()
