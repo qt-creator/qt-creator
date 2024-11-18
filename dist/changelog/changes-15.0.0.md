@@ -21,18 +21,18 @@ General
   ([Blog Post](https://www.qt.io/blog/review-new-themes-for-qt-creator))
 * Added `Tools > Scripting > New Script` for creating Lua based Qt Creator
   scripts
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-create-lua-scripts.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-create-lua-scripts.html))
 * Plugins
     * Added `DocumentationUrl` and new mandatory fields `Id` and `VendorId`
       to the plugin meta data
     * Changed the plugin descriptions to Markdown in
       `Help > About Plugins > Details` and `Extensions` mode
     * Extended the API available to Lua plugins
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-extending/lua-extensions.html))
+      ([Documentation](https://doc.qt.io/qtcreator-extending/lua-extensions.html))
 * Prebuilt binaries
     * Added opt-in crash reporting to
       `Edit > Preferences > Environment > System`
-      ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-turn-on-crash-reports.html))
+      ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-turn-on-crash-reports.html))
 
 Editing
 -------
@@ -157,6 +157,7 @@ Projects
   ([QTCREATORBUG-31141](https://bugreports.qt.io/browse/QTCREATORBUG-31141))
 * Fixed a focus issue when renaming files
   ([QTCREATORBUG-30926](https://bugreports.qt.io/browse/QTCREATORBUG-30926))
+* Fixed that the `default` session could be renamed and deleted
 
 ### CMake
 
@@ -183,6 +184,10 @@ Projects
 * Added the option of opening `CMakeCache.txt` to open the project
   ([QTCREATORBUG-24439](https://bugreports.qt.io/browse/QTCREATORBUG-24439),
    [QTCREATORBUG-30507](https://bugreports.qt.io/browse/QTCREATORBUG-30507))
+* Made `conanfile.py` and `vcpkg.json` visible in the project tree when used
+  ([QTCREATORBUG-32041](https://bugreports.qt.io/browse/QTCREATORBUG-32041),
+   [Conan Package Manager](https://doc.qt.io/qtcreator/creator-project-conan.html),
+   [vcpkg Package Manager](https://doc.qt.io/qtcreator/creator-vcpkg.html))
 * Fixed the option `Build Only the Application to Be Run` for the
   `Build before deploying` preferences
   ([QTCREATORBUG-31416](https://bugreports.qt.io/browse/QTCREATORBUG-31416))
@@ -245,6 +250,12 @@ Analyzer
 * Added column sorting to the list of issues
 * Added a `Reload` button
 
+Terminal
+--------
+
+* Fixed the flushing of output after a process terminates
+  ([QTCREATORBUG-30733](https://bugreports.qt.io/browse/QTCREATORBUG-30733))
+
 Version Control Systems
 -----------------------
 
@@ -256,8 +267,10 @@ Version Control Systems
 
 * Added actions for blame at the revision, blame of the parent, the file
   from the revision, and the log for the line to the tooltip for `Instant Blame`
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-vcs-git.html#using-instant-blame))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-vcs-git.html#using-instant-blame))
 * Added visual indications that files are modified to the `Projects` view
+  (when you select
+   `Preferences > Version Control > General > Show VCS file status`)
   ([QTCREATORBUG-8857](https://bugreports.qt.io/browse/QTCREATORBUG-8857))
 * Added the option to include all local branches in the log
 * Gerrit
@@ -269,6 +282,9 @@ Test Integration
 
 * Added test duration information for test frameworks that support it
   ([QTCREATORBUG-31242](https://bugreports.qt.io/browse/QTCREATORBUG-31242))
+* Added support for running auto tests on Android for Qt 6.8.1 and later
+* Fixed the execution of tests with multiple test classes
+  ([QTCREATORBUG-31935](https://bugreports.qt.io/browse/QTCREATORBUG-31935))
 
 Extension Manager
 -----------------
@@ -317,7 +333,7 @@ Platforms
 ### VxWorks
 
 * Added support for VxWorks 24.03
-  ([Documentation](https://doc-snapshots.qt.io/qtcreator-15.0/creator-how-to-create-vxworks-kits.html))
+  ([Documentation](https://doc.qt.io/qtcreator/creator-how-to-create-vxworks-kits.html))
 
 Credits for these changes go to:
 --------------------------------
