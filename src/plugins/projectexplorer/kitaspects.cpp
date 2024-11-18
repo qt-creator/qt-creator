@@ -263,14 +263,15 @@ private:
         m_vslangCheckbox->setToolTip(Tr::tr("Either switches MSVC to English or keeps the language and "
                                         "just forces UTF-8 output (may vary depending on the used MSVC "
                                         "compiler)."));
-        if (enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(kit())))
-            m_vslangCheckbox->setChecked(true);
+        m_vslangCheckbox->setChecked(
+            enforcesMSVCEnglish(EnvironmentKitAspect::environmentChanges(kit())));
         connect(m_vslangCheckbox, &QCheckBox::clicked, this, [this](bool checked) {
             EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
-            if (!checked && changes.indexOf(forceMSVCEnglishItem()) >= 0)
-                changes.removeAll(forceMSVCEnglishItem());
-            if (checked && changes.indexOf(forceMSVCEnglishItem()) < 0)
+            const bool hasVsLangEntry = enforcesMSVCEnglish(changes);
+            if (checked && !hasVsLangEntry)
                 changes.append(forceMSVCEnglishItem());
+            else if (!checked && hasVsLangEntry)
+                changes.removeAll(forceMSVCEnglishItem());
             EnvironmentKitAspect::setEnvironmentChanges(kit(), changes);
         });
     }
