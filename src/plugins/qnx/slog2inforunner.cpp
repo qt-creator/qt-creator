@@ -38,10 +38,6 @@ void Slog2InfoRunner::start()
         process.setCommand(CommandLine{device()->filePath("slog2info")});
     };
     const auto onTestDone = [this](DoneWith result) {
-        if (result == DoneWith::Success) {
-            m_found = true;
-            return;
-        }
         appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
                              "debug output not available."), ErrorMessageFormat);
     };
@@ -51,7 +47,6 @@ void Slog2InfoRunner::start()
     };
     const auto onLaunchTimeDone = [this](const Process &process) {
         QTC_CHECK(!m_applicationId.isEmpty());
-        QTC_CHECK(m_found);
         m_launchDateTime = QDateTime::fromString(process.cleanedStdOut().trimmed(), "dd HH:mm:ss");
     };
 
@@ -70,7 +65,7 @@ void Slog2InfoRunner::start()
     };
 
     const Group root {
-        ProcessTask(onTestSetup, onTestDone),
+        ProcessTask(onTestSetup, onTestDone, CallDoneIf::Error),
         ProcessTask(onLaunchTimeSetup, onLaunchTimeDone, CallDoneIf::Success),
         ProcessTask(onLogSetup, onLogError, CallDoneIf::Error)
     };
@@ -84,11 +79,6 @@ void Slog2InfoRunner::stop()
     m_taskTreeRunner.reset();
     processRemainingLogData();
     reportStopped();
-}
-
-bool Slog2InfoRunner::commandFound() const
-{
-    return m_found;
 }
 
 void Slog2InfoRunner::processRemainingLogData()
