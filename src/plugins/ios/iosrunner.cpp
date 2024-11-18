@@ -735,7 +735,6 @@ void IosQmlProfilerSupport::start()
 
     Port qmlPort = m_runner->qmlServerPort();
     serverUrl.setPort(qmlPort.number());
-    m_profiler->recordData("QmlServerUrl", serverUrl);
     if (qmlPort.isValid())
         reportStarted();
     else

@@ -56,9 +56,6 @@ public:
 
     void setId(const QString &id);
 
-    void recordData(const Utils::Key &channel, const QVariant &data);
-    QVariant recordedData(const Utils::Key &channel) const;
-
     // Part of read-only interface of RunControl for convenience.
     void appendMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
     IDeviceConstPtr device() const;

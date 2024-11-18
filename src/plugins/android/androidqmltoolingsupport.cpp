@@ -26,10 +26,7 @@ public:
         auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
         worker->addStartDependency(this);
 
-        connect(runner, &AndroidRunner::qmlServerReady, this, [this, worker](const QUrl &server) {
-            worker->recordData("QmlServerUrl", server);
-            reportStarted();
-        });
+        connect(runner, &AndroidRunner::qmlServerReady, this, &RunWorker::reportStarted);
     }
 
 private:

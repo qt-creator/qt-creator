@@ -277,7 +277,6 @@ public:
 private:
     void start() final
     {
-        m_worker->recordData("QmlServerUrl", qmlChannel());
         reportStarted();
     }
 

@@ -235,7 +235,6 @@ public:
     QList<RunWorker *> stopDependencies;
     QString id;
 
-    Store data;
     bool supportsReRunning = true;
     bool essential = false;
 };
@@ -1949,16 +1948,6 @@ RunControl *RunWorker::runControl() const
 void RunWorker::setId(const QString &id)
 {
     d->id = id;
-}
-
-void RunWorker::recordData(const Key &channel, const QVariant &data)
-{
-    d->data[channel] = data;
-}
-
-QVariant RunWorker::recordedData(const Key &channel) const
-{
-    return d->data[channel];
 }
 
 void RunWorker::setSupportsReRunning(bool reRunningSupported)
