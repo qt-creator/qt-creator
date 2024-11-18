@@ -70,7 +70,6 @@ public:
                      const QmlPreviewRunnerSetting &settings);
 
     void setServerUrl(const QUrl &serverUrl);
-    QUrl serverUrl() const;
 
 signals:
     void loadFile(const QString &previewedFile, const QString &changedFile,
@@ -79,9 +78,11 @@ signals:
     void zoom(float zoomFactor);
     void rerun();
     void ready();
+
 private:
     void start() override;
     void stop() override;
+    QUrl serverUrl() const;
 
     QmlPreviewConnectionManager m_connectionManager;
 };
