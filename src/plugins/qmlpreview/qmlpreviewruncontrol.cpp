@@ -30,8 +30,6 @@ using namespace Utils;
 
 namespace QmlPreview {
 
-static const Key QmlServerUrl = "QmlServerUrl";
-
 class RefreshTranslationWorker final : public RunWorker
 {
 public:
@@ -68,8 +66,6 @@ class QmlPreviewRunner : public ProjectExplorer::RunWorker
 public:
     QmlPreviewRunner(ProjectExplorer::RunControl *runControl,
                      const QmlPreviewRunnerSetting &settings);
-
-    void setServerUrl(const QUrl &serverUrl);
 
 signals:
     void loadFile(const QString &previewedFile, const QString &changedFile,
@@ -140,7 +136,7 @@ QmlPreviewRunner::QmlPreviewRunner(RunControl *runControl, const QmlPreviewRunne
 void QmlPreviewRunner::start()
 {
     m_connectionManager.setTarget(runControl()->target());
-    m_connectionManager.connectToServer(serverUrl());
+    m_connectionManager.connectToServer(runControl()->qmlChannel());
     reportStarted();
 }
 
@@ -148,16 +144,6 @@ void QmlPreviewRunner::stop()
 {
     m_connectionManager.disconnectFromServer();
     reportStopped();
-}
-
-void QmlPreviewRunner::setServerUrl(const QUrl &serverUrl)
-{
-    recordData(QmlServerUrl, serverUrl);
-}
-
-QUrl QmlPreviewRunner::serverUrl() const
-{
-    return recordedData(QmlServerUrl).toUrl();
 }
 
 QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
@@ -195,16 +181,17 @@ public:
         : SimpleTargetRunner(runControl)
     {
         setId("LocalQmlPreviewSupport");
-        const QUrl serverUrl = Utils::urlFromLocalSocket();
 
-        QmlPreviewRunner *preview = qobject_cast<QmlPreviewRunner *>(
-            runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER));
-        preview->setServerUrl(serverUrl);
+        runControl->setQmlChannel(Utils::urlFromLocalSocket());
+
+        // Create QmlPreviewRunner
+        RunWorker *preview =
+            runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
 
         addStopDependency(preview);
         addStartDependency(preview);
 
-        setStartModifier([this, runControl, serverUrl] {
+        setStartModifier([this, runControl] {
             CommandLine cmd = commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
@@ -226,7 +213,7 @@ public:
                 }
             }
 
-            cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, serverUrl.path()));
+            cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
             setCommandLine(cmd);
 
             forceRunOnHost();
