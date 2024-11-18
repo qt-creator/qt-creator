@@ -1,48 +1,50 @@
 ; Qt Creator Color Tokens - light mode
+[General]
+Includes=primitive-colors.inc
 
 [Colors]
 
-Token_Basic_Black=ff181818
-Token_Basic_White=ffFCFCFC
+Token_Basic_Black=Primitive-Neutral-900
+Token_Basic_White=Primitive-Neutral-100
 
-Token_Accent_Default=ff1EC974
-Token_Accent_Muted=ff12A75D
-Token_Accent_Subtle=ff12834B
+Token_Accent_Default=Primitive-Neon-500
+Token_Accent_Muted=Primitive-Neon-600
+Token_Accent_Subtle=Primitive-Neon-700
 
-Token_Background_Default=ffFCFCFC
-Token_Background_Muted=ffF2F2F2
-Token_Background_Subtle=ffE3E3E3
+Token_Background_Default=Primitive-Neutral-100
+Token_Background_Muted=Primitive-Neutral-150
+Token_Background_Subtle=Primitive-Neutral-200
 
-Token_Foreground_Default=ffBEBEBE
-Token_Foreground_Muted=ffCDCDCD
-Token_Foreground_Subtle=ffE3E3E3
+Token_Foreground_Default=Primitive-Neutral-300
+Token_Foreground_Muted=Primitive-Neutral-250
+Token_Foreground_Subtle=Primitive-Neutral-200
 
-Token_Text_Default=ff2D2D2D
-Token_Text_Muted=ff595959
-Token_Text_Subtle=ffAEAEAE
-Token_Text_Accent=ff12A75D
+Token_Text_Default=Primitive-Neutral-750
+Token_Text_Muted=Primitive-Neutral-550
+Token_Text_Subtle=Primitive-Neutral-350
+Token_Text_Accent=Primitive-Neon-600
 
-Token_Stroke_Strong=ff595959
-Token_Stroke_Muted=ff909090
-Token_Stroke_Subtle=ffCDCDCD
+Token_Stroke_Strong=Primitive-Neutral-550
+Token_Stroke_Muted=Primitive-Neutral-400
+Token_Stroke_Subtle=Primitive-Neutral-250
 
-Token_Notification_Alert_Default=ffBC7A19
-Token_Notification_Alert_Muted=ffEB991F
-Token_Notification_Alert_Subtle=ffFFEBCD
+Token_Notification_Alert_Default=Primitive-Yellow-600
+Token_Notification_Alert_Muted=Primitive-Yellow-500
+Token_Notification_Alert_Subtle=Primitive-Yellow-100
 
-Token_Notification_Neutral_Default=ff27138B
-Token_Notification_Neutral_Muted=ff361EAB
-Token_Notification_Neutral_Subtle=ffD9D2F9
+Token_Notification_Neutral_Default=Primitive-QAMidnight-700
+Token_Notification_Neutral_Muted=Primitive-QAMidnight-600
+Token_Notification_Neutral_Subtle=Primitive-QAMidnight-100
 
-Token_Notification_Danger_Default=ffB00F36
-Token_Notification_Danger_Muted=ffDC1343
-Token_Notification_Danger_Subtle=ffFACED9
+Token_Notification_Danger_Default=Primitive-Red-600
+Token_Notification_Danger_Muted=Primitive-Red-500
+Token_Notification_Danger_Subtle=Primitive-Red-100
 
-Token_Notification_Success_Default=ff12834B
-Token_Notification_Success_Muted=ff12A75D
-Token_Notification_Success_Subtle=ffDBFDEC
+Token_Notification_Success_Default=Primitive-Neon-700
+Token_Notification_Success_Muted=Primitive-Neon-600
+Token_Notification_Success_Subtle=Primitive-Neon-100
 
-Token_Gradient01_Start=ff1EC974
-Token_Gradient01_End=ff0099A1
-Token_Gradient02_Start=ff9D9D9D
-Token_Gradient02_End=ff595959
+Token_Gradient01_Start=Primitive-Neon-500
+Token_Gradient01_End=Primitive-Pine-600
+Token_Gradient02_Start=Primitive-Neutral-400
+Token_Gradient02_End=Primitive-Neutral-550
