@@ -19,12 +19,16 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
 
+#include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
+
+#include <QHBoxLayout>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -78,6 +82,23 @@ public:
                 refresh();
         });
     }
+
+private:
+    void addToInnerLayout(Layouting::Layout &parentItem) override
+    {
+        if (const QList<KitAspect *> embedded = aspectsToEmbed(); !embedded.isEmpty()) {
+            Layouting::Layout layout(new QHBoxLayout);
+            KitAspect::addToInnerLayout(layout);
+            QSizePolicy p = comboBoxes().first()->sizePolicy();
+            p.setHorizontalStretch(2);
+            comboBoxes().first()->setSizePolicy(p);
+            layout.addItem(Tr::tr("Mkspec:"));
+            embedded.first()->addToInnerLayout(layout);
+            parentItem.addItem(layout);
+        } else {
+            KitAspect::addToInnerLayout(parentItem);
+        }
+    }
 };
 } // namespace Internal
 
@@ -123,6 +144,7 @@ QtKitAspectFactory::QtKitAspectFactory()
                           "A Qt version is required for qmake-based projects "
                           "and optional when using other build systems."));
     setPriority(26000);
+    setEmbeddableAspects({QmakeProjectManager::Constants::KIT_INFORMATION_ID});
 }
 
 void QtKitAspectFactory::setup(Kit *k)

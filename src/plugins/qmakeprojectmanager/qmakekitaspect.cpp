@@ -35,6 +35,9 @@ public:
     {
         refresh(); // set up everything according to kit
         m_lineEdit->setToolTip(ki->description());
+        QSizePolicy p = m_lineEdit->sizePolicy();
+        p.setHorizontalStretch(1);
+        m_lineEdit->setSizePolicy(p);
         connect(m_lineEdit, &QLineEdit::textEdited, this, &QmakeKitAspectImpl::mkspecWasChanged);
     }
 
