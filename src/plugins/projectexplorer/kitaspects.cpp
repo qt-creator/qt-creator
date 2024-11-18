@@ -229,7 +229,7 @@ private:
 
     void refresh() override
     {
-        const EnvironmentItems changes = envWithoutMSVCEnglishEnforcement();
+        const EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
         const QString shortSummary = EnvironmentItem::toStringList(changes).join("; ");
         m_summaryLabel->setText(shortSummary.isEmpty() ? Tr::tr("No changes to apply.") : shortSummary);
     }
@@ -240,10 +240,8 @@ private:
         EnvironmentDialog::Polisher polisher = [expander](QWidget *w) {
             VariableChooser::addSupportForChildWidgets(w, expander);
         };
-        auto changes = EnvironmentDialog::getEnvironmentItems(m_summaryLabel,
-                                                              envWithoutMSVCEnglishEnforcement(),
-                                                              QString(),
-                                                              polisher);
+        auto changes = EnvironmentDialog::getEnvironmentItems(
+            m_summaryLabel, EnvironmentKitAspect::environmentChanges(kit()), QString(), polisher);
         if (!changes)
             return;
 
@@ -256,16 +254,6 @@ private:
                 m_vslangCheckbox->setChecked(true);
         }
         EnvironmentKitAspect::setEnvironmentChanges(kit(), *changes);
-    }
-
-    EnvironmentItems envWithoutMSVCEnglishEnforcement() const
-    {
-        EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(kit());
-
-        if (HostOsInfo::isWindowsHost())
-            changes.removeAll(forceMSVCEnglishItem());
-
-        return changes;
     }
 
     void initMSVCOutputSwitch(QVBoxLayout *layout)
