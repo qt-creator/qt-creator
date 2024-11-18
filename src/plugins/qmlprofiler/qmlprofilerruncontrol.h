@@ -25,9 +25,7 @@ public:
     ~QmlProfilerRunner() override;
 
     void registerProfilerStateManager( QmlProfilerStateManager *profilerState );
-
     void cancelProcess();
-    void notifyRemoteFinished();
 
 private:
     void start() override;

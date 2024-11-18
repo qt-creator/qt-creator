@@ -96,24 +96,6 @@ void QmlProfilerRunner::stop()
     }
 }
 
-void QmlProfilerRunner::notifyRemoteFinished()
-{
-    QTC_ASSERT(d->m_profilerState, return);
-
-    switch (d->m_profilerState->currentState()) {
-    case QmlProfilerStateManager::AppRunning:
-        d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppDying);
-        break;
-    case QmlProfilerStateManager::Idle:
-        break;
-    default:
-        const QString message = QString::fromLatin1("Process died unexpectedly from state %1 in %2:%3")
-            .arg(d->m_profilerState->currentStateAsString(), QString::fromLatin1(__FILE__), QString::number(__LINE__));
-        qWarning("%s", qPrintable(message));
-        break;
-    }
-}
-
 void QmlProfilerRunner::cancelProcess()
 {
     QTC_ASSERT(d->m_profilerState, return);
