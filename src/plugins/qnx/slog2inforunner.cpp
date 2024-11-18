@@ -37,7 +37,7 @@ void Slog2InfoRunner::start()
     const auto onTestSetup = [this](Process &process) {
         process.setCommand(CommandLine{device()->filePath("slog2info")});
     };
-    const auto onTestDone = [this](DoneWith result) {
+    const auto onTestDone = [this] {
         appendMessage(Tr::tr("Warning: \"slog2info\" is not found on the device, "
                              "debug output not available."), ErrorMessageFormat);
     };
