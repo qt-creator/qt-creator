@@ -132,11 +132,15 @@ public:
     // For layouting purposes only.
     QList<QComboBox *> comboBoxes() const;
 
-    virtual void addToInnerLayout(Layouting::Layout &parentItem);
+    virtual void addToInnerLayout(Layouting::Layout &layout);
 
 protected:
     virtual void makeReadOnly();
     virtual Utils::Id settingsPageItemToPreselect() const { return {}; }
+
+    void addLabelToLayout(Layouting::Layout &layout);
+    void addListAspectsToLayout(Layouting::Layout &layout);
+    void addManageButtonToLayout(Layouting::Layout &layout);
 
     // Convenience for aspects that provide a list model from which one value can be chosen.
     // It will be exposed via a QComboBox.

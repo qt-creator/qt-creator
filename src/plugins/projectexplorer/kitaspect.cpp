@@ -187,12 +187,9 @@ void KitAspect::makeReadOnly()
         la.comboBox->setEnabled(false);
 }
 
-void KitAspect::addToInnerLayout(Layouting::Layout &parentItem)
+void KitAspect::addToInnerLayout(Layouting::Layout &layout)
 {
-    for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
-        addMutableAction(la.comboBox);
-        parentItem.addItem(la.comboBox);
-    }
+    addListAspectsToLayout(layout);
 }
 
 void KitAspect::addListAspectSpec(const ListAspectSpec &listAspectSpec)
@@ -228,7 +225,7 @@ QList<QComboBox *> KitAspect::comboBoxes() const
     return Utils::transform(d->listAspects, &Private::ListAspect::comboBox);
 }
 
-void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
+void KitAspect::addLabelToLayout(Layouting::Layout &layout)
 {
     auto label = createSubWidget<QLabel>(d->factory->displayName() + ':');
     label->setToolTip(d->factory->description());
@@ -237,7 +234,18 @@ void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
     });
 
     layout.addItem(label);
-    addToInnerLayout(layout);
+}
+
+void KitAspect::addListAspectsToLayout(Layouting::Layout &layout)
+{
+    for (const Private::ListAspect &la : std::as_const(d->listAspects)) {
+        addMutableAction(la.comboBox);
+        layout.addItem(la.comboBox);
+    }
+}
+
+void KitAspect::addManageButtonToLayout(Layouting::Layout &layout)
+{
     if (d->managingPageId.isValid()) {
         d->manageButton = createSubWidget<QPushButton>(msgManage());
         connect(d->manageButton, &QPushButton::clicked, [this] {
@@ -245,7 +253,15 @@ void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
         });
         layout.addItem(d->manageButton);
     }
-    layout.addItem(Layouting::br);
+}
+
+void KitAspect::addToLayoutImpl(Layouting::Layout &layout)
+{
+    addLabelToLayout(layout);
+    addToInnerLayout(layout);
+    addManageButtonToLayout(layout);
+
+    layout.flush();
 }
 
 void KitAspect::addMutableAction(QWidget *child)
