@@ -100,8 +100,7 @@ public:
     AppManInferiorRunner(RunControl *runControl,
                          bool usePerf, bool useGdbServer, bool useQmlServer,
                          QmlDebugServicesPreset qmlServices)
-        : SimpleTargetRunner(runControl),
-        m_qmlServices(qmlServices)
+        : SimpleTargetRunner(runControl)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
         setEssential(true);
@@ -118,7 +117,7 @@ public:
         if (useQmlServer)
             runControl->requestQmlChannel();
 
-        setStartModifier([this, runControl] {
+        setStartModifier([this, runControl, qmlServices] {
             FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
             QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
@@ -141,10 +140,8 @@ public:
                 if (usesDebugChannel())
                     debugArgs.append(QString("gdbserver :%1").arg(debugChannel().port()));
                 if (usesQmlChannel()) {
-                    const QString qmlArgs =
-                            qmlDebugCommandLineArguments(m_qmlServices,
-                                                         QString("port:%1").arg(qmlChannel().port()),
-                                                         true);
+                    const QString qmlArgs = qmlDebugCommandLineArguments(qmlServices,
+                        QString("port:%1").arg(qmlChannel().port()), true);
                     debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
                 }
                 cmd.addArg(debugArgs.join(' '));
@@ -174,9 +171,6 @@ public:
             appendMessage(Tr::tr("Using: %1.").arg(cmd.toUserOutput()), NormalMessageFormat);
         });
     }
-
-private:
-    QmlDebugServicesPreset m_qmlServices;
 };
 
 
