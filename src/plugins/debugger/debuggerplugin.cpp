@@ -872,7 +872,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
     });
 
     connect(&m_startAndDebugApplicationAction, &QAction::triggered,
-            this, &StartApplicationDialog::startAndDebugApplication);
+            this, [] { runStartAndDebugApplicationDialog(); });
 
     connect(&m_attachToCoreAction, &QAction::triggered,
             this, &DebuggerPluginPrivate::attachCore);
@@ -881,7 +881,7 @@ DebuggerPluginPrivate::DebuggerPluginPrivate(const QStringList &arguments)
             this, &DebuggerPluginPrivate::attachToLastCore);
 
     connect(&m_attachToRemoteServerAction, &QAction::triggered,
-            this, &StartApplicationDialog::attachToRemoteServer);
+            this, [] { runAttachToRemoteServerDialog(); });
 
     connect(&m_attachToRunningApplication, &QAction::triggered,
             this, &DebuggerPluginPrivate::attachToRunningApplication);

@@ -21,29 +21,10 @@ namespace Debugger::Internal {
 class AttachToQmlPortDialogPrivate;
 class DebuggerRunParameters;
 class StartApplicationParameters;
-class StartApplicationDialogPrivate;
 class StartRemoteEngineDialogPrivate;
 
-class StartApplicationDialog : public QDialog
-{
-public:
-    explicit StartApplicationDialog(QWidget *parent);
-    ~StartApplicationDialog() override;
-
-    static void attachToRemoteServer();
-    static void startAndDebugApplication();
-
-private:
-    void historyIndexChanged(int);
-    void updateState();
-    StartApplicationParameters parameters() const;
-    void setParameters(const StartApplicationParameters &p);
-    void setHistory(const QList<StartApplicationParameters> &l);
-    void onChannelOverrideChanged(const QString &channel);
-    static void run(bool);
-
-    StartApplicationDialogPrivate *d;
-};
+void runAttachToRemoteServerDialog();
+void runStartAndDebugApplicationDialog();
 
 class AttachToQmlPortDialog : public QDialog
 {
