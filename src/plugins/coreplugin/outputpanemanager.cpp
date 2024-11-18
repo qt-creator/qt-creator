@@ -46,12 +46,78 @@ using namespace Utils;
 using namespace Core::Internal;
 
 namespace Core {
+namespace Internal {
 
 Q_GLOBAL_STATIC(QList<Core::OutputPanePlaceHolder *>, sPlaceholders)
 
-class OutputPanePlaceHolderPrivate {
+class BadgeLabel
+{
 public:
-    explicit OutputPanePlaceHolderPrivate(Id mode, QSplitter *parent);
+    BadgeLabel();
+    void paint(QPainter *p, int x, int y, bool isChecked);
+    void setText(const QString &text);
+    QString text() const;
+    QSize sizeHint() const;
+
+private:
+    void calculateSize();
+
+    QSize m_size;
+    QString m_text;
+    QFont m_font;
+    static const int m_padding = 6;
+};
+
+class OutputPaneToggleButton : public QToolButton
+{
+    Q_OBJECT
+
+public:
+    OutputPaneToggleButton(int number, const QString &text, QAction *action);
+
+    QSize sizeHint() const override;
+    void paintEvent(QPaintEvent*) override;
+    void flash(int count = 3);
+    void setIconBadgeNumber(int number);
+    bool isPaneVisible() const;
+
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void contextMenuRequested();
+
+private:
+    void updateToolTip();
+    void checkStateSet() override;
+
+    QString m_number;
+    QString m_text;
+    QAction *m_action;
+    QTimeLine *m_flashTimer;
+    BadgeLabel m_badgeNumberLabel;
+};
+
+class OutputPaneManageButton : public QToolButton
+{
+    Q_OBJECT
+public:
+    OutputPaneManageButton();
+    void paintEvent(QPaintEvent *) override;
+
+    void contextMenuEvent(QContextMenuEvent *e) override;
+
+signals:
+    void menuRequested();
+};
+
+} // Internal
+
+class OutputPanePlaceHolderPrivate
+{
+public:
+    OutputPanePlaceHolderPrivate(Id mode, QSplitter *parent)
+        : m_mode(mode), m_splitter(parent)
+    {}
 
     Id m_mode;
     QSplitter *m_splitter;
@@ -61,13 +127,7 @@ public:
     static OutputPanePlaceHolder* m_current;
 };
 
-OutputPanePlaceHolderPrivate::OutputPanePlaceHolderPrivate(Id mode, QSplitter *parent) :
-    m_mode(mode), m_splitter(parent)
-{
-}
-
 OutputPanePlaceHolder *OutputPanePlaceHolderPrivate::m_current = nullptr;
-
 
 OutputPanePlaceHolder::OutputPanePlaceHolder(Id mode, QSplitter *parent)
    : QWidget(parent), d(new OutputPanePlaceHolderPrivate(mode, parent))
@@ -1138,10 +1198,8 @@ int OutputPaneManager::currentIndex() const
 //
 ///////////////////////////////////////////////////////////////////////
 
-OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text,
-                                               QAction *action, QWidget *parent)
-    : QToolButton(parent)
-    , m_number(QString::number(number))
+OutputPaneToggleButton::OutputPaneToggleButton(int number, const QString &text, QAction *action)
+    : m_number(QString::number(number))
     , m_text(text)
     , m_action(action)
     , m_flashTimer(new QTimeLine(1000, this))
@@ -1395,3 +1453,5 @@ void BadgeLabel::calculateSize()
 
 } // namespace Internal
 } // namespace Core
+
+#include "outputpanemanager.moc"
