@@ -184,25 +184,6 @@ QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
     addStopDependency(worker);
 }
 
-// QdbDevicePerfProfilerSupport
-
-class QdbDevicePerfProfilerSupport final : public RunWorker
-{
-public:
-    explicit QdbDevicePerfProfilerSupport(RunControl *runControl);
-};
-
-QdbDevicePerfProfilerSupport::QdbDevicePerfProfilerSupport(RunControl *runControl)
-    : RunWorker(runControl)
-{
-    setId("QdbDevicePerfProfilerSupport");
-
-    runControl->requestPerfChannel();
-    auto profilee = new QdbDeviceInferiorRunner(runControl, NoQmlDebugServices);
-    addStartDependency(profilee);
-    addStopDependency(profilee);
-}
-
 // Factories
 
 class QdbRunWorkerFactory final : public RunWorkerFactory
@@ -261,7 +242,11 @@ class QdbPerfProfilerWorkerFactory final : public RunWorkerFactory
 public:
     QdbPerfProfilerWorkerFactory()
     {
-        setProduct<QdbDevicePerfProfilerSupport>();
+        setProducer([](RunControl *runControl) {
+            runControl->requestPerfChannel();
+            auto worker = new QdbDeviceInferiorRunner(runControl, NoQmlDebugServices);
+            return worker;
+        });
         addSupportedRunMode("PerfRecorder");
         addSupportedDeviceType(Qdb::Constants::QdbLinuxOsType);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
