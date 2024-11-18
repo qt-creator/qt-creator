@@ -52,6 +52,7 @@ public:
         const TextEditor::TextDocument *doc, bool onlyReachable = true);
 
     static void applySettings();
+    static void applySettings(BaseSettings *settings);
     static QList<BaseSettings *> currentSettings();
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId, bool enable = true);
