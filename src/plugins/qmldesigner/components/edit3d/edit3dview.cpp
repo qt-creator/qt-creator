@@ -219,7 +219,7 @@ void Edit3DView::updateActiveScene3D(const QVariantMap &sceneState)
         m_showCameraFrustumAction->action()->setChecked(false);
 
     if (sceneState.contains(cameraViewModeKey))
-        m_cameraViewAction->setMode(sceneState[cameraViewModeKey].toString());
+        m_cameraViewAction->setMode(sceneState[cameraViewModeKey].toByteArray());
     else
         m_cameraViewAction->setMode("");
 
@@ -1392,8 +1392,8 @@ void Edit3DView::createEdit3DActions()
     m_visibilityToggleActions << m_showSelectionBoxAction.get();
     m_visibilityToggleActions << m_showIconGizmoAction.get();
     m_visibilityToggleActions << m_showCameraFrustumAction.get();
-    m_visibilityToggleActions << m_cameraViewAction.get();
     m_visibilityToggleActions << m_showParticleEmitterAction.get();
+    m_visibilityToggleActions << m_cameraViewAction.get();
 
     createSyncEnvBackgroundAction();
     createSelectBackgroundColorAction(m_syncEnvBackgroundAction->action());
