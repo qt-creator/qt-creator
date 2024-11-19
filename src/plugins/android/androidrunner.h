@@ -26,12 +26,10 @@ public:
 
 signals:
     void canceled();
-    void qmlServerReady(const QUrl &serverUrl);
+    void qmlServerReady();
     void avdDetected();
 
 private:
-    void qmlServerPortReady(Utils::Port port);
-
     void remoteStarted(const Utils::Port &debugServerPort, qint64 pid);
     void remoteFinished(const QString &errString);
     void remoteStdOut(const QString &output);

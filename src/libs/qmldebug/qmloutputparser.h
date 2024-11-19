@@ -20,7 +20,7 @@ public:
     void processOutput(const QString &output);
 
 signals:
-    void waitingForConnectionOnPort(Utils::Port port);
+    void waitingForConnectionOnPort(Utils::Port port); // TODO: Unused port arg.
     void connectionEstablishedMessage();
     void connectingToSocketMessage();
     void errorMessage(const QString &detailedError);

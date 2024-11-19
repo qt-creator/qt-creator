@@ -45,7 +45,7 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
     Q_UNUSED(metaTypes)
 
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &AndroidRunner::qmlServerPortReady);
+            this, &AndroidRunner::qmlServerReady);
 }
 
 void AndroidRunner::start()
@@ -114,19 +114,6 @@ void AndroidRunner::stop()
         return;
 
     emit canceled();
-}
-
-void AndroidRunner::qmlServerPortReady(Port port)
-{
-    // FIXME: Note that the passed is nonsense, as the port is on the
-    // device side. It only happens to work since we redirect
-    // host port n to target port n via adb.
-    QUrl serverUrl;
-    serverUrl.setHost(QHostAddress(QHostAddress::LocalHost).toString());
-    serverUrl.setPort(port.number());
-    serverUrl.setScheme(urlTcpScheme());
-    qCDebug(androidRunnerLog) << "Qml Server port ready"<< serverUrl;
-    emit qmlServerReady(serverUrl);
 }
 
 void AndroidRunner::remoteStarted(const Port &debugServerPort, qint64 pid)
