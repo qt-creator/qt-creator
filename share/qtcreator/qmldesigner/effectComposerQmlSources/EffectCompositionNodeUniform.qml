@@ -12,7 +12,6 @@ import EffectComposerBackend
 Item {
     id: root
 
-    property bool removable: false
     property bool editing: false
     property bool disableMoreMenu: false
     property alias editPropertyFormParent: editPropertyFormPlaceholder
@@ -156,7 +155,6 @@ Item {
                             StudioControls.MenuItem {
                                 text: qsTr("Remove")
                                 onTriggered: root.remove()
-                                enabled: root.removable
                             }
                         }
                     }

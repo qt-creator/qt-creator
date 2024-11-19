@@ -21,6 +21,7 @@ Item {
     property int moveToIdx: 0
     property bool previewAnimationRunning: false
     property var expandStates: null
+    property real ensureVisibleY: -1
 
     // Invoked after save changes is done
     property var onSaveChangesCallback: () => {}
@@ -315,6 +316,12 @@ Item {
                                 scrollView.contentY = scrollView.contentItem.height - lastItemH
                                 nodesComboBox.nodeJustAdded = false
                             }
+
+                            if (root.ensureVisibleY >= 0) {
+                                if (root.ensureVisibleY > scrollView.contentY + scrollView.height)
+                                    scrollView.contentY = root.ensureVisibleY - scrollView.height
+                                root.ensureVisibleY = -1
+                            }
                         }
 
                         Column {
@@ -370,6 +377,8 @@ Item {
                                         expanded = wasExpanded
                                         dragAnimation.enabled = true
                                     }
+
+                                    onEnsureVisible: visibleY => root.ensureVisibleY = visibleY
                                 }
                             } // Repeater
                         } // Column

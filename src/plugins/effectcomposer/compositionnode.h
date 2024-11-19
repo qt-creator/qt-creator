@@ -75,6 +75,7 @@ public:
     void closeCodeEditor();
     void addUniform(const QVariantMap &data);
     void updateUniform(int index, const QVariantMap &data);
+    bool isUniformInUse(int index);
 
 signals:
     void uniformsModelChanged();

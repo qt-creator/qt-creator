@@ -12,6 +12,8 @@
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
+#include <QRegularExpression>
+#include <QRegularExpressionMatch>
 
 namespace EffectComposer {
 
@@ -302,6 +304,20 @@ void CompositionNode::updateUniform(int index, const QVariantMap &data)
     m_uniforms[index] = uniform;
     g_propertyData.insert(uniform->name(), uniform->value());
     m_uniformsModel.updateUniform(index, uniform);
+}
+
+bool CompositionNode::isUniformInUse(int index)
+{
+    QTC_ASSERT(index >= 0 && index < m_uniforms.size(), return false);
+
+    const QString name = m_uniforms[index]->name();
+    QString pattern = QString("\\b%1\\b").arg(QRegularExpression::escape(name));
+    QRegularExpression regex(pattern);
+    bool found = regex.match(m_fragmentCode).hasMatch();
+    if (!found)
+        found = regex.match(m_vertexCode).hasMatch();
+
+    return found;
 }
 
 QString CompositionNode::name() const

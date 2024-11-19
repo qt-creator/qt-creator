@@ -17,6 +17,16 @@ HelperWidgets.Section {
     property int modelIndex: 0
     property int editedUniformIndex: -1
 
+    signal ensureVisible(visibleY: real)
+
+    function emitEnsure(item)
+    {
+        if (item.visible) {
+            let ensureY = item.mapToItem(root, Qt.point(0, 0)).y + item.height + root.y + 30
+            root.ensureVisible(ensureY)
+        }
+    }
+
     caption: nodeName
     category: "EffectComposer"
 
@@ -76,13 +86,22 @@ HelperWidgets.Section {
             EffectCompositionNodeUniform {
                 id: effectCompositionNodeUniform
                 width: root.width - StudioTheme.Values.scrollBarThicknessHover
-                removable: uniformUserAdded
                 editing: root.editedUniformIndex === index
                 disableMoreMenu: root.editedUniformIndex >= 0
 
                 onReset: nodeUniformsModel.resetData(index)
-                onRemove: nodeUniformsModel.remove(index)
+                onRemove: {
+                    if (root.backendModel.isNodeUniformInUse(root.modelIndex, index)) {
+                        confirmRemoveForm.parent = effectCompositionNodeUniform.editPropertyFormParent
+                        confirmRemoveForm.uniformIndex = index
+                        confirmRemoveForm.visible = true
+                    } else {
+                        nodeUniformsModel.remove(index)
+                    }
+                }
                 onEdit: {
+                    confirmRemoveForm.visible = false
+                    confirmRemoveForm.parent = root
                     addPropertyForm.parent = effectCompositionNodeUniform.editPropertyFormParent
                     let dispNames = nodeUniformsModel.displayNames()
                     let filteredDispNames = dispNames.filter(name => name !== uniformDisplayName);
@@ -114,6 +133,8 @@ HelperWidgets.Section {
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
             onClicked: {
+                confirmRemoveForm.visible = false
+                confirmRemoveForm.parent = root
                 root.editedUniformIndex = -1
                 addPropertyForm.parent = addProperty
                 addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
@@ -128,6 +149,8 @@ HelperWidgets.Section {
             width: parent.width
 
             effectNodeName: nodeName
+            onHeightChanged: root.emitEnsure(addPropertyForm)
+            onVisibleChanged: root.emitEnsure(addPropertyForm)
 
             onAccepted: {
                 root.backendModel.addOrUpdateNodeUniform(root.modelIndex,
@@ -142,6 +165,25 @@ HelperWidgets.Section {
                 root.editedUniformIndex = -1
             }
         }
+    }
+
+    ConfirmPropertyRemoveForm {
+        id: confirmRemoveForm
+
+        property int uniformIndex: -1
+
+        width: root.width - StudioTheme.Values.scrollBarThicknessHover - 8
+        visible: false
+
+        onHeightChanged: root.emitEnsure(confirmRemoveForm)
+        onVisibleChanged: root.emitEnsure(confirmRemoveForm)
+
+        onAccepted: {
+            confirmRemoveForm.parent = root
+            nodeUniformsModel.remove(confirmRemoveForm.uniformIndex)
+        }
+
+        onCanceled: confirmRemoveForm.parent = root
     }
 }
 
