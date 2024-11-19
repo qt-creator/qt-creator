@@ -725,16 +725,12 @@ IosQmlProfilerSupport::IosQmlProfilerSupport(RunControl *runControl)
 
 void IosQmlProfilerSupport::start()
 {
-    QUrl serverUrl;
     QTcpServer server;
     const bool isListening = server.listen(QHostAddress::LocalHost)
                           || server.listen(QHostAddress::LocalHostIPv6);
     QTC_ASSERT(isListening, return);
-    serverUrl.setScheme(Utils::urlTcpScheme());
-    serverUrl.setHost(server.serverAddress().toString());
 
-    Port qmlPort = m_runner->qmlServerPort();
-    serverUrl.setPort(qmlPort.number());
+    const Port qmlPort = m_runner->qmlServerPort();
     if (qmlPort.isValid())
         reportStarted();
     else
