@@ -304,7 +304,7 @@
         \row
             \li Save all documents
             \li Ctrl+Shift+S
-            \li Not assigned
+            \li \e {None}
         \row
             \li Close current editor
             \li Ctrl+W
@@ -345,7 +345,7 @@
         \row
             \li Find previous occurrence of selected text
             \li Cmd+Shift+F3
-            \li
+            \li \e {None}
         \row
             \li Replace next
             \li Ctrl+=
@@ -929,7 +929,7 @@
         \row
             \li Reverse direction
             \li F12
-            \li
+            \li \e {None}
     \endtable
 
     \section1 Help Mode Shortcuts
@@ -946,7 +946,7 @@
         \row
             \li Go to \uicontrol Contents in the \uicontrol Help mode
             \li Ctrl+Shift+C
-            \li
+            \li \e {None}
         \row
             \li Add a bookmark
             \li Ctrl+M
@@ -1012,7 +1012,7 @@
         \row
             \li Open project
             \li Ctrl+Shift+O
-            \li Not assigned
+            \li \e {None}
     \endtable
 
     \section1 Qt Quick Shortcuts
@@ -1080,10 +1080,10 @@
             \li Subversion
         \row
             \li Add
-            \li
+            \li \e {None}
             \li Alt+C, Alt+A
             \li Alt+G, Alt+A
-            \li
+            \li \e {None}
             \li Alt+P, Alt+A
             \li Alt+S, Alt+A
         \row
@@ -1100,80 +1100,80 @@
             \li Alt+C, Alt+D
             \li Alt+G, Alt+D
             \li Alt+G, Alt+D
-            \li
+            \li \e {None}
             \li Alt+S, Alt+D
         \row
             \li Diff of project or repository
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+G, Alt+Shift+D
-            \li
+            \li \e {None}
             \li Alt+P, Alt+D
-            \li
+            \li \e {None}
         \row
             \li Diff of current modified editor
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+H
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Blame/Annotate
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+G, Alt+B
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Log/Filelog
             \li Alt+Z, Alt+L
-            \li
+            \li \e {None}
             \li Alt+G, Alt+L
             \li Alt+G, Alt+L
             \li Alt+P, Alt+F
-            \li
+            \li \e {None}
         \row
             \li Log repository
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+G, Alt+K
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Status
             \li Alt+Z, Alt+S
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+G, Alt+S
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
         \row
             \li Undo changes/Revert
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Alt+G, Alt+U
-            \li
+            \li \e {None}
             \li Alt+P, Alt+R
-            \li
+            \li \e {None}
         \row
             \li Edit
-            \li
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
             \li Alt+P, Alt+E
-            \li
+            \li \e {None}
         \row
             \li Opened
-            \li
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
             \li Alt+P, Alt+O
-            \li
+            \li \e {None}
     \endtable
 
     \section2 VCS Shortcuts on \macos
@@ -1191,10 +1191,10 @@
             \li Subversion
         \row
             \li Add
-            \li
+            \li \e {None}
             \li Ctrl+C, Ctrl+A
             \li Ctrl+G, Ctrl+A
-            \li
+            \li \e {None}
             \li Ctrl+P, Ctrl+A
             \li Ctrl+S, Ctrl+A
         \row
@@ -1211,80 +1211,80 @@
             \li Ctrl+C, Ctrl+D
             \li Ctrl+G, Ctrl+D
             \li Ctrl+H, Ctrl+D
-            \li
+            \li \e {None}
             \li Ctrl+S, Ctrl+D
         \row
             \li Diff of project or repository
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+G, Ctrl+Shift+D
-            \li
+            \li \e {None}
             \li Ctrl+P, Ctrl+D
-            \li
+            \li \e {None}
         \row
             \li Diff of current modified editor
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+H
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Blame/Annotate
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+G, Ctrl+B
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Log/Filelog
             \li Ctrl+Z, Ctrl+L
-            \li
+            \li \e {None}
             \li Ctrl+G, Ctrl+L
             \li Ctrl+H, Ctrl+L
             \li Ctrl+P, Ctrl+F
-            \li
+            \li \e {None}
         \row
             \li Log repository
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+G, Ctrl+K
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
         \row
             \li Status
             \li Ctrl+Z, Ctrl+S
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+H, Ctrl+S
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
         \row
             \li Undo changes/Revert
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+G, Ctrl+U
-            \li
+            \li \e {None}
             \li Ctrl+P, Ctrl+R
-            \li
+            \li \e {None}
         \row
             \li Edit
-            \li
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+P, Ctrl+E
-            \li
+            \li \e {None}
         \row
             \li Opened
-            \li
-            \li
-            \li
-            \li
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
+            \li \e {None}
             \li Ctrl+P, Ctrl+O
-            \li
+            \li \e {None}
     \endtable
 
     \section1 Emacs Shortcuts
