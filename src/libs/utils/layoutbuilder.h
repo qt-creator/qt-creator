@@ -155,6 +155,7 @@ public:
     using Implementation = QVBoxLayout;
     using I = Building::BuilderItem<Column>;
 
+    Column();
     Column(std::initializer_list<I> ps);
 };
 
@@ -164,6 +165,7 @@ public:
     using Implementation = QHBoxLayout;
     using I = Building::BuilderItem<Row>;
 
+    Row();
     Row(std::initializer_list<I> ps);
 };
 
@@ -190,6 +192,7 @@ public:
 class QTCREATOR_UTILS_EXPORT Flow : public Layout
 {
 public:
+    Flow();
     Flow(std::initializer_list<I> ps);
 };
 

@@ -626,6 +626,11 @@ void withFormAlignment(Layout *layout)
 
 // Flow
 
+Flow::Flow()
+{
+    ptr = new FlowLayout;
+}
+
 Flow::Flow(std::initializer_list<I> ps)
 {
     ptr = new FlowLayout;
@@ -633,13 +638,25 @@ Flow::Flow(std::initializer_list<I> ps)
     flush();
 }
 
-// Row & Column
+// Row
+
+Row::Row()
+{
+    ptr = new QHBoxLayout;
+}
 
 Row::Row(std::initializer_list<I> ps)
 {
     ptr = new QHBoxLayout;
     apply(this, ps);
     flush();
+}
+
+// Column
+
+Column::Column()
+{
+    ptr = new QVBoxLayout;
 }
 
 Column::Column(std::initializer_list<I> ps)
