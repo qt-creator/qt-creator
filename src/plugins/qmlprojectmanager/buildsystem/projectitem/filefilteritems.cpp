@@ -8,7 +8,6 @@
 #include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
-#include <QDebug>
 #include <QDir>
 #include <QImageReader>
 #include <QRegularExpression>
@@ -255,7 +254,7 @@ void FileFilterItem::updateFileListNow()
         addedFiles.subtract(unchanged);
         removedFiles.subtract(unchanged);
 
-        watchFiles({"qmldir", "*.bla"}, addedFiles, removedFiles);
+        watchFiles({"qmldir"}, addedFiles, removedFiles);
 
         m_files = newFiles;
         emit filesChanged(addedFiles, removedFiles);
@@ -289,19 +288,26 @@ bool FileFilterItem::fileMatches(const QString &fileName) const
     return false;
 }
 
+bool FileFilterItem::ignoreDirectory(const QFileInfo &file) const
+{
+    static const QStringList blackList = { "CMakeCache.txt", "build.ninja" };
+    return blackList.contains(file.fileName());
+}
+
 QSet<QString> FileFilterItem::filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs)
 {
     QSet<QString> fileSet;
-
-    if (parsedDirs)
-        parsedDirs->insert(dir.absolutePath());
-
     for (const QFileInfo &file : dir.entryInfoList(QDir::Files)) {
-        const QString fileName = file.fileName();
+        if (ignoreDirectory(file))
+            return {};
 
+        const QString fileName = file.fileName();
         if (fileMatches(fileName))
             fileSet.insert(file.absoluteFilePath());
     }
+
+    if (parsedDirs)
+        parsedDirs->insert(dir.absolutePath());
 
     if (recursive()) {
         for (const QFileInfo &subDir : dir.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot)) {

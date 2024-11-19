@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <QFileInfo>
 #include <QObject>
 #include <QRegularExpression>
 #include <QSet>
@@ -64,6 +65,7 @@ private:
     QString absoluteDir() const;
 
     bool fileMatches(const QString &fileName) const;
+    bool ignoreDirectory(const QFileInfo &file) const;
     QSet<QString> filesInSubTree(const QDir &rootDir, const QDir &dir, QSet<QString> *parsedDirs = nullptr);
     Utils::FileSystemWatcher *dirWatcher();
     QStringList watchedDirectories() const;
