@@ -988,8 +988,11 @@ bool ConPtyProcess::startProcess(const QString &executable,
                          GetExitCodeProcess(hEvent, &exitCode);
                          m_exitCode = exitCode;
                          // Do not respawn if the object is about to be destructed
-                         if (!m_aboutToDestruct)
-                             emit notifier()->aboutToClose();
+                         if (!m_aboutToDestruct) {
+                             ConptyClosePseudoConsole(m_ptyHandler);
+                             m_ptyHandler = INVALID_HANDLE_VALUE;
+                             emit notifier() -> aboutToClose();
+                          }
                          m_shellCloseWaitNotifier->setEnabled(false);
                      }, Qt::QueuedConnection);
 
@@ -1028,7 +1031,7 @@ bool ConPtyProcess::startProcess(const QString &executable,
 
 bool ConPtyProcess::resize(qint16 cols, qint16 rows)
 {
-    if (m_ptyHandler == nullptr)
+    if (m_ptyHandler == INVALID_HANDLE_VALUE)
     {
         return false;
     }
@@ -1047,49 +1050,45 @@ bool ConPtyProcess::resize(qint16 cols, qint16 rows)
 
 bool ConPtyProcess::kill()
 {
-    bool exitCode = false;
-
     if (m_ptyHandler != INVALID_HANDLE_VALUE) {
         m_aboutToDestruct = true;
 
         // Close ConPTY - this will terminate client process if running
         WindowsContext::instance().closePseudoConsole(m_ptyHandler);
-
-        // Clean-up the pipes
-        if (INVALID_HANDLE_VALUE != m_hPipeOut)
-            CloseHandle(m_hPipeOut);
-        if (INVALID_HANDLE_VALUE != m_hPipeIn)
-            CloseHandle(m_hPipeIn);
-
-        if (m_readThread) {
-            m_readThread->requestInterruption();
-            if (!m_readThread->wait(1000))
-                m_readThread->terminate();
-            m_readThread->deleteLater();
-            m_readThread = nullptr;
-        }
-
-        delete m_shellCloseWaitNotifier;
-        m_shellCloseWaitNotifier = nullptr;
-
-        m_pid = 0;
-        m_ptyHandler = INVALID_HANDLE_VALUE;
-        m_hPipeIn = INVALID_HANDLE_VALUE;
-        m_hPipeOut = INVALID_HANDLE_VALUE;
-
-        CloseHandle(m_shellProcessInformation.hThread);
-        CloseHandle(m_shellProcessInformation.hProcess);
-
-        // Cleanup attribute list
-        if (m_shellStartupInfo.lpAttributeList) {
-            DeleteProcThreadAttributeList(m_shellStartupInfo.lpAttributeList);
-            HeapFree(GetProcessHeap(), 0, m_shellStartupInfo.lpAttributeList);
-        }
-
-        exitCode = true;
     }
 
-    return exitCode;
+    // Clean-up the pipes
+    if (INVALID_HANDLE_VALUE != m_hPipeOut)
+        CloseHandle(m_hPipeOut);
+    if (INVALID_HANDLE_VALUE != m_hPipeIn)
+        CloseHandle(m_hPipeIn);
+
+    if (m_readThread) {
+        m_readThread->requestInterruption();
+        if (!m_readThread->wait(1000))
+            m_readThread->terminate();
+        m_readThread->deleteLater();
+        m_readThread = nullptr;
+    }
+
+    delete m_shellCloseWaitNotifier;
+    m_shellCloseWaitNotifier = nullptr;
+
+    m_pid = 0;
+    m_ptyHandler = INVALID_HANDLE_VALUE;
+    m_hPipeIn = INVALID_HANDLE_VALUE;
+    m_hPipeOut = INVALID_HANDLE_VALUE;
+
+    CloseHandle(m_shellProcessInformation.hThread);
+    CloseHandle(m_shellProcessInformation.hProcess);
+
+    // Cleanup attribute list
+    if (m_shellStartupInfo.lpAttributeList) {
+        DeleteProcThreadAttributeList(m_shellStartupInfo.lpAttributeList);
+        HeapFree(GetProcessHeap(), 0, m_shellStartupInfo.lpAttributeList);
+    }
+
+    return true;
 }
 
 IPtyProcess::PtyType ConPtyProcess::type()
