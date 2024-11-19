@@ -203,7 +203,7 @@ TEST_P(DesignSystemManagerTest, update_property_name)
     mgr.addProperty(groupType, testProp);
 
     // act
-    mgr.updateProperty(*themeId, groupType, testProp, testPropUpdated.name);
+    mgr.renameProperty(groupType, testPropNameFoo, testPropNameBar);
 
     // assert
     ASSERT_THAT(mgr,
@@ -220,7 +220,7 @@ TEST_P(DesignSystemManagerTest, updating_invalid_property_fails)
     mgr.addProperty(groupType, testProp);
 
     // act
-    mgr.updateProperty(*themeId, groupType, testProp, testPropUpdated.name);
+    mgr.updateProperty(*themeId, groupType, testPropUpdated);
 
     // assert
     ASSERT_THAT(mgr,

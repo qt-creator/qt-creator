@@ -38,8 +38,9 @@ public:
     std::optional<ThemeProperty> propertyValue(ThemeId theme, const PropertyName &name) const;
     bool hasProperty(const PropertyName &name) const;
 
-    void updateProperty(ThemeId theme, PropertyName newName, const ThemeProperty &prop);
+    bool updateProperty(ThemeId theme, const ThemeProperty &prop);
     void removeProperty(const PropertyName &name);
+    bool renameProperty(const PropertyName &name, const PropertyName &newName);
 
     size_t count(ThemeId theme) const;
     size_t count() const;

@@ -33,8 +33,10 @@ public:
     size_t collectionCount() const { return m_collections.size(); }
 
     DSThemeManager *addCollection(const QString &qmlTypeName);
-    std::optional<DSThemeManager *> collection(const QString &typeName);
+    DSThemeManager *collection(const QString &typeName);
     std::optional<QString> typeName(DSThemeManager *collection) const;
+    bool removeCollection(const QString &name);
+    bool renameCollection(const QString &oldName, const QString &newName);
 
     std::optional<Utils::FilePath> moduleDirPath() const;
     QStringList collectionNames() const;

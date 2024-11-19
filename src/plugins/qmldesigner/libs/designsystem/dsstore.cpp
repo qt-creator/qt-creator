@@ -209,6 +209,30 @@ std::optional<QString> DSStore::typeName(DSThemeManager *collection) const
     return {};
 }
 
+bool DSStore::removeCollection(const QString &name)
+{
+    return m_collections.erase(name);
+}
+
+bool DSStore::renameCollection(const QString &oldName, const QString &newName)
+{
+    auto itr = m_collections.find(oldName);
+    if (itr == m_collections.end() || oldName == newName)
+        return false;
+
+    const QString uniqueTypeName = uniqueCollectionName(newName);
+
+    // newName is mutated to make it unique or compatible. Bail.
+    // Case update is tolerated.
+    if (uniqueTypeName.toLower() != newName.toLower())
+        return false;
+
+    auto handle = m_collections.extract(oldName);
+    handle.key() = uniqueTypeName;
+    m_collections.insert(std::move(handle));
+    return true;
+}
+
 std::optional<Utils::FilePath> DSStore::moduleDirPath() const
 {
     return dsModuleDir(m_ed);
@@ -231,13 +255,13 @@ QString DSStore::uniqueCollectionName(const QString &hint) const
     });
 }
 
-std::optional<DSThemeManager *> DSStore::collection(const QString &typeName)
+DSThemeManager *DSStore::collection(const QString &typeName)
 {
     auto itr = m_collections.find(typeName);
     if (itr != m_collections.end())
         return &itr->second;
 
-    return {};
+    return nullptr;
 }
 
 std::optional<QString> DSStore::loadCollection(const QString &typeName,

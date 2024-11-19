@@ -5,6 +5,7 @@
 #include "collectionmodel.h"
 
 #include <designsystem/dsconstants.h>
+#include <designsystem/dsthememanager.h>
 #include <QQmlEngine>
 
 namespace QmlDesigner {
@@ -21,30 +22,64 @@ void DesignSystemInterface::loadDesignSystem()
 {
     m_models.clear();
     m_store->load();
-    emit loadFinished();
+    emit collectionsChanged();
 }
 
-QAbstractItemModel *DesignSystemInterface::model(const QString &typeName)
+CollectionModel *DesignSystemInterface::model(const QString &typeName)
 {
     if (auto collection = m_store->collection(typeName)) {
         auto itr = m_models.find(typeName);
         if (itr != m_models.end())
             return itr->second.get();
 
-        auto [newItr, success] = m_models.try_emplace(typeName,
-                                                      std::make_unique<CollectionModel>(*collection));
-        if (success) {
-            // Otherwise the model will be deleted by the QML engine.
-            QQmlEngine::setObjectOwnership(newItr->second.get(), QQmlEngine::CppOwnership);
-            return newItr->second.get();
-        }
+        return createModel(typeName, collection);
     }
 
     return nullptr;
 }
 
+void DesignSystemInterface::addCollection(const QString &name)
+{
+    if (auto collection = m_store->addCollection(name))
+        emit collectionsChanged();
+}
+
+void DesignSystemInterface::removeCollection(const QString &name)
+{
+    if (m_store->collection(name)) {
+        m_models.erase(name);
+        m_store->removeCollection(name);
+        emit collectionsChanged();
+    }
+}
+
+void DesignSystemInterface::renameCollection(const QString &oldName, const QString &newName)
+{
+    if (m_store->renameCollection(oldName, newName))
+        emit collectionsChanged();
+}
+
+ThemeProperty DesignSystemInterface::createThemeProperty(const QString &name,
+                                                         const QVariant &value,
+                                                         bool isBinding) const
+{
+    return {name.toUtf8(), value, isBinding};
+}
+
 QStringList DesignSystemInterface::collections() const
 {
     return m_store->collectionNames();
+}
+
+CollectionModel *DesignSystemInterface::createModel(const QString &typeName, DSThemeManager *collection)
+{
+    auto [newItr, success] = m_models.try_emplace(typeName,
+                                                  std::make_unique<CollectionModel>(collection));
+    if (success) {
+        // Otherwise the model will be deleted by the QML engine.
+        QQmlEngine::setObjectOwnership(newItr->second.get(), QQmlEngine::CppOwnership);
+        return newItr->second.get();
+    }
+    return nullptr;
 }
 } // namespace QmlDesigner

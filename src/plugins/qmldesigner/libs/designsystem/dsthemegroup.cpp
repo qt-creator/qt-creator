@@ -96,43 +96,53 @@ bool DSThemeGroup::hasProperty(const PropertyName &name) const
     return m_values.contains(name);
 }
 
-void DSThemeGroup::updateProperty(ThemeId theme, PropertyName newName, const ThemeProperty &prop)
+bool DSThemeGroup::updateProperty(ThemeId theme, const ThemeProperty &prop)
 {
     if (!m_values.contains(prop.name)) {
         qCDebug(dsLog) << "Property update failure. Can't find property" << prop;
-        return;
+        return false;
     }
 
-    if (!ThemeProperty{newName, prop.value, prop.isBinding}.isValid()) {
-        qCDebug(dsLog) << "Property update failure. Invalid property" << prop << newName;
-        return;
-    }
-
-    if (newName != prop.name && m_values.contains(newName)) {
-        qCDebug(dsLog) << "Property update failure. Property name update already exists" << newName
-                       << prop;
-        return;
+    if (!prop.isValid()) {
+        qCDebug(dsLog) << "Property update failure. Invalid property" << prop;
+        return false;
     }
 
     auto &tValues = m_values.at(prop.name);
     const auto itr = tValues.find(theme);
     if (itr == tValues.end()) {
         qCDebug(dsLog) << "Property update failure. No property for the theme" << theme << prop;
-        return;
+        return false;
     }
 
     auto &entry = tValues.at(theme);
     entry.value = prop.value;
     entry.isBinding = prop.isBinding;
-    if (newName != prop.name) {
-        m_values[newName] = std::move(tValues);
-        m_values.erase(prop.name);
-    }
+    return true;
 }
 
 void DSThemeGroup::removeProperty(const PropertyName &name)
 {
     m_values.erase(name);
+}
+
+bool DSThemeGroup::renameProperty(const PropertyName &name, const PropertyName &newName)
+{
+    auto itr = m_values.find(name);
+    if (itr == m_values.end()) {
+        qCDebug(dsLog) << "Renaming non-existing property" << name;
+        return false;
+    }
+
+    if (m_values.contains(newName) || newName.trimmed().isEmpty()) {
+        qCDebug(dsLog) << "Renaming failed. Invalid new name" << name;
+        return false;
+    }
+
+    auto node = m_values.extract(itr);
+    node.key() = newName;
+    m_values.insert(std::move(node));
+    return true;
 }
 
 size_t DSThemeGroup::count(ThemeId theme) const

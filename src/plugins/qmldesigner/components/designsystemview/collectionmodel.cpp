@@ -83,15 +83,132 @@ QHash<int, QByteArray> CollectionModel::roleNames() const
     return roles;
 }
 
+bool CollectionModel::insertColumns([[maybe_unused]] int column, int count, const QModelIndex &parent)
+{
+    // Append column only
+    if (parent.isValid() || count < 0)
+        return false;
+
+    bool addSuccess = false;
+    while (count--)
+        addSuccess |= m_collection->addTheme(QByteArrayLiteral("theme")).has_value();
+
+    if (addSuccess) {
+        beginResetModel();
+        updateCache();
+        endResetModel();
+    }
+    return true;
+}
+
+bool CollectionModel::removeColumns(int column, int count, const QModelIndex &parent)
+{
+    const auto sentinelIndex = column + count;
+    if (parent.isValid() || column < 0 || count < 1 || sentinelIndex > columnCount(parent))
+        return false;
+
+    beginResetModel();
+    while (column < sentinelIndex)
+        m_collection->removeTheme(m_themeIdList[column++]);
+
+    updateCache();
+    endResetModel();
+    return true;
+}
+
+bool CollectionModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    const auto sentinelIndex = row + count;
+    if (parent.isValid() || row < 0 || count < 1 || sentinelIndex > rowCount(parent))
+        return false;
+
+    beginResetModel();
+    while (row < sentinelIndex) {
+        auto [groupType, name] = m_propertyInfoList[row++];
+        m_collection->removeProperty(groupType, name);
+    }
+    updateCache();
+    endResetModel();
+    return true;
+}
+
 void CollectionModel::updateCache()
 {
-    m_themeIdList = m_collection->allThemeIds();
-
+    m_themeIdList.clear();
     m_propertyInfoList.clear();
-    m_collection->forAllGroups([this](GroupType gt, DSThemeGroup *themeGroup) {
-        for (auto propName : themeGroup->propertyNames())
-            m_propertyInfoList.push_back({gt, propName});
-    });
+
+    if (m_collection) {
+        m_themeIdList = m_collection->allThemeIds();
+
+        m_collection->forAllGroups([this](GroupType gt, DSThemeGroup *themeGroup) {
+            for (auto propName : themeGroup->propertyNames())
+                m_propertyInfoList.push_back({gt, propName});
+        });
+    }
+}
+
+void CollectionModel::addProperty(GroupType group, const QString &name, const QVariant &value, bool isBinding)
+{
+    if (m_collection->addProperty(group, {name.toUtf8(), value, isBinding})) {
+        beginResetModel();
+        updateCache();
+        endResetModel();
+    }
+}
+
+bool CollectionModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    switch (role) {
+    case Qt::EditRole: {
+        ThemeProperty p = value.value<ThemeProperty>();
+        const auto [groupType, propName] = m_propertyInfoList[index.row()];
+        p.name = propName;
+        const ThemeId id = m_themeIdList[index.column()];
+        if (m_collection->updateProperty(id, groupType, p)) {
+            beginResetModel();
+            updateCache();
+            endResetModel();
+        }
+    }
+    default:
+        break;
+    }
+    return false;
+}
+
+bool CollectionModel::setHeaderData(int section,
+                                    Qt::Orientation orientation,
+                                    const QVariant &value,
+                                    int role)
+{
+    if (role != Qt::EditRole)
+        return false;
+
+    if (section < 0 || (orientation == Qt::Horizontal && section >= columnCount())
+        || (orientation == Qt::Vertical && section >= rowCount())) {
+        return false; // Out of bounds
+    }
+
+    const auto &newName = value.toString().toUtf8();
+    bool success = false;
+    if (orientation == Qt::Horizontal) {
+        // Theme
+        success = m_collection->renameTheme(findThemeId(section), newName);
+    } else {
+        // Property Name
+        if (auto propInfo = findPropertyName(section)) {
+            auto [groupType, propName] = *propInfo;
+            success = m_collection->renameProperty(groupType, propName, newName);
+        }
+    }
+
+    if (success) {
+        beginResetModel();
+        updateCache();
+        endResetModel();
+    }
+
+    return success;
 }
 
 ThemeId CollectionModel::findThemeId(int column) const

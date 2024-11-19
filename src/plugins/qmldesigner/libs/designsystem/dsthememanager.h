@@ -36,6 +36,7 @@ public:
     std::optional<ThemeId> addTheme(const ThemeName &themeNameHint);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
     ThemeName themeName(ThemeId id) const;
+    bool renameTheme(ThemeId id, const ThemeName &newName);
     const std::vector<ThemeId> allThemeIds() const;
 
     void forAllGroups(std::function<void(GroupType, DSThemeGroup *)> callback) const;
@@ -51,8 +52,9 @@ public:
                                                GroupType gType,
                                                const PropertyName &name) const;
     void removeProperty(GroupType gType, const PropertyName &p);
-    void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p);
-    void updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p, const PropertyName &newName);
+
+    bool updateProperty(ThemeId id, GroupType gType, const ThemeProperty &prop);
+    bool renameProperty(GroupType gType, const PropertyName &name, const PropertyName &newName);
 
     void decorate(ModelNode rootNode, const QByteArray &nodeType = "QtObject", bool isMCU = false) const;
     void decorateThemeInterface(ModelNode rootNode) const;

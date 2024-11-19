@@ -73,6 +73,24 @@ ThemeName DSThemeManager::themeName(ThemeId id) const
     return {};
 }
 
+bool DSThemeManager::renameTheme(ThemeId id, const ThemeName &newName)
+{
+    const ThemeName oldName = themeName(id);
+    if (oldName.isEmpty()) {
+        qCDebug(dsLog) << "Invalid theme rename. Theme does not exists. Id:" << id;
+        return false;
+    }
+
+    const ThemeName sanitizedName = uniqueThemeName(newName);
+    if (sanitizedName != newName) {
+        qCDebug(dsLog) << "Theme rename fail. New name " << newName << " is not valid:";
+        return false;
+    }
+
+    m_themes[id] = sanitizedName;
+    return true;
+}
+
 const std::vector<ThemeId> DSThemeManager::allThemeIds() const
 {
     std::vector<ThemeId> ids;
@@ -168,23 +186,29 @@ void DSThemeManager::removeProperty(GroupType gType, const PropertyName &name)
     dsGroup->removeProperty(name);
 }
 
-void DSThemeManager::updateProperty(ThemeId id, GroupType gType, const ThemeProperty &p)
-{
-    updateProperty(id, gType, p, p.name);
-}
-
-void DSThemeManager::updateProperty(ThemeId id,
-                                    GroupType gType,
-                                    const ThemeProperty &p,
-                                    const PropertyName &newName)
+bool DSThemeManager::updateProperty(ThemeId id, GroupType gType, const ThemeProperty &prop)
 {
     if (!m_themes.contains(id))
-        return;
+        return false;
 
     DSThemeGroup *dsGroup = propertyGroup(gType);
-    QTC_ASSERT(dsGroup, return);
+    QTC_ASSERT(dsGroup, return false);
 
-    dsGroup->updateProperty(id, newName, p);
+    return dsGroup->updateProperty(id, prop);
+}
+
+bool DSThemeManager::renameProperty(GroupType gType, const PropertyName &name, const PropertyName &newName)
+{
+    DSThemeGroup *dsGroup = propertyGroup(gType);
+    QTC_ASSERT(dsGroup, return false);
+
+    const auto generatedName = uniquePropertyName(newName);
+    if (generatedName != newName) {
+        qCDebug(dsLog) << "Can not rename property. Invalid property name";
+        return false;
+    }
+
+    return dsGroup->renameProperty(name, newName);
 }
 
 void DSThemeManager::decorate(ModelNode rootNode, const QByteArray &nodeType, bool isMCU) const

@@ -10,22 +10,35 @@ class QAbstractItemModel;
 
 namespace QmlDesigner {
 class CollectionModel;
+class DSThemeManager;
+
 class DesignSystemInterface : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QStringList collections READ collections NOTIFY loadFinished FINAL)
+    Q_PROPERTY(QStringList collections READ collections NOTIFY collectionsChanged FINAL)
 
 public:
     DesignSystemInterface(DSStore *store);
     ~DesignSystemInterface();
 
     Q_INVOKABLE void loadDesignSystem();
-    Q_INVOKABLE QAbstractItemModel *model(const QString &typeName);
+    Q_INVOKABLE CollectionModel *model(const QString &typeName);
+
+    Q_INVOKABLE void addCollection(const QString &name);
+    Q_INVOKABLE void removeCollection(const QString &name);
+    Q_INVOKABLE void renameCollection(const QString &oldName, const QString &newName);
+
+    Q_INVOKABLE ThemeProperty createThemeProperty(const QString &name,
+                                                  const QVariant &value,
+                                                  bool isBinding = false) const;
 
     QStringList collections() const;
 
 signals:
-    void loadFinished();
+    void collectionsChanged();
+
+private:
+    CollectionModel *createModel(const QString &typeName, DSThemeManager *collection);
 
 private:
     class DSStore *m_store = nullptr;
