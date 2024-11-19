@@ -35,7 +35,8 @@ public:
         int apiVersion = -1;
         QVersionNumber ndkVersion;
     };
-    static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
+    static BuiltWith parseModulesCoreJson(const QByteArray &modulesCoreJsonData,
+                                          bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;
 
     bool isAndroidQtVersion() const override { return true; };

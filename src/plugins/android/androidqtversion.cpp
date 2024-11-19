@@ -29,6 +29,7 @@
 
 #include <qtsupport/qtversionfactory.h>
 
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QRegularExpression>
@@ -158,7 +159,7 @@ AndroidQtVersion::BuiltWith AndroidQtVersion::builtWith(bool *ok) const
     if (coreModuleJson.exists()) {
         Utils::FileReader reader;
         if (reader.fetch(coreModuleJson))
-            return parseBuiltWith(reader.data(), ok);
+            return parseModulesCoreJson(reader.data(), ok);
     }
 
     if (ok)
@@ -175,12 +176,10 @@ static int versionFromPlatformString(const QString &string, bool *ok = nullptr)
     return match.hasMatch() ? match.captured(1).toInt(ok) : -1;
 }
 
-AndroidQtVersion::BuiltWith AndroidQtVersion::parseBuiltWith(const QByteArray &modulesCoreJsonData,
-                                                             bool *ok)
+static AndroidQtVersion::BuiltWith parseBuiltWith(const QJsonObject &jsonObject, bool *ok)
 {
     bool validPlatformString = false;
     AndroidQtVersion::BuiltWith result;
-    const QJsonObject jsonObject = QJsonDocument::fromJson(modulesCoreJsonData).object();
     if (const QJsonValue builtWith = jsonObject.value("built_with"); !builtWith.isUndefined()) {
         if (const QJsonValue android = builtWith["android"]; !android.isUndefined()) {
             if (const QJsonValue apiVersion = android["api_version"]; !apiVersion.isUndefined()) {
@@ -198,6 +197,48 @@ AndroidQtVersion::BuiltWith AndroidQtVersion::parseBuiltWith(const QByteArray &m
 
     if (ok)
         *ok = validPlatformString && !result.ndkVersion.isNull();
+    return result;
+}
+
+static AndroidQtVersion::BuiltWith parsePlatforms(const QJsonObject &jsonObject, bool *ok)
+{
+    AndroidQtVersion::BuiltWith result;
+    if (ok)
+        *ok = false;
+    for (const QJsonValue &platformValue : jsonObject.value("platforms").toArray()) {
+        const QJsonObject platform = platformValue.toObject();
+        if (platform.value("name").toString() != QLatin1String("Android"))
+            continue;
+        for (const QJsonValue &targetsValue : platform.value("targets").toArray()) {
+            const QJsonObject target = targetsValue.toObject();
+            const QString apiVersionString = target.value("api_version").toString();
+            if (apiVersionString.isNull())
+                return {};
+            bool apiVersionOK = false;
+            result.apiVersion = versionFromPlatformString(apiVersionString, &apiVersionOK);
+            if (!apiVersionOK)
+                return {};
+            const QString ndkVersionString = target.value("ndk_version").toString();
+            if (ndkVersionString.isNull())
+                return {};
+            result.ndkVersion = QVersionNumber::fromString(ndkVersionString);
+            break;
+        }
+    }
+    if (ok)
+        *ok = true;
+    return result;
+}
+
+AndroidQtVersion::BuiltWith AndroidQtVersion::parseModulesCoreJson(const QByteArray &data, bool *ok)
+{
+    AndroidQtVersion::BuiltWith result;
+    const QJsonObject jsonObject = QJsonDocument::fromJson(data).object();
+    const int schemaVersion = jsonObject.value("schema_version").toInt(1);
+    if (schemaVersion >= 2)
+        result = parsePlatforms(jsonObject, ok);
+    else
+        result = parseBuiltWith(jsonObject, ok);
     return result;
 }
 
@@ -306,6 +347,33 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith_data()
         << true
         << QVersionNumber(25, 1, 8937393)
         << 31;
+
+    QTest::newRow("Android Qt 6.9")
+        << R"({
+                "schema_version": 2,
+                "name": "Core",
+                "repository": "qtbase",
+                "version": "6.9.0",
+                "platforms": [
+                  {
+                    "name": "Android",
+                    "version": "1",
+                    "compiler_id": "Clang",
+                    "compiler_version": "17.0.2",
+                    "targets": [
+                      {
+                        "api_version": "android-34",
+                        "ndk_version": "26.1.10909125",
+                        "architecture": "arm",
+                        "abi": "arm-little_endian-ilp32-eabi"
+                      }
+                    ]
+                  }
+                ]
+            })"
+        << true
+        << QVersionNumber(26, 1, 10909125)
+        << 34;
 }
 
 void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith()
@@ -317,7 +385,7 @@ void AndroidQtVersionTest::testAndroidQtVersionParseBuiltWith()
 
     bool ok = false;
     const AndroidQtVersion::BuiltWith bw =
-            AndroidQtVersion::parseBuiltWith(modulesCoreJson.toUtf8(), &ok);
+            AndroidQtVersion::parseModulesCoreJson(modulesCoreJson.toUtf8(), &ok);
     QCOMPARE(ok, hasInfo);
     QCOMPARE(bw.apiVersion, apiVersion);
     QCOMPARE(bw.ndkVersion, ndkVersion);
