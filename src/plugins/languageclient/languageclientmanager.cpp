@@ -298,6 +298,14 @@ void LanguageClientManager::applySettings()
         applySettings(settings);
 }
 
+void LanguageClientManager::applySettings(const QString &settingsId)
+{
+    if (BaseSettings *settings = Utils::findOrDefault(
+            LanguageClientSettings::pageSettings(), Utils::equal(&BaseSettings::m_id, settingsId))) {
+        applySettings(settings);
+    }
+}
+
 void LanguageClientManager::applySettings(BaseSettings *setting)
 {
     QList<TextEditor::TextDocument *> documents;
@@ -308,16 +316,20 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
     }
     for (auto document : std::as_const(documents))
         managerInstance->m_clientForDocument.remove(document);
-    if (!setting->isValid() || !setting->m_enabled)
+    if (!setting->isValid())
         return;
     switch (setting->m_startBehavior) {
     case BaseSettings::AlwaysOn: {
+        if (!setting->m_enabled)
+            return;
         Client *client = startClient(setting);
         for (TextEditor::TextDocument *document : std::as_const(documents))
             managerInstance->m_clientForDocument[document] = client;
         break;
     }
     case BaseSettings::RequiresFile: {
+        if (!setting->m_enabled)
+            return;
         Client *client = nullptr;
         for (TextEditor::TextDocument *previousDocument : std::as_const(documents)) {
             if (setting->m_languageFilter.isSupported(previousDocument)) {
@@ -350,6 +362,12 @@ void LanguageClientManager::applySettings(BaseSettings *setting)
             const Utils::FilePath filePath = textDocument->filePath();
             for (ProjectExplorer::Project *project :
                  ProjectExplorer::ProjectManager::projects()) {
+                const bool settingIsEnabled
+                    = ProjectSettings(project).enabledSettings().contains(setting->m_id)
+                      || (setting->m_enabled
+                          && !ProjectSettings(project).disabledSettings().contains(setting->m_id));
+                if (!settingIsEnabled)
+                    continue;
                 if (project->isKnownFile(filePath)) {
                     Client *client = clientForProject[project];
                     if (!client) {

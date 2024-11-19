@@ -209,9 +209,18 @@ public:
     QByteArray json() const;
     void setJson(const QByteArray &json);
 
+    void enableSetting(const QString &id);
+    void disableSetting(const QString &id);
+    void clearOverride(const QString &id);
+
+    QStringList enabledSettings();
+    QStringList disabledSettings();
+
 private:
     ProjectExplorer::Project *m_project = nullptr;
     QByteArray m_json;
+    QStringList m_enabledSettings;
+    QStringList m_disabledSettings;
 };
 
 LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *createJsonEditor(QObject *parent = nullptr);

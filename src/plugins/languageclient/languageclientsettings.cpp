@@ -53,6 +53,7 @@
 #include <QStringListModel>
 #include <QToolButton>
 #include <QTreeView>
+#include <QTreeWidget>
 
 constexpr char typeIdKey[] = "typeId";
 constexpr char nameKey[] = "name";
@@ -1168,11 +1169,15 @@ TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
 }
 
 constexpr const char projectSettingsId[] = "LanguageClient.ProjectSettings";
+constexpr const char enabledSettingsId[] = "LanguageClient.EnabledSettings";
+constexpr const char disabledSettingsId[] = "LanguageClient.DisabledSettings";
 
 ProjectSettings::ProjectSettings(ProjectExplorer::Project *project)
     : m_project(project)
 {
     m_json = m_project->namedSettings(projectSettingsId).toByteArray();
+    m_enabledSettings = m_project->namedSettings(enabledSettingsId).toStringList();
+    m_disabledSettings = m_project->namedSettings(disabledSettingsId).toStringList();
 }
 
 QJsonValue ProjectSettings::workspaceConfiguration() const
@@ -1200,6 +1205,50 @@ void ProjectSettings::setJson(const QByteArray &json)
         LanguageClientManager::updateWorkspaceConfiguration(m_project, newConfig);
 }
 
+void ProjectSettings::enableSetting(const QString &id)
+{
+    if (m_disabledSettings.removeAll(id) > 0)
+        m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    if (m_enabledSettings.contains(id))
+        return;
+    m_enabledSettings << id;
+    m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    LanguageClientManager::applySettings(id);
+}
+
+void ProjectSettings::disableSetting(const QString &id)
+{
+    if (m_enabledSettings.removeAll(id) > 0)
+        m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    if (m_disabledSettings.contains(id))
+        return;
+    m_disabledSettings << id;
+    m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    LanguageClientManager::applySettings(id);
+}
+
+void ProjectSettings::clearOverride(const QString &id)
+{
+    const bool changedEnabled = m_enabledSettings.removeAll(id) > 0;
+    if (changedEnabled)
+        m_project->setNamedSettings(enabledSettingsId, m_enabledSettings);
+    const bool changedDisabled = m_disabledSettings.removeAll(id) > 0;
+    if (changedDisabled)
+        m_project->setNamedSettings(disabledSettingsId, m_disabledSettings);
+    if (changedEnabled || changedDisabled)
+        LanguageClientManager::applySettings(id);
+}
+
+QStringList ProjectSettings::enabledSettings()
+{
+    return m_enabledSettings;
+}
+
+QStringList ProjectSettings::disabledSettings()
+{
+    return m_disabledSettings;
+}
+
 class LanguageClientProjectSettingsWidget : public ProjectSettingsWidget
 {
 public:
@@ -1215,6 +1264,45 @@ public:
 
         auto layout = new QVBoxLayout;
         setLayout(layout);
+
+        QFormLayout *settingsLayout = nullptr;
+        for (auto settings : LanguageClientSettings::pageSettings()) {
+
+            if (settings->m_startBehavior != BaseSettings::RequiresProject)
+                continue;
+            if (!settingsLayout) {
+                auto group = new QGroupBox(Tr::tr("Project Specific Language Servers"));
+                settingsLayout = new QFormLayout;
+                settingsLayout->setFormAlignment(Qt::AlignLeft);
+                settingsLayout->setFieldGrowthPolicy(QFormLayout::FieldsStayAtSizeHint);
+                group->setLayout(settingsLayout);
+                layout->addWidget(group);
+            }
+            QComboBox *comboBox = new QComboBox;
+            comboBox->addItem(Tr::tr("Use Global Settings"));
+            comboBox->addItem(Tr::tr("Enabled"));
+            comboBox->addItem(Tr::tr("Disabled"));
+            if (m_settings.enabledSettings().contains(settings->m_id))
+                comboBox->setCurrentIndex(1);
+            else if (m_settings.disabledSettings().contains(settings->m_id))
+                comboBox->setCurrentIndex(2);
+            else
+                comboBox->setCurrentIndex(0);
+            connect(
+                comboBox,
+                &QComboBox::currentIndexChanged,
+                this,
+                [id = settings->m_id, this](int index) {
+                    if (index == 0)
+                        m_settings.clearOverride(id);
+                    else if (index == 1)
+                        m_settings.enableSetting(id);
+                    else if (index == 2)
+                        m_settings.disableSetting(id);
+                });
+            settingsLayout->addRow(settings->m_name, comboBox);
+        }
+
         auto group = new QGroupBox(Tr::tr("Workspace Configuration"));
         group->setLayout(new QVBoxLayout);
         group->layout()->addWidget(new QLabel(Tr::tr(
