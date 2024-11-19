@@ -10,7 +10,8 @@ import ToolBar
 
 Item {
     id: root
-    property StudioTheme.ControlStyle style: StudioTheme.Values.primaryButtonStyle
+
+    property StudioTheme.ControlStyle style: StudioTheme.Values.toolbarButtonStyle
 
     property alias tooltip: toolTipArea.tooltip
     property bool hover: primaryButton.hover || menuButton.hover
@@ -400,98 +401,6 @@ Item {
         radius: menuButton.style.radius
     }
 
-    component MenuItemDelegate: T.ItemDelegate {
-        id: menuItemDelegate
-
-        property StudioTheme.ControlStyle style: root.style
-
-        property alias myIcon: iconLabel.text
-        property alias myText: textLabel.text
-
-        width: root.menuWidth - 2 * window.padding
-        height: root.style.controlSize.height// - 2 * root.style.borderWidth
-
-        contentItem: Row {
-            id: row
-            width: menuItemDelegate.width
-            height: menuItemDelegate.height
-            spacing: 0
-
-            T.Label {
-                id: iconLabel
-                width: menuItemDelegate.height
-                height: menuItemDelegate.height
-                color: {
-                    if (menuItemDelegate.checked)
-                        return primaryButton.style.icon.selected
-
-                    if (!menuItemDelegate.enabled)
-                        return primaryButton.style.icon.disabled
-
-                    return primaryButton.style.icon.idle
-                }
-                font.family: StudioTheme.Constants.iconFont.family
-                font.pixelSize: primaryButton.style.baseIconFontSize
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignHCenter
-                text: StudioTheme.Constants.playOutline_medium
-            }
-
-            T.Label {
-                id: textLabel
-                width: menuItemDelegate.width - row.spacing - iconLabel.width
-                height: menuItemDelegate.height
-                color: {
-                    if (!menuItemDelegate.enabled && menuItemDelegate.checked)
-                        return primaryButton.style.text.idle
-
-                    if (menuItemDelegate.checked)
-                        return primaryButton.style.text.selectedText
-
-                    if (!menuItemDelegate.enabled)
-                        return primaryButton.style.text.disabled
-
-                    return primaryButton.style.text.idle
-                }
-                elide: Text.ElideRight
-                font.pixelSize: primaryButton.style.baseFontSize
-                verticalAlignment: Text.AlignVCenter
-                horizontalAlignment: Text.AlignLeft
-                text: listModel.get(root.runTarget).name
-            }
-        }
-
-        background: Rectangle {
-            id: menuItemDelegateBackground
-            x: 0
-            y: 0
-            width: menuItemDelegate.width
-            height: menuItemDelegate.height
-            opacity: enabled ? 1 : 0.3
-
-            color: {
-                if (!menuItemDelegate.enabled && menuItemDelegate.checked)
-                    return root.style.interaction
-
-                if (!menuItemDelegate.enabled)
-                    return "transparent"
-
-                if (menuItemDelegate.hovered && menuItemDelegate.checked)
-                    return root.style.interactionHover
-
-                if (menuItemDelegate.checked)
-                    return root.style.interaction
-
-                if (menuItemDelegate.hovered)
-                    return root.style.background.hover
-
-                return "transparent"
-            }
-        }
-
-        onClicked: window.close()
-    }
-
     DelegateModel {
         id: visualModel
         model: RunManagerModel { id: runManagerModel }
@@ -501,12 +410,18 @@ Item {
             required property bool targetEnabled
             required property int index
 
+            width: root.menuWidth - 2 * window.padding
+            height: root.style.controlSize.height
+
             myIcon: ""
             myText: targetName
             checked: root.runTarget === index
             enabled: targetEnabled
 
-            onClicked: root.runTargetSelected(targetId)
+            onClicked: {
+                root.runTargetSelected(targetId)
+                window.close()
+            }
         }
     }
 
@@ -548,10 +463,16 @@ Item {
                 }
 
                 MenuItemDelegate {
+                    width: root.menuWidth - 2 * window.padding
+                    height: root.style.controlSize.height
+
                     myText: qsTr("Manage run targets")
                     myIcon: StudioTheme.Constants.settings_medium
 
-                    onClicked: root.openRunTargets()
+                    onClicked: {
+                        root.openRunTargets()
+                        window.close()
+                    }
                 }
             }
         }
