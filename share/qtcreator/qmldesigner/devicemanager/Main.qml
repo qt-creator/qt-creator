@@ -432,7 +432,7 @@ Rectangle {
 
                     syncView: tableView
                     clip: true
-                    interactive: false
+                    interactive: true
 
                     delegate: Rectangle {
                         color: StudioTheme.Values.themePanelBackground
@@ -483,7 +483,7 @@ Rectangle {
                             columnSpacing: -StudioTheme.Values.border
                             rowSpacing: -StudioTheme.Values.border
                             clip: true
-                            interactive: false
+                            interactive: true
                             selectionMode: TableView.SingleSelection
                             selectionBehavior: TableView.SelectRows
                             selectionModel: ItemSelectionModel {}
