@@ -25,19 +25,21 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/rawprojectpart.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <proparser/qmakevfs.h>

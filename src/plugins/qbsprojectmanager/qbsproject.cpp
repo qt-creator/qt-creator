@@ -32,7 +32,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>

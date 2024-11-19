@@ -18,7 +18,7 @@
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 
 #include <utils/layoutbuilder.h>
 #include <utils/portlist.h>

@@ -9,8 +9,8 @@
 #include "appmanagertr.h"
 
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/projectexplorerconstants.h>
 

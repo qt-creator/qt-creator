@@ -16,15 +16,17 @@
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>

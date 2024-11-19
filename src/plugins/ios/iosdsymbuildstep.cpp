@@ -12,7 +12,7 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>

@@ -12,12 +12,12 @@
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>

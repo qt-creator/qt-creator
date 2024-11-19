@@ -11,9 +11,9 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/messagebox.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/target.h>
 
 #include <utils/aspects.h>

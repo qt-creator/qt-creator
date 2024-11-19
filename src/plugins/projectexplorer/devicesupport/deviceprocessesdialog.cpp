@@ -3,9 +3,9 @@
 
 #include "deviceprocessesdialog.h"
 
+#include "devicekitaspects.h"
 #include "idevice.h"
 #include "processlist.h"
-#include "../kitaspects.h"
 #include "../kitchooser.h"
 #include "../projectexplorertr.h"
 

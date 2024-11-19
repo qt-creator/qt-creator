@@ -12,14 +12,16 @@
 
 #include <coreplugin/icore.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainconfigwidget.h>
 
 #include <debugger/debuggeritemmanager.h>

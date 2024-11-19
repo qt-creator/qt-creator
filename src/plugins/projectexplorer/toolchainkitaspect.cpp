@@ -3,10 +3,10 @@
 
 #include "toolchainkitaspect.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "kit.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"

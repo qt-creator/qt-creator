@@ -7,7 +7,7 @@
 #include "iosconstants.h"
 #include "iostr.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/target.h>
 

@@ -8,15 +8,16 @@
 #include "debuggertr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitchooser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/fileutils.h>
 #include <utils/pathchooser.h>

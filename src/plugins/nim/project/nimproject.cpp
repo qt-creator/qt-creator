@@ -9,10 +9,10 @@
 
 #include <coreplugin/icontext.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

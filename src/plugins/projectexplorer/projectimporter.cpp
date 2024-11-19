@@ -4,13 +4,14 @@
 #include "projectimporter.h"
 
 #include "buildinfo.h"
+#include "devicesupport/devicekitaspects.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "target.h"
 #include "toolchain.h"
+#include "toolchainkitaspect.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>

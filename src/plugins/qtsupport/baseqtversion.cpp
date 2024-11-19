@@ -22,14 +22,16 @@
 
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <utils/algorithm.h>

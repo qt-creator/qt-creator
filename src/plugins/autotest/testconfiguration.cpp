@@ -10,7 +10,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/deploymentdata.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>

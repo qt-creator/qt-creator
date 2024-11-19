@@ -4,10 +4,10 @@
 #include "devicecheckbuildstep.h"
 
 #include "../buildstep.h"
-#include "../kitaspects.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 
+#include "devicekitaspects.h"
 #include "devicemanager.h"
 #include "idevicefactory.h"
 

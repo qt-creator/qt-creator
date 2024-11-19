@@ -12,7 +12,7 @@
 #include <languageclient/languageclientsettings.h>
 #include <languageclient/languageclientutils.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/target.h>

@@ -5,8 +5,8 @@
 
 #include "buildconfiguration.h"
 #include "buildsystem.h"
+#include "devicesupport/devicekitaspects.h"
 #include "environmentaspect.h"
-#include "kitaspects.h"
 #include "project.h"
 #include "projectexplorer.h"
 #include "projectexplorerconstants.h"

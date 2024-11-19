@@ -28,7 +28,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -36,6 +35,7 @@
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <solutions/tasking/tasktree.h>
 

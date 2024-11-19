@@ -12,10 +12,10 @@
 #include "qmakestep.h"
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/projectexplorerconstants.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>

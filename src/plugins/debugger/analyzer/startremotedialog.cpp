@@ -7,9 +7,9 @@
 
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitchooser.h>
 
 #include <utils/commandline.h>

@@ -6,9 +6,11 @@
 #include "abi.h"
 #include "buildconfiguration.h"
 #include "buildsystem.h"
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "project.h"
 #include "target.h"
+#include "sysrootkitaspect.h"
+#include "toolchainkitaspect.h"
 
 #include <ios/iosconstants.h>
 

@@ -23,10 +23,13 @@
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggerkitaspect.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtsupportconstants.h>

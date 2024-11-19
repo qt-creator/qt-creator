@@ -31,11 +31,11 @@
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspectwidget.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
@@ -44,8 +44,10 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtbuildaspects.h>

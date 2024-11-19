@@ -73,6 +73,7 @@ add_qtc_plugin(ProjectExplorer
     editorsettingspropertiespage.cpp editorsettingspropertiespage.h
     environmentaspect.cpp environmentaspect.h
     environmentaspectwidget.cpp environmentaspectwidget.h
+    environmentkitaspect.cpp environmentkitaspect.h
     environmentwidget.cpp environmentwidget.h
     expanddata.cpp expanddata.h
     extraabi.cpp extraabi.h
@@ -104,7 +105,6 @@ add_qtc_plugin(ProjectExplorer
     jsonwizard/jsonwizardscannergenerator.cpp jsonwizard/jsonwizardscannergenerator.h
     kit.cpp kit.h
     kitaspect.cpp kitaspect.h
-    kitaspects.cpp kitaspects.h
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h
     kitmanager.cpp kitmanager.h
@@ -162,6 +162,7 @@ add_qtc_plugin(ProjectExplorer
     showineditortaskhandler.cpp showineditortaskhandler.h
     showoutputtaskhandler.cpp showoutputtaskhandler.h
     simpleprojectwizard.cpp simpleprojectwizard.h
+    sysrootkitaspect.cpp sysrootkitaspect.h
     target.cpp target.h
     targetsettingspanel.cpp targetsettingspanel.h
     targetsetuppage.cpp targetsetuppage.h

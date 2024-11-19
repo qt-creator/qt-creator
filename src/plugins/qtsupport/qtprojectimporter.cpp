@@ -8,8 +8,8 @@
 #include "qtversionmanager.h"
 
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
+#include <projectexplorer/sysrootkitaspect.h>
 
 #include <utils/algorithm.h>
 #include <utils/filepath.h>

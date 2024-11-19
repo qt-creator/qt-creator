@@ -26,8 +26,8 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildmanager.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/extracompiler.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>

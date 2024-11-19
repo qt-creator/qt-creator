@@ -24,10 +24,10 @@
 
 #include <coreplugin/find/itemviewfind.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -35,6 +35,7 @@
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/xcodebuildparser.h>
 
 #include <utils/algorithm.h>

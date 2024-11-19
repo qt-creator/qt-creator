@@ -9,7 +9,7 @@
 #include "androidrunnerworker.h"
 #include "androidutils.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
 #include <projectexplorer/target.h>

@@ -19,7 +19,6 @@
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h> // For the environment
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -27,6 +26,8 @@
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>

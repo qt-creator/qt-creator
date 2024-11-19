@@ -6,7 +6,7 @@
 #include "buildconfiguration.h"
 #include "buildsteplist.h"
 #include "deploymentdataview.h"
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "project.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"

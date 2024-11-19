@@ -18,8 +18,8 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/customexecutablerunconfiguration.h>
 #include <projectexplorer/deploymentdata.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/headerpath.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>

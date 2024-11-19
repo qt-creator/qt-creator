@@ -4,13 +4,14 @@
 #include "kitmanager.h"
 
 #include "abi.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitfeatureprovider.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "toolchainkitaspect.h"
 #include "toolchainmanager.h"
 
 #include <coreplugin/icore.h>

@@ -13,7 +13,7 @@
 #include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 
 #include <extensionsystem/pluginmanager.h>

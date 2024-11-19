@@ -3,10 +3,10 @@
 
 #include "kit.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
 #include "osparser.h"

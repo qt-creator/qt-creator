@@ -8,11 +8,12 @@
 #include "debuggertr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/environment.h>
 #include <utils/guard.h>

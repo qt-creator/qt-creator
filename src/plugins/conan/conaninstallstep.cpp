@@ -12,7 +12,6 @@
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/project.h>
@@ -20,6 +19,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 using namespace ProjectExplorer;
 using namespace Utils;

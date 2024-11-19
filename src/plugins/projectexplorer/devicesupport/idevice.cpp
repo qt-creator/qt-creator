@@ -3,12 +3,12 @@
 
 #include "idevice.h"
 
+#include "devicekitaspects.h"
 #include "devicemanager.h"
 #include "idevicefactory.h"
 #include "sshparameters.h"
 
 #include "../kit.h"
-#include "../kitaspects.h"
 #include "../projectexplorericons.h"
 #include "../projectexplorertr.h"
 #include "../target.h"
@@ -18,6 +18,7 @@
 #include <utils/commandline.h>
 #include <utils/devicefileaccess.h>
 #include <utils/displayname.h>
+#include <utils/environment.h>
 #include <utils/icon.h>
 #include <utils/portlist.h>
 #include <utils/qtcassert.h>

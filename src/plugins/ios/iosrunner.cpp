@@ -16,7 +16,7 @@
 #include <debugger/debuggerkitaspect.h>
 #include <debugger/debuggerruncontrol.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runconfigurationaspects.h>

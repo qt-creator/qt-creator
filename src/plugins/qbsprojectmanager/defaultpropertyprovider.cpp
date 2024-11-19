@@ -12,11 +12,13 @@
 #include <baremetal/baremetalconstants.h>
 #include <ios/iosconstants.h>
 #include <projectexplorer/abi.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/sysrootkitaspect.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/msvctoolchain.h>
 #include <qtsupport/baseqtversion.h>

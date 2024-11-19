@@ -3,11 +3,11 @@
 
 #include "parseissuesdialog.h"
 
-#include "kitaspects.h"
+#include "devicesupport/devicekitaspects.h"
 #include "kitchooser.h"
 #include "kitmanager.h"
-#include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
+#include "projectexplorerconstants.h"
 #include "taskhub.h"
 
 #include <utils/fileutils.h>

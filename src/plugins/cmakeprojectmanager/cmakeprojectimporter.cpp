@@ -17,11 +17,12 @@
 #include <debugger/debuggerkitaspect.h>
 
 #include <projectexplorer/buildinfo.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/toolchainkitaspect.h>
 #include <projectexplorer/toolchainmanager.h>
 
 #include <qtsupport/qtkitaspect.h>

@@ -11,8 +11,8 @@
 #include "appmanagertr.h"
 #include "appmanagerutilities.h"
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 

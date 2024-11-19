@@ -13,7 +13,7 @@
 #include <coreplugin/icore.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/taskhub.h>

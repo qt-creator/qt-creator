@@ -22,11 +22,12 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <remotelinux/remotelinux_constants.h>
 

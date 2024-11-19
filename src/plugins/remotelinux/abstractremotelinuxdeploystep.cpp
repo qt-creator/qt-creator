@@ -7,8 +7,8 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/deployablefile.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 
 #include <solutions/tasking/tasktree.h>
 

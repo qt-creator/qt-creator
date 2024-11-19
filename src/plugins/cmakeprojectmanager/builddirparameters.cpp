@@ -10,7 +10,7 @@
 #include "cmaketoolmanager.h"
 
 #include <projectexplorer/customparser.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>

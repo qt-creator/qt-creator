@@ -15,8 +15,8 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>

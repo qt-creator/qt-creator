@@ -57,11 +57,11 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/sshparameters.h>
 #include <projectexplorer/itaskhandler.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -75,6 +75,7 @@
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>

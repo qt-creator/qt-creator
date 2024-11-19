@@ -30,7 +30,6 @@
 #include <debugger/analyzer/analyzermanager.h>
 
 #include <projectexplorer/buildmanager.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -39,6 +38,7 @@
 #include <projectexplorer/projecttree.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/action.h>
 #include <utils/checkablemessagebox.h>

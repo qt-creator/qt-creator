@@ -12,12 +12,12 @@
 #include "iostr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
+#include <projectexplorer/devicesupport/devicemanager.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
-#include <projectexplorer/kitaspects.h>
-#include <projectexplorer/kitmanager.h>
-#include <projectexplorer/devicesupport/devicemanager.h>
 
 #include <solutions/tasking/tasktree.h>
 

@@ -13,8 +13,8 @@
 
 #include <extensionsystem/pluginmanager.h>
 
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorericons.h>
 
 #include <QApplication>

@@ -15,10 +15,10 @@
 
 #include <extensionsystem/pluginmanager.h>
 
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 

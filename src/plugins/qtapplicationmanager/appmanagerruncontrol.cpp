@@ -20,12 +20,13 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/environmentaspect.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
 

@@ -8,7 +8,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/helpmanager.h>
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
 #include <projectexplorer/qmldebugcommandlinearguments.h>

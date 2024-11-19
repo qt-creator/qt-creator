@@ -5,8 +5,8 @@
 
 #include "buildconfiguration.h"
 #include "buildpropertiessettings.h"
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevice.h"
-#include "kitaspects.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorersettings.h"

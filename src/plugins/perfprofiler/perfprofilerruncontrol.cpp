@@ -11,7 +11,7 @@
 #include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/environmentkitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
 #include <projectexplorer/target.h>

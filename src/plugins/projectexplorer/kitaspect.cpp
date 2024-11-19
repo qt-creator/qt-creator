@@ -3,8 +3,8 @@
 
 #include "kitaspect.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "kit.h"
-#include "kitaspects.h"
 #include "projectexplorertr.h"
 
 #include <coreplugin/icore.h>

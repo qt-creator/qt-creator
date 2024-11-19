@@ -3,24 +3,14 @@
 
 #pragma once
 
-#include "abi.h"
-#include "devicesupport/devicekitaspects.h"
-#include "toolchainkitaspect.h"
+#include "projectexplorer_export.h"
 
-#include <utils/environment.h>
+#include <utils/environmentfwd.h>
+
+namespace Utils { class Id; }
 
 namespace ProjectExplorer {
 class Kit;
-class Toolchain;
-class ToolchainBundle;
-
-class PROJECTEXPLORER_EXPORT SysRootKitAspect
-{
-public:
-    static Utils::Id id();
-    static Utils::FilePath sysRoot(const Kit *k);
-    static void setSysRoot(Kit *k, const Utils::FilePath &v);
-};
 
 class PROJECTEXPLORER_EXPORT EnvironmentKitAspect
 {

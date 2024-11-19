@@ -11,12 +11,13 @@
 #include <coreplugin/progressmanager/progressmanager.h>
 
 #include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/runcontrol.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/environment.h>
 #include <utils/qtcassert.h>

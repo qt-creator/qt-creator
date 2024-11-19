@@ -48,7 +48,6 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/gcctoolchain.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -57,7 +56,9 @@
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projecttree.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <texteditor/textdocument.h>
 #include <texteditor/textdocumentlayout.h>

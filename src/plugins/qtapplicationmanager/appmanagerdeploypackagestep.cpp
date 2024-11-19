@@ -12,7 +12,7 @@
 
 #include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployconfiguration.h>
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfiguration.h>

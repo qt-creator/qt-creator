@@ -3,10 +3,10 @@
 
 #include "kitmanagerconfigwidget.h"
 
+#include "devicesupport/devicekitaspects.h"
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
 #include "kitaspect.h"
-#include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorertr.h"
 #include "task.h"

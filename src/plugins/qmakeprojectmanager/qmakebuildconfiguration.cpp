@@ -24,14 +24,16 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildpropertiessettings.h>
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/devicesupport/devicekitaspects.h>
 #include <projectexplorer/kit.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorertr.h>
 #include <projectexplorer/runconfiguration.h>
+#include <projectexplorer/sysrootkitaspect.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtbuildaspects.h>
 #include <qtsupport/qtkitaspect.h>

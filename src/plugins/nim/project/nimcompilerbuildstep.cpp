@@ -10,11 +10,11 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/ioutputparser.h>
-#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
