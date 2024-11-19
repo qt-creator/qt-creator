@@ -271,7 +271,7 @@ void ScopeChain::update() const
 
 static void addInstantiatingComponents(ContextPtr context, QmlComponentChain *chain)
 {
-    const QRegularExpression importCommentPattern(QLatin1String("@scope\\s+(.*)"));
+    static const QRegularExpression importCommentPattern("@scope\\s+(.*)");
     for (const SourceLocation &commentLoc : chain->document()->engine()->comments()) {
         const QString &comment = chain->document()->source().mid(commentLoc.begin(), commentLoc.length);
 

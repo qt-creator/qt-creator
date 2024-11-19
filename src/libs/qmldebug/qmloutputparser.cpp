@@ -59,7 +59,7 @@ void QmlOutputParser::processOutput(const QString &output)
             if (status.startsWith(waitingForConnection)) {
                 status.remove(0, waitingForConnection.size()); // chop of 'Waiting for connection '
 
-                static QRegularExpression waitingTcp(
+                static const QRegularExpression waitingTcp(
                             QString::fromLatin1(Constants::STR_ON_PORT_PATTERN));
                 const QRegularExpressionMatch match = waitingTcp.match(status);
                 if (match.hasMatch()) {

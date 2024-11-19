@@ -154,7 +154,7 @@ static QList<ProcessInfo> getProcessesUsingPidin(const FilePath &pidin)
         return processes;
 
     lines.pop_front(); // drop headers
-    const QRegularExpression re("\\s*(\\d+)\\s+(.*){(.*)}");
+    static const QRegularExpression re("\\s*(\\d+)\\s+(.*){(.*)}");
 
     for (const QString &line : std::as_const(lines)) {
         const QRegularExpressionMatch match = re.match(line);

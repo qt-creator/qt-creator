@@ -189,7 +189,7 @@ const QString undefinedVersion = QLatin1String("-1.-1");
  *         undefined version (-1.-1) or if it is empty.  False otherwise.
  */
 bool QmlJS::maybeModuleVersion(const QString &version) {
-    QRegularExpression re(QLatin1String("^\\d+\\.-?\\d+$"));
+    static const QRegularExpression re(QLatin1String("^\\d+\\.-?\\d+$"));
     return version.isEmpty() || version == undefinedVersion || re.match(version).hasMatch();
 }
 

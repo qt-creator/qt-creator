@@ -782,10 +782,14 @@ Result FileUtils::copyIfDifferent(const FilePath &srcFilePath, const FilePath &t
 QString FileUtils::fileSystemFriendlyName(const QString &name)
 {
     QString result = name;
-    result.replace(QRegularExpression(QLatin1String("\\W")), QLatin1String("_"));
-    result.replace(QRegularExpression(QLatin1String("_+")), QLatin1String("_")); // compact _
-    result.remove(QRegularExpression(QLatin1String("^_*"))); // remove leading _
-    result.remove(QRegularExpression(QLatin1String("_+$"))); // remove trailing _
+    static const QRegularExpression nonWordEx("\\W");
+    result.replace(nonWordEx, QLatin1String("_"));
+    static const QRegularExpression subsequentUnderscoreEx("_+");
+    result.replace(subsequentUnderscoreEx, QLatin1String("_"));
+    static const QRegularExpression leadingUnderscoreEx("^_*");
+    result.remove(leadingUnderscoreEx);
+    static const QRegularExpression trailingUnderscoreEx("_+$");
+    result.remove(trailingUnderscoreEx);
     if (result.isEmpty())
         result = QLatin1String("unknown");
     return result;

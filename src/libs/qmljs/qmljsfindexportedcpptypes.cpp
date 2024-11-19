@@ -280,7 +280,7 @@ protected:
         }
         if (packageName.isEmpty() && _compound) {
             // check the comments in _compound for annotations
-            const QRegularExpression uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
+            static const QRegularExpression uriAnnotation(QLatin1String("@uri\\s*([\\w\\.]*)"));
 
             // scan every comment between the pipes in
             // {|

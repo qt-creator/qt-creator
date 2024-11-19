@@ -376,7 +376,7 @@ Utils::FilePath PluginDumper::buildQmltypesPath(const QString &name) const
     QString qualifiedName;
     QString version;
 
-    QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
+    static const QRegularExpression import("^(?<name>[\\w|\\.]+)\\s+(?<major>\\d+)\\.(?<minor>\\d+)$");
     QRegularExpressionMatch m = import.match(name);
     if (m.hasMatch()) {
         qualifiedName = m.captured("name");
