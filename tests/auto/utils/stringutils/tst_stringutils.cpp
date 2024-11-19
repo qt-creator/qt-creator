@@ -131,15 +131,15 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
 
     // Android
     QTest::newRow("Android1") << "tcp        0      0 10.0.2.16:49088         142.250.180.74:443      ESTABLISHED" << 49088;
-    QTest::newRow("Android1") << "tcp        0      0 10.0.2.16:48380         142.250.186.196:443     CLOSE_WAIT" << 48380;
-    QTest::newRow("Android1") << "tcp6       0      0 [::]:5555               [::]:*                  LISTEN" << 5555;
-    QTest::newRow("Android1") << "tcp6       0      0 ::ffff:127.0.0.1:39417  [::]:*                  LISTEN" << 39417;
-    QTest::newRow("Android1") << "tcp6       0      0 ::ffff:10.0.2.16:35046  ::ffff:142.250.203.:443 ESTABLISHED" << 35046;
-    QTest::newRow("Android1") << "tcp6       0      0 ::ffff:127.0.0.1:46265  ::ffff:127.0.0.1:33155  TIME_WAIT" << 46265;
-    QTest::newRow("Android1") << "udp        0      0 10.0.2.16:50950         142.250.75.14:443       ESTABLISHED" << 50950;
-    QTest::newRow("Android1") << "udp     2560      0 10.0.2.16:68            10.0.2.2:67             ESTABLISHED" << 68;
-    QTest::newRow("Android1") << "udp        0      0 0.0.0.0:5353            0.0.0.0:*" << 5353;
-    QTest::newRow("Android1") << "udp6       0      0 [::]:36662              [::]:*" << 36662;
+    QTest::newRow("Android2") << "tcp        0      0 10.0.2.16:48380         142.250.186.196:443     CLOSE_WAIT"  << 48380;
+    QTest::newRow("Android3") << "tcp6       0      0 [::]:5555               [::]:*                  LISTEN"      <<  5555;
+    QTest::newRow("Android4") << "tcp6       0      0 ::ffff:127.0.0.1:39417  [::]:*                  LISTEN"      << 39417;
+    QTest::newRow("Android5") << "tcp6       0      0 ::ffff:10.0.2.16:35046  ::ffff:142.250.203.:443 ESTABLISHED" << 35046;
+    QTest::newRow("Android6") << "tcp6       0      0 ::ffff:127.0.0.1:46265  ::ffff:127.0.0.1:33155  TIME_WAIT"   << 46265;
+    QTest::newRow("Android7") << "udp        0      0 10.0.2.16:50950         142.250.75.14:443       ESTABLISHED" << 50950;
+    QTest::newRow("Android8") << "udp     2560      0 10.0.2.16:68            10.0.2.2:67             ESTABLISHED" <<    68;
+    QTest::newRow("Android9") << "udp        0      0 0.0.0.0:5353            0.0.0.0:*"                           <<  5353;
+    QTest::newRow("Android10") << "udp6       0      0 [::]:36662              [::]:*"                             << 36662;
 }
 
 void tst_StringUtils::testParseUsedPortFromNetstatOutput()
