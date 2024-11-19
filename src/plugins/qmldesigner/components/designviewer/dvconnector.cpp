@@ -112,7 +112,6 @@ DVConnector::DVConnector(QObject *parent)
     , m_isWebViewerVisible(false)
     , m_connectorStatus(ConnectorStatus::FetchingUserInfo)
 {
-    QLoggingCategory::setFilterRules("qtc.designer.deploymentPlugin.debug=true");
     m_webEngineProfile.reset(new QWebEngineProfile("DesignViewer", this));
     m_webEngineProfile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
     m_webEnginePage.reset(new CustomWebEnginePage(m_webEngineProfile.data(), this));
@@ -277,7 +276,6 @@ void DVConnector::uploadProject(const QString &projectId, const QString &filePat
             this,
             [this](qint64 bytesSent, qint64 bytesTotal) {
                 emit projectUploadProgress(100.0 * (double) bytesSent / (double) bytesTotal);
-                ;
             });
     evaluatorData.connectCallbacks(this);
 }
