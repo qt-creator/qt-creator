@@ -26,10 +26,19 @@ overloaded(Ts...) -> overloaded<Ts...>;
 
 } // namespace
 
+DeviceShare::DeviceManager *s_deviceManager = nullptr;
+
+static DeviceShare::DeviceManager *deviceManager()
+{
+    return s_deviceManager;
+}
+
 RunManager::RunManager(DeviceShare::DeviceManager &deviceManager)
     : QObject()
     , m_deviceManager(deviceManager)
 {
+    s_deviceManager = &m_deviceManager;
+
     // Connect DeviceManager with internal target generation
     connect(&m_deviceManager, &DeviceShare::DeviceManager::deviceAdded, this, &RunManager::udpateTargets);
     connect(&m_deviceManager,
@@ -144,8 +153,14 @@ void RunManager::udpateTargets()
     emit targetsChanged();
 
     bool currentTargetReset = false;
-    if (m_currentTargetId.isValid())
-        currentTargetReset = selectRunTarget(m_currentTargetId);
+    auto target = runTarget(m_currentTargetId);
+
+    if (target) {
+        bool enabled = std::visit([&](const auto &arg) { return arg.enabled(); }, *target);
+
+        if (m_currentTargetId.isValid() && enabled)
+            currentTargetReset = selectRunTarget(m_currentTargetId);
+    }
 
     if (!currentTargetReset) // default run target
         selectRunTarget(NormalTarget().id());
@@ -166,7 +181,7 @@ void RunManager::toggleCurrentTarget()
                                   },
                                   [](const QString arg) {
                                       if (!arg.isEmpty())
-                                          QmlDesignerPlugin::deviceManager().stopRunningProject(arg);
+                                          deviceManager()->stopRunningProject(arg);
                                   }},
                        runningTarget);
         }
@@ -295,7 +310,7 @@ AndroidTarget::AndroidTarget(const QString &deviceId)
 
 QString AndroidTarget::name() const
 {
-    if (auto devcieSettings = QmlDesignerPlugin::deviceManager().deviceSettings(m_deviceId))
+    if (auto devcieSettings = deviceManager()->deviceSettings(m_deviceId))
         return devcieSettings->alias();
 
     return {};
@@ -303,7 +318,7 @@ QString AndroidTarget::name() const
 
 Utils::Id AndroidTarget::id() const
 {
-    if (auto deviceInfo = QmlDesignerPlugin::deviceManager().deviceInfo(m_deviceId))
+    if (auto deviceInfo = deviceManager()->deviceInfo(m_deviceId))
         return Utils::Id::fromString(deviceInfo->deviceId());
 
     return {};
@@ -311,13 +326,13 @@ Utils::Id AndroidTarget::id() const
 
 bool AndroidTarget::enabled() const
 {
-    return QmlDesignerPlugin::deviceManager().deviceIsConnected(m_deviceId).value_or(false);
+    return deviceManager()->deviceIsConnected(m_deviceId).value_or(false);
 }
 
 void AndroidTarget::run() const
 {
     auto qmlrcPath = DesignViewer::ResourceGeneratorProxy().createResourceFileSync();
-    QmlDesignerPlugin::deviceManager().sendProjectFile(m_deviceId, qmlrcPath);
+    deviceManager()->sendProjectFile(m_deviceId, qmlrcPath);
 }
 
 } // namespace QmlDesigner
