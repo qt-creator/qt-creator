@@ -4,7 +4,7 @@
 import QtQuick
 import QtQuick.Templates as T
 
-import StudioTheme 1.0 as StudioTheme
+import StudioTheme as StudioTheme
 
 T.Switch {
     id: control

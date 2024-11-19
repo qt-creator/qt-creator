@@ -4,7 +4,7 @@
 import QtQuick
 import QtQuick.Templates as T
 
-import HelperWidgets 2.0 as HelperWidgets
+import HelperWidgets as HelperWidgets
 import StudioTheme as StudioTheme
 
 T.AbstractButton {
