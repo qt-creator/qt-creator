@@ -61,7 +61,7 @@ ProjectTestSettingsWidget::ProjectTestSettingsWidget(Project *project)
     m_activeFrameworks->setHeaderHidden(true);
     m_activeFrameworks->setRootIsDecorated(false);
     m_runAfterBuild = new QComboBox;
-    m_runAfterBuild->addItem(Tr::tr("None"));
+    m_runAfterBuild->addItem(Tr::tr("No Tests"));
     m_runAfterBuild->addItem(Tr::tr("All"));
     m_runAfterBuild->addItem(Tr::tr("Selected"));
     m_runAfterBuild->setCurrentIndex(int(m_projectSettings->runAfterBuild()));

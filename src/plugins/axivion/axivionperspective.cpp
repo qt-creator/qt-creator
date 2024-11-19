@@ -449,7 +449,7 @@ void IssuesWidget::initDashboardList(const QString &preferredProject)
     hideOverlays();
 
     GuardLocker lock(m_signalBlocker);
-    m_dashboards->addItem(Tr::tr("None"));
+    m_dashboards->addItem(Tr::tr("No Dashboard"));
     for (const AxivionServer &server : servers)
         m_dashboards->addItem(server.displayString(), QVariant::fromValue(server));
 
