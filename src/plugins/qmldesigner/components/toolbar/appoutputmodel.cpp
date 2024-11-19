@@ -2,8 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 #include "appoutputmodel.h"
 
+#include <devicesharing/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/runcontrol.h>
+#include <qmldesignerplugin.h>
 
 #include <vector>
 
@@ -232,6 +234,30 @@ void AppOutputParentModel::setupRunControls()
                                 emit messageAdded(row, out.trimmed(), colorFromFormat(format));
                             }
                         });
+            });
+
+    auto &deviceManager = QmlDesigner::QmlDesignerPlugin::instance()->deviceManager();
+
+    connect(&deviceManager,
+            &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
+            [this](const QmlDesigner::DeviceShare::DeviceInfo &deviceInfo) {
+                AppOutputParentModel::Run run;
+                run.timestamp = QTime::currentTime().toString().toStdString();
+                run.messages.push_back(
+                    {"Project started on device " + deviceInfo.deviceId(), m_messageColor});
+
+                beginResetModel();
+                m_runs.push_back(run);
+                endResetModel();
+            });
+
+    connect(&deviceManager,
+            &QmlDesigner::DeviceShare::DeviceManager::projectLogsReceived,
+            [this](const QmlDesigner::DeviceShare::DeviceInfo &, const QString &logs) {
+                if (!m_runs.empty()) {
+                    int row = static_cast<int>(m_runs.size()) - 1;
+                    emit messageAdded(row, logs.trimmed(), m_messageColor);
+                }
             });
 }
 

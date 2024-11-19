@@ -3,7 +3,6 @@
 
 #pragma once
 
-//#include <devicesharing/device.h>
 #include <devicesharing/devicemanager.h>
 
 #include <projectexplorer/projectexplorer.h>
