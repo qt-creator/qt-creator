@@ -49,6 +49,10 @@ private:
     QTimer m_pingTimer;
     QTimer m_pongTimer;
 
+    static constexpr int m_reconnectTimeout = 5000;
+    static constexpr int m_pingTimeout = 1000;
+    static constexpr int m_pongTimeout = 10000;
+
     void initPingPong();
     bool sendTextMessage(const QLatin1String &dataType, const QJsonValue &data = QJsonValue());
     bool sendBinaryMessage(const QByteArray &data);

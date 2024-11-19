@@ -48,13 +48,13 @@ Device::Device(const DeviceInfo &deviceInfo, const DeviceSettings &deviceSetting
     connect(m_socket.data(), &QWebSocket::connected, this, [this]() {
         m_socketWasConnected = true;
         m_reconnectTimer.stop();
-        m_pingTimer.start(15000);
+        m_pingTimer.start();
         sendDesignStudioReady(m_deviceInfo.deviceId());
         emit connected(m_deviceInfo.deviceId());
     });
 
     m_reconnectTimer.setSingleShot(true);
-    m_reconnectTimer.setInterval(5000);
+    m_reconnectTimer.setInterval(m_reconnectTimeout);
     connect(&m_reconnectTimer, &QTimer::timeout, this, &Device::reconnect);
 
     initPingPong();
@@ -69,9 +69,14 @@ Device::~Device()
 
 void Device::initPingPong()
 {
+    m_pingTimer.setInterval(m_pingTimeout);
+    m_pongTimer.setInterval(m_pongTimeout);
+    m_pongTimer.setSingleShot(true);
+    m_pingTimer.setSingleShot(true);
+
     connect(&m_pingTimer, &QTimer::timeout, this, [this]() {
         m_socket->ping();
-        m_pongTimer.start(15000);
+        m_pongTimer.start();
     });
 
     connect(m_socket.data(),
@@ -82,6 +87,7 @@ void Device::initPingPong()
                     << "Pong received from Device" << m_deviceInfo.deviceId() << "in" << elapsedTime
                     << "ms";
                 m_pongTimer.stop();
+                m_pingTimer.start();
             });
 
     connect(&m_pongTimer, &QTimer::timeout, this, [this]() {
@@ -89,8 +95,6 @@ void Device::initPingPong()
             << "Device" << m_deviceInfo.deviceId() << "is not responding. Closing connection.";
         m_socket->close();
     });
-
-    m_pongTimer.setSingleShot(true);
 }
 
 void Device::reconnect()
