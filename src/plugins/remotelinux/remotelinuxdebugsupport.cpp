@@ -18,32 +18,6 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-class RemoteLinuxQmlToolingSupport final : public SimpleTargetRunner
-{
-public:
-    explicit RemoteLinuxQmlToolingSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("RemoteLinuxQmlToolingSupport");
-
-        runControl->requestQmlChannel();
-
-        auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-        runworker->addStartDependency(this);
-        addStopDependency(runworker);
-
-        setStartModifier([this, runControl] {
-            QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-
-            CommandLine cmd = commandLine();
-            cmd.addArg(qmlDebugTcpArguments(services, qmlChannel()));
-            setCommandLine(cmd);
-        });
-    }
-};
-
-// Factories
-
 static const QList<Id> supportedRunConfigs()
 {
     return {
@@ -99,7 +73,25 @@ class RemoteLinuxQmlToolingWorkerFactory final : public ProjectExplorer::RunWork
 public:
     RemoteLinuxQmlToolingWorkerFactory()
     {
-        setProduct<RemoteLinuxQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            runControl->requestQmlChannel();
+
+            auto worker = new SimpleTargetRunner(runControl);
+            worker->setId("RemoteLinuxQmlToolingSupport");
+
+            auto runworker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            runworker->addStartDependency(worker);
+            worker->addStopDependency(runworker);
+
+            worker->setStartModifier([worker, runControl] {
+                QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
+
+                CommandLine cmd = worker->commandLine();
+                cmd.addArg(qmlDebugTcpArguments(services, worker->qmlChannel()));
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
