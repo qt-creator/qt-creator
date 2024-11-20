@@ -26,7 +26,6 @@ class DiffEditorPlugin final : public ExtensionSystem::IPlugin
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
 public:
-    DiffEditorPlugin();
     ~DiffEditorPlugin();
 
     void initialize() final;

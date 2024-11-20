@@ -514,17 +514,9 @@ void DiffEditorPluginPrivate::diffExternalFiles()
     reload<DiffExternalFilesController>(documentId, title, filePath1.toString(), filePath2.toString());
 }
 
-static DiffEditorPlugin *s_instance = nullptr;
-
-DiffEditorPlugin::DiffEditorPlugin()
-{
-    s_instance = this;
-}
-
 DiffEditorPlugin::~DiffEditorPlugin()
 {
     delete d;
-    s_instance = nullptr;
 }
 
 void DiffEditorPlugin::initialize()
