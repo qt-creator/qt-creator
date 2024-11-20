@@ -212,25 +212,6 @@ public:
     }
 };
 
-// AppManagerDevicePerfProfilerSupport
-
-class AppManagerPerfProfilerSupport final : public RunWorker
-{
-public:
-    explicit AppManagerPerfProfilerSupport(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("AppManagerPerfProfilerSupport");
-
-        runControl->requestPerfChannel();
-        auto profilee = createInferiorRunner(runControl, NoQmlDebugServices);
-        addStartDependency(profilee);
-        addStopDependency(profilee);
-    }
-};
-
-// Factories
-
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -315,7 +296,16 @@ class AppManagerPerfProfilerWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerPerfProfilerWorkerFactory()
     {
-        setProduct<AppManagerPerfProfilerSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new RunWorker(runControl);
+            worker->setId("AppManagerPerfProfilerSupport");
+
+            runControl->requestPerfChannel();
+            auto profilee = createInferiorRunner(runControl, NoQmlDebugServices);
+            worker->addStartDependency(profilee);
+            worker->addStopDependency(profilee);
+            return worker;
+        });
         addSupportedRunMode("PerfRecorder");
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
     }
