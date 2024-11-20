@@ -16,7 +16,7 @@ StudioControls.Dialog {
     closePolicy: Popup.CloseOnEscape
     modal: true
 
-    required property string dirPath
+    property string dirPath
     property string createdDirPath: ""
     readonly property int __maxPath: 260
 
@@ -111,5 +111,10 @@ StudioControls.Dialog {
 
     onRejected: {
         root.createdDirPath = ""
+    }
+
+    function openDialog(dirPath) {
+        root.dirPath = dirPath
+        root.open()
     }
 }

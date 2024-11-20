@@ -26,6 +26,16 @@ Item {
     AssetsContextMenu {
         id: contextMenu
         assetsView: assetsView
+
+        onOpenNewFolderDialog: function(dirPath) {
+            newFolderDialog.openDialog(dirPath)
+        }
+    }
+
+    NewFolderDialog {
+        id: newFolderDialog
+
+        onAccepted: assetsView.addCreatedFolder(newFolderDialog.createdDirPath)
     }
 
     function clearSearchFilter() {

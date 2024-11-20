@@ -25,6 +25,8 @@ StudioControls.Menu {
     property var __selectedAssetPathsList: null
     property bool __showInGraphicalShellEnabled: false
 
+    signal openNewFolderDialog(string dirPath)
+
     closePolicy: Popup.CloseOnPressOutside | Popup.CloseOnEscape
 
     function openContextMenuForRoot(rootModelIndex, dirPath, dirName, onFolderCreated)
@@ -192,18 +194,9 @@ StudioControls.Menu {
 
     StudioControls.MenuItem {
         text: qsTr("New Folder")
-        visible: !root.assetsModel.isEmpty
         height: visible ? implicitHeight : 0
 
-        NewFolderDialog {
-            id: newFolderDialog
-            parent: root.assetsView
-            dirPath: root.__dirPath
-
-            onAccepted: root.__onFolderCreated(newFolderDialog.createdDirPath)
-        }
-
-        onTriggered: newFolderDialog.open()
+        onTriggered: root.openNewFolderDialog(root.__dirPath)
     }
 
     StudioControls.MenuItem {
