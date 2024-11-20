@@ -2573,8 +2573,8 @@ void EffectComposerModel::addOrUpdateNodeUniform(int idx, const QVariantMap &dat
     startRebakeTimer();
 }
 
-bool EffectComposerModel::writeToFile(const QByteArray &buf, const QString &fileName,
-                                      FileType fileType)
+bool EffectComposerModel::writeToFile(
+    const QByteArray &buf, const QString &fileName, [[maybe_unused]] FileType fileType)
 {
     Utils::FilePath fp = Utils::FilePath::fromString(fileName);
     fp.absolutePath().createDir();

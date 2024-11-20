@@ -97,7 +97,7 @@ Qt::Orientation TableHeaderLengthModel::orientation() const
     return m_orientation;
 }
 
-void TableHeaderLengthModel::onSourceItemsInserted(const QModelIndex &parent, int first, int last)
+void TableHeaderLengthModel::onSourceItemsInserted(const QModelIndex &, int first, int last)
 {
     beginInsertRows({}, first, last);
     const Item defaultItem{true, m_defaultLength};
@@ -105,7 +105,7 @@ void TableHeaderLengthModel::onSourceItemsInserted(const QModelIndex &parent, in
     endInsertRows();
 }
 
-void TableHeaderLengthModel::onSourceItemsRemoved(const QModelIndex &parent, int first, int last)
+void TableHeaderLengthModel::onSourceItemsRemoved(const QModelIndex &, int first, int last)
 {
     beginRemoveRows({}, first, last);
     m_data.remove(first, last - first + 1);
@@ -113,11 +113,7 @@ void TableHeaderLengthModel::onSourceItemsRemoved(const QModelIndex &parent, int
 }
 
 void TableHeaderLengthModel::onSourceItemsMoved(
-    const QModelIndex &sourceParent,
-    int sourceStart,
-    int sourceEnd,
-    const QModelIndex &destinationParent,
-    int destinationRow)
+    const QModelIndex &, int sourceStart, int sourceEnd, const QModelIndex &, int destinationRow)
 {
     beginMoveRows({}, sourceStart, sourceEnd, {}, destinationRow);
     QList<Item> pack = m_data.mid(sourceStart, sourceEnd - sourceStart + 1);

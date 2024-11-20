@@ -120,7 +120,6 @@ void EffectComposerUniformsModel::addUniform(Uniform *uniform)
 void EffectComposerUniformsModel::updateUniform(int uniformIndex, Uniform *uniform)
 {
     QTC_ASSERT(uniformIndex < m_uniforms.size() && uniformIndex >= 0, return);
-    QModelIndex idx = index(uniformIndex, 0);
 
     beginResetModel();
     delete m_uniforms[uniformIndex];

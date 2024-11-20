@@ -188,7 +188,7 @@ int EffectComposerUniformsTableModel::rowCount(const QModelIndex &) const
     return m_sourceModel->rowCount();
 }
 
-int EffectComposerUniformsTableModel::columnCount(const QModelIndex &parent) const
+int EffectComposerUniformsTableModel::columnCount(const QModelIndex &) const
 {
     return RoleColMap::tableCols().size();
 }
@@ -214,7 +214,7 @@ QVariant EffectComposerUniformsTableModel::data(const QModelIndex &index, int ro
 }
 
 QVariant EffectComposerUniformsTableModel::headerData(
-    int section, Qt::Orientation orientation, int role) const
+    int section, Qt::Orientation orientation, int) const
 {
     if (orientation == Qt::Vertical) {
         if (section >= 0 && section < rowCount())

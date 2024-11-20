@@ -101,7 +101,7 @@ void EffectCodeEditorWidget::setEditorTextWithIndentation(const QString &text)
 }
 
 std::unique_ptr<TextEditor::AssistInterface> EffectCodeEditorWidget::createAssistInterface(
-    TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
+    [[maybe_unused]] TextEditor::AssistKind assistKind, TextEditor::AssistReason assistReason) const
 {
     return std::make_unique<EffectsCompletionAssistInterface>(
         textCursor(),
