@@ -119,7 +119,6 @@ public:
 
 private:
     void start() override;
-    void stop() override;
 };
 
 QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
@@ -152,13 +151,6 @@ void QdbDeviceDebugSupport::start()
 
     DebuggerRunTool::start();
 }
-
-void QdbDeviceDebugSupport::stop()
-{
-    // Do nothing unusual. The launcher will die as result of (gdb) kill.
-    DebuggerRunTool::stop();
-}
-
 
 // QdbDeviceQmlProfilerSupport
 
