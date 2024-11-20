@@ -408,8 +408,9 @@ static QRegularExpression vimPatternToQtPattern(const QString &needle)
 
     // FIXME: Option smartcase should be used only if search was typed by user.
     const bool smartCaseOption = settings().smartCase();
+    static const QRegularExpression regexp("[A-Z]");
     const bool initialIgnoreCase = settings().ignoreCase()
-        && !(smartCaseOption && needle.contains(QRegularExpression("[A-Z]")));
+        && !(smartCaseOption && needle.contains(regexp));
 
     bool ignorecase = initialIgnoreCase;
 
@@ -639,10 +640,11 @@ static void bracketSearchBackward(QTextCursor *tc, const QString &needleExp, int
 static void bracketSearchForward(QTextCursor *tc, const QString &needleExp, int repeat,
                                  bool searchWithCommand)
 {
-    QRegularExpression re(searchWithCommand ? QString("^\\}|^\\{") : needleExp);
+    static const QRegularExpression reWithCommand("^\\}|^\\{");
+    const QRegularExpression reNeedle(needleExp);
     QTextCursor tc2 = *tc;
     tc2.setPosition(tc2.position() + 1);
-    searchForward(&tc2, re, &repeat);
+    searchForward(&tc2, searchWithCommand ? reWithCommand : reNeedle, &repeat);
     if (repeat <= 1) {
         if (tc2.isNull()) {
             tc->setPosition(tc->document()->characterCount() - 1, KeepAnchor);
@@ -2702,7 +2704,8 @@ void FakeVimHandler::Private::commitInsertState()
     lastInsertion.prepend(QString("<DELETE>").repeated(insertState.deletes));
 
     // Remove indentation.
-    lastInsertion.replace(QRegularExpression("(^|\n)[\\t ]+"), "\\1");
+    static const QRegularExpression regexp("(^|\n)[\\t ]+");
+    lastInsertion.replace(regexp, "\\1");
 }
 
 void FakeVimHandler::Private::invalidateInsertState()
@@ -4816,7 +4819,8 @@ bool FakeVimHandler::Private::handleReplaceSubMode(const Input &input)
             ++range.endPos;
         // Replace each character but preserve lines.
         transformText(range, [&c](const QString &text) {
-            return QString(text).replace(QRegularExpression("[^\\n]"), c);
+            static const QRegularExpression regexp("[^\\n]");
+            return QString(text).replace(regexp, c);
         });
     } else if (count() <= rightDist()) {
         pushUndoState();
@@ -5778,7 +5782,8 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
     cmd->cmd = line->mid(0, i).trimmed();
 
     // command arguments starts with first non-letter character
-    cmd->args = cmd->cmd.section(QRegularExpression("(?=[^a-zA-Z])"), 1);
+    static const QRegularExpression regexp("(?=[^a-zA-Z])");
+    cmd->args = cmd->cmd.section(regexp, 1);
     if (!cmd->args.isEmpty()) {
         cmd->cmd.chop(cmd->args.size());
         cmd->args = cmd->args.trimmed();
@@ -5798,7 +5803,8 @@ bool FakeVimHandler::Private::parseExCommand(QString *line, ExCommand *cmd)
 bool FakeVimHandler::Private::parseLineRange(QString *line, ExCommand *cmd)
 {
     // remove leading colons and spaces
-    line->remove(QRegularExpression("^\\s*(:+\\s*)*"));
+    static const QRegularExpression regexp("^\\s*(:+\\s*)*");
+    line->remove(regexp);
 
     // special case ':!...' (use invalid range)
     if (line->startsWith('!')) {
@@ -5857,7 +5863,8 @@ bool FakeVimHandler::Private::handleExSubstituteCommand(const ExCommand &cmd)
 
     int count = 1;
     QString line = cmd.args;
-    const QRegularExpressionMatch match = QRegularExpression("\\d+$").match(line);
+    static const QRegularExpression regexp("\\d+$");
+    const QRegularExpressionMatch match = regexp.match(line);
     if (match.hasMatch()) {
         count = match.captured().toInt();
         line = line.left(match.capturedStart()).trimmed();
@@ -6021,8 +6028,9 @@ bool FakeVimHandler::Private::handleExMapCommand(const ExCommand &cmd0) // :map
         break;
     }
 
-    const QString lhs = args.section(QRegularExpression("\\s+"), 0, 0);
-    const QString rhs = args.section(QRegularExpression("\\s+"), 1);
+    static const QRegularExpression regexp("\\s+");
+    const QString lhs = args.section(regexp, 0, 0);
+    const QString rhs = args.section(regexp, 1);
     if ((rhs.isNull() && type != Unmap) || (!rhs.isNull() && type == Unmap)) {
         // FIXME: Dump mappings here.
         //qDebug() << g.mappings;
@@ -7662,7 +7670,8 @@ void FakeVimHandler::Private::toggleComment(const Range &range)
                                                                      : commentString.size();
                     line.replace(line.indexOf(commentString), sizeToReplace, "");
                 } else {
-                    const int indexOfFirstNonSpace = line.indexOf(QRegularExpression("[^\\s]"));
+                    static const QRegularExpression regexp("[^\\s]");
+                    const int indexOfFirstNonSpace = line.indexOf(regexp);
                     line = line.left(indexOfFirstNonSpace) + commentString  + " " + line.right(line.size() - indexOfFirstNonSpace);
                 }
             }
@@ -7903,10 +7912,13 @@ void FakeVimHandler::Private::joinLines(int count, bool preserveSpace)
     const int blockNumber = m_cursor.blockNumber();
 
     const QString currentLine = lineContents(blockNumber + 1);
+    static const QRegularExpression cppStyleRegexp("^\\s*\\/\\/");
+    static const QRegularExpression cStyleRegexp("^\\s*\\/?\\*");
+    static const QRegularExpression pythonStyleRegexp("^\\s*#");
     const bool startingLineIsComment
-            = currentLine.contains(QRegularExpression("^\\s*\\/\\/")) // Cpp-style
-              || currentLine.contains(QRegularExpression("^\\s*\\/?\\*")) // C-style
-              || currentLine.contains(QRegularExpression("^\\s*#")); // Python/Shell-style
+            = currentLine.contains(cppStyleRegexp)
+              || currentLine.contains(cStyleRegexp)
+              || currentLine.contains(pythonStyleRegexp);
 
     for (int i = qMax(count - 2, 0); i >= 0 && blockNumber < document()->blockCount(); --i) {
         moveBehindEndOfLine();
@@ -8988,7 +9000,7 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
     const int posMin = m_cursor.positionInBlock() + 1;
 
     // find first decimal, hexadecimal or octal number under or after cursor position
-    QRegularExpression re("(0[xX])(0*[0-9a-fA-F]+)|(0)(0*[0-7]+)(?=\\D|$)|(\\d+)");
+    static const QRegularExpression re("(0[xX])(0*[0-9a-fA-F]+)|(0)(0*[0-7]+)(?=\\D|$)|(\\d+)");
     QRegularExpressionMatch match;
     QRegularExpressionMatchIterator it = re.globalMatch(lineText);
     while (true) {
@@ -9035,7 +9047,8 @@ bool FakeVimHandler::Private::changeNumberTextObject(int count)
 
     // convert hexadecimal number to upper-case if last letter was upper-case
     if (hex) {
-        const int lastLetter = num.lastIndexOf(QRegularExpression("[a-fA-F]"));
+        static const QRegularExpression regexp("[a-fA-F]");
+        const int lastLetter = num.lastIndexOf(regexp);
         if (lastLetter != -1 && num[lastLetter].isUpper())
             repl = repl.toUpper();
     }

@@ -43,8 +43,8 @@ QList<CvsLogEntry> parseLogEntries(const QString &o,
     ParseState state = FileState;
 
     const QString workingFilePrefix = QLatin1String("Working file: ");
-    const QRegularExpression statusPattern(QLatin1String("^date: ([\\d\\-]+) .*commitid: ([^;]+);$"));
-    const QRegularExpression revisionPattern(QLatin1String("^revision ([\\d\\.]+)$"));
+    static const QRegularExpression statusPattern(QLatin1String("^date: ([\\d\\-]+) .*commitid: ([^;]+);$"));
+    static const QRegularExpression revisionPattern(QLatin1String("^revision ([\\d\\.]+)$"));
     const QChar slash = QLatin1Char('/');
     Q_ASSERT(statusPattern.isValid() && revisionPattern.isValid());
     const QString fileSeparator = QLatin1String("=============================================================================");

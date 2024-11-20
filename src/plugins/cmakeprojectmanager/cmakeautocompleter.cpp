@@ -89,7 +89,8 @@ QString CMakeAutoCompleter::insertMatchingQuote(const QTextCursor &cursor,
 int CMakeAutoCompleter::paragraphSeparatorAboutToBeInserted(QTextCursor &cursor)
 {
     const QString line = cursor.block().text().trimmed();
-    if (line.contains(QRegularExpression(QStringLiteral("^(endfunction|endmacro|endif|endforeach|endwhile|endblock)\\w*\\("))))
+    static const QRegularExpression regexp("^(endfunction|endmacro|endif|endforeach|endwhile|endblock)\\w*\\(");
+    if (line.contains(regexp))
         tabSettings().indentLine(cursor.block(), tabSettings().indentationColumn(cursor.block().text()));
     return 0;
 }

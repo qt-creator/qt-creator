@@ -116,7 +116,8 @@ QStringList identifierWordsUnderCursor(const QTextCursor &tc)
             break;
         QTextCursor temp(endCursor);
         temp.setPosition(startCursor.position(), QTextCursor::KeepAnchor);
-        results.append(temp.selectedText().remove(QRegularExpression("\\s")));
+        static const QRegularExpression rexgexp("\\s");
+        results.append(temp.selectedText().remove(rexgexp));
         // possibly skip ::
         temp = startCursor;
         skipCharsBackward(&temp, isSpace);

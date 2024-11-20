@@ -112,8 +112,10 @@ void LldbEngine::runCommand(const DebuggerCommand &command)
     QString token = QString::number(tok);
     QString function = cmd.function + "(" + cmd.argsToPython() + ")";
     QString msg = token + function + '\n';
-    if (cmd.flags == Silent)
-        msg.replace(QRegularExpression("\"environment\":.[^]]*."), "<environment suppressed>");
+    if (cmd.flags == Silent) {
+        static const QRegularExpression regexp("\"environment\":.[^]]*.");
+        msg.replace(regexp, "<environment suppressed>");
+    }
     if (cmd.flags == NeedsFullStop) {
         cmd.flags &= ~NeedsFullStop;
         if (state() == InferiorRunOk) {

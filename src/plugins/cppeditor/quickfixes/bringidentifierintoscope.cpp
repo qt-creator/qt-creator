@@ -276,9 +276,9 @@ private:
         } else if (visitor.firstNamespace()) {
             insertPos = file->startOf(visitor.firstNamespace());
         } else {
+            static const QRegularExpression regexp("^\\s*#include .*$");
             const QTextCursor tc = file->document()->find(
-                QRegularExpression("^\\s*#include .*$"),
-                m_symbolPos,
+                regexp, m_symbolPos,
                 QTextDocument::FindBackward | QTextDocument::FindCaseSensitively);
             if (!tc.isNull())
                 insertPos = tc.position() + 1;

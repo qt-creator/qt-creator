@@ -116,7 +116,8 @@ void prepareLuaState(
     const expected_str<FilePath> tmpDir = HostOsInfo::root().tmpDir();
     QTC_ASSERT_EXPECTED(tmpDir, return);
     QString id = name;
-    id = id.replace(QRegularExpression("[^a-zA-Z0-9_]"), "_").toLower();
+    static const QRegularExpression regexp("[^a-zA-Z0-9_]");
+    id = id.replace(regexp, "_").toLower();
     ScriptPluginSpec::setup(lua, id, name, appDataPath, *tmpDir);
 
     for (const auto &[name, func] : d->m_providers.asKeyValueRange()) {

@@ -102,7 +102,7 @@ QString simplifyType(const QString &typeIn)
     type.replace("std::__cxx11::", "std::");
     type.replace("std::__1::", "std::");
     type.replace("std::__debug::", "std::");
-    QRegularExpression simpleStringRE("std::basic_string<char> ?");
+    static const QRegularExpression simpleStringRE("std::basic_string<char> ?");
     type.replace(simpleStringRE, "std::string");
 
     // Normalize space + ptr.
@@ -124,7 +124,7 @@ QString simplifyType(const QString &typeIn)
             type = type.mid(16, type.size() - 31);
 
         // std::ifstream
-        QRegularExpression ifstreamRE("std::basic_ifstream<char,\\s*?std::char_traits<char>\\s*?>");
+        static const QRegularExpression ifstreamRE("std::basic_ifstream<char,\\s*?std::char_traits<char>\\s*?>");
         QTC_ASSERT(ifstreamRE.isValid(), return typeIn);
         const QRegularExpressionMatch match = ifstreamRE.match(type);
         if (match.hasMatch())
@@ -133,7 +133,7 @@ QString simplifyType(const QString &typeIn)
 
         // std::__1::hash_node<int, void *>::value_type -> int
         if (isLibCpp) {
-            QRegularExpression hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
+            static const QRegularExpression hashNodeRE("std::__hash_node<([^<>]*),\\s*void\\s*@>::value_type");
             QTC_ASSERT(hashNodeRE.isValid(), return typeIn);
             const QRegularExpressionMatch match = hashNodeRE.match(type);
             if (match.hasMatch())

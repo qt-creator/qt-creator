@@ -109,7 +109,7 @@ void CMakeManager::openCMakeUrl(const QUrl &url)
 {
     QString urlPrefix = "https://cmake.org/cmake/help/";
 
-    QRegularExpression version("^.*\\.([0-9])\\.([0-9]+)\\.[0-9]+$");
+    static const QRegularExpression version("^.*\\.([0-9])\\.([0-9]+)\\.[0-9]+$");
     auto match = version.match(url.authority());
     if (match.hasMatch())
         urlPrefix.append(QString("v%1.%2").arg(match.captured(1)).arg(match.captured(2)));

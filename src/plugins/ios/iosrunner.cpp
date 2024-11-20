@@ -60,6 +60,8 @@ using namespace Tasking;
 
 namespace Ios::Internal {
 
+char QML_DEBUGGER_WAITING[] = "QML Debugger: Waiting for connection on port ([0-9]+)...";
+
 static QString identifierForRunControl(RunControl *runControl)
 {
     const IosDeviceTypeAspect::Data *data = runControl->aspectData<IosDeviceTypeAspect>();
@@ -621,7 +623,7 @@ void IosRunner::handleGotInferiorPid(IosToolHandler *handler, const FilePath &bu
 void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 {
     Q_UNUSED(handler)
-    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
+    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
     const QRegularExpressionMatch match = qmlPortRe.match(output);
     QString res(output);
     if (match.hasMatch() && m_qmlServerPort.isValid())
@@ -632,7 +634,7 @@ void IosRunner::handleAppOutput(IosToolHandler *handler, const QString &output)
 void IosRunner::handleMessage(const QString &msg)
 {
     QString res(msg);
-    QRegularExpression qmlPortRe("QML Debugger: Waiting for connection on port ([0-9]+)...");
+    static const QRegularExpression qmlPortRe(QString::fromLatin1(QML_DEBUGGER_WAITING));
     const QRegularExpressionMatch match = qmlPortRe.match(msg);
     if (match.hasMatch() && m_qmlServerPort.isValid())
         res.replace(match.captured(1), QString::number(m_qmlServerPort.number()));

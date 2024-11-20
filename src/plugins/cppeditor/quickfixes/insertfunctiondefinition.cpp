@@ -172,7 +172,7 @@ public:
             QString input = prettyType;
             int index = 0;
             while (input.startsWith("template")) {
-                QRegularExpression templateRegex("template\\s*<[^>]*>");
+                static const QRegularExpression templateRegex("template\\s*<[^>]*>");
                 QRegularExpressionMatch match = templateRegex.match(input);
                 if (match.hasMatch()) {
                     index += match.captured().size() + 1;

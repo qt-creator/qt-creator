@@ -1408,7 +1408,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             showStatusMessage(bp->msgBreakpointTriggered(threadId));
             const QString commands = bp->command().trimmed();
             // Can be either c or cont[inue]
-            const QRegularExpression contExp("(^|\\n)\\s*c(ont(i(n(ue?)?)?)?)?$");
+            static const QRegularExpression contExp("(^|\\n)\\s*c(ont(i(n(ue?)?)?)?)?$");
             QTC_CHECK(contExp.isValid());
             if (contExp.match(commands).hasMatch()) {
                 notifyInferiorRunRequested();
@@ -2371,7 +2371,7 @@ void GdbEngine::handleBreakCondition(const DebuggerResponse &, const Breakpoint 
 
 void GdbEngine::updateTracepointCaptures(const Breakpoint &bp)
 {
-    static QRegularExpression capsRegExp(
+    static const QRegularExpression capsRegExp(
         "(^|[^\\\\])(\\$(ADDRESS|CALLER|CALLSTACK|FILEPOS|FUNCTION|PID|PNAME|TICK|TID|TNAME)"
         "|{[^}]+})");
     QString message = bp->globalBreakpoint()->requestedParameters().message;
@@ -3516,7 +3516,7 @@ void GdbEngine::handlePeripheralRegisterListValues(
 
     const QString output = response.consoleStreamOutput;
     // Regexp to match for '0x50060800:\t0\n'.
-    const QRegularExpression re("^(0x[0-9A-Fa-f]+):\\t(\\d+)\\n$");
+    static const QRegularExpression re("^(0x[0-9A-Fa-f]+):\\t(\\d+)\\n$");
     const QRegularExpressionMatch m = re.match(output);
     if (!m.hasMatch())
         return;

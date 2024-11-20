@@ -227,7 +227,7 @@ unsigned int FossilClient::synchronousBinaryVersion() const
 
     // fossil version:
     // "This is fossil version 1.27 [ccdefa355b] 2013-09-30 11:47:18 UTC"
-    QRegularExpression versionPattern("(\\d+)\\.(\\d+)");
+    static const QRegularExpression versionPattern("(\\d+)\\.(\\d+)");
     QTC_ASSERT(versionPattern.isValid(), return 0);
     QRegularExpressionMatch versionMatch = versionPattern.match(output);
     QTC_ASSERT(versionMatch.hasMatch(), return 0);
@@ -317,8 +317,8 @@ QStringList FossilClient::parseRevisionCommentLine(const QString &commentLine)
 {
     // "comment:      This is a (test) commit message (user: the.name)"
 
-    const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
-                                       QRegularExpression::CaseInsensitiveOption);
+    static const QRegularExpression commentRx("^comment:\\s+(.*)\\s\\(user:\\s(.*)\\)$",
+                                              QRegularExpression::CaseInsensitiveOption);
     QTC_ASSERT(commentRx.isValid(), return {});
 
     const QRegularExpressionMatch match = commentRx.match(commentLine);
@@ -354,7 +354,7 @@ RevisionInfo FossilClient::synchronousRevisionQuery(const FilePath &workingDirec
     QString commentMsg;
     QString committer;
 
-    const QRegularExpression idRx("([0-9a-f]{5,40})");
+    static const QRegularExpression idRx("([0-9a-f]{5,40})");
     QTC_ASSERT(idRx.isValid(), return {});
 
     const QString hashToken =

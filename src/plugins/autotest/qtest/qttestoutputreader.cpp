@@ -316,7 +316,7 @@ static QStringList extractFunctionInformation(const QString &testClassName,
                                               const QString &lineWithoutResultType,
                                               ResultType resultType)
 {
-    static QRegularExpression classInformation("^(.+?)\\((.*?)\\)(.*)$");
+    static const QRegularExpression classInformation("^(.+?)\\((.*?)\\)(.*)$");
     QStringList result;
     const QRegularExpressionMatch match = classInformation.match(lineWithoutResultType);
     if (match.hasMatch()) {

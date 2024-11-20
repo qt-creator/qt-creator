@@ -242,7 +242,7 @@ public:
     explicit HexValueValidator(QObject *parent = nullptr)
         : QRegularExpressionValidator(parent)
     {
-        const QRegularExpression re("^0x[0-9a-fA-F]{1,8}");
+        static const QRegularExpression re("^0x[0-9a-fA-F]{1,8}");
         setRegularExpression(re);
     }
 };

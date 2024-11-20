@@ -778,7 +778,8 @@ static FilePath getUserFilePath(const QString &proposalFileName)
 static QString idFromDisplayName(const QString &displayName)
 {
     QString id = displayName;
-    id.remove(QRegularExpression("&(?!&)"));
+    static const QRegularExpression regexp("&(?!&)");
+    id.remove(regexp);
     QChar *c = id.data();
     while (!c->isNull()) {
         if (!c->isLetterOrNumber())

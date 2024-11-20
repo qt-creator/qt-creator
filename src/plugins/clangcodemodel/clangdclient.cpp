@@ -799,7 +799,7 @@ QVersionNumber ClangdClient::versionNumber() const
     if (d->versionNumber)
         return d->versionNumber.value();
 
-    const QRegularExpression versionPattern("^clangd version (\\d+)\\.(\\d+)\\.(\\d+).*$");
+    static const QRegularExpression versionPattern("^clangd version (\\d+)\\.(\\d+)\\.(\\d+).*$");
     QTC_CHECK(versionPattern.isValid());
     const QRegularExpressionMatch match = versionPattern.match(serverVersion());
     if (match.isValid()) {

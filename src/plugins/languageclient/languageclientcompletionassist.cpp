@@ -78,7 +78,7 @@ void LanguageClientCompletionItem::apply(TextEditorWidget *editorWidget,
         QTextCursor cursor = editorWidget->textCursorAt(pos);
         cursor.movePosition(QTextCursor::StartOfLine, QTextCursor::KeepAnchor);
         const QString blockTextUntilPosition = cursor.selectedText();
-        static QRegularExpression identifier("[a-zA-Z_][a-zA-Z0-9_]*$");
+        static const QRegularExpression identifier("[a-zA-Z_][a-zA-Z0-9_]*$");
         QRegularExpressionMatch match = identifier.match(blockTextUntilPosition);
         int matchLength = match.hasMatch() ? match.capturedLength(0) : 0;
         length = qMax(length, matchLength);

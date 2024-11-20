@@ -178,7 +178,7 @@ private:
                 replacement.append('0');
             } else {
                 std::bitset<std::numeric_limits<decltype (value)>::digits> b(value);
-                QRegularExpression re("^[0]*");
+                static const QRegularExpression re("^[0]*");
                 replacement.append(QString::fromStdString(b.to_string()).remove(re));
             }
             auto op = new ConvertNumericLiteralOp(interface, start, start + numberLength, replacement);

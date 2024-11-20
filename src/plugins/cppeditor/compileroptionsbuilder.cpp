@@ -342,7 +342,8 @@ void CompilerOptionsBuilder::insertWrappedHeaders(const QStringList &relPaths)
         args << (includeUserPathOption + QDir::toNativeSeparators(fullPath));
     }
 
-    const int index = m_options.indexOf(QRegularExpression("\\A-I.*\\z"));
+    static const QRegularExpression regexp("\\A-I.*\\z");
+    const int index = m_options.indexOf(regexp);
     if (index < 0)
         add(args);
     else

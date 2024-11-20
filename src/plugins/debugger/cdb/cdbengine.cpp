@@ -2198,7 +2198,7 @@ static inline bool checkCommandToken(const QString &tokenPrefix, const QString &
 // and the pdb files are installed in a path discoverable by the debugger
 void CdbEngine::checkQtSdkPdbFiles(const QString &module)
 {
-    const QRegularExpression qtCoreModuleRegExp("(Qt\\dCored).dll");
+    static const QRegularExpression qtCoreModuleRegExp("(Qt\\dCored).dll");
     const QRegularExpressionMatch match = qtCoreModuleRegExp.match(module);
     if (!match.hasMatch())
         return;
@@ -2348,7 +2348,7 @@ void CdbEngine::parseOutputLine(QString line)
     }
     const char versionString[] = "Microsoft (R) Windows Debugger Version";
     if (line.startsWith(versionString)) {
-        const QRegularExpression versionRegEx("(\\d+)\\.(\\d+)\\.\\d+\\.\\d+");
+        static const QRegularExpression versionRegEx("(\\d+)\\.(\\d+)\\.\\d+\\.\\d+");
         const QRegularExpressionMatch match = versionRegEx.match(line);
         if (match.hasMatch()) {
             bool ok = true;
@@ -2366,7 +2366,7 @@ void CdbEngine::parseOutputLine(QString line)
     } else if (line.startsWith("ModLoad: ")) {
         // output(64): ModLoad: 00007ffb`842b0000 00007ffb`843ee000   C:\Windows\system32\KERNEL32.DLL
         // output(32): ModLoad: 00007ffb 00007ffb   C:\Windows\system32\KERNEL32.DLL
-        const QRegularExpression moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
+        static const QRegularExpression moduleRegExp("[0-9a-fA-F]+(`[0-9a-fA-F]+)? [0-9a-fA-F]+(`[0-9a-fA-F]+)? (.*)");
         const QRegularExpressionMatch match = moduleRegExp.match(line);
         if (match.hasMatch()) {
             const QString module = match.captured(3).trimmed();

@@ -118,22 +118,22 @@ static quint64 valueFromString(const QString &string, PeripheralRegisterFormat f
                                bool *ok)
 {
     if (fmt == PeripheralRegisterFormat::Hexadecimal) {
-        const QRegularExpression re("^(0x)?([0-9A-F]+)$");
+        static const QRegularExpression re("^(0x)?([0-9A-F]+)$");
         const QRegularExpressionMatch m = re.match(string);
         if (m.hasMatch())
             return m.captured(2).toULongLong(ok, 16);
     } else if (fmt == PeripheralRegisterFormat::Decimal) {
-        const QRegularExpression re("^([0-9]+)$");
+        static const QRegularExpression re("^([0-9]+)$");
         const QRegularExpressionMatch m = re.match(string);
         if (m.hasMatch())
             return m.captured(1).toULongLong(ok, 10);
     } else if (fmt == PeripheralRegisterFormat::Octal) {
-        const QRegularExpression re("^(0)?([0-7]+)$");
+        static const QRegularExpression re("^(0)?([0-7]+)$");
         const QRegularExpressionMatch m = re.match(string);
         if (m.hasMatch())
             return m.captured(2).toULongLong(ok, 8);
     } else if (fmt == PeripheralRegisterFormat::Binary) {
-        const QRegularExpression re("^(0b)?([0-1]+)$");
+        static const QRegularExpression re("^(0b)?([0-1]+)$");
         const QRegularExpressionMatch m = re.match(string);
         if (m.hasMatch())
             return m.captured(2).toULongLong(ok, 2);

@@ -102,21 +102,21 @@ bool VersionSelector::readValues()
 {
     QString line;
     line = m_stream->readLine();
-    const QRegularExpression id("Version ID: (.*)");
+    static const QRegularExpression id("Version ID: (.*)");
     const QRegularExpressionMatch idMatch = id.match(line);
     if (!idMatch.hasMatch())
         return false;
     m_versionID = idMatch.captured(1);
 
     line = m_stream->readLine();
-    const QRegularExpression owner("Created by: (.*)");
+    static const QRegularExpression owner("Created by: (.*)");
     const QRegularExpressionMatch ownerMatch = owner.match(line);
     if (!ownerMatch.hasMatch())
         return false;
     m_createdBy = ownerMatch.captured(1);
 
     line = m_stream->readLine();
-    const QRegularExpression dateTimeRE("Created on: (.*)");
+    static const QRegularExpression dateTimeRE("Created on: (.*)");
     const QRegularExpressionMatch dateTimeMatch = dateTimeRE.match(line);
     if (!dateTimeMatch.hasMatch())
         return false;

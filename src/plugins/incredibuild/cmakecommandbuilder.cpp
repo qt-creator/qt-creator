@@ -53,7 +53,7 @@ QString CMakeCommandBuilder::defaultArguments() const
 
 QString CMakeCommandBuilder::setMultiProcessArg(QString args)
 {
-    QRegularExpression regExp("\\s*\\-j\\s+\\d+");
+    static const QRegularExpression regExp("\\s*\\-j\\s+\\d+");
     args.remove(regExp);
     args.append(" -- -j 200");
 

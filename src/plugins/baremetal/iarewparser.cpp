@@ -56,7 +56,7 @@ void IarParser::amendFilePath()
 
 bool IarParser::parseErrorOrFatalErrorDetailsMessage1(const QString &lne)
 {
-    const QRegularExpression re("^(Error|Fatal error)\\[(.+)\\]:\\s(.+)\\s\\[(.+)$");
+    static const QRegularExpression re("^(Error|Fatal error)\\[(.+)\\]:\\s(.+)\\s\\[(.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;
@@ -79,7 +79,7 @@ bool IarParser::parseErrorOrFatalErrorDetailsMessage1(const QString &lne)
 
 bool IarParser::parseErrorOrFatalErrorDetailsMessage2(const QString &lne)
 {
-    const QRegularExpression re("^.*(Error|Fatal error)\\[(.+)\\]:\\s(.+)$");
+    static const QRegularExpression re("^.*(Error|Fatal error)\\[(.+)\\]:\\s(.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;
@@ -99,7 +99,7 @@ bool IarParser::parseErrorOrFatalErrorDetailsMessage2(const QString &lne)
 
 OutputLineParser::Result IarParser::parseWarningOrErrorOrFatalErrorDetailsMessage1(const QString &lne)
 {
-    const QRegularExpression re("^\"(.+)\",(\\d+)?\\s+(Warning|Error|Fatal error)\\[(.+)\\].+$");
+    static const QRegularExpression re("^\"(.+)\",(\\d+)?\\s+(Warning|Error|Fatal error)\\[(.+)\\].+$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return Status::NotHandled;
@@ -132,7 +132,7 @@ bool IarParser::parseErrorInCommandLineMessage(const QString &lne)
 
 bool IarParser::parseErrorMessage1(const QString &lne)
 {
-    const QRegularExpression re("^(Error)\\[(.+)\\]:\\s(.+)$");
+    static const QRegularExpression re("^(Error)\\[(.+)\\]:\\s(.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;

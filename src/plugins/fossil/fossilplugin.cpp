@@ -744,7 +744,8 @@ bool FossilPluginPrivate::activateCommit()
         if (!branch.isEmpty()) {
             // @TODO: make enquote utility function
             QString enquotedBranch = branch;
-            if (branch.contains(QRegularExpression("\\s")))
+            static const QRegularExpression regexp("\\s");
+            if (branch.contains(regexp))
                 enquotedBranch = QString("\"") + branch + "\"";
             extraOptions << "--branch" << enquotedBranch;
         }

@@ -910,7 +910,7 @@ static QString displayName(const WatchItem *item)
     // prepend '*'s to indicate where autodereferencing has taken place
     if (item->autoDerefCount > 0) {
         // add parentheses for everything except simple variable names (e.g. pointer arithmetics,...)
-        QRegularExpression variableNameRegex("^[a-zA-Z0-9_]+$");
+        static const QRegularExpression variableNameRegex("^[a-zA-Z0-9_]+$");
         bool addParanthesis = !variableNameRegex.match(result).hasMatch();
         if (addParanthesis)
             result = "(" + result;

@@ -240,7 +240,7 @@ int GerritServer::testConnection()
     }
     if (result.exitCode() == CertificateError)
         return CertificateError;
-    const QRegularExpression errorRegexp("returned error: (\\d+)");
+    static const QRegularExpression errorRegexp("returned error: (\\d+)");
     QRegularExpressionMatch match = errorRegexp.match(result.cleanedStdErr());
     if (match.hasMatch())
         return match.captured(1).toInt();

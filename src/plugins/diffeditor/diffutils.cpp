@@ -845,15 +845,15 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
     FileData fileData;
     bool readOk = false;
 
-    const QRegularExpression leftFileRegExp(
+    static const QRegularExpression leftFileRegExp(
           "(?:\\n|^)-{3} "       // "--- "
           "([^\\t\\n]+)"         // "fileName1"
           "(?:\\t[^\\n]*)*\\n"); // optionally followed by: \t anything \t anything ...)
-    const QRegularExpression rightFileRegExp(
+    static const QRegularExpression rightFileRegExp(
           "^\\+{3} "             // "+++ "
           "([^\\t\\n]+)"         // "fileName2"
           "(?:\\t[^\\n]*)*\\n"); // optionally followed by: \t anything \t anything ...)
-    const QRegularExpression binaryRegExp(
+    static const QRegularExpression binaryRegExp(
           "^Binary files ([^\\t\\n]+) and ([^\\t\\n]+) differ$");
 
     // followed either by leftFileRegExp
@@ -895,7 +895,8 @@ static FileData readDiffHeaderAndChunks(QStringView headerAndChunks, bool *ok)
 
 static void readDiffPatch(QPromise<QList<FileData>> &promise, QStringView patch)
 {
-    const QRegularExpression diffRegExp("(?:\\n|^)"          // new line of the beginning of a patch
+    static const QRegularExpression diffRegExp(
+                                        "(?:\\n|^)"          // new line of the beginning of a patch
                                         "("                  // either
                                         "-{3} "              // ---
                                         "[^\\t\\n]+"         // filename1
@@ -1282,7 +1283,7 @@ void DiffUtils::readPatchWithPromise(QPromise<QList<FileData>> &promise, const Q
     promise.setProgressValue(0);
     QStringView croppedPatch = QStringView(patch);
     // Crop e.g. "-- \n2.10.2.windows.1\n\n" at end of file
-    const QRegularExpression formatPatchEndingRegExp("(\\n-- \\n\\S*\\n\\n$)");
+    static const QRegularExpression formatPatchEndingRegExp("(\\n-- \\n\\S*\\n\\n$)");
     const QRegularExpressionMatch match = formatPatchEndingRegExp.match(croppedPatch);
     if (match.hasMatch())
         croppedPatch = croppedPatch.left(match.capturedStart() + 1);

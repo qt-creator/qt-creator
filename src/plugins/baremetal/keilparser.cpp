@@ -49,7 +49,7 @@ void KeilParser::newTask(const Task &task)
 
 OutputLineParser::Result KeilParser::parseArmWarningOrErrorDetailsMessage(const QString &lne)
 {
-    const QRegularExpression re("^\"(.+)\", line (\\d+).*:\\s+(Warning|Error):(\\s+|.+)([#|L].+)$");
+    static const QRegularExpression re("^\"(.+)\", line (\\d+).*:\\s+(Warning|Error):(\\s+|.+)([#|L].+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return Status::NotHandled;
@@ -69,7 +69,7 @@ OutputLineParser::Result KeilParser::parseArmWarningOrErrorDetailsMessage(const 
 
 bool KeilParser::parseArmErrorOrFatalErorrMessage(const QString &lne)
 {
-    const QRegularExpression re("^(Error|Fatal error):\\s(.+)$");
+    static const QRegularExpression re("^(Error|Fatal error):\\s(.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;
@@ -84,7 +84,7 @@ bool KeilParser::parseArmErrorOrFatalErorrMessage(const QString &lne)
 
 OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage1(const QString &lne)
 {
-    const QRegularExpression re("^\\*{3} (WARNING|ERROR) (\\w+) IN LINE (\\d+) OF (.+\\.\\S+): (.+)$");
+    static const QRegularExpression re("^\\*{3} (WARNING|ERROR) (\\w+) IN LINE (\\d+) OF (.+\\.\\S+): (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return Status::NotHandled;
@@ -105,7 +105,7 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage1(con
 
 OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage2(const QString &lne)
 {
-    const QRegularExpression re("^\\*{3} (WARNING|ERROR) (#\\w+) IN (\\d+) \\((.+), LINE \\d+\\): (.+)$");
+    static const QRegularExpression re("^\\*{3} (WARNING|ERROR) (#\\w+) IN (\\d+) \\((.+), LINE \\d+\\): (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return Status::NotHandled;
@@ -126,7 +126,7 @@ OutputLineParser::Result KeilParser::parseMcs51WarningOrErrorDetailsMessage2(con
 
 bool KeilParser::parseMcs51WarningOrFatalErrorMessage(const QString &lne)
 {
-    const QRegularExpression re("^\\*{3} (WARNING|FATAL ERROR) (.+)$");
+    static const QRegularExpression re("^\\*{3} (WARNING|FATAL ERROR) (.+)$");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;
@@ -139,7 +139,7 @@ bool KeilParser::parseMcs51WarningOrFatalErrorMessage(const QString &lne)
 
 bool KeilParser::parseMcs51FatalErrorMessage2(const QString &lne)
 {
-    const QRegularExpression re("^(A|C)51 FATAL[ |-]ERROR");
+    static const QRegularExpression re("^(A|C)51 FATAL[ |-]ERROR");
     const QRegularExpressionMatch match = re.match(lne);
     if (!match.hasMatch())
         return false;
@@ -155,7 +155,7 @@ bool KeilParser::parseMcs51FatalErrorMessage2(const QString &lne)
 
 static bool hasDetailsEntry(const QString &trimmedLine)
 {
-    const QRegularExpression re("^([0-9A-F]{4})");
+    static const QRegularExpression re("^([0-9A-F]{4})");
     const QRegularExpressionMatch match = re.match(trimmedLine);
     return match.hasMatch();
 }

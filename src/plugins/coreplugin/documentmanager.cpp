@@ -803,7 +803,7 @@ FilePath DocumentManager::getSaveFileName(const QString &title, const FilePath &
             // first one from the filter is appended.
             if (selectedFilter && *selectedFilter != allFilesFilterString()) {
                 // Mime database creates filter strings like this: Anything here (*.foo *.bar)
-                const QRegularExpression regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
+                static const QRegularExpression regExp(QLatin1String(".*\\s+\\((.*)\\)$"));
                 QRegularExpressionMatchIterator matchIt = regExp.globalMatch(*selectedFilter);
                 if (matchIt.hasNext()) {
                     bool suffixOk = false;

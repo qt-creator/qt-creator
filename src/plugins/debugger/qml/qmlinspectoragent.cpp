@@ -534,7 +534,7 @@ void QmlInspectorAgent::buildDebugIdHashRecursive(const ObjectReference &ref)
 
     // handle the case where the url contains the revision number encoded.
     // (for object created by the debugger)
-    const QRegularExpression rx("^(.*)_(\\d+):(\\d+)$");
+    static const QRegularExpression rx("^(.*)_(\\d+):(\\d+)$");
     const QRegularExpressionMatch match = rx.match(fileUrl.path());
     if (match.hasMatch()) {
         fileUrl.setPath(match.captured(1));
