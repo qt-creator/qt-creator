@@ -8,14 +8,18 @@
 namespace Utils {
 
 std::optional<EnvironmentItems> EnvironmentDialog::getEnvironmentItems(
-    QWidget *parent, const EnvironmentItems &initial, const QString &placeholderText, Polisher polisher)
+    QWidget *parent,
+    const EnvironmentItems &initial,
+    const QString &placeholderText,
+    Polisher polisher,
+    const QString &dialogTitle)
 {
     return getNameValueItems(
         parent,
         initial,
         placeholderText,
         polisher,
-        Tr::tr("Edit Environment"));
+        dialogTitle.isEmpty() ? Tr::tr("Edit Environment") : dialogTitle);
 }
 
 } // namespace Utils

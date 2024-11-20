@@ -283,7 +283,7 @@ void QnxConfiguration::createKit(const QnxTarget &target)
         k->setSticky(DebuggerKitAspect::id(), true);
         k->setSticky(QmakeProjectManager::Constants::KIT_INFORMATION_ID, true);
 
-        EnvironmentKitAspect::setEnvironmentChanges(k, qnxEnvironmentItems());
+        EnvironmentKitAspect::setBuildEnvChanges(k, qnxEnvironmentItems());
     };
 
     // add kit with device and qt version not sticky

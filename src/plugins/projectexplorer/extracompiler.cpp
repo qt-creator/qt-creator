@@ -277,7 +277,7 @@ Environment ExtraCompiler::buildEnvironment() const
     if (BuildConfiguration *bc = target->activeBuildConfiguration())
         return bc->environment();
 
-    const EnvironmentItems changes = EnvironmentKitAspect::environmentChanges(target->kit());
+    const EnvironmentItems changes = EnvironmentKitAspect::buildEnvChanges(target->kit());
     Environment env = Environment::systemEnvironment();
     env.modify(changes);
     return env;

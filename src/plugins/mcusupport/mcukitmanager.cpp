@@ -247,7 +247,7 @@ public:
         if (McuSupportOptions::kitsNeedQtVersion())
             changes.append({QLatin1String("LD_LIBRARY_PATH"), "%{Qt:QT_INSTALL_LIBS}"});
 
-        EnvironmentKitAspect::setEnvironmentChanges(k, changes);
+        EnvironmentKitAspect::setBuildEnvChanges(k, changes);
     }
 
     static void setKitCMakeOptions(Kit *k,
