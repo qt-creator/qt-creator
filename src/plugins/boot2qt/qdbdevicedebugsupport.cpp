@@ -110,26 +110,6 @@ private:
     Process m_launcher;
 };
 
-// QdbDeviceRunSupport
-
-class QdbDeviceRunSupport : public SimpleTargetRunner
-{
-public:
-    QdbDeviceRunSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setStartModifier([this] {
-            const CommandLine remoteCommand = commandLine();
-            const FilePath remoteExe = remoteCommand.executable();
-            CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
-            cmd.addArg(remoteExe.nativePath());
-            cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
-            setCommandLine(cmd);
-        });
-    }
-};
-
-
 // QdbDeviceDebugSupport
 
 class QdbDeviceDebugSupport final : public Debugger::DebuggerRunTool
@@ -230,7 +210,18 @@ class QdbRunWorkerFactory final : public RunWorkerFactory
 public:
     QdbRunWorkerFactory()
     {
-        setProduct<QdbDeviceRunSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new SimpleTargetRunner(runControl);
+            worker->setStartModifier([worker] {
+                const CommandLine remoteCommand = worker->commandLine();
+                const FilePath remoteExe = remoteCommand.executable();
+                CommandLine cmd{remoteExe.withNewPath(Constants::AppcontrollerFilepath)};
+                cmd.addArg(remoteExe.nativePath());
+                cmd.addArgs(remoteCommand.arguments(), CommandLine::Raw);
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
         addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
