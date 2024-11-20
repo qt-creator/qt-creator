@@ -199,26 +199,6 @@ private:
     StringAspect effectiveEmrunCall{this};
 };
 
-class EmrunRunWorker : public SimpleTargetRunner
-{
-public:
-    EmrunRunWorker(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        runControl->requestWorkerChannel();
-
-        setStartModifier([this, runControl] {
-            const QString browserId =
-                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
-            setCommandLine(emrunCommand(runControl->target(),
-                                        runControl->buildKey(),
-                                        browserId,
-                                        QString::number(runControl->workerChannel().port())));
-            setEnvironment(runControl->buildEnvironment());
-        });
-    }
-};
-
 // Factories
 
 class EmrunRunConfigurationFactory final : public ProjectExplorer::RunConfigurationFactory
@@ -236,7 +216,20 @@ class EmrunRunWorkerFactory final : public ProjectExplorer::RunWorkerFactory
 public:
     EmrunRunWorkerFactory()
     {
-        setProduct<EmrunRunWorker>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new SimpleTargetRunner(runControl);
+            runControl->requestWorkerChannel();
+
+            worker->setStartModifier([worker, runControl] {
+                const QString browserId =
+                    runControl->aspectData<WebBrowserSelectionAspect>()->currentBrowser;
+                worker->setCommandLine(emrunCommand(runControl->target(), runControl->buildKey(),
+                    browserId, QString::number(runControl->workerChannel().port())));
+                worker->setEnvironment(runControl->buildEnvironment());
+            });
+
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::WEBASSEMBLY_RUNCONFIGURATION_EMRUN);
     }
