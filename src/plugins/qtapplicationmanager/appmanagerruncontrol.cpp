@@ -187,31 +187,6 @@ private:
     }
 };
 
-// AppManagerQmlToolingSupport
-
-class AppManagerQmlToolingSupport final : public RunWorker
-{
-public:
-    explicit AppManagerQmlToolingSupport(RunControl *runControl)
-        : RunWorker(runControl)
-    {
-        setId("AppManagerQmlToolingSupport");
-
-        runControl->requestQmlChannel();
-        QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-        auto runner = createInferiorRunner(runControl, services);
-        addStartDependency(runner);
-        addStopDependency(runner);
-
-        auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-        worker->addStartDependency(this);
-        addStopDependency(worker);
-
-        // Make sure the QML Profiler is stopped before the appman-controller
-        runner->addStopDependency(worker);
-    }
-};
-
 class AppManagerRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -284,7 +259,24 @@ class AppManagerQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerQmlToolingWorkerFactory()
     {
-        setProduct<AppManagerQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new RunWorker(runControl);
+            worker->setId("AppManagerQmlToolingSupport");
+
+            runControl->requestQmlChannel();
+            QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
+            auto runner = createInferiorRunner(runControl, services);
+            worker->addStartDependency(runner);
+            worker->addStopDependency(runner);
+
+            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            extraWorker->addStartDependency(worker);
+            worker->addStopDependency(extraWorker);
+
+            // Make sure the QML Profiler is stopped before the appman-controller
+            runner->addStopDependency(extraWorker);
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
