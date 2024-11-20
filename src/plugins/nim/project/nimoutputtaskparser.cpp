@@ -58,25 +58,25 @@ void NimParserTest::testNimParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
 
     // negative tests
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
-            << "Sometext\n" << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
-            << QString() << "Sometext\n"
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     // positive tests
     QTest::newRow("Parse error string")
             << QString::fromLatin1("main.nim(23, 1) Error: undeclared identifier: 'x'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks({CompileTask(Task::Error,
                                   "Error: undeclared identifier: 'x'",
                                   FilePath::fromUserInput("main.nim"), 23)});
@@ -84,7 +84,7 @@ void NimParserTest::testNimParser_data()
     QTest::newRow("Parse warning string")
             << QString::fromLatin1("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks({CompileTask(Task::Warning,
                                   "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
                                    FilePath::fromUserInput("lib/pure/parseopt.nim"), 56)});
@@ -97,8 +97,8 @@ void NimParserTest::testNimParser()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

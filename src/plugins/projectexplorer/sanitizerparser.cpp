@@ -167,8 +167,8 @@ private slots:
     void testParser_data()
     {
         QTest::addColumn<QString>("input");
-        QTest::addColumn<Tasks >("tasks");
-        QTest::addColumn<QString>("childStdErrLines");
+        QTest::addColumn<Tasks>("tasks");
+        QTest::addColumn<QStringList>("childStdErrLines");
 
         const QString odrInput = R"(=================================================================
 ==3792966==ERROR: AddressSanitizer: odr-violation (0x55f0cfaeddc0):
@@ -216,7 +216,7 @@ SUMMARY: AddressSanitizer: odr-violation: global 'lre_id_continue_table_ascii' a
         QTest::newRow("odr violation")
                 << odrInput
                 << QList<Task>{odrTask}
-                << (odrNonMatchedLines.join('\n') + "\n");
+                << odrNonMatchedLines;
 
         const QString leakInput = R"(
 ==61167==ERROR: LeakSanitizer: detected memory leaks
@@ -230,7 +230,7 @@ Direct leak of 19 byte(s) in 1 object(s) allocated from:
     #5 0x7eff1ea1c041 in __libc_start_main ../csu/libc-start.c:308
 
 SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
-        const QString leakNonMatchedLines = "\n";
+        const QStringList leakNonMatchedLines{QString()};
         const Task leakTask(Task::Error,
                 QString("AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).") + leakInput,
                 {}, -1, Constants::TASK_CATEGORY_SANITIZER);
@@ -243,7 +243,7 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         testbench.setLineParsers({new SanitizerParser});
         QFETCH(QString, input);
         QFETCH(Tasks, tasks);
-        QFETCH(QString, childStdErrLines);
+        QFETCH(QStringList, childStdErrLines);
         testbench.testParsing(input, OutputParserTester::STDERR, tasks, {}, childStdErrLines);
     }
 };

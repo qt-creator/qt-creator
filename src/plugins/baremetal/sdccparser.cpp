@@ -159,17 +159,17 @@ void SdccParserTest::testSdccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<Tasks >("tasks");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
+    QTest::addColumn<Tasks>("tasks");
 
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
-            << "Sometext\n" << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
-            << QString() << "Sometext\n"
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     // Compiler messages.
@@ -177,8 +177,8 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Assembler error")
             << QString::fromLatin1("c:\\foo\\main.c:63: Error: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -187,8 +187,8 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Compiler single line warning")
             << QString::fromLatin1("c:\\foo\\main.c:63: warning 123: Some warning")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "Some warning",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -199,8 +199,8 @@ void SdccParserTest::testSdccOutputParsers_data()
                                    "details #1\n"
                                    "  details #2")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "Some warning\n"
                                        "details #1\n"
@@ -211,8 +211,8 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Compiler simple single line error")
             << QString::fromLatin1("c:\\foo\\main.c:63: error: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -221,8 +221,8 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Compiler single line error")
             << QString::fromLatin1("c:\\foo\\main.c:63: error 123: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -233,8 +233,8 @@ void SdccParserTest::testSdccOutputParsers_data()
                                    "details #1\n"
                                    "  details #2")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error\n"
                                        "details #1\n"
@@ -245,8 +245,8 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Compiler syntax error")
             << QString::fromLatin1("c:\\foo\\main.c:63: syntax error: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -255,32 +255,32 @@ void SdccParserTest::testSdccOutputParsers_data()
     QTest::newRow("Compiler bad option error")
             << QString::fromLatin1("at 1: error 123: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Some error"));
 
     QTest::newRow("Compiler bad option warning")
             << QString::fromLatin1("at 1: warning 123: Some warning")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "Some warning"));
 
     QTest::newRow("Linker warning")
             << QString::fromLatin1("?ASlink-Warning-Couldn't find library 'foo.lib'")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "Couldn't find library 'foo.lib'"));
 
     QTest::newRow("Linker error")
             << QString::fromLatin1("?ASlink-Error-<cannot open> : \"foo.rel\"")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "<cannot open> : \"foo.rel\""));
 }
@@ -292,8 +292,8 @@ void SdccParserTest::testSdccOutputParsers()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

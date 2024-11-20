@@ -292,8 +292,8 @@ void ProjectExplorerTest::testGccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
 
     auto compileTask = [](Task::TaskType type,
@@ -318,17 +318,17 @@ void ProjectExplorerTest::testGccOutputParsers_data()
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext\n") << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
 
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext\n")
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     QTest::newRow("ar output")
             << QString::fromLatin1("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a\n")
+            << QStringList() << QStringList("../../../../x86/i686-unknown-linux-gnu/bin/i686-unknown-linux-gnu-ar: creating lib/libSkyView.a")
             << Tasks();
 
     QTest::newRow("GCCE error")
@@ -336,7 +336,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "/temp/test/untitled8/main.cpp:9: error: `sfasdf' undeclared (first use this function)\n"
                                    "/temp/test/untitled8/main.cpp:9: error: (Each undeclared identifier is reported only once for each function it appears in.)")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "`sfasdf' undeclared (first use this function)\n"
@@ -358,7 +358,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("GCCE warning")
             << QString::fromLatin1("/src/corelib/global/qglobal.h:1635: warning: inline function `QDebug qDebug()' used but never defined")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "inline function `QDebug qDebug()' used but never defined",
@@ -368,7 +368,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("warning")
             << QString::fromLatin1("main.cpp:7:2: warning: Some warning")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "Some warning",
@@ -378,7 +378,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("GCCE #error")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:7: #error Symbian error")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "#error Symbian error",
@@ -389,7 +389,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("GCCE #warning1")
             << QString::fromLatin1("C:\\temp\\test\\untitled8\\main.cpp:8: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "#warning Symbian warning",
@@ -399,7 +399,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("GCCE #warning2")
             << QString::fromLatin1("/temp/test/untitled8/main.cpp:8:2: warning: #warning Symbian warning")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "#warning Symbian warning",
@@ -419,7 +419,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "C:\\temp\\test\\untitled8/main.cpp:8: undefined reference to `MainWindow::doSomething()'\n"
                                    "collect2: ld returned 1 exit status")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "undefined reference to `MainWindow::doSomething()'\n"
@@ -443,7 +443,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "C:\\temp\\test\\untitled8/main.cpp:(.text+0x40): undefined reference to `MainWindow::doSomething()'\n"
                                    "collect2: ld returned 1 exit status")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "undefined reference to `MainWindow::doSomething()'\n"
@@ -457,7 +457,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("linker: dll format not recognized")
             << QString::fromLatin1("c:\\Qt\\4.6\\lib/QtGuid4.dll: file not recognized: File format not recognized")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "file not recognized: File format not recognized",
@@ -466,7 +466,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("Invalid rpath")
             << QString::fromLatin1("g++: /usr/local/lib: No such file or directory")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "/usr/local/lib: No such file or directory"));
@@ -476,7 +476,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2114: warning: unused variable 'index'\n"
                                    "../../../../master/src/plugins/debugger/gdb/gdbengine.cpp:2115: warning: unused variable 'handler'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Warning,
                                "unused variable 'index'\n"
@@ -496,7 +496,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected primary-expression before ':' token\n"
                                    "/home/code/src/creator/src/plugins/projectexplorer/gnumakeparser.cpp:264: error: expected ';' before ':' token")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "expected primary-expression before ':' token\n"
@@ -519,14 +519,14 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
                                    "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work\n"
-                                                "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead\n")
+            << QStringList() << QStringList{"distcc[73168] (dcc_get_hostlist) Warning: no hostlist is set; can't distribute work",
+                                            "distcc[73168] (dcc_build_somewhere) Warning: failed to distribute, running locally instead"}
             << Tasks();
 
     QTest::newRow("ld warning (QTCREATORBUG-905)")
             << QString::fromLatin1("ld: warning: Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Warning,
                          "Core::IEditor* QVariant::value<Core::IEditor*>() const has different visibility (hidden) in .obj/debug-shared/openeditorsview.o and (default) in .obj/debug-shared/editormanager.o"));
@@ -534,7 +534,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("ld fatal")
             << QString::fromLatin1("ld: fatal: Symbol referencing errors. No output written to testproject")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Error,
                          "Symbol referencing errors. No output written to testproject"));
@@ -542,13 +542,13 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("Teambuilder issues")
             << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("TeamBuilder Client:: error: could not find Scheduler, running Job locally...\n")
+            << QStringList() << QStringList("TeamBuilder Client:: error: could not find Scheduler, running Job locally...")
             << Tasks();
 
     QTest::newRow("note")
             << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Unknown,
                                 "initialized from here",
@@ -559,7 +559,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << QString::fromLatin1("/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c: In static member function 'static std::_Rb_tree_node_base* std::_Rb_global<_Dummy>::_Rebalance_for_erase(std::_Rb_tree_node_base*, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&, std::_Rb_tree_node_base*&)':\n"
                                    "/Qt/4.6.2-Symbian/s60sdk/epoc32/include/stdapis/stlport/stl/_tree.c:194: warning: suggest explicit braces to avoid ambiguous 'else'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << compileTask(Task::Warning,
                                 "suggest explicit braces to avoid ambiguous 'else'\n"
@@ -577,13 +577,13 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("rm false positive")
             << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory\n")
+            << QStringList() << QStringList("rm: cannot remove `release/moc_mainwindow.cpp': No such file or directory")
             << Tasks();
 
     QTest::newRow("ld: missing library")
             << QString::fromLatin1("/usr/bin/ld: cannot find -ldoesnotexist")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "cannot find -ldoesnotexist"));
@@ -593,7 +593,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "../../scriptbug/main.cpp:22: instantiated from here\n"
                                    "../../scriptbug/main.cpp:8: warning: unused variable c")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << compileTask(Task::Unknown,
                                 "In function void foo(i) [with i = double]:\n"
@@ -611,7 +611,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("instantiated from here")
             << QString::fromLatin1("main.cpp:10: instantiated from here  ")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Unknown,
                                 "instantiated from here",
@@ -621,7 +621,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("In constructor")
             << QString::fromLatin1("/dev/creator/src/plugins/find/basetextfind.h: In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Unknown,
                                 "In constructor 'Find::BaseTextFind::BaseTextFind(QTextEdit*)':",
@@ -634,7 +634,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "../../scriptbug/main.cpp:22: instantiated from here\n"
                                    "../../scriptbug/main.cpp:5: warning: unused parameter v")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << compileTask(Task::Unknown,
                                 "At global scope:\n"
@@ -657,7 +657,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("gcc 4.5 fatal error")
             << QString::fromLatin1("/home/code/test.cpp:54:38: fatal error: test.moc: No such file or directory")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Error,
                                 "test.moc: No such file or directory",
@@ -678,7 +678,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "M:\\Development\\x64\\QtPlot/qplotaxis.cpp:26: undefined reference to `vtable for QPlotAxis'\n"
                                    "collect2: ld returned 1 exit status")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "undefined reference to `vtable for QPlotAxis'\n"
@@ -701,7 +701,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "../stl/main.cpp: At global scope:\n"
                                    "../stl/main.cpp:31: warning: unused parameter index")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Unknown,
                                "In member function typename _Vector_base<_Tp, _Alloc>::_Tp_alloc_type::const_reference Vector<_Tp, _Alloc>::at(int) [with _Tp = Point, _Alloc = Allocator<Point>]:\n"
@@ -743,7 +743,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "C:/Symbian_SDK/epoc32/include/e32cmn.inl: In member function 'SSecureId::operator const TSecureId&() const':\n"
                                    "C:/Symbian_SDK/epoc32/include/e32cmn.inl:7094: warning: returning reference to temporary")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
                                  "returning reference to temporary\n"
                                  "In file included from C:/Symbian_SDK/epoc32/include/e32cmn.h:6792,\n"
@@ -759,7 +759,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                  "   28 |     memset(this, 0, sizeof(PerfEventAttributes));\n"
                                  "      |                                                ^")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
                                  "‘void* memset(void*, int, size_t)’ clearing an object of non-trivial type ‘class PerfEventAttributes’; use assignment or value-initialization instead [-Wclass-memaccess]\n"
                                  "perfattributes.cpp: In constructor ‘PerfEventAttributes::PerfEventAttributes()’:\n"
@@ -773,7 +773,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("QTCREATORBUG-2206")
             << QString::fromLatin1("../../../src/XmlUg/targetdelete.c: At top level:")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Unknown,
                                 "At top level:",
@@ -784,7 +784,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "                 from <command line>:26:\n"
                                    "/Symbian/SDK/epoc32/include/variant/Symbian_OS.hrh:1134:26: warning: no newline at end of file")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(
                       Task::Warning,
                       "no newline at end of file\n"
@@ -803,7 +803,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("Linker fail (release build)")
             << QString::fromLatin1("release/main.o:main.cpp:(.text+0x42): undefined reference to `MainWindow::doSomething()'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "undefined reference to `MainWindow::doSomething()'",
@@ -813,7 +813,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << QString::fromLatin1("../../../src/shared/proparser/profileevaluator.cpp: In member function 'ProFileEvaluator::Private::VisitReturn ProFileEvaluator::Private::evaluateConditionalFunction(const ProString&, const ProStringList&)':\n"
                                    "../../../src/shared/proparser/profileevaluator.cpp:2817:9: warning: case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << compileTask(Task::Warning,
                                 "case value '0' not in enumerated type 'ProFileEvaluator::Private::TestFunc'\n"
@@ -828,7 +828,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
             << QString::fromLatin1("In file included from <command-line>:0:0:\n"
                                    "./mw.h:4:0: warning: \"STUPID_DEFINE\" redefined")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(
                    Task::Warning,
                    "\"STUPID_DEFINE\" redefined\n"
@@ -844,7 +844,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "file.cpp:87:10: instantiated from here\n"
                                    "file.h:21:5: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << compileTask(Task::Unknown,
                                 "In function 'void UnitTest::CheckEqual(UnitTest::TestResults&, const Expected&, const Actual&, const UnitTest::TestDetails&) [with Expected = unsigned int, Actual = int]':\n"
@@ -862,7 +862,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("linker error") // QTCREATORBUG-3107
             << QString::fromLatin1("cns5k_ins_parser_tests.cpp:(.text._ZN20CNS5kINSParserEngine21DropBytesUntilStartedEP14CircularBufferIhE[CNS5kINSParserEngine::DropBytesUntilStarted(CircularBuffer<unsigned char>*)]+0x6d): undefined reference to `CNS5kINSPacket::SOH_BYTE'")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "undefined reference to `CNS5kINSPacket::SOH_BYTE'",
@@ -871,7 +871,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("libimf warning")
             << QString::fromLatin1("libimf.so: warning: warning: feupdateenv is not implemented and will always fail")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                  << CompileTask(Task::Warning,
                                 "warning: feupdateenv is not implemented and will always fail",
@@ -883,7 +883,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    " #include <QtGui/QAction>\n"
                                    "                         ^")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(
                    Task::Error,
                    "QtGui/QAction: No such file or directory\n"
@@ -905,7 +905,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "/usr/include/qt4/QtCore/qstring.h:597:5: error: 'QString::QString(const char*)' is private\n"
                                    "main.cpp:7:22: error: within this context")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(
                    Task::Error,
                    "'QString::QString(const char*)' is private\n"
@@ -931,7 +931,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "bar.o:/home/user/test/bar.cpp:4: first defined here\n"
                                    "collect2: error: ld returned 1 exit status")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << compileTask(Task::Error,
                                "multiple definition of `foo()'\n"
@@ -955,7 +955,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                                    "bar.o:(.data+0x0): first defined here\n"
                                    "collect2: error: ld returned 1 exit status")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "multiple definition of `foo'",
@@ -971,7 +971,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                "  \"SvgLayoutTest()\", referenced from:\n"
                "      _main in main.cpp.o"
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks({CompileTask(Task::Error,
                               "Undefined symbols for architecture x86_64:\n"
                               "Undefined symbols for architecture x86_64:\n"
@@ -982,7 +982,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("ld: undefined member function reference")
             << "obj/gtest-clang-printing.o:gtest-clang-printing.cpp:llvm::VerifyDisableABIBreakingChecks: error: undefined reference to 'llvm::DisableABIBreakingChecks'"
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                                "error: undefined reference to 'llvm::DisableABIBreakingChecks'",
@@ -1003,7 +1003,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> referenced by test.cpp:5\n"
                ">>>               /tmp/ccg8pzRr.o:(main)\n"
                "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << Tasks({
                    errorTask("ld.lld: error: undefined symbol: func()"),
                    unknownTask("referenced by test.cpp:5", "test.cpp", 5),
@@ -1015,8 +1015,8 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)\n"
                ">>>               /tmp/Debug4/untitled4.5abe06ac/3a52ce780950d4d9/main.cpp.o:(main)\n"
                "clang-8: error: linker command failed with exit code 1 (use -v to see invocation)"
-            << OutputParserTester::STDERR << QString()
-            << QString("clang-8: error: linker command failed with exit code 1 (use -v to see invocation)\n")
+            << OutputParserTester::STDERR << QStringList()
+            << QStringList("clang-8: error: linker command failed with exit code 1 (use -v to see invocation)")
             << Tasks{
                    errorTask("ld.lld: error: undefined symbol: someFunc()"),
                    unknownTask("referenced by main.cpp:10 (/tmp/untitled4/main.cpp:10)",
@@ -1029,7 +1029,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> referenced by test.cpp\n"
                ">>>               /tmp/ccvjyJph.o:(main)\n"
                "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << Tasks{
                    errorTask("ld.lld: error: undefined symbol: func()"),
                    unknownTask("referenced by test.cpp", "test.cpp"),
@@ -1041,7 +1041,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                 << "lld-link: error: undefined symbol: __Z4funcv\n"
                    ">>> referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)\n"
                    "collect2.exe: error: ld returned 1 exit status"
-                << OutputParserTester::STDERR << QString() << QString()
+                << OutputParserTester::STDERR << QStringList() << QStringList()
                 << Tasks{
                        errorTask("lld-link: error: undefined symbol: __Z4funcv"),
                        unknownTask("referenced by C:\\Users\\orgads\\AppData\\Local\\Temp\\cccApKoz.o:(.text)",
@@ -1056,7 +1056,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> defined at test1.cpp:1\n"
                ">>>            test1.o:(.text+0x0)\n"
                "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << Tasks{
                    errorTask("ld.lld: error: duplicate symbol: func()"),
                    unknownTask("defined at test1.cpp:1", "test1.cpp", 1),
@@ -1072,7 +1072,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> defined at main.cpp:5 (/tmp/untitled3/main.cpp:5)\n"
                ">>>            /tmp/Debug/untitled3.dade828b/3a52ce780950d4d9/main.cpp.o:(.text+0x0)\n"
                "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << Tasks{
                    errorTask("ld.lld: error: duplicate symbol: theFunc()"),
                    unknownTask("defined at file.cpp:1 (/tmp/untitled3/file.cpp:1)",
@@ -1092,7 +1092,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                ">>> defined at test1.cpp\n"
                ">>>            test1.o:(.text+0x0)\n"
                "collect2: error: ld returned 1 exit status"
-            << OutputParserTester::STDERR << QString() << QString()
+            << OutputParserTester::STDERR << QStringList() << QStringList()
             << Tasks{
                    errorTask("ld.lld: error: duplicate symbol: func()"),
                    unknownTask("defined at test1.cpp", "test1.cpp"),
@@ -1105,7 +1105,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
         QTest::newRow("lld: multiple definitions with mingw")
                 << "lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o\n"
                    "collect2.exe: error: ld returned 1 exit status"
-                << OutputParserTester::STDERR << QString() << QString()
+                << OutputParserTester::STDERR << QStringList() << QStringList()
                 << Tasks{
                        errorTask("lld-link: error: duplicate symbol: __Z4funcv in test1.o and in test2.o"),
                        errorTask("collect2.exe: error: ld returned 1 exit status", {})};
@@ -1114,7 +1114,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("Mac: ranlib warning")
             << QString::fromLatin1("ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "file: lib/libtest.a(Test0.cpp.o) has no symbols"));
@@ -1122,7 +1122,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("Mac: ranlib warning2")
             << QString::fromLatin1("/path/to/XCode/and/ranlib: file: lib/libtest.a(Test0.cpp.o) has no symbols")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                                "file: lib/libtest.a(Test0.cpp.o) has no symbols"));
@@ -1165,7 +1165,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                        "    |                            ~~~~~~~~~~~~^~~"
                )
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
                                  "implicitly-declared ‘constexpr QVariant::Private& QVariant::Private::operator=(const QVariant::Private&)’ is deprecated [-Wdeprecated-copy]\n"
                                  "In file included from /usr/include/qt/QtCore/qlocale.h:43,\n"
@@ -1251,7 +1251,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                        "  465 |         at(newSize) = 0;\n"
                        "      |         ~~~~~~~~~~~~^~~")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
                                  "writing 1 byte into a region of size 0 [-Wstringop-overflow=]\n"
                                  "In file included from smallstringvector.h:30,\n"
@@ -1288,7 +1288,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "  110 |     T value;\n"
                    "      |       ^~~~~")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Error,
                                  "‘QMapNode<Key, T>::value’ has incomplete type\n"
                                  "In file included from qmap.h:1,\n"
@@ -1327,7 +1327,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "                ^\n"
                    "1 warning generated.")
             << OutputParserTester::STDERR
-            << QString() << QString("1 warning generated.\n")
+            << QStringList() << QStringList("1 warning generated.")
             << Tasks{compileTask(Task::Warning,
                                  "comparison of integers of different signs: 'const unsigned long long' and 'const int' [-Wsign-compare]\n"
                                  "In file included from tst_addresscache.cpp:21:\n"
@@ -1359,7 +1359,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "  365 |     default:\n"
                    "      |     ^~~~~~~")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{compileTask(Task::Warning,
                                  "this statement may fall through [-Wimplicit-fallthrough=]\n"
                                  "In file included from qmlprofilerstatisticsmodel.h:31,\n"
@@ -1384,7 +1384,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                    "cc1plus: warning: -Wformat-security ignored without -Wformat [-Wformat-security]\n"
                    "compilation terminated.")
             << OutputParserTester::STDERR
-            << QString() << QString("compilation terminated.\n")
+            << QStringList() << QStringList("compilation terminated.")
             << Tasks{
                    CompileTask(Task::Error, "one or more PCH files were found, but they were invalid"),
                    CompileTask(Task::Error, "use -Winvalid-pch for more information"),
@@ -1394,7 +1394,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     QTest::newRow("clean path")
             << QString("/home/tim/path/to/sources/./and/more.h:15:22: error: blubb")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks{CompileTask(Task::Error, "blubb", "/home/tim/path/to/sources/and/more.h",
                                  15, 22)};
 
@@ -1406,7 +1406,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
                              "   79 |             apply = [p](XInterface *x) { doit_nest(x, p); };\n"
                              "      |                                          ~~~~~~~~^~~~~")
         << OutputParserTester::STDERR
-        << QString() << QString()
+        << QStringList() << QStringList()
         << (Tasks{compileTask(
                Task::Error,
                "use of deleted function ‘Utils::BaseAspect::BaseAspect(const Utils::BaseAspect&)’\n"
@@ -1436,8 +1436,8 @@ void ProjectExplorerTest::testGccOutputParsers()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

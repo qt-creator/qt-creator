@@ -91,23 +91,23 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext\n") << QString()
+        << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext\n")
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     QTest::newRow("qMake error")
             << QString::fromLatin1("Project ERROR: undefined file")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "undefined file"));
@@ -115,7 +115,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
     QTest::newRow("qMake Parse Error")
             << QString::fromLatin1("e:\\project.pro:14: Parse Error ('sth odd')")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Parse Error ('sth odd')",
@@ -125,7 +125,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
     QTest::newRow("qMake warning")
             << QString::fromLatin1("Project WARNING: bearer module might require ReadUserData capability")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "bearer module might require ReadUserData capability"));
@@ -133,7 +133,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
     QTest::newRow("qMake warning 2")
             << QString::fromLatin1("WARNING: Failure to find: blackberrycreatepackagestepconfigwidget.cpp")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "Failure to find: blackberrycreatepackagestepconfigwidget.cpp"));
@@ -141,7 +141,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
     QTest::newRow("qMake warning with location")
             << QString::fromLatin1("WARNING: e:\\QtSDK\\Simulator\\Qt\\msvc2008\\lib\\qtmaind.prl:1: Unescaped backslashes are deprecated.")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "Unescaped backslashes are deprecated.",
@@ -150,7 +150,7 @@ void QmakeOutputParserTest::testQmakeOutputParsers_data()
     QTest::newRow("moc note")
             << QString::fromLatin1("/home/qtwebkithelpviewer.h:0: Note: No relevant classes found. No output generated.")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Unknown,
                         "Note: No relevant classes found. No output generated.",
@@ -164,8 +164,8 @@ void QmakeOutputParserTest::testQmakeOutputParsers()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

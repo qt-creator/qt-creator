@@ -266,17 +266,17 @@ void KeilParserTest::testKeilOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
 
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
-            << "Sometext\n" << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
-            << QString() << "Sometext\n"
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     // ARM compiler specific patterns.
@@ -284,8 +284,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("ARM: No details warning")
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Warning: #1234: Some warning")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "#1234: Some warning",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -296,8 +296,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "      int f;\n"
                                    "          ^")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "#1234: Some warning\n"
                                        "      int f;\n"
@@ -308,8 +308,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("ARM: No details error")
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 63: Error: #1234: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "#1234: Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -318,8 +318,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("ARM: No details error with column")
             << QString::fromLatin1("\"flash.sct\", line 51 (column 20): Error: L1234: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "L1234: Some error",
                                        FilePath::fromUserInput("flash.sct"),
@@ -330,8 +330,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "      int f;\n"
                                    "          ^")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "#1234: Some error\n"
                                        "      int f;\n"
@@ -342,8 +342,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("ARM: At end of source")
             << QString::fromLatin1("\"c:\\foo\\main.c\", line 71: Error: At end of source:  #40: Some error")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "#40: Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
@@ -352,8 +352,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("ARM: Starts with error")
             << QString::fromLatin1("Error: L6226E: Some error.")
             << OutputParserTester::STDERR
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "L6226E: Some error."));
 
@@ -363,8 +363,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Assembler simple warning")
             << QString::fromLatin1("*** WARNING #A9 IN 15 (c:\\foo\\dscr.a51, LINE 15): Some warning")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "#A9: Some warning",
                                        FilePath::fromUserInput("c:\\foo\\dscr.a51"),
@@ -373,8 +373,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Assembler simple error")
             << QString::fromLatin1("*** ERROR #A9 IN 15 (c:\\foo\\dscr.a51, LINE 15): Some error")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "#A9: Some error",
                                        FilePath::fromUserInput("c:\\foo\\dscr.a51"),
@@ -385,8 +385,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "  Some detail 1\n"
                                    "  Some detail N")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Assembler fatal error\n"
                                        "  Some detail 1\n"
@@ -397,8 +397,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "*** ___^\n"
                                    "*** ERROR #A45 IN 28 (d:\\foo.a51, LINE 28): Some error")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "#A45: Some error\n"
                                        "       Some detail\n"
@@ -410,8 +410,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Compiler simple warning")
             << QString::fromLatin1("*** WARNING C123 IN LINE 13 OF c:\\foo.c: Some warning")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "C123: Some warning",
                                        FilePath::fromUserInput("c:\\foo.c"),
@@ -420,8 +420,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Compiler extended warning")
             << QString::fromLatin1("*** WARNING C123 IN LINE 13 OF c:\\foo.c: Some warning : 'extended text'")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "C123: Some warning : 'extended text'",
                                        FilePath::fromUserInput("c:\\foo.c"),
@@ -430,8 +430,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Compiler simple error")
             << QString::fromLatin1("*** ERROR C123 IN LINE 13 OF c:\\foo.c: Some error")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "C123: Some error",
                                        FilePath::fromUserInput("c:\\foo.c"),
@@ -440,8 +440,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Compiler extended error")
             << QString::fromLatin1("*** ERROR C123 IN LINE 13 OF c:\\foo.c: Some error : 'extended text'")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "C123: Some error : 'extended text'",
                                        FilePath::fromUserInput("c:\\foo.c"),
@@ -452,8 +452,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "  Some detail 1\n"
                                    "  Some detail N")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "Compiler fatal error\n"
                                        "  Some detail 1\n"
@@ -464,8 +464,8 @@ void KeilParserTest::testKeilOutputParsers_data()
             << QString::fromLatin1("*** WARNING L16: Some warning\n"
                                    "    Some detail 1")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Warning,
                                        "L16: Some warning\n"
                                        "    Some detail 1"));
@@ -473,8 +473,8 @@ void KeilParserTest::testKeilOutputParsers_data()
     QTest::newRow("MCS51: Linker simple fatal error")
             << QString::fromLatin1("*** FATAL ERROR L456: Some error")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "L456: Some error"));
 
@@ -483,8 +483,8 @@ void KeilParserTest::testKeilOutputParsers_data()
                                    "    Some detail 1\n"
                                    "    Some detail N")
             << OutputParserTester::STDOUT
-            << QString()
-            << QString()
+            << QStringList()
+            << QStringList()
             << (Tasks() << CompileTask(Task::Error,
                                        "L456: Some error\n"
                                        "    Some detail 1\n"
@@ -498,8 +498,8 @@ void KeilParserTest::testKeilOutputParsers()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

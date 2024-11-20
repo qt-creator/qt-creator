@@ -105,23 +105,23 @@ void ProjectExplorerTest::testLinuxIccOutputParsers_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext\n") << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext\n")
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     QTest::newRow("pch creation")
             << QString::fromLatin1("\".pch/Qt5Core.pchi.cpp\": creating precompiled header file \".pch/Qt5Core.pchi\"")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << Tasks();
 
     QTest::newRow("undeclared function")
@@ -130,7 +130,7 @@ void ProjectExplorerTest::testLinuxIccOutputParsers_data()
                                    "      ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("\n")
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                            "identifier \"f\" is undefined\n"
@@ -146,7 +146,7 @@ void ProjectExplorerTest::testLinuxIccOutputParsers_data()
                                    "      ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("\n")
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                            "identifier \"f\" is undefined\n"
@@ -161,7 +161,7 @@ void ProjectExplorerTest::testLinuxIccOutputParsers_data()
                                    "        ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("\n")
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Error,
                            "function \"AClass::privatefunc\" (declared at line 4 of \"main.h\") is inaccessible\n"
@@ -175,7 +175,7 @@ void ProjectExplorerTest::testLinuxIccOutputParsers_data()
                                    "             ^\n"
                                    "\n")
             << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("\n")
+            << QStringList() << QStringList()
             << (Tasks()
                 << CompileTask(Task::Warning,
                            "use of \"=\" where \"==\" may have been intended\n"
@@ -191,8 +191,8 @@ void ProjectExplorerTest::testLinuxIccOutputParsers()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }

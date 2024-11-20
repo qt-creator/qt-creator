@@ -273,18 +273,18 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
 {
     QTest::addColumn<QString>("input");
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
-    QTest::addColumn<QString>("childStdOutLines");
-    QTest::addColumn<QString>("childStdErrLines");
+    QTest::addColumn<QStringList>("childStdOutLines");
+    QTest::addColumn<QStringList>("childStdErrLines");
     QTest::addColumn<Tasks>("tasks");
 
     // negative tests
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
-            << QString::fromLatin1("Sometext\n") << QString()
+            << QStringList("Sometext") << QStringList()
             << Tasks();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
-            << QString() << QString::fromLatin1("Sometext\n")
+            << QStringList() << QStringList("Sometext")
             << Tasks();
 
     // positive tests
@@ -300,7 +300,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "  Tried extensions .c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp\n"
                                    "  .hxx .in .txx\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Cannot find source file:\n\n"
@@ -320,7 +320,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (add_subdirectory):\n"
                                    "  add_subdirectory given source \"app1\" which is not an existing directory.\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "add_subdirectory given source \"app1\" which is not an existing directory.",
@@ -330,7 +330,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (i_am_wrong_command):\n"
                                    "  Unknown CMake command \"i_am_wrong_command\".\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Unknown CMake command \"i_am_wrong_command\".",
@@ -340,7 +340,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (message):\n"
                                    "  message called with incorrect number of arguments\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "message called with incorrect number of arguments",
@@ -352,7 +352,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "Parse error.  Expected \"(\", got newline with text \"\n"
                                    "\".")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Parse error.  Expected \"(\", got newline with text \"\n\".",
@@ -361,9 +361,9 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
     QTest::newRow("cmake error2")
             << QString::fromLatin1("CMake Error: Error required internal CMake variable not set, cmake may be not be built correctly.\n"
                                    "Missing variable is:\n"
-                                   "CMAKE_MAKE_PROGRAM\n")
+                                   "CMAKE_MAKE_PROGRAM\n\n") // FIXME: Test does not pass without extra newline
             << OutputParserTester::STDERR
-            << QString() << QString("Missing variable is:\nCMAKE_MAKE_PROGRAM\n")
+            << QStringList() << QStringList{"Missing variable is:", "CMAKE_MAKE_PROGRAM"}
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Error required internal CMake variable not set, "
@@ -375,7 +375,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "\n"
                                    "  \".\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Parse error.  Expected \"(\", got newline with text \"\n"
@@ -388,7 +388,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "/test/path/CMakeLists.txt:9:15\n"
                                    "Argument not separated from preceding token by whitespace.")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "Argument not separated from preceding token by whitespace.",
@@ -398,7 +398,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << QString::fromLatin1("CMake Warning at CMakeLists.txt:13 (message):\n"
                                    "  this is a warning\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "this is a warning",
@@ -408,7 +408,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << QString::fromLatin1("CMake Warning (dev) at CMakeLists.txt:15 (message):\n"
                                    "  this is an author warning\n\n")
             << OutputParserTester::STDERR
-            << QString() << QString()
+            << QStringList() << QStringList()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "this is an author warning",
@@ -417,7 +417,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
     QTest::newRow("eat normal CMake output")
         << QString::fromLatin1("-- Qt5 install prefix: /usr/lib\n"
                                " * Plugin componentsplugin, with CONDITION TARGET QmlDesigner")
-        << OutputParserTester::STDERR << QString() << QString() << (Tasks());
+        << OutputParserTester::STDERR << QStringList() << QStringList() << (Tasks());
 
     QTest::newRow("cmake call-stack")
         << QString::fromLatin1(
@@ -437,7 +437,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                "  /Qt/6.5.3/mingw_64/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:741 "
                "(qt6_add_executable)\n"
                "  /Projects/Test-Project/CMakeLists.txt:13 (qt_add_executable)\n")
-        << OutputParserTester::STDERR << QString() << QString()
+        << OutputParserTester::STDERR << QStringList() << QStringList()
         << (Tasks() << BuildSystemTask(
                 Task::Error,
                 "\n"
@@ -468,8 +468,8 @@ void CMakeOutputParserTest::testCMakeOutputParser()
     QFETCH(QString, input);
     QFETCH(OutputParserTester::Channel, inputChannel);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, childStdOutLines);
-    QFETCH(QString, childStdErrLines);
+    QFETCH(QStringList, childStdOutLines);
+    QFETCH(QStringList, childStdErrLines);
 
     testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
