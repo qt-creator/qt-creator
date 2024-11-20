@@ -147,32 +147,6 @@ void QdbDeviceDebugSupport::start()
     DebuggerRunTool::start();
 }
 
-// QdbDeviceQmlProfilerSupport
-
-class QdbDeviceQmlToolingSupport final : public RunWorker
-{
-public:
-    explicit QdbDeviceQmlToolingSupport(RunControl *runControl);
-};
-
-QdbDeviceQmlToolingSupport::QdbDeviceQmlToolingSupport(RunControl *runControl)
-    : RunWorker(runControl)
-{
-    setId("QdbDeviceQmlToolingSupport");
-
-    runControl->requestQmlChannel();
-    QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-    auto runner = new QdbDeviceInferiorRunner(runControl, services);
-    addStartDependency(runner);
-    addStopDependency(runner);
-
-    auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-    worker->addStartDependency(this);
-    addStopDependency(worker);
-}
-
-// Factories
-
 class QdbRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -215,7 +189,21 @@ class QdbQmlToolingWorkerFactory final : public RunWorkerFactory
 public:
     QdbQmlToolingWorkerFactory()
     {
-        setProduct<QdbDeviceQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new RunWorker(runControl);
+            worker->setId("QdbDeviceQmlToolingSupport");
+
+            runControl->requestQmlChannel();
+            const QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
+            auto runner = new QdbDeviceInferiorRunner(runControl, services);
+            worker->addStartDependency(runner);
+            worker->addStopDependency(runner);
+
+            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            extraWorker->addStartDependency(worker);
+            worker->addStopDependency(extraWorker);
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
