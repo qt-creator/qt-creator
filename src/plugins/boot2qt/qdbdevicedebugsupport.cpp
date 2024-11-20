@@ -101,11 +101,6 @@ public:
     void stop() override { m_launcher.close(); }
 
 private:
-    friend class QdbDeviceDebugSupport;
-    friend class QdbDeviceQmlProfilerSupport;
-    friend class QdbDeviceQmlToolingSupport;
-    friend class QdbDevicePerfProfilerSupport;
-
     QmlDebugServicesPreset m_qmlServices;
     Process m_launcher;
 };
