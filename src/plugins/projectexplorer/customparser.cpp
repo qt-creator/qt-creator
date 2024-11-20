@@ -389,8 +389,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << QString() << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext")
@@ -400,8 +399,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 1 << 2 << 3
             << QString::fromLatin1("Sometext\n") << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
 
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext")
@@ -411,8 +409,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString::fromLatin1("Sometext\n")
-            << Tasks()
-            << QString();
+            << Tasks();
 
     const QString simpleError = "main.c:9: error: `sfasdf' undeclared (first use this function)";
     const QString simpleErrorPassThrough = simpleError + '\n';
@@ -426,8 +423,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, fileName, 9)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, fileName, 9)});
 
     const QString pathPattern = "^([a-z\\./]+):(\\d+): error: ([^\\s].+)$";
     QString workingDir = "/home/src/project";
@@ -441,8 +437,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)});
 
     expandedFileName = "/home/src/project/subdir/main.c";
     QTest::newRow("simple error with subdir path")
@@ -453,8 +448,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)});
 
     workingDir = "/home/src/build-project";
     QTest::newRow("simple error with buildir path")
@@ -465,8 +459,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << pathPattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, expandedFileName, 9)});
 
     QTest::newRow("simple error on wrong channel")
             << simpleError
@@ -476,8 +469,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << simpleErrorPassThrough << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
 
     QTest::newRow("simple error on other wrong channel")
             << simpleError
@@ -487,8 +479,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << QString() << 0 << 0 << 0
             << QString() << simpleErrorPassThrough
-            << Tasks()
-            << QString();
+            << Tasks();
 
     const QString simpleError2 = "Error: Line 19 in main.c: `sfasdf' undeclared (first use this function)";
     const QString simplePattern2 = "^Error: Line (\\d+) in ([a-z]+\\.[a-z]+): ([^\\s].+)$";
@@ -502,8 +493,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern2 << 2 << 1 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)});
 
     QTest::newRow("another simple error on stdout")
             << simpleError2
@@ -513,8 +503,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern2 << 2 << 1 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, fileName, lineNumber2)});
 
     const QString simpleWarningPattern = "^([a-z]+\\.[a-z]+):(\\d+): warning: ([^\\s].+)$";
     const QString simpleWarning = "main.c:1234: warning: `helloWorld' declared but not used";
@@ -528,8 +517,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << simpleWarningPattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)})
-            << QString();
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)});
 
     const QString simpleWarning2 = "Warning: `helloWorld' declared but not used (main.c:19)";
     const QString simpleWarningPassThrough2 = simpleWarning2 + '\n';
@@ -543,8 +531,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern2 << 1 << 2 << 3
             << simpleWarningPattern2 << 2 << 3 << 1
             << QString() << QString()
-            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, lineNumber2)})
-            << QString();
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, lineNumber2)});
 
     QTest::newRow("warning on wrong channel")
             << simpleWarning2
@@ -554,8 +541,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << simpleWarningPattern2 << 2 << 3 << 1
             << simpleWarningPassThrough2 << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
 
     QTest::newRow("warning on other wrong channel")
             << simpleWarning2
@@ -565,8 +551,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << QString() << 1 << 2 << 3
             << simpleWarningPattern2 << 2 << 3 << 1
             << QString() << simpleWarningPassThrough2
-            << Tasks()
-            << QString();
+            << Tasks();
 
     QTest::newRow("error and *warning*")
             << simpleWarning
@@ -576,8 +561,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << simpleWarningPattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)})
-            << QString();
+            << Tasks({CompileTask(Task::Warning, warningMessage, fileName, 1234)});
 
     QTest::newRow("*error* when equal pattern")
             << simpleError
@@ -587,8 +571,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << simplePattern << 1 << 2 << 3
             << simplePattern << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, message, fileName, 9)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, message, fileName, 9)});
 
     const QString unitTestError = "../LedDriver/LedDriverTest.c:63: FAIL: Expected 0x0080 Was 0xffff";
     const FilePath unitTestFileName = FilePath::fromUserInput("../LedDriver/LedDriverTest.c");
@@ -604,8 +587,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << unitTestPattern << 1 << 2 << 3
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, unitTestMessage, unitTestFileName, unitTestLineNumber)});
 
     const QString leadingSpacesPattern = "^    MESSAGE:(.+)";
     const QString leadingSpacesMessage = "    MESSAGE:Error";
@@ -619,8 +601,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << leadingSpacesPattern << 2 << 3 << 1
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, "Error", {}, -1)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, "Error", {}, -1)});
     QTest::newRow("leading spaces: no match")
             << noLeadingSpacesMessage
             << QString()
@@ -630,8 +611,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << leadingSpacesPattern << 2 << 3 << 1
             << QString() << 1 << 2 << 3
             << (noLeadingSpacesMessage + '\n') << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
     const QString noLeadingSpacesPattern = "^MESSAGE:(.+)";
     QTest::newRow("no leading spaces: match")
             << noLeadingSpacesMessage
@@ -642,8 +622,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << noLeadingSpacesPattern << 2 << 3 << 1
             << QString() << 1 << 2 << 3
             << QString() << QString()
-            << Tasks({CompileTask(Task::Error, "Error", {}, -1)})
-            << QString();
+            << Tasks({CompileTask(Task::Error, "Error", {}, -1)});
     QTest::newRow("no leading spaces: no match")
             << leadingSpacesMessage
             << QString()
@@ -653,8 +632,7 @@ void ProjectExplorerTest::testCustomOutputParsers_data()
             << noLeadingSpacesPattern << 3 << 2 << 1
             << QString() << 1 << 2 << 3
             << (leadingSpacesMessage + '\n') << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
 }
 
 void ProjectExplorerTest::testCustomOutputParsers()
@@ -675,7 +653,6 @@ void ProjectExplorerTest::testCustomOutputParsers()
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
     QFETCH(Tasks, tasks);
-    QFETCH(QString, outputLines);
 
     CustomParserSettings settings;
     settings.error.setPattern(errorPattern);
@@ -696,9 +673,7 @@ void ProjectExplorerTest::testCustomOutputParsers()
 
     OutputParserTester testbench;
     testbench.addLineParser(parser);
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 #endif

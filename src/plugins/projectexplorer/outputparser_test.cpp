@@ -60,8 +60,7 @@ void OutputParserTester::testParsing(const QString &lines,
                                      Channel inputChannel,
                                      Tasks tasks,
                                      const QString &childStdOutLines,
-                                     const QString &childStdErrLines,
-                                     const QString &outputLines)
+                                     const QString &childStdErrLines)
 {
     for (Utils::OutputLineParser * const parser : lineParsers())
         parser->skipFileExistsCheck();
@@ -81,7 +80,6 @@ void OutputParserTester::testParsing(const QString &lines,
     emit aboutToDeleteParser();
     setLineParsers({});
 
-    QCOMPARE(m_receivedOutput, outputLines);
     QCOMPARE(m_receivedStdErrChildLine, childStdErrLines);
     QCOMPARE(m_receivedStdOutChildLine, childStdOutLines);
     QCOMPARE(m_receivedTasks.size(), tasks.size());
@@ -121,7 +119,6 @@ void OutputParserTester::reset()
     m_receivedStdErrChildLine.clear();
     m_receivedStdOutChildLine.clear();
     m_receivedTasks.clear();
-    m_receivedOutput.clear();
 }
 
 class OutputParserTest final : public QObject
@@ -139,7 +136,6 @@ void OutputParserTest::testAnsiFilterOutputParser_data()
     QTest::addColumn<OutputParserTester::Channel>("inputChannel");
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
-    QTest::addColumn<QString>("outputLines");
 
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
@@ -186,9 +182,7 @@ void OutputParserTest::testAnsiFilterOutputParser()
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
 
-    testbench.testParsing(input, inputChannel,
-                          Tasks(), childStdOutLines, childStdErrLines,
-                          QString());
+    testbench.testParsing(input, inputChannel, Tasks(), childStdOutLines, childStdErrLines);
 }
 
 QObject *createOutputParserTest()

@@ -276,19 +276,16 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
     QTest::addColumn<Tasks>("tasks");
-    QTest::addColumn<QString>("outputLines");
 
     // negative tests
     QTest::newRow("pass-through stdout")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
     QTest::newRow("pass-through stderr")
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
-            << Tasks()
-            << QString();
+            << Tasks();
 
     // positive tests
     QTest::newRow("add custom target")
@@ -317,8 +314,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "Tried extensions "
                                    ".c .C .c++ .cc .cpp .cxx .m .M .mm .h .hh .h++ .hm .hpp\n"
                                    ".hxx .in .txx",
-                                   FilePath::fromUserInput("src/1/app/CMakeLists.txt"), -1))
-            << QString();
+                                   FilePath::fromUserInput("src/1/app/CMakeLists.txt"), -1));
 
     QTest::newRow("add subdirectory")
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (add_subdirectory):\n"
@@ -328,8 +324,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "add_subdirectory given source \"app1\" which is not an existing directory.",
-                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8))
-            << QString();
+                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8));
 
     QTest::newRow("unknown command")
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (i_am_wrong_command):\n"
@@ -339,8 +334,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Unknown CMake command \"i_am_wrong_command\".",
-                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8))
-            << QString();
+                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8));
 
     QTest::newRow("incorrect arguments")
             << QString::fromLatin1("CMake Error at src/1/CMakeLists.txt:8 (message):\n"
@@ -350,8 +344,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "message called with incorrect number of arguments",
-                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8))
-            << QString();
+                                   FilePath::fromUserInput("src/1/CMakeLists.txt"), 8));
 
     QTest::newRow("cmake error")
             << QString::fromLatin1("CMake Error: Error in cmake code at\n"
@@ -363,8 +356,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Parse error.  Expected \"(\", got newline with text \"\n\".",
-                                   FilePath::fromUserInput("/test/path/CMakeLists.txt"), 9))
-            << QString();
+                                   FilePath::fromUserInput("/test/path/CMakeLists.txt"), 9));
 
     QTest::newRow("cmake error2")
             << QString::fromLatin1("CMake Error: Error required internal CMake variable not set, cmake may be not be built correctly.\n"
@@ -375,8 +367,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "Error required internal CMake variable not set, "
-                                   "cmake may be not be built correctly."))
-            << QString();
+                                   "cmake may be not be built correctly."));
 
     QTest::newRow("cmake error at")
             << QString::fromLatin1("CMake Error at CMakeLists.txt:4:\n"
@@ -390,8 +381,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                                    "Parse error.  Expected \"(\", got newline with text \"\n"
                                    "\n"
                                    "\".",
-                                   FilePath::fromUserInput("CMakeLists.txt"), 4))
-            << QString();
+                                   FilePath::fromUserInput("CMakeLists.txt"), 4));
 
     QTest::newRow("cmake syntax warning")
             << QString::fromLatin1("Syntax Warning in cmake code at\n"
@@ -402,8 +392,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "Argument not separated from preceding token by whitespace.",
-                                   FilePath::fromUserInput("/test/path/CMakeLists.txt"), 9))
-            << QString();
+                                   FilePath::fromUserInput("/test/path/CMakeLists.txt"), 9));
 
     QTest::newRow("cmake warning")
             << QString::fromLatin1("CMake Warning at CMakeLists.txt:13 (message):\n"
@@ -413,8 +402,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "this is a warning",
-                                   FilePath::fromUserInput("CMakeLists.txt"), 13))
-            << QString();
+                                   FilePath::fromUserInput("CMakeLists.txt"), 13));
 
     QTest::newRow("cmake author warning")
             << QString::fromLatin1("CMake Warning (dev) at CMakeLists.txt:15 (message):\n"
@@ -424,13 +412,12 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "this is an author warning",
-                                   FilePath::fromUserInput("CMakeLists.txt"), 15))
-            << QString();
+                                   FilePath::fromUserInput("CMakeLists.txt"), 15));
 
     QTest::newRow("eat normal CMake output")
         << QString::fromLatin1("-- Qt5 install prefix: /usr/lib\n"
                                " * Plugin componentsplugin, with CONDITION TARGET QmlDesigner")
-        << OutputParserTester::STDERR << QString() << QString() << (Tasks()) << QString();
+        << OutputParserTester::STDERR << QString() << QString() << (Tasks());
 
     QTest::newRow("cmake call-stack")
         << QString::fromLatin1(
@@ -471,8 +458,7 @@ void CMakeOutputParserTest::testCMakeOutputParser_data()
                 "  /Qt/6.5.3/mingw_64/lib/cmake/Qt6Core/Qt6CoreMacros.cmake:588 "
                 "(add_executable)",
                 FilePath::fromUserInput("/Projects/Test-Project/CMakeLists.txt"),
-                13))
-        << QString();
+                13));
 }
 
 void CMakeOutputParserTest::testCMakeOutputParser()
@@ -484,11 +470,8 @@ void CMakeOutputParserTest::testCMakeOutputParser()
     QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
 
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 QObject *createCMakeOutputParserTest()

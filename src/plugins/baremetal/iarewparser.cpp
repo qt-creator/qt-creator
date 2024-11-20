@@ -247,18 +247,15 @@ void IarParserTest::testIarOutputParsers_data()
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
-    QTest::addColumn<QString>("outputLines");
 
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
             << "Sometext\n" << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
             << QString() << "Sometext\n"
-            << Tasks()
-            << QString();
+            << Tasks();
 
     // For std out.
     QTest::newRow("Error in command line")
@@ -267,8 +264,7 @@ void IarParserTest::testIarOutputParsers_data()
             << QString()
             << QString()
             << (Tasks() << CompileTask(Task::Error,
-                                       "Error in command line: Some error"))
-            << QString();
+                                       "Error in command line: Some error"));
 
     QTest::newRow("Linker error")
             << QString::fromLatin1("Error[e46]: Some error")
@@ -276,8 +272,7 @@ void IarParserTest::testIarOutputParsers_data()
             << QString()
             << QString()
             << (Tasks() << CompileTask(Task::Error,
-                                       "[e46]: Some error"))
-            << QString();
+                                       "[e46]: Some error"));
 
     // For std error.
     QTest::newRow("No details warning")
@@ -289,8 +284,7 @@ void IarParserTest::testIarOutputParsers_data()
             << (Tasks() << CompileTask(Task::Warning,
                                        "[Pe223]: Some warning \"foo\" bar",
                                        Utils::FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("Details warning")
             << QString::fromLatin1("      some_detail;\n"
@@ -305,8 +299,7 @@ void IarParserTest::testIarOutputParsers_data()
                                        "      some_detail;\n"
                                        "      ^",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("No details split-description warning")
             << QString::fromLatin1("\"c:\\foo\\main.c\",63 Warning[Pe223]:\n"
@@ -318,8 +311,7 @@ void IarParserTest::testIarOutputParsers_data()
             << (Tasks() << CompileTask(Task::Warning,
                                        "[Pe223]: Some warning, split",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("No details error")
             << QString::fromLatin1("\"c:\\foo\\main.c\",63 Error[Pe223]:\n"
@@ -330,8 +322,7 @@ void IarParserTest::testIarOutputParsers_data()
             << (Tasks() << CompileTask(Task::Error,
                                        "[Pe223]: Some error",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("Details error")
             << QString::fromLatin1("      some_detail;\n"
@@ -346,8 +337,7 @@ void IarParserTest::testIarOutputParsers_data()
                                        "      some_detail;\n"
                                        "      ^",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("No details split-description error")
             << QString::fromLatin1("\"c:\\foo\\main.c\",63 Error[Pe223]:\n"
@@ -359,8 +349,7 @@ void IarParserTest::testIarOutputParsers_data()
             << (Tasks() << CompileTask(Task::Error,
                                        "[Pe223]: Some error, split",
                                        FilePath::fromUserInput("c:\\foo\\main.c"),
-                                       63))
-            << QString();
+                                       63));
 
     QTest::newRow("No definition for")
             << QString::fromLatin1("Error[Li005]: Some error \"foo\" [referenced from c:\\fo\n"
@@ -372,8 +361,7 @@ void IarParserTest::testIarOutputParsers_data()
             << QString()
             << (Tasks() << CompileTask(Task::Error,
                                        "[Li005]: Some error \"foo\"",
-                                       FilePath::fromUserInput("c:\\foo\\bar\\main.c.o")))
-            << QString();
+                                       FilePath::fromUserInput("c:\\foo\\bar\\main.c.o")));
 
     QTest::newRow("More than one source file specified")
             << QString::fromLatin1("Fatal error[Su011]: Some error:\n"
@@ -386,8 +374,7 @@ void IarParserTest::testIarOutputParsers_data()
             << (Tasks() << CompileTask(Task::Error,
                                        "[Su011]: Some error:\n"
                                        "                      c:\\foo.c\n"
-                                       "            c:\\bar.c"))
-            << QString();
+                                       "            c:\\bar.c"));
 
     QTest::newRow("At end of source")
             << QString::fromLatin1("At end of source  Error[Pe040]: Some error \";\"")
@@ -395,8 +382,7 @@ void IarParserTest::testIarOutputParsers_data()
             << QString()
             << QString()
             << (Tasks() << CompileTask(Task::Error,
-                                       "[Pe040]: Some error \";\""))
-            << QString();
+                                       "[Pe040]: Some error \";\""));
 }
 
 void IarParserTest::testIarOutputParsers()
@@ -408,11 +394,8 @@ void IarParserTest::testIarOutputParsers()
     QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
 
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 QObject *createIarParserTest()

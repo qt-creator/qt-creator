@@ -161,7 +161,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
-    QTest::addColumn<QString>("outputLines");
     QTest::addColumn<QStringList>("additionalSearchDirs");
 
     QTest::newRow("pass-through stdout")
@@ -169,14 +168,12 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDOUT
             << QString::fromLatin1("Sometext\n") << QString()
             << Tasks()
-            << QString()
             << QStringList();
     QTest::newRow("pass-through stderr")
             << QStringList()
             << QString::fromLatin1("Sometext") << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("Sometext\n")
             << Tasks()
-            << QString()
             << QStringList();
     QTest::newRow("pass-through gcc infos")
             << QStringList()
@@ -193,7 +190,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
                                    "../../scriptbug/main.cpp:8: instantiated from void foo(i) [with i = double]\n"
                                    "../../scriptbug/main.cpp:22: instantiated from here\n")
             << Tasks()
-            << QString()
             << QStringList();
 
     // make sure adding directories works (once;-)
@@ -204,7 +200,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDOUT
             << QString() << QString()
             << Tasks()
-            << QString()
             << QStringList({"/home/code/build/qt/examples/opengl/grabber",
                             "/home/code/build/qt/examples/opengl/grabber", "/test/dir"});
     QTest::newRow("leaving directory")
@@ -213,7 +208,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDOUT
             << QString() << QString()
             << Tasks()
-            << QString()
             << QStringList("/test/dir");
 
     QTest::newRow("make error")
@@ -224,7 +218,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "No rule to make target `hello.c', needed by `hello.o'.  Stop."))
-            << QString()
             << QStringList();
 
     QTest::newRow("multiple fatals")
@@ -237,7 +230,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "[.obj/debug-shared/gnumakeparser.o] Error 1"))
-            << QString()
             << QStringList();
 
     QTest::newRow("Makefile error")
@@ -249,7 +241,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
                 << BuildSystemTask(Task::Error,
                                    "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
                                    Utils::FilePath::fromUserInput("Makefile"), 360))
-            << QString()
             << QStringList();
 
     QTest::newRow("mingw32-make error")
@@ -261,7 +252,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "[debug/qplotaxis.o] Error 1"))
-            << QString()
             << QStringList();
 
     QTest::newRow("mingw64-make error")
@@ -272,7 +262,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "[dynlib.inst] Error -1073741819"))
-            << QString()
             << QStringList();
 
     QTest::newRow("make warning")
@@ -283,7 +272,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Warning,
                                    "jobserver unavailable: using -j1. Add `+' to parent make rule."))
-            << QString()
             << QStringList();
 
     QTest::newRow("pass-trough note")
@@ -292,7 +280,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << OutputParserTester::STDERR
             << QString() << QString::fromLatin1("/home/dev/creator/share/qtcreator/debugger/dumper.cpp:1079: note: initialized from here\n")
             << Tasks()
-            << QString()
             << QStringList();
 
     QTest::newRow("Full path make exe")
@@ -303,7 +290,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "[sis] Error 2"))
-            << QString()
             << QStringList();
 
     QTest::newRow("missing g++")
@@ -314,7 +300,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
             << (Tasks()
                 << BuildSystemTask(Task::Error,
                                    "g++: Command not found"))
-            << QString()
             << QStringList();
 
     QTest::newRow("warning in Makefile")
@@ -326,7 +311,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing_data()
                 << BuildSystemTask(Task::Warning,
                                    "overriding commands for target `xxxx.app/Contents/Info.plist'",
                                    "Makefile", 794))
-            << QString()
             << QStringList();
 }
 
@@ -345,7 +329,6 @@ void ProjectExplorerTest::testGnuMakeParserParsing()
     QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
     QFETCH(QStringList, additionalSearchDirs);
 
     FilePaths searchDirs = childParser->searchDirectories();
@@ -354,9 +337,7 @@ void ProjectExplorerTest::testGnuMakeParserParsing()
     for (const QString &dir : std::as_const(extraSearchDirs))
         testbench.addSearchDir(FilePath::fromString(dir));
 
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 
     // make sure we still have all the original dirs
     FilePaths newSearchDirs = tester->directories;
@@ -393,7 +374,7 @@ void ProjectExplorerTest::testGnuMakeParserTaskMangling()
         {BuildSystemTask(Task::Error,
                          "missing separator (did you mean TAB instead of 8 spaces?). Stop.",
                          FilePath::fromString(theMakeFile.fileName()), 360)},
-        QString(), QString(), QString());
+        QString(), QString());
 }
 
 } // ProjectExplorer::Internal

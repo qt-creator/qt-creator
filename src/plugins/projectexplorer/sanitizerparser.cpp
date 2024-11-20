@@ -244,7 +244,7 @@ SUMMARY: AddressSanitizer: 19 byte(s) leaked in 1 allocation(s).)";
         QFETCH(QString, input);
         QFETCH(Tasks, tasks);
         QFETCH(QString, childStdErrLines);
-        testbench.testParsing(input, OutputParserTester::STDERR, tasks, {}, childStdErrLines, {});
+        testbench.testParsing(input, OutputParserTester::STDERR, tasks, {}, childStdErrLines);
     }
 };
 

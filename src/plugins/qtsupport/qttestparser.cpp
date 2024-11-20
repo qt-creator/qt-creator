@@ -121,7 +121,7 @@ void QtTestParserTest::testQtTestOutputParser()
                           "   Expected (true)           : 1",
              theFile, 220, Constants::TASK_CATEGORY_AUTOTEST)};
     testbench.testParsing(input, OutputParserTester::STDOUT, expectedTasks, expectedChildOutput,
-                          QString(), QString());
+                          QString());
 }
 
 QObject *createQtTestParserTest()

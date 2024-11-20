@@ -61,19 +61,16 @@ void NimParserTest::testNimParser_data()
     QTest::addColumn<QString>("childStdOutLines");
     QTest::addColumn<QString>("childStdErrLines");
     QTest::addColumn<Tasks >("tasks");
-    QTest::addColumn<QString>("outputLines");
 
     // negative tests
     QTest::newRow("pass-through stdout")
             << "Sometext" << OutputParserTester::STDOUT
             << "Sometext\n" << QString()
-            << Tasks()
-            << QString();
+            << Tasks();
     QTest::newRow("pass-through stderr")
             << "Sometext" << OutputParserTester::STDERR
             << QString() << "Sometext\n"
-            << Tasks()
-            << QString();
+            << Tasks();
 
     // positive tests
     QTest::newRow("Parse error string")
@@ -82,8 +79,7 @@ void NimParserTest::testNimParser_data()
             << QString() << QString()
             << Tasks({CompileTask(Task::Error,
                                   "Error: undeclared identifier: 'x'",
-                                  FilePath::fromUserInput("main.nim"), 23)})
-            << QString();
+                                  FilePath::fromUserInput("main.nim"), 23)});
 
     QTest::newRow("Parse warning string")
             << QString::fromLatin1("lib/pure/parseopt.nim(56, 34) Warning: quoteIfContainsWhite is deprecated [Deprecated]")
@@ -91,8 +87,7 @@ void NimParserTest::testNimParser_data()
             << QString() << QString()
             << Tasks({CompileTask(Task::Warning,
                                   "Warning: quoteIfContainsWhite is deprecated [Deprecated]",
-                                   FilePath::fromUserInput("lib/pure/parseopt.nim"), 56)})
-            << QString();
+                                   FilePath::fromUserInput("lib/pure/parseopt.nim"), 56)});
 }
 
 void NimParserTest::testNimParser()
@@ -104,11 +99,8 @@ void NimParserTest::testNimParser()
     QFETCH(Tasks, tasks);
     QFETCH(QString, childStdOutLines);
     QFETCH(QString, childStdErrLines);
-    QFETCH(QString, outputLines);
 
-    testbench.testParsing(input, inputChannel,
-                          tasks, childStdOutLines, childStdErrLines,
-                          outputLines);
+    testbench.testParsing(input, inputChannel, tasks, childStdOutLines, childStdErrLines);
 }
 
 } // Nim
