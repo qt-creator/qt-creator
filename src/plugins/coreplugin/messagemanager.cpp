@@ -52,7 +52,7 @@ public:
         connect(this, &IOutputPane::fontChanged, m_widget, &OutputWindow::setBaseFont);
         connect(this, &IOutputPane::wheelZoomEnabledChanged, m_widget, &OutputWindow::setWheelZoomEnabled);
 
-        setupFilterUi("MessageOutputPane.Filter");
+        setupFilterUi("MessageOutputPane.Filter", "Core::Internal::MessageOutputWindow");
         setFilteringEnabled(true);
         setupContext(Constants::C_GENERAL_OUTPUT_PANE, m_widget);
     }

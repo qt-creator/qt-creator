@@ -128,7 +128,7 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     m_textOutput->setReadOnly(true);
     m_outputWidget->addWidget(m_textOutput);
 
-    setupFilterUi("AutoTest.TextOutput.Filter");
+    setupFilterUi("AutoTest.TextOutput.Filter", "Autotest::Internal::TestResultsPane");
     setupContext("AutoTest.TextOutput", m_textOutput);
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);

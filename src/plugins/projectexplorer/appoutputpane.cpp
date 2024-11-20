@@ -214,7 +214,7 @@ AppOutputPane::AppOutputPane() :
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
             this, &AppOutputPane::projectRemoved);
 
-    setupFilterUi("AppOutputPane.Filter");
+    setupFilterUi("AppOutputPane.Filter", "ProjectExplorer::Internal::AppOutputPane");
     setFilteringEnabled(false);
     setZoomButtonsEnabled(false);
     setupContext("Core.AppOutputPane", m_tabWidget);

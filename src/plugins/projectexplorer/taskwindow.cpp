@@ -221,7 +221,7 @@ TaskWindow::TaskWindow() : d(std::make_unique<TaskWindowPrivate>())
 
     d->m_categoriesButton->setMenu(d->m_categoriesMenu);
 
-    setupFilterUi("IssuesPane.Filter");
+    setupFilterUi("IssuesPane.Filter", "ProjectExplorer::Internal::TaskWindow");
     setFilteringEnabled(true);
 
     TaskHub *hub = &taskHub();

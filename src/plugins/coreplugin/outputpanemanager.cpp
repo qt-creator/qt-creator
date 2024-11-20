@@ -377,8 +377,10 @@ void IOutputPane::setWheelZoomEnabled(bool enabled)
     emit wheelZoomEnabledChanged(enabled);
 }
 
-void IOutputPane::setupFilterUi(const Key &historyKey)
+void IOutputPane::setupFilterUi(const Key &historyKey, const QString &actionSuffix)
 {
+    m_filterActionSuffix = actionSuffix;
+
     ActionBuilder filterRegexpAction(this, filterRegexpActionId());
     filterRegexpAction.setText(Tr::tr("Use Regular Expressions"));
     filterRegexpAction.setCheckable(true);
@@ -505,27 +507,27 @@ void IOutputPane::setRegularExpressions(bool regularExpressions)
 
 Id IOutputPane::filterRegexpActionId() const
 {
-    return Id("OutputFilter.RegularExpressions").withSuffix(metaObject()->className());
+    return Id("OutputFilter.RegularExpressions").withSuffix(m_filterActionSuffix);
 }
 
 Id IOutputPane::filterCaseSensitivityActionId() const
 {
-    return Id("OutputFilter.CaseSensitive").withSuffix(metaObject()->className());
+    return Id("OutputFilter.CaseSensitive").withSuffix(m_filterActionSuffix);
 }
 
 Id IOutputPane::filterInvertedActionId() const
 {
-    return Id("OutputFilter.Invert").withSuffix(metaObject()->className());
+    return Id("OutputFilter.Invert").withSuffix(m_filterActionSuffix);
 }
 
 Id IOutputPane::filterBeforeActionId() const
 {
-    return Id("OutputFilter.BeforeContext").withSuffix(metaObject()->className());
+    return Id("OutputFilter.BeforeContext").withSuffix(m_filterActionSuffix);
 }
 
 Id IOutputPane::filterAfterActionId() const
 {
-    return Id("OutputFilter.AfterContext").withSuffix(metaObject()->className());
+    return Id("OutputFilter.AfterContext").withSuffix(m_filterActionSuffix);
 }
 
 void IOutputPane::setCaseSensitive(bool caseSensitive)
