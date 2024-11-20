@@ -33,21 +33,6 @@ const char initCommandsKeyC[] = "InitCommands";
 const char resetCommandsKeyC[] = "ResetCommands";
 const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
 
-class GdbServerProviderRunner final : public SimpleTargetRunner
-{
-public:
-    GdbServerProviderRunner(RunControl *runControl, const CommandLine &commandLine)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("BareMetalGdbServer");
-        // Baremetal's GDB servers are launched on the host, not on the target.
-        setStartModifier([this, commandLine] {
-            setCommandLine(commandLine);
-            forceRunOnHost();
-        });
-    }
-};
-
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
@@ -187,7 +172,14 @@ RunWorker *GdbServerProvider::targetRunner(RunControl *runControl) const
 
     // Command arguments are in host OS style as the bare metal's GDB servers are launched
     // on the host, not on that target.
-    return new GdbServerProviderRunner(runControl, command());
+    auto worker = new SimpleTargetRunner(runControl);
+    worker->setId("BareMetalGdbServer");
+    // Baremetal's GDB servers are launched on the host, not on the target.
+    worker->setStartModifier([worker, cmd = command()] {
+        worker->setCommandLine(cmd);
+        worker->forceRunOnHost();
+    });
+    return worker;
 }
 
 void GdbServerProvider::fromMap(const Store &data)
