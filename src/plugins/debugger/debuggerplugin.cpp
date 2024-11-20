@@ -1708,25 +1708,6 @@ void DebuggerPluginPrivate::startRemoteCdbSession()
     debugger->startRunControl();
 }
 
-class RemoteAttachRunner : public DebuggerRunTool
-{
-public:
-    RemoteAttachRunner(RunControl *runControl, ProcessHandle pid)
-        : DebuggerRunTool(runControl)
-    {
-        setId("AttachToRunningProcess");
-        setUsePortsGatherer(true, false);
-        setUseDebugServer(pid, false, false);
-
-        setStartMode(AttachToRemoteProcess);
-        setCloseMode(DetachAtClose);
-
-        //    setInferiorExecutable(localExecutable);
-        setUseContinueInsteadOfRun(true);
-        setContinueAfterAttach(false);
-    }
-};
-
 void DebuggerPluginPrivate::attachToRunningApplication()
 {
     auto kitChooser = new KitChooser;
@@ -1755,7 +1736,15 @@ void DebuggerPluginPrivate::attachToRunningApplication()
         runControl->setKit(kit);
         //: %1: PID
         runControl->setDisplayName(Tr::tr("Process %1").arg(processInfo.processId));
-        auto debugger = new RemoteAttachRunner(runControl, ProcessHandle(processInfo.processId));
+        runControl->requestDebugChannel();
+
+        auto debugger = new DebuggerRunTool(runControl);
+        debugger->setId("AttachToRunningProcess");
+        debugger->setUseDebugServer(ProcessHandle(processInfo.processId), false, false);
+        debugger->setStartMode(AttachToRemoteProcess);
+        debugger->setCloseMode(DetachAtClose);
+        debugger->setUseContinueInsteadOfRun(true);
+        debugger->setContinueAfterAttach(false);
         debugger->startRunControl();
     }
 }
