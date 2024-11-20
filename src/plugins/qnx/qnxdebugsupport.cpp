@@ -165,24 +165,6 @@ private:
     PathChooser *m_localExecutable;
 };
 
-
-// QnxAttachDebugSupport
-
-class PDebugRunner : public ProjectExplorer::SimpleTargetRunner
-{
-public:
-    PDebugRunner(RunControl *runControl, DebuggerRunTool *debugger)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("PDebugRunner");
-
-        setStartModifier([this, debugger] {
-            const int pdebugPort = debugger->debugChannel().port();
-            setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
-        });
-    }
-};
-
 void showAttachToProcessDialog()
 {
     auto kitChooser = new KitChooser;
@@ -218,7 +200,13 @@ void showAttachToProcessDialog()
     debugger->setupPortsGatherer();
     debugger->setUseCtrlCStub(true);
     if (debugger->isCppDebugging()) {
-        auto pdebugRunner = new PDebugRunner(runControl, debugger);
+        auto pdebugRunner = new SimpleTargetRunner(runControl);
+        pdebugRunner->setId("PDebugRunner");
+        pdebugRunner->setStartModifier([pdebugRunner, debugger] {
+            const int pdebugPort = debugger->debugChannel().port();
+            pdebugRunner->setCommandLine({QNX_DEBUG_EXECUTABLE, {QString::number(pdebugPort)}});
+        });
+
         debugger->addStartDependency(pdebugRunner);
     }
 
