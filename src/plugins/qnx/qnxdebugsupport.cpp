@@ -70,34 +70,6 @@ static QStringList searchPaths(Kit *kit)
     return searchPaths;
 }
 
-// QnxDebuggeeRunner
-
-class QnxDebuggeeRunner : public ProjectExplorer::SimpleTargetRunner
-{
-public:
-    explicit QnxDebuggeeRunner(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("QnxDebuggeeRunner");
-
-        setStartModifier([this] {
-            CommandLine cmd = commandLine();
-            QStringList arguments;
-            if (usesDebugChannel()) {
-                int pdebugPort = debugChannel().port();
-                cmd.setExecutable(device()->filePath(QNX_DEBUG_EXECUTABLE));
-                arguments.append(QString::number(pdebugPort));
-            }
-            if (usesQmlChannel()) {
-                arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, qmlChannel()));
-            }
-            cmd.setArguments(ProcessArgs::joinArgs(arguments));
-            setCommandLine(cmd);
-        });
-    }
-};
-
-
 // QnxDebugSupport
 
 class QnxDebugSupport : public Debugger::DebuggerRunTool
@@ -111,7 +83,24 @@ public:
 
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
 
-        auto debuggeeRunner = new QnxDebuggeeRunner(runControl);
+        auto debuggeeRunner = new SimpleTargetRunner(runControl);
+        debuggeeRunner->setId("QnxDebuggeeRunner");
+
+        debuggeeRunner->setStartModifier([debuggeeRunner] {
+            CommandLine cmd = debuggeeRunner->commandLine();
+            QStringList arguments;
+            if (debuggeeRunner->usesDebugChannel()) {
+                const int pdebugPort = debuggeeRunner->debugChannel().port();
+                cmd.setExecutable(debuggeeRunner->device()->filePath(QNX_DEBUG_EXECUTABLE));
+                arguments.append(QString::number(pdebugPort));
+            }
+            if (debuggeeRunner->usesQmlChannel()) {
+                arguments.append(qmlDebugTcpArguments(QmlDebuggerServices, debuggeeRunner->qmlChannel()));
+            }
+            cmd.setArguments(ProcessArgs::joinArgs(arguments));
+            debuggeeRunner->setCommandLine(cmd);
+        });
+
 
         auto slog2InfoRunner = new Slog2InfoRunner(runControl);
         debuggeeRunner->addStartDependency(slog2InfoRunner);
