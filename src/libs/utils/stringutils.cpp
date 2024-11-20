@@ -110,7 +110,7 @@ enum class Base { Dec, Hex };
 
 static bool isHex(const QChar &c)
 {
-    return (c >= 'a' && c <= 'f') || (c >= 'A' && c < 'F');
+    return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F');
 }
 
 static bool isDigit(const QChar &c, Base base)
