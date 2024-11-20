@@ -151,6 +151,7 @@ private Q_SLOTS:
     void coroutines();
     void genericLambdas();
     void ifStatementWithInitialization();
+    void rangeBasedForWithoutInitialization();
     void rangeBasedForWithInitialization();
 };
 
@@ -564,6 +565,31 @@ int main()
 {
     if (bool b = true; b)
         b = false;
+}
+)";
+    QByteArray errors;
+    Document::Ptr doc = Document::create(FilePath::fromPathPart(u"testFile"));
+    processDocument(doc, source.toUtf8(), features, &errors);
+    const bool hasErrors = !errors.isEmpty();
+    if (hasErrors)
+        qDebug().noquote() << errors;
+    QVERIFY(!hasErrors);
+}
+
+void tst_cxx11::rangeBasedForWithoutInitialization()
+{
+    LanguageFeatures features;
+    features.cxxEnabled = true;
+    features.cxx11Enabled = features.cxx14Enabled = features.cxx17Enabled = features.cxx20Enabled
+        = true;
+
+    const QString source = R"(
+int main()
+{
+    std::vector<int> v;
+    using Alias = int;
+    for (Alias i : v)
+        return 0;
 }
 )";
     QByteArray errors;
