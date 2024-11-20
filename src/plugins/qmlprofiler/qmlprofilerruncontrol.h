@@ -37,16 +37,7 @@ private:
     QmlProfilerRunnerPrivate *d;
 };
 
-class LocalQmlProfilerSupport : public ProjectExplorer::SimpleTargetRunner
-{
-    Q_OBJECT
-
-public:
-    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl);
-    LocalQmlProfilerSupport(ProjectExplorer::RunControl *runControl,
-                            const QUrl &serverUrl);
-};
-
+ProjectExplorer::RunWorker *createLocalQmlProfilerWorker(ProjectExplorer::RunControl *runControl);
 void setupQmlProfilerRunning();
 
 } // QmlProfiler::Internal

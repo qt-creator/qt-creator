@@ -29,8 +29,7 @@ LocalQmlProfilerRunnerTest::LocalQmlProfilerRunnerTest(QObject *parent) : QObjec
 void LocalQmlProfilerRunnerTest::testRunner()
 {
     QPointer<RunControl> runControl;
-    QPointer<LocalQmlProfilerSupport> profiler;
-    QUrl serverUrl;
+    QPointer<RunWorker> profiler;
 
     bool running = false;
     bool started = false;
@@ -38,14 +37,10 @@ void LocalQmlProfilerRunnerTest::testRunner()
     int runCount = 0;
     int stopCount = 0;
 
-    // should not be used anywhere but cannot be empty
-    serverUrl.setScheme(Utils::urlSocketScheme());
-    serverUrl.setPath("invalid");
-
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setCommandLine(CommandLine{"\\-/|\\-/"});
 
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = createLocalQmlProfilerWorker(runControl);
 
     auto connectRunner = [&]() {
         connect(runControl, &RunControl::aboutToStart, this, [&] {
@@ -85,13 +80,12 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    serverUrl = Utils::urlFromLocalSocket();
     // comma is used to specify a test function. In this case, an invalid one.
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
 
     const FilePath app = FilePath::fromString(QCoreApplication::applicationFilePath());
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = createLocalQmlProfilerWorker(runControl);
     connectRunner();
     runControl->initiateStart();
 
@@ -106,11 +100,9 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    serverUrl.clear();
-    serverUrl = Utils::urlFromLocalHostAndFreePort();
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setCommandLine(CommandLine{app});
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = createLocalQmlProfilerWorker(runControl);
     connectRunner();
     runControl->initiateStart();
 
@@ -126,16 +118,9 @@ void LocalQmlProfilerRunnerTest::testRunner()
     QTRY_VERIFY(runControl.isNull());
     QVERIFY(profiler.isNull());
 
-    serverUrl.setScheme(Utils::urlSocketScheme());
-    {
-        Utils::TemporaryFile file("file with spaces");
-        if (file.open())
-            serverUrl.setPath(file.fileName());
-    }
-
     runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->setCommandLine({app, {"-test", "QmlProfiler,"}});
-    profiler = new LocalQmlProfilerSupport(runControl, serverUrl);
+    profiler = createLocalQmlProfilerWorker(runControl);
     connectRunner();
     runControl->initiateStart();
 

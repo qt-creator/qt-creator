@@ -142,45 +142,20 @@ void QmlProfilerRunner::profilerStateChanged()
     }
 }
 
-//
-// LocalQmlProfilerSupport
-//
-
-static QUrl localServerUrl(RunControl *runControl)
+RunWorker *createLocalQmlProfilerWorker(RunControl *runControl)
 {
-    QUrl serverUrl;
-    Kit *kit = runControl->kit();
-    const QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
-    if (version) {
-        if (version->qtVersion() >= QVersionNumber(5, 6, 0))
-            serverUrl = Utils::urlFromLocalSocket();
-        else
-            serverUrl = Utils::urlFromLocalHostAndFreePort();
-    } else {
-        qWarning("Running QML profiler on Kit without Qt version?");
-        serverUrl = Utils::urlFromLocalHostAndFreePort();
-    }
-    return serverUrl;
-}
+    auto worker = new SimpleTargetRunner(runControl);
 
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl)
-    : LocalQmlProfilerSupport(runControl, localServerUrl(runControl))
-{
-}
-
-LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const QUrl &serverUrl)
-    : SimpleTargetRunner(runControl)
-{
-    setId("LocalQmlProfilerSupport");
+    worker->setId("LocalQmlProfilerSupport");
 
     auto profiler = new QmlProfilerRunner(runControl);
 
-    addStopDependency(profiler);
+    worker->addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.
     // In the TCP case, it doesn't hurt either to start the profiler before.
-    addStartDependency(profiler);
+    worker->addStartDependency(profiler);
 
-    setStartModifier([this, runControl, serverUrl] {
+    worker->setStartModifier([worker, runControl] {
 
         QUrl serverUrl = runControl->qmlChannel();
         QString code;
@@ -192,16 +167,17 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
             QTC_CHECK(false);
 
         QString arguments = Utils::ProcessArgs::quoteArg(
-                                qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
+            qmlDebugCommandLineArguments(QmlProfilerServices, code, true));
 
-        Utils::CommandLine cmd = commandLine();
+        Utils::CommandLine cmd = worker->commandLine();
         const QString oldArgs = cmd.arguments();
         cmd.setArguments(arguments);
         cmd.addArgs(oldArgs, Utils::CommandLine::Raw);
-        setCommandLine(cmd);
-
-        forceRunOnHost();
+        worker->setCommandLine(cmd);
+        worker->forceRunOnHost();
     });
+
+    return worker;
 }
 
 // Factories
@@ -224,7 +200,7 @@ public:
     LocalQmlProfilerRunWorkerFactory()
     {
         setId(ProjectExplorer::Constants::QML_PROFILER_RUN_FACTORY);
-        setProduct<LocalQmlProfilerSupport>();
+        setProducer(&createLocalQmlProfilerWorker);
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
@@ -237,6 +213,5 @@ void setupQmlProfilerRunning()
     static QmlProfilerRunWorkerFactory theQmlProfilerRunWorkerFactory;
     static LocalQmlProfilerRunWorkerFactory theLocalQmlProfilerRunWorkerFactory;
 }
-
 
 } // QmlProfiler::Internal
