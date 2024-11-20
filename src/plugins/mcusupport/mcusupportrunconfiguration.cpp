@@ -73,31 +73,6 @@ public:
 
 bool FlashAndRunConfiguration::disabled = false;
 
-class FlashAndRunWorker : public SimpleTargetRunner
-{
-public:
-    FlashAndRunWorker(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setStartModifier([this, runControl] {
-            const Target *target = runControl->target();
-            setCommandLine({cmakeFilePath(target), runControl->aspectData<StringAspect>()->value,
-                            CommandLine::Raw});
-            setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
-            setEnvironment(target->activeBuildConfiguration()->environment());
-        });
-
-        connect(runControl, &RunControl::started, []() {
-            FlashAndRunConfiguration::disabled = true;
-            ProjectExplorerPlugin::updateRunActions();
-        });
-        connect(runControl, &RunControl::stopped, []() {
-            FlashAndRunConfiguration::disabled = false;
-            ProjectExplorerPlugin::updateRunActions();
-        });
-    }
-};
-
 // Factories
 
 McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
@@ -108,7 +83,27 @@ McuSupportRunConfigurationFactory::McuSupportRunConfigurationFactory()
 
 FlashRunWorkerFactory::FlashRunWorkerFactory()
 {
-    setProduct<FlashAndRunWorker>();
+    setProducer([](RunControl *runControl) {
+        auto worker = new SimpleTargetRunner(runControl);
+        worker->setStartModifier([worker, runControl] {
+            const Target *target = runControl->target();
+            worker->setCommandLine({cmakeFilePath(target),
+                                    runControl->aspectData<StringAspect>()->value, CommandLine::Raw});
+            worker->setWorkingDirectory(target->activeBuildConfiguration()->buildDirectory());
+            worker->setEnvironment(target->activeBuildConfiguration()->environment());
+        });
+
+        QObject::connect(runControl, &RunControl::started, runControl, [] {
+            FlashAndRunConfiguration::disabled = true;
+            ProjectExplorerPlugin::updateRunActions();
+        });
+        QObject::connect(runControl, &RunControl::stopped, runControl, [] {
+            FlashAndRunConfiguration::disabled = false;
+            ProjectExplorerPlugin::updateRunActions();
+        });
+
+        return worker;
+    });
     addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
     addSupportedRunConfig(Constants::RUNCONFIGURATION);
 }
