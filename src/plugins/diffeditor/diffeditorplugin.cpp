@@ -406,11 +406,13 @@ void DiffEditorServiceImpl::diffModifiedFiles(const QStringList &fileNames)
     reload<DiffModifiedFilesController>(documentId, title, fileNames);
 }
 
-class DiffEditorPluginPrivate : public QObject
+class DiffEditorPlugin final : public ExtensionSystem::IPlugin
 {
-public:
-    DiffEditorPluginPrivate();
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
 
+private:
+    void initialize() final;
     void updateDiffCurrentFileAction();
     void updateDiffOpenFilesAction();
     void diffCurrentFile();
@@ -421,20 +423,6 @@ public:
     QAction *m_diffOpenFilesAction = nullptr;
 
     DiffEditorServiceImpl m_service;
-};
-
-class DiffEditorPlugin final : public ExtensionSystem::IPlugin
-{
-    Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
-
-public:
-    ~DiffEditorPlugin() { delete d; }
-
-    void initialize() final { d = new DiffEditorPluginPrivate; }
-
-private:
-    class DiffEditorPluginPrivate *d = nullptr;
 
 #ifdef WITH_TESTS
 private slots:
@@ -447,7 +435,7 @@ private slots:
 #endif // WITH_TESTS
 };
 
-DiffEditorPluginPrivate::DiffEditorPluginPrivate()
+void DiffEditorPlugin::initialize()
 {
     setupDiffEditorFactory();
 
@@ -461,43 +449,43 @@ DiffEditorPluginPrivate::DiffEditorPluginPrivate()
     m_diffCurrentFileAction = new QAction(Tr::tr("Diff Current File"), this);
     Command *diffCurrentFileCommand = ActionManager::registerAction(m_diffCurrentFileAction, "DiffEditor.DiffCurrentFile");
     diffCurrentFileCommand->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+H") : Tr::tr("Ctrl+H")));
-    connect(m_diffCurrentFileAction, &QAction::triggered, this, &DiffEditorPluginPrivate::diffCurrentFile);
+    connect(m_diffCurrentFileAction, &QAction::triggered, this, &DiffEditorPlugin::diffCurrentFile);
     diffContainer->addAction(diffCurrentFileCommand);
 
     m_diffOpenFilesAction = new QAction(Tr::tr("Diff Open Files"), this);
     Command *diffOpenFilesCommand = ActionManager::registerAction(m_diffOpenFilesAction, "DiffEditor.DiffOpenFiles");
     diffOpenFilesCommand->setDefaultKeySequence(QKeySequence(useMacShortcuts ? Tr::tr("Meta+Shift+H") : Tr::tr("Ctrl+Shift+H")));
-    connect(m_diffOpenFilesAction, &QAction::triggered, this, &DiffEditorPluginPrivate::diffOpenFiles);
+    connect(m_diffOpenFilesAction, &QAction::triggered, this, &DiffEditorPlugin::diffOpenFiles);
     diffContainer->addAction(diffOpenFilesCommand);
 
     QAction *diffExternalFilesAction = new QAction(Tr::tr("Diff External Files..."), this);
     Command *diffExternalFilesCommand = ActionManager::registerAction(diffExternalFilesAction, "DiffEditor.DiffExternalFiles");
-    connect(diffExternalFilesAction, &QAction::triggered, this, &DiffEditorPluginPrivate::diffExternalFiles);
+    connect(diffExternalFilesAction, &QAction::triggered, this, &DiffEditorPlugin::diffExternalFiles);
     diffContainer->addAction(diffExternalFilesCommand);
 
     connect(EditorManager::instance(), &EditorManager::currentEditorChanged,
-            this, &DiffEditorPluginPrivate::updateDiffCurrentFileAction);
+            this, &DiffEditorPlugin::updateDiffCurrentFileAction);
     connect(EditorManager::instance(), &EditorManager::currentDocumentStateChanged,
-            this, &DiffEditorPluginPrivate::updateDiffCurrentFileAction);
+            this, &DiffEditorPlugin::updateDiffCurrentFileAction);
     connect(EditorManager::instance(), &EditorManager::editorOpened,
-            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPlugin::updateDiffOpenFilesAction);
     connect(EditorManager::instance(), &EditorManager::editorsClosed,
-            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPlugin::updateDiffOpenFilesAction);
     connect(EditorManager::instance(), &EditorManager::documentStateChanged,
-            this, &DiffEditorPluginPrivate::updateDiffOpenFilesAction);
+            this, &DiffEditorPlugin::updateDiffOpenFilesAction);
 
     updateDiffCurrentFileAction();
     updateDiffOpenFilesAction();
 }
 
-void DiffEditorPluginPrivate::updateDiffCurrentFileAction()
+void DiffEditorPlugin::updateDiffCurrentFileAction()
 {
     auto textDocument = currentTextDocument();
     const bool enabled = textDocument && textDocument->isModified();
     m_diffCurrentFileAction->setEnabled(enabled);
 }
 
-void DiffEditorPluginPrivate::updateDiffOpenFilesAction()
+void DiffEditorPlugin::updateDiffOpenFilesAction()
 {
     const bool enabled = anyOf(DocumentModel::openedDocuments(), [](IDocument *doc) {
             QTC_ASSERT(doc, return false);
@@ -506,7 +494,7 @@ void DiffEditorPluginPrivate::updateDiffOpenFilesAction()
     m_diffOpenFilesAction->setEnabled(enabled);
 }
 
-void DiffEditorPluginPrivate::diffCurrentFile()
+void DiffEditorPlugin::diffCurrentFile()
 {
     auto textDocument = currentTextDocument();
     if (!textDocument)
@@ -521,14 +509,14 @@ void DiffEditorPluginPrivate::diffCurrentFile()
     reload<DiffCurrentFileController>(documentId, title, fileName);
 }
 
-void DiffEditorPluginPrivate::diffOpenFiles()
+void DiffEditorPlugin::diffOpenFiles()
 {
     const QString documentId = Constants::DIFF_EDITOR_PLUGIN + QLatin1String(".DiffOpenFiles");
     const QString title = Tr::tr("Diff Open Files");
     reload<DiffOpenFilesController>(documentId, title);
 }
 
-void DiffEditorPluginPrivate::diffExternalFiles()
+void DiffEditorPlugin::diffExternalFiles()
 {
     const FilePath filePath1 = FileUtils::getOpenFilePath(nullptr, Tr::tr("Select First File for Diff"));
     if (filePath1.isEmpty())
