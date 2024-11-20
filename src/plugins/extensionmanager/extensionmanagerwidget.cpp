@@ -32,7 +32,9 @@
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/markdownbrowser.h>
+#include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
+#include <utils/stringutils.h>
 #include <utils/styledbar.h>
 #include <utils/stylehelper.h>
 #include <utils/temporarydirectory.h>
@@ -243,6 +245,17 @@ private:
 
 const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 
+// Copy paste from Core::Internal::CorePlugin::loadMimeFromPlugin
+// TODO make code usable by other plugins.
+static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
+{
+    const QJsonObject metaData = plugin->metaData();
+    const QJsonValue mimetypes = metaData.value("Mimetypes");
+    QString mimetypeString;
+    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+}
+
 class PluginStatusWidget : public QWidget
 {
 public:
@@ -266,17 +279,19 @@ public:
                 return;
             const bool doIt = m_pluginView.data().setPluginsEnabled({spec}, checked);
             if (doIt) {
-                if (!ICore::infoBar()->canInfoBeAdded(kRestartSetting))
-                    return;
-
-                Utils::InfoBarEntry info(
-                    kRestartSetting,
-                    Core::Tr::tr("Plugin changes will take effect after restart."));
-                info.addCustomButton(Tr::tr("Restart Now"), [] {
-                    ICore::infoBar()->removeInfo(kRestartSetting);
-                    QTimer::singleShot(0, ICore::instance(), &ICore::restart);
-                });
-                ICore::infoBar()->addInfo(info);
+                if (checked && spec->isEffectivelySoftloadable()) {
+                    ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
+                    loadMimeFromPlugin(spec);
+                } else if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
+                    Utils::InfoBarEntry info(
+                        kRestartSetting,
+                        Core::Tr::tr("Plugin changes will take effect after restart."));
+                    info.addCustomButton(Tr::tr("Restart Now"), [] {
+                        ICore::infoBar()->removeInfo(kRestartSetting);
+                        QTimer::singleShot(0, ICore::instance(), &ICore::restart);
+                    });
+                    ICore::infoBar()->addInfo(info);
+                }
 
                 ExtensionSystem::PluginManager::writeSettings();
             } else {

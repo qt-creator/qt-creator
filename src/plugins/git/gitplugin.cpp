@@ -1909,6 +1909,11 @@ void emitFileStatusChanged(const FilePath &repository, const QStringList &files)
     emit dd->updateFileStatus(repository, files);
 }
 
+void emitClearFileStatus(const FilePath &repository)
+{
+    emit dd->clearFileStatus(repository);
+}
+
 void startRebaseFromCommit(const FilePath &workingDirectory, const QString &commit)
 {
     dd->startRebaseFromCommit(workingDirectory, commit);

@@ -61,7 +61,7 @@
             project.
         \li \c {main.py}, which has some boilerplate code.
         \li \c {main.qml}, which imports Qt Quick controls.
-        \li \c {reguirements.txt}, which stores the PySide version of the
+        \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide version
             using pip.
     \endlist

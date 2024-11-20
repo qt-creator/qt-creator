@@ -15,7 +15,6 @@ namespace Utils
 class IconDisplayPrivate
 {
 public:
-    QSize m_iconSize;
     QIcon m_icon;
 };
 
@@ -52,7 +51,10 @@ QSize IconDisplay::sizeHint() const
     if (d->m_icon.isNull())
         return {};
 
-    return d->m_icon.availableSizes().first();
+    if (auto sizes = d->m_icon.availableSizes(); !sizes.isEmpty())
+        return sizes.first();
+
+    return {};
 }
 
 void IconDisplay::setIcon(const Icon &icon)

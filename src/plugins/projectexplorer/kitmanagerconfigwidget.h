@@ -32,6 +32,7 @@ public:
 
     QString displayName() const;
     QIcon displayIcon() const;
+    void clearCachedDisplayName(); // FIXME: Remove cached name?
 
     void setFocusToName();
     void apply();

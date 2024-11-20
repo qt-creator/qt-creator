@@ -143,6 +143,7 @@ public:
     void setHasUniqueName(bool on)
     {
         m_hasUniqueName = on;
+        update();
     }
 
     void ensureWidget();
@@ -354,6 +355,7 @@ Kit *KitModel::markForAddition(Kit *baseKit)
     } else {
         k->setup();
     }
+    node->widget()->clearCachedDisplayName();
     k->setUnexpandedDisplayName(newName);
 
     if (!m_defaultNode)

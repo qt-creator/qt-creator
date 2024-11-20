@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include "vcsbase_global.h"
+
 #include <utils/aspects.h>
 
 namespace VcsBase::Internal {
 
-class CommonVcsSettings final : public Utils::AspectContainer
+class VCSBASE_EXPORT CommonVcsSettings final : public Utils::AspectContainer
 {
 public:
     CommonVcsSettings();
@@ -22,8 +24,9 @@ public:
 
     Utils::BoolAspect lineWrap{this};
     Utils::IntegerAspect lineWrapWidth{this};
+    Utils::BoolAspect vcsShowStatus{this};
 };
 
-CommonVcsSettings &commonSettings();
+VCSBASE_EXPORT CommonVcsSettings &commonSettings();
 
 } // VcsBase::Internal

@@ -827,6 +827,16 @@ QMainWindow *ICore::mainWindow()
 
 /*!
     Returns a widget pointer suitable to use as parent for QDialogs.
+
+    Especially for modal dialogs it is important to use the current modal
+    dialog as a parent (if there is one) for the new dialog, because
+    otherwise the new dialog can open behind the old one, while also
+    blocking interaction with that. Using dialogParent() ensures this.
+
+    Also use dialogParent() for non-modal dialogs that do not need any
+    specific lifetime management. If you need to control the lifetime of
+    a non-modal dialog (for example because another part of the
+    application depends on it), use a more specific parent instead.
 */
 QWidget *ICore::dialogParent()
 {

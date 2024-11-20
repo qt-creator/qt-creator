@@ -243,6 +243,7 @@ signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const QStringList &files);
     void updateFileStatus(const Utils::FilePath &repository, const QStringList &files);
+    void clearFileStatus(const Utils::FilePath &repository);
     void configurationChanged();
 
 private:

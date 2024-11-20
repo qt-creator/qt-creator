@@ -52,6 +52,12 @@ TextEditor::TextEditorWidget *getSuggestionReadyEditorWidget(TextEditor::TextDoc
 std::unique_ptr<EmbeddedWidgetInterface> addEmbeddedWidget(
     BaseTextEditor *editor, QWidget *widget, std::variant<int, Position> cursorPosition)
 {
+    if (!widget)
+        throw sol::error("No widget provided");
+
+    if (!editor)
+        throw sol::error("No editor provided");
+
     if (!editor->textDocument() || !editor->textDocument()->document())
         throw sol::error("No text document set");
 

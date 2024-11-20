@@ -23,6 +23,7 @@
 #include <QCursor>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMimeData>
 #include <QPair>
@@ -47,8 +48,9 @@ const int minChunkSize = 1000;
 const auto defaultInterval = 10ms;
 const auto maxInterval = 1000ms;
 
-namespace Core {
+static Q_LOGGING_CATEGORY(chunkLog, "qtc.core.outputChunking", QtWarningMsg)
 
+namespace Core {
 namespace Internal {
 
 class OutputWindowPrivate
@@ -515,11 +517,14 @@ void OutputWindow::handleNextOutputChunk()
         }
     }
 
+    qCDebug(chunkLog) << "next queued chunk has" << chunk.first.size() << "bytes";
     if (actualChunkSize == chunk.first.size()) {
-        handleOutputChunk(chunk.first, chunk.second);
+        qCDebug(chunkLog) << "chunk can be written in one go";
+        handleOutputChunk(chunk.first, chunk.second, ChunkCompleteness::Complete);
         d->queuedOutput.removeFirst();
     } else {
-        handleOutputChunk(chunk.first.left(actualChunkSize), chunk.second);
+        qCDebug(chunkLog) << "chunk needs to be split";
+        handleOutputChunk(chunk.first.left(actualChunkSize), chunk.second, ChunkCompleteness::Split);
         chunk.first.remove(0, actualChunkSize);
     }
     if (!d->queuedOutput.isEmpty())
@@ -530,7 +535,8 @@ void OutputWindow::handleNextOutputChunk()
     }
 }
 
-void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
+void OutputWindow::handleOutputChunk(
+    const QString &output, OutputFormat format, ChunkCompleteness completeness)
 {
     QString out = output;
     if (out.size() > d->maxCharCount) {
@@ -562,9 +568,18 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
     formatterTimer.start();
     d->formatter.appendMessage(out, format);
     ++d->formatterCalls;
+    qCDebug(chunkLog) << "formatter took" << formatterTimer.elapsed() << "ms";
     if (formatterTimer.elapsed() > d->queueTimer.interval()) {
         d->queueTimer.setInterval(std::min(maxInterval, d->queueTimer.intervalAsDuration() * 2));
         d->chunkSize = std::max(minChunkSize, d->chunkSize / 2);
+        qCDebug(chunkLog) << "increasing interval to" << d->queueTimer.interval()
+                          << "ms and lowering chunk size to" << d->chunkSize << "bytes";
+    } else if (completeness == ChunkCompleteness::Split
+               && formatterTimer.elapsed() < d->queueTimer.interval() / 2) {
+        d->queueTimer.setInterval(std::max(1ms, d->queueTimer.intervalAsDuration() * 2 / 3));
+        d->chunkSize = d->chunkSize * 1.5;
+        qCDebug(chunkLog) << "lowering interval to" << d->queueTimer.interval()
+                          << "ms and increasing chunk size to" << d->chunkSize << "bytes";
     }
 
     if (d->scrollToBottom) {
@@ -594,6 +609,8 @@ void OutputWindow::discardExcessiveOutput()
         d->queuedSizeHistory.clear();
     d->queuedSizeHistory << queuedSize;
     bool discard = d->queuedSizeHistory.size() > int(10) && queuedSize > 5 * d->chunkSize;
+    if (discard)
+        qCDebug(chunkLog) << "discarding output due to size";
 
     // Criterion 2: Are we too slow?
     // If it would take longer than a minute to print the pending output and we have
@@ -601,6 +618,8 @@ void OutputWindow::discardExcessiveOutput()
     if (!discard) {
         discard = d->formatterCalls >= 10
                   && (queuedSize / d->chunkSize) * d->queueTimer.intervalAsDuration() > 60s;
+        if (discard)
+            qCDebug(chunkLog) << "discarding output due to time";
     }
 
     if (discard) {
@@ -733,7 +752,7 @@ void OutputWindow::flush()
     }
     d->queueTimer.stop();
     for (const auto &chunk : std::as_const(d->queuedOutput))
-        handleOutputChunk(chunk.first, chunk.second);
+        handleOutputChunk(chunk.first, chunk.second, ChunkCompleteness::Complete);
     d->queuedOutput.clear();
     d->formatter.flush();
 }

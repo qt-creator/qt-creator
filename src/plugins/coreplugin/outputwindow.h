@@ -98,7 +98,11 @@ private:
     void enableUndoRedo();
     void filterNewContent();
     void handleNextOutputChunk();
-    void handleOutputChunk(const QString &output, Utils::OutputFormat format);
+
+    enum class ChunkCompleteness { Complete, Split };
+    void handleOutputChunk(
+        const QString &output, Utils::OutputFormat format, ChunkCompleteness completeness);
+
     void discardExcessiveOutput();
     void discardPendingToolOutput();
     void updateAutoScroll();

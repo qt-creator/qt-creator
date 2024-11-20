@@ -76,8 +76,9 @@ void SecretAspect::readSecret(const std::function<void(Utils::expected_str<QStri
         qWarning() << "No Keychain available, reading from plaintext";
         qtcSettings()->beginGroup("Secrets");
         auto value = qtcSettings()->value(settingsKey());
-        d->callReadCallbacks(fromSettingsValue(value).toString());
         qtcSettings()->endGroup();
+
+        d->callReadCallbacks(fromSettingsValue(value).toString());
         return;
     }
 
@@ -126,7 +127,7 @@ void SecretAspect::writeSettings() const
 
     if (!QKeychain::isAvailable()) {
         qtcSettings()->beginGroup("Secrets");
-        qtcSettings()->setValue(settingsKey(), toSettingsValue(variantValue()));
+        qtcSettings()->setValue(settingsKey(), toSettingsValue(d->value));
         qtcSettings()->endGroup();
         d->wasEdited = false;
         return;
@@ -198,8 +199,7 @@ void SecretAspect::addToLayoutImpl(Layouting::Layout &parent)
         }));
 
     connect(showPasswordButton, &ShowPasswordButton::toggled, edit, [showPasswordButton, edit] {
-        edit->setEchoMode(
-            showPasswordButton->isChecked() ? QLineEdit::Normal : QLineEdit::PasswordEchoOnEdit);
+        edit->setEchoMode(showPasswordButton->isChecked() ? QLineEdit::Normal : QLineEdit::Password);
     });
 
     connect(edit, &FancyLineEdit::textChanged, this, [this](const QString &text) {

@@ -463,6 +463,7 @@ void FlatModel::handleProjectAdded(Project *project)
     if (vc) {
         vc->monitorDirectory(rootPath);
         connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
+        connect(vc, &IVersionControl::clearFileStatus, this, &FlatModel::clearVCStatusFor);
     }
 
     addOrRebuildProjectModel(project);
@@ -482,6 +483,20 @@ void FlatModel::updateVCStatusFor(const Utils::FilePath root, const QStringList 
         fileNode->resetModificationState();
         const QModelIndex index = indexForNode(fileNode);
         emit dataChanged(index, index, {Qt::ForegroundRole});
+    });
+}
+
+void FlatModel::clearVCStatusFor(const Utils::FilePath &root)
+{
+    ProjectTree::forEachNode([this, root](Node *n) {
+        FileNode *fileNode = n->asFileNode();
+        if (!fileNode)
+            return;
+        if (fileNode->filePath().isChildOf(root)) {
+            fileNode->resetModificationState();
+            const QModelIndex index = indexForNode(fileNode);
+            emit dataChanged(index, index, {Qt::ForegroundRole});
+        }
     });
 }
 
