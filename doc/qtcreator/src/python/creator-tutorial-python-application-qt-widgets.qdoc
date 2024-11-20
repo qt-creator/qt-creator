@@ -68,10 +68,10 @@
     The wizard generates the following files:
 
     \list
-        \li \c {hellow_world.pyproject}, which lists the files in the Python
+        \li \c {hello_world.pyproject}, which lists the files in the Python
             project.
         \li \c {mywidget.py}, which has some boilerplate code for a class.
-        \li \c {reguirements.txt}, which stores the PySide version of the
+        \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide version
             using pip.
     \endlist

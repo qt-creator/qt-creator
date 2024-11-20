@@ -345,7 +345,7 @@ private:
         QList<Symbol *> unimplemented;
         SymbolFinder symbolFinder;
         for (Symbol * const s : std::as_const(m_declarations)) {
-            if (!symbolFinder.findMatchingDefinition(s, snapshot()))
+            if (!symbolFinder.findMatchingDefinition(s, snapshot(), true))
                 unimplemented << s;
         }
         if (unimplemented.isEmpty())

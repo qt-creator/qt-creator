@@ -129,6 +129,27 @@ void FileSystemAccessTest::initTestCase()
     QVERIFY(m_localRemoteDestDir.exists());
     QVERIFY(m_remoteLocalDestDir.exists());
     QVERIFY(m_remoteRemoteDestDir.exists());
+
+    const FilePath localPath = localTempDir / "sourceChildDir" / "grandchildDir";
+    const FilePath remotePath = remoteTempDir / "destChildDir" / "grandchildDir";
+    if (localPath.exists())
+        localPath.parentDir().removeRecursively();
+    if (remotePath.exists())
+        remotePath.parentDir().removeRecursively();
+    QVERIFY(!localPath.exists());
+    QVERIFY(!remotePath.exists());
+    QVERIFY(!localPath.parentDir().exists());
+    QVERIFY(!remotePath.parentDir().exists());
+    QVERIFY(localPath.ensureWritableDir());
+    QVERIFY(remotePath.ensureWritableDir());
+    QVERIFY(localPath.exists());
+    QVERIFY(remotePath.exists());
+    QVERIFY(localPath.parentDir().removeRecursively());
+    QVERIFY(remotePath.parentDir().removeRecursively());
+    QVERIFY(!localPath.exists());
+    QVERIFY(!remotePath.exists());
+    QVERIFY(!localPath.parentDir().exists());
+    QVERIFY(!remotePath.parentDir().exists());
 }
 
 void FileSystemAccessTest::cleanupTestCase()

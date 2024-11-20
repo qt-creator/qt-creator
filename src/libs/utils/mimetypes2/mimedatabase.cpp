@@ -126,6 +126,27 @@ void MimeDatabasePrivate::loadProviders()
     if (!m_additionalData.contains("utilslib.mimetypes")) {
         m_additionalData.insert("utilslib.mimetypes", QByteArray(R"--(<?xml version="1.0"?>
 <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
+    <mime-type type="text/plain">
+        <magic priority="20">
+          <match value="This is TeX," type="string" offset="0"/>
+          <match value="This is METAFONT," type="string" offset="0"/>
+          <match value="/*" type="string" offset="0"/>
+          <match value="//" type="string" offset="0"/>
+          <match value=";;" type="string" offset="0"/>
+          <!-- UTF-16BE BOM -->
+          <match value="\xfe\xff" type="string" offset="0"/>
+          <!-- UTF-16LE BOM -->
+          <match value="\xff\xfe" type="string" offset="0"/>
+          <!-- UTF-8 BOM -->
+          <match value="\xef\xbb\xbf" type="string" offset="0"/>
+        </magic>
+
+        <glob pattern="*.txt"/>
+        <glob pattern="*.text"/>
+        <glob pattern="*.def"/>
+        <glob pattern="*.list"/>
+        <glob pattern="*.in"/>
+    </mime-type>
     <mime-type type="application/x-compressed-tar">
       <comment>Tar archive (gzip-compressed)</comment>
       <sub-class-of type="application/gzip"/>

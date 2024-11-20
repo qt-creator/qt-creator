@@ -562,7 +562,7 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
         if (s->isGenerated() || !(surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s)))
             continue;
         if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
-                                                                      changes.snapshot())))
+                                                                      changes.snapshot(), true)))
         {
             if (destinationFile.isEmpty() || destinationFile == definitionFunction->filePath()) {
                 prefix = QLatin1String("\n\n");
@@ -578,9 +578,8 @@ static InsertionLocation nextToSurroundingDefinitions(Symbol *declaration,
             surroundingFunctionDecl = isNonVirtualFunctionDeclaration(s);
             if (!surroundingFunctionDecl)
                 continue;
-            if ((definitionFunction = symbolFinder.findMatchingDefinition(surroundingFunctionDecl,
-                                                                          changes.snapshot())))
-            {
+            if ((definitionFunction = symbolFinder.findMatchingDefinition(
+                     surroundingFunctionDecl, changes.snapshot(), true))) {
                 if (destinationFile.isEmpty() || destinationFile ==  definitionFunction->filePath()) {
                     suffix = QLatin1String("\n\n");
                     break;

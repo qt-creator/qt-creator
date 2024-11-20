@@ -75,9 +75,10 @@
     To install extensions to \QC:
 
     \list 1
-        \li Go to \preferences > \uicontrol Extensions.
-            \image qtcreator-preferences-extensions.webp {Extensions in Preferences}
-        \li Select \uicontrol {Install Extension}.
+        \li Go to \uicontrol Extensions.
+            \image qtcreator-extension-mode.webp {Extensions mode}
+        \li Select an extension.
+        \li Select \uicontrol {Install}.
         \include creator-how-to-install-plugins.qdoc install-plugins
     \endlist
 

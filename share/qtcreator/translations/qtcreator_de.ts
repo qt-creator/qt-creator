@@ -10875,7 +10875,7 @@ Locked components cannot be modified or selected.</source>
     </message>
     <message>
         <source>All changes on this page take effect immediately.</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle Änderungen auf dieser Seite werden sofort wirksam.</translation>
     </message>
     <message>
         <source>Failed to create the SDK Tools path %1.</source>
@@ -11295,31 +11295,31 @@ Dies kann nicht rückgängig gemacht werden.</translation>
     </message>
     <message>
         <source>Target ABI / API:</source>
-        <translation type="unfinished"></translation>
+        <translation>Ziel-ABI / API:</translation>
     </message>
     <message>
         <source>Skin definition:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skin-Definition:</translation>
     </message>
     <message>
         <source>Avd list command failed. %1 %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Avd List-Kommando ist fehlgeschlagen. %1 %2</translation>
     </message>
     <message>
         <source>Creating new AVD device...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge neues AVD-Gerät...</translation>
     </message>
     <message>
         <source>Install a system image from the SDK Manager first.</source>
-        <translation type="unfinished"></translation>
+        <translation>Installieren Sie erst ein System-Image vom SDK Manager.</translation>
     </message>
     <message>
         <source>No system images found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine System-Images gefunden.</translation>
     </message>
     <message>
         <source>No system images found for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es wurden keine System-Images für %1 gefunden.</translation>
     </message>
     <message>
         <source>Name:</source>
@@ -11493,11 +11493,11 @@ Das Kit unterstützt &quot;%2&quot;, aber das Gerät verwendet &quot;%3&quot;.</
     </message>
     <message>
         <source>Android package installation finished with success.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Paketinstallation wurde erfolgreich abgeschlossen.</translation>
     </message>
     <message>
         <source>Android package installation failed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Paketinstallation ist fehlgeschlagen.</translation>
     </message>
     <message>
         <source>Deploy to Android device</source>
@@ -11636,19 +11636,19 @@ Der vom Kit mindestens benötigte API-Level ist %1.</translation>
     <message>
         <source>Failed to forward %1 debugging ports.</source>
         <extracomment>%1 = QML/JDB/C++</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Die Debugging-Ports für %1 konnten nicht weitergeleitet werden.</translation>
     </message>
     <message>
         <source>Activity Manager error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler des Activity Manager: %1</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; terminated.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde beendet.</translation>
     </message>
     <message>
         <source>Android target &quot;%1&quot; died.</source>
-        <translation type="unfinished"></translation>
+        <translation>Android-Ziel &quot;%1&quot; wurde unerwartet beended.</translation>
     </message>
     <message>
         <source>Failed to find application directory.</source>
@@ -11997,37 +11997,39 @@ Installieren Sie diese manuell, nachdem der aktuelle Vorgang abgeschlossen ist.
     </message>
     <message>
         <source>No application build targets found in this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Im Projekt wurden keine Build-Ziele für Anwendungen gefunden.</translation>
     </message>
     <message>
         <source>No Application Build Target</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Build-Ziel für eine Anwendung</translation>
     </message>
     <message>
         <source>Select the build target for which to create the Android templates.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Build-Ziel, für das die Android-Vorlagen erstellt werden sollen.</translation>
     </message>
     <message>
         <source>Build target:</source>
-        <translation type="unfinished"></translation>
+        <translation>Build-Ziel:</translation>
     </message>
     <message>
         <source>Select a build target</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie ein Build-Ziel</translation>
     </message>
     <message>
         <source>It is highly recommended if you are planning to extend the Java side of your Qt application.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist sehr zu empfehlen, wenn Sie planen, ihre Qt-Anwendung mit Java-Code zu erweitern.</translation>
     </message>
     <message>
         <source>Select the Android package source directory.
 
 The files in the Android package source directory will be copied to the Android build directory and the default templates will be overwritten.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie das Quellverzeichnis des Android-Pakets aus.
+
+Die Dateien aus dem Quellverzeichnis des Android-Pakets werden in das Android-Build-Verzeichnis kopiert und die Vorlagen überschrieben.</translation>
     </message>
     <message>
         <source>The Android template files will be created under the %1 path that is set in the project file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Vorlage-Dateien für Android werden in dem Verzeichnis erstellt, das als %1 in der Projektdatei angegeben ist.</translation>
     </message>
     <message>
         <source>Create Android Template Files Wizard</source>
@@ -12373,11 +12375,11 @@ und das Überschreiben Ihrer Einstellungen erfordert. Das Überschreiben erlaube
     </message>
     <message>
         <source>Restart if running:</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufende Anwendung neu starten:</translation>
     </message>
     <message>
         <source>Restarts the application in case it is already running.</source>
-        <translation type="unfinished"></translation>
+        <translation>Startet die Anwendung neu, falls sie bereits läuft.</translation>
     </message>
     <message>
         <source>Controller:</source>
@@ -12718,7 +12720,7 @@ Ausführbare Datei: %2</translation>
     </message>
     <message>
         <source>Show Durations</source>
-        <translation type="unfinished"></translation>
+        <translation>Laufzeiten anzeigen</translation>
     </message>
     <message>
         <source>Pass</source>
@@ -13772,15 +13774,15 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Open Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Einstellungen öffnen...</translation>
     </message>
     <message>
         <source>Configure dashboards in Preferences &gt; Axivion &gt; General.</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurieren Sie Dashboards in Einstellungen &gt; Axivion &gt; Allgemein.</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein</translation>
     </message>
     <message>
         <source>No Data</source>
@@ -13792,27 +13794,27 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Issues</source>
-        <translation type="unfinished">Probleme</translation>
+        <translation>Probleme</translation>
     </message>
     <message>
         <source>Issue Details</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemdetails</translation>
     </message>
     <message>
         <source>Reload</source>
-        <translation type="unfinished">Neu laden</translation>
+        <translation>Neu laden</translation>
     </message>
     <message>
         <source>Show Inline Issues</source>
-        <translation type="unfinished"></translation>
+        <translation>Problem im Code anzeigen</translation>
     </message>
     <message>
         <source>Show Issue Annotations Inline</source>
-        <translation type="unfinished"></translation>
+        <translation>Inline-Annotationen für Probleme anzeigen</translation>
     </message>
     <message>
         <source>Show Online Filter Help</source>
-        <translation type="unfinished"></translation>
+        <translation>Online-Filterhilfe anzeigen</translation>
     </message>
     <message>
         <source>Open Issue in Dashboard</source>
@@ -13828,7 +13830,7 @@ Siehe auch die Einstellungen für Google Test.</translation>
     </message>
     <message>
         <source>Show Issue Properties</source>
-        <translation type="unfinished"></translation>
+        <translation>Problemeigenschaften anzeigen</translation>
     </message>
     <message>
         <source>Certificate Error</source>
@@ -13910,7 +13912,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Axivion: Deleting API token for %1 as respective dashboard server was removed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Axivion: Lösche API-Token für %1, da das entsprechende Dashboard entfernt wurde.</translation>
     </message>
     <message>
         <source>Dashboard URL:</source>
@@ -13962,43 +13964,43 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Project name:</source>
-        <translation type="unfinished">Projektname:</translation>
+        <translation>Projektname:</translation>
     </message>
     <message>
         <source>Analysis path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad:</translation>
     </message>
     <message>
         <source>Local path:</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad:</translation>
     </message>
     <message>
         <source>Project Name</source>
-        <translation type="unfinished">Projektname</translation>
+        <translation>Projektname</translation>
     </message>
     <message>
         <source>Analysis Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Analysepfad</translation>
     </message>
     <message>
         <source>Local Path</source>
-        <translation type="unfinished"></translation>
+        <translation>Lokaler Pfad</translation>
     </message>
     <message>
         <source>Add</source>
-        <translation type="unfinished">Hinzufügen</translation>
+        <translation>Hinzufügen</translation>
     </message>
     <message>
         <source>Delete</source>
-        <translation type="unfinished">Löschen</translation>
+        <translation>Löschen</translation>
     </message>
     <message>
         <source>Move Up</source>
-        <translation type="unfinished">Nach oben</translation>
+        <translation>Nach oben</translation>
     </message>
     <message>
         <source>Move Down</source>
-        <translation type="unfinished">Nach unten</translation>
+        <translation>Nach unten</translation>
     </message>
     <message>
         <source>General</source>
@@ -14006,7 +14008,7 @@ Wollen Sie &quot;%1&quot; mit der Standardanwendung öffnen?</translation>
     </message>
     <message>
         <source>Path Mapping</source>
-        <translation type="unfinished"></translation>
+        <translation>Pfadzuordnung</translation>
     </message>
     <message>
         <source>Fetching...</source>
@@ -14022,11 +14024,19 @@ a matches issues where the value contains the letter &apos;a&apos;
 (ab | cd) &amp; !ef matches issues with values containing &apos;ab&apos; or &apos;cd&apos; but not &apos;ef&apos;
 &quot;&quot; matches issues having an empty value in this column
 !&quot;&quot; matches issues having any non-empty value in this column</source>
-        <translation type="unfinished"></translation>
+        <translation>Filter können mit &amp; als logischem Und, | als logischem Oder und ! als logischem Nicht kombiniert werden. Die Filter können * als Platzhalter für Sequenzen beliebiger Zeichen enthalten. Wenn ein einzelner Filter mit doppelten Anführungszeichen eingeschlossen ist, wird er mit der gesamten Zeichenkette verglichen. Einige Filterzeichen erfordern, dass der Filterausdruck mit doppelten Anführungszeichen eingeschlossen ist. Innerhalb doppelter Anführungszeichen müssen &quot; und \ mit einem Backslash maskiert werden.
+Einige Beispiele:
+
+a entspricht Problemen, deren Wert den Buchstaben &apos;a&apos; enthält
+&quot;abc&quot; entspricht Problemen, deren Wert exakt &apos;abc&apos; ist
+!abs entspricht Problemen, deren Wert nicht &apos;abc&apos; enthält
+(ab | cd) &amp; !ef entspricht Problemen, deren Wert &apos;ab&apos; oder &apos;cd&apos; enthält, aber nicht &apos;ef&apos;
+&quot;&quot; entspricht Problemen, die in dieser Spalte einen leeren Wert haben
+!&quot;&quot; entspricht Problemen, die in dieser Spalte einen Wert haben, der nicht leer ist</translation>
     </message>
     <message>
         <source>Apply</source>
-        <translation type="unfinished">Anwenden</translation>
+        <translation>Anwenden</translation>
     </message>
 </context>
 <context>
@@ -15806,19 +15816,19 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Build &amp;Subproject &quot;%1&quot;</source>
-        <translation type="unfinished">&amp;Unterprojekt &quot;%1&quot; erstellen</translation>
+        <translation>&amp;Unterprojekt &quot;%1&quot; erstellen</translation>
     </message>
     <message>
         <source>Build &amp;Subproject</source>
-        <translation type="unfinished">&amp;Unterprojekt erstellen</translation>
+        <translation>&amp;Unterprojekt erstellen</translation>
     </message>
     <message>
         <source>Rebuild</source>
-        <translation type="unfinished">Neu erstellen</translation>
+        <translation>Neu erstellen</translation>
     </message>
     <message>
         <source>Clean</source>
-        <translation type="unfinished">Bereinigen</translation>
+        <translation>Bereinigen</translation>
     </message>
     <message>
         <source>Re-generates the kits that were created for CMake presets. All manual modifications to the CMake project settings will be lost.</source>
@@ -15902,7 +15912,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished"></translation>
+        <translation>Keins</translation>
     </message>
     <message>
         <source>CMake executable path does not exist.</source>
@@ -16073,7 +16083,7 @@ Zum Beispiel bewirkt die Angabe &quot;Revision: 15&quot; dass der Branch auf Rev
     </message>
     <message>
         <source>Expands to:</source>
-        <translation type="unfinished"></translation>
+        <translation>Wird expandiert zu:</translation>
     </message>
     <message>
         <source>Current Configuration:</source>
@@ -17201,27 +17211,27 @@ Das integrierte Codemodell übernimmt das Einrücken.</translation>
     </message>
     <message>
         <source>Import Code Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Format importieren</translation>
     </message>
     <message>
         <source>ClangFormat (*clang-format*);;All files (*)</source>
-        <translation type="unfinished"></translation>
+        <translation>ClangFormat (*clang-format*);;All files (*)</translation>
     </message>
     <message>
         <source>Import Code Style</source>
-        <translation type="unfinished">Coding Style importieren</translation>
+        <translation>Coding Style importieren</translation>
     </message>
     <message>
         <source>Enter a name for the imported code style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie einen Namen für den importierten Coding Style ein:</translation>
     </message>
     <message>
         <source>Cannot import code style from &quot;%1&quot;.</source>
-        <translation type="unfinished">Der Coding-Stil kann nicht von &quot;%1&quot; importiert werden.</translation>
+        <translation>Der Coding Style kann nicht von &quot;%1&quot; importiert werden.</translation>
     </message>
     <message>
         <source>Export Code Format</source>
-        <translation type="unfinished"></translation>
+        <translation>Code-Format exportieren</translation>
     </message>
     <message>
         <source>ClangFormat</source>
@@ -17832,15 +17842,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Compilation database for %1 successfully generated at &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kompilierungsdatenbank für %1 wurde erfolgreich in &quot;%2&quot; erzeugt.</translation>
     </message>
     <message>
         <source>Generating compilation database for %1 failed: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeugen der Kompilierungsdatenbank für %1 ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Generating compilation database for %1 at &quot;%2&quot; ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzeuge Kompilierungsdatenbank für %1 in &quot;%2&quot; ...</translation>
     </message>
 </context>
 <context>
@@ -18338,83 +18348,83 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     <name>QtC::CmdBridge</name>
     <message>
         <source>Command failed with exit code %1: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando ist mit Rückgabewert %1 fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Error starting cmdbridge: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Starten von cmdbridge: %1</translation>
     </message>
     <message>
         <source>Remote root path is empty</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist leer</translation>
     </message>
     <message>
         <source>Remote root path is not absolute</source>
-        <translation type="unfinished"></translation>
+        <translation>Entferntes Wurzelverzeichnis ist nicht absolut</translation>
     </message>
     <message>
         <source>Could not find dd on remote host: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>dd konnte auf dem entfernten Host nicht gefunden werden: %1</translation>
     </message>
     <message>
         <source>Error reading file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Lesen der Datei: %1</translation>
     </message>
     <message>
         <source>Error writing file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Schreiben der Datei: %1</translation>
     </message>
     <message>
         <source>File does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Datei existiert nicht</translation>
     </message>
     <message>
         <source>Error removing file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Entfernen der Datei: %1</translation>
     </message>
     <message>
         <source>Error copying file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Kopieren der Datei: %1</translation>
     </message>
     <message>
         <source>Error renaming file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Umbenennen der Datei: %1</translation>
     </message>
     <message>
         <source>Error killing process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Beenden des Prozesses: %1</translation>
     </message>
     <message>
         <source>Error creating temporary file: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Fehler beim Erstellen der temporären Datei: %1</translation>
     </message>
     <message>
         <source>Failed starting bridge process</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des Bridge-Prozesses ist fehlgeschlagen</translation>
     </message>
     <message>
         <source>Failed starting bridge process: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten des Bridge-Prozesses ist fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Bridge process not running</source>
-        <translation type="unfinished"></translation>
+        <translation>Bridge-Prozess läuft nicht</translation>
     </message>
     <message>
         <source>FollowSymlinks is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>FollowSymlinks wird nicht unterstützt</translation>
     </message>
     <message>
         <source>Kickoff signal is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>Kickoff-Signal wird nicht unterstützt</translation>
     </message>
     <message>
         <source>CloseWriteChannel signal is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>CloseWriteChannel-Signal wird nicht unterstützt</translation>
     </message>
     <message>
         <source>No command bridge found for architecture %1-%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Command-Bridge für die Architektur %1-%2 gefunden</translation>
     </message>
 </context>
 <context>
@@ -18698,15 +18708,15 @@ Setzen Sie erst eine gültige ausführbare Datei.</translation>
     </message>
     <message>
         <source>Change backend URL.</source>
-        <translation type="unfinished"></translation>
+        <translation>Backend-URL ändern.</translation>
     </message>
     <message>
         <source>Set Compiler Explorer URL</source>
-        <translation type="unfinished"></translation>
+        <translation>Compiler Explorer-URL festlegen</translation>
     </message>
     <message>
         <source>URL:</source>
-        <translation type="unfinished">URL:</translation>
+        <translation>URL:</translation>
     </message>
     <message>
         <source>Compiler Explorer Editor</source>
@@ -19438,15 +19448,15 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Could not find %1 executable in %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Die ausführbare Datei %1 konnte in %2 nicht gefunden werden</translation>
     </message>
     <message>
         <source>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</source>
-        <translation type="unfinished"></translation>
+        <translation>The Qt logo, axivion stopping software erosion logo, Qt Group logo, as well as Qt®, Axivion®, avixion stopping software erosion®, Boot to Qt®, Built with Qt®, Coco®, froglogic®, Qt Cloud Services®, Qt Developer Days®, Qt Embedded®, Qt Enterprise®, Qt Group®, Qt Mobile®, Qt Quick®, Qt Quick Compiler®, Squish® are registered trademarks of The Qt Company Ltd. or its subsidiaries.</translation>
     </message>
     <message>
         <source>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 is free software, and you are welcome to redistribute it under &lt;a href=&quot;%2&quot;&gt;certain conditions&lt;/a&gt;. For some components, different conditions might apply though.</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
@@ -19482,11 +19492,11 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     </message>
     <message>
         <source>Hide</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbergen</translation>
     </message>
     <message>
         <source>Modes</source>
-        <translation type="unfinished"></translation>
+        <translation>Modi</translation>
     </message>
     <message>
         <source>Icons and Text</source>
@@ -19503,7 +19513,7 @@ Wenn die Systemzeiger für das Verändern der Größe von Ansichten nicht korrek
     <message>
         <source>Show %1</source>
         <extracomment>%1 = name of a mode</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 anzeigen</translation>
     </message>
     <message>
         <source>Ctrl+0</source>
@@ -20124,9 +20134,13 @@ unter Versionsverwaltung (%2) stellen?</translation>
 %2
 ... and %n more.</source>
         <extracomment>%1 = name of VCS system, %2 = lines with file paths</extracomment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Die folgenden Dateien konnten nicht zur Versionsverwaltung (%1) hinzugefügt werden
+%2
+... und eine weitere.</numerusform>
+            <numerusform>Die folgenden Dateien konnten nicht zur Versionsverwaltung (%1) hinzugefügt werden
+%2
+... und %n weitere.</numerusform>
         </translation>
     </message>
     <message>
@@ -20331,7 +20345,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME magic data is interpreted as defined by the Shared MIME-info Database specification from &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt;.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;MIME Magic Data wird interpretiert wie in der Shared MIME-Info Datenbank-Spezifikation von &lt;a href=&quot;https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/&quot;&gt;freedesktop.org&lt;/a&gt; festgelegt.&lt;hr/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Host16</source>
@@ -20404,11 +20418,11 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Copy Contents to Scratch Buffer</source>
-        <translation type="unfinished"></translation>
+        <translation>Inhalt in Notizbereich kopieren</translation>
     </message>
     <message>
         <source>Failed to open editor for &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Es konnte kein Editor für die Datei &quot;%1&quot; geöffnet werden.</translation>
     </message>
     <message numerus="yes">
         <source>Elided %n characters due to Application Output settings</source>
@@ -20539,7 +20553,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Failed to set permissions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Dateizugriffsrechte konnten nicht gesetzt werden.</translation>
     </message>
     <message>
         <source>Unable to create the directory %1.</source>
@@ -20632,7 +20646,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Not implemented</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht implementiert</translation>
     </message>
     <message>
         <source>File was restored from auto-saved copy. Select Save to confirm or Revert to Saved to discard changes.</source>
@@ -20644,23 +20658,23 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Version control state: added.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: hinzugefügt.</translation>
     </message>
     <message>
         <source>Version control state: modified.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: verändert.</translation>
     </message>
     <message>
         <source>Version control state: deleted.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: gelöscht.</translation>
     </message>
     <message>
         <source>Version control state: renamed.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: umbenannt.</translation>
     </message>
     <message>
         <source>Version control state: untracked.</source>
-        <translation type="unfinished"></translation>
+        <translation>Status der Versionsverwaltung: nicht enthalten.</translation>
     </message>
     <message>
         <source>Toggle Progress Details</source>
@@ -20696,7 +20710,7 @@ unter Versionsverwaltung (%2) stellen?</translation>
     </message>
     <message>
         <source>Ignore binary files</source>
-        <translation type="unfinished"></translation>
+        <translation>Binärdateien ignorieren</translation>
     </message>
     <message>
         <source>Use re&amp;gular expressions</source>
@@ -21196,23 +21210,23 @@ Möchten Sie es beenden?</translation>
     </message>
     <message>
         <source>Terms and Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen und Konditionen</translation>
     </message>
     <message>
         <source>Accept</source>
-        <translation type="unfinished"></translation>
+        <translation>Annehmen</translation>
     </message>
     <message>
         <source>Decline</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablehnen</translation>
     </message>
     <message>
         <source>The plugin %1 requires you to accept the following terms and conditions:</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Plugin %1 erfordert, dass Sie folgende Bedingungen und Konditionen annehmen:</translation>
     </message>
     <message>
         <source>Do you wish to accept?</source>
-        <translation type="unfinished"></translation>
+        <translation>Wollen Sie diese annehmen?</translation>
     </message>
     <message>
         <source>No themes found in installation.</source>
@@ -21352,7 +21366,7 @@ Sie werden wahrscheinlich auf weitere Probleme mit dieser Instanz von %3 stoßen
     </message>
     <message>
         <source>%1 uses Google Crashpad for collecting crashes and sending them to Sentry for processing. Crashpad may capture arbitrary contents from crashed process’ memory, including user sensitive information, URLs, and whatever other content users have trusted %1 with. The collected crash reports are however only used for the sole purpose of fixing bugs.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 nutzt Google Crashpad, um Absturzberichte zu sammeln und diese zur Verarbeitung an Sentry zu senden. Crashpad kann beliebige Inhalte des Speichers des abgestürzten Prozesses erfassen. Dies beinhaltet persönliche Daten, URLs und welche Inhalte auch immer der Benutzer %1 anvertraut hat. Die gesammelten Absturzberichte werden allerdings nur zum Zweck der Fehlerbehebung genutzt.</translation>
     </message>
     <message>
         <source>More information:</source>
@@ -21524,11 +21538,11 @@ Möchten Sie sie jetzt auschecken?</translation>
     </message>
     <message>
         <source>Open Previous Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Vorhergehendes Dokument öffnen</translation>
     </message>
     <message>
         <source>Open Next Document</source>
-        <translation type="unfinished"></translation>
+        <translation>Nächstes Dokument öffnen</translation>
     </message>
     <message>
         <source>Reopen Last Closed Document</source>
@@ -21854,7 +21868,7 @@ provided they were unmodified before the refactoring.</source>
     </message>
     <message>
         <source>Crash reports are saved in &quot;%1&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Absturzberichte werden in &quot;%1&quot; gespeichert.</translation>
     </message>
     <message>
         <source>Crash Reporting</source>
@@ -22178,15 +22192,15 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Plugins gefunden.</translation>
     </message>
     <message>
         <source>More than one plugin found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr als ein Plugin gefunden.</translation>
     </message>
     <message>
         <source>Plugin failed to resolve dependencies:</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin konnte Abhängigkeiten nicht auflösen:</translation>
     </message>
     <message>
         <source>Check Archive</source>
@@ -22198,19 +22212,19 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Load plugin immediately</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin sofort laden</translation>
     </message>
     <message>
         <source>%1 will be installed into %2.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 wird in %2 installiert.</translation>
     </message>
     <message>
         <source>Accept Terms and Conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen und Konditionen annehmen</translation>
     </message>
     <message>
         <source>I accept the terms and conditions.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ich nehme die Bedingungen und Konditionen an.</translation>
     </message>
     <message>
         <source>Canceled.</source>
@@ -22657,11 +22671,11 @@ Doppelklicken Sie einen Eintrag um ihn zu ändern.</translation>
     </message>
     <message>
         <source>Secret storage is not available! Your values will be stored as plaintext in the settings!</source>
-        <translation type="unfinished"></translation>
+        <translation>Sicheres Speichern ist nicht verfügbar! Ihre Werte werden in den Einstellungen als Klartext gespeichert!</translation>
     </message>
     <message>
         <source>You can install libsecret or KWallet to enable secret storage.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie können libsecret oder KWallet installieren, um sicheres Speichern zu aktivieren.</translation>
     </message>
 </context>
 <context>
@@ -32134,11 +32148,11 @@ Jetzt Commit ausführen?</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Show log for all local branches.</source>
-        <translation type="unfinished"></translation>
+        <translation>Log für alle lokalen Branches anzeigen</translation>
     </message>
     <message>
         <source>Git Diff &quot;%1&quot;</source>
@@ -32735,11 +32749,11 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Show commit subject</source>
-        <translation type="unfinished"></translation>
+        <translation>Titel des Commits anzeigen</translation>
     </message>
     <message>
         <source>Adds the commit subject directly to the annotation.</source>
-        <translation type="unfinished"></translation>
+        <translation>Fügt den Titel des Commits direkt zur Annotation hinzu.</translation>
     </message>
     <message>
         <source>Ignore whitespace changes</source>
@@ -32975,7 +32989,7 @@ wenn es außerhalb von git bash aufgerufen wird.</translation>
     </message>
     <message>
         <source>Change #, hash, tr:id, owner:email or reviewer:email</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungs-#, Hash, tr:id, owner:email oder reviewer:email</translation>
     </message>
     <message>
         <source>&amp;Query:</source>
@@ -33404,7 +33418,7 @@ Nicht markiert - Die Änderung ist kein Entwurf.</translation>
     </message>
     <message>
         <source>Hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Hash</translation>
     </message>
     <message>
         <source>Soft</source>
@@ -33692,20 +33706,20 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     <message>
         <source>Log Current Selection</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log der aktuellen Auswahl</translation>
     </message>
     <message>
         <source>Log of &quot;%1&quot; Selection</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log der Auswahl in &quot;%1</translation>
     </message>
     <message>
         <source>Meta+G,Meta+S</source>
-        <translation type="unfinished"></translation>
+        <translation>Meta+G,Meta+S</translation>
     </message>
     <message>
         <source>Alt+G,Alt+S</source>
-        <translation type="unfinished">Alt+G,Alt+S</translation>
+        <translation>Alt+G,Alt+S</translation>
     </message>
     <message>
         <source>Meta+G,Meta+B</source>
@@ -33785,37 +33799,37 @@ Leer lassen, um das Dateisystem zu durchsuchen.</translation>
     </message>
     <message>
         <source>Current &amp;Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles &amp;Projektverzeichnis</translation>
     </message>
     <message>
         <source>Diff Project Directory</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Diff&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
         <comment>Avoid translating &quot;Log&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Clean Project  Directory...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Clean des Projektverzeichnisses...</translation>
     </message>
     <message>
         <source>Clean Directory of Project &quot;%1&quot;...</source>
         <comment>Avoid translating &quot;Clean&quot;</comment>
-        <translation type="unfinished"></translation>
+        <translation>Clean des Projektverzeichnisses von &quot;%1&quot;...</translation>
     </message>
     <message>
         <source>Meta+G,Meta+C</source>
@@ -36336,7 +36350,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>No client selected</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein Client ausgewählt</translation>
     </message>
     <message>
         <source>Language Client Inspector</source>
@@ -36352,7 +36366,7 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Send message</source>
-        <translation type="unfinished"></translation>
+        <translation>Nachricht senden</translation>
     </message>
     <message>
         <source>Log</source>
@@ -36553,19 +36567,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Lua</source>
-        <translation type="unfinished"></translation>
+        <translation>Lua</translation>
     </message>
     <message>
         <source>New Script...</source>
-        <translation type="unfinished"></translation>
+        <translation>Neues Skript...</translation>
     </message>
     <message>
         <source>Scripting</source>
-        <translation type="unfinished"></translation>
+        <translation>Skripten</translation>
     </message>
     <message>
         <source>Run Current Script</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktuelles Skript ausführen</translation>
     </message>
     <message>
         <source>Failed to load plugin %1: %2</source>
@@ -36573,19 +36587,19 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Run script &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Skript &quot;%1&quot; ausführen</translation>
     </message>
     <message>
         <source>Run</source>
-        <translation type="unfinished">Ausführen</translation>
+        <translation>Ausführen</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished"></translation>
+        <translation>Bearbeiten</translation>
     </message>
     <message>
         <source>Failed to read script &quot;%1&quot;: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Lesen des Skripts &quot;%1&quot; ist fehlgeschlagen: %2</translation>
     </message>
     <message>
         <source>Cannot prepare extension setup: %1</source>
@@ -36601,11 +36615,11 @@ Für gültige Einstellungen schauen Sie in die Dokumentation des verwendeten Lan
     </message>
     <message>
         <source>Evaluate simple Lua statements.&lt;br&gt;Literal &apos;}&apos; characters must be escaped as &quot;\}&quot;, &apos;\&apos; characters must be escaped as &quot;\\&quot;, &apos;#&apos; characters must be escaped as &quot;\#&quot;, and &quot;%{&quot; must be escaped as &quot;%\{&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Einfache Lua-Ausdrücke auswerten.&lt;br&gt;&apos;}&apos;-Zeichen müssen als &quot;\}&quot; maskiert werden, &apos;\&apos;-Zeichen müssen als &quot;\\&quot; maskiert werden, &apos;#&apos;-Zeichen müssen als &quot;\#&quot; maskiert werden, und &quot;%{&quot; muss als &quot;%\{&quot; maskiert werden.</translation>
     </message>
     <message>
         <source>No Lua statement to evaluate.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kein auszuwertender Lua-Ausdruck</translation>
     </message>
 </context>
 <context>
@@ -39213,11 +39227,11 @@ Weitere Erklärungen sind möglicherweise in &quot;Ausgabe der Anwendung&quot; z
     </message>
     <message>
         <source>Deploy dependencies</source>
-        <translation type="unfinished"></translation>
+        <translation>Deployment für Abhängigkeiten durchführen</translation>
     </message>
     <message>
         <source>Do not just build dependencies, but deploy them as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Abhängigkeiten nicht nur bauen, sondern auch Deployment für sie durchführen.</translation>
     </message>
     <message>
         <source>Configuration is faulty. Check the Issues view for details.</source>
@@ -39523,11 +39537,11 @@ Außer: %2
     </message>
     <message>
         <source>Discarded excessive compile output.</source>
-        <translation type="unfinished"></translation>
+        <translation>Übermäßige Ausgaben der Kompilierung wurden verworfen.</translation>
     </message>
     <message>
         <source>Discards compile output that continuously comes in faster than it can be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwirft Ausgaben der Kompilierung, die beständig schneller angefordert werden als sie behandelt werden können.</translation>
     </message>
     <message>
         <source>Files in Current Project</source>
@@ -39884,7 +39898,7 @@ Title of a the cloned RunConfiguration window, text of the window</extracomment>
     </message>
     <message>
         <source>VCS Log Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>VCS Log-Verzeichnis</translation>
     </message>
     <message>
         <source>Close Project</source>
@@ -40178,11 +40192,11 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>Create Header File</source>
-        <translation type="unfinished"></translation>
+        <translation>Header-Datei erstellen</translation>
     </message>
     <message>
         <source>Create Source File</source>
-        <translation type="unfinished"></translation>
+        <translation>Quelldatei erstellen</translation>
     </message>
     <message>
         <source>Expand</source>
@@ -40244,15 +40258,15 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>The following files could not be renamed: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien konnten nicht umbenannt werden: %1</translation>
     </message>
     <message>
         <source>The following files were renamed, but their project files could not be updated accordingly: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die folgenden Dateien wurden umbenannt, aber ihre Projektdateien konnten nicht entsprechend aktualisiert werden: %1</translation>
     </message>
     <message>
         <source>Renaming Did Not Fully Succeed</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Umbennenen war nicht vollständig erfolgreich</translation>
     </message>
     <message>
         <source>Open Project in &quot;%1&quot;</source>
@@ -40314,7 +40328,7 @@ Bitte versuchen Sie es erneut.</translation>
     </message>
     <message>
         <source>%1 Log Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Log des Verzeichnisses</translation>
     </message>
     <message>
         <source>Locates files from all project directories. Append &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the given line number. Append another &quot;+&lt;number&gt;&quot; or &quot;:&lt;number&gt;&quot; to jump to the column number as well.</source>
@@ -41056,7 +41070,7 @@ The name of the build configuration created by default for a generic project.</e
     </message>
     <message>
         <source>Not all compilers are set up correctly.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nicht alle Compiler sind richtig konfiguriert.</translation>
     </message>
     <message>
         <source>This toolchain is invalid.</source>
@@ -41753,15 +41767,15 @@ Bitte schließen Sie alle laufenden Instanzen Ihrer Anwendung vor dem Erstellen.
     </message>
     <message>
         <source>%1 does not exist. If you built %2 yourself, check out https://code.qt.io/cgit/qt-creator/binary-artifacts.git/.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 existiert nicht. Wenn Sie %2 selbst gebaut haben, checken Sie https://code.qt.io/cgit/qt-creator/binary-artifacts.git/ aus.</translation>
     </message>
     <message>
         <source>Cannot start %1. Check src\tools\win64interrupt\win64interrupt.c for more information.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 konnte nicht gestartet werden. Weitere Informationen finden Sie in src\tools\win64interrupt\win64interrupt.c.</translation>
     </message>
     <message>
         <source>could not break the process.</source>
-        <translation type="unfinished"></translation>
+        <translation>konnte den Prozess nicht unterbrechen.</translation>
     </message>
     <message>
         <source>Cannot kill process with pid %1: %2</source>
@@ -42222,7 +42236,7 @@ Für vollständige Anwendungen erstellen Sie stattdessen eine Qt Quick-Anwendung
     </message>
     <message>
         <source>Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt eine Qt Quick-Anwendung, die sowohl QML-Code als auch C++-Code enthalten kann. Sie können die Anwendung bauen und auf dem Desktop, Embedded Plattformen und Mobilplattformen bereitstellen.</translation>
     </message>
     <message>
         <source>Creates a QML file with boilerplate code, starting with &quot;import QtQuick&quot;.</source>
@@ -42768,7 +42782,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Qt Creator C++ Plugin</source>
-        <translation type="unfinished"></translation>
+        <translation>Qt Creator C++-Plugin</translation>
     </message>
     <message>
         <source>Include QQuickItem</source>
@@ -42776,7 +42790,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>CMake for Qt 6.5 and Later</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake für Qt 6.5 und neuer</translation>
     </message>
     <message>
         <source>Qt 6.2</source>
@@ -42792,11 +42806,11 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Create a project that you can open in Qt Design Studio</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Projekt erstellen, das in Qt Design Studio geöffnet werden kann</translation>
     </message>
     <message>
         <source>Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.</source>
-        <translation type="unfinished"></translation>
+        <translation>Erstellt ein Projekt mit einer Struktur, die sowohl mit Qt Design Studio als auch Qt Creator kompatibel ist. Es enthalt ein .ui.qml-Formular, dass Sie in Qt Design Studio visuell bearbeiten können.</translation>
     </message>
     <message>
         <source>Binary</source>
@@ -43480,7 +43494,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>Subproject &quot;%1&quot; outside of &quot;%2&quot;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Unterprojekt &quot;%1&quot; befindet sich außerhalb von &quot;%2&quot;.</translation>
     </message>
     <message>
         <source>Generator is not a object.</source>
@@ -43804,7 +43818,7 @@ Sie sollten nicht mehrere Test-Frameworks im selben Projekt mischen.</translatio
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is inside the build directory.</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;b&gt;Warnung:&lt;/b&gt; Diese Datei befindet sich innerhalb des Build-Verzeichnisses.</translation>
     </message>
     <message>
         <source>&lt;b&gt;Warning:&lt;/b&gt; This file is outside the project directory.</source>
@@ -44026,19 +44040,19 @@ Sie werden erhalten.</numerusform>
     </message>
     <message>
         <source>Requesting process to stop ....</source>
-        <translation type="unfinished"></translation>
+        <translation>Fordere den Prozess zum Anhalten auf ....</translation>
     </message>
     <message>
         <source>Stopping process forcefully ....</source>
-        <translation type="unfinished"></translation>
+        <translation>Erzwinge den Stopp des Prozesses ....</translation>
     </message>
     <message>
         <source>Process unexpectedly did not finish.</source>
-        <translation type="unfinished"></translation>
+        <translation>Der Prozess hat sich unerwarteterweise nicht beendet.</translation>
     </message>
     <message>
         <source>Connectivity lost?</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindung verloren?</translation>
     </message>
     <message>
         <source>An error occurred when attempting to write to the process. For example, the process may not be running, or it may have closed its input channel.</source>
@@ -44401,11 +44415,11 @@ Was soll %1 tun?</translation>
     </message>
     <message>
         <source>Discard excessive output</source>
-        <translation type="unfinished"></translation>
+        <translation>Übermäßige Ausgaben verwerfen</translation>
     </message>
     <message>
         <source>If this option is enabled, application output will be discarded if it continuously comes in faster than it can be handled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn diese Einstellung aktiviert ist, werden Ausgaben der Anwendung verworfen, die beständig schneller angefordert werden als sie behandelt werden können.</translation>
     </message>
     <message>
         <source>Clear old output on a new run</source>
@@ -45183,11 +45197,11 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Clone the configuration to change it. Or, make the changes in the .qtcreator/project.json file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Klonen Sie die Konfiguration, um sie zu ändern. Oder führen Sie die Änderungen in der .qtcreator/project.json-Datei durch.</translation>
     </message>
     <message>
         <source>Workspace Manager</source>
-        <translation type="unfinished"></translation>
+        <translation>Workspace-Manager</translation>
     </message>
     <message>
         <source>Exclude from Project</source>
@@ -45199,37 +45213,37 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>You will need at least one port for QML debugging.</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie werden mindestens einen Port für das QML-Debuggen benötigen.</translation>
     </message>
     <message>
         <source>Machine type:</source>
-        <translation type="unfinished">Gerätetyp:</translation>
+        <translation>Gerätetyp:</translation>
     </message>
     <message>
         <source>Physical Device</source>
-        <translation type="unfinished">Physisches Gerät</translation>
+        <translation>Physisches Gerät</translation>
     </message>
     <message>
         <source>Free ports:</source>
-        <translation type="unfinished">Freie Ports:</translation>
+        <translation>Freie Ports:</translation>
     </message>
     <message>
         <source>%1 at &quot;%2&quot;</source>
         <extracomment>toolchain &apos;name&apos; at &apos;path&apos;</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 in &quot;%2&quot;</translation>
     </message>
     <message>
         <source>&amp;Compiler path</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Compiler-Pfad</translation>
     </message>
     <message>
         <source>%1 compiler path</source>
         <extracomment>%1 = programming language</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>%1 Compiler-Pfad</translation>
     </message>
     <message>
         <source>Provide manually</source>
-        <translation type="unfinished"></translation>
+        <translation>Manuell bestimmen</translation>
     </message>
 </context>
 <context>

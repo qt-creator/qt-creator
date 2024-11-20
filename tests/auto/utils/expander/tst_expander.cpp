@@ -97,6 +97,9 @@ private slots:
 
         QTest::newRow("email") << QString("My email is: %{Email}")
                                << QString("My email is: john.doe@example.com") << user;
+
+        QTest::newRow("default-expansion") << QString("My name is: %{VarDoesNotExist:-Johanna}")
+                                           << QString("My name is: Johanna") << empty;
     }
 
     void expandString()

@@ -106,100 +106,132 @@ QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString
     return true;
 }
 
+enum class Base { Dec, Hex };
+
+static bool isHex(const QChar &c)
+{
+    return (c >= 'a' && c <= 'f') || (c >= 'A' && c < 'F');
+}
+
+static bool isDigit(const QChar &c, Base base)
+{
+    if (base == Base::Hex && isHex(c))
+        return true;
+    return c.isDigit();
+}
+
+static int trailingNumber(const QString &line, Base base = Base::Dec)
+{
+    int lastNumberPos = line.size();
+    while (lastNumberPos > 0) {
+        if (!isDigit(line.at(lastNumberPos - 1), base))
+            break;
+        --lastNumberPos;
+    }
+    bool ok = true;
+    const int port = line.mid(lastNumberPos).toInt(&ok, base == Base::Dec ? 10 : 16);
+    return ok ? port : -1;
+}
+
+/*
+
+Parsing algo is simple:
+Depending on the value of 1st column we detect whether it's Win, Mac / Android / Qnx, or Linux
+output.
+
+In case of Win or Linux, we select the 2nd column for port parsing, otherwise we select
+the 4th column.
+
+For selected column we parse the trailing digits. In case of Linux we take into account hex digits.
+
+Expected output (see tst_StringUtils::testParseUsedPortFromNetstatOutput_data()):
+
+    === Windows ===
+
+    Active Connections
+
+    Proto  Local Address          Foreign Address        State
+    TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
+    TCP    0.0.0.0:113            0.0.0.0:0              LISTENING
+    [...]
+    TCP    10.9.78.4:14714        0.0.0.0:0              LISTENING
+    TCP    10.9.78.4:50233        12.13.135.180:993      ESTABLISHED
+    [...]
+    TCP    [::]:445               [::]:0                 LISTENING
+    TCP    192.168.0.80:51905     169.55.74.50:443       ESTABLISHED
+    UDP    [fe80::880a:2932:8dff:a858%6]:1900  *:*
+
+    === Mac ===
+
+    Active Internet connections (including servers)
+    Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+    tcp4       0      0  192.168.1.12.55687     88.198.14.66.443       ESTABLISHED
+    tcp6       0      0  2a01:e34:ee42:d0.55684 2a02:26f0:ff::5c.443   ESTABLISHED
+    [...]
+    tcp4       0      0  *.631                  *.*                    LISTEN
+    tcp6       0      0  *.631                  *.*                    LISTEN
+    [...]
+    udp4       0      0  192.168.79.1.123       *.*
+    udp4       0      0  192.168.8.1.123        *.*
+
+    === QNX ===
+
+    Active Internet connections (including servers)
+    Proto Recv-Q Send-Q  Local Address          Foreign Address        State
+    tcp        0      0  10.9.7.5.22          10.9.7.4.46592       ESTABLISHED
+    tcp        0      0  *.8000                 *.*                    LISTEN
+    tcp        0      0  *.22                   *.*                    LISTEN
+    udp        0      0  *.*                    *.*
+    udp        0      0  *.*                    *.*
+    Active Internet6 connections (including servers)
+    Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
+    tcp6       0      0  *.22                   *.*                    LISTEN
+
+    === Android ===
+
+    tcp        0      0 10.0.2.16:49088         142.250.180.74:443      ESTABLISHED
+    tcp        0      0 10.0.2.16:48380         142.250.186.196:443     CLOSE_WAIT
+    tcp6       0      0 [::]:5555               [::]:*                  LISTEN
+    tcp6       0      0 ::ffff:127.0.0.1:39417  [::]:*                  LISTEN
+    tcp6       0      0 ::ffff:10.0.2.16:35046  ::ffff:142.250.203.:443 ESTABLISHED
+    tcp6       0      0 ::ffff:127.0.0.1:46265  ::ffff:127.0.0.1:33155  TIME_WAIT
+    udp        0      0 10.0.2.16:50950         142.250.75.14:443       ESTABLISHED
+    udp     2560      0 10.0.2.16:68            10.0.2.2:67             ESTABLISHED
+    udp        0      0 0.0.0.0:5353            0.0.0.0:*
+    udp6       0      0 [::]:36662              [::]:*
+
+    === Linux ===
+
+    sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ...
+    0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ...
+*/
 QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line)
 {
-    const QByteArray trimmed = line.trimmed();
-    int base = 0;
-    QByteArray portString;
+    const QStringList columns = QString::fromUtf8(line).split(' ', Qt::SkipEmptyParts);
+    if (columns.size() < 3)
+        return -1;
 
-    if (trimmed.startsWith("TCP") || trimmed.startsWith("UDP")) {
-        // Windows.  Expected output is something like
-        //
-        // Active Connections
-        //
-        //   Proto  Local Address          Foreign Address        State
-        //   TCP    0.0.0.0:80             0.0.0.0:0              LISTENING
-        //   TCP    0.0.0.0:113            0.0.0.0:0              LISTENING
-        // [...]
-        //   TCP    10.9.78.4:14714       0.0.0.0:0              LISTENING
-        //   TCP    10.9.78.4:50233       12.13.135.180:993      ESTABLISHED
-        // [...]
-        //   TCP    [::]:445               [::]:0                 LISTENING
-        //   TCP    192.168.0.80:51905     169.55.74.50:443       ESTABLISHED
-        //   UDP    [fe80::880a:2932:8dff:a858%6]:1900  *:*
-        const int firstBracketPos = trimmed.indexOf('[');
-        int colonPos = -1;
-        if (firstBracketPos == -1) {
-            colonPos = trimmed.indexOf(':');  // IPv4
-        } else  {
-            // jump over host part
-            const int secondBracketPos = trimmed.indexOf(']', firstBracketPos + 1);
-            colonPos = trimmed.indexOf(':', secondBracketPos);
-        }
-        const int firstDigitPos = colonPos + 1;
-        const int spacePos = trimmed.indexOf(' ', firstDigitPos);
-        if (spacePos < 0)
+    const QString firstColumn = columns.first();
+    QString columnToParse;
+    Base base = Base::Dec;
+
+    if (firstColumn.startsWith("TCP") || firstColumn.startsWith("UDP")) { // Windows
+        columnToParse = columns.at(1);
+    } else if (firstColumn.startsWith("tcp") || firstColumn.startsWith("udp")) { // Mac, Android, Qnx
+        if (columns.size() < 4)
             return -1;
-        const int len = spacePos - firstDigitPos;
-        base = 10;
-        portString = trimmed.mid(firstDigitPos, len);
-    } else if (trimmed.startsWith("tcp") || trimmed.startsWith("udp")) {
-        // macOS. Expected output is something like
-        //
-        // Active Internet connections (including servers)
-        // Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)
-        // tcp4       0      0  192.168.1.12.55687     88.198.14.66.443       ESTABLISHED
-        // tcp6       0      0  2a01:e34:ee42:d0.55684 2a02:26f0:ff::5c.443   ESTABLISHED
-        // [...]
-        // tcp4       0      0  *.631                  *.*                    LISTEN
-        // tcp6       0      0  *.631                  *.*                    LISTEN
-        // [...]
-        // udp4       0      0  192.168.79.1.123       *.*
-        // udp4       0      0  192.168.8.1.123        *.*
-        int firstDigitPos = -1;
-        int spacePos = -1;
-        if (trimmed[3] == '6') {
-            // IPV6
-            firstDigitPos = trimmed.indexOf('.') + 1;
-            spacePos = trimmed.indexOf(' ', firstDigitPos);
-        } else {
-            // IPV4
-            firstDigitPos = trimmed.indexOf('.') + 1;
-            spacePos = trimmed.indexOf(' ', firstDigitPos);
-            firstDigitPos = trimmed.lastIndexOf('.', spacePos) + 1;
-        }
-        if (spacePos < 0)
-            return -1;
-        base = 10;
-        portString = trimmed.mid(firstDigitPos, spacePos - firstDigitPos);
-        if (portString == "*")
-            return -1;
+        columnToParse = columns.at(3);
+    } else if (firstColumn.size() > 1 && firstColumn.at(1) == ':') { // Linux
+        columnToParse = columns.at(1);
+        base = Base::Hex;
     } else {
-        // Expected output on Linux something like
-        //
-        //   sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ...
-        //   0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ...
-        //
-        const int firstColonPos = trimmed.indexOf(':');
-        if (firstColonPos < 0)
-            return -1;
-        const int secondColonPos = trimmed.indexOf(':', firstColonPos + 1);
-        if (secondColonPos < 0)
-            return -1;
-        const int spacePos = trimmed.indexOf(' ', secondColonPos + 1);
-        if (spacePos < 0)
-            return -1;
-        const int len = spacePos - secondColonPos - 1;
-        base = 16;
-        portString = trimmed.mid(secondColonPos + 1, len);
+        return -1;
     }
 
-    bool ok = true;
-    const int port = portString.toInt(&ok, base);
-    if (!ok) {
+    const int port = trailingNumber(columnToParse, base);
+    if (port == -1) {
         qWarning("%s: Unexpected string '%s' is not a port. Tried to read from '%s'",
-                Q_FUNC_INFO, line.data(), portString.data());
-        return -1;
+                 Q_FUNC_INFO, line.data(), columnToParse.toUtf8().data());
     }
     return port;
 }

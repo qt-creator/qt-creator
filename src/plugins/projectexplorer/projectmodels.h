@@ -86,6 +86,7 @@ private:
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
     bool trimEmptyDirectories(WrapperNode *parent);
     void updateVCStatusFor(const Utils::FilePath root, const QStringList &files);
+    void clearVCStatusFor(const Utils::FilePath &root);
 
     ExpandData expandDataForNode(const Node *node) const;
     void loadExpandData();

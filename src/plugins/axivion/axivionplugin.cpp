@@ -44,6 +44,7 @@
 #include <QNetworkReply>
 #include <QUrlQuery>
 
+#include <cmath>
 #include <memory>
 
 constexpr char s_axivionTextMarkId[] = "AxivionTextMark";
@@ -79,8 +80,14 @@ QString anyToSimpleString(const Dto::Any &any)
         return any.getString();
     if (any.isBool())
         return QString("%1").arg(any.getBool());
-    if (any.isDouble())
-        return QString::number(any.getDouble());
+    if (any.isDouble()) {
+        const double value = any.getDouble();
+        double intPart;
+        const double fragPart = std::modf(value, &intPart);
+        if (fragPart != 0)
+            return QString::number(value);
+        return QString::number(value, 'f', 0);
+    }
     if (any.isNull())
         return QString(); // or NULL??
     if (any.isList()) {

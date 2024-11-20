@@ -38,6 +38,7 @@
 #include <utils/temporaryfile.h>
 #include <utils/theme/theme.h>
 
+#include <vcsbase/commonvcssettings.h>
 #include <vcsbase/submitfilemodel.h>
 #include <vcsbase/vcsbasediffeditorcontroller.h>
 #include <vcsbase/vcsbaseeditor.h>
@@ -805,15 +806,27 @@ GitClient &gitClient()
 
 GitClient::GitClient()
     : VcsBase::VcsBaseClientImpl(&Internal::settings())
-    , m_timer(new QTimer)
 {
     m_gitQtcEditor = QString::fromLatin1("\"%1\" -client -block -pid %2")
             .arg(QCoreApplication::applicationFilePath())
             .arg(QCoreApplication::applicationPid());
 
-    connect(m_timer.get(), &QTimer::timeout, this, &GitClient::updateModificationInfos);
-    using namespace std::chrono_literals;
-    m_timer->setInterval(10s);
+    if (VcsBase::Internal::commonSettings().vcsShowStatus())
+        setupTimer();
+    connect(&VcsBase::Internal::commonSettings().vcsShowStatus, &Utils::BaseAspect::changed,
+            [this] {
+        bool enable = VcsBase::Internal::commonSettings().vcsShowStatus();
+        QTC_CHECK(enable == bool(!m_timer));
+        if (enable) {
+            setupTimer();
+        } else {
+            m_timer.reset();
+            for (auto fp : std::as_const(m_modifInfos)) {
+                m_modifInfos[fp.rootPath].modifiedFiles.clear();
+                emitClearFileStatus(fp.rootPath);
+            }
+        }
+    });
 }
 
 GitClient::~GitClient() = default;
@@ -904,7 +917,7 @@ void GitClient::stopMonitoring(const Utils::FilePath &path)
     for (const FilePath &subModule : subPaths)
         m_modifInfos.remove(subModule);
     m_modifInfos.remove(directory);
-    if (m_modifInfos.isEmpty())
+    if (m_modifInfos.isEmpty() && m_timer)
         m_timer->stop();
 }
 
@@ -918,8 +931,10 @@ void GitClient::monitorDirectory(const Utils::FilePath &path)
     const QList<FilePath> subPaths = submoduleDataToAbsolutePath(submoduleList(directory), directory);
     for (const FilePath &subModule : subPaths)
         m_modifInfos.insert(subModule, {subModule, {}});
-    if (!m_timer->isActive())
-        m_timer->start();
+
+    if (!m_timer)
+        return;
+
     updateModificationInfos();
 }
 
@@ -971,7 +986,8 @@ void GitClient::updateModificationInfos()
 
             emitFileStatusChanged(info.rootPath, statusChangedFiles);
         };
-        vcsExecWithHandler(path, {"status", "-s", "--porcelain"}, this, command, RunFlags::NoOutput);
+        vcsExecWithHandler(path, {"status", "-s", "--porcelain", "--ignore-submodules"},
+                           this, command, RunFlags::NoOutput);
     }
 }
 
@@ -3892,6 +3908,16 @@ ColorNames GitClient::colorNames()
     result.subject = styleColorName(TextEditor::C_LOG_COMMIT_SUBJECT);
     result.body = styleColorName(TextEditor::C_TEXT);
     return result;
+}
+
+void GitClient::setupTimer()
+{
+    QTC_ASSERT(!m_timer, return);
+    m_timer.reset(new QTimer);
+    connect(m_timer.get(), &QTimer::timeout, this, &GitClient::updateModificationInfos);
+    using namespace std::chrono_literals;
+    m_timer->setInterval(10s);
+    m_timer->start();
 }
 
 } // Git::Internal

@@ -131,7 +131,7 @@ public:
 private:
     Function *maybeDefinitionFor(Function *func) const
     {
-        if (Function *definition = m_finder.findMatchingDefinition(func, m_params.snapshot))
+        if (Function *definition = m_finder.findMatchingDefinition(func, m_params.snapshot, true))
             return definition;
         return func;
     }

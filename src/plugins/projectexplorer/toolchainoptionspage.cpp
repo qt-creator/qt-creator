@@ -101,6 +101,8 @@ public:
         ToolchainTreeItem(bundle), changed(c), m_parentWidget(parentWidget)
     {}
 
+    ~ExtendedToolchainTreeItem() override { delete m_widget; }
+
     QVariant data(int column, int role) const override
     {
         switch (role) {
