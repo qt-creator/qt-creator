@@ -751,7 +751,6 @@ public:
 private:
     void start() override;
 
-    const QString m_dumperLib;
     IosRunner *m_runner;
 };
 
