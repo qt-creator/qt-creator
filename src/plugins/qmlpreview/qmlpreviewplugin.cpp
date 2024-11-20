@@ -94,9 +94,6 @@ static std::unique_ptr<QmlDebugTranslationClient> defaultCreateDebugTranslationC
     return client;
 }
 
-static void defaultRefreshTranslationFunction()
-{}
-
 class QmlPreviewPluginPrivate : public QObject
 {
 public:
@@ -134,7 +131,6 @@ QmlPreviewPluginPrivate::QmlPreviewPluginPrivate(QmlPreviewPlugin *parent)
     m_settings.fileClassifier = &defaultFileClassifier;
     m_settings.fpsHandler = &defaultFpsHandler;
     m_settings.createDebugTranslationClientMethod = &defaultCreateDebugTranslationClientMethod;
-    m_settings.refreshTranslationsFunction = &defaultRefreshTranslationFunction;
 
     Core::ActionContainer *menu = Core::ActionManager::actionContainer(
                 Constants::M_BUILDPROJECT);
