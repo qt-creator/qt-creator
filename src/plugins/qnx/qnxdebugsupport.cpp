@@ -183,23 +183,6 @@ public:
     }
 };
 
-class QnxAttachDebugSupport : public Debugger::DebuggerRunTool
-{
-public:
-    explicit QnxAttachDebugSupport(ProjectExplorer::RunControl *runControl)
-        : DebuggerRunTool(runControl)
-    {
-        setId("QnxAttachDebugSupport");
-        setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
-        setUseCtrlCStub(true);
-
-        if (isCppDebugging()) {
-            auto pdebugRunner = new PDebugRunner(runControl, this);
-            addStartDependency(pdebugRunner);
-        }
-    }
-};
-
 void showAttachToProcessDialog()
 {
     auto kitChooser = new KitChooser;
@@ -230,7 +213,15 @@ void showAttachToProcessDialog()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::DEBUG_RUN_MODE);
     runControl->copyDataFromRunConfiguration(runConfig);
-    auto debugger = new QnxAttachDebugSupport(runControl);
+    auto debugger = new DebuggerRunTool(runControl);
+    debugger->setId("QnxAttachDebugSupport");
+    debugger->setupPortsGatherer();
+    debugger->setUseCtrlCStub(true);
+    if (debugger->isCppDebugging()) {
+        auto pdebugRunner = new PDebugRunner(runControl, debugger);
+        debugger->addStartDependency(pdebugRunner);
+    }
+
     debugger->setStartMode(AttachToRemoteServer);
     debugger->setCloseMode(DetachAtClose);
     debugger->setSymbolFile(localExecutable);
