@@ -472,7 +472,8 @@ Abi Abi::abiFromTargetTriplet(const QString &triple)
     if (machine.isEmpty())
         return {};
 
-    const QStringList parts = machine.split(QRegularExpression("[ /-]"));
+    static const QRegularExpression splitRegexp("[ /-]");
+    const QStringList parts = machine.split(splitRegexp);
 
     Architecture arch = UnknownArchitecture;
     OS os = UnknownOS;

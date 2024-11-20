@@ -176,7 +176,8 @@ namespace {
 static QString generateSuffix(const QString &suffix)
 {
     QString result = suffix;
-    result.replace(QRegularExpression("[^a-zA-Z0-9_.-]"), QString('_')); // replace fishy character
+    static const QRegularExpression regexp("[^a-zA-Z0-9_.-]");
+    result.replace(regexp, QString('_')); // replace fishy character
     if (!result.startsWith('.'))
         result.prepend('.');
     return result;

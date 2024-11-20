@@ -2284,8 +2284,8 @@ ClangClInfo ClangClInfo::getInfo(const FilePath &filePath)
 
     static const auto parser = [](const QString &stdOut, const QString &) {
         ClangClInfo info;
-        const QRegularExpressionMatch versionMatch
-            = QRegularExpression("clang version (\\d+(\\.\\d+)+)").match(stdOut);
+        static const QRegularExpression regexp("clang version (\\d+(\\.\\d+)+)");
+        const QRegularExpressionMatch versionMatch = regexp.match(stdOut);
         if (versionMatch.hasMatch())
             info.m_version = QVersionNumber::fromString(versionMatch.captured(1));
         const QString targetKey = "Target:";

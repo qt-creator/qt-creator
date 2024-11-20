@@ -84,7 +84,7 @@ const QString getMainQmlFile(const Utils::FilePath &projectFilePath)
 {
     const QString defaultReturn = "content/App.qml";
     const QString data = readFileContents(projectFilePath);
-    QRegularExpression regexp(R"x(mainFile: "(.*)")x");
+    static const QRegularExpression regexp(R"x(mainFile: "(.*)")x");
     QRegularExpressionMatch match = regexp.match(data);
     if (!match.hasMatch())
         return defaultReturn;
@@ -105,8 +105,8 @@ const Resolution resolutionFromConstants(const Utils::FilePath &projectFilePath)
     if (!reader.fetch(Utils::FilePath::fromString(fileName)))
         return {};
     const QByteArray data = reader.data();
-    const QRegularExpression regexpWidth(R"x(readonly\s+property\s+int\s+width:\s+(\d*))x");
-    const QRegularExpression regexpHeight(R"x(readonly\s+property\s+int\s+height:\s+(\d*))x");
+    static const QRegularExpression regexpWidth(R"x(readonly\s+property\s+int\s+width:\s+(\d*))x");
+    static const QRegularExpression regexpHeight(R"x(readonly\s+property\s+int\s+height:\s+(\d*))x");
     int width = -1;
     int height = -1;
     QRegularExpressionMatch match = regexpHeight.match(QString::fromUtf8(data));

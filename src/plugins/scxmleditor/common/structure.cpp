@@ -41,8 +41,8 @@ QWidget *TreeItemDelegate::createEditor(QWidget *parent, const QStyleOptionViewI
     if (index.isValid()) {
         auto edit = new QLineEdit(parent);
         edit->setFocusPolicy(Qt::StrongFocus);
-        QRegularExpression rx("^(?!xml)[_a-z][a-z0-9-._]*$");
-        rx.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        static const QRegularExpression rx("^(?!xml)[_a-z][a-z0-9-._]*$",
+                                           QRegularExpression::CaseInsensitiveOption);
         edit->setValidator(new QRegularExpressionValidator(rx, parent));
         return edit;
     }

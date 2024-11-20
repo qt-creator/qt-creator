@@ -514,7 +514,7 @@ void ObjectsMapEditorWidget::onPasteSymbolicNameTriggered()
         return;
 
     // if name is not valid at all refuse to do anything
-    const QRegularExpression validName("^:[^\t\n\r\f\b\v\a]+$");
+    static const QRegularExpression validName("^:[^\t\n\r\f\b\v\a]+$");
     if (!validName.match(symbolicName).hasMatch())
         return;
 

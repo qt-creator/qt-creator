@@ -370,7 +370,7 @@ void PythonBuildSystem::parse()
  */
 static void expandEnvironmentVariables(const Environment &env, QString &string)
 {
-    const QRegularExpression candidate("\\$\\$\\((.+)\\)");
+    static const QRegularExpression candidate("\\$\\$\\((.+)\\)");
 
     QRegularExpressionMatch match;
     int index = string.indexOf(candidate, 0, &match);

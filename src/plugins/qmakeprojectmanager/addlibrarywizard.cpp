@@ -32,7 +32,7 @@ const char qt_file_dialog_filter_reg_exp[] =
 
 static QStringList qt_clean_filter_list(const QString &filter)
 {
-    const QRegularExpression regexp(qt_file_dialog_filter_reg_exp);
+    static const QRegularExpression regexp(qt_file_dialog_filter_reg_exp);
     const QRegularExpressionMatch match = regexp.match(filter);
     QString f = filter;
     if (match.hasMatch())

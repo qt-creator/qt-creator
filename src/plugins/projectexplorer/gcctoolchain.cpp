@@ -454,7 +454,7 @@ void GccToolchain::setInstallDir(const FilePath &installDir)
 QString GccToolchain::defaultDisplayName() const
 {
     QString type = typeDisplayName();
-    const QRegularExpression regexp(binaryRegexp);
+    static const QRegularExpression regexp(binaryRegexp);
     const QRegularExpressionMatch match = regexp.match(compilerCommand().fileName());
     if (match.lastCapturedIndex() >= 1)
         type += ' ' + match.captured(1);

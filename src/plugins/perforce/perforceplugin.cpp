@@ -731,7 +731,8 @@ void PerforcePluginPrivate::startSubmitProject()
     const QStringList filesLines = filesResult.stdOut.split(QLatin1Char('\n'));
     QStringList depotFileNames;
     for (const QString &line : filesLines) {
-        depotFileNames.append(line.left(line.lastIndexOf(QRegularExpression("#[0-9]+\\s-\\s"))));
+        static const QRegularExpression regexp("#[0-9]+\\s-\\s");
+        depotFileNames.append(line.left(line.lastIndexOf(regexp)));
     }
     if (depotFileNames.isEmpty()) {
         VcsOutputWindow::appendWarning(Tr::tr("Project has no files"));
@@ -1447,7 +1448,7 @@ QString PerforcePluginPrivate::clientFilePath(const QString &serverFilePath)
     if (response.error)
         return {};
 
-    const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
+    static const QRegularExpression r("\\.\\.\\.\\sclientFile\\s(.+?)\n");
     const QRegularExpressionMatch match = r.match(response.stdOut);
     return match.hasMatch() ? match.captured(1).trimmed() : QString();
 }
@@ -1462,7 +1463,7 @@ QString PerforcePluginPrivate::pendingChangesData()
     if (userResponse.error)
         return {};
 
-    const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
+    static const QRegularExpression r("User\\sname:\\s(\\S+?)\\s*?\n");
     QTC_ASSERT(r.isValid(), return QString());
     const QRegularExpressionMatch match = r.match(userResponse.stdOut);
     const QString user = match.hasMatch() ? match.captured(1).trimmed() : QString();

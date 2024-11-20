@@ -106,8 +106,8 @@ void Slog2InfoRunner::processLogLine(const QString &line)
     // The "\\s+(\\b.*)?$" represents a space followed by a message. We are unable to determinate
     // how many spaces represent separators and how many are a part of the messages, so resulting
     // messages has all whitespaces at the beginning of the message trimmed.
-    static QRegularExpression regexp(QLatin1String(
-        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$"));
+    static const QRegularExpression regexp(
+        "^[a-zA-Z]+\\s+([0-9]+ [0-9]+:[0-9]+:[0-9]+.[0-9]+)\\s+(\\S+)(\\s+(\\S+))?\\s+([0-9]+)\\s+(.*)?$");
 
     const QRegularExpressionMatch match = regexp.match(line);
     if (!match.hasMatch())

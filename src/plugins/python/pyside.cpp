@@ -74,7 +74,7 @@ QString PySideInstaller::usedPySide(const QString &text, const QString &mimeType
 {
     using namespace Python::Constants;
     if (mimeType == C_PY_MIMETYPE || mimeType == C_PY3_MIMETYPE || mimeType == C_PY_GUI_MIMETYPE) {
-        static QRegularExpression
+        static const QRegularExpression
             scanner("^\\s*(import|from)\\s+(PySide\\d)", QRegularExpression::MultilineOption);
         const QRegularExpressionMatch match = scanner.match(text);
         return match.captured(2);

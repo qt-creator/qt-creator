@@ -48,7 +48,8 @@ static QString toJSLiteral(const bool b)
 static QString toJSLiteral(const QString &str)
 {
     QString js = str;
-    js.replace(QRegularExpression("([\\\\\"])"), "\\\\1");
+    static const QRegularExpression regexp("([\\\\\"])");
+    js.replace(regexp, "\\\\1");
     js.prepend('"');
     js.append('"');
     return js;

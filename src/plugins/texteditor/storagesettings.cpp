@@ -66,7 +66,7 @@ bool StorageSettings::removeTrailingWhitespace(const QString &fileName) const
     const QString ignoreFileTypesRegExp(R"(\s*((?>\*\.)?[\w\d\.\*]+)[,;]?\s*)");
 
     // use the ignore-files regex to extract the specified file patterns
-    QRegularExpression re(ignoreFileTypesRegExp);
+    static const QRegularExpression re(ignoreFileTypesRegExp);
     QRegularExpressionMatchIterator iter = re.globalMatch(m_ignoreFileTypes);
 
     while (iter.hasNext()) {

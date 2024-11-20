@@ -80,7 +80,7 @@ IAssistProposal *DocumentContentCompletionProcessor::performAsync()
     const QString wordUnderCursor = interface()->textAt(pos, length);
     const QString text = interface()->textDocument()->toPlainText();
 
-    const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
+    static const QRegularExpression wordRE("([\\p{L}_][\\p{L}0-9_]{2,})");
     QSet<QString> words;
     QRegularExpressionMatchIterator it = wordRE.globalMatch(text);
     int wordUnderCursorFound = 0;

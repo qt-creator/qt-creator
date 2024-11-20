@@ -1824,7 +1824,7 @@ FilePath QtVersionPrivate::mkspecFromVersionInfo(const QHash<ProKey, ProString> 
                         if (temp.size() == 2) {
                             QString possibleFullPath = QString::fromLocal8Bit(temp.at(1).trimmed().constData());
                             if (possibleFullPath.contains('$')) { // QTBUG-28792
-                                const QRegularExpression rex("\\binclude\\(([^)]+)/qmake\\.conf\\)");
+                                static const QRegularExpression rex("\\binclude\\(([^)]+)/qmake\\.conf\\)");
                                 const QRegularExpressionMatch match = rex.match(QString::fromLocal8Bit(f2.readAll()));
                                 if (match.hasMatch()) {
                                     possibleFullPath = mkspecFullPath.toString() + '/'
@@ -2134,7 +2134,8 @@ static QStringList extractFieldsFromBuildString(const QByteArray &buildString)
     if (buildString.isEmpty() || buildString.size() > 4096)
         return {};
 
-    const QRegularExpression buildStringMatcher("^Qt "
+    static const QRegularExpression buildStringMatcher(
+                                                "^Qt "
                                                 "([\\d\\.a-zA-Z]*) " // Qt version
                                                 "\\("
                                                 "([\\w_-]+) "       // Abi information

@@ -1155,7 +1155,8 @@ HeobDialog::HeobDialog(QWidget *parent) :
     QtcSettings *settings = Core::ICore::settings();
     bool hasSelProfile = settings->contains(heobProfileC);
     const QString selProfile = hasSelProfile ? settings->value(heobProfileC).toString() : "Heob";
-    m_profiles = settings->childGroups().filter(QRegularExpression("^Heob\\.Profile\\."));
+    static const QRegularExpression regexp("^Heob\\.Profile\\.");
+    m_profiles = settings->childGroups().filter(regexp);
 
     auto layout = new QVBoxLayout;
     // disable resizing

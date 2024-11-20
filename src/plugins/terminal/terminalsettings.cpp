@@ -87,7 +87,7 @@ static expected_str<void> loadXdefaults(const FilePath &path)
     if (!readResult)
         return make_unexpected(readResult.error());
 
-    QRegularExpression re(R"(.*\*(color[0-9]{1,2}|foreground|background):\s*(#[0-9a-f]{6}))");
+    static const QRegularExpression re(R"(.*\*(color[0-9]{1,2}|foreground|background):\s*(#[0-9a-f]{6}))");
 
     for (const QByteArray &line : readResult->split('\n')) {
         if (line.trimmed().startsWith('!'))

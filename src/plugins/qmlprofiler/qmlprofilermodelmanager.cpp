@@ -219,7 +219,7 @@ static QString getInitialDetails(const QmlEventType &event)
             if (event.rangeType() == Javascript)
                 details = Tr::tr("anonymous function");
         } else {
-            QRegularExpression rewrite(QLatin1String("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$"));
+            static const QRegularExpression rewrite("^\\(function \\$(\\w+)\\(\\) \\{ (return |)(.+) \\}\\)$");
             QRegularExpressionMatch match = rewrite.match(details);
             if (match.hasMatch())
                 details = match.captured(1) + QLatin1String(": ") + match.captured(3);

@@ -2457,7 +2457,8 @@ void TextEditorWidget::joinLines()
             QString cutLine = c.selectedText();
 
             // Collapse leading whitespaces to one or insert whitespace
-            cutLine.replace(QRegularExpression(QLatin1String("^\\s*")), QLatin1String(" "));
+            static const QRegularExpression regexp("^\\s*");
+            cutLine.replace(regexp, QLatin1String(" "));
             c.movePosition(QTextCursor::Right, QTextCursor::KeepAnchor);
             c.removeSelectedText();
 
@@ -8815,7 +8816,7 @@ void TextEditorWidget::autoIndent()
 void TextEditorWidget::rewrapParagraph()
 {
     const int paragraphWidth = marginSettings().m_marginColumn;
-    const QRegularExpression anyLettersOrNumbers("\\w");
+    static const QRegularExpression anyLettersOrNumbers("\\w");
     const TabSettings ts = d->m_document->tabSettings();
 
     QTextCursor cursor = textCursor();
@@ -8868,7 +8869,7 @@ void TextEditorWidget::rewrapParagraph()
     }
 
     // Find end of paragraph.
-    const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
+    static const QRegularExpression immovableDoxygenCommand(doxygenPrefix + "[@\\\\][a-zA-Z]{2,}");
     QTC_CHECK(immovableDoxygenCommand.isValid());
     while (cursor.movePosition(QTextCursor::NextBlock, QTextCursor::KeepAnchor)) {
         QString text = cursor.block().text();
