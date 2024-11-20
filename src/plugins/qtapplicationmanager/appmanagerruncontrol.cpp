@@ -41,57 +41,6 @@ using namespace Utils;
 
 namespace AppManager::Internal {
 
-// AppManagerRunner
-
-class AppManagerRunner final : public SimpleTargetRunner
-{
-public:
-    AppManagerRunner(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("ApplicationManagerPlugin.Run.TargetRunner");
-        connect(this, &RunWorker::stopped, this, [this, runControl] {
-            appendMessage(Tr::tr("%1 exited.").arg(runControl->runnable().command.toUserOutput()),
-                          OutputFormat::NormalMessageFormat);
-        });
-
-        setStartModifier([this, runControl] {
-            FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
-            QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
-            QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
-            QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
-            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
-            QStringList envVars;
-            if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
-                envVars = envAspect->environment.toStringList();
-            envVars.replaceInStrings(" ", "\\ ");
-
-            // Always use the default environment to start the appman-controller in
-            // The env variables from the EnvironmentAspect are set through the controller
-            setEnvironment({});
-            // Prevent the write channel to be closed, otherwise the appman-controller will exit
-            setProcessMode(ProcessMode::Writer);
-            CommandLine cmd{controller};
-            if (!instanceId.isEmpty())
-                cmd.addArgs({"--instance-id", instanceId});
-
-            if (envVars.isEmpty())
-                cmd.addArgs({"start-application", "-eio"});
-            else
-                cmd.addArgs({"debug-application", "-eio"});
-
-            if (restartIfRunning)
-                cmd.addArg("--restart");
-            if (!envVars.isEmpty())
-                cmd.addArg(envVars.join(' '));
-            cmd.addArg(appId);
-            if (!documentUrl.isEmpty())
-                cmd.addArg(documentUrl);
-            setCommandLine(cmd);
-        });
-    }
-};
-
 static RunWorker *createInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
 {
     auto worker = new SimpleTargetRunner(runControl);
@@ -290,7 +239,51 @@ class AppManagerRunWorkerFactory final : public RunWorkerFactory
 public:
     AppManagerRunWorkerFactory()
     {
-        setProduct<AppManagerRunner>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new SimpleTargetRunner(runControl);
+            worker->setId("ApplicationManagerPlugin.Run.TargetRunner");
+            QObject::connect(worker, &RunWorker::stopped, worker, [worker, runControl] {
+                worker->appendMessage(
+                    Tr::tr("%1 exited.").arg(runControl->runnable().command.toUserOutput()),
+                    OutputFormat::NormalMessageFormat);
+            });
+
+            worker->setStartModifier([worker, runControl] {
+                FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
+                QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
+                QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
+                QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+                bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
+                QStringList envVars;
+                if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
+                    envVars = envAspect->environment.toStringList();
+                envVars.replaceInStrings(" ", "\\ ");
+
+                // Always use the default environment to start the appman-controller in
+                // The env variables from the EnvironmentAspect are set through the controller
+                worker->setEnvironment({});
+                // Prevent the write channel to be closed, otherwise the appman-controller will exit
+                worker->setProcessMode(ProcessMode::Writer);
+                CommandLine cmd{controller};
+                if (!instanceId.isEmpty())
+                    cmd.addArgs({"--instance-id", instanceId});
+
+                if (envVars.isEmpty())
+                    cmd.addArgs({"start-application", "-eio"});
+                else
+                    cmd.addArgs({"debug-application", "-eio"});
+
+                if (restartIfRunning)
+                    cmd.addArg("--restart");
+                if (!envVars.isEmpty())
+                    cmd.addArg(envVars.join(' '));
+                cmd.addArg(appId);
+                if (!documentUrl.isEmpty())
+                    cmd.addArg(documentUrl);
+                worker->setCommandLine(cmd);
+            });
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
         addSupportedRunConfig(Constants::RUNCONFIGURATION_ID);
         addSupportedRunConfig(Constants::RUNANDDEBUGCONFIGURATION_ID);
