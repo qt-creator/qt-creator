@@ -25,7 +25,6 @@ QtcPlugin {
         "diffeditordocument.cpp",
         "diffeditordocument.h",
         "diffeditorplugin.cpp",
-        "diffeditorplugin.h",
         "diffeditorwidgetcontroller.cpp",
         "diffeditorwidgetcontroller.h",
         "diffenums.h",

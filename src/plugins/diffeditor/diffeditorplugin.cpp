@@ -1,7 +1,6 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "diffeditorplugin.h"
 #include "diffeditorconstants.h"
 #include "diffeditorcontroller.h"
 #include "diffeditordocument.h"
@@ -10,8 +9,11 @@
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>
+#include <coreplugin/diffservice.h>
 #include <coreplugin/editormanager/documentmodel.h>
 #include <coreplugin/editormanager/editormanager.h>
+
+#include <extensionsystem/iplugin.h>
 
 #include <texteditor/textdocument.h>
 
@@ -361,13 +363,20 @@ QList<ReloadInput> DiffExternalFilesController::reloadInputList() const
 
 /////////////////
 
-
 static TextDocument *currentTextDocument()
 {
     return qobject_cast<TextDocument *>(EditorManager::currentDocument());
 }
 
-DiffEditorServiceImpl::DiffEditorServiceImpl() = default;
+class DiffEditorServiceImpl final : public QObject, public DiffService
+{
+    Q_OBJECT
+    Q_INTERFACES(Core::DiffService)
+
+public:
+    void diffFiles(const QString &leftFileName, const QString &rightFileName) final;
+    void diffModifiedFiles(const QStringList &fileNames) final;
+};
 
 template <typename Controller, typename... Args>
 void reload(const QString &vcsId, const QString &displayName, Args &&...args)
@@ -412,6 +421,30 @@ public:
     QAction *m_diffOpenFilesAction = nullptr;
 
     DiffEditorServiceImpl m_service;
+};
+
+class DiffEditorPlugin final : public ExtensionSystem::IPlugin
+{
+    Q_OBJECT
+    Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "DiffEditor.json")
+
+public:
+    ~DiffEditorPlugin() { delete d; }
+
+    void initialize() final { d = new DiffEditorPluginPrivate; }
+
+private:
+    class DiffEditorPluginPrivate *d = nullptr;
+
+#ifdef WITH_TESTS
+private slots:
+    void testMakePatch_data();
+    void testMakePatch();
+    void testReadPatch_data();
+    void testReadPatch();
+    void testFilterPatch_data();
+    void testFilterPatch();
+#endif // WITH_TESTS
 };
 
 DiffEditorPluginPrivate::DiffEditorPluginPrivate()
@@ -512,16 +545,6 @@ void DiffEditorPluginPrivate::diffExternalFiles()
             + ".DiffExternalFiles." + filePath1.toString() + '.' + filePath2.toString();
     const QString title = Tr::tr("Diff \"%1\", \"%2\"").arg(filePath1.toString(), filePath2.toString());
     reload<DiffExternalFilesController>(documentId, title, filePath1.toString(), filePath2.toString());
-}
-
-DiffEditorPlugin::~DiffEditorPlugin()
-{
-    delete d;
-}
-
-void DiffEditorPlugin::initialize()
-{
-    d = new DiffEditorPluginPrivate;
 }
 
 } // namespace DiffEditor::Internal
