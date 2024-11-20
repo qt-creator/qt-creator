@@ -299,7 +299,6 @@ public:
 
     void suppressDefaultStdOutHandling();
     void forceRunOnHost();
-    void addExtraData(const QString &key, const QVariant &value);
 
 private:
     void start() final;

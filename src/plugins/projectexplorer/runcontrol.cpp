@@ -1400,7 +1400,6 @@ public:
     Utils::CommandLine m_command;
     Utils::FilePath m_workingDirectory;
     Utils::Environment m_environment;
-    QVariantHash m_extraData;
 
     ProcessResultData m_resultData;
 
@@ -1565,7 +1564,7 @@ void SimpleTargetRunnerPrivate::start()
 
     m_stopRequested = false;
 
-    QVariantHash extraData = m_extraData;
+    QVariantHash extraData = q->runControl()->extraData();
     extraData[TERMINAL_SHELL_NAME] = m_command.executable().fileName();
 
     m_process.setCommand(cmdLine);
@@ -1584,7 +1583,6 @@ void SimpleTargetRunnerPrivate::start()
     m_process.start();
 }
 
-
 /*!
     \class ProjectExplorer::SimpleTargetRunner
 
@@ -1596,7 +1594,6 @@ void SimpleTargetRunnerPrivate::start()
 
     \sa Utils::Process
 */
-
 SimpleTargetRunner::SimpleTargetRunner(RunControl *runControl)
     : RunWorker(runControl), d(new Internal::SimpleTargetRunnerPrivate(this))
 {
@@ -1644,7 +1641,6 @@ void SimpleTargetRunner::start()
     d->m_command = runControl()->commandLine();
     d->m_workingDirectory = runControl()->workingDirectory();
     d->m_environment = runControl()->environment();
-    d->m_extraData = runControl()->extraData();
 
     if (d->m_startModifier)
         d->m_startModifier();
@@ -1738,11 +1734,6 @@ void SimpleTargetRunner::forceRunOnHost()
         QTC_CHECK(false);
         d->m_command.setExecutable(FilePath::fromString(executable.path()));
     }
-}
-
-void SimpleTargetRunner::addExtraData(const QString &key, const QVariant &value)
-{
-    d->m_extraData[key] = value;
 }
 
 // RunWorkerPrivate
