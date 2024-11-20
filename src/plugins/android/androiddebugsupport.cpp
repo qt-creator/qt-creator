@@ -92,7 +92,6 @@ public:
     }
 
     void start() override;
-    void stop() override;
 
 private:
     AndroidRunner *m_runner = nullptr;
@@ -188,12 +187,6 @@ void AndroidDebugSupport::start()
     qCDebug(androidDebugSupportLog) << "Starting debugger - package name: " << packageName
                                     << ", PID: " << m_runner->pid().pid();
     DebuggerRunTool::start();
-}
-
-void AndroidDebugSupport::stop()
-{
-    qCDebug(androidDebugSupportLog) << "Stop";
-    DebuggerRunTool::stop();
 }
 
 // AndroidDebugWorkerFactory
