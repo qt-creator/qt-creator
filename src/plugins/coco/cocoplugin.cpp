@@ -104,7 +104,7 @@ public:
         }
     }
 
-    bool initialize(const QStringList &arguments, QString *errorString);
+    void initialize() final;
     void addEntryToProjectSettings();
 
 private:
@@ -128,11 +128,8 @@ static void addBuildStep(Target *target)
     }
 }
 
-bool CocoPlugin::initialize(const QStringList &arguments, QString *errorString)
+void CocoPlugin::initialize()
 {
-    Q_UNUSED(arguments)
-    Q_UNUSED(errorString)
-
     IOptionsPage::registerCategory(
         "I.Coco",
         QCoreApplication::translate("Coco", "Coco"),
@@ -152,8 +149,6 @@ bool CocoPlugin::initialize(const QStringList &arguments, QString *errorString)
     });
 
     initLanguageServer();
-
-    return true;
 }
 
 void CocoPlugin::addEntryToProjectSettings()
