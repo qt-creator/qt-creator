@@ -166,7 +166,8 @@ signals:
     void openInEditorRequested(const Utils::Link &link);
 
 private:
-    void doAppendMessage(const QString &text, OutputFormat format);
+    enum class LineStatus {Complete, Incomplete};
+    void doAppendMessage(const QString &text, OutputFormat format, LineStatus lineStatus);
 
     OutputLineParser::Result handleMessage(const QString &text, OutputFormat format,
                                            QList<OutputLineParser *> &involvedParsers);
@@ -174,7 +175,6 @@ private:
     void append(const QString &text, const QTextCharFormat &format);
     void initFormats();
     void flushIncompleteLine();
-    void flushTrailingNewline();
     void dumpIncompleteLine(const QString &line, OutputFormat format);
     void clearLastLine();
     QList<FormattedText> parseAnsi(const QString &text, const QTextCharFormat &format);

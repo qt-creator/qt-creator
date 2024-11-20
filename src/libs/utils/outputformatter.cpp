@@ -218,7 +218,6 @@ public:
     PostPrintAction postPrintAction;
     bool boldFontEnabled = true;
     bool prependCarriageReturn = false;
-    bool prependLineFeed = false;
     bool forwardStdOutToStdError = false;
 };
 
@@ -295,9 +294,13 @@ static void checkAndFineTuneColors(QTextCharFormat *format)
     format->setForeground(fgColor);
 }
 
-void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
+void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format, LineStatus lineStatus)
 {
     QTextCharFormat charFmt = charFormat(format);
+    const auto addNewlineIfApplicable = [&] {
+        if (lineStatus == LineStatus::Complete)
+            append("\n", charFmt);
+    };
 
     QList<FormattedText> formattedText = parseAnsi(text, charFmt);
     const QString cleanLine = std::accumulate(formattedText.begin(), formattedText.end(), QString(),
@@ -321,6 +324,7 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
 
     if (res.newContent) {
         append(*res.newContent, charFmt);
+        addNewlineIfApplicable();
         return;
     }
 
@@ -328,9 +332,9 @@ void OutputFormatter::doAppendMessage(const QString &text, OutputFormat format)
     for (FormattedText output : linkified) {
         checkAndFineTuneColors(&output.format);
         append(output.text, output.format);
+        charFmt = output.format;
     }
-    if (linkified.isEmpty())
-        append({}, charFmt); // This might cause insertion of a newline character.
+    addNewlineIfApplicable();
 
     for (OutputLineParser * const p : std::as_const(involvedParsers)) {
         if (d->postPrintAction)
@@ -464,7 +468,6 @@ void OutputFormatter::append(const QString &text, const QTextCharFormat &format)
 {
     if (!plainTextEdit())
         return;
-    flushTrailingNewline();
     int startPos = 0;
     int crPos = -1;
     while ((crPos = text.indexOf('\r', startPos)) >= 0)  {
@@ -528,16 +531,8 @@ void OutputFormatter::initFormats()
 void OutputFormatter::flushIncompleteLine()
 {
     clearLastLine();
-    doAppendMessage(d->incompleteLine.first, d->incompleteLine.second);
+    doAppendMessage(d->incompleteLine.first, d->incompleteLine.second, LineStatus::Incomplete);
     d->incompleteLine.first.clear();
-}
-
-void Utils::OutputFormatter::flushTrailingNewline()
-{
-    if (d->prependLineFeed) {
-        d->cursor.insertText("\n");
-        d->prependLineFeed = false;
-    }
 }
 
 void OutputFormatter::dumpIncompleteLine(const QString &line, OutputFormat format)
@@ -608,7 +603,6 @@ void OutputFormatter::flush()
 {
     if (!d->incompleteLine.first.isEmpty())
         flushIncompleteLine();
-    flushTrailingNewline();
     d->escapeCodeHandler.endFormatScope();
     for (OutputLineParser * const p : std::as_const(d->lineParsers))
         p->flush();
@@ -690,8 +684,7 @@ void OutputFormatter::appendMessage(const QString &text, OutputFormat format)
             dumpIncompleteLine(out.mid(startPos), format);
             break;
         }
-        doAppendMessage(out.mid(startPos, eolPos - startPos), format);
-        d->prependLineFeed = true;
+        doAppendMessage(out.mid(startPos, eolPos - startPos), format, LineStatus::Complete);
         startPos = eolPos + 1;
     }
 }
