@@ -743,6 +743,11 @@ void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
         runControl()->requestQmlChannel();
 }
 
+void DebuggerRunTool::setupPortsGatherer()
+{
+    setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
+}
+
 void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
 {
     m_runParameters.solibSearchPath = list;

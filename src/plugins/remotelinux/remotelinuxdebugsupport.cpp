@@ -18,29 +18,6 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-class RemoteLinuxDebugWorker final : public DebuggerRunTool
-{
-public:
-    explicit RemoteLinuxDebugWorker(RunControl *runControl)
-        : DebuggerRunTool(runControl, DoNotAllowTerminal)
-    {
-        setId("RemoteLinuxDebugWorker");
-
-        setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
-        addQmlServerInferiorCommandLineArgumentIfNeeded();
-        setUseDebugServer({}, true, true);
-
-        setStartMode(AttachToRemoteServer);
-        setCloseMode(KillAndExitMonitorAtClose);
-        setUseExtendedRemote(true);
-
-        if (runControl->device()->osType() == Utils::OsTypeMac)
-            setLldbPlatform("remote-macosx");
-        else
-            setLldbPlatform("remote-linux");
-    }
-};
-
 class RemoteLinuxQmlToolingSupport final : public SimpleTargetRunner
 {
 public:
@@ -93,7 +70,24 @@ class RemoteLinuxDebugWorkerFactory final : public ProjectExplorer::RunWorkerFac
 public:
     RemoteLinuxDebugWorkerFactory()
     {
-        setProduct<RemoteLinuxDebugWorker>();
+        setProducer([](RunControl *rc) {
+            auto debugger = new DebuggerRunTool(rc, DebuggerRunTool::DoNotAllowTerminal);
+            debugger->setId("RemoteLinuxDebugWorker");
+
+            debugger->setupPortsGatherer();
+            debugger->addQmlServerInferiorCommandLineArgumentIfNeeded();
+            debugger->setUseDebugServer({}, true, true);
+
+            debugger->setStartMode(AttachToRemoteServer);
+            debugger->setCloseMode(KillAndExitMonitorAtClose);
+            debugger->setUseExtendedRemote(true);
+
+            if (rc->device()->osType() == Utils::OsTypeMac)
+                debugger->setLldbPlatform("remote-macosx");
+            else
+                debugger->setLldbPlatform("remote-linux");
+            return debugger;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedDeviceType(Constants::GenericLinuxOsType);
         setSupportedRunConfigs(supportedRunConfigs());

@@ -81,6 +81,10 @@ public:
 
     Internal::DebuggerRunParameters &runParameters() { return m_runParameters; }
 
+    void setLldbPlatform(const QString &platform);
+    void addQmlServerInferiorCommandLineArgumentIfNeeded();
+    void setupPortsGatherer();
+
 protected:
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
@@ -88,11 +92,9 @@ protected:
     void setUsePortsGatherer(bool useCpp, bool useQml);
 
     void addSolibSearchDir(const QString &str);
-    void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void modifyDebuggerEnvironment(const Utils::EnvironmentItems &item);
     void addSearchDirectory(const Utils::FilePath &dir);
 
-    void setLldbPlatform(const QString &platform);
     void setRemoteChannel(const QUrl &url);
     void setUseTargetAsync(bool on);
     void setSkipExecutableValidation(bool on);
