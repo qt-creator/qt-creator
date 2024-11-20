@@ -30,6 +30,8 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <languageclient/languageclientmanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projecttree.h>
@@ -101,6 +103,12 @@ QmlJSEditorPluginPrivate::QmlJSEditorPluginPrivate()
     // recompute messages when project data changes (files added or removed)
     connect(modelManager, &QmlJS::ModelManagerInterface::projectInfoUpdated,
             &m_qmlTaskManager, &QmlTaskManager::updateMessages);
+    // restart qmlls when project data changes (qt kit changed, for example)
+    connect(
+        modelManager,
+        &QmlJS::ModelManagerInterface::projectInfoUpdated,
+        LanguageClient::LanguageClientManager::instance(),
+        []() { LanguageClient::LanguageClientManager::applySettings(qmllsSettings()); });
     connect(modelManager,
             &QmlJS::ModelManagerInterface::aboutToRemoveFiles,
             &m_qmlTaskManager,
