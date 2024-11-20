@@ -85,7 +85,6 @@ public:
     void addQmlServerInferiorCommandLineArgumentIfNeeded();
     void setupPortsGatherer();
 
-protected:
     bool isCppDebugging() const;
     bool isQmlDebugging() const;
 

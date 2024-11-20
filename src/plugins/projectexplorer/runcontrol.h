@@ -287,7 +287,6 @@ public:
     explicit SimpleTargetRunner(RunControl *runControl);
     ~SimpleTargetRunner() override;
 
-protected:
     void setStartModifier(const std::function<void()> &startModifier);
 
     Utils::CommandLine commandLine() const;
