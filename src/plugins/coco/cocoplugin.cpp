@@ -13,7 +13,6 @@
 #include <coreplugin/actionmanager/actionmanager.h>
 #include <coreplugin/icore.h>
 #include <projectexplorer/project.h>
-#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectpanelfactory.h>
 #include <projectexplorer/target.h>
 
@@ -108,28 +107,13 @@ public:
     void addEntryToProjectSettings();
 
 private:
-    QMakeStepFactory m_qmakeStepFactory;
-    CMakeStepFactory m_cmakeStepFactory;
-
     CocoLanguageClient *m_client = nullptr;
 };
 
-static void addBuildStep(Target *target)
-{
-    for (BuildConfiguration *config : target->buildConfigurations()) {
-        if (BuildSettings::supportsBuildConfig(*config)) {
-            BuildStepList *steps = config->buildSteps();
-
-            if (!steps->contains(Constants::COCO_STEP_ID))
-                steps->insertStep(0, CocoBuildStep::create(config));
-
-            steps->firstOfType<CocoBuildStep>()->display(config);
-        }
-    }
-}
-
 void CocoPlugin::initialize()
 {
+    setupCocoBuildSteps();
+
     IOptionsPage::registerCategory(
         "I.Coco",
         QCoreApplication::translate("Coco", "Coco"),
@@ -138,15 +122,6 @@ void CocoPlugin::initialize()
     GlobalSettings::read();
     GlobalSettingsPage::instance().widget();
     addEntryToProjectSettings();
-
-    connect(ProjectManager::instance(), &ProjectManager::projectAdded, this, [&](Project *project) {
-        if (Target *target = project->activeTarget())
-            addBuildStep(target);
-
-        connect(project, &Project::addedTarget, this, [](Target *target) {
-            addBuildStep(target);
-        });
-    });
 
     initLanguageServer();
 }

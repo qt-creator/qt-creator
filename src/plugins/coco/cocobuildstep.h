@@ -15,18 +15,6 @@ class QPushButton;
 
 namespace Coco::Internal {
 
-class QMakeStepFactory: public ProjectExplorer::BuildStepFactory
-{
-public:
-    QMakeStepFactory();
-};
-
-class CMakeStepFactory: public ProjectExplorer::BuildStepFactory
-{
-public:
-    CMakeStepFactory();
-};
-
 class CocoBuildStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
@@ -55,5 +43,7 @@ private:
     bool m_valid;
     QPushButton *m_reconfigureButton;
 };
+
+void setupCocoBuildSteps();
 
 } // namespace Coco::Internal

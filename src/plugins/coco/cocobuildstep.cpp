@@ -8,32 +8,22 @@
 #include "cocotr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
-#include <solutions/tasking/tasktree.h>
-#include <utils/layoutbuilder.h>
+#include <projectexplorer/projectmanager.h>
+#include <projectexplorer/target.h>
+
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
+
+#include <solutions/tasking/tasktree.h>
+
+#include <utils/layoutbuilder.h>
 
 #include <QPushButton>
 
 namespace Coco::Internal {
 
 using namespace ProjectExplorer;
-
-QMakeStepFactory::QMakeStepFactory()
-{
-    registerStep<CocoBuildStep>(Utils::Id{Constants::COCO_STEP_ID});
-    setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setRepeatable(false);
-}
-
-CMakeStepFactory::CMakeStepFactory()
-{
-    registerStep<CocoBuildStep>(Utils::Id{Constants::COCO_STEP_ID});
-    setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
-    setRepeatable(false);
-}
 
 CocoBuildStep *CocoBuildStep::create(BuildConfiguration *buildConfig)
 {
@@ -120,6 +110,61 @@ void CocoBuildStep::display(BuildConfiguration *buildConfig)
 Tasking::GroupItem CocoBuildStep::runRecipe()
 {
     return Tasking::GroupItem({});
+}
+
+// Factories
+
+class QMakeStepFactory final : public BuildStepFactory
+{
+public:
+    QMakeStepFactory()
+    {
+        registerStep<CocoBuildStep>(Utils::Id{Constants::COCO_STEP_ID});
+        setSupportedProjectType(QmakeProjectManager::Constants::QMAKEPROJECT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        setRepeatable(false);
+    }
+};
+
+class CMakeStepFactory final : public BuildStepFactory
+{
+public:
+    CMakeStepFactory()
+    {
+        registerStep<CocoBuildStep>(Utils::Id{Constants::COCO_STEP_ID});
+        setSupportedProjectType(CMakeProjectManager::Constants::CMAKE_PROJECT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+        setRepeatable(false);
+    }
+};
+
+static void addBuildStep(Target *target)
+{
+    for (BuildConfiguration *config : target->buildConfigurations()) {
+        if (BuildSettings::supportsBuildConfig(*config)) {
+            BuildStepList *steps = config->buildSteps();
+
+            if (!steps->contains(Constants::COCO_STEP_ID))
+                steps->insertStep(0, CocoBuildStep::create(config));
+
+            steps->firstOfType<CocoBuildStep>()->display(config);
+        }
+    }
+}
+
+void setupCocoBuildSteps()
+{
+    static QMakeStepFactory theQmakeStepFactory;
+    static CMakeStepFactory theCmakeStepFactory;
+
+    QObject::connect(ProjectManager::instance(), &ProjectManager::projectAdded, [&](Project *project) {
+        if (Target *target = project->activeTarget())
+            addBuildStep(target);
+
+        QObject::connect(project, &Project::addedTarget, [](Target *target) {
+            addBuildStep(target);
+        });
+    });
 }
 
 } // namespace Coco::Internal
