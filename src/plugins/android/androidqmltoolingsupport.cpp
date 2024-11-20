@@ -13,27 +13,22 @@ using namespace ProjectExplorer;
 
 namespace Android::Internal {
 
-class AndroidQmlToolingSupport final : public RunWorker
-{
-public:
-    explicit AndroidQmlToolingSupport(RunControl *runControl) : RunWorker(runControl)
-    {
-        setId("AndroidQmlToolingSupport");
-
-        auto runner = new AndroidRunner(runControl);
-        addStartDependency(runner);
-
-        auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
-        worker->addStartDependency(this);
-    }
-};
-
 class AndroidQmlToolingSupportFactory final : public RunWorkerFactory
 {
 public:
     AndroidQmlToolingSupportFactory()
     {
-        setProduct<AndroidQmlToolingSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new RunWorker(runControl);
+            worker->setId("AndroidQmlToolingSupport");
+
+            auto runner = new AndroidRunner(runControl);
+            worker->addStartDependency(runner);
+
+            auto extraWorker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
+            extraWorker->addStartDependency(worker);
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
         addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
     }
