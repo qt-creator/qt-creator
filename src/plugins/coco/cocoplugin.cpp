@@ -108,15 +108,13 @@ public:
     void addEntryToProjectSettings();
 
 private:
-    static void addBuildStep(ProjectExplorer::Target *target);
-
     QMakeStepFactory m_qmakeStepFactory;
     CMakeStepFactory m_cmakeStepFactory;
 
     CocoLanguageClient *m_client = nullptr;
 };
 
-void CocoPlugin::addBuildStep(Target *target)
+static void addBuildStep(Target *target)
 {
     for (BuildConfiguration *config : target->buildConfigurations()) {
         if (BuildSettings::supportsBuildConfig(*config)) {
