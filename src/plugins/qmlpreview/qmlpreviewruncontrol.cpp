@@ -174,13 +174,12 @@ QmlPreviewRunWorkerFactory::QmlPreviewRunWorkerFactory(QmlPreviewPlugin *plugin,
     addSupportedRunMode(Constants::QML_PREVIEW_RUNNER);
 }
 
-class LocalQmlPreviewSupport final : public SimpleTargetRunner
+LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
 {
-public:
-    LocalQmlPreviewSupport(RunControl *runControl)
-        : SimpleTargetRunner(runControl)
-    {
-        setId("LocalQmlPreviewSupport");
+    setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
+    setProducer([](RunControl *runControl) {
+        auto worker = new SimpleTargetRunner(runControl);
+        worker->setId("LocalQmlPreviewSupport");
 
         runControl->setQmlChannel(Utils::urlFromLocalSocket());
 
@@ -188,11 +187,11 @@ public:
         RunWorker *preview =
             runControl->createWorker(ProjectExplorer::Constants::QML_PREVIEW_RUNNER);
 
-        addStopDependency(preview);
-        addStartDependency(preview);
+        worker->addStopDependency(preview);
+        worker->addStartDependency(preview);
 
-        setStartModifier([this, runControl] {
-            CommandLine cmd = commandLine();
+        worker->setStartModifier([worker, runControl] {
+            CommandLine cmd = worker->commandLine();
 
             if (const auto aspect = runControl->aspectData<QmlProjectManager::QmlMainFileAspect>()) {
                 const auto qmlBuildSystem = qobject_cast<QmlProjectManager::QmlBuildSystem *>(
@@ -214,17 +213,11 @@ public:
             }
 
             cmd.addArg(qmlDebugLocalArguments(QmlPreviewServices, runControl->qmlChannel().path()));
-            setCommandLine(cmd);
-
-            forceRunOnHost();
+            worker->setCommandLine(cmd);
+            worker->forceRunOnHost();
         });
-    }
-};
-
-LocalQmlPreviewSupportFactory::LocalQmlPreviewSupportFactory()
-{
-    setId(ProjectExplorer::Constants::QML_PREVIEW_RUN_FACTORY);
-    setProduct<LocalQmlPreviewSupport>();
+        return worker;
+    });
     addSupportedRunMode(ProjectExplorer::Constants::QML_PREVIEW_RUN_MODE);
     addSupportedDeviceType(ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
 
