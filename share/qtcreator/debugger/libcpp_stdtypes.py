@@ -1,6 +1,29 @@
 # Copyright (C) 2022 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+# Disclaimers:
+#   1. Looking up the allocator template type is potentially an expensive operation.
+#      A better alternative would be finding out the allocator type
+#      through accessing a class member.
+#      However due to different implementations doing things very differently
+#      it is deemed acceptable.
+#      Specifically:
+#        * GCC's `_Rb_tree_impl` basically inherits from the allocator, the comparator
+#          and the sentinel node
+#        * Clang packs the allocator and the sentinel node into a compressed pair,
+#          so depending on whether the allocator is sized or not,
+#          there may or may not be a member to access
+#        * MSVC goes even one step further and stores the allocator and the sentinel node together
+#          in a compressed pair, which in turn is stored together with the comparator inside
+#          another compressed pair
+#   2. `size` on an empty type, which the majority of the allocators are of,
+#      for whatever reason reports 1. In theory there can be allocators whose type is truly 1 byte,
+#      in which case we will have issues, but in practice they should be rather rare.
+#   3. Note that sometimes the size of `std::pmr::polymorphic_allocator` is bizarrely reported
+#      as exactly 0, for example this happens with
+#      `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>` from `std::pmr::map`,
+#      so dumping pmr containers still may still have some breakages for libcxx
+
 from stdtypes import qdump__std__array, qdump__std__complex, qdump__std__once_flag, qdump__std__unique_ptr, qdumpHelper__std__deque__libcxx, qdumpHelper__std__vector__libcxx, qdump__std__forward_list
 from utils import DisplayFormat
 from dumper import Children, DumperBase
@@ -53,24 +76,10 @@ def qdump__std____1__list(d, value):
 
 
 def qdump__std____1__set(d, value):
-    # Looking up the allocator template type is potentially an expensive operation.
-    # A better alternative would be finding out the allocator type through accessing a class member.
-    # However due to different implementations doing things very differently
-    # it is deemed acceptable.
-    # Specifically:
-    #   * GCC's `_Rb_tree_impl` basically inherits from the allocator, the comparator
-    #     and the sentinel node
-    #   * Clang packs the allocator and the sentinel node into a compressed pair,
-    #     so depending on whether the allocator is sized or not,
-    #     there may or may not be a member to access
-    #   * MSVC goes even one step further and stores the allocator and the sentinel node together
-    #     in a compressed pair, which in turn is stored together with the comparator inside
-    #     another compressed pair
+    # see disclaimer #1
     alloc_type = value.type[2]
     alloc_size = alloc_type.size()
-    # size of empty allocators (which are the majority) is reported as 1
-    # in theory there can be allocators whose size is truly 1 byte,
-    # in which case this will cause issues, but in practice they should be rather rare
+    # see disclaimer #2
     if alloc_size > 1:
         (proxy, head, alloc, size) = value.split(f'pp{{{alloc_type.name}}}p')
     else:
@@ -109,30 +118,30 @@ def qform__std____1__map():
 
 
 def qdump__std____1__map(d, value):
-    try:
-        (proxy, head, size) = value.split("ppp")
-        d.check(0 <= size and size <= 100 * 1000 * 1000)
+    alloc_type = value.type[3] # see disclaimer #1
+    alloc_size = alloc_type.size()
+    # see disclaimers #2 and #3
+    if alloc_size > 1:
+        (begin_node_ptr, head, alloc, size) = value.split(f'pp{{{alloc_type.name}}}p')
+    else:
+        (begin_node_ptr, head, size) = value.split("ppp")
 
-    # Sometimes there is extra data at the front. Don't know why at the moment.
-    except RuntimeError:
-        (junk, proxy, head, size) = value.split("pppp")
-        d.check(0 <= size and size <= 100 * 1000 * 1000)
-
+    d.check(0 <= size and size <= 100 * 1000 * 1000)
     d.putItemCount(size)
 
     if d.isExpanded():
         keyType = value.type[0]
-        valueType = value.type[1]
-        pairType = value.type[3][0]
+        valType = value.type[1]
 
         def in_order_traversal(node):
-            (left, right, parent, color, pad, pair) = d.split("pppB@{%s}" % (pairType.name), node)
+            (left, right, parent, color, _pad_1, key, _pad_2, val) = d.split(
+                f'pppB@{{{keyType.name}}}@{{{valType.name}}}', node)
 
             if left:
                 for res in in_order_traversal(left):
                     yield res
 
-            yield pair.split("{%s}@{%s}" % (keyType.name, valueType.name))[::2]
+            yield key, val
 
             if right:
                 for res in in_order_traversal(right):

@@ -8693,6 +8693,7 @@ void tst_Dumpers::dumper_data()
             #include <forward_list>
             #include <list>
             #include <map>
+            #include <memory_resource>
             #include <set>
             #include <unordered_map>
             #include <unordered_set>
@@ -8731,16 +8732,17 @@ void tst_Dumpers::dumper_data()
                 us.insert(i);
                 ums.insert(i);
 
-                m.emplace(i, i);
-                mm.emplace(i, i);
-                um.emplace(i, i);
-                umm.emplace(i, i);
+                m.emplace(i, count + i);
+                mm.emplace(i, count + i);
+                um.emplace(i, count + i);
+                umm.emplace(i, count + i);
 
                 v.push_back(i);
             }
         )",
         "&d, &fl, &l, &s, &ms, &us, &ums, &m, &mm, &um, &umm, &v"
     }
+        + Cxx17Profile{}
         + Check{"d", "<10 items>", "std::pmr::deque<int>"} % NoGdbEngine
         + Check{"d", "<10 items>", "std::pmr::deque"} % GdbEngine
         + Check{"d.1", "[1]", "8", "int"}
@@ -8760,12 +8762,18 @@ void tst_Dumpers::dumper_data()
         + Check{"us", "<10 items>", "std::pmr::unordered_set"} % GdbEngine
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset<int>"} % NoGdbEngine
         + Check{"ums", "<10 items>", "std::pmr::unordered_multiset"} % GdbEngine
-        + Check{"m", "<10 items>", "std::pmr::map<int, int>"} % NoGdbEngine
+
+        // There is a bizzare interaction of `DumperBase.Type.size` (see Python scripts) and libcxx
+        // that results in the size of
+        // `std::__1::pmr::polymorphic_allocator<std::__1::pair<const int, int>>`
+        // from `std::pmr::map` being reported as exactly 0 which breaks dumping
+        + Check{"m", "<10 items>", "std::pmr::map<int, int>"} % CdbEngine
         + Check{"m", "<10 items>", "std::pmr::map"} % GdbEngine
-        + Check{"m.5", "[5] 5", "5", ""}
-        + Check{"mm", "<10 items>", "std::pmr::multimap<int, int>"} % NoGdbEngine
+        + Check{"m.5", "[5] 5", "15", ""} % NoLldbEngine
+        + Check{"mm", "<10 items>", "std::pmr::multimap<int, int>"} % CdbEngine
         + Check{"mm", "<10 items>", "std::pmr::multimap"} % GdbEngine
-        + Check{"mm.5", "[5] 5", "5", ""}
+        + Check{"mm.5", "[5] 5", "15", ""} % NoLldbEngine
+
         + Check{"um", "<10 items>", "std::pmr::unordered_map<int, int>"} % NoGdbEngine
         + Check{"um", "<10 items>", "std::pmr::unordered_map"} % GdbEngine
         + Check{"umm", "<10 items>", "std::pmr::unordered_multimap<int, int>"} % NoGdbEngine
