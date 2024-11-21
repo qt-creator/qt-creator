@@ -278,6 +278,7 @@ Item {
         AssetsView {
             id: assetsView
 
+            visible: !assetsModel.isEmpty
             width: parent.width
             height: parent.height - assetsView.y
 

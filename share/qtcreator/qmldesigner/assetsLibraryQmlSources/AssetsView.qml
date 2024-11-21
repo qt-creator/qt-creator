@@ -10,6 +10,7 @@ import AssetsLibraryBackend
 
 TreeView {
     id: root
+
     clip: true
     interactive: verticalScrollBar.visible && !root.contextMenu.opened && !rootView.isDragging
     reuseItems: false
