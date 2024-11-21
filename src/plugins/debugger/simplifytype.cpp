@@ -88,7 +88,6 @@ static inline QString fixNestedTemplates(QString s)
 }
 
 static void simplifyAllocator(
-    const QString &typeIn,
     const QString &allocatorTemplateHead,
     const QString &containerTypePrefix,
     const bool isLibCpp,
@@ -334,9 +333,9 @@ QString simplifyType(const QString &typeIn)
         }
 
         // Fix e.g. `std::vector<T, std::allocator<T>> -> std::vector<T>`
-        simplifyAllocator(typeIn, "std::allocator<", "", isLibCpp, type);
+        simplifyAllocator("std::allocator<", "", isLibCpp, type);
         // Fix e.g. `std::vector<T, std::pmr::polynorphic_allocator<T>> -> std::pmr::vector<T>`
-        simplifyAllocator(typeIn, "std::pmr::polymorphic_allocator<", "pmr::", isLibCpp, type);
+        simplifyAllocator("std::pmr::polymorphic_allocator<", "pmr::", isLibCpp, type);
     }
     type.replace('@', " *");
     type.replace(" >", ">");
