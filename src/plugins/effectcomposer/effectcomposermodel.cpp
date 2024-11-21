@@ -195,7 +195,7 @@ void EffectComposerModel::removeNode(int idx)
     emit nodesChanged();
 }
 
-bool EffectComposerModel::isNodeUniformInUse(int nodeIndex, int uniformIndex)
+bool EffectComposerModel::isNodeUniformInUse(int nodeIndex, int uniformIndex) const
 {
     QTC_ASSERT(nodeIndex >= 0 && nodeIndex < m_nodes.size(), return false);
 

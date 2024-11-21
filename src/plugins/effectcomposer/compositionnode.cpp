@@ -46,12 +46,11 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
         parse(effectName, "", jsonObject);
     }
 
-    connect(&m_uniformsModel, &QAbstractItemModel::rowsAboutToBeRemoved, this,
-            [this](const QModelIndex &, int row, int) {
-        QTC_ASSERT(m_uniforms.size() > row, return);
-        m_uniforms.removeAt(row);
-        emit rebakeRequested();
-    });
+    connect(
+        &m_uniformsModel,
+        &QAbstractItemModel::rowsRemoved,
+        this,
+        &CompositionNode::rebakeRequested);
 }
 
 CompositionNode::~CompositionNode()
@@ -154,7 +153,6 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     for (const QJsonValueConstRef &prop : jsonProps) {
         const auto uniform = new Uniform(effectName, prop.toObject(), qenPath);
         m_uniformsModel.addUniform(uniform);
-        m_uniforms.append(uniform);
         g_propertyData.insert(uniform->name(), uniform->value());
         if (uniform->type() == Uniform::Type::Define) {
             // Changing defines requires rebaking the shaders
@@ -216,7 +214,7 @@ void CompositionNode::requestRebakeIfLiveUpdateMode()
 
 QList<Uniform *> CompositionNode::uniforms() const
 {
-    return m_uniforms;
+    return m_uniformsModel.uniforms();
 }
 
 int CompositionNode::incRefCount()
@@ -290,27 +288,25 @@ void CompositionNode::closeCodeEditor()
 void CompositionNode::addUniform(const QVariantMap &data)
 {
     const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
-    m_uniforms.append(uniform);
     g_propertyData.insert(uniform->name(), uniform->value());
     m_uniformsModel.addUniform(uniform);
 }
 
 void CompositionNode::updateUniform(int index, const QVariantMap &data)
 {
-    QTC_ASSERT(index < m_uniforms.size() && index >= 0, return);
+    QTC_ASSERT(index < uniforms().size() && index >= 0, return);
 
     const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
 
-    m_uniforms[index] = uniform;
     g_propertyData.insert(uniform->name(), uniform->value());
     m_uniformsModel.updateUniform(index, uniform);
 }
 
-bool CompositionNode::isUniformInUse(int index)
+bool CompositionNode::isUniformInUse(int index) const
 {
-    QTC_ASSERT(index >= 0 && index < m_uniforms.size(), return false);
+    QTC_ASSERT(index >= 0 && index < uniforms().size(), return false);
 
-    const QString name = m_uniforms[index]->name();
+    const QString &name = uniforms().at(index)->name();
     QString pattern = QString("\\b%1\\b").arg(QRegularExpression::escape(name));
     QRegularExpression regex(pattern);
     bool found = regex.match(m_fragmentCode).hasMatch();
