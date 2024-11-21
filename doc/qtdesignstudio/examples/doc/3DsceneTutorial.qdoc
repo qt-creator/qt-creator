@@ -1,18 +1,18 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page 3d-scene-tutorial.html
     \ingroup gstutorials
 
-    \title Setting up a 3D Scene
+    \title Setting up a 3D scene
     \sa {Content Library}
     \brief Illustrates how to set up a 3D scene with, for example, lights, models, and materials in
     \QDS.
 
     \image 3d-scene-tutorial.webp
 
-    The \e {Setting up a 3D Scene} tutorial illustrates how you can set up and improve a 3D
+    The \e {Setting up a 3D scene} tutorial illustrates how you can set up and improve a 3D
     scene with the following:
     \list
       \li 3D models
@@ -30,10 +30,9 @@
     Download the completed project from
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/3Dscene%20tutorial/Completed/}{here}.
 
-    This tutorial requires that you know the basics of \QDS, see
-    \l{Getting Started}.
+    To learn the basics of \QDS required to complete this tutorial, see \l{Getting started}.
 
-    \section1 The Starting Project
+    \section1 The starting project
 
     The starting project consists of an animated 3D model of a ball bearing. Control the animations
     with a slider and a switch in the user interface.
@@ -43,7 +42,7 @@
 
     \include run-tutorial-project.qdocinc
 
-    \section1 Adding Materials to the 3D Models
+    \section1 Adding materials to the 3D models
 
     First, use materials from the \uicontrol {Content Library} view on the ball bearing:
 
@@ -70,7 +69,7 @@
     When you run the application or live preview, notice that you don't see much of the materials.
     The next step is to set up the environmental light.
 
-    \section1 Adding Environmental Lighting to the Scene
+    \section1 Adding environmental lighting to the scene
 
     Environmental lighting is a good way to create a realistic light for your scene.
 
@@ -98,7 +97,7 @@
     You also want to increase the brightness of the light a bit. Go to the \uicontrol {Image Based
     Lighting} tab in \uicontrol Properties and set \uicontrol Exposure to \e 10.
 
-    \section2 Adding a Background Image to the Scene
+    \section2 Adding a background image to the scene
 
     In the final step of this tutorial, you add a background image to your scene:
 

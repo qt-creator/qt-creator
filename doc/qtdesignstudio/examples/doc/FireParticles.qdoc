@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,13 +6,14 @@
     \ingroup gstutorials
     \sa Particles
 
-    \title Particle System: Fire Effect
+    \title Particle System: The fire effect
+
     \brief Illustrates how to create a fire effect with the \QDS
     particle system.
 
     \image fire-particles.png
 
-    The \e{Fire Effect} tutorial illustrates how you can add a fire effect to
+    \e{The fire effect} tutorial illustrates how you can add a fire effect to
     your scene using the \QDS particle system.
 
     In this tutorial, you create a project from the beginning. You can download
@@ -20,10 +21,9 @@
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/fire-particles}
     {here}.
 
-    This tutorial requires that you know the basics of \QDS, see
-    \l{Getting Started}.
+    To learn the basics of \QDS required to complete this tutorial, see \l{Getting Started}.
 
-    \section1 Tutorial Assets
+    \section1 Tutorial assets
 
     You need the following assets to complete this tutorial:
     \list
@@ -35,9 +35,9 @@
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/fire-particles/FireParticles/content/images}
     {here}.
 
-    \section1 Creating a Fire Effect
+    \section1 Creating a fire effect
 
-    \section2 Creating a Project
+    \section2 Creating a project
 
     To create a new project:
 
@@ -67,7 +67,7 @@
       \uicontrol {Properties}, set \uicontrol {Fill Color} to #000000.
     \endlist
 
-    \section2 Adding a Particle System to Your Scene
+    \section2 Adding a Particle System to your scene
 
     To add a particle system, you first need to import the QtQuick3D.Particles3D
     module to your project:
@@ -166,7 +166,7 @@
 
     \image fire-particles-sprite-textures.png
 
-    \section2 Adjusting the Particle Emitter
+    \section2 Adjusting the particle emitter
 
     The next step is to adjust the particle emitter properties:
 
@@ -218,7 +218,7 @@
 
     \endlist
 
-    \section1 Running the Project
+    \section1 Running the project
 
     Now, the fire effect is ready. Before you run it, position the camera to show the effect
     from a suitable perspective:

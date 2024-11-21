@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,15 +6,14 @@
     \ingroup gstutorials
     \sa Particles
 
-    \title Particle System: Rain and Snow Effect
-    \brief Illustrates how to create a rain and snow effect with the \QDS
+    \title Particle System: The rain and the snow effects
+    \brief Illustrates how to create a rain and a snow effect with the \QDS
     particle system.
 
     \image snow-particles.png
 
-    The \e{Rain and Snow Effect} tutorial illustrates how you can add a rain and
-    a snow effect to your
-    scene using the \QDS particle system.
+    \e{The rain and the snow effects} tutorial illustrates how you can add a rain and
+    a snow effect to your scene using the \QDS particle system.
 
     You need to download the starting project for this tutorial from
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/rain-snow-particles/Start}{here}
@@ -24,9 +23,9 @@
     to get started.
 
     \image rain-snow-tutorial-start.png
-    \section1 Creating a Rain Effect
+    \section1 Creating a rain effect
 
-    \section2 Adding a Particle System to Your Scene
+    \section2 Adding a Particle System to your scene
 
     To add a particle system, you first need to import the QtQuick3D.Particles3D
     module to your project:
@@ -43,7 +42,8 @@
 
     \image rain-snow-tutorial-particle-system.png
 
-    \section2 Adjusting the Behavior and Apperance of the Particle System
+    \section2 Adjusting the behavior and apperance of the Particle System
+
     Next, you adjust the position, behavior, and apperance of the particle
     system to create a simple rain effect:
 
@@ -93,7 +93,7 @@
         \endlist
     \endlist
 
-    \section2 Adjusting the Size of the Emitting Area
+    \section2 Adjusting the size of the emitting area
 
     By default, the \uicontrol {Particle Emitter} emits particles from one
     point in the scene. In this scene you want to emit particles from a bigger
@@ -121,7 +121,7 @@
     Now, the rain effect is ready. Press \key Alt+P to see it in the live
     preview.
 
-    \section1 Creating a Snow Effect
+    \section1 Creating a snow effect
 
     To make it easy, you can duplicate the particle system you created for the
     rain effect and adjust the properties to create a snow effect. To do this,
@@ -133,7 +133,7 @@
 
     \image rain-snow-tutorial-states.png
 
-    \section2 Turning the Rain into Snow
+    \section2 Turning the rain into snow
 
     \list 1
       \li With the new state that you just created selected in

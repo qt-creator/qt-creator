@@ -4,16 +4,16 @@
 /*!
     \example Loginui2
     \ingroup gstutorials
-    \previouspage {Log In UI - Components}
-    \nextpage {Log In UI - States}
+    \previouspage {Login UI - Components}
+    \nextpage {Login UI: States}
 
-    \title Log In UI - Positioning
+    \title Login UI: Positioning
     \brief Illustrates how to position UI components on pages using anchors and
     positioners.
 
-    \image loginui2.webp "Log In UI"
+    \image loginui2.webp "Login UI"
 
-    \e{Log In UI - Positioning} is the second in a series of tutorials that build
+    \e{Login UI: Positioning} is the second in a series of tutorials that build
     on each other to illustrate how to use \QDS to create a simple UI with
     some basic UI components, such as pages, buttons, and entry fields. The
     second tutorial in the series describes how to position the UI components
@@ -24,16 +24,16 @@
     with different screen sizes, you will use anchors and positioners.
 
     The starting point for this tutorial is the completed
-    \l{Log In UI - Components} project. You can download the project
+    \l{Login UI: Components} project. You can download the project
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui1}{here}.
 
     Additionally, you can download the completed project of this tutorial
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/Loginui2}{here}.
 
-    The \e {Learn More} sections provide additional information about the
+    The \e {Learn more} sections provide additional information about the
     task at hand.
 
-    \section1 Anchoring UI Components
+    \section1 Anchoring UI components
 
     First, you will \l {Setting Anchors and Margins}{anchor} the
     static page elements, background image (\e adventurePage), logo
@@ -92,7 +92,7 @@
             \uicontrol Target field, check that the component instance is
             located in the correct place in the component hierarchy in
             \uicontrol Navigator. For more information,
-            see \l{Arranging Components}.
+            see \l{Arranging components}.
         \li Select \uicontrol File > \uicontrol Save or press \key {Ctrl+S}
             to save your changes.
     \endlist
@@ -102,10 +102,10 @@
 
     \image loginui2-loginpage.webp "Login page in the 2D view and live preview"
 
-    \section1 Using Column Positioners
+    \section1 Using column positioners
 
     You will now position the entry fields and buttons in columns
-    to learn another method of \l{Using Positioners}{positioning components}.
+    to learn another method of \l{Using positioners}{positioning components}.
     Then, you will anchor the columns to the page to enable their positions
     to change when the screen size changes.
 
@@ -171,7 +171,7 @@
 
     \image loginui2-loginpage-ready.webp "Login page in the 2D view and live preview"
 
-    \section1 Learn More
+    \section1 Learn more
     \section2 Anchors
     In an anchor-based layout, each component instance can be thought of as
     having a set of invisible \e anchor lines: top, bottom, left, right, fill,
@@ -183,7 +183,8 @@
     component instance changes, the instances that are anchored to it will
     adjust automatically to maintain the anchoring.
 
-    For more information, see \l{Positioning with Anchors}.
+    For more information, see \l{Positioning with Anchors}{Positioning with anchors}.
+
     \section2 Positioners
 
     For many use cases, the best positioner to use is a simple grid, row, or
@@ -194,9 +195,9 @@
     For more complicated UI designs, you can use components from the
     \l {Using Layouts}{Qt Quick Layouts module}.
 
-    \section1 Next Steps
+    \section1 Next steps
 
     To learn how to add a second page and move to it from the main page, see
-    the next tutorial in the series, \l {Log In UI - States}.
+    the next tutorial in the series, \l {Login UI: States}.
 */
 

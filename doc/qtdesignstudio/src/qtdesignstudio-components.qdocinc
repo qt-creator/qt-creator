@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 //! [creating studio components]
@@ -54,7 +54,7 @@
     \endlist
 
     For an example of using the \uicontrol Button template to create a button
-    and styling it, see \l{Creating a Push Button} in the \l{Log In UI - Components}
+    and styling it, see \l{Creating a Push Button} in the \l{Login UI: Components}
     tutorial.
 
     In addition, you can create starting points for different types of screens:

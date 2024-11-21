@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -26,7 +26,7 @@
     Users select buttons to navigate between the screens.
     We use \l{glossary-connection}{connections} to determine which
     screen to open when users select a particular button and \l{glossary-state}
-    {states} to show the screens. We use the \l{Creating Timeline Animations}
+    {states} to show the screens. We use the \l{Creating timeline animations}
     {timeline} to create progress indicators for buttons and the \e Running
     screen.
 
@@ -36,7 +36,7 @@
     {\QMCU}, which does not support the \l Date component at the time of
     writing.
 
-    \section1 Creating an Application for MCUs
+    \section1 Creating an application for MCUs
 
     We use the \uicontrol {\QMCU Application} project template to create
     an application for MCUs, which support only a subset of the preset
@@ -61,7 +61,7 @@
     This way, only the components and properties supported on MCUs are visible
     in \l Components and \l Properties, and we won't accidentally
     add unsupported components to our UI or specify unsupported properties for
-    supported components. For more information, see \l{Creating Projects}.
+    supported components. For more information, see \l{Creating projects}.
 
     In addition, the wizard template creates a generic \c CMakeLists.txt file
     that we can use to configure and build our example application for running
@@ -71,11 +71,11 @@
     1.6. You cannot run it on older versions. Also, at the time of writing,
     \QMCU only supports Qt 5.
 
-    \section1 Creating Screens
+    \section1 Creating screens
 
     For this example, we used an external tool to design the UI and then
     exported and imported our design into \QDS as assets and components
-    using \QB, as instructed in \l{Exporting from Design Tools}. While
+    using \QB, as instructed in \l{Exporting from design tools}. While
     exporting, we only picked components supported by \QMCU to use
     for our components. For the button components, we mostly use the
     \l {basic-image}{Image}, \l Text, and \l {Mouse Area} components. For the
@@ -94,9 +94,9 @@
     by selecting \uicontrol File > \uicontrol {New File} >
     \uicontrol {Qt Quick Files}. While designing the screens, you can
     move reusable components into separate files. For more information,
-    see \l{Using Components}.
+    see \l{Using components}.
 
-    \section1 Creating a Progress Indicator
+    \section1 Creating a progress indicator
 
     We create a reusable MultSegmentArc component, and use it in our
     \e Bigbutton and \e Smallbutton components to indicate the button
@@ -163,7 +163,7 @@
 
     \image washingmachineui-multsegmentarc.gif "Rotation animation in the 2D view"
 
-    \section1 Creating States
+    \section1 Creating states
 
     In our UI, we use connections and states to move between screens. First,
     we specify the application workflow in \e ApplicationFlow.qml. When the
@@ -179,7 +179,7 @@
     in the top-left corner of the root component.
 
     Then, we open the \uicontrol States view to create the \e start,
-    \e settings, \e presets, and \e running \l{Working with States}{states} for
+    \e settings, \e presets, and \e running \l{Working with states}{states} for
     displaying a particular screen by selecting \uicontrol {Create New State}.
 
     \image washingmachineui-states.png "States view"
@@ -188,7 +188,7 @@
     sometimes use \c when conditions to determine the state to apply, and
     sometimes switch states using signals and JavaScript expressions.
 
-    \section1 Connecting Buttons to State Changes
+    \section1 Connecting buttons to state changes
 
     In each file that defines a screen, we connect signals to the
     button components to change to a particular state when users select
@@ -230,7 +230,7 @@
 
     For more information, see \l {Connecting Components to Signals}.
 
-    \section1 Showing the Current Time
+    \section1 Showing the current time
 
     The \l Date component is not supported on \QMCU, and the
     \l{https://doc.qt.io/QtForMCUs/qtul-javascript-environment.html}

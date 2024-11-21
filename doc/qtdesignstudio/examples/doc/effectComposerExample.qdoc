@@ -5,12 +5,12 @@
     \page effect-composer-example.html
     \ingroup studioexamples
 
-    \title Effect Composer Example
+    \title The Effect Composer example
     \brief Illustrates how to work with the Effect Composer effects.
 
     \image effect-composer-example.webp {The Effect Composer example project}
 
-    The \e {Effect Composer Example} illustrates how to work with the \uicontrol {Effect Composer}
+    The \e {Effect Composer} example illustrates how to work with the \uicontrol {Effect Composer}
     effects. Use the example project to experiment with effects and get familiar with
     \uicontrol {Effect Composer}. To learn more, see \l {Effect Composer}.
 
@@ -22,12 +22,12 @@
     The example project has a scalable design. When you resize the window to fit your screen, some
     components will adjust automatically.
 
-    \section1 Running the Example
+    \section1 Running the example
 
     To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
     from the \uicontrol Examples tab.
 
-    \section1 The Effects
+    \section1 The effects
 
     The following table introduces the effects in this example.
 
@@ -49,14 +49,14 @@
         \li A weather effect, a combination of a rain effect and a thunder effect.
     \endtable
 
-    \section1 The Structure of the Example
+    \section1 The structure of the example
 
     In addition to the effects, the example project also includes the following components:
 
     \list
         \li A \l {3D} scene
             \list
-                \li \l {Importing 3D Assets}{A 3D model}
+                \li \l {Importing 3D assets}{A 3D model}
                 \li \l {Lights}{A directional light}
                 \li \l {Cameras}{A scene camera}
                 \li \l {OrbitCameraController}
@@ -64,8 +64,8 @@
         \li \l {Text} components
         \li \l {Rectangle} components
         \li \l {Shapes#Border}{Border} components
-        \li \l {Creating Buttons}{Custom Buttons}
-        \li \l {Creating Custom Components}{Custom Sliders}
+        \li \l {Creating buttons}{Custom buttons}
+        \li \l {Creating custom components}{Custom sliders}
     \endlist
 
     The example project also uses \uicontrol States and \uicontrol Transitions. To learn more, see

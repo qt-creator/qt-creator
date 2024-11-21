@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2022 The Qt Company Ltd.
+** Copyright (C) 2024 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
 ** This file is part of the Qt Design Studio documentation.
@@ -28,20 +28,20 @@
     \ingroup gstutorials
     \sa {Creating Timeline Animations}
 
-    \title Timeline Animation Tutorial
+    \title Timeline animation
     \brief Illustrates how to create timeline animations and bind them to
     properties in \QDS.
 
     \image animation-tutorial.gif
 
-    The \e{Timeline Animation} tutorial illustrates how to create timeline animations
+    The \e{Timeline animation} tutorial illustrates how to create timeline animations
     and bind them to properties in \QDS. First you create a keyframe animation
     which you control the running state of with a switch in the UI. Next, you
     create another keyframe animation where you use a slider in the UI to
     control the position of the playhead.
 
     The starting point of this tutorial is the Animation Tutorial project,
-    you can download it from
+    which you can download from
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animation-tutorial/AnimationTutorial/Start}
     {here}.
 
@@ -49,17 +49,16 @@
     \l{https://git.qt.io/public-demos/qtdesign-studio/-/tree/master/tutorial%20projects/animation-tutorial/AnimationTutorial/Completed}
     {here}.
 
-    This tutorial requires that you know the basics of \QDS, see
-    \l{Getting Started}.
+    To learn the basics of \QDS required to complete this tutorial, see \l{Getting started}.
 
     \include run-tutorial-project.qdocinc
 
-    \section1 Creating a Timeline Animation
+    \section1 Creating a timeline animation
 
     First, you create an animation where the ball bearing continuously rotates
     around its Y axis.
 
-    \section2 Adding a Timeline and an Animation
+    \section2 Adding a timeline and an animation
 
     To add a timeline to your project:
 
@@ -73,7 +72,7 @@
           \list
             \li Set \uicontrol Duration to 7500.
                 This sets the duration of the animation in milliseconds.
-            \li Select \uicontrol {Contiunous}.
+            \li Select \uicontrol {Continuous}.
                 This sets the animation to start over again when it reaches the
                 end.
           \endlist
@@ -84,7 +83,7 @@
     You can see the timeline in the \uicontrol Timeline and
     \uicontrol Navigator views.
 
-    \section2 Adding Keyframes
+    \section2 Adding keyframes
 
     Next, you add keyframes to animate the rotation of the ball bearing:
 
@@ -109,7 +108,7 @@
       timeline.
     \endlist
 
-    \section2 Controlling the Running State of the Animation
+    \section2 Controlling the running state of the animation
 
     There is a toggle switch in the UI of this project. To use this switch to
     control the running state of the animation:
@@ -131,15 +130,15 @@
     You can preview the animation and try the toggle switch in the live preview.
     To run the live preview, select \key Alt + \key{P}.
 
-    \section1 Creating a Timeline and Binding it to a Property
+    \section1 Creating a timeline and binding it to a property
 
     Next, you create the exploded view animation of the ball bearing. You don't
     want this animation to run automatically but instead you want to control it
     with a slider in the UI.
 
-    \section2 Adding a Timeline Inside a Component
+    \section2 Adding a timeline inside a component
 
-    You create this animation inside the ball bearing component, to do this:
+    To create this animation inside the ball bearing component:
 
     \list 1
       \li In the \uicontrol Navigator view, select \e {ballBearing1}.
@@ -156,7 +155,7 @@
 
     \image animation-tutorial-timeline-2.png
 
-    \section2 Adding Keyframes
+    \section2 Adding keyframes
 
     Now, you add keyframes for the different parts of the ball bearing:
 
@@ -190,7 +189,7 @@
     You can preview the animation by dragging the playhead in the
     \uicontrol Timeline view.
 
-    \section2 Controlling the Animation with a Slider
+    \section2 Controlling the animation with a slider
 
     Now, you use the slider on the main screen to control the exploded
     view animation that you created.

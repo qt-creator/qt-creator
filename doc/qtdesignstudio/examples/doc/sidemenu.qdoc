@@ -1,4 +1,4 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -16,13 +16,13 @@
     when users hover the cursor over them or select them.
 
     Each button opens an image file. The side menu can be used to apply
-    \l {2D Effects}{graphical effects}, such as hue, saturation,
+    \l {2D effects}{graphical effects}, such as hue, saturation,
     and blur, to the images.
 
     \note Only a subset of effects is available if you select
-    \uicontrol {Qt 6} when \l{Creating Projects}{creating the project}.
+    \uicontrol {Qt 6} when \l{Creating projects}{creating the project}.
 
-    \section1 Creating Reusable Buttons
+    \section1 Creating reusable buttons
 
     We select \uicontrol File > \uicontrol {New File} >
     \uicontrol {Qt Quick Controls} >
@@ -31,7 +31,7 @@
 
     The button can have the following states: checked, hover, pressed, and
     normal. We construct the button using different images for the button
-    background, frame, and front. We then add \l{Working with States}{states} in
+    background, frame, and front. We then add \l{Working with states}{states} in
     the \l States view for each of the button states. In each state, we turn
     the visibility of the appropriate images on or off in the button properties,
     to change the appearance of the button.
@@ -77,7 +77,7 @@
 
     We can now use CustomButton instances to create a menu bar.
 
-    \section1 Constructing a Menu Bar
+    \section1 Constructing a menu bar
 
     We construct the menu bar in the \e {MainFile.ui.qml} file using the
     \l {2D} view. The CustomButton component is listed in
@@ -101,7 +101,7 @@
     We can now select the \inlineimage icons/run_small.png "Run button"
     (\uicontrol Run) button to run the application and test our menu bar.
 
-    \section1 Creating a Side Menu
+    \section1 Creating a side menu
 
     We can now continue to create a side menu that slides open when users
     click the burger menu. We drag-and-drop a \l Text component from
@@ -174,7 +174,7 @@
     For more information about using the timeline, see
     \l {Creating Timeline Animations}.
 
-    \section1 Connecting the Burger Menu to Actions
+    \section1 Connecting the burger menu to actions
 
     In \e {SideMenu.qml}, we use connections to bind the action of clicking
     the burger menu to the signal handler for triggering the opening or
@@ -195,7 +195,7 @@
     For more information about Connecting Components to Signals, see
     \l {Connecting Components to Signals}.
 
-    \section1 Applying Effects
+    \section1 Applying effects
 
     We nest the effects in an effects stack and bind them to the
     \l {slider-control}{Slider} component instances. The effects apply
@@ -203,7 +203,7 @@
     currently open one.
 
     We use property bindings to connect the controls in the slider menu to
-    \l {2D Effects}{graphical effects}. To have access to the
+    \l {2D effects}{graphical effects}. To have access to the
     properties from all the slider component instances, we export them as
     aliases in \e SliderMenu.ui.qml. We select \uicontrol {Export Property as Alias}
     in the \uicontrol Settings menu of the \uicontrol Value property in
@@ -217,9 +217,9 @@
 
     We use an instance of the \l {Images}{Image} component as the last item in
     the stack to display images that we apply the effects to. We export the
-    image source property as an \l{Adding Property Aliases}{alias} to be able
+    image source property as an \l{Adding property aliases}{alias} to be able
     to switch the image inside the stack.
 
     For more information about the available graphical effects, see
-    \l {2D Effects}.
+    \l {2D effects}.
 */

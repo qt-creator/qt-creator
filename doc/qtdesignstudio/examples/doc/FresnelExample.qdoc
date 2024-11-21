@@ -5,12 +5,12 @@
     \page fresnel-effect-example.html
     \ingroup studioexamples
 
-    \title Fresnel Example
+    \title The Fresnel example
     \brief Illustrates how to work with the fresnel effect.
 
     \image fresnel-example.webp
 
-    The \e{Fresnel} example illustrates how to add and adjust a fresnel effect on
+    The \e{Fresnel} example illustrates how to add and adjust a Fresnel effect on
     a 3D model.
 
     The fresnel effect affects how materials reflect light at different viewing angles. Imagine the
@@ -19,12 +19,12 @@
 
     \image fresnel-angle.webp
 
-    \section1 Running the Example
+    \section1 Running the example
 
     To run the example in \QDS, go to the \uicontrol Welcome screen and select the example
     from the \uicontrol Examples tab.
 
-    \section1 The 3D Scene
+    \section1 The 3D scene
 
     The example project consists of a basic 3D scene with the following components:
 
@@ -34,7 +34,7 @@
       \li An HDR image used to light the scene (image-based lighting).
     \endlist
 
-    \section1 The Material
+    \section1 The material
 
     The material on the 3D model in this example is a principled material with a
     clearcoat.
@@ -47,9 +47,9 @@
 
     You adjust clearcoat properties independently from the base material.
 
-    \section2 Fresnel Properties
+    \section2 The Fresnel properties
 
-    The following properties affect how the fresnel effect renders. These properties are
+    The following properties affect how the Fresnel effect renders. These properties are
     available both for the base material and the clearcoat layer. Adjusting the settings for the
     clearcoat has a bigger visual effect.
 
@@ -59,24 +59,24 @@
         \li Description
       \row
         \li Fresnel power
-        \li Increasing the fresnel power decreases the head-on reflections (steep viewing angle)
+        \li Increasing the Fresnel power decreases the head-on reflections (steep viewing angle)
             while maintaining the reflections seen from more shallow viewing angles.
       \row
         \li Enable scale and bias
         \li Takes the scale and bias properties into account.
       \row
-        \li Scale
+        \li Fresnel Scale
         \li Determines the rate of change in reflection intensity as the viewing angle varies. A
         large scale value results in a gentler transition between weak and strong reflections, while
         a smaller scale creates a more abrupt shift in reflection intensity.
       \row
-        \li Bias
+        \li Fresnel Bias
         \li Controls the offset for the fresnel power property and determines how quickly the
         reflection transitions from weak to strong as the viewing
         angle changes. A larger bias value shifts the transition point toward steeper angles.
     \endtable
 
-    \section3 Adjusting the Fresnel Settings
+    \section3 Adjusting the Fresnel settings
 
     To adjust the settings:
 

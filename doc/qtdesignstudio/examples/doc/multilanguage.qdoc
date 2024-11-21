@@ -1,11 +1,11 @@
-// Copyright (C) 2021 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page multilanguage-tutorial.html
     \ingroup gstutorials
 
-    \title Adding Multi-language Support to Your Project
+    \title Adding multi-language support to your project
     \brief Illustrates how to add support for multiple languages to your
     project.
 
@@ -13,7 +13,7 @@
 
     The \e{Multi-language Support} tutorial illustrates how you can add
     support for multiple languages to your project. In this tutorial you
-    prepare a simple log in UI for multi-language support and import
+    prepare a simple login UI for multi-language support and import
     translations from a JSON file.
 
     You need to download the starting project for this tutorial from
@@ -27,7 +27,7 @@
 
     \include run-tutorial-project.qdocinc
 
-    \section1 JSON Translation File
+    \section1 The JSON translation file
 
     The JSON translation file you are using in this project has the following
     structure:
@@ -104,7 +104,7 @@
 }
     \endcode
 
-\section1 Preparing Your Project
+\section1 Preparing your project
 
     First, you need to prepare your project for translation:
 
@@ -134,7 +134,7 @@
       \endcode
     \endlist
 
-    \section1 Importing Translations
+    \section1 Importing translations
 
     Next, you need to import your JSON translation file:
 

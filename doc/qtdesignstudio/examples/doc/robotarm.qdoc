@@ -1,11 +1,11 @@
-// Copyright (C) 2023 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
     \page robotarm-example.html
     \ingroup gstutorials
 
-    \title Creating a C++ Backend for a \QDS Application
+    \title Creating a C++ backend for a \QDS application
 
     \brief Illustrates how to create an application in \QDS and add a backend
     in Qt Creator.
@@ -23,11 +23,11 @@
     To complete this tutorial, you need experience in using \QDS and Qt Creator as well as knowledge
     in C++ programming.
 
-    \section1 The Designer-Developer Workflow
+    \section1 The designer-developer workflow
 
     This section describes the high-level steps for creating the robot arm example.
 
-    \section2 Creating the User Interface
+    \section2 Creating the user interface
 
     First, the designer creates the user interface in \QDS:
 
@@ -65,7 +65,7 @@
         \endlist
     \endlist
 
-    \section2 Creating the C++ Backend
+    \section2 Creating the C++ backend
 
     With the frontend and user interface created, it is time to create the C++ backend.
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2022 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
 
 /*!
@@ -6,13 +6,13 @@
     \ingroup gstutorials
     \sa States, {Transitions}, {Working with States}
 
-    \title Animated State Transitions
+    \title Animated state transitions
     \brief Illustrates how to create animated state transitions.
 
     \image animated-state-transitions.jpg
 
-    The \e{Animated State Transitions} tutorial illustrates how you can animate
-    the transition between \l{Working with States}{states}.
+    The \e{Animated state transitions} tutorial illustrates how you can animate
+    the transition between \l{Working with states}{states}.
 
     The starting point of this tutorial is the Car Demo project, you can
     download it from
@@ -24,15 +24,15 @@
     {here}.
 
     This tutorial requires that you know the basics of \QDS, see
-    \l{Getting Started}.
+    \l{Getting started}.
 
-    \section1 Tutorial Assets
+    \section1 Tutorial assets
 
     All assets you need for this tutorial are included in the Car Demo project.
 
     \include run-tutorial-project.qdocinc
 
-    \section1 Creating States
+    \section1 Creating states
 
     First, you create the different states. In this tutorial, you create four
     different states with different views of the car in the scene:
@@ -72,7 +72,7 @@
 
     \image animated-state-transitions-states.png
 
-    \section1 Creating State Transitions
+    \section1 Creating state transitions
 
     With the states created, you need a way to move between the states in the
     UI. In this tutorial, you create buttons arranged in a column to do this.
@@ -142,7 +142,7 @@
 
     To preview, select \key Alt + \key{P}.
 
-    \section1 Animating State Transitions
+    \section1 Animating state transitions
 
     The final step of this tutorial is to create animations between the states:
 
