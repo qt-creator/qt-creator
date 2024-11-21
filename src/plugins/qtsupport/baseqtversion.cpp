@@ -701,7 +701,7 @@ QString QtVersion::invalidReason() const
     if (!d->m_qmakeIsExecutable)
         return Tr::tr("qmake does not exist or is not executable");
     if (!d->data().installed)
-        return Tr::tr("Qt version is not properly installed, please run make install");
+        return Tr::tr("Qt version is not properly installed");
     if (binPath().isEmpty())
         return Tr::tr("Could not determine the path to the binaries of the Qt installation, "
                       "maybe the qmake path is wrong?");
