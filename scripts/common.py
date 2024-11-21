@@ -154,19 +154,34 @@ def extract_file(archive: Path, target: Path) -> None:
 
 
 async def download(url: str, target: Path) -> None:
-    print('- Starting download {} -> {}'.format(url, str(target)))
+    print(('''
+- Starting download {}
+                 -> {}''').strip().format(url, str(target)))
     # Since urlretrieve does blocking I/O it would prevent parallel downloads.
     # Run in default thread pool.
+    temp_target = target.with_suffix(target.suffix + '-part')
     loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, urllib.request.urlretrieve, url, str(target))
+    await loop.run_in_executor(None, urllib.request.urlretrieve, url, str(temp_target))
+    temp_target.rename(target)
     print('+ finished downloading {}'.format(str(target)))
 
 
-def download_and_extract(urls: list[str], target: Path, temp: Path) -> None:
-    download_and_extract_tuples([(url, target) for url in urls], temp)
+def download_and_extract(
+    urls: list[str],
+    target: Path,
+    temp: Path,
+    skip_existing: bool = False
+) -> None:
+    download_and_extract_tuples([(url, target) for url in urls],
+                                temp,
+                                skip_existing)
 
 
-def download_and_extract_tuples(urls_and_targets: list[tuple[str, Path]], temp: Path) -> None:
+def download_and_extract_tuples(
+    urls_and_targets: list[tuple[str, Path]],
+    temp: Path,
+    skip_existing: bool = False
+) -> None:
     temp.mkdir(parents=True, exist_ok=True)
     target_tuples : list[tuple[Path, Path]] = []
     # TODO make this work with file URLs, which then aren't downloaded
@@ -178,7 +193,10 @@ def download_and_extract_tuples(urls_and_targets: list[tuple[str, Path]], temp: 
             filename = Path(u.path).name
             target_file = temp / filename
             target_tuples.append((target_file, target_path))
-            tasks.append(asyncio.create_task(download(url, target_file)))
+            if skip_existing and target_file.exists():
+                print('Skipping download of {}'.format(url))
+            else:
+                tasks.append(asyncio.create_task(download(url, target_file)))
         for task in tasks:
             await task
     asyncio.run(impl())
