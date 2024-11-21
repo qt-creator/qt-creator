@@ -205,6 +205,7 @@ add_qtc_library(Utils
     winutils.cpp winutils.h
     wizard.cpp wizard.h
     wizardpage.cpp wizardpage.h
+    movie.cpp movie.h
 )
 
 extend_qtc_library(Utils
