@@ -316,7 +316,6 @@ private:
         menu->addAction(ActionManager::command(Constants::AUTO_INDENT_SELECTION)->action());
         auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
 
-        auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
         auto modifyTabSettings = [this](std::function<void(TabSettings &tabSettings)> modifier) {
             return [this, modifier]() {
                 auto ts = m_doc->tabSettings();
@@ -324,6 +323,12 @@ private:
                 m_doc->setTabSettings(ts);
             };
         };
+        documentSettings->addAction(
+            Tr::tr("Auto detect"),
+            modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
+                tabSettings = tabSettings.autoDetect(doc);
+            }));
+        auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
         tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
                                    tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
                                }));

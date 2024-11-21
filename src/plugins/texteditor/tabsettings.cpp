@@ -4,6 +4,7 @@
 #include "tabsettings.h"
 
 #include <QDebug>
+#include <QRandomGenerator>
 #include <QTextCursor>
 #include <QTextDocument>
 
@@ -50,6 +51,98 @@ void TabSettings::fromMap(const Store &map)
         map.value(paddingModeKey, m_continuationAlignBehavior).toInt();
 }
 
+TabSettings TabSettings::autoDetect(const QTextDocument *document) const
+{
+    QTC_ASSERT(document, return *this);
+
+    const int blockCount = document->blockCount();
+    if (blockCount < 10)
+        return *this;
+
+    int totalIndentations = 0;
+    int indentationWithTabs = 0;
+    QMap<int, int> indentCount;
+
+    auto checkText =
+        [this, &totalIndentations, &indentCount, &indentationWithTabs](const QTextBlock &block) {
+            if (block.length() == 0)
+                return;
+            const QTextDocument *doc = block.document();
+            int pos = block.position();
+            bool hasTabs = false;
+            int indentation = 0;
+            // iterate ove the characters in the document is faster since we do not have to allocate
+            // a string for each block text when we are only interested in the first few characters
+            QChar c = doc->characterAt(pos);
+            while (c.isSpace() && c != QChar::ParagraphSeparator) {
+                if (c == QChar::Tabulation) {
+                    hasTabs = true;
+                    indentation += m_tabSize;
+                } else {
+                    ++indentation;
+                }
+                c = doc->characterAt(++pos);
+            }
+            // only track indentations that are at least 2 columns wide
+            if (indentation > 1) {
+                if (hasTabs)
+                    ++indentationWithTabs;
+                ++indentCount[indentation];
+                ++totalIndentations;
+            }
+        };
+
+    if (blockCount < 200) {
+        // check the indentation of all blocks if the document is shorter than 200 lines
+        for (QTextBlock block = document->firstBlock(); block.isValid(); block = block.next())
+            checkText(block);
+    } else {
+        // scanning the first and last 25 lines specifically since those most probably contain
+        // different indentations
+        const int startEndDelta = 25;
+        for (int delta = 0; delta < startEndDelta; ++delta) {
+            checkText(document->findBlockByNumber(delta));
+            checkText(document->findBlockByNumber(blockCount - 1 - delta));
+        }
+
+        // scan random lines until we have 100 indentations or checked a maximum of 2000 lines
+        // to limit the number of checks for large documents
+        QRandomGenerator gen(QDateTime::currentDateTime().toMSecsSinceEpoch());
+        int checks = 0;
+        while (totalIndentations < 100) {
+            ++checks;
+            if (checks > 2000)
+                break;
+            const int blockNummer = gen.bounded(startEndDelta + 1, blockCount - startEndDelta - 2);
+            checkText(document->findBlockByNumber(blockNummer));
+        }
+    }
+
+    // find the most common indent
+    int mostCommonIndent = 0;
+    int mostCommonIndentCount = 0;
+    for (auto it = indentCount.cbegin(); it != indentCount.cend(); ++it) {
+        if (const int count = it.value(); count > mostCommonIndentCount) {
+            mostCommonIndentCount = count;
+            mostCommonIndent = it.key();
+        }
+    }
+
+    for (auto it = indentCount.cbegin(); it != indentCount.cend(); ++it) {
+        // check whether the smallest indent is a fraction of the most common indent
+        // to filter out some false positives
+        if (mostCommonIndent % it.key() == 0) {
+            TabSettings result = *this;
+            result.m_indentSize = it.key();
+            double relativeTabCount = double(indentationWithTabs) / double(totalIndentations);
+            result.m_tabPolicy = relativeTabCount > 0.5 ? TabSettings::TabsOnlyTabPolicy
+                                                        : TabSettings::SpacesOnlyTabPolicy;
+            return result;
+        }
+    }
+    return *this;
+}
+
 bool TabSettings::cursorIsAtBeginningOfLine(const QTextCursor &cursor)
 {
     QString text = cursor.block().text();
@@ -80,7 +173,7 @@ int TabSettings::firstNonSpace(const QString &text)
     return i;
 }
 
-QString TabSettings::indentationString(const QString &text) const
+QString TabSettings::indentationString(const QString &text)
 {
     return text.left(firstNonSpace(text));
 }
