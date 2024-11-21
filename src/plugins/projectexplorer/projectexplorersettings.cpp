@@ -384,8 +384,8 @@ ProjectExplorerSettingsWidget::ProjectExplorerSettingsWidget()
     appEnvButton->setSizePolicy(QSizePolicy::Fixed, appEnvButton->sizePolicy().verticalPolicy());
     appEnvButton->setToolTip(appEnvToolTip);
     connect(appEnvButton, &QPushButton::clicked, this, [appEnvButton, this] {
-        std::optional<EnvironmentItems> changes
-            = EnvironmentDialog::getEnvironmentItems(appEnvButton, m_appEnvChanges);
+        const std::optional<EnvironmentItems> changes =
+                runEnvironmentItemsDialog(appEnvButton, m_appEnvChanges);
         if (!changes)
             return;
         m_appEnvChanges = *changes;

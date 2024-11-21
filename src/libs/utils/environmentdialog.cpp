@@ -7,14 +7,14 @@
 
 namespace Utils {
 
-std::optional<EnvironmentItems> EnvironmentDialog::getEnvironmentItems(
+std::optional<EnvironmentItems> runEnvironmentItemsDialog(
     QWidget *parent,
     const EnvironmentItems &initial,
     const QString &placeholderText,
-    Polisher polisher,
+    NameValuesDialog::Polisher polisher,
     const QString &dialogTitle)
 {
-    return getNameValueItems(
+    return NameValuesDialog::getNameValueItems(
         parent,
         initial,
         placeholderText,

@@ -100,12 +100,13 @@ private:
 
     void editBuildEnvironmentChanges()
     {
-        auto changes = EnvironmentDialog::getEnvironmentItems(
-            m_mainWidget,
-            EnvironmentKitAspect::buildEnvChanges(kit()),
-            QString(),
-            polisher(),
-            Tr::tr("Edit Build Environment"));
+        std::optional<EnvironmentItems> changes =
+            runEnvironmentItemsDialog(
+                m_mainWidget,
+                EnvironmentKitAspect::buildEnvChanges(kit()),
+                QString(),
+                polisher(),
+                Tr::tr("Edit Build Environment"));
         if (!changes)
             return;
 
@@ -122,17 +123,18 @@ private:
 
     void editRunEnvironmentChanges()
     {
-        if (const auto changes = EnvironmentDialog::getEnvironmentItems(
+        const std::optional<EnvironmentItems> changes =
+                runEnvironmentItemsDialog(
                 m_mainWidget,
                 EnvironmentKitAspect::runEnvChanges(kit()),
                 QString(),
                 polisher(),
-                Tr::tr("Edit Run Environment"))) {
+                Tr::tr("Edit Run Environment"));
+        if (changes)
             EnvironmentKitAspect::setRunEnvChanges(kit(), *changes);
-        }
     }
 
-    EnvironmentDialog::Polisher polisher() const
+    NameValuesDialog::Polisher polisher() const
     {
         return [expander = kit()->macroExpander()](QWidget *w) {
             VariableChooser::addSupportForChildWidgets(w, expander);

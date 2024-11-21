@@ -937,9 +937,8 @@ void ExternalToolConfig::editEnvironmentChanges()
     const QString placeholderText = HostOsInfo::isWindowsHost()
             ? Tr::tr("PATH=C:\\dev\\bin;${PATH}")
             : Tr::tr("PATH=/opt/bin:${PATH}");
-    const auto newItems = EnvironmentDialog::getEnvironmentItems(m_environmentLabel,
-                                                                 m_environment,
-                                                                 placeholderText);
+    const std::optional<EnvironmentItems> newItems =
+            runEnvironmentItemsDialog(m_environmentLabel, m_environment, placeholderText);
     if (newItems) {
         m_environment = *newItems;
         updateEnvironmentLabel();

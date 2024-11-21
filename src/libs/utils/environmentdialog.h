@@ -10,15 +10,11 @@
 
 namespace Utils {
 
-class QTCREATOR_UTILS_EXPORT EnvironmentDialog : public NameValuesDialog
-{
-public:
-    static std::optional<EnvironmentItems> getEnvironmentItems(
+QTCREATOR_UTILS_EXPORT std::optional<EnvironmentItems> runEnvironmentItemsDialog(
         QWidget *parent = nullptr,
         const EnvironmentItems &initial = {},
         const QString &placeholderText = {},
-        Polisher polish = {},
+        NameValuesDialog::Polisher polish = {},
         const QString &dialogTitle = {});
-};
 
 } // namespace Utils

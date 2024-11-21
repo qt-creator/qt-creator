@@ -352,8 +352,7 @@ public:
         updateEnvironmentChangesLabel();
         connect(environmentButton, &QPushButton::clicked, this, [this, environmentButton] {
             std::optional<EnvironmentItems> changes
-                = Utils::EnvironmentDialog::getEnvironmentItems(environmentButton,
-                                                                m_environmentChanges);
+                = runEnvironmentItemsDialog(environmentButton, m_environmentChanges);
             if (!changes)
                 return;
             m_environmentChanges = *changes;
