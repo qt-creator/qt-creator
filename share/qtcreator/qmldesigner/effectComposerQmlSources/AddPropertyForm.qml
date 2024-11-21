@@ -579,28 +579,12 @@ Item {
 
                 StudioControls.ComboBox {
                     id: typeCombo
-                    style: StudioTheme.Values.connectionPopupControlStyle
                     width: root.controlWidth
 
                     model: root.displayTypes
                     actionIndicatorVisible: false
 
                     onCurrentIndexChanged: root.typeIndex = currentIndex
-
-                    delegate: ItemDelegate {
-                        required property int index
-                        required property var modelData
-
-                        width: typeCombo.width
-                        highlighted: typeCombo.highlightedIndex === index
-                        contentItem: Text {
-                            text: modelData
-                            color: StudioTheme.Values.themeTextColor
-                            font: typeCombo.font
-                            elide: Text.ElideRight
-                            verticalAlignment: Text.AlignVCenter
-                        }
-                    }
                 }
             }
 
