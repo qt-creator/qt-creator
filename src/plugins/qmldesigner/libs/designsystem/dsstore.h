@@ -40,6 +40,7 @@ public:
     QStringList collectionNames() const;
 
 private:
+    QString uniqueCollectionName(const QString &hint) const;
     std::optional<QString> loadCollection(const QString &typeName, const Utils::FilePath &qmlFilePath);
     std::optional<QString> writeQml(const DSThemeManager &mgr,
                                     const QString &typeName,
@@ -50,6 +51,5 @@ private:
     ExternalDependenciesInterface &m_ed;
     ProjectStorageDependencies m_projectStorageDependencies;
     DSCollections m_collections;
-    std::map<DSThemeManager *, const QString &> m_collectionTypeNames;
 };
 } // namespace QmlDesigner

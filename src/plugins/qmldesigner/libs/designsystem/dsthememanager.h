@@ -33,7 +33,7 @@ public:
     DSThemeManager(DSThemeManager&&) = default;
     DSThemeManager &operator=(DSThemeManager &&) = default;
 
-    std::optional<ThemeId> addTheme(const ThemeName &themeName);
+    std::optional<ThemeId> addTheme(const ThemeName &themeNameHint);
     std::optional<ThemeId> themeId(const ThemeName &themeName) const;
     ThemeName themeName(ThemeId id) const;
     const std::vector<ThemeId> allThemeIds() const;
@@ -64,6 +64,9 @@ private:
     void addGroupAliases(ModelNode rootNode) const;
 
     bool findPropertyType(const AbstractProperty &p, ThemeProperty *themeProp, GroupType *gt) const;
+
+    ThemeName uniqueThemeName(const ThemeName &hint) const;
+    PropertyName uniquePropertyName(const PropertyName &hint) const;
 
 private:
     std::map<ThemeId, ThemeName> m_themes;

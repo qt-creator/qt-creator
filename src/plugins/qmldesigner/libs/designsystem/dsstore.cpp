@@ -21,15 +21,6 @@ namespace {
 
 constexpr char DesignModuleName[] = "DesignSystem";
 
-QString capitalize(QStringView str)
-{
-    if (str.isEmpty())
-        return QString();
-    QString tmp = str.toString();
-    tmp[0] = str[0].toUpper();
-    return tmp;
-}
-
 std::optional<Utils::FilePath> dsModuleDir(QmlDesigner::ExternalDependenciesInterface &ed)
 {
     auto componentsPath = QmlDesigner::GeneratedComponentUtils(ed).generatedComponentsPath();
@@ -132,7 +123,6 @@ std::optional<QString> DSStore::load(const Utils::FilePath &dsModuleDirPath)
     if (!contents)
         return tr("Can not read Design System qmldir");
 
-    m_collectionTypeNames.clear();
     m_collections.clear();
 
     // Parse qmldir
@@ -198,26 +188,23 @@ std::optional<QString> DSStore::save(const Utils::FilePath &moduleDirPath, bool 
 
 DSThemeManager *DSStore::addCollection(const QString &qmlTypeName)
 {
-    const QString uniqueTypeName = UniqueName::generateId(qmlTypeName,
-                                                          "designSystem",
-                                                          [this](const QString &t) {
-                                                              return m_collections.contains(t);
-                                                          });
+    const QString componentType = uniqueCollectionName(qmlTypeName);
 
-    const QString componentType = capitalize(uniqueTypeName);
     auto [itr, success] = m_collections.try_emplace(componentType, DSThemeManager{});
-    if (success) {
-        m_collectionTypeNames.insert({&itr->second, itr->first});
+    if (success)
         return &itr->second;
-    }
+
     return nullptr;
 }
 
 std::optional<QString> DSStore::typeName(DSThemeManager *collection) const
 {
-    auto itr = m_collectionTypeNames.find(collection);
-    if (itr != m_collectionTypeNames.end())
-        return itr->second;
+    auto result = std::find_if(m_collections.cbegin(),
+                               m_collections.cend(),
+                               [collection](const auto &itr) { return &itr.second == collection; });
+
+    if (result != m_collections.cend())
+        return result->first;
 
     return {};
 }
@@ -235,6 +222,13 @@ QStringList DSStore::collectionNames() const
                    std::back_inserter(names),
                    [](const DSCollections::value_type &p) { return p.first; });
     return names;
+}
+
+QString DSStore::uniqueCollectionName(const QString &hint) const
+{
+    return UniqueName::generateTypeName(hint, "Collection", [this](const QString &t) {
+        return m_collections.contains(t);
+    });
 }
 
 std::optional<DSThemeManager *> DSStore::collection(const QString &typeName)

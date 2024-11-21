@@ -63,7 +63,7 @@ TEST(DesignSystemManagerTest, add_theme)
     ASSERT_THAT(themeId, Optional(A<QmlDesigner::ThemeId>()));
 }
 
-TEST(DesignSystemManagerTest, add_theme_with_empty_name_fails)
+TEST(DesignSystemManagerTest, add_theme_with_default_name)
 {
     // arrange
     DSThemeManager mgr;
@@ -72,7 +72,7 @@ TEST(DesignSystemManagerTest, add_theme_with_empty_name_fails)
     const auto themeId = mgr.addTheme("");
 
     // assert
-    ASSERT_THAT(themeId, Eq(std::nullopt));
+    ASSERT_THAT(mgr.themeName(*themeId), "theme");
 }
 
 TEST(DesignSystemManagerTest, add_theme_generates_valid_theme_id)

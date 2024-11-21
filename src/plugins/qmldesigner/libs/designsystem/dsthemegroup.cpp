@@ -91,6 +91,11 @@ std::optional<ThemeProperty> DSThemeGroup::propertyValue(ThemeId theme, const Pr
     return {};
 }
 
+bool DSThemeGroup::hasProperty(const PropertyName &name) const
+{
+    return m_values.contains(name);
+}
+
 void DSThemeGroup::updateProperty(ThemeId theme, PropertyName newName, const ThemeProperty &prop)
 {
     if (!m_values.contains(prop.name)) {

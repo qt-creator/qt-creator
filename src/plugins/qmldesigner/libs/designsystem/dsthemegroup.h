@@ -36,6 +36,7 @@ public:
 
     bool addProperty(ThemeId, const ThemeProperty &prop);
     std::optional<ThemeProperty> propertyValue(ThemeId theme, const PropertyName &name) const;
+    bool hasProperty(const PropertyName &name) const;
 
     void updateProperty(ThemeId theme, PropertyName newName, const ThemeProperty &prop);
     void removeProperty(const PropertyName &name);

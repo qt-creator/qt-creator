@@ -5,6 +5,7 @@
 
 #include "dsconstants.h"
 #include "dsthemegroup.h"
+#include "uniquename.h"
 #include "variantproperty.h"
 
 #include <model.h>
@@ -40,15 +41,11 @@ DSThemeManager::DSThemeManager() {}
 
 DSThemeManager::~DSThemeManager() {}
 
-std::optional<ThemeId> DSThemeManager::addTheme(const ThemeName &themeName)
+std::optional<ThemeId> DSThemeManager::addTheme(const ThemeName &themeNameHint)
 {
-    if (themeName.trimmed().isEmpty() || themeId(themeName)) {
-        qCDebug(dsLog) << "Can not add new Theme. Duplicate theme name";
-        return {};
-    }
-
+    const ThemeName assignedThemeName = uniqueThemeName(themeNameHint);
     const ThemeId newThemeId = m_themes.empty() ? 1 : m_themes.rbegin()->first + 1;
-    if (!m_themes.try_emplace(newThemeId, themeName).second)
+    if (!m_themes.try_emplace(newThemeId, assignedThemeName).second)
         return {};
 
     // Copy the new theme properties from an old theme(first one).
@@ -143,6 +140,12 @@ bool DSThemeManager::addProperty(GroupType gType, const ThemeProperty &p)
 {
     if (!m_themes.size()) {
         qCDebug(dsLog) << "Can not add property. Themes empty";
+        return false;
+    }
+
+    const auto generatedName = uniquePropertyName(p.name);
+    if (generatedName != p.name) {
+        qCDebug(dsLog) << "Can not add property. Invalid property name";
         return false;
     }
 
@@ -336,5 +339,31 @@ bool DSThemeManager::findPropertyType(const AbstractProperty &p,
 
     themeProp->name = pName;
     return true;
+}
+
+ThemeName DSThemeManager::uniqueThemeName(const ThemeName &hint) const
+{
+    const QString themeName = UniqueName::generateId(QString::fromUtf8(hint),
+                                                     "theme",
+                                                     [this](const QString &t) {
+                                                         return themeId(t.toLatin1()) ? true : false;
+                                                     });
+    return themeName.toUtf8();
+}
+
+PropertyName DSThemeManager::uniquePropertyName(const PropertyName &hint) const
+{
+    auto isPropertyNameUsed = [this](const PropertyName &name) -> bool {
+        return std::any_of(m_groups.begin(), m_groups.end(), [&name](const auto &p) {
+            return p.second->hasProperty(name);
+        });
+    };
+
+    const QString propName = UniqueName::generateId(QString::fromUtf8(hint),
+                                                    "variable",
+                                                    [&isPropertyNameUsed](const QString &t) {
+                                                        return isPropertyNameUsed(t.toLatin1());
+                                                    });
+    return propName.toUtf8();
 }
 } // namespace QmlDesigner
