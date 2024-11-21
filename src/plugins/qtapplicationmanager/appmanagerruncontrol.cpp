@@ -118,10 +118,7 @@ public:
     {
         setId("ApplicationManagerPlugin.Debug.Support");
 
-        if (isCppDebugging())
-            runControl->requestDebugChannel();
-        if (isQmlDebugging())
-            runControl->requestQmlChannel();
+        setupPortsGatherer();
 
         auto debuggee = createInferiorRunner(runControl, QmlDebuggerServices);
 
