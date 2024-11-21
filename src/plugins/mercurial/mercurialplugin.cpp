@@ -655,7 +655,8 @@ bool MercurialPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) cons
 
 bool MercurialPluginPrivate::managesDirectory(const FilePath &filePath, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = mercurialClient().findTopLevelForFile(filePath);
+    const FilePath topLevelFound = VcsBase::findRepositoryForFile(
+        filePath, QLatin1String(Constants::MERCURIALREPO) + "/requires");
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();

@@ -83,7 +83,6 @@ public:
     void revertAll(const Utils::FilePath &workingDir, const QString &revision = {},
                    const QStringList &extraOptions = {}) final;
     bool isVcsFileOrDirectory(const Utils::FilePath &filePath) const;
-    Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const final;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     unsigned int binaryVersion() const;
     QString binaryVersionString() const;

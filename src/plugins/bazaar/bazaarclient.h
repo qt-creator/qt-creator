@@ -24,7 +24,6 @@ public:
                   int lineNumber = -1, const QString &revision = {},
                   const QStringList &extraOptions = {}, int firstLine = -1) override;
     bool isVcsDirectory(const Utils::FilePath &filePath) const;
-    Utils::FilePath findTopLevelForFile(const Utils::FilePath &file) const override;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void view(const Utils::FilePath &source, const QString &id,
               const QStringList &extraOptions = {}) override;

@@ -151,13 +151,6 @@ bool BazaarClient::isVcsDirectory(const FilePath &filePath) const
            && filePath.isDir();
 }
 
-FilePath BazaarClient::findTopLevelForFile(const FilePath &file) const
-{
-    const QString repositoryCheckFile =
-            QLatin1String(Constants::BAZAARREPO) + QLatin1String("/branch-format");
-    return VcsBase::findRepositoryForFile(file, repositoryCheckFile);
-}
-
 bool BazaarClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"status", fileName});

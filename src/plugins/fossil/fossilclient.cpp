@@ -737,11 +737,6 @@ bool FossilClient::isVcsFileOrDirectory(const FilePath &filePath) const
            && filePath.isFile();
 }
 
-FilePath FossilClient::findTopLevelForFile(const FilePath &file) const
-{
-    return findRepositoryForFile(file, Constants::FOSSILREPO);
-}
-
 bool FossilClient::managesFile(const FilePath &workingDirectory, const QString &fileName) const
 {
     const CommandResult result = vcsSynchronousExec(workingDirectory, {"finfo", fileName});

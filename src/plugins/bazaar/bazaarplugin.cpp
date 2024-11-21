@@ -871,7 +871,8 @@ bool BazaarPluginPrivate::isVcsFileOrDirectory(const Utils::FilePath &fileName) 
 
 bool BazaarPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = m_client.findTopLevelForFile(directory);
+    const FilePath topLevelFound = VcsBase::findRepositoryForFile(
+        directory, QLatin1String(Constants::BAZAARREPO) + "/branch-format");
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
