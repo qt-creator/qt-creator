@@ -25,13 +25,7 @@ public:
 
         auto worker = runControl->createWorker(runnerIdForRunMode(runControl->runMode()));
         worker->addStartDependency(this);
-
-        connect(runner, &AndroidRunner::qmlServerReady, this, &RunWorker::reportStarted);
     }
-
-private:
-    void start() override {}
-    void stop() override { reportStopped(); }
 };
 
 class AndroidQmlToolingSupportFactory final : public RunWorkerFactory

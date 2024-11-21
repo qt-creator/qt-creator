@@ -26,7 +26,6 @@ public:
 
 signals:
     void canceled();
-    void qmlServerReady();
     void avdDetected();
 
 private:

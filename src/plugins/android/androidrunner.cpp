@@ -43,9 +43,6 @@ AndroidRunner::AndroidRunner(RunControl *runControl)
         qRegisterMetaType<AndroidDeviceInfo>("Android::AndroidDeviceInfo")
     };
     Q_UNUSED(metaTypes)
-
-    connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
-            this, &AndroidRunner::qmlServerReady);
 }
 
 void AndroidRunner::start()
