@@ -81,6 +81,7 @@ public:
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
     Q_INVOKABLE bool isNodeUniformInUse(int nodeIndex, int uniformIndex) const;
+    Q_INVOKABLE bool changeNodeName(int nodeIndex, const QString& name);
     Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
     Q_INVOKABLE QString getUniqueEffectName() const;
@@ -146,6 +147,7 @@ public:
     void setHasUnsavedChanges(bool val);
 
     Q_INVOKABLE QStringList uniformNames() const;
+    const QStringList nodeNames() const;
     Q_INVOKABLE QString generateUniformName(const QString &nodeName, const QString &propertyName,
                                             const QString &oldName) const;
 

@@ -76,6 +76,39 @@ HelperWidgets.Section {
         leftPadding: StudioTheme.Values.toolbarSpacing
     }
 
+    TextEdit {
+        id: warningText
+
+        visible: false
+        height: 60
+        width: root.width
+        text: qsTr("A node with this name already exists.\nSuffix was added to make the name unique.")
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        color: StudioTheme.Values.themeWarning
+        readOnly: true
+
+        onVisibleChanged: {
+            if (warningText.visible) {
+                warningTimer.running = true
+                root.expanded = true // so that warning is visible
+            }
+        }
+
+        Timer {
+            id: warningTimer
+
+            interval: 12000
+            repeat: false
+            running: false
+
+            onTriggered: {
+                warningText.visible = false
+                warningTimer.running = false
+            }
+        }
+    }
+
     Column {
         spacing: 10
 
@@ -185,5 +218,87 @@ HelperWidgets.Section {
 
         onCanceled: confirmRemoveForm.parent = root
     }
+
+    MouseArea {
+        id: nameEditMouseArea
+
+        parent: root.content // reparent to section header item for easy positioning
+        x: -2
+        y: -2
+        height: parent.height + 4
+        width: parent.width + nameEditButton.width + 4
+        hoverEnabled: true
+        acceptedButtons: Qt.NoButton
+
+        Rectangle {
+            id: nameEditField
+
+            width: root.width - parent.parent.parent.x - 30
+            height: parent.height
+
+            visible: false
+            border.width: 1
+            border.color: StudioTheme.Values.themeControlOutline
+            color: StudioTheme.Values.themeSectionHeadBackground
+
+            StudioControls.TextField {
+                id: nameEditText
+
+                property bool initializing: false
+
+                anchors.fill: parent
+                anchors.margins: 2
+
+                actionIndicatorVisible: false
+                translationIndicatorVisible: false
+
+                font.capitalization: Font.MixedCase
+
+                onEditingFinished: {
+                    nameEditField.visible = false
+                    warningText.visible = !root.backendModel.changeNodeName(modelIndex, nameEditText.text)
+                }
+
+                onActiveFocusChanged: {
+                    if (nameEditText.initializing)
+                        nameEditText.initializing = false
+                    else if (!nameEditText.activefocus)
+                        nameEditField.visible = false
+                }
+            }
+        }
+
+        Rectangle {
+            color: StudioTheme.Values.themeSectionHeadBackground
+            width: nameEditButton.width
+            height: nameEditButton.height
+            x: Math.min(nameEditMouseArea.parent.width + 4, nameEditField.width - nameEditButton.width)
+            anchors.verticalCenter: parent.verticalCenter
+            visible: (nameEditMouseArea.containsMouse || nameEditButton.containsMouse)
+                     && !nameEditField.visible
+
+            HelperWidgets.IconButton {
+                id: nameEditButton
+
+                icon: StudioTheme.Constants.edit_small
+                transparentBg: true
+                buttonSize: 21
+                iconSize: StudioTheme.Values.smallIconFontSize
+                iconColor: StudioTheme.Values.themeTextColor
+                iconScale: nameEditButton.containsMouse ? 1.2 : 1
+                implicitWidth: width
+                tooltip: qsTr("Edit effect node name")
+
+                onPressed: (event) => {
+                    nameEditText.text = nodeName
+                    nameEditText.initializing = true
+                    nameEditField.visible = true
+                    nameEditText.forceActiveFocus()
+                }
+            }
+        }
+
+    }
+
 }
 

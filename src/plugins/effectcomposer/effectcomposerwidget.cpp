@@ -104,11 +104,6 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
                         {"effectComposerModel", QVariant::fromValue(m_effectComposerModel.data())},
                         {"rootView", QVariant::fromValue(this)}});
 
-    connect(m_effectComposerModel.data(), &EffectComposerModel::nodesChanged, this, [this]() {
-        m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
-                                                     m_effectComposerModel->hasCustomNode());
-    });
-
     connect(m_effectComposerModel.data(), &EffectComposerModel::resourcesSaved,
             this, [this](const QmlDesigner::TypeName &type, const Utils::FilePath &path) {
         if (!m_importScan.timer) {
@@ -235,6 +230,12 @@ void EffectComposerWidget::dropNode(const QByteArray &mimeData)
         Utils::FilePath path = QmlDesigner::ModelNodeOperations::findEffectFile(nodes.last());
         openComposition(path.toFSPathString());
     }
+}
+
+void EffectComposerWidget::updateCanBeAdded()
+{
+    m_effectComposerNodesModel->updateCanBeAdded(m_effectComposerModel->uniformNames(),
+                                                 m_effectComposerModel->nodeNames());
 }
 
 QSize EffectComposerWidget::sizeHint() const

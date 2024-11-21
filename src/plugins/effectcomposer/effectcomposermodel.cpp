@@ -113,6 +113,12 @@ void EffectComposerModel::addNode(const QString &nodeQenPath)
 {
     beginResetModel();
     auto *node = new CompositionNode({}, nodeQenPath);
+    const QStringList reservedNames = nodeNames();
+    QString newName = QmlDesigner::UniqueName::generate(node->name(), [&reservedNames] (const QString &checkName) -> bool {
+        return reservedNames.contains(checkName, Qt::CaseInsensitive);
+    });
+    node->setName(newName);
+
     connectCompositionNode(node);
 
     const QList<QString> requiredNodes = node->requiredNodes();
@@ -193,6 +199,33 @@ void EffectComposerModel::removeNode(int idx)
 
     setHasUnsavedChanges(true);
     emit nodesChanged();
+}
+
+// Returns false if new name was generated
+bool EffectComposerModel::changeNodeName(int nodeIndex, const QString &name)
+{
+    QTC_ASSERT(nodeIndex >= 0 && nodeIndex < m_nodes.size(), return false);
+
+    QString trimmedName = name.trimmed();
+    const QString oldName = m_nodes[nodeIndex]->name();
+
+    if (trimmedName.isEmpty())
+        trimmedName = oldName;
+
+    const QStringList reservedNames = nodeNames();
+
+    // Matching is done case-insensitive as section headers are shown in all uppercase
+    QString newName = QmlDesigner::UniqueName::generate(trimmedName, [&oldName, &reservedNames] (const QString &checkName) -> bool {
+        return oldName != checkName && reservedNames.contains(checkName, Qt::CaseInsensitive);
+    });
+
+    if (newName != oldName) {
+        m_nodes[nodeIndex]->setName(newName);
+
+        emit dataChanged(index(nodeIndex), index(nodeIndex), {NameRole});
+    }
+
+    return newName == trimmedName;
 }
 
 bool EffectComposerModel::isNodeUniformInUse(int nodeIndex, int uniformIndex) const
@@ -403,7 +436,7 @@ QString EffectComposerModel::qmlComponentString() const
 
 const QList<Uniform *> EffectComposerModel::allUniforms() const
 {
-    QList<Uniform *> uniforms = {};
+    QList<Uniform *> uniforms;
     for (const auto &node : std::as_const(m_nodes))
         uniforms.append(static_cast<EffectComposerUniformsModel *>(node->uniformsModel())->uniforms());
     return uniforms;
@@ -2503,6 +2536,14 @@ QStringList EffectComposerModel::uniformNames() const
     for (const auto uniform : uniforms)
         usedList.append(uniform->name());
     return usedList;
+}
+
+const QStringList EffectComposerModel::nodeNames() const
+{
+    QStringList names;
+    for (const auto &node : std::as_const(m_nodes))
+        names.append(node->name());
+    return names;
 }
 
 QString EffectComposerModel::generateUniformName(const QString &nodeName,

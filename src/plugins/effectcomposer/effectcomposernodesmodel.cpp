@@ -100,21 +100,19 @@ void EffectComposerNodesModel::resetModel()
     endResetModel();
 }
 
-void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms, bool hasCustom)
+void EffectComposerNodesModel::updateCanBeAdded(const QStringList &uniforms,
+                                                const QStringList &nodeNames)
 {
     for (const EffectNodesCategory *cat : std::as_const(m_categories)) {
         const QList<EffectNode *> nodes = cat->nodes();
         for (EffectNode *node : nodes) {
             bool match = false;
             for (const QString &uniform : uniforms) {
-                match = node->hasUniform(uniform);
-                if (match)
+                if (node->hasUniform(uniform)) {
+                    match = true;
                     break;
+                }
             }
-            // For now we limit custom nodes to one as renaming nodes is not yet properly supported
-            if (!match)
-                match = hasCustom && node->isCustom();
-
             node->setCanBeAdded(!match);
         }
     }

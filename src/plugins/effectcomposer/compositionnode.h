@@ -18,7 +18,7 @@ class CompositionNode : public QObject
 {
     Q_OBJECT
 
-    Q_PROPERTY(QString nodeName READ name WRITE setName NOTIFY nameChanged CONSTANT)
+    Q_PROPERTY(QString nodeName READ name WRITE setName NOTIFY nameChanged)
     Q_PROPERTY(bool nodeEnabled READ isEnabled WRITE setIsEnabled NOTIFY isEnabledChanged)
     Q_PROPERTY(bool isDependency READ isDependency NOTIFY isDepencyChanged)
     Q_PROPERTY(bool isCustom READ isCustom CONSTANT)
