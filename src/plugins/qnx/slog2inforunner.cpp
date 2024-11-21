@@ -52,11 +52,11 @@ void Slog2InfoRunner::start()
 
     const auto onLogSetup = [this](Process &process) {
         process.setCommand({device()->filePath("slog2info"), {"-w"}});
-        connect(&process, &Process::readyReadStandardOutput, this, [&] {
-            processLogInput(QString::fromLatin1(process.readAllRawStandardOutput()));
+        connect(&process, &Process::readyReadStandardOutput, this, [this, processPtr = &process] {
+            processLogInput(QString::fromLatin1(processPtr->readAllRawStandardOutput()));
         });
-        connect(&process, &Process::readyReadStandardError, this, [&] {
-            appendMessage(QString::fromLatin1(process.readAllRawStandardError()), StdErrFormat);
+        connect(&process, &Process::readyReadStandardError, this, [this, processPtr = &process] {
+            appendMessage(QString::fromLatin1(processPtr->readAllRawStandardError()), StdErrFormat);
         });
     };
     const auto onLogError = [this](const Process &process) {
