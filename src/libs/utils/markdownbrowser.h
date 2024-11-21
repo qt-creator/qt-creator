@@ -9,18 +9,27 @@
 
 #include <QTextBrowser>
 
+QT_BEGIN_NAMESPACE
+class QNetworkAccessManager;
+class QNetworkRequest;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT MarkdownBrowser : public QTextBrowser
 {
     Q_OBJECT
-
 public:
+    using RequestHook = std::function<void (QNetworkRequest *)>;
+
     MarkdownBrowser(QWidget *parent = nullptr);
 
     void setMarkdown(const QString &markdown);
     void setBasePath(const FilePath &filePath);
     void setAllowRemoteImages(bool allow);
+    void setNetworkAccessManager(QNetworkAccessManager *nam);
+    void setRequestHook(const RequestHook &hook);
+    void setMaximumCacheSize(qsizetype maxSize);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;

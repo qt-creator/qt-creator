@@ -234,6 +234,8 @@ public:
             m_redraw();
     }
 
+    void setMaximumCacheSize(qsizetype maxSize) { m_entries.setMaxCost(maxSize); }
+
 private:
     std::function<void()> m_redraw;
     std::function<void(const QString &)> m_scheduleLoad;
@@ -281,8 +283,8 @@ public:
                        || (url.isRelative() && isBaseHttp);
             };
 
-            QList<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
-            QList<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
+            QSet<QUrl> remoteUrls = Utils::filtered(m_urlsToLoad, isRemoteUrl);
+            QSet<QUrl> localUrls = Utils::filtered(m_urlsToLoad, std::not_fn(isRemoteUrl));
 
             if (m_basePath.isEmpty())
                 localUrls.clear();
@@ -290,27 +292,32 @@ public:
             if (!m_loadRemoteImages)
                 remoteUrls.clear();
 
-            const LoopList remoteIterator(remoteUrls);
-            const LoopList localIterator(localUrls);
+            const LoopList remoteIterator(Utils::toList(remoteUrls));
+            const LoopList localIterator(Utils::toList(localUrls));
 
-            auto onQuerySetup = [remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
+            auto onQuerySetup = [this, remoteIterator, base = m_basePath.toUrl()](NetworkQuery &query) {
                 QUrl url = *remoteIterator;
                 if (url.isRelative())
                     url = base.resolved(url);
 
-                query.setRequest(QNetworkRequest(*remoteIterator));
-                query.setNetworkAccessManager(NetworkAccessManager::instance());
+                QNetworkRequest request(url);
+                if (m_requestHook)
+                    m_requestHook(&request);
+
+                query.setRequest(request);
+                query.setNetworkAccessManager(m_networkAccessManager);
+                query.setProperty("originalName", *remoteIterator);
             };
 
             auto onQueryDone = [this](const NetworkQuery &query, DoneWith result) {
                 if (result == DoneWith::Cancel)
                     return;
-                m_urlsToLoad.removeOne(query.reply()->url());
+                m_urlsToLoad.remove(query.reply()->url());
 
                 if (result == DoneWith::Success)
-                    m_imageHandler.set(query.reply()->url().toString(), query.reply()->readAll());
+                    m_imageHandler.set(query.property("originalName").toString(), query.reply()->readAll());
                 else
-                    m_imageHandler.set(query.reply()->url().toString(), QByteArray{});
+                    m_imageHandler.set(query.property("originalName").toString(), QByteArray{});
 
                 markContentsDirty(0, this->characterCount());
             };
@@ -354,20 +361,26 @@ public:
 
     void scheduleLoad(const QUrl &url)
     {
-        m_urlsToLoad.append(url);
+        m_urlsToLoad.insert(url);
         m_needsToRestartLoading = true;
     }
 
     void setBasePath(const FilePath &filePath) { m_basePath = filePath; }
     void setAllowRemoteImages(bool allow) { m_loadRemoteImages = allow; }
 
+    void setNetworkAccessManager(QNetworkAccessManager *nam) { m_networkAccessManager = nam;}
+    void setRequestHook(const MarkdownBrowser::RequestHook &hook) { m_requestHook = hook; }
+    void setMaximumCacheSize(qsizetype maxSize) { m_imageHandler.setMaximumCacheSize(maxSize); }
+
 private:
     AnimatedImageHandler m_imageHandler;
-    QList<QUrl> m_urlsToLoad;
+    QSet<QUrl> m_urlsToLoad;
     bool m_needsToRestartLoading = false;
     bool m_loadRemoteImages = false;
     Tasking::TaskTreeRunner m_imageLoaderTree;
     FilePath m_basePath;
+    std::function<void(QNetworkRequest *)> m_requestHook;
+    QNetworkAccessManager *m_networkAccessManager = NetworkAccessManager::instance();
 };
 
 MarkdownBrowser::MarkdownBrowser(QWidget *parent)
@@ -402,6 +415,21 @@ void MarkdownBrowser::setMargins(const QMargins &margins)
 void MarkdownBrowser::setAllowRemoteImages(bool allow)
 {
     static_cast<AnimatedDocument *>(document())->setAllowRemoteImages(allow);
+}
+
+void MarkdownBrowser::setNetworkAccessManager(QNetworkAccessManager *nam)
+{
+    static_cast<AnimatedDocument *>(document())->setNetworkAccessManager(nam);
+}
+
+void MarkdownBrowser::setRequestHook(const RequestHook &hook)
+{
+    static_cast<AnimatedDocument *>(document())->setRequestHook(hook);
+}
+
+void MarkdownBrowser::setMaximumCacheSize(qsizetype maxSize)
+{
+    static_cast<AnimatedDocument *>(document())->setMaximumCacheSize(maxSize);
 }
 
 void MarkdownBrowser::setBasePath(const FilePath &filePath)
