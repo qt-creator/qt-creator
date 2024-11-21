@@ -19,6 +19,7 @@
 #include <coreplugin/welcomepagehelper.h>
 
 #include <utils/algorithm.h>
+#include <utils/elidinglabel.h>
 #include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
@@ -75,9 +76,9 @@ public:
             ideIconLabel->setFixedHeight(lineHeight);
         }
 
-        auto welcomeLabel = tfLabel(welcomeTF);
-        welcomeLabel->setText(Tr::tr("Welcome to %1")
-                              .arg(QGuiApplication::applicationDisplayName()));
+        auto welcomeLabel = new ElidingLabel(Tr::tr("Welcome to %1")
+                                             .arg(QGuiApplication::applicationDisplayName()));
+        applyTf(welcomeLabel, welcomeTF);
         welcomeLabel->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
 
         using namespace Layouting;

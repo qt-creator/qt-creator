@@ -67,8 +67,8 @@ constexpr TextFormat h6CapitalTF
 
 static QLabel *sectionTitle(const TextFormat &tf, const QString &title)
 {
-    QLabel *label = tfLabel(tf, true);
-    label->setText(title);
+    auto *label = new ElidingLabel(title);
+    applyTf(label, tf);
     return label;
 };
 
@@ -134,7 +134,8 @@ public:
         static const TextFormat detailsTF
             {titleTF.themeColor, Utils::StyleHelper::UiElementCaption};
 
-        m_title = tfLabel(titleTF);
+        m_title = new ElidingLabel;
+        applyTf(m_title, titleTF);
         m_vendor = new Button({}, Button::SmallLink);
         m_vendor->setContentsMargins({});
         m_divider = new QLabel;
@@ -144,9 +145,11 @@ public:
         const QPixmap dlIcon = Icon({{":/extensionmanager/images/download.png", dlTF.themeColor}},
                                     Icon::Tint).pixmap();
         m_dlIcon->setPixmap(dlIcon);
-        m_dlCount = tfLabel(dlTF);
+        m_dlCount = new ElidingLabel;
+        applyTf(m_dlCount, dlTF);
         m_dlCount->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
-        m_details = tfLabel(detailsTF);
+        m_details = new ElidingLabel;
+        applyTf(m_details, detailsTF);
         installButton = new Button(Tr::tr("Install..."), Button::MediumPrimary);
         installButton->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         installButton->hide();
@@ -428,12 +431,12 @@ static QWidget *descriptionPlaceHolder()
     static const TextFormat tF {
         Theme::Token_Text_Muted, UiElement::UiElementH4
     };
-    auto title = tfLabel(tF);
+    auto title = new ElidingLabel(Tr::tr("No details to show"));
+    applyTf(title, tF);
     title->setAlignment(Qt::AlignCenter);
-    title->setText(Tr::tr("No details to show"));
-    auto text = tfLabel(tF, false);
+    auto text = new QLabel(Tr::tr("Select an extension to see more information about it."));
+    applyTf(text, tF, false);
     text->setAlignment(Qt::AlignCenter);
-    text->setText(Tr::tr("Select an extension to see more information about it."));
     text->setFont({});
     using namespace Layouting;
     // clang-format off
@@ -475,15 +478,19 @@ ExtensionManagerWidget::ExtensionManagerWidget()
     m_description->setMargins({verticalPadding, 0, verticalPadding, 0});
 
     m_dateUpdatedTitle = sectionTitle(h6TF, Tr::tr("Last Update"));
-    m_dateUpdated = tfLabel(contentTF, false);
+    m_dateUpdated = new QLabel;
+    applyTf(m_dateUpdated, contentTF, false);
     m_tagsTitle = sectionTitle(h6TF, Tr::tr("Tags"));
     m_tags = new TagList;
     m_platformsTitle = sectionTitle(h6TF, Tr::tr("Platforms"));
-    m_platforms = tfLabel(contentTF, false);
+    m_platforms = new QLabel;
+    applyTf(m_platforms, contentTF, false);
     m_dependenciesTitle = sectionTitle(h6TF, Tr::tr("Dependencies"));
-    m_dependencies = tfLabel(contentTF, false);
+    m_dependencies = new QLabel;
+    applyTf(m_dependencies, contentTF, false);
     m_packExtensionsTitle = sectionTitle(h6TF, Tr::tr("Extensions in pack"));
-    m_packExtensions = tfLabel(contentTF, false);
+    m_packExtensions = new QLabel;
+    applyTf(m_packExtensions, contentTF, false);
     m_pluginStatus = new PluginStatusWidget;
 
     auto secondary = new QWidget;

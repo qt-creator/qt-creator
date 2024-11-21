@@ -209,20 +209,26 @@ public:
 
         m_iconLabel = new QLabel;
         m_iconLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        m_itemNameLabel = tfLabel(itemNameTF);
+        m_itemNameLabel = new ElidingLabel;
+        applyTf(m_itemNameLabel, itemNameTF);
         m_itemNameLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Maximum);
-        m_releaseStatus = tfLabel(releaseStatusTF, false);
+        m_releaseStatus = new QLabel;
+        applyTf(m_releaseStatus, releaseStatusTF, false);
         m_releaseStatus->setAlignment(Qt::AlignLeft);
         m_releaseStatus->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
-        m_installStateLabel = tfLabel(stateActiveTF, false);
+        m_installStateLabel = new QLabel;
+        applyTf(m_installStateLabel, stateActiveTF, false);
         m_installStateLabel->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred);
         m_installStateIcon = new QLabel;
         m_installStateIcon->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-        m_vendorLabel = tfLabel(vendorTF);
+        m_vendorLabel = new ElidingLabel;
+        applyTf(m_vendorLabel, vendorTF);
         m_downloadDividerLabel = new QLabel;
         m_downloadIconLabel = new QLabel;
-        m_downloadCountLabel = tfLabel(countTF);
-        m_shortDescriptionLabel = tfLabel(descriptionTF);
+        m_downloadCountLabel = new QLabel;
+        applyTf(m_downloadCountLabel, countTF);
+        m_shortDescriptionLabel = new ElidingLabel;
+        applyTf(m_shortDescriptionLabel, descriptionTF);
 
         using namespace Layouting;
         Row {
@@ -514,7 +520,8 @@ public:
 static QWidget *extensionViewPlaceHolder()
 {
     static const TextFormat tF {Theme::Token_Text_Muted, UiElementH4};
-    auto text = tfLabel(tF, false);
+    auto text = new QLabel;
+    applyTf(text, tF, false);
     text->setAlignment(Qt::AlignCenter);
     text->setText(Tr::tr("No extension found!"));
     text->setWordWrap(true);
@@ -540,8 +547,8 @@ ExtensionsBrowser::ExtensionsBrowser(ExtensionsModel *model, QWidget *parent)
 
     static const TextFormat titleTF
         {Theme::Token_Text_Default, UiElementH2};
-    QLabel *titleLabel = tfLabel(titleTF);
-    titleLabel->setText(Tr::tr("Manage Extensions"));
+    auto titleLabel = new ElidingLabel(Tr::tr("Manage Extensions"));
+    applyTf(titleLabel, titleTF);
 
     d->searchBox = new SearchBox;
     d->searchBox->setPlaceholderText(Tr::tr("Search"));

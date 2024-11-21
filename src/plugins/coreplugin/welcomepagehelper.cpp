@@ -88,9 +88,8 @@ QWidget *createRule(Qt::Orientation orientation, QWidget *parent)
     return rule;
 }
 
-QLabel *tfLabel(const TextFormat &tf, bool singleLine)
+void applyTf(QLabel *label, const TextFormat &tf, bool singleLine)
 {
-    QLabel *label = singleLine ? new Utils::ElidingLabel : new QLabel;
     if (singleLine)
         label->setFixedHeight(tf.lineHeight());
     label->setFont(tf.font());
@@ -100,8 +99,6 @@ QLabel *tfLabel(const TextFormat &tf, bool singleLine)
     QPalette pal = label->palette();
     pal.setColor(QPalette::WindowText, tf.color());
     label->setPalette(pal);
-
-    return label;
 }
 
 } // namespace WelcomePageHelpers
@@ -1271,8 +1268,8 @@ void SectionedGridView::setSearchString(const QString &searchString)
 static QLabel *createTitleLabel(const QString &text)
 {
     constexpr TextFormat headerTitleTF {Theme::Token_Text_Muted, StyleHelper::UiElementH4};
-    auto label = tfLabel(headerTitleTF);
-    label->setText(text);
+    auto label = new ElidingLabel(text);
+    applyTf(label, headerTitleTF);
     label->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Preferred);
     return label;
 }
@@ -1308,8 +1305,8 @@ ListModel *SectionedGridView::addSection(const Section &section, const QList<Lis
     const auto it = m_gridViews.insert(section, gridView);
 
     constexpr TextFormat headerTitleTF {Theme::Token_Text_Muted, StyleHelper::UiElementH4};
-    auto sectionNameLabel = WelcomePageHelpers::tfLabel(headerTitleTF);
-    sectionNameLabel->setText(section.name);
+    auto sectionNameLabel = new ElidingLabel(section.name);
+    applyTf(sectionNameLabel, headerTitleTF);
 
     QLabel *seeAllLink = createLinkLabel(Tr::tr("Show All") + " &gt;", this);
     if (gridView->maxRows().has_value()) {
