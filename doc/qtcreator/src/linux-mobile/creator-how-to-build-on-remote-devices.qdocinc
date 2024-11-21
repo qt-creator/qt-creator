@@ -1,0 +1,60 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+//! [build on remote devices]
+
+    To build applications on a \1:
+
+    \list 1
+
+        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices, and
+            then select \uicontrol Add to add a \1.
+
+        \li Go to \uicontrol {Preferences} > \uicontrol CMake >
+            \uicontrol Tools, and then select \uicontrol Add.
+
+        \li In \uicontrol Path, select \uicontrol Remote in the dropdown
+            menu in \uicontrol Browse (\uicontrol Choose on \macos) to
+            add the path to the CMake executable on the \1.
+
+        \li Go to \uicontrol {Preferences} > \uicontrol Kits >
+            \uicontrol {Qt Versions}, and then press \key Shift and click the
+            \uicontrol Add button to add the Qt version on the \1.
+
+        \li Go to \uicontrol {Preferences} > \uicontrol Kits >
+            \uicontrol Compilers, and then select the compiler
+            type in \uicontrol Add.
+
+        \li In \uicontrol {C compiler path}, select \uicontrol Remote in the
+            dropdown menu in \uicontrol Browse (\uicontrol Choose on \macos) to
+            add the path to the compiler on the \1.
+
+        \li Go to \uicontrol {Preferences} > \uicontrol Kits
+            to add a kit for building on the device.
+
+        \li Select the device, CMake tool, Qt version, and compiler that you
+            added above.
+
+        \li In \uicontrol {Run device type} and \uicontrol {Build device}, select
+            \uicontrol {\1}.
+
+        \li To specify build settings:
+
+        \list 1
+
+            \li Open a project for an application you want to develop for the
+                device.
+
+            \li Select \uicontrol Projects > \uicontrol {Build & Run} to activate
+                the kit that you specified above.
+
+        \endlist
+
+        \li Select \uicontrol Run to specify run settings. Usually, you can use
+            the default settings.
+
+            When you run the project, \QC deploys the application as specified by
+            the deploy steps.
+
+    \endlist
+//! [build on remote devices]

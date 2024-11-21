@@ -217,10 +217,16 @@
         \li In \uicontrol {C compiler path}, enter the path to the
             directory where the C compiler is located.
 
-        \li In \uicontrol {C++ compiler path}, enter the path
-            to the directory where the C++ compiler is located. Select
-            \uicontrol {Derive from C compiler} to derive the C++ compiler
-            name from the C compiler name.
+            Select \uicontrol Remote in the dropdown menu in \uicontrol Browse
+            (\uicontrol Choose on \macos) to add the path to the compiler on a
+            remote Linux device or in Docker.
+
+        \li In \uicontrol {C++ compiler path}, select
+            \uicontrol {Provide manually} to enter the path
+            to the directory where the C++ compiler is located.
+
+            Select \uicontrol Remote to add the path to the compiler on a
+            remote Linux device or in Docker.
 
         \li In \uicontrol Initialization, select the
             \c {vcvarsall.bat} file for setting up the command
@@ -274,20 +280,30 @@
     \uicontrol Custom option. Specify the paths to the directories where the
     compiler and make tool are located and set preferences for the compiler.
 
-    \image creator-compilers-custom.png
+    \image qtcreator-preferences-compilers-custom.webp {Compilers in Kit Preferences}
 
     To add other compilers:
 
     \list 1
 
         \li Select \preferences > \uicontrol Kits >
-            \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
-            \uicontrol C or \uicontrol C++.
+            \uicontrol Compilers > \uicontrol Add > \uicontrol Custom.
 
         \li In \uicontrol Name, enter a name for the compiler.
 
-        \li In \uicontrol {Compiler path}, enter the path to the directory
-            where the compiler is located.
+        \li In \uicontrol {C compiler path}, enter the path to the
+            directory where the C compiler is located.
+
+            Select \uicontrol Remote in the dropdown menu in \uicontrol Browse
+            (\uicontrol Choose on \macos) to add the path to the compiler on a
+            remote Linux device or in Docker.
+
+        \li In \uicontrol {C++ compiler path}, select
+            \uicontrol {Provide manually} to enter the path
+            to the directory where the C++ compiler is located.
+
+            Select \uicontrol Remote to add the path to the compiler on a
+            remote Linux device or in Docker.
 
         \li In \uicontrol {Make path}, enter the path to the directory where
             the make tool is located.

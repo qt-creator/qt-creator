@@ -199,3 +199,22 @@
     \sa {Enable and disable plugins}, {Docker}{How To: Develop for Docker},
     {Manage Kits}{How To: Manage Kits}
 */
+
+/*!
+    \page creator-how-to-build-on-docker.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-docker
+
+    \title Build on Docker devices
+
+    In addition to building applications \e {for} Docker, you can use the
+    toolchain in Docker to build the applications \e {in} Docker.
+
+    \note Enable the Docker plugin to use it.
+
+    \include linux-mobile/creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {Docker device}
+
+    \sa {Add CMake tools}, {Enable and disable plugins},
+    {Docker}{How To: Develop for Docker}, {Manage Kits}{How To: Manage Kits}
+*/
