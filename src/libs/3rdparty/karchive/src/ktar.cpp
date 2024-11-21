@@ -102,7 +102,7 @@ bool KTar::createDevice(QIODevice::OpenMode mode)
             if (f.open(QIODevice::ReadOnly)) {
                 mime = db.mimeTypeForData(&f);
             }
-            if (!mime.isValid()) {
+            if (!mime.isValid() || mime.name() == QStringLiteral("application/octet-stream")) {
                 // Unable to determine mimetype from contents, get it from file name
                 mime = db.mimeTypeForFile(fileName(), QMimeDatabase::MatchExtension);
             }

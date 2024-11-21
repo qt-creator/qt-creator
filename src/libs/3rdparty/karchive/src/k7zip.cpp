@@ -16,13 +16,15 @@
 #include <qplatformdefs.h>
 
 #include "kcompressiondevice.h"
+#include "kfilterbase.h"
 #include "klimitediodevice_p.h"
-#include <kfilterbase.h>
-#include <kxzfilter.h>
+#include "kxzfilter.h"
 
-#include "zlib.h"
 #include <memory>
 #include <time.h> // time()
+#include <zlib.h>
+
+#undef uncompress
 
 #ifndef QT_STAT_LNK
 #define QT_STAT_LNK 0120000
@@ -2789,7 +2791,8 @@ bool K7Zip::closeArchive()
         QBuffer inBuffer(&enc);
 
         KCompressionDevice flt(&inBuffer, false, KCompressionDevice::Xz);
-        flt.open(QIODevice::WriteOnly);
+        if(!flt.open(QIODevice::WriteOnly))
+            return false;
 
         KFilterBase *filter = flt.filterBase();
 

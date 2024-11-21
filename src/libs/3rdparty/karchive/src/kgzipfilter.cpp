@@ -13,6 +13,9 @@
 #include <time.h>
 #include <zlib.h>
 
+#undef uncompress
+#undef compress
+
 /* gzip flag byte */
 #define ORIG_NAME 0x08 /* bit 3 set: original file name present */
 

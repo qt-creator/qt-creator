@@ -1,152 +1,302 @@
-cmake_minimum_required(VERSION 3.16)
+option(QTC_USE_SYSTEM_BZIP2 "Use system bzip2 instead of included bzip2" ON)
+option(QTC_USE_SYSTEM_ZLIB "Use system zlib instead of included zlib" ON)
+option(QTC_USE_SYSTEM_LZMA "Use system liblzma instead of included liblzma" ON)
 
-set(KF_VERSION "6.10.0") # handled by release scripts
-project(KArchive VERSION ${KF_VERSION})
-
-include(FeatureSummary)
-find_package(ECM 6.9.0  NO_MODULE)
-set_package_properties(ECM PROPERTIES TYPE REQUIRED DESCRIPTION "Extra CMake Modules." URL "https://commits.kde.org/extra-cmake-modules")
-feature_summary(WHAT REQUIRED_PACKAGES_NOT_FOUND FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
-option(WITH_BZIP2 "Make bzip2 required" ON)
-option(WITH_LIBLZMA "Make liblzma required" ON)
-option(WITH_LIBZSTD "Make libzstd required" ON)
-
-set(PKGCONFIG_REQUIRED_TYPE "")
-
-if(WITH_BZIP2)
-    set(BZIP2_PACKAGE_TYPE "REQUIRED")
-else()
-    set(BZIP2_PACKAGE_TYPE "RECOMMENDED")
+if (QTC_USE_SYSTEM_BZIP2)
+  find_package(BZip2)
+  if (NOT TARGET BZip2::BZip2)
+    set(BZIP2_FALLBACK " (No system bzip2 found)")
+  endif()
 endif()
 
-if(WITH_LIBLZMA)
-    set(LIBLZMA_PACKAGE_TYPE "REQUIRED")
-else()
-    set(LIBLZMA_PACKAGE_TYPE "RECOMMENDED")
+if (QTC_USE_SYSTEM_ZLIB)
+  find_package(ZLIB)
+  if (NOT TARGET ZLIB::ZLIB)
+    set(ZLIB_FALLBACK " (No system zlib found)")
+  endif()
 endif()
 
-if(WITH_LIBZSTD)
-    set(PKGCONFIG_REQUIRED_TYPE "REQUIRED")
-    set(LIBZSTD_REQUIRED_TYPE "REQUIRED")
-else()
-    set(LIBZSTD_REQUIRED_TYPE "")
+if (QTC_USE_SYSTEM_LZMA)
+  find_package(LibLZMA)
+  if (NOT TARGET LibLZMA::LibLZMA)
+    set(LZMA_FALLBACK " (No system liblzma found)")
+  endif()
 endif()
 
-set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
-
-include(KDEInstallDirs)
-include(KDEFrameworkCompilerSettings NO_POLICY_SCOPE)
-include(KDECMakeSettings)
-include(KDEGitCommitHooks)
-
-include(ECMGenerateExportHeader)
-
-set(REQUIRED_QT_VERSION 6.6.0)
-find_package(Qt6Core ${REQUIRED_QT_VERSION} REQUIRED NO_MODULE)
-
-find_package(ZLIB)
-set_package_properties(ZLIB PROPERTIES
-    URL "https://www.zlib.net"
-    DESCRIPTION "Support for gzip compressed files and data streams"
-    TYPE REQUIRED
-    PURPOSE "Support for gzip compressed files and data streams"
+add_qtc_library(
+    karchive
+    DEPENDS Qt::Core
+    PUBLIC_INCLUDES src
+    SOURCES
+        src/kar.cpp
+        src/kar.h
+        src/karchive_export.h
+        src/karchive_p.h
+        src/karchive.cpp
+        src/karchive.h
+        src/karchivedirectory.h
+        src/karchiveentry.h
+        src/karchivefile.h
+        src/kcompressiondevice_p.h
+        src/kcompressiondevice.cpp
+        src/kcompressiondevice.h
+        src/kfilterbase.cpp
+        src/kfilterbase.h
+        src/klimitediodevice_p.h
+        src/klimitediodevice.cpp
+        src/knonefilter.cpp
+        src/knonefilter.h
+        src/krcc.cpp
+        src/krcc.h
+        src/ktar.cpp
+        src/ktar.h
+        src/kzipfileentry.h
+        src/loggingcategory.cpp
+        src/loggingcategory.h
 )
 
-find_package(BZip2)
-set_package_properties(BZip2 PROPERTIES
-    URL "https://sourceware.org/bzip2/"
-    DESCRIPTION "Support for BZip2 compressed files and data streams"
-    TYPE ${BZIP2_PACKAGE_TYPE}
-    PURPOSE "Support for BZip2 compressed files and data streams"
+# ZIP support
+extend_qtc_library(
+    karchive
+    CONDITION QTC_USE_SYSTEM_ZLIB AND TARGET ZLIB::ZLIB
+    FEATURE_INFO "KArchive (System) zlib support"
+    DEPENDS ZLIB::ZLIB
+    DEFINES
+        HAVE_ZLIB_SUPPORT=1
+    SOURCES
+        src/kgzipfilter.cpp
+        src/kgzipfilter.h
+        src/kzip.cpp
+        src/kzip.h
 )
 
-find_package(LibLZMA)
-set_package_properties(LibLZMA PROPERTIES
-    URL "https://tukaani.org/xz/"
-    DESCRIPTION "Support for xz compressed files and data streams"
-    TYPE ${LIBLZMA_PACKAGE_TYPE}
-    PURPOSE "Support for xz compressed files and data streams"
+extend_qtc_library(
+    karchive
+    CONDITION NOT QTC_USE_SYSTEM_ZLIB OR NOT TARGET ZLIB::ZLIB
+    SKIP_AUTOMOC
+    DEFINES
+        HAVE_ZLIB_SUPPORT=1
+    PUBLIC_DEFINES
+        KARCHIVE_HAS_ZLIB
+    FEATURE_INFO "KArchive zlib support${ZLIB_FALLBACK}"
+    INCLUDES
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/
+    SOURCES
+        src/kgzipfilter.cpp
+        src/kgzipfilter.h
+        src/kzip.cpp
+        src/kzip.h
+
+        # Embed zlib sources
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/adler32.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/compress.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/crc32.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/crc32.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/deflate.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/deflate.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/gzclose.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/gzguts.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/gzlib.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/gzread.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/gzwrite.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/infback.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inffast.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inffast.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inffixed.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inflate.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inflate.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inftrees.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/inftrees.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/trees.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/trees.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/uncompr.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/zconf.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/zlib.h
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/zutil.c
+        ${CMAKE_CURRENT_LIST_DIR}/../zlib/src/zutil.h
 )
 
+# BZip2 support
+extend_qtc_library(karchive
+    CONDITION QTC_USE_SYSTEM_BZIP2 AND TARGET BZip2::BZip2
+    FEATURE_INFO "KArchive (System) BZip2 support"
+    DEPENDS BZip2::BZip2
+    DEFINES
+        HAVE_BZIP2_SUPPORT=1
+        NEED_BZ2_PREFIX=1
+    PUBLIC_DEFINES
+        KARCHIVE_HAS_BZIP2
 
-find_package(PkgConfig ${PKGCONFIG_REQUIRED_TYPE})
-if (PkgConfig_FOUND)
-    pkg_check_modules(LibZstd ${LIBZSTD_REQUIRED_TYPE} IMPORTED_TARGET "libzstd")
+    SOURCES
+        src/kbzip2filter.cpp
+)
+
+extend_qtc_library(
+    karchive
+    CONDITION NOT QTC_USE_SYSTEM_BZIP2 OR NOT TARGET BZip2::BZip2
+    INCLUDES ./3rdparty/bzip2
+    FEATURE_INFO "KArchive BZip2 support${BZIP2_FALLBACK}"
+    DEFINES
+        HAVE_BZIP2_SUPPORT=1
+        NEED_BZ2_PREFIX=1
+    PUBLIC_DEFINES
+        KARCHIVE_HAS_BZIP2
+
+    SOURCES
+        src/kbzip2filter.cpp
+
+        # Embed bzip2 sources
+        ./3rdparty/bzip2/blocksort.c
+        ./3rdparty/bzip2/bzlib.c
+        ./3rdparty/bzip2/bzlib.h
+        ./3rdparty/bzip2/compress.c
+        ./3rdparty/bzip2/crctable.c
+        ./3rdparty/bzip2/decompress.c
+        ./3rdparty/bzip2/huffman.c
+        ./3rdparty/bzip2/randtable.c
+)
+
+# libLZMA support
+if (NOT QTC_USE_SYSTEM_LZMA)
+    include (CheckTypeSize)
+    include (CheckIncludeFile)
+    CHECK_TYPE_SIZE("size_t"     SIZEOF_SIZE_T)
+    CHECK_INCLUDE_FILE("stdbool.h" HAVE_STDBOOL_H)
 endif()
-add_feature_info(LibZstd LibZstd_FOUND
-                "Support for zstd compressed files and data streams"
+
+extend_qtc_library(
+    karchive
+    CONDITION QTC_USE_SYSTEM_LZMA AND TARGET LibLZMA::LibLZMA
+    FEATURE_INFO "KArchive (System) libLZMA support"
+    DEPENDS LibLZMA::LibLZMA
+    DEFINES
+        HAVE_XZ_SUPPORT=1
+    SOURCES
+        src/kxzfilter.cpp
+        src/kxzfilter.h
+        src/k7zip.cpp
+        src/k7zip.h
 )
 
-include(ECMSetupVersion)
-include(ECMGenerateHeaders)
-include(ECMQtDeclareLoggingCategory)
-include(ECMAddQch)
-include(ECMDeprecationSettings)
-include(ECMPoQmTools)
+extend_qtc_library(
+    karchive
+    CONDITION NOT QTC_USE_SYSTEM_LZMA OR NOT TARGET LibLZMA::LibLZMA
+    FEATURE_INFO "KArchive 7zip & xz support${LZMA_FALLBACK}"
+    DEFINES
+        HAVE_XZ_SUPPORT=1
+        SIZEOF_SIZE_T=${SIZEOF_SIZE_T}
+        HAVE_STDBOOL_H=${HAVE_STDBOOL_H}
+        HAVE_CHECK_CRC32
+        HAVE_CHECK_CRC64
+        HAVE_CHECK_SHA256
 
-set(EXCLUDE_DEPRECATED_BEFORE_AND_AT 0 CACHE STRING "Control the range of deprecated API excluded from the build [default=0].")
+        HAVE_ENCODER_LZMA1 HAVE_DECODER_LZMA1
+        HAVE_ENCODER_LZMA2 HAVE_DECODER_LZMA2
+        HAVE_ENCODER_X86 HAVE_DECODER_X86
+        HAVE_ENCODER_POWERPC HAVE_DECODER_POWERPC
+        HAVE_ENCODER_IA64 HAVE_DECODER_IA64
+        HAVE_ENCODER_ARM HAVE_DECODER_ARM
+        HAVE_ENCODER_ARMTHUMB HAVE_DECODER_ARMTHUMB
+        HAVE_ENCODER_ARM64 HAVE_DECODER_ARM64
+        HAVE_ENCODER_SPARC HAVE_DECODER_SPARC
+        HAVE_ENCODER_RISCV HAVE_DECODER_RISCV
+        HAVE_ENCODER_DELTA HAVE_DECODER_DELTA
 
-option(BUILD_QCH "Build API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)" OFF)
-add_feature_info(QCH ${BUILD_QCH} "API documentation in QCH format (for e.g. Qt Assistant, Qt Creator & KDevelop)")
+        HAVE_MF_HC3 HAVE_MF_HC4 HAVE_MF_BT2 HAVE_MF_BT3 HAVE_MF_BT4
+    PUBLIC_DEFINES
+        KARCHIVE_HAS_XZ
+    INCLUDES
+        ./3rdparty/xz/src/common
+        ./3rdparty/xz/src/liblzma/api
+        ./3rdparty/xz/src/liblzma/check
+        ./3rdparty/xz/src/liblzma/common
+        ./3rdparty/xz/src/liblzma/delta
+        ./3rdparty/xz/src/liblzma/lz
+        ./3rdparty/xz/src/liblzma/lzma
+        ./3rdparty/xz/src/liblzma/range_decoder
+        ./3rdparty/xz/src/liblzma/rangecoder
+        ./3rdparty/xz/src/liblzma/simple
+    SOURCES
+        src/kxzfilter.cpp
+        src/kxzfilter.h
+        src/k7zip.cpp
+        src/k7zip.h
 
-set(karchive_version_header "${CMAKE_CURRENT_BINARY_DIR}/src/karchive_version.h")
-ecm_setup_version(PROJECT
-    VARIABLE_PREFIX KARCHIVE
-    VERSION_HEADER "${karchive_version_header}"
-    PACKAGE_VERSION_FILE "${CMAKE_CURRENT_BINARY_DIR}/KF6ArchiveConfigVersion.cmake"
-    SOVERSION 6)
-
-ecm_set_disabled_deprecation_versions(
-    QT 6.8
+        # Embed liblzma sources
+        ./3rdparty/xz/src/liblzma/check/check.c
+        ./3rdparty/xz/src/liblzma/check/crc32_fast.c
+        ./3rdparty/xz/src/liblzma/check/crc32_table.c
+        ./3rdparty/xz/src/liblzma/check/crc64_fast.c
+        ./3rdparty/xz/src/liblzma/check/crc64_table.c
+        ./3rdparty/xz/src/liblzma/check/sha256.c
+        ./3rdparty/xz/src/liblzma/common/alone_decoder.c
+        ./3rdparty/xz/src/liblzma/common/auto_decoder.c
+        ./3rdparty/xz/src/liblzma/common/block_decoder.c
+        ./3rdparty/xz/src/liblzma/common/block_encoder.c
+        ./3rdparty/xz/src/liblzma/common/block_header_decoder.c
+        ./3rdparty/xz/src/liblzma/common/block_header_encoder.c
+        ./3rdparty/xz/src/liblzma/common/block_util.c
+        ./3rdparty/xz/src/liblzma/common/common.c
+        ./3rdparty/xz/src/liblzma/common/easy_encoder.c
+        ./3rdparty/xz/src/liblzma/common/easy_preset.c
+        ./3rdparty/xz/src/liblzma/common/filter_common.c
+        ./3rdparty/xz/src/liblzma/common/filter_decoder.c
+        ./3rdparty/xz/src/liblzma/common/filter_encoder.c
+        ./3rdparty/xz/src/liblzma/common/filter_flags_decoder.c
+        ./3rdparty/xz/src/liblzma/common/filter_flags_encoder.c
+        ./3rdparty/xz/src/liblzma/common/index_decoder.c
+        ./3rdparty/xz/src/liblzma/common/index_encoder.c
+        ./3rdparty/xz/src/liblzma/common/index_hash.c
+        ./3rdparty/xz/src/liblzma/common/index.c
+        ./3rdparty/xz/src/liblzma/common/stream_decoder.c
+        ./3rdparty/xz/src/liblzma/common/stream_encoder.c
+        ./3rdparty/xz/src/liblzma/common/stream_flags_common.c
+        ./3rdparty/xz/src/liblzma/common/stream_flags_decoder.c
+        ./3rdparty/xz/src/liblzma/common/stream_flags_encoder.c
+        ./3rdparty/xz/src/liblzma/common/vli_decoder.c
+        ./3rdparty/xz/src/liblzma/common/vli_encoder.c
+        ./3rdparty/xz/src/liblzma/common/vli_size.c
+        ./3rdparty/xz/src/liblzma/delta/delta_common.c
+        ./3rdparty/xz/src/liblzma/delta/delta_decoder.c
+        ./3rdparty/xz/src/liblzma/delta/delta_encoder.c
+        ./3rdparty/xz/src/liblzma/lz/lz_decoder.c
+        ./3rdparty/xz/src/liblzma/lz/lz_encoder_mf.c
+        ./3rdparty/xz/src/liblzma/lz/lz_encoder.c
+        ./3rdparty/xz/src/liblzma/lzma/fastpos_table.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma_decoder.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma_encoder_optimum_fast.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma_encoder_optimum_normal.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma_encoder_presets.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma_encoder.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma2_decoder.c
+        ./3rdparty/xz/src/liblzma/lzma/lzma2_encoder.c
+        ./3rdparty/xz/src/liblzma/rangecoder/price_table.c
+        ./3rdparty/xz/src/liblzma/simple/arm.c
+        ./3rdparty/xz/src/liblzma/simple/arm64.c
+        ./3rdparty/xz/src/liblzma/simple/armthumb.c
+        ./3rdparty/xz/src/liblzma/simple/ia64.c
+        ./3rdparty/xz/src/liblzma/simple/powerpc.c
+        ./3rdparty/xz/src/liblzma/simple/riscv.c
+        ./3rdparty/xz/src/liblzma/simple/simple_coder.c
+        ./3rdparty/xz/src/liblzma/simple/simple_decoder.c
+        ./3rdparty/xz/src/liblzma/simple/simple_encoder.c
+        ./3rdparty/xz/src/liblzma/simple/sparc.c
+        ./3rdparty/xz/src/liblzma/simple/x86.c
 )
 
-
-add_subdirectory(src)
-if (BUILD_TESTING)
-    add_subdirectory(autotests)
-    add_subdirectory(tests)
-endif()
-
-ecm_install_po_files_as_qm(poqm)
-
-# create a Config.cmake and a ConfigVersion.cmake file and install them
-set(CMAKECONFIG_INSTALL_DIR "${KDE_INSTALL_CMAKEPACKAGEDIR}/KF6Archive")
-
-if (BUILD_QCH)
-    ecm_install_qch_export(
-        TARGETS KF6Archive_QCH
-        FILE KF6ArchiveQchTargets.cmake
-        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        COMPONENT Devel
-    )
-    set(PACKAGE_INCLUDE_QCHTARGETS "include(\"\${CMAKE_CURRENT_LIST_DIR}/KF6ArchiveQchTargets.cmake\")")
-endif()
-
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/KF6ArchiveConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/KF6ArchiveConfig.cmake"
-    INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
-)
-
-install(FILES ${karchive_version_header}
-        DESTINATION ${KDE_INSTALL_INCLUDEDIR_KF}/KArchive
-        COMPONENT Devel)
-
-install(FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/KF6ArchiveConfig.cmake"
-            "${CMAKE_CURRENT_BINARY_DIR}/KF6ArchiveConfigVersion.cmake"
-        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        COMPONENT Devel)
-
-install(EXPORT KF6ArchiveTargets
-        DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
-        FILE KF6ArchiveTargets.cmake
-        NAMESPACE KF6::)
-
-include(ECMFeatureSummary)
-ecm_feature_summary(WHAT ALL   FATAL_ON_MISSING_REQUIRED_PACKAGES)
-
-kde_configure_git_pre_commit_hook(CHECKS CLANG_FORMAT)
+# Zstd support
+# BSD License: https://github.com/facebook/zstd/blob/dev/LICENSE
+# Disabled for now as we don't need it and the packages are suboptimal
+#extend_qtc_library(
+#    karchive
+#    CONDITION TARGET PkgConfig::LibZstd
+#    DEPENDS PkgConfig::LibZstd
+#    FEATURE_INFO "KArchive Zstd support"
+#    DEFINES
+#        HAVE_ZSTD_SUPPORT=1
+#    PUBLIC_DEFINES
+#        KARCHIVE_HAS_ZSTD
+#    SOURCES
+#        src/kzstdfilter.cpp
+#        src/kzstdfilter.h
+#)

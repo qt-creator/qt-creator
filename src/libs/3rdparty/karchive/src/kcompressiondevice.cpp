@@ -12,8 +12,6 @@
 #include "kgzipfilter.h"
 #include "knonefilter.h"
 
-#include "config-compression.h"
-
 #if HAVE_BZIP2_SUPPORT
 #include "kbzip2filter.h"
 #endif

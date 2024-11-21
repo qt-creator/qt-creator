@@ -169,6 +169,9 @@ def build_qtcreator(args, paths):
                   '-DBUILD_DEVELOPER_DOCS=' + cmake_option(not args.no_docs),
                   '-DBUILD_EXECUTABLE_SDKTOOL=' + cmake_option(args.with_sdk_tool),
                   '-DQTC_FORCE_XCB=ON',
+                  '-DQTC_USE_SYSTEM_ZLIB=OFF',
+                  '-DQTC_USE_SYSTEM_BZIP2=OFF',
+                  '-DQTC_USE_SYSTEM_LZMA=OFF',
                   '-DWITH_TESTS=' + cmake_option(args.with_tests)]
     cmake_args += common_cmake_arguments(args)
 

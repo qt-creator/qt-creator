@@ -25,6 +25,16 @@
 #include <time.h>
 #include <zlib.h>
 
+// "Our" zip zconf.h defines "Z_PREFIX", so we need to undef it here, as this class has another
+// function called crc32. Instead of a define, we create a forwarder function.
+#ifdef Z_PREFIX
+#undef crc32
+uLong crc32(uLong crc, const Bytef *buf, uInt len)
+{
+    return z_crc32(crc, buf, len);
+}
+#endif
+
 #ifndef QT_STAT_LNK
 #define QT_STAT_LNK 0120000
 #endif // QT_STAT_LNK
@@ -835,32 +845,31 @@ bool KZip::closeArchive()
     qint64 centraldiroffset = device()->pos();
     // qCDebug(KArchiveLog) << "closearchive: centraldiroffset: " << centraldiroffset;
     qint64 atbackup = centraldiroffset;
-    QMutableListIterator<KZipFileEntry *> it(d->m_fileList);
 
-    while (it.hasNext()) {
+    for (KZipFileEntry *entry : d->m_fileList) {
         // set crc and compressed size in each local file header
-        it.next();
-        if (!device()->seek(it.value()->headerStart() + 14)) {
-            setErrorString(tr("Could not seek to next file header: %1").arg(device()->errorString()));
+        if (!device()->seek(entry->headerStart() + 14)) {
+            setErrorString(
+                tr("Could not seek to next file header: %1").arg(device()->errorString()));
             return false;
         }
         // qCDebug(KArchiveLog) << "closearchive setcrcandcsize: fileName:"
-        //    << it.value()->path()
-        //    << "encoding:" << it.value()->encoding();
+        //    << entry->path()
+        //    << "encoding:" << entry->encoding();
 
-        uLong mycrc = it.value()->crc32();
+        uLong mycrc = entry->crc32();
         buffer[0] = char(mycrc); // crc checksum, at headerStart+14
         buffer[1] = char(mycrc >> 8);
         buffer[2] = char(mycrc >> 16);
         buffer[3] = char(mycrc >> 24);
 
-        int mysize1 = it.value()->compressedSize();
+        int mysize1 = entry->compressedSize();
         buffer[4] = char(mysize1); // compressed file size, at headerStart+18
         buffer[5] = char(mysize1 >> 8);
         buffer[6] = char(mysize1 >> 16);
         buffer[7] = char(mysize1 >> 24);
 
-        int myusize = it.value()->size();
+        int myusize = entry->size();
         buffer[8] = char(myusize); // uncompressed file size, at headerStart+22
         buffer[9] = char(myusize >> 8);
         buffer[10] = char(myusize >> 16);
@@ -873,13 +882,11 @@ bool KZip::closeArchive()
     }
     device()->seek(atbackup);
 
-    it.toFront();
-    while (it.hasNext()) {
-        it.next();
-        // qCDebug(KArchiveLog) << "fileName:" << it.value()->path()
-        //              << "encoding:" << it.value()->encoding();
+    for (KZipFileEntry *entry : d->m_fileList) {
+        // qCDebug(KArchiveLog) << "fileName:" << entry->path()
+        //              << "encoding:" << entry->encoding();
 
-        QByteArray path = QFile::encodeName(it.value()->path());
+        QByteArray path = QFile::encodeName(entry->path());
 
         const int extra_field_len = (d->m_extraField == ModificationTime) ? 9 : 0;
         const int bufferSize = extra_field_len + path.length() + 46;
@@ -899,24 +906,24 @@ bool KZip::closeArchive()
         // memcpy(buffer, head, sizeof(head));
         memmove(buffer, head, sizeof(head));
 
-        buffer[10] = char(it.value()->encoding()); // compression method
-        buffer[11] = char(it.value()->encoding() >> 8);
+        buffer[10] = char(entry->encoding()); // compression method
+        buffer[11] = char(entry->encoding() >> 8);
 
-        transformToMsDos(it.value()->date(), &buffer[12]);
+        transformToMsDos(entry->date(), &buffer[12]);
 
-        uLong mycrc = it.value()->crc32();
+        uLong mycrc = entry->crc32();
         buffer[16] = char(mycrc); // crc checksum
         buffer[17] = char(mycrc >> 8);
         buffer[18] = char(mycrc >> 16);
         buffer[19] = char(mycrc >> 24);
 
-        int mysize1 = it.value()->compressedSize();
+        int mysize1 = entry->compressedSize();
         buffer[20] = char(mysize1); // compressed file size
         buffer[21] = char(mysize1 >> 8);
         buffer[22] = char(mysize1 >> 16);
         buffer[23] = char(mysize1 >> 24);
 
-        int mysize = it.value()->size();
+        int mysize = entry->size();
         buffer[24] = char(mysize); // uncompressed file size
         buffer[25] = char(mysize >> 8);
         buffer[26] = char(mysize >> 16);
@@ -928,10 +935,10 @@ bool KZip::closeArchive()
         buffer[30] = char(extra_field_len);
         buffer[31] = char(extra_field_len >> 8);
 
-        buffer[40] = char(it.value()->permissions());
-        buffer[41] = char(it.value()->permissions() >> 8);
+        buffer[40] = char(entry->permissions());
+        buffer[41] = char(entry->permissions() >> 8);
 
-        int myhst = it.value()->headerStart();
+        int myhst = entry->headerStart();
         buffer[42] = char(myhst); // relative offset of local header
         buffer[43] = char(myhst >> 8);
         buffer[44] = char(myhst >> 16);
@@ -952,14 +959,14 @@ bool KZip::closeArchive()
             extfield[4] = 1 | 2 | 4; // specify flags from local field
             // (unless I misread the spec)
             // provide only modification time
-            unsigned long time = (unsigned long)it.value()->date().toSecsSinceEpoch();
+            unsigned long time = (unsigned long) entry->date().toSecsSinceEpoch();
             extfield[5] = char(time);
             extfield[6] = char(time >> 8);
             extfield[7] = char(time >> 16);
             extfield[8] = char(time >> 24);
         }
 
-        crc = crc32(crc, (Bytef *)buffer, bufferSize);
+        crc = crc32(crc, (Bytef *) buffer, bufferSize);
         bool ok = (device()->write(buffer, bufferSize) == bufferSize);
         delete[] buffer;
         if (!ok) {
@@ -1087,18 +1094,17 @@ bool KZip::doPrepareWriting(const QString &name,
     // to save, so that we don't have duplicate file entries when viewing the zip
     // with konqi...
     // CAUTION: the old file itself is still in the zip and won't be removed !!!
-    QMutableListIterator<KZipFileEntry *> it(d->m_fileList);
     // qCDebug(KArchiveLog) << "fileName to write: " << name;
-    while (it.hasNext()) {
-        it.next();
-        // qCDebug(KArchiveLog) << "prepfileName: " << it.value()->path();
-        if (name == it.value()->path()) {
+    for (auto it = d->m_fileList.begin(); it != d->m_fileList.end();) {
+        // qCDebug(KArchiveLog) << "prepfileName: " << entry->path();
+        if (name == (*it)->path()) {
             // also remove from the parentDir
-            parentDir->removeEntry(it.value());
-            // qCDebug(KArchiveLog) << "removing following entry: " << it.value()->path();
-            delete it.value();
-            it.remove();
-        }
+            parentDir->removeEntry(*it);
+            // qCDebug(KArchiveLog) << "removing following entry: " << entry->path();
+            delete *it;
+            it = d->m_fileList.erase(it);
+        } else
+            it++;
     }
 
     // construct a KZipFileEntry and add it to list

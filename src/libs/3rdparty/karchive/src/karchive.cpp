@@ -964,7 +964,10 @@ static bool sortByPosition(const KArchiveFile *file1, const KArchiveFile *file2)
     return file1->position() < file2->position();
 }
 
-bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
+bool KArchiveDirectory::copyTo(
+    const QString &dest,
+    bool recursiveCopy,
+    std::function<bool(const KArchiveFile *, QString)> progress) const
 {
     QDir root;
     const QString destDir(QDir(dest).absolutePath()); // get directory path without any "." or ".."
@@ -1029,11 +1032,16 @@ bool KArchiveDirectory::copyTo(const QString &dest, bool recursiveCopy) const
         }
     } while (!dirStack.isEmpty());
 
-    std::sort(fileList.begin(), fileList.end(), sortByPosition); // sort on d->pos, so we have a linear access
+    std::sort(
+        fileList.begin(),
+        fileList.end(),
+        sortByPosition); // sort on d->pos, so we have a linear access
 
-    for (QList<const KArchiveFile *>::const_iterator it = fileList.constBegin(), end = fileList.constEnd(); it != end; ++it) {
-        const KArchiveFile *f = *it;
+    for (const KArchiveFile *f : fileList) {
         qint64 pos = f->position();
+        if (progress)
+            if (!progress(f, fileToDir[pos]))
+                return false;
         if (!f->copyTo(fileToDir[pos])) {
             return false;
         }
