@@ -84,43 +84,6 @@ static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
     return worker;
 }
 
-// QdbDeviceDebugSupport
-
-class QdbDeviceDebugSupport final : public Debugger::DebuggerRunTool
-{
-public:
-    explicit QdbDeviceDebugSupport(RunControl *runControl);
-
-private:
-    void start() override;
-};
-
-QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
-    : Debugger::DebuggerRunTool(runControl)
-{
-    setId("QdbDeviceDebugSupport");
-
-    if (isCppDebugging())
-        runControl->requestDebugChannel();
-    if (isQmlDebugging())
-        runControl->requestQmlChannel();
-
-    auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
-    addStartDependency(debuggee);
-
-    debuggee->addStopDependency(this);
-}
-
-void QdbDeviceDebugSupport::start()
-{
-    setStartMode(Debugger::AttachToRemoteServer);
-    setCloseMode(KillAndExitMonitorAtClose);
-    setUseContinueInsteadOfRun(true);
-    setContinueAfterAttach(true);
-    addSolibSearchDir("%{sysroot}/system/lib");
-    DebuggerRunTool::start();
-}
-
 class QdbRunWorkerFactory final : public RunWorkerFactory
 {
 public:
@@ -150,7 +113,23 @@ class QdbDebugWorkerFactory final : public RunWorkerFactory
 public:
     QdbDebugWorkerFactory()
     {
-        setProduct<QdbDeviceDebugSupport>();
+        setProducer([](RunControl *runControl) {
+            auto worker = new DebuggerRunTool(runControl);
+            worker->setId("QdbDeviceDebugSupport");
+
+            worker->setupPortsGatherer();
+            worker->setStartMode(Debugger::AttachToRemoteServer);
+            worker->setCloseMode(KillAndExitMonitorAtClose);
+            worker->setUseContinueInsteadOfRun(true);
+            worker->setContinueAfterAttach(true);
+            worker->addSolibSearchDir("%{sysroot}/system/lib");
+
+            auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
+            worker->addStartDependency(debuggee);
+            debuggee->addStopDependency(worker);
+
+            return worker;
+        });
         addSupportedRunMode(ProjectExplorer::Constants::DEBUG_RUN_MODE);
         addSupportedRunConfig(Constants::QdbRunConfigurationId);
         addSupportedRunConfig(QmlProjectManager::Constants::QML_RUNCONFIG_ID);
