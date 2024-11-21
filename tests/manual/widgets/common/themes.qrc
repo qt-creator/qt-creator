@@ -12,5 +12,6 @@
     <file alias="light-2024.creatortheme">../../../../share/qtcreator/themes/light-2024.creatortheme</file>
     <file alias="light-palette.inc">../../../../share/qtcreator/themes/light-palette.inc</file>
     <file alias="light.figmatokens">../../../../share/qtcreator/themes/light.figmatokens</file>
+    <file alias="primitive-colors.inc">../../../../share/qtcreator/themes/primitive-colors.inc</file>
 </qresource>
 </RCC>
