@@ -136,14 +136,9 @@ void QdbDeviceDebugSupport::start()
 {
     setStartMode(Debugger::AttachToRemoteServer);
     setCloseMode(KillAndExitMonitorAtClose);
-    if (usesDebugChannel())
-        setRemoteChannel(debugChannel());
-    if (usesQmlChannel())
-        setQmlServer(qmlChannel());
     setUseContinueInsteadOfRun(true);
     setContinueAfterAttach(true);
     addSolibSearchDir("%{sysroot}/system/lib");
-
     DebuggerRunTool::start();
 }
 
