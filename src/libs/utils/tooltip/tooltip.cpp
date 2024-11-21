@@ -333,8 +333,6 @@ void ToolTip::placeTip(const QPoint &pos)
     const QRect screen = qscreen->availableGeometry();
     QPoint p = pos;
     p += offsetFromPosition();
-    if (p.x() + m_tip->width() > screen.x() + screen.width())
-        p.rx() -= 4 + m_tip->width();
     if (p.y() + m_tip->height() > screen.y() + screen.height())
         p.ry() -= 24 + m_tip->height();
     if (p.y() < screen.y())
