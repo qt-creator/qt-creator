@@ -101,5 +101,51 @@
     \uicontrol {Exposed Custom Properties}, select or clear the
     \uicontrol timeRunning checkbox.
 
+    \section1 Using opacity mask effects
+
+    You can mask components in your scene with an image or another component using
+    \uicontrol {Opacity Mask} effects. Set an image as the \uicontrol Source for
+    the \uicontrol {Opacity Mask} effect in the \uicontrol {Effect Composer}.
+
+    To use a component as the source for the \uicontrol {Opacity Mask} effect:
+
+    \image effect-composer-opacity-mask-scaled.webp "The structure of a scaled opacity mask effect in the Navigator view."
+
+    \list 1
+        \li In the \uicontrol {Effect Composer} view, create an \uicontrol {Opacity Mask}
+            effect (1) with a placeholder image as \uicontrol Source.
+        \li Save the effect (1) and assign it to a component in your scene (2).
+        \li In the \uicontrol Navigator view, select the effect (1).
+        \li In \uicontrol Properties > \uicontrol {Opacity Mask} > \uicontrol {Source Item},
+            select a component (3) in your scene.
+        \li In the \uicontrol Navigator view, select the \uicontrol {Source Item} (3) component.
+        \li In \uicontrol Properties > \uicontrol Visibility, clear the \uicontrol Visibility
+            checkbox to hide the \uicontrol {Source Item} component (3).
+    \endlist
+
+    The \uicontrol {Source Item} component is automatically scaled to fit the component the
+    effect is assigned to.
+
+    To use an unscaled component as the \uicontrol {Source Item}:
+
+    \image effect-composer-opacity-mask-unscaled.webp "The structure of an unscaled opacity mask effect in the Navigator view."
+
+    \list 1
+        \li In \uicontrol Components > \uicontrol {Default Components}, add an \uicontrol Item
+            component (1) to your scene as a child to the component (2) that the effect (3) is
+            applied to.
+        \li In \uicontrol Properties > \uicontrol Visibility, clear the \uicontrol Visibility
+            checkbox to set the \uicontrol Item component (1) as not visible.
+        \li In \uicontrol Properties > \uicontrol Layout > \uicontrol Anchors, select
+            \inlineimage icons/anchor-fill.png to fill the parent component.
+        \li In the \uicontrol Navigator view, drag the \uicontrol {Source Item} component (4) as
+            the child of the \uicontrol Item component (1).
+        \li In \uicontrol Properties > \uicontrol Visibility, select the \uicontrol Visibility
+            checkbox to show the \uicontrol {Source Item} component (4).
+        \li In the \uicontrol Navigator view, select the effect (3).
+        \li In \uicontrol Properties > \uicontrol {Opacity Mask}, set the \uicontrol Item (1) added
+            in the first step as \uicontrol {Source Item}.
+    \endlist
+
     \sa {Effect Composer Example}
 */
