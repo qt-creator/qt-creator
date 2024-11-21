@@ -764,14 +764,6 @@ IosDebugSupport::IosDebugSupport(RunControl *runControl)
     m_runner->setQmlDebugging(isQmlDebugging() ? QmlDebuggerServices : NoQmlDebugServices);
 
     addStartDependency(m_runner);
-}
-
-void IosDebugSupport::start()
-{
-    if (!m_runner->isAppRunning()) {
-        reportFailure(Tr::tr("Application not running."));
-        return;
-    }
 
     if (device()->type() == Ios::Constants::IOS_DEVICE_TYPE) {
         IosDevice::ConstPtr dev = std::dynamic_pointer_cast<const IosDevice>(device());
@@ -803,6 +795,14 @@ void IosDebugSupport::start()
     } else {
         setStartMode(AttachToLocalProcess);
         setIosPlatform("ios-simulator");
+    }
+}
+
+void IosDebugSupport::start()
+{
+    if (!m_runner->isAppRunning()) {
+        reportFailure(Tr::tr("Application not running."));
+        return;
     }
 
     const IosDeviceTypeAspect::Data *data = runControl()->aspectData<IosDeviceTypeAspect>();
