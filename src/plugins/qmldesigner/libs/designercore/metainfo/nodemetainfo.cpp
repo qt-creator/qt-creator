@@ -935,7 +935,7 @@ ContextPtr NodeMetaInfoPrivate::context() const
 const Document *NodeMetaInfoPrivate::document() const
 {
     if (m_model && m_model->rewriterView())
-        return m_model->rewriterView()->document();
+        return m_model->rewriterView()->document().data();
     return nullptr;
 }
 

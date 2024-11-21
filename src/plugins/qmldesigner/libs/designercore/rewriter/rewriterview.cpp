@@ -948,7 +948,7 @@ const QmlJS::ScopeChain *RewriterView::scopeChain() const
 }
 #endif
 
-const QmlJS::Document *RewriterView::document() const
+QmlJS::Document::Ptr RewriterView::document() const
 {
     return textToModelMerger()->document();
 }

@@ -13,6 +13,7 @@
 
 #include <functional>
 #include <memory>
+#include <qmljs/qmljsdocument.h>
 
 namespace QmlJS {
 class Document;
@@ -122,7 +123,7 @@ public:
 
     bool renameId(const QString& oldId, const QString& newId);
 
-    const QmlJS::Document *document() const;
+    QmlJS::Document::Ptr document() const;
 
 #ifndef QDS_USE_PROJECTSTORAGE
     const QmlJS::ScopeChain *scopeChain() const;

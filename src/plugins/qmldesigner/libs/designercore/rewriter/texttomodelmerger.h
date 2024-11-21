@@ -51,8 +51,7 @@ public:
     { return m_scopeChain.data(); }
 #endif
 
-    const QmlJS::Document *document() const
-    { return m_document.data(); }
+    QmlJS::Document::Ptr document() const { return m_document; }
 
     const QmlJS::ViewerContext &vContext() const
     { return m_vContext; }
