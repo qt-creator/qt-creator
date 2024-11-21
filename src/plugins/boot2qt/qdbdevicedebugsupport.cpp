@@ -26,54 +26,38 @@ using namespace Utils;
 
 namespace Qdb::Internal {
 
-class QdbDeviceInferiorRunner : public RunWorker
+static RunWorker *createQdbDeviceInferiorWorker(RunControl *runControl,
+                                                QmlDebugServicesPreset qmlServices)
 {
-public:
-    QdbDeviceInferiorRunner(RunControl *runControl, QmlDebugServicesPreset qmlServices)
-        : RunWorker(runControl),
-          m_qmlServices(qmlServices)
-    {
-        setId("QdbDebuggeeRunner");
+    auto worker = new SimpleTargetRunner(runControl);
+    worker->setId("QdbDeviceInferiorWorker");
 
-        connect(&m_launcher, &Process::started, this, &RunWorker::reportStarted);
-        connect(&m_launcher, &Process::done, this, &RunWorker::reportStopped);
+    worker->setStartModifier([worker, runControl, qmlServices] {
+        CommandLine cmd{worker->device()->filePath(Constants::AppcontrollerFilepath)};
 
-        connect(&m_launcher, &Process::readyReadStandardOutput, this, [this] {
-                appendMessage(m_launcher.readAllStandardOutput(), StdOutFormat);
-        });
-        connect(&m_launcher, &Process::readyReadStandardError, this, [this] {
-                appendMessage(m_launcher.readAllStandardError(), StdErrFormat);
-        });
-    }
-
-    void start() override
-    {
         int lowerPort = 0;
         int upperPort = 0;
 
-        CommandLine cmd;
-        cmd.setExecutable(device()->filePath(Constants::AppcontrollerFilepath));
-
-        if (usesDebugChannel()) {
+        if (worker->usesDebugChannel()) {
             cmd.addArg("--debug-gdb");
-            lowerPort = upperPort = debugChannel().port();
+            lowerPort = upperPort = worker->debugChannel().port();
         }
-        if (usesQmlChannel()) {
+        if (worker->usesQmlChannel()) {
             cmd.addArg("--debug-qml");
             cmd.addArg("--qml-debug-services");
-            cmd.addArg(qmlDebugServices(m_qmlServices));
-            lowerPort = upperPort = qmlChannel().port();
+            cmd.addArg(qmlDebugServices(qmlServices));
+            lowerPort = upperPort = worker->qmlChannel().port();
         }
-        if (usesDebugChannel() && usesQmlChannel()) {
-            lowerPort = debugChannel().port();
-            upperPort = qmlChannel().port();
+        if (worker->usesDebugChannel() && worker->usesQmlChannel()) {
+            lowerPort = worker->debugChannel().port();
+            upperPort = worker->qmlChannel().port();
             if (lowerPort + 1 != upperPort) {
-                reportFailure("Need adjacent free ports for combined C++/QML debugging");
+                worker->reportFailure("Need adjacent free ports for combined C++/QML debugging");
                 return;
             }
         }
-        if (usesPerfChannel()) {
-            const Store perfArgs = runControl()->settingsData(PerfProfiler::Constants::PerfSettingsId);
+        if (worker->usesPerfChannel()) {
+            const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
             // appcontroller is not very clear about this, but it expects a comma-separated list of arguments.
             // Any literal commas that apper in the args should be escaped by additional commas.
             // See the source at
@@ -86,24 +70,19 @@ public:
                                            .join(',');
             cmd.addArg("--profile-perf");
             cmd.addArgs(recordArgs, CommandLine::Raw);
-            lowerPort = upperPort = perfChannel().port();
+            lowerPort = upperPort = worker->perfChannel().port();
         }
+
         cmd.addArg("--port-range");
         cmd.addArg(QString("%1-%2").arg(lowerPort).arg(upperPort));
-        cmd.addCommandLineAsArgs(runControl()->commandLine());
+        cmd.addCommandLineAsArgs(runControl->commandLine());
 
-        m_launcher.setCommand(cmd);
-        m_launcher.setWorkingDirectory(runControl()->workingDirectory());
-        m_launcher.setEnvironment(runControl()->environment());
-        m_launcher.start();
-    }
-
-    void stop() override { m_launcher.close(); }
-
-private:
-    QmlDebugServicesPreset m_qmlServices;
-    Process m_launcher;
-};
+        worker->setCommandLine(cmd);
+        worker->setWorkingDirectory(runControl->workingDirectory());
+        worker->setEnvironment(runControl->environment());
+    });
+    return worker;
+}
 
 // QdbDeviceDebugSupport
 
@@ -126,7 +105,7 @@ QdbDeviceDebugSupport::QdbDeviceDebugSupport(RunControl *runControl)
     if (isQmlDebugging())
         runControl->requestQmlChannel();
 
-    auto debuggee = new QdbDeviceInferiorRunner(runControl, QmlDebuggerServices);
+    auto debuggee = createQdbDeviceInferiorWorker(runControl, QmlDebuggerServices);
     addStartDependency(debuggee);
 
     debuggee->addStopDependency(this);
@@ -190,7 +169,7 @@ public:
 
             runControl->requestQmlChannel();
             const QmlDebugServicesPreset services = servicesForRunMode(runControl->runMode());
-            auto runner = new QdbDeviceInferiorRunner(runControl, services);
+            auto runner = createQdbDeviceInferiorWorker(runControl, services);
             worker->addStartDependency(runner);
             worker->addStopDependency(runner);
 
@@ -214,7 +193,7 @@ public:
     {
         setProducer([](RunControl *runControl) {
             runControl->requestPerfChannel();
-            auto worker = new QdbDeviceInferiorRunner(runControl, NoQmlDebugServices);
+            auto worker = createQdbDeviceInferiorWorker(runControl, NoQmlDebugServices);
             return worker;
         });
         addSupportedRunMode("PerfRecorder");
