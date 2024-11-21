@@ -174,4 +174,126 @@ TEST(UniqueName, generatePath_returns_unique_path_when_path_exists)
     ASSERT_THAT(uniquePath, QString(UNITTEST_DIR).append("1"));
 }
 
+TEST(UniqueName, generateTypeName_returns_valid_type_name_unaltered)
+{
+    QString input = "MyType";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "MyType");
+}
+
+TEST(UniqueName, generateTypeName_returns_valid_type_name_without_predicate)
+{
+    QString input = "ab c";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "AbC");
+}
+
+TEST(UniqueName, generateTypeName_returns_fallback_with_empty_input)
+{
+    QString input = "";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "Gadget");
+}
+
+TEST(UniqueName, generateTypeName_returns_fallback_with_all_invalid_chars)
+{
+    QString input = "😂😂😅*";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "Gadget");
+}
+
+TEST(UniqueName, generateTypeName_returns_valid_type_name_with_predicate)
+{
+    auto pred = [](const QString &) -> bool { return false; };
+    QString input = "abc";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget", pred);
+
+    ASSERT_THAT(validTypeName, "Abc");
+}
+
+TEST(UniqueName, generateTypeName_returns_valid_unique_type_name)
+{
+    QStringList existingIds = {"Abc"};
+    auto pred = [&existingIds](const QString &t) { return existingIds.contains(t); };
+    QString input = "abc";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget", pred);
+
+    ASSERT_THAT(validTypeName, "Abc1");
+}
+
+TEST(UniqueName, generateTypeName_filters_invalid_chars_and_capitalize)
+{
+    QString input = "😂a😂b😅*#c";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "ABC");
+}
+
+TEST(UniqueName, generateTypeName_removes_underscore_from_front)
+{
+    QString input = "_ab_c";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "Ab_c");
+}
+
+TEST(UniqueName, generateTypeName_removes_numbers_from_front)
+{
+    QString input = "12ab_c3";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "Ab_c3");
+}
+
+TEST(UniqueName, generateTypeName_removes_dots)
+{
+    QString input = ".ab.c3";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "AbC3");
+}
+
+TEST(UniqueName, generateTypeName_removes_spaces_and_capitalize)
+{
+    QString input = "ab c ";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "AbC");
+}
+
+TEST(UniqueName, generateTypeName_return_unique_type_name_with_stable_count)
+{
+    QStringList existingIds = {"Abc3", "Abc4"};
+    auto pred = [&existingIds](const QString &t) { return existingIds.contains(t); };
+    QString input = "abc3";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget", pred);
+
+    ASSERT_THAT(validTypeName, "Abc5");
+}
+
+TEST(UniqueName, generateTypeName_returns_valid_type_name_with_stable_capitalization)
+{
+    QString input = "myTypENAme x";
+
+    QString validTypeName = UniqueName::generateTypeName(input, "Gadget");
+
+    ASSERT_THAT(validTypeName, "MyTypENAmeX");
+}
+
 } // namespace
