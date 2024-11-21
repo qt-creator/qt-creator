@@ -204,13 +204,11 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
 
 ProjectExplorer::RunWorker *UvscServerProvider::targetRunner(RunControl *runControl) const
 {
-    // Get uVision executable path.
-    const ProcessRunData uv = DebuggerKitAspect::runnable(runControl->kit());
-    const CommandLine server{uv.command.executable(),
-                             {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}};
-    ProcessRunData r;
-    r.command = server;
-    return new UvscServerProviderRunner(runControl, r);
+    auto worker = new SimpleTargetRunner(runControl);
+    worker->setId("BareMetalUvscServer");
+    worker->setCommandLine({DebuggerKitAspect::runnable(runControl->kit()).command.executable(),
+                            {"-j0", QStringLiteral("-s%1").arg(m_channel.port())}});
+    return worker;
 }
 
 void UvscServerProvider::fromMap(const Store &data)
@@ -337,40 +335,6 @@ void UvscServerProviderConfigWidget::setFromProvider()
     m_toolsIniChooser->setFilePath(p->toolsIniFile());
     m_deviceSelector->setSelection(p->deviceSelection());
     m_driverSelector->setSelection(p->driverSelection());
-}
-
-// UvscServerProviderRunner
-
-UvscServerProviderRunner::UvscServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                   const ProcessRunData &runnable)
-    : RunWorker(runControl)
-{
-    setId("BareMetalUvscServer");
-
-    m_process.setCommand(runnable.command);
-
-    connect(&m_process, &Process::started, this, [this] {
-        ProcessHandle pid(m_process.processId());
-        this->runControl()->setApplicationProcessHandle(pid);
-        reportStarted();
-    });
-    connect(&m_process, &Process::done, this, [this] {
-        appendMessage(m_process.exitMessage(), NormalMessageFormat);
-        reportStopped();
-    });
-}
-
-void UvscServerProviderRunner::start()
-{
-    const QString msg = Tr::tr("Starting %1...").arg(m_process.commandLine().displayName());
-    appendMessage(msg, NormalMessageFormat);
-
-    m_process.start();
-}
-
-void UvscServerProviderRunner::stop()
-{
-    m_process.terminate();
 }
 
 } // BareMetal::Internal
