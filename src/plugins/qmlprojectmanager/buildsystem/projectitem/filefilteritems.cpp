@@ -290,7 +290,7 @@ bool FileFilterItem::fileMatches(const QString &fileName) const
 
 bool FileFilterItem::ignoreDirectory(const QFileInfo &file) const
 {
-    static const QStringList blackList = { "CMakeCache.txt", "build.ninja" };
+    static const QStringList blackList = {"CMakeCache.txt", "build.ninja", "ignore-in-qds"};
     return blackList.contains(file.fileName());
 }
 

@@ -169,7 +169,11 @@ bool CMakeGenerator::ignore(const Utils::FilePath &path) const
         if (!m_root->dir.exists())
             return true;
 
-        static const QStringList fileNames = { "CMakeCache.txt", "build.ninja" };
+        static const QStringList dirNames = { DEPENDENCIES_DIR };
+        if (dirNames.contains(path.fileName()))
+            return true;
+
+        static const QStringList fileNames = {COMPONENTS_IGNORE_FILE, "CMakeCache.txt", "build.ninja"};
 
         Utils::FilePath dir = path;
         while (dir.isChildOf(m_root->dir)) {
