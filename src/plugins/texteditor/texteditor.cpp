@@ -343,6 +343,14 @@ protected:
     void wheelEvent(QWheelEvent *event) override {
         QCoreApplication::sendEvent(textEdit->viewport(), event);
     }
+    bool event(QEvent *event) override
+    {
+        if (event->type() == QEvent::ToolTip) {
+            textEdit->extraAreaToolTipEvent(static_cast<QHelpEvent *>(event));
+            return true;
+        }
+        return QWidget::event(event);
+    }
 
 private:
     TextEditorWidget *textEdit;
@@ -7371,6 +7379,25 @@ void TextEditorWidget::updateFoldingHighlight(const QTextCursor &cursor)
         d->m_highlightBlocksTimer.start(d->m_highlightBlocksInfo.isEmpty() ? 120 : 0);
 }
 
+void TextEditorWidget::extraAreaToolTipEvent(QHelpEvent *e)
+{
+    QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
+
+    int markWidth = 0;
+    extraAreaWidth(&markWidth);
+    const bool inMarkArea = e->pos().x() <= markWidth && e->pos().x() >= 0;
+    if (!inMarkArea)
+        return;
+    int line = cursor.blockNumber() + 1;
+    if (d->extraAreaPreviousMarkTooltipRequestedLine != line) {
+        if (auto data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
+            if (!data->marks().isEmpty())
+                d->showTextMarksToolTip(mapToGlobal(e->pos()), data->marks());
+        }
+    }
+    d->extraAreaPreviousMarkTooltipRequestedLine = line;
+}
+
 void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
 {
     QTextCursor cursor = cursorForPosition(QPoint(0, e->pos().y()));
@@ -7387,16 +7414,14 @@ void TextEditorWidget::extraAreaMouseEvent(QMouseEvent *e)
     // Set whether the mouse cursor is a hand or normal arrow
     if (e->type() == QEvent::MouseMove) {
         if (inMarkArea) {
+            // tool tips are shown in extraAreaToolTipEvent
             int line = cursor.blockNumber() + 1;
             if (d->extraAreaPreviousMarkTooltipRequestedLine != line) {
                 if (auto data = static_cast<TextBlockUserData *>(cursor.block().userData())) {
                     if (data->marks().isEmpty())
                         ToolTip::hide();
-                    else
-                        d->showTextMarksToolTip(mapToGlobal(e->pos()), data->marks());
                 }
             }
-            d->extraAreaPreviousMarkTooltipRequestedLine = line;
         }
 
         if (!d->m_markDragging && e->buttons() & Qt::LeftButton && !d->m_markDragStart.isNull()) {

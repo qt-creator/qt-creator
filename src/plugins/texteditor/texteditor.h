@@ -312,6 +312,7 @@ public:
     virtual void extraAreaLeaveEvent(QEvent *);
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
     virtual void extraAreaMouseEvent(QMouseEvent *);
+    virtual void extraAreaToolTipEvent(QHelpEvent *e);
     void updateFoldingHighlight(const QPoint &pos);
     void updateFoldingHighlight(const QTextCursor &cursor);
 
