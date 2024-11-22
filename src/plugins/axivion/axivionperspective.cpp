@@ -1074,18 +1074,17 @@ void AxivionPerspective::resetDashboard()
 
 bool AxivionPerspective::handleContextMenu(const QString &issue, const ItemViewEvent &e)
 {
-    std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
+    if (!currentDashboardInfo())
+        return false;
+    const std::optional<Dto::TableInfoDto> tableInfoOpt = m_issuesWidget->currentTableInfo();
     if (!tableInfoOpt)
         return false;
     const QString baseUri = tableInfoOpt->issueBaseViewUri.value_or(QString());
     if (baseUri.isEmpty())
         return false;
-    auto info = currentDashboardInfo();
-    if (!info)
-        return false;
 
-    QUrl issueBaseUrl = info->source.resolved(baseUri).resolved(issue);
-    QUrl dashboardUrl = info->source.resolved(baseUri);
+    QUrl dashboardUrl = resolveDashboardInfoUrl(baseUri);
+    QUrl issueBaseUrl = dashboardUrl.resolved(issue);
     const IssueListSearch search = m_issuesWidget->searchFromUi();
     issueBaseUrl.setQuery(search.toUrlQuery(QueryMode::SimpleQuery));
     dashboardUrl.setQuery(search.toUrlQuery(QueryMode::FilterQuery));
@@ -1147,11 +1146,9 @@ void AxivionPerspective::updateToolbarButtons()
 
 void AxivionPerspective::openFilterHelp()
 {
-    std::optional<DashboardInfo> dashboardInfo = currentDashboardInfo();
-    QTC_ASSERT(dashboardInfo, return);
-    std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
+    const std::optional<Dto::ProjectInfoDto> projInfo = projectInfo();
     if (projInfo && projInfo->issueFilterHelp)
-        QDesktopServices::openUrl(dashboardInfo->source.resolved(*projInfo->issueFilterHelp));
+        QDesktopServices::openUrl(resolveDashboardInfoUrl(*projInfo->issueFilterHelp));
 }
 
 static QPointer<AxivionPerspective> theAxivionPerspective;

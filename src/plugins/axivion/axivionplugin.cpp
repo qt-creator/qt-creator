@@ -364,7 +364,7 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
         return {};
     const QByteArray encodedProjectName = QUrl::toPercentEncoding(projectName);
     const QUrl path(QString{"api/projects/" + QString::fromUtf8(encodedProjectName) + '/'});
-    QUrl url = dd->m_dashboardInfo->source.resolved(path);
+    QUrl url = resolveDashboardInfoUrl(path);
     if (!subPath.isEmpty() && QTC_GUARD(!subPath.startsWith('/')))
         url = url.resolved(subPath);
     if (!query.isEmpty())
@@ -396,6 +396,8 @@ static QByteArray contentTypeData(ContentType contentType)
 
 QUrl resolveDashboardInfoUrl(const QUrl &resource)
 {
+    QTC_ASSERT(dd, return {});
+    QTC_ASSERT(dd->m_dashboardInfo, return {});
     return dd->m_dashboardInfo->source.resolved(resource);
 }
 
@@ -649,8 +651,7 @@ static Group authorizationRecipe()
             return SetupResult::StopWithError;
 
         apiTokenStorage->credential = dashboardStorage->credential;
-        apiTokenStorage->url
-            = dd->m_dashboardInfo->source.resolved(*dashboardDto.userApiTokenUrl);
+        apiTokenStorage->url = resolveDashboardInfoUrl(*dashboardDto.userApiTokenUrl);
         apiTokenStorage->csrfToken = dashboardDto.csrfToken.toUtf8();
         const Dto::ApiTokenCreationRequestDto requestDto{*passwordStorage, "IdePlugin",
                                                          apiTokenDescription(), 0};
@@ -832,8 +833,8 @@ Group projectInfoRecipe(const QString &projectName)
         auto it = dd->m_dashboardInfo->projectUrls.constFind(targetProjectName);
         if (it == dd->m_dashboardInfo->projectUrls.constEnd())
             it = dd->m_dashboardInfo->projectUrls.constBegin();
-        taskTree.setRecipe(
-            fetchDataRecipe<Dto::ProjectInfoDto>(dd->m_dashboardInfo->source.resolved(*it), handler));
+        taskTree.setRecipe(fetchDataRecipe<Dto::ProjectInfoDto>(resolveDashboardInfoUrl(*it),
+                                                                handler));
         return SetupResult::Continue;
     };
 
