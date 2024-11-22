@@ -19,7 +19,11 @@ QT_END_NAMESPACE
 
 namespace ProjectExplorer { class Project; }
 
-namespace Tasking { class Group; }
+namespace Tasking {
+class Group;
+template <typename StorageStruct>
+class Storage;
+}
 
 namespace Utils { class FilePath; }
 
@@ -59,6 +63,22 @@ public:
     QHash<QString, QUrl> projectUrls;
     std::optional<QUrl> checkCredentialsUrl;
 };
+
+enum class ContentType {
+    Html,
+    PlainText,
+    Svg
+};
+
+class DownloadData
+{
+public:
+    QUrl inputUrl;
+    ContentType expectedContentType = ContentType::Html;
+    QByteArray outputData;
+};
+
+Tasking::Group downloadDataRecipe(const Tasking::Storage<DownloadData> &storage);
 
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});

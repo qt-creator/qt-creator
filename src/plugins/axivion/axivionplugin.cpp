@@ -372,6 +372,8 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
 
 static constexpr int httpStatusCodeOk = 200;
 constexpr char s_htmlContentType[] = "text/html";
+constexpr char s_plaintextContentType[] = "text/plain";
+constexpr char s_svgContentType[] = "image/svg+xml";
 constexpr char s_jsonContentType[] = "application/json";
 
 static bool isServerAccessEstablished()
@@ -380,17 +382,24 @@ static bool isServerAccessEstablished()
            || (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken);
 }
 
-static Group fetchSimpleRecipe(const QUrl &url,
-                               const QByteArray &expectedContentType,
-                               const std::function<void(const QByteArray &)> &handler)
+static QByteArray contentTypeData(ContentType contentType)
 {
-    // TODO: Refactor so that it's a common code with fetchDataRecipe().
-    const auto onQuerySetup = [url, expectedContentType](NetworkQuery &query) {
+    switch (contentType) {
+    case ContentType::Html:      return s_htmlContentType;
+    case ContentType::PlainText: return s_plaintextContentType;
+    case ContentType::Svg:       return s_svgContentType;
+    }
+    return {};
+}
+
+Group downloadDataRecipe(const Storage<DownloadData> &storage)
+{
+    const auto onQuerySetup = [storage](NetworkQuery &query) {
         if (!isServerAccessEstablished())
             return SetupResult::StopWithError; // TODO: start authorizationRecipe()?
 
-        QNetworkRequest request(url);
-        request.setRawHeader("Accept", expectedContentType);
+        QNetworkRequest request(storage->inputUrl);
+        request.setRawHeader("Accept", contentTypeData(storage->expectedContentType));
         if (dd->m_serverAccess == ServerAccess::WithAuthorization && dd->m_apiToken)
             request.setRawHeader("Authorization", "AxToken " + *dd->m_apiToken);
         const QByteArray ua = "Axivion" + QCoreApplication::applicationName().toUtf8() +
@@ -400,7 +409,7 @@ static Group fetchSimpleRecipe(const QUrl &url,
         query.setNetworkAccessManager(&dd->m_networkAccessManager);
         return SetupResult::Continue;
     };
-    const auto onQueryDone = [url, expectedContentType, handler](const NetworkQuery &query, DoneWith doneWith) {
+    const auto onQueryDone = [storage](const NetworkQuery &query, DoneWith doneWith) {
         QNetworkReply *reply = query.reply();
         const int statusCode = reply->attribute(QNetworkRequest::HttpStatusCodeAttribute).toInt();
         const QString contentType = reply->header(QNetworkRequest::ContentTypeHeader)
@@ -410,8 +419,8 @@ static Group fetchSimpleRecipe(const QUrl &url,
                                         .trimmed()
                                         .toLower();
         if (doneWith == DoneWith::Success && statusCode == httpStatusCodeOk
-            && contentType == QString::fromUtf8(expectedContentType)) {
-            handler(reply->readAll());
+            && contentType == QString::fromUtf8(contentTypeData(storage->expectedContentType))) {
+            storage->outputData = reply->readAll();
             return DoneResult::Success;
         }
         return DoneResult::Error;
@@ -419,9 +428,31 @@ static Group fetchSimpleRecipe(const QUrl &url,
     return {NetworkQueryTask(onQuerySetup, onQueryDone)};
 }
 
+static Group fetchSimpleRecipe(const QUrl &url, ContentType expectedContentType,
+                               const std::function<void(const QByteArray &)> &handler)
+{
+    const Storage<DownloadData> storage;
+
+    const auto onSetup = [storage, url, expectedContentType] {
+        storage->inputUrl = url;
+        storage->expectedContentType = expectedContentType;
+    };
+
+    const auto onDone = [storage, handler] {
+        handler(storage->outputData);
+    };
+
+    return {
+        storage,
+        onGroupSetup(onSetup),
+        downloadDataRecipe(storage),
+        onGroupDone(onDone, CallDoneIf::Success)
+    };
+}
+
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
-    return fetchSimpleRecipe(url, s_htmlContentType, handler);
+    return fetchSimpleRecipe(url, ContentType::Html, handler);
 }
 
 template <typename DtoType, template <typename> typename DtoStorageType>
