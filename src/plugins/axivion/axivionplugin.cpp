@@ -392,6 +392,11 @@ static QByteArray contentTypeData(ContentType contentType)
     return {};
 }
 
+QUrl resolveDashboardInfoUrl(const QUrl &resource)
+{
+    return dd->m_dashboardInfo->source.resolved(resource);
+}
+
 Group downloadDataRecipe(const Storage<DownloadData> &storage)
 {
     const auto onQuerySetup = [storage](NetworkQuery &query) {

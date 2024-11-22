@@ -78,6 +78,8 @@ public:
     QByteArray outputData;
 };
 
+QUrl resolveDashboardInfoUrl(const QUrl &url);
+
 Tasking::Group downloadDataRecipe(const Tasking::Storage<DownloadData> &storage);
 
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;

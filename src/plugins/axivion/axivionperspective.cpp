@@ -21,11 +21,13 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
 
+#include <solutions/tasking/conditional.h>
 #include <solutions/tasking/tasktreerunner.h>
 
 #include <texteditor/textdocument.h>
 
 #include <utils/algorithm.h>
+#include <utils/async.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/guard.h>
 #include <utils/layoutbuilder.h>
@@ -881,6 +883,68 @@ void IssuesWidget::hideOverlays()
     m_stack->setCurrentIndex(0);
 }
 
+static void loadImage(QPromise<QImage> &promise, const QByteArray &data)
+{
+    promise.addResult(QImage::fromData(data));
+}
+
+class LazyImageBrowser : public QTextBrowser
+{
+public:
+    QVariant loadResource(int type, const QUrl &name) override
+    {
+        if (type == QTextDocument::ImageResource) {
+            if (!m_loadingQueue.contains(name)) {
+                m_loadingQueue.append(name);
+                if (!m_loaderTaskTree.isRunning())
+                    m_loaderTaskTree.start(m_recipe);
+            }
+            return QImage();
+        }
+        return QTextBrowser::loadResource(type, name);
+    }
+private:
+    Group recipe() {
+        const LoopUntil iterator([this](int) { return !m_loadingQueue.isEmpty(); });
+
+        const Storage<DownloadData> storage;
+
+        const auto onSetup = [this, storage] {
+            storage->inputUrl = resolveDashboardInfoUrl(m_loadingQueue.first());
+            storage->expectedContentType = ContentType::Svg;
+        };
+
+        const auto onImageLoadSetup = [storage](Async<QImage> &async) {
+            async.setConcurrentCallData(&loadImage, storage->outputData);
+        };
+        const auto onImageLoadDone = [this, storage](const Async<QImage> &async) {
+            if (!document() || !async.isResultAvailable())
+                return;
+            const QImage image = async.result();
+            // FIXME use a self-implemented resource handler instead!
+            document()->addResource(QTextDocument::ImageResource, m_loadingQueue.first(), QVariant(image));
+            document()->markContentsDirty(0, document()->characterCount());
+        };
+
+        const auto onDone = [this] { m_loadingQueue.removeFirst(); };
+
+        return For (iterator) >> Do {
+            Group {
+                storage,
+                onGroupSetup(onSetup),
+                If (downloadDataRecipe(storage)) >> Then {
+                    AsyncTask<QImage>(onImageLoadSetup, onImageLoadDone, CallDoneIf::Success) || successItem
+                },
+                onGroupDone(onDone)
+            }
+        };
+    }
+
+    const Group m_recipe = recipe();
+    QList<QUrl> m_loadingQueue;
+    TaskTreeRunner m_loaderTaskTree;
+};
+
 class AxivionPerspective : public Perspective
 {
 public:
@@ -901,7 +965,7 @@ private:
     void openFilterHelp();
 
     IssuesWidget *m_issuesWidget = nullptr;
-    QTextBrowser *m_issueDetails = nullptr;
+    LazyImageBrowser *m_issueDetails = nullptr;
     QAction *m_showFilterHelp = nullptr;
 };
 
@@ -914,7 +978,7 @@ void AxivionPerspective::initPerspective()
     pal.setColor(QPalette::Window, creatorColor(Theme::Color::BackgroundColorNormal));
     m_issuesWidget->setPalette(pal);
 
-    m_issueDetails = new QTextBrowser;
+    m_issueDetails = new LazyImageBrowser;
     m_issueDetails->setFrameStyle(QFrame::NoFrame);
     m_issueDetails->setObjectName("AxivionIssuesDetails");
     m_issueDetails->setWindowTitle(Tr::tr("Issue Details"));
