@@ -182,21 +182,14 @@ void NavigatorView::modelAttached(Model *model)
 void NavigatorView::clearExplorerWarnings()
 {
     QList<ModelNode> allNodes;
-    addNodeAndSubModelNodesToList(rootModelNode(), allNodes);
+    allNodes.append(rootModelNode());
+    allNodes.append(rootModelNode().allSubModelNodes());
     for (ModelNode node : allNodes) {
         if (node.metaInfo().isFileComponent()) {
             const ProjectExplorer::FileNode *fnode = fileNodeForModelNode(node);
             if (fnode)
                 fnode->setHasError(false);
         }
-    }
-}
-
-void NavigatorView::addNodeAndSubModelNodesToList(const ModelNode &node, QList<ModelNode> &nodes)
-{
-    nodes.append(node);
-    for (ModelNode subNode : node.allSubModelNodes()) {
-        addNodeAndSubModelNodesToList(subNode, nodes);
     }
 }
 

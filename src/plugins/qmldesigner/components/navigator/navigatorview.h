@@ -112,7 +112,6 @@ protected: //functions
     void expandAncestors(const QModelIndex &index);
     void reparentAndCatch(NodeAbstractProperty property, const ModelNode &modelNode);
     void setupWidget();
-    void addNodeAndSubModelNodesToList(const ModelNode &node, QList<ModelNode> &nodes);
     void clearExplorerWarnings();
     const ProjectExplorer::FileNode *fileNodeForModelNode(const ModelNode &node) const;
     const ProjectExplorer::FileNode *fileNodeForIndex(const QModelIndex &index) const;
