@@ -212,24 +212,27 @@ static AndroidQtVersion::BuiltWith parsePlatforms(const QJsonObject &jsonObject,
         const QJsonObject platform = platformValue.toObject();
         if (platform.value("name").toString() != QLatin1String("Android"))
             continue;
-        for (const QJsonValue &targetsValue : platform.value("targets").toArray()) {
-            const QJsonObject target = targetsValue.toObject();
-            const QString apiVersionString = target.value("api_version").toString();
-            if (apiVersionString.isNull())
-                return {};
-            bool apiVersionOK = false;
-            result.apiVersion = versionFromPlatformString(apiVersionString, &apiVersionOK);
-            if (!apiVersionOK)
-                return {};
-            const QString ndkVersionString = target.value("ndk_version").toString();
-            if (ndkVersionString.isNull())
-                return {};
-            result.ndkVersion = QVersionNumber::fromString(ndkVersionString);
+        const QJsonArray targets = platform.value("targets").toArray();
+        if (targets.isEmpty())
+            continue;
+        const QJsonObject target = targets.first().toObject();
+        const QString apiVersionString = target.value("api_version").toString();
+        if (apiVersionString.isNull())
+            continue;
+        bool apiVersionOK = false;
+        result.apiVersion = versionFromPlatformString(apiVersionString, &apiVersionOK);
+        if (!apiVersionOK)
+            continue;
+        const QString ndkVersionString = target.value("ndk_version").toString();
+        if (ndkVersionString.isNull())
+            continue;
+        result.ndkVersion = QVersionNumber::fromString(ndkVersionString);
+        if (result.apiVersion != -1 && !result.ndkVersion.isNull()) {
+            if (ok)
+                *ok = true;
             break;
         }
     }
-    if (ok)
-        *ok = true;
     return result;
 }
 
