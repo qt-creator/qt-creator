@@ -67,7 +67,8 @@ public:
     int findInResultInsertPosition(const QString &key) const
     {
         const auto compare = [](int compareResult) { return compareResult > 0; };
-        return findIndex(m_resultNameValueDictionary, key, compare);
+        const int pos = findIndex(m_resultNameValueDictionary, key, compare);
+        return pos >= 0 ? pos : m_resultNameValueDictionary.size();
     }
 
     int findInResult(const QString &key) const
@@ -291,6 +292,7 @@ QModelIndex EnvironmentModel::addVariable(const EnvironmentItem &item)
     } else {
         // We add something that is not in the base dictionary
         // Insert a new line!
+        QTC_ASSERT(insertPos >= 0, insertPos = d->m_resultNameValueDictionary.size());
         beginInsertRows(QModelIndex(), insertPos, insertPos);
         Q_ASSERT(changePos < 0);
         d->m_items.append(item);
