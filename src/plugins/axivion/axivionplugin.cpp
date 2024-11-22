@@ -372,7 +372,6 @@ static QUrl constructUrl(const QString &projectName, const QString &subPath, con
 
 static constexpr int httpStatusCodeOk = 200;
 constexpr char s_htmlContentType[] = "text/html";
-constexpr char s_plaintextContentType[] = "text/plain";
 constexpr char s_jsonContentType[] = "application/json";
 
 static bool isServerAccessEstablished()
@@ -423,11 +422,6 @@ static Group fetchSimpleRecipe(const QUrl &url,
 static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
 {
     return fetchSimpleRecipe(url, s_htmlContentType, handler);
-}
-
-static Group fetchPlainTextRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
-{
-    return fetchSimpleRecipe(url, s_plaintextContentType, handler);
 }
 
 template <typename DtoType, template <typename> typename DtoStorageType>
@@ -860,18 +854,6 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
     const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
     const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "files", query);
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
-}
-
-Group fileSourceRecipe(const FilePath &filePath, const std::function<void(const QByteArray &)> &handler)
-{
-    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected
-    QTC_ASSERT(!filePath.isEmpty(), return {}); // TODO: Call handler with unexpected
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected
-
-    const QString fileName = QString::fromUtf8(QUrl::toPercentEncoding(filePath.path()));
-    const QUrlQuery query({{"filename", fileName}, {"version", *dd->m_analysisVersion}});
-    const QUrl url = constructUrl(dd->m_currentProjectInfo->name, "sourcecode", query);
-    return fetchPlainTextRecipe(url, handler);
 }
 
 Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
