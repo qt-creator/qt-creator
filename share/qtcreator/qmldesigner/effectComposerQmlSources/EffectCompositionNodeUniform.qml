@@ -14,6 +14,7 @@ Item {
 
     property bool editing: false
     property bool disableMoreMenu: false
+    property bool showMoreMenu: true
     property alias editPropertyFormParent: editPropertyFormPlaceholder
 
     height: layout.implicitHeight + editPropertyFormPlaceholder.height + column.spacing
@@ -129,6 +130,7 @@ Item {
                     tooltip: root.disableMoreMenu ? qsTr("Additional actions disabled while editing existing property.")
                                                   : qsTr("Access additional property actions.")
                     enabled: !root.disableMoreMenu
+                    visible: root.showMoreMenu
 
                     onClicked: menuLoader.show()
                 }

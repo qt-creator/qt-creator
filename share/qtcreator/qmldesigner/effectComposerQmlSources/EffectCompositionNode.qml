@@ -63,6 +63,7 @@ HelperWidgets.Section {
         implicitWidth: width
         tooltip: qsTr("Open code editor")
         onClicked: root.backendModel.openCodeEditor(index)
+        visible: !isDependency
     }
 
     content: Label {
@@ -121,6 +122,7 @@ HelperWidgets.Section {
                 width: root.width - StudioTheme.Values.scrollBarThicknessHover
                 editing: root.editedUniformIndex === index
                 disableMoreMenu: root.editedUniformIndex >= 0
+                showMoreMenu: !isDependency
 
                 onReset: nodeUniformsModel.resetData(index)
                 onRemove: {
@@ -156,6 +158,7 @@ HelperWidgets.Section {
         width: root.width - StudioTheme.Values.scrollBarThicknessHover
         height: addPropertyForm.visible && addPropertyForm.parent === addProperty
                 ? addPropertyForm.height : 50
+        visible: !isDependency
 
         HelperWidgets.Button {
             id: addPropertyButton
@@ -275,7 +278,7 @@ HelperWidgets.Section {
             x: Math.min(nameEditMouseArea.parent.width + 4, nameEditField.width - nameEditButton.width)
             anchors.verticalCenter: parent.verticalCenter
             visible: (nameEditMouseArea.containsMouse || nameEditButton.containsMouse)
-                     && !nameEditField.visible
+                     && !nameEditField.visible && !isDependency
 
             HelperWidgets.IconButton {
                 id: nameEditButton
