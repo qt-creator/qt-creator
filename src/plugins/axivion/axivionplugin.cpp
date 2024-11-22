@@ -428,33 +428,6 @@ Group downloadDataRecipe(const Storage<DownloadData> &storage)
     return {NetworkQueryTask(onQuerySetup, onQueryDone)};
 }
 
-static Group fetchSimpleRecipe(const QUrl &url, ContentType expectedContentType,
-                               const std::function<void(const QByteArray &)> &handler)
-{
-    const Storage<DownloadData> storage;
-
-    const auto onSetup = [storage, url, expectedContentType] {
-        storage->inputUrl = url;
-        storage->expectedContentType = expectedContentType;
-    };
-
-    const auto onDone = [storage, handler] {
-        handler(storage->outputData);
-    };
-
-    return {
-        storage,
-        onGroupSetup(onSetup),
-        downloadDataRecipe(storage),
-        onGroupDone(onDone, CallDoneIf::Success)
-    };
-}
-
-static Group fetchHtmlRecipe(const QUrl &url, const std::function<void(const QByteArray &)> &handler)
-{
-    return fetchSimpleRecipe(url, ContentType::Html, handler);
-}
-
 template <typename DtoType, template <typename> typename DtoStorageType>
 static Group dtoRecipe(const Storage<DtoStorageType<DtoType>> &dtoStorage)
 {
@@ -887,18 +860,6 @@ Group lineMarkerRecipe(const FilePath &filePath, const LineMarkerHandler &handle
     return fetchDataRecipe<Dto::FileViewDto>(url, handler);
 }
 
-Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler)
-{
-    QTC_ASSERT(dd->m_currentProjectInfo, return {}); // TODO: Call handler with unexpected?
-    QTC_ASSERT(dd->m_analysisVersion, return {}); // TODO: Call handler with unexpected?
-
-    const QUrl url = constructUrl(
-        dd->m_currentProjectInfo->name,
-        QString("issues/" + issueId + "/properties/"),
-        {{"version", *dd->m_analysisVersion}});
-    return fetchHtmlRecipe(url, handler);
-}
-
 void AxivionPluginPrivate::fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler,
                                                         const QString &projectName)
 {
@@ -914,19 +875,31 @@ Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler)
 
 void AxivionPluginPrivate::fetchIssueInfo(const QString &id)
 {
-    if (!m_currentProjectInfo)
+    if (!m_currentProjectInfo || !dd->m_analysisVersion)
         return;
 
-    const auto ruleHandler = [](const QByteArray &htmlText) {
-        QByteArray fixedHtml = htmlText;
-        const int idx = htmlText.indexOf("<div class=\"ax-issuedetails-table-container\">");
-        if (idx >= 0)
-            fixedHtml = "<html><body>" + htmlText.mid(idx);
+    const QUrl url = constructUrl(dd->m_currentProjectInfo->name,
+                                  QString("issues/" + id + "/properties/"),
+                                  {{"version", *dd->m_analysisVersion}});
 
+    const Storage<DownloadData> storage;
+
+    const auto onSetup = [storage, url] { storage->inputUrl = url; };
+
+    const auto onDone = [storage] {
+        QByteArray fixedHtml = storage->outputData;
+        const int idx = fixedHtml.indexOf("<div class=\"ax-issuedetails-table-container\">");
+        if (idx >= 0)
+            fixedHtml = "<html><body>" + fixedHtml.mid(idx);
         updateIssueDetails(QString::fromUtf8(fixedHtml));
     };
 
-    m_issueInfoRunner.start(issueHtmlRecipe(id, ruleHandler));
+    m_issueInfoRunner.start({
+        storage,
+        onGroupSetup(onSetup),
+        downloadDataRecipe(storage),
+        onGroupDone(onDone, CallDoneIf::Success)
+    });
 }
 
 void AxivionPluginPrivate::handleOpenedDocs()

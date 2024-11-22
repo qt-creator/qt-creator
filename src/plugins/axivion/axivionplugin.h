@@ -97,9 +97,6 @@ Tasking::Group issueTableRecipe(const IssueListSearch &search, const IssueTableH
 using LineMarkerHandler = std::function<void(const Dto::FileViewDto &)>;
 Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarkerHandler &handler);
 
-using HtmlHandler = std::function<void(const QByteArray &)>;
-Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
-
 void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
