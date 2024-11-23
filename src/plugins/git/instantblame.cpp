@@ -382,7 +382,7 @@ void InstantBlame::perform()
     const Utils::FilePath workingDirectory = Utils::FilePath::fromString(fi.path());
     const QString lineString = QString("%1,%1").arg(line);
     const auto lineDiffHandler = [this](const CommandResult &result) {
-        const QString error = result.cleanedStdErr();
+        const QString error = result.cleanedStdErr().trimmed();
         if (!error.isEmpty()) {
             qCWarning(log) << error;
         }
