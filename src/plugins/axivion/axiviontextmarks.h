@@ -13,7 +13,8 @@ enum class LineMarkerType { Dashboard, SFA };
 
 // bauhausSuite == std::nullopt used for LineMarkerType::Dashboard, otherwise LineMarkerType::SFA
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const Utils::FilePath &filePath,
-                         const std::optional<Utils::FilePath> &bauhausSuite);
+                         const std::optional<Utils::FilePath> &bauhausSuite,
+                         const QByteArray &origSource);
 void clearAllMarks(LineMarkerType type);
 void clearMarks(const Utils::FilePath &filePath, LineMarkerType type);
 bool hasLineIssues(const Utils::FilePath &filePath, LineMarkerType type);

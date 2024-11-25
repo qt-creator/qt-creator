@@ -419,7 +419,7 @@ void requestArSessionFinish(const Utils::FilePath &bauhausSuite, int sessionId, 
             const QList<Result<Dto::FileViewDto>> &results = async.results();
             for (const Result<Dto::FileViewDto> &result : results) {
                 handleIssuesForFile(*result, FilePath::fromUserInput(result->fileName),
-                                    bauhausSuite);
+                                    bauhausSuite, {});
             }
         };
         const Group deserializeRecipe = For (iterator) >> Do {

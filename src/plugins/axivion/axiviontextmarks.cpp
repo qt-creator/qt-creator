@@ -108,8 +108,11 @@ static TextMarkManager &textMarkManager()
 }
 
 void handleIssuesForFile(const Dto::FileViewDto &fileView, const FilePath &filePath,
-                         const std::optional<FilePath> &bauhausSuite)
+                         const std::optional<FilePath> &bauhausSuite,
+                         const QByteArray &origSource)
 {
+    Q_UNUSED(origSource)
+
     if (fileView.lineMarkers.empty())
         return;
 
