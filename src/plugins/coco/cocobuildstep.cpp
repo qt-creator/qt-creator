@@ -8,15 +8,11 @@
 #include "cocotr.h"
 
 #include <cmakeprojectmanager/cmakeprojectconstants.h>
-
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
-
 #include <qmakeprojectmanager/qmakeprojectmanagerconstants.h>
-
 #include <solutions/tasking/tasktree.h>
-
 #include <utils/layoutbuilder.h>
 
 #include <QPushButton>
@@ -24,6 +20,39 @@
 namespace Coco::Internal {
 
 using namespace ProjectExplorer;
+
+class ButtonWidget : public QWidget
+// The configuration button of the CocoBuildstep must be part of a separated object
+// because it may be several times recreated by createConfigWidget().
+{
+public:
+    explicit ButtonWidget(CocoBuildStep *step);
+
+private slots:
+    void setButtonState(bool enabled, const QString &text);
+
+private:
+    QPushButton *m_button;
+};
+
+ButtonWidget::ButtonWidget(CocoBuildStep *step)
+    : m_button{new QPushButton}
+{
+    connect(m_button, &QPushButton::clicked, step, &CocoBuildStep::onButtonClicked);
+    connect(step, &CocoBuildStep::setButtonState, this, &ButtonWidget::setButtonState);
+
+    Layouting::Form builder;
+    builder.addRow({m_button, new QLabel});
+    builder.setNoMargins();
+    builder.attachTo(this);
+}
+
+void ButtonWidget::setButtonState(bool enabled, const QString &text)
+{
+    m_button->setEnabled(enabled);
+    if (!text.isEmpty())
+        m_button->setText(text);
+}
 
 CocoBuildStep *CocoBuildStep::create(BuildConfiguration *buildConfig)
 {
@@ -34,7 +63,6 @@ CocoBuildStep *CocoBuildStep::create(BuildConfiguration *buildConfig)
 
 CocoBuildStep::CocoBuildStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
     : BuildStep(bsl, id)
-    , m_reconfigureButton{new QPushButton}
 {}
 
 bool CocoBuildStep::init()
@@ -47,12 +75,13 @@ void CocoBuildStep::buildSystemUpdated()
     updateDisplay();
 }
 
-void CocoBuildStep::onReconfigureButtonClicked()
+void CocoBuildStep::onButtonClicked()
 {
     m_valid = !m_valid;
 
     setSummaryText(Tr::tr("Coco Code Coverage: Reconfiguring..."));
-    m_reconfigureButton->setEnabled(false);
+    emit setButtonState(false);
+
     m_buildSettings->setCoverage(m_valid);
     m_buildSettings->provideFile();
     m_buildSettings->reconfigure();
@@ -60,17 +89,10 @@ void CocoBuildStep::onReconfigureButtonClicked()
 
 QWidget *CocoBuildStep::createConfigWidget()
 {
-    connect(
-        m_reconfigureButton,
-        &QPushButton::clicked,
-        this,
-        &CocoBuildStep::onReconfigureButtonClicked);
+    auto widget = new ButtonWidget{this};
+    updateDisplay();
 
-    Layouting::Form builder;
-    builder.addRow({m_reconfigureButton, new QLabel});
-    builder.setNoMargins();
-
-    return builder.emerge();
+    return widget;
 }
 
 void CocoBuildStep::updateDisplay()
@@ -78,7 +100,7 @@ void CocoBuildStep::updateDisplay()
     CocoInstallation coco;
     if (!coco.isValid()) {
         setSummaryText("<i>" + Tr::tr("Coco Code Coverage: No working Coco installation") + "</i>");
-        m_reconfigureButton->setEnabled(false);
+        emit setButtonState(false);
         return;
     }
 
@@ -86,13 +108,12 @@ void CocoBuildStep::updateDisplay()
 
     if (m_valid) {
         setSummaryText("<b>" + Tr::tr("Coco Code Coverage: Enabled") + "</b>");
-        m_reconfigureButton->setText(Tr::tr("Disable Coverage"));
+        emit setButtonState(true, Tr::tr("Disable Coverage"));
     } else {
         setSummaryText(Tr::tr("Coco Code Coverage: Disabled"));
-        m_reconfigureButton->setText(Tr::tr("Enable Coverage"));
+        // m_reconfigureButton->setText(Tr::tr("Enable Coverage"));
+        emit setButtonState(true, Tr::tr("Enable Coverage"));
     }
-
-    m_reconfigureButton->setEnabled(true);
 }
 
 void CocoBuildStep::display(BuildConfiguration *buildConfig)
@@ -157,7 +178,7 @@ void setupCocoBuildSteps()
     static QMakeStepFactory theQmakeStepFactory;
     static CMakeStepFactory theCmakeStepFactory;
 
-    QObject::connect(ProjectManager::instance(), &ProjectManager::projectAdded, [&](Project *project) {
+    QObject::connect(ProjectManager::instance(), &ProjectManager::projectAdded, [](Project *project) {
         if (Target *target = project->activeTarget())
             addBuildStep(target);
 

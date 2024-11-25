@@ -18,6 +18,7 @@ namespace Coco::Internal {
 class CocoBuildStep : public ProjectExplorer::BuildStep
 {
     Q_OBJECT
+
 public:
     static CocoBuildStep *create(ProjectExplorer::BuildConfiguration *buildConfig);
 
@@ -26,11 +27,12 @@ public:
     bool init() override;
     void display(ProjectExplorer::BuildConfiguration *buildConfig);
 
+signals:
+    void setButtonState(bool enabled, const QString &text = {});
+
 public slots:
     void buildSystemUpdated();
-
-private slots:
-    void onReconfigureButtonClicked();
+    void onButtonClicked();
 
 protected:
     QWidget *createConfigWidget() override;
@@ -41,7 +43,6 @@ private:
 
     QPointer<BuildSettings> m_buildSettings;
     bool m_valid;
-    QPushButton *m_reconfigureButton;
 };
 
 void setupCocoBuildSteps();
