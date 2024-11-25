@@ -34,8 +34,7 @@ void DeviceManager::initUdpDiscovery()
     const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
     for (const QNetworkInterface &interface : interfaces) {
         if (interface.flags().testFlag(QNetworkInterface::IsUp)
-            && interface.flags().testFlag(QNetworkInterface::IsRunning)
-            && !interface.flags().testFlag(QNetworkInterface::IsLoopBack)) {
+            && interface.flags().testFlag(QNetworkInterface::IsRunning)) {
             for (const QNetworkAddressEntry &entry : interface.addressEntries()) {
                 if (entry.ip().protocol() == QAbstractSocket::IPv4Protocol) {
                     QSharedPointer<QUdpSocket> udpSocket = QSharedPointer<QUdpSocket>::create();
