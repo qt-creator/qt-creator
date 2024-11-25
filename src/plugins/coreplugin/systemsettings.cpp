@@ -12,6 +12,10 @@
 #include "iversioncontrol.h" // sic!
 #include "vcsmanager.h"
 
+#ifdef ENABLE_CRASHPAD
+#include "coreplugin.h"
+#endif
+
 #include <utils/algorithm.h>
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
