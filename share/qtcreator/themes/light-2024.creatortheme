@@ -199,7 +199,7 @@ DSdockContainerBackground=ff323232
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff262728
 
-DSdockWidgetBackground=ff00ff00
+DSdockWidgetBackground=dawnGrey
 DSdockWidgetSplitter=ff595959
 DSdockWidgetTitleBar=ffeaeaea
 

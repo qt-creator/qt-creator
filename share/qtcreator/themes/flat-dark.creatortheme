@@ -216,7 +216,7 @@ DSdockContainerBackground=ff242424
 DSdockContainerSplitter=ff323232
 DSdockAreaBackground=ff262728
 
-DSdockWidgetBackground=ff00ff00
+DSdockWidgetBackground=dawnGrey
 DSdockWidgetSplitter=fullBlack
 DSdockWidgetTitleBar=dawnGrey
 
