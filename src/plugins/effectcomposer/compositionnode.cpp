@@ -55,7 +55,7 @@ CompositionNode::CompositionNode(const QString &effectName, const QString &qenPa
 
 CompositionNode::~CompositionNode()
 {
-    closeCodeEditor();
+    EffectShadersCodeEditor::instance()->cleanFromData(m_shaderEditorData.get());
 };
 
 QString CompositionNode::fragmentCode() const
@@ -175,40 +175,27 @@ void CompositionNode::parse(const QString &effectName, const QString &qenPath, c
     }
 }
 
-void CompositionNode::ensureShadersCodeEditor()
+void CompositionNode::ensureCodeEditorData()
 {
-    if (m_shadersCodeEditor)
+    using TextEditor::TextDocument;
+    if (m_shaderEditorData)
         return;
 
-    m_shadersCodeEditor = Utils::makeUniqueObjectLatePtr<EffectShadersCodeEditor>(name());
-    m_shadersCodeEditor->setUniformsModel(&m_uniformsModel);
-    m_shadersCodeEditor->setFragmentValue(fragmentCode());
-    m_shadersCodeEditor->setVertexValue(vertexCode());
+    m_shaderEditorData.reset(EffectShadersCodeEditor::instance()
+                                 ->createEditorData(fragmentCode(), vertexCode(), &m_uniformsModel));
 
-    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::vertexValueChanged, this, [this] {
-        setVertexCode(m_shadersCodeEditor->vertexValue());
+    connect(m_shaderEditorData->fragmentDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setFragmentCode(m_shaderEditorData->fragmentDocument->plainText());
     });
 
-    connect(m_shadersCodeEditor.get(), &EffectShadersCodeEditor::fragmentValueChanged, this, [this] {
-        setFragmentCode(m_shadersCodeEditor->fragmentValue());
+    connect(m_shaderEditorData->vertexDocument.get(), &TextDocument::contentsChanged, this, [this] {
+        setVertexCode(m_shaderEditorData->vertexDocument->plainText());
     });
-
-    connect(
-        m_shadersCodeEditor.get(),
-        &EffectShadersCodeEditor::rebakeRequested,
-        this,
-        &CompositionNode::rebakeRequested);
-
-    connect(
-        m_shadersCodeEditor.get(),
-        &EffectShadersCodeEditor::openedChanged,
-        this,
-        &CompositionNode::codeEditorVisibilityChanged);
 }
 
 void CompositionNode::requestRebakeIfLiveUpdateMode()
 {
-    if (m_shadersCodeEditor && m_shadersCodeEditor->liveUpdate())
+    if (EffectShadersCodeEditor::instance()->liveUpdate())
         emit rebakeRequested();
 }
 
@@ -273,18 +260,10 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
 
 void CompositionNode::openCodeEditor()
 {
-    ensureShadersCodeEditor();
-
-    if (m_shadersCodeEditor->isVisible())
-        return;
-
-    m_shadersCodeEditor->showWidget();
-}
-
-void CompositionNode::closeCodeEditor()
-{
-    if (m_shadersCodeEditor)
-        m_shadersCodeEditor->close();
+    auto editor = EffectShadersCodeEditor::instance();
+    ensureCodeEditorData();
+    editor->setupShader(m_shaderEditorData.get());
+    editor->showWidget();
 }
 
 void CompositionNode::addUniform(const QVariantMap &data)

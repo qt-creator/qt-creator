@@ -29,6 +29,7 @@ namespace EffectComposer {
 
 class CompositionNode;
 class EffectShadersCodeEditor;
+struct ShaderEditorData;
 class Uniform;
 
 struct EffectError {
@@ -218,6 +219,8 @@ private:
     QString stripFileFromURL(const QString &urlString) const;
     QString getQmlEffectString();
 
+    void connectCodeEditor();
+    void createCodeEditorData();
     void updateCustomUniforms();
     void initShaderDir();
     void bakeShaders();
@@ -284,7 +287,7 @@ private:
     int m_extraMargin = 0;
     QString m_effectTypePrefix;
     Utils::FilePath m_compositionPath;
-    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
+    std::unique_ptr<ShaderEditorData> m_shaderEditorData;
     QUrl m_currentPreviewImage;
     QList<QUrl> m_customPreviewImages;
     int m_currentBakeCounter = 0;

@@ -47,6 +47,8 @@ public:
     QVariant headerData(
         int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
+    EffectComposerUniformsModel *sourceModel() const;
+
 private:
     void onSourceRowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void onSourceRowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);

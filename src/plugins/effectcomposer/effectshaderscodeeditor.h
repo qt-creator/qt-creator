@@ -3,19 +3,37 @@
 
 #pragma once
 
+#include "effectcodeeditorwidget.h"
+
 #include <texteditor/texteditor.h>
 
 #include <utils/uniqueobjectptr.h>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
+QT_FORWARD_DECLARE_CLASS(QTabWidget)
 
 class StudioQuickWidget;
 
 namespace EffectComposer {
 
-class EffectCodeEditorWidget;
 class EffectComposerUniformsModel;
 class EffectComposerUniformsTableModel;
+class EffectDocument;
+
+struct ShaderEditorData
+{
+    EffectComposerUniformsTableModel *tableModel = nullptr;
+
+    TextEditor::TextDocumentPtr fragmentDocument;
+    TextEditor::TextDocumentPtr vertexDocument;
+
+private:
+    friend class EffectShadersCodeEditor;
+    Utils::UniqueObjectLatePtr<EffectCodeEditorWidget> fragmentEditor;
+    Utils::UniqueObjectLatePtr<EffectCodeEditorWidget> vertexEditor;
+
+    ShaderEditorData() = default;
+};
 
 class EffectShadersCodeEditor : public QWidget
 {
@@ -29,24 +47,25 @@ public:
     void showWidget();
     void showWidget(int x, int y);
 
-    QString fragmentValue() const;
-    void setFragmentValue(const QString &text);
-
-    QString vertexValue() const;
-    void setVertexValue(const QString &text);
-
     bool liveUpdate() const;
     void setLiveUpdate(bool liveUpdate);
 
     bool isOpened() const;
-    void setUniformsModel(EffectComposerUniformsModel *uniforms);
+
+    void setupShader(ShaderEditorData *data);
+    void cleanFromData(ShaderEditorData *data);
+
+    ShaderEditorData *createEditorData(
+        const QString &fragmentDocument,
+        const QString &vertexDocument,
+        EffectComposerUniformsModel *uniforms);
 
     Q_INVOKABLE void copyText(const QString &text);
 
+    static EffectShadersCodeEditor *instance();
+
 signals:
     void liveUpdateChanged(bool);
-    void fragmentValueChanged();
-    void vertexValueChanged();
     void rebakeRequested();
     void openedChanged(bool);
 
@@ -63,12 +82,14 @@ private:
     void readAndApplyLiveUpdateSettings();
     void createHeader();
     void reloadQml();
+    void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
+    void selectNonEmptyShader(ShaderEditorData *data);
 
     QSettings *m_settings = nullptr;
-    QPointer<EffectCodeEditorWidget> m_fragmentEditor;
-    QPointer<EffectCodeEditorWidget> m_vertexEditor;
     QPointer<StudioQuickWidget> m_headerWidget;
-    Utils::UniqueObjectLatePtr<EffectComposerUniformsTableModel> m_uniformsTableModel;
+    QPointer<QTabWidget> m_tabWidget;
+    QPointer<EffectComposerUniformsTableModel> m_defaultTableModel;
+    ShaderEditorData *m_currentEditorData = nullptr;
 
     bool m_liveUpdate = false;
     bool m_opened = false;

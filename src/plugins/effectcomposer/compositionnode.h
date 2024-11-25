@@ -7,12 +7,15 @@
 
 #include <utils/uniqueobjectptr.h>
 
+#include <memory>
+
 #include <QJsonObject>
 #include <QObject>
 
 namespace EffectComposer {
 
 class EffectShadersCodeEditor;
+struct ShaderEditorData;
 
 class CompositionNode : public QObject
 {
@@ -72,7 +75,6 @@ public:
     void setVertexCode(const QString &vertexCode);
 
     void openCodeEditor();
-    void closeCodeEditor();
     void addUniform(const QVariantMap &data);
     void updateUniform(int index, const QVariantMap &data);
     void updateAreUniformsInUse();
@@ -84,12 +86,11 @@ signals:
     void rebakeRequested();
     void fragmentCodeChanged();
     void vertexCodeChanged();
-    void codeEditorVisibilityChanged(bool);
     void nameChanged();
 
 private:
     void parse(const QString &effectName, const QString &qenPath, const QJsonObject &json);
-    void ensureShadersCodeEditor();
+    void ensureCodeEditorData();
     void requestRebakeIfLiveUpdateMode();
 
     QString m_name;
@@ -107,7 +108,7 @@ private:
     bool m_fragInUseCheckNeeded = false;
 
     EffectComposerUniformsModel m_uniformsModel;
-    Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;
+    std::unique_ptr<ShaderEditorData> m_shaderEditorData;
 };
 
 } // namespace EffectComposer

@@ -107,6 +107,11 @@ QStringList EffectComposerUniformsModel::displayNames() const
     return displayNames;
 }
 
+QStringList EffectComposerUniformsModel::uniformNames() const
+{
+    return Utils::transform(m_uniforms, &Uniform::name);
+}
+
 void EffectComposerUniformsModel::resetModel()
 {
     beginResetModel();

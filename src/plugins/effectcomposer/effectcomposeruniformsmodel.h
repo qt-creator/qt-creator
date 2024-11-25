@@ -39,6 +39,7 @@ public:
     Q_INVOKABLE bool resetData(int row);
     Q_INVOKABLE bool remove(int row);
     Q_INVOKABLE QStringList displayNames() const;
+    Q_INVOKABLE QStringList uniformNames() const;
 
     void resetModel();
 

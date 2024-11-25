@@ -3,7 +3,6 @@
 
 #include "effectshaderscodeeditor.h"
 
-#include "effectcodeeditorwidget.h"
 #include "effectcomposeruniformsmodel.h"
 #include "effectcomposeruniformstablemodel.h"
 #include "effectcomposerwidget.h"
@@ -52,34 +51,20 @@ namespace EffectComposer {
 EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *parent)
     : QWidget(parent)
     , m_settings(new QSettings(qApp->organizationName(), qApp->applicationName(), this))
+    , m_defaultTableModel(new EffectComposerUniformsTableModel(nullptr, this))
 {
     setWindowFlag(Qt::Tool, true);
     setWindowFlag(Qt::WindowStaysOnTopHint);
     setWindowTitle(title);
 
-    m_fragmentEditor = createJSEditor();
-    m_vertexEditor = createJSEditor();
-
-    connect(
-        m_fragmentEditor,
-        &QPlainTextEdit::textChanged,
-        this,
-        &EffectShadersCodeEditor::fragmentValueChanged);
-    connect(
-        m_vertexEditor,
-        &QPlainTextEdit::textChanged,
-        this,
-        &EffectShadersCodeEditor::vertexValueChanged);
-
     setupUIComponents();
+    setUniformsModel(nullptr);
 }
 
 EffectShadersCodeEditor::~EffectShadersCodeEditor()
 {
     if (isOpened())
         close();
-    m_fragmentEditor->deleteLater();
-    m_vertexEditor->deleteLater();
 }
 
 void EffectShadersCodeEditor::showWidget()
@@ -95,34 +80,6 @@ void EffectShadersCodeEditor::showWidget(int x, int y)
 {
     showWidget();
     move(QPoint(x, y));
-}
-
-QString EffectShadersCodeEditor::fragmentValue() const
-{
-    if (!m_fragmentEditor)
-        return {};
-
-    return m_fragmentEditor->document()->toPlainText();
-}
-
-void EffectShadersCodeEditor::setFragmentValue(const QString &text)
-{
-    if (m_fragmentEditor)
-        m_fragmentEditor->setEditorTextWithIndentation(text);
-}
-
-QString EffectShadersCodeEditor::vertexValue() const
-{
-    if (!m_vertexEditor)
-        return {};
-
-    return m_vertexEditor->document()->toPlainText();
-}
-
-void EffectShadersCodeEditor::setVertexValue(const QString &text)
-{
-    if (m_vertexEditor)
-        m_vertexEditor->setEditorTextWithIndentation(text);
 }
 
 bool EffectShadersCodeEditor::liveUpdate() const
@@ -149,35 +106,79 @@ bool EffectShadersCodeEditor::isOpened() const
     return m_opened;
 }
 
-void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsModel *uniforms)
+void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
 {
-    std::function<QStringList()> uniformNames = [uniforms]() -> QStringList {
-        if (!uniforms)
-            return {};
-        int count = uniforms->rowCount();
-        QStringList result;
-        for (int i = 0; i < count; ++i) {
-            const QModelIndex mIndex = uniforms->index(i, 0);
-            result.append(mIndex.data(EffectComposerUniformsModel::NameRole).toString());
-        }
-        return result;
-    };
-    m_fragmentEditor->setUniformsCallback(uniformNames);
-    m_vertexEditor->setUniformsCallback(uniformNames);
+    if (m_currentEditorData == data)
+        return;
 
-    if (m_headerWidget && uniforms) {
-        m_uniformsTableModel
-            = Utils::makeUniqueObjectLatePtr<EffectComposerUniformsTableModel>(uniforms, this);
-        EffectComposerUniformsTableModel *uniformsTable = m_uniformsTableModel.get();
+    while (m_tabWidget->count())
+        m_tabWidget->removeTab(0);
 
-        m_headerWidget->rootContext()
-            ->setContextProperty("uniformsTableModel", QVariant::fromValue(uniformsTable));
+    if (data) {
+        m_tabWidget->addTab(data->fragmentEditor.get(), tr("Fragment Shader"));
+        m_tabWidget->addTab(data->vertexEditor.get(), tr("Vertex Shader"));
+
+        selectNonEmptyShader(data);
+        setUniformsModel(data->tableModel);
+    } else {
+        setUniformsModel(nullptr);
     }
+
+    m_currentEditorData = data;
+}
+
+void EffectShadersCodeEditor::cleanFromData(ShaderEditorData *data)
+{
+    if (m_currentEditorData == data)
+        setupShader(nullptr);
+}
+
+ShaderEditorData *EffectShadersCodeEditor::createEditorData(
+    const QString &fragmentDocument,
+    const QString &vertexDocument,
+    EffectComposerUniformsModel *uniforms)
+{
+    ShaderEditorData *result = new ShaderEditorData;
+    result->fragmentEditor.reset(createJSEditor());
+    result->vertexEditor.reset(createJSEditor());
+
+    result->fragmentEditor->setPlainText(fragmentDocument);
+    result->vertexEditor->setPlainText(vertexDocument);
+
+    result->fragmentDocument = result->fragmentEditor->textDocumentPtr();
+    result->vertexDocument = result->vertexEditor->textDocumentPtr();
+
+    if (uniforms) {
+        result->tableModel = new EffectComposerUniformsTableModel(uniforms, uniforms);
+        std::function<QStringList()> uniformNames =
+            [uniformsTable = result->tableModel]() -> QStringList {
+            if (!uniformsTable)
+                return {};
+
+            auto uniformsModel = uniformsTable->sourceModel();
+            if (!uniformsModel)
+                return {};
+
+            return uniformsModel->uniformNames();
+        };
+
+        result->fragmentEditor->setUniformsCallback(uniformNames);
+        result->vertexEditor->setUniformsCallback(uniformNames);
+    }
+
+    return result;
 }
 
 void EffectShadersCodeEditor::copyText(const QString &text)
 {
     qApp->clipboard()->setText(text);
+}
+
+EffectShadersCodeEditor *EffectShadersCodeEditor::instance()
+{
+    static EffectShadersCodeEditor *editorInstance = new EffectShadersCodeEditor(
+        tr("Shaders Code Editor"));
+    return editorInstance;
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
@@ -208,34 +209,19 @@ void EffectShadersCodeEditor::setupUIComponents()
 {
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     QSplitter *splitter = new QSplitter(this);
-    QTabWidget *tabWidget = new QTabWidget(this);
+    m_tabWidget = new QTabWidget(this);
 
     splitter->setOrientation(Qt::Vertical);
 
     createHeader();
 
-    tabWidget->addTab(m_fragmentEditor, tr("Fragment Shader"));
-    tabWidget->addTab(m_vertexEditor, tr("Vertex Shader"));
-
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     verticalLayout->addWidget(splitter);
     splitter->addWidget(m_headerWidget.get());
-    splitter->addWidget(tabWidget);
+    splitter->addWidget(m_tabWidget);
 
     splitter->setCollapsible(0, false);
     splitter->setCollapsible(1, false);
-
-    connect(this, &EffectShadersCodeEditor::openedChanged, tabWidget, [this, tabWidget](bool opened) {
-        if (!opened)
-            return;
-
-        QWidget *widgetToSelect = (m_vertexEditor->document()->isEmpty()
-                                   && !m_fragmentEditor->document()->isEmpty())
-                                      ? m_fragmentEditor.get()
-                                      : m_vertexEditor.get();
-        tabWidget->setCurrentWidget(widgetToSelect);
-        widgetToSelect->setFocus();
-    });
 
     this->resize(660, 240);
 }
@@ -288,6 +274,28 @@ void EffectShadersCodeEditor::reloadQml()
     const QString headerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorHeader.qml";
     QTC_ASSERT(QFileInfo::exists(headerQmlPath), return);
     m_headerWidget->setSource(QUrl::fromLocalFile(headerQmlPath));
+}
+
+void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsTableModel *uniformsTable)
+{
+    if (!uniformsTable)
+        uniformsTable = m_defaultTableModel;
+
+    m_headerWidget->rootContext()
+        ->setContextProperty("uniformsTableModel", QVariant::fromValue(uniformsTable));
+}
+
+void EffectShadersCodeEditor::selectNonEmptyShader(ShaderEditorData *data)
+{
+    auto vertexDoc = data->vertexDocument->document();
+    auto fragmentDoc = data->fragmentDocument->document();
+
+    QWidget *widgetToSelect = (vertexDoc->isEmpty() && !fragmentDoc->isEmpty())
+                                  ? data->fragmentEditor.get()
+                                  : data->vertexEditor.get();
+
+    m_tabWidget->setCurrentWidget(widgetToSelect);
+    widgetToSelect->setFocus();
 }
 
 } // namespace EffectComposer

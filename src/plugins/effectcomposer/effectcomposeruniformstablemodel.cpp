@@ -117,6 +117,9 @@ EffectComposerUniformsTableModel::EffectComposerUniformsTableModel(
     : QAbstractTableModel(parent)
     , m_sourceModel(sourceModel)
 {
+    if (!sourceModel)
+        return;
+
     connect(
         sourceModel,
         &QAbstractItemModel::modelAboutToBeReset,
@@ -170,6 +173,9 @@ EffectComposerUniformsTableModel::EffectComposerUniformsTableModel(
 EffectComposerUniformsTableModel::SourceIndex EffectComposerUniformsTableModel::mapToSource(
     const QModelIndex &proxyIndex) const
 {
+    if (!m_sourceModel)
+        return {};
+
     return {m_sourceModel->index(proxyIndex.row(), 0), RoleColMap::colToRole(proxyIndex.column())};
 }
 
@@ -185,6 +191,9 @@ QHash<int, QByteArray> EffectComposerUniformsTableModel::roleNames() const
 
 int EffectComposerUniformsTableModel::rowCount(const QModelIndex &) const
 {
+    if (!m_sourceModel)
+        return 0;
+
     return m_sourceModel->rowCount();
 }
 
@@ -224,6 +233,11 @@ QVariant EffectComposerUniformsTableModel::headerData(
             return RoleColMap::colDescription(section);
     }
     return {};
+}
+
+EffectComposerUniformsModel *EffectComposerUniformsTableModel::sourceModel() const
+{
+    return m_sourceModel.get();
 }
 
 void EffectComposerUniformsTableModel::onSourceRowsAboutToBeInserted(

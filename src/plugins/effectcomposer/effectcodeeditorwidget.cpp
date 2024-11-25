@@ -123,13 +123,7 @@ QStringList EffectCodeEditorWidget::getUniforms() const
 EffectDocument::EffectDocument()
     : QmlJSEditor::QmlJSEditorDocument(EFFECTEDITOR_CONTEXT_ID)
     , m_semanticHighlighter(new QmlJSEditor::SemanticHighlighter(this))
-{
-    auto *tmpFile = new Utils::TemporaryFile("EffectDoc.js");
-    tmpFile->setParent(this);
-    tmpFile->open();
-    tmpFile->close();
-    setFilePath(Utils::FilePath::fromString(tmpFile->fileName()));
-}
+{}
 
 EffectDocument::~EffectDocument()
 {
