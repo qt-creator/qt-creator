@@ -9,6 +9,7 @@
 #include "dialogs/ioptionspage.h"
 #include "fileutils.h"
 #include "icore.h"
+#include "iversioncontrol.h" // sic!
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
