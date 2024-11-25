@@ -69,6 +69,8 @@ const Icon BUILDSTEP_MOVEDOWN({
         {":/projectexplorer/images/buildstepmovedown.png", Theme::PanelTextColorDark}}, Icon::Tint);
 const Icon BUILDSTEP_DISABLE({
         {":/projectexplorer/images/buildstepdisable.png", Theme::PanelTextColorDark}}, Icon::Tint);
+const Icon BUILDSTEP_DISABLE_TOOLBAR({
+        {":/projectexplorer/images/buildstepdisable.png", Theme::IconsBaseColor}});
 const Icon BUILDSTEP_REMOVE({
         {":/projectexplorer/images/buildstepremove.png", Theme::PanelTextColorDark}}, Icon::Tint);
 
@@ -78,8 +80,6 @@ const Icon DESKTOP_DEVICE({
 const Icon MODE_PROJECT_CLASSIC(":/projectexplorer/images/mode_project.png");
 const Icon MODE_PROJECT_FLAT({
         {":/projectexplorer/images/mode_project_mask.png", Theme::IconsBaseColor}});
-const Icon MODE_PROJECT_FLAT_ACTIVE({
-        {":/projectexplorer/images/mode_project_mask.png", Theme::IconsModeProjectActiveColor}});
 
 } // namespace Icons
 } // namespace ProjectExplorer

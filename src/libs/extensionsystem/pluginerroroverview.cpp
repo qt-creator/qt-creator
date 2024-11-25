@@ -8,6 +8,7 @@
 #include "pluginmanager.h"
 #include "pluginspec.h"
 
+#include <utils/algorithm.h>
 #include <utils/layoutbuilder.h>
 
 #include <QCoreApplication>
@@ -79,7 +80,8 @@ PluginErrorOverview::PluginErrorOverview(QWidget *parent)
     for (PluginSpec *spec : PluginManager::plugins()) {
         // only show errors on startup if plugin is enabled.
         if (spec->hasError() && spec->isEffectivelyEnabled()) {
-            QListWidgetItem *item = new QListWidgetItem(spec->name());
+            const QString name = spec->displayName();
+            QListWidgetItem *item = new QListWidgetItem(name);
             item->setData(Qt::UserRole, QVariant::fromValue(spec));
             pluginList->addItem(item);
         }

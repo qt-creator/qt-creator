@@ -18,7 +18,7 @@ class QmlProject;
 class QmlProjectItem;
 class QmlProjectFile;
 
-class QMLPROJECTMANAGER_EXPORT QmlBuildSystem : public ProjectExplorer::BuildSystem
+class QMLPROJECTMANAGER_EXPORT QmlBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
@@ -35,9 +35,9 @@ public:
                   const Utils::FilePaths &filePaths,
                   Utils::FilePaths *notAdded = nullptr) override;
     bool deleteFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths) override;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) override;
+    bool renameFiles(ProjectExplorer::Node *context,
+                     const Utils::FilePairs &filesToRename,
+                     Utils::FilePaths *notRenamed) override;
 
     bool updateProjectFile();
 

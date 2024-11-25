@@ -8,16 +8,10 @@
 #include "androiddeviceinfo.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
-#include <projectexplorer/devicesupport/idevicefactory.h>
 
 #include <solutions/tasking/tasktreerunner.h>
 
-#include <utils/guard.h>
-
-#include <QFileSystemWatcher>
 #include <QSettings>
-
-namespace Utils { class Process; }
 
 namespace Android::Internal {
 
@@ -37,7 +31,6 @@ public:
 
     bool canHandleDeployments() const;
 
-    bool isValid() const;
     QString serialNumber() const;
     QString avdName() const;
     int sdkLevel() const;
@@ -54,6 +47,8 @@ public:
     QString sdcardSize() const;
     QString openGLStatus() const;
 
+    void startAvd();
+
 protected:
     void fromMap(const Utils::Store &map) final;
 
@@ -63,20 +58,19 @@ private:
     ProjectExplorer::IDeviceWidget *createWidget() override;
     ProjectExplorer::DeviceProcessSignalOperation::Ptr signalOperation() const override;
     QUrl toolControlChannel(const ControlChannelHint &) const override;
+    ProjectExplorer::PortsGatheringMethod portsGatheringMethod() const override;
 
     QSettings *avdSettings() const;
     void initAvdSettings();
 
     std::unique_ptr<QSettings> m_avdSettings;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
-
-namespace AndroidDeviceManager {
 
 void setupDevicesWatcher();
 void updateAvdList();
-Utils::expected_str<void> createAvd(const CreateAvdInfo &info, bool force);
-
-} // namespace AndroidDeviceManager
+Tasking::Group createAvdRecipe(const Tasking::Storage<std::optional<QString>> &errorStorage,
+                               const CreateAvdInfo &info, bool force);
 
 void setupAndroidDevice();
 void setupAndroidDeviceManager(QObject *guard);

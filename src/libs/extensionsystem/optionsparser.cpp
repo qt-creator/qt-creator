@@ -109,18 +109,18 @@ bool OptionsParser::checkForTestOptions()
                       });
             } else {
                 QStringList args = m_currentArg.split(QLatin1Char(','));
-                const QString pluginName = args.takeFirst();
-                if (PluginSpec *spec = m_pmPrivate->pluginByName(pluginName)) {
+                const QString pluginId = args.takeFirst();
+                if (PluginSpec *spec = m_pmPrivate->pluginById(pluginId.toLower())) {
                     if (m_pmPrivate->containsTestSpec(spec)) {
                         if (m_errorString)
-                            *m_errorString = Tr::tr("The plugin \"%1\" is specified twice for testing.").arg(pluginName);
+                            *m_errorString = Tr::tr("The plugin \"%1\" is specified twice for testing.").arg(pluginId);
                         m_hasError = true;
                     } else {
                         m_pmPrivate->testSpecs.emplace_back(spec, args);
                     }
                 } else {
                     if (m_errorString)
-                        *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(pluginName);
+                        *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(pluginId);
                     m_hasError = true;
                 }
             }
@@ -128,7 +128,7 @@ bool OptionsParser::checkForTestOptions()
         return true;
     } else if (m_currentArg == QLatin1String(NOTEST_OPTION)) {
         if (nextToken(RequiredToken)) {
-            if (PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg)) {
+            if (PluginSpec *spec = m_pmPrivate->pluginById(m_currentArg.toLower())) {
                 if (!m_pmPrivate->containsTestSpec(spec)) {
                     if (m_errorString)
                         *m_errorString = Tr::tr("The plugin \"%1\" is not tested.").arg(m_currentArg);
@@ -179,7 +179,7 @@ bool OptionsParser::checkForLoadOption()
                 spec->setForceEnabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
-            PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
+            PluginSpec *spec = m_pmPrivate->pluginById(m_currentArg.toLower());
             if (!spec) {
                 if (m_errorString)
                     *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(m_currentArg);
@@ -204,7 +204,7 @@ bool OptionsParser::checkForNoLoadOption()
                 spec->setForceDisabled(true);
             m_isDependencyRefreshNeeded = true;
         } else {
-            PluginSpec *spec = m_pmPrivate->pluginByName(m_currentArg);
+            PluginSpec *spec = m_pmPrivate->pluginById(m_currentArg.toLower());
             if (!spec) {
                 if (m_errorString)
                     *m_errorString = Tr::tr("The plugin \"%1\" does not exist.").arg(m_currentArg);

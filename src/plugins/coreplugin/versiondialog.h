@@ -3,24 +3,8 @@
 
 #pragma once
 
-#include <QDialog>
+namespace Core::Internal {
 
-QT_BEGIN_NAMESPACE
-class QEvent;
-QT_END_NAMESPACE
+void showAboutQtCreator();
 
-namespace Core {
-namespace Internal {
-
-class VersionDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    explicit VersionDialog(QWidget *parent);
-
-    bool event(QEvent *event) override;
-
-};
-
-} // namespace Internal
-} // namespace Core
+} // Core::Internal

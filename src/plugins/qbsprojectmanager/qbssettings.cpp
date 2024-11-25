@@ -28,12 +28,20 @@ const char QBS_EXE_KEY[] = "QbsProjectManager/QbsExecutable";
 const char QBS_DEFAULT_INSTALL_DIR_KEY[] = "QbsProjectManager/DefaultInstallDir";
 const char USE_CREATOR_SETTINGS_KEY[] = "QbsProjectManager/useCreatorDir";
 
+static Environment getQbsProcessEnvironment(const FilePath &qbsExe)
+{
+    if (qbsExe == QbsSettings::defaultQbsExecutableFilePath())
+        return Environment::originalSystemEnvironment();
+    return qbsExe.deviceEnvironment();
+}
+
 static QString getQbsVersion(const FilePath &qbsExe)
 {
     if (qbsExe.isEmpty() || !qbsExe.exists())
         return {};
     Process qbsProc;
     qbsProc.setCommand({qbsExe, {"--version"}});
+    qbsProc.setEnvironment(getQbsProcessEnvironment(qbsExe));
     qbsProc.start();
     using namespace std::chrono_literals;
     if (!qbsProc.waitForFinished(5s) || qbsProc.exitCode() != 0)
@@ -80,6 +88,11 @@ FilePath QbsSettings::qbsConfigFilePath()
     if (!qbsConfig.isExecutableFile())
         return {};
     return qbsConfig;
+}
+
+Environment QbsSettings::qbsProcessEnvironment()
+{
+    return getQbsProcessEnvironment(qbsExecutableFilePath());
 }
 
 QString QbsSettings::defaultInstallDirTemplate()

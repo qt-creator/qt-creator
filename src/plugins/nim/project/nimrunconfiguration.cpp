@@ -30,10 +30,6 @@ public:
 
         executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
-
         setDisplayName(Tr::tr("Current Build Target"));
         setDefaultDisplayName(Tr::tr("Current Build Target"));
 

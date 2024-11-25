@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -14,8 +14,7 @@
 
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 struct ComboData
 {
@@ -45,13 +44,12 @@ struct FeatureData : ComboData
     {}
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal
+
 Q_DECLARE_METATYPE(MesonProjectManager::Internal::FeatureData);
 Q_DECLARE_METATYPE(MesonProjectManager::Internal::ComboData);
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 struct BuildOption
 {
@@ -243,5 +241,4 @@ struct UnknownBuildOption : BuildOption
 
 using BuildOptionsList = std::vector<std::unique_ptr<BuildOption>>;
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

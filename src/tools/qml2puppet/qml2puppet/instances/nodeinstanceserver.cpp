@@ -748,7 +748,7 @@ QList<QQmlContext *> NodeInstanceServer::allSubContextsForObject(QObject *object
     QList<QQmlContext *> contextList;
 
     if (object) {
-        const QList<QObject *> subObjects = object->findChildren<QObject *>();
+        const QObjectList subObjects = object->findChildren<QObject *>();
         for (QObject *subObject : subObjects) {
             QQmlContext *contextOfObject = QQmlEngine::contextForObject(subObject);
             if (contextOfObject) {
@@ -761,9 +761,9 @@ QList<QQmlContext *> NodeInstanceServer::allSubContextsForObject(QObject *object
     return contextList;
 }
 
-QList<QObject *> NodeInstanceServer::allSubObjectsForObject(QObject *object)
+QObjectList NodeInstanceServer::allSubObjectsForObject(QObject *object)
 {
-    QList<QObject *> subChildren;
+    QObjectList subChildren;
     if (object)
         subChildren = object->findChildren<QObject *>();
 

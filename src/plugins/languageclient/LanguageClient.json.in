@@ -1,9 +1,11 @@
 {
+    "Id" : "languageclient",
     "Name" : "LanguageClient",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,6 +20,7 @@
         "Offers code completion, highlighting of the symbol under cursor, and jumping to the symbol definition, as well as diagnostics from the language server."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-language-servers.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

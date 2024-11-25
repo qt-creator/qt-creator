@@ -331,10 +331,29 @@ function(add_qtc_library name)
   endif()
 endfunction(add_qtc_library)
 
+
+function(markdown_to_json resultVarName filepath)
+  file(STRINGS ${filepath} markdown)
+  set(result "")
+  foreach(line IN LISTS markdown)
+    string(REPLACE "\\" "\\\\" line "${line}") # Replace \ with \\
+    string(REPLACE "\"" "\\\"" line "${line}") # Replace " with \"
+    string(PREPEND line "        \"")
+    string(APPEND line "\"")
+    # We have to escape ; because list(APPEND ...) will split the string at ;
+    # list(JOIN ...) will replace the \; with ; again
+    string(REPLACE ";" "\\;" line "${line}")
+    list(APPEND result "${line}")
+  endforeach()
+  list(JOIN result ",\n" result)
+  set(result "[\n${result}\n    ]")
+  set("${resultVarName}" ${result} PARENT_SCOPE)
+endfunction()
+
 function(add_qtc_plugin target_name)
   cmake_parse_arguments(_arg
     "SKIP_INSTALL;INTERNAL_ONLY;SKIP_TRANSLATION;EXPORT;SKIP_PCH"
-    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS"
+    "VERSION;COMPAT_VERSION;PLUGIN_PATH;PLUGIN_NAME;OUTPUT_NAME;BUILD_DEFAULT;PLUGIN_CLASS;LONG_DESCRIPTION_MD;LICENSE_MD"
     "CONDITION;DEPENDS;PUBLIC_DEPENDS;DEFINES;PUBLIC_DEFINES;INCLUDES;SYSTEM_INCLUDES;PUBLIC_INCLUDES;PUBLIC_SYSTEM_INCLUDES;SOURCES;EXPLICIT_MOC;SKIP_AUTOMOC;EXTRA_TRANSLATIONS;PLUGIN_DEPENDS;PLUGIN_RECOMMENDS;PLUGIN_TEST_DEPENDS;PLUGIN_MANUAL_DEPENDS;PROPERTIES;PRIVATE_COMPILE_OPTIONS;PUBLIC_COMPILE_OPTIONS"
     ${ARGN}
   )
@@ -344,6 +363,11 @@ function(add_qtc_plugin target_name)
 
   if (${_arg_UNPARSED_ARGUMENTS})
     message(FATAL_ERROR "add_qtc_plugin had unparsed arguments")
+  endif()
+
+  # ignore _arg_EXPORT for main repository and super repository build
+  if (QTC_MERGE_BINARY_DIR)
+    set(_arg_EXPORT "")
   endif()
 
   update_cached_list(__QTC_PLUGINS "${target_name}")
@@ -395,38 +419,35 @@ function(add_qtc_plugin target_name)
   endif()
 
   # Generate dependency list:
-  find_dependent_plugins(_DEP_PLUGINS ${_arg_PLUGIN_DEPENDS})
-
   set(_arg_DEPENDENCY_STRING "\"Dependencies\" : [\n")
-  foreach(i IN LISTS _DEP_PLUGINS)
+  foreach(i IN LISTS _arg_PLUGIN_DEPENDS)
+    get_property(_v TARGET "${i}" PROPERTY QTC_PLUGIN_VERSION)
     if (i MATCHES "^QtCreator::")
-      set(_v ${IDE_VERSION})
       string(REPLACE "QtCreator::" "" i ${i})
-    else()
-      get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
+    string(TOLOWER ${i} i)
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\" }"
     )
   endforeach(i)
   foreach(i IN LISTS _arg_PLUGIN_RECOMMENDS)
+    get_property(_v TARGET "${i}" PROPERTY QTC_PLUGIN_VERSION)
     if (i MATCHES "^QtCreator::")
-      set(_v ${IDE_VERSION})
       string(REPLACE "QtCreator::" "" i ${i})
-    else()
-      get_property(_v TARGET "${i}" PROPERTY _arg_VERSION)
     endif()
+    string(TOLOWER ${i} i)
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"optional\" }"
     )
   endforeach(i)
   foreach(i IN LISTS _arg_PLUGIN_TEST_DEPENDS)
     if (i MATCHES "^QtCreator::")
       string(REPLACE "QtCreator::" "" i ${i})
     endif()
+    string(TOLOWER ${i} i)
     set(_v ${IDE_VERSION})
     string(APPEND _arg_DEPENDENCY_STRING
-      "        { \"Name\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
+      "        { \"Id\" : \"${i}\", \"Version\" : \"${_v}\", \"Type\" : \"test\" }"
     )
   endforeach(i)
   list(LENGTH _arg_PLUGIN_MANUAL_DEPENDS manualdep_len)
@@ -436,11 +457,12 @@ function(add_qtc_plugin target_name)
     foreach (i RANGE 0 ${manualdep_maxindex} 3)
       math(EXPR dep_version_i "${i} + 1")
       math(EXPR dep_type_i "${i} + 2")
-      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_name)
+      list(GET _arg_PLUGIN_MANUAL_DEPENDS ${i} dep_id)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_version_i} dep_version)
       list(GET _arg_PLUGIN_MANUAL_DEPENDS ${dep_type_i} dep_type)
+      string(TOLOWER ${dep_id} dep_id)
       string(APPEND _arg_DEPENDENCY_STRING
-        "        { \"Name\" : \"${dep_name}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
+        "        { \"Id\" : \"${dep_id}\", \"Version\" : \"${dep_version}\", \"Type\" : \"${dep_type}\" }"
       )
     endforeach()
   endif()
@@ -451,6 +473,19 @@ function(add_qtc_plugin target_name)
   string(APPEND _arg_DEPENDENCY_STRING "\n    ]")
 
   set(IDE_PLUGIN_DEPENDENCIES ${_arg_DEPENDENCY_STRING})
+
+  set(LONG_DESCRIPTION "[]")
+  if (_arg_LONG_DESCRIPTION_MD)
+    markdown_to_json(LONG_DESCRIPTION ${_arg_LONG_DESCRIPTION_MD})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_arg_LONG_DESCRIPTION_MD})
+  endif()
+
+  set(LICENSE "[]")
+  if (_arg_LICENSE_MD)
+    markdown_to_json(LICENSE ${_arg_LICENSE_MD})
+    set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${_arg_LICENSE_MD})
+  endif()
+
 
   ### Configure plugin.json file:
   if (EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/${name}.json.in")
@@ -488,6 +523,12 @@ function(add_qtc_plugin target_name)
 
   if (WITH_TESTS)
     set(TEST_DEFINES WITH_TESTS SRCDIR="${CMAKE_CURRENT_SOURCE_DIR}")
+  else()
+    # Many source files have Q_OBJECT inside #ifdef WITH_TESTS. Automoc uses
+    # a very basic parser that detects this file as mocable, but moc shows a
+    # warning: "No relevant classes found."
+    # Just suppress the warning on this case.
+    set_target_properties(${target_name} PROPERTIES AUTOMOC_MOC_OPTIONS "-nw")
   endif()
 
   if (WITH_SANITIZE)
@@ -501,8 +542,8 @@ function(add_qtc_plugin target_name)
     PUBLIC_SYSTEM_INCLUDES ${_arg_PUBLIC_SYSTEM_INCLUDES}
     DEFINES ${DEFAULT_DEFINES} ${_arg_DEFINES} ${TEST_DEFINES}
     PUBLIC_DEFINES ${_arg_PUBLIC_DEFINES}
-    DEPENDS ${_arg_DEPENDS} ${_DEP_PLUGINS} ${IMPLICIT_DEPENDS}
-    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS}
+    DEPENDS ${_arg_DEPENDS} ${IMPLICIT_DEPENDS}
+    PUBLIC_DEPENDS ${_arg_PUBLIC_DEPENDS} ${_arg_PLUGIN_DEPENDS}
     EXPLICIT_MOC ${_arg_EXPLICIT_MOC}
     SKIP_AUTOMOC ${_arg_SKIP_AUTOMOC}
     EXTRA_TRANSLATIONS ${_arg_EXTRA_TRANSLATIONS}
@@ -552,8 +593,7 @@ function(add_qtc_plugin target_name)
     CXX_EXTENSIONS OFF
     CXX_VISIBILITY_PRESET hidden
     VISIBILITY_INLINES_HIDDEN ON
-    _arg_DEPENDS "${_arg_PLUGIN_DEPENDS}"
-    _arg_VERSION "${_arg_VERSION}"
+    QTC_PLUGIN_VERSION "${_arg_VERSION}"
     BUILD_RPATH "${_PLUGIN_RPATH};${CMAKE_BUILD_RPATH}"
     INSTALL_RPATH "${_PLUGIN_RPATH};${CMAKE_INSTALL_RPATH}"
     LIBRARY_OUTPUT_DIRECTORY "${_output_binary_dir}/${plugin_dir}"
@@ -566,7 +606,8 @@ function(add_qtc_plugin target_name)
     ${_arg_PROPERTIES}
   )
 
-  set_property(TARGET ${target_name} APPEND PROPERTY EXPORT_PROPERTIES "QTC_PLUGIN_CLASS_NAME")
+  set_property(TARGET ${target_name} APPEND PROPERTY EXPORT_PROPERTIES
+      "QTC_PLUGIN_CLASS_NAME;QTC_PLUGIN_VERSION")
 
   if (NOT _arg_SKIP_PCH)
     enable_pch(${target_name})

@@ -7,10 +7,8 @@
 
 #include <projectexplorer/project.h>
 
-#include <utils/fileutils.h>
+namespace ClangTools::Internal {
 
-namespace ClangTools {
-namespace Internal {
 class Diagnostic;
 
 class SuppressedDiagnostic
@@ -88,7 +86,6 @@ private:
     SuppressedDiagnosticsList m_suppressedDiagnostics;
 };
 
-} // namespace Internal
-} // namespace ClangTools
+} // ClangTools::Internal
 
 Q_DECLARE_METATYPE(std::shared_ptr<ClangTools::Internal::ClangToolsProjectSettings>)

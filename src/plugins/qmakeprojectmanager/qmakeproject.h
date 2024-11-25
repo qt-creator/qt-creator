@@ -56,7 +56,7 @@ private:
     mutable ProjectExplorer::ProjectImporter *m_projectImporter = nullptr;
 };
 
-class QmakeBuildSystem : public ProjectExplorer::BuildSystem
+class QmakeBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
@@ -79,9 +79,9 @@ public:
     bool canRenameFile(ProjectExplorer::Node *context,
                        const Utils::FilePath &oldFilePath,
                        const Utils::FilePath &newFilePath) override;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) override;
+    bool renameFiles(ProjectExplorer::Node *context,
+                    const Utils::FilePairs &filesToRename,
+                    Utils::FilePaths *notRenamed) override;
     bool addDependencies(ProjectExplorer::Node *context,
                          const QStringList &dependencies) override;
     QString name() const final { return QLatin1String("qmake"); }

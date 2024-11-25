@@ -287,6 +287,12 @@ public:
                          theWidget, [this](const QModelIndex &index) { onItemDoubleClicked(index); });
     }
 
+    ~HierarchyWidgetHelper()
+    {
+        if (m_runningRequest && m_runningRequest->first)
+            m_runningRequest->first->cancelRequest(m_runningRequest->second);
+    }
+
     void updateHierarchyAtCursorPosition()
     {
         m_model.clear();
@@ -315,6 +321,17 @@ protected:
         item->forChildrenAtLevel(1, [&](const TreeItem *child) { m_view->expand(child->index()); });
     }
 
+    void send(Client *client, const JsonRpcMessage &request, const MessageId &requestId)
+    {
+        m_runningRequest = std::make_pair(QPointer<Client>(client), requestId);
+        client->sendMessage(request);
+    }
+
+    void resetRunningRequest()
+    {
+        m_runningRequest.reset();
+    }
+
 private:
     virtual void sendRequest(Client *client, const TextDocumentPositionParams &params,
                              const Core::IDocument *document) = 0;
@@ -334,6 +351,7 @@ private:
 
     AnnotatedItemDelegate m_delegate;
     NavigationTreeView * const m_view;
+    std::optional<std::pair<QPointer<Client>, MessageId>> m_runningRequest;
     TreeModel<TreeItem> m_model;
 };
 
@@ -358,12 +376,13 @@ private:
                                         const PrepareCallHierarchyRequest::Response &response) {
             handlePrepareResponse(client, response);
         });
-        client->sendMessage(request);
+        send(client, request, request.id());
     }
 
     void handlePrepareResponse(Client *client,
                                const PrepareCallHierarchyRequest::Response &response)
     {
+        resetRunningRequest();
         if (!client)
             return;
         const std::optional<PrepareCallHierarchyRequest::Response::Error> error = response.error();
@@ -401,12 +420,13 @@ private:
                                         const PrepareTypeHierarchyRequest::Response &response) {
             handlePrepareResponse(client, response);
         });
-        client->sendMessage(request);
+        send(client, request, request.id());
     }
 
     void handlePrepareResponse(Client *client,
                                const PrepareTypeHierarchyRequest::Response &response)
     {
+        resetRunningRequest();
         if (!client)
             return;
         const std::optional<PrepareTypeHierarchyRequest::Response::Error> error = response.error();

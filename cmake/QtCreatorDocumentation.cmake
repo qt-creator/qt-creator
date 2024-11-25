@@ -265,8 +265,8 @@ function(add_qtc_documentation qdocconf_file)
 
   # Set up environment for qdoc:
   set(QTC_VERSION "${IDE_VERSION_DISPLAY}")
-  set(QTCREATOR_COPYRIGHT_YEAR "${IDE_COPYRIGHT_YEAR}")
   string(REPLACE "." "" QTC_VERSION_TAG "${IDE_VERSION}")
+  string(REPLACE "(C)" "<acronym title=\"Copyright\">&copy\\\;</acronym>" QTCREATOR_COPYRIGHT "${IDE_COPYRIGHT}")
   set(QDOC_INDEX_DIR "${QT_INSTALL_DOCS}")
   if (QT_INSTALL_DOCS_src)
     set(QT_INSTALL_DOCS "${QT_INSTALL_DOCS_src}")
@@ -274,7 +274,7 @@ function(add_qtc_documentation qdocconf_file)
   list(APPEND _qdoc_params ENVIRONMENT_EXPORTS
     IDE_ID IDE_CASED_ID IDE_DISPLAY_NAME
     QTC_DOCS_DIR QTC_VERSION QTC_VERSION_TAG
-    QTCREATOR_COPYRIGHT_YEAR
+    QTCREATOR_COPYRIGHT
     QT_INSTALL_DOCS QDOC_INDEX_DIR
     ${_arg_ENVIRONMENT_EXPORTS}
   )

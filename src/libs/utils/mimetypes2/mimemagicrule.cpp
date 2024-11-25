@@ -4,12 +4,26 @@
 #include "mimemagicrule_p.h"
 
 #include "mimetypeparser_p.h"
-
 #include <QtCore/QDebug>
 #include <QtCore/QList>
 #include <qendian.h>
 
+using namespace Qt::StringLiterals;
+
 namespace Utils {
+
+// originally from qtools_p.h
+static bool isOctalDigit(char32_t c) noexcept
+{
+    return c >= '0' && c <= '7';
+}
+static int fromHex(char32_t c) noexcept
+{
+    return ((c >= '0') && (c <= '9')) ? int(c - '0') :
+           ((c >= 'A') && (c <= 'F')) ? int(c - 'A' + 10) :
+           ((c >= 'a') && (c <= 'f')) ? int(c - 'a' + 10) :
+           /* otherwise */              -1;
+}
 
 // in the same order as Type!
 static const char magicRuleTypes_string[] =
@@ -58,12 +72,12 @@ bool MimeMagicRule::operator==(const MimeMagicRule &other) const
 }
 
 // Used by both providers
-bool MimeMagicRule::matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength,
-                                    int valueLength, const char *valueData, const char *mask)
+bool MimeMagicRule::matchSubstring(const char *dataPtr, qsizetype dataSize, int rangeStart, int rangeLength,
+                                   qsizetype valueLength, const char *valueData, const char *mask)
 {
     // Size of searched data.
     // Example: value="ABC", rangeLength=3 -> we need 3+3-1=5 bytes (ABCxx,xABCx,xxABC would match)
-    const int dataNeeded = qMin(rangeLength + valueLength - 1, dataSize - rangeStart);
+    const qsizetype dataNeeded = qMin(rangeLength + valueLength - 1, dataSize - rangeStart);
 
     if (!mask) {
         // callgrind says QByteArray::indexOf is much slower, since our strings are typically too
@@ -87,7 +101,7 @@ bool MimeMagicRule::matchSubstring(const char *dataPtr, int dataSize, int rangeS
         // deviceSize is 4, so dataNeeded was max'ed to 4.
         // maxStartPos = 4 - 3 + 1 = 2, and indeed
         // we need to check for a match a positions 0 and 1 (ABCx and xABC).
-        const int maxStartPos = dataNeeded - valueLength + 1;
+        const qsizetype maxStartPos = dataNeeded - valueLength + 1;
         for (int i = 0; i < maxStartPos; ++i) {
             const char *d = readDataBase + i;
             bool valid = true;
@@ -145,21 +159,17 @@ static inline QByteArray makePattern(const QByteArray &value)
                 char c = 0;
                 for (int i = 0; i < 2 && p + 1 < e; ++i) {
                     ++p;
-                    if (*p >= '0' && *p <= '9')
-                        c = (c << 4) + *p - '0';
-                    else if (*p >= 'a' && *p <= 'f')
-                        c = (c << 4) + *p - 'a' + 10;
-                    else if (*p >= 'A' && *p <= 'F')
-                        c = (c << 4) + *p - 'A' + 10;
+                    if (const int h = fromHex(*p); h != -1)
+                        c = (c << 4) + h;
                     else
                         continue;
                 }
                 *data++ = c;
-            } else if (*p >= '0' && *p <= '7') { // oct (\\7, or \\77, or \\377)
+            } else if (isOctalDigit(*p)) { // oct (\\7, or \\77, or \\377)
                 char c = *p - '0';
-                if (p + 1 < e && p[1] >= '0' && p[1] <= '7') {
+                if (p + 1 < e && isOctalDigit(p[1])) {
                     c = (c << 3) + *(++p) - '0';
-                    if (p + 1 < e && p[1] >= '0' && p[1] <= '7' && p[-1] <= '3')
+                    if (p + 1 < e && isOctalDigit(p[1]) && p[-1] <= '3')
                         c = (c << 3) + *(++p) - '0';
                 }
                 *data++ = c;
@@ -221,10 +231,10 @@ MimeMagicRule::MimeMagicRule(const QString &type,
       m_matchFunction(nullptr)
 {
     if (Q_UNLIKELY(m_type == Invalid))
-        *errorString = QLatin1String("Type ") + type + QLatin1String(" is not supported");
+        *errorString = "Type "_L1 + type + " is not supported"_L1;
 
     // Parse for offset as "1" or "1:10"
-    const int colonIndex = offsets.indexOf(QLatin1Char(':'));
+    const qsizetype colonIndex = offsets.indexOf(u':');
     const QStringView startPosStr
         = QStringView(offsets).mid(0, colonIndex); // \ These decay to returning 'offsets'
     const QStringView endPosStr = QStringView(offsets)
@@ -253,7 +263,7 @@ void MimeMagicRule::init(QString *errorString)
         if (Q_UNLIKELY(!ok)) {
             m_type = Invalid;
             if (errorString)
-                *errorString = QLatin1String("Invalid magic rule value \"") + QLatin1String(m_value) + QLatin1Char('"');
+                *errorString = "Invalid magic rule value \""_L1 + QLatin1StringView(m_value) + u'"';
             return;
         }
         m_numberMask = !m_mask.isEmpty() ? m_mask.toUInt(&ok, 0) : 0; // autodetect base
@@ -267,7 +277,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(m_mask.size() < 4 || !m_mask.startsWith("0x"))) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = QLatin1String("Invalid magic rule mask \"") + QLatin1String(m_mask) + QLatin1Char('"');
+                    *errorString = "Invalid magic rule mask \""_L1 + QLatin1StringView(m_mask) + u'"';
                 return;
             }
             const QByteArray &tempMask = QByteArray::fromHex(QByteArray::fromRawData(
@@ -275,7 +285,7 @@ void MimeMagicRule::init(QString *errorString)
             if (Q_UNLIKELY(tempMask.size() != m_pattern.size())) {
                 m_type = Invalid;
                 if (errorString)
-                    *errorString = QLatin1String("Invalid magic rule mask size \"") + QLatin1String(m_mask) + QLatin1Char('"');
+                    *errorString = "Invalid magic rule mask size \""_L1 + QLatin1StringView(m_mask) + u'"';
                 return;
             }
             m_mask = tempMask;

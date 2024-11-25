@@ -4,9 +4,8 @@
 #include "savefile.h"
 
 #include "filepath.h"
+#include "hostosinfo.h"
 #include "qtcassert.h"
-
-#include <QTemporaryFile>
 
 #ifdef Q_OS_WIN
 #  include <windows.h>
@@ -33,6 +32,7 @@ SaveFile::~SaveFile()
 bool SaveFile::open(OpenMode flags)
 {
     QTC_ASSERT(!m_finalFilePath.isEmpty(), return false);
+    QTC_ASSERT(!m_tempFile, return false);
 
     QFile ofi(m_finalFilePath.toFSPathString());
     // Check whether the existing file is writable
@@ -41,11 +41,15 @@ bool SaveFile::open(OpenMode flags)
         return false;
     }
 
-    m_tempFile = std::make_unique<QTemporaryFile>(m_finalFilePath.toFSPathString());
-    m_tempFile->setAutoRemove(false);
-    if (!m_tempFile->open())
+    auto tmpPath = TemporaryFilePath::create(m_finalFilePath);
+    if (!tmpPath) {
+        setErrorString(tmpPath.error());
         return false;
-    setFileName(m_tempFile->fileName());
+    }
+    m_tempFile = std::move(*tmpPath);
+    m_tempFile->setAutoRemove(false);
+
+    setFileName(m_tempFile->filePath().toFSPathString());
 
     if (!QFile::open(flags))
         return false;
@@ -72,9 +76,30 @@ void SaveFile::rollback()
 {
     close();
     if (m_tempFile)
-        m_tempFile->remove();
+        m_tempFile->filePath().removeFile();
     m_finalized = true;
 }
+
+#ifndef Q_OS_WIN
+// Declare what we need from Windows API so we can compile without #ifdef
+constexpr int REPLACEFILE_IGNORE_MERGE_ERRORS = 0;
+constexpr int ERROR_UNABLE_TO_REMOVE_REPLACED = 0;
+constexpr int MOVEFILE_COPY_ALLOWED = 0;
+constexpr int MOVEFILE_REPLACE_EXISTING = 0;
+constexpr int MOVEFILE_WRITE_THROUGH = 0;
+constexpr int FORMAT_MESSAGE_FROM_SYSTEM = 0;
+constexpr int FORMAT_MESSAGE_IGNORE_INSERTS = 0;
+constexpr int LANG_NEUTRAL = 0;
+constexpr int SUBLANG_DEFAULT = 0;
+
+using DWORD = unsigned long;
+
+bool MoveFileEx(const wchar_t *, const wchar_t *, DWORD);
+bool ReplaceFile(const wchar_t *, const wchar_t *, const wchar_t *, DWORD, void *, void *);
+DWORD GetLastError();
+DWORD MAKELANGID(int, int);
+DWORD FormatMessageW(DWORD, void *, DWORD, DWORD, const wchar_t *, DWORD, void *);
+#endif
 
 bool SaveFile::commit()
 {
@@ -83,7 +108,7 @@ bool SaveFile::commit()
 
     if (!flush()) {
         close();
-        m_tempFile->remove();
+        m_tempFile->filePath().removeFile();
         return false;
     }
 #ifdef Q_OS_WIN
@@ -93,88 +118,99 @@ bool SaveFile::commit()
 #else
     fsync(handle());
 #endif
+
     close();
-    m_tempFile->close();
     if (error() != NoError) {
-        m_tempFile->remove();
+        m_tempFile->filePath().removeFile();
         return false;
     }
 
-    QString finalFileName = m_finalFilePath.resolveSymlinks().toString();
+    FilePath finalFileName = m_finalFilePath.resolveSymlinks();
 
-#ifdef Q_OS_WIN
-    // Release the file lock
-    m_tempFile.reset();
-    bool result = ReplaceFile(finalFileName.toStdWString().data(),
-                              fileName().toStdWString().data(),
-                              nullptr, REPLACEFILE_IGNORE_MERGE_ERRORS, nullptr, nullptr);
-    if (!result) {
-        DWORD replaceErrorCode = GetLastError();
-        QString errorStr;
-        if (!QFileInfo::exists(finalFileName)) {
-            // Replace failed because finalFileName does not exist, try rename.
-            if (!(result = rename(finalFileName)))
-                errorStr = errorString();
-        } else {
-            if (replaceErrorCode == ERROR_UNABLE_TO_REMOVE_REPLACED) {
-                // If we do not get the rights to remove the original final file we still might try
-                // to replace the file contents
-                result = MoveFileEx(fileName().toStdWString().data(),
-                                    finalFileName.toStdWString().data(),
-                                    MOVEFILE_COPY_ALLOWED
-                                    | MOVEFILE_REPLACE_EXISTING
-                                    | MOVEFILE_WRITE_THROUGH);
-                if (!result)
-                    replaceErrorCode = GetLastError();
-            }
+    if constexpr (HostOsInfo::isWindowsHost()) {
+        static const bool disableWinSpecialCode = !qEnvironmentVariableIsEmpty(
+            "QTC_DISABLE_SPECIAL_WIN_SAVEFILE");
+        if (!m_finalFilePath.needsDevice() && !disableWinSpecialCode) {
+            // Release the file lock
+            m_tempFile.reset();
+            bool result = ReplaceFile(
+                finalFileName.nativePath().toStdWString().data(),
+                fileName().toStdWString().data(),
+                nullptr,
+                REPLACEFILE_IGNORE_MERGE_ERRORS,
+                nullptr,
+                nullptr);
             if (!result) {
-                wchar_t messageBuffer[256];
-                FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                               nullptr, replaceErrorCode,
-                               MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                               messageBuffer, sizeof(messageBuffer), nullptr);
-                errorStr = QString::fromWCharArray(messageBuffer);
+                DWORD replaceErrorCode = GetLastError();
+                QString errorStr;
+                if (!finalFileName.exists()) {
+                    // Replace failed because finalFileName does not exist, try rename.
+                    if (!(result = rename(finalFileName.toFSPathString())))
+                        errorStr = errorString();
+                } else {
+                    if (replaceErrorCode == ERROR_UNABLE_TO_REMOVE_REPLACED) {
+                        // If we do not get the rights to remove the original final file we still might try
+                        // to replace the file contents
+                        result = MoveFileEx(
+                            fileName().toStdWString().data(),
+                            finalFileName.nativePath().toStdWString().data(),
+                            MOVEFILE_COPY_ALLOWED | MOVEFILE_REPLACE_EXISTING
+                                | MOVEFILE_WRITE_THROUGH);
+                        if (!result)
+                            replaceErrorCode = GetLastError();
+                    }
+                    if (!result) {
+                        wchar_t messageBuffer[256];
+                        FormatMessageW(
+                            FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                            nullptr,
+                            replaceErrorCode,
+                            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                            messageBuffer,
+                            sizeof(messageBuffer),
+                            nullptr);
+                        errorStr = QString::fromWCharArray(messageBuffer);
+                    }
+                }
+                if (!result) {
+                    remove();
+                    setErrorString(errorStr);
+                }
             }
-        }
-        if (!result) {
-            remove();
-            setErrorString(errorStr);
+
+            return result;
         }
     }
 
-    return result;
-#else
-    const QString backupName = finalFileName + '~';
+    const QString backupName = finalFileName.toFSPathString() + '~';
 
     // Back up current file.
     // If it's opened by another application, the lock follows the move.
-    if (QFileInfo::exists(finalFileName)) {
+    if (finalFileName.exists()) {
         // Kill old backup. Might be useful if creator crashed before removing backup.
         QFile::remove(backupName);
-        QFile finalFile(finalFileName);
+        QFile finalFile(finalFileName.toFSPathString());
         if (!finalFile.rename(backupName)) {
-            m_tempFile->remove();
+            m_tempFile->filePath().removeFile();
             setErrorString(finalFile.errorString());
             return false;
         }
     }
 
-    bool result = true;
-    if (!m_tempFile->rename(finalFileName)) {
+    Result renameResult = m_tempFile->filePath().renameFile(finalFileName);
+    if (!renameResult) {
         // The case when someone else was able to create finalFileName after we've renamed it.
         // Higher level call may try to save this file again but here we do nothing and
         // return false while keeping the error string from last rename call.
-        const QString &renameError = m_tempFile->errorString();
-        m_tempFile->remove();
-        setErrorString(renameError);
-        QFile::rename(backupName, finalFileName); // rollback to backup if possible ...
+        m_tempFile->filePath().removeFile();
+        setErrorString(renameResult.error());
+        QFile::rename(backupName, finalFileName.toFSPathString()); // rollback to backup if possible ...
         return false; // ... or keep the backup copy at least
     }
 
     QFile::remove(backupName);
 
-    return result;
-#endif
+    return true;
 }
 
 void SaveFile::initializeUmask()

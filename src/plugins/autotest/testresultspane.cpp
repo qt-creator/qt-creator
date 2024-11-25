@@ -22,6 +22,7 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/outputwindow.h>
+#include <coreplugin/session.h>
 
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorer.h>
@@ -30,6 +31,8 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorsettings.h>
 
+#include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/proxyaction.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -50,8 +53,7 @@
 using namespace Core;
 using namespace Utils;
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 ResultsTreeView::ResultsTreeView(QWidget *parent)
     : TreeView(parent)
@@ -157,6 +159,10 @@ TestResultsPane::TestResultsPane(QObject *parent) :
     connect(TestRunner::instance(), &TestRunner::hadDisabledTests,
             m_model, &TestResultModel::raiseDisabledTests);
     visualOutputWidget->installEventFilter(this);
+    connect(SessionManager::instance(), &SessionManager::sessionLoaded,
+            this, &TestResultsPane::onSessionLoaded);
+    connect(SessionManager::instance(), &SessionManager::aboutToSaveSession,
+            this, &TestResultsPane::onAboutToSaveSession);
 }
 
 void TestResultsPane::createToolButtons()
@@ -212,6 +218,23 @@ void TestResultsPane::createToolButtons()
     m_outputToggleButton->setToolTip(Tr::tr("Switch Between Visual and Text Display"));
     m_outputToggleButton->setEnabled(true);
     connect(m_outputToggleButton, &QToolButton::clicked, this, &TestResultsPane::toggleOutputStyle);
+    m_showDurationButton = new QToolButton(m_treeView);
+    auto icon = Utils::Icon({{":/utils/images/stopwatch.png", Utils::Theme::IconsBaseColor}});
+    m_showDurationButton->setIcon(icon.icon());
+    m_showDurationButton->setToolTip(Tr::tr("Show Durations"));
+    m_showDurationButton->setCheckable(true);
+    m_showDurationButton->setChecked(true);
+    connect(m_showDurationButton, &QToolButton::toggled, this, [this](bool checked) {
+        if (auto trd = qobject_cast<TestResultDelegate *>(m_treeView->itemDelegate())) {
+            trd->setShowDuration(checked);
+            if (m_model->rowCount()) {
+                m_model->rootItem()->forAllChildren([this](TestResultItem *it) {
+                    const QModelIndex idx = m_model->indexForItem(it);
+                    emit m_model->dataChanged(idx, idx, {Qt::DisplayRole});
+                });
+            }
+        }
+    });
 }
 
 static TestResultsPane *s_instance = nullptr;
@@ -271,7 +294,8 @@ QWidget *TestResultsPane::outputWidget(QWidget *parent)
 QList<QWidget *> TestResultsPane::toolBarWidgets() const
 {
     QList<QWidget *> result = {m_expandCollapse, m_runAll, m_runSelected, m_runFailed,
-                               m_runFile, m_stopTestRun, m_outputToggleButton, m_filterButton};
+                               m_runFile, m_stopTestRun, m_showDurationButton,
+                               m_outputToggleButton, m_filterButton};
     for (QWidget *widget : IOutputPane::toolBarWidgets())
         result.append(widget);
     return result;
@@ -404,7 +428,7 @@ void TestResultsPane::goToPrev()
 void TestResultsPane::updateFilter()
 {
     m_textOutput->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp(),
-                                         filterIsInverted());
+                                         filterIsInverted(), beforeContext(), afterContext());
 }
 
 void TestResultsPane::onItemActivated(const QModelIndex &index)
@@ -419,11 +443,6 @@ void TestResultsPane::onItemActivated(const QModelIndex &index)
 
 void TestResultsPane::initializeFilterMenu()
 {
-    const bool omitIntern = testSettings().omitInternalMsg();
-    // FilterModel has all messages enabled by default
-    if (omitIntern)
-        m_filterModel->toggleTestResultType(ResultType::MessageInternal);
-
     QMap<ResultType, QString> textAndType;
     textAndType.insert(ResultType::Pass, Tr::tr("Pass"));
     textAndType.insert(ResultType::Fail, Tr::tr("Fail"));
@@ -434,12 +453,13 @@ void TestResultsPane::initializeFilterMenu()
     textAndType.insert(ResultType::MessageDebug, Tr::tr("Debug Messages"));
     textAndType.insert(ResultType::MessageWarn, Tr::tr("Warning Messages"));
     textAndType.insert(ResultType::MessageInternal, Tr::tr("Internal Messages"));
+    const QSet<ResultType> enabled = m_filterModel->enabledFilters();
     for (auto it = textAndType.cbegin(); it != textAndType.cend(); ++it) {
         const ResultType &result = it.key();
         QAction *action = new QAction(m_filterMenu);
         action->setText(it.value());
         action->setCheckable(true);
-        action->setChecked(result != ResultType::MessageInternal || !omitIntern);
+        action->setChecked(enabled.contains(result));
         action->setData(int(result));
         m_filterMenu->addAction(action);
     }
@@ -482,7 +502,10 @@ void TestResultsPane::updateSummaryLabel()
     count = m_model->disabledTests();
     if (count)
         labelText += ", " + QString::number(count) + ' ' + Tr::tr("disabled");
-    labelText.append(".</p>");
+    if (auto millisec = m_model->reportedDuration())
+        labelText += ".&nbsp;&nbsp;&nbsp;(" + QString::number(*millisec) + " ms)</p>";
+    else
+        labelText.append(".</p>");
     m_summaryLabel->setText(labelText);
 }
 
@@ -712,6 +735,34 @@ void TestResultsPane::clearMarks()
     m_marks.clear();
 }
 
+static constexpr char SV_SHOW_DURATIONS[] = "AutoTest.ShowDurations";
+static constexpr char SV_MESSAGE_FILTER[] = "AutoTest.MessageFilter";
+
+void TestResultsPane::onSessionLoaded()
+{
+    const bool showDurations = SessionManager::sessionValue(SV_SHOW_DURATIONS, true).toBool();
+    m_showDurationButton->setChecked(showDurations);
+    const QVariantList enabledFilters = SessionManager::sessionValue(SV_MESSAGE_FILTER).toList();
+
+    if (enabledFilters.isEmpty()) {
+        m_filterModel->enableAllResultTypes(true);
+        if (testSettings().omitInternalMsg())
+            m_filterModel->toggleTestResultType(ResultType::MessageInternal);
+    } else {
+        m_filterModel->setEnabledFiltersFromSetting(enabledFilters);
+    }
+
+    m_filterMenu->clear();
+    initializeFilterMenu();
+}
+
+
+void TestResultsPane::onAboutToSaveSession()
+{
+    SessionManager::setSessionValue(SV_SHOW_DURATIONS, m_showDurationButton->isChecked());
+    SessionManager::setSessionValue(SV_MESSAGE_FILTER, m_filterModel->enabledFiltersAsSetting());
+}
+
 void TestResultsPane::showTestResult(const QModelIndex &index)
 {
     QModelIndex mapped = m_filterModel->mapFromSource(index);
@@ -721,5 +772,4 @@ void TestResultsPane::showTestResult(const QModelIndex &index)
     }
 }
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

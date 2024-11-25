@@ -241,8 +241,11 @@ Store DeviceManager::toMap() const
 
     map.insert(DefaultDevicesKey, variantFromStore(defaultDeviceMap));
     QVariantList deviceList;
-    for (const IDevice::Ptr &device : std::as_const(d->devices))
-        deviceList << variantFromStore(device->toMap());
+    for (const IDevice::Ptr &device : std::as_const(d->devices)) {
+        Store store;
+        device->toMap(store);
+        deviceList << variantFromStore(store);
+    }
     map.insert(DeviceListKey, deviceList);
     return map;
 }
@@ -258,8 +261,7 @@ void DeviceManager::addDevice(const IDevice::ConstPtr &_device)
     }
 
     // TODO: make it thread safe?
-    device->settings()->displayName.setValue(
-        Utils::makeUniquelyNumbered(device->displayName(), names));
+    device->setDisplayName(Utils::makeUniquelyNumbered(device->displayName(), names));
 
     const int pos = d->indexForId(device->id());
 
@@ -398,7 +400,7 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
     connect(Core::ICore::instance(), &Core::ICore::saveSettingsRequested,
             this, &DeviceManager::save);
 
-    DeviceFileHooks &deviceHooks = DeviceFileHooks::instance();
+    DeviceFileHooks deviceHooks;
 
     deviceHooks.isSameDevice = [](const FilePath &left, const FilePath &right) {
         auto leftDevice = DeviceManager::deviceForPath(left);
@@ -465,6 +467,8 @@ DeviceManager::DeviceManager(bool isInstance) : d(std::make_unique<DeviceManager
         return device->osType();
     };
 
+    DeviceFileHooks::setupDeviceFileHooks(deviceHooks);
+
     DeviceProcessHooks processHooks;
 
     processHooks.processImplHook = [](const FilePath &filePath) -> ProcessInterface * {
@@ -530,7 +534,6 @@ IDevice::ConstPtr DeviceManager::defaultDevice(Id deviceType) const
 #include <projectexplorer/projectexplorer_test.h>
 #include <QSignalSpy>
 #include <QTest>
-#include <QUuid>
 
 namespace ProjectExplorer {
 
@@ -539,7 +542,7 @@ class TestDevice : public IDevice
 public:
     TestDevice()
     {
-        setupId(AutoDetected, Id::fromString(QUuid::createUuid().toString()));
+        setupId(AutoDetected, Id::generate());
         setType(testTypeId());
         setMachineType(Hardware);
         setOsType(HostOsInfo::hostOs());
@@ -566,7 +569,7 @@ void ProjectExplorerTest::testDeviceManager()
     TestDeviceFactory factory;
 
     TestDevice::Ptr dev = IDevice::Ptr(new TestDevice);
-    dev->settings()->displayName.setValue(QLatin1String("blubbdiblubbfurz!"));
+    dev->setDisplayName(QLatin1String("blubbdiblubbfurz!"));
     QVERIFY(dev->isAutoDetected());
     QCOMPARE(dev->deviceState(), IDevice::DeviceStateUnknown);
     QCOMPARE(dev->type(), TestDevice::testTypeId());
@@ -627,7 +630,7 @@ void ProjectExplorerTest::testDeviceManager()
     TestDevice::Ptr dev3 = IDevice::Ptr(new TestDevice);
     QVERIFY(dev->id() != dev3->id());
 
-    dev3->settings()->displayName.setValue(dev->displayName());
+    dev3->setDisplayName(dev->displayName());
     mgr->addDevice(dev3);
     QCOMPARE(mgr->deviceAt(mgr->deviceCount() - 1)->displayName(),
              QString(dev3->displayName() + QLatin1Char('2')));

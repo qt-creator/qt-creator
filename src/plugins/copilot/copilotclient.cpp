@@ -3,7 +3,6 @@
 
 #include "copilotclient.h"
 #include "copilotsettings.h"
-#include "copilotsuggestion.h"
 #include "copilottr.h"
 
 #include <languageclient/languageclientinterface.h>
@@ -98,13 +97,7 @@ CopilotClient::CopilotClient(const FilePath &nodePath, const FilePath &distPath)
         openDoc(doc);
 }
 
-CopilotClient::~CopilotClient()
-{
-    for (IEditor *editor : DocumentModel::editorsForOpenedDocuments()) {
-        if (auto textEditor = qobject_cast<BaseTextEditor *>(editor))
-            textEditor->editorWidget()->removeHoverHandler(&m_hoverHandler);
-    }
-}
+CopilotClient::~CopilotClient() = default;
 
 void CopilotClient::openDocument(TextDocument *document)
 {
@@ -228,11 +221,19 @@ void CopilotClient::handleCompletions(const GetCompletionRequest::Response &resp
             if (delta > 0)
                 completion.setText(completionText.chopped(delta));
         }
+        auto suggestions = Utils::transform(completions, [](const Completion &c){
+            auto toTextPos = [](const LanguageServerProtocol::Position pos){
+                return Text::Position{pos.line() + 1, pos.character()};
+            };
+
+            Text::Range range{toTextPos(c.range().start()), toTextPos(c.range().end())};
+            Text::Position pos{toTextPos(c.position())};
+            return TextSuggestion::Data{range, pos, c.text()};
+        });
         if (completions.isEmpty())
             return;
         editor->insertSuggestion(
-            std::make_unique<CopilotSuggestion>(completions, editor->document()));
-        editor->addHoverHandler(&m_hoverHandler);
+            std::make_unique<TextEditor::CyclicSuggestion>(suggestions, editor->document()));
     }
 }
 

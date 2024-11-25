@@ -60,7 +60,7 @@ QmlMainFileAspect::~QmlMainFileAspect()
     delete m_fileListCombo;
 }
 
-void QmlMainFileAspect::addToLayout(Layouting::Layout &parent)
+void QmlMainFileAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_ASSERT(!m_fileListCombo, delete m_fileListCombo);
     m_fileListCombo = new QComboBox;

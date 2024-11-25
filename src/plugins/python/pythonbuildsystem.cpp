@@ -305,17 +305,33 @@ bool PythonBuildSystem::deleteFiles(Node *, const FilePaths &)
     return true;
 }
 
-bool PythonBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
+bool PythonBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
-    for (FileEntry &entry : m_files) {
-        if (entry.filePath == oldFilePath) {
-            entry.filePath = newFilePath;
-            entry.rawEntry = newFilePath.relativeChildPath(projectDirectory()).toString();
-            break;
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        bool found = false;
+        for (FileEntry &entry : m_files) {
+            if (entry.filePath == oldFilePath) {
+                found = true;
+                entry.filePath = newFilePath;
+                entry.rawEntry = newFilePath.relativeChildPath(projectDirectory()).toString();
+                break;
+            }
+        }
+        if (!found) {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
         }
     }
 
-    return save();
+    if (!save()) {
+        if (notRenamed)
+            *notRenamed = firstPaths(filesToRename);
+        return false;
+    }
+
+    return success;
 }
 
 void PythonBuildSystem::parse()

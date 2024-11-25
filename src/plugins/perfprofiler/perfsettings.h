@@ -23,8 +23,6 @@ public:
     void toMap(Utils::Store &map) const override;
     QString perfRecordArguments() const;
 
-    void resetToDefault();
-
     QWidget *createPerfConfigWidget(ProjectExplorer::Target *target);
 
     Utils::IntegerAspect period{this};

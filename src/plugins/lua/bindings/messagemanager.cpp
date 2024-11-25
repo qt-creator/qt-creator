@@ -7,19 +7,19 @@
 
 namespace Lua::Internal {
 
-void addMessageManagerModule()
+void setupMessageManagerModule()
 {
-    LuaEngine::registerProvider("MessageManager", [](sol::state_view lua) -> sol::object {
+    registerProvider("MessageManager", [](sol::state_view lua) -> sol::object {
         sol::table mm = lua.create_table();
 
         mm.set_function("writeFlashing", [](const sol::variadic_args &vargs) {
-            Core::MessageManager::writeFlashing(LuaEngine::variadicToStringList(vargs).join(""));
+            Core::MessageManager::writeFlashing(variadicToStringList(vargs).join(""));
         });
         mm.set_function("writeDisrupting", [](const sol::variadic_args &vargs) {
-            Core::MessageManager::writeDisrupting(LuaEngine::variadicToStringList(vargs).join(""));
+            Core::MessageManager::writeDisrupting(variadicToStringList(vargs).join(""));
         });
         mm.set_function("writeSilently", [](const sol::variadic_args &vargs) {
-            Core::MessageManager::writeSilently(LuaEngine::variadicToStringList(vargs).join(""));
+            Core::MessageManager::writeSilently(variadicToStringList(vargs).join(""));
         });
 
         return mm;

@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <QtGlobal>
+#include <QLoggingCategory>
 
 namespace TextEditor {
 
@@ -50,6 +50,7 @@ enum TextStyle : quint8 {
     C_PREPROCESSOR,
     C_MACRO,
     C_LABEL,
+    C_ATTRIBUTE,
     C_COMMENT,
     C_DOXYGEN_COMMENT,
     C_DOXYGEN_TAG,
@@ -130,6 +131,8 @@ const char TEXT_WRAPPING[]         = "TextEditor.TextWrapping";
 const char UN_COMMENT_SELECTION[]  = "TextEditor.UnCommentSelection";
 const char FOLD[]                  = "TextEditor.Fold";
 const char UNFOLD[]                = "TextEditor.Unfold";
+const char FOLD_RECURSIVELY[]      = "TextEditor.FoldRecursively";
+const char UNFOLD_RECURSIVELY[]    = "TextEditor.UnfoldRecursively";
 const char UNFOLD_ALL[]            = "TextEditor.UnFoldAll";
 const char AUTO_INDENT_SELECTION[] = "TextEditor.AutoIndentSelection";
 const char AUTO_FORMAT_SELECTION[] = "TextEditor.AutoFormatSelection";
@@ -242,8 +245,11 @@ const char TEXT_SNIPPET_GROUP_ID[] = "Text";
 const char GLOBAL_SETTINGS_ID[]    = "Global";
 const char GENERIC_PROPOSAL_ID[] = "TextEditor.GenericProposalId";
 
-const char BOOKMARKS_PREV_ACTION[]        = "Bookmarks.Previous";
-const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
+const char BOOKMARKS_PREV_ACTION[]              = "Bookmarks.Previous";
+const char BOOKMARKS_NEXT_ACTION[]              = "Bookmarks.Next";
+const char BOOKMARKS_MOVEUP_ACTION[]            = "Bookmarks.MoveUp";
+const char BOOKMARKS_MOVEDOWN_ACTION[]          = "Bookmarks.MoveDown";
+const char BOOKMARKS_SORTBYFILENAMES_ACTION[]   = "Bookmarks.SortByFilenames";
 
 /**
  * Delay before tooltip will be shown near completion assistant proposal
@@ -251,4 +257,7 @@ const char BOOKMARKS_NEXT_ACTION[]        = "Bookmarks.Next";
 const unsigned COMPLETION_ASSIST_TOOLTIP_DELAY = 100;
 
 } // namespace Constants
+
+namespace Internal { Q_DECLARE_LOGGING_CATEGORY(foldingLog) }
+
 } // namespace TextEditor

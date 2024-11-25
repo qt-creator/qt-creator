@@ -18,6 +18,10 @@
     code model with the necessary information for correctly parsing the code
     when you open a file for editing.
 
+    To open a compilation database as a \l {Managing Projects}{project}, go to
+    \uicontrol File > \uicontrol {Open File or Project} and select a compilation
+    database JSON file.
+
     To generate a compilation database from the information that the code model
     has, select \uicontrol Build > \uicontrol {Generate Compilation Database}.
 
@@ -37,5 +41,5 @@
     database projects in the \uicontrol Projects mode.
 
     \sa {Enable and disable plugins}, {Add custom build steps},
-    {Configure projects for running}, {Code Model}
+    {Configure projects for running}, {Code Model}, {Configuring Projects}
 */

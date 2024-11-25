@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include <QFuture>
 #include <QMetaType>
 #include <QString>
 
@@ -31,6 +32,7 @@ public:
     bool isValid() const { return line > 0 && column >= 0; }
 
     int positionInDocument(QTextDocument *doc) const;
+    QTextCursor toTextCursor(QTextDocument *doc) const;
 
     static Position fromFileName(QStringView fileName, int &postfixPos);
     static Position fromPositionInDocument(const QTextDocument *document, int pos);
@@ -82,6 +84,12 @@ QTCREATOR_UTILS_EXPORT QString utf16LineTextInUtf8Buffer(const QByteArray &utf8B
                                                          int currentUtf8Offset);
 
 QTCREATOR_UTILS_EXPORT QDebug &operator<<(QDebug &stream, const Position &pos);
+
+using HighlightCallback = std::function<QFuture<QTextDocument *>(const QString &, const QString &)>;
+QTCREATOR_UTILS_EXPORT QFuture<QTextDocument *> highlightCode(
+    const QString &code, const QString &mimeType);
+QTCREATOR_UTILS_EXPORT void setCodeHighlighter(const HighlightCallback &highlighter);
+QTCREATOR_UTILS_EXPORT HighlightCallback &codeHighlighter();
 
 } // Text
 } // Utils

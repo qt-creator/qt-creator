@@ -346,7 +346,7 @@ static QString selectedText(QWidget *widget, bool useAll)
     QTC_ASSERT(model, return {});
 
     const int ncols = model->columnCount(QModelIndex());
-    QVector<int> largestColumnWidths(ncols, 0);
+    QList<int> largestColumnWidths(ncols, 0);
 
     QSet<QModelIndex> selected;
     if (QItemSelectionModel *selection = view->selectionModel()) {

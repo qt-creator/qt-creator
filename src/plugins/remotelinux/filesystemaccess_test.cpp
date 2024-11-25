@@ -129,6 +129,27 @@ void FileSystemAccessTest::initTestCase()
     QVERIFY(m_localRemoteDestDir.exists());
     QVERIFY(m_remoteLocalDestDir.exists());
     QVERIFY(m_remoteRemoteDestDir.exists());
+
+    const FilePath localPath = localTempDir / "sourceChildDir" / "grandchildDir";
+    const FilePath remotePath = remoteTempDir / "destChildDir" / "grandchildDir";
+    if (localPath.exists())
+        localPath.parentDir().removeRecursively();
+    if (remotePath.exists())
+        remotePath.parentDir().removeRecursively();
+    QVERIFY(!localPath.exists());
+    QVERIFY(!remotePath.exists());
+    QVERIFY(!localPath.parentDir().exists());
+    QVERIFY(!remotePath.parentDir().exists());
+    QVERIFY(localPath.ensureWritableDir());
+    QVERIFY(remotePath.ensureWritableDir());
+    QVERIFY(localPath.exists());
+    QVERIFY(remotePath.exists());
+    QVERIFY(localPath.parentDir().removeRecursively());
+    QVERIFY(remotePath.parentDir().removeRecursively());
+    QVERIFY(!localPath.exists());
+    QVERIFY(!remotePath.exists());
+    QVERIFY(!localPath.parentDir().exists());
+    QVERIFY(!remotePath.parentDir().exists());
 }
 
 void FileSystemAccessTest::cleanupTestCase()
@@ -193,7 +214,7 @@ void FileSystemAccessTest::testWorkingDirectory()
     proc.start();
     QVERIFY(proc.waitForFinished());
     const QString out = proc.readAllStandardOutput().trimmed();
-    QCOMPARE(out, dir.path());
+    QVERIFY(baseFilePath().withNewPath(out).isSameFile(dir));
     const QString err = proc.readAllStandardOutput();
     QVERIFY(err.isEmpty());
 }
@@ -475,15 +496,14 @@ void FileSystemAccessTest::testFileStreamer()
         const auto onReaderDone = [result](const FileStreamer &streamer) {
             *result = streamer.readData();
         };
-        const Group root {
+        return Group {
             FileStreamerTask(onTransferSetup),
             FileStreamerTask(onReaderSetup, onReaderDone, CallDoneIf::Success)
         };
-        return root;
     };
 
     // In total: 5 local reads, 3 local writes, 5 remote reads, 3 remote writes
-    const Group root {
+    const Group recipe {
         Group {
             parallel,
             localWriter(),
@@ -504,7 +524,7 @@ void FileSystemAccessTest::testFileStreamer()
     };
 
     using namespace std::chrono_literals;
-    QCOMPARE(TaskTree::runBlocking(root, 10000ms), DoneWith::Success);
+    QCOMPARE(TaskTree::runBlocking(recipe.withTimeout(10000ms)), DoneWith::Success);
 
     QVERIFY(localData);
     QCOMPARE(*localData, data);

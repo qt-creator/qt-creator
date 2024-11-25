@@ -21,6 +21,7 @@
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
@@ -77,9 +78,6 @@ const char MKSPEC_VALUE_NAMESPACE[] = "QT_NAMESPACE";
 class QtVersionData
 {
 public:
-    // Update version if you add data members!
-    static const int version = 3;
-
     bool installed = true;
     bool hasExamples = false;
     bool hasDemos = false;
@@ -87,7 +85,6 @@ public:
 
     std::optional<Abis> qtAbis;
 
-    DisplayName unexpandedDisplayName;
     QString qtVersionString;
 
     FilePath sourcePath;
@@ -116,101 +113,6 @@ public:
 
     QHash<ProKey, ProString> versionInfo;
     bool versionInfoUpToDate = false;
-
-    static QHash<ProKey, ProString> fromStore(const Store &map)
-    {
-        QHash<ProKey, ProString> result;
-        for (auto it = map.constBegin(); it != map.constEnd(); ++it)
-            result.insert(ProKey(it.key().toByteArray()), ProString(it.value().toString()));
-        return result;
-    }
-
-    static Store toStore(const QHash<ProKey, ProString> &map)
-    {
-        Store result;
-        for (auto it = map.constBegin(); it != map.constEnd(); ++it)
-            result.insert(it.key().toString().toQString().toUtf8(), it.value().toQString());
-        return result;
-    }
-
-    Store toMap()
-    {
-        Store result;
-        result.insert("CacheDataVersion", version);
-        result.insert("Installed", installed);
-        result.insert("HasExamples", hasExamples);
-        result.insert("HasDemos", hasDemos);
-        result.insert("HasDocumentation", hasDocumentation);
-        result.insert("VersionInfoUpToDate", versionInfoUpToDate);
-
-        unexpandedDisplayName.toMap(result, "UnexpandedDisplayName");
-
-        result.insert("QtVersionString", qtVersionString);
-        result.insert("SourcePath", sourcePath.toSettings());
-        result.insert("Prefix", prefix.toSettings());
-        result.insert("BinPath", binPath.toSettings());
-        result.insert("LibExecPath", libExecPath.toSettings());
-        result.insert("ConfigurationPath", configurationPath.toSettings());
-        result.insert("DataPath", dataPath.toSettings());
-        result.insert("DemosPath", demosPath.toSettings());
-        result.insert("DocsPath", docsPath.toSettings());
-        result.insert("ExamplesPath", examplesPath.toSettings());
-        result.insert("HeaderPath", headerPath.toSettings());
-        result.insert("ImportsPath", importsPath.toSettings());
-        result.insert("LibraryPath", libraryPath.toSettings());
-        result.insert("PluginPath", pluginPath.toSettings());
-        result.insert("QmlPath", qmlPath.toSettings());
-        result.insert("TranslationsPath", translationsPath.toSettings());
-        result.insert("HostBinPath", hostBinPath.toSettings());
-        result.insert("HostLibexecPath", hostLibexecPath.toSettings());
-        result.insert("HostDataPath", hostDataPath.toSettings());
-        result.insert("HostPrefixPath", hostPrefixPath.toSettings());
-        if (qtAbis)
-            result.insert("QtAbis", Utils::transform(*qtAbis, &Abi::toString));
-        result.insert("VersionInfo", QVariant::fromValue(toStore(versionInfo)));
-
-        return result;
-    }
-
-    void fromMap(Store map)
-    {
-        if (map.value("CacheDataVersion").toInt() < version)
-            return;
-
-        installed = map.value("Installed").toBool();
-        hasExamples = map.value("HasExamples").toBool();
-        hasDemos = map.value("HasDemos").toBool();
-        hasDocumentation = map.value("HasDocumentation").toBool();
-        versionInfoUpToDate = map.value("VersionInfoUpToDate", false).toBool();
-        unexpandedDisplayName.fromMap(map, "UnexpandedDisplayName");
-        qtVersionString = map.value("QtVersionString").toString();
-        sourcePath = FilePath::fromSettings(map.value("SourcePath"));
-        prefix = FilePath::fromSettings(map.value("Prefix"));
-        binPath = FilePath::fromSettings(map.value("BinPath"));
-        libExecPath = FilePath::fromSettings(map.value("LibExecPath"));
-        configurationPath = FilePath::fromSettings(map.value("ConfigurationPath"));
-        dataPath = FilePath::fromSettings(map.value("DataPath"));
-        demosPath = FilePath::fromSettings(map.value("DemosPath"));
-        docsPath = FilePath::fromSettings(map.value("DocsPath"));
-        examplesPath = FilePath::fromSettings(map.value("ExamplesPath"));
-        headerPath = FilePath::fromSettings(map.value("HeaderPath"));
-        importsPath = FilePath::fromSettings(map.value("ImportsPath"));
-        libraryPath = FilePath::fromSettings(map.value("LibraryPath"));
-        pluginPath = FilePath::fromSettings(map.value("PluginPath"));
-        qmlPath = FilePath::fromSettings(map.value("QmlPath"));
-        translationsPath = FilePath::fromSettings(map.value("TranslationsPath"));
-        hostBinPath = FilePath::fromSettings(map.value("HostBinPath"));
-        hostLibexecPath = FilePath::fromSettings(map.value("HostLibexecPath"));
-        hostDataPath = FilePath::fromSettings(map.value("HostDataPath"));
-        hostPrefixPath = FilePath::fromSettings(map.value("HostPrefixPath"));
-        auto it = map.find("QtAbis");
-        if (it != map.end()) {
-            const auto qtAbisList = it.value().toStringList();
-            if (!qtAbisList.isEmpty())
-                qtAbis = Utils::transform(qtAbisList, &Abi::fromString);
-        }
-        versionInfo = fromStore(map.value("VersionInfo").value<Store>());
-    }
 };
 
 // --------------------------------------------------------------------
@@ -225,7 +127,7 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
     if (major < 0)
         return result;
 
-    const QByteArray majorStr = QString::number(major).toLatin1();
+    const QByteArray majorStr = QByteArray::number(major);
     const QByteArray featureMajor = prefix + majorStr;
     const QByteArray featureDotMajor = prefix + '.' + majorStr;
 
@@ -233,9 +135,8 @@ static QSet<Id> versionedIds(const QByteArray &prefix, int major, int minor)
     result.insert(Id::fromName(featureDotMajor));
 
     for (int i = 0; i <= minor; ++i) {
-        const QByteArray minorStr = QString::number(i).toLatin1();
-        result.insert(Id::fromName(featureMajor + '.' + minorStr));
-        result.insert(Id::fromName(featureDotMajor + '.' + minorStr));
+        result.insert(Id::fromName(featureMajor).withSuffix('.').withSuffix(i));
+        result.insert(Id::fromName(featureDotMajor).withSuffix('.').withSuffix(i));
     }
 
     // FIXME: Terrible hack. Get rid of using version numbers as tags!
@@ -289,6 +190,7 @@ public:
     int m_id = -1;
     bool m_isAutodetected = false;
     QString m_type;
+    DisplayName m_unexpandedDisplayName;
 
     QtVersionData m_data;
 
@@ -724,7 +626,7 @@ void QtVersion::fromMap(const Store &map, const FilePath &filePath)
     d->m_id = map.value(Constants::QTVERSIONID).toInt();
     if (d->m_id == -1) // this happens on adding from installer, see updateFromInstaller => get a new unique id
         d->m_id = QtVersionManager::getUniqueId();
-    d->m_data.unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
+    d->m_unexpandedDisplayName.fromMap(map, Constants::QTVERSIONNAME);
     d->m_isAutodetected = map.value(QTVERSIONAUTODETECTED).toBool();
     d->m_detectionSource = map.value(QTVERSIONDETECTIONSOURCE).toString();
     d->m_overrideFeatures = Utils::Id::fromStringList(map.value(QTVERSION_OVERRIDE_FEATURES).toStringList());
@@ -767,7 +669,7 @@ Store QtVersion::toMap() const
 {
     Store result;
     result.insert(Constants::QTVERSIONID, uniqueId());
-    d->m_data.unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
+    d->m_unexpandedDisplayName.toMap(result, Constants::QTVERSIONNAME);
 
     result.insert(QTVERSIONAUTODETECTED, isAutodetected());
     result.insert(QTVERSIONDETECTIONSOURCE, detectionSource());
@@ -915,17 +817,17 @@ QString QtVersion::displayName() const
 
 QString QtVersion::unexpandedDisplayName() const
 {
-    return d->m_data.unexpandedDisplayName.value();
+    return d->m_unexpandedDisplayName.value();
 }
 
 void QtVersion::setUnexpandedDisplayName(const QString &name)
 {
-    d->m_data.unexpandedDisplayName.setValue(name);
+    d->m_unexpandedDisplayName.setValue(name);
 }
 
 void QtVersion::updateDefaultDisplayName()
 {
-    d->m_data.unexpandedDisplayName.setDefaultValue(defaultUnexpandedDisplayName());
+    d->m_unexpandedDisplayName.setDefaultValue(defaultUnexpandedDisplayName());
 }
 
 QString QtVersion::toHtml(bool verbose) const
@@ -1337,8 +1239,6 @@ void QtVersionPrivate::updateVersionInfo()
         m_qmakeIsExecutable = false;
         qWarning("Cannot update Qt version information from %s: %s.",
                  qPrintable(m_qmakeCommand.displayName()), qPrintable(error));
-        qWarning("If this appears when running Qt Creator in Qt Creator make "
-                 "sure to disable \"Add build library search path to LD_LIBRARY_PATH\"");
         return;
     }
     m_qmakeIsExecutable = true;
@@ -1453,17 +1353,23 @@ FilePath QtVersion::examplesPath() const // QT_INSTALL_EXAMPLES
     return d->m_data.examplesPath;
 }
 
+/*!
+    \internal
+    Returns a list of directories containing Qt related shared objects
+*/
 FilePaths QtVersion::qtSoPaths() const
 {
     FilePaths paths;
-    const FilePaths qtPaths = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
+    const FilePath qtPaths[] = {libraryPath(), pluginPath(), qmlPath(), importsPath()};
     for (const FilePath &qtPath : qtPaths) {
         if (qtPath.isEmpty())
             continue;
 
+        // FIXME: Could be sped up, we need just the info whether there is one such entry
         const FilePaths soPaths =
                 qtPath.dirEntries({{"*.so"}, QDir::Files, QDirIterator::Subdirectories});
-        paths.append(soPaths);
+        for (const FilePath &soPath : soPaths)
+            paths.append(soPath.parentDir());
     }
     FilePath::removeDuplicates(paths);
     return paths;
@@ -1702,7 +1608,7 @@ QSet<Id> QtVersion::features() const
     return d->m_overrideFeatures;
 }
 
-void QtVersion::addToEnvironment(const Kit *k, Environment &env) const
+void QtVersion::addToBuildEnvironment(const Kit *k, Environment &env) const
 {
     Q_UNUSED(k)
     env.set("QTDIR", hostDataPath().nativePath());
@@ -2373,6 +2279,7 @@ QtVersion *QtVersionFactory::createQtVersionFromQMakePath
     setup.config = evaluator.values("CONFIG");
     setup.platforms = evaluator.values("QMAKE_PLATFORM"); // It's a list in general.
     setup.isQnx = !evaluator.value("QNX_CPUDIR").isEmpty();
+    setup.mkspec = mkspec.fileName();
 
     for (QtVersionFactory *factory : factories) {
         if (!factory->m_restrictionChecker || factory->m_restrictionChecker(setup)) {

@@ -134,5 +134,9 @@ Platforms
 
 ### Bare Metal
 
+### WebAssembly
+
+### VxWorks
+
 Credits for these changes go to:
 --------------------------------

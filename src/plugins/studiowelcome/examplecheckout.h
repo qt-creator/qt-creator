@@ -10,7 +10,7 @@
 #include <QTimer>
 #include <QtQml>
 
-#include <memory>
+namespace Utils { class FilePath; }
 
 struct ExampleCheckout
 {

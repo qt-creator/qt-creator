@@ -31,6 +31,7 @@
 
 #include <texteditor/textdocument.h>
 
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -385,16 +386,14 @@ ToolBarBackend::ToolBarBackend(QObject *parent)
             this,
             &ToolBarBackend::documentIndexChanged);
 
-    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, this, [this]() {
-        static QMetaObject::Connection *lastConnection = nullptr;
-        delete lastConnection;
+    connect(Core::EditorManager::instance(), &Core::EditorManager::currentEditorChanged, this, [this] {
+        static QMetaObject::Connection lastConnection;
+        disconnect(lastConnection);
 
         if (auto textDocument = qobject_cast<TextEditor::TextDocument *>(
                 Core::EditorManager::currentDocument())) {
-            connect(textDocument->document(),
-                    &QTextDocument::modificationChanged,
-                    this,
-                    &ToolBarBackend::isDocumentDirtyChanged);
+            lastConnection = connect(textDocument->document(), &QTextDocument::modificationChanged,
+                    this, &ToolBarBackend::isDocumentDirtyChanged);
             emit isDocumentDirtyChanged();
         }
     });

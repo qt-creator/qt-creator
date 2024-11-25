@@ -39,17 +39,16 @@ class QVBoxLayout;
 class QWidget;
 QT_END_NAMESPACE
 
-namespace Layouting {
+namespace Building {
 
 class NestId {};
 
-template <typename T1, typename T2>
+template <typename Id, typename Arg>
 class IdAndArg
 {
 public:
-    IdAndArg(const T1 &id, const T2 &arg) : id(id), arg(arg) {}
-    const T1 id;
-    const T2 arg; // FIXME: Could be const &, but this would currently break bindTo().
+    IdAndArg(Id, const Arg &arg) : arg(arg) {}
+    const Arg arg; // FIXME: Could be const &, but this would currently break bindTo().
 };
 
 // The main dispatcher
@@ -59,23 +58,36 @@ void doit(auto x, auto id, auto p);
 template <typename X> class BuilderItem
 {
 public:
-    // Nested child object
-    template <typename Inner>
-    BuilderItem(Inner && p)
-    {
-        apply = [&p](X *x) { doit(x, NestId{}, std::forward<Inner>(p)); };
-    }
-
     // Property setter
     template <typename Id, typename Arg>
     BuilderItem(IdAndArg<Id, Arg> && idarg)
-    {
-        apply = [&idarg](X *x) { doit(x, idarg.id, idarg.arg); };
-    }
+        : apply([&idarg](X *x) { doit(x, Id{}, idarg.arg); })
+    {}
+
+    // Nested child object
+    template <typename Inner>
+    BuilderItem(Inner && p)
+        : apply([&p](X *x) { doit(x, NestId{}, std::forward<Inner>(p)); })
+    {}
 
     std::function<void(X *)> apply;
 };
 
+#define QTC_DEFINE_BUILDER_SETTER(name, setter) \
+class name##_TAG {}; \
+template <typename ...Args> \
+inline auto name(Args &&...args) { \
+    return Building::IdAndArg{name##_TAG{}, std::tuple<Args...>{std::forward<Args>(args)...}}; \
+} \
+template <typename L, typename ...Args> \
+inline void doit(L *x, name##_TAG, const std::tuple<Args...> &arg) { \
+    std::apply(&L::setter, std::tuple_cat(std::make_tuple(x), arg)); \
+}
+
+} // Building
+
+
+namespace Layouting {
 
 //////////////////////////////////////////////
 
@@ -93,7 +105,7 @@ class QTCREATOR_UTILS_EXPORT Object : public Thing
 {
 public:
     using Implementation = QObject;
-    using I = BuilderItem<Object>;
+    using I = Building::BuilderItem<Object>;
 
     Object() = default;
     Object(std::initializer_list<I> ps);
@@ -112,7 +124,7 @@ class QTCREATOR_UTILS_EXPORT Layout : public Object
 {
 public:
     using Implementation = QLayout;
-    using I = BuilderItem<Layout>;
+    using I = Building::BuilderItem<Layout>;
 
     Layout() = default;
     Layout(Implementation *w) { ptr = w; }
@@ -175,7 +187,7 @@ class QTCREATOR_UTILS_EXPORT Column : public Layout
 {
 public:
     using Implementation = QVBoxLayout;
-    using I = BuilderItem<Column>;
+    using I = Building::BuilderItem<Column>;
 
     Column(std::initializer_list<I> ps);
 };
@@ -184,7 +196,7 @@ class QTCREATOR_UTILS_EXPORT Row : public Layout
 {
 public:
     using Implementation = QHBoxLayout;
-    using I = BuilderItem<Row>;
+    using I = Building::BuilderItem<Row>;
 
     Row(std::initializer_list<I> ps);
 };
@@ -193,7 +205,7 @@ class QTCREATOR_UTILS_EXPORT Form : public Layout
 {
 public:
     using Implementation = QFormLayout;
-    using I = BuilderItem<Form>;
+    using I = Building::BuilderItem<Form>;
 
     Form();
     Form(std::initializer_list<I> ps);
@@ -203,7 +215,7 @@ class QTCREATOR_UTILS_EXPORT Grid : public Layout
 {
 public:
     using Implementation = QGridLayout;
-    using I = BuilderItem<Grid>;
+    using I = Building::BuilderItem<Grid>;
 
     Grid();
     Grid(std::initializer_list<I> ps);
@@ -249,7 +261,7 @@ class QTCREATOR_UTILS_EXPORT Widget : public Object
 {
 public:
     using Implementation = QWidget;
-    using I = BuilderItem<Widget>;
+    using I = Building::BuilderItem<Widget>;
 
     Widget() = default;
     Widget(std::initializer_list<I> ps);
@@ -258,7 +270,7 @@ public:
     QWidget *emerge() const;
 
     void show();
-    void resize(int, int);
+    void setSize(int, int);
     void setLayout(const Layout &layout);
     void setWindowTitle(const QString &);
     void setToolTip(const QString &);
@@ -271,7 +283,7 @@ class QTCREATOR_UTILS_EXPORT Label : public Widget
 {
 public:
     using Implementation = QLabel;
-    using I = BuilderItem<Label>;
+    using I = Building::BuilderItem<Label>;
 
     Label(std::initializer_list<I> ps);
     Label(const QString &text);
@@ -283,7 +295,7 @@ class QTCREATOR_UTILS_EXPORT Group : public Widget
 {
 public:
     using Implementation = QGroupBox;
-    using I = BuilderItem<Group>;
+    using I = Building::BuilderItem<Group>;
 
     Group(std::initializer_list<I> ps);
 
@@ -295,7 +307,7 @@ class QTCREATOR_UTILS_EXPORT SpinBox : public Widget
 {
 public:
     using Implementation = QSpinBox;
-    using I = BuilderItem<SpinBox>;
+    using I = Building::BuilderItem<SpinBox>;
 
     SpinBox(std::initializer_list<I> ps);
 
@@ -307,7 +319,7 @@ class QTCREATOR_UTILS_EXPORT PushButton : public Widget
 {
 public:
     using Implementation = QPushButton;
-    using I = BuilderItem<PushButton>;
+    using I = Building::BuilderItem<PushButton>;
 
     PushButton(std::initializer_list<I> ps);
 
@@ -319,7 +331,7 @@ class QTCREATOR_UTILS_EXPORT TextEdit : public Widget
 {
 public:
     using Implementation = QTextEdit;
-    using I = BuilderItem<TextEdit>;
+    using I = Building::BuilderItem<TextEdit>;
     using Id = Implementation *;
 
     TextEdit(std::initializer_list<I> ps);
@@ -331,7 +343,7 @@ class QTCREATOR_UTILS_EXPORT Splitter : public Widget
 {
 public:
     using Implementation = QSplitter;
-    using I = BuilderItem<Splitter>;
+    using I = Building::BuilderItem<Splitter>;
 
     Splitter(std::initializer_list<I> items);
 };
@@ -340,7 +352,7 @@ class QTCREATOR_UTILS_EXPORT Stack : public Widget
 {
 public:
     using Implementation = QStackedWidget;
-    using I = BuilderItem<Stack>;
+    using I = Building::BuilderItem<Stack>;
 
     Stack() : Stack({}) {}
     Stack(std::initializer_list<I> items);
@@ -361,7 +373,7 @@ class QTCREATOR_UTILS_EXPORT TabWidget : public Widget
 {
 public:
     using Implementation = QTabWidget;
-    using I = BuilderItem<TabWidget>;
+    using I = Building::BuilderItem<TabWidget>;
 
     TabWidget(std::initializer_list<I> items);
 };
@@ -370,7 +382,7 @@ class QTCREATOR_UTILS_EXPORT ToolBar : public Widget
 {
 public:
     using Implementation = QToolBar;
-    using I = Layouting::BuilderItem<ToolBar>;
+    using I = Building::BuilderItem<ToolBar>;
 
     ToolBar(std::initializer_list<I> items);
 };
@@ -412,7 +424,7 @@ class BindToId {};
 template <typename T>
 auto bindTo(T **p)
 {
-    return IdAndArg{BindToId{}, p};
+    return Building::IdAndArg{BindToId{}, p};
 }
 
 template <typename Interface>
@@ -422,7 +434,7 @@ void doit(Interface *x, BindToId, auto p)
 }
 
 class IdId {};
-auto id(auto p) { return IdAndArg{IdId{}, p}; }
+auto id(auto p) { return Building::IdAndArg{IdId{}, p}; }
 
 template <typename Interface>
 void doit(Interface *x, IdId, auto p)
@@ -432,49 +444,24 @@ void doit(Interface *x, IdId, auto p)
 
 // Setter dispatchers
 
-class SizeId {};
-auto size(auto w, auto h) { return IdAndArg{SizeId{}, std::pair{w, h}}; }
-void doit(auto x, SizeId, auto p) { x->resize(p.first, p.second); }
 
-class TextId {};
-auto text(auto p) { return IdAndArg{TextId{}, p}; }
-void doit(auto x, TextId, auto p) { x->setText(p); }
-
-class TitleId {};
-auto title(auto p) { return IdAndArg{TitleId{}, p}; }
-void doit(auto x, TitleId, auto p) { x->setTitle(p); }
-
-class GroupCheckerId {};
-auto groupChecker(auto p) { return IdAndArg{GroupCheckerId{}, p}; }
-void doit(auto x, GroupCheckerId, auto p) { x->setGroupChecker(p); }
-
-class ToolTipId {};
-auto toolTip(auto p) { return IdAndArg{ToolTipId{}, p}; }
-void doit(auto x, ToolTipId, auto p) { x->setToolTip(p); }
-
-class WindowTitleId {};
-auto windowTitle(auto p) { return IdAndArg{WindowTitleId{}, p}; }
-void doit(auto x, WindowTitleId, auto p) { x->setWindowTitle(p); }
-
-class OnTextChangedId {};
-auto onTextChanged(auto p) { return IdAndArg{OnTextChangedId{}, p}; }
-void doit(auto x, OnTextChangedId, auto p) { x->onTextChanged(p); }
-
-class OnClickedId {};
-auto onClicked(auto p, auto guard) { return IdAndArg{OnClickedId{}, std::pair{p, guard}}; }
-void doit(auto x, OnClickedId, auto p) { x->onClicked(p.first, p.second); }
-
-class CustomMarginId {};
-inline auto customMargin(const QMargins &p) { return IdAndArg{CustomMarginId{}, p}; }
-void doit(auto x, CustomMarginId, auto p) { x->customMargin(p); }
-
-class FieldGrowthPolicyId {};
-inline auto fieldGrowthPolicy(auto p) { return IdAndArg{FieldGrowthPolicyId{}, p}; }
-void doit(auto x, FieldGrowthPolicyId, auto p) { x->fieldGrowthPolicy(p); }
-
-class ColumnStretchId {};
-inline auto columnStretch(int column, int stretch) { return IdAndArg{ColumnStretchId{}, std::pair{column, stretch}}; }
-void doit(auto x, ColumnStretchId, auto p) { x->setColumnStretch(p.first, p.second); }
+QTC_DEFINE_BUILDER_SETTER(fieldGrowthPolicy, setFieldGrowthPolicy)
+QTC_DEFINE_BUILDER_SETTER(groupChecker, setGroupChecker)
+QTC_DEFINE_BUILDER_SETTER(openExternalLinks, setOpenExternalLinks)
+QTC_DEFINE_BUILDER_SETTER(size, setSize)
+QTC_DEFINE_BUILDER_SETTER(text, setText)
+QTC_DEFINE_BUILDER_SETTER(textFormat, setTextFormat)
+QTC_DEFINE_BUILDER_SETTER(textInteractionFlags, setTextInteractionFlags)
+QTC_DEFINE_BUILDER_SETTER(title, setTitle)
+QTC_DEFINE_BUILDER_SETTER(toolTip, setToolTip)
+QTC_DEFINE_BUILDER_SETTER(windowTitle, setWindowTitle)
+QTC_DEFINE_BUILDER_SETTER(wordWrap, setWordWrap);
+QTC_DEFINE_BUILDER_SETTER(orientation, setOrientation);
+QTC_DEFINE_BUILDER_SETTER(columnStretch, setColumnStretch)
+QTC_DEFINE_BUILDER_SETTER(onClicked, onClicked)
+QTC_DEFINE_BUILDER_SETTER(onLinkHovered, onLinkHovered)
+QTC_DEFINE_BUILDER_SETTER(onTextChanged, onTextChanged)
+QTC_DEFINE_BUILDER_SETTER(customMargins, setContentsMargins)
 
 // Nesting dispatchers
 
@@ -529,7 +516,7 @@ void doit_nested(Splitter *outer, auto inner)
 }
 
 template <class Inner>
-void doit(auto outer, NestId, Inner && inner)
+void doit(auto outer, Building::NestId, Inner && inner)
 {
     doit_nested(outer, std::forward<Inner>(inner));
 }

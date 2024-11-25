@@ -13,6 +13,8 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 
+#include <extensionsystem/shutdownguard.h>
+
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/devicesupport/idevicefactory.h>
 #include <projectexplorer/devicesupport/idevicewidget.h>
@@ -107,7 +109,7 @@ IosDevice::IosDevice(CtorHelper)
     : m_lastPort(Constants::IOS_DEVICE_PORT_START)
 {
     setType(Constants::IOS_DEVICE_TYPE);
-    settings()->displayName.setDefaultValue(IosDevice::name());
+    setDefaultDisplayName(IosDevice::name());
     setDisplayType(Tr::tr("iOS"));
     setMachineType(IDevice::Hardware);
     setOsType(Utils::OsTypeMac);
@@ -158,15 +160,15 @@ void IosDevice::fromMap(const Store &map)
     m_handler = Handler(map.value(kHandler).toInt());
 }
 
-Store IosDevice::toMap() const
+void IosDevice::toMap(Store &map) const
 {
-    Store res = IDevice::toMap();
+    IDevice::toMap(map);
+
     Store vMap;
     for (auto i = m_extraInfo.cbegin(), end = m_extraInfo.cend(); i != end; ++i)
         vMap.insert(keyFromString(i.key()), i.value());
-    res.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
-    res.insert(kHandler, int(m_handler));
-    return res;
+    map.insert(Constants::EXTRA_INFO_KEY, variantFromStore(vMap));
+    map.insert(kHandler, int(m_handler));
 }
 
 QString IosDevice::deviceName() const
@@ -248,7 +250,7 @@ void IosDeviceManager::deviceConnected(const QString &uid, const QString &name)
     if (!dev) {
         auto newDev = new IosDevice(uid);
         if (!name.isNull())
-            newDev->settings()->displayName.setValue(name);
+            newDev->setDisplayName(name);
         qCDebug(detectLog) << "adding ios device " << uid;
         devManager->addDevice(IDevice::ConstPtr(newDev));
     } else if (dev->deviceState() != IDevice::DeviceConnected &&
@@ -354,15 +356,17 @@ void IosDeviceManager::deviceInfo(const QString &uid,
             skipUpdate = true;
             newDev = const_cast<IosDevice *>(iosDev);
         } else {
+            Store store;
+            iosDev->toMap(store);
             newDev = new IosDevice();
-            newDev->fromMap(iosDev->toMap());
+            newDev->fromMap(store);
         }
     } else {
         newDev = new IosDevice(uid);
     }
     if (!skipUpdate) {
         if (info.contains(kDeviceName))
-            newDev->settings()->displayName.setValue(info.value(kDeviceName));
+            newDev->setDisplayName(info.value(kDeviceName));
         newDev->m_extraInfo = info;
         newDev->m_handler = handler;
         qCDebug(detectLog) << "updated info of ios device " << uid;
@@ -587,8 +591,8 @@ void IosDeviceManager::updateUserModeDevices()
 
 IosDeviceManager *IosDeviceManager::instance()
 {
-    static IosDeviceManager obj;
-    return &obj;
+    static IosDeviceManager *theInstance = new IosDeviceManager(ExtensionSystem::shutdownGuard());
+    return theInstance;
 }
 
 void IosDeviceManager::updateAvailableDevices(const QStringList &devices)

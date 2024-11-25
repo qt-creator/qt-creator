@@ -6,8 +6,24 @@
     \title Qt Documentation
 */
 /*!
+    \externalpage https://www.lua.org/
+    \title Lua
+*/
+/*!
+    \externalpage https://www.qt.io/academy/course-catalog#getting-started-with-qt-creator
+    \title Qt Academy: Getting Started with \QC
+*/
+/*!
+    \externalpage https://www.freedesktop.org/software/systemd/man/latest/systemd-coredump.html
+    \title systemd-coredump
+*/
+/*!
     \externalpage https://www.perforce.com/manuals/cmdref/Content/CmdRef/P4CONFIG.html
     \title Perforce: P4CONFIG
+*/
+/*!
+    \externalpage https://sentry.io/security/
+    \title Sentry: Security & Compliance
 */
 /*!
     \externalpage https://doc.qt.io/qt-6/qtdesigner-manual.html
@@ -232,4 +248,24 @@
 /*!
     \externalpage https://www.openssh.com/
     \title OpenSSH
+*/
+/*!
+    \externalpage https://code.qt.io/cgit/qt-creator/qt-creator.git/tree/share/qtcreator/jsonschemas/project.json
+    \title project.json
+*/
+/*!
+    \externalpage https://clang.llvm.org/docs/ClangFormat.html
+    \title ClangFormat: Documentation
+*/
+/*!
+    \externalpage https://llvm.org/releases/download.html
+    \title ClangFormat: Download
+*/
+/*!
+    \externalpage https://clang.llvm.org/docs/ClangFormatStyleOptions.html
+    \title ClangFormat Style Options
+*/
+/*!
+    \externalpage https://clang.llvm.org/docs/LibFormat.html
+    \title LibFormat: Documentation
 */

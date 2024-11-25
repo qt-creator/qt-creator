@@ -771,6 +771,9 @@
 
     \image qtcreator-test-results.webp {Visual display in the Test Results view}
 
+    The view shows test duration for the test frameworks that support it. To
+    show and hide duration information, select \inlineimage icons/stopwatch.png.
+
     \section1 Qt Test Output
 
     The \uicontrol{Test Results} view shows Qt and Qt Quick test results
@@ -870,5 +873,5 @@
 
     \endtable
 
-    \sa {Test}{How To: Test}, {Test Results}
+    \sa {Test}{How To: Test}
 */

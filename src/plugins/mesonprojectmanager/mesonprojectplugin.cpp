@@ -4,6 +4,7 @@
 #include "mesonactionsmanager.h"
 #include "mesonbuildconfiguration.h"
 #include "mesonbuildsystem.h"
+#include "mesonpluginconstants.h"
 #include "mesonproject.h"
 #include "mesonrunconfiguration.h"
 #include "ninjabuildstep.h"
@@ -11,8 +12,6 @@
 #include "toolssettingspage.h"
 
 #include <extensionsystem/iplugin.h>
-
-#include <projectexplorer/projectmanager.h>
 
 #include <utils/fsengine/fileiconprovider.h>
 
@@ -38,9 +37,9 @@ class MesonProjectPlugin final : public ExtensionSystem::IPlugin
         setupMesonRunConfiguration();
         setupMesonRunAndDebugWorkers();
 
-        setupMesonActions(this);
+        setupMesonProject();
 
-        ProjectManager::registerProjectType<MesonProject>(Constants::Project::MIMETYPE);
+        setupMesonActions(this);
 
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson.build");
         FileIconProvider::registerIconOverlayForFilename(Constants::Icons::MESON, "meson_options.txt");

@@ -302,16 +302,17 @@ void ManhattanStyle::polish(QWidget *widget)
 
         widget->setAttribute(Qt::WA_LayoutUsesWidgetRect, true);
         // So that text isn't cutoff in line-edits, comboboxes... etc.
-        const int height = qMax(StyleHelper::navigationWidgetHeight(), QApplication::fontMetrics().height());
+        const int height = qMax(StyleHelper::navigationWidgetHeight(),
+                                QFontMetrics(QApplication::font()).height());
         if (qobject_cast<QToolButton*>(widget)) {
             widget->setMinimumWidth(
-                StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact ? 24 : 28);
+                StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact ? 24 : 28);
             widget->setAttribute(Qt::WA_Hover);
             widget->setMaximumHeight(height - 2);
         } else if (qobject_cast<QLineEdit*>(widget)) {
             widget->setAttribute(Qt::WA_Hover);
             widget->setFixedHeight(height - (StyleHelper::toolbarStyle()
-                                                     == StyleHelper::ToolbarStyleCompact ? 1 : 3));
+                                             == StyleHelper::ToolbarStyle::Compact ? 1 : 3));
         } else if (qobject_cast<QLabel*>(widget) || qobject_cast<QSpinBox*>(widget)
                    || qobject_cast<QCheckBox*>(widget)) {
             widget->setPalette(panelPalette(widget->palette(), lightColored(widget)));
@@ -320,7 +321,7 @@ void ManhattanStyle::polish(QWidget *widget)
             widget->setFixedHeight(height);
         } else if (qobject_cast<QStatusBar*>(widget)) {
             const bool flatAndNotCompact =
-                StyleHelper::toolbarStyle() != StyleHelper::ToolbarStyleCompact
+                StyleHelper::toolbarStyle() != StyleHelper::ToolbarStyle::Compact
                                            && creatorTheme()->flag(Theme::FlatToolBars);
             widget->setFixedHeight(height + (flatAndNotCompact ? 3 : 2));
         } else if (qobject_cast<QComboBox*>(widget)) {
@@ -483,9 +484,11 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
     case QStyle::PE_FrameGroupBox: {
         QRect groupBoxFrame = option->rect;
         int topMargin = 0;
-        if (widget) {
+        if (auto control = dynamic_cast<const QGroupBox *>(widget)) {
+            const bool emptyTitle = !control->isCheckable() && control->title().isEmpty();
             // Before Qt 6.6.3, QStyle::subControlRect() returned wrong QRect for SC_GroupBoxFrame
-            static const bool validSCRect = QLibraryInfo::version() >= QVersionNumber(6, 6, 3);
+            const bool validSCRect = QLibraryInfo::version() >= QVersionNumber(6, 6, 3)
+                                     && !emptyTitle; // QTCREATORBUG-31960
             if (validSCRect) {
                 QStyleOptionGroupBox opt;
                 opt.initFrom(widget);
@@ -496,8 +499,7 @@ static void drawPrimitiveTweakedForDarkTheme(QStyle::PrimitiveElement element,
             } else {
                 // Snippet from pre-6.6.3 FusionStyle::drawPrimitive - BEGIN
                 static const int groupBoxTopMargin =  3;
-                auto control = dynamic_cast<const QGroupBox *>(widget);
-                if (!control->isCheckable() && control->title().isEmpty()) {
+                if (emptyTitle) {
                     // Shrinking the topMargin if Not checkable AND title is empty
                     topMargin = groupBoxTopMargin;
                 } else {
@@ -629,8 +631,10 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (!enabled)
                     painter->setOpacity(0.75);
                 QBrush baseBrush = option->palette.base();
-                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget()))
+                if (widget && qobject_cast<const QSpinBox *>(widget->parentWidget())
+                    && StyleHelper::isQDSTheme()) {
                     baseBrush = creatorColor(Theme::DScontrolBackgroundDisabled);
+                }
                 painter->fillRect(backgroundRect, baseBrush);
                 painter->restore();
             } else {
@@ -725,7 +729,7 @@ void ManhattanStyle::drawPrimitiveForPanelWidget(PrimitiveElement element,
                 if (pressed) {
                     StyleHelper::drawPanelBgRect(
                         painter, rect, creatorColor(Theme::FancyToolButtonSelectedColor));
-                    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact
+                    if (StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact
                         && !creatorTheme()->flag(Theme::FlatToolBars)) {
                         const QRectF borderRect = QRectF(rect).adjusted(0.5, 0.5, -0.5, -0.5);
                         painter->drawLine(borderRect.topLeft() + QPointF(1, 0), borderRect.topRight() - QPointF(1, 0));
@@ -1160,6 +1164,8 @@ void ManhattanStyle::drawComplexControl(ComplexControl control, const QStyleOpti
             int fw = pixelMetric(PM_DefaultFrameWidth, option, widget);
             label.rect = button.adjusted(fw, fw, -fw, -fw);
 
+            if (toolbutton->state.testAnyFlags(State_Sunken))
+                label.state.setFlag(State_On);
             drawControl(CE_ToolButtonLabel, &label, painter, widget);
 
             if (toolbutton->subControls & SC_ToolButtonMenu) {

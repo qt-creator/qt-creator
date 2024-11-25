@@ -5,7 +5,8 @@
 #include "mcusupporttr.h"
 
 #include <cmakeprojectmanager/cmakekitaspect.h>
-
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 #include <utils/algorithm.h>
 #include <utils/filepath.h>
 #include <utils/qtcassert.h>
@@ -24,7 +25,7 @@ public:
 
     void makeReadOnly() override {}
     void refresh() override {}
-    void addToLayoutImpl(Layouting::Layout &) override {}
+    void addToInnerLayout(Layouting::Layout &) override {}
 };
 
 Utils::Id McuDependenciesKitAspect::id()

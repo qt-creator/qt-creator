@@ -13,6 +13,8 @@
 
 #include <utils/qtcassert.h>
 
+using namespace Tasking;
+
 namespace Core::Internal {
 
 ExternalToolsFilter::ExternalToolsFilter()
@@ -27,12 +29,9 @@ ExternalToolsFilter::ExternalToolsFilter()
 
 LocatorMatcherTasks ExternalToolsFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage] {
-        const QString input = storage->input();
+    const auto onSetup = [] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
 
         LocatorFilterEntries bestEntries;
         LocatorFilterEntries betterEntries;
@@ -77,10 +76,10 @@ LocatorMatcherTasks ExternalToolsFilter::matchers()
             return AcceptResult();
         };
 
-        storage->reportOutput(bestEntries + betterEntries + goodEntries
-                              + LocatorFilterEntries{configEntry});
+        storage.reportOutput(bestEntries + betterEntries + goodEntries
+                             + LocatorFilterEntries{configEntry});
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 } // Core::Internal

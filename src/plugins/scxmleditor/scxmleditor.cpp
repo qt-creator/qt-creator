@@ -4,7 +4,6 @@
 #include "mainwidget.h"
 #include "scxmleditorconstants.h"
 #include "scxmleditordocument.h"
-#include "scxmleditorstack.h"
 #include "scxmleditortr.h"
 #include "scxmltexteditor.h"
 
@@ -16,7 +15,6 @@
 #include <coreplugin/editormanager/ieditorfactory.h>
 #include <coreplugin/editortoolbar.h>
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
 #include <coreplugin/minisplitter.h>
 #include <coreplugin/modemanager.h>
@@ -32,9 +30,10 @@
 #include <utils/utilsicons.h>
 
 #include <QGuiApplication>
-#include <QVBoxLayout>
+#include <QStackedWidget>
 #include <QToolBar>
 #include <QUndoGroup>
+#include <QVBoxLayout>
 
 using namespace Core;
 using namespace ScxmlEditor::Common;
@@ -42,6 +41,68 @@ using namespace ScxmlEditor::PluginInterface;
 using namespace Utils;
 
 namespace ScxmlEditor::Internal {
+
+class ScxmlEditorStack final : public QStackedWidget
+{
+public:
+    ScxmlEditorStack() { setObjectName("ScxmlEditorStack"); }
+
+    void add(ScxmlTextEditor *editor, QWidget *widget)
+    {
+        connect(Core::ModeManager::instance(), &Core::ModeManager::currentModeAboutToChange,
+                this, &ScxmlEditorStack::modeAboutToChange);
+
+        m_editors.append(editor);
+        addWidget(widget);
+        connect(editor, &ScxmlTextEditor::destroyed,
+                this, &ScxmlEditorStack::removeScxmlTextEditor);
+    }
+
+    QWidget *widgetForEditor(ScxmlTextEditor *xmlEditor)
+    {
+        const int i = m_editors.indexOf(xmlEditor);
+        QTC_ASSERT(i >= 0, return nullptr);
+
+        return widget(i);
+    }
+
+    void removeScxmlTextEditor(QObject *xmlEditor)
+    {
+        const int i = m_editors.indexOf(xmlEditor);
+        QTC_ASSERT(i >= 0, return);
+
+        QWidget *widget = this->widget(i);
+        if (widget) {
+            removeWidget(widget);
+            widget->deleteLater();
+        }
+        m_editors.removeAt(i);
+    }
+
+    bool setVisibleEditor(Core::IEditor *xmlEditor)
+    {
+        const int i = m_editors.indexOf(xmlEditor);
+        QTC_ASSERT(i >= 0, return false);
+
+        if (i != currentIndex())
+            setCurrentIndex(i);
+
+        return true;
+    }
+
+private:
+    void modeAboutToChange(Utils::Id m)
+    {
+        // Sync the editor when entering edit mode
+        if (m == Core::Constants::MODE_EDIT) {
+            for (auto editor: std::as_const(m_editors))
+                if (auto document = qobject_cast<ScxmlEditorDocument*>(editor->textDocument()))
+                    document->syncXmlFromDesignWidget();
+        }
+    }
+
+    QList<ScxmlTextEditor*> m_editors;
+};
 
 class ScxmlTextEditorWidget : public TextEditor::TextEditorWidget
 {
@@ -156,10 +217,7 @@ void ScxmlEditorData::fullInit()
 
     Context scxmlContexts = m_contexts;
     scxmlContexts.add(Core::Constants::C_EDITORMANAGER);
-    auto context = new IContext(this);
-    context->setContext(scxmlContexts);
-    context->setWidget(m_modeWidget);
-    ICore::addContextObject(context);
+    IContext::attach(m_modeWidget, scxmlContexts);
 
     DesignMode::registerDesignWidget(m_modeWidget, QStringList(Utils::Constants::SCXML_MIMETYPE), m_contexts);
 }

@@ -89,7 +89,7 @@ signals:
     void keyChanged(const QKeySequence &key);
 
 private:
-    QKeySequence m_key = Qt::Key_Space + HostOsInfo::controlModifier();
+    QKeySequence m_key = Qt::Key_Space | HostOsInfo::controlModifier();
 };
 Q_GLOBAL_STATIC(CompletionShortcut, completionShortcut)
 
@@ -354,10 +354,11 @@ bool FancyLineEdit::hasAutoHideButton(Side side) const
     return d->m_iconbutton[side]->hasAutoHide();
 }
 
-void FancyLineEdit::setHistoryCompleter(const Key &historyKey, bool restoreLastItemFromHistory)
+void FancyLineEdit::setHistoryCompleter(
+    const Key &historyKey, bool restoreLastItemFromHistory, int maxLines)
 {
     QTC_ASSERT(!d->m_historyCompleter, return);
-    d->m_historyCompleter = new HistoryCompleter(historyKey, this);
+    d->m_historyCompleter = new HistoryCompleter(historyKey, maxLines, this);
     if (restoreLastItemFromHistory && d->m_historyCompleter->hasHistory())
         setText(d->m_historyCompleter->historyItem());
     QLineEdit::setCompleter(d->m_historyCompleter);
@@ -689,8 +690,7 @@ void FancyIconButton::animateShow(bool visible)
 
 QSize FancyIconButton::sizeHint() const
 {
-    QWindow *window = this->window()->windowHandle();
-    return icon().actualSize(window, QSize(32, 16)); // Find flags icon can be wider than 16px
+    return icon().actualSize(QSize(32, 16)); // Find flags icon can be wider than 16px
 }
 
 void FancyIconButton::keyPressEvent(QKeyEvent *ke)

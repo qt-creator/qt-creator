@@ -31,7 +31,7 @@ StudioControls.Dialog {
         Text {
             id: warningText
 
-            text: qsTr("Are you sure you? The action cannot be undone")
+            text: qsTr("Are you sure? The action cannot be undone.")
             color: StudioTheme.Values.themeTextColor
             wrapMode: Text.WordWrap
             anchors.right: parent.right

@@ -21,6 +21,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/buildtargetinfo.h>
 #include <projectexplorer/environmentaspect.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runcontrol.h>
@@ -59,9 +60,11 @@ public:
             QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
+            envVars.replaceInStrings(" ", "\\ ");
 
             // Always use the default environment to start the appman-controller in
             // The env variables from the EnvironmentAspect are set through the controller
@@ -71,13 +74,17 @@ public:
             CommandLine cmd{controller};
             if (!instanceId.isEmpty())
                 cmd.addArgs({"--instance-id", instanceId});
-            if (envVars.isEmpty()) {
-                cmd.addArgs({"start-application", "-eio", appId});
-            } else {
+
+            if (envVars.isEmpty())
+                cmd.addArgs({"start-application", "-eio"});
+            else
                 cmd.addArgs({"debug-application", "-eio"});
+
+            if (restartIfRunning)
+                cmd.addArg("--restart");
+            if (!envVars.isEmpty())
                 cmd.addArg(envVars.join(' '));
-                cmd.addArg(appId);
-            }
+            cmd.addArg(appId);
             if (!documentUrl.isEmpty())
                 cmd.addArg(documentUrl);
             setCommandLine(cmd);
@@ -95,7 +102,6 @@ public:
                          bool usePerf, bool useGdbServer, bool useQmlServer,
                          QmlDebug::QmlDebugServicesPreset qmlServices)
         : SimpleTargetRunner(runControl),
-        m_usePerf(usePerf), m_useGdbServer(useGdbServer), m_useQmlServer(useQmlServer),
         m_qmlServices(qmlServices)
     {
         setId(AppManager::Constants::DEBUG_LAUNCHER_ID);
@@ -104,24 +110,25 @@ public:
         if (usePerf) {
             suppressDefaultStdOutHandling();
             runControl->setProperty("PerfProcess", QVariant::fromValue(process()));
+            runControl->requestPerfChannel();
         }
 
-        m_portsGatherer = new Debugger::DebugServerPortsGatherer(runControl);
-        m_portsGatherer->setUseGdbServer(useGdbServer || usePerf);
-        m_portsGatherer->setUseQmlServer(useQmlServer);
-        addStartDependency(m_portsGatherer);
+        if (useGdbServer)
+            runControl->requestDebugChannel();
+
+        if (useQmlServer)
+            runControl->requestQmlChannel();
 
         setStartModifier([this, runControl] {
             FilePath controller = runControl->aspectData<AppManagerControllerAspect>()->filePath;
             QString appId = runControl->aspectData<AppManagerIdAspect>()->value;
             QString instanceId = runControl->aspectData<AppManagerInstanceIdAspect>()->value;
             QString documentUrl = runControl->aspectData<AppManagerDocumentUrlAspect>()->value;
+            bool restartIfRunning = runControl->aspectData<AppManagerRestartIfRunningAspect>()->value;
             QStringList envVars;
             if (auto envAspect = runControl->aspectData<EnvironmentAspect>())
                 envVars = envAspect->environment.toStringList();
-
-            const int gdbServerPort = m_portsGatherer->gdbServer().port();
-            const int qmlServerPort = m_portsGatherer->qmlServer().port();
+            envVars.replaceInStrings(" ", "\\ ");
 
             CommandLine cmd{controller};
             if (!instanceId.isEmpty())
@@ -129,27 +136,29 @@ public:
 
             cmd.addArg("debug-application");
 
-            if (m_useGdbServer || m_useQmlServer) {
+            if (usesDebugChannel() || usesQmlChannel()) {
                 QStringList debugArgs;
                 debugArgs.append(envVars.join(' '));
-                if (m_useGdbServer) {
-                    debugArgs.append(QString("gdbserver :%1").arg(gdbServerPort));
-                }
-                if (m_useQmlServer) {
-                    debugArgs.append(QString("%program% %1 %arguments%")
-                                         .arg(qmlDebugCommandLineArguments(m_qmlServices,
-                                                                            QString("port:%1").arg(qmlServerPort),
-                                                                            true)));
+                if (usesDebugChannel())
+                    debugArgs.append(QString("gdbserver :%1").arg(debugChannel().port()));
+                if (usesQmlChannel()) {
+                    const QString qmlArgs =
+                            qmlDebugCommandLineArguments(m_qmlServices,
+                                                         QString("port:%1").arg(qmlChannel().port()),
+                                                         true);
+                    debugArgs.append(QString("%program% %1 %arguments%") .arg(qmlArgs));
                 }
                 cmd.addArg(debugArgs.join(' '));
             }
-            if (m_usePerf) {
+            if (usesPerfChannel()) {
                 const Store perfArgs = runControl->settingsData(PerfProfiler::Constants::PerfSettingsId);
                 const QString recordArgs = perfArgs[PerfProfiler::Constants::PerfRecordArgsId].toString();
                 cmd.addArg(QString("perf record %1 -o - --").arg(recordArgs));
             }
 
             cmd.addArg("-eio");
+            if (restartIfRunning)
+                cmd.addArg("--restart");
             cmd.addArg(appId);
 
             if (!documentUrl.isEmpty())
@@ -167,15 +176,7 @@ public:
         });
     }
 
-    QUrl perfServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl gdbServer() const { return m_portsGatherer->gdbServer(); }
-    QUrl qmlServer() const { return m_portsGatherer->qmlServer(); }
-
 private:
-    Debugger::DebugServerPortsGatherer *m_portsGatherer = nullptr;
-    bool m_usePerf;
-    bool m_useGdbServer;
-    bool m_useQmlServer;
     QmlDebug::QmlDebugServicesPreset m_qmlServices;
 };
 
@@ -231,13 +232,13 @@ private:
         setCloseMode(Debugger::KillAndExitMonitorAtClose);
 
         if (isQmlDebugging())
-            setQmlServer(m_debuggee->qmlServer());
+            setQmlServer(qmlChannel());
 
         if (isCppDebugging()) {
             setUseExtendedRemote(false);
             setUseContinueInsteadOfRun(true);
             setContinueAfterAttach(true);
-            setRemoteChannel(m_debuggee->gdbServer());
+            setRemoteChannel(debugChannel());
             setSymbolFile(m_symbolFile);
 
             QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(runControl()->kit());
@@ -283,7 +284,7 @@ public:
 private:
     void start() final
     {
-        m_worker->recordData("QmlServerUrl", m_runner->qmlServer());
+        m_worker->recordData("QmlServerUrl", qmlChannel());
         reportStarted();
     }
 

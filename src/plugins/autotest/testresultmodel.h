@@ -14,8 +14,7 @@
 
 #include <optional>
 
-namespace Autotest {
-namespace Internal {
+namespace Autotest::Internal {
 
 class TestResultItem : public Utils::TypedTreeItem<TestResultItem, TestResultItem>
 {
@@ -37,7 +36,8 @@ public:
     };
 
     void updateResult(bool &changed, ResultType addedChildType,
-                      const std::optional<SummaryEvaluation> &summary);
+                      const std::optional<SummaryEvaluation> &summary,
+                      const std::optional<QString> duration);
 
     TestResultItem *intermediateFor(const TestResultItem *item) const;
     TestResultItem *createAndAddIntermediateFor(const TestResultItem *child);
@@ -69,6 +69,7 @@ public:
 
     int resultTypeCount(ResultType type) const;
     int disabledTests() const { return m_disabled; }
+    std::optional<int> reportedDuration() const { return m_reportedDurations; }
     void raiseDisabledTests(int amount) { m_disabled += amount; }
 
 private:
@@ -79,6 +80,7 @@ private:
     void updateParent(const TestResultItem *item);
     QHash<QString, QMap<ResultType, int>> m_testResultCount;
     QHash<QString, QHash<ResultType, int>> m_reportedSummary;
+    std::optional<int> m_reportedDurations = std::nullopt;
     int m_widthOfLineNumber = 0;
     int m_maxWidthOfFileName = 0;
     int m_disabled = 0;
@@ -98,6 +100,9 @@ public:
     bool hasResults();
     TestResult testResult(const QModelIndex &index) const;
     TestResultItem *itemForIndex(const QModelIndex &index) const;
+    const QSet<ResultType> enabledFilters() const { return m_enabled; }
+    const QVariantList enabledFiltersAsSetting() const;
+    void setEnabledFiltersFromSetting(const QVariantList &enabled);
 
 protected:
     bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override;
@@ -107,5 +112,4 @@ private:
     QSet<ResultType> m_enabled;
 };
 
-} // namespace Internal
-} // namespace Autotest
+} // namespace Autotest::Internal

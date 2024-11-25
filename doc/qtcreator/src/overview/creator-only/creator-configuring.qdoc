@@ -22,10 +22,12 @@
     Qt versions and compilers by adding the paths to them and by creating
     \l{Kits}{kits} that use them.
 
-    To make \QC behave more like your favorite code editor or IDE,
-    change the preferences for keyboard shortcuts, color schemes, generic
-    highlighting, code snippets, and version control systems. Manage plugins
-    to turn on and off \QC features.
+    To make \QC behave more like your favorite code editor or IDE, change the
+    preferences for generic highlighting, code snippets, and version control
+    systems. Manage plugins and extensions to turn on and off \QC features.
+
+    To make \QC more accessible, use keyboard navigation or adjust colors and
+    zoom levels.
 
     The following sections summarize the options that you have and point you to
     detailed information to help you specify any required settings and to make
@@ -69,7 +71,55 @@
     For more information, see \l{Manage Kits}{How To: Manage Kits} and
     \l{Develop for Devices}{How To: Develop for Devices}.
 
-    \section1 Changing Keyboard Shortcuts
+    \section1 Adding Your Own Code Snippets
+
+    As you write code, \QC suggests properties, IDs, and code snippets to
+    complete the code. It lists context-sensitive suggestions for
+    the statement currently under your cursor. Add, modify, and remove
+    snippets in the snippet editor.
+
+    To open the snippet editor, go to \preferences >
+    \uicontrol {Text Editor} > \uicontrol Snippets.
+
+    For more information, see \l{Snippets}.
+
+    \section1 Configuring Version Control Systems
+
+    \QC supports several version control systems. In most cases, you do not need
+    to configure the version control in any special way to make it work with
+    \QC.
+
+    However, you can set some configuration options in \preferences >
+    \uicontrol {Version Control} > \uicontrol General.
+
+    For more information about the supported functions, see
+    \l{Version Control Systems}.
+
+    \section1 Managing Plugins and Extensions
+
+    \QC comes with a set of plugins, some of which are disabled by default.
+    You can \l{Enable and disable plugins}{enable} disabled plugins if you
+    need them and disable plugins you don't need.
+
+    \l{Install plugins}{Download and install} more plugins from
+    \l{https://marketplace.qt.io/}{Qt Marketplace} or some
+    other source, such as \l{https://github.com/}{GitHub}.
+
+    To enable and disable plugins, go to \uicontrol Help >
+    \uicontrol {About Plugins}.
+
+    To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
+    select \uicontrol {Install Plugins}.
+
+    You can also install and load extensions in the \uicontrol Extensions mode.
+
+    \section1 Accessibility
+
+    You can use keyboard shortcuts to navigate the UI without a mouse, or set
+    zoom levels and change colors to improve the visibility of the text. Also,
+    \QC supports screen readers.
+
+    \section2 Changing Keyboard Shortcuts
 
     You can use \QC with your favorite keyboard shortcuts.
 
@@ -77,7 +127,33 @@
     \uicontrol Environment > \uicontrol Keyboard. For more information, see
     \l{Keyboard Shortcuts}.
 
-    \section1 Changing Color Schemes
+    \section2 Navigating with the Keyboard
+
+    To move between UI controls, press the the \key Tab key or the \key Left,
+    \key Right, \key Up, and \key Down arrow keys.
+
+    \section2 Setting Zoom Levels
+
+    To set editor font and colors, select \preferences >
+    \uicontrol {Text Editor} > \uicontrol {Font & Colors}.
+
+    Select the font family and size, and set the zoom level in percentage for
+    viewing the text or use keyboard shortcuts or the mouse wheel to zoom in or
+    out.
+
+    To improve the readability of text in the editor, adjust the line spacing.
+
+    For more information, see \l{Font & Colors}.
+
+    The system configuration determines the font sizes in other parts of \QC.
+
+    When viewing output, use the \inlineimage icons/plus.png {Plus button} and
+    \inlineimage icons/minus.png {Minus button} buttons or keyboard shortcuts to
+    set the zoom level.
+
+    For more information, see \l{View output}.
+
+    \section2 Changing Color Schemes
 
     Themes set the appearance of the \QC UI: widgets, colors, and icons.
 
@@ -104,45 +180,5 @@
 
     For more information, see \l{Download highlight definitions}.
 
-    \section1 Adding Your Own Code Snippets
-
-    As you write code, \QC suggests properties, IDs, and code snippets to
-    complete the code. It lists context-sensitive suggestions for
-    the statement currently under your cursor. Add, modify, and remove
-    snippets in the snippet editor.
-
-    To open the snippet editor, go to \preferences >
-    \uicontrol {Text Editor} > \uicontrol Snippets.
-
-    For more information, see \l{Snippets}.
-
-    \section1 Configuring Version Control Systems
-
-    \QC supports several version control systems. In most cases, you do not need
-    to configure the version control in any special way to make it work with
-    \QC.
-
-    However, you can set some configuration options in \preferences >
-    \uicontrol {Version Control} > \uicontrol General.
-
-    For more information about the supported functions, see
-    \l{Version Control Systems}.
-
-    \section1 Managing Plugins
-
-    \QC comes with a set of plugins, some of which are disabled by default.
-    You can \l{Enable and disable plugins}{enable} disabled plugins if you
-    need them and disable plugins you don't need.
-
-    \l{Install plugins}{Download and install} more plugins from
-    \l{https://marketplace.qt.io/}{Qt Marketplace} or some
-    other source, such as \l{https://github.com/}{GitHub}.
-
-    To enable and disable plugins, go to \uicontrol Help >
-    \uicontrol {About Plugins}.
-
-    To install plugins, go to \uicontrol Help > \uicontrol {About Plugins} and
-    select \uicontrol {Install Plugins}.
-
-    \sa {Installation}, {Reset \QC settings}, {Preferences}
+    \sa {Installation}, {Reset \QC settings}, {Preferences}, {Get and Install Qt}
 */

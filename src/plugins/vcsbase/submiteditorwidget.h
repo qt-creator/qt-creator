@@ -95,6 +95,8 @@ protected:
     void verifyDescription();
 
 private:
+    enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
+
     void updateCheckAllComboBox();
     void checkAllToggled();
 
@@ -110,6 +112,7 @@ private:
     int checkedFilesCount() const;
     void wrapDescription();
     void trimDescription();
+    void clearDescriptionHint();
 
     SubmitEditorWidgetPrivate *d;
 };

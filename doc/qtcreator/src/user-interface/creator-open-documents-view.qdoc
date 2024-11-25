@@ -44,6 +44,9 @@
             clipboard.
         \li Pin files to the top of the list to keep them open when you
             select \uicontrol {Close All}.
+        \li Assign keyboard shortcuts for opening the next and previous
+            document in the list (\uicontrol OpenNextDocument and
+            \uicontrol OpenPreviousDocument).
     \endlist
 
     \section1 Setting Preferences for Opening Files
@@ -76,7 +79,7 @@
             \uicontrol File > \uicontrol {Recent Files}.
     \endlist
 
-    \sa {Apply quick fixes}, {Rename symbols}
+    \sa {Apply quick fixes}, {Assign keyboard shortcuts}, {Rename symbols}
 
     \if defined(qtcreator)
     \sa {Find symbols}

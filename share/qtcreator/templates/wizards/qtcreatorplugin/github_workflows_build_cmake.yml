@@ -6,7 +6,7 @@ env:
   PLUGIN_NAME: %{PluginName}
   QT_VERSION: %{JS: Util.qtVersion()}
   QT_CREATOR_VERSION: %{JS: Util.qtCreatorVersion()}
-  QT_CREATOR_SNAPSHOT: NO
+  QT_CREATOR_VERSION_INTERNAL: %{JS: Util.qtCreatorIdeVersion()}
   MACOS_DEPLOYMENT_TARGET: "11.0"
   CMAKE_VERSION: "3.29.6"
   NINJA_VERSION: "1.12.1"
@@ -23,74 +23,44 @@ jobs:
         - {
             name: "Windows Latest MSVC", artifact: "Windows-x64",
             os: windows-latest,
+            platform: windows_x64,
             cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files/Microsoft Visual Studio/2022/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
           }
         - {
             name: "Ubuntu Latest GCC", artifact: "Linux-x64",
             os: ubuntu-latest,
+            platform: linux_x64,
             cc: "gcc", cxx: "g++"
           }
         - {
             name: "macOS Latest Clang", artifact: "macOS-universal",
             os: macos-latest,
+            platform: mac_x64,
             cc: "clang", cxx: "clang++"
           }
 
     steps:
     - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
     - name: Checkout submodules
       id: git
       shell: cmake -P {0}
       run: |
         if (${{github.ref}} MATCHES "tags/v(.*)")
-            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}\\n")
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${CMAKE_MATCH_1}")
         else()
-            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${{github.run_id}}\\n")
+            file(APPEND "$ENV{GITHUB_OUTPUT}" "tag=${{github.run_id}}")
         endif()
 
     - name: Download Ninja and CMake
-      shell: cmake -P {0}
-      run: |
-        set(cmake_version "$ENV{CMAKE_VERSION}")
-        set(ninja_version "$ENV{NINJA_VERSION}")
-
-        if ("${{ runner.os }}" STREQUAL "Windows")
-          set(ninja_suffix "win.zip")
-          set(cmake_suffix "windows-x86_64.zip")
-          set(cmake_dir "cmake-${cmake_version}-windows-x86_64/bin")
-        elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(ninja_suffix "linux.zip")
-          set(cmake_suffix "linux-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-linux-x86_64/bin")
-        elseif ("${{ runner.os }}" STREQUAL "macOS")
-          set(ninja_suffix "mac.zip")
-          set(cmake_suffix "macos-universal.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-macos-universal/CMake.app/Contents/bin")
-        endif()
-
-        set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
-
-        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-
-        # Add to PATH environment variable
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-        set(path_separator ":")
-        if ("${{ runner.os }}" STREQUAL "Windows")
-          set(path_separator ";")
-        endif()
-        file(APPEND "$ENV{GITHUB_PATH}" "$ENV{GITHUB_WORKSPACE}${path_separator}${cmake_dir}")
-
-        if (NOT "${{ runner.os }}" STREQUAL "Windows")
-          execute_process(
-            COMMAND chmod +x ninja
-            COMMAND chmod +x ${cmake_dir}/cmake
-          )
-        endif()
+      uses: lukka/get-cmake@latest
+      with:
+        cmakeVersion: ${{ env.CMAKE_VERSION }}
+        ninjaVersion: ${{ env.NINJA_VERSION }}
 
     - name: Install system libs
       shell: cmake -P {0}
@@ -184,39 +154,17 @@ jobs:
         endif()
 
     - name: Download Qt Creator
+      uses: qt-creator/install-dev-package@v1.2
+      with:
+        version: ${{ env.QT_CREATOR_VERSION }}
+        unzip-to: 'qtcreator'
+
+    - name: Extract Qt Creator
       id: qt_creator
       shell: cmake -P {0}
       run: |
-        string(REGEX MATCH "([0-9]+.[0-9]+).[0-9]+" outvar "$ENV{QT_CREATOR_VERSION}")
-
-        set(qtc_base_url "https://download.qt.io/official_releases/qtcreator/${CMAKE_MATCH_1}/$ENV{QT_CREATOR_VERSION}/installer_source")
-        set(qtc_snapshot "$ENV{QT_CREATOR_SNAPSHOT}")
-        if (qtc_snapshot)
-          set(qtc_base_url "https://download.qt.io/snapshots/qtcreator/${CMAKE_MATCH_1}/$ENV{QT_CREATOR_VERSION}/installer_source/${qtc_snapshot}")
-        endif()
-
-        if ("${{ runner.os }}" STREQUAL "Windows")
-          set(qtc_platform "windows_x64")
-        elseif ("${{ runner.os }}" STREQUAL "Linux")
-          set(qtc_platform "linux_x64")
-        elseif ("${{ runner.os }}" STREQUAL "macOS")
-          set(qtc_platform "mac_x64")
-        endif()
-
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/qtcreator" qtc_dir)
-        # Save the path for other steps
         file(APPEND "$ENV{GITHUB_OUTPUT}" "qtc_dir=${qtc_dir}")
-
-        file(MAKE_DIRECTORY qtcreator)
-
-        message("Downloading Qt Creator from ${qtc_base_url}/${qtc_platform}")
-
-        foreach(package qtcreator qtcreator_dev)
-          file(DOWNLOAD
-            "${qtc_base_url}/${qtc_platform}/${package}.7z" ./${package}.7z SHOW_PROGRESS)
-          execute_process(COMMAND
-            ${CMAKE_COMMAND} -E tar xvf ../${package}.7z WORKING_DIRECTORY qtcreator)
-        endforeach()
 
     - name: Build
       shell: cmake -P {0}
@@ -276,10 +224,61 @@ jobs:
         path: ./${{ env.PLUGIN_NAME }}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}.7z
         name: ${{ env.PLUGIN_NAME}}-${{ env.QT_CREATOR_VERSION }}-${{ matrix.config.artifact }}.7z
 
-  release:
+    # The json is the same for all platforms, but we need to save one
+    - name: Upload plugin json
+      if: matrix.config.os == 'ubuntu-latest'
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PLUGIN_NAME }}-origin-json
+        path: ./build/build/${{ env.PLUGIN_NAME }}.json
+
+  update_json:
     if: contains(github.ref, 'tags/v')
     runs-on: ubuntu-latest
     needs: build
+
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+
+    - name: Download the JSON file
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ env.PLUGIN_NAME }}-origin-json
+        path: ./${{ env.PLUGIN_NAME }}-origin
+
+    - name: Store Release upload_url
+      run: |
+        RELEASE_HTML_URL=$(echo "${{github.event.repository.html_url}}/releases/download/v${{ needs.build.outputs.tag }}")
+        echo "RELEASE_HTML_URL=${RELEASE_HTML_URL}" >> $GITHUB_ENV
+
+    - name: Run the Node.js script to update JSON
+      env:
+        QT_TOKEN: ${{ secrets.TOKEN }}
+        API_URL: ${{ secrets.API_URL }}
+      run: |
+        node .github/scripts/registerPlugin.js \
+        ${{ env.RELEASE_HTML_URL }} ${{ env.PLUGIN_NAME }} \
+        ${{ env.QT_CREATOR_VERSION }} ${{ env.QT_CREATOR_VERSION_INTERNAL }} \
+        ${{ env.QT_TOKEN }} ${{ env.API_URL }}
+
+    - name: Delete previous json artifacts
+      uses: geekyeggo/delete-artifact@v5
+      with:
+        name: ${{ env.PLUGIN_NAME }}*-json
+
+    - name: Upload the modified JSON file as an artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: plugin-json
+        path: .github/scripts/${{ env.PLUGIN_NAME }}.json
+
+  release:
+    if: contains(github.ref, 'tags/v')
+    runs-on: ubuntu-latest
+    needs: [build, update_json]
 
     steps:
     - name: Download artifacts

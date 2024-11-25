@@ -20,6 +20,7 @@
 
 #include <utils/qtcassert.h>
 #include <utils/expected.h>
+#include <utils/fileutils.h>
 
 #include <QCryptographicHash>
 #include <QLoggingCategory>
@@ -40,7 +41,10 @@ clang::format::FormatStyle calculateQtcStyle()
     style.Language = FormatStyle::LK_Cpp;
     style.AccessModifierOffset = -4;
     style.AlignAfterOpenBracket = FormatStyle::BAS_Align;
-#if LLVM_VERSION_MAJOR >= 15
+#if LLVM_VERSION_MAJOR >= 18
+    style.AlignConsecutiveAssignments = {false, false, false, false, false, false};
+    style.AlignConsecutiveDeclarations = {false, false, false, false, false, false};
+#elif LLVM_VERSION_MAJOR >= 15
     style.AlignConsecutiveAssignments = {false, false, false, false, false};
     style.AlignConsecutiveDeclarations = {false, false, false, false, false};
 #else
@@ -69,7 +73,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.AlwaysBreakTemplateDeclarations = FormatStyle::BTDS_Yes;
 #endif
     style.BinPackArguments = false;
+#if LLVM_VERSION_MAJOR >= 20
+    style.BinPackParameters = FormatStyle::BPPS_OnePerLine;
+#else
     style.BinPackParameters = false;
+#endif
     style.BraceWrapping.AfterClass = true;
     style.BraceWrapping.AfterControlStatement = FormatStyle::BWACS_Never;
     style.BraceWrapping.AfterEnum = false;
@@ -113,7 +121,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.IndentWrappedFunctionNames = false;
     style.JavaScriptQuotes = FormatStyle::JSQS_Leave;
     style.JavaScriptWrapImports = true;
+#if LLVM_VERSION_MAJOR >= 19
+    style.KeepEmptyLines = {false, false, false};
+#else
     style.KeepEmptyLinesAtTheStartOfBlocks = false;
+#endif
     // Do not add QT_BEGIN_NAMESPACE/QT_END_NAMESPACE as this will indent lines in between.
     style.MacroBlockBegin = "";
     style.MacroBlockEnd = "";
@@ -130,7 +142,11 @@ clang::format::FormatStyle calculateQtcStyle()
     style.PenaltyExcessCharacter = 50;
     style.PenaltyReturnTypeOnItsOwnLine = 300;
     style.PointerAlignment = FormatStyle::PAS_Right;
+#if LLVM_VERSION_MAJOR >= 20
+    style.ReflowComments = FormatStyle::RCS_Never;
+#else
     style.ReflowComments = false;
+#endif
     style.SortIncludes = FormatStyle::SI_CaseSensitive;
 #if LLVM_VERSION_MAJOR >= 16
     style.SortUsingDeclarations = FormatStyle::SUD_Lexicographic;
@@ -304,9 +320,9 @@ ClangFormatSettings::Mode getCurrentIndentationOrFormattingSettings(const Utils:
                : getProjectIndentationOrFormattingSettings(project);
 }
 
-Utils::FilePath findConfig(const Utils::FilePath &fileName)
+Utils::FilePath findConfig(const Utils::FilePath &filePath)
 {
-    Utils::FilePath parentDirectory = fileName.parentDir();
+    Utils::FilePath parentDirectory = filePath.parentDir();
     while (parentDirectory.exists()) {
         Utils::FilePath settingsFilePath = parentDirectory / Constants::SETTINGS_FILE_NAME;
         if (settingsFilePath.exists())
@@ -321,19 +337,22 @@ Utils::FilePath findConfig(const Utils::FilePath &fileName)
     return {};
 }
 
-Utils::FilePath configForFile(const Utils::FilePath &fileName)
+ICodeStylePreferences *preferencesForFile(const Utils::FilePath &filePath)
 {
-    if (!getCurrentCustomSettings(fileName))
-        return findConfig(fileName);
+    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::projectForFile(
+        filePath);
 
-    const ProjectExplorer::Project *projectForFile
-        = ProjectExplorer::ProjectManager::projectForFile(fileName);
+    return !getProjectUseGlobalSettings(project) && project
+               ? project->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
+               : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+}
 
-    const TextEditor::ICodeStylePreferences *preferences
-        = projectForFile
-              ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
-              : TextEditor::TextEditorSettings::codeStyle("Cpp")->currentPreferences();
+Utils::FilePath configForFile(const Utils::FilePath &filePath)
+{
+    if (!getCurrentCustomSettings(filePath))
+        return findConfig(filePath);
 
+    const TextEditor::ICodeStylePreferences *preferences = preferencesForFile(filePath);
     return filePathToCurrentSettings(preferences);
 }
 
@@ -383,6 +402,16 @@ void addQtcStatementMacros(clang::format::FormatStyle &style)
             == style.StatementMacros.end())
             style.StatementMacros.emplace_back(macro);
     }
+
+    const std::vector<std::string> emitMacros = {"emit", "Q_EMIT"};
+    for (const std::string &emitMacro : emitMacros) {
+        if (std::find(
+                style.StatementAttributeLikeMacros.begin(),
+                style.StatementAttributeLikeMacros.end(),
+                emitMacro)
+            == style.StatementAttributeLikeMacros.end())
+            style.StatementAttributeLikeMacros.push_back(emitMacro);
+    }
 }
 
 Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreferences *codeStyle)
@@ -392,27 +421,30 @@ Utils::FilePath filePathToCurrentSettings(const TextEditor::ICodeStylePreference
            / QLatin1String(Constants::SETTINGS_FILE_NAME);
 }
 
-static QString s_errorMessage;
 Utils::expected_str<void> parseConfigurationContent(const std::string &fileContent,
                                                     clang::format::FormatStyle &style,
                                                     bool allowUnknownOptions)
 {
-    auto diagHandler = [](const llvm::SMDiagnostic &diag, void * /*context*/) {
-        s_errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
-                         + QString::number(diag.getLineNo()) + ":"
-                         + QString::number(diag.getColumnNo());
+    llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *context) {
+        QString *errorMessage = reinterpret_cast<QString *>(context);
+        *errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                        + QString::number(diag.getLineNo()) + ":"
+                        + QString::number(diag.getColumnNo());
     };
 
+    QString errorMessage;
     style.Language = clang::format::FormatStyle::LK_Cpp;
     const std::error_code error = parseConfiguration(
         llvm::MemoryBufferRef(fileContent, "YAML"),
         &style,
         allowUnknownOptions,
         diagHandler,
-        nullptr);
+        &errorMessage);
 
+    errorMessage = errorMessage.trimmed().isEmpty() ? QString::fromStdString(error.message())
+                                                    : errorMessage;
     if (error)
-        return make_unexpected(s_errorMessage);
+        return make_unexpected(errorMessage);
     return {};
 }
 

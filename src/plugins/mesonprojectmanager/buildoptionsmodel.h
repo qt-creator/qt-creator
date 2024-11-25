@@ -13,8 +13,7 @@
 #include <QItemEditorFactory>
 #include <QStyledItemDelegate>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class CancellableOption
 {
@@ -164,5 +163,4 @@ public:
                       const QModelIndex &index) const override;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

@@ -435,13 +435,22 @@ public:
                     static_cast<Pty::PtyInputFlag>(m_inputFlags.toInt()));
             }
 
-            emit readyRead(m_ptyProcess->readAll(), {});
+            const QByteArray data = m_ptyProcess->readAll();
+            if (!data.isEmpty())
+              emit readyRead(data, {});
         });
 
         connect(m_ptyProcess->notifier(), &QIODevice::aboutToClose, this, [this] {
             if (m_ptyProcess) {
                 const ProcessResultData result
                     = {m_ptyProcess->exitCode(), QProcess::NormalExit, QProcess::UnknownError, {}};
+
+                const QByteArray restOfOutput = m_ptyProcess->readAll();
+                if (!restOfOutput.isEmpty()) {
+                    emit readyRead(restOfOutput, {});
+                    m_ptyProcess->notifier()->disconnect();
+                }
+
                 emit done(result);
                 return;
             }
@@ -784,6 +793,7 @@ public:
         m_killTimer.setSingleShot(true);
         connect(&m_killTimer, &QTimer::timeout, this, [this] {
             m_killTimer.stop();
+            emit q->stoppingForcefully();
             sendControlSignal(ControlSignal::Kill);
         });
         setupDebugLog();
@@ -1658,6 +1668,7 @@ void Process::stop()
     if (state() == QProcess::NotRunning)
         return;
 
+    emit requestingStop();
     d->sendControlSignal(ControlSignal::Terminate);
     d->m_killTimer.start(d->m_process->m_setup.m_reaperTimeout);
 }

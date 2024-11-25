@@ -18,29 +18,13 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QShowEvent>
-#include <QVBoxLayout>
 
-namespace Marketplace {
-namespace Internal {
-
+using namespace Core;
 using namespace Utils;
 
-QString QtMarketplaceWelcomePage::title() const
-{
-    return Tr::tr("Marketplace");
-}
+namespace Marketplace::Internal {
 
-int QtMarketplaceWelcomePage::priority() const
-{
-    return 60;
-}
-
-Utils::Id QtMarketplaceWelcomePage::id() const
-{
-    return "Marketplace";
-}
-
-class QtMarketplacePageWidget : public QWidget
+class QtMarketplacePageWidget final : public QWidget
 {
 public:
     QtMarketplacePageWidget()
@@ -100,7 +84,7 @@ public:
                 this, &QtMarketplacePageWidget::onTagClicked);
     }
 
-    void showEvent(QShowEvent *event) override
+    void showEvent(QShowEvent *event) final
     {
         if (!m_initialized) {
             m_initialized = true;
@@ -123,11 +107,23 @@ private:
     bool m_initialized = false;
 };
 
+// QtMarketplaceWelcomePage
 
-QWidget *QtMarketplaceWelcomePage::createWidget() const
+class QtMarketplaceWelcomePage final : public IWelcomePage
 {
-    return new QtMarketplacePageWidget;
+public:
+    QtMarketplaceWelcomePage() = default;
+
+    QString title() const final { return Tr::tr("Marketplace"); }
+    int priority() const final { return 60; }
+    Utils::Id id() const final { return "Marketplace"; }
+    QWidget *createWidget() const final { return new QtMarketplacePageWidget; }
+};
+
+void setupQtMarketPlaceWelcomePage(QObject *guard)
+{
+    auto page = new QtMarketplaceWelcomePage;
+    page->setParent(guard);
 }
 
-} // namespace Internal
-} // namespace Marketplace
+} // Marketplace::Internal

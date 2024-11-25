@@ -60,7 +60,7 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
             if (avdPath.exists()) {
                 // Get ABI.
                 const Utils::FilePath configFile = avdPath.pathAppended("config.ini");
-                QSettings config(configFile.toString(), QSettings::IniFormat);
+                QSettings config(configFile.toFSPathString(), QSettings::IniFormat);
                 value = config.value(avdInfoAbiKey).toString();
                 if (!value.isEmpty())
                     avd.cpuAbi << value;
@@ -71,13 +71,13 @@ static std::optional<AndroidDeviceInfo> parseAvd(const QStringList &deviceInfo)
                 const QString avdInfoFileName = avd.avdName + ".ini";
                 const Utils::FilePath avdInfoFile = avdPath.parentDir().pathAppended(
                     avdInfoFileName);
-                QSettings avdInfo(avdInfoFile.toString(), QSettings::IniFormat);
+                QSettings avdInfo(avdInfoFile.toFSPathString(), QSettings::IniFormat);
                 value = avdInfo.value(avdInfoTargetKey).toString();
                 if (!value.isEmpty())
                     avd.sdk = platformNameToApiLevel(value);
                 else
                     qCDebug(avdOutputParserLog)
-                        << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toString();
+                        << "Avd Parsing: Cannot find sdk API:" << avdInfoFile.toUserOutput();
             }
         }
     }

@@ -6,7 +6,7 @@
 #include "xmlproject.h"
 #include "xmlpropertygroup.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Debugger { class DebuggerRunTool; }
 

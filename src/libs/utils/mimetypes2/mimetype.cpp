@@ -6,9 +6,6 @@
 
 #include "mimetype_p.h"
 #include "mimedatabase_p.h"
-#include "mimeprovider_p.h"
-
-#include "mimeglobpattern_p.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
@@ -16,44 +13,19 @@
 
 #include <memory>
 
+using namespace Qt::StringLiterals;
+
 namespace Utils {
 
-static QString suffixFromPattern(const QString &pattern)
+QString MimeType::suffixFromPattern(const QString &pattern)
 {
     // Not a simple suffix if it looks like: README or *. or *.* or *.JP*G or *.JP?
-    if (pattern.startsWith(QLatin1String("*.")) &&
-        pattern.length() > 2 &&
-        pattern.indexOf(QLatin1Char('*'), 2) < 0 && pattern.indexOf(QLatin1Char('?'), 2) < 0) {
+    if (pattern.startsWith("*."_L1) &&
+        pattern.size() > 2 &&
+        pattern.indexOf(u'*', 2) < 0 && pattern.indexOf(u'?', 2) < 0) {
         return pattern.mid(2);
     }
     return {};
-}
-
-MimeTypePrivate::MimeTypePrivate()
-    : loaded(false), fromCache(false)
-{}
-
-MimeTypePrivate::MimeTypePrivate(const MimeType &other)
-      : loaded(other.d->loaded),
-        name(other.d->name),
-        localeComments(other.d->localeComments),
-        genericIconName(other.d->genericIconName),
-        iconName(other.d->iconName),
-        globPatterns(other.d->globPatterns)
-{}
-
-void MimeTypePrivate::clear()
-{
-    name.clear();
-    localeComments.clear();
-    genericIconName.clear();
-    iconName.clear();
-    globPatterns.clear();
-}
-
-void MimeTypePrivate::addGlobPattern(const QString &pattern)
-{
-    globPatterns.append(pattern);
 }
 
 /*!
@@ -79,7 +51,7 @@ void MimeTypePrivate::addGlobPattern(const QString &pattern)
     MIME types can inherit from each other: for instance a C source file is
     a specific type of plain text file, so text/x-csrc inherits text/plain.
 
-    \sa MimeDatabase, {MIME Type Browser Example}
+    \sa MimeDatabase, {MIME Type Browser}
  */
 
 /*!
@@ -228,24 +200,40 @@ QString MimeType::name() const
  */
 QString MimeType::comment() const
 {
-    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
+    const auto localeComments = MimeDatabasePrivate::instance()->localeComments(d->name);
 
-    QStringList languageList;
-    languageList << QLocale().name();
-    languageList << QLocale().uiLanguages();
-    languageList << QLatin1String("default"); // use the default locale if possible.
+    QStringList languageList = QLocale().uiLanguages();
+    qsizetype defaultIndex = languageList.indexOf(u"en-US"_s);
+
+    // Include the default locale as fall-back.
+    if (defaultIndex >= 0) {
+        // en_US is generally the default, and may be omitted from the
+        // overtly-named locales in the MIME type's data (QTBUG-105007).
+        ++defaultIndex; // Skip over en-US.
+        // That's typically followed by en-Latn-US and en (in that order):
+        if (defaultIndex < languageList.size() && languageList.at(defaultIndex) == u"en-Latn-US")
+            ++defaultIndex;
+        if (defaultIndex < languageList.size() && languageList.at(defaultIndex) == u"en")
+            ++defaultIndex;
+    } else {
+        // Absent en-US, just append it:
+        defaultIndex = languageList.size();
+    }
+    languageList.insert(defaultIndex, u"default"_s);
+
     for (const QString &language : std::as_const(languageList)) {
-        const QString lang = language == QLatin1String("C") ? QLatin1String("en_US") : language;
-        const QString comm = d->localeComments.value(lang);
+            // uiLanguages() uses '-' as separator, MIME database uses '_'
+        const QString lang
+            = language == "C"_L1 ? u"en_US"_s : QString(language).replace(u'-', u'_');
+        QString comm = localeComments.value(lang);
         if (!comm.isEmpty())
             return comm;
-        const int pos = lang.indexOf(QLatin1Char('_'));
-        if (pos != -1) {
-            // "pt_BR" not found? try just "pt"
-            const QString shortLang = lang.left(pos);
-            const QString commShort = d->localeComments.value(shortLang);
-            if (!commShort.isEmpty())
-                return commShort;
+        const qsizetype cut = lang.indexOf(u'_');
+        // If "de_CH" is missing, check for "de" (and similar):
+        if (cut != -1) {
+            comm = localeComments.value(lang.left(cut));
+            if (!comm.isEmpty())
+                return comm;
         }
     }
 
@@ -269,8 +257,8 @@ QString MimeType::comment() const
  */
 QString MimeType::genericIconName() const
 {
-    MimeDatabasePrivate::instance()->loadGenericIcon(const_cast<MimeTypePrivate&>(*d));
-    if (d->genericIconName.isEmpty()) {
+    QString genericIconName = MimeDatabasePrivate::instance()->genericIcon(d->name);
+    if (genericIconName.isEmpty()) {
         // From the spec:
         // If the generic icon name is empty (not specified by the mimetype definition)
         // then the mimetype is used to generate the generic icon by using the top-level
@@ -278,19 +266,19 @@ QString MimeType::genericIconName() const
         // (i.e. "video-x-generic" in the previous example).
         const QString group = name();
         QStringView groupRef(group);
-        const int slashindex = groupRef.indexOf(QLatin1Char('/'));
+        const qsizetype slashindex = groupRef.indexOf(u'/');
         if (slashindex != -1)
             groupRef = groupRef.left(slashindex);
-        return groupRef + QLatin1String("-x-generic");
+        return groupRef + "-x-generic"_L1;
     }
-    return d->genericIconName;
+    return genericIconName;
 }
 
 static QString make_default_icon_name_from_mimetype_name(QString iconName)
 {
-    const int slashindex = iconName.indexOf(QLatin1Char('/'));
+    const qsizetype slashindex = iconName.indexOf(u'/');
     if (slashindex != -1)
-        iconName[slashindex] = QLatin1Char('-');
+        iconName[slashindex] = u'-';
     return iconName;
 }
 
@@ -305,11 +293,11 @@ static QString make_default_icon_name_from_mimetype_name(QString iconName)
  */
 QString MimeType::iconName() const
 {
-    MimeDatabasePrivate::instance()->loadIcon(const_cast<MimeTypePrivate&>(*d));
-    if (d->iconName.isEmpty()) {
+    QString iconName = MimeDatabasePrivate::instance()->icon(d->name);
+    if (iconName.isEmpty()) {
         return make_default_icon_name_from_mimetype_name(name());
     }
-    return d->iconName;
+    return iconName;
 }
 
 /*!
@@ -321,8 +309,7 @@ QString MimeType::iconName() const
  */
 QStringList MimeType::globPatterns() const
 {
-    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
-    return d->globPatterns;
+    return MimeDatabasePrivate::instance()->globPatterns(d->name);
 }
 
 /*!
@@ -351,14 +338,17 @@ QStringList MimeType::parentMimeTypes() const
 static void collectParentMimeTypes(const QString &mime, QStringList &allParents)
 {
     const QStringList parents = MimeDatabasePrivate::instance()->mimeParents(mime);
+    QStringList newParents;
     for (const QString &parent : parents) {
         // I would use QSet, but since order matters I better not
-        if (!allParents.contains(parent))
+        if (!allParents.contains(parent)) {
             allParents.append(parent);
+            newParents.append(parent);
+        }
     }
     // We want a breadth-first search, so that the least-specific parent (octet-stream) is last
     // This means iterating twice, unfortunately.
-    for (const QString &parent : parents)
+    for (const QString &parent : newParents)
         collectParentMimeTypes(parent, allParents);
 }
 
@@ -416,10 +406,11 @@ QStringList MimeType::aliases() const
  */
 QStringList MimeType::suffixes() const
 {
-    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
+    const QStringList patterns = globPatterns();
 
     QStringList result;
-    for (const QString &pattern : std::as_const(d->globPatterns)) {
+    result.reserve(patterns.size());
+    for (const QString &pattern : patterns) {
         const QString suffix = suffixFromPattern(pattern);
         if (!suffix.isEmpty())
             result.append(suffix);
@@ -455,17 +446,11 @@ QString MimeType::preferredSuffix() const
 */
 QString MimeType::filterString() const
 {
-    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
+    const QStringList patterns = globPatterns();
     QString filter;
 
-    if (!d->globPatterns.empty()) {
-        filter += comment() + QLatin1String(" (");
-        for (int i = 0; i < d->globPatterns.size(); ++i) {
-            if (i != 0)
-                filter += QLatin1Char(' ');
-            filter += d->globPatterns.at(i);
-        }
-        filter +=  QLatin1Char(')');
+    if (!patterns.isEmpty()) {
+        filter = comment() + " ("_L1 + patterns.join(u' ') + u')';
     }
 
     return filter;
@@ -504,16 +489,7 @@ bool MimeType::matchesName(const QString &nameOrAlias) const
 */
 void MimeType::setPreferredSuffix(const QString &suffix)
 {
-    MimeDatabasePrivate::instance()->loadMimeTypePrivate(const_cast<MimeTypePrivate&>(*d));
-
-    auto it = std::find_if(d->globPatterns.begin(),
-                           d->globPatterns.end(),
-                           [suffix](const QString &pattern) {
-                               return suffixFromPattern(pattern) == suffix;
-                           });
-    if (it != d->globPatterns.end())
-        d->globPatterns.erase(it);
-    d->globPatterns.prepend(QLatin1String("*.") + suffix);
+    MimeDatabasePrivate::instance()->setPreferredSuffix(d->name, suffix);
 }
 
 QDebug operator<<(QDebug debug, const Utils::MimeType &mime)

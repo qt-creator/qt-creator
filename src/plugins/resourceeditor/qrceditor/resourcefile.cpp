@@ -12,7 +12,7 @@
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/fsengine/fileiconprovider.h>
 #include <utils/removefiledialog.h>
 #include <utils/theme/theme.h>
@@ -112,7 +112,7 @@ Core::IDocument::OpenResult ResourceFile::load()
         }
         QByteArray data = file.readAll();
         // Detect line ending style
-        m_textFileFormat = Utils::TextFileFormat::detect(data);
+        m_textFileFormat = TextFileFormat::detect(data);
         // we always write UTF-8 when saving
         m_textFileFormat.codec = QTextCodec::codecForName("UTF-8");
         file.close();
@@ -238,7 +238,6 @@ void ResourceFile::refresh()
 int ResourceFile::addFile(int prefix_idx, const QString &file, int file_idx)
 {
     Prefix * const p = m_prefix_list[prefix_idx];
-    Q_ASSERT(p);
     FileList &files = p->file_list;
     Q_ASSERT(file_idx >= -1 && file_idx <= files.size());
     if (file_idx == -1)
@@ -358,8 +357,8 @@ bool ResourceFile::renameFile(const QString &fileName, const QString &newFileNam
     if (entries.at(0)->exists()) {
         for (File *file : std::as_const(entries))
             file->setExists(true);
-        success = Core::FileUtils::renameFile(Utils::FilePath::fromString(entries.at(0)->name),
-                                              Utils::FilePath::fromString(newFileName));
+        success = Core::FileUtils::renameFile(FilePath::fromString(entries.at(0)->name),
+                                              FilePath::fromString(newFileName));
     }
 
     if (success) {
@@ -557,7 +556,7 @@ void ResourceFile::clearPrefixList()
 
 ResourceModel::ResourceModel()
 {
-    static QIcon resourceFolderIcon = Utils::FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
+    static QIcon resourceFolderIcon = FileIconProvider::directoryIcon(QLatin1String(ProjectExplorer::Constants::FILEOVERLAY_QRC));
     m_prefixIcon = resourceFolderIcon;
 }
 
@@ -755,7 +754,6 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                     appendParenthesized(lang, stringRes);
             } else  {
                 // File node
-                Q_ASSERT(file);
                 QString conv_file = m_resource_file.relativePath(file->name);
                 stringRes = QDir::fromNativeSeparators(conv_file);
                 const QString alias = file->alias;
@@ -768,13 +766,12 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     case Qt::DecorationRole:
         if (isFileNode) {
             // File node
-            Q_ASSERT(file);
             if (file->icon.isNull()) {
                 const QString path = m_resource_file.absolutePath(file->name);
                 if (iconFileExtension(path))
                     file->icon = QIcon(path);
                 else
-                    file->icon = Utils::FileIconProvider::icon(Utils::FilePath::fromString(path));
+                    file->icon = FileIconProvider::icon(FilePath::fromString(path));
             }
             if (!file->icon.isNull())
                 result = file->icon;
@@ -785,7 +782,6 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
         break;
     case Qt::EditRole:
         if (isFileNode) {
-            Q_ASSERT(file);
             QString conv_file = m_resource_file.relativePath(file->name);
             result = QDir::fromNativeSeparators(conv_file);
         }
@@ -793,9 +789,8 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
     case Qt::ForegroundRole:
         if (isFileNode) {
             // File node
-            Q_ASSERT(file);
             if (!file->exists())
-                result = Utils::creatorColor(Utils::Theme::TextColorError);
+                result = Utils::creatorColor(Theme::TextColorError);
         }
         break;
     default:
@@ -812,8 +807,7 @@ bool ResourceModel::setData(const QModelIndex &index, const QVariant &value, int
         return false;
 
     const QDir baseDir = filePath().toFileInfo().absoluteDir();
-    Utils::FilePath newFileName = Utils::FilePath::fromUserInput(
-                baseDir.absoluteFilePath(value.toString()));
+    FilePath newFileName = FilePath::fromUserInput(baseDir.absoluteFilePath(value.toString()));
 
     if (newFileName.isEmpty())
         return false;
@@ -840,7 +834,6 @@ void ResourceModel::getItem(const QModelIndex &index, QString &prefix, QString &
 
     if (isFileNode) {
         const File *f = node->file();
-        Q_ASSERT(f);
         if (!f->alias.isEmpty())
             file = f->alias;
         else
@@ -1229,11 +1222,11 @@ EntryBackup * RelativeResourceModel::removeEntry(const QModelIndex &index)
             deleteItem(index);
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }
-        Utils::RemoveFileDialog removeFileDialog(Utils::FilePath::fromString(fileNameBackup),
-                                                 Core::ICore::dialogParent());
+        RemoveFileDialog removeFileDialog(FilePath::fromString(fileNameBackup),
+                                          Core::ICore::dialogParent());
         if (removeFileDialog.exec() == QDialog::Accepted) {
             deleteItem(index);
-            Core::FileUtils::removeFiles({Utils::FilePath::fromString(fileNameBackup)},
+            Core::FileUtils::removeFiles({FilePath::fromString(fileNameBackup)},
                                          removeFileDialog.isDeleteFileChecked());
             return new FileEntryBackup(*this, prefixIndex.row(), index.row(), fileNameBackup, aliasBackup);
         }

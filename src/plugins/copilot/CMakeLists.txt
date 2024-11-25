@@ -1,15 +1,14 @@
 add_qtc_plugin(Copilot
   PLUGIN_DEPENDS Core LanguageClient
+  LONG_DESCRIPTION_MD Description.md
   SOURCES
     authwidget.cpp authwidget.h
     copilot.qrc
     copilotclient.cpp copilotclient.h
     copilotconstants.h
-    copilothoverhandler.cpp copilothoverhandler.h
     copilotplugin.cpp
     copilotprojectpanel.cpp copilotprojectpanel.h
     copilotsettings.cpp copilotsettings.h
-    copilotsuggestion.cpp copilotsuggestion.h
     requests/checkstatus.h
     requests/getcompletions.h
     requests/signinconfirm.h

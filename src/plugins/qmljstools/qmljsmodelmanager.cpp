@@ -16,6 +16,8 @@
 
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsystem.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
@@ -339,7 +341,7 @@ void ModelManager::updateDefaultProjectInfo()
 
 
 void ModelManager::addTaskInternal(const QFuture<void> &result, const QString &msg,
-                                   const char *taskId) const
+                                   const Id taskId) const
 {
     ProgressManager::addTask(result, msg, taskId);
 }

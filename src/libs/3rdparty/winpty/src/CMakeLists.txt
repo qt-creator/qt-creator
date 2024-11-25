@@ -107,5 +107,9 @@ add_qtc_library(winpty STATIC
     ${shared_sources}
 )
 
+if(MSVC)
+  target_compile_options(winpty PUBLIC /EHsc)
+endif()
+
 target_include_directories(winpty
   PUBLIC $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)

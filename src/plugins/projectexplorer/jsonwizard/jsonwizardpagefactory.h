@@ -28,6 +28,7 @@ public:
 
     // Basic syntax check for the data taken from the wizard.json file:
     virtual bool validateData(Utils::Id typeId, const QVariant &data, QString *errorMessage) = 0;
+    virtual bool defaultSkipForSubprojects() const { return false; }
 
 protected:
     // This will add "PE.Wizard.Page." in front of the suffixes and set those as supported typeIds

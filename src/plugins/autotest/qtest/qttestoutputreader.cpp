@@ -279,11 +279,11 @@ void QtTestOutputReader::processXMLOutput(const QByteArray &outputLine)
             if (currentTag == QStringLiteral("TestFunction")) {
                 sendFinishMessage(true);
                 // TODO: bump progress?
-                m_dataTag.clear();
                 m_formerTestCase = m_testCase;
                 m_testCase.clear();
             } else if (currentTag == QStringLiteral("TestCase")) {
                 sendFinishMessage(false);
+                m_executionDuration = qRound(m_duration.toDouble());
             } else if (validEndTags.contains(currentTag.toString())) {
                 if (m_parseMessages && isTestMessage(m_result)) {
                     const QRegularExpressionMatch match = userFileLocation().match(m_description);
@@ -344,7 +344,7 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
     static const QRegularExpression config("^Config: Using QtTest library (.*), "
                                            "(Qt (\\d+(\\.\\d+){2}) \\(.*\\))$");
     static const QRegularExpression summary("^Totals: (\\d+) passed, (\\d+) failed, "
-                                            "(\\d+) skipped(, (\\d+) blacklisted)?(, \\d+ms)?$");
+                                            "(\\d+) skipped(, (\\d+) blacklisted)?(, (\\d+)ms)?$");
     static const QRegularExpression finish("^[*]{9} Finished testing of (.*) [*]{9}$");
 
     static const QRegularExpression result("^(PASS   |FAIL!  |XFAIL  |XPASS  |SKIP   |RESULT "
@@ -390,6 +390,8 @@ void QtTestOutputReader::processPlainTextOutput(const QByteArray &outputLine)
         // BlacklistedXYZ is wrong here, but we use it for convenience (avoids another enum value)
         if (int blacklisted = match.captured(5).toInt())
             m_summary[ResultType::BlacklistedPass] = blacklisted;
+        if (match.hasCaptured(7))
+            m_executionDuration.emplace(match.captured(7).toInt());
         processSummaryFinishOutput();
     } else if (finish.match(line).hasMatch()) {
         processSummaryFinishOutput();
@@ -476,6 +478,8 @@ void QtTestOutputReader::sendCompleteInformation()
         }
     }
     testResult.setDescription(m_description);
+    if (!m_duration.isEmpty())
+        testResult.setDuration(m_duration);
     reportResult(testResult);
 }
 
@@ -503,11 +507,15 @@ void QtTestOutputReader::sendStartMessage(bool isFunction)
 
 void QtTestOutputReader::sendFinishMessage(bool isFunction)
 {
+    m_dataTag.clear();
+    if (!isFunction)
+        m_testCase.clear();
     TestResult result = createDefaultResult();
     result.setResult(ResultType::TestEnd);
     if (!m_duration.isEmpty()) {
         result.setDescription(isFunction ? Tr::tr("Execution took %1 ms.").arg(m_duration)
                                          : Tr::tr("Test execution took %1 ms.").arg(m_duration));
+        result.setDuration(m_duration);
     } else {
         result.setDescription(isFunction ? Tr::tr("Test function finished.")
                                          : Tr::tr("Test finished."));

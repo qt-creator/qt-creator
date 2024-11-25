@@ -128,7 +128,7 @@ class ClientPrivate : public QObject
 public:
     ClientPrivate(Client *client, BaseClientInterface *clientInterface, const Utils::Id &id)
         : q(client)
-        , m_id(id.isValid() ? id : Utils::Id::fromString(QUuid::createUuid().toString()))
+        , m_id(id.isValid() ? id : Id::generate())
         , m_clientCapabilities(q->defaultClientCapabilities())
         , m_clientInterface(new InterfaceController(clientInterface))
         , m_documentSymbolCache(q)
@@ -1684,6 +1684,11 @@ void Client::setLogTarget(LogTarget target)
 
 void Client::start()
 {
+    startImpl();
+}
+
+void Client::startImpl()
+{
     d->m_shutdownTimer.stop();
     LanguageClientManager::addClient(this);
     d->m_clientInterface->start();
@@ -1810,6 +1815,11 @@ HoverHandler *Client::hoverHandler()
     return &d->m_hoverHandler;
 }
 
+SemanticTokenSupport *Client::semanticTokenSupport()
+{
+    return &d->m_tokenSupport;
+}
+
 void ClientPrivate::log(const ShowMessageParams &message)
 {
     q->log(message.toString());
@@ -1819,6 +1829,7 @@ LanguageClientValue<MessageActionItem> ClientPrivate::showMessageBox(
     const ShowMessageRequestParams &message)
 {
     QMessageBox box;
+    box.setWindowTitle(q->name());
     box.setText(message.toString());
     switch (message.type()) {
     case Error:

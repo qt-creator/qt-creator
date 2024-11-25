@@ -41,13 +41,9 @@ public:
     FileNameToContentsHash contents;
     QDateTime compileTime;
     IEditor *lastEditor = nullptr;
-    QMetaObject::Connection activeBuildConfigConnection;
-    QMetaObject::Connection activeEnvironmentConnection;
     Guard lock;
     bool dirty = false;
-
     QTimer timer;
-
     TaskTreeRunner m_taskTreeRunner;
 };
 

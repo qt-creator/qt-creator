@@ -3,19 +3,8 @@
 
 #pragma once
 
-#include <coreplugin/basefilewizard.h>
-#include <coreplugin/basefilewizardfactory.h>
-#include <utils/fileutils.h>
-#include <utils/wizard.h>
-
-namespace Utils { class FileWizardPage; }
-
-namespace GenericProjectManager {
-namespace Internal {
-
-class FilesSelectionWizardPage;
+namespace GenericProjectManager::Internal {
 
 void setupGenericProjectWizard();
 
-} // namespace Internal
-} // namespace GenericProjectManager
+} // GenericProjectManager::Internal

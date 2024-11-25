@@ -13,8 +13,6 @@
 #include <QSet>
 #include <QStringList>
 
-#include <set>
-
 namespace CPlusPlus {
 class Class;
 class Declaration;
@@ -33,7 +31,11 @@ public:
 
     CPlusPlus::Function *findMatchingDefinition(CPlusPlus::Symbol *symbol,
                                                 const CPlusPlus::Snapshot &snapshot,
-                                                bool strict = false);
+                                                bool strict);
+
+    QList<CPlusPlus::Function *> findMatchingDefinitions(
+        CPlusPlus::Symbol *declaration, const CPlusPlus::Snapshot &snapshot, bool strict,
+        bool stopAtFirstResult);
 
     CPlusPlus::Symbol *findMatchingVarDefinition(CPlusPlus::Symbol *declaration,
                                                  const CPlusPlus::Snapshot &snapshot);

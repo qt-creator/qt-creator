@@ -174,7 +174,7 @@ bool BaseFileWizardFactory::postGenerateOpenEditors(const GeneratedFiles &l, QSt
                 return false;
             }
             editor->document()->formatContents();
-            editor->document()->save(nullptr);
+            editor->document()->save();
         }
     }
     return true;

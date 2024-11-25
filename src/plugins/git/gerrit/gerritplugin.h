@@ -17,12 +17,10 @@ class CommandLocator;
 
 namespace VcsBase { class VcsBasePluginState; }
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritChange;
 class GerritDialog;
-class GerritParameters;
 class GerritServer;
 class GerritOptionsPage;
 
@@ -36,8 +34,6 @@ public:
 
     void addToMenu(Core::ActionContainer *ac);
 
-    static Utils::FilePath gitBinDirectory();
-    static QString branch(const Utils::FilePath &repository);
     void addToLocator(Core::CommandLocator *locator);
     void push(const Utils::FilePath &topLevel);
 
@@ -54,7 +50,6 @@ private:
     Utils::FilePath findLocalRepository(const QString &project, const QString &branch) const;
     void fetch(const std::shared_ptr<GerritChange> &change, int mode);
 
-    std::shared_ptr<GerritParameters> m_parameters;
     std::shared_ptr<GerritServer> m_server;
     QPointer<GerritDialog> m_dialog;
     Core::Command *m_gerritCommand = nullptr;
@@ -63,5 +58,4 @@ private:
     GerritOptionsPage *m_gerritOptionsPage = nullptr;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

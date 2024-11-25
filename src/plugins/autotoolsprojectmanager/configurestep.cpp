@@ -7,6 +7,7 @@
 #include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/abstractprocessstep.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -14,8 +15,6 @@
 
 #include <utils/aspects.h>
 #include <utils/qtcprocess.h>
-
-#include <QDateTime>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -45,10 +44,7 @@ public:
         arguments.setSettingsKey("AutotoolsProjectManager.ConfigureStep.AdditionalArguments");
         arguments.setLabelText(Tr::tr("Arguments:"));
         arguments.setHistoryCompleter("AutotoolsPM.History.ConfigureArgs");
-
-        connect(&arguments, &BaseAspect::changed, this, [this] {
-            m_runConfigure = true;
-        });
+        arguments.addOnChanged(this, [this] { m_runConfigure = true; });
 
         setCommandLineProvider([this] {
             return getCommandLine(arguments());
@@ -114,12 +110,21 @@ Tasking::GroupItem ConfigureStep::runRecipe()
  * The factory is used to create instances of ConfigureStep.
  */
 
-ConfigureStepFactory::ConfigureStepFactory()
+class ConfigureStepFactory final : public BuildStepFactory
 {
-    registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
-    setDisplayName(Tr::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+public:
+    ConfigureStepFactory()
+    {
+        registerStep<ConfigureStep>(Constants::CONFIGURE_STEP_ID);
+        setDisplayName(Tr::tr("Configure", "Display name for AutotoolsProjectManager::ConfigureStep id."));
+        setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    }
+};
+
+void setupConfigureStep()
+{
+    static ConfigureStepFactory theConfigureStepFactory;
 }
 
 } // AutotoolsProjectManager::Internal

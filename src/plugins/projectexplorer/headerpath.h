@@ -4,7 +4,7 @@
 #pragma once
 
 #include <utils/algorithm.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDir>
 #include <QString>

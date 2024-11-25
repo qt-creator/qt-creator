@@ -42,9 +42,6 @@ public:
 
         environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setEnvironment(&environment);
 
         qtLibraries.setSettingsKey("Qt4ProjectManager.QnxRunConfiguration.QtLibPath");

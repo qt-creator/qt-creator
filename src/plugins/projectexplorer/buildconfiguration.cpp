@@ -146,7 +146,6 @@ public:
     bool m_configWidgetHasFrame = false;
     QList<Utils::Id> m_initialBuildSteps;
     QList<Utils::Id> m_initialCleanSteps;
-    Utils::MacroExpander m_macroExpander;
     bool m_parseStdOut = false;
     QList<Utils::Id> m_customParsers;
 
@@ -288,14 +287,9 @@ void BuildConfiguration::doInitialize(const BuildInfo &info)
         d->m_initializer(info);
 }
 
-MacroExpander *BuildConfiguration::macroExpander() const
-{
-    return &d->m_macroExpander;
-}
-
 bool BuildConfiguration::createBuildDirectory()
 {
-    const bool result = buildDirectory().ensureWritableDir().has_value();
+    const bool result = bool(buildDirectory().ensureWritableDir());
     buildDirectoryAspect()->validateInput();
     return result;
 }
@@ -369,6 +363,13 @@ void BuildConfiguration::appendInitialBuildStep(Utils::Id id)
 void BuildConfiguration::appendInitialCleanStep(Utils::Id id)
 {
     d->m_initialCleanSteps.append(id);
+}
+
+BuildConfiguration *BuildConfiguration::clone(Target *target) const
+{
+    Store map;
+    toMap(map);
+    return BuildConfigurationFactory::restore(target, map);
 }
 
 void BuildConfiguration::toMap(Store &map) const
@@ -832,14 +833,6 @@ BuildConfiguration *BuildConfigurationFactory::restore(Target *parent, const Sto
         return bc;
     }
     return nullptr;
-}
-
-BuildConfiguration *BuildConfigurationFactory::clone(Target *parent,
-                                                     const BuildConfiguration *source)
-{
-    Store map;
-    source->toMap(map);
-    return restore(parent, map);
 }
 
 } // namespace ProjectExplorer

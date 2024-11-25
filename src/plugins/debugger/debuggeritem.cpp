@@ -306,24 +306,46 @@ QDateTime DebuggerItem::lastModified() const
     return m_lastModified;
 }
 
+DebuggerItem::Problem DebuggerItem::problem() const
+{
+    if (isGeneric() || !m_id.isValid()) // Id can only be invalid for the "none" item.
+        return Problem::None;
+    if (m_engineType == NoEngineType)
+        return Problem::NoEngine;
+    if (!m_command.isExecutableFile())
+        return Problem::InvalidCommand;
+    if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
+        return Problem::InvalidWorkingDir;
+    return Problem::None;
+}
+
 QIcon DebuggerItem::decoration() const
 {
-    if (isGeneric())
-        return {};
-    if (m_engineType == NoEngineType)
+    switch (problem()) {
+    case Problem::NoEngine:
         return Icons::CRITICAL.icon();
-    if (!m_command.isExecutableFile())
+    case Problem::InvalidCommand:
+    case Problem::InvalidWorkingDir:
         return Icons::WARNING.icon();
-    if (!m_workingDirectory.isEmpty() && !m_workingDirectory.isDir())
-        return Icons::WARNING.icon();
+    case Problem::None:
+        break;
+    }
     return {};
 }
 
 QString DebuggerItem::validityMessage() const
 {
-    if (m_engineType == NoEngineType)
+    switch (problem()) {
+    case Problem::NoEngine:
         return Tr::tr("Could not determine debugger type");
-    return QString();
+    case Problem::InvalidCommand:
+        return Tr::tr("Invalid debugger command");
+    case Problem::InvalidWorkingDir:
+        return Tr::tr("Invalid working directory");
+    case Problem::None:
+        break;
+    }
+    return {};
 }
 
 bool DebuggerItem::operator==(const DebuggerItem &other) const
@@ -415,6 +437,12 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             targetAbi.osFlavor() <= Abi::WindowsLastMsvcFlavor;
     if (!isMsvcTarget && (engineType == GdbEngineType || engineType == LldbEngineType))
         matchOnMultiarch = DebuggerItem::MatchesSomewhat;
+    // arm64 cdb can debug x64 targets
+    if (isMsvcTarget && engineType == CdbEngineType
+            && debuggerAbi.architecture() == Abi::ArmArchitecture
+            && targetAbi.architecture() == Abi::X86Architecture
+            && debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 64)
+        return DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.architecture() != Abi::UnknownArchitecture
             && debuggerAbi.architecture() != targetAbi.architecture())
         return matchOnMultiarch;
@@ -434,11 +462,8 @@ static DebuggerItem::MatchLevel matchSingle(const Abi &debuggerAbi, const Abi &t
             return matchOnMultiarch;
     }
 
-    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32) {
-        return HostOsInfo::isWindowsHost() && engineType == CdbEngineType
-                   ? DebuggerItem::MatchesPerfectly
-                   : DebuggerItem::MatchesSomewhat;
-    }
+    if (debuggerAbi.wordWidth() == 64 && targetAbi.wordWidth() == 32)
+        return DebuggerItem::MatchesSomewhat;
     if (debuggerAbi.wordWidth() != 0 && debuggerAbi.wordWidth() != targetAbi.wordWidth())
         return matchOnMultiarch;
 

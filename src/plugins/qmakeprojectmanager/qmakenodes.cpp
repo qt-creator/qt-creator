@@ -254,16 +254,27 @@ bool QmakeBuildSystem::canRenameFile(Node *context,
     return BuildSystem::canRenameFile(context, oldFilePath, newFilePath);
 }
 
-bool QmakeBuildSystem::renameFile(Node *context,
-                                  const FilePath &oldFilePath,
-                                  const FilePath &newFilePath)
+bool QmakeBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     if (auto n = dynamic_cast<QmakePriFileNode *>(context)) {
         QmakePriFile *pri = n->priFile();
-        return pri ? pri->renameFile(oldFilePath, newFilePath) : false;
+        if (!pri) {
+            if (notRenamed)
+                *notRenamed = firstPaths(filesToRename);
+            return false;
+        }
+        bool success = true;
+        for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+            if (!pri->renameFile(oldFilePath, newFilePath)) {
+                success = false;
+                if (notRenamed)
+                    *notRenamed << oldFilePath;
+            }
+        }
+        return success;
     }
 
-    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
+    return BuildSystem::renameFiles(context, filesToRename, notRenamed);
 }
 
 bool QmakeBuildSystem::addDependencies(Node *context, const QStringList &dependencies)

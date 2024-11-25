@@ -36,9 +36,10 @@ static QString nonRootDisplayName(const CatchTreeItem *it)
     if (!project)
         return it->name();
     TestTreeItem *parent = it->parentItem();
-    int baseDirSize = (parent->type() == TestTreeItem::GroupNode)
-            ? parent->filePath().toString().size() : project->projectDirectory().toString().size();
-    return it->name().mid(baseDirSize + 1);
+    const FilePath baseDir = (parent->type() == TestTreeItem::GroupNode)
+                                 ? parent->filePath()
+                                 : project->projectDirectory();
+    return it->filePath().relativePathFrom(baseDir).toUserOutput();
 }
 
 QVariant CatchTreeItem::data(int column, int role) const

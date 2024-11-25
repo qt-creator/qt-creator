@@ -72,6 +72,7 @@ private:
     QWidget *m_optionsWidget;
     QCheckBox *m_matchCase;
     QCheckBox *m_wholeWords;
+    QCheckBox *m_ignoreBinaryFiles;
     QCheckBox *m_regExp;
     Utils::FancyLineEdit *m_searchTerm;
 };

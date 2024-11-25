@@ -43,12 +43,15 @@ class PluginDetailsViewPrivate
 public:
     PluginDetailsViewPrivate(PluginDetailsView *detailsView)
         : q(detailsView)
+        , id(createContentsLabel())
         , name(createContentsLabel())
         , version(createContentsLabel())
         , compatVersion(createContentsLabel())
         , vendor(createContentsLabel())
+        , vendorId(createContentsLabel())
         , component(createContentsLabel())
         , url(createContentsLabel())
+        , documentationUrl(createContentsLabel())
         , location(createContentsLabel())
         , platforms(createContentsLabel())
         , description(createTextEdit())
@@ -61,12 +64,15 @@ public:
 
         // clang-format off
         Form {
+            Tr::tr("Id:"), id, br,
             Tr::tr("Name:"), name, br,
             Tr::tr("Version:"), version, br,
             Tr::tr("Compatibility version:"), compatVersion, br,
+            Tr::tr("Vendor Id:"), vendorId, br,
             Tr::tr("Vendor:"), vendor, br,
             Tr::tr("Group:"), component, br,
             Tr::tr("URL:"), url, br,
+            Tr::tr("Documentation:"), documentationUrl, br,
             Tr::tr("Location:"), location, br,
             Tr::tr("Platforms:"), platforms, br,
             Tr::tr("Description:"), description, br,
@@ -81,12 +87,15 @@ public:
 
     PluginDetailsView *q = nullptr;
 
+    QLabel *id = nullptr;
     QLabel *name = nullptr;
     QLabel *version = nullptr;
     QLabel *compatVersion = nullptr;
     QLabel *vendor = nullptr;
+    QLabel *vendorId = nullptr;
     QLabel *component = nullptr;
     QLabel *url = nullptr;
+    QLabel *documentationUrl = nullptr;
     QLabel *location = nullptr;
     QLabel *platforms = nullptr;
     QTextEdit *description = nullptr;
@@ -137,6 +146,7 @@ PluginDetailsView::~PluginDetailsView()
 */
 void PluginDetailsView::update(PluginSpec *spec)
 {
+    d->id->setText(spec->id());
     d->name->setText(spec->name());
     const QString revision = spec->revision();
     const QString versionString = spec->version()
@@ -144,8 +154,13 @@ void PluginDetailsView::update(PluginSpec *spec)
     d->version->setText(versionString);
     d->compatVersion->setText(spec->compatVersion());
     d->vendor->setText(spec->vendor());
+    d->vendorId->setText(spec->vendorId());
     d->component->setText(spec->category().isEmpty() ? Tr::tr("None") : spec->category());
-    d->url->setText(QString::fromLatin1("<a href=\"%1\">%1</a>").arg(spec->url()));
+    const auto toHtmlLink = [](const QString &url) {
+        return QString::fromLatin1("<a href=\"%1\">%1</a>").arg(url);
+    };
+    d->url->setText(toHtmlLink(spec->url()));
+    d->documentationUrl->setText(toHtmlLink(spec->documentationUrl()));
     d->location->setText(spec->filePath().toUserOutput());
     const QString pattern = spec->platformSpecification().pattern();
     const QString platform = pattern.isEmpty() ? Tr::tr("All") : pattern;
@@ -156,7 +171,7 @@ void PluginDetailsView::update(PluginSpec *spec)
     if (!description.isEmpty() && !spec->longDescription().isEmpty())
         description += "\n\n";
     description += spec->longDescription();
-    d->description->setText(description);
+    d->description->setMarkdown(description);
     d->copyright->setText(spec->copyright());
     d->license->setText(spec->license());
     d->dependencies->addItems(Utils::transform<QList>(spec->dependencies(),

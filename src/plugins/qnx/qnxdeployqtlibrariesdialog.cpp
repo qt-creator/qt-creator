@@ -285,7 +285,7 @@ QnxDeployQtLibrariesDialogPrivate::QnxDeployQtLibrariesDialogPrivate(
     : q(parent), m_device(device)
 {
     m_qtLibraryCombo = new QComboBox(q);
-    const QList<QtVersion*> qtVersions = QtVersionManager::sortVersions(
+    const QtVersions qtVersions = QtVersionManager::sortVersions(
                 QtVersionManager::versions(QtVersion::isValidPredicate(
                 equal(&QtVersion::type, QString::fromLatin1(Constants::QNX_QNX_QT)))));
     for (QtVersion *v : qtVersions)

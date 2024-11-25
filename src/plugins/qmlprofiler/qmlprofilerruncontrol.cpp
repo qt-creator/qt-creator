@@ -31,8 +31,6 @@ using namespace ProjectExplorer;
 
 namespace QmlProfiler::Internal {
 
-const char QmlServerUrl[] = "QmlServerUrl";
-
 //
 // QmlProfilerRunControlPrivate
 //
@@ -52,6 +50,7 @@ QmlProfilerRunner::QmlProfilerRunner(RunControl *runControl)
     , d(new QmlProfilerRunnerPrivate)
 {
     setId("QmlProfilerRunner");
+    runControl->requestQmlChannel();
     runControl->setIcon(ProjectExplorer::Icons::ANALYZER_START_SMALL_TOOLBAR);
     setSupportsReRunning(false);
 }
@@ -162,17 +161,6 @@ void QmlProfilerRunner::profilerStateChanged()
     }
 }
 
-void QmlProfilerRunner::setServerUrl(const QUrl &serverUrl)
-{
-    recordData(QmlServerUrl, serverUrl);
-}
-
-QUrl QmlProfilerRunner::serverUrl() const
-{
-    QVariant recordedServer = recordedData(QmlServerUrl);
-    return recordedServer.toUrl();
-}
-
 //
 // LocalQmlProfilerSupport
 //
@@ -205,16 +193,15 @@ LocalQmlProfilerSupport::LocalQmlProfilerSupport(RunControl *runControl, const Q
     setId("LocalQmlProfilerSupport");
 
     auto profiler = new QmlProfilerRunner(runControl);
-    profiler->setServerUrl(serverUrl);
 
     addStopDependency(profiler);
     // We need to open the local server before the application tries to connect.
     // In the TCP case, it doesn't hurt either to start the profiler before.
     addStartDependency(profiler);
 
-    setStartModifier([this, profiler, serverUrl] {
+    setStartModifier([this, runControl, serverUrl] {
 
-        QUrl serverUrl = profiler->serverUrl();
+        QUrl serverUrl = runControl->qmlChannel();
         QString code;
         if (serverUrl.scheme() == Utils::urlSocketScheme())
             code = QString("file:%1").arg(serverUrl.path());

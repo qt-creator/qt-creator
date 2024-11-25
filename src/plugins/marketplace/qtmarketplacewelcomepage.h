@@ -3,23 +3,10 @@
 
 #pragma once
 
-#include <coreplugin/iwelcomepage.h>
+#include <QObject>
 
-#include <QCoreApplication>
+namespace Marketplace::Internal {
 
-namespace Marketplace {
-namespace Internal {
+void setupQtMarketPlaceWelcomePage(QObject *guard);
 
-class QtMarketplaceWelcomePage : public Core::IWelcomePage
-{
-public:
-    QtMarketplaceWelcomePage() = default;
-
-    QString title() const final;
-    int priority() const final;
-    Utils::Id id() const final;
-    QWidget *createWidget() const final;
-};
-
-} // namespace Internal
-} // namespace Marketplace
+} // namespace Marketplace::Internal

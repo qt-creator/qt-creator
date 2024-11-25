@@ -21,6 +21,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override;
     void currentChanged(const QModelIndex &current, const QModelIndex &previous);
     void clearCache();
+    void setShowDuration(bool showDuration) { m_showDuration = showDuration; }
 
 private:
     void limitTextOutput(QString &output) const;
@@ -32,43 +33,57 @@ private:
     mutable QTextLayout m_lastCalculatedLayout;
     mutable int m_lastCalculatedHeight = 0;
     mutable int m_lastWidth = -1;
+    bool m_showDuration = true;
 
     class LayoutPositions
     {
     public:
-        LayoutPositions(QStyleOptionViewItem &options, const TestResultFilterModel *filterModel)
+        LayoutPositions(QStyleOptionViewItem &options, const TestResultFilterModel *filterModel,
+                        bool showDuration)
             : m_top(options.rect.top()),
               m_left(options.rect.left()),
-              m_right(options.rect.right())
+              m_right(options.rect.right()),
+              m_showDuration(showDuration)
         {
             TestResultModel *srcModel = static_cast<TestResultModel *>(filterModel->sourceModel());
             m_maxFileLength = srcModel->maxWidthOfFileName(options.font);
             m_maxLineLength = srcModel->maxWidthOfLineNumber(options.font);
             m_realFileLength = m_maxFileLength;
             m_typeAreaWidth = QFontMetrics(options.font).horizontalAdvance("XXXXXXXX");
+            m_durationAreaWidth = QFontMetrics(options.font).horizontalAdvance("XXXXXXXX ms");
 
-            int flexibleArea = lineAreaLeft() - textAreaLeft() - ITEM_SPACING;
+            int flexibleArea = (m_showDuration ? durationAreaLeft() : fileAreaLeft())
+                    - textAreaLeft() - ItemSpacing;
             if (m_maxFileLength > flexibleArea / 2)
                 m_realFileLength = flexibleArea / 2;
             m_fontHeight = QFontMetrics(options.font).height();
         }
 
-        int top() const { return m_top + ITEM_MARGIN; }
-        int left() const { return m_left + ITEM_MARGIN; }
-        int right() const { return m_right - ITEM_MARGIN; }
-        int minimumHeight() const { return ICON_SIZE + 2 * ITEM_MARGIN; }
+        int top() const { return m_top + ItemMargin; }
+        int left() const { return m_left + ItemMargin; }
+        int right() const { return m_right - ItemMargin; }
+        int minimumHeight() const { return IconSize + 2 * ItemMargin; }
 
-        int iconSize() const { return ICON_SIZE; }
-        int typeAreaLeft() const { return left() + ICON_SIZE + ITEM_SPACING; }
-        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ITEM_SPACING; }
-        int textAreaWidth() const { return fileAreaLeft() - ITEM_SPACING - textAreaLeft(); }
-        int fileAreaLeft() const { return lineAreaLeft() - ITEM_SPACING - m_realFileLength; }
+        int iconSize() const { return IconSize; }
+        int typeAreaLeft() const { return left() + IconSize + ItemSpacing; }
+        int textAreaLeft() const { return typeAreaLeft() + m_typeAreaWidth + ItemSpacing; }
+        int textAreaWidth() const
+        {
+            if (m_showDuration)
+                return durationAreaLeft() - 3 * ItemSpacing - textAreaLeft();
+            return fileAreaLeft() - ItemSpacing - textAreaLeft();
+        }
+        int durationAreaLeft() const {  return fileAreaLeft() - 3 * ItemSpacing - m_durationAreaWidth; }
+        int durationAreaWidth() const { return m_durationAreaWidth; }
+        int fileAreaLeft() const { return lineAreaLeft() - ItemSpacing - m_realFileLength; }
         int lineAreaLeft() const { return right() - m_maxLineLength; }
 
         QRect textArea() const { return QRect(textAreaLeft(), top(),
                                               textAreaWidth(), m_fontHeight); }
+        QRect durationArea() const { return QRect(durationAreaLeft(), top(),
+                                                  durationAreaWidth(), m_fontHeight); }
         QRect fileArea() const { return QRect(fileAreaLeft(), top(),
-                                              m_realFileLength + ITEM_SPACING, m_fontHeight); }
+                                              m_realFileLength + ItemSpacing, m_fontHeight); }
 
         QRect lineArea() const { return QRect(lineAreaLeft(), top(),
                                               m_maxLineLength, m_fontHeight); }
@@ -82,10 +97,12 @@ private:
         int m_right;
         int m_fontHeight;
         int m_typeAreaWidth;
+        int m_durationAreaWidth;
+        bool m_showDuration;
 
-        static const int ICON_SIZE = 16;
-        static const int ITEM_MARGIN = 2;
-        static const int ITEM_SPACING = 4;
+        static constexpr int IconSize = 16;
+        static constexpr int ItemMargin = 2;
+        static constexpr int ItemSpacing = 4;
 
     };
 };

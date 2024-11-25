@@ -333,7 +333,7 @@ Link attemptDeclDef(const QTextCursor &cursor, Snapshot snapshot,
         if (decl->postfix_declarator_list && decl->postfix_declarator_list->value)
             funcDecl = decl->postfix_declarator_list->value->asFunctionDeclarator();
         if (funcDecl)
-            target = symbolFinder->findMatchingDefinition(funcDecl->symbol, snapshot);
+            target = symbolFinder->findMatchingDefinition(funcDecl->symbol, snapshot, false);
         else if (simpleDecl->symbols)
             target = symbolFinder->findMatchingVarDefinition(simpleDecl->symbols->value, snapshot);
     }
@@ -365,7 +365,7 @@ Symbol *findDefinition(Symbol *symbol, const Snapshot &snapshot, SymbolFinder *s
     if (!symbol->type()->asFunctionType())
         return nullptr; // not a function declaration
 
-    return symbolFinder->findMatchingDefinition(symbol, snapshot);
+    return symbolFinder->findMatchingDefinition(symbol, snapshot, false);
 }
 
 bool maybeAppendArgumentOrParameterList(QString *expression, const QTextCursor &textCursor)
@@ -816,7 +816,8 @@ void FollowSymbolUnderCursor::switchDeclDef(
     // Link to function definition/declaration
     Utils::Link symbolLink;
     if (functionDeclarationSymbol) {
-        Symbol *symbol = symbolFinder->findMatchingDefinition(functionDeclarationSymbol, snapshot);
+        Symbol *symbol
+            = symbolFinder->findMatchingDefinition(functionDeclarationSymbol, snapshot, false);
         if (symbol)
             symbolLink = symbol->toLink();
     } else if (declarationSymbol) {

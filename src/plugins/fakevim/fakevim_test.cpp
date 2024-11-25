@@ -3011,7 +3011,6 @@ void FakeVimTester::test_vim_code_folding()
          "}" N
          "");
 
-    NOT_IMPLEMENTED
     // Opening folds recursively isn't supported (previous position in fold isn't restored).
 }
 

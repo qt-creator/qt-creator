@@ -23,7 +23,7 @@
             Some of the wizard templates create projects that contain UI files.
             You should always edit UI files in the \l {2D}
             and \l Properties view, to avoid breaking the code.
-        \li \l{Manage Data Collection}
+        \li \l{Managing Data Collection}
 
             You can enable \QDS to report crashes automatically. If you enable
             the telemetry plugin, you can turn on the pseudonymous user

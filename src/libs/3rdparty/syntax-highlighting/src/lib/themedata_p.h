@@ -145,7 +145,8 @@ private:
     //! on disk (in a read-only or a writeable location).
     QString m_filePath;
 
-    bool m_completelyLoaded = false;
+    // default is loaded, we have no file per default, set to false on start of load
+    bool m_completelyLoaded = true;
 
     //! TextStyles
     std::vector<TextStyleData> m_textStyles;

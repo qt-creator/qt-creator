@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "exporter.h"
-#include "qmlbuildsystem.h"
 
-#include "projectitem/qmlprojectitem.h"
+#include "../buildsystem/qmlbuildsystem.h"
+#include "../buildsystem/projectitem/qmlprojectitem.h"
 
 namespace QmlProjectManager {
 namespace QmlProjectExporter {

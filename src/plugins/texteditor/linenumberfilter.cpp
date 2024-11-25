@@ -8,6 +8,7 @@
 #include <coreplugin/editormanager/editormanager.h>
 
 using namespace Core;
+using namespace Tasking;
 using namespace Utils;
 
 namespace TextEditor::Internal {
@@ -29,12 +30,9 @@ public:
 private:
     LocatorMatcherTasks matchers() final
     {
-        using namespace Tasking;
-
-        Storage<LocatorStorage> storage;
-
-        const auto onSetup = [storage] {
-            const QStringList lineAndColumn = storage->input().split(':');
+        const auto onSetup = [] {
+            const LocatorStorage &storage = *LocatorStorage::storage();
+            const QStringList lineAndColumn = storage.input().split(':');
             int sectionCount = lineAndColumn.size();
             int line = 0;
             int column = 0;
@@ -64,10 +62,10 @@ private:
                     EditorManager::activateEditor(editor);
                     return AcceptResult();
                 };
-                storage->reportOutput({entry});
+                storage.reportOutput({entry});
             }
         };
-        return {{Sync(onSetup), storage}};
+        return {Sync(onSetup)};
     }
 };
 

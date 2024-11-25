@@ -6,6 +6,8 @@
 #include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
 
+#include <projectexplorer/kitaspect.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
@@ -39,7 +41,7 @@ public:
     ~QmakeKitAspectImpl() override { delete m_lineEdit; }
 
 private:
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_lineEdit);
         parent.addItem(m_lineEdit);
@@ -50,13 +52,13 @@ private:
     void refresh() override
     {
         if (!m_ignoreChanges.isLocked())
-            m_lineEdit->setText(QDir::toNativeSeparators(QmakeKitAspect::mkspec(m_kit)));
+            m_lineEdit->setText(QDir::toNativeSeparators(QmakeKitAspect::mkspec(kit())));
     }
 
     void mkspecWasChanged(const QString &text)
     {
         const GuardLocker locker(m_ignoreChanges);
-        QmakeKitAspect::setMkspec(m_kit, text, QmakeKitAspect::MkspecSource::User);
+        QmakeKitAspect::setMkspec(kit(), text, QmakeKitAspect::MkspecSource::User);
     }
 
     QLineEdit *m_lineEdit = nullptr;

@@ -1,0 +1,10 @@
+{
+    "IID": "plugin",
+    "MetaData": {
+        "Id": "plugin6",
+        "VendorId": "theqtcompany",
+        "Version": "1.0.1",
+        "CompatVersion": "1.0.0",
+        "DisabledByDefault": true
+    }
+}

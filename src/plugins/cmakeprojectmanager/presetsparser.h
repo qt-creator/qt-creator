@@ -91,7 +91,7 @@ public:
 
     QString name;
     Utils::FilePath fileDir;
-    std::optional<bool> hidden = false;
+    bool hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
     std::optional<QVariantMap> vendor;
@@ -103,7 +103,7 @@ public:
     std::optional<QString> toolchainFile;
     std::optional<QString> binaryDir;
     std::optional<QString> installDir;
-    std::optional<QString> cmakeExecutable;
+    std::optional<Utils::FilePath> cmakeExecutable;
     std::optional<CMakeConfig> cacheVariables;
     std::optional<Utils::Environment> environment;
     std::optional<Warnings> warnings;
@@ -117,7 +117,7 @@ public:
 
     QString name;
     Utils::FilePath fileDir;
-    std::optional<bool> hidden = false;
+    bool hidden = false;
     std::optional<QStringList> inherits;
     std::optional<Condition> condition;
     std::optional<QVariantMap> vendor;
@@ -125,7 +125,7 @@ public:
     std::optional<QString> description;
     std::optional<Utils::Environment> environment;
     std::optional<QString> configurePreset;
-    std::optional<bool> inheritConfigureEnvironment = true;
+    bool inheritConfigureEnvironment = true;
     std::optional<int> jobs;
     std::optional<QStringList> targets;
     std::optional<QString> configuration;

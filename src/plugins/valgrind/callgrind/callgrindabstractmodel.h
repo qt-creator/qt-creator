@@ -7,8 +7,6 @@
 
 namespace Valgrind::Callgrind {
 
-class ParseData;
-
 enum AbstractModelRoles
 {
     ParentCostRole = Qt::UserRole,

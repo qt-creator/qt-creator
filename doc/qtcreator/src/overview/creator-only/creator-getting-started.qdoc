@@ -8,9 +8,8 @@
 
     \title Getting Started
 
-    To learn the basics of \QC, take the
-    \l{https://www.qt.io/academy/course-catalog#getting-started-with-qt-creator}
-    {Getting Started with Qt Creator} course in Qt Academy.
+    To learn the basics of \QC, take the \l{Qt Academy: Getting Started with \QC}
+    course.
 
     \table borderless
         \row
@@ -57,5 +56,5 @@
                 and APIs to develop Qt applications, go to \l {Qt Documentation}.
     \endtable
 
-    \sa {Installation}
+    \sa {Installation}, {Get and Install Qt}
 */

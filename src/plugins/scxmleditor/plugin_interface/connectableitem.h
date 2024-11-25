@@ -108,7 +108,6 @@ private:
     HighlightItem *m_highlighItem = nullptr;
     TransitionItem *m_newTransition = nullptr;
     QPen m_selectedPen;
-    QBrush m_releasedFromParentBrush;
     int m_minimumWidth = 120;
     int m_minimumHeight = 100;
     bool m_releasedFromParent = false;

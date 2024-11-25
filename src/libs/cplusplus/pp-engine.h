@@ -210,6 +210,7 @@ private:
     void handlePreprocessorDirective(PPToken *tk);
     void handleIncludeDirective(PPToken *tk, bool includeNext);
     void handleDefineDirective(PPToken *tk);
+    void handlePragmaDirective(PPToken *tk);
     QByteArray expand(PPToken *tk, PPToken *lastConditionToken = nullptr);
     const Internal::PPToken evalExpression(PPToken *tk, Value &result);
     void handleIfDirective(PPToken *tk);

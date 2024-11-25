@@ -9,7 +9,6 @@
 
 #include "definition.h"
 #include "definition_p.h"
-#include "definitionref_p.h"
 
 #include "context_p.h"
 #include "format.h"
@@ -26,6 +25,7 @@
 #include <QCborMap>
 #include <QCoreApplication>
 #include <QFile>
+#include <QStringTokenizer>
 #include <QXmlStreamReader>
 
 #include <algorithm>
@@ -44,7 +44,7 @@ DefinitionData::~DefinitionData() = default;
 Definition::Definition()
     : d(std::make_shared<DefinitionData>())
 {
-    d->q = *this;
+    d->q = d;
 }
 
 Definition::Definition(Definition &&other) noexcept = default;
@@ -53,12 +53,9 @@ Definition::~Definition() = default;
 Definition &Definition::operator=(Definition &&other) noexcept = default;
 Definition &Definition::operator=(const Definition &) = default;
 
-Definition::Definition(std::shared_ptr<DefinitionData> &&dd)
-    : d(std::move(dd))
+Definition::Definition(const DefinitionData &defData)
+    : d(defData.q.lock())
 {
-    if (!d) {
-        Definition().d.swap(d);
-    }
 }
 
 bool Definition::operator==(const Definition &other) const
@@ -84,6 +81,11 @@ QString Definition::filePath() const
 QString Definition::name() const
 {
     return d->name;
+}
+
+QStringList Definition::alternativeNames() const
+{
+    return d->alternativeNames;
 }
 
 QString Definition::translatedName() const
@@ -167,21 +169,11 @@ bool Definition::isWordWrapDelimiter(QChar c) const
 
 bool Definition::foldingEnabled() const
 {
-    d->load();
-    if (d->hasFoldingRegions || indentationBasedFoldingEnabled()) {
-        return true;
+    if (d->foldingRegionsState == DefinitionData::FoldingRegionsState::Undetermined) {
+        d->load();
     }
 
-    // check included definitions
-    const auto defs = includedDefinitions();
-    for (const auto &def : defs) {
-        if (def.foldingEnabled()) {
-            d->hasFoldingRegions = true;
-            break;
-        }
-    }
-
-    return d->hasFoldingRegions;
+    return d->foldingRegionsState == DefinitionData::FoldingRegionsState::ContainsFoldingRegions || d->indentationBasedFolding;
 }
 
 bool Definition::indentationBasedFoldingEnabled() const
@@ -236,26 +228,32 @@ QList<Format> Definition::formats() const
 
 QList<Definition> Definition::includedDefinitions() const
 {
-    d->load();
+    QList<Definition> definitions;
 
-    // init worklist and result used as guard with this definition
-    QList<const DefinitionData *> queue{d.get()};
-    QList<Definition> definitions{*this};
-    while (!queue.empty()) {
-        const auto *def = queue.back();
-        queue.pop_back();
-        for (const auto &defRef : std::as_const(def->immediateIncludedDefinitions)) {
-            const auto definition = defRef.definition();
-            if (!definitions.contains(definition)) {
-                definitions.push_back(definition);
-                queue.push_back(definition.d.get());
+    if (isValid()) {
+        d->load();
+
+        // init worklist and result used as guard with this definition
+        QVarLengthArray<const DefinitionData *, 4> queue{d.get()};
+        definitions.push_back(*this);
+        while (!queue.empty()) {
+            const auto *def = queue.back();
+            queue.pop_back();
+            for (const auto *defData : def->immediateIncludedDefinitions) {
+                auto pred = [defData](const Definition &def) {
+                    return DefinitionData::get(def) == defData;
+                };
+                if (std::find_if(definitions.begin(), definitions.end(), pred) == definitions.end()) {
+                    definitions.push_back(Definition(*defData));
+                    queue.push_back(defData);
+                }
             }
         }
-    }
 
-    // remove the 1st entry, since it is this Definition
-    definitions.front() = std::move(definitions.back());
-    definitions.pop_back();
+        // remove the 1st entry, since it is this Definition
+        definitions.front() = std::move(definitions.back());
+        definitions.pop_back();
+    }
 
     return definitions;
 }
@@ -306,7 +304,7 @@ KeywordList *DefinitionData::keywordList(const QString &wantedName)
     return (it == keywordLists.end()) ? nullptr : &it.value();
 }
 
-Format DefinitionData::formatByName(const QString &wantedName) const
+Format DefinitionData::formatByName(QStringView wantedName) const
 {
     const auto it = formats.constFind(wantedName);
     if (it != formats.constEnd()) {
@@ -328,12 +326,12 @@ std::atomic<uint64_t> definitionId{1};
 
 bool DefinitionData::load(OnlyKeywords onlyKeywords)
 {
-    if (fileName.isEmpty()) {
-        return false;
-    }
-
     if (isLoaded()) {
         return true;
+    }
+
+    if (fileName.isEmpty()) {
+        return false;
     }
 
     if (bool(onlyKeywords) && keywordIsLoaded) {
@@ -364,8 +362,8 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
         }
     }
 
-    for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it) {
-        it->setCaseSensitivity(caseSensitive);
+    for (auto &kw : keywordLists) {
+        kw.setCaseSensitivity(caseSensitive);
     }
 
     resolveContexts();
@@ -378,6 +376,7 @@ bool DefinitionData::load(OnlyKeywords onlyKeywords)
 void DefinitionData::clear()
 {
     // keep only name and repo, so we can re-lookup to make references persist over repo reloads
+    // see AbstractHighlighterPrivate::ensureDefinitionLoaded()
     id = 0;
     keywordLists.clear();
     contexts.clear();
@@ -387,7 +386,7 @@ void DefinitionData::clear()
     wordDelimiters = WordDelimiters();
     wordWrapDelimiters = wordDelimiters;
     keywordIsLoaded = false;
-    hasFoldingRegions = false;
+    foldingRegionsState = FoldingRegionsState::Undetermined;
     indentationBasedFolding = false;
     foldingIgnoreList.clear();
     singleLineCommentMarker.clear();
@@ -443,6 +442,9 @@ bool DefinitionData::loadMetaData(const QString &definitionFileName)
 bool DefinitionData::loadMetaData(const QString &file, const QCborMap &obj)
 {
     name = obj.value(QLatin1String("name")).toString();
+    if (name.isEmpty()) {
+        return false;
+    }
     nameUtf8 = obj.value(QLatin1String("name")).toByteArray();
     section = obj.value(QLatin1String("section")).toString();
     sectionUtf8 = obj.value(QLatin1String("section")).toByteArray();
@@ -454,6 +456,9 @@ bool DefinitionData::loadMetaData(const QString &file, const QCborMap &obj)
     indenter = obj.value(QLatin1String("indenter")).toString();
     hidden = obj.value(QLatin1String("hidden")).toBool();
     fileName = file;
+
+    const auto names = obj.value(QLatin1String("alternativeNames")).toString();
+    alternativeNames = names.split(QLatin1Char(';'), Qt::SkipEmptyParts);
 
     const auto exts = obj.value(QLatin1String("extensions")).toString();
     extensions = exts.split(QLatin1Char(';'), Qt::SkipEmptyParts);
@@ -474,6 +479,13 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     }
 
     name = reader.attributes().value(QLatin1String("name")).toString();
+    if (name.isEmpty()) {
+        return false;
+    }
+    const auto names = reader.attributes().value(QLatin1String("alternativeNames"));
+    for (const auto &n : QStringTokenizer(names, u';', Qt::SkipEmptyParts)) {
+        alternativeNames.push_back(n.toString());
+    }
     section = reader.attributes().value(QLatin1String("section")).toString();
     // toFloat instead of toInt for backward compatibility with old Kate files
     version = reader.attributes().value(QLatin1String("version")).toFloat();
@@ -484,11 +496,11 @@ bool DefinitionData::loadLanguage(QXmlStreamReader &reader)
     author = reader.attributes().value(QLatin1String("author")).toString();
     license = reader.attributes().value(QLatin1String("license")).toString();
     const auto exts = reader.attributes().value(QLatin1String("extensions"));
-    for (const auto &ext : exts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
+    for (const auto &ext : QStringTokenizer(exts, u';', Qt::SkipEmptyParts)) {
         extensions.push_back(ext.toString());
     }
     const auto mts = reader.attributes().value(QLatin1String("mimetype"));
-    for (const auto &mt : mts.split(QLatin1Char(';'), Qt::SkipEmptyParts)) {
+    for (const auto &mt : QStringTokenizer(mts, u';', Qt::SkipEmptyParts)) {
         mimetypes.push_back(mt.toString());
     }
     if (reader.attributes().hasAttribute(QLatin1String("casesensitive"))) {
@@ -547,8 +559,8 @@ void DefinitionData::resolveIncludeKeywords()
 
     keywordIsLoaded = true;
 
-    for (auto it = keywordLists.begin(); it != keywordLists.end(); ++it) {
-        it->resolveIncludeKeywords(*this);
+    for (auto &kw : keywordLists) {
+        kw.resolveIncludeKeywords(*this);
     }
 }
 
@@ -563,8 +575,7 @@ void DefinitionData::loadContexts(QXmlStreamReader &reader)
         switch (reader.tokenType()) {
         case QXmlStreamReader::StartElement:
             if (reader.name() == QLatin1String("context")) {
-                contextDatas.push_back(HighlightingContextData());
-                contextDatas.back().load(name, reader);
+                contextDatas.emplace_back().load(name, reader);
             }
             reader.readNext();
             break;
@@ -609,6 +620,11 @@ void DefinitionData::resolveContexts()
      */
     for (auto &context : contexts) {
         context.resolveIncludes(*this);
+    }
+
+    // when a context includes a folding region this value is Yes, otherwise it remains undetermined
+    if (foldingRegionsState == FoldingRegionsState::Undetermined) {
+        foldingRegionsState = FoldingRegionsState::NoFoldingRegions;
     }
 }
 
@@ -814,8 +830,8 @@ bool DefinitionData::checkKateVersion(QStringView verStr)
         qCWarning(Log) << "Skipping" << fileName << "due to having no valid kateversion attribute:" << verStr;
         return false;
     }
-    const auto major = verStr.left(idx).toInt();
-    const auto minor = verStr.mid(idx + 1).toInt();
+    const auto major = verStr.sliced(0, idx).toInt();
+    const auto minor = verStr.sliced(idx + 1).toInt();
 
     if (major > KSYNTAXHIGHLIGHTING_VERSION_MAJOR || (major == KSYNTAXHIGHLIGHTING_VERSION_MAJOR && minor > KSYNTAXHIGHLIGHTING_VERSION_MINOR)) {
         qCWarning(Log) << "Skipping" << fileName << "due to being too new, version:" << verStr;
@@ -827,46 +843,36 @@ bool DefinitionData::checkKateVersion(QStringView verStr)
 
 quint16 DefinitionData::foldingRegionId(const QString &foldName)
 {
-    hasFoldingRegions = true;
+    foldingRegionsState = FoldingRegionsState::ContainsFoldingRegions;
     return RepositoryPrivate::get(repo)->foldingRegionId(name, foldName);
 }
 
-void DefinitionData::addImmediateIncludedDefinition(const Definition &def)
+DefinitionData::ResolvedContext DefinitionData::resolveIncludedContext(QStringView defName, QStringView contextName)
 {
-    if (get(def) != this) {
-        DefinitionRef defRef(def);
-        if (!immediateIncludedDefinitions.contains(defRef)) {
-            immediateIncludedDefinitions.push_back(std::move(defRef));
+    if (defName.isEmpty()) {
+        return {this, contextByName(contextName)};
+    }
+
+    auto d = repo->definitionForName(defName.toString());
+    if (d.isValid()) {
+        auto *resolvedDef = get(d);
+        if (resolvedDef != this) {
+            if (std::find(immediateIncludedDefinitions.begin(), immediateIncludedDefinitions.end(), resolvedDef) == immediateIncludedDefinitions.end()) {
+                immediateIncludedDefinitions.push_back(resolvedDef);
+                resolvedDef->load();
+                if (resolvedDef->foldingRegionsState == FoldingRegionsState::ContainsFoldingRegions) {
+                    foldingRegionsState = FoldingRegionsState::ContainsFoldingRegions;
+                }
+            }
+        }
+        if (contextName.isEmpty()) {
+            return {resolvedDef, resolvedDef->initialContext()};
+        } else {
+            return {resolvedDef, resolvedDef->contextByName(contextName)};
         }
     }
-}
 
-DefinitionRef::DefinitionRef() = default;
-
-DefinitionRef::DefinitionRef(const Definition &def) noexcept
-    : d(def.d)
-{
-}
-
-DefinitionRef &DefinitionRef::operator=(const Definition &def) noexcept
-{
-    d = def.d;
-    return *this;
-}
-
-Definition DefinitionRef::definition() const
-{
-    return Definition(d.lock());
-}
-
-bool DefinitionRef::operator==(const DefinitionRef &other) const
-{
-    return !d.owner_before(other.d) && !other.d.owner_before(d);
-}
-
-bool DefinitionRef::operator==(const Definition &other) const
-{
-    return !d.owner_before(other.d) && !other.d.owner_before(d);
+    return {nullptr, nullptr};
 }
 
 #include "moc_definition.cpp"

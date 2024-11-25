@@ -10,11 +10,10 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/iversioncontrol.h>
 
-#include <utils/fileutils.h>
+#include <texteditor/texteditorconstants.h>
 
 #include <vcsbase/vcsbaseclient.h>
 
-#include <QObject>
 #include <QStringList>
 #include <QVersionNumber>
 #include <QWidget>
@@ -23,19 +22,9 @@ QT_BEGIN_NAMESPACE
 class QMenu;
 QT_END_NAMESPACE
 
-namespace Core { class ICore; }
 namespace Tasking { class GroupItem; }
 
-namespace DiffEditor {
-class ChunkSelection;
-class DiffEditorController;
-}
-
-namespace VcsBase {
-class SubmitFileModel;
-class VcsBaseEditorWidget;
-class VcsCommand;
-}
+namespace VcsBase { class SubmitFileModel; }
 
 namespace Git::Internal {
 
@@ -43,6 +32,16 @@ class CommitData;
 class GitBaseDiffEditorController;
 class GitSubmitEditorPanelData;
 class Stash;
+
+struct ColorNames
+{
+    QString author;
+    QString date;
+    QString hash;
+    QString decoration;
+    QString subject;
+    QString body;
+};
 
 enum StatusMode
 {
@@ -120,6 +119,12 @@ public:
         PushAction m_pushAction = NoPush;
     };
 
+    struct ModificationInfo
+    {
+        Utils::FilePath rootPath;
+        QHash<QString, Core::IVersionControl::FileState> modifiedFiles;
+    };
+
     GitClient();
     ~GitClient();
 
@@ -135,6 +140,10 @@ public:
     Utils::FilePath findGitDirForRepository(const Utils::FilePath &repositoryDir) const;
     bool managesFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     Utils::FilePaths unmanagedFiles(const Utils::FilePaths &filePaths) const;
+    Core::IVersionControl::FileState modificationState(const Utils::FilePath &workingDirectory,
+                         const Utils::FilePath &fileName) const;
+    void monitorDirectory(const Utils::FilePath &path);
+    void stopMonitoring(const Utils::FilePath &path);
 
     void diffFile(const Utils::FilePath &workingDirectory, const QString &fileName) const;
     void diffFiles(const Utils::FilePath &workingDirectory,
@@ -294,7 +303,7 @@ public:
     bool addAndCommit(const Utils::FilePath &workingDirectory,
                       const GitSubmitEditorPanelData &data,
                       CommitType commitType,
-                      const QString &amendSHA1,
+                      const QString &amendHash,
                       const Utils::FilePath &messageFile,
                       VcsBase::SubmitFileModel *model);
 
@@ -353,6 +362,9 @@ public:
     void readConfigAsync(const Utils::FilePath &workingDirectory, const QStringList &arguments,
                          const VcsBase::CommandHandler &handler) const;
 
+    static QString styleColorName(TextEditor::TextStyle style);
+    static ColorNames colorNames();
+
 private:
     static GitSettings &settings();
 
@@ -382,6 +394,7 @@ private:
                                  const Utils::FilePath &oldGitBinDir) const;
     bool cleanList(const Utils::FilePath &workingDirectory, const QString &modulePath,
                    const QString &flag, QStringList *files, QString *errorMessage);
+    void updateModificationInfos();
 
     enum ContinueCommandMode {
         ContinueOnly,
@@ -393,12 +406,15 @@ private:
                                     QString msgBoxText, const QString &buttonName,
                                     const QString &gitCommand, ContinueCommandMode continueMode);
 
+    void setupTimer();
     mutable Utils::FilePath m_gitVersionForBinary;
     mutable QVersionNumber m_cachedGitVersion;
     mutable QMap<Utils::FilePath, Utils::FilePath> m_gitExecutableCache;
 
     QString m_gitQtcEditor;
     QMap<Utils::FilePath, StashInfo> m_stashInfo;
+    QHash<Utils::FilePath, ModificationInfo> m_modifInfos;
+    std::unique_ptr<QTimer> m_timer;
     QString m_diffCommit;
     Utils::FilePaths m_updatedSubmodules;
     bool m_disableEditor = false;

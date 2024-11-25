@@ -20,6 +20,9 @@
 #include <coreplugin/idocument.h>
 #include <coreplugin/session.h>
 
+#include <projectexplorer/projecttree.h>
+#include <projectexplorer/project.h>
+
 #include <texteditor/textmark.h>
 #include <texteditor/texteditor.h>
 
@@ -1001,6 +1004,16 @@ int BreakHandler::threadSpecFromDisplay(const QString &str)
     return ok ? result : -1;
 }
 
+static QString trimmedFileName(const FilePath &fullPath)
+{
+    const Project *project = ProjectTree::currentProject();
+    const FilePath projectDirectory = project ? project->projectDirectory() : FilePath();
+    if (projectDirectory.exists())
+        return FilePath::calcRelativePath(fullPath.path(), projectDirectory.toUserOutput());
+
+    return fullPath.toUserOutput();
+}
+
 const QString empty("-");
 
 QVariant BreakpointItem::data(int column, int role) const
@@ -1054,6 +1067,8 @@ QVariant BreakpointItem::data(int column, int role) const
             break;
         case BreakpointFileColumn:
             if (role == Qt::DisplayRole)
+                return trimmedFileName(markerFileName());
+            if (role == Qt::ToolTipRole)
                 return markerFileName().toUserOutput();
             break;
         case BreakpointLineColumn:
@@ -2208,6 +2223,8 @@ QVariant GlobalBreakpointItem::data(int column, int role) const
             break;
         case BreakpointFileColumn:
             if (role == Qt::DisplayRole)
+                return trimmedFileName(m_params.fileName);
+            if (role == Qt::ToolTipRole)
                 return m_params.fileName.toUserOutput();
             break;
         case BreakpointLineColumn:

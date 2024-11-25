@@ -17,9 +17,15 @@
 
     \ingroup creator-reference
 
-    \title Acknowledgements
+    \title Licenses and Acknowledgments
 
-    \brief Third-party components in \QC.
+    \brief Licenses and third-party components in \QC.
+
+    \section1 Licenses
+
+    \QC is available under commercial licenses from The Qt Company, and
+    under the GNU General Public License version 3, annotated with
+    The Qt Company GPL Exception 1.0.
 
     \section1 Credits
 

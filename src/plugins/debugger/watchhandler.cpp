@@ -97,7 +97,7 @@ using MemoryMarkupList = QList<MemoryMarkup>;
 // over the children.
 
 using ColorNumberToolTip = QPair<int, QString>;
-using ColorNumberToolTips = QVector<ColorNumberToolTip>;
+using ColorNumberToolTips = QList<ColorNumberToolTip>;
 
 struct TypeInfo
 {
@@ -455,7 +455,7 @@ private:
 public:
     int m_grabWidgetTimerId = -1;
     WatchHandler *m_handler; // Not owned.
-    DebuggerEngine *m_engine; // Not owned.
+    QPointer<DebuggerEngine> m_engine; // Not owned.
 
     bool m_contentsValid;
 
@@ -658,7 +658,7 @@ static QString reformatCharacter(int code, int size, bool isSigned)
 
     QChar c;
     switch (size) {
-        case 1: c = QChar(uchar(code)); break;
+        case 1: c = QChar(char(code)); break;
         case 2: c = QChar(uint16_t(code)); break;
         case 4: c = QChar(uint32_t(code)); break;
         default: c = QChar(uint(code)); break;

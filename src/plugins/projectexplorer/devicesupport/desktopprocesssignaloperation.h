@@ -16,7 +16,6 @@ public:
     void killProcess(qint64 pid) override;
     void killProcess(const QString &filePath) override;
     void interruptProcess(qint64 pid) override;
-    void interruptProcess(const QString &filePath) override;
 
 private:
     void killProcessSilently(qint64 pid);

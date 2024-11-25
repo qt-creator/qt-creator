@@ -4,21 +4,21 @@ import qbs.FileInfo
 import qbs.Utilities
 
 Module {
-    property string qtcreator_display_version: '14.0.2'
-    property string ide_version_major: '14'
+    property string qtcreator_display_version: '15.0.0'
+    property string ide_version_major: '15'
     property string ide_version_minor: '0'
-    property string ide_version_release: '2'
+    property string ide_version_release: '0'
     property string qtcreator_version: ide_version_major + '.' + ide_version_minor + '.'
                                        + ide_version_release
 
-    property string ide_compat_version_major: '14'
+    property string ide_compat_version_major: '15'
     property string ide_compat_version_minor: '0'
     property string ide_compat_version_release: '0'
     property string qtcreator_compat_version: ide_compat_version_major + '.'
             + ide_compat_version_minor + '.' + ide_compat_version_release
 
-    property string qtcreator_copyright_year: '2024'
-    property string qtcreator_copyright_string: "(C) " + qtcreator_copyright_year + " The Qt Company Ltd"
+    property string ide_author: "The Qt Company Ltd. and other contributors."
+    property string ide_copyright_string: "Copyright (C) The Qt Company Ltd. and other contributors."
 
     property string ide_display_name: 'Qt Creator'
     property string ide_id: 'qtcreator'
@@ -72,12 +72,13 @@ Module {
 
     property bool preferSystemSyntaxHighlighting: true
 
-    property bool withPluginTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
-    property bool testsEnabled: withPluginTests // TODO: compat, remove
-    property bool withAutotests: project.withAutotests // FIXME: withPluginTests
+    property bool withAllTests: Environment.getEnv("TEST") || qbs.buildVariant === "debug"
+    property bool withPluginTests: withAllTests
+    property bool withAutotests: withAllTests
 
     property stringList generalDefines: [
         "QT_CREATOR",
+        'IDE_APP_ID="org.qt-project.qtcreator"',
         'IDE_LIBRARY_BASENAME="' + libDirName + '"',
         'RELATIVE_PLUGIN_PATH="' + FileInfo.relativePath('/' + ide_bin_path,
                                                          '/' + ide_plugin_path) + '"',
@@ -91,6 +92,7 @@ Module {
         "QT_NO_FOREACH",
         "QT_DISABLE_DEPRECATED_BEFORE=0x050900",
         "QT_USE_QSTRINGBUILDER",
+        "QT_NO_QSNPRINTF",
     ].concat(withPluginTests ? ["WITH_TESTS"] : [])
      .concat(qbs.toolchain.contains("msvc") ? ["_CRT_SECURE_NO_WARNINGS"] : [])
 }

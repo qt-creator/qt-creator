@@ -24,6 +24,7 @@ private:
     QString m_project;
     QString m_testName;
     QString m_description;
+    QString m_duration; // sec
     ResultType m_result = ResultType::Invalid;
     bool m_expectExceptionFromCrash = false;
 };

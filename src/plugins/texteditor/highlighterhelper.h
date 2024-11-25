@@ -3,9 +3,14 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include "texteditor_global.h"
 
 #include <KSyntaxHighlighting/Definition>
+
+#include <QFuture>
+#include <QTextDocument>
+
+namespace Utils { class FilePath; }
 
 namespace TextEditor {
 class TextDocument;
@@ -29,6 +34,8 @@ void downloadDefinitions(std::function<void()> callback = nullptr);
 void reload();
 
 void handleShutdown();
+
+QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType);
 
 } // namespace HighlighterHelper
 

@@ -23,7 +23,6 @@
 #include <QLabel>
 #include <QPushButton>
 #include <QRegularExpression>
-#include <QUuid>
 
 using namespace Utils;
 
@@ -110,7 +109,7 @@ GitLabServerWidget::GitLabServerWidget(Mode m, QWidget *parent)
 GitLabServer GitLabServerWidget::gitLabServer() const
 {
     GitLabServer result;
-    result.id = m_mode == Edit ? Id::fromName(QUuid::createUuid().toByteArray()) : m_id;
+    result.id = m_mode == Edit ? Id::generate() : m_id;
     result.host = m_host();
     result.description = m_description();
     result.token = m_token();

@@ -12,7 +12,9 @@
 #include "contentlibrarytexturesmodel.h"
 #include "contentlibraryusermodel.h"
 
+#include <coreplugin/icore.h>
 #include <bundleimporter.h>
+#include <coreplugin/icore.h>
 #include <designerpaths.h>
 #include <nodemetainfo.h>
 #include <qmldesignerconstants.h>
@@ -29,6 +31,7 @@
 #include <qmldesignerutils/multifiledownloader.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
 
@@ -72,7 +75,7 @@ bool ContentLibraryWidget::eventFilter(QObject *obj, QEvent *event)
 
         if (m_itemToDrag) {
             QMouseEvent *me = static_cast<QMouseEvent *>(event);
-            if ((me->globalPos() - m_dragStartPoint).manhattanLength() > 20) {
+            if ((me->globalPosition() - m_dragStartPoint).manhattanLength() > 20) {
                 QByteArray data;
                 auto mimeData = std::make_unique<QMimeData>();
                 QDataStream stream(&data, QIODevice::WriteOnly);

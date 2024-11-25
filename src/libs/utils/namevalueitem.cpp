@@ -112,9 +112,9 @@ static QString expand(const NameValueDictionary *dictionary, QString value)
                     end = value.indexOf('}', i);
                 if (end != -1) {
                     const QString &key = value.mid(i + 2, end - i - 2);
-                    NameValueDictionary::const_iterator it = dictionary->constFind(key);
-                    if (it != dictionary->constEnd())
-                        value.replace(i, end - i + 1, it.value().first);
+                    const NameValueDictionary::const_iterator it = dictionary->find(key);
+                    if (it != dictionary->end())
+                        value.replace(i, end - i + 1, it.value());
                     ++replaceCount;
                     QTC_ASSERT(replaceCount < 100, break);
                 }
@@ -137,9 +137,9 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         dictionary->unset(name);
         break;
     case Prepend: {
-        const NameValueDictionary::const_iterator it = dictionary->constFind(name);
-        if (it != dictionary->constEnd()) {
-            QString v = dictionary->value(it);
+        const NameValueDictionary::const_iterator it = dictionary->find(name);
+        if (it != dictionary->end()) {
+            QString v = it.value();
             const QChar pathSep = HostOsInfo::pathListSeparator();
             int sepCount = 0;
             if (v.startsWith(pathSep))
@@ -157,9 +157,9 @@ void EnvironmentItem::apply(NameValueDictionary *dictionary, Operation op) const
         }
     } break;
     case Append: {
-        const NameValueDictionary::const_iterator it = dictionary->constFind(name);
-        if (it != dictionary->constEnd()) {
-            QString v = dictionary->value(it);
+        const NameValueDictionary::const_iterator it = dictionary->find(name);
+        if (it != dictionary->end()) {
+            QString v = it.value();
             const QChar pathSep = HostOsInfo::pathListSeparator();
             int sepCount = 0;
             if (v.endsWith(pathSep))

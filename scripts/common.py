@@ -1,12 +1,18 @@
 # Copyright (C) 2016 The Qt Company Ltd.
 # SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+from __future__ import annotations
 import argparse
+import asyncio
+from itertools import islice
 import os
 import locale
+from pathlib import Path
 import shutil
 import subprocess
 import sys
+from urllib.parse import urlparse
+import urllib.request
 
 encoding = locale.getdefaultlocale()[1]
 if not encoding:
@@ -27,13 +33,13 @@ def to_posix_path(path):
         return path.replace('\\', '/')
     return path
 
-def check_print_call(command, workdir=None, env=None):
+def check_print_call(command, cwd=None, env=None):
     print('------------------------------------------')
     print('COMMAND:')
     print(' '.join(['"' + c.replace('"', '\\"') + '"' for c in command]))
-    print('PWD:      "' + (workdir if workdir else os.getcwd()) + '"')
+    print('PWD:      "' + (str(cwd) if cwd else os.getcwd()) + '"')
     print('------------------------------------------')
-    subprocess.check_call(command, cwd=workdir, env=env)
+    subprocess.check_call(command, cwd=cwd, shell=is_windows_platform(), env=env)
 
 
 def get_git_SHA(path):
@@ -55,6 +61,26 @@ def get_commit_SHA(path):
             with open(tagfile, 'r') as f:
                 git_sha = f.read().strip()
     return git_sha
+
+
+def get_single_subdir(path: Path):
+    entries = list(islice(path.iterdir(), 2))
+    if len(entries) == 1:
+        return path / entries[0]
+    return path
+
+
+def sevenzip_command(threads=None):
+    # use -mf=off to avoid usage of the ARM executable compression filter,
+    # which cannot be extracted by p7zip
+    # use -snl to preserve symlinks even if their target doesn't exist
+    # which is important for the _dev package on Linux
+    # (only works with official/upstream 7zip)
+    command = ['7z', 'a', '-mf=off', '-snl']
+    if threads:
+        command.extend(['-mmt' + threads])
+    return command
+
 
 # copy of shutil.copytree that does not bail out if the target directory already exists
 # and that does not create empty directories
@@ -104,6 +130,79 @@ def copytree(src, dst, symlinks=False, ignore=None):
         errors.extend((src, dst, str(why)))
     if errors:
         raise shutil.Error(errors)
+
+
+def extract_file(archive: Path, target: Path) -> None:
+    cmd_args = []
+    if archive.suffix == '.tar':
+        cmd_args = ['tar', '-xf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.gz'] or archive.suffix == '.tgz':
+        cmd_args = ['tar', '-xzf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.xz']:
+        cmd_args = ['tar', '-xf', str(archive)]
+    elif archive.suffixes[-2:] == ['.tar', '.bz2'] or archive.suffix == '.tbz':
+        cmd_args = ['tar', '-xjf', str(archive)]
+    elif archive.suffix in ('.7z', '.zip', '.gz', '.xz', '.bz2', '.qbsp'):
+        cmd_args = ['7z', 'x', str(archive)]
+    else:
+        raise(
+            "Extract fail: %s. Not an archive or appropriate extractor was not found", str(archive)
+        )
+        return
+    target.mkdir(parents=True, exist_ok=True)
+    subprocess.check_call(cmd_args, cwd=target)
+
+
+async def download(url: str, target: Path) -> None:
+    print(('''
+- Starting download {}
+                 -> {}''').strip().format(url, str(target)))
+    # Since urlretrieve does blocking I/O it would prevent parallel downloads.
+    # Run in default thread pool.
+    temp_target = target.with_suffix(target.suffix + '-part')
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, urllib.request.urlretrieve, url, str(temp_target))
+    temp_target.rename(target)
+    print('+ finished downloading {}'.format(str(target)))
+
+
+def download_and_extract(
+    urls: list[str],
+    target: Path,
+    temp: Path,
+    skip_existing: bool = False
+) -> None:
+    download_and_extract_tuples([(url, target) for url in urls],
+                                temp,
+                                skip_existing)
+
+
+def download_and_extract_tuples(
+    urls_and_targets: list[tuple[str, Path]],
+    temp: Path,
+    skip_existing: bool = False
+) -> None:
+    temp.mkdir(parents=True, exist_ok=True)
+    target_tuples : list[tuple[Path, Path]] = []
+    # TODO make this work with file URLs, which then aren't downloaded
+    #      but just extracted
+    async def impl():
+        tasks : list[asyncio.Task] = []
+        for (url, target_path) in urls_and_targets:
+            u = urlparse(url)
+            filename = Path(u.path).name
+            target_file = temp / filename
+            target_tuples.append((target_file, target_path))
+            if skip_existing and target_file.exists():
+                print('Skipping download of {}'.format(url))
+            else:
+                tasks.append(asyncio.create_task(download(url, target_file)))
+        for task in tasks:
+            await task
+    asyncio.run(impl())
+    for (file, target) in target_tuples:
+        extract_file(file, target)
+
 
 def get_qt_install_info(qmake_bin):
     output = subprocess.check_output([qmake_bin, '-query'])

@@ -7,7 +7,7 @@
 
 #include "baseqtversion.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kit.h>
 
 namespace QtSupport {
 

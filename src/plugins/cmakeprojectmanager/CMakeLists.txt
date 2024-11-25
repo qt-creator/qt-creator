@@ -8,6 +8,7 @@ add_qtc_plugin(CMakeProjectManager
     cmake_global.h
     cmakeabstractprocessstep.cpp cmakeabstractprocessstep.h
     cmakeautocompleter.cpp cmakeautocompleter.h
+    cmakeautogenparser.cpp cmakeautogenparser.h
     cmakebuildconfiguration.cpp cmakebuildconfiguration.h
     cmakebuildsystem.cpp cmakebuildsystem.h
     cmakebuildstep.cpp cmakebuildstep.h
@@ -20,7 +21,7 @@ add_qtc_plugin(CMakeProjectManager
     cmakeinstallstep.cpp cmakeinstallstep.h
     cmakekitaspect.cpp cmakekitaspect.h
     cmakelocatorfilter.cpp cmakelocatorfilter.h
-    cmakeparser.cpp cmakeparser.h
+    cmakeoutputparser.cpp cmakeoutputparser.h
     cmakeprocess.cpp cmakeprocess.h
     cmakeproject.cpp cmakeproject.h
     cmakeproject.qrc
@@ -43,6 +44,7 @@ add_qtc_plugin(CMakeProjectManager
     presetsparser.cpp presetsparser.h
     presetsmacros.cpp presetsmacros.h
     projecttreehelper.cpp projecttreehelper.h
+    targethelper.cpp targethelper.h
     3rdparty/cmake/cmListFileCache.cxx
     3rdparty/cmake/cmListFileLexer.cxx
     3rdparty/cmake/cmListFileCache.h

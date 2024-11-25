@@ -7,6 +7,7 @@
 #include "autotoolsprojectmanagertr.h"
 
 #include <projectexplorer/buildinfo.h>
+#include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -22,7 +23,7 @@ namespace AutotoolsProjectManager::Internal {
 
 // AutotoolsBuildConfiguration
 
-class AutotoolsBuildConfiguration : public BuildConfiguration
+class AutotoolsBuildConfiguration final : public BuildConfiguration
 {
 public:
     AutotoolsBuildConfiguration(Target *target, Id id)
@@ -49,25 +50,34 @@ public:
     }
 };
 
-AutotoolsBuildConfigurationFactory::AutotoolsBuildConfigurationFactory()
+class AutotoolsBuildConfigurationFactory final : public BuildConfigurationFactory
 {
-    registerBuildConfiguration<AutotoolsBuildConfiguration>
-            ("AutotoolsProjectManager.AutotoolsBuildConfiguration");
+public:
+    AutotoolsBuildConfigurationFactory()
+    {
+        registerBuildConfiguration<AutotoolsBuildConfiguration>
+                ("AutotoolsProjectManager.AutotoolsBuildConfiguration");
 
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedProjectMimeTypeName(Utils::Constants::MAKEFILE_MIMETYPE);
+        setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+        setSupportedProjectMimeTypeName(Utils::Constants::MAKEFILE_MIMETYPE);
 
-    setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
-        BuildInfo info;
-        info.typeName = ::ProjectExplorer::Tr::tr("Build");
-        info.buildDirectory = forSetup
-                ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
-        if (forSetup) {
-            //: The name of the build configuration created by default for a autotools project.
-            info.displayName = ::ProjectExplorer::Tr::tr("Default");
-        }
-        return QList<BuildInfo>{info};
-    });
+        setBuildGenerator([](const Kit *, const FilePath &projectPath, bool forSetup) {
+            BuildInfo info;
+            info.typeName = ::ProjectExplorer::Tr::tr("Build");
+            info.buildDirectory = forSetup
+                    ? FilePath::fromString(projectPath.toFileInfo().absolutePath()) : projectPath;
+            if (forSetup) {
+                //: The name of the build configuration created by default for a autotools project.
+                info.displayName = ::ProjectExplorer::Tr::tr("Default");
+            }
+            return QList<BuildInfo>{info};
+        });
+    }
+};
+
+void setupAutotoolsBuildConfiguration()
+{
+    static AutotoolsBuildConfigurationFactory theAutotoolsBuildConfigurationFactory;
 }
 
 } // AutotoolsProjectManager::Internal

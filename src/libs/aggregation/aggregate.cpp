@@ -59,9 +59,7 @@
     at any point using an aggregate:
     \code
         MyInterfaceEx *objectEx = new MyInterfaceEx;
-        Aggregate *aggregate = new Aggregate;
-        aggregate->add(object);
-        aggregate->add(objectEx);
+        Aggregate::aggregate({object, objectEx})
     \endcode
     The aggregate bundles the two objects together.
     If we have any part of the collection we get all parts:
@@ -130,7 +128,7 @@
     \sa add(), remove()
 */
 
-using namespace Aggregation;
+namespace Aggregation {
 
 /*!
     Returns the aggregate object of \a obj if there is one. Otherwise returns 0.
@@ -157,6 +155,20 @@ QReadWriteLock &Aggregate::lock()
 }
 
 /*!
+    Constructs without locking.
+    \internal
+*/
+Aggregate::Aggregate(enum PrivateConstructor)
+{
+    construct();
+}
+
+void Aggregate::construct()
+{
+    aggregateMap().insert(this, this);
+}
+
+/*!
     Creates a new aggregate with the given \a parent.
     The parent is directly passed to the QObject part
     of the class and is not used beside that.
@@ -165,7 +177,7 @@ Aggregate::Aggregate(QObject *parent)
     : QObject(parent)
 {
     QWriteLocker locker(&lock());
-    aggregateMap().insert(this, this);
+    construct();
 }
 
 /*!
@@ -173,7 +185,7 @@ Aggregate::Aggregate(QObject *parent)
 */
 Aggregate::~Aggregate()
 {
-    QList<QObject *> components;
+    QObjectList components;
     {
         QWriteLocker locker(&lock());
         for (QObject *component : std::as_const(m_components)) {
@@ -241,3 +253,39 @@ void Aggregate::remove(QObject *component)
     }
     emit changed();
 }
+
+/*!
+    This is a convenience function that creates a new Aggregate and adds all
+    \a components to it. If any components already belong to an Aggregate,
+    the remaining components are added to that instead.
+    The components may not belong to different Aggregates to begin with.
+
+    \sa Aggregate
+*/
+void aggregate(const QObjectList &components)
+{
+    QWriteLocker locker(&Aggregate::lock());
+    Aggregate *agg = nullptr;
+    QObjectList toAdd;
+    for (QObject *comp : components) {
+        Aggregate *existing = Aggregate::aggregateMap().value(comp);
+        if (existing) {
+            if (agg && agg != existing) {
+                qWarning() << "Cannot aggregate components that belong to different aggregates" << components;
+                return;
+            }
+            agg = existing;
+        } else {
+            toAdd << comp;
+        }
+    }
+    if (!agg)
+        agg = new Aggregate(Aggregate::PrivateConstructor); // we already have locked
+    for (QObject *comp : toAdd) { // add
+        agg->m_components.append(comp);
+        QObject::connect(comp, &QObject::destroyed, agg, &Aggregate::deleteSelf);
+        Aggregate::aggregateMap().insert(comp, agg);
+    }
+}
+
+} // namespace Aggregation

@@ -67,6 +67,9 @@ public:
     QStringList abiNames() const;
     QDateTime lastModified() const;
 
+    // Keep enum sorted ascending by goodness.
+    enum class Problem { NoEngine, InvalidCommand, InvalidWorkingDir, None };
+    Problem problem() const;
     QIcon decoration() const;
     QString validityMessage() const;
 

@@ -63,7 +63,7 @@ HeaderPath RawProjectPart::frameworkDetectionHeuristic(const HeaderPath &header)
     return header;
 }
 
-void RawProjectPart::setProjectFileLocation(const QString &projectFile, int line, int column)
+void RawProjectPart::setProjectFileLocation(const Utils::FilePath &projectFile, int line, int column)
 {
     this->projectFile = projectFile;
     projectFileLine = line;

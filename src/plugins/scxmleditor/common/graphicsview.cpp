@@ -13,6 +13,8 @@
 
 #include <coreplugin/icore.h>
 
+#include <utils/theme/theme.h>
+
 #include <QDebug>
 #include <QMessageBox>
 #include <QMimeData>
@@ -31,9 +33,10 @@ GraphicsView::GraphicsView(QWidget *parent)
     setViewportUpdateMode(QGraphicsView::FullViewportUpdate);
     setDragMode(RubberBandDrag);
     setRubberBandSelectionMode(Qt::ContainsItemShape);
-    setBackgroundBrush(QBrush(QColor(0xef, 0xef, 0xef)));
     setAcceptDrops(true);
     setFrameShape(QFrame::NoFrame);
+
+    setPalette(Utils::creatorTheme()->palette());
 
     connect(horizontalScrollBar(), &QScrollBar::valueChanged, this, &GraphicsView::updateView);
     connect(verticalScrollBar(), &QScrollBar::valueChanged, this, &GraphicsView::updateView);

@@ -40,6 +40,7 @@
 #include <modelutils.h>
 
 #include <qmldesignerutils/asset.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -50,6 +51,8 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QVBoxLayout>
+
+using namespace Core;
 
 namespace QmlDesigner {
 
@@ -130,7 +133,7 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
 
                 // Register action as creator command to make it configurable
                 Core::Command *command = Core::ActionManager::registerAction(
-                            a, action->menuId().constData(), context);
+                            a, Utils::Id::fromName(action->menuId()), context);
                 m_actionToCommandHash.insert(a, command);
                 command->setDefaultKeySequence(a->shortcut());
                 if (proxyGroup)
@@ -191,6 +194,10 @@ Edit3DWidget::Edit3DWidget(Edit3DView *view)
     m_canvas = new Edit3DCanvas(this);
     fillLayout->addWidget(m_canvas.data());
     showCanvas(false);
+
+    IContext::attach(this,
+                     Context(Constants::qml3DEditorContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void Edit3DWidget::createContextMenu()

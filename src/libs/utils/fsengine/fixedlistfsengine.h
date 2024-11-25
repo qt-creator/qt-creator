@@ -66,10 +66,16 @@ public:
     }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 8, 0)
-    IteratorUniquePtr beginEntryList(const QString &path,
-                                     QDir::Filters filters,
-                                     const QStringList &filterNames) override
+    QAbstractFileEngine::IteratorUniquePtr beginEntryList(
+        const QString &path,
+        QDirListing::IteratorFlags itFlags,
+        const QStringList &filterNames) override
     {
+        // We do not support recursive or following symlinks for the Fixed List engine.
+        Q_ASSERT(itFlags.testFlag(QDirListing::IteratorFlag::Recursive) == false);
+
+        const auto [filters, _] = convertQDirListingIteratorFlags(itFlags);
+
         return std::make_unique<DirIterator>(m_children, path, filters, filterNames);
     }
 #else

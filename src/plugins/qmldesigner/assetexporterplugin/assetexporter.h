@@ -1,23 +1,16 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
 #include "assetexporterview.h"
-#include "utils/fileutils.h"
 
-#include <QJsonArray>
 #include <QJsonObject>
 #include <QSet>
 
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-class QJsonArray;
-QT_END_NAMESPACE
-
-namespace ProjectExplorer {
-class Project;
-}
+namespace ProjectExplorer { class Project; }
 
 namespace QmlDesigner {
 class AssetDumper;

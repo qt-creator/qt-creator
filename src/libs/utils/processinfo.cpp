@@ -57,19 +57,34 @@ static QList<ProcessInfo> getLocalProcessesUsingProc(const FilePath &procDir)
     QList<ProcessInfo> processes;
 
     const auto lines = procProcess.readAllStandardOutput().split('\n');
-    for (auto it = lines.begin(); it != lines.end(); ++it) {
+    int currentLineIndex = 0;
+
+    const auto debugInfo = [&processes, &lines, &currentLineIndex] {
+        qDebug() << "Collected processes count:" << processes.count()
+                 << "Lines count:" << lines.count() << "Current line:" << currentLineIndex;
+        static const int s_printLinesCount = 10;
+        qDebug() << "Last" << s_printLinesCount << "lines:";
+        const int minIndex = qMax(currentLineIndex - s_printLinesCount, 0);
+        const int maxIndex = qMin(currentLineIndex + 1, lines.size());
+        for (int i = minIndex; i < maxIndex; ++i)
+            qDebug() << i << lines.at(i);
+    };
+
+    for (auto it = lines.begin(); it != lines.end(); ++it, ++currentLineIndex) {
         if (it->startsWith('p')) {
             ProcessInfo proc;
             bool ok;
             proc.processId = FilePath::fromUserInput(it->mid(1).trimmed()).fileName().toInt(&ok);
-            QTC_ASSERT(ok, continue);
+            QTC_ASSERT(ok, debugInfo(); continue);
             ++it;
+            ++currentLineIndex;
 
-            QTC_ASSERT(it != lines.end() && it->startsWith('e'), continue);
+            QTC_ASSERT(it != lines.end() && it->startsWith('e'), debugInfo(); continue);
             proc.executable = it->mid(1).trimmed();
             ++it;
+            ++currentLineIndex;
 
-            QTC_ASSERT(it != lines.end() && it->startsWith('c'), continue);
+            QTC_ASSERT(it != lines.end() && it->startsWith('c'), debugInfo(); continue);
             proc.commandLine = it->mid(1).trimmed().replace('\0', ' ');
             if (!proc.commandLine.contains("__SKIP_ME__"))
                 processes.append(proc);

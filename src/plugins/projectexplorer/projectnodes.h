@@ -8,11 +8,13 @@
 #include <QIcon>
 #include <QStringList>
 
-#include <utils/fileutils.h>
+#include <coreplugin/iversioncontrol.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 
 #include <functional>
 #include <optional>
+#include <utility>
 #include <variant>
 
 namespace Utils { class MimeType; }
@@ -201,6 +203,9 @@ public:
     void setHasError(const bool error);
     void setHasError(const bool error) const;
 
+    Core::IVersionControl::FileState modificationState() const;
+    void resetModificationState();
+
     QIcon icon() const;
     void setIcon(const QIcon icon);
 
@@ -209,6 +214,7 @@ public:
 
 private:
     FileType m_fileType;
+    mutable std::optional<Core::IVersionControl::FileState> m_modificationState;
     mutable QIcon m_icon;
     mutable bool m_hasError = false;
     bool m_useUnavailableMarker = false;
@@ -298,7 +304,7 @@ public:
     virtual bool deleteFiles(const Utils::FilePaths &filePaths);
     virtual bool canRenameFile(const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
-    virtual bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath);
+    virtual bool renameFiles(const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed);
     virtual bool addDependencies(const QStringList &dependencies);
 
     class AddNewInformation
@@ -380,8 +386,9 @@ public:
     RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
                                         Utils::FilePaths *notRemoved = nullptr) final;
     bool deleteFiles(const Utils::FilePaths &filePaths) final;
-    bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
-    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) final;
+    bool canRenameFile(
+        const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    bool renameFiles(const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed) final;
     bool addDependencies(const QStringList &dependencies) final;
     bool supportsAction(ProjectAction action, const Node *node) const final;
 

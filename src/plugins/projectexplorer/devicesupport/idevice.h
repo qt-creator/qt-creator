@@ -61,7 +61,6 @@ public:
     virtual void killProcess(qint64 pid) = 0;
     virtual void killProcess(const QString &filePath) = 0;
     virtual void interruptProcess(qint64 pid) = 0;
-    virtual void interruptProcess(const QString &filePath) = 0;
 
     void setDebuggerCommand(const Utils::FilePath &cmd);
 
@@ -83,16 +82,9 @@ public:
     std::function<QList<Utils::Port>(const QByteArray &commandOutput)> parsePorts;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceSettings : public Utils::AspectContainer
-{
-public:
-    DeviceSettings();
-
-    Utils::StringAspect displayName{this};
-};
-
 // See cpp file for documentation.
-class PROJECTEXPLORER_EXPORT IDevice : public std::enable_shared_from_this<IDevice>
+class PROJECTEXPLORER_EXPORT IDevice
+        : public Utils::AspectContainer, public std::enable_shared_from_this<IDevice>
 {
     friend class Internal::IDevicePrivate;
 public:
@@ -107,9 +99,13 @@ public:
 
     virtual Ptr clone() const;
 
-    DeviceSettings *settings() const;
-
     QString displayName() const;
+    void setDisplayName(const QString &name);
+
+    QString defaultDisplayName() const;
+    void setDefaultDisplayName(const QString &name);
+
+    void addDisplayNameToLayout(Layouting::Layout &layout) const;
 
     // Provide some information on the device suitable for formated
     // output, e.g. in tool tips. Get a list of name value pairs.
@@ -149,7 +145,9 @@ public:
     virtual PortsGatheringMethod portsGatheringMethod() const;
     virtual bool canCreateProcessModel() const { return false; }
     virtual bool hasDeviceTester() const { return false; }
-    virtual DeviceTester *createDeviceTester() const;
+    virtual DeviceTester *createDeviceTester();
+    void setIsTesting(bool isTesting);
+    bool isTesting() const;
 
     virtual bool canMount(const Utils::FilePath &filePath) const;
 
@@ -197,8 +195,7 @@ public:
     Utils::expected_str<void> openTerminal(const Utils::Environment &env,
                                            const Utils::FilePath &workingDir) const;
 
-    bool isEmptyCommandAllowed() const;
-    void setAllowEmptyCommand(bool allow);
+    Utils::BoolAspect allowEmptyCommand{this};
 
     bool isWindowsDevice() const { return osType() == Utils::OsTypeWindows; }
     bool isLinuxDevice() const { return osType() == Utils::OsTypeLinux; }
@@ -229,11 +226,13 @@ public:
 
     virtual void checkOsType() {}
 
+    void doApply() const;
+
 protected:
-    IDevice(std::unique_ptr<DeviceSettings> settings = nullptr);
+    IDevice();
 
     virtual void fromMap(const Utils::Store &map);
-    virtual Utils::Store toMap() const;
+    virtual void toMap(Utils::Store &map) const;
 
     using OpenTerminal = std::function<Utils::expected_str<void>(const Utils::Environment &,
                                                                  const Utils::FilePath &)>;
@@ -241,7 +240,7 @@ protected:
     void setDisplayType(const QString &type);
     void setOsType(Utils::OsType osType);
     void setFileAccess(Utils::DeviceFileAccess *fileAccess);
-    void setFileAccess(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
+    void setFileAccessFactory(std::function<Utils::DeviceFileAccess *()> fileAccessFactory);
 
 private:
     IDevice(const IDevice &) = delete;
@@ -260,7 +259,7 @@ class PROJECTEXPLORER_EXPORT DeviceTester : public QObject
 public:
     enum TestResult { TestSuccess, TestFailure };
 
-    virtual void testDevice(const ProjectExplorer::IDevice::Ptr &deviceConfiguration) = 0;
+    virtual void testDevice() = 0;
     virtual void stopTest() = 0;
 
 signals:
@@ -269,7 +268,12 @@ signals:
     void finished(ProjectExplorer::DeviceTester::TestResult result);
 
 protected:
-    explicit DeviceTester(QObject *parent = nullptr);
+    explicit DeviceTester(const IDevice::Ptr &device, QObject *parent = nullptr);
+    ~DeviceTester() override;
+    const IDevice::Ptr &device() const { return m_device; }
+
+private:
+    const IDevice::Ptr m_device;
 };
 
 class PROJECTEXPLORER_EXPORT DeviceProcessKiller : public QObject
@@ -290,7 +294,7 @@ private:
     QString m_errorString;
 };
 
-class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter
+class PROJECTEXPLORER_EXPORT DeviceProcessKillerTaskAdapter final
     : public Tasking::TaskAdapter<DeviceProcessKiller>
 {
 public:

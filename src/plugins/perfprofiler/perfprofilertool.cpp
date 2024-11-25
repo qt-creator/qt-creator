@@ -32,10 +32,10 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancymainwindow.h>
+#include <utils/fileutils.h>
 #include <utils/stylehelper.h>
 #include <utils/utilsicons.h>
 
-#include <QFileDialog>
 #include <QMenu>
 #include <QMessageBox>
 

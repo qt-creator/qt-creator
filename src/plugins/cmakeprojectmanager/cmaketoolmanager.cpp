@@ -350,7 +350,7 @@ void CMakeToolManager::updateDocumentation()
     QStringList docs;
     for (const auto tool : tools) {
         if (!tool->qchFilePath().isEmpty())
-            docs.append(tool->qchFilePath().toString());
+            docs.append(tool->qchFilePath().path());
     }
     Core::HelpManager::registerDocumentation(docs);
 }

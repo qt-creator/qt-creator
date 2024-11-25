@@ -45,12 +45,12 @@ enum RegisterDataRole
 class RegisterDelegate : public QItemDelegate
 {
 public:
-    RegisterDelegate() = default;
+    RegisterDelegate(int column) : m_column(column) {}
 
     QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &,
-        const QModelIndex &index) const override
+                          const QModelIndex &index) const override
     {
-        if (index.column() == RegisterValueColumn) {
+        if (index.column() == m_column) {
             auto lineEdit = new QLineEdit(parent);
             lineEdit->setAlignment(Qt::AlignLeft);
             lineEdit->setFrame(false);
@@ -67,9 +67,9 @@ public:
     }
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
-        const QModelIndex &index) const override
+                      const QModelIndex &index) const override
     {
-        if (index.column() == RegisterValueColumn) {
+        if (index.column() == m_column) {
             auto lineEdit = qobject_cast<QLineEdit *>(editor);
             QTC_ASSERT(lineEdit, return);
             model->setData(index, lineEdit->text(), Qt::EditRole);
@@ -77,16 +77,16 @@ public:
     }
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-        const QModelIndex &) const override
+                              const QModelIndex &) const override
     {
         editor->setGeometry(option.rect);
     }
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-        const QModelIndex &index) const override
+               const QModelIndex &index) const override
     {
-        if (index.column() == RegisterValueColumn) {
-            const bool paintRed = index.data(RegisterChangedRole).toBool();
+        if (index.column() == m_column) {
+            const bool paintRed = index.data(Qt::UserRole).toBool();
             QPen oldPen = painter->pen();
             const QColor lightColor(140, 140, 140);
             if (paintRed)
@@ -122,6 +122,8 @@ public:
             QItemDelegate::paint(painter, option, index);
         }
     }
+
+    const int m_column;
 };
 
 //////////////////////////////////////////////////////////////////
@@ -713,7 +715,7 @@ RegisterMap RegisterHandler::registerMap() const
 QVariant RegisterHandler::data(const QModelIndex &idx, int role) const
 {
     if (role == BaseTreeView::ItemDelegateRole)
-        return QVariant::fromValue(static_cast<QAbstractItemDelegate *>(new RegisterDelegate));
+        return QVariant::fromValue(createRegisterDelegate(RegisterValueColumn));
 
     return RegisterModel::data(idx, role);
 }
@@ -884,6 +886,11 @@ Qt::ItemFlags RegisterEditItem::flags(int column) const
     if (column == RegisterValueColumn)
         f |= Qt::ItemIsEditable;
     return f;
+}
+
+QAbstractItemDelegate *createRegisterDelegate(int column)
+{
+    return new RegisterDelegate(column);
 }
 
 } // Debugger::Internal

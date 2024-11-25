@@ -19,6 +19,7 @@ add_qtc_library(Utils
     basetreeview.cpp basetreeview.h
     benchmarker.cpp benchmarker.h
     buildablehelperlibrary.cpp buildablehelperlibrary.h
+    builderutils.h
     camelcasecursor.cpp camelcasecursor.h
     categorysortfiltermodel.cpp categorysortfiltermodel.h
     changeset.cpp changeset.h
@@ -73,6 +74,7 @@ add_qtc_library(Utils
     genericconstants.h
     globalfilechangeblocker.cpp globalfilechangeblocker.h
     guard.cpp guard.h
+    guardedcallback.h
     guiutils.cpp guiutils.h
     headerviewstretcher.cpp headerviewstretcher.h
     highlightingitemdelegate.cpp highlightingitemdelegate.h
@@ -81,6 +83,7 @@ add_qtc_library(Utils
     htmldocextractor.cpp htmldocextractor.h
     icon.cpp icon.h
     iconbutton.cpp iconbutton.h
+    icondisplay.h icondisplay.cpp
     id.cpp id.h
     indexedcontainerproxyconstiterator.h
     infobar.cpp infobar.h
@@ -96,6 +99,7 @@ add_qtc_library(Utils
     listutils.h
     lua.cpp lua.h
     macroexpander.cpp macroexpander.h
+    markdownbrowser.cpp markdownbrowser.h
     mathutils.cpp mathutils.h
     mimeconstants.h
     mimeutils.h
@@ -141,6 +145,7 @@ add_qtc_library(Utils
     ranges.h
     reloadpromptutils.cpp reloadpromptutils.h
     removefiledialog.cpp removefiledialog.h
+    result.cpp result.h
     savefile.cpp savefile.h
     scopedswap.h
     scopedtimer.cpp scopedtimer.h
@@ -268,9 +273,7 @@ extend_qtc_library(Utils
   CONDITION TARGET Qt::CorePrivate
   DEPENDS Qt::CorePrivate ptyqt
   DEFINES QTC_UTILS_WITH_FSENGINE
-  SOURCES fsengine/fsengine_impl.cpp
-          fsengine/fsengine_impl.h
-          fsengine/diriterator.h
+  SOURCES fsengine/diriterator.h
           fsengine/fileiteratordevicesappender.h
           fsengine/fixedlistfsengine.h
           fsengine/fsenginehandler.cpp

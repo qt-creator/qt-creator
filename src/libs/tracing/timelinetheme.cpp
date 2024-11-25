@@ -95,7 +95,7 @@ void TimelineTheme::setupTheme(QQmlEngine *engine)
 
 bool TimelineTheme::compactToolbar() const
 {
-    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyleCompact;
+    return StyleHelper::toolbarStyle() == StyleHelper::ToolbarStyle::Compact;
 }
 
 int TimelineTheme::toolBarHeight() const

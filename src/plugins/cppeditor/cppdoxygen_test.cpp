@@ -387,6 +387,18 @@ void DoxygenTest::testBasic_data()
         " *  \n"
         " */\n"
         "int a;\n") << int(CommandPrefix::Auto);
+
+    QTest::newRow("continuation_on_asterisk") << _(
+        "bool preventFolding;\n"
+        "/* leading comment\n"
+        " * cont|*/\n"
+        "int a;\n"
+        ) << _(
+        "bool preventFolding;\n"
+        "/* leading comment\n"
+        " * cont\n"
+        " */\n"
+        "int a;\n") << int(CommandPrefix::Auto);
 }
 
 void DoxygenTest::testBasic()

@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "gerritmodel.h"
+#include "gerritparameters.h"
 #include "../gitclient.h"
 #include "../gittr.h"
 
@@ -32,8 +33,7 @@ enum { debug = 0 };
 using namespace Utils;
 using namespace VcsBase;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 QDebug operator<<(QDebug d, const GerritApproval &a)
 {
@@ -64,11 +64,9 @@ QDebug operator<<(QDebug d, const GerritChange &c)
 }
 
 // Format default Url for a change
-static inline QString defaultUrl(const std::shared_ptr<GerritParameters> &p,
-                                 const GerritServer &server,
-                                 int gerritNumber)
+static QString defaultUrl(const GerritServer &server, int gerritNumber)
 {
-    QString result = QLatin1String(p->https ? "https://" : "http://");
+    QString result = QLatin1String(gerritSettings().https ? "https://" : "http://");
     result += server.host;
     result += '/';
     result += QString::number(gerritNumber);
@@ -208,7 +206,6 @@ class QueryContext : public QObject
     Q_OBJECT
 public:
     QueryContext(const QString &query,
-                 const std::shared_ptr<GerritParameters> &p,
                  const GerritServer &server,
                  QObject *parent = nullptr);
 
@@ -236,22 +233,21 @@ private:
 enum { timeOutMS = 30000 };
 
 QueryContext::QueryContext(const QString &query,
-                           const std::shared_ptr<GerritParameters> &p,
                            const GerritServer &server,
                            QObject *parent)
     : QObject(parent)
 {
     m_process.setUseCtrlCStub(true);
     if (server.type == GerritServer::Ssh) {
-        m_binary = p->ssh;
+        m_binary = gerritSettings().ssh;
         if (server.port)
-            m_arguments << p->portFlag << QString::number(server.port);
+            m_arguments << gerritSettings().portFlag << QString::number(server.port);
         m_arguments << server.hostArgument() << "gerrit"
                     << "query" << "--dependencies"
                     << "--current-patch-set"
                     << "--format=JSON" << query;
     } else {
-        m_binary = p->curl;
+        m_binary = gerritSettings().curl;
         const QString url = server.url(GerritServer::RestUrl) + "/changes/?q="
                 + QString::fromUtf8(QUrl::toPercentEncoding(query))
                 + "&o=CURRENT_REVISION&o=DETAILED_LABELS&o=DETAILED_ACCOUNTS";
@@ -338,9 +334,8 @@ void QueryContext::timeout()
         m_timer.start();
 }
 
-GerritModel::GerritModel(const std::shared_ptr<GerritParameters> &p, QObject *parent)
+GerritModel::GerritModel(QObject *parent)
     : QStandardItemModel(0, ColumnCount, parent)
-    , m_parameters(p)
 {
     QStringList headers; // Keep in sync with GerritChange::toHtml()
     headers << "#" << Git::Tr::tr("Subject") << Git::Tr::tr("Owner")
@@ -460,7 +455,7 @@ void GerritModel::refresh(const std::shared_ptr<GerritServer> &server, const QSt
             realQuery += QString(" (owner:%1 OR reviewer:%1)").arg(user);
     }
 
-    m_query = new QueryContext(realQuery, m_parameters, *m_server, this);
+    m_query = new QueryContext(realQuery, *m_server, this);
     connect(m_query, &QueryContext::resultRetrieved, this, &GerritModel::resultRetrieved);
     connect(m_query, &QueryContext::errorText, this, &GerritModel::errorText);
     connect(m_query, &QueryContext::finished, this, &GerritModel::queryFinished);
@@ -731,8 +726,7 @@ static GerritChangePtr parseRestOutput(const QJsonObject &object, const GerritSe
     return change;
 }
 
-static bool parseOutput(const std::shared_ptr<GerritParameters> &parameters,
-                        const GerritServer &server,
+static bool parseOutput(const GerritServer &server,
                         const QByteArray &output,
                         QList<GerritChangePtr> &result)
 {
@@ -775,7 +769,7 @@ static bool parseOutput(const std::shared_ptr<GerritParameters> &parameters,
                                                   : parseRestOutput(object, server));
         if (change->isValid()) {
             if (change->url.isEmpty()) //  No "canonicalWebUrl" is in gerrit.config.
-                change->url = defaultUrl(parameters, server, change->number);
+                change->url = defaultUrl(server, change->number);
             result.push_back(change);
         } else {
             const QByteArray jsonObject = QJsonDocument(object).toJson();
@@ -844,7 +838,7 @@ bool gerritChangeLessThan(const GerritChangePtr &c1, const GerritChangePtr &c2)
 void GerritModel::resultRetrieved(const QByteArray &output)
 {
     QList<GerritChangePtr> changes;
-    setState(parseOutput(m_parameters, *m_server, output, changes) ? Ok : Error);
+    setState(parseOutput(*m_server, output, changes) ? Ok : Error);
 
     // Populate a hash with indices for faster access.
     QHash<int, int> numberIndexHash;
@@ -910,7 +904,6 @@ void GerritModel::queryFinished()
     emit refreshStateChanged(false);
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal
 
 #include "gerritmodel.moc"

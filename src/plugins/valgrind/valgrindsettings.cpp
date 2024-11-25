@@ -13,6 +13,7 @@
 #include <debugger/debuggertr.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -116,7 +117,7 @@ SuppressionAspect::~SuppressionAspect()
     delete d;
 }
 
-void SuppressionAspect::addToLayout(Layouting::Layout &parent)
+void SuppressionAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->addEntry);
     QTC_CHECK(!d->removeEntry);
@@ -394,6 +395,17 @@ ValgrindSettings::ValgrindSettings(bool global)
 
     if (global)
         readSettings();
+}
+
+QString ValgrindSettings::leakCheckOnFinishOptionString() const
+{
+    switch (leakCheckOnFinish()) {
+    case ValgrindSettings::LeakCheckOnFinishNo: return "no";
+    case ValgrindSettings::LeakCheckOnFinishYes: return "full";
+    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
+    default: return "summary";
+    }
+    return {};
 }
 
 ValgrindSettings &globalSettings()

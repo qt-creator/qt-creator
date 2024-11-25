@@ -254,7 +254,6 @@ void ToolchainSettingsAccessor::saveToolchains(const Toolchains &toolchains, QWi
 Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
 {
     Toolchains result;
-    const QList<ToolchainFactory *> factories = ToolchainFactory::allToolchainFactories();
 
     const int count = data.value(TOOLCHAIN_COUNT_KEY, 0).toInt();
     for (int i = 0; i < count; ++i) {
@@ -267,13 +266,10 @@ Toolchains ToolchainSettingsAccessor::toolChains(const Store &data) const
         bool restored = false;
         const Utils::Id tcType = ToolchainFactory::typeIdFromMap(tcMap);
         if (tcType.isValid()) {
-            for (ToolchainFactory *f : factories) {
-                if (f->supportedToolchainType() == tcType) {
-                    if (Toolchain *tc = f->restore(tcMap)) {
-                        result.append(tc);
-                        restored = true;
-                        break;
-                    }
+            if (ToolchainFactory * const f = ToolchainFactory::factoryForType(tcType)) {
+                if (Toolchain *tc = f->restore(tcMap)) {
+                    result.append(tc);
+                    restored = true;
                 }
             }
         }
@@ -330,12 +326,12 @@ public:
     void addToEnvironment(Environment &env) const override { Q_UNUSED(env) }
     FilePath makeCommand(const Environment &) const override { return "make"; }
     QList<OutputLineParser *> createOutputParsers() const override { return {}; }
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override { return nullptr; }
     bool operator ==(const Toolchain &other) const override {
         if (!Toolchain::operator==(other))
             return false;
         return static_cast<const TTC *>(&other)->token == token;
     }
+    bool canShareBundleImpl(const Toolchain &) const override { return false; }
 
     void fromMap(const Store &data) final
     {
@@ -373,6 +369,11 @@ void ProjectExplorerTest::testToolChainMerging_data()
         TestToolchainFactory() {
             setSupportedToolchainType(TestToolChainType);
             setToolchainConstructor([] { return new TTC; });
+        }
+        std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+            const ToolchainBundle &) const override
+        {
+            return nullptr;
         }
     };
 

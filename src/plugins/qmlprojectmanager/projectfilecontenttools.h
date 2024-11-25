@@ -6,12 +6,8 @@
 #include "qmlprojectmanager_global.h"
 
 #include <projectexplorer/projectmanager.h>
-#include <projectexplorer/projectmanager.h>
 
-#include <utils/fileutils.h>
-
-namespace QmlProjectManager {
-namespace ProjectFileContentTools {
+namespace QmlProjectManager::ProjectFileContentTools {
 
 struct QMLPROJECTMANAGER_EXPORT Resolution {
     int width;
@@ -26,6 +22,5 @@ const QString QMLPROJECTMANAGER_EXPORT getMainQmlFile(const Utils::FilePath &pro
 const QString QMLPROJECTMANAGER_EXPORT appQmlFile(const Utils::FilePath &projectFilePath);
 const Resolution QMLPROJECTMANAGER_EXPORT resolutionFromConstants(const Utils::FilePath &projectFilePath);
 
-} //ProjectFileContentTools
-} //QmlProjectManager
+} // QmlProjectManager::ProjectFileContentTools
 

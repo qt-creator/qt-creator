@@ -653,7 +653,7 @@ bool DiagnosticFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &s
                 continue;
             Utils::FilePath filePath = d.filePath;
             if (d.filePath.toFileInfo().isRelative())
-                filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
+                filePath = m_lastProjectDirectory.resolvePath(filePath);
             if (filePath == diag.location.filePath) {
                 diagnosticItem->setTextMarkVisible(false);
                 return false;

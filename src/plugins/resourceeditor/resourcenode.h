@@ -55,7 +55,8 @@ public:
     ProjectExplorer::RemovedFilesFromProject removeFiles(const Utils::FilePaths &filePaths,
                                                          Utils::FilePaths *notRemoved) override;
     bool canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
-    bool renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    bool renameFiles(
+        const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed) override;
 
     bool renamePrefix(const QString &prefix, const QString &lang);
 

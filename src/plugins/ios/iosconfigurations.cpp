@@ -20,6 +20,7 @@
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 
 #include <debugger/debuggeritemmanager.h>
 #include <debugger/debuggeritem.h>
@@ -555,6 +556,12 @@ public:
     }
 
     Toolchains autoDetect(const ToolchainDetector &detector) const final;
+
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle) const override
+    {
+        return GccToolchain::createConfigurationWidget(bundle);
+    }
 };
 
 Toolchains IosToolchainFactory::autoDetect(const ToolchainDetector &detector) const

@@ -150,8 +150,9 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
     command.setSettingsKey("command");
     command.setExpectedKind(PathChooser::ExistingCommand);
     command.setCommandVersionArguments({"--version"});
-    command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("Clang Format"));
+    command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("ClangFormat"));
     command.setValidatePlaceHolder(true);
+    command.addOnChanged(this, [this] { m_version = {}; version(); });
 
     supportedMimeTypes.setDisplayStyle(StringAspect::LineEditDisplay);
     supportedMimeTypes.setSettingsKey("supportedMime");
@@ -172,8 +173,6 @@ AbstractSettings::AbstractSettings(const QString &name, const QString &ending)
         }
         return types.join("; ");
     });
-
-    connect(&command, &BaseAspect::changed, this, [this] { m_version = {}; version(); });
 }
 
 AbstractSettings::~AbstractSettings() = default;
@@ -304,9 +303,10 @@ void AbstractSettings::save()
         filePath.removeFile();
         QTC_ASSERT(m_styleDir.isAbsolutePath(), break);
         QTC_ASSERT(!m_styleDir.needsDevice(), break);
-        if (filePath.parentDir() != m_styleDir) {
+        const FilePath parentDir = filePath.parentDir();
+        if (parentDir != m_styleDir) {
             // FIXME: Missing in FilePath
-            QDir(m_styleDir.toString()).rmdir(filePath.parentDir().toString());
+            QDir(m_styleDir.toFSPathString()).rmdir(parentDir.toFSPathString());
         }
     }
     m_stylesToRemove.clear();

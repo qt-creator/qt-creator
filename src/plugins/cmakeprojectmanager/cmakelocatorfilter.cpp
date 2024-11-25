@@ -3,10 +3,10 @@
 
 #include "cmakelocatorfilter.h"
 
-#include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
 #include "cmakeproject.h"
 #include "cmakeprojectmanagertr.h"
+#include "targethelper.h"
 
 #include <coreplugin/locator/ilocatorfilter.h>
 
@@ -19,22 +19,20 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
 
-using BuildAcceptor = std::function<void(const FilePath &, const QString &)>;
+using BuildAcceptor = std::function<void(const BuildSystem *, const QString &)>;
 
 // CMakeBuildTargetFilter
 
 static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, acceptor] {
-        const QString input = storage->input();
+    const auto onSetup = [acceptor] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
         const QRegularExpression regexp
             = ILocatorFilter::createRegExp(input, ILocatorFilter::caseSensitivity(input));
         if (!regexp.isValid())
@@ -62,8 +60,8 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                     LocatorFilterEntry entry;
                     entry.displayName = displayName;
                     if (acceptor) {
-                        entry.acceptor = [projectPath, displayName, acceptor] {
-                            acceptor(projectPath, displayName);
+                        entry.acceptor = [bs, displayName, acceptor] {
+                            acceptor(bs, displayName);
                             return AcceptResult();
                         };
                     }
@@ -90,10 +88,10 @@ static LocatorMatcherTasks cmakeMatchers(const BuildAcceptor &acceptor)
                 }
             }
         }
-        storage->reportOutput(
+        storage.reportOutput(
             std::accumulate(std::begin(entries), std::end(entries), LocatorFilterEntries()));
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 static void setupFilter(ILocatorFilter *filter)
@@ -106,36 +104,6 @@ static void setupFilter(ILocatorFilter *filter)
                      filter, projectListUpdated);
     QObject::connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
                      filter, projectListUpdated);
-}
-
-static void buildAcceptor(const FilePath &projectPath, const QString &displayName)
-{
-    // Get the project containing the target selected
-    const auto cmakeProject = qobject_cast<CMakeProject *>(
-        Utils::findOrDefault(ProjectManager::projects(), [projectPath](Project *p) {
-            return p->projectFilePath() == projectPath;
-        }));
-    if (!cmakeProject || !cmakeProject->activeTarget()
-        || !cmakeProject->activeTarget()->activeBuildConfiguration())
-        return;
-
-    if (BuildManager::isBuilding(cmakeProject))
-        BuildManager::cancel();
-
-    // Find the make step
-    const BuildStepList *buildStepList =
-        cmakeProject->activeTarget()->activeBuildConfiguration()->buildSteps();
-    const auto buildStep = buildStepList->firstOfType<CMakeBuildStep>();
-    if (!buildStep)
-        return;
-
-    // Change the make step to build only the given target
-    const QStringList oldTargets = buildStep->buildTargets();
-    buildStep->setBuildTargets({displayName});
-
-    // Build
-    BuildManager::buildProjectWithDependencies(cmakeProject);
-    buildStep->setBuildTargets(oldTargets);
 }
 
 class CMakeBuildTargetFilter final : ILocatorFilter
@@ -152,7 +120,7 @@ public:
     }
 
 private:
-    LocatorMatcherTasks matchers() final { return cmakeMatchers(&buildAcceptor); }
+    LocatorMatcherTasks matchers() final { return cmakeMatchers(&buildTarget); }
 };
 
 // OpenCMakeTargetLocatorFilter

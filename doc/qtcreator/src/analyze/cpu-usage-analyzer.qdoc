@@ -257,7 +257,7 @@
     The \uicontrol Timeline view displays a graphical representation of CPU
     usage per thread and a condensed view of all recorded events.
 
-    \image qtcreator-performance-analyzer-timeline.png {Performance Analyzer}
+    \image qtcreator-performance-analyzer-timeline.webp {Performance Analyzer Timeline view}
 
     Each category in the timeline describes a thread in the application. Move
     the cursor on an event (5) on a row to see how long it takes and which
@@ -452,11 +452,15 @@
     \section1 Loading and Saving Trace Files
 
     You can save and load trace data in a format specific to the
-    Performance Analyzer with the respective entries in \uicontrol Analyze >
-    \uicontrol {Performance Analyzer Options}. This format is self-contained, and
+    Performance Analyzer (.ptq). This format is self-contained, and
     therefore loading it does not require you to specify the recording
     environment. You can transfer such trace files to a different computer
     without any toolchain or debug symbols and analyze them there.
+
+    To load trace data, go to \uicontrol Analyze >
+    \uicontrol {Performance Analyzer Options} > \uicontrol {Load Trace File}.
+
+    To save trace data, select \uicontrol {Save Trace File}.
 
     \section1 Troubleshooting
 

@@ -38,7 +38,7 @@ public:
 };
 
 Q_GLOBAL_STATIC(QLibrary, gUvscLibrary)
-Q_GLOBAL_STATIC(QVector<UvscClient *>, gUvscClients)
+Q_GLOBAL_STATIC(QList<UvscClient *>, gUvscClients)
 
 static QMutex gUvscsGuard;
 

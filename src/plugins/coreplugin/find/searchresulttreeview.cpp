@@ -45,6 +45,10 @@ SearchResultTreeView::SearchResultTreeView(QWidget *parent)
     setItemDelegate(new SearchResultTreeItemDelegate(8, this));
     setIndentation(14);
     setExpandsOnDoubleClick(true);
+    setFrameStyle(QFrame::NoFrame);
+    setAttribute(Qt::WA_MacShowFocusRect, false);
+    setSearchRole(ItemDataRoles::ResultLineRole);
+
     header()->setSectionResizeMode(QHeaderView::ResizeToContents);
     header()->setStretchLastSection(false);
     header()->hide();

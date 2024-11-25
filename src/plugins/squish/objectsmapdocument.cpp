@@ -13,6 +13,8 @@
 
 #include <QtCore5Compat/QTextCodec>
 
+using namespace Utils;
+
 namespace Squish {
 namespace Internal {
 
@@ -40,25 +42,20 @@ Core::IDocument::OpenResult ObjectsMapDocument::open(QString *errorString,
     return result;
 }
 
-bool ObjectsMapDocument::saveImpl(QString *errorString,
-                                  const Utils::FilePath &filePath,
-                                  bool autoSave)
+Result ObjectsMapDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return false;
+        return Result::Error("ASSERT: ObjectsMapDocument: filePath.isEmpty()");
 
     const bool writeOk = writeFile(filePath);
-    if (!writeOk) {
-        if (errorString)
-            *errorString = Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput());
-        return false;
-    }
+    if (!writeOk)
+        return Result::Error(Tr::tr("Failed to write \"%1\"").arg(filePath.toUserOutput()));
 
     if (!autoSave) {
         setModified(false);
         setFilePath(filePath);
     }
-    return true;
+    return Result::Ok;
 }
 
 Utils::FilePath ObjectsMapDocument::fallbackSaveAsPath() const
@@ -77,19 +74,19 @@ void ObjectsMapDocument::setModified(bool modified)
     emit changed();
 }
 
-bool ObjectsMapDocument::reload(QString *errorString,
-                                Core::IDocument::ReloadFlag flag,
-                                Core::IDocument::ChangeType type)
+Result ObjectsMapDocument::reload(Core::IDocument::ReloadFlag flag,
+                                  Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type);
     if (flag == FlagIgnore)
-        return true;
+        return Result::Ok;
     emit aboutToReload();
-    const bool success = (openImpl(errorString, filePath(), filePath()) == OpenResult::Success);
+    QString errorString;
+    const bool success = (openImpl(&errorString, filePath(), filePath()) == OpenResult::Success);
     if (success)
         setModified(false);
     emit reloadFinished(success);
-    return success;
+    return Result(success, errorString);
 }
 
 bool ObjectsMapDocument::buildObjectsMapTree(const QByteArray &contents)

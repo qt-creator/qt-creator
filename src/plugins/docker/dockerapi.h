@@ -3,12 +3,11 @@
 
 #pragma once
 
-#include "dockersettings.h"
-
 #include <utils/expected.h>
 #include <utils/filepath.h>
 #include <utils/guard.h>
 
+#include <QFuture>
 #include <QMutex>
 #include <QObject>
 

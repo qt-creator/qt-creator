@@ -4,9 +4,13 @@
 #include "../luaengine.h"
 
 #include "inheritance.h"
+#include "utils.h"
 
 #include <utils/aspects.h>
+#include <utils/filepath.h>
 #include <utils/layoutbuilder.h>
+
+#include <QMetaEnum>
 
 using namespace Layouting;
 using namespace Utils;
@@ -34,7 +38,7 @@ static void processChildren(T *item, const sol::table &children)
             item->addItem(child.get<QString>());
         } else if (child.is<sol::function>()) {
             const sol::function f = child.get<sol::function>();
-            auto res = LuaEngine::void_safe_call(f, item);
+            auto res = void_safe_call(f, item);
             QTC_ASSERT_EXPECTED(res, continue);
         } else if (child.is<Span>()) {
             const Span &span = child.get<Span>();
@@ -47,7 +51,7 @@ static void processChildren(T *item, const sol::table &children)
             item->addItem(stretch);
         } else {
             qWarning() << "Incompatible object added to layout item: " << (int) child.get_type()
-                       << " (expected LayoutItem, Aspect or function returning LayoutItem)";
+                       << " (expected Layout, Aspect or function returning Layout)";
         }
     }
 }
@@ -73,75 +77,237 @@ void constructWidget(std::unique_ptr<T> &widget, const sol::table &children)
     }
 }
 
-#define HAS_MEM_FUNC(func, name) \
-    template<typename T, typename Sign> \
-    struct name \
-    { \
-        typedef char yes[1]; \
-        typedef char no[2]; \
-        template<typename U, U> \
-        struct type_check; \
-        template<typename _1> \
-        static yes &chk(type_check<Sign, &_1::func> *); \
-        template<typename> \
-        static no &chk(...); \
-        static bool const value = sizeof(chk<T>(0)) == sizeof(yes); \
-    }
+// clang-format off
+#define CREATE_HAS_FUNC(name, ...) \
+    template<class T> concept has_##name = requires { \
+        { std::declval<T>().name(__VA_ARGS__) } -> std::same_as<void>; \
+    };
+// clang-format on
 
-HAS_MEM_FUNC(onTextChanged, hasOnTextChanged);
-HAS_MEM_FUNC(onClicked, hasOnClicked);
-HAS_MEM_FUNC(setText, hasSetText);
-HAS_MEM_FUNC(setTitle, hasSetTitle);
-HAS_MEM_FUNC(setValue, hasSetValue);
-HAS_MEM_FUNC(setSize, hasSetSize);
+CREATE_HAS_FUNC(onTextChanged, nullptr, nullptr)
+CREATE_HAS_FUNC(onClicked, nullptr, nullptr)
+CREATE_HAS_FUNC(setText, QString())
+CREATE_HAS_FUNC(setMarkdown, QString())
+CREATE_HAS_FUNC(setReadOnly, bool())
+CREATE_HAS_FUNC(setTitle, QString())
+CREATE_HAS_FUNC(setValue, int())
+CREATE_HAS_FUNC(setSize, int(), int())
+CREATE_HAS_FUNC(setWindowFlags, Qt::WindowFlags())
+CREATE_HAS_FUNC(setWidgetAttribute, Qt::WidgetAttribute(), bool())
+CREATE_HAS_FUNC(setAutoFillBackground, bool())
+CREATE_HAS_FUNC(setIconPath, Utils::FilePath())
+CREATE_HAS_FUNC(setFlat, bool())
+CREATE_HAS_FUNC(setOpenExternalLinks, bool())
+CREATE_HAS_FUNC(setIconSize, QSize())
+CREATE_HAS_FUNC(setWordWrap, bool())
+CREATE_HAS_FUNC(setTextFormat, Qt::TextFormat())
+CREATE_HAS_FUNC(setRightSideIconPath, Utils::FilePath())
+CREATE_HAS_FUNC(setPlaceHolderText, QString())
+CREATE_HAS_FUNC(setCompleter, nullptr)
+CREATE_HAS_FUNC(setMinimumHeight, int())
+CREATE_HAS_FUNC(onReturnPressed, nullptr, nullptr)
+CREATE_HAS_FUNC(onRightSideIconClicked, nullptr, nullptr)
+CREATE_HAS_FUNC(setTextInteractionFlags, Qt::TextInteractionFlags())
+CREATE_HAS_FUNC(setFixedSize, QSize())
+CREATE_HAS_FUNC(setVisible, bool())
+CREATE_HAS_FUNC(setIcon, Utils::Icon());
+CREATE_HAS_FUNC(setContentsMargins, int(), int(), int(), int());
+CREATE_HAS_FUNC(setCursor, Qt::CursorShape())
 
 template<class T>
 void setProperties(std::unique_ptr<T> &item, const sol::table &children, QObject *guard)
 {
-    if constexpr (hasSetSize<T, void (T::*)(int, int)>::value) {
-        sol::optional<sol::table> size = children.get<sol::optional<sol::table>>("size");
-        if (size) {
-            if (size->size() == 2)
-                item->setSize(size->get<int>(1), size->get<int>(2));
-            else
-                throw sol::error("size must have exactly two elements");
+    if constexpr (has_setContentsMargins<T>) {
+        sol::optional<QMargins> margins = children.get<sol::optional<QMargins>>("contentMargins");
+        if (margins)
+            item->setContentsMargins(margins->left(), margins->top(), margins->right(), margins->bottom());
+    }
+
+    if constexpr (has_setCursor<T>) {
+        const auto cursor = children.get<sol::optional<Qt::CursorShape>>("cursor");
+        if (cursor)
+            item->setCursor(*cursor);
+    }
+
+    if constexpr (has_setVisible<T>) {
+        const auto visible = children.get<sol::optional<bool>>("visible");
+        if (visible)
+            item->setVisible(*visible);
+    }
+
+    if constexpr (has_setIcon<T>) {
+        const auto icon = children.get<sol::optional<IconFilePathOrString>>("icon");
+        if (icon)
+            item->setIcon(*toIcon(*icon));
+    }
+
+    if constexpr (has_setTextInteractionFlags<T>) {
+        const auto interactionFlags = children.get<sol::optional<sol::table>>("interactionFlags");
+        if (interactionFlags) {
+            item->setTextInteractionFlags(tableToFlags<Qt::TextInteractionFlag>(*interactionFlags));
         }
     }
 
-    if constexpr (hasOnTextChanged<T, void (T::*)(const QString &)>::value) {
-        sol::optional<sol::protected_function> onTextChanged
-            = children.get<sol::optional<sol::protected_function>>("onTextChanged");
+    if constexpr (has_setFixedSize<T>) {
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("fixedSize");
+        if (size)
+            item->setFixedSize(*size);
+    }
+
+    if constexpr (has_setWordWrap<T>) {
+        const auto wrap = children.get<sol::optional<bool>>("wordWrap");
+        if (wrap)
+            item->setWordWrap(*wrap);
+    }
+
+    if constexpr (has_setTextFormat<T>) {
+        const auto format = children.get<sol::optional<Qt::TextFormat>>("textFormat");
+        if (format)
+            item->setTextFormat(*format);
+    }
+
+    if constexpr (has_setRightSideIconPath<T>) {
+        const auto path = children.get<sol::optional<Utils::FilePath>>("rightSideIconPath");
+        if (path)
+            item->setRightSideIconPath(*path);
+    }
+
+    if constexpr (has_setPlaceHolderText<T>) {
+        const auto text = children.get<sol::optional<QString>>("placeHolderText");
+        if (text)
+            item->setPlaceHolderText(*text);
+    }
+
+    if constexpr (has_setCompleter<T>) {
+        const auto completer = children.get<QCompleter *>("completer");
+        if (completer)
+            item->setCompleter(completer);
+    }
+
+    if constexpr (has_setMinimumHeight<T>) {
+        const auto minHeight = children.get<sol::optional<int>>("minimumHeight");
+        if (minHeight)
+            item->setMinimumHeight(*minHeight);
+    }
+
+    if constexpr (has_onReturnPressed<T>) {
+        const auto callback = children.get<sol::optional<sol::main_function>>("onReturnPressed");
+        if (callback) {
+            item->onReturnPressed([func = *callback]() { void_safe_call(func); }, guard);
+        }
+    }
+
+    if constexpr (has_onRightSideIconClicked<T>) {
+        const auto callback = children.get<sol::optional<sol::main_function>>(
+            "onRightSideIconClicked");
+        if (callback)
+            item->onRightSideIconClicked([func = *callback]() { void_safe_call(func); }, guard);
+    }
+
+    if constexpr (has_setFlat<T>) {
+        const auto flat = children.get<sol::optional<bool>>("flat");
+        if (flat)
+            item->setFlat(*flat);
+    }
+
+    if constexpr (has_setIconPath<T>) {
+        const auto iconPath = children.get<sol::optional<FilePath>>("iconPath");
+        if (iconPath)
+            item->setIconPath(*iconPath);
+    }
+
+    if constexpr (has_setIconSize<T>) {
+        const auto iconSize = children.get<sol::optional<QSize>>("iconSize");
+        if (iconSize)
+            item->setIconSize(*iconSize);
+    }
+
+    if constexpr (has_setWindowFlags<T>) {
+        sol::optional<sol::table> windowFlags = children.get<sol::optional<sol::table>>(
+            "windowFlags");
+        if (windowFlags) {
+            Qt::WindowFlags flags;
+            for (const auto &kv : *windowFlags)
+                flags.setFlag(static_cast<Qt::WindowType>(kv.second.as<int>()));
+            item->setWindowFlags(flags);
+        }
+    }
+
+    if constexpr (has_setSize<T>) {
+        sol::optional<QSize> size = children.get<sol::optional<QSize>>("size");
+        if (size)
+            item->setSize(size->width(), size->height());
+    }
+
+    if constexpr (has_setWidgetAttribute<T>) {
+        sol::optional<sol::table> widgetAttributes = children.get<sol::optional<sol::table>>(
+            "widgetAttributes");
+        if (widgetAttributes) {
+            for (const auto &kv : *widgetAttributes)
+                item->setWidgetAttribute(
+                    static_cast<Qt::WidgetAttribute>(kv.first.as<int>()), kv.second.as<bool>());
+        }
+    }
+
+    if constexpr (has_setAutoFillBackground<T>) {
+        sol::optional<bool> autoFillBackground = children.get<sol::optional<bool>>(
+            "autoFillBackground");
+        if (autoFillBackground)
+            item->setAutoFillBackground(*autoFillBackground);
+    }
+
+    if constexpr (has_onTextChanged<T>) {
+        sol::optional<sol::main_function> onTextChanged
+            = children.get<sol::optional<sol::main_function>>("onTextChanged");
         if (onTextChanged) {
             item->onTextChanged(
                 [f = *onTextChanged](const QString &text) {
-                    auto res = LuaEngine::void_safe_call(f, text);
+                    auto res = void_safe_call(f, text);
                     QTC_CHECK_EXPECTED(res);
                 },
                 guard);
         }
     }
-    if constexpr (hasOnClicked<T, void (T::*)(const std::function<void()> &, QObject *guard)>::value) {
-        sol::optional<sol::protected_function> onClicked
-            = children.get<sol::optional<sol::protected_function>>("onClicked");
+    if constexpr (has_onClicked<T>) {
+        sol::optional<sol::main_function> onClicked
+            = children.get<sol::optional<sol::main_function>>("onClicked");
         if (onClicked) {
             item->onClicked(
                 [f = *onClicked]() {
-                    auto res = LuaEngine::void_safe_call(f);
+                    auto res = void_safe_call(f);
                     QTC_CHECK_EXPECTED(res);
                 },
                 guard);
         }
     }
-    if constexpr (hasSetText<T, void (T::*)(const QString &)>::value) {
-        item->setText(children.get_or<QString>("text", ""));
+    if constexpr (has_setText<T>) {
+        auto text = children.get<sol::optional<QString>>("text");
+        if (text)
+            item->setText(*text);
     }
-    if constexpr (hasSetTitle<T, void (T::*)(const QString &)>::value) {
+    if constexpr (has_setMarkdown<T>) {
+        auto markdown = children.get<sol::optional<QString>>("markdown");
+        if (markdown)
+            item->setMarkdown(*markdown);
+    }
+    if constexpr (has_setTitle<T>) {
         item->setTitle(children.get_or<QString>("title", ""));
     }
-    if constexpr (hasSetValue<T, void (T::*)(int)>::value) {
+    if constexpr (has_setValue<T>) {
         sol::optional<int> value = children.get<sol::optional<int>>("value");
         if (value)
             item->setValue(*value);
+    }
+    if constexpr (has_setReadOnly<T>) {
+        sol::optional<bool> readOnly = children.get<sol::optional<bool>>("readOnly");
+        if (readOnly)
+            item->setReadOnly(*readOnly);
+    }
+    if constexpr (has_setOpenExternalLinks<T>) {
+        sol::optional<bool> openExternalLinks = children.get<sol::optional<bool>>(
+            "openExternalLinks");
+        if (openExternalLinks)
+            item->setOpenExternalLinks(*openExternalLinks);
     }
 }
 
@@ -179,24 +345,40 @@ std::unique_ptr<Tab> constructTab(const QString &tabName, const Layout &layout)
 
 std::unique_ptr<Span> constructSpanFromTable(const sol::table &children)
 {
-    if (children.size() != 2)
-        throw sol::error("Span must have exactly two children");
+    if (children.size() != 2 && children.size() != 3)
+        throw sol::error("Span must have two or three children");
 
     auto spanSize = children[1];
     if (spanSize.get_type() != sol::type::number)
-        throw sol::error("Span size (first argument) must be a number");
+        throw sol::error("Span columns (first argument) must be a number");
 
-    const auto &layout = children[2];
-    if (!layout.is<Layout *>())
-        throw sol::error("Span child (second argument) must be a Layout");
+    const auto &layout_or_row = children[2];
+    if (!layout_or_row.is<Layout *>() && layout_or_row.get_type() != sol::type::number)
+        throw sol::error("Span child (second argument) must be a Layout or number");
 
-    std::unique_ptr<Span> item = std::make_unique<Span>(spanSize, *layout.get<Layout *>());
+    if (layout_or_row.get_type() == sol::type::number) {
+        const auto &layout = children[3];
+        if (!layout.is<Layout *>())
+            throw sol::error("Span child (third argument) must be a Layout");
+
+        std::unique_ptr<Span> item = std::make_unique<Span>(
+            spanSize.get<int>(), layout_or_row.get<int>(), *layout.get<Layout *>());
+        return item;
+    }
+
+    std::unique_ptr<Span> item = std::make_unique<Span>(spanSize, *layout_or_row.get<Layout *>());
     return item;
 }
 
-std::unique_ptr<Span> constructSpan(int n, const Layout &layout)
+std::unique_ptr<Span> constructSpan(int c, const Layout &layout)
 {
-    std::unique_ptr<Span> item = std::make_unique<Span>(n, layout);
+    std::unique_ptr<Span> item = std::make_unique<Span>(c, layout);
+    return item;
+}
+
+std::unique_ptr<Span> constructSpanWithRow(int c, int r, const Layout &layout)
+{
+    std::unique_ptr<Span> item = std::make_unique<Span>(c, r, layout);
     return item;
 }
 
@@ -217,6 +399,18 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
     std::unique_ptr<Splitter> item(new Splitter({}));
     constructWidget(item, children);
 
+    if (const auto &orientation = children.get<sol::optional<QString>>("orientation")) {
+        if (*orientation == "horizontal")
+            item->setOrientation(Qt::Horizontal);
+        else if (*orientation == "vertical")
+            item->setOrientation(Qt::Vertical);
+        else
+            throw sol::error(QString("Invalid orientation: %1").arg(*orientation).toStdString());
+    }
+
+    if (const auto collapsible = children.get<sol::optional<bool>>("collapsible"))
+        item->setChildrenCollapsible(*collapsible);
+
     for (size_t i = 1; i <= children.size(); ++i) {
         const auto &child = children[i];
         if (child.is<Layout *>()) {
@@ -228,19 +422,29 @@ std::unique_ptr<Splitter> constructSplitter(const sol::table &children)
                        << " (expected Layout or Widget)";
         }
     }
+
+    if (const auto &stretchFactors = children.get<sol::optional<sol::table>>("stretchFactors")) {
+        for (const auto &kv : *stretchFactors) {
+            if (kv.second.get_type() != sol::type::number)
+                throw sol::error("Stretch factors must be numbers");
+            item->setStretchFactor(kv.first.as<int>() - 1, kv.second.as<int>());
+        }
+    }
     return item;
 }
 
-void addGuiModule()
+void setupGuiModule()
 {
-    LuaEngine::registerProvider("Gui", [](sol::state_view l) -> sol::object {
+    registerProvider("Gui", [](sol::state_view l) -> sol::object {
         const ScriptPluginSpec *pluginSpec = l.get<ScriptPluginSpec *>("PluginSpec");
         QObject *guard = pluginSpec->connectionGuard.get();
 
         sol::table gui = l.create_table();
 
         gui.new_usertype<Span>(
-            "Span", sol::call_constructor, sol::factories(&constructSpan, &constructSpanFromTable));
+            "Span",
+            sol::call_constructor,
+            sol::factories(&constructSpan, &constructSpanWithRow, &constructSpanFromTable));
 
         gui.new_usertype<Space>("Space", sol::call_constructor, sol::constructors<Space(int)>());
 
@@ -305,6 +509,17 @@ void addGuiModule()
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Label>(children, guard);
             }),
+            "text",
+            sol::property(&Label::text),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Layouting::MarkdownBrowser>(
+            "MarkdownBrowser",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Layouting::MarkdownBrowser>(children, guard);
+            }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -316,8 +531,26 @@ void addGuiModule()
             }),
             "show",
             &Widget::show,
+            "activateWindow",
+            &Widget::activateWindow,
+            "close",
+            &Widget::close,
+            "visible",
+            sol::property(&Widget::isVisible, &Widget::setVisible),
+            "enabled",
+            sol::property(&Widget::isEnabled, &Widget::setEnabled),
+            "focus",
+            sol::property([](Widget *self) { return self->emerge()->hasFocus(); }),
+            "setFocus",
+            [](Widget *self) { self->emerge()->setFocus(); },
             sol::base_classes,
             sol::bases<Object, Thing>());
+
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::WidgetAttribute>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::WindowType>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextFormat>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::TextInteractionFlag>());
+        mirrorEnum(gui, QMetaEnum::fromType<Qt::CursorShape>());
 
         gui.new_usertype<Stack>(
             "Stack",
@@ -335,12 +568,37 @@ void addGuiModule()
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
+        gui.new_usertype<ScrollArea>(
+            "ScrollArea",
+            sol::call_constructor,
+            sol::factories(
+                [](const Layout &inner) {
+                    auto item = std::make_unique<ScrollArea>(inner);
+                    return item;
+                },
+                [guard](const sol::table &children) {
+                    return constructWidgetType<ScrollArea>(children, guard);
+                }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
         gui.new_usertype<TextEdit>(
             "TextEdit",
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<TextEdit>(children, guard);
             }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<LineEdit>(
+            "LineEdit",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<LineEdit>(children, guard);
+            }),
+            "text",
+            sol::property(&LineEdit::text, &LineEdit::setText),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());
 
@@ -380,6 +638,28 @@ void addGuiModule()
             sol::call_constructor,
             sol::factories([guard](const sol::table &children) {
                 return constructWidgetType<Group>(children, guard);
+            }),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Spinner>(
+            "Spinner",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Spinner>(children, guard);
+            }),
+            "running",
+            sol::property(&Spinner::setRunning),
+            "decorated",
+            sol::property(&Spinner::setDecorated),
+            sol::base_classes,
+            sol::bases<Widget, Object, Thing>());
+
+        gui.new_usertype<Layouting::IconDisplay>(
+            "IconDisplay",
+            sol::call_constructor,
+            sol::factories([guard](const sol::table &children) {
+                return constructWidgetType<Layouting::IconDisplay>(children, guard);
             }),
             sol::base_classes,
             sol::bases<Widget, Object, Thing>());

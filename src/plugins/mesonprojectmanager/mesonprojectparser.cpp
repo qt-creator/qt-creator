@@ -3,14 +3,15 @@
 
 #include "mesonprojectparser.h"
 
+#include "common.h"
 #include "mesoninfoparser.h"
+#include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 #include "mesonprojectnodes.h"
 #include "mesontools.h"
-#include "projecttree.h"
 
 #include <coreplugin/messagemanager.h>
-#include <coreplugin/messagemanager.h>
+#include <coreplugin/progressmanager/processprogress.h>
 
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -23,14 +24,11 @@
 
 #include <optional>
 
-#include <coreplugin/progressmanager/processprogress.h>
-
 using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(mesonProcessLog, "qtc.meson.buildsystem", QtWarningMsg);
 
@@ -40,6 +38,58 @@ struct CompilerArgs
     QStringList includePaths;
     Macros macros;
 };
+
+static void buildTargetTree(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+{
+    const auto path = FilePath::fromString(target.definedIn);
+    for (const auto &group : target.sources) {
+        for (const auto &file : group.sources) {
+            root->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(file),
+                                                           FileType::Source));
+        }
+    }
+    for (const auto &extraFile : target.extraFiles) {
+        root->addNestedNode(std::make_unique<FileNode>(FilePath::fromString(extraFile),
+                                                       FileType::Unknown));
+    }
+}
+
+static void addTargetNode(std::unique_ptr<MesonProjectNode> &root, const Target &target)
+{
+    root->findNode([&root, &target, path = FilePath::fromString(target.definedIn)](Node *node) {
+        if (node->filePath() == path.absolutePath()) {
+            auto asFolder = dynamic_cast<FolderNode *>(node);
+            if (asFolder) {
+                auto targetNode = std::make_unique<MesonTargetNode>(
+                    path.absolutePath().pathAppended(target.name),
+                    Target::fullName(root->path(), target));
+                targetNode->setDisplayName(target.name);
+                asFolder->addNode(std::move(targetNode));
+            }
+            return true;
+        }
+        return false;
+    });
+}
+
+static std::unique_ptr<MesonProjectNode> buildTree(const FilePath &srcDir,
+                                                   const TargetsList &targets,
+                                                   const FilePaths &bsFiles)
+{
+    std::set<FilePath> targetPaths;
+    auto root = std::make_unique<MesonProjectNode>(srcDir);
+    for (const Target &target : targets) {
+        buildTargetTree(root, target);
+        targetPaths.insert(FilePath::fromString(target.definedIn).absolutePath());
+        addTargetNode(root, target);
+    }
+    for (FilePath bsFile : bsFiles) {
+        if (!bsFile.toFileInfo().isAbsolute())
+            bsFile = srcDir.pathAppended(bsFile.toString());
+        root->addNestedNode(std::make_unique<FileNode>(bsFile, FileType::Project));
+    }
+    return root;
+}
 
 static std::optional<QString> extractValueIfMatches(const QString &arg,
                                                     const QStringList &candidates)
@@ -120,12 +170,13 @@ bool MesonProjectParser::configure(const FilePath &sourcePath,
     m_srcDir = sourcePath;
     m_buildDir = buildPath;
     m_outputParser.setSourceDirectory(sourcePath);
-    auto cmd = MesonTools::mesonWrapper(m_meson)->configure(sourcePath, buildPath, args);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->configure(sourcePath, buildPath, args);
+    cmd.environment = m_env;
     // see comment near m_pendingCommands declaration
-    m_pendingCommands.enqueue(
-        std::make_tuple(MesonTools::mesonWrapper(m_meson)->regenerate(sourcePath, buildPath),
-                        false));
-    return run(cmd, m_env, m_projectName);
+    auto enqCmd = MesonTools::toolById(m_meson, ToolType::Meson)->regenerate(sourcePath, buildPath);
+    enqCmd.environment = m_env;
+    m_pendingCommands.enqueue(std::make_tuple(enqCmd, false));
+    return run(cmd, m_projectName);
 }
 
 bool MesonProjectParser::wipe(const FilePath &sourcePath,
@@ -147,8 +198,9 @@ bool MesonProjectParser::setup(const FilePath &sourcePath,
     auto cmdArgs = args;
     if (forceWipe || isSetup(buildPath))
         cmdArgs << "--wipe";
-    auto cmd = MesonTools::mesonWrapper(m_meson)->setup(sourcePath, buildPath, cmdArgs);
-    return run(cmd, m_env, m_projectName);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->setup(sourcePath, buildPath, cmdArgs);
+    cmd.environment = m_env;
+    return run(cmd, m_projectName);
 }
 
 bool MesonProjectParser::parse(const FilePath &sourcePath, const FilePath &buildPath)
@@ -169,10 +221,9 @@ bool MesonProjectParser::parse(const FilePath &sourcePath)
     m_srcDir = sourcePath;
     m_introType = IntroDataType::stdo;
     m_outputParser.setSourceDirectory(sourcePath);
-    return run(MesonTools::mesonWrapper(m_meson)->introspect(sourcePath),
-               m_env,
-               m_projectName,
-               true);
+    auto cmd = MesonTools::toolById(m_meson, ToolType::Meson)->introspect(sourcePath);
+    cmd.environment = m_env;
+    return run(cmd, m_projectName, true);
 }
 
 QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
@@ -196,16 +247,13 @@ QList<BuildTargetInfo> MesonProjectParser::appsTargets() const
 
 bool MesonProjectParser::startParser()
 {
-    m_parserFutureResult = Utils::asyncRun(
-                ProjectExplorerPlugin::sharedThreadPool(),
-                [processOutput = m_stdo, introType = m_introType,
-                buildDir = m_buildDir, srcDir = m_srcDir] {
+    m_parserFutureResult = Utils::asyncRun(ProjectExplorerPlugin::sharedThreadPool(),
+        [processOutput = m_stdo, introType = m_introType, buildDir = m_buildDir, srcDir = m_srcDir] {
         if (introType == IntroDataType::file)
             return extractParserResults(srcDir, MesonInfoParser::parse(buildDir));
         else
             return extractParserResults(srcDir, MesonInfoParser::parse(processOutput));
     });
-
     Utils::onFinished(m_parserFutureResult, this, &MesonProjectParser::update);
     return true;
 }
@@ -213,9 +261,7 @@ bool MesonProjectParser::startParser()
 MesonProjectParser::ParserData *MesonProjectParser::extractParserResults(
     const FilePath &srcDir, MesonInfoParser::Result &&parserResult)
 {
-    auto rootNode = ProjectTree::buildTree(srcDir,
-                                           parserResult.targets,
-                                           parserResult.buildSystemFiles);
+    auto rootNode = buildTree(srcDir, parserResult.targets, parserResult.buildSystemFiles);
     return new ParserData{std::move(parserResult), std::move(rootNode)};
 }
 
@@ -264,7 +310,7 @@ RawProjectPart MesonProjectParser::buildRawPart(
     CompilerArgs flags = splitArgs(sources.parameters);
     part.setMacros(flags.macros);
     part.setIncludePaths(toAbsolutePath(m_buildDir, flags.includePaths));
-    part.setProjectFileLocation(target.definedIn);
+    part.setProjectFileLocation(FilePath::fromUserInput(target.definedIn));
     if (sources.language == "cpp")
         part.setFlagsForCxx({cxxToolchain, flags.args, {}});
     else if (sources.language == "c")
@@ -307,27 +353,34 @@ bool MesonProjectParser::matchesKit(const KitData &kit)
     return matches;
 }
 
-bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
+static QVersionNumber versionNumber(const FilePath &buildDir)
 {
-    auto info = MesonInfoParser::mesonInfo(buildPath);
-    auto meson = MesonTools::mesonWrapper(m_meson);
-    return info && meson && info->mesonVersion == meson->version();
+    const FilePath jsonFile = buildDir / Constants::MESON_INFO_DIR / Constants::MESON_INFO;
+    auto obj = load<QJsonObject>(jsonFile.toFSPathString());
+    if (!obj)
+        return {};
+    auto version = obj->value("meson_version").toObject();
+    return {version["major"].toInt(), version["minor"].toInt(), version["patch"].toInt()};
 }
 
+bool MesonProjectParser::usesSameMesonVersion(const FilePath &buildPath)
+{
+    auto version = versionNumber(buildPath);
+    auto meson = MesonTools::toolById(m_meson, ToolType::Meson);
+    return !version.isNull() && meson && version == meson->version();
+}
 
-bool MesonProjectParser::run(const Command &command,
-                             const Environment &env,
-                             const QString &projectName,
+bool MesonProjectParser::run(const ProcessRunData &runData, const QString &projectName,
                              bool captureStdo)
 {
-    if (!sanityCheck(command))
+    if (!sanityCheck(runData))
         return false;
     m_stdo.clear();
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    setupProcess(command, env, projectName, captureStdo);
+    setupProcess(runData, projectName, captureStdo);
     m_elapsed.start();
     m_process->start();
-    qCDebug(mesonProcessLog()) << "Starting:" << command.toUserOutput();
+    qCDebug(mesonProcessLog()) << "Starting:" << runData.command.toUserOutput();
     return true;
 }
 
@@ -342,12 +395,12 @@ void MesonProjectParser::handleProcessDone()
     MessageManager::writeSilently(elapsedTime);
 
     if (m_process->exitCode() == 0 && m_process->exitStatus() == QProcess::NormalExit) {
-        if (m_pendingCommands.isEmpty())
+        if (m_pendingCommands.isEmpty()) {
             startParser();
-        else {
+        } else {
             // see comment near m_pendingCommands declaration
-            std::tuple<Command, bool> args = m_pendingCommands.dequeue();
-            run(std::get<0>(args), m_env, m_projectName, std::get<1>(args));
+            std::tuple<ProcessRunData, bool> args = m_pendingCommands.dequeue();
+            run(std::get<0>(args), m_projectName, std::get<1>(args));
         }
     } else {
         if (m_introType == IntroDataType::stdo) {
@@ -358,8 +411,8 @@ void MesonProjectParser::handleProcessDone()
     }
 }
 
-void MesonProjectParser::setupProcess(const Command &command, const Environment &env,
-                                const QString &projectName, bool captureStdo)
+void MesonProjectParser::setupProcess(const ProcessRunData &runData, const QString &projectName,
+                                      bool captureStdo)
 {
     if (m_process)
         m_process.release()->deleteLater();
@@ -372,18 +425,16 @@ void MesonProjectParser::setupProcess(const Command &command, const Environment 
                 this, &MesonProjectParser::processStandardError);
     }
 
-    m_process->setWorkingDirectory(command.workDir());
-    m_process->setEnvironment(env);
     MessageManager::writeFlashing(Tr::tr("Running %1 in %2.")
-                                  .arg(command.toUserOutput(), command.workDir().toUserOutput()));
-    m_process->setCommand(command.cmdLine());
+        .arg(runData.command.toUserOutput(), runData.workingDirectory.toUserOutput()));
+    m_process->setRunData(runData);
     ProcessProgress *progress = new ProcessProgress(m_process.get());
     progress->setDisplayName(Tr::tr("Configuring \"%1\".").arg(projectName));
 }
 
-bool MesonProjectParser::sanityCheck(const Command &command) const
+bool MesonProjectParser::sanityCheck(const ProcessRunData &runData) const
 {
-    const auto &exe = command.cmdLine().executable();
+    const auto &exe = runData.command.executable();
     if (!exe.exists()) {
         //Should only reach this point if Meson exe is removed while a Meson project is opened
         TaskHub::addTask(
@@ -412,5 +463,4 @@ void MesonProjectParser::processStandardError()
     MessageManager::writeSilently(QString::fromLocal8Bit(m_process->readAllRawStandardError()));
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

@@ -503,7 +503,6 @@ public:
     Table<SelectorNameId> selectorNameIds;
 
     // types
-    VoidType voidType;
     Table<IntegerType> integerTypes;
     Table<FloatType> floatTypes;
     Table<PointerToMemberType> pointerToMemberTypes;
@@ -670,7 +669,7 @@ const SelectorNameId *Control::selectorNameId(const Name *const *names,
 
 
 VoidType *Control::voidType()
-{ return &d->voidType; }
+{ return &VoidType::instance; }
 
 IntegerType *Control::integerType(int kind)
 { return d->findOrInsertIntegerType(kind); }

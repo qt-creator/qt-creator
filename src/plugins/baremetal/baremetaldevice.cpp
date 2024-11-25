@@ -20,20 +20,20 @@ using namespace Utils;
 
 namespace BareMetal::Internal {
 
-const char debugServerProviderIdKeyC[] = "IDebugServerProviderId";
-
 // BareMetalDevice
 
 BareMetalDevice::BareMetalDevice()
 {
     setDisplayType(Tr::tr("Bare Metal"));
     setOsType(Utils::OsTypeOther);
+
+    m_debugServerProviderId.setSettingsKey("IDebugServerProviderId");
 }
 
 BareMetalDevice::~BareMetalDevice()
 {
     if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(
-                m_debugServerProviderId))
+                debugServerProviderId()))
         provider->unregisterDevice(this);
 }
 
@@ -44,48 +44,38 @@ QString BareMetalDevice::defaultDisplayName()
 
 QString BareMetalDevice::debugServerProviderId() const
 {
-    return m_debugServerProviderId;
+    return m_debugServerProviderId();
 }
 
 void BareMetalDevice::setDebugServerProviderId(const QString &id)
 {
-    if (id == m_debugServerProviderId)
+    if (id == debugServerProviderId())
         return;
     if (IDebugServerProvider *currentProvider =
-            DebugServerProviderManager::findProvider(m_debugServerProviderId))
+            DebugServerProviderManager::findProvider(debugServerProviderId()))
         currentProvider->unregisterDevice(this);
-    m_debugServerProviderId = id;
+    m_debugServerProviderId.setValue(id);
     if (IDebugServerProvider *provider = DebugServerProviderManager::findProvider(id))
         provider->registerDevice(this);
 }
 
 void BareMetalDevice::unregisterDebugServerProvider(IDebugServerProvider *provider)
 {
-    if (provider->id() == m_debugServerProviderId)
-        m_debugServerProviderId.clear();
+    if (provider->id() == debugServerProviderId())
+        m_debugServerProviderId.setValue(QString());
 }
 
 void BareMetalDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
-    QString providerId = map.value(debugServerProviderIdKeyC).toString();
-    if (providerId.isEmpty()) {
+
+    if (debugServerProviderId().isEmpty()) {
         const QString name = displayName();
         if (IDebugServerProvider *provider =
                 DebugServerProviderManager::findByDisplayName(name)) {
-            providerId = provider->id();
-            setDebugServerProviderId(providerId);
+            setDebugServerProviderId(provider->id());
         }
-    } else {
-        setDebugServerProviderId(providerId);
     }
-}
-
-Store BareMetalDevice::toMap() const
-{
-    Store map = IDevice::toMap();
-    map.insert(debugServerProviderIdKeyC, debugServerProviderId());
-    return map;
 }
 
 IDeviceWidget *BareMetalDevice::createWidget()

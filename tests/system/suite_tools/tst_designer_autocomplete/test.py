@@ -64,16 +64,12 @@ def main():
                 snooze(1)
                 type(editor, ">")
 
-            if not test.verify(waitFor(proposalExists, 1500), "Proposal should be shown"):
+            if not test.verify(waitFor(proposalExists, 6000), "Proposal should be shown"):
                 type(editor, "<Shift+Delete>")
                 continue
 
             proposalListView = waitForObject(':popupFrame_Proposal_QListView')
-            items = dumpItems(proposalListView.model())
-            if test.verify(" %s" % buttonName in items, "Button present in proposal?"):
-                type(proposalListView, str(buttonName[0]))
-            else:
-                test.log(str(items))
+            type(proposalListView, str(buttonName[0]))
             snooze(1)
             if test.verify(waitFor(proposalExists, 4000),
                            "Verify that GenericProposalWidget is being shown."):

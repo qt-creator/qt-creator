@@ -10,66 +10,12 @@
 
 using namespace Utils;
 
-class TestMacroExpander : public Utils::AbstractMacroExpander
-{
-public:
-    bool resolveMacro(const QString &name, QString *ret, QSet<AbstractMacroExpander*> &seen)
-        override
-    {
-        // loop prevention
-        const int count = seen.count();
-        seen.insert(this);
-        if (seen.count() == count)
-            return false;
-
-        if (name == QLatin1String("foo")) {
-            *ret = QLatin1String("a");
-            return true;
-        }
-        if (name == QLatin1String("a")) {
-            *ret = QLatin1String("hi");
-            return true;
-        }
-        if (name == QLatin1String("hi")) {
-            *ret = QLatin1String("ho");
-            return true;
-        }
-        if (name == QLatin1String("hihi")) {
-            *ret = QLatin1String("bar");
-            return true;
-        }
-        if (name == "slash") {
-            *ret = "foo/bar";
-            return true;
-        }
-        if (name == "sl/sh") {
-            *ret = "slash";
-            return true;
-        }
-        if (name == "JS:foo") {
-            *ret = "bar";
-            return true;
-        }
-        if (name == "JS:with } inside") {
-            *ret = "yay";
-            return true;
-        }
-        if (name == "JS:literal%{") {
-            *ret = "hurray";
-            return true;
-        }
-        return false;
-    }
-};
-
 class tst_StringUtils : public QObject
 {
     Q_OBJECT
 
 private slots:
     void testWithTildeHomePath();
-    void testMacroExpander_data();
-    void testMacroExpander();
     void testStripAccelerator_data();
     void testStripAccelerator();
     void testParseUsedPortFromNetstatOutput_data();
@@ -84,9 +30,6 @@ private slots:
     void testSplitAtFirst();
     void testAsciify_data();
     void testAsciify();
-
-private:
-    TestMacroExpander mx;
 };
 
 void tst_StringUtils::testWithTildeHomePath()
@@ -116,68 +59,6 @@ void tst_StringUtils::testWithTildeHomePath()
     QCOMPARE(homePath.pathAppended("/../foo").withTildeHomePath(),
              homePath.pathAppended("/../foo").withTildeHomePath());
 #endif
-}
-
-void tst_StringUtils::testMacroExpander_data()
-
-{
-    QTest::addColumn<QString>("in");
-    QTest::addColumn<QString>("out");
-
-    static const struct {
-        const char * const in;
-        const char * const out;
-    } vals[] = {
-        {"text", "text"},
-        {"%{a}", "hi"},
-        {"%%{a}", "%hi"},
-        {"%%%{a}", "%%hi"},
-        {"%{b}", "%{b}"},
-        {"pre%{a}", "prehi"},
-        {"%{a}post", "hipost"},
-        {"pre%{a}post", "prehipost"},
-        {"%{a}%{a}", "hihi"},
-        {"%{a}text%{a}", "hitexthi"},
-        {"%{foo}%{a}text%{a}", "ahitexthi"},
-        {"%{}{a}", "%{a}"},
-        {"%{}", "%"},
-        {"test%{}", "test%"},
-        {"%{}test", "%test"},
-        {"%{abc", "%{abc"},
-        {"%{%{a}", "%{hi"},
-        {"%{%{a}}", "ho"},
-        {"%{%{a}}}post", "ho}post"},
-        {"%{hi%{a}}", "bar"},
-        {"%{hi%{%{foo}}}", "bar"},
-        {"%{hihi/b/c}", "car"},
-        {"%{hihi/a/}", "br"}, // empty replacement
-        {"%{hihi/b}", "bar"}, // incomplete substitution
-        {"%{hihi/./c}", "car"},
-        {"%{hihi//./c}", "ccc"},
-        {"%{hihi/(.)(.)r/\\2\\1c}", "abc"}, // no escape for capture groups
-        {"%{hihi/b/c/d}", "c/dar"},
-        {"%{hihi/a/e{\\}e}", "be{}er"},   // escape closing brace
-        {"%{JS:with \\} inside}", "yay"}, // escape closing brace also in JS:
-        {"%{JS:literal%\\{}", "hurray"},
-        {"%{slash/o\\/b/ol's c}", "fool's car"},
-        {"%{sl\\/sh/(.)(a)(.)/\\2\\1\\3as}", "salsash"}, // escape in variable name
-        {"%{JS:foo/b/c}", "%{JS:foo/b/c}"}, // No replacement for JS (all considered varName)
-        {"%{%{a}%{a}/b/c}", "car"},
-        {"%{nonsense:-sense}", "sense"},
-    };
-
-    for (unsigned i = 0; i < sizeof(vals)/sizeof(vals[0]); i++)
-        QTest::newRow(vals[i].in) << QString::fromLatin1(vals[i].in)
-                                  << QString::fromLatin1(vals[i].out);
-}
-
-void tst_StringUtils::testMacroExpander()
-{
-    QFETCH(QString, in);
-    QFETCH(QString, out);
-
-    Utils::expandMacros(&in, &mx);
-    QCOMPARE(in, out);
 }
 
 void tst_StringUtils::testStripAccelerator_data()
@@ -225,6 +106,7 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     // Linux
     QTest::newRow("Linux1") << "sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ..." <<     -1;
     QTest::newRow("Linux2") << "0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ..." <<  10245;
+    QTest::newRow("Linux3") << " 1: 0100007F:193F 00000000:0000 0A 00000000:00000000 00:00000000 00000000 ..." <<   6463;
 
     // Mac
     QTest::newRow("Mac1") << "Active Internet connections (including servers)"                                  <<    -1;
@@ -247,6 +129,18 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     QTest::newRow("Qnx8") << "Active Internet6 connections (including servers)"                                 <<    -1;
     QTest::newRow("Qnx9") << "Proto Recv-Q Send-Q  Local Address          Foreign Address        (state)    "   <<    -1;
     QTest::newRow("QnxA") << "tcp6       0      0  *.22                   *.*                    LISTEN   "     <<    22;
+
+    // Android
+    QTest::newRow("Android1") << "tcp        0      0 10.0.2.16:49088         142.250.180.74:443      ESTABLISHED" << 49088;
+    QTest::newRow("Android2") << "tcp        0      0 10.0.2.16:48380         142.250.186.196:443     CLOSE_WAIT"  << 48380;
+    QTest::newRow("Android3") << "tcp6       0      0 [::]:5555               [::]:*                  LISTEN"      <<  5555;
+    QTest::newRow("Android4") << "tcp6       0      0 ::ffff:127.0.0.1:39417  [::]:*                  LISTEN"      << 39417;
+    QTest::newRow("Android5") << "tcp6       0      0 ::ffff:10.0.2.16:35046  ::ffff:142.250.203.:443 ESTABLISHED" << 35046;
+    QTest::newRow("Android6") << "tcp6       0      0 ::ffff:127.0.0.1:46265  ::ffff:127.0.0.1:33155  TIME_WAIT"   << 46265;
+    QTest::newRow("Android7") << "udp        0      0 10.0.2.16:50950         142.250.75.14:443       ESTABLISHED" << 50950;
+    QTest::newRow("Android8") << "udp     2560      0 10.0.2.16:68            10.0.2.2:67             ESTABLISHED" <<    68;
+    QTest::newRow("Android9") << "udp        0      0 0.0.0.0:5353            0.0.0.0:*"                           <<  5353;
+    QTest::newRow("Android10") << "udp6       0      0 [::]:36662              [::]:*"                             << 36662;
 }
 
 void tst_StringUtils::testParseUsedPortFromNetstatOutput()

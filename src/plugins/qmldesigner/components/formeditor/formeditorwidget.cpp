@@ -41,6 +41,8 @@
 #include <QVBoxLayout>
 #include <QWheelEvent>
 
+using namespace Core;
+
 namespace QmlDesigner {
 
 namespace {
@@ -300,6 +302,10 @@ FormEditorWidget::FormEditorWidget(FormEditorView *view)
 
     QByteArray sheet = Utils::FileReader::fetchQrc(":/qmldesigner/stylesheet.css");
     setStyleSheet(Theme::replaceCssColors(QString::fromUtf8(sheet)));
+
+    IContext::attach(this,
+                     Context(Constants::qmlFormEditorContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void FormEditorWidget::changeTransformTool(bool checked)

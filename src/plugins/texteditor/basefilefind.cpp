@@ -107,7 +107,7 @@ void searchInProcessOutput(QPromise<SearchResultItems> &promise,
         process.close();
         loop.quit();
     });
-    QObject::connect(&watcher, &QFutureWatcherBase::paused, &loop, [&state] { state = Paused; });
+    QObject::connect(&watcher, &QFutureWatcherBase::suspending, &loop, [&state] { state = Paused; });
     QObject::connect(&watcher, &QFutureWatcherBase::resumed, &loop, [&] {
         state = Resumed;
         for (const QString &output : outputBuffer) {
@@ -147,6 +147,11 @@ public:
             return Utils::findInFiles(parameters.text, parameters.fileContainerProvider(),
                                       parameters.flags, TextDocument::openedTextDocumentContents());
         };
+    }
+
+    Utils::FindFlags supportedFindFlags() const override
+    {
+        return FindCaseSensitively | FindWholeWords | FindRegularExpression | DontFindBinaryFiles;
     }
 
 private:
@@ -285,6 +290,7 @@ void BaseFileFind::setCurrentSearchEngine(int index)
         return;
     d->m_currentSearchEngineIndex = index;
     emit currentSearchEngineChanged();
+    emit supportedFlagsChanged();
 }
 
 void BaseFileFind::runNewSearch(const QString &txt, FindFlags findFlags,
@@ -341,7 +347,7 @@ void BaseFileFind::runSearch(SearchResult *search)
     connect(search, &SearchResult::canceled, watcher, &QFutureWatcherBase::cancel);
     connect(search, &SearchResult::paused, watcher, [watcher](bool paused) {
         if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-            watcher->setPaused(paused);
+            watcher->setSuspended(paused);
     });
     connect(watcher, &QFutureWatcherBase::resultReadyAt, search, [watcher, search](int index) {
         search->addResults(watcher->resultAt(index), SearchResult::AddOrdered);
@@ -483,8 +489,7 @@ void BaseFileFind::readCommonSettings(
     const QStringList filters = filterSetting.isEmpty() ? QStringList(defaultFilter)
                                                         : filterSetting;
     const QVariant currentFilter = s.value("currentFilter");
-    d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString()
-                                                 : filters.first();
+    d->m_filterSetting = currentFilter.isValid() ? currentFilter.toString() : defaultFilter;
     d->m_filterStrings.setStringList(toNativeSeparators(filters));
     if (d->m_filterCombo)
         syncComboWithSettings(d->m_filterCombo, d->m_filterSetting);

@@ -14,6 +14,7 @@
 #include <projectexplorer/deployconfiguration.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
@@ -62,8 +63,6 @@ IosRunConfiguration::IosRunConfiguration(Target *target, Id id)
     : RunConfiguration(target, id), iosDeviceType(this, this)
 {
     executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
-
-    arguments.setMacroExpander(macroExpander());
 
     setUpdater([this, target] {
         IDevice::ConstPtr dev = DeviceKitAspect::device(target->kit());
@@ -337,7 +336,7 @@ IosDeviceTypeAspect::IosDeviceTypeAspect(AspectContainer *container, IosRunConfi
             this, &IosDeviceTypeAspect::deviceChanges);
 }
 
-void IosDeviceTypeAspect::addToLayout(Layouting::Layout &parent)
+void IosDeviceTypeAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     m_deviceTypeComboBox = new QComboBox;
     m_deviceTypeComboBox->setModel(&m_deviceTypeModel);

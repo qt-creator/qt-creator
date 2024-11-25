@@ -6,7 +6,6 @@
 #include "texteditorwidget.h"
 
 #include <customnotifications.h>
-#include <designmodecontext.h>
 #include <designdocument.h>
 #include <designersettings.h>
 #include <modelnode.h>
@@ -14,6 +13,7 @@
 #include <zoomaction.h>
 #include <nodeabstractproperty.h>
 #include <nodelistproperty.h>
+#include <qmldesignerconstants.h>
 #include <qmldesignerplugin.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
@@ -41,29 +41,14 @@
 #include <QString>
 #include <QTimer>
 
-namespace QmlDesigner {
+using namespace Core;
 
-const char TEXTEDITOR_CONTEXT_ID[] = "QmlDesigner.TextEditorContext";
+namespace QmlDesigner {
 
 TextEditorView::TextEditorView(ExternalDependenciesInterface &externalDependencies)
     : AbstractView{externalDependencies}
     , m_widget(new TextEditorWidget(this))
 {
-    Core::Context context(TEXTEDITOR_CONTEXT_ID);
-
-    /*
-     * We have to register our own active auto completion shortcut, because the original short cut will
-     * use the cursor position of the original editor in the editor manager.
-     */
-
-    QAction *completionAction = new QAction(tr("Trigger Completion"), this);
-    Core::Command *command = Core::ActionManager::registerAction(completionAction, TextEditor::Constants::COMPLETE_THIS, context);
-    command->setDefaultKeySequence(QKeySequence(Core::useMacShortcuts ? tr("Meta+Space") : tr("Ctrl+Space")));
-
-    connect(completionAction, &QAction::triggered, this, [this] {
-        if (m_widget->textEditor())
-            m_widget->textEditor()->editorWidget()->invokeAssist(TextEditor::Completion);
-    });
 }
 
 TextEditorView::~TextEditorView()
@@ -80,16 +65,12 @@ void TextEditorView::modelAttached(Model *model)
 
     auto textEditor = Utils::UniqueObjectLatePtr<TextEditor::BaseTextEditor>(
         QmlDesignerPlugin::instance()->currentDesignDocument()->textEditor()->duplicate());
-
-    // Set the context of the text editor, but we add another special context to override shortcuts.
-    Core::Context context = textEditor->context();
-    context.prepend(TEXTEDITOR_CONTEXT_ID);
-
-    m_textEditorContext = new Internal::TextEditorContext(m_widget);
-    m_textEditorContext->setWidget(textEditor->widget()); // toplevel focus widget of the editor
-    m_textEditorContext->setContext(context);
-    Core::ICore::addContextObject(m_textEditorContext);
-
+    static constexpr char qmlTextEditorContextId[] = "QmlDesigner::TextEditor";
+    IContext::attach(textEditor->widget(),
+                     Context(qmlTextEditorContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) {
+                         m_widget->contextHelp(callback);
+                     });
     m_widget->setTextEditor(std::move(textEditor));
 }
 
@@ -99,15 +80,6 @@ void TextEditorView::modelAboutToBeDetached(Model *model)
 
     if (m_widget)
         m_widget->setTextEditor(nullptr);
-
-    // in case the user closed it explicit we do not want to do anything with the editor
-    if (Core::ModeManager::currentModeId() == Core::Constants::MODE_DESIGN) {
-        if (TextEditor::BaseTextEditor *textEditor = QmlDesignerPlugin::instance()
-                                                         ->currentDesignDocument()
-                                                         ->textEditor()) {
-            QmlDesignerPlugin::instance()->emitCurrentTextEditorChanged(textEditor);
-        }
-    }
 }
 
 void TextEditorView::importsChanged(const Imports &/*addedImports*/, const Imports &/*removedImports*/)

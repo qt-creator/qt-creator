@@ -99,7 +99,7 @@ static ExtensionSystem::IPlugin *getCppEditor()
 {
     using namespace ExtensionSystem;
     for (PluginSpec * const spec : PluginManager::plugins()) {
-        if (spec->name() == "CppEditor")
+        if (spec->id() == "cppeditor")
             return spec->plugin();
     }
     QTC_ASSERT(false, return nullptr);

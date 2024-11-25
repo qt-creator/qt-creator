@@ -16,7 +16,8 @@ def verifyProjectsMode(expectedKits):
     hasKits = len(expectedKits) > 0
     test.verify(checkIfObjectExists(":scrollArea.Edit build configuration:_QLabel", hasKits),
                 "Verify if build settings are being displayed.")
-    test.verify(checkIfObjectExists(":No valid kits found._QLabel", not hasKits),
+    squishFunct = test.xverify if JIRA.isBugStillOpen(31809) and not hasKits else test.verify
+    squishFunct(checkIfObjectExists(":No valid kits found._QLabel", not hasKits),
                 "Verify if Creator reports missing kits.")
 
 kitNameTemplate = "Manual.%s"

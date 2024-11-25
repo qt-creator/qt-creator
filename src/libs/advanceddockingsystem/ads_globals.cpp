@@ -10,6 +10,7 @@
 #include <utils/hostosinfo.h>
 
 #include <QAbstractButton>
+#include <QEvent>
 #include <QPainter>
 #include <QStyle>
 #include <QVariant>

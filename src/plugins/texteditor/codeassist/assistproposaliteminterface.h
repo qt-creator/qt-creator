@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "textdocumentmanipulatorinterface.h"
+#include <texteditor/texteditor_global.h>
 
 QT_BEGIN_NAMESPACE
 class QIcon;
@@ -13,6 +13,8 @@ QT_END_NAMESPACE
 #include <QString>
 
 namespace TextEditor {
+
+class TextEditorWidget;
 
 class TEXTEDITOR_EXPORT AssistProposalItemInterface
 {
@@ -36,7 +38,7 @@ public:
     virtual QString filterText() const { return text(); }
     virtual bool implicitlyApplies() const = 0;
     virtual bool prematurelyApplies(const QChar &typedCharacter) const = 0;
-    virtual void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const = 0;
+    virtual void apply(TextEditorWidget *editorWidget, int basePosition) const = 0;
     virtual QIcon icon() const = 0;
     virtual QString detail() const = 0;
     virtual bool isKeyword() const { return false; }

@@ -737,11 +737,13 @@ bool Abi::isCompatibleWith(const Abi &other) const
 
 bool Abi::isValid() const
 {
-    return m_architecture != UnknownArchitecture
-            && m_os != UnknownOS
-            && m_osFlavor != UnknownFlavor
-            && m_binaryFormat != UnknownFormat
-            && m_wordWidth != 0;
+    if (m_architecture == UnknownArchitecture || m_binaryFormat == UnknownFormat
+        || m_wordWidth == 0) {
+        return false;
+    }
+
+    return m_architecture == AsmJsArchitecture
+           || (m_os != UnknownOS && m_osFlavor != UnknownFlavor);
 }
 
 bool Abi::isNull() const

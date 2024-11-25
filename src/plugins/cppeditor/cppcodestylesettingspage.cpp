@@ -626,6 +626,8 @@ public:
     void finish() final
     {
         m_codeStyleEditor->finish();
+        const auto codeStyle = CppToolsSettings::cppCodeStyle();
+        emit codeStyle->currentPreferencesChanged(codeStyle->currentPreferences());
     }
 
     std::unique_ptr<CppCodeStylePreferences> m_pageCppCodeStylePreferences;

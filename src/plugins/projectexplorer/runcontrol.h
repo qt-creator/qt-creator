@@ -81,6 +81,15 @@ public:
     bool isEssential() const;
     void setEssential(bool essential);
 
+    QUrl debugChannel() const;
+    bool usesDebugChannel() const;
+
+    QUrl qmlChannel() const;
+    bool usesQmlChannel() const;
+
+    QUrl perfChannel() const;
+    bool usesPerfChannel() const;
+
 signals:
     void started();
     void stopped();
@@ -137,13 +146,13 @@ private:
  * RunControls are created by RunControlFactories.
  */
 
-class PROJECTEXPLORER_EXPORT RunControl : public QObject
+class PROJECTEXPLORER_EXPORT RunControl final : public QObject
 {
     Q_OBJECT
 
 public:
     explicit RunControl(Utils::Id mode);
-    ~RunControl() override;
+    ~RunControl() final;
 
     void setTarget(Target *target);
     void setKit(Kit *kit);
@@ -228,11 +237,31 @@ public:
 
     static void provideAskPassEntry(Utils::Environment &env);
 
-    RunWorker *createWorker(Utils::Id workerId);
+    RunWorker *createWorker(Utils::Id runMode);
 
     bool createMainWorker();
     static bool canRun(Utils::Id runMode, Utils::Id deviceType, Utils::Id runConfigId);
     void postMessage(const QString &msg, Utils::OutputFormat format, bool appendNewLine = true);
+
+    void enablePortsGatherer();
+    QUrl findEndPoint();
+
+    void requestDebugChannel();
+    bool usesDebugChannel() const;
+    QUrl debugChannel() const;
+
+    void requestQmlChannel();
+    bool usesQmlChannel() const;
+    QUrl qmlChannel() const;
+    // FIXME: Don't use. Convert existing users to portsgatherer.
+    void setQmlChannel(const QUrl &channel);
+
+    void requestPerfChannel();
+    bool usesPerfChannel() const;
+    QUrl perfChannel() const;
+
+    void requestWorkerChannel();
+    QUrl workerChannel() const;
 
 signals:
     void appendMessage(const QString &msg, Utils::OutputFormat format);

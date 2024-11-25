@@ -39,3 +39,6 @@ using expected_str = tl::expected<T, QString>;
     } \
     do { \
     } while (0)
+
+#define QVERIFY_EXPECTED(expected) \
+    QVERIFY2(expected, expected ? #expected : static_cast<const char*>(expected.error().toUtf8()))

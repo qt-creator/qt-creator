@@ -17,6 +17,7 @@
 #include <utils/qtcassert.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDebug>
 #include <QMap>
 #include <QMouseEvent>
@@ -64,8 +65,12 @@ struct ModeManagerPrivate
 {
     void showMenu(int index, QMouseEvent *event);
     void appendMode(IMode *mode);
+    void ensureVisibleEnabledMode();
     void enabledStateChanged(IMode *mode);
+    void visibleChanged(IMode *mode);
     void activateModeHelper(Id id);
+    void registerModeSelectorStyleActions();
+    void updateModeSelectorStyleMenu();
     void extensionsInitializedHelper();
 
     Internal::FancyTabWidget *m_modeStack;
@@ -76,6 +81,9 @@ struct ModeManagerPrivate
     Context m_addedContexts;
     int m_oldCurrent;
     ModeManager::Style m_modeStyle = ModeManager::Style::IconsAndText;
+    QAction *m_setModeSelectorStyleIconsAndTextAction = nullptr;
+    QAction *m_setModeSelectorStyleHiddenAction = nullptr;
+    QAction *m_setModeSelectorStyleIconsOnlyAction = nullptr;
 
     bool m_startingUp = true;
     Id m_pendingFirstActiveMode; // Valid before extentionsInitialized.
@@ -96,8 +104,34 @@ static int indexOf(Id id)
 
 void ModeManagerPrivate::showMenu(int index, QMouseEvent *event)
 {
-    QTC_ASSERT(m_modes.at(index)->menu(), return);
-    m_modes.at(index)->menu()->popup(event->globalPosition().toPoint());
+    if (index < 0) {
+        ActionContainer *viewContainer = ActionManager::actionContainer(
+            Constants::M_VIEW_MODESTYLES);
+        QTC_ASSERT(viewContainer, return);
+        QMenu *viewMenu = viewContainer->menu();
+        QTC_ASSERT(viewMenu, return);
+        QList<QAction *> actions = viewMenu->actions();
+        if (actions.isEmpty())
+            return;
+        auto menu = new QMenu(m_actionBar);
+        menu->setAttribute(Qt::WA_DeleteOnClose);
+        for (QAction *a : actions)
+            menu->addAction(a);
+        menu->popup(event->globalPosition().toPoint());
+        return;
+    }
+    IMode *mode = m_modes.value(index);
+    QTC_ASSERT(mode, return);
+    auto menu = new QMenu(m_actionBar);
+    menu->setAttribute(Qt::WA_DeleteOnClose);
+    mode->addToMenu(menu);
+    menu->addSeparator();
+    menu->addAction(Tr::tr("Hide"), mode, [mode] { mode->setVisible(false); });
+    menu->addSeparator();
+    menu->addAction(m_setModeSelectorStyleIconsAndTextAction);
+    menu->addAction(m_setModeSelectorStyleIconsOnlyAction);
+    menu->addAction(m_setModeSelectorStyleHiddenAction);
+    menu->popup(event->globalPosition().toPoint());
 }
 
 ModeManager::ModeManager(Internal::FancyTabWidget *modeStack)
@@ -166,9 +200,77 @@ void ModeManagerPrivate::activateModeHelper(Id id)
         m_pendingFirstActiveMode = id;
     } else {
         const int currentIndex = m_modeStack->currentIndex();
-        const int newIndex = indexOf(id);
-        if (newIndex != currentIndex && newIndex >= 0)
-            m_modeStack->setCurrentIndex(newIndex);
+        const int newIndex = id.isValid() ? indexOf(id) : -1;
+        if (newIndex != currentIndex) {
+            if (newIndex >= 0) {
+                m_modes.at(newIndex)->setVisible(true);
+                m_modeStack->setCurrentIndex(newIndex);
+            } else {
+                m_modeStack->setCurrentIndex(-1);
+            }
+        }
+    }
+}
+
+void ModeManagerPrivate::registerModeSelectorStyleActions()
+{
+    ActionContainer *mview = ActionManager::actionContainer(Constants::M_VIEW);
+
+    // Cycle Mode Selector Styles
+    ActionBuilder(m_instance, Constants::CYCLE_MODE_SELECTOR_STYLE)
+        .setText(Tr::tr("Cycle Mode Selector Styles"))
+        .addOnTriggered([] { ModeManager::cycleModeStyle(); });
+
+    // Mode Selector Styles
+    ActionContainer *mmodeLayouts = ActionManager::createMenu(Constants::M_VIEW_MODESTYLES);
+    mview->addMenu(mmodeLayouts, Constants::G_VIEW_MODES);
+    QMenu *styleMenu = mmodeLayouts->menu();
+    styleMenu->setTitle(Tr::tr("Modes"));
+    auto *stylesGroup = new QActionGroup(styleMenu);
+    stylesGroup->setExclusive(true);
+
+    mmodeLayouts->addSeparator(Constants::G_DEFAULT_THREE);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.IconsAndText")
+        .setText(Tr::tr("Icons and Text"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsAndText); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsAndTextAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsAndTextAction);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.IconsOnly")
+        .setText(Tr::tr("Icons Only"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::IconsOnly); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleIconsOnlyAction);
+    stylesGroup->addAction(m_setModeSelectorStyleIconsOnlyAction);
+
+    ActionBuilder(m_instance, "QtCreator.Modes.Hidden")
+        .setText(Tr::tr("Hidden"))
+        .setCheckable(true)
+        .addOnTriggered([] { ModeManager::setModeStyle(ModeManager::Style::Hidden); })
+        .addToContainer(Constants::M_VIEW_MODESTYLES, Constants::G_DEFAULT_THREE)
+        .bindContextAction(&m_setModeSelectorStyleHiddenAction);
+    stylesGroup->addAction(m_setModeSelectorStyleHiddenAction);
+    updateModeSelectorStyleMenu();
+}
+
+void ModeManagerPrivate::updateModeSelectorStyleMenu()
+{
+    if (!m_setModeSelectorStyleHiddenAction) // actions not yet created
+        return;
+    switch (m_modeStyle) {
+    case ModeManager::Style::IconsAndText:
+        m_setModeSelectorStyleIconsAndTextAction->setChecked(true);
+        break;
+    case ModeManager::Style::IconsOnly:
+        m_setModeSelectorStyleIconsOnlyAction->setChecked(true);
+        break;
+    case ModeManager::Style::Hidden:
+        m_setModeSelectorStyleHiddenAction->setChecked(true);
+        break;
     }
 }
 
@@ -180,7 +282,7 @@ void ModeManager::extensionsInitialized()
 void ModeManagerPrivate::extensionsInitializedHelper()
 {
     m_startingUp = false;
-
+    registerModeSelectorStyleActions();
     Utils::sort(m_modes, &IMode::priority);
     std::reverse(m_modes.begin(), m_modes.end());
 
@@ -201,11 +303,9 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 {
     const int index = m_modeCommands.count();
 
-    ICore::addContextObject(mode);
-
-    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(),
-                           mode->menu() != nullptr);
+    m_modeStack->insertTab(index, mode->widget(), mode->icon(), mode->displayName(), mode->hasMenu());
     m_modeStack->setTabEnabled(index, mode->isEnabled());
+    m_modeStack->setTabVisible(index, mode->isVisible());
 
     // Register mode shortcut
     const Id actionId = mode->id().withPrefix("QtCreator.Mode.");
@@ -228,6 +328,22 @@ void ModeManagerPrivate::appendMode(IMode *mode)
 
     QObject::connect(mode, &IMode::enabledStateChanged,
                      m_instance, [this, mode] { enabledStateChanged(mode); });
+
+    // view action
+    QAction *toggleAction;
+    ActionBuilder(m_instance, mode->id().withPrefix("QtCreator.Modes.View."))
+        //: %1 = name of a mode
+        .setText(Tr::tr("Show %1").arg(mode->displayName()))
+        .setCheckable(true)
+        .setChecked(mode->isVisible())
+        .addToContainer(Constants::M_VIEW_MODESTYLES)
+        .bindContextAction(&toggleAction)
+        .addOnTriggered(mode, [mode](bool checked) { mode->setVisible(checked); });
+    QObject::connect(
+        mode, &IMode::visibleChanged, m_instance, [this, mode, toggleAction](bool visible) {
+            toggleAction->setChecked(visible);
+            visibleChanged(mode);
+        });
 }
 
 void ModeManager::removeMode(IMode *mode)
@@ -241,8 +357,23 @@ void ModeManager::removeMode(IMode *mode)
 
     d->m_modeCommands.remove(index);
     d->m_modeStack->removeTab(index);
+}
 
-    ICore::removeContextObject(mode);
+void ModeManagerPrivate::ensureVisibleEnabledMode()
+{
+    // Make sure we leave any disabled mode to prevent possible crashes:
+    IMode *mode = ModeManager::currentMode();
+    if (!mode || !mode->isEnabled() || !mode->isVisible()) {
+        // This assumes that there is always at least one enabled mode.
+        for (int i = 0; i < d->m_modes.count(); ++i) {
+            IMode *other = d->m_modes.at(i);
+            if (other->isEnabled() && other->isVisible()) {
+                ModeManager::activateMode(other->id());
+                return;
+            }
+        }
+        ModeManager::activateMode({});
+    }
 }
 
 void ModeManagerPrivate::enabledStateChanged(IMode *mode)
@@ -251,17 +382,16 @@ void ModeManagerPrivate::enabledStateChanged(IMode *mode)
     QTC_ASSERT(index >= 0, return);
     d->m_modeStack->setTabEnabled(index, mode->isEnabled());
 
-    // Make sure we leave any disabled mode to prevent possible crashes:
-    if (mode->id() == ModeManager::currentModeId() && !mode->isEnabled()) {
-        // This assumes that there is always at least one enabled mode.
-        for (int i = 0; i < d->m_modes.count(); ++i) {
-            if (d->m_modes.at(i) != mode &&
-                d->m_modes.at(i)->isEnabled()) {
-                ModeManager::activateMode(d->m_modes.at(i)->id());
-                break;
-            }
-        }
-    }
+    ensureVisibleEnabledMode();
+}
+
+void ModeManagerPrivate::visibleChanged(IMode *mode)
+{
+    int index = d->m_modes.indexOf(mode);
+    QTC_ASSERT(index >= 0, return);
+    d->m_modeStack->setTabVisible(index, mode->isVisible());
+
+    ensureVisibleEnabledMode();
 }
 
 /*!
@@ -294,11 +424,8 @@ void ModeManager::addProjectSelector(QAction *action)
 
 void ModeManager::currentTabAboutToChange(int index)
 {
-    if (index >= 0) {
-        IMode *mode = d->m_modes.at(index);
-        if (mode)
-            emit currentModeAboutToChange(mode->id());
-    }
+    IMode *mode = d->m_modes.value(index, nullptr);
+    emit currentModeAboutToChange(mode ? mode->id() : Id());
 }
 
 void ModeManager::currentTabChanged(int index)
@@ -352,6 +479,8 @@ void ModeManager::setModeStyle(ModeManager::Style style)
     d->m_actionBar->setIconsOnly(iconsOnly);
     d->m_modeStack->setIconsOnly(iconsOnly);
     d->m_modeStack->setSelectionWidgetVisible(visible);
+
+    d->updateModeSelectorStyleMenu();
 }
 
 /*!

@@ -65,15 +65,19 @@ public:
             const QString &filterText,
             Qt::CaseSensitivity caseSensitivity,
             bool regexp,
-            bool isInverted);
+            bool isInverted,
+            int beforeContext,
+            int afterContext);
 
     void setOutputFileNameHint(const QString &fileName);
 
 signals:
     void wheelZoom();
+    void outputDiscarded();
 
 public slots:
     void setWordWrapEnabled(bool wrap);
+    void setDiscardExcessiveOutput(bool discard);
 
 protected:
     virtual void handleLink(const QPoint &pos);
@@ -94,8 +98,18 @@ private:
     void enableUndoRedo();
     void filterNewContent();
     void handleNextOutputChunk();
-    void handleOutputChunk(const QString &output, Utils::OutputFormat format);
+
+    enum class ChunkCompleteness { Complete, Split };
+    void handleOutputChunk(
+        const QString &output, Utils::OutputFormat format, ChunkCompleteness completeness);
+
+    void discardExcessiveOutput();
+    void discardPendingToolOutput();
     void updateAutoScroll();
+    int totalQueuedSize() const;
+
+    using TextMatchingFunction = std::function<bool(const QString &text)>;
+    TextMatchingFunction makeMatchingFunction() const;
 
     Internal::OutputWindowPrivate *d = nullptr;
 };

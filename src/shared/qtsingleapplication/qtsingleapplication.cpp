@@ -198,9 +198,10 @@ public:
         const auto end = system_clock::now();
         const auto freeze = duration_cast<milliseconds>(end - start);
         if (freeze > m_threshold) {
+            m_total += freeze;
             const QString time = QTime::currentTime().toString(Qt::ISODateWithMs);
-            qDebug().noquote() << QString("FREEZE [%1]").arg(time)
-                               << "of" << freeze.count() << "ms, on:" << event;
+            qDebug().noquote() << QString("FREEZE [%1]").arg(time) << "of" << freeze.count()
+                               << "ms, total" << m_total.count() << "ms, on:" << event;
             const QString receiverMessage = name.isEmpty()
                 ? QString("receiver class: %1").arg(className)
                 : QString("receiver class: %1, object name: %2").arg(className, name);
@@ -215,6 +216,7 @@ private:
     bool m_inNotify = false;
     const QString m_align;
     milliseconds m_threshold{100};
+    milliseconds m_total{0};
 };
 
 QtSingleApplication *createApplication(const QString &id, int &argc, char **argv)

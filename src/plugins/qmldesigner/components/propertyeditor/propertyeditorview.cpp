@@ -221,7 +221,7 @@ void PropertyEditorView::changeValue(const QString &name)
     if (name == "state" && castedValue.toString() == "base state")
         castedValue = "";
 
-    if (castedValue.typeId() == QVariant::Color) {
+    if (castedValue.typeId() == QMetaType::QColor) {
         QColor color = castedValue.value<QColor>();
         QColor newColor = QColor(color.name());
         newColor.setAlpha(color.alpha());
@@ -234,9 +234,9 @@ void PropertyEditorView::changeValue(const QString &name)
     } else {
         // QVector*D(0, 0, 0) detects as null variant though it is valid value
         if (castedValue.isValid()
-            && (!castedValue.isNull() || castedValue.typeId() == QVariant::Vector2D
-                || castedValue.typeId() == QVariant::Vector3D
-                || castedValue.typeId() == QVariant::Vector4D)) {
+            && (!castedValue.isNull() || castedValue.typeId() == QMetaType::QVector2D
+                || castedValue.typeId() == QMetaType::QVector3D
+                || castedValue.typeId() == QMetaType::QVector4D)) {
             commitVariantValueToModel(propertyName, castedValue);
         }
     }

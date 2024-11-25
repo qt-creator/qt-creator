@@ -16,6 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/futuresynchronizer.h>
 #include <utils/qtcassert.h>
 #include <utils/temporarydirectory.h>
@@ -289,6 +290,7 @@ void FileApiReader::endState(const FilePath &replyFilePath, bool restoredFromBac
                       m_ctestPath = std::move(value->ctestPath);
                       m_isMultiConfig = value->isMultiConfig;
                       m_usesAllCapsTargets = value->usesAllCapsTargets;
+                      m_cmakeGenerator = value->cmakeGenerator;
 
                       if (value->errorMessage.isEmpty()) {
                           emit this->dataAvailable(restoredFromBackup);
@@ -313,7 +315,7 @@ void FileApiReader::makeBackupConfiguration(bool store)
         if (!reply.renameFile(replyPrev))
             Core::MessageManager::writeFlashing(
                 addCMakePrefix(Tr::tr("Failed to rename \"%1\" to \"%2\".")
-                                   .arg(reply.toString(), replyPrev.toString())));
+                                   .arg(reply.toUserOutput(), replyPrev.toUserOutput())));
     }
 
     FilePath cmakeCacheTxt = m_parameters.buildDirectory.pathAppended(Constants::CMAKE_CACHE_TXT);
@@ -323,9 +325,9 @@ void FileApiReader::makeBackupConfiguration(bool store)
 
     if (cmakeCacheTxt.exists())
         if (!FileUtils::copyIfDifferent(cmakeCacheTxt, cmakeCacheTxtPrev))
-            Core::MessageManager::writeFlashing(
-                addCMakePrefix(Tr::tr("Failed to copy \"%1\" to \"%2\".")
-                                   .arg(cmakeCacheTxt.toString(), cmakeCacheTxtPrev.toString())));
+            Core::MessageManager::writeFlashing(addCMakePrefix(
+                Tr::tr("Failed to copy \"%1\" to \"%2\".")
+                    .arg(cmakeCacheTxt.toUserOutput(), cmakeCacheTxtPrev.toUserOutput())));
 }
 
 void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &configurationArguments)
@@ -344,6 +346,11 @@ void FileApiReader::writeConfigurationIntoBuildDirectory(const QStringList &conf
 
     const FilePath settingsFile = buildDir / "qtcsettings.cmake";
     QTC_ASSERT_EXPECTED(settingsFile.writeFileContents(contents), return);
+}
+
+QString FileApiReader::cmakeGenerator() const
+{
+    return m_cmakeGenerator;
 }
 
 std::unique_ptr<CMakeProjectNode> FileApiReader::rootProjectNode()

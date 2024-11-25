@@ -43,10 +43,7 @@ UnifiedDiffEditorWidget::UnifiedDiffEditorWidget(QWidget *parent)
     connect(this, &QPlainTextEdit::cursorPositionChanged,
             this, &UnifiedDiffEditorWidget::slotCursorPositionChangedInEditor);
 
-    auto context = new IContext(this);
-    context->setWidget(this);
-    context->setContext(Context(Constants::UNIFIED_VIEW_ID));
-    ICore::addContextObject(context);
+    IContext::attach(this, Context(Constants::UNIFIED_VIEW_ID));
 }
 
 UnifiedDiffEditorWidget::~UnifiedDiffEditorWidget() = default;

@@ -4,22 +4,622 @@
 #include "qrceditor.h"
 
 #include "../resourceeditortr.h"
-#include "undocommands_p.h"
+#include "resourcefile_p.h"
 
 #include <aggregation/aggregate.h>
+
 #include <coreplugin/find/itemviewfind.h>
+
+#include <utils/itemviews.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDebug>
 #include <QFileDialog>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPoint>
 #include <QPushButton>
 #include <QScopedPointer>
+#include <QString>
+#include <QUndoCommand>
+
+using namespace Utils;
 
 namespace ResourceEditor::Internal {
+
+class ResourceView : public Utils::TreeView
+{
+    Q_OBJECT
+
+public:
+    enum NodeProperty {
+        AliasProperty,
+        PrefixProperty,
+        LanguageProperty
+    };
+
+    explicit ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent = nullptr);
+
+    FilePath filePath() const;
+
+    bool isPrefix(const QModelIndex &index) const;
+
+    QString currentAlias() const;
+    QString currentPrefix() const;
+    QString currentLanguage() const;
+    QString currentResourcePath() const;
+
+    void setResourceDragEnabled(bool e);
+    bool resourceDragEnabled() const;
+
+    void findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const;
+    EntryBackup *removeEntry(const QModelIndex &index);
+    QStringList existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const;
+    void addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
+                  int &firstFile, int &lastFile);
+    void removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex);
+    QStringList fileNamesToAdd();
+    QModelIndex addPrefix();
+    QList<QModelIndex> nonExistingFiles();
+
+    void refresh();
+
+    void setCurrentAlias(const QString &before, const QString &after);
+    void setCurrentPrefix(const QString &before, const QString &after);
+    void setCurrentLanguage(const QString &before, const QString &after);
+    void advanceMergeId();
+
+    QString getCurrentValue(NodeProperty property) const;
+    void changeValue(const QModelIndex &nodeIndex, NodeProperty property, const QString &value);
+
+signals:
+    void removeItem();
+    void itemActivated(const QString &fileName);
+    void contextMenuShown(const QPoint &globalPos, const QString &fileName);
+
+protected:
+    void keyPressEvent(QKeyEvent *e) override;
+
+private:
+    void onItemActivated(const QModelIndex &index);
+    void showContextMenu(const QPoint &pos);
+    void addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
+                        const QString &before, const QString &after);
+
+    RelativeResourceModel *m_qrcModel;
+
+    QUndoStack *m_history;
+    int m_mergeId;
+};
+
+class ViewCommand : public QUndoCommand
+{
+protected:
+    ViewCommand(ResourceView *view) : m_view(view) {}
+
+    ResourceView *m_view;
+};
+
+class ModelIndexViewCommand : public ViewCommand
+{
+protected:
+    ModelIndexViewCommand(ResourceView *view) : ViewCommand(view) {}
+
+    void storeIndex(const QModelIndex &index)
+    {
+        if (m_view->isPrefix(index)) {
+            m_prefixArrayIndex = index.row();
+            m_fileArrayIndex = -1;
+        } else {
+            m_fileArrayIndex = index.row();
+            m_prefixArrayIndex = m_view->model()->parent(index).row();
+        }
+    }
+
+    QModelIndex makeIndex() const
+    {
+        const QModelIndex prefixModelIndex
+                = m_view->model()->index(m_prefixArrayIndex, 0, QModelIndex());
+        if (m_fileArrayIndex != -1) {
+            // File node
+            const QModelIndex fileModelIndex
+                    = m_view->model()->index(m_fileArrayIndex, 0, prefixModelIndex);
+            return fileModelIndex;
+        } else {
+            // Prefix node
+            return prefixModelIndex;
+        }
+    }
+
+private:
+    int m_prefixArrayIndex;
+    int m_fileArrayIndex;
+};
+
+class ModifyPropertyCommand : public ModelIndexViewCommand
+{
+public:
+    ModifyPropertyCommand(ResourceView *view, const QModelIndex &nodeIndex,
+                          ResourceView::NodeProperty property, const int mergeId,
+                          const QString &before, const QString &after = {})
+        : ModelIndexViewCommand(view), m_property(property), m_before(before), m_after(after),
+          m_mergeId(mergeId)
+    {
+        storeIndex(nodeIndex);
+    }
+
+private:
+    int id() const override { return m_mergeId; }
+
+    bool mergeWith(const QUndoCommand * command) override
+    {
+        if (command->id() != id() || m_property != static_cast<const ModifyPropertyCommand *>(command)->m_property)
+            return false;
+        // Choose older command (this) and forgot the other
+        return true;
+    }
+
+    void undo() override
+    {
+        // Save current text in m_after for redo()
+        m_after = m_view->getCurrentValue(m_property);
+
+        // Reset text to m_before
+        m_view->changeValue(makeIndex(), m_property, m_before);
+    }
+
+    void redo() override
+    {
+        // Prevent execution from within QUndoStack::push
+        if (m_after.isNull())
+            return;
+
+        // Bring back text before undo
+        Q_ASSERT(m_view);
+        m_view->changeValue(makeIndex(), m_property, m_after);
+    }
+
+    ResourceView::NodeProperty m_property;
+    QString m_before;
+    QString m_after;
+    int m_mergeId;
+};
+
+class RemoveEntryCommand : public ModelIndexViewCommand
+{
+public:
+    RemoveEntryCommand(ResourceView *view, const QModelIndex &index)
+        : ModelIndexViewCommand(view)
+    {
+        storeIndex(index);
+    }
+
+    ~RemoveEntryCommand() override { freeEntry(); }
+
+private:
+    void redo() override
+    {
+        freeEntry();
+        const QModelIndex index = makeIndex();
+        m_isExpanded = m_view->isExpanded(index);
+        m_entry = m_view->removeEntry(index);
+    }
+
+    void undo() override
+    {
+        if (m_entry != nullptr) {
+            m_entry->restore();
+            Q_ASSERT(m_view != nullptr);
+            const QModelIndex index = makeIndex();
+            m_view->setExpanded(index, m_isExpanded);
+            m_view->setCurrentIndex(index);
+            freeEntry();
+        }
+    }
+
+    void freeEntry() { delete m_entry; m_entry = nullptr; }
+
+    EntryBackup *m_entry = nullptr;
+    bool m_isExpanded = true;
+};
+
+class RemoveMultipleEntryCommand : public QUndoCommand
+{
+public:
+    // list must be in view order
+    RemoveMultipleEntryCommand(ResourceView *view, const QList<QModelIndex> &list)
+    {
+        m_subCommands.reserve(list.size());
+        for (const QModelIndex &index : list)
+            m_subCommands.push_back(new RemoveEntryCommand(view, index));
+    }
+
+    ~RemoveMultipleEntryCommand() override { qDeleteAll(m_subCommands); }
+
+private:
+    void redo() override
+    {
+        auto it = m_subCommands.rbegin();
+        auto end = m_subCommands.rend();
+
+        for (; it != end; ++it)
+            (*it)->redo();
+    }
+
+    void undo() override
+    {
+        auto it = m_subCommands.begin();
+        auto end = m_subCommands.end();
+
+        for (; it != end; ++it)
+            (*it)->undo();
+    }
+
+    std::vector<QUndoCommand *> m_subCommands;
+};
+
+class AddFilesCommand : public ViewCommand
+{
+public:
+    AddFilesCommand(ResourceView *view, int prefixIndex, int cursorFileIndex,
+                    const QStringList &fileNames)
+        : ViewCommand(view), m_prefixIndex(prefixIndex), m_cursorFileIndex(cursorFileIndex),
+          m_fileNames(fileNames)
+    {}
+
+private:
+    void redo() override
+    {
+        m_view->addFiles(m_prefixIndex, m_fileNames, m_cursorFileIndex, m_firstFile, m_lastFile);
+    }
+
+    void undo() override
+    {
+        m_view->removeFiles(m_prefixIndex, m_firstFile, m_lastFile);
+    }
+
+    int m_prefixIndex;
+    int m_cursorFileIndex;
+    int m_firstFile;
+    int m_lastFile;
+    const QStringList m_fileNames;
+};
+
+class AddEmptyPrefixCommand : public ViewCommand
+{
+public:
+    AddEmptyPrefixCommand(ResourceView *view) : ViewCommand(view) {}
+
+private:
+    void redo() override
+    {
+        m_prefixArrayIndex = m_view->addPrefix().row();
+    }
+
+    void undo() override
+    {
+        const QModelIndex prefixModelIndex = m_view->model()->index(
+                    m_prefixArrayIndex, 0, QModelIndex());
+        delete m_view->removeEntry(prefixModelIndex);
+    }
+
+    int m_prefixArrayIndex;
+};
+
+ResourceView::ResourceView(RelativeResourceModel *model, QUndoStack *history, QWidget *parent) :
+    Utils::TreeView(parent),
+    m_qrcModel(model),
+    m_history(history),
+    m_mergeId(-1)
+{
+    advanceMergeId();
+    setModel(m_qrcModel);
+    setContextMenuPolicy(Qt::CustomContextMenu);
+    setEditTriggers(EditKeyPressed);
+    setFrameStyle(QFrame::NoFrame);
+    setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
+
+    header()->hide();
+
+    connect(this, &QWidget::customContextMenuRequested, this, &ResourceView::showContextMenu);
+    connect(this, &QAbstractItemView::activated, this, &ResourceView::onItemActivated);
+}
+
+void ResourceView::findSamePlacePostDeletionModelIndex(int &row, QModelIndex &parent) const
+{
+    // Concept:
+    // - Make selection stay on same Y level
+    // - Enable user to hit delete several times in row
+    const bool hasLowerBrother = m_qrcModel->hasIndex(row + 1, 0, parent);
+    if (hasLowerBrother) {
+        // First or mid child -> lower brother
+        //  o
+        //  +--o
+        //  +-[o]  <-- deleted
+        //  +--o   <-- chosen
+        //  o
+        // --> return unmodified
+    } else {
+        if (parent == QModelIndex()) {
+            // Last prefix node
+            if (row == 0) {
+                // Last and only prefix node
+                // [o]  <-- deleted
+                //  +--o
+                //  +--o
+                row = -1;
+                parent = QModelIndex();
+            } else {
+                const QModelIndex upperBrother = m_qrcModel->index(row - 1,
+                        0, parent);
+                if (m_qrcModel->hasChildren(upperBrother)) {
+                    //  o
+                    //  +--o  <-- selected
+                    // [o]    <-- deleted
+                    row = m_qrcModel->rowCount(upperBrother) - 1;
+                    parent = upperBrother;
+                } else {
+                    //  o
+                    //  o  <-- selected
+                    // [o] <-- deleted
+                    row--;
+                }
+            }
+        } else {
+            // Last file node
+            const bool hasPrefixBelow = m_qrcModel->hasIndex(parent.row() + 1,
+                    parent.column(), QModelIndex());
+            if (hasPrefixBelow) {
+                // Last child or parent with lower brother -> lower brother of parent
+                //  o
+                //  +--o
+                //  +-[o]  <-- deleted
+                //  o      <-- chosen
+                row = parent.row() + 1;
+                parent = QModelIndex();
+            } else {
+                const bool onlyChild = row == 0;
+                if (onlyChild) {
+                    // Last and only child of last parent -> parent
+                    //  o      <-- chosen
+                    //  +-[o]  <-- deleted
+                    row = parent.row();
+                    parent = m_qrcModel->parent(parent);
+                } else {
+                    // Last child of last parent -> upper brother
+                    //  o
+                    //  +--o   <-- chosen
+                    //  +-[o]  <-- deleted
+                    row--;
+                }
+            }
+        }
+    }
+}
+
+EntryBackup * ResourceView::removeEntry(const QModelIndex &index)
+{
+    return m_qrcModel->removeEntry(index);
+}
+
+QStringList ResourceView::existingFilesSubtracted(int prefixIndex, const QStringList &fileNames) const
+{
+    return m_qrcModel->existingFilesSubtracted(prefixIndex, fileNames);
+}
+
+void ResourceView::addFiles(int prefixIndex, const QStringList &fileNames, int cursorFile,
+        int &firstFile, int &lastFile)
+{
+    m_qrcModel->addFiles(prefixIndex, fileNames, cursorFile, firstFile, lastFile);
+
+    // Expand prefix node
+    const QModelIndex prefixModelIndex = m_qrcModel->index(prefixIndex, 0, QModelIndex());
+    if (prefixModelIndex.isValid())
+        this->setExpanded(prefixModelIndex, true);
+}
+
+void ResourceView::removeFiles(int prefixIndex, int firstFileIndex, int lastFileIndex)
+{
+    Q_ASSERT(prefixIndex >= 0 && prefixIndex < m_qrcModel->rowCount(QModelIndex()));
+    const QModelIndex prefixModelIndex = m_qrcModel->index(prefixIndex, 0, QModelIndex());
+    Q_ASSERT(prefixModelIndex != QModelIndex());
+    Q_ASSERT(firstFileIndex >= 0 && firstFileIndex < m_qrcModel->rowCount(prefixModelIndex));
+    Q_ASSERT(lastFileIndex >= 0 && lastFileIndex < m_qrcModel->rowCount(prefixModelIndex));
+
+    for (int i = lastFileIndex; i >= firstFileIndex; i--) {
+        const QModelIndex index = m_qrcModel->index(i, 0, prefixModelIndex);
+        delete removeEntry(index);
+    }
+}
+
+void ResourceView::keyPressEvent(QKeyEvent *e)
+{
+    if (e->key() == Qt::Key_Delete || e->key() == Qt::Key_Backspace)
+        emit removeItem();
+    else
+        Utils::TreeView::keyPressEvent(e);
+}
+
+QModelIndex ResourceView::addPrefix()
+{
+    const QModelIndex idx = m_qrcModel->addNewPrefix();
+    selectionModel()->setCurrentIndex(idx, QItemSelectionModel::ClearAndSelect);
+    return idx;
+}
+
+QList<QModelIndex> ResourceView::nonExistingFiles()
+{
+    return m_qrcModel->nonExistingFiles();
+}
+
+void ResourceView::refresh()
+{
+    m_qrcModel->refresh();
+    QModelIndex idx = currentIndex();
+    setModel(nullptr);
+    setModel(m_qrcModel);
+    setCurrentIndex(idx);
+    expandAll();
+}
+
+QStringList ResourceView::fileNamesToAdd()
+{
+    return QFileDialog::getOpenFileNames(this, Tr::tr("Open File"),
+            m_qrcModel->absolutePath(QString()),
+            Tr::tr("All files (*)"));
+}
+
+QString ResourceView::currentAlias() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return QString();
+    return m_qrcModel->alias(current);
+}
+
+QString ResourceView::currentPrefix() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return QString();
+    const QModelIndex preindex = m_qrcModel->prefixIndex(current);
+    QString prefix, file;
+    m_qrcModel->getItem(preindex, prefix, file);
+    return prefix;
+}
+
+QString ResourceView::currentLanguage() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return QString();
+    const QModelIndex preindex = m_qrcModel->prefixIndex(current);
+    return m_qrcModel->lang(preindex);
+}
+
+QString ResourceView::currentResourcePath() const
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return QString();
+
+    const QString alias = m_qrcModel->alias(current);
+    if (!alias.isEmpty())
+        return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + alias;
+
+    return QLatin1Char(':') + currentPrefix() + QLatin1Char('/') + m_qrcModel->relativePath(m_qrcModel->file(current));
+}
+
+QString ResourceView::getCurrentValue(NodeProperty property) const
+{
+    switch (property) {
+    case AliasProperty: return currentAlias();
+    case PrefixProperty: return currentPrefix();
+    case LanguageProperty: return currentLanguage();
+    default: Q_ASSERT(false); return QString(); // Kill warning
+    }
+}
+
+void ResourceView::changeValue(const QModelIndex &nodeIndex, NodeProperty property,
+        const QString &value)
+{
+    switch (property) {
+    case AliasProperty: m_qrcModel->changeAlias(nodeIndex, value); return;
+    case PrefixProperty: m_qrcModel->changePrefix(nodeIndex, value); return;
+    case LanguageProperty: m_qrcModel->changeLang(nodeIndex, value); return;
+    default: Q_ASSERT(false);
+    }
+}
+
+void ResourceView::onItemActivated(const QModelIndex &index)
+{
+    const QString fileName = m_qrcModel->file(index);
+    if (fileName.isEmpty())
+        return;
+    emit itemActivated(fileName);
+}
+
+void ResourceView::showContextMenu(const QPoint &pos)
+{
+    const QModelIndex index = indexAt(pos);
+    const QString fileName = m_qrcModel->file(index);
+    if (fileName.isEmpty())
+        return;
+    emit contextMenuShown(mapToGlobal(pos), fileName);
+}
+
+void ResourceView::advanceMergeId()
+{
+    m_mergeId++;
+    if (m_mergeId < 0)
+        m_mergeId = 0;
+}
+
+void ResourceView::addUndoCommand(const QModelIndex &nodeIndex, NodeProperty property,
+        const QString &before, const QString &after)
+{
+    QUndoCommand * const command = new ModifyPropertyCommand(this, nodeIndex, property,
+            m_mergeId, before, after);
+    m_history->push(command);
+}
+
+void ResourceView::setCurrentAlias(const QString &before, const QString &after)
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return;
+
+    addUndoCommand(current, AliasProperty, before, after);
+}
+
+void ResourceView::setCurrentPrefix(const QString &before, const QString &after)
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return;
+    const QModelIndex preindex = m_qrcModel->prefixIndex(current);
+
+    addUndoCommand(preindex, PrefixProperty, before, after);
+}
+
+void ResourceView::setCurrentLanguage(const QString &before, const QString &after)
+{
+    const QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return;
+    const QModelIndex preindex = m_qrcModel->prefixIndex(current);
+
+    addUndoCommand(preindex, LanguageProperty, before, after);
+}
+
+bool ResourceView::isPrefix(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return false;
+    const QModelIndex preindex = m_qrcModel->prefixIndex(index);
+    if (preindex == index)
+        return true;
+    return false;
+}
+
+FilePath ResourceView::filePath() const
+{
+    return m_qrcModel->filePath();
+}
+
+void ResourceView::setResourceDragEnabled(bool e)
+{
+    setDragEnabled(e);
+    m_qrcModel->setResourceDragEnabled(e);
+}
+
+bool ResourceView::resourceDragEnabled() const
+{
+    return m_qrcModel->resourceDragEnabled();
+}
 
 QrcEditor::QrcEditor(RelativeResourceModel *model, QWidget *parent)
   : Core::MiniSplitter(Qt::Vertical, parent),
@@ -428,3 +1028,5 @@ void QrcEditor::onRedo()
 }
 
 } // ResourceEditor::Internal
+
+#include "qrceditor.moc"

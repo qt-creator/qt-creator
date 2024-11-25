@@ -33,20 +33,26 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
 #include <projectexplorer/toolchain.h>
+
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
-#include <utils/mimeconstants.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
+#include <utils/mimeconstants.h>
+#include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
+
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljstools/qmljsmodelmanager.h>
+
 #include <qtsupport/qtcppkitinfo.h>
 #include <qtsupport/qtkitaspect.h>
 
@@ -57,9 +63,6 @@
 #include <QMessageBox>
 #include <QSet>
 #include <QVariantMap>
-
-#include <algorithm>
-#include <type_traits>
 
 using namespace Core;
 using namespace ProjectExplorer;
@@ -265,27 +268,52 @@ RemovedFilesFromProject QbsBuildSystem::removeFiles(Node *context, const FilePat
     return BuildSystem::removeFiles(context, filePaths, notRemoved);
 }
 
-bool QbsBuildSystem::renameFile(Node *context,
-                                const FilePath &oldFilePath,
-                                const FilePath &newFilePath)
+bool QbsBuildSystem::renameFiles(Node *context, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     if (auto *n = dynamic_cast<QbsGroupNode *>(context)) {
         const QbsProductNode * const prdNode = parentQbsProductNode(n);
         QTC_ASSERT(prdNode, return false);
-        return renameFileInProduct(oldFilePath.toString(),
-                                   newFilePath.toString(),
-                                   prdNode->productData(),
-                                   n->groupData());
+
+        if (session()->apiLevel() >= 6) {
+            return renameFilesInProduct(
+                filesToRename, prdNode->productData(), n->groupData(), notRenamed);
+        }
+
+        bool success = true;
+        for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+            if (!renameFileInProduct(
+                    oldFilePath.toString(),
+                    newFilePath.toString(),
+                    prdNode->productData(),
+                    n->groupData())) {
+                success = false;
+                if (notRenamed)
+                    *notRenamed << oldFilePath;
+            }
+        }
+        return success;
     }
 
     if (auto *n = dynamic_cast<QbsProductNode *>(context)) {
-        return renameFileInProduct(oldFilePath.toString(),
-                                   newFilePath.toString(),
-                                   n->productData(),
-                                   n->mainGroup());
+        if (session()->apiLevel() >= 6)
+            return renameFilesInProduct(filesToRename, n->productData(), n->mainGroup(), notRenamed);
+
+        bool success = true;
+        for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+            if (!renameFileInProduct(
+                    oldFilePath.toString(),
+                    newFilePath.toString(),
+                    n->productData(),
+                    n->mainGroup())) {
+                success = false;
+                if (notRenamed)
+                    *notRenamed << oldFilePath;
+            }
+        }
+        return success;
     }
 
-    return BuildSystem::renameFile(context, oldFilePath, newFilePath);
+    return BuildSystem::renameFiles(context, filesToRename, notRenamed);
 }
 
 QVariant QbsBuildSystem::additionalData(Id id) const
@@ -407,11 +435,46 @@ bool QbsBuildSystem::renameFileInProduct(
     if (newPath.isEmpty())
         return false;
     FilePaths dummy;
+    // FIXME: The qbs API need a (bulk) renaming feature
     if (removeFilesFromProduct({FilePath::fromString(oldPath)}, product, group, &dummy)
             != RemovedFilesFromProject::Ok) {
         return false;
     }
     return addFilesToProduct({FilePath::fromString(newPath)}, product, group, &dummy);
+}
+
+bool QbsBuildSystem::renameFilesInProduct(
+    const Utils::FilePairs &files,
+    const QJsonObject &product,
+    const QJsonObject &group,
+    Utils::FilePaths *notRenamed)
+{
+    const auto allWildcardsInGroup = transform<QStringList>(
+        group.value("source-artifacts-from-wildcards").toArray(),
+        [](const QJsonValue &v) { return v.toObject().value("file-path").toString(); });
+    using FileStringPair = std::pair<QString, QString>;
+    using FileStringPairs = QList<FileStringPair>;
+    const FileStringPairs filesAsStrings = Utils::transform(files, [](const FilePair &fp) {
+        return std::make_pair(fp.first.path(), fp.second.path());
+    });
+    FileStringPairs nonWildcardFiles;
+    for (const FileStringPair &file : filesAsStrings) {
+        if (!allWildcardsInGroup.contains(file.first))
+            nonWildcardFiles << file;
+    }
+
+    const QString groupFilePath = group.value("location")
+                                      .toObject().value("file-path").toString();
+    ensureWriteableQbsFile(groupFilePath);
+    const FileChangeResult result = session()->renameFiles(
+        nonWildcardFiles,
+        product.value("name").toString(),
+        group.value("name").toString());
+
+    *notRenamed = FileUtils::toFilePathList(result.failedFiles());
+    if (result.error().hasError())
+        MessageManager::writeDisrupting(result.error().toString());
+    return notRenamed->isEmpty();
 }
 
 QString QbsBuildSystem::profile() const
@@ -470,7 +533,7 @@ FilePath QbsBuildSystem::installRoot()
     if (dc) {
         const QList<BuildStep *> steps = dc->stepList()->steps();
         for (const BuildStep * const step : steps) {
-            if (!step->enabled())
+            if (!step->stepEnabled())
                 continue;
             if (const auto qbsInstallStep = qobject_cast<const QbsInstallStep *>(step))
                 return qbsInstallStep->installRoot();
@@ -652,8 +715,9 @@ static QString getMimeType(const QJsonObject &sourceArtifact)
     using namespace Utils::Constants;
     const auto tags = sourceArtifact.value("file-tags").toArray();
     if (tags.contains("hpp")) {
-        if (CppEditor::ProjectFile::isAmbiguousHeader(sourceArtifact.value("file-path").toString()))
-            return QString(AMBIGUOUS_HEADER_MIMETYPE);
+        const QString filePath = sourceArtifact.value("file-path").toString();
+        if (CppEditor::ProjectFile::isAmbiguousHeader(filePath))
+            return Utils::mimeTypeForFile(filePath).name();
         return QString(CPP_HEADER_MIMETYPE);
     }
     if (tags.contains("cpp"))
@@ -855,9 +919,10 @@ static RawProjectPart generateProjectPart(
     rpp.setHeaderPaths(headerPaths);
     rpp.setDisplayName(groupName);
     const QJsonObject location = groupOrProduct.value("location").toObject();
-    rpp.setProjectFileLocation(location.value("file-path").toString(),
-                               location.value("line").toInt(),
-                               location.value("column").toInt());
+    rpp.setProjectFileLocation(
+        FilePath::fromUserInput(location.value("file-path").toString()),
+        location.value("line").toInt(),
+        location.value("column").toInt());
     rpp.setBuildSystemTarget(QbsProductNode::getBuildKey(product));
     if (product.value("is-runnable").toBool()) {
         rpp.setBuildTargetType(BuildTargetType::Executable);

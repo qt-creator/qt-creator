@@ -45,7 +45,7 @@ QVariant PropertyEditorValue::value() const
 
 static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 {
-    if (value1.typeId() == QVariant::Double && value2.typeId() == QVariant::Double) {
+    if (value1.typeId() == QMetaType::Double && value2.typeId() == QMetaType::Double) {
         // ignore slight changes on doubles
         if (qFuzzyCompare(value1.toDouble(), value2.toDouble()))
             return true;
@@ -55,16 +55,16 @@ static bool cleverDoubleCompare(const QVariant &value1, const QVariant &value2)
 
 static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 {
-    if (value1.typeId() == QVariant::Color && value2.typeId() == QVariant::Color) {
+    if (value1.typeId() == QMetaType::QColor && value2.typeId() == QMetaType::QColor) {
         QColor c1 = value1.value<QColor>();
         QColor c2 = value2.value<QColor>();
         return c1.name() == c2.name() && c1.alpha() == c2.alpha();
     }
 
-    if (value1.typeId() == QMetaType::QString && value2.typeId() == QVariant::Color)
+    if (value1.typeId() == QMetaType::QString && value2.typeId() == QMetaType::QColor)
         return cleverColorCompare(QVariant(QColor(value1.toString())), value2);
 
-    if (value1.typeId() == QVariant::Color && value2.typeId() == QMetaType::QString)
+    if (value1.typeId() == QMetaType::QColor && value2.typeId() == QMetaType::QString)
         return cleverColorCompare(value1, QVariant(QColor(value2.toString())));
 
     return false;
@@ -75,7 +75,7 @@ static bool cleverColorCompare(const QVariant &value1, const QVariant &value2)
 static void fixAmbigousColorNames(const ModelNode &modelNode, PropertyNameView name, QVariant *value)
 {
     if (auto metaInfo = modelNode.metaInfo(); metaInfo.property(name).propertyType().isColor()) {
-        if (value->typeId() == QVariant::Color) {
+        if (value->typeId() == QMetaType::QColor) {
             QColor color = value->value<QColor>();
             int alpha = color.alpha();
             color = QColor(color.name());
@@ -893,7 +893,7 @@ void PropertyEditorSubSelectionWrapper::changeValue(const QString &name)
     if (auto property = metaInfo.property(name.toUtf8())) {
         castedValue = property.castedValue(value->value());
 
-        if (castedValue.typeId() == QVariant::Color) {
+        if (castedValue.typeId() == QMetaType::QColor) {
             QColor color = castedValue.value<QColor>();
             QColor newColor = QColor(color.name());
             newColor.setAlpha(color.alpha());

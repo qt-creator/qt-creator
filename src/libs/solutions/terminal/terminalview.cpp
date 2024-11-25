@@ -11,7 +11,7 @@
 #include <QCache>
 #include <QClipboard>
 #include <QDesktopServices>
-#include <QElapsedTimer>
+#include <QDeadlineTimer>
 #include <QGlyphRun>
 #include <QLoggingCategory>
 #include <QMenu>
@@ -50,6 +50,9 @@ public:
         m_flushDelayTimer.setSingleShot(true);
         m_flushDelayTimer.setInterval(minRefreshInterval);
 
+        m_updateTimer.setSingleShot(true);
+        m_updateTimer.setInterval(minRefreshInterval);
+
         m_scrollTimer.setSingleShot(false);
         m_scrollTimer.setInterval(500ms);
     }
@@ -72,6 +75,10 @@ public:
     } m_activeMouseSelect;
 
     QTimer m_flushDelayTimer;
+
+    QTimer m_updateTimer;
+    std::optional<QRegion> m_updateRegion;
+    QDeadlineTimer m_sinceLastPaint;
 
     QTimer m_scrollTimer;
     int m_scrollDirection{0};
@@ -142,6 +149,7 @@ TerminalView::TerminalView(QWidget *parent)
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
     connect(&d->m_flushDelayTimer, &QTimer::timeout, this, [this] { flushVTerm(true); });
+    connect(&d->m_updateTimer, &QTimer::timeout, this, &TerminalView::scheduleViewportUpdate);
 
     connect(&d->m_scrollTimer, &QTimer::timeout, this, [this] {
         if (d->m_scrollDirection < 0)
@@ -920,6 +928,8 @@ void TerminalView::paintEvent(QPaintEvent *event)
         QToolTip::showText(this->mapToGlobal(QPoint(width() - 200, 0)),
                            QString("Paint: %1ms").arg(t.elapsed()));
     }
+
+    d->m_sinceLastPaint = QDeadlineTimer(minRefreshInterval);
 }
 
 void TerminalView::keyPressEvent(QKeyEvent *event)
@@ -1018,17 +1028,39 @@ QPoint TerminalView::toGridPos(QMouseEvent *event) const
     return globalToGrid(QPointF(event->pos()) + QPointF(0, -topMargin() + 0.5));
 }
 
+void TerminalView::scheduleViewportUpdate()
+{
+    if (!d->m_passwordModeActive && d->m_updateRegion)
+        viewport()->update(*d->m_updateRegion);
+    else
+        viewport()->update();
+
+    d->m_updateRegion.reset();
+}
+
 void TerminalView::updateViewport()
 {
-    viewport()->update();
+    updateViewportRect({});
 }
 
 void TerminalView::updateViewportRect(const QRect &rect)
 {
-    if (d->m_passwordModeActive)
-        viewport()->update();
+    if (rect.isEmpty())
+        d->m_updateRegion = QRegion{viewport()->rect()};
+    else if (!d->m_updateRegion)
+        d->m_updateRegion = QRegion(rect);
     else
-        viewport()->update(rect);
+        d->m_updateRegion = d->m_updateRegion->united(rect);
+
+    if (d->m_updateTimer.isActive())
+        return;
+
+    if (!d->m_sinceLastPaint.hasExpired()) {
+        d->m_updateTimer.start();
+        return;
+    }
+
+    scheduleViewportUpdate();
 }
 
 void TerminalView::focusInEvent(QFocusEvent *)

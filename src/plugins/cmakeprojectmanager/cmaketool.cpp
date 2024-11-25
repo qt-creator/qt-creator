@@ -22,7 +22,6 @@
 #include <QRegularExpression>
 #include <QSet>
 #include <QXmlStreamReader>
-#include <QUuid>
 
 #include <memory>
 
@@ -104,7 +103,7 @@ CMakeTool::CMakeTool(Detection d, const Id &id)
     , m_isAutoDetected(d == AutoDetection)
     , m_introspection(std::make_unique<Internal::IntrospectionData>())
 {
-    QTC_ASSERT(m_id.isValid(), m_id = Id::fromString(QUuid::createUuid().toString()));
+    QTC_ASSERT(m_id.isValid(), m_id = Id::generate());
 }
 
 CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
@@ -121,19 +120,17 @@ CMakeTool::CMakeTool(const Store &map, bool fromSdk) :
         m_isAutoDetected = map.value(CMAKE_INFORMATION_AUTODETECTED, false).toBool();
     m_detectionSource = map.value(CMAKE_INFORMATION_DETECTIONSOURCE).toString();
 
-    setFilePath(FilePath::fromString(map.value(CMAKE_INFORMATION_COMMAND).toString()));
-
     m_qchFilePath = FilePath::fromSettings(map.value(CMAKE_INFORMATION_QCH_FILE_PATH));
 
-    if (m_qchFilePath.isEmpty())
-        m_qchFilePath = searchQchFile(m_executable);
+    // setFilePath searches for qchFilePath if not already set
+    setFilePath(FilePath::fromSettings(map.value(CMAKE_INFORMATION_COMMAND)));
 }
 
 CMakeTool::~CMakeTool() = default;
 
 Id CMakeTool::createId()
 {
-    return Id::fromString(QUuid::createUuid().toString());
+    return Id::generate();
 }
 
 void CMakeTool::setFilePath(const FilePath &executable)
@@ -144,6 +141,9 @@ void CMakeTool::setFilePath(const FilePath &executable)
     m_introspection = std::make_unique<Internal::IntrospectionData>();
 
     m_executable = executable;
+    if (m_qchFilePath.isEmpty())
+        m_qchFilePath = searchQchFile(m_executable);
+
     CMakeToolManager::notifyAboutUpdate(this);
 }
 
@@ -179,8 +179,8 @@ Store CMakeTool::toMap() const
     Store data;
     data.insert(CMAKE_INFORMATION_DISPLAYNAME, m_displayName);
     data.insert(CMAKE_INFORMATION_ID, m_id.toSetting());
-    data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toString());
-    data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toString());
+    data.insert(CMAKE_INFORMATION_COMMAND, m_executable.toSettings());
+    data.insert(CMAKE_INFORMATION_QCH_FILE_PATH, m_qchFilePath.toSettings());
     data.insert(CMAKE_INFORMATION_AUTO_CREATE_BUILD_DIRECTORY, m_autoCreateBuildDirectory);
     if (m_readerType)
         data.insert(CMAKE_INFORMATION_READERTYPE,
@@ -385,16 +385,16 @@ FilePath CMakeTool::searchQchFile(const FilePath &executable)
         return {};
 
     FilePath prefixDir = executable.parentDir().parentDir();
-    QDir docDir{prefixDir.pathAppended("doc/cmake").toString()};
+    FilePath docDir = prefixDir.pathAppended("doc/cmake");
     if (!docDir.exists())
-        docDir.setPath(prefixDir.pathAppended("share/doc/cmake").toString());
+        docDir = prefixDir.pathAppended("share/doc/cmake");
     if (!docDir.exists())
         return {};
 
-    const QStringList files = docDir.entryList(QStringList("*.qch"));
-    for (const QString &docFile : files) {
-        if (docFile.startsWith("cmake", Qt::CaseInsensitive)) {
-            return FilePath::fromString(docDir.absoluteFilePath(docFile));
+    const FilePaths files = docDir.dirEntries(QStringList("*.qch"));
+    for (const FilePath &docFile : files) {
+        if (docFile.fileName().startsWith("cmake", Qt::CaseInsensitive)) {
+            return docFile.absoluteFilePath();
         }
     }
 
@@ -625,8 +625,13 @@ void CMakeTool::fetchFromCapabilities() const
         m_introspection->m_haveCapabilitites = true;
         parseFromCapabilities(cmake.cleanedStdOut());
     } else {
-        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.allOutput() << cmake.error();
+        qCCritical(cmakeToolLog) << "Fetching capabilities failed: " << cmake.commandLine()
+                                 << cmake.allOutput() << cmake.error() << cmake.errorString();
         m_introspection->m_haveCapabilitites = false;
+
+        // In the rare case when "cmake -E capabilities" crashes / fails to run
+        // allow to try again
+        m_introspection->m_didAttemptToRun = false;
     }
 }
 

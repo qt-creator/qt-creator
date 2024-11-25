@@ -68,6 +68,9 @@ public:
     void readSettings();
     void writeSettings();
 
+    bool acceptTermsAndConditions(PluginSpec *spec);
+    void setAcceptTermsAndConditionsCallback(const std::function<bool(PluginSpec *)> &callback);
+
     class TestSpec {
     public:
         TestSpec(PluginSpec *pluginSpec, const QStringList &testFunctionsOrObjects = QStringList())
@@ -93,11 +96,12 @@ public:
     std::vector<TestSpec> testSpecs;
     Utils::FilePaths pluginPaths;
     QString pluginIID;
-    QVector<QObject *> allObjects;      // ### make this a QVector<QPointer<QObject> > > ?
+    QObjectList allObjects;      // ### make this a QList<QPointer<QObject> > > ?
     QStringList defaultDisabledPlugins; // Plugins/Ignored from install settings
     QStringList defaultEnabledPlugins; // Plugins/ForceEnabled from install settings
     QStringList disabledPlugins;
     QStringList forceEnabledPlugins;
+    QStringList pluginsWithAcceptedTermsAndConditions;
     // delayed initialization
     QTimer delayedInitializeTimer;
     std::queue<PluginSpec *> delayedInitializeQueue;
@@ -115,9 +119,11 @@ public:
     Utils::QtcSettings *settings = nullptr;
     Utils::QtcSettings *globalSettings = nullptr;
 
+    std::function<bool(PluginSpec *)> acceptTermsAndConditionsCallback;
+
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
-    PluginSpec *pluginByName(const QString &name) const;
+    PluginSpec *pluginById(const QString &id) const;
 
     static void addTestCreator(IPlugin *plugin, const std::function<QObject *()> &testCreator);
 

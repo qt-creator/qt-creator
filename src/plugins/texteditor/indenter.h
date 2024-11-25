@@ -4,17 +4,13 @@
 #pragma once
 
 #include <utils/changeset.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QMap>
 #include <QTextBlock>
 
 #include <optional>
 #include <vector>
-
-namespace Utils {
-class FilePath;
-}
 
 namespace TextEditor {
 
@@ -49,6 +45,9 @@ public:
     virtual void setCodeStylePreferences(ICodeStylePreferences * /*preferences*/) {}
 
     virtual void invalidateCache() {}
+
+    // needed for preview in project mode
+    virtual void setOverriddenPreferences(ICodeStylePreferences */*preferences*/) {}
 
     virtual int indentFor(const QTextBlock & /*block*/,
                           const TabSettings & /*tabSettings*/,

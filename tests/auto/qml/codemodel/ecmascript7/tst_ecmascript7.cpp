@@ -122,7 +122,7 @@ void tst_Ecmascript::initTestCase()
             m_files << f;
     }
 
-    m_basePaths.append(QLibraryInfo::location(QLibraryInfo::Qml2ImportsPath));
+    m_basePaths.append(QLibraryInfo::path(QLibraryInfo::Qml2ImportsPath));
 
     if (!ModelManagerInterface::instance())
         new ModelManagerInterface;

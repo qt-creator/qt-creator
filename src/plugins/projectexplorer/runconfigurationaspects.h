@@ -29,7 +29,7 @@ class PROJECTEXPLORER_EXPORT TerminalAspect : public Utils::BaseAspect
 public:
     explicit TerminalAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     bool useTerminal() const;
     void setUseTerminalHint(bool useTerminal);
@@ -61,7 +61,7 @@ class PROJECTEXPLORER_EXPORT WorkingDirectoryAspect : public Utils::BaseAspect
 public:
     explicit WorkingDirectoryAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     Utils::FilePath operator()() const { return workingDirectory(); }
     Utils::FilePath workingDirectory() const;
@@ -69,7 +69,6 @@ public:
     Utils::FilePath unexpandedWorkingDirectory() const;
     void setDefaultWorkingDirectory(const Utils::FilePath &defaultWorkingDirectory);
     Utils::PathChooser *pathChooser() const;
-    void setMacroExpander(const Utils::MacroExpander *expander);
     void setEnvironment(EnvironmentAspect *envAspect);
 
 private:
@@ -83,7 +82,6 @@ private:
     Utils::FilePath m_defaultWorkingDirectory;
     QPointer<Utils::PathChooser> m_chooser;
     QPointer<QToolButton> m_resetButton;
-    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
@@ -93,17 +91,15 @@ class PROJECTEXPLORER_EXPORT ArgumentsAspect : public Utils::BaseAspect
 public:
     explicit ArgumentsAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     QString operator()() const { return arguments(); }
     QString arguments() const;
     QString unexpandedArguments() const;
 
     void setArguments(const QString &arguments);
-    void setLabelText(const QString &labelText);
     void setResetter(const std::function<QString()> &resetter);
     void resetArguments();
-    void setMacroExpander(const Utils::MacroExpander *macroExpander);
 
     struct Data : BaseAspect::Data
     {
@@ -117,7 +113,6 @@ private:
     QWidget *setupChooser();
 
     QString m_arguments;
-    QString m_labelText;
     QPointer<Utils::FancyLineEdit> m_chooser;
     QPointer<QPlainTextEdit> m_multiLineChooser;
     QPointer<Utils::ExpandButton> m_multiLineButton;
@@ -125,7 +120,6 @@ private:
     bool m_multiLine = false;
     mutable bool m_currentlyExpanding = false;
     std::function<QString()> m_resetter;
-    const Utils::MacroExpander *m_macroExpander = nullptr;
 };
 
 class PROJECTEXPLORER_EXPORT UseLibraryPathsAspect : public Utils::BoolAspect
@@ -171,7 +165,7 @@ public:
     void setDeviceSelector(Target *target, ExecutionDeviceSelector selector);
     void setSettingsKey(const Utils::Key &key);
     void makeOverridable(const Utils::Key &overridingKey, const Utils::Key &useOverridableKey);
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
     void setLabelText(const QString &labelText);
     void setPlaceHolderText(const QString &placeHolderText);
     void setHistoryCompleter(const Utils::Key &historyCompleterKey);
@@ -242,7 +236,7 @@ public:
 
     void fromMap(const Utils::Store &) override;
     void toMap(Utils::Store &) const override;
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     struct Data : Utils::BaseAspect::Data { Launcher launcher; };
 
@@ -272,14 +266,9 @@ class PROJECTEXPLORER_EXPORT X11ForwardingAspect : public Utils::StringAspect
 public:
     X11ForwardingAspect(Utils::AspectContainer *container = nullptr);
 
-    void setMacroExpander(const Utils::MacroExpander *macroExpander);
-
     struct Data : StringAspect::Data { QString display; };
 
     QString display() const;
-
-private:
-    const Utils::MacroExpander *m_macroExpander;
 };
 
 } // namespace ProjectExplorer

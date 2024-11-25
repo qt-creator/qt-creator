@@ -51,7 +51,7 @@
     Use wizards to create Qt for Python application projects. The wizards
     generate a project file, \c {.pyproject}, that lists the files in the Python
     project. They also generate a \c {.py} file that has some boilerplate code
-    and \c {reguirements.txt} that stores the PySide version of the generated code.
+    and \c {requirements.txt} that stores the PySide version of the generated code.
     In addition, the widget-based UI wizard creates a \c {.ui} file that has a
     \QD form, and the Qt Quick Application wizard creates a \c {.qml} file that
     imports Qt Quick controls.

@@ -46,6 +46,7 @@
 #include <texteditor/texteditor.h>
 #include <texteditor/textdocument.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
@@ -94,10 +95,9 @@ public:
 
     void setupRunner(CallgrindToolRunner *runner);
 
-    void setParseData(ParseData *data);
     CostDelegate::CostFormat costFormat() const;
 
-    void doClear(bool clearParseData);
+    void doClear();
     void updateEventCombo();
 
 signals:
@@ -135,10 +135,10 @@ public:
     void calleeFunctionSelected(const QModelIndex &index);
     void callerFunctionSelected(const QModelIndex &index);
     void visualisationFunctionSelected(const Function *function);
-    void showParserResults(const ParseData *data);
+    void showParserResults(const ParseDataPtr &data);
 
-    void takeParserDataFromRunControl(CallgrindToolRunner *rc);
-    void takeParserData(ParseData *data);
+    void setParserData(const ParseDataPtr &data);
+    void doSetParseData(const ParseDataPtr &data);
     void engineFinished();
 
     void editorOpened(IEditor *);
@@ -384,7 +384,7 @@ CallgrindTool::CallgrindTool(QObject *parent)
     action->setToolTip(Tr::tr("Discard Data"));
     connect(action, &QAction::triggered, this, [this](bool) {
         clearTextMarks();
-        doClear(true);
+        doClear();
     });
 
     // navigation
@@ -493,10 +493,9 @@ CallgrindTool::~CallgrindTool()
     delete m_visualization;
 }
 
-void CallgrindTool::doClear(bool clearParseData)
+void CallgrindTool::doClear()
 {
-    if (clearParseData) // Crashed when done from destructor.
-        setParseData(nullptr);
+    doSetParseData({});
 
     // clear filters
     if (m_filterProjectCosts)
@@ -663,25 +662,20 @@ void CallgrindTool::visualisationFunctionSelected(const Function *function)
         selectFunction(function);
 }
 
-void CallgrindTool::setParseData(ParseData *data)
+void CallgrindTool::doSetParseData(const ParseDataPtr &data)
 {
     // we have new parse data, invalidate filters in the proxy model
     if (m_visualization)
         m_visualization->setFunction(nullptr);
 
-    // invalidate parse data in the data model
-    delete m_dataModel.parseData();
+    // might happen if the user cancelled the profile run
+    // callgrind then sometimes produces empty callgrind.out.PID files
+    const ParseDataPtr newData = data && !data->events().isEmpty() ? data : ParseDataPtr();
 
-    if (data && data->events().isEmpty()) {
-        // might happen if the user cancelled the profile run
-        // callgrind then sometimes produces empty callgrind.out.PID files
-        delete data;
-        data = nullptr;
-    }
-    m_lastFileName = data ? data->fileName() : QString();
-    m_dataModel.setParseData(data);
-    m_calleesModel.setParseData(data);
-    m_callersModel.setParseData(data);
+    m_lastFileName = newData ? newData->fileName() : QString();
+    m_dataModel.setParseData(newData);
+    m_calleesModel.setParseData(newData);
+    m_callersModel.setParseData(newData);
 
     if (m_eventCombo)
         updateEventCombo();
@@ -699,7 +693,7 @@ void CallgrindTool::updateEventCombo()
 
     m_eventCombo->clear();
 
-    const ParseData *data = m_dataModel.parseData();
+    const ParseDataPtr data = m_dataModel.parseData();
     if (!data || data->events().isEmpty()) {
         m_eventCombo->hide();
         return;
@@ -715,7 +709,7 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
 {
     RunControl *runControl = toolRunner->runControl();
 
-    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::takeParserDataFromRunControl);
+    connect(toolRunner, &CallgrindToolRunner::parserDataReady, this, &CallgrindTool::setParserData);
     connect(runControl, &RunControl::stopped, this, &CallgrindTool::engineFinished);
 
     connect(this, &CallgrindTool::dumpRequested, toolRunner, &CallgrindToolRunner::dump);
@@ -748,7 +742,7 @@ void CallgrindTool::setupRunner(CallgrindToolRunner *toolRunner)
     m_dumpAction->setEnabled(true);
     m_loadExternalLogFile->setEnabled(false);
     clearTextMarks();
-    doClear(true);
+    doClear();
 }
 
 void CallgrindTool::updateRunActions()
@@ -774,6 +768,9 @@ void CallgrindTool::clearTextMarks()
 
 void CallgrindTool::engineFinished()
 {
+    if (m_flatView == nullptr) // Happens on shutdown when memcheck is still running.
+        return;
+
     m_toolBusy = false;
     updateRunActions();
 
@@ -782,7 +779,7 @@ void CallgrindTool::engineFinished()
     m_dumpAction->setEnabled(false);
     m_loadExternalLogFile->setEnabled(true);
 
-    const ParseData *data = m_dataModel.parseData();
+    const ParseDataPtr data = m_dataModel.parseData();
     if (data)
         showParserResults(data);
     else
@@ -791,7 +788,7 @@ void CallgrindTool::engineFinished()
     setBusyCursor(false);
 }
 
-void CallgrindTool::showParserResults(const ParseData *data)
+void CallgrindTool::showParserResults(const ParseDataPtr &data)
 {
     QString msg;
     if (data) {
@@ -875,17 +872,10 @@ void CallgrindTool::loadExternalLogFile()
     Debugger::showPermanentStatusMessage(Tr::tr("Parsing Profile Data..."));
     QCoreApplication::processEvents();
 
-    Parser parser;
-    parser.parse(filePath);
-    takeParserData(parser.takeData());
+    setParserData(parseDataFile(filePath));
 }
 
-void CallgrindTool::takeParserDataFromRunControl(CallgrindToolRunner *rc)
-{
-    takeParserData(rc->takeParserData());
-}
-
-void CallgrindTool::takeParserData(ParseData *data)
+void CallgrindTool::setParserData(const ParseDataPtr &data)
 {
     showParserResults(data);
 
@@ -894,9 +884,9 @@ void CallgrindTool::takeParserData(ParseData *data)
 
     // clear first
     clearTextMarks();
-    doClear(true);
+    doClear();
+    doSetParseData(data);
 
-    setParseData(data);
     const FilePath kcachegrindExecutable = globalSettings().kcachegrindExecutable();
     const FilePath found = kcachegrindExecutable.searchInPath();
     const bool kcachegrindExists = found.isExecutableFile();

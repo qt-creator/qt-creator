@@ -4,6 +4,7 @@
 #include "projecttree.h"
 
 #include "project.h"
+#include "projectexplorer.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "projectmanager.h"
@@ -18,6 +19,7 @@
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <coreplugin/iversioncontrol.h>
 #include <coreplugin/modemanager.h>
 #include <coreplugin/navigationwidget.h>
 #include <coreplugin/vcsmanager.h>
@@ -197,11 +199,9 @@ void ProjectTree::setCurrent(Node *node, Project *project)
     if (Core::IDocument *document = Core::EditorManager::currentDocument()) {
         disconnect(document, &Core::IDocument::changed, this, nullptr);
         if (!node || node->isGenerated()) {
-            const QString message = node
-                    ? Tr::tr("<b>Warning:</b> This file is generated.")
-                    : Tr::tr("<b>Warning:</b> This file is outside the project directory.");
-            connect(document, &Core::IDocument::changed, this, [this, document, message] {
-                updateFileWarning(document, message);
+            connect(document, &Core::IDocument::changed, this,
+                    [this, document, generated = node && node->isGenerated()] {
+                updateFileWarning(document, generated);
             });
         } else {
             document->infoBar()->removeInfo(EXTERNAL_OR_GENERATED_FILE_WARNING);
@@ -287,7 +287,7 @@ void ProjectTree::changeProjectRootDirectory()
         m_currentProject->changeRootProjectDirectory();
 }
 
-void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &text)
+void ProjectTree::updateFileWarning(Core::IDocument *document, bool generated)
 {
     if (document->filePath().isEmpty())
         return;
@@ -299,27 +299,39 @@ void ProjectTree::updateFileWarning(Core::IDocument *document, const QString &te
     }
     if (!infoBar->canInfoBeAdded(infoId))
         return;
-    const FilePath filePath = document->filePath();
     const QList<Project *> projects = ProjectManager::projects();
     if (projects.isEmpty())
         return;
-    for (Project *project : projects) {
-        FilePath projectDir = project->projectDirectory();
-        if (projectDir.isEmpty())
-            continue;
-        if (filePath.isChildOf(projectDir))
-            return;
-        if (filePath.canonicalPath().isChildOf(projectDir.canonicalPath()))
-            return;
-        // External file. Test if it under the same VCS
-        FilePath topLevel;
-        if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
+    QString message;
+    if (generated) {
+        message = Tr::tr("<b>Warning:</b> This file is generated.");
+    } else {
+        const FilePath filePath = document->filePath();
+        const FilePath canonicalFilePath = filePath.canonicalPath();
+        for (Project *project : projects) {
+            FilePath projectDir = project->projectDirectory();
+            if (projectDir.isEmpty())
+                continue;
+            if (ProjectManager::isInProjectBuildDir(filePath, *project)) {
+                message = Tr::tr("<b>Warning:</b> This file is inside the build directory.");
+                break;
+            }
+            if (filePath.isChildOf(projectDir))
+                return;
+            if (canonicalFilePath.isChildOf(projectDir.canonicalPath()))
+                return;
+            // External file. Test if it under the same VCS
+            FilePath topLevel;
+            if (Core::VcsManager::findVersionControlForDirectory(projectDir, &topLevel)
                 && filePath.isChildOf(topLevel)) {
-            return;
+                return;
+            }
         }
     }
+    if (message.isEmpty())
+        message = Tr::tr("<b>Warning:</b> This file is outside the project directory.");
     infoBar->addInfo(
-        Utils::InfoBarEntry(infoId, text, Utils::InfoBarEntry::GlobalSuppression::Enabled));
+        Utils::InfoBarEntry(infoId, message, Utils::InfoBarEntry::GlobalSuppression::Enabled));
 }
 
 bool ProjectTree::hasFocus(ProjectTreeWidget *widget)
@@ -337,6 +349,13 @@ void ProjectTree::showContextMenu(ProjectTreeWidget *focus, const QPoint &global
 {
     QMenu *contextMenu = nullptr;
     emit s_instance->aboutToShowContextMenu(node);
+
+    const Node *currentNode = ProjectTree::currentNode();
+    if (currentNode) {
+        const FilePath directory = currentNode->directory();
+        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(directory))
+            ProjectExplorerPlugin::updateVcsActions(vc->displayName());
+    }
 
     if (!node) {
         contextMenu = Core::ActionManager::actionContainer(Constants::M_SESSIONCONTEXT)->menu();

@@ -5,9 +5,13 @@
 
 #include "modemanager.h"
 
+#include <utils/aspects.h>
 #include <utils/fancymainwindow.h>
+#include <utils/qtcassert.h>
 
 #include <aggregation/aggregate.h>
+
+using namespace Utils;
 
 namespace Core {
 
@@ -18,11 +22,15 @@ class IModePrivate
 public:
     QString m_displayName;
     QIcon m_icon;
-    QMenu *m_menu = nullptr;
+    std::function<void(QMenu *)> m_menuFunction;
     Utils::FancyMainWindow *m_mainWindow = nullptr;
     int m_priority = -1;
     Utils::Id m_id;
+    Context m_context;
+    QPointer<QWidget> m_widget;
+    std::function<QWidget *()> m_widgetCreator;
     bool m_isEnabled = true;
+    BoolAspect m_isVisible;
 };
 
 } // namespace Internal
@@ -46,8 +54,11 @@ public:
     a configurable layout of debugging related information. Design mode
     reserves all the main window's space for the graphical editor.
 
-    A mode is an IContext. Set the context's \l{IContext::widget()}{widget}
-    to define the mode's layout.
+    When a mode gets selected, a context is added and a widget is shown.
+    Use \l{IMode::setContext()} to set the context, and either
+    \l{IMode::setWidget()} to set the widget directly or
+    \l{IMode::setWidgetCreator()} to define a functor that is used when the
+    widget is needed.
 
     Adding a mode should be done sparingly, only as a last reserve. Consider if
     your feature can instead be implemented as a INavigationWidgetFactory,
@@ -105,27 +116,27 @@ public:
 */
 
 /*!
-    \property Core::IMode::menu
-
-    This property holds the mode's menu.
-
-    By default, a mode does not have a menu. When you set a menu, it is not
-    owned by the mode unless you set the parent explicitly.
-*/
-
-/*!
     Creates an IMode with an optional \a parent.
 
     Registers the mode in \QC.
 */
 IMode::IMode(QObject *parent)
-    : IContext(parent)
+    : QObject(parent)
     , m_d(new Internal::IModePrivate)
 {
+    m_d->m_isVisible.setDefaultValue(true);
+    connect(&m_d->m_isVisible, &BoolAspect::changed, this, [this] {
+        emit visibleChanged(m_d->m_isVisible.value());
+        m_d->m_isVisible.writeSettings();
+    });
     ModeManager::addMode(this);
 }
 
-IMode::~IMode() = default;
+IMode::~IMode()
+{
+    if (m_d->m_widgetCreator)
+        delete m_d->m_widget;
+}
 
 QString IMode::displayName() const
 {
@@ -155,6 +166,11 @@ void IMode::setEnabled(bool enabled)
     emit enabledStateChanged(m_d->m_isEnabled);
 }
 
+void IMode::setVisible(bool visible)
+{
+    m_d->m_isVisible.setValue(visible);
+}
+
 void IMode::setDisplayName(const QString &displayName)
 {
     m_d->m_displayName = displayName;
@@ -173,11 +189,59 @@ void IMode::setPriority(int priority)
 void IMode::setId(Utils::Id id)
 {
     m_d->m_id = id;
+    m_d->m_isVisible
+        .setSettingsKey("MainWindow", id.withPrefix("Mode.").withSuffix(".Visible").toKey());
+    m_d->m_isVisible.readSettings();
 }
 
-void IMode::setMenu(QMenu *menu)
+/*!
+    Sets a \a menuFunction that is used to add the mode specific items
+    to the mode's context menu. This is called every time the context
+    menu is requested with a new QMenu instance.
+    The menu is destroyed after the it closes.
+*/
+void IMode::setMenu(std::function<void(QMenu *)> menuFunction)
 {
-    m_d->m_menu = menu;
+    m_d->m_menuFunction = menuFunction;
+}
+
+/*!
+    Sets the \a context associated with this IMode.
+
+    \sa context()
+*/
+void IMode::setContext(const Context &context)
+{
+    m_d->m_context = context;
+}
+
+/*!
+    Sets the \a widget associated with this IMode.
+
+    \note The ownership of the passed widget is not changed.
+
+    \sa widget(), setWidgetCreator()
+*/
+void IMode::setWidget(QWidget *widget)
+{
+    QTC_ASSERT(!m_d->m_widgetCreator,
+               qWarning("A mode widget should not be set if there is already a widget creator"));
+    m_d->m_widget = widget;
+}
+
+/*!
+    Sets the \a widgetCreator to create the widget associated with this IMode
+    when needed.
+
+    \note The mode itself takes the ownership of the created widget.
+
+    \sa widget(), setWidget()
+*/
+void IMode::setWidgetCreator(const std::function<QWidget *()> &widgetCreator)
+{
+    QTC_ASSERT(!m_d->m_widget,
+               qWarning("A mode widget widgetCreator should not be set if there is already a widget"));
+    m_d->m_widgetCreator = widgetCreator;
 }
 
 Utils::FancyMainWindow *IMode::mainWindow()
@@ -198,9 +262,52 @@ bool IMode::isEnabled() const
     return m_d->m_isEnabled;
 }
 
-QMenu *IMode::menu() const
+bool IMode::isVisible() const
 {
-    return m_d->m_menu;
+    return m_d->m_isVisible.value();
+}
+
+/*!
+    Returns if the mode provides mode specific context menu items.
+
+    \sa setMenu()
+*/
+bool IMode::hasMenu() const
+{
+    return bool(m_d->m_menuFunction);
+}
+
+/*!
+    Adds the mode specific items to the \a menu, if any.
+
+    \sa setMenu()
+*/
+void IMode::addToMenu(QMenu *menu) const
+{
+    if (m_d->m_menuFunction)
+        m_d->m_menuFunction(menu);
+}
+
+/*!
+    Returns the context list associated with this IMode.
+
+    \sa setContext()
+*/
+Context IMode::context() const
+{
+    return m_d->m_context;
+}
+
+/*!
+    Returns the widget associated with this IMode.
+
+    \sa setWidget()
+*/
+QWidget *IMode::widget() const
+{
+    if (!m_d->m_widget && m_d->m_widgetCreator)
+        m_d->m_widget = m_d->m_widgetCreator();
+    return m_d->m_widget;
 }
 
 } // namespace Core

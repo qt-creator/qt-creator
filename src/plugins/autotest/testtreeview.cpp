@@ -7,19 +7,15 @@
 #include "testtreemodel.h"
 
 #include <coreplugin/icontext.h>
-#include <coreplugin/icore.h>
 
 namespace Autotest {
 namespace Internal {
 
 TestTreeView::TestTreeView(QWidget *parent)
-    : NavigationTreeView(parent),
-      m_context(new Core::IContext(this))
+    : NavigationTreeView(parent)
 {
     setExpandsOnDoubleClick(false);
-    m_context->setWidget(this);
-    m_context->setContext(Core::Context(Constants::AUTOTEST_CONTEXT));
-    Core::ICore::addContextObject(m_context);
+    Core::IContext::attach(this, Core::Context(Constants::AUTOTEST_CONTEXT));
 }
 
 static void changeCheckStateAll(const Qt::CheckState checkState)

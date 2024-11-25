@@ -42,6 +42,16 @@ public:
         OpenMandatory  /*!< Files must always be opened by the VCS */
     };
 
+    enum class FileState : quint8 {
+        NoModification = 0x00,
+        ModifiedState,
+        AddedState,
+        DeletedState,
+        RenamedState,
+        UnmanagedState
+    };
+    Q_ENUM(FileState)
+
     IVersionControl();
     ~IVersionControl() override;
 
@@ -92,6 +102,22 @@ public:
      * Returns true is the VCS is configured to run.
      */
     virtual bool isConfigured() const = 0;
+
+    /*!
+     * Returns true if the file has modification compared to version control
+     */
+    virtual Core::IVersionControl::FileState modificationState(const Utils::FilePath &path) const;
+
+    /*!
+     * Starts monitoring modified files inside path
+     */
+    virtual void monitorDirectory(const Utils::FilePath &path);
+
+    /*!
+     * Stops monitoring modified files inside path
+     */
+    virtual void stopMonitoringDirectory(const Utils::FilePath &path);
+
     /*!
      * Called to query whether a VCS supports the respective operations.
      *
@@ -156,6 +182,12 @@ public:
     virtual void vcsAnnotate(const Utils::FilePath &file, int line) = 0;
 
     /*!
+     * Shows the log for the \a relativeDirectory within \a toplevel.
+     */
+    virtual void vcsLog(const Utils::FilePath &topLevel,
+                        const Utils::FilePath &relativeDirectory) = 0;
+
+    /*!
      * Display text for Open operation
      */
     virtual QString vcsOpenText() const;
@@ -204,9 +236,14 @@ public:
     QString refreshTopic(const Utils::FilePath &repository);
     void setTopicRefresher(const TopicRefresher &topicRefresher);
 
+    static QColor vcStateToColor(const IVersionControl::FileState &state);
+    static QString modificationToText(const IVersionControl::FileState &state);
+
 signals:
     void repositoryChanged(const Utils::FilePath &repository);
     void filesChanged(const QStringList &files);
+    void updateFileStatus(const Utils::FilePath &repository, const QStringList &files);
+    void clearFileStatus(const Utils::FilePath &repository);
     void configurationChanged();
 
 private:

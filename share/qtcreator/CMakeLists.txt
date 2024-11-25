@@ -5,6 +5,7 @@ set(resource_directories
   indexer_preincludes
   jsonschemas
   lua-plugins
+  lua-lupdate
   modeleditor
   qmldesigner
   qmlicons

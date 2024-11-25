@@ -41,7 +41,8 @@ static QStringList queryClangTidyChecks(const FilePath &executable,
     //       abseil-duration-division
     //       abseil-duration-factory-float
     //       ...
-    static const auto parser = [](const QString &stdOut) -> std::optional<QStringList> {
+    static const auto parser = [](const QString &stdOut,
+                                  const QString &) -> std::optional<QStringList> {
         QString output = stdOut;
         QTextStream stream(&output);
         QString line = stream.readLine();
@@ -85,7 +86,8 @@ static ClazyChecks querySupportedClazyChecks(const FilePath &executablePath)
     //           ...
     //       ]
     //   }
-    static const auto parser = [](const QString &jsonOutput) -> std::optional<ClazyChecks> {
+    static const auto parser = [](const QString &jsonOutput,
+                                  const QString &) -> std::optional<ClazyChecks> {
         const QJsonDocument document = QJsonDocument::fromJson(jsonOutput.toUtf8());
         if (document.isNull())
             return {};
@@ -130,7 +132,8 @@ ClazyStandaloneInfo::ClazyStandaloneInfo(const FilePath &executablePath)
     : defaultChecks(queryClangTidyChecks(executablePath, {})) // Yup, behaves as clang-tidy.
     , supportedChecks(querySupportedClazyChecks(executablePath))
 {
-    static const auto parser = [](const QString &stdOut) -> std::optional<QVersionNumber> {
+    static const auto parser = [](const QString &stdOut,
+                                  const QString &) -> std::optional<QVersionNumber> {
         QString output = stdOut;
         QTextStream stream(&output);
         while (!stream.atEnd()) {
@@ -157,12 +160,12 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
     //   lib/clang/10.0.1
     //   Error while trying to load a compilation database:
     //   ...
-    const auto parser = [&clangToolPath](const QString &stdOut) -> std::optional<FilePath> {
+    const auto parser =
+        [&clangToolPath](const QString &stdOut, const QString &) -> std::optional<FilePath> {
         QString output = stdOut;
         QTextStream stream(&output);
-        const QString path = clangToolPath.parentDir().parentDir()
-                                 .pathAppended(stream.readLine()).toString();
-        const auto filePath = FilePath::fromUserInput(QDir::cleanPath(path));
+        const FilePath filePath
+            = clangToolPath.parentDir().parentDir().pathAppended(stream.readLine()).cleanPath();
         if (filePath.exists())
             return filePath;
         return {};
@@ -180,7 +183,7 @@ static FilePath queryResourceDir(const FilePath &clangToolPath)
 
 QString queryVersion(const FilePath &clangToolPath, QueryFailMode failMode)
 {
-    static const auto parser = [](const QString &stdOut) -> std::optional<QString> {
+    static const auto parser = [](const QString &stdOut, const QString &) -> std::optional<QString> {
         QString output = stdOut;
         QTextStream stream(&output);
         while (!stream.atEnd()) {

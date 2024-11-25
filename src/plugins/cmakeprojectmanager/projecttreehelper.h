@@ -43,10 +43,6 @@ QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> addCMakeLists(
 void createProjectNode(const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
                        const Utils::FilePath &dir,
                        const QString &displayName);
-CMakeTargetNode *createTargetNode(
-    const QHash<Utils::FilePath, ProjectExplorer::ProjectNode *> &cmakeListsNodes,
-    const Utils::FilePath &dir,
-    const QString &displayName);
 
 void addFileSystemNodes(ProjectExplorer::ProjectNode *root,
                         const std::shared_ptr<ProjectExplorer::FolderNode> &folderNode);

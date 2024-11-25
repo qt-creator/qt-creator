@@ -1,9 +1,11 @@
 {
+    "Id" : "help",
     "Name" : "Help",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -19,5 +21,6 @@
         "- Qt documentation as help files (.qch)"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-tos.html#read-documentation",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

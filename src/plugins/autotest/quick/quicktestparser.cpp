@@ -157,7 +157,7 @@ QString QuickTestParser::quickTestName(const CPlusPlus::Document::Ptr &doc) cons
 QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const FilePath &srcDir)
 {
     FilePaths dirs({srcDir});
-    QStringList dirsStr({srcDir.toString()});
+    QStringList dirsStr({srcDir.path()});
     ModelManagerInterface *qmlJsMM = QmlJSTools::Internal::ModelManager::instance();
     // make sure even files not listed in pro file are available inside the snapshot
     PathsAndLanguages paths;
@@ -165,15 +165,15 @@ QList<Document::Ptr> QuickTestParser::scanDirectoryForQuickTestQmlFiles(const Fi
     ModelManagerInterface::importScan(ModelManagerInterface::workingCopy(), paths, qmlJsMM,
         false /*emitDocumentChanges*/, false /*onlyTheLib*/, true /*forceRescan*/ );
 
-    QDirIterator it(srcDir.toString(),
-                    QDir::Dirs | QDir::NoDotAndDotDot,
-                    QDirIterator::Subdirectories);
-    while (it.hasNext()) {
-        it.next();
-        auto subDir = FilePath::fromFileInfo(it.fileInfo()).canonicalPath();
-        dirs.append(subDir);
-        dirsStr.append(subDir.toString());
-    }
+    srcDir.iterateDirectory(
+        [&dirs, &dirsStr](const FilePath &p) {
+            const FilePath &canonicalPath = p.canonicalPath();
+            dirs.append(canonicalPath);
+            dirsStr.append(canonicalPath.path());
+            return IterationPolicy::Continue;
+        },
+        FileFilter{{}, QDir::Dirs | QDir::NoDotAndDotDot, QDirIterator::Subdirectories});
+
     QMetaObject::invokeMethod(
         this,
         [this, dirsStr] { QuickTestParser::doUpdateWatchPaths(dirsStr); },
@@ -260,7 +260,7 @@ bool QuickTestParser::handleQtQuickTest(QPromise<TestParseResultPtr> &promise,
     if (ppList.isEmpty()) // happens if shutting down while parsing
         return false;
     const FilePath cppFileName = document->filePath();
-    const FilePath proFile = FilePath::fromString(ppList.at(0)->projectFile);
+    const FilePath proFile = ppList.at(0)->projectFile;
     {
         QWriteLocker lock(&m_parseLock);
         m_mainCppFiles.insert(cppFileName, proFile);

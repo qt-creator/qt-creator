@@ -158,7 +158,7 @@ Environment ExternalTool::baseEnvironment() const
 {
     if (m_baseEnvironmentProviderId.isValid()) {
         const std::optional<EnvironmentProvider> provider = EnvironmentProvider::provider(
-            m_baseEnvironmentProviderId.name());
+            m_baseEnvironmentProviderId.toByteArray());
         if (provider && provider->environment)
             return provider->environment();
     }
@@ -598,7 +598,10 @@ bool ExternalToolRunner::resolve()
         }
     }
 
-    m_resolvedArguments = expander->expandProcessArgs(m_tool->arguments());
+    const expected_str<QString> args = expander->expandProcessArgs(m_tool->arguments());
+    QTC_ASSERT_EXPECTED(args, return false);
+
+    m_resolvedArguments = *args;
     m_resolvedInput = expander->expand(m_tool->input());
     m_resolvedWorkingDirectory = expander->expand(m_tool->workingDirectory());
 

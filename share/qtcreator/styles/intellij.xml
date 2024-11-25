@@ -11,6 +11,7 @@
   <style name="Function" foreground="#000000"/>
   <style name="Macro" foreground="#000000"/>
   <style name="Keyword" foreground="#000080" bold="true"/>
+  <style name="Attribute" foreground="#000080" bold="true"/>
   <style name="PrimitiveType" foreground="#000080" bold="true"/>
   <style name="Label" foreground="#800000" bold="true"/>
   <style name="Local" foreground="#000000"/>

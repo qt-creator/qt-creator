@@ -19,11 +19,12 @@
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
 #include <debugger/debuggerkitaspect.h>
-#include <utils/algorithm.h>
-#include <utils/filepath.h>
-#include <utils/infobar.h>
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
+#include <utils/algorithm.h>
+#include <utils/filepath.h>
+#include <utils/hostosinfo.h>
+#include <utils/infobar.h>
 
 #include <QMessageBox>
 #include <QPushButton>

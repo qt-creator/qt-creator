@@ -3,9 +3,11 @@
 
 #include "dockerapi.h"
 
+#include "dockersettings.h"
 #include "dockertr.h"
 
 #include <coreplugin/progressmanager/progressmanager.h>
+
 #include <utils/async.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -122,7 +124,7 @@ std::optional<bool> DockerApi::isDockerDaemonAvailable(bool async)
 
 FilePath DockerApi::dockerClient()
 {
-    return settings().dockerBinaryPath();
+    return settings().dockerBinaryPath.effectiveBinary();
 }
 
 QFuture<Utils::expected_str<QList<Network>>> DockerApi::networks()

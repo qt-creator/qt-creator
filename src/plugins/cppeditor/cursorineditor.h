@@ -4,7 +4,8 @@
 #pragma once
 
 #include <cplusplus/CppDocument.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 #include <utils/link.h>
 
 #include <QTextCursor>

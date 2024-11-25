@@ -99,10 +99,15 @@ bool MessageOutputWindow::canNavigate() const
     return false;
 }
 
+bool MessageOutputWindow::hasFilterContext() const
+{
+    return true;
+}
+
 void MessageOutputWindow::updateFilter()
 {
     m_widget->updateFilterProperties(filterText(), filterCaseSensitivity(), filterUsesRegexp(),
-                                     filterIsInverted());
+                                     filterIsInverted(), beforeContext(), afterContext());
 }
 
 } // namespace Internal

@@ -11,12 +11,11 @@
 #include <projectexplorer/projectmanager.h>
 
 #include <utils/algorithm.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
 #include <utils/wizardpage.h>
 
 #include <QComboBox>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QHBoxLayout>
 #include <QLabel>

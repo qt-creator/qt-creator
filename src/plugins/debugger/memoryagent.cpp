@@ -52,7 +52,7 @@ public:
     {
         setAttribute(Qt::WA_DeleteOnClose);
         auto layout = new QVBoxLayout(this);
-        layout->addWidget(service->widget());
+        layout->addWidget(service->editor()->widget());
         layout->setContentsMargins(0, 0, 0, 0);
         setMinimumWidth(400);
         resize(800, 200);
@@ -215,9 +215,8 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
     m_service->setNewWindowRequestHandler([this](quint64 address) {
         MemoryViewSetupData data;
         data.startAddress = address;
-        auto agent = new MemoryAgent(data, m_engine);
-        if (!agent->isUsable())
-            delete agent;
+        data.separateView = true;
+        m_engine->openMemoryView(data);
     });
 
     m_service->setDataChangedHandler([this](quint64 address, const QByteArray &data) {
@@ -259,10 +258,7 @@ MemoryAgent::MemoryAgent(const MemoryViewSetupData &data, DebuggerEngine *engine
 
 MemoryAgent::~MemoryAgent()
 {
-    if (m_service && m_service->editor())
-        EditorManager::closeDocuments({m_service->editor()->document()});
-    if (m_service && m_service->widget()) // m_service might be set to null by closeDocument
-        m_service->widget()->close();
+    delete m_service;
 }
 
 void MemoryAgent::updateContents()

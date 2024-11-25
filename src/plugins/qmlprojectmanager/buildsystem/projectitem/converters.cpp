@@ -3,7 +3,7 @@
 
 #include "converters.h"
 #include "utils/algorithm.h"
-#include "qmlprojectexporter/filetypes.h"
+#include "../../qmlprojectexporter/filetypes.h"
 
 #include <QJsonDocument>
 

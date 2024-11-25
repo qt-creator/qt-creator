@@ -118,7 +118,7 @@ QString OpenOcdGdbServerProvider::channelString() const
         // In the pipe mode need to add quotes to each item of arguments;
         // otherwise running will be stuck.
         CommandLine cmd = command();
-        QStringList args = {"|", cmd.executable().toString()};
+        QStringList args = {"|", cmd.executable().path()};
         for (const QString &a : ProcessArgs::splitArgs(cmd.arguments(), HostOsInfo::hostOs())) {
             if (a.startsWith('\"') && a.endsWith('\"'))
                 args << a;

@@ -2,12 +2,19 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "extensionmanagersettings.h"
+
+#include "extensionmanagerconstants.h"
 #include "extensionmanagertr.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/icore.h>
+#include <coreplugin/plugininstallwizard.h>
 
 #include <utils/layoutbuilder.h>
+#include <utils/stylehelper.h>
+
+#include <QGuiApplication>
 
 namespace ExtensionManager::Internal {
 
@@ -22,20 +29,51 @@ ExtensionManagerSettings::ExtensionManagerSettings()
     setAutoApply(false);
     setSettingsGroup("ExtensionManager");
 
-    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
-    externalRepoUrl.setReadOnly(true);
-
     useExternalRepo.setSettingsKey("UseExternalRepo");
-    useExternalRepo.setLabelText(Tr::tr("Use external repository"));
-    useExternalRepo.setToolTip(Tr::tr("Repository: %1").arg(externalRepoUrl()));
     useExternalRepo.setDefaultValue(false);
+    useExternalRepo.setLabelText(Tr::tr("Use external repository"));
+
+    externalRepoUrl.setSettingsKey("ExternalRepoUrl");
+    externalRepoUrl.setDefaultValue("https://qc-extensions.qt.io");
+    externalRepoUrl.setDisplayStyle(Utils::StringAspect::LineEditDisplay);
+    externalRepoUrl.setLabelText(Tr::tr("Server URL:"));
 
     setLayouter([this] {
         using namespace Layouting;
-
         return Column {
-            useExternalRepo,
-            st
+            Group {
+                title(Tr::tr("Note")),
+                Column {
+                    Label {
+                        wordWrap(true),
+                        text(Tr::tr("%1 does not check extensions from external vendors for security "
+                                    "flaws or malicious intent, so be careful when installing them, "
+                                    "as it might leave your computer vulnerable to attacks such as "
+                                    "hacking, malware, and phishing.")
+                             .arg(QGuiApplication::applicationDisplayName()))
+                    }
+                }
+            },
+            Group {
+                title(Tr::tr("Use External Repository")),
+                groupChecker(useExternalRepo.groupChecker()),
+                Form {
+                    externalRepoUrl
+                },
+            },
+            Row {
+                PushButton {
+                    text(Tr::tr("Install Extension...")),
+                    onClicked([] {
+                        if (Core::executePluginInstallWizard())
+                            Core::ICore::askForRestart(
+                                    Tr::tr("Plugin changes will take effect after restart."));
+                    }, this),
+                },
+                st,
+            },
+            st,
+            spacing(Utils::StyleHelper::SpacingTokens::ExVPaddingGapXl),
         };
     });
 
@@ -47,9 +85,11 @@ class ExtensionManagerSettingsPage : public Core::IOptionsPage
 public:
     ExtensionManagerSettingsPage()
     {
-        setId("ExtensionManager");
-        setDisplayName(Tr::tr("Extensions"));
-        setCategory(Core::Constants::SETTINGS_CATEGORY_CORE);
+        setId(Constants::EXTENSIONMANAGER_SETTINGSPAGE_ID);
+        setDisplayName(Tr::tr("Browser"));
+        setCategory(Constants::EXTENSIONMANAGER_SETTINGSPAGE_CATEGORY);
+        setDisplayCategory(Tr::tr("Extensions"));
+        setCategoryIconPath(":/extensionmanager/images/settingscategory_extensionmanager.png");
         setSettingsProvider([] { return &settings(); });
     }
 };

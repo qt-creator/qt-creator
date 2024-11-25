@@ -9,6 +9,7 @@
 #include <utils/id.h>
 
 #include <QHash>
+#include <QMap>
 #include <QUrl>
 #include <QVersionNumber>
 
@@ -41,6 +42,7 @@ struct IssueListSearch
     QString owner;
     QString filter_path;
     QString sort;
+    QMap<QString, QString> filter;
     int offset = 0;
     int limit = DefaultSearchLimit;
     bool computeTotalRowCount = false;
@@ -61,6 +63,8 @@ public:
 using DashboardInfoHandler = std::function<void(const Utils::expected_str<DashboardInfo> &)>;
 Tasking::Group dashboardInfoRecipe(const DashboardInfoHandler &handler = {});
 
+Tasking::Group projectInfoRecipe(const QString &projectName);
+
 // TODO: Wrap into expected_str<>?
 using TableInfoHandler = std::function<void(const Dto::TableInfoDto &)>;
 Tasking::Group tableInfoRecipe(const QString &prefix, const TableInfoHandler &handler);
@@ -76,7 +80,7 @@ Tasking::Group lineMarkerRecipe(const Utils::FilePath &filePath, const LineMarke
 using HtmlHandler = std::function<void(const QByteArray &)>;
 Tasking::Group issueHtmlRecipe(const QString &issueId, const HtmlHandler &handler);
 
-void fetchProjectInfo(const QString &projectName);
+void fetchDashboardAndProjectInfo(const DashboardInfoHandler &handler, const QString &projectName);
 std::optional<Dto::ProjectInfoDto> projectInfo();
 bool handleCertificateIssue();
 
@@ -85,7 +89,10 @@ QString anyToSimpleString(const Dto::Any &any);
 void fetchIssueInfo(const QString &id);
 
 void switchActiveDashboardId(const Utils::Id &toDashboardId);
+const Utils::Id activeDashboardId();
 const std::optional<DashboardInfo> currentDashboardInfo();
+void setAnalysisVersion(const QString &version);
+void enableInlineIssues(bool enable);
 
 Utils::FilePath findFileForIssuePath(const Utils::FilePath &issuePath);
 

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language>
+<!-- Author: Dominik Holland <dominik.holland@qt.io> -->
+<language name="QFace" version="3" kateversion="5.0" section="Scripts" extensions="*.qface"
+          mimetype="text/x-qface;application/x-qface" indenter="cstyle"
+          author="Dominik Holland (dominik.holland@qt.io)" license="MIT">
+  <highlighting>
+    <list name="elements">
+      <item>flag</item>
+      <item>enum</item>
+    </list>
+    <list name="objects">
+      <item>interface</item>
+      <item>struct</item>
+    </list>
+    <list name="types">
+      <item>string</item>
+      <item>int</item>
+      <item>bool</item>
+      <item>real</item>
+      <item>double</item>
+      <item>void</item>
+      <item>var</item>
+    </list>
+    <list name="other_keywords">
+      <item>readonly</item>
+      <item>const</item>
+      <item>model</item>
+      <item>list</item>
+      <item>signal</item>
+    </list>
+    <contexts>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Normal Text">
+        <DetectSpaces/>
+        <WordDetect attribute="Module" context="Module" String="module"/>
+        <WordDetect attribute="Module" context="Module" String="import"/>
+        <keyword attribute="Elements" context="Object" String="objects" />
+        <keyword attribute="Elements" context="Element" String="elements" />
+        <IncludeRules context="Basic" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Basic">
+        <DetectChar attribute="Annotation" context="Annotation" char="@" />
+        <DetectChar attribute="String" context="String" char="&quot;" />
+        <StringDetect attribute="Documentation" context="Documentation" String="/**" beginRegion="Documentation" />
+        <IncludeRules context="Comment" />
+      </context>
+      <context attribute="Module" lineEndContext="#pop" name="Module">
+        <DetectSpaces/>
+        <DetectIdentifier attribute="Module Name" context="#stay"/>
+        <Float attribute="Module Version" context="#pop" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="Annotation">
+        <DetectIdentifier attribute="Annotation"/>
+        <DetectSpaces/>
+        <IncludeRules context="Basic" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="Property">
+        <DetectSpaces />
+        <keyword attribute="Keyword" String="other_keywords" />
+        <DetectIdentifier attribute="Property Name"/>
+        <DetectChar char="(" context="FunctionParameter" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#pop" name="Signal">
+        <DetectSpaces />
+        <DetectIdentifier />
+        <DetectChar char="(" context="FunctionParameter" />
+      </context>
+      <context attribute="Normal Text" name="FunctionParameter" lineEndContext="#pop">
+        <DetectSpaces />
+        <keyword attribute="Property Type" context="#stay" String="types" />
+        <DetectIdentifier />
+        <AnyChar String=")" context="#pop"/>
+      </context>
+      <!-- QML supports multi-line strings, which are not supported by Javascript -->
+      <context attribute="String" lineEndContext="#stay" name="String">
+        <HlCStringChar attribute="Escape" />
+        <RegExpr attribute="Escape" String="\\u[0-9a-fA-F]{4}" />
+        <DetectChar attribute="String" context="#pop" char="&quot;" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Element">
+        <DetectSpaces />
+        <DetectIdentifier attribute="Element Name"/>
+        <DetectChar attribute="Normal Text" context="Element Scope" char="{" beginRegion="Brace" />
+        <IncludeRules context="Basic" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Element Scope">
+        <DetectSpaces />
+        <HlCHex attribute="Number" context="#stay" />
+        <Int attribute="Number" context="#stay" />
+        <DetectIdentifier/>
+        <DetectChar attribute="Normal Text" char="}" endRegion="Brace" context="#pop#pop" />
+        <IncludeRules context="Basic" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Object">
+        <DetectSpaces />
+        <DetectIdentifier attribute="Object Name"/>
+        <DetectChar attribute="Normal Text" context="Object Context" char="{" beginRegion="Brace" />
+        <IncludeRules context="Basic" />
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="Object Context">
+        <DetectSpaces />
+        <WordDetect attribute="Signal" context="Signal" String="signal"/>
+        <keyword attribute="Keyword" String="other_keywords" />
+        <keyword attribute="Property Type" context="Property" String="types" />
+        <DetectChar attribute="Normal Text" char="}" endRegion="Brace" context="#pop#pop" />
+        <IncludeRules context="Basic" />
+      </context>
+      <context name="Comment" attribute="Comment" lineEndContext="#stay">
+        <Detect2Chars attribute="Comment" context="CommentStar" char="/" char1="*" beginRegion="comment" />
+        <Detect2Chars attribute="Comment" context="CommentSlash" char="/" char1="/" />
+      </context>
+      <context name="CommentStar" attribute="Comment" lineEndContext="#stay">
+        <DetectSpaces />
+        <Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="comment" />
+        <IncludeRules context="##Comments" />
+        <DetectIdentifier/>
+      </context>
+      <context name="CommentSlash" attribute="Comment" lineEndContext="#pop">
+        <DetectSpaces />
+        <IncludeRules context="##Comments" />
+        <DetectIdentifier/>
+      </context>
+
+      <context attribute="Documentation" lineEndContext="#stay" name="Documentation">
+        <DetectSpaces />
+        <Detect2Chars attribute="Documentation" context="#pop" char="*" char1="/" endRegion="Documentation" />
+      </context>
+    </contexts>
+    <itemDatas>
+      <itemData name="Normal Text"  defStyleNum="dsNormal"  spellChecking="false" />
+      <itemData name="Comment" defStyleNum="dsComment" spellChecking="false" />
+      <itemData name="Documentation" defStyleNum="dsDocumentation" spellChecking="false" />
+      <itemData name="Module"  defStyleNum="dsKeyword" spellChecking="false" />
+      <itemData name="Module Name"  defStyleNum="dsImport"  spellChecking="true" />
+      <itemData name="Module Version"  defStyleNum="dsFloat"  spellChecking="false" />
+      <itemData name="Elements" defStyleNum="dsKeyword" spellChecking="false"/>
+      <itemData name="Annotation" defStyleNum="dsAttribute" spellChecking="false"/>
+      <itemData name="Property Type" defStyleNum="dsDataType" spellChecking="false" />
+      <itemData name="Property Name" defStyleNum="dsVariable" spellChecking="true" />
+      <itemData name="Object Name" defStyleNum="dsDataType" spellChecking="true" />
+      <itemData name="Element Name" defStyleNum="dsDataType" spellChecking="true" />
+      <itemData name="Signal" defStyleNum="dsExtension" bold="1" spellChecking="false"/> <!-- #0095ff -->
+      <itemData name="String"       defStyleNum="dsString" />
+      <itemData name="Number"  defStyleNum="dsFloat"  spellChecking="false" />
+      <itemData name="Escape"       defStyleNum="dsSpecialChar" spellChecking="false" />
+      <itemData name="Keyword"  defStyleNum="dsKeyword" spellChecking="false" />
+    </itemDatas>
+  </highlighting>
+  <general>
+    <comments>
+      <comment name="singleLine" start="//" />
+      <comment name="multiLine" start="/*" end="*/" />
+    </comments>
+    <keywords casesensitive="1" />
+  </general>
+</language>
+
+<!-- kate: tab-width 2; replace-tabs on; indent-width 2; -->

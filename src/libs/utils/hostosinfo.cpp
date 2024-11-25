@@ -31,19 +31,25 @@ bool HostOsInfo::m_useOverrideFileNameCaseSensitivity = false;
 
 OsArch HostOsInfo::hostArchitecture()
 {
-    static const OsArch arch = osArchFromString(QSysInfo::currentCpuArchitecture());
-    return arch;
-}
+#ifdef Q_OS_WIN
+    // Workaround for Creator running in x86 emulation mode on ARM machines
+    static const OsArch arch = []() {
+        const HANDLE procHandle = GetCurrentProcess();
+        ushort processMachine;
+        ushort nativeMachine;
+        if (IsWow64Process2(procHandle, &processMachine, &nativeMachine)
+            && nativeMachine == IMAGE_FILE_MACHINE_ARM64) {
+            return OsArchArm64;
+        }
 
-bool HostOsInfo::isRunningUnderRosetta()
-{
-#ifdef Q_OS_MACOS
-    int translated = 0;
-    auto size = sizeof(translated);
-    if (sysctlbyname("sysctl.proc_translated", &translated, &size, nullptr, 0) == 0)
-        return translated;
+        return osArchFromString(QSysInfo::currentCpuArchitecture()).value_or(OsArchUnknown);
+    }();
+#else
+    static const OsArch arch
+        = osArchFromString(QSysInfo::currentCpuArchitecture()).value_or(OsArchUnknown);
 #endif
-    return false;
+
+    return arch;
 }
 
 void HostOsInfo::setOverrideFileNameCaseSensitivity(Qt::CaseSensitivity sensitivity)

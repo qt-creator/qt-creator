@@ -46,6 +46,7 @@ DebuggerSettings::DebuggerSettings() :
     showQmlObjectTree{commonSettings().showQmlObjectTree},
     stationaryEditorWhileStepping{commonSettings().stationaryEditorWhileStepping},
     forceLoggingToConsole{commonSettings().forceLoggingToConsole},
+    showUnsupportedBreakpointWarning{commonSettings().showUnsupportedBreakpointWarning},
 
     sourcePathMap{commonSettings().sourcePathMap},
     registerForPostMortem{*commonSettings().registerForPostMortem},
@@ -75,6 +76,7 @@ DebuggerSettings::DebuggerSettings() :
 
     // Page 4
     useDebuggingHelpers{localsAndExpressionSettings().useDebuggingHelpers},
+    allowInferiorCalls{localsAndExpressionSettings().allowInferiorCalls},
     useCodeModel{localsAndExpressionSettings().useCodeModel},
     showThreadNames{localsAndExpressionSettings().showThreadNames},
     extraDumperFile{localsAndExpressionSettings().extraDumperFile},   // For loading a file. Recommended.

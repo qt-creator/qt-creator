@@ -64,6 +64,9 @@ public:
     static bool isProjectConfigurationCascading();
     static void setProjectConfigurationCascading(bool b);
 
+    static bool deployProjectDependencies();
+    static void setDeployProjectDependencies(bool deploy);
+
     static Project *startupProject();
     static Target *startupTarget();
     static BuildSystem *startupBuildSystem();
@@ -77,6 +80,8 @@ public:
     static QList<Project *> projectOrder(const Project *project = nullptr);
 
     static Project *projectForFile(const Utils::FilePath &fileName);
+    static QList<Project *> projectsForFile(const Utils::FilePath &fileName);
+    static bool isInProjectBuildDir(const Utils::FilePath &filePath, const Project &project);
     static bool isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project);
     static Project *projectWithProjectFilePath(const Utils::FilePath &filePath);
 

@@ -137,6 +137,7 @@ public:
 
     WizardPage *create(JsonWizard *wizard, Id typeId, const QVariant &data) override;
     bool validateData(Id typeId, const QVariant &data, QString *errorMessage) override;
+    bool defaultSkipForSubprojects() const override { return true; }
 };
 
 KitsPageFactory::KitsPageFactory()

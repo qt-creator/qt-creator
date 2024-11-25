@@ -228,6 +228,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
     QTC_ASSERT(endBlock.isValid(), endBlock = doc->lastBlock());
 
     while (block.isValid()) {
+        highlightStartBlock = block.blockNumber();
         if (et.elapsed() > 20)
             break;
 
@@ -239,7 +240,6 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             forceRehighlightBlocks.remove(block.blockNumber());
             forceHighlightOfNextBlock = (block.userState() != stateBeforeHighlight);
         }
-        highlightStartBlock = block.blockNumber();
 
         if (block == endBlock && !forceHighlightOfNextBlock)
             break;
@@ -255,6 +255,7 @@ void SyntaxHighlighterPrivate::reformatBlocks()
             forceRehighlightBlocks << block.blockNumber();
     } else {
         highlightEndBlock = 0;
+        highlightStartBlock = INT_MAX;
         syntaxInfoUpToDate = true;
         emit q->finished();
     }

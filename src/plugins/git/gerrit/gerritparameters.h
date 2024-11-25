@@ -7,27 +7,16 @@
 
 #include <utils/filepath.h>
 
-namespace Utils { class QtcSettings; }
-
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritParameters
 {
 public:
-    GerritParameters();
-
     bool isValid() const;
-    bool equals(const GerritParameters &rhs) const;
-    void toSettings(Utils::QtcSettings *) const;
-    void saveQueries(Utils::QtcSettings *) const;
-    void fromSettings(const Utils::QtcSettings *);
+    void toSettings() const;
+    void saveQueries() const;
+    void fromSettings();
     void setPortFlagBySshType();
-
-    friend bool operator==(const GerritParameters &p1, const GerritParameters &p2)
-    { return p1.equals(p2); }
-    friend bool operator!=(const GerritParameters &p1, const GerritParameters &p2)
-    { return !p1.equals(p2); }
 
     GerritServer server;
     Utils::FilePath ssh;
@@ -35,7 +24,12 @@ public:
     QStringList savedQueries;
     bool https = true;
     QString portFlag;
+
+private:
+    friend GerritParameters &gerritSettings();
+    GerritParameters();
 };
 
-} // namespace Internal
-} // namespace Gerrit
+GerritParameters &gerritSettings();
+
+} // Gerrit::Internal

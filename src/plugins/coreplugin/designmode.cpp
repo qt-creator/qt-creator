@@ -86,8 +86,7 @@ DesignMode::DesignMode()
     setContext(Context(Constants::C_DESIGN_MODE));
     setWidget(d->m_stackWidget);
     setDisplayName(Tr::tr("Design"));
-    setIcon(Utils::Icon::modeIcon(Icons::MODE_DESIGN_CLASSIC,
-                                  Icons::MODE_DESIGN_FLAT, Icons::MODE_DESIGN_FLAT_ACTIVE));
+    setIcon(Icon::sideBarIcon(Icons::MODE_DESIGN_CLASSIC, Icons::MODE_DESIGN_FLAT));
     setPriority(Constants::P_MODE_DESIGN);
     setId(Constants::MODE_DESIGN);
 

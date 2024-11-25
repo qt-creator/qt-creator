@@ -6,6 +6,8 @@
 #include <utils/qtcassert.h>
 #include <utils/theme/theme.h>
 
+#include <QRegularExpression>
+
 using namespace Utils;
 
 namespace Autotest {
@@ -37,6 +39,15 @@ const ITestTreeItem *TestResult::findTestTreeItem() const
     if (m_hooks.findTestItem)
         return m_hooks.findTestItem(*this);
     return nullptr;
+}
+
+void TestResult::setDuration(const QString &milliSeconds)
+{
+    static const QRegularExpression insignificant("\\.?0{1,3}$");
+    QString significant = milliSeconds;
+    if (significant.contains('.'))
+        significant.remove(insignificant);
+    m_duration.emplace(significant);
 }
 
 ResultType TestResult::resultFromString(const QString &resultString)

@@ -3,30 +3,8 @@
 
 #pragma once
 
-#include "mesonprojectimporter.h"
+namespace MesonProjectManager::Internal {
 
-#include <projectexplorer/project.h>
-#include <projectexplorer/projectimporter.h>
-#include <projectexplorer/task.h>
+void setupMesonProject();
 
-namespace MesonProjectManager {
-namespace Internal {
-
-class MesonProject final : public ProjectExplorer::Project
-{
-    Q_OBJECT
-public:
-    explicit MesonProject(const Utils::FilePath &path);
-    ~MesonProject() final = default;
-
-    ProjectExplorer::Tasks projectIssues(const ProjectExplorer::Kit *k) const final;
-    ProjectExplorer::ProjectImporter *projectImporter() const final;
-
-private:
-    ProjectExplorer::DeploymentKnowledge deploymentKnowledge() const override;
-
-    mutable std::unique_ptr<MesonProjectImporter> m_projectImporter;
-};
-
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

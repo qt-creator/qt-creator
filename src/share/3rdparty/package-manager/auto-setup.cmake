@@ -7,6 +7,13 @@ foreach(qtcreator_var
   set(__just_reference_${qtcreator_var} ${${qtcreator_var}})
 endforeach()
 
+option(QT_CREATOR_SOURCE_GROUPS "Qt Creator source groups extensions" ON)
+if (QT_CREATOR_SOURCE_GROUPS)
+  source_group("Resources" REGULAR_EXPRESSION "\\.(pdf|plist|png|jpeg|jpg|storyboard|xcassets|qrc|svg|gif|ico|webp)$")
+  source_group("Forms" REGULAR_EXPRESSION "\\.(ui)$")
+  source_group("State charts" REGULAR_EXPRESSION "\\.(scxml)$")
+endif()
+
 if (EXISTS "${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
   include("${CMAKE_SOURCE_DIR}/QtCreatorPackageManager.cmake")
 endif()
@@ -55,6 +62,11 @@ macro(qtc_auto_setup_conan)
   if (conanfile_txt AND NOT QT_CREATOR_SKIP_CONAN_SETUP)
     option(QT_CREATOR_SKIP_CONAN_SETUP "Skip Qt Creator's conan package manager auto-setup" OFF)
     set(QT_CREATOR_CONAN_BUILD_POLICY "missing" CACHE STRING "Qt Creator's conan package manager auto-setup build policy. This is used for the BUILD property of cmake_conan_run")
+
+    set_property(
+      DIRECTORY "${CMAKE_SOURCE_DIR}"
+      APPEND
+      PROPERTY CMAKE_CONFIGURE_DEPENDS "${conanfile_txt}")
 
     find_program(conan_program conan)
     if (NOT conan_program)
@@ -199,7 +211,15 @@ macro(qtc_auto_setup_vcpkg)
   if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json" AND NOT QT_CREATOR_SKIP_VCPKG_SETUP)
     option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
 
-    find_program(vcpkg_program vcpkg $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg)
+    set_property(
+      DIRECTORY "${CMAKE_SOURCE_DIR}"
+      APPEND
+      PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/vcpkg.json")
+
+    find_program(vcpkg_program vcpkg
+      PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg
+      NO_DEFAULT_PATH
+    )
     if (NOT vcpkg_program)
       message(WARNING "Qt Creator: vcpkg executable not found. "
                       "Package manager auto-setup will be skipped. "
@@ -237,13 +257,38 @@ macro(qtc_auto_setup_vcpkg)
       if (VCPKG_TARGET_TRIPLET)
         set(vcpkg_triplet ${VCPKG_TARGET_TRIPLET})
       else()
-        if (WIN32)
+        if (ANDROID_ABI)
+          if (ANDROID_ABI STREQUAL "armeabi-v7a")
+            set(vcpkg_triplet arm-neon-android)
+          elseif (ANDROID_ABI STREQUAL "arm64-v8a")
+            set(vcpkg_triplet arm64-android)
+          elseif (ANDROID_ABI STREQUAL "x86")
+              set(vcpkg_triplet x86-android)
+          elseif (ANDROID_ABI STREQUAL "x86_64")
+              set(vcpkg_triplet x64-android)
+          else()
+              message(FATAL_ERROR "Unsupported Android ABI: ${ANDROID_ABI}")
+          endif()
+          # Needed by vcpkg/scripts/toolchains/android.cmake
+          file(APPEND "${CMAKE_BINARY_DIR}/vcpkg-dependencies/toolchain.cmake" "
+            set(ENV{ANDROID_NDK_HOME} \"${ANDROID_NDK}\")
+          ")
+        elseif (WIN32)
           set(vcpkg_triplet x64-mingw-static)
           if (CMAKE_CXX_COMPILER MATCHES ".*/(.*)/cl.exe")
             set(vcpkg_triplet ${CMAKE_MATCH_1}-windows)
           endif()
         elseif(APPLE)
-          set(vcpkg_triplet x64-osx)
+          # We're too early to use CMAKE_HOST_SYSTEM_PROCESSOR
+          execute_process(
+            COMMAND uname -m
+            OUTPUT_VARIABLE __apple_host_system_processor
+            OUTPUT_STRIP_TRAILING_WHITESPACE)
+          if (__apple_host_system_processor MATCHES "arm64")
+            set(vcpkg_triplet arm64-osx)
+          else()
+            set(vcpkg_triplet x64-osx)
+          endif()
         else()
           set(vcpkg_triplet x64-linux)
         endif()

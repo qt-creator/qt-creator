@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include "ieditorfactory.h"
-
 namespace Core::Internal {
 
-class SystemEditor final : public IEditorFactory
-{
-public:
-    SystemEditor();
-};
+void setupSystemEditor();
 
 } // namespace Core::Internal

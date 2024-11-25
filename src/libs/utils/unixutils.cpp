@@ -49,7 +49,10 @@ QString substituteFileBrowserParameters(const QString &pre, const QString &file)
             c = pre.at(++i);
             QString s;
             if (c == QLatin1Char('d')) {
-                s = QLatin1Char('"') + QFileInfo(file).path() + QLatin1Char('"');
+                // In case a directory was passed in, use that. In case of a file, the parent dir.
+                const QFileInfo fi(file);
+                const QString folder = fi.isDir() ? fi.filePath() : fi.path();
+                s = QLatin1Char('"') + folder + QLatin1Char('"');
             } else if (c == QLatin1Char('f')) {
                 s = QLatin1Char('"') + file + QLatin1Char('"');
             } else if (c == QLatin1Char('n')) {

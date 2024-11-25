@@ -402,7 +402,7 @@ void Locator::refresh(const QList<ILocatorFilter *> &filters)
             saveSettings();
     };
 
-    QList<GroupItem> tasks{parallel};
+    GroupItems tasks{parallel};
     for (ILocatorFilter *filter : std::as_const(m_refreshingFilters)) {
         const auto task = filter->refreshRecipe();
         if (!task.has_value())

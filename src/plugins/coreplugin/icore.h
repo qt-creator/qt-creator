@@ -148,15 +148,13 @@ public:
     static QString aboutInformationHtml();
     static QString systemInformation();
     static void setupScreenShooter(const QString &name, QWidget *w, const QRect &rc = QRect());
-    static QString pluginPath();
-    static QString userPluginPath();
-    static Utils::FilePath clangExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::FilePath clangdExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::FilePath clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
-    static Utils::FilePath clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::expected_str<Utils::FilePath> clangExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::expected_str<Utils::FilePath> clangdExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::expected_str<Utils::FilePath> clangTidyExecutable(const Utils::FilePath &clangBinDirectory);
+    static Utils::expected_str<Utils::FilePath> clazyStandaloneExecutable(const Utils::FilePath &clangBinDirectory);
     static Utils::FilePath clangIncludeDirectory(const QString &clangVersion,
                                                  const Utils::FilePath &clangFallbackIncludeDir);
-    static Utils::FilePath lldbExecutable(const Utils::FilePath &lldbBinDirectory);
+    static Utils::expected_str<Utils::FilePath> lldbExecutable(const Utils::FilePath &lldbBinDirectory);
     static QStatusBar *statusBar();
 
     static void saveSettings(SaveSettingsReason reason);
@@ -173,9 +171,6 @@ public:
     static IDocument *openFiles(const Utils::FilePaths &filePaths,
                                 OpenFilesFlags flags = None,
                                 const Utils::FilePath &workingDirectory = {});
-
-private:
-    std::function<Utils::FilePath(const Utils::FilePath &)> m_relativePathToProject = nullptr;
 };
 
 } // namespace Core

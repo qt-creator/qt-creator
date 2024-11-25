@@ -88,6 +88,7 @@ signals:
 
 protected:
     void wheelEvent(QWheelEvent *event) override;
+    bool event(QEvent *e) override;
 
     void slotLoadStarted();
     void slotLoadFinished();

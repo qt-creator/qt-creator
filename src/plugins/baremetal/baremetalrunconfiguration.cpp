@@ -30,10 +30,6 @@ public:
         executable.setDeviceSelector(target, ExecutableAspect::RunDevice);
         executable.setPlaceHolderText(Tr::tr("Unknown"));
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
-
         setUpdater([this] {
             const BuildTargetInfo bti = buildTargetInfo();
             executable.setExecutable(bti.targetFilePath);
@@ -60,12 +56,9 @@ public:
         executable.setHistoryCompleter("BareMetal.CustomRunConfig.History");
         executable.setExpectedKind(PathChooser::Any);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
-
         setDefaultDisplayName(RunConfigurationFactory::decoratedTargetName(
             Tr::tr("Custom Executable"), target));
+        setUsesEmptyBuildKeys();
     }
 
 public:

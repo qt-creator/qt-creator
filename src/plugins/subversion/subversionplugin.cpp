@@ -133,7 +133,7 @@ public:
     ~SubversionPluginPrivate() final;
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Subversion"; }
     Utils::Id id() const final;
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
@@ -149,6 +149,9 @@ public:
     bool vcsCreateRepository(const FilePath &directory) final;
 
     void vcsAnnotate(const FilePath &file, int line) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        filelog(topLevel, relativeDirectory.path());
+    }
     void vcsDescribe(const FilePath &source, const QString &changeNr) final;
 
     VcsCommand *createInitialCheckoutCommand(const QString &url,
@@ -184,20 +187,20 @@ protected:
 private:
     void addCurrentFile();
     void revertCurrentFile();
-    void diffProject();
+    void diffProjectDirectory();
     void diffCurrentFile();
     void cleanCommitMessageFile();
     void startCommitAll();
-    void startCommitProject();
+    void startCommitProjectDirectory();
     void startCommitCurrentFile();
     void revertAll();
     void filelogCurrentFile();
     void annotateCurrentFile();
-    void projectStatus();
+    void projectDirectoryStatus();
     void slotDescribe();
-    void updateProject();
+    void updateProjectDirectory();
     void diffCommitFiles(const QStringList &);
-    void logProject();
+    void logProjectDirectory();
     void logRepository();
     void diffRepository();
     void statusRepository();
@@ -225,9 +228,9 @@ private:
     Utils::Action *m_addAction = nullptr;
     Utils::Action *m_deleteAction = nullptr;
     Utils::Action *m_revertAction = nullptr;
-    Utils::Action *m_diffProjectAction = nullptr;
+    Utils::Action *m_diffProjectDirectoryAction = nullptr;
     Utils::Action *m_diffCurrentAction = nullptr;
-    Utils::Action *m_logProjectAction = nullptr;
+    Utils::Action *m_logProjectDirectoryAction = nullptr;
     QAction *m_logRepositoryAction = nullptr;
     QAction *m_commitAllAction = nullptr;
     QAction *m_revertRepositoryAction = nullptr;
@@ -237,9 +240,9 @@ private:
     Utils::Action *m_commitCurrentAction = nullptr;
     Utils::Action *m_filelogCurrentAction = nullptr;
     Utils::Action *m_annotateCurrentAction = nullptr;
-    Utils::Action *m_statusProjectAction = nullptr;
-    Utils::Action *m_updateProjectAction = nullptr;
-    Utils::Action *m_commitProjectAction = nullptr;
+    Utils::Action *m_statusProjectDirectoryAction = nullptr;
+    Utils::Action *m_updateProjectDirectoryAction = nullptr;
+    Utils::Action *m_commitProjectDirectoryAction = nullptr;
     QAction *m_describeAction = nullptr;
 
     QAction *m_menuAction = nullptr;
@@ -381,39 +384,55 @@ SubversionPluginPrivate::SubversionPluginPrivate()
 
     subversionMenu->addSeparator(context);
 
-    m_diffProjectAction = new Action(Tr::tr("Diff Project"), Tr::tr("Diff Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_diffProjectAction, CMD_ID_DIFF_PROJECT,
-        context);
+    m_diffProjectDirectoryAction = new Action(Tr::tr("Diff Project Directory"),
+                                              Tr::tr("Diff Directory of Project \"%1\""),
+                                              Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_diffProjectDirectoryAction, CMD_ID_DIFF_PROJECT,
+                                            context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_diffProjectAction, &QAction::triggered, this, &SubversionPluginPrivate::diffProject);
+    connect(m_diffProjectDirectoryAction, &QAction::triggered,
+            this, &SubversionPluginPrivate::diffProjectDirectory);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_statusProjectAction = new Action(Tr::tr("Project Status"), Tr::tr("Status of Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_statusProjectAction, CMD_ID_STATUS,
-        context);
+    m_statusProjectDirectoryAction = new Action(Tr::tr("Project Directory Status"),
+                                                Tr::tr("Status of Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_statusProjectDirectoryAction, CMD_ID_STATUS,
+                                            context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_statusProjectAction, &QAction::triggered, this, &SubversionPluginPrivate::projectStatus);
+    connect(m_statusProjectDirectoryAction, &QAction::triggered,
+            this, &SubversionPluginPrivate::projectDirectoryStatus);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_logProjectAction = new Action(Tr::tr("Log Project"), Tr::tr("Log Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_logProjectAction, CMD_ID_PROJECTLOG, context);
+    m_logProjectDirectoryAction = new Action(Tr::tr("Log Project Directory"),
+                                             Tr::tr("Log Directory of Project \"%1\""),
+                                             Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_logProjectDirectoryAction, CMD_ID_PROJECTLOG, context);
     command->setAttribute(Command::CA_UpdateText);
-    connect(m_logProjectAction, &QAction::triggered, this, &SubversionPluginPrivate::logProject);
+    connect(m_logProjectDirectoryAction, &QAction::triggered,
+            this, &SubversionPluginPrivate::logProjectDirectory);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_updateProjectAction = new Action(Tr::tr("Update Project"), Tr::tr("Update Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_updateProjectAction, CMD_ID_UPDATE, context);
-    connect(m_updateProjectAction, &QAction::triggered, this, &SubversionPluginPrivate::updateProject);
+    m_updateProjectDirectoryAction = new Action(Tr::tr("Update Project Directory"),
+                                                Tr::tr("Update Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_updateProjectDirectoryAction, CMD_ID_UPDATE, context);
+    connect(m_updateProjectDirectoryAction, &QAction::triggered,
+            this, &SubversionPluginPrivate::updateProjectDirectory);
     command->setAttribute(Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
 
-    m_commitProjectAction = new Action(Tr::tr("Commit Project"), Tr::tr("Commit Project \"%1\""), Action::EnabledWithParameter, this);
-    command = ActionManager::registerAction(m_commitProjectAction, CMD_ID_COMMIT_PROJECT, context);
-    connect(m_commitProjectAction, &QAction::triggered, this, &SubversionPluginPrivate::startCommitProject);
+    m_commitProjectDirectoryAction = new Action(Tr::tr("Commit Project Directory"),
+                                                Tr::tr("Commit Directory of Project \"%1\""),
+                                                Action::EnabledWithParameter, this);
+    command = ActionManager::registerAction(m_commitProjectDirectoryAction, CMD_ID_COMMIT_PROJECT,
+                                            context);
+    connect(m_commitProjectDirectoryAction, &QAction::triggered,
+            this, &SubversionPluginPrivate::startCommitProjectDirectory);
     command->setAttribute(Command::CA_UpdateText);
     subversionMenu->addAction(command);
     m_commandLocator->appendCommand(command);
@@ -540,11 +559,11 @@ void SubversionPluginPrivate::updateActions(VersionControlBase::ActionState as)
     m_logRepositoryAction->setEnabled(hasTopLevel);
 
     const QString projectName = currentState().currentProjectName();
-    m_diffProjectAction->setParameter(projectName);
-    m_statusProjectAction->setParameter(projectName);
-    m_updateProjectAction->setParameter(projectName);
-    m_logProjectAction->setParameter(projectName);
-    m_commitProjectAction->setParameter(projectName);
+    m_diffProjectDirectoryAction->setParameter(projectName);
+    m_statusProjectDirectoryAction->setParameter(projectName);
+    m_updateProjectDirectoryAction->setParameter(projectName);
+    m_logProjectDirectoryAction->setParameter(projectName);
+    m_commitProjectDirectoryAction->setParameter(projectName);
 
     const bool repoEnabled = currentState().hasTopLevel();
     m_commitAllAction->setEnabled(repoEnabled);
@@ -626,7 +645,7 @@ void SubversionPluginPrivate::revertCurrentFile()
         emit filesChanged(QStringList(state.currentFile().toString()));
 }
 
-void SubversionPluginPrivate::diffProject()
+void SubversionPluginPrivate::diffProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -657,7 +676,7 @@ void SubversionPluginPrivate::startCommitAll()
     startCommit(state.topLevel());
 }
 
-void SubversionPluginPrivate::startCommitProject()
+void SubversionPluginPrivate::startCommitProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -719,7 +738,7 @@ void SubversionPluginPrivate::filelogCurrentFile()
     filelog(state.currentFileTopLevel(), state.relativeCurrentFile(), true);
 }
 
-void SubversionPluginPrivate::logProject()
+void SubversionPluginPrivate::logProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -773,7 +792,7 @@ void SubversionPluginPrivate::filelog(const FilePath &workingDir,
                   [](CommandLine &command) { command << SubversionClient::AddAuthOptions(); });
 }
 
-void SubversionPluginPrivate::updateProject()
+void SubversionPluginPrivate::updateProjectDirectory()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -839,7 +858,7 @@ void SubversionPluginPrivate::vcsAnnotateHelper(const FilePath &workingDir, cons
     }
 }
 
-void SubversionPluginPrivate::projectStatus()
+void SubversionPluginPrivate::projectDirectoryStatus()
 {
     const VcsBasePluginState state = currentState();
     QTC_ASSERT(state.hasProject(), return);
@@ -1050,11 +1069,6 @@ bool SubversionPluginPrivate::checkSVNSubDir(const QDir &directory) const
     return false;
 }
 
-QString SubversionPluginPrivate::displayName() const
-{
-    return QLatin1String("subversion");
-}
-
 Utils::Id SubversionPluginPrivate::id() const
 {
     return Utils::Id(VcsBase::Constants::VCS_ID_SUBVERSION);
@@ -1135,7 +1149,7 @@ VcsCommand *SubversionPluginPrivate::createInitialCheckoutCommand(const QString 
     args << SubversionClient::AddAuthOptions();
     args << Subversion::Constants::NON_INTERACTIVE_OPTION << extraArgs << url << localName;
 
-    auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
                    subversionClient().processEnvironment(baseDirectory));
     command->addJob(args, -1);
     return command;

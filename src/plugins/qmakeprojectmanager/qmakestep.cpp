@@ -17,6 +17,7 @@
 #include <projectexplorer/buildmanager.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/gnumakeparser.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/makestep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/projectexplorer.h>
@@ -27,6 +28,7 @@
 
 #include <coreplugin/icore.h>
 #include <coreplugin/icontext.h>
+
 #include <qtsupport/qtkitaspect.h>
 #include <qtsupport/qtversionmanager.h>
 #include <qtsupport/qtsupportconstants.h>
@@ -38,7 +40,6 @@
 #include <utils/layoutbuilder.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
-#include <utils/variablechooser.h>
 
 #include <QDir>
 #include <QLabel>
@@ -68,7 +69,6 @@ QMakeStep::QMakeStep(BuildStepList *bsl, Id id)
     buildType.addOption(Tr::tr("Debug"));
     buildType.addOption(Tr::tr("Release"));
 
-    userArguments.setMacroExpander(macroExpander());
     userArguments.setSettingsKey(QMAKE_ARGUMENTS_KEY);
     userArguments.setLabelText(Tr::tr("Additional arguments:"));
 
@@ -298,13 +298,12 @@ Tasking::GroupItem QMakeStep::runRecipe()
         m_needToRunQMake = false;
     };
 
-    QList<GroupItem> processList = {onGroupSetup(onSetup),
-                                    onGroupDone(onDone, CallDoneIf::Success),
-                                    ProcessTask(onQMakeSetup, onProcessDone)};
-    if (m_runMakeQmake)
-        processList << ProcessTask(onMakeQMakeSetup, onProcessDone);
-
-    return Group(processList);
+    return Group {
+        onGroupSetup(onSetup),
+        ProcessTask(onQMakeSetup, onProcessDone),
+        m_runMakeQmake ? ProcessTask(onMakeQMakeSetup, onProcessDone) : nullItem,
+        onGroupDone(onDone, CallDoneIf::Success)
+    };
 }
 
 void QMakeStep::setForced(bool b)
@@ -480,8 +479,6 @@ QWidget *QMakeStep::createConfigWidget()
         abisListWidget = nullptr;
     });
 
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
-
     return widget;
 }
 
@@ -648,12 +645,6 @@ void QMakeStep::updateAbiWidgets()
                             break;
                         }
                     }
-                }
-            } else if (qtVersion->hasAbi(Abi::DarwinOS) && !isIos(target()->kit()) && HostOsInfo::isRunningUnderRosetta()) {
-                // Automatically select arm64 when running under Rosetta
-                for (const Abi &abi : abis) {
-                    if (abi.architecture() == Abi::ArmArchitecture)
-                        selectedAbis.append(abi.param());
                 }
             }
         }

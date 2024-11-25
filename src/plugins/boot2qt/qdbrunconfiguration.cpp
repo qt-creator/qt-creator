@@ -47,9 +47,6 @@ public:
 
         environment.setDeviceSelector(target, EnvironmentAspect::RunDevice);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
         workingDir.setEnvironment(&environment);
 
         fullCommand.setLabelText(Tr::tr("Full command line:"));
@@ -76,8 +73,8 @@ public:
             fullCommand.setValue(cmd.toUserOutput());
         };
 
-        connect(&arguments, &BaseAspect::changed, this, updateFullCommand);
-        connect(&executable, &BaseAspect::changed, this, updateFullCommand);
+        arguments.addOnChanged(this, updateFullCommand);
+        executable.addOnChanged(this, updateFullCommand);
         updateFullCommand();
     }
 

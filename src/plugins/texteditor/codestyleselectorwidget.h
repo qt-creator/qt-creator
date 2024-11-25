@@ -32,20 +32,22 @@ public:
 
     void setCodeStyle(ICodeStylePreferences *codeStyle);
 
+protected:
+    ICodeStylePreferences *m_codeStyle = nullptr;
+
 private:
     void slotComboBoxActivated(int index);
     void slotCurrentDelegateChanged(ICodeStylePreferences *delegate);
     void slotCopyClicked();
     void slotRemoveClicked();
-    void slotImportClicked();
-    void slotExportClicked();
+    virtual void slotImportClicked();
+    virtual void slotExportClicked();
     void slotCodeStyleAdded(ICodeStylePreferences *codeStylePreferences);
     void slotCodeStyleRemoved(ICodeStylePreferences *codeStylePreferences);
     void slotUpdateName(ICodeStylePreferences *codeStylePreferences);
 
     void updateName(ICodeStylePreferences *codeStyle);
     ICodeStylePreferencesFactory *m_factory;
-    ICodeStylePreferences *m_codeStyle = nullptr;
     ProjectExplorer::Project *m_project = nullptr;
 
     QString displayName(ICodeStylePreferences *codeStyle) const;

@@ -2,12 +2,12 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0+ OR GPL-3.0 WITH Qt-GPL-exception-1.0
 
 #include "filegenerator.h"
-#include "qmlbuildsystem.h"
+
+#include "../buildsystem/qmlbuildsystem.h"
+#include "../qmlprojectconstants.h"
+#include "../qmlprojectmanagertr.h"
 
 #include <projectexplorer/projectmanager.h>
-
-#include <qmlprojectmanager/qmlprojectconstants.h>
-#include <qmlprojectmanager/qmlprojectmanagertr.h>
 
 #include <coreplugin/actionmanager/actioncontainer.h>
 #include <coreplugin/actionmanager/actionmanager.h>

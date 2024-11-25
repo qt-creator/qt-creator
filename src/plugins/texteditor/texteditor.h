@@ -18,6 +18,7 @@
 #include <utils/elidinglabel.h>
 #include <utils/link.h>
 #include <utils/multitextcursor.h>
+#include <utils/textutils.h>
 #include <utils/uncommentselection.h>
 
 #include <QPlainTextEdit>
@@ -101,6 +102,20 @@ enum Mask {
 };
 } // namespace OptionalActions
 
+class TEXTEDITOR_EXPORT EmbeddedWidgetInterface : public QObject
+{
+    Q_OBJECT
+public:
+    ~EmbeddedWidgetInterface() override;
+    void resize();
+    void close();
+
+signals:
+    void resized();
+    void closed();
+    void shouldClose();
+};
+
 class TEXTEDITOR_EXPORT BaseTextEditor : public Core::IEditor
 {
     Q_OBJECT
@@ -133,9 +148,6 @@ public:
     QByteArray saveState() const override;
     void restoreState(const QByteArray &state) override;
     QWidget *toolBar() override;
-
-    void contextHelp(const HelpCallback &callback) const override; // from IContext
-    void setContextHelp(const Core::HelpItem &item) override;
 
     int currentLine() const override;
     int currentColumn() const override;
@@ -196,6 +208,8 @@ public:
     void gotoLine(int line, int column = 0, bool centerLine = true, bool animate = false);
     int position(TextPositionOperation posOp = CurrentPosition,
          int at = -1) const;
+    QTextCursor textCursorAt(int position) const;
+    Utils::Text::Position lineColumn() const;
     void convertPosition(int pos, int *line, int *column) const;
     using QPlainTextEdit::cursorRect;
     QRect cursorRect(int pos) const;
@@ -266,9 +280,9 @@ public:
     int columnCount() const;
     int rowCount() const;
 
-    void setReadOnly(bool b);
-
-    void insertCodeSnippet(const QTextCursor &cursor,
+    // replaces the text from the current cursor position to the base position with the snippet
+    // and starts the snippet replacement mode
+    void insertCodeSnippet(int basePosition,
                            const QString &snippet,
                            const SnippetParser &parse);
 
@@ -298,6 +312,7 @@ public:
     virtual void extraAreaLeaveEvent(QEvent *);
     virtual void extraAreaContextMenuEvent(QContextMenuEvent *);
     virtual void extraAreaMouseEvent(QMouseEvent *);
+    virtual void extraAreaToolTipEvent(QHelpEvent *e);
     void updateFoldingHighlight(const QPoint &pos);
     void updateFoldingHighlight(const QTextCursor &cursor);
 
@@ -387,10 +402,11 @@ public:
     void deleteStartOfLine();
     void deleteStartOfWord();
     void deleteStartOfWordCamelCase();
-    void unfoldAll();
-    void fold(const QTextBlock &block);
+    void toggleFoldAll();
+    void unfoldAll(bool unfold);
+    void fold(const QTextBlock &block, bool recursive = false);
     void foldCurrentBlock();
-    void unfold(const QTextBlock &block);
+    void unfold(const QTextBlock &block, bool recursive = false);
     void unfoldCurrentBlock();
     void selectEncoding();
     void updateTextCodecLabel();
@@ -519,13 +535,16 @@ public:
     // Returns an object that blocks suggestions until it is destroyed.
     SuggestionBlocker blockSuggestions();
 
+    std::unique_ptr<EmbeddedWidgetInterface> insertWidget(QWidget *widget, int line);
+
+    QList<QTextCursor> autoCompleteHighlightPositions() const;
+
 #ifdef WITH_TESTS
     void processTooltipRequest(const QTextCursor &c);
 #endif
 
 signals:
     void assistFinished(); // Used in tests.
-    void readOnlyChanged();
 
     void requestBlockUpdate(const QTextBlock &);
 
@@ -542,6 +561,9 @@ signals:
     void saveCurrentStateForNavigationHistory();
     void addSavedStateToNavigationHistory();
     void addCurrentStateToNavigationHistory();
+
+    void resized();
+    void embeddedWidgetsShouldClose();
 
 protected:
     QTextBlock blockForVisibleRow(int row) const;
@@ -608,6 +630,7 @@ public:
 
     void remove(int length);
     void replace(int length, const QString &string);
+    void replace(int pos, int length, const QString &string);
     QChar characterAt(int pos) const;
     QString textAt(int from, int to) const;
 
@@ -669,7 +692,6 @@ protected:
 
 private:
     std::unique_ptr<Internal::TextEditorWidgetPrivate> d;
-    friend class BaseTextEditor;
     friend class TextEditorFactory;
     friend class Internal::TextEditorFactoryPrivate;
     friend class Internal::TextEditorWidgetPrivate;

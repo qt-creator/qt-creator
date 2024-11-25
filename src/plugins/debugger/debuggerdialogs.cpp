@@ -30,6 +30,7 @@
 #include <QGroupBox>
 #include <QGuiApplication>
 #include <QLabel>
+#include <QMessageBox>
 #include <QPlainTextEdit>
 #include <QPushButton>
 #include <QRadioButton>
@@ -402,6 +403,11 @@ void StartApplicationDialog::run(bool attachRemote)
     }
 
     IDevice::ConstPtr dev = DeviceKitAspect::device(k);
+    if (!dev) {
+        QMessageBox::critical(
+            &dialog, Tr::tr("Cannot debug"), Tr::tr("Cannot debug application: Kit has no device"));
+        return;
+    }
     ProcessRunData inferior = newParameters.runnable;
     const QString inputAddress = dialog.d->channelOverrideEdit->text();
     if (!inputAddress.isEmpty())
@@ -419,7 +425,7 @@ void StartApplicationDialog::run(bool attachRemote)
     if (!newParameters.sysRoot.isEmpty())
         debugger->setSysRoot(newParameters.sysRoot);
 
-    bool isLocal = !dev || (dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE);
+    bool isLocal = dev->type() == ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE;
     if (isLocal) // FIXME: Restriction needed?
         debugger->setInferiorEnvironment(k->runEnvironment());
 

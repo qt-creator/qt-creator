@@ -18,7 +18,7 @@
 
 namespace TextEditor {
 class IAssistProposal;
-class TextDocumentManipulatorInterface;
+class TextDocumentManipulator;
 }
 
 namespace LanguageClient {
@@ -97,8 +97,7 @@ public:
     QString filterText() const override;
     bool implicitlyApplies() const override;
     bool prematurelyApplies(const QChar &typedCharacter) const override;
-    void apply(TextEditor::TextDocumentManipulatorInterface &manipulator,
-               int basePosition) const override;
+    void apply(TextEditor::TextEditorWidget *editorWidget, int basePosition) const override;
     QIcon icon() const override;
     QString detail() const override;
     bool isSnippet() const override;

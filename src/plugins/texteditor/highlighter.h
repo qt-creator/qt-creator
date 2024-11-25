@@ -5,8 +5,6 @@
 
 #include "syntaxhighlighter.h"
 
-#include <utils/fileutils.h>
-
 #include <KSyntaxHighlighting/AbstractHighlighter>
 
 namespace KSyntaxHighlighting { class Repository; }

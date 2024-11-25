@@ -550,7 +550,6 @@ int Wizard::nextId() const
                 return index;
         }
     }
-    QTC_CHECK(false); // should not happen
     return QWizard::nextId();
 }
 

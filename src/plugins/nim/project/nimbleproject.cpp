@@ -17,14 +17,14 @@ using namespace Utils;
 
 namespace Nim {
 
-NimbleProject::NimbleProject(const Utils::FilePath &fileName)
-    : ProjectExplorer::Project(Constants::C_NIMBLE_MIMETYPE, fileName)
+NimbleProject::NimbleProject(const FilePath &fileName)
+    : Project(Constants::C_NIMBLE_MIMETYPE, fileName)
 {
     setId(Constants::C_NIMBLEPROJECT_ID);
     setDisplayName(fileName.completeBaseName());
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
-    setBuildSystemCreator([] (Target *t) { return new NimbleBuildSystem(t); });
+    setBuildSystemCreator<NimbleBuildSystem>();
 }
 
 void NimbleProject::toMap(Store &map) const
@@ -50,9 +50,9 @@ void NimbleProject::setExcludedFiles(const QStringList &excludedFiles)
     m_excludedFiles = excludedFiles;
 }
 
-// Factory
+// Setup
 
-NimbleProjectFactory::NimbleProjectFactory()
+void setupNimbleProject()
 {
     ProjectManager::registerProjectType<NimbleProject>(Constants::C_NIMBLE_MIMETYPE);
 }

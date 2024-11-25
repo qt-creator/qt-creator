@@ -26,6 +26,8 @@
 #include <texteditor/texteditor.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
+#include <utils/mimeutils.h>
 #include <utils/persistentsettings.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
@@ -69,6 +71,7 @@ public:
     bool hasProjects() const { return !m_projects.isEmpty(); }
 
     bool m_casadeSetActive = false;
+    bool m_deployProjectDependencies = false;
 
     Project *m_startupProject = nullptr;
     QList<Project *> m_projects;
@@ -227,6 +230,17 @@ void ProjectManager::setProjectConfigurationCascading(bool b)
     SessionManager::markSessionFileDirty();
 }
 
+bool ProjectManager::deployProjectDependencies()
+{
+    return d->m_deployProjectDependencies;
+}
+
+void ProjectManager::setDeployProjectDependencies(bool deploy)
+{
+    d->m_deployProjectDependencies = deploy;
+    SessionManager::markSessionFileDirty();
+}
+
 void ProjectManager::setStartupProject(Project *startupProject)
 {
     QTC_ASSERT((!startupProject && d->m_projects.isEmpty())
@@ -337,6 +351,7 @@ void ProjectManagerPrivate::saveSession()
                                     Utils::transform<QStringList>(projectFiles,
                                                                   &FilePath::toString));
     SessionManager::setSessionValue("CascadeSetActive", m_casadeSetActive);
+    SessionManager::setSessionValue("DeployProjectDependencies", m_deployProjectDependencies);
 
     QVariantMap depMap;
     auto i = m_depMap.constBegin();
@@ -507,18 +522,34 @@ Project *ProjectManager::projectForFile(const FilePath &fileName)
     });
 }
 
-bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
+QList<Project *> ProjectManager::projectsForFile(const Utils::FilePath &fileName)
+{
+    return Utils::filtered(ProjectManager::projects(), [&fileName](Project *p) {
+        return p->isKnownFile(fileName) || isInProjectSourceDir(fileName, *p);
+    });
+}
+
+bool ProjectManager::isInProjectBuildDir(const Utils::FilePath &filePath, const Project &project)
 {
     for (const Target * const target : project.targets()) {
         for (const BuildConfiguration * const bc : target->buildConfigurations()) {
+            if (bc->buildDirectory() == project.projectDirectory())
+                continue;
             if (filePath.isChildOf(bc->buildDirectory()))
-                return false;
+                return true;
             if (const FilePath canonicalBuildDir = bc->buildDirectory().canonicalPath();
                 canonicalBuildDir != bc->buildDirectory() && filePath.isChildOf(canonicalBuildDir)) {
-                return false;
+                return true;
             }
         }
     }
+    return false;
+}
+
+bool ProjectManager::isInProjectSourceDir(const Utils::FilePath &filePath, const Project &project)
+{
+    if (isInProjectBuildDir(filePath, project))
+        return false;
     if (filePath.isChildOf(project.projectDirectory()))
         return true;
     if (const FilePath canonicalRoot = project.projectDirectory().canonicalPath();
@@ -667,6 +698,7 @@ void ProjectManagerPrivate::loadSession()
     d->m_failedProjects.clear();
     d->m_depMap.clear();
     d->m_casadeSetActive = false;
+    d->m_deployProjectDependencies = false;
 
     // not ideal that this is in ProjectManager
     Id modeId = Id::fromSetting(SessionManager::value("ActiveMode"));
@@ -705,6 +737,8 @@ void ProjectManagerPrivate::loadSession()
     ModeManager::setFocusToCurrentMode();
 
     d->m_casadeSetActive = SessionManager::sessionValue("CascadeSetActive", false).toBool();
+    d->m_deployProjectDependencies
+        = SessionManager::sessionValue("DeployProjectDependencies", false).toBool();
 
     // Starts a event loop, better do that at the very end
     QMetaObject::invokeMethod(m_instance, [this] { askUserAboutFailedProjects(); });
@@ -753,10 +787,15 @@ void ProjectExplorerTest::testSessionSwitch()
         const OpenProjectResult openResult
                 = ProjectExplorerPlugin::openProject(
                     FilePath::fromString(sessionSpec.projectFile.fileName()));
-        if (openResult.errorMessage().contains("text/plain"))
-            QSKIP("This test requires the presence of QmakeProjectManager to be fully functional. "
-                  "Hint: run this test with \"-load QmakeProjectManager\" option.");
-        QVERIFY(openResult);
+        if (!ProjectManager::canOpenProjectForMimeType(
+                Utils::mimeTypeForFile(sessionSpec.projectFile.fileName()))) {
+            QEXPECT_FAIL(
+                nullptr,
+                "This test requires the presence of QmakeProjectManager to be fully functional. "
+                "Hint: run this test with \"-load QmakeProjectManager\" option.",
+                Abort);
+        }
+        QVERIFY2(openResult, qPrintable(openResult.errorMessage()));
         QCOMPARE(openResult.projects().count(), 1);
         QVERIFY(openResult.project());
         QCOMPARE(ProjectManager::projects().count(), 1);

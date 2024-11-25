@@ -43,6 +43,8 @@ public:
     virtual void goToNext() = 0;
     virtual void goToPrev() = 0;
 
+    virtual bool hasFilterContext() const;
+
     void setFont(const QFont &font);
     void setWheelZoomEnabled(bool enabled);
 
@@ -80,14 +82,14 @@ protected:
     QString filterText() const;
     bool filterUsesRegexp() const { return m_filterRegexp; }
     bool filterIsInverted() const { return m_invertFilter; }
+    int beforeContext() const { return m_beforeContext; }
+    int afterContext() const { return m_afterContext; }
     Qt::CaseSensitivity filterCaseSensitivity() const { return m_filterCaseSensitivity; }
     void setFilteringEnabled(bool enable);
     QWidget *filterWidget() const { return m_filterOutputLineEdit; }
-    void setupContext(const char *context, QWidget *widget);
+    void setupContext(const Utils::Id &context, QWidget *widget);
     void setupContext(const Context &context, QWidget *widget);
     void setZoomButtonsEnabled(bool enabled);
-
-    IContext *m_context = nullptr;
 
 private:
     virtual void updateFilter();
@@ -98,15 +100,22 @@ private:
     Utils::Id filterRegexpActionId() const;
     Utils::Id filterCaseSensitivityActionId() const;
     Utils::Id filterInvertedActionId() const;
+    Utils::Id filterBeforeActionId() const;
+    Utils::Id filterAfterActionId() const;
 
     Utils::Id m_id;
     QString m_displayName;
     int m_priority = -1;
     QToolButton *m_zoomInButton;
     QToolButton *m_zoomOutButton;
+    QAction *m_filterActionRegexp = nullptr;
+    QAction *m_filterActionCaseSensitive = nullptr;
+    QAction *m_invertFilterAction = nullptr;
     Utils::FancyLineEdit *m_filterOutputLineEdit = nullptr;
     bool m_filterRegexp = false;
     bool m_invertFilter = false;
+    int m_beforeContext = 0;
+    int m_afterContext = 0;
     Qt::CaseSensitivity m_filterCaseSensitivity = Qt::CaseInsensitive;
 };
 

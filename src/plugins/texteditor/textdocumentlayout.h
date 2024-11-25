@@ -5,15 +5,16 @@
 
 #include "texteditor_global.h"
 
-#include "textmark.h"
 #include "textdocument.h"
+#include "textmark.h"
+#include "textsuggestion.h"
 
 #include <utils/id.h>
 
 #include <KSyntaxHighlighting/State>
 
-#include <QTextBlockUserData>
 #include <QPlainTextDocumentLayout>
+#include <QTextBlockUserData>
 
 namespace TextEditor {
 
@@ -41,28 +42,6 @@ class TEXTEDITOR_EXPORT CodeFormatterData
 {
 public:
     virtual ~CodeFormatterData();
-};
-
-class TEXTEDITOR_EXPORT TextSuggestion
-{
-public:
-    TextSuggestion();
-    virtual ~TextSuggestion();
-    // Returns true if the suggestion was applied completely, false if it was only partially applied.
-    virtual bool apply() = 0;
-    // Returns true if the suggestion was applied completely, false if it was only partially applied.
-    virtual bool applyWord(TextEditorWidget *widget) = 0;
-    virtual void reset() = 0;
-    virtual int position() = 0;
-
-    int currentPosition() const { return m_currentPosition; }
-    void setCurrentPosition(int position) { m_currentPosition = position; }
-
-    QTextDocument *document() { return &m_replacementDocument; }
-
-private:
-    QTextDocument m_replacementDocument;
-    int m_currentPosition = -1;
 };
 
 class TEXTEDITOR_EXPORT TextBlockUserData : public QTextBlockUserData
@@ -140,6 +119,10 @@ public:
     { m_additionalAnnotationHeight = annotationHeight; }
     inline int additionalAnnotationHeight() const { return m_additionalAnnotationHeight; }
 
+    inline void addEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.append(widget); }
+    inline void removeEmbeddedWidget(QWidget *widget) { m_embeddedWidgets.removeAll(widget); }
+    inline QList<QPointer<QWidget>> embeddedWidgets() const { return m_embeddedWidgets; }
+
     CodeFormatterData *codeFormatterData() const { return m_codeFormatterData; }
     void setCodeFormatterData(CodeFormatterData *data);
 
@@ -152,6 +135,9 @@ public:
     void insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion);
     TextSuggestion *suggestion() const;
     void clearSuggestion();
+
+    void setAttrState(quint8 state) { m_attrState = state; }
+    quint8 attrState() const { return m_attrState; }
 
 private:
     TextMarks m_marks;
@@ -168,6 +154,8 @@ private:
     QByteArray m_expectedRawStringSuffix; // A bit C++-specific, but let's be pragmatic.
     std::unique_ptr<QTextDocument> m_replacement;
     std::unique_ptr<TextSuggestion> m_suggestion;
+    QList<QPointer<QWidget>> m_embeddedWidgets;
+    quint8 m_attrState = 0;
 };
 
 class TEXTEDITOR_EXPORT TextDocumentLayout : public QPlainTextDocumentLayout
@@ -195,17 +183,16 @@ public:
     static int lexerState(const QTextBlock &block);
     static void changeFoldingIndent(QTextBlock &block, int delta);
     static bool canFold(const QTextBlock &block);
-    static void doFoldOrUnfold(const QTextBlock& block, bool unfold);
+    static void doFoldOrUnfold(const QTextBlock &block, bool unfold, bool recursive = false);
     static bool isFolded(const QTextBlock &block);
     static void setFolded(const QTextBlock &block, bool folded);
     static void setExpectedRawStringSuffix(const QTextBlock &block, const QByteArray &suffix);
     static QByteArray expectedRawStringSuffix(const QTextBlock &block);
     static TextSuggestion *suggestion(const QTextBlock &block);
+    static void setAttributeState(const QTextBlock &block, quint8 attrState);
+    static quint8 attributeState(const QTextBlock &block);
     static void updateSuggestionFormats(const QTextBlock &block,
                                         const FontSettings &fontSettings);
-    static bool updateSuggestion(const QTextBlock &block,
-                                 int position,
-                                 const FontSettings &fontSettings);
 
     class TEXTEDITOR_EXPORT FoldValidator
     {

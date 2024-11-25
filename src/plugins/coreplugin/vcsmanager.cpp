@@ -223,7 +223,7 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
     }
 
     // Register Vcs(s) with the cache
-    FilePath tmpDir = directory.absolutePath();
+    FilePath tmpDir = directory.absoluteFilePath();
 #if defined WITH_TESTS
     // Force caching of test directories (even though they do not exist):
     if (directory.startsWith(TEST_PREFIX))
@@ -370,11 +370,19 @@ QString VcsManager::msgAddToVcsFailedTitle()
 
 QString VcsManager::msgToAddToVcsFailed(const QStringList &files, const IVersionControl *vc)
 {
-    return files.size() == 1
-        ? Tr::tr("Could not add the file\n%1\nto version control (%2)\n")
-              .arg(files.front(), vc->displayName())
-        : Tr::tr("Could not add the following files to version control (%1)\n%2")
-              .arg(vc->displayName(), files.join(QString(QLatin1Char('\n'))));
+    QStringList fileList = files;
+    const qsizetype size = files.size();
+    const qsizetype maxSize = 10;
+    if (size > maxSize) {
+        fileList = files.first(maxSize);
+        //: %1 = name of VCS system, %2 = lines with file paths
+        return Tr::tr("Could not add the following files to version control (%1)\n%2\n"
+                      "... and %n more.", "", size - maxSize)
+            .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
+    }
+    //: %1 = name of VCS system, %2 = lines with file paths
+    return Tr::tr("Could not add the following files to version control (%1)\n%2")
+        .arg(vc->displayName(), fileList.join(QString(QLatin1Char('\n'))));
 }
 
 FilePaths VcsManager::additionalToolsPath()
@@ -499,6 +507,7 @@ public:
     bool vcsMove(const FilePath &, const FilePath &) final { return false; }
     bool vcsCreateRepository(const FilePath &) final { return false; }
     void vcsAnnotate(const FilePath &, int) final {}
+    void vcsLog(const Utils::FilePath &, const Utils::FilePath &) final {};
     void vcsDescribe(const FilePath &, const QString &) final {}
 
 private:

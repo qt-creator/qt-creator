@@ -26,7 +26,7 @@ public:
 
 private:
     QmlJS::Engine m_engine;
-    QVector<int> m_stateStack;
+    QList<int> m_stateStack;
     QList<int> m_tokens;
     QString m_code;
 };

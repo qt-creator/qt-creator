@@ -1,8 +1,10 @@
 {
+    "Id" : "fossil",
     "Name" : "Fossil",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "DisabledByDefault" : true,
+    "VendorId" : "arturshepilko",
     "Vendor" : "Artur Shepilko",
     "Copyright" : "(C) 2018 Artur Shepilko",
     "License" : [ "Commercial Usage",
@@ -20,6 +22,7 @@
         "- Fossil"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-fossil.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "JsonWizardPaths" : [":/fossil/wizard"]

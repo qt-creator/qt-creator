@@ -45,20 +45,9 @@
 
 #include <cmath>
 
+using namespace Core;
+
 namespace QmlDesigner {
-
-TransitionContext::TransitionContext(QWidget *widget)
-    : IContext(widget)
-{
-    setWidget(widget);
-    setContext(Core::Context(TransitionEditorConstants::C_QMLTRANSITIONS));
-}
-
-void TransitionContext::contextHelp(const Core::IContext::HelpCallback &callback) const
-{
-    if (auto *widget = qobject_cast<TransitionEditorWidget *>(m_widget))
-        widget->contextHelp(callback);
-}
 
 class Eventfilter : public QObject
 {
@@ -223,6 +212,9 @@ TransitionEditorWidget::TransitionEditorWidget(TransitionEditorView *view)
         m_toolbar->setScaleFactor(scaleFactor);
     });
     m_graphicsView->viewport()->installEventFilter(filter);
+
+    IContext::attach(this, Context(TransitionEditorConstants::C_QMLTRANSITIONS),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void TransitionEditorWidget::setTransitionActive(bool b)

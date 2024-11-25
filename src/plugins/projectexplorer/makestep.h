@@ -4,9 +4,10 @@
 #pragma once
 
 #include "abstractprocessstep.h"
+#include "runconfigurationaspects.h"
 
 #include <utils/aspects.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace Utils { class Environment; }
 
@@ -66,6 +67,7 @@ protected:
     Utils::TextDisplay m_nonOverrideWarning{this};
     Utils::IntegerAspect m_jobCountAspect{this};
     Utils::BoolAspect m_disabledForSubdirsAspect{this};
+    RunAsRootAspect m_runAsRootAspect{this};
 
 private:
     static int defaultJobCount();

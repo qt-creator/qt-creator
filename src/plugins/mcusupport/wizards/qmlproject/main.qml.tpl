@@ -5,11 +5,11 @@ Rectangle {
 
     Row {
         Image {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
             source: "assets/icon.png"
         }
         Text {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
             text: " for MCUs"
         }
     }

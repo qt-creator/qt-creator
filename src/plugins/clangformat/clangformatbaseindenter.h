@@ -52,7 +52,7 @@ public:
 
     const clang::format::FormatStyle &styleForFile() const;
 
-    void setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences);
+    void setOverriddenPreferences(TextEditor::ICodeStylePreferences *preferences) final;
     void setOverriddenStyle(const clang::format::FormatStyle &style);
 
 protected:

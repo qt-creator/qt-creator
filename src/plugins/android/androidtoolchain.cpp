@@ -10,6 +10,7 @@
 #include <projectexplorer/toolchainmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
+#include <projectexplorer/toolchainconfigwidget.h>
 
 #include <utils/environment.h>
 
@@ -23,7 +24,10 @@ namespace Android::Internal {
 static Q_LOGGING_CATEGORY(androidTCLog, "qtc.android.toolchainmanagement", QtWarningMsg);
 
 using ClangTargetsType = QHash<QString, Abi>;
-Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
+
+const ClangTargetsType &clangTargets()
+{
+    static const ClangTargetsType targets {
         {"arm-linux-androideabi",
          Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 32)},
         {"i686-linux-android",
@@ -31,8 +35,10 @@ Q_GLOBAL_STATIC_WITH_ARGS(ClangTargetsType, ClangTargets, ({
         {"x86_64-linux-android",
          Abi(Abi::X86Architecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)},
         {"aarch64-linux-android",
-         Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}}
-));
+         Abi(Abi::ArmArchitecture, Abi::LinuxOS, Abi::AndroidLinuxFlavor, Abi::ElfFormat, 64)}
+    };
+    return targets;
+}
 
 static Toolchain *findToolchain(FilePath &compilerPath, Id lang, const QString &target,
                                 const ToolchainList &alreadyKnown)
@@ -40,7 +46,7 @@ static Toolchain *findToolchain(FilePath &compilerPath, Id lang, const QString &
     Toolchain *tc = Utils::findOrDefault(alreadyKnown, [target, compilerPath, lang](Toolchain *tc) {
         return tc->typeId() == Constants::ANDROID_TOOLCHAIN_TYPEID
                 && tc->language() == lang
-                && tc->targetAbi() == ClangTargets->value(target)
+                && tc->targetAbi() == clangTargets().value(target)
                 && tc->compilerCommand() == compilerPath;
     });
     return tc;
@@ -67,7 +73,7 @@ AndroidToolchain::~AndroidToolchain() = default;
 bool AndroidToolchain::isValid() const
 {
     if (m_ndkLocation.isEmpty()) {
-        QStringList ndkParts(compilerCommand().toString().split("toolchains/llvm/prebuilt/"));
+        QStringList ndkParts(compilerCommand().toFSPathString().split("toolchains/llvm/prebuilt/"));
         if (ndkParts.size() > 1) {
             QString ndkLocation(ndkParts.first());
             if (ndkLocation.endsWith('/'))
@@ -123,7 +129,7 @@ FilePath AndroidToolchain::makeCommand(const Environment &env) const
 
 GccToolchain::DetectedAbisResult AndroidToolchain::detectSupportedAbis() const
 {
-    for (auto itr = ClangTargets->constBegin(); itr != ClangTargets->constEnd(); ++itr) {
+    for (auto itr = clangTargets().constBegin(); itr != clangTargets().constEnd(); ++itr) {
         if (itr.value() == targetAbi())
             return GccToolchain::DetectedAbisResult({targetAbi()}, itr.key());
     }
@@ -140,9 +146,7 @@ static FilePath clangPlusPlusPath(const FilePath &clangPath)
 static FilePaths uniqueNdksForCurrentQtVersions()
 {
     auto androidQtVersions = QtSupport::QtVersionManager::versions(
-        [](const QtSupport::QtVersion *v) {
-            return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
-        });
+        &QtSupport::QtVersion::isAndroidQtVersion);
 
     FilePaths uniqueNdks;
     for (const QtSupport::QtVersion *version : androidQtVersions) {
@@ -159,7 +163,8 @@ ToolchainList autodetectToolchainsFromNdks(
     const QList<FilePath> &ndkLocations,
     const bool isCustom)
 {
-    QList<Toolchain *> result;
+    QList<Toolchain *> newToolchains;
+
     const Id LanguageIds[] {
         ProjectExplorer::Constants::CXX_LANGUAGE_ID,
         ProjectExplorer::Constants::C_LANGUAGE_ID
@@ -184,8 +189,8 @@ ToolchainList autodetectToolchainsFromNdks(
                 continue;
             }
 
-            auto targetItr = ClangTargets->constBegin();
-            while (targetItr != ClangTargets->constEnd()) {
+            auto targetItr = clangTargets().constBegin();
+            while (targetItr != clangTargets().constEnd()) {
                 const Abi &abi = targetItr.value();
                 const QString target = targetItr.key();
                 Toolchain *tc = findToolchain(compilerCommand, lang, target, alreadyKnown);
@@ -206,11 +211,13 @@ ToolchainList autodetectToolchainsFromNdks(
                     atc->setNdkLocation(ndkLocation);
                     atc->setOriginalTargetTriple(target);
                     atc->setLanguage(lang);
-                    atc->setTargetAbi(ClangTargets->value(target));
+                    atc->setTargetAbi(clangTargets().value(target));
                     atc->setPlatformCodeGenFlags({"-target", target});
                     atc->setPlatformLinkerFlags({"-target", target});
                     atc->setDisplayName(displayName);
                     tc = atc;
+
+                    newToolchains << tc;
                 }
 
                 // Do not only reset newly created toolchains. This triggers call to
@@ -219,13 +226,12 @@ ToolchainList autodetectToolchainsFromNdks(
                     gccTc->resetToolchain(compilerCommand);
 
                 tc->setDetection(Toolchain::AutoDetection);
-                result << tc;
                 ++targetItr;
             }
         }
     }
 
-    return result;
+    return newToolchains;
 }
 
 ToolchainList autodetectToolchains(const ToolchainList &alreadyKnown)
@@ -241,8 +247,22 @@ public:
     {
         setDisplayName(Tr::tr("Android Clang"));
         setSupportedToolchainType(Constants::ANDROID_TOOLCHAIN_TYPEID);
-        setSupportedLanguages({ProjectExplorer::Constants::CXX_LANGUAGE_ID});
+        setSupportedLanguages(
+            {ProjectExplorer::Constants::C_LANGUAGE_ID,
+             ProjectExplorer::Constants::CXX_LANGUAGE_ID});
         setToolchainConstructor([] { return new AndroidToolchain; });
+    }
+
+private:
+    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle) const final
+    {
+        return GccToolchain::createConfigurationWidget(bundle);
+    }
+
+    FilePath correspondingCompilerCommand(const FilePath &srcPath, Id targetLang) const override
+    {
+        return GccToolchain::correspondingCompilerCommand(srcPath, targetLang, "clang", "clang++");
     }
 };
 

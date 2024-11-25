@@ -42,7 +42,8 @@ def main():
         for template in dumpItems(templatesView.model(), templatesView.rootIndex()):
             template = template.replace(".", "\\.")
             # skip non-configurable
-            if template not in ["Qt Quick UI Prototype", "Qt Creator Plugin"]:
+            if template not in ["Qt Quick UI Prototype", "Qt Creator C++ Plugin",
+                                "Qt Creator Lua Plugin"]:
                 availableProjectTypes.append({category:template})
     safeClickButton("Cancel")
     for current in availableProjectTypes:

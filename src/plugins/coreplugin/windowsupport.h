@@ -54,7 +54,6 @@ private:
     void updateFullScreenAction();
 
     QWidget *m_window;
-    IContext *m_contextObject;
     QAction *m_minimizeAction;
     QAction *m_zoomAction;
     QAction *m_closeAction;

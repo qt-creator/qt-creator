@@ -11,6 +11,7 @@ Project {
         "cplusplus/cplusplus.qbs",
         "extensionsystem/extensionsystem.qbs",
         "glsl/glsl.qbs",
+        "gocmdbridge/gocmdbridge.qbs",
         "languageserverprotocol/languageserverprotocol.qbs",
         "languageutils/languageutils.qbs",
         "modelinglib/modelinglib.qbs",

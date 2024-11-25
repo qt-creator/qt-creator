@@ -254,8 +254,7 @@ void onInferiorStarted()
     // In debug mode we use the poll timer to send the pid.
     if (!debugMode)
         sendPid(inferiorId);
-#else
-
+#elif defined(Q_OS_LINUX)
     if (debugMode) {
         qCInfo(log) << "Waiting for SIGTRAP from inferiors execve ...";
         if (!waitFor(SIGTRAP))
@@ -271,12 +270,14 @@ void onInferiorStarted()
 
     qCInfo(log) << "Sending pid:" << inferiorId;
     sendPid(inferiorId);
+#else
+    sendPid(inferiorId);
 #endif
 }
 
 void setupUnixInferior()
 {
-#ifndef Q_OS_WIN
+#ifdef Q_OS_UNIX
     if (debugMode) {
         qCInfo(log) << "Debug mode enabled";
 #ifdef Q_OS_DARWIN
@@ -287,7 +288,7 @@ void setupUnixInferior()
             // Suspend ourselves ...
             raise(SIGSTOP);
         });
-#else
+#elif defined(Q_OS_LINUX)
         // PTRACE_TRACEME will stop execution of the child process as soon as execve is called.
         inferiorProcess.setChildProcessModifier([] {
             ptrace(PTRACE_TRACEME, 0, 0, 0);

@@ -183,13 +183,15 @@ OutputLineParser::Result GccParser::handleLine(const QString &line, OutputFormat
     const QString lne = rightTrimmed(line);
 
     // Blacklist some lines to not handle them:
+    static const QString collect2Prefix = HostOsInfo::withExecutableSuffix("collect2") + ':';
     if (lne.startsWith(QLatin1String("TeamBuilder "))
         || lne.startsWith(QLatin1String("distcc["))
         || lne.contains("undefined reference")
         || lne.contains("undefined symbol")
         || lne.contains("duplicate symbol")
         || lne.contains("multiple definition")
-        || lne.contains("ar: creating")) {
+        || lne.contains("ar: creating")
+        || lne.contains(collect2Prefix)) {
         return Status::NotHandled;
     }
 
@@ -442,7 +444,7 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     formatRanges.clear();
     if (HostOsInfo::isWindowsHost()) {
         formatRanges << formatRange(51, 28)
-                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::0::-1")
+                     << formatRange(79, 31, "olpfile://C:/temp/test/untitled8/main.cpp::-1::-1")
                      << formatRange(110, 65);
     } else {
         formatRanges << formatRange(51, 124);
@@ -755,13 +757,13 @@ void ProjectExplorerTest::testGccOutputParsers_data()
     formatRanges.clear();
     if (HostOsInfo::isWindowsHost()) {
         formatRanges << formatRange(33, 22)
-                     << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::-1")
+                     << formatRange(55, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.h::6792::0")
                      << formatRange(93, 29)
-                     << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::-1")
+                     << formatRange(122, 38, "olpfile://C:/Symbian_SDK/epoc32/include/e32std.h::25::0")
                      << formatRange(160, 5)
-                     << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::-1")
+                     << formatRange(165, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::0::0")
                      << formatRange(205, 69)
-                     << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::-1")
+                     << formatRange(274, 40, "olpfile://C:/Symbian_SDK/epoc32/include/e32cmn.inl::7094::0")
                      << formatRange(314, 48);
     } else {
         formatRanges << formatRange(33, 329);

@@ -31,6 +31,7 @@
 #include <utils/checkablemessagebox.h>
 #include <utils/commandline.h>
 #include <utils/infobar.h>
+#include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/mimeutils.h>
 #include <utils/networkaccessmanager.h>
@@ -46,12 +47,14 @@
 #include <QAuthenticator>
 #include <QDateTime>
 #include <QDebug>
+#include <QDialogButtonBox>
 #include <QDir>
 #include <QGuiApplication>
 #include <QJsonObject>
 #include <QLabel>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPushButton>
 #include <QUuid>
 
 #include <cstdlib>
@@ -163,6 +166,44 @@ static void initProxyAuthDialog()
                      });
 }
 
+static void initTAndCAcceptDialog()
+{
+    ExtensionSystem::PluginManager::instance()->setAcceptTermsAndConditionsCallback(
+        [](ExtensionSystem::PluginSpec *spec) {
+            using namespace Layouting;
+
+            QDialog dialog(ICore::dialogParent());
+            dialog.setWindowTitle(Tr::tr("Terms and Conditions"));
+
+            QDialogButtonBox buttonBox;
+            QPushButton *acceptButton
+                = buttonBox.addButton(Tr::tr("Accept"), QDialogButtonBox::ButtonRole::YesRole);
+            QPushButton *decline
+                = buttonBox.addButton(Tr::tr("Decline"), QDialogButtonBox::ButtonRole::NoRole);
+            acceptButton->setAutoDefault(false);
+            acceptButton->setDefault(false);
+            decline->setAutoDefault(true);
+            decline->setDefault(true);
+            QObject::connect(&buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+            QObject::connect(&buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+            // clang-format off
+            Column {
+                Tr::tr("The plugin %1 requires you to accept the following terms and conditions:").arg(spec->name()), br,
+                TextEdit {
+                    markdown(spec->termsAndConditions()->text),
+                    readOnly(true),
+                }, br,
+                Row {
+                    Tr::tr("Do you wish to accept?"), &buttonBox,
+                }
+            }.attachTo(&dialog);
+            // clang-format on
+
+            return dialog.exec() == QDialog::Accepted;
+        });
+}
+
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
     // register all mime types from all plugins
@@ -171,7 +212,7 @@ bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
             continue;
         loadMimeFromPlugin(plugin);
     }
-
+    initTAndCAcceptDialog();
     initProxyAuthDialog();
 
     if (ThemeEntry::availableThemes().isEmpty()) {
@@ -512,7 +553,7 @@ void CorePlugin::warnAboutCrashReporing()
 // static
 QString CorePlugin::msgCrashpadInformation()
 {
-    return Tr::tr("%1 uses Google Crashpad for collecting crashes and sending them to our backend "
+    return Tr::tr("%1 uses Google Crashpad for collecting crashes and sending them to Sentry "
                   "for processing. Crashpad may capture arbitrary contents from crashed process’ "
                   "memory, including user sensitive information, URLs, and whatever other content "
                   "users have trusted %1 with. The collected crash reports are however only used "

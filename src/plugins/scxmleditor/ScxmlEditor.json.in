@@ -1,9 +1,11 @@
 {
+    "Id" : "scxmleditor",
     "Name" : "ScxmlEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,13 +20,14 @@
         "Visualize how a system reacts to events. State charts define the states that the system can be in, and how the system can move from one state to another."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-scxml.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
         "<?xml version='1.0'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
         "    <mime-type type='application/scxml+xml'>",
-        "        <sub-class-of type='text/xml'/>",
+        "        <sub-class-of type='application/xml'/>",
         "        <comment>SCXML file</comment>",
         "        <glob pattern='*.scxml'/>",
         "    </mime-type>",

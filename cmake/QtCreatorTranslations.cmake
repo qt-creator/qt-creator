@@ -1,7 +1,5 @@
 # Defines function add_translation_targets
 
-include(${CMAKE_CURRENT_LIST_DIR}/Utils.cmake)
-
 function(_extract_ts_data_from_targets outprefix)
   set(_sources "")
   set(_includes "")
@@ -20,7 +18,9 @@ function(_extract_ts_data_from_targets outprefix)
 
       if (NOT _skip_translation)
         if(_include_dirs)
-          remove_generator_expressions(_include_dirs ${_include_dirs})
+          list(FILTER _include_dirs EXCLUDE REGEX "\\$<TARGET_PROPERTY")
+          list(FILTER _include_dirs EXCLUDE REGEX "\\$<INSTALL_INTERFACE")
+          list(TRANSFORM _include_dirs REPLACE "\\$<BUILD_INTERFACE:([^>]+)>" "\\1")
           list(APPEND _includes ${_include_dirs})
         endif()
 

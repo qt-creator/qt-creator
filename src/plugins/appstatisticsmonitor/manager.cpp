@@ -3,6 +3,7 @@
 
 #include "manager.h"
 
+#include "appstatisticsmonitortr.h"
 #include "chart.h"
 #include "idataprovider.h"
 
@@ -125,8 +126,8 @@ AppStatisticsMonitorView::AppStatisticsMonitorView(AppStatisticsMonitorManager *
     m_comboBox = new QComboBox(this);
     form->addRow(m_comboBox);
 
-    m_chartMem = std::make_unique<AppStatisticsMonitorChart>(tr("Memory consumption"));
-    m_chartCpu = std::make_unique<AppStatisticsMonitorChart>(tr("CPU consumption"));
+    m_chartMem = std::make_unique<AppStatisticsMonitorChart>(Tr::tr("Memory consumption"));
+    m_chartCpu = std::make_unique<AppStatisticsMonitorChart>(Tr::tr("CPU consumption"));
 
     form->addRow(m_chartMem->chartView());
     form->addRow(m_chartCpu->chartView());

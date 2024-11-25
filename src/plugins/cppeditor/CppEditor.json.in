@@ -1,9 +1,11 @@
 {
+    "Id" : "cppeditor",
     "Name" : "CppEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -16,6 +18,7 @@
     "Description" : "Edit C++ source and header files.",
     "LongDescription" : [],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-coding-navigating.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
@@ -31,7 +34,7 @@
         "    <mime-type type='text/vnd.nvidia.cuda.csrc'>",
         "        <sub-class-of type='text/x-csrc'/>",
         "        <comment>NVIDIA CUDA C source code</comment>",
-        "        <glob pattern='*.cu'/>",
+        "        <glob pattern='*.cu' weight='70'/>",
         "    </mime-type>",
 
         "    <mime-type type='text/x-chdr'>",
@@ -93,7 +96,6 @@
 
         "    <mime-type type='text/x-moc'>",
         "        <comment>Qt MOC file</comment>",
-        "        <!-- Fix to freedesktop: moc is C++ source -->",
         "        <sub-class-of type='text/x-c++src'/>",
         "        <glob pattern='*.moc' weight='70'/>",
         "    </mime-type>",

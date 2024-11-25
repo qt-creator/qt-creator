@@ -75,7 +75,7 @@ private:
     void addSpacing(int width);
     void setupCurrentFrameValidator();
 
-    QList<QObject *> m_grp;
+    QObjectList m_grp;
 
     QLabel *m_timelineLabel = nullptr;
     QLabel *m_stateLabel = nullptr;

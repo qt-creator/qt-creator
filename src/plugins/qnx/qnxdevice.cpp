@@ -51,11 +51,6 @@ public:
         return QString::fromLatin1("%1; %2").arg(signalProcessByNameQnxCommandLine(filePath, 15),
                                                  signalProcessByNameQnxCommandLine(filePath, 9));
     }
-
-    QString interruptProcessByNameCommandLine(const QString &filePath) const override
-    {
-        return signalProcessByNameQnxCommandLine(filePath, 2);
-    }
 };
 
 class QnxDevice final : public LinuxDevice
@@ -64,7 +59,7 @@ public:
     QnxDevice()
     {
         setDisplayType(Tr::tr("QNX"));
-        settings()->displayName.setDefaultValue(Tr::tr("QNX Device"));
+        setDefaultDisplayName(Tr::tr("QNX Device"));
         setOsType(OsTypeOtherUnix);
         setupId(IDevice::ManuallyAdded);
         setType(Constants::QNX_QNX_OS_TYPE);
@@ -86,7 +81,7 @@ public:
         return DeviceProcessSignalOperation::Ptr(new QnxDeviceProcessSignalOperation(shared_from_this()));
     }
 
-    DeviceTester *createDeviceTester() const final { return new QnxDeviceTester; }
+    DeviceTester *createDeviceTester() final { return new QnxDeviceTester(shared_from_this()); }
 };
 
 class QnxDeviceFactory final : public IDeviceFactory

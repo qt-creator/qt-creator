@@ -12,14 +12,6 @@
 namespace QmlProjectManager {
 namespace Internal {
 
-class DesignModeContext : public Core::IContext
-{
-    Q_OBJECT
-
-public:
-    DesignModeContext(QWidget *widget) : Core::IContext(widget) { setWidget(widget); }
-};
-
 class QdsLandingPageWidget : public QWidget
 {
     Q_OBJECT

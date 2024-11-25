@@ -46,7 +46,7 @@ public:
     LinuxDevice::Ptr m_device;
     TaskTreeRunner m_taskTreeRunner;
     QStringList m_extraCommands;
-    QList<GroupItem> m_extraTests;
+    GroupItems m_extraTests;
 };
 
 QStringList GenericLinuxDeviceTesterPrivate::commandsToTest() const
@@ -278,23 +278,21 @@ GroupItem GenericLinuxDeviceTesterPrivate::commandTasks() const
         emit q->errorMessage(message);
     };
 
-    const Group root {
+    return For (iterator) >> Do {
         continueOnError,
         onGroupSetup([this] {
             emit q->progressMessage(Tr::tr("Checking if required commands are available..."));
         }),
-        iterator,
         ProcessTask(onSetup, onDone)
     };
-    return root;
 }
 
 } // namespace Internal
 
 using namespace Internal;
 
-GenericLinuxDeviceTester::GenericLinuxDeviceTester(QObject *parent)
-    : DeviceTester(parent), d(new GenericLinuxDeviceTesterPrivate(this))
+GenericLinuxDeviceTester::GenericLinuxDeviceTester(const IDevice::Ptr &device, QObject *parent)
+    : DeviceTester(device, parent), d(new GenericLinuxDeviceTesterPrivate(this))
 {
     connect(&d->m_taskTreeRunner, &TaskTreeRunner::done, this, [this](DoneWith result) {
         emit finished(result == DoneWith::Success ? TestSuccess : TestFailure);
@@ -308,16 +306,16 @@ void GenericLinuxDeviceTester::setExtraCommandsToTest(const QStringList &extraCo
     d->m_extraCommands = extraCommands;
 }
 
-void GenericLinuxDeviceTester::setExtraTests(const QList<GroupItem> &extraTests)
+void GenericLinuxDeviceTester::setExtraTests(const GroupItems &extraTests)
 {
     d->m_extraTests = extraTests;
 }
 
-void GenericLinuxDeviceTester::testDevice(const IDevice::Ptr &deviceConfiguration)
+void GenericLinuxDeviceTester::testDevice()
 {
     QTC_ASSERT(!d->m_taskTreeRunner.isRunning(), return);
 
-    d->m_device = std::static_pointer_cast<LinuxDevice>(deviceConfiguration);
+    d->m_device = std::static_pointer_cast<LinuxDevice>(device());
 
     const Group root {
         d->connectionTask(),

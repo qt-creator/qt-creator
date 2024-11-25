@@ -72,20 +72,21 @@ bool KeywordsAssistProposalItem::prematurelyApplies(const QChar &c) const
     return c == QLatin1Char('(') && m_isFunction;
 }
 
-void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorInterface &manipulator,
+void KeywordsAssistProposalItem::applyContextualContent(TextEditorWidget *editorWidget,
                                                         int basePosition) const
 {
+    QTC_ASSERT(editorWidget, return);
     const CompletionSettings &settings = TextEditorSettings::completionSettings();
 
-    int replaceLength = manipulator.currentPosition() - basePosition;
+    int replaceLength = editorWidget->position() - basePosition;
     QString toInsert = text();
     int cursorOffset = 0;
-    const QChar characterAtCurrentPosition = manipulator.characterAt(manipulator.currentPosition());
+    const QChar characterAtCurrentPosition = editorWidget->characterAt(editorWidget->position());
     bool setAutoCompleteSkipPosition = false;
 
     if (m_isFunction && settings.m_autoInsertBrackets) {
         if (settings.m_spaceAfterFunctionName) {
-            if (manipulator.textAt(manipulator.currentPosition(), 2) == QLatin1String(" (")) {
+            if (editorWidget->textAt(editorWidget->position(), 2) == QLatin1String(" (")) {
                 cursorOffset = 2;
             } else if ( characterAtCurrentPosition == QLatin1Char('(')
                        || characterAtCurrentPosition == QLatin1Char(' ')) {
@@ -107,11 +108,11 @@ void KeywordsAssistProposalItem::applyContextualContent(TextDocumentManipulatorI
         }
     }
 
-    manipulator.replace(basePosition, replaceLength, toInsert);
+    editorWidget->replace(basePosition, replaceLength, toInsert);
     if (cursorOffset)
-        manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
+        editorWidget->setCursorPosition(editorWidget->position() + cursorOffset);
     if (setAutoCompleteSkipPosition)
-        manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+        editorWidget->setAutoCompleteSkipPosition(editorWidget->textCursor());
 }
 
 // -------------------------

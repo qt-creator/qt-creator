@@ -14,6 +14,7 @@
 #include "vcsmanager.h"
 
 #include <utils/algorithm.h>
+#include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
 #include <utils/elidinglabel.h>
 #include <utils/environment.h>
@@ -144,7 +145,6 @@ SystemSettings::SystemSettings()
         Tr::tr("Allow crashes to be automatically reported. Collected reports are "
            "used for the sole purpose of fixing bugs."));
 
-    showCrashButton.setSettingsKey("ShowCrashButton");
 #endif
     readSettings();
 
@@ -152,9 +152,8 @@ SystemSettings::SystemSettings()
     autoSuspendMinDocumentCount.setEnabler(&autoSuspendEnabled);
     bigFileSizeLimitInMB.setEnabler(&warnBeforeOpeningBigFiles);
 
-    connect(&autoSaveModifiedFiles, &BaseAspect::changed,
-            this, &EditorManagerPrivate::updateAutoSave);
-    connect(&autoSaveInterval, &BaseAspect::changed, this, &EditorManagerPrivate::updateAutoSave);
+    autoSaveModifiedFiles.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
+    autoSaveInterval.addOnChanged(this, &EditorManagerPrivate::updateAutoSave);
 }
 
 class SystemSettingsWidget : public IOptionsPageWidget
@@ -235,10 +234,23 @@ public:
                     Row{s.maxRecentFiles, st}});
         grid.addRow({s.askBeforeExit});
 #ifdef ENABLE_CRASHPAD
-        grid.addRow({s.enableCrashReporting,
-                     Row{m_clearCrashReportsButton,
-                         m_crashReportsSizeText,
-                         helpCrashReportingButton, st}});
+        const QString toolTip = Tr::tr("Crash reports are saved in \"%1\".")
+                                    .arg(appInfo().crashReports.toUserOutput());
+        m_clearCrashReportsButton->setToolTip(toolTip);
+        m_crashReportsSizeText->setToolTip(toolTip);
+        Row crashDetails
+            = Row{m_clearCrashReportsButton, m_crashReportsSizeText, helpCrashReportingButton, st};
+        if (qtcEnvironmentVariableIsSet("QTC_SHOW_CRASHBUTTON")) {
+            auto crashButton = new QPushButton("CRASH!!!");
+            connect(crashButton, &QPushButton::clicked, [] {
+                // do a real crash
+                volatile int *a = reinterpret_cast<volatile int *>(NULL);
+                *a = 1;
+            });
+            crashDetails.addItem(crashButton);
+        }
+        grid.addRow({s.enableCrashReporting, crashDetails});
+
 #endif
 
         Column {
@@ -264,27 +276,32 @@ public:
         }
 
 #ifdef ENABLE_CRASHPAD
-        if (s.showCrashButton()) {
-            auto crashButton = new QPushButton("CRASH!!!");
-            crashButton->show();
-            connect(crashButton, &QPushButton::clicked, [] {
-                // do a real crash
-                volatile int* a = reinterpret_cast<volatile int *>(NULL); *a = 1;
-            });
-        }
-
         connect(helpCrashReportingButton, &QAbstractButton::clicked, this, [this] {
             showHelpDialog(Tr::tr("Crash Reporting"), CorePlugin::msgCrashpadInformation());
         });
-        connect(&s.enableCrashReporting, &BaseAspect::changed, this, &SystemSettingsWidget::apply);
 
-        updateClearCrashWidgets();
-        connect(m_clearCrashReportsButton, &QPushButton::clicked, this, [&] {
-            const FilePaths &crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
+        const FilePath reportsPath = ICore::crashReportsPath()
+                                     / QLatin1String(
+                                         HostOsInfo::isMacHost() ? "completed" : "reports");
+        const auto updateClearCrashWidgets = [this, reportsPath] {
+            qint64 size = 0;
+            const FilePaths crashFiles = reportsPath.dirEntries(QDir::Files);
             for (const FilePath &file : crashFiles)
-                file.removeFile();
-            updateClearCrashWidgets();
-        });
+                size += file.fileSize();
+            m_clearCrashReportsButton->setEnabled(!crashFiles.isEmpty());
+            m_crashReportsSizeText->setText(formatSize(size));
+        };
+        updateClearCrashWidgets();
+        connect(
+            m_clearCrashReportsButton,
+            &QPushButton::clicked,
+            this,
+            [updateClearCrashWidgets, reportsPath] {
+                const FilePaths &crashFiles = reportsPath.dirEntries(QDir::Files);
+                for (const FilePath &file : crashFiles)
+                    file.removeFile();
+                updateClearCrashWidgets();
+            });
 #endif
 
         if (HostOsInfo::isAnyUnixHost()) {
@@ -357,8 +374,6 @@ private:
     void updateTerminalUi(const Utils::TerminalCommand &term);
     void updatePath();
     void updateEnvironmentChangesLabel();
-    void updateClearCrashWidgets();
-
     void showHelpDialog(const QString &title, const QString &helpText);
 
     QComboBox *m_fileSystemCaseSensitivityChooser;
@@ -459,20 +474,6 @@ void SystemSettingsWidget::showHelpDialog(const QString &title, const QString &h
     m_dialog = mb;
     mb->show();
 }
-
-#ifdef ENABLE_CRASHPAD
-void SystemSettingsWidget::updateClearCrashWidgets()
-{
-    QDir crashReportsDir(ICore::crashReportsPath().path());
-    crashReportsDir.setFilter(QDir::Files);
-    qint64 size = 0;
-    const FilePaths crashFiles = ICore::crashReportsPath().dirEntries(QDir::Files);
-    for (const FilePath &file : crashFiles)
-        size += file.fileSize();
-    m_clearCrashReportsButton->setEnabled(!crashFiles.isEmpty());
-    m_crashReportsSizeText->setText(formatSize(size));
-}
-#endif
 
 void SystemSettingsWidget::showHelpForFileBrowser()
 {

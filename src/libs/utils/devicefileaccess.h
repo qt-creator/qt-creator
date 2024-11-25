@@ -6,11 +6,14 @@
 #include "hostosinfo.h"
 #include "utils_global.h"
 
-#include "fileutils.h"
+#include "filepath.h"
 
 class tst_unixdevicefileaccess; // For testing.
 
 namespace Utils {
+
+class CommandLine;
+class RunResult;
 
 // Base class including dummy implementation usable as fallback.
 class QTCREATOR_UTILS_EXPORT DeviceFileAccess
@@ -35,16 +38,15 @@ protected:
     virtual bool isDirectory(const FilePath &filePath) const;
     virtual bool isSymLink(const FilePath &filePath) const;
     virtual bool hasHardLinks(const FilePath &filePath) const;
-    virtual expected_str<void> ensureWritableDirectory(const FilePath &filePath) const;
+    virtual Result ensureWritableDirectory(const FilePath &filePath) const;
     virtual bool ensureExistingFile(const FilePath &filePath) const;
     virtual bool createDirectory(const FilePath &filePath) const;
     virtual bool exists(const FilePath &filePath) const;
-    virtual bool removeFile(const FilePath &filePath) const;
+    virtual Result removeFile(const FilePath &filePath) const;
     virtual bool removeRecursively(const FilePath &filePath, QString *error) const;
-    virtual expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const;
-    virtual expected_str<void> copyRecursively(const FilePath &filePath,
-                                               const FilePath &target) const;
-    virtual bool renameFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result copyFile(const FilePath &filePath, const FilePath &target) const;
+    virtual Result copyRecursively(const FilePath &filePath, const FilePath &target) const;
+    virtual Result renameFile(const FilePath &filePath, const FilePath &target) const;
 
     virtual FilePath symLinkTarget(const FilePath &filePath) const;
     virtual FilePathInfo filePathInfo(const FilePath &filePath) const;
@@ -79,6 +81,7 @@ protected:
 class QTCREATOR_UTILS_EXPORT DesktopDeviceFileAccess : public DeviceFileAccess
 {
 public:
+    DesktopDeviceFileAccess();
     ~DesktopDeviceFileAccess() override;
 
     static DesktopDeviceFileAccess *instance();
@@ -93,14 +96,14 @@ protected:
     bool isDirectory(const FilePath &filePath) const override;
     bool isSymLink(const FilePath &filePath) const override;
     bool hasHardLinks(const FilePath &filePath) const override;
-    expected_str<void> ensureWritableDirectory(const FilePath &filePath) const override;
+    Result ensureWritableDirectory(const FilePath &filePath) const override;
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    bool removeFile(const FilePath &filePath) const override;
+    Result removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    bool renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePath symLinkTarget(const FilePath &filePath) const override;
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
@@ -141,7 +144,7 @@ public:
 protected:
     virtual RunResult runInShell(const CommandLine &cmdLine,
                                  const QByteArray &inputData = {}) const = 0;
-    bool runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
+    Result runInShellSuccess(const CommandLine &cmdLine, const QByteArray &stdInData = {}) const;
 
     bool isExecutableFile(const FilePath &filePath) const override;
     bool isReadableFile(const FilePath &filePath) const override;
@@ -155,10 +158,10 @@ protected:
     bool ensureExistingFile(const FilePath &filePath) const override;
     bool createDirectory(const FilePath &filePath) const override;
     bool exists(const FilePath &filePath) const override;
-    bool removeFile(const FilePath &filePath) const override;
+    Result removeFile(const FilePath &filePath) const override;
     bool removeRecursively(const FilePath &filePath, QString *error) const override;
-    expected_str<void> copyFile(const FilePath &filePath, const FilePath &target) const override;
-    bool renameFile(const FilePath &filePath, const FilePath &target) const override;
+    Result copyFile(const FilePath &filePath, const FilePath &target) const override;
+    Result renameFile(const FilePath &filePath, const FilePath &target) const override;
 
     FilePathInfo filePathInfo(const FilePath &filePath) const override;
     FilePath symLinkTarget(const FilePath &filePath) const override;

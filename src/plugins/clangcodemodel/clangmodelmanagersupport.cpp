@@ -287,7 +287,7 @@ ClangModelManagerSupport::ClangModelManagerSupport()
             onClangdSettingsChanged();
     });
 
-    ClangdSettings::setDefaultClangdPath(ICore::clangdExecutable(CLANG_BINDIR));
+    ClangdSettings::setDefaultClangdPath(ICore::clangdExecutable(CLANG_BINDIR).value_or(FilePath{}));
     connect(&ClangdSettings::instance(), &ClangdSettings::changed,
             this, &ClangModelManagerSupport::onClangdSettingsChanged);
 
@@ -800,7 +800,7 @@ void ClangModelManagerSupport::watchForExternalChanges()
         if (!LanguageClientManager::hasClients<ClangdClient>())
             return;
         for (const FilePath &file : files) {
-            const ProjectFile::Kind kind = ProjectFile::classify(file.toString());
+            const ProjectFile::Kind kind = ProjectFile::classify(file);
             if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
             Project * const project = ProjectManager::projectForFile(file);
@@ -842,7 +842,7 @@ void ClangModelManagerSupport::watchForInternalChanges()
     connect(DocumentManager::instance(), &DocumentManager::filesChangedInternally,
             this, [this](const FilePaths &filePaths) {
         for (const FilePath &fp : filePaths) {
-            const ProjectFile::Kind kind = ProjectFile::classify(fp.toString());
+            const ProjectFile::Kind kind = ProjectFile::classify(fp);
             if (!ProjectFile::isSource(kind) && !ProjectFile::isHeader(kind))
                 continue;
             Project * const project = ProjectManager::projectForFile(fp);

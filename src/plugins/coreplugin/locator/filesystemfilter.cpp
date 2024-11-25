@@ -31,6 +31,7 @@
 #include <QRegularExpression>
 #include <QStyle>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -304,17 +305,13 @@ static void matches(QPromise<void> &promise, const LocatorStorage &storage,
 
 LocatorMatcherTasks FileSystemFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, includeHidden = m_includeHidden, shortcut = shortcutString()]
+    const auto onSetup = [includeHidden = m_includeHidden, shortcut = shortcutString()]
         (Async<void> &async) {
-        async.setConcurrentCallData(matches, *storage, shortcut,
+        async.setConcurrentCallData(matches, *LocatorStorage::storage(), shortcut,
                                     DocumentManager::fileDialogInitialDirectory(), includeHidden);
     };
 
-    return {{AsyncTask<void>(onSetup), storage}};
+    return {AsyncTask<void>(onSetup)};
 }
 
 class FileSystemFilterOptions : public QDialog

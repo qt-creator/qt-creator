@@ -3,12 +3,23 @@
 
 #include "layoutbuilder.h"
 
+#include "fancylineedit.h"
+#include "filepath.h"
+#include "icon.h"
+#include "icondisplay.h"
+#include "markdownbrowser.h"
+#include "qtcassert.h"
+#include "spinner/spinner.h"
+
 #include <QDebug>
 #include <QFormLayout>
 #include <QGridLayout>
 #include <QGroupBox>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QPushButton>
+#include <QScrollArea>
+#include <QSize>
 #include <QSpacerItem>
 #include <QSpinBox>
 #include <QSplitter>
@@ -20,13 +31,6 @@
 #include <QToolBar>
 
 namespace Layouting {
-
-// That's cut down qtcassert.{c,h} to avoid the dependency.
-#define QTC_STRINGIFY_HELPER(x) #x
-#define QTC_STRINGIFY(x) QTC_STRINGIFY_HELPER(x)
-#define QTC_STRING(cond) qDebug("SOFT ASSERT: \"%s\" in %s: %s", cond,  __FILE__, QTC_STRINGIFY(__LINE__))
-#define QTC_ASSERT(cond, action) if (Q_LIKELY(cond)) {} else { QTC_STRING(#cond); action; } do {} while (0)
-#define QTC_CHECK(cond) if (cond) {} else { QTC_STRING(#cond); } do {} while (0)
 
 template <typename X>
 typename X::Implementation *access(const X *x)
@@ -47,13 +51,16 @@ class FlowLayout : public QLayout
 {
 public:
     explicit FlowLayout(QWidget *parent, int margin = -1, int hSpacing = -1, int vSpacing = -1)
-        : QLayout(parent), m_hSpace(hSpacing), m_vSpace(vSpacing)
+        : QLayout(parent)
+        , m_hSpace(hSpacing)
+        , m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
 
     FlowLayout(int margin = -1, int hSpacing = -1, int vSpacing = -1)
-        : m_hSpace(hSpacing), m_vSpace(vSpacing)
+        : m_hSpace(hSpacing)
+        , m_vSpace(vSpacing)
     {
         setContentsMargins(margin, margin, margin, margin);
     }
@@ -83,10 +90,7 @@ public:
             return smartSpacing(QStyle::PM_LayoutVerticalSpacing);
     }
 
-    Qt::Orientations expandingDirections() const override
-    {
-        return {};
-    }
+    Qt::Orientations expandingDirections() const override { return {}; }
 
     bool hasHeightForWidth() const override { return true; }
 
@@ -98,10 +102,7 @@ public:
 
     int count() const override { return itemList.size(); }
 
-    QLayoutItem *itemAt(int index) const override
-    {
-        return itemList.value(index);
-    }
+    QLayoutItem *itemAt(int index) const override { return itemList.value(index); }
 
     QSize minimumSize() const override
     {
@@ -121,10 +122,7 @@ public:
         doLayout(rect, false);
     }
 
-    QSize sizeHint() const override
-    {
-        return minimumSize();
-    }
+    QSize sizeHint() const override { return minimumSize(); }
 
     QLayoutItem *takeAt(int index) override
     {
@@ -147,13 +145,15 @@ private:
         for (QLayoutItem *item : itemList) {
             QWidget *wid = item->widget();
             int spaceX = horizontalSpacing();
-            if (spaceX == -1)
+            if (spaceX == -1) {
                 spaceX = wid->style()->layoutSpacing(
-                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
+                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Horizontal);
+            }
             int spaceY = verticalSpacing();
-            if (spaceY == -1)
+            if (spaceY == -1) {
                 spaceY = wid->style()->layoutSpacing(
-                            QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+                    QSizePolicy::PushButton, QSizePolicy::PushButton, Qt::Vertical);
+            }
             int nextX = x + item->sizeHint().width() + spaceX;
             if (nextX - spaceX > effectiveRect.right() && lineHeight > 0) {
                 x = effectiveRect.x();
@@ -202,7 +202,6 @@ private:
     \sa Layouting::Widget, Layouting::Layout
 */
 
-
 /*!
     \class Layouting::Layout
     \inmodule QtCreator
@@ -233,15 +232,18 @@ LayoutItem::LayoutItem() = default;
 LayoutItem::~LayoutItem() = default;
 
 LayoutItem::LayoutItem(QLayout *l)
-    : layout(l), empty(!l)
+    : layout(l)
+    , empty(!l)
 {}
 
 LayoutItem::LayoutItem(QWidget *w)
-    : widget(w), empty(!w)
+    : widget(w)
+    , empty(!w)
 {}
 
 LayoutItem::LayoutItem(const QString &t)
-    : text(t), empty(t.isEmpty())
+    : text(t)
+    , empty(t.isEmpty())
 {}
 
 /*!
@@ -335,7 +337,6 @@ static void addItemToFlowLayout(FlowLayout *layout, const LayoutItem &item)
 
     \brief The Stretch class represents some stretch in a layout.
  */
-
 
 // Layout
 
@@ -530,12 +531,21 @@ void Layout::flush()
                 // if (auto widget = builder.stack.at(builder.stack.size() - 2).widget) {
                 //     a = widget->style()->styleHint(QStyle::SH_FormLayoutLabelAlignment);
             }
-            if (item.widget)
-                lt->addWidget(item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
-            else if (item.layout)
-                lt->addLayout(item.layout, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
-            else if (!item.text.isEmpty())
-                lt->addWidget(createLabel(item.text), currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            if (item.widget) {
+                lt->addWidget(
+                    item.widget, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            } else if (item.layout) {
+                lt->addLayout(
+                    item.layout, currentGridRow, currentGridColumn, item.spanRows, item.spanCols, a);
+            } else if (!item.text.isEmpty()) {
+                lt->addWidget(
+                    createLabel(item.text),
+                    currentGridRow,
+                    currentGridColumn,
+                    item.spanRows,
+                    item.spanCols,
+                    a);
+            }
             currentGridColumn += item.spanCols;
             // Intentionally not used, use 'br'/'empty' for vertical progress.
             // currentGridRow += item.spanRows;
@@ -701,6 +711,16 @@ void Widget::setSize(int w, int h)
     access(this)->resize(w, h);
 }
 
+void Widget::setFixedSize(const QSize &size)
+{
+    access(this)->setFixedSize(size);
+}
+
+void Widget::setAutoFillBackground(bool on)
+{
+    access(this)->setAutoFillBackground(on);
+}
+
 void Widget::setLayout(const Layout &layout)
 {
     access(this)->setLayout(access(&layout));
@@ -711,6 +731,16 @@ void Widget::setWindowTitle(const QString &title)
     access(this)->setWindowTitle(title);
 }
 
+void Widget::setWindowFlags(Qt::WindowFlags flags)
+{
+    access(this)->setWindowFlags(flags);
+}
+
+void Widget::setWidgetAttribute(Qt::WidgetAttribute attr, bool on)
+{
+    access(this)->setAttribute(attr, on);
+}
+
 void Widget::setToolTip(const QString &title)
 {
     access(this)->setToolTip(title);
@@ -719,6 +749,26 @@ void Widget::setToolTip(const QString &title)
 void Widget::show()
 {
     access(this)->show();
+}
+
+bool Widget::isVisible() const
+{
+    return access(this)->isVisible();
+}
+
+bool Widget::isEnabled() const
+{
+    return access(this)->isEnabled();
+}
+
+void Widget::setVisible(bool visible)
+{
+    access(this)-> setVisible(visible);
+}
+
+void Widget::setEnabled(bool enabled)
+{
+    access(this)->setEnabled(enabled);
 }
 
 void Widget::setNoMargins(int)
@@ -734,6 +784,21 @@ void Widget::setNormalMargins(int)
 void Widget::setContentsMargins(int left, int top, int right, int bottom)
 {
     access(this)->setContentsMargins(left, top, right, bottom);
+}
+
+void Widget::setCursor(Qt::CursorShape shape)
+{
+    access(this)->setCursor(shape);
+}
+
+void Widget::activateWindow()
+{
+    access(this)->activateWindow();
+}
+
+void Widget::close()
+{
+    access(this)->close();
 }
 
 QWidget *Widget::emerge() const
@@ -753,6 +818,11 @@ Label::Label(const QString &text)
 {
     ptr = new Implementation;
     setText(text);
+}
+
+QString Label::text() const
+{
+    return access(this)->text();
 }
 
 void Label::setText(const QString &text)
@@ -817,9 +887,9 @@ void SpinBox::setValue(int val)
     access(this)->setValue(val);
 }
 
-void SpinBox::onTextChanged(const std::function<void (QString)> &func)
+void SpinBox::onTextChanged(const std::function<void(QString)> &func, QObject *guard)
 {
-    QObject::connect(access(this), &QSpinBox::textChanged, func);
+    QObject::connect(access(this), &QSpinBox::textChanged, guard, func);
 }
 
 // TextEdit
@@ -835,6 +905,16 @@ void TextEdit::setText(const QString &text)
     access(this)->setText(text);
 }
 
+void TextEdit::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void TextEdit::setReadOnly(bool on)
+{
+    access(this)->setReadOnly(on);
+}
+
 // PushButton
 
 PushButton::PushButton(std::initializer_list<I> ps)
@@ -846,6 +926,27 @@ PushButton::PushButton(std::initializer_list<I> ps)
 void PushButton::setText(const QString &text)
 {
     access(this)->setText(text);
+}
+
+void PushButton::setIconPath(const Utils::FilePath &iconPath)
+{
+    if (!iconPath.exists()) {
+        access(this)->setIcon({});
+        return;
+    }
+
+    Utils::Icon icon{iconPath};
+    access(this)->setIcon(icon.icon());
+}
+
+void PushButton::setIconSize(const QSize &size)
+{
+    access(this)->setIconSize(size);
+}
+
+void PushButton::setFlat(bool flat)
+{
+    access(this)->setFlat(flat);
 }
 
 void PushButton::onClicked(const std::function<void ()> &func, QObject *guard)
@@ -880,6 +981,20 @@ void addToStack(Stack *stack, QWidget *inner)
     access(stack)->addWidget(inner);
 }
 
+// ScrollArea
+
+ScrollArea::ScrollArea(const Layout &inner)
+{
+    ptr = new Implementation;
+    access(this)->setWidget(inner.emerge());
+    access(this)->setWidgetResizable(true);
+}
+
+void ScrollArea::setLayout(const Layout &inner)
+{
+    access(this)->setWidget(inner.emerge());
+}
+
 // Splitter
 
 Splitter::Splitter(std::initializer_list<I> ps)
@@ -887,6 +1002,21 @@ Splitter::Splitter(std::initializer_list<I> ps)
     ptr = new Implementation;
     access(this)->setOrientation(Qt::Vertical);
     apply(this, ps);
+}
+
+void Splitter::setOrientation(Qt::Orientation orientation)
+{
+    access(this)->setOrientation(orientation);
+}
+
+void Splitter::setStretchFactor(int index, int stretch)
+{
+    access(this)->setStretchFactor(index, stretch);
+}
+
+void Splitter::setChildrenCollapsible(bool collapsible)
+{
+    access(this)->setChildrenCollapsible(collapsible);
 }
 
 void addToSplitter(Splitter *splitter, QWidget *inner)
@@ -923,7 +1053,8 @@ TabWidget::TabWidget(std::initializer_list<I> ps)
 }
 
 Tab::Tab(const QString &tabName, const Layout &inner)
-    : tabName(tabName), inner(inner)
+    : tabName(tabName)
+    , inner(inner)
 {}
 
 void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
@@ -931,11 +1062,30 @@ void addToTabWidget(TabWidget *tabWidget, const Tab &tab)
     access(tabWidget)->addTab(tab.inner.emerge(), tab.tabName);
 }
 
+// MarkdownBrowser
+
+MarkdownBrowser::MarkdownBrowser(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void MarkdownBrowser::setMarkdown(const QString &markdown)
+{
+    access(this)->setMarkdown(markdown);
+}
+
+void MarkdownBrowser::setBasePath(const Utils::FilePath &path)
+{
+    access(this)->setBasePath(path);
+}
+
 // Special If
 
-If::If(bool condition,
-   const std::initializer_list<Layout::I> ifcase,
-   const std::initializer_list<Layout::I> thencase)
+If::If(
+    bool condition,
+    const std::initializer_list<Layout::I> ifcase,
+    const std::initializer_list<Layout::I> thencase)
     : used(condition ? ifcase : thencase)
 {}
 
@@ -956,11 +1106,14 @@ QWidget *createHr(QWidget *parent)
 }
 
 Span::Span(int cols, const Layout::I &item)
-    : item(item), spanCols(cols)
+    : item(item)
+    , spanCols(cols)
 {}
 
 Span::Span(int cols, int rows, const Layout::I &item)
-    : item(item), spanCols(cols), spanRows(rows)
+    : item(item)
+    , spanCols(cols)
+    , spanRows(rows)
 {}
 
 void addToLayout(Layout *layout, const Span &inner)
@@ -991,6 +1144,107 @@ void addToLayout(Layout *layout, const Stretch &inner)
         lt->addStretch(inner.stretch);
 }
 
+void tight(Layout *layout)
+{
+    layout->setNoMargins();
+    layout->setSpacing(0);
+}
+
+class LineEditImpl : public Utils::FancyLineEdit
+{
+public:
+    using FancyLineEdit::FancyLineEdit;
+
+    void keyPressEvent(QKeyEvent *event) override
+    {
+        FancyLineEdit::keyPressEvent(event);
+        if (acceptReturnKeys && (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return))
+            event->accept();
+    }
+
+    bool acceptReturnKeys = false;
+};
+
+LineEdit::LineEdit(std::initializer_list<I> ps)
+{
+    ptr = new LineEditImpl;
+    apply(this, ps);
+}
+
+QString LineEdit::text() const
+{
+    return access(this)->text();
+}
+
+void LineEdit::setText(const QString &text)
+{
+    access(this)->setText(text);
+}
+
+void LineEdit::setRightSideIconPath(const Utils::FilePath &path)
+{
+    if (!path.isEmpty()) {
+        QIcon icon(path.toFSPathString());
+        QTC_CHECK(!icon.isNull());
+        access(this)->setButtonIcon(Utils::FancyLineEdit::Right, icon);
+        access(this)->setButtonVisible(Utils::FancyLineEdit::Right, !icon.isNull());
+    }
+}
+
+void LineEdit::setPlaceHolderText(const QString &text)
+{
+    access(this)->setPlaceholderText(text);
+}
+
+void LineEdit::setCompleter(QCompleter *completer)
+{
+    access(this)->setSpecialCompleter(completer);
+}
+
+void LineEdit::setMinimumHeight(int height)
+{
+    access(this)->setMinimumHeight(height);
+}
+
+void LineEdit::onReturnPressed(const std::function<void()> &func, QObject *guard)
+{
+    static_cast<LineEditImpl *>(access(this))->acceptReturnKeys = true;
+    QObject::connect(access(this), &Utils::FancyLineEdit::returnPressed, guard, func);
+}
+
+void LineEdit::onRightSideIconClicked(const std::function<void()> &func, QObject *guard)
+{
+    QObject::connect(access(this), &Utils::FancyLineEdit::rightButtonClicked, guard, func);
+}
+
+Spinner::Spinner(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void Spinner::setRunning(bool running)
+{
+    using State = SpinnerSolution::SpinnerState;
+    access(this)->setState(running ? State::Running : State::NotRunning);
+}
+
+void Spinner::setDecorated(bool on)
+{
+    access(this)->setDecorated(on);
+}
+
+IconDisplay::IconDisplay(std::initializer_list<I> ps)
+{
+    ptr = new Implementation;
+    apply(this, ps);
+}
+
+void IconDisplay::setIcon(const Utils::Icon &icon)
+{
+    access(this)->setIcon(icon);
+}
+
 // void createItem(LayoutItem *item, QWidget *t)
 // {
 //     if (auto l = qobject_cast<QLabel *>(t))
@@ -999,5 +1253,4 @@ void addToLayout(Layout *layout, const Stretch &inner)
 //     item->onAdd = [t](LayoutBuilder &builder) { doAddWidget(builder, t); };
 // }
 
-
-} // Layouting
+} // namespace Layouting

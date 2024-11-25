@@ -7,6 +7,7 @@
 #include "commandline.h"
 #include "environment.h"
 #include "expected.h"
+#include "fileutils.h"
 #include "hostosinfo.h"
 #include "osspecificaspects.h"
 #include "qtcassert.h"
@@ -16,7 +17,6 @@
 #include "qtcprocess.h"
 #endif
 
-#include <QCoreApplication>
 #include <QFileSystemWatcher>
 #include <QOperatingSystemVersion>
 #include <QRandomGenerator>
@@ -24,6 +24,7 @@
 #include <QStandardPaths>
 #include <QStorageInfo>
 #include <QTemporaryFile>
+#include <QThread>
 
 #ifdef Q_OS_WIN
 #ifdef QTCREATOR_PCH_H
@@ -37,6 +38,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cstdio>
 
 namespace Utils {
 
@@ -115,22 +117,21 @@ bool DeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-expected_str<void> DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+Result DeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     if (isWritableDirectory(filePath))
-        return {};
+        return Result::Ok;
 
     if (exists(filePath)) {
-        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+        return Result::Error(Tr::tr("Path \"%1\" exists but is not a writable directory.")
                                    .arg(filePath.toUserOutput()));
     }
 
     const bool result = createDirectory(filePath);
     if (result)
-        return {};
+        return Result::Ok;
 
-    return make_unexpected(
-        Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
+    return Result::Error(Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::ensureExistingFile(const FilePath &filePath) const
@@ -153,11 +154,11 @@ bool DeviceFileAccess::exists(const FilePath &filePath) const
     return false;
 }
 
-bool DeviceFileAccess::removeFile(const FilePath &filePath) const
+Result DeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    Q_UNUSED(filePath)
     QTC_CHECK(false);
-    return false;
+    return Result::Error(
+        Tr::tr("removeFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
@@ -168,18 +169,17 @@ bool DeviceFileAccess::removeRecursively(const FilePath &filePath, QString *erro
     return false;
 }
 
-expected_str<void> DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
+Result DeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
-    Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("copyFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
-expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath &target)
+static Result copyRecursively_fallback(const FilePath &src, const FilePath &target)
 {
-    expected_str<void> result;
+    Result result = Result::Ok;
     src.iterateDirectory(
         [&target, &src, &result](const FilePath &path) {
             const FilePath relative = path.relativePathFrom(src);
@@ -199,16 +199,15 @@ expected_str<void> copyRecursively_fallback(const FilePath &src, const FilePath 
     return result;
 }
 
-expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
-                                                     const FilePath &target) const
+Result DeviceFileAccess::copyRecursively(const FilePath &src, const FilePath &target) const
 {
     if (!src.isDir()) {
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Cannot copy from \"%1\", it is not a directory.").arg(src.toUserOutput()));
     }
-    const expected_str<void> result = target.ensureWritableDir();
+    const Result result = target.ensureWritableDir();
     if (!result) {
-        return make_unexpected(Tr::tr("Cannot copy \"%1\" to \"%2\": %3")
+        return Result::Error(Tr::tr("Cannot copy \"%1\" to \"%2\": %3")
                                    .arg(src.toUserOutput())
                                    .arg(target.toUserOutput())
                                    .arg(result.error()));
@@ -238,8 +237,10 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
                          targetProcess.writeRaw(srcProcess.readAllRawStandardOutput());
                      });
 
-    srcProcess.setCommand({sourceTar, {"-C", src.path(), "-cf", "-", "."}});
-    targetProcess.setCommand({targetTar, {"xf", "-", "-C", target.path()}});
+    srcProcess.setCommand({sourceTar, {"-cf", "-", "."}});
+    srcProcess.setWorkingDirectory(src);
+    targetProcess.setCommand({targetTar, {"xf", "-"}});
+    targetProcess.setWorkingDirectory(target);
 
     targetProcess.start();
     targetProcess.waitForStarted();
@@ -251,7 +252,7 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
 
     if (srcProcess.result() != ProcessResult::FinishedWithSuccess) {
         targetProcess.kill();
-        return make_unexpected(
+        return Result::Error(
             Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
                    "trying to create tar archive from source: %3")
                 .arg(src.toUserOutput(), target.toUserOutput(), srcProcess.readAllStandardError()));
@@ -260,23 +261,23 @@ expected_str<void> DeviceFileAccess::copyRecursively(const FilePath &src,
     targetProcess.waitForFinished();
 
     if (targetProcess.result() != ProcessResult::FinishedWithSuccess) {
-        return make_unexpected(Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
+        return Result::Error(Tr::tr("Failed to copy recursively from \"%1\" to \"%2\" while "
                                       "trying to extract tar archive to target: %3")
                                    .arg(src.toUserOutput(),
                                         target.toUserOutput(),
                                         targetProcess.readAllStandardError()));
     }
 
-    return {};
+    return Result::Ok;
 #endif
 }
 
-bool DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+Result DeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
-    Q_UNUSED(filePath)
     Q_UNUSED(target)
     QTC_CHECK(false);
-    return false;
+    return Result::Error(
+        Tr::tr("renameFile is not implemented for \"%1\".").arg(filePath.toUserOutput()));
 }
 
 FilePath DeviceFileAccess::symLinkTarget(const FilePath &filePath) const
@@ -398,6 +399,163 @@ Utils::expected_str<std::unique_ptr<FilePathWatcher>> DeviceFileAccess::watch(
 }
 
 // DesktopDeviceFileAccess
+
+class DesktopFilePathWatcher final : public FilePathWatcher
+{
+    class GlobalWatcher final
+    {
+    public:
+        GlobalWatcher()
+        {
+            m_thread.setObjectName(QStringLiteral("DesktopFilePathWatcher"));
+            m_thread.start();
+            d.moveToThread(&m_thread);
+            d.init();
+        }
+        ~GlobalWatcher()
+        {
+            m_thread.quit();
+            m_thread.wait();
+        }
+
+        bool watch(DesktopFilePathWatcher *watcher) { return d.watch(watcher); }
+        bool removeWatch(DesktopFilePathWatcher *watcher) { return d.removeWatch(watcher); }
+
+        static GlobalWatcher &instance()
+        {
+            static GlobalWatcher theInstance;
+            return theInstance;
+        }
+
+    private:
+        class Private : public QObject
+        {
+        public:
+            void init() { QMetaObject::invokeMethod(this, &Private::_init, Qt::QueuedConnection); }
+            bool watch(DesktopFilePathWatcher *watcher)
+            {
+                bool result;
+                QMetaObject::invokeMethod(
+                    this,
+                    [this, watcher] { return _watch(watcher); },
+                    Qt::BlockingQueuedConnection,
+                    &result);
+
+                return result;
+            }
+            bool removeWatch(DesktopFilePathWatcher *watcher)
+            {
+                bool result;
+                return QMetaObject::invokeMethod(
+                    this,
+                    [this, watcher] { return _removeWatch(watcher); },
+                    Qt::BlockingQueuedConnection,
+                    &result);
+                return result;
+            }
+
+        protected:
+            void _init()
+            {
+                m_watcher = new QFileSystemWatcher(this);
+
+                connect(m_watcher, &QFileSystemWatcher::fileChanged, this, [this](const QString &path) {
+                    notify(path, true);
+                });
+
+                connect(
+                    m_watcher,
+                    &QFileSystemWatcher::directoryChanged,
+                    this,
+                    [this](const QString &path) { notify(path, false); });
+            }
+            void notify(const QString &path, bool isFile) const
+            {
+                const FilePath filePath = FilePath::fromString(path);
+                auto it = m_watchClients.find(filePath);
+                if (it == m_watchClients.end())
+                    return;
+
+                for (DesktopFilePathWatcher *watcher : it.value())
+                    watcher->emitChanged();
+
+                if (isFile && !m_watcher->files().contains(path)) {
+                    // The file might have been deleted, lets see if there is a new file to watch
+                    // in its place:
+                    if (QFile::exists(path))
+                        m_watcher->addPath(path);
+                }
+            }
+            bool _watch(DesktopFilePathWatcher *watcher)
+            {
+                const FilePath path = watcher->path();
+                auto it = m_watchClients.find(path);
+
+                if (it == m_watchClients.end()) {
+                    if (!m_watcher->addPath(path.path()))
+                        return false;
+                    it = m_watchClients.emplace(path);
+                }
+                it->append(watcher);
+                return true;
+            }
+
+            bool _removeWatch(DesktopFilePathWatcher *watcher)
+            {
+                const FilePath path = watcher->path();
+                auto it = m_watchClients.find(path);
+                QTC_ASSERT(it != m_watchClients.end(), return false);
+
+                it->removeOne(watcher);
+                if (it->size() == 0) {
+                    m_watchClients.erase(it);
+                    return m_watcher->removePath(path.path());
+                }
+                return true;
+            }
+
+        private:
+            QFileSystemWatcher *m_watcher = nullptr;
+            QHash<FilePath, QList<DesktopFilePathWatcher *>> m_watchClients;
+        };
+        Private d;
+        QThread m_thread;
+    };
+
+public:
+    DesktopFilePathWatcher(const FilePath &path)
+        : m_path(path)
+    {
+        if (!GlobalWatcher::instance().watch(this)) {
+            if (path.exists())
+                m_error = Tr::tr("Failed to watch \"%1\".").arg(path.toUserOutput());
+            else
+                m_error
+                    = Tr::tr("Failed to watch \"%1\", it does not exist.").arg(path.toUserOutput());
+        }
+    }
+
+    ~DesktopFilePathWatcher()
+    {
+        if (m_error.isEmpty()) {
+            QTC_CHECK(GlobalWatcher::instance().removeWatch(this));
+        }
+    }
+
+    FilePath path() const { return m_path; }
+
+    void emitChanged() { emit pathChanged(m_path); }
+
+    QString error() const { return m_error; }
+
+private:
+    const FilePath m_path;
+    QString m_error;
+};
+
+DesktopDeviceFileAccess::DesktopDeviceFileAccess()
+{
+}
 
 DesktopDeviceFileAccess::~DesktopDeviceFileAccess() = default;
 
@@ -523,22 +681,22 @@ bool DesktopDeviceFileAccess::hasHardLinks(const FilePath &filePath) const
     return false;
 }
 
-expected_str<void> DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
+Result DesktopDeviceFileAccess::ensureWritableDirectory(const FilePath &filePath) const
 {
     const QFileInfo fi(filePath.path());
     if (fi.isDir() && fi.isWritable())
-        return {};
+        return Result::Ok;
 
     if (fi.exists()) {
-        return make_unexpected(Tr::tr("Path \"%1\" exists but is not a writable directory.")
+        return Result::Error(Tr::tr("Path \"%1\" exists but is not a writable directory.")
                                    .arg(filePath.toUserOutput()));
     }
 
     const bool result = QDir().mkpath(filePath.path());
     if (result)
-        return {};
+        return Result::Ok;
 
-    return make_unexpected(
+    return Result::Error(
         Tr::tr("Failed to create directory \"%1\".").arg(filePath.toUserOutput()));
 }
 
@@ -563,9 +721,12 @@ bool DesktopDeviceFileAccess::exists(const FilePath &filePath) const
     return !filePath.isEmpty() && QFileInfo::exists(filePath.path());
 }
 
-bool DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
+Result DesktopDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
-    return QFile::remove(filePath.path());
+    QFile f(filePath.path());
+    if (!f.remove())
+        return Result::Error(f.errorString());
+    return Result::Ok;
 }
 
 static bool checkToRefuseRemoveStandardLocationDirectory(const QString &dirPath,
@@ -642,21 +803,28 @@ bool DesktopDeviceFileAccess::removeRecursively(const FilePath &filePath, QStrin
     return true;
 }
 
-expected_str<void> DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
+Result DesktopDeviceFileAccess::copyFile(const FilePath &filePath,
                                                      const FilePath &target) const
 {
     QFile srcFile(filePath.path());
 
     if (srcFile.copy(target.path()))
-        return {};
-    return make_unexpected(
+        return Result::Ok;
+    return Result::Error(
         Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
             .arg(filePath.toUserOutput(), target.toUserOutput(), srcFile.errorString()));
 }
 
-bool DesktopDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+Result DesktopDeviceFileAccess::renameFile(
+    const FilePath &filePath, const FilePath &target) const
 {
-    return QFile::rename(filePath.path(), target.path());
+    QFile f(filePath.path());
+
+    if (f.rename(target.path()))
+        return Result::Ok;
+    return Result::Error(
+        Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
+            .arg(filePath.toUserOutput(), target.toUserOutput(), f.errorString()));
 }
 
 FilePathInfo DesktopDeviceFileAccess::filePathInfo(const FilePath &filePath) const
@@ -775,27 +943,13 @@ expected_str<FilePath> DesktopDeviceFileAccess::createTempFile(const FilePath &f
     return filePath.withNewPath(file.fileName());
 }
 
-class DesktopFilePathWatcher : public FilePathWatcher
-{
-    QFileSystemWatcher m_watcher;
-
-public:
-    DesktopFilePathWatcher(const FilePath &path) {
-        connect(&m_watcher, &QFileSystemWatcher::fileChanged, this, [this, path] {
-            emit pathChanged(path);
-        });
-        connect(&m_watcher, &QFileSystemWatcher::directoryChanged, this, [this, path] {
-            emit pathChanged(path);
-        });
-
-        m_watcher.addPath(path.path());
-    }
-};
-
 Utils::expected_str<std::unique_ptr<FilePathWatcher>> DesktopDeviceFileAccess::watch(
     const FilePath &path) const
 {
-    return std::make_unique<DesktopFilePathWatcher>(path);
+    auto watcher = std::make_unique<DesktopFilePathWatcher>(path);
+    if (watcher->error().isEmpty())
+        return watcher;
+    return make_unexpected(watcher->error());
 }
 
 QDateTime DesktopDeviceFileAccess::lastModified(const FilePath &filePath) const
@@ -833,12 +987,11 @@ static inline QByteArray fileIdWin7(HANDLE handle)
     BY_HANDLE_FILE_INFORMATION info;
     if (GetFileInformationByHandle(handle, &info)) {
         char buffer[sizeof "01234567:0123456701234567\0"];
-        qsnprintf(buffer,
-                  sizeof(buffer),
-                  "%lx:%08lx%08lx",
-                  info.dwVolumeSerialNumber,
-                  info.nFileIndexHigh,
-                  info.nFileIndexLow);
+        std::snprintf(buffer, sizeof(buffer),
+                      "%lx:%08lx%08lx",
+                      info.dwVolumeSerialNumber,
+                      info.nFileIndexHigh,
+                      info.nFileIndexLow);
         return QByteArray(buffer);
     }
     return QByteArray();
@@ -904,19 +1057,27 @@ QByteArray DesktopDeviceFileAccess::fileId(const FilePath &filePath) const
 
 // UnixDeviceAccess
 
+static QString disconnectedMessage()
+{
+    return Tr::tr("Device is not connected");
+}
+
 static Utils::unexpected<QString> make_unexpected_disconnected()
 {
-    return make_unexpected(Tr::tr("Device is not connected"));
+    return make_unexpected(disconnectedMessage());
 }
 
 UnixDeviceFileAccess::~UnixDeviceFileAccess() = default;
 
-bool UnixDeviceFileAccess::runInShellSuccess(const CommandLine &cmdLine,
-                                             const QByteArray &stdInData) const
+Result UnixDeviceFileAccess::runInShellSuccess(const CommandLine &cmdLine,
+                                               const QByteArray &stdInData) const
 {
     if (disconnected())
-        return false;
-    return runInShell(cmdLine, stdInData).exitCode == 0;
+        return Result::Error("disconnected");
+    const int retval = runInShell(cmdLine, stdInData).exitCode;
+    if (retval != 0)
+        return Result::Error(QString("return value %1").arg(retval));
+    return Result::Ok;
 }
 
 bool UnixDeviceFileAccess::isExecutableFile(const FilePath &filePath) const
@@ -1019,17 +1180,21 @@ bool UnixDeviceFileAccess::exists(const FilePath &filePath) const
     return runInShellSuccess({"test", {"-e", path}, OsType::OsTypeLinux});
 }
 
-bool UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
+Result UnixDeviceFileAccess::removeFile(const FilePath &filePath) const
 {
     if (disconnected())
-        return false;
-    return runInShellSuccess({"rm", {filePath.path()}, OsType::OsTypeLinux});
+        return Result::Error(disconnectedMessage());
+    RunResult result = runInShell({"rm", {filePath.path()}, OsType::OsTypeLinux});
+    if (result.exitCode != 0)
+        return Result::Error(QString::fromUtf8(result.stdErr));
+    return Result::Ok;
 }
 
 bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *error) const
 {
     if (disconnected())
         return false;
+
     QTC_ASSERT(filePath.path().startsWith('/'), return false);
 
     const QString path = filePath.cleanPath().path();
@@ -1047,29 +1212,35 @@ bool UnixDeviceFileAccess::removeRecursively(const FilePath &filePath, QString *
     return result.exitCode == 0;
 }
 
-expected_str<void> UnixDeviceFileAccess::copyFile(const FilePath &filePath,
-                                                  const FilePath &target) const
+Result UnixDeviceFileAccess::copyFile(const FilePath &filePath, const FilePath &target) const
 {
     if (disconnected())
-        return make_unexpected_disconnected();
+        return Result::Error(disconnectedMessage());
     const RunResult result = runInShell(
         {"cp", {filePath.path(), target.path()}, OsType::OsTypeLinux});
 
     if (result.exitCode != 0) {
-        return make_unexpected(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
+        return Result::Error(Tr::tr("Failed to copy file \"%1\" to \"%2\": %3")
                                    .arg(filePath.toUserOutput(),
                                         target.toUserOutput(),
                                         QString::fromUtf8(result.stdErr)));
     }
-    return {};
+    return Result::Ok;
 }
 
-bool UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
+Result UnixDeviceFileAccess::renameFile(const FilePath &filePath, const FilePath &target) const
 {
     if (disconnected())
-        return false;
+        return Result::Error(disconnectedMessage());
 
-    return runInShellSuccess({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    RunResult result = runInShell({"mv", {filePath.path(), target.path()}, OsType::OsTypeLinux});
+    if (result.exitCode != 0) {
+        return Result::Error(Tr::tr("Failed to rename file \"%1\" to \"%2\": %3")
+                                   .arg(filePath.toUserOutput(),
+                                        target.toUserOutput(),
+                                        QString::fromUtf8(result.stdErr)));
+    }
+    return Result::Ok;
 }
 
 FilePath UnixDeviceFileAccess::symLinkTarget(const FilePath &filePath) const
@@ -1249,14 +1420,43 @@ QFile::Permissions UnixDeviceFileAccess::permissions(const FilePath &filePath) c
     return perm;
 }
 
+/*
+Convert QFileDevice::Permissions to Unix chmod flags.
+The mode is copied from system libraries.
+The logic is copied from qfiledevice_p.h "toMode_t" function.
+*/
+constexpr int toUnixChmod(QFileDevice::Permissions permissions)
+{
+    int mode = 0;
+    if (permissions & (QFileDevice::ReadOwner | QFileDevice::ReadUser))
+        mode |= 0000400; // S_IRUSR
+    if (permissions & (QFileDevice::WriteOwner | QFileDevice::WriteUser))
+        mode |= 0000200; // S_IWUSR
+    if (permissions & (QFileDevice::ExeOwner | QFileDevice::ExeUser))
+        mode |= 0000100; // S_IXUSR
+    if (permissions & QFileDevice::ReadGroup)
+        mode |= 0000040; // S_IRGRP
+    if (permissions & QFileDevice::WriteGroup)
+        mode |= 0000020; // S_IWGRP
+    if (permissions & QFileDevice::ExeGroup)
+        mode |= 0000010; // S_IXGRP
+    if (permissions & QFileDevice::ReadOther)
+        mode |= 0000004; // S_IROTH
+    if (permissions & QFileDevice::WriteOther)
+        mode |= 0000002; // S_IWOTH
+    if (permissions & QFileDevice::ExeOther)
+        mode |= 0000001; // S_IXOTH
+    return mode;
+}
+
 bool UnixDeviceFileAccess::setPermissions(const FilePath &filePath, QFile::Permissions perms) const
 {
     if (disconnected())
         return false;
 
-    const int flags = int(perms);
+    const int flags = toUnixChmod(perms);
     return runInShellSuccess(
-        {"chmod", {QString::number(flags, 16), filePath.path()}, OsType::OsTypeLinux});
+        {"chmod", {"0" + QString::number(flags, 8), filePath.path()}, OsType::OsTypeLinux});
 }
 
 qint64 UnixDeviceFileAccess::fileSize(const FilePath &filePath) const

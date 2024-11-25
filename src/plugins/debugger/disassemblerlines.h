@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <QStringList>
 #include <QHash>
-#include <QVector>
+#include <QList>
+#include <QString>
 
 namespace Debugger::Internal {
 
@@ -54,7 +54,7 @@ public:
     int size() const { return m_data.size(); }
     const DisassemblerLine &at(int i) const { return m_data.at(i); }
     int lineForAddress(quint64 address) const;
-    QVector<DisassemblerLine> data() const { return m_data; }
+    QList<DisassemblerLine> data() const { return m_data; }
 
     quint64 startAddress() const;
     quint64 endAddress() const;
@@ -62,7 +62,7 @@ public:
 private:
     QString m_lastFunction;
     int m_bytesLength = 0;
-    QVector<DisassemblerLine> m_data;
+    QList<DisassemblerLine> m_data;
     QHash<quint64, int> m_rowCache;
 };
 

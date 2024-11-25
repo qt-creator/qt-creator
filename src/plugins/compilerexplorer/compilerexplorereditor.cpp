@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "compilerexplorereditor.h"
+
+#include "api/compile.h"
 #include "compilerexplorerconstants.h"
 #include "compilerexploreroptions.h"
 #include "compilerexplorersettings.h"
@@ -14,6 +16,11 @@
 #include <coreplugin/icontext.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/messagemanager.h>
+#include <coreplugin/terminal/searchableterminal.h>
+
+#include <projectexplorer/projectexplorerconstants.h>
+
+#include <solutions/spinner/spinner.h>
 
 #include <texteditor/fontsettings.h>
 #include <texteditor/textdocument.h>
@@ -21,9 +28,8 @@
 #include <texteditor/texteditorsettings.h>
 #include <texteditor/textmark.h>
 
-#include <projectexplorer/projectexplorerconstants.h>
-
 #include <utils/algorithm.h>
+#include <utils/fancymainwindow.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/mimetypes2/mimetype.h>
@@ -32,21 +38,17 @@
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
-#include <QCompleter>
 #include <QDesktopServices>
 #include <QDockWidget>
+#include <QFutureWatcher>
+#include <QInputDialog>
 #include <QPushButton>
-#include <QSplitter>
-#include <QStackedLayout>
-#include <QStandardItemModel>
-#include <QTemporaryFile>
 #include <QTimer>
 #include <QToolBar>
 #include <QToolButton>
 #include <QUndoStack>
 
-#include <chrono>
-#include <iostream>
+#include <memory>
 
 using namespace std::chrono_literals;
 using namespace Aggregation;
@@ -62,6 +64,255 @@ enum {
 
 constexpr char AsmEditorLinks[] = "AsmEditor.Links";
 constexpr char SourceEditorHoverLine[] = "SourceEditor.HoveredLine";
+
+class CodeEditorWidget : public TextEditor::TextEditorWidget
+{
+    Q_OBJECT
+public:
+    CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings, QUndoStack *undoStack);
+
+    void updateHighlighter();
+
+    void undo() override { m_undoStack->undo(); }
+    void redo() override { m_undoStack->redo(); }
+
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
+
+    void focusInEvent(QFocusEvent *event) override
+    {
+        TextEditorWidget::focusInEvent(event);
+        emit gotFocus();
+    }
+
+signals:
+    void gotFocus();
+
+private:
+    std::shared_ptr<SourceSettings> m_settings;
+    QUndoStack *m_undoStack;
+};
+
+class AsmDocument : public TextEditor::TextDocument
+{
+public:
+    using TextEditor::TextDocument::TextDocument;
+
+    QList<QTextEdit::ExtraSelection> setCompileResult(const Api::CompileResult &compileResult);
+    QList<Api::CompileResult::AssemblyLine> &asmLines() { return m_assemblyLines; }
+
+private:
+    QList<Api::CompileResult::AssemblyLine> m_assemblyLines;
+    QList<TextEditor::TextMark *> m_marks;
+};
+
+class AsmEditorWidget : public TextEditor::TextEditorWidget
+{
+    Q_OBJECT
+
+public:
+    AsmEditorWidget(QUndoStack *undoStack);
+
+    void focusInEvent(QFocusEvent *event) override
+    {
+        TextEditorWidget::focusInEvent(event);
+        emit gotFocus();
+        updateUndoRedoActions();
+    }
+
+    void findLinkAt(const QTextCursor &,
+                    const Utils::LinkHandler &processLinkCallback,
+                    bool resolveTarget = true,
+                    bool inNextSplit = false) override;
+
+    void undo() override { m_undoStack->undo(); }
+    void redo() override { m_undoStack->redo(); }
+
+    bool isUndoAvailable() const override { return m_undoStack->canUndo(); }
+    bool isRedoAvailable() const override { return m_undoStack->canRedo(); }
+
+protected:
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+
+signals:
+    void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
+
+private:
+    QUndoStack *m_undoStack;
+    std::optional<Api::CompileResult::AssemblyLine> m_currentlyHoveredLine;
+};
+
+class JsonSettingsDocument : public Core::IDocument
+{
+    Q_OBJECT
+public:
+    JsonSettingsDocument(QUndoStack *undoStack);
+
+    OpenResult open(QString *errorString,
+                    const Utils::FilePath &filePath,
+                    const Utils::FilePath &realFilePath) override;
+
+    Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+
+    bool setContents(const QByteArray &contents) override;
+
+    QString fallbackSaveAsFileName() const override;
+
+    bool shouldAutoSave() const override { return !filePath().isEmpty(); }
+    bool isModified() const override;
+    bool isSaveAsAllowed() const override { return true; }
+
+    CompilerExplorerSettings *settings() { return &m_ceSettings; }
+
+    void setWindowStateCallback(std::function<Utils::Store()> callback)
+    {
+        m_windowStateCallback = callback;
+    }
+
+signals:
+    void settingsChanged();
+
+private:
+    mutable CompilerExplorerSettings m_ceSettings;
+    std::function<Utils::Store()> m_windowStateCallback;
+};
+
+class SourceEditorWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    SourceEditorWidget(const std::shared_ptr<SourceSettings> &settings, QUndoStack *undoStack);
+
+    QString sourceCode();
+    SourceSettings *sourceSettings() { return m_sourceSettings.get(); }
+
+    void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
+
+    TextEditor::TextEditorWidget *textEditor() { return m_codeEditor; }
+
+public slots:
+    void markSourceLocation(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
+
+signals:
+    void sourceCodeChanged();
+    void remove();
+    void gotFocus();
+
+private:
+    CodeEditorWidget *m_codeEditor{nullptr};
+    std::shared_ptr<SourceSettings> m_sourceSettings;
+};
+
+class CompilerWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    CompilerWidget(const std::shared_ptr<SourceSettings> &sourceSettings,
+                   const std::shared_ptr<CompilerSettings> &compilerSettings,
+                   QUndoStack *undoStack);
+
+    Core::SearchableTerminal *createTerminal();
+
+    void compile(const QString &source);
+
+    std::shared_ptr<SourceSettings> m_sourceSettings;
+    std::shared_ptr<CompilerSettings> m_compilerSettings;
+
+    void focusInEvent(QFocusEvent *) override { emit gotFocus(); }
+
+    TextEditor::TextEditorWidget *textEditor() { return m_asmEditor; }
+
+private:
+    void doCompile();
+
+signals:
+    void remove();
+    void gotFocus();
+    void hoveredLineChanged(const std::optional<Api::CompileResult::AssemblyLine> &assemblyLine);
+
+private:
+    AsmEditorWidget *m_asmEditor{nullptr};
+    Core::SearchableTerminal *m_resultTerminal{nullptr};
+
+    SpinnerSolution::Spinner *m_spinner{nullptr};
+    QSharedPointer<AsmDocument> m_asmDocument;
+
+    std::unique_ptr<QFutureWatcher<Api::CompileResult>> m_compileWatcher;
+
+    QString m_source;
+    QTimer *m_delayTimer{nullptr};
+};
+
+class HelperWidget : public QWidget
+{
+    Q_OBJECT
+public:
+    HelperWidget();
+
+protected:
+    void mousePressEvent(QMouseEvent *event) override;
+
+signals:
+    void addSource();
+};
+
+class EditorWidget : public Utils::FancyMainWindow
+{
+    Q_OBJECT
+public:
+    EditorWidget(const std::shared_ptr<JsonSettingsDocument> &document,
+                 QUndoStack *undoStack,
+                 QWidget *parent = nullptr);
+    ~EditorWidget() override;
+
+    TextEditor::TextEditorWidget *focusedEditorWidget() const;
+
+signals:
+    void sourceCodeChanged();
+    void gotFocus();
+
+protected:
+    void focusInEvent(QFocusEvent *event) override;
+
+    void setupHelpWidget();
+    QWidget *createHelpWidget() const;
+
+    CompilerWidget *addCompiler(const std::shared_ptr<SourceSettings> &sourceSettings,
+                                const std::shared_ptr<CompilerSettings> &compilerSettings,
+                                int idx);
+
+    void addSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
+    void removeSourceEditor(const std::shared_ptr<SourceSettings> &sourceSettings);
+
+    void recreateEditors();
+
+    QVariantMap windowStateCallback();
+
+private:
+    std::shared_ptr<JsonSettingsDocument> m_document;
+    QUndoStack *m_undoStack;
+
+    QList<QDockWidget *> m_compilerWidgets;
+    QList<QDockWidget *> m_sourceWidgets;
+};
+
+class Editor : public Core::IEditor
+{
+public:
+    Editor();
+    ~Editor();
+
+    Core::IDocument *document() const override { return m_document.get(); }
+    QWidget *toolBar() override;
+
+    std::shared_ptr<JsonSettingsDocument> m_document;
+    QUndoStack m_undoStack;
+    std::unique_ptr<QToolBar> m_toolBar;
+    QAction *m_undoAction = nullptr;
+    QAction *m_redoAction = nullptr;
+};
 
 CodeEditorWidget::CodeEditorWidget(const std::shared_ptr<SourceSettings> &settings,
                                    QUndoStack *undoStack)
@@ -104,7 +355,7 @@ public:
             settings->source.setVolatileValue(plainText());
         });
 
-        connect(&settings->source, &Utils::StringAspect::changed, this, [settings, this] {
+        settings->source.addOnChanged(this, [settings, this] {
             if (settings->source.volatileValue() != plainText())
                 setPlainText(settings->source.volatileValue());
         });
@@ -119,7 +370,6 @@ public:
 };
 
 JsonSettingsDocument::JsonSettingsDocument(QUndoStack *undoStack)
-    : m_undoStack(undoStack)
 {
     setId(Constants::CE_EDITOR_ID);
     setMimeType("application/compiler-explorer");
@@ -159,7 +409,7 @@ Core::IDocument::OpenResult JsonSettingsDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool JsonSettingsDocument::saveImpl(QString *errorString, const FilePath &newFilePath, bool autoSave)
+Result JsonSettingsDocument::saveImpl(const FilePath &newFilePath, bool autoSave)
 {
     Store store;
 
@@ -183,14 +433,12 @@ bool JsonSettingsDocument::saveImpl(QString *errorString, const FilePath &newFil
         setFilePath(newFilePath);
     }
 
-    auto result = path.writeFileContents(jsonFromStore(store));
-    if (!result && errorString) {
-        *errorString = result.error();
-        return false;
-    }
+    expected_str<qint64> result = path.writeFileContents(jsonFromStore(store));
+    if (!result)
+        return Result::Error(result.error());
 
     emit changed();
-    return true;
+    return Result::Ok;
 }
 
 bool JsonSettingsDocument::isModified() const
@@ -867,10 +1115,12 @@ QWidget *Editor::toolBar()
 
         m_toolBar->addSeparator();
 
-        QString link = QString(R"(<a href="%1">%1</a>)")
-                           .arg(m_document->settings()->compilerExplorerUrl.value());
-
-        auto poweredByLabel = new QLabel(Tr::tr("powered by %1").arg(link));
+        auto labelText = [this]() {
+            return Tr::tr("powered by %1")
+                .arg(QString(R"(<a href="%1">%1</a>)")
+                         .arg(m_document->settings()->compilerExplorerUrl.value()));
+        };
+        auto poweredByLabel = new QLabel(labelText());
 
         poweredByLabel->setTextInteractionFlags(Qt::TextInteractionFlag::TextBrowserInteraction);
         poweredByLabel->setContentsMargins(6, 0, 0, 0);
@@ -879,7 +1129,30 @@ QWidget *Editor::toolBar()
             QDesktopServices::openUrl(link);
         });
 
+        connect(
+            &m_document->settings()->compilerExplorerUrl,
+            &StringAspect::changed,
+            poweredByLabel,
+            [labelText, poweredByLabel] { poweredByLabel->setText(labelText()); });
+
         m_toolBar->addWidget(poweredByLabel);
+
+        QAction *setUrlAction = new QAction();
+        setUrlAction->setIcon(Utils::Icons::SETTINGS_TOOLBAR.icon());
+        setUrlAction->setToolTip(Tr::tr("Change backend URL."));
+        connect(setUrlAction, &QAction::triggered, this, [this] {
+            bool ok;
+            QString text = QInputDialog::getText(
+                ICore::dialogParent(),
+                Tr::tr("Set Compiler Explorer URL"),
+                Tr::tr("URL:"),
+                QLineEdit::Normal,
+                m_document->settings()->compilerExplorerUrl.value(),
+                &ok);
+            if (ok)
+                m_document->settings()->compilerExplorerUrl.setValue(text);
+        });
+        m_toolBar->addAction(setUrlAction);
 
         connect(newSource,
                 &QAction::triggered,
@@ -888,14 +1161,6 @@ QWidget *Editor::toolBar()
     }
 
     return m_toolBar.get();
-}
-
-EditorFactory::EditorFactory()
-{
-    setId(Constants::CE_EDITOR_ID);
-    setDisplayName(Tr::tr("Compiler Explorer Editor"));
-    setMimeTypes({"application/compiler-explorer"});
-    setEditorCreator([] { return new Editor; });
 }
 
 QList<QTextEdit::ExtraSelection> AsmDocument::setCompileResult(
@@ -1022,4 +1287,25 @@ void AsmEditorWidget::findLinkAt(const QTextCursor &cursor,
     }
 }
 
+// CompilerExplorerEditorFactory
+
+class CompilerExplorerEditorFactory final : public IEditorFactory
+{
+public:
+    CompilerExplorerEditorFactory()
+    {
+        setId(Constants::CE_EDITOR_ID);
+        setDisplayName(Tr::tr("Compiler Explorer Editor"));
+        setMimeTypes({"application/compiler-explorer"});
+        setEditorCreator([] { return new Editor; });
+    }
+};
+
+void setupCompilerExplorerEditor()
+{
+    static CompilerExplorerEditorFactory theCompilerExplorerEditorFactory;
+}
+
 } // namespace CompilerExplorer
+
+#include "compilerexplorereditor.moc"

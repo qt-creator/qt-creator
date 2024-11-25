@@ -42,13 +42,12 @@ static Range toRange(const QTextDocument *doc, DiagnosticRange locations)
 void ClangToolQuickFixOperation::perform()
 {
     TextEditor::PlainRefactoringFileFactory changes;
-    QMap<QString, TextEditor::RefactoringFilePtr> refactoringFiles;
+    QMap<Utils::FilePath, TextEditor::RefactoringFilePtr> refactoringFiles;
 
     for (const ExplainingStep &step : m_diagnostic.explainingSteps) {
         if (!step.isFixIt)
             continue;
-        TextEditor::RefactoringFilePtr &refactoringFile
-            = refactoringFiles[step.location.filePath.toString()];
+        TextEditor::RefactoringFilePtr &refactoringFile = refactoringFiles[step.location.filePath];
         if (refactoringFile.isNull())
             refactoringFile = changes.file(step.location.filePath);
         Utils::ChangeSet changeSet = refactoringFile->changeSet();

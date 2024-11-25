@@ -49,7 +49,7 @@ private:
     QString m_gzipFileDestName;
 };
 
-class QTCREATOR_UTILS_EXPORT UnarchiverTaskAdapter : public Tasking::TaskAdapter<Unarchiver>
+class QTCREATOR_UTILS_EXPORT UnarchiverTaskAdapter final : public Tasking::TaskAdapter<Unarchiver>
 {
 public:
     UnarchiverTaskAdapter();

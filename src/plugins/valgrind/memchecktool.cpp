@@ -44,6 +44,7 @@
 #include <projectexplorer/toolchain.h>
 
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
@@ -110,50 +111,7 @@ private:
     void appendLog(const QByteArray &data);
 
     const bool m_withGdb;
-    QHostAddress m_localServerAddress;
-};
-
-class LocalAddressFinder : public RunWorker
-{
-public:
-    LocalAddressFinder(RunControl *runControl, QHostAddress *localServerAddress)
-        : RunWorker(runControl), m_localServerAddress(localServerAddress) {}
-
-    void start() final
-    {
-        QTC_ASSERT(!m_process, return);
-        m_process.reset(new Process);
-        m_process->setCommand({device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
-        connect(m_process.get(), &Process::done, this, [this] {
-            if (m_process->error() != QProcess::UnknownError) {
-                reportFailure();
-                return;
-            }
-            const QByteArrayList data = m_process->rawStdOut().split(' ');
-            if (data.size() != 3) {
-                reportFailure();
-                return;
-            }
-            QHostAddress hostAddress;
-            if (!hostAddress.setAddress(QString::fromLatin1(data.first()))) {
-                reportFailure();
-                return;
-            }
-            *m_localServerAddress = hostAddress;
-            reportStarted();
-            m_process.release()->deleteLater();
-        });
-        m_process->start();
-    }
-
-    void stop() final
-    {
-        reportStopped();
-    }
-
-private:
-    std::unique_ptr<Process> m_process = nullptr;
-    QHostAddress *m_localServerAddress = nullptr;
+    std::unique_ptr<Process> m_process;
 };
 
 QString MemcheckToolRunner::progressTitle() const
@@ -163,12 +121,35 @@ QString MemcheckToolRunner::progressTitle() const
 
 void MemcheckToolRunner::start()
 {
-    m_runner.setLocalServerAddress(m_localServerAddress);
+    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
+        m_process.reset(new Process);
+        m_process->setCommand({device()->filePath("echo"), "-n $SSH_CLIENT", CommandLine::Raw});
+        connect(m_process.get(), &Process::done, this, [this] {
+            const ProcessResult result = m_process->result();
+            const QByteArrayList data = m_process->rawStdOut().split(' ');
+            m_process.release()->deleteLater();
+            if (result != ProcessResult::FinishedWithSuccess || data.size() != 3) {
+                reportFailure();
+                return;
+            }
+            QHostAddress hostAddress;
+            if (!hostAddress.setAddress(QString::fromLatin1(data.first()))) {
+                reportFailure();
+                return;
+            }
+            m_runner.setLocalServerAddress(hostAddress);
+            ValgrindToolRunner::start();
+        });
+        m_process->start();
+        return;
+    }
+    m_runner.setLocalServerAddress(QHostAddress::LocalHost);
     ValgrindToolRunner::start();
 }
 
 void MemcheckToolRunner::stop()
 {
+    m_process.reset();
     disconnect(&m_runner, &ValgrindProcess::internalError,
                this, &MemcheckToolRunner::internalParserError);
     ValgrindToolRunner::stop();
@@ -184,20 +165,7 @@ void MemcheckToolRunner::addToolArguments(CommandLine &cmd) const
     if (m_settings.showReachable())
         cmd << "--show-reachable=yes";
 
-    QString leakCheckValue;
-    switch (m_settings.leakCheckOnFinish()) {
-    case ValgrindSettings::LeakCheckOnFinishNo:
-        leakCheckValue = "no";
-        break;
-    case ValgrindSettings::LeakCheckOnFinishYes:
-        leakCheckValue = "full";
-        break;
-    case ValgrindSettings::LeakCheckOnFinishSummaryOnly:
-    default:
-        leakCheckValue = "summary";
-        break;
-    }
-    cmd << "--leak-check=" + leakCheckValue;
+    cmd << "--leak-check=" + m_settings.leakCheckOnFinishOptionString();
 
     for (const FilePath &file : m_settings.suppressions())
         cmd << QString("--suppressions=%1").arg(file.path());
@@ -973,7 +941,7 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
             this, &MemcheckTool::parserError);
     connect(runTool, &MemcheckToolRunner::internalParserError,
             this, &MemcheckTool::internalParserError);
-    connect(runTool, &MemcheckToolRunner::stopped,
+    connect(runControl, &RunControl::stopped,
             this, &MemcheckTool::engineFinished);
 
     m_stopAction->disconnect();
@@ -996,7 +964,7 @@ void MemcheckTool::setupRunner(MemcheckToolRunner *runTool)
         QAction *action = m_filterMenu->addAction(file.fileName());
         action->setToolTip(file.toUserOutput());
         connect(action, &QAction::triggered, this, [file] {
-            EditorManager::openEditorAt(file, 0);
+            EditorManager::openEditorAt(file);
         });
         m_suppressionActions.append(action);
     }
@@ -1120,6 +1088,9 @@ int MemcheckTool::updateUiAfterFinishedHelper()
 
 void MemcheckTool::engineFinished()
 {
+    if (m_errorView == nullptr) // Happens on shutdown when memcheck is still running.
+        return;
+
     m_toolBusy = false;
     updateRunActions();
 
@@ -1144,9 +1115,8 @@ void MemcheckTool::setBusyCursor(bool busy)
 }
 
 MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
-    : ValgrindToolRunner(runControl),
-      m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE),
-      m_localServerAddress(QHostAddress::LocalHost)
+    : ValgrindToolRunner(runControl)
+    , m_withGdb(runControl->runMode() == MEMCHECK_WITH_GDB_RUN_MODE)
 {
     setId("MemcheckToolRunner");
     connect(&m_runner, &ValgrindProcess::error, this, &MemcheckToolRunner::parserError);
@@ -1159,13 +1129,6 @@ MemcheckToolRunner::MemcheckToolRunner(RunControl *runControl)
     } else {
         connect(&m_runner, &ValgrindProcess::internalError,
                 this, &MemcheckToolRunner::internalParserError);
-    }
-
-    // We need a real address to connect to from the outside.
-    if (device()->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE) {
-        auto *dependentWorker = new LocalAddressFinder(runControl, &m_localServerAddress);
-        addStartDependency(dependentWorker);
-        addStopDependency(dependentWorker);
     }
 
     dd->setupRunner(this);

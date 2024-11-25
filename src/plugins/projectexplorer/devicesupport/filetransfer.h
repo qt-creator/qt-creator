@@ -54,7 +54,7 @@ public:
     void start() override { task()->start(); }
 };
 
-class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter : public FileTransferTaskAdapter
+class PROJECTEXPLORER_EXPORT FileTransferTestTaskAdapter final : public FileTransferTaskAdapter
 {
 public:
     void start() final { task()->test(); }

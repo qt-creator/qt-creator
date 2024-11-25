@@ -164,7 +164,7 @@ bool AddValueData::appendListToMap(QVariantMap &map) const
         return false;
     }
 
-    if (data.type() != QVariant::List) {
+    if (data.typeId() != QMetaType::QVariantList) {
         qCCritical(addvaluelog) << "Error: Data stored in" << m_key
                                 << "is not a QVariantList.";
         return false;

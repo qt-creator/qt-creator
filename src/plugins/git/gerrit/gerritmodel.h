@@ -3,14 +3,13 @@
 
 #pragma once
 
-#include "gerritparameters.h"
 #include "gerritserver.h"
 
 #include <QStandardItemModel>
 #include <QDateTime>
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
+
 class QueryContext;
 
 class GerritApproval {
@@ -78,7 +77,7 @@ public:
         GerritChangeRole = Qt::UserRole + 2,
         SortRole = Qt::UserRole + 3
     };
-    GerritModel(const std::shared_ptr<GerritParameters> &, QObject *parent = nullptr);
+    GerritModel(QObject *parent = nullptr);
     ~GerritModel() override;
 
     QVariant data(const QModelIndex &index, int role) const override;
@@ -110,11 +109,9 @@ private:
                            const QString &serverPrefix) const;
     QList<QStandardItem *> changeToRow(const GerritChangePtr &c) const;
 
-    const std::shared_ptr<GerritParameters> m_parameters;
     std::shared_ptr<GerritServer> m_server;
     QueryContext *m_query = nullptr;
     QueryState m_state = Idle;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

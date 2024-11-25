@@ -18,6 +18,7 @@
 
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 #include <projectexplorer/taskhub.h>
@@ -167,6 +168,9 @@ static QString displayPresetName(const QString &presetName)
 
 FilePaths CMakeProjectImporter::importCandidates()
 {
+    if (!m_project->buildDirectoryToImport().isEmpty())
+        return {m_project->buildDirectoryToImport()};
+
     FilePaths candidates = presetCandidates();
 
     if (candidates.isEmpty()) {
@@ -193,7 +197,7 @@ FilePaths CMakeProjectImporter::presetCandidates()
     FilePaths candidates;
 
     for (const auto &configPreset : m_project->presetsData().configurePresets) {
-        if (configPreset.hidden.value())
+        if (configPreset.hidden)
             continue;
 
         if (configPreset.condition) {
@@ -277,8 +281,8 @@ static QVariant findOrRegisterDebugger(
         QString errorMessage;
         debugger.reinitializeFromFile(&errorMessage, &env);
         if (!errorMessage.isEmpty())
-            qCWarning(cmInputLog()) << "Error reinitializing debugger" << debuggerPath.toString()
-                                    << "Error:" << errorMessage;
+            qCWarning(cmInputLog()) << "Error reinitializing debugger"
+                                    << debuggerPath.toUserOutput() << "Error:" << errorMessage;
 
         return DebuggerItemManager::registerDebugger(debugger);
     } else {
@@ -299,6 +303,13 @@ static QVariant findOrRegisterDebugger(
 
 Target *CMakeProjectImporter::preferredTarget(const QList<Target *> &possibleTargets)
 {
+    if (!m_project->buildDirectoryToImport().isEmpty()) {
+        return Utils::findOrDefault(possibleTargets, [this](const Target *t) {
+            return t->activeBuildConfiguration()->buildDirectory()
+                   == m_project->buildDirectoryToImport();
+        });
+    }
+
     for (Kit *kit : m_project->oldPresetKits()) {
         const bool haveKit = Utils::contains(possibleTargets, [kit](const auto &target) {
             return target->kit() == kit;
@@ -362,7 +373,7 @@ static CMakeConfig configurationFromPresetProbe(
     Process cmake;
     cmake.setDisableUnixTerminal();
 
-    const FilePath cmakeExecutable = FilePath::fromString(configurePreset.cmakeExecutable.value());
+    const FilePath cmakeExecutable = configurePreset.cmakeExecutable.value();
 
     Environment env = cmakeExecutable.deviceEnvironment();
     CMakePresets::Macros::expand(configurePreset, env, sourceDirectory);
@@ -572,11 +583,11 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
     }
 
     if (!cmakeMakeProgram.isEmpty()) {
-        args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.toString()));
+        args.push_back(QStringLiteral("-DCMAKE_MAKE_PROGRAM=%1").arg(cmakeMakeProgram.path()));
     }
 
     if (!toolchainFile.isEmpty()) {
-        args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.toString()));
+        args.push_back(QStringLiteral("-DCMAKE_TOOLCHAIN_FILE=%1").arg(toolchainFile.path()));
     }
     if (!prefixPath.isEmpty()) {
         args.push_back(QStringLiteral("-DCMAKE_PREFIX_PATH=%1").arg(prefixPath));
@@ -585,7 +596,7 @@ static QMakeAndCMakePrefixPath qtInfoFromCMakeCache(const CMakeConfig &config,
         args.push_back(QStringLiteral("-DCMAKE_FIND_ROOT_PATH=%1").arg(findRootPath));
     }
     if (!hostPath.isEmpty()) {
-        args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.toString()));
+        args.push_back(QStringLiteral("-DQT_HOST_PATH=%1").arg(hostPath.path()));
     }
 
     qCDebug(cmInputLog) << "CMake probing for qmake path: " << cmakeExecutable.toUserOutput() << args;
@@ -717,20 +728,20 @@ void updateConfigWithDirectoryData(CMakeConfig &config, const std::unique_ptr<Di
                                         });
 
         if (it != config.end() && it->value.isEmpty())
-            it->value = tcd.compilerPath.toString().toUtf8();
+            it->value = tcd.compilerPath.path().toUtf8();
         else
-            config << CMakeConfigItem(key,
-                                      CMakeConfigItem::FILEPATH,
-                                      tcd.compilerPath.toString().toUtf8());
+            config << CMakeConfigItem(
+                key, CMakeConfigItem::FILEPATH, tcd.compilerPath.path().toUtf8());
     };
 
     updateCompilerValue("CMAKE_C_COMPILER", ProjectExplorer::Constants::C_LANGUAGE_ID);
     updateCompilerValue("CMAKE_CXX_COMPILER", ProjectExplorer::Constants::CXX_LANGUAGE_ID);
 
     if (data->qt.qt)
-        config << CMakeConfigItem("QT_QMAKE_EXECUTABLE",
-                                  CMakeConfigItem::FILEPATH,
-                                  data->qt.qt->qmakeFilePath().toString().toUtf8());
+        config << CMakeConfigItem(
+            "QT_QMAKE_EXECUTABLE",
+            CMakeConfigItem::FILEPATH,
+            data->qt.qt->qmakeFilePath().path().toUtf8());
 }
 
 Toolchain *findExternalToolchain(const QString &presetArchitecture, const QString &presetToolset)
@@ -811,7 +822,7 @@ Toolchain *findExternalToolchain(const QString &presetArchitecture, const QStrin
             qCDebug(cmInputLog) << "For external architecture" << presetArchitecture
                                 << "and toolset" << presetToolset
                                 << "the following toolchain was selected:\n"
-                                << compilerPath.toString();
+                                << compilerPath.toUserOutput();
             return true;
         });
 }
@@ -844,21 +855,21 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
         if (!configurePreset.cmakeExecutable) {
             const CMakeTool *cmakeTool = CMakeToolManager::defaultCMakeTool();
             if (cmakeTool) {
-                configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable().toString();
+                configurePreset.cmakeExecutable = cmakeTool->cmakeExecutable();
             } else {
-                configurePreset.cmakeExecutable = QString();
+                configurePreset.cmakeExecutable = FilePath();
                 TaskHub::addTask(
                     BuildSystemTask(Task::TaskType::Error, Tr::tr("<No CMake Tool available>")));
                 TaskHub::requestPopup();
             }
         } else {
-            QString cmakeExecutable = configurePreset.cmakeExecutable.value();
+            QString cmakeExecutable = configurePreset.cmakeExecutable.value().toString();
             CMakePresets::Macros::expand(configurePreset, env, projectDirectory(), cmakeExecutable);
 
-            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable).path();
+            configurePreset.cmakeExecutable = FilePath::fromUserInput(cmakeExecutable);
         }
 
-        data->cmakeBinary = Utils::FilePath::fromString(configurePreset.cmakeExecutable.value());
+        data->cmakeBinary = configurePreset.cmakeExecutable.value();
         if (configurePreset.generator)
             data->generator = configurePreset.generator.value();
 
@@ -926,7 +937,7 @@ QList<void *> CMakeProjectImporter::examineDirectory(const FilePath &importPath,
             updateCompilerPaths(config, env);
             config << CMakeConfigItem("CMAKE_COMMAND",
                                       CMakeConfigItem::PATH,
-                                      configurePreset.cmakeExecutable.value().toUtf8());
+                                      configurePreset.cmakeExecutable.value().toString().toUtf8());
             if (configurePreset.generator)
                 config << CMakeConfigItem("CMAKE_GENERATOR",
                                           CMakeConfigItem::STRING,

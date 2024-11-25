@@ -9,6 +9,7 @@
 #include <coreplugin/generatedfile.h>
 #include <coreplugin/iwizardfactory.h>
 
+#include <utils/infolabel.h>
 #include <utils/wizardpage.h>
 #include <utils/treemodel.h>
 
@@ -52,10 +53,13 @@ public:
 
     void initializeProjectTree(Node *context, const Utils::FilePaths &paths,
                                Core::IWizardFactory::WizardKind kind,
-                               ProjectAction action);
+                               ProjectAction action,
+                               bool limitToSubproject);
 
     void initializeVersionControls();
     void setProjectUiVisible(bool visible);
+    void setStatus(const QString &text, Utils::InfoLabel::InfoType type);
+    void setStatusVisible(bool visible);
 
 signals:
     void projectNodeChanged();
@@ -84,6 +88,7 @@ private:
 
     QLabel *m_projectLabel;
     Utils::TreeViewComboBox *m_projectComboBox;
+    Utils::InfoLabel *m_infoLabel;
     QLabel *m_additionalInfo;
     QLabel *m_addToVersionControlLabel;
     QComboBox *m_addToVersionControlComboBox;

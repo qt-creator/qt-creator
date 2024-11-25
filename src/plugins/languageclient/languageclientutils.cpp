@@ -15,7 +15,6 @@
 #include <coreplugin/messagemanager.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
-#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/refactoringchanges.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -100,19 +99,17 @@ bool applyTextEdits(const Client *client,
     return file->apply(editsToChangeSet(edits, file->document()));
 }
 
-void applyTextEdit(TextDocumentManipulatorInterface &manipulator,
-                   const TextEdit &edit,
-                   bool newTextIsSnippet)
+void applyTextEdit(TextEditorWidget *editorWidget, const TextEdit &edit, bool newTextIsSnippet)
 {
     const Range range = edit.range();
-    const QTextDocument *doc = manipulator.textCursorAt(manipulator.currentPosition()).document();
+    const QTextDocument *doc = editorWidget->document();
     const int start = Text::positionInText(doc, range.start().line() + 1, range.start().character() + 1);
     const int end = Text::positionInText(doc, range.end().line() + 1, range.end().character() + 1);
     if (newTextIsSnippet) {
-        manipulator.replace(start, end - start, {});
-        manipulator.insertCodeSnippet(start, edit.newText(), &parseSnippet);
+        editorWidget->replace(start, end - start, {});
+        editorWidget->insertCodeSnippet(start, edit.newText(), &parseSnippet);
     } else {
-        manipulator.replace(start, end - start, edit.newText());
+        editorWidget->replace(start, end - start, edit.newText());
     }
 }
 
@@ -384,7 +381,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
                 }
             }
         }
-        return oldPath.renameFile(newPath);
+        return bool(oldPath.renameFile(newPath));
     } else if (const auto deleteOperation = std::get_if<DeleteFileOperation>(&change)) {
         const FilePath filePath = deleteOperation->uri().toFilePath(client->hostPathMapper());
         if (const std::optional<DeleteFileOptions> options = deleteOperation->options()) {
@@ -393,7 +390,7 @@ bool applyDocumentChange(const Client *client, const DocumentChange &change)
             if (filePath.isDir() && options->recursive().value_or(false))
                 return filePath.removeRecursively();
         }
-        return filePath.removeFile();
+        return bool(filePath.removeFile());
     }
     return false;
 }

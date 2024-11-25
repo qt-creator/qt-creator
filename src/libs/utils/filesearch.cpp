@@ -5,6 +5,7 @@
 
 #include "algorithm.h"
 #include "async.h"
+#include "mimeutils.h"
 #include "qtcassert.h"
 #include "stringutils.h"
 #include "utilstr.h"
@@ -185,6 +186,17 @@ static SearchResultItems searchInContents(const QFuture<void> &future, const QSt
                                           FindFlags flags, const FilePath &filePath,
                                           const QString &contents)
 {
+    if (future.isCanceled())
+        return {};
+
+    if (flags & DontFindBinaryFiles) {
+        MimeType mimeType = mimeTypeForFile(filePath);
+        if (!mimeType.inherits("text/plain")) {
+            qCDebug(searchLog) << "Skipping binary file" << filePath;
+            return {};
+        }
+    }
+
     if (flags & FindRegularExpression)
         return searchWithRegExp(future, searchTerm, flags, filePath, contents);
     return searchWithoutRegExp(future, searchTerm, flags, filePath, contents);

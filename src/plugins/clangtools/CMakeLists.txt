@@ -21,6 +21,7 @@ add_qtc_plugin(ClangTools
     clangtool.cpp clangtool.h
     clangtoolrunner.cpp clangtoolrunner.h
     clangtools_global.h
+    clangtoolscompilationdb.cpp clangtoolscompilationdb.h
     clangtoolstr.h
     clangtoolsconstants.h
     clangtoolsdiagnostic.cpp clangtoolsdiagnostic.h

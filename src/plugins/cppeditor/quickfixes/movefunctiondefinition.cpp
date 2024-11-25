@@ -14,8 +14,10 @@
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/CppRewriter.h>
 #include <cplusplus/Overview.h>
+#include <projectexplorer/projectmanager.h>
 
 using namespace CPlusPlus;
+using namespace ProjectExplorer;
 using namespace TextEditor;
 using namespace Utils;
 
@@ -576,10 +578,29 @@ private:
             if (funcDecl->isSignal() || funcDecl->isPureVirtual() || funcDecl->isFriend())
                 return;
 
-            // Is there a definition?
+            // Is there a definition in the same product?
+            Project * const declProject = ProjectManager::projectForFile(funcDecl->filePath());
+            const ProjectNode * const declProduct
+                = declProject ? declProject->productNodeForFilePath(funcDecl->filePath()) : nullptr;
+
             SymbolFinder symbolFinder;
-            Function * const funcDef = symbolFinder.findMatchingDefinition(decl, interface.snapshot(),
-                                                                          true);
+            const QList<Function *> defs
+                = symbolFinder.findMatchingDefinitions(decl, interface.snapshot(), true, false);
+            Function *funcDef = nullptr;
+            for (Function * const f : defs) {
+                Project * const defProject = ProjectManager::projectForFile(f->filePath());
+                if (defProject == declProject) {
+                    if (!declProduct) {
+                        funcDef = f;
+                        break;
+                    }
+                    const ProjectNode * const defProduct
+                        = defProject ? defProject->productNodeForFilePath(f->filePath()) : nullptr;
+                    if (!defProduct || declProduct == defProduct)
+                        funcDef = f;
+                    break;
+                }
+            }
             if (!funcDef)
                 return;
 
@@ -1349,6 +1370,23 @@ auto Derived::func() const && noexcept -> void {}
         QuickFixOperationTest(testDocuments, &factory);
     }
 
+    void testUnimplementedOverload()
+    {
+        const QByteArray original =
+            "struct S {\n"
+            "  S();\n"
+            "  @S(const S &) {}\n"
+            "};\n";
+        const QByteArray expected =
+            "struct S {\n"
+            "  S();\n"
+            "  S(const S &);\n"
+            "};\n\n"
+            "S::S(const S &) {}\n";
+
+        MoveFuncDefOutside factory;
+        QuickFixOperationTest(singleDocument(original, expected), &factory);
+    }
 };
 
 class MoveAllFuncDefOutsideTest : public QObject

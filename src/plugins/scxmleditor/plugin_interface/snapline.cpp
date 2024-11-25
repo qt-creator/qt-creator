@@ -2,6 +2,9 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "snapline.h"
+
+#include "utils/theme/theme.h"
+
 #include <QPen>
 
 using namespace ScxmlEditor::PluginInterface;
@@ -10,7 +13,7 @@ SnapLine::SnapLine(QGraphicsItem *parent)
     : QGraphicsLineItem(parent)
 {
     QPen pen;
-    pen.setBrush(QColor(0x22, 0xcc, 0x22));
+    pen.setBrush(Utils::creatorColor(Utils::Theme::Token_Accent_Default));
     pen.setStyle(Qt::DashLine);
     setPen(pen);
     setZValue(502);

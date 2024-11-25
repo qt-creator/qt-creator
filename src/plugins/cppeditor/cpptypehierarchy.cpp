@@ -221,7 +221,7 @@ void CppTypeHierarchyWidget::perform()
 
     m_showOldClass = false;
 
-    auto editor = qobject_cast<TextEditor::BaseTextEditor *>(Core::EditorManager::currentEditor());
+    auto editor = TextEditor::BaseTextEditor::currentTextEditor();
     if (!editor) {
         showNoTypeHierarchyLabel();
         return;

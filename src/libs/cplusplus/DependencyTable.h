@@ -5,7 +5,7 @@
 
 #include <cplusplus/CPlusPlusForwardDeclarations.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QBitArray>
 #include <QHash>

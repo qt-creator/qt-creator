@@ -3,17 +3,12 @@
 
 #pragma once
 
+#include <QList>
 #include <QString>
-#include <QVector>
 
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
-////////////////////////////////////////////////////////////////////////
-//
 // ThreadData
-//
-////////////////////////////////////////////////////////////////////////
 
 /*! A structure containing information about a single thread. */
 struct ThreadData
@@ -54,7 +49,6 @@ struct ThreadData
     QString name;
 };
 
-using Threads = QVector<ThreadData>;
+using Threads = QList<ThreadData>;
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal

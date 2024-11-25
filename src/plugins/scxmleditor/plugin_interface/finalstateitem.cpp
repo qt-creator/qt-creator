@@ -2,7 +2,10 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "finalstateitem.h"
+
+#include <QGraphicsScene>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -39,13 +42,13 @@ void FinalStateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *op
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setOpacity(getOpacity());
 
-    painter->setBrush(QColor(0xff, 0xff, 0xff));
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    QPalette::ColorGroup group = overlapping() ? QPalette::Active : QPalette::Inactive;
+    m_pen.setColor(scene()->palette().color(group, QPalette::WindowText));
     painter->setPen(m_pen);
     painter->drawEllipse(boundingRect().center(), m_size, m_size);
 
     painter->setPen(Qt::NoPen);
-    painter->setBrush(QColor(0x4d, 0x4d, 0x4d));
+    painter->setBrush(scene()->palette().color(QPalette::WindowText));
     painter->drawEllipse(boundingRect().center(), m_size * 0.8, m_size * 0.8);
 
     painter->restore();

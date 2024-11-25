@@ -187,7 +187,7 @@ bool FileUtils::renameFile(const FilePath &orgFilePath, const FilePath &newFileP
     if (vc && vc->supportsOperation(IVersionControl::MoveOperation))
         result = vc->vcsMove(orgFilePath, newFilePath);
     if (!result) // The moving via vcs failed or the vcs does not support moving, fall back
-        result = orgFilePath.renameFile(newFilePath);
+        result = bool(orgFilePath.renameFile(newFilePath));
     if (result) {
         DocumentManager::renamedFile(orgFilePath, newFilePath);
         updateHeaderFileGuardIfApplicable(orgFilePath, newFilePath, handleGuards);

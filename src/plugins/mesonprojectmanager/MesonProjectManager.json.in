@@ -1,11 +1,13 @@
 {
+    "Id" : "mesonprojectmanager",
     "Name" : "MesonProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "laboratory of plasma physics",
     "Vendor" : "Laboratory of Plasma Physics",
     "Experimental" : true,
     "DisabledByDefault" : true,
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} Laboratory of Plasma Physics",
+    "Copyright" : "(C) Laboratory of Plasma Physics",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -23,5 +25,19 @@
             "- Ninja"
     ],
     "Url" : "https://www.mesonbuild.com",
-    ${IDE_PLUGIN_DEPENDENCIES}
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-meson.html",
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='text/x-meson'>",
+        "        <sub-class-of type='text/plain'/>",
+        "        <comment>Meson build description</comment>",
+        "        <glob pattern='meson.build'/>",
+        "        <glob pattern='meson.options'/>",
+        "        <glob pattern='meson_options.txt'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

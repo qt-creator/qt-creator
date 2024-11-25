@@ -263,7 +263,7 @@ void IOptionsPage::apply()
         if (!container->aspects().isEmpty()) {
             BaseAspect *aspect = container->aspects().first();
             QTC_ASSERT(aspect, return);
-            QTC_ASSERT(!aspect->isAutoApply(), container->setAutoApply(false));
+            QTC_ASSERT(!aspect->isAutoApply(), return);
         }
         if (container->isDirty()) {
             container->apply();

@@ -26,8 +26,6 @@ QtcPlugin {
         "configurestep.h",
         "makefileparser.cpp",
         "makefileparser.h",
-        "makefileparserthread.cpp",
-        "makefileparserthread.h",
         "makestep.cpp",
         "makestep.h",
     ]

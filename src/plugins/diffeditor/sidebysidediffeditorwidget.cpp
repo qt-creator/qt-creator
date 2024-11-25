@@ -716,10 +716,8 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
         connect(m_editor[side]->horizontalScrollBar(), &QAbstractSlider::rangeChanged,
                 this, &SideBySideDiffEditorWidget::syncHorizontalScrollBarPolicy);
 
-        auto context = new IContext(this);
-        context->setWidget(m_editor[side]);
-        context->setContext(Context(Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(side + 1)));
-        ICore::addContextObject(context);
+        IContext::attach(m_editor[side],
+                         Context(Id(Constants::SIDE_BY_SIDE_VIEW_ID).withSuffix(side + 1)));
     };
     setupEditor(LeftSide);
     setupEditor(RightSide);
@@ -777,11 +775,6 @@ SideBySideDiffEditorWidget::SideBySideDiffEditorWidget(QWidget *parent)
 }
 
 SideBySideDiffEditorWidget::~SideBySideDiffEditorWidget() = default;
-
-TextEditorWidget *SideBySideDiffEditorWidget::sideEditorWidget(DiffSide side) const
-{
-    return m_editor[side];
-}
 
 void SideBySideDiffEditorWidget::setDocument(DiffEditorDocument *document)
 {

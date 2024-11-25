@@ -33,6 +33,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -52,12 +53,9 @@
 #include <QListView>
 #include <QLoggingCategory>
 #include <QMessageBox>
-#include <QProcess>
 #include <QPushButton>
 #include <QTimer>
-#include <QToolButton>
 
-#include <algorithm>
 #include <memory>
 
 using namespace ProjectExplorer;
@@ -415,10 +413,10 @@ bool AndroidBuildApkWidget::isOpenSslLibsIncluded()
 
 QString AndroidBuildApkWidget::openSslIncludeFileContent(const FilePath &projectPath)
 {
-    QString openSslPath = AndroidConfig::openSslLocation().toString();
-    if (projectPath.endsWith(".pro"))
+    QString openSslPath = AndroidConfig::openSslLocation().path();
+    if (projectPath.suffixView() == u"pro")
         return "android: include(" + openSslPath + "/openssl.pri)";
-    if (projectPath.endsWith("CMakeLists.txt"))
+    if (projectPath.fileNameView() == u"CMakeLists.txt")
         return "if (ANDROID)\n    include(" + openSslPath + "/CMakeLists.txt)\nendif()";
     return {};
 }
@@ -605,7 +603,16 @@ void AndroidBuildApkStep::setupOutputFormatter(OutputFormatter *formatter)
 
 void AndroidBuildApkStep::showInGraphicalShell()
 {
-    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), m_packagePath);
+    FilePath packagePath = m_packagePath;
+    if (!packagePath.exists()) { // File name might be incorrect. See: QTCREATORBUG-22627
+        packagePath = packagePath.parentDir();
+        if (!packagePath.exists()) {
+            qCDebug(buildapkstepLog).noquote()
+                    << "Could not open package location: " << packagePath;
+            return;
+        }
+    }
+    Core::FileUtils::showInGraphicalShell(Core::ICore::dialogParent(), packagePath);
 }
 
 QWidget *AndroidBuildApkStep::createConfigWidget()
@@ -672,7 +679,7 @@ static bool copyFileIfNewer(const FilePath &sourceFilePath,
 
     if (!destinationFilePath.parentDir().ensureWritableDir())
         return false;
-    expected_str<void> result = sourceFilePath.copyFile(destinationFilePath);
+    Result result = sourceFilePath.copyFile(destinationFilePath);
     QTC_ASSERT_EXPECTED(result, return false);
     return true;
 }
@@ -740,7 +747,7 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
         QString applicationBinary;
         if (!version->supportsMultipleQtAbis()) {
             QTC_ASSERT(androidAbis.size() == 1, return false);
-            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.toString();
+            applicationBinary = buildSystem()->buildTarget(buildKey).targetFilePath.path();
             FilePath androidLibsDir = androidBuildDir / "libs" / androidAbis.first();
             for (const FilePath &target : targets) {
                 if (!copyFileIfNewer(target, androidLibsDir.pathAppended(target.fileName()))) {
@@ -797,16 +804,20 @@ Tasking::GroupItem AndroidBuildApkStep::runRecipe()
 
         QString qmlRootPath = bs->extraData(buildKey, "QML_ROOT_PATH").toString();
         if (qmlRootPath.isEmpty())
-            qmlRootPath = target()->project()->rootProjectDirectory().toString();
+            qmlRootPath = target()->project()->rootProjectDirectory().path();
         deploySettings["qml-root-path"] = qmlRootPath;
 
-        QFile f{m_inputFile.toString()};
-        if (!f.open(QIODevice::WriteOnly)) {
-            reportWarningOrError(Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
-                                     .arg(m_inputFile.toUserOutput()), Task::Error);
+        const expected_str<qint64> result = m_inputFile.writeFileContents(QJsonDocument{deploySettings}.toJson());
+        if (!result) {
+            reportWarningOrError(
+                Tr::tr("Cannot open androiddeployqt input file \"%1\" for writing.")
+                    .arg(m_inputFile.toUserOutput())
+                    .append(' ')
+                    .append(result.error()),
+                Task::Error);
             return false;
         }
-        f.write(QJsonDocument{deploySettings}.toJson());
+
         return true;
     };
 

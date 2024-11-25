@@ -9,10 +9,6 @@
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/runconfigurationaspects.h>
 
-#include <utils/fileutils.h>
-
-#include <QStringList>
-
 namespace CMakeProjectManager {
 
 enum TargetType {

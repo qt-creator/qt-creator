@@ -7,13 +7,40 @@
 
 #include <utils/treemodel.h>
 
-#include <QCoreApplication>
 #include <QQueue>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
-class ToolTreeItem;
+class ToolTreeItem final : public Utils::TreeItem
+{
+public:
+    ToolTreeItem(const QString &name);
+    ToolTreeItem(const MesonTools::Tool_t &tool);
+    ToolTreeItem(const ToolTreeItem &other);
+
+    QVariant data(int column, int role) const override;
+    bool isAutoDetected() const noexcept { return m_autoDetected; }
+    QString name() const noexcept { return m_name; }
+    Utils::FilePath executable() const noexcept { return m_executable; }
+    Utils::Id id() const noexcept { return m_id; }
+    bool hasUnsavedChanges() const noexcept { return m_unsavedChanges; }
+    void setSaved() { m_unsavedChanges = false; }
+    void update(const QString &name, const Utils::FilePath &exe);
+
+private:
+    void self_check();
+    void update_tooltip(const QVersionNumber &version);
+    void update_tooltip();
+    QString m_name;
+    QString m_tooltip;
+    Utils::FilePath m_executable;
+    Utils::Id m_id;
+    bool m_autoDetected;
+    bool m_pathExists;
+    bool m_pathIsFile;
+    bool m_pathIsExecutable;
+    bool m_unsavedChanges = false;
+};
 
 class ToolsModel final : public Utils::TreeModel<Utils::TreeItem, Utils::TreeItem, ToolTreeItem>
 {
@@ -35,5 +62,4 @@ private:
     QQueue<Utils::Id> m_itemsToRemove;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

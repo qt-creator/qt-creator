@@ -93,7 +93,6 @@ class WatchTreeView;
 class DebuggerToolTipContext;
 class DebuggerToolTipManager;
 class MemoryViewSetupData;
-class TerminalRunner;
 
 class DebuggerRunParameters
 {
@@ -166,6 +165,10 @@ public:
 
     Utils::FilePath projectSourceDirectory;
     Utils::FilePaths projectSourceFiles;
+
+    // Terminal
+    qint64 applicationPid = 0;
+    qint64 applicationMainThreadId = 0;
 
     // Used by Script debugging
     Utils::FilePath interpreter;
@@ -464,8 +467,8 @@ public:
 
     void openMemoryEditor();
 
-    static void showModuleSymbols(const Utils::FilePath &moduleName, const QVector<Symbol> &symbols);
-    static void showModuleSections(const Utils::FilePath &moduleName, const QVector<Section> &sections);
+    static void showModuleSymbols(const Utils::FilePath &moduleName, const QList<Symbol> &symbols);
+    static void showModuleSections(const Utils::FilePath &moduleName, const QList<Section> &sections);
 
     void handleExecDetach();
     void handleExecContinue();
@@ -536,7 +539,11 @@ protected:
 
     virtual void doUpdateLocals(const UpdateParameters &params);
 
-    TerminalRunner *terminal() const;
+    bool usesTerminal() const;
+    qint64 applicationPid() const;
+    qint64 applicationMainThreadId() const;
+    void interruptTerminal() const;
+    void kickoffTerminalProcess() const;
 
     static QString msgStopped(const QString &reason = QString());
     static QString msgStoppedBySignal(const QString &meaning, const QString &name);

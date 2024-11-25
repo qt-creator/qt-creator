@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/makestep.h>
-
 namespace AutotoolsProjectManager::Internal {
 
-class MakeStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    MakeStepFactory();
-};
+void setupAutotoolsMakeStep();
 
 } // AutotoolsProjectManager::Internal

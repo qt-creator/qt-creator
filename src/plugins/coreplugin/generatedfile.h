@@ -7,6 +7,7 @@
 
 #include <utils/id.h>
 
+#include <QFile>
 #include <QList>
 #include <QSharedDataPointer>
 
@@ -43,6 +44,9 @@ public:
     // Full path of the file should be created, or the suggested file name
     void setFilePath(const Utils::FilePath &p);
     Utils::FilePath filePath() const;
+
+    void setPermissions(QFile::Permissions permissions);
+    std::optional<QFile::Permissions> permissions() const;
 
     // Contents of the file (UTF8)
     QString contents() const;

@@ -141,9 +141,10 @@ public:
      * If no Definition is found, Definition::isValid() of the returned instance
      * returns false.
      *
-     * @note This uses case sensitive, untranslated names. For instance,
-     *       the javascript.xml definition file sets its name to @e JavaScript.
-     *       Therefore, only the string "JavaScript" will return a valid
+     * @note The search is @e Qt::CaseInsensitive using untranslated names or
+     *       alternative names. For instance, the cpp.xml definition file sets
+     *       its name to @e C++ with an alternative name of @e CPP. Therefore, the
+     *       strings "C++", "c++", "CPP" and "cpp" will all return a valid
      *       Definition file.
      */
     Q_INVOKABLE KSyntaxHighlighting::Definition definitionForName(const QString &defName) const;

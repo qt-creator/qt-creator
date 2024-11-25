@@ -1,10 +1,12 @@
 {
 //! [1]
+    "Id" : "example",
     "Name" : "Example",
     "Version" : "0.0.1",
     "CompatVersion" : "0.0.1",
 //! [1]
 //! [2]
+    "VendorId" : "mycompany",
     "Vendor" : "MyCompany",
     "Copyright" : "(C) MyCompany",
     "License" : "Put short license information here",

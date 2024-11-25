@@ -77,6 +77,7 @@ local function setup()
             script()()
         end,
     })
+    require 'tst_texteditor'.setup()
 end
 
 return { setup = setup }

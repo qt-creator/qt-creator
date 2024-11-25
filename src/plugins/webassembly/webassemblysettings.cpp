@@ -22,6 +22,7 @@
 #include <utils/utilsicons.h>
 
 #include <QGroupBox>
+#include <QGuiApplication>
 #include <QTextBrowser>
 #include <QTimer>
 
@@ -73,6 +74,13 @@ WebAssemblySettings::WebAssemblySettings()
         instruction->setOpenExternalLinks(true);
         instruction->setWordWrap(true);
 
+        m_statusIsEmsdkDir = new InfoLabel(Tr::tr("The chosen directory is an emsdk location."));
+        m_statusSdkInstalled = new InfoLabel(Tr::tr("An SDK is installed."));
+        m_statusSdkActivated = new InfoLabel(Tr::tr("An SDK is activated."));
+        m_statusSdkValid = new InfoLabel(Tr::tr("The activated SDK is usable by %1.")
+                                             .arg(QGuiApplication::applicationDisplayName()),
+                                         InfoLabel::NotOk);
+
         m_emSdkVersionDisplay = new InfoLabel;
         m_emSdkVersionDisplay->setElideMode(Qt::ElideNone);
         m_emSdkVersionDisplay->setWordWrap(true);
@@ -98,12 +106,15 @@ WebAssemblySettings::WebAssemblySettings()
                 Column {
                     instruction,
                     emSdk,
+                    m_statusIsEmsdkDir,
+                    m_statusSdkInstalled,
+                    m_statusSdkActivated,
+                    m_statusSdkValid,
                     m_emSdkVersionDisplay,
                 },
             },
             Group {
                 title(Tr::tr("Emscripten SDK environment:")),
-                bindTo(&m_emSdkEnvGroupBox),
                 Column {
                     m_emSdkEnvDisplay,
                 },
@@ -115,14 +126,33 @@ WebAssemblySettings::WebAssemblySettings()
         connect(emSdk.pathChooser(), &Utils::PathChooser::textChanged,
                 this, &WebAssemblySettings::updateStatus);
 
-        // updateStatus() uses m_emSdkEnvGroupBox which only exists
-        // after this here emerges. So delay the update a bit.
-        QTimer::singleShot(0, this, &WebAssemblySettings::updateStatus);
+        updateStatus();
 
         return col;
     });
 
     readSettings();
+}
+
+enum EmsdkError {
+    EmsdkErrorUnknown,
+    EmsdkErrorNoDir,
+    EmsdkErrorNoEmsdkDir,
+    EmsdkErrorNoSdkInstalled,
+    EmsdkErrorNoSdkActivated,
+};
+
+static EmsdkError emsdkError(const Utils::FilePath &sdkRoot)
+{
+    if (!sdkRoot.exists())
+        return EmsdkErrorNoDir;
+    if (!(sdkRoot / "emsdk").refersToExecutableFile(FilePath::WithBatSuffix))
+        return EmsdkErrorNoEmsdkDir;
+    if (!(sdkRoot / "upstream/.emsdk_version").isReadableFile())
+        return EmsdkErrorNoSdkInstalled;
+    if (!(sdkRoot / Constants::WEBASSEMBLY_EMSDK_CONFIG_FILE).isReadableFile())
+        return EmsdkErrorNoSdkActivated;
+    return EmsdkErrorUnknown;
 }
 
 void WebAssemblySettings::updateStatus()
@@ -132,10 +162,12 @@ void WebAssemblySettings::updateStatus()
     const Utils::FilePath newEmSdk = emSdk.pathChooser()->filePath();
     const bool sdkValid = newEmSdk.exists() && WebAssemblyEmSdk::isValid(newEmSdk);
 
-    QTC_ASSERT(m_emSdkVersionDisplay, return);
-    QTC_ASSERT(m_emSdkEnvGroupBox, return);
+    m_statusIsEmsdkDir->setVisible(!sdkValid);
+    m_statusSdkInstalled->setVisible(!sdkValid);
+    m_statusSdkActivated->setVisible(!sdkValid);
+    m_statusSdkValid->setVisible(!sdkValid);
     m_emSdkVersionDisplay->setVisible(sdkValid);
-    m_emSdkEnvGroupBox->setEnabled(sdkValid);
+    m_emSdkEnvDisplay->setEnabled(sdkValid);
 
     if (sdkValid) {
         const QVersionNumber sdkVersion = WebAssemblyEmSdk::version(newEmSdk);
@@ -153,6 +185,13 @@ void WebAssemblySettings::updateStatus()
                                 .arg(bold(sdkVersion.toString())));
         m_emSdkEnvDisplay->setText(environmentDisplay(newEmSdk));
     } else {
+        const EmsdkError error = emsdkError(newEmSdk);
+        const bool isEmsdkDir = error != EmsdkErrorNoDir && error != EmsdkErrorNoEmsdkDir;
+        m_statusIsEmsdkDir->setType(isEmsdkDir ? InfoLabel::Ok : InfoLabel::NotOk);
+        const bool sdkInstalled = isEmsdkDir && error != EmsdkErrorNoSdkInstalled;
+        m_statusSdkInstalled->setType(sdkInstalled ? InfoLabel::Ok : InfoLabel::NotOk);
+        const bool sdkActivated = sdkInstalled && error != EmsdkErrorNoSdkActivated;
+        m_statusSdkActivated->setType(sdkActivated ? InfoLabel::Ok : InfoLabel::NotOk);
         m_emSdkEnvDisplay->clear();
     }
 

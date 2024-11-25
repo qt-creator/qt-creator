@@ -1,9 +1,11 @@
 {
+    "Id" : "cmakeprojectmanager",
     "Name" : "CMakeProjectManager",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -21,6 +23,7 @@
         "Qt Online Installer installs a CMake version that you can use."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-cmake.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
@@ -35,6 +38,7 @@
         "    <sub-class-of type='text/x-cmake'/>",
         "    <comment>CMake Project file</comment>",
         "    <glob pattern='CMakeLists.txt'/>",
+        "    <glob pattern='CMakeCache.txt'/>",
         "  </mime-type>",
         "</mime-info>"
     ]

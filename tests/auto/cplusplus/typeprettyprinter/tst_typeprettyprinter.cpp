@@ -52,7 +52,7 @@ static Declaration *decl(const FullySpecifiedType &ty)
 }
 
 static FullySpecifiedType voidTy()
-{ return FullySpecifiedType(new VoidType); }
+{ return FullySpecifiedType(&VoidType::instance); }
 
 static FullySpecifiedType intTy()
 { return FullySpecifiedType(new IntegerType(IntegerType::Int)); }

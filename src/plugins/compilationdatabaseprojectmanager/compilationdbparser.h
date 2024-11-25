@@ -7,8 +7,6 @@
 
 #include <projectexplorer/buildsystem.h>
 
-#include <utils/fileutils.h>
-
 #include <QFutureWatcher>
 #include <QObject>
 #include <QStringList>

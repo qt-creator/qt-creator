@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include "resourceview.h"
-
 #include <coreplugin/minisplitter.h>
+
 #include <QUndoStack>
 
 QT_BEGIN_NAMESPACE
@@ -15,6 +14,9 @@ class QPushButton;
 QT_END_NAMESPACE
 
 namespace ResourceEditor::Internal {
+
+class RelativeResourceModel;
+class ResourceView;
 
 class QrcEditor : public Core::MiniSplitter
 {

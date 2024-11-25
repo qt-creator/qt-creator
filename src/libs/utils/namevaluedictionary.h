@@ -36,7 +36,38 @@ using NameValueMap = QMap<DictKey, QPair<QString, bool>>;
 class QTCREATOR_UTILS_EXPORT NameValueDictionary
 {
 public:
-    using const_iterator = NameValueMap::const_iterator;
+    class const_iterator
+    {
+        NameValueMap::const_iterator it;
+
+    public:
+        const_iterator(NameValueMap::const_iterator it)
+            : it(it)
+        {}
+        // clang-format off
+        const_iterator &operator++() { ++it; return *this; }
+        const_iterator &operator++(int) { it++; return *this; }
+        const_iterator &operator--() { --it; return *this; }
+        const_iterator &operator--(int) { it--; return *this; }
+        // clang-format on
+
+        bool operator==(const const_iterator &other) const { return it == other.it; }
+        bool operator!=(const const_iterator &other) const { return it != other.it; }
+        std::tuple<QString, QString, bool> operator*() const
+        {
+            return std::make_tuple(it.key().name, it.value().first, it.value().second);
+        }
+
+        QString key() const { return it.key().name; }
+        QString value() const { return it.value().first; }
+        bool enabled() const { return it.value().second; }
+
+        using difference_type = NameValueMap::const_iterator::difference_type;
+        using value_type = std::tuple<QString, QString, bool>;
+        using pointer = const value_type *;
+        using reference = const value_type &;
+        using iterator_category = NameValueMap::const_iterator::iterator_category;
+    };
 
     explicit NameValueDictionary(OsType osType = HostOsInfo::hostOs())
         : m_osType(osType)
@@ -60,13 +91,9 @@ public:
     void clear();
     int size() const;
 
-    QString key(const_iterator it) const { return it.key().name; }
-    QString value(const_iterator it) const { return it.value().first; }
-    bool isEnabled(const_iterator it) const { return it.value().second; }
-
-    const_iterator constBegin() const { return m_values.constBegin(); }
-    const_iterator constEnd() const { return m_values.constEnd(); }
-    const_iterator constFind(const QString &name) const;
+    const const_iterator begin() const { return const_iterator(m_values.begin()); }
+    const const_iterator end() const { return const_iterator(m_values.end()); }
+    const const_iterator find(const QString &key) const { return const_iterator(findKey(key)); }
 
     friend bool operator!=(const NameValueDictionary &first, const NameValueDictionary &second)
     {
@@ -81,7 +108,7 @@ public:
 protected:
     friend class Environment;
     NameValueMap::iterator findKey(const QString &key);
-    const_iterator findKey(const QString &key) const;
+    NameValueMap::const_iterator findKey(const QString &key) const;
 
     NameValueMap m_values;
     OsType m_osType;

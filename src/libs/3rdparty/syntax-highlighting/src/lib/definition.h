@@ -163,6 +163,13 @@ public:
     QString name() const;
 
     /**
+     * Alternate names the syntax can be referred to by.
+     *
+     * @since 6.1
+     */
+    QStringList alternativeNames() const;
+
+    /**
      * Translated name for display.
      */
     QString translatedName() const;
@@ -404,8 +411,7 @@ public:
 
 private:
     friend class DefinitionData;
-    friend class DefinitionRef;
-    KSYNTAXHIGHLIGHTING_NO_EXPORT explicit Definition(std::shared_ptr<DefinitionData> &&dd);
+    KSYNTAXHIGHLIGHTING_NO_EXPORT explicit Definition(const DefinitionData &defData);
     std::shared_ptr<DefinitionData> d;
 };
 

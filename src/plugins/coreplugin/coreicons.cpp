@@ -25,14 +25,10 @@ const Icon MODE_EDIT_CLASSIC(
         ":/fancyactionbar/images/mode_Edit.png");
 const Icon MODE_EDIT_FLAT({
         {":/fancyactionbar/images/mode_edit_mask.png", Theme::IconsBaseColor}});
-const Icon MODE_EDIT_FLAT_ACTIVE({
-        {":/fancyactionbar/images/mode_edit_mask.png", Theme::IconsModeEditActiveColor}});
 const Icon MODE_DESIGN_CLASSIC(
         ":/fancyactionbar/images/mode_Design.png");
 const Icon MODE_DESIGN_FLAT({
         {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsBaseColor}});
-const Icon MODE_DESIGN_FLAT_ACTIVE({
-        {":/fancyactionbar/images/mode_design_mask.png", Theme::IconsModeDesignActiveColor}});
 
 const Icon DESKTOP_DEVICE_SMALL({{":/utils/images/desktopdevicesmall.png",
                                   Theme::PanelTextColorDark}},

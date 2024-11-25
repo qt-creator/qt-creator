@@ -345,11 +345,7 @@ void EditorToolBar::fillListContextMenu(QMenu *menu)
         IEditor *editor = EditorManager::currentEditor();
         DocumentModel::Entry *entry = editor ? DocumentModel::entryForDocument(editor->document())
                                              : nullptr;
-        EditorManager::addSaveAndCloseEditorActions(menu, entry, editor);
-        menu->addSeparator();
-        EditorManager::addPinEditorActions(menu, entry);
-        menu->addSeparator();
-        EditorManager::addNativeDirAndOpenWithActions(menu, entry);
+        EditorManager::addContextMenuActions(menu, entry, editor);
     }
 }
 

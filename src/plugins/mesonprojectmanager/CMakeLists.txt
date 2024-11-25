@@ -3,15 +3,10 @@ add_qtc_plugin(MesonProjectManager
   DEPENDS QmlJS
   PLUGIN_DEPENDS Core ProjectExplorer TextEditor QtSupport
   SOURCES
-  arrayoptionlineedit.cpp
-  arrayoptionlineedit.h
   buildoptions.h
   buildoptionsmodel.cpp
   buildoptionsmodel.h
-  buildoptionsparser.h
-  buildsystemfilesparser.h
   common.h
-  infoparser.h
   kitdata.h
   mesonactionsmanager.cpp
   mesonactionsmanager.h
@@ -19,7 +14,7 @@ add_qtc_plugin(MesonProjectManager
   mesonbuildconfiguration.h
   mesonbuildsystem.cpp
   mesonbuildsystem.h
-  mesoninfo.h
+  mesoninfoparser.cpp
   mesoninfoparser.h
   mesonoutputparser.cpp
   mesonoutputparser.h
@@ -35,27 +30,16 @@ add_qtc_plugin(MesonProjectManager
   mesonprojectplugin.cpp
   mesonrunconfiguration.cpp
   mesonrunconfiguration.h
-  mesontoolkitaspect.cpp
-  mesontoolkitaspect.h
   mesontools.cpp
   mesontools.h
-  mesonwrapper.cpp
-  mesonwrapper.h
   ninjabuildstep.cpp
   ninjabuildstep.h
   ninjaparser.cpp
   ninjaparser.h
-  ninjatoolkitaspect.cpp
-  ninjatoolkitaspect.h
-  ninjawrapper.h
-  projecttree.cpp
-  projecttree.h
   resources_meson.qrc
   settings.cpp
   settings.h
   target.h
-  toolitemsettings.cpp
-  toolitemsettings.h
   toolkitaspectwidget.cpp
   toolkitaspectwidget.h
   toolsmodel.cpp
@@ -64,11 +48,6 @@ add_qtc_plugin(MesonProjectManager
   toolssettingsaccessor.h
   toolssettingspage.cpp
   toolssettingspage.h
-  tooltreeitem.cpp
-  tooltreeitem.h
-  toolwrapper.cpp
-  toolwrapper.h
-  versionhelper.h
 )
 
 file(RELATIVE_PATH RELATIVE_TEST_PATH "${PROJECT_BINARY_DIR}" "${CMAKE_CURRENT_BINARY_DIR}")
@@ -88,11 +67,7 @@ add_qtc_test(tst_mesonwrapper
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesonwrapper.cpp
-    mesonwrapper.cpp
-    mesonwrapper.h
-    ninjawrapper.h
-    toolwrapper.h
-    toolwrapper.cpp
+    mesontools.cpp
     mesontools.h
 )
 
@@ -109,13 +84,10 @@ add_qtc_test(tst_mesoninfoparser
      TEST_RELATIVE_LIBEXEC_PATH="${TEST_RELATIVE_LIBEXEC_PATH}"
   SOURCES
     tests/testmesoninfoparser.cpp
-    mesonwrapper.cpp
-    mesonwrapper.h
-    ninjawrapper.h
-    toolwrapper.h
-    toolwrapper.cpp
-    mesontools.h
+    mesoninfoparser.cpp
     mesoninfoparser.h
+    mesontools.cpp
+    mesontools.h
 )
 
 add_qtc_test(tst_ninjaparser

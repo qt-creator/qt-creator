@@ -7,37 +7,56 @@
 
     \ingroup creator-how-to-analyze
 
-    \title Prevent code erosion
+    \title View Axivion static code analysis results
 
     Connect to an Axivion dashboard server from \QC to view results of code
     analysis.
 
-    \note Enable the Axivion plugin to use it.
+    \note Enable the Axivion plugin to use it. To use the plugin, you must be
+    connected to an Axivion dashboard server.
 
-    To use the plugin, you must set up a project in the Axivion dashboard
-    server and link to it from \QC. You can then see found issues in the
-    \uicontrol Edit mode, issues in the \uicontrol Axivion dashboard, and
-    issue details in the \uicontrol Axivion sidebar view.
+    \section1 View inline annotations in editor
 
-    The editor shows found issues as inline annotations. Hover the mouse over
-    an annotation to bring up a tool tip with a short description of the issue.
+    The editor shows found issues as inline annotations if the project matches
+    the currently open one and the respective file is part of the project.
+    Hover the mouse over an annotation to bring up a tooltip with a short
+    description of the issue.
 
     \image qtcreator-axivion-annotation.webp {Annotation popup}
 
     Select \inlineimage icons/info.png to view detailed information about the
-    issue in the \uicontrol Axivion sidebar view.
+    issue in the \uicontrol {Issue Details} view.
 
-    \image qtcreator-axivion-view-rule.webp {Axivion sidebar view}
+    \image qtcreator-axivion-view-rule.webp {Issue Details view}
 
-    \section1 View issue counts
+    To hide inline annotations, go to \uicontrol Analyze > \uicontrol Axivion
+    and clear \inlineimage icons/warning.png.
 
-    To view the issue counts, select \inlineimage icons/home.png
-    (\uicontrol {Show Dashboard}) in the \uicontrol Axivion dashboard.
+    \section1 View issues
 
-    \image qtcreator-axivion-view.webp {Axivion dashboard}
+    To inspect issues found during the analyses:
 
-    The \uicontrol Axivion dashboard lists the numbers of the following types of
-    issues that Axivion found in the linked project:
+    \list 1
+        \li To go to the \uicontrol Axivion view:
+            \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
+            \list
+                \li Go to \uicontrol Analyze > \uicontrol Axivion.
+                \li In the mode selector, select \uicontrol Debug >
+                    \uicontrol Axivion.
+                \li Switch to the \uicontrol Debug mode, and select
+                    \uicontrol Axivion in the debugger toolbar.
+            \endlist
+        \li Select a dashboard and a project.
+        \li Select the icon of an issue type.
+    \endlist
+
+    To refresh the list, select \inlineimage icons/reload_gray.png.
+
+    To get help, select \inlineimage icons/info.png.
+
+    \section1 Issue types
+
+    Axivion looks for the following types of issues in the selected project:
 
     \table
     \header
@@ -73,15 +92,7 @@
             or coding conventions.
     \endtable
 
-    To clear the view, select \inlineimage icons/clean_pane_small.png
-    (\uicontrol Clear).
-
-    To view issues, select \inlineimage icons/zoom.png
-    (\uicontrol {Search for Issues}).
-
     \section1 Filter issues
-
-    \image qtcreator-axivion-issue-search.webp {Issues in Axivion view}
 
     To filter issues, select:
 
@@ -98,8 +109,13 @@
             match the pattern.
     \endlist
 
+    Select \inlineimage icons/filtericon.png for a column to set or clear the
+    filter expression for the column.
+
     The information you see depends on the issue type. Double-click an issue
-    to see more information about it in the \uicontrol Axivion sidebar view.
+    to see more information about it in the \uicontrol {Issue Details} view.
+
+    To show inline issues, select \inlineimage icons/location.png.
 
     \section1 Jump to issues in the editor
 
@@ -119,8 +135,7 @@
     or \uicontrol {Target Path} column.
 
     \sa {Enable and disable plugins}, {Analyze}{How To: Analyze},
-    {Link projects to Axivion dashboards}, {Analyzers}, {Axivion},
-    {Analyzing Code}
+    {Analyzers}, {Axivion}, {Analyzing Code}
 */
 
 /*!
@@ -133,14 +148,16 @@
 
     \brief Create a connection to an Axivion dashboard server.
 
-    To set preferences for the Axivion static code analysis tool, go to
-    \preferences > \uicontrol Axivion.
+    You can connect to an Axivion dashboard server and map dashboard projects to
+    local projects.
 
-    \image qtcreator-preferences-axivion.webp {General tab in Axivion Preferences}
+    \section1 Connecting to a Dashboard Server
 
     To connect to an Axivion dashboard server:
 
     \list
+        \li Go to \preferences > \uicontrol Axivion > \uicontrol General.
+            \image qtcreator-preferences-axivion-general.webp {General tab in Axivion Preferences}
         \li Select \uicontrol Add to add a new connection to an Axivion
             dashboard server.
         \li Select \uicontrol Edit to modify an existing connection to
@@ -161,31 +178,22 @@
     Select \uicontrol {Highlight marks} to highlight found issues on the
     scrollbar in the editor.
 
-    \sa {Enable and disable plugins}, {Link projects to Axivion dashboards},
-    {Prevent code erosion}
-*/
+    \section1 Mapping Paths
 
-/*!
-    \page creator-link-axivion-dashboards.html
-    \previouspage creator-how-tos.html
+    Projects on the dashboard might have subprojects that also appear on the
+    dashboard because they are analyzed separately.
 
-    \ingroup creator-how-to-projects-configure
-
-    \title Link projects to Axivion dashboards
-
-    To link a project to an Axivion dashboard:
+    To map dashboard projects to local projects:
 
     \list 1
-        \li Go to \uicontrol Projects > \uicontrol {Project Settings} >
-            \uicontrol Axivion.
-            \image qtcreator-preferences-axivion-project.webp {Axivion settings in Project Settings}
-        \li Select the Axivion dashboard server to fetch projects from.
-        \li Select \uicontrol {Fetch Projects} to list projects from the server.
-        \li In \uicontrol {Dashboard projects} select a project.
-        \li Select \uicontrol {Link Project} to link to the project.
+        \li Go to \preferences > \uicontrol Axivion > \uicontrol {Path Mapping}.
+            \image qtcreator-preferences-axivion-path-mapping.webp {Path Mapping tab in Axivion Preferences}
+        \li In \uicontrol {Project name}, enter the project name on the dashboard.
+        \li In \uicontrol {Local path}, enter the path to the project on the
+            computer.
+        \li In \uicontrol {Analysis path}, enter the path to the analysis of a
+            subproject. You need this only to map analyses of subprojects.
     \endlist
 
-    To unlink a project, select \uicontrol {Unlink Project}.
-
-    \sa {Enable and disable plugins}, {Prevent code erosion}, {Axivion}
+    \sa {Enable and disable plugins}, {View Axivion static code analysis results}
 */

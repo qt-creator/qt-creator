@@ -99,6 +99,8 @@ public:
     static void activateEditorForEntry(DocumentModel::Entry *entry, OpenEditorFlags flags = NoFlags);
     static IEditor *activateEditorForDocument(IDocument *document, OpenEditorFlags flags = NoFlags);
 
+    static void addEditor(IEditor *editor, OpenEditorFlags flags = NoFlags);
+
     static bool closeDocuments(const QList<IDocument *> &documents, bool askAboutModifiedEditors = true);
     static bool closeDocuments(const QList<DocumentModel::Entry *> &entries);
     static void closeOtherDocuments(IDocument *document);
@@ -113,7 +115,7 @@ public:
     static bool closeEditors(const QList<IEditor *> &editorsToClose, bool askAboutModifiedEditors = true);
 
     static QByteArray saveState();
-    static bool restoreState(const QByteArray &state);
+    static void restoreState(const QByteArray &state);
     static bool hasSplitter();
 
     static void showEditorStatusBar(const QString &id,
@@ -141,6 +143,8 @@ public:
                                              IEditor *editor = nullptr);
     static void addPinEditorActions(QMenu *contextMenu, DocumentModel::Entry *entry);
     static void addNativeDirAndOpenWithActions(QMenu *contextMenu, DocumentModel::Entry *entry);
+    static void addContextMenuActions(
+        QMenu *contextMenu, DocumentModel::Entry *entry, IEditor *editor = nullptr);
     static void populateOpenWithMenu(QMenu *menu, const Utils::FilePath &filePath);
 
     static void runWithTemporaryEditor(const Utils::FilePath &filePath,

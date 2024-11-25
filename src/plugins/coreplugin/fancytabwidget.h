@@ -44,6 +44,7 @@ public:
     QString text;
     QString toolTip;
     bool enabled = false;
+    bool visible = true;
     bool hasMenu = false;
 
 private:
@@ -62,7 +63,7 @@ public:
     bool event(QEvent *event) override;
 
     void paintEvent(QPaintEvent *event) override;
-    void paintTab(QPainter *painter, int tabIndex) const;
+    void paintTab(QPainter *painter, int tabIndex, int visibleIndex, QIcon::State iconState) const;
     void mousePressEvent(QMouseEvent *event) override;
     void mouseMoveEvent(QMouseEvent *event) override;
     void enterEvent(QEnterEvent *event) override;
@@ -74,6 +75,8 @@ public:
 
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
+
+    void setTabVisible(int index, bool visible);
 
     void insertTab(int index, const QIcon &icon, const QString &label, bool hasMenu)
     {
@@ -102,7 +105,9 @@ public:
     void setIconsOnly(bool iconOnly);
 
     int count() const { return m_tabs.count(); }
-    QRect tabRect(int index) const;
+    QRect tabRect(int visibleIndex) const;
+
+    int visibleIndex(int index) const;
 
 signals:
     void currentAboutToChange(int index);
@@ -141,6 +146,7 @@ public:
 
     void setTabEnabled(int index, bool enable);
     bool isTabEnabled(int index) const;
+    void setTabVisible(int index, bool visible);
 
     void setIconsOnly(bool iconsOnly);
 
@@ -150,7 +156,7 @@ signals:
     void currentAboutToShow(int index);
     void currentChanged(int index);
     void menuTriggered(int index, QMouseEvent *event);
-    void topAreaClicked(Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
+    void topAreaClicked(QMouseEvent *event);
 
 public slots:
     void setCurrentIndex(int index);

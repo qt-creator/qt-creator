@@ -33,8 +33,8 @@ public:
 
     void showToolTip(TextEditorWidget *widget, const QPoint &point);
     bool lastHelpItemAppliesTo(const TextEditorWidget *widget) const;
+    const QString &toolTip() const;
 
-protected:
     enum {
         Priority_None = 0,
         Priority_Tooltip = 5,
@@ -42,11 +42,12 @@ protected:
         Priority_Diagnostic = 20,
         Priority_Suggestion = 40
     };
+
+protected:
     void setPriority(int priority);
     int priority() const;
 
     void setToolTip(const QString &tooltip, Qt::TextFormat format = Qt::PlainText);
-    const QString &toolTip() const;
 
     void setLastHelpItemIdentified(const Core::HelpItem &help);
     const Core::HelpItem &lastHelpItemIdentified() const;

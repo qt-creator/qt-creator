@@ -9,9 +9,12 @@
 #include "cppworkingcopy.h"
 
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectmacro.h>
 #include <projectexplorer/project.h>
+
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/temporarydirectory.h>
 
 #include <cplusplus/CppDocument.h>
@@ -505,7 +508,7 @@ void Dumper::dumpProjectInfos(const QList<ProjectInfo::ConstPtr> &projectInfos)
             QString projectFilePath = "<None>";
             if (part->hasProject()) {
                 projectFilePath = part->topLevelProject.toUserOutput();
-                if (const ProjectExplorer::Project * const project = projectForProjectPart(*part))
+                if (const ProjectExplorer::Project * const project = part->project())
                     projectName = project->displayName();
             }
             if (!part->projectConfigFile.isEmpty())

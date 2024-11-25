@@ -11,11 +11,13 @@
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/icore.h>
 
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/projectexplorerconstants.h>
 
 #include <utils/detailswidget.h>
 #include <utils/fileutils.h>
 #include <utils/headerviewstretcher.h>
+#include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -23,19 +25,15 @@
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
-#include <QFormLayout>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QTreeView>
-#include <QUuid>
 
 using namespace Utils;
 
 namespace CMakeProjectManager::Internal {
-
-class CMakeToolTreeItem;
 
 //
 // CMakeToolItemModel
@@ -69,139 +67,134 @@ public:
 
     QString uniqueDisplayName(const QString &base) const;
 private:
+    QVariant data(const QModelIndex &index, int role) const override;
+
     Utils::Id m_defaultItemId;
     QList<Utils::Id> m_removedItems;
 };
 
-class CMakeToolTreeItem : public TreeItem
+CMakeToolTreeItem::CMakeToolTreeItem(const CMakeTool *item, bool changed)
+    : m_id(item->id())
+    , m_name(item->displayName())
+    , m_executable(item->filePath())
+    , m_qchFile(item->qchFilePath())
+    , m_versionDisplay(item->versionDisplay())
+    , m_detectionSource(item->detectionSource())
+    , m_autodetected(item->isAutoDetected())
+    , m_isSupported(item->hasFileApi())
+    , m_changed(changed)
 {
-public:
-    CMakeToolTreeItem(const CMakeTool *item, bool changed)
-        : m_id(item->id())
-        , m_name(item->displayName())
-        , m_executable(item->filePath())
-        , m_qchFile(item->qchFilePath())
-        , m_versionDisplay(item->versionDisplay())
-        , m_detectionSource(item->detectionSource())
-        , m_autodetected(item->isAutoDetected())
-        , m_isSupported(item->hasFileApi())
-        , m_changed(changed)
-    {
-        updateErrorFlags();
+    updateErrorFlags();
+}
+
+CMakeToolTreeItem::CMakeToolTreeItem(
+    const QString &name,
+    const FilePath &executable,
+    const FilePath &qchFile,
+    bool autoRun,
+    bool autodetected)
+    : m_id(Id::generate())
+    , m_name(name)
+    , m_executable(executable)
+    , m_qchFile(qchFile)
+    , m_isAutoRun(autoRun)
+    , m_autodetected(autodetected)
+{
+    updateErrorFlags();
+}
+
+void CMakeToolTreeItem::updateErrorFlags()
+{
+    const FilePath filePath = CMakeTool::cmakeExecutable(m_executable);
+    m_pathExists = filePath.exists();
+    m_pathIsFile = filePath.isFile();
+    m_pathIsExecutable = filePath.isExecutableFile();
+
+    CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection : CMakeTool::ManualDetection, m_id);
+    cmake.setFilePath(m_executable);
+    m_isSupported = cmake.hasFileApi();
+
+    m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
+    m_tooltip += "<br>"
+                 + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
+    m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource);
+
+    m_versionDisplay = cmake.versionDisplay();
+
+    // Make sure to always have the right version in the name for Qt SDK CMake installations
+    if (m_autodetected && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
+        m_name = QString("CMake %1 (Qt)").arg(m_versionDisplay);
+}
+
+bool CMakeToolTreeItem::hasError() const
+{
+    return !m_isSupported || !m_pathExists || !m_pathIsFile || !m_pathIsExecutable;
+}
+
+QVariant CMakeToolTreeItem::data(int column, int role) const
+{
+    const auto defaultItemId = [this] {
+        return Id::fromSetting(model()->data({}, DefaultItemIdRole));
+    };
+
+    if (!m_id.isValid()) {
+        if (role == Qt::DisplayRole && column == 0)
+            return Tr::tr("None");
+        if (role == ProjectExplorer::KitAspect::IsNoneRole)
+            return true;
+        return {};
     }
 
-    CMakeToolTreeItem(const QString &name,
-                      const FilePath &executable,
-                      const FilePath &qchFile,
-                      bool autoRun,
-                      bool autodetected)
-        : m_id(Id::fromString(QUuid::createUuid().toString()))
-        , m_name(name)
-        , m_executable(executable)
-        , m_qchFile(qchFile)
-        , m_isAutoRun(autoRun)
-        , m_autodetected(autodetected)
-    {
-        updateErrorFlags();
-    }
-
-    void updateErrorFlags()
-    {
-        const FilePath filePath = CMakeTool::cmakeExecutable(m_executable);
-        m_pathExists = filePath.exists();
-        m_pathIsFile = filePath.isFile();
-        m_pathIsExecutable = filePath.isExecutableFile();
-
-        CMakeTool cmake(m_autodetected ? CMakeTool::AutoDetection
-                                       : CMakeTool::ManualDetection, m_id);
-        cmake.setFilePath(m_executable);
-        m_isSupported = cmake.hasFileApi();
-
-        m_tooltip = Tr::tr("Version: %1").arg(cmake.versionDisplay());
-        m_tooltip += "<br>" + Tr::tr("Supports fileApi: %1").arg(m_isSupported ? Tr::tr("yes") : Tr::tr("no"));
-        m_tooltip += "<br>" + Tr::tr("Detection source: \"%1\"").arg(m_detectionSource);
-
-        m_versionDisplay = cmake.versionDisplay();
-
-        // Make sure to always have the right version in the name for Qt SDK CMake installations
-        if (m_autodetected && m_name.startsWith("CMake") && m_name.endsWith("(Qt)"))
-            m_name = QString("CMake %1 (Qt)").arg(m_versionDisplay);
-    }
-
-    CMakeToolTreeItem() = default;
-
-    CMakeToolItemModel *model() const { return static_cast<CMakeToolItemModel *>(TreeItem::model()); }
-
-    QVariant data(int column, int role) const override
-    {
-        switch (role) {
-        case Qt::DisplayRole: {
-            switch (column) {
-            case 0: {
-                QString name = m_name;
-                if (model()->defaultItemId() == m_id)
-                    name += Tr::tr(" (Default)");
-                return name;
-            }
-            case 1: {
-                return m_executable.toUserOutput();
-            }
-            } // switch (column)
-            return QVariant();
+    switch (role) {
+    case Qt::DisplayRole: {
+        switch (column) {
+        case 0: {
+            QString name = m_name;
+            if (defaultItemId() == m_id)
+                name += Tr::tr(" (Default)");
+            return name;
         }
-        case Qt::FontRole: {
-            QFont font;
-            font.setBold(m_changed);
-            font.setItalic(model()->defaultItemId() == m_id);
-            return font;
+        case 1: {
+            return m_executable.toUserOutput();
         }
-        case Qt::ToolTipRole: {
-            QString result = m_tooltip;
-            QString error;
-            if (!m_pathExists) {
-                error = Tr::tr("CMake executable path does not exist.");
-            } else if (!m_pathIsFile) {
-                error = Tr::tr("CMake executable path is not a file.");
-            } else if (!m_pathIsExecutable) {
-                error = Tr::tr("CMake executable path is not executable.");
-            } else if (!m_isSupported) {
-                error = Tr::tr(
-                    "CMake executable does not provide required IDE integration features.");
-            }
-            if (result.isEmpty() || error.isEmpty())
-                return QString("%1%2").arg(result).arg(error);
-            else
-                return QString("%1<br><br><b>%2</b>").arg(result).arg(error);
-        }
-        case Qt::DecorationRole: {
-            if (column != 0)
-                return QVariant();
-
-            const bool hasError = !m_isSupported || !m_pathExists || !m_pathIsFile
-                                  || !m_pathIsExecutable;
-            if (hasError)
-                return Icons::CRITICAL.icon();
-            return QVariant();
-        }
-        }
+        } // switch (column)
         return QVariant();
     }
-
-    Id m_id;
-    QString m_name;
-    QString m_tooltip;
-    FilePath m_executable;
-    FilePath m_qchFile;
-    QString m_versionDisplay;
-    QString m_detectionSource;
-    bool m_isAutoRun = true;
-    bool m_pathExists = false;
-    bool m_pathIsFile = false;
-    bool m_pathIsExecutable = false;
-    bool m_autodetected = false;
-    bool m_isSupported = false;
-    bool m_changed = true;
-};
+    case Qt::FontRole: {
+        QFont font;
+        font.setBold(m_changed);
+        font.setItalic(defaultItemId() == m_id);
+        return font;
+    }
+    case Qt::ToolTipRole: {
+        QString result = m_tooltip;
+        QString error;
+        if (!m_pathExists) {
+            error = Tr::tr("CMake executable path does not exist.");
+        } else if (!m_pathIsFile) {
+            error = Tr::tr("CMake executable path is not a file.");
+        } else if (!m_pathIsExecutable) {
+            error = Tr::tr("CMake executable path is not executable.");
+        } else if (!m_isSupported) {
+            error = Tr::tr("CMake executable does not provide required IDE integration features.");
+        }
+        if (result.isEmpty() || error.isEmpty())
+            return QString("%1%2").arg(result).arg(error);
+        else
+            return QString("%1<br><br><b>%2</b>").arg(result).arg(error);
+    }
+    case Qt::DecorationRole: {
+        if (column == 0 && hasError())
+            return Icons::CRITICAL.icon();
+        return QVariant();
+    }
+    case ProjectExplorer::KitAspect::IdRole:
+        return m_id.toSetting();
+    case ProjectExplorer::KitAspect::QualityRole:
+        return int(!hasError());
+    }
+    return QVariant();
+}
 
 CMakeToolItemModel::CMakeToolItemModel()
 {
@@ -383,6 +376,13 @@ QString CMakeToolItemModel::uniqueDisplayName(const QString &base) const
     return Utils::makeUniquelyNumbered(base, names);
 }
 
+QVariant CMakeToolItemModel::data(const QModelIndex &index, int role) const
+{
+    if (role == CMakeToolTreeItem::DefaultItemIdRole)
+        return defaultItemId().toSetting();
+    return TreeModel::data(index, role);
+}
+
 //
 // CMakeToolItemConfigWidget
 //
@@ -428,12 +428,14 @@ CMakeToolItemConfigWidget::CMakeToolItemConfigWidget(CMakeToolItemModel *model)
 
     m_versionLabel = new QLabel(this);
 
-    auto formLayout = new QFormLayout(this);
-    formLayout->setFieldGrowthPolicy(QFormLayout::AllNonFixedFieldsGrow);
-    formLayout->addRow(new QLabel(Tr::tr("Name:")), m_displayNameLineEdit);
-    formLayout->addRow(new QLabel(Tr::tr("Path:")), m_binaryChooser);
-    formLayout->addRow(new QLabel(Tr::tr("Version:")), m_versionLabel);
-    formLayout->addRow(new QLabel(Tr::tr("Help file:")), m_qchFileChooser);
+    using namespace Layouting;
+    Form {
+        Tr::tr("Name:"), m_displayNameLineEdit, br,
+        Tr::tr("Path:"), m_binaryChooser, br,
+        Tr::tr("Version:"), m_versionLabel, br,
+        Tr::tr("Help file:"), m_qchFileChooser, br,
+        noMargin,
+    }.attachTo(this);
 
     connect(m_binaryChooser, &PathChooser::browsingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
     connect(m_binaryChooser, &PathChooser::editingFinished, this, &CMakeToolItemConfigWidget::onBinaryPathEditingFinished);
@@ -530,21 +532,20 @@ public:
         header->setSectionResizeMode(1, QHeaderView::Stretch);
         (void) new HeaderViewStretcher(header, 0);
 
-        auto buttonLayout = new QVBoxLayout();
-        buttonLayout->setContentsMargins(0, 0, 0, 0);
-        buttonLayout->addWidget(m_addButton);
-        buttonLayout->addWidget(m_cloneButton);
-        buttonLayout->addWidget(m_delButton);
-        buttonLayout->addWidget(m_makeDefButton);
-        buttonLayout->addItem(new QSpacerItem(10, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
-
-        auto verticalLayout = new QVBoxLayout();
-        verticalLayout->addWidget(m_cmakeToolsView);
-        verticalLayout->addWidget(m_container);
-
-        auto horizontalLayout = new QHBoxLayout(this);
-        horizontalLayout->addLayout(verticalLayout);
-        horizontalLayout->addLayout(buttonLayout);
+        using namespace Layouting;
+        Row {
+            Column {
+                m_cmakeToolsView,
+                m_container,
+            },
+            Column {
+                m_addButton,
+                m_cloneButton,
+                m_delButton,
+                m_makeDefButton,
+                st,
+            },
+        }.attachTo(this);
 
         connect(m_cmakeToolsView->selectionModel(), &QItemSelectionModel::currentChanged,
                 this, &CMakeToolConfigWidget::currentCMakeToolChanged, Qt::QueuedConnection);

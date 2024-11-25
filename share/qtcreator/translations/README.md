@@ -17,7 +17,7 @@ How To add translations to Qt Creator
 
 - Create a new translation file by running
 
-      cmake --build . -target ts_untranslated
+      cmake --build . --target ts_untranslated
 
   in the build directory. This generates a file
 

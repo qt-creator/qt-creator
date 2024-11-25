@@ -12,10 +12,13 @@ def main():
         mouseClick(waitForObjectItem(":Options_QListView", "Environment"))
         clickOnTab(":Options.qt_tabwidget_tabbar_QTabBar", "Interface")
         languageName = testData.field(lang, "language")
+        locale = QLocale(testData.field(lang, "ISO"))
         if "%1" in languageName:
-            country = str(QLocale.countryToString(QLocale(testData.field(lang, "ISO")).country()))
+            country = str(QLocale.countryToString(locale.country()))
             languageName = languageName.replace("%1", country)
-        selectFromCombo(":User Interface.languageBox_QComboBox", languageName)
+        natName = "%s (%s)" % (str(locale.nativeLanguageName()), str(locale.nativeTerritoryName()))
+        comboLanguageName = natName + " - " + languageName
+        selectFromCombo(":User Interface.languageBox_QComboBox", comboLanguageName)
         clickButton(waitForObject(":Options.OK_QPushButton"))
         clickButton(waitForObject(":Restart required.Later_QPushButton"))
         test.verify(waitFor("not object.exists(':Options_Core::Internal::SettingsDialog')", 5000),

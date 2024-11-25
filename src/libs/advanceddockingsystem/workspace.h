@@ -5,7 +5,7 @@
 
 #include "ads_globals.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 namespace ADS {
 

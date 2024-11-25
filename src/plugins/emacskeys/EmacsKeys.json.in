@@ -1,11 +1,13 @@
 {
+    "Id" : "emacskeys",
     "Name" : "EmacsKeys",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
     "SoftLoadable" : true,
+    "VendorId" : "nsf",
     "Vendor" : "nsf",
-    "Copyright" : "(C) 2016 nsf <no.smile.face@gmail.com>, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2016 nsf <no.smile.face@gmail.com>, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -29,5 +31,6 @@
         "Also it's worth mentioning that EmacsKeys plugin forces disabling of menu mnemonics by calling Qt's qt_set_sequence_auto_mnemonic function with false argument. Many of the english menu mnemonics get into the way of typical emacs keys, this includes: Alt+F (File), Alt+B (Build), Alt+W (Window). It's a temporary solution, it remains until there is a better one."
     ],
     "Url" : "https://nosmileface.ru",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-keyboard-shortcuts.html#emacs-shortcuts",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

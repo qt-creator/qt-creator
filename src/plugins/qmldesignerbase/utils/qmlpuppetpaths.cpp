@@ -11,6 +11,8 @@
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
 
+#include <QCoreApplication>
+
 namespace QmlDesigner {
 namespace QmlPuppetPaths {
 

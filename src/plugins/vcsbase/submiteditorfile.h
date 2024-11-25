@@ -28,7 +28,7 @@ public:
     void setModified(bool modified = true);
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     bool m_modified;

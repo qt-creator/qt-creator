@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/treemodel.h>
 
 #include <QList>
@@ -80,7 +80,7 @@ public:
     ITestBase *testBase() const { return m_testBase; }
 
     virtual bool lessThan(const ITestTreeItem *other, SortMode mode) const;
-    QString cacheName() const { return m_filePath.toString() + ':' + m_name; }
+    QString cacheName() const { return m_filePath.path() + ':' + m_name; }
 
 protected:
     void setType(Type type) { m_type = type; }

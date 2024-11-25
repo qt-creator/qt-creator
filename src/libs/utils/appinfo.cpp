@@ -7,7 +7,7 @@ Q_GLOBAL_STATIC(Utils::AppInfo, sAppInfo)
 
 namespace Utils {
 
-Utils::AppInfo appInfo()
+const Utils::AppInfo &appInfo()
 {
     return *sAppInfo;
 }

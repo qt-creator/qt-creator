@@ -48,16 +48,16 @@ bool GetOperation::setArguments(const QStringList &args)
 static QString toString(const QVariant &variant, int indentation = 0)
 {
     const QString indent(indentation, QLatin1Char(' '));
-    switch (variant.type()) {
-    case QVariant::Map: {
+    switch (variant.typeId()) {
+    case QMetaType::QVariantMap: {
         QVariantMap map = variant.toMap();
         QString res;
         for (auto item = map.begin(); item != map.end(); ++item) {
             res += indent + item.key() + QLatin1String(": ");
             QVariant value = item.value();
-            switch (value.type()) {
-            case QVariant::Map:
-            case QVariant::List:
+            switch (value.typeId()) {
+            case QMetaType::QVariantMap:
+            case QMetaType::QVariantList:
                 res += QLatin1Char('\n') + toString(value, indentation + 1);
                 break;
             default:
@@ -68,7 +68,7 @@ static QString toString(const QVariant &variant, int indentation = 0)
         }
         return res;
     }
-    case QVariant::List: {
+    case QMetaType::QVariantList: {
         const QVariantList list = variant.toList();
         QString res;
         int counter = 0;
@@ -119,7 +119,7 @@ void GetOperation::unittest()
     QCOMPARE(result.toString(), QLatin1String("true"));
 
     result = get(testMap, QLatin1String("subkeys/subsubkeys"));
-    QCOMPARE(result.type(), QVariant::Map);
+    QCOMPARE(result.typeId(), QMetaType::QVariantMap);
 
     result = get(testMap, QLatin1String("nonexistant"));
     QVERIFY(!result.isValid());

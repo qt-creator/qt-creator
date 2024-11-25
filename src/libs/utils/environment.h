@@ -72,6 +72,9 @@ public:
 
     FilePaths path() const;
     FilePaths pathListValue(const QString &varName) const;
+    void setPathListValue(const QString &varName, const FilePaths &paths);
+    static QString valueFromPathList(const FilePaths &paths, OsType osType);
+    static FilePaths pathListFromValue(const QString &value, OsType osType);
 
     QString expandedValueForKey(const QString &key) const;
     QString expandVariables(const QString &input) const;
@@ -91,6 +94,7 @@ public:
     bool operator==(const Environment &other) const;
 
     static Environment systemEnvironment();
+    static const Environment &originalSystemEnvironment();
 
     static void modifySystemEnvironment(const EnvironmentItems &list); // use with care!!!
     static void setSystemEnvironment(const Environment &environment);  // don't use at all!!!

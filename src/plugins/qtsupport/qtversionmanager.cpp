@@ -376,6 +376,7 @@ void QtVersionManagerImpl::updateFromInstaller(bool emitSignal)
                 qCDebug(log) << "  removing version" << qtVersion->detectionSource();
                 m_versions.remove(qtVersion->uniqueId());
                 removed << qtVersion->uniqueId();
+                delete qtVersion;
             }
         }
     }

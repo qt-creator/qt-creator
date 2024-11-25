@@ -17,6 +17,7 @@
 #include <projectexplorer/projectnodes.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>

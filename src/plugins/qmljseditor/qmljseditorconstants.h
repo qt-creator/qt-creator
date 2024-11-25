@@ -23,5 +23,7 @@ const char TASK_CATEGORY_QML_ANALYSIS[] = "Task.Category.QmlAnalysis";
 
 const char QML_SNIPPETS_GROUP_ID[] = "QML";
 
+const char QMLLINT_BUILD_TARGET[] = "all_qmllint";
+
 } // namespace Constants
 } // namespace QmlJSEditor

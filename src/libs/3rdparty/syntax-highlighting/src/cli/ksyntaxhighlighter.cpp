@@ -17,7 +17,7 @@
 #include <QCoreApplication>
 #include <QFile>
 
-#include <iostream>
+#include <cstdio>
 
 using namespace KSyntaxHighlighting;
 
@@ -93,16 +93,15 @@ int main(int argc, char **argv)
                                  app.translate("SyntaxHighlightingCLI", "theme"));
     parser.addOption(themeName);
 
-    QCommandLineOption outputFormatOption(
-        QStringList() << QStringLiteral("f") << QStringLiteral("output-format"),
-        app.translate("SyntaxHighlightingCLI", "Use the specified format instead of html. Must be html, ansi or ansi256Colors."),
-        app.translate("SyntaxHighlightingCLI", "format"),
-        QStringLiteral("html"));
+    QCommandLineOption outputFormatOption(QStringList() << QStringLiteral("f") << QStringLiteral("output-format"),
+                                          app.translate("SyntaxHighlightingCLI", "Use the specified format instead of html. Must be html, ansi or ansi256."),
+                                          app.translate("SyntaxHighlightingCLI", "format"),
+                                          QStringLiteral("html"));
     parser.addOption(outputFormatOption);
 
     QCommandLineOption traceOption(QStringList() << QStringLiteral("syntax-trace"),
                                    app.translate("SyntaxHighlightingCLI",
-                                                 "Add information to debug a syntax file. Only works with --output-format=ansi or ansi256Colors. Possible "
+                                                 "Add information to debug a syntax file. Only works with --output-format=ansi or ansi256. Possible "
                                                  "values are format, region, context, stackSize and all."),
                                    app.translate("SyntaxHighlightingCLI", "type"));
     parser.addOption(traceOption);
@@ -111,8 +110,13 @@ int main(int argc, char **argv)
                                       app.translate("SyntaxHighlightingCLI", "Disable ANSI background for the default color."));
     parser.addOption(noAnsiEditorBg);
 
+    QCommandLineOption bgRole(QStringList() << QStringLiteral("B") << QStringLiteral("background-role"),
+                              app.translate("SyntaxHighlightingCLI", "Select background color role from theme."),
+                              app.translate("SyntaxHighlightingCLI", "role"));
+    parser.addOption(bgRole);
+
     QCommandLineOption unbufferedAnsi(QStringList() << QStringLiteral("U") << QStringLiteral("unbuffered"),
-                                      app.translate("SyntaxHighlightingCLI", "For ansi and ansi256Colors formats, flush the output buffer on each line."));
+                                      app.translate("SyntaxHighlightingCLI", "For ansi and ansi256 formats, flush the output buffer on each line."));
     parser.addOption(unbufferedAnsi);
 
     QCommandLineOption titleOption(
@@ -127,22 +131,84 @@ int main(int argc, char **argv)
 
     if (parser.isSet(listDefs)) {
         for (const auto &def : repo.definitions()) {
-            std::cout << qPrintable(def.name()) << std::endl;
+            fprintf(stdout, "%s\n", qPrintable(def.name()));
         }
         return 0;
     }
 
     if (parser.isSet(listThemes)) {
         for (const auto &theme : repo.themes()) {
-            std::cout << qPrintable(theme.name()) << std::endl;
+            fprintf(stdout, "%s\n", qPrintable(theme.name()));
         }
         return 0;
     }
 
+    Theme::EditorColorRole bgColorRole = Theme::BackgroundColor;
+
+    if (parser.isSet(bgRole)) {
+        /*
+         * Theme::EditorColorRole contains border, foreground and background colors.
+         * To ensure that only the background colors used in text editing are used,
+         * QMetaEnum is avoided and values are listed in hard.
+         */
+
+        struct BgRole {
+            QStringView name;
+            Theme::EditorColorRole role;
+            // name for display
+            const char *asciiName;
+        };
+
+#define BG_ROLE(role)                                                                                                                                          \
+    BgRole                                                                                                                                                     \
+    {                                                                                                                                                          \
+        QStringView(u"" #role, sizeof(#role) - 1), Theme::role, #role                                                                                          \
+    }
+        constexpr BgRole bgRoles[] = {
+            BG_ROLE(BackgroundColor),
+            BG_ROLE(TextSelection),
+            BG_ROLE(CurrentLine),
+            BG_ROLE(SearchHighlight),
+            BG_ROLE(ReplaceHighlight),
+            BG_ROLE(BracketMatching),
+            BG_ROLE(CodeFolding),
+            BG_ROLE(MarkBookmark),
+            BG_ROLE(MarkBreakpointActive),
+            BG_ROLE(MarkBreakpointReached),
+            BG_ROLE(MarkBreakpointDisabled),
+            BG_ROLE(MarkExecution),
+            BG_ROLE(MarkWarning),
+            BG_ROLE(MarkError),
+            BG_ROLE(TemplateBackground),
+            BG_ROLE(TemplatePlaceholder),
+            BG_ROLE(TemplateFocusedPlaceholder),
+            BG_ROLE(TemplateReadOnlyPlaceholder),
+        };
+#undef BG_ROLE
+
+        const auto role = parser.value(bgRole);
+        bool ok = false;
+        for (const auto &def : bgRoles) {
+            if (def.name == role) {
+                bgColorRole = def.role;
+                ok = true;
+                break;
+            }
+        }
+
+        if (!ok) {
+            fprintf(stderr, "Unknown background role. Expected:\n");
+            for (const auto &def : bgRoles) {
+                fprintf(stderr, "  - %s\n", def.asciiName);
+            }
+            return 1;
+        }
+    }
+
     if (parser.isSet(updateDefs)) {
         DefinitionDownloader downloader(&repo);
-        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, [](const QString &msg) {
-            std::cout << qPrintable(msg) << std::endl;
+        QObject::connect(&downloader, &DefinitionDownloader::informationMessage, &app, [](const QString &msg) {
+            fprintf(stdout, "%s\n", qPrintable(msg));
         });
         QObject::connect(&downloader, &DefinitionDownloader::done, &app, &QCoreApplication::quit);
         downloader.start();
@@ -179,7 +245,7 @@ int main(int argc, char **argv)
     }
 
     if (!def.isValid()) {
-        std::cerr << "Unknown syntax." << std::endl;
+        fprintf(stderr, "Unknown syntax.\n");
         return 1;
     }
 
@@ -192,14 +258,16 @@ int main(int argc, char **argv)
 
         HtmlHighlighter highlighter;
         highlighter.setDefinition(def);
+        highlighter.setBackgroundRole(bgColorRole);
         highlighter.setTheme(theme(repo, parser.value(themeName), Repository::LightTheme));
         applyHighlighter(highlighter, parser, fromFileName, inFileName, outputName, title);
     } else {
         auto AnsiFormat = AnsiHighlighter::AnsiFormat::TrueColor;
-        if (0 == outputFormat.compare(QLatin1String("ansi256Colors"), Qt::CaseInsensitive)) {
+        // compatible with the old ansi256Colors value
+        if (outputFormat.startsWith(QLatin1String("ansi256"), Qt::CaseInsensitive)) {
             AnsiFormat = AnsiHighlighter::AnsiFormat::XTerm256Color;
         } else if (0 != outputFormat.compare(QLatin1String("ansi"), Qt::CaseInsensitive)) {
-            std::cerr << "Unknown output format." << std::endl;
+            fprintf(stderr, "Unknown output format.\n");
             return 2;
         }
 
@@ -220,7 +288,7 @@ int main(int argc, char **argv)
                 } else if (option == QStringLiteral("all")) {
                     options |= AnsiHighlighter::Option::TraceAll;
                 } else {
-                    std::cerr << "Unknown trace name." << std::endl;
+                    fprintf(stderr, "Unknown trace name.\n");
                     return 2;
                 }
             }
@@ -228,6 +296,7 @@ int main(int argc, char **argv)
 
         AnsiHighlighter highlighter;
         highlighter.setDefinition(def);
+        highlighter.setBackgroundRole(bgColorRole);
         highlighter.setTheme(theme(repo, parser.value(themeName), Repository::DarkTheme));
         applyHighlighter(highlighter, parser, fromFileName, inFileName, outputName, AnsiFormat, options);
     }

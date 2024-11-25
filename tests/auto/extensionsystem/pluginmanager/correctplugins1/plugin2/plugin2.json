@@ -1,5 +1,7 @@
 {
+    "Id" : "plugin2",
     "Name" : "plugin2",
+    "VendorId" : "theqtcompany",
     "Version" : "1.0.0",
     "CompatVersion" : "1.0.0"
 }

@@ -24,7 +24,6 @@ public:
     Utils::FilePath makeCommand(const Utils::Environment &env) const final;
     QString compilerVersion() const;
     QList<Utils::OutputLineParser *> createOutputParsers() const final;
-    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget() final;
 
     void fromMap(const Utils::Store &data) final;
 
@@ -41,6 +40,8 @@ public:
 
     ProjectExplorer::Toolchains autoDetect(const ProjectExplorer::ToolchainDetector &detector) const final;
     ProjectExplorer::Toolchains detectForImport(const ProjectExplorer::ToolchainDescription &tcd) const final;
+    std::unique_ptr<ProjectExplorer::ToolchainConfigWidget> createConfigurationWidget(
+        const ProjectExplorer::ToolchainBundle &bundle) const final;
 };
 
 } // Nim

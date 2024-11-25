@@ -173,8 +173,8 @@ bool UvscServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMess
         errorMessage = Tr::tr("Cannot debug: Local executable is not set.");
         return false;
     } else if (!bin.exists()) {
-        errorMessage = Tr::tr(
-                    "Cannot debug: Could not find executable for \"%1\".").arg(bin.toString());
+        errorMessage
+            = Tr::tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toUserOutput());
         return false;
     }
 
@@ -224,7 +224,7 @@ void UvscServerProvider::fromMap(const Store &data)
 FilePath UvscServerProvider::projectFilePath(DebuggerRunTool *runTool, QString &errorMessage) const
 {
     const FilePath projectPath = buildProjectFilePath(runTool);
-    std::ofstream ofs(projectPath.toString().toStdString(), std::ofstream::out);
+    std::ofstream ofs(projectPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectWriter writer(&ofs);
     const Uv::Project project(this, runTool);
     if (!writer.write(&project)) {

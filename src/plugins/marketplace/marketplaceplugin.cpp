@@ -7,16 +7,17 @@
 
 namespace Marketplace::Internal {
 
-class MarketplacePlugin : public ExtensionSystem::IPlugin
+class MarketplacePlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Marketplace.json")
 
-    void initialize() {}
-
-    QtMarketplaceWelcomePage welcomePage;
+    void initialize() final
+    {
+        setupQtMarketPlaceWelcomePage(this);
+    }
 };
 
-} // namespace Marketplace
+} // Marketplace::Internal
 
 #include "marketplaceplugin.moc"

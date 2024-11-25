@@ -8,25 +8,17 @@
 
 namespace IncrediBuild::Internal {
 
-class IncrediBuildPluginPrivate
-{
-public:
-    BuildConsoleStepFactory buildConsoleStepFactory;
-    IBConsoleStepFactory ibConsolStepFactory;
-};
-
 class IncrediBuildPlugin final : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "IncrediBuild.json")
 
 public:
-    void initialize() override
+    void initialize() final
     {
-        d = std::make_unique<IncrediBuildPluginPrivate>();
+        setupBuildConsoleStep();
+        setupIBConsoleStep();
     }
-
-    std::unique_ptr<IncrediBuildPluginPrivate> d;
 };
 
 } // IncrediBuild::Internal

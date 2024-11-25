@@ -26,12 +26,10 @@ class ProgressIndicator;
 class TreeView;
 } // Utils
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 class GerritChange;
 class GerritModel;
-class GerritParameters;
 class GerritRemoteChooser;
 class GerritServer;
 
@@ -39,8 +37,7 @@ class GerritDialog : public QDialog
 {
     Q_OBJECT
 public:
-    explicit GerritDialog(const std::shared_ptr<GerritParameters> &p,
-                          const std::shared_ptr<GerritServer> &s,
+    explicit GerritDialog(const std::shared_ptr<GerritServer> &s,
                           const Utils::FilePath &repository,
                           QWidget *parent = nullptr);
     ~GerritDialog() override;
@@ -75,7 +72,6 @@ private:
     QPushButton *addActionButton(const QString &text, const std::function<void ()> &buttonSlot);
     void updateButtons();
 
-    const std::shared_ptr<GerritParameters> m_parameters;
     const std::shared_ptr<GerritServer> m_server;
     QSortFilterProxyModel *m_filterModel;
     GerritModel *m_model;
@@ -99,5 +95,4 @@ private:
     Utils::FancyLineEdit *m_queryLineEdit;
 };
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

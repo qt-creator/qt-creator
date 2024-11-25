@@ -19,6 +19,8 @@
 #include <cplusplus/Symbols.h>
 #include <cplusplus/TranslationUnit.h>
 
+#include <utils/fileutils.h>
+
 //TESTED_COMPONENT=src/libs/cplusplus
 using namespace CPlusPlus;
 

@@ -52,6 +52,60 @@
                     ]
                 }
             ]
+        },
+        "build.configuration": {
+            "type": "array",
+            "description": "A list of build configurations",
+            "items": [
+                {
+                    "type": "object",
+                    "properties": {
+                        "steps": {
+                            "type": "array",
+                            "items": [
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "arguments": {
+                                            "type": "array",
+                                            "items": [
+                                                {
+                                                    "type": "string"
+                                                }
+                                            ],
+                                            "description": "Arguments to pass to the executable"
+                                        },
+                                        "executable": {
+                                            "type": "string",
+                                            "description": "The executable to run"
+                                        },
+                                        "workingDirectory": {
+                                            "type": "string",
+                                            "description": "The working directory to run the executable in"
+                                        }
+                                    },
+                                    "required": [
+                                        "executable"
+                                    ]
+                                }
+                            ],
+                            "description": "The steps required for the build"
+                        },
+                        "name": {
+                            "type": "string",
+                            "description": "The name of the build configuration"
+                        },
+                        "buildDirectory": {
+                            "type": "string",
+                            "description": "The directory to build the project in"
+                        }
+                    },
+                    "required": [
+                        "steps",
+                        "name"
+                    ]
+                }
+            ]
         }
     }
 }

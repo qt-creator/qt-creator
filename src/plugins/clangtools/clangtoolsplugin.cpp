@@ -49,6 +49,7 @@
 
 using namespace Core;
 using namespace ProjectExplorer;
+using namespace Utils;
 
 namespace ClangTools::Internal {
 
@@ -126,7 +127,7 @@ void ClangToolsPlugin::onCurrentEditorChanged()
 
 void ClangToolsPlugin::registerAnalyzeActions()
 {
-    const char * const menuGroupId = "ClangToolsCppGroup";
+    const Id menuGroupId = "ClangToolsCppGroup";
     ActionContainer * const mtoolscpp
         = ActionManager::actionContainer(CppEditor::Constants::M_TOOLS_CPP);
     if (mtoolscpp) {
@@ -141,11 +142,11 @@ void ClangToolsPlugin::registerAnalyzeActions()
     }
 
     for (const auto &toolInfo : {std::make_tuple(ClangTidyTool::instance(),
-                                                 Constants::RUN_CLANGTIDY_ON_PROJECT,
-                                                 Constants::RUN_CLANGTIDY_ON_CURRENT_FILE),
+                                                 Id(Constants::RUN_CLANGTIDY_ON_PROJECT),
+                                                 Id(Constants::RUN_CLANGTIDY_ON_CURRENT_FILE)),
                                  std::make_tuple(ClazyTool::instance(),
-                                                 Constants::RUN_CLAZY_ON_PROJECT,
-                                                 Constants::RUN_CLAZY_ON_CURRENT_FILE)}) {
+                                                 Id(Constants::RUN_CLAZY_ON_PROJECT),
+                                                 Id(Constants::RUN_CLAZY_ON_CURRENT_FILE))}) {
         ClangTool * const tool = std::get<0>(toolInfo);
         ActionManager::registerAction(tool->startAction(), std::get<1>(toolInfo));
         Command *cmd = ActionManager::registerAction(tool->startOnCurrentFileAction(),

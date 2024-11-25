@@ -11,8 +11,7 @@
 
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 template<typename T>
 inline T load(QJsonDocument &&doc);
@@ -89,5 +88,4 @@ inline std::optional<T> get(const QJsonObject &obj, const QString &firstPath, co
     return std::nullopt;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

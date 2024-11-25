@@ -1,11 +1,14 @@
 {
+    \"Id\" : \"%{JS: value('PluginName').toLowerCase()}\",
     \"Name\" : \"%{PluginName}\",
     \"Version\" : \"0.0.1\",
     \"CompatVersion\" : \"0.0.1\",
     \"Vendor\" : \"%{VendorName}\",
+    \"VendorId\" : \"%{JS: value('VendorName').toLowerCase().replace(/ /g, '')}\",
     \"Copyright\" : \"%{Copyright}\",
     \"License\" : \"%{License}\",
     \"Description\" : \"%{Description}\",
     \"Url\" : \"%{Url}\",
+    \"DocumentationUrl\" : \"\",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

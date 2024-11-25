@@ -13,6 +13,7 @@ namespace ProjectExplorer { class Project; }
 namespace Utils { class MacroExpander; }
 
 namespace CppEditor {
+class ClangDiagnosticConfigsModel;
 
 // TODO: Can we move this to ClangCodeModel?
 class CPPEDITOR_EXPORT ClangdSettings : public QObject
@@ -96,6 +97,8 @@ public:
 
     static void setDefaultClangdPath(const Utils::FilePath &filePath);
     static void setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &configs);
+    static ClangDiagnosticConfigsModel diagnosticConfigsModel();
+
     Utils::FilePath clangdFilePath() const;
     IndexingPriority indexingPriority() const { return m_data.indexingPriority; }
     Utils::FilePath projectIndexPath(const Utils::MacroExpander &expander) const;

@@ -31,10 +31,11 @@ MimeTypeMagicDialog::MimeTypeMagicDialog(QWidget *parent) :
     setWindowTitle(Tr::tr("Add Magic Header"));
 
     auto informationLabel = new QLabel;
-    informationLabel->setText(Tr::tr("<html><head/><body><p>MIME magic data is interpreted as defined "
-         "by the Shared MIME-info Database specification from "
-         "<a href=\"http://standards.freedesktop.org/shared-mime-info-spec/shared-mime-info-spec-latest.html\">"
-         "freedesktop.org</a>.<hr/></p></body></html>"));  // FIXME: Simplify for translators
+    informationLabel->setText(
+        Tr::tr("<html><head/><body><p>MIME magic data is interpreted as defined "
+               "by the Shared MIME-info Database specification from "
+               "<a href=\"https://www.freedesktop.org/wiki/Specifications/shared-mime-info-spec/\">"
+               "freedesktop.org</a>.<hr/></p></body></html>")); // FIXME: Simplify for translators
     informationLabel->setWordWrap(true);
 
     m_valueLineEdit = new QLineEdit;

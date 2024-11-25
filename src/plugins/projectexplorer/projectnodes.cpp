@@ -261,6 +261,21 @@ void FileNode::setHasError(bool error) const
     m_hasError = error;
 }
 
+Core::IVersionControl::FileState FileNode::modificationState() const
+{
+    if (isGenerated())
+        return Core::IVersionControl::FileState::NoModification;
+
+    if (!m_modificationState) {
+        const FilePath dir = filePath().absolutePath();
+        if (Core::IVersionControl *vc = Core::VcsManager::findVersionControlForDirectory(dir))
+            m_modificationState = vc->modificationState(filePath());
+        else
+            m_modificationState = Core::IVersionControl::FileState::NoModification;
+    }
+    return *m_modificationState;
+}
+
 bool FileNode::useUnavailableMarker() const
 {
     return m_useUnavailableMarker;
@@ -269,6 +284,11 @@ bool FileNode::useUnavailableMarker() const
 void FileNode::setUseUnavailableMarker(bool useUnavailableMarker)
 {
     m_useUnavailableMarker = useUnavailableMarker;
+}
+
+void FileNode::resetModificationState()
+{
+    m_modificationState.reset();
 }
 
 /*!
@@ -346,7 +366,6 @@ FilePath Node::pathOrDirectory(bool dir) const
             location = FileUtils::commonPath(list);
         }
 
-        QTC_CHECK(!location.needsDevice());
         QFileInfo fi = location.toFileInfo();
         while ((!fi.exists() || !fi.isDir()) && !fi.isRoot() && (fi.fileName() != fi.absolutePath()))
             fi.setFile(fi.absolutePath());
@@ -824,11 +843,11 @@ bool FolderNode::canRenameFile(const FilePath &oldFilePath, const FilePath &newF
     return false;
 }
 
-bool FolderNode::renameFile(const FilePath &oldFilePath, const FilePath &newFilePath)
+bool FolderNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     ProjectNode *pn = managingProject();
     if (pn)
-        return pn->renameFile(oldFilePath, newFilePath);
+        return pn->renameFiles(filesToRename, notRenamed);
     return false;
 }
 
@@ -957,17 +976,20 @@ bool ProjectNode::deleteFiles(const FilePaths &filePaths)
     return false;
 }
 
-bool ProjectNode::canRenameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool ProjectNode::canRenameFile(
+    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
 {
-    if (BuildSystem *bs = buildSystem())
+    if (BuildSystem * const bs = buildSystem())
         return bs->canRenameFile(this, oldFilePath, newFilePath);
-    return true;
+    return false;
 }
 
-bool ProjectNode::renameFile(const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath)
+bool ProjectNode::renameFiles(const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     if (BuildSystem *bs = buildSystem())
-        return bs->renameFile(this, oldFilePath, newFilePath);
+        return bs->renameFiles(this, filesToRename, notRenamed);
+    if (notRenamed)
+        *notRenamed = firstPaths(filesToRename);
     return false;
 }
 

@@ -7,6 +7,8 @@
 
 #include <projectexplorer/project.h>
 
+#include <utils/fileutils.h>
+
 #include <QRegularExpression>
 #include <QRegularExpressionMatch>
 

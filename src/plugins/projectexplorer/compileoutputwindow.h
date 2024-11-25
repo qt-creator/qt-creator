@@ -33,6 +33,7 @@ public:
 
     Utils::BoolAspect popUp{this};
     Utils::BoolAspect wrapOutput{this};
+    Utils::BoolAspect discardOutput{this};
     Utils::IntegerAspect maxCharCount{this};
 };
 
@@ -58,6 +59,8 @@ public:
     void goToNext() override;
     void goToPrev() override;
     bool canNavigate() const override;
+
+    bool hasFilterContext() const override;
 
     void appendText(const QString &text, BuildStep::OutputFormat format);
 

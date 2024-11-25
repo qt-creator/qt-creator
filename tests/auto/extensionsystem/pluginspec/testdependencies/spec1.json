@@ -1,12 +1,13 @@
 {
     "IID" : "plugin",
     "MetaData" : {
-        "Name" : "plugin1",
+        "Id" : "plugin1",
+        "VendorId" : "theqtcompany",
         "Version" : "1.0.1",
         "CompatVersion" : "1.0.0",
         "Dependencies" : [
-            { "Name" : "plugin2", "Version" : "2.3.0_2" },
-            { "Name" : "plugin3", "Version" : "1.0.0" }
+            { "Id" : "plugin2", "Version" : "2.3.0_2" },
+            { "Id" : "plugin3", "Version" : "1.0.0" }
         ]
     }
 }

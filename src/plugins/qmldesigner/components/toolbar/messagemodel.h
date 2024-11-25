@@ -48,5 +48,5 @@ private:
     void clearTasks(const Utils::Id &categoryId);
 
     std::vector<ProjectExplorer::Task> m_tasks = {};
-    std::unordered_map<quintptr, ProjectExplorer::TaskCategory> m_categories = {};
+    QHash<Utils::Id, ProjectExplorer::TaskCategory> m_categories = {};
 };

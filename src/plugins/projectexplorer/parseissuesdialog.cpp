@@ -3,13 +3,15 @@
 
 #include "parseissuesdialog.h"
 
-#include "ioutputparser.h"
 #include "kitaspects.h"
 #include "kitchooser.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
 #include "taskhub.h"
+
+#include <utils/fileutils.h>
+#include <utils/outputformatter.h>
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -23,12 +25,9 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include <memory>
-
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace Internal {
+namespace ProjectExplorer::Internal {
 
 class ParseIssuesDialog::Private
 {
@@ -135,5 +134,4 @@ void ParseIssuesDialog::accept()
     QDialog::accept();
 }
 
-} // namespace Internal
-} // namespace ProjectExplorer
+} // ProjectExplorer::Internal

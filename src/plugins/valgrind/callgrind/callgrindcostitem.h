@@ -18,7 +18,7 @@ class CostItem
 public:
     /// @p data the file data this cost item was parsed in.
     ///         required for decompression of string data like differing source file information
-    explicit CostItem(ParseData *data);
+    explicit CostItem(const ParseData *data);
     ~CostItem();
 
     /**

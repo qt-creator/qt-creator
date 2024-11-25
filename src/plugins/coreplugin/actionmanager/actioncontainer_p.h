@@ -17,7 +17,7 @@ struct Group
 {
     Group(Utils::Id id) : id(id) {}
     Utils::Id id;
-    QList<QObject *> items; // Command * or ActionContainer *
+    QObjectList items; // Command * or ActionContainer *
 };
 
 class ActionContainerPrivate : public ActionContainer

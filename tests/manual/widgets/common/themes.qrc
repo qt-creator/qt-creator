@@ -1,12 +1,16 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource prefix="/themes">
+    <file alias="2024.tokenmapping">../../../../share/qtcreator/themes/2024.tokenmapping</file>
+    <file alias="dark-2024.creatortheme">../../../../share/qtcreator/themes/dark-2024.creatortheme</file>
     <file alias="dark.creatortheme">../../../../share/qtcreator/themes/dark.creatortheme</file>
+    <file alias="dark.figmatokens">../../../../share/qtcreator/themes/dark.figmatokens</file>
     <file alias="default.creatortheme">../../../../share/qtcreator/themes/default.creatortheme</file>
+    <file alias="design.creatortheme">../../../../share/qtcreator/themes/design.creatortheme</file>
     <file alias="flat-dark.creatortheme">../../../../share/qtcreator/themes/flat-dark.creatortheme</file>
     <file alias="flat-light.creatortheme">../../../../share/qtcreator/themes/flat-light.creatortheme</file>
     <file alias="flat.creatortheme">../../../../share/qtcreator/themes/flat.creatortheme</file>
-    <file alias="design.creatortheme">../../../../share/qtcreator/themes/design.creatortheme</file>
-    <file alias="dark.figmatokens">../../../../share/qtcreator/themes/dark.figmatokens</file>
+    <file alias="light-2024.creatortheme">../../../../share/qtcreator/themes/light-2024.creatortheme</file>
+    <file alias="light-palette.inc">../../../../share/qtcreator/themes/light-palette.inc</file>
     <file alias="light.figmatokens">../../../../share/qtcreator/themes/light.figmatokens</file>
 </qresource>
 </RCC>

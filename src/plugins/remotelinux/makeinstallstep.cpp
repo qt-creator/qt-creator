@@ -7,6 +7,7 @@
 #include "remotelinuxtr.h"
 
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsteplist.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deployconfiguration.h>
@@ -32,17 +33,17 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-class MakeInstallStep : public MakeStep
+class MakeInstallStep final : public MakeStep
 {
 public:
     MakeInstallStep(BuildStepList *parent, Id id);
 
 private:
-    void fromMap(const Store &map) override;
-    QWidget *createConfigWidget() override;
-    bool init() override;
+    void fromMap(const Store &map) final;
+    QWidget *createConfigWidget() final;
+    bool init() final;
     Tasking::GroupItem runRecipe() final;
-    bool isJobCountSupported() const override { return false; }
+    bool isJobCountSupported() const final { return false; }
 
     void updateCommandFromAspect();
     void updateArgsFromAspect();
@@ -270,10 +271,21 @@ void MakeInstallStep::fromMap(const Store &map)
 
 // Factory
 
-MakeInstallStepFactory::MakeInstallStepFactory()
+class MakeInstallStepFactory final : public BuildStepFactory
 {
-    registerStep<MakeInstallStep>(Constants::MakeInstallStepId);
-    setDisplayName(Tr::tr("Install into temporary host directory"));
+public:
+    MakeInstallStepFactory()
+    {
+        registerStep<MakeInstallStep>(Constants::MakeInstallStepId);
+        setDisplayName(Tr::tr("Install into temporary host directory"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupMakeInstallStep()
+{
+    static MakeInstallStepFactory theMakeInstallStepFactory;
 }
 
 } // RemoteLinux::Internal

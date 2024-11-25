@@ -13,8 +13,8 @@ namespace Core {
 namespace Constants {
 
 const char IDE_VERSION_LONG[] = "${PROJECT_VERSION}";
-const char IDE_AUTHOR[]       = "The Qt Company Ltd";
-const char IDE_YEAR[]         = "${IDE_COPYRIGHT_YEAR}";
+const char IDE_AUTHOR[]       = "${IDE_AUTHOR}";
+const char IDE_COPYRIGHT[]    = "${IDE_COPYRIGHT}";
 
 const char IDE_DISPLAY_NAME[] = "${IDE_DISPLAY_NAME}";
 const char IDE_ID[]           = "${IDE_ID}";

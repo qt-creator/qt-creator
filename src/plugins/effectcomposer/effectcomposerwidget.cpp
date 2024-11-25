@@ -29,6 +29,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <QHBoxLayout>
@@ -37,7 +38,11 @@
 #include <QQuickItem>
 #include <QTimer>
 
+using namespace Core;
+
 namespace EffectComposer {
+
+constexpr char qmlEffectComposerContextId[] = "QmlDesigner::EffectComposer";
 
 static QString propertyEditorResourcesPath()
 {
@@ -142,6 +147,11 @@ EffectComposerWidget::EffectComposerWidget(EffectComposerView *view)
                 m_effectComposerModel->saveComposition(compName);
         }
     });
+
+    IContext::attach(this,
+                     Context(qmlEffectComposerContextId,
+                             QmlDesigner::Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void EffectComposerWidget::contextHelp(const Core::IContext::HelpCallback &callback) const

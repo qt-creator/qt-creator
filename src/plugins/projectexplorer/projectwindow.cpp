@@ -35,6 +35,7 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/hostosinfo.h>
+#include <utils/fileutils.h>
 #include <utils/navigationtreeview.h>
 #include <utils/qtcassert.h>
 #include <utils/qtcsettings.h>
@@ -206,7 +207,9 @@ void BuildSystemOutputWindow::updateFilter()
                            m_filterActionCaseSensitive.isChecked() ? Qt::CaseSensitive
                                                                     : Qt::CaseInsensitive,
                            m_filterActionRegexp.isChecked(),
-                           m_invertFilterAction.isChecked());
+                           m_invertFilterAction.isChecked(),
+                           0 /* before context */,
+                           0 /* after context */);
 }
 
 class VanishedTargetPanelItem : public TreeItem

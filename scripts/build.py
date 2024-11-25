@@ -10,19 +10,12 @@ import collections
 import os
 import shlex
 import shutil
+import sys
 
 import common
 
 def existing_path(path):
     return path if os.path.exists(path) else None
-
-def default_python3():
-    path_system = os.path.join('/usr', 'bin') if not common.is_windows_platform() else None
-    path = os.environ.get('PYTHON3_PATH') or path_system
-    postfix = '.exe' if common.is_windows_platform() else ''
-    return (path if not path
-            else (existing_path(os.path.join(path, 'python3' + postfix)) or
-                  existing_path(os.path.join(path, 'python' + postfix))))
 
 def get_arguments():
     parser = argparse.ArgumentParser(description='Build Qt Creator for packaging')
@@ -52,7 +45,7 @@ def get_arguments():
                         help='Path to python libraries for use by cdbextension (Windows)')
 
     parser.add_argument('--python3', help='File path to python3 executable for generating translations',
-                        default=default_python3())
+                        default=sys.executable)
 
     parser.add_argument('--no-qtcreator',
                         help='Skip Qt Creator build (only build separate tools)',
@@ -279,33 +272,31 @@ def package_qtcreator(args, paths):
         if not args.no_cdb:
             common.check_print_call(command + [paths.qtcreatorcdbext_install])
 
+    zip = common.sevenzip_command(args.zip_threads)
     if not args.no_zip:
         if not args.no_qtcreator:
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
-                                     zipPatternForApp(paths)],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '.7z'),
+                                       zipPatternForApp(paths)],
                                     paths.install)
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                     os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
-                                     '*'],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '_dev.7z'),
+                                       '*'],
                                     paths.dev_install)
             if args.with_debug_info:
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                         os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
-                                         '*'],
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-debug.7z'),
+                                           '*'],
                                         paths.debug_install)
         if common.is_windows_platform():
-            # use -mf=off to avoid usage of the ARM executable compression filter,
-            # which cannot be extracted by the p7zip version on the machine doing
-            # the repository builds
-            common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
-                                     os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
-                                     '*'],
+            common.check_print_call(zip
+                                    + [os.path.join(paths.result, 'wininterrupt' + args.zip_infix + '.7z'),
+                                       '*'],
                                     paths.wininterrupt_install)
             if not args.no_cdb:
-                common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads, '-mf=off',
-                                         os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
-                                         '*'],
+                common.check_print_call(zip
+                                        + [os.path.join(paths.result, 'qtcreatorcdbext' + args.zip_infix + '.7z'),
+                                           '*'],
                                         paths.qtcreatorcdbext_install)
 
     if common.is_mac_platform() and not args.no_qtcreator:
@@ -319,12 +310,12 @@ def package_qtcreator(args, paths):
                 app = apps[0]
                 common.codesign(os.path.join(signed_install_path, app))
                 if not args.no_zip:
-                    common.check_print_call(['7z', 'a', '-mmt' + args.zip_threads,
-                                             os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
-                                             app],
+                    common.check_print_call(zip
+                                            + [os.path.join(paths.result, 'qtcreator' + args.zip_infix + '-signed.7z'),
+                                               app],
                                             signed_install_path)
         if not args.no_dmg:
-            common.check_print_call(['python', '-u',
+            common.check_print_call([args.python3, '-u',
                                      os.path.join(paths.src, 'scripts', 'makedmg.py'),
                                      'qt-creator' + args.zip_infix + '.dmg',
                                      'Qt Creator',

@@ -7,7 +7,7 @@
 #include "buildinfo.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"
-#include "kitmanager.h"
+#include "kitaspect.h"
 #include "kitoptionspage.h"
 
 #include <coreplugin/icore.h>
@@ -99,11 +99,11 @@ bool TargetSetupWidget::isKitSelected() const
 
 void TargetSetupWidget::setKitSelected(bool b)
 {
-    // Only check target if there are build configurations possible
-    b &= hasSelectedBuildConfigurations();
     const GuardLocker locker(m_ignoreChanges);
     m_detailsWidget->setChecked(b);
-    m_detailsWidget->setState(b ? DetailsWidget::Expanded : DetailsWidget::Collapsed);
+    m_detailsWidget->setState(
+        b && hasSelectableBuildConfigurations() ? DetailsWidget::Expanded
+                                                : DetailsWidget::Collapsed);
     m_detailsWidget->widget()->setEnabled(b);
 }
 
@@ -217,12 +217,12 @@ void TargetSetupWidget::update(const TasksGenerator &generator)
     // Kits that where the taskGenarator reports an error are not selectable, because we cannot
     // guarantee that we can handle the project sensibly (e.g. qmake project without Qt).
     if (!errorTask.isNull()) {
-        toggleEnabled(false);
+        setValid(false);
         m_infoStore.clear();
         return;
     }
 
-    toggleEnabled(true);
+    setValid(true);
     updateDefaultBuildDirectories();
 }
 
@@ -236,17 +236,18 @@ const QList<BuildInfo> TargetSetupWidget::buildInfoList(const Kit *k, const File
     return {info};
 }
 
-bool TargetSetupWidget::hasSelectedBuildConfigurations() const
+bool TargetSetupWidget::hasSelectableBuildConfigurations() const
 {
-    return !selectedBuildInfoList().isEmpty();
+    return !m_infoStore.empty();
 }
 
-void TargetSetupWidget::toggleEnabled(bool enabled)
+void TargetSetupWidget::setValid(bool valid)
 {
-    m_detailsWidget->widget()->setEnabled(enabled && hasSelectedBuildConfigurations());
-    m_detailsWidget->setCheckable(enabled);
-    m_detailsWidget->setExpandable(enabled);
-    if (!enabled) {
+    m_isValid = valid;
+    m_detailsWidget->widget()->setEnabled(valid);
+    m_detailsWidget->setCheckable(valid);
+    m_detailsWidget->setExpandable(valid && hasSelectableBuildConfigurations());
+    if (!valid) {
         m_detailsWidget->setState(DetailsWidget::Collapsed);
         m_detailsWidget->setChecked(false);
     }
@@ -254,6 +255,12 @@ void TargetSetupWidget::toggleEnabled(bool enabled)
 
 const QList<BuildInfo> TargetSetupWidget::selectedBuildInfoList() const
 {
+    if (m_infoStore.empty()) {
+        BuildInfo info;
+        info.kitId = m_kit->id();
+        return {info};
+    }
+
     QList<BuildInfo> result;
     for (const BuildInfoStore &store : m_infoStore) {
         if (store.isEnabled)

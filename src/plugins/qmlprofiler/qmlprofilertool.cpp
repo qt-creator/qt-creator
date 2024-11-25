@@ -48,6 +48,7 @@
 
 #include <utils/fancymainwindow.h>
 #include <utils/fileinprojectfinder.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stylehelper.h>
 #include <utils/url.h>
@@ -377,7 +378,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         d->m_profilerConnections->disconnectFromServer();
     };
 
-    connect(runControl, &RunControl::stopped, this, handleStop);
+    connect(runWorker, &QmlProfilerRunner::stopped, this, handleStop);
     connect(d->m_stopAction, &QAction::triggered, runControl, &RunControl::initiateStop);
 
     updateRunActions();
@@ -428,7 +429,7 @@ void QmlProfilerTool::finalizeRunControl(QmlProfilerRunner *runWorker)
         infoBox->show();
     }, Qt::QueuedConnection); // Queue any connection failures after reportStarted()
 
-    d->m_profilerConnections->connectToServer(runWorker->serverUrl());
+    d->m_profilerConnections->connectToServer(runControl->qmlChannel());
     d->m_profilerState->setCurrentState(QmlProfilerStateManager::AppRunning);
 }
 
@@ -602,8 +603,9 @@ ProjectExplorer::RunControl *QmlProfilerTool::attachToWaitingApplication()
 
     auto runControl = new RunControl(ProjectExplorer::Constants::QML_PROFILER_RUN_MODE);
     runControl->copyDataFromRunConfiguration(ProjectManager::startupRunConfiguration());
-    auto profiler = new QmlProfilerRunner(runControl);
-    profiler->setServerUrl(serverUrl);
+    // The object as such is needed, the RunWorker becomes part of the RunControl at construction time,
+    // similar to how QObject children are owned by their parents
+    [[maybe_unused]] auto profiler = new QmlProfilerRunner(runControl);
 
     connect(d->m_profilerConnections, &QmlProfilerClientManager::connectionClosed,
             runControl, &RunControl::initiateStop);

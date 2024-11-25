@@ -19,13 +19,19 @@ namespace Git::Internal {
 
 class CommitInfo {
 public:
-    QString sha1;
+    QString hash;
     QString shortAuthor;
     QString author;
     QString authorMail;
-    QDateTime authorTime;
-    QString summary;
-    Utils::FilePath filePath;
+    QDateTime authorDate;
+    QString subject;
+    QStringList oldLines;     ///< the previous line contents
+    QString newLine;          ///< the new line contents
+    Utils::FilePath filePath; ///< absolute file path for current file
+    QString originalFileName; ///< relative file path from project root for the original file
+    int line = -1;            ///< current line number in current file
+    int originalLine = -1;    ///< original line number in the original file
+    bool modified = false;    ///< line is locally modified (uncommitted)
 };
 
 class BlameMark : public TextEditor::TextMark
@@ -34,9 +40,11 @@ public:
     BlameMark(const Utils::FilePath &fileName, int lineNumber, const CommitInfo &info);
     bool addToolTipContent(QLayout *target) const;
     QString toolTipText(const CommitInfo &info) const;
+    void addOldLine(const QString &oldLine);
+    void addNewLine(const QString &newLine);
 
 private:
-    const CommitInfo m_info;
+    CommitInfo m_info;
 };
 
 class InstantBlame : public QObject

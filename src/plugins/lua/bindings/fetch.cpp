@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "../luaengine.h"
-#include "../luaqttypes.h"
 #include "../luatr.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
@@ -22,6 +21,9 @@
 #include <QMetaEnum>
 #include <QNetworkAccessManager>
 #include <QNetworkReply>
+
+using namespace Utils;
+using namespace Core;
 
 namespace Lua::Internal {
 
@@ -46,14 +48,14 @@ static QString opToString(QNetworkAccessManager::Operation op)
     }
 }
 
-void addFetchModule()
+void setupFetchModule()
 {
-    class Module : Utils::AspectContainer
+    class Module : AspectContainer
     {
-        Utils::StringListAspect pluginsAllowedToFetch{this};
-        Utils::StringListAspect pluginsNotAllowedToFetch{this};
+        StringListAspect pluginsAllowedToFetch{this};
+        StringListAspect pluginsNotAllowedToFetch{this};
 
-        class LuaOptionsPage : public Core::IOptionsPage
+        class LuaOptionsPage : public IOptionsPage
         {
         public:
             LuaOptionsPage(Module *module)
@@ -64,7 +66,7 @@ void addFetchModule()
                 setDisplayCategory("Lua");
                 setCategoryIconPath(":/lua/images/settingscategory_lua.png");
                 setSettingsProvider(
-                    [module] { return static_cast<Utils::AspectContainer *>(module); });
+                    [module] { return static_cast<AspectContainer *>(module); });
             }
         };
 
@@ -133,7 +135,7 @@ void addFetchModule()
 
     std::shared_ptr<Module> module = std::make_shared<Module>();
 
-    LuaEngine::registerProvider("Fetch", [mod = std::move(module)](sol::state_view lua) -> sol::object {
+    registerProvider("Fetch", [mod = std::move(module)](sol::state_view lua) -> sol::object {
         const ScriptPluginSpec *pluginSpec = lua.get<ScriptPluginSpec *>("PluginSpec");
 
         sol::table async = lua.script("return require('async')", "_fetch_").get<sol::table>();
@@ -182,7 +184,7 @@ void addFetchModule()
                         .arg(pluginName)
                         .arg(url),
                     QMessageBox::Yes | QMessageBox::No,
-                    Core::ICore::dialogParent());
+                    ICore::dialogParent());
                 msgBox->setCheckBox(new QCheckBox(Tr::tr("Remember choice")));
 
                 QObject::connect(
@@ -204,8 +206,8 @@ void addFetchModule()
                 return;
             }
 
-            Utils::InfoBarEntry entry{
-                Utils::Id::fromString("Fetch" + pluginName),
+            InfoBarEntry entry{
+                Id("Fetch").withSuffix(pluginName),
                 Tr::tr("Allow the extension \"%1\" to fetch data from the internet?")
                     .arg(pluginName)};
             entry.setDetailsWidgetCreator([pluginName, url] {
@@ -217,25 +219,25 @@ void addFetchModule()
                 QLabel *list = new QLabel();
                 list->setTextFormat(Qt::TextFormat::MarkdownText);
                 list->setText(markdown);
-                list->setMargin(Utils::StyleHelper::SpacingTokens::ExPaddingGapS);
+                list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                 return list;
             });
             entry.addCustomButton(Tr::tr("Always Allow"), [mod, pluginName, fetch]() {
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::Yes);
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
             entry.addCustomButton(Tr::tr("Allow Once"), [pluginName, fetch]() {
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 fetch();
             });
 
             entry.setCancelButtonInfo(Tr::tr("Deny"), [mod, notAllowed, pluginName]() {
-                Core::ICore::infoBar()->removeInfo(Utils::Id::fromString("Fetch" + pluginName));
+                ICore::infoBar()->removeInfo(Id("Fetch").withSuffix(pluginName));
                 mod->setAllowedToFetch(pluginName, Module::IsAllowed::No);
                 notAllowed();
             });
-            Core::ICore::infoBar()->addInfo(entry);
+            ICore::infoBar()->addInfo(entry);
         };
 
         fetch["fetch_cb"] = [checkPermission,
@@ -261,9 +263,9 @@ void addFetchModule()
 
                 QNetworkReply *reply = nullptr;
                 if (method == "get")
-                    reply = Utils::NetworkAccessManager::instance()->get(request);
+                    reply = NetworkAccessManager::instance()->get(request);
                 else if (method == "post")
-                    reply = Utils::NetworkAccessManager::instance()->post(request, data.toUtf8());
+                    reply = NetworkAccessManager::instance()->post(request, data.toUtf8());
                 else
                     throw std::runtime_error("Unknown method: " + method.toStdString());
 
@@ -289,14 +291,8 @@ void addFetchModule()
                                 callback(error.errorString());
                                 return;
                             }
-                            if (doc.isObject()) {
-                                callback(LuaEngine::toTable(thisState, doc.object()));
-                            } else if (doc.isArray()) {
-                                callback(LuaEngine::toTable(thisState, doc.array()));
-                            } else {
-                                sol::state_view lua(thisState);
-                                callback(lua.create_table());
-                            }
+
+                            callback(toTable(thisState, doc));
                         });
 
                 } else {

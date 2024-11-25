@@ -101,7 +101,7 @@ void PaletteBox::mousePressEvent(QMouseEvent *event)
 {
     qreal w = static_cast<qreal>(width()) / static_cast<qreal>(m_brushes.size());
 
-    int i = static_cast<int>((event->x() / w));
+    int i = static_cast<int>((event->position().x() / w));
     QMT_ASSERT(i >= 0 && i < m_brushes.size(), return);
     setCurrentIndex(i);
     if (m_currentIndex >= 0 && m_currentIndex < m_brushes.size())

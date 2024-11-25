@@ -128,7 +128,7 @@ void MessageModel::setupTaskHub()
 
 void MessageModel::addCategory(const ProjectExplorer::TaskCategory &category)
 {
-    m_categories[category.id.uniqueIdentifier()] = category;
+    m_categories[category.id] = category;
 }
 
 void MessageModel::addTask(const ProjectExplorer::Task &task)

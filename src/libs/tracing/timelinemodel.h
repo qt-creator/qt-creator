@@ -33,6 +33,7 @@ class TRACING_EXPORT TimelineModel : public QObject
     Q_PROPERTY(int count READ count NOTIFY contentChanged FINAL)
     Q_PROPERTY(int defaultRowHeight READ defaultRowHeight CONSTANT FINAL)
     QML_ELEMENT
+    QML_UNCREATABLE("")
 
 public:
     class TimelineModelPrivate;

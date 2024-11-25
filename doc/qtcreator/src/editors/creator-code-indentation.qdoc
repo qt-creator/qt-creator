@@ -74,8 +74,8 @@
     To use a context-specific margin when available, select the
     \uicontrol {Use context-specific margin} check box.
     \if defined(qtcreator)
-    Then, use the ClangFormat \c ColumnLimit option to set the margin, for
-    example.
+    Then, use the \l{ClangFormat Style Options}{ClangFormat} \c ColumnLimit
+    option to set the margin, for example.
 
     \sa {C++ Code Style}
     \endif

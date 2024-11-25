@@ -215,6 +215,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
                 tooltip += "<p>" + Tr::tr("No kits are enabled for this project. "
                                       "Enable kits in the \"Projects\" mode.");
             }
+        } else if (fileNode) {
+            const QString &stateText =
+                IVersionControl::modificationToText(fileNode->modificationState());
+            if (!stateText.isEmpty())
+                tooltip += "<p>" + stateText;
         }
         return tooltip;
     }
@@ -241,6 +246,11 @@ QVariant FlatModel::data(const QModelIndex &index, int role) const
         return font;
     }
     case Qt::ForegroundRole:
+        if (fileNode) {
+            Core::IVersionControl::FileState state = fileNode->modificationState();
+            if (state != Core::IVersionControl::FileState::NoModification)
+                return Core::IVersionControl::vcStateToColor(state);
+        }
         return node->isEnabled() ? QVariant()
                                  : Utils::creatorColor(Utils::Theme::TextColorDisabled);
     case Project::FilePathRole:
@@ -447,12 +457,58 @@ void FlatModel::handleProjectAdded(Project *project)
             parsingStateChanged(project);
         emit ProjectTree::instance()->nodeActionsChanged();
     });
+
+    const FilePath &rootPath = project->rootProjectDirectory();
+    IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath);
+    if (vc) {
+        vc->monitorDirectory(rootPath);
+        connect(vc, &IVersionControl::updateFileStatus, this, &FlatModel::updateVCStatusFor);
+        connect(vc, &IVersionControl::clearFileStatus, this, &FlatModel::clearVCStatusFor);
+    }
+
     addOrRebuildProjectModel(project);
+}
+
+void FlatModel::updateVCStatusFor(const Utils::FilePath root, const QStringList &files)
+{
+    std::for_each(std::begin(files), std::end(files), [root, this](const QString &file) {
+        const FilePath filePath = root.pathAppended(file);
+        Node *node = ProjectTree::nodeForFile(filePath);
+        if (!node)
+            return;
+        FileNode *fileNode = node->asFileNode();
+        if (!fileNode)
+            return;
+
+        fileNode->resetModificationState();
+        const QModelIndex index = indexForNode(fileNode);
+        emit dataChanged(index, index, {Qt::ForegroundRole});
+    });
+}
+
+void FlatModel::clearVCStatusFor(const Utils::FilePath &root)
+{
+    ProjectTree::forEachNode([this, root](Node *n) {
+        FileNode *fileNode = n->asFileNode();
+        if (!fileNode)
+            return;
+        if (fileNode->filePath().isChildOf(root)) {
+            fileNode->resetModificationState();
+            const QModelIndex index = indexForNode(fileNode);
+            emit dataChanged(index, index, {Qt::ForegroundRole});
+        }
+    });
 }
 
 void FlatModel::handleProjectRemoved(Project *project)
 {
     destroyItem(nodeForProject(project));
+
+    if (!project)
+        return;
+    const FilePath &rootPath = project->rootProjectDirectory();
+    if (IVersionControl *vc = VcsManager::findVersionControlForDirectory(rootPath))
+        vc->stopMonitoringDirectory(rootPath);
 }
 
 WrapperNode *FlatModel::nodeForProject(const Project *project) const

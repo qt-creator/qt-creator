@@ -337,7 +337,7 @@ void DisassemblerAgent::updateLocationMarker()
 
     // Center cursor.
     if (EditorManager::currentDocument() == d->document)
-        if (auto textEditor = qobject_cast<BaseTextEditor *>(EditorManager::currentEditor()))
+        if (auto textEditor = BaseTextEditor::currentTextEditor())
             textEditor->gotoLine(lineNumber);
 }
 

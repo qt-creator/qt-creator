@@ -87,7 +87,7 @@ def __clickCommit__(count):
     show = str(description.plainText)
     id = "Nobody <nobody@nowhere\.com>"
     time = "\w{3} \w{3} \d{1,2} \d{2}:\d{2}:\d{2} \d{4}.* seconds ago\)"
-    expected = [["commit %s" % commit, False],
+    expected = [["commit %s " % commit, False],
                 ["Author: %s, %s" % (id, time), True],
                 ["Committer: %s, %s" % (id, time), True]]
     for line, exp in zip(show.splitlines(), expected):
@@ -175,10 +175,9 @@ def main():
                     "Verify that no unrelated commits are displayed in file log")
     invokeMenuItem("File", "Close All")
 
-    invokeMenuItem('Tools', 'Git', 'Current Project', 'Log Project "%s"' % projectName)
-    projectLog = verifyItemsInGit(commitsInProject)
-    test.xverify(not commitOutsideProject in projectLog,    # QTCREATORBUG-10170
-                 "Verify that no unrelated commits are displayed in project log")
+    invokeMenuItem('Tools', 'Git', 'Current Project Directory',
+                   'Log Directory of Project "%s"' % projectName)
+    verifyItemsInGit(commitMessages)
     invokeMenuItem("File", "Close All")
 
     invokeMenuItem("Tools", "Git", "Local Repository", "Log")

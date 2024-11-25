@@ -8,8 +8,6 @@
 #include <QModelIndex>
 #include <QStyledItemDelegate>
 
-namespace Core { class IContext; }
-
 namespace Squish {
 namespace Internal {
 
@@ -29,7 +27,6 @@ signals:
     void recordTestCase(const QString &suiteName, const QString &testCaseName);
 
 private:
-    Core::IContext *m_context;
     QModelIndex m_lastMousePressedIndex;
 };
 

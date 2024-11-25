@@ -18,6 +18,7 @@
 #include <QListWidget>
 #include <QPushButton>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core {
@@ -163,12 +164,9 @@ UrlLocatorFilter::UrlLocatorFilter(const QString &displayName, Id id)
 
 LocatorMatcherTasks UrlLocatorFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, urls = remoteUrls()] {
-        const QString input = storage->input();
+    const auto onSetup = [urls = remoteUrls()] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const QString input = storage.input();
         LocatorFilterEntries entries;
         for (const QString &url : urls) {
             const QString name = url.arg(input);
@@ -182,9 +180,9 @@ LocatorMatcherTasks UrlLocatorFilter::matchers()
             entry.highlightInfo = {int(name.lastIndexOf(input)), int(input.length())};
             entries.append(entry);
         }
-        storage->reportOutput(entries);
+        storage.reportOutput(entries);
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 const char kDisplayNameKey[] = "displayName";

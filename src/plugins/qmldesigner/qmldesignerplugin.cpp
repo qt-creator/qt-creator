@@ -5,7 +5,6 @@
 #include "qmldesignertr.h"
 
 #include "coreplugin/iwizardfactory.h"
-#include "designmodecontext.h"
 #include "designmodewidget.h"
 #include "dynamiclicensecheck.h"
 #include "exception.h"
@@ -91,6 +90,7 @@
 
 static Q_LOGGING_CATEGORY(qmldesignerLog, "qtc.qmldesigner", QtWarningMsg)
 
+using namespace Core;
 using namespace QmlDesigner::Internal;
 
 namespace QmlDesigner {
@@ -181,7 +181,6 @@ public:
     SettingsPage settingsPage{externalDependencies};
     DesignModeWidget mainWidget;
     QtQuickDesignerFactory m_qtQuickDesignerFactory;
-    Utils::Guard m_ignoreChanges;
     Utils::UniqueObjectPtr<QToolBar> toolBar;
     Utils::UniqueObjectPtr<QWidget> statusBar;
     QHash<QString, TraceIdentifierData> m_traceIdentifierDataHash;
@@ -274,7 +273,7 @@ QmlDesignerPlugin::~QmlDesignerPlugin()
 // INHERITED FROM ExtensionSystem::Plugin
 //
 ////////////////////////////////////////////////////
-bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *errorMessage/* = 0*/)
+bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString * /*errorMessage*/)
 {
     if constexpr (isUsingQmlDesignerLite()) {
         if (!QmlDesignerBasePlugin::isLiteModeEnabled()) {
@@ -297,8 +296,6 @@ bool QmlDesignerPlugin::initialize(const QStringList & /*arguments*/, QString *e
         lauchFeedbackPopupInternal(QGuiApplication::applicationDisplayName());
     });
 
-    if (!Utils::HostOsInfo::canCreateOpenGLContext(errorMessage))
-        return false;
     d = new QmlDesignerPluginPrivate;
     d->timer.start();
     if (Core::ICore::isQtDesignStudio())
@@ -407,10 +404,13 @@ static QString projectPath(const Utils::FilePath &fileName)
     return path;
 }
 
-void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
+void QmlDesignerPlugin::integrateIntoQtCreator(DesignModeWidget *modeWidget)
 {
-    auto context = new Internal::DesignModeContext(modeWidget);
-    Core::ICore::addContextObject(context);
+    const Context context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId);
+    IContext::attach(modeWidget, context, [modeWidget](const IContext::HelpCallback &callback) {
+        modeWidget->contextHelp(callback);
+    });
+
     Core::Context qmlDesignerMainContext(Constants::qmlDesignerContextId);
     Core::Context qmlDesignerFormEditorContext(Constants::qmlFormEditorContextId);
     Core::Context qmlDesignerEditor3dContext(Constants::qml3DEditorContextId);
@@ -424,7 +424,7 @@ void QmlDesignerPlugin::integrateIntoQtCreator(QWidget *modeWidget)
     const QStringList mimeTypes = { Utils::Constants::QML_MIMETYPE,
                                     Utils::Constants::QMLUI_MIMETYPE };
 
-    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context->context());
+    Core::DesignMode::registerDesignWidget(modeWidget, mimeTypes, context);
 
     connect(Core::DesignMode::instance(), &Core::DesignMode::actionsUpdated,
         &d->shortCutManager, &ShortCutManager::updateActions);
@@ -527,9 +527,6 @@ void QmlDesignerPlugin::hideDesigner()
 
 void QmlDesignerPlugin::changeEditor()
 {
-    if (d->m_ignoreChanges.isLocked())
-        return;
-
     clearDesigner();
     setupDesigner();
 }
@@ -724,12 +721,6 @@ void QmlDesignerPlugin::switchToTextModeDeferred()
     QTimer::singleShot(0, this, [] {
         Core::ModeManager::activateMode(Core::Constants::MODE_EDIT);
     });
-}
-
-void QmlDesignerPlugin::emitCurrentTextEditorChanged(Core::IEditor *editor)
-{
-    const std::lock_guard locker(d->m_ignoreChanges);
-    emit Core::EditorManager::instance()->currentEditorChanged(editor);
 }
 
 double QmlDesignerPlugin::formEditorDevicePixelRatio()

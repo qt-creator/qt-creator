@@ -8,6 +8,8 @@
 #include "debuggertr.h"
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -20,9 +22,7 @@
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
 
-#include <QComboBox>
-
-#include <utility>
+#include <algorithm>
 
 using namespace ProjectExplorer;
 using namespace Utils;
@@ -35,6 +35,37 @@ namespace Debugger {
 
 namespace Internal {
 
+class DebuggerItemListModel : public TreeModel<TreeItem, DebuggerTreeItem>
+{
+public:
+    DebuggerItemListModel(const Kit &kit, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+    {}
+
+    void reset()
+    {
+        clear();
+
+        const IDeviceConstPtr device = BuildDeviceKitAspect::device(&m_kit);
+        const Utils::FilePath rootPath = device->rootPath();
+        const QList<DebuggerItem> debuggersForBuildDevice
+            = Utils::filtered(DebuggerItemManager::debuggers(), [&](const DebuggerItem &item) {
+                  if (item.isGeneric())
+                      return device->id() != ProjectExplorer::Constants::DESKTOP_DEVICE_ID;
+                  return item.command().isSameDevice(rootPath);
+              });
+        for (const DebuggerItem &item : debuggersForBuildDevice)
+            rootItem()->appendChild(new DebuggerTreeItem(item, false));
+        DebuggerItem noneItem;
+        noneItem.setUnexpandedDisplayName(Tr::tr("None"));
+        rootItem()->appendChild(new DebuggerTreeItem(noneItem, false));
+    }
+
+private:
+    const Kit &m_kit;
+};
+
 class DebuggerKitAspectImpl final : public KitAspect
 {
 public:
@@ -43,86 +74,16 @@ public:
     {
         setManagingPage(ProjectExplorer::Constants::DEBUGGER_SETTINGS_PAGE_ID);
 
-        m_comboBox = createSubWidget<QComboBox>();
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setEnabled(true);
-
-        refresh();
-        m_comboBox->setToolTip(factory->description());
-        connect(m_comboBox, &QComboBox::currentIndexChanged, this, [this] {
-            if (m_ignoreChanges.isLocked())
-                return;
-
-            int currentIndex = m_comboBox->currentIndex();
-            QVariant id = m_comboBox->itemData(currentIndex);
-            m_kit->setValue(DebuggerKitAspect::id(), id);
-        });
-
+        const auto model = new DebuggerItemListModel(*workingCopy, this);
+        auto getter = [](const Kit &k) {
+            if (const DebuggerItem * const item = DebuggerKitAspect::debugger(&k))
+                return item->id();
+            return QVariant();
+        };
+        auto setter = [](Kit &k, const QVariant &id) { k.setValue(DebuggerKitAspect::id(), id); };
+        auto resetModel = [model] { model->reset(); };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
     }
-
-    ~DebuggerKitAspectImpl() override
-    {
-        delete m_comboBox;
-    }
-
-private:
-    void addToLayoutImpl(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_comboBox);
-        parent.addItem(m_comboBox);
-    }
-
-    void makeReadOnly() override
-    {
-        KitAspect::makeReadOnly();
-        m_comboBox->setEnabled(false);
-    }
-
-    void refresh() override
-    {
-        const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
-        m_comboBox->addItem(Tr::tr("None"), QString());
-
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
-        const Utils::FilePath path = device->rootPath();
-        const QList<DebuggerItem> list = DebuggerItemManager::debuggers();
-
-        const QList<DebuggerItem> same = Utils::filtered(list, [path](const DebuggerItem &item) {
-            return item.command().isSameDevice(path);
-        });
-        const QList<DebuggerItem> other = Utils::filtered(list, [path](const DebuggerItem &item) {
-            return !item.command().isSameDevice(path);
-        });
-
-        for (const DebuggerItem &item : same)
-            m_comboBox->addItem(item.displayName(), item.id());
-
-        if (!same.isEmpty() && !other.isEmpty())
-            m_comboBox->insertSeparator(m_comboBox->count());
-
-        for (const DebuggerItem &item : other)
-            m_comboBox->addItem(item.displayName(), item.id());
-
-        const DebuggerItem *item = DebuggerKitAspect::debugger(m_kit);
-        updateComboBox(item ? item->id() : QVariant());
-    }
-
-    QVariant currentId() const { return m_comboBox->itemData(m_comboBox->currentIndex()); }
-
-    void updateComboBox(const QVariant &id)
-    {
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == m_comboBox->itemData(i)) {
-                m_comboBox->setCurrentIndex(i);
-                return;
-            }
-        }
-        m_comboBox->setCurrentIndex(0);
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
 };
 } // namespace Internal
 
@@ -391,10 +352,21 @@ public:
     void fix(Kit *k) override
     {
         const QVariant id = k->value(DebuggerKitAspect::id());
-        if (Utils::anyOf(DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id)))
-            return;
-        k->removeKeySilently(DebuggerKitAspect::id());
-        setup(k);
+        const DebuggerItem debugger = Utils::findOrDefault(
+            DebuggerItemManager::debuggers(), Utils::equal(&DebuggerItem::id, id));
+        if (debugger.isValid() && debugger.engineType() == CdbEngineType) {
+            const int tcWordWidth = ToolchainKitAspect::targetAbi(k).wordWidth();
+            if (Utils::anyOf(debugger.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth)))
+                return;
+
+            for (const DebuggerItem &item : DebuggerItemManager::debuggers()) {
+                if (item.engineType() == CdbEngineType
+                    && Utils::anyOf(item.abis(), Utils::equal(&Abi::wordWidth, tcWordWidth))) {
+                    k->setValue(DebuggerKitAspect::id(), item.id());
+                    return;
+                }
+            }
+        }
     }
 
     KitAspect *createKitAspect(Kit *k) const override

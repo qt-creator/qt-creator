@@ -1,9 +1,11 @@
 {
     "IID" : "plugin",
     "MetaData" : {
+        "Id": "test",
         "Name" : "test",
         "Version" : "1.0.1",
         "CompatVersion" : "1.0.0",
+        "VendorId": "theqtcompanyltd",
         "Vendor" : "The Qt Company Ltd",
         "Copyright" : "(C) 2015 The Qt Company Ltd",
         "License" : [
@@ -18,8 +20,8 @@
         ],
         "Url" : "http://www.qt.io",
         "Dependencies" : [
-            { "Name" : "SomeOtherPlugin", "Version" : "2.3.0_2" },
-            { "Name" : "EvenOther", "Version" : "1.0.0" }
+            { "Id" : "SomeOtherPlugin", "Version" : "2.3.0_2" },
+            { "Id" : "EvenOther", "Version" : "1.0.0" }
         ]
     }
 }

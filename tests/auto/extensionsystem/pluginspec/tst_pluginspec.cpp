@@ -52,6 +52,7 @@ private slots:
     void readError();
     void isValidVersion();
     void versionCompare();
+    void disabledByDefault();
     void provides();
     void experimental();
     void locationAndPath();
@@ -89,7 +90,7 @@ void tst_PluginSpec::read()
     CppPluginSpec spec;
     QCOMPARE(spec.state(), PluginSpec::Invalid);
     QVERIFY(spec.readMetaData(metaData("testspecs/spec1.json")));
-    QVERIFY(!spec.hasError());
+    QCOMPARE(spec.errorString(), QString());
     QVERIFY(spec.errorString().isEmpty());
     QCOMPARE(spec.name(), QString("test"));
     QCOMPARE(spec.version(), QString("1.0.1"));
@@ -107,16 +108,17 @@ void tst_PluginSpec::read()
             "This plugin is just a test.\n    it demonstrates the great use of the plugin spec."));
     QCOMPARE(spec.url(), QString("http://www.qt.io"));
     PluginDependency dep1;
-    dep1.name = QString("SomeOtherPlugin");
+    dep1.id = QString("SomeOtherPlugin");
     dep1.version = QString("2.3.0_2");
     PluginDependency dep2;
-    dep2.name = QString("EvenOther");
+    dep2.id = QString("EvenOther");
     dep2.version = QString("1.0.0");
     QCOMPARE(spec.dependencies(), QVector<PluginDependency>() << dep1 << dep2);
 
     // test missing compatVersion behavior
     // and 'required' attribute
     QVERIFY(spec.readMetaData(metaData("testspecs/spec2.json")));
+    QCOMPARE(spec.errorString(), QString());
     QCOMPARE(spec.version(), QString("3.1.4_10"));
     QCOMPARE(spec.compatVersion(), QString("3.1.4_10"));
     QCOMPARE(spec.isRequired(), true);
@@ -128,8 +130,8 @@ void tst_PluginSpec::readError()
     QCOMPARE(spec.state(), PluginSpec::Invalid);
     QVERIFY(!spec.readMetaData(metaData("non-existing-file.json")));
     QCOMPARE(spec.state(), PluginSpec::Invalid);
+    QCOMPARE(spec.errorString(), QString());
     QVERIFY(!spec.hasError());
-    QVERIFY(spec.errorString().isEmpty());
     QVERIFY(spec.readMetaData(metaData("testspecs/spec_wrong2.json")));
     QCOMPARE(spec.state(), PluginSpec::Invalid);
     QVERIFY(spec.hasError());
@@ -185,6 +187,16 @@ void tst_PluginSpec::versionCompare()
     QVERIFY(PluginSpec::versionCompare("3.1_12", "3.1_23") < 0);
 }
 
+void tst_PluginSpec::disabledByDefault()
+{
+    CppPluginSpec spec;
+    QVERIFY(spec.readMetaData(metaData("testdir/disabledbydefault.json")));
+    QCOMPARE(spec.errorString(), QString());
+
+    QCOMPARE(spec.isEnabledBySettings(), false);
+    QCOMPARE(spec.isEnabledByDefault(), false);
+}
+
 void tst_PluginSpec::provides()
 {
     CppPluginSpec spec;
@@ -222,10 +234,10 @@ void tst_PluginSpec::experimental()
 
 void tst_PluginSpec::locationAndPath()
 {
-    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
+    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
-    QVERIFY(ps);
-    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
+    QVERIFY_EXPECTED(ps);
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
     QCOMPARE(spec->location(), PLUGIN_DIR_PATH / "testplugin");
     QCOMPARE(spec->filePath(), PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
 }
@@ -258,10 +270,16 @@ void tst_PluginSpec::resolveDependencies()
     spec5->readMetaData(metaData("testdependencies/spec5.json"));
     spec5->setState(PluginSpec::Read); // fake read state for plugin resolving
 
+    QCOMPARE(spec1->errorString(), QString());
+    QCOMPARE(spec2->errorString(), QString());
+    QCOMPARE(spec3->errorString(), QString());
+    QCOMPARE(spec4->errorString(), QString());
+    QCOMPARE(spec5->errorString(), QString());
+
     QVERIFY(spec1->resolveDependencies(specs));
     QCOMPARE(spec1->dependencySpecs().size(), 2);
-    QVERIFY(!spec1->dependencySpecs().key(spec2).name.isEmpty());
-    QVERIFY(!spec1->dependencySpecs().key(spec3).name.isEmpty());
+    QVERIFY(!spec1->dependencySpecs().key(spec2).id.isEmpty());
+    QVERIFY(!spec1->dependencySpecs().key(spec3).id.isEmpty());
     QCOMPARE(spec1->state(), PluginSpec::Resolved);
     QVERIFY(!spec4->resolveDependencies(specs));
     QVERIFY(spec4->hasError());
@@ -270,12 +288,13 @@ void tst_PluginSpec::resolveDependencies()
 
 void tst_PluginSpec::loadLibrary()
 {
-    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
+    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
 
-    QVERIFY(ps);
-    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
+    QVERIFY_EXPECTED(ps);
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
 
+    QCOMPARE(spec->errorString(), QString());
     QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     QVERIFY(spec->plugin() != 0);
@@ -283,16 +302,14 @@ void tst_PluginSpec::loadLibrary()
             == QLatin1String("MyPlugin::MyPluginImpl"));
     QCOMPARE(spec->state(), PluginSpec::Loaded);
     QVERIFY(!spec->hasError());
-
-    delete *ps;
 }
 
 void tst_PluginSpec::initializePlugin()
 {
-    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
+    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
-    QVERIFY(ps);
-    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
+    QVERIFY_EXPECTED(ps);
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
     QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isInitialized;
@@ -313,10 +330,10 @@ void tst_PluginSpec::initializePlugin()
 
 void tst_PluginSpec::initializeExtensions()
 {
-    Utils::expected_str<PluginSpec *> ps = readCppPluginSpec(
+    Utils::expected_str<std::unique_ptr<PluginSpec>> ps = readCppPluginSpec(
         PLUGIN_DIR_PATH / "testplugin" / libraryName(QLatin1String("test")));
-    QVERIFY(ps);
-    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps.value());
+    QVERIFY_EXPECTED(ps);
+    CppPluginSpec *spec = static_cast<CppPluginSpec *>(ps->get());
     QVERIFY(spec->resolveDependencies({}));
     QVERIFY2(spec->loadLibrary(), qPrintable(spec->errorString()));
     bool isExtensionsInitialized;

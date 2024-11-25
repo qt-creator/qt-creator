@@ -45,6 +45,7 @@ const char WIZARD_PATH[] = "templates/wizards";
 
 const char VERSION_KEY[] = "version";
 const char ENABLED_EXPRESSION_KEY[] = "enabled";
+const char SKIP_FOR_SUBPROJECTS_KEY[] = "skipForSubprojects";
 
 const char KIND_KEY[] = "kind";
 const char SUPPORTED_PROJECTS[] = "supportedProjectTypes";
@@ -108,6 +109,14 @@ public:
             return Id::toStringList(m_pluginFeatures);
         return {};
     }
+    Q_INVOKABLE bool isPluginRunning(const QString &id) const
+    {
+        return Internal::isAnyPluginRunning({id});
+    }
+    Q_INVOKABLE bool isAnyPluginRunning(const QStringList &ids) const
+    {
+        return Internal::isAnyPluginRunning(ids);
+    }
 
 private:
     Id m_platformId;
@@ -158,7 +167,7 @@ static JsonWizardFactory::Generator parseGenerator(const QVariant &value, QStrin
         *errorMessage = Tr::tr("Generator has no typeId set.");
         return gen;
     }
-    Id typeId = Id::fromString(QLatin1String(Constants::GENERATOR_ID_PREFIX) + strVal);
+    Id typeId = Id(Constants::GENERATOR_ID_PREFIX).withSuffix(strVal);
     JsonWizardGeneratorFactory *factory
             = findOr(generatorFactories(), nullptr, [typeId](JsonWizardGeneratorFactory *f) { return f->canCreate(typeId); });
     if (!factory) {
@@ -325,7 +334,7 @@ std::pair<int, QStringList> JsonWizardFactory::screenSizeInfoFromPage(const QStr
      * pages[i] is the page of type `pageType` and data[j] is the data item with name ScreenFactor
     */
 
-    const Utils::Id id = Utils::Id::fromString(Constants::PAGE_ID_PREFIX + pageType);
+    const Utils::Id id = Utils::Id(Constants::PAGE_ID_PREFIX).withSuffix(pageType);
 
     const auto it = std::find_if(std::cbegin(m_pages), std::cend(m_pages), [&id](const Page &page) {
         return page.typeId == id;
@@ -392,7 +401,7 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
         *errorMessage = Tr::tr("Page has no typeId set.");
         return p;
     }
-    Id typeId = Id::fromString(QLatin1String(Constants::PAGE_ID_PREFIX) + strVal);
+    Id typeId = Id(Constants::PAGE_ID_PREFIX).withSuffix(strVal);
 
     JsonWizardPageFactory *factory
             = Utils::findOr(pageFactories(), nullptr, [typeId](JsonWizardPageFactory *f) { return f->canCreate(typeId); });
@@ -416,6 +425,8 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
     }
 
     QVariant enabled = getDataValue(QLatin1String(ENABLED_EXPRESSION_KEY), data, defaultData, true);
+    QVariant skippable = getDataValue(QLatin1String(SKIP_FOR_SUBPROJECTS_KEY), data, defaultData,
+                                      factory->defaultSkipForSubprojects());
 
     QVariant specifiedSubData = data.value(QLatin1String(DATA_KEY));
     QVariant defaultSubData = defaultData.value(QLatin1String(DATA_KEY));
@@ -438,6 +449,7 @@ JsonWizardFactory::Page JsonWizardFactory::parsePage(const QVariant &value, QStr
     p.index = index;
     p.data = subData;
     p.enabled = enabled;
+    p.skipForSubprojects = skippable;
 
     return p;
 }
@@ -709,6 +721,8 @@ Wizard *JsonWizardFactory::runWizardImpl(const FilePath &path, QWidget *parent,
         page->setTitle(data.title);
         page->setSubTitle(data.subTitle);
         page->setProperty(Utils::SHORT_TITLE_PROPERTY, data.shortTitle);
+        page->setSkipForSubprojects(JsonWizard::boolFromVariant(data.skipForSubprojects,
+                                                                wizard->expander()));
 
         if (data.index >= 0) {
             wizard->setPage(data.index, page);
@@ -796,6 +810,9 @@ bool JsonWizardFactory::isAvailable(Id platformId) const
                                                                              platformId),
                                                                          pluginFeatures()));
     jsExpander.engine().evaluate("var value = Wizard.value");
+    jsExpander.engine().evaluate("var isPluginRunning = Wizard.isPluginRunning");
+    jsExpander.engine().evaluate("var isAnyPluginRunning = Wizard.isAnyPluginRunning");
+
     jsExpander.registerForExpander(e);
     return JsonWizard::boolFromVariant(m_enabledExpression, &expander);
 }

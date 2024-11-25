@@ -82,6 +82,7 @@ public:
     // Qt Creator additions
     bool matchesName(const QString &nameOrAlias) const;
     void setPreferredSuffix(const QString &suffix);
+    static QString suffixFromPattern(const QString &pattern);
 
 protected:
     friend class MimeTypeParserBase;

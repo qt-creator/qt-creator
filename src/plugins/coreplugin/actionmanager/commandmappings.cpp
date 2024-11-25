@@ -18,8 +18,6 @@
 #include <QPushButton>
 #include <QTreeWidgetItem>
 
-Q_DECLARE_METATYPE(Core::Internal::ShortcutItem*)
-
 using namespace Utils;
 
 namespace Core {

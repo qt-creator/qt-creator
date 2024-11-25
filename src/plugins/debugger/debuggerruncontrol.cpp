@@ -5,7 +5,6 @@
 
 #include "debuggermainwindow.h"
 #include "debuggertr.h"
-#include "terminal.h"
 
 #include "console/console.h"
 #include "debuggeractions.h"
@@ -20,6 +19,7 @@
 #include <projectexplorer/devicesupport/deviceprocessesdialog.h>
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/environmentaspect.h> // For the environment
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -84,87 +84,29 @@ static QString noDebuggerInKitMessage()
    return Tr::tr("The kit does not have a debugger set.");
 }
 
-class CoreUnpacker final : public RunWorker
-{
-public:
-    CoreUnpacker(RunControl *runControl, const FilePath &coreFilePath)
-        : RunWorker(runControl), m_coreFilePath(coreFilePath)
-    {}
-
-    FilePath coreFileName() const { return m_tempCoreFilePath; }
-
-private:
-    ~CoreUnpacker() final
-    {
-        if (m_tempCoreFile.isOpen())
-            m_tempCoreFile.close();
-
-        m_tempCoreFilePath.removeFile();
-    }
-
-    void start() final
-    {
-        {
-            Utils::TemporaryFile tmp("tmpcore-XXXXXX");
-            tmp.open();
-            m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
-        }
-
-        m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
-        connect(&m_coreUnpackProcess, &Process::done, this, [this] {
-            if (m_coreUnpackProcess.error() == QProcess::UnknownError) {
-                reportStopped();
-                return;
-            }
-            reportFailure("Error unpacking " + m_coreFilePath.toUserOutput());
-        });
-
-        const QString msg = Tr::tr("Unpacking core file to %1");
-        appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
-
-        if (m_coreFilePath.endsWith(".lzo")) {
-            m_coreUnpackProcess.setCommand({"lzop", {"-o", m_tempCoreFilePath.path(),
-                                                     "-x", m_coreFilePath.path()}});
-            reportStarted();
-            m_coreUnpackProcess.start();
-            return;
-        }
-
-        if (m_coreFilePath.endsWith(".gz")) {
-            appendMessage(msg.arg(m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
-            m_tempCoreFile.setFileName(m_tempCoreFilePath.path());
-            m_tempCoreFile.open(QFile::WriteOnly);
-            connect(&m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
-                m_tempCoreFile.write(m_coreUnpackProcess.readAllRawStandardOutput());
-            });
-            m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", m_coreFilePath.path()}});
-            reportStarted();
-            m_coreUnpackProcess.start();
-            return;
-        }
-
-        QTC_CHECK(false);
-        reportFailure("Unknown file extension in " + m_coreFilePath.toUserOutput());
-    }
-
-    QFile m_tempCoreFile;
-    FilePath m_coreFilePath;
-    FilePath m_tempCoreFilePath;
-    Process m_coreUnpackProcess;
-};
-
 class DebuggerRunToolPrivate
 {
 public:
-    bool useTerminal = false;
-    QPointer<CoreUnpacker> coreUnpacker;
-    QPointer<DebugServerPortsGatherer> portsGatherer;
     bool addQmlServerInferiorCommandLineArgumentIfNeeded = false;
-    TerminalRunner *terminalRunner = nullptr;
     int snapshotCounter = 0;
     int engineStartsNeeded = 0;
     int engineStopsNeeded = 0;
     QString runId;
+
+    // Core unpacker
+    QFile m_tempCoreFile;
+    FilePath m_tempCoreFilePath;
+    Process m_coreUnpackProcess;
+
+    // Terminal
+    Process terminalProc;
+    DebuggerRunTool::AllowTerminal allowTerminal = DebuggerRunTool::DoAllowTerminal;
+
+    // DebugServer
+    Process debuggerServerProc;
+    ProcessHandle serverAttachPid;
+    bool serverUseMulti = true;
+    bool serverEssential = true;
 };
 
 } // namespace Internal
@@ -288,20 +230,7 @@ void DebuggerRunTool::setBreakOnMain(bool on)
 
 void DebuggerRunTool::setUseTerminal(bool on)
 {
-    // CDB has a built-in console that might be preferred by some.
-    bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
-            && (m_runParameters.startMode == StartInternal
-                || m_runParameters.startMode == StartExternal)
-            && settings().useCdbConsole();
-
-    if (on && !d->terminalRunner && !useCdbConsole) {
-        d->terminalRunner =
-            new TerminalRunner(runControl(), [this] { return m_runParameters.inferior; });
-        addStartDependency(d->terminalRunner);
-    }
-    if (!on && d->terminalRunner) {
-        QTC_CHECK(false); // User code can only switch from no terminal to one terminal.
-    }
+    m_runParameters.useTerminal = on;
 }
 
 void DebuggerRunTool::setCommandsAfterConnect(const QString &commands)
@@ -313,14 +242,10 @@ void DebuggerRunTool::setCommandsForReset(const QString &commands)
 {
     m_runParameters.commandsForReset = commands;
 }
- void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
+
+void DebuggerRunTool::setDebugInfoLocation(const FilePath &debugInfoLocation)
 {
     m_runParameters.debugInfoLocation = debugInfoLocation;
-}
-
-QUrl DebuggerRunTool::qmlServer() const
-{
-    return m_runParameters.qmlServer;
 }
 
 void DebuggerRunTool::setQmlServer(const QUrl &qmlServer)
@@ -380,11 +305,6 @@ void DebuggerRunTool::setStartMessage(const QString &msg)
 
 void DebuggerRunTool::setCoreFilePath(const FilePath &coreFile, bool isSnapshot)
 {
-    if (coreFile.endsWith(".gz") || coreFile.endsWith(".lzo")) {
-        d->coreUnpacker = new CoreUnpacker(runControl(), coreFile);
-        addStartDependency(d->coreUnpacker);
-    }
-
     m_runParameters.coreFile = coreFile;
     m_runParameters.isSnapshot = isSnapshot;
 }
@@ -416,11 +336,120 @@ void DebuggerRunTool::addSearchDirectory(const Utils::FilePath &dir)
 
 void DebuggerRunTool::start()
 {
+    startCoreFileSetupIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::startCoreFileSetupIfNeededAndContinueStartup()
+{
+    const FilePath coreFile = m_runParameters.coreFile;
+    if (!coreFile.endsWith(".gz") && !coreFile.endsWith(".lzo")) {
+        continueAfterCoreFileSetup();
+        return;
+    }
+
+    {
+        TemporaryFile tmp("tmpcore-XXXXXX");
+        tmp.open();
+        d->m_tempCoreFilePath = FilePath::fromString(tmp.fileName());
+    }
+
+    d->m_coreUnpackProcess.setWorkingDirectory(TemporaryDirectory::masterDirectoryFilePath());
+    connect(&d->m_coreUnpackProcess, &Process::done, this, [this] {
+        if (d->m_coreUnpackProcess.error() == QProcess::UnknownError) {
+            m_runParameters.coreFile = d->m_tempCoreFilePath;
+            continueAfterCoreFileSetup();
+            return;
+        }
+        reportFailure("Error unpacking " + m_runParameters.coreFile.toUserOutput());
+    });
+
+    const QString msg = Tr::tr("Unpacking core file to %1");
+    appendMessage(msg.arg(d->m_tempCoreFilePath.toUserOutput()), LogMessageFormat);
+
+    if (coreFile.endsWith(".lzo")) {
+        d->m_coreUnpackProcess.setCommand({"lzop", {"-o", d->m_tempCoreFilePath.path(),
+                                                 "-x", coreFile.path()}});
+        d->m_coreUnpackProcess.start();
+        return;
+    }
+
+    if (coreFile.endsWith(".gz")) {
+        d->m_tempCoreFile.setFileName(d->m_tempCoreFilePath.path());
+        d->m_tempCoreFile.open(QFile::WriteOnly);
+        connect(&d->m_coreUnpackProcess, &Process::readyReadStandardOutput, this, [this] {
+            d->m_tempCoreFile.write(d->m_coreUnpackProcess.readAllRawStandardOutput());
+        });
+        d->m_coreUnpackProcess.setCommand({"gzip", {"-c", "-d", coreFile.path()}});
+        d->m_coreUnpackProcess.start();
+        return;
+    }
+
+    QTC_CHECK(false);
+    reportFailure("Unknown file extension in " + coreFile.toUserOutput());
+}
+
+void DebuggerRunTool::continueAfterCoreFileSetup()
+{
+    if (d->m_tempCoreFile.isOpen())
+        d->m_tempCoreFile.close();
+
+    startTerminalIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::startTerminalIfNeededAndContinueStartup()
+{
+    if (d->allowTerminal == DoNotAllowTerminal)
+        m_runParameters.useTerminal = false;
+
+    // CDB has a built-in console that might be preferred by some.
+    const bool useCdbConsole = m_runParameters.cppEngineType == CdbEngineType
+            && (m_runParameters.startMode == StartInternal
+                || m_runParameters.startMode == StartExternal)
+            && settings().useCdbConsole();
+    if (useCdbConsole)
+        m_runParameters.useTerminal = false;
+
+    if (!m_runParameters.useTerminal) {
+        continueAfterTerminalStart();
+        return;
+    }
+
+    // Actually start the terminal.
+    ProcessRunData stub = m_runParameters.inferior;
+
+    if (m_runParameters.runAsRoot) {
+        d->terminalProc.setRunAsRoot(true);
+        RunControl::provideAskPassEntry(stub.environment);
+    }
+
+    d->terminalProc.setTerminalMode(TerminalMode::Debug);
+    d->terminalProc.setRunData(stub);
+
+    connect(&d->terminalProc, &Process::started, this, [this] {
+        m_runParameters.applicationPid = d->terminalProc.processId();
+        m_runParameters.applicationMainThreadId = d->terminalProc.applicationMainThreadId();
+        continueAfterTerminalStart();
+    });
+
+    connect(&d->terminalProc, &Process::done, this, [this] {
+        if (d->terminalProc.error() != QProcess::UnknownError)
+            reportFailure(d->terminalProc.errorString());
+        if (d->terminalProc.error() != QProcess::FailedToStart)
+            reportDone();
+    });
+
+    d->terminalProc.start();
+}
+
+void DebuggerRunTool::continueAfterTerminalStart()
+{
     TaskHub::clearTasks(Constants::TASK_CATEGORY_DEBUGGER_RUNTIME);
 
-    if (d->portsGatherer) {
-        setRemoteChannel(d->portsGatherer->gdbServer());
-        setQmlServer(d->portsGatherer->qmlServer());
+    if (usesDebugChannel())
+        setRemoteChannel(debugChannel());
+
+    if (usesQmlChannel()) {
+        setQmlServer(qmlChannel());
         if (d->addQmlServerInferiorCommandLineArgumentIfNeeded
                 && m_runParameters.isQmlDebugging
                 && m_runParameters.isCppDebugging()) {
@@ -456,9 +485,6 @@ void DebuggerRunTool::start()
 //        return;
 //    }
 
-    if (d->coreUnpacker)
-        m_runParameters.coreFile = d->coreUnpacker->coreFileName();
-
     if (!fixupParameters())
         return;
 
@@ -473,6 +499,11 @@ void DebuggerRunTool::start()
         return;
     }
 
+    startDebugServerIfNeededAndContinueStartup();
+}
+
+void DebuggerRunTool::continueAfterDebugServerStart()
+{
     Utils::globalMacroExpander()->registerFileVariables(
                 "DebuggedExecutable", Tr::tr("Debugged executable"),
                 [this] { return m_runParameters.inferior.command.executable(); }
@@ -617,12 +648,20 @@ void DebuggerRunTool::start()
 
             showMessage(warningMessage, LogWarning);
 
-            static bool doNotShowAgain = false;
-            CheckableMessageBox::information(Core::ICore::dialogParent(),
-                                             Tr::tr("Debugger"),
-                                             warningMessage,
-                                             &doNotShowAgain,
-                                             QMessageBox::Ok);
+            if (settings().showUnsupportedBreakpointWarning()) {
+                bool doNotAskAgain = false;
+                CheckableDecider decider(&doNotAskAgain);
+                CheckableMessageBox::information(
+                    Core::ICore::dialogParent(),
+                    Tr::tr("Debugger"),
+                    warningMessage,
+                    decider,
+                    QMessageBox::Ok);
+                if (doNotAskAgain) {
+                    settings().showUnsupportedBreakpointWarning.setValue(false);
+                    settings().showUnsupportedBreakpointWarning.writeSettings();
+                }
+            }
         }
     }
 
@@ -638,6 +677,16 @@ void DebuggerRunTool::start()
     showMessage(DebuggerSettings::dump(), LogDebug);
 
     Utils::reverseForeach(m_engines, [](DebuggerEngine *engine) { engine->start(); });
+}
+
+void DebuggerRunTool::kickoffTerminalProcess()
+{
+    d->terminalProc.kickoffProcess();
+}
+
+void DebuggerRunTool::interruptTerminal()
+{
+    d->terminalProc.interrupt();
 }
 
 void DebuggerRunTool::stop()
@@ -687,16 +736,10 @@ bool DebuggerRunTool::isQmlDebugging() const
 
 void DebuggerRunTool::setUsePortsGatherer(bool useCpp, bool useQml)
 {
-    QTC_ASSERT(!d->portsGatherer, reportFailure(); return);
-    d->portsGatherer = new DebugServerPortsGatherer(runControl());
-    d->portsGatherer->setUseGdbServer(useCpp);
-    d->portsGatherer->setUseQmlServer(useQml);
-    addStartDependency(d->portsGatherer);
-}
-
-DebugServerPortsGatherer *DebuggerRunTool::portsGatherer() const
-{
-    return d->portsGatherer;
+    if (useCpp)
+        runControl()->requestDebugChannel();
+    if (useQml)
+        runControl()->requestQmlChannel();
 }
 
 void DebuggerRunTool::setSolibSearchPath(const Utils::FilePaths &list)
@@ -709,6 +752,10 @@ bool DebuggerRunTool::fixupParameters()
     DebuggerRunParameters &rp = m_runParameters;
     if (rp.symbolFile.isEmpty())
         rp.symbolFile = rp.inferior.command.executable();
+
+    // Set a Qt Creator-specific environment variable, to able to check for it in debugger
+    // scripts.
+    rp.debugger.environment.set("QTC_DEBUGGER_PROCESS", "1");
 
     // Copy over DYLD_IMAGE_SUFFIX etc
     for (const auto &var :
@@ -802,11 +849,6 @@ bool DebuggerRunTool::fixupParameters()
     return true;
 }
 
-Internal::TerminalRunner *DebuggerRunTool::terminalRunner() const
-{
-    return d->terminalRunner;
-}
-
 DebuggerEngineType DebuggerRunTool::cppEngineType() const
 {
     return m_runParameters.cppEngineType;
@@ -824,6 +866,7 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
         toolRunCount = 0;
 
     d->runId = QString::number(++toolRunCount);
+    d->allowTerminal = allowTerminal;
 
     runControl->setIcon(ProjectExplorer::Icons::DEBUG_START_SMALL_TOOLBAR);
     runControl->setPromptToStop([](bool *optionalPrompt) {
@@ -883,8 +926,6 @@ DebuggerRunTool::DebuggerRunTool(RunControl *runControl, AllowTerminal allowTerm
     inferior.workingDirectory = inferior.workingDirectory.normalizedPathName();
     m_runParameters.inferior = inferior;
 
-    setUseTerminal(allowTerminal == DoAllowTerminal && m_runParameters.useTerminal);
-
     const QString envBinary = qtcEnvironmentVariable("QTC_DEBUGGER_PATH");
     if (!envBinary.isEmpty())
         m_runParameters.debugger.command.setExecutable(FilePath::fromString(envBinary));
@@ -926,6 +967,9 @@ void DebuggerRunTool::addSolibSearchDir(const QString &str)
 
 DebuggerRunTool::~DebuggerRunTool()
 {
+    if (d->m_tempCoreFilePath.exists())
+        d->m_tempCoreFilePath.removeFile();
+
     if (m_runParameters.isSnapshot && !m_runParameters.coreFile.isEmpty())
         m_runParameters.coreFile.removeFile();
 
@@ -965,56 +1009,61 @@ void DebuggerRunTool::showMessage(const QString &msg, int channel, int timeout)
 //
 ////////////////////////////////////////////////////////////////////////
 
-// GdbServerPortGatherer
+/*!
+    \class Debugger::SubChannelProvider
 
-DebugServerPortsGatherer::DebugServerPortsGatherer(RunControl *runControl)
-    : ChannelProvider(runControl, 2)
+    The class implements a \c RunWorker to provide a url
+    indicating usable connection end
+    points for 'server-using' tools (typically one, like plain
+    gdbserver and the Qml tooling, but two for mixed debugging).
+
+    Urls can describe local or tcp servers that are directly
+    accessible to the host tools.
+
+    By default it is assumed that no forwarding is needed, i.e.
+    end points provided by the shared endpoint resource provider
+    are directly accessible.
+
+    The tool implementations can assume that any needed port
+    forwarding setup is setup and handled transparently by
+    a \c SubChannelProvider instance.
+
+    If there are multiple subchannels needed that need to share a
+    common set of resources on the remote side, a device implementation
+    can provide a "SharedEndpointGatherer" RunWorker.
+
+    If none is provided, it is assumed that the shared resource
+    is open TCP ports, provided by the device's PortGatherer i
+    implementation.
+
+    FIXME: The current implementation supports only the case
+    of "any number of TCP channels that do not need actual
+    forwarding.
+*/
+
+void DebuggerRunTool::startDebugServerIfNeededAndContinueStartup()
 {
-    setId("DebugServerPortsGatherer");
-}
+    if (!usesDebugChannel()) {
+        continueAfterDebugServerStart();
+        return;
+    }
 
-DebugServerPortsGatherer::~DebugServerPortsGatherer() = default;
+    // FIXME: Indentation intentionally wrong to keep diff in gerrit small. Will fix later.
 
-QUrl DebugServerPortsGatherer::gdbServer() const
-{
-    return channel(0);
-}
-
-QUrl DebugServerPortsGatherer::qmlServer() const
-{
-    return channel(1);
-}
-
-// DebugServerRunner
-
-DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGatherer *portsGatherer)
-   : SimpleTargetRunner(runControl)
-{
-    setId("DebugServerRunner");
-    addStartDependency(portsGatherer);
-
-    QTC_ASSERT(portsGatherer, reportFailure(); return);
-
-    setStartModifier([this, runControl, portsGatherer] {
-        QTC_ASSERT(portsGatherer, reportFailure(); return);
-
-        const bool isQmlDebugging = portsGatherer->useQmlServer();
-        const bool isCppDebugging = portsGatherer->useGdbServer();
-
+        CommandLine commandLine = m_runParameters.inferior.command;
         CommandLine cmd;
 
-        if (isQmlDebugging && !isCppDebugging) {
+        if (usesQmlChannel() && !usesDebugChannel()) {
             // FIXME: Case should not happen?
-            cmd.setExecutable(commandLine().executable());
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices,
-                                                      portsGatherer->qmlServer()));
-            cmd.addArgs(commandLine().arguments(), CommandLine::Raw);
+            cmd.setExecutable(commandLine.executable());
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(QmlDebug::QmlDebuggerServices, qmlChannel()));
+            cmd.addArgs(commandLine.arguments(), CommandLine::Raw);
         } else {
-            cmd.setExecutable(runControl->device()->debugServerPath());
+            cmd.setExecutable(device()->debugServerPath());
 
             if (cmd.isEmpty()) {
-                if (runControl->device()->osType() == Utils::OsTypeMac) {
-                    const FilePath debugServerLocation = runControl->device()->filePath(
+                if (device()->osType() == Utils::OsTypeMac) {
+                    const FilePath debugServerLocation = device()->filePath(
                         "/Applications/Xcode.app/Contents/SharedFrameworks/LLDB.framework/"
                         "Resources/debugserver");
 
@@ -1024,15 +1073,15 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                         // TODO: In the future it is expected that the debugserver will be
                         // replaced by lldb-server. Remove the check for debug server at that point.
                         const FilePath lldbserver
-                            = runControl->device()->filePath("lldb-server").searchInPath();
+                                = device()->filePath("lldb-server").searchInPath();
                         if (lldbserver.isExecutableFile())
                             cmd.setExecutable(lldbserver);
                     }
                 } else {
                     const FilePath gdbServerPath
-                        = runControl->device()->filePath("gdbserver").searchInPath();
+                            = device()->filePath("gdbserver").searchInPath();
                     FilePath lldbServerPath
-                        = runControl->device()->filePath("lldb-server").searchInPath();
+                            = device()->filePath("lldb-server").searchInPath();
 
                     // TODO: Which one should we prefer?
                     if (gdbServerPath.isExecutableFile())
@@ -1051,53 +1100,64 @@ DebugServerRunner::DebugServerRunner(RunControl *runControl, DebugServerPortsGat
                     }
                 }
             }
+            QTC_ASSERT(usesDebugChannel(), reportFailure({}));
             if (cmd.executable().baseName().contains("lldb-server")) {
                 cmd.addArg("platform");
                 cmd.addArg("--listen");
-                cmd.addArg(QString("*:%1").arg(portsGatherer->gdbServer().port()));
+                cmd.addArg(QString("*:%1").arg(debugChannel().port()));
                 cmd.addArg("--server");
             } else if (cmd.executable().baseName() == "debugserver") {
                 const QString ipAndPort("`echo $SSH_CLIENT | cut -d ' ' -f 1`:%1");
-                cmd.addArgs(ipAndPort.arg(portsGatherer->gdbServer().port()), CommandLine::Raw);
+                cmd.addArgs(ipAndPort.arg(debugChannel().port()), CommandLine::Raw);
 
-                if (m_pid.isValid())
-                    cmd.addArgs({"--attach", QString::number(m_pid.pid())});
+                if (d->serverAttachPid.isValid())
+                    cmd.addArgs({"--attach", QString::number(d->serverAttachPid.pid())});
                 else
-                    cmd.addCommandLineAsArgs(runControl->runnable().command);
+                    cmd.addCommandLineAsArgs(runControl()->runnable().command);
             } else {
                 // Something resembling gdbserver
-                if (m_useMulti)
+                if (d->serverUseMulti)
                     cmd.addArg("--multi");
-                if (m_pid.isValid())
+                if (d->serverAttachPid.isValid())
                     cmd.addArg("--attach");
 
-                const auto port = portsGatherer->gdbServer().port();
+                const auto port = debugChannel().port();
                 cmd.addArg(QString(":%1").arg(port));
 
-                if (runControl->device()->extraData(RemoteLinux::Constants::SshForwardDebugServerPort).toBool()) {
-                    addExtraData(RemoteLinux::Constants::SshForwardPort, port);
-                    addExtraData(RemoteLinux::Constants::DisableSharing, true);
+                if (device()->extraData(ProjectExplorer::Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool()) {
+                    QVariantHash extraData;
+                    extraData[RemoteLinux::Constants::SshForwardPort] = port;
+                    extraData[RemoteLinux::Constants::DisableSharing] = true;
+                    d->debuggerServerProc.setExtraData(extraData);
                 }
 
-                if (m_pid.isValid())
-                    cmd.addArg(QString::number(m_pid.pid()));
+                if (d->serverAttachPid.isValid())
+                    cmd.addArg(QString::number(d->serverAttachPid.pid()));
             }
         }
 
-        setCommandLine(cmd);
+    d->debuggerServerProc.setCommand(cmd);
+
+    connect(&d->debuggerServerProc, &Process::started, this, [this] {
+        continueAfterDebugServerStart();
     });
+
+    connect(&d->debuggerServerProc, &Process::done, this, [this] {
+        if (d->terminalProc.error() != QProcess::UnknownError)
+            reportFailure(d->terminalProc.errorString());
+        if (d->terminalProc.error() != QProcess::FailedToStart && d->serverEssential)
+            reportDone();
+    });
+
+    d->debuggerServerProc.start();
 }
 
-DebugServerRunner::~DebugServerRunner() = default;
-
-void DebugServerRunner::setUseMulti(bool on)
+void DebuggerRunTool::setUseDebugServer(ProcessHandle attachPid, bool essential, bool useMulti)
 {
-    m_useMulti = on;
-}
-
-void DebugServerRunner::setAttachPid(ProcessHandle pid)
-{
-    m_pid = pid;
+    runControl()->requestDebugChannel();
+    d->serverAttachPid = attachPid;
+    d->serverEssential = essential;
+    d->serverUseMulti = useMulti;
 }
 
 // DebuggerRunWorkerFactory

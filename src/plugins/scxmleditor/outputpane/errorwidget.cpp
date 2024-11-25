@@ -19,6 +19,7 @@
 #include <coreplugin/icore.h>
 
 #include <utils/fileutils.h>
+#include <utils/theme/theme.h>
 #include <utils/utilsicons.h>
 
 using namespace ScxmlEditor::OutputPane;
@@ -160,11 +161,11 @@ void ErrorWidget::updateWarnings()
 QColor ErrorWidget::alertColor() const
 {
     if (m_warningModel->count(Warning::ErrorType) > 0)
-        return QColor(0xff, 0x77, 0x77);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Danger_Default);
     else if (m_warningModel->count(Warning::WarningType))
-        return QColor(0xfd, 0x88, 0x21);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Alert_Default);
     else
-        return QColor(0x29, 0xb6, 0xff);
+        return Utils::creatorColor(Utils::Theme::Token_Notification_Neutral_Default);
 }
 
 void ErrorWidget::warningCountChanged(int c)

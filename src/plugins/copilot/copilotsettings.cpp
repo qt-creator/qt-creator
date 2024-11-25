@@ -252,8 +252,8 @@ CopilotProjectSettings::CopilotProjectSettings(ProjectExplorer::Project *project
     Store map = storeFromVariant(project->namedSettings(Constants::COPILOT_PROJECT_SETTINGS_ID));
     fromMap(map);
 
-    connect(&enableCopilot, &BaseAspect::changed, this, [this, project] { save(project); });
-    connect(&useGlobalSettings, &BaseAspect::changed, this, [this, project] { save(project); });
+    enableCopilot.addOnChanged(this, [this, project] { save(project); });
+    useGlobalSettings.addOnChanged(this, [this, project] { save(project); });
 }
 
 void CopilotProjectSettings::setUseGlobalSettings(bool useGlobal)

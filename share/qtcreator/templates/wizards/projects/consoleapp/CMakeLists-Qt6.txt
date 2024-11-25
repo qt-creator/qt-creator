@@ -1,0 +1,41 @@
+cmake_minimum_required(VERSION 3.19)
+project(%{ProjectName} LANGUAGES CXX)
+
+@if %{HasTranslation}
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core LinguistTools)
+@else
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core)
+@endif
+
+qt_standard_project_setup()
+
+qt_add_executable(%{ProjectName}
+    %{CppFileName}
+)
+
+@if %{HasTranslation}
+qt_add_translations(
+    TARGETS %{ProjectName}
+    TS_FILES %{TsFileName}
+)
+
+@endif
+target_link_libraries(%{ProjectName}
+    PRIVATE
+        Qt::Core
+)
+
+include(GNUInstallDirs)
+
+install(TARGETS %{ProjectName}
+    BUNDLE  DESTINATION .
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+qt_generate_deploy_app_script(
+    TARGET %{ProjectName}
+    OUTPUT_SCRIPT deploy_script
+    NO_UNSUPPORTED_PLATFORM_ERROR
+)
+install(SCRIPT ${deploy_script})

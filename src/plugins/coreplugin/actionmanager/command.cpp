@@ -454,6 +454,18 @@ bool Command::isScriptable(const Context &context) const
     return false;
 }
 
+void Command::setAttributes(CommandAttributes attributes)
+{
+    d->m_attributes = attributes;
+
+    ProxyAction::Attributes proxyAttributes = {};
+    proxyAttributes.setFlag(ProxyAction::UpdateText, attributes & CA_UpdateText);
+    proxyAttributes.setFlag(ProxyAction::UpdateIcon, attributes & CA_UpdateIcon);
+    proxyAttributes.setFlag(ProxyAction::Hide, attributes & CA_Hide);
+
+    d->m_action->setAttributes(proxyAttributes);
+}
+
 void Command::setAttribute(CommandAttribute attr)
 {
     d->m_attributes |= attr;

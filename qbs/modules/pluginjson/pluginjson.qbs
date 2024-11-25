@@ -38,13 +38,14 @@ Module {
     additionalProductTypes: ["qt_plugin_metadata"]
 
     Rule {
-        inputs: ["pluginJsonIn"]
+        inputs: ["pluginJsonIn", "pluginjson.license", "pluginjson.longDescription"]
+        multiplex: true
 
         Artifact {
             fileTags: ["qt_plugin_metadata"]
             filePath: {
-                var destdir = FileInfo.joinPaths(product.moduleProperty("Qt.core",
-                                                         "generatedHeadersDir"), input.fileName);
+                var destdir = FileInfo.joinPaths(product.Qt.core.generatedHeadersDir,
+                                                 inputs.pluginJsonIn[0].fileName);
                 return destdir.replace(/\.[^\.]*$/,'')
             }
         }
@@ -60,7 +61,7 @@ Module {
                 var depdeps = deps[d].dependencies;
                 for (var dd in depdeps) {
                     if (depdeps[dd].name == 'pluginjson') {
-                        cmd.plugin_depends.push(deps[d].name);
+                        cmd.plugin_depends.push(deps[d].name.toLowerCase());
                         break;
                     }
                 }
@@ -71,7 +72,7 @@ Module {
             cmd.sourceCode = function() {
                 var i;
                 var vars = pluginJsonReplacements || {};
-                var inf = new TextFile(input.filePath);
+                var inf = new TextFile(inputs.pluginJsonIn[0].filePath);
                 var all = inf.readAll();
                 // replace config vars
                 var qtcVersion = product.moduleProperty("qtc", "qtcreator_version");
@@ -81,22 +82,34 @@ Module {
                 vars['IDE_VERSION_MAJOR'] = product.moduleProperty("qtc", "ide_version_major");
                 vars['IDE_VERSION_MINOR'] = product.moduleProperty("qtc", "ide_version_minor");
                 vars['IDE_VERSION_RELEASE'] = product.moduleProperty("qtc", "ide_version_release");
-                vars['IDE_COPYRIGHT_YEAR']
-                        = product.moduleProperty("qtc", "qtcreator_copyright_year")
+                vars['IDE_COPYRIGHT'] = product.moduleProperty("qtc", "ide_copyright_string");
                 if (!vars['QTC_PLUGIN_REVISION'])
                     vars['QTC_PLUGIN_REVISION'] = product.vcs ? (product.vcs.repoState || "") : "";
                 var deplist = [];
                 for (i in plugin_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\" }");
                 }
                 for (i in plugin_recommends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"optional\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_recommends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"optional\" }");
                 }
                 for (i in plugin_test_depends) {
-                    deplist.push("        { \"Name\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"test\" }");
+                    deplist.push("        { \"Id\" : \"" + plugin_test_depends[i] + "\", \"Version\" : \"" + qtcVersion + "\", \"Type\" : \"test\" }");
                 }
                 deplist = deplist.join(",\n")
                 vars['IDE_PLUGIN_DEPENDENCIES'] = "\"Dependencies\" : [\n" + deplist + "\n    ]";
+                vars['LICENSE'] = '"No license"';
+                var licenseInputs = inputs["pluginjson.license"];
+                if (licenseInputs) {
+                    var licFile = new TextFile(licenseInputs[0].filePath);
+                    vars['LICENSE'] = JSON.stringify(licFile.readAll());
+                }
+                vars['LONG_DESCRIPTION'] = '""';
+                var longDescriptionInputs = inputs["pluginjson.longDescription"];
+                if (longDescriptionInputs) {
+                    var longDescFile = new TextFile(longDescriptionInputs[0].filePath);
+                    vars['LONG_DESCRIPTION'] = JSON.stringify(longDescFile.readAll());
+                }
+
                 for (i in vars) {
                     all = all.replace(new RegExp('\\\$\\{' + i + '(?!\w)\\}', 'g'), vars[i]);
                 }
@@ -109,4 +122,3 @@ Module {
         }
     }
 }
-

@@ -1,6 +1,7 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "cmakeautogenparser.h"
 #include "cmakebuildconfiguration.h"
 #include "cmakebuildstep.h"
 #include "cmakebuildsystem.h"
@@ -9,7 +10,7 @@
 #include "cmakeinstallstep.h"
 #include "cmakelocatorfilter.h"
 #include "cmakekitaspect.h"
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 #include "cmakeproject.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectimporter.h"
@@ -24,6 +25,7 @@
 
 #include <extensionsystem/iplugin.h>
 
+#include <projectexplorer/buildmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
@@ -69,7 +71,8 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
 #ifdef WITH_TESTS
         addTestCreator(createCMakeConfigTest);
-        addTestCreator(createCMakeParserTest);
+        addTestCreator(createCMakeOutputParserTest);
+        addTestCreator(createCMakeAutogenParserTest);
         addTestCreator(createCMakeProjectImporterTest);
 #endif
 
@@ -111,13 +114,16 @@ class CMakeProjectPlugin final : public ExtensionSystem::IPlugin
 
     void updateContextActions(ProjectExplorer::Node *node)
     {
+        const Project *project = ProjectTree::projectForNode(node);
+
         auto targetNode = dynamic_cast<const CMakeTargetNode *>(node);
         const QString targetDisplayName = targetNode ? targetNode->displayName() : QString();
+        const bool isVisible = targetNode && !BuildManager::isBuilding(project);
 
         // Build Target:
         m_buildTargetContextAction->setParameter(targetDisplayName);
-        m_buildTargetContextAction->setEnabled(targetNode);
-        m_buildTargetContextAction->setVisible(targetNode);
+        m_buildTargetContextAction->setEnabled(isVisible);
+        m_buildTargetContextAction->setVisible(isVisible);
     }
 
     Action *m_buildTargetContextAction = nullptr;

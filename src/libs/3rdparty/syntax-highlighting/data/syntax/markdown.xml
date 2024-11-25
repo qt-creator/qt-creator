@@ -94,7 +94,7 @@
 <!ENTITY checkbox "\[[ x]\](?=\s)">
 ]>
 
-<language name="Markdown" version="30" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown;*.md.html" mimetype="text/markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
+<language name="Markdown" version="31" kateversion="5.79" section="Markup" extensions="*.md;*.mmd;*.markdown;*.md.html" mimetype="text/markdown" priority="15" author="Darrin Yeager, Claes Holmerson" license="GPL,BSD">
   <highlighting>
     <contexts>
       <!-- Start of the Markdown document: find metadata or code block -->
@@ -369,7 +369,8 @@
         <RegExpr attribute="Fenced Code" context="#pop!r-code" String="&fcode;\s*(?:r|rprofile|rscript)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!raku-code" String="&fcode;\s*(?:raku(?:mod|doc|test)?|perl6|p[lm]?6|pod6|nqp)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!rest-code" String="&fcode;\s*(?:rst|rest|restructuredtext)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the CMake definition -->
-        <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml|(?:xml|js)\.erb)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!ruby-code" String="&fcode;\s*(?:ruby|rbx?|rjs|rake|f?cgi|gemspec|irbrc|ru|prawn|Appraisals|(?:Rake|Cap|Chef|Gem|Guard|Hobo|Vagrant||Rant|Berks|Thor|Puppet)file|rxml)&end;" insensitive="true" beginRegion="code-block"/>
+        <RegExpr attribute="Fenced Code" context="#pop!rhtml-code" String="&fcode;\s*((?:xml\.|js\.)?erb)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!rust-code" String="&fcode;\s*(?:rust|rs)&end;" insensitive="true" beginRegion="code-block"/>
         <RegExpr attribute="Fenced Code" context="#pop!mysql-code" String="&fcode;\s*(?:mysql|sql|ddl)&end;" insensitive="true" beginRegion="code-block"/> <!-- Included in the PHP definition -->
         <RegExpr attribute="Fenced Code" context="#pop!nim-code" String="&fcode;\s*(?:nims?)&end;" insensitive="true" beginRegion="code-block"/>
@@ -492,9 +493,13 @@
         <IncludeRules context="code"/>
         <IncludeRules context="##reStructuredText" includeAttrib="true"/>
       </context>
-      <context attribute="Normal Text" lineEndContext="#stay" name="ruby-code">
+      <context attribute="Normal Text" lineEndContext="#stay" name="ruby-code" fallthroughContext="Expr##Ruby">
         <IncludeRules context="code"/>
-        <IncludeRules context="##Ruby" includeAttrib="true"/>
+        <IncludeRules context="Ruby##Ruby" includeAttrib="true"/>
+      </context>
+      <context attribute="Normal Text" lineEndContext="#stay" name="rhtml-code">
+        <IncludeRules context="code"/>
+        <IncludeRules context="##Ruby/Rails/RHTML" includeAttrib="true"/>
       </context>
       <context attribute="Normal Text" lineEndContext="#stay" name="rust-code">
         <IncludeRules context="code"/>

@@ -54,6 +54,7 @@ QtcLibrary {
         "benchmarker.h",
         "buildablehelperlibrary.cpp",
         "buildablehelperlibrary.h",
+        "builderutils.h",
         "camelcasecursor.cpp",
         "camelcasecursor.h",
         "categorysortfiltermodel.cpp",
@@ -148,6 +149,7 @@ QtcLibrary {
         "globalfilechangeblocker.h",
         "guard.cpp",
         "guard.h",
+        "guardedcallback.h",
         "guiutils.cpp",
         "guiutils.h",
         "highlightingitemdelegate.cpp",
@@ -162,6 +164,8 @@ QtcLibrary {
         "icon.h",
         "iconbutton.cpp",
         "iconbutton.h",
+        "icondisplay.cpp",
+        "icondisplay.h",
         "id.cpp",
         "id.h",
         "indexedcontainerproxyconstiterator.h",
@@ -189,6 +193,8 @@ QtcLibrary {
         "lua.h",
         "macroexpander.cpp",
         "macroexpander.h",
+        "markdownbrowser.cpp",
+        "markdownbrowser.h",
         "mathutils.cpp",
         "mathutils.h",
         "mimeconstants.h",
@@ -265,6 +271,8 @@ QtcLibrary {
         "reloadpromptutils.h",
         "removefiledialog.cpp",
         "removefiledialog.h",
+        "result.cpp",
+        "result.h",
         "savefile.cpp",
         "savefile.h",
         "scopedswap.h",
@@ -375,8 +383,6 @@ QtcLibrary {
             "fsengine.h",
             "fsenginehandler.cpp",
             "fsenginehandler.h",
-            "fsengine_impl.cpp",
-            "fsengine_impl.h"
         ]
     }
 

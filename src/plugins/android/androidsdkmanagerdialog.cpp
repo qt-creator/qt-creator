@@ -41,8 +41,9 @@ public:
         m_argumentDetailsEdit->setReadOnly(true);
 
         m_process.setEnvironment(AndroidConfig::toolsEnvironment());
-        m_process.setCommand({AndroidConfig::sdkManagerToolPath(),
-                              {"--help", "--sdk_root=" + AndroidConfig::sdkLocation().toString()}});
+        m_process.setCommand(
+            {AndroidConfig::sdkManagerToolPath(),
+             {"--help", "--sdk_root=" + AndroidConfig::sdkLocation().path()}});
         connect(&m_process, &Process::done, this, [this] {
             const QString output = m_process.allOutput();
             QString argumentDetails;
@@ -186,10 +187,11 @@ AndroidSdkManagerDialog::AndroidSdkManagerDialog(AndroidSdkManager *sdkManager, 
         buttonBox,
     }.attachTo(this);
 
-    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, [this, buttonBox] {
-        buttonBox->button(QDialogButtonBox::Apply)
-            ->setEnabled(m_sdkModel->installationChange().count());
-    });
+    const auto updateApplyButton = [this, buttonBox] {
+        buttonBox->button(QDialogButtonBox::Apply)->setEnabled(m_sdkModel->installationChange().count());
+    };
+    connect(m_sdkModel, &AndroidSdkModel::modelReset, this, updateApplyButton);
+    connect(m_sdkModel, &AndroidSdkModel::dataChanged, this, updateApplyButton);
 
     connect(expandCheck, &QCheckBox::stateChanged, this, [packagesView](int state) {
         if (state == Qt::Checked)

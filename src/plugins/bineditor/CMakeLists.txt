@@ -3,10 +3,8 @@ add_qtc_plugin(BinEditor
   SOURCES
     bineditor_global.h
     bineditortr.h
-    bineditorconstants.h
     bineditorplugin.cpp
     bineditorservice.h
-    bineditorwidget.cpp
-    bineditorwidget.h
-    markup.cpp markup.h
+    markup.cpp
+    markup.h
 )

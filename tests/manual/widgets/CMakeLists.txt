@@ -1,6 +1,8 @@
+add_subdirectory(components)
 add_subdirectory(crumblepath)
 add_subdirectory(infolabel)
 add_subdirectory(layoutbuilder)
 add_subdirectory(manhattanstyle)
+add_subdirectory(styledbar)
 add_subdirectory(tracing)
 add_subdirectory(uifonts)

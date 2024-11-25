@@ -47,7 +47,7 @@ Project *projectForCurrentEditor()
         return nullptr;
 
     if (ProjectPart::ConstPtr projectPart = projectPartForFile(filePath))
-        return projectForProjectPart(*projectPart);
+        return projectPart->project();
 
     return nullptr;
 }
@@ -80,7 +80,7 @@ void disableDiagnosticInCurrentProjectConfig(const ClangDiagnostic &diagnostic)
 
     // Get config
     ClangDiagnosticConfig config = diagnosticConfig();
-    ClangDiagnosticConfigsModel configsModel = CppEditor::diagnosticConfigsModel();
+    ClangDiagnosticConfigsModel configsModel = ClangdSettings::diagnosticConfigsModel();
 
     // Create copy if needed
     if (config.isReadOnly()) {

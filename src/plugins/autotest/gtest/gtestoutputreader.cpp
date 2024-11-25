@@ -28,12 +28,12 @@ GTestOutputReader::GTestOutputReader(Process *testApplication,
 void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
 {
     static const QRegularExpression newTestStarts("^\\[-{10}\\] \\d+ tests? from (.*)$");
-    static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\((.*)\\)$");
+    static const QRegularExpression testEnds("^\\[-{10}\\] \\d+ tests? from (.*) \\(((\\d+) .*)\\)$");
     static const QRegularExpression newTestSetStarts("^\\[ RUN      \\] (.*)$");
     static const QRegularExpression testSetSuccess("^\\[       OK \\] (.*) \\((.*)\\)$");
-    static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\((\\d+ ms)\\)$");
+    static const QRegularExpression testSetFail("^\\[  FAILED  \\] (.*) \\(((\\d+) ms)\\)$");
     static const QRegularExpression testDeath("^\\[  DEATH   \\] (.*)$");
-    static const QRegularExpression testSetSkipped("^\\[  SKIPPED \\] (.*) \\((\\d+ ms)\\)$");
+    static const QRegularExpression testSetSkipped("^\\[  SKIPPED \\] (.*) \\(((\\d+) ms)\\)$");
     static const QRegularExpression disabledTests("^  YOU HAVE (\\d+) DISABLED TESTS?$");
     static const QRegularExpression iterations("^Repeating all tests "
                                                "\\(iteration (\\d+)\\) \\. \\. \\.$");
@@ -70,6 +70,8 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::TestEnd);
         testResult.setDescription(Tr::tr("Test execution took %1.").arg(match.captured(2)));
+        testResult.setDuration(match.captured(3));
+        m_executionDuration = m_executionDuration.value_or(0) + match.captured(3).toInt();
         reportResult(testResult);
         m_currentTestSuite.clear();
         m_currentTestCase.clear();
@@ -102,6 +104,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult = createDefaultResult();
         testResult.setResult(ResultType::MessageInternal);
         testResult.setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
+        testResult.setDuration(match.captured(3));
         reportResult(testResult);
         // TODO: bump progress?
     } else if (ExactMatch match = testSetFail.match(line)) {
@@ -127,6 +130,7 @@ void GTestOutputReader::processOutputLine(const QByteArray &outputLine)
         testResult = createDefaultResult();
         testResult.setResult(ResultType::MessageInternal);
         testResult.setDescription(Tr::tr("Execution took %1.").arg(match.captured(2)));
+        testResult.setDuration(match.captured(3));
         reportResult(testResult);
     } else if (ExactMatch match = logging.match(line)) {
         const QString severity = match.captured(1).trimmed();

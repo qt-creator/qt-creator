@@ -20,19 +20,10 @@ public:
 
     Utils::ProcessInterface *createProcessInterface() const override;
 
-    void setSerialNumber(const QString &serial);
-    QString serialNumber() const;
-
     void setupDefaultNetworkSettings(const QString &host);
-
-protected:
-    void fromMap(const Utils::Store &map) final;
-    Utils::Store toMap() const final;
 
 private:
     QdbDevice();
-
-    QString m_serialNumber;
 };
 
 void setupQdbLinuxDevice();

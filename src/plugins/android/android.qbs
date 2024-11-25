@@ -10,6 +10,7 @@ QtcPlugin {
     Depends { name: "ProjectExplorer" }
     Depends { name: "QmlDebug" }
     Depends { name: "QtSupport" }
+    Depends { name: "Spinner" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
 
@@ -38,33 +39,21 @@ QtcPlugin {
         "androidglobal.h",
         "androidmanager.cpp",
         "androidmanager.h",
-        "androidmanifestdocument.cpp",
-        "androidmanifestdocument.h",
-        "androidmanifesteditor.cpp",
-        "androidmanifesteditor.h",
         "androidmanifesteditoriconwidget.cpp",
         "androidmanifesteditoriconwidget.h",
         "androidmanifesteditoriconcontainerwidget.cpp",
         "androidmanifesteditoriconcontainerwidget.h",
-        "androidmanifesteditorfactory.cpp",
-        "androidmanifesteditorfactory.h",
-        "androidmanifesteditorwidget.cpp",
-        "androidmanifesteditorwidget.h",
+        "androidmanifesteditor.cpp",
+        "androidmanifesteditor.h",
         "androidpackageinstallationstep.cpp",
         "androidpackageinstallationstep.h",
         "androidplugin.cpp",
-        "androidpotentialkit.cpp",
-        "androidpotentialkit.h",
-        "androidqmlpreviewworker.h",
-        "androidqmlpreviewworker.cpp",
         "androidqmltoolingsupport.cpp",
         "androidqmltoolingsupport.h",
         "androidqtversion.cpp",
         "androidqtversion.h",
         "androidrunconfiguration.cpp",
         "androidrunconfiguration.h",
-        "androidruncontrol.cpp",
-        "androidruncontrol.h",
         "androidrunner.cpp",
         "androidrunner.h",
         "androidrunnerworker.cpp",
@@ -103,11 +92,21 @@ QtcPlugin {
         "javaparser.h",
         "splashscreencontainerwidget.cpp",
         "splashscreencontainerwidget.h",
-        "splashscreenwidget.cpp",
-        "splashscreenwidget.h",
         "sdkmanageroutputparser.cpp",
         "sdkmanageroutputparser.h"
     ]
+
+    Group {
+        name: "license"
+        files: "LICENSE.md"
+        fileTags: "pluginjson.license"
+    }
+
+    Group {
+        name: "long description"
+        files: "plugindescription.md"
+        fileTags: "pluginjson.longDescription"
+    }
 
     QtcTestFiles {
         files: [

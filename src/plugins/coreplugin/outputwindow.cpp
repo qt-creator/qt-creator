@@ -14,6 +14,7 @@
 
 #include <aggregation/aggregate.h>
 
+#include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/outputformatter.h>
 #include <utils/qtcassert.h>
@@ -22,6 +23,7 @@
 #include <QCursor>
 #include <QElapsedTimer>
 #include <QHash>
+#include <QLoggingCategory>
 #include <QMenu>
 #include <QMimeData>
 #include <QPair>
@@ -37,13 +39,18 @@
 
 #include <numeric>
 
-const int chunkSize = 10000;
-
 using namespace Utils;
 using namespace std::chrono_literals;
 
-namespace Core {
+const int defaultChunkSize = 10000;
+const int minChunkSize = 1000;
 
+const auto defaultInterval = 10ms;
+const auto maxInterval = 1000ms;
+
+static Q_LOGGING_CATEGORY(chunkLog, "qtc.core.outputChunking", QtWarningMsg)
+
+namespace Core {
 namespace Internal {
 
 class OutputWindowPrivate
@@ -58,6 +65,9 @@ public:
     OutputFormatter formatter;
     QList<QPair<QString, OutputFormat>> queuedOutput;
     QTimer queueTimer;
+    QList<int> queuedSizeHistory;
+    int formatterCalls = 0;
+    bool discardExcessiveOutput = false;
 
     bool flushRequested = false;
     bool scrollToBottom = true;
@@ -70,8 +80,11 @@ public:
     QTextCursor cursor;
     QString filterText;
     int lastFilteredBlockNumber = -1;
+    int chunkSize = defaultChunkSize;
     QPalette originalPalette;
     OutputWindow::FilterModeFlags filterMode = OutputWindow::FilterModeFlag::Default;
+    int beforeContext = 0;
+    int afterContext = 0;
     QTimer scrollTimer;
     QElapsedTimer lastMessage;
     QHash<unsigned int, QPair<int, int>> taskPositions;
@@ -95,15 +108,12 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     d->formatter.setPlainTextEdit(this);
 
     d->queueTimer.setSingleShot(true);
-    d->queueTimer.setInterval(10ms);
+    d->queueTimer.setInterval(defaultInterval);
     connect(&d->queueTimer, &QTimer::timeout, this, &OutputWindow::handleNextOutputChunk);
 
     d->settingsKey = settingsKey;
 
-    auto outputWindowContext = new IContext(this);
-    outputWindowContext->setContext(context);
-    outputWindowContext->setWidget(this);
-    ICore::addContextObject(outputWindowContext);
+    IContext::attach(this, context);
 
     auto undoAction = new QAction(this);
     auto redoAction = new QAction(this);
@@ -177,9 +187,7 @@ OutputWindow::OutputWindow(Context context, const Key &settingsKey, QWidget *par
     p.setColor(QPalette::HighlightedText, activeHighlightedText);
     setPalette(p);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(this);
-    agg->add(new BaseTextFind(this));
+    Aggregation::aggregate({this, new BaseTextFind(this)});
 }
 
 OutputWindow::~OutputWindow()
@@ -308,6 +316,27 @@ void OutputWindow::contextMenuEvent(QContextMenuEvent *event)
         }
     });
     saveAction->setEnabled(!document()->isEmpty());
+    QAction *openAction = menu->addAction(Tr::tr("Copy Contents to Scratch Buffer"));
+    connect(openAction, &QAction::triggered, this, [this] {
+        QString scratchBufferPrefix = FilePath::fromString(d->outputFileNameHint).baseName();
+        if (scratchBufferPrefix.isEmpty())
+            scratchBufferPrefix = "scratch";
+        const auto tempPath = FileUtils::scratchBufferFilePath(
+            QString::fromUtf8("%1-XXXXXX.txt").arg(scratchBufferPrefix));
+        if (!tempPath) {
+            MessageManager::writeDisrupting(tempPath.error());
+            return;
+        }
+        IEditor * const editor = EditorManager::openEditor(*tempPath);
+        if (!editor) {
+            MessageManager::writeDisrupting(
+                Tr::tr("Failed to open editor for \"%1\".").arg(tempPath->toUserOutput()));
+            return;
+        }
+        editor->document()->setTemporary(true);
+        editor->document()->setContents(toPlainText().toUtf8());
+    });
+    openAction->setEnabled(!document()->isEmpty());
 
     menu->addSeparator();
     QAction *clearAction = menu->addAction(Tr::tr("Clear"));
@@ -351,14 +380,19 @@ void OutputWindow::updateFilterProperties(
         const QString &filterText,
         Qt::CaseSensitivity caseSensitivity,
         bool isRegexp,
-        bool isInverted
+        bool isInverted,
+        int beforeContext,
+        int afterContext
         )
 {
     FilterModeFlags flags;
     flags.setFlag(FilterModeFlag::CaseSensitive, caseSensitivity == Qt::CaseSensitive)
             .setFlag(FilterModeFlag::RegExp, isRegexp)
             .setFlag(FilterModeFlag::Inverted, isInverted);
-    if (d->filterMode == flags && d->filterText == filterText)
+    if (d->filterMode == flags
+        && d->filterText == filterText
+        && d->beforeContext == beforeContext
+        && d->afterContext == afterContext)
         return;
     d->lastFilteredBlockNumber = -1;
     if (d->filterText != filterText) {
@@ -385,6 +419,8 @@ void OutputWindow::updateFilterProperties(
         }
     }
     d->filterMode = flags;
+    d->beforeContext = beforeContext;
+    d->afterContext = afterContext;
     filterNewContent();
 }
 
@@ -393,28 +429,62 @@ void OutputWindow::setOutputFileNameHint(const QString &fileName)
     d->outputFileNameHint = fileName;
 }
 
-void OutputWindow::filterNewContent()
+OutputWindow::TextMatchingFunction OutputWindow::makeMatchingFunction() const
 {
-    QTextBlock lastBlock = document()->findBlockByNumber(d->lastFilteredBlockNumber);
-    if (!lastBlock.isValid())
-        lastBlock = document()->begin();
-
-    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted);
-    if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
+    if (d->filterText.isEmpty()) {
+        return [](const QString &) { return true; };
+    } else if (d->filterMode.testFlag(OutputWindow::FilterModeFlag::RegExp)) {
         QRegularExpression regExp(d->filterText);
         if (!d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive))
             regExp.setPatternOptions(QRegularExpression::CaseInsensitiveOption);
+        if (!regExp.isValid())
+            return [](const QString &) { return false; };
 
-        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-            lastBlock.setVisible(d->filterText.isEmpty()
-                                 || regExp.match(lastBlock.text()).hasMatch() != invert);
+        return [regExp](const QString &text) { return regExp.match(text).hasMatch(); };
     } else {
         const auto cs = d->filterMode.testFlag(OutputWindow::FilterModeFlag::CaseSensitive)
                             ? Qt::CaseSensitive : Qt::CaseInsensitive;
 
-        for (; lastBlock != document()->end(); lastBlock = lastBlock.next())
-            lastBlock.setVisible(d->filterText.isEmpty()
-                                 || lastBlock.text().contains(d->filterText, cs) != invert);
+        return [cs, filterText = d->filterText](const QString &text) {
+            return text.contains(filterText, cs);
+        };
+    }
+
+    return {};
+}
+
+void OutputWindow::filterNewContent()
+{
+    const auto findNextMatch = makeMatchingFunction();
+    QTC_ASSERT(findNextMatch, return);
+    const bool invert = d->filterMode.testFlag(FilterModeFlag::Inverted)
+                        && !d->filterText.isEmpty();
+    const int requiredBacklog = std::max(d->beforeContext, d->afterContext);
+    const int firstBlockIndex = d->lastFilteredBlockNumber - requiredBacklog;
+
+    std::vector<int> matchedBlocks;
+    QTextBlock lastBlock = document()->findBlockByNumber(firstBlockIndex);
+    if (!lastBlock.isValid())
+        lastBlock = document()->begin();
+
+    // Find matching text blocks for the current filter.
+    for (; lastBlock != document()->end(); lastBlock = lastBlock.next()) {
+        const bool isMatch = findNextMatch(lastBlock.text()) != invert;
+
+        if (isMatch)
+            matchedBlocks.emplace_back(lastBlock.blockNumber());
+
+        lastBlock.setVisible(isMatch);
+    }
+
+    // Reveal the context lines before and after the match.
+    if (!d->filterText.isEmpty()) {
+        for (int blockNumber : matchedBlocks) {
+            for (auto i = 1; i <= d->beforeContext; ++i)
+                document()->findBlockByNumber(blockNumber - i).setVisible(true);
+            for (auto i = 1; i <= d->afterContext; ++i)
+                document()->findBlockByNumber(blockNumber + i).setVisible(true);
+        }
     }
 
     d->lastFilteredBlockNumber = document()->lastBlock().blockNumber();
@@ -429,13 +499,33 @@ void OutputWindow::filterNewContent()
 void OutputWindow::handleNextOutputChunk()
 {
     QTC_ASSERT(!d->queuedOutput.isEmpty(), return);
+
+    discardExcessiveOutput();
+    if (d->queuedOutput.isEmpty())
+        return;
+
     auto &chunk = d->queuedOutput.first();
-    if (chunk.first.size() <= chunkSize) {
-        handleOutputChunk(chunk.first, chunk.second);
+
+    // We want to break off the chunks along line breaks, if possible.
+    // Otherwise we can get ugly temporary artifacts e.g. for ANSI escape codes.
+    int actualChunkSize = std::min(d->chunkSize, int(chunk.first.size()));
+    const int minEndPos = std::max(0, actualChunkSize - 1000);
+    for (int i = actualChunkSize - 1; i >= minEndPos; --i) {
+        if (chunk.first.at(i) == '\n') {
+            actualChunkSize = i + 1;
+            break;
+        }
+    }
+
+    qCDebug(chunkLog) << "next queued chunk has" << chunk.first.size() << "bytes";
+    if (actualChunkSize == chunk.first.size()) {
+        qCDebug(chunkLog) << "chunk can be written in one go";
+        handleOutputChunk(chunk.first, chunk.second, ChunkCompleteness::Complete);
         d->queuedOutput.removeFirst();
     } else {
-        handleOutputChunk(chunk.first.left(chunkSize), chunk.second);
-        chunk.first.remove(0, chunkSize);
+        qCDebug(chunkLog) << "chunk needs to be split";
+        handleOutputChunk(chunk.first.left(actualChunkSize), chunk.second, ChunkCompleteness::Split);
+        chunk.first.remove(0, actualChunkSize);
     }
     if (!d->queuedOutput.isEmpty())
         d->queueTimer.start();
@@ -445,7 +535,8 @@ void OutputWindow::handleNextOutputChunk()
     }
 }
 
-void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
+void OutputWindow::handleOutputChunk(
+    const QString &output, OutputFormat format, ChunkCompleteness completeness)
 {
     QString out = output;
     if (out.size() > d->maxCharCount) {
@@ -473,7 +564,23 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
         }
     }
 
+    QElapsedTimer formatterTimer;
+    formatterTimer.start();
     d->formatter.appendMessage(out, format);
+    ++d->formatterCalls;
+    qCDebug(chunkLog) << "formatter took" << formatterTimer.elapsed() << "ms";
+    if (formatterTimer.elapsed() > d->queueTimer.interval()) {
+        d->queueTimer.setInterval(std::min(maxInterval, d->queueTimer.intervalAsDuration() * 2));
+        d->chunkSize = std::max(minChunkSize, d->chunkSize / 2);
+        qCDebug(chunkLog) << "increasing interval to" << d->queueTimer.interval()
+                          << "ms and lowering chunk size to" << d->chunkSize << "bytes";
+    } else if (completeness == ChunkCompleteness::Split
+               && formatterTimer.elapsed() < d->queueTimer.interval() / 2) {
+        d->queueTimer.setInterval(std::max(1ms, d->queueTimer.intervalAsDuration() * 2 / 3));
+        d->chunkSize = d->chunkSize * 1.5;
+        qCDebug(chunkLog) << "lowering interval to" << d->queueTimer.interval()
+                          << "ms and increasing chunk size to" << d->chunkSize << "bytes";
+    }
 
     if (d->scrollToBottom) {
         if (d->lastMessage.elapsed() < 5) {
@@ -488,9 +595,62 @@ void OutputWindow::handleOutputChunk(const QString &output, OutputFormat format)
     enableUndoRedo();
 }
 
+void OutputWindow::discardExcessiveOutput()
+{
+    // Unless the user instructs us to, we do not mess with the output.
+    if (!d->discardExcessiveOutput)
+        return;
+
+    // Criterion 1: Are we being flooded?
+    // If the pending output has been growing for the last ten times the output formatter
+    // was invoked and it is considerably larger than the chunk size, we discard it.
+    const int queuedSize = totalQueuedSize();
+    if (!d->queuedSizeHistory.isEmpty() && d->queuedSizeHistory.last() > queuedSize)
+        d->queuedSizeHistory.clear();
+    d->queuedSizeHistory << queuedSize;
+    bool discard = d->queuedSizeHistory.size() > int(10) && queuedSize > 5 * d->chunkSize;
+    if (discard)
+        qCDebug(chunkLog) << "discarding output due to size";
+
+    // Criterion 2: Are we too slow?
+    // If it would take longer than a minute to print the pending output and we have
+    // already presented a reasonable amount of output to the user, we discard it.
+    if (!discard) {
+        discard = d->formatterCalls >= 10
+                  && (queuedSize / d->chunkSize) * d->queueTimer.intervalAsDuration() > 60s;
+        if (discard)
+            qCDebug(chunkLog) << "discarding output due to time";
+    }
+
+    if (discard) {
+        discardPendingToolOutput();
+        d->queuedSizeHistory.clear();
+        return;
+    }
+}
+
+void OutputWindow::discardPendingToolOutput()
+{
+    Utils::erase(d->queuedOutput, [](const std::pair<QString, OutputFormat> &chunk) {
+        return chunk.second != NormalMessageFormat && chunk.second != ErrorMessageFormat;
+    });
+    d->formatter.appendMessage(Tr::tr("[Discarding excessive amount of pending output.]\n"),
+                               ErrorMessageFormat);
+    emit outputDiscarded();
+}
+
 void OutputWindow::updateAutoScroll()
 {
     d->scrollToBottom = verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum() - 1;
+}
+
+int OutputWindow::totalQueuedSize() const
+{
+    return std::accumulate(
+        d->queuedOutput.cbegin(),
+        d->queuedOutput.cend(),
+        0,
+        [](int val, const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
 }
 
 void OutputWindow::setMaxCharCount(int count)
@@ -586,15 +746,13 @@ void OutputWindow::clear()
 
 void OutputWindow::flush()
 {
-    const int totalQueuedSize = std::accumulate(d->queuedOutput.cbegin(), d->queuedOutput.cend(), 0,
-            [](int val,  const QPair<QString, OutputFormat> &c) { return val + c.first.size(); });
-    if (totalQueuedSize > 5 * chunkSize) {
+    if (totalQueuedSize() > 5 * d->chunkSize) {
         d->flushRequested = true;
         return;
     }
     d->queueTimer.stop();
     for (const auto &chunk : std::as_const(d->queuedOutput))
-        handleOutputChunk(chunk.first, chunk.second);
+        handleOutputChunk(chunk.first, chunk.second, ChunkCompleteness::Complete);
     d->queuedOutput.clear();
     d->formatter.flush();
 }
@@ -602,14 +760,19 @@ void OutputWindow::flush()
 void OutputWindow::reset()
 {
     flush();
-    d->queueTimer.stop();
-    d->formatter.reset();
-    d->scrollToBottom = true;
     if (!d->queuedOutput.isEmpty()) {
+        discardPendingToolOutput();
+        flush();
+
+        // For the unlikely case that we ourselves have sent excessive amount of output
+        // via NormalMessageFormat or ErrorMessageFormat.
         d->queuedOutput.clear();
-        d->formatter.appendMessage(Tr::tr("[Discarding excessive amount of pending output.]\n"),
-                                   ErrorMessageFormat);
     }
+    d->queueTimer.stop();
+    d->queuedSizeHistory.clear();
+    d->formatter.reset();
+    d->formatterCalls = 0;
+    d->scrollToBottom = true;
     d->flushRequested = false;
 }
 
@@ -657,6 +820,11 @@ void OutputWindow::setWordWrapEnabled(bool wrap)
         setWordWrapMode(QTextOption::WrapAtWordBoundaryOrAnywhere);
     else
         setWordWrapMode(QTextOption::NoWrap);
+}
+
+void OutputWindow::setDiscardExcessiveOutput(bool discard)
+{
+    d->discardExcessiveOutput = discard;
 }
 
 #ifdef WITH_TESTS

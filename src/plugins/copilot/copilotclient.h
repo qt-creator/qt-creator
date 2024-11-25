@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include "copilothoverhandler.h"
 #include "requests/checkstatus.h"
 #include "requests/getcompletions.h"
 #include "requests/seteditorinfo.h"
@@ -63,7 +62,6 @@ private:
         QTimer *timer = nullptr;
     };
     QHash<TextEditor::TextEditorWidget *, ScheduleData> m_scheduledRequests;
-    CopilotHoverHandler m_hoverHandler;
     bool m_isAskingForPassword{false};
 };
 

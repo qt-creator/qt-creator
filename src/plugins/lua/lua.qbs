@@ -8,6 +8,9 @@ QtcPlugin {
 
     Depends { name: "lua546" }
     Depends { name: "sol2" }
+    Depends { name: "ProjectExplorer" }
+    Depends { name: "TextEditor" }
+    Depends { name: "Utils" }
 
     Properties {
         condition: qbs.toolchain.contains("mingw")
@@ -19,6 +22,7 @@ QtcPlugin {
         "lua_global.h",
         "luaengine.cpp",
         "luaengine.h",
+        "luaexpander.cpp",
         "luaplugin.cpp",
         "luapluginspec.cpp",
         "luapluginspec.h",
@@ -35,17 +39,24 @@ QtcPlugin {
 
         files: [
             "action.cpp",
-            "async.cpp",
             "core.cpp",
             "fetch.cpp",
             "gui.cpp",
             "hook.cpp",
             "inheritance.h",
             "install.cpp",
+            "json.cpp",
+            "localsocket.cpp",
+            "macro.cpp",
             "messagemanager.cpp",
+            "project.cpp",
+            "qt.cpp",
             "qtcprocess.cpp",
             "settings.cpp",
+            "texteditor.cpp",
+            "translate.cpp",
             "utils.cpp",
+            "utils.h",
         ]
 
         Properties {
@@ -62,24 +73,7 @@ QtcPlugin {
     Group {
         name: "Meta"
         prefix: "meta/"
-
-        files: [
-            "action.lua",
-            "async.lua",
-            "core.lua",
-            "fetch.lua",
-            "gui.lua",
-            "install.lua",
-            "lsp.lua",
-            "messagemanager.lua",
-            "process.lua",
-            "qt.lua",
-            "qtc.lua",
-            "settings.lua",
-            "simpletypes.lua",
-            "utils.lua",
-            "widgets.lua",
-        ]
+        files: "*.lua"
         qbs.install: true
         qbs.installDir: qtc.ide_data_path + "/lua/meta/"
     }
@@ -90,6 +84,13 @@ QtcPlugin {
         files: [
             "qobject.lua",
         ]
+    }
+
+    Group {
+        name: "Lua scripts rcc"
+        Qt.core.resourcePrefix: "lua/scripts/"
+        fileTags: "qt.core.resource_data"
+        files: "scripts/**"
     }
 
     Group {

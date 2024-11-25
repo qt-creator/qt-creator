@@ -36,6 +36,7 @@ public:
     ActionBuilder &setIconText(const QString &iconText);
     ActionBuilder &setToolTip(const QString &toolTip);
     ActionBuilder &setCommandAttribute(Core::Command::CommandAttribute attr);
+    ActionBuilder &setCommandAttributes(Core::Command::CommandAttributes attr);
     ActionBuilder &setCommandDescription(const QString &desc);
     ActionBuilder &addToContainer(Utils::Id containerId, Utils::Id groupId = {}, bool needsToExist = true);
     ActionBuilder &addToContainers(QList<Utils::Id> containerIds, Utils::Id groupId = {},

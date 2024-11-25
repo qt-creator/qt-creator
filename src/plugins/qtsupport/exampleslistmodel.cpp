@@ -4,6 +4,8 @@
 #include "exampleslistmodel.h"
 
 #include "examplesparser.h"
+#include "qtkitaspect.h"
+#include "qtversionmanager.h"
 
 #include <QBuffer>
 #include <QApplication>
@@ -13,13 +15,10 @@
 #include <QUrl>
 
 #include <android/androidconstants.h>
-#include <ios/iosconstants.h>
 #include <coreplugin/helpmanager.h>
 #include <coreplugin/icore.h>
-
-#include <qtsupport/qtkitaspect.h>
-#include <qtsupport/qtversionmanager.h>
-
+#include <ios/iosconstants.h>
+#include <projectexplorer/kitmanager.h>
 #include <utils/algorithm.h>
 #include <utils/environment.h>
 #include <utils/filepath.h>
@@ -116,8 +115,8 @@ ExampleSetModel::ExampleSetModel()
 
 void ExampleSetModel::recreateModel(const QtVersions &qtVersionsIn)
 {
-    beginResetModel();
     clear();
+    beginResetModel();
 
     QHash<FilePath, int> extraManifestDirs;
     for (int i = 0; i < m_extraExampleSets.size(); ++i)
@@ -427,20 +426,31 @@ void ExamplesViewController::updateExamples()
         if (categoryOrder.isEmpty())
             categoryOrder = result->categoryOrder;
     }
-    items = filtered(items, isValidExampleOrDemo(instructionalsModules));
+
+    static const auto filteredItems = [](const QList<ExampleItem *> &items,
+                                         const std::function<bool(ExampleItem *)> &filter) {
+        QList<ExampleItem *> matching;
+        QList<ExampleItem *> nonMatching;
+        std::tie(matching, nonMatching) = Utils::partition(items, filter);
+        qDeleteAll(nonMatching);
+        return matching;
+    };
+    items = filteredItems(items, isValidExampleOrDemo(instructionalsModules));
 
     if (m_isExamples) {
         if (m_exampleSetModel->selectedQtSupports(Android::Constants::ANDROID_DEVICE_TYPE)) {
-            items = Utils::filtered(items, [](ExampleItem *item) {
+            items = filteredItems(items, [](ExampleItem *item) {
                 return item->tags.contains("android");
             });
         } else if (m_exampleSetModel->selectedQtSupports(Ios::Constants::IOS_DEVICE_TYPE)) {
-            items = Utils::filtered(items,
-                                    [](ExampleItem *item) { return item->tags.contains("ios"); });
+            items = filteredItems(items, [](ExampleItem *item) {
+                return item->tags.contains("ios");
+            });
         }
     }
 
-    const bool sortIntoCategories = !m_isExamples || qtVersion >= *minQtVersionForCategories;
+    const bool sortIntoCategories = !m_isExamples || qtVersion.isNull()
+                                    || qtVersion >= *minQtVersionForCategories;
     const QStringList order = categoryOrder.isEmpty() && m_isExamples ? *defaultOrder
                                                                       : categoryOrder;
     const QList<std::pair<Section, QList<ExampleItem *>>> sections

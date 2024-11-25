@@ -291,7 +291,7 @@ protected:
     QList<ServerNodeInstance> setupInstances(const CreateSceneCommand &command);
 
     QList<QQmlContext*> allSubContextsForObject(QObject *object);
-    static QList<QObject*> allSubObjectsForObject(QObject *object);
+    static QObjectList allSubObjectsForObject(QObject *object);
 
     virtual void resizeCanvasToRootItem() = 0;
     void setupState(qint32 stateInstanceId);

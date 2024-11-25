@@ -15,6 +15,7 @@
 #include <qmljstools/qmljstoolsconstants.h>
 #include <qtsupport/baseqtversion.h>
 #include <qtsupport/qtkitaspect.h>
+#include <utils/environment.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -224,6 +225,7 @@ QString QbsProfileManager::runQbsConfig(QbsConfigOp op, const QString &key, cons
     if (qbsConfigExe.isEmpty() || !qbsConfigExe.exists())
         return {};
     Utils::Process qbsConfig;
+    qbsConfig.setEnvironment(QbsSettings::qbsProcessEnvironment());
     qbsConfig.setCommand({qbsConfigExe, args});
     qbsConfig.start();
     using namespace std::chrono_literals;

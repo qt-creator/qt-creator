@@ -3,16 +3,8 @@
 
 #pragma once
 
-#include "ioptionspage.h"
+namespace Core::Internal {
 
-namespace Core {
-namespace Internal {
+void setupExternalToolSettings();
 
-class ToolSettings final : public IOptionsPage
-{
-public:
-    ToolSettings();
-};
-
-} // Internal
-} // Core
+} // Core::Internal

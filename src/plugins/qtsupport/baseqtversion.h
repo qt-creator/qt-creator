@@ -79,7 +79,7 @@ public:
     bool hasAbi(ProjectExplorer::Abi::OS, ProjectExplorer::Abi::OSFlavor flavor = ProjectExplorer::Abi::UnknownFlavor) const;
 
     void applyProperties(QMakeGlobals *qmakeGlobals) const;
-    virtual void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
+    virtual void addToBuildEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const;
     Utils::Environment qmakeRunEnvironment() const;
 
     // source path defined by qmake property QT_INSTALL_PREFIX/src or by qmake.stash QT_SOURCE_TREE
@@ -192,6 +192,7 @@ public:
     QSet<Utils::Id> features() const;
 
     virtual bool supportsMultipleQtAbis() const;
+    virtual bool isAndroidQtVersion() const { return false; };
 
 protected:
     QtVersion();

@@ -67,7 +67,7 @@ void QmlDebugConnectionManager::connectToTcpServer()
         QTC_ASSERT(!isConnected(), return);
 
         if (++(m_numRetries) < m_maximumRetries) {
-            if (m_connection.isNull()) {
+            if (!m_connection) {
                 // If the previous connection failed, recreate it.
                 createConnection();
                 m_connection->connectToHost(m_server.host(), port16(m_server));
@@ -90,7 +90,7 @@ void QmlDebugConnectionManager::connectToTcpServer()
     });
     m_connectionTimer.start(m_retryInterval);
 
-    if (m_connection.isNull()) {
+    if (!m_connection) {
         createConnection();
         QTC_ASSERT(m_connection, emit connectionFailed(); return);
         m_connection->connectToHost(m_server.host(), port16(m_server));
@@ -116,7 +116,7 @@ void QmlDebugConnectionManager::startLocalServer()
     });
     m_connectionTimer.start(m_retryInterval);
 
-    if (m_connection.isNull()) {
+    if (!m_connection) {
         // Otherwise, reuse the same one
         createConnection();
         QTC_ASSERT(m_connection, emit connectionFailed(); return);
@@ -143,12 +143,12 @@ void QmlDebugConnectionManager::logState(const QString &message)
 
 QmlDebugConnection *QmlDebugConnectionManager::connection() const
 {
-    return m_connection.data();
+    return m_connection.get();
 }
 
 void QmlDebugConnectionManager::createConnection()
 {
-    QTC_ASSERT(m_connection.isNull(), destroyConnection());
+    QTC_ASSERT(!m_connection, destroyConnection());
 
     m_connection.reset(new QmlDebug::QmlDebugConnection);
 
@@ -159,16 +159,16 @@ void QmlDebugConnectionManager::createConnection()
 void QmlDebugConnectionManager::connectConnectionSignals()
 {
     QTC_ASSERT(m_connection, return);
-    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::connected,
+    QObject::connect(m_connection.get(), &QmlDebug::QmlDebugConnection::connected,
                      this, &QmlDebugConnectionManager::qmlDebugConnectionOpened);
-    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::disconnected,
+    QObject::connect(m_connection.get(), &QmlDebug::QmlDebugConnection::disconnected,
                      this, &QmlDebugConnectionManager::qmlDebugConnectionClosed);
-    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::connectionFailed,
+    QObject::connect(m_connection.get(), &QmlDebug::QmlDebugConnection::connectionFailed,
                      this, &QmlDebugConnectionManager::qmlDebugConnectionFailed);
 
-    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::logStateChange,
+    QObject::connect(m_connection.get(), &QmlDebug::QmlDebugConnection::logStateChange,
                      this, &QmlDebugConnectionManager::logState);
-    QObject::connect(m_connection.data(), &QmlDebug::QmlDebugConnection::logError,
+    QObject::connect(m_connection.get(), &QmlDebug::QmlDebugConnection::logError,
                      this, &QmlDebugConnectionManager::logState);
 }
 
@@ -191,7 +191,7 @@ void QmlDebugConnectionManager::destroyConnection()
         // Don't receive any more signals from the connection or the client
         disconnectConnectionSignals();
         destroyClients();
-        m_connection.take()->deleteLater();
+        m_connection.release()->deleteLater();
     }
 }
 

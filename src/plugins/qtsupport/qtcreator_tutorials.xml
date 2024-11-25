@@ -2,19 +2,23 @@
 <instructionals module="Qt">
   <categories>
     <category>Help</category>
-    <category>Learning</category>
+    <category>Learning - first steps</category>
+    <category>Learning - dig deeper</category>
     <category>Online</category>
     <category>Talk</category>
   </categories>
   <tutorials>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Building and Running an Example">
+
+  <!-- Help -->
+
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-build-example-application.html" projectPath="" name="Build and run">
       <description><![CDATA[Testing that your installation is successful by opening an existing example application project.]]></description>
       <tags>qt creator,build,compile,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Creating a Qt Widget-Based Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-writing-program.html" projectPath="" name="Qt Widgets application">
       <description><![CDATA[Using Qt Creator to create a small Qt application, Text Finder.]]></description>
       <tags>qt creator,qt widgets designer,widgets,c++,text,help</tags>
       <meta>
@@ -28,16 +32,51 @@
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Creating a Qt Quick Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-transitions-example.html" projectPath="" name="Qt Quick application">
       <description><![CDATA[Using basic QML types and learning about basic concepts of Qt Quick.]]></description>
       <tags>qt creator,qt quick,qml,states,transitions,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Creating a Mobile Qt Application">
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/qtcreator-accelbubble-example.html" projectPath="" name="Mobile application">
       <description><![CDATA[Developing Qt Quick applications for Android and iOS devices.]]></description>
       <tags>qt creator,qml,android,ios,controls,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-quick.html" projectPath="" name="Qt Quick and Python">
+      <description><![CDATA[Using Python bindings to develop Qt Quick applications.]]></description>
+      <tags>qt creator,qt quick,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-widgets.html" projectPath="" name="Qt Widgets and Python">
+      <description><![CDATA[Using Python bindings to develop Qt applications using the Qt Widgets module.]]></description>
+      <tags>qt creator,widgets,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-tutorial-python-application-qt-widgets-ui.html" projectPath="" name="Qt Widgets UI and Python">
+      <description><![CDATA[Using Python bindings and Qt Widgets Designer to develop Qt Widgets-based UIs.]]></description>
+      <tags>qt creator,qt widgets designer,widgets,python,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-debugging-example.html" projectPath="" name="C++ debugging">
+      <description><![CDATA[Debugging Qt C++ applications in the Qt Creator Debug mode.]]></description>
+      <tags>qt creator,c++,debugging,help</tags>
+      <meta>
+        <entry name="category">Help</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/tutorialicon.png" difficulty="" docUrl="qthelp://org.qt-project.qtcreator/doc/creator-qml-debugging-example.html" projectPath="" name="Qt Quick debugging">
+      <description><![CDATA[Debugging Qt Quick applications in the Qt Creator Debug mode.]]></description>
+      <tags>qt creator,qt quick,debugging,help</tags>
       <meta>
         <entry name="category">Help</entry>
       </meta>
@@ -50,80 +89,122 @@
       </meta>
     </tutorial>
 
-    <tutorial imageUrl=":qtsupport/images/icons/youtubehOx3dod5-1A.webp" difficulty="" projectPath="" name="Qt Creator - UI Tour and the Welcome screen" isVideo="true" videoUrl="https://www.youtube.com/watch?v=hOx3dod5-1A" videoLength="3:21">
-      <description><![CDATA[The parts of the Qt Creator UI and the Welcome mode.]]></description>
-      <tags>qt creator,learning,ui,welcome,2023</tags>
+  <!-- Learning - first steps -->
+
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtc.webp" difficulty="" projectPath="" name="Getting Started: Qt Creator" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/4007722" videoLength="20:00">
+      <description><![CDATA[Learn about Qt Creator.]]></description>
+      <tags>qt creator,ui,welcome,qt widgets designer,widgets,editing,debugging,learning,2024</tags>
       <meta>
-        <entry name="category">Learning</entry>
+        <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeFTSvDmcAgPI.webp" difficulty="" projectPath="" name="Qt Creator - Create a new project" isVideo="true" videoUrl="https://www.youtube.com/watch?v=FTSvDmcAgPI" videoLength="3:21">
-      <description><![CDATA[Creating a Qt Widgets application project.]]></description>
-      <tags>qt creator,learning,projects,qt widgets,2023</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtmcu.webp" difficulty="" projectPath="" name="Getting Started: Qt for MCUs" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3918603" videoLength="30:00">
+      <description><![CDATA[Learn about using Qt on MCUs.]]></description>
+      <tags>qt,mcu,2024</tags>
       <meta>
-        <entry name="category">Learning</entry>
+        <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeLnVjI0I7cKs.webp" difficulty="" projectPath="" name="Qt Creator - Design and Edit Modes" isVideo="true" videoUrl="https://www.youtube.com/watch?v=LnVjI0I7cKs" videoLength="4:34">
-      <description><![CDATA[Developing a Qt Widgets application.]]></description>
-      <tags>qt creator,learning,qt widgets designer,coding,2023</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-boot2.webp" difficulty="" projectPath="" name="Getting Started: Qt Embedded - Boot 2 Qt" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3649816" videoLength="45:00">
+      <description><![CDATA[Learn about using Boot 2 Qt.]]></description>
+      <tags>qt,mcu,2024</tags>
       <meta>
-        <entry name="category">Learning</entry>
+        <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeEhJ1eV_6RH8.webp" difficulty="" projectPath="" name="Qt Creator - Debugging" isVideo="true" videoUrl="https://www.youtube.com/watch?v=EhJ1eV_6RH8" videoLength="3:22">
-      <description><![CDATA[Debugging a Qt Widgets application.]]></description>
-      <tags>qt creator,learning,debugging,2023</tags>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtand.webp" difficulty="" projectPath="" name="Getting Started: Qt for Android" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3518738" videoLength="25:00">
+      <description><![CDATA[Learn about developing applications for Android.]]></description>
+      <tags>qt,android,2024</tags>
       <meta>
-        <entry name="category">Learning</entry>
+        <entry name="category">Learning - first steps</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtios.webp" difficulty="" projectPath="" name="Getting Started: Qt for iOS" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3520889" videoLength="20:00">
+      <description><![CDATA[Learn about developing applications for iOS.]]></description>
+      <tags>qt,ios,2024</tags>
+      <meta>
+        <entry name="category">Learning - first steps</entry>
       </meta>
     </tutorial>
 
-    <tutorial imageUrl=":qtsupport/images/icons/youtube1tSpq5OLkYI.webp" difficulty="" projectPath="" name="How to set up and deploy an application using Qt for Device Creation" isVideo="true" videoUrl="https://youtu.be/1tSpq5OLkYI" videoLength="5:48">
-      <description><![CDATA[Using Qt Creator to deploy applications to an embedded device.]]></description>
-      <tags>qt creator,embedded,device creation,video,2021</tags>
+  <!-- Learning - dig deeper -->
+
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqui.webp" difficulty="" projectPath="" name="Introduction to Qt Quick" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3799368" videoLength="60:00">
+      <description><![CDATA[Learn about Qt Quick.]]></description>
+      <tags>qt,qt quick,2024</tags>
       <meta>
-        <entry name="category">Online</entry>
+        <entry name="category">Learning - dig deeper</entry>
       </meta>
     </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtqco.webp" difficulty="" projectPath="" name="Introduction to Qt Quick Controls" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3890472" videoLength="65:00">
+      <description><![CDATA[Learn about Qt Quick Controls.]]></description>
+      <tags>qt,qt quick,qt quick controls,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi1.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 1" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3657828" videoLength="3:10:00">
+      <description><![CDATA[Learn about Qt Widgets. This is the first part of the course.]]></description>
+      <tags>qt,widgets,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi2.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 2" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3711691" videoLength="2:15:00">
+      <description><![CDATA[Learn about Qt Widgets. This is the second part of the course.]]></description>
+      <tags>qt,widgets,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi3.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 3" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3921518" videoLength="2:40:00">
+      <description><![CDATA[Learn about Qt Widgets. This is the third part of the course.]]></description>
+      <tags>qt,widgets,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-qtwi4.webp" difficulty="" projectPath="" name="Introduction to Qt Widgets: Part 4" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/4000578" videoLength="1:10:00">
+      <description><![CDATA[Learn about Qt Widgets. This is the fourth part of the course.]]></description>
+      <tags>qt,widgets,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-cmake.webp" difficulty="" projectPath="" name="Introduction to CMake" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3872545" videoLength="20:00">
+      <description><![CDATA[Learn about CMake building system.]]></description>
+      <tags>qt,cmake,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-expcq.webp" difficulty="" projectPath="" name="Exposing C++ to QML" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3521380" videoLength="30:00">
+      <description><![CDATA[Learn about accessing C++ functionality from QML.]]></description>
+      <tags>qt,c++,qml,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-inqml.webp" difficulty="" projectPath="" name="Introduction to QML" isVideo="false" videoUrl="https://academy.qt.io/catalog/courses/3699024" videoLength="1:30:00">
+      <description><![CDATA[Learn about the QML language.]]></description>
+      <tags>qt,qml,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+    <tutorial imageUrl=":qtsupport/images/icons/learn-inq3d.webp" difficulty="" projectPath="" name="Introduction to Qt Quick3D" isVideo="false" videoUrl="https://academy.qt.io/catalog/learning-paths/74670" videoLength="10:40:00">
+      <description><![CDATA[Learn about Qt Quick3D. This learning path consists of six courses.]]></description>
+      <tags>qt,qt quick,qt quick3d,2024</tags>
+      <meta>
+        <entry name="category">Learning - dig deeper</entry>
+      </meta>
+    </tutorial>
+
+  <!-- Online -->
+
     <tutorial imageUrl=":qtsupport/images/icons/youtube9xqhq9nDiOg.webp" difficulty="" projectPath="" name="Qt SCXML and State Machine Tooling in Qt Creator" isVideo="true" videoUrl="https://youtu.be/9xqhq9nDiOg" videoLength="4:53">
       <description><![CDATA[Creating state machines.]]></description>
       <tags>qt creator,SCXML,video</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtube9BcAYDlpuT8.webp" difficulty="" projectPath="" name="Using C++ Models in QML - To-do List" isVideo="true" videoUrl="https://www.youtube.com/watch?v=9BcAYDlpuT8" videoLength="49:48">
-      <description><![CDATA[Creating and using a C++ model in QML.]]></description>
-      <tags>qt creator,qt quick,c++,video</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubezAqSiIGdj8M.webp" difficulty="" projectPath="" name="Qt Creator - Meet Qt Creator" isVideo="true" videoUrl="https://youtu.be/zAqSiIGdj8M" videoLength="2:06">
-      <description><![CDATA[Overview of Qt Creator.]]></description>
-      <tags>qt creator,video</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeR6zWLfHIYJw.webp" difficulty="" projectPath="" name="Qt Creator - Examples" isVideo="true" videoUrl="https://www.youtube.com/watch?v=R6zWLfHIYJw" videoLength="9:29">
-      <description><![CDATA[Using Qt Creator tutorials and examples to develop Qt applications.]]></description>
-      <tags>qt creator,video,2018</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeuuhmSZxK1mk.webp" difficulty="" projectPath="" name="Qt Creator - Introduction to Qt Quick Controls" isVideo="true" videoUrl="https://www.youtube.com/watch?v=uuhmSZxK1mk" videoLength="7:09">
-      <description><![CDATA[Using Qt Quick Controls to develop Qt Quick applications.]]></description>
-      <tags>qt creator,qt quick,controls,video,2018</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeY-MM-9FigTc.webp" difficulty="" projectPath="" name="Debugging inside Qt Creator" isVideo="true" videoUrl="https://youtu.be/Y-MM-9FigTc" videoLength="21:54">
-      <description><![CDATA[Debugging applications in Qt Creator.]]></description>
-      <tags>qt creator,debugging,video,2021</tags>
       <meta>
         <entry name="category">Online</entry>
       </meta>
@@ -135,55 +216,8 @@
         <entry name="category">Online</entry>
       </meta>
     </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtube-xhiVA0P4yk.webp" difficulty="" projectPath="" name="Qt Windows Online Installer walkthrough" isVideo="true" videoUrl="https://youtu.be/-xhiVA0P4yk" videoLength="6:17">
-      <description><![CDATA[Downloading and installing Qt with the options that you want.]]></description>
-      <tags>qt,installation,online installer,modules,video,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeYJfFwDBOvqk.webp" difficulty="" projectPath="" name="How to install and set up Qt for Device Creation on Linux" isVideo="true" videoUrl="https://youtu.be/YJfFwDBOvqk" videoLength="6:52">
-      <description><![CDATA[Downloading and installing Qt Device Creation with the options that you want.]]></description>
-      <tags>embedded,installation,device creation,video,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubejbx3Oq1Q4gY.webp" difficulty="" projectPath="" name="Creating a simple widget app" isVideo="true" videoUrl="https://youtu.be/jbx3Oq1Q4gY" videoLength="6:08">
-      <description><![CDATA[Creating a simple widget-based application and running it on your development machine using Qt Creator 5.0.]]></description>
-      <tags>qt creator,widgets,video,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtube2RvhhEAZQxM.webp" difficulty="" projectPath="" name="Qt Widgets or Qt Quick" isVideo="true" videoUrl="https://youtu.be/2RvhhEAZQxM" videoLength="5:00">
-      <description><![CDATA[Learning the differences between Qt Widgets and Qt Quick and making the right choice for your application needs.]]></description>
-      <tags>qt quick,widgets,ui,video,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeDRFz0Tll4G8.webp" difficulty="" projectPath="" name="How to install and set up Qt for MCUs" isVideo="true" videoUrl="https://youtu.be/DRFz0Tll4G8" videoLength="8:29">
-      <description><![CDATA[Downloading and installing Qt for MCUs with the options that you want.]]></description>
-      <tags>qt,mcus,video,STM32H750B-DISCOVERY,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubeBkgjJfxYN20.webp" difficulty="" projectPath="" name="How to build your first 'Qt for MCUs' application" isVideo="true" videoUrl="https://youtu.be/BkgjJfxYN20" videoLength="21:54">
-      <description><![CDATA[Building your first application for the NXP IMXRT1050 device.]]></description>
-      <tags>qtformcus,mcus,qt,video,NXP IMXRT1050-EVKB,2020</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
-    <tutorial imageUrl=":qtsupport/images/icons/youtubemn-JmXIMCqk.webp" difficulty="" projectPath="" name="How to create a simple application with Qt for MCUs" isVideo="true" videoUrl="https://youtu.be/mn-JmXIMCqk" videoLength="5:16">
-      <description><![CDATA[Creating a simple Qt for MCUs application and running it on your development machine using Qt Creator 5.0.]]></description>
-      <tags>qtformcus,mcus,qt,video,2021</tags>
-      <meta>
-        <entry name="category">Online</entry>
-      </meta>
-    </tutorial>
+
+  <!-- Talk -->
 
     <tutorial imageUrl=":qtsupport/images/icons/youtubeKo3DuCgFamo.webp" difficulty="" projectPath="" name="Custom Qt Creator Wizards" isVideo="true" videoUrl="https://www.youtube.com/watch?v=Ko3DuCgFamo" videoLength="27:21">
       <description><![CDATA[Adding custom file and project creation wizards to Qt Creator.]]></description>
@@ -339,5 +373,5 @@
         <entry name="category">Talk</entry>
       </meta>
     </tutorial>
-    </tutorials>
+  </tutorials>
 </instructionals>

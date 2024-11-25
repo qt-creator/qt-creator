@@ -121,7 +121,7 @@
     \b {The Qt API Reference Documentation is missing and context help does
     not find topics. What can I do?}
 
-    Install a Qt version and Qt documentation with \QOI.
+    Install a Qt version and Qt documentation with \l{Get and Install Qt}{\QOI}.
 
     To view the installed documentation (.qch files) and to add documentation,
     go to \preferences > \uicontrol Help >

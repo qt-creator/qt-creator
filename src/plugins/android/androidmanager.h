@@ -18,20 +18,6 @@ class Process;
 
 namespace Android {
 
-class SdkToolResult {
-public:
-    SdkToolResult() = default;
-    bool success() const { return m_success; }
-    const QString &stdOut() const { return m_stdOut; }
-    const QString &stdErr() const { return m_stdErr; }
-    const QString &exitMessage() const { return m_exitMessage; }
-
-    bool m_success = false;
-    QString m_stdOut;
-    QString m_stdErr;
-    QString m_exitMessage;
-};
-
 namespace AndroidManager
 {
 
@@ -72,8 +58,6 @@ bool skipInstallationAndPackageSteps(const ProjectExplorer::Target *target);
 
 QString androidNameForApiLevel(int x);
 
-void installQASIPackage(ProjectExplorer::Target *target, const Utils::FilePath &packagePath);
-
 bool checkKeystorePassword(const Utils::FilePath &keystorePath,
                            const QString &keystorePasswd);
 bool checkCertificatePassword(const Utils::FilePath &keystorePath,
@@ -81,10 +65,6 @@ bool checkCertificatePassword(const Utils::FilePath &keystorePath,
                               const QString &alias, const QString &certificatePasswd);
 bool checkCertificateExists(const Utils::FilePath &keystorePath,
                             const QString &keystorePasswd, const QString &alias);
-
-Utils::Process *startAdbProcess(const QStringList &args, QString *err = nullptr);
-SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData = {},
-                            int timeoutS = 30);
 
 QJsonObject deploymentSettings(const ProjectExplorer::Target *target);
 bool isQtCreatorGenerated(const Utils::FilePath &deploymentFile);

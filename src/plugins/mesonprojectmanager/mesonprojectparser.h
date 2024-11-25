@@ -7,17 +7,20 @@
 #include "mesoninfoparser.h"
 #include "mesonoutputparser.h"
 #include "mesonprojectnodes.h"
-#include "mesonwrapper.h"
+#include "mesontools.h"
 
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/kit.h>
 #include <projectexplorer/rawprojectpart.h>
 
+#include <utils/processinterface.h>
+
 #include <QFuture>
 #include <QQueue>
 
-namespace MesonProjectManager {
-namespace Internal {
+#include <utils/qtcprocess.h>
+
+namespace MesonProjectManager::Internal {
 
 class MesonProjectParser : public QObject
 {
@@ -96,15 +99,14 @@ private:
     QString m_projectName;
     // maybe moving meson to build step could make this class simpler
     // also this should ease command dependencies
-    QQueue<std::tuple<Command, bool>> m_pendingCommands;
+    QQueue<std::tuple<Utils::ProcessRunData, bool>> m_pendingCommands;
 
-    bool run(const Command &command, const Utils::Environment &env,
-             const QString &projectName, bool captureStdo = false);
+    bool run(const Utils::ProcessRunData &runData, const QString &projectName, bool captureStdo = false);
 
     void handleProcessDone();
-    void setupProcess(const Command &command, const Utils::Environment &env,
-                      const QString &projectName, bool captureStdo);
-    bool sanityCheck(const Command &command) const;
+    void setupProcess(const Utils::ProcessRunData &runData, const QString &projectName,
+                      bool captureStdo);
+    bool sanityCheck(const Utils::ProcessRunData &runData) const;
 
     void processStandardOutput();
     void processStandardError();
@@ -115,5 +117,4 @@ private:
     QByteArray m_stderr;
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

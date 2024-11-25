@@ -20,7 +20,7 @@ public:
     SuppressionAspect(Utils::AspectContainer *container, bool global);
     ~SuppressionAspect() final;
 
-    void addToLayout(Layouting::Layout &parent) final;
+    void addToLayoutImpl(Layouting::Layout &parent) final;
 
     void fromMap(const Utils::Store &map) final;
     void toMap(Utils::Store &map) const final;
@@ -70,6 +70,7 @@ public:
     Utils::StringAspect memcheckArguments{this};
     Utils::IntegerAspect numCallers{this};
     Utils::SelectionAspect leakCheckOnFinish{this};
+    QString leakCheckOnFinishOptionString() const;
     Utils::BoolAspect showReachable{this};
     Utils::BoolAspect trackOrigins{this};
     Utils::BoolAspect filterExternalIssues{this};

@@ -1066,8 +1066,17 @@ QList<QmlConnections> QmlFlowViewNode::getAssociatedConnections(const ModelNode 
 
     auto nodes = view->allModelNodes();
 
-    return CoreUtils::to<QList<QmlConnections>>(Utils::span{nodes} | std::views::transform(convert)
-                                                | std::views::filter(filter));
+    // std::views as dynamic container has a problem in span-lite - breaks arm GCC 10.2.1
+    // return CoreUtils::to<QList<QmlConnections>>(Utils::span{nodes} | std::views::transform(convert)
+    //                                             | std::views::filter(filter));
+    QList<QmlConnections> connections;
+    for (const auto &n : nodes) {
+        QmlConnections connection = convert(n);
+        if (filter(connection)) {
+            connections.append(connection);
+        }
+    }
+    return connections;
 }
 
 } //QmlDesigner

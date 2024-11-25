@@ -38,7 +38,7 @@ static int range(float x, int min, int max)
 
 namespace Utils {
 
-static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::defaultToolbarStyle;
+static StyleHelper::ToolbarStyle s_toolbarStyle = StyleHelper::ToolbarStyle::Compact;
 // Invalid by default, setBaseColor needs to be called at least once
 static QColor s_baseColor;
 static QColor s_requestedBaseColor;
@@ -82,7 +82,7 @@ QColor StyleHelper::toolBarDropShadowColor()
 
 int StyleHelper::navigationWidgetHeight()
 {
-    return s_toolbarStyle == ToolbarStyleCompact ? 24 : 30;
+    return s_toolbarStyle == ToolbarStyle::Compact ? 24 : 30;
 }
 
 void StyleHelper::setToolbarStyle(ToolbarStyle style)
@@ -93,6 +93,11 @@ void StyleHelper::setToolbarStyle(ToolbarStyle style)
 StyleHelper::ToolbarStyle StyleHelper::toolbarStyle()
 {
     return s_toolbarStyle;
+}
+
+StyleHelper::ToolbarStyle StyleHelper::defaultToolbarStyle()
+{
+    return creatorTheme() ? creatorTheme()->defaultToolbarStyle() : ToolbarStyle::Compact;
 }
 
 QColor StyleHelper::notTooBrightHighlightColor()
@@ -176,15 +181,14 @@ QColor StyleHelper::borderColor(bool lightColored)
 
 QColor StyleHelper::toolBarBorderColor()
 {
+    if (const QColor sepColor = creatorColor(Theme::FancyToolBarSeparatorColor);
+            sepColor == creatorColor(Theme::SplitterColor))
+        return sepColor; // QTCREATORBUG-31682: Unify all separating line colors if two are the same
+
     const QColor base = baseColor();
     return QColor::fromHsv(base.hue(),
                            base.saturation() ,
                            clamp(base.value() * 0.80f));
-}
-
-QColor StyleHelper::buttonTextColor()
-{
-    return QColor(0x4c4c4c);
 }
 
 // We try to ensure that the actual color used are within
@@ -479,7 +483,7 @@ void StyleHelper::drawMinimalArrow(QStyle::PrimitiveElement element, QPainter *p
 
 void StyleHelper::drawPanelBgRect(QPainter *painter, const QRectF &rect, const QBrush &brush)
 {
-    if (toolbarStyle() == ToolbarStyleCompact) {
+    if (toolbarStyle() == ToolbarStyle::Compact) {
         painter->fillRect(rect.toRect(), brush);
     } else {
         constexpr int margin = 2;
@@ -538,7 +542,8 @@ QPixmap StyleHelper::disabledSideBarIcon(const QPixmap &enabledicon)
 
 // Draws a cached pixmap with shadow
 void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
-                                     QPainter *p, QIcon::Mode iconMode, int dipRadius, const QColor &color, const QPoint &dipOffset)
+                                     QPainter *p, QIcon::Mode iconMode, QIcon::State iconState,
+                                     int dipRadius, const QColor &color, const QPoint &dipOffset)
 {
     QPixmap cache;
     const qreal devicePixelRatio = p->device()->devicePixelRatioF();
@@ -551,7 +556,7 @@ void StyleHelper::drawIconWithShadow(const QIcon &icon, const QRect &rect,
         // return a high-dpi pixmap, which will in that case have a devicePixelRatio
         // different than 1. The shadow drawing caluculations are done in device
         // pixels.
-        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode);
+        QPixmap px = icon.pixmap(rect.size(), devicePixelRatio, iconMode, iconState);
         int radius = int(dipRadius * devicePixelRatio);
         QPoint offset = dipOffset * devicePixelRatio;
         cache = QPixmap(px.size() + QSize(radius * 2, radius * 2));

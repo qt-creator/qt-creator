@@ -1,34 +1,4 @@
 version: 2
-accept_configuration:
-  condition: or
-  conditions:
-    - condition: property
-      property: features
-      contains_value: LicenseCheck
-    - condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: Windows
-        - condition: property
-          property: host
-          equals_property: target
-        - condition: property
-          property: target.compiler
-          equals_value: MSVC2019
-        - condition: property
-          property: target.arch
-          not_equals_value: X86
-    - condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: Linux
-    - condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: MacOS
 
 machine_type:
   Build:

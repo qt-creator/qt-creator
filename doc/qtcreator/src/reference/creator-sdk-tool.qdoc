@@ -12,7 +12,8 @@
     \brief Configure CMake and set up compilers, debuggers, devices, Qt versions,
     and kits from the command line.
 
-    \QOI uses the SDK Tool (\c sdktool) to configure CMake and set \l {Kits}{Kit}
+    \l{Get and Install Qt}{\QOI} uses the SDK Tool (\c sdktool) to configure
+    CMake and set \l {Kits}{Kit}
     preferences, such as compilers, debuggers, devices, and Qt versions. You can
     use it from the command line to set Qt and \QC preferences automatically for
     all users of a computer, for example. For a single user, it is usually easier

@@ -148,26 +148,27 @@ RunConfiguration::RunConfiguration(Target *target, Utils::Id id)
     forceDisplayNameSerialization();
     connect(target, &Target::parsingFinished, this, &RunConfiguration::update);
 
-    m_expander.setDisplayName(Tr::tr("Run Settings"));
-    m_expander.setAccumulating(true);
-    m_expander.registerSubProvider([target] {
+    MacroExpander &expander = *macroExpander();
+    expander.setDisplayName(Tr::tr("Run Settings"));
+    expander.setAccumulating(true);
+    expander.registerSubProvider([target] {
         BuildConfiguration *bc = target->activeBuildConfiguration();
         return bc ? bc->macroExpander() : target->macroExpander();
     });
-    m_expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
+    expander.registerPrefix("RunConfig:Env", Tr::tr("Variables in the run environment."),
                              [this](const QString &var) {
         const auto envAspect = aspect<EnvironmentAspect>();
         return envAspect ? envAspect->environment().expandedValueForKey(var) : QString();
     });
-    m_expander.registerVariable("RunConfig:WorkingDir",
+    expander.registerVariable("RunConfig:WorkingDir",
                                Tr::tr("The run configuration's working directory."),
                                [this] {
         const auto wdAspect = aspect<WorkingDirectoryAspect>();
         return wdAspect ? wdAspect->workingDirectory().toString() : QString();
     });
-    m_expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
+    expander.registerVariable("RunConfig:Name", Tr::tr("The run configuration's name."),
             [this] { return displayName(); });
-    m_expander.registerFileVariables("RunConfig:Executable",
+    expander.registerFileVariables("RunConfig:Executable",
                                      Tr::tr("The run configuration's executable."),
                                      [this] { return commandLine().executable(); });
 
@@ -220,7 +221,7 @@ QWidget *RunConfiguration::createConfigurationWidget()
     }
     auto widget = form.emerge();
 
-    VariableChooser::addSupportForChildWidgets(widget, &m_expander);
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     auto detailsWidget = new Utils::DetailsWidget;
     detailsWidget->setState(DetailsWidget::NoSummary);
@@ -311,13 +312,14 @@ void RunConfiguration::toMap(Store &map) const
 void RunConfiguration::toMapSimple(Store &map) const
 {
     ProjectConfiguration::toMap(map);
-    map.insert(BUILD_KEY, m_buildKey);
 
-    // FIXME: Remove this id mangling, e.g. by using a separate entry for the build key.
-    if (!m_buildKey.isEmpty()) {
-        const Utils::Id mangled = id().withSuffix(m_buildKey);
-        map.insert(settingsIdKey(), mangled.toSetting());
+    if (m_usesEmptyBuildKeys) {
+        QTC_CHECK(m_buildKey.isEmpty());
+    } else {
+        QTC_CHECK(!m_buildKey.isEmpty());
     }
+
+    map.insert(BUILD_KEY, m_buildKey);
 }
 
 void RunConfiguration::setCommandLineGetter(const CommandLineGetter &cmdGetter)
@@ -355,6 +357,13 @@ void RunConfiguration::update()
         ProjectExplorerPlugin::updateRunActions();
 }
 
+RunConfiguration *RunConfiguration::clone(Target *parent)
+{
+    Store map;
+    toMap(map);
+    return RunConfigurationFactory::restore(parent, map);
+}
+
 BuildTargetInfo RunConfiguration::buildTargetInfo() const
 {
     BuildSystem *bs = target()->buildSystem();
@@ -378,15 +387,10 @@ void RunConfiguration::fromMap(const Store &map)
     m_customized = m_customized || map.value(CUSTOMIZED_KEY, false).toBool();
     m_buildKey = map.value(BUILD_KEY).toString();
 
-    if (m_buildKey.isEmpty()) {
-        const Utils::Id mangledId = Utils::Id::fromSetting(map.value(settingsIdKey()));
-        m_buildKey = mangledId.suffixAfter(id());
-
-        // Hack for cmake projects 4.10 -> 4.11.
-        const QString magicSeparator = "///::///";
-        const int magicIndex = m_buildKey.indexOf(magicSeparator);
-        if (magicIndex != -1)
-            m_buildKey = m_buildKey.mid(magicIndex + magicSeparator.length());
+    if (m_usesEmptyBuildKeys) {
+        QTC_CHECK(m_buildKey.isEmpty());
+    } else {
+        QTC_CHECK(!m_buildKey.isEmpty());
     }
 }
 
@@ -658,13 +662,6 @@ RunConfiguration *RunConfigurationFactory::restore(Target *parent, const Store &
         }
     }
     return nullptr;
-}
-
-RunConfiguration *RunConfigurationFactory::clone(Target *parent, RunConfiguration *source)
-{
-    Store map;
-    source->toMap(map);
-    return restore(parent, map);
 }
 
 const QList<RunConfigurationCreationInfo> RunConfigurationFactory::creatorsForTarget(Target *parent)

@@ -10,12 +10,13 @@
 
 // Keep this for compatibility reasons.
 static const char kUtf8BomBehaviorKey[] = "Utf8BomBehavior";
+static const char kLineEndingBehaviorKey[] = "LineEndingBehavior";
 
 using namespace Utils;
 
 namespace TextEditor {
 
-ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep)
+ExtraEncodingSettings::ExtraEncodingSettings() : m_utf8BomSetting(OnlyKeep), m_lineEndingSetting{Unix}
 {}
 
 ExtraEncodingSettings::~ExtraEncodingSettings() = default;
@@ -23,18 +24,20 @@ ExtraEncodingSettings::~ExtraEncodingSettings() = default;
 Store ExtraEncodingSettings::toMap() const
 {
     return {
-        {kUtf8BomBehaviorKey, m_utf8BomSetting}
+        {kUtf8BomBehaviorKey, m_utf8BomSetting},
+        {kLineEndingBehaviorKey, m_lineEndingSetting}
     };
 }
 
 void ExtraEncodingSettings::fromMap(const Store &map)
 {
     m_utf8BomSetting = (Utf8BomSetting)map.value(kUtf8BomBehaviorKey, m_utf8BomSetting).toInt();
+    m_lineEndingSetting = (LineEndingSetting)map.value(kLineEndingBehaviorKey, m_lineEndingSetting).toInt();
 }
 
 bool ExtraEncodingSettings::equals(const ExtraEncodingSettings &s) const
 {
-    return m_utf8BomSetting == s.m_utf8BomSetting;
+    return m_utf8BomSetting == s.m_utf8BomSetting && m_lineEndingSetting == s.m_lineEndingSetting;
 }
 
 QStringList ExtraEncodingSettings::lineTerminationModeNames()

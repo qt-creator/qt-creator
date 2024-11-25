@@ -19,7 +19,7 @@ using namespace Utils;
 
 namespace Nim {
 
-class NimProject : public Project
+class NimProject final : public Project
 {
 public:
     explicit NimProject(const FilePath &filePath);
@@ -46,7 +46,7 @@ NimProject::NimProject(const FilePath &filePath) : Project(Constants::C_NIM_MIME
     // ensure debugging is enabled (Nim plugin translates nim code to C code)
     setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
 
-    setBuildSystemCreator([](Target *t) { return new NimBuildSystem(t); });
+    setBuildSystemCreator(&createNimBuildSystem);
 }
 
 Tasks NimProject::projectIssues(const Kit *k) const
@@ -86,9 +86,9 @@ void NimProject::setExcludedFiles(const QStringList &excludedFiles)
     m_excludedFiles = excludedFiles;
 }
 
-// Factory
+// Setup
 
-NimProjectFactory::NimProjectFactory()
+void setupNimProject()
 {
     ProjectManager::registerProjectType<NimProject>(Constants::C_NIM_PROJECT_MIMETYPE);
 }

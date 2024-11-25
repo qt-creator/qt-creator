@@ -13,7 +13,6 @@
 #include <utils/temporarydirectory.h>
 
 #include <QSignalSpy>
-#include <QTemporaryFile>
 #include <QVariant>
 
 #include <functional>

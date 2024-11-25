@@ -23,17 +23,30 @@ public:
 
 class CMakeListsNode : public ProjectExplorer::ProjectNode
 {
+    bool m_hasSubprojectBuildSupport{false};
+
 public:
     CMakeListsNode(const Utils::FilePath &cmakeListPath);
 
     bool showInSimpleTree() const final;
     std::optional<Utils::FilePath> visibleAfterAddFileAction() const override;
+
+    bool canAddSubProject(const Utils::FilePath &subProjectFilePath) const override;
+    bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
+    QStringList subProjectFileNamePatterns() const override;
+
+    bool hasSubprojectBuildSupport() const;
+    void setHasSubprojectBuildSupport(bool hasSubprojectBuildSupport);
 };
 
 class CMakeProjectNode : public ProjectExplorer::ProjectNode
 {
 public:
     CMakeProjectNode(const Utils::FilePath &directory);
+
+    bool canAddSubProject(const Utils::FilePath &subProjectFilePath) const override;
+    bool addSubProject(const Utils::FilePath &subProjectFilePath) override;
+    QStringList subProjectFileNamePatterns() const override;
 
     QString tooltip() const final;
 };

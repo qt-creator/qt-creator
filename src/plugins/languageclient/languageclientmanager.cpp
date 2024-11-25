@@ -68,7 +68,7 @@ LanguageClientManager::LanguageClientManager(QObject *parent)
     connect(ProjectManager::instance(), &ProjectManager::projectAdded,
             this, &LanguageClientManager::projectAdded);
     connect(ProjectManager::instance(), &ProjectManager::projectRemoved,
-            this, [&](Project *project) { project->disconnect(this); });
+            this, [this](Project *project) { project->disconnect(this); });
 
     ExtensionSystem::PluginManager::addObject(this);
 }
@@ -385,12 +385,17 @@ void LanguageClientManager::enableClientSettings(const QString &settingsId, bool
     managerInstance->applySettings();
 }
 
-QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
+QList<Client *> LanguageClientManager::clientsForSettingId(const QString &settingsId)
 {
     QTC_ASSERT(managerInstance, return {});
-    QTC_ASSERT(setting, return {});
     auto instance = managerInstance;
-    return instance->m_clientsForSetting.value(setting->m_id);
+    return instance->m_clientsForSetting.value(settingsId);
+}
+
+QList<Client *> LanguageClientManager::clientsForSetting(const BaseSettings *setting)
+{
+    QTC_ASSERT(setting, return {});
+    return clientsForSettingId(setting->m_id);
 }
 
 const BaseSettings *LanguageClientManager::settingForClient(Client *client)
@@ -409,6 +414,15 @@ const BaseSettings *LanguageClientManager::settingForClient(Client *client)
         }
     }
     return nullptr;
+}
+
+QList<Client *> LanguageClientManager::clientsByName(const QString &name)
+{
+    QTC_ASSERT(managerInstance, return {});
+
+    return Utils::filtered(managerInstance->m_clients, [name](const Client *client) {
+        return client->name() == name;
+    });
 }
 
 void LanguageClientManager::updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
