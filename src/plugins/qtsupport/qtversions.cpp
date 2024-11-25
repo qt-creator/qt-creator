@@ -24,46 +24,29 @@ namespace QtSupport::Internal {
 class DesktopQtVersion final : public QtVersion
 {
 public:
-    DesktopQtVersion() = default;
-
-    QStringList warningReason() const final;
-
-    QString description() const final;
-
-    QSet<Utils::Id> availableFeatures() const final;
-    QSet<Utils::Id> targetDeviceTypes() const final;
-};
-
-QStringList DesktopQtVersion::warningReason() const
-{
-    QStringList ret = QtVersion::warningReason();
-    if (qtVersion() >= QVersionNumber(5, 0, 0)) {
-        if (qmlRuntimeFilePath().isEmpty())
-            ret << Tr::tr("No QML utility installed.");
+    QString description() const final
+    {
+        return Tr::tr("Desktop", "Qt Version is meant for the desktop");
     }
-    return ret;
-}
 
-QString DesktopQtVersion::description() const
-{
-    return Tr::tr("Desktop", "Qt Version is meant for the desktop");
-}
+    QSet<Utils::Id> availableFeatures() const final
+    {
+        QSet<Utils::Id> features = QtVersion::availableFeatures();
+        features.insert(Constants::FEATURE_DESKTOP);
+        features.insert(Constants::FEATURE_QMLPROJECT);
+        return features;
+    }
 
-QSet<Utils::Id> DesktopQtVersion::availableFeatures() const
-{
-    QSet<Utils::Id> features = QtVersion::availableFeatures();
-    features.insert(Constants::FEATURE_DESKTOP);
-    features.insert(Constants::FEATURE_QMLPROJECT);
-    return features;
-}
-
-QSet<Utils::Id> DesktopQtVersion::targetDeviceTypes() const
-{
-    QSet<Utils::Id> result = {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE};
-    if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) { return a.os() == ProjectExplorer::Abi::LinuxOS; }))
-        result.insert(RemoteLinux::Constants::GenericLinuxOsType);
-    return result;
-}
+    QSet<Utils::Id> targetDeviceTypes() const final
+    {
+        QSet<Utils::Id> result = {ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE};
+        if (Utils::contains(qtAbis(), [](const ProjectExplorer::Abi a) {
+                return a.os() == ProjectExplorer::Abi::LinuxOS;
+            }))
+            result.insert(RemoteLinux::Constants::GenericLinuxOsType);
+        return result;
+    }
+};
 
 // Factory
 
