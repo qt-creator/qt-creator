@@ -186,36 +186,11 @@ Column {
         width: parent.width
         height: root.height - y
 
-        // error message
-        Rectangle {
+        PreviewError {
             id: rect
 
             anchors.fill: parent
-            color: StudioTheme.Values.themePanelBackground
-            border.color: StudioTheme.Values.themeControlOutline
-            border.width: StudioTheme.Values.border
             visible: !preview.visible
-
-            HelperWidgets.ScrollView {
-                id: scrollView
-
-                anchors.fill: parent
-                anchors.margins: 4
-
-                clip: true
-
-                TextEdit {
-                    id: errorText
-                    width: scrollView.width
-                    font.pixelSize: StudioTheme.Values.myFontSize
-                    color: StudioTheme.Values.themeTextColor
-                    readOnly: true
-                    selectByMouse: true
-                    selectByKeyboard: true
-                    wrapMode: TextEdit.WordWrap
-                    text: root.effectComposerModel ? root.effectComposerModel.effectErrors : ""
-                }
-            }
         }
 
         Rectangle { // preview image
