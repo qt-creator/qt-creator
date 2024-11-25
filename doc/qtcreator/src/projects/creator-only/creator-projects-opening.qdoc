@@ -18,10 +18,10 @@
 
     \title Open projects
 
-    To open a project, open the project file for the project:
-    \e {CMakeLists.txt} (CMake), \e {.pro} (qmake), \e {.qbs} (Qbs),
-    \e {meson.build} (Meson), \e {pyproject} (Python), or \e {Makefile.am}
-    (Autotools, experimental).
+    To open a project, open the configuration file for the project:
+    \e {CMakeLists.txt} or \e {CMakeCache.txt} (CMake), \e {.pro} (qmake),
+    \e {.qbs} (Qbs), \e {meson.build} (Meson), \e {pyproject} (Python), or
+    \e {Makefile.am} (Autotools, experimental).
 
     You can open a project in the following ways:
 
@@ -56,8 +56,26 @@
     \uicontrol {Open Workspace}.
 
     \QC generates the \e .qtcreator/project.json project file in the directory
-    for setting a project name and file exclusion filters. You can open either
-    the JSON file or the workspace to open the project the next time.
+    for setting a project name and file exclusion filters. You can add build and
+    run settings to the file, as defined by its \l{project.json}{JSON schema}.
+
+    You can open either the JSON file or the workspace to open the project the
+    next time.
+
+    When you add files to the directory or remove them from there, the contents
+    of the \l Projects view are updated automatically.
+
+    To add a build configuration to the workspace:
+
+    \list 1
+        \li Go to \uicontrol Projects > \uicontrol {Build & Run} >
+            \uicontrol Build.
+        \li Select \uicontrol Add > \uicontrol Build.
+        \li Specify build settings.
+    \endlist
+
+    To specify run settings for the workspace, go to \uicontrol Projects >
+    \uicontrol {Build & Run} > \uicontrol Run.
 
     \section1 Re-configure projects
 
@@ -123,5 +141,6 @@
     later. Select the \inlineimage icons/pin.png
     (\uicontrol Pin) button to pin the progress bar back to the toggle button.
 
-    \sa {Manage Kits}{How To: Manage Kits}, {Kits},
+    \sa {Configure projects for building}, {Configure projects for running},
+    {Manage Kits}{How To: Manage Kits}, {Kits}
 */

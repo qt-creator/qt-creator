@@ -7,7 +7,6 @@
 #include "mesonbuildsystem.h"
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "mesonwrapper.h"
 #include "ninjabuildstep.h"
 
 #include <coreplugin/find/itemviewfind.h>

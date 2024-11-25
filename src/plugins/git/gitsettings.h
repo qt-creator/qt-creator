@@ -33,6 +33,7 @@ public:
     Utils::FilePathAspect repositoryBrowserCmd{this};
     Utils::BoolAspect graphLog{this};
     Utils::BoolAspect colorLog{this};
+    Utils::BoolAspect allBranches{this};
     Utils::BoolAspect firstParent{this};
     Utils::BoolAspect followRenames{this};
     Utils::IntegerAspect lastResetIndex{this};
@@ -40,6 +41,7 @@ public:
     Utils::BoolAspect instantBlame{this};
     Utils::BoolAspect instantBlameIgnoreSpaceChanges{this};
     Utils::BoolAspect instantBlameIgnoreLineMoves{this};
+    Utils::BoolAspect instantBlameShowSubject{this};
 
     mutable Utils::FilePath resolvedBinPath;
     mutable bool tryResolve = true;

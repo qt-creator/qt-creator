@@ -16,6 +16,7 @@ namespace  ProjectExplorer { class Project; }
 namespace TextEditor {
 
 class ICodeStylePreferences;
+class CodeStyleSelectorWidget;
 
 class TEXTEDITOR_EXPORT CodeStyleEditorWidget : public QWidget
 {
@@ -50,6 +51,8 @@ public:
     virtual CodeStyleEditorWidget *createEditor(ICodeStylePreferences *preferences,
                                                 ProjectExplorer::Project *project = nullptr,
                                                 QWidget *parent = nullptr) const = 0;
+    virtual CodeStyleSelectorWidget *createSelectorWidget(
+        ProjectExplorer::Project *project, QWidget *parent = nullptr);
     virtual TextEditor::Indenter *createIndenter(QTextDocument *doc) const = 0;
     virtual QString snippetProviderGroupId() const = 0;
     virtual QString previewText() const = 0;

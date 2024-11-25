@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildconfiguration.h>
-
 namespace AutotoolsProjectManager::Internal {
 
-class AutotoolsBuildConfigurationFactory final : public ProjectExplorer::BuildConfigurationFactory
-{
-public:
-    AutotoolsBuildConfigurationFactory();
-};
+void setupAutotoolsBuildConfiguration();
 
 } // AutotoolsProjectManager::Internal

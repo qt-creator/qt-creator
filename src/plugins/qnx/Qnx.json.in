@@ -1,9 +1,11 @@
 {
+    "Id" : "qnx",
     "Name" : "Qnx",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "blackberry",
     "Vendor" : "BlackBerry",
-    "Copyright" : "(C) 2017 BlackBerry, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2017 BlackBerry, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -21,5 +23,6 @@
             "- QNX Software Development Platform (SDP)"
     ],
     "Url" : "https://www.blackberry.com",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-developing-qnx.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

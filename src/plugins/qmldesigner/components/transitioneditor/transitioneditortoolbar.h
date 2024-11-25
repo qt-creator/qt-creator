@@ -56,7 +56,7 @@ private:
     void createRightControls();
     void addSpacing(int width);
 
-    QList<QObject *> m_grp;
+    QObjectList m_grp;
 
     QComboBox *m_transitionComboBox = nullptr;
     QSlider *m_scale = nullptr;

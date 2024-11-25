@@ -7,6 +7,7 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/devicemanager.h>
@@ -28,9 +29,9 @@ using namespace Utils;
 
 namespace RemoteLinux::Internal {
 
-// RsyncDeployStep
+// GenericDeployStep
 
-class GenericDeployStep : public AbstractRemoteLinuxDeployStep
+class GenericDeployStep final : public AbstractRemoteLinuxDeployStep
 {
 public:
     GenericDeployStep(BuildStepList *bsl, Id id)
@@ -77,9 +78,7 @@ private:
 
 GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
 {
-    using ResultType = expected_str<void>;
-
-    const auto onSetup = [storage](Async<ResultType> &async) {
+    const auto onSetup = [storage](Async<Result> &async) {
         FilePaths remoteDirs;
         for (const FileToTransfer &file : *storage)
             remoteDirs << file.m_target.parentDir();
@@ -87,9 +86,9 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         FilePath::sort(remoteDirs);
         FilePath::removeDuplicates(remoteDirs);
 
-        async.setConcurrentCallData([remoteDirs](QPromise<ResultType> &promise) {
+        async.setConcurrentCallData([remoteDirs](QPromise<Result> &promise) {
             for (const FilePath &dir : remoteDirs) {
-                const expected_str<void> result = dir.ensureWritableDir();
+                const Result result = dir.ensureWritableDir();
                 promise.addResult(result);
                 if (!result)
                     promise.future().cancel();
@@ -97,7 +96,7 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         });
     };
 
-    const auto onError = [this](const Async<ResultType> &async) {
+    const auto onError = [this](const Async<Result> &async) {
         const int numResults = async.future().resultCount();
         if (numResults == 0) {
             addErrorMessage(
@@ -106,13 +105,13 @@ GroupItem GenericDeployStep::mkdirTask(const Storage<FilesToTransfer> &storage)
         }
 
         for (int i = 0; i < numResults; ++i) {
-            const ResultType result = async.future().resultAt(i);
-            if (!result.has_value())
+            const Result result = async.future().resultAt(i);
+            if (!result)
                 addErrorMessage(result.error());
         }
     };
 
-    return AsyncTask<ResultType>(onSetup, onError, CallDoneIf::Error);
+    return AsyncTask<Result>(onSetup, onError, CallDoneIf::Error);
 }
 
 static FileTransferMethod effectiveTransferMethodFor(const FileToTransfer &fileToTransfer,
@@ -223,10 +222,21 @@ GroupItem GenericDeployStep::deployRecipe()
 
 // Factory
 
-GenericDeployStepFactory::GenericDeployStepFactory()
+class GenericDeployStepFactory final : public BuildStepFactory
 {
-    registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
-    setDisplayName(Tr::tr("Deploy files"));
+public:
+    GenericDeployStepFactory()
+    {
+        registerStep<GenericDeployStep>(Constants::GenericDeployStepId);
+        setDisplayName(Tr::tr("Deploy files"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupGenericDeployStep()
+{
+    static GenericDeployStepFactory theGenericDeployStepFactory;
 }
 
 } // RemoteLinux::Internal

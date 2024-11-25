@@ -2,20 +2,22 @@
 // Copyright (C) 2016 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
+#include "androidrunner.h"
+
 #include "androidavdmanager.h"
-#include "androidconfigurations.h"
+#include "androidconstants.h"
 #include "androiddevice.h"
 #include "androidmanager.h"
-#include "androidrunner.h"
 #include "androidrunnerworker.h"
-#include "androidtr.h"
 
-#include <coreplugin/messagemanager.h>
+#include <projectexplorer/kitaspects.h>
 #include <projectexplorer/projectexplorersettings.h>
-#include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
+
 #include <qtsupport/qtkitaspect.h>
+
 #include <utils/url.h>
+#include <utils/utilsicons.h>
 
 #include <QHostAddress>
 #include <QLoggingCategory>
@@ -25,14 +27,15 @@ static Q_LOGGING_CATEGORY(androidRunnerLog, "qtc.android.run.androidrunner", QtW
 }
 
 using namespace ProjectExplorer;
+using namespace Tasking;
 using namespace Utils;
 
-namespace Android {
-namespace Internal {
+namespace Android::Internal {
 
-AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
-    : RunWorker(runControl), m_target(runControl->target())
+AndroidRunner::AndroidRunner(RunControl *runControl)
+    : RunWorker(runControl)
 {
+    runControl->setIcon(Utils::Icons::RUN_SMALL_TOOLBAR);
     setId("AndroidRunner");
     static const int metaTypes[] = {
         qRegisterMetaType<QList<QStringList>>("QList<QStringList>"),
@@ -41,75 +44,76 @@ AndroidRunner::AndroidRunner(RunControl *runControl, const QString &intentName)
     };
     Q_UNUSED(metaTypes)
 
-    m_checkAVDTimer.setInterval(2000);
-    connect(&m_checkAVDTimer, &QTimer::timeout, this, &AndroidRunner::checkAVD);
-
-    QString intent = intentName;
-    if (intent.isEmpty())
-        intent = AndroidManager::packageName(m_target) + '/' + AndroidManager::activityName(m_target);
-
-    m_packageName = intent.left(intent.indexOf('/'));
-    qCDebug(androidRunnerLog) << "Intent name:" << intent << "Package name" << m_packageName;
-
-    const int apiLevel = AndroidManager::deviceApiLevel(m_target);
-    qCDebug(androidRunnerLog) << "Device API:" << apiLevel;
-
-    m_worker = new AndroidRunnerWorker(this, m_packageName);
-    m_worker->setIntentName(intent);
-    m_worker->setIsPreNougat(apiLevel <= 23);
-
-    m_worker->moveToThread(&m_thread);
-    QObject::connect(&m_thread, &QThread::finished, m_worker, &QObject::deleteLater);
-
-    connect(this, &AndroidRunner::asyncStart, m_worker, &AndroidRunnerWorker::asyncStart);
-    connect(this, &AndroidRunner::asyncStop, m_worker, &AndroidRunnerWorker::asyncStop);
-    connect(this, &AndroidRunner::androidDeviceInfoChanged,
-            m_worker, &AndroidRunnerWorker::setAndroidDeviceInfo);
-
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessStarted,
-            this, &AndroidRunner::handleRemoteProcessStarted);
-    connect(m_worker, &AndroidRunnerWorker::remoteProcessFinished,
-            this, &AndroidRunner::handleRemoteProcessFinished);
-    connect(m_worker, &AndroidRunnerWorker::remoteOutput, this, &AndroidRunner::remoteOutput);
-    connect(m_worker, &AndroidRunnerWorker::remoteErrorOutput,
-            this, &AndroidRunner::remoteErrorOutput);
-
     connect(&m_outputParser, &QmlDebug::QmlOutputParser::waitingForConnectionOnPort,
             this, &AndroidRunner::qmlServerPortReady);
-
-    m_thread.start();
-}
-
-AndroidRunner::~AndroidRunner()
-{
-    m_thread.quit();
-    m_thread.wait();
 }
 
 void AndroidRunner::start()
 {
-    if (!projectExplorerSettings().deployBeforeRun) {
+    auto target = runControl()->target();
+    QTC_ASSERT(target, return);
+    QString deviceSerialNumber;
+    int apiLevel = -1;
+
+    const Storage<RunnerInterface> glueStorage;
+
+    std::optional<ExecutableItem> avdRecipe;
+
+    if (!projectExplorerSettings().deployBeforeRun && target->project()) {
         qCDebug(androidRunnerLog) << "Run without deployment";
-       launchAVD();
-       if (!m_launchedAVDName.isEmpty()) {
-           m_checkAVDTimer.start();
-           return;
-       }
+
+        const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
+        AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
+        AndroidManager::setDeviceSerialNumber(target, info.serialNumber);
+        deviceSerialNumber = info.serialNumber;
+        apiLevel = info.sdk;
+        qCDebug(androidRunnerLog) << "Android Device Info changed" << deviceSerialNumber
+                                  << apiLevel;
+
+        if (!info.avdName.isEmpty()) {
+            const Storage<QString> serialNumberStorage;
+
+            avdRecipe = Group {
+                serialNumberStorage,
+                AndroidAvdManager::startAvdRecipe(info.avdName, serialNumberStorage)
+            }.withCancel([glueStorage] {
+                return std::make_pair(glueStorage.activeStorage(), &RunnerInterface::canceled);
+            });
+        }
+    } else {
+        deviceSerialNumber = AndroidManager::deviceSerialNumber(target);
+        apiLevel = AndroidManager::deviceApiLevel(target);
     }
 
-    emit asyncStart();
+    const auto onSetup = [this, glueStorage, deviceSerialNumber, apiLevel] {
+        RunnerInterface *glue = glueStorage.activeStorage();
+        glue->setRunControl(runControl());
+        glue->setDeviceSerialNumber(deviceSerialNumber);
+        glue->setApiLevel(apiLevel);
+
+        connect(this, &AndroidRunner::canceled, glue, &RunnerInterface::cancel);
+
+        connect(glue, &RunnerInterface::started, this, &AndroidRunner::remoteStarted);
+        connect(glue, &RunnerInterface::finished, this, &AndroidRunner::remoteFinished);
+        connect(glue, &RunnerInterface::stdOut, this, &AndroidRunner::remoteStdOut);
+        connect(glue, &RunnerInterface::stdErr, this, &AndroidRunner::remoteStdErr);
+    };
+
+    const Group recipe {
+        glueStorage,
+        onGroupSetup(onSetup),
+        avdRecipe ? *avdRecipe : nullItem,
+        runnerRecipe(glueStorage)
+    };
+    m_taskTreeRunner.start(recipe);
 }
 
 void AndroidRunner::stop()
 {
-    if (m_checkAVDTimer.isActive()) {
-        m_checkAVDTimer.stop();
-        appendMessage("\n\n" + Tr::tr("\"%1\" terminated.").arg(m_packageName),
-                      Utils::NormalMessageFormat);
+    if (!m_taskTreeRunner.isRunning())
         return;
-    }
 
-    emit asyncStop();
+    emit canceled();
 }
 
 void AndroidRunner::qmlServerPortReady(Port port)
@@ -125,28 +129,14 @@ void AndroidRunner::qmlServerPortReady(Port port)
     emit qmlServerReady(serverUrl);
 }
 
-void AndroidRunner::remoteOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdOutFormat);
-    m_outputParser.processOutput(output);
-}
-
-void AndroidRunner::remoteErrorOutput(const QString &output)
-{
-    appendMessage(output, Utils::StdErrFormat);
-    m_outputParser.processOutput(output);
-}
-
-void AndroidRunner::handleRemoteProcessStarted(Utils::Port debugServerPort,
-                                               const QUrl &qmlServer, qint64 pid)
+void AndroidRunner::remoteStarted(const Port &debugServerPort, qint64 pid)
 {
     m_pid = ProcessHandle(pid);
     m_debugServerPort = debugServerPort;
-    m_qmlServer = qmlServer;
     reportStarted();
 }
 
-void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
+void AndroidRunner::remoteFinished(const QString &errString)
 {
     appendMessage(errString, Utils::NormalMessageFormat);
     if (runControl()->isRunning())
@@ -154,42 +144,32 @@ void AndroidRunner::handleRemoteProcessFinished(const QString &errString)
     reportStopped();
 }
 
-void AndroidRunner::launchAVD()
+void AndroidRunner::remoteStdOut(const QString &output)
 {
-    if (!m_target || !m_target->project())
-        return;
-
-    // TODO: is this still needed?
-    AndroidManager::applicationAbis(m_target);
-
-    // Get AVD info
-    const IDevice::ConstPtr device = DeviceKitAspect::device(m_target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-    AndroidManager::setDeviceSerialNumber(m_target, info.serialNumber);
-    emit androidDeviceInfoChanged(info);
-    if (info.isValid()) {
-        if (!info.avdName.isEmpty() && AndroidAvdManager::findAvd(info.avdName).isEmpty())
-            m_launchedAVDName = AndroidAvdManager::startAvdAsync(info.avdName) ? info.avdName : "";
-        else
-            m_launchedAVDName.clear();
-    }
+    appendMessage(output, Utils::StdOutFormat);
+    m_outputParser.processOutput(output);
 }
 
-void AndroidRunner::checkAVD()
+void AndroidRunner::remoteStdErr(const QString &output)
 {
-    const QString serialNumber = AndroidAvdManager::findAvd(m_launchedAVDName);
-    if (!serialNumber.isEmpty())
-        return; // try again on next timer hit
-
-    if (AndroidAvdManager::isAvdBooted(serialNumber)) {
-        m_checkAVDTimer.stop();
-        AndroidManager::setDeviceSerialNumber(m_target, serialNumber);
-        emit asyncStart();
-    } else if (!AndroidConfig::isConnected(serialNumber)) {
-        // device was disconnected
-        m_checkAVDTimer.stop();
-    }
+    appendMessage(output, Utils::StdErrFormat);
+    m_outputParser.processOutput(output);
 }
 
-} // namespace Internal
-} // namespace Android
+class AndroidRunWorkerFactory final : public RunWorkerFactory
+{
+public:
+    AndroidRunWorkerFactory()
+    {
+        setProduct<AndroidRunner>();
+        addSupportedRunMode(ProjectExplorer::Constants::NORMAL_RUN_MODE);
+        addSupportedRunConfig(Constants::ANDROID_RUNCONFIG_ID);
+    }
+};
+
+void setupAndroidRunWorker()
+{
+    static AndroidRunWorkerFactory theAndroidRunWorkerFactory;
+}
+
+} // namespace Android::Internal

@@ -48,9 +48,11 @@
 #include <extensionsystem/pluginmanager.h>
 #include <extensionsystem/iplugin.h>
 
+#include <utils/async.h>
 #include <utils/fancylineedit.h>
-#include <utils/qtcassert.h>
 #include <utils/macroexpander.h>
+#include <utils/qtcassert.h>
+#include <utils/textutils.h>
 #include <utils/utilsicons.h>
 
 #include <QMenu>
@@ -137,6 +139,16 @@ void TextEditorPlugin::initialize()
     addTestCreator(createCodeAssistTests);
     addTestCreator(createGenericHighlighterTests);
 #endif
+
+    Utils::Text::setCodeHighlighter(HighlighterHelper::highlightCode);
+
+    if (Utils::HostOsInfo::isWindowsHost()) {
+        // warm up the fallback font cache on windows this reduces the startup time of the first
+        // editor by around 300 ms
+        Utils::asyncRun([font = QPlainTextEdit().font()]() {
+            QFontMetrics(font).horizontalAdvance(QChar(0x21B5));
+        });
+    }
 }
 
 void TextEditorPlugin::extensionsInitialized()
@@ -514,6 +526,12 @@ void TextEditorPlugin::createEditorCommands()
     TextActionBuilder(this, UNFOLD)
         .setText(Tr::tr("Unfold"))
         .setDefaultKeySequence(QKeySequence(Tr::tr("Ctrl+>")))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
+    TextActionBuilder(this, FOLD_RECURSIVELY)
+        .setText(Tr::tr("Fold Recursively"))
+        .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
+    TextActionBuilder(this, UNFOLD_RECURSIVELY)
+        .setText(Tr::tr("Unfold Recursively"))
         .addToContainer(M_EDIT_ADVANCED, G_EDIT_COLLAPSING);
     TextActionBuilder(this, UNFOLD_ALL)
         .setText(Tr::tr("Toggle &Fold All"))

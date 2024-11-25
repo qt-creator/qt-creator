@@ -38,6 +38,9 @@ public:
     void setPreferredParseContext(const QString &parseContextId);
     void setExtraPreprocessorDirectives(const QByteArray &directives);
 
+    // the blocks list must be sorted
+    void setIfdefedOutBlocks(const QList<TextEditor::BlockRange> &blocks);
+
     void scheduleProcessDocument();
 
     ParseContextModel &parseContextModel();
@@ -64,12 +67,9 @@ signals:
 
 protected:
     void applyFontSettings() override;
-    bool saveImpl(QString *errorString,
-                  const Utils::FilePath &filePath = Utils::FilePath(),
-                  bool autoSave = false) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
-
     void invalidateFormatterCache();
     void onFilePathChanged(const Utils::FilePath &oldPath, const Utils::FilePath &newPath);
     void onMimeTypeChanged();

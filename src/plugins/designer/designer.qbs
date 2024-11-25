@@ -48,7 +48,6 @@ QtcPlugin {
             "codemodelhelpers.cpp", "codemodelhelpers.h",
             "designer_export.h",
             "designerconstants.h",
-            "designercontext.cpp", "designercontext.h",
             "designerplugin.cpp",
             "designertr.h",
             "editordata.h",

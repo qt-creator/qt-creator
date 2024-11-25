@@ -24,6 +24,7 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -176,16 +177,12 @@ static void matches(QPromise<void> &promise,
 
 LocatorMatcherTasks SpotlightLocatorFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage,
-                          command = m_command,
+    const auto onSetup = [command = m_command,
                           insensArgs = m_arguments,
                           sensArgs = m_caseSensitiveArguments,
                           sortResults = m_sortResults](Async<void> &async) {
-        const Link link = Link::fromString(storage->input(), true);
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        const Link link = Link::fromString(storage.input(), true);
         const FilePath input = link.targetFilePath;
         if (input.isEmpty())
             return SetupResult::StopWithSuccess;
@@ -196,11 +193,11 @@ LocatorMatcherTasks SpotlightLocatorFilter::matchers()
                            ? insensArgs : sensArgs;
         const CommandLine cmd(FilePath::fromString(command), expander->expand(args),
                               CommandLine::Raw);
-        async.setConcurrentCallData(matches, *storage, cmd, sortResults);
+        async.setConcurrentCallData(matches, storage, cmd, sortResults);
         return SetupResult::Continue;
     };
 
-    return {{AsyncTask<void>(onSetup), storage}};
+    return {AsyncTask<void>(onSetup)};
 }
 
 bool SpotlightLocatorFilter::openConfigDialog(QWidget *parent, bool &needsRefresh)

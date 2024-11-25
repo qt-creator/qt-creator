@@ -57,7 +57,7 @@ FossilSubmitHighlighter::FossilSubmitHighlighter(CompletingTextEdit *parent) : Q
 void FossilSubmitHighlighter::highlightBlock(const QString &text)
 {
     // Fossil commit message allows listing of [ticket-id],
-    // where ticket-id is a partial SHA1.
+    // where ticket-id is a partial hash.
     // Match the ticket-ids and highlight them for convenience.
 
     // Format keywords

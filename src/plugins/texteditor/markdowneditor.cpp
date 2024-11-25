@@ -125,10 +125,8 @@ public:
             &TextEditorWidget::addCurrentStateToNavigationHistory,
             this,
             &MarkdownEditor::addCurrentStateToNavigationHistory);
-        auto context = new IContext(this);
-        context->setWidget(m_textEditorWidget);
-        context->setContext(Context(MARKDOWNVIEWER_TEXT_CONTEXT));
-        ICore::addContextObject(context);
+
+        IContext::attach(m_textEditorWidget, Context(MARKDOWNVIEWER_TEXT_CONTEXT));
 
         m_splitter->addWidget(m_textEditorWidget); // sets splitter->focusWidget() on non-Windows
         m_splitter->addWidget(m_previewWidget);

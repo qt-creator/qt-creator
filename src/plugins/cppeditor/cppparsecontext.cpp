@@ -105,7 +105,7 @@ QVariant ParseContextModel::data(const QModelIndex &index, int role) const
     if (role == Qt::DisplayRole)
         return m_projectParts[row]->displayName;
     else if (role == Qt::ToolTipRole)
-        return QDir::toNativeSeparators(m_projectParts[row]->projectFile);
+        return m_projectParts[row]->projectFile.nativePath();
 
     return QVariant();
 }

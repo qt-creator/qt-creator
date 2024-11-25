@@ -73,10 +73,20 @@
     \uicontrol {Start Debugging of Startup Project} automatically
     switches to \uicontrol {Debug} mode.
 
-    To hide the mode selector and to save space on the display, select
-    \uicontrol View > \uicontrol {Mode Selector Style} > \uicontrol Hidden.
-    To only show icons on the mode selector, select the \uicontrol {Icons Only}
-    style.
+    \section1 Hide and show modes
+
+    To hide and show modes in the mode selector and to save space on the display,
+    go to \uicontrol View > \uicontrol Modes:
+
+    \list
+        \li To hide the mode selector, select \uicontrol Hidden.
+        \li To only show icons on the mode selector, select
+            \uicontrol {Icons Only}.
+        \li To hide modes that you don't use, clear the \uicontrol {Show <Mode>}
+            checkboxes.
+    \endlist
+
+    You can use the keyboard shortcuts to switch to the hidden modes.
 
     \sa {Show and hide sidebars},{Show and hide the main menu}
 */

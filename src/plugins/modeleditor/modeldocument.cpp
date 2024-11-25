@@ -11,15 +11,13 @@
 
 #include "qmt/config/configcontroller.h"
 #include "qmt/infrastructure/ioexceptions.h"
-#include "qmt/model_controller/modelcontroller.h"
-#include "qmt/model/mdiagram.h"
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
 
 #include <utils/id.h>
 #include <utils/fileutils.h>
 
-using Utils::FilePath;
+using namespace Utils;
 
 namespace ModelEditor {
 namespace Internal {
@@ -54,19 +52,16 @@ Core::IDocument::OpenResult ModelDocument::open(QString *errorString,
     return result;
 }
 
-bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Result ModelDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    if (!d->documentController) {
-        *errorString = Tr::tr("No model loaded. Cannot save.");
-        return false;
-    }
+    if (!d->documentController)
+        return Result::Error(Tr::tr("No model loaded. Cannot save."));
 
     d->documentController->projectController()->setFileName(filePath);
     try {
         d->documentController->projectController()->save();
     } catch (const qmt::Exception &ex) {
-        *errorString = ex.errorMessage();
-        return false;
+        return Result::Error(ex.errorMessage());
     }
 
     if (autoSave) {
@@ -76,7 +71,7 @@ bool ModelDocument::saveImpl(QString *errorString, const FilePath &filePath, boo
         emit changed();
     }
 
-    return true;
+    return Result::Ok;
 }
 
 bool ModelDocument::shouldAutoSave() const
@@ -94,24 +89,22 @@ bool ModelDocument::isSaveAsAllowed() const
     return true;
 }
 
-bool ModelDocument::reload(QString *errorString, Core::IDocument::ReloadFlag flag,
-                           Core::IDocument::ChangeType type)
+Result ModelDocument::reload(Core::IDocument::ReloadFlag flag,
+                             Core::IDocument::ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return Result::Ok;
     try {
         d->documentController->loadProject(filePath());
     } catch (const qmt::FileNotFoundException &ex) {
-        *errorString = ex.errorMessage();
-        return false;
+        return Result::Error(ex.errorMessage());
     } catch (const qmt::Exception &ex) {
-        *errorString = Tr::tr("Could not open \"%1\" for reading: %2.")
-                           .arg(filePath().toUserOutput(), ex.errorMessage());
-        return false;
+        return Result::Error(Tr::tr("Could not open \"%1\" for reading: %2.")
+                           .arg(filePath().toUserOutput(), ex.errorMessage()));
     }
     emit contentSet();
-    return true;
+    return Result::Ok;
 }
 
 ExtDocumentController *ModelDocument::documentController() const

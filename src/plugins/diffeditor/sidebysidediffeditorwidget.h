@@ -13,7 +13,6 @@ namespace Core { class IContext; }
 
 namespace TextEditor {
 class FontSettings;
-class TextEditorWidget;
 }
 
 namespace Utils {
@@ -96,11 +95,10 @@ using SideBySideShowResults = std::array<SideBySideShowResult, SideCount>;
 class SideBySideDiffEditorWidget : public QWidget
 {
     Q_OBJECT
-public:
-    explicit SideBySideDiffEditorWidget(QWidget *parent = nullptr);
-    ~SideBySideDiffEditorWidget();
 
-    TextEditor::TextEditorWidget *sideEditorWidget(DiffSide side) const;
+public:
+    SideBySideDiffEditorWidget(QWidget *parent = nullptr);
+    ~SideBySideDiffEditorWidget();
 
     void setDocument(DiffEditorDocument *document);
     DiffEditorDocument *diffDocument() const;

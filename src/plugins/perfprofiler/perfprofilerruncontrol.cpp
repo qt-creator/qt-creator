@@ -30,7 +30,7 @@ namespace PerfProfiler::Internal {
 class PerfParserWorker final : public RunWorker
 {
 public:
-    PerfParserWorker(RunControl *runControl)
+    explicit PerfParserWorker(RunControl *runControl)
         : RunWorker(runControl)
     {
         setId("PerfParser");
@@ -62,8 +62,9 @@ public:
     {
         CommandLine cmd{findPerfParser()};
         m_reader.addTargetArguments(&cmd, runControl());
-        QUrl url = runControl()->property("PerfConnection").toUrl();
-        if (url.isValid()) {
+        if (usesPerfChannel()) { // The channel is only used with qdb currently.
+            const QUrl url = perfChannel();
+            QTC_CHECK(url.isValid());
             cmd.addArgs({"--host", url.host(), "--port", QString::number(url.port())});
         }
         appendMessage("PerfParser args: " + cmd.arguments(), NormalMessageFormat);
@@ -124,6 +125,7 @@ public:
 
         m_process->setCommand(cmd);
         m_process->setWorkingDirectory(runControl()->workingDirectory());
+        m_process->setEnvironment(runControl()->environment());
         appendMessage("Starting Perf: " + cmd.toUserOutput(), NormalMessageFormat);
         m_process->start();
     }

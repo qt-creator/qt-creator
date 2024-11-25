@@ -32,6 +32,7 @@ public:
     Utils::BoolAspect &showQmlObjectTree;
     Utils::BoolAspect &stationaryEditorWhileStepping;
     Utils::BoolAspect &forceLoggingToConsole;
+    Utils::BoolAspect &showUnsupportedBreakpointWarning;
 
     Utils::TypedAspect<QMap<QString, QString>> &sourcePathMap;
 
@@ -64,6 +65,7 @@ public:
 
     // Page 4: Locals and expressions
     Utils::BoolAspect &useDebuggingHelpers;
+    Utils::BoolAspect &allowInferiorCalls;
     Utils::BoolAspect &useCodeModel;
     Utils::BoolAspect &showThreadNames;
     Utils::FilePathAspect &extraDumperFile;   // For loading a file. Recommended.

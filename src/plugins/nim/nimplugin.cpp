@@ -61,9 +61,6 @@ public:
     NimCodeStyleSettingsPage codeStyleSettingsPage;
     NimCodeStylePreferencesFactory codeStylePreferencesPage;
     NimToolchainFactory toolChainFactory;
-
-    NimProjectFactory nimProjectFactory;
-    NimbleProjectFactory nimbleProjectFactory;
 };
 
 class NimPlugin final : public ExtensionSystem::IPlugin
@@ -79,6 +76,9 @@ class NimPlugin final : public ExtensionSystem::IPlugin
     void initialize() final
     {
         d = new NimPluginPrivate;
+
+        setupNimProject();
+        setupNimbleProject();
 
 #ifdef WITH_TESTS
         addTest<NimParserTest>();

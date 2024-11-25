@@ -72,6 +72,7 @@
 #endif
 
 using namespace Core;
+using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace Autotest::Internal {
@@ -104,7 +105,7 @@ public:
 };
 
 static AutotestPluginPrivate *dd = nullptr;
-static QHash<ProjectExplorer::Project *, TestProjectSettings *> s_projectSettings;
+static QHash<Project *, TestProjectSettings *> s_projectSettings;
 
 AutotestPluginPrivate::AutotestPluginPrivate()
 {
@@ -126,12 +127,11 @@ AutotestPluginPrivate::AutotestPluginPrivate()
     m_testTreeModel.synchronizeTestFrameworks();
     m_testTreeModel.synchronizeTestTools();
 
-    auto sessionManager = ProjectExplorer::ProjectManager::instance();
-    connect(sessionManager, &ProjectExplorer::ProjectManager::startupProjectChanged,
+    auto projectManager = ProjectManager::instance();
+    connect(projectManager, &ProjectManager::startupProjectChanged,
             this, [this] { m_runconfigCache.clear(); });
 
-    connect(sessionManager, &ProjectExplorer::ProjectManager::aboutToRemoveProject,
-            this, [](ProjectExplorer::Project *project) {
+    connect(projectManager, &ProjectManager::aboutToRemoveProject, this, [](Project *project) {
         const auto it = s_projectSettings.constFind(project);
         if (it != s_projectSettings.constEnd()) {
             delete it.value();
@@ -150,7 +150,7 @@ AutotestPluginPrivate::~AutotestPluginPrivate()
     delete m_resultsPane;
 }
 
-TestProjectSettings *projectSettings(ProjectExplorer::Project *project)
+TestProjectSettings *projectSettings(Project *project)
 {
     auto &settings = s_projectSettings[project];
     if (!settings)
@@ -241,7 +241,6 @@ void AutotestPluginPrivate::initializeMenuEntries()
                 dd->m_testCodeParser.updateTestTree();
         });
 
-    using namespace ProjectExplorer;
     connect(BuildManager::instance(), &BuildManager::buildStateChanged,
             this, &updateMenuItemsEnabledState);
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -400,7 +399,7 @@ void AutotestPluginPrivate::onDisableTemporarily(bool disable)
 
 TestFrameworks activeTestFrameworks()
 {
-    ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
+    Project *project = ProjectManager::startupProject();
     TestFrameworks sorted;
     if (!project || projectSettings(project)->useGlobalSettings()) {
         sorted = Utils::filtered(TestFrameworkManager::registeredFrameworks(),
@@ -418,8 +417,8 @@ TestFrameworks activeTestFrameworks()
 
 void updateMenuItemsEnabledState()
 {
-    const ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
-    const ProjectExplorer::Target *target = project ? project->activeTarget() : nullptr;
+    const Project *project = ProjectManager::startupProject();
+    const Target *target = project ? project->activeTarget() : nullptr;
     const bool disabled = dd->m_testCodeParser.state() == TestCodeParser::DisabledTemporarily;
     const bool canScan = disabled || (!dd->m_testRunner.isTestRunning()
                                       && dd->m_testCodeParser.state() == TestCodeParser::Idle);
@@ -428,7 +427,7 @@ void updateMenuItemsEnabledState()
     const bool canRun = !disabled && hasTests && canScan
             && project && !project->needsConfiguration()
             && target && target->activeRunConfiguration()
-            && !ProjectExplorer::BuildManager::isBuilding();
+            && !BuildManager::isBuilding();
     const bool canRunFailed = canRun && dd->m_testTreeModel.hasFailedTests();
 
     ActionManager::command(Constants::ACTION_RUN_ALL_ID)->action()->setEnabled(canRun);
@@ -487,7 +486,7 @@ QString wildcardPatternFromString(const QString &original)
     return pattern;
 }
 
-bool ChoicePair::matches(const ProjectExplorer::RunConfiguration *rc) const
+bool ChoicePair::matches(const RunConfiguration *rc) const
 {
     return rc && rc->displayName() == displayName && rc->runnable().command.executable() == executable;
 }

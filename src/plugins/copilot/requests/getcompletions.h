@@ -22,9 +22,17 @@ public:
     {
         return typedValue<LanguageServerProtocol::Position>(LanguageServerProtocol::positionKey);
     }
+    void setPosition(const LanguageServerProtocol::Position &position)
+    {
+        insert(LanguageServerProtocol::positionKey, position);
+    }
     LanguageServerProtocol::Range range() const
     {
         return typedValue<LanguageServerProtocol::Range>(LanguageServerProtocol::rangeKey);
+    }
+    void setRange(const LanguageServerProtocol::Range &range)
+    {
+        insert(LanguageServerProtocol::rangeKey, range);
     }
     QString text() const { return typedValue<QString>(LanguageServerProtocol::textKey); }
     void setText(const QString &text) { insert(LanguageServerProtocol::textKey, text); }

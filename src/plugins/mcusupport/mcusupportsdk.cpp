@@ -17,16 +17,19 @@
 #include "mcutargetfactorylegacy.h"
 
 #include <baremetal/baremetalconstants.h>
+
 #include <coreplugin/icore.h>
+
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
 #include <projectexplorer/toolchainmanager.h>
+
 #include <utils/algorithm.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 
 #include <QDir>
-#include <QDirIterator>
 #include <QHash>
 #include <QJsonArray>
 #include <QJsonDocument>

@@ -23,7 +23,9 @@ list(APPEND DEFAULT_DEFINES
   QT_NO_JAVA_STYLE_ITERATORS
   QT_NO_CAST_TO_ASCII QT_RESTRICTED_CAST_FROM_ASCII QT_NO_FOREACH
   QT_DISABLE_DEPRECATED_BEFORE=0x050900
+  QT_DISABLE_DEPRECATED_UP_TO=0x050900
   QT_WARN_DEPRECATED_BEFORE=0x060400
+  QT_WARN_DEPRECATED_UP_TO=0x060400
   QT_USE_QSTRINGBUILDER
 )
 
@@ -352,33 +354,6 @@ function(add_qtc_depends target_name)
     endif()
     target_include_directories(${target_name} ${system_include} PUBLIC $<TARGET_PROPERTY:${obj_lib},INTERFACE_INCLUDE_DIRECTORIES>)
   endforeach()
-endfunction()
-
-function(find_dependent_plugins varName)
-  set(_RESULT ${ARGN})
-
-  foreach(i ${ARGN})
-    if(NOT TARGET ${i})
-      continue()
-    endif()
-    get_property(_class_name TARGET "${i}" PROPERTY QTC_PLUGIN_CLASS_NAME)
-    if (NOT _class_name)
-      message(SEND_ERROR "${i} is a library, not a plugin!")
-    endif()
-    set(_dep)
-    get_property(_dep TARGET "${i}" PROPERTY _arg_DEPENDS)
-    if (_dep)
-      find_dependent_plugins(_REC ${_dep})
-      list(APPEND _RESULT ${_REC})
-    endif()
-  endforeach()
-
-  if (_RESULT)
-    list(REMOVE_DUPLICATES _RESULT)
-    list(SORT _RESULT)
-  endif()
-
-  set("${varName}" ${_RESULT} PARENT_SCOPE)
 endfunction()
 
 function(check_library_dependencies)

@@ -1,7 +1,7 @@
 // Copyright (C) 2023 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
-#include "remotelinuxdebugsupport.h"
+#include "remotelinuxdeploysupport.h"
 
 #include "genericdeploystep.h"
 #include "genericdirectuploadstep.h"
@@ -14,24 +14,11 @@
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
 
-#include <utils/store.h>
-
 using namespace ProjectExplorer;
 
 namespace RemoteLinux::Internal {
 
-template <class Factory>
-class RemoteLinuxDeployStepFactory : public Factory
-{
-public:
-    RemoteLinuxDeployStepFactory()
-    {
-        Factory::setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
-        Factory::setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
-    }
-};
-
-class RemoteLinuxDeployConfigurationFactory : public DeployConfigurationFactory
+class RemoteLinuxDeployConfigurationFactory final : public DeployConfigurationFactory
 {
 public:
     RemoteLinuxDeployConfigurationFactory()
@@ -54,10 +41,13 @@ public:
             }
         });
 
+        // Make sure we can use the steps below.
+        setupGenericDirectUploadStep();
+        setupGenericDeployStep();
+        setupMakeInstallStep();
+
         addInitialStep(Constants::MakeInstallStepId, needsMakeInstall);
         addInitialStep(Constants::KillAppStepId);
-
-        // TODO: Rename RsyncDeployStep to something more generic.
         addInitialStep(Constants::GenericDeployStepId);
     }
 };
@@ -65,9 +55,6 @@ public:
 void setupRemoteLinuxDeploySupport()
 {
     static RemoteLinuxDeployConfigurationFactory deployConfigurationFactory;
-    static RemoteLinuxDeployStepFactory<GenericDirectUploadStepFactory> genericDirectUploadStep;
-    static RemoteLinuxDeployStepFactory<GenericDeployStepFactory> rsyncDeployStepFactory;
-    static RemoteLinuxDeployStepFactory<MakeInstallStepFactory> makeInstallStepFactory;
 }
 
 } // RemoteLinux::Internal

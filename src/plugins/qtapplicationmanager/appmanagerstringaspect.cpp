@@ -64,6 +64,14 @@ AppManagerCustomizeAspect::AppManagerCustomizeAspect(Utils::AspectContainer *con
                       "allows customizing the values."));
 }
 
+AppManagerRestartIfRunningAspect::AppManagerRestartIfRunningAspect(Utils::AspectContainer *container)
+    : BoolAspect(container)
+{
+    setSettingsKey("ApplicationManagerPlugin.RestartIfRunning");
+    setLabelText(Tr::tr("Restart if running:"));
+    setToolTip(Tr::tr("Restarts the application in case it is already running."));
+}
+
 AppManagerControllerAspect::AppManagerControllerAspect(Utils::AspectContainer *container)
     : FilePathAspect(container)
 {

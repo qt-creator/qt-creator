@@ -56,9 +56,7 @@
 #include <advanceddockingsystem/docksplitter.h>
 #include <advanceddockingsystem/iconprovider.h>
 
-using Core::MiniSplitter;
-using Core::IEditor;
-using Core::EditorManager;
+using namespace Core;
 
 using namespace QmlDesigner;
 
@@ -122,6 +120,10 @@ DesignModeWidget::DesignModeWidget()
     setAcceptDrops(true);
     if (Utils::StyleHelper::isQDSTheme() || Core::ICore::isQtDesignStudio())
         qApp->setStyle(QmlDesignerBasePlugin::style());
+
+    IContext::attach(this,
+                     Context(Constants::qmlDesignerContextId, Constants::qtQuickToolsMenuContextId),
+                     [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 DesignModeWidget::~DesignModeWidget()
@@ -323,7 +325,7 @@ void DesignModeWidget::setup()
 
         // Create menu action
         auto command = Core::ActionManager::registerAction(dockWidget->toggleViewAction(),
-                                                           actionToggle.withSuffix(uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(uniqueId).withSuffix("Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);
@@ -352,8 +354,7 @@ void DesignModeWidget::setup()
         viewAction->setText(widgetInfo.tabName);
         dockWidget->setToggleViewAction(viewAction);
         auto command = Core::ActionManager::registerAction(viewAction,
-                                                           actionToggle.withSuffix(
-                                                               widgetInfo.uniqueId + "Widget"),
+                                                           actionToggle.withSuffix(widgetInfo.uniqueId).withSuffix("Widget"),
                                                            designContext);
         command->setAttribute(Core::Command::CA_Hide);
         viewCommands.append(command);

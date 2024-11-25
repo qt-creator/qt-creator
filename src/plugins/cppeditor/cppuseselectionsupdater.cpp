@@ -11,6 +11,7 @@
 #include <utils/qtcassert.h>
 #include <utils/textutils.h>
 
+#include <QCoreApplication>
 #include <QTextBlock>
 #include <QTextCursor>
 

@@ -6,13 +6,10 @@
 #include "expanddata.h"
 #include "projectnodes.h"
 
-#include <utils/fileutils.h>
 #include <utils/treemodel.h>
 
-#include <QPointer>
 #include <QSet>
 #include <QTimer>
-#include <QTreeView>
 
 namespace ProjectExplorer {
 
@@ -88,6 +85,8 @@ private:
     void rebuildModel();
     void addFolderNode(WrapperNode *parent, FolderNode *folderNode, QSet<Node *> *seen);
     bool trimEmptyDirectories(WrapperNode *parent);
+    void updateVCStatusFor(const Utils::FilePath root, const QStringList &files);
+    void clearVCStatusFor(const Utils::FilePath &root);
 
     ExpandData expandDataForNode(const Node *node) const;
     void loadExpandData();

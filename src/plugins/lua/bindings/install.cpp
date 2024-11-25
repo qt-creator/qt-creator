@@ -124,10 +124,10 @@ static Group installRecipe(
 
     const auto emitResult = [callback](const QString &error = QString()) {
         if (error.isEmpty()) {
-            LuaEngine::void_safe_call(callback, true);
+            void_safe_call(callback, true);
             return DoneResult::Success;
         }
-        LuaEngine::void_safe_call(callback, false, error);
+        void_safe_call(callback, false, error);
         return DoneResult::Error;
     };
 
@@ -196,10 +196,9 @@ static Group installRecipe(
         return DoneResult::Success;
     };
 
-    return Group{
+    return For (installOptionsIt) >> Do {
         storage,
         parallelIdealThreadCountLimit,
-        installOptionsIt,
         Group{
             onGroupSetup([emitResult, storage, installOptionsIt] {
                 const QString fileName = installOptionsIt->url.fileName();
@@ -230,7 +229,7 @@ static Group installRecipe(
     };
 }
 
-void addInstallModule()
+void setupInstallModule()
 {
     class State
     {
@@ -255,7 +254,7 @@ void addInstallModule()
         QList<QPointer<TaskTree>> m_trees;
     };
 
-    LuaEngine::registerProvider(
+    registerProvider(
         "Install", [state = State()](sol::state_view lua) mutable -> sol::object {
             sol::table async
                 = lua.script("return require('async')", "_install_async_").get<sol::table>();
@@ -329,13 +328,13 @@ void addInstallModule()
                             Tr::tr("Install Package"),
                             msg,
                             QMessageBox::Yes | QMessageBox::No,
-                            Core::ICore::dialogParent());
+                            ICore::dialogParent());
 
                         const QString details
                             = Tr::tr("The extension \"%1\" wants to install the following "
                                      "package(s):\n\n")
                                   .arg(pluginSpec->name)
-                              + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                              + transform(installOptionsList, [](const InstallOptions &options) {
                                     //: %1 = package name, %2 = version, %3 = URL
                                     return QString("* %1 - %2 (from: %3)")
                                         .arg(options.name, options.version, options.url.toString());
@@ -351,14 +350,15 @@ void addInstallModule()
                         return;
                     }
 
-                    const Utils::Id infoBarId = Utils::Id::fromString(
-                        "Install" + pluginSpec->name + QString::number(qHash(installOptionsList)));
+                    const Id infoBarId = Id("Install")
+                                             .withSuffix(pluginSpec->name)
+                                             .withSuffix(QString::number(qHash(installOptionsList)));
 
                     InfoBarEntry entry(infoBarId, msg, InfoBarEntry::GlobalSuppression::Enabled);
 
                     entry.addCustomButton(Tr::tr("Install"), [install, infoBarId]() {
                         install();
-                        Core::ICore::infoBar()->removeInfo(infoBarId);
+                        ICore::infoBar()->removeInfo(infoBarId);
                     });
 
                     entry.setCancelButtonInfo(denied);
@@ -367,7 +367,7 @@ void addInstallModule()
                         = Tr::tr("The extension \"%1\" wants to install the following "
                                  "package(s):\n\n")
                               .arg("**" + pluginSpec->name + "**") // markdown bold
-                          + Utils::transform(installOptionsList, [](const InstallOptions &options) {
+                          + transform(installOptionsList, [](const InstallOptions &options) {
                                 //: Markdown list item: %1 = package name, %2 = version, %3 = URL
                                 return Tr::tr("* %1 - %2 (from: [%3](%3))")
                                     .arg(options.name, options.version, options.url.toString());
@@ -380,7 +380,7 @@ void addInstallModule()
                         list->setMargin(StyleHelper::SpacingTokens::ExPaddingGapS);
                         return list;
                     });
-                    Core::ICore::infoBar()->addInfo(entry);
+                    ICore::infoBar()->addInfo(entry);
                 };
 
             install["install"] = wrap(install["install_cb"]);

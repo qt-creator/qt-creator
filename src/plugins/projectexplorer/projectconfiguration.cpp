@@ -43,11 +43,6 @@ Id ProjectConfiguration::id() const
     return m_id;
 }
 
-Key ProjectConfiguration::settingsIdKey()
-{
-    return CONFIGURATION_ID_KEY;
-}
-
 void ProjectConfiguration::setDisplayName(const QString &name)
 {
     if (m_displayName.setValue(name))

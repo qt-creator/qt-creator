@@ -199,6 +199,8 @@ signals:
     void readyReadStandardError();
     void textOnStandardOutput(const QString &text);
     void textOnStandardError(const QString &text);
+    void requestingStop();
+    void stoppingForcefully();
 
 private:
     friend QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug str, const Process &r);
@@ -213,7 +215,7 @@ public:
     std::function<ProcessInterface *(const FilePath &)> processImplHook;
 };
 
-class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter : public Tasking::TaskAdapter<Process>
+class QTCREATOR_UTILS_EXPORT ProcessTaskAdapter final : public Tasking::TaskAdapter<Process>
 {
 public:
     ProcessTaskAdapter();

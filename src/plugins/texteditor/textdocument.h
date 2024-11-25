@@ -59,6 +59,7 @@ public:
     virtual QString plainText() const;
     virtual QString textAt(int pos, int length) const;
     virtual QChar characterAt(int pos) const;
+    QString blockText(int blockNumber) const;
 
     void setTypingSettings(const TypingSettings &typingSettings);
     void setStorageSettings(const StorageSettings &storageSettings);
@@ -84,9 +85,6 @@ public:
     void autoFormat(const QTextCursor &cursor);
     bool applyChangeSet(const Utils::ChangeSet &changeSet);
 
-    // the blocks list must be sorted
-    void setIfdefedOutBlocks(const QList<BlockRange> &blocks);
-
     TextMarks marks() const;
     bool addMark(TextMark *mark);
     TextMarks marksAt(int line) const;
@@ -107,7 +105,7 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
     void setFilePath(const Utils::FilePath &newName) override;
     ReloadBehavior reloadBehavior(ChangeTrigger state, ChangeType type) const override;
 
@@ -119,8 +117,8 @@ public:
 
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
-    virtual bool reload(QString *errorString);
-    bool reload(QString *errorString, const Utils::FilePath &realFilePath);
+    virtual Utils::Result reload();
+    Utils::Result reload(const Utils::FilePath &realFilePath);
 
     bool setPlainText(const QString &text);
     QTextDocument *document() const;
@@ -129,7 +127,7 @@ public:
     void resetSyntaxHighlighter(const SyntaxHighLighterCreator &creator);
     SyntaxHighlighter *syntaxHighlighter() const;
 
-    bool reload(QString *errorString, QTextCodec *codec);
+    Utils::Result reload(QTextCodec *codec);
     void cleanWhitespace(const QTextCursor &cursor);
 
     virtual void triggerPendingUpdates();
@@ -162,13 +160,9 @@ signals:
     void fontSettingsChanged();
     void markRemoved(TextMark *mark);
 
-#ifdef WITH_TESTS
-    void ifdefedOutBlocksChanged(const QList<BlockRange> &blocks);
-#endif
-
 protected:
     virtual void applyFontSettings();
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     OpenResult openImpl(QString *errorString,

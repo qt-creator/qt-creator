@@ -3,7 +3,10 @@
 
 #pragma once
 
-#include <projectexplorer/kitaspects.h>
+#include <QVariantMap>
+
+namespace ProjectExplorer { class Kit; }
+namespace Utils { class Id; }
 
 namespace QbsProjectManager::Internal {
 

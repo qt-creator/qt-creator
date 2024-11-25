@@ -46,8 +46,10 @@ def main():
             expectedProposals += [" class"] if useClang else ["class"]
             test.xcompare(len(shownProposals), len(expectedProposals),  # QTCREATORBUG-23159
                           "Number of proposed templates")
-            test.verify(set(expectedProposals).issubset(set(shownProposals)),
-                        "Expected proposals shown, ignoring order?")
+            if not test.verify(set(expectedProposals).issubset(set(shownProposals)),
+                               "Expected proposals shown, ignoring order?"):
+                test.log("Expected: %s\nvs\nCurrent: %s" % (str(expectedProposals),
+                                                            str(shownProposals)))
             doubleClickItem(listView, usedProposal, 5, 5, 0, Qt.LeftButton)
             pattern = ("(?<=class)\s+name\s*:\s*public\s+QObject\s*\{\s*Q_OBJECT\s+"
                        "public:\s+name\(\)\s*\{\}\s+virtual\s+~name\(\)\s*\{\}\s+\};")

@@ -43,7 +43,7 @@ private:
     void createConfiguration(const BuildInfo &info);
     void cloneConfiguration();
     void deleteConfiguration(BuildConfiguration *toDelete);
-    QString uniqueName(const QString &name);
+    QString uniqueName(const QString &name, bool allowCurrentName);
 
     Target *m_target = nullptr;
     BuildConfiguration *m_buildConfiguration = nullptr;

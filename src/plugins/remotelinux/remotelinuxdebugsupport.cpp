@@ -29,11 +29,7 @@ public:
 
         setUsePortsGatherer(isCppDebugging(), isQmlDebugging());
         addQmlServerInferiorCommandLineArgumentIfNeeded();
-
-        auto debugServer = new DebugServerRunner(runControl, portsGatherer());
-        debugServer->setEssential(true);
-
-        addStartDependency(debugServer);
+        setUseDebugServer({}, true, true);
 
         setStartMode(AttachToRemoteServer);
         setCloseMode(KillAndExitMonitorAtClose);
@@ -54,25 +50,17 @@ public:
     {
         setId("RemoteLinuxQmlToolingSupport");
 
-        auto portsGatherer = new PortsGatherer(runControl);
-        addStartDependency(portsGatherer);
-
-        // The ports gatherer can safely be stopped once the process is running, even though it has to
-        // be started before.
-        addStopDependency(portsGatherer);
+        runControl->requestQmlChannel();
 
         auto runworker = runControl->createWorker(QmlDebug::runnerIdForRunMode(runControl->runMode()));
         runworker->addStartDependency(this);
         addStopDependency(runworker);
 
-        setStartModifier([this, runControl, portsGatherer, runworker] {
-            const QUrl serverUrl = portsGatherer->findEndPoint();
-            runworker->recordData("QmlServerUrl", serverUrl);
-
+        setStartModifier([this, runControl] {
             QmlDebug::QmlDebugServicesPreset services = QmlDebug::servicesForRunMode(runControl->runMode());
 
             CommandLine cmd = commandLine();
-            cmd.addArg(QmlDebug::qmlDebugTcpArguments(services, serverUrl));
+            cmd.addArg(QmlDebug::qmlDebugTcpArguments(services, qmlChannel()));
             setCommandLine(cmd);
         });
     }

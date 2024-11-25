@@ -15,7 +15,7 @@ namespace Core { class IEditor; }
 
 namespace TextEditor {
 class TextDocument;
-class TextDocumentManipulatorInterface;
+class TextDocumentManipulator;
 } // namespace TextEditor
 
 namespace LanguageClient {
@@ -37,7 +37,7 @@ bool LANGUAGECLIENT_EXPORT applyTextEdits(const Client *client,
                                           const QList<LanguageServerProtocol::TextEdit> &edits);
 bool LANGUAGECLIENT_EXPORT applyDocumentChange(const Client *client,
                                                const LanguageServerProtocol::DocumentChange &change);
-void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextDocumentManipulatorInterface &manipulator,
+void LANGUAGECLIENT_EXPORT applyTextEdit(TextEditor::TextEditorWidget *editorWidget,
                                          const LanguageServerProtocol::TextEdit &edit,
                                          bool newTextIsSnippet = false);
 void LANGUAGECLIENT_EXPORT

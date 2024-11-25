@@ -15,9 +15,10 @@
 #include <QFileInfo>
 #include <QUrl>
 
-#include <QGuiApplication>
 #include <QDesktopServices>
+#include <QGuiApplication>
 #include <QMouseEvent>
+#include <QNativeGestureEvent>
 
 #include <QHelpEngine>
 
@@ -187,6 +188,23 @@ void HelpViewer::wheelEvent(QWheelEvent *event)
         return;
     }
     QWidget::wheelEvent(event);
+}
+
+bool HelpViewer::event(QEvent *e)
+{
+    if (e->type() == QEvent::NativeGesture) {
+        auto ev = static_cast<QNativeGestureEvent *>(e);
+        if (ev->gestureType() == Qt::SwipeNativeGesture) {
+            if (ev->value() > 0 && isBackwardAvailable()) { // swipe from right to left == go back
+                backward();
+                return true;
+            } else if (ev->value() <= 0 && isForwardAvailable()) {
+                forward();
+                return true;
+            }
+        }
+    }
+    return QWidget::event(e);
 }
 
 void HelpViewer::incrementZoom(int steps)

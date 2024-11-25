@@ -449,8 +449,7 @@ void BaseTextFind::defineFindScope()
     for (const QTextCursor &c : multiCursor) {
         if (c.hasSelection()) {
             if (foundSelection || c.block() != c.document()->findBlock(c.anchor())) {
-                const QList<QTextCursor> sortedCursors = Utils::sorted(multiCursor.cursors());
-                d->m_scope = Utils::MultiTextCursor(sortedCursors);
+                d->m_scope = Utils::MultiTextCursor(Utils::sorted(multiCursor.cursors()));
                 QTextCursor cursor = textCursor();
                 cursor.clearSelection();
                 setTextCursor(cursor);

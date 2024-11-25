@@ -5,7 +5,7 @@
 
 #include "texteditor_global.h"
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 #include <utils/id.h>
 #include <utils/theme/theme.h>
 
@@ -99,6 +99,7 @@ public:
 
     std::optional<Utils::Theme::Color> color() const;
     void setColor(const Utils::Theme::Color &color);
+    void unsetColor();
 
     QString defaultToolTip() const { return m_defaultToolTip; }
     void setDefaultToolTip(const QString &toolTip) { m_defaultToolTip = toolTip; }

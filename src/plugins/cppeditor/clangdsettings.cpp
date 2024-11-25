@@ -11,6 +11,7 @@
 #include "cpptoolsreuse.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/editormanager/editormanager.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/session.h>
 #include <projectexplorer/project.h>
@@ -201,6 +202,16 @@ void ClangdSettings::setCustomDiagnosticConfigs(const ClangDiagnosticConfigs &co
     instance().saveSettings();
 }
 
+ClangDiagnosticConfigsModel ClangdSettings::diagnosticConfigsModel()
+{
+    const ClangDiagnosticConfigs &customConfigs = instance().customDiagnosticConfigs();
+    ClangDiagnosticConfigsModel model;
+    model.addBuiltinConfigs();
+    for (const ClangDiagnosticConfig &config : customConfigs)
+        model.appendOrUpdate(config);
+    return model;
+}
+
 FilePath ClangdSettings::clangdFilePath() const
 {
     if (!m_data.executableFilePath.isEmpty())
@@ -237,7 +248,7 @@ Id ClangdSettings::diagnosticConfigId() const
 
 ClangDiagnosticConfig ClangdSettings::diagnosticConfig() const
 {
-    return diagnosticConfigsModel(customDiagnosticConfigs()).configWithId(diagnosticConfigId());
+    return diagnosticConfigsModel().configWithId(diagnosticConfigId());
 }
 
 ClangdSettings::Granularity ClangdSettings::granularity() const
@@ -761,7 +772,7 @@ ClangdSettingsWidget::ClangdSettingsWidget(const ClangdSettings::Data &settingsD
 
     m_configSelectionWidget = new ClangDiagnosticConfigsSelectionWidget(formLayout);
     m_configSelectionWidget->refresh(
-        diagnosticConfigsModel(settings.customDiagnosticConfigs()),
+        ClangdSettings::diagnosticConfigsModel(),
         settings.diagnosticConfigId(),
         [](const ClangDiagnosticConfigs &configs, const Utils::Id &configToSelect) {
             return new CppEditor::ClangDiagnosticConfigsWidget(configs, configToSelect);

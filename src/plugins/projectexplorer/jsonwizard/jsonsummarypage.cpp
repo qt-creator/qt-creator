@@ -4,12 +4,14 @@
 #include "jsonsummarypage.h"
 
 #include "jsonwizard.h"
+#include "../buildsystem.h"
 #include "../project.h"
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
 #include "../projectnodes.h"
 #include "../projectmanager.h"
 #include "../projecttree.h"
+#include "../target.h"
 
 #include <coreplugin/coreconstants.h>
 #include <coreplugin/iversioncontrol.h>
@@ -26,7 +28,6 @@ using namespace Utils;
 
 static char KEY_SELECTED_PROJECT[] = "SelectedProject";
 static char KEY_SELECTED_NODE[] = "SelectedFolderNode";
-static char KEY_IS_SUBPROJECT[] = "IsSubproject";
 static char KEY_VERSIONCONTROL[] = "VersionControl";
 static char KEY_QT_KEYWORDS_ENABLED[] = "QtKeywordsEnabled";
 
@@ -76,6 +77,24 @@ void JsonSummaryPage::setHideProjectUiValue(const QVariant &hideProjectUiValue)
     m_hideProjectUiValue = hideProjectUiValue;
 }
 
+static Node *extractPreferredNode(const JsonWizard *wizard)
+{
+    // Use static cast from void * to avoid qobject_cast (which needs a valid object) in value()
+    // in the following code:
+    Node *preferred = nullptr;
+    QVariant variant = wizard->value(Constants::PREFERRED_PROJECT_NODE);
+    if (variant.isValid()) {
+        preferred = static_cast<Node *>(variant.value<void *>());
+    } else {
+        variant = wizard->value(Constants::PREFERRED_PROJECT_NODE_PATH);
+        if (variant.isValid()) {
+            const FilePath fp = FilePath::fromVariant(variant);
+            preferred = ProjectTree::instance()->nodeForFile(fp);
+        }
+    }
+    return preferred;
+}
+
 void JsonSummaryPage::initializePage()
 {
     m_wizard = qobject_cast<JsonWizard *>(wizard());
@@ -83,7 +102,6 @@ void JsonSummaryPage::initializePage()
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant());
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant());
-    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), false);
     m_wizard->setValue(QLatin1String(KEY_VERSIONCONTROL), QString());
     m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), false);
 
@@ -116,23 +134,43 @@ void JsonSummaryPage::initializePage()
                                  });
     }
 
-    // Use static cast from void * to avoid qobject_cast (which needs a valid object) in value()
-    // in the following code:
-    auto contextNode = findWizardContextNode(static_cast<Node *>(m_wizard->value(Constants::PREFERRED_PROJECT_NODE).value<void *>()));
+    Node *preferredNode = extractPreferredNode(m_wizard);
+    const FilePath preferredNodePath = preferredNode ? preferredNode->filePath() : FilePath{};
+    auto contextNode = findWizardContextNode(preferredNode);
     const ProjectAction currentAction = isProject ? AddSubProject : AddNewFile;
+    const bool isSubproject = m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool();
 
-    initializeProjectTree(contextNode, files, kind, currentAction);
+    const auto updateProjectTree = [this, files, kind, currentAction, preferredNodePath] {
+        Node *node = currentNode();
+        if (!node) {
+            if (auto p = ProjectManager::projectWithProjectFilePath(preferredNodePath))
+                node = p->rootProjectNode();
+        }
+        initializeProjectTree(findWizardContextNode(node), files, kind, currentAction,
+                              m_wizard->value(Constants::PROJECT_ISSUBPROJECT).toBool());
+    };
+
+    if (contextNode) {
+        if (auto p = contextNode->getProject()) {
+            if (auto targets = p->targets(); !targets.isEmpty()) {
+                if (auto bs = targets.first()->buildSystem()) {
+                    if (bs->isParsing()) {
+                        connect(bs, &BuildSystem::parsingFinished, this, updateProjectTree,
+                                Qt::SingleShotConnection);
+                    }
+                }
+            }
+        }
+    }
+    initializeProjectTree(contextNode, files, kind, currentAction, isSubproject);
 
     // Refresh combobox on project tree changes:
-    connect(ProjectTree::instance(), &ProjectTree::treeChanged,
-            this, [this, files, kind, currentAction]() {
-        initializeProjectTree(findWizardContextNode(currentNode()), files, kind, currentAction);
-    });
-
+    connect(ProjectTree::instance(), &ProjectTree::treeChanged, this, updateProjectTree);
 
     bool hideProjectUi = JsonWizard::boolFromVariant(m_hideProjectUiValue, m_wizard->expander());
     setProjectUiVisible(!hideProjectUi);
 
+    setVersionControlUiElementsVisible(!isSubproject);
     initializeVersionControls();
 
     // Do a new try at initialization, now that we have real values set up:
@@ -241,7 +279,7 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
 
     m_wizard->setValue(QLatin1String(KEY_SELECTED_PROJECT), QVariant::fromValue(project));
     m_wizard->setValue(QLatin1String(KEY_SELECTED_NODE), QVariant::fromValue(node));
-    m_wizard->setValue(QLatin1String(KEY_IS_SUBPROJECT), node ? true : false);
+    m_wizard->setValue(QLatin1String(Constants::PROJECT_ISSUBPROJECT), node ? true : false);
     bool qtKeyWordsEnabled = true;
     if (ProjectTree::hasNode(node)) {
         const ProjectNode *projectNode = node->asProjectNode();
@@ -261,6 +299,19 @@ void JsonSummaryPage::updateProjectData(FolderNode *node)
     m_wizard->setValue(QLatin1String(KEY_QT_KEYWORDS_ENABLED), qtKeyWordsEnabled);
 
     updateFileList();
+    setStatusVisible(false);
+    if (wizardKind(m_wizard) != IWizardFactory::ProjectWizard)
+        return;
+    if (node && !m_fileList.isEmpty()) {
+        const FilePath parentFolder = node->directory();
+        const FilePath subProjectFolder = m_fileList.first().file.filePath().parentDir();
+        if (!subProjectFolder.isChildOf(parentFolder)) {
+            setStatus(Tr::tr("Subproject \"%1\" outside of \"%2\".")
+                      .arg(subProjectFolder.toUserOutput()).arg(parentFolder.toUserOutput()),
+                      InfoLabel::Warning);
+            setStatusVisible(true);
+        }
+    }
 }
 
 } // namespace ProjectExplorer

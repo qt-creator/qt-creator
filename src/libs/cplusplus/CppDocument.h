@@ -11,15 +11,14 @@
 
 #include <utils/filepath.h>
 
-#include <QSharedPointer>
-#include <QDateTime>
-#include <QHash>
-#include <QFuture>
 #include <QAtomicInt>
+#include <QByteArrayList>
+#include <QDateTime>
+#include <QFuture>
+#include <QHash>
+#include <QSharedPointer>
 
 namespace CPlusPlus {
-
-class Macro;
 class MacroArgumentReference;
 class LookupContext;
 
@@ -54,6 +53,9 @@ public:
                      int beginLine, const QVector<MacroArgumentReference> &range);
     void addUndefinedMacroUse(const QByteArray &name,
                               int bytesOffset, int utf16charsOffset);
+
+    void appendPragma(const Pragma &pragma) { _pragmas << pragma; }
+    int pragmaOnceLine() const;
 
     Control *control() const { return _control; }
     Control *swapControl(Control *newControl);
@@ -352,6 +354,8 @@ private:
 
      /// the macro name of the include guard, if there is one.
     QByteArray _includeGuardMacroName;
+
+    QList<Pragma> _pragmas;
 
     QByteArray m_fingerprint;
 

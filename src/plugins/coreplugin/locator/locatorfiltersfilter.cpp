@@ -9,6 +9,7 @@
 
 #include <utils/utilsicons.h>
 
+using namespace Tasking;
 using namespace Utils;
 
 namespace Core::Internal {
@@ -26,12 +27,9 @@ LocatorFiltersFilter::LocatorFiltersFilter():
 
 LocatorMatcherTasks LocatorFiltersFilter::matchers()
 {
-    using namespace Tasking;
-
-    Storage<LocatorStorage> storage;
-
-    const auto onSetup = [storage, icon = m_icon] {
-        if (!storage->input().isEmpty())
+    const auto onSetup = [icon = m_icon] {
+        const LocatorStorage &storage = *LocatorStorage::storage();
+        if (!storage.input().isEmpty())
             return;
 
         QMap<QString, ILocatorFilter *> uniqueFilters;
@@ -60,9 +58,9 @@ LocatorMatcherTasks LocatorFiltersFilter::matchers()
                 entries.append(entry);
             }
         }
-        storage->reportOutput(entries);
+        storage.reportOutput(entries);
     };
-    return {{Sync(onSetup), storage}};
+    return {Sync(onSetup)};
 }
 
 } // Core::Internal

@@ -19,8 +19,8 @@
 #include <utils/fancylineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
 
 #include <QCheckBox>
@@ -63,7 +63,7 @@ TerminalAspect::TerminalAspect(AspectContainer *container)
 /*!
     \reimp
 */
-void TerminalAspect::addToLayout(Layout &parent)
+void TerminalAspect::addToLayoutImpl(Layout &parent)
 {
     QTC_CHECK(!m_checkBox);
     m_checkBox = createSubWidget<QCheckBox>(Tr::tr("Run in terminal"));
@@ -157,13 +157,9 @@ WorkingDirectoryAspect::WorkingDirectoryAspect(AspectContainer *container)
     : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Working Directory"));
+    setLabelText(Tr::tr("Working directory:"));
     setId("WorkingDirectoryAspect");
     setSettingsKey("RunConfiguration.WorkingDirectory");
-}
-
-void WorkingDirectoryAspect::setMacroExpander(const MacroExpander *expander)
-{
-    m_macroExpander = expander;
 }
 
 void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
@@ -174,12 +170,12 @@ void WorkingDirectoryAspect::setEnvironment(EnvironmentAspect *envAspect)
 /*!
     \reimp
 */
-void WorkingDirectoryAspect::addToLayout(Layout &builder)
+void WorkingDirectoryAspect::addToLayoutImpl(Layout &builder)
 {
     QTC_CHECK(!m_chooser);
     m_chooser = new PathChooser;
-    if (QTC_GUARD(m_macroExpander))
-        m_chooser->setMacroExpander(m_macroExpander);
+    if (QTC_GUARD(macroExpander()))
+        m_chooser->setMacroExpander(macroExpander());
     m_chooser->setHistoryCompleter(settingsKey());
     m_chooser->setExpectedKind(Utils::PathChooser::Directory);
     m_chooser->setPromptDialogTitle(Tr::tr("Select Working Directory"));
@@ -206,7 +202,10 @@ void WorkingDirectoryAspect::addToLayout(Layout &builder)
     m_chooser->setReadOnly(isReadOnly());
     m_resetButton->setEnabled(!isReadOnly());
 
-    builder.addItems({Tr::tr("Working directory:"), m_chooser.data(), m_resetButton.data()});
+    registerSubWidget(m_chooser);
+    registerSubWidget(m_resetButton);
+
+    addLabeledItems(builder, {m_chooser.data(), m_resetButton.data()});
 }
 
 void WorkingDirectoryAspect::resetPath()
@@ -247,15 +246,10 @@ void WorkingDirectoryAspect::toMap(Store &data) const
 */
 FilePath WorkingDirectoryAspect::workingDirectory() const
 {
-    const Environment env = m_envAspect ? m_envAspect->environment()
-                                        : Environment::systemEnvironment();
-    QString workingDir = m_workingDirectory.path();
-    if (m_macroExpander)
-        workingDir = m_macroExpander->expandProcessArgs(workingDir);
-
-    QString res = workingDir.isEmpty() ? QString() : QDir::cleanPath(env.expandVariables(workingDir));
-
-    return m_workingDirectory.withNewPath(res);
+    const FilePath workingDir = macroExpander()->expand(m_workingDirectory);
+    if (m_envAspect)
+        return m_envAspect->environment().expandVariables(workingDir);
+    return workingDir.deviceEnvironment().expandVariables(workingDir);
 }
 
 FilePath WorkingDirectoryAspect::defaultWorkingDirectory() const
@@ -314,17 +308,11 @@ ArgumentsAspect::ArgumentsAspect(AspectContainer *container)
     : BaseAspect(container)
 {
     setDisplayName(Tr::tr("Arguments"));
+    setLabelText(Tr::tr("Command line arguments:"));
     setId("ArgumentsAspect");
     setSettingsKey("RunConfiguration.Arguments");
 
     addDataExtractor(this, &ArgumentsAspect::arguments, &Data::arguments);
-
-    m_labelText = Tr::tr("Command line arguments:");
-}
-
-void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
-{
-    m_macroExpander = expander;
 }
 
 /*!
@@ -334,14 +322,15 @@ void ArgumentsAspect::setMacroExpander(const MacroExpander *expander)
 */
 QString ArgumentsAspect::arguments() const
 {
-    QTC_ASSERT(m_macroExpander, return m_arguments);
     if (m_currentlyExpanding)
         return m_arguments;
 
     m_currentlyExpanding = true;
-    const QString expanded = m_macroExpander->expandProcessArgs(m_arguments);
+    const expected_str<QString> expanded = macroExpander()->expandProcessArgs(m_arguments);
+    QTC_ASSERT_EXPECTED(expanded, return m_arguments);
+
     m_currentlyExpanding = false;
-    return expanded;
+    return *expanded;
 }
 
 /*!
@@ -367,14 +356,6 @@ void ArgumentsAspect::setArguments(const QString &arguments)
         m_chooser->setText(arguments);
     if (m_multiLineChooser && m_multiLineChooser->toPlainText() != arguments)
         m_multiLineChooser->setPlainText(arguments);
-}
-
-/*!
-    Sets the displayed label text to \a labelText.
-*/
-void ArgumentsAspect::setLabelText(const QString &labelText)
-{
-    m_labelText = labelText;
 }
 
 /*!
@@ -457,7 +438,7 @@ QWidget *ArgumentsAspect::setupChooser()
 /*!
     \reimp
 */
-void ArgumentsAspect::addToLayout(Layout &builder)
+void ArgumentsAspect::addToLayoutImpl(Layout &builder)
 {
     QTC_CHECK(!m_chooser && !m_multiLineChooser && !m_multiLineButton);
 
@@ -501,8 +482,9 @@ void ArgumentsAspect::addToLayout(Layout &builder)
         containerLayout->addWidget(m_resetButton);
         containerLayout->setAlignment(m_resetButton, Qt::AlignTop);
     }
+    registerSubWidget(container);
 
-    builder.addItems({m_labelText, container});
+    addLabeledItem(builder, container);
 }
 
 /*!
@@ -650,7 +632,7 @@ FilePath ExecutableAspect::executable() const
 /*!
     \reimp
 */
-void ExecutableAspect::addToLayout(Layout &builder)
+void ExecutableAspect::addToLayoutImpl(Layout &builder)
 {
     builder.addItem(m_executable);
     if (m_alternativeExecutable) {
@@ -781,6 +763,10 @@ RunAsRootAspect::RunAsRootAspect(AspectContainer *container)
     setId("RunAsRoot");
     setSettingsKey("RunConfiguration.RunAsRoot");
     setLabel(Tr::tr("Run as root user"), LabelPlacement::AtCheckBox);
+
+    // Not technically correct, but sensible approximation.
+    // Client code with more context can override.
+    setVisible(HostOsInfo::isAnyUnixHost());
 }
 
 Interpreter::Interpreter()
@@ -896,7 +882,7 @@ void LauncherAspect::toMap(Store &map) const
         saveToMap(map, m_currentId, QString(), settingsKey());
 }
 
-void LauncherAspect::addToLayout(Layout &builder)
+void LauncherAspect::addToLayoutImpl(Layout &builder)
 {
     if (QTC_GUARD(m_comboBox.isNull()))
         m_comboBox = new QComboBox;
@@ -967,22 +953,15 @@ X11ForwardingAspect::X11ForwardingAspect(AspectContainer *container)
     setDisplayStyle(LineEditDisplay);
     setId("X11ForwardingAspect");
     setSettingsKey("RunConfiguration.X11Forwarding");
-    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Forward to local display"),
-                  "RunConfiguration.UseX11Forwarding");
+    makeCheckable(CheckBoxPlacement::Right, Tr::tr("Enable"), "RunConfiguration.UseX11Forwarding");
     setValue(defaultDisplay());
 
     addDataExtractor(this, &X11ForwardingAspect::display, &Data::display);
 }
 
-void X11ForwardingAspect::setMacroExpander(const MacroExpander *expander)
-{
-   m_macroExpander = expander;
-}
-
 QString X11ForwardingAspect::display() const
 {
-    QTC_ASSERT(m_macroExpander, return value());
-    return !isChecked() ? QString() : m_macroExpander->expandProcessArgs(value());
+    return !isChecked() ? QString() : macroExpander()->expand(value());
 }
 
 

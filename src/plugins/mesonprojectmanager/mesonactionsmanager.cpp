@@ -4,6 +4,7 @@
 #include "mesonactionsmanager.h"
 
 #include "mesonbuildsystem.h"
+#include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 #include "mesonprojectnodes.h"
 

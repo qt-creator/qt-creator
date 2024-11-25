@@ -6,8 +6,9 @@
 #include "debugger_global.h"
 #include "debuggerconstants.h"
 
-#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/task.h>
 
+namespace ProjectExplorer { class Kit; }
 namespace Utils { class ProcessRunData; }
 
 namespace Debugger {

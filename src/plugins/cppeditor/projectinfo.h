@@ -36,6 +36,7 @@ public:
     const QSet<Utils::FilePath> &sourceFiles() const { return m_sourceFiles; }
     QString projectName() const { return m_projectName; }
     Utils::FilePath projectFilePath() const { return m_projectFilePath; }
+    ProjectExplorer::Project *project() const;
     Utils::FilePath projectRoot() const { return m_projectFilePath.parentDir(); }
     Utils::FilePath buildRoot() const { return m_buildRoot; }
     const CppCodeModelSettings &settings() const { return m_settings; }

@@ -3,18 +3,90 @@
 
 #include "buildoptionsmodel.h"
 
-#include "arrayoptionlineedit.h"
 #include "mesonprojectmanagertr.h"
 
+#include <QColor>
 #include <QComboBox>
 #include <QLabel>
 #include <QLineEdit>
-#include <QMap>
-#include <QStyledItemDelegate>
-#include <QTextEdit>
+#include <QPlainTextEdit>
+#include <QRegularExpression>
+#include <QSyntaxHighlighter>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
+
+static QRegularExpression &regExp()
+{
+    static QRegularExpression s_regexp{R"('([^']+)'+|([^', ]+)[, ]*)"};
+    return s_regexp;
+}
+
+class RegexHighlighter final : public QSyntaxHighlighter
+{
+public:
+    RegexHighlighter(QWidget *parent) : QSyntaxHighlighter(parent)
+    {
+        m_format.setUnderlineStyle(QTextCharFormat::SingleUnderline);
+        m_format.setUnderlineColor(QColor(180, 180, 180));
+        m_format.setBackground(QBrush(QColor(180, 180, 230, 80)));
+    }
+
+    void highlightBlock(const QString &text) final
+    {
+        QRegularExpressionMatchIterator i = regExp().globalMatch(text);
+        while (i.hasNext()) {
+            const QRegularExpressionMatch match = i.next();
+            for (int j = 1; j <= match.lastCapturedIndex(); j++)
+                setFormat(match.capturedStart(j), match.capturedLength(j), m_format);
+        }
+    }
+
+    QStringList options(const QString &text) const
+    {
+        QRegularExpressionMatchIterator i = regExp().globalMatch(text);
+        QStringList op;
+        while (i.hasNext()) {
+            const QRegularExpressionMatch match = i.next();
+            for (int j = 1; j <= match.lastCapturedIndex(); j++) {
+                auto str = match.captured(j);
+                if (!str.isEmpty())
+                    op.push_back(str);
+            }
+        }
+        return op;
+    }
+
+private:
+    QTextCharFormat m_format;
+};
+
+class ArrayOptionLineEdit final : public QPlainTextEdit
+{
+    Q_OBJECT
+
+public:
+    ArrayOptionLineEdit(QWidget *parent = nullptr) : QPlainTextEdit(parent)
+    {
+        m_highLighter = new RegexHighlighter(this);
+        m_highLighter->setDocument(document());
+        setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+        setLineWrapMode(QPlainTextEdit::NoWrap);
+        setFixedHeight(QFontMetrics(font()).lineSpacing() * 1.5);
+    }
+    QStringList options() const { return m_highLighter->options(toPlainText()); }
+
+protected:
+    void keyPressEvent(QKeyEvent *e) final
+    {
+        if (e->key() != Qt::Key_Return)
+            return QPlainTextEdit::keyPressEvent(e);
+        e->accept();
+    }
+
+private:
+    RegexHighlighter *m_highLighter = nullptr;
+};
 
 // this could be relaxed once we have something able to link reliably meson build type
 // to QTC build type and update it, this must not break any features like tests/debug/profiling...
@@ -192,5 +264,6 @@ void BuildOptionDelegate::setModelData(QWidget *editor,
     }
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal
+
+#include "buildoptionsmodel.moc"

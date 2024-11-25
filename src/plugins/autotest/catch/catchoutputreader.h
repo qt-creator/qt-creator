@@ -55,6 +55,8 @@ private:
     QXmlStreamReader m_xmlReader;
     ResultType m_currentResult = ResultType::Invalid;
     int m_xpassCount = 0;
+    double m_duration = 0; // in ms
+    double m_overallDuration = 0; // in ms
     bool m_mayFail = false;
     bool m_shouldFail = false;
     bool m_reportedResult = false;

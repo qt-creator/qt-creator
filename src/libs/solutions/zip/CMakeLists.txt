@@ -41,3 +41,7 @@ extend_qtc_library(Zip
     zutil.c
     zutil.h
 )
+
+if(MSVC)
+  target_compile_options(Zip PUBLIC /wd4996)
+endif()

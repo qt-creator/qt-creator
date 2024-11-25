@@ -454,20 +454,21 @@ void TestRunner::runTestsHelper()
                 emit hadDisabledTests(disabled);
             if (testStorage->m_outputReader->hasSummary())
                 emit reportSummary(testStorage->m_outputReader->id(), testStorage->m_outputReader->summary());
+            emit reportDuration(testStorage->m_outputReader->duration().value_or(
+                process.processDuration().count()));
 
             testStorage->m_outputReader->resetCommandlineColor();
         }
     };
 
-    const Group root {
+    const Group recipe = For (iterator) >> Do {
         finishAllAndSuccess,
-        iterator,
         Group {
             storage,
             ProcessTask(onSetup, onDone)
         }
     };
-    m_taskTreeRunner.start(root);
+    m_taskTreeRunner.start(recipe);
 }
 
 static void processOutput(TestOutputReader *outputreader, const QString &msg, OutputFormat format)
@@ -525,8 +526,10 @@ void TestRunner::debugTests()
 
     const FilePath &commandFilePath = config->executableFilePath();
     if (commandFilePath.isEmpty()) {
-        reportResult(ResultType::MessageFatal, Tr::tr("Could not find command \"%1\". (%2)")
-                     .arg(config->executableFilePath().toString(), config->displayName()));
+        reportResult(
+            ResultType::MessageFatal,
+            Tr::tr("Could not find command \"%1\". (%2)")
+                .arg(config->executableFilePath().toUserOutput(), config->displayName()));
         onFinished();
         return;
     }
@@ -571,7 +574,7 @@ void TestRunner::debugTests()
     if (useOutputProcessor) {
         TestOutputReader *outputreader = config->createOutputReader(nullptr);
         connect(outputreader, &TestOutputReader::newResult, this, &TestRunner::testResultReady);
-        outputreader->setId(inferior.command.executable().toString());
+        outputreader->setId(inferior.command.executable().toUserOutput());
         connect(outputreader, &TestOutputReader::newOutputLineAvailable,
                 TestResultsPane::instance(), &TestResultsPane::addOutputLine);
         connect(runControl, &RunControl::appendMessage,
@@ -784,9 +787,10 @@ void RunConfigurationSelectionDialog::populate()
         if (auto target = project->activeTarget()) {
             for (RunConfiguration *rc : target->runConfigurations()) {
                 auto runnable = rc->runnable();
-                const QStringList rcDetails = { runnable.command.executable().toString(),
-                                                runnable.command.arguments(),
-                                                runnable.workingDirectory.toString() };
+                const QStringList rcDetails
+                    = {runnable.command.executable().toUserOutput(),
+                       runnable.command.arguments(),
+                       runnable.workingDirectory.toUserOutput()};
                 m_rcCombo->addItem(rc->displayName(), rcDetails);
             }
         }

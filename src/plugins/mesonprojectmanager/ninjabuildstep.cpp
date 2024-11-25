@@ -7,8 +7,8 @@
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
 #include "mesonoutputparser.h"
-#include "ninjatoolkitaspect.h"
 #include "settings.h"
+#include "toolkitaspectwidget.h"
 
 #include <coreplugin/find/itemviewfind.h>
 

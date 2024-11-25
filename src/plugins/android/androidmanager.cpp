@@ -19,6 +19,7 @@
 #include <projectexplorer/buildsystem.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
+#include <projectexplorer/toolchainkitaspect.h>
 
 #include <qtsupport/qtkitaspect.h>
 
@@ -53,13 +54,22 @@ static Q_LOGGING_CATEGORY(androidManagerLog, "qtc.android.androidManager", QtWar
 
 static std::optional<QDomElement> documentElement(const FilePath &fileName)
 {
-    QFile file(fileName.toString());
-    if (!file.open(QIODevice::ReadOnly)) {
-        MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".").arg(fileName.toUserOutput()));
+    if (!fileName.exists()) {
+        qCDebug(androidManagerLog, "Manifest file %s doesn't exist.",
+                fileName.toUserOutput().toUtf8().data());
+        return {};
+    }
+
+    const expected_str<QByteArray> result = fileName.fileContents();
+    if (!result) {
+        MessageManager::writeDisrupting(Tr::tr("Cannot open \"%1\".")
+                                            .arg(fileName.toUserOutput())
+                                            .append(' ')
+                                            .append(result.error()));
         return {};
     }
     QDomDocument doc;
-    if (!doc.setContent(file.readAll())) {
+    if (!doc.setContent(*result)) {
         MessageManager::writeDisrupting(Tr::tr("Cannot parse \"%1\".").arg(fileName.toUserOutput()));
         return {};
     }
@@ -183,8 +193,8 @@ int minimumSDK(const Kit *kit)
     int minSdkVersion = -1;
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(kit);
     if (version && version->targetDeviceTypes().contains(Constants::ANDROID_DEVICE_TYPE)) {
-        const FilePath stockManifestFilePath = FilePath::fromUserInput(
-            version->prefix().toString() + "/src/android/templates/AndroidManifest.xml");
+        const FilePath stockManifestFilePath = version->prefix().pathAppended(
+            "src/android/templates/AndroidManifest.xml");
 
         const auto element = documentElement(stockManifestFilePath);
         if (element)
@@ -236,19 +246,18 @@ QJsonObject deploymentSettings(const Target *target)
         return {};
     QJsonObject settings;
     settings["_description"] = qtcSignature;
-    settings["qt"] = qt->prefix().toString();
-    settings["ndk"] = AndroidConfig::ndkLocation(qt).toString();
-    settings["sdk"] = AndroidConfig::sdkLocation().toString();
+    settings["qt"] = qt->prefix().toFSPathString();
+    settings["ndk"] = AndroidConfig::ndkLocation(qt).toFSPathString();
+    settings["sdk"] = AndroidConfig::sdkLocation().toFSPathString();
     if (!qt->supportsMultipleQtAbis()) {
         const QStringList abis = applicationAbis(target);
         QTC_ASSERT(abis.size() == 1, return {});
-        settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt)
-                                      / "sysroot/usr/lib"
-                                      / archTriplet(abis.first())
-                                      / "libc++_shared.so").toString();
+        settings["stdcpp-path"] = (AndroidConfig::toolchainPath(qt) / "sysroot/usr/lib"
+                                   / archTriplet(abis.first()) / "libc++_shared.so")
+                                      .toFSPathString();
     } else {
         settings["stdcpp-path"]
-            = AndroidConfig::toolchainPath(qt).pathAppended("sysroot/usr/lib").toString();
+            = AndroidConfig::toolchainPath(qt).pathAppended("sysroot/usr/lib").toFSPathString();
     }
     settings["toolchain-prefix"] =  "llvm";
     settings["tool-prefix"] = "llvm";
@@ -259,10 +268,10 @@ QJsonObject deploymentSettings(const Target *target)
 
 bool isQtCreatorGenerated(const FilePath &deploymentFile)
 {
-    QFile f{deploymentFile.toString()};
-    if (!f.open(QIODevice::ReadOnly))
+    const expected_str<QByteArray> result = deploymentFile.fileContents();
+    if (!result)
         return false;
-    return QJsonDocument::fromJson(f.readAll()).object()["_description"].toString() == qtcSignature;
+    return QJsonDocument::fromJson(*result).object()["_description"].toString() == qtcSignature;
 }
 
 FilePath androidBuildDirectory(const Target *target)
@@ -583,45 +592,6 @@ QString androidNameForApiLevel(int x)
     }
 }
 
-void installQASIPackage(Target *target, const FilePath &packagePath)
-{
-    const QStringList appAbis = AndroidManager::applicationAbis(target);
-    if (appAbis.isEmpty())
-        return;
-    const IDevice::ConstPtr device = DeviceKitAspect::device(target->kit());
-    AndroidDeviceInfo info = AndroidDevice::androidDeviceInfoFromIDevice(device.get());
-    if (!info.isValid()) // aborted
-        return;
-
-    QString deviceSerialNumber = info.serialNumber;
-    if (info.type == IDevice::Emulator) {
-        deviceSerialNumber = AndroidAvdManager::startAvd(info.avdName);
-        if (deviceSerialNumber.isEmpty())
-            MessageManager::writeDisrupting(Tr::tr("Starting Android virtual device failed."));
-    }
-
-    QStringList arguments = AndroidDeviceInfo::adbSelector(deviceSerialNumber);
-    arguments << "install" << "-r" << packagePath.path();
-    QString error;
-    Process *process = startAdbProcess(arguments, &error);
-    if (process) {
-        process->setParent(target);
-        QObject::connect(process, &Process::done, target, [process] {
-            if (process->result() == ProcessResult::FinishedWithSuccess) {
-                MessageManager::writeSilently(
-                    Tr::tr("Android package installation finished with success."));
-            } else {
-                MessageManager::writeDisrupting(Tr::tr("Android package installation failed.")
-                                                + '\n' + process->cleanedStdErr());
-            }
-            process->deleteLater();
-        });
-    } else {
-        MessageManager::writeDisrupting(
-            Tr::tr("Android package installation failed.\n%1").arg(error));
-    }
-}
-
 bool checkKeystorePassword(const FilePath &keystorePath, const QString &keystorePasswd)
 {
     if (keystorePasswd.isEmpty())
@@ -663,50 +633,6 @@ bool checkCertificateExists(const FilePath &keystorePath, const QString &keystor
     proc.setCommand({AndroidConfig::keytoolPath(), arguments});
     proc.runBlocking(10s);
     return proc.result() == ProcessResult::FinishedWithSuccess;
-}
-
-Process *startAdbProcess(const QStringList &args, QString *err)
-{
-    std::unique_ptr<Process> process(new Process);
-    const FilePath adb = AndroidConfig::adbToolPath();
-    const CommandLine command{adb, args};
-    qCDebug(androidManagerLog).noquote() << "Running command (async):" << command.toUserOutput();
-    process->setCommand(command);
-    process->start();
-    if (process->waitForStarted(500ms) && process->state() == QProcess::Running)
-        return process.release();
-
-    const QString errorStr = process->readAllStandardError();
-    qCDebug(androidManagerLog).noquote() << "Running command (async) failed:"
-                                         << command.toUserOutput() << "Output:" << errorStr;
-    if (err)
-        *err = errorStr;
-    return nullptr;
-}
-
-static SdkToolResult runCommand(const CommandLine &command, const QByteArray &writeData,
-                                int timeoutS)
-{
-    Android::SdkToolResult cmdResult;
-    Process cmdProc;
-    cmdProc.setWriteData(writeData);
-    qCDebug(androidManagerLog) << "Running command (sync):" << command.toUserOutput();
-    cmdProc.setCommand(command);
-    cmdProc.runBlocking(std::chrono::seconds(timeoutS), EventLoopMode::On);
-    cmdResult.m_stdOut = cmdProc.cleanedStdOut().trimmed();
-    cmdResult.m_stdErr = cmdProc.cleanedStdErr().trimmed();
-    cmdResult.m_success = cmdProc.result() == ProcessResult::FinishedWithSuccess;
-    qCDebug(androidManagerLog) << "Command finshed (sync):" << command.toUserOutput()
-                               << "Success:" << cmdResult.m_success
-                               << "Output:" << cmdProc.allRawOutput();
-    if (!cmdResult.success())
-        cmdResult.m_exitMessage = cmdProc.exitMessage();
-    return cmdResult;
-}
-
-SdkToolResult runAdbCommand(const QStringList &args, const QByteArray &writeData, int timeoutS)
-{
-    return runCommand({AndroidConfig::adbToolPath(), args}, writeData, timeoutS);
 }
 
 } // namespace Android::AndroidManager

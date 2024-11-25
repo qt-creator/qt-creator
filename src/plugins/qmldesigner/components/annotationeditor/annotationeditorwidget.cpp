@@ -42,7 +42,7 @@ AnnotationEditorWidget::AnnotationEditorWidget(QWidget *parent,
                 ui->tabWidget->setCurrentIndex(index);
             });
 
-    connect(ui->statusAddButton, &QPushButton::clicked, this, [&](bool) {
+    connect(ui->statusAddButton, &QPushButton::clicked, this, [this] {
         setStatusVisibility(true);
     });
 

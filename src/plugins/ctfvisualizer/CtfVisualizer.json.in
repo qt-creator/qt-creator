@@ -1,9 +1,11 @@
 {
+    "Id" : "ctfvisualizer",
     "Name" : "CtfVisualizer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Vendor" : "KDAB Group, www.kdab.com",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com",
+    "VendorId" : "kdab",
+    "Copyright" : "(C) Klarälvdalens Datakonsult AB, a KDAB Group company, info@kdab.com",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -19,5 +21,6 @@
             "- CTF files (in Trace Event Format)"
     ],
     "Url" : "https://www.kdab.com",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-ctf-visualizer.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

@@ -54,8 +54,8 @@ public:
         : AbstractSettings(SETTINGS_NAME, ".clang-format")
     {
         command.setDefaultValue("clang-format");
-        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("Clang Format"));
-        command.setLabelText(Tr::tr("Clang Format command:"));
+        command.setPromptDialogTitle(BeautifierTool::msgCommandPromptDialogTitle("ClangFormat"));
+        command.setLabelText(Tr::tr("ClangFormat command:"));
 
         usePredefinedStyle.setSettingsKey("usePredefinedStyle");
         usePredefinedStyle.setDefaultValue(true);
@@ -346,8 +346,9 @@ public:
             .addToContainer(menuId)
             .addOnTriggered(this, &ClangFormat::disableFormattingSelectedText);
 
-        connect(&settings().supportedMimeTypes, &BaseAspect::changed,
-                this, [this] { updateActions(Core::EditorManager::currentEditor()); });
+        settings().supportedMimeTypes.addOnChanged(this, [this] {
+            updateActions(Core::EditorManager::currentEditor());
+        });
     }
 
     QString id() const final
@@ -529,7 +530,7 @@ public:
     ClangFormatSettingsPage()
     {
         setId("ClangFormat");
-        setDisplayName(Tr::tr("Clang Format"));
+        setDisplayName(Tr::tr("ClangFormat"));
         setCategory(Constants::OPTION_CATEGORY);
         setWidgetCreator([] { return new ClangFormatSettingsPageWidget; });
     }

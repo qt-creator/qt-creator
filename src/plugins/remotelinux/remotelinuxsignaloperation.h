@@ -19,14 +19,12 @@ public:
     void killProcess(qint64 pid) override;
     void killProcess(const QString &filePath) override;
     void interruptProcess(qint64 pid) override;
-    void interruptProcess(const QString &filePath) override;
 
 protected:
     RemoteLinuxSignalOperation(const ProjectExplorer::IDeviceConstPtr &device);
 
 private:
     virtual QString killProcessByNameCommandLine(const QString &filePath) const;
-    virtual QString interruptProcessByNameCommandLine(const QString &filePath) const;
 
     void runnerDone();
     void run(const QString &command);

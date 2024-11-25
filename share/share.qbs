@@ -18,6 +18,7 @@ Product {
             "designer/**/*",
             "glsl/**/*",
             "jsonschemas/**/*",
+            "lua-lupdate/**/*",
             "lua-plugins/**/*",
             "modeleditor/**/*",
             "qml/**/*",
@@ -59,8 +60,6 @@ Product {
         prefix: project.ide_source_tree + "/src/share/qtcreator/externaltools/"
         files: {
             var list = [
-                "lrelease.xml",
-                "lupdate.xml",
                 "qml.xml",
             ]
             if (qbs.targetOS.contains("windows"))

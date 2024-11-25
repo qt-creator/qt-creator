@@ -3,29 +3,10 @@
 
 #pragma once
 
-#include <vcsbase/vcsbaseeditor.h>
+#include <QWidget>
 
-namespace Fossil {
-namespace Internal {
+namespace Fossil::Internal {
 
-class FossilEditorWidgetPrivate;
+QWidget *createFossilEditorWidget();
 
-class FossilEditorWidget final : public VcsBase::VcsBaseEditorWidget
-{
-    Q_OBJECT
-
-public:
-    FossilEditorWidget();
-    ~FossilEditorWidget() final;
-
-private:
-    QString changeUnderCursor(const QTextCursor &cursor) const final;
-    QString decorateVersion(const QString &revision) const final;
-    QStringList annotationPreviousVersions(const QString &revision) const final;
-    VcsBase::BaseAnnotationHighlighterCreator annotationHighlighterCreator() const final;
-
-    FossilEditorWidgetPrivate *d;
-};
-
-} // namespace Internal
-} // namespace Fossil
+} // Fossil::Internal

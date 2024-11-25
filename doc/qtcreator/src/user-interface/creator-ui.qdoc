@@ -66,10 +66,8 @@
     To see where the above controls are in the UI, select
     \uicontrol Help > \uicontrol {UI Tour}.
 
-    The following video shows the parts of the UI and the \uicontrol Welcome
-    mode:
-
-    \youtube hOx3dod5-1A
+    To learn more about the parts of the UI and the \uicontrol Welcome mode, take
+    the \l{Qt Academy: Getting Started with \QC} course.
 
     \section1 What's New?
 

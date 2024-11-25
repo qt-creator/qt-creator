@@ -6,8 +6,7 @@
 #include <projectexplorer/task.h>
 #include <projectexplorer/taskhub.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 struct WarningRegex
 {
@@ -136,5 +135,4 @@ void MesonOutputParser::setSourceDirectory(const Utils::FilePath &sourceDir)
     emit newSearchDirFound(sourceDir);
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

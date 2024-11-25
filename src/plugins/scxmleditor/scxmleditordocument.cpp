@@ -58,23 +58,23 @@ Core::IDocument::OpenResult ScxmlEditorDocument::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool ScxmlEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Result ScxmlEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     if (filePath.isEmpty())
-        return false;
+        return Result::Error("ASSERT: ScxmlEditorDocument: filePath.isEmpty()");
+
     bool dirty = m_designWidget->isDirty();
 
     m_designWidget->setFileName(filePath.toString());
     if (!m_designWidget->save()) {
-        *errorString = m_designWidget->errorMessage();
         m_designWidget->setFileName(this->filePath().toString());
-        return false;
+        return Result::Error(m_designWidget->errorMessage());
     }
 
     if (autoSave) {
         m_designWidget->setFileName(this->filePath().toString());
         m_designWidget->save();
-        return true;
+        return Result::Ok;
     }
 
     setFilePath(filePath);
@@ -82,7 +82,7 @@ bool ScxmlEditorDocument::saveImpl(QString *errorString, const FilePath &filePat
     if (dirty != m_designWidget->isDirty())
         emit changed();
 
-    return true;
+    return Result::Ok;
 }
 
 void ScxmlEditorDocument::setFilePath(const FilePath &newName)
@@ -111,16 +111,17 @@ bool ScxmlEditorDocument::isModified() const
     return m_designWidget && m_designWidget->isDirty();
 }
 
-bool ScxmlEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Result ScxmlEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
+        return Result::Ok;
     emit aboutToReload();
-    emit reloadRequested(errorString, filePath().toString());
-    const bool success = errorString->isEmpty();
+    QString errorString;
+    emit reloadRequested(&errorString, filePath().toString());
+    const bool success = errorString.isEmpty();
     emit reloadFinished(success);
-    return success;
+    return Result(success, errorString);
 }
 
 bool ScxmlEditorDocument::supportsCodec(const QTextCodec *codec) const

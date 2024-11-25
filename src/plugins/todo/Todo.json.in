@@ -1,10 +1,12 @@
 {
+    "Id" : "todo",
     "Name" : "Todo",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
     "Experimental" : true,
+    "VendorId" : "dmitrysavchenko",
     "Vendor" : "Dmitry Savchenko",
-    "Copyright" : "(C) 2016 Dmitry Savchenko, Vasiliy Sorokin, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2016 Dmitry Savchenko, Vasiliy Sorokin, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,5 +20,6 @@
         "List the BUG, FIXME, NOTE, TODO, and WARNING keywords from the current file, from all project files, or from a subproject."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-reference-to-do-entries-view.html",
     ${IDE_PLUGIN_DEPENDENCIES}
 }

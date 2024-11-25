@@ -72,7 +72,6 @@ public:
     QWidget *createProjectExplorerWidget(QWidget *parent) const;
 
     void switchToTextModeDeferred();
-    void emitCurrentTextEditorChanged(Core::IEditor *editor);
 
     static double formEditorDevicePixelRatio();
 
@@ -109,7 +108,7 @@ private slots:
 
 private: // functions
     void lauchFeedbackPopupInternal(const QString &identifier);
-    void integrateIntoQtCreator(QWidget *modeWidget);
+    void integrateIntoQtCreator(Internal::DesignModeWidget *modeWidget);
     void clearDesigner();
     void resetDesignerDocument();
     void setupDesigner();

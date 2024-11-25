@@ -119,11 +119,6 @@ public:
 
         environment.setSupportForBuildEnvironment(target);
 
-        arguments.setMacroExpander(macroExpander());
-
-        workingDir.setMacroExpander(macroExpander());
-
-        x11Forwarding.setMacroExpander(macroExpander());
         x11Forwarding.setVisible(HostOsInfo::isAnyUnixHost());
 
         interpreter.setLabelText(Tr::tr("Python:"));

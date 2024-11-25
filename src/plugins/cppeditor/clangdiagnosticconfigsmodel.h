@@ -34,6 +34,8 @@ public:
                                                     const QString &displayName);
     static QStringList globalDiagnosticOptions();
 
+    void addBuiltinConfigs();
+
 private:
     ClangDiagnosticConfigs m_diagnosticConfigs;
 };

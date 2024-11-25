@@ -20,6 +20,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/changeset.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 #include <utils/utilsicons.h>
 
@@ -29,7 +30,6 @@
 #include <QCoreApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QGroupBox>
 #include <QLineEdit>
 #include <QPointer>
 #include <QQueue>
@@ -38,7 +38,6 @@
 #include <QTextDocument>
 #include <QToolButton>
 #include <QTreeView>
-#include <QVBoxLayout>
 
 #ifdef WITH_TESTS
 #include "cppquickfix_test.h"
@@ -1004,26 +1003,18 @@ void InsertVirtualMethodsDialog::initGui()
         return;
 
     setWindowTitle(Tr::tr("Insert Virtual Functions"));
-    auto globalVerticalLayout = new QVBoxLayout;
 
     // View
-    QGroupBox *groupBoxView = new QGroupBox(Tr::tr("&Functions to insert:"), this);
-    auto groupBoxViewLayout = new QVBoxLayout(groupBoxView);
     m_filter = new QLineEdit(this);
     m_filter->setClearButtonEnabled(true);
     m_filter->setPlaceholderText(Tr::tr("Filter"));
-    groupBoxViewLayout->addWidget(m_filter);
     m_view = new QTreeView(this);
     m_view->setEditTriggers(QAbstractItemView::NoEditTriggers);
     m_view->setHeaderHidden(true);
-    groupBoxViewLayout->addWidget(m_view);
     m_hideReimplementedFunctions =
             new QCheckBox(Tr::tr("&Hide reimplemented functions"), this);
-    groupBoxViewLayout->addWidget(m_hideReimplementedFunctions);
 
     // Insertion options
-    QGroupBox *groupBoxImplementation = new QGroupBox(Tr::tr("&Insertion options:"), this);
-    auto groupBoxImplementationLayout = new QVBoxLayout(groupBoxImplementation);
     m_insertMode = new QComboBox(this);
     m_insertMode->addItem(Tr::tr("Insert only declarations"), ModeOnlyDeclarations);
     m_insertMode->addItem(Tr::tr("Insert definitions inside class"), ModeInsideClass);
@@ -1051,30 +1042,37 @@ void InsertVirtualMethodsDialog::initGui()
     m_clearUserAddedReplacementsButton = new QToolButton(this);
     m_clearUserAddedReplacementsButton->setDefaultAction(clearUserAddedReplacements);
 
-    auto overrideWidgetsLayout = new QHBoxLayout(this);
-    overrideWidgetsLayout->setSpacing(0);
-    overrideWidgetsLayout->setContentsMargins(0, 0, 0, 0);
-    overrideWidgetsLayout->addWidget(m_overrideReplacementCheckBox);
-    overrideWidgetsLayout->addWidget(m_overrideReplacementComboBox);
-    overrideWidgetsLayout->addWidget(m_clearUserAddedReplacementsButton);
-    QWidget *overrideWidgets = new QWidget(groupBoxImplementation);
-    overrideWidgets->setLayout(overrideWidgetsLayout);
-
-    groupBoxImplementationLayout->addWidget(m_insertMode);
-    groupBoxImplementationLayout->addWidget(m_virtualKeyword);
-    groupBoxImplementationLayout->addWidget(overrideWidgets);
-    groupBoxImplementationLayout->addStretch(99);
-
     // Bottom button box
     m_buttons = new QDialogButtonBox(this);
     m_buttons->setStandardButtons(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
     connect(m_buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-    globalVerticalLayout->addWidget(groupBoxView, 9);
-    globalVerticalLayout->addWidget(groupBoxImplementation, 0);
-    globalVerticalLayout->addWidget(m_buttons, 0);
-    setLayout(globalVerticalLayout);
+    using namespace Layouting;
+    Column {
+        Group {
+            title(Tr::tr("&Functions to insert:")),
+            Column {
+                m_filter,
+                m_view,
+                m_hideReimplementedFunctions,
+            },
+        },
+        Group {
+            title(Tr::tr("&Insertion options:")),
+            Column {
+                m_insertMode,
+                m_virtualKeyword,
+                Row {
+                    m_overrideReplacementCheckBox,
+                    m_overrideReplacementComboBox,
+                    m_clearUserAddedReplacementsButton,
+                    spacing(0),
+                },
+            },
+        },
+        m_buttons,
+    }.attachTo(this);
 
     connect(m_hideReimplementedFunctions, &QAbstractButton::toggled,
             this, &InsertVirtualMethodsDialog::setHideReimplementedFunctions);

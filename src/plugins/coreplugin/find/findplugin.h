@@ -44,6 +44,7 @@ public:
 
     static void setCaseSensitive(bool sensitive);
     static void setWholeWord(bool wholeOnly);
+    static void setIgnoreBinaryFiles(bool ignoreBinaryFiles);
     static void setBackward(bool backward);
     static void setRegularExpression(bool regExp);
     static void setPreserveCase(bool preserveCase);

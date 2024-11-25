@@ -5,6 +5,8 @@
 
 #include "callgrindabstractmodel.h"
 
+#include "callgrindparsedata.h"
+
 #include <QAbstractItemModel>
 
 namespace Valgrind::Callgrind {
@@ -26,11 +28,11 @@ public:
 
     /// Only one cost event column will be shown, this decides which one it is.
     /// By default it is the first event in the @c ParseData, i.e. 0.
-    virtual int costEvent() const;
-    virtual void setCostEvent(int event);
+    int costEvent() const;
+    void setCostEvent(int event);
 
-    virtual void setParseData(const ParseData *data);
-    virtual const ParseData *parseData() const;
+    void setParseData(const ParseDataPtr &data);
+    ParseDataPtr parseData() const;
 
     void setCalls(const QList<const FunctionCall *> &calls, const Function *function);
     QList<const FunctionCall *> calls() const;

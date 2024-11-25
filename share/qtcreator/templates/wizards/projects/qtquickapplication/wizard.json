@@ -3,7 +3,7 @@
     "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
     "id": "U.QtQuickApplicationEmpty",
     "category": "D.ApplicationQt",
-    "trDescription": "Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.\n\nYou can select an option to create a project that you can open in Qt Design Studio, which has a visual editor for Qt Quick UIs.",
+    "trDescription": "Creates a Qt Quick application that can have both QML and C++ code. You can build the application and deploy it to desktop, embedded, and mobile target platforms.",
     "trDisplayName": "Qt Quick Application",
     "trDisplayCategory": "Application (Qt)",
     "icon": "icon.png",
@@ -55,18 +55,6 @@
             "data":
             [
                 {
-                    "name": "QdsProjectStyle",
-                    "trDisplayName": "Creates a project that you can open in Qt Design Studio",
-                    "trToolTip": "Creates a project with a structure that is compatible both with Qt Design Studio (via .qmlproject) and with Qt Creator (via CMakeLists.txt). It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
-                    "type": "CheckBox",
-                    "span": true,
-                    "persistenceKey": "QtQuick.QdsProjectStyle",
-                    "data":
-                    {
-                        "checked": false
-                    }
-                },
-                {
                     "name": "UseVirtualKeyboard",
                     "trDisplayName": "Use Qt Virtual Keyboard",
                     "type": "CheckBox",
@@ -79,7 +67,7 @@
                 },
                 {
                     "name": "MinimumSupportedQtVersion",
-                    "trDisplayName": "The minimum version of Qt you want to build the application for",
+                    "trDisplayName": "Minimum required Qt version:",
                     "type": "ComboBox",
                     "data":
                     {
@@ -97,7 +85,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: !value('IsSubproject')}",
             "data": {
                 "projectFilePath": "%{ProjectFile}",
                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQmlCMakeApi", "%{FeatureQt}" ]
@@ -117,146 +104,21 @@
             [
                 {
                     "source": "CMakeLists.txt",
-                    "openAsProject": true,
-                    "condition": "%{NoQdsProjectStyle}"
+                    "openAsProject": true
                 },
                 {
                     "source": "main.cpp",
-                    "target": "%{MainCppFileName}",
-                    "condition": "%{NoQdsProjectStyle}"
+                    "target": "%{MainCppFileName}"
                 },
                 {
                     "source": "Main.qml.tpl",
                     "target": "Main.qml",
-                    "openInEditor": true,
-                    "condition": "%{NoQdsProjectStyle}"
+                    "openInEditor": true
                 },
                 {
                     "source": "../git.ignore",
                     "target": ".gitignore",
-                    "condition": "%{JS: %{NoQdsProjectStyle} && !value('IsSubproject') && value('VersionControl') === 'G.Git' }"
-                }
-            ]
-        },
-        {
-            "typeId": "File",
-            "data":
-            [
-                {
-                    "source": "%{QdsWizardPath}/common/app.qmlproject.tpl",
-                    "target": "%{ProjectDirectory}/%{QmlProjectFileName}",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/CMakeLists.main.txt.tpl",
-                    "target": "%{ProjectDirectory}/CMakeLists.txt",
-                    "openAsProject": true,
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/qmlmodules.tpl",
-                    "target": "%{ProjectDirectory}/qmlmodules",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/qmlcomponents.tpl",
-                    "target": "%{ProjectDirectory}/qmlcomponents",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/insight.tpl",
-                    "target": "%{ProjectDirectory}/insight",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/main.qml",
-                    "target": "%{ProjectDirectory}/main.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/qtquickcontrols2.conf.tpl",
-                    "target": "%{ProjectDirectory}/qtquickcontrols2.conf",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/main.cpp.tpl",
-                    "target": "%{ProjectDirectory}/src/main.cpp",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/app_environment.h.tpl",
-                    "target": "%{ProjectDirectory}/src/app_environment.h",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/import_qml_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_plugins.h",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/import_qml_components_plugins.h.tpl",
-                    "target": "%{ProjectDirectory}/src/import_qml_components_plugins.h",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/CMakeLists.content.txt.tpl",
-                    "target": "%{ProjectDirectory}/content/CMakeLists.txt",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/App.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/App.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/application/Screen01.ui.qml.tpl",
-                    "target": "%{ProjectDirectory}/content/Screen01.ui.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/fonts.txt",
-                    "target": "%{ProjectDirectory}/content/fonts/fonts.txt",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/asset_imports.txt",
-                    "target": "%{ProjectDirectory}/asset_imports/asset_imports.txt",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/common/CMakeLists.imports.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/CMakeLists.txt",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/CMakeLists.importmodule.txt.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/CMakeLists.txt",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/importmodule.qmldir.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/qmldir",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/Constants.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/Constants.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/EventListModel.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListModel.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/EventListSimulator.qml.tpl",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/EventListSimulator.qml",
-                    "condition": "%{QdsProjectStyle}"
-                },
-                {
-                    "source": "%{QdsWizardPath}/shared-plugin/name/designer/plugin.metainfo",
-                    "target": "%{ProjectDirectory}/imports/%{ImportModuleName}/designer/plugin.metainfo",
-                    "condition": "%{QdsProjectStyle}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git' }"
                 }
             ]
         }

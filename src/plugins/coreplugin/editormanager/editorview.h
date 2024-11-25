@@ -35,6 +35,9 @@ class EditorToolBar;
 
 namespace Internal {
 
+class EditorArea;
+class SplitterOrView;
+
 class EditLocation
 {
 public:
@@ -50,8 +53,6 @@ public:
     QByteArray state;
 };
 
-class SplitterOrView;
-
 class EditorView : public QWidget
 {
     Q_OBJECT
@@ -59,6 +60,10 @@ class EditorView : public QWidget
 public:
     explicit EditorView(SplitterOrView *parentSplitterOrView, QWidget *parent = nullptr);
     ~EditorView() override;
+
+    bool isInSplit() const;
+    EditorView *split(Qt::Orientation orientation);
+    EditorArea *editorArea() const;
 
     SplitterOrView *parentSplitterOrView() const;
     EditorView *findNextView() const;
@@ -111,6 +116,7 @@ protected:
     void paintEvent(QPaintEvent *) override;
     void mousePressEvent(QMouseEvent *e) override;
     void focusInEvent(QFocusEvent *) override;
+    bool event(QEvent *e) override;
 
 private:
     friend class SplitterOrView; // for setParentSplitterOrView
@@ -164,7 +170,7 @@ public:
     explicit SplitterOrView(EditorView *view);
     ~SplitterOrView() override;
 
-    void split(Qt::Orientation orientation, bool activateView = true);
+    EditorView *split(Qt::Orientation orientation);
     void unsplit();
 
     bool isView() const { return m_view != nullptr; }
@@ -189,7 +195,7 @@ public:
     QSize sizeHint() const override { return minimumSizeHint(); }
     QSize minimumSizeHint() const override;
 
-    void unsplitAll();
+    void unsplitAll(EditorView *viewToKeep);
 
 signals:
     void splitStateChanged();

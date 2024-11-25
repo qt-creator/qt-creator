@@ -56,10 +56,7 @@ public:
 
     void requestParse();
     void requestDelayedParse();
-    void requestParseWithCustomDelay(int delayInMs = 1000);
     void cancelDelayedParseRequest();
-    void setParseDelay(int delayInMs);
-    int parseDelay() const;
 
     bool isParsing() const;
     bool hasParsingData() const;
@@ -77,11 +74,11 @@ public:
     virtual bool canRenameFile(Node *context,
                                const Utils::FilePath &oldFilePath,
                                const Utils::FilePath &newFilePath);
-    virtual bool renameFile(Node *context,
-                            const Utils::FilePath &oldFilePath,
-                            const Utils::FilePath &newFilePath);
+    virtual bool renameFiles(
+        Node *context, const Utils::FilePairs &filesToRename, Utils::FilePaths *notRenamed);
     virtual bool addDependencies(Node *context, const QStringList &dependencies);
     virtual bool supportsAction(Node *context, ProjectAction action, const Node *node) const;
+    virtual void buildNamedTarget(const QString &target) { Q_UNUSED(target) }
     virtual QString name() const = 0;
 
     // Owned by the build system. Use only in main thread. Can go away at any time.

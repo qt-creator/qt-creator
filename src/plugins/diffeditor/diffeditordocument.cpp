@@ -19,7 +19,6 @@
 #include <QDir>
 #include <QMenu>
 #include <QTextCodec>
-#include <QUuid>
 
 using namespace Core;
 using namespace Utils;
@@ -235,18 +234,18 @@ bool DiffEditorDocument::isSaveAsAllowed() const
     return state() == LoadOK;
 }
 
-bool DiffEditorDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Result DiffEditorDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(autoSave)
 
+    QString errorString;
     if (state() != LoadOK)
-        return false;
+        return Result::Error(errorString);
 
-    const bool ok = write(filePath, format(), plainText(), errorString);
+    const bool ok = write(filePath, format(), plainText(), &errorString);
 
     if (!ok)
-        return false;
+        return Result::Error(errorString);
 
     setController(nullptr);
     setDescription({});
@@ -257,25 +256,25 @@ bool DiffEditorDocument::saveImpl(QString *errorString, const FilePath &filePath
     setPreferredDisplayName({});
     emit temporaryStateChanged();
 
-    return true;
+    return Result::Ok;
 }
 
 void DiffEditorDocument::reload()
 {
-    if (m_controller) {
+    if (m_controller)
         m_controller->requestReload();
-    } else {
-        QString errorMessage;
-        reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents);
-    }
+    else
+        reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
 }
 
-bool DiffEditorDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Result DiffEditorDocument::reload(ReloadFlag flag, ChangeType type)
 {
     Q_UNUSED(type)
     if (flag == FlagIgnore)
-        return true;
-    return open(errorString, filePath(), filePath()) == OpenResult::Success;
+        return Result::Ok;
+    QString errorString;
+    bool success = open(&errorString, filePath(), filePath()) == OpenResult::Success;
+    return Result(success, errorString);
 }
 
 Core::IDocument::OpenResult DiffEditorDocument::open(QString *errorString, const FilePath &filePath,
@@ -315,8 +314,7 @@ bool DiffEditorDocument::selectEncoding()
     switch (result.action) {
     case CodecSelectorResult::Reload: {
         setCodec(result.codec);
-        QString errorMessage;
-        return reload(&errorMessage, Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        return bool(reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents));
     }
     case CodecSelectorResult::Save:
         setCodec(result.codec);

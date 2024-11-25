@@ -370,7 +370,7 @@ std::optional<bool> QtTestParser::fillTestCaseData(
 }
 
 QtTestParseResult *QtTestParser::createParseResult(
-        const QString &testCaseName, const TestCaseData &data, const QString &projectFile) const
+    const QString &testCaseName, const TestCaseData &data, const FilePath &projectFile) const
 {
     QtTestParseResult *parseResult = new QtTestParseResult(framework());
     parseResult->itemType = TestTreeItem::TestCase;
@@ -379,7 +379,7 @@ QtTestParseResult *QtTestParser::createParseResult(
     parseResult->displayName = testCaseName;
     parseResult->line = data.line;
     parseResult->column = data.column;
-    parseResult->proFile = FilePath::fromString(projectFile);
+    parseResult->proFile = projectFile;
     parseResult->setRunsMultipleTestcases(data.multipleTestCases);
     QMap<QString, QtTestCodeLocationAndType>::ConstIterator it = data.testFunctions.begin();
     const QMap<QString, QtTestCodeLocationAndType>::ConstIterator end = data.testFunctions.end();

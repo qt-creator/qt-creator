@@ -84,31 +84,32 @@ Core::IDocument::OpenResult FormWindowFile::open(QString *errorString,
     return OpenResult::Success;
 }
 
-bool FormWindowFile::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Result FormWindowFile::saveImpl(const FilePath &filePath, bool autoSave)
 {
-    QTC_ASSERT(m_formWindow, return false);
-
+    if (!m_formWindow)
+        return Result::Error("ASSERT: FormWindoFile: !m_formWindow");
     if (filePath.isEmpty())
-        return false;
+        return Result::Error("ASSERT: FormWindowFile: filePath.isEmpty()");
 
     const QString oldFormName = m_formWindow->fileName();
     if (!autoSave)
         m_formWindow->setFileName(filePath.toString());
-    const bool writeOK = writeFile(filePath, errorString);
+    QString errorString;
+    const bool writeOK = writeFile(filePath, &errorString);
     m_shouldAutoSave = false;
     if (autoSave)
-        return writeOK;
+        return Result(writeOK, errorString);
 
     if (!writeOK) {
         m_formWindow->setFileName(oldFormName);
-        return false;
+        return Result::Error(errorString);
     }
 
     m_formWindow->setDirty(false);
     setFilePath(filePath);
     updateIsModified();
 
-    return true;
+    return Result::Ok;
 }
 
 QByteArray FormWindowFile::contents() const
@@ -185,11 +186,11 @@ bool FormWindowFile::isSaveAsAllowed() const
     return true;
 }
 
-bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Result FormWindowFile::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (!m_formWindow || type != TypeContents)
-            return true;
+            return Result::Ok;
         const bool wasModified = m_formWindow->isDirty();
         {
             Utils::GuardLocker locker(m_modificationChangedGuard);
@@ -199,13 +200,14 @@ bool FormWindowFile::reload(QString *errorString, ReloadFlag flag, ChangeType ty
         }
         if (!wasModified)
             updateIsModified();
-        return true;
+        return Result::Ok;
     } else {
         emit aboutToReload();
+        QString errorString;
         const bool success
-                = (open(errorString, filePath(), filePath()) == OpenResult::Success);
+                = (open(&errorString, filePath(), filePath()) == OpenResult::Success);
         emit reloadFinished(success);
-        return success;
+        return Result(success, errorString);
     }
 }
 

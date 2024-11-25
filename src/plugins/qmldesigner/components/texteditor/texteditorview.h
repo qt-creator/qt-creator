@@ -8,17 +8,9 @@
 
 #include <coreplugin/icontext.h>
 
-#include <memory>
-
 namespace TextEditor { class BaseTextEditor; }
 
-namespace Utils { class CrumblePath; }
-
 namespace QmlDesigner {
-
-namespace Internal {
-class TextEditorContext;
-}
 
 class TextEditorWidget;
 
@@ -86,7 +78,6 @@ public:
 
 private:
     QPointer<TextEditorWidget> m_widget;
-    Internal::TextEditorContext *m_textEditorContext = nullptr;
     bool m_errorState = false;
 };
 

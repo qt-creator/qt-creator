@@ -37,8 +37,9 @@ public:
         setText(text);
     }
 
-    void apply(TextDocumentManipulatorInterface &manipulator, int /*basePosition*/) const final
+    void apply(TextEditorWidget *editorWidget, int /*basePosition*/) const final
     {
+        QTC_ASSERT(editorWidget, return);
 
         //Move to last in circular clipboard
         if (CircularClipboard * clipboard = CircularClipboard::instance()) {
@@ -51,7 +52,7 @@ public:
                     TextEditorWidget::duplicateMimeData(m_mimeData.get()));
 
         //Paste
-        manipulator.paste();
+        editorWidget->paste();
     }
 
 private:

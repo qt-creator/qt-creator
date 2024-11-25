@@ -22,6 +22,7 @@
 #include <solutions/zip/zipwriter.h>
 
 #include <utils/qtcassert.h>
+#include <utils/fileutils.h>
 
 #include <QBuffer>
 #include <QJsonArray>

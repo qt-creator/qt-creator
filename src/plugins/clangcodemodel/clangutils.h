@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include "cppeditor/compilationdb.h"
 #include <cplusplus/Icons.h>
 
 #include <cppeditor/projectinfo.h>
@@ -22,8 +23,6 @@ class ClangDiagnosticConfig;
 class CppEditorDocumentHandle;
 }
 
-namespace TextEditor { class TextDocumentManipulatorInterface; }
-
 namespace ProjectExplorer { class Project; }
 
 namespace ClangCodeModel {
@@ -37,15 +36,6 @@ CppEditor::CompilerOptionsBuilder clangOptionsBuilder(
         const CppEditor::ClangDiagnosticConfig &warningsConfig,
         const Utils::FilePath &clangIncludeDir,
         const ProjectExplorer::Macros &extraMacros);
-QJsonArray projectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder);
-QJsonArray fullProjectPartOptions(const CppEditor::CompilerOptionsBuilder &optionsBuilder,
-                                  const QStringList &projectOptions);
-QJsonArray fullProjectPartOptions(const QJsonArray &projectPartOptions,
-                                  const QJsonArray &projectOptions);
-QJsonArray clangOptionsForFile(const CppEditor::ProjectFile &file,
-                               const CppEditor::ProjectPart &projectPart,
-                               const QJsonArray &generalOptions,
-                               CppEditor::UsePrecompiledHeaders usePch, bool clStyle);
 
 CppEditor::ProjectPart::ConstPtr projectPartForFile(const Utils::FilePath &filePath);
 
@@ -53,13 +43,11 @@ Utils::FilePath currentCppEditorDocumentFilePath();
 
 QString diagnosticCategoryPrefixRemoved(const QString &text);
 
-using GenerateCompilationDbResult = Utils::expected_str<Utils::FilePath>;
-enum class CompilationDbPurpose { Project, CodeModel };
 void generateCompilationDB(
-    QPromise<GenerateCompilationDbResult> &promise,
+    QPromise<CppEditor::GenerateCompilationDbResult> &promise,
     const QList<CppEditor::ProjectInfo::ConstPtr> &projectInfoList,
     const Utils::FilePath &baseDir,
-    CompilationDbPurpose purpose,
+    CppEditor::CompilationDbPurpose purpose,
     const CppEditor::ClangDiagnosticConfig &warningsConfig,
     const QStringList &projectOptions,
     const Utils::FilePath &clangIncludeDir);
@@ -77,60 +65,11 @@ public:
     static QString clazyCheckName(const QString &option);
 
 private:
+    int getSquareBracketStartIndex() const;
+
     const QString m_text;
-    const int m_squareBracketStartIndex;
+    const int m_squareBracketStartIndex = getSquareBracketStartIndex();
 };
-
-template <class CharacterProvider>
-void moveToPreviousChar(const CharacterProvider &provider, QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousCharacter);
-    while (provider.characterAt(cursor.position()).isSpace())
-        cursor.movePosition(QTextCursor::PreviousCharacter);
-}
-
-template <class CharacterProvider>
-void moveToPreviousWord(CharacterProvider &provider, QTextCursor &cursor)
-{
-    cursor.movePosition(QTextCursor::PreviousWord);
-    while (provider.characterAt(cursor.position()) == ':')
-        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-}
-
-template <class CharacterProvider>
-bool matchPreviousWord(const CharacterProvider &provider, QTextCursor cursor, QString pattern)
-{
-    cursor.movePosition(QTextCursor::PreviousWord);
-    while (provider.characterAt(cursor.position()) == ':')
-        cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 2);
-
-    int previousWordStart = cursor.position();
-    cursor.movePosition(QTextCursor::NextWord);
-    moveToPreviousChar(provider, cursor);
-    QString toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-
-    pattern = pattern.simplified();
-    while (!pattern.isEmpty() && pattern.endsWith(toMatch)) {
-        pattern.chop(toMatch.length());
-        if (pattern.endsWith(' '))
-            pattern.chop(1);
-        if (!pattern.isEmpty()) {
-            cursor.movePosition(QTextCursor::StartOfWord);
-            cursor.movePosition(QTextCursor::PreviousWord);
-            previousWordStart = cursor.position();
-            cursor.movePosition(QTextCursor::NextWord);
-            moveToPreviousChar(provider, cursor);
-            toMatch = provider.textAt(previousWordStart, cursor.position() - previousWordStart + 1);
-        }
-    }
-    return pattern.isEmpty();
-}
-
-QString textUntilPreviousStatement(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                                   int startPosition);
-
-bool isAtUsingDeclaration(TextEditor::TextDocumentManipulatorInterface &manipulator,
-                          int basePosition);
 
 class ClangSourceRange
 {

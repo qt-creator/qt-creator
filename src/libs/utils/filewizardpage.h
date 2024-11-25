@@ -22,7 +22,7 @@ public:
     ~FileWizardPage() override;
 
     QString fileName() const;
-    QString path() const; // Deprecated: Use filePath()
+    [[deprecated("Use filePath()")]] QString path() const;
 
     Utils::FilePath filePath() const;
 
@@ -45,6 +45,7 @@ signals:
 
 public slots:
     void setPath(const QString &path); // Deprecated: Use setFilePath
+    void setPathVisible(bool visible);
     void setFileName(const QString &name);
     void setFilePath(const Utils::FilePath &filePath);
 

@@ -1,9 +1,11 @@
 {
+    "Id" : "qtsupport",
     "Name" : "QtSupport",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -15,6 +17,7 @@
     "Category" : "Build Systems",
     "Description" : "Provides support code for build systems.",
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-project-qmake.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
@@ -28,6 +31,16 @@
         "    <comment>SCXML State Chart</comment>",
         "    <sub-class-of type='application/xml'/>",
         "    <glob pattern='*.scxml'/>",
+        "  </mime-type>",
+        "  <mime-type type='text/vnd.qt.linguist'>",
+        "    <comment>Qt Linguist file</comment>",
+        "    <sub-class-of type='application/xml'/>",
+        "    <alias type='application/x-linguist'/>",
+        "    <alias type='text/vnd.trolltech.linguist'/>",
+        "    <magic>",
+        "      <match value='&lt;TS' type='string' offset='0:256'/>",
+        "    </magic>",
+        "    <glob pattern='*.ts'/>",
         "  </mime-type>",
         "</mime-info>"
     ]

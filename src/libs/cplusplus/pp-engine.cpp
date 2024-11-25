@@ -42,6 +42,7 @@
 #include <QScopeGuard>
 
 #include <cctype>
+#include <cstdio>
 #include <deque>
 #include <list>
 #include <algorithm>
@@ -1287,8 +1288,8 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
 
                 // Offset and length of the macro invocation
                 char chunk[40];
-                qsnprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->byteOffset,
-                          tk->bytes());
+                std::snprintf(chunk, sizeof(chunk), "# expansion begin %d,%d", tk->byteOffset,
+                              tk->bytes());
                 buffer.append(chunk);
 
                 // Expanded tokens
@@ -1297,18 +1298,18 @@ void Preprocessor::trackExpansionCycles(PPToken *tk)
                     const QPair<unsigned, unsigned> &p = m_state.m_expandedTokensInfo.at(i);
                     if (p.first) {
                         if (generatedCount) {
-                            qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                            std::snprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
                             buffer.append(chunk);
                             generatedCount = 0;
                         }
-                        qsnprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
+                        std::snprintf(chunk, sizeof(chunk), " %d:%d", p.first, p.second);
                         buffer.append(chunk);
                     } else {
                         ++generatedCount;
                     }
                 }
                 if (generatedCount) {
-                    qsnprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
+                    std::snprintf(chunk, sizeof(chunk), " ~%d", generatedCount);
                     buffer.append(chunk);
                 }
                 buffer.append('\n');
@@ -1626,10 +1627,10 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
     static const QByteArray ppInclude("include");
     static const QByteArray ppIncludeNext("include_next");
     static const QByteArray ppImport("import");
+    static const QByteArray ppPragma("pragma");
     //### TODO:
     // line
     // error
-    // pragma
 
     if (tk->is(T_IDENTIFIER)) {
         const ByteArrayRef directive = tk->asByteArrayRef();
@@ -1640,6 +1641,8 @@ void Preprocessor::handlePreprocessorDirective(PPToken *tk)
             handleIfDefDirective(true, tk);
         } else if (directive == ppEndIf) {
             handleEndIfDirective(tk, poundToken);
+        } else if (directive == ppPragma) {
+            handlePragmaDirective(tk);
         } else {
             m_state.updateIncludeGuardState(State::IncludeGuardStateHint_OtherToken);
 
@@ -1864,6 +1867,26 @@ void Preprocessor::handleDefineDirective(PPToken *tk)
 
     if (m_client)
         m_client->macroAdded(macro);
+}
+
+void Preprocessor::handlePragmaDirective(PPToken *tk)
+{
+    Pragma pragma;
+    pragma.line = tk->lineno;
+    lex(tk); // consume "pragma" token
+
+    while (isContinuationToken(*tk)) {
+        if (tk->isComment()) {
+            if (!consumeComments(tk))
+                return;
+            continue;
+        }
+        pragma.tokens << tk->asByteArrayRef().toByteArray();
+        lex(tk);
+    }
+
+    if (m_client)
+        m_client->pragmaAdded(pragma);
 }
 
 QByteArray Preprocessor::expand(PPToken *tk, PPToken *lastConditionToken)

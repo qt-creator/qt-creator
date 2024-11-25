@@ -3,9 +3,53 @@
 
 #include "icontext.h"
 
+#include "icore.h"
+
 #include <QDebug>
 
 namespace Core {
+
+void IContext::contextHelp(const HelpCallback &callback) const
+{
+    if (m_contextHelpProvider) {
+        m_contextHelpProvider(callback);
+    } else {
+        // This is important as this triggers the continued iteration
+        // through other contexts that may provide items.
+        callback({});
+    }
+}
+
+void IContext::setContextHelp(const HelpItem &item)
+{
+    m_contextHelpProvider = [item](const HelpCallback &callback) {
+        callback(item);
+    };
+}
+
+void IContext::setContextHelpProvider(const HelpProvider &provider)
+{
+    m_contextHelpProvider = provider;
+}
+
+void IContext::attach(QWidget *widget, const Context &context, const HelpItem &help)
+{
+    auto icontext = new IContext(widget); // As QObject parent.
+    icontext->setContext(context);
+    icontext->setWidget(widget);
+    icontext->setContextHelp(help);
+    ICore::addContextObject(icontext);
+}
+
+void IContext::attach(QWidget *widget, const Context &context, const HelpProvider &helpProvider)
+{
+    auto icontext = new IContext(widget); // As QObject parent.
+    icontext->setContext(context);
+    icontext->setWidget(widget);
+    icontext->setContextHelpProvider(helpProvider);
+    ICore::addContextObject(icontext);
+}
+
 QDebug operator<<(QDebug debug, const Core::Context &context)
 {
     debug.nospace() << "Context(";
@@ -23,6 +67,7 @@ QDebug operator<<(QDebug debug, const Core::Context &context)
 
     return debug;
 }
+
 } // namespace Core
 
 /*!

@@ -10,10 +10,6 @@
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/projectmacro.h>
 
-#include <utils/filesystemwatcher.h>
-#include <utils/fileutils.h>
-
-#include <QString>
 #include <QVector>
 #include <QVersionNumber>
 

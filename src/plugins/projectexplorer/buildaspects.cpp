@@ -123,9 +123,9 @@ void BuildDirectoryAspect::fromMap(const Store &map)
     }
 }
 
-void BuildDirectoryAspect::addToLayout(Layouting::Layout &parent)
+void BuildDirectoryAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
-    FilePathAspect::addToLayout(parent);
+    FilePathAspect::addToLayoutImpl(parent);
     d->genericProblemSpacer = new QLabel;
     d->specialProblemSpacer = new QLabel;
     d->genericProblemLabel = new InfoLabel({}, InfoLabel::Warning);
@@ -150,7 +150,7 @@ void BuildDirectoryAspect::addToLayout(Layouting::Layout &parent)
         });
     }
 
-    const auto buildDevice = DeviceKitAspect::device(d->target->kit());
+    const auto buildDevice = BuildDeviceKitAspect::device(d->target->kit());
     if (buildDevice && buildDevice->type() != ProjectExplorer::Constants::DESKTOP_DEVICE_TYPE)
         pathChooser()->setAllowPathFromDevice(true);
     else

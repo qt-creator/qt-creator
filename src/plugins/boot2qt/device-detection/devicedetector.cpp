@@ -75,15 +75,16 @@ void DeviceDetector::handleDeviceEvent(QdbDeviceTracker::DeviceEventType eventTy
         return;
     }
 
-    const Utils::Id deviceId = Constants::QdbHardwareDevicePrefix.withSuffix(':' + serial);
-    const auto messagePrefix = Tr::tr("Device \"%1\" %2").arg(serial);
+    const Utils::Id deviceId =
+            Utils::Id(Constants::QdbHardwareDevicePrefix).withSuffix(':').withSuffix(serial);
+    const QString messagePrefix = Tr::tr("Device \"%1\" %2").arg(serial);
     DeviceManager * const dm = DeviceManager::instance();
 
     if (eventType == QdbDeviceTracker::NewDevice) {
         const QString name = Tr::tr("Boot to Qt device %1").arg(serial);
         QdbDevice::Ptr device = QdbDevice::create();
         device->setupId(IDevice::AutoDetected, deviceId);
-        device->settings()->displayName.setValue(name);
+        device->setDisplayName(name);
         device->setType(Qdb::Constants::QdbLinuxOsType);
         device->setMachineType(IDevice::Hardware);
         device->setExtraData(ProjectExplorer::Constants::SUPPORTS_RSYNC, true);

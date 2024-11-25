@@ -3,13 +3,15 @@
 
 #include "materialbrowserview.h"
 
+#include "bindingproperty.h"
+#include "createtexture.h"
+#include "externaldependenciesinterface.h"
 #include "materialbrowsermodel.h"
 #include "materialbrowsertexturesmodel.h"
 #include "materialbrowserwidget.h"
 
 #include <bindingproperty.h>
 #include <createtexture.h>
-#include <designmodecontext.h>
 #include <designmodewidget.h>
 #include <externaldependenciesinterface.h>
 #include <nodeabstractproperty.h>
@@ -68,13 +70,10 @@ WidgetInfo MaterialBrowserView::widgetInfo()
     if (m_widget.isNull()) {
         m_widget = new MaterialBrowserWidget(m_imageCache, this);
 
-        auto matEditorContext = new Internal::MaterialBrowserContext(m_widget.data());
-        Core::ICore::addContextObject(matEditorContext);
-
         // custom notifications below are sent to the MaterialEditor
         MaterialBrowserModel *matBrowserModel = m_widget->materialBrowserModel().data();
 
-        connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [&] (int idx) {
+        connect(matBrowserModel, &MaterialBrowserModel::selectedIndexChanged, this, [this](int idx) {
             if (!model())
                 return;
             m_pendingMaterialIndex = idx;
@@ -175,7 +174,7 @@ WidgetInfo MaterialBrowserView::widgetInfo()
 
         // custom notifications below are sent to the TextureEditor
         MaterialBrowserTexturesModel *texturesModel = m_widget->materialBrowserTexturesModel().data();
-        connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [&] (int idx) {
+        connect(texturesModel, &MaterialBrowserTexturesModel::selectedIndexChanged, this, [this](int idx) {
             if (!model())
                 return;
             m_pendingTextureIndex = idx;
@@ -209,13 +208,13 @@ WidgetInfo MaterialBrowserView::widgetInfo()
             emitCustomNotification("add_new_texture");
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [&]() {
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateSceneEnvStateRequested, this, [this] {
             ModelNode activeSceneEnv = Utils3D::resolveSceneEnv(this, m_sceneId);
             const bool sceneEnvExists = activeSceneEnv.isValid();
             m_widget->materialBrowserTexturesModel()->setHasSceneEnv(sceneEnvExists);
         });
 
-        connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [&]() {
+        connect(texturesModel, &MaterialBrowserTexturesModel::updateModelSelectionStateRequested, this, [this] {
             bool hasModel = false;
             const QList<ModelNode> selectedModels = Utils3D::getSelectedModels(this);
             if (selectedModels.size() == 1)

@@ -1,0 +1,35 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-turn-on-crash-reports.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Turn on crash reports
+
+    \QC uses Google Crashpad to collect information about crashes and to send it
+    to \l{Sentry: Security & Compliance}{Sentry} for processing. Crashpad might
+    capture arbitrary contents from the memory of the crashed process, including
+    user-sensitive information, URLs, and other content users have trusted
+    \QC with. However, the crash reports are used for the sole purpose of fixing
+    software errors.
+
+    To turn on crash reports:
+
+    \list 1
+        \li Go to \preferences > \uicontrol Environment > \uicontrol System.
+            \image qtcreator-preferences-environment-system.webp {System preferences}
+        \li Select \uicontrol {Enable crash reporting}.
+    \endlist
+
+    To free up disk space that crash reports reserve on the computer,
+    select \uicontrol {Clear Local Crash Reports}. You can see the
+    size of the crash reports next to the button.
+
+    Select \uicontrol ? to view more information about Crashpad and the security
+    policy.
+
+    \sa {Contact Qt}
+*/

@@ -27,7 +27,6 @@
 #include "sourceutils.h"
 #include "stackhandler.h"
 #include "stackwindow.h"
-#include "terminal.h"
 #include "threadshandler.h"
 #include "watchhandler.h"
 #include "watchutils.h"
@@ -53,11 +52,12 @@
 #include <utils/algorithm.h>
 #include <utils/basetreeview.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/macroexpander.h>
-#include <utils/qtcprocess.h>
 #include <utils/processhandle.h>
 #include <utils/processinterface.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/styledbar.h>
 #include <utils/utilsicons.h>
 
@@ -66,7 +66,6 @@
 #include <QDebug>
 #include <QDir>
 #include <QDockWidget>
-#include <QFileInfo>
 #include <QHeaderView>
 #include <QTextBlock>
 #include <QTimer>
@@ -451,7 +450,6 @@ public:
     // The current state.
     DebuggerState m_state = DebuggerNotReady;
 
-//    Terminal m_terminal;
     ProcessHandle m_inferiorPid;
 
     BreakHandler m_breakHandler;
@@ -512,6 +510,7 @@ public:
     QAction m_abortAction{Tr::tr("Abort Debugging")};
     QAction m_stepIntoAction{Tr::tr("Step Into")};
     QAction m_stepOutAction{Tr::tr("Step Out")};
+    QAction m_toggleEnableBreakpointsAction{Tr::tr("Disable All Breakpoints")};
     QAction m_runToLineAction{Tr::tr("Run to Line")}; // In the debug menu
     QAction m_runToSelectedFunctionAction{Tr::tr("Run to Selected Function")};
     QAction m_jumpToLineAction{Tr::tr("Jump to Line")};
@@ -530,7 +529,7 @@ public:
     OptionalAction m_operateInReverseDirectionAction{Tr::tr("Reverse Direction")};
     OptionalAction m_snapshotAction{Tr::tr("Take Snapshot of Process State")};
 
-    QPointer<TerminalRunner> m_terminalRunner;
+    QPointer<DebuggerRunTool> m_runTool;
     DebuggerToolTipManager m_toolTipManager;
     Context m_context;
 };
@@ -794,6 +793,28 @@ void DebuggerEnginePrivate::setupViews()
     connect(&m_watchAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleAddToWatchWindow);
 
+    m_toggleEnableBreakpointsAction.setIcon(Icons::BREAKPOINT_DISABLED.icon()); // FIXME better icon
+    m_toggleEnableBreakpointsAction.setCheckable(true);
+    m_perspective->addToolBarAction(&m_toggleEnableBreakpointsAction);
+    connect(&m_toggleEnableBreakpointsAction, &QAction::triggered,
+            m_engine, [this](bool checked) {
+        BreakHandler *handler = m_engine->breakHandler();
+        const auto bps = m_engine->breakHandler()->breakpoints();
+        for (const auto &bp : bps) {
+            if (auto gbp = bp->globalBreakpoint())
+                gbp->setEnabled(!checked, false);
+            handler->requestBreakpointEnabling(bp, !checked);
+        }
+    });
+    connect(m_engine->breakHandler(), &BreakHandler::dataChanged,
+            m_engine, [this] {
+        const auto bps = m_engine->breakHandler()->breakpoints();
+        const auto [enabled, disabled] = Utils::partition(bps, &BreakpointItem::isEnabled);
+        if (!enabled.isEmpty() && !disabled.isEmpty())
+            return;
+        m_toggleEnableBreakpointsAction.setChecked(!disabled.isEmpty());
+    });
+
     m_perspective->addToolBarAction(&m_recordForReverseOperationAction);
     connect(&m_recordForReverseOperationAction, &QAction::triggered,
             m_engine, &DebuggerEngine::handleRecordReverse);
@@ -1052,9 +1073,8 @@ void DebuggerEngine::setRunId(const QString &id)
 
 void DebuggerEngine::setRunTool(DebuggerRunTool *runTool)
 {
+    d->m_runTool = runTool;
     d->m_device = runTool->device();
-
-    d->m_terminalRunner = runTool->terminalRunner();
 
     validateRunParameters(d->m_runParameters);
 
@@ -2064,9 +2084,33 @@ void DebuggerEngine::setSecondaryEngine()
     d->m_isPrimaryEngine = false;
 }
 
-TerminalRunner *DebuggerEngine::terminal() const
+bool DebuggerEngine::usesTerminal() const
 {
-    return d->m_terminalRunner;
+    return d->m_runParameters.useTerminal;
+}
+
+qint64 DebuggerEngine::applicationPid() const
+{
+    QTC_CHECK(usesTerminal());
+    return d->m_runParameters.applicationPid;
+}
+
+qint64 DebuggerEngine::applicationMainThreadId() const
+{
+    QTC_CHECK(usesTerminal());
+    return d->m_runParameters.applicationMainThreadId;
+}
+
+void DebuggerEngine::interruptTerminal() const
+{
+    QTC_ASSERT(usesTerminal(), return);
+    d->m_runTool->interruptTerminal();
+}
+
+void DebuggerEngine::kickoffTerminalProcess() const
+{
+    QTC_ASSERT(usesTerminal(), return);
+    d->m_runTool->kickoffTerminalProcess();
 }
 
 void DebuggerEngine::selectWatchData(const QString &)
@@ -2650,7 +2694,7 @@ QString DebuggerEngine::formatStartParameters() const
     str << '\n';
     if (!sp.inferior.command.isEmpty()) {
         str << "Executable: " << sp.inferior.command.toUserOutput();
-        if (d->m_terminalRunner)
+        if (usesTerminal())
             str << " [terminal]";
         str << '\n';
         if (!sp.inferior.workingDirectory.isEmpty())

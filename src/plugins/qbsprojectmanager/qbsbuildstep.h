@@ -20,7 +20,7 @@ public:
     ArchitecturesAspect(Utils::AspectContainer *container = nullptr);
 
     void setKit(const ProjectExplorer::Kit *kit) { m_kit = kit; }
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
     QStringList selectedArchitectures() const;
     void setSelectedArchitectures(const QStringList& architectures);
     bool isManagedByTarget() const { return m_isManagedByTarget; }

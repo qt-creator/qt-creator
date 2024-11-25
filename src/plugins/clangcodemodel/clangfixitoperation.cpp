@@ -13,7 +13,7 @@
 namespace ClangCodeModel {
 namespace Internal {
 
-using FileToFixits = QMap<QString, QList<ClangFixIt>>;
+using FileToFixits = QMap<Utils::FilePath, QList<ClangFixIt>>;
 using RefactoringFilePtr = QSharedPointer<TextEditor::RefactoringFile>;
 
 ClangFixItOperation::ClangFixItOperation(const QString &fixItText, const QList<ClangFixIt> &fixIts)
@@ -36,8 +36,8 @@ static FileToFixits fixitsPerFile(const QList<ClangFixIt> &fixIts)
     FileToFixits mapping;
 
     for (const auto &fixItContainer : fixIts) {
-        const QString rangeStartFilePath = fixItContainer.range.start.targetFilePath.toString();
-        const QString rangeEndFilePath = fixItContainer.range.end.targetFilePath.toString();
+        const Utils::FilePath &rangeStartFilePath = fixItContainer.range.start.targetFilePath;
+        const Utils::FilePath &rangeEndFilePath = fixItContainer.range.end.targetFilePath;
         QTC_CHECK(rangeStartFilePath == rangeEndFilePath);
         mapping[rangeStartFilePath].append(fixItContainer);
     }
@@ -52,11 +52,10 @@ void ClangFixItOperation::perform()
     const FileToFixits fileToFixIts = fixitsPerFile(fixIts);
 
     for (auto i = fileToFixIts.cbegin(), end = fileToFixIts.cend(); i != end; ++i) {
-        const QString filePath = i.key();
-        const QList<ClangFixIt> fixits = i.value();
+        const Utils::FilePath &filePath = i.key();
+        const QList<ClangFixIt> &fixits = i.value();
 
-        RefactoringFilePtr refactoringFile = refactoringChanges.file(
-            Utils::FilePath::fromString(filePath));
+        RefactoringFilePtr refactoringFile = refactoringChanges.file(filePath);
         refactoringFiles.append(refactoringFile);
 
         applyFixitsToFile(*refactoringFile, fixits);

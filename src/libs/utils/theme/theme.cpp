@@ -6,6 +6,7 @@
 #include "../hostosinfo.h"
 #include "../qtcassert.h"
 #include "filepath.h"
+#include "stylehelper.h"
 #ifdef Q_OS_MACOS
 #import "theme_mac.h"
 #endif
@@ -21,6 +22,7 @@ static Theme *m_creatorTheme = nullptr;
 static std::optional<QPalette> m_initialPalette;
 
 ThemePrivate::ThemePrivate()
+    : defaultToolbarStyle(StyleHelper::ToolbarStyle::Compact)
 {
     const QMetaObject &m = Theme::staticMetaObject;
     colors.resize        (m.enumerator(m.indexOfEnumerator("Color")).keyCount());
@@ -31,11 +33,6 @@ ThemePrivate::ThemePrivate()
 Theme *creatorTheme()
 {
     return m_creatorTheme;
-}
-
-Theme *proxyTheme()
-{
-    return new Theme(m_creatorTheme);
 }
 
 // Convenience
@@ -133,6 +130,11 @@ QStringList Theme::preferredStyles() const
 QString Theme::defaultTextEditorColorScheme() const
 {
     return d->defaultTextEditorColorScheme;
+}
+
+StyleHelper::ToolbarStyle Theme::defaultToolbarStyle() const
+{
+    return d->defaultToolbarStyle;
 }
 
 QString Theme::id() const
@@ -233,6 +235,9 @@ void Theme::readSettingsInternal(QSettings &settings)
         d->preferredStyles.removeAll(QString());
         d->defaultTextEditorColorScheme
             = settings.value(QLatin1String("DefaultTextEditorColorScheme")).toString();
+        d->defaultToolbarStyle =
+                settings.value(QLatin1String("DefaultToolbarStyle")).toString() == "Relaxed"
+                ? StyleHelper::ToolbarStyle::Relaxed : StyleHelper::ToolbarStyle::Compact;
         d->enforceAccentColorOnMacOS = settings.value("EnforceAccentColorOnMacOS").toString();
     }
 
@@ -311,7 +316,7 @@ void Theme::readSettings(QSettings &settings)
     for (int i = 0, total = e.keyCount(); i < total; ++i) {
         const QString key = QLatin1String(e.key(i));
         if (!d->unresolvedPalette.contains(key)) {
-            if (i < PaletteWindow || i > PalettePlaceholderTextDisabled)
+            if (i < PaletteWindow || i > PaletteAccentDisabled)
                 qWarning("Theme \"%s\" misses color setting for key \"%s\".",
                          qPrintable(d->fileName),
                          qPrintable(key));
@@ -372,6 +377,28 @@ void Theme::setHelpMenu(QMenu *menu)
 #else
     Q_UNUSED(menu)
 #endif
+}
+
+expected_str<Theme::Color> Theme::colorToken(const QString &tokenName,
+                                             [[maybe_unused]] TokenFlags flags)
+{
+    const QString colorName = "Token_" + tokenName;
+    static const QMetaEnum colorEnum = QMetaEnum::fromType<Theme::Color>();
+    bool ok = false;
+    const Color result = static_cast<Color>(colorEnum.keyToValue(colorName.toLatin1(), &ok));
+    if (!ok)
+        return make_unexpected(QString::fromLatin1("%1 - Color token \"%2\" not found.")
+                               .arg(Q_FUNC_INFO).arg(tokenName));
+    return result;
+}
+
+Theme::Color Theme::highlightFor(Color role)
+{
+    QTC_ASSERT(creatorTheme(), return role);
+    static const QMap<QRgb, Theme::Color> map = {
+        { creatorColor(Theme::Token_Text_Muted).rgba(), Theme::Token_Text_Default},
+    };
+    return map.value(creatorColor(role).rgba(), role);
 }
 
 QPalette Theme::initialPalette()
@@ -435,6 +462,13 @@ QPalette Theme::palette() const
         {PaletteShadowDisabled,            QPalette::Shadow,           QPalette::Disabled, false},
         {PalettePlaceholderText,           QPalette::PlaceholderText,  QPalette::All,      false},
         {PalettePlaceholderTextDisabled,   QPalette::PlaceholderText,  QPalette::Disabled, false},
+#if QT_VERSION < QT_VERSION_CHECK(6, 6, 0)
+        {PaletteAccent,                    QPalette::NoRole,           QPalette::All,      false},
+        {PaletteAccentDisabled,            QPalette::NoRole,           QPalette::Disabled, false},
+#else
+        {PaletteAccent,                    QPalette::Accent,           QPalette::All,      false},
+        {PaletteAccentDisabled,            QPalette::Accent,           QPalette::Disabled, false},
+#endif
     };
 
     for (auto entry: mapping) {

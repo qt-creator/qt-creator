@@ -107,9 +107,7 @@ QmlProfilerTraceView::QmlProfilerTraceView(QWidget *parent, QmlProfilerViewManag
     d->m_mainView->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFocusProxy(d->m_mainView);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(d->m_mainView);
-    agg->add(new TraceViewFindSupport(this, modelManager));
+    Aggregation::aggregate({d->m_mainView, new TraceViewFindSupport(this, modelManager)});
 
     groupLayout->addWidget(d->m_mainView);
     groupLayout->addWidget(new Core::FindToolBarPlaceHolder(this));

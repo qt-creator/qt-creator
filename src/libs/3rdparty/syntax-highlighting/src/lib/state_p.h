@@ -13,8 +13,6 @@
 #include <QSharedData>
 #include <QStringList>
 
-#include "definitionref_p.h"
-
 namespace KSyntaxHighlighting
 {
 class Context;

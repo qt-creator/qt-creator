@@ -33,6 +33,21 @@ const char initCommandsKeyC[] = "InitCommands";
 const char resetCommandsKeyC[] = "ResetCommands";
 const char useExtendedRemoteKeyC[] = "UseExtendedRemote";
 
+class GdbServerProviderRunner final : public SimpleTargetRunner
+{
+public:
+    GdbServerProviderRunner(RunControl *runControl, const CommandLine &commandLine)
+        : SimpleTargetRunner(runControl)
+    {
+        setId("BareMetalGdbServer");
+        // Baremetal's GDB servers are launched on the host, not on the target.
+        setStartModifier([this, commandLine] {
+            setCommandLine(commandLine);
+            forceRunOnHost();
+        });
+    }
+};
+
 // GdbServerProvider
 
 GdbServerProvider::GdbServerProvider(const QString &id)
@@ -145,8 +160,8 @@ bool GdbServerProvider::aboutToRun(DebuggerRunTool *runTool, QString &errorMessa
         return false;
     }
     if (!bin.exists()) {
-        errorMessage = Tr::tr("Cannot debug: Could not find executable for \"%1\".")
-                .arg(bin.toString());
+        errorMessage
+            = Tr::tr("Cannot debug: Could not find executable for \"%1\".").arg(bin.toUserOutput());
         return false;
     }
 
@@ -298,20 +313,6 @@ QString GdbServerProviderConfigWidget::defaultResetCommandsTooltip()
 {
     return Tr::tr("Enter GDB commands to reset the hardware. "
                   "The MCU should be halted after these commands.");
-}
-
-// GdbServerProviderRunner
-
-GdbServerProviderRunner::GdbServerProviderRunner(ProjectExplorer::RunControl *runControl,
-                                                 const CommandLine &commandLine)
-    : SimpleTargetRunner(runControl)
-{
-    setId("BareMetalGdbServer");
-    // Baremetal's GDB servers are launched on the host, not on the target.
-    setStartModifier([this, commandLine] {
-        setCommandLine(commandLine);
-        forceRunOnHost();
-    });
 }
 
 } // BareMetal::Internal

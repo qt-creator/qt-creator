@@ -40,6 +40,7 @@
 
 #include <utils/appinfo.h>
 #include <utils/checkablemessagebox.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/icon.h>
 #include <utils/infobar.h>
@@ -68,6 +69,7 @@
 #include <algorithm>
 #include <memory>
 
+using namespace Core;
 using namespace ProjectExplorer;
 using namespace Utils;
 using namespace Core;
@@ -754,13 +756,10 @@ WelcomeMode::WelcomeMode()
 
     const Utils::Icon FLAT({{":/studiowelcome/images/mode_welcome_mask.png",
                       Utils::Theme::IconsBaseColor}});
-    const Utils::Icon FLAT_ACTIVE({{":/studiowelcome/images/mode_welcome_mask.png",
-                             Utils::Theme::IconsModeWelcomeActiveColor}});
-    setIcon(Utils::Icon::modeIcon(FLAT, FLAT, FLAT_ACTIVE));
+    setIcon(Icon::sideBarIcon(FLAT, FLAT));
 
     setPriority(Core::Constants::P_MODE_WELCOME);
     setId(Core::Constants::MODE_WELCOME);
-    setContextHelp("Qt Design Studio Manual");
     setContext(Core::Context(Core::Constants::C_WELCOME_MODE));
 
     QFontDatabase::addApplicationFont(":/studiofonts/TitilliumWeb-Regular.ttf");
@@ -805,6 +804,7 @@ WelcomeMode::WelcomeMode()
     m_modeWidget = new QWidget;
     m_modeWidget->setLayout(boxLayout);
     boxLayout->addWidget(m_quickWidget);
+    IContext::attach(m_modeWidget, {}, "Qt Design Studio Manual");
     setWidget(m_modeWidget);
 
     QStringList designStudioQchPathes;

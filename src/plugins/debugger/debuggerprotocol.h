@@ -9,7 +9,6 @@
 #include <QJsonValue>
 #include <QJsonObject>
 #include <QVarLengthArray>
-#include <QVector>
 
 #include <utils/filepath.h>
 #include <utils/textutils.h>
@@ -143,7 +142,7 @@ public:
     QString m_name;
     QString m_data;
 
-    using Children = QVector<GdbMi>;
+    using Children = QList<GdbMi>;
     enum Type { Invalid, Const, Tuple, List };
     Type m_type = Invalid;
 

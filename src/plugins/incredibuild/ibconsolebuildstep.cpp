@@ -100,12 +100,21 @@ void IBConsoleBuildStep::setupOutputFormatter(OutputFormatter *formatter)
 
 // IBConsoleStepFactory
 
-IBConsoleStepFactory::IBConsoleStepFactory()
+class IBConsoleStepFactory final : public BuildStepFactory
 {
-    registerStep<IBConsoleBuildStep>(IncrediBuild::Constants::IBCONSOLE_BUILDSTEP_ID);
-    setDisplayName(Tr::tr("IncrediBuild for Linux"));
-    setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
-                           ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
+public:
+    IBConsoleStepFactory()
+    {
+        registerStep<IBConsoleBuildStep>(IncrediBuild::Constants::IBCONSOLE_BUILDSTEP_ID);
+        setDisplayName(Tr::tr("IncrediBuild for Linux"));
+        setSupportedStepLists({ProjectExplorer::Constants::BUILDSTEPS_BUILD,
+                               ProjectExplorer::Constants::BUILDSTEPS_CLEAN});
+    }
+};
+
+void setupIBConsoleStep()
+{
+    static IBConsoleStepFactory theIBConsoleStepFactory;
 }
 
 } // IncrediBuild::Internal

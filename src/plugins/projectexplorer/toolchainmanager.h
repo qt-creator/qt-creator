@@ -12,8 +12,6 @@
 #include <QSet>
 #include <QString>
 
-#include <functional>
-
 namespace Utils { class FilePath; }
 
 namespace ProjectExplorer {
@@ -48,12 +46,16 @@ public:
 
     static bool isLoaded();
 
-    static bool registerToolchain(Toolchain *tc);
-    static void deregisterToolchain(Toolchain *tc);
+    static Toolchains registerToolchains(const Toolchains &toolchains);
+    static void deregisterToolchains(const Toolchains &toolchains);
 
     static QList<Utils::Id> allLanguages();
     static bool registerLanguage(const Utils::Id &language, const QString &displayName);
+    static void registerLanguageCategory(
+        const LanguageCategory &languages, const QString &displayName);
     static QString displayNameOfLanguageId(const Utils::Id &id);
+    static QString displayNameOfLanguageCategory(const LanguageCategory &category);
+    static const QList<LanguageCategory> languageCategories();
     static bool isLanguageSupported(const Utils::Id &id);
 
     static void aboutToShutdown();
@@ -65,12 +67,14 @@ public:
     static bool isBadToolchain(const Utils::FilePath &toolchain);
     static void addBadToolchain(const Utils::FilePath &toolchain);
 
+    static bool isBetterToolchain(const ToolchainBundle &bundle1, const ToolchainBundle &bundle2);
+
     void saveToolchains();
 
 signals:
-    void toolhainAdded(ProjectExplorer::Toolchain *);
-    // Toolchain is still valid when this call happens!
-    void toolchainRemoved(ProjectExplorer::Toolchain *);
+    void toolchainsRegistered(const Toolchains &registered);
+    // Toolchains are still valid when this call happens!
+    void toolchainsDeregistered(const Toolchains &deregistered);
     // Toolchain was updated.
     void toolchainUpdated(ProjectExplorer::Toolchain *);
     // Something changed.

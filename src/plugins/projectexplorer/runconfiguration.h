@@ -172,10 +172,7 @@ public:
 
     void update();
 
-    const Utils::MacroExpander *macroExpander() const { return &m_expander; }
-
-signals:
-    void enabledChanged();
+    virtual RunConfiguration *clone(Target *parent);
 
 protected:
     RunConfiguration(Target *target, Utils::Id id);
@@ -187,6 +184,8 @@ protected:
     void setUpdater(const Updater &updater);
 
     Task createConfigurationIssue(const QString &description) const;
+
+    void setUsesEmptyBuildKeys() { m_usesEmptyBuildKeys = true; }
 
 private:
     // Any additional data should be handled by aspects.
@@ -204,9 +203,9 @@ private:
     CommandLineGetter m_commandLineGetter;
     RunnableModifier m_runnableModifier;
     Updater m_updater;
-    Utils::MacroExpander m_expander;
     Utils::Store m_pristineState;
     bool m_customized = false;
+    bool m_usesEmptyBuildKeys = false;
 };
 
 class RunConfigurationCreationInfo
@@ -233,7 +232,6 @@ public:
     virtual ~RunConfigurationFactory();
 
     static RunConfiguration *restore(Target *parent, const Utils::Store &map);
-    static RunConfiguration *clone(Target *parent, RunConfiguration *source);
     static const QList<RunConfigurationCreationInfo> creatorsForTarget(Target *parent);
 
     Utils::Id runConfigurationId() const { return m_runConfigurationId; }

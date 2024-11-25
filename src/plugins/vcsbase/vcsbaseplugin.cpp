@@ -17,6 +17,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projecttree.h>
 
+#include <utils/fileutils.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
 
@@ -29,6 +30,7 @@
 #include <QSharedData>
 #include <QProcessEnvironment>
 #include <QTextCodec>
+#include <QTimer>
 
 using namespace Core;
 using namespace Utils;
@@ -307,8 +309,10 @@ void StateListener::slotStateChanged()
         state.clearPatchFile(); // Need a repository to patch
 
     qCDebug(stateLog).noquote() << "VC:" << (vc ? vc->displayName() : QString("None")) << state;
-    EditorManager::updateWindowTitles();
-    emit stateChanged(state, vc);
+    QTimer::singleShot(500, this, [this, state, vc] {
+        EditorManager::updateWindowTitles();
+        emit stateChanged(state, vc);
+    });
 }
 
 } // namespace Internal
@@ -328,8 +332,8 @@ public:
     Qt Creator's state relevant to VCS plugins is a tuple of
 
     \list
-    \li Current file and it's version system control/top level
-    \li Current project and it's version system control/top level
+    \li Current file and its version control system top level
+    \li Current project and its version control system top level
     \endlist
 
     \sa VcsBase::VcsBasePlugin

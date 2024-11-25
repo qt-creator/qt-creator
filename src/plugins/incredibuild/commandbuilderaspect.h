@@ -23,7 +23,7 @@ public:
     QString fullCommandFlag(bool keepJobNum) const;
 
 private:
-    void addToLayout(Layouting::Layout &parent) final;
+    void addToLayoutImpl(Layouting::Layout &parent) final;
     void fromMap(const Utils::Store &map) final;
     void toMap(Utils::Store &map) const final;
 

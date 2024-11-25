@@ -13,12 +13,12 @@ Window {
         objectName: "safetextitem"
         x: 206
         y: 208
-        width: 340
-        height: 40
+        width: 380
+        height: 50
         color: "#8ae234"
         fillColor: "black"
         text: "Hello Qt Safe Renderer!"
-        font.family: "Lato"
+        font.family: "Arial"
         horizontalAlignment: Text.AlignLeft
         font.pixelSize: 32
     }

@@ -3,12 +3,10 @@
 
 #pragma once
 
-namespace CompilationDatabaseProjectManager {
-namespace Constants {
+namespace CompilationDatabaseProjectManager::Constants {
 
 const char COMPILATIONDATABASEMIMETYPE[]  = "text/x-compilation-database-project";
 const char COMPILATIONDATABASEPROJECT_ID[] = "CompilationDatabase.CompilationDatabaseEditor";
 const char COMPILATIONDATABASEPROJECT_FILES_SUFFIX[] = ".files";
 
-} // Constants
-} // CompilationDatabaseProjectManager
+} // CompilationDatabaseProjectManager::Constants

@@ -5,7 +5,6 @@
 
 #include <QColor>
 #include <QString>
-#include <QList>
 #include <QMetaType>
 
 namespace BinEditor {

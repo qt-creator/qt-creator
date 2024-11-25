@@ -1,9 +1,11 @@
 {
+    "Id" : "resourceeditor",
     "Name" : "ResourceEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,13 +20,14 @@
         "Store files in the application's executable with the platform-independent Qt Resource System."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-create-resource-files.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
         "<?xml version='1.0'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
         "    <mime-type type='application/vnd.qt.xml.resource'>",
-        "        <sub-class-of type='text/xml'/>",
+        "        <sub-class-of type='application/xml'/>",
         "        <comment>Qt Resource file</comment>",
         "        <glob pattern='*.qrc'/>",
         "    </mime-type>",

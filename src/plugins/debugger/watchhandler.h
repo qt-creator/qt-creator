@@ -6,16 +6,13 @@
 #include "watchdata.h"
 #include "debuggerengine.h"
 
-#include <QVector>
-
-namespace Debugger {
-namespace Internal {
+namespace Debugger::Internal {
 
 class DebuggerCommand;
 class DebuggerEngine;
 class WatchModel;
 
-using DisplayFormats = QVector<DisplayFormat>;
+using DisplayFormats = QList<DisplayFormat>;
 
 class WatchModelBase : public Utils::TreeModel<WatchItem, WatchItem>
 {
@@ -105,7 +102,6 @@ private:
     WatchModel *m_model; // Owned.
 };
 
-} // namespace Internal
-} // namespace Debugger
+} // Debugger::Internal
 
 Q_DECLARE_METATYPE(Debugger::Internal::DisplayFormat)

@@ -72,7 +72,7 @@
         \li \c {hello_world_ui.pyproject}, which lists the files in the Python
             project.
         \li \c {mainwindow.py}, which has some boilerplate code for a class.
-        \li \c {reguirements.txt}, which stores the PySide version of the
+        \li \c {requirements.txt}, which stores the PySide version of the
             generated code. You can use this file to install the required PySide
             version using pip.
     \endlist

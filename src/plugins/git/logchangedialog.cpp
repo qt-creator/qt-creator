@@ -30,7 +30,7 @@ namespace Git::Internal {
 
 enum Columns
 {
-    Sha1Column,
+    HashColumn,
     SubjectColumn,
     ColumnCount
 };
@@ -43,7 +43,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const override
     {
         if (role == Qt::ToolTipRole) {
-            const QString revision = index.sibling(index.row(), Sha1Column).data(Qt::EditRole).toString();
+            const QString revision = index.sibling(index.row(), HashColumn).data(Qt::EditRole).toString();
             const auto it = m_descriptions.constFind(revision);
             if (it != m_descriptions.constEnd())
                 return *it;
@@ -66,8 +66,7 @@ LogChangeWidget::LogChangeWidget(QWidget *parent)
     , m_model(new LogChangeModel(this))
     , m_hasCustomDelegate(false)
 {
-    QStringList headers;
-    headers << Tr::tr("Sha1")<< Tr::tr("Subject");
+    const QStringList headers = {Tr::tr("Hash"), Tr::tr("Subject")};
     m_model->setHorizontalHeaderLabels(headers);
     setModel(m_model);
     setMinimumWidth(300);
@@ -92,8 +91,8 @@ bool LogChangeWidget::init(const FilePath &repository, const QString &commit, Lo
 
 QString LogChangeWidget::commit() const
 {
-    if (const QStandardItem *sha1Item = currentItem(Sha1Column))
-        return sha1Item->text();
+    if (const QStandardItem *hashItem = currentItem(HashColumn))
+        return hashItem->text();
     return {};
 }
 
@@ -109,7 +108,7 @@ QString LogChangeWidget::earliestCommit() const
 {
     int rows = m_model->rowCount();
     if (rows) {
-        if (const QStandardItem *item = m_model->item(rows - 1, Sha1Column))
+        if (const QStandardItem *item = m_model->item(rows - 1, HashColumn))
             return item->text();
     }
     return {};
@@ -124,7 +123,7 @@ void LogChangeWidget::setItemDelegate(QAbstractItemDelegate *delegate)
 void LogChangeWidget::emitCommitActivated(const QModelIndex &index)
 {
     if (index.isValid()) {
-        const QString commit = index.sibling(index.row(), Sha1Column).data().toString();
+        const QString commit = index.sibling(index.row(), HashColumn).data().toString();
         if (!commit.isEmpty())
             emit commitActivated(commit);
     }
@@ -157,7 +156,7 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
     if (const int rowCount = m_model->rowCount())
         m_model->removeRows(0, rowCount);
 
-    // Retrieve log using a custom format "Sha1:Subject [(refs)]"
+    // Retrieve log using a custom format "Hash:Subject [(refs)]"
     QStringList arguments;
     arguments << "--max-count=1000" << "--format=%h:%s %d";
     arguments << (commit.isEmpty() ? "HEAD" : commit);
@@ -188,11 +187,11 @@ bool LogChangeWidget::populateLog(const FilePath &repository, const QString &com
                 }
                 row.push_back(item);
             }
-            const QString sha1 = line.left(colonPos);
-            row[Sha1Column]->setText(sha1);
+            const QString hash = line.left(colonPos);
+            row[HashColumn]->setText(hash);
             row[SubjectColumn]->setText(line.right(line.size() - colonPos - 1));
             m_model->appendRow(row);
-            if (selected == -1 && currentCommit == sha1)
+            if (selected == -1 && currentCommit == hash)
                 selected = m_model->rowCount() - 1;
         }
     }

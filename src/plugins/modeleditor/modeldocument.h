@@ -33,14 +33,14 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
 
     ExtDocumentController *documentController() const;
 
     OpenResult load(QString *errorString, const Utils::FilePath &fileName);
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     ModelDocumentPrivate *d;

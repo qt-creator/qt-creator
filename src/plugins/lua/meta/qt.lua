@@ -4,6 +4,48 @@
 
 local qt = {}
 
+---@enum CompleterCompletionMode
+qt.CompleterCompletionMode = {
+    PopupCompletion = 0,
+    InlineCompletion = 1,
+    UnfilteredPopupCompletion = 2,
+};
+
+---@class QCompleter
+---@field completionMode CompleterCompletionMode The completion mode.
+local QCompleter = {}
+
+---Creates a new Completer.
+---@param params string[] The list of suggestions.
+---@return QCompleter completer The new Completer.
+function qt.QCompleter.create(params) end
+
+---Returns current completion.
+---@return string
+function qt.QCompleter:currentCompletion() end
+---@param callback function The function to be called when user choice is selected from popup.
+function qt.QCompleter.onActivated(callback) end
+
+---@class QClipboard A Lua wrapper for the Qt `QClipboard` class.
+---@field text string The text content of the clipboard. Gets or sets the text content of the clipboard.
+qt.QClipboard = {}
+
+---Returns the global clipboard object.
+---@return QClipboard globalClipboard The global clipboard object.
+function qt.clipboard() end
+
+---@class QFontMetrics A Lua wrapper for the Qt `QFontMetrics` class.
+qt.QFontMetrics = {}
+
+---Returns current font height.
+---@return int
+function qt.QFontMetrics:height() end
+
+---Creates a new QFontMetrics.
+---@param font QFont
+---@return QFontMetrics fontMetrics The new QFontMetrics.
+function qt.QFontMetrics.create(params) end
+
 ---@enum TextElideMode
 qt.TextElideMode = {
     ElideLeft = 0,
@@ -60,6 +102,51 @@ qt.QDirIterator = {
         NoIteratorFlags = 0,
         FollowSymlinks = 0,
         Subdirectories = 0,
+    }
+}
+
+qt.QFileDevice = {
+    ---@enum Permission
+    Permission = {
+        ReadOwner = 0,
+        ReadUser = 0,
+        ReadGroup = 0,
+        ReadOther = 0,
+        WriteOwner = 0,
+        WriteUser = 0,
+        WriteGroup = 0,
+        WriteOther = 0,
+        ExeOwner = 0,
+        ExeUser = 0,
+        ExeGroup = 0,
+        ExeOther = 0,
+    }
+}
+
+qt.QStandardPaths = {
+    ---@enum StandardLocation
+    StandardLocation = {
+        DesktopLocation = 0,
+        DocumentsLocation = 0,
+        FontsLocation = 0,
+        ApplicationsLocation = 0,
+        MusicLocation = 0,
+        MoviesLocation = 0,
+        PicturesLocation = 0,
+        TempLocation = 0,
+        HomeLocation = 0,
+        AppLocalDataLocation = 0,
+        CacheLocation = 0,
+        GenericDataLocation = 0,
+        RuntimeLocation = 0,
+        ConfigLocation = 0,
+        DownloadLocation = 0,
+        GenericCacheLocation = 0,
+        GenericConfigLocation = 0,
+        AppDataLocation = 0,
+        AppConfigLocation = 0,
+        PublicShareLocation = 0,
+        TemplatesLocation = 0,
     }
 }
 

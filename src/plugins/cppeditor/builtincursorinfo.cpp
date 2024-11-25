@@ -12,6 +12,7 @@
 
 #include <cplusplus/CppDocument.h>
 #include <cplusplus/Macro.h>
+#include <cplusplus/Overview.h>
 #include <cplusplus/TranslationUnit.h>
 
 #include <utils/async.h>
@@ -25,6 +26,51 @@ using namespace CPlusPlus;
 namespace CppEditor {
 using SemanticUses = QList<SemanticInfo::Use>;
 namespace {
+
+static bool isOwnershipRAIIName(const QString &name)
+{
+    static const QSet<QString> knownNames{
+        // Qt
+        "QMutexLocker",
+        "QReadLocker",
+        "QScopedArrayPointer",
+        "QScopedPointer",
+        "QWriteLocker",
+
+        // Standard C++
+        "auto_ptr",
+        "unique_ptr",
+
+        // Boost
+        "scoped_array",
+        "scoped_ptr",
+    };
+    return knownNames.contains(name);
+}
+
+static bool isOwnershipRAIIType(Symbol *symbol, const LookupContext &context)
+{
+    if (!symbol)
+        return false;
+
+    // This is not a "real" comparison of types. What we do is to resolve the symbol
+    // in question and then try to match its name with already known ones.
+    if (symbol->asDeclaration()) {
+        Declaration *declaration = symbol->asDeclaration();
+        const NamedType *namedType = declaration->type()->asNamedType();
+        if (namedType) {
+            ClassOrNamespace *clazz
+                = context.lookupType(namedType->name(), declaration->enclosingScope());
+            if (clazz && !clazz->symbols().isEmpty()) {
+                Overview overview;
+                Symbol *symbol = clazz->symbols().at(0);
+                return isOwnershipRAIIName(overview.prettyName(symbol->name()));
+            }
+        }
+    }
+
+    return false;
+}
 
 CursorInfo::Range toRange(const SemanticInfo::Use &use)
 {

@@ -26,6 +26,7 @@
 #include <utils/action.h>
 #include <utils/commandline.h>
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <vcsbase/vcsbaseconstants.h>
@@ -57,7 +58,7 @@ public:
     MercurialPluginPrivate();
 
     // IVersionControl
-    QString displayName() const final;
+    QString displayName() const final { return "Mercurial"; }
     Utils::Id id() const final;
     bool isVcsFileOrDirectory(const FilePath &filePath) const final;
 
@@ -71,6 +72,9 @@ public:
     bool vcsMove(const FilePath &from, const FilePath &to) final;
     bool vcsCreateRepository(const FilePath &directory) final;
     void vcsAnnotate(const FilePath &filePath, int line) final;
+    void vcsLog(const Utils::FilePath &topLevel, const Utils::FilePath &relativeDirectory) final {
+        mercurialClient().log(topLevel, {relativeDirectory.path()});
+    }
     void vcsDescribe(const FilePath &source, const QString &id) final
     {
         mercurialClient().view(source, id);
@@ -639,11 +643,6 @@ void MercurialPluginPrivate::updateActions(VersionControlBase::ActionState as)
         repoAction->setEnabled(repoEnabled);
 }
 
-QString MercurialPluginPrivate::displayName() const
-{
-    return Tr::tr("Mercurial");
-}
-
 Utils::Id MercurialPluginPrivate::id() const
 {
     return {VcsBase::Constants::VCS_ID_MERCURIAL};
@@ -734,7 +733,7 @@ VcsCommand *MercurialPluginPrivate::createInitialCheckoutCommand(const QString &
                                                                  const QString &localName,
                                                                  const QStringList &extraArgs)
 {
-    auto command = VcsBaseClient::createVcsCommand(this, baseDirectory,
+    auto command = VcsBaseClient::createVcsCommand(baseDirectory,
                    mercurialClient().processEnvironment(baseDirectory));
     command->addJob({settings().binaryPath(), {"clone", extraArgs, url, localName}}, -1);
     return command;

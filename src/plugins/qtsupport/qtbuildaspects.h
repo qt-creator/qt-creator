@@ -21,7 +21,7 @@ public:
     void setBuildConfiguration(const ProjectExplorer::BuildConfiguration *newBuildConfig);
 
 private:
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };
@@ -36,7 +36,7 @@ public:
     void setBuildConfiguration(const ProjectExplorer::BuildConfiguration *newBuildConfig);
 
 private:
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     const ProjectExplorer::BuildConfiguration *m_buildConfig = nullptr;
 };

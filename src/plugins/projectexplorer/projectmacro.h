@@ -20,7 +20,7 @@ enum class MacroType
 
 class Macro;
 
-using Macros = QVector<Macro>;
+using Macros = QList<Macro>;
 
 class PROJECTEXPLORER_EXPORT Macro
 {

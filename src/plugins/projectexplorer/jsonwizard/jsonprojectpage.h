@@ -20,6 +20,9 @@ public:
     bool validatePage() override;
 
     static QString uniqueProjectName(const QString &path);
+
+private:
+    void initUiForSubProject();
 };
 
 } // namespace ProjectExplorer

@@ -75,7 +75,9 @@ public:
     static Type type(const QByteArray &type);
     static QByteArray typeName(Type type);
 
-    static bool matchSubstring(const char *dataPtr, int dataSize, int rangeStart, int rangeLength, int valueLength, const char *valueData, const char *mask);
+    static bool matchSubstring(const char *dataPtr, qsizetype dataSize, int rangeStart,
+                               int rangeLength, qsizetype valueLength, const char *valueData,
+                               const char *mask);
 
 private:
     // added for Qt Creator

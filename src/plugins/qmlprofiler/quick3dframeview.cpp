@@ -54,13 +54,13 @@ Quick3DFrameView::Quick3DFrameView(QmlProfilerModelManager *profilerModelManager
     connect(m_compareFrameView.get(), &Quick3DMainView::gotoSourceLocation,
             this, &Quick3DFrameView::gotoSourceLocation);
 
-    auto groupLayout = new QVBoxLayout(this);
+    auto groupLayout = new QVBoxLayout;
     groupLayout->setContentsMargins(0,0,0,0);
     groupLayout->setSpacing(0);
-    auto hMainLayout = new QHBoxLayout(this);
+    auto hMainLayout = new QHBoxLayout;
     hMainLayout->setContentsMargins(0,0,0,0);
     hMainLayout->setSpacing(0);
-    auto hFrameLayout = new QHBoxLayout(this);
+    auto hFrameLayout = new QHBoxLayout;
     hFrameLayout->setContentsMargins(0,0,0,0);
     hFrameLayout->setSpacing(0);
     auto view3DComboBox = new QComboBox(this);

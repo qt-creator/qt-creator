@@ -4,7 +4,6 @@
 #include "assetslibraryview.h"
 
 #include "assetslibrarywidget.h"
-#include "designmodecontext.h"
 #include "qmldesignerplugin.h"
 
 #include <asynchronousimagecache.h>
@@ -63,9 +62,6 @@ WidgetInfo AssetsLibraryView::widgetInfo()
             imageCacheData()->asynchronousFontImageCache,
             imageCacheData()->synchronousFontImageCache,
             this);
-
-        auto context = new Internal::AssetsLibraryContext(m_widget.get());
-        Core::ICore::addContextObject(context);
     }
 
     return createWidgetInfo(m_widget.get(), "Assets", WidgetInfo::LeftPane, tr("Assets"));

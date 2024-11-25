@@ -6,6 +6,7 @@
 #include "utils_global.h"
 
 #include "filepath.h"
+#include "id.h"
 #include "infolabel.h"
 #include "wizardpage.h"
 
@@ -33,9 +34,18 @@ public:
 
     bool forceSubProject() const;
     void setForceSubProject(bool force);
-    void setProjectList(const QStringList &projectList);
-    void setProjectDirectories(const FilePaths &directoryList);
-    int projectIndex() const;
+
+    struct ProjectInfo
+    {
+        QString display;
+        FilePath projectDirectory;
+        FilePath projectFile;
+        QString buildSystem;
+        Utils::Id projectId;
+    };
+    void setProjectInfos(const QList<ProjectInfo> &projectInfos);
+    void setProjectIndex(int index);
+    ProjectInfo currentProjectInfo() const;
 
     bool validateProjectName(const QString &name, QString *errorMessage);
 

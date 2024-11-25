@@ -16,7 +16,21 @@
         { "key": "QmlProjectFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'qmlproject')}" },
         { "key": "MainQmlFileName", "value": "%{JS: Util.fileName(value('ProjectName'), 'qml')}" },
         { "key": "UseVirtualKeyboardByDefault", "value": "%{JS: value('Plugins').indexOf('Boot2Qt') >= 0 || value('Plugins').indexOf('Boot2QtQdb') >= 0}" },
-        { "key": "EnableCMakeGeneration", "value": "%{JS: false}" }
+        { "key": "EnableCMakeGeneration", "value": "%{JS: false}" },
+        { "key": "QdsWizardPath", "value": "%{IDE:ResourcePath}/qmldesigner/studio_templates/projects" },
+        { "key": "NoQdsProjectStyle", "value": "%{JS: !%{QdsProjectStyle} }" },
+
+        { "key": "AssetDir", "value": "Generated" },
+        { "key": "ContentDir", "value": "%{ProjectName}Content" },
+        { "key": "ImportModuleName", "value": "%{ProjectName}" },
+        { "key": "ImportModuleVersion", "value": "" },
+        { "key": "IsQt6Project", "value": true },
+        { "key": "QtQuickControlsStyle", "value": "Material" },
+        { "key": "QtQuickControlsStyleTheme", "value": "Light" },
+        { "key": "QtQuickVersion", "value": "6.5" },
+        { "key": "ScreenHeight", "value": 1080 },
+        { "key": "ScreenWidth", "value": 1920 },
+        { "key": "UIClassName", "value": "Screen01" }
     ],
 
     "pages":
@@ -33,6 +47,17 @@
             "data":
             [
                 {
+                    "name": "QdsProjectStyle",
+                    "trDisplayName": "Create a project that you can open in Qt Design Studio",
+                    "trToolTip": "Creates a project with a structure that is compatible both with Qt Design Studio and with Qt Creator. It contains a .ui.qml form that you can visually edit in Qt Design Studio.",
+                    "type": "CheckBox",
+                    "persistenceKey": "QtQuick.QdsProjectStyle",
+                    "data":
+                    {
+                        "checked": false
+                    }
+                },
+                {
                     "name": "UseVirtualKeyboard",
                     "trDisplayName": "Use Qt Virtual Keyboard",
                     "type": "CheckBox",
@@ -47,7 +72,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: ! %{IsSubproject}}",
             "data": {
                 "projectFilePath": "%{QmlProjectFileName}",
                 "requiredFeatures": [ "QtSupport.Wizards.FeatureQtQuickProject", "QtSupport.Wizards.FeatureQtQuick.6" ]
@@ -68,17 +92,81 @@
                 {
                     "source": "app.qmlproject",
                     "target": "%{QmlProjectFileName}",
-                    "openAsProject": true
+                    "openAsProject": true,
+                    "condition": "%{NoQdsProjectStyle}"
                 },
                 {
                     "source": "../qtquickapplication/Main.qml.tpl",
                     "target": "%{ProjectDirectory}/%{MainQmlFileName}",
-                    "openInEditor": true
+                    "openInEditor": true,
+                    "condition": "%{NoQdsProjectStyle}"
                 },
                 {
                     "source": "../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                    "condition": "%{JS: %{NoQdsProjectStyle} && !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
+                }
+            ]
+        },
+        {
+            "typeId": "File",
+            "data":
+            [
+                {
+                    "source": "%{QdsWizardPath}/common/app.qmlproject.tpl",
+                    "target": "%{QmlProjectFileName}",
+                    "openAsProject": true,
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/common/qtquickcontrols2.conf.tpl",
+                    "target": "%{ProjectDirectory}/qtquickcontrols2.conf",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/common/App.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/App.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/application/Screen01.ui.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/Screen01.ui.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/common/fonts.txt",
+                    "target": "%{ProjectDirectory}/%{ContentDir}/fonts/fonts.txt",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/common/asset_imports.txt",
+                    "target": "%{ProjectDirectory}/%{AssetDir}/Quick3DAssets.txt",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/importmodule.qmldir.tpl",
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/qmldir",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/Constants.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/Constants.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/EventListModel.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListModel.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/EventListSimulator.qml.tpl",
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/EventListSimulator.qml",
+                    "condition": "%{QdsProjectStyle}"
+                },
+                {
+                    "source": "%{QdsWizardPath}/shared-plugin/name/designer/plugin.metainfo",
+                    "target": "%{ProjectDirectory}/%{ImportModuleName}/designer/plugin.metainfo",
+                    "condition": "%{QdsProjectStyle}"
                 }
             ]
         }

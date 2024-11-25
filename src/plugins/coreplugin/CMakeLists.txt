@@ -1,5 +1,5 @@
 add_qtc_plugin(Core
-  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib
+  DEPENDS Qt::PrintSupport Qt::Qml Qt::Sql Qt::Gui Qt::GuiPrivate TerminalLib qtkeychain
   PUBLIC_DEPENDS Aggregation ExtensionSystem Utils
   SOURCES
     actionmanager/actioncontainer.cpp
@@ -13,8 +13,6 @@ add_qtc_plugin(Core
     actionmanager/command_p.h
     actionmanager/commandmappings.cpp
     actionmanager/commandmappings.h
-    actionmanager/commandsfile.cpp
-    actionmanager/commandsfile.h
     actionsfilter.cpp
     actionsfilter.h
     basefilewizard.cpp
@@ -31,6 +29,8 @@ add_qtc_plugin(Core
     coreplugin.cpp
     coreplugin.h
     coreplugintr.h
+    credentialquery.cpp
+    credentialquery.h
     designmode.cpp
     designmode.h
     dialogs/addtovcsdialog.cpp
@@ -45,8 +45,6 @@ add_qtc_plugin(Core
     dialogs/ioptionspage.h
     dialogs/newdialog.cpp
     dialogs/newdialog.h
-    dialogs/newdialogwidget.cpp
-    dialogs/newdialogwidget.h
     dialogs/openwithdialog.cpp
     dialogs/openwithdialog.h
     dialogs/promptoverwritedialog.cpp
@@ -256,6 +254,8 @@ add_qtc_plugin(Core
     progressmanager/taskprogress.h
     rightpane.cpp
     rightpane.h
+    secretaspect.cpp
+    secretaspect.h
     session.cpp
     session.h
     sessiondialog.cpp

@@ -8,11 +8,15 @@
 
 #include <QtGlobal>
 
+#include <solutions/tasking/tasktreerunner.h>
+
 QT_BEGIN_NAMESPACE
 class QJsonObject;
 QT_END_NAMESPACE
 
 namespace Axivion::Internal {
+
+constexpr char s_axivionKeychainService[] = "keychain.axivion.qtcreator";
 
 class AxivionServer
 {
@@ -33,6 +37,18 @@ public:
     bool validateCert = true;
 };
 
+class PathMapping
+{
+public:
+    bool operator==(const PathMapping &other) const;
+    bool operator!=(const PathMapping &other) const;
+
+    bool isValid() const;
+    QString projectName;
+    Utils::FilePath analysisPath;
+    Utils::FilePath localPath;
+};
+
 class AxivionSettings : public Utils::AspectContainer
 {
 public:
@@ -45,14 +61,18 @@ public:
     const AxivionServer serverForId(const Utils::Id &id) const;
     void disableCertificateValidation(const Utils::Id &id);
     const QList<AxivionServer> allAvailableServers() const { return m_allServers; };
-    void updateDashboardServers(const QList<AxivionServer> &other);
+    bool updateDashboardServers(const QList<AxivionServer> &other, const Utils::Id &selected);
+    const QList<PathMapping> validPathMappings() const;
 
     Utils::BoolAspect highlightMarks{this};
 private:
     Utils::StringAspect m_defaultServerId{this};
     QList<AxivionServer> m_allServers;
+    Tasking::TaskTreeRunner m_taskTreeRunner;
 };
 
 AxivionSettings &settings();
+
+QString credentialKey(const AxivionServer &server);
 
 } // Axivion::Internal

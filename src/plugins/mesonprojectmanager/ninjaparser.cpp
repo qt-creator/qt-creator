@@ -5,8 +5,7 @@
 
 #include <utils/fileutils.h>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 NinjaParser::NinjaParser() {}
 
@@ -45,5 +44,4 @@ bool NinjaParser::hasFatalErrors() const
     return false;
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

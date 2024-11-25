@@ -164,11 +164,17 @@ static ResultHooks::DirectParentHook directParentHook(const QString &functionNam
         const QtTestData otherData = other.extraData().value<QtTestData>();
 
         if (result.result() == ResultType::TestStart) {
+            if (other.result() == ResultType::TestEnd) {
+                if (!dataTag.isEmpty())
+                    return false;
+                return functionName.isEmpty() ? otherData.m_function.isEmpty()
+                                              : functionName == otherData.m_function;
+            }
+
             if (otherData.isDataTag()) {
                 if (otherData.m_function == functionName) {
                     if (dataTag.isEmpty()) {
-                        // avoid adding function's TestCaseEnd to the data tag
-                        *needsIntermediate = other.result() != ResultType::TestEnd;
+                        *needsIntermediate = true;
                         return true;
                     }
                     return otherData.m_dataTag == dataTag;

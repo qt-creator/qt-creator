@@ -104,7 +104,7 @@ void filteredFlags(const FilePath &filePath,
         }
 
         if (includePathType) {
-            const QString pathStr = workingDir.resolvePath(flag).toString();
+            const QString pathStr = workingDir.resolvePath(flag).path();
             headerPaths.append({pathStr, includePathType.value()});
             includePathType.reset();
             continue;
@@ -143,7 +143,7 @@ void filteredFlags(const FilePath &filePath,
             return flag.startsWith(opt) && flag != opt;
         });
         if (!includeOpt.isEmpty()) {
-            const QString pathStr = workingDir.resolvePath(flag.mid(includeOpt.length())).toString();
+            const QString pathStr = workingDir.resolvePath(flag.mid(includeOpt.length())).path();
             headerPaths.append({pathStr, userIncludeFlags.contains(includeOpt)
                                 ? HeaderPathType::User : HeaderPathType::System});
             continue;
@@ -180,7 +180,7 @@ void filteredFlags(const FilePath &filePath,
         if ((flag.startsWith("-std=") || flag.startsWith("/std:"))
                 && fileKind == CppEditor::ProjectFile::Unclassified) {
             const bool cpp = (flag.contains("c++") || flag.contains("gnu++"));
-            if (CppEditor::ProjectFile::isHeader(CppEditor::ProjectFile::classify(filePath.path())))
+            if (CppEditor::ProjectFile::isHeader(CppEditor::ProjectFile::classify(filePath)))
                 fileKind = cpp ? CppEditor::ProjectFile::CXXHeader : CppEditor::ProjectFile::CHeader;
             else
                 fileKind = cpp ? CppEditor::ProjectFile::CXXSource : CppEditor::ProjectFile::CSource;
@@ -194,7 +194,7 @@ void filteredFlags(const FilePath &filePath,
     }
 
     if (fileKind == CppEditor::ProjectFile::Unclassified)
-        fileKind = CppEditor::ProjectFile::classify(filePath.path());
+        fileKind = CppEditor::ProjectFile::classify(filePath);
 
     flags = filtered;
 }

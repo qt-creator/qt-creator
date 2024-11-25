@@ -59,9 +59,11 @@ public:
     static QStringList splitArgs(const QString &cmd, OsType osType,
                                  bool abortOnMeta = false, SplitError *err = nullptr,
                                  const Environment *env = nullptr, const QString *pwd = nullptr);
+
+    using FindMacro = std::function<int(const QString &str, int *pos, QString *ret)>;
+
     //! Safely replace the expandos in a shell command
-    static bool expandMacros(QString *cmd, AbstractMacroExpander *mx,
-                             OsType osType = HostOsInfo::hostOs());
+    static bool expandMacros(QString *cmd, const FindMacro &findMacro, OsType osType);
 
     /*! Iterate over arguments from a command line.
      *  Assumes that the name of the actual command is *not* part of the line.
@@ -112,6 +114,14 @@ private:
     QString m_windowsArgs;
     QStringList m_unixArgs;
     bool m_isWindows;
+};
+
+class QTCREATOR_UTILS_EXPORT RunResult
+{
+public:
+    int exitCode = -1;
+    QByteArray stdOut;
+    QByteArray stdErr;
 };
 
 class QTCREATOR_UTILS_EXPORT CommandLine

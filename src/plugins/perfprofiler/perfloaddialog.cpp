@@ -12,6 +12,7 @@
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
 
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 
 #include <QDialogButtonBox>
@@ -21,8 +22,7 @@
 
 using namespace Utils;
 
-namespace PerfProfiler {
-namespace Internal {
+namespace PerfProfiler::Internal {
 
 PerfLoadDialog::PerfLoadDialog(QWidget *parent)
     : QDialog(parent)
@@ -119,5 +119,4 @@ void PerfLoadDialog::chooseDefaults()
         m_executableDirLineEdit->setText(bc->buildDirectory().toString());
 }
 
-} // namespace Internal
-} // namespace PerfProfiler
+} // PerfProfiler::Internal

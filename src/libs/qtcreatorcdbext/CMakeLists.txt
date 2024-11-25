@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../../../cmake")
 
@@ -8,18 +8,79 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+if (NOT DEFINED QTCREATORCDBEXT_INSTALL_LLVM)
+  set(QTCREATORCDBEXT_INSTALL_LLVM YES) # default
+endif()
+
 if (NOT QT_CREATOR_API_DEFINED)
   # standalone build
   include(QtCreatorIDEBranding)
   include(QtCreatorAPI)
   qtc_handle_compiler_cache_support()
+
+  # Compile for x86, x64 and arm64
+  if (NOT ${PROJECT_NAME}-MultiBuild AND NOT MINGW)
+    include(ExternalProject)
+
+    set(generator "Visual Studio 16 2019")
+    if(CMAKE_CXX_COMPILER MATCHES "Microsoft Visual Studio/2022/")
+      set(generator "Visual Studio 17 2022")
+    endif()
+
+    string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}")
+
+    macro (setup_library arch install_llvm)
+      ExternalProject_Add(${arch}-bld
+        SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}"
+        CMAKE_GENERATOR "${generator}"
+        CMAKE_GENERATOR_PLATFORM "${arch}"
+        LIST_SEPARATOR |
+        CMAKE_ARGS
+          -D${PROJECT_NAME}-MultiBuild=ON
+          -DPythonTargetArchDll=${PythonTarget${arch}Dll}
+          -DPython3_ROOT_DIR=${Python3_ROOT_DIR}
+          -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_ALT_SEP}
+          -DQTCREATORCDBEXT_INSTALL_LLVM=${install_llvm}
+        BUILD_COMMAND
+          ${CMAKE_COMMAND} --build . --config ${CMAKE_BUILD_TYPE}
+        INSTALL_COMMAND
+          ${CMAKE_COMMAND} --install . --config ${CMAKE_BUILD_TYPE}
+                           --prefix "${CMAKE_BINARY_DIR}" --component qtcreatorcdbext
+      )
+    endmacro()
+
+    if (NOT QTCREATORCDBEXT_BUILD_ARCHS)
+      set(QTCREATORCDBEXT_BUILD_ARCHS arm64 win32 x64)
+    endif()
+    set(install_llvm YES)
+    foreach(arch IN LISTS QTCREATORCDBEXT_BUILD_ARCHS)
+      setup_library(${arch} ${install_llvm})
+      set(install_llvm NO)
+    endforeach()
+
+    list(LENGTH QTCREATORCDBEXT_BUILD_ARCHS build_archs_length)
+    if (build_archs_length GREATER 0)
+      install(
+        DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+        DESTINATION .
+        COMPONENT qtcreatorcdbext
+      )
+      install(CODE
+        "if (EXISTS \"${CMAKE_BINARY_DIR}/bin\")
+          message(\"Copying ${CMAKE_BINARY_DIR}/bin to ${CMAKE_INSTALL_PREFIX}\")
+          file(COPY \"${CMAKE_BINARY_DIR}/bin\" DESTINATION \"${CMAKE_INSTALL_PREFIX}\")
+         endif()"
+        COMPONENT qtcreatorcdbext
+      )
+    endif()
+
+    return()
+  endif()
 endif()
 
 if (NOT WIN32 OR NOT MSVC OR BUILD_DESIGNSTUDIO)
   return()
 endif()
-
-find_library(DbgEngLib dbgeng)
 
 set(ArchSuffix "32")
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -30,9 +91,13 @@ if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM")
   set(ArchSuffix "arm${ArchSuffix}")
 endif()
 
+if (NOT EXISTS "${CMAKE_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}")
+  file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/lib/qtcreatorcdbext${ArchSuffix}")
+endif()
+
 add_qtc_library(qtcreatorcdbext SHARED
   COMPONENT qtcreatorcdbext
-  DEPENDS ${DbgEngLib}
+  DEPENDS dbgeng
   DESTINATION lib/qtcreatorcdbext${ArchSuffix}/
   SOURCES
     common.cpp common.h
@@ -95,24 +160,39 @@ if (_library_enabled)
   endif()
 
   # Support for cross-compilation for arm64 on a x64 system
-  if (MSVC_CXX_ARCHITECTURE_ID MATCHES "^ARM" AND CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "^AMD")
+  if (MSVC_CXX_ARCHITECTURE_ID STREQUAL "ARM64" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "ARM64")
+    set(arm64_on_arm64 ON)
+  endif()
+  if (MSVC_CXX_ARCHITECTURE_ID STREQUAL "x64" AND CMAKE_HOST_SYSTEM_PROCESSOR STREQUAL "AMD64")
+    set(x64_on_x64 ON)
+  endif()
+
+  if (NOT arm64_on_arm64 AND NOT x64_on_x64)
     find_program(dumpbin_executable dumpbin)
     find_program(lib_executable lib)
 
     string(TOLOWER ${MSVC_CXX_ARCHITECTURE_ID} lower_arch_name)
+    if (lower_arch_name STREQUAL "arm64")
+      set(python_suffix "arm64")
+    elseif (lower_arch_name STREQUAL "x64")
+      set(python_suffix "amd64")
+    else()
+      set(python_suffix "win32")
+    endif()
 
     if (NOT dumpbin_executable OR NOT lib_executable)
       message(WARNING "Couldn't locate dumpbin.exe or lib.exe executables")
       return()
     endif()
 
-    if (Python3_VERSION VERSION_LESS "3.11.0")
+    if (Python3_VERSION VERSION_LESS "3.11.0" AND lower_arch_name STREQUAL "arm64")
       message(WARNING "Python 3.11.0 needs to be installed. This version is the first version that has arm64 Windows support")
       return()
     endif()
 
+    file(TO_NATIVE_PATH ${PythonDll} NativePythonDll)
     execute_process(
-      COMMAND ${dumpbin_executable} /exports ${PythonDll}
+      COMMAND ${dumpbin_executable} /exports ${NativePythonDll}
       OUTPUT_VARIABLE dumpbin_output
       RESULT_VARIABLE dumpbin_result)
 
@@ -129,7 +209,7 @@ if (_library_enabled)
     file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/${PythonNameWithVersion}.def "${pythondef}")
 
     execute_process(
-      COMMAND ${lib_executable}
+      COMMAND "${lib_executable}"
               /def:${CMAKE_CURRENT_BINARY_DIR}/${PythonNameWithVersion}.def
               /out:${CMAKE_CURRENT_BINARY_DIR}/${PythonNameWithVersion}.lib /machine:${lower_arch_name} /nologo)
     set(Python3_LIBRARIES "${CMAKE_CURRENT_BINARY_DIR}/${PythonNameWithVersion}.lib")
@@ -139,7 +219,7 @@ if (_library_enabled)
     endif()
 
     if (NOT PythonTargetArchDll)
-      set(python_embed_url "https://www.python.org/ftp/python/${Python3_VERSION}/python-${Python3_VERSION}-embed-${lower_arch_name}.zip")
+      set(python_embed_url "https://www.python.org/ftp/python/${Python3_VERSION}/python-${Python3_VERSION}-embed-${python_suffix}.zip")
       message(STATUS "Downloading ${python_embed_url}")
 
       foreach(retry RANGE 10)
@@ -202,22 +282,24 @@ if (_library_enabled)
     VERBATIM
   )
 
-  # Deploy lldb.exe and its Python dependency
-  find_package(Clang QUIET)
-  if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
-    foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
-      if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
-        install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
-                DESTINATION bin/clang/bin
-                COMPONENT qtcreatorcdbext)
-      endif()
-    endforeach()
+  if (QTCREATORCDBEXT_INSTALL_LLVM)
+    # Deploy lldb.exe and its Python dependency
+    find_package(Clang QUIET)
+    if (LLVM_TOOLS_BINARY_DIR AND LLVM_LIBRARY_DIRS)
+      foreach(lldb_file lldb.exe lldb-dap.exe liblldb.dll python311.zip python311.dll)
+        if (EXISTS ${LLVM_TOOLS_BINARY_DIR}/${lldb_file})
+          install(FILES ${LLVM_TOOLS_BINARY_DIR}/${lldb_file}
+                  DESTINATION bin/clang/bin
+                  COMPONENT qtcreatorcdbext)
+        endif()
+      endforeach()
 
-    if (EXISTS ${LLVM_LIBRARY_DIRS}/site-packages)
-      install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
-              DESTINATION bin/clang/lib
-              COMPONENT qtcreatorcdbext
-              PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+      if (EXISTS ${LLVM_LIBRARY_DIRS}/site-packages)
+        install(DIRECTORY ${LLVM_LIBRARY_DIRS}/site-packages
+                DESTINATION bin/clang/lib
+                COMPONENT qtcreatorcdbext
+                PATTERN _lldb.cp311-win_amd64.pyd EXCLUDE)
+      endif()
     endif()
   endif()
 

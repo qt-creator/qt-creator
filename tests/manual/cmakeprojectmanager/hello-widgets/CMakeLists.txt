@@ -35,3 +35,4 @@ file(GLOB SOURCE_FILES CONFIGURE_DEPENDS *.cpp *.h *.ui)
 
 add_executable(hello-widgets-glob ${SOURCE_FILES})
 target_link_libraries(hello-widgets-glob PRIVATE Qt6::Widgets)
+set_target_properties(hello-widgets-glob PROPERTIES FOLDER "Glob")

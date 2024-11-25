@@ -926,8 +926,6 @@ bool Target::addConfigurationsFromMap(const Utils::Store &map, bool setActiveCon
         if (i == activeConfiguration)
             setActiveBuildConfiguration(bc);
     }
-    if (buildConfigurations().isEmpty() && BuildConfigurationFactory::find(this))
-        return false;
 
     int dcCount = map.value(DC_COUNT_KEY, 0).toInt(&ok);
     if (!ok || dcCount < 0)
@@ -975,10 +973,6 @@ bool Target::addConfigurationsFromMap(const Utils::Store &map, bool setActiveCon
         RunConfiguration *rc = RunConfigurationFactory::restore(this, valueMap);
         if (!rc)
             continue;
-        const Utils::Id theIdFromMap = ProjectExplorer::idFromMap(valueMap);
-        if (!theIdFromMap.name().contains("///::///")) { // Hack for cmake 4.10 -> 4.11
-            QTC_CHECK(rc->id().withSuffix(rc->buildKey()) == theIdFromMap);
-        }
         addRunConfiguration(rc);
         if (i == activeConfiguration)
             setActiveRunConfiguration(rc);

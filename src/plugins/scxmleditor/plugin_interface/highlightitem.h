@@ -31,8 +31,6 @@ public:
 private:
     QPointer<BaseItem> m_baseItem;
     QRectF m_boundingRect;
-    QBrush m_brush;
-    QPen m_pen;
 };
 
 } // namespace PluginInterface

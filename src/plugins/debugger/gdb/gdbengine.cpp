@@ -33,6 +33,7 @@
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectmanager.h>
+#include <projectexplorer/runcontrol.h>
 #include <projectexplorer/taskhub.h>
 
 #include <utils/algorithm.h>
@@ -143,6 +144,8 @@ GdbEngine::GdbEngine()
     connect(s.createFullBacktrace.action(), &QAction::triggered,
             this, &GdbEngine::createFullBacktrace);
     connect(&s.useDebuggingHelpers, &BaseAspect::changed,
+            this, &GdbEngine::reloadLocals);
+    connect(&s.allowInferiorCalls, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
     connect(&s.useDynamicType, &BaseAspect::changed,
             this, &GdbEngine::reloadLocals);
@@ -970,7 +973,7 @@ void GdbEngine::handleResultRecord(DebuggerResponse *response)
         Abi abi = rp.toolChainAbi;
         if (abi.os() == Abi::WindowsOS
             && cmd.function.startsWith("attach")
-            && (rp.startMode == AttachToLocalProcess || terminal()))
+            && (rp.startMode == AttachToLocalProcess || usesTerminal()))
         {
             // Ignore spurious 'running' responses to 'attach'.
         } else {
@@ -1126,7 +1129,7 @@ void GdbEngine::updateStateForStop()
         // This is gdb 7+'s initial *stopped in response to attach that
         // appears before the ^done is seen for local setups.
         notifyEngineRunAndInferiorStopOk();
-        if (terminal()) {
+        if (usesTerminal()) {
             continueInferiorInternal();
             return;
         }
@@ -1358,7 +1361,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
     bool isStopperThread = false;
 
     if (rp.toolChainAbi.os() == Abi::WindowsOS
-            && terminal()
+            && usesTerminal()
             && reason == "signal-received"
             && data["signal-name"].data() == "SIGTRAP")
     {
@@ -1425,7 +1428,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
             } else if (m_isQnxGdb && name == "0" && meaning == "Signal 0") {
                 showMessage("SIGNAL 0 CONSIDERED BOGUS.");
             } else {
-                if (terminal() && name == "SIGCONT" && m_expectTerminalTrap) {
+                if (usesTerminal() && name == "SIGCONT" && m_expectTerminalTrap) {
                     continueInferior();
                     m_expectTerminalTrap = false;
                 } else {
@@ -1453,7 +1456,7 @@ void GdbEngine::handleStop2(const GdbMi &data)
 
 void GdbEngine::handleStop3()
 {
-    if (!terminal() || state() != InferiorRunOk) {
+    if (!usesTerminal() || state() != InferiorRunOk) {
         DebuggerCommand cmd("-thread-info", Discardable);
         cmd.callback = CB(handleThreadInfo);
         runCommand(cmd);
@@ -2637,6 +2640,7 @@ void GdbEngine::insertBreakpoint(const Breakpoint &bp)
                 const DebuggerSettings &s = settings();
                 cmd.arg("passexceptions", alwaysVerbose);
                 cmd.arg("fancy", s.useDebuggingHelpers());
+                cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
                 cmd.arg("autoderef", s.autoDerefPointers());
                 cmd.arg("dyntype", s.useDynamicType());
                 cmd.arg("qobjectnames", s.showQObjectNames());
@@ -3766,7 +3770,7 @@ bool GdbEngine::handleCliDisassemblerResult(const QString &output, DisassemblerA
     for (const QString &line : lineList)
         dlines.appendUnparsed(line);
 
-    QVector<DisassemblerLine> lines = dlines.data();
+    QList<DisassemblerLine> lines = dlines.data();
 
     using LineMap = QMap<quint64, LineData>;
     LineMap lineMap;
@@ -3846,7 +3850,7 @@ void GdbEngine::setupEngine()
     for (int test : std::as_const(m_testCases))
         showMessage("ENABLING TEST CASE: " + QString::number(test));
 
-    m_expectTerminalTrap = terminal();
+    m_expectTerminalTrap = usesTerminal();
 
     if (rp.debugger.command.isEmpty()) {
         handleGdbStartFailed();
@@ -4235,13 +4239,43 @@ void GdbEngine::notifyInferiorSetupFailedHelper(const QString &msg)
     notifyEngineSetupFailed();
 }
 
+static QString reverseBacktrace(const QString &trace)
+{
+    static const QRegularExpression threadPattern(R"(Thread \d+ \(Thread )");
+    Q_ASSERT(threadPattern.isValid());
+
+    if (!trace.contains(threadPattern)) // Pattern mismatch fallback
+        return trace;
+
+    const QStringView traceView{trace};
+    QList<QStringView> threadTraces;
+    const auto traceSize = traceView.size();
+    for (qsizetype pos = 0; pos < traceSize; ) {
+        auto nextThreadPos = traceView.indexOf(threadPattern, pos + 1);
+        if (nextThreadPos == -1)
+            nextThreadPos = traceSize;
+        threadTraces.append(traceView.sliced(pos, nextThreadPos - pos));
+        pos = nextThreadPos;
+    }
+
+    QString result;
+    result.reserve(traceSize);
+    for (auto it = threadTraces.crbegin(), end = threadTraces.crend(); it != end; ++it) {
+        result += *it;
+        if (result.endsWith('\n'))
+            result += '\n';
+    }
+    return result;
+}
+
 void GdbEngine::createFullBacktrace()
 {
     DebuggerCommand cmd("thread apply all bt full", NeedsTemporaryStop | ConsoleCommand);
     cmd.callback = [](const DebuggerResponse &response) {
         if (response.resultClass == ResultDone) {
-            Internal::openTextEditor("Backtrace $",
-                response.consoleStreamOutput + response.logStreamOutput);
+            Internal::openTextEditor("Backtrace$",
+                                     reverseBacktrace(response.consoleStreamOutput)
+                                     + response.logStreamOutput);
         }
     };
     runCommand(cmd);
@@ -4351,7 +4385,7 @@ bool GdbEngine::isLocalRunEngine() const
 
 bool GdbEngine::isPlainEngine() const
 {
-    return isLocalRunEngine() && !terminal();
+    return isLocalRunEngine() && !usesTerminal();
 }
 
 bool GdbEngine::isCoreEngine() const
@@ -4372,7 +4406,7 @@ bool GdbEngine::isLocalAttachEngine() const
 
 bool GdbEngine::isTermEngine() const
 {
-    return isLocalRunEngine() && terminal();
+    return isLocalRunEngine() && usesTerminal();
 }
 
 bool GdbEngine::usesOutputCollector() const
@@ -4525,8 +4559,8 @@ void GdbEngine::setupInferior()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = terminal()->applicationPid();
-        const qint64 attachedMainThreadID = terminal()->applicationMainThreadId();
+        const qint64 attachedPID = applicationPid();
+        const qint64 attachedMainThreadID = applicationMainThreadId();
         notifyInferiorPid(ProcessHandle(attachedPID));
         const QString msg = (attachedMainThreadID != -1)
                 ? QString("Going to attach to %1 (%2)").arg(attachedPID).arg(attachedMainThreadID)
@@ -4604,8 +4638,8 @@ void GdbEngine::runEngine()
 
     } else if (isTermEngine()) {
 
-        const qint64 attachedPID = terminal()->applicationPid();
-        const qint64 mainThreadId = terminal()->applicationMainThreadId();
+        const qint64 attachedPID = applicationPid();
+        const qint64 mainThreadId = applicationMainThreadId();
         runCommand({"attach " + QString::number(attachedPID),
                     [this, mainThreadId](const DebuggerResponse &r) {
                         handleStubAttached(r, mainThreadId);
@@ -4721,7 +4755,7 @@ void GdbEngine::interruptInferior2()
 
     } else if (isTermEngine()) {
 
-        terminal()->interrupt();
+        interruptTerminal();
     }
 }
 
@@ -5003,8 +5037,8 @@ void GdbEngine::handleStubAttached(const DebuggerResponse &response, qint64 main
             continueInferiorInternal();
         } else {
             showMessage("INFERIOR ATTACHED");
-            QTC_ASSERT(terminal(), return);
-            terminal()->kickoffProcess();
+            QTC_ASSERT(usesTerminal(), return);
+            kickoffTerminalProcess();
             //notifyEngineRunAndInferiorRunOk();
             // Wait for the upcoming *stopped and handle it there.
         }
@@ -5133,6 +5167,7 @@ void GdbEngine::doUpdateLocals(const UpdateParameters &params)
     const DebuggerSettings &s = settings();
     cmd.arg("passexceptions", alwaysVerbose);
     cmd.arg("fancy", s.useDebuggingHelpers());
+    cmd.arg("allowinferiorcalls", s.allowInferiorCalls());
     cmd.arg("autoderef", s.autoDerefPointers());
     cmd.arg("dyntype", s.useDynamicType());
     cmd.arg("qobjectnames", s.showQObjectNames());
@@ -5190,7 +5225,7 @@ QString GdbEngine::msgPtraceError(DebuggerStartMode sm)
 QString GdbEngine::mainFunction() const
 {
     const DebuggerRunParameters &rp = runParameters();
-    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !terminal() ? "qMain" : "main");
+    return QLatin1String(rp.toolChainAbi.os() == Abi::WindowsOS && !usesTerminal() ? "qMain" : "main");
 }
 
 //

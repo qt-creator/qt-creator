@@ -118,8 +118,6 @@ const Icon MODE_DEBUGGER_CLASSIC(
         ":/debugger/images/mode_debug.png");
 const Icon MODE_DEBUGGER_FLAT({
         {":/debugger/images/mode_debug_mask.png", Theme::IconsBaseColor}});
-const Icon MODE_DEBUGGER_FLAT_ACTIVE({
-        {":/debugger/images/mode_debug_mask.png", Theme::IconsModeDebugActiveColor}});
 
 const Icon MACOS_TOUCHBAR_DEBUG(
         ":/debugger/images/macos_touchbar_debug.png");

@@ -50,7 +50,7 @@ QVariant ITestTreeItem::data(int /*column*/, int role) const
             return Tr::tr("%1 (none)").arg(m_name);
         return m_name;
     case Qt::ToolTipRole:
-        return m_filePath.toString();
+        return m_filePath.toUserOutput();
     case Qt::DecorationRole:
         return testTreeIcon(m_type);
     case Qt::CheckStateRole:
@@ -113,14 +113,13 @@ bool ITestTreeItem::lessThan(const ITestTreeItem *other, ITestTreeItem::SortMode
         return lhs.compare(rhs, Qt::CaseInsensitive) > 0;
     case Naturally: {
         if (type() == GroupNode && other->type() == GroupNode) {
-            return filePath().toString().compare(other->filePath().toString(),
-                                                 Qt::CaseInsensitive) > 0;
+            return filePath().path().compare(other->filePath().path(), Qt::CaseInsensitive) > 0;
         }
 
-        const Link &leftLink = data(0, LinkRole).value<Link>();
-        const Link &rightLink = other->data(0, LinkRole).value<Link>();
-        const int comparison = leftLink.targetFilePath.toString().compare(
-                    rightLink.targetFilePath.toString(), Qt::CaseInsensitive);
+        const Link leftLink{m_filePath, m_line};
+        const Link rightLink{other->m_filePath, other->m_line};
+        const int comparison = leftLink.targetFilePath.path()
+                                   .compare(rightLink.targetFilePath.path(), Qt::CaseInsensitive);
         if (comparison == 0) {
             return leftLink.targetLine == rightLink.targetLine
                     ? leftLink.targetColumn > rightLink.targetColumn

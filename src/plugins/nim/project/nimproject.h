@@ -5,10 +5,6 @@
 
 namespace Nim {
 
-class NimProjectFactory
-{
-public:
-    NimProjectFactory();
-};
+void setupNimProject();
 
 } // Nim

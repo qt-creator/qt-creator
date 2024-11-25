@@ -210,9 +210,9 @@
         \li \l {Remote Linux}
     \endlist
 
-    Install the toolchain for building applications for the targeted
-    embedded platform on the computer, and then use \QOI to install Qt
-    libraries that are built for the platform. Add a kit with the toolchain and
+    Install the toolchain for building applications for the targeted embedded
+    platform on the computer, and then use \l{Get and Install Qt}{\QOI} to install
+    Qt libraries that are built for the platform. Add a kit with the toolchain and
     the Qt version for the device's architecture. When possible, \QOI creates
     suitable kits for you.
 

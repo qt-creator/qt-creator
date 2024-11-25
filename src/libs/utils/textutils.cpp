@@ -4,6 +4,7 @@
 #include "textutils.h"
 #include "qtcassert.h"
 
+#include <QPromise>
 #include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
@@ -24,6 +25,13 @@ int Position::positionInDocument(QTextDocument *doc) const
     if (!block.isValid())
         return -1;
     return block.position() + column;
+}
+
+QTextCursor Position::toTextCursor(QTextDocument *doc) const
+{
+    QTextCursor result(doc);
+    result.setPosition(positionInDocument(doc));
+    return result;
 }
 
 /*!
@@ -284,6 +292,33 @@ QDebug &operator<<(QDebug &stream, const Position &pos)
 {
     stream << "line: " << pos.line << ", column: " << pos.column;
     return stream;
+}
+
+HighlightCallback &codeHighlighter()
+{
+    static HighlightCallback s_highlighter;
+    return s_highlighter;
+}
+
+QFuture<QTextDocument *> highlightCode(const QString &code, const QString &mimeType)
+{
+    if (const auto highlighter = codeHighlighter())
+        return highlighter(code, mimeType);
+
+    QTextDocument *doc = new QTextDocument;
+    doc->setPlainText(code);
+
+    QPromise<QTextDocument *> promise;
+    promise.start();
+    promise.addResult(doc);
+    promise.finish();
+
+    return promise.future();
+}
+
+void setCodeHighlighter(const HighlightCallback &highlighter)
+{
+    codeHighlighter() = highlighter;
 }
 
 } // namespace Utils::Text

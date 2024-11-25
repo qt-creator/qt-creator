@@ -16,6 +16,7 @@ private slots:
     void queryAggregation();
     void queryAll();
     void parentAggregate();
+    void aggregateFunction();
 };
 
 class Interface1 : public QObject
@@ -175,6 +176,23 @@ void tst_Aggregate::parentAggregate()
     // test removing an object from an aggregation.
     aggregation.remove(component11);
     QCOMPARE(Aggregation::Aggregate::parentAggregate(component11), (Aggregation::Aggregate *)0);
+}
+
+void tst_Aggregate::aggregateFunction()
+{
+    Interface1 component1;
+    auto component2 = new Interface2;
+    Aggregation::aggregate({&component1, component2});
+    Aggregation::Aggregate *agg = Aggregation::Aggregate::parentAggregate(&component1);
+    QCOMPARE(Aggregation::query<Interface1>(component2), &component1);
+    QCOMPARE(Aggregation::query<Interface2>(&component1), component2);
+
+    auto component3 = new Interface3;
+    Aggregation::aggregate({component2, component3});
+    QCOMPARE(Aggregation::Aggregate::parentAggregate(component3), agg);
+    QCOMPARE(Aggregation::query<Interface1>(component3), &component1);
+    QCOMPARE(Aggregation::query<Interface2>(component3), component2);
+    QCOMPARE(Aggregation::query<Interface3>(&component1), component3);
 }
 
 QTEST_GUILESS_MAIN(tst_Aggregate)

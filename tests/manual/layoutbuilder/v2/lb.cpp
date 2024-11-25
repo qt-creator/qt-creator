@@ -696,7 +696,7 @@ Widget::Widget(std::initializer_list<I> ps)
     apply(this, ps);
 }
 
-void Widget::resize(int w, int h)
+void Widget::setSize(int w, int h)
 {
     access(this)->resize(w, h);
 }

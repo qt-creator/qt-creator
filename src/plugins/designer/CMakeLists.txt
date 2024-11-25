@@ -41,7 +41,6 @@ add_qtc_plugin(Designer
     cpp/newclasswidget.cpp cpp/newclasswidget.h
     designer_export.h
     designerconstants.h
-    designercontext.cpp designercontext.h
     designerplugin.cpp
     designertr.h
     editordata.h

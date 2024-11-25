@@ -10,11 +10,6 @@ HighlightItem::HighlightItem(BaseItem *baseItem)
     : QGraphicsObject(nullptr)
     , m_baseItem(baseItem)
 {
-    m_pen = QPen(QColor(0xff, 0x00, 0x60));
-    m_pen.setWidth(2);
-    m_pen.setStyle(Qt::DashLine);
-    m_pen.setCosmetic(true);
-
     setZValue(1000);
 }
 
@@ -47,12 +42,17 @@ void HighlightItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 
         QRectF br = m_baseItem->polygonShape().boundingRect();
 
+        QPen pen = painter->pen();
+        pen.setWidth(2);
+        pen.setStyle(Qt::DashLine);
+        pen.setCosmetic(true);
+        painter->setPen(pen);
+        painter->setBrush(Qt::NoBrush);
+
         switch (m_baseItem->type()) {
         case StateType:
         case ParallelType: {
             painter->setOpacity(1.0);
-            painter->setPen(m_pen);
-            painter->setBrush(Qt::NoBrush);
             painter->drawRoundedRect(br, 10, 10);
             break;
         }
@@ -60,8 +60,6 @@ void HighlightItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
         case HistoryType:
         case FinalStateType: {
             painter->setOpacity(1.0);
-            painter->setPen(m_pen);
-            painter->setBrush(Qt::NoBrush);
             painter->drawEllipse(br);
             break;
         }

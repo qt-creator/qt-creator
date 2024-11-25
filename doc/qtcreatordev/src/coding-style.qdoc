@@ -952,13 +952,22 @@
 
     Consider using \c{=default} and \c{=delete} to control the special functions.
 
-    \section3 Override
+    \section3 Final and Override
 
-    It is recommended to use the \c{override} keyword when overriding virtual functions. Do not
-    use virtual on overridden functions.
+    It is recommended to use the \c{final} keyword for classes that are not meant to be inherited
+    from. This is the typical case for value classes, factories and most factory products.
 
-    Make sure that a class uses \c{override} consistently, either for all overridden functions or
-    for none.
+    It is recommended to use the \c{final} keyword when overriding virtual functions in
+    final classes, and whenever a virtual function is not meant to be overridden further.
+    Do not use \c{virtual} on \c{final} functions.
+
+    It is recommended to use the \c{override} keyword when overriding virtual functions if
+    \c{final} is not applicable, i.e. when the class is meant to be derived further and
+    further overriding of the function may be necessary.
+
+    Note that some compilers complain when a derived class marks only some but not all
+    overridden functions as either \c{final} or \c{override}, so make sure to mark all
+    at the same time.
 
     \section3 Range-Based for-Loop
 

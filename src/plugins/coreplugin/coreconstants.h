@@ -118,6 +118,8 @@ const char GOTONEXTINHISTORY[]     = "QtCreator.GotoNextInHistory";
 const char GOTOPREVINHISTORY[]     = "QtCreator.GotoPreviousInHistory";
 const char GO_BACK[]               = "QtCreator.GoBack";
 const char GO_FORWARD[]            = "QtCreator.GoForward";
+const char OPEN_PREVIOUS_DOCUMENT[] = "QtCreator.OpenPreviousDocument";
+const char OPEN_NEXT_DOCUMENT[] = "QtCreator.OpenNextDocument";
 const char GOTOLASTEDIT[]          = "QtCreator.GotoLastEdit";
 const char REOPEN_CLOSED_EDITOR[]  = "QtCreator.ReopenClosedEditor";
 const char ABOUT_QTCREATOR[]       = "QtCreator.AboutQtCreator";
@@ -172,6 +174,8 @@ const char G_EDIT_FONT[]           = "QtCreator.Group.Edit.Font";
 const char G_EDIT_EDITOR[]         = "QtCreator.Group.Edit.Editor";
 
 // View menu groups
+const char G_VIEW_SIDEBAR[]        = "QtCreator.Group.View.Sidebar";
+const char G_VIEW_MODES[]          = "QtCreator.Group.View.Modes";
 const char G_VIEW_VIEWS[]          = "QtCreator.Group.View.Views";
 const char G_VIEW_PANES[]          = "QtCreator.Group.View.Panes";
 

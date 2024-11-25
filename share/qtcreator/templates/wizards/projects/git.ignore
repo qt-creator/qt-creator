@@ -37,6 +37,7 @@ Thumbs.db
 
 # qtcreator generated files
 *.pro.user*
+*.qbs.user*
 CMakeLists.txt.user*
 
 # xemacs temporary files
@@ -72,3 +73,10 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+# Directories with generated files
+.moc/
+.obj/
+.pch/
+.rcc/
+.uic/
+/build*/

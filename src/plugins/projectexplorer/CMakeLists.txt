@@ -47,10 +47,12 @@ add_qtc_plugin(ProjectExplorer
     deploymentdataview.cpp deploymentdataview.h
     desktoprunconfiguration.cpp desktoprunconfiguration.h
     devicesupport/desktopdevice.cpp devicesupport/desktopdevice.h
+    devicesupport/desktopdeviceconfigurationwidget.cpp devicesupport/desktopdeviceconfigurationwidget.h
     devicesupport/desktopdevicefactory.cpp devicesupport/desktopdevicefactory.h
     devicesupport/desktopprocesssignaloperation.cpp devicesupport/desktopprocesssignaloperation.h
     devicesupport/devicecheckbuildstep.cpp devicesupport/devicecheckbuildstep.h
     devicesupport/devicefactoryselectiondialog.cpp devicesupport/devicefactoryselectiondialog.h
+    devicesupport/devicekitaspects.cpp devicesupport/devicekitaspects.h
     devicesupport/devicemanager.cpp devicesupport/devicemanager.h
     devicesupport/devicemanagermodel.cpp devicesupport/devicemanagermodel.h
     devicesupport/deviceprocessesdialog.cpp devicesupport/deviceprocessesdialog.h
@@ -85,7 +87,6 @@ add_qtc_plugin(ProjectExplorer
     headerpath.h
     importwidget.cpp importwidget.h
     ioutputparser.cpp ioutputparser.h
-    ipotentialkit.h
     itaskhandler.h
     jsonwizard/jsonfieldpage.cpp jsonwizard/jsonfieldpage.h jsonwizard/jsonfieldpage_p.h
     jsonwizard/jsonfilepage.cpp jsonwizard/jsonfilepage.h
@@ -102,6 +103,7 @@ add_qtc_plugin(ProjectExplorer
     jsonwizard/wizarddebug.h
     jsonwizard/jsonwizardscannergenerator.cpp jsonwizard/jsonwizardscannergenerator.h
     kit.cpp kit.h
+    kitaspect.cpp kitaspect.h
     kitaspects.cpp kitaspects.h
     kitchooser.cpp kitchooser.h
     kitfeatureprovider.h
@@ -171,6 +173,7 @@ add_qtc_plugin(ProjectExplorer
     toolchain.cpp toolchain.h
     toolchaincache.h
     toolchainconfigwidget.cpp toolchainconfigwidget.h
+    toolchainkitaspect.cpp toolchainkitaspect.h
     toolchainmanager.cpp toolchainmanager.h
     toolchainoptionspage.cpp toolchainoptionspage.h
     toolchainsettingsaccessor.cpp toolchainsettingsaccessor.h

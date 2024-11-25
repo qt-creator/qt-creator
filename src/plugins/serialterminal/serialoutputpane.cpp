@@ -227,6 +227,11 @@ bool SerialOutputPane::canNavigate() const
     return false;
 }
 
+bool SerialOutputPane::hasFilterContext() const
+{
+    return true;
+}
+
 void SerialOutputPane::appendMessage(SerialControl *rc, const QString &out, Utils::OutputFormat format)
 {
     const int index = indexOf(rc);

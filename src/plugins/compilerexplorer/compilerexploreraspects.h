@@ -68,7 +68,7 @@ public:
 
     LibrarySelectionAspect(Utils::AspectContainer *container = nullptr);
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     using ResultCallback = std::function<void(QList<QStandardItem *>)>;
     using FillCallback = std::function<void(ResultCallback)>;

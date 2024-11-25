@@ -3,10 +3,11 @@
 
 #include "qscxmlcgenerator.h"
 
-#include <qtsupport/baseqtversion.h>
-#include <qtsupport/qtkitaspect.h>
+#include "baseqtversion.h"
+#include "qtkitaspect.h"
 
 #include <projectexplorer/extracompiler.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/target.h>
 
 #include <utils/qtcassert.h>

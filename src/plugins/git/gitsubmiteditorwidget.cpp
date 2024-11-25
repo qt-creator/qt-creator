@@ -128,7 +128,7 @@ void GitSubmitEditorWidget::setPanelInfo(const GitSubmitEditorPanelInfo &info)
     }
 }
 
-QString GitSubmitEditorWidget::amendSHA1() const
+QString GitSubmitEditorWidget::amendHash() const
 {
     return m_logChangeWidget ? m_logChangeWidget->commit() : QString();
 }

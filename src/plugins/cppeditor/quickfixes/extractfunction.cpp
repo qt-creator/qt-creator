@@ -15,6 +15,7 @@
 #include <cplusplus/declarationcomments.h>
 #include <cplusplus/Overview.h>
 
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 #include <QPushButton>

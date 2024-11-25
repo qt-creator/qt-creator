@@ -19,7 +19,7 @@ public:
     bool supportsMultipleQtAbis() const override;
     ProjectExplorer::Abis detectQtAbis() const override;
 
-    void addToEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
+    void addToBuildEnvironment(const ProjectExplorer::Kit *k, Utils::Environment &env) const override;
     void setupQmakeRunEnvironment(Utils::Environment &env) const override;
 
     QSet<Utils::Id> availableFeatures() const override;
@@ -38,6 +38,8 @@ public:
     };
     static BuiltWith parseBuiltWith(const QByteArray &modulesCoreJsonData, bool *ok = nullptr);
     BuiltWith builtWith(bool *ok = nullptr) const;
+
+    bool isAndroidQtVersion() const override { return true; };
 
 protected:
     void parseMkSpec(ProFileEvaluator *) const override;

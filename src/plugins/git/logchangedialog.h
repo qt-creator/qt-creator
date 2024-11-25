@@ -22,7 +22,7 @@ namespace Git::Internal {
 
 class LogChangeModel;
 
-// A widget that lists SHA1 and subject of the changes
+// A widget that lists hash and subject of the changes
 // Used for reset and interactive rebase
 
 class LogChangeWidget : public Utils::TreeView

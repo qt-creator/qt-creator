@@ -22,6 +22,7 @@
 #include <cplusplus/AST.h>
 #include <cplusplus/ASTPath.h>
 #include <cplusplus/Icons.h>
+#include <cppeditor/compilationdb.h>
 #include <cppeditor/cppcodemodelsettings.h>
 #include <cppeditor/cppeditorconstants.h>
 #include <cppeditor/cppeditorwidget.h>
@@ -54,7 +55,6 @@
 #include <texteditor/codeassist/assistinterface.h>
 #include <texteditor/codeassist/iassistprocessor.h>
 #include <texteditor/codeassist/iassistprovider.h>
-#include <texteditor/codeassist/textdocumentmanipulatorinterface.h>
 #include <texteditor/texteditor.h>
 #include <utils/algorithm.h>
 #include <utils/async.h>
@@ -383,7 +383,7 @@ static void addToCompilationDb(QJsonObject &cdb,
     const QString fileString = sourceFile.path.toUserOutput();
     args.append(fileString);
     QJsonObject value;
-    value.insert("workingDirectory", workingDir.toString());
+    value.insert("workingDirectory", workingDir.path());
     value.insert("compilationCommand", args);
     cdb.insert(fileString, value);
 }
@@ -520,13 +520,20 @@ void ClangdClient::openExtraFile(const Utils::FilePath &filePath, const QString 
         return;
     }
 
-    QFile cxxFile(filePath.toString());
-    if (content.isEmpty() && !cxxFile.open(QIODevice::ReadOnly))
-        return;
+    QString text;
+    if (!content.isEmpty()) {
+        text = content;
+    } else {
+        expected_str<QByteArray> fileContent = filePath.fileContents();
+        if (!fileContent)
+            return;
+        text = QString::fromUtf8(*std::move(fileContent));
+    }
+
     TextDocumentItem item;
     item.setLanguageId("cpp");
     item.setUri(hostPathToServerUri(filePath));
-    item.setText(!content.isEmpty() ? content : QString::fromUtf8(cxxFile.readAll()));
+    item.setText(std::move(text));
     item.setVersion(0);
     sendMessage(DidOpenTextDocumentNotification(DidOpenTextDocumentParams(item)),
                 SendDocUpdates::Ignore);
@@ -918,8 +925,7 @@ void ClangdClient::updateParserConfig(const Utils::FilePath &filePath,
     CppEditor::CompilerOptionsBuilder optionsBuilder = clangOptionsBuilder(
                 *projectPart, warningsConfigForProject(project()), includeDir,
                 ProjectExplorer::Macro::toMacros(config.editorDefines));
-    const CppEditor::ProjectFile file(filePath,
-                                      CppEditor::ProjectFile::classify(filePath.toString()));
+    const CppEditor::ProjectFile file(filePath, CppEditor::ProjectFile::classify(filePath));
     const QJsonArray projectPartOptions = fullProjectPartOptions(
                 optionsBuilder, globalClangOptions());
     const auto cppSettings = CppEditor::CppCodeModelSettings::settingsForProject(
@@ -1501,10 +1507,9 @@ void ClangdClient::Private::setHelpItemForTooltip(const MessageId &token,
         mark = type;
 
     const HelpItem helpItem(helpIds, filePath, mark, category);
+    q->hoverHandler()->setHelpItem(token, helpItem);
     if (isTesting)
-        emit q->helpItemGathered(helpItem);
-    else
-        q->hoverHandler()->setHelpItem(token, helpItem);
+        emit q->helpItemGathered(helpItem, q->hoverHandler()->toolTip());
 }
 
 // Unfortunately, clangd ignores almost everything except symbols when sending

@@ -10,16 +10,13 @@
 #include "completionsettingspage.h"
 #include "displaysettings.h"
 #include "displaysettingspage.h"
-#include "extraencodingsettings.h"
 #include "fontsettings.h"
 #include "fontsettingspage.h"
 #include "highlightersettingspage.h"
 #include "icodestylepreferences.h"
 #include "icodestylepreferencesfactory.h"
 #include "marginsettings.h"
-#include "storagesettings.h"
 #include "texteditortr.h"
-#include "typingsettings.h"
 #include "snippets/snippetssettingspage.h"
 
 #include <coreplugin/find/searchresultwindow.h>
@@ -251,6 +248,8 @@ FormatDescriptions TextEditorSettingsPrivate::initialFormats()
                              Tr::tr("Macros."), functionFormat);
     formatDescr.emplace_back(C_LABEL, Tr::tr("Label"), Tr::tr("Labels for goto statements."),
                              Qt::darkRed);
+    formatDescr.emplace_back(C_ATTRIBUTE, Tr::tr("Attribute"), Tr::tr("Attributes."),
+                             Qt::darkYellow);
     formatDescr.emplace_back(C_COMMENT, Tr::tr("Comment"),
                              Tr::tr("All style of comments except Doxygen comments."),
                              Qt::darkGreen);

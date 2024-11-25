@@ -117,13 +117,13 @@ void ProjectFileWizardExtension::firstExtensionPageShown(
 
     m_context->page->initializeProjectTree(findWizardContextNode(contextNode, project, path),
                                            filePaths, m_context->wizard->kind(),
-                                           projectAction);
+                                           projectAction, false);
     // Refresh combobox on project tree changes:
     connect(ProjectTree::instance(), &ProjectTree::treeChanged,
             m_context->page, [this, project, path, filePaths, kind, projectAction]() {
         m_context->page->initializeProjectTree(
                     findWizardContextNode(m_context->page->currentNode(), project, path), filePaths,
-                    kind, projectAction);
+                    kind, projectAction, false);
     });
 
     m_context->page->initializeVersionControls();

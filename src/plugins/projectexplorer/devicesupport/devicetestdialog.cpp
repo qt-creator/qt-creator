@@ -57,7 +57,7 @@ DeviceTestDialog::DeviceTestDialog(const IDevice::Ptr &deviceConfiguration,
             this, &DeviceTestDialog::handleErrorMessage);
     connect(d->deviceTester, &DeviceTester::finished,
             this, &DeviceTestDialog::handleTestFinished);
-    d->deviceTester->testDevice(deviceConfiguration);
+    d->deviceTester->testDevice();
 }
 
 DeviceTestDialog::~DeviceTestDialog() = default;

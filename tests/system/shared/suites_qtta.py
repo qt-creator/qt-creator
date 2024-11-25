@@ -12,13 +12,20 @@ def appendToLine(codeArea, insertAfterLine, typeWhat):
 # Current implementation is focused on allowing different compilers, and it is enough if one of the expected messages
 # is found in issues view. warnIfMoreIssues should warn if there are more than one issue, no matter how many
 # expected texts are in array (because they are alternatives).
-def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
+# set canBeWarning to True if the issue can be listed as warning (e.g. qmllint)
+def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True, canBeWarning=False):
     issuesModel = issuesView.model()
     # wait for issues
     waitFor("issuesModel.rowCount() > 0", 5000)
     # warn if more issues reported
     if(warnIfMoreIssues and issuesModel.rowCount() > 1):
         test.warning("More than one expected issues reported")
+
+    expectedTypes = ["1"] # Error
+    typeText = "'error'"
+    if canBeWarning:
+        expectedTypes.append("2") # Warning
+        typeText = "'error' or 'warning'"
     # iterate issues and check if there exists "Unexpected token" message
     for description, type in zip(dumpItems(issuesModel, role=Qt.UserRole),
                                  dumpItems(issuesModel, role=Qt.UserRole + 1)):
@@ -27,11 +34,12 @@ def checkSyntaxError(issuesView, expectedTextsArray, warnIfMoreIssues = True):
         for expectedText in expectedTextsArray:
             if expectedText in description:
                 # check if it is error and warn if not - returns False which leads to fail
-                if type is not "1":
-                    test.warning("Expected error text found, but is not of type: 'error'")
+                if type not in expectedTypes:
+                    test.warning("Expected error text found, but is not of type: %s" % typeText)
+                    test.log("Found type: %s" % type)
                     return False
                 else:
-                    test.log("Found expected error (%s)" % expectedText)
+                    test.log("Found expected %s (%s)" % (typeText, expectedText))
                     return True
     return False
 

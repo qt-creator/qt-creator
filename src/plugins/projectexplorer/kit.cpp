@@ -5,6 +5,7 @@
 
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
+#include "kitaspect.h"
 #include "kitaspects.h"
 #include "kitmanager.h"
 #include "ioutputparser.h"
@@ -14,7 +15,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/displayname.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/icon.h>
 #include <utils/macroexpander.h>
 #include <utils/qtcassert.h>
@@ -23,7 +24,6 @@
 
 #include <QIcon>
 #include <QTextStream>
-#include <QUuid>
 
 #include <numeric>
 #include <optional>
@@ -60,7 +60,7 @@ public:
         m_id(id)
     {
         if (!id.isValid())
-            m_id = Id::fromString(QUuid::createUuid().toString());
+            m_id = Id::generate();
 
         m_unexpandedDisplayName.setDefaultValue(Tr::tr("Unnamed"));
 
@@ -256,16 +256,20 @@ Tasks Kit::validate() const
 void Kit::fix()
 {
     KitGuard g(this);
-    for (KitAspectFactory *factory : KitManager::kitAspectFactories())
-        factory->fix(this);
+    for (KitAspectFactory *factory : KitManager::kitAspectFactories()) {
+        if (isAspectRelevant(factory->id()))
+            factory->fix(this);
+    }
 }
 
 void Kit::setup()
 {
     KitGuard g(this);
     const QList<KitAspectFactory *> aspects = KitManager::kitAspectFactories();
-    for (KitAspectFactory * const factory : aspects)
-        factory->setup(this);
+    for (KitAspectFactory * const factory : aspects) {
+        if (isAspectRelevant(factory->id()))
+            factory->setup(this);
+    }
 }
 
 void Kit::upgrade()

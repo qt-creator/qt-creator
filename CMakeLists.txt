@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.20)
 
 option(BUILD_DESIGNSTUDIO "Build and install design studio plugins, examples and settings." OFF)
 if (BUILD_DESIGNSTUDIO)
@@ -113,10 +113,9 @@ find_package(Threads)
 find_package(Clang QUIET)
 
 # Crashpad
-set(CRASHPAD_BACKEND_URL "" CACHE STRING "Crashpad backend URL")
+set(CRASHPAD_BACKEND_URL "$ENV{QTC_CRASHPAD_BACKEND_URL}" CACHE STRING "Crashpad backend URL")
 set(BUILD_WITH_CRASHPAD OFF)
 # Linux is not supported for now
-# x86_64;arm64 is not supported for now
 if(CRASHPAD_BACKEND_URL AND (WIN32 OR APPLE)) # Linux is not supported for now
   find_package(Crashpad QUIET)
   if(TARGET Crashpad::Crashpad)

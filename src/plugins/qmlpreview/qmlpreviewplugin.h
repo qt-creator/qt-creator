@@ -6,16 +6,11 @@
 #include "qmlpreview_global.h"
 #include "qmldebugtranslationclient.h"
 
-#include <projectexplorer/runcontrol.h>
 #include <extensionsystem/iplugin.h>
+#include <projectexplorer/runcontrol.h>
 #include <qmljs/qmljsdialect.h>
 
-#include <QUrl>
-#include <QThread>
-
 namespace Core { class IEditor; }
-
-namespace ProjectExplorer { class RunControl; }
 
 namespace QmlDebug { class QmlDebugConnection; }
 
@@ -50,7 +45,6 @@ public:
     ~QmlPreviewPlugin() override;
 
     void initialize() override;
-    ShutdownFlag aboutToShutdown() override;
 
     QString previewedFile() const;
     void setPreviewedFile(const QString &previewedFile);
@@ -80,8 +74,6 @@ public:
     void removePreview(ProjectExplorer::RunControl *preview);
 
 signals:
-    void checkDocument(const QString &name, const QByteArray &contents,
-                       QmlJS::Dialect::Enum dialect);
     void updatePreviews(const QString &previewedFile, const QString &changedFile,
                         const QByteArray &contents);
     void previewedFileChanged(const QString &previewedFile);

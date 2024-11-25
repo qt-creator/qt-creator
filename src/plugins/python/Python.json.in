@@ -1,9 +1,11 @@
 {
+    "Id" : "python",
     "Name" : "Python",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -20,6 +22,7 @@
             "- Tools for Python development"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-python-development.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
@@ -44,6 +47,25 @@
         "        <sub-class-of type='application/json'/>",
         "        <comment>Qt Creator Python project file</comment>",
         "        <glob pattern='*.pyproject'/>",
+        "    </mime-type>",
+        "    <mime-type type='text/x-python3'>",
+        "        <comment>Python3 script</comment>",
+        "        <sub-class-of type='text/x-python'/>",
+        "        <magic priority='50'>",
+        "          <match value='#!/bin/python3' type='string' offset='0'/>",
+        "          <match value='#! /bin/python3' type='string' offset='0'/>",
+        "          <match value='eval &quot;exec /bin/python3' type='string' offset='0'/>",
+        "          <match value='#!/usr/bin/python3' type='string' offset='0'/>",
+        "          <match value='#! /usr/bin/python3' type='string' offset='0'/>",
+        "          <match value='eval &quot;exec /usr/bin/python3' type='string' offset='0'/>",
+        "          <match value='#!/usr/local/bin/python3' type='string' offset='0'/>",
+        "          <match value='#! /usr/local/bin/python3' type='string' offset='0'/>",
+        "          <match value='eval &quot;exec /usr/local/bin/python3' type='string' offset='0'/>",
+        "          <match value='/bin/env python3' type='string' offset='1'/>",
+        "        </magic>",
+        "        <glob weight='50' pattern='*.py'/>",
+        "        <glob weight='60' pattern='*.py3'/>",
+        "        <glob weight='60' pattern='*.py3x'/>",
         "    </mime-type>",
         "</mime-info>"
     ]

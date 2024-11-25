@@ -1,5 +1,6 @@
 // Copyright (C) 2020 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #include "assetexporter.h"
 #include "componentexporter.h"
 #include "exportnotification.h"
@@ -13,9 +14,12 @@
 #include <rewriterview.h>
 
 #include <coreplugin/editormanager/editormanager.h>
+
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectmanager.h>
+
 #include <utils/async.h>
+#include <utils/fileutils.h>
 #include <utils/qtcassert.h>
 
 #include <auxiliarydataproperties.h>
@@ -238,10 +242,9 @@ void AssetExporter::onQmlFileLoaded()
                                      .arg(designDocument->displayName()));
     } else {
         exportComponent(m_view->rootModelNode());
-        QString error;
-        if (!m_view->saveQmlFile(&error)) {
+        if (Utils::Result res = m_view->saveQmlFile(); !res) {
             ExportNotification::addError(tr("Error saving component file. %1")
-                                         .arg(error.isEmpty()? tr("Unknown") : error));
+                                         .arg(res.error().isEmpty()? tr("Unknown") : res.error()));
         }
     }
     notifyProgress((m_totalFileCount - m_exportFiles.count()) * 0.8 / m_totalFileCount);

@@ -3,11 +3,16 @@
 
 #include "qmltaskmanager.h"
 #include "qmljseditorconstants.h"
+#include "qmljseditorsettings.h"
 
 #include <coreplugin/icore.h>
 #include <coreplugin/idocument.h>
+#include <projectexplorer/buildsystem.h>
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
+#include <projectexplorer/projectmanager.h>
 #include <projectexplorer/taskhub.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <qmljs/qmljsmodelmanagerinterface.h>
 #include <qmljs/qmljscontext.h>
 #include <qmljs/qmljsconstants.h>
@@ -110,6 +115,21 @@ void QmlTaskManager::updateMessages()
 
 void QmlTaskManager::updateSemanticMessagesNow()
 {
+    // note: this can only be called for the startup project
+    BuildSystem *buildSystem = ProjectManager::startupBuildSystem();
+    if (!buildSystem)
+        return;
+
+    const bool isCMake = buildSystem->name() == "cmake";
+    // heuristic: qmllint will output meaningful warnings if qmlls is enabled
+    if (isCMake && QmllsSettingsManager::instance()->useQmlls(buildSystem->project())) {
+        // abort any update that's going on already, and remove old codemodel warnings
+        m_messageCollector.cancel();
+        removeAllTasks(true);
+        buildSystem->buildNamedTarget(Constants::QMLLINT_BUILD_TARGET);
+        return;
+    }
+
     updateMessagesNow(true);
 }
 

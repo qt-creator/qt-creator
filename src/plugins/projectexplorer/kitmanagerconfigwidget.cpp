@@ -5,6 +5,7 @@
 
 #include "devicesupport/idevicefactory.h"
 #include "kit.h"
+#include "kitaspect.h"
 #include "kitaspects.h"
 #include "kitmanager.h"
 #include "projectexplorertr.h"
@@ -12,6 +13,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/fileutils.h>
 #include <utils/layoutbuilder.h>
 #include <utils/macroexpander.h>
 #include <utils/pathchooser.h>
@@ -139,6 +141,11 @@ QIcon KitManagerConfigWidget::displayIcon() const
     }
 
     return m_modifiedKit->displayIcon();
+}
+
+void KitManagerConfigWidget::clearCachedDisplayName()
+{
+    m_cachedDisplayName.clear();
 }
 
 void KitManagerConfigWidget::setFocusToName()

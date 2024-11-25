@@ -167,7 +167,7 @@ static VersionAndSuffix getVersionNumber(VersionAndSuffix &version, const FilePa
 {
     if (version.first.isNull() && !toolFilePath.isEmpty()) {
         const QString versionString = queryVersion(toolFilePath, QueryFailMode::Silent);
-        int suffixIndex = versionString.length() - 1;
+        qsizetype suffixIndex = versionString.length() - 1;
         version.first = QVersionNumber::fromString(versionString, &suffixIndex);
         version.second = versionString.mid(suffixIndex);
     }

@@ -53,8 +53,10 @@ private:
     std::optional<bool> fillTestCaseData(const QString &testCaseName,
                                            const CPlusPlus::Document::Ptr &doc,
                                            TestCaseData &data) const;
-    QtTestParseResult *createParseResult(const QString &testCaseName, const TestCaseData &data,
-                                         const QString &projectFile) const;
+    QtTestParseResult *createParseResult(
+        const QString &testCaseName,
+        const TestCaseData &data,
+        const Utils::FilePath &projectFile) const;
     QHash<Utils::FilePath, TestCases> m_testCases;
     QMultiHash<Utils::FilePath, Utils::FilePath> m_alternativeFiles;
     QSet<Utils::FilePath> m_prefilteredFiles;

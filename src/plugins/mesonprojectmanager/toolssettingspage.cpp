@@ -5,9 +5,7 @@
 
 #include "mesonpluginconstants.h"
 #include "mesonprojectmanagertr.h"
-#include "toolitemsettings.h"
 #include "toolsmodel.h"
-#include "tooltreeitem.h"
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
@@ -21,6 +19,65 @@
 using namespace Utils;
 
 namespace MesonProjectManager::Internal {
+
+class ToolTreeItem;
+
+class ToolItemSettings final : public QWidget
+{
+    Q_OBJECT
+
+public:
+    ToolItemSettings()
+    {
+        m_mesonNameLineEdit = new QLineEdit;
+
+        m_mesonPathChooser = new PathChooser;
+        m_mesonPathChooser->setExpectedKind(PathChooser::ExistingCommand);
+        m_mesonPathChooser->setHistoryCompleter("Meson.Command.History");
+
+        using namespace Layouting;
+
+        Form {
+            Tr::tr("Name:"), m_mesonNameLineEdit, br,
+            Tr::tr("Path:"), m_mesonPathChooser, br,
+            noMargin
+        }.attachTo(this);
+
+        connect(m_mesonPathChooser, &PathChooser::rawPathChanged, this, &ToolItemSettings::store);
+        connect(m_mesonNameLineEdit, &QLineEdit::textChanged, this, &ToolItemSettings::store);
+    }
+
+    void load(ToolTreeItem *item)
+    {
+        if (item) {
+            m_currentId = std::nullopt;
+            m_mesonNameLineEdit->setDisabled(item->isAutoDetected());
+            m_mesonNameLineEdit->setText(item->name());
+            m_mesonPathChooser->setDisabled(item->isAutoDetected());
+            m_mesonPathChooser->setFilePath(item->executable());
+            m_currentId = item->id();
+        } else {
+            m_currentId = std::nullopt;
+        }
+    }
+
+    void store()
+    {
+        if (m_currentId) {
+            emit applyChanges(*m_currentId,
+                              m_mesonNameLineEdit->text(),
+                              m_mesonPathChooser->filePath());
+        }
+    }
+
+signals:
+    void applyChanges(Id itemId, const QString &name, const FilePath &exe);
+
+private:
+    std::optional<Id> m_currentId{std::nullopt};
+    QLineEdit *m_mesonNameLineEdit;
+    PathChooser *m_mesonPathChooser;
+};
 
 class ToolsSettingsWidget final : public Core::IOptionsPageWidget
 {
@@ -139,3 +196,5 @@ void setupToolsSettingsPage()
 }
 
 } // namespace MesonProjectManager
+
+#include "toolssettingspage.moc"

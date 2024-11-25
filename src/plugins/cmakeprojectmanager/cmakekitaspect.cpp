@@ -6,6 +6,7 @@
 #include "cmakeconfigitem.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
+#include "cmakesettingspage.h"
 #include "cmakespecificsettings.h"
 #include "cmaketool.h"
 #include "cmaketoolmanager.h"
@@ -15,7 +16,9 @@
 #include <ios/iosconstants.h>
 
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorersettings.h>
@@ -49,6 +52,7 @@ using namespace ProjectExplorer;
 using namespace Utils;
 
 namespace CMakeProjectManager {
+namespace Internal {
 
 static bool isIos(const Kit *k)
 {
@@ -62,6 +66,39 @@ static Id defaultCMakeToolId()
     CMakeTool *defaultTool = CMakeToolManager::defaultCMakeTool();
     return defaultTool ? defaultTool->id() : Id();
 }
+
+class CMakeToolListModel : public TreeModel<TreeItem, Internal::CMakeToolTreeItem>
+{
+public:
+    CMakeToolListModel(const Kit &kit, QObject *parent)
+        : TreeModel(parent)
+        , m_kit(kit)
+    {}
+
+    void reset()
+    {
+        clear();
+
+        const FilePath rootPath = BuildDeviceKitAspect::device(&m_kit)->rootPath();
+        const QList<CMakeTool *> toolsForBuildDevice
+            = Utils::filtered(CMakeToolManager::cmakeTools(), [rootPath](CMakeTool *item) {
+                  return item->cmakeExecutable().isSameDevice(rootPath);
+              });
+        for (CMakeTool *item : toolsForBuildDevice)
+            rootItem()->appendChild(new CMakeToolTreeItem(item, false));
+        rootItem()->appendChild(new CMakeToolTreeItem); // The "none" item.
+    }
+
+private:
+    QVariant data(const QModelIndex &index, int role) const
+    {
+        if (role == CMakeToolTreeItem::DefaultItemIdRole)
+            return defaultCMakeToolId().toSetting();
+        return TreeModel::data(index, role);
+    }
+
+    const Kit &m_kit;
+};
 
 // Factories
 
@@ -122,96 +159,23 @@ class CMakeKitAspectImpl final : public KitAspect
 {
 public:
     CMakeKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
-        : KitAspect(kit, factory), m_comboBox(createSubWidget<QComboBox>())
+        : KitAspect(kit, factory)
     {
         setManagingPage(Constants::Settings::TOOLS_ID);
-        m_comboBox->setSizePolicy(QSizePolicy::Ignored, m_comboBox->sizePolicy().verticalPolicy());
-        m_comboBox->setEnabled(false);
-        m_comboBox->setToolTip(factory->description());
 
-        refresh();
-
-        connect(m_comboBox, &QComboBox::currentIndexChanged,
-                this, &CMakeKitAspectImpl::currentCMakeToolChanged);
+        const auto model = new CMakeToolListModel(*kit, this);
+        auto getter = [](const Kit &k) { return CMakeKitAspect::cmakeToolId(&k).toSetting(); };
+        auto setter = [](Kit &k, const QVariant &id) {
+            CMakeKitAspect::setCMakeTool(&k, Id::fromSetting(id));
+        };
+        auto resetModel = [model] { model->reset(); };
+        setListAspectSpec({model, std::move(getter), std::move(setter), std::move(resetModel)});
 
         CMakeToolManager *cmakeMgr = CMakeToolManager::instance();
         connect(cmakeMgr, &CMakeToolManager::cmakeAdded, this, &CMakeKitAspectImpl::refresh);
         connect(cmakeMgr, &CMakeToolManager::cmakeRemoved, this, &CMakeKitAspectImpl::refresh);
         connect(cmakeMgr, &CMakeToolManager::cmakeUpdated, this, &CMakeKitAspectImpl::refresh);
     }
-
-    ~CMakeKitAspectImpl() override
-    {
-        delete m_comboBox;
-    }
-
-private:
-    // KitAspectWidget interface
-    void makeReadOnly() override { m_comboBox->setEnabled(false); }
-
-    void addToLayoutImpl(Layouting::Layout &builder) override
-    {
-        addMutableAction(m_comboBox);
-        builder.addItem(m_comboBox);
-    }
-
-    void refresh() override
-    {
-        const GuardLocker locker(m_ignoreChanges);
-        m_comboBox->clear();
-
-        IDeviceConstPtr device = BuildDeviceKitAspect::device(kit());
-        const FilePath rootPath = device->rootPath();
-
-        const auto list = CMakeToolManager::cmakeTools();
-
-        m_comboBox->setEnabled(!list.isEmpty());
-
-        if (list.isEmpty()) {
-            m_comboBox->addItem(Tr::tr("<No CMake Tool available>"), Id().toSetting());
-            return;
-        }
-
-        const QList<CMakeTool *> same = Utils::filtered(list, [rootPath](CMakeTool *item) {
-            return item->cmakeExecutable().isSameDevice(rootPath);
-        });
-        const QList<CMakeTool *> other = Utils::filtered(list, [rootPath](CMakeTool *item) {
-            return !item->cmakeExecutable().isSameDevice(rootPath);
-        });
-
-        for (CMakeTool *item : same)
-            m_comboBox->addItem(item->displayName(), item->id().toSetting());
-
-        if (!same.isEmpty() && !other.isEmpty())
-            m_comboBox->insertSeparator(m_comboBox->count());
-
-        for (CMakeTool *item : other)
-            m_comboBox->addItem(item->displayName(), item->id().toSetting());
-
-        CMakeTool *tool = CMakeKitAspect::cmakeTool(m_kit);
-        m_comboBox->setCurrentIndex(tool ? indexOf(tool->id()) : -1);
-    }
-
-    int indexOf(Id id)
-    {
-        for (int i = 0; i < m_comboBox->count(); ++i) {
-            if (id == Id::fromSetting(m_comboBox->itemData(i)))
-                return i;
-        }
-        return -1;
-    }
-
-    void currentCMakeToolChanged(int index)
-    {
-        if (m_ignoreChanges.isLocked())
-            return;
-
-        const Id id = Id::fromSetting(m_comboBox->itemData(index));
-        CMakeKitAspect::setCMakeTool(m_kit, id);
-    }
-
-    Guard m_ignoreChanges;
-    QComboBox *m_comboBox;
 };
 
 CMakeKitAspectFactory::CMakeKitAspectFactory()
@@ -237,6 +201,10 @@ CMakeKitAspectFactory::CMakeKitAspectFactory()
             this, updateKits);
 }
 
+} // Internal
+
+using namespace Internal;
+
 Id CMakeKitAspect::id()
 {
     return Constants::TOOL_ID;
@@ -256,10 +224,9 @@ CMakeTool *CMakeKitAspect::cmakeTool(const Kit *k)
 
 void CMakeKitAspect::setCMakeTool(Kit *k, const Id id)
 {
-    const Id toSet = id.isValid() ? id : defaultCMakeToolId();
-    QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(toSet), return);
+    QTC_ASSERT(!id.isValid() || CMakeToolManager::findById(id), return);
     if (k)
-        k->setValue(Constants::TOOL_ID, toSet.toSetting());
+        k->setValue(Constants::TOOL_ID, id.toSetting());
 }
 
 Tasks CMakeKitAspectFactory::validate(const Kit *k) const
@@ -297,7 +264,11 @@ void CMakeKitAspectFactory::setup(Kit *k)
 
 void CMakeKitAspectFactory::fix(Kit *k)
 {
-    setup(k);
+    // TODO: Differentiate (centrally?) between "nothing set" and "actively set to nothing".
+    if (const Id id = CMakeKitAspect::cmakeToolId(k);
+        id.isValid() && !CMakeToolManager::findById(id)) {
+        setup(k);
+    }
 }
 
 KitAspectFactory::ItemList CMakeKitAspectFactory::toUserOutput(const Kit *k) const
@@ -377,7 +348,7 @@ private:
     // KitAspectWidget interface
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
 
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_label);
         parent.addItem(m_label);
@@ -386,7 +357,7 @@ private:
 
     void refresh() override
     {
-        CMakeTool *const tool = CMakeKitAspect::cmakeTool(m_kit);
+        CMakeTool *const tool = CMakeKitAspect::cmakeTool(kit());
         if (tool != m_currentTool)
             m_currentTool = tool;
 
@@ -872,10 +843,10 @@ const char CMAKE_QMAKE_KEY[] = "QT_QMAKE_EXECUTABLE";
 const char CMAKE_PREFIX_PATH_KEY[] = "CMAKE_PREFIX_PATH";
 const char QTC_CMAKE_PRESET_KEY[] = "QTC_CMAKE_PRESET";
 
-class CMakeConfigurationKitAspectWidget final : public KitAspect
+class CMakeConfigurationKitAspectImpl final : public KitAspect
 {
 public:
-    CMakeConfigurationKitAspectWidget(Kit *kit, const KitAspectFactory *factory)
+    CMakeConfigurationKitAspectImpl(Kit *kit, const KitAspectFactory *factory)
         : KitAspect(kit, factory),
           m_summaryLabel(createSubWidget<ElidingLabel>()),
           m_manageButton(createSubWidget<QPushButton>())
@@ -883,12 +854,12 @@ public:
         refresh();
         m_manageButton->setText(Tr::tr("Change..."));
         connect(m_manageButton, &QAbstractButton::clicked,
-                this, &CMakeConfigurationKitAspectWidget::editConfigurationChanges);
+                this, &CMakeConfigurationKitAspectImpl::editConfigurationChanges);
     }
 
 private:
     // KitAspectWidget interface
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_summaryLabel);
         parent.addItem(m_summaryLabel);
@@ -982,10 +953,10 @@ private:
                                                           CMakeConfigurationKitAspect::defaultConfiguration(kit()));
             CMakeConfigurationKitAspect::setAdditionalConfiguration(kit(), QString());
         });
-        connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectWidget::acceptChangesDialog);
-        connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectWidget::closeChangesDialog);
+        connect(m_dialog, &QDialog::accepted, this, &CMakeConfigurationKitAspectImpl::acceptChangesDialog);
+        connect(m_dialog, &QDialog::rejected, this, &CMakeConfigurationKitAspectImpl::closeChangesDialog);
         connect(buttons->button(QDialogButtonBox::Apply), &QAbstractButton::clicked,
-                this, &CMakeConfigurationKitAspectWidget::applyChanges);
+                this, &CMakeConfigurationKitAspectImpl::applyChanges);
 
         refresh();
         m_dialog->show();
@@ -1254,7 +1225,7 @@ KitAspect *CMakeConfigurationKitAspectFactory::createKitAspect(Kit *k) const
 {
     if (!k)
         return nullptr;
-    return new CMakeConfigurationKitAspectWidget(k, this);
+    return new CMakeConfigurationKitAspectImpl(k, this);
 }
 
 // Factory instances;

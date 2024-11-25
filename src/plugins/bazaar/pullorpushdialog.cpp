@@ -114,7 +114,7 @@ QString PullOrPushDialog::branchLocation() const
     if (m_defaultButton->isChecked())
         return {};
     if (m_localButton->isChecked())
-        return m_localPathChooser->filePath().toString();
+        return m_localPathChooser->filePath().path();
     return m_urlLineEdit->text();
 }
 

@@ -114,7 +114,7 @@ void DriverSelectionModel::fillDrivers(const FilePath &toolsIniFile,
 {
     clear();
 
-    QFile f(toolsIniFile.toString());
+    QFile f(toolsIniFile.toFSPathString());
     if (!f.open(QIODevice::ReadOnly))
         return;
 

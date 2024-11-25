@@ -129,7 +129,7 @@ sol::usertype<T> runtimeObject(sol::state_view lua)
 
 void registerUiBindings()
 {
-    LuaEngine::registerProvider("Qt.Gui", [](sol::state_view lua) {
+    registerProvider("Qt.Gui", [](sol::state_view lua) {
         runtimeObject<QObject>(lua);
         runtimeObject<QWidget, QObject>(lua);
         runtimeObject<QDialog, QWidget, QObject>(lua);

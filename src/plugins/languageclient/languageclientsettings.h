@@ -71,6 +71,7 @@ public:
     LanguageFilter m_languageFilter;
     QString m_initializationOptions;
     QString m_configuration;
+    bool m_showInSettings = true;
 
     QJsonObject initializationOptions() const;
     QJsonValue configuration() const;
@@ -212,7 +213,7 @@ private:
     QByteArray m_json;
 };
 
-LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *jsonEditor();
+LANGUAGECLIENT_EXPORT TextEditor::BaseTextEditor *createJsonEditor(QObject *parent = nullptr);
 
 void setupLanguageClientProjectPanel();
 

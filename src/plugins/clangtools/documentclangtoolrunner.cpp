@@ -193,7 +193,7 @@ void DocumentClangToolRunner::run()
     vfso().update();
     const ClangDiagnosticConfig config = diagnosticConfig(runSettings.diagnosticConfigId());
     const Environment env = projectBuildEnvironment(project);
-    QList<GroupItem> tasks;
+    GroupItems tasks;
     const auto addClangTool = [this, &runSettings, &config, &env, &tasks](ClangToolType tool) {
         if (!toolEnabled(tool, config, runSettings))
             return;
@@ -205,21 +205,23 @@ void DocumentClangToolRunner::run()
         const auto [includeDir, clangVersion] = getClangIncludeDirAndVersion(executable);
         if (includeDir.isEmpty() || clangVersion.isEmpty())
             return;
-        const AnalyzeUnits units{{m_fileInfo, includeDir, clangVersion}};
+        const AnalyzeUnits units{{m_fileInfo, tool}};
         const auto diagnosticFilter = [mappedPath = vfso().autoSavedFilePath(m_document)](
                                     const FilePath &path) { return path == mappedPath; };
-        const AnalyzeInputData input{tool,
-                                     runSettings,
-                                     config,
-                                     m_temporaryDir.path(),
-                                     env,
-                                     vfso().overlayFilePath().toString(),
-                                     diagnosticFilter};
+        const AnalyzeInputData input{
+            tool,
+            runSettings,
+            config,
+            m_temporaryDir.path(),
+            env,
+            vfso().overlayFilePath().nativePath(),
+            diagnosticFilter};
         const auto setupHandler = [this, executable](const AnalyzeUnit &) {
             return !m_document->isModified() || isVFSOverlaySupported(executable);
         };
         const auto outputHandler = [this](const AnalyzeOutputData &output) { onDone(output); };
-        tasks.append(Group{finishAllAndSuccess, clangToolTask(units, input, setupHandler, outputHandler)});
+        tasks.append(Group{finishAllAndSuccess,
+                           clangToolTask(tool, units, input, setupHandler, outputHandler)});
     };
     addClangTool(ClangToolType::Tidy);
     addClangTool(ClangToolType::Clazy);
@@ -316,7 +318,7 @@ bool DocumentClangToolRunner::isSuppressed(const Diagnostic &diagnostic) const
             return false;
         FilePath filePath = suppressed.filePath;
         if (filePath.toFileInfo().isRelative())
-            filePath = m_lastProjectDirectory.pathAppended(filePath.toString());
+            filePath = m_lastProjectDirectory.resolvePath(filePath);
         return filePath == diagnostic.location.filePath;
     };
     return Utils::anyOf(m_suppressed, equalsSuppressed);

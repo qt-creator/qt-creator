@@ -100,7 +100,7 @@ public:
 
     void reset(const QList<BaseSettings *> &settings);
     QList<BaseSettings *> settings() const { return m_settings; }
-    int insertSettings(BaseSettings *settings);
+    QModelIndex insertSettings(BaseSettings *settings);
     void enableSetting(const QString &id, bool enable = true);
     QList<BaseSettings *> removed() const { return m_removed; }
     BaseSettings *settingForIndex(const QModelIndex &index) const;
@@ -110,6 +110,52 @@ private:
     static constexpr int idRole = Qt::UserRole + 1;
     QList<BaseSettings *> m_settings; // owned
     QList<BaseSettings *> m_removed;
+};
+
+class FilterProxy final : public QSortFilterProxyModel
+{
+public:
+    FilterProxy(LanguageClientSettingsModel &sourceModel)
+        : m_settings(sourceModel)
+    {
+        setSourceModel(&sourceModel);
+    }
+
+    bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const final
+    {
+        const QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+        const BaseSettings *setting
+            = static_cast<LanguageClientSettingsModel *>(sourceModel())->settingForIndex(index);
+        return setting && setting->m_showInSettings;
+    }
+
+    void reset(QList<BaseSettings *> settings)
+    {
+        m_settings.reset(settings);
+        invalidateFilter();
+    }
+
+    QModelIndex insertSettings(BaseSettings *settings)
+    {
+        const auto idx = m_settings.insertSettings(settings);
+        invalidateFilter();
+        return mapFromSource(idx);
+    }
+
+    BaseSettings *settingForIndex(const QModelIndex &index) const
+    {
+        return m_settings.settingForIndex(mapToSource(index));
+    }
+
+    QModelIndex indexForSetting(BaseSettings *setting) const
+    {
+        return mapFromSource(m_settings.indexForSetting(setting));
+    }
+
+    QList<BaseSettings *> removed() const { return m_settings.removed(); }
+
+private:
+    LanguageClientSettingsModel &m_settings;
 };
 
 class LanguageClientSettingsPageWidget : public Core::IOptionsPageWidget
@@ -153,7 +199,7 @@ private:
     void addItem(const Utils::Id &clientTypeId);
     void deleteItem();
 
-    LanguageClientSettingsModel &m_settings;
+    FilterProxy m_settings;
     QSet<QString> &m_changedSettings;
 };
 
@@ -171,6 +217,7 @@ LanguageClientSettingsPageWidget::LanguageClientSettingsPageWidget(LanguageClien
 {
     auto mainLayout = new QVBoxLayout();
     auto layout = new QHBoxLayout();
+
     m_view->setModel(&m_settings);
     m_view->setHeaderHidden(true);
     m_view->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -236,7 +283,7 @@ void LanguageClientSettingsPageWidget::resetCurrentSettings(int row)
 
     m_currentSettings.setting = nullptr;
     m_currentSettings.widget = nullptr;
-    m_view->setCurrentIndex(m_settings.index(row));
+    m_view->setCurrentIndex(m_settings.index(row, 0));
 }
 
 void LanguageClientSettingsPageWidget::applyCurrentSettings()
@@ -246,7 +293,7 @@ void LanguageClientSettingsPageWidget::applyCurrentSettings()
 
     if (m_currentSettings.setting->applyFromSettingsWidget(m_currentSettings.widget)) {
         auto index = m_settings.indexForSetting(m_currentSettings.setting);
-        emit m_settings.dataChanged(index, index);
+        emit m_settings.sourceModel()->dataChanged(index, index);
     }
 }
 
@@ -264,7 +311,7 @@ void LanguageClientSettingsPageWidget::addItem(const Utils::Id &clientTypeId)
 {
     auto newSettings = generateSettings(clientTypeId);
     QTC_ASSERT(newSettings, return);
-    m_view->setCurrentIndex(m_settings.index(m_settings.insertSettings(newSettings)));
+    m_view->setCurrentIndex(m_settings.insertSettings(newSettings));
 }
 
 void LanguageClientSettingsPageWidget::deleteItem()
@@ -273,7 +320,7 @@ void LanguageClientSettingsPageWidget::deleteItem()
     if (!index.isValid())
         return;
 
-    m_settings.removeRows(index.row());
+    m_settings.removeRow(index.row());
 }
 
 class LanguageClientSettingsPage : public Core::IOptionsPage
@@ -309,7 +356,9 @@ LanguageClientSettingsPage::LanguageClientSettingsPage()
 
 void LanguageClientSettingsPage::init()
 {
-    m_model.reset(LanguageClientSettings::fromSettings(Core::ICore::settings()));
+    QList<BaseSettings *> newList = LanguageClientSettings::fromSettings(Core::ICore::settings());
+    m_model.reset(newList);
+    qDeleteAll(newList);
 }
 
 QList<BaseSettings *> LanguageClientSettingsPage::settings() const
@@ -455,13 +504,13 @@ void LanguageClientSettingsModel::reset(const QList<BaseSettings *> &settings)
     endResetModel();
 }
 
-int LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
+QModelIndex LanguageClientSettingsModel::insertSettings(BaseSettings *settings)
 {
     int row = rowCount();
     beginInsertRows(QModelIndex(), row, row);
     m_settings.insert(row, settings);
     endInsertRows();
-    return row;
+    return createIndex(row, 0, settings);
 }
 
 void LanguageClientSettingsModel::enableSetting(const QString &id, bool enable)
@@ -1073,7 +1122,7 @@ bool LanguageFilter::operator!=(const LanguageFilter &other) const
     return this->filePattern != other.filePattern || this->mimeTypes != other.mimeTypes;
 }
 
-TextEditor::BaseTextEditor *jsonEditor()
+TextEditor::BaseTextEditor *createJsonEditor(QObject *parent)
 {
     using namespace TextEditor;
     using namespace Utils::Text;
@@ -1085,6 +1134,8 @@ TextEditor::BaseTextEditor *jsonEditor()
         delete editor;
     }
     QTC_ASSERT(textEditor, textEditor = createPlainTextEditor());
+    textEditor->setParent(parent);
+
     TextDocument *document = textEditor->textDocument();
     TextEditorWidget *widget = textEditor->editorWidget();
     widget->configureGenericHighlighter(mimeTypeForName(Utils::Constants::JSON_MIMETYPE));
@@ -1162,7 +1213,7 @@ public:
         setGlobalSettingsId(Constants::LANGUAGECLIENT_SETTINGS_PAGE);
         setExpanding(true);
 
-        TextEditor::BaseTextEditor *editor = jsonEditor();
+        TextEditor::BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
         auto layout = new QVBoxLayout;

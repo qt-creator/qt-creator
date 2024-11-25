@@ -130,6 +130,7 @@ void QbsProjectParser::finish(bool success)
     if (!success)
         m_fi->reportCanceled();
     m_fi->reportFinished();
+    delete m_fi;
     m_fi = nullptr;
     emit done(success);
 }

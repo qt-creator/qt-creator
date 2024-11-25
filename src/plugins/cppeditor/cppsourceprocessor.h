@@ -68,6 +68,7 @@ private:
 
     // Client interface
     void macroAdded(const CPlusPlus::Macro &macro) override;
+    void pragmaAdded(const CPlusPlus::Pragma &pragma) override;
     void passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
                                     int line, const CPlusPlus::Macro &macro) override;
     void failedMacroDefinitionCheck(int bytesOffset, int utf16charOffset,

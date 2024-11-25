@@ -5,6 +5,7 @@
 
 #include "utils_global.h"
 
+#include "expected.h"
 #include "filepath.h"
 
 #include <QCoreApplication>
@@ -32,13 +33,6 @@ QT_END_NAMESPACE
 namespace Utils {
 
 class CommandLine;
-
-struct QTCREATOR_UTILS_EXPORT RunResult
-{
-    int exitCode = -1;
-    QByteArray stdOut;
-    QByteArray stdErr;
-};
 
 class QTCREATOR_UTILS_EXPORT FileUtils
 {
@@ -79,6 +73,7 @@ public:
     static FilePath commonPath(const FilePath &oldCommonPath, const FilePath &fileName);
     static FilePath commonPath(const FilePaths &paths);
     static FilePath homePath();
+    static expected_str<FilePath> scratchBufferFilePath(const QString &pattern);
 
     static FilePaths toFilePathList(const QStringList &paths);
 

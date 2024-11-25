@@ -11,7 +11,7 @@
 
     \brief Set global code style for C++ files.
 
-    \QC uses the Clang \l{https://clang.llvm.org/docs/LibFormat.html}{LibFormat}
+    \QC uses the Clang \l{LibFormat: Documentation}{LibFormat}
     library to automatically format and indent C++ code. It enforces a coding
     style for a project or the whole organization.
 
@@ -25,7 +25,8 @@
                 \li \uicontrol {Indenting Only} to only indent code.
                 \li \uicontrol {Full Formatting} to use the \key {Ctrl+I}
                     keyboard shortcut to format code instead of indenting.
-                \li \uicontrol {Use Built-In Indenter} to turn off ClangFormat.
+                \li \uicontrol {Use Built-In Indenter} to turn off
+                    \l{ClangFormat: Documentation}{ClangFormat}.
             \endlist
         \li Select \uicontrol {Ignore files greater than} to make parsing faster
             by ignoring big files. Specify the maximum size of files to parse.
@@ -38,10 +39,8 @@
         \li In \uicontrol {Custom settings}, select the settings to change, and
             then select \uicontrol Copy.
         \li Give a name to the settings, and select \uicontrol OK.
-        \li In \uicontrol ClangFormat, edit the
-            \l{https://clang.llvm.org/docs/ClangFormatStyleOptions.html}
-            {ClangFormat Style Options}. The live preview shows how the
-            preferences change the indentation.
+        \li In \uicontrol ClangFormat, edit the \l {ClangFormat Style Options}.
+            The live preview shows how the preferences change the indentation.
             If you enter invalid values, you see warning messages.
     \endlist
 

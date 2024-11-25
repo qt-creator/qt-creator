@@ -4,8 +4,10 @@
 #include "quicktransitionitem.h"
 #include "scxmleditortr.h"
 
+#include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -24,9 +26,8 @@ QuickTransitionItem::QuickTransitionItem(int index, ItemType connectionType, QGr
     m_drawingRect = m_rect.adjusted(4, 4, -4, -4);
     m_stateRect = m_rect.adjusted(3, 4, -3, -4);
     m_brush.setStyle(Qt::SolidPattern);
-    m_brush.setColor(QColor(0xe8, 0xe8, 0xe8));
+    m_brush.setColor(scene()->palette().color(QPalette::Window));
 
-    m_pen.setColor(QColor(0x12, 0x12, 0x12));
     m_pen.setCapStyle(Qt::RoundCap);
     setAcceptHoverEvents(true);
 }
@@ -39,14 +40,14 @@ void QuickTransitionItem::setConnectionType(ItemType connectionType)
 void QuickTransitionItem::hoverLeaveEvent(QGraphicsSceneHoverEvent *e)
 {
     Q_UNUSED(e)
-    m_brush.setColor(QColor(0xe8, 0xe8, 0xe8));
+    m_brush.setColor(scene()->palette().color(QPalette::Inactive, QPalette::Window));
     update();
 }
 
 void QuickTransitionItem::hoverEnterEvent(QGraphicsSceneHoverEvent *e)
 {
     Q_UNUSED(e)
-    m_brush.setColor(QColor(0xff, 0xc4, 0xff));
+    m_brush.setColor(scene()->palette().color(QPalette::Active, QPalette::Window));
     update();
 }
 
@@ -58,6 +59,7 @@ void QuickTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->save();
 
     painter->setRenderHint(QPainter::Antialiasing, true);
+    m_pen.setColor(painter->pen().color());
     painter->setPen(m_pen);
     painter->setBrush(m_brush);
     painter->drawRect(m_rect);
@@ -71,13 +73,13 @@ void QuickTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
         switch (m_connectionType) {
         case StateType:
             painter->setPen(m_pen);
-            painter->setBrush(Qt::white);
+            painter->setBrush(scene()->palette().brush(QPalette::Window));
             painter->drawRoundedRect(m_stateRect, 2, 2);
             break;
 
         case ParallelType:
             painter->setPen(m_pen);
-            painter->setBrush(Qt::white);
+            painter->setBrush(scene()->palette().brush(QPalette::Window));
             painter->drawRoundedRect(m_stateRect, 2, 2);
 
             painter->setPen(m_pen);
@@ -89,18 +91,18 @@ void QuickTransitionItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
 
         case FinalStateType:
             painter->setPen(m_pen);
-            painter->setBrush(Qt::white);
+            painter->setBrush(scene()->palette().brush(QPalette::Window));
             painter->drawEllipse(m_stateRect.center(), 7, 7);
 
             painter->setPen(Qt::NoPen);
-            painter->setBrush(Qt::black);
+            painter->setBrush(painter->pen().color());
             painter->drawEllipse(m_stateRect.center(), 5, 5);
             break;
 
         case HistoryType:
             painter->setFont(QFont("Arial", 6));
             painter->setPen(m_pen);
-            painter->setBrush(Qt::white);
+            painter->setBrush(scene()->palette().brush(QPalette::Window));
             painter->drawEllipse(m_stateRect.center(), 7, 7);
             painter->drawText(m_stateRect, Qt::AlignCenter, Tr::tr("H"));
             break;

@@ -3,61 +3,24 @@
 
 #pragma once
 
-#include "compilationdatabaseutils.h"
-
-#include <projectexplorer/buildconfiguration.h>
-#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
-#include <texteditor/texteditor.h>
-
-#include <utils/filesystemwatcher.h>
-
-namespace ProjectExplorer {
-class Kit;
-class ProjectUpdater;
-} // ProjectExplorer
-
-namespace Utils { class FileSystemWatcher; }
+namespace ProjectExplorer { class Kit; }
 
 namespace CompilationDatabaseProjectManager::Internal {
 
-class CompilationDbParser;
-
-class CompilationDatabaseProject : public ProjectExplorer::Project
+class CompilationDatabaseProject final : public ProjectExplorer::Project
 {
     Q_OBJECT
 
 public:
     explicit CompilationDatabaseProject(const Utils::FilePath &filename);
-    Utils::FilePath rootPathFromSettings() const;
 
 private:
-    void configureAsExampleProject(ProjectExplorer::Kit *kit) override;
-};
-
-class CompilationDatabaseBuildSystem : public ProjectExplorer::BuildSystem
-{
-public:
-    explicit CompilationDatabaseBuildSystem(ProjectExplorer::Target *target);
-    ~CompilationDatabaseBuildSystem();
-
-    void triggerParsing() final;
-    QString name() const final { return QLatin1String("compilationdb"); }
-
-    void reparseProject();
-    void updateDeploymentData();
-    void buildTreeAndProjectParts();
-
-    std::unique_ptr<ProjectExplorer::ProjectUpdater> m_cppCodeModelUpdater;
-    MimeBinaryCache m_mimeBinaryCache;
-    QByteArray m_projectFileHash;
-    CompilationDbParser *m_parser = nullptr;
-    Utils::FileSystemWatcher * const m_deployFileWatcher;
+    void configureAsExampleProject(ProjectExplorer::Kit *kit) final;
 };
 
 void setupCompilationDatabaseEditor();
-
 void setupCompilationDatabaseBuildConfiguration();
 
 } // CompilationDatabaseProjectManager::Internal

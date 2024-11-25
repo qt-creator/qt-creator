@@ -39,7 +39,6 @@ signals:
 
 public:
     QmlJSEditor::QmlJSEditorDocument *qmljsdocument = nullptr;
-    Core::IContext *m_context = nullptr;
     QAction *m_completionAction = nullptr;
     bool m_isMultiline = false;
 };

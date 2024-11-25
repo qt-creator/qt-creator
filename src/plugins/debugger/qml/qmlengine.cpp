@@ -537,7 +537,7 @@ void QmlEngine::setupEngine()
     notifyEngineSetupOk();
 
     // we won't get any debug output
-    if (!terminal()) {
+    if (!usesTerminal()) {
         d->retryOnConnectFail = true;
         d->automaticConnect = true;
     }

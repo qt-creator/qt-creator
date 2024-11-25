@@ -238,12 +238,19 @@ Spinner::Spinner(SpinnerSize size, QWidget *parent)
     : QObject(parent)
     , m_widget(new SpinnerOverlay(size, parent)) {}
 
+Spinner::~Spinner()
+{
+    if (m_widget)
+        delete m_widget;
+}
+
 /*!
     Sets the size of the spinner to the given \a size.
 */
 void Spinner::setSize(SpinnerSize size)
 {
-    m_widget->setSize(size);
+    if (m_widget)
+        m_widget->setSize(size);
 }
 
 /*!
@@ -251,7 +258,8 @@ void Spinner::setSize(SpinnerSize size)
 */
 void Spinner::setColor(const QColor &color)
 {
-    m_widget->setColor(color);
+    if (m_widget)
+        m_widget->setColor(color);
 }
 
 /*!
@@ -260,7 +268,8 @@ void Spinner::setColor(const QColor &color)
 */
 void Spinner::show()
 {
-    m_widget->show();
+    if (m_widget)
+        m_widget->show();
 }
 
 /*!
@@ -268,7 +277,8 @@ void Spinner::show()
 */
 void Spinner::hide()
 {
-    m_widget->hide();
+    if (m_widget)
+        m_widget->hide();
 }
 
 /*!
@@ -276,7 +286,7 @@ void Spinner::hide()
 */
 bool Spinner::isVisible() const
 {
-    return m_widget->isVisible();
+    return m_widget ? m_widget->isVisible() : false;
 }
 
 /*!
@@ -285,7 +295,8 @@ bool Spinner::isVisible() const
 */
 void Spinner::setVisible(bool visible)
 {
-    m_widget->setVisible(visible);
+    if (m_widget)
+        m_widget->setVisible(visible);
 }
 
 static QString colorButtonStyleSheet(const QColor &bgColor)

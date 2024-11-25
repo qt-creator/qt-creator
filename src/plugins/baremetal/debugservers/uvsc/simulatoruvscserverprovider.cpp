@@ -87,7 +87,7 @@ FilePath SimulatorUvscServerProvider::optionsFilePath(DebuggerRunTool *runTool,
                                                       QString &errorMessage) const
 {
     const FilePath optionsPath = buildOptionsFilePath(runTool);
-    std::ofstream ofs(optionsPath.toString().toStdString(), std::ofstream::out);
+    std::ofstream ofs(optionsPath.path().toStdString(), std::ofstream::out);
     Uv::ProjectOptionsWriter writer(&ofs);
     const SimulatorUvProjectOptions projectOptions(this);
     if (!writer.write(&projectOptions)) {

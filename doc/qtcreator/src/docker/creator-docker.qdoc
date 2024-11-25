@@ -102,7 +102,7 @@
     \row
         \li \uicontrol {Do not modify entry point}
         \li Stops \QC from modifying the \l {Modify entry points}{entry point}
-            of the image. Make sure that the entry point starts a shell.
+            of the image. Make sure that the entry point of the image does not exit immediately.
     \row
         \li \uicontrol {Enable flags needed for LLDB}
         \li Adds the following flags to the container to allow LLDB to run:

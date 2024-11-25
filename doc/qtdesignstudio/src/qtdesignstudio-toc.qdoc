@@ -217,9 +217,9 @@
                 \li Extending Component Functionality
                 \endomit
                 \li \l{UI Files}
-                \li \l{Manage Data Collection}
+                \li \l{Managing Data Collection}
                     \list
-                        \li \l {Collect Usage Statistics}
+                        \li \l {Collecting Usage Statistics}
                         \li \l {Collecting User Feedback}
                         \li \l {Reporting Crashes}
                     \endlist
@@ -257,7 +257,7 @@
                 \li \l{Supported Platforms}
             \endlist
         \li \l{Technical Support}
-        \li \l{Acknowledgements}
+        \li \l{Licenses and Acknowledgments}
         \li \l{What's New}
     \endlist
 */

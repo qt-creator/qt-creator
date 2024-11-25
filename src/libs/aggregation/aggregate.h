@@ -51,12 +51,19 @@ signals:
     void changed();
 
 private:
+    friend AGGREGATION_EXPORT void aggregate(const QObjectList &);
+    enum PrivateConstructor { PrivateConstructor };
+    Aggregate(enum PrivateConstructor);
+    void construct();
+
     void deleteSelf(QObject *obj);
 
     static QHash<QObject *, Aggregate *> &aggregateMap();
 
-    QList<QObject *> m_components;
+    QObjectList m_components;
 };
+
+AGGREGATION_EXPORT void aggregate(const QObjectList &components);
 
 // get a component via global template function
 template <typename T> T *query(Aggregate *obj)

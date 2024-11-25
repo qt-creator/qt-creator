@@ -7,10 +7,12 @@
 #include "remotelinux_constants.h"
 #include "remotelinuxtr.h"
 
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/deployablefile.h>
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/devicesupport/filetransfer.h>
 #include <projectexplorer/devicesupport/idevice.h>
+#include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/runconfigurationaspects.h>
 #include <projectexplorer/target.h>
 
@@ -35,7 +37,7 @@ struct UploadStorage
     QList<DeployableFile> filesToUpload;
 };
 
-class GenericDirectUploadStep : public AbstractRemoteLinuxDeployStep
+class GenericDirectUploadStep final : public AbstractRemoteLinuxDeployStep
 {
 public:
     GenericDirectUploadStep(BuildStepList *bsl, Id id)
@@ -152,7 +154,7 @@ GroupItem GenericDirectUploadStep::statTree(const Storage<UploadStorage> &storag
     const auto onSetup = [this, storage, filesToStat, statEndHandler](TaskTree &tree) {
         UploadStorage *storagePtr = storage.activeStorage();
         const QList<DeployableFile> files = filesToStat(storagePtr);
-        QList<GroupItem> statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
+        GroupItems statList{finishAllAndSuccess, parallelLimit(MaxConcurrentStatCalls)};
         for (const DeployableFile &file : std::as_const(files)) {
             QTC_ASSERT(file.isValid(), continue);
             statList.append(statTask(storagePtr, file, statEndHandler));
@@ -266,10 +268,21 @@ GroupItem GenericDirectUploadStep::deployRecipe()
 
 // Factory
 
-GenericDirectUploadStepFactory::GenericDirectUploadStepFactory()
+class GenericDirectUploadStepFactory final : public BuildStepFactory
 {
-    registerStep<GenericDirectUploadStep>(Constants::DirectUploadStepId);
-    setDisplayName(Tr::tr("Upload files via SFTP"));
+public:
+    GenericDirectUploadStepFactory()
+    {
+        registerStep<GenericDirectUploadStep>(Constants::DirectUploadStepId);
+        setDisplayName(Tr::tr("Upload files via SFTP"));
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_DEPLOY);
+        setSupportedDeviceType(RemoteLinux::Constants::GenericLinuxOsType);
+    }
+};
+
+void setupGenericDirectUploadStep()
+{
+    static GenericDirectUploadStepFactory theGenericDirectUploadStepFactory;
 }
 
 } // RemoteLinux::Internal

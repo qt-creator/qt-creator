@@ -111,7 +111,7 @@ private:
 
     void updateFromFocus();
 
-    void updateFileWarning(Core::IDocument *document, const QString &text);
+    void updateFileWarning(Core::IDocument *document, bool generated);
     static bool hasFocus(Internal::ProjectTreeWidget *widget);
     Internal::ProjectTreeWidget *currentWidget() const;
     void hideContextMenu();

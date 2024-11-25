@@ -7,12 +7,12 @@ Rectangle {
     Row {
         visible: CustomObject.customProperty
         Image {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
             id: icon
             source: "assets/icon.png"
         }
         Text {
-            anchors.centerIn: parent
+            anchors.verticalCenter: parent.verticalCenter
             font.pixelSize: 28
             id: title
             text: " for MCUs"

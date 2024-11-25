@@ -4,11 +4,10 @@
 #pragma once
 
 #include "cppquickfixsettings.h"
-#include <projectexplorer/project.h>
-#include <utils/fileutils.h>
 
-namespace CppEditor {
-namespace Internal {
+#include <projectexplorer/project.h>
+
+namespace CppEditor::Internal {
 
 class CppQuickFixProjectsSettings : public QObject
 {
@@ -39,7 +38,6 @@ private:
     bool m_useGlobalSettings;
 };
 
-} // namespace Internal
-} // namespace CppEditor
+} // CppEditor::Internal
 
 Q_DECLARE_METATYPE(QSharedPointer<CppEditor::Internal::CppQuickFixProjectsSettings>)

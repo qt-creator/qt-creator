@@ -6,6 +6,7 @@
 #include "buildconfiguration.h"
 #include "devicesupport/idevice.h"
 #include "gnumakeparser.h"
+#include "kit.h"
 #include "kitaspects.h"
 #include "processparameters.h"
 #include "projectexplorer.h"
@@ -21,7 +22,6 @@
 #include <utils/pathchooser.h>
 #include <utils/qtcprocess.h>
 #include <utils/utilsicons.h>
-#include <utils/variablechooser.h>
 
 #include <QThread>
 
@@ -313,11 +313,13 @@ QWidget *MakeStep::createConfigWidget()
     if (m_disablingForSubDirsSupported)
         builder.addRow({m_disabledForSubdirsAspect});
     builder.addRow({m_buildTargetsAspect});
+    if (m_runAsRootAspect.isVisible()) {
+        m_runAsRootAspect.setLabelPlacement(BoolAspect::LabelPlacement::InExtraLabel);
+        builder.addRow({m_runAsRootAspect});
+    }
     builder.setNoMargins();
 
     auto widget = builder.emerge();
-
-    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     setSummaryUpdater([this] {
         const CommandLine make = effectiveMakeCommand(MakeStep::Display);

@@ -129,7 +129,7 @@ public:
 
     Debugger::DiagnosticLocation toDiagnosticLocation() const
     {
-        FileCache::Item &cacheItem = m_fileCache.item(m_filePath.toString());
+        FileCache::Item &cacheItem = m_fileCache.item(m_filePath.toUserOutput());
         const QByteArray fileContents = cacheItem.fileContents();
 
         const char *data = fileContents.data();

@@ -26,7 +26,7 @@ PythonProject::PythonProject(const FilePath &fileName)
     setProjectLanguages(Context(ProjectExplorer::Constants::PYTHON_LANGUAGE_ID));
     setDisplayName(fileName.completeBaseName());
 
-    setBuildSystemCreator([](Target *t) { return new PythonBuildSystem(t); });
+    setBuildSystemCreator<PythonBuildSystem>();
 }
 
 Tasks PythonProject::projectIssues(const Kit *k) const

@@ -25,7 +25,7 @@ public:
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
 
-    void addToLayout(Layouting::Layout &parent) override;
+    void addToLayoutImpl(Layouting::Layout &parent) override;
 
     void readSettings() override;
     void writeSettings() const override;
@@ -60,6 +60,7 @@ public:
     Utils::BoolAspect showQmlObjectTree{this};
     Utils::BoolAspect stationaryEditorWhileStepping{this};
     Utils::BoolAspect forceLoggingToConsole{this};
+    Utils::BoolAspect showUnsupportedBreakpointWarning{this};
 
     SourcePathMapAspect sourcePathMap{this};
 
@@ -75,6 +76,7 @@ public:
     LocalsAndExpressionsSettings();
 
     Utils::BoolAspect useDebuggingHelpers{this};
+    Utils::BoolAspect allowInferiorCalls{this};
     Utils::BoolAspect useCodeModel{this};
     Utils::BoolAspect showThreadNames{this};
     Utils::FilePathAspect extraDumperFile{this};   // For loading a file. Recommended.

@@ -9,17 +9,17 @@
 #include "clangmodelmanagersupport.h"
 #include "tasktimers.h"
 
+#include <cppeditor/cppeditorwidget.h>
 #include <cppeditor/semantichighlighter.h>
 #include <languageclient/languageclientmanager.h>
 #include <languageclient/semantichighlightsupport.h>
 #include <languageserverprotocol/lsptypes.h>
 #include <texteditor/blockrange.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/textstyles.h>
 
 #include <QtConcurrent>
 #include <QTextDocument>
-
-#include <new>
 
 using namespace LanguageClient;
 using namespace LanguageServerProtocol;
@@ -256,6 +256,10 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
         params->uri().toFilePath(client->hostPathMapper()));
     if (!doc)
         return;
+    const auto editorWidget = CppEditor::CppEditorWidget::fromTextDocument(doc);
+    if (!editorWidget)
+        return;
+
     const QList<Range> inactiveRegions = params->inactiveRegions();
     QList<BlockRange> ifdefedOutBlocks;
     for (const Range &r : inactiveRegions) {
@@ -263,7 +267,7 @@ void handleInactiveRegions(LanguageClient::Client *client, const JsonRpcMessage 
         const int endPos = r.end().toPositionInDocument(doc->document()) + 1;
         ifdefedOutBlocks.emplaceBack(startPos, endPos);
     }
-    doc->setIfdefedOutBlocks(ifdefedOutBlocks);
+    editorWidget->setIfdefedOutBlocks(ifdefedOutBlocks);
 }
 
 QString inactiveRegionsMethodName()

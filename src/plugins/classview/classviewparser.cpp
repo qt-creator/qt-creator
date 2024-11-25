@@ -120,7 +120,7 @@ ParserTreeItem::ConstPtr Parser::parse()
     for (auto it = d->m_projectCache.cbegin(); it != d->m_projectCache.cend(); ++it) {
         const ParserPrivate::ProjectCache &projectCache = it.value();
         const FilePath projectPath = it.key();
-        const SymbolInformation projectInfo = { projectCache.projectName, projectPath.toString() };
+        const SymbolInformation projectInfo = {projectCache.projectName, projectPath.path()};
         ParserTreeItem::ConstPtr item = getCachedOrParseProjectTree(projectPath, projectCache.fileNames);
         if (!item)
             continue;

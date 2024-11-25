@@ -56,7 +56,9 @@ public:
     static void registerClientSettings(BaseSettings *settings);
     static void enableClientSettings(const QString &settingsId, bool enable = true);
     static QList<Client *> clientsForSetting(const BaseSettings *setting);
+    static QList<Client *> clientsForSettingId(const QString &settingsId);
     static const BaseSettings *settingForClient(Client *setting);
+    static QList<Client *> clientsByName(const QString &name);
     static void updateWorkspaceConfiguration(const ProjectExplorer::Project *project,
                                              const QJsonValue &json);
 

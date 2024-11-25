@@ -41,6 +41,8 @@ public:
     void add(Utils::Id c) { d.append(c); }
     bool operator==(const Context &c) const { return d == c.d; }
 
+    friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
+
 private:
     QList<Utils::Id> d;
 };
@@ -51,21 +53,30 @@ class CORE_EXPORT IContext : public QObject
 public:
     IContext(QObject *parent = nullptr) : QObject(parent) {}
 
-    virtual Context context() const { return m_context; }
-    virtual QWidget *widget() const { return m_widget; }
+    QWidget *widget() const { return m_widget; }
+    void setWidget(QWidget *widget) { m_widget = widget; }
+
+    Context context() const { return m_context; }
+    void setContext(const Context &context) { m_context = context; }
+
     using HelpCallback = std::function<void(const HelpItem &item)>;
-    virtual void contextHelp(const HelpCallback &callback) const { callback(m_contextHelp); }
+    using HelpProvider = std::function<void(const HelpCallback &item)>;
 
-    virtual void setContext(const Context &context) { m_context = context; }
-    virtual void setWidget(QWidget *widget) { m_widget = widget; }
-    virtual void setContextHelp(const HelpItem &id) { m_contextHelp = id; }
+    void contextHelp(const HelpCallback &callback) const;
+    void setContextHelp(const HelpItem &id);
+    void setContextHelpProvider(const HelpProvider &provider);
 
-    friend CORE_EXPORT QDebug operator<<(QDebug debug, const Core::Context &context);
+    static void attach(QWidget *widget,
+                       const Context &context,
+                       const HelpItem &contextHelp = {});
+    static void attach(QWidget *widget,
+                       const Context &context,
+                       const HelpProvider &helpProvider);
 
 protected:
     Context m_context;
     QPointer<QWidget> m_widget;
-    HelpItem m_contextHelp;
+    HelpProvider m_contextHelpProvider;
 };
 
 } // namespace Core

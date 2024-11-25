@@ -15,11 +15,11 @@ class Target;
 
 namespace Internal {
 
-class TargetItem;
+class ITargetItem;
 class TargetGroupItemPrivate;
 
 // Second level: Special case for the Build & Run item (with per-kit subItems)
-class TargetGroupItem : public Utils::TypedTreeItem<TargetItem /*, ProjectItem */>
+class TargetGroupItem : public Utils::TypedTreeItem<ITargetItem /*, ProjectItem */>
 {
 public:
     TargetGroupItem(const QString &displayName, Project *project);
@@ -29,8 +29,8 @@ public:
     bool setData(int column, const QVariant &data, int role) override;
     Qt::ItemFlags flags(int) const override;
 
-    TargetItem *currentTargetItem() const;
-    TargetItem *targetItem(Target *target) const;
+    ITargetItem *currentTargetItem() const;
+    ITargetItem *targetItem(Target *target) const;
 
 private:
     const std::unique_ptr<TargetGroupItemPrivate> d;

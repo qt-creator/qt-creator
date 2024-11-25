@@ -8,21 +8,58 @@ gui.Object = {}
 
 ---The base class of all gui layout classes.
 ---@class Layout : Object
-gui.Layout = {}
+gui.layout = {}
 
 ---The base class of all widget classes, an empty widget itself.
 ---@class Widget : Object
-gui.Widget = {}
+---@field visible boolean Whether the widget is visible or not.
+---@field enabled boolean Whether the widget is enabled or not.
+gui.widget = {}
 
----@param children Layout
+---@alias LayoutChild string|BaseAspect|Layout|Widget|function
+---@alias LayoutChildren LayoutChild[]
+
+---@class WidgetAttributeMapT<T>: { [WidgetAttribute]: T }
+
+---@class (exact) BaseWidgetOptions
+---@field size? integer[] Two integers, representing the width and height of the widget.
+---@field windowFlags? WindowType[] The window flags of the widget.
+---@field widgetAttributes? WidgetAttributeMapT<boolean> The widget attributes of the widget.
+---@field autoFillBackground? boolean A boolean, representing whether the widget should automatically fill its background.
+gui.baseWidgetOptions = {}
+
+---@class (exact) WidgetOptions : BaseWidgetOptions
+---@field title? string The title of the widget, if applicable.
+---@field onTextChanged? function The function to be called when the text of the widget changes, if applicable.
+---@field onClicked? function The function to be called when the widget is clicked, if applicable.
+---@field iconPath? FilePath The path to the icon of the widget, if applicable. Empty or not existent paths set null icon. (see [QIcon](https://doc.qt.io/qt-5/qicon.html#QIcon))
+---@field text? string The text of the widget, if applicable.
+---@field value? integer The value of the widget, if applicable.
+---@field flat? boolean A boolean, representing whether the widget should be flat, if applicable.
+---@field [1]? Layout The layout of the widget, if applicable.
+---@field fixedSize? integer[] Two integers representing the width and height
+---@field contentMargins? integer[] Four integers represending left, top, right and bottom margins.
+---@field cursor? CursorShape The cursor shape for the widget.
+gui.widgetOptions = {}
+
+---@param options WidgetOptions
 ---@return Widget
-function gui.Widget(children) end
+function gui.Widget(options) end
+
+---Show the widget. (see [QWidget::show](https://doc.qt.io/qt-5/qwidget.html#show))
+function gui.widget:show() end
+
+---Sets the top-level widget containing this widget to be the active window. (see [QWidget::activateWindow](https://doc.qt.io/qt-5/qwidget.html#activateWindow))
+function gui.widget:activateWindow() end
+
+---Closes the widget. (see [QWidget::close](https://doc.qt.io/qt-5/qwidget.html#close))
+function gui.widget:close() end
 
 ---Column layout
 ---@class Column : Layout
 local column = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Column
 function gui.Column(children) end
 
@@ -30,14 +67,15 @@ function gui.Column(children) end
 ---@class Group : Widget
 local group = {}
 
+---@param options WidgetOptions
 ---@return Group
-function gui.Group(children) end
+function gui.Group(options) end
 
 ---Row layout.
 ---@class Row : Layout
 local row = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Row
 function gui.Row(children) end
 
@@ -45,7 +83,7 @@ function gui.Row(children) end
 ---@class Flow : Layout
 local flow = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Flow
 function gui.Flow(children) end
 
@@ -53,7 +91,7 @@ function gui.Flow(children) end
 ---@class Grid : Layout
 local grid = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Grid
 function gui.Grid(children) end
 
@@ -61,81 +99,144 @@ function gui.Grid(children) end
 ---@class Form : Layout
 local form = {}
 
----@param children Layout|string|BaseAspect|function
+---@param children LayoutChildren
 ---@return Form
 function gui.Form(children) end
-
 
 ---A stack of multiple widgets.
 ---@class Stack : Widget
 local stack = {}
 
----@param children Layout|string|BaseAspect|function
+---A ScrollArea widget.
+---@class ScrollArea : Widget
+
+---@param options WidgetOptions
+---@return ScrollArea
+function gui.ScrollArea(options) end
+
+---@param options WidgetOptions
 ---@return Stack
-function gui.Stack(children) end
+function gui.Stack(options) end
 
 ---A Tab widget.
 ---@class Tab : Widget
 local tab = {}
 
----@param children Layout|string|BaseAspect|function
+---@param name string
+---@param layout Layout
 ---@return Tab
-function gui.Tab(children) end
+function gui.Tab(name, layout) end
+
+---@class (exact) TabOptions
+---@field [1] string The name of the tab.
+---@field [2] Layout The layout of the tab.
+gui.tabOptions = {}
+
+---@param options TabOptions
+---@return Tab tab The new tab.
+function gui.Tab(options) end
 
 ---A Multiline text edit.
 ---@class TextEdit : Widget
 local textEdit = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return TextEdit
-function gui.TextEdit(children) end
+function gui.TextEdit(options) end
+
+---A Single line text edit
+---@class LineEdit : Widget
+---@field rightSideIconPath? FilePath A path to icon
+---@field placeHolderText? string A placeholder text for intput
+---@field completer? QCompleter A QCompleter object.
+---@field minimumHeight? int Minimum height of input
+---@field onReturnPressed? function The function to be called when Enter is pressed
+---@field onRightSideIconClicked? function The function to be called when right side icon is clicked
+---@field text string Current text
+
+local lineEdit = {}
 
 ---@class PushButton : Widget
 local pushButton = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return PushButton
-function gui.PushButton(children) end
+function gui.PushButton(options) end
 
----@class Label : LayoutItem
+---@class Label : Widget
+---@field text string Returns the content of the Label as string
 local label = {}
 
----@param children LayoutItem|string|BaseAspect|function
+---@class (exact) LabelOptions : BaseWidgetOptions
+---@param interactionFlags? TextInteractionFlag[]
+---@param textFormat? TextFormat The text format enum
+---@param wordWrap? boolean
+
+gui.labelOptions = {}
+
+---@param options LabelOptions
 ---@return Label
-function gui.Label(children) end
+function gui.Label(options) end
 
 ---@class SpinBox : Widget
 local spinBox = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return SpinBox
-function gui.SpinBox(children) end
+function gui.SpinBox(options) end
 
 ---@class Splitter : Widget
 local splitter = {}
 
----@param children Layout|string|BaseAspect|function
+---@alias Orientation "horizontal"|"vertical"
+
+---@class (exact) SplitterOptions : BaseWidgetOptions
+---@field orientation? Orientation The orientation of the splitter. (default: "vertical")
+---@field childrenCollapsible? boolean A boolean, representing whether the children are collapsible. (default: true)
+---@field stretchFactors? integer[] A list of integers, representing the stretch factors of the children. (default: {1, ...})
+---@field size? integer[] Two integers, representing the width and height of the widget.
+---@field [integer] Layout | Widget The splits.
+gui.splitterOptions = {}
+
+---@param options SplitterOptions
 ---@return Splitter
-function gui.Splitter(children) end
+function gui.Splitter(options) end
 
 ---@class ToolBar : Widget
 local toolBar = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options WidgetOptions
 ---@return ToolBar
-function gui.ToolBar(children) end
+function gui.ToolBar(options) end
 
 ---@class TabWidget : Widget
 local tabWidget = {}
 
----@param children Layout|string|BaseAspect|function
+---@param options Tab[]
 ---@return TabWidget
-function gui.TabWidget(children) end
+function gui.TabWidget(options) end
 
 ---@param name string
----@param child Layout|string|BaseAspect|function
+---@param child WidgetOptions
 ---@return TabWidget
 function gui.TabWidget(name, child) end
+
+---@class Spinner : Widget
+---@field running boolean Set spinner visible and display spinning animation
+---@field decorated boolean Display spinner with custom styleSheet defined inside control (default true)
+local spinner = {}
+
+---@class IconDisplay : Widget
+local IconDisplay = {}
+
+---@class (exact) IconDisplayOptions : BaseWidgetOptions
+---@param icon? Utils.Icon|FilePath|string The icon to display
+gui.iconDisplayOptions = {}
+
+---@param options IconDisplayOptions
+---@return IconDisplay
+function gui.IconDisplay(options) end
+
 ---A "Line break" in the gui.
 function gui.br() end
 
@@ -157,19 +258,247 @@ function gui.normalMargin() end
 ---Sets the alignment of a Grid layout according to the Form layout rules.
 function gui.withFormAlignment() end
 
----Sets the size of the parent object if possible.
-function gui.resize(width, height) end
+--- Enum representing Text interaction flags
+---@enum TextInteractionFlag
+gui.TextInteractionFlag {
+    NoTextInteraction = 0,
+    TextSelectableByMouse = 0,
+    TextSelectableByKeyboard = 0,
+    LinksAccessibleByMouse = 0,
+    LinksAccessibleByKeyboard = 0,
+    TextEditable = 0,
 
----Sets the spacing of the gui.
-function gui.spacing(spacing) end
+    TextEditorInteraction = TextSelectableByMouse | TextSelectableByKeyboard | TextEditable,
+    TextBrowserInteraction = TextSelectableByMouse | LinksAccessibleByMouse | LinksAccessibleByKeyboard
+}
 
----Sets the field growth policy of the gui.
-function gui.fieldGrowthPolicy(policy) end
+--- Enum representing text format types
+---@enum TextFormat
+gui.TextFormat = {
+    PlainText = 0,
+    RichText = 0,
+    AutoText = 0,
+    MarkdownText = 0
+}
 
----Sets the onClicked handler of the parent object if possible.
-function gui.onClicked(f) end
+--- Enum representing various window types.
+---@enum WindowType
+gui.WindowType = {
+    Widget = 0,
+    Window = 0,
+    Dialog = 0,
+    Sheet = 0,
+    Drawer = 0,
+    Popup = 0,
+    Tool = 0,
+    ToolTip = 0,
+    SplashScreen = 0,
+    Desktop = 0,
+    SubWindow = 0,
+    ForeignWindow = 0,
+    CoverWindow = 0,
+    WindowType_Mask = 0,
+    MSWindowsFixedSizeDialogHint = 0,
+    MSWindowsOwnDC = 0,
+    BypassWindowManagerHint = 0,
+    X11BypassWindowManagerHint = 0,
+    FramelessWindowHint = 0,
+    WindowTitleHint = 0,
+    WindowSystemMenuHint = 0,
+    WindowMinimizeButtonHint = 0,
+    WindowMaximizeButtonHint = 0,
+    WindowMinMaxButtonsHint = 0,
+    WindowContextHelpButtonHint = 0,
+    WindowShadeButtonHint = 0,
+    WindowStaysOnTopHint = 0,
+    WindowTransparentForInput = 0,
+    WindowOverridesSystemGestures = 0,
+    WindowDoesNotAcceptFocus = 0,
+    MaximizeUsingFullscreenGeometryHint = 0,
+    CustomizeWindowHint = 0,
+    WindowStaysOnBottomHint = 0,
+    WindowCloseButtonHint = 0,
+    MacWindowToolBarButtonHint = 0,
+    BypassGraphicsProxyWidget = 0,
+    NoDropShadowWindowHint = 0,
+    WindowFullscreenButtonHint = 0,
+}
 
----Sets the onTextChanged handler of the parent object if possible.
-function gui.onTextChanged(f) end
+---@enum (key) WidgetAttribute
+gui.WidgetAttribute = {
+    WA_Disabled = 0,
+    WA_UnderMouse = 0,
+    WA_MouseTracking = 0,
+    WA_OpaquePaintEvent = 0,
+    WA_StaticContents = 0,
+    WA_LaidOut = 0,
+    WA_PaintOnScreen = 0,
+    WA_NoSystemBackground = 0,
+    WA_UpdatesDisabled = 0,
+    WA_Mapped = 0,
+    WA_InputMethodEnabled = 0,
+    WA_WState_Visible = 0,
+    WA_WState_Hidden = 0,
+    WA_ForceDisabled = 0,
+    WA_KeyCompression = 0,
+    WA_PendingMoveEvent = 0,
+    WA_PendingResizeEvent = 0,
+    WA_SetPalette = 0,
+    WA_SetFont = 0,
+    WA_SetCursor = 0,
+    WA_NoChildEventsFromChildren = 0,
+    WA_WindowModified = 0,
+    WA_Resized = 0,
+    WA_Moved = 0,
+    WA_PendingUpdate = 0,
+    WA_InvalidSize = 0,
+    WA_CustomWhatsThis = 0,
+    WA_LayoutOnEntireRect = 0,
+    WA_OutsideWSRange = 0,
+    WA_GrabbedShortcut = 0,
+    WA_TransparentForMouseEvents = 0,
+    WA_PaintUnclipped = 0,
+    WA_SetWindowIcon = 0,
+    WA_NoMouseReplay = 0,
+    WA_DeleteOnClose = 0,
+    WA_RightToLeft = 0,
+    WA_SetLayoutDirection = 0,
+    WA_NoChildEventsForParent = 0,
+    WA_ForceUpdatesDisabled = 0,
+    WA_WState_Created = 0,
+    WA_WState_CompressKeys = 0,
+    WA_WState_InPaintEvent = 0,
+    WA_WState_Reparented = 0,
+    WA_WState_ConfigPending = 0,
+    WA_WState_Polished = 0,
+    WA_WState_OwnSizePolicy = 0,
+    WA_WState_ExplicitShowHide = 0,
+    WA_ShowModal = 0,
+    WA_MouseNoMask = 0,
+    WA_NoMousePropagation = 0,
+    WA_Hover = 0,
+    WA_InputMethodTransparent = 0,
+    WA_QuitOnClose = 0,
+    WA_KeyboardFocusChange = 0,
+    WA_AcceptDrops = 0,
+    WA_DropSiteRegistered = 0,
+    WA_WindowPropagation = 0,
+    WA_NoX11EventCompression = 0,
+    WA_TintedBackground = 0,
+    WA_X11OpenGLOverlay = 0,
+    WA_AlwaysShowToolTips = 0,
+    WA_MacOpaqueSizeGrip = 0,
+    WA_SetStyle = 0,
+    WA_SetLocale = 0,
+    WA_MacShowFocusRect = 0,
+    WA_MacNormalSize = 0,
+    WA_MacSmallSize = 0,
+    WA_MacMiniSize = 0,
+    WA_LayoutUsesWidgetRect = 0,
+    WA_StyledBackground = 0,
+    WA_CanHostQMdiSubWindowTitleBar = 0,
+    WA_MacAlwaysShowToolWindow = 0,
+    WA_StyleSheet = 0,
+    WA_ShowWithoutActivating = 0,
+    WA_X11BypassTransientForHint = 0,
+    WA_NativeWindow = 0,
+    WA_DontCreateNativeAncestors = 0,
+    WA_DontShowOnScreen = 0,
+    WA_X11NetWmWindowTypeDesktop = 0,
+    WA_X11NetWmWindowTypeDock = 0,
+    WA_X11NetWmWindowTypeToolBar = 0,
+    WA_X11NetWmWindowTypeMenu = 0,
+    WA_X11NetWmWindowTypeUtility = 0,
+    WA_X11NetWmWindowTypeSplash = 0,
+    WA_X11NetWmWindowTypeDialog = 0,
+    WA_X11NetWmWindowTypeDropDownMenu = 0,
+    WA_X11NetWmWindowTypePopupMenu = 0,
+    WA_X11NetWmWindowTypeToolTip = 0,
+    WA_X11NetWmWindowTypeNotification = 0,
+    WA_X11NetWmWindowTypeCombo = 0,
+    WA_X11NetWmWindowTypeDND = 0,
+    WA_SetWindowModality = 0,
+    WA_WState_WindowOpacitySet = 0,
+    WA_TranslucentBackground = 0,
+    WA_AcceptTouchEvents = 0,
+    WA_WState_AcceptedTouchBeginEvent = 0,
+    WA_TouchPadAcceptSingleTouchEvents = 0,
+    WA_X11DoNotAcceptFocus = 0,
+    WA_AlwaysStackOnTop = 0,
+    WA_TabletTracking = 0,
+    WA_ContentsMarginsRespectsSafeArea = 0,
+    WA_StyleSheetTarget = 0
+}
 
+--- Enum representing cursor shape for the widget
+---@enum CursorShape
+gui.CursorShape = {
+    ArrowCursor = 0 = 0,
+    UpArrowCursor = 0,
+    CrossCursor = 0,
+    WaitCursor = 0,
+    IBeamCursor = 0,
+    SizeVerCursor = 0,
+    SizeHorCursor = 0,
+    SizeBDiagCursor = 0,
+    SizeFDiagCursor = 0,
+    SizeAllCursor = 0,
+    BlankCursor = 0,
+    SplitVCursor = 0,
+    SplitHCursor = 0,
+    PointingHandCursor = 0,
+    ForbiddenCursor = 0,
+    WhatsThisCursor = 0,
+    BusyCursor = 0,
+    OpenHandCursor = 0,
+    ClosedHandCursor = 0,
+    DragCopyCursor = 0,
+    DragMoveCursor = 0,
+    DragLinkCursor = 0,
+    LastCursor = DragLinkCursor,
+    BitmapCursor = 0,
+    CustomCursor = 0
+}
+
+---@class Space : Layout
+gui.space = {}
+
+---Adds a non-strecthable space with size size to the layout.
+---@param size integer size in pixels of the space.
+---@return Space
+function gui.Space(size) end
+
+---@class Span : Layout
+gui.span = {}
+
+---@class SpanOptions
+---@field [1] integer The number of columns to span.
+---@field [2] Layout The inner layout to span.
+
+---@class SpanOptionsWithRow
+---@field [1] integer The number of columns to span.
+---@field [2] integer The number of rows to span.
+---@field [3] Layout The inner layout.
+
+---@param options SpanOptions|SpanOptionsWithRow
+---@return Span
+function gui.Span(options) end
+
+---@param col integer The number of columns to span.
+---@param layout Layout The inner layout.
+---@return Span
+function gui.Span(col, layout) end
+
+---@param col integer The number of columns to span.
+---@param row integer The number of rows to span.
+---@param layout Layout The inner layout.
+---@return Span
+function gui.Span(col, row, layout) end
+
+---@class Stretch : Layout
+gui.stretch = {}
+
+---Adds a stretchable space to the layout.
+---@param factor integer The factor by which the space should stretch.
+function gui.Stretch(factor) end
 return gui

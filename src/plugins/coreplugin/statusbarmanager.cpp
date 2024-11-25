@@ -4,7 +4,6 @@
 #include "statusbarmanager.h"
 
 #include "icore.h"
-#include "imode.h"
 #include "minisplitter.h"
 #include "modemanager.h"
 
@@ -26,17 +25,6 @@ const char kLeftSplitWidthKey[] = "LeftSplitWidth";
 static QPointer<QSplitter> m_splitter;
 static QList<QPointer<QWidget>> m_statusBarWidgets;
 static QList<QPointer<IContext>> m_contexts;
-
-/*
-    Context that always returns the context of the active's mode widget (if available).
-*/
-class StatusBarContext : public IContext
-{
-public:
-    StatusBarContext(QObject *parent);
-
-    Context context() const final;
-};
 
 static QWidget *createWidget(QWidget *parent)
 {
@@ -77,10 +65,6 @@ static void createStatusBarManager()
     bar->insertPermanentWidget(1, rightCornerWidget);
     m_statusBarWidgets.append(rightCornerWidget);
 
-    auto statusContext = new StatusBarContext(bar);
-    statusContext->setWidget(bar);
-    ICore::addContextObject(statusContext);
-
     QObject::connect(ICore::instance(), &ICore::saveSettingsRequested, ICore::instance(), [] {
         QtcSettings *s = ICore::settings();
         s->beginGroup(kSettingsGroup);
@@ -88,8 +72,7 @@ static void createStatusBarManager()
         s->endGroup();
     });
 
-    QObject::connect(ICore::instance(), &ICore::coreAboutToClose, statusContext, [statusContext] {
-        delete statusContext;
+    QObject::connect(ICore::instance(), &ICore::coreAboutToClose, bar, [] {
         // This is the catch-all on rampdown. Individual items may
         // have been removed earlier by destroyStatusBarWidget().
         for (const QPointer<IContext> &context : std::as_const(m_contexts)) {
@@ -147,18 +130,6 @@ void StatusBarManager::restoreSettings()
     for (const int w : sizes)
         sum += w;
     m_splitter->setSizes(QList<int>() << leftSplitWidth << (sum - leftSplitWidth));
-}
-
-StatusBarContext::StatusBarContext(QObject *parent)
-    : IContext(parent)
-{
-}
-
-Context StatusBarContext::context() const
-{
-    if (IMode *currentMode = ModeManager::currentMode())
-        return currentMode->context();
-    return {};
 }
 
 } // Core

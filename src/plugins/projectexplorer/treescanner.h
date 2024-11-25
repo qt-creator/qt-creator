@@ -24,16 +24,22 @@ class PROJECTEXPLORER_EXPORT TreeScanner : public QObject
     Q_OBJECT
 
 public:
-    struct Result
+    class PROJECTEXPLORER_EXPORT Result
     {
-        std::shared_ptr<FolderNode> folderNode;
+    public:
+        Result() = default;
+        Result(QList<FileNode *> files, QList<Node *> nodes);
+        QList<FileNode *> takeAllFiles();
+        QList<Node *> takeFirstLevelNodes();
+    private:
         QList<FileNode *> allFiles;
+        QList<Node *> firstLevelNodes;
     };
     using Future = QFuture<Result>;
     using FutureWatcher = QFutureWatcher<Result>;
     using Promise = QPromise<Result>;
 
-    using FileFilter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
+    using Filter = std::function<bool(const Utils::MimeType &, const Utils::FilePath &)>;
     using FileTypeFactory = std::function<ProjectExplorer::FileType(const Utils::MimeType &, const Utils::FilePath &)>;
 
     explicit TreeScanner(QObject *parent = nullptr);
@@ -43,7 +49,7 @@ public:
     bool asyncScanForFiles(const Utils::FilePath& directory);
 
     // Setup filter for ignored files
-    void setFilter(FileFilter filter);
+    void setFilter(Filter filter);
 
     // Setup dir filters for scanned folders
     void setDirFilter(QDir::Filters dirFilter);
@@ -74,12 +80,12 @@ signals:
 private:
     static void scanForFiles(Promise &fi,
         const Utils::FilePath &directory,
-        const FileFilter &filter,
+        const Filter &filter,
         QDir::Filters dirFilter,
         const FileTypeFactory &factory);
 
 private:
-    FileFilter m_filter;
+    Filter m_filter;
     QDir::Filters m_dirFilter = QDir::AllEntries | QDir::NoDotAndDotDot;
     FileTypeFactory m_factory;
 

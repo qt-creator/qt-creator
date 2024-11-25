@@ -13,6 +13,7 @@
 #include <coreplugin/icore.h>
 #include <coreplugin/progressmanager/progressmanager.h>
 
+#include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitoptionspage.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectexplorericons.h>
@@ -22,12 +23,11 @@
 #include <utils/algorithm.h>
 #include <utils/buildablehelperlibrary.h>
 #include <utils/detailswidget.h>
-#include <utils/filepath.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
-#include <utils/treemodel.h>
 #include <utils/utilsicons.h>
 #include <utils/variablechooser.h>
 
@@ -55,99 +55,209 @@ const char kInstallSettingsKey[] = "Settings/InstallSettings";
 namespace QtSupport {
 namespace Internal {
 
-class QtVersionItem : public TreeItem
+static const QIcon &invalidVersionIcon()
 {
-public:
-    explicit QtVersionItem(QtVersion *version)
-        : m_version(version)
-    {}
+    static const QIcon theIcon(Utils::Icons::CRITICAL.icon());
+    return theIcon;
+}
 
-    ~QtVersionItem()
-    {
-        delete m_version;
-    }
+static const QIcon &warningVersionIcon()
+{
+    static const QIcon theIcon(Utils::Icons::WARNING.icon());
+    return theIcon;
+}
 
-    void setVersion(QtVersion *version)
-    {
-        m_version = version;
-        update();
-    }
+static const QIcon &validVersionIcon()
+{
+    static const QIcon theIcon;
+    return theIcon;
+}
 
-    int uniqueId() const
-    {
-        return m_version ? m_version->uniqueId() : -1;
-    }
+QString nonUniqueDisplayNameWarning()
+{
+    return Tr::tr("Display Name is not unique.");
+}
 
-    QtVersion *version() const
-    {
-        return m_version;
-    }
-
-    QVariant data(int column, int role) const final
-    {
-        if (!m_version)
-            return TreeItem::data(column, role);
-
-        if (role == Qt::DisplayRole) {
-            if (column == 0)
-                return m_version->displayName();
-            if (column == 1)
-                return m_version->qmakeFilePath().toUserOutput();
-        }
-
-        if (role == Qt::FontRole && m_changed) {
-            QFont font;
-            font.setBold(true);
-            return font;
-         }
-
-        if (role == Qt::DecorationRole && column == 0)
-            return m_icon;
-
-        if (role == Qt::ToolTipRole) {
-            const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
-                                "<dd>%2</dd>";
-            return QString("<dl style=\"white-space:pre\">"
-                         + row.arg(Tr::tr("Qt Version"), m_version->qtVersionString())
-                         + row.arg(Tr::tr("Location of qmake"), m_version->qmakeFilePath().toUserOutput())
-                         + "</dl>");
-        }
-
-        return QVariant();
-    }
-
-    void setIcon(const QIcon &icon)
-    {
-        if (m_icon.cacheKey() == icon.cacheKey())
-            return;
-        m_icon = icon;
-        update();
-    }
-
-    QString buildLog() const
-    {
-        return m_buildLog;
-    }
-
-    void setBuildLog(const QString &buildLog)
-    {
-        m_buildLog = buildLog;
-    }
-
-    void setChanged(bool changed)
-    {
-        if (changed == m_changed)
-            return;
-        m_changed = changed;
-        update();
-    }
-
-private:
-    QtVersion *m_version = nullptr;
-    QIcon m_icon;
-    QString m_buildLog;
-    bool m_changed = false;
+struct UnsupportedAbisInfo
+{
+    enum class Status { Ok, SomeMissing, AllMissing } status = Status::Ok;
+    QString message;
 };
+
+UnsupportedAbisInfo checkForUnsupportedAbis(const QtVersion *version)
+{
+    Abis missingToolchains;
+    const Abis qtAbis = version->qtAbis();
+
+    for (const Abi &abi : qtAbis) {
+        const auto abiComparePred = [&abi] (const Toolchain *tc) {
+            return Utils::contains(tc->supportedAbis(),
+                                   [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
+        };
+
+        if (!ToolchainManager::toolchain(abiComparePred))
+            missingToolchains.append(abi);
+    }
+
+    UnsupportedAbisInfo info;
+    if (!missingToolchains.isEmpty()) {
+        const auto formatAbiHtmlList = [](const Abis &abis) {
+            QString result = QStringLiteral("<ul><li>");
+            for (int i = 0, count = abis.size(); i < count; ++i) {
+                if (i)
+                    result += QStringLiteral("</li><li>");
+                result += abis.at(i).toString();
+            }
+            result += QStringLiteral("</li></ul>");
+            return result;
+        };
+
+        if (missingToolchains.count() == qtAbis.size()) {
+            info.status = UnsupportedAbisInfo::Status::AllMissing;
+            info.message =
+                Tr::tr("No compiler can produce code for this Qt version."
+                       " Please define one or more compilers for: %1").arg(formatAbiHtmlList(qtAbis));
+        } else {
+            info.status = UnsupportedAbisInfo::Status::SomeMissing;
+            info.message = Tr::tr("The following ABIs are currently not supported: %1")
+                               .arg(formatAbiHtmlList(missingToolchains));
+        }
+    }
+
+    return info;
+}
+
+void QtVersionItem::setIsNameUnique(const std::function<bool(QtVersion *)> &isNameUnique)
+{
+    m_isNameUnique = isNameUnique;
+}
+
+QtVersionItem::Quality QtVersionItem::quality() const
+{
+    const QtVersion *version = this->version();
+    QTC_ASSERT(version, return Quality::Bad);
+
+    if (!version->isValid())
+        return Quality::Bad;
+    if (!version->warningReason().isEmpty() || hasNonUniqueDisplayName())
+        return Quality::Limited;
+    const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
+    switch (abisInfo.status) {
+    case UnsupportedAbisInfo::Status::AllMissing:
+        return Quality::Bad;
+    case UnsupportedAbisInfo::Status::SomeMissing:
+        return Quality::Limited;
+    case UnsupportedAbisInfo::Status::Ok:
+        break;
+    }
+    return Quality::Good;
+}
+
+void QtVersionItem::setChanged(bool changed)
+{
+    if (changed == m_changed)
+        return;
+    m_changed = changed;
+    update();
+}
+
+QVariant QtVersionItem::data(int column, int role) const
+{
+    const QtVersion *version = this->version();
+
+    if (!version) {
+        if (role == KitAspect::IsNoneRole && column == 0)
+            return true;
+        if (role == Qt::DisplayRole && column == 0)
+            return Tr::tr("None");
+        if (role == KitAspect::IdRole)
+            return -1;
+        return TreeItem::data(column, role);
+    }
+
+    if (role == Qt::DisplayRole) {
+        if (column == 0)
+            return version->displayName();
+        if (column == 1)
+            return version->qmakeFilePath().toUserOutput();
+    }
+
+    if (role == Qt::FontRole && m_changed) {
+        QFont font;
+        font.setBold(true);
+        return font;
+    }
+
+    if (role == Qt::DecorationRole && column == 0) {
+        switch (quality()) {
+        case Quality::Good:
+            return validVersionIcon();
+        case Quality::Limited:
+            return warningVersionIcon();
+        case Quality::Bad:
+            return invalidVersionIcon();
+        }
+    }
+
+    if (role == Qt::ToolTipRole) {
+        const QString row = "<dt style=\"font-weight:bold\">%1:</dt>"
+                            "<dd>%2</dd>";
+        QString desc = "<dl style=\"white-space:pre\">";
+        if (version->isValid())
+            desc += row.arg(Tr::tr("Qt Version"), version->qtVersionString());
+        desc += row.arg(Tr::tr("Location of qmake"), version->qmakeFilePath().toUserOutput());
+        if (version->isValid()) {
+            const UnsupportedAbisInfo abisInfo = checkForUnsupportedAbis(version);
+            if (abisInfo.status == UnsupportedAbisInfo::Status::AllMissing)
+                desc += row.arg(Tr::tr("Error"), abisInfo.message);
+            if (abisInfo.status == UnsupportedAbisInfo::Status::SomeMissing)
+                desc += row.arg(Tr::tr("Warning"), abisInfo.message);
+            const QStringList warnings = version->warningReason();
+            for (const QString &w : warnings)
+                desc += row.arg(Tr::tr("Warning"), w);
+        } else {
+            desc += row.arg(Tr::tr("Error"), version->invalidReason());
+        }
+        if (hasNonUniqueDisplayName())
+            desc += row.arg(Tr::tr("Warning"), nonUniqueDisplayNameWarning());
+        desc += "</dl>";
+        return desc;
+    }
+
+    if (role == KitAspect::IdRole)
+        return uniqueId();
+
+    if (role == KitAspect::QualityRole)
+        return int(quality());
+
+    return QVariant();
+}
+
+int QtVersionItem::uniqueId() const
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        return *v ? (*v)->uniqueId() : -1;
+    return *std::get_if<int>(&m_version);
+}
+
+QtVersion *QtVersionItem::version() const
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        return *v;
+    return QtVersionManager::version(*std::get_if<int>(&m_version));
+}
+
+void QtVersionItem::setVersion(QtVersion *version)
+{
+    m_version = version;
+    update();
+}
+
+QtVersionItem::~QtVersionItem()
+{
+    if (const auto v = std::get_if<QtVersion *>(&m_version))
+        delete *v;
+}
 
 // QtSettingsPageWidget
 
@@ -187,7 +297,6 @@ private:
         QString description;
         QString message;
         QString toolTip;
-        QIcon icon;
     };
     ValidityInfo validInformation(const QtVersion *version);
     QList<ProjectExplorer::Toolchain*> toolChains(const QtVersion *version);
@@ -212,9 +321,6 @@ private:
     QPushButton *m_cleanUpButton;
 
     QTextBrowser *m_infoBrowser;
-    QIcon m_invalidVersionIcon;
-    QIcon m_warningVersionIcon;
-    QIcon m_validVersionIcon;
     QtConfigWidget *m_configurationWidget;
 
     QLineEdit *m_nameEdit;
@@ -227,8 +333,6 @@ private:
 QtSettingsPageWidget::QtSettingsPageWidget()
     : m_specifyNameString(Tr::tr("<specify a name>"))
     , m_infoBrowser(new QTextBrowser)
-    , m_invalidVersionIcon(Utils::Icons::CRITICAL.icon())
-    , m_warningVersionIcon(Utils::Icons::WARNING.icon())
     , m_configurationWidget(nullptr)
 {
     m_qtdirList = new QTreeView(this);
@@ -455,76 +559,38 @@ void QtSettingsPageWidget::infoAnchorClicked(const QUrl &url)
     QDesktopServices::openUrl(url);
 }
 
-static QString formatAbiHtmlList(const Abis &abis)
-{
-    QString result = QStringLiteral("<ul><li>");
-    for (int i = 0, count = abis.size(); i < count; ++i) {
-        if (i)
-            result += QStringLiteral("</li><li>");
-        result += abis.at(i).toString();
-    }
-    result += QStringLiteral("</li></ul>");
-    return result;
-}
-
 QtSettingsPageWidget::ValidityInfo QtSettingsPageWidget::validInformation(const QtVersion *version)
 {
     ValidityInfo info;
-    info.icon = m_validVersionIcon;
 
     if (!version)
         return info;
 
     info.description = Tr::tr("Qt version %1 for %2").arg(version->qtVersionString(), version->description());
     if (!version->isValid()) {
-        info.icon = m_invalidVersionIcon;
         info.message = version->invalidReason();
         return info;
-    }
-
-    // Do we have tool chain issues?
-    Abis missingToolchains;
-    const Abis qtAbis = version->qtAbis();
-
-    for (const Abi &abi : qtAbis) {
-        const auto abiCompatePred = [&abi] (const Toolchain *tc)
-        {
-            return Utils::contains(tc->supportedAbis(),
-                                   [&abi](const Abi &sabi) { return sabi.isCompatibleWith(abi); });
-        };
-
-        if (!ToolchainManager::toolchain(abiCompatePred))
-            missingToolchains.append(abi);
     }
 
     bool useable = true;
     QStringList warnings;
     if (!isNameUnique(version))
-        warnings << Tr::tr("Display Name is not unique.");
+        warnings << nonUniqueDisplayNameWarning();
 
-    if (!missingToolchains.isEmpty()) {
-        if (missingToolchains.count() == qtAbis.size()) {
-            // Yes, this Qt version can't be used at all!
-            info.message =
-                Tr::tr("No compiler can produce code for this Qt version."
-                       " Please define one or more compilers for: %1").arg(formatAbiHtmlList(qtAbis));
-            info.icon = m_invalidVersionIcon;
-            useable = false;
-        } else {
-            // Yes, some ABIs are unsupported
-            warnings << Tr::tr("Not all possible target environments can be supported due to missing compilers.");
-            info.toolTip = Tr::tr("The following ABIs are currently not supported: %1")
-                    .arg(formatAbiHtmlList(missingToolchains));
-            info.icon = m_warningVersionIcon;
-        }
+    const UnsupportedAbisInfo unsupportedAbisInfo = checkForUnsupportedAbis(version);
+    if (unsupportedAbisInfo.status == UnsupportedAbisInfo::Status::AllMissing) {
+        info.message = unsupportedAbisInfo.message;
+        useable = false;
+    } else if (unsupportedAbisInfo.status == UnsupportedAbisInfo::Status::SomeMissing) {
+        warnings << Tr::tr(
+            "Not all possible target environments can be supported due to missing compilers.");
+        info.toolTip = unsupportedAbisInfo.message;
     }
 
     if (useable) {
         warnings += version->warningReason();
-        if (!warnings.isEmpty()) {
+        if (!warnings.isEmpty())
             info.message = warnings.join(QLatin1Char('\n'));
-            info.icon = m_warningVersionIcon;
-        }
     }
 
     return info;
@@ -569,14 +635,8 @@ bool QtSettingsPageWidget::isNameUnique(const QtVersion *version)
 
 void QtSettingsPageWidget::updateVersionItem(QtVersionItem *item)
 {
-    if (!item)
-        return;
-    if (!item->version())
-        return;
-
-    const ValidityInfo info = validInformation(item->version());
-    item->update();
-    item->setIcon(info.icon);
+    if (item)
+        item->update();
 }
 
 void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const QList<int> &removals,
@@ -604,6 +664,7 @@ void QtSettingsPageWidget::updateQtVersions(const QList<int> &additions, const Q
     for (int a : std::as_const(toAdd)) {
         QtVersion *version = QtVersionManager::version(a)->clone();
         auto *item = new QtVersionItem(version);
+        item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
 
         // Insert in the right place:
         TreeItem *parent = version->isAutodetected()? m_autoItem : m_manualItem;
@@ -664,7 +725,7 @@ void QtSettingsPageWidget::addQtDir()
     QtVersion *version = QtVersionFactory::createQtVersionFromQMakePath(qtVersion, false, QString(), &error);
     if (version) {
         auto item = new QtVersionItem(version);
-        item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
+        item->setIsNameUnique([this](QtVersion *v) { return isNameUnique(v); });
         m_manualItem->appendChild(item);
         QModelIndex source = m_model->indexForItem(item);
         m_qtdirList->setCurrentIndex(m_filterModel->mapFromSource(source)); // should update the rest of the ui
@@ -719,10 +780,9 @@ void QtSettingsPageWidget::editPath()
         version->setUnexpandedDisplayName(current->displayName());
 
     // Update ui
-    if (QtVersionItem *item = currentItem()) {
+    if (QtVersionItem *item = currentItem())
         item->setVersion(version);
-        item->setIcon(version->isValid()? m_validVersionIcon : m_invalidVersionIcon);
-    }
+
     userChangedCurrentVersion();
 
     delete current;
@@ -763,7 +823,7 @@ void QtSettingsPageWidget::updateDescriptionLabel()
     }
     m_infoWidget->setSummaryText(info.description);
     if (item)
-        item->setIcon(info.icon);
+        item->update();
 
     m_infoBrowser->clear();
     if (version) {
@@ -1089,7 +1149,7 @@ void setupQtSettingsPage()
     static QtSettingsPage theQtSettingsPage;
 }
 
-} // Internal
+} // namespace Internal
 
 bool LinkWithQtSupport::canLinkWithQt()
 {

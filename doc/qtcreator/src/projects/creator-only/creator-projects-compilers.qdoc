@@ -22,11 +22,11 @@
     necessary tools for building an application for and running it on a
     particular platform.
 
-    \QC automatically detects the compilers that your system or \QOI
-    registers and lists them in \preferences > \uicontrol Kits >
-    \uicontrol Compilers.
+    \QC automatically detects the compilers that your system or
+    \l{Get and Install Qt}{\QOI} registers and lists them in
+    \preferences > \uicontrol Kits > \uicontrol Compilers.
 
-    \image qtcreator-toolchains.png
+    \image qtcreator-preferences-compilers.webp {Compilers in Kits preferences}
 
     \note On \macos, the \c ccache C/C++ compiler cache is detected
     automatically only if you installed it using Homebrew or MacPorts.
@@ -55,7 +55,6 @@
         \li Select \uicontrol Add to add a new compiler or \uicontrol Clone to
             add another version of the selected compiler.
         \li Select a compiler in the list.
-        \li Select \uicontrol C or \uicontrol C++.
         \li Set \l{Compilers}{preferences} according to the selected compiler.
     \endlist
 
@@ -188,67 +187,74 @@
     the application binary interface (ABI) version from the list of available
     versions. You can also create a custom ABI definition.
     For QCC, also specify the path to the QNX Software Development Platform
-    (SDP) in the \uicontrol {SPD path} field.
+    (SDP) in \uicontrol {SPD path}.
 
     To enable Microsoft Visual C++ Compilers (MSVC) and clang-cl to find system
     headers, libraries, and the linker, \QC executes them inside a command
     prompt where you set up the environment using \c {vcvarsall.bat}. For
     these compilers, you also specify the path to the script that sets up the
-    command prompt in the \uicontrol Initialization field.
+    command prompt in \uicontrol Initialization.
 
     You specify the compiler to use for each kit in \preferences >
     \uicontrol Kits.
 
-    To set compiler preferences according to the compiler type, select
-    \preferences > \uicontrol Kits > \uicontrol Compilers:
+    To set compiler preferences according to the compiler type:
 
-    \list
+    \list 1
 
-        \li In the \uicontrol Name field, enter a name for the compiler to
+        \li Go to \preferences > \uicontrol Kits > \uicontrol Compilers.
+
+        \li Select a compiler in the list.
+
+        \list
+
+        \li In \uicontrol Name, enter a name for the compiler to
             identify it in \QC.
 
-            \image qtcreator-options-cpp-compilers.png {Adding a clang-cl compiler}
+            \image qtcreator-preferences-compilers-clang-cl.webp {Adding a clang-cl compiler}
             \caption Adding a clang-cl compiler.
 
-        \li In the \uicontrol Initialization field, select the
+        \li In \uicontrol {C compiler path}, enter the path to the
+            directory where the C compiler is located.
+
+        \li In \uicontrol {C++ compiler path}, enter the path
+            to the directory where the C++ compiler is located. Select
+            \uicontrol {Derive from C compiler} to derive the C++ compiler
+            name from the C compiler name.
+
+        \li In \uicontrol Initialization, select the
             \c {vcvarsall.bat} file for setting up the command
             prompt to use.
 
-        \li In the \uicontrol {Compiler path} field, enter the path to the
-            directory where the compiler is located.
+            \image qtcreator-preferences-compilers-clang.webp {Adding a Clang compiler}
+            \caption Adding a Clang compiler.
 
-        \li In the \uicontrol {Platform codegen flags} field, check the flags passed
+        \li In \uicontrol {Platform codegen flags}, check the flags passed
             to the compiler that specify the architecture on the target
             platform.
 
-            \image qtcreator-options-clang-compilers.png {Adding a Clang compiler}
-            \caption Adding a Clang compiler.
+        \li In \uicontrol {Platform linker flags}, check the flags passed to the
+            linker that specify the architecture on the target platform.
 
-        \li \b {When building with Qbs}: In the \uicontrol {Platform linker flags}
-            field, check the flags passed to the linker that specify the
-            architecture on the target platform.
-
-        \li In the \uicontrol {Parent toolchain} field, select a \MinGW
-            compiler, which is needed because Clang does not have its own
-            standard library.
-
-        \li In the \uicontrol {SPD path} field, specify the path to the QNX
-            Software Development Platform (SDP).
-
-            \image qtcreator-options-qcc-compilers.png {Adding a QCC compiler}
-            \caption Adding a QCC compiler.
-
-        \li In the \uicontrol ABI field, enter an identifier for the
-            target architecture. This is used to warn about ABI mismatches
-            within the kits.
-
-        \li In the \uicontrol {Target triple} field, specify the GCC target
+        \li In \uicontrol {Target triple}, specify the GCC target
             architecture. If code model services fail because
             Clang does not understand the target architecture, select
             \uicontrol {Override for code model}.
 
-            \image qtcreator-compilers-target-triple.png {Target triple field}
-            \caption Target triple field.
+        \li In \uicontrol {Parent toolchain}, select a \MinGW
+            compiler, which is needed because Clang does not have its own
+            standard library.
+
+            \image qtcreator-preferences-compilers-qcc.webp {Adding a QCC compiler}
+            \caption Adding a QCC compiler.
+
+        \li In \uicontrol {SDP path}, specify the path to the QNX
+            Software Development Platform (SDP).
+
+        \li In \uicontrol ABI, enter an identifier for the
+            target architecture. This is used to warn about ABI mismatches
+            within the kits.
+    \endlist
     \endlist
 
     \sa {Add compilers}, {Add custom compilers}, {Add Nim compilers},
@@ -278,32 +284,32 @@
             \uicontrol Compilers > \uicontrol Add > \uicontrol Custom >
             \uicontrol C or \uicontrol C++.
 
-        \li In the \uicontrol Name field, enter a name for the compiler.
+        \li In \uicontrol Name, enter a name for the compiler.
 
-        \li In the \uicontrol {Compiler path} field, enter the path to the directory
+        \li In \uicontrol {Compiler path}, enter the path to the directory
             where the compiler is located.
 
-        \li In the \uicontrol {Make path} field, enter the path to the directory where
+        \li In \uicontrol {Make path}, enter the path to the directory where
             the make tool is located.
 
-       \li  In the \uicontrol ABI field, specify the ABI version.
+       \li  In \uicontrol ABI, specify the ABI version.
 
-        \li In the \uicontrol {Predefined macros} field, specify the macros that the
+        \li In \uicontrol {Predefined macros}, specify the macros that the
             compiler enables by default. Specify each macro on a separate line,
             in the following format: MACRO[=value].
 
-        \li In the \uicontrol {Header paths} field, specify the paths to directories
+        \li In \uicontrol {Header paths}, specify the paths to directories
             that the compiler checks for headers. Specify each path on a
             separate line.
 
-        \li In the \uicontrol {C++11 flags} field, specify the flags that turn on
+        \li In \uicontrol {C++11 flags}, specify the flags that turn on
             C++11 support in the compiler.
 
-        \li In the \uicontrol {Qt mkspecs} field, specify the path to the directory
+        \li In \uicontrol {Qt mkspecs}, specify the path to the directory
             where mkspecs are located. Usually, the path is specified relative
             to the Qt mkspecs directory.
 
-        \li In the \uicontrol {Error parser} field, select the error parser to use.
+        \li In \uicontrol {Error parser}, select the error parser to use.
             You can add custom output parsers to the list. Select
             \uicontrol {Custom Parser Settings} to view and edit their preferences.
     \endlist

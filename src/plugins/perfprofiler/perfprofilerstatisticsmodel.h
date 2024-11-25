@@ -102,7 +102,7 @@ private:
     qint64 m_endTime;
     uint m_totalSamples;
 
-    QScopedPointer<PerfProfilerStatisticsData> m_offlineData;
+    std::unique_ptr<PerfProfilerStatisticsData> m_offlineData;
 };
 
 class PerfProfilerStatisticsRelativesModel : public PerfProfilerStatisticsModel {

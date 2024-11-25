@@ -149,51 +149,10 @@ Core::GeneratedFiles JsonWizardScannerGenerator::scan(const Utils::FilePath &dir
     return result;
 }
 
-// JsonWizardScannerGeneratorFactory
-
-class JsonWizardScannerGeneratorFactory final : public JsonWizardGeneratorFactory
-{
-public:
-    JsonWizardScannerGeneratorFactory()
-    {
-        setTypeIdsSuffix(QLatin1String("Scanner"));
-    }
-
-    JsonWizardGenerator *create(Id typeId, const QVariant &data,
-                                const QString &path, Id platform,
-                                const QVariantMap &variables) final
-    {
-        Q_UNUSED(path)
-        Q_UNUSED(platform)
-        Q_UNUSED(variables)
-
-        QTC_ASSERT(canCreate(typeId), return nullptr);
-
-        auto gen = new JsonWizardScannerGenerator;
-        QString errorMessage;
-        gen->setup(data, &errorMessage);
-
-        if (!errorMessage.isEmpty()) {
-            qWarning() << "JsonWizardScannerGeneratorFactory setup error:" << errorMessage;
-            delete gen;
-            return nullptr;
-        }
-
-        return gen;
-    }
-
-    bool validateData(Id typeId, const QVariant &data, QString *errorMessage) final
-    {
-        QTC_ASSERT(canCreate(typeId), return false);
-
-        QScopedPointer<JsonWizardScannerGenerator> gen(new JsonWizardScannerGenerator);
-        return gen->setup(data, errorMessage);
-    }
-};
-
 void setupJsonWizardScannerGenerator()
 {
-    static JsonWizardScannerGeneratorFactory theScannerGeneratorFactory;
+    static JsonWizardGeneratorTypedFactory<JsonWizardScannerGenerator>
+        theScannerGeneratorFactory("Scanner");
 }
 
 } // ProjectExplorer::Internal

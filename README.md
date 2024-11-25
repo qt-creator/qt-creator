@@ -16,9 +16,11 @@ https://doc.qt.io/qtcreator/creator-overview.html
 
 The standalone binary packages support the following platforms:
 
-* Windows 10 (64-bit) or later
-* (K)Ubuntu Linux 22.04 (64-bit) or later
-* macOS 11 or later
+* Windows 10 (x86_64) or later
+* Windows 11 (ARM64) or later
+* (K)Ubuntu Linux 22.04 (x86_64) or later
+* (K)Ubuntu Linux 24.04 (arm64) or later
+* macOS 12 or later
 
 When you compile Qt Creator yourself, the Qt version that you build with
 determines the supported platforms.
@@ -46,7 +48,7 @@ Prerequisites:
     * MinGW with GCC 11.2 or Visual Studio 2019 or later
     * Python 3.8 or later (optional, needed for the python enabled debug helper)
     * Debugging Tools for Windows (optional, for MSVC debugging support with CDB)
-* On Mac OS X: latest Xcode
+* On macOS: latest Xcode
 * On Linux: GCC 9 or later
 * LLVM/Clang 14 or later (optional, LLVM/Clang 17 is recommended.
   See [instructions](#getting-llvmclang-for-the-clang-code-model) on how to

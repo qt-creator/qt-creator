@@ -33,7 +33,7 @@ public:
     bool shouldAutoSave() const override;
     bool isModified() const override;
     bool isSaveAsAllowed() const override;
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
     QString fallbackSaveAsFileName() const override;
     bool supportsCodec(const QTextCodec *codec) const override;
 
@@ -52,7 +52,7 @@ public:
     void updateIsModified();
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void slotFormWindowRemoved(QDesignerFormWindowInterface *w);

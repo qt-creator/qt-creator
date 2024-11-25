@@ -131,9 +131,7 @@ static QFrame *createHelper(QAbstractItemView *treeView,
     vbox->addWidget(treeView);
     vbox->addWidget(placeHolder);
 
-    auto agg = new Aggregation::Aggregate;
-    agg->add(treeView);
-    agg->add(finder);
+    Aggregation::aggregate({treeView, finder});
 
     return widget;
 }

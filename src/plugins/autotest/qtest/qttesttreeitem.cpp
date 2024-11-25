@@ -14,6 +14,7 @@
 
 #include <projectexplorer/projectmanager.h>
 
+#include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
 using namespace Utils;
@@ -303,23 +304,30 @@ ITestConfiguration *QtTestTreeItem::debugConfiguration() const
 QList<ITestConfiguration *> QtTestTreeItem::getAllTestConfigurations() const
 {
     QList<ITestConfiguration *> result;
+    QList<QSet<QString>> allTargets;
 
     ProjectExplorer::Project *project = ProjectExplorer::ProjectManager::startupProject();
     if (!project || type() != Root)
         return result;
 
-    forFirstLevelChildren([&result](ITestTreeItem *child) {
-        if (child->type() == TestCase) {
-            ITestConfiguration *tc = child->testConfiguration();
-            QTC_ASSERT(tc, return);
-            result << tc;
-        } else if (child->type() == GroupNode) {
-            child->forFirstLevelChildren([&result](ITestTreeItem *groupChild) {
-                ITestConfiguration *tc = groupChild->testConfiguration();
-                QTC_ASSERT(tc, return);
-                result << tc;
-            });
+    // avoid executing tests with multiple test classes multiple times
+    auto appendConfiguration = [&result, &allTargets](ITestTreeItem *item) {
+        ITestConfiguration *config = item->testConfiguration();
+        QTC_ASSERT(config, return);
+        const QSet<QString> targets = static_cast<TestConfiguration *>(config)->internalTargets();
+        if (allTargets.contains(targets)) {
+            delete config;
+        } else {
+            result << config;
+            allTargets << targets;
         }
+    };
+
+    forFirstLevelChildren([appendConfiguration](ITestTreeItem *child) {
+        if (child->type() == TestCase)
+            appendConfiguration(child);
+        else if (child->type() == GroupNode)
+            child->forFirstLevelChildren(appendConfiguration);
     });
     return result;
 }

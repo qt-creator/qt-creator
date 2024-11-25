@@ -102,12 +102,18 @@ GitSettings::GitSettings()
     instantBlameIgnoreLineMoves.setLabelText(trIgnoreLineMoves());
     instantBlameIgnoreLineMoves.setToolTip(
         Tr::tr("Finds the commit that introduced the line before it was moved."));
+    instantBlameShowSubject.setSettingsKey("GitInstantShowSubject");
+    instantBlameShowSubject.setDefaultValue(false);
+    instantBlameShowSubject.setLabelText(Tr::tr("Show commit subject"));
+    instantBlameShowSubject.setToolTip(
+        Tr::tr("Adds the commit subject directly to the annotation."));
 
     graphLog.setSettingsKey("GraphLog");
 
     colorLog.setSettingsKey("ColorLog");
     colorLog.setDefaultValue(true);
 
+    allBranches.setSettingsKey("AllBranches");
     firstParent.setSettingsKey("FirstParent");
 
     followRenames.setSettingsKey("FollowRenames");
@@ -152,7 +158,12 @@ GitSettings::GitSettings()
             Group {
                 title(Tr::tr("Instant Blame")),
                 groupChecker(instantBlame.groupChecker()),
-                Row { instantBlameIgnoreSpaceChanges, instantBlameIgnoreLineMoves, st },
+                Row {
+                    instantBlameIgnoreSpaceChanges,
+                    instantBlameIgnoreLineMoves,
+                    instantBlameShowSubject,
+                    st
+                },
             },
 
             st

@@ -16,6 +16,8 @@
 #include "statewarningitem.h"
 #include "textitem.h"
 #include "transitionitem.h"
+#include "utils/stylehelper.h"
+#include "utils/theme/theme.h"
 #include "utilsprovider.h"
 
 #include <utils/stringutils.h>
@@ -48,8 +50,6 @@ StateItem::StateItem(const QPointF &pos, BaseItem *parent)
     });
     connect(m_stateNameItem, &TextItem::textChanged, this, &StateItem::updateTextPositions);
     connect(m_stateNameItem, &TextItem::textReady, this, &StateItem::titleHasChanged);
-
-    m_pen = QPen(QColor(0x45, 0x45, 0x45));
 
     updateColors();
     updatePolygon();
@@ -127,7 +127,8 @@ void StateItem::updateEditorInfo(bool allChildren)
     ConnectableItem::updateEditorInfo(allChildren);
 
     QString color = editorInfo(Constants::C_SCXML_EDITORINFO_FONTCOLOR);
-    m_stateNameItem->setDefaultTextColor(color.isEmpty() ? QColor(Qt::black) : QColor(color));
+    if (!color.isEmpty())
+        m_stateNameItem->setDefaultTextColor(QColor(color));
 
     // Update child too if necessary
     if (allChildren) {
@@ -467,17 +468,18 @@ void StateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
     // Set opacity and color
     painter->setOpacity(getOpacity());
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    QPalette::ColorGroup group = overlapping() ? QPalette::Active : QPalette::Inactive;
+    m_pen.setColor(scene()->palette().color(group, QPalette::WindowText));
     painter->setPen(m_pen);
     QColor stateColor(editorInfo(Constants::C_SCXML_EDITORINFO_STATECOLOR));
     if (!stateColor.isValid())
-        stateColor = tag() ? tag()->document()->getColor(depth()) : QColor(0x12, 0x34, 0x56);
+        stateColor = scene()->palette().color(QPalette::Window);
 
     // Draw basic frame
     QRectF r = boundingRect();
     QLinearGradient grad(r.topLeft(), r.bottomLeft());
-    grad.setColorAt(0, stateColor.lighter(115));
-    grad.setColorAt(1, stateColor);
+    grad.setColorAt(0, stateColor);
+    grad.setColorAt(1, Utils::StyleHelper::mergedColors(painter->pen().color(), stateColor, 8));
     painter->setBrush(QBrush(grad));
 
     painter->drawRoundedRect(m_drawingRect, STATE_RADIUS, STATE_RADIUS);
@@ -511,7 +513,7 @@ void StateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
         if (m_initial) {
             double size = m_titleRect.height() * 0.3;
-            painter->setBrush(QColor(0x4d, 0x4d, 0x4d));
+            painter->setBrush(scene()->palette().brush(QPalette::Window));
             painter->drawEllipse(QPointF(m_titleRect.left() + 2 * size, m_titleRect.center().y()), size, size);
         }
     }

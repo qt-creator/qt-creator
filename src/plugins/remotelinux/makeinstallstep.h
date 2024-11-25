@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace RemoteLinux::Internal {
 
-class MakeInstallStepFactory : public ProjectExplorer::BuildStepFactory
-{
-public:
-    MakeInstallStepFactory();
-};
+void setupMakeInstallStep();
 
-} // namespace RemoteLinux::Internal
+} // RemoteLinux::Internal

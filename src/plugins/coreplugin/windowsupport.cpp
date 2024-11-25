@@ -34,10 +34,7 @@ WindowSupport::WindowSupport(QWidget *window, const Context &context, const Cont
 {
     m_window->installEventFilter(this);
 
-    m_contextObject = new IContext(this);
-    m_contextObject->setWidget(window);
-    m_contextObject->setContext(context);
-    ICore::addContextObject(m_contextObject);
+    IContext::attach(window, context);
     const Context ac = actionContext.isEmpty() ? context : actionContext;
 
     if (useMacShortcuts) {

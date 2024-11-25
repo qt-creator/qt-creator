@@ -5,16 +5,18 @@
 
 #include "../projectexplorerconstants.h"
 #include "../projectexplorertr.h"
+#include "desktopdeviceconfigurationwidget.h"
 #include "desktopprocesssignaloperation.h"
 
 #include <coreplugin/fileutils.h>
 
+#include <utils/async.h>
 #include <utils/devicefileaccess.h>
 #include <utils/environment.h>
 #include <utils/hostosinfo.h>
 #include <utils/portlist.h>
-#include <utils/qtcprocess.h>
 #include <utils/qtcassert.h>
+#include <utils/qtcprocess.h>
 #include <utils/terminalcommand.h>
 #include <utils/terminalhooks.h>
 #include <utils/url.h>
@@ -42,7 +44,7 @@ DesktopDevice::DesktopDevice()
 
     setupId(IDevice::AutoDetected, DESKTOP_DEVICE_ID);
     setType(DESKTOP_DEVICE_TYPE);
-    settings()->displayName.setDefaultValue(Tr::tr("Local PC"));
+    setDefaultDisplayName(Tr::tr("Local PC"));
     setDisplayType(Tr::tr("Desktop"));
 
     setDeviceState(IDevice::DeviceStateUnknown);
@@ -80,10 +82,7 @@ IDevice::DeviceInfo DesktopDevice::deviceInformation() const
 
 IDeviceWidget *DesktopDevice::createWidget()
 {
-    return nullptr;
-    // DesktopDeviceConfigurationWidget currently has just one editable field viz. free ports.
-    // Querying for an available port is quite straightforward. Having a field for the port
-    // range can be confusing to the user. Hence, disabling the widget for now.
+    return new DesktopDeviceConfigurationWidget(shared_from_this());
 }
 
 bool DesktopDevice::canCreateProcessModel() const
@@ -131,14 +130,39 @@ FilePath DesktopDevice::rootPath() const
     return IDevice::rootPath();
 }
 
+struct DeployToolsAvailability
+{
+    bool rsync;
+    bool sftp;
+};
+
+static DeployToolsAvailability hostDeployTools()
+{
+    auto check = [](const QString &tool) {
+        return FilePath::fromPathPart(tool).searchInPath().isExecutableFile();
+    };
+    return {check("rsync"), check("sftp")};
+}
+
 void DesktopDevice::fromMap(const Store &map)
 {
     IDevice::fromMap(map);
 
-    const FilePath rsync = FilePath::fromString("rsync").searchInPath();
-    const FilePath sftp = FilePath::fromString("sftp").searchInPath();
-    setExtraData(Constants::SUPPORTS_RSYNC, rsync.isExecutableFile());
-    setExtraData(Constants::SUPPORTS_SFTP, sftp.isExecutableFile());
+    auto updateExtraData = [this](const DeployToolsAvailability &tools) {
+        setExtraData(Constants::SUPPORTS_RSYNC, tools.rsync);
+        setExtraData(Constants::SUPPORTS_SFTP, tools.sftp);
+    };
+
+    if (HostOsInfo::isWindowsHost()) {
+        QFutureWatcher<DeployToolsAvailability> *w = new QFutureWatcher<DeployToolsAvailability>(this);
+        connect(w, &QFutureWatcher<DeployToolsAvailability>::finished, this, [w, updateExtraData]() {
+            updateExtraData(w->result());
+            w->deleteLater();
+        });
+        w->setFuture(Utils::asyncRun([]() { return hostDeployTools(); }));
+    } else {
+        updateExtraData(hostDeployTools());
+    }
 }
 
 } // namespace ProjectExplorer

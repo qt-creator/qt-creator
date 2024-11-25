@@ -4,7 +4,6 @@
 #include "qmakeparsernodes.h"
 
 #include "qmakeproject.h"
-#include "qmakeprojectmanagerconstants.h"
 #include "qmakeprojectmanagertr.h"
 
 #include <android/androidconstants.h>
@@ -30,6 +29,7 @@
 #include <utils/algorithm.h>
 #include <utils/async.h>
 #include <utils/filesystemwatcher.h>
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
@@ -929,9 +929,9 @@ void QmakePriFile::save(const QStringList &lines)
     QStringList errorStrings;
     Core::IDocument *document = Core::DocumentModel::documentForFilePath(filePath());
     if (document) {
-        QString errorString;
-        if (!document->reload(&errorString, Core::IDocument::FlagReload, Core::IDocument::TypeContents))
-            errorStrings << errorString;
+        Result res = document->reload(Core::IDocument::FlagReload, Core::IDocument::TypeContents);
+        if (!res)
+            errorStrings << res.error();
     }
     if (!errorStrings.isEmpty())
         QMessageBox::warning(Core::ICore::dialogParent(), Tr::tr("File Error"),

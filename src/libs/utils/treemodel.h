@@ -7,6 +7,8 @@
 
 #include "indexedcontainerproxyconstiterator.h"
 
+#include <utils/qtcassert.h>
+
 #include <QSortFilterProxyModel>
 
 #include <functional>
@@ -91,12 +93,12 @@ template <class ChildType, class ParentType = TreeItem>
 class TypedTreeItem : public TreeItem
 {
 public:
-    ChildType *childAt(int index) const { return static_cast<ChildType *>(TreeItem::childAt(index)); }
+    ChildType *childAt(int index) const { return childItemCast(TreeItem::childAt(index)); }
 
     void sortChildren(const std::function<bool(const ChildType *, const ChildType *)> &lessThan)
     {
-        return TreeItem::sortChildren([lessThan](const TreeItem *a, const TreeItem *b) {
-            return lessThan(static_cast<const ChildType *>(a), static_cast<const ChildType *>(b));
+        return TreeItem::sortChildren([lessThan, this](const TreeItem *a, const TreeItem *b) {
+            return lessThan(childItemCast(a), childItemCast(b));
         });
     }
 
@@ -111,42 +113,61 @@ public:
 
     template <typename Predicate>
     void forAllChildren(const Predicate &pred) const {
-        const auto pred0 = [pred](TreeItem *treeItem) { pred(static_cast<ChildType *>(treeItem)); };
+        const auto pred0 = [pred, this](TreeItem *treeItem) { pred(childItemCast(treeItem)); };
         TreeItem::forAllChildren(pred0);
     }
 
     template <typename Predicate>
     void forFirstLevelChildren(Predicate pred) const {
-        const auto pred0 = [pred](TreeItem *treeItem) { pred(static_cast<ChildType *>(treeItem)); };
+        const auto pred0 = [pred, this](TreeItem *treeItem) { pred(childItemCast(treeItem)); };
         TreeItem::forChildrenAtLevel(1, pred0);
     }
 
     template <typename Predicate>
     ChildType *findFirstLevelChild(Predicate pred) const {
-        const auto pred0 = [pred](TreeItem *treeItem) { return pred(static_cast<ChildType *>(treeItem)); };
+        const auto pred0 = [pred, this](TreeItem *treeItem) { return pred(childItemCast(treeItem)); };
         return static_cast<ChildType *>(TreeItem::findChildAtLevel(1, pred0));
     }
 
-    ParentType *parent() const {
-        return static_cast<ParentType *>(TreeItem::parent());
-    }
+    ParentType *parent() const { return parentItemCast(TreeItem::parent()); }
 
     void insertOrderedChild(ChildType *item, const std::function<bool(const ChildType *, const ChildType *)> &cmp)
     {
-        const auto cmp0 = [cmp](const TreeItem *lhs, const TreeItem *rhs) {
-            return cmp(static_cast<const ChildType *>(lhs), static_cast<const ChildType *>(rhs));
+        const auto cmp0 = [cmp, this](const TreeItem *lhs, const TreeItem *rhs) {
+            return cmp(childItemCast(lhs), childItemCast(rhs));
         };
         TreeItem::insertOrderedChild(item, cmp0);
     }
 
     ChildType *findAnyChild(const std::function<bool(TreeItem *)> &pred) const
     {
-        return static_cast<ChildType *>(TreeItem::findAnyChild(pred));
+        return childItemCast(TreeItem::findAnyChild(pred));
     }
 
     ChildType *reverseFindAnyChild(const std::function<bool(TreeItem *)> &pred) const
     {
-        return static_cast<ChildType *>(TreeItem::reverseFindAnyChild(pred));
+        return childItemCast(TreeItem::reverseFindAnyChild(pred));
+    }
+
+private:
+    ChildType *childItemCast(TreeItem *item) const { return itemCast<ChildType>(item); }
+    const ChildType *childItemCast(const TreeItem *item) const
+    {
+        return itemCast<ChildType>(const_cast<TreeItem *>(item));
+    }
+    ParentType *parentItemCast(TreeItem *item) const { return itemCast<ParentType>(item); }
+
+    template<typename T> T* itemCast(TreeItem *item) const
+    {
+#ifdef NDEBUG
+        return static_cast<T *>(item);
+#else
+        if (!item)
+            return nullptr;
+        const auto cItem = dynamic_cast<T *>(item);
+        QTC_CHECK(cItem);
+        return cItem;
+#endif
     }
 };
 

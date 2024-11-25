@@ -8,7 +8,6 @@
 #define KSYNTAXHIGHLIGHTING_HIGHLIGHTING_DATA_P_H
 
 #include <QString>
-#include <QStringList>
 
 #include <vector>
 
@@ -27,26 +26,6 @@ class HighlightingContextData
 {
 public:
     void load(const QString &defName, QXmlStreamReader &reader);
-
-    struct ContextSwitch {
-        ContextSwitch() = default;
-        ContextSwitch(QStringView str);
-
-        QStringView contextName() const;
-        QStringView defName() const;
-
-        bool isStay() const;
-
-        int popCount() const
-        {
-            return m_popCount;
-        }
-
-    private:
-        int m_popCount = 0;
-        int m_defNameIndex = -1;
-        QString m_contextAndDefName;
-    };
 
     struct Rule {
         enum class Type : quint8 {

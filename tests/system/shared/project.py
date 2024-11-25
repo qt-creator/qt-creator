@@ -533,7 +533,7 @@ def __getSupportedPlatforms__(text, templateName, getAsStrings=False, ignoreVali
             result = result.union(set([Targets.DESKTOP_5_10_1_DEFAULT,
                                        Targets.DESKTOP_5_14_1_DEFAULT,
                                        Targets.DESKTOP_6_2_4]))
-            if platform.system() != 'Darwin':
+            if platform.system() in ('Windows', 'Microsoft'):
                 result.add(Targets.DESKTOP_5_4_1_GCC)
     elif 'Platform independent' in text:
         result = Targets.desktopTargetClasses()
@@ -694,7 +694,11 @@ def addCPlusPlusFile(name, template, projectName, forceOverwrite=False, addToVCS
 def waitForProjectParsing(beginParsingTimeout=0, projectParsingTimeout=10000,
                           codemodelParsingTimeout=10000):
     runButton = findObject(':*Qt Creator.Run_Core::Internal::FancyToolButton')
-    waitFor("not runButton.enabled", beginParsingTimeout)
+    if beginParsingTimeout > 0:
+        # currently unused
+        test.warning("Waiting for the runButton to become disabled is probably futile.",
+                     "The button isn't disabled during project parsing anymore.")
+        waitFor("not runButton.enabled", beginParsingTimeout)
     # Wait for parsing to complete
     waitFor("runButton.enabled", projectParsingTimeout)
     if codemodelParsingTimeout > 0:

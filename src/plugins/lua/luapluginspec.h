@@ -55,6 +55,8 @@ public:
     ExtensionSystem::IPlugin::ShutdownFlag stop() override;
     void kill() override;
 
+    Utils::FilePath installLocation(bool inUserFolder) const override;
+
 public:
     bool printToOutputPane() const;
 };

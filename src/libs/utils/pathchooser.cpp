@@ -107,9 +107,9 @@ bool BinaryVersionToolTipEventFilter::eventFilter(QObject *o, QEvent *e)
     QTC_ASSERT(le, return false);
 
     const QString binary = le->text();
-    DataFromProcess<QString>::Parameters params(CommandLine(FilePath::fromUserInput(binary),
-                                                            m_arguments),
-                                                [](const QString &output) { return output; });
+    DataFromProcess<QString>::Parameters params(
+        CommandLine(FilePath::fromUserInput(binary), m_arguments),
+        [](const QString &output, const QString &) { return output; });
     params.callback = [binary, self = QPointer(this),
                        le = QPointer(le)](const std::optional<QString> &version) {
         if (!self || !le)
@@ -344,7 +344,7 @@ void PathChooser::setEnvironment(const Environment &env)
 
 FilePath PathChooser::unexpandedFilePath() const
 {
-    return FilePath::fromUserInput(d->m_lineEdit->text());
+    return FilePath::fromUserInput(d->m_lineEdit->text().trimmed());
 }
 
 FilePath PathChooser::filePath() const

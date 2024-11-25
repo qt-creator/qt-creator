@@ -133,7 +133,7 @@ void GitLabCloneDialog::updateUi()
 void GitLabCloneDialog::cloneProject()
 {
     VersionControlBase *vc = static_cast<VersionControlBase *>(
-                Core::VcsManager::versionControl(Id::fromString("G.Git")));
+                Core::VcsManager::versionControl(Id("G.Git")));
     QTC_ASSERT(vc, return);
     const QStringList extraArgs = m_submodulesCB->isChecked() ? QStringList{ "--recursive" }
                                                               : QStringList{};

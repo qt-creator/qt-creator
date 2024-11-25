@@ -7,8 +7,6 @@
 
 #include <coreplugin/dialogs/ioptionspage.h>
 
-namespace ProjectExplorer { class Project; }
-
 namespace TextEditor {
 
 class TEXTEDITOR_EXPORT CommentsSettings

@@ -15,6 +15,7 @@
 
 #include <utils/fileinprojectfinder.h>
 #include <utils/layoutbuilder.h>
+#include <utils/macroexpander.h>
 #include <utils/outputformatter.h>
 #include <utils/variablechooser.h>
 
@@ -85,15 +86,14 @@ BuildStep::BuildStep(BuildStepList *bsl, Id id)
     : ProjectConfiguration(bsl->target(), id)
     , m_stepList(bsl)
 {
-    if (auto bc = buildConfiguration())
-        setMacroExpander(bc->macroExpander());
-
     connect(this, &ProjectConfiguration::displayNameChanged, this, &BuildStep::updateSummary);
+    macroExpander()->registerSubProvider([bsl] { return bsl->projectConfiguration()->macroExpander(); });
 }
 
 QWidget *BuildStep::doCreateConfigWidget()
 {
     QWidget *widget = createConfigWidget();
+    VariableChooser::addSupportForChildWidgets(widget, macroExpander());
 
     const auto recreateSummary = [this] {
         if (m_summaryUpdater)
@@ -129,14 +129,14 @@ QWidget *BuildStep::createConfigWidget()
 
 void BuildStep::fromMap(const Store &map)
 {
-    m_enabled = map.value(buildStepEnabledKey, true).toBool();
+    m_stepEnabled = map.value(buildStepEnabledKey, true).toBool();
     ProjectConfiguration::fromMap(map);
 }
 
 void BuildStep::toMap(Store &map) const
 {
     ProjectConfiguration::toMap(map);
-    map.insert(buildStepEnabledKey, m_enabled);
+    map.insert(buildStepEnabledKey, m_stepEnabled);
 }
 
 BuildConfiguration *BuildStep::buildConfiguration() const
@@ -235,12 +235,12 @@ QVariant BuildStep::data(Id id) const
     return {};
 }
 
-void BuildStep::setEnabled(bool b)
+void BuildStep::setStepEnabled(bool b)
 {
-    if (m_enabled == b)
+    if (m_stepEnabled == b)
         return;
-    m_enabled = b;
-    emit enabledChanged();
+    m_stepEnabled = b;
+    emit stepEnabledChanged();
 }
 
 BuildStepList *BuildStep::stepList() const
@@ -248,9 +248,9 @@ BuildStepList *BuildStep::stepList() const
     return m_stepList;
 }
 
-bool BuildStep::enabled() const
+bool BuildStep::stepEnabled() const
 {
-    return m_enabled;
+    return m_stepEnabled;
 }
 
 BuildStepFactory::BuildStepFactory()

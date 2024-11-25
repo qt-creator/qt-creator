@@ -3,11 +3,14 @@
 
 #include "runcontrol.h"
 
+#include "appoutputpane.h"
 #include "buildconfiguration.h"
 #include "customparser.h"
 #include "devicesupport/devicemanager.h"
+#include "devicesupport/deviceusedportsgatherer.h"
 #include "devicesupport/idevice.h"
 #include "devicesupport/idevicefactory.h"
+#include "devicesupport/sshparameters.h"
 #include "devicesupport/sshsettings.h"
 #include "kitaspects.h"
 #include "project.h"
@@ -17,6 +20,7 @@
 #include "projectexplorertr.h"
 #include "runconfigurationaspects.h"
 #include "target.h"
+#include "utils/url.h"
 #include "windebuginterface.h"
 
 #include <coreplugin/icore.h>
@@ -290,6 +294,15 @@ public:
     bool autoDelete = false;
     bool m_supportsReRunning = true;
     std::optional<Group> m_runRecipe;
+
+    bool useDebugChannel = false;
+    bool useQmlChannel = false;
+    bool usePerfChannel = false;
+    bool useWorkerChannel = false;
+    QUrl debugChannel;
+    QUrl qmlChannel;
+    QUrl perfChannel;
+    QUrl workerChannel;
 };
 
 class RunControlPrivate : public QObject, public RunControlPrivateData
@@ -325,6 +338,7 @@ public:
     void debugMessage(const QString &msg) const;
 
     void initiateStart();
+    void startPortsGathererIfNeededAndContinueStart();
     void initiateReStart();
     void continueStart();
     void initiateStop();
@@ -344,9 +358,15 @@ public:
     void startTaskTree();
     void checkAutoDeleteAndEmitStopped();
 
+    void enablePortsGatherer();
+    QUrl getNextChannel();
+
     RunControl *q;
     Id runMode;
     TaskTreeRunner m_taskTreeRunner;
+
+    std::unique_ptr<DeviceUsedPortsGatherer> portsGatherer;
+    PortList portList;
 };
 
 } // Internal
@@ -413,10 +433,12 @@ void RunControl::setKit(Kit *kit)
     d->kit = kit;
     d->macroExpander = kit->macroExpander();
 
-    if (!d->runnable.command.isEmpty())
+    if (!d->runnable.command.isEmpty()) {
         setDevice(DeviceManager::deviceForPath(d->runnable.command.executable()));
-    else
+        QTC_ASSERT(device(), setDevice(DeviceKitAspect::device(kit))); // FIXME: QTCREATORBUG-31259
+    } else {
         setDevice(DeviceKitAspect::device(kit));
+    }
 }
 
 void RunControl::setDevice(const IDevice::ConstPtr &device)
@@ -502,11 +524,11 @@ void RunControl::forceStop()
     }
 }
 
-RunWorker *RunControl::createWorker(Id workerId)
+RunWorker *RunControl::createWorker(Id runMode)
 {
     const Id deviceType = DeviceTypeKitAspect::deviceTypeId(d->kit);
     for (RunWorkerFactory *factory : std::as_const(g_runWorkerFactories)) {
-        if (factory->canCreate(workerId, deviceType, d->runConfigId.toString()))
+        if (factory->canCreate(runMode, deviceType, d->runConfigId.toString()))
             return factory->create(this);
     }
     return nullptr;
@@ -551,7 +573,7 @@ void RunControlPrivate::initiateStart()
     setState(RunControlState::Starting);
     debugMessage("Queue: Starting");
 
-    continueStart();
+    startPortsGathererIfNeededAndContinueStart();
 }
 
 void RunControlPrivate::initiateReStart()
@@ -567,7 +589,137 @@ void RunControlPrivate::initiateReStart()
     setState(RunControlState::Starting);
     debugMessage("Queue: ReStarting");
 
-    continueStart();
+    startPortsGathererIfNeededAndContinueStart();
+}
+
+void RunControlPrivate::startPortsGathererIfNeededAndContinueStart()
+{
+    if (!portsGatherer) {
+        continueStart();
+        return;
+    }
+
+    connect(portsGatherer.get(), &DeviceUsedPortsGatherer::done, this, [this](bool success) {
+        if (success) {
+            portList = device->freePorts();
+            q->appendMessage(Tr::tr("Found %n free ports.", nullptr, portList.count()) + '\n',
+                             NormalMessageFormat);
+            if (useDebugChannel)
+                debugChannel = getNextChannel();
+            if (useQmlChannel)
+                qmlChannel = getNextChannel();
+            if (usePerfChannel)
+                perfChannel = getNextChannel();
+            if (useWorkerChannel)
+                workerChannel = getNextChannel();
+
+            continueStart();
+        } else {
+            onWorkerFailed(nullptr, portsGatherer->errorString());
+        }
+    });
+
+    q->appendMessage(Tr::tr("Checking available ports...") + '\n', NormalMessageFormat);
+    portsGatherer->setDevice(device);
+    portsGatherer->start();
+}
+
+void RunControl::enablePortsGatherer()
+{
+    d->enablePortsGatherer();
+}
+
+void RunControlPrivate::enablePortsGatherer()
+{
+    if (!portsGatherer)
+        portsGatherer = std::make_unique<DeviceUsedPortsGatherer>();
+}
+
+QUrl RunControlPrivate::getNextChannel()
+{
+    QTC_ASSERT(portsGatherer, return {});
+    QUrl result;
+    result.setScheme(urlTcpScheme());
+    if (q->device()->extraData(Constants::SSH_FORWARD_DEBUGSERVER_PORT).toBool())
+        result.setHost("localhost");
+    else
+        result.setHost(q->device()->toolControlChannel(IDevice::ControlChannelHint()).host());
+    result.setPort(portList.getNextFreePort(portsGatherer->usedPorts()).number());
+    return result;
+}
+
+QUrl RunControl::findEndPoint()
+{
+    QTC_ASSERT(d->portsGatherer, return {});
+    QUrl result;
+    result.setScheme(urlTcpScheme());
+    result.setHost(device()->sshParameters().host());
+    result.setPort(d->portList.getNextFreePort(d->portsGatherer->usedPorts()).number());
+    return result;
+}
+
+void RunControl::requestDebugChannel()
+{
+    d->enablePortsGatherer();
+    d->useDebugChannel = true;
+}
+
+bool RunControl::usesDebugChannel() const
+{
+    return d->useDebugChannel;
+}
+
+QUrl RunControl::debugChannel() const
+{
+    return d->debugChannel;
+}
+
+void RunControl::requestQmlChannel()
+{
+    d->enablePortsGatherer();
+    d->useQmlChannel = true;
+}
+
+bool RunControl::usesQmlChannel() const
+{
+    return d->useQmlChannel;
+}
+
+QUrl RunControl::qmlChannel() const
+{
+    return d->qmlChannel;
+}
+
+void RunControl::setQmlChannel(const QUrl &channel)
+{
+    d->qmlChannel = channel;
+}
+
+void RunControl::requestPerfChannel()
+{
+    d->enablePortsGatherer();
+    d->usePerfChannel = true;
+}
+
+bool RunControl::usesPerfChannel() const
+{
+    return d->usePerfChannel;
+}
+
+QUrl RunControl::perfChannel() const
+{
+    return d->perfChannel;
+}
+
+void RunControl::requestWorkerChannel()
+{
+    d->enablePortsGatherer();
+    d->useWorkerChannel = true;
+}
+
+QUrl RunControl::workerChannel() const
+{
+    return d->workerChannel;
 }
 
 void RunControlPrivate::continueStart()
@@ -733,7 +885,8 @@ void RunControlPrivate::onWorkerStarted(RunWorker *worker)
 
 void RunControlPrivate::onWorkerFailed(RunWorker *worker, const QString &msg)
 {
-    worker->d->state = RunWorkerState::Done;
+    if (worker)
+        worker->d->state = RunWorkerState::Done;
 
     showError(msg);
     switch (state) {
@@ -851,7 +1004,7 @@ void RunControlPrivate::onWorkerStopped(RunWorker *worker)
 
 void RunControlPrivate::showError(const QString &msg)
 {
-    if (!msg.isEmpty())
+    if (q && !msg.isEmpty())
         q->postMessage(msg + '\n', ErrorMessageFormat);
 }
 
@@ -1096,6 +1249,9 @@ void RunControlPrivate::startTaskTree()
 
 void RunControlPrivate::checkAutoDeleteAndEmitStopped()
 {
+    if (!q)
+        return;
+
     if (autoDelete) {
         debugMessage("All finished. Deleting myself");
         q->deleteLater();
@@ -1205,7 +1361,8 @@ void RunControlPrivate::setState(RunControlState newState)
     // Extra reporting.
     switch (state) {
     case RunControlState::Running:
-        emit q->started();
+        if (q)
+            emit q->started();
         break;
     case RunControlState::Stopped:
         checkAutoDeleteAndEmitStopped();
@@ -1251,6 +1408,7 @@ public:
     bool m_runAsRoot = false;
 
     Process m_process;
+    QTimer m_waitForDoneTimer;
 
     QTextCodec *m_outputCodec = nullptr;
     QTextCodec::ConverterState m_outputCodecState;
@@ -1280,7 +1438,7 @@ public:
 
 static QProcess::ProcessChannelMode defaultProcessChannelMode()
 {
-    return ProjectExplorerPlugin::appOutputSettings().mergeChannels
+    return appOutputPane().settings().mergeChannels
             ? QProcess::MergedChannels : QProcess::SeparateChannels;
 }
 
@@ -1294,6 +1452,21 @@ SimpleTargetRunnerPrivate::SimpleTargetRunnerPrivate(SimpleTargetRunner *parent)
                 this, &SimpleTargetRunnerPrivate::handleStandardError);
     connect(&m_process, &Process::readyReadStandardOutput,
                 this, &SimpleTargetRunnerPrivate::handleStandardOutput);
+    connect(&m_process, &Process::requestingStop, this, [this] {
+        q->appendMessage(Tr::tr("Requesting process to stop ...."), NormalMessageFormat);
+    });
+    connect(&m_process, &Process::stoppingForcefully, this, [this] {
+        q->appendMessage(Tr::tr("Stopping process forcefully ...."), NormalMessageFormat);
+    });
+
+    m_waitForDoneTimer.setSingleShot(true);
+    connect(&m_waitForDoneTimer, &QTimer::timeout, this, [this] {
+        q->appendMessage(Tr::tr("Process unexpectedly did not finish."), ErrorMessageFormat);
+        if (m_command.executable().needsDevice())
+            q->appendMessage(Tr::tr("Connectivity lost?"), ErrorMessageFormat);
+        m_process.close();
+        forwardDone();
+    });
 
     if (WinDebugInterface::instance()) {
         connect(WinDebugInterface::instance(), &WinDebugInterface::cannotRetrieveDebugOutput,
@@ -1323,36 +1496,14 @@ SimpleTargetRunnerPrivate::~SimpleTargetRunnerPrivate()
 
 void SimpleTargetRunnerPrivate::stop()
 {
-    m_resultData.m_exitStatus = QProcess::CrashExit;
+    if (m_stopRequested || m_state != Run)
+        return;
 
-    const bool isLocal = !m_command.executable().needsDevice();
-    const auto totalTimeout = 2 * m_process.reaperTimeout();
-    if (isLocal) {
-        if (!isRunning())
-            return;
-        m_process.stop();
-        m_process.waitForFinished(totalTimeout);
-        QTimer::singleShot(100, this, [this] { forwardDone(); });
-    } else {
-        if (m_stopRequested)
-            return;
-        m_stopRequested = true;
-        q->appendMessage(Tr::tr("User requested stop. Shutting down..."), NormalMessageFormat);
-        switch (m_state) {
-        case Run:
-            m_process.stop();
-            if (!m_process.waitForFinished(totalTimeout)) {
-                q->appendMessage(Tr::tr("Remote process did not finish in time. "
-                                        "Connectivity lost?"), ErrorMessageFormat);
-                m_process.close();
-                m_state = Inactive;
-                forwardDone();
-            }
-            break;
-        case Inactive:
-            break;
-        }
-    }
+    m_stopRequested = true;
+    m_resultData.m_exitStatus = QProcess::CrashExit;
+    m_waitForDoneTimer.setInterval(2 * m_process.reaperTimeout());
+    m_waitForDoneTimer.start();
+    m_process.stop();
 }
 
 bool SimpleTargetRunnerPrivate::isRunning() const
@@ -1373,7 +1524,6 @@ void SimpleTargetRunnerPrivate::handleDone()
     m_resultData = m_process.resultData();
     QTC_ASSERT(m_state == Run, forwardDone(); return);
 
-    m_state = Inactive;
     forwardDone();
 }
 
@@ -1425,7 +1575,7 @@ void SimpleTargetRunnerPrivate::start()
     }
 
     const IDevice::ConstPtr device = DeviceManager::deviceForPath(m_command.executable());
-    if (device && !device->isEmptyCommandAllowed() && m_command.isEmpty()) {
+    if (device && !device->allowEmptyCommand() && m_command.isEmpty()) {
         m_resultData.m_errorString = Tr::tr("Cannot run: No command given.");
         m_resultData.m_error = QProcess::FailedToStart;
         m_resultData.m_exitStatus = QProcess::CrashExit;
@@ -1479,14 +1629,18 @@ void SimpleTargetRunnerPrivate::forwardDone()
 {
     if (m_stopReported)
         return;
+    m_state = Inactive;
+    m_waitForDoneTimer.stop();
     const QString executable = m_command.executable().displayName();
     QString msg = Tr::tr("%1 exited with code %2").arg(executable).arg(m_resultData.m_exitCode);
-    if (m_resultData.m_exitStatus == QProcess::CrashExit)
-        msg = Tr::tr("%1 crashed.").arg(executable);
-    else if (m_stopForced)
-        msg = Tr::tr("The process was ended forcefully.");
-    else if (m_resultData.m_error != QProcess::UnknownError)
+    if (m_resultData.m_exitStatus == QProcess::CrashExit) {
+        if (m_stopForced)
+            msg = Tr::tr("The process was ended forcefully.");
+        else
+            msg = Tr::tr("The process crashed.");
+    } else if (m_resultData.m_error != QProcess::UnknownError) {
         msg = RunWorker::userMessageForProcessError(m_resultData.m_error, m_command.executable());
+    }
     q->appendMessage(msg, NormalMessageFormat);
     m_stopReported = true;
     q->reportStopped();
@@ -1863,6 +2017,36 @@ bool RunWorker::isEssential() const
 void RunWorker::setEssential(bool essential)
 {
     d->essential = essential;
+}
+
+QUrl RunWorker::debugChannel() const
+{
+    return d->runControl->debugChannel();
+}
+
+bool RunWorker::usesDebugChannel() const
+{
+    return d->runControl->usesDebugChannel();
+}
+
+QUrl RunWorker::qmlChannel() const
+{
+    return d->runControl->qmlChannel();
+}
+
+bool RunWorker::usesQmlChannel() const
+{
+    return d->runControl->usesQmlChannel();
+}
+
+QUrl RunWorker::perfChannel() const
+{
+    return d->runControl->perfChannel();
+}
+
+bool RunWorker::usesPerfChannel() const
+{
+    return d->runControl->usesPerfChannel();
 }
 
 void RunWorker::start()

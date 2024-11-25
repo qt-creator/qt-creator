@@ -171,6 +171,7 @@ public:
 
     QFuture<ResultType> future() const { return m_watcher.future(); }
     ResultType result() const { return m_watcher.result(); }
+    ResultType takeResult() const { return m_watcher.future().takeResult(); }
     ResultType resultAt(int index) const { return m_watcher.resultAt(index); }
     QList<ResultType> results() const { return future().results(); }
     bool isResultAvailable() const { return future().resultCount(); }
@@ -202,7 +203,7 @@ private:
 };
 
 template <typename ResultType>
-class AsyncTaskAdapter : public Tasking::TaskAdapter<Async<ResultType>>
+class AsyncTaskAdapter final : public Tasking::TaskAdapter<Async<ResultType>>
 {
 public:
     AsyncTaskAdapter() {

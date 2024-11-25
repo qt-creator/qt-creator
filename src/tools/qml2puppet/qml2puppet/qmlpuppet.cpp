@@ -84,12 +84,8 @@ QString crashReportsPath()
         QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
         QLatin1String(Core::Constants::IDE_CASED_ID));
 
-#if defined(Q_OS_MACOS)
-        return QFileInfo(settings.fileName()).path() + "/crashpad_reports";
-#else
-        return QCoreApplication::applicationDirPath()
-                + '/' + RELATIVE_LIBEXEC_PATH + "crashpad_reports";
-#endif
+    return QFileInfo(settings.fileName()).path() + "/" + Core::Constants::IDE_ID
+           + "/crashpad_reports";
 }
 
 void QmlPuppet::initQmlRunner()

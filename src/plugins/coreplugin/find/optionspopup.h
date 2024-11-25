@@ -9,7 +9,27 @@
 
 #include <QWidget>
 
+#include <optional>
+
 namespace Core {
+
+class CORE_EXPORT NumericOption
+{
+public:
+    NumericOption() noexcept = default;
+    NumericOption(int current, int minimum, int maximum) noexcept
+        : currentValue{current}
+        , minimumValue{minimum}
+        , maximumValue{maximum}
+    {}
+
+    static std::optional<NumericOption> get(QObject *o);
+    static void set(QObject *o, const NumericOption &opt);
+
+    int currentValue;
+    int minimumValue;
+    int maximumValue;
+};
 
 class CORE_EXPORT OptionsPopup : public QWidget
 {

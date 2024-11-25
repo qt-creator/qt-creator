@@ -62,6 +62,7 @@ protected:
     void setDiffFiles(const QList<FileData> &diffFileList);
     // Optional:
     void setDisplayName(const QString &name) { m_displayName = name; }
+    void setAnsiEnabled(bool enabled);
     void setDescription(const QString &description);
     void setStartupFile(const QString &startupFile);
     void forceContextLineCount(int lines);

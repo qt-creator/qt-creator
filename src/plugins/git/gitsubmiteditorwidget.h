@@ -39,7 +39,7 @@ public:
     GitSubmitEditorWidget();
 
     GitSubmitEditorPanelData panelData() const;
-    QString amendSHA1() const;
+    QString amendHash() const;
     void setHasUnmerged(bool e);
     void initialize(const Utils::FilePath &repository, const CommitData &data);
     void refreshLog(const Utils::FilePath &repository);

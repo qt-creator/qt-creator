@@ -145,17 +145,17 @@ void UpdateInfoPlugin::startCheckForUpdates()
         d->m_updateOutput = process.cleanedStdOut();
     };
 
-    QList<GroupItem> tasks { ProcessTask(onUpdateSetup, onUpdateDone, CallDoneIf::Success) };
-    if (d->m_settings.checkForQtVersions) {
-        const auto onPackagesSetup = [doSetup](Process &process) {
-            doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
-        };
-        const auto onPackagesDone = [this](const Process &process) {
-            d->m_packagesOutput = process.cleanedStdOut();
-        };
-        tasks << ProcessTask(onPackagesSetup, onPackagesDone, CallDoneIf::Success);
-    }
-    d->m_taskTreeRunner.start(tasks, onTreeSetup, onTreeDone);
+    const Group recipe {
+        ProcessTask(onUpdateSetup, onUpdateDone, CallDoneIf::Success),
+        d->m_settings.checkForQtVersions
+            ? ProcessTask([doSetup](Process &process) {
+                  doSetup(process, {"se", "qt[.]qt[0-9][.][0-9]+$", "-g", "*=false,ifw.package.*=true"});
+              }, [this](const Process &process) {
+                  d->m_packagesOutput = process.cleanedStdOut();
+              }, CallDoneIf::Success)
+            : nullItem
+    };
+    d->m_taskTreeRunner.start(recipe, onTreeSetup, onTreeDone);
 }
 
 void UpdateInfoPlugin::stopCheckForUpdates()

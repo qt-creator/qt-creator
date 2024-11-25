@@ -1,60 +1,32 @@
 // Copyright (C) 2020 Alexis Jeandet.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
+
 #pragma once
 
-#include "mesontoolkitaspect.h"
-#include "ninjatoolkitaspect.h"
+#include "mesontools.h"
 
-#include <projectexplorer/kitmanager.h>
+namespace ProjectExplorer { class Kit; }
 
-#include <utils/layoutbuilder.h>
+namespace MesonProjectManager::Internal {
 
-#include <QComboBox>
-#include <QCoreApplication>
-
-namespace MesonProjectManager {
-namespace Internal {
-
-class ToolKitAspectWidget final : public ProjectExplorer::KitAspect
+class MesonToolKitAspect final
 {
 public:
-    enum class ToolType { Meson, Ninja };
+    static void setMesonTool(ProjectExplorer::Kit *kit, Utils::Id id);
+    static Utils::Id mesonToolId(const ProjectExplorer::Kit *kit);
 
-    ToolKitAspectWidget(ProjectExplorer::Kit *kit,
-                        const ProjectExplorer::KitAspectFactory *factory,
-                        ToolType type);
-    ~ToolKitAspectWidget();
-
-private:
-    void addTool(const MesonTools::Tool_t &tool);
-    void removeTool(const MesonTools::Tool_t &tool);
-    void setCurrentToolIndex(int index);
-    int indexOf(const Utils::Id &id);
-    bool isCompatible(const MesonTools::Tool_t &tool);
-    void loadTools();
-    void setToDefault();
-
-    void makeReadOnly() override { m_toolsComboBox->setEnabled(false); }
-
-    void addToLayoutImpl(Layouting::Layout &parent) override
-    {
-        addMutableAction(m_toolsComboBox);
-        parent.addItem(m_toolsComboBox);
-    }
-
-    void refresh() override
-    {
-        const auto id = [this] {
-            if (m_type == ToolType::Meson)
-                return MesonToolKitAspect::mesonToolId(m_kit);
-            return NinjaToolKitAspect::ninjaToolId(m_kit);
-        }();
-        m_toolsComboBox->setCurrentIndex(indexOf(id));
-    }
-
-    QComboBox *m_toolsComboBox;
-    ToolType m_type;
+    static bool isValid(const ProjectExplorer::Kit *kit);
+    static std::shared_ptr<ToolWrapper> mesonTool(const ProjectExplorer::Kit *kit);
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+class NinjaToolKitAspect final
+{
+public:
+    static void setNinjaTool(ProjectExplorer::Kit *kit, Utils::Id id);
+    static Utils::Id ninjaToolId(const ProjectExplorer::Kit *kit);
+
+    static bool isValid(const ProjectExplorer::Kit *kit);
+    static std::shared_ptr<ToolWrapper> ninjaTool(const ProjectExplorer::Kit *kit);
+};
+
+} // MesonProjectManager::Internal

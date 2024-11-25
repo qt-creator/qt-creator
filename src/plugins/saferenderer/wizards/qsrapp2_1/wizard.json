@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project", "CMakeProjectManager.CMakeProject" ],
     "id": "E.QSRApp2_1",
     "category": "D.QtSafeRendererApplication",
     "trDescription": "Creates a Qt Safe Renderer 2.1 (and newer) project with a simple UI and project setup.\n\nSupports both qmake and CMake.",
@@ -33,7 +33,7 @@
             "trDisplayName": "Define Build System",
             "trShortTitle": "Build System",
             "typeId": "Fields",
-            "enabled": "%{JS: !value('IsSubproject')}",
+            "skipForSubprojects": true,
             "data":
             [
                 {
@@ -65,7 +65,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {

@@ -6,6 +6,7 @@
 #include "graphicsview.h"
 
 #include <QMouseEvent>
+#include <QPalette>
 #include <QVBoxLayout>
 
 using namespace ScxmlEditor::Common;
@@ -36,8 +37,12 @@ void Magnifier::resizeEvent(QResizeEvent *e)
     m_gradientBrush.setCenter(radius, radius);
     m_gradientBrush.setFocalPoint(radius, radius);
     m_gradientBrush.setRadius(radius);
-    m_gradientBrush.setColorAt(1.0, QColor(255, 255, 255, 0));
-    m_gradientBrush.setColorAt(0.0, QColor(0, 0, 0, 255));
+    QColor first = parentWidget()->palette().color(QPalette::Window);
+    first.setAlpha(0);
+    QColor last = parentWidget()->palette().color(QPalette::WindowText);
+    last.setAlpha(255);
+    m_gradientBrush.setColorAt(1.0, first);
+    m_gradientBrush.setColorAt(0.0, last);
 
     int cap = radius * 0.1;
     m_graphicsView->setMask(QRegion(rect().adjusted(cap, cap, -cap, -cap), QRegion::Ellipse));

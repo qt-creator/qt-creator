@@ -13,9 +13,10 @@
 #include <extensionsystem/iplugin.h>
 
 #include <utils/environment.h>
+#include <utils/fileutils.h>
 #include <utils/pathchooser.h>
 
-#include <QAction>
+#include <QDialog>
 #include <QDialogButtonBox>
 #include <QFormLayout>
 

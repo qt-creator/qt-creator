@@ -6,9 +6,7 @@
 #include "versionhelper.h"
 
 #include <utils/commandline.h>
-#include <utils/environment.h>
 #include <utils/id.h>
-#include <utils/qtcassert.h>
 #include <utils/store.h>
 
 #include <optional>
@@ -16,38 +14,31 @@
 namespace MesonProjectManager {
 namespace Internal {
 
+enum class ToolType { Meson, Ninja };
+
 class Command
 {
-    Utils::CommandLine m_cmd;
-    Utils::FilePath m_workDir;
-
 public:
-    Command() = default;
-    Command(const Utils::FilePath &exe, const Utils::FilePath &workDir, const QStringList &args)
-        : m_cmd{exe, args}
-        , m_workDir{workDir}
-    {}
-    const Utils::CommandLine &cmdLine() const { return m_cmd; }
-    const Utils::FilePath &workDir() const { return m_workDir; }
-    Utils::FilePath executable() const { return m_cmd.executable(); }
-    QStringList arguments() const { return m_cmd.splitArguments(); }
-    QString toUserOutput() const { return m_cmd.toUserOutput(); }
+    Utils::CommandLine cmdLine;
+    Utils::FilePath workDir;
 };
 
-class ToolWrapper
+class ToolWrapper final
 {
 public:
-    virtual ~ToolWrapper() {}
     ToolWrapper() = delete;
-    ToolWrapper(const QString &name, const Utils::FilePath &path, bool autoDetected = false);
-    ToolWrapper(const QString &name,
+    explicit ToolWrapper(const Utils::Store &data);
+    ToolWrapper(ToolType toolType,
+                const QString &name,
+                const Utils::FilePath &path,
+                bool autoDetected = false);
+    ToolWrapper(ToolType toolType,
+                const QString &name,
                 const Utils::FilePath &path,
                 const Utils::Id &id,
                 bool autoDetected = false);
-    ToolWrapper(const ToolWrapper &other) = default;
-    ToolWrapper(ToolWrapper &&other) = default;
-    ToolWrapper &operator=(const ToolWrapper &other) = default;
-    ToolWrapper &operator=(ToolWrapper &&other) = default;
+
+    ~ToolWrapper();
 
     const Version &version() const noexcept { return m_version; }
     bool isValid() const noexcept { return m_isValid; }
@@ -56,19 +47,28 @@ public:
     Utils::FilePath exe() const noexcept { return m_exe; }
     QString name() const noexcept { return m_name; }
 
-    inline void setName(const QString &newName) { m_name = newName; }
-    virtual void setExe(const Utils::FilePath &newExe);
+    void setName(const QString &newName) { m_name = newName; }
+    void setExe(const Utils::FilePath &newExe);
 
     static Version read_version(const Utils::FilePath &toolPath);
 
-    static std::optional<Utils::FilePath> findTool(const QStringList &exeNames);
+    Utils::Store toVariantMap() const;
 
-    template<typename T>
-    friend Utils::Store toVariantMap(const T &);
-    template<typename T>
-    friend T fromVariantMap(const Utils::Store &);
+    ToolType toolType() const { return m_toolType; }
+    void setToolType(ToolType newToolType) { m_toolType = newToolType; }
 
-protected:
+    Command setup(const Utils::FilePath &sourceDirectory,
+                       const Utils::FilePath &buildDirectory,
+                       const QStringList &options = {}) const;
+    Command configure(const Utils::FilePath &sourceDirectory,
+                           const Utils::FilePath &buildDirectory,
+                           const QStringList &options = {}) const;
+    Command regenerate(const Utils::FilePath &sourceDirectory,
+                            const Utils::FilePath &buildDirectory) const;
+    Command introspect(const Utils::FilePath &sourceDirectory) const;
+
+private:
+    ToolType m_toolType;
     Version m_version;
     bool m_isValid;
     bool m_autoDetected;
@@ -77,10 +77,11 @@ protected:
     QString m_name;
 };
 
-template<typename T>
-Utils::Store toVariantMap(const T &);
-template<typename T>
-T fromVariantMap(const Utils::Store &);
+bool run_meson(const Command &command, QIODevice *output = nullptr);
+
+bool isSetup(const Utils::FilePath &buildPath);
+
+std::optional<Utils::FilePath> findTool(ToolType toolType);
 
 } // namespace Internal
 } // namespace MesonProjectManager

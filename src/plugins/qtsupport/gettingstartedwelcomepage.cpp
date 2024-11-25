@@ -77,7 +77,7 @@ int ExamplesWelcomePage::priority() const
 
 Id ExamplesWelcomePage::id() const
 {
-    return m_showExamples ? "Examples" : "Tutorials";
+    return m_showExamples ? Id("Examples") : Id("Tutorials");
 }
 
 static FilePath copyToAlternativeLocation(const FilePath &proFile,
@@ -139,7 +139,7 @@ static FilePath copyToAlternativeLocation(const FilePath &proFile,
                                  QMessageBox::NoButton);
             return {};
         } else {
-            expected_str<void> result = projectDir.copyRecursively(targetDir);
+            Result result = projectDir.copyRecursively(targetDir);
 
             if (result) {
                 // set vars to new location

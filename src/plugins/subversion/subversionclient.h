@@ -5,10 +5,9 @@
 
 #include <vcsbase/vcsbaseclient.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
-namespace Subversion {
-namespace Internal {
+namespace Subversion::Internal {
 
 class SubversionDiffEditorController;
 class SubversionSettings;
@@ -63,5 +62,4 @@ SubversionClient &subversionClient();
 
 Utils::CommandLine &operator<<(Utils::CommandLine &command, SubversionClient::AddAuthOptions);
 
-} // namespace Internal
-} // namespace Subversion
+} // Subversion::Internal

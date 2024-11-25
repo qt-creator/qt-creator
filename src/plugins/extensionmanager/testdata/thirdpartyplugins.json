@@ -1,38 +1,49 @@
 {
   "items": [
+
     {
-      "name": "SpellChecker",
+      "id": "spellchecker",
+      "display_name": "SpellChecker",
       "tags": [ "Editor" ],
-      "platforms": [ "macOS", "Windows", "Linux" ],
-      "license": "os",
-      "is_pack": false,
-      "description": {
-        "paragraphs": [
+      "license": "open-source",
+      "vendor_id": "carelcombrink",
+      "display_vendor": "Carel Combrink",
+      "downloads": 2333,
+      "plugin": {
+        "metadata": {
+          "Copyright": "(C) 2015 - 2024 Carel Combrink",
+          "Description": "Foo",
+          "LongDescription": [
+            "Spellcheck comments in source files."
+          ],
+          "Url" : "https://github.com/CJCombrink/SpellChecker-Plugin",
+          "DocumentationUrl" : "https://github.com/CJCombrink/SpellChecker-Plugin?tab=readme-ov-file#spellchecker-plugin"
+        },
+        "sources": [
           {
-            "text": [
-                "Spellcheck comments in source files."
-            ],
-            "header": "Get started"
-          }
-        ],
-        "links": [
+            "url": "https://github.com/CJCombrink/SpellChecker-Plugin/releases/download/v3.7.0/SpellChecker-Plugin_QtC14.0.0_linux_x64.tar.gz",
+            "platform": {
+              "name": "Linux",
+              "architecture": "x86_64"
+            }
+          },
           {
-            "url": "https://github.com/CJCombrink/SpellChecker-Plugin",
-            "link_text": "GitHub page"
+            "url": "https://github.com/CJCombrink/SpellChecker-Plugin/releases/download/v3.7.0/SpellChecker-Plugin_QtC14.0.0_macos_x64.tar.gz",
+            "platform": {
+              "name": "macOS",
+              "architecture": "x86_64"
+            }
+          },
+          {
+            "url": "https://github.com/CJCombrink/SpellChecker-Plugin/releases/download/v3.7.0/SpellChecker-Plugin_QtC14.0.0_win64_x64.zip",
+            "platform": {
+              "name": "Windows",
+              "architecture": "x86_64"
+            }
           }
         ]
-      },
-      "plugins": [
-        {
-          "meta_data": {
-            "Name": "SpellChecker",
-            "Copyright": "(C) 2015 - 2024 Carel Combrink"
-          },
-          "url": "https://github.com/CJCombrink/SpellChecker-Plugin/releases/download/v3.6.0/SpellChecker-Plugin_QtC13.0.0_macos_x64.tar.gz"
-        }
-      ],
-      "vendor": "Carel Combrink",
-      "copyright": "(C) 2015 - 2024 Carel Combrink"
+      }
     }
+
   ]
 }

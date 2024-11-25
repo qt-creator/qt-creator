@@ -28,7 +28,7 @@ QTC_DECLARE_MYTESTDATADIR("../../../tests/cpplocators/")
 class CppLocatorFilterTestCase : public CppEditor::Tests::TestCase
 {
 public:
-    CppLocatorFilterTestCase(const QList<LocatorMatcherTask> &matchers,
+    CppLocatorFilterTestCase(const LocatorMatcherTasks &matchers,
                              const QString &fileName,
                              const QString &searchText,
                              const ResultDataList &expectedResults)
@@ -54,7 +54,7 @@ class CppCurrentDocumentFilterTestCase : public CppEditor::Tests::TestCase
 {
 public:
     CppCurrentDocumentFilterTestCase(const FilePath &filePath,
-                                     const QList<LocatorMatcherTask> &matchers,
+                                     const LocatorMatcherTasks &matchers,
                                      const ResultDataList &expectedResults,
                                      const QString &searchText = QString())
     {

@@ -581,10 +581,29 @@ def qdump__QEvent(d, value):
         with Children(d):
             # Add a sub-item with the event type.
             with SubItem(d, '[type]'):
-                (vtable, privateD, t, flags) = value.split("pp{short}{short}")
+                if d.qtVersionAtLeast(0x060000):
+                    (
+                        # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+                        vtable, # virtual table pointer
+                        t,      # quint16 t
+                        posted, # bool m_posted
+                        spont,  # bool m_spont
+                        accept, # bool m_accept
+                        unused, # bool m_unused
+                        flags,  # quint16 m_reserved:13, quint16 m_inputEvent:1
+                                # + quint16 m_pointerEvent:1 + quint16 m_singlePointEvent:1
+                    ) = value.split("p{short}ccccH")
+                else:
+                    (
+                        # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+                        vtable,   # virtual table pointer
+                        privateD, # QEventPrivate *d
+                        t,        # ushort t
+                        flags,    # ushort posted:1 + ushort spont:1 + ushort m_accept:1 + ushort reserved:13
+                    ) = value.split("pp{short}{short}")
                 event_type_name = d.qtNamespace() + "QEvent::Type"
                 type_value = t.cast(event_type_name)
-                d.putValue(type_value.displayEnum('0x%04x', bitsize=16))
+                d.putValue(type_value.displayEnum('0x%04x'))
                 d.putType(event_type_name)
 
             # Show the rest of the class fields as usual.
@@ -592,29 +611,49 @@ def qdump__QEvent(d, value):
 
 
 def qdump__QKeyEvent(d, value):
-    # QEvent fields
-    #   virtual table pointer
-    #   QEventPrivate *d;
-    #   ushort t;
-    #   ushort posted : 1;
-    #   ushort spont : 1;
-    #   ushort m_accept : 1;
-    #   ushort reserved : 13;
-    # QInputEvent fields
-    #   Qt::KeyboardModifiers modState;
-    #   ulong ts;
-    # QKeyEvent fields
-    #   QString txt;
-    #   int k;
-    #   quint32 nScanCode;
-    #   quint32 nVirtualKey;
-    #   quint32 nModifiers; <- nativeModifiers
-    #   ushort c;
-    #   ushort autor:1;
-    #   ushort reserved:15;
-    (vtable, privateD, t, flags, modState, ts, txt, k, scanCode,
-     virtualKey, modifiers,
-     c, autor) = value.split("ppHHiQ{@QString}{int}IIIHH")
+    if d.qtVersionAtLeast(0x060000):
+        (
+            # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+            vtable,         # virtual table pointer
+            t,              # quint16 t
+            posted,         # bool m_posted
+            spont,          # bool m_spont
+            accept,         # bool m_accept
+            unused,         # bool m_unused
+            qevent_flags,   # quint16 m_reserved:13, quint16 m_inputEvent:1
+                            # + quint16 m_pointerEvent:1 + quint16 m_singlePointEvent:1
+            # QInputEvent fields (must be kept in sync with the definition in qevent.h)
+            dev,            # const QInputDevice *m_dev
+            ts,             # quint64 m_timeStamp
+            modState,       # Qt::KeyboardModifiers modState
+            reserved,       # quint32 m_reserved
+            # QKeyEvent fields (must be kept in sync with the definition in qevent.h)
+            txt,            # QString m_text
+            k,              # int m_key; (actually a Qt::Key in disguise)
+            scanCode,       # quint32 m_scanCode
+            virtualKey,     # quint32 m_virtualKey
+            modifiers,      # quint32 m_nativeModifiers
+            qkeyevent_flags # quint16 m_count:15 + quint16 m_autoRepeat:1
+        ) = value.split("pHccccHpQiI{@QString}{int}IIIH")
+    else:
+        (
+            # QEvent fields (must be kept in sync with the definition in qcoreevent.h)
+            vtable,     # virtual table pointer
+            privateD,   # QEventPrivate *d
+            t,          # ushort t
+            flags,      # ushort posted:1 + ushort spont:1 + ushort m_accept:1 + ushort reserved:13
+            # QInputEvent fields (must be kept in sync with the definition in qevent.h)
+            modState,   # Qt::KeyboardModifiers modState
+            ts,         # ulong ts
+            # QKeyEvent fields (must be kept in sync with the definition in qevent.h)
+            txt,        # QString txt
+            k,          # int k
+            scanCode,   # quint32 nScanCode
+            virtualKey, # quint32 nVirtualKey
+            modifiers,  # quint32 nModifiers
+            c,          # ushort c
+            autor       # ushort author:1
+        ) = value.split("ppHHiQ{@QString}{int}IIIHH")
 
     #d.putStringValue(txt)
     #data = d.encodeString(txt)
@@ -622,7 +661,7 @@ def qdump__QKeyEvent(d, value):
 
     k_type_name = d.qtNamespace() + "Qt::Key"
     k_cast_to_enum_value = k.cast(k_type_name)
-    k_name = k_cast_to_enum_value.displayEnum(bitsize=32)
+    k_name = k_cast_to_enum_value.displayEnum()
     matches = re.search(r'Key_(\w+)', k_name)
     if matches:
         k_name = matches.group(1)
@@ -677,7 +716,7 @@ def qdump__QKeyEvent(d, value):
             # Add a sub-item with the enum name and value.
             with SubItem(d, '[{}]'.format(k_type_name)):
                 k_cast_to_enum_value = k.cast(k_type_name)
-                d.putValue(k_cast_to_enum_value.displayEnum('0x%04x', bitsize=32))
+                d.putValue(k_cast_to_enum_value.displayEnum('0x%04x'))
                 d.putType(k_type_name)
 
             # Show the rest of the class fields as usual.
@@ -874,10 +913,11 @@ def qdump__QFiniteStack(d, value):
 
 
 def qdump__QFlags(d, value):
-    i = value.split('{int}')[0]
     enumType = value.type[0]
-    v = i.cast(enumType.name)
-    d.putValue(v.displayEnum('0x%04x', bitsize=32))
+    v = value.cast(enumType.name)
+    size = enumType.size()
+    # One byte is 2 hex digits
+    d.putValue(v.displayEnum(f'0x%0{2 * size}x'))
 
 
 def qform__QHash():
@@ -1349,7 +1389,10 @@ def qdumpHelper_Qt6_QMap(d, value, keyType, valueType):
     if d_ptr == 0:
         d.putItemCount(0)
         return
-    m = value['d']['d']['m']
+    if d.qtVersionAtLeast(0x060900):
+        m = value['d']['d']['ptr']['m']
+    else:
+        m = value['d']['d']['m']
     d.putItem(m)
     d.putBetterType('@QMap<%s, %s>' % (keyType.name, valueType.name))
 
@@ -1380,7 +1423,10 @@ def qdumpHelper_Qt6_QMultiMap(d, value, keyType, valueType):
     if d_ptr == 0:
         d.putItemCount(0)
         return
-    m = value['d']['d']['m']
+    if d.qtVersionAtLeast(0x060900):
+        m = value['d']['d']['ptr']['m']
+    else:
+        m = value['d']['d']['m']
     d.putItem(m)
     d.putBetterType('@QMultiMap<%s, %s>' % (keyType.name, valueType.name))
 

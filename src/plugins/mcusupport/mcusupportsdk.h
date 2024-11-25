@@ -5,7 +5,8 @@
 
 #include "mcusupport_global.h"
 #include "settingshandler.h"
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 
 namespace McuSupport::Internal {
 

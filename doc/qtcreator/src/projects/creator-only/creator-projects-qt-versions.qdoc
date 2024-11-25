@@ -31,7 +31,7 @@
 
     \section1 Register installed Qt versions
 
-    You can link to a Qt that \QOI installed to
+    You can link to a Qt that \l{Get and Install Qt}{\QOI} installed to
     automatically detect the installed Qt versions. However, you cannot link
     to a Qt that the system installed with some other package
     manager, such as your Linux distribution, brew on \macos, or Chocolatey on

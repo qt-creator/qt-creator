@@ -739,7 +739,7 @@ public:
     Utils::expected_str<QString> renameWorkspace(const QString &originalFileName,
                                                  const QString &newName);
 
-    Utils::expected_str<void> resetWorkspacePreset(const QString &fileName);
+    Utils::Result resetWorkspacePreset(const QString &fileName);
 
     /**
      * \brief Save the currently active workspace.

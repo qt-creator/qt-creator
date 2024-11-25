@@ -669,7 +669,11 @@ QFuture<std::shared_ptr<CppElement>> CppElementEvaluator::asyncExecute(
 void CppElementEvaluator::execute()
 {
     d->m_functor.clear();
-    exec(std::ref(d->m_functor), std::bind(&FromGuiFunctor::syncExec, &d->m_functor, _1, _2, _3), false);
+    const auto execFunction = [this](const CPlusPlus::Snapshot &snapshot,
+        const CPlusPlus::LookupItem &lookupItem, const CPlusPlus::LookupContext &lookupContext) {
+        return d->m_functor.syncExec(snapshot, lookupItem, lookupContext);
+    };
+    exec(std::ref(d->m_functor), execFunction, false);
 }
 
 const std::shared_ptr<CppElement> &CppElementEvaluator::cppElement() const

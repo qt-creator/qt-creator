@@ -6,8 +6,6 @@
 #include "common.h"
 #include "mesonpluginconstants.h"
 
-#include <utils/fileutils.h>
-
 #include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>

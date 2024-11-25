@@ -7,7 +7,6 @@
 #include "easingcurve.h"
 #include "timelineactions.h"
 #include "timelineconstants.h"
-#include "timelinecontext.h"
 #include "timelinewidget.h"
 
 #include "timelinegraphicsscene.h"
@@ -35,10 +34,6 @@
 #include <qmltimelinekeyframegroup.h>
 
 #include <coreplugin/icore.h>
-
-#include <utils/qtcassert.h>
-
-#include <designmodecontext.h>
 
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
@@ -668,12 +663,8 @@ void TimelineView::registerActions()
 
 TimelineWidget *TimelineView::createWidget()
 {
-    if (!m_timelineWidget) {
+    if (!m_timelineWidget)
         m_timelineWidget = new TimelineWidget(this);
-
-        auto *timelineContext = new TimelineContext(m_timelineWidget);
-        Core::ICore::addContextObject(timelineContext);
-    }
 
     return m_timelineWidget;
 }

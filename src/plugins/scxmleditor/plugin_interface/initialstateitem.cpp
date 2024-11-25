@@ -9,7 +9,9 @@
 
 #include <QByteArray>
 #include <QDataStream>
+#include <QGraphicsScene>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -77,9 +79,9 @@ void InitialStateItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setOpacity(getOpacity());
 
-    m_pen.setColor(overlapping() ? qRgb(0xff, 0x00, 0x60) : qRgb(0x45, 0x45, 0x45));
+    QPalette::ColorGroup group = overlapping() ? QPalette::Active : QPalette::Inactive;
+    m_pen.setColor(scene()->palette().color(group, QPalette::WindowText));
     painter->setPen(m_pen);
-    painter->setBrush(QColor(0x4d, 0x4d, 0x4d));
     painter->drawEllipse(boundingRect().center(), m_size, m_size);
 
     painter->restore();

@@ -100,6 +100,19 @@ public:
         }
     }
 
+    void destroyEditor(QWidget *editor, const QModelIndex &index) const final
+    {
+        // QTCREATORBUG-30926
+        for (QWidget *p = editor->parentWidget(); p; p = p->parentWidget()) {
+            if (qobject_cast<ProjectTreeWidget *>(p)) {
+                p->setFocus();
+                break;
+            }
+        }
+
+        QStyledItemDelegate::destroyEditor(editor, index);
+    }
+
 private:
     ProgressIndicatorPainter *findOrCreateIndicatorPainter(const QModelIndex &index) const
     {
@@ -142,11 +155,8 @@ public:
         setDragDropMode(QAbstractItemView::DragDrop);
         viewport()->setAcceptDrops(true);
         setDropIndicatorShown(true);
-        auto context = new IContext(this);
-        context->setContext(Context(ProjectExplorer::Constants::C_PROJECT_TREE));
-        context->setWidget(this);
 
-        ICore::addContextObject(context);
+        IContext::attach(this, Context(ProjectExplorer::Constants::C_PROJECT_TREE));
 
         connect(this, &ProjectTreeView::expanded,
                 this, &ProjectTreeView::invalidateSize);

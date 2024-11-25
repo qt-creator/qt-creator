@@ -1,6 +1,8 @@
 add_qtc_plugin(Android
   DEPENDS QmlDebug Qt::Xml LanguageServerProtocol
   PLUGIN_DEPENDS Core Debugger ProjectExplorer QtSupport LanguageClient
+  LONG_DESCRIPTION_MD plugindescription.md
+  LICENSE_MD LICENSE.md
   SOURCES
     android.qrc
     androidtr.h
@@ -16,20 +18,14 @@ add_qtc_plugin(Android
     androidextralibrarylistmodel.cpp androidextralibrarylistmodel.h
     androidglobal.h
     androidmanager.cpp androidmanager.h
-    androidmanifestdocument.cpp androidmanifestdocument.h
     androidmanifesteditor.cpp androidmanifesteditor.h
-    androidmanifesteditorfactory.cpp androidmanifesteditorfactory.h
-    androidmanifesteditorwidget.cpp androidmanifesteditorwidget.h
     androidmanifesteditoriconwidget.cpp androidmanifesteditoriconwidget.h
     androidmanifesteditoriconcontainerwidget.cpp androidmanifesteditoriconcontainerwidget.h
     androidpackageinstallationstep.cpp androidpackageinstallationstep.h
     androidplugin.cpp
-    androidpotentialkit.cpp androidpotentialkit.h
-    androidqmlpreviewworker.cpp androidqmlpreviewworker.h
     androidqmltoolingsupport.cpp androidqmltoolingsupport.h
     androidqtversion.cpp androidqtversion.h
     androidrunconfiguration.cpp androidrunconfiguration.h
-    androidruncontrol.cpp androidruncontrol.h
     androidrunner.cpp androidrunner.h
     androidrunnerworker.cpp androidrunnerworker.h
     androidsdkdownloader.cpp androidsdkdownloader.h
@@ -49,7 +45,6 @@ add_qtc_plugin(Android
     javalanguageserver.cpp javalanguageserver.h
     javaparser.cpp javaparser.h
     splashscreencontainerwidget.cpp splashscreencontainerwidget.h
-    splashscreenwidget.cpp splashscreenwidget.h
     sdkmanageroutputparser.cpp sdkmanageroutputparser.h
 )
 

@@ -131,8 +131,6 @@ bool GnuMakeParser::hasFatalErrors() const
 #ifdef WITH_TESTS
 #   include <QTest>
 
-#   include <QUuid>
-
 #   include "outputparser_test.h"
 #   include "projectexplorer_test.h"
 

@@ -893,7 +893,7 @@ public:
         return text() == m_provider->needle();
     }
 
-    void applyContextualContent(TextDocumentManipulatorInterface &, int) const override
+    void applyContextualContent(TextEditorWidget *, int) const override
     {
         QTC_ASSERT(m_provider->handler(), return);
         m_provider->handler()->handleReplay(text().mid(m_provider->needle().size()));
@@ -1678,7 +1678,7 @@ void FakeVimPlugin::editorOpened(IEditor *editor)
     });
 
     handler->findNextRequested.set([](bool reverse) {
-        triggerAction(reverse ? Core::Constants::FIND_PREVIOUS : Core::Constants::FIND_NEXT);
+        triggerAction(reverse ? Id(Core::Constants::FIND_PREVIOUS) : Id(Core::Constants::FIND_NEXT));
     });
 
     handler->foldToggle.set([this, handler](int depth) {

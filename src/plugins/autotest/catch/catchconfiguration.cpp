@@ -76,7 +76,7 @@ QStringList CatchConfiguration::argumentsForTestRunner(QStringList *omitted) con
     QStringList arguments;
     if (testCaseCount())
         arguments << "\"" + testCases().join("\", \"") + "\"";
-    arguments << "--reporter" << "xml";
+    arguments << "--reporter" << "xml" << "--durations" << "yes";
 
     if (testSettings().processArgs()) {
         arguments << filterInterfering(runnable().command.arguments().split(

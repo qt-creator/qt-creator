@@ -106,7 +106,7 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
                                         const QVariant &value)
 {
     // Vector*D values need to be split into their subcomponents
-    if (value.typeId() == QVariant::Vector2D) {
+    if (value.typeId() == QMetaType::QVector2D) {
         const char *suffix[2] = {"_x", "_y"};
         auto vecValue = value.value<QVector2D>();
         for (int i = 0; i < 2; ++i) {
@@ -117,7 +117,7 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.typeId() == QVariant::Vector3D) {
+    } else if (value.typeId() == QMetaType::QVector3D) {
         const char *suffix[3] = {"_x", "_y", "_z"};
         auto vecValue = value.value<QVector3D>();
         for (int i = 0; i < 3; ++i) {
@@ -128,7 +128,7 @@ void MaterialEditorQmlBackend::setValue(const QmlObjectNode &,
             if (propertyValue)
                 propertyValue->setValue(QVariant(vecValue[i]));
         }
-    } else if (value.typeId() == QVariant::Vector4D) {
+    } else if (value.typeId() == QMetaType::QVector4D) {
         const char *suffix[4] = {"_x", "_y", "_z", "_w"};
         auto vecValue = value.value<QVector4D>();
         for (int i = 0; i < 4; ++i) {

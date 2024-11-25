@@ -17,7 +17,6 @@
 #include <QList>
 #include <QListWidget>
 #include <QPushButton>
-#include <QUuid>
 #include <QVBoxLayout>
 
 namespace ProjectExplorer {
@@ -55,7 +54,7 @@ public:
             if (dlg.exec() != QDialog::Accepted)
                 return;
             CustomParserSettings newParser = dlg.settings();
-            newParser.id = Utils::Id::fromString(QUuid::createUuid().toString());
+            newParser.id = Utils::Id::generate();
             newParser.displayName = Tr::tr("New Parser");
             m_customParsers << newParser;
             resetListView();

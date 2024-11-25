@@ -60,10 +60,10 @@ EnvironmentItems Environment::diff(const Environment &other, bool checkAppendPre
 Environment::FindResult Environment::find(const QString &name) const
 {
     const NameValueDictionary &dict = resolved();
-    const auto it = dict.constFind(name);
-    if (it == dict.constEnd())
+    const auto it = dict.find(name);
+    if (it == dict.end())
         return {};
-     return Entry{it.key().name, it.value().first, it.value().second};
+    return Entry{it.key(), it.value(), it.enabled()};
 }
 
 void Environment::forEachEntry(const std::function<void(const QString &, const QString &, bool)> &callBack) const
@@ -124,11 +124,10 @@ QStringList Environment::toStringList() const
 
 QProcessEnvironment Environment::toProcessEnvironment() const
 {
-    const NameValueDictionary &dict = resolved();
     QProcessEnvironment result;
-    for (auto it = dict.m_values.constBegin(); it != dict.m_values.constEnd(); ++it) {
-        if (it.value().second)
-            result.insert(it.key().name, expandedValueForKey(dict.key(it)));
+    for (const auto &[key, _, enabled] : resolved()) {
+        if (enabled)
+            result.insert(key, expandedValueForKey(key));
     }
     return result;
 }
@@ -209,6 +208,12 @@ Environment Environment::systemEnvironment()
     return *staticSystemEnvironment();
 }
 
+const Environment &Environment::originalSystemEnvironment()
+{
+    static const Environment env(QProcessEnvironment::systemEnvironment().toStringList());
+    return env;
+}
+
 void Environment::setupEnglishOutput()
 {
     addItem(Item{std::in_place_index_t<SetupEnglishOutput>()});
@@ -239,8 +244,24 @@ FilePaths Environment::path() const
 
 FilePaths Environment::pathListValue(const QString &varName) const
 {
-    const QStringList pathComponents = expandedValueForKey(varName).split(
-        OsSpecificAspects::pathListSeparator(osType()), Qt::SkipEmptyParts);
+    return pathListFromValue(expandedValueForKey(varName), osType());
+}
+
+void Environment::setPathListValue(const QString &varName, const FilePaths &paths)
+{
+    set(varName, valueFromPathList(paths, osType()));
+}
+
+QString Environment::valueFromPathList(const FilePaths &paths, OsType osType)
+{
+    return transform(paths, &FilePath::toUserOutput)
+        .join(OsSpecificAspects::pathListSeparator(osType));
+}
+
+FilePaths Environment::pathListFromValue(const QString &value, OsType osType)
+{
+    const QStringList pathComponents
+        = value.split(OsSpecificAspects::pathListSeparator(osType), Qt::SkipEmptyParts);
     return transform(pathComponents, &FilePath::fromUserInput);
 }
 
@@ -338,7 +359,7 @@ QString Environment::expandVariables(const QString &input) const
 
 FilePath Environment::expandVariables(const FilePath &variables) const
 {
-    return FilePath::fromString(expandVariables(variables.toString()));
+    return FilePath::fromUserInput(expandVariables(variables.toString()));
 }
 
 QStringList Environment::expandVariables(const QStringList &variables) const

@@ -40,7 +40,7 @@ public:
     KeywordsAssistProposalItem(bool isFunction);
 
     bool prematurelyApplies(const QChar &c) const final;
-    void applyContextualContent(TextDocumentManipulatorInterface &manipulator, int basePosition) const final;
+    void applyContextualContent(TextEditorWidget *editorWidget, int basePosition) const final;
 private:
     bool m_isFunction;
 };

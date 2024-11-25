@@ -39,10 +39,10 @@ class CompilationDatabaseProjectManagerPlugin final : public ExtensionSystem::IP
         setupCompilationDatabaseEditor();
         setupCompilationDatabaseBuildConfiguration();
 
-        Utils::FileIconProvider::registerIconOverlayForFilename(Utils::Icons::PROJECT.imageFilePath().toString(),
-                                                                COMPILE_COMMANDS_JSON);
         Utils::FileIconProvider::registerIconOverlayForFilename(
-            Utils::Icons::PROJECT.imageFilePath().toString(),
+            Utils::Icons::PROJECT.imageFilePath().path(), COMPILE_COMMANDS_JSON);
+        Utils::FileIconProvider::registerIconOverlayForFilename(
+            Utils::Icons::PROJECT.imageFilePath().path(),
             QString(COMPILE_COMMANDS_JSON) + Constants::COMPILATIONDATABASEPROJECT_FILES_SUFFIX);
 
         ProjectManager::registerProjectType<CompilationDatabaseProject>(

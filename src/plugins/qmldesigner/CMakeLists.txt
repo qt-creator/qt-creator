@@ -85,7 +85,6 @@ add_qtc_plugin(QmlDesigner
     ${CMAKE_CURRENT_LIST_DIR}
     ${CMAKE_CURRENT_LIST_DIR}/components
   SOURCES
-    designmodecontext.cpp designmodecontext.h
     designmodewidget.cpp designmodewidget.h
     documentmanager.cpp documentmanager.h
     documentwarningwidget.cpp documentwarningwidget.h
@@ -625,7 +624,6 @@ extend_qtc_plugin(QmlDesigner
     timelineactions.cpp timelineactions.h
     timelineanimationform.cpp timelineanimationform.h
     timelineconstants.h
-    timelinecontext.cpp timelinecontext.h
     timelinecontrols.cpp timelinecontrols.h
     timelineform.cpp timelineform.h
     timelinegraphicslayout.cpp timelinegraphicslayout.h

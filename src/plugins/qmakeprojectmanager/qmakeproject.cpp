@@ -28,6 +28,8 @@
 #include <projectexplorer/devicesupport/idevice.h>
 #include <projectexplorer/extracompiler.h>
 #include <projectexplorer/headerpath.h>
+#include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectupdater.h>
@@ -68,8 +70,6 @@ using namespace Utils;
 namespace QmakeProjectManager {
 namespace Internal {
 
-const int UPDATE_INTERVAL = 3000;
-
 static Q_LOGGING_CATEGORY(qmakeBuildSystemLog, "qtc.qmake.buildsystem", QtWarningMsg);
 
 #define TRACE(msg)                                                   \
@@ -101,14 +101,13 @@ public:
         Q_UNUSED(type)
         return BehaviorSilent;
     }
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override
+    Result reload(ReloadFlag flag, ChangeType type) override
     {
-        Q_UNUSED(errorString)
         Q_UNUSED(flag)
         Q_UNUSED(type)
         if (m_priFile)
             m_priFile->scheduleUpdate();
-        return true;
+        return Result::Ok;
     }
 
     void setPriFile(QmakePriFile *priFile) { m_priFile = priFile; }
@@ -205,8 +204,6 @@ QmakeBuildSystem::QmakeBuildSystem(QmakeBuildConfiguration *bc)
     , m_qmakeVfs(new QMakeVfs)
     , m_cppCodeModelUpdater(ProjectUpdaterFactory::createCppProjectUpdater())
 {
-    setParseDelay(0);
-
     m_rootProFile = std::make_unique<QmakeProFile>(this, projectFilePath());
 
     connect(BuildManager::instance(), &BuildManager::buildQueueFinished,
@@ -324,7 +321,7 @@ void QmakeBuildSystem::updateCppCodeModel()
         warnOnToolChainMismatch(pro);
         RawProjectPart rpp;
         rpp.setDisplayName(pro->displayName());
-        rpp.setProjectFileLocation(pro->filePath().toString());
+        rpp.setProjectFileLocation(pro->filePath());
         rpp.setBuildSystemTarget(pro->filePath().toString());
         switch (pro->projectType()) {
         case ProjectType::ApplicationTemplate:
@@ -589,10 +586,11 @@ void QmakeBuildSystem::startAsyncTimer(QmakeProFile::AsyncUpdateDelay delay)
         return;
     }
 
-    const int interval = qMin(parseDelay(),
-                              delay == QmakeProFile::ParseLater ? UPDATE_INTERVAL : 0);
-    TRACE("interval: " << interval);
-    requestParseWithCustomDelay(interval);
+    TRACE("delay: " << delay);
+    switch (delay) {
+    case QmakeProFile::ParseNow: requestParse(); break;
+    case QmakeProFile::ParseLater: requestDelayedParse(); break;
+    }
 }
 
 void QmakeBuildSystem::incrementPendingEvaluateFutures()
@@ -667,7 +665,6 @@ bool QmakeBuildSystem::wasEvaluateCanceled()
 void QmakeBuildSystem::asyncUpdate()
 {
     TaskHub::clearTasks(ProjectExplorer::Constants::TASK_CATEGORY_BUILDSYSTEM);
-    setParseDelay(UPDATE_INTERVAL);
     TRACE("");
 
     if (m_invalidateQmakeVfsContents) {
@@ -946,7 +943,7 @@ void QmakeBuildSystem::activeTargetWasChanged(Target *t)
         return;
 
     m_invalidateQmakeVfsContents = true;
-    scheduleUpdateAll(QmakeProFile::ParseLater);
+    scheduleUpdateAllNowOrLater();
 }
 
 static void notifyChangedHelper(const FilePath &fileName, QmakeProFile *file)

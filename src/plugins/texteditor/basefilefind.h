@@ -76,6 +76,11 @@ public:
     bool isEnabled() const;
     void setEnabled(bool enabled);
 
+    virtual Utils::FindFlags supportedFindFlags() const
+    {
+        return Utils::FindCaseSensitively | Utils::FindRegularExpression | Utils::FindWholeWords;
+    }
+
 signals:
     void enabledChanged(bool enabled);
 
@@ -100,6 +105,11 @@ public:
     /* returns the list of unique files that were passed in items */
     static Utils::FilePaths replaceAll(const QString &txt, const Utils::SearchResultItems &items,
                                        bool preserveCase = false);
+
+    Utils::FindFlags supportedFindFlags() const override
+    {
+        return currentSearchEngine()->supportedFindFlags();
+    }
 
 protected:
     void setSearchDir(const Utils::FilePath &dir);

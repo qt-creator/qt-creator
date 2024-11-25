@@ -27,12 +27,13 @@
 #include "qmt/project_controller/projectcontroller.h"
 #include "qmt/project/project.h"
 
-#include <extensionsystem/pluginmanager.h>
+#include <coreplugin/editormanager/editormanager.h>
+#include <coreplugin/editormanager/ieditorfactory.h>
+#include <coreplugin/icore.h>
 #include <cppeditor/cpplocatordata.h>
 #include <cppeditor/indexitem.h>
 #include <cppeditor/searchsymbols.h>
-#include <coreplugin/editormanager/editormanager.h>
-#include <coreplugin/icore.h>
+#include <extensionsystem/pluginmanager.h>
 #include <utils/qtcassert.h>
 
 #include <QMenu>

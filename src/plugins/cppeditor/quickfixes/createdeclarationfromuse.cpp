@@ -25,7 +25,9 @@
 #include <QtTest>
 #endif
 
+#include <memory>
 #include <variant>
+#include <vector>
 
 using namespace CPlusPlus;
 using namespace ProjectExplorer;
@@ -72,16 +74,15 @@ static QString declFromExpr(
 
     Function func(file->cppDocument()->translationUnit(), 0, varName->name);
     func.setConst(makeConst);
+    std::vector<std::unique_ptr<Argument>> argsMgr;
     for (ExpressionListAST *it = call->expression_list; it; it = it->next) {
-        Argument *const arg = new Argument(nullptr, 0, nullptr);
+        argsMgr.push_back(std::make_unique<Argument>(nullptr, 0, nullptr));
+        Argument * const arg = argsMgr.back().get();
         arg->setType(getTypeOfExpr(it->value));
         func.addMember(arg);
     }
     return oo.prettyType(type) + ' ' + oo.prettyType(func.type(), varName->name);
 }
-
-
-
 
 class InsertDeclOperation: public CppQuickFixOperation
 {
@@ -448,7 +449,7 @@ private:
             if ((*it)->asCompoundStatement())
                 return;
             if ((*it)->asExpressionStatement()) {
-                returnTypeOrExpr = FullySpecifiedType(new VoidType);
+                returnTypeOrExpr = FullySpecifiedType(&VoidType::instance);
                 break;
             }
             if (const auto binExpr = (*it)->asBinaryExpression()) {

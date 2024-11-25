@@ -117,11 +117,15 @@ static bool isSignificant(ResultType type)
 }
 
 void TestResultItem::updateResult(bool &changed, ResultType addedChildType,
-                                  const std::optional<SummaryEvaluation> &summary)
+                                  const std::optional<SummaryEvaluation> &summary,
+                                  const std::optional<QString> duration)
 {
     changed = false;
     if (m_testResult.result() != ResultType::TestStart)
         return;
+
+    if (addedChildType == ResultType::TestEnd && duration)
+        m_testResult.setDuration(*duration);
 
     if (!isSignificant(addedChildType) || (addedChildType == ResultType::TestStart && !summary))
         return;
@@ -234,6 +238,10 @@ TestResultModel::TestResultModel(QObject *parent)
             this, [this](const QString &id, const QHash<ResultType, int> &summary){
         m_reportedSummary.insert(id, summary);
     });
+    connect(TestRunner::instance(), &TestRunner::reportDuration,
+            this, [this](int duration){
+        m_reportedDurations.emplace(m_reportedDurations.value_or(0) + duration);
+    });
 }
 
 void TestResultModel::updateParent(const TestResultItem *item)
@@ -244,7 +252,8 @@ void TestResultModel::updateParent(const TestResultItem *item)
     if (parentItem == rootItem()) // do not update invisible root item
         return;
     bool changed = false;
-    parentItem->updateResult(changed, item->testResult().result(), item->summaryResult());
+    parentItem->updateResult(changed, item->testResult().result(), item->summaryResult(),
+                             item->testResult().duration());
     bool changedType = parentItem->updateDescendantTypes(item->testResult().result());
     if (!changed && !changedType)
         return;
@@ -349,6 +358,7 @@ void TestResultModel::clearTestResults()
     clear();
     m_testResultCount.clear();
     m_reportedSummary.clear();
+    m_reportedDurations.reset();
     m_disabled = 0;
     m_fileNames.clear();
     m_maxWidthOfFileName = 0;
@@ -454,6 +464,8 @@ TestResultFilterModel::TestResultFilterModel(TestResultModel *sourceModel, QObje
 {
     setSourceModel(sourceModel);
     enableAllResultTypes(true);
+    if (!testSettings().omitInternalMsg())
+        toggleTestResultType(ResultType::MessageInternal);
 }
 
 void TestResultFilterModel::enableAllResultTypes(bool enabled)
@@ -515,6 +527,24 @@ TestResult TestResultFilterModel::testResult(const QModelIndex &index) const
 TestResultItem *TestResultFilterModel::itemForIndex(const QModelIndex &index) const
 {
     return index.isValid() ? m_sourceModel->itemForIndex(mapToSource(index)) : nullptr;
+}
+
+const QVariantList TestResultFilterModel::enabledFiltersAsSetting() const
+{
+    return Utils::transform(Utils::toList(m_enabled),
+                            [](ResultType rt) { return QVariant::fromValue(int(rt)); });
+}
+
+void TestResultFilterModel::setEnabledFiltersFromSetting(const QVariantList &enabled)
+{
+    m_enabled.clear();
+    if (!enabled.isEmpty()) {
+        for (const QVariant &variant : enabled)
+            m_enabled << ResultType(variant.value<int>());
+    }
+    // when misused: ensure non-discardable filters are enabled
+    m_enabled << ResultType::MessageFatal << ResultType::MessageSystem << ResultType::MessageError;
+    invalidateFilter();
 }
 
 bool TestResultFilterModel::filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const

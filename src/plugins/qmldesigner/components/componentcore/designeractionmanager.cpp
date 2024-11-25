@@ -53,6 +53,8 @@
 
 #include <exception>
 
+using namespace Utils;
+
 namespace QmlDesigner {
 
 inline static QString captionForModelNode(const ModelNode &modelNode)
@@ -125,9 +127,8 @@ void DesignerActionManager::polishActions() const
 
     for (auto *action : actions) {
         if (!action->menuId().isEmpty()) {
-            const QString id = QString("QmlDesigner.%1").arg(QString::fromLatin1(action->menuId()));
-
-            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id.toLatin1().constData(), qmlDesignerUIContext);
+            const Id id = Id("QmlDesigner.").withSuffix(action->menuId());
+            Core::Command *cmd = Core::ActionManager::registerAction(action->action(), id, qmlDesignerUIContext);
 
             cmd->setDefaultKeySequence(action->action()->shortcut());
             cmd->setDescription(action->action()->toolTip());

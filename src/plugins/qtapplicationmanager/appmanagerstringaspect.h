@@ -53,6 +53,16 @@ public:
     ~AppManagerCustomizeAspect() final = default;
 };
 
+class AppManagerRestartIfRunningAspect final : public Utils::BoolAspect
+{
+    Q_OBJECT
+
+public:
+    AppManagerRestartIfRunningAspect(Utils::AspectContainer *container = nullptr);
+
+    ~AppManagerRestartIfRunningAspect() final = default;
+};
+
 class AppManagerControllerAspect final : public Utils::FilePathAspect
 {
     Q_OBJECT

@@ -4,8 +4,10 @@
 #include "cornergrabberitem.h"
 
 #include <QCursor>
+#include <QGraphicsScene>
 #include <QGraphicsSceneMouseEvent>
 #include <QPainter>
+#include <QPalette>
 
 using namespace ScxmlEditor::PluginInterface;
 
@@ -60,7 +62,8 @@ void CornerGrabberItem::paint(QPainter *painter, const QStyleOptionGraphicsItem 
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing, true);
     painter->setPen(Qt::NoPen);
-    painter->setBrush(isEnabled() ? QColor(0x62, 0x62, 0xf9) : QColor(0x12, 0x12, 0x12));
+    QPalette::ColorGroup group = isEnabled() ? QPalette::Inactive : QPalette::Disabled;
+    painter->setBrush(scene()->palette().brush(group, QPalette::Highlight));
 
     if (m_grabberType == Square)
         painter->drawRect(m_drawingRect);

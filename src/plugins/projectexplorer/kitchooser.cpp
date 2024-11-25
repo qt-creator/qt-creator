@@ -3,6 +3,7 @@
 
 #include "kitchooser.h"
 
+#include "kitaspect.h"
 #include "kitmanager.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorertr.h"

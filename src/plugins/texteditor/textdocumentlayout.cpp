@@ -437,7 +437,7 @@ int TextDocumentLayout::braceDepth(const QTextBlock &block)
     int state = block.userState();
     if (state == -1)
         return 0;
-    return state >> 8;
+    return (state >> 8) & 0xff;
 }
 
 void TextDocumentLayout::setBraceDepth(QTextBlock &block, int depth)
@@ -543,11 +543,26 @@ TextSuggestion *TextDocumentLayout::suggestion(const QTextBlock &block)
     return nullptr;
 }
 
+void TextDocumentLayout::setAttributeState(const QTextBlock &block, quint8 attrState)
+{
+    if (TextBlockUserData * const data = textUserData(block))
+        data->setAttrState(attrState);
+    else if (attrState)
+        userData(block)->setAttrState(attrState);
+}
+
+quint8 TextDocumentLayout::attributeState(const QTextBlock &block)
+{
+    if (TextBlockUserData *userData = textUserData(block))
+        return userData->attrState();
+    return 0;
+}
+
 void TextDocumentLayout::updateSuggestionFormats(const QTextBlock &block,
                                                  const FontSettings &fontSettings)
 {
     if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
-        QTextDocument *suggestionDoc = suggestion->document();
+        QTextDocument *suggestionDoc = suggestion->replacementDocument();
         const QTextCharFormat replacementFormat = fontSettings.toTextCharFormat(
             TextStyles{C_TEXT, {C_DISABLED_CODE}});
         QList<QTextLayout::FormatRange> formats = block.layout()->formats();
@@ -593,32 +608,12 @@ void TextDocumentLayout::updateSuggestionFormats(const QTextBlock &block,
     }
 }
 
-bool TextDocumentLayout::updateSuggestion(const QTextBlock &block,
-                                          int position,
-                                          const FontSettings &fontSettings)
-{
-    if (TextSuggestion *suggestion = TextDocumentLayout::suggestion(block)) {
-        auto positionInBlock = position - block.position();
-        if (position < suggestion->position())
-            return false;
-        const QString start = block.text().left(positionInBlock);
-        const QString end = block.text().mid(positionInBlock);
-        const QString replacement = suggestion->document()->firstBlock().text();
-        if (replacement.startsWith(start) && replacement.indexOf(end, start.size()) >= 0) {
-            suggestion->setCurrentPosition(position);
-            TextDocumentLayout::updateSuggestionFormats(block, fontSettings);
-            return true;
-        }
-    }
-    return false;
-}
-
 void TextDocumentLayout::requestExtraAreaUpdate()
 {
     emit updateExtraArea();
 }
 
-void TextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
+void TextDocumentLayout::doFoldOrUnfold(const QTextBlock &block, bool unfold, bool recursive)
 {
     if (!canFold(block))
         return;
@@ -628,7 +623,10 @@ void TextDocumentLayout::doFoldOrUnfold(const QTextBlock& block, bool unfold)
     while (b.isValid() && foldingIndent(b) > indent && (unfold || b.next().isValid())) {
         b.setVisible(unfold);
         b.setLineCount(unfold? qMax(1, b.layout()->lineCount()) : 0);
-        if (unfold) { // do not unfold folded sub-blocks
+        if (recursive) {
+            if ((unfold && isFolded(b)) || (!unfold && canFold(b)))
+                setFolded(b, !unfold);
+        } else if (unfold) { // do not unfold folded sub-blocks
             if (isFolded(b) && b.next().isValid()) {
                 int jndent = foldingIndent(b);
                 b = b.next();
@@ -768,7 +766,7 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         // since multiple code paths expects that we have a valid block layout after requesting the
         // block bounding rect explicitly create that layout here
         ensureBlockLayout(block);
-        return replacementBoundingRect(suggestion->document());
+        return replacementBoundingRect(suggestion->replacementDocument());
     }
 
     QRectF boundingRect = QPlainTextDocumentLayout::blockBoundingRect(block);
@@ -779,8 +777,15 @@ QRectF TextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
         boundingRect.setHeight(TextEditorSettings::fontSettings().lineSpacing());
     }
 
-    if (TextBlockUserData *userData = textUserData(block))
-        boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight());
+    if (TextBlockUserData *userData = textUserData(block)) {
+        int additionalHeight = 0;
+        for (const QPointer<QWidget> &wdgt : userData->embeddedWidgets()) {
+            if (wdgt && wdgt->isVisible())
+                additionalHeight += wdgt->height();
+        }
+        boundingRect.adjust(0, 0, 0, userData->additionalAnnotationHeight() + additionalHeight);
+    }
+
     return boundingRect;
 }
 
@@ -858,14 +863,6 @@ void insertSorted(Parentheses &list, const Parenthesis &elem)
             [](const auto &p1, const auto &p2) { return p1.pos < p2.pos; });
     list.insert(it, elem);
 }
-
-TextSuggestion::TextSuggestion()
-{
-    m_replacementDocument.setDocumentLayout(new TextDocumentLayout(&m_replacementDocument));
-    m_replacementDocument.setDocumentMargin(0);
-}
-
-TextSuggestion::~TextSuggestion() = default;
 
 } // TextEditor
 

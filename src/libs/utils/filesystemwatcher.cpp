@@ -46,7 +46,7 @@ static inline quint64 getFileLimit()
     \section1 Mac OS Specifics
 
     There is a hard limit on the number of file handles that can be open at
-    one point per process on Mac OS X (e.g. it is 2560 on Mac OS X Snow Leopard
+    one point per process on macOS (e.g. it is 2560 on Mac OS X Snow Leopard
     Server, as shown by \c{ulimit -a}). Opening one or several \c .qmlproject's
     with a large number of directories to watch easily exceeds this. The
     results are crashes later on, e.g. when threads cannot be created any more.

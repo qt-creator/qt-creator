@@ -109,7 +109,7 @@ bool BoostTestParser::processDocument(QPromise<TestParseResultPtr> &promise,
     if (projectParts.isEmpty()) // happens if shutting down while parsing
         return false;
     const CppEditor::ProjectPart::ConstPtr projectPart = projectParts.first();
-    const auto projectFile = FilePath::fromString(projectPart->projectFile);
+    const FilePath &projectFile = projectPart->projectFile;
     const QByteArray &fileContent = getFileContent(fileName);
 
     BoostCodeParser codeParser(fileContent, projectPart->languageFeatures, doc, m_cppSnapshot);

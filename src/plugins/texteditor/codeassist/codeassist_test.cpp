@@ -46,7 +46,7 @@ public:
 class OpenEditorItem final : public TestProposalItem
 {
 public:
-    void apply(TextDocumentManipulatorInterface &, int) const final
+    void apply(TextEditorWidget *, int) const final
     {
         m_openedEditor = Core::EditorManager::openEditor(m_filePath,
                                                          Core::Constants::K_DEFAULT_TEXT_EDITOR_ID);

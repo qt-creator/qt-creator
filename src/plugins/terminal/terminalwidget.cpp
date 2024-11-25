@@ -52,15 +52,13 @@ using namespace Utils::Terminal;
 using namespace Core;
 
 namespace Terminal {
+
 TerminalWidget::TerminalWidget(QWidget *parent, const OpenTerminalParameters &openParameters)
     : Core::SearchableTerminal(parent)
     , m_context(Utils::Id("TerminalWidget_").withSuffix(QString::number((uintptr_t) this)))
     , m_openParameters(openParameters)
 {
-    auto contextObj = new IContext(this);
-    contextObj->setWidget(this);
-    contextObj->setContext(m_context);
-    ICore::addContextObject(contextObj);
+    IContext::attach(this, m_context);
 
     setupFont();
     setupColors();

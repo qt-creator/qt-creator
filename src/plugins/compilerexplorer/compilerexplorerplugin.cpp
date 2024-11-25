@@ -15,8 +15,6 @@
 
 #include <extensionsystem/iplugin.h>
 
-#include <projectexplorer/jsonwizard/jsonwizardfactory.h>
-
 #include <utils/fsengine/fileiconprovider.h>
 
 using namespace Core;
@@ -32,7 +30,7 @@ class CompilerExplorerPlugin final : public ExtensionSystem::IPlugin
 public:
     void initialize() final
     {
-        static CompilerExplorer::EditorFactory ceEditorFactory;
+        setupCompilerExplorerEditor();
 
         FileIconProvider::registerIconForMimeType(QIcon(":/compilerexplorer/logos/ce.ico"),
                                                   "application/compiler-explorer");

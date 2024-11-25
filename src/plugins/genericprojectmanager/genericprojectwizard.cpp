@@ -6,6 +6,7 @@
 #include "genericprojectconstants.h"
 #include "genericprojectmanagertr.h"
 
+#include <coreplugin/basefilewizard.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/iwizardfactory.h>
 

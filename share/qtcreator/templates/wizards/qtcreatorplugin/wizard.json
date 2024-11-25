@@ -1,10 +1,10 @@
 {
     "version": 1,
-    "supportedProjectTypes": [ "Qt4ProjectManager.Qt4Project" ],
+    "supportedProjectTypes": [ "CMakeProjectManager.CMakeProject" ],
     "id": "R.QtCreatorPlugin",
     "category": "G.Library",
     "trDescription": "Creates a custom Qt Creator plugin.",
-    "trDisplayName": "Qt Creator Plugin",
+    "trDisplayName": "Qt Creator C++ Plugin",
     "trDisplayCategory": "Library",
     "icon": "qtcreatorplugin.png",
     "iconKind": "Themed",
@@ -134,7 +134,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{JS: !value('IsSubproject')}",
             "data": { "projectFilePath": "%{ProjectFile}" }
         },
         {
@@ -164,6 +163,14 @@
                 {
                     "source": "github_workflows_README.md",
                     "target": ".github/workflows/README.md"
+                },
+                {
+                    "source": "github_scripts_registerPlugin.js",
+                    "target": ".github/scripts/registerPlugin.js"
+                },
+                {
+                    "source": "github_scripts_plugin.json",
+                    "target": ".github/scripts/plugin.json"
                 },
                 {
                     "source": "myplugin.cpp",

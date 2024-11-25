@@ -16,7 +16,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/icon.h>
-#include <utils/fsengine/fileiconprovider.h>
+#include <utils/fileutils.h>
 #include <utils/mimeconstants.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcprocess.h>
@@ -32,6 +32,8 @@ using namespace CMakeProjectManager::Internal::FileApiDetails;
 namespace CMakeProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(cmakeLogger, "qtc.cmake.fileApiExtractor", QtWarningMsg);
+
+static const char QTC_RUNNABLE[] = "qtc_runnable";
 
 // --------------------------------------------------------------------
 // Helpers:
@@ -109,10 +111,12 @@ static CMakeFileResult extractCMakeFilesData(const QFuture<void> &cancelFuture,
         }
 
         auto node = std::make_unique<FileNode>(info.path, FileType::Project);
-        node->setIsGenerated(info.isGenerated
-                             && !info.isCMakeListsDotTxt); // CMakeLists.txt are never
-                                                           // generated, independent
-                                                           // what cmake thinks:-)
+        node->setIsGenerated(info.isGenerated);
+
+        // We will have the CMakeLists.txt file in the Target nodes as a child node.
+        // Except the root CMakeLists.txt file.
+        if (info.isCMakeListsDotTxt && info.path.parentDir() != sourceDirectory)
+            node->setIsGenerated(true);
 
         if (info.isCMakeListsDotTxt) {
             result.cmakeListNodes.emplace_back(std::move(node));
@@ -275,7 +279,8 @@ static CMakeBuildTarget toBuildTarget(const TargetDetails &t,
                                                          || f.fragment.contains("Qt6Gui"));
                                           });
 
-        ct.qtcRunnable = t.folderTargetProperty == "qtc_runnable";
+        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+        ct.qtcRunnable = t.folderTargetProperty == QTC_RUNNABLE;
 
         // Extract library directories for executables:
         for (const FragmentInfo &f : t.link.value().fragments) {
@@ -441,8 +446,7 @@ static RawProjectParts generateRawProjectParts(const QFuture<void> &cancelFuture
             }
 
             RawProjectPart rpp;
-            rpp.setProjectFileLocation(
-                t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT).toString());
+            rpp.setProjectFileLocation(t.sourceDir.pathAppended(Constants::CMAKE_LISTS_TXT));
             rpp.setBuildSystemTarget(t.name);
             const QString postfix = needPostfix ? QString("_%1_%2").arg(ci.language).arg(count)
                                                 : QString();
@@ -620,7 +624,8 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
     FolderNode *currentNode = targetRoot;
 
     if (!sourceGroupName.isEmpty()) {
-        const QStringList parts = sourceGroupName.split("\\");
+        static const QRegularExpression separators("(\\\\|/)");
+        const QStringList parts = sourceGroupName.split(separators);
 
         for (const QString &p : parts) {
             FolderNode *existingNode = currentNode->findChildFolderNode(
@@ -628,7 +633,6 @@ static FolderNode *createSourceGroupNode(const QString &sourceGroupName,
             if (!existingNode) {
                 auto node = createCMakeVFolder(sourceDirectory, Node::DefaultFolderPriority + 5, p);
                 node->setListInProject(false);
-                node->setIcon([] { return FileIconProvider::icon(QFileIconProvider::Folder); });
 
                 existingNode = node.get();
 
@@ -718,7 +722,9 @@ static void addCompileGroups(ProjectNode *targetRoot,
                                                              targetRoot);
         if (showSourceFolders) {
             FilePath baseDir = sourceDirectory.pathAppended(td.sourceGroups[i]);
-            if (!baseDir.exists())
+            const bool caseSensitiveMatch = baseDir.nativePath()
+                                            == baseDir.canonicalPath().nativePath();
+            if (!baseDir.exists() || !caseSensitiveMatch)
                 baseDir = sourceDirectory;
             insertNode->addNestedNodes(std::move(current), baseDir);
         } else {
@@ -761,7 +767,8 @@ static void addGeneratedFilesNode(ProjectNode *targetRoot, const FilePath &topLe
     addCMakeVFolder(targetRoot, buildDir, 10, Tr::tr("<Generated Files>"), std::move(nodes));
 }
 
-static void addTargets(const QFuture<void> &cancelFuture,
+static void addTargets(FolderNode *root,
+                       const QFuture<void> &cancelFuture,
                        const QHash<FilePath, ProjectNode *> &cmakeListsNodes,
                        const Configuration &config,
                        const std::vector<TargetDetails> &targetDetails,
@@ -772,13 +779,34 @@ static void addTargets(const QFuture<void> &cancelFuture,
     for (const TargetDetails &t : targetDetails)
         targetDetailsHash.insert(t.id, &t);
     const TargetDetails defaultTargetDetails;
-    auto getTargetDetails = [&targetDetailsHash, &defaultTargetDetails](const QString &id)
-            -> const TargetDetails & {
+    auto getTargetDetails = [&targetDetailsHash,
+                             &defaultTargetDetails](const QString &id) -> const TargetDetails & {
         auto it = targetDetailsHash.constFind(id);
         if (it != targetDetailsHash.constEnd())
             return *it.value();
         return defaultTargetDetails;
     };
+
+    auto createTargetNode = [](auto &cmakeListsNodes,
+                               const Utils::FilePath &dir,
+                               const QString &displayName) -> CMakeTargetNode * {
+        auto *cmln = cmakeListsNodes.value(dir);
+        QTC_ASSERT(cmln, return nullptr);
+
+        QString targetId = displayName;
+
+        CMakeTargetNode *tn = static_cast<CMakeTargetNode *>(
+            cmln->findNode([&targetId](const Node *n) { return n->buildKey() == targetId; }));
+        if (!tn) {
+            auto newNode = std::make_unique<CMakeTargetNode>(dir, displayName);
+            tn = newNode.get();
+            cmln->addNode(std::move(newNode));
+        }
+        tn->setDisplayName(displayName);
+        return tn;
+    };
+
+    QHash<FilePath, FolderNode *> folderNodes;
 
     for (const FileApiDetails::Target &t : config.targets) {
         if (cancelFuture.isCanceled())
@@ -786,9 +814,20 @@ static void addTargets(const QFuture<void> &cancelFuture,
 
         const TargetDetails &td = getTargetDetails(t.id);
 
+        CMakeTargetNode *tNode{nullptr};
         const FilePath dir = directorySourceDir(config, sourceDir, t.directory);
 
-        CMakeTargetNode *tNode = createTargetNode(cmakeListsNodes, dir, t.name);
+        // FIXME: remove the usage of "qtc_runnable" by parsing the CMake code instead
+        if (!td.folderTargetProperty.isEmpty() && td.folderTargetProperty != QTC_RUNNABLE) {
+            const FilePath folderDir = FilePath::fromString(td.folderTargetProperty);
+            if (!folderNodes.contains(folderDir))
+                folderNodes.insert(
+                    folderDir, createSourceGroupNode(td.folderTargetProperty, folderDir, root));
+
+            tNode = createTargetNode(folderNodes, folderDir, t.name);
+        } else {
+            tNode = createTargetNode(cmakeListsNodes, dir, t.name);
+        }
         QTC_ASSERT(tNode, continue);
 
         tNode->setTargetInformation(td.artifacts, td.type);
@@ -821,7 +860,8 @@ static std::unique_ptr<CMakeProjectNode> generateRootProjectNode(const QFuture<v
     if (cancelFuture.isCanceled())
         return {};
 
-    addTargets(cancelFuture,
+    addTargets(result.get(),
+               cancelFuture,
                cmakeListsNodes,
                data.codemodel,
                data.targetDetails,
@@ -874,13 +914,13 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
             QSet<std::pair<FilePath, int>> locations;
             auto dedup = [&locations](const Backtrace &bt) {
                 QVector<FolderNode::LocationInfo> result;
-                for (const FolderNode::LocationInfo &i : bt) {
+                Utils::reverseForeach(bt, [&](const FolderNode::LocationInfo &i) {
                     int count = locations.count();
                     locations.insert({i.path, i.line});
                     if (count != locations.count()) {
                         result.append(i);
                     }
-                }
+                });
                 return result;
             };
 
@@ -899,8 +939,55 @@ static void setupLocationInfoForTargets(const QFuture<void> &cancelFuture,
             result += dedupMulti(t.installDefinitions);
 
             folderNode->setLocationInfo(result);
+
+            if (!t.backtrace.isEmpty() && t.targetType != TargetType::UtilityType) {
+                auto cmakeDefinition = std::make_unique<FileNode>(
+                    t.backtrace.last().path, Node::fileTypeForFileName(t.backtrace.last().path));
+                cmakeDefinition->setLine(t.backtrace.last().line);
+                cmakeDefinition->setPriority(Node::DefaultProjectFilePriority);
+                folderNode->addNode(std::move(cmakeDefinition));
+            }
         }
     }
+}
+
+static void markCMakeModulesFromPrefixPathAsGenerated(FileApiQtcData &result)
+{
+    const QSet<FilePath> paths = [&result]() {
+        QSet<FilePath> paths;
+        for (const QByteArray var : {"CMAKE_PREFIX_PATH", "CMAKE_FIND_ROOT_PATH"}) {
+            const QStringList pathList = result.cache.stringValueOf(var).split(";");
+            for (const QString &path : pathList)
+                paths.insert(FilePath::fromUserInput(path));
+        }
+        return paths;
+    }();
+
+    if (!result.rootProjectNode)
+        return;
+
+    result.rootProjectNode->forEachGenericNode([&paths](Node *node) {
+        for (const FilePath &path : paths) {
+            if (node->path().isChildOf(path)) {
+                node->setIsGenerated(true);
+                break;
+            }
+        }
+    });
+}
+
+static void setSubprojectBuildSupport(FileApiQtcData &result)
+{
+    if (!result.rootProjectNode)
+        return;
+
+    result.rootProjectNode->forEachGenericNode([&](Node *node) {
+        if (auto cmakeListsNode = dynamic_cast<CMakeListsNode *>(node)) {
+            cmakeListsNode->setHasSubprojectBuildSupport(
+                result.cmakeGenerator.contains("Ninja")
+                || result.cmakeGenerator.contains("Makefiles"));
+        }
+    });
 }
 
 // --------------------------------------------------------------------
@@ -946,9 +1033,13 @@ FileApiQtcData extractData(const QFuture<void> &cancelFuture, FileApiData &input
         return {};
 
     result.ctestPath = input.replyFile.ctestExecutable;
+    result.cmakeGenerator = input.replyFile.generator;
     result.isMultiConfig = input.replyFile.isMultiConfig;
     if (input.replyFile.isMultiConfig && input.replyFile.generator != "Ninja Multi-Config")
         result.usesAllCapsTargets = true;
+
+    markCMakeModulesFromPrefixPathAsGenerated(result);
+    setSubprojectBuildSupport(result);
 
     return result;
 }

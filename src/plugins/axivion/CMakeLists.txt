@@ -1,15 +1,14 @@
 add_qtc_plugin(Axivion
   PLUGIN_DEPENDS
-    Core ProjectExplorer TextEditor
-  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils qtkeychain
+    Core Debugger ProjectExplorer TextEditor
+  DEPENDS Qt::Network Qt::Widgets ExtensionSystem Utils
+  LONG_DESCRIPTION_MD AxivionDescription.md
   SOURCES
     axivion.qrc
-    axivionoutputpane.cpp axivionoutputpane.h
+    axivionperspective.cpp axivionperspective.h
     axivionplugin.cpp axivionplugin.h
-    axivionprojectsettings.cpp axivionprojectsettings.h
     axivionsettings.cpp axivionsettings.h
     axiviontr.h
-    credentialquery.h credentialquery.cpp
     dashboard/dto.cpp dashboard/dto.h
     dashboard/concat.cpp dashboard/concat.h
     dashboard/error.h dashboard/error.cpp

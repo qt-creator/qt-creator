@@ -346,7 +346,7 @@ CMakeConfig CMakeConfig::fromArguments(const QStringList &list, QStringList &unk
 CMakeConfig CMakeConfig::fromFile(const Utils::FilePath &cacheFile, QString *errorMessage)
 {
     CMakeConfig result;
-    QFile cache(cacheFile.toString());
+    QFile cache(cacheFile.toFSPathString());
     if (!cache.open(QIODevice::ReadOnly | QIODevice::Text)) {
         if (errorMessage)
             *errorMessage = Tr::tr("Failed to open %1 for reading.").arg(cacheFile.toUserOutput());

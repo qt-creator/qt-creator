@@ -1048,7 +1048,7 @@ void FindReferences::cancel()
 void FindReferences::setPaused(bool paused)
 {
     if (!paused || m_watcher.isRunning()) // guard against pausing when the search is finished
-        m_watcher.setPaused(paused);
+        m_watcher.setSuspended(paused);
 }
 
 void FindReferences::onReplaceButtonClicked(const QString &text,

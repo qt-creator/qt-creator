@@ -61,9 +61,10 @@ public:
     bool canRenameFile(ProjectExplorer::Node *context,
                        const Utils::FilePath &oldFilePath,
                        const Utils::FilePath &newFilePath) final;
-    bool renameFile(ProjectExplorer::Node *context,
-                    const Utils::FilePath &oldFilePath,
-                    const Utils::FilePath &newFilePath) final;
+    bool renameFiles(ProjectExplorer::Node *context,
+                     const Utils::FilePairs &filesToRename,
+                     Utils::FilePaths *notRenamed) final;
+    void buildNamedTarget(const QString &target) final;
 
     Utils::FilePaths filesGeneratedFrom(const Utils::FilePath &sourceFile) const final;
     QString name() const final { return QLatin1String("cmake"); }
@@ -81,6 +82,7 @@ public:
 
     // Context menu actions:
     void buildCMakeTarget(const QString &buildTarget);
+    void reBuildCMakeTarget(const QString &cleanTarget, const QString &buildTarget);
 
     // Queries:
     const QList<ProjectExplorer::BuildTargetInfo> appTargets() const;
@@ -128,6 +130,9 @@ public:
     const QHash<QString, Utils::Link> &dotCMakeFilesHash() const { return m_dotCMakeFilesHash; }
     const QHash<QString, Utils::Link> &findPackagesFilesHash() const { return m_findPackagesFilesHash; }
 
+    QString cmakeGenerator() const;
+    bool hasSubprojectBuildSupport() const;
+
 signals:
     void configurationCleared();
     void configurationChanged(const CMakeConfig &config);
@@ -152,6 +157,9 @@ private:
                      Utils::FilePaths *);
     bool addTsFiles(ProjectExplorer::Node *context, const Utils::FilePaths &filePaths,
                     Utils::FilePaths *);
+    bool renameFile(CMakeTargetNode *context,
+                    const Utils::FilePath &oldFilePath,
+                    const Utils::FilePath &newFilePath, bool &shouldRunCMake);
 
     // Actually ask for parsing:
     enum ReparseParameters {

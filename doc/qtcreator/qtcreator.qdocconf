@@ -10,7 +10,7 @@ HTML.footer = \
     "</div>\n" \
     "<div class=\"footer\">\n" \
     "   <p>\n" \
-    "   <acronym title=\"Copyright\">&copy;</acronym> $QTCREATOR_COPYRIGHT_YEAR The Qt Company Ltd.\n" \
+    "   $QTCREATOR_COPYRIGHT\n" \
     "   Documentation contributions included herein are the copyrights of\n" \
     "   their respective owners.<br>" \
     "   The documentation provided herein is licensed under the terms of the" \

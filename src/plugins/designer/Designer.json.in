@@ -1,9 +1,11 @@
 {
+    "Id" : "designer",
     "Name" : "Designer",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,6 +20,22 @@
         "Create widgets and forms that are integrated with Qt C++ code."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qt-6/qtdesigner-manual.html",
     ${DESIGNER_PLUGIN_ARGUMENTS}
-    ${IDE_PLUGIN_DEPENDENCIES}
+    ${IDE_PLUGIN_DEPENDENCIES},
+
+    "Mimetypes" : [
+        "<?xml version='1.0' encoding='UTF-8'?>",
+        "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
+        "    <mime-type type='application/x-designer'>",
+        "        <sub-class-of type='application/xml'/>",
+        "        <comment>Qt Designer file</comment>",
+        "        <magic>",
+        "            <match value='&lt;ui ' type='string' offset='0:256'/>",
+        "            <match value='&lt;UI ' type='string' offset='0:256'/>",
+        "        </magic>",
+        "        <glob pattern='*.ui'/>",
+        "    </mime-type>",
+        "</mime-info>"
+    ]
 }

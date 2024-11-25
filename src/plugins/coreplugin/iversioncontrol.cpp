@@ -9,6 +9,7 @@
 #include <utils/algorithm.h>
 #include <utils/hostosinfo.h>
 #include <utils/qtcassert.h>
+#include <utils/theme/theme.h>
 
 #include <QDir>
 #include <QRegularExpression>
@@ -61,6 +62,22 @@ QString IVersionControl::vcsMakeWritableText() const
 FilePaths IVersionControl::additionalToolsPath() const
 {
     return {};
+}
+
+IVersionControl::FileState IVersionControl::modificationState(const FilePath &path) const
+{
+    Q_UNUSED(path)
+    return IVersionControl::FileState::NoModification;
+}
+
+void IVersionControl::monitorDirectory(const Utils::FilePath &path)
+{
+    Q_UNUSED(path)
+}
+
+void IVersionControl::stopMonitoringDirectory(const Utils::FilePath &path)
+{
+    Q_UNUSED(path)
 }
 
 IVersionControl::RepoUrl::RepoUrl(const QString &location)
@@ -207,6 +224,45 @@ bool IVersionControl::handleLink(const FilePath &workingDirectory, const QString
     QTC_ASSERT(!reference.isEmpty(), return false);
     vcsDescribe(workingDirectory, reference);
     return true;
+}
+
+QColor IVersionControl::vcStateToColor(const IVersionControl::FileState &state)
+{
+    using CIVF = Core::IVersionControl::FileState;
+    using UT = Utils::Theme;
+    switch (state) {
+    case CIVF::ModifiedState:
+        return Utils::creatorColor(UT::VcsBase_FileModified_TextColor);
+    case CIVF::AddedState:
+        return Utils::creatorColor(UT::VcsBase_FileAdded_TextColor);
+    case CIVF::RenamedState:
+        return Utils::creatorColor(UT::VcsBase_FileRenamed_TextColor);
+    case CIVF::DeletedState:
+        return Utils::creatorColor(UT::VcsBase_FileDeleted_TextColor);
+    case CIVF::UnmanagedState:
+        return Utils::creatorColor(UT::VcsBase_FileUnmerged_TextColor);
+    default:
+        return Utils::creatorColor(UT::PaletteText);
+    }
+}
+
+QString IVersionControl::modificationToText(const IVersionControl::FileState &state)
+{
+    using CIVF = Core::IVersionControl::FileState;
+    switch (state) {
+    case CIVF::AddedState:
+        return Tr::tr("Version control state: added.");
+    case CIVF::ModifiedState:
+        return Tr::tr("Version control state: modified.");
+    case CIVF::DeletedState:
+        return Tr::tr("Version control state: deleted.");
+    case CIVF::RenamedState:
+        return Tr::tr("Version control state: renamed.");
+    case CIVF::UnmanagedState:
+        return Tr::tr("Version control state: untracked.");
+    default:
+        return {};
+    }
 }
 
 } // namespace Core

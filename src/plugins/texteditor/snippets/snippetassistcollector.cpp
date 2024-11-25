@@ -5,6 +5,7 @@
 #include "snippetscollection.h"
 
 #include <texteditor/texteditorconstants.h>
+#include <texteditor/texteditor.h>
 #include <texteditor/codeassist/assistproposalitem.h>
 
 using namespace TextEditor;
@@ -24,9 +25,10 @@ public:
     }
     bool implicitlyApplies() const override { return false; }
     bool prematurelyApplies(const QChar &) const override { return false; }
-    void apply(TextDocumentManipulatorInterface &manipulator, int basePosition) const override
+    void apply(TextEditorWidget *editorWidget, int basePosition) const override
     {
-        manipulator.insertCodeSnippet(basePosition, m_snippet.content(), &Snippet::parse);
+        QTC_ASSERT(editorWidget, return);
+        editorWidget->insertCodeSnippet(basePosition, m_snippet.content(), &Snippet::parse);
     }
     QIcon icon() const override { return m_icon; }
     QString detail() const override { return m_snippet.generateTip(); }

@@ -9,7 +9,6 @@
 #define KSYNTAXHIGHLIGHTING_RULE_P_H
 
 #include "contextswitch_p.h"
-#include "definitionref_p.h"
 #include "foldingregion.h"
 #include "format.h"
 #include "highlightingdata_p.hpp"

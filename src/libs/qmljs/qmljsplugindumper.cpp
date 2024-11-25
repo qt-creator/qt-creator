@@ -718,7 +718,7 @@ FilePath PluginDumper::resolvePlugin(const FilePath &qmldirPath, const QString &
   \row \li Unix/Linux  \li \c .so
   \row \li AIX  \li \c .a
   \row \li HP-UX       \li \c .sl, \c .so (HP-UXi)
-  \row \li Mac OS X    \li \c .dylib, \c .bundle, \c .so
+  \row \li macOS    \li \c .dylib, \c .bundle, \c .so
   \endtable
 
   Version number on unix are ignored.

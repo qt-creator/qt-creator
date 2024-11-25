@@ -9,7 +9,6 @@
 #include "iassistproposalwidget.h"
 #include "assistinterface.h"
 #include "assistproposalitem.h"
-#include "textdocumentmanipulator.h"
 
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
@@ -20,6 +19,7 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QKeyEvent>
 #include <QList>
 #include <QObject>
@@ -183,6 +183,8 @@ void CodeAssistantPrivate::requestProposal(AssistReason reason,
 
     m_assistKind = kind;
     m_requestProvider = provider;
+    connect(
+        m_requestProvider, &QObject::destroyed, this, &CodeAssistantPrivate::cancelCurrentRequest);
     IAssistProcessor *processor = provider->createProcessor(assistInterface.get());
     processor->setAsyncCompletionAvailableHandler([this, reason, processor](
                                                   IAssistProposal *newProposal) {
@@ -302,8 +304,7 @@ void CodeAssistantPrivate::displayProposal(IAssistProposal *newProposal, AssistR
 void CodeAssistantPrivate::processProposalItem(AssistProposalItemInterface *proposalItem)
 {
     QTC_ASSERT(m_proposalWidget, return);
-    TextDocumentManipulator manipulator(m_editorWidget);
-    proposalItem->apply(manipulator, m_proposalWidget->basePosition());
+    proposalItem->apply(m_editorWidget, m_proposalWidget->basePosition());
     destroyContext();
     m_editorWidget->encourageApply();
     if (!proposalItem->isSnippet())
@@ -366,7 +367,14 @@ QString CodeAssistantPrivate::proposalPrefix() const
 void CodeAssistantPrivate::invalidateCurrentRequestData()
 {
     m_processor = nullptr;
-    m_requestProvider = nullptr;
+    if (m_requestProvider) {
+        disconnect(
+            m_requestProvider,
+            &QObject::destroyed,
+            this,
+            &CodeAssistantPrivate::cancelCurrentRequest);
+        m_requestProvider = nullptr;
+    }
     m_receivedContentWhileWaiting = false;
 }
 

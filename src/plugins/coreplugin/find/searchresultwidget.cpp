@@ -110,16 +110,11 @@ SearchResultWidget::SearchResultWidget(QWidget *parent) :
     m_messageWidget->setVisible(false);
 
     m_searchResultTreeView = new SearchResultTreeView(this);
-    m_searchResultTreeView->setFrameStyle(QFrame::NoFrame);
-    m_searchResultTreeView->setAttribute(Qt::WA_MacShowFocusRect, false);
     connect(m_searchResultTreeView, &SearchResultTreeView::filterInvalidated,
             this, &SearchResultWidget::filterInvalidated);
     connect(m_searchResultTreeView, &SearchResultTreeView::filterChanged,
             this, &SearchResultWidget::filterChanged);
-    auto  agg = new Aggregation::Aggregate;
-    agg->add(m_searchResultTreeView);
-    agg->add(new ItemViewFind(m_searchResultTreeView,
-                                      ItemDataRoles::ResultLineRole));
+
     layout->addWidget(m_searchResultTreeView);
 
     m_infoBarDisplay.setTarget(layout, 2);

@@ -146,6 +146,25 @@ Icon::Icon(const FilePath &imageFileName)
 {
 }
 
+using OptMasksAndColors = std::optional<MasksAndColors>;
+OptMasksAndColors highlightMasksAndColors(const MasksAndColors &defaultState,
+                                          const QList<IconMaskAndColor> &masks)
+{
+    MasksAndColors highlighted = defaultState;
+    bool colorsReplaced = false;
+    int index = 0;
+    for (const IconMaskAndColor &mask : masks) {
+        const Theme::Color highlight = Theme::highlightFor(mask.second);
+        if (highlight != mask.second) {
+            highlighted[index].second = creatorColor(highlight);
+            colorsReplaced = true;
+            continue;
+        }
+        ++index;
+    }
+    return colorsReplaced ? std::make_optional(highlighted) : std::nullopt;
+}
+
 QIcon Icon::icon() const
 {
     if (m_iconSourceList.isEmpty())
@@ -163,10 +182,20 @@ QIcon Icon::icon() const
     for (int dpr = 1; dpr <= maxDpr; dpr++) {
         const MasksAndColors masks = masksAndColors(m_iconSourceList, dpr);
         const QPixmap combinedMask = Utils::combinedMask(masks, m_style);
-        m_lastIcon.addPixmap(masksToIcon(masks, combinedMask, m_style));
-
+        m_lastIcon.addPixmap(masksToIcon(masks, combinedMask, m_style), QIcon::Normal, QIcon::Off);
         const QColor disabledColor = creatorColor(Theme::IconsDisabledColor);
-        m_lastIcon.addPixmap(maskToColorAndAlpha(combinedMask, disabledColor), QIcon::Disabled);
+        const QPixmap disabledIcon = maskToColorAndAlpha(combinedMask, disabledColor);
+        if (const OptMasksAndColors activeMasks =
+            highlightMasksAndColors(masks, m_iconSourceList);
+            activeMasks.has_value()) {
+            const QPixmap activePixmap = masksToIcon(activeMasks.value(),
+                                                     combinedMask, m_style);
+            m_lastIcon.addPixmap(activePixmap, QIcon::Active, QIcon::On);
+            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::On);
+            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled, QIcon::Off);
+        } else {
+            m_lastIcon.addPixmap(disabledIcon, QIcon::Disabled);
+        }
     }
     return m_lastIcon;
 }
@@ -207,13 +236,6 @@ QIcon Icon::sideBarIcon(const Icon &classic, const Icon &flat)
         // sizes.
         result.addPixmap(StyleHelper::disabledSideBarIcon(pixmap), QIcon::Disabled);
     }
-    return result;
-}
-
-QIcon Icon::modeIcon(const Icon &classic, const Icon &flat,
-                     [[maybe_unused]] const Icon &flatActive)
-{
-    QIcon result = sideBarIcon(classic, flat);
     return result;
 }
 

@@ -4,7 +4,6 @@
 #include "fossilclient.h"
 
 #include "constants.h"
-#include "fossileditor.h"
 #include "fossiltr.h"
 
 #include <vcsbase/vcsbaseplugin.h>
@@ -41,8 +40,6 @@ const RunFlags s_pullFlags = RunFlags::ShowStdOut | RunFlags::ShowSuccessMessage
 // Parameter widget controlling whitespace diff mode, associated with a parameter
 class FossilDiffConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilDiffConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -64,8 +61,6 @@ public:
 // Parameter widget controlling annotate/blame mode
 class FossilAnnotateConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilAnnotateConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -90,8 +85,6 @@ public:
 
 class FossilLogCurrentFileConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilLogCurrentFileConfig(FossilClient *client, QToolBar *toolBar) :
         VcsBaseEditorConfig(toolBar)
@@ -103,8 +96,6 @@ public:
 
 class FossilLogConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
-
 public:
     FossilLogConfig(QToolBar *toolBar)
         : VcsBaseEditorConfig(toolBar)
@@ -701,7 +692,7 @@ void FossilClient::annotate(const FilePath &workingDir, const QString &file, int
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
-    auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
+    auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);
     QTC_ASSERT(fossilEditor, return);
 
     if (!fossilEditor->editorConfig()) {
@@ -905,7 +896,7 @@ void FossilClient::log(const FilePath &workingDir, const QStringList &files,
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
-    auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
+    auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);
     QTC_ASSERT(fossilEditor, return);
 
     fossilEditor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -961,7 +952,7 @@ void FossilClient::logCurrentFile(const FilePath &workingDir, const QStringList 
                                                   VcsBaseEditor::getCodec(source),
                                                   vcsCmdString.toLatin1().constData(), id);
 
-    auto *fossilEditor = qobject_cast<FossilEditorWidget *>(editor);
+    auto fossilEditor = qobject_cast<VcsBaseEditorWidget *>(editor);
     QTC_ASSERT(fossilEditor, return);
 
     fossilEditor->setFileLogAnnotateEnabled(enableAnnotationContextMenu);
@@ -1083,7 +1074,7 @@ QStringList FossilClient::revisionSpec(const QString &revision) const
 {
     // Pass the revision verbatim.
     // Fossil uses a variety of ways to spec the revisions.
-    // In most cases revision is passed directly (SHA1) or via tag.
+    // In most cases revision is passed directly (hash) or via tag.
     // Tag name may need to be prefixed with tag: to disambiguate it from hex (beef).
     // Handle the revision option per specific command (e.g. diff, revert ).
 
@@ -1178,5 +1169,3 @@ FossilClient &fossilClient()
 }
 
 } // namespace Fossil::Internal
-
-#include "fossilclient.moc"

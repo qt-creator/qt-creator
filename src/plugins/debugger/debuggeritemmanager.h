@@ -5,14 +5,14 @@
 
 #include "debugger_global.h"
 #include "debuggerconstants.h"
+#include "debuggeritem.h"
 
 #include <utils/filepath.h>
+#include <utils/treemodel.h>
 
 #include <QList>
 
 namespace Debugger {
-
-class DebuggerItem;
 
 namespace DebuggerItemManager {
 
@@ -34,4 +34,23 @@ DEBUGGER_EXPORT const DebuggerItem *findById(const QVariant &id);
 DEBUGGER_EXPORT const DebuggerItem *findByEngineType(DebuggerEngineType engineType);
 
 } // DebuggerItemManager
+
+namespace Internal {
+class DebuggerTreeItem : public Utils::TreeItem
+{
+public:
+    DebuggerTreeItem(const DebuggerItem &item, bool changed)
+        : m_item(item), m_orig(item), m_added(changed), m_changed(changed)
+    {}
+
+    QVariant data(int column, int role) const override;
+
+    DebuggerItem m_item; // Displayed, possibly unapplied data.
+    DebuggerItem m_orig; // Stored original data.
+    bool m_added;
+    bool m_changed;
+    bool m_removed = false;
+};
+
+} // Internal
 } // Debugger

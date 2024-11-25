@@ -31,8 +31,6 @@ QtcPlugin {
         files: [
             "qrceditor.cpp", "qrceditor.h",
             "resourcefile.cpp", "resourcefile_p.h",
-            "resourceview.cpp", "resourceview.h",
-            "undocommands.cpp", "undocommands_p.h",
         ]
     }
 }

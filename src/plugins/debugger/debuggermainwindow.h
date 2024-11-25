@@ -142,7 +142,7 @@ public:
 
     static QWidget *centralWidgetStack();
     void addSubPerspectiveSwitcher(QWidget *widget);
-    static QMenu *perspectiveMenu();
+    static void addPerspectiveMenu(QMenu *menu);
 
     static Perspective *currentPerspective();
 

@@ -45,6 +45,7 @@
 #include <QMessageBox>
 #include <QMimeData>
 #include <QPainter>
+#include <QPalette>
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QStackedWidget>
@@ -427,7 +428,7 @@ void MainWidget::exportToImage()
     if (!filePath.isEmpty()) {
         const QRectF r = view->scene()->itemsBoundingRect();
         QImage image(r.size().toSize(), QImage::Format_ARGB32);
-        image.fill(QColor(0xef, 0xef, 0xef));
+        image.fill(palette().color(QPalette::Window));
 
         QPainter painter(&image);
         view->scene()->render(&painter, QRectF(), r);

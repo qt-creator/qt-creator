@@ -15,6 +15,7 @@
 // We mean it.
 //
 
+#include "mimedatabase.h"
 #include "mimetype.h"
 
 #include "mimeglobpattern_p.h"
@@ -32,6 +33,7 @@
 #include <vector>
 
 QT_BEGIN_NAMESPACE
+class QFileInfo;
 class QIODevice;
 QT_END_NAMESPACE
 
@@ -50,7 +52,7 @@ public:
 
     static MimeDatabasePrivate *instance();
 
-    inline QString defaultMimeType() const { return m_defaultMimeType; }
+    const QString &defaultMimeType() const { return m_defaultMimeType; }
 
     bool inherits(const QString &mime, const QString &parent);
 
@@ -59,15 +61,19 @@ public:
     QString resolveAlias(const QString &nameOrAlias);
     QStringList parents(const QString &mimeName);
     MimeType mimeTypeForName(const QString &nameOrAlias);
-    MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device, int *priorityPtr);
+    MimeType mimeTypeForFileNameAndData(const QString &fileName, QIODevice *device);
+    MimeType mimeTypeForFileExtension(const QString &fileName);
+    MimeType mimeTypeForData(QIODevice *device);
+    MimeType mimeTypeForFile(const QString &fileName, const QFileInfo &fileInfo, MimeDatabase::MatchMode mode);
     MimeType findByData(const QByteArray &data, int *priorityPtr);
     QStringList mimeTypeForFileName(const QString &fileName);
     MimeGlobMatchResult findByFileName(const QString &fileName);
 
     // API for MimeType. Takes care of locking the mutex.
-    void loadMimeTypePrivate(MimeTypePrivate &mimePrivate);
-    void loadGenericIcon(MimeTypePrivate &mimePrivate);
-    void loadIcon(MimeTypePrivate &mimePrivate);
+    MimeTypePrivate::LocaleHash localeComments(const QString &name);
+    QStringList globPatterns(const QString &name);
+    QString genericIcon(const QString &name);
+    QString icon(const QString &name);
     QStringList mimeParents(const QString &mimeName);
     QStringList listAliases(const QString &mimeName);
     bool mimeInherits(const QString &mime, const QString &parent);
@@ -78,6 +84,7 @@ public:
     void setMagicRulesForMimeType(const MimeType &mimeType,
                                   const QMap<int, QList<MimeMagicRule>> &rules);
     void setGlobPatternsForMimeType(const MimeType &mimeType, const QStringList &patterns);
+    void setPreferredSuffix(const QString &mimeName, const QString &suffix);
     void checkInitPhase(const QString &info);
     void addInitializer(const std::function<void()> &init);
 
@@ -86,8 +93,10 @@ private:
     const Providers &providers();
     bool shouldCheck();
     void loadProviders();
+    QString fallbackParent(const QString &mimeTypeName) const;
 
-    mutable Providers m_providers;
+    const QString m_defaultMimeType;
+    mutable Providers m_providers; // most local first, most global last
     QElapsedTimer m_lastCheck;
 
     // added for Qt Creator
@@ -96,13 +105,13 @@ private:
     bool m_forceLoad = true;
 
 public:
-    const QString m_defaultMimeType;
     QMutex mutex;
 
     // added for Qt Creator
     QReadWriteLock m_initMutex;
     std::atomic_bool m_initialized = false;
     int m_startupPhase = 0;
+    QHash<QString, QString> m_preferredSuffix; // MIME name -> suffix
 };
 
 } // namespace Utils

@@ -4,27 +4,23 @@ QtcPlugin {
     name: "Axivion"
 
     Depends { name: "Core" }
+    Depends { name: "Debugger" }
     Depends { name: "ExtensionSystem" }
     Depends { name: "ProjectExplorer" }
     Depends { name: "TextEditor" }
     Depends { name: "Utils" }
-    Depends { name: "qtkeychain" }
     Depends { name: "Qt.widgets" }
     Depends { name: "Qt.network" }
 
     files: [
         "axivion.qrc",
-        "axivionoutputpane.cpp",
-        "axivionoutputpane.h",
+        "axivionperspective.cpp",
+        "axivionperspective.h",
         "axivionplugin.cpp",
         "axivionplugin.h",
-        "axivionprojectsettings.h",
-        "axivionprojectsettings.cpp",
         "axivionsettings.cpp",
         "axivionsettings.h",
         "axiviontr.h",
-        "credentialquery.cpp",
-        "credentialquery.h",
         "dynamiclistmodel.cpp",
         "dynamiclistmodel.h",
         "issueheaderview.cpp",
@@ -45,5 +41,11 @@ QtcPlugin {
             "error.cpp",
             "error.h",
         ]
+    }
+
+    Group {
+        name: "long description"
+        files: "AxivionDescription.md"
+        fileTags: "pluginjson.longDescription"
     }
 }

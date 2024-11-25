@@ -7,7 +7,6 @@
 
 #include "buildconfiguration.h"
 
-#include <utils/fileutils.h>
 #include <utils/id.h>
 
 namespace ProjectExplorer {

@@ -33,7 +33,6 @@ class RunControl;
 class RunConfiguration;
 
 namespace Internal {
-class AppOutputSettings;
 class MiniProjectTargetSelector;
 }
 
@@ -100,8 +99,8 @@ public:
 
     static ProjectExplorerPlugin *instance();
 
-    static OpenProjectResult openProject(const Utils::FilePath &filePath);
-    static OpenProjectResult openProjects(const Utils::FilePaths &filePaths);
+    static OpenProjectResult openProject(const Utils::FilePath &filePath, bool searchInDir = true);
+    static OpenProjectResult openProjects(const Utils::FilePaths &filePaths, bool searchInDir = true);
     static void showOpenProjectError(const OpenProjectResult &result);
     static void openProjectWelcomePage(const Utils::FilePath &filePath);
     static void unloadProject(Project *project);
@@ -116,9 +115,6 @@ public:
     bool delayedInitialize() override;
     ShutdownFlag aboutToShutdown() override;
 
-    static void setAppOutputSettings(const Internal::AppOutputSettings &settings);
-    static const Internal::AppOutputSettings &appOutputSettings();
-
     static void setCustomParsers(const QList<CustomParserSettings> &settings);
     static void addCustomParser(const CustomParserSettings &settings);
     static void removeCustomParser(Utils::Id id);
@@ -127,8 +123,8 @@ public:
     static void startRunControl(RunControl *runControl);
     static void showOutputPaneForRunControl(RunControl *runControl);
 
-    static QList<std::pair<Utils::FilePath, Utils::FilePath>>
-    renameFiles(const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
+    static Utils::FilePairs renameFiles(
+        const QList<std::pair<Node *, Utils::FilePath>> &nodesAndNewFilePaths);
 
 #ifdef WITH_TESTS
     static bool renameFile(const Utils::FilePath &source, const Utils::FilePath &target,
@@ -168,6 +164,7 @@ public:
     static void removeFromRecentProjects(const Utils::FilePath &filePath);
 
     static void updateRunActions();
+    static void updateVcsActions(const QString &vcsDisplayName);
 
     static Core::OutputWindow *buildSystemOutput();
 
@@ -185,13 +182,11 @@ signals:
     void runControlStarted(ProjectExplorer::RunControl *runControl);
     void runControlStoped(ProjectExplorer::RunControl *runControl);
 
-    void filesRenamed(const QList<std::pair<Utils::FilePath, Utils::FilePath>> &oldAndNewPaths);
+    void filesRenamed(const Utils::FilePairs &oldAndNewPaths);
 
 private:
     static bool coreAboutToClose();
     void handleCommandLineArguments(const QStringList &arguments);
-    static std::optional<std::pair<Utils::FilePath, Utils::FilePath>>
-    renameFile(Node *node, const QString &newFilePath);
 };
 
 } // namespace ProjectExplorer

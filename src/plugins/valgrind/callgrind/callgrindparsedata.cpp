@@ -116,8 +116,7 @@ void ParseData::Private::cycleDetection()
 
 ParseData::ParseData(const QString &fileName)
     : d(new Private(this, fileName))
-{
-}
+{}
 
 ParseData::~ParseData()
 {

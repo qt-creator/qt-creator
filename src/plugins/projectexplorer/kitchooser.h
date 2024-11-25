@@ -9,8 +9,6 @@
 
 #include <QWidget>
 
-#include <functional>
-
 QT_BEGIN_NAMESPACE
 class QComboBox;
 class QPushButton;

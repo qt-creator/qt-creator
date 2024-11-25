@@ -56,7 +56,7 @@ public:
     QString displayCategory() const;
     Utils::FilePath categoryIconPath() const;
 
-    using WidgetCreator = std::function<IOptionsPageWidget *()>;
+    using WidgetCreator = std::function<QWidget *()>;
     void setWidgetCreator(const WidgetCreator &widgetCreator);
 
     virtual QWidget *widget();

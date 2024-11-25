@@ -225,7 +225,7 @@ private:
     \value ShowInApplicationIcon
         The progress indicator for this task is additionally
         shown in the application icon in the system's task bar or dock, on
-        platforms that support that (at the moment Windows 7 and Mac OS X).
+        platforms that support that (at the moment Windows 7 and macOS).
 */
 
 /*!

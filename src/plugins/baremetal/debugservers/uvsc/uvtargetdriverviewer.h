@@ -7,7 +7,7 @@
 
 #include <utils/detailsbutton.h>
 #include <utils/detailswidget.h>
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QDialog>
 

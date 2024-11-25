@@ -19,6 +19,7 @@ public:
     Key(Key &&) = default;
 
     Key(const QByteArray &key) : data(key) {}
+    Key(const QByteArrayView key) : data(key.toByteArray()) {}
 
     template <int N>
     Key(const char (&key)[N]) : data(key) {}

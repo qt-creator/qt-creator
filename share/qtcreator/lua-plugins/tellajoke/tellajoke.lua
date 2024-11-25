@@ -12,12 +12,10 @@ local function fetchJoke()
     local r = a.wait(fetch({ url = "https://official-joke-api.appspot.com/random_joke", convertToTable = true }))
     if (type(r) == "table") then
         mm.writeDisrupting(r.setup)
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
-        a.wait(utils.waitms(1000))
-        mm.writeSilently(".")
+        for i = 1, 3 do
+            a.wait(utils.waitms(1000))
+            mm.writeSilently(".")
+        end
         a.wait(utils.waitms(1000))
         mm.writeDisrupting(r.punchline)
     else
@@ -43,14 +41,16 @@ local function setup()
 end
 
 return {
+    Id = "tellajoke",
     Name = "Tell A Joke",
     Version = "1.0.0",
     CompatVersion = "1.0.0",
+    VendorId = "theqtcompany",
     Vendor = "The Qt Company",
     Category = "Fun",
     Description = "This plugin adds an action that tells a joke.",
     Dependencies = {
-        { Name = "Lua", Version = "14.0.0" },
+        { Id = "lua", Version = "15.0.0" },
     },
     setup = setup,
 } --[[@as QtcPlugin]]

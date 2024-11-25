@@ -7,6 +7,7 @@
 #include "buildmanager.h"
 #include "deployconfiguration.h"
 #include "kit.h"
+#include "kitaspect.h"
 #include "kitmanager.h"
 #include "project.h"
 #include "projectexplorer.h"
@@ -150,7 +151,7 @@ class GenericModel : public TreeModel<GenericItem, GenericItem>
 public:
     GenericModel(QObject *parent) : TreeModel(parent) { }
 
-    void rebuild(const QList<QObject *> &objects)
+    void rebuild(const QObjectList &objects)
     {
         clear();
         for (QObject * const e : objects)
@@ -249,8 +250,8 @@ public:
     explicit ProjectListView(QWidget *parent = nullptr) : SelectorView(parent)
     {
         const auto model = new GenericModel(this);
-        model->rebuild(transform<QList<QObject *>>(ProjectManager::projects(),
-                                                   [](Project *p) { return p; }));
+        model->rebuild(transform<QObjectList>(ProjectManager::projects(),
+                                              [](Project *p) { return p; }));
         connect(ProjectManager::instance(), &ProjectManager::projectAdded,
                 this, [this, model](Project *project) {
             const GenericItem *projectItem = model->addItemForObject(project);
@@ -322,7 +323,7 @@ signals:
     void changeActiveProjectConfiguration(QObject *pc);
 
 public:
-    void setProjectConfigurations(const QList<QObject *> &list, QObject *active)
+    void setProjectConfigurations(const QObjectList &list, QObject *active)
     {
         theModel()->rebuild(list);
         resetOptimalWidth();
@@ -864,7 +865,10 @@ void MiniProjectTargetSelector::doLayout()
 
     m_kitAreaWidget->move(0, 0);
 
-    int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this) ? m_kitAreaWidget->sizeHint().height() : 0;
+    const int kitAreaHeight = m_kitAreaWidget->isVisibleTo(this)
+        ? m_kitAreaWidget->sizeHint().height() : 0;
+    const int kitAreaWidth = m_kitAreaWidget->isVisibleTo(this)
+        ? m_kitAreaWidget->sizeHint().width() : 0;
 
     // 1. Calculate the summary label height
     int summaryLabelY = 1 + kitAreaHeight;
@@ -899,6 +903,7 @@ void MiniProjectTargetSelector::doLayout()
 
     QRect newGeometry;
 
+    const int minWidth = std::max({m_summaryLabel->sizeHint().width(), kitAreaWidth, 250});
     if (!onlySummary) {
         // list widget height
         int maxItemCount = m_projectListWidget->maxCount();
@@ -919,8 +924,6 @@ void MiniProjectTargetSelector::doLayout()
         int listHeight = heightWithoutKitArea + kitAreaHeight - bottomMargin - listY + 1;
 
         // list widget widths
-        int minWidth = qMax(m_summaryLabel->sizeHint().width(), 250);
-        minWidth = qMax(minWidth, m_kitAreaWidget->sizeHint().width());
         QVector<int> widths = listWidgetWidths(minWidth, Core::ICore::mainWindow()->width() * 0.9);
 
         const int runColumnWidth = widths[RUN] == -1 ? 0 : RunColumnWidth;
@@ -951,7 +954,7 @@ void MiniProjectTargetSelector::doLayout()
         heightWithoutKitArea = qMax(summaryLabelHeight + bottomMargin, alignedWithActionHeight);
         m_summaryLabel->resize(m_summaryLabel->sizeHint().width(), heightWithoutKitArea - bottomMargin);
         m_kitAreaWidget->resize(m_kitAreaWidget->sizeHint());
-        newGeometry.setSize({m_summaryLabel->width() + 1, heightWithoutKitArea + kitAreaHeight});
+        newGeometry.setSize({minWidth + 1, heightWithoutKitArea + kitAreaHeight});
     }
 
     newGeometry.translate(statusBar->mapToGlobal(QPoint{0, 0}));
@@ -1194,13 +1197,13 @@ void MiniProjectTargetSelector::changeStartupProject(Project *project)
     }
 
     if (project) {
-        QList<QObject *> list;
+        QObjectList list;
         const QList<Target *> targets = project->targets();
         for (Target *t : targets)
             list.append(t);
         m_listWidgets[TARGET]->setProjectConfigurations(list, project->activeTarget());
     } else {
-        m_listWidgets[TARGET]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[TARGET]->setProjectConfigurations({}, nullptr);
     }
 
     updateActionAndSummary();
@@ -1239,17 +1242,17 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
                    this, &MiniProjectTargetSelector::updateActionAndSummary);
 
     if (m_target) {
-        QList<QObject *> bl;
+        QObjectList bl;
         for (BuildConfiguration *bc : target->buildConfigurations())
             bl.append(bc);
         m_listWidgets[BUILD]->setProjectConfigurations(bl, target->activeBuildConfiguration());
 
-        QList<QObject *> dl;
+        QObjectList dl;
         for (DeployConfiguration *dc : target->deployConfigurations())
             dl.append(dc);
         m_listWidgets[DEPLOY]->setProjectConfigurations(dl, target->activeDeployConfiguration());
 
-        QList<QObject *> rl;
+        QObjectList rl;
         for (RunConfiguration *rc : target->runConfigurations())
             rl.append(rc);
         m_listWidgets[RUN]->setProjectConfigurations(rl, target->activeRunConfiguration());
@@ -1278,9 +1281,9 @@ void MiniProjectTargetSelector::activeTargetChanged(Target *target)
         connect(m_target, &Target::activeRunConfigurationChanged,
                 this, &MiniProjectTargetSelector::activeRunConfigurationChanged);
     } else {
-        m_listWidgets[BUILD]->setProjectConfigurations(QList<QObject *>(), nullptr);
-        m_listWidgets[DEPLOY]->setProjectConfigurations(QList<QObject *>(), nullptr);
-        m_listWidgets[RUN]->setProjectConfigurations(QList<QObject *>(), nullptr);
+        m_listWidgets[BUILD]->setProjectConfigurations({}, nullptr);
+        m_listWidgets[DEPLOY]->setProjectConfigurations({}, nullptr);
+        m_listWidgets[RUN]->setProjectConfigurations({}, nullptr);
         m_buildConfiguration = nullptr;
         m_deployConfiguration = nullptr;
         m_runConfiguration = nullptr;

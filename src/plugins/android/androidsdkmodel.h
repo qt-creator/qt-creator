@@ -45,7 +45,6 @@ public:
     InstallationChange installationChange() const;
 
 private:
-    void clearContainers();
     void refreshData();
 
     AndroidSdkManager *m_sdkManager;

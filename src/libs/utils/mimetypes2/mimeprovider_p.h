@@ -20,32 +20,51 @@
 #include "mimeglobpattern_p.h"
 #include <QtCore/qdatetime.h>
 #include <QtCore/qset.h>
+#include <QtCore/qmap.h>
 
 namespace Utils {
 
 class MimeMagicRuleMatcher;
+class MimeTypeXMLData;
+class MimeProviderBase;
+
+struct MimeMagicResult
+{
+    bool isValid() const { return !candidate.isEmpty(); }
+
+    QString candidate;
+    int accuracy = 0;
+};
 
 class MimeProviderBase
 {
+    Q_DISABLE_COPY(MimeProviderBase)
+
 public:
     MimeProviderBase(MimeDatabasePrivate *db, const QString &directory);
     virtual ~MimeProviderBase() {}
 
     virtual bool isValid() = 0;
     virtual bool isInternalDatabase() const = 0;
-    virtual MimeType mimeTypeForName(const QString &name) = 0;
+    virtual bool knowsMimeType(const QString &name) = 0;
     virtual void addFileNameMatches(const QString &fileName, MimeGlobMatchResult &result) = 0;
     virtual void addParents(const QString &mime, QStringList &result) = 0;
     virtual QString resolveAlias(const QString &name) = 0;
     virtual void addAliases(const QString &name, QStringList &result) = 0;
-    virtual void findByMagic(const QByteArray &data, int *accuracyPtr, MimeType &candidate) = 0;
+    virtual void findByMagic(const QByteArray &data, MimeMagicResult &result) = 0;
     virtual void addAllMimeTypes(QList<MimeType> &result) = 0;
-    virtual bool loadMimeTypePrivate(MimeTypePrivate &) { return false; }
-    virtual void loadIcon(MimeTypePrivate &) {}
-    virtual void loadGenericIcon(MimeTypePrivate &) {}
-    virtual void ensureLoaded() {}
+    virtual MimeTypePrivate::LocaleHash localeComments(const QString &name) = 0;
+    virtual bool hasGlobDeleteAll(const QString &name) = 0;
+    virtual QStringList globPatterns(const QString &name) = 0;
+    virtual QString icon(const QString &name) = 0;
+    virtual QString genericIcon(const QString &name) = 0;
+    virtual void ensureLoaded() { }
 
     QString directory() const { return m_directory; }
+
+    MimeProviderBase *overrideProvider() const;
+    void setOverrideProvider(MimeProviderBase *provider);
+    bool isMimeTypeGlobsExcluded(const QString &name) const;
 
     // added for Qt Creator
     virtual bool hasMimeTypeForName(const QString &name) = 0;
@@ -58,6 +77,10 @@ public:
 
     MimeDatabasePrivate *m_db;
     QString m_directory;
+
+    MimeProviderBase *m_overrideProvider = nullptr; // more "local" than this one
+
+    // for Qt Creator
     QSet<QString> m_overriddenMimeTypes;
 };
 
@@ -72,16 +95,18 @@ public:
 
     bool isValid() override;
     bool isInternalDatabase() const override;
-    MimeType mimeTypeForName(const QString &name) override;
+    bool knowsMimeType(const QString &name) override;
     void addFileNameMatches(const QString &fileName, MimeGlobMatchResult &result) override;
     void addParents(const QString &mime, QStringList &result) override;
     QString resolveAlias(const QString &name) override;
     void addAliases(const QString &name, QStringList &result) override;
-    void findByMagic(const QByteArray &data, int *accuracyPtr, MimeType &candidate) override;
+    void findByMagic(const QByteArray &data, MimeMagicResult &result) override;
     void addAllMimeTypes(QList<MimeType> &result) override;
-    bool loadMimeTypePrivate(MimeTypePrivate &) override;
-    void loadIcon(MimeTypePrivate &) override;
-    void loadGenericIcon(MimeTypePrivate &) override;
+    MimeTypePrivate::LocaleHash localeComments(const QString &name) override;
+    bool hasGlobDeleteAll(const QString &name) override;
+    QStringList globPatterns(const QString &name) override;
+    QString icon(const QString &name) override;
+    QString genericIcon(const QString &name) override;
     void ensureLoaded() override;
 
     // added for Qt Creator
@@ -95,23 +120,22 @@ public:
 private:
     struct CacheFile;
 
-    void matchGlobList(MimeGlobMatchResult &result,
-                       CacheFile *cacheFile,
-                       int offset,
-                       const QString &fileName);
+    int matchGlobList(MimeGlobMatchResult &result, CacheFile *cacheFile, int offset,
+                      const QString &fileName);
     bool matchSuffixTree(MimeGlobMatchResult &result,
                          CacheFile *cacheFile,
                          int numEntries,
                          int firstOffset,
                          const QString &fileName,
-                         int charPos,
+                         qsizetype charPos,
                          bool caseSensitiveCheck);
-    bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset, const QByteArray &data);
-    QLatin1String iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
+    bool matchMagicRule(CacheFile *cacheFile, int numMatchlets, int firstOffset,
+                        const QByteArray &data);
+         QLatin1StringView iconForMime(CacheFile *cacheFile, int posListOffset, const QByteArray &inputMime);
     void loadMimeTypeList();
     bool checkCacheChanged();
 
-    CacheFile *m_cacheFile = nullptr;
+    std::unique_ptr<CacheFile> m_cacheFile;
     QStringList m_cacheFileNames;
     QSet<QString> m_mimetypeNames;
     bool m_mimetypeListLoaded;
@@ -119,8 +143,12 @@ private:
     {
         QHash<QString, QString> localeComments;
         QStringList globPatterns;
+        bool hasGlobDeleteAll = false;
     };
-    QMap<QString, MimeTypeExtra> m_mimetypeExtra;
+    using MimeTypeExtraMap = std::map<QString, MimeTypeExtra>;
+    MimeTypeExtraMap m_mimetypeExtra;
+
+    MimeTypeExtraMap::const_iterator loadMimeTypeExtra(const QString &mimeName);
 };
 
 /*
@@ -143,19 +171,24 @@ public:
 
     bool isValid() override;
     bool isInternalDatabase() const override;
-    MimeType mimeTypeForName(const QString &name) override;
+    bool knowsMimeType(const QString &name) override;
     void addFileNameMatches(const QString &fileName, MimeGlobMatchResult &result) override;
     void addParents(const QString &mime, QStringList &result) override;
     QString resolveAlias(const QString &name) override;
     void addAliases(const QString &name, QStringList &result) override;
-    void findByMagic(const QByteArray &data, int *accuracyPtr, MimeType &candidate) override;
+    void findByMagic(const QByteArray &data, MimeMagicResult &result) override;
     void addAllMimeTypes(QList<MimeType> &result) override;
     void ensureLoaded() override;
+    MimeTypePrivate::LocaleHash localeComments(const QString &name) override;
+    bool hasGlobDeleteAll(const QString &name) override;
+    QStringList globPatterns(const QString &name) override;
+    QString icon(const QString &name) override;
+    QString genericIcon(const QString &name) override;
 
     bool load(const QString &fileName, QString *errorMessage);
 
     // Called by the mimetype xml parser
-    void addMimeType(const MimeType &mt);
+    void addMimeType(const MimeTypeXMLData &mt);
     void addGlobPattern(const MimeGlobPattern &glob);
     void addParent(const QString &child, const QString &parent);
     void addAlias(const QString &alias, const QString &name);
@@ -173,7 +206,7 @@ private:
     void load(const QString &fileName);
     void load(const char *data, qsizetype len);
 
-    typedef QHash<QString, MimeType> NameMimeTypeMap;
+    typedef QHash<QString, MimeTypeXMLData> NameMimeTypeMap;
     NameMimeTypeMap m_nameMimeTypeMap;
 
     typedef QHash<QString, QString> AliasHash;

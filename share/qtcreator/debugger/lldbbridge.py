@@ -988,7 +988,7 @@ class Dumper(DumperBase):
             connect_options = lldb.SBPlatformConnectOptions(self.remoteChannel_)
             res = self.target.GetPlatform().ConnectRemote(connect_options)
 
-            DumperBase.warn("CONNECT: %s %s platform: %s %s" % (res,
+            DumperBase.warn("CONNECT: %s %s platform: %s connected: %s" % (res,
                         self.remoteChannel_,
                         self.target.GetPlatform().GetName(),
                         self.target.GetPlatform().IsConnected()))
@@ -2530,7 +2530,7 @@ def ensure_gdbmiparser():
 def __lldb_init_module(debugger, internal_dict):
     # Module is being imported in an LLDB session
     if 'QT_CREATOR_LLDB_PROCESS' in os.environ:
-        # Let Qt Creator take care of its own dumper
+        debug("Returning early, letting Qt Creator take care of its own dumper", debugger)
         return
 
     debug("Initializing module with", debugger)
@@ -2571,3 +2571,4 @@ def __lldb_init_module(debugger, internal_dict):
                            % ("qt.SyntheticChildrenProvider", type_category))
 
     debugger.HandleCommand('type category enable %s' % type_category)
+    debugger.HandleCommand("settings set target.process.prefer-dynamic-value no-dynamic-values")

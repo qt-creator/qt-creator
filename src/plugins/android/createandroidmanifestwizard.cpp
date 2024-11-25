@@ -1,4 +1,4 @@
-// Copyright (C) 2016 The Qt Company Ltd.
+// Copyright (C) 2024 The Qt Company Ltd.
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "androidtr.h"
@@ -18,6 +18,7 @@
 
 #include <qtsupport/qtkitaspect.h>
 
+#include <utils/fileutils.h>
 #include <utils/infolabel.h>
 #include <utils/pathchooser.h>
 #include <utils/qtcassert.h>
@@ -25,7 +26,6 @@
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDir>
-#include <QFileInfo>
 #include <QFormLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -38,23 +38,23 @@ namespace Android {
 namespace Internal {
 
 //
-// NoApplicationProFilePage
+// NoApplicationTargetPage
 //
 
-class NoApplicationProFilePage : public QWizardPage
+class NoApplicationTargetPage : public QWizardPage
 {
 public:
-    NoApplicationProFilePage(CreateAndroidManifestWizard *wizard);
+    NoApplicationTargetPage(CreateAndroidManifestWizard *wizard);
 };
 
-NoApplicationProFilePage::NoApplicationProFilePage(CreateAndroidManifestWizard *)
+NoApplicationTargetPage::NoApplicationTargetPage(CreateAndroidManifestWizard *)
 {
     auto layout = new QVBoxLayout(this);
     auto label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(Tr::tr("No application .pro file found in this project."));
+    label->setText(Tr::tr("No application build targets found in this project."));
     layout->addWidget(label);
-    setTitle(Tr::tr("No Application .pro File"));
+    setTitle(Tr::tr("No Application Build Target"));
 }
 
 
@@ -80,7 +80,7 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     auto fl = new QFormLayout(this);
     QLabel *label = new QLabel(this);
     label->setWordWrap(true);
-    label->setText(Tr::tr("Select the .pro file for which you want to create the Android template files."));
+    label->setText(Tr::tr("Select the build target for which to create the Android templates."));
     fl->addRow(label);
 
     BuildSystem *buildSystem = wizard->buildSystem();
@@ -97,8 +97,8 @@ ChooseProFilePage::ChooseProFilePage(CreateAndroidManifestWizard *wizard)
     nodeSelected(m_comboBox->currentIndex());
     connect(m_comboBox, &QComboBox::currentIndexChanged, this, &ChooseProFilePage::nodeSelected);
 
-    fl->addRow(Tr::tr(".pro file:"), m_comboBox);
-    setTitle(Tr::tr("Select a .pro File"));
+    fl->addRow(Tr::tr("Build target:"), m_comboBox);
+    setTitle(Tr::tr("Select a build target"));
 }
 
 void ChooseProFilePage::nodeSelected(int index)
@@ -140,7 +140,7 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
 
     m_androidPackageSourceDir = new PathChooser(this);
     m_androidPackageSourceDir->setExpectedKind(PathChooser::Directory);
-    m_layout->addRow(Tr::tr("Android package source directory:"), m_androidPackageSourceDir);
+    m_layout->addRow(m_androidPackageSourceDir);
 
     m_sourceDirectoryWarning =
             new InfoLabel(Tr::tr("The Android package source directory cannot be the same as "
@@ -154,14 +154,18 @@ ChooseDirectoryPage::ChooseDirectoryPage(CreateAndroidManifestWizard *wizard)
         m_wizard->setDirectory(m_androidPackageSourceDir->unexpandedFilePath());
     });
 
-    if (wizard->copyGradle()) {
+    if (wizard->allowGradleTemplates()) {
         auto checkBox = new QCheckBox(this);
-        connect(checkBox, &QCheckBox::toggled, wizard, &CreateAndroidManifestWizard::setCopyGradle);
+        connect(checkBox, &QCheckBox::toggled,
+                wizard, &CreateAndroidManifestWizard::setCopyGradleTemplates);
         checkBox->setChecked(false);
         checkBox->setText(Tr::tr("Copy the Gradle files to Android directory"));
-        checkBox->setToolTip(Tr::tr("It is highly recommended if you are planning to extend the Java part of your Qt application."));
+        checkBox->setToolTip(Tr::tr("It is highly recommended if you are planning to extend "
+                                    "the Java side of your Qt application."));
         m_layout->addRow(checkBox);
     }
+
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::MinimumExpanding);
 }
 
 void ChooseDirectoryPage::checkPackageSourceDir()
@@ -197,9 +201,10 @@ void ChooseDirectoryPage::initializePage()
         androidPackageDir = FilePath::fromVariant(node->data(Android::Constants::AndroidPackageSourceDir));
 
     if (androidPackageDir.isEmpty()) {
-        m_label->setText(Tr::tr("Select the Android package source directory.\n\n"
-                                "The files in the Android package source directory are copied to the build directory's "
-                                "Android directory and the default files are overwritten."));
+        m_label->setText(Tr::tr(
+            "Select the Android package source directory.\n\n"
+            "The files in the Android package source directory will be copied to the Android "
+            "build directory and the default templates will be overwritten."));
 
         const FilePath projectPath = bti.projectFilePath.isFile()
                 ? bti.projectFilePath.parentDir() : bti.projectFilePath;
@@ -208,8 +213,9 @@ void ChooseDirectoryPage::initializePage()
         connect(m_androidPackageSourceDir, &PathChooser::rawPathChanged,
                 this, &ChooseDirectoryPage::checkPackageSourceDir);
     } else {
-        m_label->setText(Tr::tr("The Android template files will be created in the %1 set in the .pro "
-                                "file.").arg(QLatin1String(Constants::ANDROID_PACKAGE_SOURCE_DIR)));
+        m_label->setText(Tr::tr("The Android template files will be created under the %1 path "
+                                "that is set in the project file.")
+                             .arg(QLatin1String(Constants::ANDROID_PACKAGE_SOURCE_DIR)));
         m_androidPackageSourceDir->setFilePath(androidPackageDir);
         m_androidPackageSourceDir->setReadOnly(true);
     }
@@ -228,11 +234,12 @@ CreateAndroidManifestWizard::CreateAndroidManifestWizard(BuildSystem *buildSyste
 
     const QList<BuildTargetInfo> buildTargets = buildSystem->applicationTargets();
     QtSupport::QtVersion *version = QtSupport::QtKitAspect::qtVersion(buildSystem->kit());
-    m_copyGradle = version && version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
+    m_allowGradleTemplates = version &&
+                             version->qtVersion() >= AndroidManager::firstQtWithAndroidDeployQt;
 
     if (buildTargets.isEmpty()) {
         // oh uhm can't create anything
-        addPage(new NoApplicationProFilePage(this));
+        addPage(new NoApplicationTargetPage(this));
     } else if (buildTargets.size() == 1) {
         setBuildKey(buildTargets.first().buildKey);
         addPage(new ChooseDirectoryPage(this));
@@ -257,14 +264,19 @@ void CreateAndroidManifestWizard::setDirectory(const FilePath &directory)
     m_directory = directory;
 }
 
-bool CreateAndroidManifestWizard::copyGradle()
+bool CreateAndroidManifestWizard::copyGradleTemplates() const
 {
-    return m_copyGradle;
+    return m_copyGradleTemplates;
 }
 
-void CreateAndroidManifestWizard::setCopyGradle(bool copy)
+bool CreateAndroidManifestWizard::allowGradleTemplates() const
 {
-    m_copyGradle = copy;
+    return m_allowGradleTemplates;
+}
+
+void CreateAndroidManifestWizard::setCopyGradleTemplates(bool copy)
+{
+    m_copyGradleTemplates = copy;
 }
 
 void CreateAndroidManifestWizard::createAndroidTemplateFiles()
@@ -288,7 +300,7 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
                                    nullptr,
                                    copy());
 
-        if (m_copyGradle) {
+        if (copyGradleTemplates()) {
             FilePath gradlePath = version->prefix() / "src/3rdparty/gradle";
             QTC_ASSERT(gradlePath.exists(), return);
             FileUtils::copyRecursively(gradlePath, m_directory, nullptr, copy());
@@ -304,9 +316,9 @@ void CreateAndroidManifestWizard::createAndroidTemplateFiles()
         if (androidPackageDir.isEmpty()) {
             // and now time for some magic
             const BuildTargetInfo bti = target->buildTarget(m_buildKey);
-            const QString value = "$$PWD/"
-                                  + bti.projectFilePath.toFileInfo().absoluteDir().relativeFilePath(
-                                      m_directory.toString());
+            const QString value
+                = "$$PWD/"
+                  + bti.projectFilePath.absoluteFilePath().relativePathFrom(m_directory).path();
             bool result = node->setData(Android::Constants::AndroidPackageSourceDir, value);
 
             if (!result) {

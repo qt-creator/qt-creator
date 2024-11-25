@@ -11,7 +11,7 @@
 using namespace Tasking;
 using namespace std::chrono;
 
-Group recipe(GlueInterface *iface)
+ExecutableItem recipe(GlueInterface *iface)
 {
     return Forever {
         finishAllAndSuccess,

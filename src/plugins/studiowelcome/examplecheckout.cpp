@@ -35,8 +35,6 @@
 #include <QQuickItem>
 #include <QQuickWidget>
 
-#include <algorithm>
-
 using namespace Tasking;
 using namespace Utils;
 

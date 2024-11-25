@@ -5,6 +5,7 @@ QtcPlugin {
 
     Depends { name: "Qt.widgets" }
     Depends { name: "Utils" }
+    Depends { name: "Spinner" }
 
     Depends { name: "Core" }
     Depends { name: "ProjectExplorer" }

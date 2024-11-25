@@ -441,62 +441,56 @@ static Toolchain *mingwToolchain(const FilePath &path, Id language)
     return toolChain;
 }
 
+// FIXME: Do not register languages separately.
 static Toolchain *armGccToolchain(const FilePath &path, Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
+    Toolchain *toolchain = ToolchainManager::toolchain([&path, language](const Toolchain *t) {
         return t->compilerCommand() == path && t->language() == language;
     });
-    if (!toolChain) {
-        ToolchainFactory *gccFactory
-            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
-                                   [](ToolchainFactory *f) {
-                                       return f->supportedToolchainType()
-                                              == ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID;
-                                   });
-        if (gccFactory) {
-            const QList<Toolchain *> detected = gccFactory->detectForImport({path, language});
+    if (!toolchain) {
+        if (ToolchainFactory * const gccFactory = ToolchainFactory::factoryForType(
+                ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID)) {
+            QList<Toolchain *> detected = gccFactory->detectForImport({path, language});
             if (!detected.isEmpty()) {
-                toolChain = detected.first();
-                toolChain->setDetection(Toolchain::ManualDetection);
-                toolChain->setDisplayName("Arm GCC");
-                ToolchainManager::registerToolchain(toolChain);
+                toolchain = detected.takeFirst();
+                ToolchainManager::registerToolchains({toolchain});
+                toolchain->setDetection(Toolchain::ManualDetection);
+                toolchain->setDisplayName("Arm GCC");
+                qDeleteAll(detected);
             }
         }
     }
 
-    return toolChain;
+    return toolchain;
 }
 
 static Toolchain *iarToolchain(const FilePath &path, Id language)
 {
-    Toolchain *toolChain = ToolchainManager::toolchain([language](const Toolchain *t) {
+    Toolchain *toolchain = ToolchainManager::toolchain([language](const Toolchain *t) {
         return t->typeId() == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID
                && t->language() == language;
     });
-    if (!toolChain) {
-        ToolchainFactory *iarFactory
-            = Utils::findOrDefault(ToolchainFactory::allToolchainFactories(),
-                                   [](ToolchainFactory *f) {
-                                       return f->supportedToolchainType()
-                                              == BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID;
-                                   });
-        if (iarFactory) {
+    if (!toolchain) {
+        if (ToolchainFactory * const iarFactory = ToolchainFactory::factoryForType(
+                BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID)) {
             Toolchains detected = iarFactory->autoDetect(
                 {{}, DeviceManager::defaultDesktopDevice(), {}});
             if (detected.isEmpty())
                 detected = iarFactory->detectForImport({path, language});
-            for (auto tc : detected) {
-                if (tc->language() == language) {
-                    toolChain = tc;
-                    toolChain->setDetection(Toolchain::ManualDetection);
-                    toolChain->setDisplayName("IAREW");
-                    ToolchainManager::registerToolchain(toolChain);
-                }
+            Toolchains toRegister;
+            Toolchains toDelete;
+            std::tie(toRegister, toDelete)
+                = Utils::partition(detected, Utils::equal(&Toolchain::language, language));
+            for (Toolchain * const tc : toRegister) {
+                tc->setDetection(Toolchain::ManualDetection);
+                tc->setDisplayName("IAREW");
             }
+            ToolchainManager::registerToolchains(toRegister);
+            qDeleteAll(toDelete);
         }
     }
 
-    return toolChain;
+    return toolchain;
 }
 
 Toolchain *McuToolchainPackage::toolChain(Id language) const

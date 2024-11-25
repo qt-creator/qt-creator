@@ -44,9 +44,6 @@ public:
     void setIntroDescription(const QString &d);
     void setFilePath(const Utils::FilePath &path);
     void setProjectName(const QString &name);
-    void setProjectList(const QStringList &projectList);
-    void setProjectDirectories(const Utils::FilePaths &directories);
-    void setForceSubProject(bool force);
 
 signals:
     void projectParametersChanged(const QString &projectName, const Utils::FilePath &path);

@@ -92,6 +92,7 @@ signals:
 
 private:
     LogCategoryRegistry() = default;
+    ~LogCategoryRegistry() { QLoggingCategory::installFilter(s_oldFilter); }
 
     void onFilter(QLoggingCategory *category)
     {

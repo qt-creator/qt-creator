@@ -1,51 +1,46 @@
 /*
     SPDX-FileCopyrightText: 2016 Volker Krause <vkrause@kde.org>
+    SPDX-FileCopyrightText: 2024 Jonathan Poelen <jonathan.poelen@gmail.com>
 
     SPDX-License-Identifier: MIT
 */
 
 #include "contextswitch_p.h"
-#include "definition.h"
 #include "definition_p.h"
-#include "highlightingdata_p.hpp"
 #include "ksyntaxhighlighting_logging.h"
-#include "repository.h"
 
 using namespace KSyntaxHighlighting;
 
-void ContextSwitch::resolve(DefinitionData &def, QStringView contextInstr)
+void ContextSwitch::resolve(DefinitionData &def, QStringView context)
 {
-    HighlightingContextData::ContextSwitch ctx(contextInstr);
-
-    m_popCount = ctx.popCount();
-    m_isStay = !m_popCount;
-
-    auto contextName = ctx.contextName();
-    auto defName = ctx.defName();
-
-    if (contextName.isEmpty() && defName.isEmpty()) {
+    if (context.isEmpty() || context == QStringLiteral("#stay")) {
         return;
     }
 
-    if (defName.isEmpty()) {
-        m_context = def.contextByName(contextName);
-    } else {
-        auto d = def.repo->definitionForName(defName.toString());
-        if (d.isValid()) {
-            auto data = DefinitionData::get(d);
-            def.addImmediateIncludedDefinition(d);
-            data->load();
-            if (contextName.isEmpty()) {
-                m_context = data->initialContext();
-            } else {
-                m_context = data->contextByName(contextName);
-            }
+    while (context.startsWith(QStringLiteral("#pop"))) {
+        ++m_popCount;
+        if (context.size() > 4 && context.at(4) == QLatin1Char('!')) {
+            context = context.sliced(5);
+            break;
         }
+        context = context.sliced(4);
     }
 
-    if (!m_context) {
-        qCWarning(Log) << "cannot find context" << contextName << "in" << def.name;
-    } else {
+    m_isStay = !m_popCount;
+
+    if (context.isEmpty()) {
+        return;
+    }
+
+    const qsizetype defNameIndex = context.indexOf(QStringLiteral("##"));
+    auto defName = (defNameIndex <= -1) ? QStringView() : context.sliced(defNameIndex + 2);
+    auto contextName = (defNameIndex <= -1) ? context : context.sliced(0, defNameIndex);
+
+    m_context = def.resolveIncludedContext(defName, contextName).context;
+
+    if (m_context) {
         m_isStay = false;
+    } else {
+        qCWarning(Log) << "cannot find context" << contextName << "in" << def.name;
     }
 }

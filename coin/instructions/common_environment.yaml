@@ -2,59 +2,195 @@ type: Group
 instructions:
   - type: Group
     instructions:
+      # Currently used Qt version for packaging ...
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_BASE_URL
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.8.0/release_content/"
+          - type: EnvironmentVariable
+            variableName: MACOSX_DEPLOYMENT_TARGET
+            variableValue: 12.0
+        enable_if:
+          condition: property
+          property: features
+          not_contains_value: "OldestQt"
+      # ... or oldest supported Qt version
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_BASE_URL
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/qt/6.4.3/release_content/"
+          - type: EnvironmentVariable
+            variableName: MACOSX_DEPLOYMENT_TARGET
+            variableValue: 11.0
+        enable_if:
+          condition: property
+          property: features
+          contains_value: "OldestQt"
+      - type: SetBuildDirectory
+        directory: "{{.AgentWorkingDir}}/build"
+      - type: MakeDirectory
+        directory: "{{.BuildDir}}"
       - type: EnvironmentVariable
         variableName: QTC_BUILD_TYPE
         variableValue: "RelWithDebInfo"
       - type: EnvironmentVariable
         variableName: LLVM_BASE_URL
-        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_18.1.7-based
-      - type: EnvironmentVariable
-        variableName: QTC_QT_BASE_URL
-        variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.7/6.7.2-released/Qt"
+        variableValue: https://ci-files02-hki.ci.qt.io/packages/jenkins/qtcreator_libclang/libclang-release_19.1.0-based
       - type: EnvironmentVariable
         variableName: QTC_QT_MODULES
         variableValue: "qt5compat qtbase qtdeclarative qtimageformats qtquick3d qtquicktimeline qtserialport qtshadertools qtsvg qttools qttranslations qtwebengine"
-      - type: EnvironmentVariable
-        variableName: MACOSX_DEPLOYMENT_TARGET
-        variableValue: 11.0
       - type: EnvironmentVariable
         variableName: SDKTOOL_MACOSX_DEPLOYMENT_TARGET
         variableValue: 11.0
       - type: EnvironmentVariable
         variableName: QTC_SDKTOOL_QT_BASE_URL
         variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/archive/qt/6.6/6.6.0-released/Qt/src/submodules/qtbase-everywhere-src-6.6.0"
+      - type: EnvironmentVariable
+        variableName: GOFLAGS
+        variableValue: "-buildvcs=false"
       - type: Group
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-Windows-Windows_10_22H2-MSVC2019-Windows-Windows_10_22H2-X86_64.7z"
+            variableValue: "-Windows-Windows_11_23H2-MSVC2022-Windows-Windows_11_23H2-X86_64.7z"
+            enable_if:
+              condition: property
+              property: features
+              not_contains_value: "OldestQt"
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-Windows-Windows_11_22H2-MSVC2019-Windows-Windows_11_22H2-X86_64.7z"
+            enable_if:
+              condition: property
+              property: features
+              contains_value: "OldestQt"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".zip"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-windows-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-windows-vs2019_64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python"
         enable_if:
           condition: property
           property: target.os
           equals_value: Windows
       - type: Group
         instructions:
-          - type: EnvironmentVariable
-            variableName: QTC_QT_POSTFIX
-            variableValue: "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z"
+          - type: Group
+            instructions:
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Linux-RHEL_8_8-GCC-Linux-RHEL_8_8-X86_64.7z"
+              - type: EnvironmentVariable
+                variableName: QTC_ICU_URL
+                variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Rhel8.6-x64.7z"
+            enable_if:
+              condition: property
+              property: features
+              not_contains_value: "OldestQt"
+          - type: Group
+            instructions:
+              - type: EnvironmentVariable
+                variableName: QTC_QT_POSTFIX
+                variableValue: "-Linux-RHEL_8_4-GCC-Linux-RHEL_8_4-X86_64.7z"
+              - type: EnvironmentVariable
+                variableName: QTC_ICU_URL
+                variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z"
+            enable_if:
+              condition: property
+              property: features
+              contains_value: "OldestQt"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-linux-Rhel8.8-gcc10.3-x86_64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
+          # RHEL 8.10 comes with Python 3.6, we need explicitly python3.11
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3.11"
+            enable_if:
+              condition: property
+              property: host.osVersion
+              contains_value: "RHEL"
         enable_if:
-          condition: property
-          property: target.os
-          equals_value: Linux
+          condition: and
+          conditions:
+            - condition: property
+              property: target.os
+              equals_value: Linux
+            - condition: property
+              property: target.arch
+              equals_value: X86_64
       - type: Group
         instructions:
           - type: EnvironmentVariable
             variableName: QTC_QT_POSTFIX
-            variableValue: "-MacOS-MacOS_13-Clang-MacOS-MacOS_13-X86_64-ARM64.7z"
+            variableValue: "-Linux-Debian_11_6-GCC-Linux-Debian_11_6-AARCH64.7z"
           - type: EnvironmentVariable
             variableName: QTC_SDKTOOL_QT_EXT
             variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_ELFUTILS_URL
+            variableValue: "https://master.qt.io/development_releases/prebuilt/elfutils/elfutils-release_0.175qt-linux-arm64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-linux-Debian-11.6-gcc10.2-arm64.7z"
+          - type: EnvironmentVariable
+            variableName: QTC_ICU_URL
+            variableValue: "https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/73.2/icu-linux-g++-Debian11.6-aarch64.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
+        enable_if:
+          condition: and
+          conditions:
+            - condition: property
+              property: target.os
+              equals_value: Linux
+            - condition: property
+              property: target.arch
+              equals_value: AARCH64
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-MacOS-MacOS_14-Clang-MacOS-MacOS_14-X86_64-ARM64.7z"
+            enable_if:
+              condition: property
+              property: features
+              not_contains_value: "OldestQt"
+          - type: EnvironmentVariable
+            variableName: QTC_QT_POSTFIX
+            variableValue: "-MacOS-MacOS_12-Clang-MacOS-MacOS_12-X86_64-ARM64.7z"
+            enable_if:
+              condition: property
+              property: features
+              contains_value: "OldestQt"
+          - type: EnvironmentVariable
+            variableName: QTC_SDKTOOL_QT_EXT
+            variableValue: ".tar.xz"
+          - type: EnvironmentVariable
+            variableName: QTC_LLVM_POSTFIX
+            variableValue: "-macos-universal.7z"
+          - type: EnvironmentVariable
+            variableName: PYTHON_EXECUTABLE
+            variableValue: "python3"
         enable_if:
           condition: property
           property: target.os
@@ -74,6 +210,15 @@ instructions:
           condition: property
           property: features
           contains_value: Sccache
+      - type: Group
+        instructions:
+          - type: EnvironmentVariable
+            variableName: QTC_TEST_OPTION
+            variableValue: "--with-tests"
+        enable_if:
+          condition: property
+          property: features
+          not_contains_value: DisableTests
 
   - type: Group
     instructions:
@@ -112,8 +257,3 @@ instructions:
       condition: property
       property: host.os
       equals_value: Linux
-
-enable_if:
-  condition: property
-  property: features
-  not_contains_value: "Qt5"

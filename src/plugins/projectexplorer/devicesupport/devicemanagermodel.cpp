@@ -4,6 +4,7 @@
 #include "devicemanagermodel.h"
 
 #include "devicemanager.h"
+#include "../kitaspect.h"
 #include "../projectexplorertr.h"
 
 #include <utils/qtcassert.h>
@@ -147,7 +148,8 @@ QVariant DeviceManagerModel::data(const QModelIndex &index, int role) const
     switch (role) {
     case Qt::DecorationRole:
         return dev->deviceStateIcon();
-    case Qt::UserRole:
+    case Qt::UserRole: // TODO: Any callers?
+    case KitAspect::IdRole:
         return dev->id().toSetting();
     case Qt::DisplayRole:
         if (d->deviceManager->defaultDevice(dev->type()) == dev)

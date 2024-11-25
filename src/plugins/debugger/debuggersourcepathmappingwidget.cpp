@@ -9,6 +9,7 @@
 
 #include <utils/buildablehelperlibrary.h>
 #include <utils/fancylineedit.h>
+#include <utils/fileutils.h>
 #include <utils/hostosinfo.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -467,7 +468,7 @@ bool SourcePathMapAspect::isDirty()
     return m_internal != m_buffer;
 }
 
-void SourcePathMapAspect::addToLayout(Layouting::Layout &parent)
+void SourcePathMapAspect::addToLayoutImpl(Layouting::Layout &parent)
 {
     QTC_CHECK(!d->m_widget);
     d->m_widget = createSubWidget<DebuggerSourcePathMappingWidget>();

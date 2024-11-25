@@ -138,6 +138,8 @@ ColorThemeItem *ColorThemeView::createItem(int index, const QColor &color)
 
 const QVector<QColor> &ColorThemeView::defaultColors()
 {
+    // Left with hardcoded values for now
+    // Can be deleted in the future
     static const QVector<QColor> colors = {
         QColor(0xe0, 0xe0, 0xe0),
         QColor(0xd3, 0xe4, 0xc3),

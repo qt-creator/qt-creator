@@ -93,13 +93,15 @@ double ZoomAction::setPreviousZoomFactor(double zoom)
         return zoom;
 
     auto smaller = [zoom](double val) { return val < zoom; };
-    if (auto iter = std::ranges::find_if(m_zooms | std::views::reverse, smaller);
-        iter != m_zooms.rend()) {
+    auto iter = std::find_if(m_zooms.rbegin(), m_zooms.rend(), smaller);
+
+    if (iter != m_zooms.rend()) {
         auto index = std::distance(iter, m_zooms.rend() - 1);
         m_combo->setCurrentIndex(static_cast<int>(index));
         m_combo->setToolTip(m_combo->currentText());
         return *iter;
     }
+
     return zoom;
 }
 

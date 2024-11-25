@@ -39,8 +39,11 @@
         \li Go to \uicontrol {About Plugins}.
         \li Start typing in the \uicontrol Filter field to find a plugin.
             \image qtcreator-installed-plugins.webp {Installed Plugins dialog}
-        \li Select the \uicontrol Load check box to enable a plugin, or deselect
+        \li Select the \uicontrol Load checkbox to enable a plugin, or clear
             it to disable a plugin.
+        \li Select \uicontrol Details to see more information about a plugin,
+            such as its purpose, vendor, license, and dependencies.
+            \image qtcreator-plugin-details.webp {Plugin Details dialog}
         \li Select \uicontrol OK.
         \li Select \uicontrol {Restart Now} to restart \QC and have the changes
             take effect.

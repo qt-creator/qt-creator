@@ -1,0 +1,46 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-create-lua-scripts.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-edit
+
+    \title Create Lua scripts
+
+    To add small features to \QC, create and run \l{Lua}{Lua scripts}.
+
+    The sample script adds a string at the current cursor position in the
+    editor.
+
+    To create Lua scripts:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol Scripting >
+            \uicontrol {New Script}.
+        \li In \uicontrol {File name}, enter a name for the script file.
+        \li Select \uicontrol Finish to create the script file.
+        \li Edit the sample script.
+    \endlist
+
+    \section1 Run Lua scripts
+
+    To run Lua scripts:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol Scripting.
+        \li Select a script, and then select \uicontrol Run.
+    \endlist
+
+    \section1 Edit Lua scripts
+
+    To edit Lua scripts:
+
+    \list 1
+        \li Go to \uicontrol Tools > \uicontrol Scripting.
+        \li Select a script, and then select \uicontrol Edit.
+    \endlist
+
+    \sa {Record text editing macros}
+*/

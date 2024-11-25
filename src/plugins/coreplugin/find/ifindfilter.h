@@ -57,6 +57,7 @@ signals:
     void enabledChanged(bool enabled);
     void validChanged(bool valid);
     void displayNameChanged();
+    void supportedFlagsChanged();
 };
 
 } // namespace Core

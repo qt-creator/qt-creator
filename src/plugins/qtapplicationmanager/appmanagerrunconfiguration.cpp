@@ -57,6 +57,7 @@ public:
     AppManagerControllerAspect controller{this};
     AppManagerIdAspect appId{this};
     AppManagerDocumentUrlAspect documentUrl{this};
+    AppManagerRestartIfRunningAspect restartIfRunning{this};
     AppManagerInstanceIdAspect instanceId{this};
 };
 

@@ -30,6 +30,7 @@ public:
     ICodeStylePreferences *cloneCodeStyle(ICodeStylePreferences *originalCodeStyle);
     ICodeStylePreferences *createCodeStyle(const QByteArray &id, const TabSettings &tabSettings,
                       const QVariant &codeStyleData, const QString &displayName);
+    ICodeStylePreferences *createCodeStyle(const QString &displayName);
     // ownership is passed to the pool
     void addCodeStyle(ICodeStylePreferences *codeStyle);
     // is removed and deleted

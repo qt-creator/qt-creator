@@ -75,7 +75,7 @@ void SymbolsFindFilter::setPaused(SearchResult *search, bool paused)
     QFutureWatcher<SearchResultItem> *watcher = m_watchers.key(search);
     QTC_ASSERT(watcher, return);
     if (!paused || watcher->isRunning()) // guard against pausing when the search is finished
-        watcher->setPaused(paused);
+        watcher->setSuspended(paused);
 }
 
 void SymbolsFindFilter::findAll(const QString &txt, FindFlags findFlags)

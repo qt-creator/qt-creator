@@ -23,6 +23,7 @@
   <style name="Macro"/>
   <style name="Global"/>
   <style name="Keyword" foreground="#808bed"/>
+  <style name="Attribute" foreground="#808bed"/>
   <style name="PrimitiveType" foreground="#808bed"/>
   <style name="Label" foreground="#e76000"/>
   <style name="LineNumber" foreground="#8b8bcd" background="#2e2e2e"/>

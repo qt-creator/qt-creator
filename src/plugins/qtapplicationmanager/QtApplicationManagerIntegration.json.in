@@ -1,11 +1,13 @@
 {
+    "Id" : "qtapplicationmanagerintegration",
     "Name" : "QtApplicationManagerIntegration",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
-    "Experimental" : true,
+    "Experimental" : false,
     "Revision" : "${QTC_PLUGIN_REVISION}",
+    "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
-    "Copyright" : "(C) 2020 Luxoft Sweden AB, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2020 Luxoft Sweden AB, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -21,6 +23,7 @@
             "- Qt Application Manager"
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-how-to-run-in-app-manager.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

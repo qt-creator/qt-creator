@@ -45,6 +45,7 @@
 #include <utils/algorithm.h>
 
 #include <QDrag>
+#include <QWidget>
 #include <QFileInfo>
 #include <QHashIterator>
 #include <QPointer>
@@ -1405,7 +1406,8 @@ void ModelPrivate::setBindingProperties(const ModelResourceSet::SetExpressions &
 
     auto bindingPropertiesWithExpressions = toInternalBindingProperties(setExpressions);
 
-    auto bindingProperties = CoreUtils::to<QList>(bindingPropertiesWithExpressions | std::views::keys);
+    auto bindingProperties = Utils::transform(bindingPropertiesWithExpressions,
+                                              [](const auto &entry) { return std::get<0>(entry); });
 
     notifyBindingPropertiesAboutToBeChanged(bindingProperties);
     for (const auto &[bindingProperty, expression] : bindingPropertiesWithExpressions)

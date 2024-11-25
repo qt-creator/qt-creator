@@ -4,18 +4,14 @@
 
 #include "abstractview.h"
 
-#include "utils/fileutils.h"
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QTimer>
 
-#include <memory>
+namespace Core { class IEditor; }
 
-namespace Core {
-class IEditor;
-}
 namespace QmlDesigner {
-
 
 class AssetExporterView : public AbstractView
 {
@@ -32,7 +28,7 @@ public:
     AssetExporterView(ExternalDependenciesInterface &externalDependencies);
 
     bool loadQmlFile(const Utils::FilePath &path, uint timeoutSecs = 10);
-    bool saveQmlFile(QString *error) const;
+    Utils::Result saveQmlFile() const;
 
     void modelAttached(Model *model) override;
     void instanceInformationsChanged(const QMultiHash<ModelNode, InformationName> &informationChangeHash) override;

@@ -3,13 +3,12 @@
 
 #pragma once
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QObject>
 #include <QXmlStreamReader>
 
-namespace Squish {
-namespace Internal {
+namespace Squish::Internal {
 
 class SquishResultItem;
 
@@ -38,5 +37,4 @@ private:
     QXmlStreamReader m_xmlReader;
 };
 
-} // namespace Internal
-} // namespace Squish
+} // Squish::Internal

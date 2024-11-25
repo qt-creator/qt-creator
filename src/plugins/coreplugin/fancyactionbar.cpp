@@ -193,7 +193,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
         centerRect.adjust(0, lineHeight + 4, 0, -lineHeight * 2 - 4);
 
         iconRect.moveCenter(centerRect.center());
-        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode, QIcon::Off);
         painter.setFont(normalFont);
 
         QPoint textOffset = centerRect.center()
@@ -243,7 +243,7 @@ void FancyToolButton::paintEvent(QPaintEvent *event)
 
     } else {
         iconRect.moveCenter(rect().center());
-        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode);
+        StyleHelper::drawIconWithShadow(icon(), iconRect, &painter, iconMode, QIcon::Off);
     }
 
     // pop up arrow next to icon

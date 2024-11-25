@@ -65,7 +65,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
     static const QRegularExpression testResult("^\\s*(?<first>\\d+/\\d+)? "
                                                "Test\\s+#(?<current>\\d+): (.*) (\\.+)\\s*"
                                                "(Passed|\\*\\*\\*Failed|\\*\\*\\*Not Run|"
-                                               ".*\\*\\*\\*Exception:.*)\\s+(.*) sec$");
+                                               ".*\\*\\*\\*Exception:.*)\\s+(.*)(\\d+\\.\\d+) sec$");
     static const QRegularExpression testCrash("^\\s*\\d+/\\d+ Test\\s+#\\d+: (.*) (\\.+)\\s*"
                                               "Exit code .*$");
     static const QRegularExpression summary("^\\d+% tests passed, (\\d+) tests failed "
@@ -119,6 +119,8 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
             m_result = ResultType::Fail;
         else
             m_result = ResultType::MessageFatal;
+        if (match.hasCaptured(7))
+            m_duration = match.captured(7);
     } else if (ExactMatch match = summary.match(line)) {
         if (!m_testName.isEmpty())
             sendCompleteInformation();
@@ -136,6 +138,7 @@ void CTestOutputReader::processOutputLine(const QByteArray &outputLine)
         TestResult testResult = createDefaultResult();
         testResult.setResult(ResultType::TestEnd);
         testResult.setDescription(match.captured());
+        m_executionDuration = qRound(match.captured(1).toDouble() * 1000.);
         reportResult(testResult);
     } else if (ExactMatch match = testCrash.match(line)) {
         m_description = match.captured();
@@ -169,8 +172,15 @@ void CTestOutputReader::sendCompleteInformation()
     testResult.setResult(m_result);
     testResult.setDescription(m_description);
     reportResult(testResult);
+    if (!m_duration.isEmpty() && testResult.result() != ResultType::TestEnd) {
+        testResult.setDescription(Tr::tr("Test execution took %1.").arg(m_duration + " sec"));
+        testResult.setDuration(QString::number(m_duration.toDouble() * 1000., 'f', 3));
+        testResult.setResult(ResultType::TestEnd);
+        reportResult(testResult);
+    }
     m_testName.clear();
     m_description.clear();
+    m_duration.clear();
     m_currentTestNo = -1;
     m_result = ResultType::Invalid;
 }

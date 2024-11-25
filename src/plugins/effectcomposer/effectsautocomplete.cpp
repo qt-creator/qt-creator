@@ -4,6 +4,7 @@
 #include "effectsautocomplete.h"
 
 #include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/texteditorwidget.h>
 #include <texteditor/texteditorsettings.h>
 
 #include <utils/qtcassert.h>
@@ -137,10 +138,12 @@ public:
     }
 
     void applyContextualContent(
-        TextEditor::TextDocumentManipulatorInterface &manipulator, int basePosition) const final
+        TextEditor::TextEditorWidget *textEditorWidget, int basePosition) const final
     {
-        const int currentPosition = manipulator.currentPosition();
-        manipulator.replace(basePosition, currentPosition - basePosition, QString());
+        std::function<int()> currentPosition = [&]() -> int {
+            return textEditorWidget->position();
+        };
+        textEditorWidget->replace(basePosition, currentPosition() - basePosition, QString());
 
         QString content = text();
         int cursorOffset = 0;
@@ -159,17 +162,17 @@ public:
         int replacedLength = 0;
         for (int i = 0; i < replaceable.length(); ++i) {
             const QChar a = replaceable.at(i);
-            const QChar b = manipulator.characterAt(manipulator.currentPosition() + i);
+            const QChar b = textEditorWidget->characterAt(currentPosition() + i);
             if (a == b)
                 ++replacedLength;
             else
                 break;
         }
-        const int length = manipulator.currentPosition() - basePosition + replacedLength;
-        manipulator.replace(basePosition, length, content);
+        const int length = currentPosition() - basePosition + replacedLength;
+        textEditorWidget->replace(basePosition, length, content);
         if (cursorOffset) {
-            manipulator.setCursorPosition(manipulator.currentPosition() + cursorOffset);
-            manipulator.setAutoCompleteSkipPosition(manipulator.currentPosition());
+            textEditorWidget->setCursorPosition(currentPosition() + cursorOffset);
+            textEditorWidget->setAutoCompleteSkipPosition(textEditorWidget->textCursor());
         }
     }
 };

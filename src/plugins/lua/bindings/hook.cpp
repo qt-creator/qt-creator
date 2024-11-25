@@ -4,68 +4,35 @@
 #include "../luaengine.h"
 
 #include <coreplugin/editormanager/editormanager.h>
+#include <texteditor/textdocument.h>
 
-namespace Lua {
+using namespace Utils;
 
-class Hook : public QObject
+namespace Lua::Internal {
+
+void setupHookModule()
 {
-    Q_OBJECT
-
-public:
-    Hook(QObject *source);
-
-signals:
-    void trigger(sol::table &args);
-};
-
-Hook::Hook(QObject *source)
-    : QObject(source)
-{}
-
-namespace Internal {
-
-void addHookModule()
-{
-    LuaEngine::autoRegister([](sol::state_view lua) {
-        auto connection = lua.new_usertype<QMetaObject::Connection>("QMetaConnection",
-                                                                    sol::no_constructor);
-
-        auto hook = lua.new_usertype<Hook>(
-            "Hook",
-            sol::no_constructor,
-            "connect",
-            [](Hook *hook, const sol::function &func) -> QMetaObject::Connection {
-                QMetaObject::Connection con
-                    = QObject::connect(hook, &Hook::trigger, [func](sol::table args) {
-                          auto res = LuaEngine::void_safe_call(func, args);
-                          QTC_CHECK_EXPECTED(res);
-                      });
-                return con;
-            },
-            "disconnect",
-            [](Hook *, QMetaObject::Connection con) { QObject::disconnect(con); });
-    });
-
-    LuaEngine::registerHook("editors.documentOpened", [](const sol::protected_function &func) {
+    registerHook("editors.documentOpened", [](const sol::protected_function &func, QObject *guard) {
         QObject::connect(
             Core::EditorManager::instance(),
             &Core::EditorManager::documentOpened,
+            guard,
             [func](Core::IDocument *document) {
-                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+                expected_str<void> res = void_safe_call(func, document);
+                QTC_CHECK_EXPECTED(res);
             });
     });
-    LuaEngine::registerHook("editors.documentClosed", [](const sol::protected_function &func) {
+
+    registerHook("editors.documentClosed", [](const sol::protected_function &func, QObject *guard) {
         QObject::connect(
             Core::EditorManager::instance(),
             &Core::EditorManager::documentClosed,
+            guard,
             [func](Core::IDocument *document) {
-                QTC_CHECK_EXPECTED(LuaEngine::void_safe_call(func, document));
+                expected_str<void> res = void_safe_call(func, document);
+                QTC_CHECK_EXPECTED(res);
             });
     });
 }
 
-} // namespace Internal
-
-} // namespace Lua
-
-#include "hook.moc"
+} // namespace Lua::Internal

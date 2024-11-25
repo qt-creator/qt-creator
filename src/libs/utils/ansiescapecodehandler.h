@@ -7,6 +7,10 @@
 
 #include <QTextCharFormat>
 
+QT_BEGIN_NAMESPACE
+class QPlainTextEdit;
+QT_END_NAMESPACE
+
 namespace Utils {
 
 class QTCREATOR_UTILS_EXPORT FormattedText {
@@ -25,6 +29,9 @@ class QTCREATOR_UTILS_EXPORT AnsiEscapeCodeHandler
 public:
     QList<FormattedText> parseText(const FormattedText &input);
     void endFormatScope();
+    static void setTextInEditor(QPlainTextEdit *editor, const QString &text);
+    static QString ansiFromColor(const QColor &color);
+    static QString noColor();
 
 private:
     void setFormatScope(const QTextCharFormat &charFormat);

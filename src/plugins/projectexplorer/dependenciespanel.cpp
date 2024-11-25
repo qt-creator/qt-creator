@@ -250,12 +250,21 @@ public:
         connect(m_cascadeSetActiveCheckBox, &QCheckBox::toggled,
                 ProjectManager::instance(), &ProjectManager::setProjectConfigurationCascading);
         layout->addWidget(m_cascadeSetActiveCheckBox, 1, 0, 2, 1);
+        m_deployCheckBox = new QCheckBox;
+        m_deployCheckBox->setText(Tr::tr("Deploy dependencies"));
+        m_deployCheckBox->setToolTip(
+            Tr::tr("Do not just build dependencies, but deploy them as well."));
+        m_deployCheckBox->setChecked(ProjectManager::deployProjectDependencies());
+        connect(m_deployCheckBox, &QCheckBox::toggled,
+                ProjectManager::instance(), &ProjectManager::setDeployProjectDependencies);
+        layout->addWidget(m_deployCheckBox, 3, 0, 2, 1);
     }
 
 private:
     DependenciesModel m_model;
     Utils::DetailsWidget *m_detailsContainer;
     QCheckBox *m_cascadeSetActiveCheckBox;
+    QCheckBox *m_deployCheckBox;
 };
 
 class DependenciesProjectPanelFactory final : public ProjectPanelFactory

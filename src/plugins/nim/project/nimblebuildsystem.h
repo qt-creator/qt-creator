@@ -31,7 +31,7 @@ struct NimbleMetadata
     }
 };
 
-class NimbleBuildSystem : public ProjectExplorer::BuildSystem
+class NimbleBuildSystem final : public ProjectExplorer::BuildSystem
 {
     Q_OBJECT
 
@@ -58,8 +58,10 @@ private:
                                                          const Utils::FilePaths &filePaths,
                                                          Utils::FilePaths *) override;
     bool deleteFiles(ProjectExplorer::Node *, const Utils::FilePaths &) override;
-    bool renameFile(ProjectExplorer::Node *,
-                    const Utils::FilePath &oldFilePath, const Utils::FilePath &newFilePath) override;
+    bool renameFiles(
+        ProjectExplorer::Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) override;
     QString name() const final { return QLatin1String("mimble"); }
     void triggerParsing() final;
 

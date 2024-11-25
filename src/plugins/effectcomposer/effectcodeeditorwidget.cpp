@@ -86,11 +86,8 @@ void EffectCodeEditorWidget::setEditorTextWithIndentation(const QString &text)
     auto *doc = document();
     doc->setPlainText(text);
 
-    QString errorStr;
-    textDocument()->save(&errorStr);
-
-    if (!errorStr.isEmpty())
-        qWarning() << __FUNCTION__ << errorStr;
+    if (Utils::Result result = textDocument()->save(); !result)
+        qWarning() << __FUNCTION__ << result.error();
 
     // We don't need to indent an empty text but is also needed for safer text.length()-1 below
     if (text.isEmpty())

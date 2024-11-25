@@ -55,8 +55,6 @@ public:
 #endif
     }
 
-    static bool isRunningUnderRosetta();
-
     static QString withExecutableSuffix(const QString &executable)
     {
         return OsSpecificAspects::withExecutableSuffix(hostOs(), executable);

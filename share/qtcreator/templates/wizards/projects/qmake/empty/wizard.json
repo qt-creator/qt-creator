@@ -12,8 +12,7 @@
     "enabled": "%{JS: value('Plugins').indexOf('QmakeProjectManager') >= 0}",
     "options":
     [
-        { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" },
-        { "key": "IsTopLevelProject", "value": "%{JS: !value('Exists:ProjectExplorer.Profile.Ids')}" }
+        { "key": "ProFileName", "value": "%{JS: Util.fileName(value('ProjectDirectory') + '/' + value('ProjectName'), 'pro')}" }
     ],
 
     "pages":
@@ -28,7 +27,6 @@
             "trDisplayName": "Kit Selection",
             "trShortTitle": "Kits",
             "typeId": "Kits",
-            "enabled": "%{IsTopLevelProject}",
             "data": { "projectFilePath": "%{ProFileName}" }
         },
         {
@@ -52,7 +50,7 @@
                 {
                     "source": "../../git.ignore",
                     "target": "%{ProjectDirectory}/.gitignore",
-                    "condition": "%{JS: value('IsTopLevelProject') && value('VersionControl') === 'G.Git'}"
+                    "condition": "%{JS: !value('IsSubproject') && value('VersionControl') === 'G.Git'}"
                 }
             ]
         }

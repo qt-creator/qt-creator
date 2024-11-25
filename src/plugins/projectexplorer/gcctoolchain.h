@@ -10,7 +10,6 @@
 #include "headerpath.h"
 
 #include <functional>
-#include <memory>
 #include <optional>
 
 namespace ProjectExplorer {
@@ -34,6 +33,9 @@ public:
     GccToolchain(Utils::Id typeId, SubType subType = RealGcc);
     ~GccToolchain() override;
 
+    static std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget(
+        const ToolchainBundle &bundle);
+
     QString originalTargetTriple() const override;
     Utils::FilePath installDir() const override;
     QString version() const;
@@ -54,8 +56,6 @@ public:
 
     void toMap(Utils::Store &data) const override;
     void fromMap(const Utils::Store &data) override;
-
-    std::unique_ptr<ToolchainConfigWidget> createConfigurationWidget() override;
 
     bool operator ==(const Toolchain &) const override;
 
@@ -86,12 +86,19 @@ public:
     void setPriority(int priority) { m_priority = priority; }
     void setOriginalTargetTriple(const QString &targetTriple);
 
+    static Utils::FilePath correspondingCompilerCommand(
+        const Utils::FilePath &srcPath,
+        Utils::Id targetLang,
+        const QString &cPattern,
+        const QString &cxxPattern);
+
 protected:
     using CacheItem = QPair<QStringList, Macros>;
     using GccCache = QVector<CacheItem>;
 
     void setSupportedAbis(const Abis &abis);
     void setInstallDir(const Utils::FilePath &installDir);
+
     void setMacroCache(const QStringList &allCxxflags, const Macros &macroCache) const;
     Macros macroCache(const QStringList &allCxxflags) const;
 
@@ -113,8 +120,12 @@ protected:
     int priority() const override { return m_priority; }
 
     QString sysRoot() const override;
+    SubType subType() const { return m_subType; }
+    QByteArray parentToolchainId() const { return m_parentToolchainId; }
 
 private:
+    bool canShareBundleImpl(const Toolchain &other) const override;
+
     void syncAutodetectedWithParentToolchains();
     void updateSupportedAbis() const;
 

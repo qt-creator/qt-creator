@@ -6,6 +6,7 @@
 #include "llvmfilesystem.h"
 
 #include <coreplugin/icore.h>
+#include <coreplugin/messagemanager.h>
 
 #include <projectexplorer/editorconfiguration.h>
 #include <projectexplorer/project.h>
@@ -432,8 +433,10 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         QString replacementText = QString::fromStdString(replacement.getReplacementText().str());
         replacementText.replace("\r", "");
         auto sameCharAt = [&](int replacementOffset) {
-            if (replacementText.size() <= replacementOffset || replacementOffset < 0)
+            if (utf16Length == 0 || replacementText.size() <= replacementOffset
+                || replacementOffset < 0) {
                 return false;
+            }
             const QChar docChar = doc->characterAt(utf16Offset + replacementOffset);
             const QChar replacementChar = replacementText.at(replacementOffset);
             return docChar == replacementChar
@@ -443,7 +446,8 @@ static ChangeSet convertReplacements(const QTextDocument *doc,
         while (sameCharAt(0)) {
             ++utf16Offset;
             --utf16Length;
-            replacementText = replacementText.mid(1);
+            if (!replacementText.isEmpty())
+                replacementText.remove(0, 1);
         }
         // remove identical suffix from replacement text
         while (sameCharAt(utf16Length - 1)) {
@@ -913,7 +917,7 @@ clang::format::FormatStyle ClangFormatBaseIndenterPrivate::customSettingsStyle(
         = ProjectExplorer::ProjectManager::projectForFile(fileName);
 
     const ICodeStylePreferences *preferences
-        = projectForFile
+        =  !getProjectUseGlobalSettings(projectForFile) && projectForFile
               ? projectForFile->editorConfiguration()->codeStyle("Cpp")->currentPreferences()
               : TextEditorSettings::codeStyle("Cpp")->currentPreferences();
 
@@ -944,6 +948,37 @@ const clang::format::FormatStyle &ClangFormatBaseIndenter::styleForFile() const
     return d->styleForFile();
 }
 
+const llvm::Expected<clang::format::FormatStyle> getStyleFromProjectFolder(
+    const Utils::FilePath *fileName)
+{
+#if LLVM_VERSION_MAJOR >= 19
+    static QString s_cachedError;
+    llvm::SourceMgr::DiagHandlerTy diagHandler = [](const llvm::SMDiagnostic &diag, void *) {
+        QString errorMessage = QString::fromStdString(diag.getMessage().str()) + " "
+                               + QString::number(diag.getLineNo()) + ":"
+                               + QString::number(diag.getColumnNo());
+
+        if (s_cachedError == errorMessage)
+            return;
+
+        s_cachedError = errorMessage;
+        Core::MessageManager::writeSilently("ClangFormat file error: " + errorMessage);
+    };
+
+    return clang::format::getStyle(
+        "file",
+        fileName->toFSPathString().toStdString(),
+        "none",
+        "",
+        &llvmFileSystemAdapter,
+        true,
+        diagHandler);
+#else
+    return clang::format::getStyle(
+        "file", fileName->toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter, true);
+#endif
+}
+
 const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile() const
 {
     static const milliseconds cacheTimeout = getCacheTimeout();
@@ -957,12 +992,13 @@ const clang::format::FormatStyle &ClangFormatBaseIndenterPrivate::styleForFile()
 
     if (getCurrentCustomSettings(*m_fileName)) {
         clang::format::FormatStyle style = customSettingsStyle(*m_fileName);
+        addQtcStatementMacros(style);
         m_cachedStyle.setCache(style, cacheTimeout);
         return m_cachedStyle.style;
     }
 
-    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = clang::format::getStyle(
-        "file", m_fileName->toFSPathString().toStdString(), "none", "", &llvmFileSystemAdapter, true);
+    llvm::Expected<clang::format::FormatStyle> styleFromProjectFolder = getStyleFromProjectFolder(
+        m_fileName);
 
     if (styleFromProjectFolder && !(*styleFromProjectFolder == clang::format::getNoStyle())) {
         addQtcStatementMacros(*styleFromProjectFolder);

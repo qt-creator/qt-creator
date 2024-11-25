@@ -9,6 +9,7 @@
 
 #include <coreplugin/vcsmanager.h>
 
+#include <utils/ansiescapecodehandler.h>
 #include <utils/completinglineedit.h>
 #include <utils/layoutbuilder.h>
 #include <utils/pathchooser.h>
@@ -174,7 +175,8 @@ void ChangeSelectionDialog::setDetails()
 {
     QPalette palette;
     if (m_process->result() == ProcessResult::FinishedWithSuccess) {
-        m_detailsText->setPlainText(m_process->cleanedStdOut());
+        const QString text = m_process->cleanedStdOut();
+        AnsiEscapeCodeHandler::setTextInEditor(m_detailsText, text);
         palette.setColor(QPalette::Text, creatorColor(Theme::TextColorNormal));
         m_changeNumberEdit->setPalette(palette);
     } else if (m_process->result() == ProcessResult::StartFailed) {
@@ -240,7 +242,19 @@ void ChangeSelectionDialog::recalculateDetails()
     connect(m_process.get(), &Process::done, this, &ChangeSelectionDialog::setDetails);
     m_process->setWorkingDirectory(workingDir);
     m_process->setEnvironment(m_gitEnvironment);
-    m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80", ref}});
+
+    const ColorNames colors = GitClient::colorNames();
+    const QString showFormat = QStringLiteral(
+                                   "--pretty=format:"
+                                   "commit %C(%1)%H%Creset %C(%2)%d%Creset%n"
+                                   "Author: %C(%3)%aN <%aE>%Creset%n"
+                                   "Date: %C(%4)%ad (%ar)%Creset%n"
+                                   "%n%C(%5)%s%Creset%n%n%b"
+                                   ).arg(colors.hash, colors.decoration, colors.author,
+                                         colors.date, colors.subject);
+
+    m_process->setCommand({m_gitExecutable, {"show", "--decorate", "--stat=80",
+                                             "--color=always", showFormat, ref}});
     m_process->start();
     m_detailsText->setPlainText(Tr::tr("Fetching commit data..."));
 }

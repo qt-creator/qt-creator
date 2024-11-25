@@ -26,6 +26,9 @@ using namespace Utils;
 
 namespace Autotest {
 
+// HACK! Duplicate to avoid a dependency to Android plugin
+static const char ANDROID_DEVICE_TYPE[] = "Android.Device.Type";
+
 ITestConfiguration::ITestConfiguration(ITestBase *testBase)
     : m_testBase(testBase)
 {
@@ -86,9 +89,16 @@ static bool isLocal(Target *target)
 
 static FilePath ensureExeEnding(const FilePath &file)
 {
-    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.toString().toLower().endsWith(".exe"))
+    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.suffix().toLower() == "exe")
         return file;
     return file.withExecutableSuffix();
+}
+
+static FilePath ensureBatEnding(const FilePath &file)
+{
+    if (!HostOsInfo::isWindowsHost() || file.isEmpty() || file.suffix().toLower() == "bat")
+        return file;
+    return file / ".bat";
 }
 
 void TestConfiguration::completeTestInformation(RunConfiguration *rc,
@@ -122,9 +132,11 @@ void TestConfiguration::completeTestInformation(RunConfiguration *rc,
     FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
-        const QString projBase = startupProject->projectDirectory().toString();
-        if (m_projectFile.startsWith(projBase))
-            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
+        const FilePath projBase = startupProject->projectDirectory();
+        if (m_projectFile.isChildOf(projBase)) {
+            m_buildDir
+                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+        }
     }
     if (runMode == TestRunMode::Debug || runMode == TestRunMode::DebugWithoutDeploy)
         m_runConfig = new Internal::TestRunConfiguration(rc->target(), this);
@@ -169,8 +181,16 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     if (buildTargets.size() > 1 )  // there are multiple executables with the same build target
         return;                    // let the user decide which one to run
 
-    const BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
-                                                           : BuildTargetInfo();
+    BuildTargetInfo targetInfo = buildTargets.size() ? buildTargets.first()
+                                                     : BuildTargetInfo();
+
+    if (DeviceTypeKitAspect::deviceTypeId(target->kit()) == ANDROID_DEVICE_TYPE) {
+        // Android can have test runner scripts named as displayName(.bat)
+        const FilePath script = ensureBatEnding(
+            targetInfo.targetFilePath.parentDir() / targetInfo.displayName);
+        if (script.exists())
+            targetInfo.targetFilePath = script;
+    }
 
     // we might end up with an empty targetFilePath - e.g. when having a library we just link to
     // there would be no BuildTargetInfo that could match
@@ -188,9 +208,11 @@ void TestConfiguration::completeTestInformation(TestRunMode runMode)
     FilePath buildBase;
     if (auto buildConfig = target->activeBuildConfiguration()) {
         buildBase = buildConfig->buildDirectory();
-        const QString projBase = startupProject->projectDirectory().toString();
-        if (m_projectFile.startsWith(projBase))
-            m_buildDir = (buildBase / m_projectFile.toString().mid(projBase.length())).absolutePath();
+        const FilePath projBase = startupProject->projectDirectory();
+        if (m_projectFile.isChildOf(projBase)) {
+            m_buildDir
+                = (buildBase.resolvePath(m_projectFile.relativePathFrom(projBase))).absolutePath();
+        }
     }
 
     // deployment information should get taken into account, but it pretty much seems as if

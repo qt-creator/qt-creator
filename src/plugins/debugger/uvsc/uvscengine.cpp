@@ -495,7 +495,7 @@ void UvscEngine::doUpdateLocals(const UpdateParameters &params)
     watchHandler()->notifyUpdateStarted(params);
 
     const bool partial = !params.partialVariable.isEmpty();
-    // This is a workaround to avoid a strange QVector index assertion
+    // This is a workaround to avoid a strange QList index assertion
     // inside of the watch model.
     QMetaObject::invokeMethod(this, [this, partial] { handleUpdateLocals(partial); },
                              Qt::QueuedConnection);

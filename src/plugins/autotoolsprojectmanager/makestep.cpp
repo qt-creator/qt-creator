@@ -5,17 +5,20 @@
 #include "autotoolsprojectconstants.h"
 
 #include <projectexplorer/buildsteplist.h>
+#include <projectexplorer/makestep.h>
 #include <projectexplorer/projectexplorerconstants.h>
+
+using namespace ProjectExplorer;
 
 namespace AutotoolsProjectManager::Internal {
 
 // MakeStep
 
-class MakeStep : public ProjectExplorer::MakeStep
+class AutotoolsMakeStep final : public MakeStep
 {
 public:
-    MakeStep(ProjectExplorer::BuildStepList *bsl, Utils::Id id)
-        : ProjectExplorer::MakeStep(bsl, id)
+    AutotoolsMakeStep(BuildStepList *bsl, Utils::Id id)
+        : MakeStep(bsl, id)
     {
         setAvailableBuildTargets({"all", "clean"});
         if (bsl->id() == ProjectExplorer::Constants::BUILDSTEPS_CLEAN) {
@@ -29,11 +32,20 @@ public:
 
 // MakeStepFactory
 
-MakeStepFactory::MakeStepFactory()
+class MakeStepFactory final : public BuildStepFactory
 {
-    registerStep<MakeStep>(Constants::MAKE_STEP_ID);
-    setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+public:
+    MakeStepFactory()
+    {
+        registerStep<AutotoolsMakeStep>(Constants::MAKE_STEP_ID);
+        setDisplayName(ProjectExplorer::MakeStep::defaultDisplayName());
+        setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+    }
+};
+
+void setupAutotoolsMakeStep()
+{
+    static MakeStepFactory theAutotoolsMakestepFactory;
 }
 
 } // AutotoolsProjectManager::Internal

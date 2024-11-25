@@ -1,9 +1,11 @@
 {
+    "Id" : "modeleditor",
     "Name" : "ModelEditor",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "VendorId" : "jochenbecher",
     "Vendor" : "Jochen Becher",
-    "Copyright" : "(C) 2017 Jochen Becher, (C) ${IDE_COPYRIGHT_YEAR} The Qt Company Ltd",
+    "Copyright" : "(C) 2017 Jochen Becher, ${IDE_COPYRIGHT}",
     "License" : [ "Commercial Usage",
                   "",
                   "Licensees holding valid Qt Commercial licenses may use this plugin in accordance with the Qt Commercial License Agreement provided with the Software or, alternatively, in accordance with the terms contained in a written agreement between you and The Qt Company.",
@@ -18,13 +20,14 @@
         "Create structured and behavioral diagrams that offer different views to your system. However, the editor uses a variant of UML and has only a subset of properties for specifying the appearance of model elements."
     ],
     "Url" : "https://www.qt.io",
+    "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-modeling.html",
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [
         "<?xml version='1.0' encoding='UTF-8'?>",
         "<mime-info xmlns='http://www.freedesktop.org/standards/shared-mime-info'>",
         "    <mime-type type='text/vnd.qtcreator.model'>",
-        "        <sub-class-of type='text/xml'/>",
+        "        <sub-class-of type='application/xml'/>",
         "        <comment>Qt Creator Model File</comment>",
         "        <glob pattern='*.qmodel'/>",
         "    </mime-type>",

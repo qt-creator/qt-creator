@@ -36,7 +36,6 @@ namespace Internal {
 
 class SubversionLogConfig : public VcsBaseEditorConfig
 {
-    Q_OBJECT
 public:
     explicit SubversionLogConfig(QToolBar *toolBar)
         : VcsBaseEditorConfig(toolBar)

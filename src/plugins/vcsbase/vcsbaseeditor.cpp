@@ -409,12 +409,12 @@ bool UrlTextCursorHandler::findContentsUnderCursor(const QTextCursor &cursor)
             QRegularExpression &pattern;
             int matchNumber;
             QString urlPrefix;
-        } RegexUrls[] = {
+        } const regexUrls[] = {
             {m_pattern, 0, ""},
             {m_jiraPattern, 2, "https://bugreports.qt.io/browse/"},
             {m_gerritPattern, 1, "https://codereview.qt-project.org/r/"},
         };
-        for (const auto &r : RegexUrls) {
+        for (const auto &r : regexUrls) {
             QRegularExpressionMatchIterator i = r.pattern.globalMatch(line);
             while (i.hasNext()) {
                 const QRegularExpressionMatch match = i.next();

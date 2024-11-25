@@ -67,7 +67,7 @@ HaskellBuildSystem::HaskellBuildSystem(Target *t)
         auto root = std::make_unique<ProjectNode>(projectDirectory());
         root->setDisplayName(target()->project()->displayName());
         std::vector<std::unique_ptr<FileNode>> nodePtrs
-            = Utils::transform<std::vector>(m_scanner.release().allFiles, [](FileNode *fn) {
+            = Utils::transform<std::vector>(m_scanner.release().takeAllFiles(), [](FileNode *fn) {
                   return std::unique_ptr<FileNode>(fn);
               });
         root->addNestedNodes(std::move(nodePtrs));
@@ -121,7 +121,7 @@ public:
     {
         setId(Constants::C_HASKELL_PROJECT_ID);
         setDisplayName(fileName.toFileInfo().completeBaseName());
-        setBuildSystemCreator([](Target *t) { return new HaskellBuildSystem(t); });
+        setBuildSystemCreator<HaskellBuildSystem>();
     }
 };
 

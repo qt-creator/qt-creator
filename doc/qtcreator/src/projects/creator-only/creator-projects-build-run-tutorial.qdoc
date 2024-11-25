@@ -19,8 +19,8 @@
 
     \brief How to build and run a Qt example.
 
-    To test that your \QOI installation is successful, open an existing
-    example application project.
+    To test that your \l{Get and Install Qt}{\QOI} installation is successful,
+    open an existing example application project.
 
     To run an example application on an Android or iOS device, you must set up
     the development environment for Android or iOS. For more information, see

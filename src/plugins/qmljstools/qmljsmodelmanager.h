@@ -12,8 +12,6 @@
 QT_FORWARD_DECLARE_CLASS(QTimer)
 QT_FORWARD_DECLARE_CLASS(QLocale)
 
-namespace Utils { class MimeType; }
-
 namespace QmlJSTools {
 namespace Internal {
 
@@ -31,7 +29,7 @@ protected:
     void writeMessageInternal(const QString &msg) const override;
     WorkingCopy workingCopyInternal() const override;
     void addTaskInternal(const QFuture<void> &result, const QString &msg,
-                         const char *taskId) const override;
+                         const Utils::Id taskId) const override;
     ProjectInfo defaultProjectInfoForProject(
         ProjectExplorer::Project *project, const Utils::FilePaths &hiddenRccFolders) const override;
 private:

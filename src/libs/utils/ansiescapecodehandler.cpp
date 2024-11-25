@@ -5,7 +5,13 @@
 
 #include "qtcassert.h"
 
+#include <QPlainTextEdit>
+
 namespace Utils {
+
+static const QString s_escape        = "\x1b[";
+static const QChar s_semicolon       = ';';
+static const QChar s_colorTerminator = 'm';
 
 /*!
     \class Utils::AnsiEscapeCodeHandler
@@ -56,9 +62,6 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
         DefaultBackgroundColor = 49
     };
 
-    const QString escape        = "\x1b[";
-    const QChar semicolon       = ';';
-    const QChar colorTerminator = 'm';
     const QChar eraseToEol      = 'K';
 
     QList<FormattedText> outputData;
@@ -91,7 +94,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
             if (strippedText.isEmpty())
                 break;
         }
-        const int escapePos = strippedText.indexOf(escape.at(0));
+        const int escapePos = strippedText.indexOf(s_escape.at(0));
         if (escapePos < 0) {
             outputData << FormattedText(strippedText, charFormat);
             break;
@@ -99,16 +102,16 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
             outputData << FormattedText(strippedText.left(escapePos), charFormat);
             strippedText.remove(0, escapePos);
         }
-        QTC_ASSERT(strippedText.at(0) == escape.at(0), break);
+        QTC_ASSERT(strippedText.at(0) == s_escape.at(0), break);
 
-        while (!strippedText.isEmpty() && escape.at(0) == strippedText.at(0)) {
-            if (escape.startsWith(strippedText)) {
+        while (!strippedText.isEmpty() && s_escape.at(0) == strippedText.at(0)) {
+            if (s_escape.startsWith(strippedText)) {
                 // control secquence is not complete
                 m_pendingText += strippedText;
                 strippedText.clear();
                 break;
             }
-            if (!strippedText.startsWith(escape)) {
+            if (!strippedText.startsWith(s_escape)) {
                 switch (strippedText.at(1).toLatin1()) {
                 case '\\': // Unexpected terminator sequence.
                     QTC_CHECK(false);
@@ -132,8 +135,8 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 }
                 break;
             }
-            m_pendingText += strippedText.mid(0, escape.length());
-            strippedText.remove(0, escape.length());
+            m_pendingText += strippedText.mid(0, s_escape.length());
+            strippedText.remove(0, s_escape.length());
 
             // \e[K is not supported. Just strip it.
             if (strippedText.startsWith(eraseToEol)) {
@@ -150,7 +153,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 } else {
                     if (!strNumber.isEmpty())
                         numbers << strNumber;
-                    if (strNumber.isEmpty() || strippedText.at(0) != semicolon)
+                    if (strNumber.isEmpty() || strippedText.at(0) != s_semicolon)
                         break;
                     strNumber.clear();
                 }
@@ -161,7 +164,7 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
                 break;
 
             // remove terminating char
-            if (!strippedText.startsWith(colorTerminator)) {
+            if (!strippedText.startsWith(s_colorTerminator)) {
                 m_pendingText.clear();
                 strippedText.remove(0, 1);
                 break;
@@ -266,6 +269,36 @@ QList<FormattedText> AnsiEscapeCodeHandler::parseText(const FormattedText &input
 void AnsiEscapeCodeHandler::endFormatScope()
 {
     m_previousFormatClosed = true;
+}
+
+void AnsiEscapeCodeHandler::setTextInEditor(QPlainTextEdit *editor, const QString &text)
+{
+    AnsiEscapeCodeHandler handler;
+    const QList<FormattedText> formattedTextList = handler.parseText(FormattedText(text));
+    editor->clear();
+    QTextCursor cursor = editor->textCursor();
+    cursor.beginEditBlock();
+    for (const auto &formattedChunk : formattedTextList)
+        cursor.insertText(formattedChunk.text, formattedChunk.format);
+    cursor.endEditBlock();
+    editor->moveCursor(QTextCursor::Start);
+    editor->document()->setModified(false);
+}
+
+QString AnsiEscapeCodeHandler::ansiFromColor(const QColor &color)
+{
+    // RGB color is ESC[38;2;<r>;<g>;<b>m
+    // https://en.wikipedia.org/wiki/ANSI_escape_code#24-bit
+    return QStringLiteral("%1;2;%2;%3;%4m")
+        .arg(s_escape + "38")
+        .arg(color.red())
+        .arg(color.green())
+        .arg(color.blue());
+}
+
+QString AnsiEscapeCodeHandler::noColor()
+{
+    return s_escape + s_colorTerminator;
 }
 
 void AnsiEscapeCodeHandler::setFormatScope(const QTextCharFormat &charFormat)

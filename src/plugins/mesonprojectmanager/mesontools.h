@@ -3,93 +3,103 @@
 
 #pragma once
 
-#include "mesonpluginconstants.h"
-#include "mesonwrapper.h"
-#include "ninjawrapper.h"
-#include "toolwrapper.h"
+#include <utils/commandline.h>
+#include <utils/id.h>
+#include <utils/store.h>
 
-#include <utils/algorithm.h>
+#include <QVersionNumber>
 
+#include <optional>
 #include <memory>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace Utils { class ProcessRunData; }
+
+namespace MesonProjectManager::Internal {
+
+enum class ToolType { Meson, Ninja };
+
+class ToolWrapper final
+{
+public:
+    ToolWrapper() = delete;
+    explicit ToolWrapper(const Utils::Store &data);
+    ToolWrapper(ToolType toolType,
+                const QString &name,
+                const Utils::FilePath &path,
+                const Utils::Id &id = {},
+                bool autoDetected = false);
+
+    ~ToolWrapper();
+
+    const QVersionNumber &version() const noexcept { return m_version; }
+    bool isValid() const noexcept { return m_isValid; }
+    bool autoDetected() const noexcept { return m_autoDetected; }
+    Utils::Id id() const noexcept { return m_id; }
+    Utils::FilePath exe() const noexcept { return m_exe; }
+    QString name() const noexcept { return m_name; }
+
+    void setName(const QString &newName) { m_name = newName; }
+    void setExe(const Utils::FilePath &newExe);
+
+    static QVersionNumber read_version(const Utils::FilePath &toolPath);
+
+    Utils::Store toVariantMap() const;
+
+    ToolType toolType() const { return m_toolType; }
+    void setToolType(ToolType newToolType) { m_toolType = newToolType; }
+
+    Utils::ProcessRunData setup(const Utils::FilePath &sourceDirectory,
+                                const Utils::FilePath &buildDirectory,
+                                const QStringList &options = {}) const;
+    Utils::ProcessRunData configure(const Utils::FilePath &sourceDirectory,
+                                    const Utils::FilePath &buildDirectory,
+                                    const QStringList &options = {}) const;
+    Utils::ProcessRunData regenerate(const Utils::FilePath &sourceDirectory,
+                                     const Utils::FilePath &buildDirectory) const;
+    Utils::ProcessRunData introspect(const Utils::FilePath &sourceDirectory) const;
+
+private:
+    ToolType m_toolType;
+    QVersionNumber m_version;
+    bool m_isValid;
+    bool m_autoDetected;
+    Utils::Id m_id;
+    Utils::FilePath m_exe;
+    QString m_name;
+};
+
+bool run_meson(const Utils::ProcessRunData &runData, QIODevice *output = nullptr);
+
+bool isSetup(const Utils::FilePath &buildPath);
+
+std::optional<Utils::FilePath> findTool(ToolType toolType);
 
 class MesonTools : public QObject
 {
     Q_OBJECT
+
     MesonTools() {}
     ~MesonTools() {}
 
 public:
     using Tool_t = std::shared_ptr<ToolWrapper>;
 
-    static bool isMesonWrapper(const Tool_t &tool);
-    static bool isNinjaWrapper(const Tool_t &tool);
-
-    static inline void addTool(const Utils::Id &itemId,
-                               const QString &name,
-                               const Utils::FilePath &exe)
-    {
-        // TODO improve this
-        if (exe.fileName().contains("ninja"))
-            addTool(std::make_shared<NinjaWrapper>(name, exe, itemId));
-        else
-            addTool(std::make_shared<MesonWrapper>(name, exe, itemId));
-    }
-
-    static inline void addTool(Tool_t meson)
-    {
-        auto self = instance();
-        self->m_tools.emplace_back(std::move(meson));
-        emit self->toolAdded(self->m_tools.back());
-    }
-
     static void setTools(std::vector<Tool_t> &&tools);
+    static const std::vector<Tool_t> &tools();
 
-    static inline const std::vector<Tool_t> &tools() { return instance()->m_tools; }
+    static void updateTool(const Utils::Id &itemId,
+                           const QString &name,
+                           const Utils::FilePath &exe);
+    static void removeTool(const Utils::Id &id);
 
-    static inline void updateTool(const Utils::Id &itemId,
-                                  const QString &name,
-                                  const Utils::FilePath &exe)
-    {
-        auto self = instance();
-        auto item = std::find_if(std::begin(self->m_tools),
-                                 std::end(self->m_tools),
-                                 [&itemId](const Tool_t &tool) { return tool->id() == itemId; });
-        if (item != std::end(self->m_tools)) {
-            (*item)->setExe(exe);
-            (*item)->setName(name);
-        } else {
-            addTool(itemId, name, exe);
-        }
-    }
-    static void removeTool(const Utils::Id &id)
-    {
-        auto self = instance();
-        auto item = Utils::take(self->m_tools, [&id](const auto &item) { return item->id() == id; });
-        QTC_ASSERT(item, return );
-        emit self->toolRemoved(*item);
-    }
+    static std::shared_ptr<ToolWrapper> toolById(const Utils::Id &id, ToolType toolType);
+    static std::shared_ptr<ToolWrapper> autoDetectedTool(ToolType toolType);
 
-    static std::shared_ptr<NinjaWrapper> ninjaWrapper(const Utils::Id &id);
-    static std::shared_ptr<MesonWrapper> mesonWrapper(const Utils::Id &id);
+    static MesonTools *instance();
 
-    static std::shared_ptr<NinjaWrapper> ninjaWrapper();
-    static std::shared_ptr<MesonWrapper> mesonWrapper();
-
-    Q_SIGNAL void toolAdded(const Tool_t &tool);
-    Q_SIGNAL void toolRemoved(const Tool_t &tool);
-
-    static MesonTools *instance()
-    {
-        static MesonTools inst;
-        return &inst;
-    }
-
-private:
-    std::vector<Tool_t> m_tools;
+signals:
+    void toolAdded(const Tool_t &tool);
+    void toolRemoved(const Tool_t &tool);
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // MesonProjectManager::Internal

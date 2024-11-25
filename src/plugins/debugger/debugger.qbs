@@ -172,6 +172,7 @@ QtcPlugin {
         files: [
             "cdbsymbolpathlisteditor.cpp",
             "cdbsymbolpathlisteditor.h",
+            "coredumputils.cpp", "coredumputils.h",
             "hostutils.cpp", "hostutils.h",
             "peutils.cpp", "peutils.h",
             "symbolpathsdialog.cpp", "symbolpathsdialog.h"

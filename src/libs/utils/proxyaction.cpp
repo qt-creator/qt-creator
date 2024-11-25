@@ -60,6 +60,12 @@ QAction *ProxyAction::action() const
     return m_action;
 }
 
+void ProxyAction::setAttributes(ProxyAction::Attributes attributes)
+{
+    m_attributes = attributes;
+    updateState();
+}
+
 void ProxyAction::setAttribute(ProxyAction::Attribute attribute)
 {
     m_attributes |= attribute;

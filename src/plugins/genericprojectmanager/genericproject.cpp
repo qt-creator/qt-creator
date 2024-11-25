@@ -20,6 +20,7 @@
 #include <projectexplorer/deploymentdata.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/projectnodes.h>
@@ -84,7 +85,7 @@ public:
         return BehaviorSilent;
     }
 
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) final;
+    Result reload(ReloadFlag flag, ChangeType type) final;
 
 private:
     GenericProject *m_project = nullptr;
@@ -114,7 +115,10 @@ public:
     }
 
     RemovedFilesFromProject removeFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
-    bool renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath) final;
+    bool renameFiles(
+        Node *,
+        const Utils::FilePairs &filesToRename,
+        Utils::FilePaths *notRenamed) final;
     bool addFiles(Node *, const FilePaths &filePaths, FilePaths *) final;
     QString name() const final { return QLatin1String("generic"); }
 
@@ -179,7 +183,7 @@ public:
         setId(Constants::GENERICPROJECT_ID);
         setProjectLanguages(Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(filePath.completeBaseName());
-        setBuildSystemCreator([](Target *t) { return new GenericBuildSystem(t); });
+        setBuildSystemCreator<GenericBuildSystem>();
     }
 
     void editFilesTriggered();
@@ -376,21 +380,42 @@ bool GenericBuildSystem::setFiles(const QStringList &filePaths)
     return saveRawFileList(newList);
 }
 
-bool GenericBuildSystem::renameFile(Node *, const FilePath &oldFilePath, const FilePath &newFilePath)
+bool GenericBuildSystem::renameFiles(Node *, const FilePairs &filesToRename, FilePaths *notRenamed)
 {
     QStringList newList = m_rawFileList;
 
-    QHash<QString, QString>::iterator i = m_rawListEntries.find(oldFilePath.toString());
-    if (i != m_rawListEntries.end()) {
-        int index = newList.indexOf(i.value());
-        if (index != -1) {
-            QDir baseDir(projectDirectory().toString());
-            newList.removeAt(index);
-            insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
+    bool success = true;
+    for (const auto &[oldFilePath, newFilePath] : filesToRename) {
+        const auto fail = [&, oldFilePath = oldFilePath] {
+            success = false;
+            if (notRenamed)
+                *notRenamed << oldFilePath;
+        };
+
+        const auto i = m_rawListEntries.find(oldFilePath.toString());
+        if (i == m_rawListEntries.end()) {
+            fail();
+            continue;
         }
+
+        const int index = newList.indexOf(i.value());
+        if (index == -1) {
+            fail();
+            continue;
+        }
+
+        QDir baseDir(projectDirectory().toString());
+        newList.removeAt(index);
+        insertSorted(&newList, baseDir.relativeFilePath(newFilePath.toString()));
     }
 
-    return saveRawFileList(newList);
+    if (!saveRawFileList(newList)) {
+        success = false;
+        if (notRenamed)
+            *notRenamed = firstPaths(filesToRename);
+    }
+
+    return success;
 }
 
 static QStringList readFlags(const QString &filePath)
@@ -565,7 +590,7 @@ void GenericBuildSystem::refreshCppCodeModel()
 
     RawProjectPart rpp;
     rpp.setDisplayName(project()->displayName());
-    rpp.setProjectFileLocation(projectFilePath().toString());
+    rpp.setProjectFileLocation(projectFilePath());
     rpp.setQtVersion(kitInfo.projectPartQtVersion);
     rpp.setHeaderPaths(m_projectIncludePaths);
     rpp.setConfigFileName(m_configFileName);
@@ -671,15 +696,14 @@ void GenericProject::configureAsExampleProject(Kit *kit)
     setup(infoList);
 }
 
-bool GenericProjectFile::reload(QString *errorString, IDocument::ReloadFlag flag, IDocument::ChangeType type)
+Result GenericProjectFile::reload(IDocument::ReloadFlag flag, IDocument::ChangeType type)
 {
-    Q_UNUSED(errorString)
     Q_UNUSED(flag)
     Q_UNUSED(type)
     if (Target *t = m_project->activeTarget())
         static_cast<GenericBuildSystem *>(t->buildSystem())->refresh(m_options);
 
-    return true;
+    return Result::Ok;
 }
 
 void GenericProject::editFilesTriggered()
@@ -718,7 +742,7 @@ void setupGenericProject(QObject *guard)
     });
 
     ActionBuilder removeDirAction(guard, "GenericProject.RemoveDir");
-    removeDirAction.setContext(PEC::C_PROJECT_TREE);
+    removeDirAction.setContext(Constants::GENERICPROJECT_ID);
     removeDirAction.setText(Tr::tr("Remove Directory"));
     removeDirAction.addToContainer(PEC::M_FOLDERCONTEXT, PEC::G_FOLDER_OTHER);
     removeDirAction.addOnTriggered([] {

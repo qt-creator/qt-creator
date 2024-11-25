@@ -227,6 +227,7 @@ class DumperBase():
         self.watchers = args.get('watchers', {})
         self.useDynamicType = int(args.get('dyntype', '0'))
         self.useFancy = int(args.get('fancy', '0'))
+        self.allowInferiorCalls = int(args.get('allowinferiorcalls', '0'))
         self.forceQtNamespace = int(args.get('forcens', '0'))
         self.passExceptions = int(args.get('passexceptions', '0'))
         self.isTesting = int(args.get('testing', '0'))
@@ -3200,8 +3201,8 @@ typename))
             return "Value(name='%s',typeid=%s, type=%s,data=%s,address=%s)" \
                 % (self.name, self.typeid, self.type.name, data, addr)
 
-        def displayEnum(self, form='%d', bitsize=None):
-            return self.dumper.value_display_enum(self, form, bitsize)
+        def displayEnum(self, form='%d'):
+            return self.dumper.value_display_enum(self, form)
 
         def display(self):
             if self.ldisplay is not None:
@@ -4115,7 +4116,7 @@ typename))
         fdata = fdata[::-1]
         return int(fdata, 2)
 
-    def value_display_enum(self, value, form='%d', bitsize=None):
+    def value_display_enum(self, value, form='%d'):
         size = value.type.size()
         intval = self.value_extract_integer(value, size, False)
         dd = self.type_enum_display_cache.get(value.typeid, None)

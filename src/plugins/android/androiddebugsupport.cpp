@@ -3,6 +3,7 @@
 
 #include "androiddebugsupport.h"
 
+#include "androidconfigurations.h"
 #include "androidconstants.h"
 #include "androidrunner.h"
 #include "androidmanager.h"
@@ -86,7 +87,7 @@ public:
     {
         setId("AndroidDebugger");
         setLldbPlatform("remote-android");
-        m_runner = new AndroidRunner(runControl, {});
+        m_runner = new AndroidRunner(runControl);
         addStartDependency(m_runner);
     }
 
@@ -177,8 +178,8 @@ void AndroidDebugSupport::start()
     }
     if (isQmlDebugging()) {
         qCDebug(androidDebugSupportLog) << "QML debugging enabled. QML server: "
-                                        << m_runner->qmlServer().toDisplayString();
-        setQmlServer(m_runner->qmlServer());
+                                        << qmlChannel().toDisplayString();
+        setQmlServer(qmlChannel());
         //TODO: Not sure if these are the right paths.
         if (qtVersion)
             addSearchDirectory(qtVersion->qmlPath());

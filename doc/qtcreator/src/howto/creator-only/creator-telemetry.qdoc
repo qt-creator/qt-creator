@@ -1,0 +1,38 @@
+// Copyright (C) 2024 The Qt Company Ltd.
+// SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GFDL-1.3-no-invariants-only
+
+/*!
+    \page creator-how-to-collect-usage-statistics.html
+    \previouspage creator-how-tos.html
+
+    \ingroup creator-how-to-use
+
+    \title Collect usage statistics
+
+    When you install \QC with \QOI, you can allow it to collect pseudonymous
+    information about your system and \QC use. If you decline, the telemetry
+    plugin is not installed and no usage statistics are collected.
+
+    \section1 Principles of data collection
+
+    No personal data, such as names, IP addresses, MAC addresses, or project
+    and path names are collected. However, QUuid objects are used to identify
+    data records that belong to one user. The objects cannot be converted
+    back to the actual values from which they were generated.
+
+    For more information about Qt privacy policy, see
+    \l{https://www.qt.io/terms-conditions/privacy-and-security}
+    {Qt Appendix for Privacy and Security}.
+
+   \QC respects the same privacy rules.
+
+    \section1 Turn on data collection
+
+    To allow the telemetry plugin to collect data, go to \preferences >
+    \uicontrol Telemetry > \uicontrol {Usage Statistics}, and then select
+    \uicontrol {Send pseudonymous usage statistics}.
+
+    \image qtcreator-preferences-telemetry-usage-statistics.webp {Usage Statistics}
+
+    \sa {Installation}
+*/

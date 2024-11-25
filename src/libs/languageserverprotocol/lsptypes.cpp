@@ -16,7 +16,6 @@
 #include <QRegularExpression>
 #include <QTextBlock>
 #include <QTextDocument>
-#include <QVector>
 
 namespace LanguageServerProtocol {
 
@@ -113,7 +112,7 @@ static QHash<Utils::MimeType, QString> mimeTypeLanguageIdMap()
     static QHash<Utils::MimeType, QString> hash;
     if (!hash.isEmpty())
         return hash;
-    const QVector<QPair<QString, QString>> languageIdsForMimeTypeNames{
+    const QPair<QString, QString> languageIdsForMimeTypeNames[] = {
         {"text/x-python", "python"},
         {"text/x-bibtex", "bibtex"},
         {"application/vnd.coffeescript", "coffeescript"},

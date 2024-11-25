@@ -1,82 +1,192 @@
 type: Group
 instructions:
   - type: MakeDirectory
-    directory: ".git"
-  - type: SetBuildDirectory
-    directory: "{{.SourceDir}}"
-    disable_if:
-      condition: property
-      property: features
-      contains_value: OutOfSourceBuild
+    directory: "{{.AgentWorkingDir}}/build/qt_temp"
   - type: Group
     instructions:
-      - type: SetBuildDirectory
-        directory: "{{.AgentWorkingDir}}/build"
-      - type: MakeDirectory
-        directory: "{{.BuildDir}}"
-  - type: ChangeDirectory
-    directory: "{{.BuildDir}}"
-  - type: InstallSourceArchive
-    maxTimeInSeconds: 600
-    maxTimeBetweenOutput: 600
-    project: qtsdk/tqtc-qtsdk
-    ref: production
-    directory: "build/tqtc-qtsdk"
-    userMessageOnFailure: "Failed to install tqtc-qtsdk, check logs"
-  - type: Group
-    instructions:
-    - type: ExecuteCommand
-      command: python tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
-      maxTimeInSeconds: 36000
-      maxTimeBetweenOutput: 3600
-      userMessageOnFailure: "pkg_bootstrap.py failed"
-    enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          equals_value: Windows
-  - type: Group
-    instructions:
-    - type: ExecuteCommand
-      command: python3 tqtc-qtsdk/jenkins-templates/jenkins/scripts/pkg_bootstrap.py
-      maxTimeInSeconds: 36000
-      maxTimeBetweenOutput: 3600
-      userMessageOnFailure: "pkg_bootstrap.py failed"
-    enable_if:
-      condition: and
-      conditions:
-        - condition: property
-          property: host.os
-          not_equals_value: Windows
-  - type: ChangeDirectory
-    directory: "{{.BuildDir}}/tqtc-qtsdk/packaging_tools"
-  - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --icu7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/icu/prebuilt/56.1/icu-linux-g++-Rhel7.2-x64.7z {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                --icu7z {{.Env.QTC_ICU_URL}}
+                {{.Env.QTC_QT_MODULES}}
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/elfutils.7z
+                {{.Env.QTC_ELFUTILS_URL}}
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download elfutils package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z x -y {{.AgentWorkingDir}}/build/qt_temp/elfutils.7z
+                -o{{.AgentWorkingDir}}/build/qt_temp/elfutils
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract elfutils package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
+                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download LLVM package, check logs."
+      - type: ExecuteCommand
+        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract LLVM package, check logs."
     enable_if:
       condition: property
       property: host.os
       equals_value: Linux
-  - type: ExecuteCommand
-    command: "python3 -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}/qt-creator/qt-creator/scripts/install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                {{.Env.QTC_QT_MODULES}}"
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}/build/qt_temp/libclang.7z
+                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download LLVM package, check logs."
+      - type: ExecuteCommand
+        command: "7z x -y {{.AgentWorkingDir}}/build/qt_temp/libclang.7z -o{{.AgentWorkingDir}}/build/qt_temp/"
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract LLVM package, check logs."
     enable_if:
       condition: property
       property: host.os
       equals_value: MacOS
-  - type: ExecuteCommand
-    command: "python -m pipenv run python -u install_qt.py --qt-path {{.BuildDir}}/qt_install_dir --base-url {{.Env.QTC_QT_BASE_URL}} --base-url-postfix={{.Env.QTC_QT_POSTFIX}} --opengl32sw7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/llvmpipe/windows/opengl32sw-64.7z --d3dcompiler7z https://ci-files02-hki.ci.qt.io/packages/jenkins/development_releases/prebuilt/d3dcompiler/msvc2013/d3dcompiler_47-x64.7z --openssl7z https://ci-files02-hki.ci.qt.io/packages/jenkins/openssl/openssl_1.1.1d_prebuild_x64.7z {{.Env.QTC_QT_MODULES}}"
-    executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
-    maxTimeInSeconds: 3600
-    maxTimeBetweenOutput: 360
-    userMessageOnFailure: "Failed to install qt, check logs."
+  - type: Group
+    instructions:
+      - type: ExecuteCommand
+        command: >-
+            {{.Env.PYTHON_EXECUTABLE}} -u {{.AgentWorkingDir}}\qt-creator\qt-creator\scripts\install_qt.py
+                --qt-path {{.BuildDir}}/qt_install_dir
+                --base-url {{.Env.QTC_QT_BASE_URL}}
+                --base-url-postfix={{.Env.QTC_QT_POSTFIX}}
+                {{.Env.QTC_QT_MODULES}}
+        executeCommandArgumentSplitingBehavior: SplitAfterVariableSubstitution
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to install qt, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
+                {{.Env.QTC_ELFUTILS_URL}}
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download elfutils package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\elfutils.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp\elfutils
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract elfutils package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
+                https://master.qt.io/development_releases/prebuilt/python/Python311-win-x64.7z
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\Python311-win-x64.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp\python
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-amd64.zip
+                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-amd64.zip
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-amd64.zip
+                -o{{.AgentWorkingDir}}\build\qt_temp\python-amd64
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-arm64.zip
+                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-arm64.zip
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-arm64.zip
+                -o{{.AgentWorkingDir}}\build\qt_temp\python-arm64
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-win32.zip
+                https://master.qt.io/development_releases/prebuilt/python/python-3.11.9-embed-win32.zip
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\python-3.11.9-embed-win32.zip
+                -o{{.AgentWorkingDir}}\build\qt_temp\python-win32
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract python package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            curl --fail -L --retry 5 --retry-delay 5
+                -o {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
+                {{.Env.LLVM_BASE_URL}}{{.Env.QTC_LLVM_POSTFIX}}
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to download LLVM package, check logs."
+      - type: ExecuteCommand
+        command: >-
+            7z.exe x -y
+                {{.AgentWorkingDir}}\build\qt_temp\libclang.7z
+                -o{{.AgentWorkingDir}}\build\qt_temp
+        maxTimeInSeconds: 3600
+        maxTimeBetweenOutput: 360
+        userMessageOnFailure: "Failed to extract LLVM package, check logs."
     enable_if:
       condition: and
       conditions:
@@ -86,8 +196,3 @@ instructions:
         - condition: property
           property: target.arch
           equals_value: X86_64
-
-enable_if:
-  condition: property
-  property: features
-  not_contains_value: "Qt5"

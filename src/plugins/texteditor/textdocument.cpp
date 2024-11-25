@@ -10,6 +10,7 @@
 #include "tabsettings.h"
 #include "textdocumentlayout.h"
 #include "texteditor.h"
+#include "texteditorconstants.h"
 #include "texteditorsettings.h"
 #include "texteditortr.h"
 #include "textindenter.h"
@@ -339,6 +340,11 @@ QChar TextDocument::characterAt(int pos) const
     return document()->characterAt(pos);
 }
 
+QString TextDocument::blockText(int blockNumber) const
+{
+    return document()->findBlockByNumber(blockNumber).text();
+}
+
 void TextDocument::setTypingSettings(const TypingSettings &typingSettings)
 {
     d->m_typingSettings = typingSettings;
@@ -401,7 +407,7 @@ QAction *TextDocument::createDiffAgainstCurrentFileAction(
 void TextDocument::insertSuggestion(std::unique_ptr<TextSuggestion> &&suggestion)
 {
     QTextCursor cursor(&d->m_document);
-    cursor.setPosition(suggestion->position());
+    cursor.setPosition(suggestion->currentPosition());
     const QTextBlock block = cursor.block();
     TextDocumentLayout::userData(block)->insertSuggestion(std::move(suggestion));
     TextDocumentLayout::updateSuggestionFormats(block, fontSettings());
@@ -525,69 +531,6 @@ bool TextDocument::applyChangeSet(const ChangeSet &changeSet)
     return PlainRefactoringFileFactory().file(filePath())->apply(changeSet);
 }
 
-// the blocks list must be sorted
-void TextDocument::setIfdefedOutBlocks(const QList<BlockRange> &blocks)
-{
-    if (syntaxHighlighter() && !syntaxHighlighter()->syntaxHighlighterUpToDate()) {
-        connect(syntaxHighlighter(),
-                &SyntaxHighlighter::finished,
-                this,
-                [this, blocks] { setIfdefedOutBlocks(blocks); },
-                Qt::SingleShotConnection);
-        return;
-    }
-
-    QTextDocument *doc = document();
-    auto documentLayout = qobject_cast<TextDocumentLayout*>(doc->documentLayout());
-    QTC_ASSERT(documentLayout, return);
-
-    bool needUpdate = false;
-
-    QTextBlock block = doc->firstBlock();
-
-    int rangeNumber = 0;
-    int braceDepthDelta = 0;
-    while (block.isValid()) {
-        bool cleared = false;
-        bool set = false;
-        if (rangeNumber < blocks.size()) {
-            const BlockRange &range = blocks.at(rangeNumber);
-            if (block.position() >= range.first()
-                && ((block.position() + block.length() - 1) <= range.last() || !range.last()))
-                set = TextDocumentLayout::setIfdefedOut(block);
-            else
-                cleared = TextDocumentLayout::clearIfdefedOut(block);
-            if (block.contains(range.last()))
-                ++rangeNumber;
-        } else {
-            cleared = TextDocumentLayout::clearIfdefedOut(block);
-        }
-
-        if (cleared || set) {
-            needUpdate = true;
-            int delta = TextDocumentLayout::braceDepthDelta(block);
-            if (cleared)
-                braceDepthDelta += delta;
-            else if (set)
-                braceDepthDelta -= delta;
-        }
-
-        if (braceDepthDelta) {
-            TextDocumentLayout::changeBraceDepth(block,braceDepthDelta);
-            TextDocumentLayout::changeFoldingIndent(block, braceDepthDelta); // ### C++ only, refactor!
-        }
-
-        block = block.next();
-    }
-
-    if (needUpdate)
-        documentLayout->requestUpdate();
-
-#ifdef WITH_TESTS
-    emit ifdefedOutBlocksChanged(blocks);
-#endif
-}
-
 const ExtraEncodingSettings &TextDocument::extraEncodingSettings() const
 {
     return d->m_extraEncodingSettings;
@@ -646,7 +589,7 @@ QTextDocument *TextDocument::document() const
  * If \a autoSave is true, the cursor will be restored and some signals suppressed
  * and we do not clean up the text file (cleanWhitespace(), ensureFinalNewLine()).
  */
-bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool autoSave)
+Result TextDocument::saveImpl(const FilePath &filePath, bool autoSave)
 {
     QTextCursor cursor(&d->m_document);
 
@@ -701,7 +644,8 @@ bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool
         }
     }
 
-    const bool ok = write(filePath, saveFormat, plainText(), errorString);
+    QString errorString;
+    const bool ok = write(filePath, saveFormat, plainText(), &errorString);
 
     // restore text cursor and scroll bar positions
     if (autoSave && undos < d->m_document.availableUndoSteps()) {
@@ -717,16 +661,16 @@ bool TextDocument::saveImpl(QString *errorString, const FilePath &filePath, bool
     }
 
     if (!ok)
-        return false;
+        return Result::Error(errorString);
     d->m_autoSaveRevision = d->m_document.revision();
     if (autoSave)
-        return true;
+        return Result::Ok;
 
     // inform about the new filename
     d->m_document.setModified(false); // also triggers update of the block revisions
     setFilePath(filePath.absoluteFilePath());
     emit changed();
-    return true;
+    return Result::Ok;
 }
 
 QByteArray TextDocument::contents() const
@@ -847,19 +791,19 @@ Core::IDocument::OpenResult TextDocument::openImpl(QString *errorString,
     return OpenResult::Success;
 }
 
-bool TextDocument::reload(QString *errorString, QTextCodec *codec)
+Result TextDocument::reload(QTextCodec *codec)
 {
-    QTC_ASSERT(codec, return false);
+    QTC_ASSERT(codec, return Result::Error("No codec given"));
     setCodec(codec);
-    return reload(errorString);
+    return reload();
 }
 
-bool TextDocument::reload(QString *errorString)
+Result TextDocument::reload()
 {
-    return reload(errorString, filePath());
+    return reload(filePath());
 }
 
-bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
+Result TextDocument::reload(const FilePath &realFilePath)
 {
     emit aboutToReload();
     auto documentLayout =
@@ -867,13 +811,15 @@ bool TextDocument::reload(QString *errorString, const FilePath &realFilePath)
     if (documentLayout)
         documentLayout->documentAboutToReload(this); // removes text marks non-permanently
 
-    bool success = openImpl(errorString, filePath(), realFilePath, /*reload =*/true)
+    QString errorString;
+    bool success = openImpl(&errorString, filePath(), realFilePath, /*reload =*/true)
                    == OpenResult::Success;
 
     if (documentLayout)
         documentLayout->documentReloaded(this); // re-adds text marks
     emit reloadFinished(success);
-    return success;
+
+    return Result(success, errorString);
 }
 
 bool TextDocument::setPlainText(const QString &text)
@@ -890,24 +836,24 @@ bool TextDocument::setPlainText(const QString &text)
     return true;
 }
 
-bool TextDocument::reload(QString *errorString, ReloadFlag flag, ChangeType type)
+Result TextDocument::reload(ReloadFlag flag, ChangeType type)
 {
     if (flag == FlagIgnore) {
         if (type != TypeContents)
-            return true;
+            return Result::Ok;
 
         const bool wasModified = document()->isModified();
         {
-            Utils::GuardLocker locker(d->m_modificationChangedGuard);
+            GuardLocker locker(d->m_modificationChangedGuard);
             // hack to ensure we clean the clear state in QTextDocument
             document()->setModified(false);
             document()->setModified(true);
         }
         if (!wasModified)
             modificationChanged(true);
-        return true;
+        return Result::Ok;
     }
-    return reload(errorString);
+    return reload();
 }
 
 void TextDocument::resetSyntaxHighlighter(const std::function<SyntaxHighlighter *()> &creator)
@@ -1088,7 +1034,7 @@ void TextDocument::removeMarkFromMarksCache(TextMark *mark)
 {
     auto documentLayout = qobject_cast<TextDocumentLayout*>(d->m_document.documentLayout());
     QTC_ASSERT(documentLayout, return);
-    d->m_marksCache.removeAll(mark);
+    d->m_marksCache.removeOne(mark);
 
     auto scheduleLayoutUpdate = [documentLayout](){
         // make sure all destructors that may directly or indirectly call this function are

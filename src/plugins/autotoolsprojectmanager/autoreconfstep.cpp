@@ -8,6 +8,7 @@
 
 #include <projectexplorer/abstractprocessstep.h>
 #include <projectexplorer/buildconfiguration.h>
+#include <projectexplorer/buildstep.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
@@ -42,8 +43,7 @@ public:
         arguments.setValue("--force --install");
         arguments.setDisplayStyle(StringAspect::LineEditDisplay);
         arguments.setHistoryCompleter("AutotoolsPM.History.AutoreconfStepArgs");
-
-        connect(&arguments, &BaseAspect::changed, this, [this] { m_runAutoreconf = true; });
+        arguments.addOnChanged(this, [this] { m_runAutoreconf = true; });
 
         setCommandLineProvider([this] {
             return CommandLine("autoreconf", arguments(), CommandLine::Raw);
@@ -100,12 +100,21 @@ private:
  * The factory is used to create instances of AutoreconfStep.
  */
 
-AutoreconfStepFactory::AutoreconfStepFactory()
+class AutoreconfStepFactory final : public ProjectExplorer::BuildStepFactory
 {
-    registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
-    setDisplayName(Tr::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
-    setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
-    setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+public:
+    AutoreconfStepFactory()
+    {
+        registerStep<AutoreconfStep>(Constants::AUTORECONF_STEP_ID);
+        setDisplayName(Tr::tr("Autoreconf", "Display name for AutotoolsProjectManager::AutoreconfStep id."));
+        setSupportedProjectType(Constants::AUTOTOOLS_PROJECT_ID);
+        setSupportedStepList(ProjectExplorer::Constants::BUILDSTEPS_BUILD);
+    }
+};
+
+void setupAutoreconfStep()
+{
+    static AutoreconfStepFactory theAutoreconfStepFactory;
 }
 
 } // AutotoolsProjectManager::Internal

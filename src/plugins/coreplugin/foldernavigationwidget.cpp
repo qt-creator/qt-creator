@@ -256,10 +256,7 @@ FolderNavigationWidget::FolderNavigationWidget(QWidget *parent) : QWidget(parent
     m_crumbContainer(new QWidget(this)),
     m_crumbLabel(new DelayedFileCrumbLabel(this))
 {
-    auto context = new IContext(this);
-    context->setContext(Context(C_FOLDERNAVIGATIONWIDGET));
-    context->setWidget(this);
-    ICore::addContextObject(context);
+    IContext::attach(this, Context(C_FOLDERNAVIGATIONWIDGET));
 
     setBackgroundRole(QPalette::Base);
     setAutoFillBackground(true);

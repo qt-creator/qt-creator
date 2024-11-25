@@ -425,7 +425,7 @@ bool ScrollBar::event(QEvent *event)
                                                           &option,
                                                           QStyle::SC_ScrollBarSlider,
                                                           this)
-                                         .contains(hoverEvent->pos());
+                                         .contains(hoverEvent->position().toPoint());
 
             d->isGrooveUnderCursor = !d->isHandleUnderCursor
                                      && style()
@@ -433,7 +433,7 @@ bool ScrollBar::event(QEvent *event)
                                                              &option,
                                                              QStyle::SC_ScrollBarGroove,
                                                              this)
-                                            .contains(hoverEvent->pos());
+                                            .contains(hoverEvent->position().toPoint());
         }
     } break;
     case QEvent::HoverLeave:

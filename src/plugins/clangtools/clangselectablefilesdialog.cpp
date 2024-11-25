@@ -61,7 +61,7 @@ static Tree *createDirNode(const QString &name, const FilePath &filePath = FileP
 static Tree *createFileNode(const FileInfo &fileInfo, bool displayFullPath = false)
 {
     auto node = new TreeWithFileInfo;
-    node->name = displayFullPath ? fileInfo.file.toString() : fileInfo.file.fileName();
+    node->name = displayFullPath ? fileInfo.file.toUserOutput() : fileInfo.file.fileName();
     node->fullPath = fileInfo.file;
     node->info = fileInfo;
 

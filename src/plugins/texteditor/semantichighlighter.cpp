@@ -161,7 +161,6 @@ void SemanticHighlighter::clearExtraAdditionalFormatsUntilEnd(
         }
     }
 
-    QList<int> clearBlockNumberVector;
     for (QTextBlock b = firstBlockToClear; b.isValid(); b = b.next())
         highlighter->clearExtraFormats(b);
 

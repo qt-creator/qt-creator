@@ -151,7 +151,7 @@ static QList<Target *> validTargets(Project *project)
         const Toolchain * const toolchain = ToolchainKitAspect::cxxToolchain(kit);
         QTC_ASSERT(toolchain, return false);
 
-        if (Core::ICore::clangExecutable(CLANG_BINDIR).isEmpty()) {
+        if (!Core::ICore::clangExecutable(CLANG_BINDIR)) {
             qWarning("Project \"%s\": Skipping target \"%s\" since no suitable clang was found for the toolchain.",
                      qPrintable(projectFileName),
                      qPrintable(target->displayName()));

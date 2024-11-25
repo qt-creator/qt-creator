@@ -33,6 +33,8 @@ QtcPlugin {
         "clangtoolrunner.cpp",
         "clangtoolrunner.h",
         "clangtools_global.h",
+        "clangtoolscompilationdb.cpp",
+        "clangtoolscompilationdb.h",
         "clangtoolstr.h",
         "clangtoolsconstants.h",
         "clangtoolsdiagnostic.cpp",

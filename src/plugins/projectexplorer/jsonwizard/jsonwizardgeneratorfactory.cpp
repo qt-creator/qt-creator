@@ -259,13 +259,14 @@ bool JsonWizardGenerator::allDone(const JsonWizard *wizard, JsonWizard::Generato
 
 void JsonWizardGeneratorFactory::setTypeIdsSuffixes(const QStringList &suffixes)
 {
-    m_typeIds = Utils::transform(suffixes, [](QString suffix)
-        { return Id::fromString(QString::fromLatin1(Constants::GENERATOR_ID_PREFIX) + suffix); });
+    m_typeIds = Utils::transform(suffixes, [](QString suffix) {
+        return Id(Constants::GENERATOR_ID_PREFIX).withSuffix(suffix);
+    });
 }
 
 void JsonWizardGeneratorFactory::setTypeIdsSuffix(const QString &suffix)
 {
-    setTypeIdsSuffixes(QStringList() << suffix);
+    setTypeIdsSuffixes({suffix});
 }
 
 } // namespace ProjectExplorer

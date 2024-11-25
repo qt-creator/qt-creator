@@ -7,7 +7,8 @@
 #include "qbsprofilemanager.h"
 #include "qbsprojectmanagertr.h"
 
-#include <projectexplorer/kitmanager.h>
+#include <projectexplorer/kit.h>
+#include <projectexplorer/kitaspect.h>
 
 #include <utils/elidinglabel.h>
 #include <utils/layoutbuilder.h>
@@ -34,7 +35,7 @@ private:
     void makeReadOnly() override { m_changeButton->setEnabled(false); }
     void refresh() override { m_contentLabel->setText(QbsKitAspect::representation(kit())); }
 
-    void addToLayoutImpl(Layouting::Layout &parent) override
+    void addToInnerLayout(Layouting::Layout &parent) override
     {
         addMutableAction(m_contentLabel);
         parent.addItem(m_contentLabel);
@@ -89,7 +90,10 @@ public:
     QbsKitAspectFactory()
     {
         setId(QbsKitAspect::id());
-        setDisplayName(Tr::tr("Additional Qbs Profile Settings"));
+        setDisplayName(Tr::tr("Qbs Profile Additions"));
+        setDescription(Tr::tr("Additional module properties to set in "
+                              "the Qbs profile corresponding to this kit.\n"
+                              "You will rarely need to do this."));
         setPriority(22000);
     }
 

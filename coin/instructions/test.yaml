@@ -13,7 +13,3 @@ instructions:
     maxTimeInSeconds: 600
     maxTimeBetweenOutput: 600
     userMessageOnFailure: "Failed to run tests, check logs"
-enable_if:
-  condition: property
-  property: features
-  not_contains_value: "Qt5"

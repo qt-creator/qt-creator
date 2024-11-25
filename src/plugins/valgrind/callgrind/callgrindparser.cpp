@@ -110,22 +110,10 @@ static int parseNameShorthand(const char **current, const char *end)
 }
 
 
-class Parser::Private
+class ParserPrivate
 {
-    Parser *const q;
 public:
-
-    explicit Private(Parser *qq)
-        : q(qq)
-    {
-    }
-
-    ~Private()
-    {
-        delete data;
-    }
-
-    void parse(const FilePath &filePath);
+    ParseDataPtr parse(const FilePath &filePath);
     void parseHeader(QIODevice *device);
 
     using NamePair = QPair<qint64, QString>;
@@ -145,7 +133,7 @@ public:
     int addressValuesCount = 0;
     int costValuesCount = 0;
 
-    ParseData *data = nullptr;
+    std::shared_ptr<ParseData> data;
     Function *currentFunction = nullptr;
     qint64 lastObject = -1;
     qint64 lastFile = -1;
@@ -172,19 +160,14 @@ public:
     QSet<Function *> recursiveFunctions;
 };
 
-void Parser::Private::parse(const FilePath &filePath)
+ParseDataPtr ParserPrivate::parse(const FilePath &filePath)
 {
-    // be sure to clean up existing data before re-allocating
-    // the callee might not have taken the parse data
-    delete data;
-    data = nullptr;
-
     const QString path = filePath.path(); // FIXME: Works only accidentally for docker
     QFile file(path);
     if (!file.open(QIODevice::ReadOnly))
         qWarning() << "Could not open file for parsing:" << filePath.toUserOutput();
 
-    data = new ParseData(path);
+    data = std::make_shared<ParseData>(path);
     parseHeader(&file);
     while (!file.atEnd()) {
         const QByteArray line = file.readLine();
@@ -243,8 +226,7 @@ void Parser::Private::parse(const FilePath &filePath)
     // now accumulate callees
     for (Function *func : std::as_const(pendingFunctions))
         func->finalize();
-
-    emit q->parserDataReady();
+    return data;
 }
 
 inline QString getValue(const QByteArray &line, const int prefixLength)
@@ -254,7 +236,7 @@ inline QString getValue(const QByteArray &line, const int prefixLength)
     return QString::fromLatin1(line.mid(prefixLength, line.length() - 1 - prefixLength).constData());
 }
 
-void Parser::Private::parseHeader(QIODevice *device)
+void ParserPrivate::parseHeader(QIODevice *device)
 {
     QTC_ASSERT(device->isOpen(), return);
     QTC_ASSERT(device->isReadable(), return);
@@ -311,7 +293,7 @@ void Parser::Private::parseHeader(QIODevice *device)
     }
 }
 
-Parser::Private::NamePair Parser::Private::parseName(const char *begin, const char *end)
+ParserPrivate::NamePair ParserPrivate::parseName(const char *begin, const char *end)
 {
     const char *current = begin;
     qint64 nameShorthand = -1;
@@ -335,7 +317,7 @@ Parser::Private::NamePair Parser::Private::parseName(const char *begin, const ch
  * cfn means called function
  */
 
-void Parser::Private::dispatchLine(const QByteArray &line)
+void ParserPrivate::dispatchLine(const QByteArray &line)
 {
     int lineEnding = line.endsWith("\r\n") ? 2 : 1;
     const char *const begin = line.constData();
@@ -418,7 +400,7 @@ void Parser::Private::dispatchLine(const QByteArray &line)
     }
 }
 
-void Parser::Private::parseCostItem(const char *begin, const char *end)
+void ParserPrivate::parseCostItem(const char *begin, const char *end)
 {
     QTC_ASSERT(currentFunction, return);
 
@@ -426,7 +408,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
     const char *current = begin;
 
     QTC_ASSERT(currentDifferingFile == -1 || currentDifferingFile != currentFunction->fileId(), return);
-    auto costItem = new CostItem(data);
+    auto costItem = new CostItem(data.get());
     costItem->setDifferingFile(currentDifferingFile);
     FunctionCall *call = nullptr;
     if (isParsingFunctionCall) {
@@ -514,7 +496,7 @@ void Parser::Private::parseCostItem(const char *begin, const char *end)
     currentFunction->addCostItem(costItem);
 }
 
-void Parser::Private::parseSourceFile(const char *begin, const char *end)
+void ParserPrivate::parseSourceFile(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
 
@@ -528,9 +510,9 @@ void Parser::Private::parseSourceFile(const char *begin, const char *end)
     currentDifferingFile = -1;
 }
 
-void Parser::Private::parseFunction(const char *begin, const char *end)
+void ParserPrivate::parseFunction(const char *begin, const char *end)
 {
-    currentFunction = new Function(data);
+    currentFunction = new Function(data.get());
     currentFunction->setFile(lastFile);
     currentFunction->setObject(lastObject);
 
@@ -544,7 +526,7 @@ void Parser::Private::parseFunction(const char *begin, const char *end)
     currentFunction->setName(name.first);
 }
 
-void Parser::Private::parseDifferingSourceFile(const char *begin, const char *end)
+void ParserPrivate::parseDifferingSourceFile(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
 
@@ -560,7 +542,7 @@ void Parser::Private::parseDifferingSourceFile(const char *begin, const char *en
         currentDifferingFile = name.first;
 }
 
-void Parser::Private::parseObjectFile(const char *begin, const char *end)
+void ParserPrivate::parseObjectFile(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
     if (!name.second.isEmpty())
@@ -569,7 +551,7 @@ void Parser::Private::parseObjectFile(const char *begin, const char *end)
     lastObject = name.first;
 }
 
-void Parser::Private::parseCalls(const char *begin, const char *end)
+void ParserPrivate::parseCalls(const char *begin, const char *end)
 {
     const char *current = begin;
     bool ok;
@@ -587,7 +569,7 @@ void Parser::Private::parseCalls(const char *begin, const char *end)
     isParsingFunctionCall = true;
 }
 
-void Parser::Private::parseCalledFunction(const char *begin, const char *end)
+void ParserPrivate::parseCalledFunction(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
     if (!name.second.isEmpty())
@@ -596,7 +578,7 @@ void Parser::Private::parseCalledFunction(const char *begin, const char *end)
     currentCallData.calledFunction = name.first;
 }
 
-void Parser::Private::parseCalledSourceFile(const char *begin, const char *end)
+void ParserPrivate::parseCalledSourceFile(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
     if (!name.second.isEmpty()) {
@@ -608,7 +590,7 @@ void Parser::Private::parseCalledSourceFile(const char *begin, const char *end)
     currentCallData.calledFile = name.first;
 }
 
-void Parser::Private::parseCalledObjectFile(const char *begin, const char *end)
+void ParserPrivate::parseCalledObjectFile(const char *begin, const char *end)
 {
     NamePair name = parseName(begin, end);
     if (!name.second.isEmpty())
@@ -619,26 +601,10 @@ void Parser::Private::parseCalledObjectFile(const char *begin, const char *end)
 
 //BEGIN Parser
 
-void Parser::parse(const Utils::FilePath &filePath)
+ParseDataPtr parseDataFile(const Utils::FilePath &filePath)
 {
-    d->parse(filePath);
-}
-
-Parser::Parser()
-    : d(new Private(this))
-{
-}
-
-Parser::~Parser()
-{
-    delete d;
-}
-
-ParseData *Parser::takeData()
-{
-    ParseData *data = d->data;
-    d->data = nullptr;
-    return data;
+    ParserPrivate parser;
+    return parser.parse(filePath);
 }
 
 } // namespace Valgrind::Callgrind

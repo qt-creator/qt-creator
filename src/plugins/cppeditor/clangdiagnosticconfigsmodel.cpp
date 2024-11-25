@@ -4,12 +4,12 @@
 #include "clangdiagnosticconfigsmodel.h"
 
 #include "cppeditorconstants.h"
+#include "cppeditortr.h"
 #include "cpptoolsreuse.h"
 
 #include <utils/algorithm.h>
 
 #include <QCoreApplication>
-#include <QUuid>
 
 namespace CppEditor {
 
@@ -69,7 +69,7 @@ ClangDiagnosticConfig ClangDiagnosticConfigsModel::createCustomConfig(
     const ClangDiagnosticConfig &baseConfig, const QString &displayName)
 {
     ClangDiagnosticConfig copied = baseConfig;
-    copied.setId(Utils::Id::fromString(QUuid::createUuid().toString()));
+    copied.setId(Utils::Id::generate());
     copied.setDisplayName(displayName);
     copied.setIsReadOnly(false);
 
@@ -86,6 +86,34 @@ QStringList ClangDiagnosticConfigsModel::globalDiagnosticOptions()
         // qdoc commands
         QStringLiteral("-Wno-documentation-unknown-command")
     };
+}
+
+void ClangDiagnosticConfigsModel::addBuiltinConfigs()
+{
+    ClangDiagnosticConfig config;
+
+    // Questionable constructs
+    config = ClangDiagnosticConfig();
+    config.setId(Constants::CPP_CLANG_DIAG_CONFIG_QUESTIONABLE);
+    config.setDisplayName(Tr::tr("Checks for questionable constructs"));
+    config.setIsReadOnly(true);
+    config.setClangOptions({
+        "-Wall",
+        "-Wextra",
+    });
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+    appendOrUpdate(config);
+
+    // Warning flags from build system
+    config = ClangDiagnosticConfig();
+    config.setId(Constants::CPP_CLANG_DIAG_CONFIG_BUILDSYSTEM);
+    config.setDisplayName(Tr::tr("Build-system warnings"));
+    config.setIsReadOnly(true);
+    config.setClazyMode(ClangDiagnosticConfig::ClazyMode::UseCustomChecks);
+    config.setClangTidyMode(ClangDiagnosticConfig::TidyMode::UseCustomChecks);
+    config.setUseBuildSystemWarnings(true);
+    appendOrUpdate(config);
 }
 
 int ClangDiagnosticConfigsModel::indexOfConfig(const Utils::Id &id) const

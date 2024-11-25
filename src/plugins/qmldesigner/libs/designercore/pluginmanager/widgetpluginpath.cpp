@@ -4,7 +4,7 @@
 #include "widgetpluginpath.h"
 #include <iwidgetplugin.h>
 
-#include <utils/fileutils.h>
+#include <utils/filepath.h>
 
 #include <QLibrary>
 #include <QPluginLoader>

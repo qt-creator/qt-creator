@@ -7,13 +7,10 @@
 
 namespace Gerrit::Internal {
 
-class GerritParameters;
-
 class GerritOptionsPage : public Core::IOptionsPage
 {
 public:
-    GerritOptionsPage(const std::shared_ptr<GerritParameters> &p,
-                      const std::function<void()> &onChanged);
+    explicit GerritOptionsPage(const std::function<void()> &onChanged);
 };
 
 } // Gerrit::Internal

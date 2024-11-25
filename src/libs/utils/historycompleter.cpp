@@ -32,7 +32,7 @@ public:
     QStringList list;
     Key historyKey;
     Key historyKeyIsLastItemEmpty;
-    int maxLines = 6;
+    int maxLines;
     bool isLastItemEmpty = isLastItemEmptyDefault;
 };
 
@@ -93,9 +93,9 @@ private:
     {
         const QSize clearButtonSize = delegate->clearIconSize;
         if (clearButtonSize.isValid()) {
-            int rr = event->x();
+            int rr = event->position().x();
             if (layoutDirection() == Qt::LeftToRight)
-                rr = viewport()->width() - event->x();
+                rr = viewport()->width() - event->position().x();
             if (rr < clearButtonSize.width()) {
                 const QModelIndex index = indexAt(event->pos());
                 if (index.isValid()) {
@@ -174,13 +174,14 @@ void HistoryCompleterPrivate::addEntry(const QString &str)
                                      isLastItemEmptyDefault);
 }
 
-HistoryCompleter::HistoryCompleter(const Key &historyKey, QObject *parent)
-    : QCompleter(parent),
-      d(new HistoryCompleterPrivate)
+HistoryCompleter::HistoryCompleter(const Key &historyKey, int maxLines, QObject *parent)
+    : QCompleter(parent)
+    , d(new HistoryCompleterPrivate)
 {
     QTC_ASSERT(!historyKey.isEmpty(), return);
     QTC_ASSERT(theSettings, return);
 
+    d->maxLines = maxLines;
     d->historyKey = "CompleterHistory/" + historyKey;
     d->list = theSettings->value(d->historyKey).toStringList();
     d->historyKeyIsLastItemEmpty = "CompleterHistory/" + historyKey + ".IsLastItemEmpty";
@@ -222,16 +223,6 @@ HistoryCompleter::~HistoryCompleter()
 int HistoryCompleter::historySize() const
 {
     return d->rowCount();
-}
-
-int HistoryCompleter::maximalHistorySize() const
-{
-    return d->maxLines;
-}
-
-void HistoryCompleter::setMaximalHistorySize(int numberOfEntries)
-{
-    d->maxLines = numberOfEntries;
 }
 
 void HistoryCompleter::clearHistory()

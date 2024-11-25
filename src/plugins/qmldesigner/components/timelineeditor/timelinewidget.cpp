@@ -2,9 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "timelinewidget.h"
-#include "bindingproperty.h"
 #include "curvesegment.h"
-#include "easingcurve.h"
 #include "easingcurvedialog.h"
 #include "timelineconstants.h"
 #include "timelinegraphicsscene.h"
@@ -45,6 +43,8 @@
 
 #include <cmath>
 
+using namespace Core;
+
 namespace QmlDesigner {
 
 class Eventfilter : public QObject
@@ -74,8 +74,8 @@ static qreal next(const QVector<qreal> &vector, qreal current)
 
 static qreal previous(const QVector<qreal> &vector, qreal current)
 {
-    auto iter = std::ranges::find_if(vector | std::views::reverse,
-                                     [&](qreal val) { return val < current; });
+    auto iter = std::find_if(vector.rbegin(), vector.rend(),
+                             [&](qreal val) { return val < current; });
     if (iter != vector.rend())
         return *iter;
     return current;
@@ -278,6 +278,9 @@ TimelineWidget::TimelineWidget(TimelineView *view)
     connect(m_playbackAnimation, &QVariantAnimation::finished, onFinish);
 
     TimeLineNS::TimelineScrollAreaSupport::support(m_graphicsView, m_scrollbar);
+
+    IContext::attach(this, Context(TimelineConstants::C_QMLTIMELINE),
+                    [this](const IContext::HelpCallback &callback) { contextHelp(callback); });
 }
 
 void TimelineWidget::connectToolbar()

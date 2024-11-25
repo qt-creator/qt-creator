@@ -11,6 +11,8 @@
 #include <QProcess>
 #include <QQueue>
 
+namespace Utils { class CommandLine; }
+
 namespace ProjectExplorer {
 class Kit;
 class RunControl;

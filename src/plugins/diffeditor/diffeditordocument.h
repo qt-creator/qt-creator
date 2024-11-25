@@ -45,6 +45,8 @@ public:
 
     void setDescription(const QString &description);
     QString description() const;
+    void setDescriptionAnsiEnabled(bool enabled) { m_descriptionAnsiEnabled = enabled; }
+    bool isDescriptionAnsiEnabled() const { return m_descriptionAnsiEnabled; }
 
     void setContextLineCount(int lines);
     int contextLineCount() const;
@@ -59,7 +61,7 @@ public:
 
     bool isSaveAsAllowed() const override;
     void reload();
-    bool reload(QString *errorString, ReloadFlag flag, ChangeType type) override;
+    Utils::Result reload(ReloadFlag flag, ChangeType type) override;
     OpenResult open(QString *errorString, const Utils::FilePath &filePath,
                     const Utils::FilePath &realFilePath) override;
     bool selectEncoding();
@@ -73,7 +75,7 @@ signals:
     void descriptionChanged();
 
 protected:
-    bool saveImpl(QString *errorString, const Utils::FilePath &filePath, bool autoSave) override;
+    Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
 
 private:
     void beginReload();
@@ -88,6 +90,7 @@ private:
     int m_contextLineCount = 3;
     bool m_isContextLineCountForced = false;
     bool m_ignoreWhitespace = false;
+    bool m_descriptionAnsiEnabled = false;
     State m_state = LoadOK;
 
     friend class ::DiffEditor::DiffEditorController;

@@ -9,8 +9,7 @@
 
 #include <optional>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 class NinjaParser final : public ProjectExplorer::OutputTaskParser
 {
@@ -28,5 +27,4 @@ public:
     Q_SIGNAL void reportProgress(int progress);
 };
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

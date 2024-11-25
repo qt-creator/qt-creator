@@ -3,14 +3,8 @@
 
 #pragma once
 
-#include <projectexplorer/buildstep.h>
-
 namespace IncrediBuild::Internal {
 
-class BuildConsoleStepFactory final : public ProjectExplorer::BuildStepFactory
-{
-public:
-    BuildConsoleStepFactory();
-};
+void setupBuildConsoleStep();
 
 } // IncrediBuild::Internal

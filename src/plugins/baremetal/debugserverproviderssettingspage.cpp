@@ -15,21 +15,18 @@
 
 #include <utils/algorithm.h>
 #include <utils/detailswidget.h>
+#include <utils/layoutbuilder.h>
 #include <utils/qtcassert.h>
 
 #include <QAction>
 #include <QApplication>
-#include <QGroupBox>
-#include <QHBoxLayout>
 #include <QHeaderView>
 #include <QItemSelectionModel>
 #include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
-#include <QSpacerItem>
 #include <QTextStream>
 #include <QTreeView>
-#include <QVBoxLayout>
 
 using namespace Debugger;
 using namespace Utils;
@@ -290,28 +287,19 @@ DebugServerProvidersSettingsWidget::DebugServerProvidersSettingsWidget()
     m_container->setMinimumWidth(500);
     m_container->setVisible(false);
 
-    const auto buttonLayout = new QHBoxLayout;
-    buttonLayout->setSpacing(6);
-    buttonLayout->setContentsMargins(0, 0, 0, 0);
-    buttonLayout->addWidget(m_addButton);
-    buttonLayout->addWidget(m_cloneButton);
-    buttonLayout->addWidget(m_delButton);
-    const auto spacerItem = new QSpacerItem(40, 10, QSizePolicy::Expanding, QSizePolicy::Minimum);
-    buttonLayout->addItem(spacerItem);
-
-    const auto verticalLayout = new QVBoxLayout;
-    verticalLayout->addWidget(m_providerView);
-    verticalLayout->addLayout(buttonLayout);
-
-    const auto horizontalLayout = new QHBoxLayout;
-    horizontalLayout->addLayout(verticalLayout);
-    horizontalLayout->addWidget(m_container);
-
-    const auto groupBox = new QGroupBox(Tr::tr("Debug Server Providers"), this);
-    groupBox->setLayout(horizontalLayout);
-
-    const auto topLayout = new QVBoxLayout(this);
-    topLayout->addWidget(groupBox);
+    using namespace Layouting;
+    Column {
+        Group {
+            title(Tr::tr("Debug Server Providers")),
+            Row {
+                Column {
+                    m_providerView,
+                    Row { m_addButton, m_cloneButton, m_delButton, st },
+                },
+                m_container,
+            },
+        },
+    }.attachTo(this);
 
     connect(&m_model, &DebugServerProviderModel::providerStateChanged,
             this, &DebugServerProvidersSettingsWidget::updateState);

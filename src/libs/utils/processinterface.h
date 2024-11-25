@@ -65,7 +65,7 @@ class QTCREATOR_UTILS_EXPORT ProcessRunData
 public:
     Utils::CommandLine command;
     Utils::FilePath workingDirectory;
-    Utils::Environment environment;
+    Utils::Environment environment = {};
 };
 
 class QTCREATOR_UTILS_EXPORT ProcessSetupData

@@ -25,8 +25,7 @@
 
 using namespace Git::Internal;
 
-namespace Gerrit {
-namespace Internal {
+namespace Gerrit::Internal {
 
 static const int ReasonableDistance = 100;
 
@@ -108,7 +107,6 @@ void GerritPushDialog::initRemoteBranches()
 
 GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir,
                                    const QString &reviewerList,
-                                   std::shared_ptr<GerritParameters> parameters,
                                    QWidget *parent)
     : QDialog(parent)
     , m_localBranchComboBox(new BranchComboBox)
@@ -154,7 +152,6 @@ GerritPushDialog::GerritPushDialog(const Utils::FilePath &workingDir,
     }.attachTo(this);
 
     m_remoteComboBox->setRepository(workingDir);
-    m_remoteComboBox->setParameters(parameters);
     m_remoteComboBox->setAllowDups(true);
 
     auto delegate = new PushItemDelegate(m_commitView);
@@ -310,7 +307,7 @@ QString GerritPushDialog::pushTarget() const
     target += '/' + selectedRemoteBranchName();
     const QString topic = selectedTopic();
     if (!topic.isEmpty())
-        target += '/' + topic;
+        options << "topic=" + topic;
 
     const QStringList reviewersInput = reviewers().split(',', Qt::SkipEmptyParts);
     for (const QString &reviewer : reviewersInput)
@@ -419,5 +416,4 @@ QString GerritPushDialog::reviewers() const
     return m_reviewersLineEdit->text();
 }
 
-} // namespace Internal
-} // namespace Gerrit
+} // Gerrit::Internal

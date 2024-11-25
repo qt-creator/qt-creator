@@ -40,6 +40,7 @@
 #include <qtsupport/qtkitaspect.h>
 
 #include <utils/algorithm.h>
+#include <utils/fileutils.h>
 #include <utils/mimeutils.h>
 #include <utils/qtcassert.h>
 #include <utils/stringutils.h>
@@ -61,7 +62,9 @@
 #include <memory>
 #include <optional>
 
+namespace Designer::Internal {
 Q_LOGGING_CATEGORY(log, "qtc.designer", QtWarningMsg);
+} // namespace Designer::Internal
 
 using namespace Designer::Internal;
 using namespace CPlusPlus;
@@ -822,7 +825,7 @@ void QtCreatorIntegration::handleSymbolRenameStage2(
             Symbol * const symbol = scope->memberAt(i);
             if (const Scope * const s = symbol->asScope())
                 scopes << s;
-            if (symbol->asNamespace())
+            if (symbol->asNamespace() || !symbol->name())
                 continue;
             qCDebug(log) << '\t' << Overview().prettyName(symbol->name());
             if (!symbol->name()->match(&oldIdentifier))

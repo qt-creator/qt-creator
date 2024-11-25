@@ -191,7 +191,7 @@ QVariant TarPackageCreationStep::data(Id id) const
 void TarPackageCreationStep::raiseError(const QString &errorMessage)
 {
     emit addTask(DeploymentTask(Task::Error, errorMessage));
-    emit addOutput(errorMessage, OutputFormat::Stderr);
+    emit addOutput(errorMessage, OutputFormat::ErrorMessage);
 }
 
 void TarPackageCreationStep::raiseWarning(const QString &warningMessage)

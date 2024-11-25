@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "buildablehelperlibrary.h"
+
+#include "algorithm.h"
 #include "environment.h"
 #include "hostosinfo.h"
 #include "qtcprocess.h"
@@ -24,6 +26,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 {
     const QString toolDir = QLatin1String("QTTOOLDIR=\"");
     Process proc;
+    proc.setEnvironment(qtChooser.deviceEnvironment());
     proc.setCommand({qtChooser, {"-print-env"}});
     proc.runBlocking(1s);
     if (proc.result() != ProcessResult::FinishedWithSuccess)
@@ -42,7 +45,7 @@ FilePath BuildableHelperLibrary::qtChooserToQmakePath(const FilePath &qtChooser)
 
 static bool isQmake(FilePath path)
 {
-    if (path.isEmpty())
+    if (!path.isExecutableFile())
         return false;
     if (BuildableHelperLibrary::isQtChooser(path))
         path = BuildableHelperLibrary::qtChooserToQmakePath(path.symLinkTarget());
@@ -51,37 +54,42 @@ static bool isQmake(FilePath path)
     return !BuildableHelperLibrary::qtVersionForQMake(path).isEmpty();
 }
 
-static FilePath findQmakeInDir(const FilePath &dir)
+static FilePaths findQmakesInDir(const FilePath &dir)
 {
     if (dir.isEmpty())
         return {};
 
-    FilePath qmakePath = dir.pathAppended("qmake").withExecutableSuffix();
-    if (qmakePath.exists()) {
-        if (isQmake(qmakePath))
-            return qmakePath;
-    }
-
     // Prefer qmake-qt5 to qmake-qt4 by sorting the filenames in reverse order.
+    FilePaths qmakes;
+    std::set<FilePath> canonicalQmakes;
     const FilePaths candidates = dir.dirEntries(
                 {BuildableHelperLibrary::possibleQMakeCommands(), QDir::Files},
                 QDir::Name | QDir::Reversed);
+
+    const auto probablyMatchesExistingQmake = [&](const FilePath &qmake) {
+        // This deals with symlinks.
+        if (!canonicalQmakes.insert(qmake).second)
+            return true;
+
+        // Symlinks have high potential for false positives in file size check, so skip that one.
+        if (qmake.isSymLink())
+            return false;
+
+        // This deals with the case where copies are shipped instead of symlinks
+        // (Windows, Qt installer, ...).
+        return contains(qmakes, [size = qmake.fileSize()](const FilePath &existing) {
+            return existing.fileSize() == size;
+        });
+    };
+
     for (const FilePath &candidate : candidates) {
-        if (candidate == qmakePath)
-            continue;
-        if (isQmake(candidate))
-            return candidate;
+        if (isQmake(candidate) && !probablyMatchesExistingQmake(candidate))
+            qmakes << candidate;
     }
-    return {};
+    return qmakes;
 }
 
-FilePath BuildableHelperLibrary::findSystemQt(const Environment &env)
-{
-    const FilePaths list = findQtsInEnvironment(env, 1);
-    return list.size() == 1 ? list.first() : FilePath();
-}
-
-FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, int maxCount)
+FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env)
 {
     FilePaths qmakeList;
     std::set<FilePath> canonicalEnvPaths;
@@ -89,12 +97,7 @@ FilePaths BuildableHelperLibrary::findQtsInEnvironment(const Environment &env, i
     for (const FilePath &path : paths) {
         if (!canonicalEnvPaths.insert(path.canonicalPath()).second)
             continue;
-        const FilePath qmake = findQmakeInDir(path);
-        if (qmake.isEmpty())
-            continue;
-        qmakeList << qmake;
-        if (maxCount != -1 && qmakeList.size() == maxCount)
-            break;
+        qmakeList << findQmakesInDir(path);
     }
     return qmakeList;
 }
@@ -105,6 +108,7 @@ QString BuildableHelperLibrary::qtVersionForQMake(const FilePath &qmakePath)
         return QString();
 
     Process qmake;
+    qmake.setEnvironment(qmakePath.deviceEnvironment());
     qmake.setCommand({qmakePath, {"--version"}});
     qmake.runBlocking(5s);
     if (qmake.result() != ProcessResult::FinishedWithSuccess) {
@@ -155,13 +159,10 @@ QStringList BuildableHelperLibrary::possibleQMakeCommands()
     // On Unix some distributions renamed qmake with a postfix to avoid clashes
     // On OS X, Qt 4 binary packages also has renamed qmake. There are also symbolic links that are
     // named "qmake", but the file dialog always checks against resolved links (native Cocoa issue)
-    QStringList commands(HostOsInfo::withExecutableSuffix("qmake*"));
-
     // Qt 6 CMake built targets, such as Android, are dependent on the host installation
     // and use a script wrapper around the host qmake executable
-    if (HostOsInfo::isWindowsHost())
-        commands.append("qmake*.bat");
-    return commands;
+    // Remote build configurations (e.g. Windows host + Linux target) must be taken into account too
+    return {"qmake*"};
 }
 
 } // namespace Utils

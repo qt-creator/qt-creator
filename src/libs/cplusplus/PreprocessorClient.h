@@ -14,6 +14,7 @@ namespace CPlusPlus {
 
 class ByteArrayRef;
 class Macro;
+class Pragma;
 
 class CPLUSPLUS_EXPORT MacroArgumentReference
 {
@@ -61,6 +62,7 @@ public:
   virtual ~Client() = 0;
 
   virtual void macroAdded(const Macro &macro) = 0;
+  virtual void pragmaAdded(const Pragma &pragma) = 0;
 
   virtual void passedMacroDefinitionCheck(int bytesOffset, int utf16charsOffset,
                                           int line, const Macro &macro) = 0;

@@ -5,8 +5,7 @@
 
 #include <QLoggingCategory>
 
-namespace MesonProjectManager {
-namespace Internal {
+namespace MesonProjectManager::Internal {
 
 static Q_LOGGING_CATEGORY(mInputLog, "qtc.meson.import", QtWarningMsg);
 
@@ -57,5 +56,4 @@ void MesonProjectImporter::deleteDirectoryData(void *directoryData) const
     Q_UNUSED(directoryData)
 }
 
-} // namespace Internal
-} // namespace MesonProjectManager
+} // namespace MesonProjectManager::Internal

@@ -291,6 +291,14 @@ void LocatorStorage::reportOutput(const LocatorFilterEntries &outputData) const
     d->reportOutput(outputData);
 }
 
+// Please note the thread_local keyword below guarantees a separate instance per thread.
+static thread_local Storage<LocatorStorage> s_locatorStorage = {};
+
+Storage<LocatorStorage> &LocatorStorage::storage()
+{
+    return s_locatorStorage;
+}
+
 void LocatorStorage::finalize() const
 {
     QTC_ASSERT(d, return);
@@ -366,16 +374,16 @@ void LocatorMatcher::start()
 
     const auto onTaskTreeSetup = [iterator, input = d->m_input, collectorStorage](TaskTree &taskTree) {
         const std::shared_ptr<ResultsDeduplicator> deduplicator = collectorStorage->m_deduplicator;
-        const Storage<LocatorStorage> storage = iterator->storage;
-        const auto onSetup = [storage, input, index = iterator.iteration(), deduplicator] {
-            *storage = std::make_shared<LocatorStoragePrivate>(input, index, deduplicator);
+        const auto onSetup = [input, index = iterator.iteration(), deduplicator] {
+            *LocatorStorage::storage()
+                = std::make_shared<LocatorStoragePrivate>(input, index, deduplicator);
         };
         taskTree.setRecipe({
             finishAllAndSuccess,
-            storage,
+            LocatorStorage::storage(),
             onGroupSetup(onSetup),
-            iterator->task,
-            onGroupDone([storage] { storage->finalize(); })
+            *iterator,
+            onGroupDone([] { LocatorStorage::storage()->finalize(); })
         });
     };
 
@@ -383,9 +391,8 @@ void LocatorMatcher::start()
         parallel,
         collectorStorage,
         AsyncTask<LocatorFilterEntries>(onCollectorSetup, onCollectorDone),
-        Group {
+        For (iterator) >> Do {
             parallelLimit(d->m_parallelLimit),
-            iterator,
             TaskTreeTask(onTaskTreeSetup)
         }
     };
@@ -1358,12 +1365,11 @@ static void filter(QPromise<LocatorFileCachePrivate> &promise, const LocatorStor
     When this cache started a new search in meantime, the cache was invalidated or even deleted,
     the update of the cache after a successful run of the task is ignored.
 */
-LocatorMatcherTask LocatorFileCache::matcher() const
+ExecutableItem LocatorFileCache::matcher() const
 {
-    Storage<LocatorStorage> storage;
     std::weak_ptr<LocatorFileCachePrivate> weak = d;
 
-    const auto onSetup = [storage, weak](Async<LocatorFileCachePrivate> &async) {
+    const auto onSetup = [weak](Async<LocatorFileCachePrivate> &async) {
         auto that = weak.lock();
         if (!that) // LocatorMatcher is running after *this LocatorFileCache was destructed.
             return SetupResult::StopWithSuccess;
@@ -1373,7 +1379,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
                                              // no provider is set or it returned empty generator
         that->bumpExecutionId();
 
-        async.setConcurrentCallData(&filter, *storage, *that);
+        async.setConcurrentCallData(&filter, *LocatorStorage::storage(), *that);
         return SetupResult::Continue;
     };
     const auto onDone = [weak](const Async<LocatorFileCachePrivate> &async) {
@@ -1393,7 +1399,7 @@ LocatorMatcherTask LocatorFileCache::matcher() const
         that->update(async.result());
     };
 
-    return {AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDoneIf::Success), storage};
+    return AsyncTask<LocatorFileCachePrivate>(onSetup, onDone, CallDoneIf::Success);
 }
 
 } // Core

@@ -12,6 +12,7 @@
 #include <utils/environment.h>
 #include <utils/filepath.h>
 #include <utils/futuresynchronizer.h>
+#include <utils/id.h>
 #include <utils/qrcparser.h>
 #include <utils/synchronizedvalue.h>
 
@@ -214,7 +215,7 @@ protected:
     virtual void writeMessageInternal(const QString &msg) const;
     virtual WorkingCopy workingCopyInternal() const;
     virtual void addTaskInternal(const QFuture<void> &result, const QString &msg,
-                                 const char *taskId) const;
+                                 const Utils::Id taskId) const;
 
     static void parseLoop(QSet<Utils::FilePath> &scannedPaths,
                           QSet<Utils::FilePath> &newLibraries,

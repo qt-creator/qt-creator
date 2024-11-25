@@ -4,9 +4,10 @@
 #include "cmakeinstallstep.h"
 
 #include "cmakeabstractprocessstep.h"
+#include "cmakeautogenparser.h"
 #include "cmakebuildsystem.h"
 #include "cmakekitaspect.h"
-#include "cmakeparser.h"
+#include "cmakeoutputparser.h"
 #include "cmakeprojectconstants.h"
 #include "cmakeprojectmanagertr.h"
 #include "cmaketool.h"
@@ -52,9 +53,9 @@ private:
 
 void CMakeInstallStep::setupOutputFormatter(OutputFormatter *formatter)
 {
-    CMakeParser *cmakeParser = new CMakeParser;
-    cmakeParser->setSourceDirectory(project()->projectDirectory());
-    formatter->addLineParsers({cmakeParser});
+    CMakeOutputParser *cmakeOutputParser = new CMakeOutputParser;
+    cmakeOutputParser->setSourceDirectory(project()->projectDirectory());
+    formatter->addLineParsers({new CMakeAutogenParser, cmakeOutputParser});
     formatter->addSearchDir(processParameters()->effectiveWorkingDirectory());
     CMakeAbstractProcessStep::setupOutputFormatter(formatter);
 }
@@ -99,7 +100,7 @@ QWidget *CMakeInstallStep::createConfigWidget()
 
     updateDetails();
 
-    connect(&cmakeArguments, &StringAspect::changed, this, updateDetails);
+    cmakeArguments.addOnChanged(this, updateDetails);
 
     connect(ProjectExplorerPlugin::instance(),
             &ProjectExplorerPlugin::settingsChanged,

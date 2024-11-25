@@ -26,9 +26,6 @@ VirtualFileSystemOverlay::VirtualFileSystemOverlay(const QString &rootPattern)
 void VirtualFileSystemOverlay::update()
 {
     overlayFilePath().removeRecursively();
-    QFile overlayFile(m_overlayFilePath.toString());
-    if (!overlayFile.open(QFile::ReadWrite))
-        return;
     std::map<Utils::FilePath, QList<Core::IDocument *>> documentRoots;
     const QList<Core::IDocument *> &modifiedDocuments = Core::DocumentManager::modifiedDocuments();
     QHash<Core::IDocument *, AutoSavedPath> newSaved;
@@ -41,12 +38,11 @@ void VirtualFileSystemOverlay::update()
         if (saved.revision != document->document()->revision()) {
             saved.path.removeRecursively();
             saved.revision = document->document()->revision();
-            QString error;
             saved.path = m_root.filePath(doc->filePath().fileName() + ".auto");
             while (saved.path.exists())
                 saved.path = saved.path.stringAppended(".1");
-            if (!doc->save(&error, saved.path, true)) {
-                qCDebug(LOG) << error;
+            if (Utils::Result res = doc->save(saved.path, true); !res) {
+                qCDebug(LOG) << res.error();
                 continue;
             }
         }
@@ -87,9 +83,10 @@ void VirtualFileSystemOverlay::update()
     main["roots"] = jsonRoots;
 
     QJsonDocument overlay(main);
-    if (!overlayFile.write(overlay.toJson(QJsonDocument::Compact)))
+    const Utils::expected_str<qint64> res = m_overlayFilePath.writeFileContents(
+        overlay.toJson(QJsonDocument::Compact));
+    if (!res)
         qCDebug(LOG) << "failed to write vfso to " << m_overlayFilePath;
-    overlayFile.close();
 }
 
 Utils::FilePath VirtualFileSystemOverlay::overlayFilePath() const { return m_overlayFilePath; }

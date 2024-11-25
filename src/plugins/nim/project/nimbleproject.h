@@ -3,15 +3,12 @@
 
 #pragma once
 
-#include <projectexplorer/buildsystem.h>
 #include <projectexplorer/project.h>
 
 namespace Nim {
 
-class NimbleProject : public ProjectExplorer::Project
+class NimbleProject final : public ProjectExplorer::Project
 {
-    Q_OBJECT
-
 public:
     NimbleProject(const Utils::FilePath &filename);
 
@@ -28,10 +25,6 @@ protected:
     QStringList m_excludedFiles;
 };
 
-class NimbleProjectFactory
-{
-public:
-    NimbleProjectFactory();
-};
+void setupNimbleProject();
 
 } // Nim

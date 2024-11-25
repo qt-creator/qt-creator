@@ -3,6 +3,7 @@
 
 #include "filterkitaspectsdialog.h"
 
+#include "kitaspect.h"
 #include "kitmanager.h"
 #include "projectexplorertr.h"
 

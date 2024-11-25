@@ -51,7 +51,7 @@ static bool checkPath(const FilePath &candidate, int matchLength,
   $PROJECTDIR/qml/app/main.qml:
   \list
   \li C:/app-build-desktop/qml/app/main.qml (shadow build directory)
-  \li /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on Mac OS X)
+  \li /Users/x/app-build-desktop/App.app/Contents/Resources/qml/App/main.qml (folder on macOS)
   \endlist
 */
 

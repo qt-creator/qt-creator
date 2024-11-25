@@ -12,7 +12,6 @@
 
 #include <QXmlStreamReader>
 #include <QXmlStreamAttribute>
-#include <QTemporaryFile>
 #include <QDir>
 #include <QFileInfo>
 #include <QDebug>

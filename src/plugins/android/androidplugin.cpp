@@ -7,14 +7,12 @@
 #include "androiddebugsupport.h"
 #include "androiddeployqtstep.h"
 #include "androiddevice.h"
-#include "androidmanifesteditorfactory.h"
+#include "androidmanifesteditor.h"
 #include "androidpackageinstallationstep.h"
-#include "androidpotentialkit.h"
-#include "androidqmlpreviewworker.h"
 #include "androidqmltoolingsupport.h"
 #include "androidqtversion.h"
 #include "androidrunconfiguration.h"
-#include "androidruncontrol.h"
+#include "androidrunner.h"
 #include "androidsettingswidget.h"
 #include "androidtoolchain.h"
 #include "androidtr.h"
@@ -88,7 +86,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
     {
         setupAndroidConfigurations();
 
-        setupAndroidPotentialKit();
         setupAndroidDevice();
         setupAndroidQtVersion();
         setupAndroidToolchain();
@@ -107,7 +104,6 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
         setupAndroidRunWorker();
         setupAndroidDebugWorker();
         setupAndroidQmlToolingSupport();
-        setupAndroidQmlPreviewWorker();
 
         setupJavaEditor();
         setupAndroidManifestEditor();
@@ -130,10 +126,9 @@ class AndroidPlugin final : public ExtensionSystem::IPlugin
 
     void kitsRestored()
     {
-        const bool qtForAndroidInstalled
-            = !QtSupport::QtVersionManager::versions([](const QtSupport::QtVersion *v) {
-                   return v->targetDeviceTypes().contains(Android::Constants::ANDROID_DEVICE_TYPE);
-               }).isEmpty();
+        const bool qtForAndroidInstalled = !QtSupport::QtVersionManager::versions(
+                                                &QtSupport::QtVersion::isAndroidQtVersion)
+                                                .isEmpty();
 
         if (!AndroidConfig::sdkFullyConfigured() && qtForAndroidInstalled)
             askUserAboutAndroidSetup();

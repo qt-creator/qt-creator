@@ -20,8 +20,8 @@
     \note Enable the WebAssembly plugin to use it.
 
     To build applications for the web and run them in a web browser, install
-    Qt for WebAssembly with \QOI. It automatically adds a build and run kit
-    to \QC.
+    Qt for WebAssembly with \l{Get and Install Qt}{\QOI}. It automatically adds
+    a build and run kit to \QC.
 
     \section1 Set up WebAssembly development environment
 

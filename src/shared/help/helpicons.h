@@ -12,8 +12,6 @@ const Utils::Icon MODE_HELP_CLASSIC(
         ":/help/images/mode_help.png");
 const Utils::Icon MODE_HELP_FLAT({
         {":/help/images/mode_help_mask.png", Utils::Theme::IconsBaseColor}});
-const Utils::Icon MODE_HELP_FLAT_ACTIVE({
-        {":/help/images/mode_help_mask.png", Utils::Theme::IconsModeHelpActiveColor}});
 const Utils::Icon MACOS_TOUCHBAR_HELP(
         ":/help/images/macos_touchbar_help.png");
 

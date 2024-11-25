@@ -40,7 +40,7 @@ public:
                               const Utils::FilePaths &initialIncludes = {});
 
     virtual void macroAdded(const Macro &);
-
+    virtual void pragmaAdded(const Pragma &pragma);
     virtual void passedMacroDefinitionCheck(int, int, int, const Macro &);
     virtual void failedMacroDefinitionCheck(int, int, const ByteArrayRef &);
 

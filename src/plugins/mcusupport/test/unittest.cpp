@@ -39,6 +39,7 @@
 
 #include <projectexplorer/customtoolchain.h>
 #include <projectexplorer/kitaspects.h>
+#include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/toolchain.h>
@@ -213,11 +214,10 @@ auto expandTargetsAndPackages = [](Targets &targets, Packages &packages) {
 
 void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
 {
-    ProjectExplorer::ToolchainFactory toolchainFactory;
     Id iarId{BareMetal::Constants::IAREW_TOOLCHAIN_TYPEID};
     Toolchain *iarToolchain{ProjectExplorer::ToolchainFactory::createToolchain(iarId)};
     iarToolchain->setLanguage(cxxLanguageId);
-    ToolchainManager::registerToolchain(iarToolchain);
+    ToolchainManager::registerToolchains({iarToolchain});
 
     QVERIFY(iarToolchainPackage != nullptr);
     QCOMPARE(iarToolchainPackage->cmakeVariableName(), TOOLCHAIN_DIR_CMAKE_VARIABLE);
@@ -236,12 +236,11 @@ void verifyIarToolchain(const McuToolchainPackagePtr &iarToolchainPackage)
 void verifyArmGccToolchain(const McuToolchainPackagePtr &armGccPackage, const QStringList &versions)
 {
     //Fake register and fake detect compiler.
-    ProjectExplorer::ToolchainFactory toolchainFactory;
     Id armGccId{ProjectExplorer::Constants::GCC_TOOLCHAIN_TYPEID};
 
     Toolchain *armToolchain{ProjectExplorer::ToolchainFactory::createToolchain(armGccId)};
     armToolchain->setLanguage(cxxLanguageId);
-    ToolchainManager::registerToolchain(armToolchain);
+    ToolchainManager::registerToolchains({armToolchain});
 
     QVERIFY(armGccPackage != nullptr);
     QCOMPARE(armGccPackage->cmakeVariableName(), TOOLCHAIN_DIR_CMAKE_VARIABLE);

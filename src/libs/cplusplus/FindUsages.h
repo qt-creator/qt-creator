@@ -8,7 +8,8 @@
 #include "TypeOfExpression.h"
 
 #include <cplusplus/ASTVisitor.h>
-#include <utils/fileutils.h>
+
+#include <utils/filepath.h>
 
 #include <QSet>
 
