@@ -487,15 +487,17 @@ int Parser::find(int token, int stopAt)
     return 0;
 }
 
-void Parser::match(int kind, int *token)
+bool Parser::match(int kind, int *token)
 {
-    if (LA() == kind)
+    if (LA() == kind) {
         *token = consumeToken();
-    else {
-        *token = 0;
-        error(_tokenIndex, "expected token `%s' got `%s'",
-              Token::name(kind), tok().spell());
+        return true;
     }
+
+    *token = 0;
+    error(_tokenIndex, "expected token `%s' got `%s'",
+          Token::name(kind), tok().spell());
+    return false;
 }
 
 bool Parser::parseClassOrNamespaceName(NameAST *&node)
@@ -3503,7 +3505,8 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
     DEBUG_THIS_RULE();
     if (LA() == T_SEMICOLON) {
         ExpressionStatementAST *ast = new (_pool) ExpressionStatementAST;
-        match(T_SEMICOLON, &ast->semicolon_token);
+        if (!match(T_SEMICOLON, &ast->semicolon_token))
+            return false;
         node = ast;
         return true;
     }
@@ -3524,9 +3527,10 @@ bool Parser::parseExpressionStatement(StatementAST *&node)
         ExpressionStatementAST *ast = new (previousPool) ExpressionStatementAST;
         if (expression)
             ast->expression = expression->clone(previousPool);
-        match(T_SEMICOLON, &ast->semicolon_token);
-        node = ast;
-        parsed = true;
+        if (match(T_SEMICOLON, &ast->semicolon_token)) {
+            node = ast;
+            parsed = true;
+        }
     }
 
     _inExpressionStatement = wasInExpressionStatement;
