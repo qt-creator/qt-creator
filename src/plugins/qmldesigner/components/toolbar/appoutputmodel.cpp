@@ -4,7 +4,6 @@
 
 #include <devicesharing/devicemanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <projectexplorer/runcontrol.h>
 #include <qmldesignerplugin.h>
 
 #include <vector>
@@ -218,21 +217,15 @@ void AppOutputParentModel::setupRunControls()
     connect(explorerPlugin,
             &ProjectExplorer::ProjectExplorerPlugin::runControlStarted,
             [this](ProjectExplorer::RunControl *rc) {
-                AppOutputParentModel::Run run;
-                run.timestamp = QTime::currentTime().toString().toStdString();
-                run.messages.push_back({rc->commandLine().displayName(), m_messageColor});
-
-                beginResetModel();
-                m_runs.push_back(run);
-                endResetModel();
-
+                initializeRuns(rc);
                 connect(rc,
                         &ProjectExplorer::RunControl::appendMessage,
-                        [this](const QString &out, Utils::OutputFormat format) {
-                            if (!m_runs.empty()) {
-                                int row = static_cast<int>(m_runs.size()) - 1;
-                                emit messageAdded(row, out.trimmed(), colorFromFormat(format));
-                            }
+                        [this, rc](const QString &out, Utils::OutputFormat format) {
+                            if (m_runs.empty())
+                                initializeRuns(rc);
+
+                            int row = static_cast<int>(m_runs.size()) - 1;
+                            emit messageAdded(row, out.trimmed(), colorFromFormat(format));
                         });
             });
 
@@ -259,6 +252,17 @@ void AppOutputParentModel::setupRunControls()
                     emit messageAdded(row, logs.trimmed(), m_messageColor);
                 }
             });
+}
+
+void AppOutputParentModel::initializeRuns(ProjectExplorer::RunControl *rc)
+{
+    AppOutputParentModel::Run run;
+    run.timestamp = QTime::currentTime().toString().toStdString();
+    run.messages.push_back({rc->commandLine().displayName(), m_messageColor});
+
+    beginResetModel();
+    m_runs.push_back(run);
+    endResetModel();
 }
 
 QColor AppOutputParentModel::colorFromFormat(Utils::OutputFormat format) const

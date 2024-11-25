@@ -7,6 +7,7 @@
 #include <QQmlEngine>
 
 #include <utils/outputformat.h>
+#include <projectexplorer/runcontrol.h>
 
 #include <QColor>
 
@@ -107,6 +108,7 @@ public:
 
 private:
     void setupRunControls();
+    void initializeRuns(ProjectExplorer::RunControl *rc);
     QColor colorFromFormat(Utils::OutputFormat format) const;
 
     QColor m_historyColor = Qt::gray;
