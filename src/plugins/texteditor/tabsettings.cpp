@@ -223,31 +223,31 @@ int TabSettings::indentedColumn(int column, bool doIndent) const
     return qMax(0, aligned - m_indentSize);
 }
 
-bool TabSettings::guessSpacesForTabs(const QTextBlock &_block) const
+bool TabSettings::guessSpacesForTabs(const QTextBlock &block) const
 {
-    if (m_tabPolicy == MixedTabPolicy && _block.isValid()) {
-        const QTextDocument *doc = _block.document();
-        QVector<QTextBlock> currentBlocks(2, _block); // [0] looks back; [1] looks forward
-        int maxLookAround = 100;
-        while (maxLookAround-- > 0) {
-            if (currentBlocks.at(0).isValid())
-                currentBlocks[0] = currentBlocks.at(0).previous();
-            if (currentBlocks.at(1).isValid())
-                currentBlocks[1] = currentBlocks.at(1).next();
-            bool done = true;
-            for (const QTextBlock &block : std::as_const(currentBlocks)) {
-                if (block.isValid())
-                    done = false;
-                if (!block.isValid() || block.length() == 0)
-                    continue;
+    if (m_tabPolicy == MixedTabPolicy && block.isValid()) {
+        QTextBlock prev = block.previous();
+        QTextBlock next = block.next();
+
+        auto checkFirstChar =
+            [doc = block.document()](const QTextBlock &block) -> std::optional<bool> {
+            if (block.length() > 0) {
                 const QChar firstChar = doc->characterAt(block.position());
                 if (firstChar == QLatin1Char(' '))
                     return true;
-                else if (firstChar == QLatin1Char('\t'))
+                if (firstChar == QLatin1Char('\t'))
                     return false;
             }
-            if (done)
-                break;
+            return {};
+        };
+
+        for (int delta = 1; delta <= 100 && (prev.isValid() || next.isValid()); ++delta) {
+            if (auto result = checkFirstChar(prev))
+                return *result;
+            if (auto result = checkFirstChar(next))
+                return *result;
+            prev = prev.previous();
+            next = next.next();
         }
     }
     return m_tabPolicy != TabsOnlyTabPolicy;
