@@ -72,7 +72,7 @@
             components.
         \li Select \uicontrol {Add Condition} to include a logic to the selected \uicontrol Action.
             To do this, you can first select the component you want to put logic on, and then
-            select the conditional statements \e {(i.e. AND, OR, EQUAL, NOT EQUAL, GREATER, LESS,
+            select the conditional statements \e {(AND, OR, EQUAL, NOT EQUAL, GREATER, LESS,
             GREATER OR EQUAL, LESS OR EQUAL)} and then select another component to compare
             between them.
         \li Optional. You can include an \uicontrol {Else Statement} by selecting the

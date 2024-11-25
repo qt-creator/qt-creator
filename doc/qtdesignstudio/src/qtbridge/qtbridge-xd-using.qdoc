@@ -134,7 +134,7 @@
                 onVisibleChanged: console.log(original_Text.visible)
             }
             \endcode
-            \note The code must have a scope of a component(e.g. Item, MouseArea, Connections etc.)
+            \note The code must have a scope of a component (such as Item, MouseArea, Connections)
             with a valid syntax for \l {UI Files}.
             \note Add respective imports for your snippet in \uicontrol Imports.
         \li Select the \uicontrol Clip check box to enable clipping in the
