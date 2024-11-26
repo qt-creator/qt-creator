@@ -93,6 +93,20 @@
                 \generatelist creator-how-to-get-help
             \li Test
                 \generatelist creator-how-to-test
+            \li Use Git
+                \generatelist creator-how-to-git
+                \list
+                    \li Current file
+                        \generatelist creator-how-to-git-current-file
+                    \li Current project
+                        \generatelist creator-how-to-git-current-project
+                    \li Local repositories
+                        \generatelist creator-how-to-git-local-repository
+                    \li Commits
+                        \generatelist creator-how-to-git-commits
+                    \li Remote repositories
+                        \generatelist creator-how-to-git-remote-repository
+                \endlist
             \li Use \QC
                 \generatelist creator-how-to-use
             \li Use the UI

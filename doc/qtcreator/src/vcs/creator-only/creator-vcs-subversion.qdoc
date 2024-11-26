@@ -20,16 +20,16 @@
     Subversion is an open source version control system.
 
     In addition to the standard version control system functions described in
-    \l {Use common VCS Functions}, you can select \uicontrol Tools >
-    \uicontrol Subversion > \uicontrol Describe to display commit log messages
-    for a revision.
+    \l {Use common VCS Functions}, you can go to \uicontrol Tools >
+    \uicontrol Subversion and select \uicontrol Describe to display commit log
+    messages for a revision.
 
     You can use Git as a client for a Subversion server. For more information,
-    see \l{Using Git with Subversion}.
+    see \l{Use Git with Subversion}.
 
     \section1 Subversion Preferences
 
-    To set Subversion preferences, select \preferences >
+    To set Subversion preferences, go to \preferences >
     \uicontrol {Version Control} > \uicontrol Subversion:
 
    \image qtcreator-preferences-vcs-subversion.webp {Subversion preferences}

@@ -240,6 +240,34 @@
 
     \generatelist creator-how-to-test
 
+    \section1 Use Git
+
+    \l{Git} is a fast decentralized version control system
+    that is available for Windows, Linux, and \macos. You can use the
+    \l {Gerrit Code Review} tool for projects that use Git.
+
+    \generatelist creator-how-to-git
+
+    \section2 Current file
+
+    \generatelist creator-how-to-git-current-file
+
+    \section2 Current project
+
+    \generatelist creator-how-to-git-current-project
+
+    \section2 Local repositories
+
+    \generatelist creator-how-to-git-local-repository
+
+    \section2 Commits
+
+    \generatelist creator-how-to-git-commits
+
+    \section2 Remote repositories
+
+    \generatelist creator-how-to-git-remote-repository
+
     \section1 Use \QC
 
     Use basic \QC features and preinstalled plugins. Install more plugins and
