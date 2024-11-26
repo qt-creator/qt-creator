@@ -91,7 +91,7 @@ void Device::initPingPong()
             });
 
     connect(&m_pongTimer, &QTimer::timeout, this, [this]() {
-        qCDebug(deviceSharePluginLog)
+        qCWarning(deviceSharePluginLog)
             << "Device" << m_deviceInfo.deviceId() << "is not responding. Closing connection.";
         m_socket->close();
     });
