@@ -217,12 +217,12 @@ void AppOutputParentModel::setupRunControls()
     connect(explorerPlugin,
             &ProjectExplorer::ProjectExplorerPlugin::runControlStarted,
             [this](ProjectExplorer::RunControl *rc) {
-                initializeRuns(rc);
+                initializeRuns(rc->commandLine().displayName());
                 connect(rc,
                         &ProjectExplorer::RunControl::appendMessage,
                         [this, rc](const QString &out, Utils::OutputFormat format) {
                             if (m_runs.empty())
-                                initializeRuns(rc);
+                                initializeRuns(rc->commandLine().displayName());
 
                             int row = static_cast<int>(m_runs.size()) - 1;
                             emit messageAdded(row, out.trimmed(), colorFromFormat(format));
@@ -234,31 +234,26 @@ void AppOutputParentModel::setupRunControls()
     connect(&deviceManager,
             &QmlDesigner::DeviceShare::DeviceManager::projectStarted,
             [this](const QmlDesigner::DeviceShare::DeviceInfo &deviceInfo) {
-                AppOutputParentModel::Run run;
-                run.timestamp = QTime::currentTime().toString().toStdString();
-                run.messages.push_back(
-                    {"Project started on device " + deviceInfo.deviceId(), m_messageColor});
-
-                beginResetModel();
-                m_runs.push_back(run);
-                endResetModel();
+                initializeRuns("Project started on device " + deviceInfo.deviceId());
             });
 
     connect(&deviceManager,
             &QmlDesigner::DeviceShare::DeviceManager::projectLogsReceived,
             [this](const QmlDesigner::DeviceShare::DeviceInfo &, const QString &logs) {
-                if (!m_runs.empty()) {
-                    int row = static_cast<int>(m_runs.size()) - 1;
-                    emit messageAdded(row, logs.trimmed(), m_messageColor);
-                }
+                if (m_runs.empty())
+                    initializeRuns();
+
+                int row = static_cast<int>(m_runs.size()) - 1;
+                emit messageAdded(row, logs.trimmed(), m_messageColor);
             });
 }
 
-void AppOutputParentModel::initializeRuns(ProjectExplorer::RunControl *rc)
+void AppOutputParentModel::initializeRuns(const QString &message)
 {
     AppOutputParentModel::Run run;
     run.timestamp = QTime::currentTime().toString().toStdString();
-    run.messages.push_back({rc->commandLine().displayName(), m_messageColor});
+    if (!message.isEmpty())
+        run.messages.push_back({message, m_messageColor});
 
     beginResetModel();
     m_runs.push_back(run);

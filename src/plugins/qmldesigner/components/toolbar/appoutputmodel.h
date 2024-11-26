@@ -108,7 +108,7 @@ public:
 
 private:
     void setupRunControls();
-    void initializeRuns(ProjectExplorer::RunControl *rc);
+    void initializeRuns(const QString &message = {});
     QColor colorFromFormat(Utils::OutputFormat format) const;
 
     QColor m_historyColor = Qt::gray;
