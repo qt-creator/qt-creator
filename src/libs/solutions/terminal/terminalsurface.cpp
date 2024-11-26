@@ -120,6 +120,7 @@ struct TerminalSurfacePrivate
             };
         m_vtermScreenCallbacks.sb_clear = [](void *user) {
             auto p = static_cast<TerminalSurfacePrivate *>(user);
+            emit p->q->cleared();
             return p->sb_clear();
         };
         m_vtermScreenCallbacks.bell = [](void *user) {

@@ -47,6 +47,18 @@ void TerminalSearch::setSearchString(const QString &searchString, FindFlags find
     }
 }
 
+void TerminalSearch::clearAndSearchAgain()
+{
+    if (!m_hits.isEmpty()) {
+        m_hits.clear();
+        m_currentHit = -1;
+        emit hitsChanged();
+        emit currentHitChanged();
+    }
+
+    m_debounceTimer.start();
+}
+
 void TerminalSearch::nextHit()
 {
     if (m_hits.isEmpty())
@@ -67,13 +79,6 @@ void TerminalSearch::previousHit()
 
 void TerminalSearch::updateHits()
 {
-    if (!m_hits.isEmpty()) {
-        m_hits.clear();
-        m_currentHit = -1;
-        emit hitsChanged();
-        emit currentHitChanged();
-    }
-
     m_debounceTimer.start();
 }
 
@@ -282,6 +287,10 @@ SearchableTerminal::SearchableTerminal(QWidget *parent)
     m_aggregate->add(this);
 
     surfaceChanged();
+
+    connect(this, &TerminalSolution::TerminalView::cleared, this, [this] {
+        m_search->clearAndSearchAgain();
+    });
 }
 
 SearchableTerminal::~SearchableTerminal() = default;

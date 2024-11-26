@@ -176,6 +176,7 @@ TerminalSurface *TerminalView::surface() const
 void TerminalView::setupSurface()
 {
     d->m_surface = std::make_unique<TerminalSurface>(QSize{80, 60});
+    connect(d->m_surface.get(), &TerminalSurface::cleared, this, &TerminalView::cleared);
 
     if (d->m_surfaceIntegration)
         d->m_surface->setSurfaceIntegration(d->m_surfaceIntegration);
