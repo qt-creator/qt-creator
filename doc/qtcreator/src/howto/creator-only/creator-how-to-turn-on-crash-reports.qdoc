@@ -45,8 +45,8 @@
     Select \uicontrol ? to view more information about Crashpad and the security
     policy.
 
-    \note The best way to report a crash is to create a bug report and attach a
-    \e .dmp file or paste the corresponding stack trace to the report.
+    \note The best way to report a crash is to create a bug report where you
+    paste the corresponding stack trace.
 
     \sa {Contact Qt}
 */
