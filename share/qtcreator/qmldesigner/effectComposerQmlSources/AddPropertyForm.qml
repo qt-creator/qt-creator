@@ -725,15 +725,17 @@ Item {
             }
 
             Row {
+                id: buttonRow
+
                 width: acceptButton.width + root.horizontalSpacing + cancelButton.width
                 spacing: root.horizontalSpacing
-                anchors.horizontalCenter: parent.horizontalCenter
-                height: 35
+                x: (parent.width - buttonRow.width) / 2 + 6
+                height: 30
 
                 HelperWidgets.Button {
                     id: cancelButton
-                    width: 130
-                    height: 35
+                    width: 100
+                    height: 30
                     text: qsTr("Cancel")
                     padding: 4
 
@@ -745,8 +747,8 @@ Item {
 
                 HelperWidgets.Button {
                     id: acceptButton
-                    width: 130
-                    height: 35
+                    width: 100
+                    height: 30
                     text: qsTr("Apply")
                     padding: 4
                     enabled: !root.propNameError && !root.uniNameError

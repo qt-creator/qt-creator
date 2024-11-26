@@ -49,23 +49,6 @@ HelperWidgets.Section {
         nodeEnabled = root.eyeEnabled
     }
 
-    icons: HelperWidgets.IconButton {
-        id: codeButton
-
-        icon: StudioTheme.Constants.codeEditor_medium
-        transparentBg: true
-        buttonSize: 21
-        iconSize: StudioTheme.Values.smallIconFontSize
-        iconColor: root.codeEditorOpen
-                   ? StudioTheme.Values.themeInteraction
-                   : StudioTheme.Values.themeTextColor
-        iconScale: codeButton.containsMouse ? 1.2 : 1
-        implicitWidth: width
-        tooltip: qsTr("Open code editor")
-        onClicked: root.backendModel.openCodeEditor(index)
-        visible: !isDependency
-    }
-
     content: Label {
         text: root.caption
         color: root.labelColor
@@ -158,27 +141,8 @@ HelperWidgets.Section {
         id: addProperty
         width: root.width - StudioTheme.Values.scrollBarThicknessHover
         height: addPropertyForm.visible && addPropertyForm.parent === addProperty
-                ? addPropertyForm.height : 50
+                ? addPropertyForm.height : 0
         visible: !isDependency
-
-        HelperWidgets.Button {
-            id: addPropertyButton
-            width: 130
-            height: 35
-            text: qsTr("Add Property")
-            visible: !addPropertyForm.visible
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.verticalCenter: parent.verticalCenter
-            onClicked: {
-                confirmRemoveForm.visible = false
-                confirmRemoveForm.parent = root
-                root.editedUniformIndex = -1
-                addPropertyForm.parent = addProperty
-                addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
-                addPropertyForm.reservedUniNames = root.backendModel.uniformNames()
-                addPropertyForm.showForAdd()
-            }
-        }
 
         AddPropertyForm {
             id: addPropertyForm
@@ -301,8 +265,39 @@ HelperWidgets.Section {
                 }
             }
         }
-
     }
 
+    Row {
+        height: 40
+        visible: !isDependency && !addPropertyForm.visible
+        anchors.horizontalCenter: parent.horizontalCenter
+        spacing: 10
+
+        HelperWidgets.Button {
+            width: 100
+            height: 30
+            text: qsTr("Add Property")
+            enabled: !addPropertyForm.visible
+            anchors.verticalCenter: parent.verticalCenter
+
+            onClicked: {
+                confirmRemoveForm.visible = false
+                confirmRemoveForm.parent = root
+                root.editedUniformIndex = -1
+                addPropertyForm.parent = addProperty
+                addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
+                addPropertyForm.reservedUniNames = root.backendModel.uniformNames()
+                addPropertyForm.showForAdd()
+            }
+        }
+
+        HelperWidgets.Button {
+            width: 100
+            height: 30
+            text: qsTr("Show Code")
+            anchors.verticalCenter: parent.verticalCenter
+            onClicked: root.backendModel.openCodeEditor(index)
+        }
+    }
 }
 
