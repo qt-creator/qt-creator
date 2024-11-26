@@ -429,6 +429,65 @@ bool DashboardSettingsWidget::isValid() const
     return isUrlValid(m_dashboardUrl());
 }
 
+// PathMappingSettingsWidget
+
+class PathMappingDetails : public AspectContainer
+{
+public:
+    PathMappingDetails()
+    {
+        m_projectName.setLabelText(Tr::tr("Project name:"));
+        m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_projectName.setValidationFunction([](FancyLineEdit *edit, QString *error) {
+            QTC_ASSERT(edit, return false);
+            if (!edit->text().isEmpty())
+                return true;
+            if (error)
+                *error = QString("Project name must be non-empty.");
+            return false;
+        });
+        m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
+        m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
+        m_analysisPath.setValidationFunction([](FancyLineEdit *edit, QString *error) {
+            QTC_ASSERT(edit, return false);
+            // do NOT use fromUserInput() as this also cleans the path
+            const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
+            return analysisPathValid(fp, error);
+        });
+        m_localPath.setLabelText(Tr::tr("Local path:"));
+        m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
+        m_localPath.setAllowPathFromDevice(false);
+
+        using namespace Layouting;
+        setLayouter([this] {
+            return Form {
+                        &m_projectName, br,
+                        &m_analysisPath, br,
+                        &m_localPath,
+                        noMargin};
+        });
+    }
+
+    void updateContent(const PathMapping &mapping)
+    {
+        m_projectName.setValue(mapping.projectName, BaseAspect::BeQuiet);
+        m_analysisPath.setValue(mapping.analysisPath.toUserOutput(), BaseAspect::BeQuiet);
+        m_localPath.setValue(mapping.localPath, BaseAspect::BeQuiet);
+    }
+
+    PathMapping toPathMapping() const
+    {
+        return PathMapping{
+            m_projectName(), FilePath::fromUserInput(m_analysisPath()), m_localPath()
+        };
+    }
+
+private:
+    StringAspect m_projectName{this};
+    StringAspect m_analysisPath{this};
+    FilePathAspect m_localPath{this};
+};
+
 class AxivionSettingsWidget : public IOptionsPageWidget
 {
 public:
@@ -441,10 +500,21 @@ private:
     void removeCurrentServerConfig();
     void updateDashboardServers();
     void updateEnabledStates();
+    void addMapping();
+    void deleteMapping();
+    void mappingChanged();
+    void currentChanged(const QModelIndex &index, const QModelIndex &previous);
+    void moveCurrentMapping(bool up);
 
     QComboBox *m_dashboardServers = nullptr;
-    QPushButton *m_edit = nullptr;
-    QPushButton *m_remove = nullptr;
+    QPushButton *m_editServerButton = nullptr;
+    QPushButton *m_removeServerButton = nullptr;
+    QTreeWidget m_mappingTree;
+    PathMappingDetails m_details;
+    QWidget *m_detailsWidget = nullptr;
+    QPushButton *m_deleteMappingButton = nullptr;
+    QPushButton *m_moveUpMappingButton = nullptr;
+    QPushButton *m_moveDownMappingButton = nullptr;
 };
 
 AxivionSettingsWidget::AxivionSettingsWidget()
@@ -455,30 +525,85 @@ AxivionSettingsWidget::AxivionSettingsWidget()
     m_dashboardServers->setSizeAdjustPolicy(QComboBox::AdjustToContents);
     updateDashboardServers();
 
-    auto addButton = new QPushButton(Tr::tr("Add..."), this);
-    m_edit = new QPushButton(Tr::tr("Edit..."), this);
-    m_remove = new QPushButton(Tr::tr("Remove"), this);
+    auto addServerButton = new QPushButton(Tr::tr("Add..."), this);
+    m_editServerButton = new QPushButton(Tr::tr("Edit..."), this);
+    m_removeServerButton = new QPushButton(Tr::tr("Remove"), this);
+
+    m_detailsWidget = new QWidget(this);
+    m_details.layouter()().attachTo(m_detailsWidget);
+
+    m_mappingTree.setSelectionMode(QAbstractItemView::SingleSelection);
+    m_mappingTree.setSelectionBehavior(QAbstractItemView::SelectRows);
+    m_mappingTree.setHeaderLabels({Tr::tr("Project Name"), Tr::tr("Analysis Path"),
+                                   Tr::tr("Local Path")});
+
+    auto addMappingButton = new QPushButton(Tr::tr("Add"), this);
+    m_deleteMappingButton = new QPushButton(Tr::tr("Delete"), this);
+    m_moveUpMappingButton = new QPushButton(Tr::tr("Move Up"), this);
+    m_moveDownMappingButton = new QPushButton(Tr::tr("Move Down"), this);
+
+    Column buttons { addMappingButton, m_deleteMappingButton, empty, m_moveUpMappingButton, m_moveDownMappingButton, st };
+
     Column {
-        Row {
-            Form { Tr::tr("Default dashboard server:"), m_dashboardServers, br },
-            st,
-            Column { addButton, m_edit, st, m_remove },
+        Layouting::Group {
+            title(Tr::tr("Dashboard Servers")),
+            Row {
+                Form { Tr::tr("Default dashboard server:"), m_dashboardServers, br },
+                st,
+                Column { addServerButton, m_editServerButton, m_removeServerButton },
+            },
         },
-        Space(10),
-        br,
-        Row {settings().highlightMarks },
+        Layouting::Group {
+            title(Tr::tr("Path Mapping")),
+            Column {
+                Row { &m_mappingTree, buttons },
+                m_detailsWidget
+            }
+        },
+        Layouting::Group {
+            title(Tr::tr("Misc Options")),
+            Row {settings().highlightMarks },
+        },
         st
     }.attachTo(this);
 
-    connect(addButton, &QPushButton::clicked, this, [this] {
+    connect(addServerButton, &QPushButton::clicked, this, [this] {
         // add an empty item unconditionally
         m_dashboardServers->addItem(Tr::tr("unset"), QVariant::fromValue(AxivionServer()));
         m_dashboardServers->setCurrentIndex(m_dashboardServers->count() - 1);
         showServerDialog(true);
     });
-    connect(m_edit, &QPushButton::clicked, this, [this] { showServerDialog(false); });
-    connect(m_remove, &QPushButton::clicked,
+    connect(m_editServerButton, &QPushButton::clicked, this, [this] { showServerDialog(false); });
+    connect(m_removeServerButton, &QPushButton::clicked,
             this, &AxivionSettingsWidget::removeCurrentServerConfig);
+
+    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
+                                                            [this](const PathMapping &m) {
+        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
+                                                    {m.projectName,
+                                                     m.analysisPath.toUserOutput(),
+                                                     m.localPath.toUserOutput()});
+        if (!m.isValid())
+            item->setIcon(0, Icons::CRITICAL.icon());
+        return item;
+    });
+    m_mappingTree.addTopLevelItems(items);
+
+    m_deleteMappingButton->setEnabled(false);
+    m_moveUpMappingButton->setEnabled(false);
+    m_moveDownMappingButton->setEnabled(false);
+
+    m_detailsWidget->setVisible(false);
+
+    connect(addMappingButton, &QPushButton::clicked, this, &AxivionSettingsWidget::addMapping);
+    connect(m_deleteMappingButton, &QPushButton::clicked, this, &AxivionSettingsWidget::deleteMapping);
+    connect(m_moveUpMappingButton, &QPushButton::clicked, this, [this]{ moveCurrentMapping(true); });
+    connect(m_moveDownMappingButton, &QPushButton::clicked, this, [this]{ moveCurrentMapping(false); });
+    connect(m_mappingTree.selectionModel(), &QItemSelectionModel::currentChanged,
+            this, &AxivionSettingsWidget::currentChanged);
+    connect(&m_details, &AspectContainer::changed, this,
+            &AxivionSettingsWidget::mappingChanged);
+
     updateEnabledStates();
 }
 
@@ -492,6 +617,20 @@ void AxivionSettingsWidget::apply()
     if (settings().updateDashboardServers(servers, selected))
         settings().toSettings();
     settings().apply();
+
+    const QList<PathMapping> oldMappings = settings().validPathMappings();
+    QList<PathMapping> newMappings;
+    for (int row = 0, count = m_mappingTree.topLevelItemCount(); row < count; ++row) {
+        const QTreeWidgetItem * const item = m_mappingTree.topLevelItem(row);
+        newMappings.append({item->text(0),
+                            FilePath::fromUserInput(item->text(1)),
+                            FilePath::fromUserInput(item->text(2))});
+    }
+    if (oldMappings == newMappings)
+        return;
+
+    pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
+    pathMappingSettings().writeSettings();
 }
 
 void AxivionSettingsWidget::updateDashboardServers()
@@ -511,8 +650,8 @@ void AxivionSettingsWidget::updateDashboardServers()
 void AxivionSettingsWidget::updateEnabledStates()
 {
     const bool enabled = m_dashboardServers->count();
-    m_edit->setEnabled(enabled);
-    m_remove->setEnabled(enabled);
+    m_editServerButton->setEnabled(enabled);
+    m_removeServerButton->setEnabled(enabled);
 }
 
 void AxivionSettingsWidget::removeCurrentServerConfig()
@@ -567,163 +706,14 @@ void AxivionSettingsWidget::showServerDialog(bool add)
     updateEnabledStates();
 }
 
-// PathMappingSettingsWidget
-
-class PathMappingDetails : public AspectContainer
-{
-public:
-    PathMappingDetails()
-    {
-        m_projectName.setLabelText(Tr::tr("Project name:"));
-        m_projectName.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_projectName.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
-            if (!edit->text().isEmpty())
-                return true;
-            if (error)
-                *error = QString("Project name must be non-empty.");
-            return false;
-        });
-        m_analysisPath.setLabelText(Tr::tr("Analysis path:"));
-        m_analysisPath.setDisplayStyle(StringAspect::LineEditDisplay);
-        m_analysisPath.setValidationFunction([](FancyLineEdit *edit, QString *error) {
-            QTC_ASSERT(edit, return false);
-            // do NOT use fromUserInput() as this also cleans the path
-            const FilePath fp = FilePath::fromString(edit->text().replace('\\', '/'));
-            return analysisPathValid(fp, error);
-        });
-        m_localPath.setLabelText(Tr::tr("Local path:"));
-        m_localPath.setExpectedKind(PathChooser::ExistingDirectory);
-        m_localPath.setAllowPathFromDevice(false);
-
-        using namespace Layouting;
-        setLayouter([this] {
-            return Form {
-            &m_projectName, br,
-            &m_analysisPath, br,
-            &m_localPath,
-            noMargin};
-        });
-    }
-
-    void updateContent(const PathMapping &mapping)
-    {
-        m_projectName.setValue(mapping.projectName, BaseAspect::BeQuiet);
-        m_analysisPath.setValue(mapping.analysisPath.toUserOutput(), BaseAspect::BeQuiet);
-        m_localPath.setValue(mapping.localPath, BaseAspect::BeQuiet);
-    }
-
-    PathMapping toPathMapping() const
-    {
-        return PathMapping{
-            m_projectName(), FilePath::fromUserInput(m_analysisPath()), m_localPath()
-        };
-    }
-
-private:
-    StringAspect m_projectName{this};
-    StringAspect m_analysisPath{this};
-    FilePathAspect m_localPath{this};
-};
-
-class PathMappingSettingsWidget final : public IOptionsPageWidget
-{
-public:
-    PathMappingSettingsWidget();
-
-    void apply() final;
-
-private:
-    void addMapping();
-    void deleteMapping();
-    void mappingChanged();
-    void currentChanged(const QModelIndex &index, const QModelIndex &previous);
-    void moveCurrent(bool up);
-
-    QTreeWidget m_mappingTree;
-    PathMappingDetails m_details;
-    QWidget *m_detailsWidget = nullptr;
-    QPushButton *m_deleteButton = nullptr;
-    QPushButton *m_moveUp = nullptr;
-    QPushButton *m_moveDown = nullptr;
-};
-
-PathMappingSettingsWidget::PathMappingSettingsWidget()
-{
-    m_detailsWidget = new QWidget(this);
-    m_details.layouter()().attachTo(m_detailsWidget);
-
-    m_mappingTree.setSelectionMode(QAbstractItemView::SingleSelection);
-    m_mappingTree.setSelectionBehavior(QAbstractItemView::SelectRows);
-    m_mappingTree.setHeaderLabels({Tr::tr("Project Name"), Tr::tr("Analysis Path"),
-                                   Tr::tr("Local Path")});
-
-    auto addButton = new QPushButton(Tr::tr("Add"), this);
-    m_deleteButton = new QPushButton(Tr::tr("Delete"), this);
-    m_moveUp = new QPushButton(Tr::tr("Move Up"), this);
-    m_moveDown = new QPushButton(Tr::tr("Move Down"), this);
-
-    using namespace Layouting;
-    Column buttons { addButton, m_deleteButton, empty, m_moveUp, m_moveDown, st };
-
-    Column {
-        Row { &m_mappingTree, buttons },
-        m_detailsWidget
-    }.attachTo(this);
-
-    const QList<QTreeWidgetItem *> items = Utils::transform(pathMappingSettings().validPathMappings(),
-                     [this](const PathMapping &m) {
-        QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree,
-                                                    {m.projectName,
-                                                     m.analysisPath.toUserOutput(),
-                                                     m.localPath.toUserOutput()});
-        if (!m.isValid())
-            item->setIcon(0, Icons::CRITICAL.icon());
-        return item;
-    });
-    m_mappingTree.addTopLevelItems(items);
-
-    m_deleteButton->setEnabled(false);
-    m_moveUp->setEnabled(false);
-    m_moveDown->setEnabled(false);
-
-    m_detailsWidget->setVisible(false);
-
-    connect(addButton, &QPushButton::clicked, this, &PathMappingSettingsWidget::addMapping);
-    connect(m_deleteButton, &QPushButton::clicked, this, &PathMappingSettingsWidget::deleteMapping);
-    connect(m_moveUp, &QPushButton::clicked, this, [this]{ moveCurrent(true); });
-    connect(m_moveDown, &QPushButton::clicked, this, [this]{ moveCurrent(false); });
-    connect(m_mappingTree.selectionModel(), &QItemSelectionModel::currentChanged,
-            this, &PathMappingSettingsWidget::currentChanged);
-    connect(&m_details, &AspectContainer::changed, this,
-            &PathMappingSettingsWidget::mappingChanged);
-}
-
-void PathMappingSettingsWidget::apply()
-{
-    const QList<PathMapping> oldMappings = settings().validPathMappings();
-    QList<PathMapping> newMappings;
-    for (int row = 0, count = m_mappingTree.topLevelItemCount(); row < count; ++row) {
-        const QTreeWidgetItem * const item = m_mappingTree.topLevelItem(row);
-        newMappings.append({item->text(0),
-                            FilePath::fromUserInput(item->text(1)),
-                            FilePath::fromUserInput(item->text(2))});
-    }
-    if (oldMappings == newMappings)
-        return;
-
-    pathMappingSettings().setVariantValue(pathMappingsToSetting(newMappings));
-    pathMappingSettings().writeSettings();
-}
-
-void PathMappingSettingsWidget::addMapping()
+void AxivionSettingsWidget::addMapping()
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(&m_mappingTree, {"", "", ""});
     m_mappingTree.setCurrentItem(item);
     item->setIcon(0, Icons::CRITICAL.icon());
 }
 
-void PathMappingSettingsWidget::deleteMapping()
+void AxivionSettingsWidget::deleteMapping()
 {
     QTreeWidgetItem *item = m_mappingTree.currentItem();
     QTC_ASSERT(item, return);
@@ -733,7 +723,7 @@ void PathMappingSettingsWidget::deleteMapping()
     m_mappingTree.model()->removeRow(index.row());
 }
 
-void PathMappingSettingsWidget::mappingChanged()
+void AxivionSettingsWidget::mappingChanged()
 {
     QTreeWidgetItem *item = m_mappingTree.currentItem();
     QTC_ASSERT(item, return);
@@ -744,14 +734,14 @@ void PathMappingSettingsWidget::mappingChanged()
     item->setIcon(0, modified.isValid() ? QIcon{} : Icons::CRITICAL.icon());
 }
 
-void PathMappingSettingsWidget::currentChanged(const QModelIndex &index,
+void AxivionSettingsWidget::currentChanged(const QModelIndex &index,
                                                const QModelIndex &/*previous*/)
 {
     const bool indexValid = index.isValid();
     const int row = index.row();
-    m_deleteButton->setEnabled(indexValid);
-    m_moveUp->setEnabled(indexValid && row > 0);
-    m_moveDown->setEnabled(indexValid && row < m_mappingTree.topLevelItemCount() - 1);
+    m_deleteMappingButton->setEnabled(indexValid);
+    m_moveUpMappingButton->setEnabled(indexValid && row > 0);
+    m_moveDownMappingButton->setEnabled(indexValid && row < m_mappingTree.topLevelItemCount() - 1);
     m_detailsWidget->setVisible(indexValid);
     if (indexValid) {
         const QTreeWidgetItem * const item = m_mappingTree.itemFromIndex(index);
@@ -761,7 +751,7 @@ void PathMappingSettingsWidget::currentChanged(const QModelIndex &index,
     }
 }
 
-void PathMappingSettingsWidget::moveCurrent(bool up)
+void AxivionSettingsWidget::moveCurrentMapping(bool up)
 {
     const int itemCount = m_mappingTree.topLevelItemCount();
     const QModelIndexList indexes = m_mappingTree.selectionModel()->selectedRows();
@@ -783,26 +773,13 @@ class AxivionSettingsPage : public IOptionsPage
 public:
     AxivionSettingsPage()
     {
-        setId("Axivion.Settings.General");
-        setDisplayName(Tr::tr("General"));
-        setCategory("XY.Axivion");
+        setId("Analyzer.Axivion.Settings");
+        setDisplayName(Tr::tr("Axivion"));
+        setCategory("T.Analyzer");
         setWidgetCreator([] { return new AxivionSettingsWidget; });
     }
 };
 
-class PathMappingSettingsPage : public IOptionsPage
-{
-public:
-    PathMappingSettingsPage()
-    {
-        setId("Axivion.Settings.PathMapping");
-        setDisplayName(Tr::tr("Path Mapping"));
-        setCategory("XY.Axivion");
-        setWidgetCreator([] { return new PathMappingSettingsWidget; });
-    }
-};
-
 const AxivionSettingsPage generalSettingsPage;
-const PathMappingSettingsPage pathMappingSettingsPage;
 
 } // Axivion::Internal
