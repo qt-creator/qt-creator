@@ -15,10 +15,11 @@
 
 namespace QmlDesigner::DeviceShare {
 
-DeviceManager::DeviceManager(QObject *parent, const QString &settingsPath)
+DeviceManager::DeviceManager(QObject *parent)
     : QObject(parent)
-    , m_settingsPath(settingsPath)
 {
+    QFileInfo fileInfo(Core::ICore::settings()->fileName());
+    m_settingsPath = fileInfo.absolutePath() + "/device_manager.json";
     readSettings();
     if (m_uuid.isEmpty()) {
         m_uuid = QUuid::createUuid().toString(QUuid::WithoutBraces);
@@ -229,19 +230,15 @@ void DeviceManager::setDeviceIP(const QString &deviceId, const QString &ip)
 QString DeviceManager::generateDeviceAlias() const
 {
     QStringList m_currentAliases;
-
-    for (const auto &device : m_devices) {
+    for (const auto &device : m_devices)
         m_currentAliases.append(device->deviceSettings().alias());
-    }
 
-    for (int i = 0; i < m_devices.size(); ++i) {
-        QString alias = QString("Device %1").arg(i);
-        if (!m_currentAliases.contains(alias)) {
-            return alias;
-        }
-    }
+    QString alias = "Device 0";
+    int index = 0;
+    while (m_currentAliases.contains(alias))
+        alias = QString("Device %1").arg(++index);
 
-    return QString("Device %1").arg(m_devices.size() + 1);
+    return alias;
 }
 
 bool DeviceManager::addDevice(const QString &ip)

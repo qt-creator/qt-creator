@@ -17,7 +17,7 @@ class DeviceManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit DeviceManager(QObject *parent = nullptr, const QString &settingsPath = "settings.json");
+    explicit DeviceManager(QObject *parent = nullptr);
     ~DeviceManager();
 
     // Getters
@@ -47,7 +47,7 @@ private:
     QList<QSharedPointer<QUdpSocket>> m_udpSockets;
 
     // settings
-    const QString m_settingsPath;
+    QString m_settingsPath;
     QString m_uuid;
 
     QPointer<DeviceManagerWidget> m_widget;
