@@ -106,6 +106,7 @@ void tst_StringUtils::testParseUsedPortFromNetstatOutput_data()
     // Linux
     QTest::newRow("Linux1") << "sl  local_address rem_address   st tx_queue rx_queue tr tm->when retrnsmt ..." <<     -1;
     QTest::newRow("Linux2") << "0: 00000000:2805 00000000:0000 0A 00000000:00000000 00:00000000 00000000  ..." <<  10245;
+    QTest::newRow("Linux3") << " 1: 0100007F:193F 00000000:0000 0A 00000000:00000000 00:00000000 00000000 ..." <<   6463;
 
     // Mac
     QTest::newRow("Mac1") << "Active Internet connections (including servers)"                                  <<    -1;

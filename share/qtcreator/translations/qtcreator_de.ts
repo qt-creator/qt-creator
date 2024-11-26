@@ -24586,11 +24586,11 @@ Flags: %3</translation>
     </message>
     <message>
         <source>Invalid location for %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiger Pfad für %1.</translation>
     </message>
     <message>
         <source>Could not create &quot;%1&quot;: %2</source>
-        <translation type="unfinished">Konnte &quot;%1&quot; nicht erzeugen: %2</translation>
+        <translation>Konnte &quot;%1&quot; nicht erstellen: %2</translation>
     </message>
 </context>
 <context>
@@ -27373,7 +27373,7 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>Load Last Core File</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte Core-Datei laden</translation>
     </message>
     <message>
         <source>Start and Break on Main</source>
@@ -27514,11 +27514,11 @@ Sie werden möglicherweise gebeten, den Inhalt dieses Logs mitzuteilen, wenn Sie
     </message>
     <message>
         <source>coredumpctl did not find any cores created by systemd-coredump.</source>
-        <translation type="unfinished"></translation>
+        <translation>coredumpctl hat keine von systemd-coredump erstellten Core-Dateien gefunden.</translation>
     </message>
     <message>
         <source>Last Core file &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte Core-Datei &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Reload debugging helpers skipped as no engine is running.</source>
@@ -28292,11 +28292,11 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>Show warnings for unsupported breakpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnungen für nicht unterstützte Haltepunkte anzeigen</translation>
     </message>
     <message>
         <source>Shows a warning on debugger start-up when breakpoints are requested which are not supported by the selected debugger engine.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zeigt beim Start des Debuggers eine Warnung an, wenn Haltepunkte angefordert werden, die nicht von der gewählten Debugger-Engine unterstützt werden.</translation>
     </message>
     <message>
         <source>Behavior</source>
@@ -28304,15 +28304,15 @@ Sie können hier eine andere Verbindung wählen, beispielsweise eine serielle Ve
     </message>
     <message>
         <source>User Interface</source>
-        <translation type="unfinished">Benutzeroberfläche</translation>
+        <translation>Benutzeroberfläche</translation>
     </message>
     <message>
         <source>When Debugging Stops</source>
-        <translation type="unfinished"></translation>
+        <translation>Wenn das Debuggen beendet wird</translation>
     </message>
     <message>
         <source>Allow inferior calls in debugging helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Aufrufe von der Ausgabe-Hilfsbibliothek in den zu debuggenden Prozess erlauben</translation>
     </message>
     <message>
         <source>Extra Debugging Helpers</source>
@@ -29224,11 +29224,11 @@ Das Setzen von Haltepunkten anhand von Dateinamen und Zeilennummern könnte fehl
     </message>
     <message>
         <source>Invalid debugger command</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Debugger-Kommando</translation>
     </message>
     <message>
         <source>Invalid working directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Ungültiges Arbeitsverzeichnis</translation>
     </message>
     <message>
         <source>Type of Debugger Backend</source>
@@ -30015,7 +30015,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed starting Docker container. Exit code: %1, output: %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Docker-Container konnte nicht gestartet werden. Rückgabewert: %1, Ausgabe: %2</translation>
     </message>
     <message>
         <source>Docker Image &quot;%1&quot; (%2)</source>
@@ -30123,11 +30123,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Failed to inspect image: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Untersuchung des Images fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>Could not parse image inspect output: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Die Ausgabe von image inspect konnte nicht ausgewertet werden: %1</translation>
     </message>
     <message>
         <source>localSource: No mount point found for %1</source>
@@ -30361,7 +30361,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Active</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiv</translation>
     </message>
     <message>
         <source>Restart Now</source>
@@ -30381,15 +30381,15 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>No details to show</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Details verfügbar</translation>
     </message>
     <message>
         <source>Select an extension to see more information about it.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie eine Erweiterung aus, um Informationen darüber anzuzeigen.</translation>
     </message>
     <message>
         <source>Last Update</source>
-        <translation type="unfinished"></translation>
+        <translation>Letzte Aktualisierung</translation>
     </message>
     <message>
         <source>Tags</source>
@@ -30433,31 +30433,31 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Inactive</source>
-        <translation type="unfinished"></translation>
+        <translation>Inaktiv</translation>
     </message>
     <message>
         <source>Last updated</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt aktualisiert</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Name</translation>
+        <translation>Name</translation>
     </message>
     <message>
         <source>All</source>
-        <translation type="unfinished">Alle</translation>
+        <translation>Alle</translation>
     </message>
     <message>
         <source>Extension packs</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterungspakete</translation>
     </message>
     <message>
         <source>Individual extensions</source>
-        <translation type="unfinished"></translation>
+        <translation>Einzelne Erweiterungen</translation>
     </message>
     <message>
         <source>No extension found!</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Erweiterungen gefunden!</translation>
     </message>
     <message>
         <source>Manage Extensions</source>
@@ -30469,11 +30469,11 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Filter by: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtern nach: %1</translation>
     </message>
     <message>
         <source>Sort by: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Sortieren nach: %1</translation>
     </message>
     <message>
         <source>Install...</source>
@@ -30485,43 +30485,43 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Server URL:</source>
-        <translation type="unfinished"></translation>
+        <translation>Server-URL:</translation>
     </message>
     <message>
         <source>Note</source>
-        <translation type="unfinished">Hinweis</translation>
+        <translation>Hinweis</translation>
     </message>
     <message>
         <source>%1 does not check extensions from external vendors for security flaws or malicious intent, so be careful when installing them, as it might leave your computer vulnerable to attacks such as hacking, malware, and phishing.</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 überprüft keine Erweiterungen von externen Anbietern auf Sicherheitsprobleme oder böswillige Absichten. Seien Sie deshalb vorsichtig beim Installieren solcher Erweiterungen, da sie Ihren Computer für Angriffe wie Hacking, Schadsoftware und Phishing anfällig machen könnten.</translation>
     </message>
     <message>
         <source>Use External Repository</source>
-        <translation type="unfinished"></translation>
+        <translation>Externes Repository benutzen</translation>
     </message>
     <message>
         <source>Install Extension...</source>
-        <translation type="unfinished"></translation>
+        <translation>Erweiterung installieren...</translation>
     </message>
     <message>
         <source>Plugin changes will take effect after restart.</source>
-        <translation type="unfinished">Änderungen der Plugins werden nach einem Neustart wirksam.</translation>
+        <translation>Änderungen der Plugins werden nach einem Neustart wirksam.</translation>
     </message>
     <message>
         <source>Browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Browser</translation>
     </message>
     <message>
         <source>Documentation</source>
-        <translation type="unfinished">Dokumentation</translation>
+        <translation>Dokumentation</translation>
     </message>
     <message>
         <source>More Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Mehr Informationen</translation>
     </message>
     <message>
         <source>New</source>
-        <translation type="unfinished">Neu</translation>
+        <translation>Neu</translation>
     </message>
 </context>
 <context>
@@ -30536,7 +30536,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Vendor Id:</source>
-        <translation type="unfinished"></translation>
+        <translation>Anbieter-ID:</translation>
     </message>
     <message>
         <source>Vendor:</source>
@@ -30544,7 +30544,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Documentation:</source>
-        <translation type="unfinished">Dokumentation:</translation>
+        <translation>Dokumentation:</translation>
     </message>
     <message>
         <source>Location:</source>
@@ -30580,7 +30580,7 @@ Versuchen Sie, das Projekt neu zu erstellen.</translation>
     </message>
     <message>
         <source>Id:</source>
-        <translation type="unfinished"></translation>
+        <translation>ID:</translation>
     </message>
     <message>
         <source>Compatibility version:</source>
@@ -30710,11 +30710,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>No callback set to accept terms and conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Es ist kein Callback für das Annehmen von Bedingungen gesetzt</translation>
     </message>
     <message>
         <source>You did not accept the terms and conditions</source>
-        <translation type="unfinished"></translation>
+        <translation>Sie haben die Bedingungen nicht angenommen</translation>
     </message>
     <message>
         <source>Cannot load plugin because dependency failed to load: %1(%2)
@@ -30784,11 +30784,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>Plugin id &quot;%1&quot; must be lowercase</source>
-        <translation type="unfinished"></translation>
+        <translation>Plugin-ID &quot;%1&quot; muss kleingeschrieben sein</translation>
     </message>
     <message>
         <source>Terms and conditions: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Bedingungen: %1</translation>
     </message>
     <message>
         <source>Resolving dependencies failed because state != Read</source>
@@ -30864,11 +30864,11 @@ Grund: %3</translation>
     </message>
     <message>
         <source>deprecated</source>
-        <translation type="unfinished"></translation>
+        <translation>veraltet</translation>
     </message>
     <message>
         <source>experimental</source>
-        <translation type="unfinished"></translation>
+        <translation>experimentell</translation>
     </message>
     <message>
         <source>Utilities</source>
@@ -45873,12 +45873,13 @@ fails because Clang does not understand the target architecture.</source>
     </message>
     <message>
         <source>Qbs Profile Additions</source>
-        <translation type="unfinished"></translation>
+        <translation>Ergänzungen zum Qbs-Profil</translation>
     </message>
     <message>
         <source>Additional module properties to set in the Qbs profile corresponding to this kit.
 You will rarely need to do this.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusätzliche Moduleigenschaften, die im Qbs-Profil des entsprechenden Kits gesetzt werden sollen.
+Dies ist selten nötig.</translation>
     </message>
     <message>
         <source>Qbs files</source>
@@ -46719,7 +46720,7 @@ Weder der Pfad zur Bibliothek noch der Pfad zu den Headerdateien wird zur .pro-D
     </message>
     <message>
         <source>Starting qmake failed with the following error: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Das Starten von qmake ist mit folgendem Fehler fehlgeschlagen: %1</translation>
     </message>
     <message>
         <source>The build directory should be at the same level as the source directory.</source>
@@ -47651,7 +47652,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>A when condition cannot contain an object.</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine &quot;when&quot;-Bedingung kann kein Objekt enthalten.</translation>
     </message>
     <message>
         <source>JavaScript blocks are not supported in a UI file (.ui.qml).</source>
@@ -47703,7 +47704,7 @@ Weitere Informationen finden Sie auf der Dokumentationsseite &quot;Checking Code
     </message>
     <message>
         <source>Arbitrary functions and function calls outside of a Connections object are not supported in a UI file (.ui.qml).</source>
-        <translation type="unfinished"></translation>
+        <translation>Beliebige Funktionen und Funktionsaufrufe außerhalb des Connections-Objektes werden in einer UI-Datei (.ui.qml) nicht unterstützt.</translation>
     </message>
     <message>
         <source>Duplicate import (%1).</source>
@@ -48116,7 +48117,7 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Enable semantic highlighting (experimental)</source>
-        <translation type="unfinished"></translation>
+        <translation>Semantische Hervorhebung aktivieren (experimentell)</translation>
     </message>
     <message>
         <source>Enabled</source>
@@ -48140,11 +48141,11 @@ Sie können eine Annotation &quot;// @uri My.Module.Uri&quot; hinzufügen, um de
     </message>
     <message>
         <source>Enable QML Language Server on this project.</source>
-        <translation type="unfinished"></translation>
+        <translation>Aktiviere QML Language Server für dieses Projekt.</translation>
     </message>
     <message>
         <source>Qt Quick</source>
-        <translation type="unfinished">Qt Quick</translation>
+        <translation>Qt Quick</translation>
     </message>
     <message>
         <source>Open .ui.qml files with:</source>
@@ -49438,7 +49439,7 @@ Sind Sie sicher?</translation>
     </message>
     <message>
         <source>Enable CMake Generator</source>
-        <translation type="unfinished"></translation>
+        <translation>CMake-Generator aktivieren</translation>
     </message>
 </context>
 <context>
@@ -49884,11 +49885,11 @@ wirklich entfernen?</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Fehler</translation>
+        <translation>Fehler</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Warnung</translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>Not all possible target environments can be supported due to missing compilers.</source>
@@ -50895,7 +50896,7 @@ Der Steuerprozess konnte nicht gestartet werden.</translation>
     </message>
     <message>
         <source>The process crashed.</source>
-        <translation type="unfinished">Der Prozess ist abgestürzt.</translation>
+        <translation>Der Prozess ist abgestürzt.</translation>
     </message>
     <message>
         <source>&quot;%1&quot; failed to start: %2</source>
@@ -53104,43 +53105,43 @@ Die Datei &quot;%1&quot; konnte nicht geöffnet werden.</translation>
     </message>
     <message>
         <source>Diff Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Diff Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Diff des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Project Directory Status</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Status of Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Status des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Log Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Log Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Log des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Update Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverzeichnis aktualisieren</translation>
     </message>
     <message>
         <source>Update Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Projektverzeichnis von &quot;%1&quot; aktualisieren</translation>
     </message>
     <message>
         <source>Commit Project Directory</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit des Projektverzeichnisses</translation>
     </message>
     <message>
         <source>Commit Directory of Project &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Commit des Projektverzeichnisses von &quot;%1&quot;</translation>
     </message>
     <message>
         <source>Describe...</source>

@@ -520,7 +520,7 @@ void IssuesWidget::updateTable()
     for (const Dto::ColumnInfoDto &column : m_currentTableInfo->columns) {
         columnHeaders << column.header.value_or(column.key);
         if (!column.showByDefault)
-            hiddenColumns << column.key;
+            hiddenColumns << columnHeaders.last();
         IssueHeaderView::ColumnInfo info;
         info.key = column.key;
         info.sortable = column.canSort;

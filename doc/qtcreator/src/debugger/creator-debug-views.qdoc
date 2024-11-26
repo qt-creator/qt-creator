@@ -462,14 +462,18 @@
 
     \brief Compute values of arithmetic expressions or function calls.
 
-    To compute values of arithmetic expressions or function calls, use
+    To access global data that is not visible in the
+    \l {Local Variables and Function Parameters}{Locals} view or to compute
+    values of arithmetic expressions or function calls, use
     expression evaluators in the \uicontrol Expressions view.
 
-    You can examine static variables that the debuggers don't pick up as
-    \e {local variables}. For example, if you define
+    For example, if you define
     \c {static int staticVar = 42;} in a source file and then add \c staticVar
     as an evaluated expression, you should see \e 42 in the view when the
     debugger stops in the source file.
+
+    You can also use Expression Evaluators as shortcuts to items that are
+    nested deeply in the locals tree.
 
     \image qtcreator-debugger-expressions.webp {Expressions view}
 
@@ -481,8 +485,8 @@
     You can also:
 
     \list
-        \li Double-click in the \uicontrol {Expressions} or
-            \l {Local Variables and Function Parameters}{Locals} view.
+        \li Double-click in the \uicontrol {Expressions} or \uicontrol {Locals}
+            view.
         \li Select \uicontrol {Add New Expression Evaluator} from the context
             menu.
     \endlist
@@ -502,21 +506,12 @@
 
     The set of evaluated expressions is saved in your session.
 
-    \note Expression evaluators are powerful, but slow down debugger operation
-    significantly. Use them sparingly and remove them when you no longer need
-    them.
-
     Expression evaluators are re-evaluated whenever the current frame changes.
     The functions used in the expressions are called each time, even if
     they have side-effects.
 
-    \if defined(qtcreator)
-    \section1 Expressions View Actions
-
-    Right-click the \uicontrol Expressions view to select the following actions:
-
-    \include creator-debug-views.qdoc 0
-    \endif
+    \note Evaluating expressions is slow, so remove expression evaluators after
+    use.
 
     \section1 JavaScript Expressions
 
@@ -526,26 +521,45 @@
 
     \section1 C and C++ Expressions
 
-    GDB, LLDB and CDB support the evaluation of simple C and C++ expressions.
+    CDB, GDB, and LLDB support the evaluation of simple C and C++ expressions,
+    such as arithmetic expressions made of simple values and pointers.
+
+    Depending on the backend and concrete location, some function calls
+    can be evaluated. CDB is the most limited backend in this respect.
+
+    \section2 Function Calls
+
     Functions can be called only if they are actually compiled into the debugged
     executable or a library used by the executable. Inlined
     functions such as most \c{operator[]} implementations of standard containers
     are typically \e{not} available.
+
+    \note When an expression has a function call, anything can happen, including
+    corruption of the application's state, or using the application's permission
+    to perform arbitrary actions.
+
+    \section2 Ranged Syntax
 
     When using GDB or LLDB as backend, you can use a special ranged syntax to
     display multiple values with one expression. A sub-expression of form
     \c{foo[a..b]} is split into a sequence of individually evaluated expressions
     \c{foo[a], ..., foo[b]}.
 
+    \section2 Compound Variables
+
     You can expand compound variables of struct or class type to show their
     members. As you also see the variable value and type, you can examine and
     traverse the low-level layout of object data.
+
+    \section2 Optimized Builds
 
     GDB and LLDB, and therefore \QC's debugger, also work for optimized
     builds on Linux and \macos. Optimization can lead to re-ordering
     of instructions or removal of some local variables, causing the
     \uicontrol {Locals} and \uicontrol {Expressions} views to show
     unexpected data.
+
+    \section2 GCC
 
     The debug information from GCC does not include enough
     information about the time when a variable is initialized.
@@ -554,6 +568,12 @@
     appears uninitialized, its value is reported as
     \uicontrol {not in scope}. Not all uninitialized objects,
     however, can be recognized as such.
+
+    \section1 Expressions View Actions
+
+    Right-click the \uicontrol Expressions view to select the following actions:
+
+    \include creator-debug-views.qdoc 0
 
     \sa {Debug}{How To: Debug}, {Debugging}, {Debuggers}, {Debugger}
     \endif

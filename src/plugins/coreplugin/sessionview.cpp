@@ -50,11 +50,6 @@ SessionView::SessionView(QWidget *parent)
     // Ensure that the full session name is visible.
     header()->setSectionResizeMode(0, QHeaderView::ResizeToContents);
 
-    QItemSelection firstRow(m_sessionModel.index(0,0), m_sessionModel.index(
-        0, m_sessionModel.columnCount() - 1));
-    selectionModel()->select(firstRow, QItemSelectionModel::QItemSelectionModel::
-        SelectCurrent);
-
     connect(this, &Utils::TreeView::activated, this, [this](const QModelIndex &index){
         emit sessionActivated(m_sessionModel.sessionAt(index.row()));
     });

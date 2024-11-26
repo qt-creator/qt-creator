@@ -75,16 +75,18 @@
 
         \li Select \uicontrol Add to add the Qt version for embedded Linux.
 
-        \li Go to \preferences > \uicontrol Kits > \uicontrol Compilers.
+        \li Go to \uicontrol {Preferences} > \uicontrol Kits >
+            \uicontrol Compilers.
 
         \li Select \uicontrol Add to add the compiler for building the
             applications.
 
-        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices.
+        \li Go to \uicontrol {Preferences} > \uicontrol Devices >
+            \uicontrol Devices.
 
         \li Select \uicontrol Add to add a remote Linux device.
 
-        \li Go to \preferences > \uicontrol Kits.
+        \li Go to \uicontrol {Preferences} > \uicontrol Kits.
 
         \li Select \uicontrol Add to add a kit for building for the device.
 
@@ -150,56 +152,9 @@
     In addition to building applications \e {for} a generic Linux device, you can
     use the toolchain on the device to build the applications \e {on} the device.
 
-    To build applications on a remote Linux device:
-
-    \list 1
-
-        \li Go to \preferences > \uicontrol Devices > \uicontrol Devices, and
-            then select \uicontrol Add to add a remote Linux device.
-
-        \li Go to \preferences > \uicontrol CMake > \uicontrol {CMake Tools}, and
-            then select \uicontrol Add to add the path to the CMake executable
-            on the remote Linux device.
-
-        \li Go to \preferences > \uicontrol Kits > \uicontrol {Qt Versions},
-            and then select \uicontrol Add to add the Qt version on the remote
-            Linux device
-
-        \li Go to \preferences > \uicontrol Kits > \uicontrol Compilers, and
-            then select \uicontrol Add to add the the compiler on the remote
-            Linux device.
-
-        \li Go to \preferences > \uicontrol Kits, and then select \uicontrol Add
-            to add a kit for building for the device.
-
-        \li Select the device, CMake tool, Qt version, and compiler that you
-            added above.
-
-        \li In \uicontrol {Run device type} and \uicontrol {Build device}, select
-            \uicontrol {Remote Linux Device}.
-
-        \li To specify build settings:
-
-        \list 1
-
-            \li Open a project for an application you want to develop for the
-                device.
-
-            \li Select \uicontrol Projects > \uicontrol {Build & Run} to activate
-                the kit that you specified above.
-
-        \endlist
-
-        \li Select \uicontrol Run to specify run settings. Usually, you can use
-            the default settings.
-
-            When you run the project, \QC deploys the application as specified by
-            the deploy steps.
-
-    \endlist
+    \include creator-how-to-build-on-remote-devices.qdocinc {build on remote devices} {remote Linux device}
 
     \sa {Add CMake tools}, {Remote Linux}{How To: Develop for remote Linux},
     {Manage Kits}{How To: Manage Kits}, {Developing for Remote Linux Devices},
     {Remote Linux Deploy Configuration}, {Remote Linux Run Settings}
 */
-

@@ -63,6 +63,11 @@ macro(qtc_auto_setup_conan)
     option(QT_CREATOR_SKIP_CONAN_SETUP "Skip Qt Creator's conan package manager auto-setup" OFF)
     set(QT_CREATOR_CONAN_BUILD_POLICY "missing" CACHE STRING "Qt Creator's conan package manager auto-setup build policy. This is used for the BUILD property of cmake_conan_run")
 
+    set_property(
+      DIRECTORY "${CMAKE_SOURCE_DIR}"
+      APPEND
+      PROPERTY CMAKE_CONFIGURE_DEPENDS "${conanfile_txt}")
+
     find_program(conan_program conan)
     if (NOT conan_program)
       message(WARNING "Qt Creator: conan executable not found. "
@@ -205,6 +210,11 @@ qtc_auto_setup_conan()
 macro(qtc_auto_setup_vcpkg)
   if (EXISTS "${CMAKE_SOURCE_DIR}/vcpkg.json" AND NOT QT_CREATOR_SKIP_VCPKG_SETUP)
     option(QT_CREATOR_SKIP_VCPKG_SETUP "Skip Qt Creator's vcpkg package manager auto-setup" OFF)
+
+    set_property(
+      DIRECTORY "${CMAKE_SOURCE_DIR}"
+      APPEND
+      PROPERTY CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/vcpkg.json")
 
     find_program(vcpkg_program vcpkg
       PATHS $ENV{VCPKG_ROOT} ${CMAKE_SOURCE_DIR}/vcpkg ${CMAKE_SOURCE_DIR}/3rdparty/vcpkg

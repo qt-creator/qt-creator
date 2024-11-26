@@ -966,7 +966,10 @@ class DumperBase():
                 children = [('error', error)]
                 self.putSpecialValue("notcallable", children=children)
             else:
-                self.putItem(result)
+                if result is None:
+                    self.putSpecialValue("notcallable")
+                else:
+                    self.putItem(result)
 
     def call(self, rettype, value, func, *args):
         return self.callHelper(rettype, value, func, args)

@@ -128,6 +128,7 @@ void VcsCommandPrivate::installStdCallbacks(Process *process)
                               || m_progressParser || !(m_flags & RunFlags::SuppressStdErr))) {
         process->setTextChannelMode(Channel::Error, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardError, this, [this](const QString &text) {
+            VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
             if (!(m_flags & RunFlags::SuppressStdErr))
                 VcsOutputWindow::appendError(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -138,6 +139,7 @@ void VcsCommandPrivate::installStdCallbacks(Process *process)
                          || m_flags & RunFlags::ShowStdOut) {
         process->setTextChannelMode(Channel::Output, TextChannelMode::MultiLine);
         connect(process, &Process::textOnStandardOutput, this, [this](const QString &text) {
+            VcsOutputWindow::setRepository(m_defaultWorkingDirectory);
             if (m_flags & RunFlags::ShowStdOut)
                 VcsOutputWindow::append(text);
             if (m_flags & RunFlags::ProgressiveOutput)
@@ -305,6 +307,7 @@ CommandResult VcsCommand::runBlockingHelper(const CommandLine &command, int time
         return {};
 
     const Internal::VcsCommandPrivate::Job job{command, timeoutS, d->m_defaultWorkingDirectory};
+    VcsOutputWindow::setRepository(d->m_defaultWorkingDirectory);
     d->setupProcess(&process, job);
 
     const EventLoopMode eventLoopMode = d->eventLoopMode();

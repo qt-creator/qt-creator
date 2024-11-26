@@ -48,8 +48,9 @@
 
 #ifdef ENABLE_CRASHPAD
 #define NOMINMAX
-#include "client/crashpad_client.h"
 #include "client/crash_report_database.h"
+#include "client/crashpad_client.h"
+#include "client/crashpad_info.h"
 #include "client/settings.h"
 #endif
 
@@ -442,6 +443,12 @@ void startCrashpad(const AppInfo &appInfo, bool crashReportingEnabled)
 #ifdef IDE_REVISION
     annotations["sha1"] = Core::Constants::IDE_REVISION_STR;
 #endif
+
+    if (HostOsInfo::isWindowsHost()) {
+        // reduces the size of crash reports, which can be large on Windows
+        CrashpadInfo::GetCrashpadInfo()
+            ->set_gather_indirectly_referenced_memory(crashpad::TriState::kEnabled, 0);
+    }
 
     // Optional arguments to pass to the handler
     std::vector<std::string> arguments;

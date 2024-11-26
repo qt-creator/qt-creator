@@ -71,6 +71,9 @@
             \li Select \preferences > \uicontrol Kits >
                 \uicontrol {Qt Versions} > \uicontrol Add.
 
+                To add a Qt version on a remote Linux device or in Docker,
+                press \key Shift and click \uicontrol Add.
+
             \li Select the qmake executable for the Qt version to add.
 
             \li Select the Qt version to view and edit it.

@@ -2768,12 +2768,12 @@ bool GitClient::getCommitData(const FilePath &workingDirectory,
     //    R  old -> new
     //     D deleted_file
     //    ?? untracked_file
-    if (status != StatusUnchanged) {
-        if (!commitData.parseFilesFromStatus(output)) {
-            *errorMessage = msgParseFilesFailed();
-            return false;
-        }
+    if (!commitData.parseFilesFromStatus(output)) {
+        *errorMessage = msgParseFilesFailed();
+        return false;
+    }
 
+    if (status != StatusUnchanged) {
         // Filter out untracked files that are not part of the project
         QStringList untrackedFiles = commitData.filterFiles(UntrackedFile);
 

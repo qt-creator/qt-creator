@@ -51,6 +51,11 @@
         "      <glob pattern='*.mkd'/>",
         "      <glob pattern='*.markdown'/>",
         "    </mime-type>",
+        "    <mime-type type='text/rust'>",
+        "      <comment>Rust souce file</comment>",
+        "      <sub-class-of type='text/plain'/>",
+        "      <glob pattern='*.rs'/>",
+        "    </mime-type>",
         "</mime-info>"
     ]
 }

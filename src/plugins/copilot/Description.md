@@ -1,3 +1,5 @@
+As with most solutions that use Generative AI, the Github Copilot extension is considered experimental.
+
 ![Writing a function with Copilot](https://qtccache.qt.io/images/copilot/Copilot.gif)
 
 *Copilot in action*
