@@ -6,6 +6,7 @@ add_qtc_plugin(EffectComposer
     Qt::Core Qt::CorePrivate Qt::Widgets Qt::Qml Qt::QmlPrivate Qt::Quick
     QtCreator::Utils
   SOURCES
+    effectcomposereditablenodesmodel.cpp effectcomposereditablenodesmodel.h
     effectcodeeditorwidget.cpp effectcodeeditorwidget.h
     effectcomposerplugin.cpp
     effectcomposerwidget.cpp effectcomposerwidget.h

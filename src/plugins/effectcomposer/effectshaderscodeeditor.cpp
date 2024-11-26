@@ -3,6 +3,8 @@
 
 #include "effectshaderscodeeditor.h"
 
+#include "effectcomposereditablenodesmodel.h"
+#include "effectcomposermodel.h"
 #include "effectcomposeruniformsmodel.h"
 #include "effectcomposeruniformstablemodel.h"
 #include "effectcomposerwidget.h"
@@ -52,6 +54,7 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
     : QWidget(parent)
     , m_settings(new QSettings(qApp->organizationName(), qApp->applicationName(), this))
     , m_defaultTableModel(new EffectComposerUniformsTableModel(nullptr, this))
+    , m_editableNodesModel(new EffectComposerEditableNodesModel(this))
 {
     setWindowFlag(Qt::Tool, true);
     setWindowFlag(Qt::WindowStaysOnTopHint);
@@ -59,18 +62,20 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
 
     setupUIComponents();
     setUniformsModel(nullptr);
+    loadQml();
 }
 
 EffectShadersCodeEditor::~EffectShadersCodeEditor()
 {
     if (isOpened())
         close();
+
+    m_headerWidget->setSource({});
 }
 
 void EffectShadersCodeEditor::showWidget()
 {
     readAndApplyLiveUpdateSettings();
-    reloadQml();
     show();
     raise();
     setOpened(true);
@@ -104,6 +109,11 @@ void EffectShadersCodeEditor::setLiveUpdate(bool liveUpdate)
 bool EffectShadersCodeEditor::isOpened() const
 {
     return m_opened;
+}
+
+void EffectShadersCodeEditor::setCompositionsModel(EffectComposerModel *compositionsModel)
+{
+    m_editableNodesModel->setSourceModel(compositionsModel);
 }
 
 void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
@@ -267,9 +277,11 @@ void EffectShadersCodeEditor::createHeader()
     m_headerWidget->setClearColor(QmlDesigner::Theme::getColor(
         QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_headerWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
+    m_headerWidget->rootContext()->setContextProperty(
+        "editableCompositionsModel", QVariant::fromValue(m_editableNodesModel.get()));
 }
 
-void EffectShadersCodeEditor::reloadQml()
+void EffectShadersCodeEditor::loadQml()
 {
     const QString headerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorHeader.qml";
     QTC_ASSERT(QFileInfo::exists(headerQmlPath), return);

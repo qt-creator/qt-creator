@@ -17,6 +17,25 @@ Rectangle {
         anchors.fill: parent
 
         RowLayout {
+            Layout.topMargin: StudioTheme.Values.toolbarVerticalMargin
+            Layout.leftMargin: StudioTheme.Values.toolbarHorizontalMargin
+            Layout.rightMargin: StudioTheme.Values.toolbarHorizontalMargin
+
+            StudioControls.TopLevelComboBox {
+                id: nodesComboBox
+                style: StudioTheme.Values.toolbarStyle
+                Layout.preferredWidth: 400
+                Layout.alignment: Qt.AlignVCenter
+                model: editableCompositionsModel
+                textRole: "display"
+                Binding on currentIndex {
+                    value: editableCompositionsModel.selectedIndex
+                }
+                onActivated: (idx) => {
+                    editableCompositionsModel.openCodeEditor(idx)
+                }
+            }
+
             Item { // Spacer
                 Layout.preferredHeight: 1
                 Layout.fillWidth: true
@@ -26,16 +45,16 @@ Rectangle {
                 table: uniformsView.tableView
                 text: qsTr("Columns")
                 style: StudioTheme.Values.viewBarControlStyle
-                Layout.topMargin: StudioTheme.Values.marginTopBottom
+                Layout.alignment: Qt.AlignVCenter
             }
 
             StudioControls.CheckBox {
                 text: qsTr("Live Update")
                 actionIndicatorVisible: false
                 style: StudioTheme.Values.viewBarControlStyle
-                Layout.topMargin: StudioTheme.Values.marginTopBottom
                 checked: root.rootView ? root.rootView.liveUpdate : false
                 onToggled: root.rootView.liveUpdate = checked
+                Layout.alignment: Qt.AlignVCenter
             }
         }
 

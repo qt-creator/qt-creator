@@ -163,6 +163,8 @@ void EffectComposerModel::moveNode(int fromIdx, int toIdx)
     if (fromIdx == toIdx)
         return;
 
+    int oldCodeEditorIdx = m_codeEditorIndex;
+
     int toIdxAdjusted = fromIdx < toIdx ? toIdx + 1 : toIdx; // otherwise beginMoveRows() crashes
     beginMoveRows({}, fromIdx, fromIdx, {}, toIdxAdjusted);
     m_nodes.move(fromIdx, toIdx);
@@ -170,6 +172,18 @@ void EffectComposerModel::moveNode(int fromIdx, int toIdx)
 
     setHasUnsavedChanges(true);
     bakeShaders();
+
+    // Adjust codeEditorIndex after move
+    if (oldCodeEditorIdx > -1) {
+        int newCodeEditorIndex = oldCodeEditorIdx;
+        if (oldCodeEditorIdx == fromIdx)
+            newCodeEditorIndex = toIdx;
+        if (fromIdx < oldCodeEditorIdx && toIdx >= oldCodeEditorIdx)
+            --newCodeEditorIndex;
+        if (fromIdx > oldCodeEditorIdx && toIdx <= oldCodeEditorIdx)
+            ++newCodeEditorIndex;
+        setCodeEditorIndex(newCodeEditorIndex);
+    }
 }
 
 void EffectComposerModel::removeNode(int idx)
@@ -1147,6 +1161,8 @@ R"(
 void EffectComposerModel::connectCodeEditor()
 {
     EffectShadersCodeEditor *editor = EffectShadersCodeEditor::instance();
+    editor->setCompositionsModel(this);
+
     connect(this, &QObject::destroyed, editor, &QObject::deleteLater);
 
     connect(

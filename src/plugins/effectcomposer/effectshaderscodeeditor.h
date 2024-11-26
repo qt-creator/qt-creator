@@ -16,8 +16,10 @@ class StudioQuickWidget;
 
 namespace EffectComposer {
 
+class EffectComposerModel;
 class EffectComposerUniformsModel;
 class EffectComposerUniformsTableModel;
+class EffectComposerEditableNodesModel;
 class EffectDocument;
 
 struct ShaderEditorData
@@ -52,6 +54,8 @@ public:
 
     bool isOpened() const;
 
+    void setCompositionsModel(EffectComposerModel *compositionsModel);
+
     void setupShader(ShaderEditorData *data);
     void cleanFromData(ShaderEditorData *data);
 
@@ -81,7 +85,7 @@ private:
     void writeLiveUpdateSettings();
     void readAndApplyLiveUpdateSettings();
     void createHeader();
-    void reloadQml();
+    void loadQml();
     void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
     void selectNonEmptyShader(ShaderEditorData *data);
 
@@ -89,6 +93,7 @@ private:
     QPointer<StudioQuickWidget> m_headerWidget;
     QPointer<QTabWidget> m_tabWidget;
     QPointer<EffectComposerUniformsTableModel> m_defaultTableModel;
+    QPointer<EffectComposerEditableNodesModel> m_editableNodesModel;
     ShaderEditorData *m_currentEditorData = nullptr;
 
     bool m_liveUpdate = false;

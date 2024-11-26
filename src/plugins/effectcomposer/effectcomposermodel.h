@@ -155,6 +155,14 @@ public:
 
     bool hasCustomNode() const;
 
+    enum Roles {
+        NameRole = Qt::UserRole + 1,
+        EnabledRole,
+        UniformsRole,
+        Dependency,
+        Custom,
+    };
+
 signals:
     void isEmptyChanged();
     void selectedIndexChanged(int idx);
@@ -175,14 +183,6 @@ signals:
     void customPreviewImageCountChanged();
 
 private:
-    enum Roles {
-        NameRole = Qt::UserRole + 1,
-        EnabledRole,
-        UniformsRole,
-        Dependency,
-        Custom
-    };
-
     enum ErrorTypes {
         ErrorCommon,
         ErrorQMLParsing,
@@ -296,4 +296,3 @@ private:
 };
 
 } // namespace EffectComposer
-
