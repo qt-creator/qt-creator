@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "qmljscodestylepreferences.h"
+#include "qmljstoolsconstants.h"
 
 using namespace Utils;
 
@@ -11,6 +12,7 @@ QmlJSCodeStylePreferences::QmlJSCodeStylePreferences(QObject *parent) :
       ICodeStylePreferences(parent)
 {
     setSettingsSuffix("CodeStyleSettings");
+    setGlobalSettingsCategory(Constants::QML_JS_CODE_STYLE_SETTINGS_ID);
 
     connect(this, &QmlJSCodeStylePreferences::currentValueChanged,
             this, &QmlJSCodeStylePreferences::slotCurrentValueChanged);

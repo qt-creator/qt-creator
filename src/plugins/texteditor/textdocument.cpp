@@ -479,6 +479,11 @@ void TextDocument::setCodeStyle(ICodeStylePreferences *preferences)
     }
 }
 
+ICodeStylePreferences *TextDocument::codeStyle() const
+{
+    return d->m_codeStylePreferences;
+}
+
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;

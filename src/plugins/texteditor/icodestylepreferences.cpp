@@ -19,6 +19,7 @@ class ICodeStylePreferencesPrivate
 public:
     CodeStylePool *m_pool = nullptr;
     ICodeStylePreferences *m_currentDelegate = nullptr;
+    Utils::Id m_globalSettingsCategory;
     TabSettings m_tabSettings;
     QByteArray m_id;
     QString m_displayName;
@@ -247,6 +248,16 @@ void ICodeStylePreferences::fromMap(const Store &map)
         if (!delegateId.isEmpty() && delegate)
             setCurrentDelegate(delegate);
     }
+}
+
+Id ICodeStylePreferences::globalSettingsCategory()
+{
+    return d->m_globalSettingsCategory;
+}
+
+void ICodeStylePreferences::setGlobalSettingsCategory(const Utils::Id &id)
+{
+    d->m_globalSettingsCategory = id;
 }
 
 void ICodeStylePreferences::codeStyleRemoved(ICodeStylePreferences *preferences)

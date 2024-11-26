@@ -360,6 +360,15 @@ private:
         }
         tabSize->addActions(tabSizeGroup->actions());
 
+        Id globalSettingsCategory;
+        if (auto codeStyle = m_doc->codeStyle())
+            globalSettingsCategory = codeStyle->globalSettingsCategory();
+        if (!globalSettingsCategory.isValid())
+            globalSettingsCategory = Constants::TEXT_EDITOR_BEHAVIOR_SETTINGS;
+        menu->addAction(Tr::tr("Global Settings..."), [globalSettingsCategory] {
+            Core::ICore::showOptionsDialog(globalSettingsCategory);
+        });
+
         menu->popup(QCursor::pos());
     }
 

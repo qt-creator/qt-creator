@@ -5,6 +5,7 @@
 
 #include "texteditor_global.h"
 
+#include <utils/id.h>
 #include <utils/store.h>
 
 #include <QObject>
@@ -74,6 +75,9 @@ public:
     // make below 2 protected?
     virtual Utils::Store toMap() const;
     virtual void fromMap(const Utils::Store &map);
+
+    Utils::Id globalSettingsCategory();
+    void setGlobalSettingsCategory(const Utils::Id &id);
 
 signals:
     void tabSettingsChanged(const TextEditor::TabSettings &settings);

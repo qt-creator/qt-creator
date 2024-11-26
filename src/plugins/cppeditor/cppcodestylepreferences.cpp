@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #include "cppcodestylepreferences.h"
+#include "cppeditorconstants.h"
 
 using namespace Utils;
 
@@ -11,6 +12,7 @@ CppCodeStylePreferences::CppCodeStylePreferences(QObject *parent) :
     ICodeStylePreferences(parent)
 {
     setSettingsSuffix("CodeStyleSettings");
+    setGlobalSettingsCategory(Constants::CPP_CODE_STYLE_SETTINGS_ID);
 
     connect(this, &CppCodeStylePreferences::currentValueChanged,
             this, &CppCodeStylePreferences::slotCurrentValueChanged);

@@ -140,6 +140,7 @@ public:
     virtual IAssistProvider *quickFixAssistProvider() const;
 
     void setCodeStyle(ICodeStylePreferences *preferences);
+    ICodeStylePreferences *codeStyle() const;
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
