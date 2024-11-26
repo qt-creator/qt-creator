@@ -289,6 +289,19 @@ static void setHighDpiEnvironmentVariable()
     QGuiApplication::setHighDpiScaleFactorRoundingPolicy(userPolicy);
 }
 
+static void setRHIOpenGLVariable()
+{
+    QSettings installSettings(
+        QSettings::IniFormat,
+        QSettings::SystemScope,
+        QLatin1String(Core::Constants::IDE_SETTINGSVARIANT_STR),
+        QLatin1String(Core::Constants::IDE_CASED_ID));
+
+    const QVariant value = installSettings.value("Core/RhiBackend");
+    if (value.isValid())
+        qputenv("QSG_RHI_BACKEND", value.toByteArray());
+}
+
 void setPixmapCacheLimit()
 {
     const int originalLimit = QPixmapCache::cacheLimit();
@@ -674,6 +687,7 @@ int main(int argc, char **argv)
     // though. So we set up install settings with a educated guess here, and re-setup it later.
     setupInstallSettings(options.installSettingsPath);
     setHighDpiEnvironmentVariable();
+    setRHIOpenGLVariable();
 
     SharedTools::QtSingleApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
