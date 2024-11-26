@@ -171,7 +171,12 @@ public:
 
     QFuture<ResultType> future() const { return m_watcher.future(); }
     ResultType result() const { return m_watcher.result(); }
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 2)
+    // takeResult is buggy before QTBUG-112513 as it resets the future state to "NoState".
+    // This in turn causes the FutureSynchronizer to deadlock in "waitForFinished", as the
+    // future is not in the finished state anymore.
     ResultType takeResult() const { return m_watcher.future().takeResult(); }
+#endif
     ResultType resultAt(int index) const { return m_watcher.resultAt(index); }
     QList<ResultType> results() const { return future().results(); }
     bool isResultAvailable() const { return future().resultCount(); }
