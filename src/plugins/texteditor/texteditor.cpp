@@ -314,51 +314,54 @@ private:
         QTC_ASSERT(m_doc, return);
         auto menu = new QMenu;
         menu->addAction(ActionManager::command(Constants::AUTO_INDENT_SELECTION)->action());
-        auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
+        if (auto indenter = m_doc->indenter(); indenter && indenter->respectsTabSettings()) {
+            auto documentSettings = menu->addMenu(Tr::tr("Document Settings"));
 
-        auto modifyTabSettings = [this](std::function<void(TabSettings &tabSettings)> modifier) {
-            return [this, modifier]() {
-                auto ts = m_doc->tabSettings();
-                modifier(ts);
-                m_doc->setTabSettings(ts);
-            };
-        };
-        documentSettings->addAction(
-            Tr::tr("Auto detect"),
-            modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
-                tabSettings = tabSettings.autoDetect(doc);
-            }));
-        auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
-        tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
-                                   tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
-                               }));
-        tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettings &tabSettings) {
-                                   tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
-                               }));
-        auto indentSize = documentSettings->addMenu(Tr::tr("Indent Size"));
-        auto indentSizeGroup = new QActionGroup(indentSize);
-        indentSizeGroup->setExclusive(true);
-        for (int i = 1; i <= 8; ++i) {
-            auto action = indentSizeGroup->addAction(QString::number(i));
-            action->setCheckable(true);
-            action->setChecked(i == m_doc->tabSettings().m_indentSize);
-            connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
-                        tabSettings.m_indentSize = i;
-                    }));
+            auto modifyTabSettings =
+                [this](std::function<void(TabSettings & tabSettings)> modifier) {
+                    return [this, modifier]() {
+                        auto ts = m_doc->tabSettings();
+                        modifier(ts);
+                        m_doc->setTabSettings(ts);
+                    };
+                };
+            documentSettings->addAction(
+                Tr::tr("Auto detect"),
+                modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
+                    tabSettings = tabSettings.autoDetect(doc);
+                }));
+            auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
+            tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
+                                   }));
+            tabSettings->addAction(Tr::tr("Tabs"), modifyTabSettings([](TabSettings &tabSettings) {
+                                       tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
+                                   }));
+            auto indentSize = documentSettings->addMenu(Tr::tr("Indent Size"));
+            auto indentSizeGroup = new QActionGroup(indentSize);
+            indentSizeGroup->setExclusive(true);
+            for (int i = 1; i <= 8; ++i) {
+                auto action = indentSizeGroup->addAction(QString::number(i));
+                action->setCheckable(true);
+                action->setChecked(i == m_doc->tabSettings().m_indentSize);
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                            tabSettings.m_indentSize = i;
+                        }));
+            }
+            indentSize->addActions(indentSizeGroup->actions());
+            auto tabSize = documentSettings->addMenu(Tr::tr("Tab Size"));
+            auto tabSizeGroup = new QActionGroup(tabSize);
+            tabSizeGroup->setExclusive(true);
+            for (int i = 1; i <= 8; ++i) {
+                auto action = tabSizeGroup->addAction(QString::number(i));
+                action->setCheckable(true);
+                action->setChecked(i == m_doc->tabSettings().m_tabSize);
+                connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
+                            tabSettings.m_tabSize = i;
+                        }));
+                }
+                tabSize->addActions(tabSizeGroup->actions());
         }
-        indentSize->addActions(indentSizeGroup->actions());
-        auto tabSize = documentSettings->addMenu(Tr::tr("Tab Size"));
-        auto tabSizeGroup = new QActionGroup(tabSize);
-        tabSizeGroup->setExclusive(true);
-        for (int i = 1; i <= 8; ++i) {
-            auto action = tabSizeGroup->addAction(QString::number(i));
-            action->setCheckable(true);
-            action->setChecked(i == m_doc->tabSettings().m_tabSize);
-            connect(action, &QAction::triggered, modifyTabSettings([i](TabSettings &tabSettings) {
-                tabSettings.m_tabSize = i;
-            }));
-        }
-        tabSize->addActions(tabSizeGroup->actions());
 
         Id globalSettingsCategory;
         if (auto codeStyle = m_doc->codeStyle())

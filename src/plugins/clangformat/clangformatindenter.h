@@ -60,6 +60,8 @@ public:
                           int cursorPositionInEditor = -1) override;
     std::optional<int> margin() const override;
 
+    bool respectsTabSettings() const override;
+
 private:
     TextEditor::Indenter *currentIndenter() const;
 

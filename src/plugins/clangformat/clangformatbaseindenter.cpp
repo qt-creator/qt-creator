@@ -1031,4 +1031,9 @@ void ClangFormatBaseIndenter::setOverriddenStyle(const clang::format::FormatStyl
     d->m_overriddenStyle = style;
 }
 
+bool ClangFormatBaseIndenter::respectsTabSettings() const
+{
+    return false;
+}
+
 } // namespace ClangFormat

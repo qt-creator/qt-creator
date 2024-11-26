@@ -108,6 +108,8 @@ public:
 
     virtual std::optional<int> margin() const { return std::nullopt; }
 
+    virtual bool respectsTabSettings() const { return true; }
+
 protected:
     QTextDocument *m_doc;
     Utils::FilePath m_fileName;

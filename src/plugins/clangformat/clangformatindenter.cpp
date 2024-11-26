@@ -235,4 +235,9 @@ std::optional<int> ClangFormatForwardingIndenter::margin() const
     return currentIndenter()->margin();
 }
 
+bool ClangFormatForwardingIndenter::respectsTabSettings() const
+{
+    return currentIndenter()->respectsTabSettings();
+}
+
 } // namespace ClangFormat
