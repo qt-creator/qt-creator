@@ -5,6 +5,7 @@
 
 #include "extraencodingsettings.h"
 #include "fontsettings.h"
+#include "icodestylepreferences.h"
 #include "storagesettings.h"
 #include "syntaxhighlighter.h"
 #include "tabsettings.h"
@@ -76,6 +77,7 @@ public:
     QString m_suggestedFileName;
     TypingSettings m_typingSettings;
     StorageSettings m_storageSettings;
+    ICodeStylePreferences *m_codeStylePreferences = nullptr;
     TabSettings m_tabSettings;
     ExtraEncodingSettings m_extraEncodingSettings;
     FontSettings m_fontSettings;
@@ -457,6 +459,26 @@ IAssistProvider *TextDocument::quickFixAssistProvider() const
     return d->m_quickFixProvider;
 }
 
+void TextDocument::setCodeStyle(ICodeStylePreferences *preferences)
+{
+    indenter()->setCodeStylePreferences(preferences);
+    if (d->m_codeStylePreferences) {
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                   this, &TextDocument::setTabSettings);
+        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                   this, &TextDocument::slotCodeStyleSettingsChanged);
+    }
+    d->m_codeStylePreferences = preferences;
+    if (d->m_codeStylePreferences) {
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
+                this, &TextDocument::setTabSettings);
+        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
+                this, &TextDocument::slotCodeStyleSettingsChanged);
+        setTabSettings(d->m_codeStylePreferences->currentTabSettings());
+        slotCodeStyleSettingsChanged();
+    }
+}
+
 void TextDocument::applyFontSettings()
 {
     d->m_fontSettingsNeedsApply = false;
@@ -469,6 +491,8 @@ void TextDocument::applyFontSettings()
     if (d->m_highlighter)
         d->m_highlighter->setFontSettings(d->m_fontSettings);
 }
+
+void TextDocument::slotCodeStyleSettingsChanged() { }
 
 const FontSettings &TextDocument::fontSettings() const
 {

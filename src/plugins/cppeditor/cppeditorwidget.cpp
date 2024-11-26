@@ -1246,12 +1246,6 @@ bool CppEditorWidget::handleStringSplitting(QKeyEvent *e) const
     return false;
 }
 
-void CppEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
-{
-    QtStyleCodeFormatter formatter;
-    formatter.invalidateCache(document());
-}
-
 void CppEditorWidget::updateSemanticInfo()
 {
     updateSemanticInfo(d->m_cppEditorDocument->recalculateSemanticInfo(),

@@ -139,6 +139,7 @@ public:
     void setQuickFixAssistProvider(IAssistProvider *provider) const;
     virtual IAssistProvider *quickFixAssistProvider() const;
 
+    void setCodeStyle(ICodeStylePreferences *preferences);
     void setTabSettings(const TextEditor::TabSettings &tabSettings);
     void setFontSettings(const TextEditor::FontSettings &fontSettings);
 
@@ -163,6 +164,7 @@ signals:
 protected:
     virtual void applyFontSettings();
     Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    virtual void slotCodeStyleSettingsChanged(); // Used in CppEditorDocumet
 
 private:
     OpenResult openImpl(QString *errorString,

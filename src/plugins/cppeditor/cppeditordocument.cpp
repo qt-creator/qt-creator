@@ -171,6 +171,12 @@ void CppEditorDocument::applyFontSettings()
         m_processor->semanticRehighlight();
 }
 
+void CppEditorDocument::slotCodeStyleSettingsChanged()
+{
+    QtStyleCodeFormatter formatter;
+    formatter.invalidateCache(document());
+}
+
 void CppEditorDocument::invalidateFormatterCache()
 {
     QtStyleCodeFormatter formatter;

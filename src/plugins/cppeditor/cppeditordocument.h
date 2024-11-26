@@ -68,6 +68,7 @@ signals:
 protected:
     void applyFontSettings() override;
     Utils::Result saveImpl(const Utils::FilePath &filePath, bool autoSave) override;
+    void slotCodeStyleSettingsChanged() override;
 
 private:
     void invalidateFormatterCache();

@@ -359,6 +359,7 @@ private:
             }));
         }
         tabSize->addActions(tabSizeGroup->actions());
+
         menu->popup(QCursor::pos());
     }
 
@@ -896,7 +897,6 @@ public:
     QWidget *m_extraArea = nullptr;
 
     Id m_tabSettingsId;
-    ICodeStylePreferences *m_codeStylePreferences = nullptr;
     DisplaySettings m_displaySettings;
     bool m_annotationsrRight = true;
     MarginSettings m_marginSettings;
@@ -1592,7 +1592,7 @@ void TextEditorWidgetPrivate::setDocument(const QSharedPointer<TextDocument> &do
     q->setDisplaySettings(TextEditorSettings::displaySettings());
     q->setCompletionSettings(TextEditorSettings::completionSettings());
     q->setExtraEncodingSettings(globalExtraEncodingSettings());
-    q->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
+    q->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(m_tabSettingsId));
 
     m_blockCount = doc->document()->blockCount();
 
@@ -7707,41 +7707,13 @@ void TextEditorWidgetPrivate::toggleBlockVisible(const QTextBlock &block)
 void TextEditorWidget::setLanguageSettingsId(Id settingsId)
 {
     d->m_tabSettingsId = settingsId;
-    setCodeStyle(TextEditorSettings::codeStyle(settingsId));
+    if (auto doc = textDocument())
+        doc->setCodeStyle(TextEditorSettings::codeStyle(settingsId));
 }
 
 Id TextEditorWidget::languageSettingsId() const
 {
     return d->m_tabSettingsId;
-}
-
-void TextEditorWidget::setCodeStyle(ICodeStylePreferences *preferences)
-{
-    TextDocument *document = d->m_document.data();
-    // Not fully initialized yet... wait for TextEditorWidgetPrivate::setupDocumentSignals
-    if (!document)
-        return;
-    document->indenter()->setCodeStylePreferences(preferences);
-    if (d->m_codeStylePreferences) {
-        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                   document, &TextDocument::setTabSettings);
-        disconnect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
-                   this, &TextEditorWidget::slotCodeStyleSettingsChanged);
-    }
-    d->m_codeStylePreferences = preferences;
-    if (d->m_codeStylePreferences) {
-        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentTabSettingsChanged,
-                document, &TextDocument::setTabSettings);
-        connect(d->m_codeStylePreferences, &ICodeStylePreferences::currentValueChanged,
-                this, &TextEditorWidget::slotCodeStyleSettingsChanged);
-        document->setTabSettings(d->m_codeStylePreferences->currentTabSettings());
-        slotCodeStyleSettingsChanged(d->m_codeStylePreferences->currentValue());
-    }
-}
-
-void TextEditorWidget::slotCodeStyleSettingsChanged(const QVariant &)
-{
-
 }
 
 const DisplaySettings &TextEditorWidget::displaySettings() const

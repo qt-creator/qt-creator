@@ -115,8 +115,6 @@ protected:
                     bool resolveTarget = true,
                     bool inNextSplit = false) override;
 
-    void slotCodeStyleSettingsChanged(const QVariant &) override;
-
 private:
     void updateFunctionDeclDefLink();
     void updateFunctionDeclDefLinkNow();

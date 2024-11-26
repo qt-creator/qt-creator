@@ -507,7 +507,7 @@ void CppCodeStylePreferencesWidget::updatePreview()
     QtStyleCodeFormatter formatter(ts, ccss);
     for (SnippetEditorWidget *preview : std::as_const(d->m_previews)) {
         preview->textDocument()->setTabSettings(ts);
-        preview->setCodeStyle(cppCodeStylePreferences);
+        preview->textDocument()->setCodeStyle(cppCodeStylePreferences);
 
         QTextDocument *doc = preview->document();
         formatter.invalidateCache(doc);

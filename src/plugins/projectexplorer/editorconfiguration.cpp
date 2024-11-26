@@ -234,7 +234,7 @@ void EditorConfiguration::configureEditor(BaseTextEditor *textEditor) const
 {
     TextEditorWidget *widget = textEditor->editorWidget();
     if (widget)
-        widget->setCodeStyle(codeStyle(widget->languageSettingsId()));
+        widget->textDocument()->setCodeStyle(codeStyle(widget->languageSettingsId()));
     if (!d->m_useGlobal) {
         textEditor->textDocument()->setCodec(d->m_textCodec);
         if (widget)
@@ -250,7 +250,7 @@ void EditorConfiguration::deconfigureEditor(BaseTextEditor *textEditor) const
 {
     TextEditorWidget *widget = textEditor->editorWidget();
     if (widget)
-        widget->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
+        widget->textDocument()->setCodeStyle(TextEditorSettings::codeStyle(widget->languageSettingsId()));
 
     d->m_editors.removeOne(textEditor);
 

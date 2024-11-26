@@ -319,8 +319,6 @@ public:
     void setLanguageSettingsId(Utils::Id settingsId);
     Utils::Id languageSettingsId() const;
 
-    void setCodeStyle(ICodeStylePreferences *settings);
-
     const DisplaySettings &displaySettings() const;
     const MarginSettings &marginSettings() const;
     const BehaviorSettings &behaviorSettings() const;
@@ -689,7 +687,6 @@ signals:
 
 protected:
     virtual void slotCursorPositionChanged(); // Used in VcsBase
-    virtual void slotCodeStyleSettingsChanged(const QVariant &); // Used in CppEditor
 
 private:
     std::unique_ptr<Internal::TextEditorWidgetPrivate> d;
