@@ -420,9 +420,9 @@ public:
         if (withIcon()) {
             painter->drawPixmap(iconX, iconY, icon());
         }
+        const bool isActiveSession = idx.data(SessionModel::ActiveSessionRole).toBool();
         {
             const bool isLastSession = idx.data(SessionModel::LastSessionRole).toBool();
-            const bool isActiveSession = idx.data(SessionModel::ActiveSessionRole).toBool();
             const bool isDefaultVirgin = SessionManager::isDefaultVirgin();
 
             const int sessionNameWidth = hdR.right()
@@ -533,7 +533,8 @@ public:
                 const QString &action = actions.at(i);
                 const int ww = textWidths.at(i);
                 const QRect actionR(xx, yy, s(ExPaddingGapM) + ww + s(ExPaddingGapM), buttonHeight);
-                const bool isDisabled = i > 0 && SessionManager::isDefaultSession(sessionName);
+                const bool isDisabled = (i > 0 && SessionManager::isDefaultSession(sessionName))
+                                        || (i == 2 && isActiveSession);
                 const bool isActive = actionR.adjusted(-s(VPaddingXs), 0, s(VPaddingXs) + 1, 0)
                                           .contains(mousePos) && !isDisabled;
                 if (isActive) {
