@@ -281,6 +281,7 @@ QModelIndex BranchModel::parent(const QModelIndex &index) const
         return {};
 
     BranchNode *node = indexToNode(index);
+    QTC_ASSERT(node, return {});
     if (node->parent == d->rootNode)
         return {};
     return nodeToIndex(node->parent, ColumnBranch);
@@ -553,6 +554,7 @@ QString BranchModel::sha(const QModelIndex &idx) const
     if (!idx.isValid())
         return {};
     BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return {});
     return node->sha;
 }
 
@@ -561,6 +563,8 @@ QDateTime BranchModel::dateTime(const QModelIndex &idx) const
     if (!idx.isValid())
         return {};
     BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return {});
+
     return node->dateTime;
 }
 
@@ -569,6 +573,8 @@ bool BranchModel::isHead(const QModelIndex &idx) const
     if (!idx.isValid())
         return false;
     BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return false);
+
     return node == d->headNode;
 }
 
@@ -577,6 +583,8 @@ bool BranchModel::isLocal(const QModelIndex &idx) const
     if (!idx.isValid())
         return false;
     BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return false);
+
     return node == d->headNode ? false : node->isLocal();
 }
 
@@ -585,6 +593,8 @@ bool BranchModel::isLeaf(const QModelIndex &idx) const
     if (!idx.isValid())
         return false;
     BranchNode *node = indexToNode(idx);
+    QTC_ASSERT(node, return false);
+
     return node->isLeaf();
 }
 
@@ -770,6 +780,8 @@ void BranchModel::refreshCurrentBranch()
 {
     const QModelIndex currentIndex = currentBranch();
     BranchNode *node = indexToNode(currentIndex);
+    QTC_ASSERT(node, return);
+
     updateUpstreamStatus(node);
 }
 
@@ -888,6 +900,8 @@ QModelIndex BranchModel::nodeToIndex(BranchNode *node, int column) const
 {
     if (node == d->rootNode)
         return {};
+    QTC_ASSERT(node->parent, return {});
+
     return createIndex(node->parent->rowOf(node), column, static_cast<void *>(node));
 }
 
@@ -895,6 +909,8 @@ void BranchModel::removeNode(const QModelIndex &idx)
 {
     QModelIndex nodeIndex = idx; // idx is a leaf, so count must be 0.
     BranchNode *node = indexToNode(nodeIndex);
+    QTC_ASSERT(node, return);
+
     while (node->count() == 0 && node->parent != d->rootNode) {
         BranchNode *parentNode = node->parent;
         const QModelIndex parentIndex = nodeToIndex(parentNode, ColumnBranch);
