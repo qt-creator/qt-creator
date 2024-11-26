@@ -228,6 +228,9 @@ QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line
         return -1;
     }
 
+    if (columnToParse.size() > 0 && columnToParse.back() == '*')
+        return -1; // Valid case, no warning. See QNX udp case.
+
     const int port = trailingNumber(columnToParse, base);
     if (port == -1) {
         qWarning("%s: Unexpected string '%s' is not a port. Tried to read from '%s'",
