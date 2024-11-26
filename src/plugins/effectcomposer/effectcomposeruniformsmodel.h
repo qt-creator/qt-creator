@@ -26,7 +26,8 @@ public:
         TypeRole,
         ControlTypeRole,
         UseCustomValueRole,
-        UserAdded
+        UserAdded,
+        IsInUse
     };
 
     EffectComposerUniformsModel(QObject *parent = nullptr);

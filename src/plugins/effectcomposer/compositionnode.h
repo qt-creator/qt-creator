@@ -75,7 +75,7 @@ public:
     void closeCodeEditor();
     void addUniform(const QVariantMap &data);
     void updateUniform(int index, const QVariantMap &data);
-    bool isUniformInUse(int index) const;
+    void updateAreUniformsInUse();
 
 signals:
     void uniformsModelChanged();
@@ -103,6 +103,8 @@ private:
     bool m_isCustom = false;
     int m_refCount = 0;
     int m_extraMargin = 0;
+    bool m_vertInUseCheckNeeded = false;
+    bool m_fragInUseCheckNeeded = false;
 
     EffectComposerUniformsModel m_uniformsModel;
     Utils::UniqueObjectLatePtr<EffectShadersCodeEditor> m_shadersCodeEditor;

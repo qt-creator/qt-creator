@@ -30,6 +30,7 @@ class Uniform : public QObject
     Q_PROPERTY(QVariant uniformDefaultValue READ defaultValue NOTIFY uniformDefaultValueChanged)
     Q_PROPERTY(QVariant uniformUseCustomValue READ useCustomValue CONSTANT)
     Q_PROPERTY(bool uniformUserAdded READ userAdded CONSTANT)
+    Q_PROPERTY(bool uniformIsInUse READ isInUse NOTIFY uniformIsInUseChanged)
 
 public:
     enum class Type
@@ -69,6 +70,9 @@ public:
     QString displayName() const;
     bool userAdded() const;
 
+    void setIsInUse(bool inUse);
+    bool isInUse() const;
+
     QString customValue() const;
     void setCustomValue(const QString &newCustomValue);
     bool useCustomValue() const;
@@ -87,6 +91,7 @@ signals:
     void uniformValueChanged();
     void uniformBackendValueChanged();
     void uniformDefaultValueChanged();
+    void uniformIsInUseChanged();
 
 private:
     QString mipmapPropertyName(const QString &name) const;
@@ -113,6 +118,7 @@ private:
     bool m_useCustomValue = false;
     bool m_enabled = true;
     bool m_enableMipmap = false;
+    bool m_isInUse = false;
     QmlDesigner::PropertyEditorValue *m_backendValue = nullptr;
 
     bool operator==(const Uniform &rhs) const noexcept

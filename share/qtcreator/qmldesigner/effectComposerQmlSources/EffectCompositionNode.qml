@@ -122,11 +122,11 @@ HelperWidgets.Section {
                 width: root.width - StudioTheme.Values.scrollBarThicknessHover
                 editing: root.editedUniformIndex === index
                 disableMoreMenu: root.editedUniformIndex >= 0
-                showMoreMenu: !isDependency
+                isDependencyNode: isDependency
 
                 onReset: nodeUniformsModel.resetData(index)
                 onRemove: {
-                    if (root.backendModel.isNodeUniformInUse(root.modelIndex, index)) {
+                    if (uniformIsInUse) {
                         confirmRemoveForm.parent = effectCompositionNodeUniform.editPropertyFormParent
                         confirmRemoveForm.uniformIndex = index
                         confirmRemoveForm.visible = true
@@ -149,6 +149,7 @@ HelperWidgets.Section {
                                                 uniformName, uniformDescription, uniformDefaultValue,
                                                 uniformMinValue, uniformMaxValue, uniformUserAdded)
                 }
+                onOpenCodeEditor: root.backendModel.openCodeEditor(root.modelIndex)
             }
         }
     }

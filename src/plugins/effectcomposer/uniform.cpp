@@ -158,6 +158,19 @@ bool Uniform::userAdded() const
     return m_userAdded;
 }
 
+void Uniform::setIsInUse(bool inUse)
+{
+    if (m_isInUse != inUse) {
+        m_isInUse = inUse;
+        emit uniformIsInUseChanged();
+    }
+}
+
+bool Uniform::isInUse() const
+{
+    return m_isInUse;
+}
+
 QString Uniform::customValue() const
 {
     return m_customValue;

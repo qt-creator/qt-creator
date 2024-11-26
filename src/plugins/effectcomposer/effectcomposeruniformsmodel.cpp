@@ -30,6 +30,7 @@ QHash<int, QByteArray> EffectComposerUniformsModel::roleNames() const
     roles[ControlTypeRole] = "uniformControlType";
     roles[UseCustomValueRole] = "uniformUseCustomValue";
     roles[UserAdded] = "uniformUserAdded";
+    roles[IsInUse] = "uniformIsInUse";
     return roles;
 }
 
@@ -55,7 +56,9 @@ bool EffectComposerUniformsModel::setData(const QModelIndex &index, const QVaria
 
     auto uniform = m_uniforms.at(index.row());
 
-    if (uniform->type() == Uniform::Type::Sampler) {
+    if (role == IsInUse) {
+        uniform->setIsInUse(value.toBool());
+    } else if (uniform->type() == Uniform::Type::Sampler) {
         QString updatedValue = value.toString();
         int idx = value.toString().indexOf("file:");
 

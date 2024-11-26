@@ -228,13 +228,6 @@ bool EffectComposerModel::changeNodeName(int nodeIndex, const QString &name)
     return newName == trimmedName;
 }
 
-bool EffectComposerModel::isNodeUniformInUse(int nodeIndex, int uniformIndex) const
-{
-    QTC_ASSERT(nodeIndex >= 0 && nodeIndex < m_nodes.size(), return false);
-
-    return m_nodes[nodeIndex]->isUniformInUse(uniformIndex);
-}
-
 void EffectComposerModel::clear(bool clearName)
 {
     beginResetModel();
@@ -2161,6 +2154,9 @@ void EffectComposerModel::bakeShaders()
 
     runQsb(qsbPath, outPaths, false);
     runQsb(qsbPrevPath, outPrevPaths, true);
+
+    for (CompositionNode *node : std::as_const(m_nodes))
+        node->updateAreUniformsInUse();
 }
 
 bool EffectComposerModel::shadersUpToDate() const

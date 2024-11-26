@@ -14,7 +14,7 @@ Item {
 
     property bool editing: false
     property bool disableMoreMenu: false
-    property bool showMoreMenu: true
+    property bool isDependencyNode: true
     property alias editPropertyFormParent: editPropertyFormPlaceholder
 
     height: layout.implicitHeight + editPropertyFormPlaceholder.height + column.spacing
@@ -23,6 +23,7 @@ Item {
     signal reset()
     signal remove()
     signal edit()
+    signal openCodeEditor()
 
     Component.onCompleted: {
         if (uniformType === "int") {
@@ -102,11 +103,26 @@ Item {
 
                     buttonSize: 24
                     icon: StudioTheme.Constants.reload_medium
-                    iconSize: 16
+                    iconSize: StudioTheme.Values.mediumIconFontSize
                     anchors.centerIn: parent
-                    visible: mouseArea.containsMouse || iconButton.containsMouse
+                    visible: !warningButton.visible && (mouseArea.containsMouse || iconButton.containsMouse)
                     tooltip: qsTr("Reset value")
+
                     onClicked: root.reset()
+                }
+
+                HelperWidgets.IconButton {
+                    id: warningButton
+
+                    buttonSize: 24
+                    icon: StudioTheme.Constants.warning_medium
+                    iconSize: StudioTheme.Values.mediumIconFontSize
+                    anchors.centerIn: parent
+                    visible: !uniformIsInUse && !root.isDependencyNode
+                    tooltip: qsTr("This property is not used in the shader code of the effect.")
+                    iconColor: StudioTheme.Values.themeWarning
+
+                    onClicked: root.openCodeEditor()
                 }
             }
 
@@ -130,7 +146,7 @@ Item {
                     tooltip: root.disableMoreMenu ? qsTr("Additional actions disabled while editing existing property.")
                                                   : qsTr("Access additional property actions.")
                     enabled: !root.disableMoreMenu
-                    visible: root.showMoreMenu
+                    visible: !root.isDependencyNode
 
                     onClicked: menuLoader.show()
                 }

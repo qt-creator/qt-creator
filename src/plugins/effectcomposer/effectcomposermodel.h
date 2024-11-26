@@ -80,7 +80,6 @@ public:
 
     Q_INVOKABLE void moveNode(int fromIdx, int toIdx);
     Q_INVOKABLE void removeNode(int idx);
-    Q_INVOKABLE bool isNodeUniformInUse(int nodeIndex, int uniformIndex) const;
     Q_INVOKABLE bool changeNodeName(int nodeIndex, const QString& name);
     Q_INVOKABLE void clear(bool clearName = false);
     Q_INVOKABLE void assignToSelected();
