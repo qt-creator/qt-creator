@@ -99,24 +99,28 @@ ColumnLayout {
                             sourceComponent: MouseArea {
                                 id: hoverArea
 
-                                width: 15
+                                width: buttonsRow.implicitWidth
                                 hoverEnabled: true
                                 enabled: true
 
                                 Row {
+                                    id: buttonsRow
+
                                     anchors.fill: parent
+                                    spacing: StudioTheme.Values.controlGap
                                     visible: hoverArea.containsMouse
 
-                                    StudioControls.AbstractButton {
-                                        width: iconSize
-                                        height: iconSize
-                                        anchors.verticalCenter: parent.verticalCenter
-                                        buttonIcon: StudioTheme.Constants.copy_small
-                                        backgroundVisible: false
-                                        onClicked: rootView.copyText(dataScope.display)
+                                    CellButton {
+                                        buttonIcon: StudioTheme.Constants.assignTo_medium
+                                        onClicked: rootEditor.insertTextToCursorPosition(dataScope.display)
+                                        tooltip: qsTr("Insert into the editor cursor position.")
                                     }
 
-                                    // ToDo: Add a button for placing the value to the editor
+                                    CellButton {
+                                        buttonIcon: StudioTheme.Constants.copy_small
+                                        onClicked: rootEditor.copyText(dataScope.display)
+                                        tooltip: qsTr("Copy uniform name to clipboard.")
+                                    }
                                 }
                             }
                         }
@@ -180,6 +184,24 @@ ColumnLayout {
         border {
             width: StudioTheme.Values.border
             color: StudioTheme.Values.themeStateSeparator
+        }
+    }
+
+    component CellButton: StudioControls.AbstractButton {
+        id: cellBtn
+
+        property alias tooltip: cellBtnTooltip.text
+
+        width: iconSize
+        height: iconSize
+        anchors.verticalCenter: parent.verticalCenter
+        buttonIcon: StudioTheme.Constants.assignTo_medium
+        backgroundVisible: false
+
+        StudioControls.ToolTip {
+            id: cellBtnTooltip
+
+            visible: cellBtn.hovered && text !== ""
         }
     }
 }

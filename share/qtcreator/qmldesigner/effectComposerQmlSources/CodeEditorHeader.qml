@@ -9,7 +9,7 @@ import StudioTheme as StudioTheme
 Rectangle {
     id: root
 
-    property var rootView: shaderEditor
+    property var rootEditor: shaderEditor
 
     color: StudioTheme.Values.themeToolbarBackground
 
@@ -52,8 +52,8 @@ Rectangle {
                 text: qsTr("Live Update")
                 actionIndicatorVisible: false
                 style: StudioTheme.Values.viewBarControlStyle
-                checked: root.rootView ? root.rootView.liveUpdate : false
-                onToggled: root.rootView.liveUpdate = checked
+                checked: root.rootEditor ? root.rootEditor.liveUpdate : false
+                onToggled: root.rootEditor.liveUpdate = checked
                 Layout.alignment: Qt.AlignVCenter
             }
         }

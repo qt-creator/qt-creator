@@ -65,6 +65,7 @@ public:
         EffectComposerUniformsModel *uniforms);
 
     Q_INVOKABLE void copyText(const QString &text);
+    Q_INVOKABLE void insertTextToCursorPosition(const QString &text);
 
     static EffectShadersCodeEditor *instance();
 
@@ -88,6 +89,8 @@ private:
     void loadQml();
     void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
     void selectNonEmptyShader(ShaderEditorData *data);
+
+    EffectCodeEditorWidget *currentEditor() const;
 
     QSettings *m_settings = nullptr;
     QPointer<StudioQuickWidget> m_headerWidget;

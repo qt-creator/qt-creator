@@ -184,6 +184,16 @@ void EffectShadersCodeEditor::copyText(const QString &text)
     qApp->clipboard()->setText(text);
 }
 
+void EffectShadersCodeEditor::insertTextToCursorPosition(const QString &text)
+{
+    auto editor = currentEditor();
+    if (!editor)
+        return;
+
+    editor->textCursor().insertText(text);
+    editor->setFocus();
+}
+
 EffectShadersCodeEditor *EffectShadersCodeEditor::instance()
 {
     static EffectShadersCodeEditor *editorInstance = new EffectShadersCodeEditor(
@@ -308,6 +318,20 @@ void EffectShadersCodeEditor::selectNonEmptyShader(ShaderEditorData *data)
 
     m_tabWidget->setCurrentWidget(widgetToSelect);
     widgetToSelect->setFocus();
+}
+
+EffectCodeEditorWidget *EffectShadersCodeEditor::currentEditor() const
+{
+    QWidget *currentTab = m_tabWidget->currentWidget();
+    if (!m_currentEditorData || !currentTab)
+        return nullptr;
+
+    if (currentTab == m_currentEditorData->fragmentEditor.get())
+        return m_currentEditorData->fragmentEditor.get();
+    if (currentTab == m_currentEditorData->vertexEditor.get())
+        return m_currentEditorData->vertexEditor.get();
+
+    return nullptr;
 }
 
 } // namespace EffectComposer
