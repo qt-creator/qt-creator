@@ -605,7 +605,7 @@ void GdbEngine::handleAsyncOutput(const QStringView asyncClass, const GdbMi &res
 
 void GdbEngine::readGdbStandardError()
 {
-    QString err = QString::fromUtf8(m_gdbProc.readAllRawStandardError());
+    QString err = m_gdbProc.readAllStandardError();
     showMessage("UNEXPECTED GDB STDERR: " + err);
     if (err == "Undefined command: \"bb\".  Try \"help\".\n")
         return;
