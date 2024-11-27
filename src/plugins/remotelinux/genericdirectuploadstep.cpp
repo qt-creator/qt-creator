@@ -22,6 +22,7 @@
 #include <utils/qtcassert.h>
 
 #include <QDateTime>
+#include <QTextCodec>
 
 using namespace ProjectExplorer;
 using namespace Tasking;
@@ -110,14 +111,14 @@ QDateTime GenericDirectUploadStep::timestampFromStat(const DeployableFile &file,
                               .arg(file.remoteFilePath(), error));
         return {};
     }
-    const QByteArray output = statProc->readAllRawStandardOutput().trimmed();
+    const QString output = statProc->readAllStandardOutput().trimmed();
     const QString warningString(Tr::tr("Unexpected stat output for remote file \"%1\": %2")
-                                .arg(file.remoteFilePath()).arg(QString::fromUtf8(output)));
-    if (!output.startsWith(file.remoteFilePath().toUtf8())) {
+                                .arg(file.remoteFilePath()).arg(output));
+    if (!output.startsWith(file.remoteFilePath())) {
         addWarningMessage(warningString);
         return {};
     }
-    const QByteArrayList columns = output.mid(file.remoteFilePath().toUtf8().size() + 1).split(' ');
+    const QStringList columns = output.mid(file.remoteFilePath().size() + 1).split(' ');
     if (columns.size() < 14) { // Normal Linux stat: 16 columns in total, busybox stat: 15 columns
         addWarningMessage(warningString);
         return {};
@@ -136,6 +137,7 @@ GroupItem GenericDirectUploadStep::statTask(UploadStorage *storage,
                                             StatEndHandler statEndHandler)
 {
     const auto onSetup = [this, file](Process &process) {
+        process.setCodec(QTextCodec::codecForName("UTF-8"));
         // We'd like to use --format=%Y, but it's not supported by busybox.
         process.setCommand({deviceConfiguration()->filePath("stat"),
                             {"-t", Utils::ProcessArgs::quoteArgUnix(file.remoteFilePath())}});
