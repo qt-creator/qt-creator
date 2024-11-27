@@ -193,7 +193,14 @@ public:
     void handleRest();
     void append(const QByteArray &text);
 
-    QByteArray readAllData() { return std::exchange(rawData, {}); }
+    QByteArray readAllRawData() { return std::exchange(rawData, {}); }
+
+    QString readAllData()
+    {
+        QString msg = codec->toUnicode(rawData.data(), rawData.size(), codecState.get());
+        rawData.clear();
+        return msg;
+    }
 
     QByteArray rawData;
     QString incompleteLineBuffer; // lines not yet signaled
@@ -1456,12 +1463,12 @@ bool Process::waitForFinished(QDeadlineTimer timeout)
 
 QByteArray Process::readAllRawStandardOutput()
 {
-    return d->m_stdOut.readAllData();
+    return d->m_stdOut.readAllRawData();
 }
 
 QByteArray Process::readAllRawStandardError()
 {
-    return d->m_stdErr.readAllData();
+    return d->m_stdErr.readAllRawData();
 }
 
 qint64 Process::write(const QString &input)
@@ -1526,12 +1533,12 @@ void Process::stop()
 
 QString Process::readAllStandardOutput()
 {
-    return QString::fromUtf8(readAllRawStandardOutput());
+    return d->m_stdOut.readAllData();
 }
 
 QString Process::readAllStandardError()
 {
-    return QString::fromUtf8(readAllRawStandardError());
+    return d->m_stdErr.readAllData();
 }
 
 QString Process::exitMessage(const CommandLine &command, ProcessResult result,
