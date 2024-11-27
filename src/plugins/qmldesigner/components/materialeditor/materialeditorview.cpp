@@ -177,7 +177,7 @@ void MaterialEditorView::changeValue(const QString &name)
     if (name == "state" && castedValue.toString() == "base state")
         castedValue = "";
 
-    if (castedValue.typeId() == QVariant::Color) {
+    if (castedValue.typeId() == QMetaType::QColor) {
         QColor color = castedValue.value<QColor>();
         QColor newColor = QColor(color.name());
         newColor.setAlpha(color.alpha());
