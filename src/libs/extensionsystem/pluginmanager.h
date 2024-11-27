@@ -138,6 +138,7 @@ public:
     static QString systemInformation();
 
     void setAcceptTermsAndConditionsCallback(const std::function<bool(PluginSpec *)> &callback);
+    void setTermsAndConditionsAccepted(PluginSpec *spec);
 
 signals:
     void objectAdded(QObject *obj);
