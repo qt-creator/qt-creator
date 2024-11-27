@@ -103,7 +103,7 @@ public:
     QMap<int, QtcFrameInfo> frameMap;
     QString absoluteFilePath;
 
-    QTimer nextImageTimer;
+    QTimer *nextImageTimer;
 };
 
 /*! \internal
@@ -111,14 +111,13 @@ public:
 QtcMoviePrivate::QtcMoviePrivate(QtcMovie *qq)
 {
     q_ptr = qq;
-    nextImageTimer.setSingleShot(true);
 }
 
 /*! \internal
  */
 void QtcMoviePrivate::reset()
 {
-    nextImageTimer.stop();
+    nextImageTimer->stop();
     if (reader->device())
         initialDevicePos = reader->device()->pos();
     currentFrameNumber = -1;
@@ -360,7 +359,7 @@ void QtcMoviePrivate::_q_loadNextFrame(bool starting)
         emit q->frameChanged(currentFrameNumber);
 
         if (speed && movieState == QtcMovie::Running)
-            nextImageTimer.start(nextDelay);
+            nextImageTimer->start(nextDelay);
     } else {
         // Could not read another frame
         if (!isDone()) {
@@ -410,7 +409,7 @@ bool QtcMoviePrivate::jumpToFrame(int frameNumber)
         return true;
     nextFrameNumber = frameNumber;
     if (movieState == QtcMovie::Running)
-        nextImageTimer.stop();
+        nextImageTimer->stop();
     _q_loadNextFrame();
     return (nextFrameNumber == currentFrameNumber + 1);
 }
@@ -436,6 +435,13 @@ bool QtcMoviePrivate::jumpToNextFrame()
     return jumpToFrame(currentFrameNumber + 1);
 }
 
+static QTimer *createTimer(QObject *parent)
+{
+    auto timer = new QTimer(parent);
+    timer->setSingleShot(true);
+    return timer;
+}
+
 /*!
     Constructs a QtcMovie object, passing the \a parent object to QObject's
     constructor.
@@ -446,8 +452,9 @@ QtcMovie::QtcMovie(QObject *parent)
     : QObject(*new QtcMoviePrivate(this), parent)
 {
     Q_D(QtcMovie);
+    d->nextImageTimer = createTimer(this);
     d->reader = new QImageReader;
-    connect(&d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
+    connect(d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
 }
 
 /*!
@@ -462,9 +469,10 @@ QtcMovie::QtcMovie(QIODevice *device, const QByteArray &format, QObject *parent)
     : QObject(*new QtcMoviePrivate(this), parent)
 {
     Q_D(QtcMovie);
+    d->nextImageTimer = createTimer(this);
     d->reader = new QImageReader(device, format);
     d->initialDevicePos = device->pos();
-    connect(&d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
+    connect(d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
 }
 
 /*!
@@ -479,11 +487,12 @@ QtcMovie::QtcMovie(const QString &fileName, const QByteArray &format, QObject *p
     : QObject(*new QtcMoviePrivate(this), parent)
 {
     Q_D(QtcMovie);
+    d->nextImageTimer = createTimer(this);
     d->absoluteFilePath = QDir(fileName).absolutePath();
     d->reader = new QImageReader(fileName, format);
     if (d->reader->device())
         d->initialDevicePos = d->reader->device()->pos();
-    connect(&d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
+    connect(d->nextImageTimer, SIGNAL(timeout()), this, SLOT(_q_loadNextFrame()));
 }
 
 /*!
@@ -759,12 +768,12 @@ void QtcMovie::setPaused(bool paused)
         if (d->movieState == NotRunning)
             return;
         d->enterState(Paused);
-        d->nextImageTimer.stop();
+        d->nextImageTimer->stop();
     } else {
         if (d->movieState == Running)
             return;
         d->enterState(Running);
-        d->nextImageTimer.start(nextFrameDelay());
+        d->nextImageTimer->start(nextFrameDelay());
     }
 }
 
@@ -782,7 +791,7 @@ void QtcMovie::setSpeed(int percentSpeed)
 {
     Q_D(QtcMovie);
     if (!d->speed && d->movieState == Running)
-        d->nextImageTimer.start(nextFrameDelay());
+        d->nextImageTimer->start(nextFrameDelay());
     if (percentSpeed != d->speed) {
         d->speed = percentSpeed;
         d->speed.notify();
@@ -839,7 +848,7 @@ void QtcMovie::stop()
     if (d->movieState == NotRunning)
         return;
     d->enterState(NotRunning);
-    d->nextImageTimer.stop();
+    d->nextImageTimer->stop();
     d->nextFrameNumber = 0;
 }
 
