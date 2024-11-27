@@ -1390,10 +1390,6 @@ public:
     Process m_process;
     QTimer m_waitForDoneTimer;
 
-    QTextCodec *m_outputCodec = nullptr;
-    QTextCodec::ConverterState m_outputCodecState;
-    QTextCodec::ConverterState m_errorCodecState;
-
     State m_state = Inactive;
     bool m_stopRequested = false;
 
@@ -1511,9 +1507,7 @@ void SimpleTargetRunnerPrivate::handleStandardOutput()
     if (m_suppressDefaultStdOutHandling)
         return;
 
-    const QByteArray data = m_process.readAllRawStandardOutput();
-    const QString msg = m_outputCodec->toUnicode(
-                data.constData(), data.length(), &m_outputCodecState);
+    const QString msg = m_process.readAllStandardOutput();
     q->appendMessage(msg, StdOutFormat, false);
 }
 
@@ -1522,9 +1516,7 @@ void SimpleTargetRunnerPrivate::handleStandardError()
     if (m_suppressDefaultStdOutHandling)
         return;
 
-    const QByteArray data = m_process.readAllRawStandardError();
-    const QString msg = m_outputCodec->toUnicode(
-                data.constData(), data.length(), &m_errorCodecState);
+    const QString msg = m_process.readAllStandardError();
     q->appendMessage(msg, StdErrFormat, false);
 }
 
@@ -1573,12 +1565,7 @@ void SimpleTargetRunnerPrivate::start()
 
     m_state = Run;
     m_process.setWorkingDirectory(m_workingDirectory);
-
-    if (isLocal)
-        m_outputCodec = QTextCodec::codecForLocale();
-    else
-        m_outputCodec = QTextCodec::codecForName("utf8");
-
+    m_process.setCodec(isLocal ? QTextCodec::codecForLocale() : QTextCodec::codecForName("utf8"));
     m_process.setForceDefaultErrorModeOnWindows(true);
     m_process.start();
 }
