@@ -246,13 +246,10 @@ void fromTabSettings(clang::format::FormatStyle &style, const TextEditor::TabSet
     style.TabWidth = settings.m_tabSize;
 
     switch (settings.m_tabPolicy) {
-    case TextEditor::TabSettings::TabPolicy::MixedTabPolicy:
-        style.UseTab = FormatStyle::UT_ForContinuationAndIndentation;
-        break;
-    case TextEditor::TabSettings::TabPolicy::SpacesOnlyTabPolicy:
+    case TextEditor::TabSettings::SpacesOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Never;
         break;
-    case TextEditor::TabSettings::TabPolicy::TabsOnlyTabPolicy:
+    case TextEditor::TabSettings::TabsOnlyTabPolicy:
         style.UseTab = FormatStyle::UT_Always;
         break;
     }

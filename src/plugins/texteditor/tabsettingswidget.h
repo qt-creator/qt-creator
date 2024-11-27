@@ -8,6 +8,7 @@
 #include <QGroupBox>
 
 QT_BEGIN_NAMESPACE
+class QCheckBox;
 class QComboBox;
 class QLabel;
 class QSpinBox;
@@ -44,6 +45,7 @@ private:
     void codingStyleLinkActivated(const QString &linkString);
 
     QLabel *m_codingStyleWarning;
+    QCheckBox *m_autoDetect;
     QComboBox *m_tabPolicy;
     QSpinBox *m_tabSize;
     QSpinBox *m_indentSize;

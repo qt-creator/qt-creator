@@ -302,9 +302,6 @@ private:
         case TabSettings::TabsOnlyTabPolicy:
             policy = Tr::tr("Tabs");
             break;
-        case TabSettings::MixedTabPolicy:
-            policy = Tr::tr("Mixed");
-            break;
         }
         setText(QString("%1: %2").arg(policy).arg(ts.m_indentSize));
     }
@@ -321,6 +318,7 @@ private:
                 [this](std::function<void(TabSettings & tabSettings)> modifier) {
                     return [this, modifier]() {
                         auto ts = m_doc->tabSettings();
+                        ts.m_autoDetect = false;
                         modifier(ts);
                         m_doc->setTabSettings(ts);
                     };
@@ -328,7 +326,7 @@ private:
             documentSettings->addAction(
                 Tr::tr("Auto detect"),
                 modifyTabSettings([doc = m_doc->document()](TabSettings &tabSettings) {
-                    tabSettings = tabSettings.autoDetect(doc);
+                    tabSettings.m_autoDetect = true;
                 }));
             auto tabSettings = documentSettings->addMenu(Tr::tr("Tab Settings"));
             tabSettings->addAction(Tr::tr("Spaces"), modifyTabSettings([](TabSettings &tabSettings) {
@@ -8999,7 +8997,7 @@ void TextEditorWidget::rewrapParagraph()
     QString spacing;
 
     if (commonPrefix.isEmpty()) {
-        spacing = ts.indentationString(0, indentLevel, 0, textCursor().block());
+        spacing = ts.indentationString(0, indentLevel, 0);
     } else {
         spacing = commonPrefix;
         indentLevel = ts.columnCountForText(spacing);

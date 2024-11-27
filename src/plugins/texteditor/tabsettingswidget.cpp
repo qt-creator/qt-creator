@@ -7,6 +7,7 @@
 #include "texteditortr.h"
 
 #include <QApplication>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
@@ -60,17 +61,22 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
 
+    m_autoDetect = new QCheckBox(Tr::tr("Auto detect"), this);
+    m_autoDetect->setToolTip(
+        Tr::tr("%1 tries to detect the indentation settings based on the file contents. It "
+               "will fallback to the settings below if the detection fails.")
+            .arg(QGuiApplication::applicationDisplayName()));
+
     m_tabPolicy = new QComboBox(this);
     m_tabPolicy->addItem(Tr::tr("Spaces Only"));
     m_tabPolicy->addItem(Tr::tr("Tabs Only"));
-    m_tabPolicy->addItem(Tr::tr("Mixed"));
 
     auto tabSizeLabel = new QLabel(Tr::tr("Ta&b size:"));
 
     m_tabSize = new QSpinBox(this);
     m_tabSize->setRange(1, 20);
 
-    auto indentSizeLabel = new QLabel(Tr::tr("&Indent size:"));
+    auto indentSizeLabel = new QLabel(Tr::tr("Default &indent size:"));
 
     m_indentSize = new QSpinBox(this);
     m_indentSize->setRange(1, 20);
@@ -89,15 +95,18 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     Row {
         Form {
             m_codingStyleWarning, br,
-            Tr::tr("Tab policy:"), m_tabPolicy,  br,
-            tabSizeLabel, m_tabSize, br,
+            m_autoDetect, br,
+            Tr::tr("Default tab policy:"), m_tabPolicy, br,
             indentSizeLabel, m_indentSize, br,
+            tabSizeLabel, m_tabSize, br,
             Tr::tr("Align continuation lines:"), m_continuationAlignBehavior, br
         }, st
     }.attachTo(this);
 
     connect(m_codingStyleWarning, &QLabel::linkActivated,
             this, &TabSettingsWidget::codingStyleLinkActivated);
+    connect(m_autoDetect, &QCheckBox::stateChanged,
+            this, &TabSettingsWidget::slotSettingsChanged);
     connect(m_tabPolicy, &QComboBox::currentIndexChanged,
             this, &TabSettingsWidget::slotSettingsChanged);
     connect(m_tabSize, &QSpinBox::valueChanged,
@@ -113,7 +122,7 @@ TabSettingsWidget::~TabSettingsWidget() = default;
 void TabSettingsWidget::setTabSettings(const TabSettings &s)
 {
     QSignalBlocker blocker(this);
-    m_tabPolicy->setCurrentIndex(s.m_tabPolicy);
+    m_tabPolicy->setCurrentIndex(int(s.m_tabPolicy));
     m_tabSize->setValue(s.m_tabSize);
     m_indentSize->setValue(s.m_indentSize);
     m_continuationAlignBehavior->setCurrentIndex(s.m_continuationAlignBehavior);

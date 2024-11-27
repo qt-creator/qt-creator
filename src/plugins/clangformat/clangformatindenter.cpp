@@ -78,14 +78,11 @@ std::optional<TabSettings> ClangFormatIndenter::tabSettings() const
     TabSettings tabSettings;
 
     switch (style.UseTab) {
-    case FormatStyle::UT_Never:
-        tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
-        break;
     case FormatStyle::UT_Always:
         tabSettings.m_tabPolicy = TabSettings::TabsOnlyTabPolicy;
         break;
     default:
-        tabSettings.m_tabPolicy = TabSettings::MixedTabPolicy;
+        tabSettings.m_tabPolicy = TabSettings::SpacesOnlyTabPolicy;
     }
 
     tabSettings.m_tabSize = static_cast<int>(style.TabWidth);

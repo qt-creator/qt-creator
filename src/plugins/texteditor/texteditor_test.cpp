@@ -17,8 +17,6 @@ static QString tabPolicyToString(TabSettings::TabPolicy policy)
         return QLatin1String("spacesOnlyPolicy");
     case TabSettings::TabsOnlyTabPolicy:
         return QLatin1String("tabsOnlyPolicy");
-    case TabSettings::MixedTabPolicy:
-        return QLatin1String("mixedIndentPolicy");
     }
     return QString();
 }
@@ -49,7 +47,6 @@ static void generateTestRows(const QLatin1String &name, const QString &text, IsC
     const QVector<TabSettings::TabPolicy> allPolicies = {
         TabSettings::SpacesOnlyTabPolicy,
         TabSettings::TabsOnlyTabPolicy,
-        TabSettings::MixedTabPolicy
     };
     const QVector<TabSettings::ContinuationAlignBehavior> allbehaviors = {
         TabSettings::NoContinuationAlign,

@@ -153,7 +153,7 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                         = tabSettings.indentedColumn(tabSettings.columnAt(text, indentPosition),
                                                      doIndent);
                     cursor.setPosition(block.position() + indentPosition);
-                    cursor.insertText(tabSettings.indentationString(0, targetColumn, 0, block));
+                    cursor.insertText(tabSettings.indentationString(0, targetColumn, 0));
                     cursor.setPosition(block.position());
                     cursor.setPosition(block.position() + indentPosition, QTextCursor::KeepAnchor);
                     cursor.removeSelectedText();
@@ -184,7 +184,7 @@ MultiTextCursor TextDocumentPrivate::indentOrUnindent(const MultiTextCursor &cur
                                QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
             cursor.insertText(
-                tabSettings.indentationString(startColumn, targetColumn, 0, startBlock));
+                tabSettings.indentationString(startColumn, targetColumn, 0));
         }
 
         cursor.endEditBlock();
@@ -367,13 +367,13 @@ const StorageSettings &TextDocument::storageSettings() const
     return d->m_storageSettings;
 }
 
-void TextDocument::setTabSettings(const TabSettings &newTabSettings)
+void TextDocument::setTabSettings(const TabSettings &tabSettings)
 {
-    if (newTabSettings == d->m_tabSettings)
-        return;
-    d->m_tabSettings = newTabSettings;
-
-    emit tabSettingsChanged();
+    if (const TabSettings candidate = tabSettings.autoDetect(document());
+        candidate != d->m_tabSettings) {
+        d->m_tabSettings = candidate;
+        emit tabSettingsChanged();
+    }
 }
 
 TabSettings TextDocument::tabSettings() const
@@ -752,6 +752,7 @@ Core::IDocument::OpenResult TextDocument::open(QString *errorString,
     OpenResult success = openImpl(errorString, filePath, realFilePath, /*reload =*/ false);
     if (success == OpenResult::Success) {
         setMimeType(Utils::mimeTypeForFile(filePath, MimeMatchMode::MatchDefaultAndRemote).name());
+        setTabSettings(d->m_tabSettings);
         emit openFinishedSuccessfully();
     }
     return success;
@@ -960,8 +961,7 @@ void TextDocument::cleanWhitespace(QTextCursor &cursor, bool inEntireDocument,
             } else {
                 int column = currentTabSettings.columnAt(blockText, firstNonSpace);
                 cursor.movePosition(QTextCursor::NextCharacter, QTextCursor::KeepAnchor, firstNonSpace);
-                QString indentationString = currentTabSettings.indentationString(0, column, column - indent, block);
-                cursor.insertText(indentationString);
+                cursor.insertText(currentTabSettings.indentationString(0, column, column - indent));
             }
         }
     }
