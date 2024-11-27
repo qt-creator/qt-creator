@@ -499,6 +499,10 @@ bool executePluginInstallWizard(const FilePath &archive)
     if (!install())
         return false;
 
+    // install() would have failed if the user did not accept the terms and conditions
+    // so we can safely set them as accepted here.
+    PluginManager::instance()->setTermsAndConditionsAccepted(data.pluginSpec.get());
+
     if (data.loadImmediately) {
         auto spec = data.pluginSpec.release();
         spec->setEnabledBySettings(true);
