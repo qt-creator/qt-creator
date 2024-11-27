@@ -216,7 +216,6 @@ private:
                  bool enableAnnotationContextMenu = false);
     void svnStatus(const FilePath &workingDir, const QString &relativePath = {});
     void svnUpdate(const FilePath &workingDir, const QString &relativePath = {});
-    bool checkSVNSubDir(const QDir &directory) const;
     void startCommit(const FilePath &workingDir, const QStringList &files = {});
 
     const QStringList m_svnDirectories;
@@ -1024,25 +1023,13 @@ bool SubversionPluginPrivate::vcsCheckout(const FilePath &directory, const QByte
 
 bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel /* = 0 */) const
 {
-    const QDir dir(directory.toString());
+    const QStringList filesToCheck = transform(m_svnDirectories, [](const QString &s) {
+        return QString(s + "/wc.db");
+    });
+    const FilePath topLevelFound = VcsBase::findRepositoryForFile(directory, filesToCheck);
     if (topLevel)
-        topLevel->clear();
-
-    /* Subversion >= 1.7 has ".svn" directory in the root of the working copy. Check for
-     * furthest parent containing ".svn/wc.db". Need to check for furthest parent as closer
-     * parents may be svn:externals. */
-    QDir parentDir = dir;
-    while (!parentDir.isRoot()) {
-        if (checkSVNSubDir(parentDir)) {
-            if (topLevel)
-                *topLevel = FilePath::fromString(parentDir.absolutePath());
-            return true;
-        }
-        if (!parentDir.cdUp())
-            break;
-    }
-
-    return false;
+        *topLevel = topLevelFound;
+    return !topLevelFound.isEmpty();
 }
 
 bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, const QString &fileName) const
@@ -1052,21 +1039,6 @@ bool SubversionPluginPrivate::managesFile(const FilePath &workingDirectory, cons
          << QDir::toNativeSeparators(SubversionClient::escapeFile(fileName));
     const QString output = runSvn(workingDirectory, args).cleanedStdOut();
     return output.isEmpty() || output.front() != QLatin1Char('?');
-}
-
-// Check whether SVN management subdirs exist.
-bool SubversionPluginPrivate::checkSVNSubDir(const QDir &directory) const
-{
-    const int dirCount = m_svnDirectories.size();
-    for (int i = 0; i < dirCount; i++) {
-        const QDir svnDir(directory.absoluteFilePath(m_svnDirectories.at(i)));
-        if (!svnDir.exists())
-            continue;
-        if (!svnDir.exists(QLatin1String("wc.db")))
-            continue;
-        return true;
-    }
-    return false;
 }
 
 Utils::Id SubversionPluginPrivate::id() const

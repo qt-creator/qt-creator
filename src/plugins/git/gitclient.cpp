@@ -59,7 +59,6 @@
 #include <QRegularExpression>
 #include <QTextCodec>
 
-const char GIT_DIRECTORY[] = ".git";
 const char HEAD[] = "HEAD";
 const char CHERRY_PICK_HEAD[] = "CHERRY_PICK_HEAD";
 const char BRANCHES_PREFIX[] = "Branches: ";
@@ -838,19 +837,7 @@ GitSettings &GitClient::settings()
 
 FilePath GitClient::findRepositoryForDirectory(const FilePath &directory) const
 {
-    if (directory.isEmpty() || directory.endsWith("/.git") || directory.path().contains("/.git/"))
-        return {};
-    FilePath parent;
-    for (FilePath dir = directory; !dir.isEmpty(); dir = dir.parentDir()) {
-        const FilePath gitName = dir.pathAppended(GIT_DIRECTORY);
-        if (!gitName.exists())
-            continue; // parent might exist
-        if (gitName.isFile())
-            return dir;
-        if (gitName.pathAppended("config").exists())
-            return dir;
-    }
-    return {};
+    return VcsBase::findRepositoryForFile(directory, {".git", ".git/config"});
 }
 
 FilePath GitClient::findGitDirForRepository(const FilePath &repositoryDir) const

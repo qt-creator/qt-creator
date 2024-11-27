@@ -800,7 +800,8 @@ bool FossilPluginPrivate::isVcsFileOrDirectory(const FilePath &filePath) const
 
 bool FossilPluginPrivate::managesDirectory(const FilePath &directory, FilePath *topLevel) const
 {
-    const FilePath topLevelFound = VcsBase::findRepositoryForFile(directory, Constants::FOSSILREPO);
+    const FilePath topLevelFound
+        = VcsBase::findRepositoryForFile(directory, {Constants::FOSSILREPO});
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();
