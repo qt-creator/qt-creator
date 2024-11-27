@@ -28,7 +28,7 @@
 #include <QPlainTextEdit>
 #include <QSettings>
 #include <QSplitter>
-#include <QTabWidget>
+#include <QStackedWidget>
 #include <QVBoxLayout>
 
 namespace {
@@ -36,6 +36,11 @@ namespace {
 inline constexpr char EFFECTCOMPOSER_LIVE_UPDATE_KEY[] = "EffectComposer/CodeEditor/LiveUpdate";
 inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER[]
     = "QQuickWidgetEffectComposerCodeEditorHeader";
+inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_TABS[]
+    = "QQuickWidgetEffectComposerCodeEditorTabs";
+
+inline constexpr char EFFECTCOMPOSER_VERTEX_ID[] = "VERTEX";
+inline constexpr char EFFECTCOMPOSER_FRAGMENT_ID[] = "FRAGMENT";
 
 QString propertyEditorResourcesPath()
 {
@@ -71,6 +76,7 @@ EffectShadersCodeEditor::~EffectShadersCodeEditor()
         close();
 
     m_headerWidget->setSource({});
+    m_qmlTabWidget->setSource({});
 }
 
 void EffectShadersCodeEditor::showWidget()
@@ -121,12 +127,12 @@ void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
     if (m_currentEditorData == data)
         return;
 
-    while (m_tabWidget->count())
-        m_tabWidget->removeTab(0);
+    auto oldEditorData = m_currentEditorData;
+    m_currentEditorData = data;
 
     if (data) {
-        m_tabWidget->addTab(data->fragmentEditor.get(), tr("Fragment Shader"));
-        m_tabWidget->addTab(data->vertexEditor.get(), tr("Vertex Shader"));
+        m_stackedWidget->addWidget(data->fragmentEditor.get());
+        m_stackedWidget->addWidget(data->vertexEditor.get());
 
         selectNonEmptyShader(data);
         setUniformsModel(data->tableModel);
@@ -134,13 +140,30 @@ void EffectShadersCodeEditor::setupShader(ShaderEditorData *data)
         setUniformsModel(nullptr);
     }
 
-    m_currentEditorData = data;
+    if (oldEditorData) {
+        m_stackedWidget->removeWidget(oldEditorData->fragmentEditor.get());
+        m_stackedWidget->removeWidget(oldEditorData->vertexEditor.get());
+    }
 }
 
 void EffectShadersCodeEditor::cleanFromData(ShaderEditorData *data)
 {
     if (m_currentEditorData == data)
         setupShader(nullptr);
+}
+
+void EffectShadersCodeEditor::selectShader(const QString &shaderName)
+{
+    using namespace Qt::StringLiterals;
+    if (!m_currentEditorData)
+        return;
+    EffectCodeEditorWidget *editor = nullptr;
+    if (shaderName == EFFECTCOMPOSER_FRAGMENT_ID)
+        editor = m_currentEditorData->fragmentEditor.get();
+    else if (shaderName == EFFECTCOMPOSER_VERTEX_ID)
+        editor = m_currentEditorData->vertexEditor.get();
+
+    m_stackedWidget->setCurrentWidget(editor);
 }
 
 ShaderEditorData *EffectShadersCodeEditor::createEditorData(
@@ -229,19 +252,31 @@ void EffectShadersCodeEditor::setupUIComponents()
 {
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
     QSplitter *splitter = new QSplitter(this);
-    m_tabWidget = new QTabWidget(this);
+    QWidget *tabComplexWidget = new QWidget(this);
+    QVBoxLayout *tabsLayout = new QVBoxLayout(tabComplexWidget);
+    m_stackedWidget = new QStackedWidget(tabComplexWidget);
 
     splitter->setOrientation(Qt::Vertical);
 
     createHeader();
+    createQmlTabs();
 
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     verticalLayout->addWidget(splitter);
+    tabsLayout->addWidget(m_qmlTabWidget);
+    tabsLayout->addWidget(m_stackedWidget);
+
     splitter->addWidget(m_headerWidget.get());
-    splitter->addWidget(m_tabWidget);
+    splitter->addWidget(tabComplexWidget);
 
     splitter->setCollapsible(0, false);
     splitter->setCollapsible(1, false);
+
+    connect(
+        m_stackedWidget.get(),
+        &QStackedWidget::currentChanged,
+        this,
+        &EffectShadersCodeEditor::onEditorWidgetChanged);
 
     this->resize(660, 240);
 }
@@ -291,11 +326,30 @@ void EffectShadersCodeEditor::createHeader()
         "editableCompositionsModel", QVariant::fromValue(m_editableNodesModel.get()));
 }
 
+void EffectShadersCodeEditor::createQmlTabs()
+{
+    m_qmlTabWidget = new StudioQuickWidget(this);
+    m_qmlTabWidget->quickWidget()->setObjectName(OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_TABS);
+    m_qmlTabWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_qmlTabWidget->engine());
+    m_qmlTabWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_qmlTabWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
+    m_qmlTabWidget->setClearColor(QmlDesigner::Theme::getColor(
+        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_qmlTabWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
+    m_qmlTabWidget->setFixedHeight(43);
+}
+
 void EffectShadersCodeEditor::loadQml()
 {
     const QString headerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorHeader.qml";
     QTC_ASSERT(QFileInfo::exists(headerQmlPath), return);
     m_headerWidget->setSource(QUrl::fromLocalFile(headerQmlPath));
+
+    const QString editorTabsQmlPath = EffectComposerWidget::qmlSourcesPath()
+                                      + "/CodeEditorTabs.qml";
+    QTC_ASSERT(QFileInfo::exists(editorTabsQmlPath), return);
+    m_qmlTabWidget->setSource(QUrl::fromLocalFile(editorTabsQmlPath));
 }
 
 void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsTableModel *uniformsTable)
@@ -316,13 +370,37 @@ void EffectShadersCodeEditor::selectNonEmptyShader(ShaderEditorData *data)
                                   ? data->fragmentEditor.get()
                                   : data->vertexEditor.get();
 
-    m_tabWidget->setCurrentWidget(widgetToSelect);
+    m_stackedWidget->setCurrentWidget(widgetToSelect);
     widgetToSelect->setFocus();
+}
+
+void EffectShadersCodeEditor::setSelectedShaderName(const QString &shaderName)
+{
+    if (m_selectedShaderName == shaderName)
+        return;
+    m_selectedShaderName = shaderName;
+    emit selectedShaderChanged(m_selectedShaderName);
+}
+
+void EffectShadersCodeEditor::onEditorWidgetChanged()
+{
+    QWidget *currentWidget = m_stackedWidget->currentWidget();
+    if (!m_currentEditorData || !currentWidget) {
+        setSelectedShaderName({});
+        return;
+    }
+
+    if (currentWidget == m_currentEditorData->fragmentEditor.get())
+        setSelectedShaderName(EFFECTCOMPOSER_FRAGMENT_ID);
+    else if (currentWidget == m_currentEditorData->vertexEditor.get())
+        setSelectedShaderName(EFFECTCOMPOSER_VERTEX_ID);
+    else
+        setSelectedShaderName({});
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::currentEditor() const
 {
-    QWidget *currentTab = m_tabWidget->currentWidget();
+    QWidget *currentTab = m_stackedWidget->currentWidget();
     if (!m_currentEditorData || !currentTab)
         return nullptr;
 

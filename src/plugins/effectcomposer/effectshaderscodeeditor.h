@@ -10,7 +10,7 @@
 #include <utils/uniqueobjectptr.h>
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
-QT_FORWARD_DECLARE_CLASS(QTabWidget)
+QT_FORWARD_DECLARE_CLASS(QStackedWidget)
 
 class StudioQuickWidget;
 
@@ -42,6 +42,12 @@ class EffectShadersCodeEditor : public QWidget
     Q_OBJECT
     Q_PROPERTY(bool liveUpdate READ liveUpdate WRITE setLiveUpdate NOTIFY liveUpdateChanged)
 
+    Q_PROPERTY(
+        QString selectedShader
+        MEMBER m_selectedShaderName
+        WRITE selectShader
+        NOTIFY selectedShaderChanged)
+
 public:
     EffectShadersCodeEditor(const QString &title = tr("Untitled Editor"), QWidget *parent = nullptr);
     ~EffectShadersCodeEditor() override;
@@ -59,6 +65,8 @@ public:
     void setupShader(ShaderEditorData *data);
     void cleanFromData(ShaderEditorData *data);
 
+    void selectShader(const QString &shaderName);
+
     ShaderEditorData *createEditorData(
         const QString &fragmentDocument,
         const QString &vertexDocument,
@@ -73,6 +81,7 @@ signals:
     void liveUpdateChanged(bool);
     void rebakeRequested();
     void openedChanged(bool);
+    void selectedShaderChanged(const QString &);
 
 protected:
     using QWidget::show;
@@ -86,21 +95,26 @@ private:
     void writeLiveUpdateSettings();
     void readAndApplyLiveUpdateSettings();
     void createHeader();
+    void createQmlTabs();
     void loadQml();
     void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
     void selectNonEmptyShader(ShaderEditorData *data);
+    void setSelectedShaderName(const QString &shaderName);
+    void onEditorWidgetChanged();
 
     EffectCodeEditorWidget *currentEditor() const;
 
     QSettings *m_settings = nullptr;
     QPointer<StudioQuickWidget> m_headerWidget;
-    QPointer<QTabWidget> m_tabWidget;
+    QPointer<StudioQuickWidget> m_qmlTabWidget;
+    QPointer<QStackedWidget> m_stackedWidget;
     QPointer<EffectComposerUniformsTableModel> m_defaultTableModel;
     QPointer<EffectComposerEditableNodesModel> m_editableNodesModel;
     ShaderEditorData *m_currentEditorData = nullptr;
 
     bool m_liveUpdate = false;
     bool m_opened = false;
+    QString m_selectedShaderName;
 };
 
 } // namespace EffectComposer
