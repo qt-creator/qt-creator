@@ -68,9 +68,9 @@ public:
         auto logProcess = [&](Process *tailProcess, std::shared_ptr<QTemporaryFile> file) {
             QObject::connect(tailProcess, &Process::readyReadStandardOutput, &loop, [&, tailProcess] {
                 if (!promise.isCanceled())
-                    emit logMessage(QString::fromLocal8Bit(tailProcess->readAllRawStandardOutput()));
+                    emit logMessage(tailProcess->readAllStandardOutput());
             });
-            tailProcess->setCommand({FilePath::fromString("tail"), {"-f", file->fileName()}});
+            tailProcess->setCommand({"tail", {"-f", file->fileName()}});
             tailProcess->start();
         };
 
