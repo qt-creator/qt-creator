@@ -197,6 +197,8 @@ QtcLibrary {
         "minimizableinfobars.h",
         "multitextcursor.cpp",
         "multitextcursor.h",
+        "movie.cpp",
+        "movie.h",
         "namevaluedictionary.cpp",
         "namevaluedictionary.h",
         "namevalueitem.cpp",
