@@ -27,8 +27,8 @@ public:
     DSThemeManager();
     ~DSThemeManager();
 
-    DSThemeManager(const DSThemeManager&) = delete;
-    DSThemeManager& operator=(const DSThemeManager&) = delete;
+    DSThemeManager(const DSThemeManager &) = default;
+    DSThemeManager &operator=(const DSThemeManager &) = default;
 
     DSThemeManager(DSThemeManager&&) = default;
     DSThemeManager &operator=(DSThemeManager &&) = default;
@@ -72,6 +72,8 @@ private:
 
 private:
     std::map<ThemeId, ThemeName> m_themes;
-    std::map<GroupType, std::unique_ptr<DSThemeGroup>> m_groups;
+    std::map<GroupType, std::shared_ptr<DSThemeGroup>> m_groups;
 };
-}
+
+using DSCollections = std::map<QString, DSThemeManager>;
+} // namespace QmlDesigner

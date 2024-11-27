@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LicenseRef-Qt-Commercial OR GPL-3.0-only WITH Qt-GPL-exception-1.0
 
 #pragma once
+#include "designsystem_global.h"
 
 #include "nodeinstanceglobal.h"
 
@@ -15,7 +16,7 @@ Q_NAMESPACE
 enum class GroupType { Colors, Flags, Numbers, Strings };
 Q_ENUM_NS(GroupType)
 
-class ThemeProperty
+class DESIGNSYSTEM_EXPORT ThemeProperty
 {
 public:
     bool isValid() const { return !name.trimmed().isEmpty() && value.isValid(); }

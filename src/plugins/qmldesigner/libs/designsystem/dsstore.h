@@ -9,12 +9,9 @@
 #include <QStringList>
 
 namespace QmlDesigner {
-class DSThemeManager;
 class ExternalDependenciesInterface;
 
-using DSCollections = std::map<QString, DSThemeManager>;
-
-class DSStore
+class DESIGNSYSTEM_EXPORT DSStore
 {
     Q_DECLARE_TR_FUNCTIONS(DSStore)
 

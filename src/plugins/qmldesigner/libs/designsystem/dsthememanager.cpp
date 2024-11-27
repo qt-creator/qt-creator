@@ -117,7 +117,7 @@ size_t DSThemeManager::themeCount() const
 
 size_t DSThemeManager::propertyCount() const
 {
-    using groupPair = std::pair<const GroupType, std::unique_ptr<DSThemeGroup>>;
+    using groupPair = std::pair<const GroupType, std::shared_ptr<DSThemeGroup>>;
     return std::accumulate(m_groups.cbegin(), m_groups.cend(), 0ull, [](size_t c, const groupPair &g) {
         return c + g.second->count();
     });
