@@ -3,6 +3,7 @@
 
 #include "qnxsettingspage.h"
 
+#include "qnxconstants.h"
 #include "qnxqtversion.h"
 #include "qnxtoolchain.h"
 #include "qnxtr.h"
