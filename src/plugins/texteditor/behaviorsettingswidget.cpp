@@ -67,7 +67,6 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
     , d(new BehaviorSettingsWidgetPrivate)
 {
     d->tabPreferencesWidget = new SimpleCodeStylePreferencesWidget(this);
-    d->tabPreferencesWidget->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); // FIXME: Desirable?
 
     d->tabKeyBehavior = new QComboBox;
     d->tabKeyBehavior->addItem(Tr::tr("Never"));
@@ -165,7 +164,6 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     d->encodingBox = new CodecChooser;
     d->encodingBox->setSizeAdjustPolicy(QComboBox::AdjustToMinimumContentsLengthWithIcon);
-    d->encodingBox->setMinimumContentsLength(20);
 
     d->utf8BomBox = new QComboBox;
     d->utf8BomBox->addItem(Tr::tr("Add If Encoding Is UTF-8"));
@@ -210,15 +208,14 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
 
     const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
 
-    Column {
-        d->autoIndent,
-        Tr::tr("Backspace indentation:"),
-            indent(d->smartBackspaceBehavior),
-        Tr::tr("Tab key performs auto-indent:"),
-            indent(d->tabKeyBehavior),
-        d->preferSingleLineComments,
-        commentPositionLabel,
-            indent(d->commentPosition)
+    Row {
+        Form {
+            d->autoIndent, br,
+            Tr::tr("Backspace indentation:"), d->smartBackspaceBehavior, br,
+            Tr::tr("Tab key performs auto-indent:"), d->tabKeyBehavior, br,
+            d->preferSingleLineComments, br,
+            commentPositionLabel, d->commentPosition, br
+        }, st
     }.attachTo(d->groupBoxTyping);
 
     Column {
@@ -237,20 +234,25 @@ BehaviorSettingsWidget::BehaviorSettingsWidget(QWidget *parent)
         }, st
     }.attachTo(d->groupBoxEncodings);
 
-    Column {
-        d->mouseHiding,
-        d->mouseNavigation,
-        d->scrollWheelZooming,
-        d->camelCaseNavigation,
-        d->smartSelectionChanging,
-        d->keyboardTooltips,
-        Tr::tr("Show help tooltips using the mouse:"),
-            Row { Space(30), d->constrainTooltipsBox, st }
+    Row {
+        Form {
+            d->mouseHiding, br,
+            d->mouseNavigation, br,
+            d->scrollWheelZooming, br,
+            d->camelCaseNavigation, br,
+            d->smartSelectionChanging, br,
+            d->keyboardTooltips, br,
+            Tr::tr("Show help tooltips using the mouse:"), d->constrainTooltipsBox, br
+        }, st
     }.attachTo(d->groupBoxMouse);
 
-    Row {
-        Column { d->tabPreferencesWidget, d->groupBoxTyping, st },
-        Column { d->groupBoxStorageSettings, d->groupBoxEncodings, d->groupBoxMouse, st },
+    Column {
+        d->tabPreferencesWidget,
+        d->groupBoxTyping,
+        d->groupBoxStorageSettings,
+        d->groupBoxEncodings,
+        d->groupBoxMouse,
+        st,
         noMargin,
     }.attachTo(this);
 

@@ -56,13 +56,11 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
         Tr::tr("<i>Code indentation is configured in <a href=\"C++\">C++</a> "
            "and <a href=\"QtQuick\">Qt Quick</a> settings.</i>"));
     m_codingStyleWarning->setVisible(false);
-    m_codingStyleWarning->setWordWrap(true);
     m_codingStyleWarning->setToolTip(
         Tr::tr("The text editor indentation setting is used for non-code files only. See the C++ "
            "and Qt Quick coding style settings to configure indentation for code files."));
 
     m_tabPolicy = new QComboBox(this);
-    m_tabPolicy->setMinimumContentsLength(28);
     m_tabPolicy->addItem(Tr::tr("Spaces Only"));
     m_tabPolicy->addItem(Tr::tr("Tabs Only"));
     m_tabPolicy->addItem(Tr::tr("Mixed"));
@@ -87,15 +85,15 @@ TabSettingsWidget::TabSettingsWidget(QWidget *parent) :
     indentSizeLabel->setBuddy(m_indentSize);
 
     using namespace Layouting;
-    const auto indent = [](QWidget *inner) { return Row { Space(30), inner }; };
 
-    Column {
-        m_codingStyleWarning,
-        Tr::tr("Tab policy:"),
-        indent(m_tabPolicy),
-        Row { tabSizeLabel, m_tabSize, indentSizeLabel, m_indentSize, st },
-        Tr::tr("Align continuation lines:"),
-        indent(m_continuationAlignBehavior)
+    Row {
+        Form {
+            m_codingStyleWarning, br,
+            Tr::tr("Tab policy:"), m_tabPolicy,  br,
+            tabSizeLabel, m_tabSize, br,
+            indentSizeLabel, m_indentSize, br,
+            Tr::tr("Align continuation lines:"), m_continuationAlignBehavior, br
+        }, st
     }.attachTo(this);
 
     connect(m_codingStyleWarning, &QLabel::linkActivated,
