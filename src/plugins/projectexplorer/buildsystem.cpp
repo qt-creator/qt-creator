@@ -242,6 +242,7 @@ ExtraCompiler *BuildSystem::extraCompilerForTarget(const Utils::FilePath &target
 MakeInstallCommand BuildSystem::makeInstallCommand(const FilePath &installRoot) const
 {
     QTC_ASSERT(target()->project()->hasMakeInstallEquivalent(), return {});
+    QTC_ASSERT(buildConfiguration(), return {});
 
     BuildStepList *buildSteps = buildConfiguration()->buildSteps();
     QTC_ASSERT(buildSteps, return {});
