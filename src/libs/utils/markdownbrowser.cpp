@@ -338,7 +338,11 @@ public:
             };
 
             auto onLocalDone = [localIterator, this](const Async<EntryPointer> &async) {
+#if QT_VERSION > QT_VERSION_CHECK(6, 5, 2)
                 EntryPointer result = async.takeResult();
+#else
+                EntryPointer result = {};
+#endif
                 if (result)
                     m_imageHandler.set(localIterator->toString(), std::move(result));
             };
