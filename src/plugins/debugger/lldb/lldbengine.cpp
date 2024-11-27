@@ -847,27 +847,27 @@ QString LldbEngine::errorMessage(QProcess::ProcessError error) const
 
 void LldbEngine::readLldbStandardError()
 {
-    QString err = QString::fromUtf8(m_lldbProc.readAllRawStandardError());
+    const QString err = m_lldbProc.readAllStandardError();
     qDebug() << "\nLLDB STDERR UNEXPECTED: " << err;
     showMessage("Lldb stderr: " + err, LogError);
 }
 
 void LldbEngine::readLldbStandardOutput()
 {
-    const QByteArray out = m_lldbProc.readAllRawStandardOutput();
-    showMessage(QString::fromUtf8(out), LogOutput);
+    const QString out = m_lldbProc.readAllStandardOutput();
+    showMessage(out, LogOutput);
     m_inbuffer.append(out);
     while (true) {
-        if (int pos = m_inbuffer.indexOf("@\n"); pos >= 0) {
-            const QByteArray response = m_inbuffer.left(pos).trimmed();
+        if (int pos = m_inbuffer.indexOf(u"@\n"); pos >= 0) {
+            const QString response = m_inbuffer.left(pos).trimmed();
             m_inbuffer = m_inbuffer.mid(pos + 2);
-            emit outputReady(QString::fromUtf8(response));
+            emit outputReady(response);
             continue;
         }
-        if (int pos = m_inbuffer.indexOf("@\r\n"); pos >= 0) {
-            const QByteArray response = m_inbuffer.left(pos).trimmed();
+        if (int pos = m_inbuffer.indexOf(u"@\r\n"); pos >= 0) {
+            const QString response = m_inbuffer.left(pos).trimmed();
             m_inbuffer = m_inbuffer.mid(pos + 3);
-            emit outputReady(QString::fromUtf8(response));
+            emit outputReady(response);
             continue;
         }
         break;

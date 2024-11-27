@@ -111,7 +111,7 @@ private:
 private:
     DebuggerCommand m_lastDebuggableCommand;
 
-    QByteArray m_inbuffer;
+    QString m_inbuffer;
     QString m_scriptFileName;
     Utils::Process m_lldbProc;
 
