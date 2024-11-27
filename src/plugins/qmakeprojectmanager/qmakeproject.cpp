@@ -1602,10 +1602,10 @@ void QmakeBuildSystem::runGenerator(Utils::Id id)
     const auto proc = new Process(this);
     connect(proc, &Process::done, proc, &Process::deleteLater);
     connect(proc, &Process::readyReadStandardOutput, this, [proc] {
-        Core::MessageManager::writeFlashing(QString::fromLocal8Bit(proc->readAllRawStandardOutput()));
+        Core::MessageManager::writeFlashing(proc->readAllStandardOutput());
     });
     connect(proc, &Process::readyReadStandardError, this, [proc] {
-        Core::MessageManager::writeDisrupting(QString::fromLocal8Bit(proc->readAllRawStandardError()));
+        Core::MessageManager::writeDisrupting(proc->readAllStandardError());
     });
     proc->setWorkingDirectory(outDir);
     proc->setEnvironment(buildConfiguration()->environment());
