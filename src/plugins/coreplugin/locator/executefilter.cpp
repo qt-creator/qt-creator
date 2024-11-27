@@ -17,6 +17,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QMessageBox>
+#include <QTextCodec>
 
 using namespace Tasking;
 using namespace Utils;
@@ -123,17 +124,13 @@ void ExecuteFilter::done()
 void ExecuteFilter::readStdOutput()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllRawStandardOutput();
-    MessageManager::writeSilently(
-        QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stdoutState));
+    MessageManager::writeSilently(m_process->readAllStandardOutput());
 }
 
 void ExecuteFilter::readStdError()
 {
     QTC_ASSERT(m_process, return);
-    const QByteArray data = m_process->readAllRawStandardError();
-    MessageManager::writeSilently(
-        QTextCodec::codecForLocale()->toUnicode(data.constData(), data.size(), &m_stderrState));
+    MessageManager::writeSilently(m_process->readAllStandardError());
 }
 
 void ExecuteFilter::runHeadCommand()
@@ -163,6 +160,7 @@ void ExecuteFilter::createProcess()
 
     m_process = new Process;
     m_process->setEnvironment(Environment::systemEnvironment());
+    m_process->setCodec(QTextCodec::codecForLocale());
     connect(m_process, &Process::done, this, &ExecuteFilter::done);
     connect(m_process, &Process::readyReadStandardOutput, this, &ExecuteFilter::readStdOutput);
     connect(m_process, &Process::readyReadStandardError, this, &ExecuteFilter::readStdError);
