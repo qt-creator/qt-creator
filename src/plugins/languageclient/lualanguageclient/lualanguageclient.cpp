@@ -308,7 +308,15 @@ public:
         if (m_aspects) {
             connect(m_aspects, &AspectContainer::applied, this, [this] {
                 updateOptions();
-                LanguageClientManager::applySettings();
+                auto settings = Utils::findOr(
+                    LanguageClientManager::currentSettings(), nullptr, [this](BaseSettings *s) {
+                        return s->m_id == m_clientSettingsId;
+                    });
+
+                if (settings)
+                    LanguageClientManager::applySettings(settings);
+                else
+                    LanguageClientManager::applySettings();
             });
         }
 
