@@ -40,8 +40,6 @@ public:
 
     static QString msgCrashpadInformation();
 
-    static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin);
-
 public slots:
     void fileOpenRequest(const QString &);
 

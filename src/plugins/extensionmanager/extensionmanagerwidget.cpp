@@ -248,17 +248,6 @@ private:
 
 const char kRestartSetting[] = "RestartAfterPluginEnabledChanged";
 
-// Copy paste from Core::Internal::CorePlugin::loadMimeFromPlugin
-// TODO make code usable by other plugins.
-static void loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
-{
-    const QJsonObject metaData = plugin->metaData();
-    const QJsonValue mimetypes = metaData.value("Mimetypes");
-    QString mimetypeString;
-    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-        Utils::addMimeTypes(plugin->name() + ".mimetypes", mimetypeString.trimmed().toUtf8());
-}
-
 class PluginStatusWidget : public QWidget
 {
 public:
@@ -284,7 +273,6 @@ public:
             if (doIt) {
                 if (checked && spec->isEffectivelySoftloadable()) {
                     ExtensionSystem::PluginManager::loadPluginsAtRuntime({spec});
-                    loadMimeFromPlugin(spec);
                 } else if (ICore::infoBar()->canInfoBeAdded(kRestartSetting)) {
                     Utils::InfoBarEntry info(
                         kRestartSetting,

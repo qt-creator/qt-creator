@@ -21,6 +21,7 @@
 #include <utils/qtcassert.h>
 #include <utils/qtcprocess.h>
 #include <utils/qtcsettings.h>
+#include <utils/stringutils.h>
 #include <utils/threadutils.h>
 
 #include <QCoreApplication>
@@ -231,6 +232,15 @@ enum { debugLeaks = 0 };
 
 
 using namespace Utils;
+
+static void registerMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
+{
+    const QJsonObject metaData = plugin->metaData();
+    const QJsonValue mimetypes = metaData.value("Mimetypes");
+    QString mimetypeString;
+    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
+        Utils::addMimeTypes(plugin->id() + ".mimetypes", mimetypeString.trimmed().toUtf8());
+}
 
 namespace ExtensionSystem {
 
@@ -1421,6 +1431,11 @@ void PluginManagerPrivate::loadPlugins()
 
     Utils::setMimeStartupPhase(MimeStartupPhase::PluginsInitializing);
     {
+        NANOTRACE_SCOPE("ExtensionSystem", "RegisterMimeTypes");
+        for (PluginSpec *spec : queue)
+            registerMimeFromPlugin(spec);
+    }
+    {
         NANOTRACE_SCOPE("ExtensionSystem", "Initialize");
         for (PluginSpec *spec : queue)
             loadPlugin(spec, PluginSpec::Initialized);
@@ -1480,6 +1495,8 @@ void PluginManagerPrivate::loadPluginsAtRuntime(const QSet<PluginSpec *> &plugin
     std::queue<PluginSpec *> localDelayedInitializeQueue;
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Loaded);
+    for (PluginSpec *spec : queue)
+        registerMimeFromPlugin(spec);
     for (PluginSpec *spec : queue)
         loadPlugin(spec, PluginSpec::Initialized);
     Utils::reverseForeach(queue,

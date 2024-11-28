@@ -134,15 +134,6 @@ CoreArguments parseArguments(const QStringList &arguments)
     return args;
 }
 
-void CorePlugin::loadMimeFromPlugin(const ExtensionSystem::PluginSpec *plugin)
-{
-    const QJsonObject metaData = plugin->metaData();
-    const QJsonValue mimetypes = metaData.value("Mimetypes");
-    QString mimetypeString;
-    if (Utils::readMultiLineString(mimetypes, &mimetypeString))
-        Utils::addMimeTypes(plugin->id() + ".mimetypes", mimetypeString.trimmed().toUtf8());
-}
-
 static void initProxyAuthDialog()
 {
     QObject::connect(Utils::NetworkAccessManager::instance(),
@@ -241,12 +232,6 @@ static void addToPathChooserContextMenu(PathChooser *pathChooser, QMenu *menu)
 
 bool CorePlugin::initialize(const QStringList &arguments, QString *errorMessage)
 {
-    // register all mime types from all plugins
-    for (ExtensionSystem::PluginSpec *plugin : ExtensionSystem::PluginManager::plugins()) {
-        if (!plugin->isEffectivelyEnabled())
-            continue;
-        loadMimeFromPlugin(plugin);
-    }
     initTAndCAcceptDialog();
     initProxyAuthDialog();
 
