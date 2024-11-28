@@ -218,6 +218,7 @@ static QVariant fromSettingsTransformation(const QVariant &v)
 
 QmlJsEditingSettings::QmlJsEditingSettings()
 {
+    setAutoApply(false);
     const Key group = QmlJSEditor::Constants::SETTINGS_CATEGORY_QML;
 
     useQmlls.setSettingsKey(group, USE_QMLLS);
