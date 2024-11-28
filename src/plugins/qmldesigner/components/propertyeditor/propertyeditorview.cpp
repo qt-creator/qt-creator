@@ -82,8 +82,7 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
     , m_propertyComponentGenerator{QmlDesigner::PropertyEditorQmlBackend::propertyEditorResourcesPath(),
                                    model()}
     , m_locked(false)
-    , m_setupCompleted(false)
-    , m_singleShotTimer(new QTimer(this))
+
 {
     m_qmlDir = PropertyEditorQmlBackend::propertyEditorResourcesPath();
 
@@ -107,32 +106,6 @@ PropertyEditorView::PropertyEditorView(AsynchronousImageCache &imageCache,
 PropertyEditorView::~PropertyEditorView()
 {
     qDeleteAll(m_qmlBackendHash);
-}
-
-void PropertyEditorView::setupPane([[maybe_unused]] const TypeName &typeName)
-{
-#ifndef QDS_USE_PROJECTSTORAGE
-    NodeMetaInfo metaInfo = model()->metaInfo(typeName);
-
-    QUrl qmlFile = PropertyEditorQmlBackend::getQmlFileUrl("Qt/ItemPane", metaInfo);
-    QUrl qmlSpecificsFile;
-
-    qmlSpecificsFile = PropertyEditorQmlBackend::getQmlFileUrl(typeName + "Specifics", metaInfo);
-
-    PropertyEditorQmlBackend *qmlBackend = m_qmlBackendHash.value(qmlFile.toString());
-
-    if (!qmlBackend) {
-        qmlBackend = new PropertyEditorQmlBackend(this, m_imageCache);
-
-        qmlBackend->initialSetup(typeName, qmlSpecificsFile, this);
-        qmlBackend->setSource(qmlFile);
-
-        m_stackedWidget->addWidget(qmlBackend->widget());
-        m_qmlBackendHash.insert(qmlFile.toString(), qmlBackend);
-    } else {
-        qmlBackend->initialSetup(typeName, qmlSpecificsFile, this);
-    }
-#endif // QDS_USE_PROJECTSTORAGE
 }
 
 void PropertyEditorView::changeValue(const QString &name)
@@ -439,30 +412,6 @@ void PropertyEditorView::updateSize()
     auto frame = m_qmlBackEndForCurrentType->widget()->findChild<QWidget *>("propertyEditorFrame");
     if (frame)
         frame->resize(m_stackedWidget->size());
-}
-
-void PropertyEditorView::setupPanes()
-{
-    if (isAttached()) {
-        QApplication::setOverrideCursor(QCursor(Qt::WaitCursor));
-        setupPane("QtQuick.Item");
-        resetView();
-        m_setupCompleted = true;
-        QApplication::restoreOverrideCursor();
-    }
-}
-
-void PropertyEditorView::delayedResetView()
-{
-    if (m_timerId)
-        killTimer(m_timerId);
-    m_timerId = startTimer(50);
-}
-
-void PropertyEditorView::timerEvent(QTimerEvent *timerEvent)
-{
-    if (m_timerId == timerEvent->timerId())
-        resetView();
 }
 
 void PropertyEditorView::resetView()
@@ -780,20 +729,6 @@ void PropertyEditorView::modelAttached(Model *model)
     if (debug)
         qDebug() << Q_FUNC_INFO;
 
-    m_locked = true;
-
-    if (!m_setupCompleted) {
-        QTimer::singleShot(50, this, [this] {
-            if (isAttached()) {
-                PropertyEditorView::setupPanes();
-                /* workaround for QTBUG-75847 */
-                reloadQml();
-            }
-        });
-    }
-
-    m_locked = false;
-
     resetView();
 }
 
@@ -982,7 +917,7 @@ void PropertyEditorView::select()
     if (m_qmlBackEndForCurrentType)
         m_qmlBackEndForCurrentType->emitSelectionToBeChanged();
 
-    delayedResetView();
+    resetView();
 
     auto nodes = selectedModelNodes();
 
@@ -1026,7 +961,7 @@ void PropertyEditorView::currentStateChanged(const ModelNode &node)
     Q_ASSERT(newQmlModelState.isValid());
     if (debug)
         qDebug() << Q_FUNC_INFO << newQmlModelState.name();
-    delayedResetView();
+    resetView();
 }
 
 void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, PropertyName> > &propertyList)
@@ -1065,13 +1000,13 @@ void PropertyEditorView::instancePropertyChanged(const QList<QPair<ModelNode, Pr
 
 void PropertyEditorView::rootNodeTypeChanged(const QString &/*type*/, int /*majorVersion*/, int /*minorVersion*/)
 {
-    delayedResetView();
+    resetView();
 }
 
 void PropertyEditorView::nodeTypeChanged(const ModelNode &node, const TypeName &, int, int)
 {
      if (node == m_selectedNode)
-         delayedResetView();
+         resetView();
 }
 
 void PropertyEditorView::nodeReparented(const ModelNode &node,
