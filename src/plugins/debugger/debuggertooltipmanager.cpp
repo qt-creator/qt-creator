@@ -463,6 +463,7 @@ DebuggerToolTipWidget::DebuggerToolTipWidget(DebuggerEngine *engine,
     auto mainLayout = new QVBoxLayout(this);
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->setContentsMargins(0, 0, 0, 0);
+    mainLayout->setSpacing(0);
     mainLayout->addWidget(toolBar);
     mainLayout->addWidget(treeView);
 

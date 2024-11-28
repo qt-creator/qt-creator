@@ -165,8 +165,14 @@
     \section2 Add or remove CMake tools
 
     To add a path to a CMake executable that \QC does not detect automatically,
-    and to specify settings for it, select \uicontrol Add. To make changes to
-    automatically detected installations, select \uicontrol Clone.
+    and to specify settings for it, select \uicontrol Add.
+
+    To add a CMake executable on a remote Linux device or in Docker, select
+    \uicontrol Remote in the dropdown menu in \uicontrol Browse
+    (\uicontrol Choose on \macos) in the \uicontrol Path field.
+
+    To make changes to automatically detected installations, select
+    \uicontrol Clone.
 
     To remove the selected CMake executable from the list, select
     \uicontrol Remove.
@@ -186,7 +192,8 @@
 
     \image qtcreator-kits-cmake.png {Kits preferences}
 
-    \sa {Build with CMake}{How To: Build with CMake},
+    \sa {Build applications on remote Linux devices}, {Build on Docker devices},
+    {Build with CMake}{How To: Build with CMake},
     {Manage Kits}{How To: Manage Kits}, {CMake}, {Kits}
 */
 

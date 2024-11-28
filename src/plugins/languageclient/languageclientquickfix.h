@@ -67,6 +67,8 @@ public:
     void cancel() override;
 
 protected:
+    TextEditor::QuickFixOperations resultToOperations(
+        const LanguageServerProtocol::CodeActionResult &result);
     void setOnlyKinds(const QList<LanguageServerProtocol::CodeActionKind> &only);
     Client *client() { return m_client; }
 

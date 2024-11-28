@@ -737,11 +737,11 @@ class Dumper(DumperBase):
         return None if val is None else self.fromNativeValue(val)
 
     def nativeParseAndEvaluate(self, exp):
+        # FIXME: This breaks symbol discovery
+        if not self.allowInferiorCalls:
+            return None
         #self.warn('EVALUATE "%s"' % exp)
         try:
-            if not self.allowInferiorCalls:
-                return None
-
             val = gdb.parse_and_eval(exp)
             return val
         except RuntimeError as error:
@@ -1040,6 +1040,10 @@ class Dumper(DumperBase):
             return int(gdb.parse_and_eval("(size_t)&'%s'" % symbolName))
         except:
             return 0
+
+    def symbolAddress(self, symbolName):
+        res = self.findSymbol(symbolName)
+        return res
 
     def handleNewObjectFile(self, objfile):
         name = objfile.filename

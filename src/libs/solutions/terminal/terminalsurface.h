@@ -111,6 +111,7 @@ signals:
     void cursorChanged(Cursor oldCursor, Cursor newCursor);
     void altscreenChanged(bool altScreen);
     void unscroll();
+    void cleared();
 
 private:
     std::unique_ptr<TerminalSurfacePrivate> d;

@@ -25,6 +25,7 @@ public:
 
     void setCurrentSelection(std::optional<SearchHitWithText> selection);
     void setSearchString(const QString &searchString, Utils::FindFlags findFlags);
+    void clearAndSearchAgain();
     void nextHit();
     void previousHit();
 

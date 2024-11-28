@@ -17,8 +17,6 @@ QtcPlugin {
         "autoreconfstep.h",
         "autotoolsbuildconfiguration.cpp",
         "autotoolsbuildconfiguration.h",
-        "autotoolsbuildsystem.cpp",
-        "autotoolsbuildsystem.h",
         "autotoolsprojectconstants.h",
         "autotoolsprojectmanagertr.h",
         "autotoolsprojectplugin.cpp",

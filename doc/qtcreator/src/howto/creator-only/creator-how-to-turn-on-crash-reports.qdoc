@@ -24,12 +24,29 @@
         \li Select \uicontrol {Enable crash reporting}.
     \endlist
 
+    Crash reports are sent automatically if they don't exceed the file size
+    limit that Sentry sets for accepting them. You are not notified about
+    sending the reports or whether it succeeded or failed.
+
+    \section1 Clear local crash reports
+
+    \QC stores crash reports on the computer in the following directories:
+
+    \list
+        \li On Windows: \c {%APPDATA%\QtProject\qtcreator\crashpad_reports}
+        \li On Linux and \macos:
+            \c {$HOME/.config/QtProject/qtcreator/crashpad_reports}
+    \endlist
+
     To free up disk space that crash reports reserve on the computer,
     select \uicontrol {Clear Local Crash Reports}. You can see the
     size of the crash reports next to the button.
 
     Select \uicontrol ? to view more information about Crashpad and the security
     policy.
+
+    \note The best way to report a crash is to create a bug report where you
+    paste the corresponding stack trace.
 
     \sa {Contact Qt}
 */

@@ -6,12 +6,16 @@
 #include "qmljseditorconstants.h"
 #include "qmljseditortr.h"
 #include "qmljseditorsettings.h"
+#include "qmljsquickfix.h"
 
 #include <languageclient/languageclientinterface.h>
 #include <languageclient/languageclientmanager.h>
+#include <languageclient/languageclientquickfix.h>
 
 #include <projectexplorer/buildmanager.h>
 
+#include <texteditor/codeassist/genericproposal.h>
+#include <texteditor/codeassist/iassistprovider.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditorconstants.h>
@@ -107,6 +111,41 @@ void QmllsClient::updateQmllsSemanticHighlightingCapability()
     }
 }
 
+class QmllsQuickFixAssistProcessor : public LanguageClientQuickFixAssistProcessor
+{
+public:
+    using LanguageClientQuickFixAssistProcessor::LanguageClientQuickFixAssistProcessor;
+private:
+    TextEditor::GenericProposal *perform() override
+    {
+        // Step 1: Collect qmlls code actions asynchronously
+        LanguageClientQuickFixAssistProcessor::perform();
+
+        // Step 2: Collect built-in quickfixes synchronously
+        m_builtinOps = findQmlJSQuickFixes(interface());
+
+        return nullptr;
+    }
+
+    TextEditor::GenericProposal *handleCodeActionResult(const LanguageServerProtocol::CodeActionResult &result) override
+    {
+        return TextEditor::GenericProposal::createProposal(
+            interface(), resultToOperations(result) + m_builtinOps);
+    }
+
+    QuickFixOperations m_builtinOps;
+};
+
+class QmllsQuickFixAssistProvider : public LanguageClientQuickFixProvider
+{
+public:
+    using LanguageClientQuickFixProvider::LanguageClientQuickFixProvider;
+    TextEditor::IAssistProcessor *createProcessor(const TextEditor::AssistInterface *) const override
+    {
+        return new QmllsQuickFixAssistProcessor(client());
+    }
+};
+
 QmllsClient::QmllsClient(StdIOClientInterface *interface)
     : Client(interface)
 {
@@ -178,6 +217,7 @@ QmllsClient::QmllsClient(StdIOClientInterface *interface)
             }
             return std::nullopt;
         });
+    setQuickFixAssistProvider(new QmllsQuickFixAssistProvider(this));
 }
 
 QmllsClient::~QmllsClient()

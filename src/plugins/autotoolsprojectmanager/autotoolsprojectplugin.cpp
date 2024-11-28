@@ -4,7 +4,6 @@
 #include "autogenstep.h"
 #include "autoreconfstep.h"
 #include "autotoolsbuildconfiguration.h"
-#include "autotoolsbuildsystem.h"
 #include "autotoolsprojectconstants.h"
 #include "configurestep.h"
 #include "makestep.h"
@@ -41,7 +40,6 @@ public:
         setProjectLanguages(Core::Context(ProjectExplorer::Constants::CXX_LANGUAGE_ID));
         setDisplayName(projectDirectory().fileName());
         setHasMakeInstallEquivalent(true);
-        setBuildSystemCreator(&createAutotoolsBuildSystem);
     }
 };
 

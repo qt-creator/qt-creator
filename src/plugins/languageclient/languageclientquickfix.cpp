@@ -87,6 +87,22 @@ void LanguageClientQuickFixAssistProcessor::cancel()
     }
 }
 
+QuickFixOperations LanguageClientQuickFixAssistProcessor::resultToOperations(const LanguageServerProtocol::CodeActionResult &result)
+{
+    auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result);
+    if (!list)
+        return {};
+
+    QuickFixOperations ops;
+    for (const std::variant<Command, CodeAction> &item : *list) {
+        if (auto action = std::get_if<CodeAction>(&item))
+            ops << new CodeActionQuickFixOperation(*action, m_client);
+        else if (auto command = std::get_if<Command>(&item))
+            ops << new CommandQuickFixOperation(*command, m_client);
+    }
+    return ops;
+}
+
 void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeActionRequest::Response &response)
 {
     m_currentRequest.reset();
@@ -101,17 +117,7 @@ void LanguageClientQuickFixAssistProcessor::handleCodeActionResponse(const CodeA
 
 GenericProposal *LanguageClientQuickFixAssistProcessor::handleCodeActionResult(const CodeActionResult &result)
 {
-    if (auto list = std::get_if<QList<std::variant<Command, CodeAction>>>(&result)) {
-        QuickFixOperations ops;
-        for (const std::variant<Command, CodeAction> &item : *list) {
-            if (auto action = std::get_if<CodeAction>(&item))
-                ops << new CodeActionQuickFixOperation(*action, m_client);
-            else if (auto command = std::get_if<Command>(&item))
-                ops << new CommandQuickFixOperation(*command, m_client);
-        }
-        return GenericProposal::createProposal(interface(), ops);
-    }
-    return nullptr;
+    return GenericProposal::createProposal(interface(), resultToOperations(result));
 }
 
 LanguageClientQuickFixProvider::LanguageClientQuickFixProvider(Client *client)
