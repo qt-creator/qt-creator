@@ -837,7 +837,7 @@ GitSettings &GitClient::settings()
 
 FilePath GitClient::findRepositoryForDirectory(const FilePath &directory) const
 {
-    return VcsBase::findRepositoryForFile(directory, {".git", ".git/config"});
+    return VcsManager::findRepositoryForFiles(directory, {".git", ".git/config"});
 }
 
 FilePath GitClient::findGitDirForRepository(const FilePath &repositoryDir) const

@@ -25,6 +25,8 @@
 
 #include <optional>
 
+static Q_LOGGING_CATEGORY(findRepoLog, "qtc.vcs.find-repo", QtWarningMsg)
+
 using namespace Utils;
 
 namespace Core {
@@ -434,6 +436,32 @@ void VcsManager::clearVersionControlCache()
     d->clearCache();
     for (const FilePath &repo : repoList)
         emit m_instance->repositoryChanged(repo);
+}
+
+// Find top level for version controls like git/Mercurial that have
+// a directory at the top of the repository.
+// Note that checking for the existence of files is preferred over directories
+// since checking for directories can cause them to be created when
+// AutoFS is used (due its automatically creating mountpoints when querying
+// a directory). In addition, bail out when reaching the home directory
+// of the user or root (generally avoid '/', where mountpoints are created).
+FilePath VcsManager::findRepositoryForFiles(
+    const Utils::FilePath &fileOrDir, const QStringList &checkFiles)
+{
+    const FilePath dirS = fileOrDir.isDir() ? fileOrDir : fileOrDir.parentDir();
+    qCDebug(findRepoLog) << ">" << dirS << checkFiles;
+    QTC_ASSERT(!dirS.isEmpty(), return {});
+
+    FilePath parent;
+    for (FilePath dir = dirS; !dir.isEmpty() && !dir.isRootPath(); dir = dir.parentDir()) {
+        for (const QString &checkFile : checkFiles) {
+            if (dir.pathAppended(checkFile).isFile()) {
+                qCDebug(findRepoLog) << "<" << dir.toUserOutput();
+                return dir;
+            }
+        }
+    }
+    return {};
 }
 
 void VcsManager::handleConfigurationChanges(IVersionControl *vc)

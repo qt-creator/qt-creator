@@ -1026,7 +1026,7 @@ bool SubversionPluginPrivate::managesDirectory(const FilePath &directory, FilePa
     const QStringList filesToCheck = transform(m_svnDirectories, [](const QString &s) {
         return QString(s + "/wc.db");
     });
-    const FilePath topLevelFound = VcsBase::findRepositoryForFile(directory, filesToCheck);
+    const FilePath topLevelFound = VcsManager::findRepositoryForFiles(directory, filesToCheck);
     if (topLevel)
         *topLevel = topLevelFound;
     return !topLevelFound.isEmpty();

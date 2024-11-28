@@ -94,13 +94,6 @@ private:
     QSharedDataPointer<VcsBasePluginStateData> data;
 };
 
-// Convenience that searches for the repository specifically for version control
-// systems that do not have directories like "CVS" in each managed subdirectory
-// but have a directory at the top of the repository like ".git" containing
-// a well known file. See implementation for gory details.
-VCSBASE_EXPORT Utils::FilePath findRepositoryForFile(
-    const Utils::FilePath &fileOrDir, const QStringList &checkFiles);
-
 // Set up the environment for a version control command line call.
 // Sets up SSH graphical password prompting (note that the latter
 // requires a terminal-less process) and sets LANG to 'C' to force English
