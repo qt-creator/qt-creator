@@ -158,10 +158,10 @@ void CameraGeometry::fillVertexData(QByteArray &vertexData, QByteArray &indexDat
         m = camera->projection.inverted();
     }
 
-    const QVector3D farTopLeft = m * QVector3D(1.f, -1.f, 1.f);
-    const QVector3D farBottomRight = m * QVector3D(-1.f, 1.f, 1.f);
-    const QVector3D nearTopLeft = m * QVector3D(1.f, -1.f, -1.f);
-    const QVector3D nearBottomRight = m * QVector3D(-1.f, 1.f, -1.f);
+    const QVector3D farTopLeft = m.map(QVector3D(1.f, -1.f, 1.f));
+    const QVector3D farBottomRight = m.map(QVector3D(-1.f, 1.f, 1.f));
+    const QVector3D nearTopLeft = m.map(QVector3D(1.f, -1.f, -1.f));
+    const QVector3D nearBottomRight = m.map(QVector3D(-1.f, 1.f, -1.f));
 
     *dataPtr++ = nearTopLeft.x();     *dataPtr++ = nearBottomRight.y(); *dataPtr++ = nearTopLeft.z();
     *dataPtr++ = nearTopLeft.x();     *dataPtr++ = nearTopLeft.y();     *dataPtr++ = nearTopLeft.z();
