@@ -182,6 +182,10 @@ struct GccVersion : VersionBase
     explicit GccVersion(int minimum = 0, int maximum = INT_MAX)
         : VersionBase(minimum, maximum)
     {}
+
+    GccVersion(int majorMin, int minorMin, int patchMin)
+        : GccVersion{10000 * majorMin + 100 * minorMin + patchMin}
+    {}
 };
 
 struct ClangVersion : VersionBase
@@ -1421,7 +1425,7 @@ void tst_Dumpers::dumper()
                 + QByteArray::number(data.neededQtVersion.max, 16)));
     }
 
-    if (data.neededGccVersion.isRestricted) {
+    if (data.neededGccVersion.isRestricted && m_debuggerEngine == GdbEngine) {
         QProcess gcc;
         gcc.setWorkingDirectory(t->buildPath);
         gcc.start("gcc", {"--version"});
@@ -4827,35 +4831,42 @@ void tst_Dumpers::dumper_data()
                + Check("deque2.1", "[1]", "", "Foo")
                + Check("deque2.1.a", "2", "int");
 
+    // clang-format off
+    QTest::newRow("StdDequeConst") << Data{
+        R"(
+            #include <deque>
 
-    QTest::newRow("StdDequeConst")
-            << Data("#include <deque>\n" + fooData,
-
-                    "struct MyItem {\n"
-                    "    MyItem(uint64_t a, uint16_t b) : a{a}, b{b} {}\n"
-                    "    const uint64_t a;\n"
-                    "    const uint16_t b;\n"
-                    "};\n\n"
-
-                    "std::deque<MyItem> deq;\n"
-                    "for (uint16_t i = 0; i < 100; ++i)\n"
-                    "    deq.push_back({i, i});\n",
-
-                    "&deq")
-
-               + CoreProfile()
-               + Check("deq.0", "[0]", "", "MyItem")
-               + Check("deq.0.a", "0", "uint64_t")
-               + Check("deq.0.b", "0", "uint16_t")
-
-               + Check("deq.50", "[50]", "", "MyItem")
-               + Check("deq.50.a", "50", "uint64_t")
-               + Check("deq.50.b", "50", "uint16_t")
-
-               + Check("deq.99", "[99]", "", "MyItem")
-               + Check("deq.99.a", "99", "uint64_t")
-               + Check("deq.99.b", "99", "uint16_t");
-
+            struct MyItem {
+                MyItem(uint64_t a, uint16_t b) : a{a}, b{b} {}
+                const uint64_t a;
+                const uint16_t b;
+            };
+        )",
+        R"(
+            std::deque<MyItem> deq;
+            for (uint16_t i = 0; i < 100; ++i) {
+                deq.push_back({i, i});
+            }
+        )",
+        "&deq"
+    }
+        + CoreProfile{}
+        + Check{"deq.0",    "[0]",  "", "MyItem"}
+        + Check{"deq.0.a",  "0",        "uint64_t"} % NoCdbEngine
+        + Check{"deq.0.a",  "0",        "unsigned int64"} % CdbEngine
+        + Check{"deq.0.b",  "0",        "uint16_t"} % NoCdbEngine
+        + Check{"deq.0.b",  "0",        "unsigned short"} % CdbEngine
+        + Check{"deq.50",   "[50]", "", "MyItem"}
+        + Check{"deq.50.a", "50",       "uint64_t"} % NoCdbEngine
+        + Check{"deq.50.a", "50",       "unsigned int64"} % CdbEngine
+        + Check{"deq.50.b", "50",       "uint16_t"} % NoCdbEngine
+        + Check{"deq.50.b", "50",       "unsigned short"} % CdbEngine
+        + Check{"deq.99",   "[99]", "", "MyItem"}
+        + Check{"deq.99.a", "99",       "uint64_t"} % NoCdbEngine
+        + Check{"deq.99.a", "99",       "unsigned int64"} % CdbEngine
+        + Check{"deq.99.b", "99",       "uint16_t"} % NoCdbEngine
+        + Check{"deq.99.b", "99",       "unsigned short"} % CdbEngine;
+    // clang-format on
 
     QTest::newRow("StdHashSet")
             << Data("#include <hash_set>\n"
@@ -5444,6 +5455,7 @@ void tst_Dumpers::dumper_data()
 
                     "&view, &u16view, basicview, u16basicview")
 
+               + Cxx17Profile{}
                + Check("view", "\"test\"", TypeDef("std::basic_string_view<char, std::char_traits<char> >", "std::string_view"))
                + Check("u16view", "\"test\"", TypeDef("std::basic_string_view<char16_t, std::char_traits<char16_t> >", "std::u16string_view"))
                + Check("basicview", "\"test\"", "std::basic_string_view<char, std::char_traits<char> >")
@@ -8619,7 +8631,7 @@ void tst_Dumpers::dumper_data()
                + Check("dir.entryList.1", "[1]", "\"..\"", "@QString") % NoCdbEngine;
 
     // clang-format off
-    QTest::newRow("tl__expected") << Data{
+    QTest::newRow("TlExpected") << Data{
         R"(
             #include <tl_expected/include/tl/expected.hpp>
 
@@ -8743,6 +8755,10 @@ void tst_Dumpers::dumper_data()
         "&d, &fl, &l, &s, &ms, &us, &ums, &m, &mm, &um, &umm, &v"
     }
         + Cxx17Profile{}
+        // `memory_resource` header is only available since GCC 9.1
+        // (see https://gcc.gnu.org/onlinedocs/libstdc++/manual/status.html#status.iso.2017)
+        // and the test are run with GCC (MinGW) as old as 8.1
+        + GccVersion{9, 1, 0}
         + Check{"d", "<10 items>", "std::pmr::deque<int>"} % NoGdbEngine
         + Check{"d", "<10 items>", "std::pmr::deque"} % GdbEngine
         + Check{"d.1", "[1]", "8", "int"}

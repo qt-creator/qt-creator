@@ -5,6 +5,7 @@ import platform
 import struct
 import re
 from dumper import Children, SubItem, UnnamedSubItem, toInteger, DumperBase
+from stdtypes import qdump__std__pair
 from utils import DisplayFormat, TypeCode
 
 
@@ -1492,9 +1493,11 @@ if False:
             d.putSpecialValue('minimumitemcount', 0)
 
 
-# FIXME: Qt 5
-# remvign the _xxxx makes GDB work with Qt 5 but breaks LLDB
-def qdump__QPair_xxxx(d, value):
+def qdump__QPair(d, value):
+    if d.qtVersionAtLeast(0x060000):
+        qdump__std__pair(d, value) # `QPair` is just an alias for `std::pair` in Qt6
+        return
+
     typeCode = '{%s}@{%s}' % (value.type[0].name, value.type[1].name)
     first, pad, second = value.split(typeCode)
     with Children(d):
