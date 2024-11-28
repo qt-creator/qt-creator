@@ -14,8 +14,10 @@ Item {
 
     property bool editing: false
     property bool disableMoreMenu: false
-    property bool isDependencyNode: true
+    property bool isDependencyNode: false
+    property bool isCustomNode: false
     property alias editPropertyFormParent: editPropertyFormPlaceholder
+    readonly property var backendModel: EffectComposerBackend.effectComposerModel
 
     height: layout.implicitHeight + editPropertyFormPlaceholder.height + column.spacing
     visible: !uniformUseCustomValue
@@ -146,7 +148,7 @@ Item {
                     tooltip: root.disableMoreMenu ? qsTr("Additional actions disabled while editing existing property.")
                                                   : qsTr("Access additional property actions.")
                     enabled: !root.disableMoreMenu
-                    visible: !root.isDependencyNode
+                    visible: (root.backendModel.advancedMode || root.isCustomNode) && !root.isDependencyNode
 
                     onClicked: menuLoader.show()
                 }

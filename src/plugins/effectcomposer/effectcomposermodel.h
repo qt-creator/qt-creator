@@ -61,6 +61,7 @@ class EffectComposerModel : public QAbstractListModel
     Q_PROPERTY(int customPreviewImageCount READ customPreviewImageCount NOTIFY customPreviewImageCountChanged)
     Q_PROPERTY(int mainCodeEditorIndex READ mainCodeEditorIndex CONSTANT)
     Q_PROPERTY(QString effectErrors READ effectErrors NOTIFY effectErrorsChanged)
+    Q_PROPERTY(bool advancedMode MEMBER m_advancedMode NOTIFY advancedModeChanged)
 
 public:
     EffectComposerModel(QObject *parent = nullptr);
@@ -181,6 +182,7 @@ signals:
     void currentPreviewImageChanged();
     void previewImagesChanged();
     void customPreviewImageCountChanged();
+    void advancedModeChanged();
 
 private:
     enum ErrorTypes {
@@ -291,6 +293,7 @@ private:
     QUrl m_currentPreviewImage;
     QList<QUrl> m_customPreviewImages;
     int m_currentBakeCounter = 0;
+    bool m_advancedMode = false;
 
     const QRegularExpression m_spaceReg = QRegularExpression("\\s+");
 };

@@ -219,6 +219,7 @@ HelperWidgets.Section {
                     editing: root.editedUniformIndex === index
                     disableMoreMenu: root.editedUniformIndex >= 0
                     isDependencyNode: isDependency
+                    isCustomNode: isCustom
 
                     onReset: nodeUniformsModel.resetData(index)
                     onRemove: {
@@ -282,7 +283,7 @@ HelperWidgets.Section {
 
             Row {
                 height: 40
-                visible: !isDependency && !addPropertyForm.visible
+                visible: (root.backendModel.advancedMode || isCustom) && !isDependency && !addPropertyForm.visible
                 anchors.horizontalCenter: parent.horizontalCenter
                 spacing: 10
 
