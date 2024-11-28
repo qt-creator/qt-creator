@@ -775,7 +775,8 @@ void MouseArea3D::forcePressEvent(double x, double y)
 
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers mods;
-    QMouseEvent event(QEvent::MouseButtonPress, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    auto pos = QPointF(x, y);
+    QMouseEvent event(QEvent::MouseButtonPress, pos, pos, Qt::LeftButton, buttons, mods);
     eventFilter(m_view3D, &event);
 }
 
@@ -783,7 +784,8 @@ void QmlDesigner::Internal::MouseArea3D::forceMoveEvent(double x, double y)
 {
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers mods;
-    QMouseEvent event(QEvent::MouseMove, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    auto pos = QPointF(x, y);
+    QMouseEvent event(QEvent::MouseMove, pos, pos, Qt::LeftButton, buttons, mods);
     eventFilter(m_view3D, &event);
 }
 
@@ -791,7 +793,8 @@ void QmlDesigner::Internal::MouseArea3D::forceReleaseEvent(double x, double y)
 {
     Qt::MouseButtons buttons;
     Qt::KeyboardModifiers mods;
-    QMouseEvent event(QEvent::MouseButtonRelease, QPointF(x, y), Qt::LeftButton, buttons, mods);
+    auto pos = QPointF(x, y);
+    QMouseEvent event(QEvent::MouseButtonRelease, pos, pos, Qt::LeftButton, buttons, mods);
     eventFilter(m_view3D, &event);
 }
 
@@ -835,9 +838,9 @@ static QPoint getPosFromMoveEvent(QEvent *event)
 {
     switch (event->type()) {
     case QEvent::MouseMove:
-        return static_cast<QMouseEvent *>(event)->pos();
+        return static_cast<QMouseEvent *>(event)->position().toPoint();
     case QEvent::HoverMove:
-        return static_cast<QHoverEvent *>(event)->pos();
+        return static_cast<QHoverEvent *>(event)->position().toPoint();
     default:
         break;
     }
