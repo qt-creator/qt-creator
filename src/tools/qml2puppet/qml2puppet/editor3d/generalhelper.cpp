@@ -759,7 +759,9 @@ void GeneralHelper::storeToolState(const QString &sceneId, const QString &tool, 
         QVariant theState;
         // Convert JS arrays to QVariantLists for easier handling down the line
         // metaType().id() which only exist in Qt6 is the same as typeId()
-        if (state.typeId() != QMetaType::QString && state.canConvert(QMetaType::QVariantList))
+
+        if (state.typeId() != QMetaType::QString
+            && QMetaType::canConvert(state.metaType(), QMetaType(QMetaType::QVariantList)))
             theState = state.value<QVariantList>();
         else
             theState = state;
@@ -1038,7 +1040,7 @@ void GeneralHelper::moveMultiSelection(bool commit)
         QMatrix4x4 m;
         if (it.key()->parentNode())
             m = it.key()->parentNode()->sceneTransform();
-        it.key()->setPosition(m.inverted() * newGlobalPos);
+        it.key()->setPosition(m.inverted().map(newGlobalPos));
     }
     m_blockMultiSelectionNodePositioning = !commit;
 }
@@ -1058,7 +1060,7 @@ void GeneralHelper::scaleMultiSelection(bool commit)
         QMatrix4x4 parentMat;
         if (it.key()->parentNode())
             parentMat = it.key()->parentNode()->sceneTransform().inverted();
-        it.key()->setPosition(parentMat * newGlobalPos);
+        it.key()->setPosition(parentMat.map(newGlobalPos));
 
         QMatrix4x4 mat;
         mat.rotate(it.value().startSceneRot);
@@ -1067,7 +1069,7 @@ void GeneralHelper::scaleMultiSelection(bool commit)
             QVector3D dimScale;
             float diffScaleDim = diffScale[dim];
             dimScale[dim] = diffScaleDim;
-            dimScale = (mat.inverted() * dimScale).normalized() * diffScaleDim;
+            dimScale = (mat.inverted().map(dimScale).normalized()) * diffScaleDim;
             for (int i = 0; i < 3; ++i)
                 dimScale[i] = qAbs(dimScale[i]);
             if (sceneScale[dim] < 1.0f)
@@ -1096,7 +1098,7 @@ void GeneralHelper::rotateMultiSelection(bool commit)
         QMatrix4x4 parentMat;
         if (it.key()->parentNode())
             parentMat = it.key()->parentNode()->sceneTransform().inverted();
-        it.key()->setPosition(parentMat * newGlobalPos);
+        it.key()->setPosition(parentMat.map(newGlobalPos));
         it.key()->setRotation(it.value().startRot);
         it.key()->rotate(rotAngle, rotAxis, QQuick3DNode::SceneSpace);
     }
