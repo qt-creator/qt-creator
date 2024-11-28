@@ -47,15 +47,6 @@ Rectangle {
                 style: StudioTheme.Values.viewBarControlStyle
                 Layout.alignment: Qt.AlignVCenter
             }
-
-            StudioControls.CheckBox {
-                text: qsTr("Live Update")
-                actionIndicatorVisible: false
-                style: StudioTheme.Values.viewBarControlStyle
-                checked: root.rootEditor ? root.rootEditor.liveUpdate : false
-                onToggled: root.rootEditor.liveUpdate = checked
-                Layout.alignment: Qt.AlignVCenter
-            }
         }
 
         CodeEditorUniformsView {

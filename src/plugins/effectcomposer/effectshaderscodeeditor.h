@@ -96,6 +96,7 @@ private:
     void readAndApplyLiveUpdateSettings();
     void createHeader();
     void createQmlTabs();
+    void createQmlFooter();
     void loadQml();
     void setUniformsModel(EffectComposerUniformsTableModel *uniforms);
     void selectNonEmptyShader(ShaderEditorData *data);
@@ -107,6 +108,7 @@ private:
     QSettings *m_settings = nullptr;
     QPointer<StudioQuickWidget> m_headerWidget;
     QPointer<StudioQuickWidget> m_qmlTabWidget;
+    QPointer<StudioQuickWidget> m_qmlFooterWidget;
     QPointer<QStackedWidget> m_stackedWidget;
     QPointer<EffectComposerUniformsTableModel> m_defaultTableModel;
     QPointer<EffectComposerEditableNodesModel> m_editableNodesModel;

@@ -38,6 +38,8 @@ inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER[]
     = "QQuickWidgetEffectComposerCodeEditorHeader";
 inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_TABS[]
     = "QQuickWidgetEffectComposerCodeEditorTabs";
+inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_FOOTER[]
+    = "QQuickWidgetEffectComposerCodeEditorFooter";
 
 inline constexpr char EFFECTCOMPOSER_VERTEX_ID[] = "VERTEX";
 inline constexpr char EFFECTCOMPOSER_FRAGMENT_ID[] = "FRAGMENT";
@@ -77,6 +79,7 @@ EffectShadersCodeEditor::~EffectShadersCodeEditor()
 
     m_headerWidget->setSource({});
     m_qmlTabWidget->setSource({});
+    m_qmlFooterWidget->setSource({});
 }
 
 void EffectShadersCodeEditor::showWidget()
@@ -260,11 +263,15 @@ void EffectShadersCodeEditor::setupUIComponents()
 
     createHeader();
     createQmlTabs();
+    createQmlFooter();
 
     verticalLayout->setContentsMargins(0, 0, 0, 0);
     verticalLayout->addWidget(splitter);
+    tabsLayout->setContentsMargins(0, 0, 0, 0);
+    tabsLayout->setSpacing(0);
     tabsLayout->addWidget(m_qmlTabWidget);
     tabsLayout->addWidget(m_stackedWidget);
+    tabsLayout->addWidget(m_qmlFooterWidget);
 
     splitter->addWidget(m_headerWidget.get());
     splitter->addWidget(tabComplexWidget);
@@ -340,6 +347,20 @@ void EffectShadersCodeEditor::createQmlTabs()
     m_qmlTabWidget->setFixedHeight(43);
 }
 
+void EffectShadersCodeEditor::createQmlFooter()
+{
+    m_qmlFooterWidget = new StudioQuickWidget(this);
+    m_qmlFooterWidget->quickWidget()->setObjectName(OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_FOOTER);
+    m_qmlFooterWidget->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    QmlDesigner::Theme::setupTheme(m_qmlFooterWidget->engine());
+    m_qmlFooterWidget->engine()->addImportPath(propertyEditorResourcesPath() + "/imports");
+    m_qmlFooterWidget->engine()->addImportPath(EffectUtils::nodesSourcesPath() + "/common");
+    m_qmlFooterWidget->setClearColor(QmlDesigner::Theme::getColor(
+        QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
+    m_qmlFooterWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
+    m_qmlFooterWidget->setFixedHeight(40);
+}
+
 void EffectShadersCodeEditor::loadQml()
 {
     const QString headerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorHeader.qml";
@@ -350,6 +371,10 @@ void EffectShadersCodeEditor::loadQml()
                                       + "/CodeEditorTabs.qml";
     QTC_ASSERT(QFileInfo::exists(editorTabsQmlPath), return);
     m_qmlTabWidget->setSource(QUrl::fromLocalFile(editorTabsQmlPath));
+
+    const QString footerQmlPath = EffectComposerWidget::qmlSourcesPath() + "/CodeEditorFooter.qml";
+    QTC_ASSERT(QFileInfo::exists(footerQmlPath), return);
+    m_qmlFooterWidget->setSource(QUrl::fromLocalFile(footerQmlPath));
 }
 
 void EffectShadersCodeEditor::setUniformsModel(EffectComposerUniformsTableModel *uniformsTable)
