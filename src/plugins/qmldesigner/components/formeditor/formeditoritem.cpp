@@ -84,6 +84,7 @@ void FormEditorItem::setup()
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
     }
 
+    setFlag(QGraphicsItem::ItemClipsToShape, qmlItemNode().instanceValue("clip").toBool());
     setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
 
     if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
@@ -105,7 +106,9 @@ void FormEditorItem::setup()
 
 QRectF FormEditorItem::boundingRect() const
 {
-    return m_boundingRect;
+    // Corner case: painting outside the bounding rectangle (boundingRec < paintedBoundingRect), which can be set in the Text items, for example.
+    // QGraphicsItem needs valid painting boundaries returned by boundingRect(). Returning a bounding rectangle that is too small will cause artefacts in the view.
+    return m_paintedBoundingRect;
 }
 
 QPainterPath FormEditorItem::shape() const
@@ -205,9 +208,10 @@ void FormEditorItem::synchronizeOtherProperty(PropertyNameView propertyName)
     if (propertyName == "opacity")
         setOpacity(qmlItemNode().instanceValue("opacity").toDouble());
 
-    if (propertyName == "clip")
+    if (propertyName == "clip") {
+        setFlag(QGraphicsItem::ItemClipsToShape, qmlItemNode().instanceValue("clip").toBool());
         setFlag(QGraphicsItem::ItemClipsChildrenToShape, qmlItemNode().instanceValue("clip").toBool());
-
+    }
     if (NodeHints::fromModelNode(qmlItemNode()).forceClip())
         setFlag(QGraphicsItem::ItemClipsChildrenToShape, true);
 
@@ -428,12 +432,6 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
     if (isInStackedContainer)
         showPlaceHolder = qmlItemNode().instanceIsRenderPixmapNull() && isContentVisible();
 
-    QRegion clipRegion = painter->clipRegion();
-    if (clipRegion.contains(m_selectionBoundingRect.toRect().topLeft())
-            && clipRegion.contains(m_selectionBoundingRect.toRect().bottomRight()))
-        painter->setClipRegion(boundingRect().toRect());
-    painter->setClipping(true);
-
     if (!hideCompletely && !parentHasEffect()) {
         if (showPlaceHolder) {
             if (scene()->showBoundingRects() && m_boundingRect.width() > 15 && m_boundingRect.height() > 15)
@@ -455,7 +453,6 @@ void FormEditorItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *, 
         }
     }
 
-    painter->setClipping(false);
     if (!qmlItemNode().isRootModelNode())
         paintBoundingRect(painter);
 
