@@ -14,8 +14,8 @@ T.ItemDelegate {
     property alias myIcon: iconLabel.text
     property alias myText: textLabel.text
 
-    //width: root.menuWidth - 2 * window.padding
-    //height: root.style.controlSize.height// - 2 * root.style.borderWidth
+    implicitWidth: root.style.controlSize.width
+    implicitHeight: root.style.controlSize.height
 
     contentItem: Row {
         id: row
@@ -40,7 +40,6 @@ T.ItemDelegate {
             font.pixelSize: root.style.baseIconFontSize
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignHCenter
-            text: StudioTheme.Constants.playOutline_medium
         }
 
         T.Label {
@@ -68,8 +67,6 @@ T.ItemDelegate {
 
     background: Rectangle {
         id: rootBackground
-        x: 0
-        y: 0
         width: root.width
         height: root.height
         opacity: enabled ? 1 : 0.3

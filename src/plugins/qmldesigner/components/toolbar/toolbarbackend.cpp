@@ -510,6 +510,12 @@ void ToolBarBackend::registerDeclarativeType()
                                            "RunManager shouldn't be instantiated.");
     qmlRegisterUncreatableType<DeviceShare::DeviceManagerModel>(
         "ToolBar", 1, 0, "DeviceManagerModel", "DeviceManagerModel shouldn't be instantiated.");
+
+    qmlRegisterUncreatableType<DesignViewer::DVConnector>("ToolBar",
+                                                          1,
+                                                          0,
+                                                          "DVConnector",
+                                                          "DVConnector shouldn't be instantiated.");
 }
 
 void ToolBarBackend::triggerModeChange()
@@ -894,6 +900,11 @@ int ToolBarBackend::runTargetIndex() const
 int ToolBarBackend::runManagerState() const
 {
     return QmlDesignerPlugin::runManager().state();
+}
+
+DesignViewer::DVConnector *ToolBarBackend::designViewerConnector()
+{
+    return &m_designViewerConnector;
 }
 
 void ToolBarBackend::launchGlobalAnnotations()

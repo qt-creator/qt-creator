@@ -59,7 +59,7 @@ public:
     bool isWebViewerVisible() const;
 
     void projectList();
-    void uploadCurrentProject();
+    Q_INVOKABLE void uploadCurrentProject();
     void uploadProject(const QString &projectId, const QString &filePath);
     void deleteProject(const QString &projectId);
     void downloadProject(const QString &projectId, const QString &filePath);
@@ -78,9 +78,9 @@ public:
     void downloadSharedProject(const QString &projectId, const QString &filePath);
     void downloadSharedProjectThumbnail(const QString &projectId, const QString &filePath);
 
-    void login();
-    void logout();
-    void fetchUserInfo();
+    Q_INVOKABLE void login();
+    Q_INVOKABLE void logout();
+    Q_INVOKABLE void fetchUserInfo();
 
 private:
     // network

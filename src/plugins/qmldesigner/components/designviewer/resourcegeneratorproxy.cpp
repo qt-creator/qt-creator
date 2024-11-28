@@ -37,7 +37,7 @@ void ResourceGeneratorProxy::createResourceFileAsync(const QString &projectName)
     m_future = QtConcurrent::run([&]() {
         const std::optional<Utils::FilePath> filePath = createResourceFileSync(projectName);
 
-        if (filePath->isEmpty()) {
+        if (!filePath || filePath->isEmpty()) {
             emit errorOccurred("Failed to create resource file");
             return;
         }

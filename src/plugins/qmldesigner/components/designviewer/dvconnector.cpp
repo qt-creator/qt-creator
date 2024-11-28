@@ -11,6 +11,8 @@
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 
+#include <coreplugin/icore.h>
+
 #include <QHttpMultiPart>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -115,10 +117,12 @@ DVConnector::DVConnector(QObject *parent)
     m_webEngineProfile.reset(new QWebEngineProfile("DesignViewer", this));
     m_webEngineProfile->setPersistentCookiesPolicy(QWebEngineProfile::ForcePersistentCookies);
     m_webEnginePage.reset(new CustomWebEnginePage(m_webEngineProfile.data(), this));
-    m_webEngineView.reset(new QWebEngineView);
+    m_webEngineView.reset(new QWebEngineView(Core::ICore::instance()->dialogParent()));
     m_webEngineView->setPage(m_webEnginePage.data());
     m_webEngineView->resize(1024, 750);
+    m_webEngineView->setWindowFlag(Qt::Dialog);
     m_webEngineView->installEventFilter(this);
+    m_webEngineView->hide();
 
     m_networkCookieJar.reset(
         new CustomCookieJar(this, m_webEngineProfile->persistentStoragePath() + "/dv_cookies.txt"));
@@ -284,7 +288,8 @@ void DVConnector::uploadProject(const QString &projectId, const QString &filePat
             &QNetworkReply::uploadProgress,
             this,
             [this](qint64 bytesSent, qint64 bytesTotal) {
-                emit projectUploadProgress(100.0 * (double) bytesSent / (double) bytesTotal);
+                if (bytesTotal != 0)
+                    emit projectUploadProgress(100.0 * (double) bytesSent / (double) bytesTotal);
             });
     evaluatorData.connectCallbacks(this);
 }
@@ -592,6 +597,7 @@ void DVConnector::login()
     qCDebug(deploymentPluginLog) << "Logging in";
     m_webEnginePage->load(QUrl(DVEndpoints::serviceUrl + DVEndpoints::login));
     m_webEngineView->show();
+    m_webEngineView->raise();
 }
 
 void DVConnector::logout()
