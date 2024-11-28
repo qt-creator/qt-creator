@@ -93,81 +93,6 @@ HelperWidgets.Section {
         }
     }
 
-    Column {
-        spacing: 10
-
-        Repeater {
-            id: repeater
-            model: nodeUniformsModel
-
-            EffectCompositionNodeUniform {
-                id: effectCompositionNodeUniform
-                width: root.width - StudioTheme.Values.scrollBarThicknessHover
-                editing: root.editedUniformIndex === index
-                disableMoreMenu: root.editedUniformIndex >= 0
-                isDependencyNode: isDependency
-
-                onReset: nodeUniformsModel.resetData(index)
-                onRemove: {
-                    if (uniformIsInUse) {
-                        confirmRemoveForm.parent = effectCompositionNodeUniform.editPropertyFormParent
-                        confirmRemoveForm.uniformIndex = index
-                        confirmRemoveForm.visible = true
-                    } else {
-                        nodeUniformsModel.remove(index)
-                    }
-                }
-                onEdit: {
-                    confirmRemoveForm.visible = false
-                    confirmRemoveForm.parent = root
-                    addPropertyForm.parent = effectCompositionNodeUniform.editPropertyFormParent
-                    let dispNames = nodeUniformsModel.displayNames()
-                    let filteredDispNames = dispNames.filter(name => name !== uniformDisplayName);
-                    addPropertyForm.reservedDispNames = filteredDispNames
-                    let uniNames = root.backendModel.uniformNames()
-                    let filteredUniNames = uniNames.filter(name => name !== uniformName);
-                    addPropertyForm.reservedUniNames = filteredUniNames
-                    root.editedUniformIndex = index
-                    addPropertyForm.showForEdit(uniformType, uniformControlType, uniformDisplayName,
-                                                uniformName, uniformDescription, uniformDefaultValue,
-                                                uniformMinValue, uniformMaxValue, uniformUserAdded)
-                }
-                onOpenCodeEditor: root.backendModel.openCodeEditor(root.modelIndex)
-            }
-        }
-    }
-
-    Item {
-        id: addProperty
-        width: root.width - StudioTheme.Values.scrollBarThicknessHover
-        height: addPropertyForm.visible && addPropertyForm.parent === addProperty
-                ? addPropertyForm.height : 0
-        visible: !isDependency
-
-        AddPropertyForm {
-            id: addPropertyForm
-            visible: false
-            width: parent.width
-
-            effectNodeName: nodeName
-            onHeightChanged: root.emitEnsure(addPropertyForm)
-            onVisibleChanged: root.emitEnsure(addPropertyForm)
-
-            onAccepted: {
-                root.backendModel.addOrUpdateNodeUniform(root.modelIndex,
-                                                         addPropertyForm.propertyData(),
-                                                         root.editedUniformIndex)
-                addPropertyForm.parent = addProperty
-                root.editedUniformIndex = -1
-            }
-
-            onCanceled: {
-                addPropertyForm.parent = addProperty
-                root.editedUniformIndex = -1
-            }
-        }
-    }
-
     ConfirmPropertyRemoveForm {
         id: confirmRemoveForm
 
@@ -268,35 +193,125 @@ HelperWidgets.Section {
     }
 
     Row {
-        height: 40
-        visible: !isDependency && !addPropertyForm.visible
-        anchors.horizontalCenter: parent.horizontalCenter
-        spacing: 10
+        width: parent.width
+        height: uniformsCol.height
+        spacing: 0
 
-        HelperWidgets.Button {
-            width: 100
-            height: 30
-            text: qsTr("Add Property")
-            enabled: !addPropertyForm.visible
-            anchors.verticalCenter: parent.verticalCenter
-
-            onClicked: {
-                confirmRemoveForm.visible = false
-                confirmRemoveForm.parent = root
-                root.editedUniformIndex = -1
-                addPropertyForm.parent = addProperty
-                addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
-                addPropertyForm.reservedUniNames = root.backendModel.uniformNames()
-                addPropertyForm.showForAdd()
-            }
+        Rectangle {
+            width: 4
+            height: parent.height
+            color: codeEditorOpen ? StudioTheme.Values.themeInteraction : "transparent"
         }
 
-        HelperWidgets.Button {
-            width: 100
-            height: 30
-            text: qsTr("Show Code")
-            anchors.verticalCenter: parent.verticalCenter
-            onClicked: root.backendModel.openCodeEditor(index)
+        Column {
+            id: uniformsCol
+
+            width: parent.width - 4
+            spacing: 0
+
+            Repeater {
+                id: repeater
+                model: nodeUniformsModel
+
+                EffectCompositionNodeUniform {
+                    id: effectCompositionNodeUniform
+                    width: root.width - StudioTheme.Values.scrollBarThicknessHover
+                    editing: root.editedUniformIndex === index
+                    disableMoreMenu: root.editedUniformIndex >= 0
+                    isDependencyNode: isDependency
+
+                    onReset: nodeUniformsModel.resetData(index)
+                    onRemove: {
+                        if (uniformIsInUse) {
+                            confirmRemoveForm.parent = effectCompositionNodeUniform.editPropertyFormParent
+                            confirmRemoveForm.uniformIndex = index
+                            confirmRemoveForm.visible = true
+                        } else {
+                            nodeUniformsModel.remove(index)
+                        }
+                    }
+                    onEdit: {
+                        confirmRemoveForm.visible = false
+                        confirmRemoveForm.parent = root
+                        addPropertyForm.parent = effectCompositionNodeUniform.editPropertyFormParent
+                        let dispNames = nodeUniformsModel.displayNames()
+                        let filteredDispNames = dispNames.filter(name => name !== uniformDisplayName);
+                        addPropertyForm.reservedDispNames = filteredDispNames
+                        let uniNames = root.backendModel.uniformNames()
+                        let filteredUniNames = uniNames.filter(name => name !== uniformName);
+                        addPropertyForm.reservedUniNames = filteredUniNames
+                        root.editedUniformIndex = index
+                        addPropertyForm.showForEdit(uniformType, uniformControlType, uniformDisplayName,
+                                                    uniformName, uniformDescription, uniformDefaultValue,
+                                                    uniformMinValue, uniformMaxValue, uniformUserAdded)
+                    }
+                    onOpenCodeEditor: root.backendModel.openCodeEditor(root.modelIndex)
+                }
+            }
+
+            Item {
+                id: addProperty
+                width: parent.width - StudioTheme.Values.scrollBarThicknessHover
+                height: addPropertyForm.visible && addPropertyForm.parent === addProperty
+                        ? addPropertyForm.height : 0
+                visible: !isDependency
+
+                AddPropertyForm {
+                    id: addPropertyForm
+                    visible: false
+                    width: parent.width
+
+                    effectNodeName: nodeName
+                    onHeightChanged: root.emitEnsure(addPropertyForm)
+                    onVisibleChanged: root.emitEnsure(addPropertyForm)
+
+                    onAccepted: {
+                        root.backendModel.addOrUpdateNodeUniform(root.modelIndex,
+                                                                 addPropertyForm.propertyData(),
+                                                                 root.editedUniformIndex)
+                        addPropertyForm.parent = addProperty
+                        root.editedUniformIndex = -1
+                    }
+
+                    onCanceled: {
+                        addPropertyForm.parent = addProperty
+                        root.editedUniformIndex = -1
+                    }
+                }
+            }
+
+            Row {
+                height: 40
+                visible: !isDependency && !addPropertyForm.visible
+                anchors.horizontalCenter: parent.horizontalCenter
+                spacing: 10
+
+                HelperWidgets.Button {
+                    width: 100
+                    height: 30
+                    text: qsTr("Add Property")
+                    enabled: !addPropertyForm.visible
+                    anchors.verticalCenter: parent.verticalCenter
+
+                    onClicked: {
+                        confirmRemoveForm.visible = false
+                        confirmRemoveForm.parent = root
+                        root.editedUniformIndex = -1
+                        addPropertyForm.parent = addProperty
+                        addPropertyForm.reservedDispNames = nodeUniformsModel.displayNames()
+                        addPropertyForm.reservedUniNames = root.backendModel.uniformNames()
+                        addPropertyForm.showForAdd()
+                    }
+                }
+
+                HelperWidgets.Button {
+                    width: 100
+                    height: 30
+                    text: qsTr("Show Code")
+                    anchors.verticalCenter: parent.verticalCenter
+                    onClicked: root.backendModel.openCodeEditor(index)
+                }
+            }
         }
     }
 }
