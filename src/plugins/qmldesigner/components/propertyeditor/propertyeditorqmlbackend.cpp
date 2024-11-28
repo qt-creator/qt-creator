@@ -523,6 +523,7 @@ void PropertyEditorQmlBackend::setup(const QmlObjectNode &qmlObjectNode, const Q
 
         // anchors
         m_backendAnchorBinding.setup(qmlObjectNode.modelNode());
+        setupContextProperties();
 
         contextObject()->setHasMultiSelection(
             !qmlObjectNode.view()->singleSelectedModelNode().isValid());
