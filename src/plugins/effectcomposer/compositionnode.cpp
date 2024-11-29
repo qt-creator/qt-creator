@@ -290,6 +290,16 @@ void CompositionNode::updateAreUniformsInUse(bool force)
     if (force || m_InUseCheckNeeded) {
         const QString matchTemplate("\\b%1\\b");
         const QList<Uniform *> uniList = uniforms();
+
+        // Some of the uniforms may only be used by customValue properties
+        QString customValues;
+        for (const Uniform *u : uniList) {
+            if (!u->customValue().isEmpty()) {
+                customValues.append(u->customValue());
+                customValues.append(' ');
+            }
+        }
+
         for (int i = 0; i < uniList.size(); ++i) {
             Uniform *u = uniList[i];
             QString pattern = matchTemplate.arg(QRegularExpression::escape(u->name()));
@@ -298,6 +308,8 @@ void CompositionNode::updateAreUniformsInUse(bool force)
             found = regex.match(m_fragmentCode).hasMatch();
             if (!found)
                 found = regex.match(m_vertexCode).hasMatch();
+            if (!found && !customValues.isEmpty())
+                found = regex.match(customValues).hasMatch();
             m_uniformsModel.setData(m_uniformsModel.index(i), found,
                                     EffectComposerUniformsModel::IsInUse);
         }
