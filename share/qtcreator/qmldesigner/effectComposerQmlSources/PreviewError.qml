@@ -37,25 +37,20 @@ Rectangle {
         }
     }
 
-    MouseArea {
-        id: errorMouseArea
+    HelperWidgets.Button {
+        id: showLessButton
 
-        hoverEnabled: true
-        acceptedButtons: Qt.NoButton
-        anchors.fill: parent
+        width: 100
+        height: 30
+        text: qsTr("Show Less")
+        visible: root.showErrorDetails
+        opacity: scrollView.hovered || showLessButton.hovered ? 1 : 0.3
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: 8
+        anchors.rightMargin: 8 + StudioTheme.Values.scrollBarThicknessHover
 
-        HelperWidgets.Button {
-            width: 100
-            height: 30
-            text: qsTr("Show Less")
-            visible: root.showErrorDetails
-            opacity: errorMouseArea.containsMouse ? 1 : 0.3
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.margins: 4
-
-            onClicked: root.showErrorDetails = false
-        }
+        onClicked: root.showErrorDetails = false
     }
 
     Column {
