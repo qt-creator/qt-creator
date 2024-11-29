@@ -13,6 +13,7 @@
 
 #include <coreplugin/messagemanager.h>
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
@@ -31,34 +32,34 @@ ResourceGeneratorProxy::~ResourceGeneratorProxy()
     }
 }
 
-void ResourceGeneratorProxy::createResourceFileAsync()
+void ResourceGeneratorProxy::createResourceFileAsync(const QString &projectName)
 {
     m_future = QtConcurrent::run([&]() {
-        const QString filePath = createResourceFileSync();
+        const std::optional<Utils::FilePath> filePath = createResourceFileSync(projectName);
 
-        if (filePath.isEmpty()) {
+        if (filePath->isEmpty()) {
             emit errorOccurred("Failed to create resource file");
             return;
         }
 
-        emit resourceFileCreated(filePath);
+        emit resourceFileCreated(filePath.value());
     });
 }
 
-QString ResourceGeneratorProxy::createResourceFileSync(const QString &projectName)
+std::optional<Utils::FilePath> ResourceGeneratorProxy::createResourceFileSync(const QString &projectName)
 {
     const auto project = ProjectExplorer::ProjectManager::startupProject();
-    const Utils::FilePath tempFilePath = project->projectDirectory().pathAppended(projectName
-                                                                                  + ".qmlrc");
+    std::optional<Utils::FilePath> resourcePath = project->projectDirectory().pathAppended(
+        projectName + ".qmlrc");
 
-    const bool retVal = ResourceGenerator::createQmlrcFile(tempFilePath);
+    const bool retVal = ResourceGenerator::createQmlrcFile(resourcePath.value());
 
-    if (!retVal || tempFilePath.fileSize() == 0) {
+    if (!retVal || resourcePath->fileSize() == 0) {
         Core::MessageManager::writeDisrupting(tr("Failed to create resource file"));
-        return "";
+        resourcePath.reset();
     }
 
-    return tempFilePath.toString();
+    return resourcePath;
 }
 
 } // namespace QmlDesigner::DesignViewer

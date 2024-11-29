@@ -3,9 +3,11 @@
 
 #include "dvconnector.h"
 
+#include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectmanager.h>
 #include <projectexplorer/target.h>
+
 #include <qmldesigner/qmldesignerconstants.h>
 #include <qmldesigner/qmldesignerplugin.h>
 
@@ -14,8 +16,6 @@
 #include <QJsonObject>
 #include <QNetworkRequest>
 #include <QWebEngineCookieStore>
-
-#include "resourcegeneratorproxy.h"
 
 namespace QmlDesigner::DesignViewer {
 Q_LOGGING_CATEGORY(deploymentPluginLog, "qtc.designer.deploymentPlugin", QtWarningMsg)
@@ -145,6 +145,22 @@ DVConnector::DVConnector(QObject *parent)
                 }
             });
 
+    connect(&m_resourceGenerator,
+            &ResourceGeneratorProxy::resourceFileCreated,
+            this,
+            [this](const std::optional<Utils::FilePath> &resourcePath) {
+                emit projectIsUploading();
+                QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
+                uploadProject(projectName, resourcePath->toString());
+            });
+
+    connect(&m_resourceGenerator,
+            &ResourceGeneratorProxy::errorOccurred,
+            [this](const QString &errorString) {
+                qCWarning(deploymentPluginLog) << "Error occurred while packing the project";
+                emit projectPackingFailed(errorString);
+            });
+
     fetchUserInfo();
 }
 
@@ -190,16 +206,9 @@ void DVConnector::projectList()
 
 void DVConnector::uploadCurrentProject()
 {
-    ResourceGeneratorProxy resourceGenerator;
     QString projectName = ProjectExplorer::ProjectManager::startupProject()->displayName();
-    QString resourcePath = resourceGenerator.createResourceFileSync(projectName);
-
-    if (resourcePath.isEmpty()) {
-        qCWarning(deploymentPluginLog) << "Failed to create resource file";
-        return;
-    }
-
-    uploadProject(projectName, resourcePath);
+    m_resourceGenerator.createResourceFileAsync(projectName);
+    emit projectIsPacking();
 }
 
 void DVConnector::uploadProject(const QString &projectId, const QString &filePath)

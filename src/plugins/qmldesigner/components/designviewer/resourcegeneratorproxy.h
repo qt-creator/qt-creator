@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <projectexplorer/project.h>
+#include <utils/filepath.h>
 
 #include <QFuture>
 
@@ -14,15 +14,15 @@ class ResourceGeneratorProxy : public QObject
     Q_OBJECT
 public:
     ~ResourceGeneratorProxy();
-    Q_INVOKABLE void createResourceFileAsync();
-    Q_INVOKABLE QString createResourceFileSync(const QString &projectName = "share");
+    Q_INVOKABLE void createResourceFileAsync(const QString &projectName = "share");
+    Q_INVOKABLE std::optional<Utils::FilePath> createResourceFileSync(const QString &projectName = "share");
 
 private:
     QFuture<void> m_future;
 
 signals:
     void errorOccurred(const QString &error);
-    void resourceFileCreated(const QString &filename);
+    void resourceFileCreated(const Utils::FilePath &filePath);
 };
 
 } // namespace QmlDesigner::DesignViewer

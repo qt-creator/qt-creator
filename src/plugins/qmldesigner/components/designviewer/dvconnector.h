@@ -9,6 +9,8 @@
 #include <QWebEngineProfile>
 #include <QWebEngineView>
 
+#include "resourcegeneratorproxy.h"
+
 namespace QmlDesigner::DesignViewer {
 
 class CustomWebEnginePage : public QWebEnginePage
@@ -95,6 +97,9 @@ private:
     ConnectorStatus m_connectorStatus;
     QByteArray m_userInfo;
 
+    // other internals
+    ResourceGeneratorProxy m_resourceGenerator;
+
     struct ReplyEvaluatorData
     {
         QNetworkReply *reply = nullptr;
@@ -150,9 +155,14 @@ signals:
     void sharedProjectThumbnailDownloaded();
     void sharedProjectThumbnailDownloadError(const int errorCode, const QString &message);
 
-    // UI integration - login/user related signals
+    // UI integration - login/user
     void userInfoReceived(const QByteArray &reply);
     void webViewerVisibleChanged();
+
+    // UI integration - project packing/uploading
+    void projectIsPacking();
+    void projectPackingFailed(const QString &errorString);
+    void projectIsUploading();
 
     // internal signals
     void connectorStatusUpdated(const ConnectorStatus status);

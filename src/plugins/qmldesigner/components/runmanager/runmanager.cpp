@@ -5,8 +5,8 @@
 
 #include <projectexplorer/kitmanager.h>
 #include <projectexplorer/projectexplorer.h>
-#include <qmldesigner/qmldesignerplugin.h>
 
+#include <qmldesigner/qmldesignerplugin.h>
 #include <resourcegeneratorproxy.h>
 
 namespace QmlDesigner {
@@ -332,7 +332,7 @@ bool AndroidTarget::enabled() const
 void AndroidTarget::run() const
 {
     auto qmlrcPath = DesignViewer::ResourceGeneratorProxy().createResourceFileSync();
-    deviceManager()->sendProjectFile(m_deviceId, qmlrcPath);
+    deviceManager()->sendProjectFile(m_deviceId, qmlrcPath->toString());
 }
 
 } // namespace QmlDesigner
