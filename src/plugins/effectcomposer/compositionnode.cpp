@@ -240,7 +240,7 @@ void CompositionNode::setFragmentCode(const QString &fragmentCode)
         return;
 
     m_fragmentCode = fragmentCode;
-    m_fragInUseCheckNeeded = true;
+    m_InUseCheckNeeded = true;
     emit fragmentCodeChanged();
 
     requestRebakeIfLiveUpdateMode();
@@ -252,7 +252,7 @@ void CompositionNode::setVertexCode(const QString &vertexCode)
         return;
 
     m_vertexCode = vertexCode;
-    m_vertInUseCheckNeeded = true;
+    m_InUseCheckNeeded = true;
     emit vertexCodeChanged();
 
     requestRebakeIfLiveUpdateMode();
@@ -271,6 +271,7 @@ void CompositionNode::addUniform(const QVariantMap &data)
     const auto uniform = new Uniform({}, QJsonObject::fromVariantMap(data), {});
     g_propertyData.insert(uniform->name(), uniform->value());
     m_uniformsModel.addUniform(uniform);
+    updateAreUniformsInUse(true);
 }
 
 void CompositionNode::updateUniform(int index, const QVariantMap &data)
@@ -281,11 +282,12 @@ void CompositionNode::updateUniform(int index, const QVariantMap &data)
 
     g_propertyData.insert(uniform->name(), uniform->value());
     m_uniformsModel.updateUniform(index, uniform);
+    updateAreUniformsInUse(true);
 }
 
-void CompositionNode::updateAreUniformsInUse()
+void CompositionNode::updateAreUniformsInUse(bool force)
 {
-    if (m_fragInUseCheckNeeded || m_vertInUseCheckNeeded) {
+    if (force || m_InUseCheckNeeded) {
         const QString matchTemplate("\\b%1\\b");
         const QList<Uniform *> uniList = uniforms();
         for (int i = 0; i < uniList.size(); ++i) {
@@ -293,15 +295,13 @@ void CompositionNode::updateAreUniformsInUse()
             QString pattern = matchTemplate.arg(QRegularExpression::escape(u->name()));
             QRegularExpression regex(pattern);
             bool found = false;
-            if (m_fragInUseCheckNeeded)
-                found = regex.match(m_fragmentCode).hasMatch();
-            if (m_vertInUseCheckNeeded && !found)
+            found = regex.match(m_fragmentCode).hasMatch();
+            if (!found)
                 found = regex.match(m_vertexCode).hasMatch();
             m_uniformsModel.setData(m_uniformsModel.index(i), found,
                                     EffectComposerUniformsModel::IsInUse);
         }
-        m_vertInUseCheckNeeded = false;
-        m_fragInUseCheckNeeded = false;
+        m_InUseCheckNeeded = false;
     }
 }
 
