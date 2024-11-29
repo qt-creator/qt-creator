@@ -58,7 +58,7 @@ public:
         if (promise.isCanceled())
             return;
 
-        // The future is canceled when app on simulator is stoped.
+        // The future is canceled when app on simulator is stopped.
         QEventLoop loop;
         QFutureWatcher<void> watcher;
         connect(&watcher, &QFutureWatcher<void>::canceled, &loop, [&] { loop.quit(); });
@@ -74,13 +74,13 @@ public:
             tailProcess->start();
         };
 
-        std::unique_ptr<Process> tailStdout(new Process);
+        Process tailStdout;
         if (stdoutFile)
-            logProcess(tailStdout.get(), stdoutFile);
+            logProcess(&tailStdout, stdoutFile);
 
-        std::unique_ptr<Process> tailStderr(new Process);
+        Process tailStderr;
         if (stderrFile)
-            logProcess(tailStderr.get(), stderrFile);
+            logProcess(&tailStderr, stderrFile);
 
         // Blocks untill tool is deleted or toolexited is called.
         loop.exec();
