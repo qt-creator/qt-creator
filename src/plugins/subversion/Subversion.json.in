@@ -4,6 +4,7 @@
     "Name" : "Subversion",
     "Version" : "${IDE_VERSION}",
     "CompatVersion" : "${IDE_VERSION_COMPAT}",
+    "DisabledByDefault" : true,
     "VendorId" : "theqtcompany",
     "Vendor" : "The Qt Company Ltd",
     "Copyright" : "${IDE_COPYRIGHT}",
@@ -23,6 +24,10 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-subversion.html",
+    "VcsDetectionFiles" : [
+        ".svn/wc.db",
+        "_svn/wc.db"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "Mimetypes" : [

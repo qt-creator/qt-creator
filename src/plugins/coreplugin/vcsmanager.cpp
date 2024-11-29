@@ -12,12 +12,15 @@
 #include "iversioncontrol.h"
 
 #include <extensionsystem/pluginmanager.h>
+#include <extensionsystem/pluginspec.h>
 
 #include <utils/algorithm.h>
 #include <utils/fileutils.h>
 #include <utils/infobar.h>
 #include <utils/qtcassert.h>
 
+#include <QJsonArray>
+#include <QLabel>
 #include <QList>
 #include <QMap>
 #include <QMessageBox>
@@ -177,6 +180,74 @@ static FilePath fixedDir(const FilePath &directory)
     return directory;
 }
 
+static void askForDisabledVcsPlugins(const FilePath &inputDirectory)
+{
+    using namespace ExtensionSystem;
+    FilePath toplevel;
+
+    PluginSpec *spec = Utils::findOrDefault(
+        PluginManager::plugins(), [&toplevel, inputDirectory](PluginSpec *plugin) {
+            if (plugin->isEffectivelyEnabled())
+                return false;
+            const QJsonObject metaData = plugin->metaData();
+            const QJsonArray filesArray = metaData.value("VcsDetectionFiles").toArray();
+            if (filesArray.isEmpty())
+                return false;
+            QStringList files;
+            for (const QJsonValue &v : filesArray) {
+                const QString str = v.toString();
+                if (!str.isEmpty())
+                    files.append(str);
+            }
+            if (files.isEmpty())
+                return false;
+            qCDebug(findRepoLog) << "Checking if plugin" << plugin->displayName() << "can handle"
+                                 << inputDirectory.toUserOutput();
+            qCDebug(findRepoLog) << "by checking for" << files;
+            const FilePath dir = VcsManager::findRepositoryForFiles(inputDirectory, files);
+            if (dir.isEmpty())
+                return false;
+            qCDebug(findRepoLog) << "The plugin" << plugin->displayName() << "can handle"
+                                 << inputDirectory.toUserOutput();
+            toplevel = dir;
+            return true;
+        });
+
+    if (!spec)
+        return;
+
+    const Id vcsSuggestion = Id("VcsManager.Suggestion.").withSuffix(spec->id());
+    InfoBar *infoBar = ICore::infoBar();
+    if (!infoBar->canInfoBeAdded(vcsSuggestion))
+        return;
+
+    const QString pluginDisplayName = spec->displayName();
+    Utils::InfoBarEntry info(
+        vcsSuggestion,
+        Tr::tr("A directory under version control was detected that is supported by the %1 plugin.")
+            .arg(pluginDisplayName),
+        Utils::InfoBarEntry::GlobalSuppression::Enabled);
+    info.addCustomButton(Tr::tr("Enable %1").arg(pluginDisplayName), [vcsSuggestion, spec] {
+        // TODO In case the plugin is actually loaded during runtime (softloadable),
+        // we'd need to restructure findVersionControlForDirectory below to take the new plugin
+        // into account.
+        // At the moment softloadable VCS plugins are not supported though.
+        if (ICore::enablePlugins({spec}))
+            ICore::infoBar()->removeInfo(vcsSuggestion);
+    });
+
+    info.setDetailsWidgetCreator([toplevel, pluginDisplayName]() -> QWidget * {
+        auto label = new QLabel;
+        label->setWordWrap(true);
+        label->setOpenExternalLinks(true);
+        label->setText(Tr::tr("The directory \"%1\" seems to be under version control that can be "
+                              "handled by the disabled %2 plugin.")
+                           .arg(toplevel.toUserOutput(), pluginDisplayName));
+        label->setContentsMargins(0, 0, 0, 8);
+        return label;
+    });
+    ICore::infoBar()->addInfo(info);
+};
 
 IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inputDirectory,
                                                             FilePath *topLevelDirectory)
@@ -221,6 +292,8 @@ IVersionControl* VcsManager::findVersionControlForDirectory(const FilePath &inpu
         // report result;
         if (topLevelDirectory)
             topLevelDirectory->clear();
+
+        askForDisabledVcsPlugins(directory);
         return nullptr;
     }
 

@@ -1127,6 +1127,35 @@ void ICore::restart()
 }
 
 /*!
+    Asks the user if they want to enable the \a plugins and their dependencies.
+    If the user agrees, the plugins are enabled.
+    If all plugins are soft loadable without restart, they get loaded directly.
+    Otherwise the "Restart Required" dialog is shown.
+
+    Returns whether the user agreed to enabling the plugins.
+*/
+bool ICore::enablePlugins(const QSet<ExtensionSystem::PluginSpec *> &plugins)
+{
+    std::optional<QSet<PluginSpec *>> additionalPlugins
+        = PluginManager::askForEnablingPlugins(dialogParent(), plugins, /*enable=*/true);
+    if (!additionalPlugins) // canceled
+        return false;
+    const QSet<PluginSpec *> affectedPlugins = plugins + *additionalPlugins;
+    bool softloadable = true;
+    for (PluginSpec *spec : affectedPlugins) {
+        spec->setEnabledBySettings(true);
+        softloadable = softloadable && spec->isSoftLoadable();
+    }
+    ExtensionSystem::PluginManager::writeSettings();
+    if (softloadable) {
+        PluginManager::loadPluginsAtRuntime(affectedPlugins);
+    } else {
+        ICore::askForRestart(Tr::tr("Plugin changes will take effect after restart."));
+    }
+    return true;
+}
+
+/*!
     \internal
 */
 void ICore::setRelativePathToProjectFunction(const std::function<FilePath(const FilePath &)> &func)

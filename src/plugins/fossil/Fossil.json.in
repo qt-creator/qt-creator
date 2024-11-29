@@ -24,6 +24,9 @@
     ],
     "Url" : "https://www.qt.io",
     "DocumentationUrl" : "https://doc.qt.io/qtcreator/creator-vcs-fossil.html",
+    "VcsDetectionFiles" : [
+        ".fslckout"
+    ],
     ${IDE_PLUGIN_DEPENDENCIES},
 
     "JsonWizardPaths" : [":/fossil/wizard"]
