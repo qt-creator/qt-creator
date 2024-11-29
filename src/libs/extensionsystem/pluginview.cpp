@@ -380,53 +380,14 @@ PluginData &PluginView::data()
     return m_data;
 }
 
-static QString pluginListString(const QSet<PluginSpec *> &plugins)
-{
-    QStringList names = Utils::transform<QList>(plugins, &PluginSpec::name);
-    names.sort();
-    return names.join(QLatin1Char('\n'));
-}
-
 bool PluginData::setPluginsEnabled(const QSet<PluginSpec *> &plugins, bool enable)
 {
-    QSet<PluginSpec *> additionalPlugins;
-    if (enable) {
-        for (PluginSpec *spec : plugins) {
-            for (PluginSpec *other : PluginManager::pluginsRequiredByPlugin(spec)) {
-                if (!other->isEnabledBySettings())
-                    additionalPlugins.insert(other);
-            }
-        }
-        additionalPlugins.subtract(plugins);
-        if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(m_parent, Tr::tr("Enabling Plugins"),
-                             Tr::tr("Enabling\n%1\nwill also enable the following plugins:\n\n%2")
-                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
-                             QMessageBox::Ok | QMessageBox::Cancel,
-                             QMessageBox::Ok) != QMessageBox::Ok) {
-                return false;
-            }
-        }
-    } else {
-        for (PluginSpec *spec : plugins) {
-            for (PluginSpec *other : PluginManager::pluginsRequiringPlugin(spec)) {
-                if (other->isEnabledBySettings())
-                    additionalPlugins.insert(other);
-            }
-        }
-        additionalPlugins.subtract(plugins);
-        if (!additionalPlugins.isEmpty()) {
-            if (QMessageBox::question(m_parent, Tr::tr("Disabling Plugins"),
-                             Tr::tr("Disabling\n%1\nwill also disable the following plugins:\n\n%2")
-                             .arg(pluginListString(plugins), pluginListString(additionalPlugins)),
-                             QMessageBox::Ok | QMessageBox::Cancel,
-                             QMessageBox::Ok) != QMessageBox::Ok) {
-                return false;
-            }
-        }
-    }
+    std::optional<QSet<PluginSpec *>> additionalPlugins
+        = PluginManager::askForEnablingPlugins(m_parent, plugins, enable);
+    if (!additionalPlugins) // canceled
+        return false;
 
-    const QSet<PluginSpec *> affectedPlugins = plugins + additionalPlugins;
+    const QSet<PluginSpec *> affectedPlugins = plugins + *additionalPlugins;
     for (PluginSpec *spec : affectedPlugins) {
         PluginItem *item = m_model->findItemAtLevel<2>([spec](PluginItem *item) {
                 return item->m_spec == spec;

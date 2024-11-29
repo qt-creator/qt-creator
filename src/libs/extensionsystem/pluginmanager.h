@@ -83,6 +83,10 @@ public:
 
     static void addPlugins(const QVector<PluginSpec *> &specs);
 
+    // UI
+    static std::optional<QSet<PluginSpec *>> askForEnablingPlugins(
+        QWidget *dialogParent, const QSet<PluginSpec *> &plugins, bool enable);
+
     // Settings
     static void setSettings(Utils::QtcSettings *settings);
     static Utils::QtcSettings *settings();
