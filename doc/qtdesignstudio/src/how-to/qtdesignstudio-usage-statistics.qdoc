@@ -37,15 +37,9 @@
 
     \title Collecting Usage Statistics
 
-    The telemetry plugin uses the
-    \l{https://api.kde.org/frameworks/kuserfeedback/html/index.html}
-    {KUserFeedback} framework to collect the usage data. The library
-    has been designed from the user data privacy point of view and
-    \QC respects the same privacy rules.
-
-    The data is transmitted to the backend storage using an encrypted
-    connection. The storage is located in the same Heroku backend as the
-    \QOI backend. Physically, data is stored in the Amazon cloud.
+    The telemetry plugin uses Qt Insight, an analytics solution for collecting usage data in
+    Qt applications. The Qt Insight Tracker library ensures compliance with GDPR regulations.
+    Data is securely transmitted to a centralized backend.
 
     \section1 Turning on Telemetry
 
