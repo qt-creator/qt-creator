@@ -147,7 +147,7 @@ PluginDetailsView::~PluginDetailsView()
 void PluginDetailsView::update(PluginSpec *spec)
 {
     d->id->setText(spec->id());
-    d->name->setText(spec->name());
+    d->name->setText(spec->displayName());
     const QString revision = spec->revision();
     const QString versionString = spec->version()
             + (revision.isEmpty() ? QString() : " (" + revision + ")");
@@ -185,7 +185,7 @@ void PluginDetailsView::showModal(QWidget *parent, PluginSpec *spec)
     auto dialog = new QDialog(parent);
     dialog->setModal(true);
     dialog->setAttribute(Qt::WA_DeleteOnClose);
-    dialog->setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->name()));
+    dialog->setWindowTitle(Tr::tr("Plugin Details of %1").arg(spec->displayName()));
     auto details = new ExtensionSystem::PluginDetailsView(dialog);
     details->update(spec);
     QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Close,
