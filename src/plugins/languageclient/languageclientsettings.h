@@ -82,6 +82,7 @@ public:
     virtual bool isValid() const;
     Client *createClient() const;
     Client *createClient(ProjectExplorer::Project *project) const;
+    bool isEnabledOnProject(ProjectExplorer::Project *project) const;
 
     virtual void toMap(Utils::Store &map) const;
     virtual void fromMap(const Utils::Store &map);

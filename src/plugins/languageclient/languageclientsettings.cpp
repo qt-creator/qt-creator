@@ -593,9 +593,21 @@ Client *BaseSettings::createClient() const
     return createClient(static_cast<ProjectExplorer::Project *>(nullptr));
 }
 
+
+bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
+{
+    LanguageClient::ProjectSettings settings(project);
+    if (settings.enabledSettings().contains(m_id))
+        return true;
+    if (settings.disabledSettings().contains(m_id))
+        return false;
+
+    return m_enabled;
+}
+
 Client *BaseSettings::createClient(ProjectExplorer::Project *project) const
 {
-    if (!isValid() || !m_enabled)
+    if (!isValid() || !isEnabledOnProject(project))
         return nullptr;
     BaseClientInterface *interface = createInterface(project);
     QTC_ASSERT(interface, return nullptr);
