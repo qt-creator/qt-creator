@@ -50,6 +50,7 @@ protected:
 private:
     void slotDiffSelected(const QList<int> &rows);
     void showCommit(const QString &commit);
+    void showLog(const QStringList &range);
     void commitDataRetrieved();
 
     inline GitSubmitEditorWidget *submitEditorWidget();
