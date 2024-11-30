@@ -95,8 +95,6 @@ protected:
     void verifyDescription();
 
 private:
-    enum { MinSubjectLength = 20, MaxSubjectLength = 72, WarningSubjectLength = 55 };
-
     void updateCheckAllComboBox();
     void checkAllToggled();
 
