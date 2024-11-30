@@ -57,8 +57,6 @@
 
 #include <cstring>
 
-enum { debug = 0 };
-
 // Return true if word is meaningful and can be added to a completion model
 static bool acceptsWordForCompletion(const QString &word)
 {
