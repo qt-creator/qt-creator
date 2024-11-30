@@ -11,6 +11,7 @@
 
 QT_FORWARD_DECLARE_CLASS(QSettings)
 QT_FORWARD_DECLARE_CLASS(QStackedWidget)
+QT_FORWARD_DECLARE_CLASS(QSplitter)
 
 class StudioQuickWidget;
 
@@ -94,6 +95,8 @@ protected:
 private:
     void writeLiveUpdateSettings();
     void readAndApplyLiveUpdateSettings();
+    void writeGeometrySettings();
+    void readAndApplyGeometrySettings();
     void createHeader();
     void createQmlTabs();
     void createQmlFooter();
@@ -102,6 +105,7 @@ private:
     void selectNonEmptyShader(ShaderEditorData *data);
     void setSelectedShaderName(const QString &shaderName);
     void onEditorWidgetChanged();
+    void onOpenStateChanged();
 
     EffectCodeEditorWidget *currentEditor() const;
 
@@ -110,6 +114,7 @@ private:
     QPointer<StudioQuickWidget> m_qmlTabWidget;
     QPointer<StudioQuickWidget> m_qmlFooterWidget;
     QPointer<QStackedWidget> m_stackedWidget;
+    QPointer<QSplitter> m_splitter;
     QPointer<EffectComposerUniformsTableModel> m_defaultTableModel;
     QPointer<EffectComposerEditableNodesModel> m_editableNodesModel;
     ShaderEditorData *m_currentEditorData = nullptr;

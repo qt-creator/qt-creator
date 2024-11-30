@@ -25,6 +25,9 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonValue>
 #include <QPlainTextEdit>
 #include <QSettings>
 #include <QSplitter>
@@ -34,6 +37,9 @@
 namespace {
 
 inline constexpr char EFFECTCOMPOSER_LIVE_UPDATE_KEY[] = "EffectComposer/CodeEditor/LiveUpdate";
+inline constexpr char EFFECTCOMPOSER_SHADER_EDITOR_GEO_KEY[] = "EffectComposer/CodeEditor/Geometry";
+inline constexpr char EFFECTCOMPOSER_SHADER_EDITOR_SPLITTER_KEY[]
+    = "EffectComposer/CodeEditor/SplitterSizes";
 inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_HEADER[]
     = "QQuickWidgetEffectComposerCodeEditorHeader";
 inline constexpr char OBJECT_NAME_EFFECTCOMPOSER_SHADER_EDITOR_TABS[]
@@ -53,6 +59,32 @@ QString propertyEditorResourcesPath()
     return Core::ICore::resourcePath("qmldesigner/propertyEditorQmlSources").toString();
 }
 
+template<typename T>
+QByteArray serializeList(const QList<T> &list)
+{
+    QJsonDocument doc;
+    QJsonArray jsonArray;
+    for (const T &value : list)
+        jsonArray.push_back(value);
+    doc.setArray(jsonArray);
+    return doc.toJson();
+}
+
+template<typename T>
+QList<T> deserializeList(const QByteArray &serialData)
+{
+    const QJsonDocument doc = QJsonDocument::fromJson(serialData);
+    if (!doc.isArray())
+        return {};
+
+    QList<T> result;
+    const QJsonArray jsonArray = doc.array();
+    for (const QJsonValue &val : jsonArray)
+        result.append(val.toVariant().value<T>());
+
+    return result;
+}
+
 } // namespace
 
 namespace EffectComposer {
@@ -64,7 +96,7 @@ EffectShadersCodeEditor::EffectShadersCodeEditor(const QString &title, QWidget *
     , m_editableNodesModel(new EffectComposerEditableNodesModel(this))
 {
     setWindowFlag(Qt::Tool, true);
-    setWindowFlag(Qt::WindowStaysOnTopHint);
+    setWindowModality(Qt::WindowModality::NonModal);
     setWindowTitle(title);
 
     setupUIComponents();
@@ -85,6 +117,7 @@ EffectShadersCodeEditor::~EffectShadersCodeEditor()
 void EffectShadersCodeEditor::showWidget()
 {
     readAndApplyLiveUpdateSettings();
+    setParent(Core::ICore::dialogParent());
     show();
     raise();
     setOpened(true);
@@ -222,8 +255,8 @@ void EffectShadersCodeEditor::insertTextToCursorPosition(const QString &text)
 
 EffectShadersCodeEditor *EffectShadersCodeEditor::instance()
 {
-    static EffectShadersCodeEditor *editorInstance = new EffectShadersCodeEditor(
-        tr("Shaders Code Editor"));
+    static EffectShadersCodeEditor *editorInstance
+        = new EffectShadersCodeEditor(tr("Shaders Code Editor"), Core::ICore::dialogParent());
     return editorInstance;
 }
 
@@ -254,30 +287,30 @@ EffectCodeEditorWidget *EffectShadersCodeEditor::createJSEditor()
 void EffectShadersCodeEditor::setupUIComponents()
 {
     QVBoxLayout *verticalLayout = new QVBoxLayout(this);
-    QSplitter *splitter = new QSplitter(this);
+    m_splitter = new QSplitter(this);
     QWidget *tabComplexWidget = new QWidget(this);
     QVBoxLayout *tabsLayout = new QVBoxLayout(tabComplexWidget);
     m_stackedWidget = new QStackedWidget(tabComplexWidget);
 
-    splitter->setOrientation(Qt::Vertical);
+    m_splitter->setOrientation(Qt::Vertical);
 
     createHeader();
     createQmlTabs();
     createQmlFooter();
 
     verticalLayout->setContentsMargins(0, 0, 0, 0);
-    verticalLayout->addWidget(splitter);
+    verticalLayout->addWidget(m_splitter);
     tabsLayout->setContentsMargins(0, 0, 0, 0);
     tabsLayout->setSpacing(0);
     tabsLayout->addWidget(m_qmlTabWidget);
     tabsLayout->addWidget(m_stackedWidget);
     tabsLayout->addWidget(m_qmlFooterWidget);
 
-    splitter->addWidget(m_headerWidget.get());
-    splitter->addWidget(tabComplexWidget);
+    m_splitter->addWidget(m_headerWidget.get());
+    m_splitter->addWidget(tabComplexWidget);
 
-    splitter->setCollapsible(0, false);
-    splitter->setCollapsible(1, false);
+    m_splitter->setCollapsible(0, false);
+    m_splitter->setCollapsible(1, false);
 
     connect(
         m_stackedWidget.get(),
@@ -285,7 +318,8 @@ void EffectShadersCodeEditor::setupUIComponents()
         this,
         &EffectShadersCodeEditor::onEditorWidgetChanged);
 
-    this->resize(660, 240);
+    setMinimumSize(660, 240);
+    resize(900, 600);
 }
 
 void EffectShadersCodeEditor::setOpened(bool value)
@@ -295,6 +329,7 @@ void EffectShadersCodeEditor::setOpened(bool value)
 
     m_opened = value;
     emit openedChanged(m_opened);
+    onOpenStateChanged();
 }
 
 void EffectShadersCodeEditor::closeEvent(QCloseEvent *event)
@@ -316,6 +351,25 @@ void EffectShadersCodeEditor::readAndApplyLiveUpdateSettings()
     bool liveUpdateStatus = m_settings->value(EFFECTCOMPOSER_LIVE_UPDATE_KEY, false).toBool();
 
     setLiveUpdate(liveUpdateStatus);
+}
+
+void EffectShadersCodeEditor::writeGeometrySettings()
+{
+    const QByteArray &splitterSizeData = ::serializeList(m_splitter->sizes());
+    m_settings->setValue(EFFECTCOMPOSER_SHADER_EDITOR_GEO_KEY, saveGeometry());
+    m_settings->setValue(EFFECTCOMPOSER_SHADER_EDITOR_SPLITTER_KEY, splitterSizeData);
+}
+
+void EffectShadersCodeEditor::readAndApplyGeometrySettings()
+{
+    if (m_settings->contains(EFFECTCOMPOSER_SHADER_EDITOR_GEO_KEY))
+        restoreGeometry(m_settings->value(EFFECTCOMPOSER_SHADER_EDITOR_GEO_KEY).toByteArray());
+
+    if (m_settings->contains(EFFECTCOMPOSER_SHADER_EDITOR_SPLITTER_KEY)) {
+        const QByteArray &splitterSizeData
+            = m_settings->value(EFFECTCOMPOSER_SHADER_EDITOR_SPLITTER_KEY).toByteArray();
+        m_splitter->setSizes(::deserializeList<int>(splitterSizeData));
+    }
 }
 
 void EffectShadersCodeEditor::createHeader()
@@ -421,6 +475,14 @@ void EffectShadersCodeEditor::onEditorWidgetChanged()
         setSelectedShaderName(EFFECTCOMPOSER_VERTEX_ID);
     else
         setSelectedShaderName({});
+}
+
+void EffectShadersCodeEditor::onOpenStateChanged()
+{
+    if (isOpened())
+        readAndApplyGeometrySettings();
+    else
+        writeGeometrySettings();
 }
 
 EffectCodeEditorWidget *EffectShadersCodeEditor::currentEditor() const
