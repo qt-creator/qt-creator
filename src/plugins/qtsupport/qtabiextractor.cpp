@@ -122,7 +122,7 @@ private:
 
     std::pair<Abi::Architecture, int> getArch(const QString &archString)
     {
-        if (archString == "x86")
+        if (archString == "x86" || archString == "i386")
             return std::make_pair(Abi::X86Architecture, 32);
         if (archString == "x86_64")
             return std::make_pair(Abi::X86Architecture, 64);
