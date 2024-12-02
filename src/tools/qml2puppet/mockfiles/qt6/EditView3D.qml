@@ -51,6 +51,7 @@ Item {
     property Node selectedNode: null // This is multiSelectionNode in multi-selection case
     property var selectedNodes: [] // All selected nodes
     property int selectionBoxCount: 0
+    property alias multiSelectionNode: multiSelectionNode
 
     property rect viewPortRect: Qt.rect(0, 0, 1000, 1000)
     property Node activeParticleSystem: null
