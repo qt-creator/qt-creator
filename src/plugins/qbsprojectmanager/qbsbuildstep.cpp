@@ -382,7 +382,7 @@ Tasking::GroupItem QbsBuildStep::runRecipe()
 {
     using namespace Tasking;
     const auto onPreParserSetup = [this](QbsRequest &request) {
-        request.setParseData(qbsBuildSystem());
+        request.setParseData({qbsBuildSystem(), {}});
     };
     const auto onBuildSetup = [this](QbsRequest &request) {
         QbsSession *session = qbsBuildSystem()->session();

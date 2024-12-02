@@ -599,7 +599,7 @@ void QbsBuildSystem::changeActiveTarget(Target *t)
 
 void QbsBuildSystem::triggerParsing()
 {
-    scheduleParsing();
+    scheduleParsing({});
 }
 
 void QbsBuildSystem::delayParsing()
@@ -613,17 +613,17 @@ ExtraCompiler *QbsBuildSystem::findExtraCompiler(const ExtraCompilerFilter &filt
     return Utils::findOrDefault(m_extraCompilers, filter);
 }
 
-void QbsBuildSystem::scheduleParsing()
+void QbsBuildSystem::scheduleParsing(const QVariantMap &extraConfig)
 {
     m_parseRequest.reset(new QbsRequest);
-    m_parseRequest->setParseData(this);
+    m_parseRequest->setParseData({this, extraConfig});
     connect(m_parseRequest.get(), &QbsRequest::done, this, [this] {
         m_parseRequest.release()->deleteLater();
     });
     m_parseRequest->start();
 }
 
-void QbsBuildSystem::startParsing()
+void QbsBuildSystem::startParsing(const QVariantMap &extraConfig)
 {
     QTC_ASSERT(!m_qbsProjectParser, return);
 
@@ -632,6 +632,9 @@ void QbsBuildSystem::startParsing()
         config.insert(Constants::QBS_INSTALL_ROOT_KEY, m_buildConfiguration->macroExpander()
                       ->expand(QbsSettings::defaultInstallDirTemplate()));
     }
+    config.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY, "restore-and-track-changes");
+    for (auto it = extraConfig.begin(); it != extraConfig.end(); ++it)
+        config.insert(keyFromString(it.key()), it.value());
     Environment env = m_buildConfiguration->environment();
     FilePath dir = m_buildConfiguration->buildDirectory();
 

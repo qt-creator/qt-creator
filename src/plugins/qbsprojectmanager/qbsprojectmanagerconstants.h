@@ -48,6 +48,7 @@ const char QBS_CONFIG_QUICK_DEBUG_KEY[] = "modules.Qt.quick.qmlDebugging";
 const char QBS_CONFIG_QUICK_COMPILER_KEY[] = "modules.Qt.quick.useCompiler";
 const char QBS_CONFIG_SEPARATE_DEBUG_INFO_KEY[] = "modules.cpp.separateDebugInformation";
 const char QBS_FORCE_PROBES_KEY[] = "qbspm.forceProbes";
+const char QBS_RESTORE_BEHAVIOR_KEY[] = "restore-behavior";
 
 // Toolchain related settings:
 const char QBS_TARGETPLATFORM[] = "qbs.targetPlatform";

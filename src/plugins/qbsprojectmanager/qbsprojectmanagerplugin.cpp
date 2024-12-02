@@ -613,7 +613,7 @@ void QbsProjectManagerPlugin::reparseProject(QbsProject *project)
         return;
 
     if (auto bs = qobject_cast<QbsBuildSystem *>(t->buildSystem()))
-        bs->scheduleParsing();
+        bs->scheduleParsing({{Constants::QBS_RESTORE_BEHAVIOR_KEY, "resolve-only"}});
 }
 
 void buildNamedProduct(QbsProject *project, const QString &product)

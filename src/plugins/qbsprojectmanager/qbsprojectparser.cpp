@@ -69,6 +69,8 @@ void QbsProjectParser::parse(const Store &config, const Environment &env,
     request.insert("configuration-name", configName);
     request.insert("force-probe-execution",
                    userConfig.take(Constants::QBS_FORCE_PROBES_KEY).toBool());
+    request.insert(Constants::QBS_RESTORE_BEHAVIOR_KEY,
+                   userConfig.take(Constants::QBS_RESTORE_BEHAVIOR_KEY).toString());
     if (QbsSettings::useCreatorSettingsDirForQbs())
         request.insert("settings-directory", QbsSettings::qbsSettingsBaseDir());
     request.insert("overridden-properties", QJsonObject::fromVariantMap(mapFromStore(userConfig)));

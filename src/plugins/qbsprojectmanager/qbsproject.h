@@ -96,7 +96,7 @@ public:
     static ProjectExplorer::FileType fileTypeFor(const QSet<QString> &tags);
 
     QString profile() const;
-    void scheduleParsing();
+    void scheduleParsing(const QVariantMap &extraConfig);
     void updateAfterBuild();
 
     QbsSession *session() const { return m_session; }
@@ -110,7 +110,7 @@ private:
     friend class QbsProject;
     friend class QbsRequestObject;
 
-    void startParsing();
+    void startParsing(const QVariantMap &extraConfig);
     void cancelParsing();
 
     ProjectExplorer::ExtraCompiler *findExtraCompiler(
