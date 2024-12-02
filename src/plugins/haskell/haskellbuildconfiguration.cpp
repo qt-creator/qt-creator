@@ -9,7 +9,6 @@
 #include <projectexplorer/buildconfiguration.h>
 #include <projectexplorer/buildinfo.h>
 #include <projectexplorer/buildsteplist.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/target.h>
@@ -34,6 +33,7 @@ public:
     HaskellBuildConfiguration(Target *target, Utils::Id id)
         : BuildConfiguration(target, id)
     {
+        setConfigWidgetDisplayName(Tr::tr("General"));
         setInitializer([this](const BuildInfo &info) {
             setBuildDirectory(info.buildDirectory);
             setBuildType(info.buildType);
@@ -42,7 +42,7 @@ public:
         appendInitialBuildStep(Constants::C_STACK_BUILD_STEP_ID);
     }
 
-    NamedWidget *createConfigWidget() final;
+    QWidget *createConfigWidget() final;
 
     BuildType buildType() const final
     {
@@ -58,11 +58,10 @@ private:
     BuildType m_buildType = BuildType::Release;
 };
 
-class HaskellBuildConfigurationWidget final : public NamedWidget
+class HaskellBuildConfigurationWidget final : public QWidget
 {
 public:
     HaskellBuildConfigurationWidget(HaskellBuildConfiguration *bc)
-        : NamedWidget(Tr::tr("General"))
     {
         setLayout(new QVBoxLayout);
         layout()->setContentsMargins(0, 0, 0, 0);
@@ -95,7 +94,7 @@ public:
     }
 };
 
-NamedWidget *HaskellBuildConfiguration::createConfigWidget()
+QWidget *HaskellBuildConfiguration::createConfigWidget()
 {
     return new HaskellBuildConfigurationWidget(this);
 }

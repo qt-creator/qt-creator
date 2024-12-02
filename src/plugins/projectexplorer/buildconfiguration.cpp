@@ -13,7 +13,6 @@
 #include "devicesupport/devicekitaspects.h"
 #include "environmentwidget.h"
 #include "kit.h"
-#include "namedwidget.h"
 #include "projectexplorerconstants.h"
 #include "projectexplorer.h"
 #include "projectexplorertr.h"
@@ -54,12 +53,10 @@ Q_LOGGING_CATEGORY(bcLog, "qtc.buildconfig", QtWarningMsg)
 namespace ProjectExplorer {
 namespace Internal {
 
-class BuildEnvironmentWidget : public NamedWidget
+class BuildEnvironmentWidget : public QWidget
 {
-
 public:
     explicit BuildEnvironmentWidget(BuildConfiguration *bc)
-        : NamedWidget(Tr::tr("Build Environment"))
     {
         auto clearBox = new QCheckBox(Tr::tr("Clear system environment"), this);
         clearBox->setChecked(!bc->useSystemEnvironment());
@@ -97,10 +94,10 @@ public:
     }
 };
 
-class CustomParsersBuildWidget : public NamedWidget
+class CustomParsersBuildWidget : public QWidget
 {
 public:
-    CustomParsersBuildWidget(BuildConfiguration *bc) : NamedWidget(Tr::tr("Custom Output Parsers"))
+    CustomParsersBuildWidget(BuildConfiguration *bc)
     {
         const auto layout = new QVBoxLayout(this);
         layout->setContentsMargins(0, 0, 0, 0);
@@ -254,17 +251,17 @@ void BuildConfiguration::setBuildDirectory(const FilePath &dir)
     emitBuildDirectoryChanged();
 }
 
-void BuildConfiguration::addConfigWidgets(const std::function<void(NamedWidget *)> &adder)
+void BuildConfiguration::addConfigWidgets(const WidgetAdder &adder)
 {
-    if (NamedWidget *generalConfigWidget = createConfigWidget())
-        adder(generalConfigWidget);
+    if (QWidget *generalConfigWidget = createConfigWidget())
+        adder(generalConfigWidget, d->m_configWidgetDisplayName);
 
-    adder(new Internal::BuildStepListWidget(buildSteps()));
-    adder(new Internal::BuildStepListWidget(cleanSteps()));
+    //: %1 is the name returned by BuildStepList::displayName
+    const QString title = Tr::tr("%1 Steps");
+    adder(new Internal::BuildStepListWidget(buildSteps()), title.arg(buildSteps()->displayName()));
+    adder(new Internal::BuildStepListWidget(cleanSteps()), title.arg(cleanSteps()->displayName()));
 
-    const QList<NamedWidget *> subConfigWidgets = createSubConfigWidgets();
-    for (NamedWidget *subConfigWidget : subConfigWidgets)
-        adder(subConfigWidget);
+    addSubConfigWidgets(adder);
 }
 
 void BuildConfiguration::doInitialize(const BuildInfo &info)
@@ -316,9 +313,9 @@ void BuildConfiguration::setInitializer(const std::function<void(const BuildInfo
     d->m_initializer = initializer;
 }
 
-NamedWidget *BuildConfiguration::createConfigWidget()
+QWidget *BuildConfiguration::createConfigWidget()
 {
-    NamedWidget *named = new NamedWidget(d->m_configWidgetDisplayName);
+    QWidget *named = new QWidget;
 
     QWidget *widget = nullptr;
 
@@ -348,12 +345,10 @@ NamedWidget *BuildConfiguration::createConfigWidget()
     return named;
 }
 
-QList<NamedWidget *> BuildConfiguration::createSubConfigWidgets()
+void BuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 {
-    return {
-        new Internal::BuildEnvironmentWidget(this),
-        new Internal::CustomParsersBuildWidget(this)
-    };
+    adder(new Internal::BuildEnvironmentWidget(this), Tr::tr("Build Environment"));
+    adder(new Internal::CustomParsersBuildWidget(this), Tr::tr("Custom Output Parsers"));
 }
 
 BuildSystem *BuildConfiguration::buildSystem() const

@@ -18,7 +18,6 @@
 #include <projectexplorer/gcctoolchain.h>
 #include <projectexplorer/headerpath.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/projectexplorerconstants.h>
 #include <projectexplorer/projectnodes.h>
 #include <projectexplorer/projectupdater.h>

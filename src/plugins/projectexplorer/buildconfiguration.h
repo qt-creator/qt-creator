@@ -21,7 +21,6 @@ class BuildInfo;
 class BuildSystem;
 class BuildStepList;
 class Kit;
-class NamedWidget;
 class Node;
 class RunConfiguration;
 class Target;
@@ -43,8 +42,11 @@ public:
 
     virtual BuildSystem *buildSystem() const;
 
-    virtual NamedWidget *createConfigWidget();
-    virtual QList<NamedWidget *> createSubConfigWidgets();
+    virtual QWidget *createConfigWidget();
+
+    using WidgetAdder = std::function<void(QWidget *, const QString &)>;
+    void addConfigWidgets(const WidgetAdder &adder);
+    virtual void addSubConfigWidgets(const WidgetAdder &adder);
 
     // Maybe the BuildConfiguration is not the best place for the environment
     Utils::Environment baseEnvironment() const;
@@ -106,8 +108,6 @@ public:
     void setBuildDirectoryHistoryCompleter(const Utils::Key &history);
     void setConfigWidgetHasFrame(bool configWidgetHasFrame);
     void setBuildDirectorySettingsKey(const Utils::Key &key);
-
-    void addConfigWidgets(const std::function<void (NamedWidget *)> &adder);
 
     void doInitialize(const BuildInfo &info);
 

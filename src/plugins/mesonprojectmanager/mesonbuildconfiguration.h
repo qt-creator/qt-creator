@@ -34,7 +34,7 @@ private:
     void fromMap(const Utils::Store &map) override;
 
     MesonBuildType m_buildType;
-    ProjectExplorer::NamedWidget *createConfigWidget() final;
+    QWidget *createConfigWidget() final;
     MesonBuildSystem *m_buildSystem = nullptr;
     QString m_parameters;
 };

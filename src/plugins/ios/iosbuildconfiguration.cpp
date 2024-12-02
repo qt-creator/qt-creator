@@ -8,7 +8,6 @@
 #include "iostr.h"
 
 #include <projectexplorer/devicesupport/devicekitaspects.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/target.h>
 
 #include <cmakeprojectmanager/cmakebuildconfiguration.h>
@@ -44,7 +43,7 @@ const char autoManagedSigningKey[] = "Ios.AutoManagedSigning";
 
 const int IdentifierRole = Qt::UserRole+1;
 
-class IosSigningSettingsWidget final : public NamedWidget
+class IosSigningSettingsWidget final : public QWidget
 {
 public:
     explicit IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
@@ -84,8 +83,7 @@ private:
 IosSigningSettingsWidget::IosSigningSettingsWidget(BuildConfiguration *buildConfiguration,
                                                    BoolAspect *autoManagedSigning,
                                                    StringAspect *signingIdentifier)
-    : NamedWidget(Tr::tr("iOS Settings"))
-    , m_autoManagedSigning(autoManagedSigning)
+    : m_autoManagedSigning(autoManagedSigning)
     , m_signingIdentifier(signingIdentifier)
     , m_isDevice(RunDeviceTypeKitAspect::deviceTypeId(buildConfiguration->kit())
                  == Constants::IOS_DEVICE_TYPE)
@@ -376,7 +374,7 @@ public:
     IosQmakeBuildConfiguration(Target *target, Id id);
 
 private:
-    QList<NamedWidget *> createSubConfigWidgets() final;
+    void addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder) final;
     void fromMap(const Store &map) final;
 
     void updateQmakeCommand();
@@ -403,16 +401,13 @@ IosQmakeBuildConfiguration::IosQmakeBuildConfiguration(Target *target, Id id)
             &IosQmakeBuildConfiguration::updateQmakeCommand);
 }
 
-QList<NamedWidget *> IosQmakeBuildConfiguration::createSubConfigWidgets()
+void IosQmakeBuildConfiguration::addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder)
 {
-    auto subConfigWidgets = QmakeBuildConfiguration::createSubConfigWidgets();
-
     // Ownership of this widget is with BuildSettingsWidget
-    auto buildSettingsWidget = new IosSigningSettingsWidget(this,
-                                                            &m_autoManagedSigning,
-                                                            &m_signingIdentifier);
-    subConfigWidgets.prepend(buildSettingsWidget);
-    return subConfigWidgets;
+    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier),
+          Tr::tr("iOS Settings"));
+
+    QmakeBuildConfiguration::addSubConfigWidgets(adder);
 }
 
 void IosQmakeBuildConfiguration::fromMap(const Store &map)
@@ -493,7 +488,7 @@ public:
     IosCMakeBuildConfiguration(Target *target, Id id);
 
 private:
-    QList<NamedWidget *> createSubConfigWidgets() final;
+    void addSubConfigWidgets(const BuildConfiguration::WidgetAdder &adder) final;
 
     CMakeProjectManager::CMakeConfig signingFlags() const final;
 
@@ -519,16 +514,12 @@ IosCMakeBuildConfiguration::IosCMakeBuildConfiguration(Target *target, Id id)
             &IosCMakeBuildConfiguration::signingFlagsChanged);
 }
 
-QList<NamedWidget *> IosCMakeBuildConfiguration::createSubConfigWidgets()
+void IosCMakeBuildConfiguration::addSubConfigWidgets(const WidgetAdder &adder)
 {
-    auto subConfigWidgets = CMakeBuildConfiguration::createSubConfigWidgets();
-
     // Ownership of this widget is with BuildSettingsWidget
-    auto buildSettingsWidget = new IosSigningSettingsWidget(this,
-                                                            &m_autoManagedSigning,
-                                                            &m_signingIdentifier);
-    subConfigWidgets.prepend(buildSettingsWidget);
-    return subConfigWidgets;
+    adder(new IosSigningSettingsWidget(this, &m_autoManagedSigning, &m_signingIdentifier),
+          Tr::tr("iOS Settings"));
+    CMakeBuildConfiguration::addSubConfigWidgets(adder);
 }
 
 CMakeConfig IosCMakeBuildConfiguration::signingFlags() const

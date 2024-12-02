@@ -105,9 +105,7 @@ signals:
 
 private:
     BuildType buildType() const override;
-
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
-
+    QWidget *createConfigWidget() override;
     virtual CMakeConfig signingFlags() const;
 
     void setInitialBuildAndCleanSteps(const ProjectExplorer::Target *target);

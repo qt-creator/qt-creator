@@ -116,7 +116,6 @@ add_qtc_plugin(ProjectExplorer
     miniprojecttargetselector.cpp miniprojecttargetselector.h
     msvcparser.cpp msvcparser.h
     msvctoolchain.cpp msvctoolchain.h
-    namedwidget.cpp namedwidget.h
     osparser.cpp osparser.h
     panelswidget.cpp panelswidget.h
     parseissuesdialog.cpp parseissuesdialog.h

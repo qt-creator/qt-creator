@@ -16,7 +16,6 @@ namespace ProjectExplorer {
 
 class BuildConfiguration;
 class BuildInfo;
-class NamedWidget;
 class Target;
 
 namespace Internal {
@@ -29,7 +28,7 @@ public:
     ~BuildSettingsWidget() override;
 
     void clearWidgets();
-    void addSubWidget(NamedWidget *widget);
+    void addSubWidget(QWidget *widget, const QString &displayName);
 
 private:
     void updateBuildSettings();
@@ -56,7 +55,7 @@ private:
     QComboBox *m_buildConfigurationComboBox = nullptr;
     QMenu *m_addButtonMenu = nullptr;
 
-    QList<NamedWidget *> m_subWidgets;
+    QList<QWidget *> m_subWidgets;
     QList<QLabel *> m_labels;
 };
 

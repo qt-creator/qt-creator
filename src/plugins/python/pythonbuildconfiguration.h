@@ -52,7 +52,7 @@ class PythonBuildConfiguration : public ProjectExplorer::BuildConfiguration
 public:
     PythonBuildConfiguration(ProjectExplorer::Target *target, const Utils::Id &id);
 
-    ProjectExplorer::NamedWidget *createConfigWidget() override;
+    QWidget *createConfigWidget() override;
     void fromMap(const Utils::Store &map) override;
     void toMap(Utils::Store &map) const override;
     ProjectExplorer::BuildSystem *buildSystem() const override;

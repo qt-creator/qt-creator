@@ -4,7 +4,7 @@
 #pragma once
 
 #include "buildstep.h"
-#include "namedwidget.h"
+
 #include <utils/detailsbutton.h>
 
 QT_BEGIN_NAMESPACE
@@ -65,7 +65,7 @@ public:
     ToolWidget *toolWidget;
 };
 
-class BuildStepListWidget : public NamedWidget
+class BuildStepListWidget : public QWidget
 {
     Q_OBJECT
 

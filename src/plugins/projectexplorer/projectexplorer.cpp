@@ -52,7 +52,6 @@
 #include "kitfeatureprovider.h"
 #include "kitmanager.h"
 #include "miniprojecttargetselector.h"
-#include "namedwidget.h"
 #include "outputparser_test.h"
 #include "parseissuesdialog.h"
 #include "processstep.h"

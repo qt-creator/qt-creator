@@ -37,7 +37,6 @@
 #include <projectexplorer/environmentwidget.h>
 #include <projectexplorer/kitaspect.h>
 #include <projectexplorer/kitmanager.h>
-#include <projectexplorer/namedwidget.h>
 #include <projectexplorer/processparameters.h>
 #include <projectexplorer/project.h>
 #include <projectexplorer/projectexplorer.h>
@@ -111,7 +110,7 @@ const char VXWORKS_DEVICE_TYPE[] = "VxWorks.Device.Type";
 
 namespace Internal {
 
-class CMakeBuildSettingsWidget : public NamedWidget
+class CMakeBuildSettingsWidget : public QWidget
 {
 public:
     explicit CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc);
@@ -193,7 +192,6 @@ static CMakeConfigItem getPackageManagerAutoSetupParameter()
 }
 
 CMakeBuildSettingsWidget::CMakeBuildSettingsWidget(CMakeBuildConfiguration *bc) :
-    NamedWidget(Tr::tr("CMake")),
     m_buildConfig(bc),
     m_configModel(new ConfigModel(this)),
     m_configFilterModel(new CategorySortFilterModel(this)),
@@ -1408,6 +1406,7 @@ static Utils::EnvironmentItems getEnvironmentItemsFromCMakeBuildPreset(
 CMakeBuildConfiguration::CMakeBuildConfiguration(Target *target, Id id)
     : BuildConfiguration(target, id)
 {
+    setConfigWidgetDisplayName(Tr::tr("CMake"));
     m_buildSystem = new CMakeBuildSystem(this);
 
     buildDirectoryAspect()->setValueAcceptor(
@@ -1839,7 +1838,7 @@ QString CMakeBuildSystem::warning() const
     return m_warning;
 }
 
-NamedWidget *CMakeBuildConfiguration::createConfigWidget()
+QWidget *CMakeBuildConfiguration::createConfigWidget()
 {
     m_configWidget = new CMakeBuildSettingsWidget(this);
     return m_configWidget;
