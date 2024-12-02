@@ -2524,13 +2524,13 @@ void EffectComposerModel::setCurrentPreviewImage(const QUrl &path)
     if (m_currentPreviewImage == path)
         return;
 
-    if (!m_nodes.isEmpty())
-        setHasUnsavedChanges(true);
-
     if (previewImages().contains(path))
         m_currentPreviewImage = path;
     else
         m_currentPreviewImage = defaultPreviewImages().first();
+
+    setHasUnsavedChanges(true);
+
     emit currentPreviewImageChanged();
 }
 
