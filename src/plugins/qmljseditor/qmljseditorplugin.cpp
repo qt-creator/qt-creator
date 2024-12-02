@@ -81,7 +81,6 @@ public:
     QmlJS::JsonSchemaManager m_jsonManager{
         {ICore::userResourcePath("json/").toString(),
          ICore::resourcePath("json/").toString()}};
-    QmlJSOutlineWidgetFactory m_qmlJSOutlineWidgetFactory;
     QmlJsEditingSettingsPage m_qmJSEditingSettingsPage;
 };
 
@@ -330,6 +329,7 @@ class QmlJSEditorPlugin final : public ExtensionSystem::IPlugin
     {
         dd = new QmlJSEditorPluginPrivate;
 
+        setupQmlJsOutline();
         setupQmlJSEditor();
         setupQmlJsEditingProjectPanel();
     }
