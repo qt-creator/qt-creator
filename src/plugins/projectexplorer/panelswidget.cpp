@@ -13,26 +13,18 @@
 #include <QCheckBox>
 #include <QHBoxLayout>
 #include <QLabel>
-#include <QPainter>
 #include <QScrollArea>
 #include <QVBoxLayout>
 
 using namespace Utils;
 
-namespace ProjectExplorer {
-namespace {
+namespace ProjectExplorer::Internal {
 
 const int ABOVE_HEADING_MARGIN = 10;
 const int CONTENTS_MARGIN = 5;
 const int BELOW_CONTENTS_MARGIN = 16;
 
-}
-
-///
-// PanelsWidget
-///
-
-PanelsWidget::PanelsWidget(QWidget *parent, bool addStretch) : QWidget(parent)
+PanelsWidget::PanelsWidget(bool addStretch)
 {
     m_root = new QWidget(nullptr);
     m_root->setFocusPolicy(Qt::NoFocus);
@@ -66,14 +58,14 @@ PanelsWidget::PanelsWidget(QWidget *parent, bool addStretch) : QWidget(parent)
 }
 
 PanelsWidget::PanelsWidget(const QString &displayName, QWidget *widget, bool addStretch)
-    : PanelsWidget(nullptr, addStretch)
+    : PanelsWidget(addStretch)
 {
     addPropertiesPanel(displayName);
     addWidget(widget);
 }
 
 PanelsWidget::PanelsWidget(const QString &displayName, ProjectSettingsWidget *widget)
-    : PanelsWidget(nullptr, !widget->expanding())
+    : PanelsWidget(!widget->expanding())
 {
     addPropertiesPanel(displayName);
     addGlobalSettingsProperties(widget);
@@ -156,4 +148,4 @@ void PanelsWidget::addGlobalSettingsProperties(ProjectSettingsWidget *widget)
     m_layout->addWidget(Layouting::createHr());
 }
 
-} // ProjectExplorer
+} // ProjectExplorer::Internal
