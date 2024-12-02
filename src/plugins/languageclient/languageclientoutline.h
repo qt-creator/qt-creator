@@ -6,13 +6,9 @@
 #include "languageclient_global.h"
 
 #include <languageserverprotocol/lsptypes.h>
-#include <texteditor/ioutlinewidget.h>
 #include <utils/treemodel.h>
 
-namespace TextEditor {
-class TextDocument;
-class BaseTextEditor;
-} // namespace TextEditor
+namespace TextEditor { class BaseTextEditor; }
 namespace Utils { class TreeViewComboBox; }
 
 namespace LanguageClient {
@@ -51,19 +47,8 @@ private:
     int m_type = -1;
 };
 
-class Client;
+Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor);
 
-class LanguageClientOutlineWidgetFactory : public TextEditor::IOutlineWidgetFactory
-{
-public:
-    using IOutlineWidgetFactory::IOutlineWidgetFactory;
-
-    static Utils::TreeViewComboBox *createComboBox(Client *client, TextEditor::BaseTextEditor *editor);
-    // IOutlineWidgetFactory interface
-public:
-    bool supportsEditor(Core::IEditor *editor) const override;
-    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) override;
-    bool supportsSorting() const override { return true; }
-};
+void setupLanguageClientOutline();
 
 } // namespace LanguageClient

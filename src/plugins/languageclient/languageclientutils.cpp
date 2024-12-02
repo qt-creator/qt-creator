@@ -296,7 +296,7 @@ void updateEditorToolBar(Core::IEditor *editor)
     }
 
     if (!extras->m_client) {
-        extras->m_outline = LanguageClientOutlineWidgetFactory::createComboBox(client, textEditor);
+        extras->m_outline = createOutlineComboBox(client, textEditor);
         if (extras->m_outline) {
             widget->setToolbarOutline(extras->m_outline);
             extras->m_client = client;

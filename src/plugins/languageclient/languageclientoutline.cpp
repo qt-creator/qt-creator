@@ -10,11 +10,15 @@
 
 #include <coreplugin/editormanager/ieditor.h>
 #include <coreplugin/find/itemviewfind.h>
+
 #include <languageserverprotocol/languagefeatures.h>
+
+#include <texteditor/ioutlinewidget.h>
 #include <texteditor/outlinefactory.h>
 #include <texteditor/textdocument.h>
 #include <texteditor/texteditor.h>
 #include <texteditor/texteditortr.h>
+
 #include <utils/dropsupport.h>
 #include <utils/itemviews.h>
 #include <utils/navigationtreeview.h>
@@ -90,34 +94,30 @@ private:
     Utils::FilePath m_filePath;
 };
 
-class DragSortFilterProxyModel : public QSortFilterProxyModel
+class DragSortFilterProxyModel final : public QSortFilterProxyModel
 {
 public:
-    using QSortFilterProxyModel::QSortFilterProxyModel;
-
-    Qt::DropActions supportedDragActions() const override
+    Qt::DropActions supportedDragActions() const final
     {
         return sourceModel()->supportedDragActions();
     }
 };
 
-class LanguageClientOutlineWidget : public TextEditor::IOutlineWidget
+class LanguageClientOutlineWidget final : public TextEditor::IOutlineWidget
 {
 public:
     LanguageClientOutlineWidget(Client *client, TextEditor::BaseTextEditor *editor);
 
-    // IOutlineWidget interface
-public:
-    QList<QAction *> filterMenuActions() const override;
-    void setCursorSynchronization(bool syncWithCursor) override;
-    void setSorted(bool) override;
-    bool isSorted() const override;
-    void restoreSettings(const QVariantMap &map) override;
-    QVariantMap settings() const override;
-
-    void contextMenuEvent(QContextMenuEvent *event) override;
-
 private:
+    QList<QAction *> filterMenuActions() const final;
+    void setCursorSynchronization(bool syncWithCursor) final;
+    void setSorted(bool) final;
+    bool isSorted() const final;
+    void restoreSettings(const QVariantMap &map) final;
+    QVariantMap settings() const final;
+
+    void contextMenuEvent(QContextMenuEvent *event) final;
+
     void handleResponse(const DocumentUri &uri, const DocumentSymbolsResult &response);
     void updateTextCursor(const QModelIndex &proxyIndex);
     void updateSelectionInTree(const QTextCursor &currentCursor);
@@ -282,26 +282,6 @@ void LanguageClientOutlineWidget::onItemActivated(const QModelIndex &index)
     m_editor->widget()->setFocus();
 }
 
-bool LanguageClientOutlineWidgetFactory::supportsEditor(Core::IEditor *editor) const
-{
-    if (auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document())) {
-        if (Client *client = LanguageClientManager::clientForDocument(doc))
-            return client->supportsDocumentSymbols(doc);
-    }
-    return false;
-}
-
-TextEditor::IOutlineWidget *LanguageClientOutlineWidgetFactory::createWidget(Core::IEditor *editor)
-{
-    auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
-    QTC_ASSERT(textEditor, return nullptr);
-    if (Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument())) {
-        if (client->supportsDocumentSymbols(textEditor->textDocument()))
-            return new LanguageClientOutlineWidget(client, textEditor);
-    }
-    return nullptr;
-}
-
 class OutlineComboBox : public Utils::TreeViewComboBox
 {
 public:
@@ -321,8 +301,7 @@ private:
     const DocumentUri m_uri;
 };
 
-Utils::TreeViewComboBox *LanguageClientOutlineWidgetFactory::createComboBox(
-    Client *client, TextEditor::BaseTextEditor *editor)
+Utils::TreeViewComboBox *createOutlineComboBox(Client *client, TextEditor::BaseTextEditor *editor)
 {
     if (client && client->supportsDocumentSymbols(editor->textDocument()))
         return new OutlineComboBox(client, editor);
@@ -448,4 +427,41 @@ Qt::ItemFlags LanguageClientOutlineItem::flags(int column) const
     Q_UNUSED(column)
     return Utils::TypedTreeItem<LanguageClientOutlineItem>::flags(column) | Qt::ItemIsDragEnabled;
 }
+
+// LanguageClientOutlineWidgetFactory
+
+class LanguageClientOutlineWidgetFactory final : public TextEditor::IOutlineWidgetFactory
+{
+public:
+    using IOutlineWidgetFactory::IOutlineWidgetFactory;
+
+public:
+    bool supportsEditor(Core::IEditor *editor) const final
+    {
+        if (auto doc = qobject_cast<TextEditor::TextDocument *>(editor->document())) {
+            if (Client *client = LanguageClientManager::clientForDocument(doc))
+                return client->supportsDocumentSymbols(doc);
+        }
+        return false;
+    }
+
+    TextEditor::IOutlineWidget *createWidget(Core::IEditor *editor) final
+    {
+        auto textEditor = qobject_cast<TextEditor::BaseTextEditor *>(editor);
+        QTC_ASSERT(textEditor, return nullptr);
+        if (Client *client = LanguageClientManager::clientForDocument(textEditor->textDocument())) {
+            if (client->supportsDocumentSymbols(textEditor->textDocument()))
+                return new LanguageClientOutlineWidget(client, textEditor);
+        }
+        return nullptr;
+    }
+
+    bool supportsSorting() const final { return true; }
+};
+
+void setupLanguageClientOutline()
+{
+    static LanguageClientOutlineWidgetFactory theLanguageClientOutlineWidgetFactory;
+}
+
 } // namespace LanguageClient

@@ -36,8 +36,6 @@ private:
     void initialize() final;
     void extensionsInitialized() final;
     ShutdownFlag aboutToShutdown() final;
-
-    LanguageClientOutlineWidgetFactory m_outlineFactory;
 };
 
 void LanguageClientPlugin::initialize()
@@ -53,6 +51,7 @@ void LanguageClientPlugin::initialize()
     setupTypeHierarchyFactory();
     setupLanguageClientProjectPanel();
     setupLanguageClientManager(this);
+    setupLanguageClientOutline();
 
 #ifdef WITH_TESTS
     addTestCreator(&createSnippetParsingTest);
