@@ -228,8 +228,7 @@ void NameItemDelegate::paint(QPainter *painter,
             bool validDrop = false;
 
             if (dragType == Constants::MIME_TYPE_BUNDLE_MATERIAL) {
-                Model *model = node.model();
-                validDrop = metaInfo.isBasedOn(model->qtQuick3DModelMetaInfo());
+                validDrop = metaInfo.isBasedOn(node.model()->qtQuick3DModelMetaInfo());
             } else if (dragType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 validDrop = isValid3dTextureTarget();
             } else if (dragType == Constants::MIME_TYPE_ASSET_IMAGE
@@ -237,6 +236,8 @@ void NameItemDelegate::paint(QPainter *painter,
                 Model *model = node.model();
                 validDrop = isValid3dTextureTarget() || metaInfo.isBasedOn(model->qtQuickImageMetaInfo(),
                                                                            model->qtQuickBorderImageMetaInfo());
+            } else if (dragType == Constants::MIME_TYPE_ASSET_EFFECT) {
+                validDrop = metaInfo.isBasedOn(node.model()->qtQuickItemMetaInfo());
             } else {
                 const NodeMetaInfo dragInfo = node.model()->metaInfo(dragType);
                 ChooseFromPropertyListFilter *filter = new ChooseFromPropertyListFilter(dragInfo, metaInfo, true);

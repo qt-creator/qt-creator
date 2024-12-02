@@ -304,8 +304,7 @@ void NavigatorView::dragStarted(QMimeData *mimeData)
             auto assetTypeAndData = AssetsLibraryWidget::getAssetTypeAndData(assetsPaths[0]);
             QString assetType = assetTypeAndData.first;
             if (assetType == Constants::MIME_TYPE_ASSET_EFFECT) {
-                // We use arbitrary type name because at this time we don't have effect composer
-                // specific type
+                m_widget->setDragType(Constants::MIME_TYPE_ASSET_EFFECT);
                 m_widget->update();
             } else if (assetType == Constants::MIME_TYPE_ASSET_TEXTURE3D) {
                 m_widget->setDragType(Constants::MIME_TYPE_ASSET_TEXTURE3D);
