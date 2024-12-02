@@ -1274,8 +1274,8 @@ public:
         TextEditor::BaseTextEditor *editor = createJsonEditor(this);
         editor->document()->setContents(m_settings.json());
 
-        auto layout = new QVBoxLayout;
-        setLayout(layout);
+        auto layout = new QVBoxLayout(this);
+        layout->setContentsMargins(0, 0, 0, 0);
 
         QFormLayout *settingsLayout = nullptr;
         for (auto settings : LanguageClientSettings::pageSettings()) {
