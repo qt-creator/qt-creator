@@ -257,6 +257,13 @@ QtObject {
     readonly property int cellWidth: 200
     readonly property int cellHeight: 40
 
+    // Tab
+    readonly property int tabBarHorizontalMargin: 10
+    readonly property int tabBarSpacing: 2
+    readonly property int tabButtonHorizontalPadding: 15
+    readonly property int tabButtonVerticalPadding: 1
+
+
     // Theme Colors
 
     property bool isLightTheme: values.themeControlBackground.hsvValue > values.themeTextColor.hsvValue

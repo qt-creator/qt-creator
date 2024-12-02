@@ -344,7 +344,7 @@ void EffectShadersCodeEditor::createQmlTabs()
     m_qmlTabWidget->setClearColor(QmlDesigner::Theme::getColor(
         QmlDesigner::Theme::Color::QmlDesigner_BackgroundColorDarkAlternate));
     m_qmlTabWidget->rootContext()->setContextProperty("shaderEditor", QVariant::fromValue(this));
-    m_qmlTabWidget->setFixedHeight(43);
+    m_qmlTabWidget->setFixedHeight(37);
 }
 
 void EffectShadersCodeEditor::createQmlFooter()

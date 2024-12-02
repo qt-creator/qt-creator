@@ -18,9 +18,15 @@ Rectangle {
     RowLayout {
         id: rowLayout
 
+        property real leftMargin: StudioTheme.Values.tabBarHorizontalMargin
+
         width: parent.width
-        anchors.verticalCenter: parent.verticalCenter
-        spacing: StudioTheme.Values.controlGap
+        anchors.bottom: parent.bottom
+        spacing: StudioTheme.Values.tabBarSpacing
+
+        Item { // Empty item as a left margin
+            implicitWidth: rowLayout.leftMargin - rowLayout.spacing
+        }
 
         TabButton {
             text: qsTr("Fragment Shader")
@@ -32,7 +38,7 @@ Rectangle {
             tabId: "VERTEX"
         }
 
-        Item {
+        Item { // Spacer
             Layout.fillWidth: true
             Layout.preferredHeight: 1
         }
@@ -44,13 +50,16 @@ Rectangle {
         required property string tabId
         readonly property bool selected: rootEditor.selectedShader === tabId
 
-        Layout.preferredHeight: 40
-        Layout.preferredWidth: 120
+        Layout.alignment: Qt.AlignBottom
 
         font.pixelSize: StudioTheme.Values.mediumFont
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
-        padding: 10
+
+        leftPadding: StudioTheme.Values.tabButtonHorizontalPadding
+        rightPadding: StudioTheme.Values.tabButtonHorizontalPadding
+        topPadding: StudioTheme.Values.tabButtonVerticalPadding
+        bottomPadding: StudioTheme.Values.tabButtonVerticalPadding
 
         color: {
             if (!tabButton.enabled)
