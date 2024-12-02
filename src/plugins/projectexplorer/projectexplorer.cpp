@@ -372,10 +372,10 @@ public:
     }
 };
 
-class ProjectEnvironmentWidget : public NamedWidget
+class ProjectEnvironmentWidget : public ProjectSettingsWidget
 {
 public:
-    explicit ProjectEnvironmentWidget(Project *project) : NamedWidget(Tr::tr("Project Environment"))
+    explicit ProjectEnvironmentWidget(Project *project)
     {
         setUseGlobalSettingsCheckBoxVisible(false);
         setUseGlobalSettingsLabelVisible(false);
@@ -399,7 +399,7 @@ public:
     ProjectEnvironmentPanelFactory()
     {
         setPriority(60);
-        setDisplayName(Tr::tr("Environment"));
+        setDisplayName(Tr::tr("Project Environment"));
         setCreateWidgetFunction([](Project *project) {
             return new ProjectEnvironmentWidget(project);
         });
