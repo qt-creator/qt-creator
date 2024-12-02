@@ -5,6 +5,7 @@
 #include "tooltip.h"
 
 #include "../qtcassert.h"
+#include "../hostosinfo.h"
 
 #include <QColor>
 #include <QFontMetrics>
@@ -249,7 +250,8 @@ void WidgetTip::configure(const QPoint &pos)
     move(pos);
     m_layout->addWidget(m_widget);
     m_layout->setSizeConstraint(QLayout::SetFixedSize);
-    adjustSize();
+    if (!HostOsInfo::isMacHost()) // work around QTBUG-131479
+        adjustSize();
 }
 
 void WidgetTip::pinToolTipWidget(QWidget *parent)

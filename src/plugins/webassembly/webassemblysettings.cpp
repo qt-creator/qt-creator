@@ -70,7 +70,7 @@ WebAssemblySettings::WebAssemblySettings()
                    "or %3 version that you plan to develop against.")
                 .arg(R"(<a href="https://emscripten.org/docs/getting_started/downloads.html">Emscripten SDK</a>)")
                 .arg(R"(<a href="https://doc.qt.io/qt-5/wasm.html#install-emscripten">Qt 5</a>)")
-                .arg(R"(<a href="https://doc.qt.io/qt-6/wasm.html#install-emscripten">Qt 6</a>)"));
+                .arg(R"(<a href="https://doc.qt.io/qt-6/wasm.html#installing-emscripten">Qt 6</a>)"));
         instruction->setOpenExternalLinks(true);
         instruction->setWordWrap(true);
 

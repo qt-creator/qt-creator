@@ -273,7 +273,7 @@ public:
     const Identifier *className(ClassSpecifierAST *ast) const;
     const Identifier *identifier(NameAST *name) const;
 
-    void match(int kind, int *token);
+    bool match(int kind, int *token);
 
     bool maybeAmbiguousStatement(DeclarationStatementAST *ast, StatementAST *&node);
     bool maybeForwardOrClassDeclaration(SpecifierListAST *decl_specifier_seq) const;

@@ -490,7 +490,6 @@ public:
                 m_initializationOptions = options.as<QString>();
 
             emit optionsChanged();
-            LanguageClientManager::applySettings();
             m_isUpdatingAsyncOptions = false;
         });
 
