@@ -62,7 +62,7 @@ ColumnLayout {
                 columnSpacing: -StudioTheme.Values.border
                 rowSpacing: -StudioTheme.Values.border
                 clip: true
-                interactive: false
+                interactive: true
                 selectionMode: TableView.SingleSelection
                 selectionBehavior: TableView.SelectRows
                 selectionModel: ItemSelectionModel {}
@@ -140,7 +140,7 @@ ColumnLayout {
 
                 visible: !tableView.hideHorizontalScrollBar
 
-                show: (hoverHandler.hovered || tableView.focus || tableView.adsFocus
+                show: (hoverHandler.hovered || tableView.focus
                        || horizontalScrollBar.inUse || horizontalScrollBar.otherInUse)
                       && horizontalScrollBar.isNeeded
                 otherInUse: verticalScrollBar.inUse
@@ -158,8 +158,8 @@ ColumnLayout {
 
                 visible: !tableView.hideVerticalScrollBar
 
-                show: (hoverHandler.hovered || tableView.focus || tableView.adsFocus
-                       || horizontalScrollBar.inUse || horizontalScrollBar.otherInUse)
+                show: (hoverHandler.hovered || tableView.focus
+                       || verticalScrollBar.inUse || verticalScrollBar.otherInUse)
                       && verticalScrollBar.isNeeded
                 otherInUse: horizontalScrollBar.inUse
             }
