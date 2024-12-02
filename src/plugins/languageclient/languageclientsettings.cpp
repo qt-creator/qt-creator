@@ -596,12 +596,13 @@ Client *BaseSettings::createClient() const
 
 bool BaseSettings::isEnabledOnProject(ProjectExplorer::Project *project) const
 {
-    LanguageClient::ProjectSettings settings(project);
-    if (settings.enabledSettings().contains(m_id))
-        return true;
-    if (settings.disabledSettings().contains(m_id))
-        return false;
-
+    if (project) {
+        LanguageClient::ProjectSettings settings(project);
+        if (settings.enabledSettings().contains(m_id))
+            return true;
+        if (settings.disabledSettings().contains(m_id))
+            return false;
+    }
     return m_enabled;
 }
 
